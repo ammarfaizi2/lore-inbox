@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266349AbUGJTTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266351AbUGJTXh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266349AbUGJTTz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 15:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266351AbUGJTTz
+	id S266351AbUGJTXh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 15:23:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266352AbUGJTXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 15:19:55 -0400
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:59368 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S266349AbUGJTTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 15:19:54 -0400
-Date: Sat, 10 Jul 2004 12:19:14 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-Cc: Jan Knutar <jk-lkml@sci.fi>, L A Walsh <lkml@tlinx.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: XFS: how to NOT null files on fsck?
-Message-ID: <20040710191914.GA5471@taniwha.stupidest.org>
-References: <200407050247.53743.norberto+linux-kernel@bensa.ath.cx> <200407102143.49838.jk-lkml@sci.fi> <20040710184601.GB5014@taniwha.stupidest.org> <200407101555.27278.norberto+linux-kernel@bensa.ath.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200407101555.27278.norberto+linux-kernel@bensa.ath.cx>
+	Sat, 10 Jul 2004 15:23:37 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:12454 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S266351AbUGJTXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 15:23:35 -0400
+Message-ID: <40F0423A.3020800@namesys.com>
+Date: Sat, 10 Jul 2004 12:23:38 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Dave Jones <davej@redhat.com>, jmerkey@comcast.net,
+       Pete Harlan <harlan@artselect.com>, linux-kernel@vger.kernel.org
+Subject: Re: Ext3 File System "Too many files" with snort
+References: <070920041920.2370.40EEEFFD000B341B000009422200763704970A059D0A0306@comcast.net> <40EF797E.6060601@namesys.com> <20040710083347.GC6386@redhat.com> <40F02963.5040500@namesys.com> <20040710174432.GA18719@infradead.org> <40F02E05.8090401@namesys.com> <20040710185403.GA19329@infradead.org>
+In-Reply-To: <20040710185403.GA19329@infradead.org>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 10, 2004 at 03:55:26PM -0300, Norberto Bensa wrote:
+Christoph Hellwig wrote:
 
-> I think we all know that. The point, why the hell does it null
-> files?
+>
+>Why the heck should they waste ressources with backporting reiserfs fixes
+>if they don't support it?  If you care for reiserfs stability in RHEL send
+>them patches, that's what SGI did for XFS in Fedora Core 2.
+>
+>
+>
+>  
+>
+We were told they wouldn't take the patches.  We tried that.
 
-A decision was made somewhere this is better than showing potentially
-bogus or confidential data, so on log-reply some parts of files may be
-zeroed.  I can see arguments for an againts this and clearly for a lot
-of people the zeroing is a real pain.
+Hey, I don't want to waste linux-kernel bandwidth on this.  My dislike 
+of market leveraging is well known and not very interesting to people 
+anymore I think.
 
-It would be nice for some people to prevent log-replay zeroing files
-but then something would have to be able to determine whether or not
-these blocks were newly allocated (and this might contain confidential
-data and need to be zeroed) or previously part of the file in which
-case we probably would like them left alone.
-
-I don't know any of the code well enough to know how easy this is or
-even if I'm telling the truth :) Hopefully someone who does can speak
-up on this.
-
-
-  --cw
+Hans

@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272893AbRIGW7V>; Fri, 7 Sep 2001 18:59:21 -0400
+	id <S272899AbRIGXN3>; Fri, 7 Sep 2001 19:13:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272895AbRIGW7K>; Fri, 7 Sep 2001 18:59:10 -0400
-Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:22278 "EHLO
-	boris.prodako.se") by vger.kernel.org with ESMTP id <S272893AbRIGW7F>;
-	Fri, 7 Sep 2001 18:59:05 -0400
-Date: Sat, 8 Sep 2001 00:59:24 +0200 (CEST)
-From: Tobias Ringstrom <tori@ringstrom.mine.nu>
-X-X-Sender: <tori@boris.prodako.se>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Dropped packets with the newest tulip driver due to FIFO overflow
-Message-ID: <Pine.LNX.4.33.0109080040060.31881-100000@boris.prodako.se>
+	id <S272900AbRIGXNR>; Fri, 7 Sep 2001 19:13:17 -0400
+Received: from web11304.mail.yahoo.com ([216.136.131.207]:35600 "HELO
+	web11304.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S272899AbRIGXNP>; Fri, 7 Sep 2001 19:13:15 -0400
+Message-ID: <20010907231336.7321.qmail@web11304.mail.yahoo.com>
+Date: Fri, 7 Sep 2001 16:13:36 -0700 (PDT)
+From: Alex Deucher <agd5f@yahoo.com>
+Subject: Re: Toshiba IDE DMA support
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alex Deucher <agd5f@yahoo.com>
+Cc: linux-on-portege@yahoogroups.com, linux-kernel@vger.kernel.org
+In-Reply-To: <E15fTtL-0002fl-00@the-village.bc.nu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Jeff, LKML!
+I'll try and take a look at the code in the kernel
+this weekend if I get a chance, however, This is not a
+PCI IDE controller (at least it doesn't show up with
+lspci).  I don't know if that makes a difference or
+not.
 
-With the newest tulip driver (1.1.8 or the one in linux-2.4.9), I'm
-getting extremely bad receive performance, with around 30-90% of all
-received packets beeing mysteriously and silently dropped.  This on a
-Cardbus DC21143, which works very well with "all" previous versions.
-(...and it's not a duplex issue, trust me...)
+Alex
 
-After some head-scratching, I traced the packet loss to receive FIFO
-overflows.  The missing packets are accounted for in CSR8<27:17>, which is
-the FIFO overflow counter.  The driver does not read this counter for some
-reason, and that's why the packets are silently dropped.  FIFO errors are
-what you get if the DMA to memory is not happening fast enough.  It is not
-obvious to me why the changes in the driver caused this, but I do have
-some ideas to try tomorrow, after some sleep.  I find it strange that the
-packet loss is so extreme, though.
 
-I'm writing this to verify that this is not a known problem, to make sure
-I'm not wasting my time.
+--- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > capable of DMA, but at the moment do not have it
+> > implemented.  I know nothing about programming IDE
+> > drivers, so if anyone is interested in developing
+> 
+> If they follow the standard model you should actully
+> have very little
+> code to write.
+> 
+> Alan
 
-Any ideas or comments?
 
-/Tobias
-
+__________________________________________________
+Do You Yahoo!?
+Get email alerts & NEW webcam video instant messaging with Yahoo! Messenger
+http://im.yahoo.com

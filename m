@@ -1,72 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266916AbSKKS3M>; Mon, 11 Nov 2002 13:29:12 -0500
+	id <S265936AbSKKSX1>; Mon, 11 Nov 2002 13:23:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266917AbSKKS3M>; Mon, 11 Nov 2002 13:29:12 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:43510 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S266916AbSKKS3K>;
-	Mon, 11 Nov 2002 13:29:10 -0500
-Message-ID: <002e01c289b1$2c83b140$77d40a0a@amr.corp.intel.com>
-From: "Rusty Lynch" <rusty@linux.co.intel.com>
-To: <vamsi@in.ibm.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <200211082100.gA8L0Q515460@linux.intel.com> <20021111133548.A16731@in.ibm.com>
-Subject: Re: Multiple kprobes per address
-Date: Mon, 11 Nov 2002 10:35:56 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S266880AbSKKSX1>; Mon, 11 Nov 2002 13:23:27 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:58636 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S265936AbSKKSXZ>; Mon, 11 Nov 2002 13:23:25 -0500
+Message-Id: <200211111830.gABIU5519529@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NCR53C9x ESP: C99 designated initializers
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 11 Nov 2002 13:30:03 -0500
+From: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was really only concerned with multiple consumers of kprobes.  So if
-I were to create some tool that used kpobes to hook into the kernel, and
-someone else were to create another tool that solved a different problem
-but also used kprobes then the two tools wouldn't play nice with each other.
+On 11 Nov 2002, Alan Cox wrote:
+> 
+> The stupid thing is we take the lock then call the eh function then drop
+> it. You can drop the lock, wait and retake it. I need to fix a couple of
+> other drivers to do a proper wait and in much the same way.
 
-    -rustyl
+I agree.  You can simply drop the lock with no adverse consequences.
 
------ Original Message -----
-From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
-To: "Rusty Lynch" <rusty@linux.co.intel.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Monday, November 11, 2002 12:05 AM
-Subject: Re: Multiple kprobes per address
+torvalds@transmeta.com wrote:
+> Hmm.. I wonder if the thing should disable the queue (plug it) and
+> release  the lock before calling reset. I assume we don't want any new
+> requests at  this point anyway, and having the low-level drivers know
+> about stopping  the queue etc sounds like a bad idea..
 
+The queue doesn't need plugging, because only the error handler is a consumer 
+of this function (which stops the queue as it begins and  restarts the queue 
+on exit).  As Alan said, the lock stuff is a bit daft since the whole reason 
+the new eh came into being was to do this from a kernel thread so you could 
+sleep...
 
-> Hi,
->
-> On Fri, Nov 08, 2002 at 01:00:26PM -0800, Rusty Lynch wrote:
-> > I noticed that kprobes is designed around the idea of only allowing
-> > a single probe point per probe address.  Why not allow multiple probe
-> > points for a given probe address?  Is it a way of limiting complexity?
-> >
-> We didn't think it would be useful and conceptually, it is simpler to
-> think of one probe at an address.
->
-> > It looks like it would be fairly straight forward to change
-get_kprobe(addr)
-> > to be get_kprobes(addr) where it returns a list of probe points
-associated
-> > with the address, and then tweak do_int3 to work through the entire
-list.
-> > Would such a change be acceptable?
-> >
-> It will be trivial to add this, but why? Is there a good reason
-> for wanting to do this (multiple kprobes at same address) as opposed
-> to doing all you want done on a probe hit in a single handler?
->
-> Regards,
-> Vamsi.
-> --
-> Vamsi Krishna S.
-> Linux Technology Center,
-> IBM Software Lab, Bangalore.
-> Ph: +91 80 5044959
-> Internet: vamsi@in.ibm.com
+arjanv@redhat.com said:
+> something similar is needed in the scsi layer for other reasons too; I
+> can imagine something that behaves similar as the network layer's
+> netif_stop_queue() and allows drivers to inform the upper layer to
+> stop trying to submit requests to the lower level driver. Fiber
+> channel drivers can do this for example on LIP down (and enable again
+> on LIP up). LIP is not the only reason this is useful; overall I
+> estimate that over half of the code in the (out of tree) qlogic 2x00
+> driver can be removed if this functionality was available.
+
+The API exists (scsi_block_requests, scsi_unblock_requests).  It was 
+previously never really used because calling block_requests with no commands 
+outstanding hung the driver.  However, this problem has been fixed.
+
+The one thing this API doesn't do is stop timers on the outstanding commands, 
+but that could be done too, probably by a flag passed in.
+
+James
+
 

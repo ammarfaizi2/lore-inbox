@@ -1,39 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314083AbSHFRVM>; Tue, 6 Aug 2002 13:21:12 -0400
+	id <S314277AbSHFRUD>; Tue, 6 Aug 2002 13:20:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314096AbSHFRVM>; Tue, 6 Aug 2002 13:21:12 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:40186 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S314083AbSHFRVL>;
-	Tue, 6 Aug 2002 13:21:11 -0400
-Date: Tue, 6 Aug 2002 10:24:38 -0700
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.4.20-pre1
-Message-ID: <20020806172437.GD11313@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20020806171736.GC11313@bougret.hpl.hp.com> <Pine.LNX.4.44.0208061331260.7534-100000@freak.distro.conectiva>
-Mime-Version: 1.0
+	id <S314278AbSHFRUC>; Tue, 6 Aug 2002 13:20:02 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:63220 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S314277AbSHFRUB>;
+	Tue, 6 Aug 2002 13:20:01 -0400
+Message-ID: <3D500607.78A11BFD@mvista.com>
+Date: Tue, 06 Aug 2002 10:23:19 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "Zeuner, Axel" <Axel.Zeuner@partner.commerzbank.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Thread group exit
+References: <A1081E14241CD4119D2B00508BCF80410843F27D@SV021558> <1028544328.17780.18.camel@irongate.swansea.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208061331260.7534-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 06, 2002 at 01:31:56PM -0300, Marcelo Tosatti wrote:
+Alan Cox wrote:
 > 
-> > 	I'll send you the Wireless patches, and I'll try to respin the
-> > IrDA patches this afternoon (i.e. please screw me again !).
+> On Mon, 2002-08-05 at 09:58, Zeuner, Axel wrote:
+> > I would expect, that changes of the parent of one member of the thread group
+> > do not affect the interactions between the members of the group.
+> > Corrections are welcome.
+> > (Please cc mails to me, I read only the archives of the
+> > linux-kernel list.)
 > 
-> I can back out those patches if you want. Will that help you?
+> I agree with your diagnosis I'm not convinced by your change. The thread
+> groups are only used by NGPT not by glibc pthreads while the problem is
+> true across both.
 
-	No point in going backward, what's done is done, I'm already
-working on 2.4.20-pre1. And I'm starting to cool down.
+Have the glibc folks decided NOT to move to thread groups? 
+I sort of expected that they were just taking their time,
+but would eventually move.
 
-	Jean
+-g
+> 
+> Possibly the right fix is to remove the reparent to init increment of
+> self_exec_id and instead explicitly check process 1 in the signal paths.
+> 
+> Opinions ?
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

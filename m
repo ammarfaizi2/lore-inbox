@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267310AbTB1Ajd>; Thu, 27 Feb 2003 19:39:33 -0500
+	id <S267354AbTB1Aw3>; Thu, 27 Feb 2003 19:52:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267346AbTB1Ajd>; Thu, 27 Feb 2003 19:39:33 -0500
-Received: from packet.digeo.com ([12.110.80.53]:49547 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267310AbTB1Ajd>;
-	Thu, 27 Feb 2003 19:39:33 -0500
-Date: Thu, 27 Feb 2003 16:46:22 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, piggin@cyberone.com.au
-Subject: Re: 2.5.63-mm1
-Message-Id: <20030227164622.032d2ab8.akpm@digeo.com>
-In-Reply-To: <200302271917.10139.tomlins@cam.org>
-References: <20030227025900.1205425a.akpm@digeo.com>
-	<200302271917.10139.tomlins@cam.org>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
+	id <S267384AbTB1Aw3>; Thu, 27 Feb 2003 19:52:29 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61703 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267354AbTB1Aw2>; Thu, 27 Feb 2003 19:52:28 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Is the GIO_FONT ioctl() busted in Linux kernel 2.4?
+Date: 27 Feb 2003 17:02:29 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b3mcf5$629$1@cesium.transmeta.com>
+References: <3E5DDE8D.14024.6FCE7D82@localhost> <3E5DE0FC.29370.6FD7FC8B@localhost>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Feb 2003 00:49:46.0394 (UTC) FILETIME=[4A284FA0:01C2DEC3]
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Tomlinson <tomlins@cam.org> wrote:
+Followup to:  <3E5DE0FC.29370.6FD7FC8B@localhost>
+By author:    "Kendall Bennett" <KendallB@scitechsoft.com>
+In newsgroup: linux.dev.kernel
 >
-> On February 27, 2003 05:59 am, Andrew Morton wrote:
-> > . Tons of changes to the anticipatory scheduler.  It may not be working
-> >   very well at present.  Please use "elevator=deadline" if it causes
-> >   problems.
+> "Kendall Bennett" <KendallB@scitechsoft.com> wrote:
 > 
-> The anticipatory scheduler hangs here at the same place it did in 62-mm2,
-> cfq continues to work fine.  A sysrq+T of the hang follows:
+> > From looking at the 2.4 kernel source code that comes with Red
+> > Hat 8.0, it is clear that these functions are implemented on top
+> > of a new console font interface that supports 512 characters and
+> > up to 32x32 pixel fonts (obviously for fb consoles). 
+> 
+> Yep, after further investigation the problem is that the VGA console is 
+> configured to run with 512 characters, yet the 'old' interface code is 
+> trying to save/restore only 256 characters so it fails. It could be fixed 
+> if it was changed to save/restore 512 characters, but I don't know if 
+> that will break old code (it won't break mine as I always uses a 64K 
+> buffer to save/restore the font tables).
+> 
 
-I must say, Ed: you have an eerie ability to break stuff.
+It will break old code.  That's why you've been supposed to use
+GIO_FONTX (and GIO_UNISCRNMAP) since the 1.3.1 kernel days (which is
+when 512-character support was introduced.)
 
-Please send me your .config.
+You're *way* behind the times.
 
->                          free                        sibling
->   task             PC    stack   pid father child younger older
-> swapper       D DFF8FB20 11876     1      0     2               (L-TLB)
+man 4 console_ioctl
 
-Interesting amount of free stack you have there.  You broke show_task() too!
-
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: cris ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

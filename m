@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279950AbRKRSHt>; Sun, 18 Nov 2001 13:07:49 -0500
+	id <S279984AbRKRSJJ>; Sun, 18 Nov 2001 13:09:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279951AbRKRSHj>; Sun, 18 Nov 2001 13:07:39 -0500
-Received: from pop.gmx.de ([213.165.64.20]:57011 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S279950AbRKRSHb>;
-	Sun, 18 Nov 2001 13:07:31 -0500
-Message-ID: <3BF7E137.5090902@gmx.de>
-Date: Sun, 18 Nov 2001 17:26:31 +0100
-From: Daniel =?ISO-8859-1?Q?Schr=F6ter?= <d.schroeter@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011115
-X-Accept-Language: de, en
+	id <S279981AbRKRSIw>; Sun, 18 Nov 2001 13:08:52 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:27892 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S279952AbRKRSIi>;
+	Sun, 18 Nov 2001 13:08:38 -0500
+Date: Sun, 18 Nov 2001 13:08:37 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Urban Widmark <urban@teststation.com>
+cc: Sven Vermeulen <sven.vermeulen@rug.ac.be>,
+        Linux-Kernel Development Mailinglist 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: /sbin/mount and /proc/mounts difference
+In-Reply-To: <Pine.LNX.4.30.0111181401140.13487-100000@cola.teststation.com>
+Message-ID: <Pine.GSO.4.21.0111181304361.15361-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Pressing no Key on Keyboard --> Linux hangs if switching of the monitor
-In-Reply-To: <3BF23873.4020902@gmx.de> <3BF42798.1050204@gmx.de> <20011116103028.A38@toy.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
 
-> turn on/off apm?
 
-Okay I turned off apm and the system doesn't crash with 2.4.15-pre4. But 
-the 2.4.9 version worked fine *with* apm support.
+On Sun, 18 Nov 2001, Urban Widmark wrote:
 
-ps: Please CC me.
+> On Sun, 18 Nov 2001, Sven Vermeulen wrote:
 
+> I don't know if there are any plans to change that. Wouldn't be difficult
+> to add something to super_operations.
+> 
+> fs/namespace.c:
+> 	show_vfsmnt
+> 	show_nfs_mount
+
+Well, now that's easy to do.  With the old code (FVO "old" equal to
+2.4.15-pre2) you would end up with mind-boggling amount of buffer
+overruns _and_ ugly code in filesystems.
+
+I would rather start messing with that area with cleaning up mount
+options' parsers - I've got a patch that does it, it just needs to
+be ported to recent trees.
 

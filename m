@@ -1,86 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278302AbRJ1NHc>; Sun, 28 Oct 2001 08:07:32 -0500
+	id <S278309AbRJ1NLc>; Sun, 28 Oct 2001 08:11:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278309AbRJ1NHX>; Sun, 28 Oct 2001 08:07:23 -0500
-Received: from alfa.nre.vic.gov.au ([203.11.140.30]:52203 "EHLO
-	majordomo.nre.vic.gov.au") by vger.kernel.org with ESMTP
-	id <S278302AbRJ1NHL>; Sun, 28 Oct 2001 08:07:11 -0500
-From: Steve.Batson@nre.vic.gov.au
-X-Lotus-FromDomain: NRE
-To: linux-kernel@vger.kernel.org
-Message-ID: <4A256AF3.004D9CC0.00@ctln06.nre.vic.gov.au>
-Date: Mon, 29 Oct 2001 00:08:52 +1000
-Subject: Re: Any stable 2.4 kernel?
+	id <S278320AbRJ1NLW>; Sun, 28 Oct 2001 08:11:22 -0500
+Received: from robin.mail.pas.earthlink.net ([207.217.120.65]:18593 "EHLO
+	robin.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S278316AbRJ1NLH>; Sun, 28 Oct 2001 08:11:07 -0500
+Date: Sun, 28 Oct 2001 08:13:32 -0500
+To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
+Subject: VM test on 2.4.14-pre3aa1 (compared to 2.4.14-pre3)
+Message-ID: <20011028081332.A302@earthlink.net>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Summary:  2.4.14-pre3aa1 takes more wall time for
+	tests.  Audio sounds closer to the "edge",
+	I.E more likely to skitter or skip.
+
+Test:	Run "mtest01 -w 80" and mmap001 from LTP.
+	Listen to long mp3 sampled at 128k.
+	Light console irc client and lynx use.
 
 
-I've also had some problems finding a stable 2.4 kernel.
+2.4.14-pre3aa1
 
-I admin' a few machines, one of which is a DELL Poweredge 6300
-(4x Xeon 550, 4GB RAM, 5GB swap, aic7xxx) that is mainly used for
-heavy statistical analysis of gene sequences.
+About 2-3 seconds of sound skitter when typing
+a URL in lynx or something in irc client. 
 
-Some of these jobs run at 1.8GB/process.
+Averages for 10 mtest01 runs
+bytes allocated:                    1246232576
+User time (seconds):                2.105
+System time (seconds):              2.773
+Elapsed (wall clock) time:          59.503
+Percent of CPU this job got:        7.80
+Major (requiring I/O) page faults:  132.8
+Minor (reclaiming a frame) faults:  305043.1
 
-I'm running RH7.1 and (was running) 2.4.3-12 kernel.
+About 2-3 seconds of sound drop on mmap001 for
+2.4.14-pre3aa1. 
 
-The strange thing was, no matter how loaded the machine, no swap
-was ever used (??). We started to get a severe shortage of resources
-during backups with the message:
-
-mm: critical shortage of bounce buffers (from highmem.c)
-(I/O exhausting low memory)
-
-The machine would eventually become so unresponsive that a hard reset was
-the only option.
-
-I've just upgraded to kernel 2.4.12 and swap is now being used :)
-Stability has been good, even under extreme loads (test was: 3x 1.8GB processes
-while doing a backup).
-
-I find it strange that RH latest updated kernel is 2.4.9 but the vm problems
-were not fixed until 2.4.10.
-
-Any feedback on these issues is very welcome.
-
-------------------------------------------
-
-Steve Batson
-System Administrator
-Victorian Institute of Animal Science
-Victoria, Australia
-Email: steve.batson@nre.vic.gov.au
-
-------------------------------------------
-
-
-> From: Igor Mozetic <igor.mozetic@uni-mb.si>
-> Date:   Sat, 27 Oct 2001 11:48:25 +0200
-> To: linux-kernel@vger.kernel.org
-> Subject: Any stable 2.4 kernel?
->
-> I wonder if anybody has found a stable kernel for the following
-> hardware: C440GX+, dual Xeon 550, 2GB RAM, 1GB swap, aic7xxx.
-> Usage pattern is load > 2, highmem, not much I/O (maybe swap?).
-> Some of our jobs take weeks, so stable means months between reboots.
->
-> I found anything beyond 2.4.10 useless - lockups after a few days.
-> Currently I run 2.4.3 with varying degree of success - initial lifespan
-> was 4 months, but last reincarnation survived for 3 weeks only.
->
-> Any recommendation for 2.4 or should I consider going back to 2.2 ?
-> I don't need any fancy features (apart to SMP and highmem),
-> only stability is important.
->
-> -Igor Mozetic
+Average for 5 mmap001 runs
+bytes allocated:                    2048000000
+User time (seconds):                19.660
+System time (seconds):              16.272
+Elapsed (wall clock seconds) time:  287.13
+Percent of CPU this job got:        12.00
+Major (requiring I/O) page faults:  500168.0
+Minor (reclaiming a frame) faults:  38.8
 
 
 
+2.4.14-pre3
+
+Same two tests on 2.4.14-pre3 for comparison:
+
+Averages for 10 mtest01 runs
+bytes allocated:                    1233859379
+User time (seconds):                2.034
+System time (seconds):              3.036
+Elapsed (wall clock) time:          30.517
+Percent of CPU this job got:        16.10
+Major (requiring I/O) page faults:  107.0
+Minor (reclaiming a frame) faults:  302029.3
+
+Average for 5 mmap001 runs
+bytes allocated:                    2048000000
+User time (seconds):                19.578
+System time (seconds):              17.388
+Elapsed (wall clock seconds) time:  171.45
+Percent of CPU this job got:        21.20
+Major (requiring I/O) page faults:  500158.8
+Minor (reclaiming a frame) faults:  41.4
+
+-- 
+Randy Hron
 

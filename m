@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268529AbTBOEtk>; Fri, 14 Feb 2003 23:49:40 -0500
+	id <S268535AbTBOEvD>; Fri, 14 Feb 2003 23:51:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268533AbTBOEtk>; Fri, 14 Feb 2003 23:49:40 -0500
-Received: from mailsrv.otenet.gr ([195.170.0.5]:2636 "EHLO mailsrv.otenet.gr")
-	by vger.kernel.org with ESMTP id <S268529AbTBOEtj>;
-	Fri, 14 Feb 2003 23:49:39 -0500
-From: Aggelos Economopoulos <aoiko@cc.ece.ntua.gr>
-Reply-To: aoiko@cc.ece.ntua.gr
-To: Jamie Lokier <jamie@shareable.org>, Larry McVoy <lm@bitmover.com>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: openbkweb-0.0
-Date: Sat, 15 Feb 2003 07:00:36 +0200
-User-Agent: KMail/1.5
-References: <1045273835.2961.0.camel@irongate.swansea.linux.org.uk> <20030215024102.GA23918@work.bitmover.com> <20030215031157.GA5250@bjl1.jlokier.co.uk>
-In-Reply-To: <20030215031157.GA5250@bjl1.jlokier.co.uk>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200302150658.15080.aoiko@cc.ece.ntua.gr>
-Content-Type: text/plain;
-  charset="us-ascii"
+	id <S268536AbTBOEvD>; Fri, 14 Feb 2003 23:51:03 -0500
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:32204 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S268535AbTBOEvC>; Fri, 14 Feb 2003 23:51:02 -0500
+Subject: Re: Synchronous signal delivery..
+From: Keith Adamson <keith.adamson@attbi.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0302141554120.1296-100000@penguin.transmeta.com>
+References: <Pine.LNX.4.44.0302141554120.1296-100000@penguin.transmeta.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 15 Feb 2003 00:04:18 -0500
+Message-Id: <1045285459.24460.97.camel@x1-6-00-d0-70-00-74-d1>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 15 February 2003 05:11, Jamie Lokier wrote:
-[...]
-> [ Note that I won't agree to refrain from reverse engineering the
->   network protocol, as the price of using BK for free.
->
->   Chances are I'll never bother, but it's not something I'd willingly
->   agree to not do, because I prefer to be not allowed to use BK than to
->   be effectively bound by an eternal NDA. ]
-
-What makes you think the licence is something like an _eternal_ NDA?
-
-Larry, I've used bitkeeper for a few months to pull linus's and rik's trees 
-and export them for my own use until about a month ago. I've also tried 
-using it in a single user repository for contest (the benchmark).
-
-Last week, feeling tempted to dig into arch, I removed all the files from 
-the bitkeeper installation and I did a search-and-unlink of BitKeeper 
-directories, just in case.
-
-Do you intend to sue me if I ever submit a patch for cvs/subversion/whatever 
-(arch kind of sucks:-) or if I feel like starting my own scm project? (while 
-I think this would be ridiculous I'm not trying to bash you here, it's an 
-honest question regarding Jamie's comment above)
-
-Aggelos
+On Fri, 2003-02-14 at 20:03, Linus Torvalds wrote:
+> Could we extend that to bind "other" timers to the sigfd()? Yes. And maybe 
+> we could make it easier in general to "bind" events to the fd, instead of 
+> having the coupling be static (ie right now it's a static coupling at 
+> "sigfd()" call time, it could be split up into a "create descriptor" and 
+> "bind descriptor" thing).
+> 
+How about in the reverse ... being able to have multiple
+processes able to dynamically connect to a single existing sigfd 
+and listen for a signal?  You said that you want to reserve write()
+for sending signals through the sigfd.  If you implement the 
+write(sigfd, ...) then this seems to provide a very nice writer/reader
+signal deliver interface with well defined end points for the sender 
+and receivers.  Or maybe I'm just confused.
 
 

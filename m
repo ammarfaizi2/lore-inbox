@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263775AbUDOStH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 14:49:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263594AbUDOSq1
+	id S263682AbUDOSw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 14:52:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUDOSwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 14:46:27 -0400
-Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:36022 "EHLO
-	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S263089AbUDOSmp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 14:42:45 -0400
-Date: Thu, 15 Apr 2004 13:42:09 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Hugh Dickins <hugh@veritas.com>, "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>,
-       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
-Message-ID: <184380000.1082054529@[10.1.1.4]>
-In-Reply-To: <Pine.LNX.4.44.0404151842530.9612-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0404151842530.9612-100000@localhost.localdomain>
-X-Mailer: Mulberry/3.0.3 (Linux/x86)
+	Thu, 15 Apr 2004 14:52:49 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:17856 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S263142AbUDOSu6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 14:50:58 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Colin Leroy <colin@colino.net>, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] 2.6.6-rc1: cdc-acm still (differently) broken
+Date: Thu, 15 Apr 2004 20:50:53 +0200
+User-Agent: KMail/1.5.1
+Cc: linux-usb-devel@lists.sourceforge.net
+References: <20040415201117.11524f63@jack.colino.net>
+In-Reply-To: <20040415201117.11524f63@jack.colino.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200404152050.53251.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Donnerstag, 15. April 2004 20:11 schrieb Colin Leroy:
+> Hi,
+>
+> cdc-acm was broken since after 2.6.4, due to the alt_cursetting changes. I
+> sent a patch, which has been integrated (well, the same one has ;-)) not
+> long ago. I gave 2.6.6-rc1 a try, and found that cdc-acm is now broken is a
+> new way: when plugging the phone, acm_probe() fails on interface #0; I
+> traced the problem to this: usb_interface_claimed() returns true - and in
+> fact intf->dev.driver is already cdc-acm (despite the fact that this is the
+> first call to acm_probe() !), for reasons beyond my comprehension.
+>
+> But, even if the interface is claimed, the intfdata hasn't been set, which
+> allows to do another check: the attached patch fixes this bug.
 
---On Thursday, April 15, 2004 18:50:42 +0100 Hugh Dickins
-<hugh@veritas.com> wrote:
+But somebody else may have claimed the interface. You can't simply
+assume that only cdc-acm will take the device.
 
-> Though I have to admit I'm sceptical: prio_tree appears to be well
-> designed for the issue in question, list-of-lists sounds, well,
-> no offence, but a bit of a hack.
-
-It is a bit of a hack, but the theory behind it is fairly simple.  It came
-out of my early efforts to sort the list. Martin and I produced a theory
-that many vmas have identical start and end addresses due to fork and/or
-fixed address mappings.  If this theory is true list-of-lists will create a
-much shorter top-level list of unique start-end pairs for searching.  We'd
-only need to walk the second level list when we get a match to the search.
-
-It never got any serious exposure or testing.  It came out just as
-everyone's attention shifted away from objrmap so no one really looked at
-it.
-
-Dave McCracken
+	Regards
+		Oliver
 

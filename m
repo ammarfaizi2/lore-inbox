@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262234AbULQXvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262232AbULQXvE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262234AbULQXvH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 18:51:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262235AbULQXvH
+	id S262232AbULQXvE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 18:51:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262235AbULQXvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 18:51:07 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:39904 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262234AbULQXvB (ORCPT
+	Fri, 17 Dec 2004 18:51:03 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:46537 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262232AbULQXvA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 18:51:01 -0500
-Date: Fri, 17 Dec 2004 15:43:31 -0800
+	Fri, 17 Dec 2004 18:51:00 -0500
+Date: Fri, 17 Dec 2004 15:48:54 -0800
 From: Greg KH <greg@kroah.com>
-To: "Maciej W. Rozycki" <macro@mips.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Maciej W. Rozycki" <macro@linux-mips.org>
-Subject: Re: [PATCH] PCI early fixup missing bits
-Message-ID: <20041217234331.GB24350@kroah.com>
-References: <Pine.LNX.4.61.0412152359360.14855@perivale.mips.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Al Hooton <al@hootons.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ioctl assignment strategy?
+Message-ID: <20041217234854.GA24506@kroah.com>
+References: <1103067067.2826.92.camel@chatsworth.hootons.org> <20041215004620.GA15850@kroah.com> <41C04FFA.6010407@nortelnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0412152359360.14855@perivale.mips.com>
+In-Reply-To: <41C04FFA.6010407@nortelnetworks.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 16, 2004 at 12:25:42AM +0000, Maciej W. Rozycki wrote:
-> Hello,
+On Wed, Dec 15, 2004 at 08:53:46AM -0600, Chris Friesen wrote:
+> Greg KH wrote:
 > 
->  A few bits seem to be missing for PCI early fixup to work -- the 
-> pci_fixup_device() helper ignores fixups of the pci_fixup_early type.  
-> Also the local class variable needs to be refreshed after performing the 
-> fixups for they can change dev->class.
+> >Minor one coming, why do you want to use an ioctl?  ioctls are generally
+> >frowned upon these days, and trying to add a new one is a tough and
+> >arduous process, that is not for the weak, or faint of heart.
 > 
->  The patch should be obvious.  Checked against 2.6.10-rc3-bk9.  Please 
-> apply.
+> Just curious--what other options would you suggest for arbitrary char 
+> devices to allow for control that doesn't fit nicely into the read/write 
+> paradigm?
 
-Doh, nice fix.  I've applied it to my trees, will show up in the next
--mm.
+Rethink the way you want to control your device.  Seriously, a lot of
+ioctls can be broken down into single device files, single sysfs files,
+or other such things (a whole new fs as a last resort too.)
+
+So, what does your ioctls do?
 
 thanks,
 

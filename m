@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317433AbSGVO0q>; Mon, 22 Jul 2002 10:26:46 -0400
+	id <S317434AbSGVO2c>; Mon, 22 Jul 2002 10:28:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317434AbSGVO0p>; Mon, 22 Jul 2002 10:26:45 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:38047 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S317433AbSGVO0l>;
-	Mon, 22 Jul 2002 10:26:41 -0400
-Date: Mon, 22 Jul 2002 16:28:07 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: martin@dalecki.de, Christoph Hellwig <hch@lst.de>,
-       Linus Torvalds <torvalds@transmeta.com>, Robert Love <rml@tech9.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] cli()/sti() cleanup, 2.5.27-A2
-In-Reply-To: <20020722152750.G2838@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0207221627200.10733-100000@localhost.localdomain>
+	id <S317450AbSGVO2b>; Mon, 22 Jul 2002 10:28:31 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:12427 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S317434AbSGVO2a>; Mon, 22 Jul 2002 10:28:30 -0400
+Date: Mon, 22 Jul 2002 09:31:33 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: Miles Lane <miles@megapathdsl.net>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.27 -- memory.c:50:22: asm/rmap.h: No such file or directory
+In-Reply-To: <20020721053902.GA13191@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.44.0207220929170.28150-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 21 Jul 2002, Tomas Szepe wrote:
 
-On Mon, 22 Jul 2002, Russell King wrote:
+> > Hmm.  Sorry for the noise.  I think made a backup
+> > of 2.5 without running "make mrproper" first.
+> 
+> Your report is actually helpful, not so much to Rik, though. According
+> to Kai Germaschewski (Subject: Re: piggy broken in 2.5.24 build, Date:
+> Sat, 22 Jun 2002), "For the current kbuild, you should never need to do
+> make mrproper, it  should always recognize changes and rebuild what's
+> necessary."
+> 
+> Well, what's the problem, Kai?
 
-> If "other means" means knowing that its located in a certain place on
-> the stack, that's actually bogus.  Any user space task started via exec
-> from a kernel thread has extra junk on the kernel stack.  Been there
-> already. ;(
+Since I don't have my crystal ball with me, it's really hard to tell. On 
+a wild guess, when he backed up his kernel he converted his include/asm 
+symlink into a real directory, which then makes "rm include/asm" fail for 
+obvious reasons.
 
-no, i've added it to the irq descriptor structure, where it can be
-accessed in normal ways by the driver. [the stack position thing doesnt
-fly with vm86 tasks either.]
+--Kai
 
-	Ingo
 

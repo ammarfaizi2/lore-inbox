@@ -1,77 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263620AbUAHDDf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 22:03:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263618AbUAHDDe
+	id S263545AbUAHDAY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 22:00:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263564AbUAHDAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 22:03:34 -0500
-Received: from h80ad2593.async.vt.edu ([128.173.37.147]:28800 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263605AbUAHDDb (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 22:03:31 -0500
-Message-Id: <200401072038.i07KcDwL017059@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Richard Troth <rtroth@bmc.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: removable media revalidation - udev vs. devfs or static /dev 
-In-Reply-To: Your message of "Wed, 07 Jan 2004 14:25:44 CST."
-             <Pine.LNX.4.53.0401071418300.7097@rmt-desk.bmc.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <200401012333.04930.arvidjaar@mail.ru> <20040103055847.GC5306@kroah.com> <Pine.LNX.4.58.0401071036560.12602@home.osdl.org> <20040107185656.GB31827@kroah.com> <Pine.LNX.4.58.0401071123490.12602@home.osdl.org> <20040107195032.GB823@kroah.com>
-            <Pine.LNX.4.53.0401071418300.7097@rmt-desk.bmc.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1099027620P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 07 Jan 2004 15:38:13 -0500
+	Wed, 7 Jan 2004 22:00:24 -0500
+Received: from mxfep02.bredband.com ([195.54.107.73]:53199 "EHLO
+	mxfep02.bredband.com") by vger.kernel.org with ESMTP
+	id S263545AbUAHDAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 22:00:19 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Machine check on Alpha
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: Thu, 08 Jan 2004 04:00:17 +0100
+Message-ID: <yw1xad4z87r2.fsf@ford.guide>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1099027620P
-Content-Type: text/plain; charset=us-ascii
 
-On Wed, 07 Jan 2004 14:25:44 CST, Richard Troth said:
+My Alpha SX164 suddenly printed this on the console:
 
-> Consider the long-range ramifications
-> if a device can also be a directory,  just "magically".
-> I'm not going to automatically diss the idea  (other than my
-> natural reaction above)  but please consider beyond the immediate hack.
+CIA machine check: vector=0x670 pc=0xfffffc0000351b78 code=0x98
+machine check type: processor detected hard error
+Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
 
-If it's so ugly, why do Solaris and Irix not have a problem in making a
-device graph that looks somewhat like that as well?  The idea is *not*
-so crazy as to discard out-of-hand.  Perhaps what you need is:
+Does anyone know what this particular machine check means?
 
-/dev/hda/disk  whole-disk access
-/dev/hda/0     partition 0
-/dev/hda/1     partition 1
-... etc
+A little while earlier, this oops appeared.  I didn't have time to
+run ksymoops.
 
-> It reminds me of AIX from the days when it ran on PCs.
-> They had this neat trick of  "hidden directories"  (for a different
-> purpose).   It looked like an executable,  but really was a
-> directory containing multiple executables for various platforms.
-> (This version of AIX also ran on the mainframe, AIX/386 and AIX/370.)
-> There were/are better ways of solving the problem they were addressing.
+Unable to handle kernel paging request at virtual address 0000000000000000
+pdflush(2294): Oops 1
+pc = [<fffffc000033e050>]  ra = [<fffffc000032c338>]  ps = 0007    Not tainted
+v0 = 0000000000000000  t0 = fffffc00005f1bd8  t1 = 0000000000200000
+t2 = fffffc00005f1d18  t3 = 0000000000000000  t4 = 0000000000000000
+t5 = 0000000000000000  t6 = 0000000000200200  t7 = fffffc0025150000
+s0 = fffffc00005f1b00  s1 = 0000000000000001  s2 = 0000000000000001
+s3 = fffffc00006714c8  s4 = fffffc00005f6e68  s5 = 0000000000000400
+s6 = fffffc00006714c8
+a0 = fffffc00005f1b00  a1 = 0000000000000003  a2 = fffffc000059dda7
+a3 = fffffc002514fff8  a4 = fffffc0000000008  a5 = 0000000000000000
+t8 = 0000000000100100  t9 = 0000000000000000  t10= 0000000000000000
+t11= 0000000000000000  pv = fffffc000033e010  at = 0000000000000000
+gp = fffffc0000671b00  sp = fffffc002514ff58
+Trace:fffffc000032c338 fffffc000032c3f4 fffffc000032c5b4 fffffc000034f494 
+Code: b53e0008  40420402  a4a10140  a4830008  a4c30010  20e20200 <b4a40000> b4850008 
 
-You think that was ugly, you should have seen it around the F17 level when
-there were still some bugs in there (you haven't lived till you see the ooglyness
-of an 'rsh' between TCF cluster members of different flavors - it propagated
-the environment variable that controlled that stuff.. :)
-
-Incidentally, I'm told that HP/UX has a similar concept, at least in some
-releases...
-
-
---==_Exmh_1099027620P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE//G40cC3lWbTT17ARAqcvAJ9plo3py/o6fNMrdQ8qsNGtxOSSBACffe3i
-2PkjanrvzGqr0bT4iko0N5Q=
-=ZETh
------END PGP SIGNATURE-----
-
---==_Exmh_1099027620P--
+-- 
+Måns Rullgård
+mru@kth.se

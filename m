@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129123AbQKFLKe>; Mon, 6 Nov 2000 06:10:34 -0500
+	id <S129096AbQKFLMO>; Mon, 6 Nov 2000 06:12:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129127AbQKFLKY>; Mon, 6 Nov 2000 06:10:24 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:44043 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129123AbQKFLKP>;
-	Mon, 6 Nov 2000 06:10:15 -0500
-Message-ID: <3A069181.F82DD71@mandrakesoft.com>
-Date: Mon, 06 Nov 2000 06:09:53 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: Dan Hollis <goemon@anime.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Oliver Xymoron <oxymoron@waste.org>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-In-Reply-To: <Pine.LNX.4.21.0011060302290.17667-100000@anime.net> <24273.973508761@redhat.com>
+	id <S129219AbQKFLMF>; Mon, 6 Nov 2000 06:12:05 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:38666 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129129AbQKFLL4>;
+	Mon, 6 Nov 2000 06:11:56 -0500
+Date: Mon, 6 Nov 2000 12:11:53 +0100
+From: Andi Kleen <ak@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <andrewm@uow.edu.au>, Oliver Xymoron <oxymoron@waste.org>,
+        barryn@pobox.com, linux-kernel@vger.kernel.org,
+        jamal <hadi@cyberus.ca>
+Subject: Re: [PATCH] document ECN in 2.4 Configure.help
+Message-ID: <20001106121153.A14104@gruyere.muc.suse.de>
+In-Reply-To: <3A068C00.272BD5D2@uow.edu.au> <E13sk36-00066o-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E13sk36-00066o-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Nov 06, 2000 at 11:02:47AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
+On Mon, Nov 06, 2000 at 11:02:47AM +0000, Alan Cox wrote:
+> >        with the TCP ECN_ECHO and CWR flags set, to indicate
+> >        ECN-capability, then the sender should send its second
+> >        SYN packet without these flags set. This is because
 > 
-> goemon@anime.net said:
-> >  This is why alsa starts up all devices totally muted. Maybe its time
-> > for David to move to alsa ;)
-> 
-> Muted is not what I want either, although that's fine when the module is
-> _first_ loaded after booting.
-> 
-> What I want is for the mixer settings not to change at all, when the module
-> is auto-unloaded and later auto-loaded again. I may have set them to pass
-> through the line input.
+> Now that is nice. The end user perceived effect is that folks with faulty 
+> firewalls have horrible slow web sites with a 3 or 4 second wait for each
+> page. The perfect incentive. If only someone could do the same to path mtu
+> discovery incompetents.
 
-The API allows for setup activity to occur on the fd before sound is
-actually started, mixer setup can be one of those steps...
+And it penalizes good guys.
+If the host cannot answer to the first SYN for some legitimate reason 
+then it'll never be able to use ECN. 
 
--- 
-Jeff Garzik             | Dinner is ready when
-Building 1024           | the smoke alarm goes off.
-MandrakeSoft            |	-/usr/games/fortune
+-Andi
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

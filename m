@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261873AbTIPNIV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 09:08:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbTIPNIU
+	id S261827AbTIPNOq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 09:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbTIPNOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 09:08:20 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:65417 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261873AbTIPNIS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 09:08:18 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: =?ISO-8859-1?Q?Dani=EBl?= Mantione <daniel@deadlock.et.tudelft.nl>
-Cc: Olaf Hering <olh@suse.de>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       "David S. Miller" <davem@redhat.com>, mroos@linux.ee,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0309161437290.23442-100000@deadlock.et.tudelft.nl>
-References: <Pine.LNX.4.44.0309161437290.23442-100000@deadlock.et.tudelft.nl>
-Message-Id: <1063717676.599.100.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 16 Sep 2003 15:07:56 +0200
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-Subject: Re: atyfb still broken on 2.4.23-pre4 (on sparc64)
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
+	Tue, 16 Sep 2003 09:14:46 -0400
+Received: from maverick.eskuel.net ([81.56.212.215]:22752 "EHLO
+	maverick.eskuel.net") by vger.kernel.org with ESMTP id S261827AbTIPNOo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 09:14:44 -0400
+Message-ID: <33165.213.193.3.110.1063718083.squirrel@webmail.eskuel.net>
+In-Reply-To: <20030916114822.GB602@elf.ucw.cz>
+References: <3F660BF7.6060106@eskuel.net> <20030916114822.GB602@elf.ucw.cz>
+Date: Tue, 16 Sep 2003 15:14:43 +0200 (CEST)
+Subject: Re: Nearly succes with suspend to disk in -test5-mm2
+From: "Mathieu LESNIAK" <maverick@eskuel.net>
+To: "Pavel Machek" <pavel@suse.cz>
+Cc: "Mathieu LESNIAK" <maverick@eskuel.net>,
+       "LKML " <linux-kernel@vger.kernel.org>, mochel@osdl.org
+User-Agent: SquirrelMail/1.4.0
+MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-1
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Hi!
+>
+>> I've tested the last kernel of -mm series, -test5-mm2. One of the
+>> important feature to me is the suspend to disk, and it's one of the
+>> first kernel that suspend fine on my laptop. I'm now able to do a
+>> suspend / resume cycle with nearly no problem :)
+>> However, I saw some oops while resuming. Nothing critical, but if it an
+>> help debugging ...
+>>
+>> See the attached file for the syslog part showing suspend / resume with
+>> the oops.
+>>
+>> I can give more details on my setup if you want.
+>
+> cat you try with echo 4 > /proc/acpi/sleep?
+> 										> Pavel
 
-> Good. Rage II+ is also confirmed to work on PPC.
-> 
-> I'll have a patch for the iBook later today, as soon as I can confirm it
-> compiles.
-
-Ok, I'll test the wallstreet I (LT-G) myself, hopefully tonight, Paulus
-will test the LT-Pro tomorrow hopefully
-
-Ben.
+It does nothing. The only visible action is when I do : echo -n disk >
+/sys/power/state
 
 
+
+Mathieu LESNIAK

@@ -1,101 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265664AbTIJU3P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 16:29:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265665AbTIJU3P
+	id S265769AbTIJUXu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 16:23:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbTIJUXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 16:29:15 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:22914 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S265664AbTIJU3I
+	Wed, 10 Sep 2003 16:23:50 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28387 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265763AbTIJUXq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 16:29:08 -0400
-Date: Wed, 10 Sep 2003 16:32:02 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Jamie Lokier <jamie@shareable.org>
-cc: Pavel Machek <pavel@ucw.cz>, Dave Jones <davej@redhat.com>,
-       Mitchell Blank Jr <mitch@sfgoth.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] oops_in_progress is unlikely()
-In-Reply-To: <20030910201240.GB24424@mail.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.53.0309101619020.18924@chaos>
-References: <20030907064204.GA31968@sfgoth.com> <20030907221323.GC28927@redhat.com>
- <20030910142031.GB2589@elf.ucw.cz> <20030910142308.GL932@redhat.com>
- <20030910152902.GA2764@elf.ucw.cz> <Pine.LNX.4.53.0309101147040.14762@chaos>
- <20030910183138.GA23783@mail.jlokier.co.uk> <Pine.LNX.4.53.0309101439390.18459@chaos>
- <20030910201240.GB24424@mail.jlokier.co.uk>
+	Wed, 10 Sep 2003 16:23:46 -0400
+Message-ID: <3F5F8845.9080405@pobox.com>
+Date: Wed, 10 Sep 2003 16:23:33 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Brown, Len" <len.brown@intel.com>
+CC: acpi-devel@lists.sourceforge.net,
+       "Grover, Andrew" <andrew.grover@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ACPI patch flow
+References: <BF1FE1855350A0479097B3A0D2A80EE009FD58@hdsmsx402.hd.intel.com>
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FD58@hdsmsx402.hd.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Sep 2003, Jamie Lokier wrote:
+Brown, Len wrote:
+> I've re-named the linux-acpi* tree to be linux-acpi-release*; and made
+> the staging area for the release tree visible -- calling it
+> linux-acpi-test*
+> 
+> So a 2 stage release is now visible on the net:
 
-> Richard B. Johnson wrote:
-> > 		cmpl	$1, %eax
-> > 		jz	1f
-> > 		jc	2f
-> > 		call	do_default
-> > 		jmp	more_code
-> > 	1:	call	do_something_if_equal
-> > 		jmp	more_code
-> > 	2:	call	do_something_if_less
-> > 	more_code:
-> >
-> > In every case, one has to jump around code for other execution paths
-> > except the last, where you have to jump on condition anyway. There
-> > is no free liunch, and the straight-through route, do_default
-> > uas just as many jumps as the last.
->
-> Here is your code optimised for no jumps in the "do_default" case:
->
-> 		cmpl	$1,%eax
-> 		jbe	1f
-> 		call	do_default
-> 	more_code:
-> 		.subsection 1
-> 	1:	jnz	2f
-> 		call	do_something_if_equal
-> 		jmp	more_code
-> 	2:	call	do_something_if_less
-> 		jmp	more_code
-> 		.previous
->
+cool!
 
-You are a magician! Putting in a .subsection to hide the jump
-is absolute bullshit. The built-in macros, ".subsection", and
-".previous" just made the damn linker do the fixup. You just
-did a long jump, out of the current code-stream, into some
-other section. Then you jumped back. Hell of an optimization!
-Might even reload the cache if you are lucky! Linker tricks
-won't work for me. Also, putting some address on the stack
-and executing 'ret' emulate a jump won't impress me either.
 
-In any real code, only the last instruction in a procedure
-gets to have a jump optimized away. Most of the times you
-can't even do that because you need to restore different
-stack-levels from different code paths (one reason to use
-a frame-pointer, but still not good enough).
+> As before, the BK trees live here:  http://linux-acpi.bkbits.com  If
+> there is demand for plain patches of the _test_ tree we can probably
+> also export those on http://sourceforge.net/projects/acpi too, but as
+> the test tree will change more often, those updates would have to be
+> on-demand or on significant events.
 
-> > > How would you optimise it, if you were writing assembly language yourself?
->
-> > I did. And I do this for a living. And, after 30 years of this shit
-> > they still haven't fired me. Learn something. I'm pissed.
->
-> It's ok to be pissed.  I'd be pissed too :)
->
-> *ducks*
->
-> Enjoy :)
-> -- Jame
->
+I definitely support the posting of plain patches, and strongly 
+encourage it.  We don't want any barriers at all to people testing the 
+latest ACPI fixes.
 
-Sure do. I love it. I even get paid for this kind of stuff!
+May I make a humble suggestion?  :)  Whenever net driver stuff gets send 
+off, I'll often run a prepared script which will create a GNU diff 
+against mainline, gzip it, and upload it to ftp.kernel.org.  That gives 
+the non-BK users patches to play with.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
-            Note 96.31% of all statistics are fiction.
+I first considered posting these net driver patches on sourceforge 
+(project: gkernel), but uploads to sourceforge are time-consuming 
+events.  You have a upload to an FTP site, then fill out a bunch of 
+forms and click a bunch of buttons.  It's a system that _discourages_ 
+frequent software postings, IMO.
+
+So, my suggestion is to get an account on some web/ftp site 
+(kernel.org?) and create a script that combines two tasks (bk push and 
+GNU patch upload) into a single command you run on your local Linux box. 
+  Properly scripted, posting a patch shouldn't be any more work than 
+pushing to your new test tree.  And IMHO you will reap the benefits.
+
+	Jeff
+
 
 

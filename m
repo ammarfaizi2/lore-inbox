@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262738AbTIQMGU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 08:06:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262739AbTIQMGU
+	id S262704AbTIQMW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 08:22:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbTIQMW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 08:06:20 -0400
-Received: from sea2-f7.sea2.hotmail.com ([207.68.165.7]:516 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S262738AbTIQMGT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 08:06:19 -0400
-X-Originating-IP: [212.143.127.195]
-X-Originating-Email: [zstingx@hotmail.com]
-From: "sting sting" <zstingx@hotmail.com>
+	Wed, 17 Sep 2003 08:22:29 -0400
+Received: from 184.80-202-92.nextgentel.com ([80.202.92.184]:29561 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262704AbTIQMWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 08:22:21 -0400
+Subject: Problems with Synaptics touchpad on Compaq Evo N600c and
+	2.6.0-test5
+From: Kjartan Maraas <kmaraas@broadpark.no>
 To: linux-kernel@vger.kernel.org
-Subject: socketI implementation 
-Date: Wed, 17 Sep 2003 15:06:18 +0300
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1063801250.3638.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Sea2-F7uqdcXqnviIvr0000be54@hotmail.com>
-X-OriginalArrivalTime: 17 Sep 2003 12:06:18.0328 (UTC) FILETIME=[19DDA580:01C37D14]
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
+Date: Wed, 17 Sep 2003 14:20:50 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I tried booting this kernel from http://people.redhat.com/arjanv/2.5/
+and lost my mouse completely. Here's a snippet from /var/log/messages
 
-I had downloaded the tar.gz of glibc;
-I
-I am interested in the learning the network layer and
-implementation of  the socket API in glibc
-(calls like socket,bind,gethostbyname,etc.).
-I saw in the inet subdirectory on glibc that it seems that  these calls
-are eventually result in calls to methods in nss subdirectory.
+Sep 17 12:45:13 localhost kernel: mice: PS/2 mouse device common for all
+mice
+Sep 17 12:45:13 localhost kernel: i8042.c: Detected active multiplexing
+controller, rev 1.1.
+Sep 17 12:45:13 localhost kernel: serio: i8042 AUX0 port at 0x60,0x64
+irq 12
+Sep 17 12:45:13 localhost kernel: serio: i8042 AUX1 port at 0x60,0x64
+irq 12
+Sep 17 12:45:13 localhost kernel: serio: i8042 AUX2 port at 0x60,0x64
+irq 12
+Sep 17 12:45:13 localhost kernel: synaptics reset failed
+Sep 17 12:45:13 localhost last message repeated 2 times
+Sep 17 12:45:13 localhost kernel: Synaptics Touchpad, model: 1
+Sep 17 12:45:13 localhost kernel:  Firware: 5.8
+Sep 17 12:45:13 localhost kernel:  180 degree mounted touchpad
+Sep 17 12:45:13 localhost kernel:  Sensor: 27
+Sep 17 12:45:13 localhost kernel:  new absolute packet format
+Sep 17 12:45:13 localhost kernel:  Touchpad has extended capability bits
+Sep 17 12:45:13 localhost kernel:  -> multifinger detection
+Sep 17 12:45:13 localhost kernel:  -> palm detection
+Sep 17 12:45:13 localhost kernel: input: Synaptics Synaptics TouchPad on
+isa0060/serio4
 
-But I am not sure.
-Am I right in my assumption?
-or where I can find the implementation of methods like bind(), connect(), 
-socket(), etc.
+I've been testing with the XFree86 packages from rawhide, updated as of
+today, and the mouse works ok with the 2.4.x kernel from the same place.
 
-regards
-sting
+I've got the latest BIOS for this laptop if that matters.
 
-_________________________________________________________________
-Help STOP SPAM with the new MSN 8 and get 2 months FREE*  
-http://join.msn.com/?page=features/junkmail
+Cheers
+Kjartan
 

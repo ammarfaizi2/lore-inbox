@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318718AbSHEQ5a>; Mon, 5 Aug 2002 12:57:30 -0400
+	id <S318714AbSHEQzy>; Mon, 5 Aug 2002 12:55:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318720AbSHEQ5a>; Mon, 5 Aug 2002 12:57:30 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:38660 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S318718AbSHEQ53>; Mon, 5 Aug 2002 12:57:29 -0400
-Date: Mon, 5 Aug 2002 18:01:03 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: arnd@bergmann-dalldorf.de
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 15/18 better pte invalidation
-Message-ID: <20020805180103.A16035@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	arnd@bergmann-dalldorf.de,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <200208051830.50713.arndb@de.ibm.com> <200208051954.55546.arndb@de.ibm.com>
-Mime-Version: 1.0
+	id <S318716AbSHEQzx>; Mon, 5 Aug 2002 12:55:53 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:46050 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S318714AbSHEQzw>;
+	Mon, 5 Aug 2002 12:55:52 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200208051954.55546.arndb@de.ibm.com>; from arndb@de.ibm.com on Mon, Aug 05, 2002 at 07:54:55PM +0200
+Content-Transfer-Encoding: 7bit
+Message-ID: <15694.44775.232380.718847@napali.hpl.hp.com>
+Date: Mon, 5 Aug 2002 09:59:19 -0700
+To: frankeh@watson.ibm.com
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       "David S. Miller" <davem@redhat.com>, <davidm@hpl.hp.com>,
+       <gh@us.ibm.com>, <Martin.Bligh@us.ibm.com>, <wli@holomorphy.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: large page patch (fwd) (fwd)
+In-Reply-To: <200208041530.24661.frankeh@watson.ibm.com>
+References: <Pine.LNX.4.44.0208041131380.10314-100000@home.transmeta.com>
+	<200208041530.24661.frankeh@watson.ibm.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 05, 2002 at 07:54:55PM +0200, Arnd Bergmann wrote:
-> This is a patch that changes the memory management to allow s390/s390x to
-> make best use of its memory subsystem. There are three problems:
+>>>>> On Sun, 4 Aug 2002 15:30:24 -0400, Hubertus Franke <frankeh@watson.ibm.com> said:
 
-Implementation comment: make pgd_populate return something on all
-architectures, not just on s390.
+  Hubertus> Yes, if we (correctly) assume that page coloring only buys
+  Hubertus> you significant benefits for small associative caches
+  Hubertus> (e.g. <4 or <= 8).
 
-Otherwise please try to get all this in 2.5 first, it's a major VM change.
+This seems to be a popular misconception.  Yes, page-coloring
+obviously plays no role as long as your cache no bigger than
+PAGE_SIZE*ASSOCIATIVITY.  IIRC, Xeon can have up to 1MB of cache and I
+bet that it doesn't have a 1MB/4KB=256-way associative cache.  Thus,
+I'm quite confident that it's possible to observe significant
+page-coloring effects even on a Xeon.
 
+	--david

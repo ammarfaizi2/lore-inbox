@@ -1,293 +1,171 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315285AbSGEEjg>; Fri, 5 Jul 2002 00:39:36 -0400
+	id <S315287AbSGEEpU>; Fri, 5 Jul 2002 00:45:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315287AbSGEEjf>; Fri, 5 Jul 2002 00:39:35 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:48631 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S315285AbSGEEjd>;
-	Fri, 5 Jul 2002 00:39:33 -0400
-Date: Fri, 5 Jul 2002 00:42:06 -0400 (EDT)
+	id <S315293AbSGEEpT>; Fri, 5 Jul 2002 00:45:19 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:18561 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S315287AbSGEEpS>;
+	Fri, 5 Jul 2002 00:45:18 -0400
+Date: Fri, 5 Jul 2002 00:47:51 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] cdrom.c cleanups
-Message-ID: <Pine.GSO.4.21.0207050038320.14718-100000@weyl.math.psu.edu>
+Subject: [PATCH] kdev_t crapectomy
+Message-ID: <Pine.GSO.4.21.0207050042270.14718-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	* Bunch of functions in cdrom.c used to get kdev_t and use it
-only to do cdrom_find_device(dev), even though their callers already
-had struct cdrom_device_info * in question.  Switched to passing
-said pointer directly.
-	* useless exports removed; stuff not used outside of cdrom.c
-made static.
+	* since the last caller of is_read_only() is gone, the function
+itself is removed.
+	* destroy_buffers() is not used anymore; gone.
+	* fsync_dev() is gone; the only user is (broken) lvm.c and first
+step in fixing lvm.c will consist of propagating struct block_device *
+anyway; at that point we'll just use fsync_bdev() in there.
+	* prototype of bio_ioctl() removed - function doesn't exist
+anymore.
 
-
-diff -urN C24-0/drivers/cdrom/cdrom.c C24-current/drivers/cdrom/cdrom.c
---- C24-0/drivers/cdrom/cdrom.c	Wed Apr  3 20:23:26 2002
-+++ C24-current/drivers/cdrom/cdrom.c	Sun Jun 23 19:04:01 2002
-@@ -318,8 +318,9 @@
- static int mmc_ioctl(struct cdrom_device_info *cdi, unsigned int cmd,
- 		     unsigned long arg);
+diff -urN C24-0/Documentation/filesystems/porting C24-current/Documentation/filesystems/porting
+--- C24-0/Documentation/filesystems/porting	Thu Jun 20 13:37:23 2002
++++ C24-current/Documentation/filesystems/porting	Sat Jun 22 20:38:52 2002
+@@ -228,3 +228,21 @@
+ 	Use bdev_read_only(bdev) instead of is_read_only(kdev).  The latter
+ is still alive, but only because of the mess in drivers/s390/block/dasd.c.
+ As soon as it gets fixed is_read_only() will die.
++
++---
++[mandatory]
++
++	is_read_only() is gone; use bdev_read_only() instead.
++
++---
++[mandatory]
++
++	destroy_buffers() is gone; use invalidate_bdev().
++
++---
++[mandatory]
++
++	fsync_dev() is gone; use fsync_bdev().  NOTE: lvm breakage is
++deliberate; as soon as struct block_device * is propagated in a reasonable
++way by that code fixing will become trivial; until then nothing can be
++done.
+diff -urN C24-0/drivers/block/ll_rw_blk.c C24-current/drivers/block/ll_rw_blk.c
+--- C24-0/drivers/block/ll_rw_blk.c	Thu Jun 20 13:37:24 2002
++++ C24-current/drivers/block/ll_rw_blk.c	Sat Jun 22 20:34:24 2002
+@@ -1212,19 +1212,17 @@
  
--int cdrom_get_last_written(kdev_t dev, long *last_written);
--int cdrom_get_next_writable(kdev_t dev, long *next_writable);
-+int cdrom_get_last_written(struct cdrom_device_info *, long *);
-+static int cdrom_get_next_writable(struct cdrom_device_info *, long *);
-+static void cdrom_count_tracks(struct cdrom_device_info *, tracktype*);
+ static long ro_bits[MAX_BLKDEV][8];
  
- #ifdef CONFIG_SYSCTL
- static void cdrom_sysctl_register(void);
-@@ -436,7 +437,7 @@
- 	return 0;
- }
- 
--struct cdrom_device_info *cdrom_find_device(kdev_t dev)
-+static struct cdrom_device_info *cdrom_find_device(kdev_t dev)
+-int is_read_only(kdev_t dev)
++int bdev_read_only(struct block_device *bdev)
  {
- 	struct cdrom_device_info *cdi;
+ 	int minor,major;
  
-@@ -775,7 +776,7 @@
- 	return cdi->ops->generic_packet(cdi, &cgc);
- }
- 
--int cdrom_select_disc(struct cdrom_device_info *cdi, int slot)
-+static int cdrom_select_disc(struct cdrom_device_info *cdi, int slot)
- {
- 	struct cdrom_changer_info info;
- 	int curslot;
-@@ -859,7 +860,7 @@
- }
- 
- /* badly broken, I know. Is due for a fixup anytime. */
--void cdrom_count_tracks(struct cdrom_device_info *cdi, tracktype* tracks)
-+static void cdrom_count_tracks(struct cdrom_device_info *cdi, tracktype* tracks)
- {
- 	struct cdrom_tochdr header;
- 	struct cdrom_tocentry entry;
-@@ -1921,7 +1922,6 @@
- {		
- 	struct cdrom_device_ops *cdo = cdi->ops;
- 	struct cdrom_generic_command cgc;
--	kdev_t dev = cdi->dev;
- 	char buffer[32];
- 	int ret = 0;
- 
-@@ -2193,7 +2193,7 @@
- 	case CDROM_NEXT_WRITABLE: {
- 		long next = 0;
- 		cdinfo(CD_DO_IOCTL, "entering CDROM_NEXT_WRITABLE\n"); 
--		if ((ret = cdrom_get_next_writable(dev, &next)))
-+		if ((ret = cdrom_get_next_writable(cdi, &next)))
- 			return ret;
- 		IOCTL_OUT(arg, long, next);
- 		return 0;
-@@ -2201,7 +2201,7 @@
- 	case CDROM_LAST_WRITTEN: {
- 		long last = 0;
- 		cdinfo(CD_DO_IOCTL, "entering CDROM_LAST_WRITTEN\n"); 
--		if ((ret = cdrom_get_last_written(dev, &last)))
-+		if ((ret = cdrom_get_last_written(cdi, &last)))
- 			return ret;
- 		IOCTL_OUT(arg, long, last);
- 		return 0;
-@@ -2211,10 +2211,9 @@
- 	return -ENOTTY;
- }
- 
--int cdrom_get_track_info(kdev_t dev, __u16 track, __u8 type,
-+static int cdrom_get_track_info(struct cdrom_device_info *cdi, __u16 track, __u8 type,
- 			 track_information *ti)
- {
--        struct cdrom_device_info *cdi = cdrom_find_device(dev);
- 	struct cdrom_device_ops *cdo = cdi->ops;
- 	struct cdrom_generic_command cgc;
- 	int ret;
-@@ -2241,9 +2240,8 @@
- }
- 
- /* requires CD R/RW */
--int cdrom_get_disc_info(kdev_t dev, disc_information *di)
-+static int cdrom_get_disc_info(struct cdrom_device_info *cdi, disc_information *di)
- {
--	struct cdrom_device_info *cdi = cdrom_find_device(dev);
- 	struct cdrom_device_ops *cdo = cdi->ops;
- 	struct cdrom_generic_command cgc;
- 	int ret;
-@@ -2273,9 +2271,8 @@
- 
- /* return the last written block on the CD-R media. this is for the udf
-    file system. */
--int cdrom_get_last_written(kdev_t dev, long *last_written)
--{	
--	struct cdrom_device_info *cdi = cdrom_find_device(dev);
-+int cdrom_get_last_written(struct cdrom_device_info *cdi, long *last_written)
-+{
- 	struct cdrom_tocentry toc;
- 	disc_information di;
- 	track_information ti;
-@@ -2285,17 +2282,17 @@
- 	if (!CDROM_CAN(CDC_GENERIC_PACKET))
- 		goto use_toc;
- 
--	if ((ret = cdrom_get_disc_info(dev, &di)))
-+	if ((ret = cdrom_get_disc_info(cdi, &di)))
- 		goto use_toc;
- 
- 	last_track = (di.last_track_msb << 8) | di.last_track_lsb;
--	if ((ret = cdrom_get_track_info(dev, last_track, 1, &ti)))
-+	if ((ret = cdrom_get_track_info(cdi, last_track, 1, &ti)))
- 		goto use_toc;
- 
- 	/* if this track is blank, try the previous. */
- 	if (ti.blank) {
- 		last_track--;
--		if ((ret = cdrom_get_track_info(dev, last_track, 1, &ti)))
-+		if ((ret = cdrom_get_track_info(cdi, last_track, 1, &ti)))
- 			goto use_toc;
- 	}
- 
-@@ -2325,9 +2322,8 @@
- }
- 
- /* return the next writable block. also for udf file system. */
--int cdrom_get_next_writable(kdev_t dev, long *next_writable)
-+static int cdrom_get_next_writable(struct cdrom_device_info *cdi, long *next_writable)
- {
--	struct cdrom_device_info *cdi = cdrom_find_device(dev);
- 	disc_information di;
- 	track_information ti;
- 	__u16 last_track;
-@@ -2336,17 +2332,17 @@
- 	if (!CDROM_CAN(CDC_GENERIC_PACKET))
- 		goto use_last_written;
- 
--	if ((ret = cdrom_get_disc_info(dev, &di)))
-+	if ((ret = cdrom_get_disc_info(cdi, &di)))
- 		goto use_last_written;
- 
- 	last_track = (di.last_track_msb << 8) | di.last_track_lsb;
--	if ((ret = cdrom_get_track_info(dev, last_track, 1, &ti)))
-+	if ((ret = cdrom_get_track_info(cdi, last_track, 1, &ti)))
- 		goto use_last_written;
- 
-         /* if this track is blank, try the previous. */
- 	if (ti.blank) {
- 		last_track--;
--		if ((ret = cdrom_get_track_info(dev, last_track, 1, &ti)))
-+		if ((ret = cdrom_get_track_info(cdi, last_track, 1, &ti)))
- 			goto use_last_written;
- 	}
- 
-@@ -2359,7 +2355,7 @@
- 	return 0;
- 
- use_last_written:
--	if ((ret = cdrom_get_last_written(dev, next_writable))) {
-+	if ((ret = cdrom_get_last_written(cdi, next_writable))) {
- 		*next_writable = 0;
- 		return ret;
- 	} else {
-@@ -2368,11 +2364,7 @@
- 	}
- }
- 
--EXPORT_SYMBOL(cdrom_get_disc_info);
--EXPORT_SYMBOL(cdrom_get_track_info);
--EXPORT_SYMBOL(cdrom_get_next_writable);
- EXPORT_SYMBOL(cdrom_get_last_written);
--EXPORT_SYMBOL(cdrom_count_tracks);
- EXPORT_SYMBOL(register_cdrom);
- EXPORT_SYMBOL(unregister_cdrom);
- EXPORT_SYMBOL(cdrom_open);
-@@ -2380,11 +2372,9 @@
- EXPORT_SYMBOL(cdrom_ioctl);
- EXPORT_SYMBOL(cdrom_media_changed);
- EXPORT_SYMBOL(cdrom_number_of_slots);
--EXPORT_SYMBOL(cdrom_select_disc);
- EXPORT_SYMBOL(cdrom_mode_select);
- EXPORT_SYMBOL(cdrom_mode_sense);
- EXPORT_SYMBOL(init_cdrom_command);
--EXPORT_SYMBOL(cdrom_find_device);
- 
- #ifdef CONFIG_SYSCTL
- 
-diff -urN C24-0/drivers/ide/ide-cd.c C24-current/drivers/ide/ide-cd.c
---- C24-0/drivers/ide/ide-cd.c	Thu Jun 20 13:37:03 2002
-+++ C24-current/drivers/ide/ide-cd.c	Sun Jun 23 16:45:26 2002
-@@ -1937,9 +1937,9 @@
- /* Try to read the entire TOC for the disk into our internal buffer. */
- static int cdrom_read_toc(struct ata_device *drive, struct request_sense *sense)
- {
--	int minor, stat, ntracks, i;
--	kdev_t dev;
-+	int stat, ntracks, i;
- 	struct cdrom_info *info = drive->driver_data;
-+	struct cdrom_device_info *cdi = &info->devinfo;
- 	struct atapi_toc *toc = info->toc;
- 	struct {
- 		struct atapi_toc_header hdr;
-@@ -2071,10 +2071,8 @@
- 	toc->xa_flag = (ms_tmp.hdr.first_track != ms_tmp.hdr.last_track);
- 
- 	/* Now try to get the total cdrom capacity. */
--	minor = (drive->select.b.unit) << PARTN_BITS;
--	dev = mk_kdev(drive->channel->major, minor);
- 	/* FIXME: This is making worng assumptions about register layout. */
--	stat = cdrom_get_last_written(dev, (unsigned long *) &toc->capacity);
-+	stat = cdrom_get_last_written(cdi, (unsigned long *) &toc->capacity);
- 	if (stat)
- 		stat = cdrom_read_capacity(drive, &toc->capacity, sense);
- 	if (stat)
-diff -urN C24-0/drivers/scsi/sr.c C24-current/drivers/scsi/sr.c
---- C24-0/drivers/scsi/sr.c	Thu Jun 20 13:37:24 2002
-+++ C24-current/drivers/scsi/sr.c	Sun Jun 23 16:49:49 2002
-@@ -522,8 +522,8 @@
- 		SCp->needs_sector_size = 1;
- 	} else {
- #if 0
--		if (cdrom_get_last_written(mkdev(MAJOR_NR, i),
--					   &scsi_CDs[i].capacity))
-+		if (cdrom_get_last_written(&SCp->cdi,
-+					   &SCp->capacity))
- #endif
- 			SCp->capacity = 1 + ((buffer[0] << 24) |
- 						    (buffer[1] << 16) |
-diff -urN C24-0/include/linux/cdrom.h C24-current/include/linux/cdrom.h
---- C24-0/include/linux/cdrom.h	Mon May 27 14:54:52 2002
-+++ C24-current/include/linux/cdrom.h	Sun Jun 23 16:56:20 2002
-@@ -805,11 +805,8 @@
-     long error;
- } tracktype;
- 
--extern void cdrom_count_tracks(struct cdrom_device_info *cdi,tracktype* tracks);
--extern int cdrom_get_next_writable(kdev_t dev, long *next_writable);
--extern int cdrom_get_last_written(kdev_t dev, long *last_written);
-+extern int cdrom_get_last_written(struct cdrom_device_info *cdi, long *last_written);
- extern int cdrom_number_of_slots(struct cdrom_device_info *cdi);
--extern int cdrom_select_disc(struct cdrom_device_info *cdi, int slot);
- extern int cdrom_mode_select(struct cdrom_device_info *cdi,
- 			     struct cdrom_generic_command *cgc);
- extern int cdrom_mode_sense(struct cdrom_device_info *cdi,
-@@ -817,7 +814,6 @@
- 			    int page_code, int page_control);
- extern void init_cdrom_command(struct cdrom_generic_command *cgc,
- 			       void *buffer, int len, int type);
--extern struct cdrom_device_info *cdrom_find_device(kdev_t dev);
- 
- typedef struct {
- 	__u16 disc_information_length;
-@@ -900,10 +896,6 @@
- 	__u32 track_size;
- 	__u32 last_rec_address;
- } track_information;
+-	major = major(dev);
+-	minor = minor(dev);
+-	if (major < 0 || major >= MAX_BLKDEV) return 0;
++	if (!bdev)
++		return 0;
++	major = MAJOR(bdev->bd_dev);
++	minor = MINOR(bdev->bd_dev);
++	if (major < 0 || major >= MAX_BLKDEV)
++		return 0;
+ 	return ro_bits[major][minor >> 5] & (1 << (minor & 31));
+-}
 -
--extern int cdrom_get_disc_info(kdev_t dev, disc_information *di);
--extern int cdrom_get_track_info(kdev_t dev, __u16 track, __u8 type,
--				track_information *ti);
+-int bdev_read_only(struct block_device *bdev)
+-{
+-	return bdev && is_read_only(to_kdev_t(bdev->bd_dev));
+ }
  
- /* The SCSI spec says there could be 256 slots. */
- #define CDROM_MAX_SLOTS	256
+ void set_device_ro(kdev_t dev,int flag)
+diff -urN C24-0/fs/buffer.c C24-current/fs/buffer.c
+--- C24-0/fs/buffer.c	Thu Jun 20 13:37:24 2002
++++ C24-current/fs/buffer.c	Sat Jun 22 20:36:37 2002
+@@ -244,22 +244,6 @@
+ }
+ 
+ /*
+- * Write out and wait upon all dirty data associated with this
+- * kdev_t.   Filesystem data as well as the underlying block
+- * device.  Takes the superblock lock.
+- */
+-int fsync_dev(kdev_t dev)
+-{
+-	struct block_device *bdev = bdget(kdev_t_to_nr(dev));
+-	if (bdev) {
+-		int res = fsync_bdev(bdev);
+-		bdput(bdev);
+-		return res;
+-	}
+-	return 0;
+-}
+-
+-/*
+  * sync everything.
+  */
+ asmlinkage long sys_sync(void)
+diff -urN C24-0/include/linux/bio.h C24-current/include/linux/bio.h
+--- C24-0/include/linux/bio.h	Thu Jun 20 13:37:25 2002
++++ C24-current/include/linux/bio.h	Sat Jun 22 20:47:32 2002
+@@ -203,8 +203,6 @@
+ 
+ extern inline void bio_init(struct bio *);
+ 
+-extern int bio_ioctl(kdev_t, unsigned int, unsigned long);
+-
+ #ifdef CONFIG_HIGHMEM
+ /*
+  * remember to add offset! and never ever reenable interrupts between a
+diff -urN C24-0/include/linux/buffer_head.h C24-current/include/linux/buffer_head.h
+--- C24-0/include/linux/buffer_head.h	Thu Jun 20 13:37:25 2002
++++ C24-current/include/linux/buffer_head.h	Sat Jun 22 20:36:56 2002
+@@ -121,7 +121,6 @@
+ #define page_has_buffers(page)	PagePrivate(page)
+ 
+ #define invalidate_buffers(dev)	__invalidate_buffers((dev), 0)
+-#define destroy_buffers(dev)	__invalidate_buffers((dev), 1)
+ 
+ 
+ /*
+@@ -156,7 +155,6 @@
+ void __wait_on_buffer(struct buffer_head *);
+ void sleep_on_buffer(struct buffer_head *bh);
+ void wake_up_buffer(struct buffer_head *bh);
+-int fsync_dev(kdev_t);
+ int fsync_bdev(struct block_device *);
+ int fsync_super(struct super_block *);
+ int fsync_no_super(struct block_device *);
+diff -urN C24-0/include/linux/fs.h C24-current/include/linux/fs.h
+--- C24-0/include/linux/fs.h	Thu Jun 20 13:37:25 2002
++++ C24-current/include/linux/fs.h	Sat Jun 22 20:34:32 2002
+@@ -1220,7 +1220,6 @@
+ extern int submit_bh(int, struct buffer_head *);
+ struct bio;
+ extern int submit_bio(int, struct bio *);
+-extern int is_read_only(kdev_t);
+ extern int bdev_read_only(struct block_device *);
+ extern int set_blocksize(struct block_device *, int);
+ extern int sb_set_blocksize(struct super_block *, int);
+diff -urN C24-0/kernel/ksyms.c C24-current/kernel/ksyms.c
+--- C24-0/kernel/ksyms.c	Thu Jun 20 20:28:00 2002
++++ C24-current/kernel/ksyms.c	Sat Jun 22 20:37:00 2002
+@@ -185,7 +185,6 @@
+ EXPORT_SYMBOL(invalidate_device);
+ EXPORT_SYMBOL(invalidate_inode_pages);
+ EXPORT_SYMBOL(truncate_inode_pages);
+-EXPORT_SYMBOL(fsync_dev);
+ EXPORT_SYMBOL(fsync_bdev);
+ EXPORT_SYMBOL(permission);
+ EXPORT_SYMBOL(vfs_permission);
+@@ -329,7 +328,6 @@
+ /* block device driver support */
+ EXPORT_SYMBOL(blk_size);
+ EXPORT_SYMBOL(blk_dev);
+-EXPORT_SYMBOL(is_read_only);
+ EXPORT_SYMBOL(bdev_read_only);
+ EXPORT_SYMBOL(set_device_ro);
+ EXPORT_SYMBOL(bmap);
 

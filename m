@@ -1,98 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVCCEWH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVCCEWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbVCCEWH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 23:22:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbVCCEUO
+	id S261264AbVCCEWG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 23:22:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVCCEUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 23:20:14 -0500
-Received: from fire.osdl.org ([65.172.181.4]:12728 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261367AbVCCEPD (ORCPT
+	Wed, 2 Mar 2005 23:20:49 -0500
+Received: from fire.osdl.org ([65.172.181.4]:10936 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261264AbVCCEOr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 23:15:03 -0500
-Message-ID: <42268C80.8010109@osdl.org>
-Date: Wed, 02 Mar 2005 20:03:12 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFD: Kernel release numbering
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002733.GH10124@redhat.com> <42268037.3040300@osdl.org> <20050303034704.GA15771@redhat.com>
-In-Reply-To: <20050303034704.GA15771@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 2 Mar 2005 23:14:47 -0500
+Date: Wed, 2 Mar 2005 20:14:25 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Page fault scalability patch V18: Drop first acquisition of ptl
+Message-Id: <20050302201425.2b994195.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503021856380.3365@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com>
+	<20050302174507.7991af94.akpm@osdl.org>
+	<Pine.LNX.4.58.0503021803510.3080@schroedinger.engr.sgi.com>
+	<20050302185508.4cd2f618.akpm@osdl.org>
+	<Pine.LNX.4.58.0503021856380.3365@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Wed, Mar 02, 2005 at 07:10:47PM -0800, Randy.Dunlap wrote:
+Christoph Lameter <clameter@sgi.com> wrote:
+>
+> On Wed, 2 Mar 2005, Andrew Morton wrote:
 > 
->  > >For it to truly be a stable kernel, the only patches I'd expect to
->  > >drivers would be ones fixing blindingly obvious bugs. No cleanups.
->  > >No new functionality. I'd even question new hardware support if it
->  > >wasn't just a PCI ID addition.
->  > 
->  > Maybe I don't understand?  Is someone expecting distro
->  > quality/stability from kernel.org kernels?
+> > > This is a related change discussed during V16 with Nick.
+> >
+> > It's worth retaining a paragraph for the changelog.
 > 
-> My complaint is the charade of calling it 'stable' when it clearly
-> wouldn't be anything of the sort, given that a majority of the bugs our
-> users experienced on rebasing were driver related.
-> The core itself may be rock-solid, but if we're continually pulling
-> in random driver updates of questionable quality with limited
-> testing, the result as a whole isn't stable.
-> 
->  > I don't, but maybe I'm one of those minorities.
-> 
-> Putting the onus on distributions to make things stable is no
-> excuse for the ever-increasing number of regressions each release.
+> There have been extensive discussions on all aspects of this patch.
+> This issue was discussed in
+> http://marc.theaimsgroup.com/?t=110694497200004&r=1&w=2
 
-Sure, I'm not trying to put the onus on distros, just saying
-that they add some real value there, but that doesn't excuse
-us from trying to make the mainline kernel as good as we can
-make it.
+This is a difficult, intrusive and controversial patch.  Things like the
+above should be done in a separate patch.  Not only does this aid
+maintainability, it also allows the change to be performance tested in
+isolation.
 
-> This might sound over-dramatic, but it's the current state as far
-> as I'm concerned.  The 2.6.8->2.6.9 update for Fedora users brought
-> a bunch of carnage that took time to shake out. 2.6.9->2.6.10 I'm
-> still picking up the pieces of.  If the 2.6.10->2.6.11 update that
-> I'll do for Fedora in a week or two turns out to have less regressions
-> than the previous releases, I'll be stunned. Really.
-> 
-> Already I'm wondering how many userspace packages are going to randomly
-> stop working as they have done in previous releases.  With the
-> clear delineation of stable/development, we were able to say things
-> like "we won't change a user visible interface in a stable series"
-> Now, we don't have that. So we find things ranging from slabtop to
-> alsa-lib completely break unless you update the userspace too.
-> 
-> regressions like this is what I'm bitching about. There's nothing
-> a vendor can do to make such things stable (other than dropping
-> the various patches that introduce the breakage, but at ~4000 csets
-> per release right now, there will be stuff that gets missed).
-> Whilst the slabinfo example was a non-driver related regression,
-> it's a good example of how little care we're taking these days
-> to make sure existing userspace continues to work correctly.
-> 
-> Some may suggest the close tracking of mainline is the problem.
-> Maybe they're right. Maybe we should have stuck with a 2.6.5 kernel
-> until Fedora Core 2 reached end of life, and gone with the old
-> 'have hundreds and hundreds of patches piling up' approach.
-> 
-> But, as someone who has maintained vendor kernels that have tried
-> both methods, the sticking close to mainline approach wins hands down.
-> If something is broken, more often than not, I can bug the upstream
-> developer and ask "hey, this is a wierd problem our fedora users hit,
-> we don't have any patches against this code, can you take a look?"
-> and developers have been very responsive, and helpful on many occasions,
-> ultimatly leading bugs being fixed both in our kernel, and upstream.
-> 
-> If I asked most upstream developers about a problem we've been facing
-> with our 2.6.5 kernels, I'd get a much less helpful response.
-> And rightly so. In their position I'd do exactly the same thing.
+If the change gets folded into other changes then it would be best to draw
+attention to, and fully explain/justify the change within the changelog.
 
--- 
-~Randy
+> >
+> > > The page is protected from munmap because of the down_read(mmap_sem) in
+> > > the arch specific code before calling handle_mm_fault.
+> >
+> > We don't take mmap_sem during page reclaim.  What prevents the page from
+> > being freed by, say, kswapd?
+> 
+> The cmpxchg will fail if that happens.
+
+How about if someone does remap_file_pages() against that virtual address
+and that syscalls happens to pick the same physical page?  We have the same
+physical page at the same pte slot with different contents, and the cmpxchg
+will succeed.
+
+Maybe mmap_sem will save us, maybe not.  Either way, this change needs a
+ton of analysys, justification and documentation, please.
+
+Plus if the page gets freed under our feet, CONFIG_DEBUG_PAGEALLOC will
+oops during the copy.
+
+> > I forget.  I do recall that we decided that the change was OK, but briefly
+> > looking at it now, it seems that we'll fail to move a
+> > PageReferenced,!PageActive onto the active list?
+> 
+> See http://marc.theaimsgroup.com/?l=bk-commits-head&m=110481975332117&w=2
+> 
+> and
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=110272296503539&w=2
+
+Those are different cases.  I still don't see why the change is justified in
+do_swap_page().
+
+> > > That is up to the arch maintainers.  Add something to arch/xx/Kconfig to
+> > > allow atomic operations for an arch.  Out of the box it only works for
+> > > x86_64, ia64 and ia32.
+> > > > Feedback from s390, sparc64 and ppc64 people would help in making a merge
+> > decision.
+>
+> These architectures have the atomic pte's not enable.  It would require
+> them to submit a patch to activate atomic pte's for these architectures. 
+
+
+But if the approach which these patches take is not suitable for these
+architectures then they have no solution to the scalability problem.  The
+machines will perform suboptimally and more (perhaps conflicting)
+development will be needed.
+
+> > > Earlier releases back in September 2004 had some pte locking code (and
+> > > AFAIK Nick also played around with pte locking) but that
+> > > was less efficient than atomic operations.
+> >
+> > How much less efficient?
+> > Does anyone else have that code around?
+> 
+> Nick may have some data. It got far too complicated too fast when I tried
+> to introduce locking for individual ptes. It required bit
+> spinlocks for the pte meaning multiple atomic operations.
+
+One could add a spinlock to the pageframe, or use hashed spinlocking.
+
+> One
+> would have to check for the lock being active leading to significant code
+> changes.
+
+Why?
+
+> This would include the arch specific low level fault handers to
+> update bits, walk the page table etc etc.
+
+

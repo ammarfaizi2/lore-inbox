@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269667AbUICMpB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269668AbUICMrr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269667AbUICMpB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 08:45:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269668AbUICMpB
+	id S269668AbUICMrr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 08:47:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269663AbUICMrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 08:45:01 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:19841
-	"EHLO x30.random") by vger.kernel.org with ESMTP id S269667AbUICMop
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 08:44:45 -0400
-Date: Fri, 3 Sep 2004 14:43:05 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Kristian =?iso-8859-1?Q?S=F8rensen?= <ks@cs.aau.dk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       umbrella-devel@lists.sourceforge.net
-Subject: Re: Getting full path from dentry in LSM hooks
-Message-ID: <20040903124305.GC8557@x30.random>
-References: <41385FA5.806@cs.aau.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <41385FA5.806@cs.aau.dk>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Fri, 3 Sep 2004 08:47:47 -0400
+Received: from moraine.clusterfs.com ([66.246.132.190]:46790 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S269668AbUICMqE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 08:46:04 -0400
+Message-ID: <4138687E.4070004@clusterfs.com>
+Date: Fri, 03 Sep 2004 15:50:06 +0300
+From: Yury Umanets <yury@clusterfs.com>
+Organization: CFS Inc.
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: silent semantic changes with reiser4
+References: <20040825163225.4441cfdd.akpm@osdl.org>	<20040825233739.GP10907@legion.cup.hp.com>	<20040825234629.GF2612@wiggy.net> <1093480940.2748.35.camel@entropy>	<20040826044425.GL5414@waste.org> <1093496948.2748.69.camel@entropy>	<20040826053200.GU31237@waste.org> <20040826075348.GT1284@nysv.org>	<20040826163234.GA9047@delft.aura.cs.cmu.edu>	<Pine.LNX.4.58.0408260936550.2304@ppc970.osdl.org>	<20040831033950.GA32404@zero>	<Pine.LNX.4.58.0408302055270.2295@ppc970.osdl.org>	<413400B6.6040807@pobox.com>	<d9195cb5040831120178f8b07b@mail.gmail.com> <yqujsma26lv2.fsf@chaapala-lnx.cisco.com>
+In-Reply-To: <yqujsma26lv2.fsf@chaapala-lnx.cisco.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 03, 2004 at 02:12:21PM +0200, Kristian Sørensen wrote:
-> Hi!
-> 
-> I have a short question, concerning how to get the full path of a file 
-> from a LSM hook.
-> 
-> - If the "file" of the dentry is located in the root filesystem: no
->   problem - simply traverse the dentrys, to generate the path.
-> 
-> - If the "file" is mounted from another partition, you do not get the
->   full path by traversing the dentrys.
-> 
-> Example:
-> If we have a system with a normal root (/) and a seperate boot partition 
-> (mounted on /boot :). In the LSM hook inode_permission, you get the 
-> arguments (struct inode *inode, int mask, struct nameidata *nd).
-> Finding the path, we traverse the dentrys from (nd->dentry). But if the 
-> inode is a file in /boot we only get the filename (e.g. kernel-2.6.8.1 
-> instead of /boot/kernel-2.6.8.1)
-> 
-> 
-> Can some one reveal the trick to get the full path nomater if the 
-> filesystem is root or mounted elsewhere in the filesystem?
+Clay Haapala wrote:
 
-fix d_path, I need that too ;)
+>On Tue, 31 Aug 2004, Ryan Breen verbalised:
+>  
+>
+>>On Tue, 31 Aug 2004 00:38:14 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
+>>    
+>>
+>>>Man, this thread came a long way.
+>>>
+>>>      
+>>>
+>>You said it -- from Reiser to microkernel.  If we can only figure out
+>>a way to get a BitKeeper discussion going, we'll have the Grand
+>>Unified Flamewar.
+>>    
+>>
+>
+>OK, I'll byte: consider file versioning of an SCM implemented as a
+>ReiserFS 4 plug-in, as in:
+>
+>diff -u ultrastore.c/delta/3.2.3 ultrastore.c/delta/3.2.4
+>
+>(Brrr!  Just had a VMS flash-back shiver.)
+>  
+>
+hehe ;) Seems to develop this extention NAMESYS should stop use 
+BitKeeper. Or should buy it.
+
+-- 
+umka
+

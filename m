@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313302AbSDPM2T>; Tue, 16 Apr 2002 08:28:19 -0400
+	id <S313322AbSDPMaP>; Tue, 16 Apr 2002 08:30:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313322AbSDPM2S>; Tue, 16 Apr 2002 08:28:18 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:44556 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S313302AbSDPM2R>;
-	Tue, 16 Apr 2002 08:28:17 -0400
-Date: Tue, 16 Apr 2002 14:28:01 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IDE TCQ #4
-Message-ID: <20020416122801.GB1097@suse.de>
-In-Reply-To: <27670700DF5@vcnet.vc.cvut.cz> <20020416102501.GG17043@suse.de> <3CBC04A5.1040201@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S313338AbSDPMaO>; Tue, 16 Apr 2002 08:30:14 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:49026 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S313322AbSDPMaN>; Tue, 16 Apr 2002 08:30:13 -0400
+Date: Tue, 16 Apr 2002 08:31:45 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Olaf Fraczyk <olaf@navi.pl>, linux-kernel@vger.kernel.org
+Subject: Re: Why HZ on i386 is 100 ?
+In-Reply-To: <20020416081453.GP21206@holomorphy.com>
+Message-ID: <Pine.LNX.3.95.1020416082145.18369A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 16 2002, Martin Dalecki wrote:
-> Jens Axboe wrote:
-> 
-> 
-> >yes this looks like a silly problem. the fix should be to have
-> >ata_ar_get() set ATA_AR_RETURN in ar_flags:
-> >
-> >        if (!list_empty(&drive->free_req)) {
-> >                ar = list_ata_entry(drive->free_req.next);
-> >                list_del(&ar->ar_queue);
-> >                ata_ar_init(drive, ar);
-> >                ar->ar_flags |= ATA_AR_RETURN;
-> >        }
-> >
-> >and then only have ata_ar_put() readd it to the list when it is set:
-> >
-> >static inline void ata_ar_put(ide_drive_t *drive, struct ata_request
-> >*ar)
-> >{
-> >        if (ar->ar_flags & ATA_AR_RETURN)
-> >                list_add(&ar->ar_queue, &drive->free_req);
-> >	...
-> >
-> >Then you can also remove the ata_ar_put() conditional in
-> >ide_end_drive_cmd(), just call ata_ar_put() unconditionally.
-> 
-> Well something similar is already in IDE 37... I have just
-> invented a flag ATA_AR_STATIC which get's set in ide_raw_taskfile
-> ata_ar_put ich then checking for if (!(ar->ar_flags & ATA_AR_STATIC))...
-> 
-> It has the desired effect in practice.
+On Tue, 16 Apr 2002, William Lee Irwin III wrote:
 
-sure, just used ATA_AR_RETURN since it was there already. I'm not
-particularly fond of that name though, and ATA_AR_STATIC isn't too good
-either imo. how about ATA_AR_POOL? with the same semantics as
-ATA_AR_RETURN, ie return to pool if flag is set.
+> On Tue, Apr 16, 2002 at 09:47:48AM +0200, Olaf Fraczyk wrote:
+> > Hi,
+> > I would like to know why exactly this value was choosen.
+> > Is it safe to change it to eg. 1024? Will it break anything?
+> > What else should I change to get it working:
+> > CLOCKS_PER_SEC?
+> > Please CC me.
+> > Regards,
+> > Olaf Fraczyk
+> 
+> I tried a few times running with HZ == 1024 for some testing (or I guess
+> just to see what happened). I didn't see any problems, even without the
+> obscure CLOCKS_PER_SEC ELF business.
+> 
+> 
+> Cheers,
+> Bill
+> -
 
--- 
-Jens Axboe
+On Version 2.3.17, with a 600 MHz SMP Pentium, I set HZ to 1024 and
+recompiled everything. There was no apparent difference in performance
+or "feel".
+
+Note that HZ represents the rate at which a CPU-bound process may
+get the CPU taken away. Real-world tasks are more likely to be
+doing I/O, thus surrendering the CPU, before this relatively long
+time-slice expires. I don't think you will find any difference in
+performance with real-world tasks. FYI, the Alpha uses 1024 simply
+because the timer-chip can't divide down to 100 Hz.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
 

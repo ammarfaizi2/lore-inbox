@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129944AbQKSUgJ>; Sun, 19 Nov 2000 15:36:09 -0500
+	id <S130073AbQKSUhJ>; Sun, 19 Nov 2000 15:37:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129870AbQKSUf7>; Sun, 19 Nov 2000 15:35:59 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:11013 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129413AbQKSUfZ>;
-	Sun, 19 Nov 2000 15:35:25 -0500
-Date: Sat, 18 Nov 2000 18:54:41 +0000
+	id <S130038AbQKSUgt>; Sun, 19 Nov 2000 15:36:49 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:11781 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129413AbQKSUgF>;
+	Sun, 19 Nov 2000 15:36:05 -0500
+Date: Sat, 18 Nov 2000 16:40:22 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Werner Almesberger <Werner.Almesberger@epfl.ch>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] swap=<device> kernel commandline
-Message-ID: <20001118185441.B177@toy>
-In-Reply-To: <20001118141524.A15214@nic.fr> <Pine.LNX.4.21.0011181804360.9267-100000@duckman.distro.conectiva> <20001118223455.G23033@almesberger.net>
+To: Daniel Phillips <phillips@innominate.de>
+Cc: Michael Rothwell <rothwell@holly-springs.nc.us>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Advanced Linux Kernel/Enterprise Linux Kernel
+Message-ID: <20001118164021.A156@toy>
+In-Reply-To: <200011141459.IAA413471@tomcat.admin.navo.hpc.mil> <3A117311.8DC02909@holly-springs.nc.us> <news2mail-3A15ACE3.5BED2CA3@innominate.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001118223455.G23033@almesberger.net>; from Werner.Almesberger@epfl.ch on Sat, Nov 18, 2000 at 10:34:55PM +0100
+In-Reply-To: <news2mail-3A15ACE3.5BED2CA3@innominate.de>; from news-innominate.list.linux.kernel@innominate.de on Fri, Nov 17, 2000 at 11:10:43PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi1
+Hi!
 
-> > Did you try to load an initrd on a low-memory machine?
-> > It shouldn't work and it probably won't ;)
+> > book, Ext2 throws safety to the wind to achieve speed. This also ties
+> > into Linux' convoluted VM system, and is shot in the foot by NFS. We
+> > would need minimally a journaled filesystem and a clean VM design,
+> > probably with a unified cache (no separate buffer, directory entry and
+> > page caches). The Tux2 Phase Trees look to be a good step in the
+> > direction as well, in terms of FS reliability. The filesystem would have
+> > to do checksums on every block.
 > 
-> You must be really low on memory ;-)
-> 
-> # zcat initrd.gz | wc -c
->  409600
-> 
-> (ash, pwd, chroot, pivot_root, smount, and still about 82 kB free.)
+> Actually, I was planning on doing on putting in a hack to do something
+> like that: calculate a checksum after every buffer data update and check
+> it after write completion, to make sure nothing scribbled in the buffer
+> in the interim.  This would also pick up some bad memory problems.
 
-Your solution requires 400K initrd _plus_ memory for ash and swapon. That
-might be easily 600K total. Yes I could imagine machine with freemem less
-than that. However such machines do not usually have swap available.
+You might want to take  look to a patch with crc loop option.
 
-								Pavel
+It does verify during read, not during write; but that's even better because
+that way you pick up problems in IO subsystem, too.
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
 details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.

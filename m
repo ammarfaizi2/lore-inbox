@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261907AbTBSV1I>; Wed, 19 Feb 2003 16:27:08 -0500
+	id <S261600AbTBSVW2>; Wed, 19 Feb 2003 16:22:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261908AbTBSV1I>; Wed, 19 Feb 2003 16:27:08 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:3779 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261907AbTBSV1H>;
-	Wed, 19 Feb 2003 16:27:07 -0500
-Date: Wed, 19 Feb 2003 13:20:48 -0800 (PST)
-Message-Id: <20030219.132048.35036153.davem@redhat.com>
-To: jgarzik@pobox.com
-Cc: toml@us.ibm.com, linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
-Subject: Re: [PATCH] IPSec protocol application order
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030219212950.GC4977@gtf.org>
-References: <1045687340.3419.14.camel@tomlt2.austin.ibm.com>
-	<20030219212950.GC4977@gtf.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S261624AbTBSVW2>; Wed, 19 Feb 2003 16:22:28 -0500
+Received: from CPE-203-51-35-219.nsw.bigpond.net.au ([203.51.35.219]:1009 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S261600AbTBSVW1>; Wed, 19 Feb 2003 16:22:27 -0500
+Message-ID: <3E53F7E8.FF3F8955@eyal.emu.id.au>
+Date: Thu, 20 Feb 2003 08:32:24 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.21-pre4-aa3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.24-rc4 - unresolved
+References: <200302191412.h1JECmG25452@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jeff Garzik <jgarzik@pobox.com>
-   Date: Wed, 19 Feb 2003 16:29:50 -0500
-   
-   hmmm... do you really need to duplicate all that code, just to define
-   the order?
-   
-It's not even a kernel issue as Alexey and myself said in other
-emails, the kernel merely does what the user application asks it to do
+an all-modules (i386) build has this one unresolved:
+
+depmod: *** Unresolved symbols in /lib/modules/2.2.24-rc4/net/smc9194.o
+depmod:         netif_wake_queue
+
+in .config:
+CONFIG_SMC9194=m
+
+This looks like a macro definition missing in smc9194.c?
+
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

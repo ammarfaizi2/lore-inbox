@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129165AbRBNPDV>; Wed, 14 Feb 2001 10:03:21 -0500
+	id <S129055AbRBNPhK>; Wed, 14 Feb 2001 10:37:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129456AbRBNPDL>; Wed, 14 Feb 2001 10:03:11 -0500
-Received: from 64-32-144-137.nyc1.phoenixdsl.net ([64.32.144.137]:6924 "HELO
-	mail.ovits.net") by vger.kernel.org with SMTP id <S129165AbRBNPDB>;
-	Wed, 14 Feb 2001 10:03:01 -0500
-Date: Wed, 14 Feb 2001 10:03:19 -0500
-From: Mordechai Ovits <movits@ovits.net>
-To: "Mohammad A. Haque" <mhaque@haque.net>
-Cc: Rick Hohensee <humbubba@smarty.smart.net>, linux-kernel@vger.kernel.org
-Subject: Re: Reason (was: Re: dropcopyright script)
-Message-ID: <20010214100319.A8983@ovits.net>
-In-Reply-To: <20010214093336.A8748@ovits.net> <Pine.LNX.4.32.0102140959330.11384-100000@viper.haque.net>
-Mime-Version: 1.0
+	id <S129069AbRBNPhA>; Wed, 14 Feb 2001 10:37:00 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:10511 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129055AbRBNPgo>;
+	Wed, 14 Feb 2001 10:36:44 -0500
+To: Donald Becker <becker@scyld.com>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Ion Badulescu <ionut@moisil.cs.columbia.edu>,
+        Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
+In-Reply-To: <Pine.LNX.4.10.10102131627180.7141-100000@vaio.greennet>
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 14 Feb 2001 16:35:51 +0100
+In-Reply-To: Donald Becker's message of "Tue, 13 Feb 2001 20:20:35 -0500 (EST)"
+Message-ID: <d3snlh5lbc.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.32.0102140959330.11384-100000@viper.haque.net>; from mhaque@haque.net on Wed, Feb 14, 2001 at 10:00:25AM -0500
-X-Satellite-Tracking: 0x4B305AFF
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 14, 2001 at 10:00:25AM -0500, Mohammad A. Haque wrote:
-> Heh
-> 
-> How big do you have your icons set that you can actually read stuff in
-> it?
+>>>>> "Donald" == Donald Becker <becker@scyld.com> writes:
 
-They're quite large, and it is surprisingly effective.  KDE2 and nautilus
-both do this.
+Donald> On 12 Feb 2001, Jes Sorensen wrote:
+>> In this case it just results in a performance degradation for 99%
+>> of the usage. What about making the change so it is optimized away
+>> unless IPX is enabled?
 
-Mordy
- 
-> On Wed, 14 Feb 2001, Mordechai Ovits wrote:
-> 
-> > In newer file managers, the icon of a C file is a tiny image of the first
-> > few lines of text.  If all files startt with a copyright, it's not much
-> > good.  So running this on a local, personal, tree can be a good thing.
-> >
-> > Mordy
-> >
-> 
-> -- 
-> 
-> =====================================================================
-> Mohammad A. Haque                              http://www.haque.net/
->                                                mhaque@haque.net
-> 
->   "Alcohol and calculus don't mix.             Project Lead
->    Don't drink and derive." --Unknown          http://wm.themes.org/
->                                                batmanppc@themes.org
-> =====================================================================
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Donald> ???  - It's not just IPX hosts that send 802.3 headers.  -
+Donald> While a good initial value might depend on the architecture,
+Donald> the best setting is processor implementation and environment
+Donald> dependent.  Those details are not known at compile time.  -
+Donald> The code path cost of a module option is only a compare and a
+Donald> conditional branch.
+
+What else is sending out 802.3 frames these days? I really don't care
+about IPX when it comes to performance.
+
+I am just advocating that we optimize for the common case which is DIX
+frames and not 802.3.
+
+Jes

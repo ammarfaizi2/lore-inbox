@@ -1,67 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264250AbTCXPaG>; Mon, 24 Mar 2003 10:30:06 -0500
+	id <S264249AbTCXP22>; Mon, 24 Mar 2003 10:28:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264251AbTCXPaG>; Mon, 24 Mar 2003 10:30:06 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:3291 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S264250AbTCXPaE>; Mon, 24 Mar 2003 10:30:04 -0500
-Date: Mon, 24 Mar 2003 07:40:58 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: jgarzik@pobox.com, rml@tech9.net, mj@ucw.cz, alan@redhat.com, pavel@ucw.cz,
-       szepe@pinerecords.com, arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Ptrace hole / Linux 2.2.25
-Message-ID: <85710000.1048520457@[10.10.2.4]>
-In-Reply-To: <20030324113035.540cfd25.skraw@ithnet.com>
-References: <29100000.1048459104@[10.10.2.4]><3E7E3AF0.6040107@pobox.com>
- <1940000.1048460794@[10.10.2.4]> <20030324113035.540cfd25.skraw@ithnet.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264250AbTCXP22>; Mon, 24 Mar 2003 10:28:28 -0500
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:42254 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S264249AbTCXP2Z>;
+	Mon, 24 Mar 2003 10:28:25 -0500
+Date: Mon, 24 Mar 2003 16:39:33 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Testing: What do you want?
+Message-ID: <20030324153933.GH30613@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <3E7F1A2D.4050306@coyotegulch.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rCwQ2Y43eQY6RBgR"
 Content-Disposition: inline
+In-Reply-To: <3E7F1A2D.4050306@coyotegulch.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> _please_ be honest and realistic: we are talking about the problem of
-> vendors forking around yakr (Yet Another Kernel Release) and you really
-> say "lets solve it all with _another_ fork" ?? Come on, don't be silly
-> (tm Linus). Let's focus and not fork. There _are_ issues with 2.4, but
-> they are getting solved bit-by-bit. It would be faster of course if we
-> all would concentrate on the _mainline_ and not on yet-another patchlist,
-> split-tree or whatever.
 
-I see your point, and I'd love to get this stuff merged back to mainline
-2.4, and that would actually be the whole point of doing this ... to
-provide a channel of stuff that should get merged back. The other thing to
-bear in mind is that what I want is not really another to turn 4 branches
-into 5, it's to turn 4 branches into two branches with a couple of twigs
-off each ;-) So I actually want *more* commonality.
- 
-> Another thing has already been talked about here, so lets talk real open
-> about it: some of us are living in the strong impression that Marcelo has
-> problems with the pure time working on maintaining. I do not know
-> anything about the backgrounds, but if this is really true, then let _me_
-> ask Conectiva if there is a chance that he can do the maintaining
-> full-time. I mean this is for sure one of the interesting PR activities,
-> too. After all those years it is still true: there can be only one.
-> Of course this only makes sense if he still really wants to do that. _Me_
-> asking this because I am in no way related to any other distro, vendor or
-> Marcelo, just being the "linux-enthusiast from next-door" (with management
-> background ;-). 
+--rCwQ2Y43eQY6RBgR
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-If Marcelo would like some more help from others for integration / testing
-whatever, I'm sure it could be arranged if he described what he'd like. I
-know that helps me out a lot at least if I can get others to help me ...
-(eg. take these 5 patches, merge them on top of my latest prerelease, and
-kick the snot of them for me to see if they're basically looking OK). 
+On Mon, 2003-03-24 09:46:05 -0500, Scott Robert Ladd <coyote@coyotegulch.co=
+m>
+wrote in message <3E7F1A2D.4050306@coyotegulch.com>:
+> For the most part, the 2.5 series has worked very well for me, albeit=20
+> with a few glitches (radeonfb, for example, as reported last week.) I'll=
+=20
+> build the 2.5.65 kernel on my Sparc later today, and see how well it=20
+> works there.
 
-There's plenty of talent and enthusiasm around on LKML that's able to share
-the burden ... would be much more constructive than us (myself included)
-complaining ;-)
+sparc32? If you get it to build or even to boot, please drop me a note
+with at least this information I'm *really* interested in:
 
-M.
+	- Machine type
+	- CPU(s)
+	- .config file
+	- gcc -v
+	- ld -v
 
-PS. If Andrea's VM fixes are a good candidate, that people are seriously
-interested in, I'll get myself and others here to give them a beating.
+Last time I looked at it, sparc32 wasn't in any good state (esp. SMP) in
+2.5.x. This is because Dave S. Miller stopped spending a lot of hacking
+time (he has to work for other things now and only merges patches he
+gets sent, where he formerly did tons on active development for
+sparc32).
+
+I'm in the progress of a (private) attempt to build a Linux Test Centre.
+(I've already mentioned that - read my last mail in the thread
+aboutremoving .gz files from kernel.org.)
+
+The idea is to have automatic kernel builds (for all available
+architectures I've collected test hardware for:) and run tests. This
+needs to be achieved with automatic cross-compilation of kernels (you
+don't want to let a m68k compile it's own kernel:), installation and
+choosing this for booting. I've got some quite nice ideas there
+(including electronic power switches, serial console management etc.),
+but yet, I'm not assured that I'll get the room I may get near
+Halle/Westf (Germany).
+
+What is _most_ important to testing is this:
+
+	- *fast* response.
+			Developers don't like to wait like a month
+			before they hear they broke something. If there
+			are (untested) patches timely in between, it may
+			even get hard to sort the broken part out (cf.
+			sparc32 at 2.5.x).
+
+			So the basics are doing automated _compile_
+			tests. This includes keeping tables (file name -
+			responsible person, architecture - responsible
+			person) for automated notification, as well as a
+			quite good system to switch certain .config
+			items off (so if you find some compile error,
+			you have to automatically (if possible) switch
+			off the corresponding feature and start again).
+
+	- Decoded Oopses.
+			With the in-kernel kksymoops, this is (most of
+			the time) quite easy to do if you've got serial
+			console working.
+
+			Possibly implementing kgdb for more
+			architectures could help also.
+
+			If you then get an answer by a developer, you
+			also need to response on a fast manner. Give any
+			information to the developers as early as
+			possible. They don't like asking for every
+			piece. They like mails containing anything they
+			need (structured and readable).
+
+			If you then receive patches for review, you'd
+			also be capable of automatically including them,
+			starting a new compile/install/boot-up, ...
+
+	- Runtime test (stability).
+			Some Kernels first start booting, but freeze
+			days later. These are the hard ones:( By
+			possibility, you haven't got any information on
+			this...
+=09
+=2E..and all this for as many machines/architectures with as different as
+possibly hardware attached.
+
+MfG, JBG
+
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
+
+--rCwQ2Y43eQY6RBgR
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+fya1Hb1edYOZ4bsRAommAJ42FJ35XC9hyKnLjo3DNRmzJ+2AjACfdU06
+JH7zeZ6JQD7/sruToggeRhY=
+=1ghg
+-----END PGP SIGNATURE-----
+
+--rCwQ2Y43eQY6RBgR--

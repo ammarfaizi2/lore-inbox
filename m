@@ -1,80 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265700AbUA0Tjt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 14:39:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265661AbUA0ThG
+	id S265828AbUA0UGP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 15:06:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265830AbUA0UGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 14:37:06 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:22763 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S265663AbUA0TgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 14:36:11 -0500
-Subject: Re: [PATCH] kgdb-x86_64-support.patch for 2.6.2-rc1-mm3
-From: Jim Houston <jim.houston@comcast.net>
-Reply-To: jim.houston@comcast.net
-To: Andi Kleen <ak@suse.de>
-Cc: akpm@osdl.org, george@mvista.com, amitkale@emsyssoft.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040127190251.4edb873d.ak@suse.de>
-References: <20040127030529.8F860C60FC@h00e098094f32.ne.client2.attbi.com>
-	 <20040127155619.7efec284.ak@suse.de>
-	 <1075225399.1020.239.camel@new.localdomain>
-	 <20040127190251.4edb873d.ak@suse.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1075232116.1020.326.camel@new.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 27 Jan 2004 14:35:17 -0500
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Jan 2004 15:06:15 -0500
+Received: from mail.timesys.com ([65.117.135.102]:55927 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S265828AbUA0UGL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 15:06:11 -0500
+Message-ID: <4016C477.4070505@timesys.com>
+Date: Tue, 27 Jan 2004 15:05:11 -0500
+From: Pratik Solanki <pratik.solanki@timesys.com>
+Organization: TimeSys Corporation
+User-Agent: Mozilla Thunderbird 0.5a (X11/20040118)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: u_int32_t causes cross-compile problems [PATCH]
+Content-Type: multipart/mixed;
+ boundary="------------040108000808050306070308"
+X-OriginalArrivalTime: 27 Jan 2004 20:00:18.0781 (UTC) FILETIME=[303960D0:01C3E510]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-01-27 at 13:02, Andi Kleen wrote:
-> On 27 Jan 2004 12:43:20 -0500
-> Jim Houston <jim.houston@comcast.net> wrote:
+This is a multi-part message in MIME format.
+--------------040108000808050306070308
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> > arch/x86_64/Kconfig
-> > arch/x86_64/Kconfig.kgdb
-> > 	We used a different approach to selecting DEBUG_INFO.
-> > 	I was not really happy with the way select DEBUG_INFO worked.
-> 
-> You reverted it back? 
-> 
-> What I did was to change all not really kgdb specific CONFIG_KGDB uses in
-> the main kernel with CONFIG_DEBUG_INFO (mostly CFI support). I don't feel
-> strongly about it, but this way there is no reference to an unknown
-> config symbol in mainline. Also DEBUG_INFO including CFI makes sense I think.
+I came across this C standards issue while cross-compiling the Linux 
+kernel with gcc on Solaris. The file gen_crc32table.c uses the 
+non-standard type u_int32_t. It's possible that the host machine's 
+sys/types.h does not define u_int32_t. The attached patch replaces 
+u_int32_t with the POSIX standard uint32_t and includes POSIX inttypes.h 
+instead of sys/types.h.
 
-Hi Andi,
+Please CC me when replying.
 
-I'm using CONFIG_DEBUG_INFO, but I used a different mechanism to
-select it when KGDB is selected.  I'm still learning to speak Kconfig.
+Pratik.
 
-My patch:
+--------------040108000808050306070308
+Content-Type: text/plain;
+ name="gen_crc32table.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="gen_crc32table.patch"
 
-   config KGDB
-        bool "Include kgdb kernel debugger"
-        depends on DEBUG_KERNEL
-        select DEBUG_INFO
-        help
-          If you say Y here, the system will be compiled with the debug
+===== lib/gen_crc32table.c 1.1 vs edited =====
+--- 1.1/lib/gen_crc32table.c	Sun Nov 24 04:58:41 2002
++++ edited/lib/gen_crc32table.c	Fri Jan 23 11:06:00 2004
+@@ -1,14 +1,14 @@
+ #include <stdio.h>
+ #include "crc32defs.h"
+-#include <sys/types.h>
++#include <inttypes.h>
+ 
+ #define ENTRIES_PER_LINE 4
+ 
+ #define LE_TABLE_SIZE (1 << CRC_LE_BITS)
+ #define BE_TABLE_SIZE (1 << CRC_BE_BITS)
+ 
+-static u_int32_t crc32table_le[LE_TABLE_SIZE];
+-static u_int32_t crc32table_be[BE_TABLE_SIZE];
++static uint32_t crc32table_le[LE_TABLE_SIZE];
++static uint32_t crc32table_be[BE_TABLE_SIZE];
+ 
+ /**
+  * crc32init_le() - allocate and initialize LE table data
+@@ -20,7 +20,7 @@
+ static void crc32init_le(void)
+ {
+ 	unsigned i, j;
+-	u_int32_t crc = 1;
++	uint32_t crc = 1;
+ 
+ 	crc32table_le[0] = 0;
+ 
+@@ -37,7 +37,7 @@
+ static void crc32init_be(void)
+ {
+ 	unsigned i, j;
+-	u_int32_t crc = 0x80000000;
++	uint32_t crc = 0x80000000;
+ 
+ 	crc32table_be[0] = 0;
+ 
+@@ -48,7 +48,7 @@
+ 	}
+ }
+ 
+-static void output_table(u_int32_t table[], int len, char *trans)
++static void output_table(uint32_t table[], int len, char *trans)
+ {
+ 	int i;
+ 
 
-Your patch:
-
-  config DEBUG_INFO
-        bool "Compile kernel with debug information" if !KGDB
-        default y
-
-Using "select DEBUG_INFO" selects the option and makes the input box
-on xconfig disappear.  The line describing the option remains, perhaps
-leaving a user wondering why this line doesn't have an input box.
-
-With your version, the DEBUG_INFO option disappears when KGDB forces
-it on.
-
-I was looking for a way to get the old behavior where the 
-the effect was controlled by an OR of the two options.
-
-Jim Houston - Concurrent Computer Corp.
-
+--------------040108000808050306070308--

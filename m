@@ -1,46 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261672AbTDHToy (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 15:44:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbTDHTox (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 15:44:53 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:1028 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id S261672AbTDHTow (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 15:44:52 -0400
-Date: Tue, 8 Apr 2003 20:41:09 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Martin Hicks <mort@bork.org>
-Cc: linux-kernel@vger.kernel.org, hpa@zytor.com, wildos@sgi.com
-Subject: Re: [patch] printk subsystems
-Message-ID: <20030408184109.GA226@elf.ucw.cz>
-References: <20030407201337.GE28468@bork.org>
+	id S261675AbTDHTwn (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 15:52:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbTDHTwn (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 15:52:43 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:33727 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261675AbTDHTwl (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 15:52:41 -0400
+Date: Tue, 8 Apr 2003 13:03:48 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "shesha bhushan" <bhushan_vadulas@hotmail.com>
+Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+Subject: Re: KERNEL PROFILING
+Message-Id: <20030408130348.11e3946b.rddunlap@osdl.org>
+In-Reply-To: <F20Lig41UjdSkleUBUh0001d797@hotmail.com>
+References: <F20Lig41UjdSkleUBUh0001d797@hotmail.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030407201337.GE28468@bork.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I don't know why it's not created.
 
-> In an effort to get greater control over which printk()'s are logged
-> during boot and after, I've put together this patch that introduces the
-> concept of printk subsystems.  The problem that some are beginning to
-> face with larger machines is that certain subsystems are overly verbose
-> (SCSI, USB, cpu related messages on large NUMA or SMP machines)
-> and they overflow the buffer.  Making the logbuffer bigger is a stop gap
-> solution but I think this is a more elegant solution.
+What kernel version is this?  Did you build the kernel
+or is it from someone else who could have modified it?
 
-> Basically, each printk is assigned to a subsystem and that subsystem has
-> the same set of values that the console_printk array has.  The
-> difference is that the console_printk loglevel decides if the message
-> goes to the console whereas the subsystem loglevel decides if that
-> message goes to the log at all.
+The only failure that I see in profile setup/init is Out of Memory
+if the profile buffer cannot be allocated.  Did you search thru
+the boot message log for any errors?
 
-Well, I consider this stop gap too... Right solution is to kill
-printk()s from too verbose part so that it does not overflow....
+~Randy
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+
+On Tue, 08 Apr 2003 19:42:03 +0000 "shesha bhushan" <bhushan_vadulas@hotmail.com> wrote:
+
+| 
+| Hi
+| If I use the command line option "profile=2" while booting the system, why 
+| /proc/profile file is not created? Should I have to create it manually?
+| 
+| Thanking You'
+| Shesha
+| 
+| 
+| 
+| 
+| 
+| >From: "Randy.Dunlap" <rddunlap@osdl.org>
+| >To: "shesha bhushan" <bhushan_vadulas@hotmail.com>
+| >CC: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+| >Subject: Re: KERNEL PROFILING
+| >Date: Tue, 8 Apr 2003 08:01:55 -0700
+| >
+| >On Tue, 08 Apr 2003 07:58:54 +0000 "shesha bhushan" 
+| ><bhushan_vadulas@hotmail.com> wrote:
+| >
+| >| HI ALL,
+| >|   I am trying to profile the linux kernel. Can any one suggest an easy 
+| >way
+| >| to do. Like, I wanted to see how much TCP is using CPU, how much of CPU 
+| >is
+| >| used in memcpy, etc.
+| >| Can any one please suggest me.
+| >
+| >Start with the file linux/Documentation/basic_profiling.txt
+| >(it's in Linux 2.5.66-or-so or later).
+| >
+| >It explains how to use oprofile and readprofile.
+| >
+| >You can read about oprofile at http://oprofile.sourceforge.net/ .
+| >
+| >You can read about basic in-kernel profiling using /proc/profile
+| >and readprofile via 'man readprofile'.  It's simple to use.
+| >
+| >--
+| >~Randy

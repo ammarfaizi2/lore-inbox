@@ -1,95 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265886AbTGIJYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 05:24:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265893AbTGIJYJ
+	id S265879AbTGIJUO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 05:20:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265882AbTGIJUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 05:24:09 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:1030 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S265886AbTGIJYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 05:24:04 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Andrew Morton <akpm@osdl.org>,
-       Thomas Schlichter <schlicht@uni-mannheim.de>
-Subject: Re: 2.5.74-mm3
-Date: Wed, 9 Jul 2003 11:38:07 +0200
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20030708223548.791247f5.akpm@osdl.org> <200307091106.00781.schlicht@uni-mannheim.de> <20030709021849.31eb3aec.akpm@osdl.org>
-In-Reply-To: <20030709021849.31eb3aec.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_/J+C/lr2RPX5B5R"
-Message-Id: <200307091138.07580.m.c.p@wolk-project.de>
+	Wed, 9 Jul 2003 05:20:14 -0400
+Received: from griffon.mipsys.com ([217.167.51.129]:34003 "EHLO gaston")
+	by vger.kernel.org with ESMTP id S265879AbTGIJUK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 05:20:10 -0400
+Subject: Re: 2.4.21 IDE and IEEE1394+SBP2 regressions, orinoco_pci progress
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Zygo Blaxell <uixjjji1@umail.furryterror.org>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <pan.2003.07.08.22.25.12.249185.15455@umail.hungrycats.org>
+References: <pan.2003.07.08.22.25.12.249185.15455@umail.hungrycats.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1057743274.506.4.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 09 Jul 2003 11:34:34 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-07-09 at 04:49, Zygo Blaxell wrote:
+> Previously on kernels up to 2.4.20, an IDE disk I/O request that was in
+> progress at suspend time would trigger a DMA reset upon resume, after a
+> short delay while waiting for the timeout.  2.4.20 looked like this:
+> 
+>         ide_dmaproc: chipset supported ide_dma_lostirq func only: 13 hda:
+>         lost interrupt
+> 
+> After this, the machine happily resumes whatever it was doing.  There is a
+> delay of a few seconds while this happens.
+> 
+> Now in 2.4.21, the kernel prints the following message:
+> 
+>         hda: dma_timer_expiry: dma status == 0x04
+> 
+> and that's the last thing it ever does--the kernel locks up hard.
 
---Boundary-00=_/J+C/lr2RPX5B5R
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Whatever happens, you shouldn't let the machine suspend while ongoing
+disk IOs are in progress. A lot of bad things could result from that.
 
-On Wednesday 09 July 2003 11:18, Andrew Morton wrote:
+Actually, the proper fix is to implement some working suspend/resume
+handlers in the IDE layer like we did in 2.5, though the problem here
+is that 2.4 lacks proper infrastructure for doing that in a properly
+ordered way.
 
-Hi Andrew,
+> Note that in order to see this you need to be doing a lot of I/O at
+> suspend time, e.g. 'cp -a /usr /tmp' or some such thing.
+> 
+> Also in 2.4.21, a filesystem mounted from a CD-ROM via ide-scsi will start
+> to get I/O errors if it is accessed during the suspend/resume sequence. 
+> In 2.4.20, there were no ill effects when this happens.
 
-> >  arch/i386/kernel/apm.c: In function `apm_bios_call':
-> >  arch/i386/kernel/apm.c:600: error: incompatible types in assignment
-> >  arch/i386/kernel/apm.c: In function `apm_bios_call_simple':
-> >  arch/i386/kernel/apm.c:643: error: incompatible types in assignment
-> >  The attached patch fixes this...
-> Seems complex.  I just have this:
->
->
-> diff -puN arch/i386/kernel/apm.c~cpumask-apm-fix-2 arch/i386/kernel/apm.c
-> --- 25/arch/i386/kernel/apm.c~cpumask-apm-fix-2	2003-07-08
-> 23:09:23.000000000 -0700 +++ 25-akpm/arch/i386/kernel/apm.c	2003-07-08
-> 23:28:50.000000000 -0700 @@ -528,7 +528,7 @@ static inline void
-> apm_restore_cpus(cpum
->   *	No CPU lockdown needed on a uniprocessor
->   */
->
-> -#define apm_save_cpus()	0
-> +#define apm_save_cpus()		CPU_MASK_NONE
->  #define apm_restore_cpus(x)	(void)(x)
->
->  #endif
->
-better use the attached one ;)
+Same thing. You need the driver to block requests during that sequence,
+and to complete any pending one before suspend is entered.
 
-ciao, Marc
-
---Boundary-00=_/J+C/lr2RPX5B5R
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="15_fixup-apm-small.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="15_fixup-apm-small.patch"
-
-diff -puN arch/i386/kernel/apm.c~cpumask-apm-fix-2 arch/i386/kernel/apm.c
---- 25/arch/i386/kernel/apm.c~cpumask-apm-fix-2	2003-07-08 23:09:23.000000000 -0700
-+++ 25-akpm/arch/i386/kernel/apm.c	2003-07-08 23:28:50.000000000 -0700
-@@ -222,6 +222,7 @@
- #include <linux/kernel.h>
- #include <linux/smp.h>
- #include <linux/smp_lock.h>
-+#include <linux/cpumask.h>
- 
- #include <asm/system.h>
- #include <asm/uaccess.h>
-@@ -528,7 +529,7 @@ static inline void apm_restore_cpus(cpum
-  *	No CPU lockdown needed on a uniprocessor
-  */
-  
--#define apm_save_cpus()	0
-+#define apm_save_cpus()		CPU_MASK_NONE
- #define apm_restore_cpus(x)	(void)(x)
- 
- #endif
-
---Boundary-00=_/J+C/lr2RPX5B5R--
 

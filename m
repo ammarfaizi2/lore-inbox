@@ -1,220 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132405AbRACPfn>; Wed, 3 Jan 2001 10:35:43 -0500
+	id <S130172AbRACPoE>; Wed, 3 Jan 2001 10:44:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132345AbRACPff>; Wed, 3 Jan 2001 10:35:35 -0500
-Received: from netsrvr.ami.com.au ([203.55.31.38]:21104 "EHLO
-	netsrvr.ami.com.au") by vger.kernel.org with ESMTP
-	id <S132370AbRACPfW>; Wed, 3 Jan 2001 10:35:22 -0500
-Message-Id: <200101031330.f03DU4Q02199@emu.os2.ami.com.au>
-X-Mailer: exmh version 2.1.1 10/15/1999
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Kernel 2.4.0-test12 hang
+	id <S131830AbRACPnn>; Wed, 3 Jan 2001 10:43:43 -0500
+Received: from hybrid-024-221-152-185.az.sprintbbd.net ([24.221.152.185]:47866
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S130172AbRACPne>; Wed, 3 Jan 2001 10:43:34 -0500
+Date: Wed, 3 Jan 2001 08:11:52 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-fbdev@vuser.vu.union.edu,
+        linux-kernel@vger.kernel.org
+Subject: Re: [linux-fbdev] [PATCH] clgenfb on PPC
+Message-ID: <20010103081152.L26653@opus.bloom.county>
+In-Reply-To: <20010102095133.B26653@opus.bloom.county> <Pine.LNX.4.05.10101031349110.611-100000@callisto.of.borg>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 03 Jan 2001 21:30:29 +0800
-From: John Summerfield <summer@OS2.ami.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.4.05.10101031349110.611-100000@callisto.of.borg>; from geert@linux-m68k.org on Wed, Jan 03, 2001 at 01:50:46PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 03, 2001 at 01:50:46PM +0100, Geert Uytterhoeven wrote:
+> On Tue, 2 Jan 2001, Tom Rini wrote:
+> > Hey all.  While going through the 2.4 tree and removing dead CONFIG_xxx's for
+> > PPC stuff, I noticed clgenfb still had CONFIG_PREP stuff (which may have
+> > partily explained why it no longer worked here).  I've attached a patch, that
+> > with another patch to fix some PCI issues on certain machines, gives me a
+> > working (so far, can't test heavily yet tho) framebuffer on my powerstack.
+> > 
+> > Comments?
+> 
+> To me it looks like most of them depend on `big endian', not on `PReP'.
 
-This kernel
-VERSION = 2
-PATCHLEVEL = 4
-SUBLEVEL = 0
-EXTRAVERSION = -test12
+Well, I was trying to base things off the prior logic.
 
-Sometimes locks solid (alt-sysrq doesn't work), sometimes less so (alt-sysrq 
-does work) but more often reboots when a user (me with my usual account, me 
-with an alternate little-user account) logs in and starts XFree, or logs in 
-through kdm.
+> BTW, doesn't the Cirrus Logic graphics chip have a big endian aperture? I 
+> don't like things like green.offset = -3, since it will probably break some
+> applications (did you run X?).
 
-I've reverted to an earlier build (vmlinuz.old) of the same kernel and all is 
-well again.
-
-I don't have the old configuration file (.config) to compare with; the config 
-that fails follows at the end of this description.
-
-
-What I changed is a few network options; I'm setting up to play with uml and 
-chose options to allow ethertap and TUN. I also turned on the netfilter stuff, 
-and forwarding/masq
-
-My video adaptor is i740-based, the motherboard an ASUS P2L97-S with BIOS 1010 
-beta 3 (I have been thinking of replacing my PII-233 with a Celeron, but 
-haven't done so).
-
-
-CONFIG_X86=y
-CONFIG_ISA=y
-CONFIG_UID16=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_MODULES=y
-CONFIG_KMOD=y
-CONFIG_M686=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_PGE=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_MSR=y
-CONFIG_NOHIGHMEM=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_NET=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_HOTPLUG=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PM=y
-CONFIG_ACPI=y
-CONFIG_PARPORT=m
-CONFIG_PARPORT_1284=y
-CONFIG_PNP=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_PACKET=y
-CONFIG_NETLINK=y
-CONFIG_NETFILTER=y
-CONFIG_NETFILTER_DEBUG=y
-CONFIG_FILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_NF_CONNTRACK=y
-CONFIG_IP_NF_FTP=y
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_TARGET_MIRROR=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_PIIX_TUNING=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_IDEDMA_IVB=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_SD_EXTRA_DEVS=40
-CONFIG_BLK_DEV_SR=y
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_CHR_DEV_SG=y
-CONFIG_SCSI_DEBUG_QUEUES=y
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_LOGGING=y
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_AIC7XXX_TCQ_ON_BY_DEFAULT=y
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=8
-CONFIG_AIC7XXX_PROC_STATS=y
-CONFIG_AIC7XXX_RESET_DELAY=5
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_TUN=m
-CONFIG_ETHERTAP=m
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_PCI=y
-CONFIG_EPIC100=y
-CONFIG_PPP=m
-CONFIG_PPP_MULTILINK=y
-CONFIG_PPP_ASYNC=m
-CONFIG_PPP_DEFLATE=m
-CONFIG_PPP_BSDCOMP=m
-CONFIG_PPPOE=m
-CONFIG_SLIP=m
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_EVDEV=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=m
-CONFIG_MOUSE=y
-CONFIG_PSMOUSE=y
-CONFIG_AGP=m
-CONFIG_AGP_INTEL=y
-CONFIG_DRM=y
-CONFIG_AUTOFS_FS=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_JFFS_FS_VERBOSE=0
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_NFS_FS=y
-CONFIG_NFSD=y
-CONFIG_SUNRPC=y
-CONFIG_LOCKD=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FBCON_CFB8=y
-CONFIG_FBCON_CFB16=y
-CONFIG_FBCON_CFB24=y
-CONFIG_FBCON_CFB32=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-CONFIG_SOUND=m
-CONFIG_SOUND_ES1371=m
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_UHCI_ALT=y
-CONFIG_USB_MOUSE=y
-CONFIG_MAGIC_SYSRQ=y
+Nope, I still need to NFS root the machine to try.  I'm also wondering tho
+if on ppc anything other than Xbh (the Xserver writtten for these machines)
+will even work.
 
 -- 
-Cheers
-John Summerfield
-http://www2.ami.com.au/ for OS/2 & linux information.
-Configuration, networking, combined IBM ftpsites index.
-
-Note: mail delivered to me is deemed to be intended for me, for my disposition.
-
-
-
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

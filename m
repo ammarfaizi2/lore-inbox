@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319502AbSIGO3S>; Sat, 7 Sep 2002 10:29:18 -0400
+	id <S316768AbSIGOjO>; Sat, 7 Sep 2002 10:39:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319503AbSIGO3S>; Sat, 7 Sep 2002 10:29:18 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:45572 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S319502AbSIGO3R>; Sat, 7 Sep 2002 10:29:17 -0400
-Date: Sun, 8 Sep 2002 00:33:46 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: LMbench2.0 results
-In-Reply-To: <20020907121854.10290.qmail@linuxmail.org>
-Message-ID: <Mutt.LNX.4.44.0209080030370.14798-100000@blackbird.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318246AbSIGOjO>; Sat, 7 Sep 2002 10:39:14 -0400
+Received: from science.horizon.com ([192.35.100.1]:7241 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP
+	id <S316768AbSIGOjN>; Sat, 7 Sep 2002 10:39:13 -0400
+Date: 7 Sep 2002 14:43:48 -0000
+Message-ID: <20020907144348.28130.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: One more bio for for floppy users in 2.5.33..
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Sep 2002, Paolo Ciarrocchi wrote:
+On Fri, 6 Sep 2002, Linus Torvalds wrote:
+> Note that the delay for motor on/off is _much_ larger than the actual 
+> delay for seeking.
+> 
+> The seek itself is on the order of a few ms, with the head settle time 
+> being in the tens (possibly even a few hundred) ms per track. So assuming 
+> you end up reading 4 tracks or so due to readahead, that's still in the 
+> range of about one second.
+> 
+> In contrast, the motor on/off time is something like 5 seconds if I
+> remember correctly. Of course, you can certainly eject the floppy while
+> the motor is still running, but I'd suggest against it.
 
-> Let me know if you need further information (.config, info about my
-> hardware) or if you want I run other tests.
+You're forgetting the transfer rate.  A 1440K floppy has 160
+tracks (80 cylinders * 2 heads), or 9K per track.
 
-Would you be able to run the tests for 2.5.31?  I'm looking into a
-slowdown in 2.5.32/33 which may be related.  Some hardware info might be
-useful too.
+It spins at 300 RPM, so it takes at least 200 ms to read that track.
+45K/sec.
 
+A 64K read spans 7.11 tracks, which will take 1422 ms to read.
+Add 100 ms for initial rotational latency, and assume that subsequent
+tracks are optimally arranged for continuous reads.
 
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
+That's 1.5 secods just to transfer the data.
 
+*Then* you can add all of the seek and motor spin-up/down times
+mentioned above.
 
+(Of course, if the floppy *isn't* formatted optimally, add an
+extra 100 ms per seek, or 700 ms total, of rotatinal latency.)

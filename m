@@ -1,33 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268396AbTCFVbB>; Thu, 6 Mar 2003 16:31:01 -0500
+	id <S268386AbTCFV37>; Thu, 6 Mar 2003 16:29:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268400AbTCFVbB>; Thu, 6 Mar 2003 16:31:01 -0500
-Received: from [24.77.48.240] ([24.77.48.240]:41820 "EHLO aiinc.aiinc.ca")
-	by vger.kernel.org with ESMTP id <S268396AbTCFVbA>;
-	Thu, 6 Mar 2003 16:31:00 -0500
-Date: Thu, 6 Mar 2003 13:41:35 -0800
-From: Michael Hayes <mike@aiinc.ca>
-Message-Id: <200303062141.h26LfZK19533@aiinc.aiinc.ca>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix breakage caused by spelling 'fix'
-Cc: torvalds@transmeta.com
+	id <S268399AbTCFV37>; Thu, 6 Mar 2003 16:29:59 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:52744 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S268386AbTCFV36>;
+	Thu, 6 Mar 2003 16:29:58 -0500
+Message-ID: <3E67C050.10500@scssoft.com>
+Date: Thu, 06 Mar 2003 22:40:32 +0100
+From: Petr Sebor <petr@scssoft.com>
+Organization: SCS Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+X-Accept-Language: cs, en
+MIME-Version: 1.0
+To: Alan Cox <alan@redhat.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21pre5-ac2
+References: <200303061915.h26JFhP06388@devserv.devel.redhat.com>
+In-Reply-To: <200303061915.h26JFhP06388@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes a spelling "fix" that resulted in a compile error.
+Hello,
 
-With apologies to Russell King.
+I am now getting the following errors with both
+2.4.21-pre5-ac1 and 2.4.21-pre5-ac2:
 
-diff -ur a/include/asm-arm/proc-fns.h b/include/asm-arm/proc-fns.h
---- a/include/asm-arm/proc-fns.h	Tue Mar  4 19:29:20 2003
-+++ b/include/asm-arm/proc-fns.h	Thu Mar  6 11:46:15 2003
-@@ -125,7 +125,7 @@
- 
- #if 0
-  * The following is to fool mkdep into generating the correct
-- * dependencies.  Without this, it can't figure out that this
-+ * dependencies.  Without this, it cant figure out that this
-  * file does indeed depend on the cpu-*.h files.
- #include <asm/cpu-single.h>
- #include <asm/cpu-multi26.h>
+hdb: IOMEGA ZIP 100 ATAPI Floppy, ATAPI FLOPPY drive
+Partition check:
+ hdb:end_request: I/O error, dev 03:40 (hdb), sector 0
+end_request: I/O error, dev 03:40 (hdb), sector 2
+end_request: I/O error, dev 03:40 (hdb), sector 4
+end_request: I/O error, dev 03:40 (hdb), sector 6
+end_request: I/O error, dev 03:40 (hdb), sector 0
+end_request: I/O error, dev 03:40 (hdb), sector 2
+end_request: I/O error, dev 03:40 (hdb), sector 4
+end_request: I/O error, dev 03:40 (hdb), sector 6
+ unable to read partition table
+
+Started to happen on two different machines and didn't
+happen with pre4-ac7.
+
+Regards,
+Petr
+
+

@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbULBQOQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbULBQVY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261663AbULBQOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 11:14:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbULBQK4
+	id S261658AbULBQVY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 11:21:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbULBQVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 11:10:56 -0500
-Received: from webapps.arcom.com ([194.200.159.168]:16392 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S261686AbULBQFl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 11:05:41 -0500
-Message-ID: <41AF3D50.4090707@arcom.com>
-Date: Thu, 02 Dec 2004 16:05:36 +0000
-From: David Vrabel <dvrabel@arcom.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
+	Thu, 2 Dec 2004 11:21:24 -0500
+Received: from atlrel7.hp.com ([156.153.255.213]:61610 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S261658AbULBQVV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 11:21:21 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] fix DAC960 hang in 2.6.10-rc2
+Date: Thu, 2 Dec 2004 09:21:15 -0700
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Jiffy based timers/timeouts can expire too soon.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Dec 2004 16:07:31.0531 (UTC) FILETIME=[0726A9B0:01C4D889]
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_7D0rBzgJp+lo/ym"
+Message-Id: <200412020921.15925.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--Boundary-00=_7D0rBzgJp+lo/ym
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Jiffy based timers and timeouts can expire too soon because the timer 
-interrupt accounts for lost ticks and can increment jiffies by more than 1.
+The DAC960 driver looks at PCI_Device->irq before calling
+pci_enable_device(), which means it requests the wrong IRQ
+and hangs.  The attached patch fixes it.
 
-Consider the following:
+--Boundary-00=_7D0rBzgJp+lo/ym
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="DAC960-irq-fix"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="DAC960-irq-fix"
 
-     unsigned long timeout = jiffies + 1;
+Don't look at PCI_Device->irq until *after* calling pci_enable_device().
 
-    <--- timer interrupt here:
-         jiffies += 2 (i.e., catching up one missed interrupt)
+Thanks to Johannes Rommel for reporting the problem and testing the fix.
 
-    if (time_after(jiffies, timeout))
-	/* but 1 tick worth of time hasn't (necessarily) elapsed */
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-This was originally observed on an ARM platform[1] but the i386 timer 
-interrupt appears to behave in a similar way.
+===== drivers/block/DAC960.c 1.74 vs edited =====
+--- 1.74/drivers/block/DAC960.c	2004-10-05 13:57:21 -06:00
++++ edited/drivers/block/DAC960.c	2004-11-29 10:12:07 -07:00
+@@ -2678,7 +2678,7 @@
+   DAC960_Controller_T *Controller = NULL;
+   unsigned char DeviceFunction = PCI_Device->devfn;
+   unsigned char ErrorStatus, Parameter0, Parameter1;
+-  unsigned int IRQ_Channel = PCI_Device->irq;
++  unsigned int IRQ_Channel;
+   void __iomem *BaseAddress;
+   int i;
+ 
+@@ -2958,6 +2958,7 @@
+   /*
+      Acquire shared access to the IRQ Channel.
+   */
++  IRQ_Channel = PCI_Device->irq;
+   if (request_irq(IRQ_Channel, InterruptHandler, SA_SHIRQ,
+ 		      Controller->FullModelName, Controller) < 0)
+   {
 
-Is this solution here to:
-
-1. Not use jiffies for timers/timeouts with only a few ticks?
-
-or
-
-2. Have two independant "jiffies": the existing one which is used for 
-the wallclock only; and one which counts the number of timer interrupts 
-and will guarantee that timers don't expire prematurely?
-
-or
-
-3. Something else?
-
-David Vrabel
-
-[1] 
-http://lists.arm.linux.org.uk/pipermail/linux-arm-kernel/2004-December/025695.html
--- 
-David Vrabel, Design Engineer
-
-Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
-Cambridge CB1 7EA, UK         Web: http://www.arcom.com/
+--Boundary-00=_7D0rBzgJp+lo/ym--

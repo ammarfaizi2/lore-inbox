@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262258AbVAIFfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbVAIFso@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262258AbVAIFfP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 00:35:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbVAIFfP
+	id S262256AbVAIFso (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 00:48:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbVAIFso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 00:35:15 -0500
-Received: from smtp807.mail.sc5.yahoo.com ([66.163.168.186]:49559 "HELO
-	smtp807.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262258AbVAIFfJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 00:35:09 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
+	Sun, 9 Jan 2005 00:48:44 -0500
+Received: from rproxy.gmail.com ([64.233.170.201]:59361 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262256AbVAIFsm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 00:48:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=feH7i1/CuevzKjWiJ9aZfcGMQ6HIe1fyMpRnpo6TuukJWKijvOruvEedTQ1igNxmjc5mG1PCgtkgRMpr6O3uTrPhPP8qX8ihJqSA+0SNfaB7IeyEAaA41ONUckz8jX/F+Cayd50lQR7ik4Y+Uc/fL++VC5nCS9CdFXV8PLUac2Q=
+Message-ID: <5a4c581d050108214866117e3a@mail.gmail.com>
+Date: Sun, 9 Jan 2005 06:48:41 +0100
+From: Alessandro Suardi <alessandro.suardi@gmail.com>
+Reply-To: Alessandro Suardi <alessandro.suardi@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
-Date: Sun, 9 Jan 2005 00:35:02 -0500
-User-Agent: KMail/1.6.2
-Cc: Roey Katz <roey@sdf.lonestar.org>
-References: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org> <d120d50005010707204463492@mail.gmail.com> <Pine.NEB.4.61.0501090513180.18441@sdf.lonestar.org>
-In-Reply-To: <Pine.NEB.4.61.0501090513180.18441@sdf.lonestar.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+Subject: CONFIG_SCSI_QLA2<tripleX> looks dead - could it be removed ?
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200501090035.07247.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 09 January 2005 12:14 am, Roey Katz wrote:
-> Dmitry,
-> 
-> maybe I'm misunderstanding you;  how should the file look like once I 
-> modify it with your changes (what does "reversing the fragment" mean 
-> here)?
->
+Hoping that this time the gmail filter doesn't bounce my subject (doh)
 
-Now that I am at my box, just try applying the patch below.
+Said entry only appears in defconfigs, but doesn't seem to be actually
+used by anyone - at least according to this grep:
 
--- 
-Dmitry
+[asuardi@incident linux]$ find . -type f | xargs grep
+CONFIG_SCSI_QLA2XXX | grep -v defconfig
+./drivers/scsi/Makefile:obj-$(CONFIG_SCSI_QLA2XXX)      += qla2xxx/
+./include/linux/autoconf.h:#define CONFIG_SCSI_QLA2XXX_MODULE 1
+./.config:CONFIG_SCSI_QLA2XXX=m
+./.config.old:CONFIG_SCSI_QLA2XXX=m
+[asuardi@incident linux]$
 
-===== drivers/Makefile 1.50 vs edited =====
---- 1.50/drivers/Makefile	2004-12-01 01:00:21 -05:00
-+++ edited/drivers/Makefile	2005-01-09 00:33:32 -05:00
-@@ -21,9 +21,6 @@
- obj-$(CONFIG_FB_I810)           += video/i810/
- obj-$(CONFIG_FB_INTEL)          += video/intelfb/
+Moreover, there doesn't seem to be any entry in kbuild menus to
+ turn it off. Even taking it out of my .config and running oldconfig
+ brings it back in.
+
+--alessandro
  
--# we also need input/serio early so serio bus is initialized by the time
--# serial drivers start registering their serio ports
--obj-$(CONFIG_SERIO)		+= input/serio/
- obj-y				+= serial/
- obj-$(CONFIG_PARPORT)		+= parport/
- obj-y				+= base/ block/ misc/ net/ media/
-@@ -46,6 +43,7 @@
- obj-$(CONFIG_TC)		+= tc/
- obj-$(CONFIG_USB)		+= usb/
- obj-$(CONFIG_USB_GADGET)	+= usb/gadget/
-+obj-$(CONFIG_SERIO)		+= input/serio/
- obj-$(CONFIG_INPUT)		+= input/
- obj-$(CONFIG_GAMEPORT)		+= input/gameport/
- obj-$(CONFIG_I2O)		+= message/
+ "And every dream, every, is just a dream after all"
+  
+    (Heather Nova, "Paper Cup")

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263708AbUDQICW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 04:02:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263718AbUDQICW
+	id S263718AbUDQIEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 04:04:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263719AbUDQIEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 04:02:22 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:24075 "EHLO
+	Sat, 17 Apr 2004 04:04:16 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:25355 "EHLO
 	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S263708AbUDQICU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 04:02:20 -0400
-Date: Sat, 17 Apr 2004 10:02:15 +0200
+	id S263718AbUDQIEN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 04:04:13 -0400
+Date: Sat, 17 Apr 2004 10:04:03 +0200
 From: Willy Tarreau <w@w.ods.org>
-To: Joe Korty <joe.korty@ccur.com>
+To: "O.Sezer" <sezero@superonline.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] e1000 fails on 2.4.26+bk with CONFIG_SMP=y
-Message-ID: <20040417080215.GE596@alpha.home.local>
-References: <20040416224422.GA19095@tsunami.ccur.com> <20040417072455.GD596@alpha.home.local>
+Subject: Re: SATA support in 2.4.27
+Message-ID: <20040417080403.GF596@alpha.home.local>
+References: <4080E1A1.7030606@superonline.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040417072455.GD596@alpha.home.local>
+In-Reply-To: <4080E1A1.7030606@superonline.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 17, 2004 at 09:24:56AM +0200, Willy Tarreau wrote:
-> On Fri, Apr 16, 2004 at 06:44:22PM -0400, Joe Korty wrote:
-> > The e1000 driver fails to operate an Intel PRO/1000 MT Quad Port Server
-> > Adaptor under the latest 2.4.26+bk with CONFIG_SMP=y.  It works fine
-> > when CONFIG_SMP=n.
+On Sat, Apr 17, 2004 at 10:49:53AM +0300, O.Sezer wrote:
+> Comments in  ChangeSet 1.1366 -> 1.1367  say:
 > 
-> Did you enable APIC in UP mode, and did you try with an SMP kernel booted
-> with the 'nosmp' option ? Have you tried with plain 2.4.26 too ? There were
-> e1000 changes in latest bk.
+> # This adds all the SATA drivers except Intel ICH5/ICH6 ("ata_piix").
+> # ata_piix was the cause of all the ____request_resource() and PCI quirk
+> # nastiness.  As you can see, without that driver, the patch is nice and
+> # clean, and does nothing but add files.
+> 
+> Shall we people who can stand unclean and ugly trees have a separate
+> patch for ata_piix please ;))
 
-Just FYI, at least the 544 (single port chip) works fine on a dual athlon in
-2.4.26+bk.
+It's on Jeff's site : www.kernel.org/pub/linux/kernel/people/jgarzik/libata/
+Notice that 2.4.26-bk1-libata1 is fairly smaller than 2.4.26-rc1-libata1 :-)
 
-Cheers,
 Willy
 

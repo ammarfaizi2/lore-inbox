@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265646AbTFNMp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 08:45:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265656AbTFNMp5
+	id S265656AbTFNNHC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 09:07:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265661AbTFNNHC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 08:45:57 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:65467
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S265646AbTFNMp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 08:45:56 -0400
-Subject: Re: 2.4.21: cmedia PCM not working
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ton Hospel <linux-kernel@ton.iguana.be>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <bcf487$4l8$1@post.home.lunix>
-References: <bcf487$4l8$1@post.home.lunix>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1055595446.8281.2.camel@dhcp22.swansea.linux.org.uk>
+	Sat, 14 Jun 2003 09:07:02 -0400
+Received: from athmta01.forthnet.gr ([193.92.150.23]:2420 "EHLO forthnet.gr")
+	by vger.kernel.org with ESMTP id S265656AbTFNNHA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jun 2003 09:07:00 -0400
+Date: Sat, 14 Jun 2003 16:20:42 +0300
+From: fsck <fsck@www0.org>
+To: linux-kernel@vger.kernel.org
+Subject: fbdev+apm hangs & disabled serial on old thinkpads
+Message-ID: <20030614132042.GA481@www0.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 Jun 2003 13:57:27 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2003-06-14 at 13:25, Ton Hospel wrote:
-> So I suspect that while indeed you don't want a pcm volume level for
-> a CMI65, just adding that line also gets rid of some needed 
-> initialization.
+this concerns an old thinkpad laptop, the 560e, running linux 2.4.20
+& 21, but I guess there may be similar cases on other machines. the
+video card is a Trident TGUI 9660/968x/968x (rev d3) and the serial
+UART a typical 16550A.
 
-Correct - should be fixed in -ac. You need to turn off the mute in the
-init code.
+the first problem is that with apm loaded all power features including
+shutdown work perfectly. with fbdev on, shutdown and suspend/standby
+features hang the machine. this is important since on that old machines
+using 'links' and 'mplayer' with fbdev support, make linux an ease to
+use. 
 
+q1: are there any details available for that kind of hangs?
+
+the second problem is that /dev/tts/1 goes hardware disabled on some
+rare cases after a boot. resetting the bios and removing all power
+supply keeps the disabling on. On windows, device manager shows "code
+22, device disabled" and turning it on from that OS, makes it work
+again running linux.
+
+q2: since the disabling didn't happened using windows but that OS
+detected it, is there a similar way for linux, to enable devices?
+
+-fsck

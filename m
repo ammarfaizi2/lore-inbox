@@ -1,38 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262603AbVCDHzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262615AbVCDH7W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262603AbVCDHzf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 02:55:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262604AbVCDHzf
+	id S262615AbVCDH7W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 02:59:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262604AbVCDH7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 02:55:35 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16106 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262603AbVCDHzc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 02:55:32 -0500
-Message-ID: <42281465.6070605@pobox.com>
-Date: Fri, 04 Mar 2005 02:55:17 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+	Fri, 4 Mar 2005 02:59:21 -0500
+Received: from [209.203.41.250] ([209.203.41.250]:63119 "EHLO
+	bventer01.shoden.co.za") by vger.kernel.org with ESMTP
+	id S262615AbVCDH7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 02:59:07 -0500
+Message-ID: <42281543.9040901@shoden.co.za>
+Date: Fri, 04 Mar 2005 09:58:59 +0200
+From: Bennie Kahler-Venter <bennie.venter@shoden.co.za>
+Reply-To: bennie.venter@shoden.co.za
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Jochen Striepe <jochen@tolot.escape.de>, linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-References: <20050302205826.523b9144.davem@davemloft.net>	<4226C235.1070609@pobox.com>	<20050303080459.GA29235@kroah.com>	<4226CA7E.4090905@pobox.com>	<Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>	<422751C1.7030607@pobox.com>	<20050303181122.GB12103@kroah.com>	<20050303151752.00527ae7.akpm@osdl.org>	<20050303234523.GS8880@opteron.random>	<20050303160330.5db86db7.akpm@osdl.org>	<20050304025746.GD26085@tolot.miese-zwerge.org> <20050303213005.59a30ae6.akpm@osdl.org>
-In-Reply-To: <20050303213005.59a30ae6.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: v.2.6.11 mouse still losing sync and thus jumping around
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> It won't help that at all.  None of these proposals will increase testing
-> of tip-of-tree.  In fact the 2.6.x proposal may decrease that level of
-> that testing, although probably not much.
+Using SuSE 9.1 Professional with kernel 2.6.11  running on a AOpen 1845
+Laptop.
 
-Giving humans a well-known point where bugfixes-only mode starts would 
-help.  Such as the -pre/-rc split does in 2.4.x.
+Currently running without APM & ACPI
 
-	Jeff
+If I turn either or both on I get an erratic mouse and entries such as
+these:
+Mar  3 15:06:55 bventer01 kernel: psmouse.c: Mouse at
+isa0060/serio2/input0 lost synchronization, throwing 2 bytes away.
+Mar  3 15:07:23 bventer01 kernel: psmouse.c: Mouse at
+isa0060/serio2/input0 lost synchronization, throwing 2 bytes away.
+
+Kernels 2.6.x all reproduce the above symptoms.  I'm currently running
+on 2.6.11
+
+Must say that the occurance of these erratic problems are a lot less in
+2.6.11 but they still persist.  I did do a test to see if it was ACPI
+related.
+
+With ACPI and APM turned on and when I restart "powersaved" mouse goes
+crazy without me touching it.  I'm not too sure how to progress to
+locate/fix this problem.
+
+Tnx & Bi
+Bennie Kahler-Venter
+
 
 

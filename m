@@ -1,49 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269628AbRHCVwh>; Fri, 3 Aug 2001 17:52:37 -0400
+	id <S269630AbRHCVw4>; Fri, 3 Aug 2001 17:52:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269630AbRHCVw0>; Fri, 3 Aug 2001 17:52:26 -0400
-Received: from grunt.ksu.ksu.edu ([129.130.12.17]:58276 "EHLO
-	mailhub.cns.ksu.edu") by vger.kernel.org with ESMTP
-	id <S269628AbRHCVwO>; Fri, 3 Aug 2001 17:52:14 -0400
-Date: Fri, 3 Aug 2001 16:52:22 -0500
-From: Joseph Pingenot <jap3003@ksu.edu>
-To: "Paul G. Allen" <pgallen@randomlogic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] DMCA loop hole
-Message-ID: <20010803165221.C11011@ksu.edu>
-Reply-To: jap3003+response@ksu.edu
-Mail-Followup-To: "Paul G. Allen" <pgallen@randomlogic.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.BSO.4.33.0108010137240.7994-100000@aaieee.daisy-chan.org> <3B689B50.33E84D33@randomlogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: RE: [Re: [OT] DMCA loop hole]
-X-School: Kansas State University
-X-vi-or-emacs: vi
+	id <S269631AbRHCVwr>; Fri, 3 Aug 2001 17:52:47 -0400
+Received: from natpost.webmailer.de ([192.67.198.65]:2731 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S269630AbRHCVwj>; Fri, 3 Aug 2001 17:52:39 -0400
+From: "Stefan Burkei" <stefan@burkei.de>
+To: "'@Linux Kernel Miller, David S.'" <davem@redhat.com>,
+        "'@Linux Kernel Ostrowski, Michal'" <mostrows@us.ibm.com>
+Cc: "'@Linux Kernel Mailingliste'" <linux-kernel@vger.kernel.org>
+Subject: oops in skbuff.c
+Date: Fri, 3 Aug 2001 23:40:44 +0200
+Message-ID: <000001c11c64$f3bc5d40$3100000a@sb>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2377.0
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From Paul G. Allen on Wednesday, 01 August, 2001:
->To take another angle, those of us who actively look for exploits in software (because companies like M$ fail to do so themselves) risk being sued for doing so.
+Hi,
 
-Hrm.  Very good point.  However, under most EULA's I've seen, reverse
-  engineering is already a no-no.
+I'm using Kernel 2.4.7 (i think with the actual
+pppoe-patches 0.6.8) and it still oopses on the
+same place - in the routine skb_drop_fraglist.
 
->This makes jobs like mine EXTREMELY difficult because on the one hand I don't want my company using software that will allow Joe Cracker to take over our
->machines, and on the other I don't want the company sued just because I did some necessary reverse engineering in order to prevent it (again, because the
->software mfg. can't be trusted to do it themselves).
+My Linux-Box acts as a NAT-Router to the Internet
+for my Win98-Clients with a german DSL-Connection
+using pppoe with pppd 2.4.1.
+With pppd 2.4.0 the result is the same.
 
-I don't see why it makes your job any harder.  Sounds like a very
-  good argument for Open Source and/or Free Software.  :)
+The problem appears with Kernel 2.4.4 and
+is always reproducable since then.
+I start on my Win98-Box the Gnutella-Client
+BearShare and don't have to wait longer
+than 10 sec. until the machine crashes.
 
-                              -Joseph
+I figured out, that the kernel attempts to free
+a fraglist in the routine skb_drop_fraglist with
+an invalid pointer to it.
+During one pppd-session this "pointer" has
+always the same (i think) false value. The
+high word is always zero and the low word doesn't
+change during one online session of pppd.
+The low word will have a new value on the next
+dialup of pppd. Again - this value stays in place
+until the pppd hangs up.
 
--- 
-Joseph==============================================jap3003@ksu.edu
-"IBM were providing source code in the 1960's under similar terms. 
-VMS source code was available under limited licenses to customers 
-from the beginning. Microsoft are catching up with 1960."
-   --Alan Cox,  http://www2.usermagnet.com/cox/index.html
+I use a short code fragment to check this invalid
+pointer and, if detected, jumps over the kfree-routine.
+This isn't a really patch, because the real error wasn't
+corrected - but the kernel remains stable since then.
+
+This here is my skb_drop_fraglist-routine:
+
+static void skb_drop_fraglist(struct sk_buff *skb)
+{
+        struct sk_buff *list = skb_shinfo(skb)->frag_list;
+
+        skb_shinfo(skb)->frag_list = NULL;
+
+        if ((unsigned long)list & 0xffff0000) {
+            do {
+                    struct sk_buff *this = list;
+                    list = list->next;
+                    kfree_skb(this);
+            } while (list);
+        } else
+            printk(KERN_WARNING "Warning: skb_drop_fraglist() \
+	    invalid pointer detected: %08lx.\n", (unsigned long)list);
+}
+
+
+I hope I can give you two a hint on your bug-hunting.
+
+ciao - stebu
+

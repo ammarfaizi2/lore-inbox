@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265971AbSKBNfh>; Sat, 2 Nov 2002 08:35:37 -0500
+	id <S265979AbSKBNhK>; Sat, 2 Nov 2002 08:37:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265972AbSKBNfg>; Sat, 2 Nov 2002 08:35:36 -0500
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:42902 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S265971AbSKBNff>; Sat, 2 Nov 2002 08:35:35 -0500
-Cc: Dax Kelson <dax@gurulabs.com>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, davej@suse.de
-References: <20021102060405.731362C078@lists.samba.org>
+	id <S265982AbSKBNhK>; Sat, 2 Nov 2002 08:37:10 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:1766 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S265979AbSKBNhI>; Sat, 2 Nov 2002 08:37:08 -0500
+Cc: torvalds@transmeta.com, viro@math.psu.edu, linux-kernel@vger.kernel.org
+References: <87znsuy9ho.fsf@goat.bogus.local>
+	<20021101232758.GB289@elf.ucw.cz>
 From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: Filesystem Capabilities in 2.6?
-Date: Sat, 02 Nov 2002 14:41:52 +0100
-Message-ID: <87u1j0ytpb.fsf@goat.bogus.local>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] 2.5.45: Filesystem capabilities
+Date: Sat, 02 Nov 2002 14:43:18 +0100
+Message-ID: <87of98ytmx.fsf@goat.bogus.local>
 User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
  i386-debian-linux)
 MIME-Version: 1.0
@@ -21,23 +21,29 @@ Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell <rusty@rustcorp.com.au> writes:
+Pavel Machek <pavel@ucw.cz> writes:
 
-> In message <1036175565.2260.20.camel@mentor> you write:
->> 
->> How about Olaf Dietsche's filesystem capabilities support? It has been
->> posted a couple times to LK, yesterday even.
+>> This patch implements filesystem capabilities. It allows to run
+>> privileged executables without the need for suid root.
 >
-> Hmmm... cutting it pretty fine 8)
+> This is gross hack:
+>
+>> +static char __capname[] = ".capabilities";
+>> +
+>> +static int __is_capname(const char *name)
+>> +{
+>> +	if (*name != __capname[0])
+>> +		return 0;
+>> +
+>> +	return !strcmp(name, __capname);
+>> +}
 
-I don't understand this. What do you mean with that?
+Of course, this is a hack. A working hack, btw.
 
-> I'm not sure how much it buys us in real life, but that's not my
-> decision.
+> Yup. Magic filename. With ACLs going in 2.5 and with ext2 support for
+> arbitrary metadata, doing capabilities right might be feasible now.
 
-I'm not sure how much iptables buy us in real life, but that's not my
-decision either. There are people - at least me ;-) - who are
-convinced, that fs capabilities are another piece in the security
-puzzle.
+I'm happy to take a look at a working solution.
+How come, no one has implemented it yet? :-)
 
 Regards, Olaf.

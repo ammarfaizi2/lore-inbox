@@ -1,43 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278509AbRJVLEr>; Mon, 22 Oct 2001 07:04:47 -0400
+	id <S278511AbRJVLII>; Mon, 22 Oct 2001 07:08:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278510AbRJVLE2>; Mon, 22 Oct 2001 07:04:28 -0400
-Received: from t2.redhat.com ([199.183.24.243]:1015 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S278509AbRJVLES>; Mon, 22 Oct 2001 07:04:18 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <NPHLGxZPH$07EwlQ@wookie.demon.co.uk> 
-In-Reply-To: <NPHLGxZPH$07EwlQ@wookie.demon.co.uk> 
-To: John Beardmore <wookie@wookie.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ISDN cards and SMP 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 22 Oct 2001 11:56:50 +0100
-Message-ID: <4947.1003748210@redhat.com>
+	id <S278518AbRJVLH6>; Mon, 22 Oct 2001 07:07:58 -0400
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:4803 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S278517AbRJVLHu>; Mon, 22 Oct 2001 07:07:50 -0400
+Message-ID: <3BD3FCD6.5010802@antefacto.com>
+Date: Mon, 22 Oct 2001 12:02:46 +0100
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Kai Henningsen <kaih@khms.westfalen.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] New Driver Model for 2.5
+In-Reply-To: <15uerh-0NbBEeC@fmrl04.sul.t-online.com> <Pine.LNX.4.33.0110191108590.17647-100000@osdlab.pdx.osdl.net> <15uerh-0NbBEeC@fmrl04.sul.t-online.com> <20011019122101.G2467@mikef-linux.matchmail.com> <8BEQdKdHw-B@khms.westfalen.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kai Henningsen wrote:
 
-wookie@wookie.demon.co.uk said:
->  This works fine with a single processor kernel, but the module fails
-> to load with a kernel compiled for SMP.
+>mfedyk@matchmail.com (Mike Fedyk)  wrote on 19.10.01 in <20011019122101.G2467@mikef-linux.matchmail.com>:
+>
+>>On Fri, Oct 19, 2001 at 09:02:09PM +0200, Tim Jansen wrote:
+>>
+>>>On Friday 19 October 2001 20:26, Patrick Mochel wrote:
+>>>
+>>>>There are equivalents in USB. But, neither of them are globally unique
+>>>>identifiers for the device. That doesn't necessarily mean that one
+>>>>couldn't be ascertained from the device; ethernet cards do have MAC
+>>>>addresses. But, I don't think that many will have a ID/serial number.
+>>>>[...]
+>>>>Which leads me to the question: what real benefit does this have? Why
+>>>>would you ever want to do a global search in kernel space for a
+>>>>particular device?
+>>>>
+>>>For example for harddisks. You usually want them to be mounted in the same
+>>>directory.
+>>>
+>>When is /etc/fstab going to support this?
+>>
+>
+>Know your tools.
+>
+>/etc/fstab:
+>UUID=eba05cbf-55ff-44d7-846a-7846c6010843 /usr ext2 defaults,nocheck 0 2
+>
+>I have this mounted right now, on 2.2.19:
+>
+>/dev/sdb7              3936400   3597588    138852  97% /usr
+>
+>That's an ext2 partition ID, so even if repartitioning renumbers the  
+>partition, mount will still find it - only mkfs forces me to use a new ID.  
+>Changing the controller and SCSI id obviously makes no difference  
+>whatsoever. I could use labels, too, but they tend to be less unique.
+>
+>/proc/partitions is necessary to know what partitions to look at, of  
+>course.
+>
+>>>Or for ethernet adapters:
+>>>because each is connected to a different network, so you need to assign
+>>>different IP addresses to them.
+>>>
+>>I haven't seen anything assign ethX assign a certain order, except for
+>>ordered module loading, and then if there are multiple devices with the same
+>>driver, the order is chosen by bus scanning order, or module option.
+>>
+>
+>Exactly. So you can't use the order if there's any possibility of this, so  
+>you need to use the MAC address.
+>
+Yes this (MAC address) is the only general way of doing it.
+For ethernet cards (or anything else) on the PCI bus you can use
+the following to specify an order:
+ftp://platan.vc.cvut.cz/pub/linux/pciorder.patch-2.4.12-ac1.gz
+This allows you to pass the following parameter to the kernel:
+pciorder=Bus:Node.Fn,Bus:Node.Fn,... e.g.
+pciorder=0:0d.0,0:0b.0,0:0a.0
 
-> I gather this is true for all the Isdn4Linux drivers, though as I have
-> a three processor machine, this is a real pain !
-
-The HiSax driver should be fine - I use it 100% of the time (or at least
-100% of the time we have power to the house) on my SMP box at home, without 
-trouble. I see no reason why the other drivers would have problems.
-
-If you're having problem with modules loading, there's probably a
-compilation problem. If you're using a distro kernel, check it's installed
-properly. If you're building your own, rebuild it and the modules.
-
---
-dwmw2
+Padraig.
 
 

@@ -1,65 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbUL3S0L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261696AbUL3Spb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261690AbUL3S0L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 13:26:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbUL3S0L
+	id S261696AbUL3Spb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 13:45:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbUL3Spb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 13:26:11 -0500
-Received: from mail.aknet.ru ([217.67.122.194]:21259 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S261690AbUL3S0G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 13:26:06 -0500
-Message-ID: <41D4483C.9030005@aknet.ru>
-Date: Thu, 30 Dec 2004 21:26:04 +0300
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: ru, en-us, en
+	Thu, 30 Dec 2004 13:45:31 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:45747 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261696AbUL3SpX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Dec 2004 13:45:23 -0500
+To: YhLu <YhLu@tyan.com>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org, Matt_Domsch@dell.com
+Subject: Re: 256 apic id for amd64
+References: <3174569B9743D511922F00A0C943142307290EEE@TYANWEB>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 30 Dec 2004 19:45:22 +0100
+In-Reply-To: <3174569B9743D511922F00A0C943142307290EEE@TYANWEB> (YhLu@tyan.com's
+ message of "Tue, 28 Dec 2004 20:43:47 -0800")
+Message-ID: <m1d5wrlj5p.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-To: Alexander Kern <alex.kern@gmx.de>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: bug: cd-rom autoclose no longer works (fix attempt)
-References: <200412301853.48677.alex.kern@gmx.de>
-In-Reply-To: <200412301853.48677.alex.kern@gmx.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+YhLu <YhLu@tyan.com> writes:
 
-Alexander Kern wrote:
->> The ide-cd.c change is as per 2.4.20
->> which works. For some reasons
->> sense.ascq == 0 for me when the tray
->> is opened.
-> ascq = 0 is legal.
-> According to mmc3r10g
-> asc 3a
-> ascq 0 is MEDIUM NOT PRESENT
-> ascq 1 is MEDIUM NOT PRESENT - TRAY CLOSED
-> ascq 2 is MEDIUM NOT PRESENT - TRAY OPEN
-> What in my eyes means, your drive is impossible to determine is tray open or 
-> closed.
-I think so too, this is the problem most
-likely. However, my cd-roms are not that
-ancient, I expect there are millions of
-the like ones around. Breaking autoclose
-for all of them after it worked for ages,
-is no good IMO.
+> Can someone who maintains the x86-64 io_apic.c look at my patch about 256
+> apic id for amd64?
 
-> Linux assumes if not known tray is closed. That is better default, it 
-> avoids infinate trying to close.
-I don't think so. It is safe to assume the
-tray is opened, at least it worked in the
-past (or were there the real problems with
-this?) You can always try to close it only
-once, and if that still returns 0, then
-bail out. One extra closing attempt should
-not do any harm I suppose. That's exactly
-what my patch does (I hope). And that's most
-likely how it used to work before. I'll be
-disappointed if autoclose will remain broken -
-it was the very usefull feature, it will be
-missed. Unless there are the real technical
-reasons against the old behaviour, of course.
+First in general if you want patches submitted look up the maintainer
+in the MAINTAINERS file in the source tree and send it directly
+to the appropiate person and mailing list.
 
+Just curious - how many IO-APICs does your system have?
+
+Then I don't like your patch very much, since it doesnt handle 
+Intel systems. The best fix is probably to 
+
+i386 also has a different (but Intel specific fix) - uses either
+0xf or 0xff based on the APIC version. Just dropping it seems
+better to me though. I suppose Matt (cc'ed) who apparently
+wrote this code originally used it to work around some BIOS
+bug, and at least we can hope for now that there are no 
+EM64T boxes with that particular BIOS bug.
+
+I will add this patch.
+
+-Andi
+
+Remove check that limited max number of IO-APIC to 8.
+
+The original check was apparently to work around some old BIOS
+bugs and we just assume x86-64 machines don't have this class of
+problems.
+
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+diff -u linux-2.6.10/arch/x86_64/kernel/io_apic.c-o linux-2.6.10/arch/x86_64/kernel/io_apic.c
+--- linux-2.6.10/arch/x86_64/kernel/io_apic.c-o	2004-12-24 22:34:45.000000000 +0100
++++ linux-2.6.10/arch/x86_64/kernel/io_apic.c	2004-12-30 19:41:08.000000000 +0100
+@@ -1160,13 +1160,6 @@
+ 		
+ 		old_id = mp_ioapics[apic].mpc_apicid;
+ 
+-		if (mp_ioapics[apic].mpc_apicid >= 0xf) {
+-			apic_printk(APIC_QUIET,KERN_ERR "BIOS bug, IO-APIC#%d ID is %d in the MPC table!...\n",
+-				apic, mp_ioapics[apic].mpc_apicid);
+-			apic_printk(APIC_QUIET,KERN_ERR "... fixing up to %d. (tell your hw vendor)\n",
+-				reg_00.bits.ID);
+-			mp_ioapics[apic].mpc_apicid = reg_00.bits.ID;
+-		}
+ 
+ 		printk(KERN_INFO "Using IO-APIC %d\n", mp_ioapics[apic].mpc_apicid);
+ 

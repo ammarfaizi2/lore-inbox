@@ -1,73 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311885AbSFEMRF>; Wed, 5 Jun 2002 08:17:05 -0400
+	id <S314096AbSFEMSV>; Wed, 5 Jun 2002 08:18:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314096AbSFEMRF>; Wed, 5 Jun 2002 08:17:05 -0400
-Received: from mons.uio.no ([129.240.130.14]:61165 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S311885AbSFEMRE>;
-	Wed, 5 Jun 2002 08:17:04 -0400
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Organization: Dept. of Physics, University of Oslo, Norway
-To: Matthias Welk <welk@fokus.gmd.de>
-Subject: Re: nfs slowdown since 2.5.4
-Date: Wed, 5 Jun 2002 14:16:56 +0200
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200206041253.44446.welk@fokus.gmd.de> <200206041928.54392.trond.myklebust@fys.uio.no> <3CFDFAF6.8090801@fokus.fhg.de>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_8GF833WG5IQCPQQAZPU2"
-Message-Id: <200206051416.56927.trond.myklebust@fys.uio.no>
+	id <S314483AbSFEMSU>; Wed, 5 Jun 2002 08:18:20 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:34776 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S314096AbSFEMSU>; Wed, 5 Jun 2002 08:18:20 -0400
+Date: Wed, 5 Jun 2002 14:17:55 +0200
+From: Andi Kleen <ak@muc.de>
+To: Ian Collinson <icollinson@imerge.co.uk>
+Cc: "'Andrew Morton'" <akpm@zip.com.au>, Robert Love <rml@tech9.net>,
+        Andi Kleen <ak@muc.de>, Mike Kravetz <kravetz@us.ibm.com>,
+        linux-kernel@vger.kernel.org, andrea@suse.de
+Subject: Re: realtime scheduling problems with 2.4 linux kernel >= 2.4.10
+Message-ID: <20020605141755.A1410@averell>
+In-Reply-To: <C0D45ABB3F45D5118BBC00508BC292DB09C99A@imgserv04>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 05, 2002 at 01:53:06PM +0200, Ian Collinson wrote:
 
---------------Boundary-00=_8GF833WG5IQCPQQAZPU2
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+> 
+> Are there any potentially negative consequences of this fix, apart from
+> those already mentioned?
 
-On Wednesday 05 June 2002 13:50, Matthias Welk wrote:
+I don't think so. 
 
-> Yes, the lookup rate increased 1/3 compared to the unpatched version.
-> I have attached updated results of the build process, because there was a
-> mistake for the 2.4.18 version.
+It could still fail when you install a prio=99, SCHED_FIFO process.
 
-I'm still confused about this... It suggests a sign error in a comparison 
-somewhere, but I cannot for the life of me see where...
+> I certainly vote for this feature being preserved, as it is extremely useful
+> for debugging realtime priority apps.  FYI, we narrowed it down to breaking
+> in either 2.4.10-pre11 or pre12. 
 
-However I do see some cases where we should update timestamps on dentries, but 
-are cleearly forgetting to do so. If this patch too leads to increased lookup 
-rates...
+That was when the low latency console changes went in. Before that console
+switches could interrupt scheduling for a long time, causing problems
+for other realtime people. The change was to move the expensive parts
+of the console switch to keventd.
 
-Cheers,
-  Trond
-
---------------Boundary-00=_8GF833WG5IQCPQQAZPU2
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="gnarf.dif"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="gnarf.dif"
-
---- fs/nfs/dir.c.orig	Tue Mar 12 16:35:02 2002
-+++ fs/nfs/dir.c	Wed Jun  5 14:09:32 2002
-@@ -554,6 +554,8 @@
- 	}
- 	if (is_bad_inode(inode))
- 		force_delete(inode);
-+	/* When creating a negative dentry, we want to renew d_time */
-+	nfs_renew_times(dentry);
- 	iput(inode);
- }
- 
-@@ -1064,6 +1066,7 @@
- 		d_rehash(rehash);
- 	if (!error && !S_ISDIR(old_inode->i_mode))
- 		d_move(old_dentry, new_dentry);
-+	nfs_renew_times(new_dentry);
- 
- 	/* new dentry created? */
- 	if (dentry)
-
---------------Boundary-00=_8GF833WG5IQCPQQAZPU2--
+-Andi

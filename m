@@ -1,83 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266286AbUBDDxk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 22:53:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266288AbUBDDxj
+	id S266156AbUBDDsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 22:48:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266286AbUBDDsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 22:53:39 -0500
-Received: from adsl-67-124-158-125.dsl.pltn13.pacbell.net ([67.124.158.125]:64493
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S266286AbUBDDxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 22:53:37 -0500
-Date: Tue, 3 Feb 2004 19:53:36 -0800
-To: alsa-user@lists.sourceforge.net
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: ALSA in 2.6 -- no snd-au8830?
-Message-ID: <20040204035336.GC4394@triplehelix.org>
-Mail-Followup-To: joshk@triplehelix.org,
-	alsa-user@lists.sourceforge.net,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3MwIy2ne0vdjdPXF"
-Content-Disposition: inline
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: joshk@triplehelix.org (Joshua Kwan)
+	Tue, 3 Feb 2004 22:48:16 -0500
+Received: from science.horizon.com ([192.35.100.1]:36427 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S266156AbUBDDsL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 22:48:11 -0500
+Date: 4 Feb 2004 03:48:10 -0000
+Message-ID: <20040204034810.29593.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.1 -- take two] Add CRC32C chksums to crypto and lib
+Cc: jmorris@redhat.com, Valdis.Kletnieks@vt.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I could have *sworn* that abandoning something to the public
+> domain prohibited any disclaimer-of-liability clauses - the original
+> reason for the MIT X copyright was because they couldn't disclaim
+> liability if they let it into the public domain.  It's the same basic
+> "by copying, you agree to our terms" copyright that essentially all
+> open-source depends on.
+>
+> And if it's in the public domain, they don't have to agree to your terms,
+> and thus you can't enforce that liability disclaimer..
 
---3MwIy2ne0vdjdPXF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Placing the code in the public domain then adding additional rights seems 
+> to be inherently conflicted.
+>
+> People will pay for distribution of the code, so these additional rights 
+> would not be acceptable anyway.
 
-$SUBJECT. The driver seems to be present in alsa-driver but not the
-in-kernel version. Is it very new? Does it need to be converted? Is it=20
-deprecated in 2.6 in favor of a better driver? May I help out?
+If there's a problem, then change it - like delete the disclaimer.
+The code is too trivial to worry about.
 
-I've just recently found an Aureal Vortex 2 gathering dust and I'm
-hoping to get around my onboard sound problem with it for the time
-being.
+I'll rewrite it AGAIN if anybody needs a legally-clean version; it takes
+about 5 minutes, and a few more for testing.
 
-For those on alsa-user replying, either reply back to linux-kernel or
-me.=20
+/*
+ * poly is the polynomial, with bit n corresponding to the x^(31-n)
+ * coefficient and the x^32 coefficient implicitly 1.
+ */
+void __attribute__((nonnull))
+make_crc32_table_le(u32 table[256], u32 poly)
+{
+	unsigned i, j;
+	u32 crc = 1;
 
-Thanks,
+	table[0] = 0;
+	for (i = 1; i < 256; i *= 2) {
+		crc = (crc >> 1) ^ (crc & 1 ? poly : 0);
+		for (j = 0; j < i; j++)
+			table[i+j] = crc ^ table[j];
+	}
+}
 
---=20
-Joshua Kwan
 
---3MwIy2ne0vdjdPXF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+/* Append the given (data, len) to the computed CRC.
+ * For most protocols, initialize crc to -(u32)1 and invert it
+ * before appending to the data.  The final CRC can be checked
+ * by repeating the generation computation, or by computing the CRC again
+ * over the entire stream (including the first CRC) and comparing to
+ * a known value.  If the final CRC is not inverted, the result should
+ * be zero.  If the final CRC is inverted, the result should be a fixed
+ * non-zero value.
+ */
+u32 __attribute__((nonnull(1)))
+calc_crc32_le(u32 const table[256], u8 data, unsigned len, u32 crc)
+{
+	while (len--)
+		crc = (crc >> 8) ^ table[(u8)(crc ^ *data++)];
+	return crc;
+}
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+/*
+ * poly is the polynomial, with bit n corresponding to the x^n
+ * coefficient and the x^32 coefficient implicitly 1.
+ */
+void __attribute__((nonnull))
+make_crc32_table_be(u32 table[256], u32 poly)
+{
+	unsigned i, j;
+	u32 crc = 0x80000000;
 
-iQIVAwUBQCBsvaOILr94RG8mAQLezA/+ITCqBTJgt08j/znXRq9Y9TeykKSM3GIa
-0xPA1JtCVK2mCBELPuVJoc65wiDUWCxcERwwESQwN/vfkkf6k/s6H4MAea7XknQg
-rb6eS0crhK83rVOR3V8x7BX+DmLvVcsqlISzI1DPuKOSk22gpjc1Q35Im1mdjJy+
-UMFsBZ3IC8cLyFrKdaIu1TH6wJpVeEwpTU+x7LPxZmnvtstS6kRLVGltbII4RMD2
-Nf9X2Q7ID26RsGFJxVVFANk0LBg5yhoLdFYZkt16C5grArRkXJvJzg4wpwC4L1y6
-Btw7VLN3/gmr7iiZT82UxbYJt2jaKtOCnDzQmtST7vrxxBPmnZ6Z62dafZwWI5R1
-iQImyk8GY8xsvKqPSjlnzWWxAr/Ql7zb8sd+hvScbOj+8sLXO0HgSKKXy5qpsccG
-XMa7NVSC4ExL/kevogsz798G8KcP1OvmYqG3DU5zwe2y9S7MlXIFk/6ml5E2foM9
-XrpW29TAhLDZ336r6qthjfxuBFgtKaZSysWNmPSESdoU+sLBNbo3682GHEsLnzFZ
-qhrgYyCq1Eag4FaIlamlsFrov7xTSK4KMJRxR2AQ4qd/kVUwIDQe2hudk6C5KiiX
-Ob4LY1Lh2FKqIYWvFtx3pOG4au8zkF4kZPmVSn6vihOfA+p7dkKpYIGxELDTfQnL
-Iqb+aX4bEAg=
-=dNvq
------END PGP SIGNATURE-----
+	table[0] = 0;
+	for (i = 128; i; i /= 2) {
+		crc = (crc << 1) ^ (crc & 0x80000000 ? poly : 0);
+		for (j = 0; j < 256; j += 2*i)
+			table[i+j] = crc ^ table[j];
+	}
+}
 
---3MwIy2ne0vdjdPXF--
+
+u32 __attribute__((nonnull))
+calc_crc32_be(u32 const table[256], u8 data, unsigned len, u32 crc)
+{
+	while (len--)
+		crc = (crc << 8) ^ table[(u8)((crc >> 24) ^ *data++)];
+	return crc;
+}
+
+
+Okay, that took 10 minutes and 5 seconds.  And it's not tested.
+But it's pretty straightforweard.

@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbTIYRPS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 13:15:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbTIYRPS
+	id S261647AbTIYRhl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 13:37:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbTIYRgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 13:15:18 -0400
-Received: from d12lmsgate.de.ibm.com ([194.196.100.234]:12695 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S261276AbTIYRPM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 13:15:12 -0400
-Date: Thu, 25 Sep 2003 19:14:28 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: s390 patches: descriptions.
-Message-ID: <20030925171428.GA2951@mschwid3.boeblingen.de.ibm.com>
+	Thu, 25 Sep 2003 13:36:54 -0400
+Received: from fw.osdl.org ([65.172.181.6]:38080 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261346AbTIYReO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 13:34:14 -0400
+Date: Thu, 25 Sep 2003 10:33:47 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] check_mem_region should be deprecated
+Message-Id: <20030925103347.38f5a78a.shemminger@osdl.org>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.4claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
-I have 19 patches for you, all of them affect only s390. The patches are
-against todays bitkeeper tree. I've seen that 32 bit dev_t are finally
-in. We'll have another patch for dasd soon :-))
+For 2.6.0-test, check_mem_region has the same races as check_region so it should
+be marked deprecated as well.
 
-Short descriptions:
-1) The usual base bug fix collection for s390.
-2) Bug fixes/improvements for the common i/o layer.
-3) 31 bit compatability fixes.
-4) Some micro optimizations.
-5) Fix for the system tick misaccounting problem. LPAR and VM have the
-   tedious habit to deliver timer ticks after i/o interrupts if they
-   are close enough together although the timer interrupt arrived first.
-   In some szenarios (network benchmarks) this happens all the time and
-   this leads to high system time numbers although the system is mostly
-   idle.
-6) Restarting of system calls crashes if the svc instruction was done via
-   an execute instruction.
-7) Make use of sysfs_create_group.
-8) Kconfig update. Arnd added a condition to BLK_DEV_FD in
-   drivers/block/Kconfig so that we can use it in the s390 config.
-   In addition the s390 block device configs now reside in
-   drivers/s390/block/Kconfig where they belong.
-9) Guillaume Morin tested xpram on a 64 bit machine and found some bugs.
-10) dasd format fix. Now unformatted dasd device can be accessed with 2.6.
-11) Bug fix for the dasd partition support.
-12) Bug fixes for the block device interface of the tape driver.
-13) Update of the ctc network driver.
-14) Bug fixes and update of the iucv network driver.
-15) Update of the lcs network driver.
-16) Bug fixes and update of the qeth network driver.
-17) Add support for vt220 console over sclp.
-18) Documentation changes.
-19) Remove some outdates files. The ipl boot records have been moved
-    to a userspace package.
-
-blue skies,
-  Martin.
-
+diff -Nru a/include/linux/ioport.h b/include/linux/ioport.h
+--- a/include/linux/ioport.h	Thu Sep 25 10:32:22 2003
++++ b/include/linux/ioport.h	Thu Sep 25 10:32:22 2003
+@@ -107,7 +107,6 @@
+ 
+ /* Compatibility cruft */
+ #define release_region(start,n)	__release_region(&ioport_resource, (start), (n))
+-#define check_mem_region(start,n)	__check_region(&iomem_resource, (start), (n))
+ #define release_mem_region(start,n)	__release_region(&iomem_resource, (start), (n))
+ 
+ extern int __check_region(struct resource *, unsigned long, unsigned long);
+@@ -116,5 +115,9 @@
+ static inline int __deprecated check_region(unsigned long s, unsigned long n)
+ {
+ 	return __check_region(&ioport_resource, s, n);
++}
++static inline int __deprecated check_mem_region(unsigned long s, unsigned long n)
++{
++	return __check_region(&iomem_resource, s, n);
+ }
+ #endif	/* _LINUX_IOPORT_H */

@@ -1,130 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272774AbTHEOKh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 10:10:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272790AbTHEOKh
+	id S272790AbTHEONE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 10:13:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272794AbTHEONE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 10:10:37 -0400
-Received: from mivlgu.ru ([81.18.140.87]:51890 "EHLO mail.mivlgu.ru")
-	by vger.kernel.org with ESMTP id S272774AbTHEOKd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 10:10:33 -0400
-Date: Tue, 5 Aug 2003 18:10:25 +0400
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: 2.4.22-pre7 drivers/i2c/i2c-dev.c user/kernel bug and
- mem leak
-Message-Id: <20030805181025.72ad4819.vsu@altlinux.ru>
-In-Reply-To: <20030805103240.02221bed.khali@linux-fr.org>
-References: <20030803192312.68762d3c.khali@linux-fr.org>
-	<20030804193212.11786d06.vsu@altlinux.ru>
-	<20030805103240.02221bed.khali@linux-fr.org>
-X-Mailer: Sylpheed version 0.9.4cvs2 (GTK+ 1.2.10; i586-alt-linux-gnu)
-Mime-Version: 1.0
+	Tue, 5 Aug 2003 10:13:04 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:58106 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S272790AbTHEOM6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 10:12:58 -0400
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Subject: Re: FS: hardlinks on directories
+Date: Tue, 5 Aug 2003 09:12:31 -0500
+X-Mailer: KMail [version 1.2]
+Cc: aebr@win.tue.nl, linux-kernel@vger.kernel.org
+References: <20030804141548.5060b9db.skraw@ithnet.com> <03080416092800.04444@tabby> <20030805003210.2c7f75f6.skraw@ithnet.com>
+In-Reply-To: <20030805003210.2c7f75f6.skraw@ithnet.com>
+MIME-Version: 1.0
+Message-Id: <03080509123100.05972@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Aug 2003 10:32:40 +0200
-Jean Delvare <khali@linux-fr.org> wrote:
+On Monday 04 August 2003 17:32, Stephan von Krawczynski wrote:
+> On Mon, 4 Aug 2003 16:09:28 -0500
+>
+> Jesse Pollard <jesse@cats-chateau.net> wrote:
+> > > tar --dereference loops on symlinks _today_, to name an example.
+> > > All you have to do is to provide a way to find out if a directory is a
+> > > hardlink, nothing more. And that should be easy.
+> >
+> > Yup - because a symlink is NOT a hard link. it is a file.
+> >
+> > If you use hard links then there is no way to determine which is the
+> > "proper" link.
+>
+> Where does it say that an fs is not allowed to give you this information in
+> some way?
+>
+> > > > It was also done in one of the "popular" code management systems
+> > > > under unix. (it allowed a "mount" of the system root to be under the
+> > > > CVS repository to detect unauthorized modifications...).
+> > > > Unfortunately, the system could not be backed up anymore. 1. A dump
+> > > > of the CVS filesystem turned into a dump of the entire system... 2.
+> > > > You could not restore the backups... The dumps failed (bru at the
+> > > > time) because the pathnames got too long, the restore failed since it
+> > > > ran out of disk space due to the multiple copies of the tree being
+> > > > created.
+> > >
+> > > And they never heard of "--exclude" in tar, did they?
+> >
+> > Doesn't work. Remember - you have to --exclude EVERY possible loop. And
+> > unless you know ahead of time, you can't exclude it. The only way we
+> > found to reliably do the backup was to dismount the CVS.
+>
+> And if you completely run out of ideas in your
+> wild-mounts-throughout-the-tree problem you should simply use "tar -l".
+>
+> And in just the same way fs could provide a mode bit saying "hi, I am a
+> hardlink", and tar can then easily provide option number 1345 saying "stay
+> away from hardlinks".
 
-> > The current code takes rdwr_arg.msgs (which is a userspace pointer)
-> > and then reads rdwr_arg.msgs[i].buf directly, which must not be done.
-> 
-> The reason why this must not be done is unknown to me. This is why I am
-> having a hard time figuring why a fix is necessary. If someone can
-> explain this to me (off list I guess, unless it is of general interest),
-> he/she would be welcome.
+Do you know what a hard link is? Or a directory entry?
 
-All userspace access from the kernel code must be guarded - otherwise
-an invalid address supplied by a buggy or malicious program can crash
-the kernel or make it perform something which is not normally allowed.
-Unchecked userspace access is a security problem.
+A directory is a file of records with two fields: an inode number, and a
+name (string).
 
-In this particular case the address has already been checked by
-copy_from_user() before - but the access still is not safe. Example:
+Nothing else.
 
-1) A multithreaded program calls the I2C_RDWR ioctl in one thread,
-passing some valid address in rdwr_arg.msgs. The code in i2c-dev gets
-the supplied parameters and calls i2c_transfer(), which sleeps.
+The "hard link" is the inode number. The count of hard links is maintained in 
+the inode data structure. One for each (inode, filename) entry in a directory.
 
-2) While the first thread is sleeping somewhere inside i2c_transfer(),
-the second thread unmaps the page where the rdwr_arg.msgs array was
-located.
+Multiple hard links are just having the same inode number used with two names.
+Those two names do not have to exist in the same directory.
 
-3) When i2c_transfer() completes, the I2C_RDWR handling code will try
-to copy the returned data to the user memory, and will try to access
-rdwr_arg.msgs[i].buf in the loop. But now this page is inaccessible,
-and the access will result in Oops.
+A directory is a special file. It has a bit that says "hi, i am a directory".
+At a minimum it contains two implicit hard links. One to itself, and one to
+it's parent. The parent inode is also a directory. The parent, in addition to
+its own two hard links, contains a (inode, name) pair where the inode number
+is the same as the inode number for the subdirectory. This way each directory
+inode ALWAYS has a minimum of two hard links - the one to itself, and the one
+from its' parent.
 
-Also see the recent LKML postings (Kernel Traffic #224, "Better
-Support For Big-RAM Systems"); with the 4G/4G configuration described
-there, direct userspace access will not work at all.
+This implements the tree. It permits the concept of "working directory" with
+relative path names ("../.." and "./name" contstructs).
 
-> Anyway, since you seem to agree with Robert T. Johnson on the fact that
-> this needs to be fixed, I have to believe you. But then again I am not
-> sure I understand how different your code is from the original one if
-> copy_to_user and copy_from_user are regular functions. Are these macros?
+What you say when you want additional hard links to a directory is that a
+directory will have two (or more) parents.
 
-Yes, hairy macros with assembler tricks.
+If the fs provides a mode bit to identify something different that points to
+a directory, then you have a SYMLINK. This is because the directory entry
+currently only carries inode,name pairs. -- logically carries. Specific
+implementations may have ANY choice implementation of a directory file, tree,
+hash, whatever. To the VFS it always appears as if it were a linear file 
+containing inode,name pairs.
 
-> Maybe taking a look at them would help me understand how the whole thing
-> works.
+The entry for a symlink is still (inode, name), but the inode structure
+referenced contains a bit that says "hi, i am a symlink". The system THEN
+knows that the data contents of the inode point to another file. It doesn't
+matter whether that file is a regular file, a directory file, or a device
+file.
 
-You should not depend on implementation details. All userspace access
-must be performed through the documented macros. Doing something other
-is a bug - possibly a very dangerous one.
+> If you can do the fs patch, I can do the tar patch.
 
-> > Because both the userspace pointer and the kernel buffer pointer are
-> > needed, a second copy must be made.
-> 
-> OK, I get this now (wasn't that obvious at first, especially because I
-> hadn't realized the values were used again after i2c_transfer).
-> 
-> > If you want to conserve memory, you may just allocate an array
-> > of pointers to keep the userspace buffer pointers during the
-> > transfer.
-> 
-> Definitely better than what Robert T. Johnson first proposed. This makes
-> it really clear what data actually needs to be "duplicated" and what
-> doesn't.
-> 
-> > BTW, an optimization is possible here: the whole rdwr_arg.msgs array
-> > can be copied into the kernel memory with one copy_from_user() instead
-> > of copying its items one by one.
-> 
-> Nice one, I like it.
-> 
-> > > Contrary to the proposed fix, my fix does not slow down the
-> > > non-faulty cases. I also believe it will increase the code size by
-> > > fewer bytes than the proposed fix (not verified though).
-> > 
-> > This fix should work too. Yet another way is to do ++i there, but that
-> > would be too obscure.
-> 
-> I don't find it that obscure, and after thinking about it for some
-> times, I even find it more elegant. And I guess it's smaller
-> (binary-code-wise), although I admit it's almost pointless.
-> 
-> > Here is my version (with the mentioned optimization - warning: not
-> > even compiled):
-> 
-> Really, I like it much more than Robert's one. It's probably faster,
-> uses less memory, and was easier to read and understand.
-> 
-> Here comes my version, which is basically yours modified. If it pleases
-> everyone, we could apply it to 2.4.22-pre10 and i2c-CVS.
-> 
-> Changes:
-> 1* Amount of white space, twice. Ignore.
-> 2* Use ++i instead of kfree as discussed above.
-> 3* Remove conditional test around i2c_transfer, since it isn't necessary
-> (if I'm not missing something).
+The patch is FAR too extensive. It would have to be a whole new filesystem
+where a directory entry would have to carry additional information. And a
+rather large patch to the VFS to support it. And a new fsck to try and 
+maintain it. Directory locking would no longer be reliable. And modifications
+to various system calls and facilities (unlink, link, namei, open, opendir, 
+readdir, ...) Certain Linux features would have to be disallowed ("mv dir 
+../otherdir" for instance could generate backward loops).
 
-Yes, looks like the test is redundant.
+Tar would have to maintain a "pathname,inode" array for each file it backed
+up, so that it could verify that if "inode" is already copied, the new name
+is the only thing copied... (some graphs will cause the array to grow without
+bounds... so watch it...).
 
-> diff -ru drivers/i2c/i2c-dev.c drivers/i2c/i2c-dev.c
-[patch skipped]
+It would be interesting in the abstract - as in using a datafile to store
+the graph, utilities to insert, delete, store data, retrieve data, 
+import/export data.. Fsck would have to be implemented with a "mark and
+sweep" garbage collector.
 
-Looks good to me.
+Hmmmm It would support an augmented transition matrix.... (ie most computer
+games are ATMs... as are large simulations...)
+
+As a Unix filesystem... It doesn't fit. (which is one reason databases
+are used to implement ATMs... The database backup ignores the contents
+other than to copy data in/out. The application program uses the data as
+an ATM, and the application has to deal with consistancy.)

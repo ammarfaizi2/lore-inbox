@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261760AbSJHXyp>; Tue, 8 Oct 2002 19:54:45 -0400
+	id <S263206AbSJIAII>; Tue, 8 Oct 2002 20:08:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261761AbSJHXyp>; Tue, 8 Oct 2002 19:54:45 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:1041
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S261760AbSJHXyo>; Tue, 8 Oct 2002 19:54:44 -0400
-Subject: Re: [PATCH] Re: export of sys_call_table
-From: Robert Love <rml@tech9.net>
-To: bidulock@openss7.org
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20021008162017.A11261@openss7.org>
-References: <20021004131547.B2369@openss7.org>
-	<20021004.152116.116611188.davem@redhat.com>
-	<20021004164151.D2962@openss7.org>
-	<20021004.153804.94857396.davem@redhat.com> 
-	<20021008162017.A11261@openss7.org>
-Content-Type: text/plain
+	id <S263207AbSJIAII>; Tue, 8 Oct 2002 20:08:08 -0400
+Received: from dp.samba.org ([66.70.73.150]:48583 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S263206AbSJIAIH>;
+	Tue, 8 Oct 2002 20:08:07 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 08 Oct 2002 20:00:25 -0400
-Message-Id: <1034121625.29467.1883.camel@phantasy>
-Mime-Version: 1.0
+Message-ID: <15779.29565.791998.879426@nanango.paulus.ozlabs.org>
+Date: Wed, 9 Oct 2002 10:08:29 +1000 (EST)
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Input - Make sure input_dev is initialized where needed [23/23]
+In-Reply-To: <20021008160319.V18546@ucw.cz>
+References: <20021008155045.L18546@ucw.cz>
+	<20021008155125.M18546@ucw.cz>
+	<20021008155236.N18546@ucw.cz>
+	<20021008155651.O18546@ucw.cz>
+	<20021008155825.P18546@ucw.cz>
+	<20021008155915.Q18546@ucw.cz>
+	<20021008160001.R18546@ucw.cz>
+	<20021008160100.S18546@ucw.cz>
+	<20021008160148.T18546@ucw.cz>
+	<20021008160241.U18546@ucw.cz>
+	<20021008160319.V18546@ucw.cz>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-10-08 at 18:20, Brian F. G. Bidulock wrote:
+Vojtech,
 
-> This version (courtesy of Dave Grothe at GCOM) uses up/down
-> semaphore instead of read/write spinlocks.
+> You can import this changeset into BK by piping this whole message to:
+> '| bk receive [path to repository]' or apply the patch as usual.
+> 'bk pull bk://linux-input.bkbits.net/linux-input' should work as well.
 
-> +static rwlock_t streams_call_lock = RW_LOCK_UNLOCKED;
-> +	read_lock(&streams_call_lock);
-> +	read_unlock(&streams_call_lock);
-> +	read_lock(&streams_call_lock);
-> +	read_unlock(&streams_call_lock);
-> +	write_lock(&streams_call_lock);
-> +	write_unlock(&streams_call_lock);
+It's nice that we get to see the patch, but what would be really nice
+is to see the changeset comments that go along with it, which
+hopefully explain in a few lines what is being changed and why.  No
+doubt the changeset comments are in the gzip_uu part, but that is a
+bit opaque.
 
-Eh?  These are all read-write spinlocks, not semaphores.
-
-	Robert Love
-
+Thanks,
+Paul.

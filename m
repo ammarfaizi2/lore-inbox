@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263173AbUC2Wzu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 17:55:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263172AbUC2Wzt
+	id S263171AbUC2WyZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 17:54:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263184AbUC2WyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 17:55:49 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:52378
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263188AbUC2Wyg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 17:54:36 -0500
-Date: Tue, 30 Mar 2004 00:54:35 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, vrajesh@umich.edu,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
-Message-ID: <20040329225435.GN3808@dualathlon.random>
-References: <20040329124027.36335d93.akpm@osdl.org> <Pine.LNX.4.44.0403292312170.19944-100000@localhost.localdomain>
+	Mon, 29 Mar 2004 17:54:24 -0500
+Received: from mailwasher.lanl.gov ([192.16.0.25]:4434 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S263171AbUC2WyP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 17:54:15 -0500
+Subject: Re: Release dates for various kernels?
+From: Steven Cole <elenstev@mesatop.com>
+To: Zack Brown <zbrown@tumblerings.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040329222318.GA8852@tumblerings.org>
+References: <20040329222318.GA8852@tumblerings.org>
+Content-Type: text/plain
+Message-Id: <1080600785.3868.33.camel@spc0.esa.lanl.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0403292312170.19944-100000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-Mailer: Ximian Evolution 1.4.5-4mdk 
+Date: Mon, 29 Mar 2004 15:53:06 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 29, 2004 at 11:24:58PM +0100, Hugh Dickins wrote:
-> On Mon, 29 Mar 2004, Andrew Morton wrote:
-> > 
-> > hmm, yes, we have pages which satisfy PageSwapCache(), but which are not
-> > actually in swapcache.
-> > 
-> > How about we use the normal pagecache APIs for this?
-> > 
-> > +	add_to_page_cache(page, &swapper_space, entry.val, GFP_NOIO);
-> >...  
-> > +	remove_from_page_cache(page);
+On Mon, 2004-03-29 at 15:23, Zack Brown wrote:
+> Hi folks,
 > 
-> Much nicer, and it'll probably appear to work: but (also untested)
-> I bet you'll need an additional page_cache_release(page) - damn,
+> Does anyone remember the release dates for the following kernels? I've
+> checked kernel.org and the list archives, without luck.
+> 
+> 2.4.19-rc2
+16-Jul-2002 16:24
 
-I'll add the page_cache_release before testing ;)
+> 2.4.22-pre6
+14-Jul-2003 16:14
+
+from http://www.kernel.org/pub/linux/kernel/v2.4/testing/old/
+
+> 2.5.6-pre1
+26-Feb-2002 11:59
+
+> 2.5.6-pre2
+28-Feb-2002 13:28
+
+> 2.5.6-pre3
+06-Mar-2002 17:15
+
+> 2.5.7-pre1
+12-Mar-2002 14:00
+
+> 2.5.7-pre2
+15-Mar-2002 17:55
+
+> 2.5.8-pre3
+09-Apr-2002 18:33
+
+from http://www.kernel.org/pub/linux/kernel/v2.5/testing/
+
+Steven
+

@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268381AbUIFSFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268406AbUIFSKs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268381AbUIFSFi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 14:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268396AbUIFSFh
+	id S268406AbUIFSKs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 14:10:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268397AbUIFSKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 14:05:37 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:19106 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268381AbUIFSFT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 14:05:19 -0400
-Subject: Re: x86 - Realmode BIOS and Code calling module
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jozef Vesely <vesely@gjh.sk>
-Cc: Jakub Vana <gugux@centrum.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0409061703510.31771-100000@eloth.gjh.sk>
-References: <Pine.LNX.4.44.0409061703510.31771-100000@eloth.gjh.sk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094490175.4309.10.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 06 Sep 2004 18:03:08 +0100
+	Mon, 6 Sep 2004 14:10:48 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:53922 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S268396AbUIFSKp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 14:10:45 -0400
+Message-Id: <200409061808.i86I8GQZ005051@laptop11.inf.utfsm.cl>
+To: Tonnerre <tonnerre@thundrix.ch>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Lee Revell <rlrevell@joe-job.com>,
+       Pavel Machek <pavel@ucw.cz>, Spam <spam@tnonline.net>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jamie Lokier <jamie@shareable.org>, David Masover <ninja@slaphack.com>,
+       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4 
+In-Reply-To: Message from Tonnerre <tonnerre@thundrix.ch> 
+   of "Sun, 05 Sep 2004 14:07:58 +0200." <20040905120758.GI26560@thundrix.ch> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Mon, 06 Sep 2004 14:08:15 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-09-06 at 16:27, Jozef Vesely wrote:
-> In-kernel BIOS calls are useful:
-> I (and many others) have experienced problems with resuming from ACPI S3
-> state. Some graphic cards need to have their state saved before suspend
-> and restored after resume, otherwise the screen stays blank. VESA BIOS
-> call 0x4f04, does exactly that.
+Tonnerre <tonnerre@thundrix.ch> said:
 
-As I understand it VESA 0x4F04 is for saving/restoring mode state, not
-restoring the video card from poweroff. Correct me if I'm wrong here.
+[...]
 
-Secondly if you wanted to do this cleanly you could still do the save
-from vm86 in user space and the restore on the 16bit return path having
-checked a save was made and that the video bios hasn't gone for a walk.
+> I can  already see people moving  to FreeBSD if  this gets implemented
+> into the kernel...
 
-
+If it works better for them, great! It is after all a free world. If it
+turns out via *BSD/MacOS XIX/Windows 2010/... that it is really useful, we
+can add it to Linux. Linux is _not_ in a feeping creaturitis race, thank
+you very much.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

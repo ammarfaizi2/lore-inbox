@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135613AbREFLJP>; Sun, 6 May 2001 07:09:15 -0400
+	id <S135626AbREFLln>; Sun, 6 May 2001 07:41:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135619AbREFLJG>; Sun, 6 May 2001 07:09:06 -0400
-Received: from smtp.mountain.net ([198.77.1.35]:48401 "EHLO riker.mountain.net")
-	by vger.kernel.org with ESMTP id <S135613AbREFLIx>;
-	Sun, 6 May 2001 07:08:53 -0400
-Message-ID: <3AF53090.CF4DD5B4@mountain.net>
-Date: Sun, 06 May 2001 07:08:00 -0400
-From: Tom Leete <tleete@mountain.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.3 i486)
-X-Accept-Language: English/United, States, en-US, English/United, Kingdom, en-GB, English, en, French, fr, Spanish, es, Italian, it, German, de, , ru
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] Incremental to kill warnings
+	id <S135632AbREFLle>; Sun, 6 May 2001 07:41:34 -0400
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:56080 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S135626AbREFLlZ>; Sun, 6 May 2001 07:41:25 -0400
+Date: Sun, 6 May 2001 23:41:23 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Folkert van Heusden <folkert@vanheusden.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.3 connecting with mac os 8.3
+Message-ID: <20010506234123.C32060@metastasis.f00f.org>
+In-Reply-To: <01C0D62C.02EC0060.folkert@vanheusden.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01C0D62C.02EC0060.folkert@vanheusden.com>; from folkert@vanheusden.com on Sun, May 06, 2001 at 12:56:46PM +0200
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun, May 06, 2001 at 12:56:46PM +0200, Folkert van Heusden wrote:
 
-I missed one, patch is incremental to the previous one.
+    Anyone out there who cares if 2.4.3 has problems connectin with
+    mac os 8.x?  Situation: pop3-server on linux 2.4.3 host. Client:
+    eudora on mac os 8.x connection times out.  always 2.4.4 works
+    fine(!).  Any more investigation required?
 
-Tom
+Can you produce a tcpdump of this timeout? Something like:
 
-$ diff -u include/asm-i386/checksum.h.orig include/asm-i386/checksum.h
---- include/asm-i386/checksum.h.orig	Sun May  6 07:05:35 2001
-+++ include/asm-i386/checksum.h	Sun May  6 07:06:52 2001
-@@ -100,10 +100,8 @@
- 
- static inline unsigned int csum_fold(unsigned int sum)
- {
--	__asm__("
--		addl %1, %0
--		adcl $0xffff, %0
--		"
-+	__asm__("addl %1, %0\n\t"
-+		"adcl $0xffff, %0\n"
- 		: "=r" (sum)
- 		: "r" (sum << 16), "0" (sum & 0xffff0000)
- 	);
+	tcpdump -ln port pop3
 
--- 
-The Daemons lurk and are dumb. -- Emerson
+on the linux box (as root) should do.
+
+
+  --cw
+

@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129210AbQLAN2e>; Fri, 1 Dec 2000 08:28:34 -0500
+	id <S129231AbQLANbo>; Fri, 1 Dec 2000 08:31:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129518AbQLAN2Y>; Fri, 1 Dec 2000 08:28:24 -0500
-Received: from virtualro.ic.ro ([194.102.78.138]:57101 "EHLO virtualro.ic.ro")
-	by vger.kernel.org with ESMTP id <S129210AbQLAN2S>;
-	Fri, 1 Dec 2000 08:28:18 -0500
-Date: Fri, 1 Dec 2000 14:56:57 +0200 (EET)
-From: Jani Monoses <jani@virtualro.ic.ro>
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: [patch] docbook fix in /drivers/block/ll_rw_blk.c
-Message-ID: <Pine.LNX.4.10.10012011448190.12870-100000@virtualro.ic.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129255AbQLANbe>; Fri, 1 Dec 2000 08:31:34 -0500
+Received: from se1.cogenit.fr ([195.68.53.173]:6669 "EHLO se1.cogenit.fr")
+	by vger.kernel.org with ESMTP id <S129231AbQLANbX>;
+	Fri, 1 Dec 2000 08:31:23 -0500
+Date: Fri, 1 Dec 2000 14:00:42 +0100
+From: Francois Romieu <romieu@cogenit.fr>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Chris Wedgwood <cw@f00f.org>, Ivan Passos <lists@cyclades.com>,
+        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [RFC] Configuring synchronous interfaces in Linux
+Message-ID: <20001201140042.A8572@se1.cogenit.fr>
+In-Reply-To: <20001201233227.A9457@metastasis.f00f.org> <200012011207.eB1C78523251@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <200012011207.eB1C78523251@flint.arm.linux.org.uk>
+X-Organisation: Marie's fan club
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Russell King <rmk@arm.linux.org.uk> écrit :
+[...]
+> We already have a standard interface for this, but many drivers do not
+> support it.  Its called "ifconfig eth0 media xxx":
+> 
+> bash-2.04# ifconfig --help
+> Usage:
+>   ifconfig [-a] [-i] [-v] [-s] <interface> [[<AF>] <address>]
+> ...
+>   [mem_start <NN>]  [io_addr <NN>]  [irq <NN>]  [media <type>]
 
-Hi Linus,
+Ok. Hmmm... If I want to do something like 
+'ifconfig scc0 media some_frequency up' as I hope to set scc0 as a DCE (or 
+ifconfig scc0 media auto up' for a DTE), I must teach ifconfig.c to 
+distinguish Ethernet and synchrone interface based on interface.type, right ? 
 
- there is a warning in make docs and there is no documentation generated
-for blk_init_queue because of another function declaration between the
-comments and the definition .
-
-This patch moves the declaration before the comments.
-
-please apply . 
-
-
---- /usr/src/clean/linux-2.4/drivers/block/ll_rw_blk.c	Thu Nov 30 18:13:46 2000
-+++ ll_rw_blk.c	Fri Dec  1 14:23:50 2000
-@@ -383,6 +383,8 @@
- 	spin_lock_init(&q->request_lock);
- }
- 
-+static int __make_request(request_queue_t * q, int rw, struct buffer_head * bh);
-+
- /**
-  * blk_init_queue  - prepare a request queue for use with a block device
-  * @q:    The &request_queue_t to be initialised
-@@ -416,7 +418,6 @@
-  *    blk_init_queue() must be paired with a blk_cleanup-queue() call
-  *    when the block device is deactivated (such as at module unload).
-  **/
--static int __make_request(request_queue_t * q, int rw,  struct buffer_head * bh);
- void blk_init_queue(request_queue_t * q, request_fn_proc * rfn)
- {
- 	INIT_LIST_HEAD(&q->queue_head);
-
+-- 
+Ueimor
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

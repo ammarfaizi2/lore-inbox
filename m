@@ -1,65 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315709AbSEILbg>; Thu, 9 May 2002 07:31:36 -0400
+	id <S315717AbSEILeK>; Thu, 9 May 2002 07:34:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315711AbSEILbf>; Thu, 9 May 2002 07:31:35 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:19435 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S315709AbSEILbe>; Thu, 9 May 2002 07:31:34 -0400
-Date: Thu, 9 May 2002 13:26:34 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: alsa-devel@alsa-project.org
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: ALSA .text.exit compile errors in 2.5.14-dj2
-Message-ID: <Pine.NEB.4.44.0205091306270.19321-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S315718AbSEILeJ>; Thu, 9 May 2002 07:34:09 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:38023 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S315717AbSEILeH>;
+	Thu, 9 May 2002 07:34:07 -0400
+Message-ID: <3CDA5EA4.E565F1D7@colorfullife.com>
+Date: Thu, 09 May 2002 13:33:56 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre5 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dave Engebretsen <engebret@vnet.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: Memory Barrier Definitions
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ 	
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-while trying to compile a non-modular 2.5.14-dj2 kernel I got the
-following ALSA-related .text.exit errors at the final linking:
+>
+> An example of where these primitives get us into trouble is the use of
+> wmb() to order two stores which are only to system memory (where a
+> lwsync would do for ppc64) and for a store to system memory followed by
+> a store to I/O (many examples in drivers).
+>
+2 questions:
 
+1) Does that only affect memory barriers, or both memory barriers and
+spinlocks?
 
-<--  snip  -->
+example (from drivers/net/natsemi.c)
 
-...
-sound/sound.o: In function `snd_card_es968_probe':
-sound/sound.o(.text.init+0x22222): undefined reference to `local symbols
-in discarded section .text.exit'
-sound/sound.o: In function `alsa_rme9652_mem_init':
-sound/sound.o(.text.init+0x2b78a): undefined reference to `local symbols
-in discarded section .text.exit'
-sound/sound.o(.data+0x36fd4): undefined reference to `local symbols in
-discarded section .text.exit'
-...
+cpu0:
+	spin_lock(&lock);
+	writew(1, ioaddr+PGSEL);
+	...
+	writew(0, ioaddr+PGSEL);
+	spin_unlock(&lock);
 
-<--  snip  -->
+cpu1:
+	spin_lock(&lock);
+	readw(ioaddr+whatever);	// assumes that the register window is 0.
 
-The problems are
+writew(1, ioaddr+PGSEL) selects a register window of the NIC. Are writew
+and the spinlock synchonized on ppc64?
 
-In sound/isa/sb/es968.c:
-snd_card_es968_probe isn't __exit (more exactly it's __init) but it calls
-snd_card_es968_free that is __exit
+2) when you write "system memory", is that memory allocated with
+kmalloc/gfp, or also memory allocated with pci_alloc_consistent()?
 
-In sound/pci/rme9652/rme9652_mem.c:
-alsa_rme9652_mem_init isn't __exit (more exactly it's __init) but it calls
-rme9652_free_buffers that is __exit
+I've always assumed that
+	pci_alloc_consistent_ptr->data=0;
+	writew(0, ioaddr+TRIGGER);
 
+is ordered, i.e. the memory write happens before the writew. Is that
+guaranteed?
 
-I'm not sure whether removing the __exit is the right solution or whether
-there's a better solution.
-
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
+--
+	Manfred

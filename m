@@ -1,101 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315529AbSGXAjl>; Tue, 23 Jul 2002 20:39:41 -0400
+	id <S315455AbSGXAh3>; Tue, 23 Jul 2002 20:37:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315540AbSGXAjl>; Tue, 23 Jul 2002 20:39:41 -0400
-Received: from jalon.able.es ([212.97.163.2]:32948 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S315529AbSGXAjk>;
-	Tue, 23 Jul 2002 20:39:40 -0400
-Date: Wed, 24 Jul 2002 02:42:45 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [RFC] x86 cpu selection cleanup
-Message-ID: <20020724004245.GE3622@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.6
+	id <S315529AbSGXAh3>; Tue, 23 Jul 2002 20:37:29 -0400
+Received: from [64.86.155.135] ([64.86.155.135]:5383 "HELO vger.kernel.org")
+	by vger.kernel.org with SMTP id <S315455AbSGXAh2>;
+	Tue, 23 Jul 2002 20:37:28 -0400
+From: "dr murray bruce" <drmurraybruce@usa.com>
+Date: Wed, 24 Jul 2002 01:40:14
+To: linux-kernel@vger.kernel.org
+Subject: letter from murray
+MIME-Version: 1.0
+Content-Type: text/plain;charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20020724003728Z315455-685+16862@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI all...
+From: Mr murray bruce
+First National Bank South Africa
+Phone: 27-73-2420993
+Fax: 27-73-2424447
 
-I have introduced in the -jam kernels a cleanup for the x86 cpu selection that
-can make things easier for future work.
-The patches apply on top of -rc3-aa1, but if there is general interest I can
-make them for plain rc3 (or better for final, I know, an rc is not place for
-this).
+Dear Sir,
 
-Steps:
-- Introduce CONFIG_X86_F00F_BUG (credits to Brian Gerst)
-- Make CONFIG_M586 a generic option, not set directly but dependent on
-  processor specific configs, like GEN586 (generic 586), PENTIUM (a real
-  intel pentium), PENTIUMMMX
-- Make CONFIG_M686 a generic option, not set directly but dependent on
-  MPENTIUMPRO, MPENTIUM2, MPENTIUM3, MPENTIUM4 (so I splitted PII from
-  PPro, both were 686).
+RE: BUSINESS PROPOSAL FOR US$18,200,000.00 (EIGHTEEN
+MILLION TWO HUNDRED THOUSAND USD).
 
-(now that I think, I could even name it CONFIG_X86_586 and CONFIG_X86_686,
-they are an abstract of what _X86_ features are available)
+I am Mr.murray bruce, The Manager Accounting & Auditing
+Department of the First National Bank, South Africa.
+It is with utmost trust and confidence that I make
+this urgent and important business venture to you. I
+want your assistance and co-operation in carrying out
+this business opportunity in my department. I
+discovered an abandoned sum of US$18,200,000.00 (
+Eighteen Million Two  Hundred Thousand United States
+Dollars) about R182,000,000.00 (One Hundred and Eighty
+Two Million Rand) in a fixed deposit account that
+belongs to one of our foreign customers who died in a
+plane crash in November 1997.
 
-Things end like this for 586:
+Since we got information about his death, we have been
+expecting his next of kin to come over and claim this
+money because we cannot release the money unless
+someone applies for it as the next of kin or relations
+to the deceased as indicated in our banking
+guidelines. Unfortunately, neither the family members
+nor the relatives has appeared to claim the fund. Upon
+this discovery, I and the assistance manager of my
+department now decided to look for a foreigner who
+will stand as the next of kin, and provide his account
+then we will put up all the necessary document, do
+changes where necessary thus to make you the bonafide
+heir apparent to this money and transfer this money
+into your account, since as a banker we are not
+permitted to operate a foreign account. We don't want
+this money to go into the bank treasurey as an
+unclaimed funds as the banking law and guidelines here
+stipulates that if such money remain unclaimed after
+five years, the money will be transfered into the bank
+treasury as an unclaimed fund.
 
-if [ "$CONFIG_MGEN586" = "y" ]; then
-   define_bool CONFIG_M586 y 
-fi 
-if [ "$CONFIG_MPENTIUM" = "y" ]; then
-   define_bool CONFIG_M586 y
-   define_bool CONFIG_X86_TSC_CPU y
-fi 
-if [ "$CONFIG_MPENTIUMMMX" = "y" ]; then
-   define_bool CONFIG_M586 y 
-   define_bool CONFIG_X86_TSC_CPU y
-   define_bool CONFIG_X86_GOOD_APIC y
-fi
-if [ "$CONFIG_M586" = "y" ]; then
-   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
-   define_bool CONFIG_X86_USE_STRING_486 y
-   define_bool CONFIG_X86_ALIGNMENT_16 y
-   define_bool CONFIG_X86_PPRO_FENCE y
-   define_bool CONFIG_X86_F00F_BUG y
-fi
+To enable the immediate transfer of the fund to you as
+indicated, you will first apply to the bank as a
+relation or next of kin of the deceased indicating
+your bank account number and location wherein the
+money will be remitted. Upon receipt of your reply
+fax, I will send to you by fax the text of the
+application. As soon as you receive this letter,
+Please, contact me immediately to indicate your
+interest in this proposal via my private phone & fax
+numbers stated above or preferably my above email
+address.
 
-And like this for 686:
 
-if [ "$CONFIG_MPENTIUMPRO" = "y" ]; then
-   define_bool CONFIG_M686 y
-   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
-   define_bool CONFIG_X86_PPRO_FENCE y
-fi
-if [ "$CONFIG_MPENTIUM2" = "y" ]; then
-   define_bool CONFIG_M686 y
-   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
-fi
-if [ "$CONFIG_MPENTIUM3" = "y" ]; then
-   define_bool CONFIG_M686 y
-   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
-   define_bool CONFIG_X86_SFENCE y
-fi
-if [ "$CONFIG_MPENTIUM4" = "y" ]; then
-   define_bool CONFIG_M686 y
-   define_int  CONFIG_X86_L1_CACHE_SHIFT 7
-   define_bool CONFIG_X86_SFENCE y
-   define_bool CONFIG_X86_LFENCE y
-   define_bool CONFIG_X86_MFENCE y
-fi
-if [ "$CONFIG_M686" = "y" ]; then
-   define_bool CONFIG_X86_TSC_CPU y
-   define_bool CONFIG_X86_GOOD_APIC y
-   define_bool CONFIG_X86_PGE y
-   define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
-fi
+Forward to me the details of your account or
+preferably open a new account that can accomodate the
+fund, your full name and address, private phone and
+fax numbers for easy and urgent communication.
 
-Comments ?
-Direct to trash ?
+We are willing to offer to you an agreeable percentage
+of 20% of the total sum, 10% has been mapped out for
+expenses we are likely to incure during the course of
+this transaction while 70% is for me and my colleague.
+We are absolutely positive that this deal will be of
+mutual benefit to us and also create room for future
+business relationship. We expect you to treat this
+with utmost confidentiality, trust and sincerity.
 
--- 
-J.A. Magallon             \   Software is like sex: It's better when it's free
-mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
-Linux werewolf 2.4.19-rc3-jam1, Mandrake Linux 9.0 (Cooker) for i586
-gcc (GCC) 3.1.1 (Mandrake Linux 8.3 3.1.1-0.10mdk)
+Thanking you for your anticipated co-operation.
+
+Yours faithfully,
+
+Mr. murray bruce
+Manger (Accounting & Auditing FNB)
+
+
+
+

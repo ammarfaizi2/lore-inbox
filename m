@@ -1,72 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263024AbTLDGmP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 01:42:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263135AbTLDGmP
+	id S263135AbTLDGnP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 01:43:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263142AbTLDGnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 01:42:15 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:36019 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S263024AbTLDGmN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 01:42:13 -0500
-Date: Thu, 4 Dec 2003 17:39:21 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Linus Torvalds <torvalds@osdl.org>, Jens Axboe <axboe@suse.de>,
-       David =?iso-8859-1?Q?Mart=EDnez?= Moreno <ender@debian.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       clubinfo.servers@adi.uam.es, Ingo Molnar <mingo@elte.hu>
-Subject: Re: Errors and later panics in 2.6.0-test11.
-Message-ID: <20031204063921.GD1967@frodo>
-References: <200312031417.18462.ender@debian.org> <Pine.LNX.4.58.0312030757120.5258@home.osdl.org> <20031203162045.GA27964@suse.de> <Pine.LNX.4.58.0312030823010.5258@home.osdl.org> <16334.17126.154718.614827@notabene.cse.unsw.edu.au>
+	Thu, 4 Dec 2003 01:43:15 -0500
+Received: from smtp.telefonica.net ([213.4.129.135]:36028 "EHLO
+	tnetsmtp2.mail.isp") by vger.kernel.org with ESMTP id S263135AbTLDGnJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 01:43:09 -0500
+Date: Wed, 3 Dec 2003 22:44:31 +0100
+From: Bardok - Jorge <bardok@telefonica.net>
+To: linux-kernel@vger.kernel.org
+Subject: ALI M1563 driver patch
+Message-Id: <20031203224431.5ee3dfc9.bardok@telefonica.net>
+X-Mailer: Sylpheed version 0.9.5claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: "}XiQz%h~NtrdX,jUxyL}d95]c@,d$jgXJHYy0[U/`V\"?I.-R/]I$}E!=o&=75"va-TYg,
+ x&mt,#yZ_VBiN|higa,s_#^l:4~B%`Gk~9/i^Vagq-"$2/OH@MIHW0b!06&7:&5",}`A*sX%4:q<,v
+ B2XvviM.U9dE:rjMCQ$@T2jbdIyP#&8{K))(c$E:]zXnTfS2V#n&$\p,UxlUJUQFQ&FO@=}QwE~'e,
+ XqkNslrhAMCDufxLE
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16334.17126.154718.614827@notabene.cse.unsw.edu.au>
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 04, 2003 at 07:09:10AM +1100, Neil Brown wrote:
-> On Wednesday December 3, torvalds@osdl.org wrote:
-> > 
-> > 
-> > On Wed, 3 Dec 2003, Jens Axboe wrote:
-> > > >
-> > > > Interesting. Another RAID 0 problem report..
-> > >
-> > > Hmm did _all_ reports include raid-0, or just "some" raid? I'm looking
-> > > at the bio_pair stuff which raid-0 is the only user of, something looks
-> > > fishy there.
-> > 
-> > The ones I've seen seem to be raid-0, but Nathan (nathans@sgi.com)
-> > reported problems in RAID-5 under load. I didn't decode the full oops on
-> > that one, but it really looked like a stale "bi" bio that trapped on the
-> > PAGE_ALLOC debug code.
-> > 
-> 
-> Nathan's had a second oops that turned out to be a bi_next pointer
-> being bad in a bio that raid5 had just about finished writing out.
-> So there does seem to be something wrong with bio handling, quite
-> possibly in raid5.
-> 
-> The only thing I could find was that if raid5 received two overlapping
-> bios concurrently (or atleast received the second before it had
-> finished with the first) it could get confused.  I've asked Nathan to
-> try a patch that BUGs when that happens.
+This patch is intended to be used in order to make the ALI M1563 chipset work
+with the 2.6 kernel series.
 
-I haven't tripped the bug so far today, although have been
-running with page-sized fs blocksize so far - perhaps that
-is implicated, and makes it less likely to trigger (when I
-say "the bug" there, I mean neither the panic, nor the new
-BUG_ON(); I'll revert back to smaller block sizes next).
+The original driver produces a kernel panic, as it always tries to initialize
+the, sometimes, non-existent M1533 chipset (as it happens with my laptop).
 
-That error path bio_put issue you spotted in XFS, Neil, I
-think is a valid problem - I'm not sure that is reachable
-code in practice (possibly overly defensive XFS bio code),
-I'll go investigate that some more.
+This patch just defines the ALI M1563 symbol, and, if M1533 chipset is not
+found, it tries to initialize the M1563 chipset.
 
-cheers.
+I would like to apologize for writting and not being suscribed to the list, but
+the 290-messages-in-a-day warning in the FAQ scared me a little bit... so
+please, if anyone replies to this mail, I would like to be added as a CC to the
+answers.
 
--- 
-Nathan
+Thank you, and I hope this patch to be useful (and in the correct format, as I'm
+new in this kernel-patching-thing):
+
+	Jorge García
+
+-----------------------------------------------------------
+patch to pci_ids.h
+-----------------------------------------------------------
+
+--- /usr/src/linux-2.6.0-test11/include/linux/pci_ids.h 2003-11-26
+21:43:39.000000000 +0100
++++ /usr/src/linux/include/linux/pci_ids.h      2003-12-03 20:13:17.000000000
++0100
+@@ -971,6 +971,7 @@
+ #define PCI_DEVICE_ID_AL_M1531         0x1531
+ #define PCI_DEVICE_ID_AL_M1533         0x1533
+ #define PCI_DEVICE_ID_AL_M1541         0x1541
++#define PCI_DEVICE_ID_AL_M1563         0x1563
+ #define PCI_DEVICE_ID_AL_M1621         0x1621
+ #define PCI_DEVICE_ID_AL_M1631         0x1631
+ #define PCI_DEVICE_ID_AL_M1632         0x1632
+
+
+-----------------------------------------------------------
+patch to alim15x3.c
+-----------------------------------------------------------
+
+--- /usr/src/linux-2.6.0-test11/drivers/ide/pci/alim15x3.c      2003-11-26
+21:43:35.000000000 +0100
++++ /usr/src/linux/drivers/ide/pci/alim15x3.c   2003-12-03 20:16:48.000000000
++0100
+@@ -584,6 +584,13 @@
+
+        isa_dev = pci_find_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M1533,
+NULL);
+
++       /*
++        * If ALI 1533 southbridge was not found,
++        * we try to find the ALI 1563 southbridge.
++        */
++       if (!isa_dev)
++               isa_dev = pci_find_device(PCI_VENDOR_ID_AL,
+PCI_DEVICE_ID_AL_M1563, NULL);
++
+ #if defined(DISPLAY_ALI_TIMINGS) && defined(CONFIG_PROC_FS)
+        if (!ali_proc) {
+                ali_proc = 1;
+
+
+---------------------------------------------------------------------------
+| Jorge García Ochoa de Aspuru                                            |
+| e-mail: bardok@telefonica.net - shadow@bardok.net                       |
+---------------------------------------------------------------------------

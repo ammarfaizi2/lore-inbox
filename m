@@ -1,62 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267605AbUHPMzZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267601AbUHPM5q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267605AbUHPMzZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 08:55:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267601AbUHPMzY
+	id S267601AbUHPM5q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 08:57:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267599AbUHPM5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 08:55:24 -0400
-Received: from pD951EB5B.dip.t-dialin.net ([217.81.235.91]:12306 "EHLO
-	sigma.witten.lan") by vger.kernel.org with ESMTP id S267609AbUHPMzF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 08:55:05 -0400
-Message-ID: <4120AF41.4050400@gentoo.org>
-Date: Mon, 16 Aug 2004 14:57:37 +0200
-From: Danny van Dyk <kugelfang@gentoo.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; de-AT; rv:1.7) Gecko/20040625
-X-Accept-Language: de, en-us, en
-MIME-Version: 1.0
-To: richard.brunner@amd.com
-Cc: ak@muc.de, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Microcode Update Driver for AMD K8 CPUs
-References: <C2BC72CDFC11A44083B660CAC2E9EA67257333@SAUSEXMB1.amd.com>
-In-Reply-To: <C2BC72CDFC11A44083B660CAC2E9EA67257333@SAUSEXMB1.amd.com>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Aug 2004 08:57:46 -0400
+Received: from mail.gmx.de ([213.165.64.20]:62097 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267601AbUHPM5V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 08:57:21 -0400
+X-Authenticated: #4399952
+Date: Mon, 16 Aug 2004 15:07:51 +0200
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P1
+Message-Id: <20040816150751.5ac166b3@mango.fruits.de>
+In-Reply-To: <1092655029.13981.24.camel@krustophenia.net>
+References: <20040815115649.GA26259@elte.hu>
+	<20040816022554.16c3c84a@mango.fruits.de>
+	<1092622121.867.109.camel@krustophenia.net>
+	<20040816023655.GA8746@elte.hu>
+	<1092624221.867.118.camel@krustophenia.net>
+	<20040816032806.GA11750@elte.hu>
+	<20040816033623.GA12157@elte.hu>
+	<1092627691.867.150.camel@krustophenia.net>
+	<20040816034618.GA13063@elte.hu>
+	<1092628493.810.3.camel@krustophenia.net>
+	<20040816040515.GA13665@elte.hu>
+	<20040816131359.1107bd69@mango.fruits.de>
+	<1092655029.13981.24.camel@krustophenia.net>
+X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Mon__16_Aug_2004_15_07_51_+0200_IdYRRuFvRbYLFEzd"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-richard.brunner@amd.com schrieb:
- >>Danny van Dyk <kugelfang@gentoo.org> writes:
- >>>I recently found some piece of code [1] to perform a microcode update
- >>>on AMD's K8 CPUs. It included some update blocks hardcoded into the
- >>>module.
- >>Several people found this code (including me). But I don't think
- >>it's a good idea right now to merge because it is better to leave
- >>these things to the BIOS. It's unlikely that AMD will regularly
- >>release "open" microcode updates anyways, and moving them
- >>between BIOSes seems a bit dangerous to me (often you likely
- >>need to change some magic MSRs too or you could have some
- >>side effects). Overall it seems to be too dangerous to
- >>do in a standard kernel.
- >>Also I suspect the driver won't work very well on SMP.
- >>-Andi
- > As usual, Andi is absolutely correct.
- > 	-Rich Brunner, AMD Fellow
+This is a multi-part message in MIME format.
 
-Sigh. Well, that makes two *strong* votes against it.
-Nevertheless, it's been a nice experience to work on that code.
+--Multipart=_Mon__16_Aug_2004_15_07_51_+0200_IdYRRuFvRbYLFEzd
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Rich: Your CPUs are great ;-)
+On Mon, 16 Aug 2004 07:17:10 -0400
+Lee Revell <rlrevell@joe-job.com> wrote:
 
-Andi: Can you explain to me, why you think that the module would not
-work on SMP ? I don't know if this is still on topic: should we discuss
-this off-list ? Vielleicht auf Deutsch *G ?
+> > But it seems that this wasn't the only thing causing an xrun on
+> > jackd client startup. I will try to take another look at the jackd
+> > source..
+> > 
+> 
+> Ingo mentioned that possibly the mlockall issue resulted from both
+> processes mapping some of the same pages, which was ruled out by using
+> small test programs, but maybe that is what is going on here.  A jack
+> client and server by definition have to map some of the same pages.
+> 
+> Would it be worthwhile to compile the jack client -static?
 
-Danny
+Here's a minimal jack client which does _not_ produce an xrun on startup
+for me (it doesn't really do anything either).. Maybe the xruns are the
+other clients fault and not really determined by the jack mechanisms.. I
+will extend it step by step to do something functional.. maybe i'll find
+out what change introduces xruns. compile with
+
+g++ jack_test.cc `pkg-config jack --libs` -o jack_test
+
+
+jack_test.cc:
+----------------------
+#include <jack/jack.h>
+#include <iostream>
+
+jack_client_t *client;
+jack_port_t *port;
+
+int process(jack_nframes_t frames, void *arg) {
+        return 0;
+}
+
+int main(int argc, char *argv[]) {
+        std::cout << "client_new" << std::endl;
+        client = jack_client_new("foo");
+
+        std::cout << "port_register." << std::endl;
+        port = jack_port_register(client, "foobar",
+JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput|JackPortIsTerminal, 0);
+
+        std::cout << "set_process_callback" << std::endl;
+        jack_set_process_callback(client, process, 0);
+
+        std::cout << "activate" << std::endl;
+        jack_activate(client);
+
+        std::cout << "running" << std::endl;
+        while(1) {sleep(1);};
+}
+-----------------------
+
 
 -- 
-Danny van Dyk
-Gentoo/AMD64 Developer
-kugelfang@gentoo.org
+Palimm Palimm!
+http://affenbande.org/~tapas/
+
+
+--Multipart=_Mon__16_Aug_2004_15_07_51_+0200_IdYRRuFvRbYLFEzd
+Content-Type: text/x-c++src;
+ name="jack_test.cc"
+Content-Disposition: attachment;
+ filename="jack_test.cc"
+Content-Transfer-Encoding: 7bit
+
+#include <jack/jack.h>
+#include <iostream>
+
+jack_client_t *client;
+jack_port_t *port;
+
+int process(jack_nframes_t frames, void *arg) {
+        return 0;
+}
+
+int main(int argc, char *argv[]) {
+        std::cout << "client_new" << std::endl;
+        client = jack_client_new("foo");
+
+        std::cout << "port_register." << std::endl;
+        port = jack_port_register(client, "foobar", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput|JackPortIsTerminal, 0);
+
+        std::cout << "set_process_callback" << std::endl;
+        jack_set_process_callback(client, process, 0);
+
+        std::cout << "activate" << std::endl;
+        jack_activate(client);
+
+        std::cout << "running" << std::endl;
+        while(1) {sleep(1);};
+}
+
+--Multipart=_Mon__16_Aug_2004_15_07_51_+0200_IdYRRuFvRbYLFEzd--

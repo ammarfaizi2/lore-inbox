@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263711AbUC3PZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 10:25:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263726AbUC3PZz
+	id S263730AbUC3P2s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 10:28:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263728AbUC3P2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 10:25:55 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:44261 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263711AbUC3PZs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 10:25:48 -0500
-Subject: Re: System clock speed too high - 2.6.3 kernel
-From: john stultz <johnstul@us.ibm.com>
-To: Praedor Atrebates <praedor@yahoo.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Dominik Brodowski <linux@brodo.de>,
-       Len Brown <len.brown@intel.com>
-In-Reply-To: <200403261800.32717.praedor@yahoo.com>
-References: <200403261430.18629.praedor@yahoo.com>
-	 <1080336165.5408.307.camel@cog.beaverton.ibm.com>
-	 <200403261800.32717.praedor@yahoo.com>
-Content-Type: text/plain
-Message-Id: <1080660339.5408.356.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 30 Mar 2004 07:25:39 -0800
+	Tue, 30 Mar 2004 10:28:23 -0500
+Received: from obsidian.spiritone.com ([216.99.193.137]:27326 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S263735AbUC3P1i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 10:27:38 -0500
+Date: Tue, 30 Mar 2004 07:27:04 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Erich Focht <efocht@hpce.nec.com>
+cc: Andi Kleen <ak@suse.de>, jun.nakajima@intel.com, ricklind@us.ibm.com,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
+       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
+Message-ID: <5380000.1080660424@[10.10.2.4]>
+In-Reply-To: <406935A6.4030203@yahoo.com.au>
+References: <20040329080150.4b8fd8ef.ak@suse.de> <20040329114635.GA30093@elte.hu> <20040329221434.4602e062.ak@suse.de> <4068B692.9020307@yahoo.com.au> <20040330083450.368eafc6.ak@suse.de> <40691BCE.2010302@yahoo.com.au> <205870000.1080630837@[10.10.2.4]> <4069223E.9060609@yahoo.com.au> <20040330080530.GA22195@elte.hu> <40692D95.8030605@yahoo.com.au> <20040330084501.GA23069@elte.hu> <406935A6.4030203@yahoo.com.au>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-03-26 at 15:00, Praedor Atrebates wrote:
-> On Friday 26 March 2004 04:22 pm, john stultz held forth thus:
-> > On Fri, 2004-03-26 at 11:30, Praedor Atrebates wrote:
-> > > In doing a web search on system clock speeds being too high, I found
-> > > entries describing exactly what I am experiencing in the linux-kernel
-> > > list archives, but have not yet found a resolution.
-> > >
-> > > I have Mandrake 10.0, kernel-2.6.3-7mdk installed, on an IBM Thinkpad
-> > > 1412 laptop, celeron 366, 512MB RAM.  I am finding that my system clock
-> > > is ticking away at a rate of about 3:1 vs reality, ie, I count ~3 seconds
-> [...]
-> > Could you please send me dmesg output for this system?
-> >
-> Attached is the output of dmesg.  
+> Well, it will be interesting to see how it goes. Unfortunately
+> I don't have a single realistic benchmark. 
 
-You mentioned that your system is an older laptop, and you're setting
-"acpi=on" in your boot arguments. What happens when you omit "acpi=on"?
-Do you get a message saying something to the effect of your system being
-too old for ACPI? Does everything still work as it ought?
+That's OK, neither does anyone else ;-) OK, for HPC workloads they do,
+but not for other stuff.
 
-I'm still working on this one. 
-See http://bugme.osdl.org/show_bug.cgi?id=2375 for more details.
+The closest I can come conceptually is to run multiple instances of a 
+Java benchmark in parallel. The existing ones all tend to be either 1 
+process with many threads, or many processes each with one thread. There's 
+no m x n benchamrks around I've found, and that seems to be a lot more 
+like what the customers I've seen are interested in (throwing a DB, 
+webserver, java, etc all on one machine).
 
-thanks
--john
+Making balance_on_fork a userspace hintable thing wouldn't hurt us at all
+though, and would provide a great escape route for the HPC people. 
+Some simple pokeable in /proc would probably be sufficient. balance_on_clone
+is harder, as whether you want to do it or not depends more on the state
+of the rest of the system, which is very hard for userspace to know ...
+
+M.
+
+
+
 

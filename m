@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264726AbUGHRQl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264012AbUGHR05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264726AbUGHRQl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 13:16:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264734AbUGHRQl
+	id S264012AbUGHR05 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 13:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbUGHR05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 13:16:41 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:57299 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S264726AbUGHRQb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 13:16:31 -0400
-Message-Id: <200407081716.i68HGPNr012538@eeyore.valparaiso.cl>
-To: tom st denis <tomstdenis@yahoo.com>
-cc: Gabriel Paubert <paubert@iram.es>, linux-kernel@vger.kernel.org
-Subject: Re: 0xdeadbeef vs 0xdeadbeefL 
-In-Reply-To: Message from tom st denis <tomstdenis@yahoo.com> 
-   of "Wed, 07 Jul 2004 11:41:50 MST." <20040707184150.76132.qmail@web41109.mail.yahoo.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Thu, 08 Jul 2004 13:16:25 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Thu, 8 Jul 2004 13:26:57 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:2571 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S264012AbUGHR0z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 13:26:55 -0400
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] FAT: update document
+References: <87d637mxig.fsf@devron.myhome.or.jp>
+	<20040707235007.GA5687@pclin040.win.tue.nl>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Fri, 09 Jul 2004 02:26:43 +0900
+In-Reply-To: <20040707235007.GA5687@pclin040.win.tue.nl>
+Message-ID: <87wu1el8a4.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tom st denis <tomstdenis@yahoo.com> said:
-> --- Gabriel Paubert <paubert@iram.es> wrote:
+Andries Brouwer <aebr@win.tue.nl> writes:
 
-[...]
-
-> > On many platforms a "plain" char is unsigned. You can't write
-> > portable
-> > code without knowing this.
+> I am not in favour of introducing such configuration options.
 > 
-> Um, actually "char" like "int" and "long" in C99 is signed.
-
-Nope. char is either an unsigned char or a signed char, which one is up to
-the implementation, and the three types are distinct. The signed keyword
-was introduced exactly for the corner case of an explicitly signed (not
-unsigned, and not maybe signed) char.
-
->                                                             So while
-> you can write 
+> This is just the default for a mount option. No twiddling at
+> kernel configuration time is required or useful.
 > 
-> signed int x = -3;
+> We have too many configuration options. It is not true that the system
+> becomes better when there are more compile-time configuration possibilities.
+> Quite the contrary.
 > 
-> You don't have to.  in fact if you "have" to then your compiler is
-> broken.  Now I know that GCC offers "unsigned chars" but that's an
-> EXTENSION not part of the actual standard.  
+> Compilation options should select inclusion of subsystems,
+> modules, drivers, but not twiddle behaviour.
+>
+> [So, I would be happier if you selected a default and made everybody who
+> wants something else adapt her /etc/fstab, or alias for a mountfat command.]
 
-Not an extension, in C for ever and ever.
+Indeed.
 
-> You ought to distinguish "what my compiler does" with "what the
-> standard actually says".  If you want unsigned chars don't be lazy,
-> just write "unsigned char".  
+I was forgetting the mount.fat. Probably the mount.fat can do more
+good choice.
 
-Right. Look at the standard, and then go back and rewrite to agree with C99
-all the "standard conforming" C you have written. Should keep you away from
-LKML for a while...
+Also I think that kernel doesn't need to know about nls choice anymore
+(include a default). But users may be confused temporarily...
+
+Anyway, I'll rethink this tomorrow.
+
+Thanks a lot.
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

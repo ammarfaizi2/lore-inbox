@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130236AbRBZOem>; Mon, 26 Feb 2001 09:34:42 -0500
+	id <S130288AbRBZOel>; Mon, 26 Feb 2001 09:34:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130404AbRBZObk>; Mon, 26 Feb 2001 09:31:40 -0500
+	id <S130236AbRBZObp>; Mon, 26 Feb 2001 09:31:45 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:53191 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130288AbRBZO3y>;
+	by vger.kernel.org with ESMTP id <S130289AbRBZO3y>;
 	Mon, 26 Feb 2001 09:29:54 -0500
-Subject: Re: 2.2.18: static rtc_lock in nvram.c
-To: Ulrich.Windl@rz.uni-regensburg.de (Ulrich Windl)
-Date: Mon, 26 Feb 2001 09:44:35 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <3A9A31C5.22343.9BE580@localhost> from "Ulrich Windl" at Feb 26, 2001 10:36:54 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14XKCr-0000tY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <m14XJot-000ObCC@amadeus.home.nl>
+Date: Mon, 26 Feb 2001 10:19:51 +0100 (CET)
+From: arjan@fenrus.demon.nl (Arjan van de Ven)
+To: twaugh@redhat.com (Tim Waugh)
+Subject: Re: timing out on a semaphore
+cc: linux-kernel@vger.kernel.org
+X-Newsgroups: fenrus.linux.kernel
+In-Reply-To: <20010225224039.W13721@redhat.com>
+User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre19 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > It only does that for the atari, where the driver isnt used by other things
-> 
-> Hmm.. are there different nvram.c drivers? I noticed that SuSE 7.1 
-> loads that driver in i386....
+In article <20010225224039.W13721@redhat.com> you wrote:
 
-Read carefully
+> --2F7AbV2suvT8PGoH
+> Content-Type: text/plain; charset=us-ascii
+> Content-Disposition: inline
 
->  * This driver allows you to access the contents of the non-volatile 
-> memory in
->  * the mc146818rtc.h real-time clock. This chip is built into all PCs 
-> and into
->  * many Atari machines. In the former it's called "CMOS-RAM", in the 
-> latter
->  * "NVRAM" (NV stands for non-volatile).
+> I'm trying to chase down a semaphore time-out problem.  I want to
+> sleep on a semaphore until either
 
-The 
+> (a) it's signalled, or
+> (b) some amount of time has elapsed.
 
-static spinlock_t
+> What I'm doing is calling add_timer, and then down_interruptible, and
+> finally del_timer.  The timer's function ups the semaphore.
 
-is in the ATARI specific section
 
+What we _really_ need is down_timeout(), which I plan to implement for early
+2.5. The semantics should by similar to the try_lock functions, exect that
+it will try for a specified amount of time first.
+
+Greetings,
+   Arjan van de Ven

@@ -1,85 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129595AbQK3PyE>; Thu, 30 Nov 2000 10:54:04 -0500
+        id <S129891AbQK3P7P>; Thu, 30 Nov 2000 10:59:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129891AbQK3Pxz>; Thu, 30 Nov 2000 10:53:55 -0500
-Received: from mx3.port.ru ([194.67.23.37]:12300 "EHLO mx3.port.ru")
-        by vger.kernel.org with ESMTP id <S129595AbQK3Pxs>;
-        Thu, 30 Nov 2000 10:53:48 -0500
-From: "Guennadi Liakhovetski" <gvlyakh@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: DMA for triton again...
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: 143.167.4.62 via proxy [143.167.1.16]
-Reply-To: "Guennadi Liakhovetski" <gvlyakh@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E141VYN-000PiF-00@f11.mail.ru>
-Date: Thu, 30 Nov 2000 18:23:19 +0300
+        id <S129710AbQK3P7E>; Thu, 30 Nov 2000 10:59:04 -0500
+Received: from h50s48a140n47.user.nortelnetworks.com ([47.140.48.50]:59127
+        "EHLO zrtps06s.us.nortel.com") by vger.kernel.org with ESMTP
+        id <S129267AbQK3P6t>; Thu, 30 Nov 2000 10:58:49 -0500
+Message-ID: <3A266EE7.4C734350@nortelnetworks.com>
+Date: Thu, 30 Nov 2000 10:14:47 -0500
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.7 [en] (X11; U; HP-UX B.10.20 9000/778)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Fasttrak100 questions...
+In-Reply-To: <8voa7g$d1r$1@forge.tanstaafl.de> <Pine.LNX.4.21.0011291152500.5109-100000@sol.compendium-tech.com> <20001129210830.J17523@forge.tanstaafl.de> <20001129165236.A9536@vger.timpanogas.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Orig: <cfriesen@americasm01.nt.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everybody
+"Jeff V. Merkey" wrote:
+> 
+> On Wed, Nov 29, 2000 at 09:08:30PM +0100, Henning P . Schmiedehausen wrote:
 
-I know this subject has been discussed multiple times already, I've read a lot of posts about it, but still haven't been able to fix my particular case. So, here we go:
+> > I use heavily patched kernels with lots of inhouse-stuff on a regular
+> > base for my inhouse use and there is _no_ way for you to even get a
+> > glimpse at it.  I don't give this to anyone, it's all just my personal
+> > stuff.
+> 
+> Depending on the terms of your use of the code, the Copyright holder
+> can obtain an order compelling you to hand over the code from a
+> State or US District Court Judge, if you are using it under the terms
+> of the GPL and fail to provide the modifications upon request, and you
+> are shown to be "converting" business opportunities to your own
+> benefit with it, GPL or no.
 
-computer: Chipset 430FX / Triton / PIIX, disk Western Digital Caviar AC21600H Firmware code F6 (no UDMA, some WD docs show DMA mw2, some PIO4...), kernel 2.2.17 with ide patch and PIIX enabled, DMA by default, generic DMA, and couple others. Did not try 'bad DMA-firmware (EXPERIMENTAL)'. dmesg (relevant - in my view - lines):
+I think you should re-read the GPL.  You only have to provide source to
+people to whome you have distributed your new binaries, and you only
+have to provide that source if you are asked for it.  If you have some
+code that you have written that is based on GPL'd code, and you are the
+only person that ever runs the binaries, then there is no obligation for
+you to make your code available to anybody.
 
- Linux version 2.2.17 (root@risky) (gcc version 2.7.2.3) #22 Wed Nov 29 23:04:12
- GMT 2000
- Detected 74540 kHz processor.
- ...
- Memory: 47168k/49152k available (828k kernel code, 412k reserved, 700k data,
- 44k init)
- ...
- CPU: Intel Pentium 75 - 200 stepping 05
- ...
- PCI: PCI BIOS revision 2.10 entry at 0xfcb81
- PCI: Using configuration type 1
- PCI: Probing PCI hardware
- ...
- Uniform Multi-Platform E-IDE driver Revision: 6.30
- ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
- PIIX: IDE controller on PCI bus 00 dev 38
- PIIX: chipset revision 2
- PIIX: not 100% native mode: will probe irqs later
- PIIX: neither IDE port enabled (BIOS)
- hda: WDC AC21600H, ATA DISK drive
- hdc: BCD-16X 1997-03-25, ATAPI CDROM drive
- ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
- ide1 at 0x170-0x177,0x376 on irq 15
- hda: WDC AC21600H, 1549MB w/128kB Cache, CHS=787/64/63
- ...
- Partition check:
-  hda: hda1 hda2 hda3
- VFS: Mounted root (ext2 filesystem) readonly.
- ...
+Only once you distribute the software to others do you have to make the
+code available, and even then you only have to make it available to
+those who have the binaries.  Of course, they can then turn around and
+do whatever they feel like with it, but thats a different issue.
 
-BIOS DOES identify the hard disk and the CD-ROM correctly, although it is pretty old and no newer version is available. hdparm -d1 returns:
- /dev/hda:
-  setting using_dma to 1 (on)
-  HDIO_SET_DMA failed: Operation not permitted
-  using_dma    =  0 (off)
- hdparm -I:
- /dev/hda:
 
-  Model=DW CCA1206H0                            , FwRev=420.P980,
- SerialNo=DWW-3M63
-  Config={ HardSect NotMFM HdSw>15uSec SpinMotCtl Fixed DTR>5Mbs FmtGapReq }
-  RawCHS=3148/16/63, TrkSize=57600, SectSize=600, ECCbytes=22
-  BuffType=3(DualPortCache), BuffSize=128kB, MaxMultSect=16, MultSect=16
-  DblWordIO=no, maxPIO=2(fast), DMA=yes, maxDMA=0(slow)
-  CurCHS=3148/16/63, CurSects=3173184, LBA=yes, LBAsects=3173184
-  DblWordIO=no, maxPIO=2(fast), DMA=yes, maxDMA=0(slow)
-  CurCHS=3148/16/63, CurSects=3173184, LBA=yes, LBAsects=3173184
-  tDMA={min:120,rec:120}, DMA modes: mword0 mword1 *mword2
-  IORDY=on/off, tPIO={min:160,w/IORDY:120}, PIO modes: mode3 mode4
-
-(yesterday I installed hdparm-3.9, now output is in slightly different format, but the same contents). hdparm -v reports dma off. lspci looks fine... hdparm -tT gives 4.8MB/s. I just downloaded a patch by Andre Hedrick for hdparm-3.9a (why 'a', BTW? is it the patch to hdparm-3.9 actually?). Will try it tonight - would that help? I'll rather stop trying to foresee what information is needed here, it is already TOO long, sorry.
-
-Thanks in advance
-Guennadi
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267721AbUIOXZA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267696AbUIOXZB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267721AbUIOXZA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 19:25:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267772AbUIOXV4
+	id S267696AbUIOXZB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 19:25:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267725AbUIOXVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 19:21:56 -0400
-Received: from ns1.skjellin.no ([80.239.42.66]:33511 "HELO mail.skjellin.no")
-	by vger.kernel.org with SMTP id S267720AbUIOWpM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 18:45:12 -0400
-Message-ID: <4148C672.4050905@tomt.net>
-Date: Thu, 16 Sep 2004 00:47:14 +0200
-From: Andre Tomt <andre@tomt.net>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [sata] new libata-dev-2.6 queue created (AHCI, SATA bridges)
-References: <20040915161026.GA31360@havoc.gtf.org>
-In-Reply-To: <20040915161026.GA31360@havoc.gtf.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Sep 2004 19:21:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:1696 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267696AbUIOXRn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 19:17:43 -0400
+Date: Wed, 15 Sep 2004 16:21:26 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: =?ISO-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] Oops with kernel 2.6.9-rc2
+Message-Id: <20040915162126.2899b2f7.akpm@osdl.org>
+In-Reply-To: <20040915160143.GA4874@ime.usp.br>
+References: <20040915160143.GA4874@ime.usp.br>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+Rogério Brito <rbrito@ime.usp.br> wrote:
+>
+> Yesterday night, I was running my own self compiled kernel 2.6.9-rc2,
+> without any patches applied and, while I had my computer left unattended
+> for some moments, I saw that it generated two Oopsen in a row.
 
-> I have updated my SATA status page to reflect these updates:
-> 	http://linux.yyz.us/sata/sata-status.html
+Were you using a cdrom at that time?   If so, this will probably fix it:
 
-Good stuff :-)
+--- 25/fs/isofs/rock.c~rock-fix	2004-09-10 01:47:00.135392480 -0700
++++ 25-akpm/fs/isofs/rock.c	2004-09-10 01:47:00.139391872 -0700
+@@ -62,7 +62,7 @@
+ }                                     
+ 
+ #define MAYBE_CONTINUE(LABEL,DEV) \
+-  {if (buffer) kfree(buffer); \
++  {if (buffer) { kfree(buffer); buffer = NULL; } \
+   if (cont_extent){ \
+     int block, offset, offset1; \
+     struct buffer_head * pbh; \
+_
 
-Is there any news on Marvell progress? I'll get my hands dirty on a 
-shipment with servers using the chips on friday, I may be able to sneak 
-in some testing before deployment (they will be rewired to use ICH5-R 
-for now)
-
-Hmm, I wonder if there is any AHCI PCI(-X/E) plug-in boards planned. 
-That would be nice indeed. Seems like SATAII-like features on PCI-boards 
-are bound to Marvell or hardware RAID cards like 3ware 9xxx or newer LSI 
-MegaRAID currently.

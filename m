@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261811AbTCQRbr>; Mon, 17 Mar 2003 12:31:47 -0500
+	id <S261809AbTCQR3p>; Mon, 17 Mar 2003 12:29:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261812AbTCQRbq>; Mon, 17 Mar 2003 12:31:46 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:10 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S261811AbTCQRbp>; Mon, 17 Mar 2003 12:31:45 -0500
-Message-Id: <200303171741.h2HHfYqq006184@pincoya.inf.utfsm.cl>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Nicolas Pitre <nico@cam.org>, Andrea Arcangeli <andrea@suse.de>,
-       Ben Collins <bcollins@debian.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror) 
-In-reply-to: Your message of "Sun, 16 Mar 2003 20:33:18 +0100."
-             <Pine.LNX.4.44.0303162014090.12110-100000@serv> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Mon, 17 Mar 2003 13:41:33 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S261810AbTCQR3p>; Mon, 17 Mar 2003 12:29:45 -0500
+Received: from 39.208-78-194.adsl-fix.skynet.be ([194.78.208.39]:24997 "EHLO
+	mail.macqel.be") by vger.kernel.org with ESMTP id <S261809AbTCQR3o>;
+	Mon, 17 Mar 2003 12:29:44 -0500
+Message-Id: <200303171740.h2HHebY01003@mail.macqel.be>
+Subject: Re: sundance DFE-580TX DL10050B patch
+In-Reply-To: <20030317172416.GA3366@suse.de> from Dave Jones at "Mar 17, 2003
+ 04:24:21 pm"
+To: Dave Jones <davej@codemonkey.org.uk>
+Date: Mon, 17 Mar 2003 18:40:36 +0100 (CET)
+CC: linux-kernel@vger.kernel.org
+From: "Philippe De Muyter" <phdm@macqel.be>
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel <zippel@linux-m68k.org> said:
+Dave Jones wrote :
+> On Mon, Mar 17, 2003 at 02:56:09PM +0100, Philippe De Muyter wrote:
+> 
+>  > +		writew((dev->dev_addr[i + 1] << 8) + dev->dev_addr[i],
+> 
+> Don't you want to OR those together instead of add them ?
+> 
+> 		Dave
+> 
+You're right.
 
-[...]
+Here it is :
 
-> If you want to test an alternative system to see whether it's usable for 
-> kernel development, what better data is there? How could you compare it 
-> against bk?
-
-Either it is a bk clone of some sort (which adds little value, and probably
-won't get the head hackers to switch) or it works on different principles.
-In the first case the info you request might be useful to peek at (but
-Larry (quite understandably IMVHO) will veto that), but you won't need it
-for day-to-day LKML bussiness; or it is utterly useless because it is from
-an incompatible worldview.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+--- drivers/net/sundance.c	Mon Mar 17 13:15:48 2003
++++ drivers/net/sundance.c	Thu Feb 13 11:56:43 2003
+@@ -853,8 +853,10 @@
+ 	writel(np->rx_ring_dma, ioaddr + RxListPtr);
+ 	/* The Tx list pointer is written as packets are queued. */
+ 
+-	for (i = 0; i < 6; i++)
+-		writeb(dev->dev_addr[i], ioaddr + StationAddr + i);
++	/* Station address must be written as 16 bit words with the DL10050B chip. */
++	for (i = 0; i < 6; i += 2)
++		writew((dev->dev_addr[i + 1] << 8) | dev->dev_addr[i],
++			   ioaddr + StationAddr + i);
+ 
+ 	/* Initialize other registers. */
+ 	writew(dev->mtu + 14, ioaddr + MaxFrameSize);

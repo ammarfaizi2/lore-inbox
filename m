@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261351AbREZPdF>; Sat, 26 May 2001 11:33:05 -0400
+	id <S261198AbREZPfp>; Sat, 26 May 2001 11:35:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261471AbREZPbs>; Sat, 26 May 2001 11:31:48 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:58886 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S261351AbREZPbY>;
-	Sat, 26 May 2001 11:31:24 -0400
-Date: Sat, 26 May 2001 12:31:20 -0300 (BRST)
+	id <S261482AbREZPff>; Sat, 26 May 2001 11:35:35 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:1031 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S261198AbREZPfT>;
+	Sat, 26 May 2001 11:35:19 -0400
+Date: Sat, 26 May 2001 12:08:34 -0300 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Ben LaHaise <bcrl@redhat.com>,
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Ben LaHaise <bcrl@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
 Subject: Re: Linux-2.4.5
-In-Reply-To: <Pine.LNX.4.21.0105260818150.3684-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0105261229160.30264-100000@imladris.rielhome.conectiva>
+In-Reply-To: <20010526170306.X9634@athlon.random>
+Message-ID: <Pine.LNX.4.21.0105261206260.30264-100000@imladris.rielhome.conectiva>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -21,16 +21,25 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 May 2001, Linus Torvalds wrote:
+On Sat, 26 May 2001, Andrea Arcangeli wrote:
 
-> Oh, and I still _do_ think that we should rename the silly "async"
-> flag as "can_do_io", and then use that to determine whether to do
-> SLAB_KERNEL or SLAB_BUFFER. That would make more things able to do IO,
-> which in turn should help balance things out.
+> Others agreed that the real source of the create_buffers could be just
+> too few reserved pages in the unused_list
 
-Agreed, this simplifies things a lot.
+To quote you, from the message to which I replied with the
+"No Comment" comment:
 
-regards,
+------> Andrea Arcangeli wrote:
+Anything supposed to work because there's enough memory between
+zone->pages_min*3/4 and zone->pages_min/4 is just obviously broken
+period.
+------
+
+And not 10 lines lower you decide to raise some magic
+limit yourself. I guess my irony threshold must be
+lower than yours, or something.
+
+cheers,
 
 Rik
 --
@@ -40,4 +49,5 @@ However, without VM there's truly nothing to lose...
 http://www.surriel.com/		http://distro.conectiva.com/
 
 Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+
 

@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316615AbSGGXB6>; Sun, 7 Jul 2002 19:01:58 -0400
+	id <S316621AbSGGXFO>; Sun, 7 Jul 2002 19:05:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316621AbSGGXB5>; Sun, 7 Jul 2002 19:01:57 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54032 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316615AbSGGXB4>;
-	Sun, 7 Jul 2002 19:01:56 -0400
-Message-ID: <3D28CA7D.9930E9F7@zip.com.au>
-Date: Sun, 07 Jul 2002 16:10:53 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
+	id <S316623AbSGGXFO>; Sun, 7 Jul 2002 19:05:14 -0400
+Received: from pD952ABA4.dip.t-dialin.net ([217.82.171.164]:49360 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316621AbSGGXFN>; Sun, 7 Jul 2002 19:05:13 -0400
+Date: Sun, 7 Jul 2002 17:07:40 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: Thunder from the hill <thunder@ngforever.de>, Greg KH <greg@kroah.com>,
+       kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: BKL removal
+In-Reply-To: <3D28C3F0.7010506@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0207071702120.10105-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] fix O_DIRECT oops
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-inode->i_sb->s_bdev is NULL when the inode refers to a blockdev.
-Use the get_block() result instead.
+On Sun, 7 Jul 2002, Dave Hansen wrote:
+> Old Blue?  23 isn't _that_ old!
 
+Obviously, you never read that book about the IBM s/370 named
+"Old Blue"...
 
- buffer.c |    8 +++++---
- 1 files changed, 5 insertions(+), 3 deletions(-)
+> BKL use isn't right or wrong -- it isn't a case of creating a deadlock 
+> or a race.  I'm picking a relatively random function from "grep -r 
+> lock_kernel * | grep /usb/".  I'll show what I think isn't optimal 
+> about it.
+> 
+> "up" is a local variable.  There is no point in protecting its 
+> allocation.  If the goal is to protect data inside "up", there should 
+> probably be a subsystem-level lock for all "struct uhci_hcd"s or a 
+> lock contained inside of the structure itself.  Is this the kind of 
+> example you're looking for?
 
---- 2.5.25/fs/buffer.c~direct_io-fix	Sun Jul  7 04:00:23 2002
-+++ 2.5.25-akpm/fs/buffer.c	Sun Jul  7 04:01:38 2002
-@@ -2302,8 +2302,9 @@ int generic_direct_IO(int rw, struct ino
- 			struct kiobuf *iobuf, unsigned long blocknr,
- 			int blocksize, get_block_t *get_block)
- {
--	int i, nr_blocks, retval;
-+	int i, nr_blocks, retval = 0;
- 	sector_t *blocks = iobuf->blocks;
-+	struct block_device *bdev = NULL;
- 
- 	nr_blocks = iobuf->length / blocksize;
- 	/* build the blocklist */
-@@ -2333,11 +2334,12 @@ int generic_direct_IO(int rw, struct ino
- 				BUG();
- 		}
- 		blocks[i] = bh.b_blocknr;
-+		bdev = bh.b_bdev;
- 	}
- 
- 	/* This does not understand multi-device filesystems currently */
--	retval = brw_kiovec(rw, 1, &iobuf,
--			inode->i_sb->s_bdev, blocks, blocksize);
-+	if (bdev)
-+		retval = brw_kiovec(rw, 1, &iobuf, bdev, blocks, blocksize);
- 
-  out:
- 	return retval;
+So the BKL isn't wrong here, but incorrectly used?
 
--
+Is it really okay to "lock the whole kernel" because of one struct file? 
+This brings us back to spinlocks...
+
+You're possibly right about this one. What did Greg K-H say?
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+

@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbVCIQn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbVCIQoi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbVCIQn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 11:43:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbVCIQnZ
+	id S261659AbVCIQoi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 11:44:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbVCIQoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 11:43:25 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:63463 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261642AbVCIQnH (ORCPT
+	Wed, 9 Mar 2005 11:44:06 -0500
+Received: from [151.97.230.9] ([151.97.230.9]:61700 "HELO ssc.unict.it")
+	by vger.kernel.org with SMTP id S261659AbVCIQlE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 11:43:07 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=QCmm8P2tNaCyuQEvZLNubHo2xjiTN9z0YjKHPpZxreoBtAo+G2MeaL0Ex48G+w/VqjBokrOxgBO1z2/Bjx7DM6dY585wqYG0+U2/SW1s7gl4hi23ULNwSm5t0R0Q/kF4MIY/pxEYalkD7ce3e1N/h+fMAWOioNVlqtfthMUc3I8=
-Message-ID: <58cb370e050309084374f93a71@mail.gmail.com>
-Date: Wed, 9 Mar 2005 17:43:02 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.6.11-ac1
-Cc: CaT <cat@zip.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1110386321.3116.196.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <1110231261.3116.90.camel@localhost.localdomain>
-	 <20050309072646.GG1811@zip.com.au>
-	 <58cb370e05030908267f0fadbe@mail.gmail.com>
-	 <1110386321.3116.196.camel@localhost.localdomain>
+	Wed, 9 Mar 2005 11:41:04 -0500
+Subject: [patch 1/1] unified spinlock initialization arch/um/drivers/port_kern.c
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       blaisorblade@yahoo.it, domen@coderock.org, amitg@calsoftinc.com,
+       gud@eth.net
+From: blaisorblade@yahoo.it
+Date: Wed, 09 Mar 2005 10:42:33 +0100
+Message-Id: <20050309094234.8FC0C6477@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 09 Mar 2005 16:38:43 +0000, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Mer, 2005-03-09 at 16:26, Bartlomiej Zolnierkiewicz wrote:
-> > It can be merged if somebody fix it to always force controller into
-> > non-RAID mode and remove RAID mode support (which currently
-> > does nothing more besides complicating the driver and making special
-> > commands unusable).
-> 
-> Incorrect
 
-Very helpful
+From: <domen@coderock.org>
+Cc: <user-mode-linux-devel@lists.sourceforge.net>, <domen@coderock.org>, <amitg@calsoftinc.com>, <gud@eth.net>
+
+Unify the spinlock initialization as far as possible.
+
+Signed-off-by: Amit Gud <gud@eth.net>
+Signed-off-by: Domen Puncer <domen@coderock.org>
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
+
+ linux-2.6.11-paolo/arch/um/drivers/port_kern.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN arch/um/drivers/port_kern.c~uml-switch-spinlock-init arch/um/drivers/port_kern.c
+--- linux-2.6.11/arch/um/drivers/port_kern.c~uml-switch-spinlock-init	2005-03-09 10:35:28.786848080 +0100
++++ linux-2.6.11-paolo/arch/um/drivers/port_kern.c	2005-03-09 10:35:28.789847624 +0100
+@@ -185,11 +185,11 @@ void *port_data(int port_num)
+ 		  .has_connection 	= 0,
+ 		  .sem 			= __SEMAPHORE_INITIALIZER(port->sem, 
+ 								  0),
+-		  .lock 		= SPIN_LOCK_UNLOCKED,
+ 		  .port 	 	= port_num,
+ 		  .fd  			= fd,
+ 		  .pending 		= LIST_HEAD_INIT(port->pending),
+ 		  .connections 		= LIST_HEAD_INIT(port->connections) });
++	spin_lock_init(&port->lock);
+ 	list_add(&port->list, &ports);
+ 
+  found:
+_

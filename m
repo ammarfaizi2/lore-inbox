@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265900AbUJHWYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266009AbUJHW0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265900AbUJHWYs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 18:24:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUJHWYs
+	id S266009AbUJHW0y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 18:26:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266006AbUJHW0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 18:24:48 -0400
-Received: from fw.osdl.org ([65.172.181.6]:60103 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265900AbUJHWYq (ORCPT
+	Fri, 8 Oct 2004 18:26:53 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:43006 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265978AbUJHW0q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 18:24:46 -0400
-Date: Fri, 8 Oct 2004 15:24:30 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Jody McIntyre <realtime-lsm@modernduck.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de,
-       "Jack O'Quin" <joq@io.com>
-Subject: Re: [PATCH] Realtime LSM
-Message-ID: <20041008152430.R2357@build.pdx.osdl.net>
-References: <1096669179.27818.29.camel@krustophenia.net> <20041001152746.L1924@build.pdx.osdl.net> <877jq5vhcw.fsf@sulphur.joq.us> <1097193102.9372.25.camel@krustophenia.net> <1097269108.1442.53.camel@krustophenia.net> <20041008144539.K2357@build.pdx.osdl.net> <1097272140.1442.75.camel@krustophenia.net> <20041008145252.M2357@build.pdx.osdl.net> <1097273105.1442.78.camel@krustophenia.net> <20041008151911.Q2357@build.pdx.osdl.net>
-Mime-Version: 1.0
+	Fri, 8 Oct 2004 18:26:46 -0400
+Date: Fri, 08 Oct 2004 15:26:46 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>,
+       kernel-janitors <kernel-janitors@lists.osdl.org>
+cc: greg@kroah.com, hannal@us.ibm.com, wli@holomorphy.com
+Subject: [RFT 2.6] ebus.c replace pci_find_device with pci_get_device
+Message-ID: <83130000.1097274406@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20041008151911.Q2357@build.pdx.osdl.net>; from chrisw@osdl.org on Fri, Oct 08, 2004 at 03:19:11PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(relative to last one)
+As pci_find_device is going away I've replaced it with pci_get_device.
+If someone with a Sparc system could test it I would appreciate it.
+Thanks.
 
-use in_group_p
+Hanna Linder
+IBM Linux Technology Center
 
---- security/realtime.c~cap_bprm_set	2004-10-08 15:21:03.835639904 -0700
-+++ security/realtime.c	2004-10-08 15:23:13.574916536 -0700
-@@ -60,26 +60,15 @@
- MODULE_PARM_DESC(mlock, " enable memory locking privileges.");
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+
+---
+diff -Nrup linux-2.6.9-rc3-mm3cln/arch/sparc/kernel/ebus.c linux-2.6.9-rc3-mm3patch2/arch/sparc/kernel/ebus.c
+--- linux-2.6.9-rc3-mm3cln/arch/sparc/kernel/ebus.c	2004-09-29 20:05:51.000000000 -0700
++++ linux-2.6.9-rc3-mm3patch2/arch/sparc/kernel/ebus.c	2004-10-08 15:17:41.481638808 -0700
+@@ -275,7 +275,7 @@ void __init ebus_init(void)
+ 		}
+ 	}
  
- /* helper function for testing group membership */
--static inline int gid_ok(int gid, int e_gid) {
--	int i;
--	int rt_ok = 0;
--
-+static inline int gid_ok(int gid, int e_gid)
-+{
- 	if (gid == -1)
- 		return 0;
+-	pdev = pci_find_device(PCI_VENDOR_ID_SUN, PCI_DEVICE_ID_SUN_EBUS, 0);
++	pdev = pci_get_device(PCI_VENDOR_ID_SUN, PCI_DEVICE_ID_SUN_EBUS, 0);
+ 	if (!pdev) {
+ 		return;
+ 	}
+@@ -342,7 +342,7 @@ void __init ebus_init(void)
+ 		}
  
- 	if ((gid == e_gid) || (gid == current->gid))
- 		return 1;
- 
--	get_group_info(current->group_info);
--	for (i = 0; i < current->group_info->ngroups; ++i) {
--		if (gid == GROUP_AT(current->group_info, i)) {
--			rt_ok = 1;
--			break;
--		}
--	}
--	put_group_info(current->group_info);
--
--	return rt_ok;
-+	return in_group_p(gid);
- }
- 
- int realtime_bprm_set_security(struct linux_binprm *bprm)
+ 	next_ebus:
+-		pdev = pci_find_device(PCI_VENDOR_ID_SUN,
++		pdev = pci_get_device(PCI_VENDOR_ID_SUN,
+ 				       PCI_DEVICE_ID_SUN_EBUS, pdev);
+ 		if (!pdev)
+ 			break;
+

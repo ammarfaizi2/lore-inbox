@@ -1,54 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261316AbTIJJhx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 05:37:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbTIJJhx
+	id S261278AbTIJJgY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 05:36:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbTIJJgY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 05:37:53 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:19154
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S261316AbTIJJhw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 05:37:52 -0400
-Message-ID: <3F5EF0B9.7020207@redhat.com>
-Date: Wed, 10 Sep 2003 02:36:57 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030904 Thunderbird/0.2a
-X-Accept-Language: en-us, en
+	Wed, 10 Sep 2003 05:36:24 -0400
+Received: from hal-4.inet.it ([213.92.5.23]:13249 "EHLO hal-4.inet.it")
+	by vger.kernel.org with ESMTP id S261278AbTIJJgW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 05:36:22 -0400
+Message-ID: <01c601c3777f$97c92680$5aaf7450@wssupremo>
+Reply-To: "Luca Veraldi" <luca.veraldi@katamail.com>
+From: "Luca Veraldi" <luca.veraldi@katamail.com>
+To: <arjanv@redhat.com>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+References: <00f201c376f8$231d5e00$beae7450@wssupremo> <20030909175821.GL16080@Synopsys.COM> <001d01c37703$8edc10e0$36af7450@wssupremo> <20030910064508.GA25795@Synopsys.COM> <015601c3777c$8c63b2e0$5aaf7450@wssupremo> <1063185795.5021.4.camel@laptop.fenrus.com>
+Subject: Re: Efficient IPC mechanism on Linux
+Date: Wed, 10 Sep 2003 11:40:33 +0200
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: "Hu, Boris" <boris.hu@intel.com>
-Subject: Re: [PATCH] Split futex global spinlock futex_lock
-References: <37FBBA5F3A361C41AB7CE44558C3448E01C0B69E@pdsmsx403.ccr.corp.intel.com>
-In-Reply-To: <37FBBA5F3A361C41AB7CE44558C3448E01C0B69E@pdsmsx403.ccr.corp.intel.com>
-X-Enigmail-Version: 0.81.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> yes a copy of a page is about 3000 to 4000 cycles on an x86 box in the
+> uncached case. A pagetable operation (like the cpu setting the accessed
+> or dirty bit) is in that same order I suspect (maybe half this, but not
+> a lot less). 
 
-I've run some tests on a 4p P4 HT machine.  Some heavy futex using
-benchmark code runs about 6% faster with the patch.  So, despite the
-reduced time the futex lock is actually taken after Jamie's patch the
-separate locks still add benefits.
+Probably you don't know what you're talking about.
+I don't know where you studied computer architectures, but...
+Let's answer.
 
-Plus, currently we do not allocate locks so that the futexes fall in
-different buckets.  To some extend this is possible and would be a
-possible optimization if this patch goes in.
+To set the accessed or dirty bit you use
 
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+38         __asm__ __volatile__( LOCK_PREFIX
+39                 "btsl %1,%0"
+40                 :"=m" (ADDR)
+41                 :"Ir" (nr));
 
-iD8DBQE/XvC62ijCOnn/RHQRApUsAJ0RB/WsVZTgC31yIbAFL4KdMi8UcgCeI+Gv
-uAVQQReC9Tl1g8HogsReVdA=
-=vRBt
------END PGP SIGNATURE-----
+which is a ***SINGLE CLOCK CYCLE*** of cpu.
+I don't think really that on any machine Firmware 
+a btsl will require 4000 cycles.
+Neither on Intel x86.
 
+> Changing pagetable content is even more because all the
+> tlb's and internal cpu state will need to be flushed... which is also a
+> microcode operation for the cpu. 
+
+Good. The same overhead you will find accessing a message 
+after a read form a pipe. There will occur many TLB faults.
+And the same apply copying the message to the pipe.
+Many many TLB faults.
+
+> And it's deadly in an SMP environment.
+
+You say "tlb's and internal cpu state will need to be flushed".
+The other cpus in an SMP environment can continue to work, indipendently.
+TLBs and cpu state registers are ***PER-CPU*** resorces.
+
+Probably, it is worse the case of copying a memory page,
+because you have to hold some global lock all the time.
+This is deadly in an SMP environment, 
+because critical section lasts for thousand of cycles, 
+instead of simply a few.

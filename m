@@ -1,51 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbTH2OXM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 10:23:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbTH2OXM
+	id S261228AbTH2OQp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 10:16:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbTH2OQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 10:23:12 -0400
-Received: from ip-64-7-1-79.dsl.lax.megapath.net ([64.7.1.79]:42232 "EHLO
-	ip-64-7-1-79.dsl.lax.megapath.net") by vger.kernel.org with ESMTP
-	id S261238AbTH2OXK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 10:23:10 -0400
-Date: Fri, 29 Aug 2003 07:22:55 -0700 (PDT)
-From: <lk@trolloc.com>
-X-X-Sender: <bpape@ip-64-7-1-79.dsl.lax.megapath.net>
-To: Nick Urbanik <nicku@vtc.edu.hk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Single P4, many IDE PCI cards == trouble??
-In-Reply-To: <3F4F5C9A.5BAA1542@vtc.edu.hk>
-Message-ID: <Pine.LNX.4.33.0308290716500.26957-100000@ip-64-7-1-79.dsl.lax.megapath.net>
-X-keyboard: Happy Hacking Keyboard Lite
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 29 Aug 2003 10:16:25 -0400
+Received: from [24.241.190.29] ([24.241.190.29]:47238 "EHLO wally.rdlg.net")
+	by vger.kernel.org with ESMTP id S261238AbTH2OQV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 10:16:21 -0400
+Date: Fri, 29 Aug 2003 10:16:19 -0400
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: ext2 -> ext3 on the fly?
+Message-ID: <20030829141619.GA12564@rdlg.net>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="45Z9DzgjV8m4Oswq"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there _anyone_ who is using a number of ATA133 IDE disks (>=6), each on
-> its own IDE channel, on a number of PCI IDE cards, and doing so
-> successfully and reliably?  I begin to suspect not!  If so, please tell us
-> what motherboard, IDE cards you are using.  I used to imagine that a
-> terabyte of RAID storage on one P4 machine with ordinary cheap IDE cards
-> with software RAID would be feasible.  I believe it is not (although I
-> cannot afford to play musical motherboards).
 
-We've tried it with five or six different motherboards, with Intel, Via,
-and Serverworks onboard chipsets, and Promise, Highpoint, and Silicon
-Image add-in cards, and had no luck.  After extensive testing and
-patching, we finally gave up and bought 3ware 8500 cards.  The only
-non-3ware IDE we've found to be stable is the Intel onboard chipset.  
-
-> > > My machine locks solid at unpredictable intervals with no response
-> > > from keyboard lights, no Alt-Sysrq-x response, etc, with a wide
-> > > variety of 2.4.x kernels, including 2.4.22.
-
-We generally got lost DMA messages, but still, we were unable to obtain 
-any stability.
-
-> I am giving up now, and have shelled out big dollars for a 3ware 7506-8,
-> which I will install early next week once I've figured out how to back up
-> and restore 203GB without shelling out even more money.
+--45Z9DzgjV8m4Oswq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
+
+I have a number of servers which are currently mounting /usr as ext2.  I=20
+have a means of doing an tune2fs -j on all of them remotely en mass but
+I'd rather not reboot them all to enable journaling on machines that are
+up and not having issues.  I've tried to do a:
+
+mount -t ext3 -o remount /usr
+
+as well as just a mount -o remount after changing the fstab.
+
+on a test box but it just blows out a usage message.  Is there a way to
+do this remount without a complete reboot that'll be transparant to
+users?
+
+
+If not, is it dangerous to tune2fs the filesystems, change the fstab and
+then leave the box up for 2-6 months and let them reboot through
+atrrition, upgrades, etc?
+
+Current kernel is 2.4.21-ac3, getting outages and upgrades is a rather
+long process involving regression testing, etc.
+
+Robert
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | GPG Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+
+Life is not a destination, it's a journey.
+  Microsoft produces 15 car pileups on the highway.
+    Don't stop traffic to stand and gawk at the tragedy.
+
+--45Z9DzgjV8m4Oswq
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/T2Az8+1vMONE2jsRAkELAJ9hlP4rAxtjagcTea1H9jXvxWNmoQCgm7it
+8aM0oXu0z5HubEeJAmB/Rco=
+=otdo
+-----END PGP SIGNATURE-----
+
+--45Z9DzgjV8m4Oswq--

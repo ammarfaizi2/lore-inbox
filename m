@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264248AbTE3U4U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 16:56:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbTE3U4U
+	id S263993AbTE3VDP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 17:03:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263996AbTE3VDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 16:56:20 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38669 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264035AbTE3U4T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 16:56:19 -0400
-Date: Fri, 30 May 2003 22:09:36 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] 2.5 Documentation/CodingStyle ANSI C function declarations.
-Message-ID: <20030530220936.G9419@flint.arm.linux.org.uk>
-Mail-Followup-To: Steven Cole <elenstev@mesatop.com>,
-	linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>
-References: <1054324633.3754.119.camel@spc9.esa.lanl.gov>
+	Fri, 30 May 2003 17:03:15 -0400
+Received: from adsl-216-103-111-100.dsl.snfc21.pacbell.net ([216.103.111.100]:48777
+	"EHLO www.piet.net") by vger.kernel.org with ESMTP id S263993AbTE3VDN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 17:03:13 -0400
+Subject: Re: SCO's claims seem empty - Open Source Initiative Paper by Eric
+	Raymond
+From: Piet Delaney <piet@www.piet.net>
+To: Martin List-Petersen <martin@list-petersen.dk>
+Cc: linux-kernel@vger.kernel.org, piet <piet@www.piet.net>
+In-Reply-To: <1054281854.3ed7107e8d264@roadrunner.hulpsystems.net>
+References: <1054281854.3ed7107e8d264@roadrunner.hulpsystems.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 30 May 2003 14:16:36 -0700
+Message-Id: <1054329396.7909.8.camel@www.piet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1054324633.3754.119.camel@spc9.esa.lanl.gov>; from elenstev@mesatop.com on Fri, May 30, 2003 at 01:57:13PM -0600
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 30, 2003 at 01:57:13PM -0600, Steven Cole wrote:
-> +int foo(
-> +	long bar,
-> +	long day,
-> +	struct magic *xyzzy
-> +)
+On Fri, 2003-05-30 at 01:04, Martin List-Petersen wrote:
 
-Is this really part of the kernel coding style?
+Eric Raymond's paper on the SCO-vs.-IBM Complaint was interesting. 
 
+See: 
+http://opensource.org/sco-vs-ibm.html
+
+kernel developers may want to help Eric collect information. 
+
+-piet 
+
+> It seems that the claims of SCO are empty. The register is running a story on,
+> that when Novell sold UnixWare it didn't include the copyrights and patents on
+> UNIX System V, so these are still owned by Novell.
+> 
+> The article can be found here:
+> http://www.theregister.co.uk/content/4/30910.html
+> Novell press release is also quite interesting:
+> http://www.novell.com/news/press/archive/2003/05/pr03033.html
+> 
+> Regards,
+> Martin List-Petersen
+> --
+> BOFH excuse #57:
+> 
+> Groundskeepers stole the root password
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+piet@www.piet.net
 

@@ -1,107 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265225AbRGBOEP>; Mon, 2 Jul 2001 10:04:15 -0400
+	id <S265268AbRGBOSj>; Mon, 2 Jul 2001 10:18:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265237AbRGBOEF>; Mon, 2 Jul 2001 10:04:05 -0400
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:1446 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S265225AbRGBODx>; Mon, 2 Jul 2001 10:03:53 -0400
-From: mdaljeet@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: Gerd Knorr <kraxel@bytesex.org>
-cc: linux-kernel@vger.kernel.org
-Message-ID: <CA256A7D.004D2B0F.00@d73mta01.au.ibm.com>
-Date: Mon, 2 Jul 2001 19:30:44 +0530
-Subject: Re: mmap
-Mime-Version: 1.0
-Content-type: multipart/mixed; 
-	Boundary="0__=y76NQQffAK1hg3uTyCuhJDiZQi5Cquunhdx4HgRiuE40PUTA70MQuoxC"
-Content-Disposition: inline
+	id <S265300AbRGBOSa>; Mon, 2 Jul 2001 10:18:30 -0400
+Received: from datafoundation.com ([209.150.125.194]:56580 "EHLO
+	datafoundation.com") by vger.kernel.org with ESMTP
+	id <S265268AbRGBOSV>; Mon, 2 Jul 2001 10:18:21 -0400
+Date: Mon, 2 Jul 2001 10:18:14 -0400 (EDT)
+From: John Jasen <jjasen@datafoundation.com>
+To: Juergen Wolf <JuWo@N-Club.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with SMC Etherpower II + kernel newer 2.4.2
+In-Reply-To: <3B40611D.F1485C1B@N-Club.de>
+Message-ID: <Pine.LNX.4.30.0107021014230.15054-100000@flash.datafoundation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0__=y76NQQffAK1hg3uTyCuhJDiZQi5Cquunhdx4HgRiuE40PUTA70MQuoxC
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Mon, 2 Jul 2001, Juergen Wolf wrote:
 
-I use the 'map_user_kiobuf' and 'lock_kiovec' kernel routines in a module
-for 'user space memory'. After that if I pass the
-'(iobuf->maplist[0])-mem_map) <<  PAGE_SHIFT)' to the hardware for DMA
-operations and it works fine for Intel platforms. Now how can I use the
-'iobuf' struct obtained after lock_kiovec operation to get a PCI bus
-address that I can pass to hardware for DMA operations on my Apple
-machine.?
+> currently I experience some strange problems with every kernels newer
+> than 2.4.2 and my SMC Etherpower II network card. While running such a
+> kernel, the network hangs and I get lots of errors like these listed
+> below:
 
-thanks,
-Daljeet.
+under the dumb question department:
 
+a) bad cable?
+b) not negotiating speed and duplex with the switch correctly?
+c) bad card?
+d) IRQ sharing causing a conflict?
 
-|--------+----------------------->
-|        |          Gerd Knorr   |
-|        |          <kraxel@bytes|
-|        |          ex.org>      |
-|        |                       |
-|        |          05/15/01     |
-|        |          01:03 PM     |
-|        |          Please       |
-|        |          respond to   |
-|        |          Gerd Knorr   |
-|        |                       |
-|--------+----------------------->
-  >-----------------------------------------------------------------------|
-  |                                                                       |
-  |       To:     linux-kernel@vger.kernel.org                            |
-  |       cc:     (bcc: Daljeet Maini/India/IBM)                          |
-  |       Subject:     Re: mmap                                           |
-  >-----------------------------------------------------------------------|
+I'm less predisposed to blame the card in general or the driver, as I have
+probably about a dozen SMC epic100 cards here, in single processor x86,
+dual x86, and dual alphas that have been flawless from about 2.2.14 to
+2.4.4.
 
-
-
-
-
---0__=y76NQQffAK1hg3uTyCuhJDiZQi5Cquunhdx4HgRiuE40PUTA70MQuoxC
-Content-type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-transfer-encoding: quoted-printable
-
-
-
-mdaljeet@in.ibm.com wrote:
->  I am doing the following:
->
->     malloc some memory is user space
->     pass its pointer to some kernel module
->     in the kernel module...do a pci_alloc_consistent so that i get a
-memory
->     region for PCI DMA operations
-
-Wrong approach, you can use kiobufs if you want DMA to the malloc()ed
-userspace memory:
-
- * lock down the user memory using map_user_kiobuf() + lock_kiovec()
-   (see linux/iobuf.h).
- * translate the iobuf->maplist into a scatterlist [1]
- * feed pci_map_sg() with the scatterlist to get DMA addresses.
-   you can pass to the hardware.
-
-And the reverse to free everything when you are done of course.
-
-  Gerd
-
-[1] IMHO it would be more useful if iobufs would use a scatterlist
-    instead of an struct page* array.
-
-
---
-Gerd Knorr <kraxel@bytesex.org>  --  SuSE Labs, Au=DFenstelle Berlin
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-=
-
---0__=y76NQQffAK1hg3uTyCuhJDiZQi5Cquunhdx4HgRiuE40PUTA70MQuoxC--
 

@@ -1,63 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261447AbSJHShy>; Tue, 8 Oct 2002 14:37:54 -0400
+	id <S261425AbSJHScD>; Tue, 8 Oct 2002 14:32:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261448AbSJHShx>; Tue, 8 Oct 2002 14:37:53 -0400
-Received: from mailhub.cs.sjsu.edu ([130.65.86.58]:25237 "EHLO
-	mailhub.cs.sjsu.edu") by vger.kernel.org with ESMTP
-	id <S261447AbSJHShu>; Tue, 8 Oct 2002 14:37:50 -0400
-Date: Tue, 8 Oct 2002 11:42:10 -0700 (PDT)
-From: Juan Gomez <gomez@cs.sjsu.edu>
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
-Subject: kNFS(lockd) patch linux 2.5.41
-Message-ID: <Pine.GSO.4.05.10210081135300.12288-100000@eniac>
+	id <S261424AbSJHScD>; Tue, 8 Oct 2002 14:32:03 -0400
+Received: from mx04.stofanet.dk ([212.10.30.234]:60077 "EHLO mx04.stofanet.dk")
+	by vger.kernel.org with ESMTP id <S261425AbSJHScC>;
+	Tue, 8 Oct 2002 14:32:02 -0400
+Message-ID: <3DA3260D.2030908@mail1.stofanet.dk>
+Date: Tue, 08 Oct 2002 20:38:05 +0200
+From: Tommy Vestermark <tov@mail1.stofanet.dk>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.0) Gecko/20020530
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Status of UDF CD packet writing?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Will Jens Axboes patch for CD packet writing for CD-R/RW make it in
+before the feature freeze? I know Jens Axboe is busy with more basic I/O
+stuff, but i sincerely hope it can be squeezed in before 2.6/3.0 is
+released.
 
-Linus,
+Most new machines are fitted with a CD burner and some have finally even
+dropped the floppy drive!. Good desktop support is not only about
+low-latency and scheduler issues (Good work though!).
 
-Would you please review the attached patch and include in the dist?
+Looking forward to 2.6/3.0 (or whatever the name may be ;-)
+Tommy Vestermark
 
-If fixes a faulty delay experienced by lockd clients just after the grace
-period and during the first request to lockd.
 
-diff -ru linux-2.5.41/fs/lockd/svc.c linux-2.5.41-plus-delay-patch/fs/lockd/svc.c
---- linux-2.5.41/fs/lockd/svc.c	Mon Oct  7 11:24:41 2002
-+++ linux-2.5.41-plus-delay-patch/fs/lockd/svc.c	Tue Oct  8 11:21:00 2002
-@@ -143,8 +143,7 @@
- 		 */
- 		if (!nlmsvc_grace_period) {
- 			timeout = nlmsvc_retry_blocked();
--		} else if (time_before(grace_period_expire, jiffies))
--			clear_grace_period();
-+		} 
- 
- 		/*
- 		 * Find a socket with data available and call its
-@@ -163,6 +162,21 @@
- 		dprintk("lockd: request from %08x\n",
- 			(unsigned)ntohl(rqstp->rq_addr.sin_addr.s_addr));
- 
-+                /* 
-+                 * We need to do the clear/grace period here and not before 
-+                 * svc_recv() because svc_recv() may sleep longer than the 
-+                 * grace period and the first request may be falsely processed
-+                 * as if the server was in the grace period when it was not 
-+                 * causing unnecessary delays for the first request received.
-+                 * Juan C. Gomez j_carlos_gome@yahoo.com
-+                 */
-+                
-+                if (nlmsvc_grace_period 
-+                    &&
-+                    time_before(grace_period_expire, jiffies)) {
-+                       clear_grace_period();
-+                }
-+                
- 		svc_process(serv, rqstp);
- 
- 	}
+
 

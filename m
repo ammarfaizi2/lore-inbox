@@ -1,91 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbTHSTsD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 15:48:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbTHSTrv
+	id S261434AbTHSTys (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 15:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbTHSTya
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 15:47:51 -0400
-Received: from web14911.mail.yahoo.com ([216.136.225.249]:14700 "HELO
-	web14911.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261300AbTHSTpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 15:45:05 -0400
-Message-ID: <20030819194503.10122.qmail@web14911.mail.yahoo.com>
-Date: Tue, 19 Aug 2003 12:45:03 -0700 (PDT)
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Standard driver call to enable/disable PCI ROM
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Tue, 19 Aug 2003 15:54:30 -0400
+Received: from zeke.inet.com ([199.171.211.198]:54417 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id S261434AbTHSTyD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 15:54:03 -0400
+Message-ID: <3F428051.3090207@inet.com>
+Date: Tue, 19 Aug 2003 14:53:53 -0500
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030708
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Daniel Pezoa <dpforos@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: TOPDIR kernel variable
+References: <20030814231959.22781.qmail@web11204.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I needed to enable a PCI ROM and read a few things
-from it, and then disable it again. It might be worth
-adding a standard PCI API in 2.6 for this.
+Daniel Pezoa wrote:
+> Hello Kernel Community !!  :-)
+> 
+> I'am compiling lirc software, the kernel source is
+> needed to make them, but when i attemt to make them it
+> fail because the environment variable TOPDIR is not
+> set, looking for the origin of the problem, the script
+> that fail is "pathdown.sh", one tiny script of the
+> kernel, it fails when is trying to assign
+> TP=${TOPDIR:). Reading more i found in the Kernel
+> Makefile the line 
+> 
+> TOPDIR := $(shell /bin/pwd)
+> 
+> that command should solve my problem but if i launch
+> them in the console, it give me the following errors
+> in the screen ouput:
+> 
+> bash: shell: command not found
+> bash: TOPDIR:=: command not found
 
-Here's the code I used...
+Commands in a Makefile are for make, not commands that bash (your shell) 
+will understand.  (If I understand what you said above, that is.)
 
-static void * __init aty128_map_ROM(struct pci_dev
-                   *dev, const struct aty128fb_par
-*par)
-{
-   void *rom;
-   struct resource *r =
-      &dev->resource[PCI_ROM_RESOURCE];
-                                                      
-   /* assign address if it doesn't have one */
-   if (r->start == 0)
-      pci_assign_resource(dev,
-                                    PCI_ROM_RESOURCE);
-                                                      
-   /* enable if needed */
-   if (!(r->flags & PCI_ROM_ADDRESS_ENABLE)) {
-      pci_write_config_dword(dev,
-                     dev->rom_base_reg, r->start | 
-                     PCI_ROM_ADDRESS_ENABLE);
-      r->flags |= PCI_ROM_ADDRESS_ENABLE;
-   }
-   rom = ioremap(r->start, r->end - r->start + 1);
-   if (!rom) {
-     printk(KERN_ERR "aty128fb: ROM failed to map\n");
-     return NULL;
-   }
-   /* Very simple test to make sure it appeared */
-   if (readb(rom) != 0x55) {
-      printk(KERN_ERR "aty128fb: Invalid ROM
-            signature %x should be 0x55\n",
-readb(rom));          
-      aty128_unmap_ROM(dev, rom);
-      return NULL;
-   }
-   return rom;
-}
-                                            
-static void __init aty128_unmap_ROM(struct pci_dev
-                                             *dev,
-void * rom)
-{
-   /* leave it disabled and unassigned */
-   struct resource *r =
-         &dev->resource[PCI_ROM_RESOURCE];
-                                            
-   iounmap(rom);
-                                            
-   r->flags &= ~PCI_ROM_ADDRESS_ENABLE;
-   r->end -= r->start;
-   r->start = 0;
-   /* This will disable and set address to unassigned
-*/
-   pci_write_config_dword(dev, dev->rom_base_reg, 0);
-   release_resource(r);
-}
+> What is the intention of the environment variable
+> TOPDIR and how can i give them a valid value?
 
+If that is in the Makefile, try
+make TOPDIR=...
 
-=====
-Jon Smirl
-jonsmirl@yahoo.com
+HTH,
 
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free, easy-to-use web site design software
-http://sitebuilder.yahoo.com
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
+

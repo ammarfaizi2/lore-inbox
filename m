@@ -1,37 +1,87 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316141AbSEQMng>; Fri, 17 May 2002 08:43:36 -0400
+	id <S316131AbSEQMoc>; Fri, 17 May 2002 08:44:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316131AbSEQMnf>; Fri, 17 May 2002 08:43:35 -0400
-Received: from slip-202-135-75-243.ca.au.prserv.net ([202.135.75.243]:15753
-	"EHLO wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S315981AbSEQMnd>; Fri, 17 May 2002 08:43:33 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix BUG macro 
-In-Reply-To: Your message of "Fri, 17 May 2002 12:47:31 +0100."
-             <Pine.LNX.4.21.0205171220480.986-100000@localhost.localdomain> 
-Date: Fri, 17 May 2002 22:46:18 +1000
-Message-Id: <E178h82-0001o6-00@wagner.rustcorp.com.au>
+	id <S315441AbSEQMob>; Fri, 17 May 2002 08:44:31 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:51977 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S316131AbSEQMnk>; Fri, 17 May 2002 08:43:40 -0400
+Message-ID: <3CE4EC29.3090205@evision-ventures.com>
+Date: Fri, 17 May 2002 13:40:25 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: benh@kernel.crashing.org
+CC: Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.15 IDE 62
+In-Reply-To: <3CDFE1EE.3050800@evision-ventures.com> <20020513191308.10469@mailhost.mipsys.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.21.0205171220480.986-100000@localhost.localdomain> you w
-rite:
-> If they do make up the majority of strings, that's partly because
-> you don't have Andrew's out_of_line_bug work in your tree, partly
-> because your linker isn't combining strings (mine neither, does any?),
-> partly because (I suspect) you're overlooking the vast number of BUG
-> __FILE__ strings which are just leafnames, to each of which you're
-> now proposing to add one or more __FUNCTION__ strings.
+Uz.ytkownik benh@kernel.crashing.org napisa?:
+>>Just to clarify it... From the host view it's not the chipset
+>>it's a channel we have to deal with. And there are typically two
+>>channels on a host. For the serialized parts, we have to
+>>possiblities:
+>>
+>>1. Preserve the current behaviour of using additionally a global
+>>lock.
+>>
+>>2. "Cheat" and reuse the lock from the primary channel during
+>>the initialization of the secondary channel.
+>>
+>>Hmmm.... Thinking a bit about it I'm now conviced that 2. is more
+>>elegant then 1. And finally this will
+>>just allow us to make the hwgroup_t go entierly away.
+> 
+> 
+> I would do things differently. From the common point of view,
+> what we deal with is
+> 
+>    controller
+>     /        \
+>  channel x, channel y, ....
+> 
+> That is an _arbitrary_ number of channels. So the host driver
+> should just register individual "channels" to the IDE layer, 
+> each one has it's queue lock, period.
+> 
+> Now, if for any reason, the host specific code has to synchronize
+> between several of it's channels when dealing with things like
+> chipset configuration, it's up to that host driver to know about
+> it and deal with it; which make perfect sense to be done with a
+> third lock specific to protecting those specific registers that
+> are shared and that is completely internal to the host chipset
+> driver.
+> 
+> The only case I see where the host may have to additionally go
+> and grab the other channel's locks (the queue lock or whatever
+> you call it) is if the actual setting change on one channel 
+> has side effect on a currently transferring other channel.
+> 
+> But that is completely internal to the host, and yes, I agree
+> that reusing the other channel's lock is probably the best solution.
+> 
+> But in cases where you just have 2 bitfields in the same register
+> that need serialized access from both channels, a simple lock
+> protecting only that register seems to be plenty enough.
+> 
+> What did I miss ?
 
-I don't care about the size of the kernel, I care about the fact that
-the compile is 5x slower than it needs to be because the contents of
-every pre-processed file depends on where the kernel tree happens to
-be (see http://ccache.samba.org)
+1. The fact that there are some cases where the initialization code
+doesn't necessarily go down to the host chip drivers right now.
 
-And I compile a lot of Linus kernels,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+2. Most of the current code...
+
+BTW> The code will be much cleaner in the upcomming ide 65, since
+the allocation of the structures shared between two channels will be
+simple pushed down to the corresponding host chip drivers instead of
+the "match search" done after the channles have been initialized.
+
+Since most of the host chip drivers are not reentrant anyway we will
+be able to save quite a lot of allocation code as well.
+

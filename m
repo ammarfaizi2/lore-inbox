@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264312AbTFKUH4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 16:07:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbTFKUH4
+	id S263590AbTFKUMT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 16:12:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbTFKUMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 16:07:56 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:29430 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264312AbTFKUHx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 16:07:53 -0400
-Date: Wed, 11 Jun 2003 13:17:42 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "Joseph Fannin" <jhf@rivenstone.net>
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz, jhf@rivenstone.net,
-       petero2@telia.com
-Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
-Message-Id: <20030611131742.3b057c93.akpm@digeo.com>
-In-Reply-To: <m2u1axk0kp.fsf@p4.localdomain>
-References: <m2u1axk0kp.fsf@p4.localdomain>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 11 Jun 2003 16:12:19 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:19441 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263590AbTFKUMR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 16:12:17 -0400
+Date: Wed, 11 Jun 2003 13:28:11 -0700
+From: Greg KH <greg@kroah.com>
+To: Miles Lane <miles.lane@attbi.com>, willy@debian.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Looks like your PCI patch broke the PPC build (and others)?
+Message-ID: <20030611202811.GA26387@kroah.com>
+References: <3EE77FD6.9020502@attbi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Jun 2003 20:21:36.0433 (UTC) FILETIME=[0EC11A10:01C33057]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EE77FD6.9020502@attbi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Joseph Fannin" <jhf@rivenstone.net> wrote:
->
-> Here is a driver for the Synaptics TouchPad for 2.5.70.
+On Wed, Jun 11, 2003 at 12:15:34PM -0700, Miles Lane wrote:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=105527406918793&w=2
+> 
+>   CC      drivers/pci/probe.o
+> drivers/pci/probe.c: In function `pci_scan_device':
+> drivers/pci/probe.c:532: dereferencing pointer to incomplete type
+> make[3]: *** [drivers/pci/probe.o] Error 1
 
-The code looks nice.
+Not my patch, Matthew's :)
 
-> +#include "synaptics.c"
+I think the PPC developers have a fix for this.
 
-But why on earth do we need to do this?
+thanks,
 
-
+greg k-h

@@ -1,84 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbUKECgS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262568AbUKEClK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262536AbUKECgS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 21:36:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbUKECgS
+	id S262568AbUKEClK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 21:41:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262570AbUKEClK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 21:36:18 -0500
-Received: from ns1.g-housing.de ([62.75.136.201]:41116 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S262536AbUKECgE (ORCPT
+	Thu, 4 Nov 2004 21:41:10 -0500
+Received: from ultra7.eskimo.com ([204.122.16.70]:8465 "EHLO ultra7.eskimo.com")
+	by vger.kernel.org with ESMTP id S262568AbUKEClD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 21:36:04 -0500
-Message-ID: <418AE70E.80302@g-house.de>
-Date: Fri, 05 Nov 2004 03:35:58 +0100
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: alsa-devel@lists.sourceforge.net, perex@suse.cz
-Subject: Re: [Alsa-devel] Oops in 2.6.10-rc1
-References: <4180F026.9090302@g-house.de> <Pine.LNX.4.58.0410281526260.31240@pnote.perex-int.cz> <4180FDB3.8080305@g-house.de> <418A47BB.5010305@g-house.de>
-In-Reply-To: <418A47BB.5010305@g-house.de>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Nov 2004 21:41:03 -0500
+Date: Thu, 4 Nov 2004 18:38:50 -0800
+From: Elladan <elladan@eskimo.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Russell Miller <rmiller@duskglow.com>, Doug McNaught <doug@mcnaught.org>,
+       Jim Nelson <james4765@verizon.net>, DervishD <lkml@dervishd.net>,
+       Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
+       M?ns Rullg?rd <mru@inprovide.com>
+Subject: Re: is killing zombies possible w/o a reboot?
+Message-ID: <20041105023850.GC17010@eskimo.com>
+References: <200411030751.39578.gene.heskett@verizon.net> <87k6t24jsr.fsf@asmodeus.mcnaught.org> <200411031733.30469.rmiller@duskglow.com> <200411040839.34350.vda@port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200411040839.34350.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Nov 04, 2004 at 08:39:34AM +0200, Denis Vlasenko wrote:
+> On Thursday 04 November 2004 01:33, Russell Miller wrote:
+> > On Wednesday 03 November 2004 17:03, Doug McNaught wrote:
+> > 
+> > > It was already mentioned in this thread that the bookkeeping required
+> > > to clean up properly from such an abort would add a lot of overhead
+> > > and slow down the normal, non-buggy case.
+> > >
+> > I am going to continue pursuing this at the risk of making a bigger fool of 
+> > myself than I already am, but I want to make sure that I understand the 
+> > issues - and I did read the message you are referring to.
+> > 
+> > I think what you are saying is that there is kind of a race condition here.  
+> > When something is on the wait queue, it has to be followed through to 
+> > completion.  An interrupt could be received at any time, and if it's taken 
+> > off of the wait queue prematurely, it'll crash the kernel, because the 
+> > interrupt has no way of telling that.
+> 
+> The problem is in locking. You must not kill process while it is
+> in uninterruptible state because it is uninterruptible
+> for a reason - has taken semaphore, or get_cpu(), etc.
+> You do want it to do put_cpu(), right?
+> 
+> Processes must never get stuck in D, it's a kernel bug.
+> 
+> Find out how did process ended up in D state forever,
+> and fix it - that's what I'm trying to do
+> in these cases.
 
-hi again,
+Perhaps it would be useful to add some debugging to the kernel for these
+cases, somewhat akin to Ingo's preempt trace stuff?
 
-i *think* i found the ChangeSet leading to the bug i tried to report in
- http://marc.theaimsgroup.com/?l=linux-kernel&m=109888178603516&w=2
+If a process is in D state and receives a SIGKILL, assume it must exit
+within a few seconds or it's a bug, and dump as much information about
+it as is practical...?
 
-the error is sill present here (and only here? strange...), the latest -BK
-does not fix it. i had some difficulties in telling BK to do the right
-thing. to summarise the error:
+-J
 
-- - upon loading of snd_ens1371 the Oops occurs. system is still stable
-then, but no sound available.
-- - this occured somewhere between 2.6.9 (released 15-Oct-2004) and 2.6.9-10
-(released 22-Oct-2004)
-
-one interesting changeset was:
-
-ChangeSet@1.2000.7.1, 2004-10-20 20:33:06+02:00, perex@suse.cz
-  Merge suse.cz:/home/perex/bk/linux-sound/linux-2.5
-  into suse.cz:/home/perex/bk/linux-sound/linux-sound
-
-i tried to back it out:
-
-$ bk clone -r1.2000.7.1 linux-2.6-BK linux-2.6-BK-test
-
-but the said ChangeSet was still there (of course). i tried to back it out
-(now for sure):
-
-$ bk undo -a1.2010
-(hm: the changesets get renumbered everytime i "do" something with the
-tree) this one reverted quite a few ChangeSets but i let it happen.
-
-compiling & booting this thing goes fine and i am now running 2,6,9-BK(?)
-with working snd_ens1371.
-
-if someone could give me a hint here what to do next or perhaps tell me
-that the whole things was totally pointless - please say so.
-i am somehow lost as to which is the right person to bug here.
-
-thank you for your time,
-Christian.
-- --
-BOFH excuse #328:
-
-Fiber optics caused gas main leak
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBiucN+A7rjkF8z0wRAkpKAJ0bbevHqmpU/Ut3r5TbWgfu42cGBACgsrhm
-X8euqIjgc8KNCWl50oys/Yw=
-=8VM9
------END PGP SIGNATURE-----

@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVADNRW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbVADNT1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbVADNRW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 08:17:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbVADNPs
+	id S261642AbVADNT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 08:19:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbVADNT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 08:15:48 -0500
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:39922 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S261609AbVADNLg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 08:11:36 -0500
-Date: Tue, 4 Jan 2005 14:11:01 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: rusty@rustcorp.com.au, paulus@au1.ibm.com, nathanl@austin.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [BUG] mm_struct leak on cpu hotplug (s390/ppc64)
-Message-ID: <20050104131101.GA3560@osiris.boeblingen.de.ibm.com>
+	Tue, 4 Jan 2005 08:19:27 -0500
+Received: from holomorphy.com ([207.189.100.168]:37510 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261645AbVADNSR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 08:18:17 -0500
+Date: Tue, 4 Jan 2005 05:08:46 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: "L. A. Walsh" <law@tlinx.org>, linux-kernel@vger.kernel.org
+Subject: Re: Reviving the concept of a stable series (was Re: starting with 2.7)
+Message-ID: <20050104130846.GD2708@holomorphy.com>
+References: <41D91707.6040102@tlinx.org> <41D9C53A.3030503@tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <41D9C53A.3030503@tmr.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Jan 03, 2005 at 05:20:42PM -0500, Bill Davidsen wrote:
+> If the -rc process were in place, new feature freeze until the big green 
+> bugs were fixed just before the next release, that actually might be 
+> most of a solution.
+> No one bug akpm can accurately asses how well fixes come back from 
+> vendors, but I suspect that the kernel is moving too fast and vendors 
+> "pick one" and stabilize that, by which time the kernel.org is 
+> generations down the road. It's possible that some fixes are then 
+> rediffed against the current kernel and fed, but I have zero information 
+> on that happening or not.
 
-there is an mm_struct memory leak when using cpu hotplug. Appearently
-start_secondary in smp.c initializes active_mm of the cpu's idle task
-and increases init_mm's mm_count. But on cpu_die the idle task's
-active_mm doesn't get dropped and therefore on the next cpu_up event
-(->start_secondary) it gets overwritten and the result is a forgotten
-reference count to whatever mm_struct was active when the cpu
-was taken down previously.
+It does happen. I can't give a good estimate of how often. Someone at a
+distro may be able to help here, though it's unclear what this specific
+point is useful for.
 
-The patch below should fix this for s390 (at least it works fine for
-me), but I'm not sure if it's ok to call mmdrop from __cpu_die.
+What is a useful observation is that the 2.6-style development model is
+not in use in these instances, which instead use the older "frozen"
+model. This means that using frozen models in mainline is redundant. The
+function and service are available elsewhere and numerous simultaneously
+frozen trees guarantees no forward progress during such syzygys.
 
-Also this very same leak exists for ppc64 as well.
 
-Any opinions?
-
-Thanks,
-Heiko
-
-diff -urN linux-2.6.10/arch/s390/kernel/smp.c linux-2.6.10-patched/arch/s390/kernel/smp.c
---- linux-2.6.10/arch/s390/kernel/smp.c	2004-12-24 22:35:50.000000000 +0100
-+++ linux-2.6.10-patched/arch/s390/kernel/smp.c	2005-01-04 13:42:14.000000000 +0100
-@@ -728,9 +728,14 @@
- void
- __cpu_die(unsigned int cpu)
- {
-+	struct task_struct *p;
-+
- 	/* Wait until target cpu is down */
- 	while (!cpu_stopped(cpu));
- 	printk("Processor %d spun down\n", cpu);
-+	p = current_set[cpu];
-+	mmdrop(p->active_mm);
-+	p->active_mm = NULL;
- }
- 
- void
+-- wli

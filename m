@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282166AbRKWPI0>; Fri, 23 Nov 2001 10:08:26 -0500
+	id <S281560AbRKWPBG>; Fri, 23 Nov 2001 10:01:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282165AbRKWPIR>; Fri, 23 Nov 2001 10:08:17 -0500
-Received: from [216.191.235.254] ([216.191.235.254]:13325 "HELO
-	bugs.dinmar.com") by vger.kernel.org with SMTP id <S282166AbRKWPID>;
-	Fri, 23 Nov 2001 10:08:03 -0500
-From: "Norm Dressler" <ndressler@dinmar.com>
+	id <S282164AbRKWPA5>; Fri, 23 Nov 2001 10:00:57 -0500
+Received: from [213.235.52.105] ([213.235.52.105]:15766 "EHLO
+	morpheus.streamgroup.co.uk") by vger.kernel.org with ESMTP
+	id <S281560AbRKWPAr>; Fri, 23 Nov 2001 10:00:47 -0500
+Date: Fri, 23 Nov 2001 14:59:24 +0000 (GMT)
+From: <lk@morpheus.streamgroup.co.uk>
 To: <linux-kernel@vger.kernel.org>
-Subject: Sparc64 Compiles OK, but won't boot new kernel
-Date: Fri, 23 Nov 2001 10:09:29 -0500
-Message-ID: <002101c17430$d94b2f80$3828a8c0@ndrlaptop>
+Subject: Development
+Message-ID: <Pine.LNX.4.33.0111231446220.2715-100000@morpheus.streamgroup.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2605
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi all,
 
-I have been able to successfully compile the 2.4.14 and 2.4.15 kernels
-for Sparc64 but each gives me an error on boot-up:
+Ok, pre-email warning : this might get some people annoyed.
+However, I do not mean to troll or start flamewars. Please,
+bear with me.
 
-Image to large for Destination  (twice)
+I grow increasingly worried about the speed that the kernel
+development is going at. No, I'm not saying "get things done
+faster! I want more features! Support my usb joystick now!!"
+I'm worried by the amount of drivers that are included in a
+stable kernel release that are not marked "Experimental" and
+yet are broken, as well as major compile problems in stable
+releases.
 
-It then kicks me back to the silo prompt.  My kernel is trimmed back
-quite a bit and there isn't a lot there.  
+Things such as show_trace_task() in only the i386 tree,
+the Xircom net drivers freezing, APM broken on VIA chipsets
+(and my dell inspiron 8100) - this should be working in a
+stable release.
 
-It's not a compressed kernel -- should it be?  How do I do that since
-the bzImage make is missing from the Sparc64 makefiles?
+I'm worried that we're pushing things too fast and not taking
+the time to test. The famous broken loopback in 2.4.14 and
+the nasty symlink bug in 2.4.11 come to mind.
 
-I am using Redhat 6.2 on an Enterprise 4000, 4 Ultrasparc-II CPU's and
-2Gb of Ram.
+Perhaps we need to take a little more time before stamping
+things as "stable"? Otherwise our beloved Linux might go
+the way of Windows - "use at your own risk". I'd really
+hate to see that.
 
-Any suggestions??
+Thanks,
 
-Norm
+MikeH
 

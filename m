@@ -1,148 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264763AbUGMKQX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264750AbUGMKSY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264763AbUGMKQX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 06:16:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264767AbUGMKQX
+	id S264750AbUGMKSY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 06:18:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264770AbUGMKSY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 06:16:23 -0400
-Received: from pD95179CF.dip.t-dialin.net ([217.81.121.207]:19586 "EHLO
-	undata.org") by vger.kernel.org with ESMTP id S264763AbUGMKQF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 06:16:05 -0400
-Subject: Re: desktop and multimedia as an afterthought?
-From: Thomas Charbonnel <thomas@undata.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paul Davis <paul@linuxaudiosystems.com>, albert@users.sourceforge.net,
-       linux-kernel@vger.kernel.org, florin@sgi.com,
-       linux-audio-dev@music.columbia.edu
-In-Reply-To: <20040712172458.2659db52.akpm@osdl.org>
-References: <1089665153.1231.88.camel@cube>
-	 <200407122354.i6CNsNqS003382@localhost.localdomain>
-	 <20040712172458.2659db52.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1089683379.5773.62.camel@localhost>
+	Tue, 13 Jul 2004 06:18:24 -0400
+Received: from snowstorm.hosts.ndo.com ([195.7.228.20]:3995 "EHLO
+	snowstorm.hosts.ndo.com") by vger.kernel.org with ESMTP
+	id S264750AbUGMKSM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 06:18:12 -0400
+Date: Tue, 13 Jul 2004 11:19:08 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Chris Babcock <cbabcock@luthresearch.com>
+Cc: SE-Linux <selinux@tycho.nsa.gov>, linux-kernel@vger.kernel.org
+Subject: Re: [SE/Linux] warning about debian hotplug package 20040329-9!
+Message-ID: <20040713101908.GB3732@lkcl.net>
+Mail-Followup-To: Chris Babcock <cbabcock@luthresearch.com>,
+	SE-Linux <selinux@tycho.nsa.gov>, linux-kernel@vger.kernel.org
+References: <20040709201413.GB3168@lkcl.net> <200407112050.08313.russell@coker.com.au> <20040711112237.GI3390@lkcl.net> <40F16D8B.4010601@bellsouth.net> <20040711205047.GQ4677@lkcl.net> <2500.68.6.187.64.1089667018.squirrel@mxlx1.surveysavvy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 13 Jul 2004 03:49:40 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2500.68.6.187.64.1089667018.squirrel@mxlx1.surveysavvy.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 12, 2004 at 02:16:58PM -0700, Chris Babcock wrote:
+> So then what if (horror of horrors) somebody puts "/var" on a usb disk
+> device. (or some other type of device initialized by hotplug?)
+ 
+ or an nfs-mounted partition.
 
-> And please ensure that people are setting xrun_debug, and are sending
-> reports.
-> 
+ the suggestion in that case that i received by one of the hotplug
+ developers / people-monitoring-debian-bugs-for-hotplug was that you
+ should modify the /etc/hotplug scripts to use /devfs/shm/tmp instead,
+ assuming that you have a debian initrd.
 
-Hi,
+ now, on SE/Linux that isn't possible, and the reason isn't entirely
+ clear, but i believe that the access permissions to the tmpfs
+ created by the debian initrd are such that when the umount tmpfs
+ occurs, it actually _does_ unmount it.
 
-On my system xruns seem related to the keyboard. I get xruns on ~8.079
-seconds boundaries when the keyboard is in use, regardless of the load.
-My usual test is running jack with 2 periods of 64 samples and no
-client, and keep a key pressed. Those latencytest graphs give an idea of
-the problem : http://www.undata.org/~thomas/latencytest/index.html
+ on a standard debian/linux system (no selinux kernel) the initrd
+ scripts attempt, amongst other things, to mount various filesystems
+ and these are successful, but they are not _un_mounted properly later
+ on.
 
-Here are the xrun_debug reports :
+ anyway, i digress: the idea i came up with was that the debian
+ package be modified such that it's possible to specify the
+ state directory, even if that's one of a list of possible
+ locations e.g.  choose one: /etc/hotplug, /etc/hotplug/run,
+ /var/run/hotplug, /devfs/shm/tmp, other.
 
-For the intel8x0 :
-XRUN: pcmC1D0p
-Stack pointer is garbage, not printing trace
-Unexpected hw_pointer value [1] (stream = 1, delta: -16, max jitter =
-64): wrong interrupt acknowledge?
- [<c0105f3e>] dump_stack+0x1e/0x30
- [<c033240d>] snd_pcm_period_elapsed+0x1cd/0x420
- [<c03578cc>] snd_intel8x0_interrupt+0x1fc/0x260
- [<c010739b>] handle_IRQ_event+0x3b/0x70
- [<c0107824>] do_IRQ+0x194/0x1b0
- [<c0105ac4>] common_interrupt+0x18/0x20
- [<c0107754>] do_IRQ+0xc4/0x1b0
- [<c0105ac4>] common_interrupt+0x18/0x20
- [<c0108126>] do_softirq+0x46/0x60
- [<c01077d9>] do_IRQ+0x149/0x1b0
- [<c0105ac4>] common_interrupt+0x18/0x20
- [<c01030f4>] cpu_idle+0x34/0x40
- [<c053c809>] start_kernel+0x169/0x190
- [<c010019f>] 0xc010019f
- =======================
- [<c0105f3e>] dump_stack+0x1e/0x30
- [<c033240d>] snd_pcm_period_elapsed+0x1cd/0x420
- [<c03578cc>] snd_intel8x0_interrupt+0x1fc/0x260
- [<c010739b>] handle_IRQ_event+0x3b/0x70
- [<c0107824>] do_IRQ+0x194/0x1b0
- [<c0105ac4>] common_interrupt+0x18/0x20
- [<c0107754>] do_IRQ+0xc4/0x1b0
- [<c0105ac4>] common_interrupt+0x18/0x20
- [<c0108126>] do_softirq+0x46/0x60
- [<c01077d9>] do_IRQ+0x149/0x1b0
- [<c0105ac4>] common_interrupt+0x18/0x20
- [<c01030f4>] cpu_idle+0x34/0x40
- [<c053c809>] start_kernel+0x169/0x190
- [<c010019f>] 0xc010019f
- =======================
- [<c0105f3e>] dump_stack+0x1e/0x30
- [<c033240d>] snd_pcm_period_elapsed+0x1cd/0x420
- [<c03578cc>] snd_intel8x0_interrupt+0x1fc/0x260
- [<c010739b>] handle_IRQ_event+0x3b/0x70
- [<c0107824>] do_IRQ+0x194/0x1b0
- [<c0105ac4>] common_interrupt+0x18/0x20
- [<c0107754>] do_IRQ+0xc4/0x1b0
- [<c0105ac4>] common_interrupt+0x18/0x20
- [<c0108126>] do_softirq+0x46/0x60
- [<c01077d9>] do_IRQ+0x149/0x1b0
- [<c0105ac4>] common_interrupt+0x18/0x20
- [<c01030f4>] cpu_idle+0x34/0x40
- [<c053c809>] start_kernel+0x169/0x190
- [<c010019f>] 0xc010019f
+ consequently, if this were to be implemented, at least people mad
+ enough to use usb disks or nfs mounted stuff, they'd be able to
+ at least get going without having to hack the source of hotplug.
 
-
-For the hdsp:
-XRUN: pcmC2D0c
-Stack pointer is garbage, not printing trace
-XRUN: pcmC2D0c
- [<c0105f3e>] dump_stack+0x1e/0x30
- [<c0332521>] snd_pcm_period_elapsed+0x2e1/0x420
- [<c0368e94>] snd_hdsp_interrupt+0x174/0x180
- [<c010739b>] handle_IRQ_event+0x3b/0x70
- [<c0107824>] do_IRQ+0x194/0x1b0
- [<c0105ac4>] common_interrupt+0x18/0x20
- [<c0107754>] do_IRQ+0xc4/0x1b0
- [<c0105ac4>] common_interrupt+0x18/0x20
- [<c0108126>] do_softirq+0x46/0x60
- [<c01077d9>] do_IRQ+0x149/0x1b0
- [<c0105ac4>] common_interrupt+0x18/0x20
- [<c01030f4>] cpu_idle+0x34/0x40
- [<c053c809>] start_kernel+0x169/0x190
- [<c010019f>] 0xc010019f
- =======================
- [<c0105f3e>] dump_stack+0x1e/0x30
- [<c0332521>] snd_pcm_period_elapsed+0x2e1/0x420
- [<c0368e94>] snd_hdsp_interrupt+0x174/0x180
- [<c010739b>] handle_IRQ_event+0x3b/0x70
- [<c0107824>] do_IRQ+0x194/0x1b0
- [<c0105ac4>] common_interrupt+0x18/0x20
- [<c0107754>] do_IRQ+0xc4/0x1b0
- [<c0105ac4>] common_interrupt+0x18/0x20
- [<c0108126>] do_softirq+0x46/0x60
- [<c01077d9>] do_IRQ+0x149/0x1b0
- [<c0105ac4>] common_interrupt+0x18/0x20
- [<c01030f4>] cpu_idle+0x34/0x40
- [<c053c809>] start_kernel+0x169/0x190
- [<c010019f>] 0xc010019f
- =======================
- [<c0105f3e>] dump_stack+0x1e/0x30
- [<c0332521>] snd_pcm_period_elapsed+0x2e1/0x420
- [<c0368e94>] snd_hdsp_interrupt+0x174/0x180
- [<c010739b>] handle_IRQ_event+0x3b/0x70
- [<c0107824>] do_IRQ+0x194/0x1b0
- [<c0105ac4>] common_interrupt+0x18/0x20
- [<c0107754>] do_IRQ+0xc4/0x1b0
- [<c0105ac4>] common_interrupt+0x18/0x20
- [<c0108126>] do_softirq+0x46/0x60
- [<c01077d9>] do_IRQ+0x149/0x1b0
- [<c0105ac4>] common_interrupt+0x18/0x20
- [<c01030f4>] cpu_idle+0x34/0x40
- [<c053c809>] start_kernel+0x169/0x190
- [<c010019f>] 0xc010019f
-
-Thomas
-
-
+ 
+> > dear selinux and linux kernel,
+> >
+> > i am after some assistance in clarifying how hotplug works, with
+> > a view to solving an issue with SE/Linux where the default
+> > SE/Linux policy is to deny write permission to /etc/hotplug
+> > (with good reason) but the hotplug package is presently demanding
+> > write permission.
+> >
+> > a simple request for a change to writing to /var/state/hotplug
+> > instead has thrown up a number of issues with kernel (2.6.6)
+> > hotplugging and i would greatly appreciate some confirmation
+> > and some assistance.

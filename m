@@ -1,35 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130770AbQKNG2X>; Tue, 14 Nov 2000 01:28:23 -0500
+	id <S130677AbQKNHLc>; Tue, 14 Nov 2000 02:11:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130789AbQKNG2O>; Tue, 14 Nov 2000 01:28:14 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:58127 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S130770AbQKNG14>; Tue, 14 Nov 2000 01:27:56 -0500
-Date: Mon, 13 Nov 2000 23:57:52 -0600
-To: LA Walsh <law@sgi.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: IDE0 /dev/hda performance hit in 2217 on my HW
-Message-ID: <20001113235752.I18203@wire.cadcamlab.org>
-In-Reply-To: <NBBBJGOOMDFADJDGDCPHIEJDCJAA.law@sgi.com> <20001113233357.H18203@wire.cadcamlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001113233357.H18203@wire.cadcamlab.org>; from peter@cadcamlab.org on Mon, Nov 13, 2000 at 11:33:57PM -0600
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S130768AbQKNHLM>; Tue, 14 Nov 2000 02:11:12 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:55044 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S130677AbQKNHLF>; Tue, 14 Nov 2000 02:11:05 -0500
+Date: Tue, 14 Nov 2000 01:40:31 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+To: davej@suse.de
+cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: UDMA66/100 errors...
+In-Reply-To: <Pine.LNX.4.21.0011140106040.1173-100000@neo.local>
+Message-ID: <Pine.LNX.4.21.0011140138080.966-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2000 by Mike A. Harris - All rights reserved
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 14 Nov 2000 davej@suse.de wrote:
 
-[I wrote]
-> What chipset does the Inspiron 7500 use?  (Probably Intel something.
+>Date: Tue, 14 Nov 2000 01:08:51 +0000 (GMT)
+>From: davej@suse.de
+>To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+>Cc: mharris@opensourceadvocate.org
+>Content-Type: TEXT/PLAIN; charset=US-ASCII
+>Subject: Re: UDMA66/100 errors...
+>
+>
+>Mike Harris wrote..
+>
+>>I'm getting the following error when I try and enable UDMA on my
+>>new IBM Deskstar UDMA100 drive:
+>>...
+>> DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 udma5
+>
+>Ok, the drive supports UDMA5 (ATA100)
 
-I just booted an Inspiron 5000.  PIIX4.  So in the kernel config, read
-the help on PIIX support and make sure to turn on 'use dma by default'.
+Yep..
 
-...And you probably still want to at least try Andre's patch.
+>> setting xfermode to 67 (UltraDMA mode3)
+>>ide0: Speed warnings UDMA 3/4/5 is not functional.
+>
+>Why can this be?
 
-Peter
+I have Quantum UDMA/33 on Master and IBM UDMA/66 on Slave?  Just
+an idea..
+
+>>00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 10)
+>
+>This chipset only does up to UDMA2.
+
+This motherboard states that it does ATA/66.  I suspect that it
+is the Linux IDE driver biting me this time..  ;o(
+
+Time to upgrade kernels..
+
+----------------------------------------------------------------------
+      Mike A. Harris  -  Linux advocate  -  Open source advocate
+          This message is copyright 2000, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
+
+[Favorite quotes of Linus Torvalds - Sept 6, 2000]
+I'm a bastard. I have absolutely no clue why people can ever think
+otherwise. Yet they do. People think I'm a nice guy, and the fact is that
+I'm a scheming, conniving bastard who doesn't care for any hurt feelings
+or lost hours of work if it just results in what I consider to be a better
+system.  And I'm not just saying that. I'm really not a very nice person. 
+I can say "I don't care" with a straight face, and really mean it.
+        -- Linus Torvalds on linux-kernel mailing list
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

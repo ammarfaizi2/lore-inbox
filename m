@@ -1,36 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268343AbUHKXwz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268331AbUHKXwy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268343AbUHKXwz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 19:52:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268352AbUHKXpS
+	id S268331AbUHKXwy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 19:52:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268411AbUHKXnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 19:45:18 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:57270 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S268313AbUHKX3h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 19:29:37 -0400
-Subject: Re: Finding out what certain kernel config options are dependant on
-From: David Woodhouse <dwmw2@infradead.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Tim Cambrant <tcambrant@hotmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040810144200.GN26174@fs.tum.de>
-References: <BAY1-F15JkUwWpSWerO0001ad67@hotmail.com>
-	 <20040810144200.GN26174@fs.tum.de>
-Content-Type: text/plain
-Message-Id: <1092266784.1438.4377.camel@imladris.demon.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Thu, 12 Aug 2004 00:26:24 +0100
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Aug 2004 19:43:32 -0400
+Received: from web14925.mail.yahoo.com ([216.136.225.11]:44399 "HELO
+	web14925.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S268354AbUHKXbt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 19:31:49 -0400
+Message-ID: <20040811233148.13248.qmail@web14925.mail.yahoo.com>
+Date: Wed, 11 Aug 2004 16:31:48 -0700 (PDT)
+From: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Greg KH <greg@kroah.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Martin Mares <mj@ucw.cz>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>
+In-Reply-To: <1092255102.18968.276.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-10 at 16:42 +0200, Adrian Bunk wrote:
->   find . -name Kconfig\* | xargs grep select | grep CRYPTO
+--- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Mer, 2004-08-11 at 20:24, Jon Smirl wrote:
+> > Alan Cox had concerns about copying the ROMs for those devices that
+> > don't implement full address decoding. I'm using kmalloc for
+> 40-60KB.
+> > Would vmalloc be a better choice? Very few drivers will use the
+> copy
+> > option, mostly old hardware.
+> 
+> As I said before you don't need to allocate big chunks of kernel
+> memory for this because you don't want to store ROM copies in kernel,
+> you just disallow mmap in such a case and let the user use read().
+> 
+> I am opposed to anything that keeps ROM copies in the kernel.
+> 
 
-Aunt Tillie's gonna fscking _love_ this :)
+How are we supposed to implement this without a copy? Once the device
+driver is loaded there is never a safe way access the ROM again because
+an interrupt or another CPU might use the PCI decoders to access the
+other hardware and disrupt the ROM read. You have to copy the ROM when
+the driver says it is safe.
 
--- 
-dwmw2
+I provided two calls for the driver to pick from: 1) make an in kernel
+copy of the ROM and leave it visible from sysfs or 2) remove the sysfs
+attribute. 
+
+Another possible scheme could have a user space daemon that copies the
+ROMs out of the kernel at boot and then holds them for later access by
+other apps, but that would break the ROM attribute in sysfs model. 
+
+Still another scheme would be to make the drivers for this class of
+card implement a lock around PCI address decoder use. That would get
+complex with interrupt routines.
+
+How much trouble do we want to go to handling a case that only applies
+to very few cards? I believe old QLogic disk controllers have this
+problem, are there others? I'm not aware of any video cards with this
+problem. 99%+ of PCI ROMs don't need the copy.
+
+=====
+Jon Smirl
+jonsmirl@yahoo.com
 
 
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - 50x more storage than other providers!
+http://promotions.yahoo.com/new_mail

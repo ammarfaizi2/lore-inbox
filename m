@@ -1,71 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267304AbUHDHov@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbUHDH6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267304AbUHDHov (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 03:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267314AbUHDHov
+	id S261159AbUHDH6s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 03:58:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUHDH6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 03:44:51 -0400
-Received: from holomorphy.com ([207.189.100.168]:2746 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267304AbUHDHot (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 03:44:49 -0400
-Date: Wed, 4 Aug 2004 00:44:40 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Michal Kaczmarski <fallow@op.pl>, Shane Shrybman <shrybman@aei.ca>
-Subject: Re: [PATCH] V-3.0 Single Priority Array O(1) CPU Scheduler Evaluation
-Message-ID: <20040804074440.GL2334@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Peter Williams <pwil3058@bigpond.net.au>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Michal Kaczmarski <fallow@op.pl>, Shane Shrybman <shrybman@aei.ca>
-References: <20040802134257.GE2334@holomorphy.com> <410EDD60.8040406@bigpond.net.au> <20040803020345.GU2334@holomorphy.com> <410F08D6.5050200@bigpond.net.au> <20040803104912.GW2334@holomorphy.com> <41102FE5.9010507@bigpond.net.au> <20040804005034.GE2334@holomorphy.com> <41103DBB.6090100@bigpond.net.au> <20040804015115.GF2334@holomorphy.com> <41104C8F.9080603@bigpond.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41104C8F.9080603@bigpond.net.au>
-User-Agent: Mutt/1.5.6+20040523i
+	Wed, 4 Aug 2004 03:58:48 -0400
+Received: from adsl-68-121-85-60.dsl.irvnca.pacbell.net ([68.121.85.60]:14095
+	"EHLO abn-tepuk8gy00w") by vger.kernel.org with ESMTP
+	id S261159AbUHDH6q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 03:58:46 -0400
+From: zuzong@37.com
+Subject: Charitable Opportunities
+To: linux-kernel@vger.kernel.org
+Date: Wed, 4 Aug 2004 00:58:47 -0700
+X-Priority: 3
+X-Mailer: CSM2.8
+Message-Id: <S261159AbUHDH6q/20040804075846Z+3643@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->> One may either demote to evict MAX_RT_PRIO immediately prior to
->> rotation or rely on timeslice expiry to evict MAX_RT_PRIO. Forcibly
->> evicting MAX_RT_PRIO undesirably accumulates tasks at the fencepost.
+                           Charitable Opportunities
 
-On Wed, Aug 04, 2004 at 12:40:15PM +1000, Peter Williams wrote:
-> It's starting to get almost as complex as the current scheme :-)
+The World Hongming Foundation provides charitable opportunities to the general public worldwide. All donations are 
+tax-deductible. All donors will receive some gifts, as well as the benefits indicated on its website. If you are 
+interested in make a donation, please feel free to see www.hongming.us/foundation/en-main.htm for details.
 
-Compare it to the background scan of the queue if several (potentially
-numerous) events whose handling has been deferred are to be processed
-when timer device interrupts are delivered at irregular intervals, or
-not at all.
+Prior to August 2004, the World Hongming Foundation has successfully sponsored some activities. More 
+contributions will be given to the needed institutions or organizations. Below are part sponsorships of the World 
+Hongming Foundation:
 
+Sponsored by the World Hongming Foundation, the First World Hongming Philosophy Congress was successfully 
+held at Chaminade University of Honolulu, Hawaii, USA from July 22 to 23, 2004. Professors from 10 countries 
+participated in and presented at this Congress. Please see www.whpq.org/Congress/2004/en-main.htm for details 
+on this historic Congress.
+ 
+Since July 2, 2004, Taiwan people have been falling in a natural disaster caused by Typhoon and hill slides. The 
+World Hongming Foundation calls for Emergent Assistance Needed to Relieve Taiwan People from Disasters. See 
+www.abnews.us/en/2004-090/16.htm for details.
+ 
+On July 1, 2004, the World Hongming Foundation received an official invitation from the Central Government of 
+China for participating in the 2004 Chinese Forum of Charitable Development and Public Benefits, which will be held 
+at the National Congress Hall of China, Beijing from November 6 to 7, 2004. Professor Michael Saso, on behalf of 
+the World Hongming Foundation, will participate in this Forum and make charitable contributions to China. For copy 
+of this invitation, please see www.hongming.us/foundation/cn-invitation.pdf.
 
-William Lee Irwin III wrote:
->> This is an alternative to scheduler accounting in context switches.
->> Periodicity often loses power conservation benefits.
-
-On Wed, Aug 04, 2004 at 12:40:15PM +1000, Peter Williams wrote:
-> The timer would be deactivated whenever the number of runnable tasks for 
-> the runqueue goes below 2.  The whole thing could be managed from the 
-> enqueue and dequeue functions i.e.
-> dequeue - if the number running is now less than two cancel the timer 
-> and otherwise decrease the expiry time to maintain the linear 
-> relationship of the interval with the number of runnable tasks
-> enqueue - if the number of runnable tasks is now 2 then start the time 
-> with a single interval setting and if the number is greater than two 
-> then increase the timer interval to maintain the linear relationship.
-> I'm assuming here that add_timer(), del_timer() and (especially) 
-> mod_timer() are relatively cheap.  If mod_timer() is too expensive some 
-> alternative method could be devised to maintain the linear relationship.
-
-Naive schemes reprogram the timer device too frequently. Software
-constructs are less of a concern. This also presumes that taking timer
-interrupts when cpu-intensive workloads voluntarily yield often enough
-is necessary or desirable. This is not so in virtualized environments,
-and unnecessary interruption of userspace also degrades performance.
-
-
--- wli
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Note: This is a useful message; please do not reply directly. Any inquiry regarding the message in this email should 
+be sent to the organization. If you do not wish to receive additional message from us, please click 3511@yahoo.
+com?subject=Remove or mail to 514 E. Huntington Dr., Arcadia, CA 91006. This request may take two business 
+days to complete.

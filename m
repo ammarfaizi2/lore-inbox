@@ -1,43 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVCYFta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVCYFyi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbVCYFta (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 00:49:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbVCYFta
+	id S261345AbVCYFyi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 00:54:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbVCYFyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 00:49:30 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:16909 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261335AbVCYFtU
+	Fri, 25 Mar 2005 00:54:38 -0500
+Received: from digitalimplant.org ([64.62.235.95]:61394 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S261345AbVCYFyb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 00:49:20 -0500
-Date: Fri, 25 Mar 2005 16:46:34 +1100
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: johnpol@2ka.mipt.ru, Andrew Morton <akpm@osdl.org>,
-       David McCullough <davidm@snapgear.com>, cryptoapi@lists.logix.cz,
-       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-       jmorris@redhat.com
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
-Message-ID: <20050325054634.GA22878@gondor.apana.org.au>
-References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast> <20050323203856.17d650ec.akpm@osdl.org> <1111666903.23532.95.camel@uganda> <42432596.2090709@pobox.com> <1111724759.23532.121.camel@uganda> <42439781.4080007@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42439781.4080007@pobox.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Fri, 25 Mar 2005 00:54:31 -0500
+Date: Thu, 24 Mar 2005 21:54:24 -0800 (PST)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: linux-kernel@vger.kernel.org
+cc: greg@kroah.com
+Subject: [0/12] More Driver Model Locking Changes 
+Message-ID: <Pine.LNX.4.50.0503242145200.29800-100000@monsoon.he.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 24, 2005 at 11:45:53PM -0500, Jeff Garzik wrote:
-> 
-> I agree with this sentiment; this is mainly a policy decision that 
-> kernel programmers should not make.
 
-Exactly.  Policy decisions like this as well as entropy checking
-should be done in user-space.
+Here is the next round of driver model locking changes. These build off of
+the previous set of changes, including the klist patch. They eradicate all
+of the uses of the subsystems' rwsem in the driver core.
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+It does include the fix posted earlier that happened when removing the
+driver.
+
+A summary is listed below. The patches follow.
+
+Thanks,
+
+
+	Pat
+
+
+You may pull from
+
+	bk://kernel.bkbits.net:/home/mochel/linux-2.6-core
+
+Which will update the following files:
+
+ drivers/base/bus.c        |   12 -------
+ drivers/base/core.c       |   51 ++++++++----------------------
+ drivers/base/dd.c         |   77 +++++++++++++++++++++++++---------------------
+ drivers/base/driver.c     |    3 -
+ drivers/scsi/scsi_sysfs.c |   14 +++++---
+ drivers/usb/core/usb.c    |    4 +-
+ include/linux/device.h    |   13 +------
+ include/linux/klist.h     |    2 +
+ lib/klist.c               |   21 +++++++++++-
+ 9 files changed, 92 insertions(+), 105 deletions(-)
+
+through these ChangeSets:
+
+<mochel@digitalimplant.org> (05/03/24 1.2250)
+   [driver core] Fix up bogus comment.
+   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
+
+<mochel@digitalimplant.org> (05/03/24 1.2249)
+   [driver core] Use a klist for device child lists.
+
+   - Use klist iterator in device_for_each_child(), making it safe to use for
+     removing devices.
+   - Remove unused list_to_dev() function.
+   - Kills all usage of devices_subsys.rwsem.
+
+
+   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
+
+<mochel@digitalimplant.org> (05/03/24 1.2248)
+   [scsi] Use device_for_each_child() to unregister devices in scsi_remove_target().
+
+
+   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
+
+<mochel@digitalimplant.org> (05/03/24 1.2247)
+   [klist] Don't reference NULL klist pointer in klist_remove().
+
+
+   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
+
+<mochel@digitalimplant.org> (05/03/24 1.2246)
+   [driver core] Call klist_del() instead of klist_remove().
+
+   - Can't wait on removing the current item in the list (the positive refcount *because*
+     we are using it causes it to deadlock).
+
+
+   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
+
+<mochel@digitalimplant.org> (05/03/24 1.2245)
+   [driver core] Remove struct device::driver_list.
+
+
+   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
+
+<mochel@digitalimplant.org> (05/03/24 1.2244)
+   [driver core] Remove struct device::bus_list.
+
+
+   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
+
+<mochel@digitalimplant.org> (05/03/24 1.2243)
+   [driver core] Fix up bus code and remove use of rwsem.
+
+   - Don't add devices to bus's embedded kset, since it's not used by anyone anymore.
+   - Don't need to take the bus rwsem when calling {device,driver}_attach(), since
+     those functions use the klists and the klists' spinlocks.
+
+
+   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
+
+<mochel@digitalimplant.org> (05/03/24 1.2242)
+   [usb] Fix up USB to use klist_node_attached() instead of list_empty() on lists that will go away.
+
+
+   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
+
+<mochel@digitalimplant.org> (05/03/24 1.2241)
+   [klist] add klist_node_attached() to determine if a node is on a list or not.
+
+
+   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
+
+<mochel@digitalimplant.org> (05/03/24 1.2240)
+   [driver core] Use bus_for_each_{dev,drv} for driver binding.
+
+   - Now possible, since the lists are locked using the klist lock and not the
+     global rwsem.
+
+
+   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
+
+<mochel@digitalimplant.org> (05/03/24 1.2239)
+   [driver core] Remove the unused device_find().
+
+
+   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
+

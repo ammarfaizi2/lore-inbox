@@ -1,74 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261924AbUJZGtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUJZG5c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261924AbUJZGtu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 02:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUJZGtu
+	id S262114AbUJZG5c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 02:57:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbUJZG5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 02:49:50 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:57752 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261924AbUJZGts (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 02:49:48 -0400
-Subject: Re: [PATCH 0/5] Sonypi driver model & PM changes
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Stelian Pop <stelian@popies.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200410260121.46633.dtor_core@ameritech.net>
-References: <200410210154.58301.dtor_core@ameritech.net>
-	 <200410250822.46023.dtor_core@ameritech.net>
-	 <1098744035.7191.49.camel@desktop.cunninghams>
-	 <200410260121.46633.dtor_core@ameritech.net>
-Content-Type: text/plain
-Message-Id: <1098772877.5807.1.camel@desktop.cunninghams>
+	Tue, 26 Oct 2004 02:57:32 -0400
+Received: from run.smurf.noris.de ([192.109.102.41]:64158 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S262114AbUJZG5a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 02:57:30 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+Subject: Re: BK kernel workflow
+Date: Tue, 26 Oct 2004 08:57:26 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2004.10.26.06.57.26.374372@smurf.noris.de>
+References: <20041023161253.GA17537@work.bitmover.com> <20041024144448.GA575@work.bitmover.com> <4d8e3fd304102409443c01c5da@mail.gmail.com> <20041024233214.GA9772@work.bitmover.com> <20041025114641.GU14325@dualathlon.random> <1098707342.7355.44.camel@localhost.localdomain> <20041025133951.GW14325@dualathlon.random> <20041025162022.GA27979@work.bitmover.com> <9e47339104102511182f916705@mail.gmail.com> <20041025230128.GA1232@work.bitmover.com> <9e473391041025192622ddfee3@mail.gmail.com>
+NNTP-Posting-Host: kiste.smurf.noris.de
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Tue, 26 Oct 2004 16:41:18 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: server.smurf.noris.de 1098773847 29373 192.109.102.35 (26 Oct 2004 06:57:27 GMT)
+X-Complaints-To: smurf@noris.de
+NNTP-Posting-Date: Tue, 26 Oct 2004 06:57:27 +0000 (UTC)
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi, Jon Smirl wrote:
 
-On Tue, 2004-10-26 at 16:21, Dmitry Torokhov wrote:
-> On Monday 25 October 2004 09:28 pm, Nigel Cunningham wrote:
-> > Hi.
-> > 
-> > On Mon, 2004-10-25 at 23:22, Dmitry Torokhov wrote:
-> > > The change from sysdev to a platform device is the main reason I did
-> > > the change (and getting rid of old pm_register stuff which is useless
-> > > now) because swsusp2 (and seems that swsusp1 as well) have trouble
-> > > resuming system devices. The rest was just fluff really.
-> > 
-> > I'm not sure why we're not trying to resume system devices. I'll give it
-> > a whirl and see if anything breaks :> Feel free to tell me if/when you
-> > notice things like this in future; I try to be approachable and
-> > responsive.
-> > 
-> 
-> Hi Nigel,
->  
-> System devices are resumed when you call device_power_up and I could
-> not find references to it in swsusp2 code, it goes straight to
-> device_resume_tree... Am I missng something?
+> For example  a digital signature trail on change sets that tracks who did
+> what. Say I do some changes on my local tree, export it and
+> mail it out on lkml. This change set is picked up by Andrew. Andrew
+> munges on it some and sends it onto Linus. Linus changes another
+> couple of lines and puts it in his tree.  Now I go to bkbits and look
+> at the history for the lines changed. Can I see what Linus, Andrew and
+> I have all changed including digital signatures?
 
-No, you weren't. I was following the pattern of Patrick and Pavel. I've
-changed it this afternoon and have it running fine, except that the PIC
-timer code takes a few seconds (see separate message).
+Sure you can, if you use the "bksend" script Andrew can import your
+changes into a bk tree, change them, and then send the combined changes to
+Linus.
 
-The changes will be in 2.1.1. I just have a couple more little fixes to
-do before I release it.
+The problem is that unless both Andrew's and Linus' tree are at exactly
+the same version yours is, there will be some merge changesets in between
+which really muddle up the change history.
 
-Regards,
+That's fixable, but "bk clone" plus "bk undo" are too expensive at the
+moment -- if that took a few seconds instead of a few minutes, people
+would probably do it more readily.
 
-Nigel
 -- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-Everyone lives by faith. Some people just don't believe it.
-Want proof? Try to prove that the theory of evolution is true.
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
 

@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288724AbSADTGj>; Fri, 4 Jan 2002 14:06:39 -0500
+	id <S288647AbSADTRC>; Fri, 4 Jan 2002 14:17:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288726AbSADTGU>; Fri, 4 Jan 2002 14:06:20 -0500
-Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:2224 "EHLO
-	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S288712AbSADTGB>;
-	Fri, 4 Jan 2002 14:06:01 -0500
-Date: Fri, 4 Jan 2002 22:41:08 -0500
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        alan@lxorguk.ukuu.org.uk, anton@samba.org
-Subject: Re: [patch] O(1) scheduler, 2.4.17-A1, 2.5.2-pre7-A1.
-Message-Id: <20020104224108.430d7eac.johnpol@2ka.mipt.ru>
-In-Reply-To: <Pine.LNX.4.33.0201041743050.8766-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.33.0201041743050.8766-100000@localhost.localdomain>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S284580AbSADTQw>; Fri, 4 Jan 2002 14:16:52 -0500
+Received: from marine.sonic.net ([208.201.224.37]:17008 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S288712AbSADTQk>;
+	Fri, 4 Jan 2002 14:16:40 -0500
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Fri, 4 Jan 2002 11:16:32 -0800
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: Linux-Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH 2.5.2.7: io.h cleanup and userspace nudge
+Message-ID: <20020104191632.GK28621@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	Linux-Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200201041831.g04IVAD23320@vindaloo.ras.ucalgary.ca> <Pine.LNX.4.33.0201041940150.20620-100000@Appserv.suse.de> <200201041841.g04IflL23687@vindaloo.ras.ucalgary.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200201041841.g04IflL23687@vindaloo.ras.ucalgary.ca>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jan 2002 18:05:23 +0100 (CET)
-Ingo Molnar <mingo@elte.hu> wrote:
+On Fri, Jan 04, 2002 at 11:41:47AM -0700, Richard Gooch wrote:
+> Not if you want a lightweight C library. Such as when running off a CF
+> card.
 
-> 
-> this is the next release of the O(1) scheduler:
-> 
-> 	http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.2-A1.patch
-> 	http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.4.17-A1.patch
-> 
-> this release includes fixes and small improvements. (The 2.5.2-A1 patch
-is
-> against the 2.5.2-pre7 kernel.) I cannot reproduce any more failures
-with
-> this patch, but i couldnt test the vfat lockup problem. The X lockup
-> problem never occured on any of my boxes, but it might be fixed by one
-of
-> the changes included in this patch nevertheless.
+But aren't there better options for a lightweight C library than libc5?
 
-Nop. System hangs after couple of minutes in X mode... :(
-vfat is compiled into the 2.4.17 vanilla-kernel.
-Non smp i386 but with smp kernel.
-Any other info?
+At least that would involve using something that's being maintained.
 
-> 
-> 	Ingo
-
----
-WBR. //s0mbre
+mrc
+-- 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

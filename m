@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbTJCX3H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 19:29:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbTJCX3H
+	id S261535AbTJCXcJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 19:32:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbTJCXcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 19:29:07 -0400
-Received: from [203.152.107.236] ([203.152.107.236]:53377 "HELO
-	skieu.myftp.org") by vger.kernel.org with SMTP id S261473AbTJCX26
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 19:28:58 -0400
-Date: Sat, 4 Oct 2003 11:29:31 +0000 (UTC)
-From: haiquy@yahoo.com
-X-X-Sender: sk@darkstar.example.net
-Reply-To: kieusnz@yahoo.co.nz
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test6 with low mem box, too slow to start openoffice
-Message-ID: <Pine.LNX.4.53.0310041127020.23814@darkstar.example.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 3 Oct 2003 19:32:08 -0400
+Received: from cpc1-cwma1-5-0-cust4.swan.cable.ntl.com ([80.5.120.4]:20713
+	"EHLO dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261535AbTJCXcF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 19:32:05 -0400
+Subject: RE: [ACPI] down_timeout
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Moore, Robert" <robert.moore@intel.com>
+Cc: Matthew Wilcox <willy@debian.org>, Yury Umanets <umka@namesys.com>,
+       acpi-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <D3A3AA459175A44CB5326F26DA7A189C1C3DD3@orsmsx405.jf.intel.com>
+References: <D3A3AA459175A44CB5326F26DA7A189C1C3DD3@orsmsx405.jf.intel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1065223793.14596.1.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-7) 
+Date: Sat, 04 Oct 2003 00:29:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Gwe, 2003-10-03 at 21:29, Moore, Robert wrote:
+> I would say that the whole thing is wrong -- the kernel should provide a
+> semaphore wait function that includes a timeout parameter.
 
-Hi,
-
-Notice one problem probably it is due to the rrmap in VM, with 64Mb RAM
-celeron 400Mhz openoffice 1.1 takes 1 minute and 55 second to start!
-
-Compare with 2.4.23-pre5 it only takes 45 seconds!
-
-But this problem doesn't happen with the box of 192Mb of RAM
-
-Best regards,
-
-Steve Kieu
-
-Homepage http://scorpius.spaceports.com/~skieu/
-
-PGP Key http://scorpius.spaceports.com/~skieu/steve-pub.key
+Thats probably the right thing to fix. A timeout aware version of down()
+doesnt actually look too hard.
 

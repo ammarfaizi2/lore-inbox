@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbVCOTdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbVCOTdl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261796AbVCOTdm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 14:33:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbVCOTbd
+	id S261802AbVCOTdl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 14:33:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbVCOTbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 14:31:33 -0500
-Received: from wproxy.gmail.com ([64.233.184.205]:7381 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261814AbVCOTaw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 14:30:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=XttkfqPV9L+FqPnAkMIIIXtYfLIoaEcekRR94rWUdWfxYo1Y/u1WkvLQkDsh110y2pCK2DvS3FXu4Y2pZILL/YCsILUyA+vbxmWa3E8JRG9wSVOpRgra2XckfFrMAtl5OTxVqlVyeutrjQBTm3GheGk4/hUFROTbhlJ6//tfwBg=
-Message-ID: <d120d5000503151130266fb235@mail.gmail.com>
-Date: Tue, 15 Mar 2005 14:30:49 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Dominik Brodowski <linux@dominikbrodowski.net>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [linux-usb-devel] Re: [RFC] Changes to the driver model class code.
-In-Reply-To: <20050315190847.GA1870@isilmar.linta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 15 Mar 2005 14:31:42 -0500
+Received: from smtp8.poczta.onet.pl ([213.180.130.48]:39384 "EHLO
+	smtp8.poczta.onet.pl") by vger.kernel.org with ESMTP
+	id S261793AbVCOTbH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 14:31:07 -0500
+Message-ID: <423737F0.7000108@poczta.onet.pl>
+Date: Tue, 15 Mar 2005 20:30:56 +0100
+From: Wiktor <victorjan@poczta.onet.pl>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: indrek.kruusa@tuleriit.ee
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Building server-farm
+References: <4235F1FA.6090007@tuleriit.ee>
+In-Reply-To: <4235F1FA.6090007@tuleriit.ee>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <20050315170834.GA25475@kroah.com>
-	 <20050315190847.GA1870@isilmar.linta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Mar 2005 20:08:47 +0100, Dominik Brodowski
-<linux@dominikbrodowski.net> wrote:
-> On Tue, Mar 15, 2005 at 09:08:34AM -0800, Greg KH wrote:
-> > Then I moved the USB host controller code to use this new interface.
-> > That was a bit more complex as it used the struct class and struct
-> > class_device code directly.  As you can see by the patch, the result is
-> > pretty much identical, and actually a bit smaller in the end.
-> >
-> > So I'll be slowly converting the kernel over to using this new
-> > interface, and when finished, I can get rid of the old class apis (or
-> > actually, just make them static) so that no one can implement them
-> > improperly again...
-> >
-> > Comments?
-> 
-> The "old" class api _forced_ you to think of reference counting of
-> dynamically allocated objects, while it gets easier to get reference
-> counting wrong using this "simple"/"new" interface: while struct class will
-> always have fine reference counting, the "parent" struct [with struct class
-> no longer being embedded] needs to be thought of individually; and the
-> reference count cannot be shared any longer.
-> 
-> Also, it seems to me that you view the class subsystem to be too closely
-> related to /dev entries -- and for these /dev entries class_simple was
-> introduced, IIRC. However, /dev is not the reason the class subsystem was
-> introduced for -- instead, it describes _types_ of devices which want to
-> share (userspace and in-kernel) interfaces.
+Hi,
 
-Exactly! I am working on input_dev class that lies between actual
-devices and input class devices exported by evdev, tsdev, etc. It does
-not have /dev entry, it is just a building block for the rest of the
-subsystem. evdev and the rest will be interfaces (as per driver model)
-for the input_dev class and will in turn continue exporting input
-class devices that do have /dev entries.
+see, in fact it is not huge commercial solution what i need - i'm 
+interested in squeezing every single electron from machines i have in 
+school, and i thought that for some applications cluster is the best 
+method of sharing computing power. i'm not thinking (yet) about 
+optimizing it to some particular function. i simply wanted to know how 
+clustrer works and how it makes use of multiple machines. but, the 
+system has to satisfy one limitation - it must be completly usuable in 
+floppy-booting mode (machines i can use are normally used under control 
+of Micro$oft (r) Win*** (tm) eXPloit Sewer and i cannot reinstall their 
+systems without being sucked from school, so i can incorporate them into 
+cluster only by booting system from another medium, prefferably from 
+floppy). as far i've tested openMosix, and it works quite good. maybe in 
+future i will be given a real server-farm, where i could set up 
+everything sane. but now i need only links to some solutions, so i can 
+test them.
+thanks for your help
 
--- 
-Dmitry
+--
+May the Source be with you
+Wiktor

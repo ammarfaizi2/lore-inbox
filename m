@@ -1,79 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279993AbRKDOEn>; Sun, 4 Nov 2001 09:04:43 -0500
+	id <S279998AbRKDOLN>; Sun, 4 Nov 2001 09:11:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279997AbRKDOEd>; Sun, 4 Nov 2001 09:04:33 -0500
-Received: from mail100.mail.bellsouth.net ([205.152.58.40]:16453 "EHLO
-	imf00bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S279993AbRKDOEV>; Sun, 4 Nov 2001 09:04:21 -0500
-Message-ID: <3BE54ADC.14A2D24C@mandrakesoft.com>
-Date: Sun, 04 Nov 2001 09:04:12 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-2mdksmp i686)
-X-Accept-Language: en
+	id <S279999AbRKDOLE>; Sun, 4 Nov 2001 09:11:04 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:61105 "EHLO
+	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S279998AbRKDOKr>; Sun, 4 Nov 2001 09:10:47 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Tim Jansen <tim@tjansen.de>
+To: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>
+Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
+Date: Sun, 4 Nov 2001 15:13:37 +0100
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <E15zF9H-0000NL-00@wagner> <160MMf-1ptGtMC@fmrl05.sul.t-online.com> <20011104143631.B1162@pelks01.extern.uni-tuebingen.de>
+In-Reply-To: <20011104143631.B1162@pelks01.extern.uni-tuebingen.de>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Manfred Spraul <manfred@colorfullife.com>
-CC: Tom Winkler <tiger@tserver.2y.net>, linux-kernel@vger.kernel.org
-Subject: Re: Vaio IRQ routing / USB problem
-In-Reply-To: <3BE5201F.78A6B811@colorfullife.com>
-Content-Type: multipart/mixed;
- boundary="------------CC75434D0060C984873901BD"
+Content-Transfer-Encoding: 7BIT
+Message-ID: <160Nyq-2ACgt6C@fmrl07.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------CC75434D0060C984873901BD
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Sunday 04 November 2001 14:36, Daniel Kobras wrote:
+> Certainly you can further fields without breaking (well-written) apps.
+> That's what the first line in /proc/partitions is for. When adding a new
+> column, you also give it a new tag in the header. Ask RedHat how many apps
+> broke when they started patching sard into their kernels.
 
-Manfred Spraul wrote:
-> --- 2.4/arch/i386/kernel/pci-irq.c      Sat Nov  3 19:51:08 2001
-> +++ build-2.4/arch/i386/kernel/pci-irq.c        Sun Nov  4 11:57:00 2001
-> @@ -48,6 +48,8 @@
->   *  Search 0xf0000 -- 0xfffff for the PCI IRQ Routing Table.
->   */
-> 
-> +#undef DBG
-> +#define DBG    printk
->  static struct irq_routing_table * __init pirq_find_routing_table(void)
->  {
->         u8 *addr;
+The format won't help you when you have strings with whitespace or if you 
+want to export a list for each partition. 
 
+> Adding new fields is even easier with /proc/stat-style key:value pairs.
+> Both styles are human- as well as machine readable. Problems only arise
+> when someone changes the semantics of a certain field without changing the
+> tag. But luckily these kinds of changes never happen in a stable kernel
+> series...
 
-This patch is probably preferred, it turns on all PCI and PCI
-IRQ-related debugging, including dumping the PCI IRQ table.
+I don't think that this format is very user friendly, and it has the same 
+limitations as /proc/partitions. 
 
-Tom, please CC me a copy of the output as well, if you don't mind.
+The problem is not that it is impossible to invent a new format for every 
+file. The problem is that you need a different format for each file.
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
---------------CC75434D0060C984873901BD
-Content-Type: text/plain; charset=us-ascii;
- name="pci-irq-debug.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pci-irq-debug.patch"
-
-Index: arch/i386/kernel/pci-i386.h
-===================================================================
-RCS file: /cvsroot/gkernel/linux_2_4/arch/i386/kernel/pci-i386.h,v
-retrieving revision 1.3
-diff -u -r1.3 pci-i386.h
---- arch/i386/kernel/pci-i386.h	2001/10/13 07:47:29	1.3
-+++ arch/i386/kernel/pci-i386.h	2001/11/04 14:02:45
-@@ -4,7 +4,7 @@
-  *	(c) 1999 Martin Mares <mj@ucw.cz>
-  */
- 
--#undef DEBUG
-+#define DEBUG 1
- 
- #ifdef DEBUG
- #define DBG(x...) printk(x)
-
---------------CC75434D0060C984873901BD--
-
-
+bye...

@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130570AbRAaSGU>; Wed, 31 Jan 2001 13:06:20 -0500
+	id <S129990AbRAaSNw>; Wed, 31 Jan 2001 13:13:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129990AbRAaSGK>; Wed, 31 Jan 2001 13:06:10 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16649 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130211AbRAaSF6>; Wed, 31 Jan 2001 13:05:58 -0500
-Subject: Re: [PATCH] doc update/fixes for sysrq.txt
-To: jmd@foozle.turbogeek.org (Jeremy M. Dolan)
-Date: Wed, 31 Jan 2001 18:06:20 +0000 (GMT)
-Cc: david@linux.com (David Ford), linux-kernel@vger.kernel.org
-In-Reply-To: <20010128152156.A406@foozle.turbogeek.org> from "Jeremy M. Dolan" at Jan 28, 2001 03:21:56 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130069AbRAaSNl>; Wed, 31 Jan 2001 13:13:41 -0500
+Received: from Cantor.suse.de ([213.95.15.193]:13842 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129990AbRAaSN3>;
+	Wed, 31 Jan 2001 13:13:29 -0500
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Looking for comparison data on network stack prowess
+In-Reply-To: <E14O11D-0002jM-00@the-village.bc.nu>
+From: Andi Kleen <freitag@alancoxonachip.com>
+Date: 31 Jan 2001 19:13:14 +0100
+In-Reply-To: Alan Cox's message of "31 Jan 2001 18:28:47 +0100"
+Message-ID: <oupu26fsi85.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14O1eB-0002nv-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > AFAIK, this hasn't ever been true.  I have never had to specifically
-> > enable it at run time.
-> 
-> I was suspicious of that in the old doc but thought I'd leave it in...
-> Should have asked for feedback on it, but you caught it anyway, thanks!
-> 
-> Here's a patch against the first that simply removes the lines.
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Its true in 2.2
+> Someone in .de (Alas I forget their name now) actually did port BSD net/2 to
+> Linux.
 
+Matthias Urlichs iirc
+
+He also later implemented a minimal STREAMS clone on Linux for his
+ISDN stack. 
+
+[and today Linux is reinventing non shouted streams with netfilter..]
+
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,20 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315285AbSF3Qlt>; Sun, 30 Jun 2002 12:41:49 -0400
+	id <S315293AbSF3QqI>; Sun, 30 Jun 2002 12:46:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315293AbSF3Qls>; Sun, 30 Jun 2002 12:41:48 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:45453 "EHLO
+	id <S315334AbSF3QqH>; Sun, 30 Jun 2002 12:46:07 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:65422 "EHLO
 	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S315285AbSF3Qlr>; Sun, 30 Jun 2002 12:41:47 -0400
-Date: Sun, 30 Jun 2002 18:34:44 +0200 (MET DST)
+	id <S315293AbSF3QqG>; Sun, 30 Jun 2002 12:46:06 -0400
+Date: Sun, 30 Jun 2002 18:48:13 +0200 (MET DST)
 From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
 To: Zwane Mwaikambo <zwane@mwaikambo.name>
 cc: Petr Vandrovec <vandrove@vc.cvut.cz>,
        Martin Dalecki <dalecki@evision-ventures.com>, <alex@ssi.bg>,
        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.24 IDE 95
-In-Reply-To: <Pine.LNX.4.44.0206301112470.10717-100000@netfinity.realnet.co.sz>
-Message-ID: <Pine.SOL.4.30.0206301820170.18032-100000@mion.elka.pw.edu.pl>
+Subject: Re: [PATCH] 2.5.24 IDE 95 (fwd)
+Message-ID: <Pine.SOL.4.30.0206301847290.26714-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -66,5 +65,6 @@ If you find any errors in thinking please let my now :)
 Greets.
 --
 Bartlomiej
+
 
 

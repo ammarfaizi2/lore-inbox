@@ -1,65 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317930AbSFNPRR>; Fri, 14 Jun 2002 11:17:17 -0400
+	id <S312590AbSFNPSv>; Fri, 14 Jun 2002 11:18:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317931AbSFNPRQ>; Fri, 14 Jun 2002 11:17:16 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:4753 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S317930AbSFNPRP>;
-	Fri, 14 Jun 2002 11:17:15 -0400
-Date: Fri, 14 Jun 2002 17:17:03 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.21 IDE 91
-Message-ID: <20020614151703.GB1120@suse.de>
-In-Reply-To: <Pine.LNX.4.33.0206082235240.4635-100000@penguin.transmeta.com> <3D09F769.8090704@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S317931AbSFNPSv>; Fri, 14 Jun 2002 11:18:51 -0400
+Received: from [207.65.182.3] ([207.65.182.3]:16286 "EHLO mail.cafes.net")
+	by vger.kernel.org with ESMTP id <S312590AbSFNPSt>;
+	Fri, 14 Jun 2002 11:18:49 -0400
+To: Duncan Sands <duncan.sands@wanadoo.fr>, linux-kernel@vger.kernel.org,
+        devfs@oss.sgi.com
+From: gphat@cafes.net
+Subject: Re: 2.5.19 - 2.5.21 don't boot with devfs
+Date: Fri, 14 Jun 2002 15:14:57 GMT
+X-Originating-IP: 67.105.23.116
+Message-Id: <20020614151457.63A9A6838EDB@mail.cafes.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 14 2002, Martin Dalecki wrote:
-> Thu Jun 13 22:59:54 CEST 2002 ide-clean-91
+I had the same problem, as the familiar /dev/hdN devices were not there. 
+ 
+You can likely find them deep /dev/ata/... 
+ 
+I adjusted my fstab to use /dev/ata/... devices.  I believe I had done that 
+once for /dev/ide, but then it was switched to ata ;) 
+ 
+> Starting from 2.5.19 (x86), booting fails at "Checking root file system..." 
+> if devfs is mounted; there is no problem if devfs is not mounted.  With 
+> devfs mounted I get: 
+>  
+> .... 
+> Checking root file system... 
+> fsck 1.27 (8-Mar-2002) 
+> .... 
+> fsck.ext3: No such file or directory while trying to open /dev/hda2 
+>  
+> Here is my fstab: 
+>  
+> # /etc/fstab: static file system information. 
+> # 
+> # <file system> <mount point> <type> <options>   <dump> <pass> 
+> /dev/hda2 /  ext3 defaults,errors=remount-ro 0 1 
+> /dev/hda3 none  swap sw           0 0 
+> /dev/hda1 /windows vfat defaults,user,exec  0 2 
+> proc  /proc  proc defaults   0 0 
+> none     /proc/bus/usb usbdevfs defaults  0 0 
+> none  /devices driverfs defaults  0 0 
+>  
+> Any ideas? 
+>  
+> Duncan. 
+> - 
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in 
+> the body of a message to majordomo@vger.kernel.org 
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html 
+> Please read the FAQ at  http://www.tux.org/lkml/ 
 > 
-> - Realize that the only place where ata_do_taskfile gets used is ide-disk.c
->   move it and its "friends' over there.
 
-Ehm, isn't that a bit odd? The typical "I'm not looking at the
-interface, if only one person is currently using it then heck lets move
-it" Martin approach (refer to prep_rq_fn cdb builder as well)
 
-The above is just a minor thing, the reason I'm mailing is really:
-
-- current 2.5 bk deadlocks reading partition info off disk. Again a
-  locking problem I suppose, to be honest I just got very tired when
-  seeing it happen and didn't want to spend tim looking into it.
-
-I thought IDE locking couldn't get worse than 2.4, but I think you are
-well into doing just that. What exactly are you plans with the channel
-locks? Right now, to me, it seems you are extending the use of them to
-the point where they would be used to serialize the entire request
-operation start? Heck, ide-cd is even holding the channel lock when
-outputting the cdb now.
-
-- ata_end_request(). why didn't you just remove the last argument to
-  __ata_end_request() instead just changing the comment saying why we
-  pass nr_secs == 0 in from some sites?
-
-- what's the reasoning behind moving the active request into the
-  ata_device?! we are serializing requests for ata_device's on the
-  ata_channel anyways, which is why it made sense to have the active
-  request there.
-
-And finally a small plea for more testing. Do you even test before
-blindly sending patches off to Linus?! Sometimes just watching how
-quickly these big patches appears makes it impossible that they have
-gotten any kind of testing other than the 'hey it compiles', which I
-think it just way too little for something that could possible screw
-peoples data up very badly. Frankly, _I'm_ too scared to run 2.5 IDE
-currently. The success ratio of posted over working patches is too big.
-
--- 
-Jens Axboe
 

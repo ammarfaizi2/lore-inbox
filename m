@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130573AbQLLL0X>; Tue, 12 Dec 2000 06:26:23 -0500
+	id <S130999AbQLLL1n>; Tue, 12 Dec 2000 06:27:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131016AbQLLL0N>; Tue, 12 Dec 2000 06:26:13 -0500
-Received: from 213-123-74-239.btconnect.com ([213.123.74.239]:16900 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S130768AbQLLL0L>;
-	Tue, 12 Dec 2000 06:26:11 -0500
-Date: Tue, 12 Dec 2000 10:57:50 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [patch-2.4.0-test12] oneliner bugfix (microcode driver again)
-In-Reply-To: <Pine.LNX.4.21.0012120915280.859-100000@penguin.homenet>
-Message-ID: <Pine.LNX.4.21.0012121055090.924-100000@penguin.homenet>
+	id <S131265AbQLLL1d>; Tue, 12 Dec 2000 06:27:33 -0500
+Received: from maidme.lnk.telstra.net ([139.130.75.195]:47876 "EHLO
+	mail.maidment.com.au") by vger.kernel.org with ESMTP
+	id <S130999AbQLLL11>; Tue, 12 Dec 2000 06:27:27 -0500
+Message-ID: <3A36045E.E40E31FF@maidment.com.au>
+Date: Tue, 12 Dec 2000 21:56:30 +1100
+From: Bill Maidment <bill@maidment.com.au>
+Organization: Maidment Enterprises
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+CC: linux-kernel@vger.kernel.org
+Subject: linux-2.4.0-test12 problem with init
+In-Reply-To: <20001130110840.A2612@in.tum.de> <3A26FE24.80304@megapathdsl.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Hi
 
-If misc registration fails but devfs registration succeeds then we should
-return 0 from microcode_init.
+I reported a problem with using 'init 1' with 2.4.0-test12-pre8 and was
+told it wasn't a kernel problem. I beg to differ, as it still happens
+with 2.4.0-test12 but not with 2.4.0-test12-pre7. What changed between
+pre7 and pre8 to make 'init 1' behave like 'init 5'? 'init 3' works
+correctly. The only change I've made is to build the new kernel.
 
-Regards,
-Tigran
+The screen messages say it is going into single user mode, but it just
+doesn't.
 
---- linux/arch/i386/kernel/microcode.c	Tue Dec 12 09:25:10 2000
-+++ work/arch/i386/kernel/microcode.c	Tue Dec 12 09:55:28 2000
-@@ -126,6 +126,7 @@
- 		printk(KERN_ERR "microcode: failed to devfs_register()\n");
- 		goto out;
- 	}
-+	error = 0;
- 	printk(KERN_INFO 
- 		"IA-32 Microcode Update Driver: v%s <tigran@veritas.com>\n", 
- 		MICROCODE_VERSION);
+Have I missed something that should be changed in the configuration?
 
+-- 
+Regards
+
+Bill Maidment
+Computer Systems Consultant
+
+_________________________________________
+
+      Maidment Enterprises Pty Ltd      
+      42 Woy Woy Bay Road
+      Woy Woy Bay  NSW  2256 
+_________________________________________
+                                         
+  Home Phone 02 4342 6716                
+  Work Phone 02 9927 3234                
+  Mobile     0418 682 993                
+  Home Email bill@maidment.com.au        
+  Work Email bill.maidment@elgas.com.au  
+  Web Page   www.maidment.com.au         
+_________________________________________
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

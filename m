@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbULXXgq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbULXXln@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261459AbULXXgq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Dec 2004 18:36:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbULXXgq
+	id S261463AbULXXln (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Dec 2004 18:41:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbULXXln
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Dec 2004 18:36:46 -0500
-Received: from faye.voxel.net ([69.9.164.210]:21732 "EHLO faye.voxel.net")
-	by vger.kernel.org with ESMTP id S261459AbULXXgo (ORCPT
+	Fri, 24 Dec 2004 18:41:43 -0500
+Received: from fw.osdl.org ([65.172.181.6]:57809 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261463AbULXXlm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Dec 2004 18:36:44 -0500
-Subject: Re: [PATCH] kernel_read result fixes
-From: Andres Salomon <dilinger@voxel.net>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-In-Reply-To: <1103873064.5994.6.camel@localhost>
-References: <1103873064.5994.6.camel@localhost>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0tzzbDcEXdNfy+0FdYgl"
-Date: Fri, 24 Dec 2004 18:36:36 -0500
-Message-Id: <1103931396.6224.6.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Fri, 24 Dec 2004 18:41:42 -0500
+Date: Fri, 24 Dec 2004 15:41:37 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de, akpm@osdl.org
+Subject: Re: VM fixes [4/4]
+In-Reply-To: <20041224182219.GH13747@dualathlon.random>
+Message-ID: <Pine.LNX.4.58.0412241533170.2353@ppc970.osdl.org>
+References: <20041224174156.GE13747@dualathlon.random>
+ <20041224100147.32ad4268.davem@davemloft.net> <20041224182219.GH13747@dualathlon.random>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-0tzzbDcEXdNfy+0FdYgl
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, 2004-12-24 at 02:24 -0500, Andres Salomon wrote:
-> Hi,
->=20
-> A few potential vulnerabilities were pointed out by Katrina Tsipenyuk in
-> <http://seclists.org/lists/linux-kernel/2004/Dec/1878.html>.  I haven't
-> seen any discussion or fixes of the issue yet, so here's a patch
-> (against 2.6.9).  The fixes are along the same lines as the previous
-> binfmt_elf fixes.  There's one additional place (inside fs/binfmt_som.c)
-> that a fix could be applied, but since that doesn't compile anyways, I
-> didn't see a point in patching it.
->=20
->=20
+On Fri, 24 Dec 2004, Andrea Arcangeli wrote:
+> 
+> If those old cpus really supported smp in linux, then fixing this bit is
+> trivial, just change it to short. Do they support short at least?
 
-Ok, you can ignore this; I believe the original advisory is bogus.
-prepare_binprm ensures a 128 byte buffer that kernel_read data is copied
-to; in case something smaller is copied in, the rest of the space is
-zero'd out.  Thus, <128 reads are fine, and in many cases (as in
-binfmt_script w/ tiny scripts less than 128 bytes in total) perfectly
-valid.
+It's not even about SMP. "byte" and "short" are not IRQ-safe or even 
+preemption-safe (although I guess alpha doesn't support CONFIG_PREEMPT 
+right now anyway) on pre-byte-access alphas.
 
+Just don't do it. Maybe we'll never see another chip try what alpha did 
+(it was arguably the single biggest mistake the early alphas had, and 
+caused tons of system design trouble), but just use an "int".
 
---=20
-Andres Salomon <dilinger@voxel.net>
+That said, I'd suggest putting it in the thread structure instead. We 
+already have thread-safe flags there, just use one of the bits. Yes, 
+you'll need to use locked accesses to set it, but hey, how often does 
+something like this get set anyway? And then you just do ti _right_, using 
+set_thread_flag/clear_thread_flag etc..
 
---=-0tzzbDcEXdNfy+0FdYgl
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBzKgD78o9R9NraMQRApQ2AJ0V6ZbssJJ3nOU0rYoeLdDdSOIjEQCfeWvf
-Wv6O2eKO674GgBNvgdNy8P0=
-=bmq6
------END PGP SIGNATURE-----
-
---=-0tzzbDcEXdNfy+0FdYgl--
-
+		Linus

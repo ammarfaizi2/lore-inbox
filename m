@@ -1,70 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317349AbSHCAaa>; Fri, 2 Aug 2002 20:30:30 -0400
+	id <S317380AbSHCAdd>; Fri, 2 Aug 2002 20:33:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317352AbSHCAaa>; Fri, 2 Aug 2002 20:30:30 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52746 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317349AbSHCAa3>;
-	Fri, 2 Aug 2002 20:30:29 -0400
-Message-ID: <3D4B2471.29EE6462@zip.com.au>
-Date: Fri, 02 Aug 2002 17:31:45 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Rmap speedup
-References: <3D4AE995.DFD862EF@zip.com.au> <Pine.LNX.4.44L.0208022113440.23404-100000@imladris.surriel.com>
+	id <S317386AbSHCAdd>; Fri, 2 Aug 2002 20:33:33 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:24594 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S317380AbSHCAdc>;
+	Fri, 2 Aug 2002 20:33:32 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Kasper Dupont <kasperd@daimi.au.dk>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Race condition? 
+In-reply-to: Your message of "Fri, 02 Aug 2002 10:00:13 MST."
+             <3D4ABA9D.8060307@us.ibm.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sat, 03 Aug 2002 10:36:50 +1000
+Message-ID: <9083.1028335010@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On Fri, 2 Aug 2002, Andrew Morton wrote:
-> > Daniel Phillips wrote:
-> > >
-> > > This patch eliminates about 35% of the raw rmap setup/teardown overhead by
-> > > adopting a new locking interface that allows the add_rmaps to be batched in
-> > > copy_page_range.
-> >
-> > Well that's fairly straightforward, thanks.  Butt-ugly though ;)
-> 
-> It'd be nice if the code would be a bit more beautiful and the
-> reverse mapping scheme more modular.
+On Fri, 02 Aug 2002 10:00:13 -0700, 
+Dave Hansen <haveblue@us.ibm.com> wrote:
+>Kasper Dupont wrote:
+>> Is there a race condition in this piece of code from do_fork in
+>> linux/kernel/fork.c? I cannot see what prevents two processes
+>> from calling this at the same time and both successfully fork
+>> even though the user had only one process left.
+>> 
+>>         if (atomic_read(&p->user->processes) >= p->rlim[RLIMIT_NPROC].rlim_cur
+>>                       && !capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RESOURCE))
+>>                 goto bad_fork_free;
+>> 
+>>         atomic_inc(&p->user->__count);
+>>         atomic_inc(&p->user->processes);
+>
+>I don't see any locking in the call chain leading to this function, so 
+>I think you're right.  The attached patch fixes this.  It costs an 
+>extra 2 atomic ops in the failure case, but otherwise just makes the 
+>processes++ operation earlier.
 
-I changed it to, essentially:
+Does this race really justify extra locks?  AFAICT the worst case is
+that a user can go slightly over their RLIMIT_NPROC, and that will only
+occur if they fork on multiple cpus "at the same time".  Given the
+timing constraints on that small window, I would be surprised if this
+race could be exploited to gain more than a couple of extra processes.
+This looks like a case where close enough is good enough.
 
-foo()
-{
-	spinlock_t *rmap_lock = NULL;
-	unsigned rmap_lockno = -1;
-	...
-	for (stuff) {
-		cached_rmap_lock(page, &rmap_lock, &rmap_lockno);
-		__page_add_rmap(page, ptep);
-		..
-	}
-	drop_rmap_lock(&rmap_lock, &rmap_lockno);
-}
-
-See http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.30/daniel-rmap-speedup.patch
-
-Fixing zap_pte_range pretty much requires the pagemap_lru_lock
-rework; otherwise we couldn't hold the rmap lock across
-tlb_remove_page().
-
-> Remember that we're planning to go to an object-based scheme
-> later on, turning the code into a big monolithic mesh really
-> makes long-term maintenance a pain...
-
-We have short-term rmap problems:
-
-1) Unexplained pte chain state with ntpd
-2) 10-20% increased CPU load in fork/exec/exit loads
-3) system lock under heavy mmap load
-4) ZONE_NORMAL pte_chain consumption
-
-Daniel and I are on 2), Bill is on 4) (I think).

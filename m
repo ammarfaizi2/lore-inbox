@@ -1,66 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262014AbUCNXEr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 18:04:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbUCNXEq
+	id S262002AbUCNXDt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 18:03:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbUCNXDt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 18:04:46 -0500
-Received: from colino.net ([62.212.100.143]:37359 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S262024AbUCNXEk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 18:04:40 -0500
-Date: Mon, 15 Mar 2004 00:02:37 +0100
-From: Colin Leroy <colin@colino.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.4-bk3: Oops using pppd
-Message-Id: <20040315000237.557a3792@jack.colino.net>
-Organization: 
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 2.2.4; powerpc-unknown-linux-gnu)
+	Sun, 14 Mar 2004 18:03:49 -0500
+Received: from fw.osdl.org ([65.172.181.6]:38277 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262002AbUCNXDn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 18:03:43 -0500
+Date: Sun, 14 Mar 2004 15:03:46 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: mru@kth.se (=?ISO-8859-1?B?TeVucyBSdWxsZ+VyZA==?=)
+Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: kernel threads holding /dev/console
+Message-Id: <20040314150346.387b59a6.akpm@osdl.org>
+In-Reply-To: <yw1x8yi3dpz8.fsf@ford.guide>
+References: <yw1x8yi3dpz8.fsf@ford.guide>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+mru@kth.se (Måns Rullgård) wrote:
+>
+> I'm trying to set up a pivot_root hack to do some things, switch root,
+>  and then unmount the original root.  However, the unmount fails
+>  because ksoftirqd/0, events/0, kblockd/0 and aio/0 have /dev/console
+>  opened.  Why are they doing this?  Can it be prevented?  This happens
+>  when using kernel 2.6.3 (2.6.4 is reportedly broken on Alpha).  It
+>  works with a 2.4 kernel using the same script.  Does anyone have a
+>  hint?
 
-got an oops with 2.6.4-bk3.
-
-Command-line was:
-/usr/sbin/pppd connect '/usr/sbin/chat -v ABORT "NO CARRIER" "" "AT&F" OK \
- "AT+CGDCONT=1,\"IP\",\"websfr\",\"0.0.0.0\",0,0" OK "ATDT*99#" CONNECT' \
- /dev/usb/acm/0 115200 defaultroute crtscts noauth deflate 0 asyncmap 0 \
- mtu 1500 mru 1500 noipdefault idle 600 2>/dev/null
-
-Segmentation fault:
-Oops: kernel access of bad area, sig: 11 [#1]
-NIP: C0060B54 LR: C0060B2C SP: DBE57E60 REGS: dbe57db0 TRAP: 0301    Not
-taintedMSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
-DAR: 0002B281, DSISR: 40000000
-TASK = dc18c660[6901] 'pppd' Last syscall: 5
-GPR00: C0060B2C DBE57E60 DC18C660 00000000 DBE57E68 C0D6A5C0 DBEAEB10 00000000
-GPR08: E7FFA810 C02B8788 00000001 0002B281 88000822
-Call trace:
- [c00560f8] dentry_open+0x168/0x244
- [c0055f8c] filp_open+0x68/0x6c
- [c0056450] sys_open+0x68/0xa0
- [c0007cbc] ret_from_syscall+0x0/0x44
+That's a bug.
 
 
-Ksymoops:
->>NIP; c0060b54 <chrdev_open+70/180>   <=====
+
+keventd and friends are currently holding /dev/console open three times. 
+It's all inherited from init.
+
+Steal the relevant parts of daemonize() to fix that up.
+
+
+---
+
+ 25-akpm/kernel/kthread.c |   18 ++++++++++++++++++
+ 1 files changed, 18 insertions(+)
+
+diff -puN kernel/kthread.c~kthread-keeps-files-open kernel/kthread.c
+--- 25/kernel/kthread.c~kthread-keeps-files-open	2004-03-14 14:49:21.679226616 -0800
++++ 25-akpm/kernel/kthread.c	2004-03-14 14:57:18.425750128 -0800
+@@ -10,6 +10,7 @@
+ #include <linux/completion.h>
+ #include <linux/err.h>
+ #include <linux/unistd.h>
++#include <linux/file.h>
+ #include <asm/semaphore.h>
  
->>GPR0; c0060b2c <chrdev_open+48/180>
->>GPR1; dbe57e60 <__crc_ide_auto_reduce_xfer+23be73/332b9b>
->>GPR2; dc18c660 <__crc_pci_pci_problems+3d8b9/105e48>
->>GPR4; dbe57e68 <__crc_ide_auto_reduce_xfer+23be7b/332b9b>
->>GPR5; c0d6a5c0 <__crc___wait_on_buffer+68ac5/831f2>
->>GPR6; dbeaeb10 <__crc_ide_auto_reduce_xfer+292b23/332b9b>
->>GPR8; e7ffa810 <__crc_vunmap+14d3e0/204f5f>
->>GPR9; c02b8788 <ppp_device_fops+0/58>
->>GPR12; 88000822 <__crc_sleep_on_timeout+3b752a/766020>
+ struct kthread_create_info
+@@ -41,6 +42,21 @@ int kthread_should_stop(void)
+ 	return (kthread_stop_info.k == current);
+ }
+ 
++
++static void kthread_exit_files(void)
++{
++	struct fs_struct *fs;
++	struct task_struct *tsk = current;
++
++	exit_fs(tsk);		/* current->fs->count--; */
++	fs = init_task.fs;
++	tsk->fs = fs;
++	atomic_inc(&fs->count);
++ 	exit_files(tsk);
++	current->files = init_task.files;
++	atomic_inc(&tsk->files->count);
++}
++
+ static int kthread(void *_create)
+ {
+ 	struct kthread_create_info *create = _create;
+@@ -50,6 +66,8 @@ static int kthread(void *_create)
+ 	int ret = -EINTR;
+ 	cpumask_t mask = CPU_MASK_ALL;
+ 
++	kthread_exit_files();
++
+ 	/* Copy data: it's on keventd's stack */
+ 	threadfn = create->threadfn;
+ 	data = create->data;
 
-This didn't happen using 2.6.4.
-HTH,
--- 
-Colin
+_
+

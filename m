@@ -1,68 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265040AbUHRIVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264936AbUHRIaY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265040AbUHRIVm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 04:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265029AbUHRIVm
+	id S264936AbUHRIaY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 04:30:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265087AbUHRIaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 04:21:42 -0400
-Received: from ender.smtp.cz ([81.95.97.119]:5015 "EHLO out.smtp.cz")
-	by vger.kernel.org with ESMTP id S265027AbUHRIUu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 04:20:50 -0400
-Subject: network regression using 2.6.8.x behind Cisco 1712
-From: =?iso-8859-2?Q?Ond=F8ej_Sur=FD?= <ondrej@sury.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-fh01tjMp4sefyrWOmPV6"
-Date: Wed, 18 Aug 2004 10:20:47 +0200
-Message-Id: <1092817247.5178.6.camel@ondrej.sury.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.93 
+	Wed, 18 Aug 2004 04:30:24 -0400
+Received: from mail-out.m-online.net ([212.18.0.9]:29415 "EHLO
+	mail-out.m-online.net") by vger.kernel.org with ESMTP
+	id S264936AbUHRIaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 04:30:16 -0400
+To: Peter Osterlund <petero2@telia.com>
+Cc: Julien Oster <lkml-7994@mc.frodoid.org>,
+       Frediano Ziglio <freddyz77@tin.it>, axboe@suse.de,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: Packet writing problems
+References: <1092669361.4254.24.camel@freddy> <m3acwuq5nc.fsf@telia.com>
+	<m3657iq4rk.fsf@telia.com> <1092686149.4338.1.camel@freddy>
+	<m37jrxk024.fsf@telia.com> <87acwt49zl.fsf@killer.ninja.frodoid.org>
+	<m3y8kdibgh.fsf@telia.com>
+From: Julien Oster <usenet-20040502@usenet.frodoid.org>
+Organization: FRODOID.ORG
+Mail-Followup-To: Peter Osterlund <petero2@telia.com>,
+	Julien Oster <lkml-7994@mc.frodoid.org>,
+	Frediano Ziglio <freddyz77@tin.it>, axboe@suse.de,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Date: Wed, 18 Aug 2004 10:25:54 +0200
+In-Reply-To: <m3y8kdibgh.fsf@telia.com> (Peter Osterlund's message of "18
+ Aug 2004 01:36:30 +0200")
+Message-ID: <87fz6k6eel.fsf@killer.ninja.frodoid.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Peter Osterlund <petero2@telia.com> writes:
 
---=-fh01tjMp4sefyrWOmPV6
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Hello Peter,
 
-Hello,
+>> The following patch on top of your patch adds all commonly used media
+>> types to the output and changes CD-R and CD-RW to be detected by
+>> profile type. It also reports unconforming non-standard profiles as
+>> well as profiles which have a MMC profile definition but are unknown
+>> as of the current MMC3 revision.
 
-I encountered regression in 2.6.8.1 when behind Cisco 1712 router.
-There is huge network slowdown, my connections rate drops to ~10K/s on
-2.6.8.1, local network is fine.  When using 2.6.7 connection rate is
-~400K/s (depending on what I am downloading).
+> Will any of those printk's ever get printed? Media types that can't be
+> handled by the packet driver aren't supposed to make it past the
+> pkt_good_disc() test.
 
-Network configuration is same on 2.6.8.1 and 2.6.7.  My .config can be
-found at http://www.sury.org/kernel/config-2.6.8.1
+Quickly looking through it, pkt_good_disc() does the same and drops
+media types with unsuitable or invalid profiles.
 
-Kernel is vanilla with MPPE+MPPC patch applied, but same behaviour has
-distribution debian kernel.  Also I have tried to disable QoS and IPv6
-in 2.6.8.1, but without any result.
+So my patch is really not useful at that place.
 
-It could be some bug in IOS, but it is triggered by some change between
-2.6.7 and 2.6.8.  Any hints what should I try or where to look?
-I could try some -pre and -rc kernel to locate where this was
-introduced, but at least try to hint me which version should be
-considered, I am not so willing to compile all -preX and -rcX, but could
-do that if neccessary to hunt this regression.
+But couldn't you move the "inserted disc is..." messages to
+pkt_good_disc()? In the current source you basically duplicate the
+switch statement which checks the profile. The printks could be in the
+pkt_good_disc() check just as well.
 
-Please Cc: me, I am not on list.
+There all profiles might be included and the corresponding media type
+printed out, so that the user knows why his disc is unsuitable
+(i.e. it's a CD-ROM or DVD-ROM and doesn't do any writing at all).
 
-O.
---=20
-Ond=C5=99ej Sur=C3=BD <ondrej@sury.org>
-
---=-fh01tjMp4sefyrWOmPV6
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBIxFe9OZqfMIN8nMRAqTaAKCGRyh6WXRlpkehvZdJUh+5HSQRpgCfYRtE
-krAflCcXZe153MP7UxUpGIA=
-=bPwE
------END PGP SIGNATURE-----
-
---=-fh01tjMp4sefyrWOmPV6--
-
+Regards,
+Julien

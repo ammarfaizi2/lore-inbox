@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268019AbTAIWhj>; Thu, 9 Jan 2003 17:37:39 -0500
+	id <S268063AbTAIWrA>; Thu, 9 Jan 2003 17:47:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268036AbTAIWhi>; Thu, 9 Jan 2003 17:37:38 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:60624 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S268019AbTAIWhh>;
-	Thu, 9 Jan 2003 17:37:37 -0500
-Date: Thu, 9 Jan 2003 17:46:16 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+	id <S268064AbTAIWq7>; Thu, 9 Jan 2003 17:46:59 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:53163 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S268063AbTAIWq6>;
+	Thu, 9 Jan 2003 17:46:58 -0500
+From: Cort Dougan <cort@fsmlabs.com>
+Date: Thu, 9 Jan 2003 15:53:06 -0700
+To: Jeff Garzik <jgarzik@pobox.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: UnitedLinux violating GPL?
-Message-ID: <20030109224616.GA6282@gtf.org>
-References: <20030109222748.GA3993@gtf.org> <20030109164534.A6653@vger.timpanogas.org>
+Message-ID: <20030109225306.GG14840@host109.fsmlabs.com>
+References: <20030109222748.GA3993@gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030109164534.A6653@vger.timpanogas.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030109222748.GA3993@gtf.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 09, 2003 at 04:45:34PM -0700, Jeff V. Merkey wrote:
-> 
-> 
-> Jeff,
-> 
-> They only have to provide it if someone asks for it.  I suggest sending them 
-> a request asking for it to be disclosed and copy LKML on the request.  
+Have you actually asked for the source?
 
-I had hoped that a member in good standing of the Linux community would
-not put such roadblocks in place.  :(
-
-
-> Jeff
-> (a great name to have)
-
-agreed :)
-
-	Jeff
-
-
-
+} Anybody know where the source rpm for UnitedLinux kernel is?
+} [to be distinguished from kernel-source rpm]
+} 
+} AFAICS they are not distributing source code to their published kernel
+} binaries...  which is a very obvious GPL violation.
+} 
+} I'm also surprised the even-more-pro-GPL-than-me people have not jumped
+} on UnitedLinux for not distributing source code.
+} 
+} 	Jeff, looking for useful [rumored] drivers/net patches
+} 
+} 
+} 
+} -
+} To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+} the body of a message to majordomo@vger.kernel.org
+} More majordomo info at  http://vger.kernel.org/majordomo-info.html
+} Please read the FAQ at  http://www.tux.org/lkml/

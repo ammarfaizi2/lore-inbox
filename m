@@ -1,61 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261286AbUBVODU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 09:03:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbUBVODU
+	id S261411AbUBVOJm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 09:09:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbUBVOJl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 09:03:20 -0500
-Received: from mail.aei.ca ([206.123.6.14]:30204 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S261286AbUBVODS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 09:03:18 -0500
-From: Ed Tomlinson <edt@aei.ca>
-Organization: me
-To: Chris Wedgwood <cw@f00f.org>
-Subject: Re: Large slab cache in 2.6.1
-Date: Sun, 22 Feb 2004 09:03:07 -0500
-User-Agent: KMail/1.5.93
-Cc: Linus Torvalds <torvalds@osdl.org>, Mike Fedyk <mfedyk@matchmail.com>,
-       linux-kernel@vger.kernel.org
-References: <4037FCDA.4060501@matchmail.com> <20040222031113.GB13840@dingdong.cryptoapps.com> <Pine.LNX.4.58.0402211919360.3301@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0402211919360.3301@ppc970.osdl.org>
-MIME-Version: 1.0
+	Sun, 22 Feb 2004 09:09:41 -0500
+Received: from service.sh.cvut.cz ([147.32.127.214]:37588 "EHLO
+	service.sh.cvut.cz") by vger.kernel.org with ESMTP id S261351AbUBVOJf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 09:09:35 -0500
+Date: Sun, 22 Feb 2004 15:09:29 +0100
+From: Pavol Luptak <P.Luptak@sh.cvut.cz>
+To: linux-kernel@vger.kernel.org
+Cc: linux-raid@vger.kernel.org
+Subject: SW RAID5 + cryptoloop problem: data corruption in 2.6.3
+Message-ID: <20040222140928.GG29211@psilocybus>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="61jdw2sOBCFtR2d/"
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402220903.08299.edt@aei.ca>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 21, 2004 10:28 pm, Linus Torvalds wrote:
-> On Sat, 21 Feb 2004, Chris Wedgwood wrote:
->
-> > 
-> > Maybe gradual page-cache pressure could shirnk the slab?
->
-> 
-> What happened to the experiment of having slab pages on the (in)active
-> lists and letting them be free'd that way? Didn't somebody already do 
-> that? Ed Tomlinson and Craig Kulesa?
 
-You have a good memory.  
+--61jdw2sOBCFtR2d/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-We dropped this experiment since there was a lot of latency between the time a 
-slab page became freeable and when it was actually freed.  The current 
-call back scheme was designed to balance slab preasure and vmscaning.
+Hello,
+I created software RAID5 from 4 disks (two Western Digital 120 GB JB 8MB and
+another two Western Digital 120 GB Serial ATA) each on a separate channel=
+=20
+using standart AMD/nVidia IDE disk driver and SII 3112 serial ATA disk
+driver. I use A7N8X Deluxe mainboard and the latest vanilla 2.6.3 kernel.
+For the RAID I choosed left-symmetric parity-algoritm and 256 kb chunksize=
+=20
+(I found this value is optimal for my purposes). I set up crypto loop devic=
+e on
+my raid device and choosed AES for encryption. On the loop device I created
+ext2 filesystem using 'mke2fs -b 4096 -R stride=3D64 /dev/loop0'. I mounted=
+ this
+device and started to copying about the 250 GB of data from unencrypted IDE
+disk to the encrypted RAID (it took a lot of hours with permanent load aver=
+age
+7.0-8.0).
 
-Ed Tomlinson
- 
-> That's still something I'd like to try, although that's obviously 2.7.x 
-> material, so not useful for rigth now.
-> 
-> Or did the experiment just never work out well?
-> 
-> 		Linus
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I got a lot of these messages in the random time interval (for a few minutes
+after one or two hours)
+
+Feb 21 13:58:45 psil kernel: init_special_inode: bogus i_mode (54131)
+Feb 21 13:58:47 psil kernel: init_special_inode: bogus i_mode (162354)
+Feb 21 13:58:47 psil kernel: init_special_inode: bogus i_mode (52412)
+Feb 21 15:23:27 psil kernel: init_special_inode: bogus i_mode (54131)
+Feb 21 15:23:28 psil kernel: init_special_inode: bogus i_mode (171767)
+Feb 21 15:23:29 psil kernel: init_special_inode: bogus i_mode (153374)
+Feb 21 15:45:54 psil kernel: init_special_inode: bogus i_mode (165515)
+Feb 21 16:45:26 psil kernel: init_special_inode: bogus i_mode (54131)
+Feb 21 16:45:27 psil kernel: init_special_inode: bogus i_mode (153374)
+Feb 21 22:53:14 psil kernel: init_special_inode: bogus i_mode (54131)
+Feb 21 22:53:17 psil kernel: init_special_inode: bogus i_mode (50242)
+=2E.
+
+Each message corresponds to the invalid (and unusable) creation of file on =
+my
+crypto RAID (creation of invalid i-node).
+
+I have no problem with cryptoloop + SW RAID1 (two parallel ATA disks) on
+2.6.1/2.6.2.
+
+Can someone explain this behaviour?
+I have no idea if this problem is in SII3122 disk driver, RAID5 or cryptolo=
+op
+driver.
+
+Regards,
+
+Pavol Luptak
+--=20
+___________________________________________________________________________=
+__
+[wilder@hq.sk] [http://trip.sk/wilder/] [talker: ttt.sk 5678] [ICQ: 1334035=
+56]
+
+--61jdw2sOBCFtR2d/
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAOLgYhL+8XxdK5TIRAh+DAKDBSwFOk0ixVr+IsUK1MnpoM5I6hgCeOlgW
+yBFVTaJuEcGMPl8HKm9UPZM=
+=fdfj
+-----END PGP SIGNATURE-----
+
+--61jdw2sOBCFtR2d/--

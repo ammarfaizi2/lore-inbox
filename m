@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbVANPbb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262010AbVANPfc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbVANPbb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 10:31:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbVANPbb
+	id S262010AbVANPfc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 10:35:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVANPfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 10:31:31 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:3775 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S262008AbVANPba (ORCPT
+	Fri, 14 Jan 2005 10:35:32 -0500
+Received: from fsmlabs.com ([168.103.115.128]:24746 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S262010AbVANPfZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 10:31:30 -0500
-Date: Fri, 14 Jan 2005 16:31:18 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
+	Fri, 14 Jan 2005 10:35:25 -0500
+Date: Fri, 14 Jan 2005 08:35:08 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
 To: Karim Yaghmour <karim@opersys.com>
-cc: Andi Kleen <ak@muc.de>, Nikita Danilov <nikita@clusterfs.com>,
-       linux-kernel@vger.kernel.org, Tom Zanussi <zanussi@us.ibm.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
 Subject: Re: 2.6.11-rc1-mm1
-In-Reply-To: <41E7A7A6.3060502@opersys.com>
-Message-ID: <Pine.LNX.4.61.0501141626310.6118@scrub.home>
-References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de>
- <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de>
- <41E7A7A6.3060502@opersys.com>
+In-Reply-To: <20050114002352.5a038710.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0501140819521.4941@montezuma.fsmlabs.com>
+References: <20050114002352.5a038710.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 14 Jan 2005, Andrew Morton wrote:
 
-On Fri, 14 Jan 2005, Karim Yaghmour wrote:
+> - Added the Linux Trace Toolkit (and hence relayfs).  Mainly because I
+>   haven't yet taken as close a look at LTT as I should have.  Probably neither
+>   have you.
 
-> Andi Kleen wrote:
-> > When you have a timing bug and your logger starts to block randomly
-> > you also won't debug anything. Fix is to make your buffers bigger.
-> 
-> relayfs allows you to choose which is best for you.
-> 
-> >From Documentation/filesystems/relayfs.txt:
-> ...
-> int    relay_open(channel_path, bufsize, nbufs, channel_flags,
-> 		  channel_callbacks, start_reserve, end_reserve,
-> 		  rchan_start_reserve, resize_min, resize_max, mode,
-> 		  init_buf, init_buf_size)
+Just a few things from a quick look;
 
-You don't think that's a little overkill?
-BTW it should return a pointer not an id, at every further access it needs 
-to be looked up, killing the effects of any lockless mechanism.
+- What's with all the ltt_*_bit? Please use the ones provided by the 
+kernel.
 
-bye, Roman
+- i see cpu_has_tsc, can't you use sched_clock?
+
+- ltt_log_event isn't preempt safe
+
+- num_cpus isn't hotplug cpu safe, and you should be using the 
+for_each_online_cpu iterators
+
+- code style, you have large hunks of code with blocks of the following 
+form, you can save processor cycles by placing an if (incoming_process) 
+branch earlier. This code is in _ltt_log_event, which i presume executes 
+frequently.
+
+if (event_id == LTT_EV_SCHEDCHANGE)
+	incoming_process = (struct task_struct *) ((ltt_schedchange *) event_struct)->in);
+
+if ((trace->tracing_gid == 1) && (current->egid != trace->traced_gid)) {
+	if (incoming_process == NULL)
+		return 0;
+	else if (incoming_process->egid != trace->traced_gid)
+		return 0;
+}
+... [ more of the same ]
+if ((trace->tracing_uid == 1) && (current->euid != trace->traced_uid)) {
+	if (incoming_process == NULL)
+		return 0;
+	else if (incoming_process->euid != trace->traced_uid)
+		return 0;
+}

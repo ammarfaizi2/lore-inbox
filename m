@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269113AbUIXUWT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269116AbUIXUXA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269113AbUIXUWT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 16:22:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269116AbUIXUWS
+	id S269116AbUIXUXA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 16:23:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269117AbUIXUW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 16:22:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:24536 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269113AbUIXUWA (ORCPT
+	Fri, 24 Sep 2004 16:22:59 -0400
+Received: from fw.osdl.org ([65.172.181.6]:43136 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269116AbUIXUWv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 16:22:00 -0400
-Message-ID: <415481D3.4060104@redhat.com>
-Date: Fri, 24 Sep 2004 16:21:39 -0400
-From: Neil Horman <nhorman@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Neil Horman <nhorman@redhat.com>
-CC: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
+	Fri, 24 Sep 2004 16:22:51 -0400
+Date: Fri, 24 Sep 2004 13:22:47 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
 Subject: Re: mlock(1)
-References: <41547C16.4070301@pobox.com> <4154805D.8030904@redhat.com>
-In-Reply-To: <4154805D.8030904@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20040924132247.W1973@build.pdx.osdl.net>
+References: <41547C16.4070301@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <41547C16.4070301@pobox.com>; from jgarzik@pobox.com on Fri, Sep 24, 2004 at 03:57:10PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Horman wrote:
-> Jeff Garzik wrote:
+* Jeff Garzik (jgarzik@pobox.com) wrote:
 > 
->>
->> How feasible is it to create an mlock(1) utility, that would allow 
->> priveleged users to execute a daemon such that none of the memory the 
->> daemon allocates will ever be swapped out?
->>
->> ntp daemon does mlock(2) internally, for example, but IMHO this is 
->> really a policy decision that could be moved out of the app.
->>
->> Unfortunately I am VM-ignorant as always ;-)
->>
->>     Jeff
->>
-> 
-> I think it would be pretty easy to do.  Since mlock(2) operates on the 
-> calling processes vma tree you'd need an interface to the kernel that 
-> let you specify a child process and an address range to lock.  Then in 
-> the kernel you'd need to translate the pid into task struct and 
-> replicate the functionality of sys_mlock without the assumption that 
-> current points to the task that you're modifying.  Sounds like something 
-> you could do pretty easy with a proc file in fact.
-> 
-> 
-> Neil
-> 
->>
->>
->> -
+> How feasible is it to create an mlock(1) utility, that would allow 
+> priveleged users to execute a daemon such that none of the memory the 
+> daemon allocates will ever be swapped out?
 
-Clarification: didn't mean to say child process there.  Any process 
-would be modifiable with this interface I think.
-Neil
+1. Doesn't require privilege, just proper rlimits ;-)
+2. Problem is the execve(2) that the mlock(1) program would have to call.
+This blows away the mappings which contain the locking info.  Unless you
+were thinking of promoting something akin to VM_LOCKED from the ->mm
+def_flags to a per task flag.
 
+> ntp daemon does mlock(2) internally, for example, but IMHO this is 
+> really a policy decision that could be moved out of the app.
+
+Hard to say if it's a policy decision outside the scope of the app.
+Esp. if the app knows it needs to not be swapped.  Either something that
+has realtime needs, or more specifically, privacy needs.  Don't need to
+mlock all of gpg to ensure key data never hits swap.
+
+thanks,
+-chris
 -- 
-/***************************************************
-  *Neil Horman
-  *Software Engineer
-  *Red Hat, Inc.
-  *nhorman@redhat.com
-  *gpg keyid: 1024D / 0x92A74FA1
-  *http://pgp.mit.edu
-  ***************************************************/
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

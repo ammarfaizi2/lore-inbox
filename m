@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261442AbSKBVeL>; Sat, 2 Nov 2002 16:34:11 -0500
+	id <S261443AbSKBVeQ>; Sat, 2 Nov 2002 16:34:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261443AbSKBVeL>; Sat, 2 Nov 2002 16:34:11 -0500
-Received: from ulima.unil.ch ([130.223.144.143]:37766 "HELO ulima.unil.ch")
-	by vger.kernel.org with SMTP id <S261442AbSKBVeK>;
-	Sat, 2 Nov 2002 16:34:10 -0500
-Date: Sat, 2 Nov 2002 22:40:37 +0100
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Logitech wheel and 2.5? (PS/2)
-Message-ID: <20021102214037.GA3329@ulima.unil.ch>
-References: <20021102225448.6be90473.khaho@koti.soon.fi>
+	id <S261446AbSKBVeP>; Sat, 2 Nov 2002 16:34:15 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:3970 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261443AbSKBVeN>;
+	Sat, 2 Nov 2002 16:34:13 -0500
+Date: Sat, 2 Nov 2002 22:40:14 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: thornber@sistina.com, linux-kernel@vger.kernel.org
+Subject: Re: Patch(2.5.45): move io_restrictions to blkdev.h
+Message-ID: <20021102214014.GF3612@suse.de>
+References: <20021102105119.A6865@adam.yggdrasil.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20021102225448.6be90473.khaho@koti.soon.fi>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20021102105119.A6865@adam.yggdrasil.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 02, 2002 at 10:54:48PM +0200, Kari Hameenaho wrote:
+On Sat, Nov 02 2002, Adam J. Richter wrote:
+> 	This patch makes good on a threat that I posted yesterday
+> to move struct io_restrictions from <linux/device-mapper.h> to
+> <linux/blkdev.h>, eliminating duplication of a list of fields in
+> struct request_queue.
 
-> There was a line +out: in my patch, maybe you did not apply it correctly
+Adam, I generally think the patch is a good idea. I also think it's a
+very stupid time to start messing with stuff that is basically trivial
+but still touches lost of stuff.
 
-Well: shame on me... I didn't apply it correctly ;-(
-Sorry for my %*%&ç stupidity!!!
+Please leave it alone for a few weeks.
 
-Now I have a real usable 2.5 (I can only use one hand for the next 3
-weeks, and having to run after my mouse because I use sunmouse was
-really unconfortable...).
+> 	Jens, can I persuade you to integrate this change?
 
-An hudge thank, I would really enjoy your patch being included in
-2.5.46!!!
+In due time, yes.
 
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+-- 
+Jens Axboe
+

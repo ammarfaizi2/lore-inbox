@@ -1,40 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbVAXXXz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261722AbVAXXXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261665AbVAXXXz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 18:23:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVAXXWp
+	id S261722AbVAXXXw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 18:23:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVAXXXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 18:22:45 -0500
-Received: from wh0rd.org ([80.68.88.204]:48394 "EHLO wh0rd.org")
-	by vger.kernel.org with ESMTP id S261665AbVAXXIF (ORCPT
+	Mon, 24 Jan 2005 18:23:46 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6593 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261689AbVAXXTD convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 18:08:05 -0500
-From: Mike Frysinger <vapier@gentoo.org>
-Organization: wh0rd.org
-To: Edward Peschko <esp5@pge.com>
-Subject: Re: forestalling GNU incompatibility - proposal for binary relative dynamic linking
-Date: Mon, 24 Jan 2005 18:08:52 -0500
-User-Agent: KMail/1.7.2
-Cc: gcc@gcc.gnu.org, binutils@sources.redhat.com, linux-kernel@vger.kernel.org,
-       libc-alpha@sources.redhat.com
-References: <20050124222449.GB16078@venus>
-In-Reply-To: <20050124222449.GB16078@venus>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Jan 2005 18:19:03 -0500
+Date: Mon, 24 Jan 2005 17:32:30 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
+Cc: Andres Salomon <dilinger@voxel.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-as1 / 2.4 security-only patchset?
+Message-ID: <20050124193230.GB15501@logos.cnet>
+References: <1105605448.7316.13.camel@localhost> <20050124171011.GW16286@edu.joroinen.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200501241808.52092.vapier@gentoo.org>
+In-Reply-To: <20050124171011.GW16286@edu.joroinen.fi>
+User-Agent: Mutt/1.5.5.1i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 24 January 2005 05:24 pm, Edward Peschko wrote:
-> After spending *two weeks* on various ways of building glibc,
-> I'm convinced that the gnu/linux toolchain is in great danger of
-> losing interoperability.
+On Mon, Jan 24, 2005 at 07:10:11PM +0200, Pasi Kärkkäinen wrote:
+> On Thu, Jan 13, 2005 at 03:37:28AM -0500, Andres Salomon wrote:
+> > Hi,
+> > 
+> > I'm announcing a new kernel tree; -as.  The goal of this tree is to form
+> > a stable base for vendors/distributors to use for their kernels.  In
+> > order to do this, I intend to include only security fixes and obvious
+> > bugfixes, from various sources.  I do not intend to include driver
+> > updates, large subsystem fixes, cleanups, and so on.  Basically, this is
+> > what I'd want 2.6.10.1 to contain.
+> > 
+> 
+> Hi!
+> 
+> This is good!
+> 
+> Is anybody doing the same for 2.4 kernel series? Only security-fixes for vanilla
+> 2.4 kernels.. that would be nice too. 
 
-sounds like what you want is already being tackled by OSDL and their Binary 
-Regression Testing group ...
-http://groups.osdl.org/apps/group_public/workgroup.php?wg_abbrev=binary_sig
-http://www.osdl.org/docs/isv_issues_and_binary_testing.pdf
--mike
+Nope, nobody has done that for v2.4 kernels. 
+
+Security fixes are included in v2.4-pre which is later shipped as v2.4.x final.
+
+If someone is willing to maintain a list of the upcomming security updates I'm more than
+happy to cooperate.
+
+

@@ -1,118 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267416AbUHJEM6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267423AbUHJEPZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267416AbUHJEM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 00:12:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267424AbUHJEM4
+	id S267423AbUHJEPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 00:15:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267422AbUHJEPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 00:12:56 -0400
-Received: from out003pub.verizon.net ([206.46.170.103]:22411 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S267422AbUHJEMP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 00:12:15 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: Possible dcache BUG
-Date: Tue, 10 Aug 2004 00:12:08 -0400
-User-Agent: KMail/1.6.82
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408081030.39051.gene.heskett@verizon.net> <20040808113930.24ae0273.akpm@osdl.org>
-In-Reply-To: <20040808113930.24ae0273.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Aug 2004 00:15:16 -0400
+Received: from ms-smtp-03-qfe0.socal.rr.com ([66.75.162.135]:53423 "EHLO
+	ms-smtp-03-eri0.socal.rr.com") by vger.kernel.org with ESMTP
+	id S267417AbUHJEPC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 00:15:02 -0400
+Date: Mon, 9 Aug 2004 13:58:39 -0700
+From: Andrew Vasquez <praka@pobox.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: 2.6.8-rc3-mm2:  Debug: sleeping function called from invalid context at mm/mempool.c:197
+Message-ID: <20040809205839.GA1439@praka.san.rr.com>
+Mail-Followup-To: Andrew Vasquez <praka@pobox.com>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+References: <B179AE41C1147041AA1121F44614F0B0DD03A6@AVEXCH02.qlogic.org> <411813F0.9020602@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="tThc/1wpZn/ma/RB"
 Content-Disposition: inline
-Message-Id: <200408100012.08945.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [141.153.76.4] at Mon, 9 Aug 2004 23:12:11 -0500
+In-Reply-To: <411813F0.9020602@us.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-Operating-System: Linux 2.4.21-202-athlon
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 08 August 2004 14:39, Andrew Morton wrote:
->Gene Heskett <gene.heskett@verizon.net> wrote:
->> On Thursday 05 August 2004 23:24, Linus Torvalds wrote:
->>
->> [...]
->>
->> >I'll commit the obvious one-liner fix, since it might explain
->> > _some_ problems people have seen.
->> >
->> >		Linus
->>
->> I had to reboot late last night, out of memory and things (like
->> mozilla (1.7.2) were dying, but nothing in the logs.
->
->Please wait for it to happen again, then send the contents of
->/proc/meminfo, /proc/slabinfo and then do
->
->	su
->	dmesg -c
->	echo m > /proc/sysrq-trigger
->	dmesg > foo
->
->and send foo as well.
 
-I just had to reboot again.  Top was showing about 50 megs free, and 
-there was about 60 megs in the swap.  Top wasn't showing anything 
-else of interest that I noted.
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I've been gone all day, a long day at that, 12 hours. We had another 
-blowup in the hi voltage at the tv transmitter, and we'll be sometime 
-tomorrow getting things back to normal there.  Its 40 years old, and 
-quite far up the far end of the "bathtub curve".
+On Mon, 09 Aug 2004, Janet Morgan wrote:
 
-I left about 10:15 and came back in about 22:30.  A friend had been 
-trying to reach me over an alsa problem, and I'd opened a shell and 
-was showing him how the new 2.6 modprobe.conf worked.  When we were 
-done, I hit a q to quit less, and (surprise) the whole shell went 
-away, and I could not start another shell, each attempt being 
-reported as an error 5 on the kickstart panel at the bottom of the 
-screen after the new window opened and reclosed in about 100 
-milliseconds per attempt.  I quit the top program to free that shell, 
-and thinking maybe I was being attacked, entered a 'w' at the prompt, 
-and that shell went away too, with the same error.  That left me with 
-the tail on the log, which at that point still wasn't showing me 
-anything but a samba restart I do once daily else it dies from a 
-profound lack of interest anyway.
+> Andrew Vasquez wrote:
+> 
+> >
+> >This allocation should be done with GFP_ATOMIC flags.  The attached 
+> >patch should apply cleanly to any recent kernel
+> >
+> > 
+> >
+> 
+> and seems to work fine.
+> 
 
-I right clicked on the screen and selected quit X.
+James,
 
-It quit, but then a trap error was reported.
 
-I typed "reboot" and the machine reported no more processes at this 
-run level and was then DOA, requireing a tap on the reset button to 
-bring it back to life.  On the subsequent e2fsck's, /dev/hda8 had 
-this error:
+I hope this patch can make it before 2.6.8, please apply.
 
-i_dir_acl for inode 654880 (/lib/local/ar_YE is 42752 but s/b zero.
 
-And then dropped me to a shell to run e2fsck without any options.  
-Which I did.  Eventually it asked me if I wanted to clear that inode, 
-so I answered 'y' and it finished without any other errors, but when 
-I did the ctl-d to reboot, it still wanted to do an e2fsck on 
-everything, which passed.  So now I'm rebooted, but without anything 
-of meaning (there is nothing in the logs) to report.  Any evidence of 
-the debacle is now gone.
 
-Also, during the reboot, I'm blind from "ok, booting the kernel" until 
-the line in something that sets the default font is executed, setting 
-it to "lat0_sun16" at which time I have readable info on the screen 
-again.  I don't recall seeing that particular font mentioned in a 
-make xconfig, so I've no idea how to make it use it from square one 
-so I can read the dmesg as it goes by the first time.  I have 
-iso-8859-1 compiled in, along with codepage 437 for US useage, with 
-everything else as modular.
+Thanks,
+Andrew Vasquez
 
-How can I fix this "blind" time?
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="mpool_alloc.diff"
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.24% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+===== drivers/scsi/qla2xxx/qla_os.c 1.39 vs edited =====
+--- 1.39/drivers/scsi/qla2xxx/qla_os.c	2004-07-12 09:54:49 -07:00
++++ edited/drivers/scsi/qla2xxx/qla_os.c	2004-08-09 16:48:29 -07:00
+@@ -3590,7 +3590,7 @@
+ {
+ 	srb_t *sp;
+ 
+-	sp = mempool_alloc(ha->srb_mempool, GFP_KERNEL);
++	sp = mempool_alloc(ha->srb_mempool, GFP_ATOMIC);
+ 	if (sp)
+ 		atomic_set(&sp->ref_count, 1);
+ 	return (sp);
+
+--tThc/1wpZn/ma/RB--

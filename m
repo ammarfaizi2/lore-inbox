@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262277AbUKQKOw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbUKQKVD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262277AbUKQKOw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 05:14:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbUKQKOw
+	id S261929AbUKQKVD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 05:21:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbUKQKVD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 05:14:52 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8895 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262280AbUKQKNa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 05:13:30 -0500
-Date: Wed, 17 Nov 2004 04:08:52 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Chris Ross <chris@tebibyte.org>, andrea@novell.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       piggin@cyberone.com.au, riel@redhat.com,
-       mmokrejs@ribosome.natur.cuni.cz, tglx@linutronix.de
-Subject: Re: [PATCH] fix spurious OOM kills
-Message-ID: <20041117060852.GB19107@logos.cnet>
-References: <4193E056.6070100@tebibyte.org> <4194EA45.90800@tebibyte.org> <20041113233740.GA4121@x30.random> <20041114094417.GC29267@logos.cnet> <20041114170339.GB13733@dualathlon.random> <20041114202155.GB2764@logos.cnet> <419A2B3A.80702@tebibyte.org> <419B14F9.7080204@tebibyte.org> <20041117012346.5bfdf7bc.akpm@osdl.org> <20041117060648.GA19107@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041117060648.GA19107@logos.cnet>
-User-Agent: Mutt/1.5.5.1i
+	Wed, 17 Nov 2004 05:21:03 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:63880 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261929AbUKQKU7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 05:20:59 -0500
+Date: Wed, 17 Nov 2004 11:20:55 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: martin f krafft <madduck@madduck.net>
+cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: about /proc/*/stat
+In-Reply-To: <20041117092847.GA961@cirrus.madduck.net>
+Message-ID: <Pine.LNX.4.53.0411171120320.13132@yvahk01.tjqt.qr>
+References: <20041117092847.GA961@cirrus.madduck.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 17, 2004 at 04:06:48AM -0200, Marcelo Tosatti wrote:
-> On Wed, Nov 17, 2004 at 01:23:46AM -0800, Andrew Morton wrote:
-> > Chris Ross <chris@tebibyte.org> wrote:
-> > >
-> > > As I suspected, like a recalcitrant teenager it was sneakily waiting 
-> > >  until everyone was out then it threw a wild party with several ooms and 
-> > >  an oops. See below...
-> > 
-> > That's not an oops - it's just a stack trace.
-> > 
-> > >  This, obviously is still without Kame's patch, just the same tree as 
-> > >  before with the one change you asked for.
-> > 
-> > Please ignore the previous patch and try the below.  It looks like Rik's
-> > analysis is correct: when the caller doesn't have the swap token it just
-> > cannot reclaim referenced pages and scans its way into an oom.  Defeating
-> > that logic when we've hit the highest scanning priority does seem to fix
-> > the problem and those nice qsbench numbers which the thrashing control gave
-> > us appear to be unaffected.
-> 
-> Oh, this fixes my testcase, and was the reason for the hog slow speed.
-> 
-> Excellent, wasted several days in vain. :(
+>If I look at /proc/meminfo, I see each number prefixed with a short
+>identifying name. Looking at /proc/*/stat, however, I have to count
+>fields to get to the field I want. I realise that it's probably not
+>possible to change the format of this file (since it's read by
+>ps(1), among others), but I wonder if you have any tools that parse
+>it, similar to /proc/meminfo -- i.e. primarily for debugging?
 
-Before the swap token patches went in you remember spurious OOM reports  
-or things were working fine then?
+fscanf(fp, "%d %d %d ... ", &status, &anotherthing,....)
+
+
+
+
+Jan Engelhardt
+-- 
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271591AbTGQWRa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 18:17:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271583AbTGQWQd
+	id S271593AbTGQWUy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 18:20:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271578AbTGQWTm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 18:16:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:34434 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271585AbTGQWPj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 18:15:39 -0400
-Date: Thu, 17 Jul 2003 15:28:19 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: asm (lidt) question
-Message-Id: <20030717152819.66cfdbaf.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 17 Jul 2003 18:19:42 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:44809 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S271597AbTGQWSJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 18:18:09 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Mike Fedyk <mfedyk@matchmail.com>
+Subject: Re: 2.4.22pre6aa1
+Date: Fri, 18 Jul 2003 00:32:53 +0200
+User-Agent: KMail/1.5.2
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+       Chris Mason <mason@suse.com>
+References: <20030717102857.GA1855@dualathlon.random> <200307180013.38078.m.c.p@wolk-project.de> <20030717222722.GC2289@matchmail.com>
+In-Reply-To: <20030717222722.GC2289@matchmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307180032.53856.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 18 July 2003 00:27, Mike Fedyk wrote:
 
-In arch/i386/kernel, inline asm for loading IDT (lidt) is used a few
-times, but with slightly different constraints and output/input
-definitions.  Are these OK, equivalent, or what?
+Hi Mike,
 
-[rddunlap@dragon kernel]$ findc lidt
-./cpu/common.c:484: __asm__ __volatile__("lidt %0": "=m" (idt_descr));
-./traps.c:783:	__asm__ __volatile__("lidt %0": "=m" (idt_descr));
+> Can you try a stock -pre kernel, say pre[256], and see where the additional
+> time starts?
+Sure. Well, but I expect the behaviour starts with -pre3.
 
-vs.
+Anyway, I'll test.
 
-./reboot.c:186:	__asm__ __volatile__ ("lidt %0" : : "m" (real_mode_idt));
-./reboot.c:261:	__asm__ __volatile__("lidt %0": :"m" (no_idt));
-./suspend.c:95:	asm volatile ("lidt %0" :: "m" (saved_context.idt_limit));
+ciao, Marc
 
-
-Thanks,
---
-~Randy  [yes, i've looked at the inline asm docs]
-For Linux-2.6:
-http://www.codemonkey.org.uk/post-halloween-2.5.txt
-  or http://lwn.net/Articles/39901/
-http://www.kernel.org/pub/linux/kernel/people/rusty/modules/

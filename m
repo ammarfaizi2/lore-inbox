@@ -1,53 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131640AbQLPLqu>; Sat, 16 Dec 2000 06:46:50 -0500
+	id <S131622AbQLPLq7>; Sat, 16 Dec 2000 06:46:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131622AbQLPLq3>; Sat, 16 Dec 2000 06:46:29 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:44779 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S131043AbQLPLqT>;
-	Sat, 16 Dec 2000 06:46:19 -0500
-Date: Sat, 16 Dec 2000 06:15:51 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-cc: Linus Torvalds <torvalds@transmeta.com>, Kurt Garloff <garloff@suse.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: TIOCGDEV ioctl
-In-Reply-To: <20001216114645.A8944@cistron.nl>
-Message-ID: <Pine.GSO.4.21.0012160550240.15518-100000@weyl.math.psu.edu>
+	id <S131751AbQLPLqu>; Sat, 16 Dec 2000 06:46:50 -0500
+Received: from [216.136.129.111] ([216.136.129.111]:55047 "HELO
+	web9405.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S131043AbQLPLqa>; Sat, 16 Dec 2000 06:46:30 -0500
+Message-ID: <20001216111603.16690.qmail@web9405.mail.yahoo.com>
+Date: Sat, 16 Dec 2000 03:16:03 -0800 (PST)
+From: Lee Reynolds <kelticman1972@yahoo.com>
+Subject: RTC interrupts on i386, errata ;)
+To: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sorry for using the term RTC to refer to the timer on
+IRQ 0.  In case anyone was wondering I didn't mean the
+IRQ 8.  Thanks to the people who cleared this up for
+me.
 
+Lee Reynolds
 
-On Sat, 16 Dec 2000, Miquel van Smoorenburg wrote:
-
-> There is currently no way to find out with what device /dev/console
-> is associated.
-> 
-> Why is that needed? For example, I wrote a program 'bootlogd' that opens
-> /dev/console and a pty pair, uses TIOCCONS to redirect console
-> messages to the pty pair so they can be logged. However one would
-> like to write those messages to the _actual_ console as well, but
-> there is no way to find out what the real console is.
-> 
-> For this application a ioctl is better than a /proc symlink since
-> it would be started before /proc is even mounted.
-
-So mount it... It's not like you didn't have enough privileges for that,
-after all, and mount("proc", "/proc", "proc", 0, 0); doesn't look too
-complex.
-
-OK, I can see the point of finding out where the console is redirected
-to. How about the following:
-
-	/proc/sys/vc -> /dev/tty<n>
-	/proc/sys/console -> where the hell did we redirect it or
-			     vc if there's no redirect right now
-Will that be OK with you?
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Shopping - Thousands of Stores. Millions of Products.
+http://shopping.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

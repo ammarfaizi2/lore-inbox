@@ -1,70 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267097AbSLDV0G>; Wed, 4 Dec 2002 16:26:06 -0500
+	id <S267105AbSLDVlH>; Wed, 4 Dec 2002 16:41:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267101AbSLDV0G>; Wed, 4 Dec 2002 16:26:06 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:9708 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S267097AbSLDV0F>; Wed, 4 Dec 2002 16:26:05 -0500
-Date: Wed, 4 Dec 2002 22:33:25 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "George G. Davis" <davis_g@attbi.com>
-Cc: Jim Van Zandt <jrv@vanzandt.mv.com>, device@lanana.org,
-       linux-kernel@vger.kernel.org
-Subject: Why does the _DoubleTalk card_ not have a major assigned?
-Message-ID: <20021204213325.GG2544@fs.tum.de>
-References: <20021204205525.GE2544@fs.tum.de> <3DEE70C4.5D74A8B3@attbi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DEE70C4.5D74A8B3@attbi.com>
-User-Agent: Mutt/1.4i
+	id <S267107AbSLDVlH>; Wed, 4 Dec 2002 16:41:07 -0500
+Received: from pintail.mail.pas.earthlink.net ([207.217.120.122]:55691 "EHLO
+	pintail.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S267105AbSLDVlG>; Wed, 4 Dec 2002 16:41:06 -0500
+Date: Wed, 4 Dec 2002 14:41:17 -0800 (PST)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Dominique Arpin <dominique@espacecourbe.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: tridentfb.c error kernel 2.5.50
+In-Reply-To: <34053.192.168.1.21.1038580281.squirrel@courriel.espacecourbe.com>
+Message-ID: <Pine.LNX.4.33.0212041440500.1533-100000@maxwell.earthlink.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 04, 2002 at 04:16:52PM -0500, George G. Davis wrote:
-> Adrian Bunk wrote:
-> > Perhaps it's a silly question but I'd like to know why it is the way it
-> > is:
-> > 
-> > The 2.2, 2.4 and 2.5 kernels include a driver for the Comtrol Rocketport
-> > card (drivers/char/dtlk.c) which uses a local major (it does a
-> >   "register_chrdev(0, "dtlk", &dtlk_fops);
-> > ). Is there a reason why it doesn't have a fixed major assigned?
-> 
-> Huh?:
-> 
-> 	dtlk.c - DoubleTalk PC driver for Linux
-> 
-> That doesn't look like the Comtrol Rocketport (drivers/char/rocket.c)
-> driver to me. : )
 
-I was thinking about something else related to the Comtrol Rocketport 
-when writing my mail, and I mixed the two things...  :-(
+>            i have some problem to compile the tridentfd driver on the
+>            Kernel 2.5.50.I'm not sure this is the right mailinglist to submit my problem, but if u
+> can help me.This problem doesnt appear on the 2.4.19 kernel. Did I miss something?
 
-Please do a s/Comtrol Rocketport/DoubleTalk/g in my initial mail.
+The framebuffer api has changed. A port of the driver will be done in the
+next few releases.
 
-> Meanwhile 2.4.19 Documentation/devices.txt shows:
-> 
->  46 char        Comtrol Rocketport serial card
->                   0 = /dev/ttyR0        First Rocketport port
->                   1 = /dev/ttyR1        Second Rocketport port
->                     ...
-
-This is indeed true for the Comtrol Rocketport card but there's no
-major for the DoubleTalk card (and this is the card I wanted to write
-about).
-
-> Regards,
-> George
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265300AbSJaUqE>; Thu, 31 Oct 2002 15:46:04 -0500
+	id <S262811AbSJaU4m>; Thu, 31 Oct 2002 15:56:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265303AbSJaUqE>; Thu, 31 Oct 2002 15:46:04 -0500
-Received: from excalibur.cc.purdue.edu ([128.210.189.22]:49426 "EHLO
-	ibm-ps850.purdueriots.com") by vger.kernel.org with ESMTP
-	id <S265300AbSJaUqD>; Thu, 31 Oct 2002 15:46:03 -0500
-Date: Thu, 31 Oct 2002 15:54:02 -0500 (EST)
-From: Patrick Finnegan <pat@purdueriots.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andreas Herrmann <AHERRMAN@de.ibm.com>, <linux-kernel@vger.kernel.org>,
-       <lkcd-devel@lists.sourceforge.net>,
-       <lkcd-devel-admin@lists.sourceforge.net>,
-       <lkcd-general@lists.sourceforge.net>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       "Matt D. Robinson" <yakker@aparity.com>
-Subject: Re: [lkcd-devel] Re: What's left over.
-In-Reply-To: <Pine.LNX.4.44.0210311239430.2334-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0210311548120.9552-100000@ibm-ps850.purdueriots.com>
+	id <S262906AbSJaU4m>; Thu, 31 Oct 2002 15:56:42 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8714 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262811AbSJaU4l>;
+	Thu, 31 Oct 2002 15:56:41 -0500
+Message-ID: <3DC19A4C.40908@pobox.com>
+Date: Thu, 31 Oct 2002 16:02:04 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
+Subject: Re: What's left over.
+References: <Pine.LNX.4.44.0210310918260.1410-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Oct 2002, Linus Torvalds wrote:
+Linus Torvalds wrote:
 
-> On Thu, 31 Oct 2002, Andreas Herrmann wrote:
-> >
-> > A dump mechanism within the kernel is a base for much easier
-> > kernel debugging.
-> > IMHO, analyzing a dump is much more effective than guessing
-> > a kernel bug solely with help of an oops message.
+>	In particular when it comes to this project, I'm told about
+>	"netdump", which doesn't try to dump to a disk, but over the net.
+>	And quite frankly, my immediate reaction is to say "Hell, I
+>	_never_ want the dump touching my disk, but over the network
+>	sounds like a great idea".
+>  
 >
-> And imnsho, debugging the kernel on a source level is the way to do it.
->
-> Which is why it's not going to be me who merges it.
 
-But, LKCD is useful also for tracing crashes back to hardware that causes
-it.  It's really hard to find problems in hardware using source code,
-since the source code DOENS'T have anything to do with the problems.
+[yes, I realize the LKCD merge debate is over, bear with me :)]
 
-Pat
---
-Purdue Universtiy ITAP/RCS
-Information Technology at Purdue
-Research Computing and Storage
-http://www-rcd.cc.purdue.edu
+I'm sort of in the middle on this issue:  The existence of netdump does 
+not imply that disk dumps are a bad thing.
 
-http://dilbert.com/comics/dilbert/archive/images/dilbert2040637020924.gif
+netdumps require a net dump server, and it is simply not realistic at 
+all to assume that users seeing crashes will always have a netdump 
+server set up in advance, or even have multiple machines to make that 
+possible.  Disk dumps are valuable because their requirements are very 
+low, and because of all the user-support reasons that Andrew Morton 
+mentioned in this thread.
+
+That said, I used to be an LKCD cheerleader until a couple people made 
+some good points to me:  it is not nearly low-level enough to truly be 
+of use in crash situations.  netdump can work if your interrupts are 
+hosed/screaming, and various mid-layers are dying.  For LKCD to be of 
+any use, it needs to _skip_ the block layer and talk directly to 
+low-level drivers.
+
+So, I think the stock kernel does need some form of disk dumping, 
+regardless of any presence/absence of netdump.  But LKCD isn't there yet...
+
+    Jeff
 
 
 

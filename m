@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277123AbRJ0VJr>; Sat, 27 Oct 2001 17:09:47 -0400
+	id <S277176AbRJ0VN1>; Sat, 27 Oct 2001 17:13:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277135AbRJ0VJi>; Sat, 27 Oct 2001 17:09:38 -0400
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:47114 "EHLO
-	localhost") by vger.kernel.org with ESMTP id <S277123AbRJ0VJ3>;
-	Sat, 27 Oct 2001 17:09:29 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ryan Cumming <bodnar42@phalynx.dhs.org>
-To: Alexander Viro <viro@math.psu.edu>
-Subject: Re: more devfs fun (Piled Higher and Deeper)
-Date: Sat, 27 Oct 2001 14:09:45 -0700
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <Pine.GSO.4.21.0110271558430.21545-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0110271558430.21545-100000@weyl.math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
+	id <S277135AbRJ0VNZ>; Sat, 27 Oct 2001 17:13:25 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:31249 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S277183AbRJ0VLB>;
+	Sat, 27 Oct 2001 17:11:01 -0400
+Date: Sat, 27 Oct 2001 18:51:35 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Igor Mozetic <igor.mozetic@uni-mb.si>, <linux-kernel@vger.kernel.org>
+Subject: Re: Any stable 2.4 kernel?
+In-Reply-To: <E15xVZh-0003an-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33L.0110271851130.32445-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15xaiJ-0001Na-00@localhost>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On October 27, 2001 13:06, Alexander Viro wrote:
-> Do you ever read your own code?  It's not like this stuff was hard
-> to find - I'm just poking into random places and every damn one
-> contains a hole.  Sigh...
+On Sat, 27 Oct 2001, Alan Cox wrote:
 
-It might be more productive to provide patches or at least generate 
-constructive ideas as how to fix these problems, as you are obviously quite 
-capable of doing so. Digging through the code and sending a new email to this 
-list for every few flaws you find is doing little good, and your personal 
-attacks on the maintainer are even less benefical. Cooperation will get you a 
-lot farther than conflict.
+> The 440GX problems we've seen have been incorrect IRQ routing and related
+> problems that generally screw you right from boot up. In that sense the
+> 440GX boards are sometimes "winputers" rather than PC compatibles.
+>
+> It doesn't fit the random crash report
 
--Ryan
+Urghhh, should learn not to respond to stuff I haven't
+had the time to research ;)
+
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

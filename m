@@ -1,45 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282497AbRLSTC4>; Wed, 19 Dec 2001 14:02:56 -0500
+	id <S282502AbRLSTH0>; Wed, 19 Dec 2001 14:07:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282495AbRLSTCh>; Wed, 19 Dec 2001 14:02:37 -0500
-Received: from pintail.mail.pas.earthlink.net ([207.217.120.122]:47855 "EHLO
-	pintail.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S282497AbRLSTCd>; Wed, 19 Dec 2001 14:02:33 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Eli <eli@pflash.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x WinBookXL mouse & keyboard freeze
-Date: Wed, 19 Dec 2001 12:54:43 -0600
-X-Mailer: KMail [version 1.3.1]
-Cc: eli@pflash.com, arjanv@redhat.com
+	id <S283724AbRLSTHQ>; Wed, 19 Dec 2001 14:07:16 -0500
+Received: from p0508.as-l043.contactel.cz ([194.108.243.254]:9732 "EHLO devix")
+	by vger.kernel.org with ESMTP id <S282502AbRLSTHJ>;
+	Wed, 19 Dec 2001 14:07:09 -0500
+Date: Wed, 19 Dec 2001 19:55:19 +0100 (CET)
+From: devik <devik@cdi.cz>
+X-X-Sender: <devik@devix>
+To: <linux-kernel@vger.kernel.org>
+Subject: gcc 3.0.2/kernel details (-O issue)
+Message-ID: <Pine.LNX.4.33.0112191508060.2688-100000@devix>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Glz1-0005mt-00@pintail.mail.pas.earthlink.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 19 December 2001 12:33 pm, Eli wrote:
-> When running any 2.4.x kernel, if gpm is running, touching the mouse ends
-> all keyboard input.  Starting X without touching the mouse does the same
-> thing. The mouse in this case is the built-in trackpad thing common in
-> notebooks. 2.2.x works just fine.
->
-> I don't know quite where to start on this... I've tried changing gpm
-> configuration, but that doesn't seem to help.
-> (I'm running RedHat 7.2.)
->
-> Any ideas on where I should start looking?
+Hello,
+just another crash report. But interesting one IMHO.
+When I compile 2.3.16/SMP with gcc 3.0.2 then it works.
+But when I changed -O2 to -O (compile speed reasons)
+the compilation succeeded but kernel crashed during
+boot (in sys_sigreturn).
 
-Ok, I found discussion of this bug here:
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=37812
+devik
 
-I'll start playing with some of the ideas listed, but I don't see a good 
-conclusion on it.  What kind of a fix would be accepted into the mainline?
 
-TIA,
-
-Eli
----------------.
-Eli Carter      \
-eli(a)pflash.com `-------------------------------------------------------

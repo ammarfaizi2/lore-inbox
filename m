@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289085AbSANWFe>; Mon, 14 Jan 2002 17:05:34 -0500
+	id <S289086AbSANWIE>; Mon, 14 Jan 2002 17:08:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289086AbSANWFY>; Mon, 14 Jan 2002 17:05:24 -0500
-Received: from a178d15hel.dial.kolumbus.fi ([212.54.8.178]:51385 "EHLO
-	porkkala.jlaako.pp.fi") by vger.kernel.org with ESMTP
-	id <S289085AbSANWFJ>; Mon, 14 Jan 2002 17:05:09 -0500
-Message-ID: <3C4355AE.5676F0F3@kolumbus.fi>
-Date: Tue, 15 Jan 2002 00:03:26 +0200
-From: Jussi Laako <jussi.laako@kolumbus.fi>
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
+	id <S289088AbSANWHy>; Mon, 14 Jan 2002 17:07:54 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50447 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289086AbSANWHn>;
+	Mon, 14 Jan 2002 17:07:43 -0500
+Message-ID: <3C4356A9.367BC989@mandrakesoft.com>
+Date: Mon, 14 Jan 2002 17:07:37 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.2-pre9fs7 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Stephan von Krawczynski <skraw@ithnet.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <200201140033.BAA04292@webserver.ithnet.com>
-		<E16PvKx-00005L-00@the-village.bc.nu> <20020114104532.59950d86.skraw@ithnet.com>
+To: esr@thyrsus.com
+CC: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the 
+ elegant solution)
+In-Reply-To: <20020114132618.G14747@thyrsus.com> <m16QCNJ-000OVeC@amadeus.home.nl> <20020114145035.E17522@thyrsus.com> <20020114213732.M15139@suse.de> <20020114153844.A20537@thyrsus.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski wrote:
-> 
-> Just a short question: the last (add-on) patch to mini-ll I saw on the 
+"Eric S. Raymond" wrote:
+> Right now, neither lsmod nor the boot time messages  necessarily give you that
+> information.  lsmod only works if the driver is in fact a module.  My
+> /var/log/dmesg contains no message from the NIC on my motherboard.  And
+> going from the driver to the config symbol isn't trivial even if you *have*
+> the lsmod or dmesg information.
 
-It was for full-ll, not for mini-ll.
+For network cards one needs only to issue the ETHTOOL_GDRVINFO ioctl to
+find out what hardware is associated with an ethernet interface.
 
-> patches: drivers/net/3c59x.c
-> drivers/net/8139too.c
-> drivers/net/eepro100.c
-> 
-> Unfortunately me have neither of those. This would mean I cannot benefit 
-> from _these_ patches, but instead would need _others_ (like tulip or
-> name-one-of-the-rest-of-the-drivers) to see _some_ effect you tell me I
-> _should_ see (I currently see _none_). How do you argue then against the
-> statement: we need patches for /drivers/net/*.c ?? I do not expect 
-> 3c59x.c to be particularly bad in comparison to tulip/*.c or lets say 
-> via-rhine.c, do you?
+	Jeff
 
-I also checked the tulip driver (which is the one I use at home) and didn't
-find need for "fixing" there. I will definitely take a closer look at that
-driver in future.
-
-WLAN drivers seem to need some hacking, but I'm not very interested in that
-area. I think WLAN is one big security hole that noone should be using...
-
-
- - Jussi Laako
 
 -- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
-
+Jeff Garzik      | Alternate titles for LOTR:
+Building 1024    | Fast Times at Uruk-Hai
+MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
+                 | Samwise Gamgee: International Hobbit of Mystery

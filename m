@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281861AbRK1LMo>; Wed, 28 Nov 2001 06:12:44 -0500
+	id <S281880AbRK1L1t>; Wed, 28 Nov 2001 06:27:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281880AbRK1LMe>; Wed, 28 Nov 2001 06:12:34 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:48136 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S281861AbRK1LMa>; Wed, 28 Nov 2001 06:12:30 -0500
-Message-ID: <3C04C65D.5614D04A@idb.hist.no>
-Date: Wed, 28 Nov 2001 12:11:25 +0100
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.1-pre1 i686)
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: Mark Richards <richard@ecf.utoronto.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Multiplexing filesystem
-In-Reply-To: <3C030FB4.C3303BE4@ecf.utoronto.ca> <3C036A83.F23E6EBE@idb.hist.no> <3C03A702.EBE823C9@ecf.utoronto.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S282079AbRK1L1i>; Wed, 28 Nov 2001 06:27:38 -0500
+Received: from vti01.vertis.nl ([145.66.4.26]:33553 "EHLO vti01.vertis.nl")
+	by vger.kernel.org with ESMTP id <S281880AbRK1L1Y>;
+	Wed, 28 Nov 2001 06:27:24 -0500
+Date: Wed, 28 Nov 2001 12:26:51 +0100
+From: Rolf Fokkens <fokkensr@linux06.vertis.nl>
+Message-Id: <200111281126.MAA13610@linux06.vertis.nl>
+To: linux-kernel@vger.kernel.org
+Subject: ip_queue_xmit2 inconsistency regarding skb->sk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Richards wrote:
-[...]
-> I'll look into Coda, but ideally I wouldn't have to copy each file to the local
-> workstation when I use it, only when it is reserved for editing.  Also, I'd like to
-> be able to store the local copy anywhere on the filesystem, if possible.
+Hi!
 
-Worried your drive will fill up?  The files copied to your
-drive is merely copied as a "caching" operation.  They
-still seem to reside at the server - this is totally transparent.
-And of course you can limit this caching - if too many files
-is cached some is simply thrown away.  (Or sent back
-if they were changed.) They will be re-
-loaded automatically if you ever need them again.
+I posted a kernel oops related to netfilter/REDIRECT. It seems like 
+ip_queue_xmit2 crashes on (skb->sk == NULL) in calling
 
-If you really want to store them where you want instead of
-transparent access, why bother with a new FS at all?
-(I believe coda lets you specify where the caching
-will happen, if you have several partitions/drives)
+    ip_dont_fragment(sk, &rt->u.dst) 
 
-Simply run a script that reserves the file (by using
-the permission system) and *copy* it to
-where you want.  Check-in will consist of copying
-the altered file back, and restore normal permissions.
+which can't handle the (sk == NULL) situation. Of course there is the matter of
+why (sk == NULL) in the first place. Haven't figured that out yet, nf_hook_slow
+may cause do this somehow.
 
-You might even want to run a system like CVS, unless
-there is some special reason for not doing that.
+The other matter however is wether or not ip_queue_xmit2 should be able to 
+handle the (skb->sk == NULL) situation. The code is not consistent on that
+subject.
 
-Helge Hafting
+It seems like the if statement:
+
+    if (skb_headroom(skb) < dev->hard_header_len && dev->hard_header) {
+
+handles the (sk == NULL) situation, given the line "if (sk)". Other parts of
+ip_queue_xmit2 seem to assume (sk != NULL), like the ip_dont_fragment call
+or lines like "skb->priority = sk->priority".
+
+OK, this is not the answer on the why of the kernel oops. I hope however that
+this question is related and helps in finding the answer
+
+Rolf

@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266888AbUIJK1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267235AbUIJK3l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266888AbUIJK1U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 06:27:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267234AbUIJK1U
+	id S267235AbUIJK3l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 06:29:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267234AbUIJK3l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 06:27:20 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24070 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266888AbUIJK1S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 06:27:18 -0400
-Date: Fri, 10 Sep 2004 11:27:07 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: arjanv@redhat.com, Chris Wedgwood <cw@f00f.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
+	Fri, 10 Sep 2004 06:29:41 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:62638 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267235AbUIJK3S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 06:29:18 -0400
 Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-Message-ID: <20040910112706.C22599@flint.arm.linux.org.uk>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, arjanv@redhat.com,
-	Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
-	Christoph Hellwig <hch@infradead.org>
-References: <20040909232532.GA13572@taniwha.stupidest.org> <1094798428.2800.3.camel@laptop.fenrus.com> <1094807650.17041.3.camel@localhost.localdomain>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@infradead.org>
+In-Reply-To: <20040909232532.GA13572@taniwha.stupidest.org>
+References: <20040909232532.GA13572@taniwha.stupidest.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094808406.17029.12.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1094807650.17041.3.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Fri, Sep 10, 2004 at 10:14:11AM +0100
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 10 Sep 2004 10:27:00 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 10, 2004 at 10:14:11AM +0100, Alan Cox wrote:
-> On Gwe, 2004-09-10 at 07:40, Arjan van de Ven wrote:
-> > Well I always assumed the future plan was to remove 8k stacks entirely;
-> > 4k+irqstacks and 8k basically have near comparable stack space, with
-> > this patch you create an option that has more but that is/should be
-> > deprecated. I'm not convinced that's a good idea.
-> 
-> Its probably appropriate to drop gcc 2.x support at that point too since
-> it's the major cause of remaining problems
+On Gwe, 2004-09-10 at 00:25, Chris Wedgwood wrote:
+> Right now CONFIG_4KSTACKS implies IRQ-stacks.  Some people though
+> really need 8K stacks and it would be nice to have IRQ-stacks for them
+> too.
 
-I have no problem with that - gcc 3.3 on ARM has proven itself (to me
-at least) be a stable compiler so I'm not using anything older than
-that.
+This is a lot of added code and complexity that does nothing. In
+8K stack mode without IRQ stacks you already can only safely use 4K.
+So any code that is broken in 4K stack mode is broken in the current
+8K stack mode although it'll fail less often since the failure will
+depend upon random IRQ/other timings.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+8K + IRQ stacks is just making the stacks bigger (which is expensive)
+and stressing the vm more. Fix the broken code instead, or just stop
+supporting gcc 2.9x which will fix most of it for you
+

@@ -1,73 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265166AbSKEXt2>; Tue, 5 Nov 2002 18:49:28 -0500
+	id <S265154AbSKEXwu>; Tue, 5 Nov 2002 18:52:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265164AbSKEXt1>; Tue, 5 Nov 2002 18:49:27 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:43719 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S265161AbSKEXt0> convert rfc822-to-8bit; Tue, 5 Nov 2002 18:49:26 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <cfriesen@nortelnetworks.com>, Oliver Xymoron <oxymoron@waste.org>
-CC: Alexander Viro <viro@math.psu.edu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.63 (1077) - Licensed Version
-Date: Tue, 5 Nov 2002 15:55:57 -0800
-In-Reply-To: <3DBECD3F.2080204@nortelnetworks.com>
-Subject: Re: Entropy from disks
+	id <S265162AbSKEXwu>; Tue, 5 Nov 2002 18:52:50 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:34711 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265154AbSKEXwt>; Tue, 5 Nov 2002 18:52:49 -0500
+Subject: Re: [Evms-announce] EVMS announcement
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mike Diehl <mdiehl@dominion.dyndns.org>
+Cc: Kevin Corry <corryk@us.ibm.com>, evms-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021105215100.E927E51CF@dominion.dyndns.org>
+References: <02110516191004.07074@boiler>
+	<20021105214012.C2B4651CF@dominion.dyndns.org> 
+	<20021105215100.E927E51CF@dominion.dyndns.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 Nov 2002 00:21:20 +0000
+Message-Id: <1036542080.7386.24.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20021105235601.AAA26869@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2002-11-05 at 21:11, Mike Diehl wrote:
+> The biggest thing that EVMS had going for it was it's modular design.  As I 
+> understand it, EVMS could even be used to manage the current MD and LVM 
+> drivers.  I was looking forward to partition-level encryption, etc.  
 
-On Tue, 29 Oct 2002 13:02:39 -0500, Chris Friesen wrote:
->Oliver Xymoron wrote:
+Thats a seperate issue in the pile. You might want to do things like
 
->I'm not an expert in this field, so bear with me if I make any blunders
->obvious to one trained in information theory.
+			lvm2 volumes
+                             |
+                           RAID-5
+                       /  |  \   \
+                    4 encrypted volumes with different keys
+                       |      |         |        |
+                             4 NBD disk volumes over TCP
+			    (or 4 iSCSI volumes)
 
->>The current Linux PRNG is playing fast and loose here, adding entropy
->>based on the resolution of the TSC, while the physical turbulence
->>processes that actually produce entropy are happening at a scale of
->>seconds. On a GHz processor, if it takes 4 microseconds to return a
->>disk result from on-disk cache, /dev/random will get a 12-bit credit.
+                     4 physical disks in different jurisdictions
 
->In the paper the accuracy of measurement is 1ms.  Current hardware has
->tsc precision of nanoseconds, or about 6 orders of magnitude more
->accuracy.  Doesn't this mean that we can pump in many more bits into the
->algorithm and get out many more than the 100bits/min that the setup in
->the paper acheives?
 
-	In theory, if there's any real physical randomness in a timing source, the 
-more accuracy you measure the timing to, the more bits you get.
+(and the physical disks or iscsi volumes might in fact be over lvm2 on
+the othe end - its all a lot more modular than just volume management at
+least at the kernel level - tools is different)
 
->>My entropy patches had each entropy source (not just disks) allocate
->>its own state object, and declare its timing "granularity".
->
->Is it that straightforward? In the paper they go through a number of
->stages designed to remove correlated data.  From what I remember of the
->linux prng disk-related stuff it is not that sophisticated.
-
-	It does't matter. Any processing you do on data that may contain randomness 
-can only remove the randomness from it. There is no deterministic processing 
-method that can increase the randomness of a sample, only concentrate it in 
-fewer bits.
-
->>There's a further problem with disk timing samples that make them less
->>than useful in typical headless server use (ie where it matters): the
->>server does its best to reveal disk latency to clients, easily
->>measurable within the auto-correlating domain of disk turbulence.
-
->If this is truly a concern, what about having a separate disk used for
->nothing but generating randomness?
-
-	Or just delay by one extra clock cycle if the TSC is odd. This will make the 
-LSB of the TSC totally opaque at a negligible cost. One perfect bit per disk 
-access is enough for most reasonable applications that really only needed 
-cryptographically-secure randomness to begin with.
-
-	DS
 
 

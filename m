@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310795AbSCHK0V>; Fri, 8 Mar 2002 05:26:21 -0500
+	id <S310803AbSCHKnJ>; Fri, 8 Mar 2002 05:43:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310797AbSCHK0L>; Fri, 8 Mar 2002 05:26:11 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:13552 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S310795AbSCHKZ6>; Fri, 8 Mar 2002 05:25:58 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20020308094918.A16358@flint.arm.linux.org.uk> 
-In-Reply-To: <20020308094918.A16358@flint.arm.linux.org.uk>  <11E89240C407D311958800A0C9ACF7D13A76E4@EXCHANGE> 
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Ed Vance <EdV@macrolink.com>, "'Bill Nottingham'" <notting@redhat.com>,
-        "'linux-serial'" <linux-serial@vger.kernel.org>,
-        "'linux-kernel'" <linux-kernel@vger.kernel.org>,
-        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] serial.c procfs kudzu - discussion 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 08 Mar 2002 10:25:47 +0000
-Message-ID: <7997.1015583147@redhat.com>
+	id <S310804AbSCHKnA>; Fri, 8 Mar 2002 05:43:00 -0500
+Received: from mgw-x2.nokia.com ([131.228.20.22]:63177 "EHLO mgw-x2.nokia.com")
+	by vger.kernel.org with ESMTP id <S310803AbSCHKmx>;
+	Fri, 8 Mar 2002 05:42:53 -0500
+Message-ID: <3C8895A9.9090705@nokia.com>
+Date: Fri, 08 Mar 2002 12:42:49 +0200
+From: Marko Kohtala <Marko.Kohtala@nokia.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: fi, en
+MIME-Version: 1.0
+To: dalecki@evision-ventures.com
+CC: linux-kernel@vger.kernel.org
+Subject: RE: Removable IDE devices problem
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Mar 2002 10:42:49.0894 (UTC) FILETIME=[FE1AC460:01C1C68D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ > Your analysis of the problem is entierly right, since the current
+ > kernel behaviour for removable media is supposed to work for
+ > floppies (never get this thing out of your computer
+ > as long as long the diode blinks) or read only media where it doesn't
+ > really matter. However I still don't see a good way to
+ > resolve this issue. (Maybe just adding buffer cache flush before
+ > going into the check_media_change business of "grocking" partitions
+ > would be sufficient...
 
-rmk@arm.linux.org.uk said:
->  I think there are two bugs here that need treating in different ways.
-> 
+But there is ide-floppy and ide-cd with their own media_check functions.
 
-Don't forget the fact that non-existent ports are visible, you can open 
-their device nodes, etc. That's just screwed. 
+I'm thinking about ignoring the removable bit, at least when the device 
+does not have door lock. What would be hurt by it?
 
---
-dwmw2
+P.S. Sorry for the previous mail with long lines. I should know better 
+than using Outlook...
 
 

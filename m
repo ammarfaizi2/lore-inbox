@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262998AbTDNNIb (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 09:08:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263009AbTDNNIb (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 09:08:31 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:37817
+	id S262996AbTDNNNc (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 09:13:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263009AbTDNNNc (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 09:13:32 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:41145
 	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262998AbTDNNIa (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 09:08:30 -0400
-Subject: Re: [PATCH] M68k IDE updates
+	id S262996AbTDNNNa (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 09:13:30 -0400
+Subject: Re: Linux on Unisys Aquanta HR/6 ?
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0304141037410.28305-100000@vervain.sonytel.be>
-References: <Pine.GSO.4.21.0304141037410.28305-100000@vervain.sonytel.be>
+To: Meelis Roos <mroos@linux.ee>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.44.0304141114040.12734-100000@math.ut.ee>
+References: <Pine.GSO.4.44.0304141114040.12734-100000@math.ut.ee>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1050322915.25353.38.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1050323228.25353.46.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 Apr 2003 13:21:56 +0100
+Date: 14 Apr 2003 13:27:09 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-04-14 at 09:39, Geert Uytterhoeven wrote:
-> Indeed. Ataris and Q40/Q60s have byteswapped IDE busses, but they expect
-> on-disk data to be that way, for compatibility with e.g. TOS.
+On Llu, 2003-04-14 at 09:20, Meelis Roos wrote:
+> Has anyone had any sucess running Linux on Unisys Aquanta HR/6 (or HR/6U
+> if that matters)? This is a up to 6-way PPro SMP machine,
+> http://www.unimetrix.com/hr6.html is the best description I have.
 
-That is a higher level problem. You need a byteswap mode for the loop device
-it seems. Then you can read atari disks on any box..
+I can't help thinking a single AMD duron would outrun it. 
 
+For Linux support the big thing you need to know is if the system
+is "Intel MP 1.1/1.4 compliant".  A lot of the ppro boxes were,
+but 6 ways can be a bit strange (the ALR 6x6 does work )
 

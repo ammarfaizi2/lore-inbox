@@ -1,132 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbVARTWd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbVARTaX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261400AbVARTWd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 14:22:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVARTWd
+	id S261401AbVARTaX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 14:30:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbVARTaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 14:22:33 -0500
-Received: from fw.osdl.org ([65.172.181.6]:31212 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261400AbVARTWX (ORCPT
+	Tue, 18 Jan 2005 14:30:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:59780 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261401AbVARTaQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 14:22:23 -0500
-Date: Tue, 18 Jan 2005 11:22:20 -0800
+	Tue, 18 Jan 2005 14:30:16 -0500
+Date: Tue, 18 Jan 2005 11:30:07 -0800
 From: Chris Wright <chrisw@osdl.org>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Andi Kleen <ak@muc.de>, akpm@osdl.org, hch@infradead.org,
-       linux-kernel@vger.kernel.org, chrisw@osdl.org, davem@davemloft.net
-Subject: Re: [PATCH 1/5] compat_ioctl call seems to miss a security hook
-Message-ID: <20050118112220.X24171@build.pdx.osdl.net>
-References: <20050118072133.GB76018@muc.de> <20050118103418.GA23099@mellanox.co.il> <20050118072133.GB76018@muc.de> <20050118104515.GA23127@mellanox.co.il>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: "Serge E. Hallyn" <hallyn@cs.wm.edu>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, James Morris <jmorris@redhat.com>,
+       Chris Wright <chrisw@osdl.org>
+Subject: Re: [PATCH] Fix audit control message checks
+Message-ID: <20050118113007.Y24171@build.pdx.osdl.net>
+References: <20050115200734.GA22087@escher.cs.wm.edu> <1106055058.18274.57.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050118104515.GA23127@mellanox.co.il>; from mst@mellanox.co.il on Tue, Jan 18, 2005 at 12:45:15PM +0200
+In-Reply-To: <1106055058.18274.57.camel@moss-spartans.epoch.ncsc.mil>; from sds@epoch.ncsc.mil on Tue, Jan 18, 2005 at 08:30:58AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Michael S. Tsirkin (mst@mellanox.co.il) wrote:
-> diff -rup linux-2.6.10-orig/fs/compat.c linux-2.6.10-ioctl-sym/fs/compat.c
-> --- linux-2.6.10-orig/fs/compat.c	2005-01-18 10:58:33.609880024 +0200
-> +++ linux-2.6.10-ioctl-sym/fs/compat.c	2005-01-18 10:54:26.289478440 +0200
-> @@ -437,6 +437,11 @@ asmlinkage long compat_sys_ioctl(unsigne
->  	if (!filp)
->  		goto out;
->  
-> +	/* RED-PEN how should LSM module know it's handling 32bit? */
-> +	error = security_file_ioctl(filp, cmd, arg);
-> + 	if (error)
-> + 		goto out_fput;
-> +
+* Stephen Smalley (sds@epoch.ncsc.mil) wrote:
+> On Sat, 2005-01-15 at 15:07, Serge E. Hallyn wrote:
+> > The audit control messages are sent over netlink.  Permission checks
+> > are done on the process receiving the message, which may not be the
+> > same as the process sending the message.  This patch switches the
+> > netlink_send security hooks to calculate the effective capabilities
+> > based on the sender.  Then audit_receive_msg performs capability checks
+> > based on that.
+> > 
+> > It also introduces the CAP_AUDIT_WRITE and CAP_AUDIT_CONTROL capabilities,
+> > and replaces the previous CAP_SYS_ADMIN checks in audit code with the
+> > appropriate checks.
+> > 
+> > Please apply.
+> > 
+> > Changelog:
+> > 	1/15/2005: Simplified dummy_netlink_send given that dummy now
+> > 		keeps track of capabilities.
+> > 	1/14/2005: Many fixes based on feedback from linux-audit@redhat.com
+> > 		list.
+> > 	1/14/2005: Removed the netlink_msg_type helper function.
+> > 	1/07/2005: Swith to using CAP_AUDIT_WRITE and CAP_AUDIT_CONTROL.
+> > 
+> > thanks,
+> > -serge
+> > 
+> > Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+> 
+> Signed-off-by:  Stephen Smalley <sds@epoch.ncsc.mil>
 
-This is now called twice in the plain do_ioctl: case.  A generic vfs handler
-could alleviate that.
+Signed-off-by: Chris Wright <chrisw@osdl.org>
 
-===== fs/ioctl.c 1.15 vs edited =====
---- 1.15/fs/ioctl.c	2005-01-15 14:31:01 -08:00
-+++ edited/fs/ioctl.c	2005-01-18 11:18:33 -08:00
-@@ -77,21 +77,10 @@ static int file_ioctl(struct file *filp,
- 	return do_ioctl(filp, cmd, arg);
- }
- 
--
--asmlinkage long sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
-+int vfs_ioctl(struct file *filp, unsigned int fd, unsigned int cmd, unsigned long arg)
- {
--	struct file * filp;
- 	unsigned int flag;
--	int on, error = -EBADF;
--	int fput_needed;
--
--	filp = fget_light(fd, &fput_needed);
--	if (!filp)
--		goto out;
--
--	error = security_file_ioctl(filp, cmd, arg);
--	if (error)
--		goto out_fput;
-+	int on, error = 0;
- 
- 	switch (cmd) {
- 		case FIOCLEX:
-@@ -157,6 +146,24 @@ asmlinkage long sys_ioctl(unsigned int f
- 				error = do_ioctl(filp, cmd, arg);
- 			break;
- 	}
-+	return error;
-+}
-+
-+asmlinkage long sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
-+{
-+	struct file * filp;
-+	int error = -EBADF;
-+	int fput_needed;
-+
-+	filp = fget_light(fd, &fput_needed);
-+	if (!filp)
-+		goto out;
-+
-+	error = security_file_ioctl(filp, cmd, arg);
-+	if (error)
-+		goto out_fput;
-+
-+	error = vfs_ioctl(filp, fd, cmd, arg);
-  out_fput:
- 	fput_light(filp, fput_needed);
-  out:
-===== fs/compat.c 1.48 vs edited =====
---- 1.48/fs/compat.c	2005-01-15 14:31:01 -08:00
-+++ edited/fs/compat.c	2005-01-18 11:07:56 -08:00
-@@ -437,6 +437,11 @@ asmlinkage long compat_sys_ioctl(unsigne
- 	if (!filp)
- 		goto out;
- 
-+	/* RED-PEN how should LSM module know it's handling 32bit? */
-+	error = security_file_ioctl(filp, cmd, arg);
-+	if (error)
-+		goto out_fput;
-+
- 	if (filp->f_op && filp->f_op->compat_ioctl) {
- 		error = filp->f_op->compat_ioctl(filp, cmd, arg);
- 		if (error != -ENOIOCTLCMD)
-@@ -477,7 +482,7 @@ asmlinkage long compat_sys_ioctl(unsigne
- 
- 	up_read(&ioctl32_sem);
-  do_ioctl:
--	error = sys_ioctl(fd, cmd, arg);
-+	error = vfs_ioctl(filp, fd, cmd, arg);
-  out_fput:
- 	fput_light(filp, fput_needed);
-  out:
-===== include/linux/fs.h 1.373 vs edited =====
---- 1.373/include/linux/fs.h	2005-01-15 14:31:01 -08:00
-+++ edited/include/linux/fs.h	2005-01-18 11:10:54 -08:00
-@@ -1564,6 +1564,8 @@ extern int vfs_stat(char __user *, struc
- extern int vfs_lstat(char __user *, struct kstat *);
- extern int vfs_fstat(unsigned int, struct kstat *);
- 
-+extern int vfs_ioctl(struct file *, unsigned int, unsigned int, unsigned long);
-+
- extern struct file_system_type *get_fs_type(const char *name);
- extern struct super_block *get_super(struct block_device *);
- extern struct super_block *user_get_super(dev_t);
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

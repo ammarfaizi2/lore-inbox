@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265663AbUGTFvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265668AbUGTF7k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265663AbUGTFvc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 01:51:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265668AbUGTFvc
+	id S265668AbUGTF7k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 01:59:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265678AbUGTF7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 01:51:32 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:8876 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265663AbUGTFvb (ORCPT
+	Tue, 20 Jul 2004 01:59:40 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:62436 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S265668AbUGTF7j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 01:51:31 -0400
-Date: Mon, 19 Jul 2004 22:51:04 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.4 Backport] x445 usb legacy fix
-Message-Id: <20040719225104.7defc877@lembas.zaitcev.lan>
-In-Reply-To: <20040720051353.GD313@ucw.cz>
-References: <1090289222.1388.461.camel@cog.beaverton.ibm.com>
-	<20040719200608.280d17a1@lembas.zaitcev.lan>
-	<20040720051353.GD313@ucw.cz>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 20 Jul 2004 01:59:39 -0400
+Date: Tue, 20 Jul 2004 08:01:04 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: davidm@hpl.hp.com
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] NX: clean up legacy binary support, 2.6.8-rc2
+Message-ID: <20040720060104.GA27118@elte.hu>
+References: <20040718084406.GA4766@elte.hu> <16636.17877.90080.590149@napali.hpl.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16636.17877.90080.590149@napali.hpl.hp.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jul 2004 07:13:53 +0200
-Vojtech Pavlik <vojtech@suse.cz> wrote:
 
-> Actually USB Legacy SMM emulation triggers problems on many many more
-> systems. The quirk does exactly the same thing the USB HCI drivers do in
-> their init code, it only does it early in the boot process, so that
-> even if the USB drivers are modules, the i8042 controller and PS/2 mouse
-> and keyboard initialization proceeds correctly.
+* David Mosberger <davidm@napali.hpl.hp.com> wrote:
 
-I guessed it, but I hoped it wasn't "many more systems", but rather
-"a few", so matching would made sense.
+> This looks better, but is still insufficient.  Remember: on some
+> platforms, you'll want to support READ_IMPLIES_EXEC differently
+> depending on personality (e.g, native binary vs. x86 binary).
 
-It would be comforting to know that we ran this in 2.6 or elsewhere
-before recommending it for Marcelo. Did you guys actually ship it
-with SLES or something? For how long?
+> -#define LEGACY_BINARIES
+> +#define elf_read_implies_exec_binary(ex, have_pt_gnu_stack)	(!(have_pt_gnu_stack))
 
--- Pete
+sure, looks good to me.
+
+	Ingo

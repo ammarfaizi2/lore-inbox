@@ -1,91 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317915AbSFNOBx>; Fri, 14 Jun 2002 10:01:53 -0400
+	id <S317917AbSFNOOm>; Fri, 14 Jun 2002 10:14:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317916AbSFNOBw>; Fri, 14 Jun 2002 10:01:52 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:4480 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S317915AbSFNOBv>; Fri, 14 Jun 2002 10:01:51 -0400
-Date: Fri, 14 Jun 2002 10:02:08 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Robert Schwebel <robert@schwebel.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Accessing odd bytes
-In-Reply-To: <20020614143140.A7467@schwebel.de>
-Message-ID: <Pine.LNX.3.95.1020614094431.389A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317918AbSFNOOl>; Fri, 14 Jun 2002 10:14:41 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:46859 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S317917AbSFNOOl>; Fri, 14 Jun 2002 10:14:41 -0400
+Message-Id: <200206141414.g5EEEci22528@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Andrey Panin <pazke@orbita1.ru>
+Cc: Dave Jones <davej@suse.de>,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH: NEW SUBARCHITECTURE FOR 2.5.21] support for NCR voyager 
+ (3/4/5xxx series)
+In-Reply-To: Message from Andrey Panin <pazke@orbita1.ru> 
+   of "Fri, 14 Jun 2002 17:52:29 +0400." <20020614135229.GA313@pazke.ipt> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 14 Jun 2002 10:14:38 -0400
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Jun 2002, Robert Schwebel wrote:
+pazke@orbita1.ru said:
+> IMHO Voyagers are too old and big machines to get (working) APM, and
+> visws have no BIOS or limited BIOS emulation. 
 
-> I have a strange effect on an embedded system (AMD Elan SC410,
-> Linux-2.4.18) while accessing a static RAM.  The RAM is mapped to the bus
-> at 0x0200'0000. If I map it to user space this way: 
-> 
->   pSRAM  = (unsigned short *)mmap(0, 0x00040000, PROT_READ + PROT_WRITE, MAP_SHARED, FD, 0x2000000);
-> 
-> and fill it like this: 
-> 
->   pByte=(char*)pSRAM;
->   for (i=0; i<10; i++) {
->     *pByte++=(char)i;
->   }
-> 
->   pByte=(char*)pSRAM;
->   for (i=0; i<10; i++) {
->     printf("i: %02i -> %03i\n", i, *pByte++);
->   }
-> 
-> I see a mirroring effect: 
-> 
->   i: 00 -> 001
->   i: 01 -> 001
->   i: 02 -> 003
->   i: 03 -> 003
->   i: 04 -> 005
->   i: 05 -> 005
->   i: 06 -> 007
->   i: 07 -> 007
->   i: 08 -> 009
->   i: 09 -> 009
-> 
-> Now I'm wondering how the kernel/processor handles odd byte access
-> exceptions. Can anybody give me a pointer where I could search or what my
-> problem could be? 
-> 
-> Robert
+That depends what you mean by `apm'.  In kernel/apm.c, it's tied to the 
+existence of the APM bios and since voyagers have no bios per say (they 
+actually have a SUS, which is an actively running boot OS on a tiny i386 
+processor which can emulate a minimal PC bios when in PC mode) then you're 
+correct.
 
-There are no odd-byte access exceptions in the SC410 or in any Intel
-ix86 emulation. Word accesses at odd-byte boundaries may (not always)
-simply take longer. You can access any size element at any alignment.
-The only time you will get an exception is if you attempt to access
-0xffffffff as a Word (and similar boundary errors).
+Running Linux on a voyager, I can power off the machine, read the internal 
+power source, the status of the front panel switch and even trigger a power 
+management shutdown after the AC power is lost for a certain length of time 
+(voyagers usually have internal lead acid batteries).  The way it's currently 
+set up, if I turn off the front panel switch, the machine will execute a clean 
+shutdown and power itself off when the shutdown is finished.  (this is mainly 
+done in the voyager_thread.c file, where it keeps a kernel daemon permanently 
+monitoring the machine status, if you're interested).
 
->     printf("i: %02i -> %03i\n", i, *pByte++);
+The above are all traditional APM functions, I just don't need apm.c to do 
+them.
 
-Now, I'm not smart enough to understand what this code is supposed
-to show so I can't offer any suggestions. But, with all Intel machines,
-the lowest byte is in the lowest memory address and the lowest word
-is in the lowest memory address, etc.
+However, apm.c is still in arch/i386/kernel, just in case, so I think 
+mpparse.c should join it, and we should keep all the other pieces (bootflag.c 
+and acpi.c) in there just in case.
 
-Given:   0xdeadface
+James
 
-Memory:
-<-- Low         High -->
-0xce, 0xfa, 0xad, 0xde
-
-
-Also, in 32-bit code, if you are going to pass a byte to a function,
-the rest of the 32-bit value passed may be junk since you can't
-push bytes onto the stack.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
 

@@ -1,66 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262375AbTKNLUo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 06:20:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262407AbTKNLUo
+	id S262407AbTKNLWl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 06:22:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTKNLWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 06:20:44 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:3771 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id S262375AbTKNLUm (ORCPT
+	Fri, 14 Nov 2003 06:22:41 -0500
+Received: from pop.gmx.net ([213.165.64.20]:1209 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262407AbTKNLWj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 06:20:42 -0500
-Date: Fri, 14 Nov 2003 14:20:28 +0300
-From: Alex Zarochentsev <zam@namesys.com>
-To: Gianni Tedesco <gianni@scaramanga.co.uk>
-Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: new reiser4 snapshot is available
-Message-ID: <20031114112027.GJ1278@backtop.namesys.com>
-References: <20031113143438.GD1278@backtop.namesys.com> <20031114094217.GH1278@backtop.namesys.com> <1068807864.2883.1520.camel@lemsip>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1068807864.2883.1520.camel@lemsip>
-User-Agent: Mutt/1.4i
+	Fri, 14 Nov 2003 06:22:39 -0500
+Date: Fri, 14 Nov 2003 12:22:38 +0100 (MET)
+From: "Svetoslav Slavtchev" <svetljo@gmx.de>
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Subject: new reiser4 snapshot is available
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0020183004@gmx.net
+X-Authenticated-IP: [213.23.34.93]
+Message-ID: <11745.1068808958@www67.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 14, 2003 at 12:04:25PM +0100, Gianni Tedesco wrote:
-> On Fri, 2003-11-14 at 10:42, Alex Zarochentsev wrote:
-> > > fetch it
-> > > http://namesys.com/snapshots/2003.11.12/linux-2.6.0-test9-reiser4.diff.gz
-> 
-> Seems to be combined with the UML patch...
-> 
-> zcat linux-2.6.0-test9-reiser4.diff.gz | diffstat
->  Makefile                                                     |    2
->  arch/i386/kernel/entry.S                                     |    4
->  arch/i386/kernel/sys_i386.c                                  |    2
->  arch/um/Kconfig                                              |   48
->  arch/um/Kconfig_block                                        |   14
->  arch/um/Kconfig_net                                          |   70
->  arch/um/Makefile                                             |   49
->  arch/um/Makefile-i386                                        |   20
->  arch/um/Makefile-skas                                        |    6
->  arch/um/config.release                                       |    1
->  arch/um/defconfig                                            |  203
->  arch/um/drivers/Makefile                                     |    6
->  arch/um/drivers/chan_kern.c                                  |    1
->  arch/um/drivers/chan_user.c                                  |    4
-> 
-> etc....
+Hi again,
 
-yes, this patch taken from our bk repository, 
-because UML is used in development, it contains uml fixes.
+4.)-----------------------------------------------------------------
+even after aplying the export-* patches from the older snapshot
+i still get
 
-previous snapshot was done more carefully, it is located
-in http://namesys.com/snapshots/2003.10.17/ you can see 
-all changes in one patch as well as broken-out patches.
+  MODPOST
+*** Warning: "kswapd" [fs/reiser4/reiser4.ko] undefined!
+*** Warning: "destroy_inode" [fs/reiser4/reiser4.ko] undefined!
+*** Warning: "nr_free_pagecache_pages" [fs/reiser4/reiser4.ko] undefined!
+*** Warning: "inodes_stat" [fs/reiser4/reiser4.ko] undefined!
+*** Warning: "balance_dirty_pages_ratelimited" [fs/reiser4/reiser4.ko]
+undefined!
+*** Warning: "wakeup_kswapd" [fs/reiser4/reiser4.ko] undefined!
+*** Warning: "truncate_mapping_pages_range" [fs/reiser4/reiser4.ko]
+undefined!
+*** Warning: "generic_sync_sb_inodes" [fs/reiser4/reiser4.ko] undefined!
+*** Warning: "radix_tree_preload" [fs/reiser4/reiser4.ko] undefined!
+*** Warning: "__remove_from_page_cache" [fs/reiser4/reiser4.ko] undefined!
+*** Warning: "max_sane_readahead" [fs/reiser4/reiser4.ko] undefined!
 
-changes for test9 are the same as for test7 with minor exceptions. 
 
-> // Gianni Tedesco (gianni at scaramanga dot co dot uk)
-> lynx --source www.scaramanga.co.uk/scaramanga.asc | gpg --import
-> 8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+
+best,
+
+svetljo
+
+PS.
+
+please CC me as i'm not subscribed
 
 -- 
-Alex.
+NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
+Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
+
+Jetzt kostenlos anmelden unter http://www.gmx.net
+
++++ GMX - die erste Adresse für Mail, Message, More! +++
+

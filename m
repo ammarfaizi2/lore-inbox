@@ -1,40 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbVAMQo1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVAMQsh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261225AbVAMQo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 11:44:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVAMQnC
+	id S261237AbVAMQsh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 11:48:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVAMQqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 11:43:02 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:29156 "EHLO
+	Thu, 13 Jan 2005 11:46:35 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:36580 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261225AbVAMQlC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 11:41:02 -0500
-Subject: Re: Kernel releases for security updates
+	id S261231AbVAMQqA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 11:46:00 -0500
+Subject: Re: RAIT device driver feasibility
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Gregory Boyce <gboyce@badbelly.com>
+To: Ludovic Drolez <ludovic.drolez@linbox.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0501121340560.20156@buddha.badbelly.com>
-References: <Pine.LNX.4.61.0501121340560.20156@buddha.badbelly.com>
+In-Reply-To: <41E696F4.3070700@linbox.com>
+References: <41E696F4.3070700@linbox.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1105629033.4664.39.camel@localhost.localdomain>
+Message-Id: <1105630888.4664.54.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 13 Jan 2005 15:36:44 +0000
+Date: Thu, 13 Jan 2005 15:41:28 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-01-12 at 19:45, Gregory Boyce wrote:
-> be very interested in being able to run a kernel for extended lengths of 
-> time, but most of the discussion on point releases has been about getting 
-> a 2.6.X.1 while 2.6.X+1 is still in it's pre stages.  What about the 
-> people running 2.6.X-1?  Can they expect to get a point release for 
-> security updates?
+On Iau, 2005-01-13 at 15:42, Ludovic Drolez wrote:
+> RAIT already exists in Amanda, in user space, but I'd like to see a generic 
+> kernel RAIT driver which could be used by any backup program.
 
-For -ac I'll support just the current release unless there are real
-stability problems or a hole occurs just as Linus puts out a new release
-and there isn't enough test data to see what needs fixing in it in which
-case I'll fix both.
-
-Alan
+Why kernel space - why not a user space shared library you can add to
+other tape apps?
 

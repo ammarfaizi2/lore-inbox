@@ -1,314 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267208AbUBMUE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 15:04:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267207AbUBMUE5
+	id S267188AbUBMU1v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 15:27:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267192AbUBMU1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 15:04:57 -0500
-Received: from 212-214-140-145.v-by.wtnord.net ([212.214.140.145]:49029 "EHLO
-	ricercar.mine.nu") by vger.kernel.org with ESMTP id S267205AbUBMUEj
+	Fri, 13 Feb 2004 15:27:51 -0500
+Received: from mail.shareable.org ([81.29.64.88]:54402 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S267188AbUBMU1u
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 15:04:39 -0500
-Date: Fri, 13 Feb 2004 21:04:37 +0100
-From: Daniel Brahneborg <daniel.com@wtnord.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Raid <linux-raid@vger.kernel.org>
-Subject: 2.4.24: "__alloc_pages: 0-order allocation failed"
-Message-ID: <20040213210437.A1269@nettis.grimsta>
+	Fri, 13 Feb 2004 15:27:50 -0500
+Date: Fri, 13 Feb 2004 20:27:47 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Valdis.Kletnieks@vt.edu, Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
+Message-ID: <20040213202747.GB29824@mail.shareable.org>
+References: <1076604650.31270.20.camel@ulysse.olympe.o2t> <20040213030346.GF25499@mail.shareable.org> <1076695606.23795.23.camel@m222.net81-64-248.noos.fr> <20040213181542.GD8858@parcelfarce.linux.theplanet.co.uk> <200402131824.i1DIOX6o023463@turing-police.cc.vt.edu> <20040213183148.GF8858@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040213183148.GF8858@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wanted to test software raid, but since I've run out of physical
-partitions I created two loopback devices on two ext3 partitions,
-each one 2 GB. I used mdadm 1.5.0 to create a RAID1 disk, and made
-an ext2 fs on it. While copying a 700MB file to it, the following
-appeared in the kernel log. Checksumming the copied file gave a
-different value than the original file, and checksumming it again
-gave a third value.
+viro@parcelfarce.linux.theplanet.co.uk wrote:
+> You try and pass something _without_ \0 in it to the kernel ;-)
 
-Feb 13 20:31:18 nettis kernel: __alloc_pages: 0-order allocation failed
-(gfp=0x92/0)
-Feb 13 20:31:47 nettis kernel: raid1: Disk failure on [dev 07:01],
-disabling device.
-Feb 13 20:31:48 nettis kernel: ^IOperation continuing on 1 devices
-Feb 13 20:31:48 nettis kernel: md: updating md0 RAID superblock on
-device
-Feb 13 20:31:48 nettis kernel: md: (skipping faulty [dev 07:01] )
-Feb 13 20:31:48 nettis kernel: md: [dev 07:00] [events:
-00000002]<6>(write) [dev 07:00]'s sb offset: 2047936
-Feb 13 20:31:48 nettis kernel: md: recovery thread got woken up ...
-Feb 13 20:31:48 nettis kernel: md0: no spare disk to reconstruct array!
--- continuing in degraded mode
-Feb 13 20:31:48 nettis kernel: md: recovery thread finished ...
-Feb 13 20:31:48 nettis kernel: __alloc_pages: 0-order allocation failed
-(gfp=0x92/0)
-Feb 13 20:31:55 nettis last message repeated 18 times
-Feb 13 20:31:55 nettis kernel: __alloc_pages: 0-order allocation failed
-(gfp=0xf0/0)
-Feb 13 20:31:55 nettis kernel: ENOMEM in journal_alloc_journal_head,
-retrying.
+:)
 
-I'm using kernel 2.4.24, on an AMD Duron 1.3GHz with 256 MB memory
-and 256 MB swap. I've run memtest86 3.0 for a day on the machine
-without problems.
+But seriously, even that is a security issue when someone requests a
+URL containing "%00", or some text contains a filename to operate on
+and the name contains \0.
 
-I searched in the archives, but could only find something that was
-supposed to be fixed in 2.4.10.  I've attached my .config.
+For example, if I write a Perl regular expression to reject paths from
+the outside world containing "..": m{(?:/|^)\.\.(?:/|\z)}, it will
+fail to notice when given the path "..\0" that the kernel will treat
+it identically to "..".  Potential security hole, depending on the context.
 
-Thanks,
-
-/Basic
-
-CONFIG_X86=y
-CONFIG_UID16=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_MODULES=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-CONFIG_M586MMX=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_USE_STRING_486=y
-CONFIG_X86_ALIGNMENT_16=y
-CONFIG_X86_HAS_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_PPRO_FENCE=y
-CONFIG_X86_MCE=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_X86_TSC=y
-CONFIG_NET=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_HOTPLUG=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=m
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=m
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_CML1=m
-CONFIG_PARPORT_1284=y
-CONFIG_PNP=y
-CONFIG_ISAPNP=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_STATS=y
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-CONFIG_MD_RAID1=m
-CONFIG_MD_RAID5=y
-CONFIG_BLK_DEV_LVM=y
-CONFIG_BLK_DEV_DM=y
-CONFIG_BLK_DEV_DM_BBR=y
-CONFIG_BLK_DEV_DM_SPARSE=y
-CONFIG_PACKET=y
-CONFIG_NETLINK_DEV=m
-CONFIG_NETFILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_IP_MULTIPLE_TABLES=y
-CONFIG_IP_ROUTE_FWMARK=y
-CONFIG_IP_ROUTE_NAT=y
-CONFIG_IP_ROUTE_TOS=y
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_CONNTRACK_MARK=y
-CONFIG_IP_NF_IRC=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_IPRANGE=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_MPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_RECENT=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_CONNMARK=m
-CONFIG_IP_NF_MATCH_CONNTRACK=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_CLASSIFY=m
-CONFIG_IP_NF_TARGET_IMQ=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_CONNMARK=m
-CONFIG_IPV6=y
-CONFIG_IP6_NF_QUEUE=y
-CONFIG_IP6_NF_IPTABLES=y
-CONFIG_IP6_NF_MATCH_LIMIT=y
-CONFIG_IP6_NF_MATCH_MAC=y
-CONFIG_IP6_NF_MATCH_RT=y
-CONFIG_IP6_NF_MATCH_FRAG=m
-CONFIG_IP6_NF_MATCH_MULTIPORT=y
-CONFIG_IP6_NF_MATCH_OWNER=y
-CONFIG_IP6_NF_MATCH_MARK=y
-CONFIG_IP6_NF_MATCH_IPV6HEADER=m
-CONFIG_IP6_NF_MATCH_AHESP=m
-CONFIG_IP6_NF_MATCH_LENGTH=y
-CONFIG_IP6_NF_MATCH_EUI64=y
-CONFIG_IP6_NF_FILTER=y
-CONFIG_IP6_NF_TARGET_LOG=y
-CONFIG_IP6_NF_MANGLE=y
-CONFIG_IP6_NF_TARGET_MARK=y
-CONFIG_IPV6_SCTP__=y
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_CBQ=y
-CONFIG_NET_SCH_HTB=y
-CONFIG_NET_SCH_CSZ=y
-CONFIG_NET_SCH_PRIO=y
-CONFIG_NET_SCH_RED=y
-CONFIG_NET_SCH_SFQ=y
-CONFIG_NET_SCH_TEQL=y
-CONFIG_NET_SCH_TBF=y
-CONFIG_NET_SCH_GRED=y
-CONFIG_NET_SCH_DSMARK=y
-CONFIG_NET_SCH_INGRESS=y
-CONFIG_NET_QOS=y
-CONFIG_NET_ESTIMATOR=y
-CONFIG_NET_CLS=y
-CONFIG_NET_CLS_TCINDEX=y
-CONFIG_NET_CLS_ROUTE4=y
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_NET_CLS_FW=y
-CONFIG_NET_CLS_U32=y
-CONFIG_NET_CLS_RSVP=y
-CONFIG_NET_CLS_RSVP6=y
-CONFIG_NET_CLS_POLICE=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=m
-CONFIG_BLK_DEV_IDESCSI=m
-CONFIG_BLK_DEV_CMD640=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_AEC62XX=y
-CONFIG_BLK_DEV_ALI15X3=y
-CONFIG_BLK_DEV_AMD74XX=y
-CONFIG_BLK_DEV_CMD64X=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=m
-CONFIG_BLK_DEV_SR=m
-CONFIG_CHR_DEV_SG=m
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_IMQ=y
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_VENDOR_3COM=y
-CONFIG_VORTEX=m
-CONFIG_NET_PCI=y
-CONFIG_AMD8111_ETH=m
-CONFIG_NATSEMI=m
-CONFIG_8139TOO=m
-# ISDN subsystem
-CONFIG_INPUT=m
-CONFIG_INPUT_KEYBDEV=m
-CONFIG_INPUT_MOUSEDEV=m
-CONFIG_INPUT_EVDEV=m
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_PRINTER=m
-CONFIG_AMD_RNG=m
-CONFIG_RTC=m
-CONFIG_AUTOFS_FS=m
-CONFIG_AUTOFS4_FS=m
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_JBD_DEBUG=y
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_UMSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_NTFS_FS=m
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_SUNRPC=m
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_SMB_FS=m
-CONFIG_SMB_NLS_DEFAULT=y
-CONFIG_ZISOFS_FS=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_CODEPAGE_865=m
-CONFIG_NLS_CODEPAGE_1250=m
-CONFIG_NLS_ISO8859_1=m
-CONFIG_NLS_ISO8859_2=m
-CONFIG_NLS_ISO8859_15=m
-CONFIG_NLS_UTF8=m
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FB_RIVA=m
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB_ATY=y
-CONFIG_FB_ATY_CT=y
-CONFIG_FBCON_CFB8=y
-CONFIG_FBCON_CFB16=y
-CONFIG_FBCON_CFB24=y
-CONFIG_FBCON_CFB32=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-CONFIG_SOUND=m
-CONFIG_SOUND_VIA82CXXX=m
-CONFIG_MIDI_VIA82CXXX=y
-CONFIG_SOUND_OSS=m
-CONFIG_SOUND_DMAP=y
-CONFIG_USB=m
-CONFIG_USB_DEBUG=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_UHCI=m
-CONFIG_USB_STORAGE=m
-CONFIG_USB_PRINTER=m
-CONFIG_USB_HID=m
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_AIPTEK=m
-CONFIG_USB_WACOM=m
-CONFIG_USB_RIO500=m
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=m
-
+-- Jamie

@@ -1,102 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267839AbTBRPPT>; Tue, 18 Feb 2003 10:15:19 -0500
+	id <S267872AbTBRPUf>; Tue, 18 Feb 2003 10:20:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267840AbTBRPPT>; Tue, 18 Feb 2003 10:15:19 -0500
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:31493 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S267839AbTBRPPR>; Tue, 18 Feb 2003 10:15:17 -0500
-Date: Tue, 18 Feb 2003 16:25:10 +0100
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: gskiran@bgl.vsnl.net.in
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel Message Queue Implementation
-Message-ID: <20030218152510.GB1399@arthur.ubicom.tudelft.nl>
-References: <20030218141257.1475574B6@blr.vsnl.net.in>
+	id <S267873AbTBRPUe>; Tue, 18 Feb 2003 10:20:34 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:21130
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267872AbTBRPUe>; Tue, 18 Feb 2003 10:20:34 -0500
+Subject: Re: sis7012 and no sound
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jake Roersma <jake@copiosus.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1045536323.389.17.camel@phobos>
+References: <1045536323.389.17.camel@phobos>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1045585942.24171.23.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
-Content-Disposition: inline
-In-Reply-To: <20030218141257.1475574B6@blr.vsnl.net.in>
-User-Agent: Mutt/1.4i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 18 Feb 2003 16:32:23 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2003-02-18 at 02:45, Jake Roersma wrote:
+> I just got a new laptop and it has the sis7012 audio chipset in it.  I
+> am having a problem getting the sound work with the stock 2.4.18, and
+> 2.4.20 kernels.  I did some googling on it and found that having ACPI
+> enabled in the kernel might help, but it didn't.  As of right now the
+> kernel finds the sis7012 chip fine with the i810_audio module and gives
+> the following output:
+> 
 
---DocE+STaALJfprDB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Some SIS audio works, some doesn't. The only reason it works at all is that
+its a bad clone of an intel part and people discovered this. We have no
+SiS documentation on the 7012.
 
-On Tue, Feb 18, 2003 at 02:22:13PM +0000, gskiran@bgl.vsnl.net.in wrote:
-> [1] msgsnd (int, struct msgbuf *, int, int) INTERFACE ERROR !!
-
-No, user error.
-
-> [2] msgsnd() has "struct msgbuf*" as its 2nd parameter. When I tried
-> to write an application which uses message queues for IPC i declared
-> my message queue buffer as -
->=20
-> struct my_msgq_buf
-> {
->     long mtype;
->     char *name;
->     double amount;
-> };
-
-Nothing wrong over here, except that your pointer is ONLY valid in the
-sending process, and NOT in the receiving process.
-
-> I allocated the memory of name dynamically using "malloc" and wrote
-> into the message Queue using msgsnd. And the msgsnd returns
-> successfully. When I do an msgrcv with the above structure type, I
-> always recieve NULL values in my structure buffer !!
->=20
-> But, When I use the structure as declared below -
->=20
-> struct my_msgq_buf
-> {
->     long mtype;
->     char name[30];
->     double amount;
-> };
->=20
-> Every thing interstingly seems to be working fine.!
-
-Yes, which was to be expected cause "name" is now in the the message
-structure.
-
->  The interface for
-> msgsnd and msgrcv should have "void *" pointers rather than having a
-> "struct msgbuf *" as parameters.
-
-No, it's right the way it is right now. You are making the mistake that
-you think pointers are valid memory references among all processes,
-which clearly is not the case.
-
-Get the book "Advanced programming in the Unix environment" by W.
-Richard Stevens. It's more than worth its price and explains SysV IPC
-in a very thorough way.
-
-
-Erik
-
---=20
-J.A.K. (Erik) Mouw
-Email: J.A.K.Mouw@its.tudelft.nl  mouw@nl.linux.org
-
---DocE+STaALJfprDB
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE+UlBW/PlVHJtIto0RAjMDAJ9ZY6O7vNA4SQNhS5+yq9KFXxc2kACgghv/
-XqreqJlaeAKi+417ioZl24E=
-=Dc5F
------END PGP SIGNATURE-----
-
---DocE+STaALJfprDB--

@@ -1,81 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262331AbTKIKmN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 05:42:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbTKIKmN
+	id S262327AbTKIK4k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 05:56:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbTKIK4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 05:42:13 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:47551 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S262331AbTKIKmI (ORCPT
+	Sun, 9 Nov 2003 05:56:40 -0500
+Received: from nice-1-62-147-25-88.dial.proxad.net ([62.147.25.88]:16644 "EHLO
+	monpc") by vger.kernel.org with ESMTP id S262327AbTKIK4j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 05:42:08 -0500
-Message-ID: <3FAE19C3.7060104@colorfullife.com>
-Date: Sun, 09 Nov 2003 11:41:07 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
+	Sun, 9 Nov 2003 05:56:39 -0500
+From: Guillaume Chazarain <guichaz@yahoo.fr>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Date: Sun, 09 Nov 2003 11:57:39 +0100
+X-Priority: 3 (Normal)
+Message-Id: <SRLGXA875SP047EDQLEC055ZHDZX2V.3fae1da3@monpc>
+Subject: Re: [PATCH] cfq + io priorities
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: prepare_wait / finish_wait question
-References: <3FAE0223.7070402@colorfullife.com> <20031109021943.470fc601.akpm@osdl.org>
-In-Reply-To: <20031109021943.470fc601.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+X-Mailer: Opera 6.06 build 1145
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+> A process has an assigned io nice level, anywhere from 0 to 20. Both of
 
->Manfred Spraul <manfred@colorfullife.com> wrote:
->  
->
->>Hi Ingo,
->>
->>sysv semaphores show the same problem you've fixed for wait queue with 
->>finish_wait:
->>    
->>
->
->Was me, actually.
->  
->
-Ups, sorry.
+OK, I ask THE question : why not using the normal nice level, via
+current->static_prio ?
+This way, cdrecord would be RT even in IO, and nice -19 updatedb would have
+a minimal impact on the system.
 
->It would be neater to remove the task from the list _before_ waking it up. 
->The current code in there is careful to only remove the task if the wakeup
->attempt was successful, but I have a feeling that this is unnecessary - the
->waiting task will do the right thing.  One would need to think about that a
->bit more.
->  
->
-Doesn't work: the woken up thread could be woken up by chance through a 
-signal, and then the task structure could go out of scope while wake_up 
-is still running - oops. Seen on s390 with sysv msg.
+> these end values are "special" - 0 means the process is only allowed to
+> do io if the disk is idle, and 20 means the process io is considered
 
->>I wrote a patch for sysv sem and on a 4x Pentium 3, 99.9% of the calls 
->>hit the fast path, but I'm a bit afraid that monitor/mwait could be so 
->>fast that the fast path is not chosen.
->>    
->>
->
->Is it not the case that ia32's reschedule IPI is async?  If the
->architecture's reschedule uses a synchronous IPI then it could indeed be
->the case that the woken CPU gets there first.
->
-poll_idle polls the need_resched flag, and next generation pentium 4 
-cpus will poll the need_resched flag with the MONITOR/MWAIT 
-instructions. We cannot rely on the async IPI.
+So a process with ioprio == 0 can be forever starved. As it's not
+done this way for nice -19 tasks (unlike FreeBSD), wouldn't it be
+safer to give a very long deadline to ioprio == 0 requests ?
 
->>I'm thinking about a two-stage algorithm - what's your opinion?
->>    
->>
->
->Instrumentation on other architectures would be interesting.
->  
->
-The patch already contains the instrumentation - it only needs testing.
 
---
-    Manfred
+Thanks for making something I have been dreaming of for a long time :)
+
+
+Guillaume
+
+
+
 

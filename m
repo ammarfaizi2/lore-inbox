@@ -1,68 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315179AbSHBPIr>; Fri, 2 Aug 2002 11:08:47 -0400
+	id <S315178AbSHBPHe>; Fri, 2 Aug 2002 11:07:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315198AbSHBPIr>; Fri, 2 Aug 2002 11:08:47 -0400
-Received: from mail.gmx.de ([213.165.64.20]:14906 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S315179AbSHBPIq>;
-	Fri, 2 Aug 2002 11:08:46 -0400
-Date: Fri, 2 Aug 2002 17:12:18 +0200
-From: gigerstyle@gmx.ch
-To: linux-kernel@vger.kernel.org
-Subject: Re: Booting problem, 2.4.19-rc5-ac1, ali15x3
-Message-Id: <20020802171218.016b3d70.gigerstyle@gmx.ch>
-In-Reply-To: <9cfd6t1nwuh.fsf@rogue.ncsl.nist.gov>
-References: <9cfu1mp5kru.fsf@rogue.ncsl.nist.gov>
-	<9cfd6t1nwuh.fsf@rogue.ncsl.nist.gov>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S315179AbSHBPHe>; Fri, 2 Aug 2002 11:07:34 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:34322 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S315178AbSHBPHd>; Fri, 2 Aug 2002 11:07:33 -0400
+Message-ID: <3D4AA0E6.9000904@namesys.com>
+Date: Fri, 02 Aug 2002 19:10:30 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steve Lord <lord@sgi.com>
+CC: Jan Harkes <jaharkes@cs.cmu.edu>, Alexander Viro <viro@math.psu.edu>,
+       "Peter J. Braam" <braam@clusterfs.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BIG files & file systems
+References: <20020731210739.GA15492@ravel.coda.cs.cmu.edu>	<Pine.GSO.4.21.0207311711540.8505-100000@weyl.math.psu.edu>	<20020801035119.GA21769@ravel.coda.cs.cmu.edu>	<1028246981.11223.56.camel@snafu> 	<20020802135620.GA29534@ravel.coda.cs.cmu.edu> <1028297194.30192.25.camel@jen.americas.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 02 Aug 2002 10:45:10 -0400
-Ian Soboroff <ian.soboroff@nist.gov> wrote:
+There are a number of interfaces that need expansion in 2.5.  Telldir 
+and seekdir would be much better if they took as argument some 
+filesystem specific opaque cookie (e.g. filename). Using a byte offset 
+to reference a directory entry that was found with a filename is an 
+implementation specific artifact that obviously only works for a 
+ufs/s5fs/ext2 type of filesystem, and is just wrong.
 
-Hi 
+4 billion files is not enough to store the government's XML databases in.
 
-I have written before regarding the same problem. I noticed that I have mentioned the wrong kernel version. Of course I meant the 2.4.19-rc5-ac1 and 2.4.19-rc3-ac5. It happens on a Sony Vaio Gr114EK. I will now try the same solution like Ian.
+Hans
 
-greets
+Steve Lord wrote:
 
-marc
+>On Fri, 2002-08-02 at 08:56, Jan Harkes wrote:
+>  
+>
+>>I was simply assuming that any filesystem that is using iget5 and
+>>doesn't use the simpler iget helper has some reason why it cannot find
+>>an inode given just the 32-bit ino_t.
+>>    
+>>
+>
+>In XFS's case (remember, the iget5 code is based on XFS changes) it is
+>more a matter of the code to read the inode sometimes needing to pass
+>other info down to the read_inode part of the filesystem, so we want to
+>do that internally. XFS can have 64 bit inode numbers, but you need more
+>than 1 Tbyte in an fs to get that big (inode numbers are a disk
+>address). We also have code which keeps them in the bottom 1 Tbyte
+>which is turned on by default on Linux.
+>
+>  
+>
+>>This is definitely true for Coda, we have 96-bit file identifiers.
+>>Actually my development tree currently uses 128-bit, it is aware of
+>>multiple administrative realms and distinguishes between objects with
+>>FID 0x7f000001.0x1.0x1 in different administrative domains. There is a
+>>hash-function that tries to map these large FIDs into the 32-bit ino_t
+>>space with as few collisions as possible.
+>>
+>>NFS has a >32-bit filehandle. ReiserFS might have unique inodes, but
+>>seems to need access to the directory to find them. So I don't quickly
+>>see how it would guarantee uniqueness. NTFS actually doesn't seem to use
+>>iget5 yet, but it has multiple streams per object which would probably
+>>end up using the same ino_t.
+>>
+>>Userspace applications should either have an option to ignore hardlinks.
+>>Very large filesystems either don't care because there is plenty of
+>>space, don't support them across boundaries that are not visible to the
+>>application, or could be dealing with them them automatically (COW
+>>links). Besides, if I really have a trillion files, I don't want 'tar
+>>and friends' to try to keep track of all those inode numbers (and device
+>>numbers) in memory.
+>>
+>>The other solution is that applications can actually use more of the
+>>information from the inode to avoid confusion, like st_nlink and
+>>st_mtime, which are useful when the filesystem is still mounted rw as
+>>well. And to make it even better, st_uid, st_gid, st_size, st_blocks and
+>>st_ctime, and a MD5/SHA checksum. Although this obviously would become
+>>even worse for the trillion file backup case.
+>>    
+>>
+>
+>If apps would have to change then I would vote for allowing larger
+>inodes out of the kernel in an extended version of stat and getdents.
+>I was going to say 64 bit versions, but if even 64 is not enough for
+>you, it is getting a little hard to handle.
+>
+>Steve
+>
+>  
+>
+>>Jan
+>>    
+>>
 
-> 
-> Alan,
-> 
-> 2.4.19-rc5-ac1 hangs on boot on my laptop (Fujitsu P-series, TM5800
-> CPU), whereas plain[1] rc5 boots fine.  The hang appears to be during IDE
-> detection:
-> 
-> ...
-> block: 704 slots per queue, batch=176
-> Uniform Multi-Platform E-IDE driver Revision: 6.31
-> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=XX
-> ALI15X3: IDE controller on PCI bus 00 dev 78
-> PCI: No IRQ known for interrupt pin A of device 00:0f.0. Please try using pci=biosirq
-> ALI15X3: chipset revision 195
-> ALI15X3: not 100% native mode: will probe irqs later
-> 
-> With rc5, I get this same error unless I have 'ide0=ata66 ide1=ata66'
-> on the kernel command line.  However, -ac1 hangs with or without these
-> options.
-> 
-> I had this same problem under rc3-ac1, and rc2-ac2 (last two -ac
-> kernels I tried), so this looks to be a long-term problem.  I'm hoping
-> maybe I can help debug it before it gets into Marcelo's tree.
-> 
-> ian
-> 
-> [1] Actually, one one-liner patche to extend the ext3 journal
-> commit interval to 30 seconds.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+
+-- 
+Hans
+
+
+

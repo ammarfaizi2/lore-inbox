@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273696AbRIQUi3>; Mon, 17 Sep 2001 16:38:29 -0400
+	id <S272413AbRIQVHz>; Mon, 17 Sep 2001 17:07:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273695AbRIQUiT>; Mon, 17 Sep 2001 16:38:19 -0400
-Received: from relay04.valueweb.net ([216.219.253.238]:2318 "EHLO
-	relay04.valueweb.net") by vger.kernel.org with ESMTP
-	id <S273694AbRIQUiK>; Mon, 17 Sep 2001 16:38:10 -0400
-Message-ID: <3BA65EA9.E4BD38A1@opersys.com>
-Date: Mon, 17 Sep 2001 16:35:53 -0400
-From: Karim Yaghmour <karym@opersys.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.5-TRACE i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
-MIME-Version: 1.0
-To: LTT-Dev <ltt-dev@shafik.org>, LTT-Announce <ltt-announce@shafik.org>,
-        LTT <ltt@shafik.org>, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] LTT 0.9.5pre2
+	id <S272602AbRIQVHp>; Mon, 17 Sep 2001 17:07:45 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:51974 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S272413AbRIQVHb>;
+	Mon, 17 Sep 2001 17:07:31 -0400
+Date: Mon, 17 Sep 2001 14:05:00 -0700
+From: Greg KH <greg@kroah.com>
+To: David Acklam <dackl@post.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: compiled-in (non-modular) USB initialization bug
+Message-ID: <20010917140500.C32389@kroah.com>
+In-Reply-To: <Pine.LNX.4.30.0109171430130.3275-100000@udcnet.dyn.dhs.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0109171430130.3275-100000@udcnet.dyn.dhs.org>
+User-Agent: Mutt/1.3.21i
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 17, 2001 at 02:34:42PM -0500, David Acklam wrote:
+> A few months ago I posted a bug report about the Pegasus driver not
+> initializing  (or not initializing fast enough to work with NFS-Root) when
+> compiled-in. I've found that this is not specific to the
+> pegasus, as I have recently noticed that the kernel 'driver-initialized'
+> messages for my USB mouse and keyboard (i.e. HID devices) come up AFTER
+> init has been started. These drivers are also 'compiled-in'
+> 
+> The problem this poses is that some applications (like NFSRoot) need
+> access to USB devices BEFORE the kernel mounts filesystems/starts init.
 
-There's a new version of LTT out there, 0.9.5pre2.
+Could you send me / the list the kernel boot messages when this happens?
+Along with the .config that you used?
 
-The most important addition to it is the ability to link to
-the event database in order to manipulate traces programmatically
-without the visualizer. This is done through a dynamic library
-called LibLTT which provides the necessary API to load, analyze
-and browse a trace.
+thanks,
 
-Also added is the capability to log custom formatting information
-regarding custom events. This information can be retrieved from
-the trace using LibLTT and, if needed, modified.
-
-For a more complete rundown of the additions to 0.9.5pre2 take
-a look at the news section of the web site.
-
-LTT 0.9.5pre2 can be found here:
-ftp://ftp.opersys.com/pub/LTT/TraceToolkit-0.9.5pre2.tgz
-
-P.S.: Unfortunately, I haven't had the time to fix RTAI support
-in LTT. However, since the trace statements are now part of
-the permanent RTAI CVS, this support should be easier to
-provide in the future once the next version of LTT supporting
-RTAI is out.
-
-===================================================
-                 Karim Yaghmour
-               karym@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+greg k-h

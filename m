@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271125AbTHQWad (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 18:30:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271129AbTHQWac
+	id S271104AbTHQW3B (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 18:29:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271105AbTHQW3B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 18:30:32 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56635 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP id S271125AbTHQWab
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 18:30:31 -0400
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: Russell King <rmk@arm.linux.org.uk>, Christoph Hellwig <hch@infradead.org>,
-       Patrick Mochel <mochel@osdl.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] don't call device_shutdown on halt.
-References: <m1he4kzpiy.fsf@frodo.biederman.org>
-	<20030814085442.A21232@infradead.org>
-	<20030814090605.A25516@flint.arm.linux.org.uk>
-	<m17k5gz1aq.fsf@frodo.biederman.org>
-	<20030814170721.B332@flint.arm.linux.org.uk>
-	<m1wudgxiab.fsf@frodo.biederman.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 17 Aug 2003 16:26:36 -0600
-In-Reply-To: <m1wudgxiab.fsf@frodo.biederman.org>
-Message-ID: <m1fzjzyl7n.fsf_-_@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 17 Aug 2003 18:29:01 -0400
+Received: from www.13thfloor.at ([212.16.59.250]:40921 "EHLO www.13thfloor.at")
+	by vger.kernel.org with ESMTP id S271104AbTHQW27 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 18:28:59 -0400
+Date: Mon, 18 Aug 2003 00:28:43 +0200
+From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: NMI appears to be stuck! (2.4.22-rc2 on dual Athlon)
+Message-ID: <20030817222843.GB10967@www.13thfloor.at>
+Reply-To: herbert@13thfloor.at
+Mail-Followup-To: Willy Tarreau <willy@w.ods.org>,
+	linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <20030817212824.GA9025@www.13thfloor.at> <20030817221114.GA734@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20030817221114.GA734@alpha.home.local>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For a halt quiescing devices is overkill, historically wrong, and
-error prone when the system is halted.  The only drivers that should
-care are drivers for devices that do the wrong thing when power is
-removed.
+On Mon, Aug 18, 2003 at 12:11:14AM +0200, Willy Tarreau wrote:
+> On Sun, Aug 17, 2003 at 11:28:24PM +0200, Herbert P?tzl wrote:
+> > 
+> > Hi All!
+> > 
+> > Still no nmi_watchdog on dual Athlon systems?
+> 
+> Hi !
+> 
+> mine works fine only with nmi_watchdog=2. Don't know why. 
+> It's an ASUS A7M266D.
 
-diff -uNr linux-2.6.0-test3/kernel/sys.c linux-2.6.0-test3-no_device_shutdown/kernel/sys.c
---- linux-2.6.0-test3/kernel/sys.c	Tue Jul 29 14:48:17 2003
-+++ linux-2.6.0-test3-no_device_shutdown/kernel/sys.c	Sun Aug 17 22:04:18 2003
-@@ -423,7 +423,6 @@
- 	case LINUX_REBOOT_CMD_HALT:
- 		notifier_call_chain(&reboot_notifier_list, SYS_HALT, NULL);
- 		system_running = 0;
--		device_shutdown();
- 		printk(KERN_EMERG "System halted.\n");
- 		machine_halt();
- 		unlock_kernel();
-@@ -433,7 +432,6 @@
- 	case LINUX_REBOOT_CMD_POWER_OFF:
- 		notifier_call_chain(&reboot_notifier_list, SYS_POWER_OFF, NULL);
- 		system_running = 0;
--		device_shutdown();
- 		printk(KERN_EMERG "Power down.\n");
- 		machine_power_off();
- 		unlock_kernel();
+hmm, nmi_watchdog=2 on the kernel boot line gives no
+difference to booting without, at least according to
+the boot messages ...
 
+ENABLING IO-APIC IRQs                                                                       
+..TIMER: vector=0x31 pin1=2 pin2=0                                                          
+testing the IO APIC.......................                                                  
+                                                                                            
+.................................... done.                                                  
+Using local APIC timer interrupts.                                                          
+calibrating APIC timer ...                                                                  
+..... CPU clock speed is 1533.4487 MHz.                                                     
+
+maybe the nmi_watchdog is always enabled? 
+maybe it only fails with nmi_watchdog=1 ?
+shouldn't there be a message which says that
+the NMI watchdog was enabled?
+
+TIA,
+Herbert
+
+> Cheers,
+> Willy

@@ -1,52 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132628AbRC2KQ6>; Thu, 29 Mar 2001 05:16:58 -0500
+	id <S132704AbRC2K4m>; Thu, 29 Mar 2001 05:56:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132662AbRC2KQs>; Thu, 29 Mar 2001 05:16:48 -0500
-Received: from [62.90.5.51] ([62.90.5.51]:42252 "EHLO salvador.shunra.co.il")
-	by vger.kernel.org with ESMTP id <S132628AbRC2KQc>;
-	Thu, 29 Mar 2001 05:16:32 -0500
-Message-ID: <F1629832DE36D411858F00C04F24847A11DF3B@SALVADOR>
-From: Ofer Fryman <ofer@shunra.co.il>
-To: "'Jean-Michel Lee'" <thaz@21cn.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Question: is linux support Intel's i840 chipset?
-Date: Thu, 29 Mar 2001 12:20:33 +0200
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2448.0)
-Content-Type: text/plain;
-	charset="WINDOWS-1255"
+	id <S132707AbRC2K4c>; Thu, 29 Mar 2001 05:56:32 -0500
+Received: from mta02-svc.ntlworld.com ([62.253.162.42]:2761 "EHLO
+	mta02-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S132704AbRC2K4Q>; Thu, 29 Mar 2001 05:56:16 -0500
+From: cjw44@flatline.org.uk (Colin Watson)
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel IRC Room?
+In-Reply-To: <Pine.LNX.4.33.0103281829140.25491-100000@dlang.diginsite.com>
+In-Reply-To: <Pine.LNX.4.33.0103281829140.25491-100000@dlang.diginsite.com>
+Organization: riva.ucam.org
+Message-Id: <E14iaDE-0004yR-00@riva.ucam.org>
+Date: Thu, 29 Mar 2001 12:03:32 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I believe that Linux 2.2.x and 2.4.x do support it well, however I tried
-using it with Linux 2.0.x and it caused me many problems with PCI drivers. I
-also tried server-works chipset, which also works with 64-bit PCI bus, it
-worked well under Linux 2.0.x no problems what so ever.
-Any way since the 840 chipset is known to be buggy, I suggest you use
-server-works.
+David Lang <dlang@diginsite.com> wrote:
+>how do you hold a real-time chat with people around the world? the fact
+>that the key people would seldom be on at the same time severly limits
+>it's usefullness. the mailing list does a pretty good job as is.
 
-Ofer
+Doesn't seem to harm #debian-devel ...
 
------Original Message-----
-From: Jean-Michel Lee [mailto:thaz@21cn.com]
-Sent: Thursday, March 29, 2001 11:47 AM
-To: linux-kernel@vger.kernel.org
-Subject: Question: is linux support Intel's i840 chipset?
-
-
-Hi,
-
-I just want to search a mainboard with 64-bit PCI bus and ATA-100 support. I
-just find that Intel i840 do. So, I wonder whether linux support Intel's
-i840.
-
-Thanks.
-
-Michel
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Colin Watson                                     [cjw44@flatline.org.uk]

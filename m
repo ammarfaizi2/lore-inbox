@@ -1,51 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264671AbRFPWiM>; Sat, 16 Jun 2001 18:38:12 -0400
+	id <S264025AbRFPXYj>; Sat, 16 Jun 2001 19:24:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264672AbRFPWiC>; Sat, 16 Jun 2001 18:38:02 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:36258 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S264671AbRFPWhy>; Sat, 16 Jun 2001 18:37:54 -0400
-Date: Sat, 16 Jun 2001 16:37:49 -0600
-Message-Id: <200106162237.f5GMbnR16846@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Daniel Dickman <ddickman@nyc.rr.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] to init/main.c
-In-Reply-To: <3B2B845F.50300@nyc.rr.com>
-In-Reply-To: <3B2B845F.50300@nyc.rr.com>
+	id <S264062AbRFPXY3>; Sat, 16 Jun 2001 19:24:29 -0400
+Received: from smtp-rt-5.wanadoo.fr ([193.252.19.159]:41096 "EHLO
+	bassia.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S264025AbRFPXYQ>; Sat, 16 Jun 2001 19:24:16 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: pci_disable_device() vs. arch
+Date: Sun, 17 Jun 2001 01:23:58 +0200
+Message-Id: <20010616232358.22354@smtp.wanadoo.fr>
+In-Reply-To: <3B2BCF79.9BCC40E0@mandrakesoft.com>
+In-Reply-To: <3B2BCF79.9BCC40E0@mandrakesoft.com>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Dickman writes:
-> Here is a small patch to main.c.
-> 
-> It does the following:
-> - makes sure that asm/mtrr.h actually gets included, and
+>huh?  pci_enable_device calls pci_set_power_state.  sungem calls
+>pci_enable_device.
+>
+>pcibios_enable_device shouldn't have to worry about power stuff.  If it
+>does, you need a pcibios_set_power_state, called from
+>pci_set_power_state, instead.
 
-What the hell is this? It is already included!
+Right, having a hook in pci_set_power_state() handles it all. Now,
+there need to be some thinking about how to actually implement it
+(when to call pcibios_set_power_state inside pci_set_power_state
+and what result should it returns).
 
-> - changes formatting in one place as per Documentation/CodingStyle
-> 
-> --- linux-2.4.5/init/main.c     Tue May 22 12:35:42 2001
-> +++ linux/init/main.c   Sat Jun 16 11:48:42 2001
-> @@ -50,7 +50,7 @@
->  #endif
->  
->  #ifdef CONFIG_MTRR
-> -#  include <asm/mtrr.h>
-> +#include <asm/mtrr.h>
->  #endif
->  
->  #ifdef CONFIG_NUBUS
+I see several options:
 
-I don't want this change. It's not fixing anything and removes the
-intentional indentation.
+ - Use it when the device has no PM capabilities
+ - Call it first, and depending on the result code, do the normal
+   PM or not, or eventually just fail.
+ - Call it last/first depending if entering a low power state or
+   exiting.
 
-And was there a reason not to Cc: me?
+In my case, the device don't have PM caps, so I don't really care,
+and it's the same for the other devices I have in mind that would
+need it.
 
-				Regards,
+I still like the idea of implementing this as a function pointer
+inside the pci_bus. In fact, the current implementation could be
+done by filling this pointer with a default value, thus allowing
+the arch to do any variation it may like by overriding this
+pointer.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+I keep having embedded in mind, where we have all sort of weird
+designs (usually to save a few wires on a PLD) and flexibility is
+fine when it doesn't add bloat. In this case, I beleive having
+this notion of "pci_bus ops" for PM makes sense and is not bloat.
+
+>Via is an exception
+
+Yes, unless it's cascaded on a master interrupt controller. But
+I agree the hard coding wasn't good, PPC is just so many different
+boxes, they don't all have a nice device-tree or useable BIOS
+residual datas :(
+
+>Ok, agreed.  There are always gonna be special case bridges, including
+>(for my interest) multi-port NICs whose interfaces are presented as PCI
+>devices downstream from a PCI-PCI bridge.  Controlling power for these
+>nics is sometimes done by messing around with the PM bits on the bridge,
+>not on the downstream devices.
+
+Ah, nice you see you agree ;)
+
+Ben.
+
+

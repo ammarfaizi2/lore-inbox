@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264649AbSJVVVL>; Tue, 22 Oct 2002 17:21:11 -0400
+	id <S264812AbSJVVWE>; Tue, 22 Oct 2002 17:22:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264759AbSJVVVL>; Tue, 22 Oct 2002 17:21:11 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53006 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264649AbSJVVVK>;
-	Tue, 22 Oct 2002 17:21:10 -0400
-Date: Tue, 22 Oct 2002 22:27:19 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: linux-kernel@vger.kernel.org
-Cc: mingo@redhat.com
-Subject: [PATCH] use 1ULL instead of 1UL in kernel/signal.c
-Message-ID: <20021022222719.H27461@parcelfarce.linux.theplanet.co.uk>
+	id <S264769AbSJVVWE>; Tue, 22 Oct 2002 17:22:04 -0400
+Received: from email.gcom.com ([206.221.230.194]:8870 "EHLO gcom.com")
+	by vger.kernel.org with ESMTP id <S264763AbSJVVWD>;
+	Tue, 22 Oct 2002 17:22:03 -0400
+Message-Id: <5.1.0.14.2.20021022162535.0274be90@localhost>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 22 Oct 2002 16:27:00 -0500
+To: Sam Ravnborg <sam@ravnborg.org>, Ingo Molnar <mingo@redhat.com>
+From: David Grothe <dave@gcom.com>
+Subject: Re: I386 cli
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021022221923.A2859@mars.ravnborg.org>
+References: <5.1.0.14.2.20021022145759.02861ec8@localhost>
+ <5.1.0.14.2.20021022145759.02861ec8@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thanks, Sam.  That's the answer that I was looking for.  Wish I had thought 
+to look in the Documentation directory first so as not to have to bother you.
+-- Dave
 
-On PA-RISC we have 36 signals defined for hpux compatibility.  So M()
-and T() in kernel/signal.c try to do (1UL << 33) which is garbage on 32-bit
-architectures.  How do people feel about this patch?
+At 10:19 PM 10/22/2002 Tuesday, Sam Ravnborg wrote:
 
---- kernel/signal.c     21 Oct 2002 03:46:14 -0000      1.5
-+++ kernel/signal.c     22 Oct 2002 21:25:29 -0000
-@@ -96,7 +96,7 @@ int max_queued_signals = 1024;
- #define M_SIGEMT       0
- #endif
- 
--#define M(sig) (1UL << (sig))
-+#define M(sig) (1ULL << (sig))
- 
- #define SIG_USER_SPECIFIC_MASK (\
-        M(SIGILL)    |  M(SIGTRAP)   |  M(SIGABRT)   |  M(SIGBUS)    | \
-@@ -132,7 +132,7 @@ int max_queued_signals = 1024;
-         M(SIGXCPU)   |  M(SIGXFSZ)   |  M_SIGEMT                     )
- 
- #define T(sig, mask) \
--       ((1UL << (sig)) & mask)
-+       ((1ULL << (sig)) & mask)
- 
- #define sig_user_specific(sig) \
-                (((sig) < SIGRTMIN)  && T(sig, SIG_USER_SPECIFIC_MASK))
+>I would advise you to read: Documentation/cli-sti-removal.txt
+>[I recall someone mentioned this documents were slightly out-dated - Ingo?]
+>
+>The short version is that cli() is no loger valid, drivers using it does 
+>not compile.
+>
+>         Sam
 
-(patch copied & pasted; whitespace is munged.  This is an indication I
-expect to get some pushback on this issue ;-)
-
--- 
-Revolutions do not require corporate support.

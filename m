@@ -1,81 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268274AbUJJMV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268268AbUJJMWS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268274AbUJJMV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 08:21:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268271AbUJJMV5
+	id S268268AbUJJMWS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 08:22:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268271AbUJJMWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 08:21:57 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:23236 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S268275AbUJJMVI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 08:21:08 -0400
-Message-ID: <4169293B.3020502@comcast.net>
-Date: Sun, 10 Oct 2004 08:21:15 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20041001)
+	Sun, 10 Oct 2004 08:22:18 -0400
+Received: from a26.t1.student.liu.se ([130.236.221.26]:55991 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S268268AbUJJMWI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 08:22:08 -0400
+Message-ID: <4169297A.8040602@drzeus.cx>
+Date: Sun, 10 Oct 2004 14:22:18 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040919)
 X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sven-Thorsten Dietrich <sdietrich@mvista.com>
-CC: linux-kernel@vger.kernel.org,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>,
-       "Amakarov@Ru. Mvista. Com" <amakarov@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       "Ext-Rt-Dev@Mvista. Com" <ext-rt-dev@mvista.com>,
-       New Zhang Haitao <hzhang@ch.mvista.com>,
-       "Yyang@Ch. Mvista. Com" <yyang@ch.mvista.com>
-Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-References: <41677E4D.1030403@mvista.com>
-In-Reply-To: <41677E4D.1030403@mvista.com>
-X-Enigmail-Version: 0.85.0.0
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=_hades.drzeus.cx-17159-1097410959-0001-2"
+To: linux-kernel@vger.kernel.org, Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: [PATCH] MMC power cycle
+X-Enigmail-Version: 0.84.2.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
+--=_hades.drzeus.cx-17159-1097410959-0001-2
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
+I think I've found the special magic required to initialise my problem 
+card without causing issues with other cards/controllers.
 
-Sven-Thorsten Dietrich wrote:
-|
-| Announcing the availability of prototype real-time (RT)
-| enhancements to the Linux 2.6 kernel.
-|
-| We will submit 3 additional emails following this one, containing
-| the remaining 3 patches (of 4) inline, with their descriptions.
-|
-| Download:
-|
-| Patches against the Linux-2.6.9-rc3 kernel are available at:
-|
-| ftp://source.mvista.com/pub/realtime/Linux-2.6.9-rc3-RT_irqthreads.patch
-| ftp://source.mvista.com/pub/realtime/Linux-2.6.9-rc3-RT_mutex.patch
-| ftp://source.mvista.com/pub/realtime/Linux-2.6.9-rc3-RT_spinlock1.patch
-| ftp://source.mvista.com/pub/realtime/Linux-2.6.9-rc3-RT_spinlock2.patch
-|
-| The patches are to be applied to the linux-2.6.9-rc3 kernel in the
-| order listed above.
+After the initial scan to determine a correct voltage, the host cycles 
+power to reboot any cards (like mine) that have gone into shutdown. This 
+patch works with the two cards I have (one good, one bad).
 
-Does any of this 'work' on x86_64 yet?  I heard that Ingo's voluntary
-pre-empt was x86 only and didn't work on amd64; this stuff's kinda new,
-does it work outside x86 yet?
+Russell, do you think this will work in all discussed scenarios?
 
-I'd like to see what these kinds of things do.  :)
+Rgds
+Pierre
 
-[...]
+--=_hades.drzeus.cx-17159-1097410959-0001-2
+Content-Type: text/x-patch; name="mmc-powercycle.patch"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mmc-powercycle.patch"
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+Index: linux-wbsd/drivers/mmc/mmc.c
+===================================================================
+--- linux-wbsd/drivers/mmc/mmc.c	(revision 71)
++++ linux-wbsd/drivers/mmc/mmc.c	(working copy)
+@@ -666,13 +666,24 @@
+ 		host->ocr = mmc_select_voltage(host, ocr);
+ 
+ 		/*
+-		 * Since we're changing the OCR value, we seem to
+-		 * need to tell some cards to go back to the idle
+-		 * state.  We wait 1ms to give cards time to
+-		 * respond.
++		 * Some cards shut down when receiving an OCR of
++		 * zero. But since they send their mask before
++		 * shutting down we can still calculate a correct
++		 * voltage. To get them back to life we need to
++		 * cycle power.
++		 *
++		 * When changing OCR values we also need to put
++		 * the cards in idle state. But since we restart
++		 * them here that point is moot.
+ 		 */
+ 		if (host->ocr)
++		{
++			mmc_power_off(host);
++			mmc_delay(100);
++			mmc_power_up(host);
++
+ 			mmc_idle_cards(host);
++		}
+ 	} else {
+ 		host->ios.bus_mode = MMC_BUSMODE_OPENDRAIN;
+ 		host->ios.clock = host->f_min;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBaSk6hDd4aOud5P8RAotcAJ9GgA3P1mAG/CpdlJDknGK6zwA92QCePZi4
-AyNDvW6urtDNdvJAPDMZZfk=
-=gVeZ
------END PGP SIGNATURE-----
+--=_hades.drzeus.cx-17159-1097410959-0001-2--

@@ -1,134 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263824AbUDUASC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263184AbUDUAVK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263824AbUDUASC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 20:18:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263869AbUDUASC
+	id S263184AbUDUAVK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 20:21:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264276AbUDUAVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 20:18:02 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:22176 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263824AbUDUAR4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 20:17:56 -0400
-Subject: Re: [PATCH] Kconfig dependancy update for drivers/misc/ibmasm
-From: Max Asbock <masbock@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: tony@bakeyournoodle.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20040420164231.2fd3518a.akpm@osdl.org>
-References: <20040420210110.GD3445@bakeyournoodle.com>
-	 <20040420143418.08962d0b.akpm@osdl.org>
-	 <1082501343.6129.180.camel@DYN318100BLD.beaverton.ibm.com>
-	 <20040420164231.2fd3518a.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1082506630.6129.207.camel@DYN318100BLD.beaverton.ibm.com>
+	Tue, 20 Apr 2004 20:21:10 -0400
+Received: from ipcop.bitmover.com ([192.132.92.15]:35773 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S263807AbUDUAVH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 20:21:07 -0400
+Date: Tue, 20 Apr 2004 17:21:02 -0700
+From: Andy Isaacson <adi@bitmover.com>
+To: "Giacomo A. Catenazzi" <cate@debian.org>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Compile error in main.c [2.6.bk]
+Message-ID: <20040421002102.GB27313@bitmover.com>
+References: <407F821A.3040908@debian.org> <20040418040111.GR3445@bakeyournoodle.com> <40836E12.8000402@debian.org> <20040419092155.1614862a.rddunlap@osdl.org> <40840565.6000304@debian.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 20 Apr 2004 17:17:10 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40840565.6000304@debian.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-04-20 at 16:42, Andrew Morton wrote:
-
-> Max Asbock <masbock@us.ibm.com> wrote:
-
-> > ... allows the driver to be built without serial line support. It
-> > still functions that way. uart support is only part of the driver's
-> > functions. Therefore it makes sense to not make the whole driver depend
-> > on SERIAL_8250 and instead only configure away the uart support when
-> > SERIAL_8250 is not defined.
-
-
-> So I think you'll be needing something liek this?
+On Mon, Apr 19, 2004 at 06:59:17PM +0200, Giacomo A. Catenazzi wrote:
+> Randy.Dunlap wrote:
+> >2.6.6-rc1-bk4 builds for me with your .config file.
+> >Were you using something earlier than (before) rc1-bk4 ?
+> 
+> I'm using the latest linus bk version
+> 
+> VERSION = 2
+> PATCHLEVEL = 6
+> SUBLEVEL = 6
+> EXTRAVERSION =-rc1
+> NAME=Zonked Quokka
 > 
 > 
->  25-akpm/drivers/misc/ibmasm/uart.c |    4 ++++
->  1 files changed, 4 insertions(+)
+> hmm:
 > 
-> diff -puN drivers/misc/ibmasm/uart.c~a drivers/misc/ibmasm/uart.c
-> --- 25/drivers/misc/ibmasm/uart.c~a	Tue Apr 20 16:41:32 2004
-> +++ 25-akpm/drivers/misc/ibmasm/uart.c	Tue Apr 20 16:41:56 2004
-> @@ -54,12 +54,14 @@ void ibmasm_register_uart(struct service
->  	serial.io_type		= UPIO_MEM;
->  	serial.iomem_base	= iomem_base;
->  
-> +#ifdef CONFIG_SERIAL_8250
->  	sp->serial_line = register_serial(&serial);
->  	if (sp->serial_line < 0) {
->  		dev_err(sp->dev, "Failed to register serial port\n");
->  		return;
->  	}
->  	enable_uart_interrupts(sp->base_address);
-> +#endif
->  }
->  
->  void ibmasm_unregister_uart(struct service_processor *sp)
-> @@ -68,5 +70,7 @@ void ibmasm_unregister_uart(struct servi
->  		return;
->  
->  	disable_uart_interrupts(sp->base_address);
-> +#ifdef CONFIG_SERIAL_8250
->  	unregister_serial(sp->serial_line);
-> +#endif
->  }
+> cate@catee:~/kernel/5,v2.5/bk/linus-2.5$ find include/ | grep audit
+> include/linux/SCCS/s.audit.h
+> include/config/audit.h
 > 
+> but no include/linux/audit.h as used in include/linux/fs.h
+> 
+> Corrupted local bk?
 
-I posted the following patch a little while ago. I arranged it that way
-with the intention to avoid #ifdefs in the .c file. This patch has been
-applied in 2.6.6-rc2. So it is all good. 
+I realize I'm behind on list mail, and this might be irrelevant
+already...
 
-regards,
-max
+Does "bk -r check -acv" report any problems on that repo?
 
-diff -urN linux-2.6.5/drivers/misc/ibmasm/ibmasm.h linux-2.6.5-ibmasm/drivers/misc/ibmasm/ibmasm.h
---- linux-2.6.5/drivers/misc/ibmasm/ibmasm.h	2004-04-03 19:36:18.000000000 -0800
-+++ linux-2.6.5-ibmasm/drivers/misc/ibmasm/ibmasm.h	2004-04-06 10:56:31.000000000 -0700
-@@ -220,5 +220,10 @@
- extern void ibmasmfs_add_sp(struct service_processor *sp);
- 
- /* uart */
-+#ifdef CONFIG_SERIAL_8250
- extern void ibmasm_register_uart(struct service_processor *sp);
- extern void ibmasm_unregister_uart(struct service_processor *sp);
-+#else
-+#define ibmasm_register_uart(sp)	do { } while(0)
-+#define ibmasm_unregister_uart(sp)	do { } while(0)
-+#endif
-diff -urN linux-2.6.5/drivers/misc/ibmasm/Makefile linux-2.6.5-ibmasm/drivers/misc/ibmasm/Makefile
---- linux-2.6.5/drivers/misc/ibmasm/Makefile	2004-04-03 19:37:37.000000000 -0800
-+++ linux-2.6.5-ibmasm/drivers/misc/ibmasm/Makefile	2004-04-06 13:07:54.000000000 -0700
-@@ -1,7 +1,7 @@
- 
- obj-$(CONFIG_IBM_ASM) := ibmasm.o
- 
--ibmasm-objs :=	module.o      \
-+ibmasm-y :=	module.o      \
- 		ibmasmfs.o    \
- 		event.o       \
- 		command.o     \
-@@ -9,5 +9,7 @@
- 		heartbeat.o   \
- 		r_heartbeat.o \
- 		dot_command.o \
--		lowlevel.o    \
--		uart.o
-+		lowlevel.o
-+
-+ibmasm-$(CONFIG_SERIAL_8250) += uart.o
-+
-diff -urN linux-2.6.5/drivers/misc/Kconfig linux-2.6.5-ibmasm/drivers/misc/Kconfig
---- linux-2.6.5/drivers/misc/Kconfig	2004-04-03 19:36:26.000000000 -0800
-+++ linux-2.6.5-ibmasm/drivers/misc/Kconfig	2004-04-06 13:50:49.924254952 -0700
-@@ -16,7 +16,9 @@
- 	  processor. The driver is meant to be used in conjunction with
- 	  a user space API.
- 	  The ibmasm driver also enables the OS to use the UART on the
--          service processor board as a regular serial port.
-+	  service processor board as a regular serial port. To make use of
-+	  this feature serial driver support (CONFIG_SERIAL_8250) must be
-+	  enabled.
- 	  
- 
- 	  If unsure, say N.
-
-
-
+-andy

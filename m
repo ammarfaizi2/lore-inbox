@@ -1,100 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262086AbSJNSu6>; Mon, 14 Oct 2002 14:50:58 -0400
+	id <S262099AbSJNS61>; Mon, 14 Oct 2002 14:58:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262093AbSJNSu6>; Mon, 14 Oct 2002 14:50:58 -0400
-Received: from tartarus.telenet-ops.be ([195.130.132.34]:7831 "EHLO
-	tartarus.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S262086AbSJNSu4> convert rfc822-to-8bit; Mon, 14 Oct 2002 14:50:56 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Bart De Schuymer <bart.de.schuymer@pandora.be>
-To: "David S. Miller" <davem@redhat.com>
-Subject: Re: [RFC] bridge-nf -- map IPv4 hooks onto bridge hooks, vs 2.5.42
-Date: Mon, 14 Oct 2002 20:58:53 +0200
-X-Mailer: KMail [version 1.4]
-Cc: linux-kernel@vger.kernel.org, buytenh@gnu.org,
-       Lennert Buytenhek <buytenh@gnu.org>, <rusty@rustcorp.com.au>
-References: <20020911.153132.63843642.davem@redhat.com> <200210142005.06292.bart.de.schuymer@pandora.be> <20021014.110159.15420052.davem@redhat.com>
-In-Reply-To: <20021014.110159.15420052.davem@redhat.com>
+	id <S262100AbSJNS61>; Mon, 14 Oct 2002 14:58:27 -0400
+Received: from MEREDITH.DEMENTIA.ORG ([128.2.120.216]:7953 "EHLO
+	meredith.dementia.org") by vger.kernel.org with ESMTP
+	id <S262099AbSJNS6Z>; Mon, 14 Oct 2002 14:58:25 -0400
+Date: Mon, 14 Oct 2002 15:04:15 -0400 (EDT)
+From: Derrick J Brashear <shadow@dementia.org>
+X-X-Sender: shadow@trafford.andrew.cmu.edu
+To: Alexander Viro <viro@math.psu.edu>
+cc: Christoph Hellwig <hch@infradead.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: AFS system call registration function (was Re: Two fixes
+ for 2.4.19-pre5-ac3)
+In-Reply-To: <Pine.GSO.4.21.0210141427410.6505-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.44L-027.0210141435100.18909-100000@trafford.andrew.cmu.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210142058.53355.bart.de.schuymer@pandora.be>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 14 October 2002 20:01, David S. Miller wrote:
-Hello,
+I should say I wasn't intending to pick on nfsservctl, but since it was
+the interface this was modelled on, more or less per the suggestion made
+in April, I was using it as a reference.
 
-These are probably stupid questions to you, but here it goes.
+On Mon, 14 Oct 2002, Alexander Viro wrote:
 
-> These changes cannot go in:
+> On Mon, 14 Oct 2002, Derrick J Brashear wrote:
 >
-> 1) There is no reason the 'okfn' you use cannot be the
->    function doing the MAC header copy.
+> > Incidentally, nothing in the kernel source tree provides an example
+> > "explanation of the usage of nfsservctl"; I'll be happy to work out the
+> > new interface and provide appropriate information, but is there some place
+> > in particular such things end up being documented? I'm not averse to
+> > submitting information to go in /Documentation but it doesn't appear
+> > there's precedent for that.
 >
->    This is how this is supposed to work.
+> Notice that in 2.5 (and that's backportable to 2.4 - I'll do that after
+> Oct 31) nfsservctl() is a trivial wrapper around open/write/read/close.
+> IOW, mountd and friends could stop using that syscall - all functionality
+> is available for userland without it.
 >
->    I explained in that long thread a few weeks ago how
->    this copy may not be placed in the generic IP code.
->    This is final, you must find a way to make this copy
->    without touching ipv4/*.c
-
-I've checked the skb->dst->hh field and it (or skb->dst itself) was NULL for 
-purely bridged packets. So we'd have to fill this in ourselves. Can the 
-bridge code go fill in a skb->dst and skb->dst->hh? Is this considered clean?
-
-> 2) The netfilter changes need to be approved by the netfilter
->    team.
+> See fs/nfsctl.c and fs/nfsd/nfsctl.c for example of doing that.
 >
->    I suspect, like myself, they will barf at the phys{in,out}dev
->    additions to sk_buff.  We already have enough junk sitting
->    in sk_buff making it larger than it needs to be.
+> What things are done by afs_syscall()?  If you are passing some requests
+> to the afs driver - just tell what these requests are, writing that
+> stuff is a matter of an hour...
 
-I added a third member as well... It's needed too, in my opinion.
-There could ofcourse be added a pointer to a struct containing these three 
-values (and a copied Ethernet header). Then we go from 3 to 1 extra member...
-Anyway, it's not like Lennert and me like adding new members, but we need to 
-save those things somewhere...
+One is the "afs operation" call, which includes items which historically
+donated contexts to the kernel by making the system calls at startup, but
+as of our last release we made changes that make most of this obsolete,
+switching to kernel threads, so this could be simplified to basically one
+operation to start and another to stop.
 
->    Perhaps you can hang this off the nf_conntrack pointer and
->    specify a destructor.
->
-> 3) The bridging layer changes need to be approved by Lennert.
->    But I'd suggest working out #1 and #2 first.
+One of the operations, however, is an upcall, particularly, the afsd
+daemon donates a child which stays in a syscall until a DNS lookup
+(of AFSDB resource records to find new cells) is needed, then it returns.
 
-So if I change
-struct nf_conntrack {
-	atomic_t use;
-	void (*destroy)(struct nf_conntrack *);
-};
+Another two are used for adding new cells and cell aliases while AFS is
+running.
 
-into this:
+The other things which exist at this point (under that umbrella) are all
+startup items for the client and can probably be rewritten to work other
+ways. However, one possible answer for dealing with kerberos v5 is
+another upcall interface involving a donated child, because ideally you
+want not just a single kerberos credential as essentially happens now,
+but instead the ability to use a single credential per server host, and
+there's no way of knowing at startup what all server hosts you'll access
+during operation, because new servers can be registered and put in
+service on the fly.
 
-struct nf_conntrack {
-	atomic_t use;
-	void (*destroy)(struct nf_conntrack *);
-	struct brnf_data *brnf;
-};
+Then there are the things which might properly be additional system calls,
+except that their possible generic use never caught on, hence they are
+still under the AFS umbrella.
 
-I can keep the copy of the Ethernet header in the struct brnf_data too (then I 
-don't have to touch skbuff->dst).
-The skbuff->nfct field can already be in use by an IP connection tracker (or 
-something), so I can't use my own destroy function.
-So I'd have to go do something in 
-net/ipv4/netfilter/ip_conntrack_core.c::destroy_conntrack() and I don't know 
-that stuff.
-I sure don't like this solution more than the current situation.
+-pioctl, which works like ioctl except instead of taking an open
+file descriptor, it takes a path. Dealing with this would be troublesome.
 
-Anyway, mapping the IPv4 hooks onto the bridge hooks is in my opinion by 
-definition a hack. But a very useful hack. So if you want this in the kernel 
-you'll have to be forgiving. Or present a nice solution, because I and 
-probably Lennert really don't see a nice(r) solution.
+-setpag, which may be able to be changed in the Linux Security Module
+universe, but again we don't know yet how to support RedHat 8's not quite
+2.4.19, which doesn't have this and yet doesn't export sys_call_table
 
-So, the best solution I can think of is adding a skbuff->brnf pointer to a 
-struct brnf_data. This will get rid of the copy in ip_output.c. Is that 
-enough? This will uglify the ip_tables.c patch however.
+-"icl", basically a mechanism to pass messages between userspace and the
+AFS kernel trace facility.
 
--- 
-cheers,
-Bart
+-icreate/iopen/idec/iinc, which we don't actually use on Linux, and thus
+don't need to consider in this proposal.
+
+I'm open to reworking this as much as I can but it does leave the sticking
+point of RedHat 8, which is unfortunate, since if we could do this purely
+in terms of new interfaces I think we could be much cleaner. Instead I
+think we have to make some compromise to make something which will also
+work with whatever portions they've already backported. Most of our users
+seem to use RedHat or Debian, so basically we'd like to continue
+supporting those people.
+
+
+
+
+
+
 

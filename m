@@ -1,53 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271747AbRIOCBH>; Fri, 14 Sep 2001 22:01:07 -0400
+	id <S271877AbRIOCiO>; Fri, 14 Sep 2001 22:38:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271751AbRIOCA5>; Fri, 14 Sep 2001 22:00:57 -0400
-Received: from pobox.ati.com ([209.50.91.129]:35993 "EHLO pobox.atitech.ca")
-	by vger.kernel.org with ESMTP id <S271747AbRIOCAj>;
-	Fri, 14 Sep 2001 22:00:39 -0400
-Message-ID: <761E23C7F09AD51188990008C74C26141226@fgl00exh01.atitech.com>
-From: "Alexander Stohr" <AlexanderS@ati.com>
-To: <DevilKin@gmx.net>, <linux-kernel@vger.kernel.org>
+	id <S271892AbRIOChy>; Fri, 14 Sep 2001 22:37:54 -0400
+Received: from barry.mail.mindspring.net ([207.69.200.25]:26939 "EHLO
+	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S271877AbRIOCho>; Fri, 14 Sep 2001 22:37:44 -0400
+Subject: Re: AGP Bridge support for AMD 761
+From: Robert Love <rml@ufl.edu>
+To: DevilKin@gmx.net
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <761E23C7F09AD51188990008C74C26141226@fgl00exh01.atitech.com>
+In-Reply-To: <761E23C7F09AD51188990008C74C26141226@fgl00exh01.atitech.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Subject: re: AGP Bridge support for AMD 761
-Date: Sat, 15 Sep 2001 03:58:59 +0200
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Content-Type: text/plain;	charset="iso-8859-1"
-X-OriginalArrivalTime: 15 Sep 2001 02:02:00.0671 (UTC) FILETIME=[683D3EF0:01C13D8A]
+X-Mailer: Evolution/0.13.99+cvs.2001.09.14.18.39 (Preview Release)
+Date: 14 Sep 2001 22:38:38 -0400
+Message-Id: <1000521528.31713.7.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For diagnostics you should check outputs of "lspci -xxx -s 0:0".
-(Sent this data to the list here, if you still fail with your attempt.)
+I tried to put together a patch for AMD 761 support.  I don't have an
+AMD 761, but this should work fine.
 
-First and second byte are the vendor id (AMD = 1022) in low high order.
-Third and forth value form the low and the high part of the chips device id.
+it is against 2.4.10-pre1, but it should apply cleanly to your kernel.
 
-
-List of device ids:
-  AMD 751 0x7006 (Irongate)
-  AMD 761 0x700E (IGD4)
-  AMD 762 0x700C
-
-SMP versions not listed here, see 
-http://www.yourvote.com/pci/pciread.asp?venid=0x1022 for more device IDs.
-
-Kernel source from 2.4.9 shows up with support for the AMD 751.
-Since follow up chips often do not change much, the 
-  ===> "agp_try_unsupported=1" <===
-option will cause the driver to apply the 751 code onto any other
-chipset that has AMD as its vendor, as long as AGP registers 
-are found for it. This should do the job for several versions, or 
-crash rahter fast if the chipset is no longer compatible.
-
-regards AlexS.
-
-PS: i am not subscribed to this list.
-PS2: i might read your answers via http://marc.theaimsgroup.com
+Please let me know if it works, so we can submit it for inclusion in the
+kernel.
 
 
+diff -urN linux-2.4.10-pre9/Documentation/Configure.help linux/Documentation/Configure.help
+--- linux-2.4.10-pre9/Documentation/Configure.help	Thu Sep 13 21:03:36 2001
++++ linux/Documentation/Configure.help	Fri Sep 14 22:28:37 2001
+@@ -2581,7 +2581,7 @@
+ AMD Irongate support
+ CONFIG_AGP_AMD
+   This option gives you AGP support for the GLX component of the
+-  XFree86 4.x on AMD Irongate chipset.
++  XFree86 4.x on AMD Irongate and 761 chipsets.
+ 
+   For the moment, you should probably say N, unless you want to test
+   the GLX component for XFree86 3.3.6, which can be downloaded from
+diff -urN linux-2.4.10-pre9/drivers/char/agp/agp.h linux/drivers/char/agp/agp.h
+--- linux-2.4.10-pre9/drivers/char/agp/agp.h	Thu Sep 13 21:03:40 2001
++++ linux/drivers/char/agp/agp.h	Fri Sep 14 22:33:37 2001
+@@ -196,6 +196,9 @@
+ #ifndef PCI_DEVICE_ID_AMD_IRONGATE_0
+ #define PCI_DEVICE_ID_AMD_IRONGATE_0    0x7006
+ #endif
++#ifndef PCI_DEVICE_ID_AMD_761_0
++#define PCI_DEVICE_ID_AMD_761_0		0x700E
++#endif
+ #ifndef PCI_VENDOR_ID_AL
+ #define PCI_VENDOR_ID_AL		0x10b9
+ #endif
+diff -urN linux-2.4.10-pre9/drivers/char/agp/agpgart_be.c linux/drivers/char/agp/agpgart_be.c
+--- linux-2.4.10-pre9/drivers/char/agp/agpgart_be.c	Thu Sep 13 21:03:40 2001
++++ linux/drivers/char/agp/agpgart_be.c	Fri Sep 14 22:33:48 2001
+@@ -2895,6 +2895,12 @@
+ 		"AMD",
+ 		"Irongate",
+ 		amd_irongate_setup },
++	{ PCI_DEVICE_ID_AMD_761_0,
++		PCI_VENDOR_ID_AMD,
++		AMD_761,
++		"AMD",
++		"761",
++		amd_irongate_setup },
+ 	{ 0,
+ 		PCI_VENDOR_ID_AMD,
+ 		AMD_GENERIC,
+@@ -2922,7 +2928,6 @@
+ 		"Intel",
+ 		"440GX",
+ 		intel_generic_setup },
+-	/* could we add support for PCI_DEVICE_ID_INTEL_815_1 too ? */
+ 	{ PCI_DEVICE_ID_INTEL_815_0,
+ 		PCI_VENDOR_ID_INTEL,
+ 		INTEL_I815,
+diff -urN linux-2.4.10-pre9/include/linux/agp_backend.h linux/include/linux/agp_backend.h
+--- linux-2.4.10-pre9/include/linux/agp_backend.h	Thu Sep 13 21:03:50 2001
++++ linux/include/linux/agp_backend.h	Fri Sep 14 22:27:34 2001
+@@ -58,6 +58,7 @@
+ 	SIS_GENERIC,
+ 	AMD_GENERIC,
+ 	AMD_IRONGATE,
++	AMD_761,
+ 	ALI_M1541,
+ 	ALI_M1621,
+ 	ALI_M1631,
 
+
+
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 

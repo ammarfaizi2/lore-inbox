@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318086AbSIJUaD>; Tue, 10 Sep 2002 16:30:03 -0400
+	id <S318115AbSIJUcK>; Tue, 10 Sep 2002 16:32:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318101AbSIJUaD>; Tue, 10 Sep 2002 16:30:03 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:23570 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S318086AbSIJUaC>; Tue, 10 Sep 2002 16:30:02 -0400
-Date: Tue, 10 Sep 2002 22:34:46 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: XFS?
-Message-ID: <20020910203446.GV26075@louise.pinerecords.com>
-References: <p73wupuq34l.fsf@oldwotan.suse.de> <20020910142347.A5000@q.mn.rr.com> <92ksnuc403ubdr07dqvnor1mf9lr18srij@4ax.com> <200209101518.31538.nleroy@cs.wisc.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200209101518.31538.nleroy@cs.wisc.edu>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
-X-Uptime: 14 days, 8:35
+	id <S318113AbSIJUcK>; Tue, 10 Sep 2002 16:32:10 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:4854 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S318115AbSIJUcI>; Tue, 10 Sep 2002 16:32:08 -0400
+Date: Tue, 10 Sep 2002 22:36:48 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Greg KH <greg@kroah.com>, Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: linux-kernel@vger.kernel.org
+Subject: [patch] add Configure.help entries for CONFIG_USB_SERIAL_KEYSPAN_USA19Q{W,I}
+Message-ID: <Pine.NEB.4.44.0209102234040.18902-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > So does Redhat/Suse/??? ship XFS yet?
-> 
-> Don't know about RedHat & others, but SuSE _does_ ship XFS.
+Hi Marcelo,
 
-RedHat apparently doesn't want any more trouble than absolutely
-necessary and only provides ext[32] installs by default. SuSE and
-Mandrake can't -- *IMHO* -- be considered sensible distributions.
+the patch below adds Configure.help entries for
+CONFIG_USB_SERIAL_KEYSPAN_USA19QW and CONFIG_USB_SERIAL_KEYSPAN_USA19QI
+which were introduced in 2.4.20-pre.
 
-T.
+cu
+Adrian
+
+
+--- Documentation/Configure.help.old	2002-09-10 22:27:30.000000000 +0200
++++ Documentation/Configure.help	2002-09-10 22:29:38.000000000 +0200
+@@ -13773,6 +13773,14 @@
+ CONFIG_USB_SERIAL_KEYSPAN_USA19W
+   Say Y here to include firmware for the USA-19W converter.
+
++USB Keyspan USA-19QW Firmware
++CONFIG_USB_SERIAL_KEYSPAN_USA19QW
++  Say Y here to include firmware for the USA-19QW converter.
++
++USB Keyspan USA-19QI Firmware
++CONFIG_USB_SERIAL_KEYSPAN_USA19QI
++  Say Y here to include firmware for the USA-19QI converter.
++
+ USB Keyspan USA-49W Firmware
+ CONFIG_USB_SERIAL_KEYSPAN_USA49W
+   Say Y here to include firmware for the USA-49W converter.
+

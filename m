@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316258AbSH0PQH>; Tue, 27 Aug 2002 11:16:07 -0400
+	id <S316289AbSH0PVt>; Tue, 27 Aug 2002 11:21:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316289AbSH0PQH>; Tue, 27 Aug 2002 11:16:07 -0400
-Received: from mta02ps.bigpond.com ([144.135.25.134]:62461 "EHLO
-	mta02ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S316258AbSH0PQH>; Tue, 27 Aug 2002 11:16:07 -0400
-Message-ID: <3D6B9902.4070704@snapgear.com>
-Date: Wed, 28 Aug 2002 01:21:38 +1000
-From: gerg <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S316309AbSH0PVt>; Tue, 27 Aug 2002 11:21:49 -0400
+Received: from pD9E23A01.dip.t-dialin.net ([217.226.58.1]:56504 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316289AbSH0PVs>; Tue, 27 Aug 2002 11:21:48 -0400
+Date: Tue, 27 Aug 2002 09:25:06 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Horst von Brand <vonbrand@eeyore.valparaiso.cl>
+cc: Robert Love <rml@tech9.net>, <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] make raid5 checksums preempt-safe 
+In-Reply-To: <200208270138.g7R1ckGx001985@eeyore.valparaiso.cl>
+Message-ID: <Pine.LNX.4.44.0208270924130.3234-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.5.31uc1 (MMU-less patches)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Hi,
 
-A new 2.5.31 MMU-less patch, linux-2.5.31uc1.
-Just a minor update, couple of small fixes.
+On Mon, 26 Aug 2002, Horst von Brand wrote:
+> Also, kindly place "do { ... } while(0)" around XMMS_SAVE, if only for
+> symmetry.
 
-Get it at the usual place:
+We've already had that talked about. Will appear in one of the following 
+patches.
 
-   http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/
-
-Regards
-Greg
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

@@ -1,85 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbUK0HGO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbUK0HGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbUK0HGO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 02:06:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbUK0HFC
+	id S261243AbUK0HGN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 02:06:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbUK0HFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 02:05:02 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:32190 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261272AbUKZTIO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:08:14 -0500
-Message-ID: <48406.194.39.131.40.1101374546.squirrel@noto.dyndns.org>
-In-Reply-To: <20041125080451.GE10233@suse.de>
-References: <33356.192.168.0.2.1101334593.squirrel@192.168.0.10>
-    <20041125080451.GE10233@suse.de>
-Date: Thu, 25 Nov 2004 10:22:26 +0100 (CET)
-Subject: Re: Re: Is controlling DVD speeds via SET_STREAMING supported?
-From: "Thomas Fritzsche" <tf@noto.de>
-To: "Jens Axboe" <axboe@suse.de>
-Cc: "Thomas Fritzsche" <tf@noto.de>, linux-kernel@vger.kernel.org,
-       david@2gen.com
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Sat, 27 Nov 2004 02:05:43 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:64410 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261389AbUKZTHz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:07:55 -0500
+Subject: Re: Suspend 2 merge: 35/51: Code always built in to the kernel.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041126000853.GL2711@elf.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <1101298112.5805.330.camel@desktop.cunninghams>
+	 <20041125233243.GB2909@elf.ucw.cz>
+	 <1101427035.27250.161.camel@desktop.cunninghams>
+	 <20041126000853.GL2711@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1101428250.27250.188.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 26 Nov 2004 11:17:30 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens,
+Hi again.
 
-absolute correct! I just tested it with speed = 1 yesterday night
-(quick&duty). This is just a code snap to show that it's possible to set
-the speed of a DVD drive this way.
+On Fri, 2004-11-26 at 11:08, Pavel Machek wrote:
+> Kernel boot is not expected to be interactive. I'd do
+> 
+> if (can_erase_image)
+> 	printk("Incorrect kernel version, image killed\n");
+> else
+> 	panic("Can't kill suspended image");
+> 
 
-You also wrote about the "End LBA" field in your other mail.
-I set this to 0xffffffff but you think that this could be a problem if the
-device don't have this LBA. The spec only writes this:
-"The End LBA field is the last logical block for which the performance
-request is being made." So it should be standard conform if we set here a
-higher block number. Do you have experience with other (than NEC ND-3500)
-drive that don't support this?
+Comes down, again, to user friendliness. Just because I can erase the
+image, doesn't mean I should. It may be that the user just pressed the
+down arrow one too few times in lilo, and they really do have the right
+kernel, but started the wrong one. Or it may be that they're still
+setting up their initrd, didn't get it quite right, know that no damage
+will be done and want to continue booting. We should let the user think
+about what they want to do and then do it.
 
-Using this high last block number would make sence, because it looks like
-this setting is still valid if the media is changed (other end block!?).
+I need to get on with the work I planned on doing today, so I'm going to
+hang up after sending this. That's not at all to say that I want you to
+stop sending email; just that I won't be replying for a while.
 
-Spec:
-"The performance setting is persistent and remains until a new descriptor
-is sent. The setting only applies to the extent
-identified by the Start and End LBA field. Only zero or one performance
-extents shall be valid at any time."
+Once again, thanks very much for your effort. It is good to be made to
+defend design decisions and to see where you could do things better or
+took things for granted that 'aint necessarily so.
 
-What do you think?
+Regards,
 
-I also found out, that the Realtime-Streaming Feature is mandatory
-for all kinds of DVD-+R+-RW-RAM drives. So it might be sufficient to
-simply use SET STREAMING for DVD drives and SET SPEED for CD-R's. Isn't
-it?
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
-I will also enhance this tool by setting the RDD flag if the user selects
-speed = 0.
-
-Thanks and kind regards,
- Thomas Fritzsche
-
-> I should have read this more closely... You need to fill the speed
-> fields correctly:
->
-> 	unsigned long read_size = 177 * speed;
->
-> 	buffer[12] = (read_size >> 24) & 0xff;
-> 	buffer[13] = (read_size >> 16) & 0xff;
-> 	buffer[14] = (read_size >>  8) & 0xff;
-> 	buffer[15] = read_size & 0xff;
->
-> Ditto for write size.
->
-> --
-> Jens Axboe
->
->
-
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
 

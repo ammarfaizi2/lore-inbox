@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262266AbSJ0D54>; Sat, 26 Oct 2002 23:57:56 -0400
+	id <S262120AbSJ0EZ5>; Sun, 27 Oct 2002 00:25:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262273AbSJ0D54>; Sat, 26 Oct 2002 23:57:56 -0400
-Received: from smtp01.fields.gol.com ([203.216.5.131]:63649 "EHLO
-	smtp01.fields.gol.com") by vger.kernel.org with ESMTP
-	id <S262266AbSJ0D5z>; Sat, 26 Oct 2002 23:57:55 -0400
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]: linux-2.5.44uc1 (MMU-less support)
-In-Reply-To: <fa.fd5mvtv.9gon33@ifi.uio.no>
-References: <fa.fd5mvtv.9gon33@ifi.uio.no>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-From: Miles Bader <miles@gnu.org>
-Date: 27 Oct 2002 13:04:07 +0900
-Message-ID: <87iszosf2g.fsf@tc-1-100.kawasaki.gol.ne.jp>
+	id <S262273AbSJ0EZ5>; Sun, 27 Oct 2002 00:25:57 -0400
+Received: from momus.sc.intel.com ([143.183.152.8]:57332 "EHLO
+	momus.sc.intel.com") by vger.kernel.org with ESMTP
+	id <S262120AbSJ0EZ4>; Sun, 27 Oct 2002 00:25:56 -0400
+Message-ID: <288F9BF66CD9D5118DF400508B68C44604758C68@orsmsx113.jf.intel.com>
+From: "Feldman, Scott" <scott.feldman@intel.com>
+To: "'Jeff Garzik'" <jgarzik@pobox.com>, Dave Jones <davej@codemonkey.org.uk>
+Cc: Linux NICS <linuxnics@mailbox.cps.intel.com>, linux-kernel@vger.kernel.org
+Subject: RE: e100 doing bad things in 2.5.44.
+Date: Sat, 26 Oct 2002 21:30:45 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Abuse-Complaints: abuse@gol.com
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg <sam@ravnborg.org>:
->  +arch/$(ARCH)/kernel/asm-offsets.s: include/asm include/linux/version.h \
->  +                                  include/config/MARKER
->  +
->  +include/asm-$(ARCH)/asm-offsets.h.tmp: arch/$(ARCH)/kernel/asm-offsets.s
->  +       @$(generate-asm-offsets.h) < $< > $@
->  +
->  +include/asm-$(ARCH)/asm-offsets.h: include/asm-$(ARCH)/asm-offsets.h.tmp
->  +       @echo -n '  Generating $@'
->  +       @$(update-if-changed)
->
->  Combine it like this instead:
->
->  include/asm-$(ARCH)/asm-offsets.h: arch/$(ARCH)/kernel/asm-offsets.s \
->                                     include/asm include/linux/version.h \
->                                     include/config/MARKER
->          @echo -n '  Generating $@'
->          @$(generate-asm-offsets.h) < $< > $@
->          @$(update-if-changed)
->
->  Thats more readable, and follow te normal way of doing it.
+> Well, it holds bdp->isolate_lock for an incredibly long time, so that 
+> might trigger this.  At least interrupts aren't disabled.
+> 
+> Another bug:  e100_close doesn't get the lock.
 
-It may be more readable, but I don't think you can say it's the `normal way
-of doing it,' at least in linux -- almost all the arch Makefiles have code
-pretty much identical to Greg's (presumably all derived from a single
-original source).
+This came up earlier and we're working on getting rid of isolate_lock
+altogether.  It's a bunch of complication for no real benefit, really.  
 
-Perhaps they should all be changed.
+> > Oct 25 18:38:12 tetrachloride kernel:   Mem:0xfeafc000  
+> > IRQ:20  Speed:0 Mbps  Dx:N/A
+> 
+> Cosmetic or real, that's indeed another bug...
 
--Miles
+We'll I guess no link would give you a speed of zero Mbps.  ;)
 
-[the threading info on this msg is wrong because MARC's `Download message
- RAW' option doesn't provide the message headers; quite annoying, that...]
--- 
-"1971 pickup truck; will trade for guns"
+I'm inclined to strike this message line because it's 1) misleading, 2)
+redundant.
+
+-scott

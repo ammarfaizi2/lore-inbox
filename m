@@ -1,68 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262468AbSI2NKa>; Sun, 29 Sep 2002 09:10:30 -0400
+	id <S262474AbSI2Nk7>; Sun, 29 Sep 2002 09:40:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262469AbSI2NKa>; Sun, 29 Sep 2002 09:10:30 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46351 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262468AbSI2NK3>; Sun, 29 Sep 2002 09:10:29 -0400
-Date: Sun, 29 Sep 2002 14:15:50 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: free_irq
-Message-ID: <20020929141550.A15924@flint.arm.linux.org.uk>
+	id <S262475AbSI2Nk7>; Sun, 29 Sep 2002 09:40:59 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13572 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262474AbSI2Nk6>;
+	Sun, 29 Sep 2002 09:40:58 -0400
+Date: Sun, 29 Sep 2002 14:46:20 +0100
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: v2.6 vs v3.0
+Message-ID: <20020929134620.GD2153@gallifrey>
+References: <200209290114.15994.jdickens@ameritech.net> <Pine.LNX.4.44.0209290858170.22404-100000@innerfire.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0209290858170.22404-100000@innerfire.net>
+User-Agent: Mutt/1.4i
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.4.18 (i686)
+X-Uptime: 14:44:25 up 1 day, 18:41,  1 user,  load average: 2.08, 2.02, 2.01
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-The comments surrounding free_irq() include these line:
+In my case I gave 2.5.x an attempt at building on my x86 box a few weeks
+ago but had to give up because of the lack of LVM which I rely on.
 
- *      On a shared IRQ the caller must ensure the interrupt is disabled
- *      on the card it drives before calling this function. The function
- *      does not return until any executing interrupts for this IRQ
- *      have completed.
- *
- *      This function may be called from interrupt context.
+I fancy having a go on some of my non-x86 boxen; does anyone know the
+state of 2.5.x for non-x86?
 
-This last line is quite bogus.
+(Does anyone other than some marketing bods really care if it is 2.6 or
+3.0 - I definitly don't).
 
-- if we call this function to free IRQ "n" from an interrupt handler
-  running on IRQ "n", then we will deadlock; we call synchronize_irq(n)
-  which will wait for us to exit.
-
-- if we call this function to free IRQ "n" from an interrupt handler
-  running on IRQ "b", and a handler for IRQ "n" is already running and
-  IRQ "n" interrupted IRQ "n", then we will deadlock.
-
-In light of the above, I'd suggest changing the last line to:
-
- *	This function must not be called from interrupt context.
-
-This patch is against 2.5.34:
-
---- orig/arch/i386/kernel/irq.c	Fri Aug 30 14:52:51 2002
-+++ linux/arch/i386/kernel/irq.c	Sun Sep 29 14:13:39 2002
-@@ -483,10 +483,7 @@
-  *	does not return until any executing interrupts for this IRQ
-  *	have completed.
-  *
-- *	This function may be called from interrupt context. 
-- *
-- *	Bugs: Attempting to free an irq in a handler for the same irq hangs
-- *	      the machine.
-+ *	This function must not be called from interrupt context. 
-  */
-  
- void free_irq(unsigned int irq, void *dev_id)
-
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Dave
+ ---------------- Have a happy GNU millennium! ----------------------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

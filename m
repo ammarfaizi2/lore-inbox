@@ -1,43 +1,172 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbUKRCHp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262394AbUKRCE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262390AbUKRCHp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 21:07:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbUKRCE5
+	id S262394AbUKRCE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 21:04:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbUKRCCV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 21:04:57 -0500
-Received: from holomorphy.com ([207.189.100.168]:6863 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262369AbUKRCCX (ORCPT
+	Wed, 17 Nov 2004 21:02:21 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:31251 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S262369AbUKQUTV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 21:02:23 -0500
-Date: Wed, 17 Nov 2004 18:02:15 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Thiago Robert dos Santos <robert@lisha.ufsc.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: remap_page_range
-Message-ID: <20041118020215.GA3217@holomorphy.com>
-References: <32825.150.162.62.34.1100724226.squirrel@150.162.62.34>
+	Wed, 17 Nov 2004 15:19:21 -0500
+Date: Wed, 17 Nov 2004 15:15:53 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: linux-kernel@vger.kernel.org
+Cc: netdev@oss.sgi.com, jgarzik@pobox.com, grant.grundler@hp.com,
+       charlie.brett@hp.com
+Subject: [patch 2.4.28-rc3] tulip: make tulip_stop_rxtx() wait for DMA to fully stop
+Message-ID: <20041117151553.C31363@tuxdriver.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+	jgarzik@pobox.com, grant.grundler@hp.com, charlie.brett@hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <32825.150.162.62.34.1100724226.squirrel@150.162.62.34>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 17, 2004 at 06:43:46PM -0200, Thiago Robert dos Santos wrote:
->   I'm having a problem with remap_page_range in the 2.6 kernel series. I
-> use remap_page_range inside the mmap function of a module I wrote in
-> order to map a given device's memory into user space.
->   Apparently, everything works fine but I just can't access the device's
-> memory (even tough I get a valid point from the mmap system call). This
-> is the mmap function I wrote:
-> static int
-> pcimap_mmap (struct file *filp, struct vm_area_struct *vma)
-> {
+tulip_stop_rxtx() doesn't wait for DMA to fully stop like the function
+call name implies.
 
-(1) set PG_reserved on all struct pages covering the physical region
-(2) set VM_RESERVED|VM_IO in vma->vm_flags
+Acked-by: Grant Grundler <grant.grundler@hp.com>
+Acked-by: Charlie Brett <charlie.brett@hp.com>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+This was submitted through my employer -- I am not the original author
+of this patch.  However, I passed it by Jeff Garizk and he expressed
+interest in having it upstream.
 
+ drivers/net/tulip/21142.c      |    2 +-
+ drivers/net/tulip/eeprom.c     |    1 +
+ drivers/net/tulip/interrupt.c  |    2 +-
+ drivers/net/tulip/media.c      |    1 +
+ drivers/net/tulip/pnic.c       |    1 +
+ drivers/net/tulip/pnic2.c      |    2 +-
+ drivers/net/tulip/timer.c      |    1 +
+ drivers/net/tulip/tulip.h      |   15 ++++++++++++++-
+ drivers/net/tulip/tulip_core.c |    2 +-
+ 9 files changed, 22 insertions(+), 5 deletions(-)
 
--- wli
+--- tulip_stop_rxtx-2.4/drivers/net/tulip/tulip_core.c.orig
++++ tulip_stop_rxtx-2.4/drivers/net/tulip/tulip_core.c
+@@ -20,8 +20,8 @@
+ 
+ #include <linux/config.h>
+ #include <linux/module.h>
+-#include "tulip.h"
+ #include <linux/pci.h>
++#include "tulip.h"
+ #include <linux/init.h>
+ #include <linux/etherdevice.h>
+ #include <linux/delay.h>
+--- tulip_stop_rxtx-2.4/drivers/net/tulip/media.c.orig
++++ tulip_stop_rxtx-2.4/drivers/net/tulip/media.c
+@@ -18,6 +18,7 @@
+ #include <linux/mii.h>
+ #include <linux/init.h>
+ #include <linux/delay.h>
++#include <linux/pci.h>
+ #include "tulip.h"
+ 
+ 
+--- tulip_stop_rxtx-2.4/drivers/net/tulip/21142.c.orig
++++ tulip_stop_rxtx-2.4/drivers/net/tulip/21142.c
+@@ -14,8 +14,8 @@
+ 
+ */
+ 
+-#include "tulip.h"
+ #include <linux/pci.h>
++#include "tulip.h"
+ #include <linux/delay.h>
+ 
+ 
+--- tulip_stop_rxtx-2.4/drivers/net/tulip/timer.c.orig
++++ tulip_stop_rxtx-2.4/drivers/net/tulip/timer.c
+@@ -14,6 +14,7 @@
+ 
+ */
+ 
++#include <linux/pci.h>
+ #include "tulip.h"
+ 
+ 
+--- tulip_stop_rxtx-2.4/drivers/net/tulip/tulip.h.orig
++++ tulip_stop_rxtx-2.4/drivers/net/tulip/tulip.h
+@@ -146,6 +146,9 @@ enum status_bits {
+ 	TxIntr = 0x01,
+ };
+ 
++/* bit mask for CSR5 TX/RX process state */
++#define CSR5_TS	0x00700000
++#define CSR5_RS	0x000e0000
+ 
+ enum tulip_mode_bits {
+ 	TxThreshold		= (1 << 22),
+@@ -484,9 +487,19 @@ static inline void tulip_stop_rxtx(struc
+ 	u32 csr6 = inl(ioaddr + CSR6);
+ 
+ 	if (csr6 & RxTx) {
++		unsigned i=1300/10;
+ 		outl(csr6 & ~RxTx, ioaddr + CSR6);
+ 		barrier();
+-		(void) inl(ioaddr + CSR6); /* mmio sync */
++		/* wait until in-flight frame completes.
++		 * Max time @ 10BT: 1500*8b/10Mbps == 1200us (+ 100us margin)
++		 * Typically expect this loop to end in < 50us on 100BT.
++		 */
++		while (--i && (inl(ioaddr + CSR5) & (CSR5_TS|CSR5_RS))) 
++			udelay(10);
++
++		if (!i)
++			printk (KERN_DEBUG "%s: tulip_stop_rxtx() failed\n",
++					tp->pdev->slot_name);
+ 	}
+ }
+ 
+--- tulip_stop_rxtx-2.4/drivers/net/tulip/pnic.c.orig
++++ tulip_stop_rxtx-2.4/drivers/net/tulip/pnic.c
+@@ -15,6 +15,7 @@
+ */
+ 
+ #include <linux/kernel.h>
++#include <linux/pci.h>
+ #include "tulip.h"
+ 
+ 
+--- tulip_stop_rxtx-2.4/drivers/net/tulip/pnic2.c.orig
++++ tulip_stop_rxtx-2.4/drivers/net/tulip/pnic2.c
+@@ -76,8 +76,8 @@
+ 
+ 
+ 
+-#include "tulip.h"
+ #include <linux/pci.h>
++#include "tulip.h"
+ #include <linux/delay.h>
+ 
+ 
+--- tulip_stop_rxtx-2.4/drivers/net/tulip/eeprom.c.orig
++++ tulip_stop_rxtx-2.4/drivers/net/tulip/eeprom.c
+@@ -14,6 +14,7 @@
+ 
+ */
+ 
++#include <linux/pci.h>
+ #include "tulip.h"
+ #include <linux/init.h>
+ #include <asm/unaligned.h>
+--- tulip_stop_rxtx-2.4/drivers/net/tulip/interrupt.c.orig
++++ tulip_stop_rxtx-2.4/drivers/net/tulip/interrupt.c
+@@ -14,10 +14,10 @@
+ 
+ */
+ 
++#include <linux/pci.h>
+ #include "tulip.h"
+ #include <linux/config.h>
+ #include <linux/etherdevice.h>
+-#include <linux/pci.h>
+ 
+ 
+ int tulip_rx_copybreak;

@@ -1,80 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272404AbRIUIvH>; Fri, 21 Sep 2001 04:51:07 -0400
+	id <S272451AbRIUIxH>; Fri, 21 Sep 2001 04:53:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272451AbRIUIu5>; Fri, 21 Sep 2001 04:50:57 -0400
-Received: from ip122-15.asiaonline.net ([202.85.122.15]:53633 "EHLO
-	uranus.planet.rcn.com.hk") by vger.kernel.org with ESMTP
-	id <S272404AbRIUIuj>; Fri, 21 Sep 2001 04:50:39 -0400
-Message-ID: <3BAAFF64.971B6D28@rcn.com.hk>
-Date: Fri, 21 Sep 2001 16:50:44 +0800
-From: David Chow <davidchow@rcn.com.hk>
-Organization: Resources Computer Network Ltd.
-X-Mailer: Mozilla 4.76 [zh_TW] (X11; U; Linux 2.4.4-1DC i686)
-X-Accept-Language: zh_TW, en
-MIME-Version: 1.0
-To: Adrian Cox <adrian@humboldt.co.uk>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Thomas Sailer <sailer@scs.ch>, linux-kernel@vger.kernel.org
-Subject: Re: via82cxxx_audio locking problems
-In-Reply-To: <Pine.LNX.3.96.1010920112905.26319I-100000@mandrakesoft.mandrakesoft.com> <3BAAF129.1090104@humboldt.co.uk> <3BAAFC04.1F7B9C7C@rcn.com.hk>
+	id <S272465AbRIUIw5>; Fri, 21 Sep 2001 04:52:57 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:1805 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S272451AbRIUIwr>;
+	Fri, 21 Sep 2001 04:52:47 -0400
+Date: Fri, 21 Sep 2001 10:52:40 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Knut.Neumann@rz.uni-duesseldorf.de,
+        ACPI list <acpi@phobos.fachschaften.tu-muenchen.de>
+Subject: Re: SonyPI Driver
+Message-ID: <20010921105240.C739@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+In-Reply-To: <20010918182011.G14639@come.alcove-fr> <20010920092313.A38@toy.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20010920092313.A38@toy.ucw.cz>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Chow ¼g¹D¡G
-> 
-> Adrian Cox ¼g¹D¡G
-> >
-> > Jeff Garzik wrote:
-> >
-> > > On Thu, 20 Sep 2001, Thomas Sailer wrote:
-> > >>   Dropping and reacquiring syscall_sem around interruptible_sleep_on
-> > >>   in via_dsp_do_read, via_dsp_do_write and via_dsp_drain_playback
-> > >>   should solve the problem. Does anyone see a problem with this?
-> >
-> > > Is there a possibility of do_read being re-entered during that window?
-> > > I agree its a problem but the solution sounds racy?
-> >
-> > What's probably needed is one semaphore to lock read/write and ioctls
-> > that look at the playback engine, and another semaphore to lock accesses
-> > to the AC97 codec. That may be simpler to implement than dropping and
-> > releasing the syscall_sem.
-> >
-> > --
-> > Adrian Cox   http://www.humboldt.co.uk/
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> I receive the same problem when probing the via sound module. Since I am
-> in a motherboard design project which I also uses the AC97 interface
-> from VIA. The sample board from VIA didn't have any problem, but have 3
-> motherboard from 3rd party, each of them uses the VIA694X + VIA686A,
-> only one of them have no problem using the sound module, I think it is a
-> hardware problem or the module itself didn't handle some cases. It seems
-> it should be the same for hardware design, since different codec may
-> have different effect on the module. All boards are tested with
-> Windows98 and Linux and then all works fine runnign Windows. The sample
-> board from VIA is a VIA694T + VIA686B which all of them are pin-2-pin
-> compatible with the old 694X+686A. I am sure the problem is from the
-> driver, but it is hardware dependent??? My board design just use exactly
-> the same chips of the VIA sample board, then we will be save using the
-> via_82cxxx module properly. I will try to find out which codec is the
-> trouble boards using. The one I'm surely stable without locking is using
-> the VIA codec VT1611A . Does you guys require more information about the
-> codec specs? I can get them from VIA if you want. Thanks.
-> 
-> regards,
-> 
-> David
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Thu, Sep 20, 2001 at 09:23:14AM +0000, Pavel Machek wrote:
 
-Just find out the board that cause lock up both uses a Yamaha codec.
+> > You'll have to wait for ACPI suspend support in the kernel
+> > (some support will get into the 2.5 kernel series) or choose between
+> > the sonypi driver and APM suspend.
+> 
+> Patrick Mochel has some patches for ACPI to enable suspend-to-ram
+> [problems with vesafb nd evices, otherwise ok], and
+> I'm currently working on suspend-to-disk [will work in easy cases].
+> See acpi list.
+
+Yes, I saw this and I keep looking at those, some day I might even
+try them. :-)
+
+The main problem for me now is that the current ACPI code does pretty
+nothing on my laptop (Sony Vaio C1VE): no battery status, no event
+recorded etc... This was already reported on the acpi list some
+time ago.
+
+I'm adding a CC: to the ACPI list just in case someone has an idea
+on how to make ACPI working for me. If this is not an already known
+problem just tell me and I will compile an ACPI enabled kernel again
+and give additionnal details / debug info.
+
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

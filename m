@@ -1,51 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262848AbUAUQHN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 11:07:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263636AbUAUQHM
+	id S265974AbUAUQMq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 11:12:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265973AbUAUQMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 11:07:12 -0500
-Received: from oceanic.wsisiz.edu.pl ([213.135.44.33]:3373 "EHLO
-	oceanic.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id S262848AbUAUQHJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 11:07:09 -0500
-Date: Wed, 21 Jan 2004 17:07:07 +0100 (CET)
-From: Lukasz Trabinski <lukasz@trabinski.net>
-X-X-Sender: lukasz@oceanic.wsisiz.edu.pl
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, riel@redhat.com
-Subject: Re: Linux 2.4.25-pre6
-In-Reply-To: <1074686081.16045.141.camel@imladris.demon.co.uk>
-Message-ID: <Pine.LNX.4.58LT.0401211702100.23288@oceanic.wsisiz.edu.pl>
-References: <200401202125.i0KLPOgh007806@lt.wsisiz.edu.pl> 
- <Pine.LNX.4.58L.0401201940470.29729@logos.cnet> 
- <Pine.LNX.4.58LT.0401210746350.2482@lt.wsisiz.edu.pl> 
- <Pine.LNX.4.58L.0401210852490.5072@logos.cnet> 
- <Pine.LNX.4.58LT.0401211225560.31684@oceanic.wsisiz.edu.pl>
- <1074686081.16045.141.camel@imladris.demon.co.uk>
+	Wed, 21 Jan 2004 11:12:46 -0500
+Received: from dsl-213-023-011-163.arcor-ip.net ([213.23.11.163]:35043 "EHLO
+	fusebox.fsfeurope.org") by vger.kernel.org with ESMTP
+	id S265974AbUAUQMm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 11:12:42 -0500
+To: Martin Loschwitz <madkiss@madkiss.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: ACPI freezes 2.6.1 on boot
+References: <m3isj5a73u.fsf@reason.gnu-hamburg>
+	<20040121153551.GA2615@minerva.local.lan>
+From: "Georg C. F. Greve" <greve@gnu.org>
+Organisation: Free Software Foundation Europe - GNU Project
+X-PGP-Fingerprint: 2D68 D553 70E5 CCF9 75F4 9CC9 6EF8 AFC2 8657 4ACA
+X-PGP-Affinity: will accept encrypted messages for GNU Privacy Guard
+X-Home-Page: http://gnuhh.org
+X-Accept-Language: en, de
+Date: Wed, 21 Jan 2004 17:12:28 +0100
+In-Reply-To: <20040121153551.GA2615@minerva.local.lan> (Martin Loschwitz's
+ message of "Wed, 21 Jan 2004 16:35:51 +0100")
+Message-ID: <m33ca9mgb7.fsf@reason.gnu-hamburg>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; boundary="==-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Jan 2004, David Woodhouse wrote:
+--==-=-=
+Content-Type: multipart/mixed; boundary="=-=-="
 
-> Neither do I understand why i_list.prev is corrupt. Not seeing the oops
-> and knowing what it actually was doesn't help. Rik?
+--=-=-=
 
-I have logs from this host on different machine - no ooops.
+ || On Wed, 21 Jan 2004 16:35:51 +0100
+ || Martin Loschwitz <madkiss@madkiss.org> wrote: 
 
-Emergency Sync and Emergency Remount R/O didn't work.
+ ml> By now means. I, however, didn't even try to get a solution since
+ ml> back then. Since the bug appeared with a patched 2.6.0 and
+ ml> 2.6.1-mm2, which was one of the first patches including the new
+ ml> ACPI, it was clear to me that it was ACPI related and that I
+ ml> would better wait for somebody to find the root of the evil and
+ ml> to kill it.
 
-SysRq : HELP : loglevel0-8 reBoot tErm kIll saK showMem showPc unRaw Sync 
-showTa
-sks Unmount 
-SysRq : Emergency Sync
-SysRq : Emergency Remount R/O
+Damn. ACPI being somewhat a central issue, I hoped someone had picked
+it up already. Did you write to the ACPI list about it? My mail
+apparently didn't make it (couldn't see it in the archive).
 
 
+ ml> I see your "Notebook vs. Linux"-story continues to be
+ ml> unsuccessfull, though :(
+
+Yup, it seems that way. It is an eternal struggle. *sigh*
+
+Nice to see that someone read the issue, though. :)
+
+Regards,
+Georg
 
 -- 
-*[ £ukasz Tr±biñski ]*
+Georg C. F. Greve                                       <greve@gnu.org>
+Free Software Foundation Europe	                 (http://fsfeurope.org)
+Brave GNU World	                           (http://brave-gnu-world.org)
+
+--=-=-=--
+--==-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP MESSAGE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
+
+iD8DBQFADqTsbvivwoZXSsoRAi5JAJoC9HQ0fNr+05LvKfK1EqozSTVdbQCgqlLM
+amvRQdZby280abq/b+7LJqI=
+=y5kh
+-----END PGP MESSAGE-----
+--==-=-=--

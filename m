@@ -1,62 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266627AbSL2OaX>; Sun, 29 Dec 2002 09:30:23 -0500
+	id <S266638AbSL2OiT>; Sun, 29 Dec 2002 09:38:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266638AbSL2OaX>; Sun, 29 Dec 2002 09:30:23 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:62596 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S266627AbSL2OaW>;
-	Sun, 29 Dec 2002 09:30:22 -0500
-Date: Sun, 29 Dec 2002 15:37:18 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: tulip-users@lists.sourceforge.net,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: 21041 transmit timed out
-Message-ID: <Pine.GSO.4.21.0212291526390.17067-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266640AbSL2OiT>; Sun, 29 Dec 2002 09:38:19 -0500
+Received: from alpham.uni-mb.si ([164.8.1.101]:2047 "EHLO alpham.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S266638AbSL2OiS>;
+	Sun, 29 Dec 2002 09:38:18 -0500
+Date: Sun, 29 Dec 2002 15:46:57 +0100
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Re: [PATCH] Workaround for AMD762MPX "mouse" bug
+To: ak@muc.de, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Message-id: <3E0F0AE1.EB2C5DAA@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen (ak@muc.de) wrote :
 
-Apparently this problem is still present in 2.4.20. It's been many months ago I
-saw it, though.
+> AMD has published a new errata sheet for the AMD762, which describes 
+> the root cause of the infamous "AMD 762 unstable when no PS/2 mouse 
+> connected" bug. The reason is that without a PS/2 mouse the BIOS doesn't 
+> put a data page in front of the VGA buffer at 640K. When the kernel 
+> puts a page cache page there and does busmaster IO with it then the automatic 
+> PCI prefetch from the chipset can hit the VGA buffer and that may cause a hang. 
+> 
+> 
+> The workaround is to reserve the page directly before 640K if it wasn't 
+> already reserved by the BIOS. 
+> 
+> 
+> The bug only occurs in newer revisions (B0,B1) 
+> 
+> 
+> The workaround here is somewhat hackish. We can only reserve the page 
+> in early boot, but at that time there is no easy way to check for the 
+> AMD762's PCI-ID because the PCI subsystem hasn't been initialized yet. 
+> 
+> 
+> This patch checks later during the pci quirks pass instead 
+> and then tells the user to pass a kernel option - "vgaguard" - in 
+> case of instability. This is not ideal, but probably preferable than 
+> to connect PS/2 mouses to all boxes in a colocated rack. Another 
+> way would be to always reserve that page, but I didn't feel like 
+> punishing everybody just for a hardware bug in a single chipset. 
+> 
+> 
+> Patch for 2.5.53. Please consider applying. 
 
-| NETDEV WATCHDOG: eth0: transmit timed out
-| eth0: 21041 transmit timed out, status fc6908c5, CSR12 000051c8, CSR13 ffff0001, CSR14 ffffffff, resetting...
-| eth0: 21143 100baseTx sensed media.
-        ^^^^^^^^^^^^^^^
-ifconfig down/up fixed the problem.
+Some suggestions :
 
-lspci output:
+ - do not tell the user to use the "vgaguard" option if he is already
+using it
+ - change to more informative text :
+old :
+I/O APIC: AMD762 Errata #56 may be present.
+In case of instability boot with "vgaguard" or connect a PS/2 mouse.
+new:
+I/O APIC: AMD762 Errata #56 may be present.
+In case of instability boot with the "vgaguard" kernel boot option or
+connect a PS/2 mouse and reboot.
 
-| 00:04.0 Ethernet controller: Digital Equipment Corporation DECchip 21041 [Tulip Pass 3] (rev 21)
-| 	Subsystem: D-Link System Inc DE-530+
-| 	Flags: bus master, medium devsel, latency 0, IRQ 29
-| 	I/O ports at 1080 [size=128]
-| 	Memory at c1080000 (32-bit, non-prefetchable) [size=128]
-| 	Expansion ROM at c11c0000 [disabled] [size=256K]
+Just connecting a PS/2 mouse on a running system does not help, right ?
+:-)
 
-Driver startup output:
+ - maybe rename the option to "amd762vgaguard" ?
+ - also write some docs and put a link to it in the kernel message ?
+For now this would be enough :
+I/O APIC: AMD762 Errata #56 may be present.
+In case of instability boot with the "vgaguard" kernel boot option or
+connect a PS/2 mouse and reboot.
+See http://www.uwsg.indiana.edu/hypermail/linux/kernel/0212.3/0043.html
 
-| Linux Tulip driver version 0.9.15-pre12 (Aug 9, 2002)
-| PCI: Enabling device 00:04.0 (0000 -> 0003)
-| tulip0: 21041 Media table, default media 0800 (Autosense).
-| tulip0:  21041 media #0, 10baseT.
-| tulip0:  21041 media #4, 10baseT-FDX.
-| tulip0:  21041 media #1, 10base2.
-| eth0: Digital DC21041 Tulip rev 33 at 0xc9855000, 21041 mode, 00:80:C8:5A:F8:5B, IRQ 29.
 
-Machine is a PPC box (CHRP LongTrail).
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Regards,
+David Balazic

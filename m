@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289362AbSAOCYK>; Mon, 14 Jan 2002 21:24:10 -0500
+	id <S289382AbSAODNL>; Mon, 14 Jan 2002 22:13:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289366AbSAOCX6>; Mon, 14 Jan 2002 21:23:58 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:13704
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S289362AbSAOCXu>; Mon, 14 Jan 2002 21:23:50 -0500
-Date: Mon, 14 Jan 2002 21:06:45 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rob Landley <landley@trommello.org>,
-        Charles Cazabon <charlesc@discworld.dyndns.org>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Eli Carter <eli.carter@inet.com>,
-        "Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
-Message-ID: <20020114210645.H24120@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Rob Landley <landley@trommello.org>,
-	Charles Cazabon <charlesc@discworld.dyndns.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Eli Carter <eli.carter@inet.com>,
-	"Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>
-In-Reply-To: <20020114173423.A23081@thyrsus.com> <E16QGUy-0003Kh-00@the-village.bc.nu>
+	id <S289380AbSAODMw>; Mon, 14 Jan 2002 22:12:52 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:51718 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S289376AbSAODMj>; Mon, 14 Jan 2002 22:12:39 -0500
+Date: Tue, 15 Jan 2002 02:07:58 +0000
+From: John Levon <movement@marcelothewonderpenguin.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Penelope builds a kernel
+Message-ID: <20020115020758.GA59418@compsoc.man.ac.uk>
+In-Reply-To: <20020114165909.A20808@thyrsus.com> <20020115013954.GB3814@cpe-24-221-152-185.az.sprintbbd.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16QGUy-0003Kh-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Jan 14, 2002 at 11:26:40PM +0000
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+In-Reply-To: <20020115013954.GB3814@cpe-24-221-152-185.az.sprintbbd.net>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Bendik Singers - Afrotid
+X-Toppers: N/A
+X-Scanner: exiscan *16QIyy-00053X-00*rc/PfNvedyw* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> I simply don't understand what you are trying to build and why it is hard.
+On Mon, Jan 14, 2002 at 06:39:54PM -0700, Tom Rini wrote:
 
-Don't understand it?  Download it, follow the directions, and see.
+> Wrong.  She needs to compile a new module for her kernel.  What might be
+> useful is some automagic tool that will find the vendor-provided kernel
+> source tree and config (which is usually /boot/config-`uname -r`, but
+> still findable anyhow)
 
-It's not that hard.  Given Giacomo's table of probes it only took me about
-two days to get it 85% of the way there.  The remaining 15% is partly 
-issues with rulebase bugs that it exposes, and partly issues with what
-to do about the possibility of ISA hardware that is not directly probeable.
+autoconf code already exists for this, it's a non-problem. Note they must use
+the config in the header file of the vendor-provided kernel source tree, not
+/boot/config-`uname -r`
+
+There are two cases:
+
+1) the vendor source tree is installed and set up with the right config -> use header file
+
+2) it's installed and the config has changed. -> use header file
+
+I don't see a point in ever looking at /boot/config-`uname -r` instead of
+the source tree, given that we must compile against a tree configured like the
+eventual running kernel anyway.
+
+regards
+john
+
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-[W]hat country can preserve its liberties, if its rulers are not
-warned from time to time that [the] people preserve the spirit of
-resistance?  Let them take arms...The tree of liberty must be
-refreshed from time to time, with the blood of patriots and tyrants.
-	-- Thomas Jefferson, letter to Col. William S. Smith, 1787 
+"Now why did you have to go and mess up the child's head, so you can get another gold waterbed ?
+ You fake-hair contact-wearing liposuction carnival exhibit, listen to my rhyme ..."

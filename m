@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272155AbRHVWiB>; Wed, 22 Aug 2001 18:38:01 -0400
+	id <S272121AbRHVWkB>; Wed, 22 Aug 2001 18:40:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272153AbRHVWhv>; Wed, 22 Aug 2001 18:37:51 -0400
-Received: from mail.myrio.com ([63.109.146.2]:6909 "HELO smtp1.myrio.com")
-	by vger.kernel.org with SMTP id <S272121AbRHVWhj>;
-	Wed, 22 Aug 2001 18:37:39 -0400
-Message-ID: <D52B19A7284D32459CF20D579C4B0C0211C9DB@mail0.myrio.com>
-From: Torrey Hoffman <torrey.hoffman@myrio.com>
-To: "'tegeran@home.com'" <tegeran@home.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, mikpe@csd.uu.se
-Cc: linux-kernel@vger.kernel.org, ionut@cs.columbia.edu
-Subject: RE: [PATCH,RFC] make ide-scsi more selective
-Date: Wed, 22 Aug 2001 15:37:23 -0700
+	id <S272152AbRHVWjv>; Wed, 22 Aug 2001 18:39:51 -0400
+Received: from femail27.sdc1.sfba.home.com ([24.254.60.17]:18573 "EHLO
+	femail27.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S272121AbRHVWjg>; Wed, 22 Aug 2001 18:39:36 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: Ion Badulescu <ionut@cs.columbia.edu>
+Subject: Re: [PATCH,RFC] make ide-scsi more selective
+Date: Wed, 22 Aug 2001 15:39:12 -0700
+X-Mailer: KMail [version 1.2]
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mikael Pettersson <mikpe@csd.uu.se>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0108221757020.17244-100000@age.cs.columbia.edu>
+In-Reply-To: <Pine.LNX.4.33.0108221757020.17244-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Message-Id: <01082215391200.00490@c779218-a>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 22 August 2001 03:00 pm, Ion Badulescu wrote:
+> On Wed, 22 Aug 2001, Nicholas Knight wrote:
+> > Here's an end-user perspective for you... I just spent 2 days trying
+> > to figure out how to use my CD-RW drive to read when using ide-scsi,
+> > before I finnaly realized that I had to do it by disabling ATAPI CD
+> > support and enabling SCSI CD support..
+>
+> Just doing hdX=scsi would have been enough, however. Except it doesn't
+> work (currently) if ide-scsi is a module.
 
-> Here's an end-user perspective for you... I just spent 2 days 
-> trying to 
-> figure out how to use my CD-RW drive to read when using 
-> ide-scsi, before 
-> I finnaly realized that I had to do it by disabling ATAPI CD 
-> support and 
-> enabling SCSI CD support..
+Could you elaborate on this? I almost never use modules for my primary 
+desktop system, SCSI emulation support and SCSI generic driver were both 
+compiled in, and I had "hdc=ide-scsi" and later also tried "hdc=scsi" and 
 
-Also note:
+I was unable to read from it with any device, /dev/sr0 /dev/sda /dev/scd0 
+were all dead-ends, but I was able to WRITE just fine... I just don't 
+want to reboot every time I want to write to the drive, nor reboot when I 
+want to READ from it.
 
-The SCSI-CD driver is also required if you want any kind of
-reasonable performance for cdparanoia (the music CD ripper),
-even for perfectly ordinary CD or DVD drives.  This took me
-a couple tries last weekend, and I even knew what the problem
-was.
+Disabling ATAPI CD-ROM support, and enabling SCSI CD-ROM (along with SCSI 
+emulation support and SCSI generic support) worked, and now I just access 
+both my CD-RW drive and my DVD-ROM drive through /dev/sr0 and /dev/sr1.
 
-Is there _any_ hardware where the ide-cd driver works better
-than ide-scsi emulation?
+My primary concern here is other users who haven't figured this out, I 
+know at least one ATAPI/IDE CD-R(W) in Linux HOWTO tells the user that 
+they'll have to use two seperate kernel images, one to allow reading from 
+their drive and the other for writing, infact that was my original method.
 
-If not, I suppose the only reason to keep it around is so 
-people don't need to compile all the SCSI support just for 
-ordinary access to ISO-9660 cds with an IDE CDROM.
-
-In the meantime, perhaps the kernel configuration help could 
-mention this little gotcha?  And maybe distributions should 
-make ide-scsi the default?  At least CD ripping would work 
-"out of the box" like that.
-
-Torrey Hoffman
-torrey.hoffman@myrio.com
+> I agree with Alan that the problem is the grab-on-load strategy that
+> ide-scsi (and ide-cd for that matter) uses. I am willing to look into
+> changing that to grab-on-open but I'm not sure if the change is an
+> appropriate one for a stable series kernel -- it looks pretty
+> non-trivial.
+>
+> Ion

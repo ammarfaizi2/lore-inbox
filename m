@@ -1,94 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264239AbTLAWQV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 17:16:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264240AbTLAWQV
+	id S264241AbTLAWTV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 17:19:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbTLAWTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 17:16:21 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:64901 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264239AbTLAWQO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 17:16:14 -0500
-Date: Mon, 1 Dec 2003 17:19:30 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
-cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Rootkit queston
-In-Reply-To: <1070313094.11356.6.camel@midux>
-Message-ID: <Pine.LNX.4.53.0312011649060.4785@chaos>
-References: <1070313094.11356.6.camel@midux>
+	Mon, 1 Dec 2003 17:19:21 -0500
+Received: from mail.g-housing.de ([62.75.136.201]:10202 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S264241AbTLAWTR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 17:19:17 -0500
+Message-ID: <3FCBBE63.4000907@g-house.de>
+Date: Mon, 01 Dec 2003 23:19:15 +0100
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031105 Thunderbird/0.3
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: rpc.statd[455]: recv_rply: can't decode RPC message!
+X-Enigmail-Version: 0.81.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Dec 2003, Markus [ISO-8859-1] Hästbacka wrote:
+hi,
 
-> Hello all!
->
-> I've been wondering about what is a rootkit and how it works?
+i noticed *lots* of the following messages in my system log:
 
-It's some crap thrown together for the express purpose of
-running a command-shell with root privileges on a system
-being attacked. The binary load is usually fed in using
-some kind of exploit such as overwriting a buffer in some
-privileged program.
+prinz rpc.statd[455]: recv_rply: can't decode RPC message!
+prinz rpc.statd[455]: recv_rply: can't decode RPC message!
+prinz rpc.statd[455]: recv_rply: can't decode RPC message!
+prinz rpc.statd[455]: recv_rply: can't decode RPC message!
 
-You fix that problem by upgrading any program found to
-be susceptible to attack. If you have an old system, you
-might wish to upgrade:
+(yes, and so on). it's not flooding the log, but constantly filling it up.
 
-inetd
-sendmail
-ftpd
-tftpd
-/usr/sbin/in.*
-dump
-... and any other program that runs suid.
+this client is running Debian GNU/Linux (unstable) on i386.
 
-In particular, do not run inetd. Run xinetd instead.
-You can check for a common 'root attack', if you have inetd,
-by looking at the last few lines in /etc/inetd.conf.
-It may have some access port added that allows anybody
-who knows about it to log in as root from the network.
+nfs-common and nfs-kernel-server is both 1.0.6-1
+(server is Debian GNU/Linux (unstable) on ppc32, not any busier than 
+before. kernel on the server is 2.4.23)
 
-It will look something like this:
+i noticed the messages on the client firtst with 2.6.0-test11, they did 
+not occur on any former kernelversions. however, the changelog to 
+-test11 does not reveal any nfs-related changes.
 
-# End of inetd.conf.
-4002 stream tcp nowait root /bin/bash --
 
-In this case, port 4002 will allow access to a root shell
-that has no terminal processing, but an attacker can use this
-to get complete control of your system. FYI, this is a 5-year-old
-attack, long obsolete if you have a "store-bought" distribution
-more recent.
+nfs-utils-1.0.6.orig/utils/statd/rmtcall.c  says at line 227:
 
-> I've been paranoid after I heard that the debian project got
-> "rootkitted", I ran chkrootkit, and it said that it's possible that I
-> have a LKM rootkit installed, but the website told me that it's possible
-> that the LKM test gives wrong information with recent kernels (Running
-> 2.4.22 now).
->
-> These processes "were hidden from ps command":
-> root         0  0.0  0.0     0    0 ?        SWN  Oct28   0:01
-> [ksoftirqd_CPU0]
-> root         0  0.0  0.0     0    0 ?        SW   Oct28   4:27 [kswapd]
-> root         0  0.0  0.0     0    0 ?        SW   Oct28   0:00 [bdflush]
-> root         0  0.0  0.0     0    0 ?        SW   Oct28   0:01
-> [kupdated]
->
-> They seem to have PID 0, is this normal?
+if (!xdr_replymsg(xdrs, &mesg)) {
+                 note(N_WARNING, "recv_rply: can't decode RPC message!\n");
+                 goto done;
+         }
 
-Yes. These are kernel threads.
+any hints?
 
-[SNIPPED...]
+Thank you,
+Christian.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+-- 
+BOFH excuse #254:
 
+Interference from lunar radiation
 

@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262038AbTLAAL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 19:11:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbTLAAL7
+	id S261784AbTLAAJu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 19:09:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbTLAAJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 19:11:59 -0500
-Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:17281
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S262038AbTLAAL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 19:11:57 -0500
-Date: Sun, 30 Nov 2003 19:10:53 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: =?iso-8859-1?q?szonyi=20calin?= <caszonyi@yahoo.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Oops + crash in 2.6.0-test11
-In-Reply-To: <20031130231948.21382.qmail@web40608.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.58.0311301909390.31421@montezuma.fsmlabs.com>
-References: <20031130231948.21382.qmail@web40608.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: 
-Content-Disposition: INLINE
+	Sun, 30 Nov 2003 19:09:50 -0500
+Received: from pentafluge.infradead.org ([213.86.99.235]:50393 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261784AbTLAAJt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 19:09:49 -0500
+Subject: Re: FYI: My current suspend bigdiff
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>,
+       Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <3FCA280A.40805@pobox.com>
+References: <20031128171323.GG303@elf.ucw.cz> <3FC7860C.2060505@gmx.de>
+	 <20031128173312.GH303@elf.ucw.cz> <3FC789F5.2000208@gmx.de>
+	 <20031128175503.GB18072@elf.ucw.cz> <3FC7908A.9030007@gmx.de>
+	 <20031128235623.GB18147@elf.ucw.cz> <3FC8C0DB.9050107@gmx.de>
+	 <20031129172537.GB459@elf.ucw.cz> <3FC9C560.2070902@gmx.de>
+	 <20031130171833.GB516@elf.ucw.cz> <3FCA2742.8070107@gmx.de>
+	 <3FCA280A.40805@pobox.com>
+Content-Type: text/plain
+Message-Id: <1070237342.683.77.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 01 Dec 2003 11:09:02 +1100
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Mail-From: benh@kernel.crashing.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Dec 2003, [iso-8859-1] szonyi calin wrote:
 
-> Hi
-> I was watching tv with tvtime and reading lkml on yahoo mail
-> (with opera
-> if matters). I decided to start xawtv instead of tvtime because
-> tvtime
-> looked like it was skiping frames.
-> So i pressed the q key in tvtime and with the tvtime window
-> dissapeared
-> also the xterm window from which it was started. I tryed to
-> start xterm
-> but the xterm window mapped quickly and then dissapeared. I
-> switched to
-> my syslog VT and noticed an oops. I couldn't start a new shell
-> nor from
-> console nor from X (starting a new shell gave me a segfault or
-> an oops)
-> I couldn't shutdown cleanly (i had to use sysrq)
->
-> Attached are the program versions, config, dmesg (from syslog)
-> and oopses.
+> As you suspect, you want only one of the fixes.
+> 
+> I would probably prefer Pavel's patch over mine, as he knows the suspend 
+> subsystem better than me :)
 
-How reproduceable is this? Can you try  with the following kernel config
-options enabled? I'm suspecting the bttv driver.
+Actually, you want more than that...
 
-CONFIG_DEBUG_PAGEALLOC=y
-CONFIG_DEBUG_SLAB=y
-CONFIG_DEBUG_SPINLOCK=y
+You want something similar to what I did for IDE, that is pipe the
+suspend/resume requests down the request queue & block the queue,
+though with additional crap to deal with the libata probe thread
+and the scsi error mgmnt.
 
-Thanks
+I didn't yet have time for it, but basically, what is needed is
+to make a scsi version of the suspend/resume code that is in the
+IDE code, and then hook that on sd, sg, etc...
+
+Then, libata would have to get in the loop as HW driver, and also
+by properly translating the flush cache / standby requests
+
+Ben.
+
 

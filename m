@@ -1,84 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261340AbUDCCb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 21:31:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbUDCCb5
+	id S261378AbUDCCik (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 21:38:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbUDCCik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 21:31:57 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:47808 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261340AbUDCCbz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 21:31:55 -0500
-Subject: Re: [Ext2-devel] Re: [RFC, PATCH] Reservation based ext3
-	preallocation
-From: Mingming Cao <cmm@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: tytso@mit.edu, pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-In-Reply-To: <20040402175049.20b10864.akpm@osdl.org>
-References: <200403190846.56955.pbadari@us.ibm.com>
-	<20040321015746.14b3c0dc.akpm@osdl.org>
-	<1080636930.3548.4549.camel@localhost.localdomain>
-	<20040330014523.6a368a69.akpm@osdl.org>
-	<1080956712.15980.6505.camel@localhost.localdomain> 
-	<20040402175049.20b10864.akpm@osdl.org>
-Content-Type: text/plain
+	Fri, 2 Apr 2004 21:38:40 -0500
+Received: from [24.80.50.208] ([24.80.50.208]:8716 "EHLO gw.sieb.net")
+	by vger.kernel.org with ESMTP id S261378AbUDCCii (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 21:38:38 -0500
+Message-ID: <406E2392.2090804@sieb.net>
+Date: Fri, 02 Apr 2004 18:38:10 -0800
+From: Samuel Sieb <samuel@sieb.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040306
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: linux-pcmcia@lists.infradead.org
+Subject: pc card hangs computer with 2.6 kernel (more details)
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 02 Apr 2004 18:37:48 -0800
-Message-Id: <1080959870.3548.6555.camel@localhost.localdomain>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-04-02 at 17:50, Andrew Morton wrote:
-> hm, maybe.  We should probably also provide a per-file ext3-specific ioctl
-> to allow specialised apps to manipulate the reservation size.
-> 
-> And we should grow the reservation size dynamically.  I've suggested that
-> we double its size each time it is exhausted, up to some limit.  There may
-> be better algorithms though.
-You mean when the reservation window size is exhausted, right? I think
-this is probably the easiest way. Maybe like the readahead window does. 
-Just sometimes the window reserved does not contains much free blocks to
-allocate, and we could easily reach to the upper limit.
+I sent this originally to the pcmcia list, but haven't seen a response yet.
 
-Currently, when try to reserve a window in a block group, if there is no
-window big enough for this, we skip this group and move on to the next
-group.  I was thinking maybe we should keep track of the largest
-avaliable reservable window when we are looking for a new window, so in
-case we can't find the one with expected size, we at least could get one
-within the group.
+My laptop freezes as soon as I insert a Linksys WPC11 card which is an
+802.11b wireless card.  I don't think it's the driver since as far as I
+can tell, the drivers aren't included in the kernel (it's a prism 2).  I
+first tried with a 2.6.1 kernel and then upgraded to 2.6.4 but it still
+acts the same.  (I'm using Fedora Core Testing, updated to latest.)
 
-This will try to keep the file inside it's target group, and also reduce
-the possibility of bogus earlier ENOSPC. Just it's a trade off:there
-maybe plenty of space in the next group......who knows. What do you
-think?
+The laptop is a Compaq Presario 2190, the cardbus is:
+00:0a.0 CardBus bridge: O2 Micro, Inc. OZ6912 Cardbus Controller
+         Subsystem: Hewlett-Packard Company: Unknown device 0024
+         Flags: bus master, stepping, slow devsel, latency 168, IRQ 11
+         Memory at 80000000 (32-bit, non-prefetchable)
+         Bus: primary=00, secondary=02, subordinate=05, sec-latency=176
+         Memory window 0: 81000000-81100000 (prefetchable)
+         Memory window 1: 10000000-103ff000
+         I/O window 0: 00003000-0000307f
+         I/O window 1: 00004000-000040ff
+         16-bit legacy interface ports at 0001
 
-Also, for the the bogus earlier ENOSPC, : the filesystem probably
-relatively full of reservations, so the late guy who need a new block
-but don't have a reservation window will failed to allocate a block. In
-this case, the easiest way as you said before is to just steal a free
-block from other file's reservation window. I agree it's the extreme
-case and the solution is easy, just a little concern that this will in
-favor of those inodes who came first and made reservations, but whose
-who come in later need a new block, every time has to suffer the same
-pain: search the whole filesystem first, then end of steal blocks every
-time.
+dmesg shows:
+Yenta: CardBus bridge found at 0000:00:0a.0 [103c:0024]
+Yenta: ISA IRQ mask 0x0498, PCI irq 11
+Socket status: 30000007
+cs: IO port probe 0x0c00-0x0cff: clean.
+cs: IO port probe 0x0100-0x04ff: excluding 0x200-0x207 0x220-0x22f
+0x330-0x337 0x378-0x37f 0x388-0x38f 0x3c0-0x3df 0x408-0x40f 0x480-0x48f
+0x4d0-0x4d7
+cs: IO port probe 0x0a00-0x0aff: clean.
 
-Anyway maybe by that moment the there are too many open files for
-writes(so the fs is full of reservations) so it is already in trouble.
+I just noticed that it did get a message in /var/log/messages:
+Apr  1 09:48:57 localhost kernel: cs: memory probe xa0000000-0xa0ffffff:
+clean.
+Apr  1 09:48:57 localhost cardmgr[1001]: socket 0: Intersil PRISM2 11
+Mbps Wireless Adapter
 
-> 
-> This work doesn't help us with the slowly-growing logfile or mailbox file
-> problem.  I guess that would require on-disk reservations, or a new
-> `chattr' hint or such.
+That's the last thing in the log before the next startup.
+If the card was already in when I booted it, then there was one more
+line in the log from the next booting step before it hung.
 
-Ted has suggested to preserve the reservation/preallocation for those
-slowing growing logfile for mailbox file. Probably do not discard the
-reservation window for those files(the logfile) when they are closed.
-When it opens next time, it will allocate blocks directly from the old
-reservation window. Is that what you think? 
+Further probing shows that the computer is still functioning as I can 
+use sysrq functions.  Using sysrq-p gives me a list that appears to 
+scroll off the screen.  From the top of the screen, the first few items are:
+alloc_netdev
+ether_setup
+orinoco_cs_hard_reset
+orinoco_cs_attach
+orinoco_cs_event
+bind_request
+kmem_cache_alloc
+bind_request
+ds_ioctl
+get_random_bytes
+arch_align_stack
+mmap_top
+mm_init
 
-
+I have updated the laptop's bios to the latest version.  Any other 
+information that would be helpful?
 

@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267527AbSLSBJ1>; Wed, 18 Dec 2002 20:09:27 -0500
+	id <S267558AbSLSBLJ>; Wed, 18 Dec 2002 20:11:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267529AbSLSBJ0>; Wed, 18 Dec 2002 20:09:26 -0500
-Received: from holomorphy.com ([66.224.33.161]:6335 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267527AbSLSBJW>;
-	Wed, 18 Dec 2002 20:09:22 -0500
-Date: Wed, 18 Dec 2002 17:15:41 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Till Immanuel Patzschke <tip@inw.de>
-Cc: lse-tech <lse-tech@lists.sourceforge.net>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 15000+ processes -- poor performance ?!
-Message-ID: <20021219011541.GI31800@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Till Immanuel Patzschke <tip@inw.de>,
-	lse-tech <lse-tech@lists.sourceforge.net>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <3E0116D6.35CA202A@inw.de> <3E011899.A3FBDAF1@inw.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E011899.A3FBDAF1@inw.de>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S267559AbSLSBLJ>; Wed, 18 Dec 2002 20:11:09 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:25862 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267558AbSLSBLH>; Wed, 18 Dec 2002 20:11:07 -0500
+Date: Wed, 18 Dec 2002 17:17:03 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: John Bradford <john@bradfords.org.uk>, Larry McVoy <lm@bitmover.com>,
+       <lm@work.bitmover.com>, <alan@redhat.com>, <davej@codemonkey.org.uk>,
+       <vonbrand@inf.utfsm.cl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <akpm@digeo.com>
+Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
+In-Reply-To: <1040260157.26882.7.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0212181709560.2156-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 18, 2002 at 04:53:45PM -0800, Till Immanuel Patzschke wrote:
-> forgot the kernel version (2.4.20aa1)...
 
-2.4.20aa1 is missing some of the infrastructure to reduce the cpu
-consumption under high process count loads, but that's not going to
-help you anyway. 150K processes is not going to be feasible in the
-immediate future (months or longer away) so you'll have to figure out
-how to take that into account.
+On 19 Dec 2002, Alan Cox wrote:
+> 
+> How the actual patches get applied really isnt relevant. I know Linus
+> hated jitterbug, Im guessing he hates bugzilla too ?
 
+I didn't start out hating jitterbug, I tried it for a while.
 
-Bill
+I ended up not really being able to work with anything that was so
+email-hostile. You had to click on things from a browser, write passwords,
+and generally just act "gooey", instead of getting things just _done_.
+
+If I can't do my work by email from a standard keyboard interface, it's
+just not worth it. Maybe bugzilla works better, but I seriously expect it
+to help _others_ track bugs more than it helps me.
+
+Which is fine. We don't all have to agree on the tools or on how to track 
+stuff. The worst we can do (I think) is to _force_ people to work some 
+way.
+
+[ This is where the angel chorus behind me started singing "Why can't we 
+  all live together in peace and harmony" and put up a big banner saying 
+  "Larry [heart] Alan". At that point my fever-induced brain just said 
+  "plop" ]
+
+		Linus
+

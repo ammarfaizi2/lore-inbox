@@ -1,79 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266457AbUIMIqu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266449AbUIMIqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266457AbUIMIqu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 04:46:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266459AbUIMIqu
+	id S266449AbUIMIqi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 04:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266467AbUIMIqi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 04:46:50 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:30942 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S266457AbUIMIqm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 04:46:42 -0400
-Date: Mon, 13 Sep 2004 01:46:22 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ak@suse.de, bcasavan@sgi.com, anton@samba.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: more numa maxnode confusions
-Message-Id: <20040913014622.3addde90.pj@sgi.com>
-In-Reply-To: <20040913001548.278bf672.akpm@osdl.org>
-References: <20040912200253.3d7a6ff5.pj@sgi.com>
-	<20040913065621.GB12185@wotan.suse.de>
-	<20040913001548.278bf672.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 13 Sep 2004 04:46:38 -0400
+Received: from smtp.cs.aau.dk ([130.225.194.6]:64129 "EHLO smtp.cs.aau.dk")
+	by vger.kernel.org with ESMTP id S266477AbUIMIqR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 04:46:17 -0400
+Message-ID: <414570B2.2060207@cs.auc.dk>
+Date: Mon, 13 Sep 2004 12:04:34 +0200
+From: =?ISO-8859-1?Q?S=F8ren_N=F8hr_Christensen?= <snc@cs.aau.dk>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: d_path crashes on boot!
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew asked:
-> Revert what?
+Hi all!
 
-The immediate change Andi wants reverted only matters at present in
-Linus' bk tree.  My main cpuset patch in your *-mm tree already does the
-reversion in *-mm (unfortunately - collision details follow ...).
+I'm working on a security project, where we need to get full paths of 
+accessed files. We are using the function d_path, and it works. Problem 
+occurs if we call the function during a boot, this makes the kernel 
+crash instantly.
 
-So I presume that Linus' will apply Andi's reversion patch of earlier this
-evening to his bk tree.
+Is there another way around the problem, or is there a way to check for 
+some defines, so that d_path is not called until the datastructures are 
+ready?
 
-But then when you pull in Linus's latest bk changes into your linus.patch,
-this will collide with my main cpuset patch.
-
-Both patches will be trying to add back in the same line:
-
-	--maxnode;
-
-to get_nodes() in mm/mempolicy.c.
-
-My guess is that now that you and Linus know about this, you two can
-handle the collision by hand - both new lines of code agree on what's to
-be done: add the above line back in.
-
-But if there is some other permutation of patches that I can send that
-would be smoother, let me know.
-
-The one alternative I can think of that would allow everyone to put this
-back on autopilot and forget the details, would be to _remove_ the
-following segment of my cpusets-big-numa-cpu-and-memory-placement.patch:
-
-@@ -133,6 +134,7 @@ static int get_nodes(unsigned long *node
- 	unsigned long nlongs;
- 	unsigned long endmask;
- 
-+	--maxnode;
- 	bitmap_zero(nodes, MAX_NUMNODES);
- 	if (maxnode == 0 || !nmask)
- 		return 0;
-
-so that Andi's latest reversion path applied cleanly when it came back
-at you from Linus' bk tree.  But I understand that usually you like to
-layer new patches, not replace or edit existing ones.
-
-Go ahead and remove the above segment, if that seems best to you.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+//snc

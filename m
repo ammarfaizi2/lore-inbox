@@ -1,101 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268503AbUIGTbv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268349AbUIGTez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268503AbUIGTbv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 15:31:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268289AbUIGTaA
+	id S268349AbUIGTez (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 15:34:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268594AbUIGTdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 15:30:00 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:57351 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S268506AbUIGT3B
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 15:29:01 -0400
-Date: Tue, 7 Sep 2004 23:29:04 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc1-mm4
-Message-ID: <20040907212904.GA9416@mars.ravnborg.org>
-Mail-Followup-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-	Andrew Morton <akpm@osdl.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <544180000.1094575502@[10.10.2.4]>
+	Tue, 7 Sep 2004 15:33:54 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:40974 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S268506AbUIGTdB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 15:33:01 -0400
+Date: Tue, 7 Sep 2004 21:32:29 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: unneeded #include <version.h> in many places ?
+Message-ID: <20040907193229.GD2454@fs.tum.de>
+References: <m3d60yxdce.fsf@defiant.pm.waw.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <544180000.1094575502@[10.10.2.4]>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <m3d60yxdce.fsf@defiant.pm.waw.pl>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 07, 2004 at 09:45:02AM -0700, Martin J. Bligh wrote:
-> Well, the good news is that it compiles now, and without forcing ACPI on.
-> Yay!
-> 
-> On the downside, it seems to have a new error:
-> 
-> make[1]: warning: jobserver unavailable: using -j1.  Add `+' to parent make rule.
-> 
-> which appears partway through make install, but only if you do "make -j32",
-> not make -j.
-Fixed by following patch:
+On Tue, Sep 07, 2004 at 06:17:53PM +0200, Krzysztof Halasa wrote:
 
-	Sam
+> Hi,
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/09/07 23:20:11+02:00 sam@mars.ravnborg.org 
-#   kbuild: fix make -j N build
-#   
-#   Make did say:
-#   make[1]: warning: jobserver unavailable: using -j1.
-#   
-#   Added '+' flag in relevant places to supress this warning.
-#   Also removed some trailing tabs in same area spotted by Adrian Bunk <bunk@fs.tum.de>
-#   
-#   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-# 
-# Makefile
-#   2004/09/07 23:19:54+02:00 sam@mars.ravnborg.org +6 -5
-#   Add '+' to avoid '-j1' warning from make
-#   Removed trailing tabs
-# 
-diff -Nru a/Makefile b/Makefile
---- a/Makefile	2004-09-07 23:28:03 +02:00
-+++ b/Makefile	2004-09-07 23:28:03 +02:00
-@@ -590,7 +590,7 @@
- 	. $(srctree)/scripts/mkversion > .tmp_version;	\
- 	mv -f .tmp_version .version;			\
- 	$(MAKE) $(build)=init
--	
-+
- # Generate System.map
- quiet_cmd_sysmap = SYSMAP 
-       cmd_sysmap = $(CONFIG_SHELL) $(srctree)/scripts/mksysmap
-@@ -600,11 +600,11 @@
- # Generate System.map and verify that the content is consistent
- 
- define rule_vmlinux__
--	$(if $(CONFIG_KALLSYMS),,$(call cmd,vmlinux_version))
--	
-+	$(if $(CONFIG_KALLSYMS),,+$(call cmd,vmlinux_version))
-+
- 	$(call cmd,vmlinux__)
- 	$(Q)echo 'cmd_$@ := $(cmd_vmlinux__)' > $(@D)/.$(@F).cmd
--	
-+
- 	$(Q)$(if $($(quiet)cmd_sysmap),                 \
- 	  echo '  $($(quiet)cmd_sysmap) System.map' &&) \
- 	$(cmd_sysmap) $@ System.map;                    \
-@@ -653,9 +653,10 @@
- endef
- 
- # Update vmlinux version before link
-+# Use + in front of this rule to silent warning about make -j1
- cmd_ksym_ld = $(cmd_vmlinux__)
- define rule_ksym_ld
--	$(call cmd,vmlinux_version)
-+	+$(call cmd,vmlinux_version)
- 	$(call cmd,vmlinux__)
- 	$(Q)echo 'cmd_$@ := $(cmd_vmlinux__)' > $(@D)/.$(@F).cmd
- endef
+Hi Krzysztof,
+
+> I noticed some kernel .c files #include <version.h> which typically
+> contains something like:
+> 
+> #define UTS_RELEASE "2.6.9-rc1"
+> #define LINUX_VERSION_CODE 132617
+> #define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
+> 
+> However, those files don't reference the macros.
+> 
+> The question is: are these includes completely unneeded, so I can
+> remove them, or do they serve some special purpose?
+
+they don't serve any special purpose.
+
+But please doublecheck that they are really not needed.
+
+> Another one: there are drivers using constructs like:
+> 
+> #if LINUX_VERSION_CODE > 0x20115
+> ...
+> #endif
+> 
+> I understand they can be somehow useful for authors supporting many
+> kernel versions with a single set of files, however the gain isn't
+> clear to me. Should such conditional code be a) removed, b) left
+> in place, c) dealt with each case individually?
+
+c)
+
+Many driver authors share their code this way between different major 
+kernel versions, which makes it easier for them to maintain their code.
+
+#ifdef's for kernel 2.4 are often still actively maitained.
+
+#ifdef's for kernel 2.2 are only very rarely actively maitained.
+
+#ifdef's for kernel 2.0 (as in your example) are most likely completely 
+obsolete.
+
+> Krzysztof Halasa
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

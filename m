@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130618AbRCLVSy>; Mon, 12 Mar 2001 16:18:54 -0500
+	id <S130644AbRCLVVO>; Mon, 12 Mar 2001 16:21:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130644AbRCLVSp>; Mon, 12 Mar 2001 16:18:45 -0500
-Received: from mailhub2.shef.ac.uk ([143.167.2.154]:2527 "EHLO
-	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
-	id <S130623AbRCLVSc>; Mon, 12 Mar 2001 16:18:32 -0500
-Date: Mon, 12 Mar 2001 21:21:37 +0000 (GMT)
-From: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: system call for process information?
-In-Reply-To: <Pine.GSO.4.21.0103121324280.25792-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.21.0103122111500.31224-100000@erdos.shef.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130661AbRCLVVE>; Mon, 12 Mar 2001 16:21:04 -0500
+Received: from f88.law10.hotmail.com ([64.4.15.88]:12296 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S130644AbRCLVUx>;
+	Mon, 12 Mar 2001 16:20:53 -0500
+X-Originating-IP: [209.191.34.210]
+From: "Chip Rodden" <chip_rodden@hotmail.com>
+To: jbrosnan@asitatech.ie, tulip@scyld.com, linux-kernel@vger.kernel.org
+Subject: Re: [tulip] Linux 2.2.16/Tulip Smartbits testing.
+Date: Mon, 12 Mar 2001 21:20:21 -0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F88SMmGB7Wz4e9StHov000115fc@hotmail.com>
+X-OriginalArrivalTime: 12 Mar 2001 21:20:22.0027 (UTC) FILETIME=[3F074DB0:01C0AB3A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Mar 2001, Alexander Viro wrote:
+John,
 
-> On Mon, 12 Mar 2001, Guennadi Liakhovetski wrote:
-> 
-> > I need to collect some info on processes. One way is to read /proc
-> > tree. But isn't there a system call (ioctl) for this? And what are those
-> 
-> Occam's Razor.  Why invent new syscall when read() works?
+It's the driver.  We have been doing smartbits testing for more
+than a year and found the same results as you appear to be getting.
+The driver just dies and never recovers.  It attempts to do
+interrupt mitigation(coalescing) but that appears to be useless.
 
-CPU utilisation. Each new application has to calculate it (ps, top, qps,
-kps, various sysmons, procmons, etc.). Wouldn't it be worth it having a
-syscall for that? Wouldn't it be more optimal?
+The solution is to write a new driver which is what we have done
+here...
 
-> > task[], task_struct, etc. about?
-> 
-> What branch? (2.0, 2.2, 2.4?)
-
-Well, what I mean was - don't these structures contain the information I
-am looking for? Let's start from the end - 2.4, then what's the difference
-with 2.2 and finally 2.0?
-
-Thanks
-Guennadi
-___
-
-Dr. Guennadi V. Liakhovetski
-Department of Applied Mathematics
-University of Sheffield, U.K.
-email: G.Liakhovetski@sheffield.ac.uk
-
+Chip
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com
 

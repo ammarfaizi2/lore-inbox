@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263624AbTDNS2R (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 14:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263665AbTDNSOb (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 14:14:31 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50444 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263624AbTDNRzl (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 13:55:41 -0400
+	id S263759AbTDNTkp (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 15:40:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263762AbTDNTko (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 15:40:44 -0400
+Received: from main.gmane.org ([80.91.224.249]:16811 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263759AbTDNTkk (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 15:40:40 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Memory mapped files question
-Date: 14 Apr 2003 11:07:09 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b7etcd$s0n$1@cesium.transmeta.com>
-References: <002101c30239$fc0ae630$fe64a8c0@webserver> <8180000.1050330998@[10.10.2.4]> <20030414150759.GA14552@wind.cocodriloo.com> <11640000.1050332688@[10.10.2.4]>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+From: Pasi Pirhonen <upi@gandalf.ipv6.papat.org>
+Subject: Re: Linux on Unisys Aquanta HR/6 ?
+Date: Mon, 14 Apr 2003 22:27:10 +0300
+Message-ID: <slrnb9m2se.1ti.upi@blah.campus.papat.org>
+References: <Pine.GSO.4.44.0304141114040.12734-100000@math.ut.ee> <1050323228.25353.46.camel@dhcp22.swansea.linux.org.uk>
+Reply-To: upi@iki.fi
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: slrn/0.9.7.4 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <11640000.1050332688@[10.10.2.4]>
-By author:    "Martin J. Bligh" <mbligh@aracnet.com>
-In newsgroup: linux.dev.kernel
->
-> > Martin, something which was not mentioned last week (I've just checked).
-> > 
-> > It's OK if we never write to disk unless explicitely told, but will we writeback
-> > when we munmap?
+On 14 Apr 2003 13:27:09 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Llu, 2003-04-14 at 09:20, Meelis Roos wrote:
+>> Has anyone had any sucess running Linux on Unisys Aquanta HR/6 (or HR/6U
+>> if that matters)? This is a up to 6-way PPro SMP machine,
+>> http://www.unimetrix.com/hr6.html is the best description I have.
 > 
-> Don't know for sure - you'd have to read the code (do_munmap) ... I couldn't
-> see anything there at a quick glance. However, I'd guess we don't write it, 
-> as multiple people could have the file mapped, or we could remap it
-> again from somewhere. Presumably the standard LRU will just flush it out.
+> I can't help thinking a single AMD duron would outrun it. 
+
+Absolutely true, but you cannot afford to have 4-way 2+Ghz P4 Xeon at
+home easily. Those are cheap machines to get more that 2-way SMP for
+tweaking with scalability. I have 2 quad-PPRO 'in my collection' and
+those are the 'pearls of it'. One that i'd really like to have is that
+8-way NCR WorldMark PPRO, but those are rare (i have spotted one tho,
+but it's still on production).
+
+Heck. Now we (i) am talking about these babies, i even have 3-way P166
+SMP machine which is working just fine :)
+
+Still, when we talk about compiling kernel and like, i prefer 2Ghz
+athlon or something over quad-PPRO as it's still running loops around
+any old stuff while compiling.
+
+> 
+> For Linux support the big thing you need to know is if the system
+> is "Intel MP 1.1/1.4 compliant".  A lot of the ppro boxes were,
+> but 6 ways can be a bit strange (the ALR 6x6 does work )
 > 
 
-munmap() and fsync() or msync() will flush it to disk; there is no
-reason munmap() should unless perhaps the file was opened O_SYNC.
+Aquanta should be exactly 6x6 motherboard w/ different BIOS.
 
-	-hpa
 
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+upi@iki.fi -- http://www.iki.fi/upi/
+

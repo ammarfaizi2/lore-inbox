@@ -1,60 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268219AbTBNGV3>; Fri, 14 Feb 2003 01:21:29 -0500
+	id <S268218AbTBNGU7>; Fri, 14 Feb 2003 01:20:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268220AbTBNGV3>; Fri, 14 Feb 2003 01:21:29 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:5392 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S268219AbTBNGV0> convert rfc822-to-8bit; Fri, 14 Feb 2003 01:21:26 -0500
-Date: Thu, 13 Feb 2003 22:27:58 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Matthias Schniedermeyer <ms@citd.de>
-cc: =?unknown-8bit?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Promise SATA chips
-In-Reply-To: <20030213205127.GA11546@citd.de>
-Message-ID: <Pine.LNX.4.10.10302132227031.6903-100000@master.linux-ide.org>
+	id <S268219AbTBNGU7>; Fri, 14 Feb 2003 01:20:59 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:50596 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S268218AbTBNGU5>; Fri, 14 Feb 2003 01:20:57 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: "Matthew D. Pitts" <mpitts@suite224.net>
+Cc: linux-kernel@vger.kernel.org
+Date: Thu, 13 Feb 2003 22:30:07 -0800 (PST)
+Subject: Re: openbkweb-0.0
+In-Reply-To: <002301c2d3ee$b9064bf0$0100a8c0@pcs686>
+Message-ID: <Pine.LNX.4.44.0302132224470.656-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Guys, Larry isn't saying that you are not allowed to BUY a copy of
+bitkeeper and reeverse engineer it, he is saying that you are not allowed
+to get the FREE copy of bitkeeper and reverse engineer it.
 
-This one is the HPT374 with Marvell bridge chips slapped on it.
-It is natively supported with the PATA driver.
+if you give Larry money for a license you can reverse engineer it,
+analyse it's tools, etc under all the reasoning that you give about your
+legal right to something you have paid for.
 
-Cheers,
+but the FREE use of bitkeeper does not give you the same rights. Larry is
+saying that he won't give people who are perceived as 'out to get him' a
+free license for bitkeeper
 
-On Thu, 13 Feb 2003, Matthias Schniedermeyer wrote:
+so drop all this nonsense about the rights you have for purchasing
+software and how evil Larry is for trying to take those rights away.
 
-> On Thu, Feb 13, 2003 at 02:04:50AM -0800, Andre Hedrick wrote:
-> > On 13 Feb 2003, Måns Rullgård wrote:
-> > 
-> > > > Use Silicon Image products.
-> > > 
-> > > I can't get them.
-> > 
-> > Hogwash, they dominate the market space and are on all the Intel
-> > Mainboards that are 845e and above.
-> 
-> Btw. I've looked and the "HighPoint RocketRAID 1540" (4 Channel
-> Serial-ATA) looks "nice".
-> 
-> Is/Should this controller be supported by the "siimage"-driver?
-> 
-> 
-> 
-> 
-> Bis denn
-> 
-> -- 
-> Real Programmers consider "what you see is what you get" to be just as 
-> bad a concept in Text Editors as it is in women. No, the Real Programmer
-> wants a "you asked for it, you got it" text editor -- complicated, 
-> cryptic, powerful, unforgiving, dangerous.
-> 
+David Lang
 
-Andre Hedrick
-LAD Storage Consulting Group
+ On Fri, 14 Feb
+2003, Matthew D. Pitts wrote:
 
+> Date: Fri, 14 Feb 2003 01:02:57 -0500
+> From: Matthew D. Pitts <mpitts@suite224.net>
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: openbkweb-0.0
+>
+>
+> Jamie.
+> >
+> > Someone may copy and use your software _without_ agreeing to the license.
+> >
+> > Then you can sue them for breach of copyright.
+> >
+> > You will win, unless their copying was fair use.
+> >
+> > Reverse engineering for interoperability is a form of fair use in many
+> > countries, including Germany and the UK.
+> >
+> > Draw your own conclusion :)
+>
+> That particular line of reasoning is even included in the infamous DMCA here
+> in the US... But the courts have ruled in favor of the MPAA with regards to
+> attempts to LEGALLY reverse-engineer CSS.
+>
+> Daw your own conclusion...
+> Matthew D. Pitts
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,79 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbUJ3SJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbUJ3SLh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261233AbUJ3SJK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 14:09:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbUJ3SHR
+	id S261241AbUJ3SLh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 14:11:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbUJ3SKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 14:07:17 -0400
-Received: from rproxy.gmail.com ([64.233.170.201]:33204 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261262AbUJ3SGM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 14:06:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=G0I6UDb4+/v2sHBc5g0C3NhH0FZENML9rR3Vh2IidJPs9UVWOOqkVTOYXUQ9nMIieA8xfyPnXzOkbcgDEzZBNA6T9Hj04gurkkiMwPidoCG82M21jBRhM9pryPrkp4oxmZO877UwFHrIxOU5/Y+k7j/kVd5bVmHU4DjyG9VjDq0=
-Message-ID: <58cb370e04103011065c265ce4@mail.gmail.com>
-Date: Sat, 30 Oct 2004 20:06:11 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: CaT <cat@zip.com.au>
-Subject: Re: PDC20267 bug and corruption (was: Re: [BK PATCHES] ide-2.6 update)
-Cc: torvalds@osdl.org, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20041030034745.GA1287@zip.com.au>
+	Sat, 30 Oct 2004 14:10:49 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:57096 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261241AbUJ3SHe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 14:07:34 -0400
+Date: Sat, 30 Oct 2004 20:07:02 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: al@alarsen.net
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] QNX4 cleanups
+Message-ID: <20041030180702.GT4374@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <58cb370e04102706074c20d6d7@mail.gmail.com>
-	 <20041027133431.GF1127@zip.com.au>
-	 <58cb370e04102706512283405@mail.gmail.com>
-	 <20041030034745.GA1287@zip.com.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Oct 2004 13:47:45 +1000, CaT <cat@zip.com.au> wrote:
-> On Wed, Oct 27, 2004 at 03:51:14PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > http://bugme.osdl.org/show_bug.cgi?id=2494
-> 
-> Tried it via bk7, wasn't it.
-> 
-> Looks like I have found a bug relating to the pdc driver though.
-> 
-> The situation is such: I have 2 HDs connected to a PDC20267 PCI card,
-> one on each channel, with a master on the primary channel and a slave on
-> the secondry channel. Accessing each drive individually causes no
-> problems at all but accessing them simultaneously (like copying data off
-> one drive onto the other) causes the IDE layer to go to hell in a hand
-> basket. I can duplicate this each and every time by doing the following:
-> 
-> 1. copying a few gig from hde to hdh
-> 2. dd if=/dev/hde of=/dev/null
->    dd if=/dev/zero of=/dev/hdh
-> 
-> With method #1 I get the following:
-> 
-> Oct 27 00:37:39 nessie kernel: attempt to access beyond end of device
-> Oct 27 00:37:39 nessie kernel: hdh1: rw=1, want=3034756264, limit=390716802
-> Oct 27 00:37:40 nessie kernel: Aborting journal on device hdh1.
-> Oct 27 00:37:40 nessie kernel: ext3_abort called.
-> Oct 27 00:37:40 nessie kernel: EXT3-fs error (device hdh1): ext3_journal_start: Detected aborted journal
-> Oct 27 00:37:40 nessie kernel: Remounting filesystem read-only
-> Oct 27 00:37:40 nessie kernel: EXT3-fs error (device hdh1) in start_transaction: Journal has aborted
+The patch below does the following cleanups in the QNX4 fs:
+- remove two unused global functions
+- make some functions static
 
-This comes from the block layer, generic_make_request(),
-request is screwed up before it hits IDE layer.
 
-> With method #2, a whole lot more fun occurs. The logfile I have is big
-> (almost 400k) so I've compressed it and included it as an attachment.
-> This is with kernel 2.6.10-rc1-bk7 (no logs survived from me testing
-> this with rc1-mm2).
+diffstat output:
+ fs/qnx4/bitmap.c        |   58 ----------------------------------------
+ fs/qnx4/inode.c         |    6 ++--
+ include/linux/qnx4_fs.h |    4 --
+ 3 files changed, 4 insertions(+), 64 deletions(-)
 
-Indeed, this is a lot more fun. ;)
 
-Is this bug new/old?
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Is it pdc202xx_old specific?  Does the same havoc happen
-if you connect drives to the on-board Intel IDE controller?
+--- linux-2.6.10-rc1-mm2-full/include/linux/qnx4_fs.h.old	2004-10-30 14:53:54.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/include/linux/qnx4_fs.h	2004-10-30 15:01:34.000000000 +0200
+@@ -114,15 +114,12 @@
+ extern unsigned long qnx4_count_free_blocks(struct super_block *sb);
+ extern unsigned long qnx4_block_map(struct inode *inode, long iblock);
+ 
+-extern struct buffer_head *qnx4_getblk(struct inode *, int, int);
+ extern struct buffer_head *qnx4_bread(struct inode *, int, int);
+ 
+ extern struct inode_operations qnx4_file_inode_operations;
+ extern struct inode_operations qnx4_dir_inode_operations;
+ extern struct file_operations qnx4_file_operations;
+ extern struct file_operations qnx4_dir_operations;
+-extern int qnx4_is_free(struct super_block *sb, long block);
+-extern int qnx4_set_bitmap(struct super_block *sb, long block, int busy);
+ extern int qnx4_create(struct inode *inode, struct dentry *dentry, int mode, struct nameidata *nd);
+ extern void qnx4_truncate(struct inode *inode);
+ extern void qnx4_free_inode(struct inode *inode);
+@@ -130,7 +127,6 @@
+ extern int qnx4_rmdir(struct inode *dir, struct dentry *dentry);
+ extern int qnx4_sync_file(struct file *file, struct dentry *dentry, int);
+ extern int qnx4_sync_inode(struct inode *inode);
+-extern int qnx4_get_block(struct inode *inode, sector_t iblock, struct buffer_head *bh, int create);
+ 
+ static inline struct qnx4_sb_info *qnx4_sb(struct super_block *sb)
+ {
+--- linux-2.6.10-rc1-mm2-full/fs/qnx4/inode.c.old	2004-10-30 14:58:16.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/fs/qnx4/inode.c	2004-10-30 15:01:28.000000000 +0200
+@@ -162,7 +162,7 @@
+ 	return 0;
+ }
+ 
+-struct buffer_head *qnx4_getblk(struct inode *inode, int nr,
++static struct buffer_head *qnx4_getblk(struct inode *inode, int nr,
+ 				 int create)
+ {
+ 	struct buffer_head *result = NULL;
+@@ -212,7 +212,7 @@
+ 	return NULL;
+ }
+ 
+-int qnx4_get_block( struct inode *inode, sector_t iblock, struct buffer_head *bh, int create )
++static int qnx4_get_block( struct inode *inode, sector_t iblock, struct buffer_head *bh, int create )
+ {
+ 	unsigned long phys;
+ 
+@@ -447,7 +447,7 @@
+ {
+ 	return generic_block_bmap(mapping,block,qnx4_get_block);
+ }
+-struct address_space_operations qnx4_aops = {
++static struct address_space_operations qnx4_aops = {
+ 	.readpage	= qnx4_readpage,
+ 	.writepage	= qnx4_writepage,
+ 	.sync_page	= block_sync_page,
+--- linux-2.6.10-rc1-mm2-full/fs/qnx4/bitmap.c.old	2004-10-30 14:49:21.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/fs/qnx4/bitmap.c	2004-10-30 14:57:34.000000000 +0200
+@@ -28,7 +28,7 @@
+ 	return 0;
+ }
+ 
+-void count_bits(register const char *bmPart, register int size,
++static void count_bits(register const char *bmPart, register int size,
+ 		int *const tf)
+ {
+ 	char b;
+@@ -85,62 +85,6 @@
+ 
+ #ifdef CONFIG_QNX4FS_RW
+ 
+-int qnx4_is_free(struct super_block *sb, long block)
+-{
+-	int start = le32_to_cpu(qnx4_sb(sb)->BitMap->di_first_xtnt.xtnt_blk) - 1;
+-	int size = le32_to_cpu(qnx4_sb(sb)->BitMap->di_size);
+-	struct buffer_head *bh;
+-	const char *g;
+-	int ret = -EIO;
+-
+-	start += block / (QNX4_BLOCK_SIZE * 8);
+-	QNX4DEBUG(("qnx4: is_free requesting block [%lu], bitmap in block [%lu]\n",
+-		   (unsigned long) block, (unsigned long) start));
+-	(void) size;		/* CHECKME */
+-	bh = sb_bread(sb, start);
+-	if (bh == NULL) {
+-		return -EIO;
+-	}
+-	g = bh->b_data + (block % QNX4_BLOCK_SIZE);
+-	if (((*g) & (1 << (block % 8))) == 0) {
+-		QNX4DEBUG(("qnx4: is_free -> block is free\n"));
+-		ret = 1;
+-	} else {
+-		QNX4DEBUG(("qnx4: is_free -> block is busy\n"));
+-		ret = 0;
+-	}
+-	brelse(bh);
+-
+-	return ret;
+-}
+-
+-int qnx4_set_bitmap(struct super_block *sb, long block, int busy)
+-{
+-	int start = le32_to_cpu(qnx4_sb(sb)->BitMap->di_first_xtnt.xtnt_blk) - 1;
+-	int size = le32_to_cpu(qnx4_sb(sb)->BitMap->di_size);
+-	struct buffer_head *bh;
+-	char *g;
+-
+-	start += block / (QNX4_BLOCK_SIZE * 8);
+-	QNX4DEBUG(("qnx4: set_bitmap requesting block [%lu], bitmap in block [%lu]\n",
+-		   (unsigned long) block, (unsigned long) start));
+-	(void) size;		/* CHECKME */
+-	bh = sb_bread(sb, start);
+-	if (bh == NULL) {
+-		return -EIO;
+-	}
+-	g = bh->b_data + (block % QNX4_BLOCK_SIZE);
+-	if (busy == 0) {
+-		(*g) &= ~(1 << (block % 8));
+-	} else {
+-		(*g) |= (1 << (block % 8));
+-	}
+-	mark_buffer_dirty(bh);
+-	brelse(bh);
+-
+-	return 0;
+-}
+-
+ static void qnx4_clear_inode(struct inode *inode)
+ {
+ 	struct qnx4_inode_entry *qnx4_ino = qnx4_raw_inode(inode);
 
-Please post /proc identify data for both drives and PCI config
-space dump for PDC20267 so someone can verify them.

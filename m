@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVCITmY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVCITli@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbVCITmY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 14:42:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbVCITmW
+	id S261528AbVCITli (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 14:41:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbVCITl2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 14:42:22 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:48365 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261254AbVCITl7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 14:41:59 -0500
-Message-ID: <422F516E.7040308@nortel.com>
-Date: Wed, 09 Mar 2005 13:41:34 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Wed, 9 Mar 2005 14:41:28 -0500
+Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:60074 "HELO
+	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261254AbVCITkj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 14:40:39 -0500
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Andi Kleen <ak@muc.de>
+Subject: Re: [patch 1/1] x86-64: forgot asmlinkage on sys_mmap
+Date: Wed, 9 Mar 2005 20:40:22 +0100
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <20050305190005.0943C4B47@zion> <200503091924.00518.blaisorblade@yahoo.it> <20050309193454.GB17918@muc.de>
+In-Reply-To: <20050309193454.GB17918@muc.de>
 MIME-Version: 1.0
-To: "Justin M. Forbes" <jmforbes@linuxtx.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.Stable and EXTRAVERSION
-References: <20050309185331.GB19306@linuxtx.org>
-In-Reply-To: <20050309185331.GB19306@linuxtx.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503092040.22780.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin M. Forbes wrote:
-> With the new stable series kernels, the .x versioning is being added to
-> EXTRAVERSION.  This has traditionally been a space for local modification.
-> I know several distributions are using EXTRAVERSION for build numbers,
-> platform and assorted other information to differentiate their kernel
-> releases.
-> I would propose that the new stable series kernels move the .x version
-> information somewhere more official.  I certainly do not mind throwing
-> together a patch to support DOTVERSION or what ever people want to call it.
-> Is anyone opposed to such a change?
+On Wednesday 09 March 2005 20:34, Andi Kleen wrote:
+> On Wed, Mar 09, 2005 at 07:24:00PM +0100, Blaisorblade wrote:
+> > On Wednesday 09 March 2005 18:24, Andi Kleen wrote:
+> > > blaisorblade@yahoo.it writes:
+> > > > CC: Andi Kleen <ak@suse.de>
+> > > >
+> > > > I think it should be there, please check better.
+> > >
+> > > It doesn't matter. asmlinkage is a nop on x86-64.
+> >
+> > Yes, otherwise nothing would work on x86-64 with mmap broken, but for
+> > cleanness and for the case this change it should be there (otherwise why
+> > asmlinkage is used in the rest of the file).
+>
+> Only because it was cut'n'pasted from i386 originally.
+>
+> > And for i386 asmlinkage acquired significance only recently.
+>
+> Actually it doesn't neither on i386. That's because entry.S happens to put
+> the arguments both into registers and the stack in the right order, so both
+> register and stack argument calling conventions work.
+>
+> But it is slightly safer to have it. When you use the stack arguments
+> the C code is allowed to modify it, and when the system call is restarted
+> later you could see garbage. In practice that's not a big issue because
+> only very few system calls are restartable.
+>
+> ptrace also could see corrupted state, but that's in general a non issue.
+Ok, thanks for the info, I hope it's applied anyway.
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade
 
-Distros could conceivably use CONFIG_LOCALVERSION, although it might be 
-cleaner to add another version level.
-
-Chris

@@ -1,140 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264585AbUEEL7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264614AbUEEMJW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264585AbUEEL7s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 07:59:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264597AbUEEL7s
+	id S264614AbUEEMJW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 08:09:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264623AbUEEMJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 07:59:48 -0400
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:39324 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S264585AbUEEL7k convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 07:59:40 -0400
-Subject: Re: [BUG] 2.6.5 ntfs
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Marcin =?iso-8859-2?Q?Gibu=B3a?= <m.gibula@conecto.pl>
-Cc: ntfs-dev <linux-ntfs-dev@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200405041957.38185.m.gibula@conecto.pl>
-References: <200405031407.46408.m.gibula@conecto.pl>
-	 <1083660979.6490.5.camel@imp.csi.cam.ac.uk>
-	 <200405041957.38185.m.gibula@conecto.pl>
-Content-Type: text/plain; charset=iso-8859-2
-Organization: University of Cambridge Computing Service
-Message-Id: <1083758242.916.42.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 05 May 2004 12:57:23 +0100
-Content-Transfer-Encoding: 8BIT
+	Wed, 5 May 2004 08:09:22 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:34441 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S264614AbUEEMJL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 08:09:11 -0400
+Message-ID: <4098D965.3060500@free.fr>
+Date: Wed, 05 May 2004 14:09:09 +0200
+From: Eric Valette <eric.valette@free.fr>
+Reply-To: eric.valette@free.fr
+Organization: HOME
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040501
+X-Accept-Language: en
+MIME-Version: 1.0
+To: eric.valette@free.fr
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Re : 2.6.6-rc3-mm2 : REGPARAM forced => no external module with
+ some object code only
+References: <4098D65D.9010107@free.fr>
+In-Reply-To: <4098D65D.9010107@free.fr>
+Content-Type: multipart/mixed;
+ boundary="------------080408030809060303060501"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-05-04 at 18:57, Marcin Gibu³a wrote:
-> > Could you do the following inside the configured kernel source directory
-> > corresponding to the compiled kernel that produced this oops:
-> >
-> > make fs/ntfs/attrib.s
+This is a multi-part message in MIME format.
+--------------080408030809060303060501
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Eric Valette wrote:
+> Andrew,
 > 
-> The kernel was compiled with gcc version 3.4.0 20040414 (prerelease), and I 
-> have gcc 3.4 now, so I'm not sure if the results are the same... so, I 
-> attached both new attrib.s and dissassembled attrib.o from previous 
-> compilation (with this older gcc).
+> The Changelog says nothing really important but forcing REGPARAM is 
+> rather important : it breaks any external module using object only code 
+> that calls a kernel function.
+>...
+> Complete stack trace attached... (that shows they do not expect kmalloc 
+> to fail :-( )
 
-Thanks.  Using the attrib.o.asm you sent me, I can see where the oops
-happened.  It is on line 566 in fs/ntfs/attrib.c:
 
-for (dend = di; drl[dend].length; dend++)
-	;
-
-The oops happened when drl[dend].length is accessed and from the
-register dump in the oops I can see that this came after a dend++ was
-executed, i.e. not on the first access to drl[dend].length.
-
-Also, ecx is e0b12010 which is is 0x10 bytes into a page boundary
-(assuming your system uses 4kib pages which is likely to be the case).
-
-Further, from eax and edx it would imply that the last drl[dend].length
-was equal to 0xff807362ff746957 which is a non-sense value.
-
-The only way this could happen is if drl was not terminated (i.e.
-drl[last element].length was not set to zero) and hence the for loop
-just kept going accessing random memory contents until it hit the end of
-the page and overflowed into the next one which caused the oops.
-
-The run list code was very heavily tested at the time it was written and
-it hasn't been touched since, so I doubt very much that this was caused
-in the run list code of ntfs.  Doubly so as you say that you cannot
-reproduce the bug so the driver would have needed to manage to do two
-different things with the same data at two different times which seems
-extremely unlikely to me...
-
-If I am correct and there is no bug in the run list code of ntfs, the
-only possible explanation is that either other kernel code caused memory
-corruption (i.e. a bug in some other kernel code trampled over ntfs
-allocated memory) or what is much more likely is that you have flakey
-memory and a flipped bit caused the length of the last element of drl to
-not be zero any more.  Have you ever run memtest on your machine?
-
-> > Also could you tell me which Windows version the ntfs partition was
-> > created with and which windows version last accessed the files?
-> 
-> It was created with Windows 2000 or Windows XP, I really don't remember which 
-> was that, is there some utility to check this?
-> 
-> Windows XP last accessed this partition.
-> 
-> > Finally is this bug reproducible when you access a particular file or is
-> > it a once off event?  If a particular file, then would you mind running
-> > a utility that I can email you (source or binary or both whichever you
-> > prefer) so I can capture the metadata for the inode of the file?
-> 
-> I was trying to reproduce this bug with cat * > /dev/null but the only thing 
-> I've triggered was this warning:
-> 
-> NTFS-fs error: ntfs_decompress(): Failed. Returning -EOVERFLOW.
-> NTFS-fs error (device hde4): ntfs_read_compressed_block(): ntfs_decompress() 
-> failed in inode 0x78a with error code 75. Skipping this compression block.
-> 
-> But no oops ... 
-> If you want I can run whatever is necessary.
-
-If you run "chkdsk /f" from windows on this partition, does it detect
-any errors?
-
-Assuming chkdsk doesn't detect and fix any errors, this would definitely
-be worth investigating.  I don't think it has anything to do with the
-oops but I would very much like a copy of this inode because it might
-mean our decompression code has a bug in it and I want to check this
-out.  To create a copy, I will assume you have the latest ntfsprogs
-installed, then use ntfscat to dump your $MFT like this:
-
-ntfscat -i 0 /dev/hde4 > ~/mymftdump
-
-This will create a rather large file.  You can compress it with bzip -9
-and if this is small enough, please email it to me (my email will accept
-up to 10Mib attachments) or make it available for me to download on the
-internet.  If this is not workable for you then proceed as follows to
-copy the specific inode 0x78a (= 1930 in decimal) out of the file:
-
-dd if=~/mymftdump of=~/inode0x78a bs=1024 count=1 skip=1930
-
-And then email me the file ~/inode0x78a (this is only 1kiB in size).
-
-Once this is done I will email you with more instructions on how to get
-the rest of the data I need (i.e. the compressed data of the file which
-is causing the overflow).
-
-I am afraid I am too busy at work at the moment to write a utility to
-get the data automatically...  Your help is very much appreciated.
-
-Best regards,
-
-	Anton
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ &
-http://www-stu.christs.cam.ac.uk/~aia21/
+    __
+   /  `                   	Eric Valette
+  /--   __  o _.          	6 rue Paul Le Flem
+(___, / (_(_(__         	35740 Pace
+
+Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
+E-mail: eric.valette@free.fr
 
 
+
+
+--------------080408030809060303060501
+Content-Type: text/plain;
+ name="bewanBub.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="bewanBub.txt"
+
+May  5 12:04:29 localhost kernel: unicorn_pci_atm: module license 'Proprietary' taints kernel.
+May  5 12:04:29 localhost kernel: PCI: Enabling device 0000:00:09.0 (0014 -> 0016)
+May  5 12:04:29 localhost kernel: unicorn_pci: AFE 70134
+May  5 12:04:29 localhost kernel: unicorn_pci: v 0.0.0, 12:03:15 May  5 2004
+May  5 12:04:29 localhost kernel: unicorn_pci: MSW parameters: 
+May  5 12:04:29 localhost kernel: ActivationMode=1
+May  5 12:04:29 localhost kernel: ActTimeout=300000
+May  5 12:04:29 localhost kernel: AutoActivation=1
+May  5 12:04:29 localhost kernel: DebugLevel=0
+May  5 12:04:29 localhost kernel: DownstreamRate=8128
+May  5 12:04:29 localhost kernel: unicorn_pci: ExchangeDelay=20
+May  5 12:04:29 localhost kernel: FmPollingRate=1000
+May  5 12:04:29 localhost kernel: g_RefGain=28
+May  5 12:04:29 localhost kernel: g_Teqmode=7
+May  5 12:04:29 localhost kernel: InitTimeout=20000
+May  5 12:04:29 localhost kernel: Interoperability=0
+May  5 12:04:29 localhost kernel: unicorn_pci: LCD_Trig=15000
+May  5 12:04:29 localhost kernel: LOS_LOF_Trig=5000
+May  5 12:04:29 localhost kernel: LoopbackMode=0
+May  5 12:04:29 localhost kernel: MswDebugLevel=2
+May  5 12:04:29 localhost kernel: RetryTime=5000
+May  5 12:04:29 localhost kernel: TrainingDelay=120
+May  5 12:04:29 localhost kernel: unicorn_pci: useRFC019v=0
+May  5 12:04:29 localhost kernel: useRFC029v=7000
+May  5 12:04:29 localhost kernel: useRFC040v=0
+May  5 12:04:29 localhost kernel: useRFC041v=1
+May  5 12:04:29 localhost kernel: setINITIALDAC=93
+May  5 12:04:29 localhost kernel: unicorn_pci: useRFCFixedRate=1
+May  5 12:04:29 localhost kernel: useVCXO=0
+May  5 12:04:29 localhost kernel: _no_TS652=0
+May  5 12:04:29 localhost kernel: unicorn_pci: driver parameters: DebugLevel=0
+May  5 12:04:29 localhost kernel: alloc_obj: kmalloc failed,size=-742088876,type=abc0
+May  5 12:04:29 localhost kernel:  printing eip:
+May  5 12:04:29 localhost kernel: e3aa11d5
+May  5 12:04:29 localhost kernel: Oops: 0002 [#1]
+May  5 12:04:29 localhost kernel: PREEMPT 
+May  5 12:04:29 localhost kernel: CPU:    0
+May  5 12:04:29 localhost kernel: EIP:    0060:[pg0+592122325/1067507712]    Tainted: P   VLI
+May  5 12:04:29 localhost kernel: EFLAGS: 00010296   (2.6.6-rc3-mm2) 
+May  5 12:04:29 localhost kernel: EIP is at xsm_ident+0x15/0xf0 [unicorn_pci_atm]
+May  5 12:04:29 localhost kernel: eax: 00000001   ebx: 00000000   ecx: 00000001   edx: 00000001
+May  5 12:04:29 localhost kernel: esi: 00000000   edi: e3ae6b00   ebp: 00000001   esp: d3c49ecc
+May  5 12:04:29 localhost kernel: ds: 007b   es: 007b   ss: 0068
+May  5 12:04:29 localhost kernel: Process modprobe (pid: 3217, threadinfo=d3c49000 task=d6ba11f0)
+May  5 12:04:29 localhost kernel: Stack: 00000000 0000abc0 d3c49f54 e3aa072b 00000001 00000001 00000000 00000000 
+May  5 12:04:29 localhost kernel:        e3ae6b00 d3c49f10 e3a86a67 e3ab313f 00000000 00000000 e3aa8f20 00000000 
+May  5 12:04:29 localhost kernel:        00000000 d3c49f50 e3a60d7c 00000000 d3c49f44 000000ff 00000000 de618768 
+May  5 12:04:29 localhost kernel: Call Trace:
+May  5 12:04:29 localhost kernel:  [pg0+592119595/1067507712] alloc_obj+0xfb/0x130 [unicorn_pci_atm]
+May  5 12:04:29 localhost kernel:  [pg0+592013927/1067507712] _ZN19InterfaceProtectionC1Ev+0x17/0x48 [unicorn_pci_atm]
+May  5 12:04:29 localhost kernel:  [pg0+591859068/1067507712] AMSW_Modem_SW_Init+0x28/0x11c [unicorn_pci_atm]
+May  5 12:04:29 localhost kernel:  [pg0+592133283/1067507712] unicorn_atm_startdevice+0x23/0x90 [unicorn_pci_atm]
+May  5 12:04:29 localhost kernel:  [pg0+592128052/1067507712] msw_init+0x14/0x140 [unicorn_pci_atm]
+May  5 12:04:29 localhost kernel:  [pg0+592142941/1067507712] unicorn_attach+0x16d/0x1b0 [unicorn_pci_atm]
+May  5 12:04:29 localhost kernel:  [pg0+592429885/1067507712] unicorn_pci_init+0x33d/0x43e [unicorn_pci_atm]
+May  5 12:04:29 localhost kernel:  [sys_init_module+258/528] sys_init_module+0x102/0x210
+May  5 12:04:29 localhost kernel:  [filp_close+79/128] filp_close+0x4f/0x80
+May  5 12:04:29 localhost kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+May  5 12:04:29 localhost kernel: 
+May  5 12:04:29 localhost kernel: Code: c0 8b 44 24 30 c7 00 00 00 00 00 b8 01 00 00 00 eb b1 8d 74 26 00 55 89 cd 57 56 53 83 ec 18 89 44 24 14 c7 44 24 10 01 00 00 00 <c7> 01 00 00 00 00 9c 5b fa b8 00 f0 ff ff 21 e0 ff 40 14 a1 bc 
+
+--------------080408030809060303060501--

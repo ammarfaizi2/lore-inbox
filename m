@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVBHWkt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVBHWnM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbVBHWkt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 17:40:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVBHWjA
+	id S261601AbVBHWnM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 17:43:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbVBHWnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 17:39:00 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:34463 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S261673AbVBHWhr (ORCPT
+	Tue, 8 Feb 2005 17:43:12 -0500
+Received: from hera.kernel.org ([209.128.68.125]:63148 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261601AbVBHWmF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 17:37:47 -0500
-Date: Tue, 8 Feb 2005 14:37:15 -0800
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4] SIOCSIFNAME wildcard support (resend)
-Message-ID: <20050208223715.GA5739@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20050208181436.GA29717@bougret.hpl.hp.com> <20050208180445.GB10695@logos.cnet> <20050208142422.019e2b01.davem@davemloft.net>
+	Tue, 8 Feb 2005 17:42:05 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: the "Turing Attack" (was: Sabotaged PaXtest)
+Date: Tue, 8 Feb 2005 22:41:44 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <cubf78$2s2$1@terminus.zytor.com>
+References: <42080689.15768.1B0C5E5F@localhost> <42093CC7.5086.1FC83D3E@localhost> <20050208164815.GA9903@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050208142422.019e2b01.davem@davemloft.net>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@hpl.hp.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1107902504 2947 127.0.0.1 (8 Feb 2005 22:41:44 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Tue, 8 Feb 2005 22:41:44 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 08, 2005 at 02:24:22PM -0800, David S. Miller wrote:
-> On Tue, 8 Feb 2005 16:04:45 -0200
-> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+Followup to:  <20050208164815.GA9903@elte.hu>
+By author:    Ingo Molnar <mingo@elte.hu>
+In newsgroup: linux.dev.kernel
 > 
-> > On Tue, Feb 08, 2005 at 10:14:36AM -0800, Jean Tourrilhes wrote:
-> > > 	Hi Marcelo,
-> > > 
-> > > 	I did not receive any feedback on this e-mail, so I assume it
-> > > was lost on the way. Would you mind pushing that in 2.4.x ?
-> > > 	Thanks...
-> > 
-> > As an ignorant person I have no problems with it.
-> > 
-> > David, what is your opinion?
+> This, on the face of it, seems like a ridiculous possibility as the
+> chances of that are reverse proportional to the number of bits necessary
+> to implement the simplest Turing Machine. (which for anything even
+> closely usable are on the order of 2^10000, less likely than the
+> likelyhood of us all living to the end of the Universe.)
 > 
-> If networking patches are sent purely to linux-kernel, they will often
-> be missed.  Please use netdev@oss.sgi.com, Jean of all people should be
-> more than aware of netdev@oss.sgi.com as the place to post and discuss
-> networking patches, not linux-kernel and not privately to Marcelo or
-> myself.
-> 
-> I only happened to spot this post by accident this time, I'm being
-> asked a question and I'm not even CC:'d on the email. :-)
 
-	It was sent to netdev :
-http://marc.theaimsgroup.com/?l=linux-netdev&m=110747857226852&w=2
+2^10000?  Not even close.  You can build a fully Turing-complete
+interpreter in a few tens of bytes (a few hundred bits) on most
+architectures, and you have to consider ALL bit combinations that can
+form an accidental Turing machine.
 
-	Jean
+What is far less clear is whether or not you can use that accidental
+Turing machine to do real damage.  After all, it's not computation (in
+the strict sense) that causes security violations, it's I/O.  Thus,
+the severity of the problem depends on which I/O primitives the
+accidental Turing machine happens to embody.  Note that writing to the
+memory of the host process is considered I/O for this purpose.
+
+	-hpa

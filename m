@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129345AbQJ2UdV>; Sun, 29 Oct 2000 15:33:21 -0500
+	id <S129322AbQJ2UnG>; Sun, 29 Oct 2000 15:43:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129331AbQJ2UdM>; Sun, 29 Oct 2000 15:33:12 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9008 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129253AbQJ2Uc4>; Sun, 29 Oct 2000 15:32:56 -0500
-Subject: Re: [patch] NE2000
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Sun, 29 Oct 2000 20:34:06 +0000 (GMT)
-Cc: pavel@web.sajt.cz (pavel rabel), linux-net@vger.kernel.org,
-        p_gortmaker@yahoo.com, netdev@oss.sgi.com,
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <39FC83CD.B10BF08D@mandrakesoft.com> from "Jeff Garzik" at Oct 29, 2000 03:08:45 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129331AbQJ2Um5>; Sun, 29 Oct 2000 15:42:57 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:33194 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129322AbQJ2Umk>;
+	Sun, 29 Oct 2000 15:42:40 -0500
+Date: Sun, 29 Oct 2000 15:42:37 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Paul Mackerras <paulus@linuxcare.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: page->mapping == 0
+In-Reply-To: <E13pz7a-0006JY-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.4.21.0010291537380.27484-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13pz9c-0006Jh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This change sounds ok to me, if noone else objects.  (I added to the CC
-> a bit)  I saw that code, and was thinking about doing the same thing
-> myself.  ne2k-pci.c definitely has changes which are not included in
-> ne.c, and it seems silly to duplicate ne2000 PCI support.
 
-Unless there are any cards that need the bug workarounds in ne.c for use
-on PCI then I see no problem. I've not heard of any. 
+
+On Sun, 29 Oct 2000, Alan Cox wrote:
+
+> > I would expect problems with truncate, mmap, rename, POSIX locks, fasync,
+> > ptrace and mount go unnoticed for _long_. Ditto for parts of procfs
+> 
+> Well the ptrace one still has mysteriously breaks usermode linux against it
+> on my list here. Was that ever explained. It looked like the stack got corrupted
+> which is weird.
+
+Alan, is it me or usermode port really tends to catch the stack overflows?
+<thinks> How about we allocate the pages by 4, not by 2 as we do now, and
+explicitly unmap the pages below the task_struct? That would still leave the
+chance of stack overflow going unnoticed, but the window would be limited.
+
+Another possibility for ptrace-related screwups: past-the-EOF check in
+filemap_nopage(). I'm still not convinced that it's right. It may be, but...
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

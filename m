@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261767AbUL3XxW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbUL3XzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261767AbUL3XxW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 18:53:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbUL3XxV
+	id S261778AbUL3XzV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 18:55:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbUL3Xxs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 18:53:21 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:39224 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261767AbUL3Xwe
+	Thu, 30 Dec 2004 18:53:48 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:39001 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261761AbUL3Xw7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 18:52:34 -0500
-Date: Fri, 31 Dec 2004 00:52:45 +0100
+	Thu, 30 Dec 2004 18:52:59 -0500
+Date: Fri, 31 Dec 2004 00:53:09 +0100
 From: Sam Ravnborg <sam@ravnborg.org>
 To: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: kconfig: remove noise from show_expr
-Message-ID: <20041230235245.GC9450@mars.ravnborg.org>
+Subject: kconfig: help includes dependency information
+Message-ID: <20041230235309.GD9450@mars.ravnborg.org>
 Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
 	linux-kernel@vger.kernel.org
 References: <20041230235146.GA9450@mars.ravnborg.org>
@@ -28,68 +28,52 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 # This is a BitKeeper generated diff -Nru style patch.
 #
 # ChangeSet
-#   2004/12/31 00:36:09+01:00 sam@mars.ravnborg.org 
-#   kconfig: remove noise from show_expr
+#   2004/12/31 00:43:45+01:00 sam@mars.ravnborg.org 
+#   kconfig: help includes dependency information
 #   
-#   This makes readout more compact when searching for specific symbols
+#   When selecting help on a menu item display
+#   "depends on:"
+#   "selects:"
+#   "selected by:"
+#   
+#   Only relevant headlines are displayed - so if no "selects:" appear then this menu
+#   does not select a specific symbol.
+#   Loosly based on a patch by: Cal Peake <cp@absolutedigital.net>
 #   
 #   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 # 
 # scripts/kconfig/mconf.c
-#   2004/12/31 00:35:50+01:00 sam@mars.ravnborg.org +7 -17
-#   avoid printing empty information in show_expr
-#   increase buffer size in str_printf - people write that big text blocks
+#   2004/12/31 00:43:27+01:00 sam@mars.ravnborg.org +5 -5
+#   display
+#   "depends on:"
+#   "selects:"
+#   "selected by:"
+#   
+#   information when selecting help on a menu
 # 
 diff -Nru a/scripts/kconfig/mconf.c b/scripts/kconfig/mconf.c
---- a/scripts/kconfig/mconf.c	2004-12-31 00:45:40 +01:00
-+++ b/scripts/kconfig/mconf.c	2004-12-31 00:45:40 +01:00
-@@ -147,7 +147,7 @@
- static void str_printf(struct gstr *gs, const char *fmt, ...)
+--- a/scripts/kconfig/mconf.c	2004-12-31 00:46:29 +01:00
++++ b/scripts/kconfig/mconf.c	2004-12-31 00:46:29 +01:00
+@@ -732,17 +732,17 @@
+ static void show_help(struct menu *menu)
  {
- 	va_list ap;
--	char s[1024];
-+	char s[4096];
- 	va_start(ap, fmt);
- 	vsnprintf(s, sizeof(s), fmt, ap);
- 	str_add(gs, s);
-@@ -347,34 +347,24 @@
+ 	const char *help;
+-	char *helptext;
+ 	struct symbol *sym = menu->sym;
  
- static void show_expr(struct menu *menu, struct gstr *gs)
- {
--	bool hit = false;
--	str_add(gs, "Depends:\n ");
- 	if (menu->prompt->visible.expr) {
--		if (!hit)
--			hit = true;
-+		str_add(gs, "\ndepends on:\n ");
- 		expr_str(menu->prompt->visible.expr, gs);
- 	}
--	if (!hit)
--		str_add(gs, "None");
- 	if (menu->sym) {
- 		struct property *prop;
--		hit = false;
--		str_add(gs, "\nSelects:\n ");
-+		bool hit = false;
- 		for_all_properties(menu->sym, prop, P_SELECT) {
--			if (!hit)
-+			if (!hit) {
-+				str_add(gs, "\nselects:\n ");
- 				hit = true;
-+			}
- 			expr_str(prop->expr, gs);
- 		}
--		if (!hit)
--			str_add(gs, "None");
--		hit = false;
--		str_add(gs, "\nSelected by:\n ");
- 		if (menu->sym->rev_dep.expr) {
--			hit = true;
-+			str_add(gs, "\nselected by:\n ");
- 			expr_str(menu->sym->rev_dep.expr, gs);
- 		}
--		if (!hit)
--			str_add(gs, "None");
- 	}
+ 	help = sym->help;
+ 	if (!help)
+ 		help = nohelp_text;
+ 	if (sym->name) {
+-		helptext = malloc(strlen(sym->name) + strlen(help) + 16);
+-		sprintf(helptext, "CONFIG_%s:\n\n%s", sym->name, help);
+-		show_helptext(menu_get_prompt(menu), helptext);
+-		free(helptext);
++		struct gstr str = str_init();
++		str_printf(&str, "CONFIG_%s:\n\n%s", sym->name, help);
++		show_expr(menu, &str);
++		show_helptext(menu_get_prompt(menu), str_get(&str));
++		str_del(&str);
+ 	} else
+ 		show_helptext(menu_get_prompt(menu), help);
  }
- 

@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262342AbTIEION (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 04:14:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTIEION
+	id S262255AbTIEIF7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 04:05:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262317AbTIEIF7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 04:14:13 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:30212 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262342AbTIEIOJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 04:14:09 -0400
-Message-ID: <3F5847B7.9070308@aitel.hist.no>
-Date: Fri, 05 Sep 2003 10:22:15 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: no, en
+	Fri, 5 Sep 2003 04:05:59 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:63056 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262255AbTIEIF5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 04:05:57 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       "David S. Miller" <davem@redhat.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix ppc ioremap prototype
+References: <Pine.LNX.4.44.0309040935040.1665-100000@home.osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 05 Sep 2003 02:02:00 -0600
+In-Reply-To: <Pine.LNX.4.44.0309040935040.1665-100000@home.osdl.org>
+Message-ID: <m1ad9jpssn.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test4-mm5 SMP got stuck when configuring the NIC
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-test4-mm5 seems to work on UP, but got stuck on SMP when the
-initscripts ran pump.
+Linus Torvalds <torvalds@osdl.org> writes:
 
-It responded to sysrq+S, & sysrq+U,
-so it seems block io was still working.
-There was no fsck on the next boot into plain 2.6.0-test4.
+> So clearly ioremap() has to work for other buses too.
+> 
+> I think that in the 2.7.x timeframe, the right thing to do is definitely:
+>  - move towards using "struct resource" and "ioremap_resource()"
+>  - make resource sizes potentially be larger (ie use "u64" instead of 
+>    "unsigned long")
+> 
+> This is actually a potential issue already, with 64-bit PCI on regular 
+> PC's. We don't handle it at all right now (the PCI probing will just not 
+> create the resources), and nobody has complained, but clearly the 
+> RightThing(tm) to do eventually is to make sure this all works cleanly.
+> 
+> I just don't think it's worth worrying about in 2.6.x right now, since it 
+> doesn't matter for anybody. 
 
-sysrq+P showed:
-Pid 38, comm: pump
-EIP at __mod_timer+0x34/0x270
-do_IRQ
-common_interrupt
-del_timer
-del_timer_sync
-schedule_timeout
-process_timeout
-dev_close
-dev_change_flags
-devinet_ioctl
-inet_ioctl
-sock_ioctl
-syscall_call
-auth_domain_drop
+But it does.  There are at least some embedded ppc people who are actually
+using 64bit physical addresses with a 32bit virtual address space.    
 
-sysrq+T
-showed pump as the R process, syslogd Z, and others S.
+And this has come up in a few other times, as well.
 
-I'll try without the elv-insertion-fix thing later today.
+A big question is how much of a problem this will be for later revs of
+2.6.x.  I would even enable 64bit resources on an Opteron box and not
+loose memory if I could be certain a 32bit kernel that people are
+using temporarily would work.
 
-Helge Hafting
+So is there any reason to delay making resources a 64bit quantity?
 
+Eric

@@ -1,39 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265686AbTFNQWb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 12:22:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265688AbTFNQWa
+	id S265690AbTFNQ2E (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 12:28:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265691AbTFNQ2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 12:22:30 -0400
-Received: from pa186.opole.sdi.tpnet.pl ([213.76.204.186]:56824 "EHLO
-	uran.deimos.one.pl") by vger.kernel.org with ESMTP id S265686AbTFNQWa
+	Sat, 14 Jun 2003 12:28:04 -0400
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:14053 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S265690AbTFNQ17
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 12:22:30 -0400
-Date: Sat, 14 Jun 2003 18:12:19 +0200
-From: Damian =?iso-8859-2?Q?Ko=B3kowski?= <deimos@deimos.one.pl>
-To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-Cc: mirsev@cicese.mx, linux-kernel@vger.kernel.org
-Subject: Re: via-rhine strange behavior 2.4.21-rc8
-Message-ID: <20030614161219.GA865@deimos.one.pl>
-References: <200306121227.07122@gjs> <20030613170426.GB573@deimos.one.pl> <3EEA12C0.E15DBAF2@cicese.mx> <200306141112.25252@gjs>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+	Sat, 14 Jun 2003 12:27:59 -0400
+Message-ID: <20030614164144.8583.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200306141112.25252@gjs>
-User-Agent: Mutt/1.4.1i
-X-Age: 23 (1980.09.27 - libra)
-X-Girl: one will be enough!
-X-IM: JID:dEiMoS_DK@jabber.org ICQ:59367544 GG:88988
-X-Operating-System: Slackware GNU/Linux, kernel 2.4.21, up 1 min
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Lars Unin" <lars_unin@linuxmail.org>
+To: hahn@physics.mcmaster.ca
+Cc: linux-kernel@vger.kernel.org
+Date: Sun, 15 Jun 2003 00:41:44 +0800
+Subject: Re: kernel spinlocks; when to use; when appropriate?
+X-Originating-Ip: 62.7.148.93
+X-Originating-Server: ws5-2.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 14, 2003 at 11:12:19AM +0100, Grzegorz Jaskiewicz wrote:
-> Yep, it was vanilla 2.4.21-rc8 (which become 2.4.21 at the moment).
+ I wrote a while ago (thanks to you guys on LKML I almost 
+understand now):
 
-So if you wont to use via-rhine don't use the CONFIG_X86_UP_IOAPIC, and maby
-compile -rc8-ac1 with new ACPI.
+> >    When is is appropriate to use spinlocks in the kernel,
+><snipped> 
+ Then Mark hahn wrote:
 
+> jeez.  it's verging on rude to ask this sort of question,
+> when you have the vast expanses of kernel code right there
+> in front of you, chocked full of spinlocks.  the mere fact
+> that the list has tens of thousands of readers should make 
+> you try to help yourself first.
+ 
+ Well <sirens heard> its verging on rude to send me an email thats
+rude <people heard in background> and has this theme:
+
+ You are a two year old, to learn what the words "quarks" mean you
+should read Quantum Thoeries by Lazzengberg, then use a particle 
+accelerator to Quantify and factualise it, OR
+
+ Like asking a 6 year old where babies come from... Lets face 
+it, how many 6 year olds can work out the full process without
+a book expalining it, or someone telling them...
+
+ Its verging on rude also to assume even though <Voices heard 
+"PUT THE GUN DOWN, NOBODY HAS TO DIE"> <Hahns palms held outstretched>
+nobody wants to read my question, that I would want to read such
+an answer, so tell me <"NOW BRAVO TEAM, GO GO,"> why the rant by you? 
+
+BRAVO TEAM GO GO! SUSPECT IS UNARMED. REPEAT. SUSPECT IS UNARMED.
+
+ Chill. ;-)
+ Lars.
 -- 
-# Damian *dEiMoS* Ko³kowski # http://deimos.one.pl/ #
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
+
+Powered by Outblaze

@@ -1,29 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266488AbRGYDJL>; Tue, 24 Jul 2001 23:09:11 -0400
+	id <S266514AbRGYDXM>; Tue, 24 Jul 2001 23:23:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266500AbRGYDJB>; Tue, 24 Jul 2001 23:09:01 -0400
-Received: from pc7.prs.nunet.net ([199.249.167.77]:11272 "HELO
-	pc7.prs.nunet.net") by vger.kernel.org with SMTP id <S266488AbRGYDIt>;
-	Tue, 24 Jul 2001 23:08:49 -0400
-Message-ID: <20010725030855.696.qmail@pc7.prs.nunet.net>
-From: "Rico Tudor" <"rico-linux-kernel@patrec.com"@patrec.com>
-Subject: Re: DMA problem (?) w/ 2.4.6-xfs and ServerWorks OSB4 Chipset
-To: adam-dated-996283107.318d97@flounder.net (Adam McKenna)
-Date: Tue, 24 Jul 101 22:08:55 -0500 (CDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010724182512.B4614@flounder.net> from "Adam McKenna" at Jul 24, 1 06:25:12 pm
-X-Mailer: ELM [version 2.4 PL25]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S266516AbRGYDXD>; Tue, 24 Jul 2001 23:23:03 -0400
+Received: from 64-42-29-14.atgi.net ([64.42.29.14]:48654 "HELO
+	mail.clouddancer.com") by vger.kernel.org with SMTP
+	id <S266514AbRGYDWv>; Tue, 24 Jul 2001 23:22:51 -0400
+To: linux-kernel@vger.kernel.org
+Cc: kaboom@gatech.edu, chris.ricker@genetics.utah.edu
+Subject: Re: 2.4.7 tmpfs strange behaviour
+In-Reply-To: <9jl7as$a2h$1@ns1.clouddancer.com>
+In-Reply-To: <20010725005940.A5607@werewolf.able.es>    <w53bsm9c06f.wl@megaela.fe.dis.titech.ac.jp>    <20010725025014.A2431@werewolf.able.es> <20010725032634.A1175@werewolf.able.es> <20010725025014.A2431@werewolf.able.es>; from    jamagallon@able.es on Wed, Jul 25, 2001 at 02:50:14 +0200 <9jl7as$a2h$1@ns1.clouddancer.com>
+Reply-To: klink@clouddancer.com
+Message-Id: <20010725032256.D3F0F785B8@mail.clouddancer.com>
+Date: Tue, 24 Jul 2001 20:22:56 -0700 (PDT)
+From: klink@clouddancer.com (Colonel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-ServerWorks OSB4 locks solid if I access both IDE channels, and either
-one has DMA enabled.  Current solutions: (i) abandon second channel,
-(ii) use PIO, (iii) add Promise card, (iv) add 3ware card.
+In clouddancer.list.kernel, you wrote:
+>
+>On 20010725 J . A . Magallon wrote:
+>>
+>>On 20010725 GOTO Masanori wrote:
+>>>> /dev/sdb1              4232960     32840   4200120   1% /mnt/disk
+>>>> /root/tmpfs             131072         0    131072   0% /dev/shm
+>>>> /tmp/tmpfs              131072         0    131072   0% /dev/shm
+>>>> 
+>>>> ???? Strange devices.... both mounted under /dev/shm.
+>>>
+>>>I don't have any problems... mount version is 2.11g on 2.4.7
+>>>Uni-Processor and 2.4.7-pre3 SMP.
+>>>
+>>
+>>Mmm, mine is mount-2.11e on 2.4.7 final, SMP box.
+>>perhaps mount bug ?
+>>Going to get the new one...
+>>
+>
+>Right, mount bug. Version 2.11h works fine...
+>
+>-- 
+>J.A. Magallon                           #  Let the source be with you...        
+>mailto:jamagallon@able.es
+>Mandrake Linux release 8.1 (Cooker) for i586
 
-My machines use (i), (iii), and (iv).  I didn't test two devices on the
-same channel, e.g. /dev/hd[ab]
+
+This means an update to the Changes documentation.  It lists 2.10o as
+the minimum.

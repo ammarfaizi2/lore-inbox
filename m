@@ -1,79 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbUJ0C7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbUJ0DLu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbUJ0C7g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 22:59:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbUJ0C7f
+	id S261608AbUJ0DLu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 23:11:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbUJ0DLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 22:59:35 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:43735 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261614AbUJ0C6J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 22:58:09 -0400
-Subject: RE: Fixing MTRR smp breakage and suspending sysdevs.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: "Li, Shaohua" <shaohua.li@intel.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Patrick Mochel <mochel@digitalimplant.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <16A54BF5D6E14E4D916CE26C9AD30575699E58@pdsmsx402.ccr.corp.intel.com>
-References: <16A54BF5D6E14E4D916CE26C9AD30575699E58@pdsmsx402.ccr.corp.intel.com>
-Content-Type: text/plain
-Message-Id: <1098845361.5661.13.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 27 Oct 2004 12:49:21 +1000
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Oct 2004 23:11:50 -0400
+Received: from smtp.dei.uc.pt ([193.137.203.228]:29582 "EHLO smtp.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S261608AbUJ0DLr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 23:11:47 -0400
+Date: Wed, 27 Oct 2004 04:05:15 +0100 (WEST)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: Ed Tomlinson <edt@aei.ca>
+cc: Massimo Cetra <mcetra@navynet.it>,
+       "'Chuck Ebbert'" <76306.1226@compuserve.com>,
+       "'Bill Davidsen'" <davidsen@tmr.com>,
+       "'William Lee Irwin III'" <wli@holomorphy.com>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: My thoughts on the "new development model"
+In-Reply-To: <200410261719.56474.edt@aei.ca>
+Message-ID: <Pine.LNX.4.61.0410270402340.20284@student.dei.uc.pt>
+References: <00c201c4bb4c$56d1b8b0$e60a0a0a@guendalin> <200410261719.56474.edt@aei.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-UC-FCTUC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-FCTUC-DEI-MailScanner: Found to be clean
+X-MailScanner-From: marado@student.dei.uc.pt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Wed, 2004-10-27 at 12:48, Li, Shaohua wrote:
-> >
-> >Hi!
-> >
-> >I've just had a go at fixing the issue with my implementation not
-> >suspending the sysdevs (I believe swsusp does the same). In the
-> process,
-> >I reworked the MTRR support so it's not treated as a sysdev. Instead,
-> >when we're saving cpu state, the mtrr_save function function is called.
-> >When we go to restore CPU state, each CPU calls a function that resets
-> >it's MTRRs and the 'main' cpu then frees the saved data. This is
-> working
-> >well here (did a dozen plus suspends on the trot), but I want to check
-> >that it sounds like the right solution to you.
-> >
-> >Perhaps this method should be made more generic? (Are there likely to
-> be
-> >other per-cpu state savers needed?)
-> >
-> >One thing I have noticed is that by adding the sysdev suspend/resume
-> >calls, I've gained a few seconds delay. I'll see if I can track down
-> the
-> >cause.
+On Tue, 26 Oct 2004, Ed Tomlinson wrote:
 
-> Is the problem MTRR resume must be with IRQ enabled, right? Could we
+>> 2.4 tree is still the best solution for production.
+>> 2.6 tree is great for gentoo users who like gcc consuming all CPU
+>> (maxumum respect to gentoo but I prefer debian)
+>
+> The issue is that Linus _has_ changed the development model.  What we have
+> now is more flexable and much more responsive to changes.  This does
+> lead to stable releases that are not quite a stable as some of the previous
+> stable series...  This is why I suggest a fix/security branch.  The idea being
+> that after a month or so of fixes etc it will be a very stable kernel and it will
+> not have slowed down development.
 
-That's right.
+The sole existence of this discussion prooves that there's already the need of
+a new step. But why trying to re-invent the wheel? Yes, relating to 2.6 we need
+already a "very stable kernel" and a "not-slowed down development kernel". When
+it happened in 2.4 2.5 was created. Isn't all this just the indication that we
+need a 2.6 development like 2.4 is, and we need 2.7 to be created?
 
-> implement a method sysdev resume with IRQ enabled? MTRR driver isn't the
-> only case. The ACPI Link device is another case, it's a sysdev (it must
-> resume before any PCI device resumed), but its resume (it uses semaphore
-> and non-atomic kmalloc) can't invoked with IRQ enabled. I guess cpufreq
-> driver is another case when suspend/resume SMP is supported.
+Mind Booster Noori
 
-I'll see if I can find some time to prepare something. Might be a bit
-slow; humans don't multitask very well, and I'm trying to at the moment
-:>
+- -- 
+/* *************************************************************** */
+    Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
+    http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
+    () Join the ASCII ribbon campaign against html email, Microsoft
+    /\ attachments and Software patents.   They endanger the World.
+    Sign a petition against patents:  http://petition.eurolinux.org
+/* *************************************************************** */
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
 
-Nigel
-
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-Everyone lives by faith. Some people just don't believe it.
-Want proof? Try to prove that the theory of evolution is true.
+iD8DBQFBfxBtmNlq8m+oD34RAtIwAKDjVsTaY8v5EB8jfYqGywlziU3WfACfZ6dH
+XlhH9UPCngBYZ8R1mrHusSs=
+=PxeH
+-----END PGP SIGNATURE-----
 

@@ -1,77 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135462AbRDMKg7>; Fri, 13 Apr 2001 06:36:59 -0400
+	id <S129242AbRDMLkv>; Fri, 13 Apr 2001 07:40:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135463AbRDMKgt>; Fri, 13 Apr 2001 06:36:49 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:9488 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S135462AbRDMKgi>;
-	Fri, 13 Apr 2001 06:36:38 -0400
-Date: Fri, 13 Apr 2001 12:36:12 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: george anzinger <george@mvista.com>
-Cc: Ben Greear <greearb@candelatech.com>, Bret Indrelee <bret@io.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        high-res-timers-discourse@lists.sourceforge.net
-Subject: Re: No 100 HZ timer!
-Message-ID: <20010413123612.A30971@pcep-jamie.cern.ch>
-In-Reply-To: <Pine.LNX.4.21.0104122258060.7396-100000@fnord.io.com> <3AD69D7F.36B2BA87@candelatech.com> <3AD6BBDD.D5BA23EE@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AD6BBDD.D5BA23EE@mvista.com>; from george@mvista.com on Fri, Apr 13, 2001 at 01:42:05AM -0700
+	id <S129408AbRDMLkl>; Fri, 13 Apr 2001 07:40:41 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:11526 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S129381AbRDMLkf> convert rfc822-to-8bit; Fri, 13 Apr 2001 07:40:35 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Andreas Peter <ujq7@rz.uni-karlsruhe.de>
+To: linux-kernel@vger.kernel.org
+Subject: SW-RAID0 Performance problems
+Date: Fri, 13 Apr 2001 13:47:30 +0200
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <01041313473002.00533@debian>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-george anzinger wrote:
-> > Wouldn't a heap be a good data structure for a list of timers?  Insertion
-> > is log(n) and finding the one with the least time is O(1), ie pop off the
-> > front....  It can be implemented in an array which should help cache
-> > coherency and all those other things they talked about in school :)
-> > 
-> I must be missing something here.  You get log(n) from what?  B-trees? 
-> How would you manage them to get the needed balance?  Stopping the world
-> to re-balance is worse than the cascade.  I guess I need to read up on
-> this stuff.  A good pointer would be much appreciated. 
+Hi,
+I've successfully set up SW-RAID0 with Kernel 2.4.3 and Raidtools 0.9.
+I did this to increase the performance of my HD, but nothig happens.
+The hdparm results:
+hdparm -t /dev/md0 : 20.25 MB/sec
+hdparm -t /dev/hda : 20.51 MB/sec
+hdaprm -t /dev/hdc : 20.71 MB/sec
 
-Look for "priority queues" and "heaps".  In its simplest form, you use a
-heap-ordered tree, which can be implemented using an array (that's
-usually how it's presented), or having the objects in the heap point to
-each other.
+I thougt the performnace of RAID0 should near 40MB/sec.
+I played with different chunk-sizes, but the result was everytime the same.
+The drives are both Maxtor DiamondMax VL40, 30GB, DMA on. 
+No other drive is attached on the bus.
 
-A heap-ordered tree is not as strictly ordered as, well, an ordered tree
-:-)  The rule is: if A is the parent of B and C, then A expires earlier
-than B, and A expires earlier than C.  There is no constraint on the
-relative expiry times of B and C.
+Here are also some bonnie++ results:
 
-There is no "stop the world" to rebalance, which you may consider an
-advantage over the present hierarchy of tables.  On the other hand, each
-insertion or deletion operation takes O(log n) time, where n is the
-number of items in the queue.  Although fairly fast, this bound can be
-improved if you know the typical insertion/deletion patterns, to O(1)
-for selected cases.  Also you should know that not all priority queues
-are based on heap-ordered trees.
 
-Linux' current hierarchy of tables is a good example of optimisation: it
-is optimised for inserting and actually running short term timers, as
-well as inserting and deleting (before running) long term timers.  These
-extremes take O(1) for insertion, removal and expiry, including the
-"stop the world" time.  This should be considered before and move to a
-heap-based priority queue, which may turn out slower.
+-- RAID-0 --
+-- chunk-size=16 --
 
-> Meanwhile, I keep thinking of a simple doubly linked list in time
-> order.  To speed it up keep an array of pointers to the first N whole
-> jiffie points and maybe pointers to coarser points beyond the first N. 
-> Make N, say 512.  Build the pointers as needed.  This should give
-> something like O(n/N) insertion and O(1) removal.
+Version  1.01        ------Sequential Output------ --Sequential Input- --Random-
+                             -Per Chr- --Block-- -Rewrite-     -Per Chr- --Block-- --Seeks--
+Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
+debian           1G     7416    99  14277   20   7498     10   6942    90 27007    20 113.0      1
+                       ------Sequential Create------ --------Random Create--------
+                      -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
+              files   /sec %CP  /sec %CP    /sec %CP   /sec %CP   /sec %CP    /sec %CP
+                 16   267    99  +++++ +++ 10968 100   269  99    +++++ +++  1388  99
 
-You've just described the same as the current implementation, but with
-lists for longer term timers.  I.e. slower.  With your coarser points,
-you have to sort the front elements of the coarse list into a fine one
-from time to time.
+-- chunk-size=32 --
 
-The idea of having jiffie-point pointers into a data structure for fast
-insertion is a good one for speeding up any data structure for that
-common case, though.
+Version  1.01       ------Sequential Output------ --Sequential Input- --Random-
+                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
+Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
+debian           1G    7396     99 14075    20  7469    10    6945    90   26960  20   133.7   1
+                    ------Sequential Create------ --------Random Create--------
+                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
+              files  /sec %CP  /sec %CP   /sec %CP   /sec %CP   /sec %CP    /sec %CP
+                 16   265 100 +++++ +++ 10695  99    267   99   +++++ +++  1447 100
 
--- Jamie
+-- Single HD /dev/hdc1 --
+
+Version  1.01       ------Sequential Output------ --Sequential Input- --Random-
+                           -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
+Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
+debian           1G   7173   96    11055  13     5038   6     5999     78    29146  21 90.7       1
+                    ------Sequential Create------ --------Random Create--------
+                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
+              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
+                 16   272 100 +++++ +++ 10482  99   274  99 +++++ +++  1437 100
+
+Are there known performanace problems with 2.4.3, or is it necessary to 
+apply patches to the kernel? 
+Or did I something wrong??
+Thank you for every hint!
+
+Andreas
+-- 
+Andreas Peter *** ujq7@rz.uni-karlsruhe.de
+

@@ -1,128 +1,335 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVBIJm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbVBIJol@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261776AbVBIJm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 04:42:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbVBIJm2
+	id S261794AbVBIJol (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 04:44:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbVBIJol
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 04:42:28 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:20637 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261776AbVBIJmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 04:42:18 -0500
-Date: Wed, 9 Feb 2005 10:42:18 +0100
-From: Jan Kara <jack@suse.cz>
+	Wed, 9 Feb 2005 04:44:41 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:26317 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261794AbVBIJnS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 04:43:18 -0500
+Date: Wed, 9 Feb 2005 10:39:27 +0100
+From: Ingo Molnar <mingo@elte.hu>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix partial sysrq setting
-Message-ID: <20050209094216.GD27328@atrey.karlin.mff.cuni.cz>
+Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>,
+       chris@osdl.org
+Subject: [patch, BK] clean up and unify asm-*/resource.h files
+Message-ID: <20050209093927.GA9726@elte.hu>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="MAH+hnPXVZWQ5cD/"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9, BAYES_00 -4.90,
+	UPPERCASE_25_50 0.00
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---MAH+hnPXVZWQ5cD/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+this patch does the final consolidation of asm-*/resource.h file,
+without changing any of the rlimit definitions on any architecture.
+Primarily it removes the __ARCH_RLIMIT_ORDER method and replaces it with
+a more compact and isolated one that allows architectures to define only
+the offending rlimits.
 
-  Hello!
+This method has the positive effect that adding a new rlimit can now be
+purely done via changing asm-generic/resource.h alone. Previously one
+would have to patch 4 other (sparc, sparc64, alpha and mips) resource.h
+files.
 
-  Attached patch fixes a regression introduced by my patch allowing
-separate enabling of magic-sysrq functions. The problem is that
-originally it was always possible to use /proc/sysrq-trigger regardless
-the value of /proc/sys/kernel/sysrq (which actually I didn't know ;)
-and my original patch disallowed it. As I think the original behaviour
-is more useful and has no security problems (only root can access
-sysrq-trigger) the patch implementing the old behaviour is attached.
-Please apply (it applies well also to 2.6.11-rc3-mm1).
+the patch also does style unification, whitespace cleanups and
+simplification of resource.h files and cleans up the
+asm-generic/resource.h file as well. I've added more comments too.
 
-								Honza
+this patch should have no effect on any code on any architecture. (i.e. 
+it's a pure identity patch.)
 
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+Tested on x86 and carefully reviewed to make sure that Sparc, Sparc64,
+MIPS and Alpha rlimits are still the same as required by the ABI.
 
---MAH+hnPXVZWQ5cD/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="fix-sysrq-2.6.11-rc2.diff"
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-Allow again to use /proc/sysrq-trigger regardless the setting of
-/proc/sys/kernel/sysrq.
-
-Signed-off-by: Jan Kara <jack@suse.cz>
-
-diff -rupX /home/jack/.kerndiffexclude linux-2.6.11-rc2-sysrq-enable/Documentation/sysrq.txt linux-2.6.11-rc2-sysrq-additional/Documentation/sysrq.txt
---- linux-2.6.11-rc2-sysrq-enable/Documentation/sysrq.txt	2005-02-01 14:54:39.000000000 +0100
-+++ linux-2.6.11-rc2-sysrq-additional/Documentation/sysrq.txt	2005-02-01 15:27:15.000000000 +0100
-@@ -33,6 +33,10 @@ in /proc/sys/kernel/sysrq:
- You can set the value in the file by the following command:
-     echo "number" >/proc/sys/kernel/sysrq
+--- linux/include/asm-sparc/resource.h.orig
++++ linux/include/asm-sparc/resource.h
+@@ -8,32 +8,18 @@
+ #define _SPARC_RESOURCE_H
  
-+Note that the value of /proc/sys/kernel/sysrq influences only the invocation
-+via a keyboard. Invocation of any operation via /proc/sysrq-trigger is always
-+allowed.
+ /*
+- * Resource limits
++ * These two resource limit IDs have a Sparc/Linux-specific ordering,
++ * the rest comes from the generic header:
+  */
+-
+-#define RLIMIT_CPU	0		/* CPU time in ms */
+-#define RLIMIT_FSIZE	1		/* Maximum filesize */
+-#define RLIMIT_DATA	2		/* max data size */
+-#define RLIMIT_STACK	3		/* max stack size */
+-#define RLIMIT_CORE	4		/* max core file size */
+-#define RLIMIT_RSS	5		/* max resident set size */
+-#define RLIMIT_NOFILE	6		/* max number of open files */
+-#define RLIMIT_NPROC	7		/* max number of processes */
+-#define RLIMIT_MEMLOCK	8		/* max locked-in-memory address space */
+-#define RLIMIT_AS	9		/* address space limit */
+-#define RLIMIT_LOCKS	10		/* maximum file locks held */
+-#define RLIMIT_SIGPENDING 11		/* max number of pending signals */
+-#define RLIMIT_MSGQUEUE 12		/* maximum bytes in POSIX mqueues */
+-
+-#define RLIM_NLIMITS	13
+-#define __ARCH_RLIMIT_ORDER
++#define RLIMIT_NPROC		6	/* max number of processes */
++#define RLIMIT_NOFILE		7	/* max number of open files */
+ 
+ /*
+  * SuS says limits have to be unsigned.
+  * We make this unsigned, but keep the
+- * old value.
++ * old value for compatibility:
+  */
+-#define RLIM_INFINITY	0x7fffffff
++#define RLIM_INFINITY		0x7fffffff
+ 
+ #include <asm-generic/resource.h>
+ 
+--- linux/include/asm-alpha/resource.h.orig
++++ linux/include/asm-alpha/resource.h
+@@ -2,32 +2,20 @@
+ #define _ALPHA_RESOURCE_H
+ 
+ /*
+- * Resource limits
++ * Alpha/Linux-specific ordering of these four resource limit IDs,
++ * the rest comes from the generic header:
+  */
+-
+-#define RLIMIT_CPU	0		/* CPU time in ms */
+-#define RLIMIT_FSIZE	1		/* Maximum filesize */
+-#define RLIMIT_DATA	2		/* max data size */
+-#define RLIMIT_STACK	3		/* max stack size */
+-#define RLIMIT_CORE	4		/* max core file size */
+-#define RLIMIT_RSS	5		/* max resident set size */
+-#define RLIMIT_NOFILE	6		/* max number of open files */
+-#define RLIMIT_AS	7		/* address space limit(?) */
+-#define RLIMIT_NPROC	8		/* max number of processes */
+-#define RLIMIT_MEMLOCK	9		/* max locked-in-memory address space */
+-#define RLIMIT_LOCKS	10		/* maximum file locks held */
+-#define RLIMIT_SIGPENDING 11		/* max number of pending signals */
+-#define RLIMIT_MSGQUEUE 12		/* maximum bytes in POSIX mqueues */
+-
+-#define RLIM_NLIMITS	13
+-#define __ARCH_RLIMIT_ORDER
++#define RLIMIT_NOFILE		6	/* max number of open files */
++#define RLIMIT_AS		7	/* address space limit */
++#define RLIMIT_NPROC		8	/* max number of processes */
++#define RLIMIT_MEMLOCK		9	/* max locked-in-memory address space */
+ 
+ /*
+  * SuS says limits have to be unsigned.  Fine, it's unsigned, but
+  * we retain the old value for compatibility, especially with DU. 
+  * When you run into the 2^63 barrier, you call me.
+  */
+-#define RLIM_INFINITY	0x7ffffffffffffffful
++#define RLIM_INFINITY		0x7ffffffffffffffful
+ 
+ #include <asm-generic/resource.h>
+ 
+--- linux/include/asm-generic/resource.h.orig
++++ linux/include/asm-generic/resource.h
+@@ -2,57 +2,85 @@
+ #define _ASM_GENERIC_RESOURCE_H
+ 
+ /*
+- * Resource limits
++ * Resource limit IDs
++ *
++ * ( Compatibility detail: there are architectures that have
++ *   a different rlimit ID order in the 5-9 range and want
++ *   to keep that order for binary compatibility. The reasons
++ *   are historic and all new rlimits are identical across all
++ *   arches. If an arch has such special order for some rlimits
++ *   then it defines them prior including asm-generic/resource.h. )
+  */
+ 
+-/* Allow arch to control resource order */
+-#ifndef __ARCH_RLIMIT_ORDER
+ #define RLIMIT_CPU		0	/* CPU time in ms */
+ #define RLIMIT_FSIZE		1	/* Maximum filesize */
+ #define RLIMIT_DATA		2	/* max data size */
+ #define RLIMIT_STACK		3	/* max stack size */
+ #define RLIMIT_CORE		4	/* max core file size */
+-#define RLIMIT_RSS		5	/* max resident set size */
+-#define RLIMIT_NPROC		6	/* max number of processes */
+-#define RLIMIT_NOFILE		7	/* max number of open files */
+-#define RLIMIT_MEMLOCK		8	/* max locked-in-memory address space */
+-#define RLIMIT_AS		9	/* address space limit */
 +
- *  How do I use the magic SysRq key?
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- On x86   - You press the key combo 'ALT-SysRq-<command key>'. Note - Some
-diff -rupX /home/jack/.kerndiffexclude linux-2.6.11-rc2-sysrq-enable/drivers/char/sysrq.c linux-2.6.11-rc2-sysrq-additional/drivers/char/sysrq.c
---- linux-2.6.11-rc2-sysrq-enable/drivers/char/sysrq.c	2005-02-01 14:54:40.000000000 +0100
-+++ linux-2.6.11-rc2-sysrq-additional/drivers/char/sysrq.c	2005-02-01 15:22:40.000000000 +0100
-@@ -333,7 +333,7 @@ void __sysrq_put_key_op (int key, struct
-  * as they are inside of the lock
++#ifndef RLIMIT_RSS
++# define RLIMIT_RSS		5	/* max resident set size */
++#endif
++
++#ifndef RLIMIT_NPROC
++# define RLIMIT_NPROC		6	/* max number of processes */
++#endif
++
++#ifndef RLIMIT_NOFILE
++# define RLIMIT_NOFILE		7	/* max number of open files */
++#endif
++
++#ifndef RLIMIT_MEMLOCK
++# define RLIMIT_MEMLOCK		8	/* max locked-in-memory address space */
++#endif
++
++#ifndef RLIMIT_AS
++# define RLIMIT_AS		9	/* address space limit */
++#endif
++
+ #define RLIMIT_LOCKS		10	/* maximum file locks held */
+ #define RLIMIT_SIGPENDING	11	/* max number of pending signals */
+ #define RLIMIT_MSGQUEUE		12	/* maximum bytes in POSIX mqueues */
+ 
+ #define RLIM_NLIMITS		13
+-#endif
+ 
+ /*
+  * SuS says limits have to be unsigned.
+  * Which makes a ton more sense anyway.
++ *
++ * Some architectures override this (for compatibility reasons):
   */
+ #ifndef RLIM_INFINITY
+-#define RLIM_INFINITY	(~0UL)
++# define RLIM_INFINITY		(~0UL)
+ #endif
  
--void __handle_sysrq(int key, struct pt_regs *pt_regs, struct tty_struct *tty)
-+void __handle_sysrq(int key, struct pt_regs *pt_regs, struct tty_struct *tty, int check_mask)
- {
- 	struct sysrq_key_op *op_p;
- 	int orig_log_level;
-@@ -347,7 +347,10 @@ void __handle_sysrq(int key, struct pt_r
++/*
++ * RLIMIT_STACK default maximum - some architectures override it:
++ */
+ #ifndef _STK_LIM_MAX
+-#define _STK_LIM_MAX	RLIM_INFINITY
++# define _STK_LIM_MAX		RLIM_INFINITY
+ #endif
  
-         op_p = __sysrq_get_key_op(key);
-         if (op_p) {
--		if (sysrq_enabled == 1 || sysrq_enabled & op_p->enable_mask) {
-+		/* Should we check for enabled operations (/proc/sysrq-trigger should not)
-+		 * and is the invoked operation enabled? */
-+		if (!check_mask || sysrq_enabled == 1 ||
-+		    sysrq_enabled & op_p->enable_mask) {
- 			printk ("%s\n", op_p->action_msg);
- 			console_loglevel = orig_log_level;
- 			op_p->handler(key, pt_regs, tty);
-@@ -378,7 +381,7 @@ void handle_sysrq(int key, struct pt_reg
- {
- 	if (!sysrq_enabled)
- 		return;
--	__handle_sysrq(key, pt_regs, tty);
-+	__handle_sysrq(key, pt_regs, tty, 1);
+ #ifdef __KERNEL__
+ 
++/*
++ * boot-time rlimit defaults for the init task:
++ */
+ #define INIT_RLIMITS							\
+ {									\
+-	[RLIMIT_CPU]		= { RLIM_INFINITY, RLIM_INFINITY },	\
+-	[RLIMIT_FSIZE]		= { RLIM_INFINITY, RLIM_INFINITY },	\
+-	[RLIMIT_DATA]		= { RLIM_INFINITY, RLIM_INFINITY },	\
+-	[RLIMIT_STACK]		= {      _STK_LIM, _STK_LIM_MAX  },	\
+-	[RLIMIT_CORE]		= {             0, RLIM_INFINITY },	\
+-	[RLIMIT_RSS]		= { RLIM_INFINITY, RLIM_INFINITY },	\
+-	[RLIMIT_NPROC]		= {             0,             0 },	\
+-	[RLIMIT_NOFILE]		= {      INR_OPEN,     INR_OPEN  },	\
+-	[RLIMIT_MEMLOCK]	= {   MLOCK_LIMIT,   MLOCK_LIMIT },	\
+-	[RLIMIT_AS]		= { RLIM_INFINITY, RLIM_INFINITY },	\
+-	[RLIMIT_LOCKS]		= { RLIM_INFINITY, RLIM_INFINITY },	\
++	[RLIMIT_CPU]		= {  RLIM_INFINITY,  RLIM_INFINITY },	\
++	[RLIMIT_FSIZE]		= {  RLIM_INFINITY,  RLIM_INFINITY },	\
++	[RLIMIT_DATA]		= {  RLIM_INFINITY,  RLIM_INFINITY },	\
++	[RLIMIT_STACK]		= {       _STK_LIM,   _STK_LIM_MAX },	\
++	[RLIMIT_CORE]		= {              0,  RLIM_INFINITY },	\
++	[RLIMIT_RSS]		= {  RLIM_INFINITY,  RLIM_INFINITY },	\
++	[RLIMIT_NPROC]		= {              0,              0 },	\
++	[RLIMIT_NOFILE]		= {       INR_OPEN,       INR_OPEN },	\
++	[RLIMIT_MEMLOCK]	= {    MLOCK_LIMIT,    MLOCK_LIMIT },	\
++	[RLIMIT_AS]		= {  RLIM_INFINITY,  RLIM_INFINITY },	\
++	[RLIMIT_LOCKS]		= {  RLIM_INFINITY,  RLIM_INFINITY },	\
+ 	[RLIMIT_SIGPENDING]	= { MAX_SIGPENDING, MAX_SIGPENDING },	\
+-	[RLIMIT_MSGQUEUE]	= { MQ_BYTES_MAX, MQ_BYTES_MAX },	\
++	[RLIMIT_MSGQUEUE]	= {   MQ_BYTES_MAX,   MQ_BYTES_MAX },	\
  }
  
- int __sysrq_swap_key_ops(int key, struct sysrq_key_op *insert_op_p,
-diff -rupX /home/jack/.kerndiffexclude linux-2.6.11-rc2-sysrq-enable/fs/proc/proc_misc.c linux-2.6.11-rc2-sysrq-additional/fs/proc/proc_misc.c
---- linux-2.6.11-rc2-sysrq-enable/fs/proc/proc_misc.c	2005-02-01 16:27:03.000000000 +0100
-+++ linux-2.6.11-rc2-sysrq-additional/fs/proc/proc_misc.c	2005-02-01 16:25:44.000000000 +0100
-@@ -524,7 +524,7 @@ static ssize_t write_sysrq_trigger(struc
+ #endif	/* __KERNEL__ */
+--- linux/include/asm-sparc64/resource.h.orig
++++ linux/include/asm-sparc64/resource.h
+@@ -8,25 +8,11 @@
+ #define _SPARC64_RESOURCE_H
  
- 		if (get_user(c, buf))
- 			return -EFAULT;
--		__handle_sysrq(c, NULL, NULL);
-+		__handle_sysrq(c, NULL, NULL, 0);
- 	}
- 	return count;
- }
-diff -rupX /home/jack/.kerndiffexclude linux-2.6.11-rc2-sysrq-enable/include/linux/sysrq.h linux-2.6.11-rc2-sysrq-additional/include/linux/sysrq.h
---- linux-2.6.11-rc2-sysrq-enable/include/linux/sysrq.h	2005-02-01 14:54:40.000000000 +0100
-+++ linux-2.6.11-rc2-sysrq-additional/include/linux/sysrq.h	2005-02-01 15:30:22.000000000 +0100
-@@ -42,7 +42,7 @@ struct sysrq_key_op {
+ /*
+- * Resource limits
++ * These two resource limit IDs have a Sparc/Linux-specific ordering,
++ * the rest comes from the generic header:
   */
+-
+-#define RLIMIT_CPU	0		/* CPU time in ms */
+-#define RLIMIT_FSIZE	1		/* Maximum filesize */
+-#define RLIMIT_DATA	2		/* max data size */
+-#define RLIMIT_STACK	3		/* max stack size */
+-#define RLIMIT_CORE	4		/* max core file size */
+-#define RLIMIT_RSS	5		/* max resident set size */
+-#define RLIMIT_NOFILE	6		/* max number of open files */
+-#define RLIMIT_NPROC	7		/* max number of processes */
+-#define RLIMIT_MEMLOCK	8		/* max locked-in-memory address space */
+-#define RLIMIT_AS	9		/* address space limit */
+-#define RLIMIT_LOCKS	10		/* maximum file locks held */
+-#define RLIMIT_SIGPENDING 11		/* max number of pending signals */
+-#define RLIMIT_MSGQUEUE 12		/* maximum bytes in POSIX mqueues */
+-
+-#define RLIM_NLIMITS	13
+-#define __ARCH_RLIMIT_ORDER
++#define RLIMIT_NOFILE		6	/* max number of open files */
++#define RLIMIT_NPROC		7	/* max number of processes */
  
- void handle_sysrq(int, struct pt_regs *, struct tty_struct *);
--void __handle_sysrq(int, struct pt_regs *, struct tty_struct *);
-+void __handle_sysrq(int, struct pt_regs *, struct tty_struct *, int check_mask);
- int register_sysrq_key(int, struct sysrq_key_op *);
- int unregister_sysrq_key(int, struct sysrq_key_op *);
- struct sysrq_key_op *__sysrq_get_key_op(int key);
+ #include <asm-generic/resource.h>
+ 
+--- linux/include/asm-mips/resource.h.orig
++++ linux/include/asm-mips/resource.h
+@@ -9,36 +9,26 @@
+ #ifndef _ASM_RESOURCE_H
+ #define _ASM_RESOURCE_H
+ 
++#include <linux/config.h>
++
+ /*
+- * Resource limits
++ * These five resource limit IDs have a MIPS/Linux-specific ordering,
++ * the rest comes from the generic header:
+  */
+-#define RLIMIT_CPU 0			/* CPU time in ms */
+-#define RLIMIT_FSIZE 1			/* Maximum filesize */
+-#define RLIMIT_DATA 2			/* max data size */
+-#define RLIMIT_STACK 3			/* max stack size */
+-#define RLIMIT_CORE 4			/* max core file size */
+-#define RLIMIT_NOFILE 5			/* max number of open files */
+-#define RLIMIT_AS 6			/* mapped memory */
+-#define RLIMIT_RSS 7			/* max resident set size */
+-#define RLIMIT_NPROC 8			/* max number of processes */
+-#define RLIMIT_MEMLOCK 9		/* max locked-in-memory address space */
+-#define RLIMIT_LOCKS 10			/* maximum file locks held */
+-#define RLIMIT_SIGPENDING 11		/* max number of pending signals */
+-#define RLIMIT_MSGQUEUE 12		/* maximum bytes in POSIX mqueues */
+-
+-#define RLIM_NLIMITS 13			/* Number of limit flavors.  */
+-#define __ARCH_RLIMIT_ORDER
++#define RLIMIT_NOFILE		5	/* max number of open files */
++#define RLIMIT_AS		6	/* address space limit */
++#define RLIMIT_RSS		7	/* max resident set size */
++#define RLIMIT_NPROC		8	/* max number of processes */
++#define RLIMIT_MEMLOCK		9	/* max locked-in-memory address space */
+ 
+ /*
+  * SuS says limits have to be unsigned.
+- * Which makes a ton more sense anyway.
++ * Which makes a ton more sense anyway,
++ * but we keep the old value on MIPS32,
++ * for compatibility:
+  */
+-#include <linux/config.h>
+ #ifdef CONFIG_MIPS32
+-#define RLIM_INFINITY	0x7fffffffUL
+-#endif
+-#ifdef CONFIG_MIPS64
+-#define RLIM_INFINITY	(~0UL)
++# define RLIM_INFINITY		0x7fffffffUL
+ #endif
+ 
+ #include <asm-generic/resource.h>
 
---MAH+hnPXVZWQ5cD/--

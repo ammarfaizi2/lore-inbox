@@ -1,64 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268857AbUHLWxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268867AbUHLWyL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268857AbUHLWxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 18:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268854AbUHLWxY
+	id S268867AbUHLWyL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 18:54:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268866AbUHLWyK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 18:53:24 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:52472 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S268859AbUHLWv3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 18:51:29 -0400
-Date: Thu, 12 Aug 2004 15:51:18 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: "John W. Linville" <linville@tuxdriver.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       James.Bottomley@SteelEye.com
-Subject: Re: [patch] 2.6 -- add IOI Media Bay to SCSI quirk list
-Message-ID: <20040812225118.GA20904@beaverton.ibm.com>
-References: <200408122137.i7CLbGU13688@ra.tuxdriver.com>
+	Thu, 12 Aug 2004 18:54:10 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:41929 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S268864AbUHLWve (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 18:51:34 -0400
+Subject: Re: Allow userspace do something special on overtemp
+From: Len Brown <len.brown@intel.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Dax Kelson <dax@gurulabs.com>, trenn@suse.de, seife@suse.de,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040812202401.GB14556@elf.ucw.cz>
+References: <20040811085326.GA11765@elf.ucw.cz>
+	 <1092269309.3948.57.camel@mentorng.gurulabs.com>
+	 <1092281393.7765.141.camel@dhcppc4> <20040812074002.GC29466@elf.ucw.cz>
+	 <1092320883.5021.173.camel@dhcppc4>  <20040812202401.GB14556@elf.ucw.cz>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1092351080.5021.198.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408122137.i7CLbGU13688@ra.tuxdriver.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 12 Aug 2004 18:51:21 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We seem to be getting quite a few of these. In theory we could add a line
-like this for every multi-lun SCSI device.
-
-Can you instead try booting with scsi_mod.max_luns=8 (or such) or build
-with SCSI_MULTI_LUN enabled?
-
-You can also use the scsi devinfo stuff, but the above is easier and
-should work fine, unless you have some device that hangs when IO is sent
-to a non-zero LUN.
-
-The same for 2.4, but AFAIR the option name is max_scsi_luns (but there is
-no scsi devinfo imethod).
-
--- Patrick Mansfield
-
-On Thu, Aug 12, 2004 at 05:37:16PM -0400, John W. Linville wrote:
-> Patch to add IOI Media Bay 4-in-1 media reader to the SCSI quirk list...
+On Thu, 2004-08-12 at 16:24, Pavel Machek wrote:
+> Hi!
 > 
-> "It works for me!"  Pretty simple patch, really...
+> > > > I think I'd rather see the calls to usermode deleted
+> > > > instead of extended -- unless there is a reason that
+> > > > the general event -> acpid method can't work.
+> > > 
+> > > See above, switching to acpid would break all the existing
+> > > setups... in stable series.
+> > 
+> > ah, the price of progress.
+> > 
+> > I'm confident that the distros can figure out how to
+> > update the (neglected) acpid scripts at the same time as
+> > (or before) the kernel update.
 > 
-> John
+> * not everyone is running distro
 > 
-> diff -urNp linux-2.6.5-1.358/drivers/scsi/scsi_devinfo.c linux/drivers/scsi/scsi_devinfo.c
-> --- linux-2.6.5-1.358/drivers/scsi/scsi_devinfo.c	2004-05-08 08:56:41.000000000 -0400
-> +++ linux/drivers/scsi/scsi_devinfo.c	2004-08-11 06:08:00.000000000 -0400
-> @@ -155,6 +155,7 @@ static struct {
->  	{"HP", "C1557A", NULL, BLIST_FORCELUN},
->  	{"IBM", "AuSaV1S2", NULL, BLIST_FORCELUN},
->  	{"IBM", "ProFibre 4000R", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
-> +	{"IOI", "Media Bay", NULL, BLIST_FORCELUN},
->  	{"iomega", "jaz 1GB", "J.86", BLIST_NOTQ | BLIST_NOLUN},
->  	{"IOMEGA", "Io20S         *F", NULL, BLIST_KEY},
->  	{"INSITE", "Floptical   F*8I", NULL, BLIST_KEY},
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> * people update their kernels more often then their distros
+> 
+> * not everyone wants to run acpid or equivalent (I don't, for example)
+> 
+> * it is still change in stable series.
+
+> * it is pretty subtle change, you are not going to notice it is broken
+> unless you actually run critical.
+> 
+> > If they can't, then ACPI critical shutdown will fail
+> > (maybe on some systems not such a bad thing;-)
+> > and TM1 will kick in, and if that doesn't work, TM2
+> > will kick in, and if that doesn't work the processor
+> > will disable itself.
+> 
+> hmm, yes, but it still would be nice to properly shutdown instead of
+> fail.
+
+The reality is that most of the critical temperature events
+are false positives, and for those that are not, the hardware
+will keep itself from burning even when the OS control fails.
+
+If we confuse some self-supporting kernel types, that is too bad.
+If they're supporting themselves, they should read the change logs
+for the kernels that they download.  I don't think
+this is of a magnitude that it needs to wait for 2.7 to be fixed.
+
+-Len
+
+

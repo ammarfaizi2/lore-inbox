@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318139AbSG2VpZ>; Mon, 29 Jul 2002 17:45:25 -0400
+	id <S318142AbSG2Vqw>; Mon, 29 Jul 2002 17:46:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318140AbSG2VpY>; Mon, 29 Jul 2002 17:45:24 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:54220 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S318139AbSG2VpX>;
-	Mon, 29 Jul 2002 17:45:23 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S318141AbSG2Vqw>; Mon, 29 Jul 2002 17:46:52 -0400
+Received: from dsl-213-023-043-226.arcor-ip.net ([213.23.43.226]:52372 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318140AbSG2Vqt>;
+	Mon, 29 Jul 2002 17:46:49 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: [patch 1/13] misc fixes
+Date: Mon, 29 Jul 2002 23:51:24 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: lkml <linux-kernel@vger.kernel.org>
+References: <3D439E09.3348E8D6@zip.com.au> <E17Z4v0-0002io-00@starship> <3D459ECE.C5BD53DE@zip.com.au>
+In-Reply-To: <3D459ECE.C5BD53DE@zip.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15685.47159.255792.34483@napali.hpl.hp.com>
-Date: Mon, 29 Jul 2002 14:48:39 -0700
-To: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
-Cc: "'Matthew Wilcox'" <willy@debian.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-ia64@linuxia64.org'" <linux-ia64@linuxia64.org>
-Subject: RE: [Linux-ia64] Linux kernel deadlock caused by spinlock bug
-In-Reply-To: <3FAD1088D4556046AEC48D80B47B478C0101F3AF@usslc-exch-4.slc.unisys.com>
-References: <3FAD1088D4556046AEC48D80B47B478C0101F3AF@usslc-exch-4.slc.unisys.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17ZIQH-0004Wo-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 29 Jul 2002 16:29:09 -0500, "Van Maren, Kevin" <kevin.vanmaren@unisys.com> said:
+On Monday 29 July 2002 22:00, Andrew Morton wrote:
+> > The idea I'm playing with now is to address an array of locks based on
+> > something like:
+> > 
+> >         spin_lock(pte_chain_locks + ((page->index >> 4) & 0xff));
+> > 
+> > so that 16 consecutive filemap pages use the same lock and there is a limited
+> > total number of locks to keep cache pressure down.  Since we are creating the
+> > vast majority of the pte chain nodes while walking across page tables, this
+> > should give nice locality.
+> 
+> Something like that could help.
+> 
+> At some point, when the reverse map is as CPU efficient as we can make it,
+> we need to decide whether the remaining cost is worth the benefit.  I
+> wonder how to do that.
 
-  Van> Yes, but that isn't the point: unless you eliminate all rw
-  Van> locks, it is conceptually possible to cause a kernel deadlock
-  Van> by forcing contention on the locks you didn't remove, if the
-  Van> user can force the kernel to acquire a reader lock and if
-  Van> something else needs to acquire the writer lock.  Correctness
-  Van> is the issue, not performance.
+We need measurements for a few other loads I think.
 
-I agree with Kevin here.  There must be some argument as to why
-readers cannot indefinitely lock out a writer.  A probabilistic
-argument is fine, but just saying "contention doesn't happen"
-certainly isn't good enough.
+> > For this to work, anon pages will need to have something in page->index.
+> > This isn't too much of a challenge.  A reasonable value to put in there is
+> > the creator's virtual address, shifted right, and perhaps mangled a little to
+> > reduce contention.
+> 
+> Well you want the likely-to-be-temporally-adjacent anon pages to
+> use the same lock.  So maybe
+> 
+> 	page->index = some_global_int++;
 
-	--david
+Yes, that's better.
+
+> Except ->index gets stomped on when the page gets added to swapcache.
+> Which means that the address of its lock will change.  I can't immediately
+> think of a fix for that.
+
+We'd have to hold the lock while changing the page->index.  Pte_chain_lock
+would additionally have to check the page->index after acquiring the lock
+and, if changed, drop it and take the new one.  I don't think the overhead 
+for this check is significant.
+
+Add_to_page_cache would want new flavor that shortens up the pte chain lock 
+hold time, but it looks like it should have a swap-specific variant anyway.
+
+-- 
+Daniel

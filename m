@@ -1,59 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318811AbSG0Tp6>; Sat, 27 Jul 2002 15:45:58 -0400
+	id <S318804AbSG0TF6>; Sat, 27 Jul 2002 15:05:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318812AbSG0Tp6>; Sat, 27 Jul 2002 15:45:58 -0400
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:39584 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S318811AbSG0Tp5>; Sat, 27 Jul 2002 15:45:57 -0400
-Subject: Re: Funding GPL projects or funding the GPL?
-From: Keith Adamson <keith.adamson@attbi.com>
-To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200207271946.11727.roger.larsson@skelleftea.mail.telia.com>
-References: <20020727085931.X26813@work.bitmover.com>
-	<Pine.LNX.4.44L.0207271302550.3086-100000@imladris.surriel.com>
-	<20020727092223.B26813@work.bitmover.com> 
-	<200207271946.11727.roger.larsson@skelleftea.mail.telia.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-3) 
-Date: 27 Jul 2002 15:49:53 -0400
-Message-Id: <1027799393.28304.35.camel@h00d0700074d1.ne.client2.attbi.com>
+	id <S318805AbSG0TFz>; Sat, 27 Jul 2002 15:05:55 -0400
+Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:51592 "EHLO gagarin")
+	by vger.kernel.org with ESMTP id <S318804AbSG0TFx>;
+	Sat, 27 Jul 2002 15:05:53 -0400
+Date: Sat, 27 Jul 2002 21:09:10 +0200
+To: linux-kernel@vger.kernel.org
+Cc: kaos@ocs.com.au
+Subject: [PATCH] remove trailing space in calltrace?
+Message-ID: <20020727190910.GA1786@h55p111.delphi.afb.lu.se>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: Anders Gustafsson <andersg@0x63.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-07-27 at 13:46, Roger Larsson wrote:
-> On Saturday 27 July 2002 18.22, Larry McVoy wrote:
-> > On Sat, Jul 27, 2002 at 01:06:56PM -0300, Rik van Riel wrote:
-> > Actually, that's an interesting topic.  Other applications could use
-> > the BK model of "free if you're out in the open" and pay otherwise.
-> > It's pretty effective.  However, it doesn't work very well when the
-> > community beats you to hell for not being GPLed.  I had a thick enough
-> > skin to deal with it, I doubt others would, they'd give up.  It also
-> > doesn't work when people refuse to obey the license because they 
-> > don't agree with it (we had plenty of that).
-> 
-> Trolltech does the same. And have taken the same amount of heat.
-> (Probably A LOT more... since their Qt is the base for KDE)
-> 
-> /RogerL
-The problem with the present type of donation systems is knowing your
-donation is not going to be abused.
+There is an extra space at the end of the "Call Trace"-lines on i386 (dont
+know about other archs) that causes my terminal to wrap the line and giving
+me blank lines beetween the ones containing addresses.
 
-I though a model that may work is a United Way type of model ... have a
-central non-profit act as a clearing house for donations to specific
-open source projects.  The non-profit would do the proper account
-reporting of receipts, overhead, and funding to the various open source
-projects (an effort to keep donation abuse down and allow open non-bias
-account reporting).  Allowing either a general donation or target
-donation from the public to a particular project.  Then a specific
-project would register with the non-profit to receive funding help.  In
-order to qualify you would need to provide certain technical/financial
-reporting of your project to the non-profit to demonstrate you need the
-financial help and you are working on a needed project.
+Is that extra space there for a reson?
 
-The real problem is getting something like this started.
+This patch removes it, saving me precious lines on the screen.
+
+//anders/g
+
+===================================================================
 
 
+ChangeSet@1.479, 2002-07-27 20:55:47+02:00, andersg@heineken.0x63.nu
+  Remove trailing space on Call Trace-lines in OOPSes on i386.
+
+
+ traps.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+
+diff -Nru a/arch/i386/kernel/traps.c b/arch/i386/kernel/traps.c
+--- a/arch/i386/kernel/traps.c	Sat Jul 27 21:00:35 2002
++++ b/arch/i386/kernel/traps.c	Sat Jul 27 21:00:35 2002
+@@ -143,14 +143,14 @@
+ 	if (!stack)
+ 		stack = (unsigned long*)&stack;
+ 
+-	printk("Call Trace: ");
++	printk("Call Trace:");
+ 	i = 1;
+ 	while (((long) stack & (THREAD_SIZE-1)) != 0) {
+ 		addr = *stack++;
+ 		if (kernel_text_address(addr)) {
+-			if (i && ((i % 6) == 0))
+-				printk("\n   ");
+-			printk("[<%08lx>] ", addr);
++			if ((i % 6) == 0)
++				printk("\n  ");
++			printk(" [<%08lx>]", addr);
+ 			i++;
+ 		}
+ 	}
+
+===================================================================
+
+
+This BitKeeper patch contains the following changesets:
+1.479
+## Wrapped with gzip_uu ##
+
+
+begin 664 bkpatch555
+M'XL(`-/M0CT``\U476O;,!1]MG[%):70T-F69'W%6TJVM&QC@X1T?=KVH-AJ
+M;&++P7;3#OSCIZ1=6@(A[.-AMD'V/><>WZM[T`G<-*:./6U34S<+=`(?JJ:-
+MO<SDUBR-#?"#B`)[YX!953D@S*K2A$_T<&EJ:XIPO@SG177OTX`CQYSJ-LE@
+M[1BQ1X)H%VE_K$SLS:[>WWQ^.T-H.(1QINW"7)L6AD/45O5:%VDSTFU65#9H
+M:VV;TK0Z2*JRVU$[BC%U-R<RPEQT1&`FNX2DA&A&3(HI4X*AIQ)'^YWL"TDJ
+M"<>"B0YCA26Z!!(P.0!,0RQ#*H'BF/.8R7-,8XSAD"Z<$_`Q>@?_MHTQ2F!F
+MRFIMP`GE16X7T*QT8J"R,-9%`5]J]^4[P#206YA,IM?NS:%YI$2`/@&1`J/I
+M\UXC_S<OA+#&Z.)(9[I.LG#SSU^N</"J"9(7C3),2<<B*GEWBXD9:$58&AFJ
+MA#BXKT=T-^-3G$>JX]0I;UUU*..XR?ZN!U2ZZ50C4[0FR(X7+BAA+"*N<$7I
+MUG=4[=LN4D=MQ\!G_Z/M'N<Q`;^^WS[.1].#H_D#3UX2)H"@CX^+MZISVR[/
+M>L_%Q;W^:\?B!"+'XI%;/,_+;^'L+(=3$'WG!\#]37"7_<T";-)>A.#KFU.L
+DBH>+[[U7H-.T=O#N2$LRDRR;NW(H!UP(-:?H)VYYGH-2!0``
+`
+end

@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129501AbRBXIl0>; Sat, 24 Feb 2001 03:41:26 -0500
+	id <S129524AbRBXIoH>; Sat, 24 Feb 2001 03:44:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129508AbRBXIlQ>; Sat, 24 Feb 2001 03:41:16 -0500
-Received: from in.flite.net ([207.203.36.254]:58631 "EHLO in.flite.net")
-	by vger.kernel.org with ESMTP id <S129501AbRBXIlE>;
-	Sat, 24 Feb 2001 03:41:04 -0500
-From: "John E. Adams" <johna@onevista.com>
-Reply-To: johna@onevista.com
-Organization: One Vista Associates
-To: linux-kernel%vger.kernel.org@mail.us-it.net
-Subject: Re: reiserfs: still problems with tail conversion
-Date: Sat, 24 Feb 2001 03:40:51 -0500
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-In-Reply-To: <20010223221856.A24959@arthur.ubicom.tudelft.nl> <01022318321302.01755@flash>
-In-Reply-To: <01022318321302.01755@flash>
+	id <S129527AbRBXIn4>; Sat, 24 Feb 2001 03:43:56 -0500
+Received: from [62.122.73.172] ([62.122.73.172]:45578 "EHLO
+	penny.ik5pvx.ampr.org") by vger.kernel.org with ESMTP
+	id <S129524AbRBXInp>; Sat, 24 Feb 2001 03:43:45 -0500
+To: linux-kernel@vger.kernel.org
+Subject: unable to link 2.4.2
+Reply-To: Pierfrancesco Caci <p.caci@tin.it>
+From: Pierfrancesco Caci <ik5pvx@penny.ik5pvx.ampr.org>
+Date: 24 Feb 2001 09:45:52 +0100
+Message-ID: <87pug8eaf3.fsf@penny.ik5pvx.ampr.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Message-Id: <01022403405100.00992@flash.onevista.com>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 23 February 2001 16:18, Erik Mouw wrote:
-> Hi all,
->
-> I am running linux-2.4.2-pre4 with Chris Mason's tailconversion bug fix
-> applied, but I still have problems with null bytes in files. I wrote a
-> little test program that clearly shows the problem:
 
-I tried the test pgm.
-First run didn't even hit the disk, so I added O_SYNC to the opens.
-No errors were detected.  Then i split out the checking code from the
-building code after noticing the checks were run against the buffer cache.
-Still no errors.
+Hi there, can someone please tell me what's going wrong with my
+compilation of 2.4.2 ?
 
-This is a SuSE 7.0 machine w/512M memory, plenty of disk space and no swap,
-running 2.4.2
+make[2]: Entering directory `/usr/src/linux/arch/i386/boot'
+ld -m elf_i386 -Ttext 0x0 -s -oformat binary bbootsect.o -o bbootsect
+ld: cannot open binary: No such file or directory
+make[2]: *** [bbootsect] Error 1
+make[2]: Leaving directory `/usr/src/linux/arch/i386/boot'
+make[1]: *** [bzImage] Error 2
+make[1]: Leaving directory `/usr/src/linux'
+make: *** [stamp-build] Error 2
 
- johna@onevistacom
 
+root@penny:/usr/src #  . linux/scripts/ver_linux 
+-- Versions installed: (if some fields are empty or look
+-- unusual then possibly you have very old versions)
+Linux penny 2.4.1 #1 Sat Feb 3 20:43:54 CET 2001 i686 unknown
+Kernel modules         2.4.2
+Gnu C                  2.95.3
+Gnu Make               3.79.1
+Binutils               2.10.91.0.2
+Linux C Library        2.2.2
+Dynamic linker         ldd (GNU libc) 2.2.2
+Procps                 2.0.7
+Mount                  2.10s
+Net-tools              2.05
+Console-tools          0.2.3
+Sh-utils               2.0.11
+Modules Loaded         isofs loop binfmt_misc mousedev hid input nfsd microcode sg ipt_limit iptable_mangle ipt_MASQUERADE iptable_nat ip_conntrack ipt_LOG iptable_filter ip_tables sb sb_lib uart401 nfs ipv6 lockd sunrpc af_packet eepro100 3c509 sound soundcore isa-pnp usbcore
+
+Thanks in advance ....
+
+Pf
+
+
+-- 
+
+-------------------------------------------------------------------------------
+ Pierfrancesco Caci | ik5pvx | mailto:p.caci@tin.it  -  http://gusp.dyndns.org
+  Firenze - Italia  | Office for the Complication of Otherwise Simple Affairs 
+     Linux penny 2.4.1 #1 Sat Feb 3 20:43:54 CET 2001 i686 unknown

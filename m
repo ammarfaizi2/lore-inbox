@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262542AbUBYAKz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 19:10:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbUBYAKz
+	id S262538AbUBYAUz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 19:20:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbUBYAUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 19:10:55 -0500
-Received: from gprs144-166.eurotel.cz ([160.218.144.166]:54145 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262542AbUBYAKu (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 19:10:50 -0500
-Date: Wed, 25 Feb 2004 01:10:41 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Coywolf Qi Hunt <coywolf@greatcn.org>, alan@lxorguk.ukuu.org.uk,
-       Linux-Kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix GDT limit in setup.S for 2.0 and 2.2
-Message-ID: <20040225001041.GD438@elf.ucw.cz>
-References: <403114D9.2060402@lovecn.org> <403A07D8.5050704@greatcn.org> <20040223142120.GU17140@khan.acc.umu.se>
+	Tue, 24 Feb 2004 19:20:55 -0500
+Received: from fw.osdl.org ([65.172.181.6]:27026 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262538AbUBYAUx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 19:20:53 -0500
+Date: Tue, 24 Feb 2004 16:20:52 -0800
+From: cliff white <cliffw@osdl.org>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: reaim - 2.6.3-mm1 IO performance down.
+Message-Id: <20040224162052.33895550.cliffw@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040223142120.GU17140@khan.acc.umu.se>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > I posted this problem days ago. Just now I check FreeBSD code and find 
-> > theirs code goes no this problem. Please take my patches for 2.0 and 2.2
-> > 2.4 patch have been already sent to Anvin.
-> > 
-> > (patches for 2.0 and 2.2 enclosed)
-> 
-> Thanks.  Note that I'm not due to release the first pre-patch for 2.0.41
-> in another couple of months (unless some security issue surfaces)
 
-I do not think that GDT change fixes any real bug. If I were you, I'd
-reject it for 2.0.
-								Pavel
+Running the reaim 'new_fserver' workload, we now see a performance drop
+on 2.6.3-mm1, ext3 filesystem
+
+Kernel          JPM       Max Users     Percent change
+inux-2.6.3      10347.87  172           0.0
+2.6.3-rc3-mm1   9826.35   164           -5.07
+2.6.3-mm1       8938.17   140   (run 1) -13.65
+2.6.3-mm1       9100.39   136    (run 2)-12.08 
+
+I have done some comparions graphs here, with readprofile data:
+http://developer.osdl.org/cliffw/reaim/compares/r_comp/2.6.3_vs_mm1_r1/index.html
+http://developer.osdl.org/cliffw/reaim/compares/r_comp/2.6.3_vs_mm1_r2/index.html
+
+The interesting graph is the bottom one on the page, comparing client
+run-time to number of children. The -mm1 kernel has a spike in run time, becoming
+very noticealbe around 60-80 lusers.
+
+kernel       Users 	JPM        Run Time
+linux-2.6.3  60         10327.87   34.16 seconds
+2.6.3-mm1    60         8279.75    42.61 seconds
+
+Linux-2.6.3  80         10275.23   45.78 seconds
+2.6.3-mm1    80         7841.31    59.99 seconds
+
+
+For the same test on the same machine, results from 2.6.2-rc1-mm2 and 2.6.2-rc3-mm1
+were within 1.0% of the linux-2.6.2 runs. So this is new. 
+
+More data and tests if requested - are there some patch sets we should try reverting?
+cliffw
+
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+The church is near, but the road is icy.
+The bar is far, but i will walk carefully. - Russian proverb

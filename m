@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266145AbTLIVPk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 16:15:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266152AbTLIVPk
+	id S266125AbTLIVEp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 16:04:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266130AbTLIVEp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 16:15:40 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:47121 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266145AbTLIVOp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 16:14:45 -0500
-Date: Tue, 9 Dec 2003 21:14:40 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Matthew Reppert <repp0017@tc.umn.edu>
-Cc: Guennadi Liakhovetski <gl@dsa-ac.de>, linux-kernel@vger.kernel.org,
-       Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: [OOPS] 2.6.0-test11 sysfs
-Message-ID: <20031209211440.A16651@flint.arm.linux.org.uk>
-Mail-Followup-To: Matthew Reppert <repp0017@tc.umn.edu>,
-	Guennadi Liakhovetski <gl@dsa-ac.de>, linux-kernel@vger.kernel.org,
-	Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-	Patrick Mochel <mochel@osdl.org>
-References: <Pine.LNX.4.33.0312091826090.1130-100000@pcgl.dsa-ac.de> <1070992648.27231.7.camel@minerva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 9 Dec 2003 16:04:45 -0500
+Received: from cmailm6.svr.pol.co.uk ([195.92.193.22]:33721 "EHLO
+	cmailm6.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id S266125AbTLIVEo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 16:04:44 -0500
+From: Chris Vine <chris@cvine.freeserve.co.uk>
+To: Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
+Date: Tue, 9 Dec 2003 21:03:04 +0000
+User-Agent: KMail/1.5.4
+Cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+References: <Pine.LNX.4.44.0310302256110.22312-100000@chimarrao.boston.redhat.com> <20031208135225.GT19856@holomorphy.com> <200312090123.31895.kernel@kolivas.org>
+In-Reply-To: <200312090123.31895.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1070992648.27231.7.camel@minerva>; from repp0017@tc.umn.edu on Tue, Dec 09, 2003 at 11:57:28AM -0600
+Message-Id: <200312092103.04328.chris@cvine.freeserve.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 09, 2003 at 11:57:28AM -0600, Matthew Reppert wrote:
-> Try this patch. (Patrick, is this the sane thing to do? And is it worth
-> it? If so, I can do similar things to the other sysfs_create_* functions
-> if you would like.)
+On Monday 08 December 2003 2:23 pm, Con Kolivas wrote:
+> [snip original discussion thrashing swap on 2.6test with 32mb ram]
+>
+> Chris
+>
+> By an unusual coincidence I was looking into the patches that were supposed
+> to speed up application startup and noticed this one was merged. A brief
+> discussion with wli suggests this could cause thrashing problems on low
+> memory boxes so can you try this patch? Applies to test11.
+>
+> Con
 
-Actually the "right" thing to do is to drop the file creation stuff from
-i82365; due to an interaction between sysfs and pcmcia, we can't register
-class device files in the initialisation path.
+Con,
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+I have just got back from a trip away.  I will try out the patch tomorrow, I 
+hope, and see what difference it makes.
+
+Chris.
+

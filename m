@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261228AbUCCXD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 18:03:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbUCCXD5
+	id S261238AbUCCXId (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 18:08:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbUCCXId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 18:03:57 -0500
-Received: from ns5.webmasters.com ([207.142.128.81]:40669 "HELO
-	ns5.webmasters.com") by vger.kernel.org with SMTP id S261228AbUCCXDz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 18:03:55 -0500
-Date: 3 Mar 2004 23:03:55 -0000
-Message-ID: <20040303230355.28990.qmail@ns5.webmasters.com>
-To: linux-kernel@vger.kernel.org
-From: postmaster@webmasters.com
-Subject: FAILURE: Weah, hello! :-)
+	Wed, 3 Mar 2004 18:08:33 -0500
+Received: from fw.osdl.org ([65.172.181.6]:54473 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261238AbUCCXIb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 18:08:31 -0500
+Date: Wed, 3 Mar 2004 15:14:31 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: David Dillow <dave@thedillows.org>, Bill Davidsen <davidsen@tmr.com>,
+       Roland Dreier <roland@topspin.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: poll() in 2.6 and beyond
+In-Reply-To: <Pine.LNX.4.53.0403031737130.14503@chaos>
+Message-ID: <Pine.LNX.4.58.0403031509520.1094@ppc970.osdl.org>
+References: <1vmPm-4lU-11@gated-at.bofh.it> <1vonq-6dr-37@gated-at.bofh.it>
+  <1voGY-6vC-41@gated-at.bofh.it> <1vpjt-7dl-17@gated-at.bofh.it> 
+ <1vpCV-7wY-41@gated-at.bofh.it> <1vpWa-7Py-19@gated-at.bofh.it> 
+ <4045106D.8060902@tmr.com>  <Pine.LNX.4.53.0403021817050.9351@chaos>
+ <1078286221.4302.23.camel@ori.thedillows.org> <Pine.LNX.4.53.0403031313270.12900@chaos>
+ <Pine.LNX.4.58.0403031419280.3000@ppc970.osdl.org> <Pine.LNX.4.53.0403031737130.14503@chaos>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, but your last message to admin@webmasters.com was rejected by our Spam Filter for the following reason:
-
-Your message body contained the following:
-
-F2_Base64_Encoded_Text
-
-To ensure proper delivery, please use the following link within 24 hours to send your message through our web based interface:
-
-http://15.webmasters.com/webmail/trusted.php?id=bGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZ3xhZG1pbkB3ZWJtYXN0ZXJzLmNvbXx3ZWJtYXN0
-ZXJzLmNvbXxGMl9CYXNlNjRfRW5jb2RlZF9UZXh0fDogV2VhaCwgaGVsbG8hIDotKQ==
 
 
-If the entire URL above does not appear as a link, please copy it in its entirety and paste it into your web browser.
+On Wed, 3 Mar 2004, Richard B. Johnson wrote:
+> 
+> And YES! If I clear the flag only after it is read. It "fixes" the
+> observed problem!
 
-We apologize for any inconvenience this may have caused. Thank you.
+Ok. That solves one problem, but it does seem to point to the fact that 
+2.6.x calls down to poll() more than 2.4.x does.
+
+It really _is_ normal to have multiple calls to "poll()" for the same fd 
+as a result of a single "poll()" system call, but if we actually get a 
+positive hit (ie the ->poll() call returns a bit that we consider to be a 
+success by comparing it to what we _wanted_ to see), then we should have 
+stopped doing that.
+
+And since your test program always sets "POLLIN", any ->poll() call that 
+has the POLLIN flag set should have ended up being the last one (since it 
+would have marked a "success"). 
+
+So there's still something I don't understand, and that seems to differ
+between 2.4.x and 2.6.x. Can anybody else see it?
+
+		Linus

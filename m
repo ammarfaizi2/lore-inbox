@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267186AbTGHLO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 07:14:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267166AbTGHLOW
+	id S267204AbTGHLMB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 07:12:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267166AbTGHLMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 07:14:22 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12268 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267186AbTGHLMX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 07:12:23 -0400
-Date: Tue, 8 Jul 2003 12:26:58 +0100
-From: Matthew Wilcox <willy@debian.org>
+	Tue, 8 Jul 2003 07:12:00 -0400
+Received: from ns.suse.de ([213.95.15.193]:35339 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267204AbTGHLL4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 07:11:56 -0400
 To: Alex Tomas <bzzz@tmi.comex.ru>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] [RFC] parallel directory operations
-Message-ID: <20030708112658.GJ23597@parcelfarce.linux.theplanet.co.uk>
-References: <87wuetukpa.fsf@gw.home.net>
-Mime-Version: 1.0
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] parallel directory operations
+References: <87wuetukpa.fsf@gw.home.net.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 08 Jul 2003 13:26:31 +0200
+In-Reply-To: <87wuetukpa.fsf@gw.home.net.suse.lists.linux.kernel>
+Message-ID: <p73brw5qmxk.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87wuetukpa.fsf@gw.home.net>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 08, 2003 at 03:01:05PM +0000, Alex Tomas wrote:
-> I would to like to see any comments/suggestions.
+Alex Tomas <bzzz@tmi.comex.ru> writes:
 
 > dynamic locks. supports exclusive and shared locks. exclusive lock may
 > be taken several times by first owner.
 
-Yuck.  It spins, it sleeps, it can be acquired recursively by the same
-process.  Ugly stuff.
+What's the difference between these locks and the existing rw semaphores?
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+-Andi

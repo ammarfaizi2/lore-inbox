@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbUJZWNp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbUJZWON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261510AbUJZWNp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 18:13:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbUJZWNo
+	id S261513AbUJZWON (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 18:14:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbUJZWON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 18:13:44 -0400
-Received: from pop.gmx.de ([213.165.64.20]:31640 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261510AbUJZWL3 (ORCPT
+	Tue, 26 Oct 2004 18:14:13 -0400
+Received: from fw.osdl.org ([65.172.181.6]:22195 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261507AbUJZWNx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 18:11:29 -0400
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: Ernst Herzberg <earny@net4u.de>
-Subject: Re: Neighbour table overflow.
-Date: Wed, 27 Oct 2004 00:11:26 +0200
-User-Agent: KMail/1.7
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
-References: <200410261939.33541.dominik.karall@gmx.net> <200410262352.20806.earny@net4u.de>
-In-Reply-To: <200410262352.20806.earny@net4u.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1576097.183EOx00yM";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Tue, 26 Oct 2004 18:13:53 -0400
+Date: Tue, 26 Oct 2004 15:15:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: jfannin1@columbus.rr.com
+Cc: agk@redhat.com, matt@minas-morgul.org, jfannin1@columbus.rr.com,
+       christophe@saout.de, linux-kernel@vger.kernel.org, axboe@suse.de,
+       bzolnier@gmail.com
+Subject: Re: 2.6.9-mm1: LVM stopped working (dio-handle-eof.patch)
+Message-Id: <20041026151559.041088f1.akpm@osdl.org>
+In-Reply-To: <20041026213703.GA6174@rivenstone.net>
+References: <87oeitdogw.fsf@barad-dur.crans.org>
+	<1098731002.14877.3.camel@leto.cs.pocnet.net>
+	<20041026123651.GA2987@zion.rivenstone.net>
+	<20041026135955.GA9937@agk.surrey.redhat.com>
+	<20041026213703.GA6174@rivenstone.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410270011.28818.dominik.karall@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1576097.183EOx00yM
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-On Tuesday 26 October 2004 23:52, Ernst Herzberg wrote:
-> On Tuesday 26 October 2004 19:39, Dominik Karall wrote:
-> > can anybody explain why i get thousands of "Neighbour table overflow."
-> > messages? i didn't get such ones with older kernels (~2.6.6).
+jfannin1@columbus.rr.com wrote:
 >
-> Do you set a default gateway?
+> > [To check for repeat of old problems with related symptoms:]
+> >   Were both kernels compiled with the same compiler version? Which version?
+> >   Does it make any difference if you rebuild lvm with --disable-o_direct?
+> 
+>     Chris Han (BCC'ed) mailed me to let me know he'd narrowed the
+> problem down to the 'dio-handle-eof.patch'.  Reverting it makes things
+> work for me too.  Yay!
 
-yes, default gateway is set to our server.
+If you have time, please restore dio-handle-eof.patch and then apply the
+below fixup, then retest.  Thanks.
 
-dominik
+--- 25/fs/direct-io.c~dio-handle-eof-fix	2004-10-26 00:49:40.363376432 -0700
++++ 25-akpm/fs/direct-io.c	2004-10-26 00:49:40.367375824 -0700
+@@ -987,6 +987,8 @@ direct_io_worker(int rw, struct kiocb *i
+ 	isize = i_size_read(inode);
+ 	if (bytes_todo > (isize - offset))
+ 		bytes_todo = isize - offset;
++	if (!bytes_todo)
++		return 0;
+ 
+ 	for (seg = 0; seg < nr_segs && bytes_todo; seg++) {
+ 		user_addr = (unsigned long)iov[seg].iov_base;
+_
 
---nextPart1576097.183EOx00yM
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iQCVAwUAQX7LkAvcoSHvsHMnAQISvwP+PqXBuEe71gYgOsASvlWK2pYdcpN4Ucgg
-aG6lunXytBHW4yE3ugmI9NIvApmxGyUl6Bt7PKKPz/MdyQzvkQ+iqfY8Q7X3xe4p
-LyZFE89t21TmCNnQMI+iyQqEBC6lpNH9aWyNhfVnJprCweLWK19WVXa5cZXEiwlN
-Bpx77KKjwmU=
-=FPmA
------END PGP SIGNATURE-----
-
---nextPart1576097.183EOx00yM--

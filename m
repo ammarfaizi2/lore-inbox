@@ -1,91 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262767AbUALXMp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 18:12:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262782AbUALXMp
+	id S263836AbUALXbi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 18:31:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263903AbUALXbi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 18:12:45 -0500
-Received: from fw.osdl.org ([65.172.181.6]:44758 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262767AbUALXMi (ORCPT
+	Mon, 12 Jan 2004 18:31:38 -0500
+Received: from fw.osdl.org ([65.172.181.6]:52451 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263836AbUALXbf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 18:12:38 -0500
-Date: Mon, 12 Jan 2004 15:12:54 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: johnstul@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: suspend/resume support for PIT (time.c)
-Message-Id: <20040112151254.5a30baaa.akpm@osdl.org>
-In-Reply-To: <20040112223915.GA204@elf.ucw.cz>
-References: <20040110200332.GA1327@elf.ucw.cz>
-	<1073932405.28098.43.camel@cog.beaverton.ibm.com>
-	<20040112223915.GA204@elf.ucw.cz>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jan 2004 18:31:35 -0500
+Date: Mon, 12 Jan 2004 15:04:58 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Intel Alder IOAPIC fix
+In-Reply-To: <1073948641.4178.76.camel@mulgrave>
+Message-ID: <Pine.LNX.4.58.0401121452340.2031@evo.osdl.org>
+References: <1073876117.2549.65.camel@mulgrave>  <Pine.LNX.4.58.0401121152070.1901@evo.osdl.org>
+ <1073948641.4178.76.camel@mulgrave>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> wrote:
->
-> > As none of this really has anything to do w/ the PIT, and to avoid
-> > confusion w/ the PIT timesource code, could we rename this to
-> > "time_suspend" and "time_resume"?
+
+
+On Mon, 12 Jan 2004, James Bottomley wrote:
 > 
-> Applied, altrough I'll not try to push it for a while. (I'm not sure
-> if Andrew applied previous patches and do not want to clash).
+> So BAR0 is actually the location of the second I/O APIC's mapped address
+> range (which we've already covered with a fixmap from the MP TABLE). 
+> I've no idea what the other four BARs all with addresses at 0xfffffc00
+> are doing.
+> 
+> The only way to prevent the current code (in arch/i386/pci/i386.c) from
+> reassigning this range seems to be to set the resource start to zero.
 
-I already converted the patch.    Here's what I currently have:
+Ok. What I think we should do is to have a special quirk for chips like 
+this that just _force_ the BAR values into the resource allocation table, 
+and ignore things like the existing BIOS-marked allocations - because 
+obviously the BIOS-marked ones are going to overlap.
 
+This is where that "insert_resource()" thing comes in. Something like this 
+might just work as a quirk:
 
+	adler_quirk(struct pci_dev *dev)
+	{
+		int i;
 
+		for (i = 0; i < 6; i++) {
+			if (!pci_resource_start(dev, i))
+				continue;
+			if (!pci_resource_len(dev, i))
+				continue;
+			insert_resource(&iomem_resource, dev->resource + i);
+		}
+	}
 
-From: Pavel Machek <pavel@ucw.cz>
+and then make sure that the PCI layer doesn't try to re-allocate the 
+resource some other way (I forget - maybe it already notices when the 
+resource has already been inserted into the resource tree - otherwise you 
+might need to add the code that says "if this resource is already 
+inserted, don't try to reallocate it").
 
-This adds proper suspend/resume support for PIT.  That means that clock are
-actually correct after suspend/resume.
-
-
----
-
- 25-akpm/arch/i386/kernel/time.c |   24 ++++++++++++++++++++++++
- 1 files changed, 24 insertions(+)
-
-diff -puN arch/i386/kernel/time.c~suspend-resume-for-PIT arch/i386/kernel/time.c
---- 25/arch/i386/kernel/time.c~suspend-resume-for-PIT	Mon Jan 12 13:49:55 2004
-+++ 25-akpm/arch/i386/kernel/time.c	Mon Jan 12 13:49:55 2004
-@@ -307,7 +307,31 @@ unsigned long get_cmos_time(void)
- 	return retval;
- }
- 
-+static long clock_cmos_diff;
-+
-+static int time_suspend(struct sys_device *dev, u32 state)
-+{
-+	/*
-+	 * Estimate time zone so that set_time can update the clock
-+	 */
-+	clock_cmos_diff = -get_cmos_time();
-+	clock_cmos_diff += get_seconds();
-+	return 0;
-+}
-+
-+static int time_resume(struct sys_device *dev)
-+{
-+	unsigned long sec = get_cmos_time() + clock_cmos_diff;
-+	write_seqlock_irq(&xtime_lock);
-+	xtime.tv_sec = sec;
-+	xtime.tv_nsec = 0;
-+	write_sequnlock_irq(&xtime_lock);
-+	return 0;
-+}
-+
- static struct sysdev_class pit_sysclass = {
-+	.resume = time_resume,
-+	.suspend = time_suspend,
- 	set_kset_name("pit"),
- };
- 
-
-_
-
+		Linus

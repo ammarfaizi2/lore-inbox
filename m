@@ -1,62 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277998AbRJIVpx>; Tue, 9 Oct 2001 17:45:53 -0400
+	id <S278000AbRJIVsD>; Tue, 9 Oct 2001 17:48:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277995AbRJIVpn>; Tue, 9 Oct 2001 17:45:43 -0400
-Received: from jak-fw.mendelu.cz ([195.178.73.243]:62960 "EHLO v0jta.net")
-	by vger.kernel.org with ESMTP id <S277993AbRJIVpY>;
-	Tue, 9 Oct 2001 17:45:24 -0400
-Date: Tue, 9 Oct 2001 23:45:08 +0200
-From: Robert Vojta <vojta@pharocom.net>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Robert Vojta <vojta@pharocom.net>, seth goldberg <seth.goldberg@Sun.COM>,
-        linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: sis900 does not work in 2.4.10
-Message-ID: <20011009234508.A2417@ipex.cz>
-In-Reply-To: <Pine.LNX.3.96.1011009152114.22253A-100000@mandrakesoft.mandrakesoft.com>
+	id <S277999AbRJIVrx>; Tue, 9 Oct 2001 17:47:53 -0400
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:53000 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S277993AbRJIVrp>; Tue, 9 Oct 2001 17:47:45 -0400
+Subject: 2.4.10-ac10 -- Unresolved symbol __io_virt_debug in sk98lin.o,
+	skfp.o, aha152x_cs.o, fdomain_cs.o abd msnd_classic.o.
+From: Miles Lane <miles@megapathdsl.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15.99 (Preview Release)
+Date: 09 Oct 2001 14:39:41 -0700
+Message-Id: <1002663582.3218.7.camel@stomata.megapathdsl.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1011009152114.22253A-100000@mandrakesoft.mandrakesoft.com>
-User-Agent: Mutt/1.3.18i
-X-Company: Pharocom, s.r.o.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I searched the LKML and didn't find this mentioned.
 
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.10-ac10; fi
+depmod: *** Unresolved symbols in /lib/modules/2.4.10-ac10/kernel/drivers/net/sk98lin/sk98lin.o
+depmod: 	__io_virt_debug
+depmod: *** Unresolved symbols in /lib/modules/2.4.10-ac10/kernel/drivers/net/skfp/skfp.o
+depmod: 	__io_virt_debug
+depmod: *** Unresolved symbols in /lib/modules/2.4.10-ac10/kernel/drivers/scsi/pcmcia/aha152x_cs.o
+depmod: 	__io_virt_debug
+depmod: *** Unresolved symbols in /lib/modules/2.4.10-ac10/kernel/drivers/scsi/pcmcia/fdomain_cs.o
+depmod: 	__io_virt_debug
+depmod: *** Unresolved symbols in /lib/modules/2.4.10-ac10/kernel/drivers/sound/msnd_classic.o
+depmod: 	__io_virt_debug
 
-> FWIW I just checked in this patch, which was going to go to Linus today
-> or tomorrow, which contains updates for 630ET and ICS1893 PHY
+Not sure if it is related, but I have #define DEBUG in my arch/i386/kernel/pci-i386.h.
 
-Hi,
-  when I try my SiS900 under 2.4.10-ac10 with or without Jeff's patch, it
-works very well here in my laptop. But I have feelings that this kernel
-(fastly configured 2.4.10-ac10 with Rik's eating patch) is little bit slower
-than my previous one (2.4.6-ac2) ...
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
+CONFIG_MK7=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_3DNOW=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_TOSHIBA=m
+CONFIG_MICROCODE=m
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_NOHIGHMEM=y
+CONFIG_MATH_EMULATION=y
+CONFIG_MTRR=y
+CONFIG_SMP=y
+CONFIG_HAVE_DEC_LOCK=y
 
-Best regards,
-                                                            --Robert V0jta
+#
+# Kernel hacking
+#
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_DEBUG_BUGVERBOSE=y
 
---=20
-    Robert Vojta <vojta at {pharocom.net - work | v0jta.net - private}>
-          GPG: ID 1024D/A0CB7953            http://www.v0jta.net/=20
 
---5vNYLRcllDrimb99
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjvDb+QACgkQInNB3KDLeVOB1ACeLWufeQ5Zo5190x0PGt4sITDn
-EysAn3vXDnpAW9AENS/sOA8xi5O4k73P
-=vrN8
------END PGP SIGNATURE-----
-
---5vNYLRcllDrimb99--

@@ -1,72 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268034AbTBYQoJ>; Tue, 25 Feb 2003 11:44:09 -0500
+	id <S268038AbTBYQuO>; Tue, 25 Feb 2003 11:50:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268038AbTBYQoJ>; Tue, 25 Feb 2003 11:44:09 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:14795 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S268034AbTBYQoI>; Tue, 25 Feb 2003 11:44:08 -0500
-Date: Tue, 25 Feb 2003 17:54:17 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Martijn Uffing <mp3project@cam029208.student.utwente.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.5 patch] Re: 2.5.63 : Compile failure in ne driver
-Message-ID: <20030225165417.GO7685@fs.tum.de>
-References: <Pine.LNX.4.44.0302250013350.16352-100000@cam029208.student.utwente.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302250013350.16352-100000@cam029208.student.utwente.nl>
-User-Agent: Mutt/1.4i
+	id <S268042AbTBYQuO>; Tue, 25 Feb 2003 11:50:14 -0500
+Received: from atlrel8.hp.com ([156.153.255.206]:22154 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id <S268038AbTBYQuN>;
+	Tue, 25 Feb 2003 11:50:13 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Bjorn Helgaas <bjorn_helgaas@hp.com>
+To: "Moore, Robert" <robert.moore@intel.com>, "'Pavel Machek'" <pavel@ucw.cz>
+Subject: Re: [ACPI] [PATCH] 1/3 ACPI resource handling
+Date: Tue, 25 Feb 2003 09:57:44 -0700
+User-Agent: KMail/1.4.3
+Cc: "Grover, Andrew" <andrew.grover@intel.com>,
+       "Walz, Michael" <michael.walz@intel.com>, t-kochi@bq.jp.nec.com,
+       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+References: <B9ECACBD6885D5119ADC00508B68C1EA0D19BB1A@orsmsx107.jf.intel.com>
+In-Reply-To: <B9ECACBD6885D5119ADC00508B68C1EA0D19BB1A@orsmsx107.jf.intel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302250957.44409.bjorn_helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 25, 2003 at 12:20:52AM +0100, Martijn Uffing wrote:
+Good grief.  If people would actually read and think about the
+change instead of having a knee-jerk reaction to seeing
+"#define", they would see that inline functions will not work
+in this particular application.  The macros were used to
+factor code that was identical except that it operated on
+different structure types.  Inline functions obviously require
+explicit argument declarations, while macros don't, so macros
+are the only choice for this type of factoring.
 
-> Ave people
+In any case, this horse has been long dead.  I've posted versions of
+acpi_resource_to_address64() both with and without the macros, and
+haven't heard any substantial objections, so I'm assuming the ACPI
+folks will either ignore them or pick the one they like best and
+we can move on.
 
-Hi Martijn,
+Bjorn
 
-> 2.5.63 won't compile for me.
-> In my .config I  got PNP selected but ISAPNP not. 
+On Monday 24 February 2003 3:48 pm, Moore, Robert wrote:
+> Yes, as long as the code is used more than once (which it appears to be),
+> then of course it should be procedurized.
+> Bob
 > 
-> This because I  have a 
-> -PCI pnp sound card
-> -ISA nopnp ne2000 clone network card.
+> -----Original Message-----
+> From: Pavel Machek [mailto:pavel@ucw.cz] 
+> Sent: Sunday, February 23, 2003 2:55 PM
+> To: Moore, Robert
+> Cc: 'Bjorn Helgaas'; Grover, Andrew; Walz, Michael; t-kochi@bq.jp.nec.com;
+> linux-kernel@vger.kernel.org; acpi-devel@lists.sourceforge.net
+> Subject: Re: [ACPI] [PATCH] 1/3 ACPI resource handling
 > 
-> Greetz Mu
+> Hi!
 > 
-> make -f scripts/Makefile.build obj=drivers/net
->   gcc -Wp,-MD,drivers/net/.ne.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586 -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    -DKBUILD_BASENAME=ne -DKBUILD_MODNAME=ne -c -o drivers/net/ne.o drivers/net/ne.c
-> drivers/net/ne.c: In function `ne_probe_isapnp':
-> drivers/net/ne.c:208: too many arguments to function `pnp_activate_dev'
-> make[2]: *** [drivers/net/ne.o] Error 1
-> make[1]: *** [drivers/net] Error 2
-> make: *** [drivers] Error 2
->...
-
-please try the following patch:
-
---- linux-2.5.63-notfull/drivers/net/ne.c.old	2003-02-25 17:50:25.000000000 +0100
-+++ linux-2.5.63-notfull/drivers/net/ne.c	2003-02-25 17:50:41.000000000 +0100
-@@ -205,7 +205,7 @@
- 			/* Avoid already found cards from previous calls */
- 			if (pnp_device_attach(idev) < 0)
- 				continue;
--			if (pnp_activate_dev(idev, NULL) < 0) {
-+			if (pnp_activate_dev(idev) < 0) {
- 			      	pnp_device_detach(idev);
- 			      	continue;
- 			}
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+> > 1) This seems like a good idea to simplify the parsing of the resource
+> lists
+> > 
+> > 2) I'm not convinced that this buys a whole lot -- it just hides the code
+> > behind a macro (something that's not generally liked in the Linux world.)
+> > Would this procedure be called from more than one place?
+> 
+> Well, reducing code duplication *is* liked in Linux world. Use inline
+> function instead of macro if possible, through.
+> 	
+> Pavel
 

@@ -1,69 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267877AbTBRRsc>; Tue, 18 Feb 2003 12:48:32 -0500
+	id <S267953AbTBRRqa>; Tue, 18 Feb 2003 12:46:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267902AbTBRRsc>; Tue, 18 Feb 2003 12:48:32 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16649 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S267877AbTBRRri>; Tue, 18 Feb 2003 12:47:38 -0500
-Subject: PATCH: eliminate use of ide_ioreg_t on ARM
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Tue, 18 Feb 2003 17:58:00 +0000 (GMT)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S267952AbTBRRq3>; Tue, 18 Feb 2003 12:46:29 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3851 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267953AbTBRRq1>; Tue, 18 Feb 2003 12:46:27 -0500
+Date: Tue, 18 Feb 2003 17:56:26 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: IP/ICMP networking oddity
+Message-ID: <20030218175626.A9785@flint.arm.linux.org.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E18lC0G-00066d-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.61/drivers/ide/arm/icside.c linux-2.5.61-ac2/drivers/ide/arm/icside.c
---- linux-2.5.61/drivers/ide/arm/icside.c	2003-02-10 18:38:38.000000000 +0000
-+++ linux-2.5.61-ac2/drivers/ide/arm/icside.c	2003-02-18 18:06:19.000000000 +0000
-@@ -1,5 +1,5 @@
- /*
-- * linux/drivers/ide/icside.c
-+ * linux/drivers/ide/arm/icside.c
-  *
-  * Copyright (c) 1996-2002 Russell King.
-  *
-@@ -813,7 +813,7 @@
- 
- 	for (index = 0; index < MAX_HWIFS; ++index) {
- 		hwif = &ide_hwifs[index];
--		if (hwif->io_ports[IDE_DATA_OFFSET] == (ide_ioreg_t)dataport)
-+		if (hwif->io_ports[IDE_DATA_OFFSET] == dataport)
- 			goto found;
- 	}
- 
-@@ -841,8 +841,8 @@
- 		memset(&hwif->hw, 0, sizeof(hw_regs_t));
- 
- 		for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++) {
--			hwif->hw.io_ports[i] = (ide_ioreg_t)port;
--			hwif->io_ports[i] = (ide_ioreg_t)port;
-+			hwif->hw.io_ports[i] = port;
-+			hwif->io_ports[i] = port;
- 			port += 1 << info->stepping;
- 		}
- 		hwif->hw.io_ports[IDE_CONTROL_OFFSET] = base + info->ctrloffset;
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.61/drivers/ide/arm/rapide.c linux-2.5.61-ac2/drivers/ide/arm/rapide.c
---- linux-2.5.61/drivers/ide/arm/rapide.c	2003-02-10 18:38:49.000000000 +0000
-+++ linux-2.5.61-ac2/drivers/ide/arm/rapide.c	2003-02-18 18:06:19.000000000 +0000
-@@ -1,5 +1,5 @@
- /*
-- * linux/drivers/ide/rapide.c
-+ * linux/drivers/ide/arm/rapide.c
-  *
-  * Copyright (c) 1996-2002 Russell King.
-  */
-@@ -25,7 +25,7 @@
- 	memset(&hw, 0, sizeof(hw));
- 
- 	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++) {
--		hw.io_ports[i] = (ide_ioreg_t)port;
-+		hw.io_ports[i] = port;
- 		port += 1 << 4;
- 	}
- 	hw.io_ports[IDE_CONTROL_OFFSET] = port + 0x206;
+Hi,
+
+I'm seeing the following weird behaviour in the IP layer.  While
+pinging a 2.5.62 machine with: "ping -s 16000 -f", I get a number
+of:
+
+eth0: Far too big packet error.
+
+errors (from the smc9194.c driver.)  This message is displayed when
+the transmit path encounters a packet which is too large for it to
+send.  Displaying the size of these over-sized packets (skb->len),
+it turns out ot be 16042 bytes, despite ifconfig reporting a MTU
+of 1500 bytes for the interface.  I added a BUG() in the complaint
+path and got the backtrace below.
+
+In addition, I don't see the outgoing ICMP echo replies in tcpdump,
+although I do see incoming ICMP echo requests, along with TCP, ARP
+and UDP traffic in both directions.  Also, the ethernet interface
+has RX, TX, link and CPU access activity indicators - despite the
+RX and CPU activity LEDs being permanently lit during the flood
+ping, but the TX LED is mostly off.
+
+It seems that ICMP echo replies are somehow missing the IP
+fragmentation process (despite it appearing in the backtrace.)
+
+Please note that while this flood ping is in effect, NFS appears to
+be happy on 2.5.62 accessing other machines on the network with very
+little latency.
+
+[<c031d6f4>] (smc_wait_to_send_packet+0x0/0x32c)
+			from [<c035b434>] (qdisc_restart+0x9c/0x198)
+[<c035b398>] (qdisc_restart+0x0/0x198)
+			from [<c035296c>] (dev_queue_xmit+0x108/0x3d4)
+[<c0352864>] (dev_queue_xmit+0x0/0x3d4)
+			from [<c0369328>] (ip_finish_output+0x210/0x294)
+[<c0369118>] (ip_finish_output+0x0/0x294)
+			from [<c0367b18>] (ip_fragment+0x76c/0x870)
+[<c03673ac>] (ip_fragment+0x0/0x870)
+			from [<c0366b94>] (ip_output+0x78/0x300)
+[<c0366b1c>] (ip_output+0x0/0x300)
+			from [<c0368c34>] (ip_push_pending_frames+0x36c/0x458)
+[<c03688c8>] (ip_push_pending_frames+0x0/0x458)
+			from [<c038dee8>] (icmp_push_reply+0xec/0xf8)
+[<c038ddfc>] (icmp_push_reply+0x0/0xf8)
+			from [<c038e074>] (icmp_reply+0x180/0x1e4)
+[<c038def4>] (icmp_reply+0x0/0x1e4)
+			from [<c038e988>] (icmp_echo+0x5c/0x64)
+[<c038e92c>] (icmp_echo+0x0/0x64)
+			from [<c038ee58>] (icmp_rcv+0x17c/0x1e0)
+[<c038ecdc>] (icmp_rcv+0x0/0x1e0)
+			from [<c0363a7c>] (ip_local_deliver+0x154/0x260)
+[<c0363928>] (ip_local_deliver+0x0/0x260)
+			from [<c0363fe8>] (ip_rcv+0x460/0x504)
+[<c0363b88>] (ip_rcv+0x0/0x504)
+			from [<c0353288>] (netif_receive_skb+0x1c0/0x210)
+[<c03530c8>] (netif_receive_skb+0x0/0x210)
+			from [<c035337c>] (process_backlog+0xa4/0x17c)
+[<c03532d8>] (process_backlog+0x0/0x17c)
+			from [<c03534ec>] (net_rx_action+0x98/0x1b0)
+[<c0353454>] (net_rx_action+0x0/0x1b0)
+			from [<c02453cc>] (do_softirq+0x84/0xec)
+[<c0245348>] (do_softirq+0x0/0xec)
+			from [<c02222e8>] (__do_softirq+0x8/0x20)
+[<c02231b0>] (asm_do_IRQ+0x0/0xd8)
+			from [<c0221eb4>] (__irq_svc+0x34/0xac)
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

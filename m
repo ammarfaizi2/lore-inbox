@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264243AbTDJW5h (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 18:57:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264241AbTDJW5h (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 18:57:37 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:34014 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S264240AbTDJW5e (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 18:57:34 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Fri, 11 Apr 2003 01:09:14 +0200 (MEST)
-Message-Id: <UTC200304102309.h3AN9EV07692.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, pbadari@us.ibm.com
-Subject: Re: [patch for playing] Patch to support 4000 disks and maintain backward compatibility
+	id S264232AbTDJXGh (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 19:06:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264233AbTDJXGh (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 19:06:37 -0400
+Received: from [12.47.58.73] ([12.47.58.73]:59472 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S264232AbTDJXGg (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 19:06:36 -0400
+Date: Thu, 10 Apr 2003 16:18:26 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Thomas Schlichter <schlicht@uni-mannheim.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] first try for swap prefetch
+Message-Id: <20030410161826.04332890.akpm@digeo.com>
+In-Reply-To: <200304101948.12423.schlicht@uni-mannheim.de>
+References: <200304101948.12423.schlicht@uni-mannheim.de>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Apr 2003 23:18:13.0908 (UTC) FILETIME=[75BAF540:01C2FFB7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    > A different way out, especially when we use 32+32, is to kill this
-    > sd_index_bits[] array, and give each disk a new number: replace
-    > 	index = find_first_zero_bit(sd_index_bits, SD_DISKS);
-    > by
-    > 	index = next_index++;
+Thomas Schlichter <schlicht@uni-mannheim.de> wrote:
+>
+> Hi,
+> 
+> as mentioned a few days ago I was going to try to implement a swap prefetch to 
+> better utilize the free memory. Now here is my first try.
 
-    I wish it is that simple. We use sd_index_bits[] since we could
-    sd_detach() and then sd_attach()  few disks. We will end up with
-    holes, name slippage without this. We need to know what disks are
-    currently being in use.
+That's surprisingly cute.  Does it actually do anything noticeable?
 
-It is that simple. (At least with 64-bit dev_t.)
-Look at the use of sd_index_bits[]. It is static in sd.c.
-There is the definition, the first free bit is found (and set)
-in sd_attach() to provide our disk with a number, this bit is
-cleared again in sd_detach().
++	swapped_entry = kmalloc(sizeof(*swapped_entry), GFP_ATOMIC);
 
-That is all. In other words, a mechanism to give an unused number
-to each disk for which sd_attach() is called.
+These guys will need a slab cache (not SLAB_HW_CACHE_ALIGNED) to save space.
 
-Now suppose we do nothing in sd_detach().
-Then we don't know which disks have disappeared. Pity.
-If the number space is infinite then
-	index = next_index++;
-gives a new number each time we need one.
++	swapped_entry = radix_tree_lookup(&swapped_root.tree, entry.val);
++	if(swapped_entry) {
++		list_del(&swapped_entry->list);
++		radix_tree_delete(&swapped_root.tree, entry.val);
 
-Now that it is finite, some estimates are needed. How often
-will sd_attach() be called during the uptime of this kernel /
-the lifetime of this computer? And how much space is available?
+you can just do
 
-Among 2^64 device numbers, 2^48 reserved for scsi disks
-is a very small fraction. With at most 2^12 partitions
-on each disk that would leave room for 2^36 disks.
-Do you think during the lifetime of this computer a new
-scsi disk will be added more than 68 . 10^9 times?
-That would be adding 400 disks each second for five years.
+	if (radix_tree_delete(...) != -ENOENT)
+		list_del(...)
 
-You see, 2^64 is not infinite, but it is close.
++		read_swap_cache_async(entry);
 
-Andries
+What you want here is a way of telling if the disk(s) which back the swap are
+idle.  We used to have that, but Hugh deleted it.  It can be put back, but
+it's probably better to put a `last_read_request_time' and
+`last_write_request_time' into struct backing_dev_info.  If nobody has used
+the disk in the past N milliseconds, then start the speculative swapin.
+
+It might make sense to poke the speculative swapin code in the page-freeing
+path too.
+
+And to put the speculatively-swapped-in pages at the tail of the inactive
+list (perhaps).
+
+But first-up, some demonstrated goodness is needed...
+

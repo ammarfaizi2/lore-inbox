@@ -1,89 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265997AbUAKVfi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 16:35:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265998AbUAKVfi
+	id S265992AbUAKVrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 16:47:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265994AbUAKVrZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 16:35:38 -0500
-Received: from mail3.cc.huji.ac.il ([132.64.1.21]:43500 "EHLO
-	mail3.cc.huji.ac.il") by vger.kernel.org with ESMTP id S265997AbUAKVff
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 16:35:35 -0500
-Message-ID: <4001A598.6080305@mscc.huji.ac.il>
-Date: Sun, 11 Jan 2004 21:35:52 +0200
-From: Voicu Liviu <pacman@mscc.huji.ac.il>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en, he
-MIME-Version: 1.0
-To: Bernhard Kuhn <bkuhn@metrowerks.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [announcement, patch] real-time interrupts for the Linux kernel
-References: <3FFE078D.20400@metrowerks.com> <400113EE.6060909@mscc.huji.ac.il> <40017BFC.9000408@metrowerks.com>
-In-Reply-To: <40017BFC.9000408@metrowerks.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 11 Jan 2004 16:47:25 -0500
+Received: from waste.org ([209.173.204.2]:59623 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S265992AbUAKVrY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 16:47:24 -0500
+Date: Sun, 11 Jan 2004 15:47:16 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [PATCH] mark ide-cs broken
+Message-ID: <20040111214716.GW18208@waste.org>
+References: <20040111111607.A1931@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040111111607.A1931@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you :-)
-Liviu
+On Sun, Jan 11, 2004 at 11:16:07AM +0000, Russell King wrote:
+> Hi,
+> 
+> After receiving this bug report: http://bugme.osdl.org/show_bug.cgi?id=1457
+> and talking to Arjan, it would appear that IDECS is known to be broken.
+> Arjan has confirmed that he sees the same behaviour with his PCMCIA CDROM
+> using both 2.6 and 2.4.2x kernels.
+> 
+> Therefore, I suggest that we mark it broken.  The patch below is for 2.6.1
+> kernels.
 
-Bernhard Kuhn wrote:
+It's still working for me as of 2.6.0 with stock kernel and CF, so
+this is probably premature.
 
-> Voicu Liviu wrote:
->
->> Can this be used for a normal desktop?
->
->
-> I don't think that real time interrupts are usefull for
-> a desktop environment: here, even interrupt latencies
-> below one millisecond should be more than good enough for
-> streaming/multimedia applications and games - if your
-> specific application is not "fast" or "reactive" enough,
-> i would tend to say that it is not the fault of the linux
-> kernel and it's the implementation of the application
-> itself or one of the related kernel drivers that needs
-> improovment. If you recognize interrupt response times
-> higher than a millisecond with a standard linux kernel,
-> then there is definitly a bad device driver or something
-> is broken with your hardware.
->
-> The real time interrupt patch is mostly intended to be
-> used in control loop and data aquisition applications
-> where higher latencies or jitters higher than a few
-> mirocseconds could have catastrophic consequences.
-> However, i can imagine that it makes sense to use
-> this patch for some very special networking devices
-> where the kernel might sometimes not be able to response
-> quick enough because it is just processing an
-> interrupt of type SA_INTERRUPT that takes too much
-> time. But in these cases, i guess it's simpler to fix
-> that other device driver (by moving parts of the interrupt
-> handler to a tasklet) rather than introducing
-> real time interrupts - the only problem with this
-> variant is that for oftenly changing hardware
-> configurations, you can never be sure if you catched
-> all "longest execution paths" and you may end up
-> spending most of your time improving other device
-> drivers.
->
-> BTW.: having interrupt priorities is only the first
-> step to make the kernel hard real time aware. The
-> next step would be to make the kernel scheduler
-> re-entrentable, so that a user space application
-> related to a high priority interrupt could run
-> at a higher priority than a low level interrupt service
-> routine (low priority interrupts are disabled while the
-> high priority application is running) - this scheme
-> is pretty similar to LXRT, except that the kernel scheduler
-> is used instead of an external dispatcher. But just
-> as like as with LXRT, you only have a very limited
-> set of system calls and you can easly lock up your system
-> when an application takes 100% of the CPU.
->
-> best regards
->
-> Bernhard
-
-
-
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

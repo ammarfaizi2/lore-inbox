@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292337AbSCDMzi>; Mon, 4 Mar 2002 07:55:38 -0500
+	id <S292330AbSCDNC6>; Mon, 4 Mar 2002 08:02:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292330AbSCDMz3>; Mon, 4 Mar 2002 07:55:29 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:150 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S292337AbSCDMzP>;
-	Mon, 4 Mar 2002 07:55:15 -0500
-Date: Mon, 4 Mar 2002 13:54:54 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Andrey Ulanov <drey@au.ru>
-cc: Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH] intel740 frame-buffer device driver
-In-Reply-To: <20020227004943.A2678@gleam.rt.mipt.ru>
-Message-ID: <Pine.GSO.4.21.0203041353260.29240-100000@vervain.sonytel.be>
+	id <S292338AbSCDNCs>; Mon, 4 Mar 2002 08:02:48 -0500
+Received: from smtp014.mail.yahoo.com ([216.136.173.58]:29455 "HELO
+	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S292330AbSCDNCh>; Mon, 4 Mar 2002 08:02:37 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Yaroslav Buga <slava_buga@yahoo.com>
+To: linux-kernel@vger.kernel.org
+Subject: Group membership problem
+Date: Mon, 4 Mar 2002 15:02:26 +0200
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020304130241Z292330-889+117131@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Feb 2002, Andrey Ulanov wrote:
-> i wrote intel740 frame-buffer driver. i tested it with my hardware 
-> with kernels 2.4.8, 2.4.14, 2.4.17 and 2.5.5. 
-> 
-> you can download the patch
-> http://i740fbdev.sourceforge.net/download/patch-2.5.5-i740fb-020225.diff.gz
-> 
-> if anybody tested it, please drop me a report
+Hi,
 
-Since i740fb uses resource management, please move its initialization up in
-drivers/video/fbmem.c.
+I have Slackware 7.1 with 2.4.16 kernel. And I have a user who is a member of 
+a number of groups. Linux can't grant access to the user if the group's 
+number he is member of is more than 32. For example if he is member of 32 
+groups - everything is O.K. , but when I make him a member of the 33-rd group 
+he will not be granted access to resource which is owned by that group. 
+Is there any limit in Linux for the number of groups to be member of?
+And how can I solve that problem?
 
-BTW, I also noticed a typo (`retrun' instead of `return').
+Thanks guys in advance.
+Yaroslav Buga.
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 

@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbUJZP5H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbUJZP4h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261260AbUJZP5H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 11:57:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbUJZP5H
+	id S261241AbUJZP4h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 11:56:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbUJZP4h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 11:57:07 -0400
-Received: from web81306.mail.yahoo.com ([206.190.37.81]:40609 "HELO
-	web81306.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261260AbUJZP4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 11:56:42 -0400
-Message-ID: <20041026155639.42445.qmail@web81306.mail.yahoo.com>
-Date: Tue, 26 Oct 2004 08:56:39 -0700 (PDT)
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: [PATCH 0/5] Sonypi driver model & PM changes
-To: LKML <linux-kernel@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Stelian Pop <stelian@popies.net>
+	Tue, 26 Oct 2004 11:56:37 -0400
+Received: from siaag2ae.compuserve.com ([149.174.40.135]:45267 "EHLO
+	siaag2ae.compuserve.com") by vger.kernel.org with ESMTP
+	id S261241AbUJZP4Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 11:56:16 -0400
+Date: Tue, 26 Oct 2004 11:54:46 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: BK kernel workflow
+To: Larry McVoy <lm@bitmover.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200410261156_MC3-1-8D2C-C64C@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Larry McVoy wrote:
 
-And I am breaking the thread yet again....
+> But I have a 70 line shell script which does this, I'm not sure why you can't
+> write the same thing.
 
-Stelian pop wrote:
-> On Tue, Oct 26, 2004 at 11:28:02AM +0200, Stelian Pop wrote:
-> 
-> > > [1]
-> > > http://csociety-ftp.ecn.purdue.edu/pub/gentoo/distfiles/xorg-x11-
-> 6.8.0-patches-0.2.5.tar.bz2
-> > > Extract patches 9000, 9001 and 9002. Btw, these are not mine - I have
-> > > Not even tries them myself but I have read several success stories.
-> >
-> > Got them and trying to build the new drivers right now. Thanks !
-> 
-> Well, it kinda works, but there are still some rough edges (the kbd
-> driver maps all the unknown keys to KEY_UNKNOWN, making them all to
-> have the same keycode in X, making them unusable. After removing the
-> test it forwards the events ok).
-> 
-> There are also problems because my sonypi input device acts both like
-> a mouse and a keyboard, and the X event driver wants them to be separate.
-> 
-> Vojtech: should I generate two different input devices in my driver,
-> a mouse like and a keyboard like device, or should the userspace be
-> able to demultiplex the events ?
-> 
+  Shirley you jest.
 
-If you want jogdial to continue generating BTN_MIDDLE and BTN_WHEEL
-events then IMHO you should create 2 separate input devices - one
-for jogdial and the other for FN-keys.
 
-On the other hand I am not sure if it is handy as a ponter device -
-I think scrolling is much more natural with the touchpad (but
-remember I don't have the hardware) and it may be more convenient
-to assign brand-new events to jogdial as well and then map it in
-userspace (X) into something different, like volume control. In
-this case you can continue having just one input device.
+>> [me@d4 linux-2.6]$ bk c2r -r@v2.6.9 mm/vmscan.c
+>> [me@d4 linux-2.6]$                                               <--- what???
+>
+> That's because you didn't read the documentation which you appear to love 
+> so much.
 
-Btw, you should probably drop conditional support for input layer
-and always compile it in.
+  So now it's MY fault I didn't get any kind of error message whatsoever?
+Silent failures like this are really, really annoying...
 
--- 
-Dmitry
 
+>>   Then there's this one:
+>> 
+>> [me@d4 linux-2.6]$ bk difftool -rv2.6.8 -rv2.6.9 mm/vmscan.c     <--- forgot the @
+>> child process exited abnormally                                  <--- hee hee!
+>> 
+>>   I like the way the GUI flashes up on the screen then abruptly disappears, leaving
+>> the user wondering what happened.
+>
+> You know, I like the way you politely offer to help out by sending in
+> patches to the documentation for this tool which you get to use for free.
+
+  Are you deliberately missing my point?
+
+  Programs should return some kind of error message when they fail.  Is that
+so hard to understand?
+
+
+>>   But you're located in a large American metro area, a.k.a. "hell on earth."
+>
+> No worries, Chuck, after careful consideration of your skills we don't see
+> a match at this time.  But we'll keep your resume on file and thanks for
+> your interest.
+
+  Your loss, not mine.
+
+
+--Chuck Ebbert  26-Oct-04  11:16:10

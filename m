@@ -1,45 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289291AbSBNA7M>; Wed, 13 Feb 2002 19:59:12 -0500
+	id <S289282AbSBNBA2>; Wed, 13 Feb 2002 20:00:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289282AbSBNA6t>; Wed, 13 Feb 2002 19:58:49 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:55777 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S289291AbSBNA6i>;
-	Wed, 13 Feb 2002 19:58:38 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 14 Feb 2002 01:57:48 +0100 (MET)
-Message-Id: <UTC200202140057.g1E0vmj24668.aeb@apps.cwi.nl>
-To: davidsen@tmr.com, phillips@bonn-fries.net
-Subject: Re: [patch] sys_sync livelock fix
-Cc: akpm@zip.com.au, alan@lxorguk.ukuu.org.uk, jgarzik@mandrakesoft.com,
-        linux-kernel@vger.kernel.org, viro@math.psu.edu
+	id <S289272AbSBNBAV>; Wed, 13 Feb 2002 20:00:21 -0500
+Received: from ns1.intercarve.net ([216.254.127.221]:4897 "HELO
+	ceramicfrog.intercarve.net") by vger.kernel.org with SMTP
+	id <S287631AbSBNBAN>; Wed, 13 Feb 2002 20:00:13 -0500
+Date: Wed, 13 Feb 2002 19:56:00 -0500 (EST)
+From: "Drew P. Vogel" <dvogel@intercarve.net>
+To: "J.S.S." <jss@pacbell.net>
+Cc: Steve Kieu <haiquy@yahoo.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: RE: Unable to compile 2.5.4: "control reaches end of non-void
+ functionm"
+In-Reply-To: <PGEMINDOPMDNMJINCKBNAEDCCBAA.jss@pacbell.net>
+Message-ID: <Pine.LNX.4.33.0202131955210.17093-100000@northface.intercarve.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> it should work in the _best_ way, and if the standard got it wrong
-> then the standard has to change.
+If it is in processor.h, search the archives. There was a patch for this
+submitted to the list about a week ago.
 
-: BTW: I think users would expect the system call to work as the standard
-: specifies, not some better way which would break on non-Linux systems. Of
-: course now working programs which conform to the standard DO break on
-: Linux.
+--Drew Vogel
 
-Let me repeat:
-The standard describes a *minimum*.
-A system that does not give more than this minimum would be
-a very poor system indeed.
+On Wed, 13 Feb 2002, J.S.S. wrote:
 
-That POSIX does not require more than 14 bytes in a filename
-and does not promise me more than 6 simultaneous processes
-does not prevent us from having something better.
+>I have this same problem on both my laptop and my testbox.  It happens
+>everytime and I have yet to compile 2.5.4 successfully.  Although, I suspect
+>it's in my config file - I'm just using an old config file I used for my
+>2.4.17 kernel which works just fine.
+>
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org
+>[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Steve Kieu
+>Sent: Tuesday, February 12, 2002 8:49 PM
+>To: kernel
+>Subject: Re: Unable to compile 2.5.4: "control reaches end of non-void
+>functionm"
+>
+>
+>
+>Hi,
+>
+>It seems nobody having this problem? No one replies at
+>least why, so I just want to add one more case of
+>compiling error. Exactly the same message as yours.
+>
+>
+>
+>=====
+>S.KIEU
+>
+>http://greetings.yahoo.com.au - Yahoo! Greetings
+>- Send your Valentines love online.
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-In this particular case (sync) the minimum required is
-essentially empty. The proposed semantics: make sure that
-before return all writes that were scheduled at the time
-of the call seems entirely satisfactory.
+--Drew Vogel
 
-Andries
-
-
-(BTW Is your df broken? It is very long ago that my df did
-a sync.)

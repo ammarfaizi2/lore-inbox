@@ -1,76 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbUKWRzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbUKWSBH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbUKWRzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 12:55:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbUKWRx3
+	id S261423AbUKWSBH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 13:01:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbUKWSAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 12:53:29 -0500
-Received: from farley.sventech.com ([69.36.241.87]:47559 "EHLO
-	farley.sventech.com") by vger.kernel.org with ESMTP id S261420AbUKWRwr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 12:52:47 -0500
-Date: Tue, 23 Nov 2004 09:52:46 -0800
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [openib-general] Re: [PATCH][RFC/v1][4/12] Add InfiniBand SA (Subnet Administration) query support
-Message-ID: <20041123175246.GD4217@sventech.com>
-References: <20041122713.SDrx8l5Z4XR5FsjB@topspin.com> <20041122713.g6bh6aqdXIN4RJYR@topspin.com> <20041122222507.GB15634@kroah.com> <527jodbgqo.fsf@topspin.com> <20041123064120.GB22493@kroah.com> <52hdnh83jy.fsf@topspin.com> <20041123072944.GA22786@kroah.com>
+	Tue, 23 Nov 2004 13:00:09 -0500
+Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:60169 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S261420AbUKWR6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 12:58:19 -0500
+Date: Tue, 23 Nov 2004 18:58:20 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Justin Thiessen <jthiessen@penguincomputing.com>,
+       Arjan van de Ven <arjan@infradead.org>
+Cc: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: adm1026 driver port for kernel 2.6.10-rc2  [RE-REVISED DRIVER]
+Message-Id: <20041123185820.5b58ef86.khali@linux-fr.org>
+In-Reply-To: <20041122194327.GB4698@penguincomputing.com>
+References: <20041102221745.GB18020@penguincomputing.com>
+	<NN38qQl1.1099468908.1237810.khali@gcu.info>
+	<20041103164354.GB20465@penguincomputing.com>
+	<20041118185612.GA20728@penguincomputing.com>
+	<1100945635.2639.31.camel@laptop.fenrus.org>
+	<20041122194327.GB4698@penguincomputing.com>
+Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041123072944.GA22786@kroah.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 22, 2004, Greg KH <greg@kroah.com> wrote:
-> On Mon, Nov 22, 2004 at 10:47:29PM -0800, Roland Dreier wrote:
-> >     Greg> One comment, the file drivers/infiniband/core/cache.c has a
-> >     Greg> license that is illegal due to the contents of the file.
-> >     Greg> Please change the license of the file to GPL only.
+> > > int adm1026_attach_adapter(struct i2c_adapter *adapter)
+> > > {
+> > > 	if (!(adapter->class & I2C_CLASS_HWMON)) {
+> > > 		return 0;
+> > > 	}
 > > 
-> > ?? Can you explain this?  What makes that file special?
+> > no need for extra { }'s in such a case
 > 
-> You are using a specific data structure that is only licensed to be used
-> in GPL code.  By using it in code that has a non-GPL license (like the
-> dual license you have) you are violating the license of that code, and
-> open yourself up to lawsuits by the holder of that code.
+> Of course there's no _need_.  But I find the result stylistically
+> easier to read.  Is there any real objection?
 
-I don't understand this. You seem to be assuming that everyone who
-compiles this will be compiling it with the GPL version of the RCU code.
-It seems to me that only the resulting object file must be licensed
-under the GPL because of the fact it uses other GPL-only code (the RCU
-code in the kernel)
+There isn't as far as I can tell. The CodingStyle document doesn't
+mention a preference for any form or the other, nor does Greg's talk
+about coding style. This means that you are free. If anyone wants it the
+other way and is brave enough, he/she can submit an incremental patch
+for Greg to consider and see how Greg receives it ;)
 
-As a standalone piece of code, wouldn't it be freely licensed however
-the author wishes?
-
-> There, can I be vague enough?  :)
-
-Maybe it's the fact that you're being vague that is leading to my
-confusion.
-
-> To be straightforward, either drop the RCU code completely, or change
-> the license of your code.  
-
-Or compile against non-GPL RCU code, right?
-
-> Hm, because of the fact that you are linking in GPL only code into this
-> code (because of the .h files you are using) how could you ever expect
-> to use a BSD-like license for this collected work?
+> > > static ssize_t show_in(struct device *dev, char *buf, int nr)
+> > > {
+> > > 	struct adm1026_data *data = adm1026_update_device(dev);
+> > > 	return sprintf(buf,"%d\n", INS_FROM_REG(nr, data->in[nr]));
+> > > }
+> > 
+> > any chance you could make this use snprintf instead ?
 > 
-> Aren't licenses fun...
+> I'll defer to Jean's response...
 
-I don't mean to be nitpicking here, but I'm trying to figure out why you
-interpreted the GPL like you did. I'd be venturing to guess that pretty
-much everyone will be compiling against the GPL-only RCU code.
+And I'll defer to Arjan's myself. As said in another post, no other i2c
+client driver does use snprintf. If there is no good reason for them to
+do (and actually I don't see any) let's stick to sprintf for everyone.
+If there is, then we shall fix all drivers, not only adm1026.
 
-Just because the possibility exists that code can be compiled against
-GPL-only code, doesn't necessarily mean that it too requires a GPL-only
-license.
-
-It seems like pretty much any code would fall into that category.
-
-JE
-
+Thanks,
+-- 
+Jean Delvare
+http://khali.linux-fr.org/

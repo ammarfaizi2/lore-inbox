@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261291AbSIWNWG>; Mon, 23 Sep 2002 09:22:06 -0400
+	id <S261393AbSIWNW6>; Mon, 23 Sep 2002 09:22:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261348AbSIWNWG>; Mon, 23 Sep 2002 09:22:06 -0400
-Received: from isis.telemach.net ([213.143.65.10]:2055 "HELO isis.telemach.net")
-	by vger.kernel.org with SMTP id <S261291AbSIWNWF>;
-	Mon, 23 Sep 2002 09:22:05 -0400
-Date: Mon, 23 Sep 2002 15:27:09 +0200
-From: Grega Fajdiga <Gregor.Fajdiga@telemach.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Compile error in 2.5.38-mm1
-Message-Id: <20020923152709.4e22ac1c.Gregor.Fajdiga@telemach.net>
-X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S261395AbSIWNW5>; Mon, 23 Sep 2002 09:22:57 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:2999 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S261393AbSIWNWa>;
+	Mon, 23 Sep 2002 09:22:30 -0400
+Date: Mon, 23 Sep 2002 15:35:25 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Erik Andersen <andersen@codepoet.org>, Con Kolivas <conman@kolivas.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] Corrected gcc3.2 v gcc2.95.3 contest results
+In-Reply-To: <Pine.LNX.3.95.1020923091213.2963C-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.44.0209231533570.22336-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Good, day,
+On Mon, 23 Sep 2002, Richard B. Johnson wrote:
 
-On Sun, 22 Sep 2002 11:33:05 +0200
-Grega Fajdiga <Gregor.Fajdiga@telemach.net> wrote:
-
-> Good day,
+> > It would sure be nice for this sortof test if there were
+> > some sort of a "flush-all-caches" syscall...
 > 
-> I get this compile error when trying to compile 2.5.38-mm1
- 
- 
-Sorry I must have done something wrong. I downloaded a fresh
-tree and all is well.
+> I think all you need to do is reload the code-segment register
+> and you end up flushing caches in ix86.
 
-Best Regards,
-Grega Fajdiga
+i'm pretty sure what was meant was the flushing of the pagecache mainly.
+The state of CPU caches does not really play in these several-minutes
+benchmarks, they are at most a few millisecs worth of CPU time to build.
+
+	Ingo
+

@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273237AbRIJG4i>; Mon, 10 Sep 2001 02:56:38 -0400
+	id <S273233AbRIJGzh>; Mon, 10 Sep 2001 02:55:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273236AbRIJG4W>; Mon, 10 Sep 2001 02:56:22 -0400
-Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:30215 "EHLO
-	anduin.hitnet.rwth-aachen.de") by vger.kernel.org with ESMTP
-	id <S273230AbRIJG4M>; Mon, 10 Sep 2001 02:56:12 -0400
-Date: Mon, 10 Sep 2001 08:56:23 +0200
-From: Jan Niehusmann <jan@gondor.com>
-To: "J. Dow" <jdow@earthlink.net>
-Cc: linux-kernel@vger.kernel.org, Carsten Leonhardt <leo@arioch.oche.de>
-Subject: Re: Athlon/K7-Opimisation problems
-Message-ID: <20010910085623.A9578@gondor.com>
-In-Reply-To: <87g09w70o4.fsf@cymoril.oche.de> <01090915115400.00173@c779218-a><063301c1397e$0efa6d00$1125a8c0@wednesday><01090915292502.00173@c779218-a> <87iter6i1k.fsf@cymoril.oche.de> <068b01c139c2$d6ae9990$1125a8c0@wednesday>
-Mime-Version: 1.0
+	id <S273237AbRIJGz1>; Mon, 10 Sep 2001 02:55:27 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:5636 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S273233AbRIJGzO>; Mon, 10 Sep 2001 02:55:14 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: "Michael Rothwell" <rothwell@holly-springs.nc.us>
+Date: Mon, 10 Sep 2001 16:55:22 +1000 (EST)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <068b01c139c2$d6ae9990$1125a8c0@wednesday>
-User-Agent: Mutt/1.3.20i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15260.25562.278698.458611@notabene.cse.unsw.edu.au>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: nfs is stupid ("getfh failed")
+In-Reply-To: message from Michael Rothwell on Friday September 7
+In-Reply-To: <002b01c136e1$3bb36a80$81d4870a@cartman>
+	<15256.46017.7716.689482@notabene.cse.unsw.edu.au>
+	<000c01c1379c$c427c0d0$81d4870a@cartman>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 09, 2001 at 11:35:52PM -0700, J. Dow wrote:
-> From: "Carsten Leonhardt" <leo@arioch.oche.de>
-> > Currently I added a burnK7 and a burnMMX to the load, I'll see if the
-> > machine is still alive in the morning...
+On Friday September 7, rothwell@holly-springs.nc.us wrote:
 > 
-> Far better is run burnK7 and burnMMX alternately in one second on one second
-> off cycles alternating the loads with each on second. This gives you the
+> Just wondering if there's been any talk, plans, etc. of an alternative for
+> NFS.
+> 
+> > What exactly do you mean by "better" anyway?
+> 
+> Better security, better performance.
+> 
+> Thanks,
+> 
+> -M
 
-The one Duron I have access to which doesn't like the athlon optimsed 
-kernels did crash some seconds after starting a little test program which
-does use the kernel copy code in user space.
-Note that neither burnK7 nor burnMMX use the kernel copy code, but 
-Robert Redelmeier (author of these two programs) has a burnMMX3 program
-which uses kernel-equivalent code.
+NFSv2 and 3 do allow better security, but it isn't often implemented.
+I am working on putting some infrastructure in place so that
+crypto-authentication can be added to nfsd in a nice modular way.
+Ofcourse the client will need to speak the same authentication
+protocol too.
 
-Jan
+Then there is NFSv4 which might improve performance in some
+circumstances, though it could do more....
 
+SUNs "cachefs" concept can be used to improve read performance by
+caching a lot more of server-data on the client.  That could be
+implemented for Linux, but I don't know of anyone with serious plans.
 
+NeilBrown

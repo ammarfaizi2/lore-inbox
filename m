@@ -1,59 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292130AbSCWBYV>; Fri, 22 Mar 2002 20:24:21 -0500
+	id <S290818AbSCWBYV>; Fri, 22 Mar 2002 20:24:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290983AbSCWBWt>; Fri, 22 Mar 2002 20:22:49 -0500
+	id <S292178AbSCWBXP>; Fri, 22 Mar 2002 20:23:15 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:41967 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S310441AbSCWBPR>;
-	Fri, 22 Mar 2002 20:15:17 -0500
-Message-ID: <3C9BB6E9.16D1C533@zip.com.au>
-Date: Fri, 22 Mar 2002 14:57:45 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
-X-Accept-Language: en
+	by vger.kernel.org with ESMTP id <S293680AbSCWBPP>;
+	Fri, 22 Mar 2002 20:15:15 -0500
+Message-Id: <200203222229.g2MMT4t30679@zeus.kernel.org>
+X-pair-Authenticated: 68.5.32.62
+Content-Type: text/plain; charset=US-ASCII
+From: Shane Nay <shane@minirl.com>
+To: linux-kernel@vger.kernel.org
+Subject: Tyan S2466 MPX integrated ethernet interrupt happy
+Date: Fri, 22 Mar 2002 14:29:12 -0800
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-To: Tony.P.Lee@nokia.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: mprotect() api overhead.
-In-Reply-To: <4D7B558499107545BB45044C63822DDE3A2043@mvebe001.NOE.Nokia.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tony.P.Lee@nokia.com wrote:
-> 
-> ...
-> What I like to do is to use the mprotect() api to turn on/off the
-> memory read/write access to the globally share memory.  This
-> way, the only possible memory corruption to the share table
-> is from the APIs in the libForwardTableManager.so.  It makes
-> debugging this kind of problem easier.  If the application
-> corrupts the memory, it will cause a seg-fault which also
-> makes debugging simple.
-> 
-> Questions for the linux kernel guru are:
-> 
->         Is this reasonable to do in Linux?
-> 
->         Any idea the overhead for such scheme in term of numbers of
->         micro-seconds added to each API call.  I like to see the
->         overhead in sub-microseconds range since the application
->         might call the api in libForwardTableManager.so  at the rate
->         of 100k api call per seconds.
-> 
->         I used the TSC counter to profile the mprotect() overhead
->         in QNX (micro-kernel RTOS).  It has overhead is 130
->         milliseconds for 6 MB of share memory which is extremely high.
->         I think the reason is all of QNX APIs turns to IPC messages
->         to process manager task.  It cause context switch to
->         other tasks.
+I have an S2466 with an integrated 3COM 3C905C ethernet controller.  
+What I've noticed when streaming tons of data accross my internal LAN 
+is that the ethernet driver appears to be sucking up tons of cycles.
 
-Seems that mprotect() against a 6 megabyte region takes five microseconds
-in Linux.  Which is too expensive for you.
+A quick investigation of /proc/interrupts shows-
+  0:     195949     192414    IO-APIC-edge  timer
+  1:       5126       5129    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  5:          0          0   IO-APIC-level  usb-ohci
+  8:          1          0    IO-APIC-edge  rtc
+  9:    4248819    4245969   IO-APIC-level  eth0
+ 10:     144865     145243   IO-APIC-level  usb-ohci, nvidia, EMU10K1
+ 12:      48546      48865    IO-APIC-edge  PS/2 Mouse
+ 14:     122395     121652    IO-APIC-edge  ide0
+ 15:      26286      26498    IO-APIC-edge  ide1
+NMI:          0          0 
+LOC:     388204     388212 
+ERR:          0
+MIS:          4
 
-It would be better if you could map the same memory region
-two times.  One with PROT_READ and the other with PROT_READ|PROT_WRITE.
-Then just use the appropriate pointer at the appropriate time.
 
--
+So, approximately 8.5 million ethernet interrupts.  The system is 
+noticably slower when streaming ethernet data, and it's sucking up a 
+lot more processing time than on my other much slower other box.  
+This box is running a stock 2.4.18 kernel from kernel.org (i.e. no 
+custom hacks).  It's running 2 1800+ XPs.
+
+I'm wondering if anyone has seen this and has a quick solution.  If 
+not I'll take a look through the 3com code when I get back from 
+vacation next Sunday.  (Leaving in a few hours)
+
+Thanks,
+Shane Nay.

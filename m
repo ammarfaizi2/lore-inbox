@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315480AbSFCUOW>; Mon, 3 Jun 2002 16:14:22 -0400
+	id <S315485AbSFCUQM>; Mon, 3 Jun 2002 16:16:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315483AbSFCUOV>; Mon, 3 Jun 2002 16:14:21 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48655 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315480AbSFCUOM>;
-	Mon, 3 Jun 2002 16:14:12 -0400
-Message-ID: <3CFBCDBD.DF675D57@zip.com.au>
-Date: Mon, 03 Jun 2002 13:12:45 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.1-pre7 i686)
-X-Accept-Language: en
+	id <S315487AbSFCUQL>; Mon, 3 Jun 2002 16:16:11 -0400
+Received: from h209-71-227-55.gtconnect.net ([209.71.227.55]:3084 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S315485AbSFCUO2>;
+	Mon, 3 Jun 2002 16:14:28 -0400
+Date: Mon, 3 Jun 2002 16:08:59 -0400 (EDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+cc: Larry McVoy <lm@bitmover.com>, Matti Aarnio <matti.aarnio@zmailer.org>,
+        "Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: please kindly get back to me
+In-Reply-To: <Pine.LNX.4.33.0206031302050.1038-100000@shell1.aracnet.com>
+Message-ID: <Pine.LNX.4.44.0206031607040.1713-100000@innerfire.net>
 MIME-Version: 1.0
-To: john slee <indigoid@higherplane.net>
-CC: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
-        Helge Hafting <helgehaf@aitel.hist.no>,
-        "Ronny T. Lampert (EED)" <Ronny.Lampert@eed.ericsson.se>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 3c59x driver: card not responding after a while
-In-Reply-To: <3CFB21C5.27BBFB66@aitel.hist.no> <Pine.LNX.4.44.0206031050170.10836-100000@netfinity.realnet.co.sz> <20020603125752.GE12322@higherplane.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john slee wrote:
-> 
-> On Mon, Jun 03, 2002 at 10:51:34AM +0200, Zwane Mwaikambo wrote:
-> > On Mon, 3 Jun 2002, Helge Hafting wrote:
-> >
-> > > I see this too.  I always thought it was the less-than-perfect ABIT BP6
-> > > loosing an irq or something.  (odd that it _always_ is the NIC that goes
-> > > though...)  I also have a k6 with the same NIC, and another
-> > > UP machine at work.  They never fail this way.
-> > > Could it be a SMP problem?
-> >
-> > I wouldn't think so, i use it on SMP extensively without a hitch.
-> 
-> "me too" - have been using 3c905B cards in various SMP (and UP) boxes
-> for a couple of years now and they've never failed me, even on bp6.  in
-> fact i seem to have missed out on the plague of bp6 problems, even when
-> running dual 300a overclocked to 450.  strange.
-> 
+On Mon, 3 Jun 2002, M. Edward (Ed) Borasky wrote:
+[snip]
+> Now that there are Linux viruses, maybe we also need an open source
+> virus scanner.
+>
 
-That driver is solid for SMP.  It's possible that the BP6
-is losing its IRQ routing assignments, or the APIC is
-getting stuck.  We had extensive problems with that last
-year.  A workaround was implemented and as far as I can tell,
-the problem went away.
+http://www.openantivirus.org
 
-It seems to affect network cards most because they typically
-generate the most interrupts.
 
-Try booting the machine with the `noapic' option.
+--
+Gerhard Mack
 
--
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
+

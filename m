@@ -1,37 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318212AbSHDTLO>; Sun, 4 Aug 2002 15:11:14 -0400
+	id <S318220AbSHDTOF>; Sun, 4 Aug 2002 15:14:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318214AbSHDTLO>; Sun, 4 Aug 2002 15:11:14 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:41223 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318212AbSHDTLM>; Sun, 4 Aug 2002 15:11:12 -0400
+	id <S318223AbSHDTOE>; Sun, 4 Aug 2002 15:14:04 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:55046 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S318220AbSHDTOB>; Sun, 4 Aug 2002 15:14:01 -0400
+Message-ID: <3D4D7DAF.8080309@namesys.com>
+Date: Sun, 04 Aug 2002 23:17:03 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
-CC: <linux-kernel@vger.kernel.org>
-From: Russell King <rmk@arm.linux.org.uk>
-Subject: [PATCH] 3: 2.5.30-smph
-Message-Id: <E17bQpw-0001qM-00@flint.arm.linux.org.uk>
-Date: Sun, 04 Aug 2002 20:14:44 +0100
+CC: Rik van Riel <riel@conectiva.com.br>, Andreas Gruenbacher <agruen@suse.de>,
+       Alan Cox <alan@redhat.com>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Joshua MacDonald <jmacd@namesys.com>
+Subject: Re: [PATCH] Caches that shrink automatically
+References: <Pine.LNX.4.44.0208041202390.10314-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch has been verified to apply cleanly to 2.5.30
+Linus Torvalds wrote:
 
-This patch fixes a build warning in smp.h.  register_cpu_notifier uses
-struct notifier_block in its argument list.  Unfortunately, there are
-places where smp.h is included before the definition of this structure.
+>On Sun, 4 Aug 2002, Rik van Riel wrote:
+>  
+>
+>>>In particular, it is useless for the sub-caches to try to maintain their
+>>>own LRU lists and their own accessed bits. But that doesn't mean that
+>>>they can _act_ as if they updated their own accessed bits, while really
+>>>just telling the page-based thing that that page is active.
+>>>      
+>>>
+>>I'm not sure I agree with this.  For eg. the dcache you will want
+>>to reclaim the less used entries on a page even if there are a few
+>>very intensely used entries on that page.
+>>    
+>>
+>
+>True in theory, but I doubt you will see it very much in practice. 
+>
+>Most of the time when you want to free dentries, it is because you have a 
+>_ton_ of them. 
+>
+>The fact that some will look cold even if they aren't should not matter 
+>that much statistically.
+>
+>Yah, it's a guess. We can test it.
+>
+>		Linus
+>
+>
+>
+>  
+>
+Josh tested it.  He posted on it.  I'll have him find his original post 
+and repost tomorrow, but summarized in brief, the current dcache 
+shrinking/management approach was quite inefficient.  Each active dcache 
+entry kept a whole lot of dead ones around.
 
- include/linux/smp.h |    2 ++
- 1 files changed, 2 insertions
+-- 
+Hans
 
---- orig/include/linux/smp.h	Fri Aug  2 21:13:42 2002
-+++ linux/include/linux/smp.h	Sun Aug  4 13:08:12 2002
-@@ -100,6 +100,8 @@
- #define per_cpu(var, cpu)			var
- #define this_cpu(var)				var
- 
-+struct notifier_block;
-+
- /* Need to know about CPUs going up/down? */
- static inline int register_cpu_notifier(struct notifier_block *nb)
- {
+
+

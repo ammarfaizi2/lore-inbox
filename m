@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261996AbUCIP1c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 10:27:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbUCIP1c
+	id S262005AbUCIPfL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 10:35:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbUCIPfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 10:27:32 -0500
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:4615 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S261996AbUCIP1a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 10:27:30 -0500
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 4/4] vm-mapped-x-active-lists
-Date: Tue, 9 Mar 2004 16:26:39 +0100
-User-Agent: KMail/1.6.1
-Cc: Nick Piggin <piggin@cyberone.com.au>,
-       Linux Memory Management <linux-mm@kvack.org>
-References: <404D56D8.2000008@cyberone.com.au> <404D5784.9080004@cyberone.com.au>
-In-Reply-To: <404D5784.9080004@cyberone.com.au>
-X-Operating-System: Linux 2.4.20-wolk4.10s i686 GNU/Linux
-MIME-Version: 1.0
+	Tue, 9 Mar 2004 10:35:11 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:14524 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262005AbUCIPfG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 10:35:06 -0500
+Date: Tue, 9 Mar 2004 16:36:20 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
+Message-ID: <20040309153620.GA9012@elte.hu>
+References: <20040308202433.GA12612@dualathlon.random> <1078781318.4678.9.camel@laptop.fenrus.com> <20040308230845.GD12612@dualathlon.random> <20040309074747.GA8021@elte.hu> <20040309152121.GD8193@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200403091626.39479@WOLK>
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_vIeTAlxMIuV3BfO"
+In-Reply-To: <20040309152121.GD8193@dualathlon.random>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner-4.26.8-itk2 SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-00=_vIeTAlxMIuV3BfO
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+* Andrea Arcangeli <andrea@suse.de> wrote:
 
-On Tuesday 09 March 2004 06:35, Nick Piggin wrote:
+> http://www.oracle.com/apps_benchmark/html/index.html?0325B_Report1.html
 
-Hi Nick,
+OASB is special and pushes the DB less than e.g. TPC-C does. How big was
+the SGA? I bet the setup didnt have use_indirect_data_buffers=true. 
+(OASB is not a full-disclosure benchmark so i have no way to check
+this.) All you have proven is that workloads with a limited number of
+per-inode vmas can perform well. Which completely ignores my point.
 
-seems the following patch is required ontop of your patches?
-
-ciao, Marc
-
---Boundary-00=_vIeTAlxMIuV3BfO
-Content-Type: text/x-diff;
-  charset="iso-8859-15";
-  name="002_03-vm-mapped-x-active-lists-1-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="002_03-vm-mapped-x-active-lists-1-fix.patch"
-
---- old/arch/i386/mm/hugetlbpage.c	2004-03-09 14:57:42.000000000 +0100
-+++ new/arch/i386/mm/hugetlbpage.c	2004-03-09 15:36:15.000000000 +0100
-@@ -411,8 +411,8 @@ static void update_and_free_page(struct 
- 	htlbzone_pages--;
- 	for (j = 0; j < (HPAGE_SIZE / PAGE_SIZE); j++) {
- 		map->flags &= ~(1 << PG_locked | 1 << PG_error | 1 << PG_referenced |
--				1 << PG_dirty | 1 << PG_active | 1 << PG_reserved |
--				1 << PG_private | 1<< PG_writeback);
-+				1 << PG_dirty | 1 << PG_active_mapped | 1 << PG_active_unapped |
-+				1 << PG_reserved | 1 << PG_private | 1<< PG_writeback);
- 		set_page_count(map, 0);
- 		map++;
- 	}
-
---Boundary-00=_vIeTAlxMIuV3BfO--
+	Ingo

@@ -1,33 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268857AbRHBJSG>; Thu, 2 Aug 2001 05:18:06 -0400
+	id <S268859AbRHBJ1q>; Thu, 2 Aug 2001 05:27:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268860AbRHBJR4>; Thu, 2 Aug 2001 05:17:56 -0400
-Received: from 202-54-39-145.tatainfotech.co.in ([202.54.39.145]:38152 "EHLO
-	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
-	id <S268857AbRHBJRn>; Thu, 2 Aug 2001 05:17:43 -0400
-Date: Thu, 2 Aug 2001 15:07:26 +0530 (IST)
-From: "SATHISH.J" <sathish.j@tatainfotech.com>
-To: linux-kernel@vger.kernel.org
-Subject: Reg char device driver on linux
-In-Reply-To: <Pine.LNX.4.10.10107031311370.6784-100000@blrmail>
-Message-ID: <Pine.LNX.4.10.10108021502090.21026-100000@blrmail>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268861AbRHBJ1g>; Thu, 2 Aug 2001 05:27:36 -0400
+Received: from rj.sgi.com ([204.94.215.100]:19594 "EHLO rj.corp.sgi.com")
+	by vger.kernel.org with ESMTP id <S268859AbRHBJ11>;
+	Thu, 2 Aug 2001 05:27:27 -0400
+Date: Thu, 2 Aug 2001 02:25:48 -0700 (PDT)
+From: jeremy@classic.engr.sgi.com (Jeremy Higdon)
+Message-Id: <10108020225.ZM236505@classic.engr.sgi.com>
+In-Reply-To: Andrea Arcangeli <andrea@suse.de>
+        "Re: changes to kiobuf support in 2.4.(?)4" (Aug  2, 11:11am)
+In-Reply-To: <10108012254.ZM192062@classic.engr.sgi.com> 
+	<20010802084259.H29065@athlon.random>  <andrea@suse.de> 
+	<10108020031.ZM229058@classic.engr.sgi.com> 
+	<20010802094517.I29065@athlon.random> 
+	<10108020110.ZM232959@classic.engr.sgi.com> 
+	<20010802102431.L29065@athlon.random> 
+	<10108020142.ZM233422@classic.engr.sgi.com> 
+	<20010802111150.N29065@athlon.random>
+X-Mailer: Z-Mail (3.2.3 08feb96 MediaMail)
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: changes to kiobuf support in 2.4.(?)4
+Cc: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Sorry for bothering you.
+On Aug 2, 11:11am, Andrea Arcangeli wrote:
+> 
+> > At 13000 IOPS, when allocating and freeing on every I/O request,
+> > the allocate/free overhead was approximately .6% on a 2 CPU system,
+> > where the total overhead was about 25%.  So I would theoretically
+> > gain 3% (maybe a little better since there is locking involved) if
+> > I could avoid the alloc/free.
+> 
+> Ok good.
+> 
+> Andrea
 
-I am trying to learn about linux character device drivers. I was going
-through videodev.c. Can someone tell me which all are the devices that
-come under video devices and also the ".c" files. Can someone tell me
-which driver is the simplest under /usr/src/linux/drivers/char so that I,
-as a beginner can understand the driver concept better.
 
-Thanks in advance,
-Warm regards,
-sathish.j
+So one more question for now:
 
+Where do I get the O_DIRECT patch?
 
+Oh, and is there a plan to get it into 2.4.X?
+
+(ok, so two questions)
+
+thanks
+
+jeremy

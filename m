@@ -1,58 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269137AbRGaBRQ>; Mon, 30 Jul 2001 21:17:16 -0400
+	id <S269134AbRGaBMY>; Mon, 30 Jul 2001 21:12:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269139AbRGaBRE>; Mon, 30 Jul 2001 21:17:04 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:22277 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S269137AbRGaBQu>; Mon, 30 Jul 2001 21:16:50 -0400
-Date: Mon, 30 Jul 2001 22:16:54 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: ext3-2.4-0.9.4
-In-Reply-To: <20010731025700.G28253@emma1.emma.line.org>
-Message-ID: <Pine.LNX.4.33L.0107302214210.5582-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269135AbRGaBMO>; Mon, 30 Jul 2001 21:12:14 -0400
+Received: from [209.226.93.226] ([209.226.93.226]:39164 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S269134AbRGaBME>; Mon, 30 Jul 2001 21:12:04 -0400
+Date: Mon, 30 Jul 2001 21:12:05 -0400
+Message-Id: <200107310112.f6V1C5e13968@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Donald Thompson <dlt@dataventures.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Stallion EasyIO and devfs
+In-Reply-To: <Pine.LNX.4.31.0107161135530.13603-100000@dv1.dataventures.com>
+In-Reply-To: <Pine.LNX.4.31.0107161135530.13603-100000@dv1.dataventures.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, 31 Jul 2001, Matthias Andree wrote:
-> On Thu, 26 Jul 2001, Linus Torvalds wrote:
->
-> > Congratulations. You have been brainwashed by Dan Bernstein.
+Donald Thompson writes:
+> I've got a stallion EasyIO PCI 4 port card running on kernel 2.4.4.
+> Loading the stallion.o module does not seem to create the proper device files
+> for me using devfs.
+> 
+> Upon loading the module I get the following devices created:
+> 
+> /dev/ttyE
+> /dev/cue
+> /dev/staliomem/0
+> /dev/staliomem/1
+> /dev/staliomem/2
+> /dev/staliomem/3
+> 
+> I don't get /dev/ttyE0 through /dev/ttyE3 or /dev/ttyE/0 through
+> /dev/ttyE/3, which is what I believe should be happening.
 
-[snip fsync() on directory ... on second thought this isn't enough]
+Please apply the following patch to drivers/char/stallion.c and let me
+know if that helps.
 
-> Chase up to the root manually, because Linux' ext2 violates SUS
-> v2 fsync() (which requires meta data synched BTW), as has been
-> pointed out (and fixed in ReiserFS and ext3)?
+				Regards,
 
-Agreed.  fsync() on the file needs to write the meta
-data, this includes the directory and (if needed)
-the parent directories all the way up to the root.
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca
 
-> So, please tell my why Single Unix Specification v2 specifies EIO for
-> rename. Asynchronous I/O cannot possibly trigger immediate EIO.
-
-Crap. An asynchronous rename() can hit the situation
-where it cannot read the disk when searching for the
-directory it wants to move the file to.
-
-rename(/from/a/b/file, /to/d/f/file) can fail when
-the system gets an IO access on reading "d".
-
-regards,
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+--- stallion.c~	Fri Mar  2 14:12:07 2001
++++ stallion.c	Mon Jul 30 21:08:34 2001
+@@ -139,8 +139,13 @@
+ static char	*stl_drvtitle = "Stallion Multiport Serial Driver";
+ static char	*stl_drvname = "stallion";
+ static char	*stl_drvversion = "5.6.0";
++#ifdef CONFIG_DEVFS_FS
++static char	*stl_serialname = "ttyE/%d";
++static char	*stl_calloutname = "cue/%d";
++#else
+ static char	*stl_serialname = "ttyE";
+ static char	*stl_calloutname = "cue";
++#endif
+ 
+ static struct tty_driver	stl_serial;
+ static struct tty_driver	stl_callout;

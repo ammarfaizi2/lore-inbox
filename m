@@ -1,74 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261522AbSKGTZZ>; Thu, 7 Nov 2002 14:25:25 -0500
+	id <S261527AbSKGT1m>; Thu, 7 Nov 2002 14:27:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261523AbSKGTZZ>; Thu, 7 Nov 2002 14:25:25 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:36073 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261522AbSKGTZY>;
-	Thu, 7 Nov 2002 14:25:24 -0500
-Subject: Re: kexec (was: [lkcd-devel] Re: What's left over.)
-From: Andy Pfiffer <andyp@osdl.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Werner Almesberger <wa@almesberger.net>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-In-Reply-To: <m14ratepbf.fsf@frodo.biederman.org>
-References: <Pine.LNX.4.44.0211052203150.1416-100000@home.transmeta.com> 
-	<m14ratepbf.fsf@frodo.biederman.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 07 Nov 2002 11:32:36 -0800
-Message-Id: <1036697556.10457.254.camel@andyp>
+	id <S261528AbSKGT1m>; Thu, 7 Nov 2002 14:27:42 -0500
+Received: from dialin-145-254-144-243.arcor-ip.net ([145.254.144.243]:15232
+	"HELO schottelius.net") by vger.kernel.org with SMTP
+	id <S261527AbSKGT1i>; Thu, 7 Nov 2002 14:27:38 -0500
+Date: Thu, 7 Nov 2002 10:04:26 +0100
+From: Nico Schottelius <schottelius@wdt.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: PCMCIA <dhinds@zen.stanford.edu>
+Subject: [BUGS 2.5.45]
+Message-ID: <20021107090425.GA461@schottelius.org>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="8t9RHnE3ZwKMSgU+"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux flapp 2.4.19
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-11-07 at 00:50, Eric W. Biederman wrote:
 
-> In staging the image we allocate a whole pile of pages, and keep them
-> locked in place.  Waiting for years potentially until the machine
-> reboots or panics.   This memory is not accounted for anywhere so no
-> one can see that we have it allocated, which makes debugging hard.
-> Additionally in locking up megabytes for a long period of time we
-> create unsolvable fragmentation issues for the mm layer to deal with.
+--8t9RHnE3ZwKMSgU+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Just an idea:
+Hello again!
 
-Could a new, unrunnable process be created to "hold" the image?
+1)
+As you'll all have noticed, the makefile for the build wants QT installed f=
+or
+a simple build process.
 
-<hand-wave>
-Use a hypothetical sys_kexec() to:
-1. create an empty process.
-2. copy the kernel image and parameters into the processes' address
-space.
-3. put the process to sleep.
-</hand-wave>
+2)
+PCMCIA module ds.o cannot be loaded -> somehow the kernel denies that.
 
-If it's floating out there for weeks or years, the data could get paged
-out and not wired down.  It would show up in ps, so you'd have at least
-some visibility into the allocation.
+3)
+atimach64 console driver makes blank screen on
+01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage P/M Mobilit=
+y AGP 2x (rev 64)
 
-Change your mind?  Kill the process.
+I know, the video driver didn't work in any kernel version, but I am intere=
+sted
+in fixing that. I don't know where the problem is located, but I would beta
+test drivers, if available. I would also help to trace down the problem,
+with little help from the developers.
 
-It might be complicated (or unworkable) to handle the panic case
-properly, but for the case where a fast reboot is requested by calling
-sys_reboot(), one should be able to fault-in and read back the image
-from the "kexec holder" process' address space, copying it to the final
-destination as you go.
+Is there any development with this driver ? Or is it simply dead? I can't=
+=20
+find any contact in any of the kernel source files...
 
-You might even be able to go the next step, and if the process were
-crafted carefully, waking it and running it would trigger the "copyin,
-quiesce, and go" behavior.
+Please tell me what todo with pcmcia/ati, I want to have those things
+usable, not only for me.
 
-Just a thought.
-
-Andy
+Nico
 
 
+--=20
+Changing mail address: please forget all known @pcsystems.de addresses.
+
+Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
+ils
+to mailing list!). If you don't know what pgp is visit www.gnupg.org.
+(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
+
+--8t9RHnE3ZwKMSgU+
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9yiyZtnlUggLJsX0RAkjPAJ97Hy01NoboLuCwIGs0ftTH8YXeQQCgk0Sa
+uxtnW03USj/jR6WU/lu9SgY=
+=mCaI
+-----END PGP SIGNATURE-----
+
+--8t9RHnE3ZwKMSgU+--

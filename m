@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286688AbRLVFRk>; Sat, 22 Dec 2001 00:17:40 -0500
+	id <S286687AbRLVFRk>; Sat, 22 Dec 2001 00:17:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286687AbRLVFRb>; Sat, 22 Dec 2001 00:17:31 -0500
-Received: from svr3.applink.net ([206.50.88.3]:13843 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S286689AbRLVFRU>;
-	Sat, 22 Dec 2001 00:17:20 -0500
-Message-Id: <200112220517.fBM5HASr022859@svr3.applink.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Metrics: OK, Jefferson was not first but a leader during his era
-Date: Fri, 21 Dec 2001 23:13:28 -0600
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
+	id <S286685AbRLVFRa>; Sat, 22 Dec 2001 00:17:30 -0500
+Received: from ns2.cih.com ([204.69.206.3]:28307 "HELO cih.com")
+	by vger.kernel.org with SMTP id <S286687AbRLVFRT>;
+	Sat, 22 Dec 2001 00:17:19 -0500
+Date: Fri, 21 Dec 2001 21:19:30 -0800 (PST)
+From: "Craig I. Hagan" <hagan@cih.com>
+To: David Relson <relson@osagesoftware.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: re: Linux 2.4.17
+In-Reply-To: <4.3.2.7.2.20011221193149.00ca6f00@mail.osagesoftware.com>
+Message-ID: <Pine.LNX.4.33.0112212118190.16124-100000@svr.cih.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 
+> I agree with releasing an extra -rc and waiting the extra day for -final.
+> 
+> My thought is that the _only_ difference between the last -rc and -final is 
+> correctly setting "EXTRAVERSION=" in Makefile.
 
-A chronology of the SI metric system
-Important dates in the history of the modern metric system:
-1585
-In his book "The Tenth" Simon Stevin suggests that a decimal system should be 
-used for weights and measures, coinage, and divisions of the degree of arc.
-1670
-Authorities give credit for originating the metric system to Gabriel Mouton, 
-a French vicar, on about this date.
-1790
-Thomas Jefferson proposed a decimal-based measurement system for the United 
-States.
-France's Louis XVI authorized scientific investigations aimed at a reform of 
-French weights and measures.  These investigations led to the development of 
-the first "metric" system.
-1792
-The U.S. Mint was formed to produce the world's first decimal currency (the 
-U.S. dollar consisting of 100 cents).
-1795
-France officially adopted the metric system.
-1812
-Napoleon temporarily suspended the compulsory provisions of the 1795 metric 
-system adoption.
-1840
-The metric system reinstated as the compulsory system in France.
+I've lots of thoughts as well as things i would have liked to have seen in
+2.4.17. However, This is Marcelo's show. It is his call to make, and I support
+what he did. It has got to be a tough job to know that *you* are the one who
+says "This is good (enough)."
 
--- 
-timothy.covell@ashavan.org.
+-- craig
+
+
+
+-------------------------------------------------------------------------------
+Craig I. Hagan     "It's a small world, but I wouldn't want to back it up"
+hagan(at)cih.com        "True hackers don't die, their ttl expires"
+  	"It takes a village to raise an idiot, but an idiot can raze a village"
+
+	Stop the spread of spam, use a sendmail condom!
+	     http://www.cih.com/~hagan/smtpd-hacks
+
+                       In Bandwidth we trust
+

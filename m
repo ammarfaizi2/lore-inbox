@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264638AbSKVU5Z>; Fri, 22 Nov 2002 15:57:25 -0500
+	id <S264724AbSKVVI6>; Fri, 22 Nov 2002 16:08:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264622AbSKVU5Z>; Fri, 22 Nov 2002 15:57:25 -0500
-Received: from web21204.mail.yahoo.com ([216.136.131.77]:49465 "HELO
-	web21204.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S264638AbSKVU5Y>; Fri, 22 Nov 2002 15:57:24 -0500
-Message-ID: <20021122210433.2292.qmail@web21204.mail.yahoo.com>
-Date: Fri, 22 Nov 2002 13:04:33 -0800 (PST)
-From: Melkor Ainur <melkorainur@yahoo.com>
-Subject: Replacng arp_generic_ops
+	id <S264745AbSKVVI6>; Fri, 22 Nov 2002 16:08:58 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:58787 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264724AbSKVVI5>;
+	Fri, 22 Nov 2002 16:08:57 -0500
+Date: Fri, 22 Nov 2002 13:12:59 -0800 (PST)
+Message-Id: <20021122.131259.66318468.davem@redhat.com>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+CC: akpm@digeo.com
+Subject: Re: [BK-2.5] [PATCH] bootmem crash fix
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200211222005.gAMK5t319194@hera.kernel.org>
+References: <200211222005.gAMK5t319194@hera.kernel.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-If I wanted to get notification of every IPv4 arp
-request made in a system, I believe I'd need to
-replace the solicit entry in arp_generic_ops with a
-call to my own function rather than arp_solicit. The
-problem I face is that I coudn't find a
-straightforward way to get access to get at neigh->ops
-when loaded as a module. Perhaps doing a neigh_create
-and then replacing neigh->ops is the easiest way? Any
-suggestions/advice would be much appreciated. 
-Melkor
+   From: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+   Date: Fri, 22 Nov 2002 19:31:53 +0000
 
+   	From Roman Zippel.  Don't assume that physical memory starts at
+   	physical address zero.
+   
+ Which would be a nice improvement, however:
 
+   -	free_area_init_node(0, &contig_page_data, NULL, zones_size, 0, NULL);
+   +	free_area_init_node(0, &contig_page_data, NULL, zones_size,
+   +			__pa(PAGE_OFFSET) >> PAGE_SHIFT, NULL);
 
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Mail Plus – Powerful. Affordable. Sign up now.
-http://mailplus.yahoo.com
+__pa(PAGE_OFFSET) is not necessarily the first physical address in
+the system either.
+
+I've never seen this even implied to be the case :-)
+In any event, it isn't well defined and we should make it
+so.

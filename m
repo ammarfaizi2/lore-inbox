@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267492AbRGMPZH>; Fri, 13 Jul 2001 11:25:07 -0400
+	id <S267493AbRGMPgv>; Fri, 13 Jul 2001 11:36:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267493AbRGMPY5>; Fri, 13 Jul 2001 11:24:57 -0400
-Received: from pop.gmx.net ([194.221.183.20]:7221 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S267492AbRGMPYk>;
-	Fri, 13 Jul 2001 11:24:40 -0400
-Message-ID: <3B4F1314.B8B528AE@gmx.at>
-Date: Fri, 13 Jul 2001 17:26:12 +0200
-From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
+	id <S267494AbRGMPgl>; Fri, 13 Jul 2001 11:36:41 -0400
+Received: from c009-h018.c009.snv.cp.net ([209.228.34.131]:33447 "HELO
+	c009.snv.cp.net") by vger.kernel.org with SMTP id <S267493AbRGMPga>;
+	Fri, 13 Jul 2001 11:36:30 -0400
+X-Sent: 13 Jul 2001 15:36:26 GMT
+Date: Fri, 13 Jul 2001 08:36:01 -0700 (PDT)
+From: "Jeffrey W. Baker" <jwbaker@acm.org>
+X-X-Sender: <jwb@desktop>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: Lance Larsh <llarsh@oracle.com>,
+        Brian Strand <bstrand@switchmanagement.com>,
+        Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2x Oracle slowdown from 2.2.16 to 2.4.4
+In-Reply-To: <3B4E7666.EFD7CC89@uow.edu.au>
+Message-ID: <Pine.LNX.4.33.0107130834080.313-100000@desktop>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: joystick & fortemedia 801 soundcard
-Content-Type: multipart/mixed;
- boundary="------------0E51BB41D5B715471A72E6ED"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------0E51BB41D5B715471A72E6ED
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Fri, 13 Jul 2001, Andrew Morton wrote:
 
-Hi!
+> Andrew Morton wrote:
+> >
+> > Lance Larsh wrote:
+> > >
+> > > And while we're talking about comparing configurations, I'll mention that
+> > > I'm currently trying to compare raw and ext2 (no lvm in either case).
+> >
+> > It would be interesting to see some numbers for ext3 with full
+> > data journalling.
+> >
+> > Some preliminary testing by Neil Brown shows that ext3 is 1.5x faster
+> > than ext2 when used with knfsd, mounted synchronously.  (This uses
+> > O_SYNC internally).
+>
+> I just did some testing with local filesystems - running `dbench 4'
+> on ext2-on-iDE and ext3-on-IDE, where dbench was altered to open
+> files O_SYNC.  Journal size was 400 megs, mount options `data=journal'
+>
+> ext2: Throughput 2.71849 MB/sec (NB=3.39812 MB/sec  27.1849 MBit/sec)
+> ext3: Throughput 12.3623 MB/sec (NB=15.4529 MB/sec  123.623 MBit/sec)
+>
+> ext3 patches are at http://www.uow.edu.au/~andrewm/linux/ext3/
+>
+> The difference will be less dramatic with large, individual writes.
 
-For those who want to use a joystick on the gameport of a soundcard with
-fm801 chipset! Here is a one liner to make it work (just adds the PCI id
-of the gameport):
---------------0E51BB41D5B715471A72E6ED
-Content-Type: text/plain; charset=us-ascii;
- name="fm801-joy.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fm801-joy.diff"
+This is a totally transient effect, right?  The journal acts as a faster
+buffer, but if programs are writing a lot of data to the disk for a very
+long time, the throughput will eventually be throttled by writing the
+journal back into the filesystem.
 
-diff -Nur linux-2.4.4+hptraid0.1a/drivers/char/joystick/ns558.c linux/drivers/char/joystick/ns558.c
---- linux-2.4.4+hptraid0.1a/drivers/char/joystick/ns558.c	Fri Jul 13 17:10:49 2001
-+++ linux/drivers/char/joystick/ns558.c	Wed Jul 11 23:15:39 2001
-@@ -158,6 +158,7 @@
- 	{ 0x1102, 0x7002, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* SB Live! gameport */
- 	{ 0x125d, 0x1969, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 4 }, /* ESS Solo 1 */
- 	{ 0x5333, 0xca00, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 4 }, /* S3 SonicVibes */
-+	{ 0x1319, 0x0802, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* FM 801 */
- 	{ 0, }
- };
- MODULE_DEVICE_TABLE(pci, ns558_pci_tbl);
+For programs that write in bursts, it looks like a huge win!
 
---------------0E51BB41D5B715471A72E6ED--
+-jwb
 

@@ -1,86 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277317AbRJ3SP4>; Tue, 30 Oct 2001 13:15:56 -0500
+	id <S277366AbRJ3SRh>; Tue, 30 Oct 2001 13:17:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277330AbRJ3SPq>; Tue, 30 Oct 2001 13:15:46 -0500
-Received: from darkwing.uoregon.edu ([128.223.142.13]:31458 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S277253AbRJ3SP2>; Tue, 30 Oct 2001 13:15:28 -0500
-Date: Tue, 30 Oct 2001 10:15:38 -0800 (PST)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: "P.Agenbag" <internet@psimation.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.13 kernel and ext3???
-In-Reply-To: <3BDEE870.1060104@psimation.com>
-Message-ID: <Pine.LNX.4.33.0110301004300.2448-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277363AbRJ3SRX>; Tue, 30 Oct 2001 13:17:23 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:31776 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S277330AbRJ3SQK>; Tue, 30 Oct 2001 13:16:10 -0500
+Date: Tue, 30 Oct 2001 19:16:12 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Hugh Dickins <hugh@veritas.com>,
+        Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: need help interpreting 'free' output.
+Message-ID: <20011030191612.S1340@athlon.random>
+In-Reply-To: <20011030183912.P1340@athlon.random> <Pine.LNX.4.33.0110300943070.8603-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.4.33.0110300943070.8603-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Oct 30, 2001 at 09:53:28AM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 30, 2001 at 09:53:28AM -0800, Linus Torvalds wrote:
+> 
+> On Tue, 30 Oct 2001, Andrea Arcangeli wrote:
+> >
+> > On Tue, Oct 30, 2001 at 09:28:29AM -0800, Linus Torvalds wrote:
+> > > Does anybody see why we have to remove it from the swap cache at all?
+> >
+> > the only reason is to avoid wasting the swap space, so at least Rik's
+> > vm_swap_full logic should be added to it.
+> 
+> I agree, but that's true both for reads and writes, and then we want to
 
-On Tue, 30 Oct 2001, P.Agenbag wrote:
+yes.
 
-> Hi
-> I just installed RedHat 7.2 with the 2.4.7 kernel. Low and behold, when
-> I tried to install the latest kernels, I see that there are many options
-> in the RedHat 2.4.7 kernel that are not even in the 2.4.13 kernel! How
-> does this work?
+> delete it. So the logic might be something like
+> 
+> 	remove = 0;
+> 	if ((vm_swap_full() && (remove = exclusive_swap_cache_delete())) ||
+> 	    only_swap_user()) {
 
-patches, patches more patches...
+I preferred the previous exclusive_swap_page logic. It couldn't race
+because we had the lock on the page, it's equivalent and it looked
+cleaner and simpler to me, we had to bother about the rest only if the
+page was exclusive.  Now this only_swap_user replaces the
+exclusive_swap_cache check basically and you will end doing the double
+of the work if the vm is full and the page isn't exclusive, so both
+exclusive_swap_cache_delete and only_swap_user will have to work and
+fail.
 
-> Also, I see many (EXPERIMENTAL) greyd-out areas in the
-> kernel as well as other greyd out areas which are not experimental, yet
-> won't allow me to select it ( reiserfs for example ) .
-> How can I get reiserfs to compile into the kernel, and to satsify my
-> curiosity, how do you enable the experimental options?
+> 		pte = mk_pte(page, vma->vm_page_prot);
+> 		if (remove || write_access)
+> 			pte = pte_mkdirty(pte);
+> 		if (vma->vm_page_prot & VM_WRITE)
+> 			pte = pte_mkwrite(pte);
+> 		install_pte();
+> 		return;
+> 	}
+> 
+> ie we _remove_ it if we're low on swap entries and it is exclusive (that
+> doesn't really save memory, but it allows us to re-use the swap entries
+> for "better" pages), and we just re-use it without removing it if we're
+> the only users (it doesn't even have to be a write access - we can do it
+> even for reads, as if we're the only user we might as well just give the
+> page to the process anyway - and let fork() do the thing it does in any
+> case.
+> 
+> Then we'll just trust the dirty bit when shared, like we always have done
+> before anyway (we need to set it on removal, and we want to set it early
+> on a write access to avoid unnecessary faults on architectures which do
+> the dirty bit in software - that's why we have the "remove ||
+> write_access"  test there.
 
-in the code maturity level options select:
+ok.
 
-Prompt for development and/or incomplete code/drivers
+> 
+> > The only advantage of dirty swap cache persistence is that it will
+> > maintain the same position on disk across a swapin/swapout cycle.
+> 
+> Well, the _big_ advantage is not the persistence, but the fact that the
+> page might be in-flight when the user wants to use it, and the swap cache
+> is just busy. Right now we _wait_ for the write to complete, which is
+> silly. We might as well just let the user start using the page (including
+> writing more stuff to it), and later on write it again.
 
-> Does it mean that if there is a fairly large difference between the
-> RedHat 2.4.7 and the stock one from kernel.org, that they are not really
-> the same?
+if we remove all write-swapins from the swap cache those pages cannot be
+in flight, we cannot do I/O on anon memory if it's not in the swapcache
+or we would race badly. all I/O to the swap space have to pass through
+the swap cache to be safe. So I don't see how an anonymous page can be
+in flight.
 
-much of what's different are drivers that either haven't yet been accepted
-into the tree or won't be accepted for various reasons...
+> So right now the "remove from swap cache" is actually a IO-serializing
+> operation, and we're doing it for no really good reason.
 
-> ie, does anyone foresee any future problems with redhat adding
-> all these extra features to their kernel and people who would like to
-> upgrade to a newer version ( for one, I selected ext3 during install,
-> yet, now trying to install 2.4.13, I must revert back to ext2...)
+I think this is not true. remove_from_swap_cache can be run only if:
 
-you can add ext3 by either grabbing the andrew morton et al patch from...
+1) we hold the lock on the page
+2) this mean all I/O is complete and so we can safely convert this
+   non in-flight page to an anonymous page clean where any further
+   I/O will be impossible
 
-http://www.uow.edu.au/~andrewm/linux/ext3/
+So I still think the only advantage is to keep the swap position
+persistent across a swapin/swapout cycle.
 
-or by appling one of the ac series patches from alan.
-
-I suspect when you see a new development tree be created (shortly) that a
-significant amount of code will migrate into that.
-
-joelja
-
-> Thanks
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
--- 
---------------------------------------------------------------------------
-Joel Jaeggli				       joelja@darkwing.uoregon.edu
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
-
-
+Andrea

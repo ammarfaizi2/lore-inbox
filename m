@@ -1,54 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVCGLWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVCGLYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbVCGLWA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 06:22:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVCGLV7
+	id S261334AbVCGLYU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 06:24:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVCGLYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 06:21:59 -0500
-Received: from rproxy.gmail.com ([64.233.170.194]:5674 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261210AbVCGLVu (ORCPT
+	Mon, 7 Mar 2005 06:24:20 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:23199 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261334AbVCGLYJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 06:21:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=T6QnUVfMdGhtQitAHZkwAA07q7bAFjG3O17AROQIEbE74+fgvnAQSWgINb7HQFZklnatJ+8fDbm5UtbtEL5Nm7s6KLbnd2bPVyXw0ZIWb+t3CiTwWpyVrm7O7zca0CnbylHKDbEOzm5eHb64ijzrNDC5HgUdFVMj/vujZtthmvQ=
-Message-ID: <65258a58050307032152fa5e7d@mail.gmail.com>
-Date: Mon, 7 Mar 2005 12:21:47 +0100
-From: Vincent Vanackere <vincent.vanackere@gmail.com>
-Reply-To: Vincent Vanackere <vincent.vanackere@gmail.com>
+	Mon, 7 Mar 2005 06:24:09 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20050303123448.462c56cd.akpm@osdl.org> 
+References: <20050303123448.462c56cd.akpm@osdl.org>  <20050302135146.2248c7e5.akpm@osdl.org> <20050302090734.5a9895a3.akpm@osdl.org> <9420.1109778627@redhat.com> <31789.1109799287@redhat.com> <13767.1109857095@redhat.com> 
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.11-ck1 (cfq-timeslice)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050304140750.757e9f4a.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <200503030030.29722.kernel@kolivas.org>
-	 <65258a58050304064710b403d7@mail.gmail.com>
-	 <20050304140750.757e9f4a.akpm@osdl.org>
+Cc: torvalds@osdl.org, davidm@snapgear.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] BDI: Provide backing device capability information 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
+Date: Mon, 07 Mar 2005 11:23:44 +0000
+Message-ID: <9268.1110194624@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Mar 2005 14:07:50 -0800, Andrew Morton <akpm@osdl.org> wrote:
-> Vincent Vanackere <vincent.vanackere@gmail.com> wrote:
-> >
-> > (I can't live without reiser4 any more...).
+Andrew Morton <akpm@osdl.org> wrote:
+
+> >  Making these into bitfields would result in having to use three variables
+> >  instead of just the one.
 > 
-> Tell us more?
-> 
+> Well let's do one or the other, and not have it half-and-half, please.
 
-I've been storing all my important data (including music ;-) ) on
-reiser4 since a few months... Others may disagree, but for me and my
-data it is definitely safer than
-reiser3-before-ordered-data-mode-was-integrated.
-With time and use, I'm starting to really trust it : absolutely no
-data-loss or corruption experienced in spite of a few power-outage and
-other unrelated (bad kernels) crashes (*)...
+So I should fold the two other bitfields back into the capabilities mask and
+make it an unsigned long.
 
-Vincent
-
-(*) as seen by the very few reiser4 bugs reported on the reiserfs
-mailing-list these days, I'd say that there are either almost no
-reiser4 users left, or that users are indeed encountering very few
-problems with it...
+David

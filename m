@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129143AbRAZNWZ>; Fri, 26 Jan 2001 08:22:25 -0500
+	id <S129143AbRAZN1g>; Fri, 26 Jan 2001 08:27:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129735AbRAZNWP>; Fri, 26 Jan 2001 08:22:15 -0500
-Received: from APastourelles-101-1-2-119.abo.wanadoo.fr ([193.251.53.119]:3332
-	"HELO dark.mandrakesoft.com") by vger.kernel.org with SMTP
-	id <S129143AbRAZNWG>; Fri, 26 Jan 2001 08:22:06 -0500
-To: Miles Lane <miles@megapathdsl.net>
-Cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Running "make install" runs lilo on my Athlon but not my Pentium II.
-In-Reply-To: <200101222202.f0MM24s01811@flint.arm.linux.org.uk>
-	<3A713E8F.131C6589@megapathdsl.net>
-From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
-Date: 26 Jan 2001 14:21:36 +0100
-In-Reply-To: <3A713E8F.131C6589@megapathdsl.net>
-Message-ID: <m3itn2e9en.fsf@dark.mandrakesoft.com>
-User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
+	id <S129562AbRAZN1Z>; Fri, 26 Jan 2001 08:27:25 -0500
+Received: from smtp-rt-7.wanadoo.fr ([193.252.19.161]:30203 "EHLO
+	embelia.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S129143AbRAZN1R>; Fri, 26 Jan 2001 08:27:17 -0500
+Date: Fri, 26 Jan 2001 14:27:04 +0100 (CET)
+From: Jean-Luc <root@f5ibh.ampr.org>
+X-X-Sender: <root@debian-f5ibh>
+To: <linux-kernel@vger.kernel.org>
+Subject: modprobe: Can't locate module binfmt-0000
+Message-ID: <Pine.LNX.4.32.0101261407520.8283-100000@debian-f5ibh>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane <miles@megapathdsl.net> writes:
+Hi !
 
-> Yes.  The script exists on both machines, but I think you have
-> nailed the problem.  The working machine is running RedHat 6.2 plus
-> a 2.4.0+ kernel.  The other (the Athlon) is running Mandrake 7.2 plus
-> a 2.4.0+ kernel.  On the working machine, the installkernel script
-> is just a shell script.  While, on the problem machine, the script
-> is a PERL script written by chmouel@mandrakesoft.com.  
-> So, Chmouel, what gives?  Can you help me debug this?
+I've often the message : modprobe: Can't locate module binfmt-0000.
+Thsi has no effect on the system behaviour but what does it mean ? And how
+to suppress it ?
 
-this installkernel script try to detect what kind of bootloader you
-have on your machine (since we ship GRUB and LILO), what the output of
-:
+-- Versions installed: (if some fields are empty or look
+-- unusual then possibly you have very old versions)
+Linux debian-f5ibh 2.2.19pre7 #1 ven jan 26 10:21:42 CET 2001 i586 unknown
+Kernel modules         2.4.2
+Gnu C                  2.95.2
+Binutils               2.9.5.0.37
+Linux C Library        2.1.3
+Dynamic linker         ldd: version 1.9.11
+Procps                 2.0.6
+Mount                  2.10o
+Net-tools              2.05
+Console-tools          0.2.3
+Sh-utils               2.0
+Modules Loaded         adlib_card v_midi opl3 sb uart401 sound soundcore sd_mod ppa scsi_mod nls_iso8859-15 ide-cd cdrom isofs ppp slhc af_packet scc ax25 parport_probe parport_pc lp parport mousedev usb-ohci hid input autofs lockd sunrpc usbcore serial w83781d sensors i2c-isa i2c-core unix
 
-/usr/sbin/detectloader
+----
 
-give you (under the mdk machine).
+Regards
 
--- 
-MandrakeSoft Inc                     http://www.chmouel.org
-                      --Chmouel
+		Jean-Luc
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

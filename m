@@ -1,82 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262524AbTHUKHj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 06:07:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbTHUKHj
+	id S262566AbTHUKQr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 06:16:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262565AbTHUKQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 06:07:39 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:50189 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S262524AbTHUKHh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 06:07:37 -0400
-Date: Thu, 21 Aug 2003 06:07:34 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: TeJun Huh <tejun@aratech.co.kr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Possible race condition in i386 global_irq_lock handling.
-In-Reply-To: <20030821084807.GA29913@atj.dyndns.org>
-Message-ID: <Pine.LNX.4.53.0308210601530.17457@montezuma.mastecende.com>
-References: <20030821084807.GA29913@atj.dyndns.org>
+	Thu, 21 Aug 2003 06:16:47 -0400
+Received: from dns.toxicfilms.tv ([150.254.37.24]:14012 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S262566AbTHUKQq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 06:16:46 -0400
+Date: Thu, 21 Aug 2003 12:16:41 +0200 (CEST)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+Cc: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>,
+       linux-kernel@vger.kernel.org
+Subject: Re: usb-storage: how to ruin your hardware(?)
+In-Reply-To: <20030820185550.A24579@one-eyed-alien.net>
+Message-ID: <Pine.LNX.4.51.0308211208290.22664@dns.toxicfilms.tv>
+References: <200308210134.h7L1YmRE011754@wildsau.idv.uni.linz.at>
+ <20030820185550.A24579@one-eyed-alien.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Aug 2003, TeJun Huh wrote:
+> P.P.S. The 'strange partition table' you saw probably wasn't a partition
+> table at all -- it was likely the start of a VFAT filesystem.  I'm guessing
+> that if you had just mounted /dev/sda (notice no partition number!), it
+> would have worked.
+I almost killed my USB 128mb flash (it's an mp3 player also).
+I also noticed a strange partition and "fixed" it. And file transfers
+where ok (VFAT, formatted), but suddenly it stopped playing audio. When I
+redid the formatting as a plain DOS partition using fdisk command.
+   o   create a new empty DOS partition table
 
->  I've been reading i386 interrupt handling code for a couple of days
-> and encountered something that looks like a race condition.  It's
-> between include/asm-i386/hardirq.h:irq_enter() and
-> arch/i386/kernel/irq.c:get_irqlock().  They seem to be using lockless
-> synchronization with local_irq_count of each cpu and global_irq_lock
-> variable.
+MP3 started playing right.
+It seems that many manufacturers rely on undocumented (yes, I haven't
+found any pointers about partition table format, etc.) nuances
+and settings.
+Like your USB BAR's starting sector's data, that seemed to be garbage.
 
-Ok 2.4 (but for future try and mention which kernel version). You'll have 
-to forgive me if i misunderstand you..
+Maybe a message of caution should be displayed in usb-storage
+configure help about attemtping to change partitions and/or filesystems on
+USB storage devices.
 
->  A. locking CPU
-> 
->  1. Do test_and_set_bit() on global_irq_lock, if fail, repeat.
->  2. If all local_irq_count's are zero, we're the winner.  Check other
->     stuff; otherwise, clear global_irq_lock and retry.
-
-Are you referring to hardirq_trylock()?
-
->  B. other CPUs
-> 
->  1. Increment local_irq_count
->  2. test_bit() on global_irq_lock, if zero, continue handling interrupt;
->     otherwise, wait till it's cleared.
-> 
->  For this to work, the locking CPU should fetch the value of
-> local_irq_count after global_irq_lock value becomes visible to other
-> CPUs, and other CPUs should fetch the value of global_irq_lock after
-> making the incremented local_irq_count visible to other CPUs.
-
-Why after? it's currently in an interrupt anyway, the local_irq_count is 
-per cpu so it's not used on other cpus why do you need to make it 
-visible on other processors? (save irqs_running() but even that's ok)
-
->  The locking CPU is OK because test_and_set_bit() forces ordering on
-> x86, but there should be a mb() betweewn step 1 and 2 for other CPUs
-> because none of ++ and test_bit is ordering.  The B part is irq_enter()
-> in hardirq.h which looks like the following.
-> 
-> static inline void irq_enter(int cpu, int irq)
-> {
-> 	++local_irq_count(cpu);
-> 
-> 	while (test_bit(0,&global_irq_lock)) {
-> 		cpu_relax();
-> 	}
-> }
-> 
->  Is it a race condition or am I getting it horribly wrong?  Thx in
-> advance.
-
-I don't see or understand the race condition you're describing, 
-local_irq_count is per cpu.
-
-	Zwane
+Regards,
+Maciej
 

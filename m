@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129150AbQJ0KcP>; Fri, 27 Oct 2000 06:32:15 -0400
+	id <S129155AbQJ0KiQ>; Fri, 27 Oct 2000 06:38:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129155AbQJ0KcF>; Fri, 27 Oct 2000 06:32:05 -0400
-Received: from isis.its.uow.edu.au ([130.130.68.21]:46293 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129150AbQJ0Kbz>; Fri, 27 Oct 2000 06:31:55 -0400
-Message-ID: <39F95995.FA84F9D9@uow.edu.au>
-Date: Fri, 27 Oct 2000 21:31:49 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
+	id <S129226AbQJ0KiG>; Fri, 27 Oct 2000 06:38:06 -0400
+Received: from pine.parrswood.manchester.sch.uk ([213.205.138.155]:16388 "EHLO
+	parrswood.manchester.sch.uk") by vger.kernel.org with ESMTP
+	id <S129155AbQJ0Khx>; Fri, 27 Oct 2000 06:37:53 -0400
+Date: Fri, 27 Oct 2000 11:37:52 +0100 (BST)
+From: Tim <tim@parrswood.manchester.sch.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Reboot problems with test9 on SiS5582
+Message-ID: <Pine.LNX.4.21.0010271125180.26729-100000@pine.parrswood.manchester.sch.uk>
 MIME-Version: 1.0
-To: Timothy Ball <timball@tux.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: VM-global-2.2.18pre17-7
-In-Reply-To: <Pine.LNX.4.21.0010251633080.3324-100000@freak.distro.conectiva> <39F84B64.5935C12@ovh.net> <39F8566D.51561CB3@profmakx.de> <39F85A09.DA88452F@ovh.net>,
-		<39F85A09.DA88452F@ovh.net>; from oles@ovh.net on Thu, Oct 26, 2000 at 06:21:29PM +0200 <20001026155323.E12432@gwyn.tux.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Ball wrote:
-> 
-> I get similar eth0 hangs using a 3c59x. Though outside of rebooting I
-> have no clue how to get networking going again.
+When I run "/sbin/shutdown -r now" on a SiS5582 based system with a Cyrix
+MII cpu, the machine shuts down as far printing: Rebooting system. It then
+hangs. This is a RedHat 7.0 based system (The kernel was compiled with
+RedHat 6.2)
 
-If this is 2.2.17 then please send me the details.
+The lspci on the system gives:
+00:00.0 Host bridge: Silicon Integrated Systems [SiS] 5597 [SiS5582] (rev 10)
+00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513 (rev 01)
+00:01.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0)
+00:0d.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 20)
+00:14.0 VGA compatible controller: Silicon Integrated Systems [SiS] 5597/5598 VGA (rev 68)
 
-If it's something earlier then you will need to use the 2.2.17 driver. 
-Or, even better, the 2.2.18 candidate:
-http://www.uow.edu.au/~andrewm/linux/3c59x-2.2.18-pre16-1.gz
+The machines reboots fine with the shipped RedHat kernel (patched 2.2.16)
+
+-- 
+   Tim Fletcher - Network manager   .~.
+                                    /V\      L   I   N   U   X   
+     nightshade@solanum.net        // \\  >Don't fear the penguin<
+tim@parrswood.manchester.sch.uk   /(   )\
+                                   ^^-^^
+
+"While preceding your entrance with a grenade is a good tactic in
+   Quake, it can lead to problems if attempted at work." -- C Hacking
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

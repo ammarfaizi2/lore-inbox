@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265887AbUHHQps@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265966AbUHHQyi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265887AbUHHQps (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 12:45:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265893AbUHHQps
+	id S265966AbUHHQyi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 12:54:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265970AbUHHQyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 12:45:48 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:27288 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S265887AbUHHQpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 12:45:46 -0400
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200408061330.i76DU2Tm005937@burner.fokus.fraunhofer.de>
-References: <200408061330.i76DU2Tm005937@burner.fokus.fraunhofer.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 08 Aug 2004 11:45:27 -0500
-Message-Id: <1091983528.10960.7.camel@mulgrave>
+	Sun, 8 Aug 2004 12:54:38 -0400
+Received: from gprs214-125.eurotel.cz ([160.218.214.125]:22144 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S265966AbUHHQyg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 12:54:36 -0400
+Date: Sun, 8 Aug 2004 18:54:16 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       David Brownell <david-b@pacbell.net>, Oliver Neukum <oliver@neukum.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: What PM should be and do (Was Re: Solving suspend-level confusion)
+Message-ID: <20040808165416.GB2668@elf.ucw.cz>
+References: <20040730164413.GB4672@elf.ucw.cz> <200408031928.08475.david-b@pacbell.net> <1091588163.5225.77.camel@gaston> <200408032030.41410.david-b@pacbell.net> <1091594872.3191.71.camel@laptop.cunninghams> <1091595224.1899.99.camel@gaston> <1091595545.3303.80.camel@laptop.cunninghams>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1091595545.3303.80.camel@laptop.cunninghams>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-08-06 at 08:30, Joerg Schilling wrote:
-> I don't see any arrogance in my mails but in former discussions on LKML,
-> there have been other people who did believe that they could replace missing
-> knowledge by arrogance. Fortunately, they did not join this thread ;-)
+Hi!
+
+> Yes. I'm not trying to give drivers an inconsistent state, just delaying
+> suspending some until the last minute....
 > 
-> Let me lead you to the right place to look for:
+> Suspend 2 algorithm:
 > 
-> 	The CAM interface (which is from the SCSI standards group)
-> 	usually is implemeted in a way that applications open /dev/cam and
-> 	later supply bus, target and lun in order to get connected
-> 	to any device on the system that talks SCSI.
-> 
-> Let me repeat: If you believe that this is a bad idea, give very good reasons.
+> 1. Prepare image (freeze processes, allocate memory, eat memory etc)
+> 2. Power down all drivers not used while writing image
+> 3. Write LRU pages. ('pageset 2')
+> 4. Quiesce remaining drivers, save CPU state, to atomic copy of
+> remaining ram.
+> 5. Resume quiesced drivers.
 
-Although I have always thought CAM to be a bad idea, I can give you the
-best of reasons why we won't be using it:  The old standard applies to
-SCSI-2 and has been superceded. The committee charged with creating the
-new CAM standard was disbanded in disarray, so there is no current CAM
-standard.
+Hmm, this means pretty complex subtree handling.. Perhaps it would be
+possible to make "quiesce/unquiesce" support in drivers so that this
+is not needed?
+								Pavel
 
-I know all the arguments about politics and personality clashes that
-have been alleged to be behind the collapse of the new standard. 
-However, in my view, it was a bad standard and the evidence of its
-unworkability is simply that the committee couldn't agree on it.
-
-For us to look at CAM again, someone will have to at least make it a
-current standard.
-
-The model which looks to me to be very workable is SAM (or at least
-SAM-3).  To that end, we're already moving the linux scsi layer (which
-was actually pretty transport abstracted and thus SAM conformant anyway)
-further in that direction with the creation of transport classes.
-
-James
-
-
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

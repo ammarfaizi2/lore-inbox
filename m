@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265012AbTFQXsz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 19:48:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265013AbTFQXsz
+	id S265018AbTFQXxK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 19:53:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265021AbTFQXxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 19:48:55 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:11722 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S265012AbTFQXsx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 19:48:53 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Tue, 17 Jun 2003 19:53:10 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:11660 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S265018AbTFQXxI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 19:53:08 -0400
+Date: Tue, 17 Jun 2003 17:06:58 -0700
+From: Frank Cusack <fcusack@fcusack.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: torvalds@transmeta.com, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] nfs_unlink() again, and trivial nfs_fhget
+Message-ID: <20030617170658.B19126@google.com>
+References: <20030617051408.A17974@google.com> <shs1xxsr1gx.fsf@charged.uio.no> <20030617165507.A19126@google.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16111.44068.618893.128109@napali.hpl.hp.com>
-Date: Tue, 17 Jun 2003 17:02:44 -0700
-To: linux-kernel@vger.kernel.org
-Subject: new ia64 (itanium/ipf) mailing list on vger.kernel.org
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030617165507.A19126@google.com>; from fcusack@fcusack.com on Tue, Jun 17, 2003 at 04:55:07PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vger.kernel.org now has a mailing list for the discussion of linux on
-the ia64/itanium/ipf platform.  See:
+On Tue, Jun 17, 2003 at 04:55:07PM -0700, Frank Cusack wrote:
+> On Tue, Jun 17, 2003 at 11:41:18AM -0700, Trond Myklebust wrote:
+> > If you think that code is wrong then make an argument for
+> > changing it, and send me a patch.
+> 
+> I did make an argument, and did send you a patch.  Please see my email
+> with message id <20030611002226.A19078@google.com>.
 
-	http://vger.kernel.org/vger-lists.html#linux-ia64
+Let me quickly amend that, the referenced message is also a VFS change,
+but a worse one than proposed in this thread.  The reason I proposed to
+do it in the VFS is that I couldn't get it to work in the NFS code.
 
-for details.
+After returning from nfs_rename(), I'd promptly get a null pointer deref.
 
-At the moment, the list is an alternative for
-linux-ia64@linuxia64.org, which has been flaky as of late.  However,
-it would be nice to convert to the vger list permanently.  One
-showstopper right now is that there is no known archive for the list.
-Would someone be willing to setup such an archive?
+Yes, I did want to suggest an NFS patch, but it became clear that after
+the VFS calls ->rename, it expects things to happen which I didn't do.
+More specifically, I avoided the 'if (!d_unhashed()) d_drop()' code, and
+rather than figure out the requirements I simply figured I'd propose a
+VFS change.  Simple just seemed good to me ... I don't think it's so
+bad for the VFS to have *small* bits of fs-specific knowledge.  You could
+call the flag (say) DCACHE_DONT_UNLINK if it makes it sound less specific.
 
-Thanks,
-
-	--david
+/fc

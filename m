@@ -1,72 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUKJUJq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbUKJUMN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbUKJUJq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 15:09:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbUKJUJq
+	id S262119AbUKJUMN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 15:12:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbUKJUMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 15:09:46 -0500
-Received: from inetc.connecttech.com ([64.7.140.42]:17682 "EHLO
-	inetc.connecttech.com") by vger.kernel.org with ESMTP
-	id S262114AbUKJUJN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 15:09:13 -0500
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       "'Geert Uytterhoeven'" <geert@linux-m68k.org>
-Cc: <davids@webmaster.com>, <cfriesen@nortelnetworks.com>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +code
-Date: Wed, 10 Nov 2004 15:09:06 -0500
-Organization: Connect Tech Inc.
-Message-ID: <00d201c4c761$21ec83c0$294b82ce@stuartm>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 10 Nov 2004 15:12:12 -0500
+Received: from ns.focomunicatii.ro ([212.146.75.6]:5560 "HELO focomunicatii.ro")
+	by vger.kernel.org with SMTP id S262117AbUKJULw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 15:11:52 -0500
+Message-ID: <20041110201010.18341.qmail@focomunicatii.ro>
+References: <20041107214427.20301.qmail@focomunicatii.ro>
+            <20041107224803.GA29248@electric-eye.fr.zoreil.com>
+            <20041109000006.GA14911@electric-eye.fr.zoreil.com>
+            <20041109232510.GA5582@electric-eye.fr.zoreil.com>
+In-Reply-To: <20041109232510.GA5582@electric-eye.fr.zoreil.com>
+From: sebastian.ionita@focomunicatii.ro
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: seby@focomunicatii.ro, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       alan@redhat.com, jgarzik@pobox.com
+Subject: Re: ZyXEL GN650-T
+Date: Wed, 10 Nov 2004 22:10:10 +0200
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <1100110480.20555.4.camel@localhost.localdomain>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Alan Cox
-> 1. "You must pay $1000 to distribute the source"
-> 2. "I will pay you $1000 if you do not distribute the source"
-> 3. "If you distribute the source then I won't supply you updates"
+Francois Romieu writes: 
 
-To restate #1 in equivalent words:
+> Francois Romieu <romieu@fr.zoreil.com> :
+>> seby@focomunicatii.ro <seby@focomunicatii.ro> :
+>> [...]
+>> > I just bouth a zyxel GN650T network card .. and it sems that vlan's don't 
+>> > work on this card .. anybody had this problems with this card ..  
+>> 
+>> Patch below against 2.6.10-rc1-bk15 + Jeff's netdev should convert the driver
+>> to the in-kernel vlan API.
+> 
+> Cr*p, the driver had not been backported to 2.4.x. Ok, instant patch (155 ko)
+> against 2.4.28-rc2 available at:
+> http://www.fr.zoreil.com/people/francois/misc/20041110-2.4.28-rc2-via-velocity-backport.patch
+The kernel compiles but I have 1 unresolved simbole in the via-velocity 
+modul
+depmod: *** Unresolved symbols in 
+/lib/modules/2.4.28-rc2/kernel/drivers/net/via-velocity.o
+depmod:         crc_ccitt_R3771b461 
 
-1. "If you distribute the source, you must pay $1000."
+Seby..
+> 
+> --
+> Ueimor
+ 
 
-How is that different from
 
-1. "If you distribute the source, you lose a contractual right you
-have paid for."
+____________________________________________________________
+SC. FO Comunicatii SRL.
+Sebastian Ionita
+Administrator Sistem
+mobil: 0724 212408
+tel fix: 0264 450456 
 
-? Both are of the form:
-
-if (exercise(GPL-protected-right))
-  penalise(method);
-
-> #1 places conditions on a GPL provided contract right which the GPL
-> prohibits
-
-Since my 1.s are equivalent to yours, thus #1 applys equally to mine,
-one of which is the hypothetical (see my previous post) situation
-under discussion of sveasoft revoking support contracts.
-
-So I've reached a logical inconsistency in your argument. One of two
-things must be true: a) you are wrong, or b) my assertion that my 1.s
-are equivalent to yours are wrong.
-
-I'm willing to believe I've made a mistake. Please show me where.
-
-Note that your 3. is not equivalent to the hypothetical situation
-under discussion because "I won't supply you updates" is not
-equivalent to sveasoft's action of "We revoke your support/updates
-contract".
-
-..Stu
 

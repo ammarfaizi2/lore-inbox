@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262928AbUKXXtV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262989AbUKYACv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262928AbUKXXtV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 18:49:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbUKXXqo
+	id S262989AbUKYACv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 19:02:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbUKYAAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 18:46:44 -0500
-Received: from over.ny.us.ibm.com ([32.97.182.111]:49284 "EHLO
-	over.ny.us.ibm.com") by vger.kernel.org with ESMTP id S262944AbUKXXpN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 18:45:13 -0500
-Date: Wed, 24 Nov 2004 14:35:00 -0800
-From: Greg KH <greg@kroah.com>
-To: Justin Thiessen <jthiessen@penguincomputing.com>
-Cc: phil@netroedge.com, khali@linux-fr.org, sensors@Stimpy.netroedge.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: adm1026 driver port for kernel 2.6.10-rc2 (patch includes driver, patch to Kconfig, and patch to Makefile) [fixed]
-Message-ID: <20041124223500.GA3787@kroah.com>
-References: <20041102221745.GB18020@penguincomputing.com> <NN38qQl1.1099468908.1237810.khali@gcu.info> <20041103164354.GB20465@penguincomputing.com> <20041118185612.GA20728@penguincomputing.com> <20041123165236.GA4936@penguincomputing.com> <20041124213600.GA3165@kroah.com> <20041124231017.GA10171@penguincomputing.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041124231017.GA10171@penguincomputing.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 24 Nov 2004 19:00:23 -0500
+Received: from fsmlabs.com ([168.103.115.128]:33203 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S263001AbUKXXz1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 18:55:27 -0500
+Date: Wed, 24 Nov 2004 14:55:50 -0700 (MST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend 2 merge: 22/51: Suspend2 lowlevel code.
+In-Reply-To: <1101331206.3895.40.camel@desktop.cunninghams>
+Message-ID: <Pine.LNX.4.61.0411241453230.7171@musoma.fsmlabs.com>
+References: <1101292194.5805.180.camel@desktop.cunninghams> 
+ <1101296166.5805.279.camel@desktop.cunninghams> 
+ <Pine.LNX.4.61.0411240931470.7171@musoma.fsmlabs.com>
+ <1101331206.3895.40.camel@desktop.cunninghams>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 24, 2004 at 03:10:17PM -0800, Justin Thiessen wrote:
-> On Wed, Nov 24, 2004 at 01:36:00PM -0800, Greg KH wrote:
-> > Hm, this looks like a bug:
-> 
-> <snip egregious stupidity>
-> 
-> > Care to fix this up and resend the whole patch?
-> 
-> Affirmative.
-> 
-> > Oh, and it should be "Signed-off-by:" not "Signed off by:" like you had
-> > used :)
-> 
-> See below:
+On Thu, 25 Nov 2004, Nigel Cunningham wrote:
 
-Applied, thanks.
+> That's roughly what we're doing now, apart from the offlining/onlining.
+> I had considered trying to take better advantage of SMP support (perhaps
+> run a decompression thread on one CPU and the writer on the other, eg),
+> so we might want to apply this just to the region immediately around the
+> atomic copy/restore. That makes me wonder, though, what the advantage is
+> to switching to using the hotplug functionality - is it x86 only, or
+> more cross platform? (If more cross platform, that might possibly be an
+> advantage over the current code).
 
-Oh, I did make one change:
+It's cross platform and removes the requirement for patches like;
 
-> +/* Adjust fan_min to account for new fan divisor */
-> +void fixup_fan_min(struct device *dev, int fan, int old_div)
-
-This should be static.
-
-thanks,
-
-greg k-h
+Subject: Suspend 2 merge: 13/51: Disable highmem tlb flush for copyback.

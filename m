@@ -1,80 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282491AbRLAXdj>; Sat, 1 Dec 2001 18:33:39 -0500
+	id <S281754AbRLAXsB>; Sat, 1 Dec 2001 18:48:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281732AbRLAXda>; Sat, 1 Dec 2001 18:33:30 -0500
-Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:38910 "EHLO
-	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S282487AbRLAXdP>; Sat, 1 Dec 2001 18:33:15 -0500
-Date: Sat, 1 Dec 2001 15:32:28 -0800 (PST)
-From: Gideon Glass <gid@cisco.com>
-To: Richard Russon <ldm@flatcap.org>
-cc: "Eric S. Raymond" <esr@snark.thyrsus.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: esr cut off my genitives
-In-Reply-To: <1007229787.2134.10.camel@addlestones>
-Message-ID: <Pine.GSO.4.33.0112011515550.23029-100000@andorra.cisco.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282499AbRLAXrw>; Sat, 1 Dec 2001 18:47:52 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:65213 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S281754AbRLAXrg>; Sat, 1 Dec 2001 18:47:36 -0500
+Date: Sat, 1 Dec 2001 16:47:40 -0700
+Message-Id: <200112012347.fB1NleW03464@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.1-pre5 not easy to boot with devfs
+In-Reply-To: <3C093F86.DA02646D@wanadoo.fr>
+In-Reply-To: <3C085FF3.813BAA57@wanadoo.fr>
+	<9u9qas$1eo$1@penguin.transmeta.com>
+	<200112010701.fB171N824084@vindaloo.ras.ucalgary.ca>
+	<3C0898AD.FED8EF4A@wanadoo.fr>
+	<200112011836.fB1IaxY31897@vindaloo.ras.ucalgary.ca>
+	<3C093F86.DA02646D@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  I should also point out that you need to compile with
+CONFIG_DEVFS_DEBUG=y. Otherwise passing "devfs=dall" will have no
+effect.
 
-On 1 Dec 2001, Richard Russon wrote:
+				Regards,
 
-> Hi esr,
->
-> There are a couple of lines of the patch I'm not quite happy with.
->
-> > -Windows' Logical Disk Manager (Dynamic Disk) support (EXPERIMENTAL)
-> > +Windows Logical Disk Manager (Dynamic Disk) support (EXPERIMENTAL)
->
-> > -Windows' LDM extra logging
-> > +Windows LDM extra logging
->
-> Not wishing to sound too pedantic, but I did put the apostropes in on
-> purpose.  "Windows" is a plural noun and the genitive of it is "Windows'".
-
-If you really want to get pedantic..
-
-"windows" is a plural noun, but "Windows" is a singular proper noun, and
-in "Windows LDM" it functions as an adjective.  Using possessive here is
-confusing because it suggests that this feature belongs to Windows, or
-that it's part of Windows itself, but obviously it isn't (the feature
-being referred to is part of Linux).  It is only *related* to Windows, so
-the adjectival "Windows" is the best thing to use.
-
->
-> Of course if it's a limitation of the new config tool I'll understand :-)
-> (and you'll need to apply the following, too).
->
-> -IBM's S/390 architecture
-> +IBMs S/390 architecture
-
-The "IBMs" plural construction is wrong since there is only one IBM.
-"IBMs" can't be possessive because there is no reason not to use an
-apostrophe to indicate possessive in this case.  Note that "IBM S/390
-architecture" could be used, with "IBM" (a noun) functioning as an
-adjective in the same manner as "Windows" above.  However, expressing the
-notion of ownership/control ("IBM's") conveys more information then mere
-association ("IBM"), so "IBM's" seems preferable here.
-
-gid
-
-
->
-> Cheers,
->   FlatCap (Rich)
->   ldm@flatcap.org
->
->
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

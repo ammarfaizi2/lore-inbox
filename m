@@ -1,836 +1,701 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262734AbSJCFRv>; Thu, 3 Oct 2002 01:17:51 -0400
+	id <S262733AbSJCFPk>; Thu, 3 Oct 2002 01:15:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262739AbSJCFRu>; Thu, 3 Oct 2002 01:17:50 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:39351 "HELO
+	id <S262734AbSJCFPk>; Thu, 3 Oct 2002 01:15:40 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:37303 "HELO
 	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S262734AbSJCFRg>; Thu, 3 Oct 2002 01:17:36 -0400
+	id <S262733AbSJCFPL>; Thu, 3 Oct 2002 01:15:11 -0400
 From: <peterc@gelato.unsw.edu.au>
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Thu, 3 Oct 2002 15:20:33 +1000
+Date: Thu, 3 Oct 2002 15:20:32 +1000
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15771.54177.488730.544483@lemon.gelato.unsw.EDU.AU>
-Subject: [PATCH] Large Block device patch part 3/4
+Message-ID: <15771.54176.801541.208418@lemon.gelato.unsw.EDU.AU>
+Subject: [PATCH] Large Block device patch part 4/4
 X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
 Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+
 This patch can be picked up from http://www.gelato.unsw.edu.au or from
 the bk repository at bk://gelato.unsw.edu.au:2023
 See part 0/4 for details.
 
- drivers/block/cciss.c      |    8 ++--
- drivers/block/cciss.h      |    2 -
- drivers/block/loop.c       |   21 ++++++++----
- drivers/md/linear.c        |   10 +++---
- drivers/md/md.c            |   73 +++++++++++++++++++++++++++------------------
- drivers/md/multipath.c     |   12 +++----
- drivers/md/raid0.c         |   37 ++++++++++++----------
- drivers/md/raid1.c         |   17 +++++-----
- drivers/md/raid5.c         |   40 ++++++++++++------------
- include/linux/loop.h       |    4 +-
- include/linux/raid/md.h    |    2 -
- include/linux/raid/md_k.h  |    6 +--
- include/linux/raid/raid0.h |    6 +--
- 13 files changed, 134 insertions(+), 104 deletions(-)
+ drivers/block/Config.help    |    4 ++++
+ drivers/block/Config.in      |    3 +++
+ drivers/block/paride/pf.c    |    2 +-
+ drivers/block/ps2esdi.c      |    4 ++--
+ drivers/ide/ide-floppy.c     |    5 +++--
+ drivers/mtd/devices/blkmtd.c |    6 +++---
+ fs/adfs/inode.c              |    2 +-
+ fs/affs/file.c               |   13 +++++++------
+ fs/affs/inode.c              |    2 +-
+ fs/bfs/file.c                |    2 +-
+ fs/buffer.c                  |    8 ++++----
+ fs/efs/inode.c               |    2 +-
+ fs/ext2/inode.c              |    2 +-
+ fs/ext3/ialloc.c             |    2 +-
+ fs/ext3/inode.c              |    2 +-
+ fs/fat/file.c                |    2 +-
+ fs/fat/inode.c               |    2 +-
+ fs/freevxfs/vxfs_subr.c      |    6 +++---
+ fs/hfs/inode.c               |    2 +-
+ fs/hpfs/file.c               |    2 +-
+ fs/inode.c                   |    4 ++--
+ fs/isofs/inode.c             |    6 +++---
+ fs/jfs/inode.c               |    2 +-
+ fs/minix/inode.c             |    2 +-
+ fs/qnx4/inode.c              |    2 +-
+ fs/reiserfs/inode.c          |    2 +-
+ fs/sysv/itree.c              |    2 +-
+ fs/udf/inode.c               |    2 +-
+ fs/ufs/inode.c               |    2 +-
+ fs/xfs/linux/xfs_aops.c      |    5 +++--
+ include/asm-i386/types.h     |    5 +++++
+ include/asm-ppc/types.h      |    5 +++++
+ include/linux/fs.h           |    6 +++---
+ include/linux/iso_fs.h       |    2 +-
+ include/linux/types.h        |   10 ++++------
+ 35 files changed, 74 insertions(+), 56 deletions(-)
 
 
 # This is a BitKeeper generated patch for the following project:
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.670   -> 1.673  
-#	drivers/block/cciss.h	1.14    -> 1.15   
-#	  drivers/md/raid1.c	1.46    -> 1.47   
-#	include/linux/raid/md_k.h	1.45    -> 1.46   
-#	include/linux/raid/md.h	1.21    -> 1.22   
-#	  drivers/md/raid5.c	1.50    -> 1.51   
-#	     drivers/md/md.c	1.112   -> 1.113  
-#	 drivers/md/linear.c	1.18    -> 1.19   
-#	drivers/md/multipath.c	1.40    -> 1.41   
-#	  drivers/md/raid0.c	1.15    -> 1.16   
-#	drivers/block/loop.c	1.63    -> 1.64   
-#	drivers/block/cciss.c	1.58    -> 1.59   
-#	include/linux/raid/raid0.h	1.1     -> 1.2    
-#	include/linux/loop.h	1.9     -> 1.10   
+#	           ChangeSet	1.673   -> 1.677  
+#	      fs/jfs/inode.c	1.18    -> 1.19   
+#	drivers/block/ps2esdi.c	1.51    -> 1.52   
+#	include/asm-i386/types.h	1.2     -> 1.3    
+#	drivers/mtd/devices/blkmtd.c	1.18    -> 1.20   
+#	     fs/ext2/inode.c	1.43    -> 1.44   
+#	       fs/bfs/file.c	1.11    -> 1.12   
+#	      fs/ufs/inode.c	1.14    -> 1.15   
+#	  include/linux/fs.h	1.165   -> 1.166  
+#	       fs/fat/file.c	1.16    -> 1.17   
+#	drivers/block/Config.in	1.7     -> 1.8    
+#	     fs/sysv/itree.c	1.13    -> 1.14   
+#	fs/freevxfs/vxfs_subr.c	1.9     -> 1.10   
+#	     fs/adfs/inode.c	1.14    -> 1.15   
+#	     fs/qnx4/inode.c	1.21    -> 1.22   
+#	 fs/reiserfs/inode.c	1.66    -> 1.67   
+#	include/linux/types.h	1.4     -> 1.5    
+#	      fs/efs/inode.c	1.6     -> 1.7    
+#	      fs/hpfs/file.c	1.10    -> 1.11   
+#	      fs/fat/inode.c	1.43    -> 1.44   
+#	     fs/affs/inode.c	1.15    -> 1.16   
+#	      fs/affs/file.c	1.21    -> 1.22   
+#	drivers/ide/ide-floppy.c	1.15    -> 1.16   
+#	    fs/ext3/ialloc.c	1.15    -> 1.16   
+#	    fs/minix/inode.c	1.27    -> 1.28   
+#	drivers/block/Config.help	1.2     -> 1.3    
+#	         fs/buffer.c	1.153   -> 1.154  
+#	include/linux/iso_fs.h	1.8     -> 1.9    
+#	     fs/ext3/inode.c	1.39    -> 1.40   
+#	drivers/block/paride/pf.c	1.30    -> 1.31   
+#	include/asm-ppc/types.h	1.5     -> 1.6    
+#	fs/xfs/linux/xfs_aops.c	1.7     -> 1.8    
+#	    fs/isofs/inode.c	1.25    -> 1.26   
+#	          fs/inode.c	1.69    -> 1.70   
+#	      fs/hfs/inode.c	1.8     -> 1.9    
+#	      fs/udf/inode.c	1.22    -> 1.23   
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 02/10/03	peterc@numbat.chubb.wattle.id.au	1.671
-# Compaq Smart array sector_t cleanup: prepare for possible 64-bit sector_t
+# 02/10/03	peterc@numbat.chubb.wattle.id.au	1.674
+# Filesystem migration to possibly 64-bit sector_t:
+# -- bmap() now takes and returns a sector_t to allow filesystems 
+#    (e.g., JFS, XFS) that are 64-bit clean to deal with large files
+# -- buffer handling now 64-bit clean
 # --------------------------------------------
-# 02/10/03	peterc@numbat.chubb.wattle.id.au	1.672
-# Clean up loop device to allow huge backing files.
+# 02/10/03	peterc@numbat.chubb.wattle.id.au	1.675
+# Enable 64-bit sector_t on IA32 and PPC.
 # --------------------------------------------
-# 02/10/03	peterc@numbat.chubb.wattle.id.au	1.673
-# MD transition to 64-bit sector_t.
-#  -- Hold sizes and offsets as sector_t not int;
-#  -- use 64-bit arithmetic if necessary to map block-in-raid to zone  
-#     and block-in-zone
+# 02/10/03	peterc@numbat.chubb.wattle.id.au	1.676
+# kiobufs takes sector_t array, not array of long.
+# FIx blkmtd.c to deal in such an array.
+# --------------------------------------------
+# 02/10/03	peterc@numbat.chubb.wattle.id.au	1.677
+# Miscellaneous fixes for 64-bit sector_t.
+# 	-- missed printk formats
+# 	-- ide_floppy_do_request had incorrect signature
+# 	-- in blkmtd.c there was a pointer used to 
+# 	   manipulate an array to be used by kiobuf --
+#  	   it was unsigned long, needed to be sector_t
 # --------------------------------------------
 #
-diff -Nru a/drivers/block/cciss.c b/drivers/block/cciss.c
---- a/drivers/block/cciss.c	Thu Oct  3 15:06:13 2002
-+++ b/drivers/block/cciss.c	Thu Oct  3 15:06:13 2002
-@@ -175,8 +175,8 @@
-                 drv = &h->drv[i];
- 		if (drv->block_size == 0)
- 			continue;
--                size = sprintf(buffer+len, "cciss/c%dd%d: blksz=%d nr_blocks=%d\n",
--                                ctlr, i, drv->block_size, drv->nr_blocks);
-+                size = sprintf(buffer+len, "cciss/c%dd%d: blksz=%d nr_blocks=%llu\n",
-+                                ctlr, i, drv->block_size, (unsigned long long)drv->nr_blocks);
-                 pos += size; len += size;
-         }
+diff -Nru a/drivers/block/Config.help b/drivers/block/Config.help
+--- a/drivers/block/Config.help	Thu Oct  3 15:06:06 2002
++++ b/drivers/block/Config.help	Thu Oct  3 15:06:06 2002
+@@ -258,3 +258,7 @@
+   supported by this driver, and for further information on the use of
+   this driver.
  
-@@ -405,7 +405,7 @@
-                 } else {
-                         driver_geo.heads = 0xff;
-                         driver_geo.sectors = 0x3f;
--                        driver_geo.cylinders = hba[ctlr]->drv[dsk].nr_blocks / (0xff*0x3f);
-+                        driver_geo.cylinders = (int)hba[ctlr]->drv[dsk].nr_blocks / (0xff*0x3f);
-                 }
-                 driver_geo.start= get_start_sect(inode->i_bdev);
-                 if (copy_to_user((void *) arg, &driver_geo,
-@@ -1179,7 +1179,7 @@
- 			total_size = 0;
- 			block_size = BLOCK_SIZE;
- 	}	
--	printk(KERN_INFO "      blocks= %d block_size= %d\n", 
-+	printk(KERN_INFO "      blocks= %u block_size= %d\n", 
- 					total_size, block_size);
- 	/* Execute the command to read the disk geometry */
- 	memset(inq_buff, 0, sizeof(InquiryData_struct));
-diff -Nru a/drivers/block/cciss.h b/drivers/block/cciss.h
---- a/drivers/block/cciss.h	Thu Oct  3 15:06:13 2002
-+++ b/drivers/block/cciss.h	Thu Oct  3 15:06:13 2002
-@@ -29,7 +29,7 @@
- {
-  	__u32   LunID;	
- 	int 	usage_count;
--	int 	nr_blocks;
-+	sector_t nr_blocks;
- 	int	block_size;
- 	int 	heads;
- 	int	sectors;
-diff -Nru a/drivers/block/loop.c b/drivers/block/loop.c
---- a/drivers/block/loop.c	Thu Oct  3 15:06:13 2002
-+++ b/drivers/block/loop.c	Thu Oct  3 15:06:13 2002
-@@ -154,18 +154,25 @@
- 	&xor_funcs  
- };
++CONFIG_LBD
++  Say Y here if you want to attach large (bigger than 2TB) discs to
++  your machine, or if you want to have a raid or loopback device
++  bigger than 2TB.  Otherwise say N.
+diff -Nru a/drivers/block/Config.in b/drivers/block/Config.in
+--- a/drivers/block/Config.in	Thu Oct  3 15:06:06 2002
++++ b/drivers/block/Config.in	Thu Oct  3 15:06:06 2002
+@@ -48,4 +48,7 @@
+ fi
+ dep_bool '  Initial RAM disk (initrd) support' CONFIG_BLK_DEV_INITRD $CONFIG_BLK_DEV_RAM
  
--#define MAX_DISK_SIZE 1024*1024*1024
--
--static void figure_loop_size(struct loop_device *lo)
-+static int figure_loop_size(struct loop_device *lo)
- {
--	loff_t size = lo->lo_backing_file->f_dentry->d_inode->i_size;
-+	loff_t size = lo->lo_backing_file->f_dentry->d_inode->i_mapping->host->i_size;
-+	sector_t x;
-+	/*
-+	 * Unfortunately, if we want to do I/O on the device,
-+	 * the number of 512-byte sectors has to fit into a sector_t.
-+	 */
-+	size = (size - lo->lo_offset) >> 9;
-+	x = (sector_t)size;
-+	if ((loff_t)x != size)
-+		return -EFBIG;
- 
--	set_capacity(disks + lo->lo_number,
--		     (size - lo->lo_offset) >> 9);
-+	set_capacity(disks + lo->lo_number, size);
-+	return 0;					
++if [ "$CONFIG_X86" = "y" -o "$CONFIG_PPC32" = "y" ]; then
++   bool 'Support for Large Block Devices' CONFIG_LBD
++fi
+ endmenu
+diff -Nru a/drivers/block/paride/pf.c b/drivers/block/paride/pf.c
+--- a/drivers/block/paride/pf.c	Thu Oct  3 15:06:06 2002
++++ b/drivers/block/paride/pf.c	Thu Oct  3 15:06:06 2002
+@@ -687,7 +687,7 @@
+ 	else {
+ 		if (pf->media_status == PF_RO)
+ 			printk(", RO");
+-		printk(", %ld blocks\n", get_capacity(&pf->disk));
++		printk(", %llu blocks\n", (unsigned long long)get_capacity(&pf->disk));
+ 	}
+ 	return 0;
  }
- 
- static inline int lo_do_transfer(struct loop_device *lo, int cmd, char *rbuf,
--				 char *lbuf, int size, int rblock)
-+				 char *lbuf, int size, sector_t rblock)
- {
- 	if (!lo->transfer)
- 		return 0;
-diff -Nru a/drivers/md/linear.c b/drivers/md/linear.c
---- a/drivers/md/linear.c	Thu Oct  3 15:06:13 2002
-+++ b/drivers/md/linear.c	Thu Oct  3 15:06:13 2002
-@@ -72,10 +72,12 @@
- 		goto out;
+diff -Nru a/drivers/block/ps2esdi.c b/drivers/block/ps2esdi.c
+--- a/drivers/block/ps2esdi.c	Thu Oct  3 15:06:06 2002
++++ b/drivers/block/ps2esdi.c	Thu Oct  3 15:06:06 2002
+@@ -532,8 +532,8 @@
+ 	}
+ 	/* is request is valid */ 
+ 	else {
+-		printk("Grrr. error. ps2esdi_drives: %d, %lu %llu\n", ps2esdi_drives,
+-		       CURRENT->sector, (unsigned long long)get_capacity(&ps2esdi_gendisk[unit]));
++		printk("Grrr. error. ps2esdi_drives: %d, %llu %llu\n", ps2esdi_drives,
++		       (unsigned long long)CURRENT->sector, (unsigned long long)get_capacity(&ps2esdi_gendisk[unit]));
+ 		end_request(CURRENT, FAIL);
  	}
  
--	nb_zone = conf->nr_zones =
--		md_size[mdidx(mddev)] / conf->smallest->size +
--		((md_size[mdidx(mddev)] % conf->smallest->size) ? 1 : 0);
--  
-+	{
-+		sector_t sz = md_size[mdidx(mddev)];
-+		unsigned round = sector_div(sz, conf->smallest->size);
-+		nb_zone = conf->nr_zones = sz + (round ? 1 : 0);
-+	}
-+			
- 	conf->hash_table = kmalloc (sizeof (struct linear_hash) * nb_zone,
- 					GFP_KERNEL);
- 	if (!conf->hash_table)
-diff -Nru a/drivers/md/md.c b/drivers/md/md.c
---- a/drivers/md/md.c	Thu Oct  3 15:06:13 2002
-+++ b/drivers/md/md.c	Thu Oct  3 15:06:13 2002
-@@ -103,7 +103,7 @@
- static void md_recover_arrays(void);
- static mdk_thread_t *md_recovery_thread;
+diff -Nru a/drivers/ide/ide-floppy.c b/drivers/ide/ide-floppy.c
+--- a/drivers/ide/ide-floppy.c	Thu Oct  3 15:06:06 2002
++++ b/drivers/ide/ide-floppy.c	Thu Oct  3 15:06:06 2002
+@@ -1241,17 +1241,18 @@
+ /*
+  *	idefloppy_do_request is our request handling function.	
+  */
+-static ide_startstop_t idefloppy_do_request (ide_drive_t *drive, struct request *rq, unsigned long block)
++static ide_startstop_t idefloppy_do_request (ide_drive_t *drive, struct request *rq, sector_t block_s)
+ {
+ 	idefloppy_floppy_t *floppy = drive->driver_data;
+ 	idefloppy_pc_t *pc;
++	unsigned long block = (unsigned long)block_s;
  
--int md_size[MAX_MD_DEVS];
-+sector_t md_size[MAX_MD_DEVS];
+ #if IDEFLOPPY_DEBUG_LOG
+ 	printk(KERN_INFO "rq_status: %d, rq_dev: %u, flags: %lx, errors: %d\n",
+ 			rq->rq_status, (unsigned int) rq->rq_dev,
+ 			rq->flags, rq->errors);
+ 	printk(KERN_INFO "sector: %ld, nr_sectors: %ld, "
+-			"current_nr_sectors: %ld\n", rq->sector,
++			"current_nr_sectors: %ld\n", (long)rq->sector,
+ 			rq->nr_sectors, rq->current_nr_sectors);
+ #endif /* IDEFLOPPY_DEBUG_LOG */
  
- static struct block_device_operations md_fops;
- static devfs_handle_t devfs_handle;
-@@ -243,35 +243,35 @@
- 	return NULL;
+diff -Nru a/drivers/mtd/devices/blkmtd.c b/drivers/mtd/devices/blkmtd.c
+--- a/drivers/mtd/devices/blkmtd.c	Thu Oct  3 15:06:06 2002
++++ b/drivers/mtd/devices/blkmtd.c	Thu Oct  3 15:06:06 2002
+@@ -164,7 +164,7 @@
+   int err;
+   int sectornr, sectors, i;
+   struct kiobuf *iobuf;
+-  unsigned long *blocks;
++  sector_t *blocks;
+ 
+   if(!rawdevice) {
+     printk("blkmtd: readpage: PANIC file->private_data == NULL\n");
+@@ -223,7 +223,7 @@
+ 
+   /* Pre 2.4.4 doesn't have space for the block list in the kiobuf */ 
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,4)
+-  blocks = kmalloc(KIO_MAX_SECTORS * sizeof(unsigned long));
++  blocks = kmalloc(KIO_MAX_SECTORS * sizeof(*blocks));
+   if(blocks == NULL) {
+     printk("blkmtd: cant allocate iobuf blocks\n");
+     free_kiovec(1, &iobuf);
+@@ -298,7 +298,7 @@
+   int err;
+   struct task_struct *tsk = current;
+   struct kiobuf *iobuf;
+-  unsigned long *blocks;
++  sector_t *blocks;
+ 
+   DECLARE_WAITQUEUE(wait, tsk);
+   DEBUG(1, "blkmtd: writetask: starting (pid = %d)\n", tsk->pid);
+diff -Nru a/fs/adfs/inode.c b/fs/adfs/inode.c
+--- a/fs/adfs/inode.c	Thu Oct  3 15:06:06 2002
++++ b/fs/adfs/inode.c	Thu Oct  3 15:06:06 2002
+@@ -67,7 +67,7 @@
+ 		&ADFS_I(page->mapping->host)->mmu_private);
  }
  
--static unsigned int calc_dev_sboffset(struct block_device *bdev)
-+static sector_t calc_dev_sboffset(struct block_device *bdev)
+-static int _adfs_bmap(struct address_space *mapping, long block)
++static sector_t _adfs_bmap(struct address_space *mapping, sector_t block)
  {
--	unsigned int size = bdev->bd_inode->i_size >> BLOCK_SIZE_BITS;
-+	sector_t size = bdev->bd_inode->i_size >> BLOCK_SIZE_BITS;
- 	return MD_NEW_SIZE_BLOCKS(size);
+ 	return generic_block_bmap(mapping, block, adfs_get_block);
+ }
+diff -Nru a/fs/affs/file.c b/fs/affs/file.c
+--- a/fs/affs/file.c	Thu Oct  3 15:06:06 2002
++++ b/fs/affs/file.c	Thu Oct  3 15:06:06 2002
+@@ -338,10 +338,11 @@
+ 	struct buffer_head	*ext_bh;
+ 	u32			 ext;
+ 
+-	pr_debug("AFFS: get_block(%u, %ld)\n", (u32)inode->i_ino, block);
++	pr_debug("AFFS: get_block(%u, %lu)\n", (u32)inode->i_ino, (unsigned long)block);
+ 
+-	if (block < 0)
+-		goto err_small;
++
++	if (block > (sector_t)0x7fffffffUL)
++		BUG();
+ 
+ 	if (block >= AFFS_I(inode)->i_blkcnt) {
+ 		if (block > AFFS_I(inode)->i_blkcnt || !create)
+@@ -352,12 +353,12 @@
+ 	//lock cache
+ 	affs_lock_ext(inode);
+ 
+-	ext = block / AFFS_SB(sb)->s_hashsize;
++	ext = (u32)block / AFFS_SB(sb)->s_hashsize;
+ 	block -= ext * AFFS_SB(sb)->s_hashsize;
+ 	ext_bh = affs_get_extblock(inode, ext);
+ 	if (IS_ERR(ext_bh))
+ 		goto err_ext;
+-	map_bh(bh_result, sb, be32_to_cpu(AFFS_BLOCK(sb, ext_bh, block)));
++	map_bh(bh_result, sb, (sector_t)be32_to_cpu(AFFS_BLOCK(sb, ext_bh, block)));
+ 
+ 	if (create) {
+ 		u32 blocknr = affs_alloc_block(inode, ext_bh->b_blocknr);
+@@ -422,7 +423,7 @@
+ 	return cont_prepare_write(page, from, to, affs_get_block,
+ 		&AFFS_I(page->mapping->host)->mmu_private);
+ }
+-static int _affs_bmap(struct address_space *mapping, long block)
++static sector_t _affs_bmap(struct address_space *mapping, sector_t block)
+ {
+ 	return generic_block_bmap(mapping,block,affs_get_block);
+ }
+diff -Nru a/fs/affs/inode.c b/fs/affs/inode.c
+--- a/fs/affs/inode.c	Thu Oct  3 15:06:06 2002
++++ b/fs/affs/inode.c	Thu Oct  3 15:06:06 2002
+@@ -416,7 +416,7 @@
+ 	}
+ 	affs_fix_checksum(sb, bh);
+ 	mark_buffer_dirty_inode(bh, inode);
+-	dentry->d_fsdata = (void *)bh->b_blocknr;
++	dentry->d_fsdata = (void *)(long)bh->b_blocknr;
+ 
+ 	affs_lock_dir(dir);
+ 	retval = affs_insert_hash(dir, bh);
+diff -Nru a/fs/bfs/file.c b/fs/bfs/file.c
+--- a/fs/bfs/file.c	Thu Oct  3 15:06:06 2002
++++ b/fs/bfs/file.c	Thu Oct  3 15:06:06 2002
+@@ -145,7 +145,7 @@
+ 	return block_prepare_write(page, from, to, bfs_get_block);
  }
  
--static unsigned int calc_dev_size(struct block_device *bdev, mddev_t *mddev)
-+static sector_t calc_dev_size(struct block_device *bdev, mddev_t *mddev)
+-static int bfs_bmap(struct address_space *mapping, long block)
++static sector_t bfs_bmap(struct address_space *mapping, sector_t block)
  {
--	unsigned int size;
-+	sector_t size;
+ 	return generic_block_bmap(mapping, block, bfs_get_block);
+ }
+diff -Nru a/fs/buffer.c b/fs/buffer.c
+--- a/fs/buffer.c	Thu Oct  3 15:06:06 2002
++++ b/fs/buffer.c	Thu Oct  3 15:06:06 2002
+@@ -1828,7 +1828,7 @@
+ 		unsigned from, unsigned to, get_block_t *get_block)
+ {
+ 	unsigned block_start, block_end;
+-	unsigned long block;
++	sector_t block;
+ 	int err = 0;
+ 	unsigned blocksize, bbits;
+ 	struct buffer_head *bh, *head, *wait[2], **wait_bh=wait;
+@@ -1844,7 +1844,7 @@
+ 	head = page_buffers(page);
  
- 	if (mddev->persistent)
- 		size = calc_dev_sboffset(bdev);
- 	else
- 		size = bdev->bd_inode->i_size >> BLOCK_SIZE_BITS;
- 	if (mddev->chunk_size)
--		size &= ~(mddev->chunk_size/1024 - 1);
-+		size &= ~((sector_t)mddev->chunk_size/1024 - 1);
- 	return size;
+ 	bbits = inode->i_blkbits;
+-	block = page->index << (PAGE_CACHE_SHIFT - bbits);
++	block = (sector_t)page->index << (PAGE_CACHE_SHIFT - bbits);
+ 
+ 	for(bh = head, block_start = 0; bh != head || !block_start;
+ 	    block++, block_start=block_end, bh = bh->b_this_page) {
+@@ -1985,7 +1985,7 @@
+ int block_read_full_page(struct page *page, get_block_t *get_block)
+ {
+ 	struct inode *inode = page->mapping->host;
+-	unsigned long iblock, lblock;
++	sector_t iblock, lblock;
+ 	struct buffer_head *bh, *head, *arr[MAX_BUF_PER_PAGE];
+ 	unsigned int blocksize, blocks;
+ 	int nr, i;
+@@ -2000,7 +2000,7 @@
+ 	head = page_buffers(page);
+ 
+ 	blocks = PAGE_CACHE_SIZE >> inode->i_blkbits;
+-	iblock = page->index << (PAGE_CACHE_SHIFT - inode->i_blkbits);
++	iblock = (sector_t)page->index << (PAGE_CACHE_SHIFT - inode->i_blkbits);
+ 	lblock = (inode->i_size+blocksize-1) >> inode->i_blkbits;
+ 	bh = head;
+ 	nr = 0;
+diff -Nru a/fs/efs/inode.c b/fs/efs/inode.c
+--- a/fs/efs/inode.c	Thu Oct  3 15:06:06 2002
++++ b/fs/efs/inode.c	Thu Oct  3 15:06:06 2002
+@@ -19,7 +19,7 @@
+ {
+ 	return block_read_full_page(page,efs_get_block);
+ }
+-static int _efs_bmap(struct address_space *mapping, long block)
++static sector_t _efs_bmap(struct address_space *mapping, sector_t block)
+ {
+ 	return generic_block_bmap(mapping,block,efs_get_block);
+ }
+diff -Nru a/fs/ext2/inode.c b/fs/ext2/inode.c
+--- a/fs/ext2/inode.c	Thu Oct  3 15:06:06 2002
++++ b/fs/ext2/inode.c	Thu Oct  3 15:06:06 2002
+@@ -601,7 +601,7 @@
+ 	return block_prepare_write(page,from,to,ext2_get_block);
  }
  
--static unsigned int zoned_raid_size(mddev_t *mddev)
-+static sector_t zoned_raid_size(mddev_t *mddev)
+-static int ext2_bmap(struct address_space *mapping, long block)
++static sector_t ext2_bmap(struct address_space *mapping, sector_t block)
  {
--	unsigned int mask;
-+	sector_t mask;
- 	mdk_rdev_t * rdev;
- 	struct list_head *tmp;
- 
- 	/*
- 	 * do size and offset calculations.
- 	 */
--	mask = ~(mddev->chunk_size/1024 - 1);
-+	mask = ~((sector_t)mddev->chunk_size/1024 - 1);
- 
- 	ITERATE_RDEV(mddev,rdev,tmp) {
- 		rdev->size &= mask;
-@@ -362,7 +362,7 @@
- 
- static int read_disk_sb(mdk_rdev_t * rdev)
- {
--	unsigned long sb_offset;
-+	sector_t sb_offset;
- 
- 	if (!rdev->sb) {
- 		MD_BUG();
-@@ -614,9 +614,9 @@
- 
- static void print_rdev(mdk_rdev_t *rdev)
- {
--	printk(KERN_INFO "md: rdev %s, SZ:%08ld F:%d S:%d DN:%d ",
-+	printk(KERN_INFO "md: rdev %s, SZ:%08llu F:%d S:%d DN:%d ",
- 		bdev_partition_name(rdev->bdev),
--		rdev->size, rdev->faulty, rdev->in_sync, rdev->desc_nr);
-+		(unsigned long long)rdev->size, rdev->faulty, rdev->in_sync, rdev->desc_nr);
- 	if (rdev->sb) {
- 		printk(KERN_INFO "md: rdev superblock:\n");
- 		print_sb(rdev->sb);
-@@ -698,7 +698,8 @@
- 
- static int write_disk_sb(mdk_rdev_t * rdev)
- {
--	unsigned long sb_offset, size;
-+	sector_t sb_offset;
-+	sector_t size;
- 
- 	if (!rdev->sb) {
- 		MD_BUG();
-@@ -715,8 +716,10 @@
- 
- 	sb_offset = calc_dev_sboffset(rdev->bdev);
- 	if (rdev->sb_offset != sb_offset) {
--		printk(KERN_INFO "%s's sb offset has changed from %ld to %ld, skipping\n",
--		       bdev_partition_name(rdev->bdev), rdev->sb_offset, sb_offset);
-+		printk(KERN_INFO "%s's sb offset has changed from %llu to %llu, skipping\n",
-+		       bdev_partition_name(rdev->bdev), 
-+		    (unsigned long long)rdev->sb_offset, 
-+		    (unsigned long long)sb_offset);
- 		goto skip;
- 	}
- 	/*
-@@ -726,12 +729,14 @@
- 	 */
- 	size = calc_dev_size(rdev->bdev, rdev->mddev);
- 	if (size != rdev->size) {
--		printk(KERN_INFO "%s's size has changed from %ld to %ld since import, skipping\n",
--		       bdev_partition_name(rdev->bdev), rdev->size, size);
-+		printk(KERN_INFO "%s's size has changed from %llu to %llu since import, skipping\n",
-+		       bdev_partition_name(rdev->bdev),
-+		       (unsigned long long)rdev->size, 
-+		       (unsigned long long)size);
- 		goto skip;
- 	}
- 
--	printk(KERN_INFO "(write) %s's sb offset: %ld\n", bdev_partition_name(rdev->bdev), sb_offset);
-+	printk(KERN_INFO "(write) %s's sb offset: %llu\n", bdev_partition_name(rdev->bdev), (unsigned long long)sb_offset);
- 
- 	if (!sync_page_io(rdev->bdev, sb_offset<<1, MD_SB_BYTES, rdev->sb_page, WRITE))
- 		goto fail;
-@@ -929,7 +934,7 @@
- {
- 	int err;
- 	mdk_rdev_t *rdev;
--	unsigned int size;
-+	sector_t size;
- 
- 	rdev = (mdk_rdev_t *) kmalloc(sizeof(*rdev), GFP_KERNEL);
- 	if (!rdev) {
-@@ -1209,9 +1214,9 @@
- 		rdev->size = calc_dev_size(rdev->bdev, mddev);
- 		if (rdev->size < mddev->chunk_size / 1024) {
- 			printk(KERN_WARNING
--				"md: Dev %s smaller than chunk_size: %ldk < %dk\n",
-+				"md: Dev %s smaller than chunk_size: %lluk < %dk\n",
- 				bdev_partition_name(rdev->bdev),
--				rdev->size, mddev->chunk_size / 1024);
-+				(unsigned long long)rdev->size, mddev->chunk_size / 1024);
- 			return -EINVAL;
- 		}
- 	}
-@@ -1402,6 +1407,12 @@
- 	mddev->pers = pers[pnum];
- 
- 	blk_queue_make_request(&mddev->queue, mddev->pers->make_request);
-+	printk("%s: setting max_sectors to %d, segment boundary to %d\n",
-+	       disk->disk_name,
-+	       chunk_size >> 9,
-+	       (chunk_size>>1)-1);
-+	blk_queue_max_sectors(&mddev->queue, chunk_size >> 9);
-+	blk_queue_segment_boundary(&mddev->queue, (chunk_size>>1) - 1);
- 	mddev->queue.queuedata = mddev;
- 
- 	err = mddev->pers->run(mddev);
-@@ -1873,7 +1884,7 @@
- 
- static int add_new_disk(mddev_t * mddev, mdu_disk_info_t *info)
- {
--	int size;
-+	sector_t size;
- 	mdk_rdev_t *rdev;
- 	dev_t dev;
- 	dev = MKDEV(info->major,info->minor);
-@@ -2026,8 +2037,9 @@
- 	size = calc_dev_size(rdev->bdev, mddev);
- 
- 	if (size < mddev->size) {
--		printk(KERN_WARNING "md%d: disk size %d blocks < array size %ld\n",
--				mdidx(mddev), size, mddev->size);
-+		printk(KERN_WARNING "md%d: disk size %llu blocks < array size %llu\n",
-+				mdidx(mddev), (unsigned long long)size, 
-+				(unsigned long long)mddev->size);
- 		err = -ENOSPC;
- 		goto abort_export;
- 	}
-@@ -2629,7 +2641,8 @@
- static int md_status_read_proc(char *page, char **start, off_t off,
- 			int count, int *eof, void *data)
- {
--	int sz = 0, j, size;
-+	int sz = 0, j;
-+	sector_t size;
- 	struct list_head *tmp, *tmp2;
- 	mdk_rdev_t *rdev;
- 	mddev_t *mddev;
-@@ -2663,10 +2676,10 @@
- 
- 		if (!list_empty(&mddev->disks)) {
- 			if (mddev->pers)
--				sz += sprintf(page + sz, "\n      %d blocks",
--						 md_size[mdidx(mddev)]);
-+				sz += sprintf(page + sz, "\n      %llu blocks",
-+						 (unsigned long long)md_size[mdidx(mddev)]);
- 			else
--				sz += sprintf(page + sz, "\n      %d blocks", size);
-+				sz += sprintf(page + sz, "\n      %llu blocks", (unsigned long long)size);
- 		}
- 
- 		if (!mddev->pers) {
-@@ -3467,6 +3480,8 @@
+ 	return generic_block_bmap(mapping,block,ext2_get_block);
  }
+diff -Nru a/fs/ext3/ialloc.c b/fs/ext3/ialloc.c
+--- a/fs/ext3/ialloc.c	Thu Oct  3 15:06:06 2002
++++ b/fs/ext3/ialloc.c	Thu Oct  3 15:06:06 2002
+@@ -479,7 +479,7 @@
+ 			!(inode = iget(sb, ino)) || is_bad_inode(inode) ||
+ 			NEXT_ORPHAN(inode) > max_ino) {
+ 		ext3_warning(sb, __FUNCTION__,
+-			     "bad orphan inode %lu!  e2fsck was run?\n", ino);
++			     "bad orphan inode %lu!  e2fsck was run?\n", (unsigned long)ino);
+ 		printk(KERN_NOTICE "ext3_test_bit(bit=%d, block=%llu) = %d\n",
+ 		       bit, 
+ 			(unsigned long long)bitmap_bh->b_blocknr, 
+diff -Nru a/fs/ext3/inode.c b/fs/ext3/inode.c
+--- a/fs/ext3/inode.c	Thu Oct  3 15:06:06 2002
++++ b/fs/ext3/inode.c	Thu Oct  3 15:06:06 2002
+@@ -1181,7 +1181,7 @@
+  * So, if we see any bmap calls here on a modified, data-journaled file,
+  * take extra steps to flush any blocks which might be in the cache. 
+  */
+-static int ext3_bmap(struct address_space *mapping, long block)
++static sector_t ext3_bmap(struct address_space *mapping, sector_t block)
+ {
+ 	struct inode *inode = mapping->host;
+ 	journal_t *journal;
+diff -Nru a/fs/fat/file.c b/fs/fat/file.c
+--- a/fs/fat/file.c	Thu Oct  3 15:06:06 2002
++++ b/fs/fat/file.c	Thu Oct  3 15:06:06 2002
+@@ -59,7 +59,7 @@
+ 		BUG();
+ 		return -EIO;
+ 	}
+-	if (!(iblock % MSDOS_SB(sb)->cluster_size)) {
++	if (!((unsigned long)iblock % MSDOS_SB(sb)->cluster_size)) {
+ 		int error;
+ 
+ 		error = fat_add_cluster(inode);
+diff -Nru a/fs/fat/inode.c b/fs/fat/inode.c
+--- a/fs/fat/inode.c	Thu Oct  3 15:06:06 2002
++++ b/fs/fat/inode.c	Thu Oct  3 15:06:06 2002
+@@ -1000,7 +1000,7 @@
+ 	return generic_commit_write(file, page, from, to);
+ }
+ 
+-static int _fat_bmap(struct address_space *mapping, long block)
++static sector_t _fat_bmap(struct address_space *mapping, sector_t block)
+ {
+ 	return generic_block_bmap(mapping,block,fat_get_block);
+ }
+diff -Nru a/fs/freevxfs/vxfs_subr.c b/fs/freevxfs/vxfs_subr.c
+--- a/fs/freevxfs/vxfs_subr.c	Thu Oct  3 15:06:06 2002
++++ b/fs/freevxfs/vxfs_subr.c	Thu Oct  3 15:06:06 2002
+@@ -43,7 +43,7 @@
+ 
+ 
+ static int		vxfs_readpage(struct file *, struct page *);
+-static int		vxfs_bmap(struct address_space *, long);
++static sector_t		vxfs_bmap(struct address_space *, sector_t);
+ 
+ struct address_space_operations vxfs_aops = {
+ 	.readpage =		vxfs_readpage,
+@@ -186,8 +186,8 @@
+  * Locking status:
+  *   We are under the bkl.
+  */
+-static int
+-vxfs_bmap(struct address_space *mapping, long block)
++static sector_t
++vxfs_bmap(struct address_space *mapping, sector_t block)
+ {
+ 	return generic_block_bmap(mapping, block, vxfs_getblk);
+ }
+diff -Nru a/fs/hfs/inode.c b/fs/hfs/inode.c
+--- a/fs/hfs/inode.c	Thu Oct  3 15:06:06 2002
++++ b/fs/hfs/inode.c	Thu Oct  3 15:06:06 2002
+@@ -242,7 +242,7 @@
+ 	return cont_prepare_write(page,from,to,hfs_get_block,
+ 		&HFS_I(page->mapping->host)->mmu_private);
+ }
+-static int hfs_bmap(struct address_space *mapping, long block)
++static sector_t hfs_bmap(struct address_space *mapping, sector_t block)
+ {
+ 	return generic_block_bmap(mapping,block,hfs_get_block);
+ }
+diff -Nru a/fs/hpfs/file.c b/fs/hpfs/file.c
+--- a/fs/hpfs/file.c	Thu Oct  3 15:06:06 2002
++++ b/fs/hpfs/file.c	Thu Oct  3 15:06:06 2002
+@@ -111,7 +111,7 @@
+ 	return cont_prepare_write(page,from,to,hpfs_get_block,
+ 		&hpfs_i(page->mapping->host)->mmu_private);
+ }
+-static int _hpfs_bmap(struct address_space *mapping, long block)
++static sector_t _hpfs_bmap(struct address_space *mapping, sector_t block)
+ {
+ 	return generic_block_bmap(mapping,block,hpfs_get_block);
+ }
+diff -Nru a/fs/inode.c b/fs/inode.c
+--- a/fs/inode.c	Thu Oct  3 15:06:06 2002
++++ b/fs/inode.c	Thu Oct  3 15:06:06 2002
+@@ -905,9 +905,9 @@
+  *	file.
+  */
+  
+-int bmap(struct inode * inode, int block)
++sector_t bmap(struct inode * inode, sector_t block)
+ {
+-	int res = 0;
++	sector_t res = 0;
+ 	if (inode->i_mapping->a_ops->bmap)
+ 		res = inode->i_mapping->a_ops->bmap(inode->i_mapping, block);
+ 	return res;
+diff -Nru a/fs/isofs/inode.c b/fs/isofs/inode.c
+--- a/fs/isofs/inode.c	Thu Oct  3 15:06:06 2002
++++ b/fs/isofs/inode.c	Thu Oct  3 15:06:06 2002
+@@ -1045,9 +1045,9 @@
+ 	return 0;
+ }
+ 
+-struct buffer_head *isofs_bread(struct inode *inode, unsigned int block)
++struct buffer_head *isofs_bread(struct inode *inode, sector_t block)
+ {
+-	unsigned int blknr = isofs_bmap(inode, block);
++	sector_t blknr = isofs_bmap(inode, block);
+ 	if (!blknr)
+ 		return NULL;
+ 	return sb_bread(inode->i_sb, blknr);
+@@ -1058,7 +1058,7 @@
+ 	return block_read_full_page(page,isofs_get_block);
+ }
+ 
+-static int _isofs_bmap(struct address_space *mapping, long block)
++static sector_t _isofs_bmap(struct address_space *mapping, sector_t block)
+ {
+ 	return generic_block_bmap(mapping,block,isofs_get_block);
+ }
+diff -Nru a/fs/jfs/inode.c b/fs/jfs/inode.c
+--- a/fs/jfs/inode.c	Thu Oct  3 15:06:06 2002
++++ b/fs/jfs/inode.c	Thu Oct  3 15:06:06 2002
+@@ -305,7 +305,7 @@
+ 	return block_prepare_write(page, from, to, jfs_get_block);
+ }
+ 
+-static int jfs_bmap(struct address_space *mapping, long block)
++static sector_t jfs_bmap(struct address_space *mapping, sector_t block)
+ {
+ 	return generic_block_bmap(mapping, block, jfs_get_block);
+ }
+diff -Nru a/fs/minix/inode.c b/fs/minix/inode.c
+--- a/fs/minix/inode.c	Thu Oct  3 15:06:06 2002
++++ b/fs/minix/inode.c	Thu Oct  3 15:06:06 2002
+@@ -328,7 +328,7 @@
+ {
+ 	return block_prepare_write(page,from,to,minix_get_block);
+ }
+-static int minix_bmap(struct address_space *mapping, long block)
++static sector_t minix_bmap(struct address_space *mapping, sector_t block)
+ {
+ 	return generic_block_bmap(mapping,block,minix_get_block);
+ }
+diff -Nru a/fs/qnx4/inode.c b/fs/qnx4/inode.c
+--- a/fs/qnx4/inode.c	Thu Oct  3 15:06:06 2002
++++ b/fs/qnx4/inode.c	Thu Oct  3 15:06:06 2002
+@@ -444,7 +444,7 @@
+ 	return cont_prepare_write(page, from, to, qnx4_get_block,
+ 				  &qnx4_inode->mmu_private);
+ }
+-static int qnx4_bmap(struct address_space *mapping, long block)
++static sector_t qnx4_bmap(struct address_space *mapping, sector_t block)
+ {
+ 	return generic_block_bmap(mapping,block,qnx4_get_block);
+ }
+diff -Nru a/fs/reiserfs/inode.c b/fs/reiserfs/inode.c
+--- a/fs/reiserfs/inode.c	Thu Oct  3 15:06:06 2002
++++ b/fs/reiserfs/inode.c	Thu Oct  3 15:06:06 2002
+@@ -2029,7 +2029,7 @@
+ }
+ 
+ 
+-static int reiserfs_aop_bmap(struct address_space *as, long block) {
++static sector_t reiserfs_aop_bmap(struct address_space *as, sector_t block) {
+   return generic_block_bmap(as, block, reiserfs_bmap) ;
+ }
+ 
+diff -Nru a/fs/sysv/itree.c b/fs/sysv/itree.c
+--- a/fs/sysv/itree.c	Thu Oct  3 15:06:06 2002
++++ b/fs/sysv/itree.c	Thu Oct  3 15:06:06 2002
+@@ -459,7 +459,7 @@
+ {
+ 	return block_prepare_write(page,from,to,get_block);
+ }
+-static int sysv_bmap(struct address_space *mapping, long block)
++static sector_t sysv_bmap(struct address_space *mapping, sector_t block)
+ {
+ 	return generic_block_bmap(mapping,block,get_block);
+ }
+diff -Nru a/fs/udf/inode.c b/fs/udf/inode.c
+--- a/fs/udf/inode.c	Thu Oct  3 15:06:06 2002
++++ b/fs/udf/inode.c	Thu Oct  3 15:06:06 2002
+@@ -146,7 +146,7 @@
+ 	return block_prepare_write(page, from, to, udf_get_block);
+ }
+ 
+-static int udf_bmap(struct address_space *mapping, long block)
++static sector_t udf_bmap(struct address_space *mapping, sector_t block)
+ {
+ 	return generic_block_bmap(mapping,block,udf_get_block);
+ }
+diff -Nru a/fs/ufs/inode.c b/fs/ufs/inode.c
+--- a/fs/ufs/inode.c	Thu Oct  3 15:06:06 2002
++++ b/fs/ufs/inode.c	Thu Oct  3 15:06:06 2002
+@@ -457,7 +457,7 @@
+ {
+ 	return block_prepare_write(page,from,to,ufs_getfrag_block);
+ }
+-static int ufs_bmap(struct address_space *mapping, long block)
++static sector_t ufs_bmap(struct address_space *mapping, sector_t block)
+ {
+ 	return generic_block_bmap(mapping,block,ufs_getfrag_block);
+ }
+diff -Nru a/fs/xfs/linux/xfs_aops.c b/fs/xfs/linux/xfs_aops.c
+--- a/fs/xfs/linux/xfs_aops.c	Thu Oct  3 15:06:06 2002
++++ b/fs/xfs/linux/xfs_aops.c	Thu Oct  3 15:06:06 2002
+@@ -690,10 +690,11 @@
+ 					linvfs_get_blocks_direct);
+ }
+ 
+-STATIC int
++
++STATIC sector_t
+ linvfs_bmap(
+ 	struct address_space	*mapping,
+-	long			block)
++	sector_t		block)
+ {
+ 	struct inode		*inode = (struct inode *)mapping->host;
+ 	vnode_t			*vp = LINVFS_GET_VP(inode);
+diff -Nru a/include/asm-i386/types.h b/include/asm-i386/types.h
+--- a/include/asm-i386/types.h	Thu Oct  3 15:06:06 2002
++++ b/include/asm-i386/types.h	Thu Oct  3 15:06:06 2002
+@@ -52,6 +52,11 @@
  #endif
+ typedef u64 dma64_addr_t;
  
-+extern u64 __udivdi3(u64, u64);
-+extern u64 __umoddi3(u64, u64);
- EXPORT_SYMBOL(md_size);
- EXPORT_SYMBOL(register_md_personality);
- EXPORT_SYMBOL(unregister_md_personality);
-@@ -3478,4 +3493,6 @@
- EXPORT_SYMBOL(md_wakeup_thread);
- EXPORT_SYMBOL(md_print_devices);
- EXPORT_SYMBOL(md_interrupt_thread);
-+EXPORT_SYMBOL(__udivdi3);
-+EXPORT_SYMBOL(__umoddi3);
- MODULE_LICENSE("GPL");
-diff -Nru a/drivers/md/multipath.c b/drivers/md/multipath.c
---- a/drivers/md/multipath.c	Thu Oct  3 15:06:13 2002
-+++ b/drivers/md/multipath.c	Thu Oct  3 15:06:13 2002
-@@ -130,8 +130,8 @@
- 		 * oops, IO error:
- 		 */
- 		md_error (mp_bh->mddev, rdev);
--		printk(KERN_ERR "multipath: %s: rescheduling sector %lu\n", 
--		       bdev_partition_name(rdev->bdev), bio->bi_sector);
-+		printk(KERN_ERR "multipath: %s: rescheduling sector %llu\n", 
-+		       bdev_partition_name(rdev->bdev), (unsigned long long)bio->bi_sector);
- 		multipath_reschedule_retry(mp_bh);
- 	}
- 	atomic_dec(&rdev->nr_pending);
-@@ -320,10 +320,10 @@
- }
++#ifdef CONFIG_LBD
++typedef u64 sector_t;
++#define HAVE_SECTOR_T
++#endif
++
+ #endif /* __KERNEL__ */
  
- #define IO_ERROR KERN_ALERT \
--"multipath: %s: unrecoverable IO read error for block %lu\n"
-+"multipath: %s: unrecoverable IO read error for block %llu\n"
+ #endif
+diff -Nru a/include/asm-ppc/types.h b/include/asm-ppc/types.h
+--- a/include/asm-ppc/types.h	Thu Oct  3 15:06:06 2002
++++ b/include/asm-ppc/types.h	Thu Oct  3 15:06:06 2002
+@@ -45,6 +45,11 @@
+ typedef u32 dma_addr_t;
+ typedef u64 dma64_addr_t;
  
- #define REDIRECT_SECTOR KERN_ERR \
--"multipath: %s: redirecting sector %lu to another IO path\n"
-+"multipath: %s: redirecting sector %llu to another IO path\n"
++#ifdef CONFIG_LBD
++typedef u64 sector_t;
++#define HAVE_SECTOR_T
++#endif
++
+ #endif /* __KERNEL__ */
  
  /*
-  * This is a kernel thread which:
-@@ -356,11 +356,11 @@
- 		rdev = NULL;
- 		if (multipath_map (mddev, &rdev)<0) {
- 			printk(IO_ERROR,
--				bdev_partition_name(bio->bi_bdev), bio->bi_sector);
-+				bdev_partition_name(bio->bi_bdev), (unsigned long long)bio->bi_sector);
- 			multipath_end_bh_io(mp_bh, 0);
- 		} else {
- 			printk(REDIRECT_SECTOR,
--				bdev_partition_name(bio->bi_bdev), bio->bi_sector);
-+				bdev_partition_name(bio->bi_bdev), (unsigned long long)bio->bi_sector);
- 			bio->bi_bdev = rdev->bdev;
- 			generic_make_request(bio);
- 		}
-diff -Nru a/drivers/md/raid0.c b/drivers/md/raid0.c
---- a/drivers/md/raid0.c	Thu Oct  3 15:06:13 2002
-+++ b/drivers/md/raid0.c	Thu Oct  3 15:06:13 2002
-@@ -30,7 +30,7 @@
- static int create_strip_zones (mddev_t *mddev)
- {
- 	int i, c, j;
--	unsigned long current_offset, curr_zone_offset;
-+	sector_t current_offset, curr_zone_offset;
- 	raid0_conf_t *conf = mddev_to_conf(mddev);
- 	mdk_rdev_t *smallest, *rdev1, *rdev2, *rdev;
- 	struct list_head *tmp1, *tmp2;
-@@ -46,9 +46,9 @@
- 		printk("raid0: looking at %s\n", bdev_partition_name(rdev1->bdev));
- 		c = 0;
- 		ITERATE_RDEV(mddev,rdev2,tmp2) {
--			printk("raid0:   comparing %s(%ld) with %s(%ld)\n",
--			       bdev_partition_name(rdev1->bdev), rdev1->size,
--			       bdev_partition_name(rdev2->bdev), rdev2->size);
-+			printk("raid0:   comparing %s(%llu) with %s(%llu)\n",
-+			       bdev_partition_name(rdev1->bdev), (unsigned long long)rdev1->size,
-+			       bdev_partition_name(rdev2->bdev), (unsigned long long)rdev2->size);
- 			if (rdev2 == rdev1) {
- 				printk("raid0:   END\n");
- 				break;
-@@ -135,7 +135,8 @@
- 				c++;
- 				if (!smallest || (rdev->size <smallest->size)) {
- 					smallest = rdev;
--					printk("  (%ld) is smallest!.\n", rdev->size);
-+					printk("  (%llu) is smallest!.\n", 
-+					       (unsigned long long)rdev->size);
- 				}
- 			} else
- 				printk(" nope.\n");
-@@ -152,7 +153,7 @@
- 		curr_zone_offset += zone->size;
- 
- 		current_offset = smallest->size;
--		printk("raid0: current zone offset: %ld\n", current_offset);
-+		printk("raid0: current zone offset: %llu\n", (unsigned long long)current_offset);
- 	}
- 	printk("raid0: done.\n");
- 	return 0;
-@@ -163,7 +164,9 @@
- 
- static int raid0_run (mddev_t *mddev)
- {
--	unsigned long cur=0, i=0, size, zone0_size, nb_zone;
-+	unsigned  cur=0, i=0, nb_zone;
-+	sector_t zone0_size;
-+	s64 size;
- 	raid0_conf_t *conf;
- 
- 	MOD_INC_USE_COUNT;
-@@ -176,16 +179,15 @@
- 	if (create_strip_zones (mddev)) 
- 		goto out_free_conf;
- 
--	printk("raid0 : md_size is %d blocks.\n", md_size[mdidx(mddev)]);
-+	printk("raid0 : md_size is %llu blocks.\n", (unsigned long long)md_size[mdidx(mddev)]);
- 	printk("raid0 : conf->smallest->size is %ld blocks.\n", conf->smallest->size);
- 	nb_zone = md_size[mdidx(mddev)]/conf->smallest->size +
--			(md_size[mdidx(mddev)] % conf->smallest->size ? 1 : 0);
--	printk("raid0 : nb_zone is %ld.\n", nb_zone);
-+		(md_size[mdidx(mddev)] % conf->smallest->size ? 1 : 0);
-+	printk("raid0 : nb_zone is %d.\n", nb_zone);
- 	conf->nr_zones = nb_zone;
- 
--	printk("raid0 : Allocating %ld bytes for hash.\n",
-+	printk("raid0 : Allocating %d bytes for hash.\n",
- 				nb_zone*sizeof(struct raid0_hash));
--
- 	conf->hash_table = vmalloc (sizeof (struct raid0_hash)*nb_zone);
- 	if (!conf->hash_table)
- 		goto out_free_zone_conf;
-@@ -269,7 +271,8 @@
- 	struct raid0_hash *hash;
- 	struct strip_zone *zone;
- 	mdk_rdev_t *tmp_dev;
--	unsigned long chunk, block, rsect;
-+	unsigned long chunk;
-+	sector_t block, rsect;
- 
- 	chunk_size = mddev->chunk_size >> 10;
- 	chunksize_bits = ffz(~chunk_size);
-@@ -312,16 +315,16 @@
- 	return 1;
- 
- bad_map:
--	printk ("raid0_make_request bug: can't convert block across chunks or bigger than %dk %ld %d\n", chunk_size, bio->bi_sector, bio->bi_size >> 10);
-+	printk ("raid0_make_request bug: can't convert block across chunks or bigger than %dk %llu %d\n", chunk_size, (unsigned long long)bio->bi_sector, bio->bi_size >> 10);
- 	goto outerr;
- bad_hash:
--	printk("raid0_make_request bug: hash==NULL for block %ld\n", block);
-+	printk("raid0_make_request bug: hash==NULL for block %llu\n", (unsigned long long)block);
- 	goto outerr;
- bad_zone0:
--	printk ("raid0_make_request bug: hash->zone0==NULL for block %ld\n", block);
-+	printk ("raid0_make_request bug: hash->zone0==NULL for block %llu\n", (unsigned long long)block);
- 	goto outerr;
- bad_zone1:
--	printk ("raid0_make_request bug: hash->zone1==NULL for block %ld\n", block);
-+	printk ("raid0_make_request bug: hash->zone1==NULL for block %llu\n", (unsigned long long)block);
-  outerr:
- 	bio_io_error(bio, bio->bi_size);
- 	return 0;
-diff -Nru a/drivers/md/raid1.c b/drivers/md/raid1.c
---- a/drivers/md/raid1.c	Thu Oct  3 15:06:13 2002
-+++ b/drivers/md/raid1.c	Thu Oct  3 15:06:13 2002
-@@ -298,8 +298,8 @@
- 			/*
- 			 * oops, read error:
- 			 */
--			printk(KERN_ERR "raid1: %s: rescheduling sector %lu\n",
--			       bdev_partition_name(conf->mirrors[mirror].rdev->bdev), r1_bio->sector);
-+			printk(KERN_ERR "raid1: %s: rescheduling sector %llu\n",
-+			       bdev_partition_name(conf->mirrors[mirror].rdev->bdev), (unsigned long long)r1_bio->sector);
- 			reschedule_retry(r1_bio);
- 		}
- 	} else {
-@@ -747,10 +747,10 @@
- }
- 
- #define IO_ERROR KERN_ALERT \
--"raid1: %s: unrecoverable I/O read error for block %lu\n"
-+"raid1: %s: unrecoverable I/O read error for block %llu\n"
- 
- #define REDIRECT_SECTOR KERN_ERR \
--"raid1: %s: redirecting sector %lu to another mirror\n"
-+"raid1: %s: redirecting sector %llu to another mirror\n"
- 
- static int end_sync_read(struct bio *bio, unsigned int bytes_done, int error)
- {
-@@ -827,7 +827,7 @@
- 		 * There is no point trying a read-for-reconstruct as
- 		 * reconstruct is about to be aborted
- 		 */
--		printk(IO_ERROR, bdev_partition_name(bio->bi_bdev), r1_bio->sector);
-+		printk(IO_ERROR, bdev_partition_name(bio->bi_bdev), (unsigned long long)r1_bio->sector);
- 		md_done_sync(mddev, r1_bio->master_bio->bi_size >> 9, 0);
- 		resume_device(conf);
- 		put_buf(r1_bio);
-@@ -878,7 +878,8 @@
- 		 * Nowhere to write this to... I guess we
- 		 * must be done
- 		 */
--		printk(KERN_ALERT "raid1: sync aborting as there is nowhere to write sector %lu\n", r1_bio->sector);
-+		printk(KERN_ALERT "raid1: sync aborting as there is nowhere to write sector %llu\n", 
-+			(unsigned long long)r1_bio->sector);
- 		md_done_sync(mddev, r1_bio->master_bio->bi_size >> 9, 0);
- 		resume_device(conf);
- 		put_buf(r1_bio);
-@@ -931,12 +932,12 @@
- 		case READ:
- 		case READA:
- 			if (map(mddev, &rdev) == -1) {
--				printk(IO_ERROR, bdev_partition_name(bio->bi_bdev), r1_bio->sector);
-+				printk(IO_ERROR, bdev_partition_name(bio->bi_bdev), (unsigned long long)r1_bio->sector);
- 				raid_end_bio_io(r1_bio, 0);
- 				break;
- 			}
- 			printk(REDIRECT_SECTOR,
--				bdev_partition_name(rdev->bdev), r1_bio->sector);
-+				bdev_partition_name(rdev->bdev), (unsigned long long)r1_bio->sector);
- 			bio->bi_bdev = rdev->bdev;
- 			bio->bi_sector = r1_bio->sector;
- 			bio->bi_rw = r1_bio->cmd;
-diff -Nru a/drivers/md/raid5.c b/drivers/md/raid5.c
---- a/drivers/md/raid5.c	Thu Oct  3 15:06:13 2002
-+++ b/drivers/md/raid5.c	Thu Oct  3 15:06:13 2002
-@@ -96,7 +96,7 @@
- 
- static void remove_hash(struct stripe_head *sh)
- {
--	PRINTK("remove_hash(), stripe %lu\n", sh->sector);
-+	PRINTK("remove_hash(), stripe %llu\n", (unsigned long long)sh->sector);
- 
- 	if (sh->hash_pprev) {
- 		if (sh->hash_next)
-@@ -110,7 +110,7 @@
- {
- 	struct stripe_head **shp = &stripe_hash(conf, sh->sector);
- 
--	PRINTK("insert_hash(), stripe %lu\n",sh->sector);
-+	PRINTK("insert_hash(), stripe %llu\n", (unsigned long long)sh->sector);
- 
- 	CHECK_DEVLOCK();
- 	if ((sh->hash_next = *shp) != NULL)
-@@ -180,7 +180,7 @@
- 		BUG();
- 	
- 	CHECK_DEVLOCK();
--	PRINTK("init_stripe called, stripe %lu\n", sh->sector);
-+	PRINTK("init_stripe called, stripe %llu\n", (unsigned long long)sh->sector);
- 
- 	remove_hash(sh);
- 	
-@@ -193,8 +193,8 @@
- 
- 		if (dev->toread || dev->towrite || dev->written ||
- 		    test_bit(R5_LOCKED, &dev->flags)) {
--			printk("sector=%lx i=%d %p %p %p %d\n",
--			       sh->sector, i, dev->toread,
-+			printk("sector=%llx i=%d %p %p %p %d\n",
-+			       (unsigned long long)sh->sector, i, dev->toread,
- 			       dev->towrite, dev->written,
- 			       test_bit(R5_LOCKED, &dev->flags));
- 			BUG();
-@@ -336,7 +336,7 @@
- 		if (bi == &sh->dev[i].req)
- 			break;
- 
--	PRINTK("end_read_request %lu/%d, count: %d, uptodate %d.\n", sh->sector, i, atomic_read(&sh->count), uptodate);
-+	PRINTK("end_read_request %llu/%d, count: %d, uptodate %d.\n", (unsigned long long)sh->sector, i, atomic_read(&sh->count), uptodate);
- 	if (i == disks) {
- 		BUG();
- 		return 0;
-@@ -407,7 +407,7 @@
- 		if (bi == &sh->dev[i].req)
- 			break;
- 
--	PRINTK("end_write_request %lu/%d, count %d, uptodate: %d.\n", sh->sector, i, atomic_read(&sh->count), uptodate);
-+	PRINTK("end_write_request %llu/%d, count %d, uptodate: %d.\n", (unsigned long long)sh->sector, i, atomic_read(&sh->count), uptodate);
- 	if (i == disks) {
- 		BUG();
- 		return 0;
-@@ -427,7 +427,7 @@
- }
- 
- 
--static unsigned long compute_blocknr(struct stripe_head *sh, int i);
-+static sector_t compute_blocknr(struct stripe_head *sh, int i);
- 	
- static void raid5_build_block (struct stripe_head *sh, int i)
- {
-@@ -648,7 +648,7 @@
- 	int i, count, disks = conf->raid_disks;
- 	void *ptr[MAX_XOR_BLOCKS], *p;
- 
--	PRINTK("compute_block, stripe %lu, idx %d\n", sh->sector, dd_idx);
-+	PRINTK("compute_block, stripe %llu, idx %d\n", (unsigned long long)sh->sector, dd_idx);
- 
- 	ptr[0] = page_address(sh->dev[dd_idx].page);
- 	memset(ptr[0], 0, STRIPE_SIZE);
-@@ -660,7 +660,7 @@
- 		if (test_bit(R5_UPTODATE, &sh->dev[i].flags))
- 			ptr[count++] = p;
- 		else
--			printk("compute_block() %d, stripe %lu, %d not present\n", dd_idx, sh->sector, i);
-+			printk("compute_block() %d, stripe %llu, %d not present\n", dd_idx, (unsigned long long)sh->sector, i);
- 
- 		check_xor();
- 	}
-@@ -676,7 +676,7 @@
- 	void *ptr[MAX_XOR_BLOCKS];
- 	struct bio *chosen[MD_SB_DISKS];
- 
--	PRINTK("compute_parity, stripe %lu, method %d\n", sh->sector, method);
-+	PRINTK("compute_parity, stripe %llu, method %d\n", (unsigned long long)sh->sector, method);
- 	memset(chosen, 0, sizeof(chosen));
- 
- 	count = 1;
-@@ -762,7 +762,7 @@
- 	struct bio **bip;
- 	raid5_conf_t *conf = sh->raid_conf;
- 
--	PRINTK("adding bh b#%lu to stripe s#%lu\n", bi->bi_sector, sh->sector);
-+	PRINTK("adding bh b#%llu to stripe s#%llu\n", (unsigned long long)bi->bi_sector, (unsigned long long)sh->sector);
- 
- 
- 	spin_lock(&sh->lock);
-@@ -783,7 +783,7 @@
- 	spin_unlock_irq(&conf->device_lock);
- 	spin_unlock(&sh->lock);
- 
--	PRINTK("added bi b#%lu to stripe s#%lu, disk %d.\n", bi->bi_sector, sh->sector, dd_idx);
-+	PRINTK("added bi b#%llu to stripe s#%llu, disk %d.\n", (unsigned long long)bi->bi_sector, (unsigned long long)sh->sector, dd_idx);
- 
- 	if (forwrite) {
- 		/* check if page is coverred */
-@@ -831,7 +831,7 @@
- 	int failed_num=0;
- 	struct r5dev *dev;
- 
--	PRINTK("handling stripe %ld, cnt=%d, pd_idx=%d\n", sh->sector, atomic_read(&sh->count), sh->pd_idx);
-+	PRINTK("handling stripe %llu, cnt=%d, pd_idx=%d\n", (unsigned long long)sh->sector, atomic_read(&sh->count), sh->pd_idx);
- 
- 	spin_lock(&sh->lock);
- 	clear_bit(STRIPE_HANDLE, &sh->state);
-@@ -1035,7 +1035,7 @@
- 				else rcw += 2*disks;
- 			}
- 		}
--		PRINTK("for sector %ld, rmw=%d rcw=%d\n", sh->sector, rmw, rcw);
-+		PRINTK("for sector %llu, rmw=%d rcw=%d\n", (unsigned long long)sh->sector, rmw, rcw);
- 		set_bit(STRIPE_HANDLE, &sh->state);
- 		if (rmw < rcw && rmw > 0)
- 			/* prefer read-modify-write, but need to get some data */
-@@ -1178,7 +1178,7 @@
- 					md_sync_acct(rdev, STRIPE_SECTORS);
- 
- 				bi->bi_bdev = rdev->bdev;
--				PRINTK("for %ld schedule op %ld on disc %d\n", sh->sector, bi->bi_rw, i);
-+				PRINTK("for %llu schedule op %ld on disc %d\n", (unsigned long long)sh->sector, bi->bi_rw, i);
- 				atomic_inc(&sh->count);
- 				bi->bi_sector = sh->sector;
- 				bi->bi_flags = 1 << BIO_UPTODATE;
-@@ -1189,7 +1189,7 @@
- 				bi->bi_next = NULL;
- 				generic_make_request(bi);
- 			} else {
--				PRINTK("skip op %ld on disc %d for sector %ld\n", bi->bi_rw, i, sh->sector);
-+				PRINTK("skip op %ld on disc %d for sector %llu\n", bi->bi_rw, i, (unsigned long long)sh->sector);
- 				clear_bit(R5_LOCKED, &dev->flags);
- 				set_bit(STRIPE_HANDLE, &sh->state);
- 			}
-@@ -1510,9 +1510,9 @@
- {
- 	int i;
- 
--	printk("sh %lu, pd_idx %d, state %ld.\n", sh->sector, sh->pd_idx, sh->state);
--	printk("sh %lu,  count %d.\n", sh->sector, atomic_read(&sh->count));
--	printk("sh %lu, ", sh->sector);
-+	printk("sh %llu, pd_idx %d, state %ld.\n", (unsigned long long)sh->sector, sh->pd_idx, sh->state);
-+	printk("sh %llu,  count %d.\n", (unsigned long long)sh->sector, atomic_read(&sh->count));
-+	printk("sh %llu, ", (unsigned long long)sh->sector);
- 	for (i = 0; i < sh->raid_conf->raid_disks; i++) {
- 		printk("(cache%d: %p %ld) ", i, sh->dev[i].page, sh->dev[i].flags);
- 	}
-diff -Nru a/include/linux/loop.h b/include/linux/loop.h
---- a/include/linux/loop.h	Thu Oct  3 15:06:13 2002
-+++ b/include/linux/loop.h	Thu Oct  3 15:06:13 2002
-@@ -33,7 +33,7 @@
- 	int		lo_flags;
- 	int		(*transfer)(struct loop_device *, int cmd,
- 				    char *raw_buf, char *loop_buf, int size,
--				    int real_block);
-+				    sector_t real_block);
- 	char		lo_name[LO_NAME_SIZE];
- 	char		lo_encrypt_key[LO_KEY_SIZE];
- 	__u32           lo_init[2];
-@@ -123,7 +123,7 @@
- struct loop_func_table {
- 	int number; 	/* filter type */ 
- 	int (*transfer)(struct loop_device *lo, int cmd, char *raw_buf,
--			char *loop_buf, int size, int real_block);
-+			char *loop_buf, int size, sector_t real_block);
- 	int (*init)(struct loop_device *, struct loop_info *); 
- 	/* release is called from loop_unregister_transfer or clr_fd */
- 	int (*release)(struct loop_device *); 
-diff -Nru a/include/linux/raid/md.h b/include/linux/raid/md.h
---- a/include/linux/raid/md.h	Thu Oct  3 15:06:13 2002
-+++ b/include/linux/raid/md.h	Thu Oct  3 15:06:13 2002
-@@ -60,7 +60,7 @@
- #define MD_MINOR_VERSION                90
- #define MD_PATCHLEVEL_VERSION           0
- 
--extern int md_size[MAX_MD_DEVS];
-+extern sector_t md_size[MAX_MD_DEVS];
- 
- extern inline char * bdev_partition_name (struct block_device *bdev)
- {
-diff -Nru a/include/linux/raid/md_k.h b/include/linux/raid/md_k.h
---- a/include/linux/raid/md_k.h	Thu Oct  3 15:06:13 2002
-+++ b/include/linux/raid/md_k.h	Thu Oct  3 15:06:13 2002
-@@ -144,7 +144,7 @@
- {
- 	struct list_head same_set;	/* RAID devices within the same set */
- 
--	unsigned long size;		/* Device size (in blocks) */
-+	sector_t size;			/* Device size (in blocks) */
- 	mddev_t *mddev;			/* RAID array if running */
- 	unsigned long last_events;	/* IO event timestamp */
- 
-@@ -152,7 +152,7 @@
- 
- 	struct page	*sb_page;
- 	mdp_super_t	*sb;
--	unsigned long	sb_offset;
-+	sector_t	sb_offset;
- 
- 	/* A device can be in one of three states based on two flags:
- 	 * Not working:   faulty==1 in_sync==0
-@@ -350,5 +350,5 @@
- 	__wait_disk_event(wq, condition);				\
- } while (0)
- 
--#endif 
-+#endif
- 
-diff -Nru a/include/linux/raid/raid0.h b/include/linux/raid/raid0.h
---- a/include/linux/raid/raid0.h	Thu Oct  3 15:06:13 2002
-+++ b/include/linux/raid/raid0.h	Thu Oct  3 15:06:13 2002
-@@ -5,9 +5,9 @@
- 
- struct strip_zone
- {
--	unsigned long zone_offset;	/* Zone offset in md_dev */
--	unsigned long dev_offset;	/* Zone offset in real dev */
--	unsigned long size;		/* Zone size */
-+	sector_t zone_offset;	/* Zone offset in md_dev */
-+	sector_t dev_offset;	/* Zone offset in real dev */
-+	sector_t size;		/* Zone size */
- 	int nb_dev;			/* # of devices attached to the zone */
- 	mdk_rdev_t *dev[MD_SB_DISKS]; /* Devices attached to the zone */
+diff -Nru a/include/linux/fs.h b/include/linux/fs.h
+--- a/include/linux/fs.h	Thu Oct  3 15:06:06 2002
++++ b/include/linux/fs.h	Thu Oct  3 15:06:06 2002
+@@ -305,7 +305,7 @@
+ 	int (*prepare_write)(struct file *, struct page *, unsigned, unsigned);
+ 	int (*commit_write)(struct file *, struct page *, unsigned, unsigned);
+ 	/* Unfortunately this kludge is needed for FIBMAP. Don't use it */
+-	int (*bmap)(struct address_space *, long);
++	sector_t (*bmap)(struct address_space *, sector_t);
+ 	int (*invalidatepage) (struct page *, unsigned long);
+ 	int (*releasepage) (struct page *, int);
+ 	int (*direct_IO)(int, struct inode *, const struct iovec *iov, loff_t offset, unsigned long nr_segs);
+@@ -355,7 +355,7 @@
+ 	int			bd_holders;
+ 	struct block_device *	bd_contains;
+ 	unsigned		bd_block_size;
+-	unsigned long		bd_offset;
++	sector_t		bd_offset;
+ 	unsigned		bd_part_count;
+ 	int			bd_invalidated;
  };
+@@ -1146,7 +1146,7 @@
+ extern int filemap_fdatawrite(struct address_space *);
+ extern int filemap_fdatawait(struct address_space *);
+ extern void sync_supers(void);
+-extern int bmap(struct inode *, int);
++extern sector_t bmap(struct inode *, sector_t);
+ extern int notify_change(struct dentry *, struct iattr *);
+ extern int permission(struct inode *, int);
+ extern int vfs_permission(struct inode *, int);
+diff -Nru a/include/linux/iso_fs.h b/include/linux/iso_fs.h
+--- a/include/linux/iso_fs.h	Thu Oct  3 15:06:06 2002
++++ b/include/linux/iso_fs.h	Thu Oct  3 15:06:06 2002
+@@ -230,7 +230,7 @@
+ int get_acorn_filename(struct iso_directory_record *, char *, struct inode *);
+ 
+ extern struct dentry *isofs_lookup(struct inode *, struct dentry *);
+-extern struct buffer_head *isofs_bread(struct inode *, unsigned int);
++extern struct buffer_head *isofs_bread(struct inode *, sector_t);
+ extern int isofs_get_blocks(struct inode *, sector_t, struct buffer_head **, unsigned long);
+ 
+ extern struct inode_operations isofs_dir_inode_operations;
+diff -Nru a/include/linux/types.h b/include/linux/types.h
+--- a/include/linux/types.h	Thu Oct  3 15:06:06 2002
++++ b/include/linux/types.h	Thu Oct  3 15:06:06 2002
+@@ -117,13 +117,11 @@
+ #endif
+ 
+ /*
+- * transition to 64-bit sector_t, possibly making it an option...
++ * The type used for indexing onto a disc or disc partition.
++ * If required, asm/types.h can override it and define
++ * HAVE_SECTOR_T
+  */
+-#undef BLK_64BIT_SECTOR
+-
+-#ifdef BLK_64BIT_SECTOR
+-typedef u64 sector_t;
+-#else
++#ifndef HAVE_SECTOR_T
+ typedef unsigned long sector_t;
+ #endif
+ 

@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288850AbSA3Hzn>; Wed, 30 Jan 2002 02:55:43 -0500
+	id <S288878AbSA3H4D>; Wed, 30 Jan 2002 02:56:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288828AbSA3HyF>; Wed, 30 Jan 2002 02:54:05 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:22188 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S288850AbSA3HyB>; Wed, 30 Jan 2002 02:54:01 -0500
-Message-Id: <200201291829.g0TIT6br001418@tigger.cs.uni-dortmund.de>
-To: Alexander Viro <viro@math.psu.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [reiserfs-dev] Re: Note describing poor dcache utilization under high memory pressure 
-In-Reply-To: Message from Alexander Viro <viro@math.psu.edu> 
-   of "Mon, 28 Jan 2002 19:30:37 EST." <Pine.GSO.4.21.0201281927320.6592-100000@weyl.math.psu.edu> 
-Date: Tue, 29 Jan 2002 19:29:06 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S288828AbSA3Hzq>; Wed, 30 Jan 2002 02:55:46 -0500
+Received: from xdsl-213-168-117-12.netcologne.de ([213.168.117.12]:40592 "EHLO
+	t-stueck.streichelzoo") by vger.kernel.org with ESMTP
+	id <S288814AbSA3Hyr>; Wed, 30 Jan 2002 02:54:47 -0500
+Date: Wed, 30 Jan 2002 08:54:44 +0100
+From: Patrick Mauritz <oxygene@studentenbude.ath.cx>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Configure.help in 2.5.3-pre6
+Message-ID: <20020130075444.GA401@hydra>
+In-Reply-To: <Pine.LNX.4.33.0201292147530.22800-100000@barbarella.hawaga.org.uk> <1012370595.3392.21.camel@phantasy> <a3847v$17m$1@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a3847v$17m$1@penguin.transmeta.com>
+User-Agent: Mutt/1.3.26i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro <viro@math.psu.edu> said:
-> On Tue, 29 Jan 2002, Hans Reiser wrote:
-> > This fails to recover an object (e.g. dcache entry) which is used once, 
-> > and then spends a year in cache on the same page as an object which is 
-> > hot all the time.  This means that the hot set of objects becomes 
-> > diffused over an order of magnitude more pages than if garbage 
-> > collection squeezes them all together.  That makes for very poor caching.
-> 
-> Any GC that is going to move active dentries around is out of question.
-> It would need a locking of such strength that you would be the first
-> to cry bloody murder - about 5 seconds after you look at the scalability
-> benchmarks.
+On Wed, Jan 30, 2002 at 06:35:43AM +0000, Linus Torvalds wrote:
+> >config' works.  The new per-config.in config.help is here to stay.
+should be more easy to maintain - should make eric more happy
 
-Then you'd need to somehow ensure that "hot" objects get into pages with
-other "hot" objects... an LRU list (as was proposed here), but not just for
-cleaning but also for considering as places for new objects? Keep a/this
-list (somewhat) sorted by fullness, so that you preferently place new
-objects in fullish pages, not in emptyish ones (perhaps slab is doing this
-already)?
+> Yes. On the other hand, if there are real problems with converting
+> menu/x config to multiple help-files, a short-term answer might indeed
+> be just the silly "concatenate everything into the same file".
+short being between now and the cml2 inclusion?
+
+> I'd much _prefer_ to have somebody who knows menuconfug/xconfig (or just
+> wants to learn).  I have a totally untested patch for menuconfig, that
+> probably just works (like the regular config thing it doesn't actualy
+> take _advantage_ of pairing the Config.help files up with the questions,
+> but at least it should give you the help texts like it used to). 
+hmm... maybe that's a good place to finally drop cml1? given that cml2
+copes with that new help-format that is *hint*
+
+patrick mauritz
+(starting an old discussion again)
 -- 
-Horst von Brand			     http://counter.li.org # 22616
+             I disapprove of what you say, but I will defend
+                  your right to say it with all my might

@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbVCRPBD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVCRPBf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261621AbVCRPBD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 10:01:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVCRPBC
+	id S261630AbVCRPBf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 10:01:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbVCRPBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 10:01:02 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:53485 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261621AbVCRPA4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 10:00:56 -0500
-Date: Fri, 18 Mar 2005 07:00:06 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@muc.de>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mel Gorman <mel@csn.ul.ie>, linux-ia64@vger.kernel.org,
-       Jens.Maurer@gmx.net
-Subject: Re: [PATCH] add a clear_pages function to clear pages of higher
- order
-In-Reply-To: <200503181154.37414.vda@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.58.0503180652350.15022@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0503101229420.13911@schroedinger.engr.sgi.com>
- <200503111008.12134.vda@port.imtp.ilyichevsk.odessa.ua>
- <Pine.LNX.4.58.0503161720570.1787@schroedinger.engr.sgi.com>
- <200503181154.37414.vda@port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 18 Mar 2005 10:01:35 -0500
+Received: from mail1.upco.es ([130.206.70.227]:59585 "EHLO mail1.upco.es")
+	by vger.kernel.org with ESMTP id S261630AbVCRPBb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 10:01:31 -0500
+Date: Fri, 18 Mar 2005 16:01:29 +0100
+From: Romano Giannetti <romanol@upco.es>
+To: Len Brown <len.brown@intel.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+Subject: Re: [BKPATCH] ACPI for 2.6.12-rc1
+Message-ID: <20050318150129.GB22887@pern.dea.icai.upco.es>
+Reply-To: romano@dea.icai.upco.es
+Mail-Followup-To: romano@dea.icai.upco.es,
+	Len Brown <len.brown@intel.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	ACPI Developers <acpi-devel@lists.sourceforge.net>
+References: <1111127024.9332.157.camel@d845pe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <1111127024.9332.157.camel@d845pe>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Mar 2005, Denis Vlasenko wrote:
+On Fri, Mar 18, 2005 at 01:23:44AM -0500, Len Brown wrote:
 
-> NT stores are not about 5% increase. 200%-300%. Provided you are ok with
-> the fact that zeroed page ends up evicted from cache. Luckily, this is exactly
-> what you want with prezeroing.
+> 	This includes the ACPI part of memory hotplug,
+> 	plus various fixes, BIOS workarounds and a fix for
+> 	an interpreter regressions we had in 2.6.11 vs 2.6.10.
 
-These are pretty significant results. Maybe its best to use non-temporal
-stores in general for clearing pages? I checked and Itanium has always
-used non-temporal stores. So there will be no benefit for us from this
-approach (we have 16k and 64k page sizes which may make the situation a
-bit different). Try to update the i386 architectures to do the same?
+Thank you for the grat work. Could I humble advocating pushing the patch 
+http://bugme.osdl.org/attachment.cgi?id=4516&action=view ,please? It fixed a
+very bad regression in hotkey event from 2.6.9...
 
-Or for prezeroing, you could register a zeroing driver that would use the
-non-temporal stores with V8 of the prezeroing patches. In any case the
-clear_pages patch is not useful the way it was intended for us and I am
-have dropped this from the prezeroing patch.
+Thanks!
 
+
+
+
+-- 
+Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
+Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569

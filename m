@@ -1,44 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262175AbTFXQ1L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 12:27:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbTFXQ1K
+	id S262431AbTFXQcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 12:32:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbTFXQcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 12:27:10 -0400
-Received: from mailrelay1.lanl.gov ([128.165.4.101]:19173 "EHLO
-	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP id S262175AbTFXQ1H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 12:27:07 -0400
-Subject: Re: Alan Cox has been...
-From: Steven Cole <elenstev@mesatop.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: "Rick A. Hohensee" <rickh@capaccess.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <347470000.1056467133@[10.10.2.4]>
-References: <fc.0010c7b200933d110010c7b200933d11.933d19@capaccess.org>
-	 <347470000.1056467133@[10.10.2.4]>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1056472858.26147.69.camel@spc9.esa.lanl.gov>
+	Tue, 24 Jun 2003 12:32:16 -0400
+Received: from host151.spe.iit.edu ([198.37.27.151]:39100 "EHLO
+	found.lostlogicx.com") by vger.kernel.org with ESMTP
+	id S262431AbTFXQcO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 12:32:14 -0400
+Date: Tue, 24 Jun 2003 11:46:23 -0500
+From: Brandon Low <lostlogic@gentoo.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.7[123] PS/2 issues (synaptics mouse and laptop keyboard)
+Message-ID: <20030624164623.GL30282@lostlogicx.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 24 Jun 2003 10:40:59 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="IJpNTDwzlM2Ie8A6"
+Content-Disposition: inline
+X-Operating-System: Linux found.lostlogicx.com 2.4.20-pfeifer-r1_pre7
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-06-24 at 09:05, Martin J. Bligh wrote:
-> > Unlike Alan, I did something about it. And like C, I have no use any
-> > longer for Alan.
-> 
-> And yet, somehow ... you think we have a use for you?
-> 
 
-I thought there was already a hardware implementation of this:
+--IJpNTDwzlM2Ie8A6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-http://www.alancoxonachip.com/
+Afternoon kernel-gurus :)
 
-Although rumor has it that the "Four levels of power management" patch
-was only recently merged.
+Every 2.5 kernel since 2.5.70-mm9 that I have tried to use has failed to
+work properly. =20
+The primary issue is as mentioned elsewhere that the synaptics touchpad
+simply doesn't work when psmouse is loaded.  The psmouse_noext option
+results in behaviour worse than the old default where no tap-to-click
+works at all. =20
 
-Steven
+However, there are other issues with the new ps/2 code, the keyboard
+appears to get interrupt stormed at sometimes (or something) and I find
+that letters either appear repeated (once for each keystroke after the
+offending letter) or the keyboard response rate drops so low that I have
+to type like a hunt-and-pecker in order to ensure that all of my
+characters are captured.
 
+I am up for any troubleshooting projects you wish to send me on, but I
+don't know enough about kernel drivers to hunt down these issues in the
+ps/2 code myself.
+
+Thanks much for any help,
+
+Brandon Low
+
+--IJpNTDwzlM2Ie8A6
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE++IBfHCCPbR8BLcYRApvCAJ483IAOiU+Ml7GwnHfaBSHiMvKU+ACfbV2t
+YUVTe3OUuBSRpZQv6KSNx64=
+=cJAZ
+-----END PGP SIGNATURE-----
+
+--IJpNTDwzlM2Ie8A6--

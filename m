@@ -1,80 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278307AbRJSEjQ>; Fri, 19 Oct 2001 00:39:16 -0400
+	id <S278309AbRJSFMU>; Fri, 19 Oct 2001 01:12:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278306AbRJSEjG>; Fri, 19 Oct 2001 00:39:06 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:59553 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S278305AbRJSEi5>; Fri, 19 Oct 2001 00:38:57 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Toivo Pedaste <toivo@eleusis.ucs.uwa.edu.au>,
-        Rik van Riel <riel@conectiva.com.br>
-Date: Fri, 19 Oct 2001 14:39:19 +1000 (EST)
+	id <S278310AbRJSFMK>; Fri, 19 Oct 2001 01:12:10 -0400
+Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:46530 "EHLO
+	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
+	id <S278309AbRJSFMB>; Fri, 19 Oct 2001 01:12:01 -0400
+Date: Fri, 19 Oct 2001 01:12:25 -0400 (EDT)
+From: "Daniel T. Chen" <crimsun@email.unc.edu>
+To: safemode <safemode@speakeasy.net>
+cc: Davide Libenzi <davidel@xmailserver.org>,
+        "David E. Weekly" <dweekly@legato.com>,
+        ML-linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Compile in tmpfs crumples in 2.4.12 w/epoll patch
+In-Reply-To: <20011019012601Z278266-17408+2209@vger.kernel.org>
+Message-ID: <Pine.A41.4.21L1.0110190111090.59346-100000@login3.isis.unc.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15311.44663.227652.817688@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC - tree quotas for Linux (2.4.12, ext2)
-In-Reply-To: message from Toivo Pedaste on Friday October 19
-In-Reply-To: <0110191100090D.09386@eleusis.ucs.uwa.edu.au>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday October 19, toivo@eleusis.ucs.uwa.edu.au wrote:
-> 
-> 
-> >However I actually want to charge usage to users.
-> >There is a natural mapping from users to directory trees via the
-> >concept of the home-directory.  It is home directories that I want to
-> >impose quotas on.  So it seems natural to charge space usage to a
-> >users.
-> 
-> 
-> The use I can see for tree quotas whould be quite divorced from
-> accounts or users. Currently if you want limit the amount of
-> space the say /tmp, /home or /var/mail uses you need to put
-> it on a separate partition, but if you could put a quota 
-> on a tree you'd have a much more flexible systema adminstration
-> tool to control the disk space used by each particular function.
+Bug in yesterday's build of binutils (2.11.92.0.5-3), which is fixed in
+today's build (2.11.92.0.7-1).
 
-This relates to Rik's idea of having a treequota on "/home/students"
-which would apply to all students, not any one user.
+---
+Dan Chen                 crimsun@email.unc.edu
+GPG key: www.cs.unc.edu/~chenda/pubkey.gpg.asc
 
-One issue here is: how do you tell the quota-system what constitutes a
-   tree, for quota purposes.
+On Thu, 18 Oct 2001, safemode wrote:
 
-NetworkAppliances have had treequotas on their filer for quite some
-time, and I believe that you have to create quota trees explicitly
-with "qtree create"
+> It works fine here, cept i get that damn 
+> ld: bvmlinux: Not enough room for program headers (allocated 2, need 3)
+> ld: final link failed: Bad value
+> error now when i compile on tmpfs that i didn't get when i compiled on the 
+> hdd with 2.4.10-acX.  It's only started happening since using 2.4.12-ac3.  
+> I've only used this kernel so i dont know if it's 2.4.12 or the ac3 part.   
+> anyways it got to that point in about 3:30 seconds . . which is about 5 
+> seconds faster than disk.   
 
-I would rather not have to add such a new command if I can avoid it.
-
-For the above senarios,  I would simply create an accout called "tmp"
-or "home" or "mail" (you might have that one already) or "student",
-assign a quota to that account, and chown the directory appropriately.
-Afterall, there is no real reason why /tmp should be owned by "root".
-Any "system" account should be fine.
-
-Can anyone else see a good way to flag an inode as "root-of-a-qtree"
-that does not require a new command and does not relate to uids?
-
-NeilBrown
-
-
-> 
-> I quite like the idea of the quota being related to an inode.
-> -- 
->  Toivo Pedaste                        Email:  toivo@ucs.uwa.edu.au
->  University Communications Services,  Phone:  +61 8 9 380 2605
->  University of Western Australia      Fax:    +61 8 9 380 1109
-> "The time has come", the Walrus said, "to talk of many things"...
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

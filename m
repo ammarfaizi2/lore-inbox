@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282898AbRLLXx7>; Wed, 12 Dec 2001 18:53:59 -0500
+	id <S282902AbRLMAEa>; Wed, 12 Dec 2001 19:04:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282904AbRLLXxu>; Wed, 12 Dec 2001 18:53:50 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49680 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S282898AbRLLXxo>; Wed, 12 Dec 2001 18:53:44 -0500
-Date: Wed, 12 Dec 2001 23:53:14 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Daniel Gryniewicz <dang@fprintf.net>
-Cc: Alp ATICI <atici@math.columbia.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Network related
-Message-ID: <20011212235314.B4606@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.40.0112121821260.4894-100000@intel4.math.columbia.edu> <20011212183843.3db1580b.dang@fprintf.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011212183843.3db1580b.dang@fprintf.net>; from dang@fprintf.net on Wed, Dec 12, 2001 at 06:38:43PM -0500
+	id <S282904AbRLMAEU>; Wed, 12 Dec 2001 19:04:20 -0500
+Received: from [132.69.253.140] ([132.69.253.140]:54508 "HELO alon1.dhs.org")
+	by vger.kernel.org with SMTP id <S282902AbRLMAEF>;
+	Wed, 12 Dec 2001 19:04:05 -0500
+Date: Thu, 13 Dec 2001 02:03:35 +0200 (IST)
+From: Alon Altman <alon@vipe.technion.ac.il>
+X-X-Sender: <alon@alon1.dhs.org>
+To: J Sloan <jjs@lexus.com>
+Cc: Pozsar Balazs <pozsy@sch.bme.hu>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Where does 'vmlinuz' come from?
+In-Reply-To: <3C17ECD5.EBE8CA62@lexus.com>
+Message-ID: <Pine.LNX.4.33L2.0112130202480.21624-100000@alon1.dhs.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 12, 2001 at 06:38:43PM -0500, Daniel Gryniewicz wrote:
-> My guess is that this is becuase you have IPv6 turned on, and these sites
-> resolve to an IPv6 address, as well as an IPv4 address.  Linux will not,
-> under these circumstances, fall back on the IPv4 address.  Turn of IPv6,
-> or connect to the 6bone.
+On Wed, 12 Dec 2001, J Sloan wrote:
 
-Good theory, apart from a major flaw - www.nvidia.com nor www.sun.com
-resolve to any IPv6 records (AAAA nor A6).
+> Pozsar Balazs wrote:
+>
+> > Hi all,
+> >
+> > This is not a bugreport, but a simple question: :)
+> > where does the term vmlinuz come from?
+>
+> compressed vmlinux = vmlinux.z -> vmlinuz?
 
-A better explaination would probably be ECN, and indeed, I am unable to
-reach www.sun.com from a local ECN-enabled host.
+  Yes, but I think he wanted to know where 'vmlinux' came from... what does
+the "vm" stand for? Virtual Memory?
 
-> On Wed, 12 Dec 2001 18:29:17 -0500 (EST)
-> Alp ATICI <atici@math.columbia.edu> wrote:
-> 
-> > I get a "connection timed out". Most of the sites work ok but some
-> > specific ones like www.nvidia.com, www.sun.com, www.ingdirect.com
-> > never works and gives the same error.
+  Alon
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+-- 
+This message was sent by Alon Altman (Psycho99@bigfoot.com) ICQ:1366540
+The RIGHT way to contact me is by e-mail. I am otherwise nonexistent :)
+--------------------------------------------------------------------------
+The Public is merely a multiplied "me."
+		-- Mark Twain
 

@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262589AbUBZBLg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 20:11:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbUBZBLg
+	id S261463AbUBZBSt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 20:18:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbUBZBSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 20:11:36 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:31495 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262589AbUBZBLe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 20:11:34 -0500
-Date: Thu, 26 Feb 2004 01:11:30 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Otto Solares <solca@guug.org>, Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] fbdv/fbcon pending problems
-In-Reply-To: <1077755580.22232.89.camel@gaston>
-Message-ID: <Pine.LNX.4.44.0402260045040.24952-100000@phoenix.infradead.org>
+	Wed, 25 Feb 2004 20:18:49 -0500
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:21252 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S261463AbUBZBSr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 20:18:47 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3-mm3
+Date: Thu, 26 Feb 2004 02:18:19 +0100
+User-Agent: KMail/1.6.1
+Cc: Nick Piggin <piggin@cyberone.com.au>, Mike Fedyk <mfedyk@matchmail.com>,
+       Andrew Morton <akpm@osdl.org>
+References: <20040222172200.1d6bdfae.akpm@osdl.org> <403D1347.8090801@matchmail.com> <403D468D.2090901@cyberone.com.au>
+In-Reply-To: <403D468D.2090901@cyberone.com.au>
+X-Operating-System: Linux 2.4.20-wolk4.10s i686 GNU/Linux
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Message-Id: <200402260217.49239@WOLK>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 26 February 2004 02:06, Nick Piggin wrote:
 
-> Note that I am NOT talking about a graphics library. This has NO
-> BUSINESS doing any kind of rendering. It's only the userland interface
-> to the underlying kernel drivers as far as mode switching & geometry
-> is concerned. That's _ALL_. In the same  was as libGL is the userland
-> interface to DRI, or iptables the userlnad interface to netfilter,
-> etc...
-..snip..
+Hi,
 
-That cool. Sorry, email is so limited sometimes in details. I agree with 
-you 100%.
-  
-> > I think we are fine for whats in the kernel. As for multiple head and 
-> > geometry stuff its not that hard if done right. I have been using 
-> > multi-head systems for years. I have multip desktop systems for years!!!
-> 
-> I have been using multi head systems for years and I've seen how good
-> it can be, but also a bunch of the pitfalls when trying to design a
-> driver for it. If it was that easy, we would have had the right support
-> in fbdev for ages. We don't.
+> >>> What about Nick's fix up patch for the two patches above?  Should I
+> >>> include that one also?
+> > I'm running 2.6.3-mm3-486-fazok (nick's patch), and it has improved my
+> > slab usage greatly.  It was averaging 500MB-700MB slab.  Now slab is
+> > ~230MB, and page cache is ~700MB
+> That is a much better sounding ratio. Of course that doesn't mean much
+> if performance is worse. Slab might be getting reclaimed a little bit
+> too hard vs pagecache now.
 
-True it is not to easy but I have worked on it. I'm glad to see the input 
-api and most of the fbdev stfuff go in. It laid down the need foundation 
-for mulitdesktop systems.
+sorry for not following this thread, but where do I find the mm3 rollup patch 
+this thread is talking about? akpm's directory does not contain it, or I am 
+blind b/c it isn't named like that or similar ;>
 
-
-
+ciao, Marc

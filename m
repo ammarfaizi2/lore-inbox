@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262946AbVCMEdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263103AbVCMFAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262946AbVCMEdr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 23:33:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbVCMEbW
+	id S263103AbVCMFAp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 00:00:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbVCMFAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 23:31:22 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:17328 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262911AbVCME3S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 23:29:18 -0500
-Date: Sat, 12 Mar 2005 23:28:00 -0500
-From: Dave Jones <davej@redhat.com>
-To: Jesse Barnes <jbarnes@sgi.com>, Mike Werner <werner@sgi.com>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: AGP bogosities
-Message-ID: <20050313042800.GG32494@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jesse Barnes <jbarnes@sgi.com>, Mike Werner <werner@sgi.com>,
-	Bjorn Helgaas <bjorn.helgaas@hp.com>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Paul Mackerras <paulus@samba.org>,
-	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com> <200503111927.04807.werner@sgi.com> <20050312035809.GB8654@redhat.com> <200503121913.05660.jbarnes@sgi.com> <20050313040820.GE32494@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050313040820.GE32494@redhat.com>
-User-Agent: Mutt/1.4.1i
+	Sun, 13 Mar 2005 00:00:44 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:1156 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S263103AbVCMFAc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 00:00:32 -0500
+Message-ID: <4233C912.80706@comcast.net>
+Date: Sun, 13 Mar 2005 00:01:06 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
+CC: Peter Chubb <peter@chubb.wattle.id.au>, linux-kernel@vger.kernel.org
+Subject: Re: binary drivers and development
+References: <423075B7.5080004@comcast.net> <423082BF.6060007@comcast.net>	 <16944.49977.715895.8761@wombat.chubb.wattle.id.au>	 <4230CB07.3020904@comcast.net> <6f6293f105031207535938c687@mail.gmail.com>
+In-Reply-To: <6f6293f105031207535938c687@mail.gmail.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 12, 2005 at 11:08:20PM -0500, Dave Jones wrote:
- > On Sat, Mar 12, 2005 at 07:13:05PM -0800, Jesse Barnes wrote:
- >  > On Friday, March 11, 2005 7:58 pm, Dave Jones wrote:
- >  > >  > sgi-agp.c was sent to Dave about 2 weeks ago. I assumed he was waiting
- >  > >  > for the TIO header files to make it from the ia64 tree into Linus's
- >  > >  > tree.
- >  > >
- >  > > Actually I just got swamped with other stuff, and dropped the ball.
- >  > > I still have the patch in my queue though, so I can push that along.
- >  > >
- >  > > Are those headers in mainline yet ?
- >  > 
- >  > Yeah, I think it's all there now.  Looks like Linus did a pull from ia64 
- >  > recently, so it *should* all build.
- > 
- > Ok, pushed out to bk://linux-djb.bkbits.net/agpgart
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Erk, Personality crisis, or an unfortunate typo. s/djb/dj/ obviously.
+You wanna give me a quick run-down on x86 of CPL and Ring levels?  It's
+been bugging me.  I know they're there and have a basic idea that they
+control what a context can do, don't know what CPL stands for, and
+there's a visible gap in my knowledge.  I like to understand everything,
+it makes things easier.
 
-		Dave
+Felipe Alfaro Solana wrote:
+> On Thu, 10 Mar 2005 17:32:39 -0500, John Richard Moser
+> <nigelenki@comcast.net> wrote:
+> 
+>>CPL=3 scares me; context switches are expensive.  can they have direct
+>>hardware access?  I'm sure a security model to isolate user mode drivers
+>>could be in place. . .
+>>
+>>. . . huh.  Xen seems to run Linux at CPL=3 and give direct hardware
+>>access, so I guess user mode drivers are possible *shrug*.  Linux isn't
+>>a microkernel though.
+> 
+> 
+> Xen hypervisor runs at Ring0, while the guest OSs it supports run at Ring1.
+> 
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+    Creative brains are a valuable, limited resource. They shouldn't be
+    wasted on re-inventing the wheel when there are so many fascinating
+    new problems waiting out there.
+                                                 -- Eric Steven Raymond
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCM8kShDd4aOud5P8RAon1AKCLNWEbY3Vq32k61m9jN2CbSoD98QCeJT8m
+mhgyXtmGNFL+RPzJw8md9hE=
+=B/i5
+-----END PGP SIGNATURE-----

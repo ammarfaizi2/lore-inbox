@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314212AbSDRBuq>; Wed, 17 Apr 2002 21:50:46 -0400
+	id <S314215AbSDRBwi>; Wed, 17 Apr 2002 21:52:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314215AbSDRBup>; Wed, 17 Apr 2002 21:50:45 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:50347 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S314212AbSDRBup>; Wed, 17 Apr 2002 21:50:45 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Date: Thu, 18 Apr 2002 11:54:13 +1000 (EST)
+	id <S314216AbSDRBwh>; Wed, 17 Apr 2002 21:52:37 -0400
+Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:22819 "EHLO
+	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
+	id <S314215AbSDRBwg>; Wed, 17 Apr 2002 21:52:36 -0400
+Message-ID: <61DB42B180EAB34E9D28346C11535A78177F10@nocmail101.ma.tmpw.net>
+From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+To: "'Martin J. Bligh'" <Martin.Bligh@us.ibm.com>,
+        "Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
+        "'Robert Love'" <rml@tech9.net>
+Cc: James Bourne <jbourne@MtRoyal.AB.CA>, Ingo Molnar <mingo@elte.hu>,
+        linux-kernel@vger.kernel.org
+Subject: RE: Hyperthreading
+Date: Wed, 17 Apr 2002 20:52:19 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15550.10053.834276.18723@notabene.cse.unsw.edu.au>
-Cc: Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
-Subject: Re: RAID superblock confusion
-In-Reply-To: message from Richard Gooch on Saturday April 13
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday April 13, rgooch@ras.ucalgary.ca wrote:
-> Neil Brown writes:
-> > On Wednesday April 10, rgooch@ras.ucalgary.ca wrote:
-> > > 
-> > > The device is set up (i.e. SCSI host driver is loaded) long before I
-> > > do raidstart /dev/md/0
-> > 
-> > raidstart simply does not and cannot work reliably when your device
-> > numbers change around.  It takes the first device listed in
-> > /etc/raidtab and gives it to the kernel.
-> > The kernel reads the superblock, finds some device numbers and tries
-> > to attach those devices.  If device number have changed, you loose.
-> 
-> Sounds to me like the flaw is in the ioctl(2) interface, in that it
-> doesn't allow passing all the block devices in the RAID set. If it
-> allowed you to pass all the block devices, then it could check if all
-> the signatures on each block device match.
+>> (Though check Anandtech, he did a benchmark on his DB, and got a small
+>> performance Decrease on a test!)
 
-Exactly.  The flaw is in the ioctl interface.  2.4 comes with an
-improved ioctl interface which allows you to tell the kernel exactly
-what you want it to do.  mdadm used this interface.
+>Thanks for the pointer.
 
-> 
-> I tried the alternative of setting persistent-superblock=0 in
-> /etc/raidtab, but the stupid thing complained because it found a
-> superblock. Sigh.
-> 
-> If there was only a "do as I say, regardless" mode, I would be happy.
-> This programmer-knows-best attitude smacks of M$.
+Also, it looks like the Athlon MP still stacks up quite nice in his more or
+less real world benchmark, even against an pair of Hyperthreaded ZEON's.
 
-mdadm will do as you say, reguardless - if you ask it to.  Have you
-tried mdadm?
-   http://www.cse.unsw.edu.au/~neilb/source/mdadm/
+>It sounds like a good idea in theory, but the fact that they share the TLB
+>cache and other things makes me rather dubious about whether it's really
+>worth it. I'm not saying it's necessarily bad, I'm just not convinced it's
+good
+>yet. Introducing more processors to the OS has it's own problems to deal 
+>with (ones we're interested in solving anyway).
 
-NeilBrown
+I'll bet it'll be interesting, and I agree, I was dubious about the P4 at
+first anyway.. :o)  Though Hyperthreading will only be in the ZEON.   
+
+>Real world benchmarks from people other than Intel should make interesting
+>reading .... I think we need some more smarts in the OS to take real
+advantage
+>of this (eg using the NUMA scheduling mods to create cpu pools of 2 "procs"
+>for each pair, etc) ... will be fun ;-)
+
+>From the docs, it looks like maybe some scheduling smarts could be added.
+Run Floating point ops on one Logical processor, and normal ops on the
+other, and maybe some other parallelism mods.  
+

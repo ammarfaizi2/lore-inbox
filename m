@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265106AbUIMDS5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265161AbUIMDYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265106AbUIMDS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 23:18:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265161AbUIMDS5
+	id S265161AbUIMDYI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 23:24:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265195AbUIMDYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 23:18:57 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:18842 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S265106AbUIMDSz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 23:18:55 -0400
-Date: Mon, 13 Sep 2004 04:18:21 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Toon van der Pas <toon@hout.vanvergehaald.nl>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Wolfpaw - Dale Corse <admin@wolfpaw.net>, kaukasoi@elektroni.ee.tut.fi,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local and REMOTE(verified) Denial
- of Service Attack
-In-Reply-To: <20040912192331.GB8436@hout.vanvergehaald.nl>
-Message-ID: <Pine.LNX.4.61.0409130413460.23011@fogarty.jakma.org>
-References: <002301c498ee$1e81d4c0$0200a8c0@wolf> <1095008692.11736.11.camel@localhost.localdomain>
- <20040912192331.GB8436@hout.vanvergehaald.nl>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 12 Sep 2004 23:24:08 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:64759 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S265161AbUIMDYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 23:24:04 -0400
+Subject: Re: /proc/sys/kernel/pid_max issues
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: wli@holomorphy.com, cw@f00f.org, mingo@elte.hu, anton@samba.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1095045628.1173.637.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 12 Sep 2004 23:20:29 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Sep 2004, Toon van der Pas wrote:
+Ingo Molnar writes:
 
->> knowing to a resonable degree what arrived. TCP does not proide a
->> security service.
->>
->> (The core of this problem arises because certain people treat TCP
->> connection down on the peering session as link down)
->
-> Alan, could you please elaborate on this last statement?
-> I don't understand what you mean, and am very interested.
+> it's getting quite spaghetti ... do we really want to handle
+> RESERVED_PID? There's no guarantee that any root daemon wont stray out
+> of the 1...300 PID range anyway, so if it has an exploitable PID race
+> bug then it's probably exploitable even without the RESERVED_PID
+> protection.
 
-I think he means that BGP treating TCP connections as if they could 
-reliably and securely indicate link/path status (ie connection 
-reset/timeout == link down) status was, in retrospect, a very dumb 
-idea on the part of BGP.
+Purpose:
 
-> Thanks,
-> Toon.
+1. weak security enhancement
+2. cosmetic (backwards, IMHO)
+3. speed (avoid PIDs likely to be used)
 
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-This restaurant was advertising breakfast any time. So I ordered
-french toast in the renaissance.
-- Steven Wright, comedian
+I'd much prefer LRU allocation. There are
+lots of system calls that take PID values.
+All such calls are hazardous. They're pretty
+much broken by design.
+
+Better yet, make a random choice from
+the 50% of PID space that has been least
+recently used.
+
+Another idea is to associate PIDs with users
+to some extent. You keep getting back the same
+set of PIDs unless the system runs low in some
+global pool and has to steal from one user to
+satisfy another.
+
+BTW, since pid_max is now adjustable, reducing
+the default to 4 digits would make sense. Try a
+"ps j" to see the use. (column width changes if
+you change max_pid)
+
+

@@ -1,80 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264936AbTAYXaQ>; Sat, 25 Jan 2003 18:30:16 -0500
+	id <S264716AbTAYX3c>; Sat, 25 Jan 2003 18:29:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265037AbTAYXaP>; Sat, 25 Jan 2003 18:30:15 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:57231 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S264936AbTAYXaJ>; Sat, 25 Jan 2003 18:30:09 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sat, 25 Jan 2003 15:44:54 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: "J.A. Magallon" <jamagallon@able.es>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Janet Morgan <janetmor@us.ibm.com>
-Subject: Re: [patch] epoll for 2.4.20 updated ...
-In-Reply-To: <20030125215844.GA3750@werewolf.able.es>
-Message-ID: <Pine.LNX.4.50.0301251541040.1855-100000@blue1.dev.mcafeelabs.com>
-References: <Pine.LNX.4.50.0301242004010.2858-100000@blue1.dev.mcafeelabs.com>
- <20030125215844.GA3750@werewolf.able.es>
+	id <S264936AbTAYX3c>; Sat, 25 Jan 2003 18:29:32 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:30362 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S264716AbTAYX3c>; Sat, 25 Jan 2003 18:29:32 -0500
+Date: Sat, 25 Jan 2003 15:38:36 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Hugh Dickins <hugh@veritas.com>
+cc: "Randy.Dunlap" <rddunlap@osdl.org>, rpjday@mindspring.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: test suite?
+Message-ID: <73470000.1043537913@titus>
+In-Reply-To: <20030125232306.GZ780@holomorphy.com>
+References: <Pine.LNX.4.33L2.0301241741470.9816-100000@dragon.pdx.osdl.net> <Pine.LNX.4.44.0301252011420.1784-100000@localhost.localdomain> <20030125232306.GZ780@holomorphy.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Jan 2003, J.A. Magallon wrote:
+> It's actually a relatively annoying limit, as various boxen's MP tables
+> ACPI tables etc. etc. are well above 8MB. At some point one of us should
+> quash that issue permanently and dynamically map the things. IIRC Linux
+> needs NUMA-Q boxen to get lynxers reflashed to move MP tables below 8MB
+> to boot atm. mbligh can more accurate describe the pain involved there.
+> As for the bzImage, don't bother supporting excess bloat.
 
->
-> On 2003.01.25 Davide Libenzi wrote:
-> >
-> > I updated the 2.4.20 patch with the changes posted today and I fixed a
-> > little error about the wait queue function prototype :
-> >
-> > http://www.xmailserver.org/linux-patches/sys_epoll-2.4.20-0.61.diff
-> >
->
-> Mixing epoll ontop of current aa, I found this:
->
-> #define add_wait_queue_cond(q, wait, cond) \
->     ({                          \
->         unsigned long flags;                \
->         int _raced = 0;                 \
->         wq_write_lock_irqsave(&(q)->lock, flags);   \
->         (wait)->flags = 0;              \
->         __add_wait_queue((q), (wait));          \
->         mb();                       \
->         if (!(cond)) {                  \
->             _raced = 1;             \
->             __remove_wait_queue((q), (wait));   \
->         }                       \
->         wq_write_unlock_irqrestore(&(q)->lock, flags);  \
->         _raced;                     \
->     })
->
-> this is the -aa version. Version from epoll uses just a rmb() barrier
-> (afaik, just a _read_ barrier). In -aa they are just the same, but I also
-> use a patch that does this:
->
->
-> +#ifdef CONFIG_X86_MFENCE
-> +#define mb()   __asm__ __volatile__ ("mfence": : :"memory")
-> +#else
->  #define mb()   __asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
-> +#endif
-> +
-> +#ifdef CONFIG_X86_LFENCE
-> +#define rmb()  __asm__ __volatile__ ("lfence": : :"memory")
-> +#else
->  #define rmb()  mb()
-> +#endif
->
-> so for modern processors they are different, and can affect performance and
-> correctness. So  which one it the correct one for the above code snipet ?
+One of these days, I just need to make it remap the MPS tables with
+set_fixmap instead, would be a damned sight easier. Was quicker just
+to hack the firmware at the time, but it's not the RightThingToDo.
 
-It depends on what "cond" does. Being it a macro I'd feel safer with an mb().
-
-
-
-- Davide
+M.
 

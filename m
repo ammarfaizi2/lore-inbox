@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136022AbRDVKlp>; Sun, 22 Apr 2001 06:41:45 -0400
+	id <S136024AbRDVKny>; Sun, 22 Apr 2001 06:43:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136023AbRDVKle>; Sun, 22 Apr 2001 06:41:34 -0400
-Received: from [212.150.182.35] ([212.150.182.35]:27656 "EHLO
-	exchange.guidelet.com") by vger.kernel.org with ESMTP
-	id <S136022AbRDVKlZ>; Sun, 22 Apr 2001 06:41:25 -0400
-Message-ID: <041d01c0cb21$1f147e90$910201c0@zapper>
-From: "Alon Ziv" <alonz@nolaviz.org>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <E14qHRp-0007Yc-00@the-village.bc.nu> <Pine.LNX.4.31.0104190944090.4074-100000@penguin.transmeta.com> <E14qXEU-0005xo-00@g212.hadiko.de> <9bqgvi$63q$1@penguin.transmeta.com> <3AE10741.FA4E40BD@gmx.de> <E14rGU8-0003zk-00@g212.hadiko.de>
-Subject: Re: light weight user level semaphores
-Date: Sun, 22 Apr 2001 13:41:08 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S136025AbRDVKnm>; Sun, 22 Apr 2001 06:43:42 -0400
+Received: from pc57-cam4.cable.ntl.com ([62.253.135.57]:15747 "EHLO
+	kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
+	id <S136024AbRDVKmY>; Sun, 22 Apr 2001 06:42:24 -0400
+X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
+To: junio@siamese.dhis.twinsun.com
+cc: Manuel McLure <manuel@mclure.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3-ac12 
+In-Reply-To: Message from junio@siamese.dhis.twinsun.com 
+   of "21 Apr 2001 23:07:28 PDT." <7vitjxcvrz.fsf@siamese.dhis.twinsun.com> 
+In-Reply-To: <E14rA0N-0004sv-00@the-village.bc.nu> <20010421211722.C976@ulthar.internal.mclure.org>  <7vitjxcvrz.fsf@siamese.dhis.twinsun.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 22 Apr 2001 11:42:09 +0100
+From: Philip Blundell <philb@gnu.org>
+Message-Id: <E14rHJh-0005TP-00@kings-cross.london.uk.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All of this FD allocation stuff is truly distrurbing.
-This appears to be the one place where Win32 got it (almost) right---
-quite about every kernel object looks to userland just like an opaque
-handle, and the same operations apply to all of them.
-So (e.g.) a mixed wait for socket operation or a semaphore or a timer
-is very simple.
-The only abstraction we have that is even remotely similar is the FD,
-yet its semantics are far too strict to use this way.
-The only remotely-feasible idea I've had, so far, was to allow
-"negative" FDs (i.e., numbered 0x80000000+) to be used for semaphores;
-this sidesteps the POSIX requirements (= we can just claim we don't
-support more than 2G FDs per process), but still leaves us with the
-problems of managing a split (or extremely large) FD table _and_ with
-the issue of allocation policy...
-Besides, as Linus already said, FDs are likely not the right abstraction
-for objects without file behavior, like semaphores or timers.
+>If gcc 2.96 uniformly implements it, I'd rather move this
+>backward compatibility definition of __builtin_expect from
+>include/asm-$(arch)/compiler.h to include/asm-generic/
+>somewhere.
 
-[BTW, another solution is to truly support opaque "handles" to kernel
-objects; I believe David Howells is already working on something like
-this for Wine? The poll interface can be trivially extended to support
-waiting on those...]
+The feature isn't machine dependent, though I don't think all compilers that 
+call themselves "gcc 2.96" support it.  It might be better to test for "2.97".
 
-    -az
+p.
+
 

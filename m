@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315783AbSHAREd>; Thu, 1 Aug 2002 13:04:33 -0400
+	id <S315762AbSHAREB>; Thu, 1 Aug 2002 13:04:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315784AbSHAREd>; Thu, 1 Aug 2002 13:04:33 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:20752 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S315783AbSHAREb>;
-	Thu, 1 Aug 2002 13:04:31 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Marcin Dalecki <dalecki@evision.ag>
-Date: Thu, 1 Aug 2002 19:07:21 +0200
+	id <S315784AbSHAREA>; Thu, 1 Aug 2002 13:04:00 -0400
+Received: from daimi.au.dk ([130.225.16.1]:40602 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S315762AbSHAREA>;
+	Thu, 1 Aug 2002 13:04:00 -0400
+Message-ID: <3D496A24.4E134ED5@daimi.au.dk>
+Date: Thu, 01 Aug 2002 19:04:36 +0200
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: IDE from current bk tree, UDMA and two channels...
-CC: linux-kernel@vger.kernel.org, mingo@elte.hu
-X-mailer: Pegasus Mail v3.50
-Message-ID: <C94E6D2807@vcnet.vc.cvut.cz>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, root@chaos.analogic.com,
+       stas.orel@mailcity.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] vm86: Clear AC on INT
+References: <Pine.GSO.3.96.1020801183410.8256M-100000@delta.ds2.pg.gda.pl>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 31 Jul 02 at 22:01, Marcin Dalecki wrote:
+"Maciej W. Rozycki" wrote:
 > 
-> Well OK this was my next idea, but apparently you already did the
-> experient on your own. Thanks for the result. I'm still scratching my
-> head and I have already observed this before myself.
-> It's always funny to see what happens when one stops a driver
-> from deliberately disabling IRQs for eons of jiffies :-).
+> On Thu, 1 Aug 2002, Kasper Dupont wrote:
+> 
+> > Ehrm, that wasn't my point. My point was that if the feature exist
+> > in virtual 86 mode but not in real mode, the kernel should prevent
+> > it from being used in virtual 86 mode because it is supposed to
+> > emulate real mode.
+> 
+>  The mode is supposed to emulate an 8086 which doesn't have the flag.
 
-I finally managed to compile older kernels, and I found that
-2.5.27 (and 2.4.19-rc1 and 2.5.26) works fine (modulo endless loop 
-in ide_do_request... but it takes at least 5 minutes to trigger it), 
-while 2.5.28 dies in one second with UDMA status 0x25 (irq requested, 
-transfer in progress) and IDE status 0x58 (drq asserted).
+OK, but if it is only supposed to emulate an 8086 shouldn't it have
+trapped on every instruction not existing on 8086? It doesn't and
+that is quite fortunate, because we can then use it for other purposes
+namely runing software that expects to have the entire computer for
+itself in a multitasking environment. However it seems no matter how
+we do it, what is emulated will not work exactly like any CPU in real
+mode.
 
-Because of only change in IDE system between 2.5.27 and 2.5.28 is
-renaming __save_flags => local_save_flags, fixing get_request for
-ioctl commands (so 2.5.28 should be correct while 2.5.27 is not),
-and moving some ioctls around, it looks like that problem is triggered
-by something else.
+> Any "real mode" code that operates on the AC flag must have been
+> created after i386 was released as it requires 32-bit instructions.  Hence
+> it has to be prepared to deal with the vm86 mode.
 
-I currently suspect IRQ handling changes, but maybe someone has
-better idea? Also, I cannot reproduce problem with Seagate UDMA66
-drive switched to UDMA33 mode, so it looks like that problem is 
-timming/firmware (Toshiba MK6409MAV) dependent.
+That does make some sense, but not all software written for i386 and
+later processors does deal with vm86 in the desired way. Some software
+was only intended for real mode when being written, but we might now
+want to run it in virtual 86 mode. Thanks to emm386 we probably don't
+see many DOS programs not working in virtual 86 mode, but emm386 itself
+plain refuses to load in virtual 86 mode.
 
-And I did all these tests with UP kernel, just to eliminate cli/sti 
-changes.
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-                                            
+-- 
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:razrep@daimi.au.dk
+or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk

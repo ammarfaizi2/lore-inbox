@@ -1,63 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129351AbRBJLfW>; Sat, 10 Feb 2001 06:35:22 -0500
+	id <S129448AbRBJMCQ>; Sat, 10 Feb 2001 07:02:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129751AbRBJLfN>; Sat, 10 Feb 2001 06:35:13 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:12293 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129351AbRBJLfF>; Sat, 10 Feb 2001 06:35:05 -0500
-Date: Sat, 10 Feb 2001 07:46:14 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Mike Galbraith <mikeg@wen-online.de>
-cc: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.1-ac7
-In-Reply-To: <Pine.Linu.4.10.10102100958090.1007-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.21.0102100727350.27389-100000@freak.distro.conectiva>
+	id <S129751AbRBJMCG>; Sat, 10 Feb 2001 07:02:06 -0500
+Received: from mail.kdt.de ([195.8.224.4]:64520 "EHLO mail.kdt.de")
+	by vger.kernel.org with ESMTP id <S129448AbRBJMBz>;
+	Sat, 10 Feb 2001 07:01:55 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Patch to support also new binutils versions
+From: Andreas Jaeger <aj@suse.de>
+Date: 10 Feb 2001 13:01:38 +0100
+Message-ID: <u8k86yoifx.fsf@gromit.rhein-neckar.de>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, 10 Feb 2001, Mike Galbraith wrote:
+Hi Linus,
 
-> Hi Rik,
-> 
-> This change makes my box swap madly under load.  It appears to be
-> keeping more cache around than is really needed, and therefore
-> having to resort to swap instead.  The result is MUCH more I/O than
-> previous kernels while doing the same exact job.
-> 
-> My test load is make -jN bzImage.  Previous kernels kept cache at
-> an average of ~20ish mb at a job level N at which level I had nearly
-> zero measurable throughput loss compared to single task compile.
-> 
-> >>From that, I surmise that the cachable component of this job must
-> fit in that roughly 20ish mb of space.  (for otherwise, I would be
-> suffering throughput loss).  With this vm change, cache is nearly
-> three times as large as usual.  Where 30 tasks will run with only
-> modest throughput loss in ac5, ac8 throughput tapers off rapidly
-> at half of that.
+newer binutils (current CVS version and the soon to be release 2.11)
+don't support "ld -oformat binary" anymore.  Instead two dashes should
+be used ("ld --oformat binary").  This works with both old and new
+binutils.
 
-Swapped out pages were not being counted in the flushing limitation.
+Please apply the appended patch which fixes all occurences in the
+kernel.
 
-Could you try the following patch? 
+Thanks,
+Andreas
 
-Thanks
+--- arch/i386/boot/Makefile	Tue Dec 21 05:00:53 1999
++++ /usr/src/linux-2.4.2-pre3/arch/i386/boot/Makefile	Sat Feb 10 12:56:36 2001
+@@ -43,7 +43,7 @@
+ 	$(HOSTCC) $(HOSTCFLAGS) -o $@ $< -I$(TOPDIR)/include
+ 
+ bootsect: bootsect.o
+-	$(LD) -Ttext 0x0 -s -oformat binary -o $@ $<
++	$(LD) -Ttext 0x0 -s --oformat binary -o $@ $<
+ 
+ bootsect.o: bootsect.s
+ 	$(AS) -o $@ $<
+@@ -52,7 +52,7 @@
+ 	$(CPP) $(CPPFLAGS) -traditional $(SVGA_MODE) $(RAMDISK) $< -o $@
+ 
+ bbootsect: bbootsect.o
+-	$(LD) -Ttext 0x0 -s -oformat binary $< -o $@
++	$(LD) -Ttext 0x0 -s --oformat binary $< -o $@
+ 
+ bbootsect.o: bbootsect.s
+ 	$(AS) -o $@ $<
+@@ -61,7 +61,7 @@
+ 	$(CPP) $(CPPFLAGS) -D__BIG_KERNEL__ -traditional $(SVGA_MODE) $(RAMDISK) $< -o $@
+ 
+ setup: setup.o
+-	$(LD) -Ttext 0x0 -s -oformat binary -e begtext -o $@ $<
++	$(LD) -Ttext 0x0 -s --oformat binary -e begtext -o $@ $<
+ 
+ setup.o: setup.s
+ 	$(AS) -o $@ $<
+@@ -70,7 +70,7 @@
+ 	$(CPP) $(CPPFLAGS) -traditional $(SVGA_MODE) $(RAMDISK) $< -o $@
+ 
+ bsetup: bsetup.o
+-	$(LD) -Ttext 0x0 -s -oformat binary -e begtext -o $@ $<
++	$(LD) -Ttext 0x0 -s --oformat binary -e begtext -o $@ $<
+ 
+ bsetup.o: bsetup.s
+ 	$(AS) -o $@ $<
 
---- linux.orig/mm/vmscan.c      Sat Feb 10 08:26:17 2001
-+++ linux/mm/vmscan.c   Sat Feb 10 09:34:20 2001
-@@ -515,6 +515,7 @@
-
-                        writepage(page);
-                        flushed_pages++;
-+                       max_launder--;
-                        page_cache_release(page);
-
-                        /* And re-start the thing.. */
-
-
+-- 
+ Andreas Jaeger
+  SuSE Labs aj@suse.de
+   private aj@arthur.inka.de
+    http://www.suse.de/~aj
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262129AbUDEMSY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 08:18:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbUDEMSY
+	id S262248AbUDEMVN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 08:21:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262325AbUDEMVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 08:18:24 -0400
-Received: from mail.shareable.org ([81.29.64.88]:54423 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262129AbUDEMSV
+	Mon, 5 Apr 2004 08:21:12 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:37794 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262248AbUDEMU3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 08:18:21 -0400
-Date: Mon, 5 Apr 2004 13:17:53 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>, mj@ucw.cz,
-       jack@ucw.cz, "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cowlinks v2
-Message-ID: <20040405121753.GA19842@mail.shareable.org>
-References: <20040402181707.GA28112@wohnheim.fh-wedel.de> <20040402182357.GB410@elf.ucw.cz> <20040402200921.GC653@mail.shareable.org> <20040402213933.GB246@elf.ucw.cz> <20040403010425.GJ653@mail.shareable.org> <m1n05soqh2.fsf@ebiederm.dsl.xmission.com> <20040403194344.GA5477@mail.shareable.org> <20040405083549.GD28924@wohnheim.fh-wedel.de> <m1hdvyn5uy.fsf@ebiederm.dsl.xmission.com> <20040405114312.GA31036@atrey.karlin.mff.cuni.cz>
+	Mon, 5 Apr 2004 08:20:29 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 5 Apr 2004 14:23:31 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
+Subject: [patch] v4l: add support for pv951 remote to ir-kbd-i2c
+Message-ID: <20040405122331.GA30038@bytesex.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040405114312.GA31036@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> > I know a writable mmap needs to trigger a copy in that case.
-> > And then are fun cases with MAP_FIXED which may mean invalidation
-> > is not allowed.
-> 
-> How is "invalidation not allowed" for MAP_FIXED? Application will
-> never see the fault...
+  Hi,
 
-I think Eric secretly meant MAP_LOCKED and/or mlock().
+Trivial patch, $subject says all, just a new keytable.
 
-Even if the file isn't copied, when you have two different mappings of
-different cowlinks both mapped with MAP_LOCKED, the pages need to be
-different in RAM or we break locked page expectations.
+  Gerd
 
--- Jamie
+diff -up linux-2.6.5/drivers/media/video/ir-kbd-i2c.c linux/drivers/media/video/ir-kbd-i2c.c
+--- linux-2.6.5/drivers/media/video/ir-kbd-i2c.c	2004-04-05 10:38:38.000000000 +0200
++++ linux/drivers/media/video/ir-kbd-i2c.c	2004-04-05 10:49:58.309206520 +0200
+@@ -41,6 +41,44 @@
+ 
+ #include <media/ir-common.h>
+ 
++/* Mark Phalan <phalanm@o2.ie> */
++static IR_KEYTAB_TYPE ir_codes_pv951[IR_KEYTAB_SIZE] = {
++	[  0 ] = KEY_KP0, 
++	[  1 ] = KEY_KP1, 
++	[  2 ] = KEY_KP2, 
++	[  3 ] = KEY_KP3, 
++	[  4 ] = KEY_KP4, 
++	[  5 ] = KEY_KP5, 
++	[  6 ] = KEY_KP6, 
++	[  7 ] = KEY_KP7, 
++	[  8 ] = KEY_KP8, 
++	[  9 ] = KEY_KP9, 
++
++	[ 18 ] = KEY_POWER, 
++	[ 16 ] = KEY_MUTE, 
++	[ 31 ] = KEY_VOLUMEDOWN, 
++	[ 27 ] = KEY_VOLUMEUP, 
++	[ 26 ] = KEY_CHANNELUP,
++	[ 30 ] = KEY_CHANNELDOWN,
++	[ 14 ] = KEY_PAGEUP,
++	[ 29 ] = KEY_PAGEDOWN,	
++	[ 19 ] = KEY_SOUND, 
++
++	[ 24 ] = KEY_KPPLUSMINUS,	// CH +/-
++	[ 22 ] = KEY_SUBTITLE,		// CC
++	[ 13 ] = KEY_TEXT,		// TTX
++	[ 11 ] = KEY_TV,		// AIR/CBL
++	[ 17 ] = KEY_PC,		// PC/TV
++	[ 23 ] = KEY_OK,		// CH RTN
++	[ 25 ] = KEY_MODE, 		// FUNC
++	[ 12 ] = KEY_SEARCH, 		// AUTOSCAN
++
++	/* Not sure what to do with these ones! */
++	[ 15 ] = KEY_SELECT, 		// SOURCE
++	[ 10 ] = KEY_KPPLUS,		// +100  
++	[ 20 ] = KEY_KPEQUAL,		// SYNC
++};
++
+ struct IR;
+ struct IR {
+ 	struct i2c_client      c;
+@@ -247,7 +285,7 @@ static int ir_attach(struct i2c_adapter 
+ 		name        = "PV951";
+ 		ir->get_key = get_key_pv951;
+ 		ir_type     = IR_TYPE_OTHER;
+-		ir_codes    = ir_codes_empty;
++		ir_codes    = ir_codes_pv951;
+ 		break;
+ 	case 0x18:
+ 	case 0x1a:
+
+-- 
+http://bigendian.bytesex.org

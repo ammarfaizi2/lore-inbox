@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264908AbTA1JeP>; Tue, 28 Jan 2003 04:34:15 -0500
+	id <S264907AbTA1JeE>; Tue, 28 Jan 2003 04:34:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264915AbTA1JeP>; Tue, 28 Jan 2003 04:34:15 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:14852 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S264908AbTA1JeO>;
-	Tue, 28 Jan 2003 04:34:14 -0500
-Date: Fri, 24 Jan 2003 00:01:37 +0100
+	id <S264908AbTA1JeE>; Tue, 28 Jan 2003 04:34:04 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:13316 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S264907AbTA1JeE>;
+	Tue, 28 Jan 2003 04:34:04 -0500
+Date: Thu, 23 Jan 2003 14:19:06 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Anton Altaparmakov <aia21@cantab.net>
-Cc: linux-ntfs-dev@lists.sf.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANN] ntfsprogs (formerly Linux-NTFS) 1.7.0beta released
-Message-ID: <20030123230137.GC906@zaurus>
-References: <Pine.SOL.3.96.1030118163630.27974A-100000@libra.cus.cam.ac.uk>
+To: Daniel Egger <degger@fhm.edu>
+Cc: Gianni Tedesco <gianni@ecsc.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: any brand recomendation for a linux laptop ?
+Message-ID: <20030123131906.GA906@zaurus>
+References: <200301161100.45552.Nicolas.Turro@sophia.inria.fr> <20030116104154.GL25246@pegasys.ws> <3E26BE43.6000406@walrond.org> <20030116144045.GC30736@work.bitmover.com> <20030116153727.GA27441@lug-owl.de> <1042733652.18213.35.camel@sonja> <1042820273.8935.2.camel@lemsip> <1042886952.24291.15.camel@sonja>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.SOL.3.96.1030118163630.27974A-100000@libra.cus.cam.ac.uk>
+In-Reply-To: <1042886952.24291.15.camel@sonja>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> This is a massive update featuring an almost complete rewrite of the ntfs
-> library (the API should hopefully remain stable from now on) as well as
-> several new utilities: ntfslabel, ntfsresize, and ntfsundelete.
+> Normally Motorola cpus turn of unused units to save power,
+> you might want to check that your system is really idle;
+> when running setiathome for instance my notebook also gets
+> warm and the battery is draining much faster (intersting 
+> fact actually, since common belief is that the current drawn
+> by processor is far less that the sum of all other components).
 
-So you can resize ntfs but not (safely) write
-to it?
+Well, the common belief is wrong. Wrong on
+notebooks (130 vs 75 min for omnibook xe3),
+wrong or zaurus (if you can live without frontlight
+CPU takes about as much as rest of system.
 -- 
 				Pavel
 Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...

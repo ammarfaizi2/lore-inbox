@@ -1,66 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280665AbRKNQKV>; Wed, 14 Nov 2001 11:10:21 -0500
+	id <S280676AbRKNQPv>; Wed, 14 Nov 2001 11:15:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280674AbRKNQKM>; Wed, 14 Nov 2001 11:10:12 -0500
-Received: from eispost12.serverdienst.de ([212.168.16.111]:58636 "EHLO imail")
-	by vger.kernel.org with ESMTP id <S280665AbRKNQJy>;
-	Wed, 14 Nov 2001 11:09:54 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Robert Szentmihalyi <robert.szentmihalyi@entracom.de>
-To: Steve Lord <lord@sgi.com>
-Subject: Re: File server FS?
-Date: Wed, 14 Nov 2001 17:09:39 +0100
-X-Mailer: KMail [version 1.3]
-Cc: Sean Elble <S_Elble@yahoo.com>, Mike Fedyk <mfedyk@matchmail.com>,
-        Brian <hiryuu@envisiongames.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200111132203.fADM3jW03006@demai05.mw.mediaone.net> <200111141142227.SM00162@there> <1005750618.23586.14.camel@jen.americas.sgi.com>
-In-Reply-To: <1005750618.23586.14.camel@jen.americas.sgi.com>
+	id <S280678AbRKNQPm>; Wed, 14 Nov 2001 11:15:42 -0500
+Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:4500 "EHLO
+	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S280676AbRKNQP1>; Wed, 14 Nov 2001 11:15:27 -0500
+Date: Wed, 14 Nov 2001 16:15:24 +0000 (GMT)
+From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
+X-X-Sender: <alastair@gurney>
+To: Matthew Sell <msell@ontimesupport.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
+In-Reply-To: <5.1.0.14.0.20011114090926.00a87d88@127.0.0.1>
+Message-ID: <Pine.GSO.4.33.0111141607170.14971-100000@gurney>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200111141711398.SM00162@there>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 2001-11-14 at 04:41, Robert Szentmihalyi wrote:
-> > Am Mittwoch, 14. November 2001 03:05 schrieb Sean Elble:
-> > > I'd have to recommend XFS for you . . . it supports the
-> > > kernel mode NFS server very well, it supports LVM, an XFS
-> > > file system can be enlarged (not reduced), and XFS has great
-> > > quota support, just be sure you use a 3.0 or greater quota
-> > > tools package. Why use XFS over Ext3 you ask? XFS is faster,
-> > > and scales better, IMHO. Again just my opinion, but I hope
-> > > that helps.
-> >
-> > ACK.
-> > We have built an 800 GB file server for a customer about three
-> > month ago using XFS on a 3ware RAID.
-> > The server performs great, even under heay load.
-> > The only drawback is that group quotas were not yet supported
-> > then. I don't know if this has changed yet, but it should be
-> > fairly easy to find out..... :-)
-> >
-> > cheers,
-> >  Robert
->
-> XFS on linux has had group quota support for quite a while -
-> certainly longer than 3 months. All the other features are
-> available too.
+> We just finished putting together what was for us a pretty big box using
+> the Tyan S2460 with 1.4GHz Athlons (not MP) and ran into some troublesome
+> heating problems.
 
-Nice to know :-)
-I have not tried it since the FAQ at 
-http://oss.sgi.com/projects/xfs/faq.html#quotaswork
-said it didn't. (It still does, by the way. Perhaps you could 
-update the FAQ :-))
+Well, I finally managed to check, and both CPUs are at 76C - sounds
+quite hot to me. Is that problematic? I've never run these Athlons
+before, so I'm not sure what's supposed to be normal ;-)
 
->
-> Steve
+Going back to kernel issues - I tried the Red Hat enterprise kernel
+(2.4.9-13), but that's no go either. Basically, the summary is:
 
-Robert
+  - Red Hat Kernel (any) boots fine, hangs at login prompt
+  - Red Hat Kernel SINGLE USER runs fine and lets me hack around
+  - Custom kernel (2.4.15-pre4 SMP) hangs due to failing to
+    mount the root partition (initrd issue I think)
 
--- 
-Where do you want to be tomorrow?
+I have experienced the "hanging at login prompt" issue before - with
+good old Red Hat 7.0. That was solved by upgrading the broken gcc and
+broken glibc, and didn't even appear to be a kernel issue.
 
-Entracom. Building Linux systems.
-http://www.entracom.de
+Cheers
+Alastair
+
+o o o o o o o o o o o o o o o o o o o o o o o o o o o o
+Alastair Stevens           \ \
+MRC Biostatistics Unit      \ \___________ 01223 330383
+Cambridge UK                 \___ www.mrc-bsu.cam.ac.uk
+

@@ -1,31 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbULMVbt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbULMVdU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbULMVbt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 16:31:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbULMVbt
+	id S261168AbULMVdU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 16:33:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbULMVdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 16:31:49 -0500
-Received: from wproxy.gmail.com ([64.233.184.201]:41496 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261159AbULMVbs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 16:31:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=hIVcJ+siE9GRJUUd9EP0bmbNylyISQqtTC3t9u+njm7s1X1YfASUa8X1KSteyIs65HaWqzOfzta/T1+2odINfHH4JSu3kn3OxPTnD72QAdWgtIu4b9PQCLBZimjLtoaMErL/nEgBsWNSrlYknAcmQ/Bvw/5YN/2W4/90xpq2auE=
-Message-ID: <58cb370e04121313315d3a5c2f@mail.gmail.com>
-Date: Mon, 13 Dec 2004 22:31:48 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Edward Falk <efalk@google.com>
-Subject: Re: [PATCH] final polish on disk ioctl documentation
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <41B8F6F1.4060406@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 13 Dec 2004 16:33:20 -0500
+Received: from quark.didntduck.org ([69.55.226.66]:25237 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP id S261169AbULMVcy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 16:32:54 -0500
+Message-ID: <41BE0A75.3070206@didntduck.org>
+Date: Mon, 13 Dec 2004 16:32:37 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+CC: Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: how to detect a 32 bit process on 64 bit kernel
+References: <20040901072245.GF13749@mellanox.co.il> <20040903080058.GB2402@wotan.suse.de> <20040907104017.GB10096@mellanox.co.il> <20040907121418.GC25051@wotan.suse.de> <20041212215110.GA11451@mellanox.co.il> <20041212222309.GA11045@infradead.org> <20041213195011.GA24053@mellanox.co.il>
+In-Reply-To: <20041213195011.GA24053@mellanox.co.il>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <41B8F6F1.4060406@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-applied, thanks
+Michael S. Tsirkin wrote:
+
+> Hello!
+> Quoting r. Christoph Hellwig (hch@infradead.org) "Re: how to detect a 32 bit process on 64 bit kernel":
+> 
+>>>If no - would not it make a sence to add e.g. a flag in the
+>>>task struct, to make it possible?
+>>
+>>The kernel code shouldn't know.  If your driver needs this information
+>>something is seriously wrong with it. 
+> 
+> 
+> A character driver I am working on gets passed a structure
+> from user space by implementing a write file operation.
+> The structure includes a pointer and so the format varies
+> between a 32 and 64 bit processes.
+
+The most portable way to do this is to have the first member of the 
+structure be a 32-bit value containing the size of the structure.  This 
+can then be used to identify what the structure format is.  This also 
+has the advantage of future-proofing the interface (add a field?  no 
+problem, the new size can be checked for).  Just be very careful that 
+the size from userspace is not trusted (ie. only allow known sizes).
+
+--
+				Brian Gerst

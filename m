@@ -1,79 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261585AbSJEBIM>; Fri, 4 Oct 2002 21:08:12 -0400
+	id <S261824AbSJEBMx>; Fri, 4 Oct 2002 21:12:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261704AbSJEBIM>; Fri, 4 Oct 2002 21:08:12 -0400
-Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:39755 "EHLO
-	nakedeye.aparity.com") by vger.kernel.org with ESMTP
-	id <S261585AbSJEBIL>; Fri, 4 Oct 2002 21:08:11 -0400
-Date: Fri, 4 Oct 2002 18:22:08 -0700 (PDT)
-From: "Matt D. Robinson" <yakker@aparity.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] LKCD for 2.5.40
-In-Reply-To: <Pine.LNX.4.33L2.0210041625400.20655-100000@dragon.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.44.0210041820030.10168-100000@nakedeye.aparity.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261841AbSJEBMx>; Fri, 4 Oct 2002 21:12:53 -0400
+Received: from p001.as-l031.contactel.cz ([212.65.234.193]:24192 "EHLO
+	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S261824AbSJEBMv>;
+	Fri, 4 Oct 2002 21:12:51 -0400
+Date: Sat, 5 Oct 2002 03:17:49 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: "frode@freenix.no" <frode@freenix.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.40 (several issues): kernel BUG! at slab.c:1292, imm/ppa IOMega ZIP drivers modules ".o" not found, XFS won't link, depmod complains on
+Message-ID: <20021005011749.GN1408@ppc.vc.cvut.cz>
+References: <3D9E23E2.8000400@freenix.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D9E23E2.8000400@freenix.no>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Oct 2002, Randy.Dunlap wrote:
-|>On Fri, 4 Oct 2002, Matt D. Robinson wrote:
-|>| These are the patches (9 in all) for the Linux Kernel Crash Dump
-|>| modifications for 2.5.  This allows crash dumps to be built as a
-|>| module in the kernel and also includes a breakdown of a few of the
-|>| changes needed in the kernel.  The current version will allow for
-|>| block dumping, and has the ability to readily integrate network
-|>| dumping (a la Red Hat).
-|>
-|>Hi Matt,
-|>
-|>I have a few comments.
-|>
-|>| Please accept these patches or provide feedback on how we can
-|>| modify them for acceptance.  Thanks,
-|>
-|>Who do you want to accept these patches?
-|>If it's Linus, you should send them to him.
+On Sat, Oct 05, 2002 at 01:27:30AM +0200, frode@freenix.no wrote:
+> I just downloaded the linux-2.5.40 tarball.
+> FAT: Using codepage cp437
+> FAT: Using IO charset iso8859-1
+> FAT: Using codepage cp437
+> FAT: Using IO charset iso8859-1
+> FAT: Using codepage cp437
+> FAT: Using IO charset iso8859-1
+> Adding 262136k swap on /swapfile.  Priority:-2 extents:519
+> ------------[ cut here ]------------
+> kernel BUG at slab.c:1292!
+> invalid operand: 0000
 
-They're on the way (or will be later tonight after putting in
-your requested changes).
+It is probably time to send it to Linus once more...
+						Petr Vandrovec
 
-|>Documentation/SubmittingPatches doesn't say so, but lately it's
-|>become quite common and desirable to use diffstat output above
-|>patches to summarize the files modified and how much they are
-|>modified.
-
-Okay, can do.
-
-|>Instead of replying to other patches separately, I'll add a few
-|>comments here.
-|>
-|>CONFIG_DUMP:  I'd prefer to see something a little bit more descriptive,
-|>like CONFIG_CRASH_DUMP or CONFIG_DUMP_KERNEL.  Yes, this is minor.
-|>(BTW, I don't like the shortness of CONFIG_TRACE for LTT either.  :)
-
-That's a fairly easy change.  CONFIG_CRASH_DUMP is better over
-the long run.  I'll preface all the CONFIG_??* values.  It really
-doesn't matter one way or the other to me.
-
-|>Why are all of the dump_init() and secondary init functions
-|>_not_ marked as __init ?
-|>
-|>You shouldn't need to call dump_init() explicitly since you use
-|>module_init(dump_init);
-|>Oh, I see, you call dump_init() for built-into-kernel but use
-|>#ifdef MODULE
-|>to surround lots of MODULE_xyz() lines.
-|>You shouldn't surround the MODULE_xyz() lines like that,
-|>they should always be present for MODULE or not,
-|>and you should just use the module_init(dump_init) always to
-|>initialize.
-
-Okay, simple enough to fix.
-
-Thanks, Randy, I'll start incorporating those for Linus.
-
---Matt
-
+diff -urdN linux/fs/fat/inode.c linux/fs/fat/inode.c
+--- linux/fs/fat/inode.c	2002-10-05 00:55:46.000000000 +0200
++++ linux/fs/fat/inode.c	2002-10-05 01:00:15.000000000 +0200
+@@ -228,8 +228,6 @@
+ 	save = 0;
+ 	savep = NULL;
+ 	while ((this_char = strsep(&options,",")) != NULL) {
+-		if (!*this_char)
+-			continue;
+ 		if ((value = strchr(this_char,'=')) != NULL) {
+ 			save = *value;
+ 			savep = value;
+@@ -351,7 +349,7 @@
+ 			strncpy(cvf_options,value,100);
+ 		}
+ 
+-		if (this_char != options) *(this_char-1) = ',';
++		if (options) *(options-1) = ',';
+ 		if (value) *savep = save;
+ 		if (ret == 0)
+ 			break;
+diff -urdN linux/fs/vfat/namei.c linux/fs/vfat/namei.c
+--- linux/fs/vfat/namei.c	2002-10-05 00:56:02.000000000 +0200
++++ linux/fs/vfat/namei.c	2002-10-05 01:00:15.000000000 +0200
+@@ -117,8 +117,6 @@
+ 	savep = NULL;
+ 	ret = 1;
+ 	while ((this_char = strsep(&options,",")) != NULL) {
+-		if (!*this_char)
+-			continue;
+ 		if ((value = strchr(this_char,'=')) != NULL) {
+ 			save = *value;
+ 			savep = value;
+@@ -154,8 +152,8 @@
+ 			else
+ 				ret = 0;
+ 		}
+-		if (this_char != options)
+-			*(this_char-1) = ',';
++		if (options)
++			*(options-1) = ',';
+ 		if (value) {
+ 			*savep = save;
+ 		}

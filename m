@@ -1,554 +1,1956 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262098AbTIMJUd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 05:20:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbTIMJUd
+	id S262104AbTIMJg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 05:36:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbTIMJg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 05:20:33 -0400
-Received: from smtp6.wanadoo.fr ([193.252.22.28]:13628 "EHLO
-	mwinf0302.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S262098AbTIMJUS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 05:20:18 -0400
-Message-ID: <3F62E145.9090100@iku-ag.de>
-Date: Sat, 13 Sep 2003 11:20:05 +0200
-From: Kurt Huwig <k.huwig@iku-ag.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+	Sat, 13 Sep 2003 05:36:58 -0400
+Received: from smtp0.libero.it ([193.70.192.33]:21482 "EHLO smtp0.libero.it")
+	by vger.kernel.org with ESMTP id S262104AbTIMJf6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 05:35:58 -0400
+Message-ID: <3F62E4F1.7020601@inwind.it>
+Date: Sat, 13 Sep 2003 11:35:45 +0200
+From: Luca Montecchiani <cbm64@inwind.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030715
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: kernel BUG at ide-iops.c:1262! after DMA timeout with 2.4.21
-X-Enigmail-Version: 0.76.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigA4EAE2BFC8B48BC501D15BB6"
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [2.4.23-pre3] usb-storage hang since 2.4.22-rc3 ACPI updates
+Content-Type: multipart/mixed;
+ boundary="------------070408070608010208050201"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigA4EAE2BFC8B48BC501D15BB6
-Content-Type: multipart/mixed;
- boundary="------------090804020806070104070207"
-
 This is a multi-part message in MIME format.
---------------090804020806070104070207
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+--------------070408070608010208050201
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-[1.] One line summary of the problem:
-My machine freezes while burning CDs after a DMA timeout
+Hi,
 
-[2.] Full description of the problem/report:
-On my machine 'setiathome' runs niced in the background. I burn CDs 
-using cdrdao on an ATAPI 32x burner with ide-scsi. I get DMA timeouts 
-and then SCSI reset. I guess it is due to heat problems of the CD 
-writer, as it does happen after about 10 CDs have been burned and then 
-can be repeated by resetting the machine and immediately burning another 
-cd. Nevertheless, the machine runs stable for all other purposes, like 
-kernel compilation and video encoding.
+I've a usb 2.0 mass-storage (bafo) that works great and fast with ehci_hcd
+but since 2.4.22-rc3 ACPI changes the only way to made it works at usb 2.0
+speed is to boot whit acpi=off opition.
+Without ehci_hcd module and ACPI on everything is fine but slow as 1.1 usb device :((
+I've tried also with only pci=noacpi option and this helped once, but not always as
+acpi=off.
 
-[3.] Keywords (i.e., modules, networking, kernel):
-ide-scsi, dma timeout
+Reading the 2.4.22rc2-rc3 diff there are only big ACPI updates and no
+ehci_hcd related changes, so disabling ACPI made it work again but I need
+ACPI this is a laptop ;)
 
-[4.] Kernel version (from /proc/version):
-Linux lobo 2.4.21 #1 Fri Jul 25 21:46:23 CEST 2003 i686 unknown
+Attached files:
 
-[5.] Output of Oops.. message (if applicable) with symbolic information
-      resolved (see Documentation/oops-tracing.txt)
-see attached 'ksymoops.txt'
+lspci.txt : machine specs
+config.txt : kernel config
+kernel-boot-2.4.22-rc2.txt : latest acpi-ehci_hcd working dmesg
+kernel-boot-2.4.23-pre3-acpioff.txt : 2.4.23-pre3 acpi=off working dmesg
+kernel-boot-2.4.23-pre3.txt : 2.4.23-pre3 acpi NON working dmesg
 
-[6.] A small shell script or example program which triggers the
-      problem (if possible)
-n/a
+The hang is 100% reproducible, tell me if anyone need more testing/information.
 
-[7.] Environment
-[7.1.] Software (add the output of the ver_linux script here)
-Linux lobo 2.4.21 #1 Fri Jul 25 21:46:23 CEST 2003 i686 unknown
-
-Gnu C                  2.95.4
-Gnu make               3.79.1
-util-linux             2.11n
-mount                  2.11n
-modutils               2.4.15
-e2fsprogs              1.27
-Linux C Library        2.2.5
-Dynamic linker (ldd)   2.2.5
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               2.0.11
-Modules Loaded         nfsd lp hid nfs lockd sunrpc 8139too uhci 
-ehci-hcd serial isa-pnp parport_pc pt_drv parport usbnet cdfs ide-scsi 
-scsi_mod cmpci soundcore usbmouse mousedev keybdev usbkbd usbcore input 
-rtc reiserfs isofs vfat fat ext2 ide-disk ide-probe-mod ext3 jbd 
-via82cxxx ide-mod
-
-[7.2.] Processor information (from /proc/cpuinfo):
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 6
-model name      : AMD Athlon(TM) XP 2100+
-stepping        : 2
-cpu MHz         : 1735.486
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
-mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-bogomips        : 3460.30
-
-[7.3.] Module information (from /proc/modules):
-nfsd                   68544   0 (autoclean)
-lp                      7008   0 (autoclean)
-hid                    19488   0 (unused)
-nfs                    65468   2 (autoclean)
-lockd                  48864   1 (autoclean) [nfsd nfs]
-sunrpc                 61108   1 (autoclean) [nfsd nfs lockd]
-8139too                16320   1 (autoclean)
-uhci                   24136   0 (unused)
-ehci-hcd               15552   0 (unused)
-serial                 45440   0 (autoclean)
-isa-pnp                28796   0 (autoclean) [serial]
-parport_pc             25128   2 (autoclean)
-pt_drv                107616   0 (unused)
-parport                23328   2 [lp parport_pc pt_drv]
-usbnet                 12360   0 (unused)
-cdfs                   20264   0 (unused)
-ide-scsi                9120   0
-scsi_mod               92456   1 [ide-scsi]
-cmpci                  30416   0 (unused)
-soundcore               3588   4 [cmpci]
-usbmouse                1856   0 (unused)
-mousedev                3936   1
-keybdev                 1728   0 (unused)
-usbkbd                  2944   0 (unused)
-usbcore                57184   1 [hid uhci ehci-hcd usbnet usbmouse usbkbd]
-input                   3392   0 [hid usbmouse mousedev keybdev usbkbd]
-rtc                     6012   0 (autoclean)
-reiserfs              165024   1 (autoclean)
-isofs                  25056   0 (autoclean)
-vfat                    9564   0 (autoclean)
-fat                    29944   0 (autoclean) [vfat]
-ext2                   31648   0 (autoclean)
-ide-disk               13092   2 (autoclean)
-ide-probe-mod           9872   0 (autoclean)
-ext3                   58080   0 (autoclean)
-jbd                    36968   0 (autoclean) [ext3]
-via82cxxx              10332   1 (autoclean)
-ide-mod                88940   2 (autoclean) [ide-scsi ide-disk 
-ide-probe-mod via82cxxx]
-
-[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
-
-0000-001f : dma1
-0020-003f : pic1
-0040-005f : timer
-0060-006f : keyboard
-0070-007f : rtc
-0080-008f : dma page reg
-00a0-00bf : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-02f8-02ff : serial(set)
-0330-0331 : cmpci Midi
-0376-0376 : ide1
-0378-037a : parport0
-0388-038b : cmpci FM
-03c0-03df : vga+
-03f6-03f6 : ide0
-03f8-03ff : serial(set)
-0cf8-0cff : PCI conf1
-a800-a81f : VIA Technologies, Inc. USB (#4)
-   a800-a81f : usb-uhci
-b000-b01f : VIA Technologies, Inc. USB (#3)
-   b000-b01f : usb-uhci
-b400-b40f : VIA Technologies, Inc. VT82C586B PIPC Bus Master IDE
-   b400-b407 : ide0
-   b408-b40f : ide1
-b800-b8ff : Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+
-   b800-b8ff : 8139too
-d000-d01f : VIA Technologies, Inc. USB (#2)
-   d000-d01f : usb-uhci
-d400-d41f : VIA Technologies, Inc. USB
-   d400-d41f : usb-uhci
-d800-d8ff : C-Media Electronics Inc CM8738
-   d800-d8ff : cmpci
-00000000-0009fbff : System RAM
-0009fc00-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000f0000-000fffff : System ROM
-00100000-1fffbfff : System RAM
-   00100000-001f407d : Kernel code
-   001f407e-0025d7df : Kernel data
-1fffc000-1fffefff : ACPI Tables
-1ffff000-1fffffff : ACPI Non-volatile Storage
-d5000000-d50000ff : Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+
-   d5000000-d50000ff : 8139too
-d5800000-d58000ff : VIA Technologies, Inc. USB 2.0
-   d5800000-d58000ff : ehci-hcd
-d6000000-d7efffff : PCI Bus #01
-   d6000000-d6ffffff : nVidia Corporation NV11 [GeForce2 MX]
-d7f00000-dfffffff : PCI Bus #01
-   d8000000-dfffffff : nVidia Corporation NV11 [GeForce2 MX]
-e0000000-e3ffffff : VIA Technologies, Inc. VT8367 [KT266]
-fec00000-fec00fff : reserved
-fee00000-fee00fff : reserved
-ffff0000-ffffffff : reserved
-
-[7.5.] PCI information ('lspci -vvv' as root)
-00:00.0 Host bridge: VIA Technologies, Inc. VT8367 [KT266]
-         Subsystem: Asustek Computer, Inc.: Unknown device 807f
-         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-         Latency: 0
-         Region 0: Memory at e0000000 (32-bit, prefetchable) [size=64M]
-         Capabilities: [a0] AGP version 2.0
-                 Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
-                 Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
-         Capabilities: [c0] Power Management version 2
-                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8367 [KT266 AGP] (prog-if 
-00 [Normal decode])
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-         Latency: 0
-         Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-         I/O behind bridge: 0000e000-0000dfff
-         Memory behind bridge: d6000000-d7efffff
-         Prefetchable memory behind bridge: d7f00000-dfffffff
-         BridgeCtl: Parity- SERR- NoISA- VGA+ MAbort- >Reset- FastB2B-
-         Capabilities: [80] Power Management version 2
-                 Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:05.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
-         Subsystem: Asustek Computer, Inc.: Unknown device 80e2
-         Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping+ SERR- FastB2B-
-         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 32 (500ns min, 6000ns max)
-         Interrupt: pin A routed to IRQ 10
-         Region 0: I/O ports at d800 [size=256]
-         Capabilities: [c0] Power Management version 2
-                 Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:09.0 USB Controller: VIA Technologies, Inc. UHCI USB (rev 50) 
-(prog-if 00 [UHCI])
-         Subsystem: Asustek Computer, Inc.: Unknown device 8080
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 32, cache line size 08
-         Interrupt: pin A routed to IRQ 12
-         Region 4: I/O ports at d400 [size=32]
-         Capabilities: [80] Power Management version 2
-                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA 
-PME(D0+,D1-,D2-,D3hot+,D3cold+)
-                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:09.1 USB Controller: VIA Technologies, Inc. UHCI USB (rev 50) 
-(prog-if 00 [UHCI])
-         Subsystem: Asustek Computer, Inc.: Unknown device 8080
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 32, cache line size 08
-         Interrupt: pin B routed to IRQ 11
-         Region 4: I/O ports at d000 [size=32]
-         Capabilities: [80] Power Management version 2
-                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA 
-PME(D0+,D1-,D2-,D3hot+,D3cold+)
-                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:09.2 USB Controller: VIA Technologies, Inc.: Unknown device 3104 (rev 
-51) (prog-if 20)
-         Subsystem: Asustek Computer, Inc.: Unknown device 8080
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 32, cache line size 10
-         Interrupt: pin C routed to IRQ 10
-         Region 0: Memory at d5800000 (32-bit, non-prefetchable) [size=256]
-         Capabilities: [80] Power Management version 2
-                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA 
-PME(D0+,D1-,D2-,D3hot+,D3cold+)
-                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:0e.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 
-(rev 10)
-         Subsystem: Realtek Semiconductor Co., Ltd. RT8139
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 32 (8000ns min, 16000ns max)
-         Interrupt: pin A routed to IRQ 10
-         Region 0: I/O ports at b800 [size=256]
-         Region 1: Memory at d5000000 (32-bit, non-prefetchable) [size=256]
-         Capabilities: [50] Power Management version 2
-                 Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA 
-PME(D0-,D1+,D2+,D3hot+,D3cold+)
-                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:11.0 ISA bridge: VIA Technologies, Inc.: Unknown device 3147
-         Subsystem: Asustek Computer, Inc.: Unknown device 808c
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping+ SERR- FastB2B-
-         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 0
-         Capabilities: [c0] Power Management version 2
-                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:11.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06) 
-(prog-if 8a [Master SecP PriP])
-         Subsystem: Asustek Computer, Inc.: Unknown device 808c
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 32
-         Interrupt: pin A routed to IRQ 0
-         Region 4: I/O ports at b400 [size=16]
-         Capabilities: [c0] Power Management version 2
-                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:11.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 23) 
-(prog-if 00 [UHCI])
-         Subsystem: Asustek Computer, Inc.: Unknown device 808c
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 32, cache line size 08
-         Interrupt: pin D routed to IRQ 5
-         Region 4: I/O ports at b000 [size=32]
-         Capabilities: [80] Power Management version 2
-                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:11.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 23) 
-(prog-if 00 [UHCI])
-         Subsystem: Asustek Computer, Inc.: Unknown device 808c
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 32, cache line size 08
-         Interrupt: pin D routed to IRQ 5
-         Region 4: I/O ports at a800 [size=32]
-         Capabilities: [80] Power Management version 2
-                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-01:00.0 VGA compatible controller: nVidia Corporation NV11 (GeForce2 MX) 
-(rev b2) (prog-if 00 [VGA])
-         Subsystem: Elsa AG: Unknown device 0c64
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 64 (1250ns min, 250ns max)
-         Interrupt: pin A routed to IRQ 11
-         Region 0: Memory at d6000000 (32-bit, non-prefetchable) [size=16M]
-         Region 1: Memory at d8000000 (32-bit, prefetchable) [size=128M]
-         Expansion ROM at d7ff0000 [disabled] [size=64K]
-         Capabilities: [60] Power Management version 2
-                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-         Capabilities: [44] AGP version 2.0
-                 Status: RQ=31 SBA- 64bit- FW+ Rate=x1,x2
-                 Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
-
-[7.6.] SCSI information (from /proc/scsi/scsi)
-Attached devices:
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-   Vendor: HL-DT-ST Model: CD-RW GCE-8320B  Rev: 1.04
-   Type:   CD-ROM                           ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-   Vendor: MT1316B  Model: BDV212B          Rev: 0p40
-   Type:   CD-ROM                           ANSI SCSI revision: 02
-
-[7.7.] Other information that might be relevant to the problem
-        (please look in /proc and include all information that you
-        think to be relevant):
-lobo:~# cat /proc/ide/via
-----------VIA BusMastering IDE Configuration----------------
-Driver Version:                     3.37
-South Bridge:                       VIA vt8233a
-Revision:                           ISA 0x0 IDE 0x6
-Highest DMA rate:                   UDMA133
-BM-DMA base:                        0xb400
-PCI clock:                          33.3MHz
-Master Read  Cycle IRDY:            0ws
-Master Write Cycle IRDY:            0ws
-BM IDE Status Register Read Retry:  yes
-Max DRDY Pulse Width:               No limit
------------------------Primary IDE-------Secondary IDE------
-Read DMA FIFO flush:          yes                 yes
-End Sector FIFO flush:         no                  no
-Prefetch Buffer:              yes                  no
-Post Write Buffer:            yes                  no
-Enabled:                      yes                 yes
-Simplex only:                  no                  no
-Cable Type:                   80w                 80w
--------------------drive0----drive1----drive2----drive3-----
-Transfer Mode:       UDMA       PIO       DMA      UDMA
-Address Setup:      120ns     120ns     120ns     120ns
-Cmd Active:          90ns      90ns      90ns      90ns
-Cmd Recovery:        30ns      30ns      30ns      30ns
-Data Active:         90ns     330ns      90ns      90ns
-Data Recovery:       30ns     270ns      30ns      30ns
-Cycle Time:          22ns     600ns     120ns      60ns
-Transfer Rate:   88.8MB/s   3.3MB/s  16.6MB/s  33.3MB/s
-
-[X.] Other notes, patches, fixes, workarounds:
-
-CD writer is /dev/hdc.
-
-Please respond via private mail too, as I am not subscribed to lkml.
+thanks in advance,
+luca
 
 
-Thanks,
 
-Kurt
--- 
-Kurt Huwig             iKu Systemhaus AG        http://www.iku-ag.de/
-Vorstand               Am Römerkastell 4        Telefon 0681/96751-0
-                        66121 Saarbrücken        Telefax 0681/96751-66
-GnuPG 1024D/99DD9468 64B1 0C5B 82BC E16E 8940  EB6D 4C32 F908 99DD 9468
-
---------------090804020806070104070207
+--------------070408070608010208050201
 Content-Type: text/plain;
- name="ksymoops.txt"
+ name="config.txt"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="ksymoops.txt"
+ filename="config.txt"
 
-ksymoops 2.4.5 on i686 2.4.21.  Options used
-     -V (default)
-     -k 20030913102954.ksyms (specified)
-     -l 20030913102954.modules (specified)
-     -o /lib/modules/2.4.21/ (default)
-     -m /boot/System.map-2.4.21 (default)
+#
+# Automatically generated by make menuconfig: don't edit
+#
+CONFIG_X86=y
+# CONFIG_SBUS is not set
+CONFIG_UID16=y
 
-Warning (expand_objects): object /lib/modules/2.4.21/kernel/fs/reiserfs/reiserfs.o for module reiserfs has changed since load
-Warning (expand_objects): object /lib/modules/2.4.21/kernel/fs/isofs/isofs.o for module isofs has changed since load
-Warning (expand_objects): object /lib/modules/2.4.21/kernel/fs/vfat/vfat.o for module vfat has changed since load
-Warning (expand_objects): object /lib/modules/2.4.21/kernel/fs/fat/fat.o for module fat has changed since load
-Warning (expand_objects): object /lib/modules/2.4.21/kernel/fs/ext2/ext2.o for module ext2 has changed since load
-Warning (expand_objects): object /lib/modules/2.4.21/kernel/drivers/ide/ide-disk.o for module ide-disk has changed since load
-Warning (expand_objects): object /lib/modules/2.4.21/kernel/drivers/ide/ide-probe-mod.o for module ide-probe-mod has changed since load
-Warning (expand_objects): object /lib/modules/2.4.21/kernel/fs/ext3/ext3.o for module ext3 has changed since load
-Warning (expand_objects): object /lib/modules/2.4.21/kernel/fs/jbd/jbd.o for module jbd has changed since load
-Warning (expand_objects): object /lib/modules/2.4.21/kernel/drivers/ide/pci/via82cxxx.o for module via82cxxx has changed since load
-Warning (expand_objects): object /lib/modules/2.4.21/kernel/drivers/ide/ide-mod.o for module ide-mod has changed since load
-kernel BUG at ide-iops.c:1262!
-CPU:    0
-EIP:    0010:[<e080e5c3>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 0010082
-eax:  c15e9280  ebx: 00000000  ecx: dbff5f6c  edx: 00000002
-esi:  00000000  edi: e0820344  ebp: e0820294  esp: dbff5ed4
-ds: 0018  es:  0018  ss: 0018
-Process setiathome (pid: 735, stackpage=dbff5000)
-Stack: 00000000 00000000 dfee35c0 d7a0f800 c15e9280 00000086 e080e78c e0820344
-       00000000 e09b17a6 e0820344 e099f0bc d7a0f800 00000002 d7a0f800 00000282
-       00000000 c027c240 00000000 e099e659 d7a0f800 00000002 e09aaec0 00000000
-Call Trace:    [<e080e78c>] [<e0820344>] [<e09b17a6>] [<e0820344>] [<e099f0bc>]
-  [<e099e659>] [<e09aaec0>] [<e099e600>] [<c01201fc>] [<c011cbea>] [<c011cb16>]
-  [<c011c90a>] [<c0109e0d>] [<c010c078>]
-Code: 0f 0b ee 04 7a a3 81 e0 90 8d 74 26 00 80 bf 09 01 00 00 20
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+# CONFIG_MODVERSIONS is not set
+# CONFIG_KMOD is not set
+
+#
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+# CONFIG_MPENTIUMIII is not set
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+CONFIG_MK7=y
+# CONFIG_MK8 is not set
+# CONFIG_MELAN is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MCYRIXIII is not set
+# CONFIG_MVIAC3_2 is not set
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_X86_HAS_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_3DNOW=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_F00F_WORKS_OK=y
+CONFIG_X86_MCE=y
+# CONFIG_TOSHIBA is not set
+# CONFIG_I8K is not set
+# CONFIG_MICROCODE is not set
+# CONFIG_X86_MSR is not set
+# CONFIG_X86_CPUID is not set
+CONFIG_NOHIGHMEM=y
+# CONFIG_HIGHMEM4G is not set
+# CONFIG_HIGHMEM64G is not set
+# CONFIG_HIGHMEM is not set
+# CONFIG_MATH_EMULATION is not set
+CONFIG_MTRR=y
+# CONFIG_SMP is not set
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+# CONFIG_X86_TSC_DISABLE is not set
+CONFIG_X86_TSC=y
+
+#
+# General setup
+#
+CONFIG_NET=y
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+# CONFIG_ISA is not set
+CONFIG_PCI_NAMES=y
+# CONFIG_EISA is not set
+# CONFIG_MCA is not set
+# CONFIG_HOTPLUG is not set
+# CONFIG_PCMCIA is not set
+# CONFIG_HOTPLUG_PCI is not set
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+# CONFIG_KCORE_AOUT is not set
+CONFIG_BINFMT_AOUT=m
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+# CONFIG_PM is not set
+# CONFIG_APM is not set
+
+#
+# ACPI Support
+#
+# CONFIG_ACPI is not set
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Parallel port support
+#
+# CONFIG_PARPORT is not set
+
+#
+# Plug and Play configuration
+#
+CONFIG_PNP=y
+# CONFIG_ISAPNP is not set
+
+#
+# Block devices
+#
+# CONFIG_BLK_DEV_FD is not set
+# CONFIG_BLK_DEV_XD is not set
+# CONFIG_PARIDE is not set
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_CISS_SCSI_TAPE is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+# CONFIG_BLK_DEV_UMEM is not set
+# CONFIG_BLK_DEV_LOOP is not set
+CONFIG_BLK_DEV_NBD=m
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=4096
+# CONFIG_BLK_DEV_INITRD is not set
+# CONFIG_BLK_STATS is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+# CONFIG_BLK_DEV_MD is not set
+# CONFIG_MD_LINEAR is not set
+# CONFIG_MD_RAID0 is not set
+# CONFIG_MD_RAID1 is not set
+# CONFIG_MD_RAID5 is not set
+# CONFIG_MD_MULTIPATH is not set
+# CONFIG_BLK_DEV_LVM is not set
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+# CONFIG_PACKET_MMAP is not set
+CONFIG_NETLINK_DEV=y
+CONFIG_NETFILTER=y
+# CONFIG_NETFILTER_DEBUG is not set
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+# CONFIG_IP_MULTICAST is not set
+# CONFIG_IP_ADVANCED_ROUTER is not set
+# CONFIG_IP_PNP is not set
+CONFIG_NET_IPIP=m
+CONFIG_NET_IPGRE=m
+# CONFIG_ARPD is not set
+# CONFIG_INET_ECN is not set
+# CONFIG_SYN_COOKIES is not set
+
+#
+#   IP: Netfilter Configuration
+#
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_AMANDA=m
+CONFIG_IP_NF_TFTP=m
+CONFIG_IP_NF_IRC=m
+# CONFIG_IP_NF_QUEUE is not set
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+# CONFIG_IP_NF_MATCH_RECENT is not set
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_DSCP=m
+CONFIG_IP_NF_MATCH_AH_ESP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_HELPER=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+CONFIG_IP_NF_MATCH_UNCLEAN=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_MIRROR=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_NAT_AMANDA=m
+# CONFIG_IP_NF_NAT_LOCAL is not set
+# CONFIG_IP_NF_NAT_SNMP_BASIC is not set
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_NAT_TFTP=m
+# CONFIG_IP_NF_MANGLE is not set
+CONFIG_IP_NF_TARGET_LOG=m
+# CONFIG_IP_NF_TARGET_ULOG is not set
+# CONFIG_IP_NF_TARGET_TCPMSS is not set
+# CONFIG_IP_NF_ARPTABLES is not set
+# CONFIG_IP_NF_COMPAT_IPCHAINS is not set
+# CONFIG_IP_NF_COMPAT_IPFWADM is not set
+# CONFIG_IPV6 is not set
+# CONFIG_KHTTPD is not set
+# CONFIG_ATM is not set
+# CONFIG_VLAN_8021Q is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+
+#
+# Appletalk devices
+#
+# CONFIG_DEV_APPLETALK is not set
+# CONFIG_DECNET is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_LLC is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+# CONFIG_NET_FASTROUTE is not set
+# CONFIG_NET_HW_FLOWCONTROL is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# Network testing
+#
+# CONFIG_NET_PKTGEN is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+# CONFIG_PHONE_IXJ is not set
+# CONFIG_PHONE_IXJ_PCMCIA is not set
+
+#
+# ATA/IDE/MFM/RLL support
+#
+CONFIG_IDE=y
+
+#
+# IDE, ATA and ATAPI Block devices
+#
+CONFIG_BLK_DEV_IDE=y
+# CONFIG_BLK_DEV_HD_IDE is not set
+# CONFIG_BLK_DEV_HD is not set
+CONFIG_BLK_DEV_IDEDISK=y
+# CONFIG_IDEDISK_MULTI_MODE is not set
+# CONFIG_IDEDISK_STROKE is not set
+# CONFIG_BLK_DEV_IDECS is not set
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDETAPE=m
+CONFIG_BLK_DEV_IDEFLOPPY=m
+CONFIG_BLK_DEV_IDESCSI=m
+# CONFIG_IDE_TASK_IOCTL is not set
+# CONFIG_BLK_DEV_CMD640 is not set
+# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+# CONFIG_BLK_DEV_ISAPNP is not set
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_PCI_WIP is not set
+# CONFIG_BLK_DEV_ADMA100 is not set
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+# CONFIG_WDC_ALI15X3 is not set
+# CONFIG_BLK_DEV_AMD74XX is not set
+# CONFIG_AMD74XX_OVERRIDE is not set
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_TRIFLEX is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5530 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_HPT34X_AUTODMA is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+# CONFIG_BLK_DEV_PIIX is not set
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_PDC202XX_OLD is not set
+# CONFIG_PDC202XX_BURST is not set
+# CONFIG_BLK_DEV_PDC202XX_NEW is not set
+# CONFIG_BLK_DEV_RZ1000 is not set
+# CONFIG_BLK_DEV_SC1200 is not set
+# CONFIG_BLK_DEV_SVWKS is not set
+# CONFIG_BLK_DEV_SIIMAGE is not set
+# CONFIG_BLK_DEV_SIS5513 is not set
+# CONFIG_BLK_DEV_SLC90E66 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+CONFIG_BLK_DEV_VIA82CXXX=y
+# CONFIG_IDE_CHIPSETS is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_IDEDMA_IVB is not set
+# CONFIG_DMA_NONPCI is not set
+CONFIG_BLK_DEV_IDE_MODES=y
+# CONFIG_BLK_DEV_ATARAID is not set
+# CONFIG_BLK_DEV_ATARAID_PDC is not set
+# CONFIG_BLK_DEV_ATARAID_HPT is not set
+# CONFIG_BLK_DEV_ATARAID_SII is not set
+
+#
+# SCSI support
+#
+CONFIG_SCSI=m
+CONFIG_BLK_DEV_SD=m
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_CHR_DEV_ST=m
+CONFIG_CHR_DEV_OSST=m
+CONFIG_BLK_DEV_SR=m
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=m
+# CONFIG_SCSI_DEBUG_QUEUES is not set
+# CONFIG_SCSI_MULTI_LUN is not set
+# CONFIG_SCSI_CONSTANTS is not set
+# CONFIG_SCSI_LOGGING is not set
+
+#
+# SCSI low-level drivers
+#
+# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
+# CONFIG_SCSI_7000FASST is not set
+# CONFIG_SCSI_ACARD is not set
+# CONFIG_SCSI_AHA152X is not set
+# CONFIG_SCSI_AHA1542 is not set
+# CONFIG_SCSI_AHA1740 is not set
+# CONFIG_SCSI_AACRAID is not set
+# CONFIG_SCSI_AIC7XXX is not set
+# CONFIG_SCSI_AIC79XX is not set
+# CONFIG_SCSI_AIC7XXX_OLD is not set
+# CONFIG_SCSI_DPT_I2O is not set
+# CONFIG_SCSI_ADVANSYS is not set
+# CONFIG_SCSI_IN2000 is not set
+# CONFIG_SCSI_AM53C974 is not set
+# CONFIG_SCSI_MEGARAID is not set
+# CONFIG_SCSI_BUSLOGIC is not set
+# CONFIG_SCSI_CPQFCTS is not set
+# CONFIG_SCSI_DMX3191D is not set
+# CONFIG_SCSI_DTC3280 is not set
+# CONFIG_SCSI_EATA is not set
+# CONFIG_SCSI_EATA_DMA is not set
+# CONFIG_SCSI_EATA_PIO is not set
+# CONFIG_SCSI_FUTURE_DOMAIN is not set
+# CONFIG_SCSI_GDTH is not set
+# CONFIG_SCSI_GENERIC_NCR5380 is not set
+# CONFIG_SCSI_IPS is not set
+# CONFIG_SCSI_INITIO is not set
+# CONFIG_SCSI_INIA100 is not set
+# CONFIG_SCSI_NCR53C406A is not set
+# CONFIG_SCSI_NCR53C7xx is not set
+# CONFIG_SCSI_SYM53C8XX_2 is not set
+# CONFIG_SCSI_NCR53C8XX is not set
+# CONFIG_SCSI_SYM53C8XX is not set
+# CONFIG_SCSI_PAS16 is not set
+# CONFIG_SCSI_PCI2000 is not set
+# CONFIG_SCSI_PCI2220I is not set
+# CONFIG_SCSI_PSI240I is not set
+# CONFIG_SCSI_QLOGIC_FAS is not set
+# CONFIG_SCSI_QLOGIC_ISP is not set
+# CONFIG_SCSI_QLOGIC_FC is not set
+# CONFIG_SCSI_QLOGIC_1280 is not set
+# CONFIG_SCSI_SEAGATE is not set
+# CONFIG_SCSI_SIM710 is not set
+# CONFIG_SCSI_SYM53C416 is not set
+# CONFIG_SCSI_DC390T is not set
+# CONFIG_SCSI_T128 is not set
+# CONFIG_SCSI_U14_34F is not set
+# CONFIG_SCSI_ULTRASTOR is not set
+# CONFIG_SCSI_NSP32 is not set
+# CONFIG_SCSI_DEBUG is not set
+
+#
+# Fusion MPT device support
+#
+# CONFIG_FUSION is not set
+# CONFIG_FUSION_BOOT is not set
+# CONFIG_FUSION_ISENSE is not set
+# CONFIG_FUSION_CTL is not set
+# CONFIG_FUSION_LAN is not set
+
+#
+# IEEE 1394 (FireWire) support (EXPERIMENTAL)
+#
+CONFIG_IEEE1394=m
+CONFIG_IEEE1394_OHCI1394=m
+CONFIG_IEEE1394_VIDEO1394=m
+CONFIG_IEEE1394_SBP2=m
+# CONFIG_IEEE1394_SBP2_PHYS_DMA is not set
+CONFIG_IEEE1394_ETH1394=m
+CONFIG_IEEE1394_DV1394=m
+CONFIG_IEEE1394_RAWIO=m
+CONFIG_IEEE1394_CMP=m
+CONFIG_IEEE1394_AMDTP=m
+# CONFIG_IEEE1394_VERBOSEDEBUG is not set
+# CONFIG_IEEE1394_OUI_DB is not set
+
+#
+# I2O device support
+#
+# CONFIG_I2O is not set
+# CONFIG_I2O_PCI is not set
+# CONFIG_I2O_BLOCK is not set
+# CONFIG_I2O_LAN is not set
+# CONFIG_I2O_SCSI is not set
+# CONFIG_I2O_PROC is not set
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+# CONFIG_DUMMY is not set
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_TUN is not set
+# CONFIG_ETHERTAP is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+# CONFIG_SUNLANCE is not set
+# CONFIG_HAPPYMEAL is not set
+# CONFIG_SUNBMAC is not set
+# CONFIG_SUNQE is not set
+# CONFIG_SUNGEM is not set
+# CONFIG_NET_VENDOR_3COM is not set
+# CONFIG_LANCE is not set
+# CONFIG_NET_VENDOR_SMC is not set
+# CONFIG_NET_VENDOR_RACAL is not set
+# CONFIG_HP100 is not set
+# CONFIG_NET_ISA is not set
+CONFIG_NET_PCI=y
+# CONFIG_PCNET32 is not set
+# CONFIG_AMD8111_ETH is not set
+# CONFIG_ADAPTEC_STARFIRE is not set
+# CONFIG_APRICOT is not set
+# CONFIG_B44 is not set
+# CONFIG_CS89x0 is not set
+# CONFIG_TULIP is not set
+# CONFIG_DE4X5 is not set
+# CONFIG_DGRS is not set
+# CONFIG_DM9102 is not set
+# CONFIG_EEPRO100 is not set
+# CONFIG_EEPRO100_PIO is not set
+# CONFIG_E100 is not set
+# CONFIG_LNE390 is not set
+# CONFIG_FEALNX is not set
+# CONFIG_NATSEMI is not set
+# CONFIG_NE2K_PCI is not set
+# CONFIG_NE3210 is not set
+# CONFIG_ES3210 is not set
+# CONFIG_8139CP is not set
+# CONFIG_8139TOO is not set
+# CONFIG_8139TOO_PIO is not set
+# CONFIG_8139TOO_TUNE_TWISTER is not set
+# CONFIG_8139TOO_8129 is not set
+# CONFIG_8139_OLD_RX_RESET is not set
+# CONFIG_SIS900 is not set
+# CONFIG_EPIC100 is not set
+# CONFIG_SUNDANCE is not set
+# CONFIG_SUNDANCE_MMIO is not set
+# CONFIG_TLAN is not set
+# CONFIG_TC35815 is not set
+CONFIG_VIA_RHINE=m
+# CONFIG_VIA_RHINE_MMIO is not set
+# CONFIG_WINBOND_840 is not set
+# CONFIG_NET_POCKET is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_DL2K is not set
+# CONFIG_E1000 is not set
+# CONFIG_MYRI_SBUS is not set
+# CONFIG_NS83820 is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_YELLOWFIN is not set
+# CONFIG_R8169 is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_TIGON3 is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+# CONFIG_PLIP is not set
+CONFIG_PPP=m
+# CONFIG_PPP_MULTILINK is not set
+# CONFIG_PPP_FILTER is not set
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_SYNC_TTY=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_PPPOE=m
+CONFIG_SLIP=m
+CONFIG_SLIP_COMPRESSED=y
+# CONFIG_SLIP_SMART is not set
+# CONFIG_SLIP_MODE_SLIP6 is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+# CONFIG_NET_RADIO is not set
+
+#
+# Token Ring devices
+#
+# CONFIG_TR is not set
+# CONFIG_NET_FC is not set
+# CONFIG_RCPCI is not set
+# CONFIG_SHAPER is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+
+#
+# Amateur Radio support
+#
+# CONFIG_HAMRADIO is not set
+
+#
+# IrDA (infrared) support
+#
+# CONFIG_IRDA is not set
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN is not set
+
+#
+# Input core support
+#
+CONFIG_INPUT=m
+CONFIG_INPUT_KEYBDEV=m
+CONFIG_INPUT_MOUSEDEV=m
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_JOYDEV=m
+CONFIG_INPUT_EVDEV=m
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+# CONFIG_SERIAL is not set
+# CONFIG_SERIAL_EXTENDED is not set
+# CONFIG_SERIAL_NONSTANDARD is not set
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+
+#
+# I2C support
+#
+# CONFIG_I2C is not set
+
+#
+# Mice
+#
+CONFIG_BUSMOUSE=m
+CONFIG_ATIXL_BUSMOUSE=m
+CONFIG_LOGIBUSMOUSE=m
+CONFIG_MS_BUSMOUSE=m
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+CONFIG_82C710_MOUSE=m
+CONFIG_PC110_PAD=m
+CONFIG_MK712_MOUSE=m
+
+#
+# Joysticks
+#
+# CONFIG_INPUT_GAMEPORT is not set
+# CONFIG_INPUT_NS558 is not set
+# CONFIG_INPUT_LIGHTNING is not set
+# CONFIG_INPUT_PCIGAME is not set
+# CONFIG_INPUT_CS461X is not set
+# CONFIG_INPUT_EMU10K1 is not set
+# CONFIG_INPUT_SERIO is not set
+# CONFIG_INPUT_SERPORT is not set
+# CONFIG_INPUT_ANALOG is not set
+# CONFIG_INPUT_A3D is not set
+# CONFIG_INPUT_ADI is not set
+# CONFIG_INPUT_COBRA is not set
+# CONFIG_INPUT_GF2K is not set
+# CONFIG_INPUT_GRIP is not set
+# CONFIG_INPUT_INTERACT is not set
+# CONFIG_INPUT_TMDC is not set
+# CONFIG_INPUT_SIDEWINDER is not set
+# CONFIG_INPUT_IFORCE_USB is not set
+# CONFIG_INPUT_IFORCE_232 is not set
+# CONFIG_INPUT_WARRIOR is not set
+# CONFIG_INPUT_MAGELLAN is not set
+# CONFIG_INPUT_SPACEORB is not set
+# CONFIG_INPUT_SPACEBALL is not set
+# CONFIG_INPUT_STINGER is not set
+# CONFIG_INPUT_DB9 is not set
+# CONFIG_INPUT_GAMECON is not set
+# CONFIG_INPUT_TURBOGRAFX is not set
+# CONFIG_QIC02_TAPE is not set
+# CONFIG_IPMI_HANDLER is not set
+# CONFIG_IPMI_PANIC_EVENT is not set
+# CONFIG_IPMI_DEVICE_INTERFACE is not set
+# CONFIG_IPMI_KCS is not set
+# CONFIG_IPMI_WATCHDOG is not set
+
+#
+# Watchdog Cards
+#
+# CONFIG_WATCHDOG is not set
+# CONFIG_SCx200_GPIO is not set
+# CONFIG_AMD_RNG is not set
+# CONFIG_INTEL_RNG is not set
+# CONFIG_AMD_PM768 is not set
+CONFIG_NVRAM=m
+CONFIG_RTC=m
+# CONFIG_DTLK is not set
+# CONFIG_R3964 is not set
+# CONFIG_APPLICOM is not set
+# CONFIG_SONYPI is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_FTAPE is not set
+CONFIG_AGP=m
+# CONFIG_AGP_INTEL is not set
+# CONFIG_AGP_I810 is not set
+CONFIG_AGP_VIA=y
+# CONFIG_AGP_AMD is not set
+# CONFIG_AGP_AMD_8151 is not set
+# CONFIG_AGP_SIS is not set
+# CONFIG_AGP_ALI is not set
+# CONFIG_AGP_SWORKS is not set
+# CONFIG_AGP_NVIDIA is not set
+# CONFIG_DRM is not set
+# CONFIG_MWAVE is not set
+
+#
+# Multimedia devices
+#
+# CONFIG_VIDEO_DEV is not set
+
+#
+# File systems
+#
+CONFIG_QUOTA=y
+# CONFIG_QFMT_V2 is not set
+# CONFIG_AUTOFS_FS is not set
+# CONFIG_AUTOFS4_FS is not set
+# CONFIG_REISERFS_FS is not set
+# CONFIG_REISERFS_CHECK is not set
+# CONFIG_REISERFS_PROC_INFO is not set
+# CONFIG_ADFS_FS is not set
+# CONFIG_ADFS_FS_RW is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_HFS_FS is not set
+# CONFIG_HFSPLUS_FS is not set
+# CONFIG_BEFS_FS is not set
+# CONFIG_BEFS_DEBUG is not set
+# CONFIG_BFS_FS is not set
+CONFIG_EXT3_FS=m
+CONFIG_JBD=m
+# CONFIG_JBD_DEBUG is not set
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_UMSDOS_FS=m
+CONFIG_VFAT_FS=m
+# CONFIG_EFS_FS is not set
+# CONFIG_JFFS_FS is not set
+# CONFIG_JFFS2_FS is not set
+CONFIG_CRAMFS=m
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+# CONFIG_ZISOFS is not set
+# CONFIG_JFS_FS is not set
+# CONFIG_JFS_DEBUG is not set
+# CONFIG_JFS_STATISTICS is not set
+CONFIG_MINIX_FS=m
+# CONFIG_VXFS_FS is not set
+CONFIG_NTFS_FS=m
+# CONFIG_NTFS_RW is not set
+# CONFIG_HPFS_FS is not set
+CONFIG_PROC_FS=y
+# CONFIG_DEVFS_FS is not set
+# CONFIG_DEVFS_MOUNT is not set
+# CONFIG_DEVFS_DEBUG is not set
+CONFIG_DEVPTS_FS=y
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_QNX4FS_RW is not set
+CONFIG_ROMFS_FS=m
+CONFIG_EXT2_FS=y
+# CONFIG_SYSV_FS is not set
+CONFIG_UDF_FS=m
+# CONFIG_UDF_RW is not set
+# CONFIG_UFS_FS is not set
+# CONFIG_UFS_FS_WRITE is not set
+
+#
+# Network File Systems
+#
+# CONFIG_CODA_FS is not set
+# CONFIG_INTERMEZZO_FS is not set
+CONFIG_NFS_FS=m
+# CONFIG_NFS_V3 is not set
+# CONFIG_NFS_DIRECTIO is not set
+# CONFIG_ROOT_NFS is not set
+CONFIG_NFSD=m
+# CONFIG_NFSD_V3 is not set
+# CONFIG_NFSD_TCP is not set
+CONFIG_SUNRPC=m
+CONFIG_LOCKD=m
+CONFIG_SMB_FS=m
+# CONFIG_SMB_NLS_DEFAULT is not set
+CONFIG_NCP_FS=m
+# CONFIG_NCPFS_PACKET_SIGNING is not set
+# CONFIG_NCPFS_IOCTL_LOCKING is not set
+# CONFIG_NCPFS_STRONG is not set
+# CONFIG_NCPFS_NFS_NS is not set
+# CONFIG_NCPFS_OS2_NS is not set
+# CONFIG_NCPFS_SMALLDOS is not set
+# CONFIG_NCPFS_NLS is not set
+# CONFIG_NCPFS_EXTRAS is not set
+# CONFIG_ZISOFS_FS is not set
+
+#
+# Partition Types
+#
+# CONFIG_PARTITION_ADVANCED is not set
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+
+#
+# Native Language Support
+#
+CONFIG_NLS_DEFAULT="cp850"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_737=m
+CONFIG_NLS_CODEPAGE_775=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_CODEPAGE_852=m
+CONFIG_NLS_CODEPAGE_855=m
+CONFIG_NLS_CODEPAGE_857=m
+CONFIG_NLS_CODEPAGE_860=m
+CONFIG_NLS_CODEPAGE_861=m
+CONFIG_NLS_CODEPAGE_862=m
+CONFIG_NLS_CODEPAGE_863=m
+CONFIG_NLS_CODEPAGE_864=m
+CONFIG_NLS_CODEPAGE_865=m
+CONFIG_NLS_CODEPAGE_866=m
+CONFIG_NLS_CODEPAGE_869=m
+# CONFIG_NLS_CODEPAGE_936 is not set
+# CONFIG_NLS_CODEPAGE_950 is not set
+# CONFIG_NLS_CODEPAGE_932 is not set
+# CONFIG_NLS_CODEPAGE_949 is not set
+# CONFIG_NLS_CODEPAGE_874 is not set
+# CONFIG_NLS_ISO8859_8 is not set
+CONFIG_NLS_CODEPAGE_1250=m
+CONFIG_NLS_CODEPAGE_1251=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_2=m
+CONFIG_NLS_ISO8859_3=m
+CONFIG_NLS_ISO8859_4=m
+CONFIG_NLS_ISO8859_5=m
+CONFIG_NLS_ISO8859_6=m
+CONFIG_NLS_ISO8859_7=m
+CONFIG_NLS_ISO8859_9=m
+CONFIG_NLS_ISO8859_13=m
+CONFIG_NLS_ISO8859_14=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_NLS_KOI8_R=m
+CONFIG_NLS_KOI8_U=m
+CONFIG_NLS_UTF8=m
+
+#
+# Console drivers
+#
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+# CONFIG_MDA_CONSOLE is not set
+
+#
+# Frame-buffer support
+#
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+# CONFIG_FB_RIVA is not set
+# CONFIG_FB_CLGEN is not set
+# CONFIG_FB_PM2 is not set
+# CONFIG_FB_PM3 is not set
+# CONFIG_FB_CYBER2000 is not set
+CONFIG_FB_VESA=y
+# CONFIG_FB_VGA16 is not set
+# CONFIG_FB_HGA is not set
+CONFIG_VIDEO_SELECT=y
+# CONFIG_FB_MATROX is not set
+# CONFIG_FB_ATY is not set
+# CONFIG_FB_RADEON is not set
+# CONFIG_FB_ATY128 is not set
+# CONFIG_FB_INTEL is not set
+# CONFIG_FB_SIS is not set
+# CONFIG_FB_NEOMAGIC is not set
+# CONFIG_FB_3DFX is not set
+# CONFIG_FB_VOODOO1 is not set
+# CONFIG_FB_TRIDENT is not set
+# CONFIG_FB_VIRTUAL is not set
+# CONFIG_FBCON_ADVANCED is not set
+CONFIG_FBCON_CFB8=y
+CONFIG_FBCON_CFB16=y
+CONFIG_FBCON_CFB24=y
+CONFIG_FBCON_CFB32=y
+# CONFIG_FBCON_FONTWIDTH8_ONLY is not set
+# CONFIG_FBCON_FONTS is not set
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+
+#
+# Sound
+#
+CONFIG_SOUND=m
+# CONFIG_SOUND_ALI5455 is not set
+# CONFIG_SOUND_BT878 is not set
+# CONFIG_SOUND_CMPCI is not set
+# CONFIG_SOUND_EMU10K1 is not set
+# CONFIG_MIDI_EMU10K1 is not set
+# CONFIG_SOUND_FUSION is not set
+# CONFIG_SOUND_CS4281 is not set
+# CONFIG_SOUND_ES1370 is not set
+# CONFIG_SOUND_ES1371 is not set
+# CONFIG_SOUND_ESSSOLO1 is not set
+# CONFIG_SOUND_MAESTRO is not set
+# CONFIG_SOUND_MAESTRO3 is not set
+# CONFIG_SOUND_FORTE is not set
+# CONFIG_SOUND_ICH is not set
+# CONFIG_SOUND_RME96XX is not set
+# CONFIG_SOUND_SONICVIBES is not set
+# CONFIG_SOUND_TRIDENT is not set
+# CONFIG_SOUND_MSNDCLAS is not set
+# CONFIG_SOUND_MSNDPIN is not set
+CONFIG_SOUND_VIA82CXXX=m
+# CONFIG_MIDI_VIA82CXXX is not set
+# CONFIG_SOUND_OSS is not set
+# CONFIG_SOUND_TVMIXER is not set
+
+#
+# USB support
+#
+CONFIG_USB=m
+# CONFIG_USB_DEBUG is not set
+CONFIG_USB_DEVICEFS=y
+# CONFIG_USB_BANDWIDTH is not set
+CONFIG_USB_EHCI_HCD=m
+CONFIG_USB_UHCI=m
+CONFIG_USB_UHCI_ALT=m
+CONFIG_USB_OHCI=m
+# CONFIG_USB_AUDIO is not set
+# CONFIG_USB_EMI26 is not set
+# CONFIG_USB_BLUETOOTH is not set
+# CONFIG_USB_MIDI is not set
+CONFIG_USB_STORAGE=m
+CONFIG_USB_STORAGE_DEBUG=y
+CONFIG_USB_STORAGE_DATAFAB=y
+CONFIG_USB_STORAGE_FREECOM=y
+CONFIG_USB_STORAGE_ISD200=y
+CONFIG_USB_STORAGE_DPCM=y
+CONFIG_USB_STORAGE_HP8200e=y
+CONFIG_USB_STORAGE_SDDR09=y
+CONFIG_USB_STORAGE_SDDR55=y
+CONFIG_USB_STORAGE_JUMPSHOT=y
+CONFIG_USB_ACM=m
+CONFIG_USB_PRINTER=m
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_HIDDEV=y
+CONFIG_USB_KBD=m
+CONFIG_USB_MOUSE=m
+CONFIG_USB_AIPTEK=m
+CONFIG_USB_WACOM=m
+CONFIG_USB_KBTAB=m
+CONFIG_USB_POWERMATE=m
+CONFIG_USB_DC2XX=m
+CONFIG_USB_MDC800=m
+CONFIG_USB_SCANNER=m
+CONFIG_USB_MICROTEK=m
+CONFIG_USB_HPUSBSCSI=m
+CONFIG_USB_PEGASUS=m
+CONFIG_USB_RTL8150=m
+CONFIG_USB_KAWETH=m
+CONFIG_USB_CATC=m
+CONFIG_USB_AX8817X=m
+CONFIG_USB_CDCETHER=m
+CONFIG_USB_USBNET=m
+# CONFIG_USB_USS720 is not set
+
+#
+# USB Serial Converter support
+#
+# CONFIG_USB_SERIAL is not set
+CONFIG_USB_RIO500=m
+CONFIG_USB_AUERSWALD=m
+CONFIG_USB_TIGL=m
+CONFIG_USB_BRLVGER=m
+CONFIG_USB_LCD=m
+
+#
+# Bluetooth support
+#
+# CONFIG_BLUEZ is not set
+
+#
+# Kernel hacking
+#
+# CONFIG_DEBUG_KERNEL is not set
+
+#
+# Cryptographic options
+#
+# CONFIG_CRYPTO is not set
+
+#
+# Library routines
+#
+CONFIG_CRC32=m
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m
 
 
->>EIP; e080e5c3 <[ide-mod]__kstrtab___ide_dma_write+5/1a>   <=====
 
->>eax; c15e9280 <_end+133306c/20556dec>
->>ecx; dbff5f6c <_end+1bd3fd58/20556dec>
->>edi; e0820344 <[ide-mod]ide_hwifs+524/2c88>
->>ebp; e0820294 <[ide-mod]ide_hwifs+474/2c88>
->>esp; dbff5ed4 <_end+1bd3fcc0/20556dec>
+--------------070408070608010208050201
+Content-Type: text/plain;
+ name="kernel-boot-2.4.22-rc2.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kernel-boot-2.4.22-rc2.txt"
 
-Trace; e080e78c <[ide-mod]ide_do_reset+c/10>
-Trace; e0820344 <[ide-mod]ide_hwifs+524/2c88>
-Trace; e09b17a6 <[ide-scsi]idescsi_reset+16/20>
-Trace; e0820344 <[ide-mod]ide_hwifs+524/2c88>
-Trace; e099f0bc <[scsi_mod]scsi_reset+dc/340>
-Trace; e099e659 <[scsi_mod]scsi_old_times_out+59/110>
-Trace; e09aaec0 <[scsi_mod]RCSid+aa0/1080>
-Trace; e099e600 <[scsi_mod]scsi_old_times_out+0/110>
-Trace; c01201fc <timer_bh+24c/370>
-Trace; c011cbea <bh_action+1a/50>
-Trace; c011cb16 <tasklet_hi_action+46/70>
-Trace; c011c90a <do_softirq+5a/b0>
-Trace; c0109e0d <do_IRQ+9d/b0>
-Trace; c010c078 <call_do_IRQ+5/d>
+Linux version 2.4.22-rc2 (root@localhost.localdomain.net) (gcc version egcs-2.91.66 19990314 (egcs-1.1.2 release)) #8 Thu Sep 11 23:08:29 CEST 2003
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000001dff0000 (usable)
+ BIOS-e820: 000000001dff0000 - 000000001dffffc0 (ACPI data)
+ BIOS-e820: 000000001dffffc0 - 000000001e000000 (ACPI NVS)
+ BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
+user-defined physical RAM map:
+ user: 0000000000000000 - 000000000009fc00 (usable)
+ user: 000000000009fc00 - 00000000000a0000 (reserved)
+ user: 00000000000e0000 - 0000000000100000 (reserved)
+ user: 0000000000100000 - 000000001dff0000 (usable)
+479MB LOWMEM available.
+ACPI: have wakeup address 0xc0001000
+On node 0 totalpages: 122864
+zone(0): 4096 pages.
+zone(1): 118768 pages.
+zone(2): 0 pages.
+ACPI: RSDP (v000 OID_00                     ) @ 0x000e5010
+ACPI: RSDT (v001 INSYDE RSDT_000 00000.00001) @ 0x1dfffbc0
+ACPI: FADT (v001 INSYDE FACP_000 00000.00256) @ 0x1dfffac0
+ACPI: BOOT (v001 INSYDE SYS_BOOT 00000.00256) @ 0x1dfffb50
+ACPI: DBGP (v001 INSYDE DBGP_000 00000.00256) @ 0x1dfffb80
+ACPI: DSDT (v001 INSYDE   VT8372 00000.04096) @ 0x00000000
+ACPI: BIOS passes blacklist
+ACPI: MADT not present
+Kernel command line: root=/dev/hda6 vga=0x318 gui=yes hdc=ide-scsi mem=491456K
+ide_setup: hdc=ide-scsi
+Local APIC disabled by BIOS -- reenabling.
+Found and enabled local APIC!
+Initializing CPU#0
+Detected 1791.241 MHz processor.
+Console: colour dummy device 80x25
+Calibrating delay loop... 3565.15 BogoMIPS
+Memory: 483892k/491456k available (1072k kernel code, 7176k reserved, 266k data, 272k init, 0k highmem)
+Dentry cache hash table entries: 65536 (order: 7, 524288 bytes)
+Inode cache hash table entries: 32768 (order: 6, 262144 bytes)
+Mount cache hash table entries: 512 (order: 0, 4096 bytes)
+Buffer cache hash table entries: 32768 (order: 5, 131072 bytes)
+Page-cache hash table entries: 131072 (order: 7, 524288 bytes)
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 512K (64 bytes/line)
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU:     After generic, caps: 0383fbff c1cbfbff 00000000 00000000
+CPU:             Common caps: 0383fbff c1cbfbff 00000000 00000000
+CPU: AMD mobile AMD Athlon(tm) XP-M 2400+ stepping 00
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+enabled ExtINT on CPU#0
+ESR value before enabling vector: 00000000
+ESR value after enabling vector: 00000000
+Using local APIC timer interrupts.
+calibrating APIC timer ...
+..... CPU clock speed is 1791.3095 MHz.
+..... host bus clock speed is 265.3790 MHz.
+cpu: 0, clocks: 2653790, slice: 1326895
+CPU0<T0:2653776,T1:1326880,D:1,S:1326895,C:2653790>
+mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
+mtrr: detected mtrr type: Intel
+ACPI: Subsystem revision 20030619
+PCI: PCI BIOS revision 2.10 entry at 0xe8b24, last bus=1
+PCI: Using configuration type 1
+ACPI: Interpreter enabled
+ACPI: Using PIC for interrupt routing
+ACPI: System [ACPI] (supports S0 S3 S4 S5)
+ACPI: PCI Root Bridge [PCI0] (00:00)
+PCI: Probing PCI hardware (bus 00)
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+ACPI: Embedded Controller [EC0] (gpe 5)
+ACPI: PCI Interrupt Link [LNKA] (IRQs 5 7 *10 11)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 7, enabled at IRQ 11)
+ACPI: PCI Interrupt Link [LNKC] (IRQs *5 7 10 11)
+ACPI: PCI Interrupt Link [LNKD] (IRQs 5 7 10 *11)
+PCI: Probing PCI hardware
+PCI: No IRQ known for interrupt pin A of device 00:11.1
+PCI: Using ACPI for IRQ routing
+PCI: if you experience problems, try using option 'pci=noacpi' or even 'acpi=off'
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+Starting kswapd
+VFS: Disk quotas vdquot_6.5.1
+ACPI: AC Adapter [AC] (on-line)
+ACPI: Battery Slot [BAT0] (battery present)
+ACPI: Power Button (FF) [PWRF]
+ACPI: Sleep Button (CM) [SBTN]
+ACPI: Lid Switch [LID]
+ACPI: Processor [CPU0] (supports C1 C2)
+vesafb: framebuffer at 0x90000000, mapped to 0xde80c000, size 6144k
+vesafb: mode is 1024x768x32, linelength=4096, pages=9
+vesafb: protected mode interface info at c000:9979
+vesafb: scrolling: redraw
+vesafb: directcolor: size=8:8:8:8, shift=24:16:8:0
+Console: switching to colour frame buffer device 128x48
+fb0: VESA VGA frame buffer device
+pty: 256 Unix98 ptys configured
+RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
+Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: IDE controller at PCI slot 00:11.1
+PCI: No IRQ known for interrupt pin A of device 00:11.1
+VP_IDE: chipset revision 6
+VP_IDE: not 100% native mode: will probe irqs later
+VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci00:11.1
+    ide0: BM-DMA at 0x1100-0x1107, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0x1108-0x110f, BIOS settings: hdc:DMA, hdd:pio
+hda: FUJITSU MHT2040AT, ATA DISK drive
+blk: queue c02c1a40, I/O limit 4095Mb (mask 0xffffffff)
+hdc: TOSHIBA DVD-ROM SD-R6012, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: attached ide-disk driver.
+hda: host protected area => 1
+hda: 78140160 sectors (40008 MB) w/2048KiB Cache, CHS=4864/255/63, UDMA(100)
+Partition check:
+ hda: hda1 hda2 hda3 < hda5 hda6 > hda4
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP
+IP: routing cache hash table of 4096 buckets, 32Kbytes
+TCP: Hash tables configured (established 32768 bind 32768)
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+VFS: Mounted root (ext2 filesystem) readonly.
+Freeing unused kernel memory: 272k freed
+CSLIP: code copyright 1989 Regents of the University of California
+PPP generic driver version 2.4.2
+PPP Deflate Compression module registered
+PPP BSD Compression module registered
+Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+usb.c: registered new driver usbdevfs
+usb.c: registered new driver hub
+usb-uhci.c: $Revision: 1.275 $ time 23:09:14 Sep 11 2003
+usb-uhci.c: High bandwidth mode enabled
+usb-uhci.c: USB UHCI at I/O 0x1200, IRQ 10
+usb-uhci.c: Detected 2 ports
+usb.c: new USB bus registered, assigned bus number 1
+hub.c: USB hub found
+hub.c: 2 ports detected
+usb-uhci.c: USB UHCI at I/O 0x1300, IRQ 11
+usb-uhci.c: Detected 2 ports
+usb.c: new USB bus registered, assigned bus number 2
+hub.c: USB hub found
+hub.c: 2 ports detected
+usb-uhci.c: v1.275:USB Universal Host Controller Interface driver
+mice: PS/2 mouse device common for all mice
+usb.c: registered new driver hiddev
+usb.c: registered new driver hid
+hid-core.c: v1.8.1 Andreas Gal, Vojtech Pavlik <vojtech@suse.cz>
+hid-core.c: USB HID support drivers
+via-rhine.c:v1.10-LK1.1.19  July-12-2003  Written by Donald Becker
+  http://www.scyld.com/network/via-rhine.html
+eth0: VIA VT6102 Rhine-II at 0xe300, 00:40:d0:3c:a1:6d, IRQ 10.
+eth0: MII PHY found at address 1, status 0x7849 advertising 05e1 Link 0000.
+ehci_hcd 00:10.3: VIA Technologies, Inc. USB 2.0
+ehci_hcd 00:10.3: irq 11, pci mem dee9b000
+usb.c: new USB bus registered, assigned bus number 3
+PCI: 00:10.3 PCI cache line size set incorrectly (32 bytes) by BIOS/FW.
+PCI: 00:10.3 PCI cache line size corrected to 64.
+ehci_hcd 00:10.3: USB 2.0 enabled, EHCI 1.00, driver 2003-Jun-19/2.4
+hub.c: USB hub found
+hub.c: 4 ports detected
+SCSI subsystem driver Revision: 1.00
+Initializing USB Mass Storage driver...
+usb.c: registered new driver usb-storage
+USB Mass Storage support registered.
+hdc: attached ide-scsi driver.
+scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+  Vendor: TOSHIBA   Model: DVD-ROM SD-R6012  Rev: 1M31
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
+sr0: scsi3-mmc drive: 24x/24x writer cd/rw xa/form2 cdda tray
+Uniform CD-ROM driver Revision: 3.12
+Via 686a/8233/8235 audio driver 1.9.1-ac3
+via82cxxx: Six channel audio available
+PCI: Setting latency timer of device 00:11.5 to 64
+ac97_codec: AC97 Audio codec, id: ALG16 (ALC200/200P)
+via82cxxx: board #1 at 0xE100, IRQ 5
+hub.c: connect-debounce failed, port 1 disabled
+Journalled Block Device driver loaded
+NTFS driver v1.1.22 [Flags: R/O MODULE]
+Non-volatile memory driver v1.2
+Real Time Clock Driver v1.10e
+hub.c: new USB device 00:10.3-3, assigned address 2
+usb-storage: act_altsettting is 0
+usb-storage: id_index calculated to be: 98
+usb-storage: Array length appears to be: 100
+usb-storage: USB Mass Storage device detected
+usb-storage: Endpoints: In: 0xddef3b14 Out: 0xddef3b00 Int: 0xddef3b28 (Period 9)
+usb-storage: New GUID 1398210311100e000059e8df
+usb-storage: GetMaxLUN command result is 1, data is 0
+usb-storage: Transport: Bulk
+usb-storage: Protocol: Transparent SCSI
+usb-storage: *** thread sleeping.
+scsi1 : SCSI emulation for USB Mass Storage devices
+usb-storage: queuecommand() called
+Adding Swap: 586332k swap-space (priority -1)
+usb-storage: *** thread awakened.
+usb-storage: Command INQUIRY (6 bytes)
+usb-storage: 12 00 00 00 ff 00 00 00 48 00 00 00
+usb-storage: Bulk command S 0x43425355 T 0x1 Trg 0 LUN 0 L 255 F 128 CL 6
+usb-storage: Bulk command transfer result=0
+usb-storage: usb_stor_transfer_partial(): xfer 255 bytes
+usb-storage: usb_stor_bulk_msg() returned 0 xferred 36/255
+usb-storage: Bulk data transfer result 0x1
+usb-storage: Attempting to get CSW...
+usb-storage: clearing endpoint halt for pipe 0xc0010280
+usb-storage: usb_stor_clear_halt: result=0
+usb-storage: Attempting to get CSW (2nd try)...
+usb-storage: Bulk status result = 0
+usb-storage: Bulk status Sig 0x53425355 T 0x1 R 219 Stat 0x0
+usb-storage: Fixing INQUIRY data to show SCSI rev 2 - was 0
+usb-storage: scsi cmd done, result=0x0
+usb-storage: *** thread sleeping.
+  Vendor: IC35L040  Model: AVER07-0          Rev: ER4O
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (1/0)
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (2/0)
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (3/0)
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (4/0)
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (5/0)
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (6/0)
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (7/0)
+usb-storage: *** thread sleeping.
+Attached scsi disk sda at scsi1, channel 0, id 0, lun 0
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Command TEST_UNIT_READY (6 bytes)
+usb-storage: 00 00 00 00 00 00 00 00 00 00 ed de
+usb-storage: Bulk command S 0x43425355 T 0x2 Trg 0 LUN 0 L 0 F 0 CL 6
+usb-storage: Bulk command transfer result=0
+usb-storage: Attempting to get CSW...
+usb-storage: Bulk status result = 0
+usb-storage: Bulk status Sig 0x53425355 T 0x2 R 0 Stat 0x0
+usb-storage: scsi cmd done, result=0x0
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Command READ_CAPACITY (10 bytes)
+usb-storage: 25 00 00 00 00 00 00 00 00 00 ed de
+usb-storage: Bulk command S 0x43425355 T 0x3 Trg 0 LUN 0 L 8 F 128 CL 10
+usb-storage: Bulk command transfer result=0
+usb-storage: usb_stor_transfer_partial(): xfer 8 bytes
+usb-storage: usb_stor_bulk_msg() returned 0 xferred 8/8
+usb-storage: usb_stor_transfer_partial(): transfer complete
+usb-storage: Bulk data transfer result 0x0
+usb-storage: Attempting to get CSW...
+usb-storage: Bulk status result = 0
+usb-storage: Bulk status Sig 0x53425355 T 0x3 R 0 Stat 0x0
+usb-storage: scsi cmd done, result=0x0
+usb-storage: *** thread sleeping.
+SCSI device sda: 80418240 512-byte hdwr sectors (41174 MB)
+ sda:<7>usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Command READ_10 (10 bytes)
+usb-storage: 28 00 00 00 00 00 00 00 08 00 ed de
+usb-storage: Bulk command S 0x43425355 T 0x4 Trg 0 LUN 0 L 4096 F 128 CL 10
+usb-storage: Bulk command transfer result=0
+usb-storage: usb_stor_transfer_partial(): xfer 4096 bytes
+usb-storage: usb_stor_bulk_msg() returned 0 xferred 4096/4096
+usb-storage: usb_stor_transfer_partial(): transfer complete
+usb-storage: Bulk data transfer result 0x0
+usb-storage: Attempting to get CSW...
+usb-storage: Bulk status result = 0
+usb-storage: Bulk status Sig 0x53425355 T 0x4 R 0 Stat 0x0
+usb-storage: scsi cmd done, result=0x0
+usb-storage: *** thread sleeping.
+ sda1 sda2 sda3
+WARNING: USB Mass Storage data integrity not assured
+USB Mass Storage device found at 2
+hub.c: new USB device 00:10.1-2, assigned address 2
+hub.c: USB hub found
+hub.c: 4 ports detected
 
-Code;  e080e5c3 <[ide-mod]__kstrtab___ide_dma_write+5/1a>
-00000000 <_EIP>:
-Code;  e080e5c3 <[ide-mod]__kstrtab___ide_dma_write+5/1a>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  e080e5c5 <[ide-mod]__kstrtab___ide_dma_write+7/1a>
-   2:   ee                        out    %al,(%dx)
-Code;  e080e5c6 <[ide-mod]__kstrtab___ide_dma_write+8/1a>
-   3:   04 7a                     add    $0x7a,%al
-Code;  e080e5c8 <[ide-mod]__kstrtab___ide_dma_write+a/1a>
-   5:   a3 81 e0 90 8d            mov    %eax,0x8d90e081
-Code;  e080e5cd <[ide-mod]__kstrtab___ide_dma_write+f/1a>
-   a:   74 26                     je     32 <_EIP+0x32> e080e5f5 <[ide-mod]__kstrtab___ide_dma_end+3/18>
-Code;  e080e5cf <[ide-mod]__kstrtab___ide_dma_write+11/1a>
-   c:   00 80 bf 09 01 00         add    %al,0x109bf(%eax)
-Code;  e080e5d5 <[ide-mod]__kstrtab___ide_dma_write+17/1a>
-  12:   00 20                     add    %ah,(%eax)
 
-Kernel panic: Aiee, killing interrupt handler!
 
-11 warnings issued.  Results may not be reliable.
+--------------070408070608010208050201
+Content-Type: text/plain;
+ name="kernel-boot-2.4.23-pre3-acpioff.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kernel-boot-2.4.23-pre3-acpioff.txt"
 
---------------090804020806070104070207--
+Linux version 2.4.23-pre3 (root@localhost.localdomain.net) (gcc version egcs-2.91.66 19990314 (egcs-1.1.2 release)) #4 Sun Sep 7 19:42:25 CEST 2003
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000001dff0000 (usable)
+ BIOS-e820: 000000001dff0000 - 000000001dffffc0 (ACPI data)
+ BIOS-e820: 000000001dffffc0 - 000000001e000000 (ACPI NVS)
+ BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
+user-defined physical RAM map:
+ user: 0000000000000000 - 000000000009fc00 (usable)
+ user: 000000000009fc00 - 00000000000a0000 (reserved)
+ user: 00000000000e0000 - 0000000000100000 (reserved)
+ user: 0000000000100000 - 000000001dff0000 (usable)
+479MB LOWMEM available.
+ACPI: have wakeup address 0xc0001000
+On node 0 totalpages: 122864
+zone(0): 4096 pages.
+zone(1): 118768 pages.
+zone(2): 0 pages.
+Kernel command line: root=/dev/hda6 vga=0x318 gui=yes hdc=ide-scsi acpi=off mem=491456K
+ide_setup: hdc=ide-scsi
+Local APIC disabled by BIOS -- reenabling.
+Found and enabled local APIC!
+Initializing CPU#0
+Detected 1791.249 MHz processor.
+Console: colour dummy device 80x25
+Calibrating delay loop... 3565.15 BogoMIPS
+Memory: 483884k/491456k available (1082k kernel code, 7184k reserved, 268k data, 276k init, 0k highmem)
+Dentry cache hash table entries: 65536 (order: 7, 524288 bytes)
+Inode cache hash table entries: 32768 (order: 6, 262144 bytes)
+Mount cache hash table entries: 512 (order: 0, 4096 bytes)
+Buffer cache hash table entries: 32768 (order: 5, 131072 bytes)
+Page-cache hash table entries: 131072 (order: 7, 524288 bytes)
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 512K (64 bytes/line)
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU:     After generic, caps: 0383fbff c1cbfbff 00000000 00000000
+CPU:             Common caps: 0383fbff c1cbfbff 00000000 00000000
+CPU: AMD mobile AMD Athlon(tm) XP-M 2400+ stepping 00
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+enabled ExtINT on CPU#0
+ESR value before enabling vector: 00000000
+ESR value after enabling vector: 00000000
+Using local APIC timer interrupts.
+calibrating APIC timer ...
+..... CPU clock speed is 1791.2923 MHz.
+..... host bus clock speed is 265.3768 MHz.
+cpu: 0, clocks: 2653768, slice: 1326884
+CPU0<T0:2653760,T1:1326864,D:12,S:1326884,C:2653768>
+mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
+mtrr: detected mtrr type: Intel
+ACPI: Subsystem revision 20030813
+ACPI: Interpreter disabled.
+PCI: PCI BIOS revision 2.10 entry at 0xe8b24, last bus=1
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+PCI: ACPI tables contain no PCI IRQ routing entries
+PCI: Probing PCI hardware (bus 00)
+PCI: Using IRQ router VIA [1106/3177] at 00:11.0
+PCI: Found IRQ 10 for device 01:00.0
+PCI: Sharing IRQ 10 with 00:10.0
+PCI: Sharing IRQ 10 with 00:12.0
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+Starting kswapd
+VFS: Disk quotas vdquot_6.5.1
+vesafb: framebuffer at 0x90000000, mapped to 0xde800000, size 6144k
+vesafb: mode is 1024x768x32, linelength=4096, pages=9
+vesafb: protected mode interface info at c000:9979
+vesafb: scrolling: redraw
+vesafb: directcolor: size=8:8:8:8, shift=24:16:8:0
+Console: switching to colour frame buffer device 128x48
+fb0: VESA VGA frame buffer device
+pty: 256 Unix98 ptys configured
+RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
+Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: IDE controller at PCI slot 00:11.1
+VP_IDE: chipset revision 6
+VP_IDE: not 100% native mode: will probe irqs later
+VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci00:11.1
+    ide0: BM-DMA at 0x1100-0x1107, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0x1108-0x110f, BIOS settings: hdc:DMA, hdd:pio
+hda: FUJITSU MHT2040AT, ATA DISK drive
+blk: queue c02c3e00, I/O limit 4095Mb (mask 0xffffffff)
+hdc: TOSHIBA DVD-ROM SD-R6012, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: attached ide-disk driver.
+hda: host protected area => 1
+hda: 78140160 sectors (40008 MB) w/2048KiB Cache, CHS=4864/255/63, UDMA(100)
+Partition check:
+ hda: hda1 hda2 hda3 < hda5 hda6 > hda4
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP
+IP: routing cache hash table of 4096 buckets, 32Kbytes
+TCP: Hash tables configured (established 32768 bind 32768)
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+VFS: Mounted root (ext2 filesystem) readonly.
+Freeing unused kernel memory: 276k freed
+CSLIP: code copyright 1989 Regents of the University of California
+PPP generic driver version 2.4.2
+PPP Deflate Compression module registered
+PPP BSD Compression module registered
+Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+loop: loaded (max 8 devices)
+usb.c: registered new driver usbdevfs
+usb.c: registered new driver hub
+usb-uhci.c: $Revision: 1.275 $ time 19:44:21 Sep  7 2003
+usb-uhci.c: High bandwidth mode enabled
+PCI: Found IRQ 10 for device 00:10.0
+PCI: Sharing IRQ 10 with 00:12.0
+PCI: Sharing IRQ 10 with 01:00.0
+usb-uhci.c: USB UHCI at I/O 0x1200, IRQ 10
+usb-uhci.c: Detected 2 ports
+usb.c: new USB bus registered, assigned bus number 1
+hub.c: USB hub found
+hub.c: 2 ports detected
+PCI: Found IRQ 11 for device 00:10.1
+IRQ routing conflict for 00:09.0, have irq 10, want irq 11
+PCI: Sharing IRQ 11 with 00:09.1
+usb-uhci.c: USB UHCI at I/O 0x1300, IRQ 11
+usb-uhci.c: Detected 2 ports
+usb.c: new USB bus registered, assigned bus number 2
+hub.c: USB hub found
+hub.c: 2 ports detected
+usb-uhci.c: v1.275:USB Universal Host Controller Interface driver
+mice: PS/2 mouse device common for all mice
+usb.c: registered new driver hiddev
+usb.c: registered new driver hid
+hid-core.c: v1.8.1 Andreas Gal, Vojtech Pavlik <vojtech@suse.cz>
+hid-core.c: USB HID support drivers
+via-rhine.c:v1.10-LK1.1.19  July-12-2003  Written by Donald Becker
+  http://www.scyld.com/network/via-rhine.html
+PCI: Found IRQ 10 for device 00:12.0
+PCI: Sharing IRQ 10 with 00:10.0
+PCI: Sharing IRQ 10 with 01:00.0
+eth0: VIA VT6102 Rhine-II at 0xe300, 00:40:d0:3c:a1:6d, IRQ 10.
+eth0: MII PHY found at address 1, status 0x7849 advertising 05e1 Link 0000.
+PCI: Found IRQ 11 for device 00:10.3
+ehci_hcd 00:10.3: VIA Technologies, Inc. USB 2.0
+ehci_hcd 00:10.3: irq 11, pci mem dee9a000
+usb.c: new USB bus registered, assigned bus number 3
+ehci_hcd 00:10.3: USB 2.0 enabled, EHCI 1.00, driver 2003-Jun-19/2.4
+hub.c: USB hub found
+hub.c: 4 ports detected
+SCSI subsystem driver Revision: 1.00
+Initializing USB Mass Storage driver...
+usb.c: registered new driver usb-storage
+USB Mass Storage support registered.
+hdc: attached ide-scsi driver.
+scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+  Vendor: TOSHIBA   Model: DVD-ROM SD-R6012  Rev: 1M31
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
+sr0: scsi3-mmc drive: 24x/24x writer cd/rw xa/form2 cdda tray
+Uniform CD-ROM driver Revision: 3.12
+Via 686a/8233/8235 audio driver 1.9.1-ac3
+PCI: Found IRQ 5 for device 00:11.5
+PCI: Sharing IRQ 5 with 00:0b.0
+PCI: Sharing IRQ 5 with 00:11.6
+via82cxxx: Six channel audio available
+PCI: Setting latency timer of device 00:11.5 to 64
+ac97_codec: AC97 Audio codec, id: ALG16 (ALC200/200P)
+via82cxxx: board #1 at 0xE100, IRQ 5
+hub.c: connect-debounce failed, port 1 disabled
+Journalled Block Device driver loaded
+NTFS driver v1.1.22 [Flags: R/O MODULE]
+slmdm: version 2.7.14 Apr  6 2003 16:09:06 (Smart Link Ltd.).
+slmdm: country set is 0x59 (ITALY).
+Smart Link AMRMO modem.
+amrmo: probe 1106:3068 VIA Technologies, Inc. Intel 537 [AC97 Modem] : VIA3058/SmartRiser card...
+PCI: Found IRQ 5 for device 00:11.6
+PCI: Sharing IRQ 5 with 00:0b.0
+PCI: Sharing IRQ 5 with 00:11.5
+PCI: Setting latency timer of device 00:11.6 to 64
+Non-volatile memory driver v1.2
+Real Time Clock Driver v1.10e
+hub.c: new USB device 00:10.3-3, assigned address 2
+usb-storage: act_altsettting is 0
+usb-storage: id_index calculated to be: 100
+usb-storage: Array length appears to be: 102
+usb-storage: USB Mass Storage device detected
+usb-storage: Endpoints: In: 0xdded6e94 Out: 0xdded6e80 Int: 0xdded6ea8 (Period 9)
+usb-storage: New GUID 1398210311100e000059e8df
+usb-storage: GetMaxLUN command result is 1, data is 0
+usb-storage: Transport: Bulk
+usb-storage: Protocol: Transparent SCSI
+usb-storage: *** thread sleeping.
+scsi1 : SCSI emulation for USB Mass Storage devices
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Command INQUIRY (6 bytes)
+usb-storage: 12 00 00 00 ff 00 00 00 3f 00 00 00
+usb-storage: Bulk command S 0x43425355 T 0x1 Trg 0 LUN 0 L 255 F 128 CL 6
+usb-storage: Bulk command transfer result=0
+usb-storage: usb_stor_transfer_partial(): xfer 255 bytes
+usb-storage: usb_stor_bulk_msg() returned 0 xferred 36/255
+usb-storage: Bulk data transfer result 0x1
+usb-storage: Attempting to get CSW...
+usb-storage: clearing endpoint halt for pipe 0xc0010280
+usb-storage: usb_stor_clear_halt: result=0
+usb-storage: Attempting to get CSW (2nd try)...
+usb-storage: Bulk status result = 0
+usb-storage: Bulk status Sig 0x53425355 T 0x1 R 219 Stat 0x0
+usb-storage: Fixing INQUIRY data to show SCSI rev 2 - was 0
+usb-storage: scsi cmd done, result=0x0
+usb-storage: *** thread sleeping.
+  Vendor: IC35L040  Model: AVER07-0          Rev: ER4O
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (1/0)
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (2/0)
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (3/0)
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (4/0)
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (5/0)
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (6/0)
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (7/0)
+usb-storage: *** thread sleeping.
+Attached scsi disk sda at scsi1, channel 0, id 0, lun 0
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Command TEST_UNIT_READY (6 bytes)
+usb-storage: 00 00 00 00 00 00 00 00 00 00 ed de
+usb-storage: Bulk command S 0x43425355 T 0x2 Trg 0 LUN 0 L 0 F 0 CL 6
+usb-storage: Bulk command transfer result=0
+usb-storage: Attempting to get CSW...
+usb-storage: Bulk status result = 0
+usb-storage: Bulk status Sig 0x53425355 T 0x2 R 0 Stat 0x0
+usb-storage: scsi cmd done, result=0x0
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Command READ_CAPACITY (10 bytes)
+usb-storage: 25 00 00 00 00 00 00 00 00 00 ed de
+usb-storage: Bulk command S 0x43425355 T 0x3 Trg 0 LUN 0 L 8 F 128 CL 10
+usb-storage: Bulk command transfer result=0
+usb-storage: usb_stor_transfer_partial(): xfer 8 bytes
+usb-storage: usb_stor_bulk_msg() returned 0 xferred 8/8
+usb-storage: usb_stor_transfer_partial(): transfer complete
+usb-storage: Bulk data transfer result 0x0
+usb-storage: Attempting to get CSW...
+usb-storage: Bulk status result = 0
+usb-storage: Bulk status Sig 0x53425355 T 0x3 R 0 Stat 0x0
+usb-storage: scsi cmd done, result=0x0
+usb-storage: *** thread sleeping.
+SCSI device sda: 80418240 512-byte hdwr sectors (41174 MB)
+ sda:<7>usb-storage: queuecommand() called
+spurious 8259A interrupt: IRQ7.
+usb-storage: *** thread awakened.
+usb-storage: Command READ_10 (10 bytes)
+usb-storage: 28 00 00 00 00 00 00 00 08 00 ed de
+usb-storage: Bulk command S 0x43425355 T 0x4 Trg 0 LUN 0 L 4096 F 128 CL 10
+usb-storage: Bulk command transfer result=0
+usb-storage: usb_stor_transfer_partial(): xfer 4096 bytes
+usb-storage: usb_stor_bulk_msg() returned 0 xferred 4096/4096
+usb-storage: usb_stor_transfer_partial(): transfer complete
+usb-storage: Bulk data transfer result 0x0
+usb-storage: Attempting to get CSW...
+usb-storage: Bulk status result = 0
+usb-storage: Bulk status Sig 0x53425355 T 0x4 R 0 Stat 0x0
+usb-storage: scsi cmd done, result=0x0
+usb-storage: *** thread sleeping.
+ sda1 sda2 sda3
+WARNING: USB Mass Storage data integrity not assured
+USB Mass Storage device found at 2
+Adding Swap: 586332k swap-space (priority -1)
+hub.c: new USB device 00:10.1-2, assigned address 2
+hub.c: USB hub found
+hub.c: 4 ports detected
 
---------------enigA4EAE2BFC8B48BC501D15BB6
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iD8DBQE/YuFJTDL5CJndlGgRAtpsAKCO/V8ksz/EcA3NNwXldbZ2KIJSaACggBBX
-Ew/l843V7Rap6B5IO0AJjOk=
-=4iyn
------END PGP SIGNATURE-----
+--------------070408070608010208050201
+Content-Type: text/plain;
+ name="kernel-boot-2.4.23-pre3.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kernel-boot-2.4.23-pre3.txt"
 
---------------enigA4EAE2BFC8B48BC501D15BB6--
+Linux version 2.4.23-pre3 (root@localhost.localdomain.net) (gcc version egcs-2.91.66 19990314 (egcs-1.1.2 release)) #4 Sun Sep 7 19:42:25 CEST 2003
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000001dff0000 (usable)
+ BIOS-e820: 000000001dff0000 - 000000001dffffc0 (ACPI data)
+ BIOS-e820: 000000001dffffc0 - 000000001e000000 (ACPI NVS)
+ BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
+user-defined physical RAM map:
+ user: 0000000000000000 - 000000000009fc00 (usable)
+ user: 000000000009fc00 - 00000000000a0000 (reserved)
+ user: 00000000000e0000 - 0000000000100000 (reserved)
+ user: 0000000000100000 - 000000001dff0000 (usable)
+479MB LOWMEM available.
+On node 0 totalpages: 122864
+zone(0): 4096 pages.
+zone(1): 118768 pages.
+zone(2): 0 pages.
+ACPI: RSDP (v000 OID_00                                    ) @ 0x000e5010
+ACPI: RSDT (v001 INSYDE RSDT_000 0x00000001 _CSI 0x00010100) @ 0x1dfffbc0
+ACPI: FADT (v001 INSYDE FACP_000 0x00000100 _CSI 0x00010100) @ 0x1dfffac0
+ACPI: BOOT (v001 INSYDE SYS_BOOT 0x00000100 _CSI 0x00010100) @ 0x1dfffb50
+ACPI: DBGP (v001 INSYDE DBGP_000 0x00000100 _CSI 0x00010100) @ 0x1dfffb80
+ACPI: DSDT (v001 INSYDE   VT8372 0x00001000 INTL 0x02002025) @ 0x00000000
+ACPI: MADT not present
+Kernel command line: root=/dev/hda6 vga=0x318 gui=yes hdc=ide-scsi mem=491456K
+ide_setup: hdc=ide-scsi
+Local APIC disabled by BIOS -- reenabling.
+Found and enabled local APIC!
+Initializing CPU#0
+Detected 1791.258 MHz processor.
+Console: colour dummy device 80x25
+Calibrating delay loop... 3565.15 BogoMIPS
+Memory: 483884k/491456k available (1082k kernel code, 7184k reserved, 268k data, 276k init, 0k highmem)
+Dentry cache hash table entries: 65536 (order: 7, 524288 bytes)
+Inode cache hash table entries: 32768 (order: 6, 262144 bytes)
+Mount cache hash table entries: 512 (order: 0, 4096 bytes)
+Buffer cache hash table entries: 32768 (order: 5, 131072 bytes)
+Page-cache hash table entries: 131072 (order: 7, 524288 bytes)
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 512K (64 bytes/line)
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU: AMD mobile AMD Athlon(tm) XP-M 2400+ stepping 00
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+enabled ExtINT on CPU#0
+ESR value before enabling vector: 00000000
+ESR value after enabling vector: 00000000
+Using local APIC timer interrupts.
+calibrating APIC timer ...
+..... CPU clock speed is 1791.2080 MHz.
+..... host bus clock speed is 265.3641 MHz.
+cpu: 0, clocks: 2653641, slice: 1326820
+CPU0<T0:2653632,T1:1326800,D:12,S:1326820,C:2653641>
+mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
+mtrr: detected mtrr type: Intel
+ACPI: Subsystem revision 20030813
+PCI: PCI BIOS revision 2.10 entry at 0xe8b24, last bus=1
+PCI: Using configuration type 1
+ACPI: Interpreter enabled
+ACPI: Using PIC for interrupt routing
+ACPI: System [ACPI] (supports S0 S3 S4 S5)
+ACPI: PCI Root Bridge [PCI0] (00:00)
+PCI: Probing PCI hardware (bus 00)
+ACPI: Embedded Controller [EC0] (gpe 5)
+ACPI: PCI Interrupt Link [LNKA] (IRQs 5 7 *10 11)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 7, enabled at IRQ 11)
+ACPI: PCI Interrupt Link [LNKC] (IRQs *5 7 10 11)
+ACPI: PCI Interrupt Link [LNKD] (IRQs 5 7 10 *11)
+PCI: Probing PCI hardware
+ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 11
+ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 5
+ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 10
+ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 10
+PCI: No IRQ known for interrupt pin A of device 00:11.1
+PCI: Using ACPI for IRQ routing
+PCI: if you experience problems, try using option 'pci=noacpi' or even 'acpi=off'
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+Starting kswapd
+VFS: Disk quotas vdquot_6.5.1
+ACPI: AC Adapter [AC] (on-line)
+ACPI: Battery Slot [BAT0] (battery present)
+ACPI: Power Button (FF) [PWRF]
+ACPI: Sleep Button (CM) [SBTN]
+ACPI: Lid Switch [LID]
+ACPI: Processor [CPU0] (supports C1 C2)
+vesafb: framebuffer at 0x90000000, mapped to 0xde80c000, size 6144k
+vesafb: mode is 1024x768x32, linelength=4096, pages=9
+vesafb: protected mode interface info at c000:9979
+vesafb: scrolling: redraw
+vesafb: directcolor: size=8:8:8:8, shift=24:16:8:0
+Console: switching to colour frame buffer device 128x48
+fb0: VESA VGA frame buffer device
+pty: 256 Unix98 ptys configured
+RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
+Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: IDE controller at PCI slot 00:11.1
+PCI: No IRQ known for interrupt pin A of device 00:11.1
+VP_IDE: chipset revision 6
+VP_IDE: not 100%% native mode: will probe irqs later
+VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci00:11.1
+    ide0: BM-DMA at 0x1100-0x1107, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0x1108-0x110f, BIOS settings: hdc:DMA, hdd:pio
+hda: FUJITSU MHT2040AT, ATA DISK drive
+blk: queue c02c3e00, I/O limit 4095Mb (mask 0xffffffff)
+hdc: TOSHIBA DVD-ROM SD-R6012, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: attached ide-disk driver.
+spurious 8259A interrupt: IRQ7.
+hda: host protected area => 1
+hda: 78140160 sectors (40008 MB) w/2048KiB Cache, CHS=4864/255/63, UDMA(100)
+Partition check:
+ hda: hda1 hda2 hda3 < hda5 hda6 > hda4
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP
+IP: routing cache hash table of 4096 buckets, 32Kbytes
+TCP: Hash tables configured (established 32768 bind 32768)
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+VFS: Mounted root (ext2 filesystem) readonly.
+Freeing unused kernel memory: 276k freed
+CSLIP: code copyright 1989 Regents of the University of California
+PPP generic driver version 2.4.2
+PPP Deflate Compression module registered
+PPP BSD Compression module registered
+Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+loop: loaded (max 8 devices)
+usb.c: registered new driver usbdevfs
+usb.c: registered new driver hub
+usb-uhci.c: $Revision: 1.275 $ time 19:44:21 Sep  7 2003
+usb-uhci.c: High bandwidth mode enabled
+usb-uhci.c: USB UHCI at I/O 0x1200, IRQ 10
+usb-uhci.c: Detected 2 ports
+usb.c: new USB bus registered, assigned bus number 1
+hub.c: USB hub found
+hub.c: 2 ports detected
+usb-uhci.c: USB UHCI at I/O 0x1300, IRQ 11
+usb-uhci.c: Detected 2 ports
+usb.c: new USB bus registered, assigned bus number 2
+hub.c: USB hub found
+hub.c: 2 ports detected
+usb-uhci.c: v1.275:USB Universal Host Controller Interface driver
+mice: PS/2 mouse device common for all mice
+usb.c: registered new driver hiddev
+usb.c: registered new driver hid
+hid-core.c: v1.8.1 Andreas Gal, Vojtech Pavlik <vojtech@suse.cz>
+hid-core.c: USB HID support drivers
+via-rhine.c:v1.10-LK1.1.19  July-12-2003  Written by Donald Becker
+  http://www.scyld.com/network/via-rhine.html
+eth0: VIA VT6102 Rhine-II at 0xe300, 00:40:d0:3c:a1:6d, IRQ 10.
+eth0: MII PHY found at address 1, status 0x7849 advertising 05e1 Link 0000.
+ehci_hcd 00:10.3: VIA Technologies, Inc. USB 2.0
+ehci_hcd 00:10.3: irq 10, pci mem deea6000
+usb.c: new USB bus registered, assigned bus number 3
+ehci_hcd 00:10.3: USB 2.0 enabled, EHCI 1.00, driver 2003-Jun-19/2.4
+hub.c: USB hub found
+hub.c: 4 ports detected
+SCSI subsystem driver Revision: 1.00
+Initializing USB Mass Storage driver...
+usb.c: registered new driver usb-storage
+USB Mass Storage support registered.
+hdc: attached ide-scsi driver.
+scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+  Vendor: TOSHIBA   Model: DVD-ROM SD-R6012  Rev: 1M31
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
+sr0: scsi3-mmc drive: 24x/24x writer cd/rw xa/form2 cdda tray
+Uniform CD-ROM driver Revision: 3.12
+Via 686a/8233/8235 audio driver 1.9.1-ac3
+via82cxxx: Six channel audio available
+ac97_codec: AC97 Audio codec, id: ALG16 (ALC200/200P)
+via82cxxx: board #1 at 0xE100, IRQ 5
+Journalled Block Device driver loaded
+hub.c: connect-debounce failed, port 2 disabled
+NTFS driver v1.1.22 [Flags: R/O MODULE]
+slmdm: version 2.7.14 Apr  6 2003 16:09:06 (Smart Link Ltd.).
+slmdm: country set is 0x59 (ITALY).
+Smart Link AMRMO modem.
+amrmo: probe 1106:3068 VIA Technologies, Inc. Intel 537 [AC97 Modem] : VIA3058/SmartRiser card...
+Non-volatile memory driver v1.2
+Real Time Clock Driver v1.10e
+Adding Swap: 586332k swap-space (priority -1)
+hub.c: new USB device 00:10.1-2, assigned address 2
+hub.c: USB hub found
+hub.c: 4 ports detected
+hub.c: new USB device 00:10.1-2.1, assigned address 3
+input: USB HID v1.10 Keyboard [Logitech USB Receiver] on usb2:3.0
+input: USB HID v1.10 Mouse [Logitech USB Receiver] on usb2:3.1
+hub.c: new USB device 00:10.1-2.3, assigned address 4
+usb.c: USB device 4 (vend/prod 0x43d/0x57) is not claimed by any active driver.
+
+
+
+--------------070408070608010208050201
+Content-Type: text/plain;
+ name="lspci.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="lspci.txt"
+
+00:00.0 Host bridge: VIA Technologies, Inc. P/KN266 Host Bridge
+	Subsystem: Unknown device 1631:e004
+	Flags: bus master, 66Mhz, medium devsel, latency 8
+	Memory at a0000000 (32-bit, prefetchable) [size=64M]
+	Capabilities: [a0] AGP version 2.0
+	Capabilities: [c0] Power Management version 2
+
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8633 [Apollo Pro266 AGP] (prog-if 00 [Normal decode])
+	Flags: bus master, 66Mhz, medium devsel, latency 0
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+	I/O behind bridge: 0000c000-0000dfff
+	Memory behind bridge: e0000000-efffffff
+	Prefetchable memory behind bridge: 90000000-9fffffff
+	Capabilities: [80] Power Management version 2
+
+00:09.0 CardBus bridge: ENE Technology Inc: Unknown device 1411 (rev 01)
+	Subsystem: Unknown device 1631:e004
+	Flags: bus master, medium devsel, latency 64, IRQ 10
+	Memory at 1e000000 (32-bit, non-prefetchable) [size=4K]
+	Bus: primary=00, secondary=02, subordinate=05, sec-latency=64
+	I/O window 0: 00000000-00000003
+	I/O window 1: 00000000-00000003
+	16-bit legacy interface ports at 0001
+
+00:09.1 FLASH memory: ENE Technology Inc: Unknown device 0510
+	Subsystem: Unknown device 1631:e004
+	Flags: medium devsel, IRQ 11
+	I/O ports at e400 [size=128]
+	Capabilities: [a0] Power Management version 2
+
+00:0b.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 80) (prog-if 10 [OHCI])
+	Subsystem: Unknown device 1631:e004
+	Flags: bus master, stepping, medium devsel, latency 32, IRQ 5
+	Memory at fedff800 (32-bit, non-prefetchable) [size=2K]
+	I/O ports at ff00 [size=128]
+	Capabilities: [50] Power Management version 2
+
+00:10.0 USB Controller: VIA Technologies, Inc. USB (rev 80) (prog-if 00 [UHCI])
+	Subsystem: Unknown device 1631:e004
+	Flags: bus master, medium devsel, latency 32, IRQ 10
+	I/O ports at 1200 [size=32]
+	Capabilities: [80] Power Management version 2
+
+00:10.1 USB Controller: VIA Technologies, Inc. USB (rev 80) (prog-if 00 [UHCI])
+	Subsystem: Unknown device 1631:e004
+	Flags: bus master, medium devsel, latency 32, IRQ 11
+	I/O ports at 1300 [size=32]
+	Capabilities: [80] Power Management version 2
+
+00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82) (prog-if 20 [EHCI])
+	Subsystem: Unknown device 1631:e004
+	Flags: bus master, medium devsel, latency 32, IRQ 11
+	Memory at f0000000 (32-bit, non-prefetchable) [size=256]
+	Capabilities: [80] Power Management version 2
+
+00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
+	Subsystem: Unknown device 1631:e004
+	Flags: bus master, stepping, medium devsel, latency 0
+	Capabilities: [c0] Power Management version 2
+
+00:11.1 IDE interface: VIA Technologies, Inc. VT82C586/B/686A/B PIPC Bus Master IDE (rev 06) (prog-if 8a [Master SecP PriP])
+	Subsystem: Unknown device 1631:e004
+	Flags: bus master, medium devsel, latency 64
+	I/O ports at 1100 [size=16]
+	Capabilities: [c0] Power Management version 2
+
+00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233 AC97 Audio Controller (rev 50)
+	Subsystem: Unknown device 1631:e004
+	Flags: medium devsel, IRQ 5
+	I/O ports at e100 [size=256]
+	Capabilities: [c0] Power Management version 2
+
+00:11.6 Communication controller: VIA Technologies, Inc. Intel 537 [AC97 Modem] (rev 80)
+	Subsystem: Unknown device 1631:e004
+	Flags: medium devsel, IRQ 5
+	I/O ports at e200 [size=256]
+	Capabilities: [d0] Power Management version 2
+
+00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 74)
+	Subsystem: Unknown device 1631:e004
+	Flags: bus master, stepping, medium devsel, latency 32, IRQ 10
+	I/O ports at e300 [size=256]
+	Memory at f0000100 (32-bit, non-prefetchable) [size=256]
+	Capabilities: [40] Power Management version 2
+
+01:00.0 VGA compatible controller: S3 Inc. VT8751 [ProSavageDDR P4M266] VGA Controller (prog-if 00 [VGA])
+	Subsystem: Unknown device 1631:e004
+	Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 10
+	Memory at e0000000 (32-bit, non-prefetchable) [size=512K]
+	Memory at 90000000 (32-bit, prefetchable) [size=128M]
+	Expansion ROM at 000c0000 [disabled] [size=64K]
+	Capabilities: [dc] Power Management version 2
+	Capabilities: [80] AGP version 2.0
+
+
+
+
+--------------070408070608010208050201--
 

@@ -1,67 +1,177 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262792AbTK3SFd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 13:05:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264970AbTK3SFd
+	id S262844AbTK3SVt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 13:21:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbTK3SVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 13:05:33 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:35794 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262792AbTK3SFa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 13:05:30 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
+	Sun, 30 Nov 2003 13:21:49 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:35765 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262844AbTK3SVh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 13:21:37 -0500
+Date: Sun, 30 Nov 2003 19:21:26 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "Prakash K. Cheemplavam" <prakashkc@gmx.de>, marcush@onlinehome.de,
+       linux-kernel@vger.kernel.org, eric_mudama@Maxtor.com
 Subject: Re: Silicon Image 3112A SATA trouble
-Date: Sun, 30 Nov 2003 19:07:01 +0100
-User-Agent: KMail/1.5.4
-Cc: Jeff Garzik <jgarzik@pobox.com>, marcush@onlinehome.de, axboe@suse.de,
-       linux-kernel@vger.kernel.org
-References: <3FC36057.40108@gmx.de> <200311301721.41812.bzolnier@elka.pw.edu.pl> <3FCA26AA.90302@gmx.de>
-In-Reply-To: <3FCA26AA.90302@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+Message-ID: <20031130182126.GE6454@suse.de>
+References: <3FCA1220.2040508@gmx.de> <200311301721.41812.bzolnier@elka.pw.edu.pl> <20031130162523.GV10679@suse.de> <3FCA1DD3.70004@pobox.com> <20031130165146.GY10679@suse.de> <3FCA2672.8020202@pobox.com> <20031130172855.GA6454@suse.de> <3FCA2BDA.60302@pobox.com> <20031130174552.GC6454@suse.de> <3FCA2F7F.8060206@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311301907.01152.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <3FCA2F7F.8060206@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 30 of November 2003 18:19, Prakash K. Cheemplavam wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> > In 2.6.x there is no max_kb_per_request setting in
-> > /proc/ide/hdx/settings. Therefore
-> > 	echo "max_kb_per_request:128" > /proc/ide/hde/settings
-> > does not work.
+On Sun, Nov 30 2003, Jeff Garzik wrote:
+> Jens Axboe wrote:
+> >On Sun, Nov 30 2003, Jeff Garzik wrote:
 > >
-> > Hmm. actually I was under influence that we have generic ioctls in 2.6.x,
-> > but I can find only BLKSECTGET, BLKSECTSET was somehow lost.  Jens?
+> >>Jens Axboe wrote:
+> >>
+> >>>On Sun, Nov 30 2003, Jeff Garzik wrote:
+> >>>
+> >>>
+> >>>>Jens Axboe wrote:
+> >>>>
+> >>>>
+> >>>>>On Sun, Nov 30 2003, Jeff Garzik wrote:
+> >>>>>
+> >>>>>
+> >>>>>>fond of partial completions, as I feel they add complexity, 
+> >>>>>>particularly so in my case:  I can simply use the same error paths 
+> >>>>>>for both the single-sector taskfile and the "everything else" 
+> >>>>>>taskfile, regardless of which taskfile throws the error.
+> >>>>>
+> >>>>>
+> >>>>>It's just a questions of maintaining the proper request state so you
+> >>>>>know how much and what part of a request is pending. Requests have been
+> >>>>>handled this way ever since clustered requests, that is why
+> >>>>>current_nr_sectors differs from nr_sectors. And with hard_* duplicates,
+> >>>>>it's pretty easy to extend this a bit. I don't see this as something
+> >>>>>complex, and if the alternative you are suggesting (your implementation
+> >>>>>idea is not clear to me...) is to fork another request then I think 
+> >>>>>it's
+> >>>>>a lot better.
+> >>>>
+> >>>>[snip howto]
+> >>>>
+> >>>>Yeah, I know how to do partial completions.  The increased complexity 
+> >>>>arises in my driver.  It's simply less code in my driver to treat each 
+> >>>>transaction as an "all or none" affair.
+> >>>>
+> >>>>For the vastly common case, it's less i-cache and less interrupts to do 
+> >>>>all-or-none.  In the future I'll probably want to put partial 
+> >>>>completions in the error path...
+> >>>
+> >>>
+> >>>Oh come one, i-cache? We're doing IO here, a cache line more or less in
+> >>>request handling is absolutely so much in the noise. 
+> >>>
+> >>>What are the "increased complexity" involved with doing partial
+> >>>completions? You don't even have to know it's a partial request in the
+> >>>error handling, it's "just the request" state. Honestly, I don't see a
+> >>>problem there. You'll have to expand on what exactly you see as added
+> >>>complexity. To me it still seems like the fastest and most elegant way
+> >>>to handle it. It requires no special attention on request buildup, it
+> >>>requires no extra request and ugly split-code in the request handling.
+> >>>And the partial-completions come for free with the block layer code.
+> >>
+> >>libata, drivers/ide, and SCSI all must provide internal "submit this 
+> >>taskfile/cdb" API that is decoupled from struct request.  Therefore, 
 > >
-> > Prakash, please try patch and maybe you will have 2 working drivers now
-> > :-).
->
-> OK, this driver fixes the transfer rate problem. Nice, so I wanted to do
-> the right thing, but it didn't work, as you explained... Thanks.
+> >
+> >Yes
+> >
+> >
+> >>submitting a transaction pair, or for ATAPI submitting the internal 
+> >>REQUEST SENSE, is quite simple and only a few lines of code.
+> >
+> >
+> >SCSI already does these partial completions...
+> >
+> >
+> >>Any extra diddling of the hardware, and struct request, to provide 
+> >>partial completions is extra code.  The hardware is currently set up to 
+> >>provide only "it's done" or "it failed" information.  Logically, then, 
+> >>partial completions must be more code than the current <none> ;-)
+> >
+> >
+> >That's not a valid argument. Whatever you do, you have to add some lines
+> >of code.
+> 
+> Right.  But the point with mentioning "decouple[...]" above was that the 
+> most simple path is to submit two requests to hardware, and then a 
+> single function call into {scsi|block} to complete the transaction.
+> 
+> Current non-errata case:  1 taskfile, 1 completion func call
+> Upcoming errata solution:  2 taskfiles, 1 completion func call
+> Your errata suggestion seems to be:  2 taskfiles, 2 completion func calls
+> 
+> That's obviously more work and more code for the errata case.
 
-Cool.
+I don't see why, it's exactly 2 x non-errata case.
 
-> Nevertheless there is still the issue left:
->
-> hdparm -d1 /dev/hde makes the drive get major havoc (something like:
-> ide: dma_intr: status=0x58 { DriveReady, SeekCOmplete, DataRequest}
->
-> ide status timeout=0xd8{Busy}; messages taken from swsups kernal panic
-> ). Have to do a hard reset. I guess it is the same reason why swsusp
-> gets a kernel panic when it sends PM commands to siimage.c. (Mybe the
-> same error is in libata causing the same kernel panic on swsusp.)
->
-> Any clues?
+> And for the non-errata case, partial completions don't make any sense at 
+> all.
 
-Strange.  While doing 'hdparm -d1 /dev/hde' the same code path is executed
-which is executed during boot so probably device is in different state or you
-hit some weird driver bug :/.
+Of course, you would always complete these fully. But having partial
+completions at the lowest layer gives it to you for free. non-errata
+case uses the exact same path, it just happens to complete 100% of the
+request all the time.
 
-And you are right, thats the reason why swsusp panics.
+> >>WRT error handling, according to ATA specs I can look at the error
+> >>information to determine how much of the request, if any, completed
+> >>successfully.  (dunno if this is also doable on ATAPI)  That's why
+> >>partial completions in the error path make sense to me.
+> >
+> >
+> >... so if you do partial completions in the normal paths (or rather
+> >allow them), error handling will be simpler. And we all know where the
+> 
+> In the common non-errata case, there is never a partial completion.
 
---bart
+Right. But as you mention, error handling is a partial completion by
+nature (almost always).
+
+> >hard and stupid bugs are - the basically never tested error handling.
+> 
+> I have :)  libata error handling is stupid and simple, but it's also 
+> solid and easy to verify.  Yet another path to be honed, of course :)
+
+That's good :). But even given that, error handling is usually the less
+tested path (by far). I do commend your 'keep it simple', I think that's
+key there.
+
+> >>>>see.  I'll implement whichever is easier first, which will certainly
+> >>>>be better than the current sledgehammer limit.  Any improvement over
+> >>>>the 
+> >>>
+> >>>
+> >>>Definitely, the current static limit completely sucks...
+> >>>
+> >>>
+> >>>
+> >>>>current code will provide dramatic performance increases, and we can
+> >>>>tune after that...
+> >>>
+> >>>
+> >>>A path needs to be chosen first, though.
+> >>
+> >>The path has been chosen:  the "it works" solution first, then tune.
+> >>:)
+> >
+> >
+> >Since one path excludes the other, you must choose a path first. Tuning
+> >is honing a path, not rewriting that code.
+> 
+> The first depends on the second.  The "it works" solution creates the 
+> path to be honed.
+
+Precisely. But there are more than one workable way to fix it :)
+
+-- 
+Jens Axboe
 

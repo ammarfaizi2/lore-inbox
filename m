@@ -1,58 +1,153 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288960AbSBFNA0>; Wed, 6 Feb 2002 08:00:26 -0500
+	id <S290495AbSBFNIQ>; Wed, 6 Feb 2002 08:08:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290495AbSBFNAH>; Wed, 6 Feb 2002 08:00:07 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:18706 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S288960AbSBFM77>; Wed, 6 Feb 2002 07:59:59 -0500
-Message-Id: <200202061258.g16CwGt31197@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: kernel: ldt allocation failed
-Date: Wed, 6 Feb 2002 14:58:17 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <Pine.LNX.4.21.0112070057480.20196-100000@tombigbee.pixar.com> <5.1.0.14.2.20011207092244.049f6720@pop.cus.cam.ac.uk>
-In-Reply-To: <5.1.0.14.2.20011207092244.049f6720@pop.cus.cam.ac.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S290496AbSBFNIH>; Wed, 6 Feb 2002 08:08:07 -0500
+Received: from holomorphy.com ([216.36.33.161]:51333 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S290495AbSBFNHu>;
+	Wed, 6 Feb 2002 08:07:50 -0500
+Date: Wed, 6 Feb 2002 05:07:41 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Dan Chen <crimsun@email.unc.edu>
+Cc: Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org,
+        riel@surriel.com
+Subject: Re: 2.4.18-pre8 + 2.4.17-pre8-ac3 + rmap12c + XFS Results
+Message-ID: <20020206130741.GA767@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Dan Chen <crimsun@email.unc.edu>, Shawn Starr <spstarr@sh0n.net>,
+	linux-kernel@vger.kernel.org, riel@surriel.com
+In-Reply-To: <Pine.LNX.4.40.0202060213380.395-100000@coredump.sh0n.net> <20020206091338.GA670@opeth.ath.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <20020206091338.GA670@opeth.ath.cx>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 December 2001 07:45, Anton Altaparmakov wrote:
-> However, looking at 2.4.16/arch/i386/kernel/process.c::copy_segments()
-> which generates this message it seems odd: It returns void, yet it can fail
-> because it is doing a vmalloc().
->
-> When the vmalloc() fails, the new_mm->context.segments is set to NULL and
-> the function returns.
->
-> That seems wrong, no? Shouldn't there be a panic() when the allocation
-> fails at least? Or even better the function should perhaps return an error
-> code?
->
-> Considering there is only one caller (kernel/fork.c::copy_mm()) it would be
-> easy to modify copy_mm() to handle a returned error code gracefully and
-> goto fail_nomem, which would in turn result in kernel/fork.c::do_fork(),
-> the only caller of copy_mm(), cleaning up properly and returning an error
-> code.
+On Wed, Feb 06, 2002 at 02:17:28AM -0500, Shawn Starr wrote:
+>> I'm happy to say that rmap12c has huge preformance improvements over
+>> rmap11c with my Pentium 200Mhz w/64MB ram.
+>> Some of the differences:
+>> rmap11c: slow redrawing of mozilla, mouse hangs, system sluggishness.
+>> rmap12c: no slow redrawing UNLESS heavy I/O & swapping is occuring. System
+>                                     ^^^^^^^^^^^^^^^^^^^^
 
-I am ignorant on the subject, but why LDT is used in Linux at all?
-LDT register can be set to 0, this can speed up task switch time and save 
-some memory used for LDT.
+On Wed, Feb 06, 2002 at 04:13:38AM -0500, Dan Chen wrote:
+> Would you try the ChangeSet 1.188, specifically the one for
+> fs/buffer.c@1.52?
+> http://linuxvm.bkbits.net:8088/vm-2.4/diffs/fs/buffer.c@1.52?nav=index.html|ChangeSet@-2d|cset@1.188
+> 
+> I agree that rmap12c + the above fix has noticeable improvements over
+> the 11 series. I'll be pushing some numbers out later today.
 
-I see a i386 specific syscall (kernel/ldt.c:sys_modify_ldt()) and 
-        /*
-         * default LDT is a single-entry callgate to lcall7 for iBCS
-         * and a callgate to lcall27 for Solaris/x86 binaries
-         */
-        set_call_gate(&default_ldt[0],lcall7);
-        set_call_gate(&default_ldt[4],lcall27);
-in kernel/traps.c:trap_init().
+That patch is:
 
-Is it used elsewhere?
---
-vda
+--- 1.51/fs/buffer.c	Wed Jan 23 15:29:44 2002
++++ 1.52/fs/buffer.c	Mon Feb  4 05:08:59 2002
+@@ -2933,7 +2933,6 @@
+ 
+ 		spin_lock(&lru_list_lock);
+ 		if (!write_some_buffers(NODEV) || balance_dirty_state() < 0) {
+-			wait_for_some_buffers(NODEV);
+ 			interruptible_sleep_on(&bdflush_wait);
+ 		}
+ 	}
+@@ -2964,7 +2964,6 @@
+ 	complete((struct completion *)startup);
+ 
+ 	for (;;) {
+-		wait_for_some_buffers(NODEV);
+ 
+ 		/* update interval */
+ 		interval = bdf_prm.b_un.interval;
+
+I think I already sent him that, along with the following, which updates
+rmap to akpm's read-latency-2.
+
+Cheers,
+Bill
+
+
+diff -urN linux-virgin/drivers/block/elevator.c linux-wli/drivers/block/elevator.c
+--- linux-virgin/drivers/block/elevator.c	Mon Feb  4 17:12:08 2002
++++ linux-wli/drivers/block/elevator.c	Tue Feb  5 17:31:24 2002
+@@ -80,31 +80,38 @@
+ 			 struct buffer_head *bh, int rw,
+ 			 int max_sectors)
+ {
+-	struct list_head *entry = &q->queue_head;
+-	unsigned int count = bh->b_size >> 9, ret = ELEVATOR_NO_MERGE;
++	struct list_head *entry;
++	unsigned int count = bh->b_size >> 9;
++	unsigned int ret = ELEVATOR_NO_MERGE;
++	int merge_only = 0;
+ 	const int max_bomb_segments = q->elevator.max_bomb_segments;
+-
++ 
++	entry = &q->queue_head;
+ 	while ((entry = entry->prev) != head) {
+ 		struct request *__rq = blkdev_entry_to_request(entry);
+ 
+-		/*
+-		 * simply "aging" of requests in queue
+-		 */
+-		if (__rq->elevator_sequence-- <= 0)
+-			break;
+-
++		if (__rq->elevator_sequence-- <= 0) {
++			/*
++			 * OK, we've exceeded someone's latency limit.
++			 * But we still continue to look for merges,
++			 * because they're so much better than seeks.
++			 */
++			merge_only = 1;
++		}
+ 		if (__rq->waiting)
+ 			continue;
+ 		if (__rq->rq_dev != bh->b_rdev)
+ 			continue;
+-		if (!*req && bh_rq_in_between(bh, __rq, &q->queue_head))
++		if (!*req && !merge_only &&
++			bh_rq_in_between(bh, __rq, &q->queue_head)) {
+ 			*req = __rq;
++		}
+ 		if (__rq->cmd != rw)
+ 			continue;
+ 		if (__rq->nr_sectors + count > max_sectors)
+ 			continue;
+ 		if (__rq->elevator_sequence < count)
+-			break;
++			merge_only = 1;
+ 		if (__rq->sector + __rq->nr_sectors == bh->b_rsector) {
+ 			ret = ELEVATOR_BACK_MERGE;
+ 			*req = __rq;
+diff -urN linux-virgin/drivers/block/ll_rw_blk.c linux-wli/drivers/block/ll_rw_blk.c
+--- linux-virgin/drivers/block/ll_rw_blk.c	Mon Feb  4 17:11:27 2002
++++ linux-wli/drivers/block/ll_rw_blk.c	Tue Feb  5 17:31:24 2002
+@@ -1095,7 +1095,7 @@
+ int __init blk_dev_init(void)
+ {
+ 	struct blk_dev_struct *dev;
+-	int total_ram;
++	int total_ram;		/* kilobytes */
+ 
+ 	request_cachep = kmem_cache_create("blkdev_requests",
+ 					   sizeof(struct request),
+@@ -1117,9 +1117,11 @@
+ 	 * Free request slots per queue.
+ 	 * (Half for reads, half for writes)
+ 	 */
+-	queue_nr_requests = 64;
+-	if (total_ram > MB(32))
+-		queue_nr_requests = 128;
++	queue_nr_requests = (total_ram >> 9) & ~15;	/* One per half-megabyte */
++	if (queue_nr_requests < 32)
++		queue_nr_requests = 32;
++	if (queue_nr_requests > 1024)
++		queue_nr_requests = 1024;
+ 
+ 	/*
+ 	 * Batch frees according to queue length

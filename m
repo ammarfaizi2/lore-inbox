@@ -1,57 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267934AbUGaKTq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267940AbUGaK2P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267934AbUGaKTq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 06:19:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267937AbUGaKTq
+	id S267940AbUGaK2P (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 06:28:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267939AbUGaK2P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 06:19:46 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:46087 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S267934AbUGaKTo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 06:19:44 -0400
-Date: Sat, 31 Jul 2004 12:11:52 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, greearb@candelatech.com,
-       akpm@osdl.org, alan@redhat.com, jgarzik@redhat.com,
+	Sat, 31 Jul 2004 06:28:15 -0400
+Received: from [38.113.3.51] ([38.113.3.51]:10401 "EHLO snickers.hotpop.com")
+	by vger.kernel.org with ESMTP id S267936AbUGaK2N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 06:28:13 -0400
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH 5/5] [I810FB]: i810fb fixes
+Date: Sat, 31 Jul 2004 18:26:19 +0800
+User-Agent: KMail/1.5.4
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
        linux-kernel@vger.kernel.org
-Subject: Re: PATCH: VLAN support for 3c59x/3c90x
-Message-ID: <20040731101152.GG1545@alpha.home.local>
-References: <20040730121004.GA21305@alpha.home.local> <E1BqkzY-0003mK-00@gondolin.me.apana.org.au> <20040731083308.GA24496@alpha.home.local> <410B67B1.4080906@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <200407290955.29735.adaplas@hotpop.com> <20040731000754.GF2746@fs.tum.de>
+In-Reply-To: <20040731000754.GF2746@fs.tum.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <410B67B1.4080906@pobox.com>
-User-Agent: Mutt/1.4i
+Message-Id: <200407311826.19970.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
+On Saturday 31 July 2004 08:07, Adrian Bunk wrote:
+>
+> If you select something, you have to ensure that the dependencies of
+> what you select are fulfilled.
+>
+> Since AGP_INTEL depends on X86 && !X86_64 , you must add this to the
+> dependencies of FB_I810 if it selects AGP_INTEL.
 
-On Sat, Jul 31, 2004 at 05:34:41AM -0400, Jeff Garzik wrote:
-> Willy Tarreau wrote:
-> >  - many (all ?) other drivers already have an MTU parameter, and many
-> 
-> s/many/almost none/
+Thanks.  Incremental patch included.
 
-Ok, sorry, I've just checked, they are 6. But I incidentely used the feature
-on 2 of them (dl2k and starfire). But more drivers still have the
-'static int mtu=1500' preceeded by a comment stating "allow the user to change
-the mtu". Why is it not a #define then, if nobody can change it anymore ?
+Tony
 
-> For VLAN support you definitely want to let the user increase the size 
-> above 1500, and for that you need ->change_mtu
+1. Make i810fb depend on X86 but not X86_64
+2. Fixed typo in i810_init_monspecs(). Reported by Manuel Lauss <slauss@resi.at>.
 
-I agree, but my point was that adding MODULE_PARM was only a one liner and
-would have done the job too. But since everyone prefers a change_mtu(), I'll
-do it.
+Signed-off-by: Antonino Daplas <adaplas@pol.net>
+---
 
-Jeff, do you know the absolute hardware limit on the tulip ? I've seen the
-limitation to PKT_BUF_SZ (1536), but I don't know for example if the
-hardware stores the FCS in the buffer or not, nor if the IP headers risk
-being aligned or not (which would consume 2 more bytes).
-Or does 1536 - 14 (ethernet) - 2 (iphdr alignment) - 4 (FCS) = 1516 seem a
-reasonable conservative higher bound ?
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/i810/i810_main.c linux-2.6.8-rc2-mm1/drivers/video/i810/i810_main.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/i810/i810_main.c	2004-07-31 16:52:12.341681400 +0800
++++ linux-2.6.8-rc2-mm1/drivers/video/i810/i810_main.c	2004-07-31 16:53:18.937557288 +0800
+@@ -1656,7 +1656,7 @@ static void __devinit i810_init_monspecs
+ 		info->monspecs.hfmax = hsync2;
+ 	if (!info->monspecs.hfmin)
+ 		info->monspecs.hfmin = hsync1;
+-	if (hsync1 < hsync2) 
++	if (hsync2 < hsync1) 
+ 		info->monspecs.hfmin = hsync2;
+ 
+ 	if (!vsync1)
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/Kconfig linux-2.6.8-rc2-mm1/drivers/video/Kconfig
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/Kconfig	2004-07-31 16:52:12.337682008 +0800
++++ linux-2.6.8-rc2-mm1/drivers/video/Kconfig	2004-07-31 16:53:21.306197200 +0800
+@@ -457,7 +457,7 @@ config FB_RIVA_DEBUG
+ 
+ config FB_I810
+ 	tristate "Intel 810/815 support (EXPERIMENTAL)"
+-	depends on FB && EXPERIMENTAL && PCI	
++	depends on FB && EXPERIMENTAL && PCI && X86	
+ 	select AGP
+ 	select AGP_INTEL
+ 	help
 
-Cheers,
-Willy
+
+
+

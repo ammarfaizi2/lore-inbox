@@ -1,76 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262475AbVAKHoA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262477AbVAKHrB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262475AbVAKHoA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 02:44:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262477AbVAKHoA
+	id S262477AbVAKHrB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 02:47:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbVAKHrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 02:44:00 -0500
-Received: from mserv1.uoregon.edu ([128.223.142.40]:55188 "EHLO
-	smtp.uoregon.edu") by vger.kernel.org with ESMTP id S262475AbVAKHmd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 02:42:33 -0500
-Date: Mon, 10 Jan 2005 23:42:30 -0800 (PST)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: Anton Blanchard <anton@samba.org>
-cc: Phy Prabab <phyprabab@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux NFS vs NetApp
-In-Reply-To: <20050111035810.GG14239@krispykreme.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.61.0501102321490.25796@twin.uoregon.edu>
-References: <20050111025401.48311.qmail@web51810.mail.yahoo.com>
- <20050111035810.GG14239@krispykreme.ozlabs.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 11 Jan 2005 02:47:00 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:26374 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262477AbVAKHqO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 02:46:14 -0500
+Subject: Re: Preemptible Big Kernel Lock?
+From: Arjan van de Ven <arjan@infradead.org>
+To: walt <wa1ter@myrealbox.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050110172910.F49234@x9.ybpnyarg>
+References: <20050110172910.F49234@x9.ybpnyarg>
+Content-Type: text/plain
+Date: Tue, 11 Jan 2005 08:46:03 +0100
+Message-Id: <1105429563.3917.5.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Jan 2005, Anton Blanchard wrote:
+On Mon, 2005-01-10 at 17:48 -0800, walt wrote:
 
->
->> I am trying to understand how NetApp can be so much
->> better at NFS servicing than my quad Opteron 250 SAN
->> attached machine.  So I need some help and some
->> pointers to understand how I can make my opteron
->> machine come on par (or within 70% NFS performance
->> range) as that of my NetApp R200.  I have run through
->> the NFS-how-to's and have heard "that is why they cost
->> so much more", but I really have to consider that
->> probably most of the ideas that are in the NetApp are
->> common knowldge (just not in my head).
->>
->> Can anyone shed some light on this?
+> Would I expect to see a difference on a uni-processor
+> machine?  (That's all I have.)
+> 
 
-you have to quantify what sort of hardware you're benchmarking in either 
-case and how its configured before you can reasonably conclude to much... 
-I spent quite a bit of time benchmarking filers and linux configurations 
-recently and while I can say with some certainty that while netapp makes 
-some very fast and well balanced filers they don't by any means have a 
-lock on building a high-performance nfs box.
-
-> Definitely sounds like something is wrong. You can do your own
-> comparisons of Linux 2.6 vs Netapp here (the OpenPower 720 is a ppc64
-> Linux box):
->
-> http://www.spec.org/sfs97r1/results/sfs97r1.html
-
-In actually using sfs97r1 published benchmarks to compare to hardware I 
-was benchmarking (from emc, netapp and several roll-your own linux boxes) 
-I found the published benchmark information alsmost entirely useless given 
-that vendors tend to provide wildly silly hardware configurations. In the 
-case of the openpower 720 (to use that for an example) the benchmarked 
-machine has 70 15k rpm disks spread across 12 fibre channel controllers, 
-64GB of ram, 12GB of nvram and 7 network interfaces...
-
-> Anton
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
--- 
--------------------------------------------------------------------------- 
-Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu 
-GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
+humans in general don't notice things < 1 milisecond. The preemptable
+BKL and other latency fixes are (most) there to reduce the existing
+typical latency that is < 1 msec to something even far lower. (and the
+maximum which is a bit above 1 msec to below it.. but that you hardly
+ever trigger unless you try).
+So I doubt that you as human will perceive this.
+Professional audio applications might notice though..,. ;)
 

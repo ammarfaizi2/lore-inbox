@@ -1,30 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268153AbRGZPvz>; Thu, 26 Jul 2001 11:51:55 -0400
+	id <S268156AbRGZQAF>; Thu, 26 Jul 2001 12:00:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268138AbRGZPvq>; Thu, 26 Jul 2001 11:51:46 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26638 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268145AbRGZPvc>; Thu, 26 Jul 2001 11:51:32 -0400
-Subject: Re: Validating Pointers
-To: andrew.r.cress@intel.com (Cress, Andrew R)
-Date: Thu, 26 Jul 2001 16:52:48 +0100 (BST)
+	id <S268145AbRGZP7z>; Thu, 26 Jul 2001 11:59:55 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:47112 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S268156AbRGZP7v>; Thu, 26 Jul 2001 11:59:51 -0400
+Date: Thu, 26 Jul 2001 11:29:50 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Alan Cox <laughing@shared-source.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "Cress, Andrew R" at Jul 26, 2001 08:36:49 AM
-X-Mailer: ELM [version 2.5 PL5]
+Subject: Re: Linux 2.4.7-ac1
+In-Reply-To: <20010726142101.A14439@lightning.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.21.0107261128340.3955-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15PnRQ-0003yo-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> Is there a general (correct) kernel subroutine to validate a pointer
-> received in a routine as input from the outside world?  Is access_ok() a
-> good one to use?
 
-access_ok may do minimal checks, or no checking at all. The only point at
-which you can validate a user point is when you use copy*user and
-get/put_user to access the data.
+
+On Thu, 26 Jul 2001, Alan Cox wrote:
+
+> 
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
+> 
+> 		 Intermediate diffs are available from
+> 			http://www.bzimage.org
+> 
+> 2.4.7-ac1
+
+-D__KERNEL__ -I/home/marcelo/rpm/BUILD/kernel-2.4.7/linux/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe  -march=i386 -DMODULE -DMODVERSIONS
+-include
+/home/marcelo/rpm/BUILD/kernel-2.4.7/linux/include/linux/modversions.h -c
+-o scsi.o scsi.c
+scsi.c: In function `scsi_reset_provider_Rsmp_b879693c':
+scsi.c:2729: structure has no member named `sem'
+make[2]: *** [scsi.o] Error 1
+make[2]: Leaving directory
+`/home/marcelo/rpm/BUILD/kernel-2.4.7/linux/drivers/scsi'
+
+

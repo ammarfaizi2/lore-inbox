@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291151AbSBGPDR>; Thu, 7 Feb 2002 10:03:17 -0500
+	id <S291152AbSBGPEh>; Thu, 7 Feb 2002 10:04:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291152AbSBGPDH>; Thu, 7 Feb 2002 10:03:07 -0500
-Received: from dsl-213-023-038-235.arcor-ip.net ([213.23.38.235]:64395 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S291151AbSBGPDC>;
-	Thu, 7 Feb 2002 10:03:02 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>
+	id <S291155AbSBGPEW>; Thu, 7 Feb 2002 10:04:22 -0500
+Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:29152 "EHLO
+	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S291152AbSBGPEG>; Thu, 7 Feb 2002 10:04:06 -0500
+Importance: Normal
 Subject: Re: The IBM order relaxation patch
-Date: Thu, 7 Feb 2002 16:07:39 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, <zaitcev@redhat.com>,
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, <zaitcev@redhat.com>,
         <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0202071254430.17850-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.33L.0202071254430.17850-100000@imladris.surriel.com>
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OFDEA688CD.7104528D-ONC1256B59.00522C09@de.ibm.com>
+From: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
+Date: Thu, 7 Feb 2002 16:05:28 +0100
+X-MIMETrack: Serialize by Router on D12ML028/12/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 07/02/2002 16:05:32
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Yq9D-0000bD-00@starship.berlin>
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 7, 2002 03:55 pm, Rik van Riel wrote:
-> On Thu, 7 Feb 2002, Daniel Phillips wrote:
-> 
-> > > This looks hard to fix with the current mm layer.  Maybe Rik's
-> > > rmap method could help here, because with reverse mappings we
-> > > can at least try to free adjacent areas (because we then at least
-> > > *know* who's using the pages).
-> >
-> > Yes, that's one of leading reasons for wanting rmap.  (Number one and
-> > two reasons are: allow forcible unmapping of multiply referenced pages
-> > for swapout; get more reliable hardware ref bit readings.)
-> 
-> It's still on my TODO list.  Patches are very much welcome
-> though ;)
 
-I'd rather see rmap go in in its simplest possible form, outperforming the
-current virtual scanning method on basic page replacement performance, rather 
-that using the other things we know rmap can do as the argument for inclusion.
-It's for this reason that I'm concentrating on the fork speedup.
+Rik van Riel wrote:
 
--- 
-Daniel
+>On Thu, 7 Feb 2002, Daniel Phillips wrote:
+>
+>> Yes, that's one of leading reasons for wanting rmap.  (Number one and
+>> two reasons are: allow forcible unmapping of multiply referenced pages
+>> for swapout; get more reliable hardware ref bit readings.)
+>
+>It's still on my TODO list.  Patches are very much welcome
+>though ;)
+
+On s390 we have per physical page hardware referenced / changed bits.
+In the rmap framework, it should also be possible to make more efficient
+use of these ...
+
+
+Mit freundlichen Gruessen / Best Regards
+
+Ulrich Weigand
+
+--
+  Dr. Ulrich Weigand
+  Linux for S/390 Design & Development
+  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
+  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
+

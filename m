@@ -1,97 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbUEADI5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261798AbUEADbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbUEADI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 23:08:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUEADI5
+	id S261798AbUEADbp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 23:31:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbUEADbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 23:08:57 -0400
-Received: from nessie.weebeastie.net ([220.233.7.36]:21124 "EHLO
-	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S261704AbUEADIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 23:08:54 -0400
-Date: Sat, 1 May 2004 13:08:28 +1000
-From: CaT <cat@zip.com.au>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: libata + siI3112 + 2.6.5-rc3 hang
-Message-ID: <20040501030828.GE2109@zip.com.au>
-References: <20040429234258.GA6145@zip.com.au> <200404300208.32830.bzolnier@elka.pw.edu.pl> <20040430093919.GA2109@zip.com.au> <200404301800.08763.bzolnier@elka.pw.edu.pl>
+	Fri, 30 Apr 2004 23:31:45 -0400
+Received: from adsl-67-65-14-122.dsl.austtx.swbell.net ([67.65.14.122]:34003
+	"EHLO laptop.michaels-house.net") by vger.kernel.org with ESMTP
+	id S261798AbUEADbl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 23:31:41 -0400
+Subject: Re: [PATCH 2.4] add SMBIOS information to /proc/smbios -- UPDATED
+From: Michael Brown <mebrown@michaels-house.net>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+In-Reply-To: <m3r7u59sok.fsf@averell.firstfloor.org>
+References: <1QvX0-A4-29@gated-at.bofh.it>
+	 <m3r7u59sok.fsf@averell.firstfloor.org>
+Content-Type: text/plain
+Message-Id: <1083382204.1203.2971.camel@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200404301800.08763.bzolnier@elka.pw.edu.pl>
-Organisation: Furball Inc.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 30 Apr 2004 22:30:04 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 30, 2004 at 06:00:08PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> On Friday 30 of April 2004 11:39, CaT wrote:
-> > On Fri, Apr 30, 2004 at 02:08:32AM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > > Probably your drive needs mod15write quirk. please try this.
-> > >
-> > > [PATCH] sata_sil.c: ST3200822AS needs MOD15WRITE quirk
-> >
-> > Didn't work. Still hangs rather well. :/
+On Fri, 2004-04-30 at 14:22, Andi Kleen wrote:
+> Michael Brown <mebrown@michaels-house.net> writes:
 > 
-> I have no idea then.   Jeff?
+> > 	Below is an updated patch to add SMBIOS information to /proc/smbios.
+> > Updates have been made per Al's previous comments. Please apply.
+> 
+> What is this good for? There are tools to read this from
+> /dev/mem; and that is fine because the information is static.
+> There is no reason to bloat the kernel with this.
 
-A solution has come forth! Whee! :) Joe Rutledge sent me a message in 
-private relating to his issues with the sil3112 and local apic. It solved
-the hang issue for him and it appears to have solved it for me also as
-I've run many a hdparm -tT on the drive and got upto 62MB/s each go where
-as before I could run it once at the most, with the 2nd try resulting
-in a hang.
+As I mentioned in my first posting of this to l-k, there are three
+reasons why this driver is necessary:
 
-Happy days. Linux doesn't hang anymore on my PC, my SATA drive does 62MB/s
-thanks to libata (tons of thanks for the work on that - it did 35MB/s using
-the normal IDE SATA driver) and I found a reclusive easter egg next to my
-keyboard. Joy. :)
+-- This information is, in the very near future, _not_ going to be
+static anymore. There will be systems that update the information in
+dynamically during SMIs.
 
-Here's the patch that Joe sent me. It doesn't apply cleanly mainly due
-to formatting errors in the patch but a bit of manual fixerupping made
-it all apply.
+-- SMBIOS consists of two things, the table entry point and the table
+itself. The table entry point is always in 0xF0000 - 0xFFFFF.
+Traditionally, the actual table has been here as well. BIOS is running
+out of space here and future systems are moving this information to high
+memory. /dev/mem will not allow access to memory above top of system
+RAM.
 
---- 8< ---
---- linux-2.6.4-orig/arch/i386/pci/fixup.c      2004-03-11 
-03:55:36.000000000 +0100
-+++ linux-2.6.4/arch/i386/pci/fixup.c   2004-03-16 13:12:25.706569480 +0100
-@@ -187,6 +187,22 @@
-               dev->transparent = 1;
-}
+-- Red Hat has a /dev/mem patch in their tree that restricts access to
+RAM above 1MB. 
 
-+/*
-+ * Halt Disconnect and Stop Grant Disconnect (bit 4 at offset 0x6F)
-+ * must be disabled when APIC is used (or lockups will happen).
-+ */
-+static void __devinit pci_fixup_nforce2_disconnect(struct pci_dev *d)
-+{
-+       u8 t;
-+
-+       pci_read_config_byte(d, 0x6F, &t);
-+       if (t & 0x10) {
-+               printk(KERN_INFO "PCI: disabling nForce2 Halt Disconnect"
-+                                " and Stop Grant Disconnect\n");
-+               pci_write_config_byte(d, 0x6F, (t & 0xef));
-+       }
-+}
-+
-struct pci_fixup pcibios_fixups[] = {
-       {
-               .pass           = PCI_FIXUP_HEADER,
-@@ -290,5 +306,11 @@
-               .device         = PCI_ANY_ID,
-               .hook           = pci_fixup_transparent_bridge
-       },
-+        {
-+               .pass           = PCI_FIXUP_HEADER,
-+               .vendor         = PCI_VENDOR_ID_NVIDIA,
-+               .device         = PCI_DEVICE_ID_NVIDIA_NFORCE2,
-+               .hook           = pci_fixup_nforce2_disconnect
-+        },
-       { .pass = 0 }
- };
---- 8< ---
+Because of all of these reasons, we feel it is a good thing to have a
+stable method to get to the SMBIOS information that will work into the
+future. Our userspace libs will try to use this driver to access SMBIOS,
+but fall back to /dev/mem if this driver is not available. (with the
+caveat that nothing will work if table >1MB and this driver not
+present.)
 
--- 
-    Red herrings strewn hither and yon.
+As for the "bloat" argument: this driver is about the most trivial
+driver I can conceive of that does useful work. It is 250 raw lines of
+code, comparable in size to /proc/meminfo or /proc/cpuinfo. 
+
+This 250 line driver allows us to move a few thousand lines of code from
+Dell's current, proprietary systems management driver into userspace. If
+this approach is accepted, I am pushing to work on opening up other
+pieces of Dell's current proprietary drivers. This work is a
+proof-of-concept to management that this approach can work.
+--
+Michael
+
+
+

@@ -1,63 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264861AbTF0W2t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 18:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264868AbTF0W2t
+	id S264891AbTF0Wab (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 18:30:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264887AbTF0WaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 18:28:49 -0400
-Received: from mail47-s.fg.online.no ([148.122.161.47]:41359 "EHLO
-	mail47.fg.online.no") by vger.kernel.org with ESMTP id S264861AbTF0W2s convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 18:28:48 -0400
-From: Svein Ove Aas <svein.ove@aas.no>
-To: Andre Tomt <andre@tomt.net>, linux-kernel@vger.kernel.org
-Subject: Re: TCP send behaviour leads to cable modem woes
-Date: Sat, 28 Jun 2003 00:43:25 +0200
-User-Agent: KMail/1.5.2
-References: <200306272020.57502.svein.ove@aas.no> <200306272224.04335.svein.ove@aas.no> <1056746615.12886.459.camel@slurv.ws.pasop.tomt.net>
-In-Reply-To: <1056746615.12886.459.camel@slurv.ws.pasop.tomt.net>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	Fri, 27 Jun 2003 18:30:09 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:48295 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S264868AbTF0W3x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 18:29:53 -0400
+Date: Fri, 27 Jun 2003 17:31:53 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: "David S. Miller" <davem@redhat.com>, mbligh@aracnet.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: networking bugs and bugme.osdl.org
+Message-ID: <20030627213153.GR501@phunnypharm.org>
+References: <20030626.224739.88478624.davem@redhat.com> <21740000.1056724453@[10.10.2.4]> <Pine.LNX.4.55.0306270749020.4137@bigblue.dev.mcafeelabs.com> <20030627.143738.41641928.davem@redhat.com> <Pine.LNX.4.55.0306271454490.4457@bigblue.dev.mcafeelabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306280043.26778.svein.ove@aas.no>
+In-Reply-To: <Pine.LNX.4.55.0306271454490.4457@bigblue.dev.mcafeelabs.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-fredag 27. juni 2003, 22:43, skrev Andre Tomt:
-> On fre, 2003-06-27 at 22:24, Svein Ove Aas wrote:
-> > > http://lartc.org/wondershaper/
+On Fri, Jun 27, 2003 at 03:02:00PM -0700, Davide Libenzi wrote:
+> On Fri, 27 Jun 2003, David S. Miller wrote:
+> 
+> > No, this is the _BAD_ part, shit accumulates equally with
+> > useful reports.
 > >
-> > I wrote something like that myself once.
-> > It's a good shaper, but it works by *capping* up/download speeds and
-> > rearranging the priorities locally, which wouldn't help me a bit.
->
-> By capping the speed below the link speed most modems will usually avoid
-> bursting. IMHO it's mostly a net gain in usability even though you don't
-> get the same raw download speeds as without capping.
+> > Useful reports in non-bugtracking system environments get
+> > retransmitted and eventually looked at.
+> 
+> David, your method is the dream of every software developer. Having Q/A
+> repeatedly pushing the same issue. Having a track is good and flagging a
+> report as not-a-bug or need-more-info takes almost the same time (if the
+> system is sanely designed) it takes you to flag your message a shit. In
+> this way though you do not lose things meaningful that you overlooked at
+> first sight. And this comes from someone that wanted to quit his job when
+> they forced for the first time to use a tracking system ;)
 
-I'll try it if the F-RTO option doesn't work. Might as well.
+As a bug reporter, and as someone who receives bug reports, I can say
+that on both ends I find it easier to send emails, and get emails than
+to fiddle with any bug tracking tool.
 
-It might actually work; the problem at the moment is that as far as the kernel 
-is concerned my usual uplink works at 10Mbit/s++ for a fraction of a second 
-and then downright drops most of the rest of the data it's sent until the 
-next burst. If I cap it sufficiently that it can't overflow either the line 
-(on average) or my cable modem's buffers, that should work.
+I'm with Dave on this one. Scrap the nifty tools, and just use good
+sense. Emails let each developer handle bug reports in their own way.
+I'm sure you could make a nice local tool for yourself to manage your
+own bug reports.
 
-It makes sense.
-
-Now, how come I didn't think of that myself?
-
-- - Svein Ove Aas
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+/MiN9OlFkai3rMARArzXAKDTITRw3swGcINfEBAlteJlCS2CiACgpVIw
-FpqXUkhx8iJct7nEuLaZ3Xc=
-=GisS
------END PGP SIGNATURE-----
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

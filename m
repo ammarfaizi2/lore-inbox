@@ -1,206 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbVBHVf7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVBHVib@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbVBHVf7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 16:35:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVBHVfj
+	id S261675AbVBHVib (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 16:38:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVBHVib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 16:35:39 -0500
-Received: from lucidpixels.com ([66.45.37.187]:9856 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S261670AbVBHVe3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 16:34:29 -0500
-Date: Tue, 8 Feb 2005 16:34:24 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p500
-To: linux-kernel@vger.kernel.org
-cc: linux-net@vger.kernel.org
-Subject: Question regarding e1000 driver and dropped packets (2.6.5 / 2.6.10)?
-Message-ID: <Pine.LNX.4.62.0502081618060.2018@p500>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 8 Feb 2005 16:38:31 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12418 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261676AbVBHVhk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 16:37:40 -0500
+Date: Tue, 8 Feb 2005 16:04:45 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Jean Tourrilhes <jt@hpl.hp.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4] SIOCSIFNAME wildcard support (resend)
+Message-ID: <20050208180445.GB10695@logos.cnet>
+References: <20050208181436.GA29717@bougret.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050208181436.GA29717@bougret.hpl.hp.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have two identical machines [mobo/hardware wise]:
 
-Each machine is a Dell GX1p (500MHZ).
+Hi Jean,
 
-I have two Intel Gigabit NICs, one in each box, hooked up to a GigE 
-switch.
+On Tue, Feb 08, 2005 at 10:14:36AM -0800, Jean Tourrilhes wrote:
+> 	Hi Marcelo,
+> 
+> 	I did not receive any feedback on this e-mail, so I assume it
+> was lost on the way. Would you mind pushing that in 2.4.x ?
+> 	Thanks...
 
-Ethernet controller: Intel Corp. 82541GI/PI Gigabit Ethernet Controller
-Ethernet controller: Intel Corp. 82541GI/PI Gigabit Ethernet Controller
+As an ignorant person I have no problems with it.
 
-I doubt its the kernel version; does anyone have any suggestions/ideas why 
-one machine has virtually NO overruns/errors/drops and the other has tons?
+David, what is your opinion?
 
-Also, (I doubt this to be the case but I'll ask anyway) - Is the way the 
-NIC's are setup in the box next to other cards / alter their PCI/IRQ 
-routing which would effect error/drop rates?
-
-IE:
-
-PCI1 - promise card / pata
-PCI2 - promise card / pata
-PCI3 - promise card / sata
-PCI4 - e1000 nic
-PCI5 - 4 port nic
-
-Would it make sense to order them in a different direction?
-
-
-Also, is there a correlation between errors on the NIC and ERR
-in /proc/interrupts?
-
-Secondly, could loading lm-sensors/temperature modules be causing these
-problems?
-
-dmesg from box2 below:
-
-e1000: eth0: e1000_watchdog: NIC Link is Up 1000 Mbps Full Duplex
-eth1: Setting full-duplex based on MII#1 link partner capability of 45e1.
-eth2: Setting full-duplex based on MII#1 link partner capability of 45e1.
-nfs warning: mount version older than kernel
-nfs warning: mount version older than kernel
-nfs warning: mount version older than kernel
-nfs warning: mount version older than kernel
-i2c /dev entries driver
-piix4_smbus 0000:00:07.3: Found 0000:00:07.3 device
-piix4_smbus 0000:00:07.3: WARNING: SMBus interface has been FORCEFULLY 
-ENABLED!
-mtrr: no MTRR for fd000000,800000 found
-spurious 8259A interrupt: IRQ7.
-spurious 8259A interrupt: IRQ15.
-
-I am currently out of ideas, if anyone can suggest anything, I'd be most 
-greatful, thanks!
-
-On the first box, there are hardly any problems receiving packets:
-
-Note the errors & dropped on the receiving end:
-
-BOX1: (2.6.5)
-
-eth0      Link encap:Ethernet  HWaddr 00:0E:0C:00:CD:B1
-           inet addr:10.0.2.254  Bcast:10.0.2.255  Mask:255.255.255.0
-           inet6 addr: fe80::20e:cff:fe00:cdb1/64 Scope:Link
-           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-           RX packets:196787934 errors:4 dropped:0 overruns:0 frame:2
-           TX packets:101356779 errors:0 dropped:0 overruns:0 carrier:0
-           collisions:0 txqueuelen:1000
-           RX bytes:2602045376 (2481.5 Mb)  TX bytes:4051930608 (3864.2 Mb)
-           Base address:0xcc80 Memory:ff020000-ff040000
-
-BOX1 MODULES:
-
-$ lsmod
-Module                  Size  Used by
-ip_nat_ftp              4016  0
-ip_conntrack_ftp       71088  1 ip_nat_ftp
-
-BOX2: (2.6.10)
-
-On another box (same physical HW) I get this:
-
-eth0      Link encap:Ethernet  HWaddr 00:0E:0C:00:D2:06
-           inet addr:10.0.2.253  Bcast:10.0.2.255  Mask:255.255.255.0
-           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-****-->   RX packets:446380046 errors:1276833 dropped:1276833 overruns:1276833 frame:0
-           TX packets:572550636 errors:0 dropped:0 overruns:0 carrier:0
-           collisions:0 txqueuelen:1000
-           RX bytes:2351750726 (2.1 GiB)  TX bytes:3659840330 (3.4 GiB)
-           Base address:0xd8c0 Memory:f8fa0000-f8fc0000
-
-BOX2 MODULES:
-
-$ lsmod
-Module                  Size  Used by
-ip_nat_irc              3408  0
-ip_conntrack_irc       70480  1 ip_nat_irc
-ip_nat_ftp              4112  0
-ip_conntrack_ftp       71344  1 ip_nat_ftp
-adm1021                11060  0
-i2c_piix4               6000  0
-i2c_sensor              2784  1 adm1021
-i2c_dev                 7680  0
-i2c_core               18224  4 adm1021,i2c_piix4,i2c_sensor,i2c_dev
-
-
-I have tried using different cable and ports on the switch, the result is 
-the same.
-
-$ tar cvf /box2/4gb_of_stuff.tar 4gb_of_stuff  # then the numbers rise rapidly
-
-After copying only 1-2GB on BOX2, this is what I get:
-
-eth0      Link encap:Ethernet  HWaddr 00:0E:0C:00:D2:06
-           inet addr:10.0.2.253  Bcast:10.0.2.255  Mask:255.255.255.0
-           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-           RX packets:1038733 errors:1459 dropped:1459 overruns:1459 frame:0
-           TX packets:560952 errors:0 dropped:0 overruns:0 carrier:0
-           collisions:0 txqueuelen:1000
-           RX bytes:1491121900 (1.3 GiB)  TX bytes:763420385 (728.0 MiB)
-           Base address:0xd8c0 Memory:f8fa0000-f8fc0000
-
-
-The only thing that is different is one has more HDD's and an extra PCI 
-controller or so:
-
-BOX1 LSPCI:
-
-00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge 
-(rev 03)
-00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge 
-(rev 03)
-00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
-00:0d.0 Ethernet controller: Intel Corp. 82541GI/PI Gigabit Ethernet 
-Controller
-00:0e.0 Unknown mass storage controller: Promise Technology, Inc. 20268 
-(rev 02)
-00:0f.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 03)
-00:11.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] 
-(rev 24)
-01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 
-1X/2X (rev 5c)
-02:09.0 Communication controller: Individual Computers - Jens Schoenfeld 
-Intel 537
-02:0a.0 Ethernet controller: 3Com Corporation 3c590 10BaseT [Vortex]
-
-
-BOX2 LSPCI:
-
-0000:00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host 
-bridge (rev 03)
-0000:00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP 
-bridge (rev 03)
-0000:00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-0000:00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-0000:00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-0000:00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
-0000:00:0d.0 Unknown mass storage controller: Promise Technology, Inc. 
-20269 (rev 02)
-0000:00:0e.0 Unknown mass storage controller: Promise Technology, Inc. 
-20269 (rev 02)
-0000:00:0f.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 
-03)
-0000:01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro 
-AGP 1X/2X (rev 5c)
-0000:02:09.0 Unknown mass storage controller: Promise Technology, Inc. 
-PDC20375 (SATA150 TX2plus) (rev 02)
-0000:02:0a.0 Ethernet controller: Intel Corp. 82541GI/PI Gigabit Ethernet 
-Controller
-0000:02:0b.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 
-03)
-0000:03:04.0 Ethernet controller: Digital Equipment Corporation DECchip 
-21140 [FasterNet] (rev 22)
-0000:03:05.0 Ethernet controller: Digital Equipment Corporation DECchip 
-21140 [FasterNet] (rev 22)
-0000:03:06.0 Ethernet controller: Digital Equipment Corporation DECchip 
-21140 [FasterNet] (rev 22)
-0000:03:07.0 Ethernet controller: Digital Equipment Corporation DECchip 
-21140 [FasterNet] (rev 22)
-
-Please CC me as I am not on the list, thanks!
+> 	Jean
+> 
+> ----- Forwarded message from jt -----
+> 
+> Subject: [PATCH 2.4] SIOCSIFNAME wildcard support
+> E-mail: jt@hpl.hp.com
+> 
+> 	Hi Marcelo,
+> 
+> 	This patch adds wildcard support for the SIOCSIFNAME ioctl,
+> like what was done in 2.6.1. SIOCSIFNAME allow a user space tool to
+> change network interface names (such as nameif, ifrename, or ip link),
+> this patch allow those tools to specify a pattern, such as "eth%d" or
+> "wlan%d", and the kernel use the lowest available slot.
+> 	The reason I'm sending you this patch is that I've got some
+> 2.4.X users who requested the feature...
+> 	This patch was initially done for 2.4.23, and I rediffed and
+> retested with 2.4.29. It's somewhat different from the patch Stephen
+> and me added to 2.6.1, because the netdev init code is different and
+> also this patch is more conservative.
+> 
+> 	Have fun...
+> 
+> 	Jean
+> 
+> -------------------------------------------------------------
+> 
+> diff -u -p linux/net/core/dev.j1.c linux/net/core/dev.c
+> --- linux/net/core/dev.j1.c	Wed Dec  3 14:29:21 2003
+> +++ linux/net/core/dev.c	Wed Dec  3 18:55:27 2003
+> @@ -2179,10 +2179,26 @@ static int dev_ifsioc(struct ifreq *ifr,
+>  		case SIOCSIFNAME:
+>  			if (dev->flags&IFF_UP)
+>  				return -EBUSY;
+> -			if (__dev_get_by_name(ifr->ifr_newname))
+> -				return -EEXIST;
+> -			memcpy(dev->name, ifr->ifr_newname, IFNAMSIZ);
+> -			dev->name[IFNAMSIZ-1] = 0;
+> +			/* Check if name contains a wildcard */
+> +			if (strchr(ifr->ifr_newname, '%')) {
+> +				char format[IFNAMSIZ + 1];
+> +				int ret;
+> +				memcpy(format, ifr->ifr_newname, IFNAMSIZ);
+> +				format[IFNAMSIZ-1] = 0;
+> +				/* Find a free name based on format.
+> +				 * dev_alloc_name() replaces "%d" with at max
+> +				 * 2 digits, so no name overflow. - Jean II */
+> +				ret = dev_alloc_name(dev, format);
+> +				if (ret < 0)
+> +					return ret;
+> +				/* Copy the new name back to caller. */
+> +				strncpy(ifr->ifr_newname, dev->name, IFNAMSIZ);
+> +			} else {
+> +				if (__dev_get_by_name(ifr->ifr_newname))
+> +					return -EEXIST;
+> +				memcpy(dev->name, ifr->ifr_newname, IFNAMSIZ);
+> +				dev->name[IFNAMSIZ-1] = 0;
+> +			}
+>  			notifier_call_chain(&netdev_chain, NETDEV_CHANGENAME, dev);
+>  			return 0;
+>  
+> @@ -2315,6 +2331,7 @@ int dev_ioctl(unsigned int cmd, void *ar
+>  		 *	- return a value
+>  		 */
+>  		 
+> +		case SIOCSIFNAME:
+>  		case SIOCGMIIPHY:
+>  		case SIOCGMIIREG:
+>  			if (!capable(CAP_NET_ADMIN))
+> @@ -2350,7 +2367,6 @@ int dev_ioctl(unsigned int cmd, void *ar
+>  		case SIOCDELMULTI:
+>  		case SIOCSIFHWBROADCAST:
+>  		case SIOCSIFTXQLEN:
+> -		case SIOCSIFNAME:
+>  		case SIOCSMIIREG:
+>  		case SIOCBONDENSLAVE:
+>  		case SIOCBONDRELEASE:
+> -

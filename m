@@ -1,84 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267449AbUHJG4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267451AbUHJHEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267449AbUHJG4N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 02:56:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267450AbUHJG4N
+	id S267451AbUHJHEu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 03:04:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267453AbUHJHEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 02:56:13 -0400
-Received: from gate.crashing.org ([63.228.1.57]:22998 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S267449AbUHJG4F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 02:56:05 -0400
-Subject: Re: [RFC] Fix Device Power Management States
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Patrick Mochel <mochel@digitalimplant.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>, David Brownell <david-b@pacbell.net>
-In-Reply-To: <Pine.LNX.4.50.0408092131260.24154-100000@monsoon.he.net>
-References: <Pine.LNX.4.50.0408090311310.30307-100000@monsoon.he.net>
-	 <1092098425.14102.69.camel@gaston>
-	 <Pine.LNX.4.50.0408092131260.24154-100000@monsoon.he.net>
-Content-Type: text/plain
-Message-Id: <1092120750.14102.95.camel@gaston>
+	Tue, 10 Aug 2004 03:04:50 -0400
+Received: from c66-235-4-168.sea2.cablespeed.com ([66.235.4.168]:57836 "EHLO
+	darklands.zimres.net") by vger.kernel.org with ESMTP
+	id S267451AbUHJHEr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 03:04:47 -0400
+Date: Tue, 10 Aug 2004 00:02:26 -0700
+From: Thomas Zimmerman <thomas@zimres.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <20040810070226.GA10993@darklands>
+Reply-To: Thomas <thomas@zimres.net>
+Mail-Followup-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1092082920.5761.266.camel@cube> <cone.1092092365.461905.29067.502@pc.kolivas.org> <1092099669.5759.283.camel@cube> <cone.1092113232.42936.29067.502@pc.kolivas.org> <1092106283.5761.304.camel@cube>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 10 Aug 2004 16:52:30 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092106283.5761.304.camel@cube>
+X-Operating-System: Linux darklands 2.6.8-rc1-ck5-amd64
+X-Operating-Status: 10:22:29 up 7 min,  4 users,  load average: 1.68, 0.84, 0.34
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 09-Aug 10:51, Albert Cahalan wrote:
+> On Tue, 2004-08-10 at 00:47, Con Kolivas wrote:
+> > Albert Cahalan writes:
+> > > On Mon, 2004-08-09 at 18:59, Con Kolivas wrote:
+> > >> Albert Cahalan writes:
+> 
+> > >> > Joerg:
+> > >> >    "WARNING: Cannot do mlockall(2).\n"
+> > >> >    "WARNING: This causes a high risk for buffer underruns.\n"
+> > >> > Fixed:
+> > >> >    "Warning: You don't have permission to lock memory.\n"
+> > >> >    "         If the computer is not idle, the CD may be ruined.\n"
+> > >> > 
+> > >> > Joerg:
+> > >> >    "WARNING: Cannot set priority class parameters priocntl(PC_SETPARMS)\n"
+> > >> >    "WARNING: This causes a high risk for buffer underruns.\n"
+> > >> > Fixed:
+> > >> >    "Warning: You don't have permission to hog the CPU.\n"
+> > >> >    "         If the computer is not idle, the CD may be ruined.\n"
+> > >> 
+> > >> Huh? That can't be right. Every cd burner this side of the 21st century has 
+> > >> buffer underrun protection.
+> > > 
+> > > I'm pretty sure my FireWire CD-RW/CD-R is from
+> > > another century. Not that it's unusual in 2004.
+> > > 
+> > >> I've burnt cds _while_ capturing and encoding 
+> > >> video using truckloads of cpu and I/O without superuser privileges, had all 
+> > >> the cdrecord warnings and didn't have a buffer underrun.
+> > > 
+> > > That's cool. My hardware won't come close to that.
+> > > Burning a coaster costs money.
+> > > 
+> > > Let me put it this way: $$ $ $$$ $$ $ $$$ $$ $
+> > > 
+> > > The warning, if re-worded, will save people from
+> > > frustration and wasted money.
+> > 
+> > Sounds good; how about something less terrifying? That warning sounds like a 
+> > ruined cd is likely.
+> 
+> I'm not about to burn CDs trying, but I do believe
+> that "a ruined cd is likely" would be accurate if I
+> were to keep busy with Mozilla and such. OpenOffice
+> would surely ruin a cd. Light web browsing makes my
+> mp3 player skip.
+> 
+> Not all of us have hardware like you do. Encoding
+> video is something I wouldn't bother to try, even
+> without the CD burner going!
+> 
+> (the box isn't that old; it's fanless though)
+> 
 
-> It's easy enough to change which order things get stopped/started in. What
-> matters more is the conceptual shift in responsibility for who
-> stops/starts the devices, or rather their interfaces.
-> 
-> It also requires a mapping from struct device -> struct class_device that
-> the drivers will have to initialize.
+I've only created coaster _with_ the suid bit while ab^H^Husing the 
+computer to do other things--like compiling a new kernel. 2.6 is much
+better at setting up DMA access to the drive; 2.4 would use huge amounts
+of system time (> 90%). When that happened, the system felt like it was 
+out to lunch--mouse cursor updates would sometimes take >2 seconds. 
+Cdrecord used more cpu if it was suid. I haven't had a problem in 2.6.
+The  warning is counter to my expericnce with cdrecord. I think the
+warning would be worded better as:
 
-Yup, but class devices don't follow the bus topology, do they ?
+"Warning: Cdrecord was unable to get exclusive access to the cpu."
+"Warning: This may cause Buffer underruns from other activity."
 
-> > What about passing the previous state to restore ? could be useful...
-> 
-> It's saved in dev->power.pm_resume, so drivers can check it.
-> 
-> > Who calls it ? It's the driver calling it's bus or what ? It make no
-> > sense to power manage a device before suspending activity... I agree it
-> > may be worth splitting dev_start/stop from PM transitions proper, that
-> > would help dealing with various policies, however, there are still some
-> > dependencies between those, and they all need to be tied to the bus
-> > topology.
-> 
-> The driver core calls it in device_power_down() (as was in the patch ;),
-> in physical topological order. The ordering of the calls is up the power
-> management core, but it just wouldn't make sense to power down a device
-> that wasn't stopped. Would be easy enough to add a check for it..
-> 
-> Note it would make sense to power down a device without stopping, if the
-> device had no device driver bound to it (e.g. unclaimed devices that are
-> in D0 unnecessarily; or unclaimed devices that need to be powered down
-> during a suspend transition).
+and
 
-Ok, just be careful with that as some "platform" devices may not have a
-driver bound and still don't want to be powered down... but we could
-create fake drivers...
+"Warning: Cdrecord was unable to get exclusive access to memory."
+"Warning: This may cause Buffer underruns from other activity."
 
-> > What about partial tree ? We need to suspend childs first and we need to
-> > tied PM transition with dev_start/stop (or have some way to indicate the
-> > device we want it to auto-resume when it gets a request, or something).
-> > We need to work out policy a bit more here I suppose...
-> 
-> Policy can come later; we have to have a working model first.
-> 
-> As far as partial trees go, it can be done using the posted patch.  Think
-> about why you want to suspend/resume a partial tree - to use a particular
-> leaf device. You know what device it is, and by virtue of the driver
-> model, you know each of its ancestors. So, you walk the tree up to the
-> root, and restart all the way down. Then, you re-stop it all the way back
-> up. Should be ~10 lines of code that is left as an exercise against the
-> posted patch. :)
-> 
-> 
-> 	Pat
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
+But drop the first one if you're on >2.6.
 
+Thomas

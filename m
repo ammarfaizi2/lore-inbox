@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264180AbTEaHAk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 03:00:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264181AbTEaHAk
+	id S264181AbTEaHEe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 03:04:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264182AbTEaHEe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 03:00:40 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:2432
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S264180AbTEaHAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 03:00:39 -0400
-Date: Sat, 31 May 2003 03:03:39 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: "Brian J. Murrell" <brian@interlinx.bc.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: local apic timer ints not working with vmware: nolocalapic
-In-Reply-To: <pan.2003.05.31.04.41.25.903565@interlinx.bc.ca>
-Message-ID: <Pine.LNX.4.50.0305310302520.31414-100000@montezuma.mastecende.com>
-References: <2C8EEAE5E5C@vcnet.vc.cvut.cz> <20030528173432.GA21379@linux.interlinx.bc.ca>
- <Pine.LNX.4.50.0305281341160.1982-100000@montezuma.mastecende.com>
- <pan.2003.05.30.22.14.35.511205@interlinx.bc.ca>
- <Pine.LNX.4.50.0305301907230.29718-100000@montezuma.mastecende.com>
- <pan.2003.05.31.03.38.16.701826@interlinx.bc.ca> <pan.2003.05.31.04.41.25.903565@interlinx.bc.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 31 May 2003 03:04:34 -0400
+Received: from quechua.inka.de ([193.197.184.2]:45192 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S264181AbTEaHEd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 03:04:33 -0400
+From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5 Documentation/CodingStyle ANSI C function declarations.
+In-Reply-To: <E19Lzpz-00011a-00@calista.inka.de>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.17-20030301 ("Bubbles") (UNIX) (Linux/2.4.20-xfs (i686))
+Message-Id: <E19M0cj-0001CK-00@calista.inka.de>
+Date: Sat, 31 May 2003 09:17:53 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 31 May 2003, Brian J. Murrell wrote:
+In article <E19Lzpz-00011a-00@calista.inka.de> you wrote:
+> /**
+> * foo: - do a foo job
+> * @parameterbar: the bar parameter is used to bar
+> *
+> * Description: This is the long description of the function foo() which
+> *   is closely related to bar()
+> * section header: section description
+> **/
+> int foo(long bar, long baz, struct magic *xyzzy)
 
-> Is it really valid to go and try to calibrate the APIC timer if it was
-> disabled by the user, or even DMI?
+most likely I made an error here:
 
-Nope, could you add me to CC in future messages? It's easier for me to 
-spot messages which need replying.
+/**
+* foo: - do a foo job
+* @bar: the bar parameter is used to bar
+*
+* Description: This is the long description of the function foo() which
+*   is closely related to bar(). @baz may not be 0.
+* section header: section description
+**/
 
-Thanks,
-	Zwane
+Greetings
+Bernd
 -- 
-function.linuxpower.ca
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

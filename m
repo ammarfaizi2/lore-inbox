@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135550AbREBOzA>; Wed, 2 May 2001 10:55:00 -0400
+	id <S135527AbREBO7K>; Wed, 2 May 2001 10:59:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135574AbREBOyu>; Wed, 2 May 2001 10:54:50 -0400
-Received: from norma.kjist.ac.kr ([203.237.41.18]:12673 "EHLO
-	norma.kjist.ac.kr") by vger.kernel.org with ESMTP
-	id <S135550AbREBOym>; Wed, 2 May 2001 10:54:42 -0400
-Date: Wed, 2 May 2001 10:24:18 +0900
-From: Maintaniner on duty <hugh@norma.kjist.ac.kr>
-Message-Id: <200105020124.f421OIG01555@norma.kjist.ac.kr>
-To: andrea@suse.de, linux-kernel@vger.kernel.org
-Subject: Both 2.4.4aa2 and 2.4.4aa3 fail to compile
+	id <S135545AbREBO6u>; Wed, 2 May 2001 10:58:50 -0400
+Received: from ns.suse.de ([213.95.15.193]:9231 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S135527AbREBO6j>;
+	Wed, 2 May 2001 10:58:39 -0400
+Date: Wed, 2 May 2001 16:58:16 +0200
+From: Andi Kleen <ak@suse.de>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Paul J Albrecht <pjalbrecht@home.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Debuggers, KDB or KGDB?
+Message-ID: <20010502165816.A8450@gruyere.muc.suse.de>
+In-Reply-To: <01043016264000.00697@CB57534-A> <18223.988679810@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <18223.988679810@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Tue, May 01, 2001 at 11:16:50AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 01, 2001 at 11:16:50AM +1000, Keith Owens wrote:
+> My ideal debugger is one that combines the internal knowledge of kdb
+> with the source level debugging of gdb.  I know how to do this over a
+> serial line, finding time to write the code is the problem.
 
-With gcc-2.95.2 provided by SuSE-7.0 for Alpha on UP2000 SMP with 2GB memory
+http://pice.sourceforge.net is one approach to it; but it's currently
+a bit limited: e.g. ATM UP-i386-2.2 only and somewhat windowish; also the
+approach only really works for modules not complete kernel sources unless
+you have a *lot* of memory. Still in its limits it works.
 
-
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mno-fp-regs -ffixed-8 -mcpu=ev6 -Wa,-mev6    -c -o extable.o extable.c
-extable.c: In function `search_exception_table_without_gp':
-extable.c:54: `modlist_lock' undeclared (first use in this function)
-extable.c:54: (Each undeclared identifier is reported only once
-extable.c:54: for each function it appears in.)
-make[2]: *** [extable.o] Error 1
-make[2]: Leaving directory `/usr/src/linux/arch/alpha/mm'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/usr/src/linux/arch/alpha/mm'
-make: *** [_dir_arch/alpha/mm] Error 2
-
-
-Regards,
-
-G. Hugh Song
-
-ghsong at kjist dot ac dot kr
+-Andi

@@ -1,80 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130010AbQLYGR2>; Mon, 25 Dec 2000 01:17:28 -0500
+	id <S130117AbQLYHc6>; Mon, 25 Dec 2000 02:32:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130299AbQLYGRS>; Mon, 25 Dec 2000 01:17:18 -0500
-Received: from dfw-smtpout4.email.verio.net ([129.250.36.44]:45957 "EHLO
-	dfw-smtpout4.email.verio.net") by vger.kernel.org with ESMTP
-	id <S130010AbQLYGRH>; Mon, 25 Dec 2000 01:17:07 -0500
-Date: Sun, 24 Dec 2000 23:46:02 -0600
-From: Eric Shattow <radoni@crosswinds.net>
-To: linux-kernel@vger.kernel.org
+	id <S130299AbQLYHcs>; Mon, 25 Dec 2000 02:32:48 -0500
+Received: from cx518206-b.irvn1.occa.home.com ([24.21.107.123]:1040 "EHLO
+	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with ESMTP
+	id <S130117AbQLYHcl>; Mon, 25 Dec 2000 02:32:41 -0500
+From: "Barry K. Nathan" <barryn@cx518206-b.irvn1.occa.home.com>
+Message-Id: <200012250702.XAA01122@cx518206-b.irvn1.occa.home.com>
 Subject: Re: Proposal: devfs names ending in %d or %u
-Reply-To: radoni@crosswinds.net
-In-Reply-To: <20001224192840.A12097@adam.yggdrasil.com>
-In-Reply-To: <20001224192840.A12097@adam.yggdrasil.com>
-X-Mailer: Spruce 0.7.5 for X11 w/smtpio 0.9.0
+To: radoni@crosswinds.net
+Date: Sun, 24 Dec 2000 23:02:39 -0800 (PST)
+Cc: linux-kernel@vger.kernel.org
+Reply-To: barryn@pobox.com
+In-Reply-To: <E14AQT2-0001ud-00@dfw-mmp2.email.verio.net> from "Eric Shattow" at Dec 24, 2000 11:46:02 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E14AQT2-0001ud-00@dfw-mmp2.email.verio.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Dec 2000, Adam J. Richter wrote:
-> 	I propose to change the devfs registration functions
-> to allow registrations of devices ending in %d or %u, in which
-> case it will use the first value, starting at 0, that generates a
-> string that already registered.  So, if I have disc0, disc1, and disc2,
-> and I remove the device containing disc1, then disc1 will be next
-> disc device name to be registered, then disc3, then disc4, etc.
+Eric Shattow wrote:
+[snip]
+> when i insert a FAT formatted disc with a PC partition table, the partition
+> i want to mount is part1.  when i insert a HFS formatted disc with a MAC
+> partition table, the partition i want to mount is part4. this is very ugly,
 
-i use devfs for my computers and i agree that the quasi-consistancy of
-device naming is annoying.  my example is with my scsi zip ext. drive. 
-when i insert a FAT formatted disc with a PC partition table, the partition
-i want to mount is part1.  when i insert a HFS formatted disc with a MAC
-partition table, the partition i want to mount is part4. this is very ugly,
-having to set up two entries in fstab for the same device.  instead of
-messing around with the naming behavior, why not add configuartion options
-to the devfsd daemon?  they could be per-driver/host/device.  maybe i just
-don't see how to do it with the existing system. in the meantime i am just
-setting up a /dev/mntsym/ directory that has symlinks "zip" "cdrom" "dvd",
-etc. when the appropriate modules register, as a quick hack until this is
-resolved.
+and it has nothing to do with devfs. Those would be /dev/sda1 (adjust
+device name for IDE instead of SCSI, etc.) and /dev/sda4 without devfs.
 
-> This will make it a bit simpler to add devfs support to
-> the remaining drivers that do not have it, and it will make
-> numbering within devfs much simpler by default.  Of course, drivers
-> that want to do their own thing the current way would not be impeded
-> from doing so by this change.
+In this case, the problem is that different Zip disks really do have their
+data on different partitions. (If you use enough different disks and
+formatting utilities, it won't even be the same partition for all PC disks
+or all Mac disks, IIRC.) I don't use Zip disks much anymore, although
+there's a similar phenomenon with my SCSI MO drive on my desktop Mac
+(which I recently started using Linux on again).
 
-it is my opinion that drivers should not have to be too specific about
-where their representitive /dev entries end up. i don't know enough about
-internals, but there must be a way to unify the registration of device
-entries. make the drivers register with the devfs system with the default
-informations and specifications, and let the devfs system make those dumb
-null entries or what ever else. it would be yet another layer of
-abstraction, but it might help make the devfs more flexible.
+What would be nice is if there were a way of saying, "here's the disk,
+mount the Right Partition(tm) in /mnt/whatever." For all I know, maybe
+someone's done that already. If not, it seems to me that a userspace
+utility (== no extra kernel bloat) could parse the partition table and use
+some heuristics or something to pick the partition to mount. (I'm probably
+going to do other stuff instead of implementing this, but I haven't
+decided for sure yet.) In any case, I think the solution would be
+completely orthogonal to devfs...
 
-sidenote: i got a new laptop with a serial port and lots of unsupported
-hardware. i went to work hacking away at what i could. i noticed especially
-with devfs, that debugging serial port like /dev/tts/0 is impossible if the
-serial.o driver refuses to load due to an IRQ conflict. if the driver never
-registers/auto_config's, the /dev/tts entries are not there to use.  this
-is of concern, since some device names should be created regardless of
-whether the device is loaded or not.  without the device entries for serial
-ports i was not able to give 'setserial' or 'stty' a proper device name for
-the ports. the PCI standards committee slacked off on the PCI serial spec,
-it is really weak for standards on devices like modems. the serial port is
-a (Xircom MPCI 56) Toshiba internal PCI modem 56, a real modem like i
-always thought would be supported by the serial driver, and yet sits unused
-like the winmodems i was careful to avoid.
-
-that's my dime-and-a-quarter.
-
-Eric Shattow
-radoni@crosswinds.net
-
+-Barry K. Nathan <barryn@pobox.com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

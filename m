@@ -1,50 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278582AbRJ1Q6N>; Sun, 28 Oct 2001 11:58:13 -0500
+	id <S278584AbRJ1RFX>; Sun, 28 Oct 2001 12:05:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278584AbRJ1Q6D>; Sun, 28 Oct 2001 11:58:03 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:50585
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S278582AbRJ1Q5q>; Sun, 28 Oct 2001 11:57:46 -0500
-Date: Sun, 28 Oct 2001 09:58:19 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Alexander Schulz <alex@shark-linux.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] RTC policy questions
-Message-ID: <20011028095819.I15768@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <3BDC331E.50B8DB5E@shark-linux.de>
+	id <S278587AbRJ1RFE>; Sun, 28 Oct 2001 12:05:04 -0500
+Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:33695 "EHLO
+	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S278584AbRJ1RE6>; Sun, 28 Oct 2001 12:04:58 -0500
+Date: Sun, 28 Oct 2001 12:07:21 -0500
+To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
+Subject: VM test on 2.4.14pre3aa2 (compared to 2.4.14pre3aa1)
+Message-ID: <20011028120721.A286@earthlink.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3BDC331E.50B8DB5E@shark-linux.de>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.2.5i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 28, 2001 at 05:32:30PM +0100, Alexander Schulz wrote:
 
-> I am currently working on porting the linux kernel to
-> the Shark, a StrongARM based computer (DNARD from digital)
-> that contains many parts known from PCs.
-[snip]
-3) Re-write/replace drivers/char/rtc.c in 2.5.  This is something I've
-been thinking about for a bit because of the number of 'generic' RTC
-drivers, and how they only vary slighlty.  And then there are some
-hw-specific RTC drivers (efirtc.c) which could be modified to be a
-personality for the new generic rtc driver.  The m68k/APUS version right
-now uses a 'mach_hwclk' which handles the actual get/set bits.  I
-haven't worked out all of the details just yet, but I'm thinking some of
-the arch/hw-specific bits will be in a different file and on a per-arch
-baises on how mach_hwclk is actually done.  Eg PPC would still end up
-calling the right ppc_md version, x86 (and default) would yeild the
-current behavior.
+Summary:	2.4.14pre3aa2 gave oom errors not seen in 2.4.14pre3aa1.
 
-And this all relates to the original post since we could make sure that
-other arches have access to any functions they might need internally.
+Test:	Usual scripts to execute mtest01 and mmap001.  
+	Listen to long mp3 with mp3blaster.
 
-Is there anyone else out there who's been thinking about reworking the
-RTC driver?
+mtest01 -p 80 -w
+================
+
+2.4.14pre3aa1
+
+Averages for 10 mtest01 runs
+bytes allocated:                    1246232576
+User time (seconds):                2.105
+System time (seconds):              2.773
+Elapsed (wall clock) time:          59.503
+Percent of CPU this job got:        7.80
+Major (requiring I/O) page faults:  132.8
+Minor (reclaiming a frame) faults:  305043.1
+
+2.4.14pre3aa2
+
+Averages for 10 mtest01 runs
+bytes allocated:                    1254201753
+User time (seconds):                2.211
+System time (seconds):              2.794
+Elapsed (wall clock) time:          65.176
+Percent of CPU this job got:        7.20
+Major (requiring I/O) page faults:  129.7
+Minor (reclaiming a frame) faults:  306988.9
+
+
+mmap001 -m 500000
+=================
+
+This test worked on 2.4.14pre3aa1, but on 2.4.14pre3aa2, each
+iteration was terminated by signal 9.  Also an irc client I
+had running was killed.  
+
+/var/log/kern.log had these messages:
+
+Oct 28 11:50:24 rushmore kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+Oct 28 11:50:24 rushmore kernel: VM: killing process mmap001
+Oct 28 11:51:07 rushmore kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+Oct 28 11:51:07 rushmore kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+Oct 28 11:51:08 rushmore last message repeated 3 times
+Oct 28 11:51:08 rushmore kernel: VM: killing process bx
+Oct 28 11:51:09 rushmore kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+Oct 28 11:51:12 rushmore kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+Oct 28 11:51:13 rushmore last message repeated 2 times
+Oct 28 11:51:13 rushmore kernel: VM: killing process mmap001
+Oct 28 11:51:47 rushmore kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+Oct 28 11:51:47 rushmore kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+Oct 28 11:51:47 rushmore kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+Oct 28 11:51:47 rushmore kernel: VM: killing process mmap001
+
+
+Hardware:
+AMD Athlon 1333
+512 MB RAM
+1024 MB swap.
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Randy Hron
+

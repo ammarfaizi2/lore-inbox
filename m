@@ -1,153 +1,353 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313044AbSDCDyg>; Tue, 2 Apr 2002 22:54:36 -0500
+	id <S313046AbSDCDwG>; Tue, 2 Apr 2002 22:52:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313048AbSDCDya>; Tue, 2 Apr 2002 22:54:30 -0500
-Received: from CPE-203-51-31-188.nsw.bigpond.net.au ([203.51.31.188]:56706
+	id <S313044AbSDCDvx>; Tue, 2 Apr 2002 22:51:53 -0500
+Received: from CPE-203-51-31-188.nsw.bigpond.net.au ([203.51.31.188]:54146
 	"EHLO wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S313044AbSDCDyT>; Tue, 2 Apr 2002 22:54:19 -0500
+	id <S313045AbSDCDvf>; Tue, 2 Apr 2002 22:51:35 -0500
 From: Rusty Russell <rusty@rustcorp.com.au>
 To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org, asun@cobaltnet.com
-Subject: [PATCH] bitops cleanup 1/4
-Date: Wed, 03 Apr 2002 13:17:54 +1000
-Message-Id: <E16sbHX-0005uQ-00@wagner.rustcorp.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] bitops cleanup 4/4
+Date: Wed, 03 Apr 2002 13:18:40 +1000
+Message-Id: <E16sbIG-0005uo-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply (no object code changes).
+Finally, this actually changes the bitops prototypes for PPC and x86.
 
-This contains all the new/changed casts for set_bit() etc to take an
-unsigned long * without warnings.  Also, pass the actual bitfield
-rather than the whole structure in two cases (pte and open_fds).
-
-Adrian: HFS usage looks suspicious anyway,
 Rusty.
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.7-pre1/mm/swapfile.c working-2.5.7-pre1-bitops/mm/swapfile.c
---- linux-2.5.7-pre1/mm/swapfile.c	Fri Mar  8 14:49:30 2002
-+++ working-2.5.7-pre1-bitops/mm/swapfile.c	Sat Mar 16 12:59:37 2002
-@@ -959,7 +959,7 @@
- 		p->lowest_bit = 0;
- 		p->highest_bit = 0;
- 		for (i = 1 ; i < 8*PAGE_SIZE ; i++) {
--			if (test_bit(i,(char *) swap_header)) {
-+			if (test_bit(i,(unsigned long *) swap_header)) {
- 				if (!p->lowest_bit)
- 					p->lowest_bit = i;
- 				p->highest_bit = i;
-@@ -974,7 +974,7 @@
- 			goto bad_swap;
- 		}
- 		for (i = 1 ; i < maxpages ; i++) {
--			if (test_bit(i,(char *) swap_header))
-+			if (test_bit(i,(unsigned long *) swap_header))
- 				p->swap_map[i] = 0;
- 			else
- 				p->swap_map[i] = SWAP_MAP_BAD;
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.7-pre1/include/asm-ppc/bitops.h working-2.5.7-pre1-bitops/include/asm-ppc/bitops.h
---- linux-2.5.7-pre1/include/asm-ppc/bitops.h	Fri Mar 15 13:00:59 2002
-+++ working-2.5.7-pre1-bitops/include/asm-ppc/bitops.h	Sat Mar 16 12:59:37 2002
-@@ -394,8 +394,8 @@
- 
- #ifdef __KERNEL__
- 
--#define ext2_set_bit(nr, addr)		__test_and_set_bit((nr) ^ 0x18, addr)
--#define ext2_clear_bit(nr, addr)	__test_and_clear_bit((nr) ^ 0x18, addr)
-+#define ext2_set_bit(nr, addr)	__test_and_set_bit((nr) ^ 0x18, (unsigned long *)(addr))
-+#define ext2_clear_bit(nr, addr) __test_and_clear_bit((nr) ^ 0x18, (unsigned long *)(addr))
- 
- static __inline__ int ext2_test_bit(int nr, __const__ void * addr)
- {
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.7-pre1/include/linux/hfs_sysdep.h working-2.5.7-pre1-bitops/include/linux/hfs_sysdep.h
---- linux-2.5.7-pre1/include/linux/hfs_sysdep.h	Fri Mar 15 13:32:10 2002
-+++ working-2.5.7-pre1-bitops/include/linux/hfs_sysdep.h	Sat Mar 16 12:59:37 2002
-@@ -200,16 +200,16 @@
- #endif
- 
- static inline int hfs_clear_bit(int bitnr, hfs_u32 *lword) {
--	return test_and_clear_bit(BITNR(bitnr), lword);
-+	return test_and_clear_bit(BITNR(bitnr), (unsigned long *)lword);
- }
- 
- static inline int hfs_set_bit(int bitnr, hfs_u32 *lword) {
--	return test_and_set_bit(BITNR(bitnr), lword);
-+	return test_and_set_bit(BITNR(bitnr), (unsigned long *)lword);
- }
- 
- static inline int hfs_test_bit(int bitnr, const hfs_u32 *lword) {
- 	/* the kernel should declare the second arg of test_bit as const */
--	return test_bit(BITNR(bitnr), (void *)lword);
-+	return test_bit(BITNR(bitnr), (unsigned long *)lword);
- }
- 
- #undef BITNR
 diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.7-pre1/include/asm-i386/bitops.h working-2.5.7-pre1-bitops/include/asm-i386/bitops.h
 --- linux-2.5.7-pre1/include/asm-i386/bitops.h	Sat Mar 16 13:03:31 2002
 +++ working-2.5.7-pre1-bitops/include/asm-i386/bitops.h	Sat Mar 16 13:48:31 2002
-@@ -469,18 +469,23 @@
+@@ -34,7 +34,7 @@
+  * Note that @nr may be almost arbitrarily large; this function is not
+  * restricted to acting on a single-word quantity.
+  */
+-static __inline__ void set_bit(int nr, volatile void * addr)
++static __inline__ void set_bit(int nr, volatile unsigned long * addr)
+ {
+ 	__asm__ __volatile__( LOCK_PREFIX
+ 		"btsl %1,%0"
+@@ -51,7 +51,7 @@
+  * If it's called on the same region of memory simultaneously, the effect
+  * may be that only one operation succeeds.
+  */
+-static __inline__ void __set_bit(int nr, volatile void * addr)
++static __inline__ void __set_bit(int nr, volatile unsigned long * addr)
+ {
+ 	__asm__(
+ 		"btsl %1,%0"
+@@ -69,7 +69,7 @@
+  * you should call smp_mb__before_clear_bit() and/or smp_mb__after_clear_bit()
+  * in order to ensure changes are visible on other processors.
+  */
+-static __inline__ void clear_bit(int nr, volatile void * addr)
++static __inline__ void clear_bit(int nr, volatile unsigned long * addr)
+ {
+ 	__asm__ __volatile__( LOCK_PREFIX
+ 		"btrl %1,%0"
+@@ -77,7 +77,7 @@
+ 		:"Ir" (nr));
+ }
  
- #ifdef __KERNEL__
+-static __inline__ void __clear_bit(int nr, volatile void * addr)
++static __inline__ void __clear_bit(int nr, volatile unsigned long * addr)
+ {
+ 	__asm__ __volatile__(
+ 		"btrl %1,%0"
+@@ -96,7 +96,7 @@
+  * If it's called on the same region of memory simultaneously, the effect
+  * may be that only one operation succeeds.
+  */
+-static __inline__ void __change_bit(int nr, volatile void * addr)
++static __inline__ void __change_bit(int nr, volatile unsigned long * addr)
+ {
+ 	__asm__ __volatile__(
+ 		"btcl %1,%0"
+@@ -113,7 +113,7 @@
+  * Note that @nr may be almost arbitrarily large; this function is not
+  * restricted to acting on a single-word quantity.
+  */
+-static __inline__ void change_bit(int nr, volatile void * addr)
++static __inline__ void change_bit(int nr, volatile unsigned long * addr)
+ {
+ 	__asm__ __volatile__( LOCK_PREFIX
+ 		"btcl %1,%0"
+@@ -129,7 +129,7 @@
+  * This operation is atomic and cannot be reordered.  
+  * It also implies a memory barrier.
+  */
+-static __inline__ int test_and_set_bit(int nr, volatile void * addr)
++static __inline__ int test_and_set_bit(int nr, volatile unsigned long * addr)
+ {
+ 	int oldbit;
  
--#define ext2_set_bit                 __test_and_set_bit
--#define ext2_clear_bit               __test_and_clear_bit
--#define ext2_test_bit                test_bit
--#define ext2_find_first_zero_bit     find_first_zero_bit
--#define ext2_find_next_zero_bit      find_next_zero_bit
-+#define ext2_set_bit(nr,addr) \
-+	__test_and_set_bit((nr),(unsigned long*)addr)
-+#define ext2_clear_bit(nr, addr) \
-+	__test_and_clear_bit((nr),(unsigned long*)addr)
-+#define ext2_test_bit(nr, addr)      test_bit((nr),(unsigned long*)addr)
-+#define ext2_find_first_zero_bit(addr, size) \
-+	find_first_zero_bit((unsigned long*)addr, size)
-+#define ext2_find_next_zero_bit(addr, size, off) \
-+	find_next_zero_bit((unsigned long*)addr, size, off)
+@@ -149,7 +149,7 @@
+  * If two examples of this operation race, one can appear to succeed
+  * but actually fail.  You must protect multiple accesses with a lock.
+  */
+-static __inline__ int __test_and_set_bit(int nr, volatile void * addr)
++static __inline__ int __test_and_set_bit(int nr, volatile unsigned long * addr)
+ {
+ 	int oldbit;
  
- /* Bitmap functions for the minix filesystem.  */
--#define minix_test_and_set_bit(nr,addr) __test_and_set_bit(nr,addr)
--#define minix_set_bit(nr,addr) __set_bit(nr,addr)
--#define minix_test_and_clear_bit(nr,addr) __test_and_clear_bit(nr,addr)
--#define minix_test_bit(nr,addr) test_bit(nr,addr)
--#define minix_find_first_zero_bit(addr,size) find_first_zero_bit(addr,size)
-+#define minix_test_and_set_bit(nr,addr) __test_and_set_bit(nr,(void*)addr)
-+#define minix_set_bit(nr,addr) __set_bit(nr,(void*)addr)
-+#define minix_test_and_clear_bit(nr,addr) __test_and_clear_bit(nr,(void*)addr)
-+#define minix_test_bit(nr,addr) test_bit(nr,(void*)addr)
-+#define minix_find_first_zero_bit(addr,size) \
-+	find_first_zero_bit((void*)addr,size)
+@@ -168,7 +168,7 @@
+  * This operation is atomic and cannot be reordered.  
+  * It also implies a memory barrier.
+  */
+-static __inline__ int test_and_clear_bit(int nr, volatile void * addr)
++static __inline__ int test_and_clear_bit(int nr, volatile unsigned long * addr)
+ {
+ 	int oldbit;
  
- #endif /* __KERNEL__ */
+@@ -188,7 +188,7 @@
+  * If two examples of this operation race, one can appear to succeed
+  * but actually fail.  You must protect multiple accesses with a lock.
+  */
+-static __inline__ int __test_and_clear_bit(int nr, volatile void * addr)
++static __inline__ int __test_and_clear_bit(int nr, volatile unsigned long *addr)
+ {
+ 	int oldbit;
  
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.7-pre1/include/asm-i386/pgtable.h working-2.5.7-pre1-bitops/include/asm-i386/pgtable.h
---- linux-2.5.7-pre1/include/asm-i386/pgtable.h	Sat Mar 16 13:27:33 2002
-+++ working-2.5.7-pre1-bitops/include/asm-i386/pgtable.h	Sat Mar 16 13:48:37 2002
-@@ -288,10 +288,10 @@
- static inline pte_t pte_mkyoung(pte_t pte)	{ (pte).pte_low |= _PAGE_ACCESSED; return pte; }
- static inline pte_t pte_mkwrite(pte_t pte)	{ (pte).pte_low |= _PAGE_RW; return pte; }
+@@ -200,7 +200,7 @@
+ }
  
--static inline  int ptep_test_and_clear_dirty(pte_t *ptep)	{ return test_and_clear_bit(_PAGE_BIT_DIRTY, ptep); }
--static inline  int ptep_test_and_clear_young(pte_t *ptep)	{ return test_and_clear_bit(_PAGE_BIT_ACCESSED, ptep); }
--static inline void ptep_set_wrprotect(pte_t *ptep)		{ clear_bit(_PAGE_BIT_RW, ptep); }
--static inline void ptep_mkdirty(pte_t *ptep)			{ set_bit(_PAGE_BIT_DIRTY, ptep); }
-+static inline  int ptep_test_and_clear_dirty(pte_t *ptep)	{ return test_and_clear_bit(_PAGE_BIT_DIRTY, &ptep->pte_low); }
-+static inline  int ptep_test_and_clear_young(pte_t *ptep)	{ return test_and_clear_bit(_PAGE_BIT_ACCESSED, &ptep->pte_low); }
-+static inline void ptep_set_wrprotect(pte_t *ptep)		{ clear_bit(_PAGE_BIT_RW, &ptep->pte_low); }
-+static inline void ptep_mkdirty(pte_t *ptep)			{ set_bit(_PAGE_BIT_DIRTY, &ptep->pte_low); }
+ /* WARNING: non atomic and it can be reordered! */
+-static __inline__ int __test_and_change_bit(int nr, volatile void * addr)
++static __inline__ int __test_and_change_bit(int nr, volatile unsigned long *addr)
+ {
+ 	int oldbit;
  
+@@ -219,7 +219,7 @@
+  * This operation is atomic and cannot be reordered.  
+  * It also implies a memory barrier.
+  */
+-static __inline__ int test_and_change_bit(int nr, volatile void * addr)
++static __inline__ int test_and_change_bit(int nr, volatile unsigned long* addr)
+ {
+ 	int oldbit;
+ 
+@@ -239,12 +239,12 @@
+ static int test_bit(int nr, const volatile void * addr);
+ #endif
+ 
+-static __inline__ int constant_test_bit(int nr, const volatile void * addr)
++static __inline__ int constant_test_bit(int nr, const volatile unsigned long * addr)
+ {
+ 	return ((1UL << (nr & 31)) & (((const volatile unsigned int *) addr)[nr >> 5])) != 0;
+ }
+ 
+-static __inline__ int variable_test_bit(int nr, volatile void * addr)
++static __inline__ int variable_test_bit(int nr, volatile unsigned long * addr)
+ {
+ 	int oldbit;
+ 
+@@ -268,7 +268,7 @@
+  * Returns the bit-number of the first zero bit, not the number of the byte
+  * containing a bit.
+  */
+-static __inline__ int find_first_zero_bit(void * addr, unsigned size)
++static __inline__ int find_first_zero_bit(unsigned long * addr, unsigned size)
+ {
+ 	int d0, d1, d2;
+ 	int res;
+@@ -300,7 +300,7 @@
+  * Returns the bit-number of the first set bit, not the number of the byte
+  * containing a bit.
+  */
+-static __inline__ int find_first_bit(void * addr, unsigned size)
++static __inline__ int find_first_bit(unsigned long * addr, unsigned size)
+ {
+ 	int d0, d1;
+ 	int res;
+@@ -326,7 +326,7 @@
+  * @offset: The bitnumber to start searching at
+  * @size: The maximum size to search
+  */
+-static __inline__ int find_next_zero_bit (void * addr, int size, int offset)
++static __inline__ int find_next_zero_bit(unsigned long * addr, int size, int offset)
+ {
+ 	unsigned long * p = ((unsigned long *) addr) + (offset >> 5);
+ 	int set = 0, bit = offset & 31, res;
+@@ -359,9 +359,9 @@
+  * @offset: The bitnumber to start searching at
+  * @size: The maximum size to search
+  */
+-static __inline__ int find_next_bit(void * addr, int size, int offset)
++static __inline__ int find_next_bit(unsigned long *addr, int size, int offset)
+ {
+-	unsigned long * p = ((unsigned long *) addr) + (offset >> 5);
++	unsigned long * p = addr + (offset >> 5);
+ 	int set = 0, bit = offset & 31, res;
+ 
+ 	if (bit) {
+@@ -382,7 +382,7 @@
+ 	/*
+ 	 * No set bit yet, search remaining full words for a bit
+ 	 */
+-	res = find_first_bit (p, size - 32 * (p - (unsigned long *) addr));
++	res = find_first_bit (p, size - 32 * (p - addr));
+ 	return (offset + set + res);
+ }
+ 
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.7-pre1/include/asm-ppc/bitops.h working-2.5.7-pre1-bitops/include/asm-ppc/bitops.h
+--- linux-2.5.7-pre1/include/asm-ppc/bitops.h	Fri Mar 15 13:00:59 2002
++++ working-2.5.7-pre1-bitops/include/asm-ppc/bitops.h	Sat Mar 16 12:59:37 2002
+@@ -30,7 +30,7 @@
+  * These used to be if'd out here because using : "cc" as a constraint
+  * resulted in errors from egcs.  Things appear to be OK with gcc-2.95.
+  */
+-static __inline__ void set_bit(int nr, volatile void * addr)
++static __inline__ void set_bit(int nr, volatile unsigned long * addr)
+ {
+ 	unsigned long old;
+ 	unsigned long mask = 1 << (nr & 0x1f);
+@@ -50,7 +50,7 @@
  /*
-  * Conversion functions: convert a page and protection to a page entry,
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.7-pre1/fs/open.c working-2.5.7-pre1-bitops/fs/open.c
---- linux-2.5.7-pre1/fs/open.c	Fri Mar  8 14:49:26 2002
-+++ working-2.5.7-pre1-bitops/fs/open.c	Sat Mar 16 12:59:37 2002
-@@ -704,7 +704,7 @@
- 	write_lock(&files->file_lock);
+  * non-atomic version
+  */
+-static __inline__ void __set_bit(int nr, volatile void *addr)
++static __inline__ void __set_bit(int nr, volatile unsigned long *addr)
+ {
+ 	unsigned long mask = 1 << (nr & 0x1f);
+ 	unsigned long *p = ((unsigned long *)addr) + (nr >> 5);
+@@ -64,7 +64,7 @@
+ #define smp_mb__before_clear_bit()	smp_mb()
+ #define smp_mb__after_clear_bit()	smp_mb()
  
- repeat:
-- 	fd = find_next_zero_bit(files->open_fds, 
-+ 	fd = find_next_zero_bit(files->open_fds->fds_bits, 
- 				files->max_fdset, 
- 				files->next_fd);
+-static __inline__ void clear_bit(int nr, volatile void *addr)
++static __inline__ void clear_bit(int nr, volatile unsigned long *addr)
+ {
+ 	unsigned long old;
+ 	unsigned long mask = 1 << (nr & 0x1f);
+@@ -84,7 +84,7 @@
+ /*
+  * non-atomic version
+  */
+-static __inline__ void __clear_bit(int nr, volatile void *addr)
++static __inline__ void __clear_bit(int nr, volatile unsigned long *addr)
+ {
+ 	unsigned long mask = 1 << (nr & 0x1f);
+ 	unsigned long *p = ((unsigned long *)addr) + (nr >> 5);
+@@ -92,7 +92,7 @@
+ 	*p &= ~mask;
+ }
  
+-static __inline__ void change_bit(int nr, volatile void *addr)
++static __inline__ void change_bit(int nr, volatile unsigned long *addr)
+ {
+ 	unsigned long old;
+ 	unsigned long mask = 1 << (nr & 0x1f);
+@@ -112,7 +112,7 @@
+ /*
+  * non-atomic version
+  */
+-static __inline__ void __change_bit(int nr, volatile void *addr)
++static __inline__ void __change_bit(int nr, volatile unsigned long *addr)
+ {
+ 	unsigned long mask = 1 << (nr & 0x1f);
+ 	unsigned long *p = ((unsigned long *)addr) + (nr >> 5);
+@@ -123,7 +123,7 @@
+ /*
+  * test_and_*_bit do imply a memory barrier (?)
+  */
+-static __inline__ int test_and_set_bit(int nr, volatile void *addr)
++static __inline__ int test_and_set_bit(int nr, volatile unsigned long *addr)
+ {
+ 	unsigned int old, t;
+ 	unsigned int mask = 1 << (nr & 0x1f);
+@@ -146,7 +146,7 @@
+ /*
+  * non-atomic version
+  */
+-static __inline__ int __test_and_set_bit(int nr, volatile void *addr)
++static __inline__ int __test_and_set_bit(int nr, volatile unsigned long *addr)
+ {
+ 	unsigned long mask = 1 << (nr & 0x1f);
+ 	unsigned long *p = ((unsigned long *)addr) + (nr >> 5);
+@@ -156,7 +156,7 @@
+ 	return (old & mask) != 0;
+ }
+ 
+-static __inline__ int test_and_clear_bit(int nr, volatile void *addr)
++static __inline__ int test_and_clear_bit(int nr, volatile unsigned long *addr)
+ {
+ 	unsigned int old, t;
+ 	unsigned int mask = 1 << (nr & 0x1f);
+@@ -179,7 +179,7 @@
+ /*
+  * non-atomic version
+  */
+-static __inline__ int __test_and_clear_bit(int nr, volatile void *addr)
++static __inline__ int __test_and_clear_bit(int nr, volatile unsigned long *addr)
+ {
+ 	unsigned long mask = 1 << (nr & 0x1f);
+ 	unsigned long *p = ((unsigned long *)addr) + (nr >> 5);
+@@ -189,7 +189,7 @@
+ 	return (old & mask) != 0;
+ }
+ 
+-static __inline__ int test_and_change_bit(int nr, volatile void *addr)
++static __inline__ int test_and_change_bit(int nr, volatile unsigned long *addr)
+ {
+ 	unsigned int old, t;
+ 	unsigned int mask = 1 << (nr & 0x1f);
+@@ -212,7 +212,7 @@
+ /*
+  * non-atomic version
+  */
+-static __inline__ int __test_and_change_bit(int nr, volatile void *addr)
++static __inline__ int __test_and_change_bit(int nr, volatile unsigned long *addr)
+ {
+ 	unsigned long mask = 1 << (nr & 0x1f);
+ 	unsigned long *p = ((unsigned long *)addr) + (nr >> 5);
+@@ -222,7 +222,7 @@
+ 	return (old & mask) != 0;
+ }
+ 
+-static __inline__ int test_bit(int nr, __const__ volatile void *addr)
++static __inline__ int test_bit(int nr, __const__ volatile unsigned long *addr)
+ {
+ 	__const__ unsigned int *p = (__const__ unsigned int *) addr;
+ 
+@@ -230,7 +230,7 @@
+ }
+ 
+ /* Return the bit position of the most significant 1 bit in a word */
+-static __inline__ int __ilog2(unsigned int x)
++static __inline__ int __ilog2(unsigned long x)
+ {
+ 	int lz;
+ 
+@@ -238,7 +238,7 @@
+ 	return 31 - lz;
+ }
+ 
+-static __inline__ int ffz(unsigned int x)
++static __inline__ int ffz(unsigned long x)
+ {
+ 	if ((x = ~x) == 0)
+ 		return 32;
+@@ -296,7 +296,7 @@
+  * @offset: The bitnumber to start searching at
+  * @size: The maximum size to search
+  */
+-static __inline__ unsigned long find_next_bit(void *addr,
++static __inline__ unsigned long find_next_bit(unsigned long *addr,
+ 	unsigned long size, unsigned long offset)
+ {
+ 	unsigned int *p = ((unsigned int *) addr) + (offset >> 5);
+@@ -353,7 +353,7 @@
+ #define find_first_zero_bit(addr, size) \
+ 	find_next_zero_bit((addr), (size), 0)
+ 
+-static __inline__ unsigned long find_next_zero_bit(void * addr,
++static __inline__ unsigned long find_next_zero_bit(unsigned long * addr,
+ 	unsigned long size, unsigned long offset)
+ {
+ 	unsigned int * p = ((unsigned int *) addr) + (offset >> 5);

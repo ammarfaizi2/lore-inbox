@@ -1,61 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318958AbSIIWW6>; Mon, 9 Sep 2002 18:22:58 -0400
+	id <S318986AbSIIWg4>; Mon, 9 Sep 2002 18:36:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318944AbSIIWV1>; Mon, 9 Sep 2002 18:21:27 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:17419 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S318945AbSIIWTw>;
-	Mon, 9 Sep 2002 18:19:52 -0400
-Date: Mon, 9 Sep 2002 15:21:42 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [BK PATCH] PCI hotplug changes for 2.5.34
-Message-ID: <20020909222142.GM7433@kroah.com>
-References: <20020909221627.GE7433@kroah.com> <20020909221955.GG7433@kroah.com> <20020909222016.GH7433@kroah.com> <20020909222037.GI7433@kroah.com> <20020909222057.GJ7433@kroah.com> <20020909222112.GK7433@kroah.com> <20020909222128.GL7433@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020909222128.GL7433@kroah.com>
-User-Agent: Mutt/1.4i
+	id <S318987AbSIIWg4>; Mon, 9 Sep 2002 18:36:56 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:65533 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S318986AbSIIWgu>;
+	Mon, 9 Sep 2002 18:36:50 -0400
+Date: Mon, 9 Sep 2002 15:41:25 -0700
+From: David Mosberger <davidm@napali.hpl.hp.com>
+Message-Id: <200209092241.g89MfPS5001013@napali.hpl.hp.com>
+To: linux-kernel@vger.kernel.org
+cc: rguenth@tat.physik.uni-tuebingen.de
+Subject: [RFC] small binfmt_misc patch
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Reply-to: davidm@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.630   -> 1.631  
-#	drivers/hotplug/pci_hotplug.h	1.1     -> 1.2    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/09/09	greg@kroah.com	1.631
-# PCI Hotplug: remove pci_*_nodev() prototypes as the functions are gone.
-# 
-# The pci_bus_* functions should be used instead.
-# --------------------------------------------
-#
-diff -Nru a/drivers/hotplug/pci_hotplug.h b/drivers/hotplug/pci_hotplug.h
---- a/drivers/hotplug/pci_hotplug.h	Mon Sep  9 15:09:32 2002
-+++ b/drivers/hotplug/pci_hotplug.h	Mon Sep  9 15:09:32 2002
-@@ -141,20 +141,5 @@
- 				 struct pci_dev_wrapped *wrapped_dev,
- 				 struct pci_bus_wrapped *wrapped_parent);
+The binfmt_misc format currently has the property that the argv[1]
+string passed to the interpreter consists of the fully qualified path
+to the script that is to be interpreted.  AFAIK, there is no way for
+the interpreter to retrieve/reconstruct the original value of argv[1]
+(as it existed at the time execve() was invoked).  This is a problem
+for simulators (such as the Ski simulator for ia64) because there are
+programs that expect certain values in argv[1] (yes, you could argue
+that such programs are broken, but that's a different topic: we still
+need to be able to run such "broken" programs under a simulator).  The
+patch below is a proposal to optionally change the behavior of
+binfmt_misc so that it preserves the original value of argv[1].
+
+The idea is as follows: by default, the standard behavior applies.  To
+request the alternate behavior, the character "P" (for "preserve") is
+added to the end of the binfmt_misc registration string.
+
+For example, consider the case:
+
+	execve("ls", {"arg0", "arg1", NULL}, envp);
+
+If this execve() were to be redirected to the "ski" interpreter,
+binfmt_misc would normally invoke it like this:
+
+	argv[0] = /usr/bin/ski
+	argv[1] = /bin/ls
+	argv[2] = "arg1"
+
+With the alternate behavior, "ski" would be invoked as:
+
+	argv[0] = /usr/bin/ski
+	argv[1] = /bin/ls
+	argv[2] = arg0
+	argv[3] = arg1
+
+In other words, this way, an interpreter has access both to the full
+path (as determined by the kernel) and the original value of arg0.
+(Obviously the interpreter needs to know whether the binfmt_misc
+registration occurred with or without 'P', but that's the
+interpreter's problem and we can deal with that.)
+
+Comments?
+
+	--david
+
+--- a/fs/binfmt_misc.c	Mon Aug 19 11:44:32 2002
++++ b/fs/binfmt_misc.c	Sun Aug 25 10:07:41 2002
+@@ -35,6 +35,7 @@
+ static int enabled = 1;
  
--extern int pci_read_config_byte_nodev	(struct pci_ops *ops, u8 bus, u8 device,
--					 u8 function, int where, u8 *val);
--extern int pci_read_config_word_nodev	(struct pci_ops *ops, u8 bus, u8 device,
--					 u8 function, int where, u16 *val);
--extern int pci_read_config_dword_nodev	(struct pci_ops *ops, u8 bus, u8 device,
--					 u8 function, int where, u32 *val);
--
--extern int pci_write_config_byte_nodev	(struct pci_ops *ops, u8 bus, u8 device,
--					 u8 function, int where, u8 val);
--extern int pci_write_config_word_nodev	(struct pci_ops *ops, u8 bus, u8 device,
--					 u8 function, int where, u16 val);
--extern int pci_write_config_dword_nodev	(struct pci_ops *ops, u8 bus, u8 device,
--					 u8 function, int where, u32 val);
--
--
- #endif
+ enum {Enabled, Magic};
++#define MISC_FMT_PRESERVE_ARGV0 (1<<31)
  
+ typedef struct {
+ 	struct list_head list;
+@@ -121,7 +122,9 @@
+ 	bprm->file = NULL;
+ 
+ 	/* Build args for interpreter */
+-	remove_arg_zero(bprm);
++	if (!(fmt->flags & MISC_FMT_PRESERVE_ARGV0)) {
++		remove_arg_zero(bprm);
++	}
+ 	retval = copy_strings_kernel(1, &bprm->filename, bprm);
+ 	if (retval < 0) goto _ret; 
+ 	bprm->argc++;
+@@ -287,6 +290,11 @@
+ 	if (!e->interpreter[0])
+ 		goto Einval;
+ 
++	if (*p == 'P') {
++		p++;
++		e->flags |= MISC_FMT_PRESERVE_ARGV0;
++	}
++
+ 	if (*p == '\n')
+ 		p++;
+ 	if (p != buf + count)

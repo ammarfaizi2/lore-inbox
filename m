@@ -1,58 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277244AbRJVRek>; Mon, 22 Oct 2001 13:34:40 -0400
+	id <S277264AbRJVRii>; Mon, 22 Oct 2001 13:38:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277214AbRJVRdW>; Mon, 22 Oct 2001 13:33:22 -0400
-Received: from [209.195.52.30] ([209.195.52.30]:29446 "HELO [209.195.52.30]")
-	by vger.kernel.org with SMTP id <S277230AbRJVRcd>;
-	Mon, 22 Oct 2001 13:32:33 -0400
-Date: Mon, 22 Oct 2001 09:11:16 -0700 (PDT)
-From: David Lang <dlang@diginsite.com>
-To: rgammans@computer-surgery.co.uk
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre10
-In-Reply-To: <20011022140703.A7305@knuth.computer-surgery.co.uk>
-Message-ID: <Pine.LNX.4.40.0110220910430.12024-100000@dlang.diginsite.com>
+	id <S277258AbRJVRhV>; Mon, 22 Oct 2001 13:37:21 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26380 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277246AbRJVRgP>; Mon, 22 Oct 2001 13:36:15 -0400
+Subject: Re: Linux 2.2.20pre11
+To: davem@redhat.com (David S. Miller)
+Date: Mon, 22 Oct 2001 18:42:34 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk, greg@kroah.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20011022.103038.85410182.davem@redhat.com> from "David S. Miller" at Oct 22, 2001 10:30:38 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15vj5u-0002iQ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-and how can you dare send the source code or patches to the US in that
-case, it's the same info in a different form.
+> 1) publish a patch (ie. telling us all the changes)
+> 2) describe the set of changes which are not security
+>    related (ie. telling us the non-security related
+>    changes)
+> 
+> By deduction aren't you in fact "telling us what the secutiry related
+> changes are"? :-)
 
-David Lang
+Not directly, and if you have enough skill to work through the code you
+could do so anyway. Whether reading the source code for that purpose is
+legal I don't know.
 
-On Mon, 22 Oct 2001, Roger Gammans wrote:
+Have fun
 
-> Date: Mon, 22 Oct 2001 14:07:03 +0100
-> From: Roger Gammans <roger@computer-surgery.co.uk>
-> Reply-To: rgammans@computer-surgery.co.uk
-> To: linux-kernel@vger.kernel.org
-> Subject: Re: Linux 2.2.20pre10
->
-> On Mon, Oct 22, 2001 at 01:30:00PM +0100, Alan Cox wrote:
-> > > This would then presumably lead to password protected access for US kernel
-> > > developers that need to know? And some kind of NDA?
-> >
-> > US kernel developers cannot be told. Period.
->
-> Huh, US resident or US citizens?
->
-> If US resident , does that mean we can't send security patches to
-> Linus.
->
-> *shakes head*
->
-> TTFN
-> --
-> Roger.
-> 	ashes and diamond,
-> 	foe and friend,
-> 	we _are_ all equal in the end. -- Pink Floyd
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Alan

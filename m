@@ -1,52 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264894AbRFTPNF>; Wed, 20 Jun 2001 11:13:05 -0400
+	id <S264896AbRFTPPy>; Wed, 20 Jun 2001 11:15:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264895AbRFTPMz>; Wed, 20 Jun 2001 11:12:55 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:50123 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S264894AbRFTPMj>;
-	Wed, 20 Jun 2001 11:12:39 -0400
-Message-ID: <3B30BD5D.153A5FE9@candelatech.com>
-Date: Wed, 20 Jun 2001 08:12:29 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Aaron Lehmann <aaronl@vitelus.com>
-CC: hps@intermeta.de, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Threads, inelegance, and Java
-In-Reply-To: <20010620042544.E24183@vitelus.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264897AbRFTPPp>; Wed, 20 Jun 2001 11:15:45 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:61149 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S264896AbRFTPPf>;
+	Wed, 20 Jun 2001 11:15:35 -0400
+Date: Wed, 20 Jun 2001 17:15:33 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200106201515.RAA344053.aeb@vlet.cwi.nl>
+To: linux-kernel@vger.kernel.org
+Subject: gendisk stuff
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aaron Lehmann wrote:
-> 
-> On Wed, Jun 20, 2001 at 09:00:47AM +0000, Henning P. Schmiedehausen wrote:
-> > Just the fact that some people use Java (or any other language) does
-> > not mean, that they don't care about "performance, system-design or
-> > any elegance whatsoever" [2].
-> 
-> However, the very concept of Java encourages not caring about
-> "performance, system-design or any elegance whatsoever". If you cared
+On ftp.kernel.org under kernel/people/aeb two files
+03-2.4.6pre3-remove-real_devices and 04-2.4.6pre3-remove-max_p
+that remove the fields real_devices and max_p from a struct gendisk
+(and initialize such structs with the field: syntax).
+The patches could be applied today, except that probably the
+definition of the struct itself should stay unchanged in case
+it is used in modules that live outside the kernel.
 
-System-design and elegance are easy to get
-in Java, and in fact are independent of language.  Good c code will beat
-Java in most cases, performance wise, but lately the difference has become
-small enough not to matter for most applications.  Speed is not the most
-important feature in a great many programs, otherwise we'd all be using
-assembly still.
-
-> about any of those things you would compile to native code (it exists
-> for a reason). Need run-anywhere support? Distribute sources instead.
-
-When was the last time you wrote a large cross-platform GUI that just
-worked on other platforms, without any additional tweaking, after you
-developed it on your Linux machine?
-
--- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+Andries

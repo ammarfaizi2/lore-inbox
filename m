@@ -1,35 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284138AbRLGR7P>; Fri, 7 Dec 2001 12:59:15 -0500
+	id <S282893AbRLGSDZ>; Fri, 7 Dec 2001 13:03:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282893AbRLGR7G>; Fri, 7 Dec 2001 12:59:06 -0500
-Received: from ns.suse.de ([213.95.15.193]:38152 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S282878AbRLGR6s>;
-	Fri, 7 Dec 2001 12:58:48 -0500
-Date: Fri, 7 Dec 2001 18:58:47 +0100
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: horrible disk thorughput on itanium
-Message-ID: <20011207185847.A20876@wotan.suse.de>
-In-Reply-To: <p73n10v6spi.fsf@amdsim2.suse.de> <Pine.LNX.4.33.0112070941330.8465-100000@penguin.transmeta.com>
+	id <S282904AbRLGSDP>; Fri, 7 Dec 2001 13:03:15 -0500
+Received: from stine.vestdata.no ([195.204.68.10]:28575 "EHLO
+	stine.vestdata.no") by vger.kernel.org with ESMTP
+	id <S282893AbRLGSDI>; Fri, 7 Dec 2001 13:03:08 -0500
+Date: Fri, 7 Dec 2001 19:03:01 +0100
+From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <reiserfs@ragnark.vestdata.no>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
+        reiserfs-dev@namesys.com
+Subject: Re: [reiserfs-dev] Re: Ext2 directory index: ALS paper and benchmarks
+Message-ID: <20011207190301.C6640@vestdata.no>
+In-Reply-To: <E16BjYc-0000hS-00@starship.berlin> <E16CNHk-0000u4-00@starship.berlin> <20011207174726.B6640@vestdata.no> <E16CP0X-0000uE-00@starship.berlin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0112070941330.8465-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.22.1i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16CP0X-0000uE-00@starship.berlin>; from phillips@bonn-fries.net on Fri, Dec 07, 2001 at 06:41:53PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You can be thread-safe without sucking dead baby donkeys through a straw.
-> I already mentioned two possible ways to fix it so that you have locking
-> when you need to, and no locking when you don't.
+On Fri, Dec 07, 2001 at 06:41:53PM +0100, Daniel Phillips wrote:
+> I've observed disk cache effects with Ext2, the relevant relationship being 
+> directory entry order vs inode order.  Layout of the index itself doesn't 
+> seem to matter much because of its small size, and 'popularity', which tends 
+> to keep it in cache.
 
-Your proposals sound rather dangerous. They would silently break recompiled
-threaded programs that need the locking and don't use -D__REENTRANT (most
-people do not seem to use it). I doubt the possible pain from that is 
-worth it for speeding up an basically obsolete interface like putc. 
+Exactly.
 
-i.e. if someone wants speed they definitely shouldn't use putc()
+And if the files have data in them (all my tests were done with files
+with bodies) then there is a third data-type (the allocated blocks)
+whose order compared to the entry-order and the inode-order also
+matters.
 
--Andi
+> With ReiserFS we see slowdown due to random access even with small 
+> directories.  I don't think this is a cache effect.
+
+I can't see why the benefit from read-ahead on the file-data should be
+affected by the directory-size?
+
+
+I forgot to mention another important effect of hash-ordering:
+If you mostly add new files to the directory it is far less work if you
+almost always can add the new entry at the end rather than insert it in
+the middle. Well, it depends on your implementation of course, but this
+effect is quite noticable on reiserfs. When untaring a big directory of
+maildir the performance difference between the tea hash and a special
+maildir hash was approxemately 20%. The choice of hash should not affect
+the performance on writing the data itself, so it has to be related to
+the cost of the insert operation.
+
+
+
+
+-- 
+Ragnar Kjørstad
+Big Storage

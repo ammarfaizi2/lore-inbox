@@ -1,75 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262520AbVAZXbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262457AbVAZXUc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262520AbVAZXbc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 18:31:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbVAZXU7
+	id S262457AbVAZXUc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 18:20:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbVAZXTS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:20:59 -0500
-Received: from dspnet.fr.eu.org ([62.73.5.179]:16143 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S261583AbVAZSKJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 13:10:09 -0500
-Date: Wed, 26 Jan 2005 19:10:06 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: linux-os <linux-os@analogic.com>
-Cc: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, James Antill <james.antill@redhat.com>,
-       Bryn Reeves <breeves@redhat.com>
-Subject: Re: don't let mmap allocate down to zero
-Message-ID: <20050126181006.GA80759@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	linux-os <linux-os@analogic.com>, Rik van Riel <riel@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	James Antill <james.antill@redhat.com>,
-	Bryn Reeves <breeves@redhat.com>
-References: <Pine.LNX.4.61.0501261116140.5677@chimarrao.boston.redhat.com> <Pine.LNX.4.61.0501261130130.17993@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0501261130130.17993@chaos.analogic.com>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 26 Jan 2005 18:19:18 -0500
+Received: from gizmo01ps.bigpond.com ([144.140.71.11]:34696 "HELO
+	gizmo01ps.bigpond.com") by vger.kernel.org with SMTP
+	id S262456AbVAZR6I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 12:58:08 -0500
+Message-ID: <41F7DA1B.5060806@bigpond.net.au>
+Date: Thu, 27 Jan 2005 04:57:47 +1100
+From: Cal <hihone@bigpond.net.au>
+Reply-To: hihone@bigpond.net.au
+User-Agent: Mozilla Thunderbird 0.6+ (X11/20050122)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Jack O'Quin" <joq@io.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux <linux-kernel@vger.kernel.org>,
+       CK Kernel <ck@vds.kolivas.org>
+Subject: Re: [ck] [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU feature, -D7
+References: <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>	<87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>	<87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu>	<20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu>	<41F6C5CE.9050303@bigpond.net.au> <41F6C797.80403@bigpond.net.au>	<20050126100846.GB8720@elte.hu> <41F7C2CA.2080107@bigpond.net.au> <87acqwnnx1.fsf@sulphur.joq.us>
+In-Reply-To: <87acqwnnx1.fsf@sulphur.joq.us>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Bogosity: Ham, tests=bogofilter, spamicity=0.000000, version=0.93.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 26, 2005 at 11:38:15AM -0500, linux-os wrote:
-> On Wed, 26 Jan 2005, Rik van Riel wrote:
+Jack O'Quin wrote:
+> I notice that JACK's call to mlockall() is failing.  This is one
+> difference between your system and mine (plus, my machine is UP).  
 > 
-> >With some programs the 2.6 kernel can end up allocating memory
-> >at address zero, for a non-MAP_FIXED mmap call!  This causes
-> >problems with some programs and is generally rude to do. This
-> >simple patch fixes the problem in my tests.
-> 
-> Does this mean that we can't mmap the screen regen buffer at
-> 0x000b8000 anymore?
+> As an experiment, you might try testing with `ulimit -l unlimited'.
 
-No.  Missed the "non-MAP_FIXED" part?  You can always map at 0, you
-just have to ask for it.
+I went for the panic retraction on the first report when I saw the 
+failures in the log.  With ulimit -l unlimited, jack seems happier. 
+Before the change, ulimit -l showed 32.
 
+At what feels like approaching the end of the run, it still goes clunk - 
+totally so, dead and gone!
 
-> What 'C' standard do you refer to?
+<http://www.graggrag.com/200501270420-oops/>
 
-Malloc uses mmap to get more memory.  Malloc returning 0 means no
-memory, not "the memory happens to be at 0".  Not that easy to fix in
-the glibc if you want to keep the "segfault on null pointer accesses"
-debugging help too.
+I'll re-read the mails that have gone by, and think about the next step.
 
-Given that the man page itself says that unless you're using MAP_FIXED
-start is only a hint and you should use 0 if you don't care things can
-get real annoying real fast.  Imagine if you want to mmap a <4K file
-and mmap then returns 0, i.e. NULL, as the mapping address as you
-asked.  It's illegal from the point of view of susv3[1] and it's real
-annoying in a C/C++ program.
-
-  OG.
-
-[1]
-  When MAP_FIXED is not set, the implementation uses addr in an
-  implementation-defined manner to arrive at pa. The pa so chosen
-  shall be an area of the address space that the implementation deems
-  suitable for a mapping of len bytes to the file. All implementations
-  interpret an addr value of 0 as granting the implementation complete
-  freedom in selecting pa, subject to constraints described below. A
-  non-zero value of addr is taken to be a suggestion of a process
-  address near which the mapping should be placed. When the
-  implementation selects a value for pa, it never places a mapping at
-  address 0, nor does it replace any extant mapping.
+cheers, Cal

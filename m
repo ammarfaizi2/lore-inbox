@@ -1,71 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132186AbRDTXxq>; Fri, 20 Apr 2001 19:53:46 -0400
+	id <S132226AbRDTXzg>; Fri, 20 Apr 2001 19:55:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132226AbRDTXxj>; Fri, 20 Apr 2001 19:53:39 -0400
-Received: from stanis.onastick.net ([207.96.1.49]:28426 "EHLO
-	stanis.onastick.net") by vger.kernel.org with ESMTP
-	id <S132186AbRDTXxC>; Fri, 20 Apr 2001 19:53:02 -0400
-Date: Fri, 20 Apr 2001 19:52:53 -0400
-From: Disconnect <lkml@sigkill.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Athlon problem report summary
-Message-ID: <20010420195253.A20176@sigkill.net>
-In-Reply-To: <E14p894-00009E-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14p894-00009E-00@the-village.bc.nu>
+	id <S132281AbRDTXz1>; Fri, 20 Apr 2001 19:55:27 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:23815 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S132226AbRDTXx6>; Fri, 20 Apr 2001 19:53:58 -0400
+Date: Sat, 21 Apr 2001 01:53:42 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Dennis <dennis@etinc.com>
+cc: Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
+Subject: Re: SMP in 2.4
+In-Reply-To: <5.0.2.1.0.20010418182619.0364e1d0@mail.etinc.com>
+Message-ID: <Pine.LNX.3.96.1010421013436.8002A-100000@artax.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Addendum to 1. So far everyone (at least on LKML) who has had the
-crash-immediatly-do-not-pass-go issues has been using an iwill kk266 (or
-kk266r, IIRC) mobo.
+> I was referring to the infamous CLI/STI combinations that are more 
+> analogous to spinlocks than anything you are talking about. spl levels are 
+> clean and transparent and have been doing a very nice job in  helping to 
+> avoid race conditions in real unix systems for quite some time now.
 
-Have we gotten any fix, other than not using K7 optimizations?
+It has nothing to do with smp ;)
 
-I'm willing to keep trying new patches, if necessary.  (And for that
-matter, the box is on dialup behind masq, but if you are interested I can
-set up an account.  No serial console, no remote power cycle, so I'm not
-sure how much good it'll do, but it's an option if you want/need it.)
+spl levels are actually faster, because hardware interrupt locking
+routines are poorly optimized in processors.
 
-On Mon, 16 Apr 2001, Alan Cox did have cause to say:
+I looked at P-6 instruction timing table and found:
 
-> There appear to be two common threads to this
-> 
-> 1.  'It runs if I don't use Athlon optimisations'
-> 
-> This one is compiler independant. It seems to be unrelated to obvious 
-> candidates like vesafb. It isnt related to CPU version. Every victim has a 
-> VIA chipset machine.
-> 
-> 
-> 2.  'My athlon box is fine until I am swapping' {and using DMA}
-> 
-> Compiler independant, CPU version independant. All victims have a VIA chipset.
-> This one may be linked to the reported problems with VIA PCI. Two of the 
-> reporters found disabling IDE DMA fixed this one
-> 
-> 
-> Nobody using an AMD chipset has reported either problem.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
----
-   _.-=<Disconnect>=-._
-|     dis@sigkill.net    | And Remember...
-\  shawn@healthcite.com  / He who controls Purple controls the Universe..
- PGP Key given on Request  Or at least the Purple parts!
+PUSHF	16 upos
+POPF	17 uops
+CLI	9 uops
+STI	17 uops
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1 [www.ebb.org/ungeek]
-GIT/CC/CM/AT d--(-)@ s+:-- a-->? C++++$ ULBS*++++$ P+>+++ L++++>+++++ 
-E--- W+++ N+@ o+>$ K? w--->+++++ O- M V-- PS+() PE Y+@ PGP++() t 5--- 
-X-- R tv+@ b++++>$ DI++++ D++(+++) G++ e* h(-)* r++ y++
-------END GEEK CODE BLOCK------
+I think soft interrupt locks like this would be better (at least on i386):
+
+cli:
+	movb $0, intr_lock
+
+sti:
+	movb $1, intr_lock
+	testb $1, intr_pending
+	jnz somewhere_away_to_handle_defered_interrupt
+
+save_flags:
+	movb intr_lock, %al
+
+restore_flags:
+	movb %al, intr_lock
+	testb %al, intr_pending
+	jnz somewhere_away_to_handle_defered_interrupt
+
+And - of course - interrupt checks intr_lock in its entry and if it is
+zero, sets intr_pending and exits immediatelly.
+
+Mikulas
+

@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270861AbTGVRca (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 13:32:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270883AbTGVRca
+	id S270929AbTGVRey (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 13:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270932AbTGVRey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 13:32:30 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:51964 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S270861AbTGVRca
+	Tue, 22 Jul 2003 13:34:54 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:20352 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S270929AbTGVRex
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 13:32:30 -0400
-Subject: Re: pivot_root seems to be broken in 2.4.21-ac4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jason Baron <jbaron@redhat.com>
-Cc: Rene Mayrhofer <rene.mayrhofer@gibraltar.at>,
-       vda@port.imtp.ilyichevsk.odessa.ua,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0307221331090.2754-100000@dhcp64-178.boston.redhat.com>
-References: <Pine.LNX.4.44.0307221331090.2754-100000@dhcp64-178.boston.redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058895650.4161.23.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 22 Jul 2003 18:40:50 +0100
+	Tue, 22 Jul 2003 13:34:53 -0400
+Date: Tue, 22 Jul 2003 13:50:20 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Jamie Lokier <jamie@shareable.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: asm (lidt) question
+In-Reply-To: <Pine.LNX.4.55.0307221021130.1372@bigblue.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.53.0307221347400.2199@chaos>
+References: <20030717152819.66cfdbaf.rddunlap@osdl.org>
+ <Pine.LNX.4.55.0307171535020.4845@bigblue.dev.mcafeelabs.com>
+ <Pine.LNX.4.55.0307171615580.4845@bigblue.dev.mcafeelabs.com>
+ <20030722172722.GC3267@mail.jlokier.co.uk> <Pine.LNX.4.55.0307221021130.1372@bigblue.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-07-22 at 18:37, Jason Baron wrote:
-> > I tell init to re-execute itself (after pivot_root and thus from the new 
-> > root fs), which causes init to close its old fds and open new ones from 
-> > the new root fs with. This is necessary because init already runs as pid 
-> > 1 when I start the root fs switching. Maybe something changed with the 
-> > kernel process fds from 2.4.21-rc2 to 2.4.21-ac4 ?
-> > 
-> 
-> yes, see the addition of the unshare_files function in kernel/fork.c
+On Tue, 22 Jul 2003, Davide Libenzi wrote:
 
-Shouldnt really have changed anything except for security exploits and
-threaded apps doing weird stuff. In normal situations the files count is
-one so we should actually be executing nothing more exciting that an
-atomic_inc/atomic_dec.
+> On Tue, 22 Jul 2003, Jamie Lokier wrote:
+>
+> > Davide Libenzi wrote:
+> > > IMHO, since "var" is really an output parameter.
+> >
+> > "var" is read, not written.
+> > I think you are confusing "lidt" with "sidt".
+>
+> Actually I don't even know what I was confusing, since L and S are not
+> there for nothing ;) And yes, the form with =m as input parameter should
+> be corrected, even if it generates the same code.
+>
+>
+>
+> - Davide
 
-I wonder what is going on here.
+LIDT is "load interrupt descriptor table". SIDT is "store interrupt
+descriptor table". Only SIDT modifies memory. LIDT reads from memory
+and puts the result into a special CPU register, therefore doesn't
+modify memory.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 

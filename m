@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271714AbRIUHuP>; Fri, 21 Sep 2001 03:50:15 -0400
+	id <S271769AbRIUIDh>; Fri, 21 Sep 2001 04:03:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271769AbRIUHt4>; Fri, 21 Sep 2001 03:49:56 -0400
-Received: from mail1.svr.pol.co.uk ([195.92.193.18]:42506 "EHLO
-	mail1.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S271714AbRIUHtt>; Fri, 21 Sep 2001 03:49:49 -0400
-Message-ID: <3BAAF129.1090104@humboldt.co.uk>
-Date: Fri, 21 Sep 2001 08:50:01 +0100
-From: Adrian Cox <adrian@humboldt.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4+) Gecko/20010914
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: Thomas Sailer <sailer@scs.ch>, linux-kernel@vger.kernel.org
-Subject: Re: via82cxxx_audio locking problems
-In-Reply-To: <Pine.LNX.3.96.1010920112905.26319I-100000@mandrakesoft.mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S271836AbRIUID1>; Fri, 21 Sep 2001 04:03:27 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:52232 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S271769AbRIUIDI>; Fri, 21 Sep 2001 04:03:08 -0400
+Date: Fri, 21 Sep 2001 11:01:12 +0300
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <1978861221.20010921110112@port.imtp.ilyichevsk.odessa.ua>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: NFS daemons in D state for 2 minutes at shutdown
+In-Reply-To: <shswv2tpyvq.fsf@charged.uio.no>
+In-Reply-To: <3531863216.20010920164639@port.imtp.ilyichevsk.odessa.ua>
+ <shswv2tpyvq.fsf@charged.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+Hello Trond,
 
-> On Thu, 20 Sep 2001, Thomas Sailer wrote:
->>   Dropping and reacquiring syscall_sem around interruptible_sleep_on
->>   in via_dsp_do_read, via_dsp_do_write and via_dsp_drain_playback
->>   should solve the problem. Does anyone see a problem with this?
+Thursday, September 20, 2001, 8:15:21 PM, you wrote:
+TM>      > Hi NFS folks, I am still fighting witn nfsd/lockd not dying
+TM>      > upon killall5.  (they are stuck in D state for 2 mins and then
+TM>      > die with "rpciod: active tasks at shutdown?!" at console)
 
+TM>      > I found out that nfsd and lockd die as expected when I use
+TM>      > modified killall5 which do not SIGSTOP all tasks before killing
+TM>      > them.
 
-> Is there a possibility of do_read being re-entered during that window?
-> I agree its a problem but the solution sounds racy?
+TM> killall5 is a bad idea as a method for killing nfsd/lockd. You are
+TM> better off using something more targeted so you can ensure the correct
+TM> ordering.
 
-What's probably needed is one semaphore to lock read/write and ioctls 
-that look at the playback engine, and another semaphore to lock accesses 
-to the AC97 codec. That may be simpler to implement than dropping and 
-releasing the syscall_sem.
+Well, do you mean I must update my shutdown script whenever I install
+something new just because this "something new" does not like
+standard, well accepted method of signalling apps to exit?
+Come on, this sounds like The Wrong Way.
 
+TM> If you kill the portmapper before the nfs/lockd daemons have finished
+TM> unregistering their services then the above behaviour is completely
+TM> normal.
+
+So, why modified killall5 does the job?
+
+Why not make portmapper+NFS daemons killable by TERM, giving them
+the chance to do proper cleanups rather than abrupt KILL?
 -- 
-Adrian Cox   http://www.humboldt.co.uk/
+Best regards, VDA
+mailto:VDA@port.imtp.ilyichevsk.odessa.ua
+
 

@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267613AbTA3WkX>; Thu, 30 Jan 2003 17:40:23 -0500
+	id <S267635AbTA3XEK>; Thu, 30 Jan 2003 18:04:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267633AbTA3WkX>; Thu, 30 Jan 2003 17:40:23 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:3518
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S267613AbTA3WkW>; Thu, 30 Jan 2003 17:40:22 -0500
-Date: Thu, 30 Jan 2003 17:51:38 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Wesley Wright <wewright@verizonmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] USB HardDisk Booting 2.4.20
-Message-ID: <20030130175138.A11304@animx.eu.org>
-References: <1043947657.7725.32.camel@steven> <1043952432.31674.22.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S267650AbTA3XEK>; Thu, 30 Jan 2003 18:04:10 -0500
+Received: from jaguar.mkp.net ([66.11.169.42]:48300 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id <S267635AbTA3XEJ>;
+	Thu, 30 Jan 2003 18:04:09 -0500
+To: Thomas Davis <tadavis@lbl.gov>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-pre4
+From: "Martin K. Petersen" <mkp@mkp.net>
+Organization: mkp.net
+References: <Pine.LNX.4.53L.0301290143350.27119@freak.distro.conectiva>
+	<3E384D41.9080605@lbl.gov>
+	<1043926998.28133.21.camel@irongate.swansea.linux.org.uk>
+	<3E395C30.6040903@lbl.gov>
+	<1043950661.31674.12.camel@irongate.swansea.linux.org.uk>
+	<3E396032.2000503@lbl.gov>
+	<1043951291.31674.17.camel@irongate.swansea.linux.org.uk>
+	<3E39669F.20302@lbl.gov>
+	<1043955332.31674.27.camel@irongate.swansea.linux.org.uk>
+	<3E39730D.3090009@lbl.gov>
+Date: 30 Jan 2003 18:13:59 -0500
+In-Reply-To: <3E39730D.3090009@lbl.gov>
+Message-ID: <yq1vg06qlhk.fsf@austin.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <1043952432.31674.22.camel@irongate.swansea.linux.org.uk>; from Alan Cox on Thu, Jan 30, 2003 at 06:47:12PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > My tests show that it seems to work, and I haven't noticed any odd side
-> > affects by initcall-ing the usb devices (concern over this topic is why
-> > I enabled it for static USB MSD only).
-> > 
-> > Does this seem a reasonable solution, or does anyone have something more
-> > elegant?
-> 
-> Is there a reason for not using initrd for this. That should let you
-> use any kind of root device even ones requiring user space work before
-> the real root is mounted.
+>>>>> "Thomas" == Thomas Davis <tadavis@lbl.gov> writes:
 
-Yes, I believe there is.  IMO initrd is too much of an annoyance to setup. 
-I also have a usb hdd and the only thing I did was read from the keyboard
-waiting for an <ENTER> like it does when it waits on the floppy.  Worked
-quite well for me and USB Hard disks don't really need user space if
-everything's compiled in (from what I've seen).
+Thomas,
+
+Alan is right.  I have yet to see an FM801 with the AC97 codec
+on the chip.
+
+Thomas> How do I get the name in there other than "Unknown"?
+
+Thomas> It's a single chip card.
+
+What kind of card is it?  Are you sure there isn't a tiny codec chip
+hiding somewhere?
 
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Martin K. Petersen      http://mkp.net/
+

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261598AbTKHGdn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 01:33:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbTKHGdn
+	id S261614AbTKHGtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 01:49:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbTKHGtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 01:33:43 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:17029 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S261598AbTKHGdm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 01:33:42 -0500
-Date: Fri, 7 Nov 2003 22:33:41 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: Weird ext2 problem in 2.4.18 (redhat)
-Message-ID: <20031108063341.GA8349@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Sat, 8 Nov 2003 01:49:16 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:62364 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261614AbTKHGtP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Nov 2003 01:49:15 -0500
+Date: Sat, 8 Nov 2003 07:48:27 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Mark Gross <mgross@linux.co.intel.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] SMP signal latency fix up.
+In-Reply-To: <1068224623.1746.17.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.56.0311071935390.3222@earth>
+References: <Pine.LNX.4.44.0311061510440.1842-100000@home.osdl.org> 
+ <Pine.LNX.4.56.0311070918310.18447@earth> <1068224623.1746.17.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The BitKeeper source tree looks like
 
-	BitKeeper/  SCCS/  doc/  man/  src/
+On Fri, 7 Nov 2003, Mark Gross wrote:
 
-I have a repository where it looks like
+> Its hard for me to tell if its better to being more careful with
+> throughing around the IPI's at the cost of the extra opperations within
+> your kick code.
 
-	 src/  BitKeeper/  PENDING/  RELEASE-NOTES  SCCS/  doc/  man/  src/
+an IPI creates quite some overhead both on the source and on the target
+CPU, so i think it's definitely worth this extra check. Also, with
+increasingly higher load it's increasingly more likely that we can skip
+the IPI (because the task might be on the runqueue but it is not
+executing), so further increasing the load via additional IPIs is the
+wrong answer.
 
-That first src/ is actually " src/" and it has some rather strange behaviour.
-It's a different directory inode than "src/" but if I create a file in " src/"
-it shows up in "src/" and vice versa.
+> Looks correct, and works good too!  I just verified that it solves my
+> signal latency issue on both my HT system and my dual PIII box. Where I
+> first found the problem.
 
-Hey, neato, it gets weirder.  I went to go run an example and now most of
-the files in " src/" are gone, most but not all.
+great!
 
-I'm merrily backing up this disk while I can but if this rings any bells
-someone let me know.  Thanks.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+	Ingo

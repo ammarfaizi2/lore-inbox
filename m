@@ -1,80 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265555AbTFRVyV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 17:54:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265556AbTFRVyV
+	id S265557AbTFRVzr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 17:55:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265558AbTFRVzr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 17:54:21 -0400
-Received: from aneto.able.es ([212.97.163.22]:55792 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S265555AbTFRVyT (ORCPT
+	Wed, 18 Jun 2003 17:55:47 -0400
+Received: from pointblue.com.pl ([62.89.73.6]:772 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id S265557AbTFRVzj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 17:54:19 -0400
-Date: Thu, 19 Jun 2003 00:08:13 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [RFC][PATCH] missing gcc_check's for i386/2.4.21
-Message-ID: <20030618220813.GA3768@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 18 Jun 2003 17:55:39 -0400
+From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+Organization: K4 Labs
+To: Martin List-Petersen <martin@list-petersen.dk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Sco vs. IBM
+Date: Wed, 18 Jun 2003 22:43:51 +0100
+User-Agent: KMail/1.5.2
+References: <063301c32c47$ddc792d0$3f00a8c0@witbe> <5.2.0.9.2.20030607044649.00cd4590@pop.gmx.net> <1055957807.16818.12.camel@loke>
+In-Reply-To: <1055957807.16818.12.camel@loke>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Description: clearsigned data
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.11
+Message-Id: <200306182243.54649@gjs>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This adds the missing gcc_check's to use optimized flags for kernel build
-in i386 arch. Picked from 2.5.72.
+On Wednesday 18 of June 2003 18:36, Martin List-Petersen wrote:
+> Ok .. here we got us a few more articles about the stuff going on. A
+> friend pointed me at these:
+>
+> Byte.com states: SCO Owns Your Computer
+> http://www.byte.com/documents/s=8276/byt1055784622054/0616_marshall.html
+> Comment: read and cry (or not ?) :-/
+>
+> On Linux Planet, they try say "SCO Pulls Trigger, Targets Torvald":
+> http://www.linuxplanet.com/linuxplanet/newss/4858/1/
+>
+> However .. more or less it is about the current way people think about
+> it.
+How about this one:
+(english translation)
+http://forum.golem.de/phorum/read.php?f=44&i=1869&t=1716
 
-Is it suitable for apply ?
+- --
+Grzegorz Jaskiewicz
+K4 Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-TIA
+iD8DBQE+8N0aqu082fCQYIgRAs06AJ4+QtFRAoRRtx90wYry3PC90lbrnQCeNwjJ
+ITZNybK4seNpUEeqLyvEZVU=
+=HlaP
+-----END PGP SIGNATURE-----
 
---- linux-2.4.21-bp1/arch/i386/Makefile.orig	2003-06-18 23:40:25.000000000 +0200
-+++ linux-2.4.21-bp1/arch/i386/Makefile	2003-06-18 23:59:25.000000000 +0200
-@@ -45,7 +45,7 @@
- endif
- 
- ifdef CONFIG_M586MMX
--CFLAGS += -march=i586
-+CFLAGS += $(call check_gcc,-march=pentium-mmx,-march=i586)
- endif
- 
- ifdef CONFIG_M686
-@@ -53,11 +53,11 @@
- endif
- 
- ifdef CONFIG_MPENTIUMIII
--CFLAGS += -march=i686
-+CFLAGS += $(call check_gcc,-march=pentium3,-march=i686)
- endif
- 
- ifdef CONFIG_MPENTIUM4
--CFLAGS += -march=i686
-+CFLAGS += $(call check_gcc,-march=pentium4,-march=i686)
- endif
- 
- ifdef CONFIG_MK6
-@@ -74,11 +74,11 @@
- endif
- 
- ifdef CONFIG_MWINCHIPC6
--CFLAGS += -march=i586
-+CFLAGS += $(call check_gcc,-march=winchip-c6,-march=i586)
- endif
- 
- ifdef CONFIG_MWINCHIP2
--CFLAGS += -march=i586
-+CFLAGS += $(call check_gcc,-march=winchip2,-march=i586)
- endif
- 
- ifdef CONFIG_MWINCHIP3D
-
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.21-jam1 (gcc 3.3 (Mandrake Linux 9.2 3.3-1mdk))

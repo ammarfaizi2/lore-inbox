@@ -1,127 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264175AbUEXIxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264211AbUEXJKz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264175AbUEXIxG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 04:53:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264174AbUEXIwk
+	id S264211AbUEXJKz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 05:10:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbUEXJKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 04:52:40 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:50847 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S264175AbUEXIeW (ORCPT
+	Mon, 24 May 2004 05:10:17 -0400
+Received: from fw.osdl.org ([65.172.181.6]:57284 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264196AbUEXItg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 04:34:22 -0400
-Date: Mon, 24 May 2004 04:33:54 -0400
-From: "Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>
-To: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       prism54-devel@prism54.org
-Subject: [PATCH 13/14 linux-2.6.7-rc1] prism54: Fix 2.4 SMP build
-Message-ID: <20040524083354.GN3330@ruslug.rutgers.edu>
-Reply-To: "Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	netdev@oss.sgi.com, prism54-devel@prism54.org
+	Mon, 24 May 2004 04:49:36 -0400
+Date: Mon, 24 May 2004 01:49:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: torvalds@osdl.org, linuxppc64-dev@lists.linuxppc.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dynamic addition of virtual disks on PPC64 iSeries
+Message-Id: <20040524014901.04530a24.akpm@osdl.org>
+In-Reply-To: <20040524184126.11aeffd3.sfr@canb.auug.org.au>
+References: <20040524162039.5f6ca3e0.sfr@canb.auug.org.au>
+	<20040523232920.2fb0640a.akpm@osdl.org>
+	<20040524184126.11aeffd3.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UQUSR6hGnEXrhNQw"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: 2.4.18-1-686
-Organization: Rutgers University Student Linux Users Group
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stephen Rothwell <sfr@canb.auug.org.au> wrote:
+>
+> On Sun, 23 May 2004 23:29:20 -0700 Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > Or to generate a hotplug event when a disk is added?  Even if there's no
+> > notification to the kernel, it should be possible to generate the hotplug
+> > events in response to a /proc-based trigger.
+> 
+> Of course, it occurs to me that hotplug events must be happening (I guess
+> add_disk does it) as udev was quite happily creating hte device nodes for
+> me ...
 
---UQUSR6hGnEXrhNQw
-Content-Type: multipart/mixed; boundary="K4/DQSt3oreaYeED"
-Content-Disposition: inline
-
-
---K4/DQSt3oreaYeED
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-
-2004-05-01      Margit Schubert-While <margitsw@t-online.de>
-
-        * Fix 2.4 SMP build
-
---=20
-GnuPG Key fingerprint =3D 113F B290 C6D2 0251 4D84  A34A 6ADD 4937 E20A 525E
-
---K4/DQSt3oreaYeED
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="13-fix-smp-build.patch"
-Content-Transfer-Encoding: quoted-printable
-
-2004-05-01	Margit Schubert-While <margitsw@t-online.de>
-
-	* Fix 2.4 SMP build
-
-Index: linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_dev.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-RCS file: /var/lib/cvs/prism54-ng/ksrc/islpci_dev.c,v
-retrieving revision 1.77
-retrieving revision 1.78
-diff -u -r1.77 -r1.78
---- linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_dev.c	26 Apr 2004 1=
-0:09:58 -0000	1.77
-+++ linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_dev.c	27 Apr 2004 1=
-7:22:35 -0000	1.78
-@@ -1,4 +1,4 @@
--/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_dev.c,v 1.77 2004/04/26 1=
-0:09:58 msw Exp $
-+/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_dev.c,v 1.78 2004/04/27 1=
-7:22:35 ajfa Exp $
-  * =20
-  *  Copyright (C) 2002 Intersil Americas Inc.
-  *  Copyright (C) 2003 Herbert Valerio Riedel <hvr@gnu.org>
-@@ -69,7 +69,9 @@
- 	if (reg & ISL38XX_CTRL_STAT_SLEEPMODE)
- 		/* device is in sleep mode, IRQ was generated by someone else */
- 	{
--		printk(KERN_DEBUG "Assuming someone else called the IRQ\n");
-+#if VERBOSE > SHOW_ERROR_MESSAGES
-+		DEBUG(SHOW_TRACING, "Assuming someone else called the IRQ\n");
-+#endif
- 		return IRQ_NONE;
- 	}
-=20
-Index: linux-2.6.7-rc1/drivers/net/wireless/prism54/prismcompat24.h
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-RCS file: /var/lib/cvs/prism54-ng/ksrc/prismcompat24.h,v
-retrieving revision 1.5
-retrieving revision 1.6
-diff -u -r1.5 -r1.6
---- linux-2.6.7-rc1/drivers/net/wireless/prism54/prismcompat24.h	26 Apr 200=
-4 10:09:58 -0000	1.5
-+++ linux-2.6.7-rc1/drivers/net/wireless/prism54/prismcompat24.h	1 May 2004=
- 08:40:16 -0000	1.6
-@@ -28,6 +28,7 @@
- #include <linux/tqueue.h>
- #include <linux/version.h>
- #include <linux/compiler.h>
-+#include <asm/uaccess.h>
-=20
- #if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,25)
- #define module_param(x, y, z)	MODULE_PARM(x, "i")
-
---K4/DQSt3oreaYeED--
-
---UQUSR6hGnEXrhNQw
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAsbNyat1JN+IKUl4RAselAKCPdABbH7EYUaMi2xD/DtWNTfQJaACfY6Lh
-j176ut7QnjCY7cXpdYAq34o=
-=6M9h
------END PGP SIGNATURE-----
-
---UQUSR6hGnEXrhNQw--
+Handy.  So the patch stands as-is?

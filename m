@@ -1,39 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290059AbSAOR1h>; Tue, 15 Jan 2002 12:27:37 -0500
+	id <S290047AbSAOR15>; Tue, 15 Jan 2002 12:27:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290053AbSAOR11>; Tue, 15 Jan 2002 12:27:27 -0500
-Received: from bbnrel4.hp.com ([155.208.254.68]:3601 "HELO
-	bbnrel4.net.external.hp.com") by vger.kernel.org with SMTP
-	id <S290047AbSAOR1S>; Tue, 15 Jan 2002 12:27:18 -0500
-Message-ID: <3C446673.5000709@hp.com>
-Date: Tue, 15 Jan 2002 18:27:15 +0100
-From: Francois-Xavier Kowalski <francois-xavier_kowalski@hp.com>
-Reply-To: francois-xavier_kowalski@hp.com, francois-xavier_kowalski@hp.com
-Organization: Hewlett-Packard
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel mailing-list <linux-kernel@vger.kernel.org>
-Subject: [Q] module_init()'s order of execution?
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S290053AbSAOR1r>; Tue, 15 Jan 2002 12:27:47 -0500
+Received: from vitelus.com ([64.81.243.207]:58126 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S290047AbSAOR1l>;
+	Tue, 15 Jan 2002 12:27:41 -0500
+Date: Tue, 15 Jan 2002 09:27:29 -0800
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Mr. James W. Laferriere" <babydr@baby-dragons.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Hardwired drivers are going away?
+Message-ID: <20020115172729.GE7030@vitelus.com>
+In-Reply-To: <Pine.LNX.4.44.0201141358060.3238-100000@filesrv1.baby-dragons.com> <E16QCc6-0002bb-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16QCc6-0002bb-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, Jan 14, 2002 at 07:17:46PM +0000, Alan Cox wrote:
+> Not generally found in your grandmothers PC
 
-AFAIK, the macros module_init() and module_exit() are used both in case
-a source is built-in (the code is called from the init stage) or as a
-kernel module (implementing a init_module symbol).
-
-In case 2 of /built-in/ modules (or more) I am wondering if it is
-possible to know by advance the order used to call the various
-module_init() entry points. Is it possible to fix this order, or to
-setup a dependency between 2 module_init()?
-
-TIA
-
--- FiX
-
-
+What kind of an argument is this?!? Linux developers used to care
+about portability to and performance on non-x86 platforms.

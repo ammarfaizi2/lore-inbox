@@ -1,20 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286129AbRLTFbA>; Thu, 20 Dec 2001 00:31:00 -0500
+	id <S286124AbRLTFaA>; Thu, 20 Dec 2001 00:30:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286128AbRLTFav>; Thu, 20 Dec 2001 00:30:51 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:23939 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S286127AbRLTFaj>;
-	Thu, 20 Dec 2001 00:30:39 -0500
-Date: Wed, 19 Dec 2001 21:30:19 -0800 (PST)
-Message-Id: <20011219.213019.35013739.davem@redhat.com>
-To: hpa@zytor.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PCI updates - 32-bit IO support
+	id <S286125AbRLTF3u>; Thu, 20 Dec 2001 00:29:50 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:21891 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S286124AbRLTF3l>;
+	Thu, 20 Dec 2001 00:29:41 -0500
+Date: Wed, 19 Dec 2001 21:29:17 -0800 (PST)
+Message-Id: <20011219.212917.38712287.davem@redhat.com>
+To: kerndev@sc-software.com
+Cc: billh@tierra.ucsd.edu, bcrl@redhat.com, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Subject: Re: aio
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <9vrmea$mef$1@cesium.transmeta.com>
-In-Reply-To: <20011218235024.N13126@flint.arm.linux.org.uk>
-	<9vrmea$mef$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.3.95.1011219190820.581I-100000@scsoftware.sc-software.com>
+In-Reply-To: <20011219.190629.03111291.davem@redhat.com>
+	<Pine.LNX.3.95.1011219190820.581I-100000@scsoftware.sc-software.com>
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -22,14 +23,18 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "H. Peter Anvin" <hpa@zytor.com>
-   Date: 19 Dec 2001 19:37:46 -0800
+   From: John Heil <kerndev@sc-software.com>
+   Date: Wed, 19 Dec 2001 19:30:13 +0000 (   )
    
-   You probably need to verify that 32-bit support is available (both on
-   the bridge and the peripherals), but if they are, there's no reason
-   not to use it on non-x86 architectures...
+   Agree. However, put your business hat for a minute. We want increased
+   market share for linux and a lot of us, you included, live by it. 
 
-Don't the PCI specs actually talk about 24-bits in fact?
+Oh my buisness hat is certainly on, which is why I keep talking about
+the people who need this "paying for implementation and support of AIO
+for Linux". :-)
 
-Russell does you box really have the full 32-bits or is it
-really just 24-bits?
+Make no mistake, I do agree with your points though in general.
+
+But those things are not dependent upon "standard Linus Linux" having
+AIO first, this is what vendors do for differentiation by shipping
+feature X in their kernel before others.

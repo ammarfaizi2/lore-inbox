@@ -1,70 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbTLHSxk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 13:53:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbTLHSxk
+	id S261270AbTLHTEa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 14:04:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbTLHTEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 13:53:40 -0500
-Received: from fw.osdl.org ([65.172.181.6]:32428 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261744AbTLHSxh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 13:53:37 -0500
-Date: Mon, 8 Dec 2003 10:53:24 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Valdis.Kletnieks@vt.edu
-cc: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Subject: Re: cdrecord hangs my computer 
-In-Reply-To: <200312081753.hB8HrQfD019477@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.58.0312081046200.13236@home.osdl.org>
-References: <20031207110122.GB13844@zombie.inka.de>
- <Pine.LNX.4.58.0312070812080.2057@home.osdl.org>           
- <br28f2$fen$1@gatekeeper.tmr.com> <200312081753.hB8HrQfD019477@turing-police.cc.vt.edu>
+	Mon, 8 Dec 2003 14:04:30 -0500
+Received: from k-kdom.nishanet.com ([65.125.12.2]:36362 "EHLO
+	mail2k.k-kdom.nishanet.com") by vger.kernel.org with ESMTP
+	id S261270AbTLHTE2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 14:04:28 -0500
+Message-ID: <3FD4CF90.3000905@nishanet.com>
+Date: Mon, 08 Dec 2003 14:22:56 -0500
+From: Bob <recbo@nishanet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031014 Thunderbird/0.3
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: dialectical deprecation Re: cdrecord hangs my computer
+References: <Law9-F31u8ohMschTC00001183f@hotmail.com><Pine.LNX.4.58.0312060011130.2092@home.osdl.org> <3FD1994C.10607@stinkfoot.org><20031206084032.A3438@animx.eu.org> <Pine.LNX.4.58.0312061044450.2092@home.osdl.org><20031206220227.GA19016@work.bitmover.com> <Pine.LNX.4.58.0312061429080.2092@home.osdl.org><20031207110122.GB13844@zombie.inka.de> <Pine.LNX.4.58.0312070812080.2057@home.osdl.org> <1201390000.1070900656@[10.10.2.4]>
+In-Reply-To: <1201390000.1070900656@[10.10.2.4]>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Martin J. Bligh wrote:
 
-
-On Mon, 8 Dec 2003 Valdis.Kletnieks@vt.edu wrote:
+>>In contrast, the old cdrecord interfaces are an UNBELIEVABLE PILE OF CRAP!
+>>It's an interface that is based on some random hardware layout mechanism
+>>that isn't even TRUE any more, and hasn't been true for a long time. It's
+>>not helpful to the user, and it doesn't match how devices are accessed by
+>>everything else on the system.
+>>
+>>It's bad from a technical standpoint (anybody who names a generic device
+>>with a flat namespace is just basically clueless), and it's bad from a
+>>usability standpoint. It has _zero_ redeeming qualities.
+>>    
+>>
 >
-> Amen.
+>I think the appropriate phrase is "user malevolent" software. Making
+>the user interface fit some arcane technica rather than the user is
+>rather tragic. Reality is quite complicated enough as it is, without
+>deliberately setting out to make it more so.
 >
-> At least when network interfaces do it, I can use 'nameif' to beat them
-> into submission.
+>M.
+>  
+>
+Today I realize that it's not double deprecation, it's dialectical
+deprecation, for a user who gets caught between the deprecation
+of ide-scsi and cdrecord targbuslun "flat" naming and then the
+cdrecord error message when trying to use a full devpath. The
+user's head is volleyed back and forth as cdrecord maintains
+its "denial".
 
-What's _wrong_ with you people?
+cdrecord whines about the full devpath in the first instance,
+will not work if I use 1,0,0 in both places, but seems to
+catch a clue about the devpath stub from the first instance
+in order to use its 1,0,0 nomenclature below that.
 
-The reason you need 'nameif' for network devices is that the kernel
-actually cares about them. But for normal device nodes, you have thousands
-of tools to rename them, and you can have a million different names for
-the same thing if you want to.
+#/etc/default/cdrecord
+CDR_DEVICE=ATAPI:/dev/scsi/host1/bus0/target0/lun0/generic
+#ATAPI:1,0,0 won't work in CDR_DEVICE, but...
+yamaha=   ATAPI:1,0,0   -1      -1      ""
 
-Valdis: for /dev/hdxx, you can rename it with such esoteric programs as
-'mv', 'ln', 'perl', 'cp', 'mknod', 'emacs', and a few hundred others. What
-is your beef with it?
+I'm scared(under-informed) to drop ide-scsi since
+I'm using 3ware and don't know if just scsi-generic
+would be enough for that hd controller(needs ide-scsi?
+3ware's site doc is not easy to find).
 
-In fact, every distribution I know of comes with it already aliased to
-/dev/cdrom, without you having to lift a pinky to do _anything_ about it.
+-Bob
 
-And quite frankly, anybody who finds
-
-	cdrecord dev=/dev/cdrom
-
-less intuitive than
-
-	cdrecord dev=1,0,0
-
-is so drugged and mindwashed by the cdrecord authors that it's not even
-funny any more.
-
-So stop spreading this incredible crap, guys. How about you just admit
-that I was right. If that's hard to do, add a comment like
-
-  "Just this once Linus happened to pick a winner. Incredible, but it
-   was probably just a fluke. He's still a drugged-out idiot most of the
-   time."
-
-to make it feel a bit better.
-
-			Linus

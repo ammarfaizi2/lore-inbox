@@ -1,74 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265039AbTB0OOD>; Thu, 27 Feb 2003 09:14:03 -0500
+	id <S265135AbTB0OQl>; Thu, 27 Feb 2003 09:16:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265063AbTB0OOD>; Thu, 27 Feb 2003 09:14:03 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:17351 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265039AbTB0OOB>; Thu, 27 Feb 2003 09:14:01 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Kevin Corry <corryk@us.ibm.com>
-Organization: IBM
-To: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Joe Thornber <joe@fib011235813.fsnet.co.uk>
-Subject: Re: [PATCH 3/8] dm: prevent possible buffer overflow in ioctl interface
-Date: Thu, 27 Feb 2003 08:20:59 -0600
-X-Mailer: KMail [version 1.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>,
-       vonbrand@eeyore.valparaiso.cl
-References: <200302262104.h1QL4aiC001941@eeyore.valparaiso.cl>
-In-Reply-To: <200302262104.h1QL4aiC001941@eeyore.valparaiso.cl>
+	id <S265140AbTB0OQl>; Thu, 27 Feb 2003 09:16:41 -0500
+Received: from [213.133.112.210] ([213.133.112.210]:35077 "EHLO
+	mail.pacebladeeurope.com") by vger.kernel.org with ESMTP
+	id <S265135AbTB0OQj>; Thu, 27 Feb 2003 09:16:39 -0500
+Message-ID: <3E5E2061.2060807@paceblade.com>
+Date: Thu, 27 Feb 2003 15:27:45 +0100
+From: Robert Woerle Paceblade/Support <robert@paceblade.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.2.1) Gecko/20021130
+X-Accept-Language: de-at, de, en-us, en
 MIME-Version: 1.0
-Message-Id: <03022708205903.05199@boiler>
-Content-Transfer-Encoding: 7BIT
+To: Pavel Machek <pavel@suse.cz>
+CC: "Grover, Andrew" <andrew.grover@intel.com>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [ACPI] Re: mem= option for broken bioses
+References: <F760B14C9561B941B89469F59BA3A8471380D7@orsmsx401.jf.intel.com> <20030226224450.GD15455@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20030226224450.GD15455@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 26 February 2003 15:04, Horst von Brand wrote:
-> Joe Thornber <joe@fib011235813.fsnet.co.uk> said:
-> > Use the correct size for "name" in register_with_devfs().
-> >
-> > During Al Viro's devfs cleanup a few versions ago, this function was
-> > rewritten, and the "name" string added. The 32-byte size is not large
-> > enough to prevent a possible buffer overflow in the sprintf() call,
-> > since the hash cell can have a name up to 128 characters.
-> >
-> > [Kevin Corry]
-> >
-> > --- diff/drivers/md/dm-ioctl.c	2003-02-26 16:09:42.000000000 +0000
-> > +++ source/drivers/md/dm-ioctl.c	2003-02-26 16:09:52.000000000 +0000
-> > @@ -173,7 +173,7 @@
-> >   */
-> >  static int register_with_devfs(struct hash_cell *hc)
-> >  {
-> > -	char name[32];
-> > +	char name[DM_NAME_LEN + strlen(DM_DIR) + 1];
->
-> This either makes a large name array or generates a possibly huge array at
-> runtime (bad if your stack is < 8KiB).
 
-Would this be better?
+
+Pavel Machek schrieb:
+
+>Hi!
+>
+>  
+>
+>>>From: Pavel Machek [mailto:pavel@ucw.cz] 
+>>>I've seen broken bios that did not mark acpi tables in e820
+>>>tables. This allows user to override it. Please apply,
+>>>      
+>>>
+>>OK, looks reasonable. Can you also gen up a patch documenting this in
+>>kernel-parameters.txt?
+>>    
+>>
+>
+>You can, assuming you took the patch ;-).
+>  
+>
+well how can i find the correct value`s to put in ??
+
+>								Pavel
+>
+>--- clean/Documentation/kernel-parameters.txt	2003-02-11 17:40:28.000000000 +0100
+>+++ linux/Documentation/kernel-parameters.txt	2003-02-26 23:43:21.000000000 +0100
+>@@ -516,6 +516,10 @@
+> 			[KNL,BOOT] Force usage of a specific region of memory
+> 			Region of memory to be used, from ss to ss+nn.
+> 
+>+	mem=nn[KMG]#ss[KMG]
+>+			[KNL,BOOT,ACPI] Mark specific memory as ACPI data.
+>+			Region of memory to be used, from ss to ss+nn.
+>+
+> 	mem=nopentium	[BUGS=IA-32] Disable usage of 4MB pages for kernel
+> 			memory.
+> 
+>  
+>
 
 -- 
-Kevin Corry
-corryk@us.ibm.com
-http://evms.sourceforge.net/
+_____________________________________
+*Robert Woerle
+**Technical Support | Linux
+PaceBlade Technology Europe SA*
+phone: +49 89 552 99935
+fax: +49 89 552 99910
+mobile: +49 179 474 45 27
+email: robert@paceblade.com <mailto:robert@paceblade.com>
+web: http://www.paceblade.com
+_____________________________________
 
 
---- linux-2.5.60a/drivers/md/dm-ioctl.c	2003/02/13 16:43:26
-+++ linux-2.5.60b/drivers/md/dm-ioctl.c	2003/02/27 14:17:00
-@@ -173,8 +173,11 @@
-  */
- static int register_with_devfs(struct hash_cell *hc)
- {
--	char name[DM_NAME_LEN + strlen(DM_DIR) + 1];
- 	struct gendisk *disk = dm_disk(hc->md);
-+	char *name = kmalloc(DM_NAME_LEN + strlen(DM_DIR) + 1);
-+	if (!name) {
-+		return -ENOMEM;
-+	}
- 
- 	sprintf(name, DM_DIR "/%s", hc->name);
- 	devfs_register(NULL, name, DEVFS_FL_CURRENT_OWNER,
-
+
+
+

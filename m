@@ -1,176 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313414AbSDGSrn>; Sun, 7 Apr 2002 14:47:43 -0400
+	id <S313423AbSDGS4F>; Sun, 7 Apr 2002 14:56:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313421AbSDGSrm>; Sun, 7 Apr 2002 14:47:42 -0400
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:1292 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S313414AbSDGSrl>; Sun, 7 Apr 2002 14:47:41 -0400
-Date: Sun, 7 Apr 2002 20:47:36 +0200
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, dwmw2@redhat.com
-Subject: [patch] kernel-api book fixes
-Message-ID: <20020407184736.GA11467@arthur.ubicom.tudelft.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S313424AbSDGS4E>; Sun, 7 Apr 2002 14:56:04 -0400
+Received: from [216.139.164.138] ([216.139.164.138]:13583 "HELO
+	vger.kernel.org") by vger.kernel.org with SMTP id <S313423AbSDGS4D>;
+	Sun, 7 Apr 2002 14:56:03 -0400
+From: "Sulemon Ahmed" <sulemonahmed@arabia.com>
+Date: Mon, 08 Apr 2002 02:53:19
+To: linux-kernel@vger.kernel.org
+Subject: Urgent Assistance Needed
+MIME-Version: 1.0
+Content-Type: text/plain;charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20020407185603Z313423-22651+1324@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
+ATTN:PRESIDENT/CEO,
+     
+IT IS MY PLEASURE TO WRITE AND INFORM YOU, THAT YOU WERE CHOSEN TO ACT
+AS NEXT OF KIN TO LATE ENG. EDEN ANDREW WILSON. 
 
-===================================================================
+I AM SOORY IF THIS LETTER COMES TO YOU AS AN EMBARRASMENT BUT BE RESTASSURED THAT YOUR PARTICULARS OF CONTACT WAS GIVEN TO ME AFTER A DUESEARCH, FOR RELIABLE AND CAPABLE FOREIGNER THAT WILL HANDLE CONFIDENTIALLY A TRANSFER OF HUGE SUM OF MONEY,FROM UNION BANK OF NIGERIA PLC TO A FOREIGN BANK ACCOUNT. 
 
+THE DEAL IN DETAILS: - A FOREIGNER, LATE ENG. EDEN ANDREW WILSON WAS AN OIL MERCHANT/CONTRACTOR WITH THE FEDERAL GOVERNMENT OF NIGERIA ANDRESIDES HERE IN NIGERIA UNTIL HIS DEATH FIVE YEAR AGO IN A GHASTLY MOTOR ACCIDENT. 
+     
+HE HAD A DEPOSIT OF (US$32, 624,000) THIRTY TWO MILLION, SIX HUNDRED AND TWENTY-FOUR THOUSAND UNITED STATES DOLLARS, WITH THE UNION BANK OF NIGERIA PLC BEFORE HIS DEATH IN AUGUST 1995. 
+       
+I AM HIS ACCOUNT OFFICER AT THE UNION BANK, AND NOBODY HAS SERVICED THE ACCOUNT OR SHOWN UP FOR HIS MONEY SINCE AFTER HIS DEATH TILL DATE.
+     
 
-ChangeSet@1.536, 2002-04-07 18:52:05+02:00, erik@arthur.home
-  - Fix kernel-api book compile-time bugs due to moved USB source files.
-  - Add kernel/context.c, kernel/exit.c, and kernel/timer.c to the list
-    of source files and include their information into the kernel-api book.
-  - Fix problem with comment not being just before the function in
-    kernel/context.c
+ALTHOUGH, EFFORTS HAVE BEEN MADE BY THE BANK TO GET IN TOUCH WITH HIS NEXT OF KIN OR ANY OF HIS RELATIONS, BUT ALL TO KNOW AVAIL (HE HAD NO WIFE OR CHILDREN). 
+    
+     
+IT IS ON THIS NOTE SOME TOP OFFICIALS OF UNION BANK, WHO ARE FULLY AWARE OF THE INCIDENT RESOLVED AND ASKED ME TO FIND AND NEGOTIATE WITH TRUST WORTHY FOREIGNER WHO IS WILLING TO ASSIST,AND ACT AS NEXT OF KIN TO THE LATE ENG. EDEN ANDREW WILSON,THIS SUM OF MONEY IS NOW KEPT IN THE “DECEASED ACCOUNT” OF THE UNION BANK PLEASE UNDERSTAND THAT THIS
+MONEY (US$32, 624, 000) WHEN TRANSFERRED INTO YOUR ACCOUNT WILL BE USED FOR A JOINT VENTURE ESTABLISHMENT, AS MAY BE AGREED BY BOTH PARTIES INVOLVED. 
 
+THIS TRANSACTION IS 100% RISK FREE, FOR WE HAVE CONCLUDED EVERY ARRANGEMENT TO SAFEGUARD YOU IN THIS TRANSACTION. 
+      
+THEREFORE, IF YOU WISH TO ASSIST US, HASTEN UP AND SEND THE FOLLOWING TO ENABLE US EFFECTIVELY PROCESS THE NECESSARY DOCUMENT FOR SMOOTH TRANSFER INTO YOUR ACCOUNT, TO BE NOMINATED BY YOU AS THE NEXT OF KIN TO THE LATE ENG. EDEN ANDREW WILSON, YOU ARE URGENTLY REQUIRED TO SEND TO ME. 
+       
+THE NAME TO BE USED IN CHANGING THE EXISTING NEXT OF KIN AT THE BANK.
+    
+      
+YOUR PRIVATE TELEPHONE AND FAX NUMBER FOR FAST AND SAFE COMMUNICATION. 
+  
+     
+WE KNOW WE HAVE NEVER MET OR ENTERED INTO ANY KIND OF TRANSACTION WITH YOU BEFORE AS TO KNOW THE EXTENT OF YOUR TRUST AND HONESTY. BUT BASED WITH THE RECOMMENDATION,I PERSONALLY WANT TO BELIEVE THAT YOU WILL NOT SIT ON THE MONEY IF IT FINALLY GETS TO YOUR ACCOUNT.
+      
 
- Documentation/DocBook/Makefile        |   11 +++++++----
- Documentation/DocBook/kernel-api.tmpl |   11 ++++++++---
- kernel/context.c                      |    5 +++--
- 3 files changed, 18 insertions(+), 9 deletions(-)
+IT IS ON THIS NOTE I CONSIDER IT PROPER TO WRITE AND ASK FOR YOUR CONSENT, AND PERMISSION TO SUPPORT THE TRANSFER INTO YOUR ACCOUNT. 
 
+PLEASE, FOR SECURITY REASONS ACKNOWLEDGE ME THE RECEIPT OF THIS LETTER
+BY MAILING ME BACK THROUGH MY E-MAIL ADDRESS. sulemonahmed@arabia.com
 
-diff -Nru a/Documentation/DocBook/Makefile b/Documentation/DocBook/Makefile
---- a/Documentation/DocBook/Makefile	Sun Apr  7 20:41:08 2002
-+++ b/Documentation/DocBook/Makefile	Sun Apr  7 20:41:08 2002
-@@ -104,8 +104,8 @@
- 		$(TOPDIR)/sound/sound_firmware.c \
- 		$(TOPDIR)/drivers/net/wan/syncppp.c \
- 		$(TOPDIR)/drivers/net/wan/z85230.c \
--		$(TOPDIR)/drivers/usb/hcd.c \
--		$(TOPDIR)/drivers/usb/usb.c \
-+		$(TOPDIR)/drivers/usb/core/hcd.c \
-+		$(TOPDIR)/drivers/usb/core/usb.c \
- 		$(TOPDIR)/drivers/video/fbmem.c \
- 		$(TOPDIR)/drivers/video/fbcmap.c \
- 		$(TOPDIR)/drivers/video/fbcon.c \
-@@ -118,13 +118,16 @@
- 		$(TOPDIR)/fs/bio.c \
- 		$(TOPDIR)/include/asm-i386/bitops.h \
- 		$(TOPDIR)/include/linux/usb.h \
--		$(TOPDIR)/kernel/pm.c \
--		$(TOPDIR)/kernel/ksyms.c \
-+		$(TOPDIR)/kernel/context.c \
-+		$(TOPDIR)/kernel/exit.c \
- 		$(TOPDIR)/kernel/kmod.c \
-+		$(TOPDIR)/kernel/ksyms.c \
- 		$(TOPDIR)/kernel/module.c \
-+		$(TOPDIR)/kernel/pm.c \
- 		$(TOPDIR)/kernel/printk.c \
- 		$(TOPDIR)/kernel/sched.c \
- 		$(TOPDIR)/kernel/sysctl.c \
-+		$(TOPDIR)/kernel/timer.c \
- 		$(TOPDIR)/lib/string.c \
- 		$(TOPDIR)/lib/vsprintf.c \
- 		$(TOPDIR)/net/netsyms.c
-diff -Nru a/Documentation/DocBook/kernel-api.tmpl b/Documentation/DocBook/kernel-api.tmpl
---- a/Documentation/DocBook/kernel-api.tmpl	Sun Apr  7 20:41:08 2002
-+++ b/Documentation/DocBook/kernel-api.tmpl	Sun Apr  7 20:41:08 2002
-@@ -47,7 +47,12 @@
-      </sect1>
+I AWAIT YOUR URGENT RESPONSE, 
+
+  YOURS FAITHFULLY, 
  
-      <sect1><title>Delaying, scheduling, and timer routines</title>
--!Ekernel/sched.c
-+!Ekernel/context.c
-+!Ekernel/timer.c
-+     </sect1>
-+
-+     <sect1><title>Misc functions</title>
-+!Ekernel/exit.c
-      </sect1>
-   </chapter>
- 
-@@ -282,7 +287,7 @@
-     </sect1>
- 
-     <sect1><title>USB Core APIs</title>
--!Edrivers/usb/usb.c
-+!Edrivers/usb/core/usb.c
-     </sect1>
- 
-     <sect1><title>Host Controller APIs</title>
-@@ -290,7 +295,7 @@
-     most of which implement standard register interfaces such as
-     EHCI, OHCI, or UHCI.
-     </para>
--!Edrivers/usb/hcd.c
-+!Edrivers/usb/core/hcd.c
-     </sect1>
- 
-   </chapter>
-diff -Nru a/kernel/context.c b/kernel/context.c
---- a/kernel/context.c	Sun Apr  7 20:41:08 2002
-+++ b/kernel/context.c	Sun Apr  7 20:41:08 2002
-@@ -112,6 +112,9 @@
- 	}
- }
- 
-+
-+static struct tq_struct dummy_task;
-+
- /**
-  * flush_scheduled_tasks - ensure that any scheduled tasks have run to completion.
-  *
-@@ -124,8 +127,6 @@
-  * The caller should hold no spinlocks and should hold no semaphores which could
-  * cause the scheduled tasks to block.
-  */
--static struct tq_struct dummy_task;
--
- void flush_scheduled_tasks(void)
- {
- 	int count;
-
-===================================================================
+SULEMON AHMEDI. 
 
 
-This BitKeeper patch contains the following changesets:
-1.536
-## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch17260
-M'XL(`,22L#P``\57VV[;.!!]-K^"1?>A16N)%UV]29"FSFZ#;-$@W;P%""B)
-MCA7KXHI4FA3Z^(YHQW%DYV)OB[4-B:2'1S/DG#/4:WRF9#7HR2J=H-?X4ZGT
-MH"<J/:XK:USF$L9.RQ+&[+9GMV9V-.EKJ;0ML[2H;_K,<A&8G0@=C_&UK-2@
-M1RV^&-&W4SGHG1[^??;/AU.$=G?QQ[$H+N57J?'N+M)E=2VR1.T+/<[*PM*5
-M*%0NM;#B,F\6I@TCA,'7I3XGKM=0CSA^$].$4N%0F1#F!)Z#6O_VE]SO`CC$
-MI]3AW&N<@%".AIA:+O<P839Q;.)C&@Q<-B#N.P)7@KMX^!W'?8(.\*]U^R.*
-M<1__E=[@B:P*F?7%-,5164XPH$W33/9U"@^/ZDN%DUK"TW%>7LL$GWT]P*JL
-MJUCB$9@IRP!]2)(YD!V7A98WVHK?WXW(F]1T1;$P:L$K*VYA]5CB+%4:<#`N
-M1P_`S92TB+,ZD:UA6D%O5%:YT&E90'L^OQ.#M0AN6I51)G/\/=7C-K)<%AH7
-MI<:13(M+?%6KM@F(!AZ/ZB*>(QMWNB&A8^SXE%!T<I]2J+_A!R$B"-I[9D.'
-M95RWWII(;>@=0&#V?:"6SJ?9TF8[A/L-<_S0:SP>A2%SF73=41!SMI)3FX"W
-M^>LY`8!3RGS^K-_=)5O.QY"'C4?\D#2QB*)$".%2Z3'&^*J+ZW'NO2$.M+=<
-MQ<]B(MO\6ED^:/,FB`+')<REPG-\WX]>NGP/49<\]3P6&AEZ>M[SVO0KHD%7
-MEZ+Z`0'EP*T*IJIRI%^,#L",4>XXC>=XU#-J1L,'8N8$`^X_*F8^[CN_4<RF
-M@->*RN,JM21/R[JT1I!:,5H2ECG.,3;;^07WJ^_F!X0^>69GMY"((8759.B(
-MD@!NO=X?;_[]<C(\.GUK)U7:ECR[5A&PHY+V.$[`\?.GC:!AC(:448/+6`>W
-M2[@.X@,MA_\`@6.ZSF2B;G-U9^.LMYGF=P;^>H.[_3A_@C@=O=J6/UMI*DK$
-MM;S:5[625K*AH'(:TM#E#6%P(IA1B&U`H0#W^?]*H?]8Z(%7IK@N@P.M9N7E
-M1;SJK.LV]'()Y-T17#WTZG"ES"^&YNXCW'YV;"5C3??0^;P_Z^[H5&=R[W.J
-MXL4!0NW8L]%[J-GBH"$+W/;1L]NKP_5,!;.0&S-S6V-F6&_(L4+<9WFP78TV
-M*9_O3],?B;"*M)C`%?+K$3#*B,<#3J!0\]`W6>YMD.1PZ&6_)<F/C;MXGDIW
-M9T*%QQ!<FZ61G)T*TP*/*HBIK0++1\/W@*%FAV$SO@!8F9#5:GRAXK%,ZDPF
-M%UJHR9NW"YRVDI@C3"?C5W)Q\^0^@A<.S"%+5<L;<%=7=:RQ_G8Q;R5UGM\:
-@A_Y$IB2TI6;Q^@0>QQ-5Y[N<T(A*QM!/["H<`+,-````
-`
-end
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
-of Information Technology and Systems, Delft University of Technology,
-PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
-Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/

@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269703AbUJMTsf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267826AbUJMTs3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269703AbUJMTsf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 15:48:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267807AbUJMTsf
+	id S267826AbUJMTs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 15:48:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267807AbUJMTs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 15:48:35 -0400
-Received: from cantor.suse.de ([195.135.220.2]:9905 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269785AbUJMThk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 15:37:40 -0400
-Date: Wed, 13 Oct 2004 21:35:58 +0200
-From: Andi Kleen <ak@suse.de>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: haveblue@us.ibm.com, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: 4level page tables for Linux
-Message-Id: <20041013213558.43b3236c.ak@suse.de>
-In-Reply-To: <20041013184153.GO17849@dualathlon.random>
-References: <20041012135919.GB20992@wotan.suse.de>
-	<1097606902.10652.203.camel@localhost>
-	<20041013184153.GO17849@dualathlon.random>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 13 Oct 2004 15:48:29 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:388 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S269758AbUJMTd0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 15:33:26 -0400
+Date: Wed, 13 Oct 2004 23:32:47 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Norbert Preining <preining@logic.at>
+Cc: linux-kernel@vger.kernel.org, debian-alpha@lists.debian.org,
+       linux-alpha@vger.kernel.org
+Subject: Re: 2.4.27, alpha arch, make bootimage and make bootpfile fails
+Message-ID: <20041013233247.A11663@jurassic.park.msu.ru>
+References: <20041012173344.GA21846@gamma.logic.tuwien.ac.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20041012173344.GA21846@gamma.logic.tuwien.ac.at>; from preining@logic.at on Tue, Oct 12, 2004 at 07:33:44PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Oct 2004 20:41:53 +0200
-Andrea Arcangeli <andrea@novell.com> wrote:
+On Tue, Oct 12, 2004 at 07:33:44PM +0200, Norbert Preining wrote:
+> When doing this on our alpha the
+> 	make bootimage
+> and the 
+> 	make bootpfile
+> both bail out with:
+...
+> /usr/src/linux-2.4.27/arch/alpha/lib/lib.a -o bootloader
+> /usr/src/linux-2.4.27/lib/lib.a(vsprintf.o): In function `vsnprintf':
+> vsprintf.o(.text+0xcd4): undefined reference to `printk'
 
+Thanks for the report. The appended patch should fix that.
 
-> 
-> after you add the 4level, locking will become necessary for the pgd, but
-> it's still not needed for the pml4.
+Ivan.
 
-Yes, agreed. I did an audit of the generic code and it seems to be ok
-regarding the pgd use.
-
-
-> peraphs we could consider pgd4 instead of pml4. What does "pml" stands
-> for?
-
-page mapping level 4 (?) just guessing here.
-
-PML4 is the name AMD and Intel use in their documentation. I don't see 
-a particular reason to be different from them.
-
--Andi
+--- 2.4/arch/alpha/boot/bootloader.lds	Tue Jul  3 01:40:14 2001
++++ linux/arch/alpha/boot/bootloader.lds	Wed Oct 13 23:18:50 2004
+@@ -1,5 +1,6 @@
+ OUTPUT_FORMAT("elf64-alpha")
+ ENTRY(__start)
++printk = srm_printk;
+ SECTIONS
+ {
+   . = 0x20000000;

@@ -1,194 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262749AbUKXQEg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262642AbUKXNQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262749AbUKXQEg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 11:04:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262722AbUKXQDc
+	id S262642AbUKXNQY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 08:16:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262647AbUKXNPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 11:03:32 -0500
-Received: from vidconference.de ([212.227.158.183]:20402 "EHLO
-	baldur.vidconference.de") by vger.kernel.org with ESMTP
-	id S262719AbUKXQCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 11:02:15 -0500
-Message-ID: <41A4B085.20109@vidsoft.de>
-Date: Wed, 24 Nov 2004 17:02:13 +0100
-From: Gregor Jasny <jasny@vidsoft.de>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041119)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Oops in bttv (Linux 2.6.10-rc2-bk3)
-Content-Type: multipart/mixed;
- boundary="------------060305030406060307060901"
+	Wed, 24 Nov 2004 08:15:23 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:48788 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262642AbUKXNCG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 08:02:06 -0500
+Subject: Suspend 2 merge: 20/51: Timer freezer (experimental).
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1101292194.5805.180.camel@desktop.cunninghams>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+Content-Type: text/plain
+Message-Id: <1101295693.5805.268.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 24 Nov 2004 23:58:23 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060305030406060307060901
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Here's experimental support for freezing timers. It doesn't really
+freeze them, but rather reschedules the call for a little later. One
+issue I need to think about is staggering the invocations at resume
+time, as some of the per CPU timer code seeks to do.
 
-Hi list,
+There is debugging code in here so that when it's used (it's off by
+default at the moment), and a timer that needs to be no_freeze holds up
+I/O, the user can find out what it is. Other code allows the timer
+freezer to be disabled on the fly (so you don't have to reboot because
+of this).
 
-My machine oopsed during an VIDIOCMCAPTURE or an VIDIOCSYNC ioctl.
+(This could replace the patches above for MCE checking and slab
+reaping).
 
-If you need more information please contact me.
-
-Regards,
--G. Jasny
-
-
---------------060305030406060307060901
-Content-Type: text/plain;
- name="v4loops.decoded.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="v4loops.decoded.txt"
-
-ksymoops 2.4.9 on i686 2.6.10-rc2-bk3.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.6.10-rc2-bk3/ (default)
-     -m /boot/System.map-2.6.10-rc2-bk3 (default)
-
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
-
-Error (regular_file): read_ksyms stat /proc/ksyms failed
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Unable to handle kernel paging request at virtual address 00001e00
-f08fe594
-*pde = 00000000
-Oops: 0002 [#1]
-CPU:    0
-EIP:    0060:[<f08fe594>]    Not tainted VLI
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010092   (2.6.10-rc2-bk3)
-eax: d601e924   ebx: 00001e00   ecx: ed6d1080   edx: ed6d10e4
-esi: d601e4c4   edi: ed6d1080   ebp: f0919520   esp: de1d1c58
-ds: 007b   es: 007b   ss: 0068
-Stack: 00000246 00000000 f08ffc12 d601e400 ed6d1080 f0909b34 00000160 00000120
-       00000003 d601e400 ed6d1080 000191f0 ef394500 c03981a0 de1d1cb8 c0110d8f
-       ef394500 00000000 724ff65c 0647ce17 a5d2c4b2 000230c2 00000001 df20e500
-Call Trace:
- [<f08ffc12>] bttv_do_ioctl+0x49c/0x17c0 [bttv]
- [<c0110d8f>] recalc_task_prio+0x93/0x188
- [<c01114d9>] scheduler_tick+0x163/0x439
- [<c011bb3e>] update_process_times+0x46/0x52
- [<c0110d8f>] recalc_task_prio+0x93/0x188
- [<c0110d8f>] recalc_task_prio+0x93/0x188
- [<c0110ee8>] activate_task+0x64/0x77
- [<c01117f9>] __wake_up_common+0x38/0x57
- [<c01e746d>] n_tty_receive_buf+0x163/0xe41
- [<c012fad3>] buffered_rmqueue+0xbf/0x14e
- [<c012fd2b>] __alloc_pages+0x1c9/0x35b
- [<c01e9baf>] pty_write+0x67/0x6b
- [<c01e6237>] tty_default_put_char+0x2b/0x2f
- [<c01e6ad1>] opost+0x9a/0x1a4
- [<c01b9f3c>] copy_from_user+0x42/0x6e
- [<f0819328>] video_usercopy+0x7b/0x135 [videodev]
- [<c01e3b39>] tty_write+0x20e/0x260
- [<c01e8ba6>] write_chan+0x0/0x20d
- [<c0110d8f>] recalc_task_prio+0x93/0x188
- [<f0900f36>] bttv_ioctl+0x0/0x61 [bttv]
- [<f0900f74>] bttv_ioctl+0x3e/0x61 [bttv]
- [<f08ff776>] bttv_do_ioctl+0x0/0x17c0 [bttv]
- [<c0155fc0>] sys_ioctl+0xb7/0x203
- [<c0102deb>] syscall_call+0x7/0xb
-Code: 24 04 8b 44 24 0c 8b 80 c8 00 00 00 8b 4c 24 10 8b 30 8d 51 64 c7 41 20 02 00 00 00 8d 86 60 04 00 00 8b 58 04 89 41 64 89 50 04 <89> 13 89 5a 04 8b8e 7c 04 00 00 85 c9 74 0b 8b 1c 24 8b 74 24
-
-
->>EIP; f08fe594 <pg0+3054b594/3fc4b400>   <=====
-
->>eax; d601e924 <pg0+15c6b924/3fc4b400>
->>ecx; ed6d1080 <pg0+2d31e080/3fc4b400>
->>edx; ed6d10e4 <pg0+2d31e0e4/3fc4b400>
->>esi; d601e4c4 <pg0+15c6b4c4/3fc4b400>
->>edi; ed6d1080 <pg0+2d31e080/3fc4b400>
->>ebp; f0919520 <pg0+30566520/3fc4b400>
->>esp; de1d1c58 <pg0+1de1ec58/3fc4b400>
-
-Trace; f08ffc12 <pg0+3054cc12/3fc4b400>
-Trace; c0110d8f <recalc_task_prio+93/188>
-Trace; c01114d9 <scheduler_tick+163/439>
-Trace; c011bb3e <update_process_times+46/52>
-Trace; c0110d8f <recalc_task_prio+93/188>
-Trace; c0110d8f <recalc_task_prio+93/188>
-Trace; c0110ee8 <activate_task+64/77>
-Trace; c01117f9 <__wake_up_common+38/57>
-Trace; c01e746d <n_tty_receive_buf+163/e41>
-Trace; c012fad3 <buffered_rmqueue+bf/14e>
-Trace; c012fd2b <__alloc_pages+1c9/35b>
-Trace; c01e9baf <pty_write+67/6b>
-Trace; c01e6237 <tty_default_put_char+2b/2f>
-Trace; c01e6ad1 <opost+9a/1a4>
-Trace; c01b9f3c <copy_from_user+42/6e>
-Trace; f0819328 <pg0+30466328/3fc4b400>
-Trace; c01e3b39 <tty_write+20e/260>
-Trace; c01e8ba6 <write_chan+0/20d>
-Trace; c0110d8f <recalc_task_prio+93/188>
-Trace; f0900f36 <pg0+3054df36/3fc4b400>
-Trace; f0900f74 <pg0+3054df74/3fc4b400>
-Trace; f08ff776 <pg0+3054c776/3fc4b400>
-Trace; c0155fc0 <sys_ioctl+b7/203>
-Trace; c0102deb <syscall_call+7/b>
-
-This architecture has variable length instructions, decoding before eip
-is unreliable, take these instructions with a pinch of salt.
-
-Code;  f08fe569 <pg0+3054b569/3fc4b400>
-00000000 <_EIP>:
-Code;  f08fe569 <pg0+3054b569/3fc4b400>
-   0:   24 04                     and    $0x4,%al
-Code;  f08fe56b <pg0+3054b56b/3fc4b400>
-   2:   8b 44 24 0c               mov    0xc(%esp),%eax
-Code;  f08fe56f <pg0+3054b56f/3fc4b400>
-   6:   8b 80 c8 00 00 00         mov    0xc8(%eax),%eax
-Code;  f08fe575 <pg0+3054b575/3fc4b400>
-   c:   8b 4c 24 10               mov    0x10(%esp),%ecx
-Code;  f08fe579 <pg0+3054b579/3fc4b400>
-  10:   8b 30                     mov    (%eax),%esi
-Code;  f08fe57b <pg0+3054b57b/3fc4b400>
-  12:   8d 51 64                  lea    0x64(%ecx),%edx
-Code;  f08fe57e <pg0+3054b57e/3fc4b400>
-  15:   c7 41 20 02 00 00 00      movl   $0x2,0x20(%ecx)
-Code;  f08fe585 <pg0+3054b585/3fc4b400>
-  1c:   8d 86 60 04 00 00         lea    0x460(%esi),%eax
-Code;  f08fe58b <pg0+3054b58b/3fc4b400>
-  22:   8b 58 04                  mov    0x4(%eax),%ebx
-Code;  f08fe58e <pg0+3054b58e/3fc4b400>
-  25:   89 41 64                  mov    %eax,0x64(%ecx)
-Code;  f08fe591 <pg0+3054b591/3fc4b400>
-  28:   89 50 04                  mov    %edx,0x4(%eax)
-
-This decode from eip onwards should be reliable
-
-Code;  f08fe594 <pg0+3054b594/3fc4b400>
-00000000 <_EIP>:
-Code;  f08fe594 <pg0+3054b594/3fc4b400>   <=====
-   0:   89 13                     mov    %edx,(%ebx)   <=====
-Code;  f08fe596 <pg0+3054b596/3fc4b400>
-   2:   89 5a 04                  mov    %ebx,0x4(%edx)
-Code;  f08fe599 <pg0+3054b599/3fc4b400>
-   5:   8e 8b 7c 04 00 00         movl   0x47c(%ebx),%cs
-Code;  f08fe59f <pg0+3054b59f/3fc4b400>
-   b:   85 c9                     test   %ecx,%ecx
-Code;  f08fe5a1 <pg0+3054b5a1/3fc4b400>
-   d:   74 0b                     je     1a <_EIP+0x1a>
-Code;  f08fe5a3 <pg0+3054b5a3/3fc4b400>
-   f:   8b 1c 24                  mov    (%esp),%ebx
-Code;  f08fe5a6 <pg0+3054b5a6/3fc4b400>
-  12:   8b                        .byte 0x8b
-Code;  f08fe5a7 <pg0+3054b5a7/3fc4b400>
-  13:   74 24                     je     39 <_EIP+0x39>
+diff -ruN 550-timer-freezer-old/drivers/block/ll_rw_blk.c
+550-timer-freezer-new/drivers/block/ll_rw_blk.c
+--- 550-timer-freezer-old/drivers/block/ll_rw_blk.c	2004-11-24
+17:55:30.776567832 +1100
++++ 550-timer-freezer-new/drivers/block/ll_rw_blk.c	2004-11-24
+17:23:36.145077968 +1100
+@@ -254,6 +254,7 @@
+ 
+ 	q->unplug_timer.function = blk_unplug_timeout;
+ 	q->unplug_timer.data = (unsigned long)q;
++	q->unplug_timer.no_freeze = 1;
+ 
+ 	/*
+ 	 * by default assume old behaviour and bounce for any highmem page
+diff -ruN 550-timer-freezer-old/drivers/input/serio/i8042.c
+550-timer-freezer-new/drivers/input/serio/i8042.c
+--- 550-timer-freezer-old/drivers/input/serio/i8042.c	2004-11-24
+09:52:58.000000000 +1100
++++ 550-timer-freezer-new/drivers/input/serio/i8042.c	2004-11-24
+17:23:36.154076600 +1100
+@@ -1039,6 +1039,7 @@
+ 	dbg_init();
+ 
+ 	init_timer(&i8042_timer);
++	i8042_timer.no_freeze = 1;
+ 	i8042_timer.function = i8042_timer_func;
+ 
+ 	if (i8042_platform_init())
+diff -ruN 550-timer-freezer-old/include/linux/timer.h
+550-timer-freezer-new/include/linux/timer.h
+--- 550-timer-freezer-old/include/linux/timer.h	2004-11-03
+21:54:17.000000000 +1100
++++ 550-timer-freezer-new/include/linux/timer.h	2004-11-24
+17:23:36.169074320 +1100
+@@ -19,6 +19,8 @@
+ 	unsigned long data;
+ 
+ 	struct tvec_t_base_s *base;
++
++	int no_freeze;
+ };
+ 
+ #define TIMER_MAGIC	0x4b87ad6e
+diff -ruN 550-timer-freezer-old/kernel/timer.c
+550-timer-freezer-new/kernel/timer.c
+--- 550-timer-freezer-old/kernel/timer.c	2004-11-24 17:55:30.863554608
++1100
++++ 550-timer-freezer-new/kernel/timer.c	2004-11-24 17:55:22.021898744
++1100
+@@ -31,6 +31,7 @@
+ #include <linux/time.h>
+ #include <linux/jiffies.h>
+ #include <linux/cpu.h>
++#include <linux/suspend.h>
+ #include <linux/syscalls.h>
+ 
+ #include <asm/uaccess.h>
+@@ -429,6 +430,9 @@
+  */
+ #define INDEX(N) (base->timer_jiffies >> (TVR_BITS + N * TVN_BITS)) &
+TVN_MASK
+ 
++#define FN_CACHE_SIZE 15
++static void * recent_fns[FN_CACHE_SIZE];
++
+ static inline void __run_timers(tvec_base_t *base)
+ {
+ 	struct timer_list *timer;
+@@ -463,7 +467,23 @@
+ 			smp_wmb();
+ 			timer->base = NULL;
+ 			spin_unlock_irq(&base->lock);
+-			fn(data);
++			if (unlikely(test_suspend_state(SUSPEND_TIMER_FREEZER_ON) &&
+(!timer->no_freeze))) {
++				int shown = 0, i, copy_start = 0;
++				for (i = 0; i < FN_CACHE_SIZE; i++)
++					if (fn == recent_fns[i]) {
++						shown = i + 1;
++						copy_start = i;
++						break;
++					}
++				for (i = copy_start; i < (FN_CACHE_SIZE - 1); i++)
++					recent_fns[i] = recent_fns[i+1];
++				recent_fns[FN_CACHE_SIZE - 1] = fn;
++				if (!shown) {
++					printk("Timed call of %p delayed while freezer on.\n", fn);
++				}
++				mod_timer(timer, jiffies + HZ);
++			} else
++				fn(data);
+ 			spin_lock_irq(&base->lock);
+ 			goto repeat;
+ 		}
+diff -ruN 550-timer-freezer-old/net/sched/sch_generic.c
+550-timer-freezer-new/net/sched/sch_generic.c
+--- 550-timer-freezer-old/net/sched/sch_generic.c	2004-11-24
+09:53:13.000000000 +1100
++++ 550-timer-freezer-new/net/sched/sch_generic.c	2004-11-24
+17:23:36.189071280 +1100
+@@ -210,6 +210,7 @@
+ 	init_timer(&dev->watchdog_timer);
+ 	dev->watchdog_timer.data = (unsigned long)dev;
+ 	dev->watchdog_timer.function = dev_watchdog;
++	dev->watchdog_timer.no_freeze = 1;
+ }
+ 
+ void __netdev_watchdog_up(struct net_device *dev)
 
 
-1 warning and 1 error issued.  Results may not be reliable.
-
-
---------------060305030406060307060901--

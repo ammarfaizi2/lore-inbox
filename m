@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273739AbRI0Rqy>; Thu, 27 Sep 2001 13:46:54 -0400
+	id <S273749AbRI0R6f>; Thu, 27 Sep 2001 13:58:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273745AbRI0Rqo>; Thu, 27 Sep 2001 13:46:44 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:55053 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S273739AbRI0Rqd>;
-	Thu, 27 Sep 2001 13:46:33 -0400
-Date: Thu, 27 Sep 2001 19:44:37 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>,
-        <bcrl@redhat.com>, <marcelo@conectiva.com.br>,
-        Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: Locking comment on shrink_caches()
-In-Reply-To: <Pine.LNX.4.33.0109270835130.17030-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0109271925400.9180-100000@localhost.localdomain>
+	id <S273751AbRI0R6Z>; Thu, 27 Sep 2001 13:58:25 -0400
+Received: from mailhost.iworld.com ([63.95.15.3]:31666 "EHLO
+	mailhost.iworld.com") by vger.kernel.org with ESMTP
+	id <S273749AbRI0R6Q>; Thu, 27 Sep 2001 13:58:16 -0400
+Message-ID: <3BB3684F.A4A4DB3C@internet.com>
+Date: Thu, 27 Sep 2001 13:56:31 -0400
+From: Byron Albert <balbert@internet.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: megaraid driver only seeing 2 of 3 logical dirve.
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I just added an ami megaraid card to a machine. I configured the 6  9gb
+drives to look like 3 18gb drives and then booted. Linux only saw 2 of
+the 3 drive.  I think got the latest kernel and compiled and rebooted
+and the same below is the relevant dmesg info.  It says it detected 3
+logical drives but the driver only uses two of them.
 
-On Thu, 27 Sep 2001, Linus Torvalds wrote:
+I really need this other drive so any help would be appreciated.
 
-> prefetching and friends won't do _anything_ for the case of a cache
-> line bouncing back and forth between CPU's.
+Byron
 
-yep. that is exactly what was happening with pagecache_lock, while an
-8-way system served 300+ MB/sec worth of SPECweb99 HTTP content in 1500
-byte packets. Under that kind of workload the pagecache is used
-read-mostly, and due to zerocopy (and Linux's hyper-scalable networking
-code) there isnt much left that pollutes caches and/or inhibits raw
-performance in any way. pagecache_lock was the top non-conceptual
-cacheline-miss offender in instruction-level profiles of such workloads.
-Does it show up on a dual PIII with 128 MB RAM? Probably not as strongly.
-Are there other offenders under other kinds of workloads that have a
-bigger effect than pagecache_lock? Probably yes - but this does not
-justify ignoring the effects of pagecache_lock.
+p.s. please cc me as I am in the proccess of joining the list
 
-(to be precise there was another offender - timerlist_lock, we've fixed it
-before fixing pagecache_lock, and posted a patch for that one too. It's
-available under http://redhat.com/~mingo/scalable-timers/. I know no other
-scalability offenders for read-mostly pagecache & network-intensive
-workloads for the time being.)
 
-	Ingo
+SCSI subsystem driver Revision: 1.00
+megaraid: v1.17a (Release Date: Fri Jul 13 18:44:01 EDT 2001)
+megaraid: found 0x8086:0x1960:idx 0:bus 0:slot 5:func 1
+scsi0 : Found a MegaRAID controller at 0xf8808000, IRQ: 10
+megaraid: [C :B ] detected 3 logical drives
+megaraid: channel[1] is raid.
+megaraid: channel[2] is raid.
+megaraid: channel[3] is raid.
+megaraid: no BIOS enabled.
+scsi0 : AMI MegaRAID C  254 commands 16 targs 3 chans 8 luns
+scsi0: scanning channel 1 for devices.
+scsi0: scanning channel 2 for devices.
+scsi0: scanning channel 3 for devices.
+scsi0: scanning virtual channel for logical drives.
+  Vendor: MegaRAID  Model: LD0 RAID0 17354R  Rev:   C
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+  Vendor: MegaRAID  Model: LD1 RAID0 17354R  Rev:   C
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+Attached scsi disk sda at scsi0, channel 3, id 0, lun 0
+Attached scsi disk sdb at scsi0, channel 3, id 0, lun 1
+SCSI device sda: 35540992 512-byte hdwr sectors (18197 MB)
+ sda: sda1
+SCSI device sdb: 35540992 512-byte hdwr sectors (18197 MB)
+ sdb: sdb1
+
 

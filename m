@@ -1,76 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132333AbQK3AaV>; Wed, 29 Nov 2000 19:30:21 -0500
+        id <S132347AbQK3Abv>; Wed, 29 Nov 2000 19:31:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132369AbQK3AaL>; Wed, 29 Nov 2000 19:30:11 -0500
-Received: from smtp.lax.megapath.net ([216.34.237.2]:27666 "EHLO
-        smtp.lax.megapath.net") by vger.kernel.org with ESMTP
-        id <S132333AbQK3AaD>; Wed, 29 Nov 2000 19:30:03 -0500
-Message-ID: <3A2597E7.1000100@megapathdsl.net>
-Date: Wed, 29 Nov 2000 15:57:27 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test12 i686; en-US; m18) Gecko/20001127
+        id <S132369AbQK3Abl>; Wed, 29 Nov 2000 19:31:41 -0500
+Received: from nifty.blue-labs.org ([208.179.0.193]:10023 "EHLO
+        nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
+        id <S132347AbQK3Abc>; Wed, 29 Nov 2000 19:31:32 -0500
+Message-ID: <3A255CEB.A598A811@linux.com>
+Date: Wed, 29 Nov 2000 11:45:47 -0800
+From: David Ford <david@linux.com>
+Organization: Blue Labs
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test12 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: PCI bug? -- Re: USB doesn't work with 440MX chipset, PCI IRQ problem?
-In-Reply-To: <20001130004123.B1327@arthur.ubicom.tudelft.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [oops] test12-2, yet another apm related oops
+Content-Type: multipart/mixed;
+ boundary="------------0CC8B5F9752F43CD50B4658F"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw wrote:
+This is a multi-part message in MIME format.
+--------------0CC8B5F9752F43CD50B4658F
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> Hi all,
-> 
-> I got a new laptop with an Intel 440MX chipset, and USB doesn't work at
-> all. I tried both the UHCI drivers, but none of them works. The drivers
-> load OK, the USB hardware is detected, but as soon as I plug in a USB
-> device, I get the following debug messages (this is with a Logitech USB
-> mouse):
+Unable to handle kernel NULL pointer dereference at virtual address
+000000fc
+c02b3527
+*pde = 02253067
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c02b3527>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010293
+eax: 00000000   ebx: c90cb800   ecx: c03826a8   edx: 00000001
+esi: 00000003   edi: c13a4400   ebp: 00000000   esp: cbf7bf00
+ds: 0018   es: 0018   ss: 0018
+Process kapm-idled (pid: 2, stackpage=cbf7b000)
+Stack: bcbc2507 00000000 c90cb800 c02b7894 bcbc2507 c90cb800 00000001
+c13a4200
+       c0253c9a c90cb800 c13a4200 00000003 00000000 c0253e61 c0253e79
+c13a4400
+       cbf07be0 c0253f06 c13a4200 c0115d71 cbf07be0 00000000 00000003
+cbf07bfc
+Call Trace: [<c02b7894>] [<c0253c9a>] [<c0253e61>] [<c0253e79>]
+[<c0253f06>] [<c0115d71>] [<c0115e05>]
+       [<c0110d19>] [<c0110f6b>] [<c011108b>] [<c0111155>] [<c02e603c>]
+[<c0111a5a>] [<c01095db>] [<c01095e4>]
+Code: 8b 80 fc 00 00 00 50 e8 b1 b9 00 00 89 c3 83 c4 0c 85 db 74
+>>EIP; c02b3527 <irlmp_unregister_link+23/98>   <=====
+Trace; c02b7894 <irlap_close+78/c0>
+Trace; c0253c9a <nsc_ircc_net_close+92/100>
+Trace; c0253e61 <nsc_ircc_suspend+15/3c>
+Trace; c0253e79 <nsc_ircc_suspend+2d/3c>
+Trace; c0253f06 <nsc_ircc_pmproc+22/30>
+Trace; c0115d71 <pm_send+2d/58>
+Trace; c0115e05 <pm_send_all+2d/5c>
+Trace; c0110d19 <send_event+21/70>
+Trace; c0110f6b <check_events+f7/19c>
+Trace; c011108b <apm_event_handler+7b/7c>
+Trace; c0111155 <apm_mainloop+c9/100>
+Trace; c02e603c <error_table+4f8/39a4>
+Trace; c0111a5a <apm+28a/29c>
+Trace; c01095db <kernel_thread+1f/38>
+Trace; c01095e4 <kernel_thread+28/38>
+Code;  c02b3527 <irlmp_unregister_link+23/98>
+00000000 <_EIP>:
+Code;  c02b3527 <irlmp_unregister_link+23/98>   <=====
+   0:   8b 80 fc 00 00 00         mov    0xfc(%eax),%eax   <=====
+Code;  c02b352d <irlmp_unregister_link+29/98>
+   6:   50                        push   %eax
+Code;  c02b352e <irlmp_unregister_link+2a/98>
+   7:   e8 b1 b9 00 00            call   b9bd <_EIP+0xb9bd> c02beee4
+<hashbin_remove+0/17c>
+Code;  c02b3533 <irlmp_unregister_link+2f/98>
+   c:   89 c3                     mov    %eax,%ebx
+Code;  c02b3535 <irlmp_unregister_link+31/98>
+   e:   83 c4 0c                  add    $0xc,%esp
+Code;  c02b3538 <irlmp_unregister_link+34/98>
+  11:   85 db                     test   %ebx,%ebx
+Code;  c02b353a <irlmp_unregister_link+36/98>
+  13:   74 00                     je     15 <_EIP+0x15> c02b353c
+<irlmp_unregister_link+38/98>
 
-Erik,
+-d
 
-This looks more like a PCI bug than a USB bug.
 
-	Miles
+--------------0CC8B5F9752F43CD50B4658F
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="david.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for David Ford
+Content-Disposition: attachment;
+ filename="david.vcf"
 
-> PCI: BIOS32 Service Directory structure at 0xc00f6bf0
-> PCI: BIOS32 Service Directory entry at 0xfd762
-> PCI: BIOS probe returned s=00 hw=01 ver=02.10 l=01
-> PCI: PCI BIOS revision 2.10 entry at 0xfd987, last bus=1
-> PCI: Using configuration type 1
-> PCI: Probing PCI hardware
-> PCI: IDE base address fixup for 00:07.1
-> PCI: Scanning for ghost devices on bus 0
-> PCI: IRQ init
-> PCI: Interrupt Routing Table found at 0xc00fdf50
-> 00:07 slot=00 0:00/def8 1:00/def8 2:00/def8 3:63/0800
-> 00:09 slot=00 0:62/0800 1:00/def8 2:00/def8 3:00/def8
-> 01:04 slot=00 0:60/0800 1:00/def8 2:00/def8 3:00/def8
-> 01:08 slot=00 0:60/0800 1:00/def8 2:00/def8 3:00/def8
-> 00:0a slot=00 0:60/0800 1:00/def8 2:00/def8 3:00/def8
-> 00:02 slot=00 0:60/0800 1:00/def8 2:00/def8 3:00/def8
-> 00:00 slot=00 0:00/def8 1:61/08e0 2:00/def8 3:00/def8
-> PCI: Using IRQ router PIIX [8086/7198] at 00:07.0
-> PCI: IRQ fixup
-> 00:0a.0: ignoring bogus IRQ 255
-> IRQ for 00:0a.0(0) via 00:0a.0 -> PIRQ 60, mask 0800, excl 0000 -> got IRQ 11
-> PCI: Found IRQ 11 for device 00:0a.0
-> PCI: The same IRQ used for device 00:02.0
-> PCI: Allocating resources
-> PCI: Resource 0000f800-0000f8ff (f=101, d=0, p=0)
-> PCI: Resource 0000fc00-0000fc3f (f=101, d=0, p=0)
-> PCI: Resource f8000000-fbffffff (f=200, d=0, p=0)
-> PCI: Resource 0000fc90-0000fc9f (f=101, d=0, p=0)
-> PCI: Resource 0000fca0-0000fcbf (f=101, d=0, p=0)
-> PCI: Resource fedffc00-fedffcff (f=200, d=0, p=0)
-> PCI: Resource 0000fc88-0000fc8f (f=109, d=0, p=0)
-> PCI: Resource 0000f400-0000f4ff (f=101, d=0, p=0)
->   got res[10000000:10000fff] for resource 0 of Ricoh Co Ltd RL5c475
-> PCI: Sorting device list...
+begin:vcard 
+n:Ford;David
+x-mozilla-html:TRUE
+url:www.blue-labs.org
+adr:;;;;;;
+version:2.1
+email;internet:david@blue-labs.org
+title:Blue Labs Developer
+note;quoted-printable:GPG key: http://www.blue-labs.org/david@nifty.key=0D=0A
+x-mozilla-cpt:;9952
+fn:David Ford
+end:vcard
+
+--------------0CC8B5F9752F43CD50B4658F--
+
 
 
 -

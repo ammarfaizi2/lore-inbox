@@ -1,48 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129295AbQKWWBx>; Thu, 23 Nov 2000 17:01:53 -0500
+        id <S130753AbQKWWCd>; Thu, 23 Nov 2000 17:02:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130420AbQKWWBn>; Thu, 23 Nov 2000 17:01:43 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:29413 "EHLO math.psu.edu")
-        by vger.kernel.org with ESMTP id <S129295AbQKWWBb>;
-        Thu, 23 Nov 2000 17:01:31 -0500
-Date: Thu, 23 Nov 2000 16:31:28 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: {PATCH} isofs stuff
-In-Reply-To: <20001123225900.E28963@mea-ext.zmailer.org>
-Message-ID: <Pine.GSO.4.21.0011231618120.11491-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S130756AbQKWWCX>; Thu, 23 Nov 2000 17:02:23 -0500
+Received: from db0bm.automation.fh-aachen.de ([193.175.144.197]:5639 "EHLO
+        db0bm.ampr.org") by vger.kernel.org with ESMTP id <S130753AbQKWWCH>;
+        Thu, 23 Nov 2000 17:02:07 -0500
+Date: Thu, 23 Nov 2000 22:32:01 +0100
+From: f5ibh <f5ibh@db0bm.ampr.org>
+Message-Id: <200011232132.WAA29552@db0bm.ampr.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.18pre, usb mouse messages
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+
+I use an USB mouse, it works perfectly both with 'gpm' and with X-window but
+time to time, I've this kind of message stream :
+
+[root@debian-f5ibh] ~ # usb-uhci.c: interrupt, status 3, frame# 20
+usb-uhci.c: interrupt, status 3, frame# 44
+usb-uhci.c: interrupt, status 3, frame# 68
+usb-uhci.c: interrupt, status 3, frame# 92
+usb-uhci.c: interrupt, status 3, frame# 116
+usb-uhci.c: interrupt, status 3, frame# 140
+usb-uhci.c: interrupt, status 3, frame# 164
+usb-uhci.c: interrupt, status 3, frame# 188
+usb-uhci.c: interrupt, status 3, frame# 212
+hub.c: already running port 2 disabled by hub (EMI?), re-enabling...
+
+This message appears with most (all ?) of the 2.2.18pre releases, the actual
+one is 2.2.18pre23.
+
+Computer is pentium 200MMX, 64Mb SDRAM.
+
+Relevant CONFIG bits :
+----------------------
+# USB support
+#
+CONFIG_USB=m
+# CONFIG_USB_DEBUG is not set
+
+# Miscellaneous USB options
+#
+CONFIG_USB_DEVICEFS=y
+CONFIG_HOTPLUG=y
+# CONFIG_USB_BANDWIDTH is not set
+
+#
+# USB Controllers
+#
+CONFIG_USB_UHCI=m
+# CONFIG_USB_UHCI_ALT is not set
+# CONFIG_USB_OHCI is not set
+
+#
+# USB Devices
+#
+# CONFIG_USB_PRINTER is not set
+# CONFIG_USB_SCANNER is not set
+# CONFIG_USB_AUDIO is not set
+# CONFIG_USB_ACM is not set
+# CONFIG_USB_SERIAL is not set
+# CONFIG_USB_IBMCAM is not set
+# CONFIG_USB_OV511 is not set
+# CONFIG_USB_DC2XX is not set
+# CONFIG_USB_MDC800 is not set
+# CONFIG_USB_STORAGE is not set
+# CONFIG_USB_DABUSB is not set
+# CONFIG_USB_PLUSB is not set
+# CONFIG_USB_PEGASUS is not set
+#
+# USB HID
+#
+CONFIG_USB_HID=m
+# CONFIG_USB_KBD is not set
+# CONFIG_USB_MOUSE is not set
+# CONFIG_USB_WACOM is not set
+# CONFIG_USB_WMFORCE is not set
+# CONFIG_INPUT_KEYBDEV is not set
+CONFIG_INPUT_MOUSEDEV=m
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_EVDEV is not set
 
 
-On Thu, 23 Nov 2000, Matti Aarnio wrote:
+boot messages :
+---------------
+usb.c: registered new driver usbdevfs
+usb.c: registered new driver hub
+usb.c: registered new driver hid
+usb-uhci.c: $Revision: 1.237 $ time 23:53:07 Nov 23 2000
+usb-uhci.c: High bandwidth mode enabled
+usb-uhci.c: USB UHCI at I/O 0x6100, IRQ 11
+usb-uhci.c: Detected 2 ports
+usb.c: new USB bus registered, assigned bus number 1
+usb.c: USB new device connect, assigned device number 1
+hub.c: USB hub found
+hub.c: 2 ports detected
+mice: PS/2 mouse device common for all mice
+usb.c: USB new device connect, assigned device number 2
+mouse0: PS/2 mouse device for input0
+input0: USB HID v1.00 Mouse [Cypress Sem. Cypress USB Mouse] on usb1:2.0
+hub.c: already running port 2 disabled by hub (EMI?), re-enabling...
+usb.c: USB disconnect on device 2
+usb.c: USB new device connect, assigned device number 2
+mouse0: PS/2 mouse device for input0
+input0: USB HID v1.00 Mouse [Cypress Sem. Cypress USB Mouse] on usb1:2.0
 
-> On Thu, Nov 23, 2000 at 12:38:55PM -0800, Linus Torvalds wrote:
-> ... 
-> > In fact, almost all filesystems do this at some point. ext2 does it for
-> > directories too, for some very similar reasons that isofs does. See
-> > fs/ext2/dir.c:
-> > 
-> > 	blk = (filp->f_pos) >> EXT2_BLOCK_SIZE_BITS(sb);
-> > 
-> > (and don't ask me about the extraneous parenthesis. I bet some LISP
-> > programmer felt alone and decided to make it a bit more homey).
-> > 
-> > 		Linus
-> 
->    Propably some programmer has been bitten once too many times with
->    C's operator precedence rules, which only affect more complicated
->    expressions -- and thus are used rarely, and not remembered well.
+----
+Regards
 
-Come again?  Precedence or not, how in hell could anything be stronger than
--> or . on the _right_ side? Field names are atoms, you can't have an
-expression there...
-
+Jean-Luc
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

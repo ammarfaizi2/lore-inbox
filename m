@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317876AbSGaJwp>; Wed, 31 Jul 2002 05:52:45 -0400
+	id <S317887AbSGaKDR>; Wed, 31 Jul 2002 06:03:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317878AbSGaJwp>; Wed, 31 Jul 2002 05:52:45 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:7677 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S317876AbSGaJwp>; Wed, 31 Jul 2002 05:52:45 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20020730225736.K7677@flint.arm.linux.org.uk> 
-References: <20020730225736.K7677@flint.arm.linux.org.uk>  <20020730122638.A11153@ucw.cz> <20020730122918.A11248@ucw.cz> <20020730152255.A20071@ucw.cz> <20020730152342.B20071@ucw.cz> <20020730221722.A22761@ucw.cz> 
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, linuxconsole-dev@lists.sourceforge.net
-Subject: Re: [patch] Fix suspend of the kseriod thread 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 31 Jul 2002 10:55:54 +0100
-Message-ID: <9658.1028109354@redhat.com>
+	id <S317889AbSGaKDR>; Wed, 31 Jul 2002 06:03:17 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:26377 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S317887AbSGaKDR>;
+	Wed, 31 Jul 2002 06:03:17 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: akpm@zip.com.au
+Date: Wed, 31 Jul 2002 12:06:31 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: BUG at rmap.c:212
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <AA4A1044BB@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+  yesterday I told (in IDE thread) that BUG at rmap.c:212 is probably
+already fixed by changeset 520. Unfortunately, it is not, I got it again
+with BK tree. It happened again when 'ntpd' called exit() upon receiving
+sigterm.
 
-rmk@arm.linux.org.uk said:
->  Isn't interruptible_sleep_on() taboo? 
+  Stack trace:
+  
+  page_remove_rmap
+  zap_pte_range
+  zap_pmd_range
+  unmap_page_range
+  exit_mmap
+  mmput
+  do_exit
+  sys_exit
+  syscall_call
 
-With the demise of cli() and the continued removal of the BKL, all users of 
-sleep_on() are probably buggy. We should remove it completely.
-
---
-dwmw2
-
-
+If it is not known bug, I'll rebuild kernel with DEBUG_RMAP. Unfortunately
+it looks like that machine must have uptime > 12hrs to trigger this. Probably
+updatedb or some other task must be run to try to swap ntpd out?
+                                                Best regards,
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
+                                                    

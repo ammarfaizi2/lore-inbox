@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261935AbUKDBB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262036AbUKDBB5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261935AbUKDBB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 20:01:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbUKDA5W
+	id S262036AbUKDBB5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 20:01:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbUKDBBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 19:57:22 -0500
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:63453 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S262032AbUKDAvz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 19:51:55 -0500
-Date: Wed, 3 Nov 2004 16:51:45 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Roland Kaeser <roli8200@yahoo.de>
-Cc: Blaisorblade <blaisorblade_spam@yahoo.it>,
-       user-mode-linux-user@lists.sourceforge.net,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [uml-user] Harddisk Shutdown while UML Guest Shutdown
-Message-ID: <20041104005145.GB17583@taniwha.stupidest.org>
-References: <200411032000.34677.blaisorblade_spam@yahoo.it> <20041103192155.86313.qmail@web26104.mail.ukl.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 3 Nov 2004 20:01:46 -0500
+Received: from relay01.roc.ny.frontiernet.net ([66.133.131.34]:24722 "EHLO
+	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S262039AbUKDA6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 19:58:21 -0500
+From: Russell Miller <rmiller@duskglow.com>
+To: Kurt Wall <kwall@kurtwerks.com>
+Subject: Re: is killing zombies possible w/o a reboot?
+Date: Wed, 3 Nov 2004 20:01:28 -0500
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <200411030751.39578.gene.heskett@verizon.net> <200411031540.03598.gene.heskett@verizon.net> <20041104004342.GD5283@kurtwerks.com>
+In-Reply-To: <20041104004342.GD5283@kurtwerks.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20041103192155.86313.qmail@web26104.mail.ukl.yahoo.com>
+Message-Id: <200411031901.28977.rmiller@duskglow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 03, 2004 at 08:21:55PM +0100, Roland Kaeser wrote:
+On Wednesday 03 November 2004 18:43, Kurt Wall wrote:
 
-> And no, the HOST!! freezes after exit of the guest kernel.
+> This might just be semantics, but device drivers are part of the kernel.
+>
+This brings up another question I've had since reading the documentation on 
+later pentium-class chips:
 
-does this happen w/o the SKAS patch?
+why are only rings 0 and 3 used in linux?
 
-> And i get a Kernel panic from the HOST!! kernel, this in case the
-> host (ide) harddisk drive spins down (but not spins up anymore).
+--Russell
 
-oops details please
+> Kurt
 
-> My idea is that some routines to spin down the harddisk are been
-> routed outside the uml guest kernel or not been sucessfully removed
-> for the uml architecture.
+-- 
 
-unlikely, uml catches the ioctls hdparm uses (i have a patch for this
-cleaning things up somewhere or maybe it got merged).  uml shouldn't
-propagate the ioctls out
-
-> Is it possible that the /sbin/halt binary can have made something
-> with the hosts harddisk?
-
-not directly, but it might trigger something
-
-> How can i get the kernel panic message from the host?
-
-uml is triggering a host OS bug
+Russell Miller - rmiller@duskglow.com - Le Mars, IA
+Duskglow Consulting - Helping companies just like you to succeed for ~ 10 yrs.
+http://www.duskglow.com - 712-546-5886

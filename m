@@ -1,118 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262153AbUKWGHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262199AbUKWGKx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262153AbUKWGHF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 01:07:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbUKWGFJ
+	id S262199AbUKWGKx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 01:10:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262112AbUKWGKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 01:05:09 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:32965 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262112AbUKWGDV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 01:03:21 -0500
-Subject: [PATCH 2.6.9] fork: add a hook in do_fork()
-From: Guillaume Thouvenin <Guillaume.Thouvenin@Bull.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, guillaume.thouvenin@bull.net
-Date: Tue, 23 Nov 2004 07:03:17 +0100
-Message-Id: <1101189797.6210.53.camel@frecb000711.frec.bull.fr>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 23/11/2004 07:10:22,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 23/11/2004 07:10:23,
-	Serialize complete at 23/11/2004 07:10:23
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Nov 2004 01:10:50 -0500
+Received: from fmr99.intel.com ([192.55.52.32]:37815 "EHLO
+	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262199AbUKWGJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 01:09:35 -0500
+Subject: Re: Fw: ACPI bug causes cd-rom lock-ups (2.6.10-rc2)
+From: Len Brown <len.brown@intel.com>
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: Andrew Morton <akpm@osdl.org>, Linux kernel <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+In-Reply-To: <41990138.7080008@aknet.ru>
+References: <41990138.7080008@aknet.ru>
 Content-Type: text/plain
+Organization: 
+Message-Id: <1101190148.19999.394.camel@d845pe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 23 Nov 2004 01:09:09 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> ACPI: PCI Interrupt Link [LNK1] (IRQs 3 4 5 6 7 10 11 12 14 15) *9
 
-   For a module, I need to execute a function when a fork occurs. My
-solution is to add a pointer to a function (called fork_hook) in the
-do_fork() and if this pointer isn't NULL, I call the function. To update
-the pointer to the function I export a symbol (called trace_fork) that
-defines another function with two parameters (the hook and an
-identifier). This function provides a simple mechanism to manage access
-to the fork_hook variable.
+This is a common BIOS bug.  It advertises that LNK1 is presently set
+to IRQ9, but tells us that IRQ9 is actually illegal for that link;
+so Linus has to choose a legal one. (no, we can't just leave it there,
+as that breaks other systems).  But apparently we choose poorly.
 
-   I don't know if this solution is good but it's easy to implement and
-it just does the trick. I made some tests and it doesn't impact the
-performance of the Linux kernel. 
+> Probing IDE interface ide1...
+> hdc: ASUS CD-S500/A, ATAPI CD/DVD-ROM drive
+> ide1 at 0x170-0x177,0x376 on irq 15
 
-   I'd like to have your comment about this patch. Is it useful and is
-it needed by someone else than me? 
+IDE probes out and grabs its hard-coded IRQ15.
 
-Any comments are welcome,
+> ACPI: PCI Interrupt Link [LNK1] enabled at IRQ 15
+> PCI: setting IRQ 15 as level-triggered
+> ACPI: PCI interrupt 0000:00:1f.4[C] -> GSI 15 (level, low) -> IRQ 15
+> uhci_hcd 0000:00:1f.4: Intel Corp. 82801BA/BAM USB (Hub #2)
 
-Guillaume
+Here we assign LNK1 to IRQ15 for the benefit of USB,
+which, of course, kills your IDE on IRQ 15.  This
+is a Linux bug -- but one I thought we fixed some time back.
 
-Signed-Off-By: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+> hdc: lost interrupt
 
---- kernel/fork.c.orig	2004-10-19 08:41:53.000000000 +0200
-+++ kernel/fork.c	2004-11-22 14:45:15.700858800 +0100
-@@ -60,6 +60,51 @@ rwlock_t tasklist_lock __cacheline_align
- 
- EXPORT_SYMBOL(tasklist_lock);
- 
-+/* 
-+ * fork_hook is a pointer to a function to call when forking if it 
-+ * isn't NULL.  
-+ */
-+void (*fork_hook) (int, int) = NULL;
-+
-+/**
-+ * trace_fork: call a given external function when forking
-+ * @func: function to call
-+ * @id: identifier of fork_hook's owner
-+ *
-+ * This function sets the fork_hook and makes some sanity checks.
-+ * Function returns 0 on success, -1 on failure (ie hook is 
-+ * already used).
-+ */
-+int trace_fork(void (*func) (int, int), int id)
-+{
-+	/* 
-+	 * fork_hook_id is used as a lock to protect the use of 
-+	 * fork_hook variable. A module can set the fork_hook 
-+	 * variable if it's not already used (fork_hook_id == 0)
-+	 * or if it has the corresponding fork_hook_id. 
-+	 * We use a static variable to keep its last value.
-+	 */
-+	static int fork_hook_id = 0;
-+
-+	/* We can set the hook if it's not already used */
-+	if ((func != NULL) && (fork_hook_id == 0)) {
-+		fork_hook = func;
-+		fork_hook_id = id;
-+		return 0;
-+	}
-+
-+	/* We can remove the hook if we are the owner */
-+	if ((func == NULL) && (fork_hook_id == id)) {
-+		fork_hook = NULL;
-+		fork_hook_id = 0;
-+		return 0;
-+	}
-+
-+	/* Request can not be satisfied */
-+	return -1;
-+}
-+EXPORT_SYMBOL(trace_fork);
-+
- int nr_processes(void)
- {
- 	int cpu;
-@@ -1281,6 +1326,10 @@ long do_fork(unsigned long clone_flags,
- 		free_pidmap(pid);
- 		pid = PTR_ERR(p);
- 	}
-+
-+	if (fork_hook != NULL)
-+		fork_hook(current->pid, pid);
-+
- 	return pid;
- }
+----------
+I'm surprised that you're just seeing this now in 2.6.10.
+Did 2.6.9 work correctly?  If so, can you send me the
+2.6.9 dmesg?
+
+Any difference with CONFIG_PNP=n?
+
+thanks,
+-Len
+
 
 

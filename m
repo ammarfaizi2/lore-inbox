@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315721AbSE2XUu>; Wed, 29 May 2002 19:20:50 -0400
+	id <S315725AbSE2XWk>; Wed, 29 May 2002 19:22:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315720AbSE2XUt>; Wed, 29 May 2002 19:20:49 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:33290 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315721AbSE2XUs>; Wed, 29 May 2002 19:20:48 -0400
-Message-ID: <3CF554A1.4090607@evision-ventures.com>
-Date: Thu, 30 May 2002 00:22:25 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: James Simmons <jsimmons@transvirtual.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: Linux 2.5.19
-In-Reply-To: <20020529211702.E30585@flint.arm.linux.org.uk> <Pine.LNX.4.10.10205291331500.19493-100000@www.transvirtual.com> <20020529214739.F30585@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S315734AbSE2XWj>; Wed, 29 May 2002 19:22:39 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:7323 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S315725AbSE2XWi>; Wed, 29 May 2002 19:22:38 -0400
+Date: Wed, 29 May 2002 16:22:28 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.19 - What's up with the kernel build?
+Message-ID: <20020529232228.GX5997@opus.bloom.county>
+In-Reply-To: <Pine.LNX.4.44.0205291519270.9971-100000@chaos.physics.uiowa.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
+On Wed, May 29, 2002 at 03:22:52PM -0500, Kai Germaschewski wrote:
 
-> I'm not talking about general maintainence of the cyber2000fb driver here,
-> or general "keep it working" type changes.  I'm talking about a blatent
-> "take the version from the rmk patch and submit it to Linus without telling
-> the maintainer of the code you're buggering with" attitude here.
+> >>> It's possible with only small changes to provide a quiet mode now,
+> >>> which would not print the entire command lines but only
+> >>>
+> >>>	  Descending into drivers/isdn/kcapi
+> >>>	  Compiling kcapi.o
+> >>>	  Compiling capiutil.o
+> >>>	  Linking kernelcapi.o
+> >>>	  ...
+> >>>
+> >>> Is that considered useful?
 
-Dear Russell why don't you just abuse Linus as a spinlock for this kind
-of synchronization its his job. No need to get angry at this.
-Hey it's developement series time...
+I don't think so.  If you're on a slow connection or something, redirect
+stdout to a log and watch stderr.  If you just want something prettier,
+and this is easy, I don't think this is a bad thing.  I don't think it
+should be the default tho either. :)
 
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

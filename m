@@ -1,20 +1,19 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315431AbSEBVXV>; Thu, 2 May 2002 17:23:21 -0400
+	id <S315432AbSEBVZi>; Thu, 2 May 2002 17:25:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315432AbSEBVXU>; Thu, 2 May 2002 17:23:20 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:29084 "EHLO
+	id <S315433AbSEBVZh>; Thu, 2 May 2002 17:25:37 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:13982 "EHLO
 	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S315431AbSEBVWb>; Thu, 2 May 2002 17:22:31 -0400
-Date: Thu, 02 May 2002 15:20:39 -0700
+	id <S315432AbSEBVZf>; Thu, 2 May 2002 17:25:35 -0400
+Date: Thu, 02 May 2002 15:23:39 -0700
 From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: William Lee Irwin III <wli@holomorphy.com>,
-        Andrea Arcangeli <andrea@suse.de>
+To: Gerrit Huizenga <gh@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>
 cc: Daniel Phillips <phillips@bonn-fries.net>,
         Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
-Message-ID: <148490000.1020378039@flay>
-In-Reply-To: <20020502191903.GL32767@holomorphy.com>
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?] 
+Message-ID: <149580000.1020378219@flay>
+In-Reply-To: <E173MG4-00024o-00@w-gerrit2>
 X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,24 +22,20 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, May 02, 2002 at 08:41:36PM +0200, Andrea Arcangeli wrote:
->> but can you plugin 32bit pci hardware into your 64bit-pci slots, right?
->> If not, and if you're also sure the linux drivers for your hardware are all
->> 64bit-pci capable then you can do the changes regardless of the 4G
->> limit, in such case you can spread the direct mapping all over the whole
->> 64G physical ram, whereever you want, no 4G constraint anymore.
+> I *think* the ranges were typically aligned to 4 GB, although with 8 GB
+> in a single node, I don't remember what the mapping layout looked like.
 > 
-> I believe 64-bit PCI is pretty much taken to be a requirement; if it
-> weren't the 4GB limit would once again apply and we'd be in much
-> trouble, or we'd have to implement a different method of accommodating
-> limited device addressing capabilities and would be in trouble again.
+> Which made everything but node 0 into HIGHMEM.
+> 
+> With the "flat" addressing mode that Martin has been using (the
+> dummied down for NT version) everything is squished together.  That
+> makes it a bit harder to do node local data structures, although he
+> may have enough data from the MPS table to split memory appropriately.
 
-IIRC, there are some funny games you can play with 32bit PCI DMA.
-You're not necessarily restricted to the bottom 4Gb of phys addr space, 
-you're restricted to a 4Gb window, which you can shift by programming 
-a register on the card. Fixing that register to point to a window for the 
-node in question allows you to allocate from a node's pg_data_t and 
-assure DMAable RAM is returned.
+I have enough data, I know which phys mem ranges are in each node,
+but I still need to change the virtual <-> physical mapping in order to
+spread ZONE_NORMAL around. Pat has already spread the high memory
+around into specific pg_data_t's per node.
 
 M.
 

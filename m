@@ -1,70 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312416AbSCYNBW>; Mon, 25 Mar 2002 08:01:22 -0500
+	id <S312420AbSCYNKx>; Mon, 25 Mar 2002 08:10:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312418AbSCYNBN>; Mon, 25 Mar 2002 08:01:13 -0500
-Received: from cambot.suite224.net ([209.176.64.2]:48908 "EHLO suite224.net")
-	by vger.kernel.org with ESMTP id <S312416AbSCYNAw>;
-	Mon, 25 Mar 2002 08:00:52 -0500
-Message-ID: <00d101c1d3fd$b8e6bac0$b0d3fea9@pcs686>
-From: "Matthew D. Pitts" <mpitts@suite224.net>
-To: <cooker@linux-mandrake.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16pUAf-0000Ux-00@the-village.bc.nu>
-Subject: Re: [Cooker] (RFC) Supermount 2
-Date: Mon, 25 Mar 2002 08:05:20 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
+	id <S312419AbSCYNKo>; Mon, 25 Mar 2002 08:10:44 -0500
+Received: from 12-248-69-88.client.attbi.com ([12.248.69.88]:2486 "EHLO noir")
+	by vger.kernel.org with ESMTP id <S312418AbSCYNKc>;
+	Mon, 25 Mar 2002 08:10:32 -0500
+Date: Mon, 25 Mar 2002 07:10:32 -0600
+From: Kain <kain@kain.org>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] PPC syscalls for XFS
+Message-ID: <20020325131032.GC24094@noir.is.pn>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="m51xatjYGsM+13rf"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
 
-I suspect I'll hear from Juan on this. And I am going to look at your
-code...
+--m51xatjYGsM+13rf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I realize it will be hard if I start from scratch. Since I was planning to
-do it in 2.5.x it will be easier for me to learn how to avoid the problems
-that plague the older versions.
+To whom it may concern, I'd like to get some PPC syscalls reserved for
+XFS xattr support, with syscalls #226-#237 to the xattr support; this is
+the same position and range that is used for these syscalls on i386.
+--=20
+If You Can't Dazzle Them With Brilliance, Riddle Them With Bullets.
+**
+Fhcre Fcl
+Bryon Roche, Kain <kain@imperativesolutions.com>
+<kain@kain.org>
 
-Matthew
------ Original Message -----
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: <danny@mailmij.org>
-Cc: <cooker@linux-mandrake.com>; <linux-kernel@vger.kernel.org>
-Sent: Monday, March 25, 2002 8:05 AM
-Subject: Re: [Cooker] (RFC) Supermount 2
+--m51xatjYGsM+13rf
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-> > > 3) Built-in support for packet-writing. ( i.e. insert packet-writing
-formatted disk and it loads appropriate kernel modules. )
-> > >
-> > > There may be other features added if there is an interest in them. I
-will need assistance with the packet-writing support. I am only planning to
-do this for the 2.5.x and later kernels, so if anyone else wishes to
-back-port it to an older kerenl series, by all means do so. I have wanted to
-make some kind of contribution to this project for some time and I feel that
-this is something that will be useful.
-> > >
-> > What about doing it in userspace? I remember seeing Alan Cox writing he
-> > had a proof of concept of something like this on some ftp server (sorry,
-> > cannot remember where).
->
-> http://ftp.linux.org.uk/pub/linux/alan - you want volumagic. Its a demo of
-> the theory (but quite usable).
->
-> Doing supermount in kernel is suprisingly hard, the locking and races you
-get
-> into are not nice at all - ask Juan about that
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+iEYEARECAAYFAjyfIcgACgkQBK2G/mh4q9Ut9wCfRQoyOFMxMlAK98/FeET9KWG7
+hFEAoKx4P24tIvAkSNPRdgsCUCafmUNy
+=R5fl
+-----END PGP SIGNATURE-----
 
+--m51xatjYGsM+13rf--

@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267816AbRG3Uoh>; Mon, 30 Jul 2001 16:44:37 -0400
+	id <S267875AbRG3Ur1>; Mon, 30 Jul 2001 16:47:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267837AbRG3Uo1>; Mon, 30 Jul 2001 16:44:27 -0400
-Received: from matrix2.enst.fr ([137.194.2.14]:41727 "HELO smtp2.enst.fr")
-	by vger.kernel.org with SMTP id <S267816AbRG3UoR>;
-	Mon, 30 Jul 2001 16:44:17 -0400
-Date: Mon, 30 Jul 2001 22:43:28 +0200
-From: Fabrice Gautier <gautier@email.enst.fr>
-To: christophe =?ISO-8859-1?Q?barb=E9?= <christophe.barbe@lineo.fr>
-Subject: Re: serial console and kernel 2.4
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010730165453.A19255@pc8.lineo.fr>
-In-Reply-To: <20010730165453.A19255@pc8.lineo.fr>
-Message-Id: <20010730223632.B82B.GAUTIER@email.enst.fr>
+	id <S267837AbRG3UrR>; Mon, 30 Jul 2001 16:47:17 -0400
+Received: from anime.net ([63.172.78.150]:16655 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S267875AbRG3UrG>;
+	Mon, 30 Jul 2001 16:47:06 -0400
+Date: Mon, 30 Jul 2001 13:46:49 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
+To: Kurt Garloff <garloff@suse.de>
+cc: "James A. Treacy" <treacy@home.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: Random (hard) lockups
+In-Reply-To: <20010730222133.D26097@pckurt.casa-etp.nl>
+Message-ID: <Pine.LNX.4.30.0107301344460.17564-100000@anime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Mailer: Becky! ver. 2.00.06
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+On Mon, 30 Jul 2001, Kurt Garloff wrote:
+> On Sun, Jul 29, 2001 at 02:34:01PM -0400, James A. Treacy wrote:
+> > The machine is a 1GHz Athlon (266) on an MSI K7T Turbo with 256M ram,
+> A 1.2GHz Athlon with the very same motherboard and the same amount of RAM
+> seems to be stable with 2.4.7 and PPro or K6 optimizations and crashes
+> during the init procedure if the kernel is optimized for K7.
 
-On Mon, 30 Jul 2001 16:54:53 +0200
-christophe barbé <christophe.barbe@lineo.fr> wrote:
+Perhaps someone can make a test case .c program which uses K7
+optimizations to smash memory? It would be nice to be able to pin this
+down. Obviously, the standard memory testers aren't catching it.
 
-> I recently upgraded a linux box to the kernel 2.4.4 (from 2.2.18). This box
-> has no display and use the serial console. Since the upgrade I can see the
-> boot output on the remote console but I can't use the keyboard. Each time I
-> press a key, an interrupt is seen by the no-display machine but no char
-> appears in the console. 
-> Today I've upgraded an another box to 2.4.7 with a similar setup and I've
-> the same problem.
-> 
-> Is there something that I'm missing ? (something new with the kernel 2.4
-> that is required for a serial console that was not required with the 2.2 ?)
+Is this only happening on DDR systems?
 
-It's probably a bug in your init.
-
-I had the same, my init is busybox init, but maybe the sysv init has/had
-the same problem.
-
-Init have to set (or unset i don't remenber exactly) the CREAD flag when
-opening the console in order to receive the input. Before 2.42 (or is it
-2.4.3 ?) it seems that the kernel was not taking this flag into account
-for anything.
-
-The proposed fix for the kernel is a workaround.
-
-The bug has been fixed in busybox (around v0.50 or v0.51).
-(The guy working on busybox for lineo should be able to tell you. )
-
-regards,
+-Dan
 
 -- 
-Fabrice Gautier <gautier@email.enst.fr>
+[-] Omae no subete no kichi wa ore no mono da. [-]
 

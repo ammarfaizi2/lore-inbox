@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266210AbUG0B5N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266214AbUG0B1C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266210AbUG0B5N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 21:57:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266212AbUG0B5N
+	id S266214AbUG0B1C (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 21:27:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266219AbUG0B1C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 21:57:13 -0400
-Received: from phoenix.bobcares.com ([140.99.18.2]:52409 "HELO
-	phoenix.bobcares.com") by vger.kernel.org with SMTP id S266210AbUG0B5M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 21:57:12 -0400
-From: Aroop MP <aroop@poornam.com>
-Organization: poornam
-To: Dimitri Sivanich <sivanich@sgi.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Locking optimization for cache_reap
-Date: Tue, 27 Jul 2004 07:29:44 +0530
-User-Agent: KMail/1.5
-Cc: manfred@colorfullife.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       lse-tech@lists.sourceforge.net
-References: <20040723190555.GB16956@sgi.com> <20040726180104.62c480c6.akpm@osdl.org> <20040727014757.GA23937@sgi.com>
-In-Reply-To: <20040727014757.GA23937@sgi.com>
+	Mon, 26 Jul 2004 21:27:02 -0400
+Received: from smtp1.cwidc.net ([154.33.63.111]:7305 "EHLO smtp1.cwidc.net")
+	by vger.kernel.org with ESMTP id S266214AbUG0BRa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 21:17:30 -0400
+Message-ID: <4105AD1C.2050507@tequila.co.jp>
+Date: Tue, 27 Jul 2004 10:17:16 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: TEQUILA\ Japan
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040724
+X-Accept-Language: en-us, en, ja
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+CC: kernel@kolivas.org, Joel.Becker@oracle.com, linux-kernel@vger.kernel.org
+Subject: Re: Autotune swappiness01
+References: <cone.1090801520.852584.20693.502@pc.kolivas.org>	<20040725173652.274dcac6.akpm@osdl.org>	<cone.1090802581.972906.20693.502@pc.kolivas.org>	<20040726202946.GD26075@ca-server1.us.oracle.com>	<20040726134258.37531648.akpm@osdl.org>	<cone.1090882721.156452.20693.502@pc.kolivas.org>	<4105A761.9090905@tequila.co.jp> <20040726180943.4c871e4f.akpm@osdl.org>
+In-Reply-To: <20040726180943.4c871e4f.akpm@osdl.org>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200407270729.45116.aroop@poornam.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I have a simple doubt. Please answer it. 
-Why the error " Inappropriate ioctl for device While reading flags 
-......................" is ocuring?. YOur replies will be greatly 
-appreciated.
+Andrew Morton wrote:
+| Clemens Schwaighofer <cs@tequila.co.jp> wrote:
 
-Regards,
-Aroop
+|>I have 1 GB and I had a setting of 51 (seemed to be perhaps gentoo
+|>default or so) and I especially after a weekend (2 days off) it is
+|>always the "monday-morning-swap-hell" where I have to wait 5min until he
+|>swapped in the apps he swapped out during weekend.
+|>
+|>I changed that to 20 now, but I don't know if this will make things
+|>worse or better.
+|
+| It may appear to be better, but you now have 100, maybe 200 megabytes less
+| pagecache available across the entire working day.
 
- ---------------------------------------------------
- "NO MATTER WHERE YOU ARE IN THE WORLD,IF YOU HAVE DECIDED TO DO  SOMETHING 
-DEEP FROM YOUR HEART YOU CAN DO IT. IT HAS ALWAYS BEEN THE   THOUGHT THAT 
-MATTERS... "
- ---------------------------------------------------
+which might slow down overall working speed? or responsness of programs?
+
+- --
+Clemens Schwaighofer - IT Engineer & System Administration
+==========================================================
+TEQUILA\Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+http://www.tequila.co.jp
+==========================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBBa0bjBz/yQjBxz8RAmcQAJ4ieXmCIBpmeWQ1+kdVEPI0te7ezQCgppxG
+AFA1t88+WofCN2WbjmpkZ7A=
+=JVwT
+-----END PGP SIGNATURE-----

@@ -1,37 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265112AbUEVDWV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265181AbUEVDgT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265112AbUEVDWV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 23:22:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265178AbUEVDWV
+	id S265181AbUEVDgT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 23:36:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265178AbUEVDgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 23:22:21 -0400
-Received: from mx3.cs.washington.edu ([128.208.3.132]:56259 "EHLO
-	mx3.cs.washington.edu") by vger.kernel.org with ESMTP
-	id S265112AbUEVDWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 23:22:16 -0400
-Date: Fri, 21 May 2004 20:22:15 -0700 (PDT)
-From: Vadim Lobanov <vadim@cs.washington.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Starting project.
-Message-ID: <20040521201011.D8524-100000@attu4.cs.washington.edu>
+	Fri, 21 May 2004 23:36:18 -0400
+Received: from mx.style.net ([209.246.126.82]:53721 "EHLO style.net")
+	by vger.kernel.org with ESMTP id S265181AbUEVDfs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 23:35:48 -0400
+From: "Spinka, Kristofer" <kspinka@style.net>
+To: <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Unserializing ioctl() system calls
+Date: Fri, 21 May 2004 20:35:55 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Thread-Index: AcQ/qAmFRornc78qSgyUYI0X2xBvZAABXR/w
+In-Reply-To: <20040522025400.GU17014@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <auto-000001650065@style.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+It doesn't necessarily have to be a flag on a driver, just an example.
 
-Up to now, I've been reading up on various outside sources about the 
-structure of the Linux kernel, as well as following the discussions on 
-this list. Though so far I've only had experience at writing userland 
-programs on *nixes, I've acquired a curiosity for the overall structure of 
-the kernel, the algorithms it uses, and its evolution over time. Though I 
-know the theory behind operating systems in general, I'd like to get some 
-hands-on practice. For this reason, I am curious if a list of pending 
-TODOs/projects relating to the kernel or drivers is maintained anywhere,
-such that I could pick a simple one to try to work on, for starters. After 
-all, the best way to learn is to dive right in. :)
+I was more interested in a transitional interface to wean current
+modules/code off of any BKL expectations during an ioctl.
 
-Thanks in advance,
-Vadim Lobanov.
+Why should the kernel take out the BKL for the module during an ioctl?  Does
+the kernel know how long this request might take?
+
+  /kristofer
+
+-----Original Message-----
+From: viro@www.linux.org.uk [mailto:viro@www.linux.org.uk] On Behalf Of
+viro@parcelfarce.linux.theplanet.co.uk
+Sent: Friday, May 21, 2004 7:54 PM
+To: Spinka, Kristofer
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Unserializing ioctl() system calls
+
+On Fri, May 21, 2004 at 10:46:45PM -0400, Spinka, Kristofer wrote:
+> I noticed that even in the 2.6.6 code, callers to ioctl 
+> system call (sys_ioctl in fs/ioctl.c) are serialized with 
+> {lock,unlock}_kernel().
+> 
+> I realize that many kernel modules, and POSIX for that 
+> matter, may not be ready to make this more concurrent.
+> 
+> I propose adding a flag to indicate that the underlying 
+> module would like to support its own concurrency 
+> management, and thus we avoid grabbing the BKL around the 
+> f_op->ioctl call.
+> 
+> The default behavior would adhere to existing standards, 
+> and if the flag is present (in the underlying module), we 
+> let the module (or modules) handle it.
+> 
+> Reasonable?
+
+No.  Flags on drivers are never a good idea.  What's more, if somebody
+wants that shit parallelized they can always drop BKL upon entry and
+reacquire on exit from their ->ioctl().
 

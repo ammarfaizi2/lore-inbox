@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262705AbTKTRZB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 12:25:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbTKTRZA
+	id S263024AbTKTRdf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 12:33:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263057AbTKTRdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 12:25:00 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:34017 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S262705AbTKTRY6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 12:24:58 -0500
-Date: Thu, 20 Nov 2003 09:24:54 -0800
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Jeff Garzik <jgarzik@pobox.com>, jt@hpl.hp.com,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Announce: ndiswrapper
-Message-ID: <20031120172454.GB14608@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20031120031137.GA8465@bougret.hpl.hp.com> <3FBC3483.4060706@pobox.com> <20031120040034.GF19856@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031120040034.GF19856@holomorphy.com>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	Thu, 20 Nov 2003 12:33:35 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34054 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263024AbTKTRdd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 12:33:33 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: transmeta cpu code question
+Date: 20 Nov 2003 09:33:18 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <bpitsu$732$1@cesium.transmeta.com>
+References: <20031120020218.GJ3748@schottelius.org> <200311201210.04780.ben@jeeves.bpa.nu> <20031120083827.GL3748@schottelius.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 19, 2003 at 08:00:34PM -0800, William Lee Irwin III wrote:
-> Jean Tourrilhes wrote:
-> >>	Even better :
-> >>		1) go to the Wireless LAN Howto
-> >>		2) find a card are supported under Linux that suit your needs
-> >>		3) buy this card
-> >>	I don't see the point of giving our money to vendors that
-> >> don't care about us when there are vendors making a real effort toward
-> >> us.
+Followup to:  <20031120083827.GL3748@schottelius.org>
+By author:    Nico Schottelius <nico-mutt@schottelius.org>
+In newsgroup: linux.dev.kernel
 > 
-> On Wed, Nov 19, 2003 at 10:26:59PM -0500, Jeff Garzik wrote:
-> > Unfortunately that leaves users without support for any recent wireless 
-> > hardware.  It gets more and more difficult to even find Linux-supported 
-> > wireless at Fry's and other retail locations...
-> 
-> And what good would it be to have an entire driver subsystem populated
-> by binary-only drivers? That's not part of Linux, that's "welcome to
-> nvidia hell" for that subsystem too, and not just graphics cards.
+> I am still interested whether there are possibilities to
+>    a) use the crusoe without the morphing software (to use its native
+>       command set)
 
-	What's the point in ruminating academic scenario. There exist
-fully open source drivers for quite a wide variety of modern wireless
-LAN cards. It's not like if you don't have the choice.
+No.  You really don't want to -- the native instruction set doesn't
+look like anything Linux likes to see, and worse, there are binary
+incompatibilities not just from processor to processor but sometimes
+from silicon revision to silicon revision.
 
-	Jean
+It's also not faster in any meaningful way, since the dynamic
+translator does optimistic optimization.
+
+>    b) to fine tune Linux to my specific processor, to make it use all
+>       available feautures the processor has.
+
+The biggest problem we've found is that a lot of distributions will
+install an i586 libc even though we have (and export) all the
+necessary features.  Crusoe reports family = 5 mainly to work around a
+bug in Some Other Operating System[TM], but supports all
+userspace-visible i686 features gcc expects.
+
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+If you send me mail in HTML format I will assume it's spam.
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

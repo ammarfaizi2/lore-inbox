@@ -1,122 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267515AbUI1DNZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267514AbUI1DOa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267515AbUI1DNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 23:13:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267517AbUI1DNZ
+	id S267514AbUI1DOa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 23:14:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267516AbUI1DO3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 23:13:25 -0400
-Received: from rproxy.gmail.com ([64.233.170.195]:31560 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267515AbUI1DNU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 23:13:20 -0400
-Message-ID: <da99aff004092720138ba398a@mail.gmail.com>
-Date: Mon, 27 Sep 2004 23:13:20 -0400
-From: Madhu Bandireddy <mbandireddy@gmail.com>
-Reply-To: Madhu Bandireddy <mbandireddy@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Help: Connection drops with kernel 2.4.21-15 over Broadcom NetXtreme BCM5703 gigabit cards
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 27 Sep 2004 23:14:29 -0400
+Received: from smtp807.mail.sc5.yahoo.com ([66.163.168.186]:65212 "HELO
+	smtp807.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267514AbUI1DOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 23:14:20 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: "Zhu, Yi" <yi.zhu@intel.com>
+Subject: [OT] Re: suspend/resume support for driver requires an external firmware
+Date: Mon, 27 Sep 2004 22:14:15 -0500
+User-Agent: KMail/1.6.2
+Cc: <linux-kernel@vger.kernel.org>,
+       "Denis Vlasenko" <vda@port.imtp.ilyichevsk.odessa.ua>,
+       "Oliver Neukum" <oliver@neukum.org>,
+       "Patrick Mochel" <mochel@digitalimplant.org>
+References: <3ACA40606221794F80A5670F0AF15F8403BD579D@pdsmsx403>
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F8403BD579D@pdsmsx403>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200409272214.15992.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We are seeing a large number of connection drops on our SAP
-application servers with the following config:
+On Monday 27 September 2004 09:28 pm, Zhu, Yi wrote:
+> Dmitry Torokhov wrote:
+> > Where do you load your firmware from so that you can bring up
+> > the network so you can mount everything via NFS in the first place?
+> 
+> The firmware locates together w/ the driver in the initrd which could be
+> either in the remote PXE server or the local diskettes. It should be
+> also
+> placed somewhere on the NFS root so that it can be picked up to
+> memory during suspend.
+> 
 
-Linux: Redhat Enterprise 3.0
-Kernel: 2.4.21-15
-HW: Dell 2650 with Broadcom NetXtreme BCM5703 gigabit ethernet card
-CPU: 2x 2.8GHz
-Memory: 12GB
-Ethernet driver: Tigon 3.0
+Nice try :) but if a card needs a firmware to operate you most likely will
+not be able to access any network resources, including PXE. Only some form
+of local storage can contain kernel and firmware in this case and I would
+think it will be awailable at resume time as well.
 
-We could not find any errors on the interface itself. We are seeing
-most of these connections drops from sites which are connected to our
-data center over site-to-site VPN connections with high latencies.
-In addition to the Linux servers in our SAP application server set we
-also have 2 HP PA-RISC servers running HPUX 11.0 server. We do not see
-any such connection drop problems on the HPUX servers. This makes us
-believe that the problem is more related to the Linux environment.
-Another thing to note is that these connection drops seem to occur
-when there a large number of connections (about 500 or so) to each
-server.
+Anyway, since there are other kind of devices besides network cards that
+have to be availabe before userspace comes up and a generic solution is
+always better I think that this part of thread is turning into offtopic...
 
-SAP seems to think this an OS problem. We do not see any error
-messages in any of the system logs or on the ethernet interfaces. The
-network itself does not show any errors.
-
-Here is the output of netstat -s:
-lnas4 Fri Sep 24 11:11:07 CDT 2004
-Tcp:
-   27157 active connections openings
-   37507 passive connection openings
-   4 failed connection attempts
-   318 connection resets received
-   209 connections established
-   70267903 segments received
-   64033785 segments send out
-   49041 segments retransmited
-   395 bad segments received.
-   3269 resets sent
-TcpExt:
-   3 packets pruned from receive queue because of socket buffer overrun
-   16 ICMP packets dropped because socket was locked
-   ArpFilter: 0
-   31311 TCP sockets finished time wait in fast timer
-   920380 delayed acks sent
-   206 delayed acks further delayed because of locked socket
-   Quick ack mode was activated 19329 times
-   64619380 packets directly queued to recvmsg prequeue.
-   337477000 packets directly received from backlog
-   1199298288 packets directly received from prequeue
-   48 packets dropped from prequeue
-   1503618 packets header predicted
-   64689963 packets header predicted and directly queued to user
-   TCPPureAcks: 740615
-   TCPHPAcks: 48292250
-   TCPRenoRecovery: 0
-   TCPSackRecovery: 675
-   TCPSACKReneging: 0
-   TCPFACKReorder: 5
-   TCPSACKReorder: 2
-   TCPRenoReorder: 0
-   TCPTSReorder: 0
-   TCPFullUndo: 0
-   TCPPartialUndo: 0
-   TCPDSACKUndo: 0
-   TCPLossUndo: 5
-   TCPLoss: 641
-   TCPLostRetransmit: 0
-   TCPRenoFailures: 0
-   TCPSackFailures: 2879
-   TCPLossFailures: 281
-   TCPFastRetrans: 804
-   TCPForwardRetrans: 11
-   TCPSlowStartRetrans: 30896
-   TCPTimeouts: 5143
-   TCPRenoRecoveryFail: 0
-   TCPSackRecoveryFail: 174
-   TCPSchedulerFailed: 1
-   TCPRcvCollapsed: 146
-   TCPDSACKOldSent: 3987
-   TCPDSACKOfoSent: 203
-   TCPDSACKRecv: 39
-   TCPDSACKOfoRecv: 0
-   TCPAbortOnSyn: 0
-   TCPAbortOnData: 10
-   TCPAbortOnClose: 1
-   TCPAbortOnMemory: 0
-   TCPAbortOnTimeout: 222
-   TCPAbortOnLinger: 0
-   TCPAbortFailed: 0
-   TCPMemoryPressures: 0
-
-Since the problem seems to be with connections over site-to-site VPN
-and are generally more pronounced during periods of high loads. I
-believe this is more a tuning issue or a bug.
-
-Any help in resolving this problem is greatly appreciated.
-
-Thanks
-Madhu
+-- 
+Dmitry

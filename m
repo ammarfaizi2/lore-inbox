@@ -1,85 +1,146 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264509AbTL0R5k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 12:57:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264522AbTL0R5k
+	id S264522AbTL0SMN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 13:12:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264526AbTL0SMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 12:57:40 -0500
-Received: from smtp.dei.uc.pt ([193.137.203.228]:7150 "EHLO smtp.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S264509AbTL0R5i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 12:57:38 -0500
-Date: Sat, 27 Dec 2003 17:56:28 +0000 (WET)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: Dmitry Torokhov <dtor_core@ameritech.net>, Andrew Morton <akpm@osdl.org>,
-       GCS <gcs@lsc.hu>, linux-kernel@vger.kernel.org,
-       Peter Osterlund <petero2@telia.com>
+	Sat, 27 Dec 2003 13:12:13 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:1196 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S264522AbTL0SMG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 13:12:06 -0500
+Date: Sat, 27 Dec 2003 19:11:20 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Andrew Morton <akpm@osdl.org>, GCS <gcs@lsc.hu>,
+       linux-kernel@vger.kernel.org, Peter Osterlund <petero2@telia.com>
 Subject: Re: Synaptics problems in -mm1
-In-Reply-To: <20031227113848.GA10491@louise.pinerecords.com>
-Message-ID: <Pine.LNX.4.58.0312271755500.29577@student.dei.uc.pt>
-References: <20031224095921.GA8147@lsc.hu> <200312250411.55881.dtor_core@ameritech.net>
- <200312250413.32822.dtor_core@ameritech.net> <200312250414.58598.dtor_core@ameritech.net>
- <20031227113848.GA10491@louise.pinerecords.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-DEI-MailScanner: Found to be clean
+Message-ID: <20031227181120.GC10491@louise.pinerecords.com>
+References: <20031224095921.GA8147@lsc.hu> <200312250414.58598.dtor_core@ameritech.net> <20031227113848.GA10491@louise.pinerecords.com> <200312271228.59192.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200312271228.59192.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Dec-27 2003, Sat, 12:28 -0500
+Dmitry Torokhov <dtor_core@ameritech.net> wrote:
 
+> > it seems one of the synaptics-related patches in 2.6.0-mm1 kills
+> > off the pointer stick on my T40p.  2.6.0 vanilla works just fine
+> > in that department.  Thought you might want to know.
 
-It kills the mouse tap on an Asus M3700N laptop too...
+...
 
-Mind Booster Noori
+> I have a couple of questions (I am not familiar with IBM hardware so
+> please bear with me...):
 
-- --
-==================================================
-Marcos Daniel Marado Torres AKA Mind Booster Noori
-/"\               http://student.dei.uc.pt/~marado
-\ /                       marado@student.dei.uc.pt
- X   ASCII Ribbon Campaign
-/ \  against HTML e-mail and Micro$oft attachments
-==================================================
+No problem.
 
-On Sat, 27 Dec 2003, Tomas Szepe wrote:
+There are two pointer controllers on the T40p: a stick and a pad.
+With 2.6.0, just compiling in synaptics support and running gpm as
+"gpm -t ps2 -m /dev/psaux" or XFree with
 
-> Hi,
->
-> it seems one of the synaptics-related patches in 2.6.0-mm1 kills
-> off the pointer stick on my T40p.  2.6.0 vanilla works just fine
-> in that department.  Thought you might want to know.
->
-> Reverting
->
-> 	input-08-synaptics-protocol-discovery.patch
-> 	input-07-remove-synaptics-config-option.patch
-> 	synaptics-powerpro-fix.patch
->
-> did not seem to help.  I failed to figure out a way to easily revert
->
-> 	serio-06-synaptics-use-reconnect.patch
-> 	serio-04-synaptics-cleanup.patch
->
-> so that I didn't try.
->
-> --
-> Tomas Szepe <szepe@pinerecords.com>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
+  Option          "Protocol"      "PS/2"
+  Option          "Device"        "/dev/psaux"
 
-iD8DBQE/7cfQmNlq8m+oD34RAqUVAKDiNxT4XZgyDxsB2AzTqrUnmWfqkgCfZLah
-18UNuecee424OP85exMvWW4=
-=hki0
------END PGP SIGNATURE-----
+gives perfect results, both controllers work, even with
+all the (3 + 2) buttons.
 
+With 2.6.0-mm1 (the same .config of course), however, the stick does nothing.
+
+> - Is it detected as Synaptics but does not work?
+
+Yes.
+
+> - Should it be detected as Synaptics?
+
+I believe so.
+
+> - Does it work if you pass psmouse_noext=1 or psmouse_proto=bare?
+
+psmouse_noext=1				no change
+psmouse_proto=bare			no change
+
+>   And what about psmouse_proto=imps and psmouse_proto=exps
+
+psmouse_proto=imps			no change
+psmouse_proto=exps			no change
+
+> - Does it work if you give 2.6.0-test10-mm1 a quick boot?
+
+Hmmm, let's see.
+[time passes]
+
+-> No.
+
+Linux version 2.6.0-test10-mm1 (kala@ns) (gcc version 3.3.2) #1 Sat Dec 27 18:59:17 CET 2003
+...
+mice: PS/2 mouse device common for all mice
+input: PC Speaker
+synaptics reset failed
+synaptics reset failed
+synaptics reset failed
+Synaptics Touchpad, model: 1
+ Firmware: 5.9
+ Sensor: 44
+ new absolute packet format
+ Touchpad has extended capability bits
+ -> multifinger detection
+ -> palm detection
+ -> pass-through port
+input: SynPS/2 Synaptics TouchPad on isa0060/serio1
+serio: Synaptics pass-through port at isa0060/serio1/input0
+
+> - dmesg, input section of you XFree and version and parameters that
+>   are passed to GPM.
+
+Working kernel dmesg:
+
+Linux version 2.6.0 (kala@ns) (gcc version 2.95.3 20010315 (release)) #1 Sat Dec 27 18:59:59 CET 2003
+...
+mice: PS/2 mouse device common for all mice
+input: PC Speaker
+Synaptics Touchpad, model: 1
+ Firmware: 5.9
+ Sensor: 44
+ new absolute packet format
+ Touchpad has extended capability bits
+ -> multifinger detection
+ -> palm detection
+ -> pass-through port
+input: SynPS/2 Synaptics TouchPad on isa0060/serio1
+serio: Synaptics pass-through port at isa0060/serio1/input0
+input: PS/2 Generic Mouse on synaptics-pt/serio0
+
+Broken kernel dmesg:
+
+Linux version 2.6.0-mm1 (kala@ns) (gcc version 3.3.2) #1 Sat Dec 27 14:12:13 CET 2003
+...
+mice: PS/2 mouse device common for all mice
+input: PC Speaker
+serio: i8042 AUX port at 0x60,0x64 irq 12
+synaptics reset failed
+synaptics reset failed
+synaptics reset failed
+Synaptics Touchpad, model: 1
+ Firmware: 5.9
+ Sensor: 44
+ new absolute packet format
+ Touchpad has extended capability bits
+ -> multifinger detection
+ -> palm detection
+ -> pass-through port
+input: SynPS/2 Synaptics TouchPad on isa0060/serio1
+serio: Synaptics pass-through port at isa0060/serio1/input0
+...
+psmouse.c: TouchPad at isa0060/serio1/input0 lost synchronization, throwing 5 bytes away.
+
+gpm is 1.19.6.
+XFree is 4.3.0.
+gpm parameters & XFree input config - see above.
+
+-- 
+Tomas Szepe <szepe@pinerecords.com>

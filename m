@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276070AbRI1OaS>; Fri, 28 Sep 2001 10:30:18 -0400
+	id <S276073AbRI1Oes>; Fri, 28 Sep 2001 10:34:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276072AbRI1OaI>; Fri, 28 Sep 2001 10:30:08 -0400
-Received: from alcove.wittsend.com ([130.205.0.10]:32189 "EHLO
-	alcove.wittsend.com") by vger.kernel.org with ESMTP
-	id <S276070AbRI1O37>; Fri, 28 Sep 2001 10:29:59 -0400
-Date: Fri, 28 Sep 2001 10:30:22 -0400
-From: "Michael H. Warfield" <mhw@wittsend.com>
-To: Bobby Hitt <bobhitt@bscnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2GB File limitation
-Message-ID: <20010928103022.C28366@alcove.wittsend.com>
-Mail-Followup-To: Bobby Hitt <bobhitt@bscnet.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <013801c147e5$3330bec0$092cdb3f@bobathome>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <013801c147e5$3330bec0$092cdb3f@bobathome>
-User-Agent: Mutt/1.3.20i
+	id <S276074AbRI1Oe3>; Fri, 28 Sep 2001 10:34:29 -0400
+Received: from firewall.fesppr.br ([200.238.157.11]:26617 "EHLO
+	smtp2.fesppr.br") by vger.kernel.org with ESMTP id <S276073AbRI1Oe0>;
+	Fri, 28 Sep 2001 10:34:26 -0400
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Trouble booting on a cciss raid
+Message-ID: <1001687686.3bb48a86808a7@webmail.fesppr.br>
+Date: Fri, 28 Sep 2001 11:34:46 -0300 (BRT)
+From: Alexandre Hautequest <hquest@fesppr.br>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+User-Agent: IMP/PHP IMAP webmail program 2.2.4
+X-Originating-IP: 172.16.40.2
+X-WebMail-Company: Fundacao de Estudos Sociais do Parana
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 28, 2001 at 02:17:07AM -0400, Bobby Hitt wrote:
-> Hello,
+Hello all.
 
-> Is someone working on a way to overcome the 2GB file limitation in Linux? I
-> currently backup several servers using a dedicated hard drive for the
-> backups. Recently I saw one backup die saying the the file size had been
-> exceeded. I've never had good luck with tape backups, yes they backup, but
-> whenever I really need a file, it can't be retrieved.
+i cant boot on a sa 5300 (cciss driver) raid controller. the boot device is the
+floppy kernel used to install the system, who ram without problems.
 
-	The problem has been fixed in the file system, the kernel and
-the supporting libraries for ages.  Applications may need to be updated
-to take advantage of 64 bit file offsets and file operations, though.
-You didn't say how you were backing up those other servers.  Is it a
-particular backup program?  If so, that program may need to be rebuilt
-or updated.  Are you backing up over NFS or some other file transport
-where the Linux box is just acting as a file server or is the backup
-program running on that Linux box?
+the cciss driver inits sucessfully, recognizes the logical disks and partitions,
+but returns me "VFS: Unable to open root device 00:cc".
 
-	Oh...  And what version of Linux?  If it's old enough, I
-suppose you might still have a problem there.  Recent (RedHat 7.x
-and contemporaries) distributions shouldn't be a problem.
+ideas? this is a slack 8, 2.2.19.
 
-> TIA,
+please cc me as im not subscribed on the ml.
 
-> Bobby
+tia.
 
-	Mike
--- 
- Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
-  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
-  NIC whois:  MHW9      |  An optimist believes we live in the best of all
- PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
+--
+Alexandre Hautequest - hquest at fesppr.br
+Fundação de Estudos Sociais do Paraná - http://www.fesppr.br/
+Centro de Administração de Redes - CAR
+"Procura-se namorada. Interessadas enviar currículum com foto recente, colorida
+e datada, habilidades e pretensões."
 
+Registered Linux User #116289 http://counter.li.org/
+
+"Ninguém é melhor do que todos nós juntos."
+Equipe Zeus Competições - www.gincaneiros-zeus.com.br
+
+-------------------------------------------------
+Esta mensagem foi enviada pelo WebMail da FESP.
+Conheça a FESP: http://www.fesppr.br/

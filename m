@@ -1,92 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264505AbUEaDEL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264515AbUEaD3a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264505AbUEaDEL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 23:04:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbUEaDEL
+	id S264515AbUEaD3a (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 23:29:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264522AbUEaD33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 23:04:11 -0400
-Received: from mailout.despammed.com ([65.112.71.29]:62460 "EHLO
-	mailout.despammed.com") by vger.kernel.org with ESMTP
-	id S264505AbUEaDEG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 23:04:06 -0400
-Date: Sun, 30 May 2004 21:50:53 -0500 (CDT)
-Message-Id: <200405310250.i4V2ork05673@mailout.despammed.com>
-From: ndiamond@despammed.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: How to use floating point in a module?
-X-Mailer: despammed.com
+	Sun, 30 May 2004 23:29:29 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:48773
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S264515AbUEaD32 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 May 2004 23:29:28 -0400
+From: Rob Landley <rob@landley.net>
+To: Oliver Neukum <oliver@neukum.org>, Pavel Machek <pavel@suse.cz>
+Subject: Re: swappiness=0 makes software suspend fail.
+Date: Sun, 30 May 2004 22:28:07 -0500
+User-Agent: KMail/1.5.4
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Andrew Morton <akpm@zip.com.au>,
+       Stuart Young <cef-lkml@optusnet.com.au>, linux-kernel@vger.kernel.org,
+       seife@suse.de
+References: <200405280000.56742.rob@landley.net> <20040530194731.GA895@elf.ucw.cz> <200405310123.22136.oliver@neukum.org>
+In-Reply-To: <200405310123.22136.oliver@neukum.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405302228.08467.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mans Rullgard replied to me:
-
->> A driver, implemented as a module, must do some floating-point
->> computations including trig functions.
+On Sunday 30 May 2004 18:23, Oliver Neukum wrote:
+> Am Sonntag, 30. Mai 2004 21:47 schrieb Pavel Machek:
+> > > Until something like this goes through, please don't fuglify
+> > > vmscan.c any more than it is... do the saving and restoring
+> > > thing that Nigel suggested please.
 >
->Sorry, floating point in the Linux kernel isn't allowed.
+> Isn't that a race condition with setting swapiness?
 
-No.  Use of floating point HARDWARE, and/or emulation which emulates
-troublesome features such as traps, isn't allowed.  Guess why I posted
-in the first place, asking whether a certain combination of techniques
-might be feasible.
+During suspend?  Not really.  If it's done from the userspace script, it's 
+done before the suspend is triggered, and undone after suspend comes back.  
+No problem there.  If it's done in the kernel, then all the userspace 
+thingies that might play with it have already been frozen, it's never touched 
+from interrupt context...  What would you be locking _against_?
 
->> Recompile GNU's libc with option "--without-fp".
->
->Probably, but it doesn't matter, since the kernel doesn't link with
->libc.
+Swappiness isn't really twiddled from a lot of places.  Maybe your init script 
+touches it.  Other than that, you have to be root, and you pretty much have 
+to do it manually.  Touching this tuning knob is about as common as touching 
+/proc/sys/net/ipv4/tcp_ecn or /proc/sys/kernel/panic.
 
-This unfortunate answer probably does answer my question, thank you.
+The failure condition is graceful, by the way.  The suspend doesn't free 
+enough memory, and thus resumes userspace immediately.  Kind of annoying if 
+you've packed away your laptop to let it power down (since it can take a good 
+45 seconds to do so, depending on how fragmented your swap file and memory 
+and such are...)
 
->> Compile the module's .c files with gcc's "-msoft-float" option and
->> "-D__NO_MATH_INLINES". (Actually I think "-D__NO_MATH_INLINES" is
->> probably unnecessary here.)
->
->Using floating point emulation will be VERY slow.
+> 	Regards
+> 		Oliver
 
-No kidding.  And if I write my own code to do floating point emulation,
-it will be even slower.  But if we do none of the above, then we should
-say the result will be even slower because we will wait an infinite amount
-of time without getting results.
+Rob
 
->> Link the module's .o files with the version of libc produced above,
->> and try to get a loadable .ko from this... or a loadable .o since the
->> target is still kernel 2.4.something.
->
->As I said, the kernel doesn't link with libc.
+-- 
+www.linucon.org: Linux Expo and Science Fiction Convention
+October 8-10, 2004 in Austin Texas.  (I'm the con chair.)
 
-Right, but is there a way to get a customized libc.a to link with a
-module's .o and produce a loadable .o without damaging the rest of the
-kernel.  I don't quite know a way.
-
->Floating point is forbidden in kernel code since the floating point
->registers (and other floating point context) is not saved/restored
-
-No kidding, that's why use of floating point HARDWARE is prohibited.
-
->might be possible to manually save the floating point context while
->doing some floating point operations.
-
-Yes, my searching found a few people saying they had found tricks like
-this, but my impression is that it's very unreliable and they didn't
-reveal their entire trickery (probably unteachable as mentioned).
-I do think it is better to avoid the floating point hardware entirely.
-
->What you should do is think again about why you need all this floating
->point in the kernel.
-
-To control a device.
-
->Could it be moved to userspace somehow?
-
-Yes, if we use a real-time Linux and make a daemon cooperate very closely
-with the driver.
-
->Maybe you could use lookup tables instead of doing floating point
->arithmetic.
-
-You might be right, if the device can only be controlled to position itself
-in say 1,000 different ways, then we could have lookup tables for 1,000
-different intervals of (emulations of) floating-point numbers, that yield
-1,000 different values of sin.  Another table for cos, another for log10,
-etc.  But I'd still have to write my own emulations for binary operators
-such as +, /, etc., since a 1,000*1,000 lookup table would be too big.

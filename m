@@ -1,71 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130770AbQLCRQR>; Sun, 3 Dec 2000 12:16:17 -0500
+	id <S130901AbQLCSJo>; Sun, 3 Dec 2000 13:09:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130901AbQLCRQH>; Sun, 3 Dec 2000 12:16:07 -0500
-Received: from smtpnotes.altec.com ([209.149.164.10]:9989 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S130770AbQLCRPy>; Sun, 3 Dec 2000 12:15:54 -0500
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: pavel@suse.cz, linux-kernel@vger.kernel.org
-Message-ID: <862569AA.005C068D.00@smtpnotes.altec.com>
-Date: Sun, 3 Dec 2000 10:41:20 -0600
-Subject: Re: Fasttrak100 questions...
+	id <S131024AbQLCSJe>; Sun, 3 Dec 2000 13:09:34 -0500
+Received: from www1.ExperTeam.de ([195.138.53.252]:21372 "EHLO
+	www1.ExperTeam.de") by vger.kernel.org with ESMTP
+	id <S130901AbQLCSJ2>; Sun, 3 Dec 2000 13:09:28 -0500
+Message-Id: <200012031740.SAA05520@www1.ExperTeam.de>
+X-Mailer: exmh version 2.2 06/23/2000 (debian 2.2-1) with nmh-1.0.4+dev
+To: linux-kernel@vger.kernel.org
+X-Face: "7u#"=sUEnmXhasPDW#QwNqMOaW5JQ2,rqy\Yt"a1yk9LI640Mv9g!TLQpp/tatO@T`=S:S
+ xuqEDD30%F#fw>|!oX?g24"P/fr%)/]LhB~9++.hNy]}X/@q(XPGn:~p[q:n_[.B-SE;?J,%gHIq;N
+ bl+of~~UF8/A9Jat?P!=Y%Q18tk
+Organization: ExperTeam AG
+Subject: Bug in implementation of fcntl64 syscall?
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 03 Dec 2000 18:34:33 +0100
+From: Roderich Schupp <rsch@ExperTeam.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+I'm trying to investigate why my apache compiled with
+-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 (and glibc 2.2
+build against 2.4.0-test10 headers) immediately dies with
+
+[emerg] (11)Resource temporarily unavailable: fcntl: 
+F_SETLKW: Error getting accept lock, exiting! 
+
+This happens while trying to get the file lock to serialize accept.
+The first child gets the lock, the other should block.
+However, fnctl(fd, F_SETLKW, ...) returns with EAGAIN
+(which shouldn't be possible, it would be correct for F_SETLK).
+Note that for the above compile flags, libc's F_SETLKW is 14 (on i386)
+which in the kernel is F_SETLKW64 (kernel's F_SETLKW is 7).
+strace shows that the actual system call used by libc is fcntl64. 
+For 2.4.0-test11, fs/fcntl.c has the following code:
+
+asmlinkage long sys_fcntl64(unsigned int fd, unsigned int cmd, unsigned long arg
+)
+{       
+	...
+        switch (cmd) {
+                case F_GETLK64:
+                        err = fcntl_getlk64(fd, (struct flock64 *) arg);
+                        break;
+                case F_SETLK64:
+                        err = fcntl_setlk64(fd, cmd, (struct flock64 *) arg);
+                        break;
+                case F_SETLKW64:
+                        err = fcntl_setlk64(fd, cmd, (struct flock64 *) arg);
+                        break
+	...
+
+i.e. fcntl_setlk64() is called with cmd==F_SETLKW64, 
+but in fs/locks.c:
+
+int fcntl_setlk64(unsigned int fd, unsigned int cmd, struct flock64 *l)
+{
+	...
+        error = posix_lock_file(filp, file_lock, cmd == F_SETLKW);
+                                                        ^^^^^^^^
+
+where the last argumet to posix_lock_file governs 
+wait vs. immediate return. 
 
 
-Where can this Lucent driver be found?  The one I use with my Thinkpad is
-version 5.68.  It comes as a loadable module (ltmodem.o) with no serial.c, and I
-havent gotten it to work with any kernel later than 2.2.14.
+Cheers, Roderich	
 
 
 
 
 
-Pavel Machek <pavel@suse.cz> on 12/02/2000 10:50:35 AM
+-- 
+      "Thou shalt not follow the NULL pointer 
+       for chaos and madness await thee at its end."
 
-To:   Alan Cox <alan@lxorguk.ukuu.org.uk>, "Dr. Kelsey Hudson"
-      <kernel@blackhole.compendium-tech.com>
-cc:   "Henning P. Schmiedehausen" <hps@tanstaafl.de>,
-      linux-kernel@vger.kernel.org (bcc: Wayne Brown/Corporate/Altec)
-
-Subject:  Re: Fasttrak100 questions...
-
-
-
-Hi!
-
-> > You are wrong: If you modify the kernel you have to make it available for
-> > anyone who wishes to use it; that's also in the GPL. You can't add stuff
->
-> No it isnt. Some people seem to think it is. You only have to provide a
-> change if you give someone the binaries concerned. Some people also think
-> that 'linking' clauses mean they can just direct the customer to do the link,
-> that also would appear to be untrue in legal precedent - the law cares about
-> the intent.
-
-This is currently happening with lucent winmodem driver: there's
-modified version of serial.c, and customers are asked to compile it
-and (staticaly-)link it against proprietary code to get usable
-driver. Is that okay or not?
-                                         Pavel
---
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-Please read the FAQ at http://www.tux.org/lkml/
-
-
-
-
+Roderich Schupp 		mailto:rsch@ExperTeam.de
+ExperTeam GmbH			http://www.experteam.de/
+Munich, Germany
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

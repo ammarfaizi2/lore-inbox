@@ -1,75 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131495AbQLQFDu>; Sun, 17 Dec 2000 00:03:50 -0500
+	id <S132372AbQLQF6a>; Sun, 17 Dec 2000 00:58:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132372AbQLQFDk>; Sun, 17 Dec 2000 00:03:40 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:22801 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131495AbQLQFD2>; Sun, 17 Dec 2000 00:03:28 -0500
-Date: Sun, 17 Dec 2000 00:38:17 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Russell Cattelan <cattelan@thebarn.com>, linux-kernel@vger.kernel.org
-Subject: Re: Test12 ll_rw_block error.
-In-Reply-To: <20001215105148.E11931@redhat.com>
-Message-ID: <Pine.LNX.4.21.0012170027060.28849-100000@freak.distro.conectiva>
+	id <S132403AbQLQF6V>; Sun, 17 Dec 2000 00:58:21 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:47876 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S132372AbQLQF6P>;
+	Sun, 17 Dec 2000 00:58:15 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200012170527.eBH5Rbr441809@saturn.cs.uml.edu>
+Subject: Re: 2.2.18 signal.h
+To: meissner@spectacle-pond.org (Michael Meissner)
+Date: Sun, 17 Dec 2000 00:27:37 -0500 (EST)
+Cc: andrea@suse.de (Andrea Arcangeli),
+        Franz.Sirl-kernel@lauterbach.com (Franz Sirl),
+        root@chaos.analogic.com (Richard B. Johnson),
+        mblack@csihq.com (Mike Black),
+        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.or)
+In-Reply-To: <20001215153130.B24830@munchkin.spectacle-pond.org> from "Michael Meissner" at Dec 15, 2000 03:31:30 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Michael Meissner writes:
+> On Fri, Dec 15, 2000 at 07:54:33PM +0100, Andrea Arcangeli wrote:
+>> On Fri, Dec 15, 2000 at 06:59:24PM +0100, Franz Sirl wrote:
 
-On Fri, 15 Dec 2000, Stephen C. Tweedie wrote:
-
-> Hi,
+>>> It's required by ISO C, and since that's the standard now, gcc
+>>> spits out a  warning. Just adding a ; is enough and already
+>>> done for most stuff in 2.4.0-test12.
+...
+>> Why am I required to put a `;' only in the last case and not in
+>> all the previous ones? Or maybe gcc-latest is forgetting to
+>> complain about the previous ones ;)
+>
+> Because neither
 > 
-> On Fri, Dec 15, 2000 at 02:00:19AM -0500, Alexander Viro wrote:
-> > On Thu, 14 Dec 2000, Linus Torvalds wrote:
-> > 
-> > Just one: any fs that really cares about completion callback is very likely
-> > to be picky about the requests ordering. So sync_buffers() is very unlikely
-> > to be useful anyway.
-> > 
-> > In that sense we really don't have anonymous buffers here. I seriously
-> > suspect that "unrealistic" assumption is not unrealistic at all. I'm
-> > not sufficiently familiar with XFS code to say for sure, but...
+> 	<label>:		(nor)
+> 	case <expr>:		(nor)
+> 	default:
 > 
-> Right.  ext3 and reiserfs just want to submit their own IOs when it
-> comes to the journal.  (At least in ext3, already-journaled buffers
-> can be written back by the VM freely.)  It's a matter of telling the
-> fs when that should start.
-> 
-> > What we really need is a way for VFS/VM to pass the pressure on filesystem.
-> > That's it. If fs wants unusual completions for requests - let it have its
-> > own queueing mechanism and submit these requests when it finds that convenient.
-> 
-> There is a very clean way of doing this with address spaces.  It's
-> something I would like to see done properly for 2.5: eliminate all
-> knowledge of buffer_heads from the VM layer.  It would be pretty
-> simple to remove page->buffers completely and replace it with a
-> page->private pointer, owned by whatever address_space controlled the
-> page.  Instead of trying to unmap and flush buffers on the page
-> directly, these operations would become address_space operations.
-> 
-> We could still provide the standard try_to_free_buffers() and
-> unmap_underlying_metadata() functions to operate on the per-page
-> buffer_head lists, and existing filesystems would only have to point
-> their address_space "private metadata" operations at the generic
-> functions.  However, a filesystem which had additional ordering
-> constraints could then intercept the flush or writeback calls from the
-> VM and decide on its own how best to honour the VM pressure.
+> are statements by themselves.
 
-Stephen,
+For the GNU C language they are. For the ISO C language they are not.
+If there had been a flag such as -ansi or -std=iso-me-harder then
+the warning would be appropriate. Without such a flag, gcc should
+shut up and compile the code.
 
-The ->flush() operation (which we've been discussing a bit) would be very
-useful now (mainly for XFS).
-
-At page_launder(), we can call ->flush() if the given page has it defined.
-Otherwise use try_to_free_buffers() as we do now for filesystems which
-dont care about the special flushing treatment. 
-
+So this is a gcc language standard selection bug.
 
 
 -

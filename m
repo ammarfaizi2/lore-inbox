@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315211AbSDWNv1>; Tue, 23 Apr 2002 09:51:27 -0400
+	id <S315219AbSDWNyN>; Tue, 23 Apr 2002 09:54:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315212AbSDWNv0>; Tue, 23 Apr 2002 09:51:26 -0400
-Received: from whiskey.openminds.be ([212.35.126.198]:60611 "EHLO
-	whiskey.openminds.be") by vger.kernel.org with ESMTP
-	id <S315211AbSDWNvY>; Tue, 23 Apr 2002 09:51:24 -0400
-Date: Tue, 23 Apr 2002 15:51:25 +0200
-From: Frank Louwers <frank@openminds.be>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: 2 NICs on same network
-Message-ID: <20020423155125.A9208@openminds.be>
-In-Reply-To: <20020423113935.A30329@openminds.be> <20020423134549.GA2048@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.21i
-X-PGP2: 1024R/1A899409  C3 D8 FA D3 E0 0E 40 C5  10 32 83 74 36 F0 E5 95
-X-oldGPG: 1024D/3F6A7EDD  D597 566A BDF5 BBFB C308  447A 5E81 1188 3F6A 7EDD
-X-GPG: 1024D/E592712F  E857 266C 04BE 0772 B9C4  E798 3D34 D5E5 E592 712F
-Organisation: Openminds - http://www.openminds.be/
+	id <S315220AbSDWNyN>; Tue, 23 Apr 2002 09:54:13 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:35459 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S315219AbSDWNyL>; Tue, 23 Apr 2002 09:54:11 -0400
+Date: Tue, 23 Apr 2002 09:56:00 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: gio zanei <il_boba@hotmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: undefined reference to printk()
+In-Reply-To: <F236cWcHoWRwE67G7lU00005dc6@hotmail.com>
+Message-ID: <Pine.LNX.3.95.1020423095215.16072A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> Do you really need the two interfaces to be in the same subnet ? I use
-> tw parallel nets for a cluster, but configured both as independent
-> subnets, 10.0.0.0 and 10.0.1.0. So you can drive all nfs through one
-> interface mounting the server as 10.0.0.1, and all the bproc traffic
-> through the other (or all the ssh through the other connecting
-> always to 10.0.1.1).
+On Tue, 23 Apr 2002, gio zanei wrote:
+
+> hi to all,
+> i need to compile a small program that i made. WHen i try to do it, it 
+> compiles all right with the -c option ( that is i get the .o file), but if i 
+> do even the linking it just keep giving me the undefined reference error to 
+> some kernel functions that i need to use. In particular are the printk, 
+> filp_open, generic_file_read....  I have included the header files that 
+> declare them ( kernel.h and fs.h) and i have compiled the program with the 
+> -D__KERNEL__ and other option used by the compiler when it wants to compile 
+> a module in the kernel. I tried in many different ways but the error in the 
+> linking is always the same.
+> thank you,
+> boba
 > 
-> Hope this helps.
 
-Well, I was planning on using it as a backup link: use eth0 as my
-"normal" interface card, with a traffic shaper on it, firewalled etc.
+Stuff compiled to run in the kernel needs to be run in the kernel.
+Stuff compiled to run in user-mode needs to be run in user-mode.
+None the twain shall meet.
 
-If however, something goes wrong with either the firewall, or traffic
-shaper, or so, I have to drive 60 miles to my server to correct things
-on the console.
+You can't make a 'program' that calls kernel functions. You make
+a module and install it. Modules are not linked as user-mode
+executables. They remain object files.
 
-I was hoping on configuring that second nic as a "backup" nic ...
+Cheers,
+Dick Johnson
 
-Frank
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

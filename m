@@ -1,60 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264270AbTDWWnO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 18:43:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264272AbTDWWnO
+	id S264272AbTDWWrC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 18:47:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264280AbTDWWrC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 18:43:14 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:31759 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264270AbTDWWnN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 18:43:13 -0400
-Date: Thu, 24 Apr 2003 00:55:20 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Pat Suwalski <pat@suwalski.net>
-Cc: Pavel Machek <pavel@ucw.cz>, Matthias Schniedermeyer <ms@citd.de>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Marc Giger <gigerstyle@gmx.ch>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 623] New: Volume not remembered.
-Message-ID: <20030423225520.GA32577@atrey.karlin.mff.cuni.cz>
-References: <21660000.1051114998@[10.10.2.4]> <20030423164558.GA12202@citd.de> <1508310000.1051116963@flay> <20030423172120.GA12497@citd.de> <3EA6947D.9080106@suwalski.net> <20030423221749.GA9187@elf.ucw.cz> <3EA71533.4090008@suwalski.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EA71533.4090008@suwalski.net>
-User-Agent: Mutt/1.3.28i
+	Wed, 23 Apr 2003 18:47:02 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:61121 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264272AbTDWWrB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 18:47:01 -0400
+Date: Thu, 24 Apr 2003 00:58:48 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Andrew Morton <akpm@digeo.com>
+cc: <alan@lxorguk.ukuu.org.uk>, <andre@linux-ide.org>, <axboe@suse.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.67-ac2 direct-IO for IDE taskfile ioctl (0/4)
+In-Reply-To: <20030423153500.0d99b4d3.akpm@digeo.com>
+Message-ID: <Pine.SOL.4.30.0304240042550.22047-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+
+On Wed, 23 Apr 2003, Andrew Morton wrote:
+
+> Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
+> >
+> >
+> > Hey,
+> >
+> > Another bunch of patches:
+> >
+> > (1) Enhance bio_(un)map_user() and add blk_rq_bio_prep().
+> > (2) Pass bdev to IDE ioctl handlers.
+> > (3) Add support for rq->bio based taskfile.
+> > (4) Use direct-IO in ide_taskfile_ioctl() and in ide_cmd_ioctl().
+>
+> Dumb question: what does all this code actually do?
+
+Code actually implements 'subject' so direct IO to user memory
+for IDE specific taskfile ioctl. As a side effect it also cleans
+scsi_ioctl.c a little.
+
+>
+> It appears to be implementing an IDE-specific ioctl() which performs bulk
+> IO direct to/from userspace.  But that seems to be equivalent to O_DIRECT
+> access to /dev/hda.
+
+No, it is not equivalent, it does much, much more then O_DIRECT.
+And this ioctl has been here for ages, only now it gets direct IO.
+
+> What is special about the IDE ioctl approach?
+>
+> Thanks.
+
+It can be used for _any_ access to IDE drive, even for some diagnostic
+or vendor specific commands. User decides on transfer protocol
+(PIO/DMA/queued DMA), addressing mode (CHS/LBA28/LBA48) etc.
+User also gets drive status after command completion etc.
+
+The main goal of the patch is to bring internal kernel handling
+of this ioctl closer to kernel handling of normal fs IO, so only
+_one_ common code will be used in future (benefits desribed in annonce).
+
+Hope this helps...
+--
+Bartlomiej
 
 
-> >up. cat /bin/bash > /dev/dsp should produce some noise...
-> 
-> Without making a big point of it, I do believe that is the motivation 
-> behind ALSA.
-> 
-> I have used mixers for ALSA, OSS, esd, and artsd. If there is one set of 
-> tools for ALSA, that is a Good Thing.
-> 
-> Look at any other OS. There are not four individual mixers.
-> 
-> 
-> It should start at zero, then when you set the correct volume, it should 
-> remember it so that you can cat > /dev/dsp and have noise.
 
-That breaks in init=/bin/bash siuations, old distros, etc.
 
-> The alternative approach is to set the volume very low, but still 
-> perceptible by default, say 10% or 20%, so that the user is aware of his 
-> device working, then can set the mixer to a level that is good, which 
-> the system remembers.
-
-20% default level works for me. AAt least I know what the problem is
-(hey, need to set up mixer).
-
-						Pavel
-
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.

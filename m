@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317344AbSFLDrR>; Tue, 11 Jun 2002 23:47:17 -0400
+	id <S317347AbSFLDut>; Tue, 11 Jun 2002 23:50:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317347AbSFLDrQ>; Tue, 11 Jun 2002 23:47:16 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:55756 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317344AbSFLDrQ>;
-	Tue, 11 Jun 2002 23:47:16 -0400
-Date: Tue, 11 Jun 2002 20:41:19 -0700 (PDT)
-Message-Id: <20020611.204119.58650447.davem@redhat.com>
-To: davidsen@tmr.com
-Cc: greearb@candelatech.com, mark@mark.mielke.cc, cfriesen@nortelnetworks.com,
-        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: RFC: per-socket statistics on received/dropped packets
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.3.96.1020611183218.29598A-100000@gatekeeper.tmr.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317349AbSFLDus>; Tue, 11 Jun 2002 23:50:48 -0400
+Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:13280 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S317347AbSFLDur>; Tue, 11 Jun 2002 23:50:47 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, dent@cosy.sbg.ac.at,
+        adilger@clusterfs.com, da-x@gmx.net, patch@luckynet.dynu.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.21 - list.h cleanup 
+In-Reply-To: Your message of "Tue, 11 Jun 2002 10:54:04 MST."
+             <E17HpqG-000454-00@w-gerrit2> 
+Date: Wed, 12 Jun 2002 13:49:00 +1000
+Message-Id: <E17Hz8A-0003oC-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Bill Davidsen <davidsen@tmr.com>
-   Date: Tue, 11 Jun 2002 18:41:16 -0400 (EDT)
+In message <E17HpqG-000454-00@w-gerrit2> you write:
+> In message <Pine.LNX.4.44.0206110128130.1987-100000@home.transmeta.com>, > : 
+Li
+> nus Torvalds writes:
+> > 
+> > 
+> > On Tue, 11 Jun 2002, Rusty Russell wrote:
+> > >
+> > > Worst sin is that you can't predeclare typedefs.  For many uses (not the
+> > > list macros of course):
+> > > 	struct xx;
+> > > is sufficient and avoids the #include hell,
+> > 
+> > True.
+> 
+> Untrue.  Or partially true (yes, you *can* use struct xx;).
+> 
+> But you can also use:
+> 
+> typedef foo_t;
 
-     Actually your arguments sound like you have a solution to your problem
-   and you want everyone to use it even if it doesn't help them. Have you
-   some emotional tie to SNMP, like being an author?
-   
-After a comment like this, I have no interest in listening to anything
-else you have to say.  I've been maintaining the Linux networking for
-5 or more years now, and the most important thing I do is say no to
-changes.
+Huh?  In what language?  Try it with -Wall to see what you're really
+doing here, and think about what happens when you put that in one
+header, and the real typedef in another.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

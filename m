@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316523AbSEPAKR>; Wed, 15 May 2002 20:10:17 -0400
+	id <S316525AbSEPAOV>; Wed, 15 May 2002 20:14:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316524AbSEPAKQ>; Wed, 15 May 2002 20:10:16 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23050 "EHLO
+	id <S316526AbSEPAOU>; Wed, 15 May 2002 20:14:20 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27658 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S316523AbSEPAKQ>; Wed, 15 May 2002 20:10:16 -0400
-Subject: Re: [PATCH] Hotplug CPU prep V: x86 non-linear CPU numbers
-To: rusty@rustcorp.com.au (Rusty Russell)
-Date: Thu, 16 May 2002 01:29:19 +0100 (BST)
-Cc: pavel@ucw.cz (Pavel Machek), torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, sfr@canb.auug.org.au
-In-Reply-To: <E1787yp-0000RO-00@wagner.rustcorp.com.au> from "Rusty Russell" at May 16, 2002 09:14:47 AM
+	id <S316525AbSEPAOT>; Wed, 15 May 2002 20:14:19 -0400
+Subject: Re: InfiniBand BOF @ LSM - topics of interest
+To: woody@co.intel.com (Woodruff, Robert J)
+Date: Thu, 16 May 2002 01:32:09 +0100 (BST)
+Cc: russ@elegant-software.com ('Russell Leighton'), Tony.P.Lee@nokia.com,
+        wookie@osdl.org, alan@lxorguk.ukuu.org.uk, lmb@suse.de,
+        woody@co.intel.com (Woodruff Robert J), linux-kernel@vger.kernel.org,
+        zaitcev@redhat.com
+In-Reply-To: <D9223EB959A5D511A98F00508B68C20C0BFB7E85@orsmsx108.jf.intel.com> from "Woodruff, Robert J" at May 15, 2002 04:58:24 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17898x-0003Cb-00@the-village.bc.nu>
+Message-Id: <E1789Bh-0003D8-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> APM is special: what it *really* wants to know is if only CPU 0 is
-> online (this test will almost certainly fail miserably if the single
-> online CPU is CPU 1, which previously wasn't possible).
+> so someone could invent a new address family for sockets,
+> say AF_INFINIBANDO, that is much more light weight than the existing TCP/IP
+> stack.
+> Thus with a small change to the application, a good performance increase can
+> be attained.
 
-It wants to know that only one CPU is running. Doesn't matter which.
-APM as defined allows for SMP. APM in the real world doesn't work with
-SMP but does work well with uniprocessors. People wanted an SMP kernel
-on uniprocessor to do the right thing.
-
-It may well be worth having an apm=on type option because some newer setups
-especially those using SMM traps for everything seem to get it right
-
-Alan
+Shouldn't be too hard. It looks like its basically AF_PACKET combined with
+the infiniband notions of security.

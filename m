@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267701AbTAMBmc>; Sun, 12 Jan 2003 20:42:32 -0500
+	id <S267743AbTAMBqu>; Sun, 12 Jan 2003 20:46:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267743AbTAMBmc>; Sun, 12 Jan 2003 20:42:32 -0500
-Received: from [193.126.32.23] ([193.126.32.23]:52892 "EHLO
-	mail.paradigma.co.pt") by vger.kernel.org with ESMTP
-	id <S267701AbTAMBmb>; Sun, 12 Jan 2003 20:42:31 -0500
-Date: Mon, 13 Jan 2003 01:51:16 +0000
-From: Nuno Monteiro <nuno.monteiro@ptnix.com>
-To: linux-kernel@vger.kernel.org
+	id <S267753AbTAMBqu>; Sun, 12 Jan 2003 20:46:50 -0500
+Received: from holomorphy.com ([66.224.33.161]:39590 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267743AbTAMBqu>;
+	Sun, 12 Jan 2003 20:46:50 -0500
+Date: Sun, 12 Jan 2003 17:52:29 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Michael Kingsbury <beaker@europa.beakerware.net>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: any chance of 2.6.0-test*?
-Message-ID: <20030113015116.GA3433@hobbes.itsari.int>
-References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com> <1042400094.1208.26.camel@RobsPC.RobertWilkens.com> <20030112211530.GP27709@mea-ext.zmailer.org> <1042406849.3162.121.camel@RobsPC.RobertWilkens.com> <20030112215949.GA2392@www.kroptech.com> <1042410059.1208.150.camel@RobsPC.RobertWilkens.com> <1850.4.64.197.173.1042420003.squirrel@www.osdl.org> <1042420910.3162.277.camel@RobsPC.RobertWilkens.com>
+Message-ID: <20030113015229.GB9727@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Michael Kingsbury <beaker@europa.beakerware.net>,
+	linux-kernel@vger.kernel.org
+References: <20030110161012.GD2041@holomorphy.com> <Pine.LNX.4.44.0301122002480.7225-100000@europa.beakerware.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <1042420910.3162.277.camel@RobsPC.RobertWilkens.com>; from robw@optonline.net on Mon, Jan 13, 2003 at 01:21:50 +0000
-X-Mailer: Balsa 1.4.2
+In-Reply-To: <Pine.LNX.4.44.0301122002480.7225-100000@europa.beakerware.net>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13.01.03 01:21 Rob Wilkens wrote:
-> 
-> I didn't have a lesson about multiple return paths.. I actually before
-> posting checked out the coding style document..
-> 
-> :/usr/src/linux-2.5.56/Documentation# grep -i return CodingStyle
-> 
-> Returned nothing..  There was no mention of using return in the middle
-> or end of a function in the coding style document, though perhaps there
-> should be.
-> 
+At some point in the past, I wrote:
+>> Any specific concerns/issues/wishlist items you want taken care of
+>> before doing it or is it a "generalized comfort level" kind of thing?
+>> Let me know, I'd be much obliged for specific directions to move in.
 
-You dont realistically expect to learn how to program reading 
-Documentation/CodingStyle, do you? CodingStyle merely serves as general 
-guidelines of what is considered good practice among kernel development, 
-no more no less. If you dont know how to code in the first place (which 
-you have proved spectacularly, by now), you're SOL.
+On Sun, Jan 12, 2003 at 08:08:42PM -0500, Michael Kingsbury wrote:
+> As long as I can't unzip the latest, do a quick
+> 	'make xconfig' w/o changing the defaults,
+> 	 followed by
+> 	'make bzImage',
+> and actually get the sucker to compile, I'd say go for it.  But there's 
+> still too much breakage.  And until that breakage is fixed, you won't get 
+> the next wave of people (users) who are curious to poke around with it.  
+> (some of us don't care to take half a day just to figure out what to do to make something compile because 
+> there's problems in the source.)
+> (Yes, I realize I have to customize the kernel some.  But at the very 
+> least the defaults shouldn't cause it to fall flat on its face.)
 
-Go educate yourself and stop trolling. Somewhere, along the bucketloads 
-of vomit you insisted in throwing here, you asked who were the other 
-top-rank trolls -- sincerely, and as far as I can remember, you're ahead 
-by a fair margin. Not even imel96@trustix.co.id with his delireous 
-"single user linux" crap came anywhere near you, although he was, too, 
-very resistant to being clued in.
+Hmm, I never do this, I've been recycling my own .configs for some time.
+Sounds like a valid concern, I'll give it a shot.
 
-See things from this end -- when 99% of the people tell you you're wrong, 
-consider the possibility you are _actually_ wrong, and not the other way 
-around.
-
-Now, off to ~/.killfile you go.
-
-
-Regards,
-
-
-	Nuno
+Bill

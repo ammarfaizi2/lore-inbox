@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263875AbUFNU27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263879AbUFNUas@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263875AbUFNU27 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 16:28:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263879AbUFNU27
+	id S263879AbUFNUas (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 16:30:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263881AbUFNUas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 16:28:59 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:34106 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S263875AbUFNU25 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 16:28:57 -0400
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, anton@au.ibm.com,
-       linuxppc64-dev <linuxppc64-dev@lists.linuxppc.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix ppc64 out_be64
-References: <521xkk77xh.fsf@topspin.com> <1087141822.8210.176.camel@gaston>
-	<52llir5rr2.fsf@topspin.com> <1087146682.8697.184.camel@gaston>
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <roland@topspin.com>
-Date: 14 Jun 2004 13:26:28 -0700
-In-Reply-To: <1087146682.8697.184.camel@gaston>
-Message-ID: <52wu2928ej.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	Mon, 14 Jun 2004 16:30:48 -0400
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:56472 "EHLO
+	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
+	id S263879AbUFNUaq convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 16:30:46 -0400
+X-Ironport-AV: i="3.81R,115,1083560400"; 
+   d="scan'208"; a="46522173:sNHT21604402"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6527.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 14 Jun 2004 20:26:29.0115 (UTC) FILETIME=[DFA294B0:01C4524D]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: [PATCH] proper bios handoff in ehci-hcd
+Date: Mon, 14 Jun 2004 15:30:44 -0500
+Message-ID: <FD3BA83843210C4BA9E414B0C56A5E5C07DD91@ausx2kmpc104.aus.amer.dell.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] proper bios handoff in ehci-hcd
+Thread-Index: AcRSTneKNA+TPV1KSjmNobra8uQYGw==
+From: <Gary_Lerhaupt@Dell.com>
+To: <linux-usb-devel@lists.sourceforge.net>
+Cc: <linux-kernel@vger.kernel.org>, <Stuart_Hayes@Dell.com>
+X-OriginalArrivalTime: 14 Jun 2004 20:30:46.0121 (UTC) FILETIME=[78D29590:01C4524E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Benjamin> Well, I may know ppc asm, but gcc inline asm still
-    Benjamin> drives me nuts :)
+Stuart Hayes here at Dell has identified this or/and mix-up in the ehci-hcd driver.  Because of this, ehci-hcd is not properly released by BIOSes supporting full 2.0 and port behavior can then become erratic.
 
-Speaking of gcc asm, is there a reason why out_le64 (specifically the
-constraints) isn't written in this (simpler) way?  It seems to me we
-can just let val be an input, as long as the "&" constraint for tmp
-makes sure it doesn't share the same register.  This seems to generate
-the same code for me as the current kernel version, at least with gcc
-3.4.0/binutils 2.15.
+This is broken in latest 2.4 and 2.6.
 
-	static inline void out_le64(volatile unsigned long *addr, unsigned long val)
-	{
-		unsigned long tmp;
-	
-		__asm__ __volatile__(
-				     "rldimi %0,%2,5*8,1*8\n"
-				     "rldimi %0,%2,3*8,2*8\n"
-				     "rldimi %0,%2,1*8,3*8\n"
-				     "rldimi %0,%2,7*8,4*8\n"
-				     "rldicl %2,%2,32,0\n"
-				     "rlwimi %0,%2,8,8,31\n"
-				     "rlwimi %0,%2,24,16,23\n"
-				     "std %0,%1\n"
-				     "sync"
-				     : "=&r" (tmp), "=m" (*addr) : "r" (val));
-	}
+Gary Lerhaupt
+Dell Linux Development
+http://linux.dell.com
+
+--- linux/drivers/usb/host/ehci-hcd.c.orig	2004-06-05 03:12:18.000000000 -0500
++++ linux/drivers/usb/host/ehci-hcd.c	2004-06-05 01:18:51.000000000 -0500
+@@ -290,7 +290,7 @@ static int bios_handoff (struct ehci_hcd
+ 		int msec = 500;
+ 
+ 		/* request handoff to OS */
+-		cap &= 1 << 24;
++		cap |= 1 << 24;
+ 		pci_write_config_dword (ehci->hcd.pdev, where, cap);
+ 
+ 		/* and wait a while for it to happen */

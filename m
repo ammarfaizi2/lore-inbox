@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbTIKMAl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 08:00:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbTIKMAl
+	id S261219AbTIKL6l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 07:58:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbTIKL6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 08:00:41 -0400
-Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:23988 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S261220AbTIKMAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 08:00:39 -0400
-Date: Thu, 11 Sep 2003 13:59:57 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, mochel@osdl.org
-Subject: [PATCH] sysfs & dput.
-Message-ID: <20030911115957.GA4312@mschwid3.boeblingen.de.ibm.com>
+	Thu, 11 Sep 2003 07:58:40 -0400
+Received: from luli.rootdir.de ([213.133.108.222]:43192 "HELO luli.rootdir.de")
+	by vger.kernel.org with SMTP id S261219AbTIKL6k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 07:58:40 -0400
+Date: Thu, 11 Sep 2003 13:57:28 +0200
+From: Claas Langbehn <claas@rootdir.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, Andrew de Quincey <adq@lidskialf.net>,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] [2.6.0-test5-mm1] Suspend to RAM problems
+Message-ID: <20030911115728.GA964@rootdir.de>
+References: <20030910103142.GA1053@rootdir.de> <20030910111312.GA847@rootdir.de> <20030910143837.GC2589@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030910143837.GC2589@elf.ucw.cz>
+Reply-By: Sun Sep 14 13:33:51 CEST 2003
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.0-test5-mm1 i686
+X-No-archive: yes
+X-Uptime: 13:33:51 up  1:16,  7 users,  load average: 0.21, 0.16, 0.09
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pat,
-there is another, small bug in sysfs. In sysfs_create_bin_file 
-dentry gets assigned the error value of the call to sysfs_create
-if the call failed. The subsequent call to dput will crash. The
-solution is to remove the assignment of the error to dentry.
+Pavel Machek wrote:
 
-blue skies,
-  Martin.
+> > 
+> > APIC error on CPU0: 08(08)
+> > ...and it repeats endlessly :(
+> > 
+> > my keyboard is dead afterwards.
+> 
+> Can you test on -test3 kernel?
 
-diffstat:
- fs/sysfs/file.c |    2 --
- 1 files changed, 2 deletions(-)
+no, I can't, because I need Andrew De Quincey's linux-2.6.0-test4-acpi-picmode-5.patch
+to be able to boot acpi painless. :( But I could try with later
+test-kernels.
 
-diff -urN linux-2.6/fs/sysfs/file.c linux-2.6-s390/fs/sysfs/file.c
---- linux-2.6/fs/sysfs/file.c	Mon Sep  8 21:49:52 2003
-+++ linux-2.6-s390/fs/sysfs/file.c	Thu Sep 11 13:38:57 2003
-@@ -356,8 +356,6 @@
- 		error = sysfs_create(dentry,(attr->mode & S_IALLUGO) | S_IFREG,init_file);
- 		if (!error)
- 			dentry->d_fsdata = (void *)attr;
--		else
--			dentry = ERR_PTR(error);
- 		dput(dentry);
- 	} else
- 		error = PTR_ERR(dentry);
+

@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261173AbTBQBJs>; Sun, 16 Feb 2003 20:09:48 -0500
+	id <S261448AbTBQBS6>; Sun, 16 Feb 2003 20:18:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261448AbTBQBJr>; Sun, 16 Feb 2003 20:09:47 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:34766 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261173AbTBQBJr>; Sun, 16 Feb 2003 20:09:47 -0500
-Message-ID: <3E503871.8040107@us.ibm.com>
-Date: Sun, 16 Feb 2003 17:18:41 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S261486AbTBQBS6>; Sun, 16 Feb 2003 20:18:58 -0500
+Received: from packet.digeo.com ([12.110.80.53]:59110 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261448AbTBQBS5>;
+	Sun, 16 Feb 2003 20:18:57 -0500
+Date: Sun, 16 Feb 2003 17:29:42 -0800
+From: Andrew Morton <akpm@digeo.com>
 To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>,
-       Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
 Subject: Re: Performance of ext3 on large systems
+Message-Id: <20030216172942.06b0ddba.akpm@digeo.com>
+In-Reply-To: <66390000.1045442686@[10.10.2.4]>
 References: <66390000.1045442686@[10.10.2.4]>
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Feb 2003 01:28:49.0690 (UTC) FILETIME=[EC53A7A0:01C2D623]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
-> OK, so I guess we all know that ext3 doesn't scale well. But by 
-> accident, I have some numbers on exactly how bad it really is:
-> 
-> Kernbench-2: (make -j N vmlinux, where N = 2 x num_cpus)
->                                    Elapsed        User      System         CPU
->             2.5.61-mjb0.1-ext3       48.47      564.13      143.16     1458.67
->             2.5.61-mjb0.1-ext2       46.06      563.04      115.36     1472.33
-> 
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>
 > (look at system time ... eeek!)
-> 
-> diffprofile (+ is worse with ext3, - better)
-> 
-> 12702 .text.lock.inode
 
-# grep -c lock_kernel fs/ext3/inode.c
-35
+Can we just say that ext3's talents lie elsewhere?
 
+I've got some stuff which helps a bit, but nobody has had the time
+to implement the significant overhaul which is needed here.
 
-
--- 
-Dave Hansen
-haveblue@us.ibm.com
-
+noatime would help.

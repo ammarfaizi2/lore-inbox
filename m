@@ -1,71 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262218AbUKAXBe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S513489AbUKBCxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262218AbUKAXBe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 18:01:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S380272AbUKAXBC
+	id S513489AbUKBCxH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 21:53:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264401AbUKBCsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 18:01:02 -0500
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:34728 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S286412AbUKAV50 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 16:57:26 -0500
-Date: Mon, 1 Nov 2004 22:57:09 +0100
-From: Andrea Arcangeli <andrea@novell.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: PG_zero
-Message-ID: <20041101215709.GD3571@dualathlon.random>
-References: <20041030141059.GA16861@dualathlon.random> <20041030140732.2ccc7d22.akpm@osdl.org> <20041030224528.GB3571@dualathlon.random> <43630000.1099236900@[10.10.2.4]>
-Mime-Version: 1.0
+	Mon, 1 Nov 2004 21:48:47 -0500
+Received: from mail24.syd.optusnet.com.au ([211.29.133.165]:48566 "EHLO
+	mail24.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S280016AbUKBCj2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 21:39:28 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43630000.1099236900@[10.10.2.4]>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16774.62295.469676.663865@wombat.chubb.wattle.id.au>
+Date: Tue, 2 Nov 2004 13:39:19 +1100
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: Andrew.Morton.akpm@osdl.org, Tony Luck <tony.luck@intel.com>
+CC: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] IA64 build broken... cond_syscall()... Fixes?
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 31, 2004 at 07:35:03AM -0800, Martin J. Bligh wrote:
-> I'll non-micro-benchmark stuff for you on big machines if you want, but I've 
-> wasted enough time coding this stuff already ;-)
-> 
-> BTW, the one really useful thing the whole page zeroing stuff did was to
-> shift the profiled cost of page zeroing out to the routine acutally using
-> the pages, as it's no longer just do_anonymous_page taking the cache hit.
 
-I'm not a big fan of the idle zeroing myself despite I implemented it.
-The only performance difference I can measure is the microbenchmark
-running 3 times faster, everything else seems the same.
+Hi Folks,
+   The kernel 2.6 IA64 build has been broken for several days (see
+http://www.gelato.unsw.edu.au/kerncomp )
 
-However the real point of the patch is to address all other issues with
-the per-cpu list and to fixup the lack of pte_quicklist in 2.6, and to
-avoid wasting zeropages (like the pte_quicklists did) by sharing them
-with all other page-zero users.
+The reason is that cond_syscall() for IA64 is defined as:
+
+  #define cond_syscall(x) asmlinkage long x (void) \
+	__attribute__((weak,alias("sys_ni_syscall")))   
+
+which of course doesn't work if there's a prototype in scope for x,
+unless the type of x just happens to be the same as for sys_ni_syscall.
+
+Changing to the type-safe version
+   #define cond_syscall(x) __typeof__ (x) x \
+	   __attribute__((weak,alias("sys_ni_syscall")));
+gives an error, e.g., 
+ error: `compat_sys_futex' defined both normally and as an alias
+
+Most architectures use inline assembly language which avoids the
+problem.  However, we don't want to do this for IA64, to allow
+compilers other than gcc to be used (in general, gcc generated code
+for IA64 is extremely poor).
+
+There are several ways to fix this.  The simple way is to ensure that
+there are no prototypes for any system calls included in kernel/sys.c
+(the only place where cond_syscall is used).  That's what this patch
+does:
+
+
+
+===== kernel/sys.c 1.97 vs edited =====
+--- 1.97/kernel/sys.c	2004-10-28 07:35:17 +10:00
++++ edited/kernel/sys.c	2004-11-02 13:34:33 +11:00
+@@ -5,7 +5,6 @@
+  */
  
-I'm fine to drop the idle zeroing stuff, it just took another half an
-hour to add it so I did it just in case (it can be already disabled via
-sysctl of course).
+ #include <linux/config.h>
+-#include <linux/compat.h>
+ #include <linux/module.h>
+ #include <linux/mm.h>
+ #include <linux/utsname.h>
+@@ -25,8 +24,9 @@
+ #include <linux/dcookies.h>
+ #include <linux/suspend.h>
+ 
+-/* Don't include this - it breaks ia64's cond_syscall() implementation */
++/* Don't include these - they break ia64's cond_syscall() implementation */
+ #if 0
++#include <linux/compat.h>
+ #include <linux/syscalls.h>
+ #endif
+ 
 
-btw, how did you implement idle zeroing? had you two per-cpu lists,
-where the idle zeroing only refile across the two per-cpu lists like I
-did? Did you address the COW with zeropage? the design I did for it is
-the only one I could imagine beneficial at all, I would never attempt
-taking any spinlock on the idle task. No idea if you also were just
-refiling pages across two per-cpu lists. I need two lists anyways, one
-is the hot-cold one (shared to avoid wasting memory like 2.6 mainline)
-and one is the zero-list that is needed to avoid the lack of
-pte_quicklists and to cache the PG_zero info (it actually renders
-pte_quicklists obsolete since they're less optimal at utilizing zero
-resources). Plus the patch fixes other issues like trying all per-cpu
-lists in the classzone before falling back to the buddy allocator. It
-removes the low watermark and other minor details. The idle zeroing is
-just a minor thing in the whole patch, the point of PG_zero is to create
-an infrastructure in the main page allocator that is capable of caching
-already zero data like ptes.
 
-So far this in practice has been an improvement or a noop, and it solves
-various theoretical issues too, but I still need to test on some bigger
-box and see if it makes any difference there or not... But since it's
-rock solid here, it was good enough for posting ;)
+
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

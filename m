@@ -1,59 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVBDLz0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVBDLzk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261163AbVBDLz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 06:55:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbVBDLz0
+	id S261158AbVBDLzk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 06:55:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbVBDLzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 06:55:26 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:27521 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263853AbVBDLnR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 06:43:17 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1107188868.6675.29.camel@gonzales> 
-References: <1107188868.6675.29.camel@gonzales> 
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: [Oops] 2.6.10: PREEMPT SMP 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Fri, 04 Feb 2005 11:43:00 +0000
-Message-ID: <11365.1107517380@redhat.com>
+	Fri, 4 Feb 2005 06:55:40 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:40407 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261166AbVBDLu5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 06:50:57 -0500
+Date: Fri, 4 Feb 2005 12:51:54 +0100
+From: DervishD <lkml@dervishd.net>
+To: jerome lacoste <jerome.lacoste@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Huge unreliability - does Linux have something to do with it?
+Message-ID: <20050204115154.GB625@DervishD>
+Mail-Followup-To: jerome lacoste <jerome.lacoste@gmail.com>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <5a2cf1f605020401037aa610b9@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <5a2cf1f605020401037aa610b9@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Hi Jerome :)
 
-Xavier Bestel <xavier.bestel@free.fr> wrote:
+ * jerome lacoste <jerome.lacoste@gmail.com> dixit:
+> [Sorry for the sensational title]
 
-> I just got this Oops with 2.6.10 (debian/sid stock kernel).
-> 
-> Kernel is tainted by VMWare, but it wasn't used (machine powered on
-> remotely and used just to run gaim though ssh). I can perhaps try to
-> reproduce it without it though if you need.
+    It catched my attention ;)))
+ 
+> I halted the machine correctly yesterday night. I never dropped the
+> box in 3 years. Am I just being unlucky? Or could the fact that I am
+> using Linux on the box affect the reliability in some ways on that
+> particular hardware (Dell Inspiron 8100)? I run Linux on 3 other
+> computers and never had single problems with them.
 
-Hmmm... I see it involves the key stuff I wrote.
+    Well, Linux may stress the hardware more than other operating
+systems because it tries to optimize usage and performance. But in
+this particular case I will think you are very unlucky O:) I've seen
+that before, unfortunately.
+ 
+> Could a hardware failure look like bad sectors to fsck?
 
-I don't think it can be a problem with preemption interfering with the key
-management code accessing the key tree; every access to the tree outside of
-the bootup initialisation is made with the appropriate spinlock held - and
-that disables preemption.
+    Yes, depending on the hardware failure.
 
-It seems unlikely to be a double free... keys aren't freed the moment their
-usage count reaches zero; a separate daemon is enlisted to go through the tree
-when there's something to dispose of and extract and free all unused keys.
+> (*) I accept tips on discovering and maybe recovering which files have
+> been taken out of my system...
 
-However, it's not impossible that there's a race there that I can't see
-(though it doesn't look likely). Are you willing to try patching your kernel
-with something? If so, if you can look through security/keys/key.c, and every
-time you see a line saying:
+    You should use 'integrit' (http://integrit.sourceforge.net). I
+use it to know whether a file whose contents shouldn't change has
+changed, but it has more usages. And use memtest86 (there are two
+versions out there) to check your RAM, just in case. Bad RAM can
+cause 'apparent' hardware failures. A bad RAM chip can cause disk
+errors (if you write to disk from *bad* RAM, you'll write *bad* data)
+and other failures. Use 'integrit', read the documentation for
+details.
 
-	kmem_cache_free(key_jar, key);
+    Good luck, you'll need it with that laptop :(
 
-insert this line before it:
+    Raúl Núñez de Arenas Coronado
 
-	memset(key, 0xbb, sizeof(*key);
-
-This will corrupt the memory that held the dead key before freeing it. Then if
-something is touching a dead key, the pattern 0xbbbbbbbb or similar will crop
-up in a register or on the stack, and the kernel will very likely crash.
-
-David
+-- 
+Linux Registered User 88736
+http://www.dervishd.net & http://www.pleyades.net/
+It's my PC and I'll cry if I want to...

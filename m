@@ -1,79 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272232AbTHIAnL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 20:43:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272229AbTHIAmt
+	id S272219AbTHIAjG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 20:39:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272162AbTHIAhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 20:42:49 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:65255 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S272226AbTHIAkI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 20:40:08 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Andrew Morton <akpm@osdl.org>
-Date: Sat, 9 Aug 2003 10:39:43 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16180.17103.360112.493943@gargle.gargle.HOWL>
-Cc: dan@debian.org, linux-kernel@vger.kernel.org, ext3-users@redhat.com
-Subject: Re: ext3 badness in 2.6.0-test2
-In-Reply-To: message from Andrew Morton on Thursday August 7
-References: <20030804142245.GA1627@nevyn.them.org>
-	<20030804132219.2e0c53b4.akpm@osdl.org>
-	<16176.41431.279477.273718@gargle.gargle.HOWL>
-	<20030805235735.4c180fa4.akpm@osdl.org>
-	<16178.63046.43567.551323@gargle.gargle.HOWL>
-	<20030807181631.2962dfca.akpm@osdl.org>
-X-Mailer: VM 7.17 under Emacs 21.3.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	Fri, 8 Aug 2003 20:37:37 -0400
+Received: from mail.kroah.org ([65.200.24.183]:57535 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S272158AbTHIAcT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 20:32:19 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <10603869402949@kroah.com>
+Subject: Re: [PATCH] More i2c driver changes 2.6.0-test2
+In-Reply-To: <10603869391598@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 8 Aug 2003 16:55:40 -0700
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday August 7, akpm@osdl.org wrote:
-> Neil Brown <neilb@cse.unsw.edu.au> wrote:
-> 
-> > So I guess the finger points generally in the direction of raid5.
-> > Now I've just got to figure if it is a bug in r5, or some assumption
-> > that it makes that is no longer valid (I was briefly suspicious of
-> > PF_READAHEAD which could have made a real mess of raid5, but that
-> > wouldn't have this symptom)
-> 
-> The PF_READAHEAD things was a huge bug.  Make sure that it is fixed before
-> proceeding.  Linus's tree has the fix.
+ChangeSet 1.1127, 2003/08/08 16:36:42-07:00, seanlkml@rogers.com
 
-I found it. It was read-ahead related, but nothing to do with
-PF_READAHEAD.
+[PATCH] I2C: Additional P4B subsystem id for hidden asus smbus
 
-With this patch, my test ran to completion instead of dying at about
-th 20% mark.
-
-NeilBrown
-
-=================================================================
-Disable raid5 handling of read-ahead
-
-raid5 trys to honour RWA_MASK, but messes it up and can return bad data.
-Just ignore RWA_MASK for now.
+  This patch adds another P4B motherboard subsystem identifier to the recent
+asus sensor patch for the 2.6 kernel.
 
 
- ----------- Diffstat output ------------
- ./drivers/md/raid5.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/quirks.c |    9 ++++++---
+ 1 files changed, 6 insertions(+), 3 deletions(-)
 
-diff ./drivers/md/raid5.c~current~ ./drivers/md/raid5.c
---- ./drivers/md/raid5.c~current~	2003-08-08 14:37:00.000000000 +1000
-+++ ./drivers/md/raid5.c	2003-08-08 14:37:19.000000000 +1000
-@@ -1326,7 +1326,7 @@ static int make_request (request_queue_t
- 			(unsigned long long)new_sector, 
- 			(unsigned long long)logical_sector);
+
+diff -Nru a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+--- a/drivers/pci/quirks.c	Fri Aug  8 16:47:06 2003
++++ b/drivers/pci/quirks.c	Fri Aug  8 16:47:06 2003
+@@ -681,9 +681,12 @@
+ 	if (likely(dev->subsystem_vendor != PCI_VENDOR_ID_ASUSTEK))
+ 		return;
  
--		sh = get_active_stripe(conf, new_sector, pd_idx, (bi->bi_rw&RWA_MASK));
-+		sh = get_active_stripe(conf, new_sector, pd_idx, 0/*(bi->bi_rw&RWA_MASK)*/);
- 		if (sh) {
- 
- 			add_stripe_bio(sh, bi, dd_idx, (bi->bi_rw&RW_MASK));
-
+-	if ((dev->device == PCI_DEVICE_ID_INTEL_82845_HB) && 
+-	    (dev->subsystem_device == 0x8088)) /* P4B533 */
+-		asus_hides_smbus = 1;
++	if (dev->device == PCI_DEVICE_ID_INTEL_82845_HB)
++		switch(dev->subsystem_device) {
++		case 0x8070: /* P4B */
++	    	case 0x8088: /* P4B533 */
++			asus_hides_smbus = 1;
++		}
+ 	if ((dev->device == PCI_DEVICE_ID_INTEL_82845G_HB) &&
+ 	    (dev->subsystem_device == 0x80b2)) /* P4PE */
+ 		asus_hides_smbus = 1;
 

@@ -1,77 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285059AbRLUTUY>; Fri, 21 Dec 2001 14:20:24 -0500
+	id <S285022AbRLUTUm>; Fri, 21 Dec 2001 14:20:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285007AbRLUTRl>; Fri, 21 Dec 2001 14:17:41 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:27063 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S285041AbRLUTQ1>; Fri, 21 Dec 2001 14:16:27 -0500
-Date: Fri, 21 Dec 2001 12:16:24 -0700
-Message-Id: <200112211916.fBLJGOu14312@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Gregor Suhr <Gregor@Suhr.home.cs.tu-berlin.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OOPS  at boot in 2.4.17-rc[12]  (kernel BUG at slab.c:815) maybe devfs
-In-Reply-To: <3C23843A.3040904@Suhr.home.cs.tu-berlin.de>
-In-Reply-To: <3C210AB9.5000900@suhr.home.cs.tu-berlin.de>
-	<200112202338.fBKNcCI05673@vindaloo.ras.ucalgary.ca>
-	<3C23843A.3040904@Suhr.home.cs.tu-berlin.de>
+	id <S285007AbRLUTUb>; Fri, 21 Dec 2001 14:20:31 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:38844 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S285036AbRLUTSs>; Fri, 21 Dec 2001 14:18:48 -0500
+Date: Fri, 21 Dec 2001 14:18:47 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>,
+        David Garfield <garfield@irving.iisd.sra.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Configure.help editorial policy
+Message-ID: <20011221141847.E15926@redhat.com>
+In-Reply-To: <20011220143247.A19377@thyrsus.com> <15394.29882.361540.200600@irving.iisd.sra.com> <20011220185226.A25080@thyrsus.com> <15395.33489.779730.767039@irving.iisd.sra.com> <20011221134034.B11147@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011221134034.B11147@thyrsus.com>; from esr@thyrsus.com on Fri, Dec 21, 2001 at 01:40:34PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gregor Suhr writes:
->   Richard Gooch wrote:
-> 
-> >Gregor Suhr writes:
-> >
-> >>
-> >>Trace; c0105000 <_stext+0/0>
-> >>Trace; c010525e <init+e/140>
-> >>Trace; c0105000 <_stext+0/0>
-> >>Trace; c0105726 <kernel_thread+26/30>
-> >>Trace; c0105250 <init+0/140>
-> >>
-> >
-> >No mention of devfs in the traceback. It doesn't look like a devfs
-> >problem. 
-> >
-> OK
+On Fri, Dec 21, 2001 at 01:40:34PM -0500, Eric S. Raymond wrote:
+> What, and *encourage* non-uniform terminology?  No, I won't do that.
+> Better to have a single standard set of abbreviations, no matter how
+> ugly, than this.
 
-However, on seeing your other message, I take that back. See my other
-reply.
+So, encouraging non-uniform terminology, breaking applicates *and* 
+confusing the hell out of everyone is better?  Face it, the only 
+people trying to confuse things are the disk vendors.  DRAM is sold 
+by the MB, everyone talks about MB == 1024*1024...  I'm having a 
+hard time giving a sympathetic ear to anyone try to change the well 
+established, and consistent (barring the storage venduhs), standard.
 
-> >>mtab" and "/etc/devfs: devfs_register(mp3): could not append to parent, 
-> >>err: -17
-> >>lvmtab.d" succesdevfs: devfs_register(appdata): could not append to 
-> >>parent, err: -17
-> >>sfully created
-> >>devfs: devfs_register(oracle): could not append to parent, err: -17
-> >>
-> >
-> >These devfs-related messages are due to configuration problems
-> >(i.e. boot scripts untarring a pile of crap into devfs), but they are
-> >unlikely to be the cause of your Oops.
-> >
-> The linuxrc script  of the initrd include:
-> 
->    #!/bin/sh
->    /bin/mount /proc
->    /sbin/vgscan
->    /sbin/vgchange -a y
->    /bin/umount /proc
-> 
-> But it is using a mountd devfs without runnig devfsd.
-> I used this inird (without any change or rebuild) since 2.4 without any 
-> problem, so something in the kernel must been changed.
-
-Yes, something in the kernel has changed. New devfs core, which
-doesn't work with broken drivers, and generates warning messages for
-bad configurations. But those are warnings, and broken configurations
-should continue to work (in 2.4, in 2.5 they won't). The problem you
-are having is unrelated to a broken configuration. See other message.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+		-ben
+-- 
+Fish.

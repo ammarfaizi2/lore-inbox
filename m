@@ -1,74 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273058AbRIWVVz>; Sun, 23 Sep 2001 17:21:55 -0400
+	id <S273013AbRIWVSZ>; Sun, 23 Sep 2001 17:18:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273065AbRIWVVp>; Sun, 23 Sep 2001 17:21:45 -0400
-Received: from ns1.yggdrasil.com ([209.249.10.20]:38880 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S273058AbRIWVVi>; Sun, 23 Sep 2001 17:21:38 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sun, 23 Sep 2001 14:21:59 -0700
-Message-Id: <200109232121.OAA03841@adam.yggdrasil.com>
-To: mm@ns.caldera.de
-Subject: Re: PATCH: linux-2.4.10-pre14/drivers/sound/maestro.c ignored pci_module_init results
-Cc: linux-kernel@vger.kernel.org
+	id <S273012AbRIWVSP>; Sun, 23 Sep 2001 17:18:15 -0400
+Received: from ns-3.dglnet.com.br ([200.246.42.67]:8065 "HELO
+	ns-3.dglnet.com.br") by vger.kernel.org with SMTP
+	id <S272983AbRIWVSJ>; Sun, 23 Sep 2001 17:18:09 -0400
+Date: Sun, 23 Sep 2001 18:19:07 -0300
+From: "Edson Y.Fugio" <edson@dglnet.com.br>
+To: linux-kernel@vger.kernel.org
+Subject: kernel 2.4.10 **** AE_ERROR **** Invalid Reference Count (201) in object c18d3264
+Message-Id: <20010923181907.55620090.edson@dglnet.com.br>
+Organization: DGLNet - Campinas
+X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> = Adam Richter
->  = Marcus Meissner
+Hi,
 
->> 	The initialization routine in
->> linux-2.4.10-pre14/drivers/sound/maestro.c ignores the return value
->> from pci_module_init, and allows module initialization to succeed
->> even if pci_module_init failed.  pci_module_init fails and unloads
->> the driver if the caller is a module and there is no matching hardware.
->> Because maestro.c ignored this failure, loading maestro.o on a system
->> where the corresponding alsa driver was already loaded or on a system
->> without matchin hardware would result in a kernel null pointer dereference
->> in pci_unregister_driver when the module is unloaded or when one
->> attempts to reboot the system (i.e., when the module attempt to
->> unregister a PCI driver that is not registered).
+I have a Intel SBT2 mainboard (2 PIII 866, 512MB), bios Release 1.11 Build 22
+With 2.4.10 start to show this error:
 
->Why and where does it Oops?
+Sep 23 17:12:21 smtp tbxface-0107 [01] Acpi_load_tables      : ACPI Tables successfully loaded
+Sep 23 17:12:21 smtp utdelete-0351 [12] Ut_update_ref_count   : **** AE_ERROR **** Invalid Reference Count (201) in object c1
+8d3264
+Sep 23 17:12:21 smtp 
+Sep 23 17:12:21 smtp utdelete-0351 [12] Ut_update_ref_count   : **** AE_ERROR **** Invalid Reference Count (202) in object c1
+8d3264
+...
 
-	On a machine that has no maestro hardware or that already has
-the alsa drivers bound to the maestro PCI hardware, either of the
-following will cause a null pointer dereference when
-pci_unregister_driver tries to unregister a driver that is not registered:
+Sep 23 18:05:15 smtp 
+Sep 23 18:05:15 smtp Parsing Methods:........................................................................................
+.............................................................................................................................
+...........................
+Sep 23 18:05:15 smtp 240 Control Methods found and parsed (678 nodes total)
+Sep 23 18:05:15 smtp ACPI Namespace successfully loaded at root c0332dc0
+Sep 23 18:05:15 smtp ACPI: Core Subsystem version [20010831]
+Sep 23 18:05:15 smtp evxfevnt-0081 [02] Acpi_enable           : Transition to ACPI mode successful
+Sep 23 18:05:15 smtp Executing device _INI methods:....................................................
+Sep 23 18:05:15 smtp 52 Devices found: 52 _STA, 1 _INI
+Sep 23 18:05:15 smtp Completing Region and Field initialization:..................
+Sep 23 18:05:15 smtp 13/16 Regions, 5/5 Fields initialized (678 nodes total)
+Sep 23 18:05:15 smtp ACPI: Subsystem enabled
+Sep 23 18:05:15 smtp ACPI: System firmware supports S0 S1 S4 S5
+Sep 23 18:05:15 smtp Processor[0]: C0 C1
+Sep 23 18:05:15 smtp Processor[1]: C0 C1
+Sep 23 18:05:15 smtp Power Button: found
+Sep 23 18:05:15 smtp Sleep Button: found
 
-		modprobe maestro
-		rmmod maestro
 
-		(as cleanup_maestro incorrectly calls pci_unregister_driver
-		on a PCI driver that is not loaded.)
+-- 
+Edson Fugio
 
-	...or...
-
-		modprobe meastro
-		reboot
-
-		(as maestro_notifier incorrectly calls pci_unregister_driver
-		on a PCI driver that is not loaded.)
-
-	I experimentally verified both of these on a machine that already
-had the maestro ALSA drivers loaded.  I assume the null pointer dereference
-would be from the list_del(&drv->node) in pci_unregister_driver, since
-list_del calls __list_del, which assumes that drv->node->{prev,next} are
-not NULL, but they would have been set to NULL by the first
-pci_remove_module, which pci_module_init called when the driver failed
-to bind to anything, but which the maestro driver incorrectly ignored.
-
->The code for pci_unregister_driver in
->drivers/pci/pci.c looks correct and should not Oops.
->
->The reboot notifier might be problematic, but I have not checked it.
-
-	There is nothing wrong with pci_unregister_driver.  The bug
-is where init_maestro in maestro.c ignored the results of
-pci_module_init, which is what my patch fixes.
-
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."

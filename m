@@ -1,36 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129045AbQKOROD>; Wed, 15 Nov 2000 12:14:03 -0500
+	id <S129994AbQKORQN>; Wed, 15 Nov 2000 12:16:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129994AbQKORNy>; Wed, 15 Nov 2000 12:13:54 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:56580 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S129045AbQKORNl>; Wed, 15 Nov 2000 12:13:41 -0500
-Date: Wed, 15 Nov 2000 16:43:37 +0000 (GMT)
-From: John Levon <moz@compsoc.man.ac.uk>
-To: Tigran Aivazian <tigran@veritas.com>
-cc: Aamir Dogar <u970001@giki.edu.pk>, linux-kernel@vger.kernel.org
-Subject: Re: Newbie
-In-Reply-To: <Pine.LNX.4.21.0011151607350.2376-100000@saturn.homenet>
-Message-ID: <Pine.LNX.4.21.0011151642420.30668-100000@mrworry.compsoc.man.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130364AbQKORQD>; Wed, 15 Nov 2000 12:16:03 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:14 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129994AbQKORP5>; Wed, 15 Nov 2000 12:15:57 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Memory management bug
+Date: 15 Nov 2000 08:45:47 -0800
+Organization: Transmeta Corporation
+Message-ID: <8uuejr$hbq$1@penguin.transmeta.com>
+In-Reply-To: <C1256998.004585F4.00@d12mta07.de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2000, Tigran Aivazian wrote:
+In article <C1256998.004585F4.00@d12mta07.de.ibm.com>,
+>	 After some trickery with some special hardware feature (storage
+>keys) I found out that empty_bad_pmd_table and empty_bad_pte_table have
+>been put to the page table quicklists multiple(!) times.
 
-> b) read the resources mentioned in the
-> /usr/src/linux/Documentation/kernel-docs.txt
-> 
-> Regards,
-> Tigran
+This is definitely bad, and means that something else really bad is
+going on.
 
-Even better, just follow links from http://www.kernelnewbies.org/
-which is a superset of this file (and links to the online version of it).
+In fact, I have this fairly strong suspicion that we should just get rid
+of the "bad" page tables altogether, and make the stuff that now uses
+them BUG() instead. 
 
-john
+The whole concept of "bad" page tables comes from very early on in
+Linux, when the way the page fault handler worked was that if it ran out
+of memory or something else really bad happened, it would insert a dummy
+page table entry that was guaranteed to let the CPU continue.  That way
+the page fault handler was always "successful" from a hardware
+standpoint, even if it ended up trying to kill the process. 
 
+This used to be required simply because a page fault in kernel space
+originally needed to let the process unwind sanely and cleanly.
+
+These days, the requirement that page faults always "succeed" is long
+long gone. The exception handling mechanism handles the cases where we
+validly can take a page fault, and in other cases we will just kill the
+process outright. As such, the bad page tables should no longer be
+needed, and are apparently just hiding some nasty bugs.
+
+What happens if you just replace all places that would use a bad page
+table with a BUG()? (Ie do _not_ add the bug to the place where you
+added the test: by that time it's too late.  I'm talking about the
+places where the bad page tables are used, like in the error cases of
+"get_pte_kernel_slow()" etc.
+
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

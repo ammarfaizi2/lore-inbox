@@ -1,107 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267722AbTAMJgb>; Mon, 13 Jan 2003 04:36:31 -0500
+	id <S267721AbTAMJgE>; Mon, 13 Jan 2003 04:36:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267725AbTAMJgb>; Mon, 13 Jan 2003 04:36:31 -0500
-Received: from mail.zmailer.org ([62.240.94.4]:49863 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S267722AbTAMJg1>;
-	Mon, 13 Jan 2003 04:36:27 -0500
-Date: Mon, 13 Jan 2003 11:45:15 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Rob Wilkens <robw@optonline.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: any chance of 2.6.0-test*?
-Message-ID: <20030113094515.GT27709@mea-ext.zmailer.org>
-References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com> <1042400094.1208.26.camel@RobsPC.RobertWilkens.com> <20030112211530.GP27709@mea-ext.zmailer.org> <1042406849.3162.121.camel@RobsPC.RobertWilkens.com> <20030112215949.GA2392@www.kroptech.com> <1042410059.1208.150.camel@RobsPC.RobertWilkens.com> <1850.4.64.197.173.1042420003.squirrel@www.osdl.org> <1042420910.3162.277.camel@RobsPC.RobertWilkens.com> <20030113015116.GA3433@hobbes.itsari.int> <1042424368.3162.322.camel@RobsPC.RobertWilkens.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1042424368.3162.322.camel@RobsPC.RobertWilkens.com>
+	id <S267722AbTAMJgE>; Mon, 13 Jan 2003 04:36:04 -0500
+Received: from mail.cendio.se ([193.12.253.66]:7410 "EHLO mail.cendio.se")
+	by vger.kernel.org with ESMTP id <S267721AbTAMJgA>;
+	Mon, 13 Jan 2003 04:36:00 -0500
+Date: Mon, 13 Jan 2003 10:44:33 +0100 (CET)
+From: =?iso-8859-1?Q?Peter_=C5strand?= <peter@cendio.se>
+X-X-Sender: peter@maggie.lkpg.cendio.se
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: nfs@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
+Subject: Re: broken umount -f 
+In-Reply-To: <15905.56794.440587.792199@charged.uio.no>
+Message-ID: <Pine.LNX.4.44.0301131028180.9395-100000@maggie.lkpg.cendio.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 12, 2003 at 09:19:28PM -0500, Rob Wilkens wrote:
-> On Sun, 2003-01-12 at 20:51, Nuno Monteiro wrote:
-> > You dont realistically expect to learn how to program reading 
-> > Documentation/CodingStyle, do you? CodingStyle merely serves as general 
+>>For as long as I remember, umount -f has been broken. I got a reminder
+>>of this fact today when we took an older NFS server out of use. I had to
+>>reboot almost all machines that had mounts from this server. Not nice.
+
+...
+
+> AFAICS It works for me.
 > 
-> No, but I would expect rules of kernel coding to be in there.  For
-> example, we were talking about using return mid-function.  I always
-> considerred that perfectly OK.  Others were saying that's a no-no.  If
-> it's a no-no, it should be documented.  That is, if it's a no-no.  That
-> may be a situational thing though.
+> Are you using the 'intr' mount option,
+
+Yes, as often I can. But IMHO, it should be possible to unmount an
+unreachable NFS fs even if it wasn't mounted with "intr". Otherwise we
+have a quite silly "sysadmin trap".
+
+>and are you remembering to kill
+> those processes that are actually using the mount point first?
+
+One some machines, I killed more or less everything. It didn't help. One
+some other machines, I couldn't kill so blindly. Remember, both "lsof" and
+"fuser" hangs.
+
+Also, as far as I understand, Solaris 8 does not require that you kill all
+processes before unmounting, if you use the "-f" flag (processes will get
+EIO). Would it be possible to implement this feature in Linux? That would
+be really nice.
+
+Regards, Peter
 
 
-That document is short for several reasons.
-
-- It has been written for particular needs, and updated rarely
-
-- Most long-time kernel coders really don't need detailed guidelines,
-  although newcomers (like yourself) apparently want something..
-
-
-
-Things you need to understand include at least:
-
-- Linux kernel is one of the most complicated codes that gcc compiler
-  is ever put to work on, and over the years we have unearthed tons of
-  optimizer bugs.    Many of somewhat odd looking coding details do
-  originate from circumventions of those compiler bugs.
-
-- Advanced optimizer hinting features, like   unlikely()  attribute
-  are very new in (this) compiler, and while they in theory move the 
-  "unlikely" codes out of the fast-path, such things have been buggy
-  in the past, and we are worried of bug effects...
-
-- Why code in a manner, where the optimizer needs to work very hard to
-  produce fast code, when simplified structures, like those with 'goto'
-  in them, can result the same with much less effort ?
-
-- Knowing effects of those optimizations requires profiling, and studying
-  produced assembly code on different target systems.
-
-- Linux is multi-CPU-architecture kernel, looking at it via "intel-only,
-  lattest Pentium-XIV" viewpoint is not going to cover all cases.  Making
-  changes that bloat code will make system that much harder to fit into
-  smaller embedded machines.
-
-- Sometimes you need to code differently to achieve higher performance
-  at different processors.  See   drivers/md/xor.c   and header files
-  it includes.  Especially all  include/asm-*/xor.h  files, including
-  include/asm-generic/xor.h ...   (That shows to you how different
-  approaches work at different systems.  What works fast in register-
-  rich processors does not necessarily be fast in register-poor things,
-  like i386 series.)
-
-- Adding function classifiers like "static inline" do change rules 
-  somewhat. (Especially things like "mid-function return".)
-
-- Larger code, either with manually replicated exit cleanup (which
-  are pain to maintain, when some large-scale change is needed), or
-  via excessive use of "static inline", will pressure caches, and
-  makes it more likely to drop soon to be again needed code (or data)
-  from cache.    Cases where cache-miss costs your tens, or hundreds
-  of processor clock cycles that is really important question.
-
-- Explaining things like GCC asm() statement syntaxes isn't a thing
-  for Linux kernel documentation.  (Those vary from target processor
-  to another!)
+>>For as long as I remember, umount -f has been broken. I got a reminder
+>>of this fact today when we took an older NFS server out of use. I had to
+>>reboot almost all machines that had mounts from this server. Not nice.
+>>
+>>Anyone knows why -f does not work? When I try, I get:
+>>
+>># umount -f /import/applix Cannot MOUNTPROG RPC: RPC: Port mapper
+>>failure - RPC: Unable to receive umount2: Device or resource busy
+>>umount: /import/applix: device is busy
+>>
+>>lsof and fuser hangs, as do "df" and "du". Really frustrating. It's not
+>>even possible to cleanly reboot the system, since RedHats shutdown
+>>scripts wants to unmount NFS fs's.
+>>
+>>I'm not exactly sure I understand what -f is supposed to do. Is it
+>>correct that it is supposed to unmount without contacting the NFS
+>>server? I assume that I still have to make sure no processes are using
+>>the FS? Would it be possible to add a "-9" flag (or something like that)
+>>that kills off all processes that uses the NFS fs automatically?
+>>
+>>(I'm using all kinds of RedHat Linux versions, from 5.0 up to 7.3. From
+>>what I can tell, this problems exists in all versions.)
+>>
 
 
-I repeat:
 
-To understand effects of various coding details, you need to study produced
-assembly code, and keep in mind that in modern processors a branch out of
-straight-line execution path (after optimizations) is expensive (in time),
-and cache-misses are even more expensive.
-
-Then you need to benchmark those codes with different loads (where 
-applicable) to find out what caches affect them -- and when you must
-bypass caches (they are limited resource, after all) in order to give
-overall improved system performance, when your code does not cause
-actively used code or data to be evicted from caches unnecessarily.
-
-
-> -Rob
-
-/Matti Aarnio

@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317384AbSGITsT>; Tue, 9 Jul 2002 15:48:19 -0400
+	id <S317389AbSGIUEc>; Tue, 9 Jul 2002 16:04:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313419AbSGITsS>; Tue, 9 Jul 2002 15:48:18 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:15749 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S317390AbSGITr0>; Tue, 9 Jul 2002 15:47:26 -0400
-Date: Tue, 9 Jul 2002 15:50:17 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Trond Myklebust <trond.myklebust@fys.uio.no>, nfs@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.19-rc1/2.5.25 provide dummy fsync() routine for directories on NFS mounts
-In-Reply-To: <E17S18w-0005a7-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.95.1020709154108.14801B-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317391AbSGIUEb>; Tue, 9 Jul 2002 16:04:31 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:30835 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S317389AbSGIUE3>;
+	Tue, 9 Jul 2002 16:04:29 -0400
+Date: Tue, 9 Jul 2002 22:07:11 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
+Subject: Re: [PATCH] 2.4 IDE core for 2.5
+Message-ID: <20020709200711.GA13401@win.tue.nl>
+References: <20020709102249.GA20870@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020709102249.GA20870@suse.de>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jul 2002, Alan Cox wrote:
+On Tue, Jul 09, 2002 at 12:22:49PM +0200, Jens Axboe wrote:
 
-> > That is what it's supposed to do with files. The attached code clearly
-> > shows that it doesn't work with directories. The fsync() instantly
-> > returns, even though there is buffered data still to be written.
-> 
-> Your understanding or code is wrong. Its hard to tell which.
-> 
-> fsync on the directory syncs the directory metadata not the file metadata
-> 
+> I've forward ported the 2.4 IDE core to 2.5.25.
 
-Well the original complaint was that Linux NFS didn't allow a directory to
-be fsync()ed. I showed that POSIX.4 doesn't provide for fsync()ing
-directories, only files, that you have to fsync() individual files, not
-the directories that contain them. Others said that fsync()ing individual
-files was not necessary, that you only have to fsync() the directory. I
-explained that you have to cheat to even get a fd that can be used
-to fsync() a directory. Then I showed that fsync()ing a directory in this
-manner doesn't work so, we are actually in violent agreement.
+Very good!
 
+There are two kinds of objections.
+The minor one is political - you can imagine.
+The major one is technical. You did not port the 2.4 good PIO
+behaviour to 2.5. Bartlomiej already warned about this, so I
+need only confirm:
 
-Cheers,
-Dick Johnson
+This afternoon I booted 2.5.25 with your patches and two more,
+one to prevent an oops when shutting down, the other to fix
+ethernet cards detection. Started torturing two disks on
+HPT366. After 3 minutes
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+	hde: status error: status=0x50 { DriveReady SeekComplete }
+	hde: no DRQ after issuing WRITE
 
-                 Windows-2000/Professional isn't.
+and seven minutes later
+
+	hde: task_out_intr: status=0x51 { DriveReady SeekComplete Error }
+	hde: task_out_intr: error=0x04 { DriveStatusError }
+
+Soon lots of processes were hanging in D. Reboot. e2fsck.
+
+Then booted vanilla 2.4.17. Tortured disks in the same way.
+After several hours all is still perfect. I'll leave this
+for a night, but so far I have never seen these errors on 2.4
+and very often in recent 2.5.
+
+Andries
 

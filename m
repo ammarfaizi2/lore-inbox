@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262984AbVALAMu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262916AbVALANg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262984AbVALAMu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 19:12:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262976AbVALAJu
+	id S262916AbVALANg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 19:13:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbVALAJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 19:09:50 -0500
-Received: from holomorphy.com ([207.189.100.168]:60391 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262964AbVALAHk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 19:07:40 -0500
-Date: Tue, 11 Jan 2005 16:07:26 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: node_online_map patch kills x86_64
-Message-ID: <20050112000726.GD14443@holomorphy.com>
-References: <20050111151656.A24171@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050111151656.A24171@build.pdx.osdl.net>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 11 Jan 2005 19:09:17 -0500
+Received: from gort.metaparadigm.com ([203.117.131.12]:12749 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id S262959AbVALAHQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 19:07:16 -0500
+Message-ID: <41E46A59.2010205@metaparadigm.com>
+Date: Wed, 12 Jan 2005 08:07:53 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jim Zajkowski <jamesez@umich.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Sparse LUN scanning - 2.4.x
+References: <cs182h$6nl$1@sea.gmane.org>
+In-Reply-To: <cs182h$6nl$1@sea.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 03:16:56PM -0800, Chris Wright wrote:
-> Backing out the x86_64 specific bits of the numnodes -> node_online_map
-> patch and the generic bits from wli, kills my machine at boot.
-> It hits the early_idt_handler and dies straight away.  What would help
-> to debug this thing?
+Jim Zajkowski wrote:
 
-The only part of this I'm responsible for is converting build_zonelists()
-to pass its nodemask argument by reference to address a livelock. I feel
-your pain and if not otherwise occupied I would help fix your problem
-right away.
+> Hi there,
+>
+> We have an Apple Xserve RAID, connected through a FC switch.  The RAID 
+> has LUN-masking enabled, such that one of our Linux boxes only gets 
+> LUN 1 and not LUN 0.  We're running the 2.4.x kernel series now, since 
+> this is under a RHEL envinronment.
+>
+> The problem is this: since LUN 0 does not show up -- specifically, it 
+> can't read the vendor or model informaton -- the kernel SCSI scan does 
+> not match with the table to tell the kernel to do sparse LUN 
+> scanning... so the RAID does not appear.
+>
+> I can make the RAID show up by injecting a add-single-device to the 
+> SCSI proc layer.  Trivially patching scsi_scan.c to always do sparse 
+> scanning works as well.  No hokery with max_scsi_luns or ghost devices 
+> works.
+>
+> I'm considering making a patch to add a kernel option to force sparse 
+> scanning.  Is there a better way?
+>
+Add the Xserve with the BLIST_SPARSELUN flag into the blacklist/quirks 
+table in drivers/scsi/scsi_scan.c
 
-
--- wli
+~mc

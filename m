@@ -1,28 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129880AbRBEKhf>; Mon, 5 Feb 2001 05:37:35 -0500
+	id <S129777AbRBEKkZ>; Mon, 5 Feb 2001 05:40:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129849AbRBEKh0>; Mon, 5 Feb 2001 05:37:26 -0500
-Received: from [202.106.187.166] ([202.106.187.166]:52421 "HELO sina.com")
-	by vger.kernel.org with SMTP id <S129880AbRBEKhQ>;
-	Mon, 5 Feb 2001 05:37:16 -0500
-Message-ID: <20010205104120.19871.qmail@sina.com>
-From: tang_jung <tt77jj@sina.com>
-To: linux-kernel@vger.kernel.org
-Subject: subscibe
-Date: Mon, 05 Feb 2001 18:41:20 +0800
-X-Mailer: SinaMail 3.0Beta (FireToad)
-X-Priority: 3
+	id <S129504AbRBEKkP>; Mon, 5 Feb 2001 05:40:15 -0500
+Received: from deluge.umist.ac.uk ([130.88.120.66]:53004 "EHLO
+	deluge.umist.ac.uk") by vger.kernel.org with ESMTP
+	id <S130317AbRBEKj5>; Mon, 5 Feb 2001 05:39:57 -0500
+From: "Thomas Stewart" <T.Stewart@student.umist.ac.uk>
+To: Manfred Spraul <manfred@colorfullife.com>
+Date: Mon, 5 Feb 2001 10:41:23 -0000
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: d-link dfe-530 tx (bug-report)
+CC: Urban Widmark <urban@teststation.com>,
+        Jonathan Morton <chromi@cyberspace.org>, linux-kernel@vger.kernel.org,
+        ksa1 <ksa1@gmx.de>
+Message-ID: <3A7E8353.1100.2098EE7@localhost>
+In-Reply-To: <3A7E6670.4AD21D20@colorfullife.com>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-end
--
-______________________________________
+On 5 Feb 2001, at 9:38, Manfred Spraul wrote:
 
-===================================================================
-新浪免费电子邮箱 (http://mail.sina.com.cn)
-新浪聊天大奖-MP3商务通DVD手机钻戒等着您；并提供聊友速配服务 (http://newchat.sina.com.cn/love/)
+> That's expected, my patch fixes another bug.
+> The NIC now recover from "Tx timeout" messages. ksa confirmed that,
+> but there is still a delay of a few seconds. I'll try to fix that.
+> 
+> > Then I applyed your patch and still changed nothing as you
+> > suspected. But there are regs that are different.
+> >
+> Did you run via-diag before or after loading the via-rhine module?
+
+I compiled it into the kernel, I ran via-diag when it was working and 
+when it was not working.
+
+regards
+tom
+
+---------------------------------------------------------
+ This message is ROT-13 encoded twice for extra security
+ Thomas Stewart - t.stewart@student.umist.ac.uk
+ This should contain no attachments
+---------------------------------------------------------
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262742AbTFDDun (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 23:50:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262771AbTFDDun
+	id S262720AbTFDDok (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 23:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262742AbTFDDok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 23:50:43 -0400
-Received: from ip68-111-188-90.sd.sd.cox.net ([68.111.188.90]:64222 "EHLO
-	rei.moonkingdom.net") by vger.kernel.org with ESMTP id S262742AbTFDDum
+	Tue, 3 Jun 2003 23:44:40 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:28175 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262720AbTFDDoj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 23:50:42 -0400
-Date: Tue, 3 Jun 2003 21:04:09 -0700
-From: Marc Wilson <msw@cox.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Linux 2.4.21-rc6
-Message-ID: <20030604040409.GA1670@moonkingdom.net>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
-References: <20030529052425.GA1566@moonkingdom.net> <BKEGKPICNAKILKJKMHCAIEANECAA.Riley@Williams.Name> <20030529055735.GB1566@moonkingdom.net> <Pine.LNX.4.55L.0306031302310.3892@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55L.0306031302310.3892@freak.distro.conectiva>
-User-Agent: Mutt/1.5.4i
+	Tue, 3 Jun 2003 23:44:39 -0400
+Date: Tue, 3 Jun 2003 23:52:02 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Mike Galbraith <efault@gmx.de>
+cc: Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-ia64] Re: web page on O(1) scheduler
+In-Reply-To: <5.2.0.9.2.20030529062657.01fcaa50@pop.gmx.net>
+Message-ID: <Pine.LNX.3.96.1030603234616.16495B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 03, 2003 at 01:02:45PM -0300, Marcelo Tosatti wrote:
-> Ok, so you can reproduce the hangs reliably EVEN with -rc6, Marc?
+On Thu, 29 May 2003, Mike Galbraith wrote:
 
-Yes, with -rc6, and this:
+> That would still suck rocks for mutex usage... as it must with any 
+> implementation of sched_yield() in the presence of peer threads who are not 
+> playing with the mutex.  Actually, using sched_yield() makes no sense what 
+> so ever to me, other than what Arjan said.  It refers to yielding your 
+> turn, but from userland "your turn" has no determinate meaning.  There is 
+> exactly one case where it has a useable value, and that is  when you're the 
+> _only_ runnable thread... at which time it means precisely zero. (blech)
 
-rei $ dd if=/dev/zero of=/home/mwilson/largefile bs=16384 count=131072
+No, it works usefully without threads at all, with processes sharing a
+spinlock in shared memory. If the lock is closed process does a
+sched_yeild() to allow whoever has the lock to run. Yes to all comments
+WRT order of running, if you care you don't do this, clearly. But in the
+case where a process forks to a feeder and consumer it's faster than
+semaphores, signal, etc.
 
-The mouse starts skipping soon after the box starts swapping.  It
-eventually catches up, but then when I start up another application, it
-starts again.
-
-I have the test running as I type this e-mail in mutt (with vim as the
-editor), and there are noticeable pauses where I'm typing, but there isn't
-anything happening on the screen.
-
-It's *much* better than it was with my prior kernel (-rc2), but it's most
-definately still there.
-
-Anyone got any other test they want me to make on the box?
+All that's needed is to put the yeild process on the end of the
+appropriate run queue and reschedule. Doing anything else results in bad
+performance and no gain to anything else.
 
 -- 
- Marc Wilson |     You're a card which will have to be dealt with.
- msw@cox.net |
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

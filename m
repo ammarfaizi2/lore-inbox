@@ -1,63 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263274AbTDRWEC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 18:04:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTDRWEC
+	id S263264AbTDRWAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 18:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263265AbTDRWAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 18:04:02 -0400
-Received: from web41807.mail.yahoo.com ([66.218.93.141]:13440 "HELO
-	web41807.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263274AbTDRWD7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 18:03:59 -0400
-Message-ID: <20030418221552.34708.qmail@web41807.mail.yahoo.com>
-Date: Fri, 18 Apr 2003 15:15:52 -0700 (PDT)
-From: Christian Staudenmayer <eggdropfan@yahoo.com>
-Subject: Re: kernel panic with 2.5.67-ac1
-To: Patrick Mansfield <patmans@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030418103031.A9260@beaverton.ibm.com>
-MIME-Version: 1.0
+	Fri, 18 Apr 2003 18:00:09 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:36364 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263264AbTDRWAI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 18:00:08 -0400
+Date: Fri, 18 Apr 2003 23:12:04 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>,
+       Andrei Ivanov <andrei.ivanov@ines.ro>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.67-mm4
+Message-ID: <20030418231204.A8747@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrei Ivanov <andrei.ivanov@ines.ro>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.50L0.0304182236480.1931-100000@webdev.ines.ro> <20030418205403.GA3366@nikolas> <20030418225447.A8626@infradead.org> <20030418221029.GA3956@nikolas>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030418221029.GA3956@nikolas>; from bugfixer@list.ru on Fri, Apr 18, 2003 at 06:10:29PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, Apr 18, 2003 at 06:10:29PM -0400, Nick Orlov wrote:
+> No, I don't.
 
-as i mentioned, the panic also appears in 2.5.67-ac2, just in a slightly different
-variant. However, the fix from bk8 you mentioned _is_ in 2.5.67-ac2 (or at least
-the snippit of code that you posted).
-So this probably isn't the problem here, is it?
+Please mount it.  The code duplication has been removed from devfs
+as stated in the changelog.
 
-Thanks in advance,
-Christian Staudenmayer
-
---- Patrick Mansfield <patmans@us.ibm.com> wrote:
-> On Fri, Apr 18, 2003 at 10:18:06AM -0700, Christian Staudenmayer wrote:
-> > Note: this does not happen with 2.4.20, 2.4.21-pre7, 2.4.21-pre7-ac1 or 2.5.67-bk8
-> > It does, however happen with 2.5.67-ac2, but the error message is some lines longer
-> > and some of the addresses have changed.
-> > 
-> > I'd be really grateful for any insight on this problem.
-> 
-> We were plugging a queue that was about to be freed during scsi scan.
-> 
-> This is fixed in bk8, here is a snippit of part of the patch to scsi_lib.c
-> that fixed the problem, or look at the end of scsi_prep_fn, (plus the
-> corresponding call to blk_plug_device was removed from scsi_request_fn):
-> 
-> + defer:
-> +       /* If we defer, the elv_next_request() returns NULL, but the
-> +        * queue must be restarted, so we plug here if no returning
-> +        * command will automatically do that. */
-> +       if (sdev->device_busy == 0)
-> +               blk_plug_device(q);
-> +       return BLKPREP_DEFER;
-> +}
-> 
-> -- Patrick Mansfield
-
-
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Platinum - Watch CBS' NCAA March Madness, live on your desktop!
-http://platinum.yahoo.com

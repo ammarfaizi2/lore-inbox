@@ -1,75 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbUJYBIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbUJYBVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261645AbUJYBIg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 21:08:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUJYBIg
+	id S261648AbUJYBVG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 21:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbUJYBVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 21:08:36 -0400
-Received: from gate.crashing.org ([63.228.1.57]:61644 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261645AbUJYBId (ORCPT
+	Sun, 24 Oct 2004 21:21:06 -0400
+Received: from main.gmane.org ([80.91.229.2]:64709 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261648AbUJYBVD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 21:08:33 -0400
-Subject: [PATCH] ppc64: Some small pci fixes
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1098666394.16132.14.camel@gaston>
+	Sun, 24 Oct 2004 21:21:03 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Joshua Kwan <joshk@triplehelix.org>
+Subject: Serious stability issues with 2.6.10-rc1
+Date: Sun, 24 Oct 2004 18:20:55 -0700
+Message-ID: <pan.2004.10.25.01.20.55.763270@triplehelix.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 25 Oct 2004 11:06:34 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-68-126-181-112.dsl.pltn13.pacbell.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes a few issues in the ppc64 pci code, notably some
-incorrect parsing of Open Firmware "ranges" when setting up host
-bridge resources that would cause a problem with some future
-platforms, a default mapping of the ISA IOs if the OF "isa" node
-lacks a "ranges" property, and a safeguard in pci_scan_all_fns()
-in case a pci<->OF node mapping cannot be established.
+Hello,
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+2.6.10-rc1 seems to have a tendency to lock up after about 8 hours or so
+of uptime. Usually, I am in X, listening to music, and working on
+something when this happens out of the blue. It's a hard hang and there is
+no network response or ability to switch back to a tty so i can get
+sysrq-t output. It just dies. This has happened twice in the past 48 or
+so hours.
 
-Index: linux-work/arch/ppc64/kernel/pci.c
-===================================================================
---- linux-work.orig/arch/ppc64/kernel/pci.c	2004-10-25 10:36:50.724712968 +1000
-+++ linux-work/arch/ppc64/kernel/pci.c	2004-10-25 11:04:50.070413616 +1000
-@@ -585,9 +585,11 @@
- 	int rlen = 0;
- 
- 	range = (struct isa_range *) get_property(isa_node, "ranges", &rlen);
--	if (rlen < sizeof(struct isa_range)) {
--		printk(KERN_ERR "unexpected isa range size: %s\n", 
--				__FUNCTION__);
-+	if (range == NULL || (rlen < sizeof(struct isa_range))) {
-+		printk(KERN_ERR "no ISA ranges or unexpected isa range size,"
-+		       "mapping 64k\n");
-+		__ioremap_explicit(phb_io_base_phys, (unsigned long)phb_io_base_virt, 
-+				   0x10000, _PAGE_NO_CACHE);
- 		return;	
- 	}
- 	
-@@ -652,8 +654,7 @@
- 			cpu_phys_addr = cpu_phys_addr << 32 | ranges[4];
- 
- 		size = (unsigned long)ranges[na+3] << 32 | ranges[na+4];
--
--		switch (ranges[0] >> 24) {
-+		switch ((ranges[0] >> 24) & 0x3) {
- 		case 1:		/* I/O space */
- 			hose->io_base_phys = cpu_phys_addr;
- 			hose->pci_io_size = size;
-@@ -862,6 +863,9 @@
-        else
-                busdn = bus->sysdata;   /* must be a phb */
- 
-+       if (busdn == NULL)
-+	       return 0;
-+
-        /*
-         * Check to see if there is any of the 8 functions are in the
-         * device tree.  If they are then we need to scan all the
+I can't really provide much debugging info though, due to the nature of
+the hang. Is there anything that pops into mind that I should try to nail
+this problem?
+
+2.6.9 seems to be a lot better at staying alive.
+
+Thanks
+
+-- 
+Joshua Kwan
 
 

@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261656AbTKHJ5k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 04:57:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbTKHJ5k
+	id S261683AbTKHKM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 05:12:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbTKHKM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 04:57:40 -0500
-Received: from mail0.epfl.ch ([128.178.50.57]:4615 "HELO mail0.epfl.ch")
-	by vger.kernel.org with SMTP id S261656AbTKHJ5j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 04:57:39 -0500
-Date: Sat, 8 Nov 2003 10:57:37 +0100
-From: Gregoire Favre <Gregoire.Favre@freesurf.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Why are 2.6.0-test9-bk so slow for my mouse? (and otherthings)
-Message-ID: <20031108095737.GA8764@magma.epfl.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.1i
+	Sat, 8 Nov 2003 05:12:26 -0500
+Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:28343 "EHLO
+	office.labsysgrp.com") by vger.kernel.org with ESMTP
+	id S261683AbTKHKMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Nov 2003 05:12:25 -0500
+Message-ID: <3FACC17C.7070901@backtobasicsmgmt.com>
+Date: Sat, 08 Nov 2003 03:12:12 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back to Basics Network Management
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>, Jeff Garzik <jgarzik@redhat.com>
+Subject: libata testing on new machine with ICH5 and PDC20318
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I'm building a new server to go into a colo facility in about six weeks; 
+the machine will have an Intel motherboard with an ICH5R (although I 
+won't use the RAID features) and a Promise SATA150 TX4 (no RAID 
+support). All six SATA ports will have Seagate 160GB Barracuda drives 
+attached, and I plan on using software RAID-5 and LVM2 on top of the array.
 
-2.6.0-test9 is just tremendous ;-)
-I have also tried 2.6.0-test9-bk5 and 2.6.0-test9-bk12 and the system
-seems much slower than under 2.4 :-(
+I will be building the system using 2.6.0-test9, so will be using libata 
+to drive the disks. If there's anything I can help with 
+debugging/testing the ICH and/or Promise SATA drivers let me know... I 
+see that recently Jeff posted a small patch for some SATA reset issues 
+against -test9, so I'll certainly start out with that included.
 
-Also when I change for a screen to the other (I use fvwm2).
-
-I have a P4@2200 with 1Gb DDR, MSI Max2-BLR motherboard, two DVB-s
-cards, one SB live, one Adaptec AIC-7892A U160/m, one Adaptec
-AHA-2940U/UW/D / AIC-7881U and a Matrox G550.
-
-Any idea why?
-
-	Grégoire
-________________________________________________________________________
-http://magma.epfl.ch/greg ICQ:16624071 mailto:Gregoire.Favre@freesurf.ch

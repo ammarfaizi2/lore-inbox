@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262061AbSJEFmA>; Sat, 5 Oct 2002 01:42:00 -0400
+	id <S262062AbSJEFp2>; Sat, 5 Oct 2002 01:45:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262062AbSJEFmA>; Sat, 5 Oct 2002 01:42:00 -0400
-Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:35728 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S262061AbSJEFl7>;
-	Sat, 5 Oct 2002 01:41:59 -0400
-Message-ID: <3D9E7CEE.3070507@candelatech.com>
-Date: Fri, 04 Oct 2002 22:47:26 -0700
+	id <S262063AbSJEFp2>; Sat, 5 Oct 2002 01:45:28 -0400
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:38800 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S262062AbSJEFp1>;
+	Sat, 5 Oct 2002 01:45:27 -0400
+Message-ID: <3D9E7DBC.8070708@candelatech.com>
+Date: Fri, 04 Oct 2002 22:50:52 -0700
 From: Ben Greear <greearb@candelatech.com>
 Organization: Candela Technologies
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: tg3 and Netgear GA302T x 2 locks machine
-References: <3D9D16D9.7040008@candelatech.com> <20021004.142428.101875902.davem@redhat.com>
+To: James Morris <jmorris@intercode.com.au>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: tg3 and Netgear GA302T  x 2 locks machine
+References: <Mutt.LNX.4.44.0210050151050.21370-100000@blackbird.intercode.com.au>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
->    From: Ben Greear <greearb@candelatech.com>
->    Date: Thu, 03 Oct 2002 21:19:37 -0700
+James Morris wrote:
+> On Thu, 3 Oct 2002, Ben Greear wrote:
 > 
->    Got my two new Netgear GA302t nics today.  They seem to use the
->    tg3 driver....
->    
->    I put them into the 64/66 slots on my Tyan dual amd motherboard..
->    Running kernel 2.4.20-pre8
->    
-> You reported the other week problems with two Acenic's in
-> this same machine right?  The second Acenic wouldn't even probe
-> properly.  And the two Acenic's were identical.
 > 
-> I see a pattern developing... :-)
+>>Changed the PCI slot of eth2 to a 32-bit slot, and now it works
+>>better...
+>>
+>>It passed packets for about 20 seconds, then spit out a bunch of these:
+>>
 > 
+> 
+> Which kernel version?  There was a lockup problem for the GA302T just 
+> after NAPI went in (which was fixed soon after).
 
-Yep, one of my 64-bit PCI slots only seems to work with Intel NICs.
-Go figure.
+This was 2.4.20-pre8, ie quite recent.  I didn't see any mention of
+tg3 in the pre9 patch that just came out.
 
-At any rate, I have 4 32-bit slots, and they seem to work, at
-least long enough for the driver to puke messages and hard-lock my
-machine ;)
-
-If you think this NIC should work with the tg3, then I can change
-them to a completely other machine, btw.
+I'm beginning to think SMP may not be worth it...will try in my trusty
+P-IV single-processor cheap-o box next.
 
 Ben
+
+> 
+> 
+> - James
+
 
 -- 
 Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>

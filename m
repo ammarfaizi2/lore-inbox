@@ -1,85 +1,245 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbVA1DTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVA1Dhh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261425AbVA1DTx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 22:19:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVA1DTx
+	id S261428AbVA1Dhh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 22:37:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbVA1Dhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 22:19:53 -0500
-Received: from mproxy.gmail.com ([216.239.56.242]:40920 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261425AbVA1DTc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 22:19:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=a+NLibNJA8s0vf6hEzO+WQrb5rG8oKsU3aIVcSn4XuR+TEEtrL59ektNfSaI6sHZd2gCGgDOVffenuuass60MZ9NVdKfeYtrNsfg7uoOrdamZTCpm6DyzwBgSsTX7vrpFLU3251dx7QVYMgw6PlcPYrTpq+L1APz3PBHz3mpNsM=
-Message-ID: <21d7e99705012719198f7659d@mail.gmail.com>
-Date: Fri, 28 Jan 2005 14:19:29 +1100
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: James Lamanna <jlamanna@gmail.com>
-Subject: Re: Kernel OOPS with i915 DRM Driver - 2.6.10
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <aa4c40ff0501271800184390d7@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <aa4c40ff0501271800184390d7@mail.gmail.com>
+	Thu, 27 Jan 2005 22:37:37 -0500
+Received: from NK210-202-245-3.vdsl.static.apol.com.tw ([210.202.245.3]:4839
+	"EHLO uli.com.tw") by vger.kernel.org with ESMTP id S261428AbVA1DhH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 22:37:07 -0500
+Subject: [patch] net/tulip: Modify a bug for ULi M526X(kernel 2.6.10)
+To: jgarzik@pobox.com
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org,
+       andrebalsa@mailingaddress.org, Peer.Chen@uli.com.tw,
+       Emily.Jiang@uli.com.tw, Eric.Lo@uli.com.tw
+X-Mailer: Lotus Notes R5.0 (Intl) 30 March 1999
+Message-ID: <OF10E6966D.582973D8-ON48256F97.0011D8ED@uli.com.tw>
+From: Clear.Zhang@uli.com.tw
+Date: Fri, 28 Jan 2005 11:36:52 +0800
+MIME-Version: 1.0
+X-MIMETrack: Serialize by Router on ulicnm01/ULI(Release 5.0.11  |July 24, 2002) at 2005/01/28
+ 11:36:54 AM,
+	Itemize by SMTP Server on ulim01/ULI(Release 5.0.11  |July 24, 2002) at
+ 2005/01/28 11:36:54 AM,
+	Serialize by Router on ulim01/ULI(Release 5.0.11  |July 24, 2002) at 2005/01/28
+ 11:36:59 AM,
+	Serialize complete at 2005/01/28 11:36:59 AM
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-your .config can't match that kernel...
+Hi, Jeff
 
-all the debugging is from the i830 drm module, so somehow that is
-getting loaded at some stage... if you are using X 6.8.0 you need the
-i915 (like the config has...)
+There is a bug about ULi M526X. It cannot deal with the dummy descriptor.
 
-you might have an i830 module somewhere on your system that is getting loaded..
+For example:
+Des0:0x80000000
+Des1:0
+Des2:0
+Des3:pointer to next descriptor
 
-Dave.
+This patch is applied to kernel 2.6.10. Please apply to new kernels. Thanks
+a lot.
 
-> drm:i830_dma_initialize] *ERROR* can not find dma buffer map!
-> [drm:i830_irq_emit] *ERROR* i830_irq_emit called without lock held
-> Unable to handle kernel paging request at virtual address f000e829
->  printing eip:
-> c02793c1
-> *pde = 00000000
-> Oops: 0000 [#1]
-> PREEMPT SMP
-> Modules linked in:
-> CPU:    1
-> EIP:    0060:[<c02793c1>]    Not tainted VLI
-> EFLAGS: 00013296   (2.6.10-gentoo-r6)
-> EIP is at i830_kernel_lost_context+0x11/0x70
-> eax: f000e819   ebx: 00000000   ecx: 0000000c   edx: 00003282
-> esi: c05a99a0   edi: 00000000   ebp: 00000000   esp: db26fecc
-> ds: 007b   es: 007b   ss: 0068
-> Process X (pid: 8049, threadinfo=db26f000 task=de4d3020)
-> Stack: 00000000 c027b4a7 c05a99a0 00003282 c01270d7 c027bed0 c05a99a0 c027bedf
->        c05a99a0 c0274fd4 c05a99a0 c05aa0d8 c05aa0e0 00000000 00000000 00000000
->        00000000 00000001 0000000a 00000000 de4d3020 c01187e0 00000000 00000000
-> Call Trace:
->  [<c027b4a7>] i830_dma_quiescent+0x17/0xb0
->  [<c01270d7>] block_all_signals+0x37/0x80
->  [<c027bed0>] i830_driver_dma_quiescent+0x0/0x20
->  [<c027bedf>] i830_driver_dma_quiescent+0xf/0x20
->  [<c0274fd4>] i830_lock+0x264/0x310
->  [<c01187e0>] default_wake_function+0x0/0x20
->  [<c01187e0>] default_wake_function+0x0/0x20
->  [<c01744a3>] dput+0x33/0x1d0
->  [<c0274cf5>] i830_ioctl+0xe5/0x160
->  [<c015d879>] fget+0x49/0x60
->  [<c016f5da>] sys_ioctl+0xca/0x230
->  [<c01031af>] syscall_call+0x7/0xb
-> Code: b9 8b 53 0c 01 d0 89 43 1c e9 60 ff ff ff 8d b6 00 00 00 00 8d
-> bf 00 00 00 00 53 8b 44 24 08 8b 98 34 07 00 00 8b 43 04 8d 4b 0c <8b>
-> 40 10 8b 90 34 20 00 00 81 e2 fc ff 1f 00 89 51 14 8b 43 04
-> 
-> # CONFIG_AGP_EFFICEON is not set
-> CONFIG_DRM=y
-> # CONFIG_DRM_TDFX is not set
-> # CONFIG_DRM_R128 is not set
-> # CONFIG_DRM_RADEON is not set
-> # CONFIG_DRM_I810 is not set
-> # CONFIG_DRM_I830 is not set
-> CONFIG_DRM_I915=y
+Signed-off-by: Clear Zhang <Clear.Zhang@uli.com.tw>
+
+
+BRs,
+Clear
+
+
+diff -uprN linux-2.6.10-vanilla/drivers/net/tulip/media.c
+linux-2.6.10/drivers/net/tulip/media.c
+--- linux-2.6.10-vanilla/drivers/net/tulip/media.c    2004-12-25
+05:34:27.000000000 +0800
++++ linux-2.6.10/drivers/net/tulip/media.c      2005-01-28
+10:57:13.000000000 +0800
+@@ -81,6 +81,25 @@ int tulip_mdio_read(struct net_device *d
+            return retval & 0xffff;
+      }
+
++     if(tp->chip_id == ULI526X && tp->revision >= 0x40) {
++           int value;
++           int i = 1000;
++
++           value = ioread32(ioaddr + CSR9);
++           iowrite32(value & 0xFFEFFFFF, ioaddr + CSR9);
++
++           value = (phy_id << 21) | (location << 16) | 0x8000000;
++           iowrite32(value, ioaddr + CSR10);
++
++           while(--i > 0) {
++                 mdio_delay();
++                 if(ioread32(ioaddr + CSR10) & 0x10000000)
++                       break;
++           }
++           retval = ioread32(ioaddr + CSR10);
++           spin_unlock_irqrestore(&tp->mii_lock, flags);
++           return retval & 0xFFFF;
++     }
+      /* Establish sync by sending at least 32 logic ones. */
+      for (i = 32; i >= 0; i--) {
+            iowrite32(MDIO_ENB | MDIO_DATA_WRITE1, mdio_addr);
+@@ -140,7 +159,24 @@ void tulip_mdio_write(struct net_device
+            spin_unlock_irqrestore(&tp->mii_lock, flags);
+            return;
+      }
+-
++
++     if (tp->chip_id == ULI526X && tp->revision >= 0x40) {
++           int value;
++           int i = 1000;
++
++           value = ioread32(ioaddr + CSR9);
++           iowrite32(value & 0xFFEFFFFF, ioaddr + CSR9);
++
++           value = (phy_id << 21) | (location << 16) | 0x4000000 | (val &
+0xFFFF);
++           iowrite32(value, ioaddr + CSR10);
++
++           while(--i > 0) {
++                 if (ioread32(ioaddr + CSR10) & 0x10000000)
++                       break;
++           }
++           spin_unlock_irqrestore(&tp->mii_lock, flags);
++     }
++
+      /* Establish sync by sending 32 logic ones. */
+      for (i = 32; i >= 0; i--) {
+            iowrite32(MDIO_ENB | MDIO_DATA_WRITE1, mdio_addr);
+diff -uprN linux-2.6.10-vanilla/drivers/net/tulip/timer.c
+linux-2.6.10/drivers/net/tulip/timer.c
+--- linux-2.6.10-vanilla/drivers/net/tulip/timer.c    2004-12-25
+05:33:47.000000000 +0800
++++ linux-2.6.10/drivers/net/tulip/timer.c      2005-01-28
+10:57:14.000000000 +0800
+@@ -39,6 +39,7 @@ void tulip_timer(unsigned long data)
+      case MX98713:
+      case COMPEX9881:
+      case DM910X:
++     case ULI526X:
+      default: {
+            struct medialeaf *mleaf;
+            unsigned char *p;
+diff -uprN linux-2.6.10-vanilla/drivers/net/tulip/tulip_core.c
+linux-2.6.10/drivers/net/tulip/tulip_core.c
+--- linux-2.6.10-vanilla/drivers/net/tulip/tulip_core.c     2004-12-25
+05:34:58.000000000 +0800
++++ linux-2.6.10/drivers/net/tulip/tulip_core.c 2005-01-28
+10:57:14.000000000 +0800
+@@ -197,6 +197,10 @@ struct tulip_chip_table tulip_tbl[] = {
+   /* RS7112 */
+   { "Conexant LANfinity", 256, 0x0001ebef,
+      HAS_MII | HAS_ACPI, tulip_timer },
++
++  /* ULi526X */
++  { "ULi M5261/M5263", 128, 0x0001ebef,
++        HAS_MII | HAS_MEDIA_TABLE | CSR12_IN_SROM | HAS_ACPI, tulip_timer
+},
+ };
+
+
+@@ -233,7 +237,8 @@ static struct pci_device_id tulip_pci_tb
+      { 0x1737, 0xAB09, PCI_ANY_ID, PCI_ANY_ID, 0, 0, COMET },
+      { 0x1737, 0xAB08, PCI_ANY_ID, PCI_ANY_ID, 0, 0, COMET },
+      { 0x17B3, 0xAB08, PCI_ANY_ID, PCI_ANY_ID, 0, 0, COMET },
+-     { 0x10b9, 0x5261, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DM910X },   /* ALi
+1563 integrated ethernet */
++     { 0x10b9, 0x5261, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ULI526X },  /* ALi
+1563 integrated ethernet */
++     { 0x10b9, 0x5263, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ULI526X },  /* ALi
+1563 integrated ethernet */
+      { 0x10b7, 0x9300, PCI_ANY_ID, PCI_ANY_ID, 0, 0, COMET }, /* 3Com
+3CSOHO100B-TX */
+      { } /* terminate list */
+ };
+@@ -514,7 +519,7 @@ static void tulip_tx_timeout(struct net_
+                           dev->name);
+      } else if (tp->chip_id == DC21140 || tp->chip_id == DC21142
+                     || tp->chip_id == MX98713 || tp->chip_id == COMPEX9881
+-                    || tp->chip_id == DM910X) {
++                    || tp->chip_id == DM910X || tp->chip_id == ULI526X) {
+            printk(KERN_WARNING "%s: 21140 transmit timed out, status
+%8.8x, "
+                     "SIA %8.8x %8.8x %8.8x %8.8x, resetting...\n",
+                     dev->name, ioread32(ioaddr + CSR5), ioread32(ioaddr +
+CSR12),
+@@ -1094,6 +1099,8 @@ static void set_rx_mode(struct net_devic
+
+                  entry = tp->cur_tx++ % TX_RING_SIZE;
+
++                 if( !(tp->chip_id==ULI526X && (tp->revision == 0x40 ||
+tp->revision == 0x50)) )
++                 {
+                  if (entry != 0) {
+                        /* Avoid a chip errata by prefixing a dummy entry.
+*/
+                        tp->tx_buffers[entry].skb = NULL;
+@@ -1105,6 +1112,7 @@ static void set_rx_mode(struct net_devic
+                        dummy = entry;
+                        entry = tp->cur_tx++ % TX_RING_SIZE;
+                  }
++                 }
+
+                  tp->tx_buffers[entry].skb = NULL;
+                  tp->tx_buffers[entry].mapping =
+@@ -1304,13 +1312,13 @@ static int __devinit tulip_init_one (str
+
+      /* DM9102A has troubles with MRM & clear reserved bits 24:22, 20, 16,
+7:1 */
+      if ((pdev->vendor == 0x1282 && pdev->device == 0x9102)
+-           || (pdev->vendor == 0x10b9 && pdev->device == 0x5261))
++           || (pdev->vendor == 0x10b9 && (pdev->device == 0x5261 ||
+pdev->device == 0x5263)))
+            csr0 &= ~0x01f100ff;
+
+ #if defined(__sparc__)
+         /* DM9102A needs 32-dword alignment/burst length on sparc - chip
+bug? */
+      if ((pdev->vendor == 0x1282 && pdev->device == 0x9102)
+-           || (pdev->vendor == 0x10b9 && pdev->device == 0x5261))
++           || (pdev->vendor == 0x10b9 && (pdev->device == 0x5261 ||
+pdev->device == 0x5263)))
+                 csr0 = (csr0 & ~0xff00) | 0xe000;
+ #endif
+
+@@ -1658,6 +1666,7 @@ static int __devinit tulip_init_one (str
+      switch (chip_idx) {
+      case DC21140:
+      case DM910X:
++     case ULI526X:
+      default:
+            if (tp->mtable)
+                  iowrite32(tp->mtable->csr12dir | 0x100, ioaddr + CSR12);
+diff -uprN linux-2.6.10-vanilla/drivers/net/tulip/tulip.h
+linux-2.6.10/drivers/net/tulip/tulip.h
+--- linux-2.6.10-vanilla/drivers/net/tulip/tulip.h    2004-12-25
+05:35:28.000000000 +0800
++++ linux-2.6.10/drivers/net/tulip/tulip.h      2005-01-28
+10:57:20.000000000 +0800
+@@ -88,6 +88,7 @@ enum chips {
+      I21145,
+      DM910X,
+      CONEXANT,
++     ULI526X
+ };
+
+
+@@ -481,8 +482,11 @@ static inline void tulip_stop_rxtx(struc
+
+ static inline void tulip_restart_rxtx(struct tulip_private *tp)
+ {
+-     tulip_stop_rxtx(tp);
+-     udelay(5);
++     if(!(tp->chip_id == ULI526X &&
++           (tp->revision == 0x40 || tp->revision == 0x50))) {
++           tulip_stop_rxtx(tp);
++           udelay(5);
++     }
+      tulip_start_rxtx(tp);
+ }
+
+
+

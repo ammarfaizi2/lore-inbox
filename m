@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314675AbSEFTB1>; Mon, 6 May 2002 15:01:27 -0400
+	id <S314672AbSEFTB3>; Mon, 6 May 2002 15:01:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314658AbSEFTBZ>; Mon, 6 May 2002 15:01:25 -0400
-Received: from mail.uklinux.net ([80.84.72.21]:57362 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S314657AbSEFTBY>;
-	Mon, 6 May 2002 15:01:24 -0400
-Envelope-To: linux-kernel@vger.kernel.org
-Date: Mon, 6 May 2002 20:01:01 +0100 (BST)
-From: Peter Denison <lkml@marshadder.uklinux.net>
-X-X-Sender: peterd@marshall.localnet
-To: Dave Jones <davej@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drivers/net/depca.c tidyup
-In-Reply-To: <20020506193247.C22215@suse.de>
-Message-ID: <Pine.LNX.4.44.0205061944460.30139-100000@marshall.localnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314657AbSEFTB2>; Mon, 6 May 2002 15:01:28 -0400
+Received: from ns.suse.de ([213.95.15.193]:15378 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S314672AbSEFTB0>;
+	Mon, 6 May 2002 15:01:26 -0400
+Date: Mon, 6 May 2002 21:01:25 +0200
+From: Dave Jones <davej@suse.de>
+To: "Scott A. Sibert" <kernel@hollins.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.14 ntfs.o module unresolved symbols
+Message-ID: <20020506210125.E22215@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	"Scott A. Sibert" <kernel@hollins.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <3CD6CCF5.8090903@hollins.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 May 2002, Dave Jones wrote:
+On Mon, May 06, 2002 at 02:35:33PM -0400, Scott A. Sibert wrote:
+ > At make modules_install:
+ > 
+ > depmod: *** Unresolved symbols in 
+ > /lib/modules/2.5.14-01/kernel/fs/ntfs/ntfs.o
+ > depmod:     buffer_async
+ > depmod:     set_buffer_async
+ > depmod:     clear_buffer_async
 
-> On Mon, May 06, 2002 at 06:17:00PM +0100, Peter Denison wrote:
->  > The ALIGN macro is defined centrally - remove the local version
-> 
-> They aren't functionally equivalent though are they?
-
-Eek. I thought they were.
-
--#define ALIGN4      ((u_long)4 - 1)       /* 1 longword align */
--#define ALIGN8      ((u_long)8 - 1)       /* 2 longword (quadword) align */
--#define ALIGN         ALIGN8              /* Keep the LANCE happy... */
-
--	offset = (offset + ALIGN) & ~ALIGN;
-+	offset = ALIGN(offset, 8);
-
-And from include/linux/cache.h:
-
-#define ALIGN(x,a) (((x)+(a)-1)&~((a)-1))
-
-So, we're replacing (offset + 8 - 1) & ~(8-1) = (offset + 7) & ~7
-with (((offset)+(8)-1)&~((8)-1)) = ((offset+7)&~7)
-
-I think they're the same, aren't they, except for the promotion to u_long, 
-which is probably bogus anyway?
+http://www.codemonkey.org.uk/patches/merged/2.5.14/dj1/ntfs-compilefix.diff
 
 -- 
-Peter Denison <peterd at marshadder dot uklinux dot net>
-Please note that my address is changing from <peterd at pnd-pc dot demon.co.uk>
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

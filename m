@@ -1,107 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263743AbUIHMgV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264256AbUIHMh7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263743AbUIHMgV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 08:36:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264256AbUIHMfv
+	id S264256AbUIHMh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 08:37:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbUIHMgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 08:35:51 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:60423 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263003AbUIHMfO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 08:35:14 -0400
-Date: Wed, 8 Sep 2004 13:34:45 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Scott Wood <scott@timesys.com>
-Subject: Re: [patch] generic-hardirqs.patch, 2.6.9-rc1-bk14
-Message-ID: <20040908133445.A31267@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, Scott Wood <scott@timesys.com>
-References: <20040908120613.GA16916@elte.hu>
+	Wed, 8 Sep 2004 08:36:45 -0400
+Received: from unthought.net ([212.97.129.88]:16834 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S262837AbUIHMfZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 08:35:25 -0400
+Date: Wed, 8 Sep 2004 14:35:24 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: linux-kernel@vger.kernel.org
+Subject: Major XFS problems...
+Message-ID: <20040908123524.GZ390@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040908120613.GA16916@elte.hu>; from mingo@elte.hu on Wed, Sep 08, 2004 at 02:06:13PM +0200
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 08, 2004 at 02:06:13PM +0200, Ingo Molnar wrote:
-> 
-> the attached patch moves generic hardirq handling bits to
-> kernel/hardirq.c. It is not a replacement for any of the existing IRQ
-> functions, so architectures can use their existing hardirq code in an
-> unmodified form. It is a library of generic functions that an
-> architecture can make use of optionally.
-> 
-> I've fully converted x86's irq.c to use the new functions, and Scott
-> Wood has done the same for ppc/ppc64 as well. (the arch-ppc* changes are
-> not included in this patch because i couldnt test them myself in the
-> current port of this patch - but the generic bits were tested on ppc.)
-> 
-> i have test-compiled and test-booted the patch on x86 and x64, on SMP &&
-> PREEMPT and !SMP && !PREEMPT kernels. x64 needed only a single change (a
-> setup_irq() prototype) to work fine, which makes me believe that the
-> patch will not break other architectures either.
-> 
-> (a more complex version of this patch has been tested for weeks as part
-> of the voluntary-preempt patches as well.)
+
+Dear List,
+
+This is the scenario; two high performance NFS file servers needed;
+quota support is a must, and so far it seems that we are out of luck :*(
+
+Suggestions and help would be very welcome.
+
+We don't care much about which filesystem to use - so far we use XFS
+because of the need for (journalled) quota.
+*) ext2 - no-go, because of lack of journal
+*) ext3 - no-go, because quota isn't journalled
+*) JFS - no-go, because of lack of quota
+*) reiserfs - no-go, because of lack of quota
+*) XFS seems to be the *only* viable filesystem in this scenario - if
+   anyone has alternative suggestions, we'd like to hear about it.
+
+Oh, and Hans, I don't think we can fund your quota implementation right
+now - no hard feelings ;)
+
+History of these projects:
+
+The first server, an IBM 345 with external SCSI enclosure and hardware
+RAID, quickly triggered bugs in XFS under heavy usage:
+
+First XFS bug:
+---------------
+http://oss.sgi.com/bugzilla/show_bug.cgi?id=309
+
+Submitted in februrary this year - requires server reboot, NFS clients
+will then re-trigger the bug immediately after the NFS server is started
+again.  Clearly not a pleasent problem.
+
+A fairly simple patch is available, which solves the problem in the most
+common cases.  This simple patch has *not*yet* been included in 2.6.8.1.
+
+A lot of people are seeing this - the SGI bugzilla is evidence of this,
+so is google.
+
+Second XFS bug:
+---------------
+Also causes the 'kernel BUG at fs/xfs/support/debug.c:106' message to be
+printed. This bug is not solved by applying the simple patch to the
+first problem.
+
+How well known this problem is, I don't know - I can get more details on
+this if anyone is actually interested in working on fixing XFS.
+
+Third XFS bug:
+--------------
+XFS causes lowmem oom, triggering the OOM killer. Reported by
+as@cohaesio.com on the 18th of august.
+
+On the 24th of august, William Lee Irwin gives some suggestions and
+mentions  "xfs has some known bad slab behavior."
+
+So, it's normal to OOM the lowmem with XFS? Again, more info can be
+presented if anyone cares about fixing this.
+
+Stability on large filesystems:
+-------------------------------
+On a 600+G filesystem with some 17M files, we are currently unable to
+run a backup of the filesystem.
+
+Some 4-8 hours after the backup has started, the dreaded 'debug.c:106'
+message will appear (at some random place thru the filesystem - it is
+not a consistent error in one specific location in the filesystem), and
+the server will need a reboot.
+
+Obviously, running very large busy filesystems while being unable to
+back them up, is not a very pleasent thing to do...
 
 
-> +++ linux/include/asm-x86_64/hardirq.h	
-> @@ -25,8 +25,8 @@
->   * - ( bit 26 is the PREEMPT_ACTIVE flag. )
->   *
->   * PREEMPT_MASK: 0x000000ff
-> - * HARDIRQ_MASK: 0x0000ff00
-> - * SOFTIRQ_MASK: 0x00ff0000
-> + * SOFTIRQ_MASK: 0x0000ff00
-> + * HARDIRQ_MASK: 0x00ff0000
->   */
->  
->  #define PREEMPT_BITS	8
-> @@ -99,4 +99,6 @@ do {									\
->    extern void synchronize_irq(unsigned int irq);
->  #endif /* CONFIG_SMP */
->  
-> +extern int setup_irq(unsigned int irq, struct irqaction * new);
+Second server:
 
-This doesn't apply anymore because most of <asm/hardirq.h> moved
-to linux/hardirq.h in -mm and a the patch is on it's way to Linus.
+On a somewhat smaller server, I recently migrated to XFS (beliving the
+most basic problems had been ironed out).  It took me about a day to
+trigger the 'debug.c:106' error message from XFS, on vanilla 2.6.8.1.
 
-> @@ -71,10 +74,21 @@ extern irq_desc_t irq_desc [NR_IRQS];
->  
->  #include <asm/hw_irq.h> /* the arch dependent stuff */
->  
-> -extern int setup_irq(unsigned int , struct irqaction * );
-> +
-> +extern asmlinkage int generic_handle_IRQ_event(unsigned int irq, struct pt_regs *regs, struct irqaction *action);
-> +extern void generic_synchronize_irq(unsigned int irq);
-> +extern int generic_setup_irq(unsigned int irq, struct irqaction * new);
-> +extern void generic_free_irq(unsigned int irq, void *dev_id);
-> +extern void generic_disable_irq_nosync(unsigned int irq);
-> +extern void generic_disable_irq(unsigned int irq);
-> +extern void generic_enable_irq(unsigned int irq);
-> +extern void generic_note_interrupt(int irq, irq_desc_t *desc, int action_ret);
+After applying the simple fix (the fix for the first XFS problem as
+described above), I haven't had problems with this particular server
+since - but it is clearly serving fewer clients with fewer disks and a
+lot less storage and traffic.
 
-Please don't introduce the generic_ names just to have every arch (in your
-previous patches, that is) provide a wrapper with normal names again.
+While the small server seems to be running well now, the large one has
+an average uptime of about one day (!)   Backups will crash it reliably,
+when XFS doesn't OOM the box at random.
 
+A little info on the hardware:
+ Big server             Small server
+---------------------- -----------------------
+Intel Xeon              Dual Athlon MP
+7 external SCSI disks   4 internal IDE disks
+IBM hardware RAID       Software RAID-1 + LVM
+600+ GB XFS             ~150 GB XFS
+17+ M files             ~1 M files
 
-> --- linux/kernel/Makefile.orig	
-> +++ linux/kernel/Makefile	
-> @@ -3,7 +3,7 @@
->  #
->  
->  obj-y     = sched.o fork.o exec_domain.o panic.o printk.o profile.o \
-> -	    exit.o itimer.o time.o softirq.o resource.o \
-> +	    exit.o itimer.o time.o softirq.o hardirq.o resource.o \
+Both primarily serve NFS to a bunch of clients. Both run vanilla 2.6.8.1
+plus the aforementioned patch for the first XFS problem we encountered.
 
-And make hardirq.o dependent on some symbols the architectures set.
-Else arches that don't use it carry tons of useless baggage around (and
-in fact I'm pretty sure it wouldn't even compie for many)
+<frustrated_admin mode="on">
+
+Does anyone actually use XFS for serious file-serving?  (yes, I run it
+on my desktop at home and I don't have problems there - such reports are
+not really relevant).
+
+Is anyone actually maintaining/bugfixing XFS?  Yes, I know the
+MAINTAINERS file, but I am a little bit confused here - seeing that
+trivial-to-trigger bugs that crash the system and have simple fixes,
+have not been fixed in current mainline kernels.
+
+If XFS is a no-go because of lack of support, is there any realistic
+alternatives under Linux (taking our need for quota into account) ?
+
+And finally, if Linux is simply a no-go for high performance file
+serving, what other suggestions might people have?  NetApp?
+
+</>
+
+Thank you very much,
+
+-- 
+
+ / jakob
 

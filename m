@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266507AbSLDNXT>; Wed, 4 Dec 2002 08:23:19 -0500
+	id <S266514AbSLDNfe>; Wed, 4 Dec 2002 08:35:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266512AbSLDNXT>; Wed, 4 Dec 2002 08:23:19 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:10149 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266507AbSLDNXT>; Wed, 4 Dec 2002 08:23:19 -0500
-Subject: Re: timer glitch (solved?)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Felipe Massia <felmasper@yahoo.com.br>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021204045258.590d7732.felmasper@yahoo.com.br>
-References: <20021204045258.590d7732.felmasper@yahoo.com.br>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 04 Dec 2002 14:05:16 +0000
-Message-Id: <1039010716.15353.18.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S266528AbSLDNfe>; Wed, 4 Dec 2002 08:35:34 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:6299 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S266514AbSLDNfd>;
+	Wed, 4 Dec 2002 08:35:33 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] deprecate use of bdflush()
+References: <Pine.LNX.3.96.1021203091821.5578A-100000@gatekeeper.tmr.com>
+	<1038935401.994.9.camel@phantasy> <3DED0076.55B970DD@yahoo.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 04 Dec 2002 02:12:46 +0100
+In-Reply-To: <3DED0076.55B970DD@yahoo.com>
+Message-ID: <m3of82fuy9.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-12-04 at 06:52, Felipe Massia wrote:
-> My clock, some times, gives wrong results. When I call the folowing
-> command
-> 
->   bash$ while : ; do date ; done
-> 
-> the time shown is not correct. When the seconds are changing, for a
+Paul Gortmaker <p_gortmaker@yahoo.com> writes:
 
-There are some changes cooking in the 2.5 stream that may help and if so
-should get backported
+> Yes, removal is not premature; long overdue if anything.  At the risk
+> of overlapping Andries' job as official historian, I found this in my
+> archive of cruft.  So it was almost 1996  :)
 
+So why don't we print the warning with 2.4 as well?
+
+intrepid:~/CVS$ rpm -qi bdflush
+Name        : bdflush    Relocations: (not relocateable)
+Version     : 1.5        Vendor: Red Hat, Inc.
+Release     : 21         Build Date: Sun Jun 23 16:19:27 2002
+
+And it's run by /etc/inittab.
+
+I don't know if returning -EINVAL (= removing the call completely in 2.5)
+isn't better, though - does it have any compatibility implications?
+-- 
+Krzysztof Halasa
+Network Administrator

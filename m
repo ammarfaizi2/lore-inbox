@@ -1,66 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135371AbRDLWY5>; Thu, 12 Apr 2001 18:24:57 -0400
+	id <S135367AbRDLWXr>; Thu, 12 Apr 2001 18:23:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135366AbRDLWYs>; Thu, 12 Apr 2001 18:24:48 -0400
-Received: from foo-bar-baz.cc.vt.edu ([128.173.14.103]:41856 "EHLO
-	foo-bar-baz.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S135372AbRDLWYj>; Thu, 12 Apr 2001 18:24:39 -0400
-Message-Id: <200104122224.f3CMOFB08457@foo-bar-baz.cc.vt.edu>
-X-Mailer: exmh version 2.3.1 01/19/2001 with nmh-1.0.4+dev
-To: Szabolcs Szakacsits <szaka@f-secure.com>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: scheduler went mad? 
-In-Reply-To: Your message of "Fri, 13 Apr 2001 01:02:21 +0200."
-             <Pine.LNX.4.30.0104130009350.19377-100000@fs131-224.f-secure.com> 
-From: Valdis.Kletnieks@vt.edu
-X-Url: http://black-ice.cc.vt.edu/~valdis/
-X-Face-Viewer: See ftp://cs.indiana.edu/pub/faces/index.html to decode picture 
-X-Face: 34C9$Ewd2zeX+\!i1BA\j{ex+$/V'JBG#;3_noWWYPa"|,I#`R"{n@w>#:{)FXyiAS7(8t(
- ^*w5O*!8O9YTe[r{e%7(yVRb|qxsRYw`7J!`AM}m_SHaj}f8eb@d^L>BrX7iO[<!v4-0bVIpaxF#-)
- %9#a9h6JXI|T|8o6t\V?kGl]Q!1V]GtNliUtz:3},0"hkPeBuu%E,j(:\iOX-P,t7lRR#
-In-Reply-To: <Pine.LNX.4.30.0104130009350.19377-100000@fs131-224.f-secure.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1181791386P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 12 Apr 2001 18:24:15 -0400
+	id <S135366AbRDLWXi>; Thu, 12 Apr 2001 18:23:38 -0400
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:31432 "EHLO
+	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S135367AbRDLWXe>; Thu, 12 Apr 2001 18:23:34 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Unable to use ethernet after suspend and smbmount (laptop)
+From: burton@relativity.yi.org (Kevin A. Burton)
+Date: 12 Apr 2001 14:53:26 -0700
+Message-ID: <m3bsq1dbu1.fsf@relativity.yi.org>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1181791386P
-Content-Type: text/plain; charset=us-ascii
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Fri, 13 Apr 2001 01:02:21 +0200, Szabolcs Szakacsits said:
 
-> Not __alloc_pages() calls oom_kill() however do_page_fault(). Not the
-> same. After the system tried *really* hard to get *one* free page and
-> couldn't managed why loop forever? To eat CPU and waiting for
+OK.
 
-For what it's worth, this *IS NOT* the case I'm getting bit by:
+This is Kernel 2.4.3.
 
-While kswapd was hung, I already had (from /proc/meminfo)
+If I smbmount an exported filesystem from another GNU/Linux machine and then
+suspend my laptop, after I resume I am unable to use the network at all.
 
-MemFree:         34064 kB
+I really think this is a bug raised by another bug.  The xirc2ps_cs Ethernet Cardbus
+driver has a bug where after a suspend I have to eject the card and then insert
+it again and then run 'ifup eth0'.  I think it actually may be a bug in my
+cardbus but I don't know.
 
-I suspect that kswapd is getting hung spinning on some *specific*
-requirement that it's falling short on?
+Anyway Linux won't unload (rmmod xirc2ps_cs) because the smbfs is using it.  :(
+If force smbfs to unmount maybe this could be resolved but as we all know an
+'umount -f /mnt/MOUNT' doesn't really force :(
 
-/Valdis
+Anyway.  If anyone has any suggestions I would appreciate it.  If I unmount
+*before* I suspend then everything works fine.  The problem is that sometimes I
+forget! :(
 
---==_Exmh_1181791386P
-Content-Type: application/pgp-signature
+Kevin
+
+- -- 
+Kevin A. Burton ( burton@apache.org, burton@openprivacy.org, burtonator@acm.org )
+        Cell: 408-910-6145 URL: http://relativity.yi.org ICQ: 73488596 
+
+You may say I'm a dreamer, but I'm not the only one. - John Lennon
+
+
 
 -----BEGIN PGP SIGNATURE-----
-Version: PGP 6.5.8
-Comment: Exmh version 2.2 06/16/2000
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Get my public key at: http://relativity.yi.org/pgpkey.txt
 
-iQA/AwUBOtYrD3At5Vm009ewEQLr/gCeM4oxoNeeYjdu2/Z+1xPuHWSb2oIAnRJS
-tMimbGIA59+naI7CHPG9cjG5
-=0bVM
+iD8DBQE61iPWAwM6xb2dfE0RAvXwAJ9/NdkCXuX5jXPUpPAp/9iGOtrvMgCgzMho
+DmYqTqZmZnk3YrXuwqnPwWE=
+=4vhk
 -----END PGP SIGNATURE-----
 
---==_Exmh_1181791386P--

@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318766AbSICMSU>; Tue, 3 Sep 2002 08:18:20 -0400
+	id <S318756AbSICMSl>; Tue, 3 Sep 2002 08:18:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318756AbSICMSU>; Tue, 3 Sep 2002 08:18:20 -0400
-Received: from sex.inr.ac.ru ([193.233.7.165]:55425 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S318289AbSICMST>;
-	Tue, 3 Sep 2002 08:18:19 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200209031221.QAA01882@sex.inr.ac.ru>
-Subject: Re: TCP Segmentation Offloading (TSO)
-To: taka@valinux.co.jp (Hirokazu Takahashi)
-Date: Tue, 3 Sep 2002 16:21:08 +0400 (MSD)
-Cc: scott.feldman@intel.com, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, haveblue@us.ibm.com, Manand@us.ibm.com,
-       davem@redhat.com, christopher.leech@intel.com
-In-Reply-To: <20020903.164243.21934772.taka@valinux.co.jp> from "Hirokazu Takahashi" at Sep 3, 2 04:42:43 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S318764AbSICMSl>; Tue, 3 Sep 2002 08:18:41 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:16805 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318756AbSICMSj>;
+	Tue, 3 Sep 2002 08:18:39 -0400
+Date: Tue, 3 Sep 2002 17:34:00 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Benjamin LaHaise <bcrl@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Pavel Machek <pavel@elf.ucw.cz>, linux-kernel@vger.kernel.org,
+       linux-aio@kvack.org
+Subject: Re: aio-core in 2.5 - io_queue_wait and io_getevents
+Message-ID: <20020903173400.A2857@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <1028223041.14865.80.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0208010924050.14765-100000@home.transmeta.com> <20020801140112.G21032@redhat.com> <20020815235459.GG14394@dualathlon.random> <20020815214225.H29874@redhat.com> <20020816150945.A1832@in.ibm.com> <20020816100334.GP14394@dualathlon.random> <20020816165306.A2055@in.ibm.com> <20020902184043.GN1210@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020902184043.GN1210@dualathlon.random>; from andrea@suse.de on Mon, Sep 02, 2002 at 08:40:43PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Changed the title to reflect the latest discussion. Just wanted
+to comment on the nwait bit.
 
-> I guess it may also depend on bad implementations of csum_partial().
-> It's wrong that some architecture assume every data in a skbuff are
-> aligned on a 2byte boundary so that it would access a byte next to
-> the the last byte where no pages might be there.
+On Mon, Sep 02, 2002 at 08:40:43PM +0200, Andrea Arcangeli wrote:
+> 
+> then about the 2.5 API we have such min_nr that allows the "at least
+> min_nr", instead of the previous default of "at least 1", so that it
+> allows implementing the aio_nwait of aix.
 
-Access beyond end of skb is officially allowed, within 16 bytes
-in <= 2.2, withing 64 bytes in  >=2.4. Moreover, it is not only allowed
-but highly recommended, when this can ease coding.
+Partly, in the sense that the implementation still doesn't avoid 
+extra wakeups when less than min_nr events are available at a time 
+(if we are unlucky enough to have the min_nr events dripping in 
+slowly one at a time, we'd still have all those context switches, 
+won't we ?), though it saves on the extra user-kernel transitions 
+on those wakeups compared to if this were implemented in user-space 
+over an at-least-one primitive. 
 
-> It's time to fix csum_partial().
+It is possible to play around with the implementation later though.
+The important bit is having "at least N" in the interface exported 
+by the kernel, which is good.
 
-Well, not depending on wrong accent put by you, the change is not useless.
+Regards
+Suparna
 
-Alexey
-
-
-PS Gentlemen, it is not so bad idea to change subject and to trim cc list.
-Thread is went to area straight orthogonal to TSO, csum_partial is not
-used with TSO at all. :-)
+> Andrea

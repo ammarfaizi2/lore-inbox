@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261212AbREMPy5>; Sun, 13 May 2001 11:54:57 -0400
+	id <S261330AbREMQJu>; Sun, 13 May 2001 12:09:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261289AbREMPyr>; Sun, 13 May 2001 11:54:47 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:25900 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S261212AbREMPyj>; Sun, 13 May 2001 11:54:39 -0400
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Edward Spidre <beamz_owl@yahoo.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Possible PCI subsystem bug in 2.4
-In-Reply-To: <Pine.GSO.3.96.1010508174820.26399A-100000@delta.ds2.pg.gda.pl>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 09 May 2001 09:45:10 -0600
-In-Reply-To: "Maciej W. Rozycki"'s message of "Tue, 8 May 2001 18:01:12 +0200 (MET DST)"
-Message-ID: <m1g0eele61.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+	id <S261325AbREMQJk>; Sun, 13 May 2001 12:09:40 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:49422 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S261289AbREMQJ3>;
+	Sun, 13 May 2001 12:09:29 -0400
+Date: Sun, 13 May 2001 13:08:59 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: page_launder() bug
+In-Reply-To: <Pine.LNX.4.21.0105071921110.8237-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0105131306020.5468-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Maciej W. Rozycki" <macro@ds2.pg.gda.pl> writes:
+On Mon, 7 May 2001, Linus Torvalds wrote:
 
-> On 4 May 2001, Eric W. Biederman wrote:
+> Which you MUST NOT do without holding the page lock.
 > 
-> > The example that sticks out in my head is we rely on the MP table to
-> > tell us if the local apic is in pic_mode or in virtual wire mode.
-> > When all we really have to do is ask it.
-> 
->  You can't.  IMCR is write-only and may involve chipset-specific
-> side-effects.  Then even if IMCR exists, a system's firmware might have
-> chosen the virtual wire mode for whatever reason (e.g. broken hardware). 
+> Hint: it needs "page->index", and without holding the page lock you
+> don't know what it could be.
 
-Admittedly you can't detect directly detect IMCR state.  But
-triggering an interrupt on the bootstrap processor local apic, and
-failing to receive it should be proof the IMCR is at work.
-Alternatively if I'm wrong about the wiring disabling all interrupts
-at the apic level and receiving one is a second proof that IMCR is at
-work.  Further I don't think a processor with an onboard apic, works
-with an IMCR register. 
+Wouldn't that be the pagecache_lock ?
 
-What I was thinking of earlier is that you can detect an apic or
-ioapic in virtual wire mode, which the current code and the intel MP
-spec treats as the opposite possibility.
+Remember that the semantics for find_swap_page() and
+friends got changed recently to first test PageUptodate
+and only try to lock the page if that didn't work out.
 
-Eric
+This means that the swapin path (and the same path for
+other pagecache pages) doesn't take the page lock and
+the page lock doesn't protect us from other people using
+the page while we have it locked.
 
+What _does_ protect us, however, is the fact that
+reclaim_page() grabs the pagecache_lock...
 
+[OTOH, I could be out to lunch here since I was away for
+almost a week and haven't checked if the discussed changes
+really were integrated into the kernel]
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

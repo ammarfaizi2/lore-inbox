@@ -1,77 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270695AbTHJVFk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 17:05:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270700AbTHJVFj
+	id S270716AbTHJVYy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 17:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270720AbTHJVYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 17:05:39 -0400
-Received: from miranda.zianet.com ([216.234.192.169]:30988 "HELO
-	miranda.zianet.com") by vger.kernel.org with SMTP id S270695AbTHJVF3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 17:05:29 -0400
-Message-ID: <3F36B341.7@zianet.com>
-Date: Sun, 10 Aug 2003 15:04:01 -0600
-From: kwijibo@zianet.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Dave Jones <davej@redhat.com>, richard.brunner@amd.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Machine check expection panic
-References: <3F3182B5.3040301@zianet.com.suse.lists.linux.kernel> <20030807002722.GA3579@suse.de.suse.lists.linux.kernel> <p73ekzynuxt.fsf@oldwotan.suse.de> <3F35FE5B.7060003@zianet.com> <20030810130752.GB586@wotan.suse.de>
-In-Reply-To: <20030810130752.GB586@wotan.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 10 Aug 2003 17:24:54 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:41187 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S270716AbTHJVYw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 17:24:52 -0400
+Date: Sun, 10 Aug 2003 23:24:44 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [patch] 2.6.0-test3: typo in hd.c
+Message-ID: <20030810212444.GE16091@fs.tum.de>
+References: <Pine.LNX.4.44.0308082228470.1852-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0308082228470.1852-100000@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Out of curiosity I decided to try this on some other Athlon
-systems I have.  I tried it on a dual Athlon MP 2400(2GHz)
-system with a Tyan 2462 motherboard.  Also I tried it on a
-single Athlon XP 1800 with a Asus A7V motherboard.  They
-both booted fine with the 2.6.0-test2 kernel and the machine
-exception code in it.  So I am thinking either it is something
-with the older CPU's or the CPU is actually borked.  Like I said
-though I have been using those 1.2GHz processors for a long time
-with no problems.
+On Fri, Aug 08, 2003 at 10:40:37PM -0700, Linus Torvalds wrote:
+>...
+> Summary of changes from v2.6.0-test2 to v2.6.0-test3
+> ====================================================
+>...
+> Jens Axboe:
+>...
+>   o Proper block queue reference counting
+>...
 
-Steve
+This contains a typo that is fixed with the following patch:
 
-Andi Kleen wrote:
+--- linux-2.6.0-test3-not-full/drivers/ide/legacy/hd.c.old	2003-08-10 23:21:04.000000000 +0200
++++ linux-2.6.0-test3-not-full/drivers/ide/legacy/hd.c	2003-08-10 23:21:56.000000000 +0200
+@@ -715,7 +715,7 @@
+ 
+ 	hd_queue = blk_init_queue(do_hd_request, &hd_lock);
+ 	if (!hd_queue) {
+-		unegister_blkdev(MAJOR_NR,"hd");
++		unregister_blkdev(MAJOR_NR,"hd");
+ 		return -ENOMEM;
+ 	}
+ 
 
->>The CPU's aren't overclocked and have worked fine for
->>me under much heavier loads than booting a kernel for
->>    
->>
->
->It could be corrected ECC errors in the cache. If that
->happens I would consider it a hardware problem
->
->(now hidden with the disabled bank).
->
->  
->
->>at least a year. Using the 2.4 kernel that is. Once
->>I remove the exception code from the kernel it boots
->>fine and runs fine under any load I put it under.
->>    
->>
->
->I maintain that such a magic hack needs at least a big fat comment.
->
->I still find the change very suspicious, there isn't any errata that 
->says that bank 0 is bad on Athlon.
->
->Also disabling a whole bank just for some buggy CPUs is quite a sledgehammer,
->it would be probably better to identify the bank 0 sub unit that causes it
->and only turn that off.
->
->-Andi
->
->
->
->  
->
 
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

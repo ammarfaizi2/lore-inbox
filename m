@@ -1,90 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289193AbSAVH7W>; Tue, 22 Jan 2002 02:59:22 -0500
+	id <S289198AbSAVIFC>; Tue, 22 Jan 2002 03:05:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289188AbSAVH7D>; Tue, 22 Jan 2002 02:59:03 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:63506 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S289184AbSAVH6z>;
-	Tue, 22 Jan 2002 02:58:55 -0500
-Date: Tue, 22 Jan 2002 08:58:41 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andre Hedrick <andre@linuxdiskcert.org>
-Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, Vojtech Pavlik <vojtech@suse.cz>,
-        Davide Libenzi <davidel@xmailserver.org>,
-        Anton Altaparmakov <aia21@cam.ac.uk>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.3-pre1-aia1
-Message-ID: <20020122085841.I1018@suse.de>
-In-Reply-To: <F9158D81E5D@vcnet.vc.cvut.cz> <Pine.LNX.4.10.10201211442190.15703-100000@master.linux-ide.org>
+	id <S289196AbSAVIEw>; Tue, 22 Jan 2002 03:04:52 -0500
+Received: from [216.223.235.2] ([216.223.235.2]:32386 "HELO
+	inventor.gentoo.org") by vger.kernel.org with SMTP
+	id <S289198AbSAVIEf>; Tue, 22 Jan 2002 03:04:35 -0500
+Subject: Re: Athlon PSE/AGP Bug
+From: Daniel Robbins <drobbins@gentoo.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: andrea@suse.de, alan@redhat.com, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@zip.com.au>,
+        Terrence Ripperda <ripperda@nvidia.com>, drobbins@gentoo.org
+In-Reply-To: <20020121.230856.71191773.davem@redhat.com>
+In-Reply-To: <20020122013909.N8292@athlon.random>
+	<20020121.170822.32749723.davem@redhat.com>
+	<20020122070517.GK135220@niksula.cs.hut.fi> 
+	<20020121.230856.71191773.davem@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 22 Jan 2002 01:05:49 -0700
+Message-Id: <1011686749.7126.60.camel@inventor.gentoo.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10201211442190.15703-100000@master.linux-ide.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 21 2002, Andre Hedrick wrote:
-> In PIO there is no scatter gather possible without a memcpy to a
-> contigious buffer period.  Therefore under the contstraints issued bu
-
-Why?
-
-> Linus and Jens, of access to one 4k page of memory, and a forced
-> requirement to return back every 4k page of memory of completion prevents
-> one from ever transaction more than 8 sectors per request in PIO any mode.
-
-You don't understand... It's not forced, it's just _the sane way to do
-it_. When you finish I/O on a chunk of data, end I/O on that chunk of
-data. This doesn definitely _not_ prevent transaction of more than 8
-sectors per request, that's nonsense. It's only that way in the current
-kernel because it was easy to get right the first time around. And it's
-only in multi-write, oh look at multi-read, that does 16 sectors at the
-time. Weee!
-
-> start_request_sectors (255 sectors) max
+On Tue, 2002-01-22 at 00:08, David S. Miller wrote:
+> Yes, Gareth Hughes @ NVIDIA understands very well that this can still
+> be just a heisenbug.
 > 
-> make_request (start_request_sectors())
-> 
-> 	do_request()
-> 	ide-disk get (255 sectors)
-> 		block truncates to 8 sectors max
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> There is still no hard proof that not using 4M pages really fixes
+> anything AMD states is wrong with their chips.
 
-Wrong
+Well, it's clear that either NVIDIA, AMD or the general opinion held by
+the majority Linux kernel guys is wrong.  I'm eager to find out the
+truth behind the matter so that the parties involved can work towards a
+solution, whatever that may be.  
 
-> 	ide-taskfile
-> 		transfers 8 sectors max
-                ^^^^^^^^^^^^^^^^^^^^^^^
+It'd be a bummer if I find that the explanation that NVIDIA gave me
+turns out to be false.  But it seems that there may be a real issue
+here.  I have received quite a few reports (and read in quite a few
+comments posted on sites) that mem=nopentium solved a variety of strange
+stability-related issues related to PCI/AGP devices.  It may turn out
+that the Athlon does have a problem with ends of DMA push buffers
+aligned to 4Mb page boundaries.  mem=nopentium seems to have fixed audio
+and other types of lock-ups as well.  Note that AMD told me on the phone
+this morning that the issue Terrence found (and the AMD Windows 2000
+patch was created to solve) did *not* corellate with the published AMD
+errata that everyone on LKML is talking about, but was in fact another
+issue.  
 
-Wrong
+Thankfully, the guessing will (hopefully) soon be over. AMD will be
+calling me tomorrow at 3PM MST. They've reached a conclusion as to
+what's going on, and I'll post the AMD's official word on gentoo.org as
+soon as I get it.
 
-> 		end request (return 247 sectors)
-> 
-> upate_request(247 to be re issued, + additional max of 8)	
-
-end_request _is_ the update request. You seem to not understand that
-calling ide_end_request does not mean that we are terminating the
-request from the host side, we are merely asking the block layer to
-complete xxx amount of sectors for us so we can continue doing the
-request residual.
-
-> 	make_request (247 to be re issued, + additional max of 8)
-
-Very wrong, make_request is never called here. Let me out line what
-happens. Do you really mean start_request, if so then yes.
-
-> This is why I am going to request for backing out again because the BLOCK
-> API without a MID-LAYER to buffer against the goal of the kernel,
-> conflicts with the hardware rules requirements.  Until a satisfactory
-
-end_that_request_first understands partial completion of any size in
-2.5, what more of a mid layer do you want?
-
-> agreement can be reached then the current direction it is going will trash
-> the Virtual DMA hardware coming in the future.
-
-Is that so?
+Best Regards,
 
 -- 
-Jens Axboe
+Daniel Robbins                                  <drobbins@gentoo.org>
+Chief Architect/President                       http://www.gentoo.org 
+Gentoo Technologies, Inc.
 

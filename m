@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263521AbTJQVFs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 17:05:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263522AbTJQVFs
+	id S263519AbTJQVUK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 17:20:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263522AbTJQVUK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 17:05:48 -0400
-Received: from modemcable137.219-201-24.mtl.mc.videotron.ca ([24.201.219.137]:37249
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S263521AbTJQVFr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 17:05:47 -0400
-Date: Fri, 17 Oct 2003 17:05:18 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: brodigan@pdx.edu
-cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: 2.6.0-test7-bk9: Call trace at startup. Sleep function
- called from invalid context.
-In-Reply-To: <1066423116.3f90534c7a625@webmail.pdx.edu>
-Message-ID: <Pine.LNX.4.53.0310171702530.2831@montezuma.fsmlabs.com>
-References: <1066423116.3f90534c7a625@webmail.pdx.edu>
+	Fri, 17 Oct 2003 17:20:10 -0400
+Received: from mx3.evanzo-server.de ([81.209.142.20]:18396 "EHLO
+	mx3.evanzo-server.de") by vger.kernel.org with ESMTP
+	id S263519AbTJQVUG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 17:20:06 -0400
+From: Markus Schoder <markus_schoder@yahoo.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test7: Preempt enabled -> kernel panic
+Date: Fri, 17 Oct 2003 23:19:59 +0200
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310172319.59776.markus_schoder@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Oct 2003 brodigan@pdx.edu wrote:
+When compiling 2.6.0-test7 with preempt I get a kernel panic
+when running the tst-eintr1 test program from the nptl 0.60 package.
+It does not happen every time but running it repeatedly will lead
+to a panic pretty quickly.
 
-> 1. Get call traces from error at startup involving
->    "in_atomic():1, irqs_disabled():0" and "Debug: sleeping function
->    called from invalid context."
+With preempt disabled it's rock solid.
 
-Known issue, we're really running single threaded during boot so this is 
-perfectly safe in this context.
+Stack trace is not always the same but there always seems to
+be infinite recursion. Also sometimes interrupts are disabled
+(no SysRq) and sometimes not.
 
-> 2. I receive two call traces at startup. They mention irq_disable().
->    I do have ISA disabled, since I lack an ISA motherboard. Thankfully
->    this error is non fatal, only annoying.
+This is on an Athlon XP, kernel compiled with gcc 3.3.1.
 
-It's not actually ISA related, but referring to whether the processor is 
-currently accepting interrupts.
+Example stack trace:
 
-Thanks
+...
+do_page_fault+0x12c/0x454
+poke_blanked_console+0x5c/0x70
+try_to_wake_up+0xa7/0x160
+default_wake_function+0x2a/0x30
+__wake_up_common+0x31/0x60
+do_page_fault+0x0/0x454
+error_code+0x2d/0x38
+do_exit+0x1d2/0x350
+do_page_fault+0x0/0x454
+die+0xe1/0xf0
+do_page_fault+0x12c/0x454
+sys_exit+0x13/0x20
+syscall_call+0x7/0xb
+
+Code: 8b 5d 68 c7 44 24 20 01 00 03 00 8b 50 14 8b 00 81 e2 ff ff
+<6>note: ld-linux.so.2[2069] exited with preempt_count 1
+
+--
+Markus
+

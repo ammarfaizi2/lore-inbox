@@ -1,59 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264365AbUEISLv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264367AbUEISY5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264365AbUEISLv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 May 2004 14:11:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbUEISLv
+	id S264367AbUEISY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 May 2004 14:24:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbUEISY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 May 2004 14:11:51 -0400
-Received: from waste.org ([209.173.204.2]:17366 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S264365AbUEISLt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 May 2004 14:11:49 -0400
-Date: Sun, 9 May 2004 13:11:22 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-       Andrew Morton <akpm@osdl.org>, dipankar@in.ibm.com,
-       manfred@colorfullife.com, davej@redhat.com, wli@holomorphy.com,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, maneesh@in.ibm.com
-Subject: Re: dentry bloat.
-Message-ID: <20040509181122.GK5414@waste.org>
-References: <Pine.LNX.4.44.0405091058300.2106-100000@poirot.grange> <Pine.LNX.4.58.0405090832310.24865@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 9 May 2004 14:24:57 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:63199 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264367AbUEISYy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 May 2004 14:24:54 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+Date: Sun, 9 May 2004 20:25:41 +0200
+User-Agent: KMail/1.5.3
+References: <200405051312.30626.dominik.karall@gmx.net> <200405060104.55340.bzolnier@elka.pw.edu.pl> <c7lnh2$4fo$1@gatekeeper.tmr.com>
+In-Reply-To: <c7lnh2$4fo$1@gatekeeper.tmr.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0405090832310.24865@ppc970.osdl.org>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200405092025.41297.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 09, 2004 at 08:35:55AM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Sun, 9 May 2004, Guennadi Liakhovetski wrote:
-> 
-> > On Sat, 8 May 2004, Linus Torvalds wrote:
-> > 
-> > >    1:     5.04 % (    5.04 % cum -- 2246)
-> > >    2:     5.19 % (   10.23 % cum -- 2312)
-> > 
-> > Ok, risking to state the obvious - it was intentional to count "."s and
-> > ".."s, wasn't it? Just this makes it a bit non-trivial to compare this
-> > statistics with Andrew's.
-> 
-> Ok, here's a version that doesn't count "." and "..". My numbers don't 
-> really change much for the kernel:
-> 
-> and we've reached over 90% coverage with the 24-byte inline name.
+On Sunday 09 of May 2004 19:00, Bill Davidsen wrote:
+> Bartlomiej Zolnierkiewicz wrote:
+> > On Wednesday 05 of May 2004 22:31, Bill Davidsen wrote:
+> >>Andrew Morton wrote:
+> >>>Dominik Karall <dominik.karall@gmx.net> wrote:
+> >>>>On Wednesday 05 May 2004 10:31, you wrote:
+> >>>>>+make-4k-stacks-permanent.patch
+> >>>>>
+> >>>>>Fill my inbox.
+> >>>>
+> >>>>Hi Andrew!
+> >>>>
+> >>>>Is there any reason why this patch was applied? Because NVidia users
+> >>>>can't work with the original drivers now without removing this patch
+> >>>>every time.
+> >>>
+> >>>We need to push this issue along quickly.  The single-page stack
+> >>>generally gives us a better kernel and having the stack size
+> >>> configurable creates pain.
+> >>
+> >>Add my voice to those who don't think 4k stacks are a good idea as a
+> >>default, they break some things and seem to leave other paths (as others
+> >>have noted) on the edge. I'm not sure what you have in mind as a "better
+> >>kernel" but I'd rather have a worse kernel and not have to check 4k
+> >>stack as a possible problem before looking at other things if I get bad
+> >>behaviour.
+> >>
+> >>Reliability first, performance later. We've lived with the config for a
+> >>while, pain there is better than pain at runtime.
+> >
+> > Opposite opinion here.
+> >
+> > If you want 100% reliability you shouldn't use -mm in the first place.
+> >
+> > Making 4kb stacks default in -mm is very good idea so it will get
+> > necessary testing and fixing before being integrated into mainline.
+> >
+> > Please also note that users of binary only modules always have choice:
+> > - new kernels without binary only modules
+> > - old kernels with binary only modules
+> >
+> > It is really that simple.
+>
+> No it's not that simple, this has nothing to do with binary modules, and
+> everything to do with not making 4k stack the only available
+> configuration in 2.6. Options are fine, but in a stable kernel series I
+> don't think think that the default should change part way into the
+> series, and certainly the availability of the original functionality
+> shouldn't go away, which is what I read AKPMs original post to state as
+> the goal.
 
-I hacked up something and ran it on my webserver (which has something
-like 200 shell accounts). My histogram peaked at 12 rather than 10 but
-still hit 90% cumulative at 21 characters.
+What functionality are you talking about?
+We don't care about out of tree kernel code (be it GPL or Proprietary).
 
-I suspect worst case is a large LAN fileserver with Samba shares and
-whatnot, I suspect there are a large number of "A picture of my cute
-puppy I took last summer.JPG" style filenames there. Anyone have stats
-for such an FS?
+> Making changes to the kernel which will break existing applications
+> seems to be the opposite of "stable." People who want a new kernel for
+> fixes don't usually want to have to upgrade and/or rewrite their
+> applications. The "we change the system interface everything we fix a
 
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+You don't understand what the patch is really about.
+
+This is kernel stack not the user-space one so
+this change can't brake any application.
+
+> bug" approach comes from a well-known software company, but shouldn't be
+> the way *good* software is done.
+
+It doesn't change any kernel interface visible to user-space
+and stack hungry kernel code needs fixing anyway.
+
+Regards,
+Bartlomiej
+

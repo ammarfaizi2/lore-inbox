@@ -1,100 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262752AbVAKN3U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262760AbVAKN6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262752AbVAKN3U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 08:29:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262755AbVAKN3U
+	id S262760AbVAKN6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 08:58:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262763AbVAKN6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 08:29:20 -0500
-Received: from host234-143.pool8250.interbusiness.it ([82.50.143.234]:42113
-	"EHLO zeus.abinetworks.biz") by vger.kernel.org with ESMTP
-	id S262752AbVAKN3M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 08:29:12 -0500
-Message-ID: <41E3D37A.2030303@abinetworks.biz>
-Date: Tue, 11 Jan 2005 14:24:10 +0100
-From: "Ing. Gianluca Alberici" <alberici@abinetworks.biz>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
-X-Accept-Language: en-us, en
+	Tue, 11 Jan 2005 08:58:25 -0500
+Received: from www.linux4media.com ([213.133.97.116]:12253 "EHLO archimedis.tv")
+	by vger.kernel.org with ESMTP id S262760AbVAKN6X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 08:58:23 -0500
+From: Bernhard Rosenkraenzer <bero@linux4media.com>
+Organization: LINUX4MEDIA GmbH
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.10-mm2 fails to detect DVD drive on Asus Pundit, 2.6.10-ac8 works
+Date: Tue, 11 Jan 2005 14:55:30 +0100
+User-Agent: KMail/1.7.2
 MIME-Version: 1.0
-To: Prarit Bhargava <prarit@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: Bad disks or bug ?
-References: <41E3C90A.2010703@abinetworks.biz> <20050111130005.GB87982@king.bitgnome.net> <41E3CE5A.3000008@abinetworks.biz> <41E3D2A7.3000002@sgi.com>
-In-Reply-To: <41E3D2A7.3000002@sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501111455.30978.bero@linux4media.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prarit,
+SSIA -- I haven't seen this problem on any other hardware though, looks like 
+Asus is doing something weird in its controller and -mm doesn't have a 
+workaround.
 
-I run 2.4.27 on all my machines.
+The IDE controller appears to be a variant of a SiS 5513 (one oddity is the 
+fact that there is no secondary controller). The harddisk is connected 
+as /dev/hda, the DVD drive as /dev/hdb. Using a different DVD drive doesn't 
+change anything.
 
-Never had problems but this (if we want to say its not a disk problem)
+Unless someone beats me to it, I'll diff -u the -ac8 and -mm2 IDE drivers to 
+figure out what's going on when I have some time.
 
-I have seen on mailing lists many people having this very problem, 
-always on hdb, with a lot of different kernel and machines.
-
-I have basically two kind of cabinets:
-
-- The 'Antec style' tower
-- Racmount cases
-
-Everything well cooled...i am sure bout that.
-
-Always ASUS A7V, Athlon XP 2xxx+, NEVER OVERCLOCKED, of course...
-
-Disks are mainly Maxtor, or IBM
-
-Basically i was wondering whether to swap disks on a server just to try....
-
-....These are the things that rave me mad !
-
-
-Prarit Bhargava wrote:
-
-> Hi Gianluca,
->
-> How old is your kernel?
-> P.
->
-> Ing. Gianluca Alberici wrote:
->
->> Hello,
->>
->> Very Interesting news from Massimo...
->>
->> About the heat source, Mark, i thought about that, too, and hdb is 
->> always the
->> bottom (CS Enabled) device of rackmounts (so the colder one) , in front
->> of the usual ball bearing fans !!!!
->>
->> I am beginning to believe all this deserves a more deep investigation...
->>
->> Waiting for comments,
->>
->> Gianluca
->>
->> Mark Nipper wrote:
->>
->>> On 11 Jan 2005, Ing. Gianluca Alberici wrote:
->>>  
->>>
->>>> How do you explain that ? Overload on hdb due to mirroring and surface
->>>> degradation ?
->>>> OR a kind of vodoo on my hdbs ?
->>>>   
->>>
->>>
->>>
->>>     Is it possible that hdb is closer to a high heat source
->>> or is not being cooled as hda if all these machines are the same
->>> case design?
->>>
->>>  
->>>
->> -
->> To unsubscribe from this list: send the line "unsubscribe 
->> linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
+LLaP
+bero

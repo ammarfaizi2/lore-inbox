@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263051AbSJGOaD>; Mon, 7 Oct 2002 10:30:03 -0400
+	id <S263062AbSJGOsk>; Mon, 7 Oct 2002 10:48:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263058AbSJGOaD>; Mon, 7 Oct 2002 10:30:03 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:2691 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S263051AbSJGOaC>; Mon, 7 Oct 2002 10:30:02 -0400
-Date: Mon, 7 Oct 2002 09:35:35 -0500 (CDT)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: "David S. Miller" <davem@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kbuild news
-In-Reply-To: <20021007.072426.93474936.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0210070934580.14294-100000@chaos.physics.uiowa.edu>
+	id <S263068AbSJGOsk>; Mon, 7 Oct 2002 10:48:40 -0400
+Received: from pat.uio.no ([129.240.130.16]:54668 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S263062AbSJGOsj>;
+	Mon, 7 Oct 2002 10:48:39 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15777.40984.140661.380868@charged.uio.no>
+Date: Mon, 7 Oct 2002 16:54:16 +0200
+To: David Howells <dhowells@cambridge.redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] AFS filesystem for Linux (2/2) 
+In-Reply-To: <14995.1034000047@warthog.cambridge.redhat.com>
+References: <trond.myklebust@fys.uio.no>
+	<15773.51748.415514.975150@charged.uio.no>
+	<14995.1034000047@warthog.cambridge.redhat.com>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Oct 2002, David S. Miller wrote:
+>>>>> " " == David Howells <dhowells@cambridge.redhat.com> writes:
 
->    I'll take a look on how to do sparc's btfixup in a similar way, without 
->    messing up the common code too much. BTW, the combination kallsyms +
->    btfixup, does that need a particular ordering?
-> 
-> No, the kallsyms object file would not need to be seen by
-> the btfixup.o generator.  It could therefore be done validly
-> as:
-> 
-> 	1) build .tmp_vmlinux
-> 	2) build btfixup.o
-> 	3) build kallsyms
-> 	4) link final vmlinux image
-> 
-> The order of #2 and #3 could be transposed and that would be fine too.
+     > Does NFSv4 involve caching? If so, might working out a common
+     > cache API be of use to you?
 
-Alright, that's helpful ;)
+NFSv4 does not specify that files need to be backed by local storage
+the way AFS does if that is what you mean. However it does offer
+AFS-like features (such as file delegation / leases) that make a
+cachefs a much more feasible proposition.
 
---Kai
+I, for one, would be very interested in seeing a cachefs add-on for
+NFSv4. I think that it would be of great use for GRID / distributed
+computation applications, which is where my personal interest in NFSv4
+lies.
 
-
+Cheers,
+  Trond

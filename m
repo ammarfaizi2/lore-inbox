@@ -1,64 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbUKOUDT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbUKOUKC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbUKOUDT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 15:03:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbUKOUCj
+	id S261677AbUKOUKC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 15:10:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbUKOUHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 15:02:39 -0500
-Received: from fire.osdl.org ([65.172.181.4]:58818 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S261677AbUKOTzr (ORCPT
+	Mon, 15 Nov 2004 15:07:36 -0500
+Received: from fw.osdl.org ([65.172.181.6]:37250 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261677AbUKOUFU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 14:55:47 -0500
-Message-ID: <419906C6.9020709@osdl.org>
-Date: Mon, 15 Nov 2004 11:43:02 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Mon, 15 Nov 2004 15:05:20 -0500
+Date: Mon, 15 Nov 2004 12:05:15 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Brian Gerst <bgerst@quark.didntduck.org>
+cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Regparm for x86 machine check handlers
+In-Reply-To: <4198EA70.202@quark.didntduck.org>
+Message-ID: <Pine.LNX.4.58.0411151201580.2222@ppc970.osdl.org>
+References: <4198EA70.202@quark.didntduck.org>
 MIME-Version: 1.0
-To: dwmw2@infradead.org, lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] jffs2: printk arg. type warning
-Content-Type: multipart/mixed;
- boundary="------------020600090707070508070904"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020600090707070508070904
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-fix printk argument type warning:
-fs/jffs2/gc.c:832: warning: signed size_t format, different type arg
-(arg 3)
-
-diffstat:=
-   fs/jffs2/gc.c |    2 +-
-   1 files changed, 1 insertion(+), 1 deletion(-)
-
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
--- 
 
 
---------------020600090707070508070904
-Content-Type: text/x-patch;
- name="jffs2_gc_printk.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="jffs2_gc_printk.patch"
+On Mon, 15 Nov 2004, Brian Gerst wrote:
+>
+> The patch to change traps and interrupts to the fastcall convention 
+> missed the machine check handlers.
 
-diff -Naurp ./fs/jffs2/gc.c~jffs2_gc_printk ./fs/jffs2/gc.c
---- ./fs/jffs2/gc.c~jffs2_gc_printk	2004-11-15 10:02:00.966820400 -0800
-+++ ./fs/jffs2/gc.c	2004-11-15 11:00:29.375461216 -0800
-@@ -828,7 +828,7 @@ static int jffs2_garbage_collect_deletio
- 				continue;
- 			}
- 			if (retlen != rawlen) {
--				printk(KERN_WARNING "jffs2_g_c_deletion_dirent(): Short read (%zd not %zd) reading header from obsolete node at %08x\n",
-+				printk(KERN_WARNING "jffs2_g_c_deletion_dirent(): Short read (%zd not %ud) reading header from obsolete node at %08x\n",
- 				       retlen, rawlen, ref_offset(raw));
- 				continue;
- 			}
+Thanks, that was silly.
 
+Anybody want to write a script that verifies that the only remaining 
+"asmlinkage" entries are of the type "sys_xxxx()"? 
 
---------------020600090707070508070904--
+"grep" shows that there's a number of incorrect ones left, but most of 
+them seem to take no arguments, so ir doesn't matter. And there's the FP 
+emulation stuff, which really -does- use the old interfaces.
+
+		Linus

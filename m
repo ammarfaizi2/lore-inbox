@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315347AbSDWVxg>; Tue, 23 Apr 2002 17:53:36 -0400
+	id <S315354AbSDWVzf>; Tue, 23 Apr 2002 17:55:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315351AbSDWVxf>; Tue, 23 Apr 2002 17:53:35 -0400
-Received: from zero.tech9.net ([209.61.188.187]:59909 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S315347AbSDWVxc> convert rfc822-to-8bit;
-	Tue, 23 Apr 2002 17:53:32 -0400
-Subject: Re: [PATCH] page coloring for 2.4.18 kernel
-From: Robert Love <rml@tech9.net>
-To: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Cc: Jason Papadopoulos <jasonp@boo.net>, George Anzinger <george@mvista.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200204232351.01415.Dieter.Nuetzel@hamburg.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 23 Apr 2002 17:53:33 -0400
-Message-Id: <1019598814.1465.254.camel@phantasy>
-Mime-Version: 1.0
+	id <S315358AbSDWVze>; Tue, 23 Apr 2002 17:55:34 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:30730 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S315354AbSDWVza>; Tue, 23 Apr 2002 17:55:30 -0400
+Date: Tue, 23 Apr 2002 17:53:48 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Christopher Yeoh <cyeoh@samba.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        anton@samba.org, paulus@samba.org, davidm@hpl.hp.com
+Subject: Re: [PATCH] SIGURG incorrectly delivered to process
+In-Reply-To: <15550.24352.446276.774799@gargle.gargle.HOWL>
+Message-ID: <Pine.LNX.4.21.0204231753290.3945-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-04-23 at 17:51, Dieter Nützel wrote:
 
-> Page coloring for 2.4.18+ isn't preempt save?
+
+On Thu, 18 Apr 2002, Christopher Yeoh wrote:
+
 > 
-> It gave ~10% speedup for memory intensive apps on my single  1 GHz Athlon II 
-> SlotA (0,18µm, L2 512K) but look the system hard from time to time. Nothing 
-> in the logs.
+> If a process is sent a SIGURG signal and it is blocking SIGURG
+> signals, when the process subsequently unblocks SIGURG signals it will
+> be terminated even if it is set to the default action (SIG_DFL) which
+> is specified by SUSv3 to ignore that signal.
 > 
-> I've changed the patch for 2.4.19-pre7 + vm3 + latest rml-O(1) + preempt.
+> The following patch fixes the problem:
+> 
+> --- linux-2.4.18/arch/i386/kernel/signal.c~	Thu Mar 21 16:04:30 2002
+> +++ linux-2.4.18/arch/i386/kernel/signal.c	Thu Apr 18 12:19:37 2002
+> @@ -658,7 +658,7 @@
+>  				continue;
+>  
+>  			switch (signr) {
+> -			case SIGCONT: case SIGCHLD: case SIGWINCH:
+> +			case SIGCONT: case SIGCHLD: case SIGWINCH: case SIGURG:
+>  				continue;
+>  
+>  			case SIGTSTP: case SIGTTIN: case SIGTTOU:
+> 
+> A quick browse of the other architectures indicates that most (if not
+> all) of them also need the same fix applied to their arch specific
+> signal.c files.
 
-Beats me.  Some of the implementations of page colouring I have seen are
-not even SMP-safe.
+Christopher, 
 
-"Don't do that"
-
-	Robert Love
+Could you please fixup (and test ;)) and other archs too ?
 

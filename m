@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266322AbTGEK2p (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 06:28:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266324AbTGEK2p
+	id S266329AbTGEKam (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 06:30:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266332AbTGEKam
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 06:28:45 -0400
-Received: from holomorphy.com ([66.224.33.161]:39048 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S266322AbTGEK2o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 06:28:44 -0400
-Date: Sat, 5 Jul 2003 03:44:33 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: anton@samba.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.74-mm1
-Message-ID: <20030705104433.GK955@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, anton@samba.org,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20030703023714.55d13934.akpm@osdl.org> <20030704210737.GI955@holomorphy.com> <20030704181539.2be0762a.akpm@osdl.org>
+	Sat, 5 Jul 2003 06:30:42 -0400
+Received: from [213.39.233.138] ([213.39.233.138]:56970 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S266329AbTGEKah (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 06:30:37 -0400
+Date: Sat, 5 Jul 2003 12:44:28 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: benh@kernel.crashing.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linuxppc-dev@lists.linuxppc.org, linuxppc64-dev@lists.linuxppc.org
+Subject: Re: [PATCH 2.5.73] Signal stack fixes #1 introduce PF_SS_ACTIVE
+Message-ID: <20030705104428.GA19311@wohnheim.fh-wedel.de>
+References: <20030704201840.GH22152@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0307041725180.1744-100000@home.osdl.org> <20030705073031.GB32363@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20030704181539.2be0762a.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030705073031.GB32363@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 04, 2003 at 06:15:39PM -0700, Andrew Morton wrote:
-> Look at select_bad_process(), and the ->mm test in badness().  pdflush
-> can never be chosen.
-> Nevertheless, there have been several report where kernel threads _are_ 
-> being hit my the oom killer.  Any idea why that is?
+On Sat, 5 July 2003 09:30:31 +0200, Jörn Engel wrote:
+> On Fri, 4 July 2003 17:39:01 -0700, Linus Torvalds wrote:
+> > 
+> > So how about something like the appended? Very simple patch,i and in fact 
+> > it's more logical than the old behaviour (the old behaviour punched 
+> > through blocked signals, the new ones says "if you block or ignore the 
+> > signal we will just kill you through the default action").
+> 
+> That seems to be the best solution.  Thanks!
 
-The badness() check isn't good enough. If badness() returns 0 for all
-processes with pid's > 0 and the first one seen is a kernel thread the
-kernel thread will be chosen. In principle, one could merely retarget
-chosen with points >= maxpoints, but that's trivially defeated by
-kernel threads landing at the highest pid for whatever reason.
+Except that the patch didn't match the description.  My test loops
+just as happily as before and the conditional part of give_sigsegv is
+pointless now.  That might really break some threading stuff.
 
+Anyway, the idea still makes sense, so I will try to come up with a
+working patch.
 
--- wli
+Jörn
+
+-- 
+"Translations are and will always be problematic. They inflict violence 
+upon two languages." (translation from German)

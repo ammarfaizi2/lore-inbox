@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289034AbSANUom>; Mon, 14 Jan 2002 15:44:42 -0500
+	id <S289045AbSANUoW>; Mon, 14 Jan 2002 15:44:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289021AbSANUo0>; Mon, 14 Jan 2002 15:44:26 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:11146 "EHLO
-	zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S289044AbSANUny>; Mon, 14 Jan 2002 15:43:54 -0500
-Message-ID: <3C43445D.24D5415F@nortelnetworks.com>
-Date: Mon, 14 Jan 2002 15:49:33 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-Cc: David Lang <david.lang@digitalinsight.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, babydr@baby-dragons.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Hardwired drivers are going away?
-In-Reply-To: <Pine.GSO.4.21.0201141452520.224-100000@weyl.math.psu.edu>
+	id <S289025AbSANUnE>; Mon, 14 Jan 2002 15:43:04 -0500
+Received: from bazooka.saturnus.vein.hu ([193.6.40.86]:26599 "EHLO
+	bazooka.saturnus.vein.hu") by vger.kernel.org with ESMTP
+	id <S289043AbSANUmI>; Mon, 14 Jan 2002 15:42:08 -0500
+Date: Mon, 14 Jan 2002 21:42:03 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: slowdown with new scheduler.
+Message-ID: <20020114214203.A387@bazooka.saturnus.vein.hu>
+In-Reply-To: <20020114124541.A32412@suse.de> <20020114172010.GA173@elfie.cavy.de> <20020114192925.GA4441@elfie.cavy.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020114192925.GA4441@elfie.cavy.de>
+User-Agent: Mutt/1.3.20i
+From: Banai Zoltan <bazooka@enclavenet.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
+On Mon, Jan 14, 2002 at 08:29:25PM +0100, Heinz Diehl wrote:
+> On Mon Jan 14 2002, Heinz Diehl wrote:
 > 
-> On Mon, 14 Jan 2002, David Lang wrote:
+> > 2.4.18-pre3	 	    real    7m55.243s
+> > 			    user    6m34.080s
+> > 			    sys     0m27.610s
+> > 
+> > 2.4.18-pre+H7		    real    7m35.962s
+> > 			    user    6m34.270s
+> > 			    sys     0m27.700s
+> > 
+> > 2.4.18-pre3-ac2	    real    7m39.203s
+> > 			    user    6m34.110s
+> > 			    sys     0m28.740s
+> > 
 > 
-> > doesn't matter, they are likly to be found on dedicated servers where
-> > the flexibility of modules is not needed and the slight performance
-> > advantage is desired.
-> >
-> > making everything modular is fine for desktops/laptops but why should
-> > dedicated servers pay the price?
+> 2.4.18-pre3+H7+preempt-rml  real    6m58.983s
+>  			    user    6m34.500s
+>  			    sys     0m27.820s
 > 
-> There should be no price.  And AFAICS that's doable.
-
-I haven't been following the initramfs stuff, but now I have a question. 
-Currently we're using initrd to store a kernel and compressed ramdisk bundled
-together as an ~7MB single file that gets netbooted by firmware in a card.  Will
-it be possible to bundle initramfs together with the kernel into a single file
-in this same manner?
-
-Thanks,
-
-Chris
-
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+That sounds very good! But what about the VM code?
+Is the VM in 2.4.18-pre3+H7 as good as in 2.4.18-pre2aa2?

@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261463AbTCFOSD>; Thu, 6 Mar 2003 09:18:03 -0500
+	id <S261855AbTCFOdz>; Thu, 6 Mar 2003 09:33:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261855AbTCFOSD>; Thu, 6 Mar 2003 09:18:03 -0500
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:3026 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S261463AbTCFOSC> convert rfc822-to-8bit; Thu, 6 Mar 2003 09:18:02 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: Corvus Corax <corvusvcorax@gemia.de>, linux-kernel@vger.kernel.org
-Subject: Re: Linux vs Windows temperature anomaly
-Date: Thu, 6 Mar 2003 08:27:49 -0600
-User-Agent: KMail/1.4.1
-References: <20030303123029.GC20929@atrey.karlin.mff.cuni.cz> <200303061038.44872.kernel@kolivas.org> <20030306081804.4717d1c4.corvusvcorax@gemia.de>
-In-Reply-To: <20030306081804.4717d1c4.corvusvcorax@gemia.de>
+	id <S261934AbTCFOdz>; Thu, 6 Mar 2003 09:33:55 -0500
+Received: from divine.city.tvnet.hu ([195.38.100.154]:44130 "EHLO
+	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
+	id <S261855AbTCFOdy>; Thu, 6 Mar 2003 09:33:54 -0500
+Date: Thu, 6 Mar 2003 15:34:52 +0100 (MET)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: Anton Altaparmakov <aia21@cantab.net>
+cc: "Randy.Dunlap" <rddunlap@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <linux-ntfs-dev@lists.sourceforge.net>
+Subject: Re: [Linux-NTFS-Dev] ntfs OOPS (2.5.63)
+In-Reply-To: <Pine.SOL.3.96.1030306122732.1983B-100000@draco.cus.cam.ac.uk>
+Message-ID: <Pine.LNX.4.30.0303061521260.28143-100000@divine.city.tvnet.hu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200303060827.49620.pollard@admin.navo.hpc.mil>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 06 March 2003 01:18 am, Corvus Corax wrote:
-> Am Thu, 6 Mar 2003 10:38:44 +1100
->
-> schrieb Con Kolivas <kernel@kolivas.org>:
-> > That doesn't make sense. His post said the temperature was 20 degrees
-> > lower when it failed.
+
+On Thu, 6 Mar 2003, Anton Altaparmakov wrote:
+> On Thu, 6 Mar 2003, Szakacsits Szabolcs wrote:
 > >
-> > Con
+> > What would be really useful is to disassemble __ntfs_init_inode what I
+> > asked 2 days ago (note, not the above 'make fs/ntfs/inode.S' because
+> > it will not tell what machine code you have on disk), your .config and
+> > exact CPU version (cat /proc/cpuinfo).
 >
-> I think it does,
+> Yes it will, unless you suspect the assembler [...]
 
-snip
+I suspect everything :) It was also a polite way saying (on a completely
+configured, etc kernel):
+	% make fs/ntfs/inode.S
+	make: *** No rule to make target `fs/ntfs/inode.S'.  Stop.
 
-> if the bridge has only a heatsink, its temperature is somewhat like
-> (system TEMP)+ ( produced heatper time /  heat given to the air by heatsink
-> per time ) where the heatsinks capacity is dependent on the delta
-> temperature, too, gets complicated ;)
->
-> in short, the chips hotter than the rest of the system and if it has high
-> load it gets even hotter, but its temp is still dependant on the main
-> system TEMP. ;)
+Anyway, considering how bogus the oops was and Randy already had two
+oops'es before this NTFS one, I think the NTFS driver was a sufferer
+of other trouble(s) than the originator. So unless one can reproduce
+something close to this one (or Randy sends his first [two] oops), I
+would just trash
 
-It is also referred to as thermal inertia. It takes time for the heat sink to
-1. heat up
-2. start transferring that head out
+	http://bugme.osdl.org/show_bug.cgi?id=432
 
-During that time delay the chip may easily overheat in a burst of activity.
+    Szaka
 
-Same thing happens to fuses... a "slow blow" fuse will blow faster in higher
-ambient temperature, under conditions that are normal because the AC was
-turned on...
-
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.

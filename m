@@ -1,71 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263416AbTDSQtC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 12:49:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263417AbTDSQtC
+	id S263417AbTDSQzb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 12:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263418AbTDSQzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 12:49:02 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:23312 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S263416AbTDSQtA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 12:49:00 -0400
-Date: Sat, 19 Apr 2003 19:00:46 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
-Message-Id: <20030419190046.6566ed18.skraw@ithnet.com>
-In-Reply-To: <1050766175.3694.4.camel@dhcp22.swansea.linux.org.uk>
-References: <20030419180421.0f59e75b.skraw@ithnet.com>
-	<1050766175.3694.4.camel@dhcp22.swansea.linux.org.uk>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 19 Apr 2003 12:55:31 -0400
+Received: from web41812.mail.yahoo.com ([66.218.93.146]:32621 "HELO
+	web41812.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263417AbTDSQza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 12:55:30 -0400
+Message-ID: <20030419170725.35871.qmail@web41812.mail.yahoo.com>
+Date: Sat, 19 Apr 2003 10:07:25 -0700 (PDT)
+From: Christian Staudenmayer <eggdropfan@yahoo.com>
+Subject: 2.5.67-ac2 and lilo
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 Apr 2003 16:29:36 +0100
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+Hello,
 
-> On Sad, 2003-04-19 at 17:04, Stephan von Krawczynski wrote:
-> > after shooting down one of this bloody cute new very-big-and-poor IDE
-> > drives today I wonder whether it would be a good idea to give the linux-fs
-> > (namely my preferred reiser and ext2 :-) some fault-tolerance. I remember
-> > there have been some discussions along this issue some time ago and I guess
-> > remembering that it was decided against because it should be the drivers
-> > issue to give the fs a clean space to live, right?
->  
-> Sometimes disks just go bang. They seem to do it distressingly more
-> often nowdays which (while handy for criminals and pirates) is annoying
-> for the rest of us. Putting magic in the file system to handle this is
-> hard to do well, and at best you get things like ext2/ext3 have now -
-> the ability to recover data in the event of some corruption, unless you
-> get into really fancy stff.
+i'm running a machine that uses the aic7xxx driver for the old adaptec 2940 scsi
+controller. i had problems with getting 2.5.67-ac2 to run, it used to end in
+a kernel panic. i got told to remove the body of the function ide_xlate_1024
+by just "return 0;", which fixed the problem, i could then boot the kernel.
+but now, when running lilo, i get the following message:
 
-Ok, you mean active error-recovery on reading. My basic point is the writing
-case. A simple handling of write-errors from the drivers level and a retry to
-write on a different location could help a lot I guess.
+Fatal: First boot sector doesn't have a valid LILO signature
 
-> Buy IDE disks in pairs use md1, and remember to continually send the
-> hosed ones back to the vendor/shop (and if they keep appearing DOA to
-> your local trading standards/fair trading type bodies).
+these problems do not occur on kernels 2.4.20, 2.4.21-pre7-ac1 and 2.5.67-bk9,
+if i boot another kernel, i can run/install LILO without problems.
 
-Just to give some numbers: from 25 disk I bought during last half year 16 have
-gone dead within the first month. This is ridiculous. Of course they are all
-returned and guarantee-replaced, but it gets on ones nerves to continously
-replace disks, the rate could be lowered if one could use them at least 4
-months (or upto a deadline number of bad blocks mapped by the fs - still
-guarantee but fewer replacement cycles).
+i'd appreciate any insight on this problem.
 
-> Perhaps someone should also start a scoreboard for people to report dead
-> IDE drives by vendor ;)
+Greetings, Christian Staudenmayer
 
-I sure have contribution to it.
-
-> Alan
-
-Regards,
-Stephan
-
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Platinum - Watch CBS' NCAA March Madness, live on your desktop!
+http://platinum.yahoo.com

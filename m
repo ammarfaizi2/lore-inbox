@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264190AbTICWlk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 18:41:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264239AbTICWlk
+	id S264271AbTICWoT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 18:44:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264285AbTICWoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 18:41:40 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:23766 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S264190AbTICWlc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 18:41:32 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Pascal Schmidt" <der.eremit@email.de>,
-       "Andre Hedrick" <andre@linux-ide.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Driver Model
-Date: Wed, 3 Sep 2003 15:41:03 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKMEMAGDAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-In-Reply-To: <E19ucah-0000iH-00@neptune.local>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Wed, 3 Sep 2003 18:44:19 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:5046 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264271AbTICWoP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 18:44:15 -0400
+Date: Thu, 4 Sep 2003 00:44:12 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Greg KH <greg@kroah.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Linux usb mailing list 
+	<linux-usb-devel@lists.sourceforge.net>
+Subject: Re: USB modem no longer detected in -test4
+Message-ID: <20030903224412.GA6822@atrey.karlin.mff.cuni.cz>
+References: <20030903191701.GA2798@elf.ucw.cz> <20030903223936.GA7418@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030903223936.GA7418@kroah.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+> > In 2.6.0-test4, USB ELSA modem no longer works. This is UHCI (on
+> > toshiba 4030cdt).
+> > 
+> > Relevant messages seem to be:
+> > 
+> > PM: Adding info for usb:1-1.2
+> > drivers/usb/class/cdc-acm.c: need inactive config#2
+> > PM: Adding info for usb:1-1.2:0
+> > drivers/usb/class/cdc-acm.c: need inactive config#2
+> 
+> And this worked just fine in 2.6.0-test3?
 
-> On Wed, 03 Sep 2003 20:00:24 +0200, you wrote in linux.kernel:
-
-> > The fact that GPL_ONLY horse sh*t exists means there is a restriction on
-> > usage.  So "GPL_ONLY" has in effect violated GPL, by imposing
-> > restrictions
-> > of usage.
-
-> Where is the restriction? You get the source code, you can roll your
-> own and remove the GPL_ONLY stuff. Apart from that I do not recall
-> to have seen anything about restrictions of usage in the GPL... the
-> only thing it tries to prevent is the source code becoming proprietary.
-
-	If the GPL_ONLY stuff is a license enforcement scheme, the DMCA prohibits
-you from removing it. If the GPL_ONLY stuff is not a license enforcement
-scheme, nothing prohibits you from stamping your module GPL when it's not.
-
-	However, the GPL (section 2b) prohibits you from imposing any restrictions
-other than those in the GPL itself. The GPL contains no restrictions that
-apply to mere use and the GPL_ONLY stuff affects use, so it can't be a
-license restriction, hence there is no restriction to enforce.
-
-	I don't see anything preventing a GPL'd work from containing code that
-imposes restrictions actually contained in the GPL and using the DMCA to
-enforce them. But it would have to be a restriction contained in the GPL
-itself, and there is no restriction about what code you can use with a GPL'd
-work.
-
-	DS
-
-
+It worked okay in 2.5.62, and probably in many later versions, but I'm
+not sure if I specificaly tested it with -test3.
+								Pavel
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

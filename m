@@ -1,58 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263467AbUCYRRd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 12:17:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263509AbUCYRQJ
+	id S263487AbUCYRXD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 12:23:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263455AbUCYRXC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 12:16:09 -0500
-Received: from sea2-dav66.sea2.hotmail.com ([207.68.164.201]:24328 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S263483AbUCYROP convert rfc822-to-8bit
+	Thu, 25 Mar 2004 12:23:02 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40621 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263500AbUCYRT0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 12:14:15 -0500
-X-Originating-IP: [80.204.235.254]
-X-Originating-Email: [pupilla@hotmail.com]
-From: "Marco Berizzi" <pupilla@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: proxy arp behaviour
-Date: Thu, 25 Mar 2004 18:14:10 +0100
+	Thu, 25 Mar 2004 12:19:26 -0500
+Message-ID: <4063148F.8080009@pobox.com>
+Date: Thu, 25 Mar 2004 12:19:11 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1123
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1123
-Message-ID: <DAV6695HfqR77bieLYC00007982@hotmail.com>
-X-OriginalArrivalTime: 25 Aug 2001 04:49:10.0421 (UTC) FILETIME=[47C2E450:01C12D21]
+To: Fabian Fenaut <fabian.fenaut@free.fr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Serial ATA status
+References: <20040325171038.D8316991E6@majesty.pobox.com>
+In-Reply-To: <20040325171038.D8316991E6@majesty.pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everybody,
+Fabian Fenaut wrote:
+> On Thu, 2004-02-26 at 03:34, Jeff Garzik wrote:
+> 
+>  > Silicon Image 3112/3114
+>  > -----------------------
+>  >
+>  > libata driver status:  Alpha.
+>  >
+>  > drivers/ide driver status:  Production, but see issue #4.
+>  >
+>  > Issue #4:  Need to have the most recent fixes posted to lkml, for stable
+>  > operation and full performance (where possible).
+> 
+> 
+> Is the libata driver still considered as alpha ? Are you progressively 
+> updating some documentation on the sata drivers status ?
 
-I would like some info about proxy arp behaviour.
-I have a firewall linux running kernel 2.4.25
-with 3 NIC. Proxy arp is enabled on two of them
-(eth0 and eth1).
+Given my recent work in bug fixing, and in isolating some problems to 
+the platform rather than libata, the Silicon Image driver will be moving 
+to beta, and the CONFIG_BROKEN marker removed, as soon as 2.6.5 kernel 
+is out.
 
-eth1 configuration is here:
+With the latest patches, I would say status of sata_sil is now "beta".
 
-ifconfig eth1 10.77.77.1 broadcast 10.77.77.3 netmask 255.255.255.252
-ip route del 10.77.77.0/30 dev eth1
-ip route add 172.17.1.0/24 dev eth1
+To answer your other question, yes, I progressive update the document 
+you quoted to reflect updates in the status of the various drivers.
 
-echo 1 > /proc/sys/net/ipv4/conf/eth1/proxy_arp
+	Jeff
 
-Hosts connected to eth1 are all 172.17.1.0/24.
-The linux box is now replying to arp requests
-that are sent by 172.17.1.0/24 hosts on the eth1
-network segment. Is this because ip on eth1 is
-10.77.77.1?
 
-I think that linux should not reply to arp request
-for 172.17.1.0/24 because of:
 
-ip route add 172.17.1.0/24 dev eth1
 
-Is this a bug?
-
-TIA

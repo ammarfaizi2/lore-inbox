@@ -1,128 +1,163 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262730AbTC0A6M>; Wed, 26 Mar 2003 19:58:12 -0500
+	id <S262736AbTC0BGR>; Wed, 26 Mar 2003 20:06:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262734AbTC0A6M>; Wed, 26 Mar 2003 19:58:12 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:31922 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S262730AbTC0A6K>;
-	Wed, 26 Mar 2003 19:58:10 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 27 Mar 2003 02:09:22 +0100 (MET)
-Message-Id: <UTC200303270109.h2R19ME28410.aeb@smtp.cwi.nl>
-To: Joel.Becker@oracle.com
-Subject: 64-bit kdev_t - just for playing
-Cc: linux-kernel@vger.kernel.org
+	id <S262737AbTC0BGR>; Wed, 26 Mar 2003 20:06:17 -0500
+Received: from ns.conceptual.net.au ([203.190.192.15]:51179 "EHLO
+	conceptual.net.au") by vger.kernel.org with ESMTP
+	id <S262736AbTC0BGN>; Wed, 26 Mar 2003 20:06:13 -0500
+Message-ID: <3E8252A2.3080501@seme.com.au>
+Date: Thu, 27 Mar 2003 09:23:46 +0800
+From: Brad Campbell <brad@seme.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: IDE problem in 2.4.21-pre1 --> pre5
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-SFilter: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Maybe I should send another patch tonight, just for playing.
+G'day all,
 
-> Please, I'd like that.
+Just upgraded a system I am developing from 2.4.20 to 2.4.21-preX and 
+noticed this 20 second hang with ide on bootup.
 
-Below a random version of kdev_t.h.
-(The file is smaller than the patch.)
+I am loading a system from a CF card using 2.4.19 as a bootstrap using 
+two kernel monte to load the new kernel off the filesystem.
 
-kdev_t is the kernel-internal representation
-dev_t is the kernel idea of the user space representation
-(of course glibc uses 64 bits, split up as 8+8 :-)
+With 2.4.20 this was smooth and quick, with the new ide in 2.4.21-pre
+it hangs for about 20 seconds while detecting the flash disk. It 
+proceeds fine from here after resetting the interface, but it never used 
+to do this. I have tried most combinations of config settings, and 
+cmdline settings like ide=nodma hda=autotune hda=flash and whaterver 
+else I could find in ide.c that looked like a likley suspect. Also tried 
+with use Multimode by default and DMA by default.
 
-kdev_t can be equal to dev_t.
+Hardware is VIA EPIA800 Mini-ITX board with a homebrew ide-CF adapter.
+This has not been an issue previously.
 
-The file below completely randomly makes kdev_t
-64 bits, split up 32+32, and dev_t 32 bits, split up 12+20.
+Kernels 2.4.21-pre1 --> pre5 all behave the same.
 
-Andries
+dmesg snip and .config | grep ^[C] follow.
 
-------------------------------------------------------------
-#ifndef _LINUX_KDEV_T_H
-#define _LINUX_KDEV_T_H
-#ifdef __KERNEL__
+==================
+Uniform Multi-Platform E-IDE driver Revision: 7.00beta-2.4
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+hda: APACER_CF_32MB, CFA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hda: lost interrupt
+hda: task_no_data_intr: status=0x58 { DriveReady SeekComplete DataRequest }
 
-typedef struct {
-	unsigned long long value;
-} kdev_t;
+hda: 62976 sectors (32 MB) w/1KiB Cache, CHS=123/16/32
+Partition check:
+  hda:hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
 
-#define KDEV_MINOR_BITS		32
-#define KDEV_MAJOR_BITS		32
-#define KDEV_MINOR_MASK		((1ULL << KDEV_MINOR_BITS) - 1)
+hda: drive not ready for command
+  hda1 hda2
+NET4: Linux TCP/IP 1.0 for NET4.0
 
-#define __mkdev(major, minor)	(((unsigned long long)(major) << KDEV_MINOR_BITS) + (minor))
+==================
 
-#define mk_kdev(major, minor)	((kdev_t) { __mkdev(major,minor) } )
 
-/*
- * The "values" are just _cookies_, usable for 
- * internal equality comparisons and for things
- * like NFS filehandle conversion.
- */
-static inline unsigned long long kdev_val(kdev_t dev)
-{
-	return dev.value;
-}
+CONFIG_X86=y
+CONFIG_UID16=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_MODULES=y
+CONFIG_M486=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=4
+CONFIG_X86_USE_STRING_486=y
+CONFIG_X86_ALIGNMENT_16=y
+CONFIG_X86_PPRO_FENCE=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_NET=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_ISA=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_ELF=y
+CONFIG_PM=y
+CONFIG_APM=y
+CONFIG_APM_DO_ENABLE=y
+CONFIG_APM_CPU_IDLE=y
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=m
+CONFIG_NET_ISA=y
+CONFIG_NE2000=m
+CONFIG_NET_PCI=y
+CONFIG_TULIP=m
+CONFIG_EEPRO100=m
+CONFIG_NE2K_PCI=m
+CONFIG_VIA_RHINE=m
+CONFIG_NET_RADIO=y
+CONFIG_NET_WIRELESS=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_SERIAL_EXTENDED=y
+CONFIG_SERIAL_MANY_PORTS=y
+CONFIG_SERIAL_SHARE_IRQ=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_I2C=m
+CONFIG_I2C_PROC=m
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+CONFIG_RTC=y
+CONFIG_FAT_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="cp437"
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_USB=m
+CONFIG_USB_UHCI=m
+CONFIG_USB_SERIAL=m
+CONFIG_USB_SERIAL_GENERIC=y
+CONFIG_USB_SERIAL_FTDI_SIO=m
 
-static inline kdev_t val_to_kdev(unsigned long long val)
-{
-	kdev_t dev;
-	dev.value = val;
-	return dev;
-}
+-- 
+Brad....
+  /"\
+  \ /     ASCII RIBBON CAMPAIGN
+   X      AGAINST HTML MAIL
+  / \
 
-#define HASHDEV(dev)	(kdev_val(dev))
-#define NODEV		(mk_kdev(0,0))
-
-extern const char * kdevname(kdev_t);	/* note: returns pointer to static data! */
-
-static inline int kdev_same(kdev_t dev1, kdev_t dev2)
-{
-	return dev1.value == dev2.value;
-}
-
-#define kdev_none(d1)	(!kdev_val(d1))
-
-#define minor(dev)	(unsigned int)((dev).value & KDEV_MINOR_MASK)
-#define major(dev)	(unsigned int)((dev).value >> KDEV_MINOR_BITS)
-
-/* These are for user-level "dev_t" */
-#define MINORBITS	8
-#define MINORMASK	((1U << MINORBITS) - 1)
-#define DEV_MINOR_BITS	20
-#define	DEV_MAJOR_BITS	12
-#define	DEV_MINOR_MASK	((1U << DEV_MINOR_BITS) - 1)
-#define DEV_MAJOR_MASK	((1U << DEV_MAJOR_BITS) - 1)
-
-#include <linux/types.h>	/* dev_t */
-
-#define MAJOR(dev)	((unsigned int)(((dev) & 0xffff0000) ? ((dev) >> DEV_MINOR_BITS) & DEV_MAJOR_MASK : ((dev) >> 8) & 0xff))
-#define MINOR(dev)	((unsigned int)(((dev) & 0xffff0000) ? ((dev) & DEV_MINOR_MASK) : ((dev) & 0xff)))
-#define MKDEV(ma,mi)	((dev_t)((((ma) & ~0xff) == 0 && ((mi) & ~0xff) == 0) ? (((ma) << 8) | (mi)) : (((ma) << DEV_MINOR_BITS) | (mi))))
-
-/*
- * Conversion functions
- */
-
-static inline int kdev_t_to_nr(kdev_t dev)
-{
-	unsigned int ma = major(dev);
-	unsigned int mi = minor(dev);
-	return MKDEV(ma, mi);
-}
-
-static inline kdev_t to_kdev_t(dev_t dev)
-{
-	unsigned int ma = MAJOR(dev);
-	unsigned int mi = MINOR(dev);
-	return mk_kdev(ma, mi);
-}
-
-#else /* __KERNEL__ */
-
-/*
-Some programs want their definitions of MAJOR and MINOR and MKDEV
-from the kernel sources. These must be the externally visible ones.
-Of course such programs should be updated.
-*/
-#define MAJOR(dev)	((dev)>>8)
-#define MINOR(dev)	((dev) & 0xff)
-#define MKDEV(ma,mi)	((ma)<<8 | (mi))
-#endif /* __KERNEL__ */
-#endif

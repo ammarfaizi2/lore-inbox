@@ -1,31 +1,313 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129032AbRBGTMn>; Wed, 7 Feb 2001 14:12:43 -0500
+	id <S129500AbRBGTMX>; Wed, 7 Feb 2001 14:12:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130190AbRBGTMX>; Wed, 7 Feb 2001 14:12:23 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38661 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129027AbRBGTMT>; Wed, 7 Feb 2001 14:12:19 -0500
-Subject: Re: PCI-SCI Drivers v1.1-7 released
-To: jmerkey@vger.timpanogas.org (Jeff V. Merkey)
-Date: Wed, 7 Feb 2001 19:12:25 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20010207130341.C27700@vger.timpanogas.org> from "Jeff V. Merkey" at Feb 07, 2001 01:03:41 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129032AbRBGTMN>; Wed, 7 Feb 2001 14:12:13 -0500
+Received: from web12008.mail.yahoo.com ([216.136.172.216]:31507 "HELO
+	web12008.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129027AbRBGTMI>; Wed, 7 Feb 2001 14:12:08 -0500
+Message-ID: <20010207191207.50272.qmail@web12008.mail.yahoo.com>
+Date: Wed, 7 Feb 2001 11:12:07 -0800 (PST)
+From: Lourenco <andyrock50@yahoo.com>
+Subject: IDE PROBLEM 2.4.0 and 2.4.1 ...
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Qa0y-00014a-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > That would explain the %age certainly. How it happened is the next question
-> 
-> I'll gen some code, and send to you.
+hi!
 
-Thanks. 
+i am getting an error every time i try to copy a big
+file from my cdrom to one of my harddrives...
 
+my hardware: P2 333 128 MB Ram
+             ONLY IDE
+             BOARD BX
+
+i had run dmesg.
+
+PS : It works FINE with 2.2.* and other OS's...
+
+here it goes:
+
+...
+VFS: Disk change detected on device ide1(22,0)
+ISO 9660 Extensions: Microsoft Joliet Level 3
+ISOFS: changing to secondary root
+VFS: Disk change detected on device ide1(22,0)
+ISO 9660 Extensions: Microsoft Joliet Level 3
+ISOFS: changing to secondary root
+isofs_read_level3_size: More than 100 file sections
+?!?, aborting...
+isofs_read_level3_size: inode=45152 ino=53408
+isofs_read_level3_size: More than 100 file sections
+?!?, aborting...
+isofs_read_level3_size: inode=45232 ino=53488
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18356
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18360
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18364
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18368
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18372
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18376
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18380
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18384
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18388
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18392
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18396
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18400
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18404
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18408
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18412
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18416
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18420
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18424
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18428
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18432
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18436
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18440
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18444
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18448
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18452
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18456
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18460
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18464
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18468
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: DMA disabled
+hdc: ATAPI reset complete
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: ATAPI reset complete
+end_request: I/O error, dev 16:00 (hdc), sector 18472
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: ATAPI reset complete
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: ATAPI reset complete
+end_request: I/O error, dev 16:00 (hdc), sector 18476
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: ATAPI reset complete
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: ATAPI reset complete
+end_request: I/O error, dev 16:00 (hdc), sector 18480
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18484
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18488
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18492
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18468
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18472
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18468
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18472
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18468
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: ATAPI reset complete
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: ATAPI reset complete
+end_request: I/O error, dev 16:00 (hdc), sector 18472
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18468
+hdc: cdrom_decode_status: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: cdrom_decode_status: error=0x30
+hdc: command error: status=0x51 { DriveReady
+SeekComplete Error }
+hdc: command error: error=0x51
+end_request: I/O error, dev 16:00 (hdc), sector 18472
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Auctions - Buy the things you want at great prices.
+http://auctions.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

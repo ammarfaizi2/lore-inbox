@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314243AbSEONR1>; Wed, 15 May 2002 09:17:27 -0400
+	id <S314241AbSEONRT>; Wed, 15 May 2002 09:17:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314278AbSEONR0>; Wed, 15 May 2002 09:17:26 -0400
-Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:38909 "EHLO
-	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
-	id <S314243AbSEONRZ>; Wed, 15 May 2002 09:17:25 -0400
-Message-ID: <180577A42806D61189D30008C7E632E87938E1@boca213a.boca.ssc.siemens.com>
-From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-To: "'linux-kernel@vger.kernel.org.'" <linux-kernel@vger.kernel.org>
-Subject: Device driver question
-Date: Wed, 15 May 2002 09:17:21 -0400
+	id <S314243AbSEONRS>; Wed, 15 May 2002 09:17:18 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:8457 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S314241AbSEONRS>;
+	Wed, 15 May 2002 09:17:18 -0400
+Message-ID: <3CE25112.9080906@evision-ventures.com>
+Date: Wed, 15 May 2002 14:14:10 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Russell King <rmk@arm.linux.org.uk>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.15 IDE 64
+In-Reply-To: <Pine.LNX.4.44.0205052046590.1405-100000@home.transmeta.com> <3CE24EC8.3030202@evision-ventures.com> <20020515141253.A28997@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am relatively new to Linux (< 6 months). We have designed an embedded
-system (on compact PCI) running on a Pentium III 700Mhz cPCI machine. This
-machine supports upt to 6 cPCI boards for specific functions (this is our
-own HW). I have already written the device drivers for these boards and the
-system is running. I have a specific case where our HW can generate a
-special interrupt. In this case I simply want the ISR to halt the system
-(i.e. take the same action as if I typed halt from the command line). How
-can I from within my device driver cause a halt? Please CC me specifically
-on any replies.
+Uz.ytkownik Russell King napisa?:
+> On Wed, May 15, 2002 at 02:04:24PM +0200, Martin Dalecki wrote:
+> 
+>>Tue May 14 13:35:04 CEST 2002 ide-clean-64:
+>>
+>>Let's just get over with  this before queue handling will be targeted again...
+>>
+>>- Implement suggestions by Russel King for improved portability and separation
+> 
+> 
+> RusseLL please. 8)
 
-Thanks in advance. 
 
-Jack Bloch
-Siemens Carrier Networks
-e-mail    : jack.bloch@icn.siemens.com
-phone     : (561) 923-6550
+Please accept my in deppth thorough apologies for the spelling mistake.
+Would maybe just "The ARM King" suite you as well? ;-).
 

@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUE1Cz6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbUE1C54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbUE1Cz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 22:55:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUE1Cz6
+	id S262106AbUE1C54 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 22:57:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbUE1C5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 22:55:58 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:1420 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S262085AbUE1Cz5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 22:55:57 -0400
-Date: Fri, 28 May 2004 11:55:37 +0900 (JST)
-Message-Id: <20040528.115537.719900493.nomura@linux.bs1.fc.nec.co.jp>
-To: marcelo.tosatti@cyclades.com
-Cc: j-nomura@ce.jp.nec.com, linux-kernel@vger.kernel.org, andrea@suse.de,
-       akpm@osdl.org, hugh@veritas.com
-Subject: Re: [2.4] heavy-load under swap space shortage
-From: j-nomura@ce.jp.nec.com
-In-Reply-To: <20040526124104.GF6439@logos.cnet>
-References: <Pine.LNX.4.44.0402051834070.1396-100000@localhost.localdomain>
-	<20040310.195707.521627048.nomura@linux.bs1.fc.nec.co.jp>
-	<20040526124104.GF6439@logos.cnet>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 27 May 2004 22:57:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:20375 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262106AbUE1C5x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 22:57:53 -0400
+Date: Thu, 27 May 2004 22:57:46 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: John Cherry <cherry@osdl.org>
+cc: Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.7-rc1-mm1 (compile stats)
+In-Reply-To: <1085675112.4249.33.camel@cherrybomb.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.44.0405272254590.30062-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+On Thu, 27 May 2004, John Cherry wrote:
 
-> I think we can merge this patch.
-> 
-> Its very safe - default behaviour unchanged. 
+>   CC      arch/i386/kernel/dmi_scan.o
+> arch/i386/kernel/dmi_scan.c:410: warning: `set_8042_nomux' defined but
+> not used
 
-Yes.
+It's called from the dmi routines, with the function
+defined in the DMI table.  No idea why this would
+give a warning while the other similar functions
+(eg broken_ps2_resume) don't ...
 
-> Jun, are you willing to do another test for us if this gets merged
-> in v2.4.27-pre4 ?
-
-Yes. I'll try.
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

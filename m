@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264549AbUAZToL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 14:44:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264598AbUAZToL
+	id S264971AbUAZT51 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 14:57:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265081AbUAZT51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 14:44:11 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:61705 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264549AbUAZToJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 14:44:09 -0500
-Date: Mon, 26 Jan 2004 19:44:08 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Ben Pfaff <blp@cs.stanford.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Cooperative Linux
-Message-ID: <20040126194408.A3450@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ben Pfaff <blp@cs.stanford.edu>, linux-kernel@vger.kernel.org
-References: <20040125193518.GA32013@callisto.yi.org> <40148C1C.5040102@vgertech.com> <slrnc193vo.42h.mozbugbox@mozbugbox.somehost.org> <87ektn2tkn.fsf@pfaff.stanford.edu> <20040126091900.A29544@infradead.org> <8765ey3as9.fsf@pfaff.stanford.edu>
+	Mon, 26 Jan 2004 14:57:27 -0500
+Received: from fw.osdl.org ([65.172.181.6]:41156 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264971AbUAZT50 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 14:57:26 -0500
+Date: Mon, 26 Jan 2004 11:56:14 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Eric <eric@cisu.net>
+Cc: stoffel@lucent.com, ak@muc.de, Valdis.Kletnieks@vt.edu, bunk@fs.tum.de,
+       cova@ferrara.linux.it, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - SOLVED
+Message-Id: <20040126115614.351393f2.akpm@osdl.org>
+In-Reply-To: <200401261326.09903.eric@cisu.net>
+References: <200401232253.08552.eric@cisu.net>
+	<16404.10496.50601.268391@gargle.gargle.HOWL>
+	<20040125220027.30e8cdf3.akpm@osdl.org>
+	<200401261326.09903.eric@cisu.net>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <8765ey3as9.fsf@pfaff.stanford.edu>; from blp@cs.stanford.edu on Mon, Jan 26, 2004 at 09:00:22AM -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 26, 2004 at 09:00:22AM -0800, Ben Pfaff wrote:
-> > On Sun, Jan 25, 2004 at 08:59:52PM -0800, Ben Pfaff wrote:
-> >> For what it's worth, this has been done in the proprietary world
-> >> as successful commercial software, as VMware ESX Server.
-> >
-> > Which seems to be nothing more than a hacked up Linux..
+Eric <eric@cisu.net> wrote:
+>
+> On Monday 26 January 2004 00:00, Andrew Morton wrote:
+>  > "John Stoffel" <stoffel@lucent.com> wrote:
+>  > > Sure, the darn thing wouldn't boot, it kept Oopsing with the
+>  > >  test_wp_bit oops (that I just posted more details about).
+>  >
+>  > Does this fix the test_wp_bit oops?
 > 
-> Not even close to true.  ESX Server includes a hacked up Linux as
-> part of its front end, but there's a lot more than that.
+>  Yes, it fixes my test_wp_bit oops. But NOW, when booting 2.6.2-rc1-mm3 (which 
+>  i pathed removing -funit-at-a-time and the wp_but oops patch) I get an oops 
+>  derefrencing null pointer in blkdev_reread_part.
 
-Well, I've only seen their driver API is the linux API with slight changes.
-Can you elaborate what "includes a hacked up Linux as part of its front end"
-means and where we can get the source to the rest of this frontend (and
-the linux changes)?
+It is likely that this can be fixed by reverting
 
+	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2-rc1/2.6.2-rc1-mm3/broken-out/md-06-allow-partitioning.patch

@@ -1,30 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267441AbRGLGVX>; Thu, 12 Jul 2001 02:21:23 -0400
+	id <S266069AbRGLG6P>; Thu, 12 Jul 2001 02:58:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267442AbRGLGVN>; Thu, 12 Jul 2001 02:21:13 -0400
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:18828 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S267441AbRGLGVC>; Thu, 12 Jul 2001 02:21:02 -0400
-From: mdaljeet@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: linux-kernel@vger.kernel.org
-Message-ID: <CA256A87.0022B31D.00@d73mta01.au.ibm.com>
-Date: Thu, 12 Jul 2001 11:47:46 +0530
-Subject: physical adddress ranges
+	id <S267420AbRGLG6G>; Thu, 12 Jul 2001 02:58:06 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:35348 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S266069AbRGLG5v>; Thu, 12 Jul 2001 02:57:51 -0400
+Date: Thu, 12 Jul 2001 09:57:37 +0300
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: Rob Landley <landley@webofficenow.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Hardware testing [was Re: VIA Southbridge bug (Was: Crash on boot (2.4.5))]
+Message-ID: <20010712095737.A1503@niksula.cs.hut.fi>
+In-Reply-To: <E15JIVD-0000Qc-00@the-village.bc.nu> <01071011282504.00634@localhost.localdomain> <20010711111159.A2026@suse.cz> <01071111051902.02490@localhost.localdomain>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01071111051902.02490@localhost.localdomain>; from landley@webofficenow.com on Wed, Jul 11, 2001 at 11:05:19AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there anyway I can find out the physical address ranges being used by a
-user process?
-/proc/<pid>/maps gives the process's VMA information.
-is there another interface to find the physical address ranges being used
-by process at a particular time?
+On Wed, Jul 11, 2001 at 11:05:19AM -0400, you [Rob Landley] claimed:
+> On Wednesday 11 July 2001 05:11, Vojtech Pavlik wrote:
+> 
+> > I modified the 'memtest.c' little proggy (not the big memtest86, just a
+> > little utility that runs under Linux), to use patterns and test size
+> > that tests the L1 and then L2, and the error has shown after ten seconds
+> > of running the test.
+> 
+> I don't suppose you still have that lying around somewhere? :)
 
-regards,
-Daljeet.
+I'm not sure if it's any good, but I have one at
+
+http://v.iki.fi/~vherva/memburn.c
+
+(It did find one bad memory case a while ago...)
 
 
+-- v --
+
+v@iki.fi

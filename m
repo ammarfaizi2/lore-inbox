@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319060AbSIJHVt>; Tue, 10 Sep 2002 03:21:49 -0400
+	id <S319065AbSIJHdx>; Tue, 10 Sep 2002 03:33:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319065AbSIJHVt>; Tue, 10 Sep 2002 03:21:49 -0400
-Received: from users.linvision.com ([62.58.92.114]:59028 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S319060AbSIJHVs>; Tue, 10 Sep 2002 03:21:48 -0400
-Date: Tue, 10 Sep 2002 09:25:45 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrew Morton <akpm@zip.com.au>, Suparna Bhattacharya <suparna@in.ibm.com>,
-       Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: One more bio for for floppy users in 2.5.33..
-Message-ID: <20020910092545.A21776@bitwizard.nl>
-References: <3D77A58F.B35779A1@zip.com.au> <Pine.LNX.4.33.0209051155091.1307-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0209051155091.1307-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+	id <S319066AbSIJHdx>; Tue, 10 Sep 2002 03:33:53 -0400
+Received: from tnt-2-45.pops.easynet.fr ([212.180.33.45]:49402 "HELO
+	hubert.heliogroup.fr") by vger.kernel.org with SMTP
+	id <S319065AbSIJHdw>; Tue, 10 Sep 2002 03:33:52 -0400
+From: Hubert Tonneau <hubert.tonneau@pliant.cx>
+To: linux-kernel@vger.kernel.org
+Subject: A service based ressources sharing model proposal
+Date: Tue, 10 Sep 2002 07:36:58 GMT
+X-Mailer: Pliant 76
+Message-Id: <20020910073352Z319065-685+45664@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 05, 2002 at 12:03:30PM -0700, Linus Torvalds wrote:
-> 
-> On Thu, 5 Sep 2002, Andrew Morton wrote:
-> >
-> > It would be simpler if it was nr_of_pages_completed.
-> 
-> Well.. Maybe.
+Here is the general picture:
+. each process is assigned to a service (Ingo pointed out that service
+  could be group)
+. each service has a profile specifying how many CPU percent, memory, threads
+  handle, etc is assigned to it
+. each service is assigned a timeout for shrinking ressources usage
 
-Ehmm. I'm in the data-recovery business, and we seem to have lost
-the ability to recover the other 3k of a 4k page if one of the blocks 
-is bad. 
+The key idea is that the service profile does not prevent any process within
+a service to get more ressources that what's assigned to the service, but
+in case of lack of ressources, the profile will be used to decide who must
+release some ressources.
 
-And we're annoyed about the read-ahead trying to read blocks past
-a bad block without returning to the application. 
+Let's assume that at a given point, the kernel lacks of handles. Then
+for each service, it will compute total handles consumed minus assigned
+in the service profile. For the service having the highest difference,
+it will send a signal to all processes in the service specifying 'hey,
+you must close some handles'. Now, if after the service shrinking timeout
+has ellapsed, there is still no handle available, the kernel will start
+killing the processes within the faulty service.
 
-			Roger.
+The special case of CPU: As I suggested to Ingo, this would mean switching
+the scheduler from a flat model (one process is selected to run) to a two
+levels model (one service is selected to run, then one process within the
+selected service is selected to run)
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* The Worlds Ecosystem is a stable system. Stable systems may experience *
-* excursions from the stable situation. We are currenly in such an       * 
-* excursion: The stable situation does not include humans. ***************
+With such a service notion, you can have several services running in
+one powerfull computer, let's say one SQL server, file sharing, and many
+HTTP servers running chrooted, and be granted that if one web site
+is suddenly under high load, then it will be abble to get most of the
+ressources, including most of the CPU time, but will not be abble to disturb
+other services, since they will still receive their assigned percentage of
+the CPU when they require it, and in case of complete ressources stavation,
+the right process (the one which is the most outside of it's profile)
+will be killed first.
+
+My view of the problem is that historically in Unix, one service was
+basically one process. This is no more true and that's why the service
+(once again, Ingo said it could be group) notion has to be introduced.
+

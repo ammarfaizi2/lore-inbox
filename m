@@ -1,70 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262925AbUKYCrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262933AbUKYCxK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262925AbUKYCrw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 21:47:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262921AbUKYCpt
+	id S262933AbUKYCxK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 21:53:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbUKYCxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 21:45:49 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:59405 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262933AbUKYCpH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 21:45:07 -0500
-Date: Wed, 24 Nov 2004 19:44:59 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Daniel_Weigert@adp.com
-Cc: jpiszcz@lucidpixels.com, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.9 SCSI driver compile error w/gcc-3.4.2.
-Message-ID: <20041124184459.GE19873@stusta.de>
-References: <2D1DF9BA9166D61188F30002B3A6E15318E4D826@ROSEEXCHMA>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2D1DF9BA9166D61188F30002B3A6E15318E4D826@ROSEEXCHMA>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 24 Nov 2004 21:53:09 -0500
+Received: from brown.brainfood.com ([146.82.138.61]:7315 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S262933AbUKYCxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 21:53:02 -0500
+Date: Wed, 24 Nov 2004 03:00:37 -0600 (CST)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
+In-Reply-To: <20041124040604.GA13340@elte.hu>
+Message-ID: <Pine.LNX.4.58.0411240258460.2242@gradall.private.brainfood.com>
+References: <OF73D7316A.42DF9BE5-ON86256F54.0057B6DC@raytheon.com>
+ <Pine.LNX.4.58.0411222237130.2287@gradall.private.brainfood.com>
+ <20041123115201.GA26714@elte.hu> <Pine.LNX.4.58.0411231206240.2146@gradall.private.brainfood.com>
+ <20041124040604.GA13340@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 24, 2004 at 01:35:37PM -0500, Daniel_Weigert@adp.com wrote:
-> >> SNIP <<
-> 
-> >> root@p500b:/usr/src/linux# make modules
-> >>   CHK     include/linux/version.h
-> >> make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
-> >>   CC [M]  drivers/scsi/cpqfcTScontrol.o
-> >> drivers/scsi/cpqfcTScontrol.c:609:2: #error This is too much stack
-> >> drivers/scsi/cpqfcTScontrol.c:721:2: #error This is too much stack
-> >> make[2]: *** [drivers/scsi/cpqfcTScontrol.o] Error 1
-> >>...
-> 
-> >> SNIP << 
-> > It's known that some drivers do not compile and marked in the Kconfig 
-> > files. But if you choose to try to compile them anyway, they don't 
-> > compile.
-> > cu
-> >Adrian
-> 
-> The problem that I have with this, isn't that the driver is broken (it works
-> under 2.4), It isn't labeled as broken in the menuconfig, if you choose the
-> option to include the dubious drivers. Unfortunately, I do need this
+On Wed, 24 Nov 2004, Ingo Molnar wrote:
 
-It's marked as BROKEN, and if you choose the option to enable broken 
-drivers, you are offered to compile broken drivers.
+>
+> * Adam Heath <doogie@debian.org> wrote:
+>
+> > > > I'm seeing something very odd.  It's against 29-0.  I also seem to
+> > > > recall seeing something similiar reported earlier.
+> > > >
+> > > > I'm seeing pauses on my system.  Not certain what is causing it.
+> > > > Hitting a key on the keyboard unsticks it.
+> > >
+> > > at first sight this looks like a scheduling/wakeup anomaly. Please
+> > > re-report this if it happens with the current (30-4) kernel too. Also,
+> > > could you test the vanilla -mm tree, it has a few scheduler updates too.
+> >
+> > 2.6.10-rc1-mm3 doesn't have the same problem.  Didn't have a more
+> > recent mm kernel available last night.  Will compile one, and always
+> > keep it available.
+>
+> -rc2-mm2 would be nice to test - there are a number of new interactivity
+> fixes from Con being test-driven in -mm right now. In particular, these
+> patches were added in -rc1-mm4. These are the patches in question:
+>
+>  sched-adjust_timeslice_granularity.patch
+>  requeue_granularity.patch
+>  sched-remove_interactive_credit.patch
+>
+> you can download them individually from:
+>
+>  http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm2/broken-out/
+>
+> so if these symptoms still occur with vanilla -rc2-mm2, could you try to
+> unapply them, in reverse order? (there might be rejects when you try
+> that, due to patch dependencies - let me know if it doesnt work out and
+> i'll do an undo patch.)
 
-> particular driver and hope someone steps up to the plate to take care of it.
+The symptoms still occur with 30-9.  I'll be trying rc2-mm2 over the holiday.
 
-If this is the only problem in this driver, the fix wasn't too hard.
-But considering how long this problem is unfixed, the driver doesn't 
-seem to be in a good shape...
-
-> Dan
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Came in this morning, and after hitting a key, my machine said it was 2:38am,
+when it was actually 11:10am.  All internet connections had died(obviously).
+But the machine started working fine once I hit that key.  No messages in
+dmesg.

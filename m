@@ -1,154 +1,121 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275288AbRJFPbX>; Sat, 6 Oct 2001 11:31:23 -0400
+	id <S275119AbRJFPmF>; Sat, 6 Oct 2001 11:42:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275265AbRJFPbP>; Sat, 6 Oct 2001 11:31:15 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:61711 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S275256AbRJFPbG>; Sat, 6 Oct 2001 11:31:06 -0400
-Date: Sat, 6 Oct 2001 17:31:26 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, linux-xfs@oss.sgi.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: %u-order allocation failed
-In-Reply-To: <Pine.LNX.3.96.1011006164044.29342B-200000@artax.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.3.96.1011006173010.32345A-200000@artax.karlin.mff.cuni.cz>
+	id <S275265AbRJFPl4>; Sat, 6 Oct 2001 11:41:56 -0400
+Received: from [213.97.199.90] ([213.97.199.90]:1152 "HELO fargo")
+	by vger.kernel.org with SMTP id <S275119AbRJFPli>;
+	Sat, 6 Oct 2001 11:41:38 -0400
+From: davidge@jazzfree.com
+Date: Sat, 6 Oct 2001 17:39:18 +0200 (CEST)
+X-X-Sender: <huma@fargo>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: UDF errors
+Message-ID: <Pine.LNX.4.33.0110061734510.567-100000@fargo>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1908636959-1328101436-1002382286=:32345"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
---1908636959-1328101436-1002382286=:32345
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Kernel is 2.4.9.
+It looks i have something really broken in my kernel. First some ext2
+errors and now i can't mount a dvd disc.
+This is what i get if i try to execute the command:
+mount -t udf /dev/dvd /mnt/dvd
 
-On Sat, 6 Oct 2001, Mikulas Patocka wrote:
+Oct  6 17:34:14 fargo kernel: UDF-fs DEBUG lowlevel.c:57:udf_get_last_session: XA disk: no, vol_desc_start=0
+Oct  6 17:34:14 fargo kernel: UDF-fs DEBUG super.c:1410:udf_read_super: Multi-session=0
+Oct  6 17:34:14 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:14 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:14 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 4607392
+Oct  6 17:34:14 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:14 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:14 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 4606368
+Oct  6 17:34:14 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:14 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:14 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 4606144
+Oct  6 17:34:14 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:14 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:14 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 4607384
+Oct  6 17:34:14 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:14 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:14 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 4606360
+Oct  6 17:34:14 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:14 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:15 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 4606136
+Oct  6 17:34:15 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:15 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:15 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 4606792
+Oct  6 17:34:15 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:15 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:16 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 4605768
+Oct  6 17:34:16 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:16 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:16 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 4605544
+Oct  6 17:34:16 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:16 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:16 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 4606784
+Oct  6 17:34:16 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:16 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:16 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 4605760
+Oct  6 17:34:16 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:16 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:16 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 4605536
+Oct  6 17:34:16 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:16 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:16 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 3780440
+Oct  6 17:34:16 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:16 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:16 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 3779416
+Oct  6 17:34:16 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:16 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:16 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 3779192
+Oct  6 17:34:16 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:16 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:16 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 3780432
+Oct  6 17:34:16 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:16 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:16 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 3779408
+Oct  6 17:34:16 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:16 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:16 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 3779184
+Oct  6 17:34:16 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:16 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:16 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 3779840
+Oct  6 17:34:16 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:16 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:16 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 3778816
+Oct  6 17:34:16 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:16 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:16 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 3778592
+Oct  6 17:34:16 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:16 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:16 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 3779832
+Oct  6 17:34:16 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:16 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:16 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 3778808
+Oct  6 17:34:16 fargo kernel: hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+Oct  6 17:34:16 fargo kernel: hdb: command error: error=0x50
+Oct  6 17:34:16 fargo kernel: end_request: I/O error, dev 03:40 (hdb), sector 3778584
+Oct  6 17:34:16 fargo kernel: UDF-fs DEBUG super.c:1419:udf_read_super: Lastblock=0
+Oct  6 17:34:16 fargo kernel: UDF-fs DEBUG super.c:410:udf_vrs: Starting at sector 16 (2048 byte sectors)
+Oct  6 17:34:16 fargo kernel: UDF-fs DEBUG super.c:437:udf_vrs: ISO9660 Primary Volume Descriptor found
+Oct  6 17:34:16 fargo kernel: UDF-fs DEBUG super.c:446:udf_vrs: ISO9660 Volume Descriptor Set Terminator found
+Oct  6 17:34:16 fargo kernel: UDF-fs DEBUG super.c:760:udf_load_pvoldesc: recording time 940355282/0, 1999/10/19 10:48 (1e5c)
+Oct  6 17:34:16 fargo kernel: UDF-fs DEBUG super.c:770:udf_load_pvoldesc: volIdent[] = 'MATRIX'
+Oct  6 17:34:16 fargo kernel: UDF-fs DEBUG super.c:777:udf_load_pvoldesc: volSetIdent[] = '27535601'
+Oct  6 17:34:16 fargo kernel: UDF-fs DEBUG super.c:961:udf_load_logicalvol: Partition (0:0) type 1 on volume 1
+Oct  6 17:34:16 fargo kernel: UDF-fs DEBUG super.c:971:udf_load_logicalvol: FileSet found in LogicalVolDesc at block=0, partition=0
+Oct  6 17:34:16 fargo kernel: UDF-fs DEBUG super.c:807:udf_load_partdesc: Searching map: (0 == 0)
+Oct  6 17:34:16 fargo kernel: UDF-fs DEBUG super.c:881:udf_load_partdesc: Partition (0:0 type 1511) starts at physical 656, block length 4074540
+Oct  6 17:34:16 fargo kernel: UDF-fs DEBUG super.c:1210:udf_load_partition: Using anchor in block 256
+Oct  6 17:34:16 fargo kernel: UDF-fs DEBUG super.c:732:udf_find_fileset: Fileset at block=0, partition=0
+Oct  6 17:34:16 fargo kernel: UDF-fs DEBUG super.c:793:udf_load_fileset: Rootdir at block=2, partition=0
+Oct  6 17:34:16 fargo kernel: UDF-fs INFO UDF 0.9.4.1-ro (2001/06/13) Mounting volume 'MATRIX', timestamp 1999/10/19 19:48 (1078)
+Oct  6 17:34:16 fargo kernel: UDF-fs DEBUG partition.c:40:udf_get_pblock: block=2, partition=0, offset=0: invalid partition
+Oct  6 17:34:16 fargo kernel: udf: udf_read_inode(ino 658) failed !bh
+Oct  6 17:34:16 fargo kernel: UDF-fs: Error in udf_iget, block=2, partition=0
 
-> On Sat, 6 Oct 2001, Rik van Riel wrote:
-> 
-> > On Sat, 6 Oct 2001, Mikulas Patocka wrote:
-> > 
-> > > Buddy allocator is broken - kill it. Or at least do not misuse it for
-> > > anything except kernel or driver initialization.
-> > 
-> > Please send patches to get rid of the buddy allocator while
-> > still making it possible to allocate contiguous chunks of
-> > memory.
-> > 
-> > If you have any idea on how to fix things, this would be a
-> > good time to let us know.
-> 
-> Here goes the fix. (note that I didn't try to compile it so there may be
-> bugs, but you see the point). 
-> 
-> kmalloc should be fixed too (used badly for example in select.c - and yes
-> - I have seen real world bugreports for poll randomly failing with
-> ENOMEM), but it will be hard to audit all drivers that they do not try to
-> use dma on kmallocated memory. 
 
-This is enhanced version of a patch that fixes select and poll as well.
-Again - not compiled, not tried. 
 
-Mikulas
-
---1908636959-1328101436-1002382286=:32345
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="vmalloc.patch.2"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.3.96.1011006173126.32345B@artax.karlin.mff.cuni.cz>
-Content-Description: 
-
-ZGlmZiAtdSAtciBsaW51eC1vcmlnL2ZzL3NlbGVjdC5jIGxpbnV4L2ZzL3Nl
-bGVjdC5jDQotLS0gbGludXgtb3JpZy9mcy9zZWxlY3QuYwlTYXQgT2N0ICA2
-IDE2OjIwOjQ1IDIwMDENCisrKyBsaW51eC9mcy9zZWxlY3QuYwlTYXQgT2N0
-ICA2IDE2OjU0OjQ0IDIwMDENCkBAIC0yMzYsNyArMjM2LDcgQEANCiANCiBz
-dGF0aWMgdm9pZCAqc2VsZWN0X2JpdHNfYWxsb2MoaW50IHNpemUpDQogew0K
-LQlyZXR1cm4ga21hbGxvYyg2ICogc2l6ZSwgR0ZQX0tFUk5FTCk7DQorCXJl
-dHVybiBrbWFsbG9jKDYgKiBzaXplLCBHRlBfS0VSTkVMIHwgX19HRlBfVk1B
-TExPQyk7DQogfQ0KIA0KIHN0YXRpYyB2b2lkIHNlbGVjdF9iaXRzX2ZyZWUo
-dm9pZCAqYml0cywgaW50IHNpemUpDQpAQCAtNDM4LDcgKzQzOCw3IEBADQog
-CWlmIChuZmRzICE9IDApIHsNCiAJCWZkcyA9IChzdHJ1Y3QgcG9sbGZkICoq
-KWttYWxsb2MoDQogCQkJKDEgKyAobmZkcyAtIDEpIC8gUE9MTEZEX1BFUl9Q
-QUdFKSAqIHNpemVvZihzdHJ1Y3QgcG9sbGZkICopLA0KLQkJCUdGUF9LRVJO
-RUwpOw0KKwkJCUdGUF9LRVJORUwgfCBfX0dGUF9WTUFMTE9DKTsNCiAJCWlm
-IChmZHMgPT0gTlVMTCkNCiAJCQlnb3RvIG91dDsNCiAJfQ0KZGlmZiAtdSAt
-ciBsaW51eC1vcmlnL2luY2x1ZGUvYXNtLWkzODYvcHJvY2Vzc29yLmggbGlu
-dXgvaW5jbHVkZS9hc20taTM4Ni9wcm9jZXNzb3IuaA0KLS0tIGxpbnV4LW9y
-aWcvaW5jbHVkZS9hc20taTM4Ni9wcm9jZXNzb3IuaAlTYXQgT2N0ICA2IDE2
-OjIxOjUwIDIwMDENCisrKyBsaW51eC9pbmNsdWRlL2FzbS1pMzg2L3Byb2Nl
-c3Nvci5oCVNhdCBPY3QgIDYgMTY6MzE6MTUgMjAwMQ0KQEAgLTQ0OCw3ICs0
-NDgsNyBAQA0KICNkZWZpbmUgS1NUS19FU1AodHNrKQkoKCh1bnNpZ25lZCBs
-b25nICopKDQwOTYrKHVuc2lnbmVkIGxvbmcpKHRzaykpKVsxMDIyXSkNCiAN
-CiAjZGVmaW5lIFRIUkVBRF9TSVpFICgyKlBBR0VfU0laRSkNCi0jZGVmaW5l
-IGFsbG9jX3Rhc2tfc3RydWN0KCkgKChzdHJ1Y3QgdGFza19zdHJ1Y3QgKikg
-X19nZXRfZnJlZV9wYWdlcyhHRlBfS0VSTkVMLDEpKQ0KKyNkZWZpbmUgYWxs
-b2NfdGFza19zdHJ1Y3QoKSAoKHN0cnVjdCB0YXNrX3N0cnVjdCAqKSBfX2dl
-dF9mcmVlX3BhZ2VzKEdGUF9LRVJORUwgfCBfX0dGUF9WTUFMTE9DLDEpKQ0K
-ICNkZWZpbmUgZnJlZV90YXNrX3N0cnVjdChwKSBmcmVlX3BhZ2VzKCh1bnNp
-Z25lZCBsb25nKSAocCksIDEpDQogI2RlZmluZSBnZXRfdGFza19zdHJ1Y3Qo
-dHNrKSAgICAgIGF0b21pY19pbmMoJnZpcnRfdG9fcGFnZSh0c2spLT5jb3Vu
-dCkNCiANCmRpZmYgLXUgLXIgbGludXgtb3JpZy9pbmNsdWRlL2xpbnV4L21t
-LmggbGludXgvaW5jbHVkZS9saW51eC9tbS5oDQotLS0gbGludXgtb3JpZy9p
-bmNsdWRlL2xpbnV4L21tLmgJU2F0IE9jdCAgNiAxNjoyMTo1OSAyMDAxDQor
-KysgbGludXgvaW5jbHVkZS9saW51eC9tbS5oCVNhdCBPY3QgIDYgMTY6Mjg6
-MTIgMjAwMQ0KQEAgLTU1MCw2ICs1NTAsNyBAQA0KICNkZWZpbmUgX19HRlBf
-SU8JMHg0MAkvKiBDYW4gc3RhcnQgbG93IG1lbW9yeSBwaHlzaWNhbCBJTz8g
-Ki8NCiAjZGVmaW5lIF9fR0ZQX0hJR0hJTwkweDgwCS8qIENhbiBzdGFydCBo
-aWdoIG1lbSBwaHlzaWNhbCBJTz8gKi8NCiAjZGVmaW5lIF9fR0ZQX0ZTCTB4
-MTAwCS8qIENhbiBjYWxsIGRvd24gdG8gbG93LWxldmVsIEZTPyAqLw0KKyNk
-ZWZpbmUgX19HRlBfVk1BTExPQwkweDIwMAkvKiBDYW4gdm1hbGxvYyBwYWdl
-cyBpZiBidWRkeSBhbGxvY2F0b3IgZmFpbHMgKi8NCiANCiAjZGVmaW5lIEdG
-UF9OT0hJR0hJTwkoX19HRlBfSElHSCB8IF9fR0ZQX1dBSVQgfCBfX0dGUF9J
-TykNCiAjZGVmaW5lIEdGUF9OT0lPCShfX0dGUF9ISUdIIHwgX19HRlBfV0FJ
-VCkNCmRpZmYgLXUgLXIgbGludXgtb3JpZy9tbS9wYWdlX2FsbG9jLmMgbGlu
-dXgvbW0vcGFnZV9hbGxvYy5jDQotLS0gbGludXgtb3JpZy9tbS9wYWdlX2Fs
-bG9jLmMJU2F0IE9jdCAgNiAxNjoyMTo0NyAyMDAxDQorKysgbGludXgvbW0v
-cGFnZV9hbGxvYy5jCVNhdCBPY3QgIDYgMTY6MzY6MjggMjAwMQ0KQEAgLTE4
-LDYgKzE4LDcgQEANCiAjaW5jbHVkZSA8bGludXgvYm9vdG1lbS5oPg0KICNp
-bmNsdWRlIDxsaW51eC9zbGFiLmg+DQogI2luY2x1ZGUgPGxpbnV4L2NvbXBp
-bGVyLmg+DQorI2luY2x1ZGUgPGxpbnV4L3ZtYWxsb2MuaD4NCiANCiBpbnQg
-bnJfc3dhcF9wYWdlczsNCiBpbnQgbnJfYWN0aXZlX3BhZ2VzOw0KQEAgLTQy
-MSw5ICs0MjIsOSBAQA0KIAlzdHJ1Y3QgcGFnZSAqIHBhZ2U7DQogDQogCXBh
-Z2UgPSBhbGxvY19wYWdlcyhnZnBfbWFzaywgb3JkZXIpOw0KLQlpZiAoIXBh
-Z2UpDQotCQlyZXR1cm4gMDsNCi0JcmV0dXJuICh1bnNpZ25lZCBsb25nKSBw
-YWdlX2FkZHJlc3MocGFnZSk7DQorCWlmIChwYWdlKSByZXR1cm4gKHVuc2ln
-bmVkIGxvbmcpIHBhZ2VfYWRkcmVzcyhwYWdlKTsNCisJaWYgKGdmcF9tYXNr
-ICYgX19HRlBfVk1BTExPQykgcmV0dXJuICh1bnNpZ25lZCBsb25nKV9fdm1h
-bGxvYyhQQUdFX1NJWkUgPDwgb3JkZXIsIGdmcF9tYXNrLCBQQUdFX0tFUk5F
-TCk7DQorCXJldHVybiAwOw0KIH0NCiANCiB1bnNpZ25lZCBsb25nIGdldF96
-ZXJvZWRfcGFnZSh1bnNpZ25lZCBpbnQgZ2ZwX21hc2spDQpAQCAtNDQ3LDYg
-KzQ0OCwxMCBAQA0KIA0KIHZvaWQgZnJlZV9wYWdlcyh1bnNpZ25lZCBsb25n
-IGFkZHIsIHVuc2lnbmVkIGludCBvcmRlcikNCiB7DQorCWlmIChhZGRyID49
-IFZNQUxMT0NfU1RBUlQgJiYgYWRkciA8IFZNQUxMT0NfRU5EKSB7DQorCQl2
-ZnJlZSgodm9pZCAqKWFkZHIpOw0KKwkJcmV0dXJuOw0KKwl9DQogCWlmIChh
-ZGRyICE9IDApDQogCQlfX2ZyZWVfcGFnZXModmlydF90b19wYWdlKGFkZHIp
-LCBvcmRlcik7DQogfQ0KZGlmZiAtdSAtciBsaW51eC1vcmlnL21tL3NsYWIu
-YyBsaW51eC9tbS9zbGFiLmMNCi0tLSBsaW51eC1vcmlnL21tL3NsYWIuYwlT
-YXQgT2N0ICA2IDE2OjIxOjQ4IDIwMDENCisrKyBsaW51eC9tbS9zbGFiLmMJ
-U2F0IE9jdCAgNiAxNzowNDozNyAyMDAxDQpAQCAtNzMsNiArNzMsNyBAQA0K
-ICNpbmNsdWRlCTxsaW51eC9pbnRlcnJ1cHQuaD4NCiAjaW5jbHVkZQk8bGlu
-dXgvaW5pdC5oPg0KICNpbmNsdWRlCTxsaW51eC9jb21waWxlci5oPg0KKyNp
-bmNsdWRlCTxsaW51eC92bWFsbG9jLmg+DQogI2luY2x1ZGUJPGFzbS91YWNj
-ZXNzLmg+DQogDQogLyoNCkBAIC0xNTM2LDEwICsxNTM3LDE0IEBADQogCWNh
-Y2hlX3NpemVzX3QgKmNzaXplcCA9IGNhY2hlX3NpemVzOw0KIA0KIAlmb3Ig
-KDsgY3NpemVwLT5jc19zaXplOyBjc2l6ZXArKykgew0KKwkJdm9pZCAqcDsN
-CiAJCWlmIChzaXplID4gY3NpemVwLT5jc19zaXplKQ0KIAkJCWNvbnRpbnVl
-Ow0KLQkJcmV0dXJuIF9fa21lbV9jYWNoZV9hbGxvYyhmbGFncyAmIEdGUF9E
-TUEgPw0KLQkJCSBjc2l6ZXAtPmNzX2RtYWNhY2hlcCA6IGNzaXplcC0+Y3Nf
-Y2FjaGVwLCBmbGFncyk7DQorCQlpZiAoKHAgPSBfX2ttZW1fY2FjaGVfYWxs
-b2MoZmxhZ3MgJiBHRlBfRE1BID8NCisJCQkgY3NpemVwLT5jc19kbWFjYWNo
-ZXAgOiBjc2l6ZXAtPmNzX2NhY2hlcCwgZmxhZ3MgJiB+X19HRlBfVk1BTExP
-QykpKQ0KKwkJCQlyZXR1cm4gcDsNCisJCWlmIChmbGFncyAmIF9fR0ZQX1ZN
-QUxMT0MpIHJldHVybiBfX3ZtYWxsb2Moc2l6ZSwgZmxhZ3MsIFBBR0VfS0VS
-TkVMKTsNCisJCXJldHVybiBOVUxMOw0KIAl9DQogCXJldHVybiBOVUxMOw0K
-IH0NCkBAIC0xNTgwLDYgKzE1ODUsMTAgQEANCiANCiAJaWYgKCFvYmpwKQ0K
-IAkJcmV0dXJuOw0KKwlpZiAoKHVuc2lnbmVkIGxvbmcpb2JqcCA+PSBWTUFM
-TE9DX1NUQVJUICYmICh1bnNpZ25lZCBsb25nKW9iaiA8IFZNQUxMT0NfRU5E
-KSB7DQorCQl2ZnJlZShvYmpwKTsNCisJCXJldHVybjsNCisJfQ0KIAlsb2Nh
-bF9pcnFfc2F2ZShmbGFncyk7DQogCUNIRUNLX1BBR0UodmlydF90b19wYWdl
-KG9ianApKTsNCiAJYyA9IEdFVF9QQUdFX0NBQ0hFKHZpcnRfdG9fcGFnZShv
-YmpwKSk7DQo=
---1908636959-1328101436-1002382286=:32345--

@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261218AbTCJJtm>; Mon, 10 Mar 2003 04:49:42 -0500
+	id <S261246AbTCJKLi>; Mon, 10 Mar 2003 05:11:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261223AbTCJJtm>; Mon, 10 Mar 2003 04:49:42 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:57607 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261218AbTCJJtk>; Mon, 10 Mar 2003 04:49:40 -0500
-Date: Mon, 10 Mar 2003 11:00:02 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kconfig update
-In-Reply-To: <20030309211518.GA18087@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.44.0303101046590.5042-100000@serv>
-References: <Pine.LNX.4.44.0303090432200.32518-100000@serv>
- <20030309190103.GA1170@mars.ravnborg.org> <Pine.LNX.4.44.0303092028020.32518-100000@serv>
- <20030309193439.GA15837@mars.ravnborg.org> <Pine.LNX.4.44.0303092115310.32518-100000@serv>
- <20030309211518.GA18087@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261263AbTCJKLh>; Mon, 10 Mar 2003 05:11:37 -0500
+Received: from holomorphy.com ([66.224.33.161]:59572 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261246AbTCJKLh>;
+	Mon, 10 Mar 2003 05:11:37 -0500
+Date: Mon, 10 Mar 2003 02:21:00 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: 2.5.64-mm2->4 hangs on contest
+Message-ID: <20030310102100.GD20188@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Mike Galbraith <efault@gmx.de>, Con Kolivas <kernel@kolivas.org>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@digeo.com>
+References: <5.2.0.9.2.20030310075720.00c832f8@pop.gmx.net> <5.2.0.9.2.20030310075720.00c832f8@pop.gmx.net> <5.2.0.9.2.20030310105217.00cd25b0@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5.2.0.9.2.20030310105217.00cd25b0@pop.gmx.net>
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+At 08:12 PM 3/10/2003 +1100, Con Kolivas wrote:
+>> Contest uses a modified process load from irman so it exhibits similar
+>> behaviour. Not sure what +12 actually tells me though :-(
 
-On Sun, 9 Mar 2003, Sam Ravnborg wrote:
+On Mon, Mar 10, 2003 at 11:05:25AM +0100, Mike Galbraith wrote:
+> Aha!  No wonder your symptoms look so similar.  +12 is just a magic number 
+> that works... found by trusty old trial and error method.  What I wanted to 
+> see was if your hang would also go away with the same magic number, or if 
+> renicing with any value helped you at all.
 
-> $ make KBUILD_VERBOSE=0 defconfig
+At 08:12 PM 3/10/2003 +1100, Con Kolivas wrote:
+>> My simplistic understanding is that the pipe task in process_load gets
+>> constantly elevated as "interactive" by the new scheduler, and nothing else
+>> ever happens.
 
-defconfig is special case (like all{yes,no,mod}config). They basically 
-set all options to a new value and print out the new config.
-oldconfig could be less verbose and actually there is already a less 
-verbose mode. If you skip the oldconfig step, the config tool is called 
-anyway and checks the configuration and only asks as necessary. The same 
-mode could be used for oldconfig, but I didn't want to change the 
-behaviour needlessly. OTOH for oldconfig it should be no problem to call 
-conf with '-s' instead of '-o' for the KBUILD_VERBOSE=0 case.
+On Mon, Mar 10, 2003 at 11:05:25AM +0100, Mike Galbraith wrote:
+> Appears so.  I can make it "work" by doing a dinky (butt ugly:) tweak in 
+> activate_task().
 
->  				if (!p2) {
-> -					fprintf(stderr, "%s:%d: invalid string found\n", name, lineno);
-> +					fprintf(stderr, "%s:%d: error: invalid string found\n", name, lineno);
->  					exit(1);
+IMHO directed yields should attempt to prevent priority inversion but
+not elevate priorities otherwise. I'd bug mingo about it.
 
-Um, my gcc doesn't produce any "error:" prefix.
-
-bye, Roman
-
+-- wli

@@ -1,71 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281811AbRLGPGz>; Fri, 7 Dec 2001 10:06:55 -0500
+	id <S281808AbRLGPFD>; Fri, 7 Dec 2001 10:05:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281780AbRLGPFz>; Fri, 7 Dec 2001 10:05:55 -0500
-Received: from ns1.jasper.com ([64.19.21.34]:26833 "EHLO ersfirep1")
-	by vger.kernel.org with ESMTP id <S281795AbRLGPFn>;
-	Fri, 7 Dec 2001 10:05:43 -0500
-From: "Radivoje Todorovic" <radivojet@jaspur.com>
-To: "Abhishek Rai" <abbashake007@yahoo.com>,
-        "Kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: Qusestion: printk
-Date: Fri, 7 Dec 2001 09:02:35 -0600
-Message-ID: <BOEOJGNGENIJJMAOLHHCAEENCLAA.radivojet@jaspur.com>
+	id <S281780AbRLGPE4>; Fri, 7 Dec 2001 10:04:56 -0500
+Received: from mgw-x2.nokia.com ([131.228.20.22]:12674 "EHLO mgw-x2.nokia.com")
+	by vger.kernel.org with ESMTP id <S281787AbRLGPEk>;
+	Fri, 7 Dec 2001 10:04:40 -0500
+Message-ID: <3C10DA34.3080802@nokia.com>
+Date: Fri, 07 Dec 2001 17:03:16 +0200
+From: Dmitri Kassatkine <dmitri.kassatkine@nokia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011023
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: linux-net <linux-net@vger.kernel.org>, affix-devel@lists.sourceforge.net,
+        affix-support <affix-support@lists.sourceforge.net>,
+        Bluetooth-Drivers-for-Linux 
+	<Bluetooth-Drivers-for-Linux@research.nokia.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: New release: Affix-0.9pre5
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <20011207064010.5879.qmail@web11403.mail.yahoo.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The same happened to me and what I did is to restart syslog. Try it
+Hi,
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Abhishek Rai
-Sent: Friday, December 07, 2001 12:40 AM
-To: Kernel
-Subject: Qusestion: printk
+Please find new Affix-0.9pre5 release on
+http://affix.sourceforge.net
 
+br, Dmitri
 
-printk works erratically on my machine:
+-- 
+ Dmitri Kassatkine
+ Nokia Research Center / Helsinki
+ Mobile: +358 50 4836365
+ E-Mail: dmitri.kassatkine@nokia.com
 
-the same module with the same kernel priority flag for
-printk (eg. KERN_INFO, KERN_EMERG etc) when insmoded
-one time will have printk working just fine. but say
-the next time  the comp boots, or even i rmmod it and
-reinsert, printk won't print anything. 
-however in one lifetime of the module, the behaviour
-is consistent- either all the printk's work all don't
-work.
-
--abhishek
-
-
-=====
-Don't say Goodbye say Goodluck
-============================================================
-Abhishek Rai
-3rd year,B.Tech, Computer Science and Engineering
-IIT KGP,India
-abbashake007@yahoo.com
-============================================================
-
-
-__________________________________________________
-Do You Yahoo!?
-Send your FREE holiday greetings online!
-http://greetings.yahoo.com
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
 

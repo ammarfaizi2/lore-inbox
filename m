@@ -1,63 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261295AbRERRp7>; Fri, 18 May 2001 13:45:59 -0400
+	id <S261281AbRERRpT>; Fri, 18 May 2001 13:45:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261297AbRERRpt>; Fri, 18 May 2001 13:45:49 -0400
-Received: from www.wen-online.de ([212.223.88.39]:11280 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S261295AbRERRpg>;
-	Fri, 18 May 2001 13:45:36 -0400
-Date: Fri, 18 May 2001 19:45:15 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Chris Evans <chris@scary.beasts.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.4-ac10
-In-Reply-To: <Pine.LNX.4.21.0105181403280.5531-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.33.0105181936240.583-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261309AbRERRpJ>; Fri, 18 May 2001 13:45:09 -0400
+Received: from ns.caldera.de ([212.34.180.1]:59778 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S261281AbRERRo4>;
+	Fri, 18 May 2001 13:44:56 -0400
+Date: Fri, 18 May 2001 19:42:25 +0200
+From: Christoph Hellwig <hch@caldera.de>
+To: "Eric S. Raymond" <esr@thyrsus.com>,
+        Michael Meissner <meissner@spectacle-pond.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Tom Rini <trini@kernel.crashing.org>, Keith Owens <kaos@ocs.com.au>,
+        CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+Message-ID: <20010518194225.A20327@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	"Eric S. Raymond" <esr@thyrsus.com>,
+	Michael Meissner <meissner@spectacle-pond.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Tom Rini <trini@kernel.crashing.org>, Keith Owens <kaos@ocs.com.au>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010518105353.A13684@thyrsus.com> <E150mKO-0007FF-00@the-village.bc.nu> <20010518120434.F14309@thyrsus.com> <20010518180909.A10357@caldera.de> <20010518124355.A20191@munchkin.spectacle-pond.org> <20010518132235.O14309@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010518132235.O14309@thyrsus.com>; from esr@thyrsus.com on Fri, May 18, 2001 at 01:22:35PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 May 2001, Rik van Riel wrote:
+On Fri, May 18, 2001 at 01:22:35PM -0400, Eric S. Raymond wrote:
+> Michael Meissner <meissner@spectacle-pond.org>:
+> > On Fri, May 18, 2001 at 06:09:09PM +0200, Christoph Hellwig wrote:
+> > > Aunt Tillie shouldn't try to manually configure a kernel.
+> > 
+> > Ummm, maybe Aunt Tillie wants to learn how to configure a kernel....  After
+> > all, all of us at one point in time were newbies in terms of configuring
+> > kernels, etc.
+> 
+> And if she doesn't, maybe her teenage daughter Muffy wants to learn.  You know,
+> the one with the unicorn appliques and the pink scrunchies and the Back Street
+> Boys posters in her bedroom?
 
-> On Fri, 18 May 2001, Mike Galbraith wrote:
-> > On Thu, 17 May 2001, Rik van Riel wrote:
-> > > On Thu, 17 May 2001, Mike Galbraith wrote:
-> > >
-> > > > Only doing parallel kernel builds.  Heavy load throughput is up,
-> > > > but it swaps too heavily.  It's a little too conservative about
-> > > > releasing cache now imho. (keeping about double what it should be
-> > > > with this load.. easily [thump] tweaked;)
-> > >
-> > > "about double what it should be" ?
-> >
-> > Do you think there's 60-80mb of good cachable data? ;-)  The "double"
-> > is based upon many hundreds of test runs.  I "know" that performance
-> > is best with this load when the cache stays around 25-35Mb.  I know
-> > this because I've done enough bend adjusting to get throughput to
-> > within one minute of single task times to have absolutely no doubt.
-> > I can get it to 30 seconds with much obscene tweaking, and have done
-> > it with zero additional overhead for make -j 30 ten times in a row.
-> > (that kernel was.. plain weird. perfect synchronization.. voodoo!)
->
-> Ahhh, I see.  Remember that the "cached" figure you are
-> seeing also includes swap-cached data from the gccs, which
-> results from kswapd scanning the processes, clearing the
-> PTE and, a bit later, the process grabbing the page again.
+That's ok as long as she doesn't add backstreet boys songtexts as long as your
+signature to her mails.
 
-Yes.
+On the other hand she should _really_ learn how to do it - like we all did.
 
-> I suspect that if the gccs _just_ fit in memory, you can
-> get some extra performance by mercilessly eating from the
-> cache and keeping the ggcs in memory. However, I also have
-> the sneaking suspicion that this is not the best tactic for
-> all workloads ;)
+> Dammit, if we're serious about empowering people with free software we can't
+> limit ourselves with the attitude that configuring kernels (or anything
+> else) is the sacred preserve of a geek elite.
 
-Yes, ~exactly!  I chose 30 tasks because they almost do (tool/userland
-dependant.. must recalibrate often) fit.  The bitch is to get the vm
-to automagically detect the rss/cache munch tradeoff point without all
-the manual help.
+I see _no_ reason to give up my control for people with an attitude that
+configuring kernels will not need knowledge of what one is doing.
 
-	-Mike
+Your point is basically:
 
+	Lets rewrite the kernel in VBA to make every word user
+	capable of driver hacking.
+
+That doesn't work.
+
+	Christoph
+--
+Auch der Dumme hat manchmal einen gescheiten Gedanken.
+Er merkt es nur nicht.  -- Danny Kaye

@@ -1,45 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbUJaLsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbUJaLsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261588AbUJaLsp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 06:48:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbUJaLri
+	id S261552AbUJaLsq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 06:48:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbUJaLra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 06:47:38 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:42937 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261580AbUJaLgB (ORCPT
+	Sun, 31 Oct 2004 06:47:30 -0500
+Received: from gprs214-91.eurotel.cz ([160.218.214.91]:21632 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261552AbUJaLb7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 06:36:01 -0500
-Date: Sun, 31 Oct 2004 12:35:40 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: lxdialog question
-In-Reply-To: <Pine.LNX.4.53.0410301255220.2322@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.53.0410311230060.30732@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.53.0410292119540.23650@yvahk01.tjqt.qr>
- <20041030081816.GA9645@mars.ravnborg.org> <Pine.LNX.4.53.0410301255220.2322@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+	Sun, 31 Oct 2004 06:31:59 -0500
+Date: Sun, 31 Oct 2004 12:30:15 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Stelian Pop <stelian@popies.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 4/8] sonypi: rework input support
+Message-ID: <20041031113015.GA1044@elf.ucw.cz>
+References: <20041028100525.GA3893@crusoe.alcove-fr> <20041028100823.GE3893@crusoe.alcove-fr> <20041029101050.GA1183@elf.ucw.cz> <20041029104138.GA3222@crusoe.alcove-fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041029104138.GA3222@crusoe.alcove-fr>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-JE> I wanted to patch lxdialog with the upstream code so that it supports UTF-8
-JE> i/o and utf-8-consoles, but I would need to know from which 'dialog' it
-JE> forked in the past.
+Hi!
 
-SR>The only indication I could find was this note in scripts/README.Menuconfig:
-[...]
+> > > +	{ SONYPI_EVENT_FNKEY_F1, 		KEY_FN_F1 },
+> > > +	{ SONYPI_EVENT_FNKEY_F2, 		KEY_FN_F2 },
+> > > +	{ SONYPI_EVENT_FNKEY_F3, 		KEY_FN_F3 },
+> [...]
+> 
+> > KEY_FN_D does not sound too usefull (similar for FN_F1..FN_F12). Are
+> > there some pictures on those keys? 
+> 
+> Some of them have pictures (Fn-Esc for suspend to ram, Fn-F12 for
+> suspend to disk, Fn-F3 for mute, Fn-F4 for launching the volume
+> controls, Fn-F5 for launching the brightness controls, Fn-F7/F8 for
+> changing from LCD to external monitor or TV). All the others have
+> no pictures on them.
 
-JE>It looks like it's based on dialog-0.7 since it creates the smallest diff.
-[...]
+In such case I'd assign meaningfull events at least to keys with
+labels?
 
-lxdialog already seems to support UTF-8 (read: ncurses supports it), since it
-actually works when TERM=xterm or =screen. However, not so with =linux or
-=screen.linux.
+> > Mapping FN_F3 to for example
+> > KEY_SUSPEND would be usefull...
+> 
+> This sound like policy to me and should not be done into the
+> kernel but somewhere you can configure it, like in a keyboard 
+> keymap or something like that.
 
-
-Jan Engelhardt
+Eh? You are basically doing arbitrary mapping between sony events to
+linux keycodes. You might as well make the mapping usefull while you
+are at it.
+								Pavel
 -- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,40 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVC3UiG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbVC3UjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbVC3UiG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 15:38:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVC3UiG
+	id S261812AbVC3UjY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 15:39:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVC3UjY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 15:38:06 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:50630 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261180AbVC3UiA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 15:38:00 -0500
-Subject: Re: 2.6.11, IDE: Strange scheduling behaviour: high-pri RT process
-	not scheduled?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: kus Kusche Klaus <kus@keba.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0503300931350.7542-100000@coffee.psychology.mcmaster.ca>
-References: <Pine.LNX.4.44.0503300931350.7542-100000@coffee.psychology.mcmaster.ca>
-Content-Type: text/plain
-Date: Wed, 30 Mar 2005 15:37:58 -0500
-Message-Id: <1112215078.17365.11.camel@mindpipe>
+	Wed, 30 Mar 2005 15:39:24 -0500
+Received: from fire.osdl.org ([65.172.181.4]:61896 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261812AbVC3UjH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 15:39:07 -0500
+Date: Wed, 30 Mar 2005 12:39:07 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: rweight@us.ibm.com
+Cc: linux-kernel@vger.kernel.org,
+       "viro@parcelfarce.linux.theplanet.co.uk" 
+	<viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: [PATCH] Set MS_ACTIVE in isofs_fill_super()
+Message-Id: <20050330123907.10740bc1.akpm@osdl.org>
+In-Reply-To: <1112213392.25362.65.camel@russw.beaverton.ibm.com>
+References: <1112213392.25362.65.camel@russw.beaverton.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-30 at 09:41 -0500, Mark Hahn wrote:
-> >> The test system runs a 2.6.11 kernel (no SMP) on a Pentium3 500 MHz 
-> > embedded hardware.
+Russ Weight <rweight@us.ibm.com> wrote:
+>
+> This patch sets the MS_ACTIVE bit in isofs_fill_super() prior to calling
+> iget() or iput(). This eliminates a race condition between mount
+> (for isofs) and kswapd that results in a system panic.
 > 
-> which probably has memory bandwidth of at most a couple hundred MB/s,
-> which is really horrible by modern standards.
+> Signed-off-by: Russ Weight <rweight@us.ibm.com>
+> 
+> --- linux-2.6.12-rc1/fs/isofs/inode.c	2005-03-17 17:34:36.000000000
+> -0800
+> +++ linux-2.6.12-rc1-isofsfix/fs/isofs/inode.c	2005-03-22
+> 15:29:51.945607217 -0800
+> @@ -820,6 +820,7 @@
+>  	 * the s_rock flag. Once we have the final s_rock value,
+>  	 * we then decide whether to use the Joliet descriptor.
+>  	 */
+> +	s->s_flags |= MS_ACTIVE;
+>  	inode = isofs_iget(s, sbi->s_firstdatazone, 0);
+>  
+>  	/*
+> @@ -909,6 +910,7 @@
+>  		kfree(opt.iocharset);
+>  	kfree(sbi);
+>  	s->s_fs_info = NULL;
+> +	s->s_flags &= ~MS_ACTIVE;
+>  	return -EINVAL;
+>  }
+>  
 
-What does that have to do with anything?  He said it was an embedded
-system.
+The patch is obviously safe enough, but seems a bit kludgy.
 
-Lee
+The basic problem here appears to be that isofs is doing iget/iput in
+->fill_super before MS_ACTIVE is set and the inode freeing code
+(generic_forget_inode) doesn't expect that to happen, yes?
 
+I wonder if it would make more sense for all the ->fill_super callers to
+set MS_ACTIVE prior to calling ->fill_super(), and clear MS_ACTIVE if
+fill_super() failed?

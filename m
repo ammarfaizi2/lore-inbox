@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313120AbSDIKGc>; Tue, 9 Apr 2002 06:06:32 -0400
+	id <S313836AbSDIKTw>; Tue, 9 Apr 2002 06:19:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313835AbSDIKGb>; Tue, 9 Apr 2002 06:06:31 -0400
-Received: from violet.setuza.cz ([194.149.118.97]:10255 "EHLO violet.setuza.cz")
-	by vger.kernel.org with ESMTP id <S313120AbSDIKGb>;
-	Tue, 9 Apr 2002 06:06:31 -0400
-Subject: Re: syscals
-From: Frank Schaefer <frank.schafer@setuza.cz>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020409021047.518A53ECC@sitemail.everyone.net>
-Content-Type: text/plain
+	id <S313837AbSDIKTv>; Tue, 9 Apr 2002 06:19:51 -0400
+Received: from vivi.uptime.at ([62.116.87.11]:40666 "EHLO vivi.uptime.at")
+	by vger.kernel.org with ESMTP id <S313836AbSDIKTu>;
+	Tue, 9 Apr 2002 06:19:50 -0400
+Reply-To: <o.pitzeier@uptime.at>
+From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
+To: <linux-kernel@vger.kernel.org>
+Subject: Compaq Alpha DS10 - Kernel 2.4.18
+Date: Tue, 9 Apr 2002 12:19:37 +0200
+Organization: =?us-ascii?Q?UPtime_Systemlosungen?=
+Message-ID: <000d01c1dfb0$0da74a30$010b10ac@sbp.uptime.at>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 09 Apr 2002 12:06:30 +0200
-Message-Id: <1018346790.680.10.camel@ADMIN>
-Mime-Version: 1.0
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
+In-Reply-To: <1018346790.680.10.camel@ADMIN>
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-04-09 at 04:10, mark manning wrote:
-> ok - according to unistd.h we now have exactly 256 syscalls allocated (unless im missing something).  my code needs to be able to account for every single possible syscall and so i need to be able to store the syscall number in a standard way.  not all syscalls are catered for on the outset by at any time the user can say "i need to use syscall x which takes y parameters" and the code will be able to take care of it.
-> 
-> the problem is that i am currently reserving only 8 bits for the syscall number.  this is ok for now but if we ever get another syscall its going to be unuseable by my existing code :) - should i be reserving 16 bits now in preperation for some new syscalls being added ?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-Hmm...
+Hi all!
 
-dunno if you got this right. There are maximal 256 syscalls possible,
-and, right -- exactly this amount of syscalls is in the entrytable. But
-alotalotalot of them are defined as sys_ni_syscall (not yet
-implemented).
-I think there is still some space for enhancements. See
-arch/i386/kernel/entry.S.
+I've got a really big problem with kernel 2.4.18 and 2.4.17 on
+an Alpha.
 
-Regards
-Frank
+I can compile, install and boot the kernel on my Alpha.
+But if I shutdown the machine without shutting down the
+system - I know this is crazy, but sometimes this happens...
+
+So if I'm this mad and restart the machine afterwards, I get
+a lot of fsck errors 'til the system give up and tell's me,
+that I have to check it with fsck myself.
+
+OK, I did so... fsck -y /dev/sda1 -> Works perfectly. After
+fsck has corrected more than 1000 errors I'm able to
+reboot the machine.
+
+And than: MY SYSTEM IS NO LONGER BOOTABLE. It's totally
+currupted...
+
+I never saw the filesystem curruption bug on Intel, but it
+sounds like this.
+
+Is this the same bug that was on Intel?
+Have I done something wrong?
+
+Are there any alpha-users in this list? :o))))
+
+Greetz, I look forward for answers,
+ Oliver
 
 

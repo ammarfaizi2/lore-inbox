@@ -1,48 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261974AbUL0Tw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261957AbUL0TzS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261974AbUL0Tw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 14:52:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbUL0Tvq
+	id S261957AbUL0TzS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 14:55:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbUL0TxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 14:51:46 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:35748 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261957AbUL0Tuw (ORCPT
+	Mon, 27 Dec 2004 14:53:11 -0500
+Received: from mail.aknet.ru ([217.67.122.194]:52749 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S261961AbUL0Tve (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 14:50:52 -0500
-Date: Mon, 27 Dec 2004 20:50:50 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Cannot compile without sysctl (+semi-patch)
-In-Reply-To: <20041227174319.GC5345@stusta.de>
-Message-ID: <Pine.LNX.4.61.0412272040070.9354@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0412271803300.10322@yvahk01.tjqt.qr>
- <20041227174319.GC5345@stusta.de>
+	Mon, 27 Dec 2004 14:51:34 -0500
+Message-ID: <41D067AD.90607@aknet.ru>
+Date: Mon, 27 Dec 2004 22:51:09 +0300
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: ru, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: bug: cd-rom autoclose no longer works in 2.6.9/2.6.10
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Preferably:
->> include/linux/limits.h:
->> #ifdef __KERNEL__
->> extern int ngroups_max;
->> # define NGROUPS_MAX ngroups_max
->> #else
->> # define NGROUPS_MAX __NGROUPS_MAX
->> #endif
->> 
->
->you should also tell us which kernel version you observed this problem 
->in - neither the latest 2.4 nor the latest 2.6 kernels have a limits.h 
->like the one you describe...
+Hello.
 
-You'd spank me if I told you... :) SUSE KOTD 2004.12.02
-That's a 2.6.8 + 2.6.9-rc2, plus a thousand patches.
-Yeah, looks like it is kotd specific, never mind.
-(patches.suse.tar.bz2#patches.suse/ngroups-max-var)
+Paul Ionescu wrote:
+> Does 
+> cat /proc/sys/dev/cdrom/autoclose
+> return 1 or 0 ?
+[skip]
+>>/ $ cat /proc/sys/dev/cdrom/autoclose/
+>>/ 1/
+As explicitly written in my original
+post, it returns 1. And CD-ROM is capable
+of doing close either.
 
-
-Jan Engelhardt
--- 
-ENOSPC

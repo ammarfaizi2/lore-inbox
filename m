@@ -1,40 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132958AbRD2TX4>; Sun, 29 Apr 2001 15:23:56 -0400
+	id <S136078AbRD2T0G>; Sun, 29 Apr 2001 15:26:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136045AbRD2TXq>; Sun, 29 Apr 2001 15:23:46 -0400
-Received: from adsl-64-163-64-75.dsl.snfc21.pacbell.net ([64.163.64.75]:2052
-	"EHLO konerding.com") by vger.kernel.org with ESMTP
-	id <S132958AbRD2TXZ>; Sun, 29 Apr 2001 15:23:25 -0400
-Message-ID: <3AEC6A23.4844DC4C@konerding.com>
-Date: Sun, 29 Apr 2001 12:23:15 -0700
-From: David Konerding <dek_ml@konerding.com>
-X-Mailer: Mozilla 4.73 [en] (Win98; U)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S136066AbRD2TZ5>; Sun, 29 Apr 2001 15:25:57 -0400
+Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:7699 "EHLO
+	anduin.gondor.com") by vger.kernel.org with ESMTP
+	id <S136045AbRD2TZr>; Sun, 29 Apr 2001 15:25:47 -0400
+Date: Sun, 29 Apr 2001 21:25:45 +0200
+From: Jan Niehusmann <jan@gondor.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: traceroute breaks with 2.4.4
-In-Reply-To: <3AEBE142.E3CAD85E@konerding.com>
+Subject: panic when booting 2.4.4
+Message-ID: <20010429212545.A2208@gondor.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Konerding wrote:
+I get the following kernel panic when booting 2.4.4. (2.4.3 works fine)
 
-> As far as I can tell, somewhere between 2.4.2 and 2.4.4, traceroute
-> stopped working.
-> I see the problem on RH7.x.  Regular kernel compile with near-defaults
-> for networking,
-> no firewalling is enabled.  Rebootiing to a similar config under 2.4.2
-> works OK.
+This is on an asus-a7v133 (VIA chipset), Duron 800, HD is hda, CDRW is hdc,
+no other ide devices attached (ie no devices on the onboard promise
+controller)
 
-OK, I'm unable to fix this by reverting to 2.4.2 using the same config as
-2.4.2.
-However, an older compiled 2.4.2 worked, so I think I must have changed
-some configuration which affects it.  Can't for the life of me figure out what
-it is,
-tho'.
+gcc version 2.95.4 20010319 (Debian prerelease)
+(the working 2.4.3 has been compiled with the same gcc version)
 
-Dave
+Jan
+
+
+ksymoops 2.4.1 on i686 2.4.3.  Options used
+     -V (specified)
+     -K (specified)
+     -L (specified)
+     -o /lib/modules/2.4.4 (specified)
+     -m /boot/System.map-2.4.4 (specified)
+
+No modules in ksyms, skipping objects
+Unable to handle kernel NULL pointer dereference at virtual address 00000024
+c02532a8
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c02532a8>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010282
+eax: 00000000   ebx: 00000000   ecx: 00000001   edx: c144c800
+esi: c144c800   edi: 0003e308   ebp: 00000000   esp: cffe7f34
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 1, stackpage=cffe7000)
+Stack: c0258524 c144c800 0003e308 0008e000 00000001 c027e351 cffe7f76 00000000 
+       0000000a 00000001 00000000 00000286 00000001 c027e351 0000002e 00000002 
+       0007fae0 c0253bf4 c144c800 c0258524 c144c800 55555556 c0253c1c c144c800 
+Call Trace: [<c0105007>] [<c0105488>] 
+Code: 81 78 24 86 80 60 09 75 12 68 00 f8 20 c0 e8 75 01 ec ff 83 
+
+>>EIP; c02532a8 <ide_setup_pci_device+1c8/820>   <=====
+Trace; c0105007 <init+7/110>
+Trace; c0105488 <kernel_thread+28/40>
+Code;  c02532a8 <ide_setup_pci_device+1c8/820>
+00000000 <_EIP>:
+Code;  c02532a8 <ide_setup_pci_device+1c8/820>   <=====
+   0:   81 78 24 86 80 60 09      cmpl   $0x9608086,0x24(%eax)   <=====
+Code;  c02532af <ide_setup_pci_device+1cf/820>
+   7:   75 12                     jne    1b <_EIP+0x1b> c02532c3 <ide_setup_pci_device+1e3/820>
+Code;  c02532b1 <ide_setup_pci_device+1d1/820>
+   9:   68 00 f8 20 c0            push   $0xc020f800
+Code;  c02532b6 <ide_setup_pci_device+1d6/820>
+   e:   e8 75 01 ec ff            call   ffec0188 <_EIP+0xffec0188> c0113430 <printk+0/160>
+Code;  c02532bb <ide_setup_pci_device+1db/820>
+  13:   83 00 00                  addl   $0x0,(%eax)
+
+Kernel panic: Attempted to kill init!
+
 

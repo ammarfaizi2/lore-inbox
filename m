@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262925AbTKTWdR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 17:33:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbTKTWcU
+	id S262913AbTKTWcD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 17:32:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263007AbTKTWcC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 17:32:20 -0500
-Received: from AGrenoble-101-1-3-115.w193-253.abo.wanadoo.fr ([193.253.251.115]:8327
-	"EHLO awak") by vger.kernel.org with ESMTP id S263008AbTKTWcQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 17:32:16 -0500
-Subject: Re: OT: why no file copy() libc/syscall ??
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Jesse Pollard <jesse@cats-chateau.net>
-Cc: Florian Weimer <fw@deneb.enyo.de>, Valdis.Kletnieks@vt.edu,
-       Daniel Gryniewicz <dang@fprintf.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <03112013081700.27566@tabby>
-References: <1068512710.722.161.camel@cube> <03111209360001.11900@tabby>
-	 <20031120172143.GA7390@deneb.enyo.de>  <03112013081700.27566@tabby>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1069367504.8945.55.camel@bip.parateam.prv>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 20 Nov 2003 23:31:45 +0100
-Content-Transfer-Encoding: 8BIT
+	Thu, 20 Nov 2003 17:32:02 -0500
+Received: from colossus.systems.pipex.net ([62.241.160.73]:42704 "EHLO
+	colossus.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S262913AbTKTWcB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 17:32:01 -0500
+From: Shaheed <srhaque@iee.org>
+To: rob@landley.net, linux-kernel@vger.kernel.org
+Subject: Re: Patrick's Test9 suspend code.
+Date: Thu, 20 Nov 2003 22:33:09 +0000
+User-Agent: KMail/1.5.93
+References: <200311201726.48097.srhaque@iee.org> <200311201339.45461.rob@landley.net>
+In-Reply-To: <200311201339.45461.rob@landley.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200311202233.09609.srhaque@iee.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeu 20/11/2003 à 20:08, Jesse Pollard a écrit :
+On Thursday 20 November 2003 19:39, Rob Landley wrote:
+> When resuming from a writeable filesystem, the filesystem has to match the
+> contents of suspended memory.  If you've TOUCHED the filesystem since
+> suspending, the resume is going to shred it, cross-link the heck out of it,
+> and generally be evil.  (There are open filehandles saved in there, page
+> table entries to maped stuff...  Just don't go there.)
 
-> 1. what happens if the copy is aborted?
-> 2. what happens if the network drops while the remote server continues?
-> 3. what about buffer synchronization?
-> 4. what errors should be reported ?
-> 5. what happens when the syscall is interupted? Especially if the remote
->    copy may take a while (I've seen some require an hour or more - worst
->    case: days due to a media error (completed after the disk was replaced)).
-> 6. what about a client opening the copy before it is finished copying?
+Understood. But by definition, there must be at least one page of data on the 
+filesystem whose location we know in order to do the resume. Why can't we 
+simply use one extra page to store this data?
 
-7. How to report progress with your average file manager ?
+At least in my reading of suspend/main.c we create a directory of pages which 
+itself is stored on disk. Since we do that, can't we simply use an extra page 
+for this signature?
 

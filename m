@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270761AbTGUVWf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 17:22:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270757AbTGUVWf
+	id S270741AbTGUVWt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 17:22:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270756AbTGUVWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 17:22:35 -0400
-Received: from dp.samba.org ([66.70.73.150]:16546 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S270756AbTGUVUv (ORCPT
+	Mon, 21 Jul 2003 17:22:48 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:11740 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S270741AbTGUVUV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 17:20:51 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: torvalds@transmeta.com, akpm@zip.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/5] percpu struct members. 
-In-reply-to: Your message of "Mon, 21 Jul 2003 19:56:19 +0100."
-             <20030721185619.GB6912@mail.jlokier.co.uk> 
-Date: Tue, 22 Jul 2003 07:27:41 +1000
-Message-Id: <20030721213554.723822C0FD@lists.samba.org>
+	Mon, 21 Jul 2003 17:20:21 -0400
+Date: Mon, 21 Jul 2003 23:35:06 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Greg KH <greg@kroah.com>, Patrick Mochel <mochel@osdl.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>, ole.rohne@cern.ch
+Subject: Re: More powermanagment hooks for pci
+Message-ID: <20030721213506.GH436@elf.ucw.cz>
+References: <20030720212943.GA724@elf.ucw.cz> <20030721164432.GA10931@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030721164432.GA10931@kroah.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030721185619.GB6912@mail.jlokier.co.uk> you write:
-> Rusty Russell wrote:
-> > The current percpu macros do not allow __get_cpu_var(foo.val1)
-> > which makes building macros on top of them really difficult.
+Hi!
+
+> > Apparently, some pci driver (8390too) need to do something at poweron
+> > before interrupts are enabled. Please apply,
 > 
-> What's the problem with __get_cpu_var(foo).val1 ?
+> Sorry, but I'm not going to apply this.  I'm pretty sure that Pat has
+> some changes like this pending in his power management stuff, that I
+> think we should wait for.
+> 
+> And yes, I have the same laptop that would benifit from this patch, but
+> a change like this for just one driver isn't ok.
 
-Nothing: that will still work, too.  But not say you have a macro (as
-we do in local_t):
+Well, there are likely more drivers that need to quiesce PCI card
+before resume. (I was wrong, 8390too does *not* need it, radeonfb
+does). It looks like bug not to have the hook in the first place...
 
-	local_cpu_inc(cpuvar)
+Patrick, can you comment? I was trying to add power_on hook to PCI
+devices...
 
-if cpuvar is a struct, you want this to work:
-
-	local_cpu_inc(cpuvar.member)
-
-Hope that helps,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

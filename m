@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbTJFHul (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 03:50:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262785AbTJFHul
+	id S262794AbTJFH4f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 03:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbTJFH4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 03:50:41 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:36320 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S261823AbTJFHuk (ORCPT
+	Mon, 6 Oct 2003 03:56:35 -0400
+Received: from pop.gmx.net ([213.165.64.20]:62440 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262794AbTJFH4d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 03:50:40 -0400
-Date: Mon, 6 Oct 2003 09:50:39 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
-Cc: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Re: Futex
-Message-ID: <20031006075039.GA12376@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	"Frederick, Fabian" <Fabian.Frederick@prov-liege.be>,
-	"Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-References: <D9B4591FDBACD411B01E00508BB33C1B01EC852D@mesadm.epl.prov-liege.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <D9B4591FDBACD411B01E00508BB33C1B01EC852D@mesadm.epl.prov-liege.be>
-User-Agent: Mutt/1.3.28i
+	Mon, 6 Oct 2003 03:56:33 -0400
+X-Authenticated: #1033915
+Message-ID: <3F812027.4010609@GMX.li>
+Date: Mon, 06 Oct 2003 09:56:23 +0200
+From: Jan Schubert <Jan.Schubert@GMX.li>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20031005
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: linux-kernel@vger.kernel.org, dz@debian.org
+Subject: Re: 2.6.0_test6: CONFIG_I8K produces wrong/no keycodes for special
+ buttons
+References: <3F7E9E27.20500@GMX.li> <200310060237.h962baCE012938@turing-police.cc.vt.edu>
+In-Reply-To: <200310060237.h962baCE012938@turing-police.cc.vt.edu>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 06, 2003 at 09:22:19AM +0200, Frederick, Fabian wrote:
-> Hi,
-> 
-> 	Why don't we have any futex doc included ?
-> Nothing about futexfs nor userspace futex usage ....
+Valdis.Kletnieks@vt.edu wrote:
 
-http://ds9a.nl/futex-manpages/
+>On Sat, 04 Oct 2003 12:17:11 +0200, Jan Schubert <Jan.Schubert@GMX.li>  said:
+>  
+>
+>>There are 4 special buttons on dell-laptops which you could only get to 
+>>work using CONFIG_I8K.
+>>    
+>>
+>
+>I'm assuming you're talking about the Inspiron line of laptops?  The Latitude
+>series doesn't have said 4 buttons (or at least on my Latitude C840, there are
+>no such buttons)
+>  
+>
+I'm using a Dell Inspiron i8200.
 
+Jan
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

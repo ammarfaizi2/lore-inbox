@@ -1,36 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293458AbSDDTPz>; Thu, 4 Apr 2002 14:15:55 -0500
+	id <S293596AbSDDTSF>; Thu, 4 Apr 2002 14:18:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293510AbSDDTPr>; Thu, 4 Apr 2002 14:15:47 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8207 "EHLO
+	id <S293603AbSDDTRt>; Thu, 4 Apr 2002 14:17:49 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9999 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293458AbSDDTPa>; Thu, 4 Apr 2002 14:15:30 -0500
-Subject: Re: HomePlug support?
-To: adilger@clusterfs.com (Andreas Dilger)
-Date: Thu, 4 Apr 2002 20:32:28 +0100 (BST)
-Cc: jsimmons@transvirtual.com (James Simmons),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <20020404184048.GI435@turbolinux.com> from "Andreas Dilger" at Apr 04, 2002 11:40:48 AM
+	id <S293596AbSDDTRi>; Thu, 4 Apr 2002 14:17:38 -0500
+Subject: Re: raid,apm,ide, powers down too fast & corrupts raid
+To: brian@worldcontrol.com
+Date: Thu, 4 Apr 2002 20:34:22 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020404183410.GA2904@top.worldcontrol.com> from "brian@worldcontrol.com" at Apr 04, 2002 10:34:11 AM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16tCyC-0006bd-00@the-village.bc.nu>
+Message-Id: <E16tD02-0006bw-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> supported.  Also, unless they are totally braindamaged, I would imagine
-> that all of their products will appear to the PC to be just like regular
-> ethernet network cards, but use a different physical transport layer.
+> I'm running Linux 2.4.18 on this system.  Has this problem been
+> addressed in any later versions?
 
-That would show a disappointing lack of imagination. Given the people
-who are there I'd hope it becomes another connector off the standard
-ATX PSU 8)
-
-> Hmm, I wonder if I will be able to run tcpdump from my electrical outlet
-> and listen to my neighbour's network traffic, and take over their X10
-> appliance controls ;-).
-
-Quick down to the patent office with mains firewalls
+If the box is IDE then current 2.4.19pre/2.4.19-ac trees actually send
+flush commands to the IDE disks to be sure its cleared everything out. It
+might be that.

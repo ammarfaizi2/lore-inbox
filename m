@@ -1,105 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262604AbULPFIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbULPFTc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262604AbULPFIh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 00:08:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262603AbULPFH4
+	id S261833AbULPFTc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 00:19:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbULPFTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 00:07:56 -0500
-Received: from main.gmane.org ([80.91.229.2]:58809 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262582AbULPFFJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 00:05:09 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Subject: Re: bug in sym53c8xx? [Was: RAID1 + LVM not detected during boot on 2.6.9]
-Date: Thu, 16 Dec 2004 10:05:03 +0500
-Message-ID: <cpr51c$gc4$1@sea.gmane.org>
-References: <DBFABB80F7FD3143A911F9E6CFD477B0033AE3D6@hqemmail02.nvidia.com> <41C0935B.7060509@pbl.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: inet.ycc.ru
-User-Agent: KNode/0.7.7
+	Thu, 16 Dec 2004 00:19:32 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:40771 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261833AbULPFT3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 00:19:29 -0500
+Date: Thu, 16 Dec 2004 05:18:59 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Greg KH <greg@kroah.com>
+cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Dave Airlie <airlied@gmail.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: kernel BUG at mm/rmap.c:480 in 2.6.10-rc3-bk7
+In-Reply-To: <20041215234141.GA9268@kroah.com>
+Message-ID: <Pine.LNX.4.44.0412160455520.4496-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aleksandar Milivojevic wrote:
+On Wed, 15 Dec 2004, Greg KH wrote:
+> On Wed, Dec 15, 2004 at 11:48:26PM +0100, Andrea Arcangeli wrote:
+> > On Wed, Dec 15, 2004 at 08:03:43PM +0100, Andrea Arcangeli wrote:
+> > > +			if (page->mapping)
+> > > +				page_remove_rmap(page);
+> > 
+> > This had to be page_mapping, since I believe the page->mapping can go
+> > away with the truncate while the page is still being mapped.
 
-> The timeline (during normal boot) looks something like this:
+Actually, the patch tests page_mapped(page) not page_mapping(page).
+
+And is correct (though weak) to do so, in the context of Andrea's
+other changes (which I intentionally omitted when merging anon_vma,
+yes - but let's concentrate on Greg's crash for now, and leave the
+flames about that merge until dessert).
+
+I'm afraid it is trivial that that hunk alone will avoid the problem,
+just as simply removing the page_remove_rmap's BUG_ON would.   But
+neither sheds any light on what is going on here.
+
+Something is happening that we don't expect.  I say "we" - or do you
+understand it, Andrea?  We need to understand it before deciding how
+to handle it, perhaps at the mm end or perhaps at the DRM end.
+
+> No oops with this patch or odd messages in the syslog!  It works fine
+> for me, thanks a lot.
 > 
->   - sym53c8xx is loaded and starts detecting disks
->   - raid1 and dm-* modules are loaded
->   - raidautorun and lvm vgscan are executed
-> 
-> raid1 module doesn't find anything since sym53c8xx hasn't yet reported
-> any disk drives.
-> 
-> If I insert sleep 30 (shorter value would probably work too) after
-> "insmod sym53c8xx" line in init script, and than reboot, everything
-> works.  sym53c8xx has enough time to find the disk drives, so when next
-> steps are taken (loading of raid1 and dm-* modules, and execution of
-> raidautorun and lvm vgscan) they are there.
-> 
-> I'm not sure if insmod was supposed to wait until driver initializes?
-> 
-> In the 2.4.x kernel days, I remember there was different driver used for
-> this SCSI card (Symbios Logic 53c1010 Ultra3 SCSI Adapter).  It hasn't
-> suffered from this problem (it detects disks fast enough so that
-> subsequent loading/initialization of raid1 works).
-> 
-> The question is if this is:
-> 
->    - bug in sym53c8xx driver?
->    - bug in insmod?
->    - bug in init script built by mkinitrd (missing sleep)?
->    - bug in design of initrd?
-> 
-> If this might be a bug in sym53c8xx, let me know, and I'll file the bug
-> into bugzilla.
+> I'll let the mm developers battle it out to determine if this is a good
+> fix or not :)
 
-I am not sure how to classify this bug properly. 
+Bug avoidance rather than fix, I'm afraid.  Once we understand what's
+going on, such avoidance may be the right course of action; but not yet.
 
-First, the driver correctly follows the behaviour described by Greg KH: it
-should load successfully even if there is no corresonding hardware. Then
-(in already-loaded state) it should generate hotplug events when the
-hardware says it's present (and that's slow). Greg KH says that in hotplug
-world (i.e., in reality) nothing else is possible. From this viewpoint, the
-bug is in the linuxrc script provided by RedHat. It should really either
-poll and sleep and wait or use udev to get notification when the disk is
-really accessible.
-
-Second, a similar problem has been discussed on LKML in September, under the
-title "udev is too slow creating devices". While originally concerned with
-asynchronicity due to udev itself, this therad also touches the idea that
-udev doesn't really add asynchronicity, since PCI devices are really
-hot-pluggable and the bus is already asynchronous. The thread starts here:
-
-http://lkml.org/lkml/2004/9/14/298
-
-and continues here:
-
-http://lkml.org/lkml/2004/9/18/89
-
-In this thread, there were the following words by Benjamin Herrenschmidt:
-
-> Nope, Greg is right. Drivers themselves won't necessarily provide
-> you with the device interface in a synchronous way after they are
-> loaded, and some will certainly never. It is all an asynchronous process
-> and there is simply no way to ask for any kind of enforced synchronicity
-> here without major bloatage.
-
-However, we _do_ need this synchronicity, and therefore _have_ to live with
-major bloatage either in the kernel (currently that's not there) or in the
-userspace (your "sleep for a magic number of seconds" here and there in
-linuxrc and bootscripts). My opinion is that the needed userspace bloatage
-is not centralized, also it's hard to audit, and therefore the issue of
-supporting the statement "This piece of hardware must be there, it's not
-really hotpluggable" must be dealt with.
-
-P.S.: FreeBSD explicitly sleeps 15 seconds for SCSI devices to settle.
-
--- 
-Alexander E. Patrakov
+Hugh
 

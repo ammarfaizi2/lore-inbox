@@ -1,66 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262594AbTIUWr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 18:47:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262596AbTIUWr5
+	id S262597AbTIUW6l (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 18:58:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbTIUW6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 18:47:57 -0400
-Received: from aneto.able.es ([212.97.163.22]:27389 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S262594AbTIUWr4 (ORCPT
+	Sun, 21 Sep 2003 18:58:41 -0400
+Received: from home.linuxhacker.ru ([194.67.236.68]:6837 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S262597AbTIUW6j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 18:47:56 -0400
-Date: Mon, 22 Sep 2003 00:47:53 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Chad Talbott <ctalbott@google.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ide-io.c, kernel 2.4.22 Fix for IO stats in /proc/partitions, was Re: sard/iostat disk I/O statistics/accounting for 2.5.8-pre3
-Message-ID: <20030921224753.GA4548@werewolf.able.es>
-References: <vfxk789refm.fsf@sgi.com>
+	Sun, 21 Sep 2003 18:58:39 -0400
+Date: Mon, 22 Sep 2003 02:58:32 +0400
+From: Oleg Drokin <green@linuxhacker.ru>
+To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+       mauelshagen@sistina.com
+Subject: [PATCH] [2.4] fix LVM memleaks.
+Message-ID: <20030921225832.GA12040@linuxhacker.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <vfxk789refm.fsf@sgi.com>; from ctalbott@google.com on Mon, Sep 15, 2003 at 22:21:01 +0200
-X-Mailer: Balsa 2.0.14
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-On 09.15, Chad Talbott wrote:
-> I found the cause of ide disks' ios_in_flight going negative in
-> /proc/partitions.
-[...]
-> 
-> --- linux-2.4.18-old/drivers/ide/ide-io.c	15 Sep 2003 17:41:32 -0000
-> +++ linux-2.4.18-new/drivers/ide/ide-io.c	15 Sep 2003 20:11:12 -0000
-> @@ -148,6 +148,7 @@
->  	ide_hwif_t *hwif = HWIF(drive);
->  	unsigned long flags;
->  	struct request *rq;
-> +	struct completion *waiting;
->  
->  	spin_lock_irqsave(&io_request_lock, flags);
->  	rq = HWGROUP(drive)->rq;
-> @@ -221,7 +222,13 @@
->  	spin_lock_irqsave(&io_request_lock, flags);
->  	blkdev_dequeue_request(rq);
->  	HWGROUP(drive)->rq = NULL;
-> -	end_that_request_last(rq);
-> +
-> +	waiting = req->waiting;
-> +	req_finished_io(req);
-> +	blkdev_release_request(req);
-> +	if (waiting)
-> +		complete(waiting);
-> +
->  	spin_unlock_irqrestore(&io_request_lock, flags);
->  }
->  
+   There are two error patchs in lvm code, that leads to leaking memory.
+   One if creating too many volume gropups and one if incorrect
+   buffer from userspace was passed.
+   Fixes are trivial. Please apply.
 
-Did you ever built this ? req -> rq ?
+   Found with help of smatch.
 
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.23-pre4-jam1 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-2mdk))
+
+===== drivers/md/lvm.c 1.20 vs edited =====
+--- 1.20/drivers/md/lvm.c	Mon Mar 10 17:55:46 2003
++++ edited/drivers/md/lvm.c	Mon Sep 22 02:53:54 2003
+@@ -1584,8 +1584,10 @@
+ 		minor = vg_ptr->vg_number;
+ 
+ 	/* check limits */
+-	if (minor >= ABS_MAX_VG)
++	if (minor >= ABS_MAX_VG) {
++		kfree(vg_ptr);
+ 		return -EFAULT;
++	}
+ 
+ 	/* Validate it */
+ 	if (vg[VG_CHR(minor)] != NULL) {
+@@ -1653,8 +1655,7 @@
+ 				P_IOCTL
+ 				    ("ERROR: copying LV ptr %p (%d bytes)\n",
+ 				     lvp, sizeof(lv_t));
+-				lvm_do_vg_remove(minor);
+-				return -EFAULT;
++				goto copy_fault;
+ 			}
+ 			if (lv.lv_access & LV_SNAPSHOT) {
+ 				snap_lv_ptr[ls] = lvp;
+@@ -1665,8 +1666,7 @@
+ 			vg_ptr->lv[l] = NULL;
+ 			/* only create original logical volumes for now */
+ 			if (lvm_do_lv_create(minor, lv.lv_name, &lv) != 0) {
+-				lvm_do_vg_remove(minor);
+-				return -EFAULT;
++				goto copy_fault;
+ 			}
+ 		}
+ 	}
+@@ -1676,12 +1676,10 @@
+ 	for (l = 0; l < ls; l++) {
+ 		lv_t *lvp = snap_lv_ptr[l];
+ 		if (copy_from_user(&lv, lvp, sizeof(lv_t)) != 0) {
+-			lvm_do_vg_remove(minor);
+-			return -EFAULT;
++			goto copy_fault;
+ 		}
+ 		if (lvm_do_lv_create(minor, lv.lv_name, &lv) != 0) {
+-			lvm_do_vg_remove(minor);
+-			return -EFAULT;
++			goto copy_fault;
+ 		}
+ 	}
+ 
+@@ -1696,6 +1694,10 @@
+ 	vg_ptr->vg_status |= VG_ACTIVE;
+ 
+ 	return 0;
++copy_fault:
++	lvm_do_vg_remove(minor);
++	vfree(snap_lv_ptr);
++	return -EFAULT;
+ }				/* lvm_do_vg_create() */
+ 
+ 

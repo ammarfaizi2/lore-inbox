@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285747AbSBCBEB>; Sat, 2 Feb 2002 20:04:01 -0500
+	id <S285338AbSBCBFJ>; Sat, 2 Feb 2002 20:05:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285023AbSBCBDs>; Sat, 2 Feb 2002 20:03:48 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:44489 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S285747AbSBCBDe>;
-	Sat, 2 Feb 2002 20:03:34 -0500
-Date: Sat, 2 Feb 2002 20:03:32 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>, davem@redhat.com
-Subject: Re: [PATCH] Generic HDLC patch for 2.5.3
-Message-ID: <20020202200332.A3740@havoc.gtf.org>
-In-Reply-To: <20020202190242.C1740@havoc.gtf.org> <E16XAnc-00010K-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16XAnc-00010K-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Feb 03, 2002 at 12:46:28AM +0000
+	id <S284732AbSBCBE6>; Sat, 2 Feb 2002 20:04:58 -0500
+Received: from mx2.fuse.net ([216.68.1.120]:36268 "EHLO mta02.fuse.net")
+	by vger.kernel.org with ESMTP id <S286179AbSBCBEr>;
+	Sat, 2 Feb 2002 20:04:47 -0500
+Message-ID: <3C5C8CA2.9000103@fuse.net>
+Date: Sat, 02 Feb 2002 20:04:34 -0500
+From: Nathan <wfilardo@fuse.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20020121
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Jones <davej@suse.de>
+CC: Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Issues with 2.5.3-dj1
+In-Reply-To: <3C5B5EC0.40503@fuse.net> <20020202055115.GA11359@kroah.com> <3C5B8C0D.8090009@fuse.net> <20020202133358.A5738@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 03, 2002 at 12:46:28AM +0000, Alan Cox wrote:
-> > It adds undiscussed networking changed which I very much doubt DaveM
-> > would approve of, and I do not approve of:  SIOCDEVICE is far too
-> > generic for inclusion, and it adds a structure for passing untyped
-> > data which is very definitely non-portable.
-> 
-> You need a very generic structure for WAN interfaces because they have
-> ridiculously large numbers of configurable options. These changes were
-> discussed over a year ago.
-> 
-> I agree with the comment about untyped data. That does want to be cleaned
-> up a chunk more. 
+Dave Jones wrote:
 
-Ok...   SIOC[GS]WANDEVICE or somesuch?
+>On Sat, Feb 02, 2002 at 01:49:49AM -0500, Nathan wrote:
+>
+> > Alright... a 2.5.3 with no extras boots fine (with init=/bin/bash) and 
+> > can load and unload hotplug several times without OOPSing.  So it 
+> > appears to be something else.  Hope that helps.
+>
+> Do you have driverfs mounted ? Can you try 2.5.3 + greg's
+> USB driverfs patch ?
+>
+Unless driverfs is mounted by default or by something other than 
+/etc/fstab, no I don't have it on.
 
-It could be made more portable and still say generic, IMHO.
+w/ Greg's USB driverfs patch : system proves to be stable.
+    (though 2.5.3 sometimes looses my keyboard after a time?)
 
-	Jeff
+Raw -dj1:  explosion as above. [no ACPI (doesn't compile anyway), no 
+preempt this time around, either.]
+    (also lost my keyboard.  Odd.  Seems to be about 50% of the time 
+with 2.5.3 + anything.)
 
+--Nathan
 
 

@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311635AbSDCLtt>; Wed, 3 Apr 2002 06:49:49 -0500
+	id <S311647AbSDCLz3>; Wed, 3 Apr 2002 06:55:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311642AbSDCLti>; Wed, 3 Apr 2002 06:49:38 -0500
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:4114 "HELO
-	ns.higherplane.net") by vger.kernel.org with SMTP
-	id <S311320AbSDCLs6>; Wed, 3 Apr 2002 06:48:58 -0500
-Date: Wed, 3 Apr 2002 21:49:59 +1000
-From: john slee <indigoid@higherplane.net>
-To: H?vard Lygre <hklygre@online.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux needs new leadership.
-Message-ID: <20020403114959.GC13429@higherplane.net>
-In-Reply-To: <NDBBLFLJADKDMBPPNBALCEOFHPAA.kkrieser@lcisp.com> <871ydxppfd.fsf@frode.valhall.no>
-Mime-Version: 1.0
+	id <S311320AbSDCLzT>; Wed, 3 Apr 2002 06:55:19 -0500
+Received: from mail.parknet.co.jp ([210.134.213.6]:12045 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S311670AbSDCLzI>; Wed, 3 Apr 2002 06:55:08 -0500
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: [Q] FAT driver enhancement
+In-Reply-To: <20020328135555.U6796-100000@snail.stack.nl>
+	<871ye479sz.fsf@devron.myhome.or.jp> <3CA97B1A.13E6765D@aitel.hist.no>
+	<87663acjs7.fsf@devron.myhome.or.jp>
+	<20020402221325.GC961@matchmail.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Wed, 03 Apr 2002 20:54:31 +0900
+Message-ID: <87y9g5m1zc.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 03, 2002 at 02:59:50AM +0200, H?vard Lygre wrote:
-> Not to mention the fact that he would immediately release patches to
-> every MUA so that they automatically insert the text you type on top
-> of the message you reply to, don't put proper quote-marks on the
-> beginning of each line, and don't strip signatures.
+Mike Fedyk <mfedyk@matchmail.com> writes:
 
-i think you have outlook confused with lotus notes.  outlook (and
-outlook express) can _easily_ be configured to do all of those.  i WILL
-send a case of beer to the first person to tell me how to do that in a
-standard notes r5 windows client.  2 cases of beer if you can make it
-integrate gvim as the default editor.
+> On Tue, Apr 02, 2002 at 10:27:52PM +0900, OGAWA Hirofumi wrote:
+> > Helge Hafting <helgehaf@aitel.hist.no> writes:
+> > 
+> > > OGAWA Hirofumi wrote:
+> > > > 
+> > > > Jos Hulzink <josh@stack.nl> writes:
+> > > > > Questions:
+> > > > >
+> > > > > 1) How do you think about the checking of the FAT tables ? It definitely
+> > > > >    will slow down the mount.
+> > > > 
+> > > > Unfortunately if FAT table has bad sector, FAT tables may not be the
+> > > > same.
+> > > 
+> > > And then you don't want to mount unless you know what you
+> > > are doing.  And those knowing what they are doing can be bothered
+> > > to use some kind of "force" option in this case.  Or perhaps an
+> > > option that selects which FAT to trust.
+> > 
+> > I mean I/O error, not data damage.
+> 
+> It is the block layer's responsibility to retry such soft errors and recover.
 
-j.
+Yes.
 
+> Probably the best you can do, is retry the read a few times if there
+> is an error reported, and then fail if it persists.
+
+Umm, there is a `copy of FAT table' for this kind of error. If the I/O
+error occurs, the FAT driver should use the other FAT table.
 -- 
-R N G G   "Well, there it goes again... And we just sit 
- I G G G   here without opposable thumbs." -- gary larson
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

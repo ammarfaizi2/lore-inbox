@@ -1,77 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262634AbUEKJ7H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262648AbUEKKDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262634AbUEKJ7H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 05:59:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbUEKJ7H
+	id S262648AbUEKKDM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 06:03:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbUEKKDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 05:59:07 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:33931 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262634AbUEKJ7C (ORCPT
+	Tue, 11 May 2004 06:03:12 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:3819 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S262648AbUEKKDJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 05:59:02 -0400
-Date: Wed, 6 Oct 2004 15:26:02 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Richard A Nelson <cowboy@debian.org>
-Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.6-mm1 Oops with dummy network device (sysfs related?)
-Message-ID: <20041006095602.GB2004@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <Pine.LNX.4.58.0405101654130.5731@erartnqr.onqynaqf.bet> <20040510141829.467a2bb6@dell_ss3.pdx.osdl.net> <Pine.LNX.4.58.0405101909450.31018@onpx40.onqynaqf.bet>
+	Tue, 11 May 2004 06:03:09 -0400
+Date: Tue, 11 May 2004 12:02:32 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: Steve French <smfltc@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCEMENT PATCH COW] proof of concept impementation of cowlinks
+Message-ID: <20040511100232.GA31673@wohnheim.fh-wedel.de>
+References: <20040506131731.GA7930@wohnheim.fh-wedel.de> <20040508224835.GE29255@atrey.karlin.mff.cuni.cz> <20040510155359.GB16182@wohnheim.fh-wedel.de> <20040510192601.GA11362@delft.aura.cs.cmu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0405101909450.31018@onpx40.onqynaqf.bet>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040510192601.GA11362@delft.aura.cs.cmu.edu>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 10, 2004 at 11:35:00PM +0000, Richard A Nelson wrote:
-> On Mon, 10 May 2004, Stephen Hemminger wrote:
+On Mon, 10 May 2004 15:26:02 -0400, Jan Harkes wrote:
+> On Mon, May 10, 2004 at 05:53:59PM +0200, Jörn Engel wrote:
+> > A real problem is that copyfile() has all errno's from create(),
+> > sendfile() and unlink() combined, which doesn't make error handling in
+> > userspace easy.  "It could be this, that or another error" is the kind
+> > of mess I always hated about Windows, so I should try to do a little
+> > better.
 > 
-> > It would be easier to know what is wrong, if you said what you
-> > did that started the problem.  Looks like ifrename or something
-> > like that.
+> Well, if you leave the create and unlink up to the application and
+> simply pass open filedescriptors to copyfile... But then it would be
+> equivalent to your new sendfile.
 > 
-> hrm, been trying to track that down (several oopses later...)
-> 
-> the modprobe dummy worked ok (and is seen in the log)
-> the next command is 'ip link set name ipsec0 dev dummy0'
-> and I've yet to get passed that
+> Copyfile can trivially be implemented in libc. I don't see why it would
+> have to be a system call. If a network filesystem wants to optimize the
+> file copying it could do this based on the sendfile data. If source and
+> destination are within the same filesystem and we're copying the whole
+> file starting at offset 0, send a copyfile RPC.
 
-ok it is sysfs related and because of the backing store patches from me.
+Can you explain this to Steve?  I'm still quite clueless about network
+filesystems, but it sounded as if such an optimization was impossible
+to do in cifs without a combined create/copy/unlink_on_error system
+call.
 
-And here is the fix. Hope this solves your problem. 
+If your suggestion works and the network filesystems can be changed to
+work independently of a struct file*, I agree with you that copyfile()
+is a stupid idea and should be forgotten.
 
-
-Thanks
-Maneesh
-
-o Fix sysfs_rename_dir(). The sysfs_lookup() does not hash
-  negative dentries so just hash it before calling d_move
-
- fs/sysfs/dir.c |    1 +
- 1 files changed, 1 insertion(+)
-
-diff -puN fs/sysfs/dir.c~sysfs-backing-store-sysfs_rename_dir-fix fs/sysfs/dir.c
---- linux-2.6.6-mm1/fs/sysfs/dir.c~sysfs-backing-store-sysfs_rename_dir-fix	2004-10-06 15:21:37.000000000 +0530
-+++ linux-2.6.6-mm1-maneesh/fs/sysfs/dir.c	2004-10-06 15:22:03.000000000 +0530
-@@ -314,6 +314,7 @@ void sysfs_rename_dir(struct kobject * k
- 	new_dentry = sysfs_get_dentry(parent, new_name);
- 	if (!IS_ERR(new_dentry)) {
- 		if (!new_dentry->d_inode) {
-+			d_add(new_dentry, NULL);
- 			d_move(kobj->dentry, new_dentry);
- 			kobject_set_name(kobj,new_name);
- 		}
-
-_
-
+Jörn
 
 -- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Software Lab, Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-25044999 Fax: 91-80-25268553
-T/L : 9243696
+Courage is not the absence of fear, but rather the judgement that
+something else is more important than fear.
+-- Ambrose Redmoon

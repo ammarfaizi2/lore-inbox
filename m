@@ -1,57 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266782AbUGLNJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266813AbUGLNLv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266782AbUGLNJR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 09:09:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266813AbUGLNJR
+	id S266813AbUGLNLv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 09:11:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266815AbUGLNLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 09:09:17 -0400
-Received: from rproxy.gmail.com ([64.233.170.192]:12303 "HELO mproxy.gmail.com")
-	by vger.kernel.org with SMTP id S266782AbUGLNJP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 09:09:15 -0400
-Message-ID: <2a4f155d04071206091858afb2@mail.gmail.com>
-Date: Mon, 12 Jul 2004 16:09:14 +0300
-From: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
-To: Takashi Iwai <tiwai@suse.de>
-Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Cc: Ingo Molnar <mingo@elte.hu>, Redeeman <lkml@metanurb.dk>,
-       LKML Mailinglist <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-In-Reply-To: <s5hllhpcxgv.wl@alsa2.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 12 Jul 2004 09:11:51 -0400
+Received: from mail.eris.qinetiq.com ([128.98.1.1]:51736 "HELO
+	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
+	id S266813AbUGLNLs convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 09:11:48 -0400
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: linux-kernel@vger.kernel.org
+Subject: HDIO_SET_DMA failed on a Dell Latitude C400 Laptop
+Date: Mon, 12 Jul 2004 14:07:14 +0100
+User-Agent: KMail/1.6.1
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-References: <20040709182638.GA11310@elte.hu>
-	<1089407610.10745.5.camel@localhost>
-	<20040710080234.GA25155@elte.hu>
-	<20040710085044.GA14262@elte.hu>
-	<2a4f155d040710035512f21d34@mail.gmail.com> <s5hllhpcxgv.wl@alsa2.suse.de>
+Message-Id: <200407121407.14428.m.watts@eris.qinetiq.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I dont't have NPTL.
-
-On Mon, 12 Jul 2004 12:48:48 +0200, Takashi Iwai <tiwai@suse.de> wrote:
-> At Sat, 10 Jul 2004 13:55:25 +0300,
-> ismail dönmez wrote:
-> >
-> > Tested on 2.6.7-bk20, Pentium3 700 mhz, 576 mb RAM
-> >
-> > I did cp -rf big_folder new_folder . Then opened up a gui ftp client
-> > and music in amarok started to skip like for 2-3 seconds.
-> >
-> > Btw Amarok uses Artsd ( KDE Sound Daemon ) which in turn set to use
-> > Jack Alsa Backend.
-> 
-> Did you run JACK on linuxthreads (with LD_ASSUME_KERNEL=2.4.xx) ?
-> 
-> On NPTL with jackstart, JACK clients don't get set to SCHED_FIFO
-> correctly.
-> 
-> 
-> Takashi
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
--- 
-Time is what you make of it
+I've just burnt a cd for the first time on a Dell Latitude C400 laptop and I 
+noticed that the system was quite sluggish while the burn was happening. 
+(mouse pointer erratic, window redraw slow etc).
+
+Remembering a similar issue with a desktop system, I did the following to 
+enable DMA on the hard drive (hdparm was giving ~3MB/sec read)
+
+# hdparm -c1 -d1 /dev/hda
+
+/dev/hda
+ setting 32-bit IO_support flag to 1
+ setting using_dma to 1 (on)
+ HDIO_SET_DMA failed: Operation not permitted
+ IO_support   =  1 (32-bit)
+ using_dma   =  0 (off)
+
+
+hdparm now reports ~7MB/sec which is better but still prety poor.
+
+
+Any ideas why I couldn't set DMA on the drive?
+
+
+CPU = Mobile Pentum 3 @1.2GHz (800MHz when booted with no power cord)
+Ram = 256MB
+HDD = IBM Travelstar (IC25N020ATDA04-0) 20GB
+BIOS Rev = A12
+
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ Trusted Information Management
+Trusted Solutions and Services group
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA8o0CBn4EFUVUIO0RAtrMAKCW7sohHS2muGZjJ8rqTEuCOMlD7wCfRB4T
+D+rI56ie5zpMtj/ed7Bz78g=
+=z33I
+-----END PGP SIGNATURE-----

@@ -1,119 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbULGM3V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261798AbULGMeL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261795AbULGM3V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 07:29:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbULGM3U
+	id S261798AbULGMeL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 07:34:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbULGMeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 07:29:20 -0500
-Received: from mx02.cybersurf.com ([209.197.145.105]:19343 "EHLO
-	mx02.cybersurf.com") by vger.kernel.org with ESMTP id S261795AbULGM3L
+	Tue, 7 Dec 2004 07:34:11 -0500
+Received: from mx01.cybersurf.com ([209.197.145.104]:26083 "EHLO
+	mx01.cybersurf.com") by vger.kernel.org with ESMTP id S261798AbULGMeI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 07:29:11 -0500
-Subject: Re: Hard freeze with 2.6.10-rc3 and QoS, worked fine with 2.6.9
+	Tue, 7 Dec 2004 07:34:08 -0500
+Subject: Re: _High_ CPU usage while routing (mostly) small UDP packets
 From: jamal <hadi@cyberus.ca>
 Reply-To: hadi@cyberus.ca
-To: Andrew Morton <akpm@osdl.org>
-Cc: Thomas Cataldo <tomc@compaqnet.fr>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, tgraf@suug.ch,
-       "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20041206224441.628e7885.akpm@osdl.org>
-References: <1102380430.6103.6.camel@buffy>
-	 <20041206224441.628e7885.akpm@osdl.org>
+To: Karsten Desler <kdesler@soohrt.org>,
+       Robert Olsson <Robert.Olsson@data.slu.se>
+Cc: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
+       "David S. Miller" <davem@davemloft.net>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20041207102132.GA28588@quickstop.soohrt.org>
+References: <20041206224107.GA8529@soohrt.org>
+	 <E1CbSf8-00047p-00@calista.eckenfels.6bone.ka-ip.net>
+	 <20041207002012.GB30674@quickstop.soohrt.org>
+	 <1102387595.1088.48.camel@jzny.localdomain>
+	 <20041207025456.GA525@soohrt.org>
+	 <1102389533.1089.51.camel@jzny.localdomain>
+	 <20041207032438.GA7767@soohrt.org>
+	 <1102390241.1093.59.camel@jzny.localdomain>
+	 <20041207040235.GA10501@soohrt.org>
+	 <20041207102132.GA28588@quickstop.soohrt.org>
 Content-Type: text/plain
 Organization: jamalopolous
-Message-Id: <1102422544.1088.98.camel@jzny.localdomain>
+Message-Id: <1102422845.1089.105.camel@jzny.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 
-Date: 07 Dec 2004 07:29:04 -0500
+Date: 07 Dec 2004 07:34:05 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can you do a: 
-tc -V
+On Tue, 2004-12-07 at 05:21, Karsten Desler wrote:
 
-This seems to point to probably be a backward compat issue which was
-overlooked in the stats.
+> But looking and the int/s number, I'm not so sure anymore. Is there any
+> other way to find out?
+> 
+
+> # sar -I 169 5 5
+> 11:20:05         INTR    intr/s
+> 11:20:10          169  10401.40
+
+That doesnt seem to be too high. 
+You have a dual opteron 244. You are supposed to be kicking ass with
+that machine - not 200Kpps+ you are getting with all that CPU overload.
+Something is wrong with your setup. Unfortunately i cant afford such a
+machine so i cant see it right off the bat. I know Robert has at least
+one similar machine; maybe he could help. Robert?
 
 cheers,
-jamal
-
-On Tue, 2004-12-07 at 01:44, Andrew Morton wrote:
-> Thomas Cataldo <tomc@compaqnet.fr> wrote:
-> >
-> >  Tonight I upgraded to 2.6.10-rc3. Everything was fine until I started
-> >  wondershaper to setup my Qos rules :
-> > 
-> >  wondershaper eth0 255 16
-> > 
-> >  And the machine freezed hard. No magic sysrq working, no oops in my
-> >  logs.
-> > 
-> >  The computer is an x86 smp (dual p3)
-> > 
-> >  wondershaper was working fine with 2.6.9.
-> 
-> Me too, with your .config:
-> 
-> Using http://lartc.org/wondershaper/wondershaper-1.1a.tar.gz
-> 
-> vmm:/home/akpm/wondershaper-1.1a# ./wshaper eth0 255 16
-> 
-> 
-> u32 classifier
->     Perfomance counters on
->     input device check on 
->     Actions configured    
-> Unable to handle kernel NULL pointer dereference at virtual address 00000000
->  printing eip:                                                              
-> c0290b58      
-> *pde = 00000000
-> Oops: 0002 [#1]
-> SMP            
-> Modules linked in: police sch_ingress cls_u32 sch_sfq sch_cbq usbcore
-> CPU:    1                                                            
-> EIP:    0060:[<c0290b58>]    Not tainted VLI
-> EFLAGS: 00010206   (2.6.10-rc3)             
-> EIP is at _spin_lock_bh+0x10/0x20
-> eax: cf690000   ebx: ce0d4d80   ecx: 00000008   edx: 00000000
-> esi: cf691ba0   edi: 00000000   ebp: 00000000   esp: cf691b48
-> ds: 007b   es: 007b   ss: 0068                               
-> Process tc (pid: 2743, threadinfo=cf690000 task=cf07b520)
-> Stack: c02372ab ce0d4d80 cd4d8800 cebd1c40 ce0d4d80 c0237346 ce0d4d80 00000008 
->        00000000 00000000 00000000 cf691ba0 cf691ba0 c02478d6 ce0d4d80 00000008 
->        00000000 cf691ba0 ce0d4d80 cf6a6070 30960094 cec44380 00000000 00019000 
-> Call Trace:                                                                    
->  [<c02372ab>] gnet_stats_start_copy_compat+0x1b/0x98
->  [<c0237346>] gnet_stats_start_copy+0x1e/0x24       
->  [<c02478d6>] tcf_action_copy_stats+0x26/0xa0
->  [<c02473e2>] tcf_action_dump_old+0x36/0x3c  
->  [<d0807174>] u32_dump+0x2c8/0x344 [cls_u32]
->  [<d08071a6>] u32_dump+0x2fa/0x344 [cls_u32]
->  [<c0246cf9>] tcf_fill_node+0x11d/0x170     
->  [<c0246d9c>] tfilter_notify+0x50/0xa0 
->  [<c0246bae>] tc_ctl_tfilter+0x542/0x570
->  [<c0240705>] rtnetlink_rcv+0x23d/0x360 
->  [<c0249f08>] netlink_data_ready+0x1c/0x54
->  [<c02495c5>] netlink_sendskb+0x21/0x40   
->  [<c024970b>] netlink_unicast+0xe3/0xec
->  [<c0249d04>] netlink_sendmsg+0x27c/0x28c
->  [<c02306d9>] sock_sendmsg+0xd5/0xf8     
->  [<c02306d9>] sock_sendmsg+0xd5/0xf8
->  [<c01c0a70>] copy_from_user+0x30/0x60
->  [<c01c0a70>] copy_from_user+0x30/0x60
->  [<c0127cfc>] autoremove_wake_function+0x0/0x40
->  [<c0231db7>] sys_sendmsg+0x18f/0x1f4          
->  [<c013c068>] handle_mm_fault+0x80/0x11c
->  [<c010fc3b>] do_page_fault+0x1a3/0x554 
->  [<c01c0a70>] copy_from_user+0x30/0x60 
->  [<c02321bc>] sys_socketcall+0x1d8/0x1f4
->  [<c01021cd>] sysenter_past_esp+0x52/0x71
-> Code: 3a 00 7e f9 fa eb e9 c3 8d 76 00 fa f0 fe 08 79 09 f3 90 80 38 00 7e f9 eb f2 c3 89 c2 b8 00 e0 ff ff 21 e0 81 
->  <0>Kernel panic - not syncing: Fatal exception in interrupt                                                        
-> Somehow I don't think this is because "Performance" was misspelled ;)
-> 
-> tcf_act_hdr.stats_lock is NULL in tcf_action_copy_stats()
-> 
-> 
-> 
+jamal 
 

@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262301AbUBXQwW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 11:52:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbUBXQwW
+	id S262300AbUBXRAH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 12:00:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbUBXRAH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 11:52:22 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:17484 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262301AbUBXQwR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 11:52:17 -0500
-Date: Tue, 24 Feb 2004 16:52:19 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] sync_sb_inodes sync hang
-Message-ID: <Pine.LNX.4.44.0402241636160.1681-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Tue, 24 Feb 2004 12:00:07 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:45192 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S262300AbUBXRAC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 12:00:02 -0500
+Date: Tue, 24 Feb 2004 17:59:43 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: sandr8@crocetta.org, Gautam Pagedar <gautam@cins.unipune.ernet.in>,
+       linux-kernel@vger.kernel.org
+Subject: Re: can i modify ls
+Message-ID: <20040224165943.GB24370@louise.pinerecords.com>
+References: <005601c3fd75$1c681510$8c01080a@crayii> <403B7402.2000008@universitari.crocetta.org> <20040224163530.GA24370@louise.pinerecords.com> <Pine.LNX.4.53.0402241139580.532@chaos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0402241139580.532@chaos>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.3-mm UP without PREEMPT easily hangs looping around pdflush's
-sync_sb_inodes, failing the down_read_trylock in do_writepages,
-but giving the concurrent sync no chance to complete: just try
-while : ; do echo $SECONDS; sync; cp /etc/termcap .; done
+On Feb-24 2004, Tue, 11:44 -0500
+Richard B. Johnson <root@chaos.analogic.com> wrote:
 
-I think sync_sb_inodes is the only loop vulnerable to that
-change in do_writepages, so site the cond_resched() here.
+> On Tue, 24 Feb 2004, Tomas Szepe wrote:
+> 
+> > On Feb-24 2004, Tue, 15:55 +0000
+> > Alessandro Salvatori <a.salvatori@universitari.crocetta.org> wrote:
+> >
+> > > it's quite interesting...
+> >
+> > Actually, it's not.
+> >
+> > 1) The presence/absence of the read permission on a directory determines
+> > 	whether the user will be able to list the directory's contents.
+> >
+> > 2) The fs permission model is enforced by the kernel.  Trying to impose
+> > 	additional restrictions in userspace is fragile, futile and
+> > 	an incredibly stupid idea.
+> 
+> If you don't have any programming tools and no access to any (like
+> a banking or restrictive office environment), and there is no
+> way to get any external executable files to run, i.e., no floppy
+> or no shell that could possibly access one, then writing a minimal
+> 'ls' program that allows the clerk to see what's in her directory
+> might be useful.
 
-Hugh
+So what is it exactly that prevents the admin from running /bin/chmod
+in the setup you're describing?
 
---- 2.6.3-mm3/fs/fs-writeback.c	2004-02-23 12:51:49.000000000 +0000
-+++ linux/fs/fs-writeback.c	2004-02-24 16:14:49.000000000 +0000
-@@ -326,6 +326,7 @@ sync_sb_inodes(struct super_block *sb, s
- 			writeback_release(bdi);
- 		spin_unlock(&inode_lock);
- 		iput(inode);
-+		cond_resched();
- 		spin_lock(&inode_lock);
- 		if (wbc->nr_to_write <= 0)
- 			break;
-
+-- 
+Tomas Szepe <szepe@pinerecords.com>

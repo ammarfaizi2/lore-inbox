@@ -1,15 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318021AbSGRGfr>; Thu, 18 Jul 2002 02:35:47 -0400
+	id <S318023AbSGRGsR>; Thu, 18 Jul 2002 02:48:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318022AbSGRGfr>; Thu, 18 Jul 2002 02:35:47 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:43239 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318021AbSGRGfq>;
-	Thu, 18 Jul 2002 02:35:46 -0400
-Date: Wed, 17 Jul 2002 23:28:32 -0700 (PDT)
-Message-Id: <20020717.232832.44968023.davem@redhat.com>
-To: hpa@zytor.com
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, viro@math.psu.edu,
+	id <S318024AbSGRGsR>; Thu, 18 Jul 2002 02:48:17 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37636 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318023AbSGRGsQ>; Thu, 18 Jul 2002 02:48:16 -0400
+Message-ID: <3D3662F6.1010206@zytor.com>
+Date: Wed, 17 Jul 2002 23:40:54 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020524
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, viro@math.psu.edu,
        trond.myklebust@fys.uio.no, mnalis-umsdos@voyager.hr, aia21@cantab.net,
        al@alarsen.net, asun@cobaltnet.com, bfennema@falcon.csc.calpoly.edu,
        dave@trylinux.com, braam@clusterfs.com, chaffee@cs.berkeley.edu,
@@ -21,23 +25,26 @@ Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, viro@math.psu.edu,
        urban@teststation.com, vandrove@vc.cvut.cz, vl@kki.org,
        zippel@linux-m68k.org, ahaas@neosoft.com
 Subject: Re: Remain Calm: Designated initializer patches for 2.5
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3D366103.8010403@zytor.com>
-References: <20020718032331.5A36644A8@lists.samba.org>
-	<3D366103.8010403@zytor.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+References: <20020718032331.5A36644A8@lists.samba.org>	<3D366103.8010403@zytor.com> <20020717.232832.44968023.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "H. Peter Anvin" <hpa@zytor.com>
-   Date: Wed, 17 Jul 2002 23:32:35 -0700
-   
-   As far as I could tell, *ALL* of these changes broke text alignment in 
-   columns.  It would have been a lot better if they had maintained 
-   spacing; I find the new code much more cluttered and hard to read.
+David S. Miller wrote:
+>    From: "H. Peter Anvin" <hpa@zytor.com>
+>    Date: Wed, 17 Jul 2002 23:32:35 -0700
+>    
+>    As far as I could tell, *ALL* of these changes broke text alignment in 
+>    columns.  It would have been a lot better if they had maintained 
+>    spacing; I find the new code much more cluttered and hard to read.
+> 
+> I have to admit that I hate the new syntax too.  The GCC syntax is
+> so much nicer.
 
-I have to admit that I hate the new syntax too.  The GCC syntax is
-so much nicer.
+The C99 syntax actually has some advantages (I believe it lets you 
+initialize array elements in a saner way), but my complaint had to do 
+with the fact that whitespace for alignment wasn't preserved.
+
+	-hpa
+

@@ -1,15 +1,15 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbUCVGYT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 01:24:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUCVGYT
+	id S261779AbUCVGZs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 01:25:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbUCVGZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 01:24:19 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:8163 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261763AbUCVGYS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 01:24:18 -0500
-Date: Mon, 22 Mar 2004 11:58:42 +0530
+	Mon, 22 Mar 2004 01:25:43 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:19900 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261766AbUCVGZf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 01:25:35 -0500
+Date: Mon, 22 Mar 2004 12:00:12 +0530
 From: Maneesh Soni <maneesh@in.ibm.com>
 To: Matt Mackall <mpm@selenic.com>
 Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
@@ -17,37 +17,154 @@ Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
        Dipankar Sarma <dipankar@in.ibm.com>, Carsten Otte <COTTE@de.ibm.com>,
        Christian Borntraeger <CBORNTRA@de.ibm.com>,
        "Martin J. Bligh" <mjbligh@us.ibm.com>
-Subject: Re: [RFC 0/6] sysfs backing store v0.3
-Message-ID: <20040322062842.GA5898@in.ibm.com>
+Subject: Re: [RFC 1/6] sysfs backing store v0.3
+Message-ID: <20040322063012.GB5898@in.ibm.com>
 Reply-To: maneesh@in.ibm.com
-References: <20040318063306.GA27107@in.ibm.com> <20040320175708.GQ11010@waste.org>
+References: <20040318063306.GA27107@in.ibm.com> <20040320175708.GQ11010@waste.org> <20040322062842.GA5898@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040320175708.GQ11010@waste.org>
+In-Reply-To: <20040322062842.GA5898@in.ibm.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 20, 2004 at 11:57:09AM -0600, Matt Mackall wrote:
-> On Thu, Mar 18, 2004 at 12:03:06PM +0530, Maneesh Soni wrote:
-> > Hi,
-> > 
-> > Please find the following patch set for sysfs backing store. Thanks
-> > to Carsten Otte and S390 Linux guys for reporting the bug while
-> > unloading zfcp driver.
-> 
-> Could you rediff this to apply against 2.6.5-rc2? It's getting a fair
-> number of rejects.
-> 
-
-Please find the following patches for sysfs backing store v0.3 against 
-2.6.5-rc2. No, changes just fixed the rejects and re-diffed.
-
-Thanks
-Maneesh
 
 
+= changes in version 0.3
+  o Nil, just re-diffed
+
+=> changes in version 0.2
+  o Nil, just re-diffed
+
+=> changes in version 0.1
+  o Corrected sysfs_umount_begin(), it doesnot need lock_super() and also the 
+    s_root check is not required. The reason being, that sysfs filesystem is 
+    always mounted internally during init and there is no chance of sysfs super 
+    block going away.
+
+  o corrected comments for umount_begin()
+		
+============================================================================
+o  The following patch contains the sysfs_dirent structure definition. 
+   sysfs_dirent can represent kobject, attribute group, text attribute or
+   binary attribute for kobjects registered with sysfs. sysfs_dirent is 
+   allocated with a ref count (s_count) of 1. Ref count is incremented when
+   a dentry is associated with the sysfs_dirent and it is decremented when
+   the corresponding dentry is freed. 
+
+o  sysfs_dirent's corresponding to the attribute files of a kobject or attribute
+   group are linked together with s_sibling and are anchored at s_children of 
+   the corresponding kobject's or attribute-group's  sysfs_dirent.
+
+o  The patch also contains the mount related changes for sysfs backing store. 
+   Because we mount sysfs once while init(), plain umount of sysfs doesnot
+   free all the un-used dentries (present in LRU list). To use force umount
+   flag, umount_begin() routine is provided which does a shrink_dcache_parent()
+   to release all the unused dentries.
+
+
+
+ fs/sysfs/mount.c      |   27 +++++++++++++++++++++++++--
+ include/linux/sysfs.h |   19 +++++++++++++++++++
+ 2 files changed, 44 insertions(+), 2 deletions(-)
+
+diff -puN fs/sysfs/mount.c~sysfs-leaves-mount fs/sysfs/mount.c
+--- linux-2.6.5-rc2/fs/sysfs/mount.c~sysfs-leaves-mount	2004-03-22 10:44:15.000000000 +0530
++++ linux-2.6.5-rc2-maneesh/fs/sysfs/mount.c	2004-03-22 10:44:15.000000000 +0530
+@@ -20,6 +20,14 @@ struct super_block * sysfs_sb = NULL;
+ static struct super_operations sysfs_ops = {
+ 	.statfs		= simple_statfs,
+ 	.drop_inode	= generic_delete_inode,
++	.umount_begin 	= sysfs_umount_begin,
++};
++
++struct sysfs_dirent sysfs_root = {
++	.s_sibling	= LIST_HEAD_INIT(sysfs_root.s_sibling),
++	.s_children	= LIST_HEAD_INIT(sysfs_root.s_children),
++	.s_element	= NULL,
++	.s_type		= SYSFS_ROOT,
+ };
+ 
+ static int sysfs_fill_super(struct super_block *sb, void *data, int silent)
+@@ -35,8 +43,8 @@ static int sysfs_fill_super(struct super
+ 
+ 	inode = sysfs_new_inode(S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO);
+ 	if (inode) {
+-		inode->i_op = &simple_dir_inode_operations;
+-		inode->i_fop = &simple_dir_operations;
++		inode->i_op = &sysfs_dir_inode_operations;
++		inode->i_fop = &sysfs_dir_operations;
+ 		/* directory inodes start off with i_nlink == 2 (for "." entry) */
+ 		inode->i_nlink++;	
+ 	} else {
+@@ -50,6 +58,7 @@ static int sysfs_fill_super(struct super
+ 		iput(inode);
+ 		return -ENOMEM;
+ 	}
++	root->d_fsdata = &sysfs_root;
+ 	sb->s_root = root;
+ 	return 0;
+ }
+@@ -60,6 +69,20 @@ static struct super_block *sysfs_get_sb(
+ 	return get_sb_single(fs_type, flags, data, sysfs_fill_super);
+ }
+ 
++/* For freeing zero refenced dentries / inodes while force unmounting 
++ *
++ * sysfs is mounted once within kernel during init(), and this keeps the super 
++ * block always active. So in case of user just doing normal umount, 
++ * ->kill_sb is never called. So, in order to immediately free the memory used 
++ * by un-used dentries and inodes, sysfs should to be umounted with force 
++ * option. In anycase there will be normal pruing of unused dentries/inodes
++ * as usual due to memory pressure.
++ */
++void sysfs_umount_begin(struct super_block * sb) 
++{
++	shrink_dcache_parent(sb->s_root);
++}
++
+ static struct file_system_type sysfs_fs_type = {
+ 	.name		= "sysfs",
+ 	.get_sb		= sysfs_get_sb,
+diff -puN include/linux/sysfs.h~sysfs-leaves-mount include/linux/sysfs.h
+--- linux-2.6.5-rc2/include/linux/sysfs.h~sysfs-leaves-mount	2004-03-22 10:44:15.000000000 +0530
++++ linux-2.6.5-rc2-maneesh/include/linux/sysfs.h	2004-03-22 10:44:15.000000000 +0530
+@@ -9,6 +9,8 @@
+ #ifndef _SYSFS_H_
+ #define _SYSFS_H_
+ 
++#include <asm/atomic.h>
++
+ struct kobject;
+ struct module;
+ 
+@@ -42,6 +44,23 @@ sysfs_remove_dir(struct kobject *);
+ extern void
+ sysfs_rename_dir(struct kobject *, const char *new_name);
+ 
++struct sysfs_dirent {
++	atomic_t		s_count;
++	struct list_head	s_sibling;
++	struct list_head	s_children;
++	void 			* s_element;
++	int			s_type;
++	struct dentry		* s_dentry;
++};
++
++#define SYSFS_ROOT		0x0001
++#define SYSFS_KOBJECT		0x0002
++#define SYSFS_KOBJ_ATTR 	0x0004
++#define SYSFS_KOBJ_BIN_ATTR	0x0008
++#define SYSFS_KOBJ_ATTR_GROUP	0x0010
++#define SYSFS_KOBJ_LINK 	0x0020
++#define SYSFS_NOT_PINNED	(SYSFS_KOBJ_ATTR | SYSFS_KOBJ_BIN_ATTR | SYSFS_KOBJ_LINK)
++
+ extern int
+ sysfs_create_file(struct kobject *, const struct attribute *);
+ 
+
+_
 -- 
 Maneesh Soni
 Linux Technology Center, 

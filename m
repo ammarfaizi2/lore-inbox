@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262367AbTFBOls (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 10:41:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbTFBOls
+	id S262379AbTFBOnD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 10:43:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbTFBOnD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 10:41:48 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:30182
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262367AbTFBOlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 10:41:46 -0400
-Subject: Re: [BK PATCHES] add ata scsi driver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10306020238050.23914-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10306020238050.23914-100000@master.linux-ide.org>
-Content-Type: text/plain
+	Mon, 2 Jun 2003 10:43:03 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:60325 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S262379AbTFBOnB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 10:43:01 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1054562206.7494.11.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 02 Jun 2003 14:56:47 +0100
+Message-ID: <16091.25998.133420.280664@gargle.gargle.HOWL>
+Date: Mon, 2 Jun 2003 16:56:14 +0200
+From: mikpe@csd.uu.se
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: "Brian J. Murrell" <brian@interlinx.bc.ca>, "" <alan@lxorguk.ukuu.org.uk>,
+       "" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] Honour dont_enable_local_apic flag
+In-Reply-To: <Pine.LNX.4.50.0306011950080.31534-100000@montezuma.mastecende.com>
+References: <200306012308.h51N8K6j001404@harpo.it.uu.se>
+	<1054511535.6676.85.camel@pc>
+	<Pine.LNX.4.50.0306011950080.31534-100000@montezuma.mastecende.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-06-02 at 10:46, Andre Hedrick wrote:
-> Linus, my professional opinion is to follow Jeff's direction for 2.5/2.6.
-> This will allow Linux to push open source to the hardware vendors.
-> There are several bastardized scsi-ide drivers in ./scsi.
-> 
-> pci2000.c,h :: pci2220i.c,h :: psi240i.c,h + psi_*.h :: eata*
+Zwane Mwaikambo writes:
+ > I agree with doing the clear apic capability flag, Brian how does this 
+ > fare? This patch alone should fix it.
+ > 
+ > Index: linux-2.5/arch/i386/kernel/apic.c
+ > ===================================================================
+ > RCS file: /home/cvs/linux-2.5/arch/i386/kernel/apic.c,v
+ > retrieving revision 1.54
+ > diff -u -p -B -r1.54 apic.c
+ > --- linux-2.5/arch/i386/kernel/apic.c	31 May 2003 19:01:05 -0000	1.54
+ > +++ linux-2.5/arch/i386/kernel/apic.c	2 Jun 2003 03:50:31 -0000
+ > @@ -609,7 +609,7 @@ static int __init detect_init_APIC (void
+ >  
+ >  	/* Disabled by DMI scan or kernel option? */
+ >  	if (dont_enable_local_apic)
+ > -		return -1;
+ > +		goto no_apic;
+ >  
+ >  	/* Workaround for us being called before identify_cpu(). */
+ >  	get_cpu_vendor(&boot_cpu_data);
+ > @@ -665,6 +665,7 @@ static int __init detect_init_APIC (void
+ >  	return 0;
+ >  
+ >  no_apic:
+ > +	clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
+ >  	printk("No local APIC present or hardware disabled\n");
+ >  	return -1;
+ >  }
 
-megaraid, i2o, 3ware, aacraid all also drive IDE devices too now
-Promise new driver is using the scsi layer as well (because they do
-command queuing as well as drive tagged queue stuff). I've been 
-hacking on the SI stuff a bit and its also apparent our IDE PATA
-layer won't support that well in a hurry either since it also
-has command buffering.
-
+Looks good to me. Add a __setup to set dont_enable_local_apic and this
+should be sufficient for users of severely broken HW or emulations.

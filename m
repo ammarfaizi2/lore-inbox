@@ -1,79 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264454AbRFQCop>; Sat, 16 Jun 2001 22:44:45 -0400
+	id <S264439AbRFQCjY>; Sat, 16 Jun 2001 22:39:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264492AbRFQCog>; Sat, 16 Jun 2001 22:44:36 -0400
-Received: from draco.cus.cam.ac.uk ([131.111.8.18]:2012 "EHLO
-	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S264454AbRFQCoV>; Sat, 16 Jun 2001 22:44:21 -0400
-Message-Id: <5.1.0.14.2.20010617034356.00a6e960@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 17 Jun 2001 03:44:48 +0100
-To: linux-ntfs-dev@lists.sourceforge.net
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: ANN: Linux-NTFS 1.0.0 stable released
-Cc: linux-kernel@vger.kernel.org
+	id <S264443AbRFQCjO>; Sat, 16 Jun 2001 22:39:14 -0400
+Received: from granger.mail.mindspring.net ([207.69.200.148]:44816 "EHLO
+	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S264439AbRFQCi5>; Sat, 16 Jun 2001 22:38:57 -0400
+Subject: Re: Kernel configuration.  It's not just a job, it's an adventure!
+From: Robert Love <rml@ufl.edu>
+To: esr@thyrsus.com
+Cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net,
+        rick@linuxmafia.com
+In-Reply-To: <20010616222709.A11872@thyrsus.com>
+In-Reply-To: <20010616222709.A11872@thyrsus.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10.99 (Preview Release)
+Date: 16 Jun 2001 22:38:59 -0400
+Message-Id: <992745542.3204.2.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux-NTFS 1.0.0 stable is now released.
+On 16 Jun 2001 22:27:09 -0400, Eric S. Raymond wrote:
+> Various people on the Linux kernel mailing list and elsewhere have been heard
+> to opine that CML2's user interface is too oriented towards nontechnical
+> users.  In response to these complaints, I have implemented a fourth CML2
+> front end with an interface style expressly designed for the serious,
+> hard-core hacker.  A transcript of an example session follows:<snip>
 
-Get it from http://sf.net/projects/linux-ntfs/
+don't you have some linux advocating to be doing? :)
 
-NTFS utilities
-==============
-NtfsFix v1.15 - Attempt to fix an NTFS partition that has been damaged by 
-the Linux NTFS driver. Note that you should run it every time after you 
-have used the Linux NTFS driver to write to an NTFS partition to prevent 
-massive data corruption from happening when Windows mounts the partition. 
-IMPORTANT: Run this only *after* unmounting the partition in Linux but 
-*before* rebooting into Windows NT/2000 or you *will* suffer! - You have 
-been warned!
+_WAY_ too much time on your hands!
 
-mkntfs v1.39 - Format a partition with the NTFS filesystem. See man 8 
-mkntfs for command line options.
+i could not, however, resist matching the original adventure games:
 
-NtfsDump_LogFile v1.0 - Interpret and display information about the journal 
-($LogFile) of an NTFS volume.
-
-dumplog v1.0. - As NtfsDump_LogFile but operates on a file rather than a 
-partition, so can use it on a live mounted file system.
-
-ldm v1.3 - Interpret and display the Logical Disk Manager database (of a 
-Windows 2000/XP dynamic disk/block device).
-
-NTFS library
-============
-Provides common NTFS access functions to the ntfstools and other foreign 
-open source applications. Note, that the library is still under heavy 
-development and doesn't include the majority of functionality yet. It only 
-is capable of just about supporting the current ntfstools, so I wouldn't 
-recommend using it for your own applications at this stage.
-
-Changes:
-* mkntfs release and bugfixes to libntfs and the other utilities. Includes 
-a man (8) page.
-* ldm release which dumps the ldm database on Win2k/XP dynamic disks.
-* updated ntfsdump_logfile and new dumplog operating on the logfile itself 
-rather than the partition, suitable for live mounted file systems.
-* Building of shared libraries is disabled by default as it breaks on some 
-systems.
-* Probably need at least gcc-2.95 or something like that from now on.
-
-Please report any bugs/problems to:
-         linux-ntfs-dev@lists.sf.net
-
-Enjoy,
-
-         Anton
-
+> take SCSI
+It won't budge.
+> take SCSI
+Seriously, it is not going to move an inch.
+> take SCSI
+You try, but it won't move.
+> take SCSI
+It moves a little!
+> take SCSI
+SCSI: taken.
 
 -- 
-   "Nothing succeeds like success." - Alexandre Dumas
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sf.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+Robert M. Love
+rml@ufl.edu
+rml@tech9.net
 

@@ -1,35 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265037AbTB0ONU>; Thu, 27 Feb 2003 09:13:20 -0500
+	id <S265063AbTB0ORs>; Thu, 27 Feb 2003 09:17:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265039AbTB0ONU>; Thu, 27 Feb 2003 09:13:20 -0500
-Received: from kestrel.vispa.uk.net ([62.24.228.12]:12563 "EHLO
-	kestrel.vispa.uk.net") by vger.kernel.org with ESMTP
-	id <S265037AbTB0ONT>; Thu, 27 Feb 2003 09:13:19 -0500
-Message-ID: <3E5E1F49.3090106@walrond.org>
-Date: Thu, 27 Feb 2003 14:23:05 +0000
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Grover, Andrew" <andrew.grover@intel.com>
-CC: Joel Jaeggli <joelja@darkwing.uoregon.edu>,
-       Andrew Theurer <habanero@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/cpuinfo shows only 2 processors on dual P4-Xeon system
-References: <F760B14C9561B941B89469F59BA3A8471380D0@orsmsx401.jf.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265065AbTB0ORs>; Thu, 27 Feb 2003 09:17:48 -0500
+Received: from covert.brown-ring.iadfw.net ([209.196.123.142]:62726 "EHLO
+	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
+	id <S265063AbTB0ORq>; Thu, 27 Feb 2003 09:17:46 -0500
+Date: Thu, 27 Feb 2003 08:27:54 -0600
+From: Art Haas <ahaas@airmail.net>
+To: Torben Mathiasen <torben.mathiasen@hp.com>, linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] Fix initializers on drivers/ide/pci/trident.h
+Message-ID: <20030227142754.GC6002@debian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have 4 cpu's! Hoorah!
+Hi.
 
-Either I made stupid mistake yesterday, or changes got in a bk pull this 
-morning (I noticed apic.c had changed) solved it.
+This file is missing the '=' in the initializers, and there was an
+obsolete set of initiailzers in the file as well. The obsolete ones have
+been converted, and the missing '=' added in this patch.
 
-Either way, the problem is resolved - thanks!
+Art Haas
 
-Andrew Walrond
-
-
+===== drivers/ide/pci/triflex.h 1.1 vs edited =====
+--- 1.1/drivers/ide/pci/triflex.h	Sun Jan 12 12:11:46 2003
++++ edited/drivers/ide/pci/triflex.h	Thu Feb 27 08:21:50 2003
+@@ -18,31 +18,26 @@
+ 
+ static ide_pci_device_t triflex_devices[] __devinitdata = {
+ 	{
+-		.vendor 	PCI_VENDOR_ID_COMPAQ,
+-		.device		PCI_DEVICE_ID_COMPAQ_TRIFLEX_IDE,
+-		.name		"TRIFLEX",
+-		.init_chipset	init_chipset_triflex,
+-		.init_iops	NULL,
+-		.init_hwif	init_hwif_triflex,
+-		.channels	2,
+-		.autodma	AUTODMA,
+-		.enablebits	{{0x80, 0x01, 0x01}, {0x80, 0x02, 0x02}},
+-		.bootable	ON_BOARD,
+-		.extra		0,
++		.vendor 	= PCI_VENDOR_ID_COMPAQ,
++		.device		= PCI_DEVICE_ID_COMPAQ_TRIFLEX_IDE,
++		.name		= "TRIFLEX",
++		.init_chipset	= init_chipset_triflex,
++		.init_iops	= NULL,
++		.init_hwif	= init_hwif_triflex,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x80, 0x01, 0x01}, {0x80, 0x02, 0x02}},
++		.bootable	= ON_BOARD,
+ 	},{	
+-		.vendor		0,
+-		.device		0,
+-		.channels	0,
+-		.bootable	EOL,
++		.bootable	= EOL,
+ 	}
+ };
+ 
+ #ifdef CONFIG_PROC_FS
+ static ide_pci_host_proc_t triflex_proc __initdata = {
+-		name:		"triflex",
+-		set:		1,
+-		get_info: 	triflex_get_info,
+-		parent: 	NULL,
++	.name		= "triflex",
++	.set		= 1,
++	.get_info 	= triflex_get_info,
+ };
+ #endif
+ 
+-- 
+They that can give up essential liberty to obtain a little temporary safety
+deserve neither liberty nor safety.
+ -- Benjamin Franklin, Historical Review of Pennsylvania, 1759

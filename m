@@ -1,79 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279005AbRJ2FW1>; Mon, 29 Oct 2001 00:22:27 -0500
+	id <S279013AbRJ2FY5>; Mon, 29 Oct 2001 00:24:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279006AbRJ2FWS>; Mon, 29 Oct 2001 00:22:18 -0500
-Received: from tinylinux.tip.CSIRO.AU ([130.155.192.102]:15878 "EHLO
-	mobilix.atnf.CSIRO.AU") by vger.kernel.org with ESMTP
-	id <S279005AbRJ2FWM>; Mon, 29 Oct 2001 00:22:12 -0500
-Date: Mon, 29 Oct 2001 16:22:26 +1100
-Message-Id: <200110290522.f9T5MQP01460@mobilix.atnf.CSIRO.AU>
-From: Richard Gooch <rgooch@atnf.csiro.au>
-To: Kari Hurtta <hurtta@leija.mh.fmi.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.13] [devfs 0.119 (20011009)] base.c: devfsd_ioctl
-In-Reply-To: <200110281203.f9SC3soW005371@leija.fmi.fi>
-In-Reply-To: <200110281203.f9SC3soW005371@leija.fmi.fi>
+	id <S279010AbRJ2FYr>; Mon, 29 Oct 2001 00:24:47 -0500
+Received: from ool-18b95509.dyn.optonline.net ([24.185.85.9]:22412 "EHLO
+	lfmobile.lmc.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id <S279013AbRJ2FYi>; Mon, 29 Oct 2001 00:24:38 -0500
+To: andersen@codepoet.org
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: r128 + agpgart + APM suspend = death
+In-Reply-To: <20011028212006.A9278@codepoet.org>
+From: Luis Fernando Pias de Castro <luis@cs.sunysb.edu>
+In-Reply-To: <20011028212006.A9278@codepoet.org>
+Date: 29 Oct 2001 01:09:39 -0500
+Message-ID: <871yjnou3g.fsf@lfmobile.lmc.cs.sunysb.edu>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kari Hurtta writes:
-> 
-> Can you say where I have wrong?
-> 
-> Code on devfsd_ioctl() [base.c]:
-> 
->         if (fs_info->devfsd_task == NULL)
->         {
->             if ( !spin_trylock (&lock) ) return -EBUSY;
->             fs_info->devfsd_task = current;
->             spin_unlock (&lock);
-> 
-> To me that spinlock looks like it is useless.
-> Either
-> 
-> 	1) If it is mean that lock protects two CPUs settting
->             fs_info->devfsd_task when another is set it,
-> 	    then test about fs_info->devfsd_task == NULL
-> 	    should be inside of locked code
-> or     2) this is protected with some other lock as comment
->           perhaps indicates:
-> 
->         /*  Ensure only one reader has access to the queue. This scheme will
->             work even if the global kernel lock were to be removed, because it
->             doesn't matter who gets in first, as long as only one gets it
->         */
->         if (fs_info->devfsd_task == NULL)
->         {
->             if ( !spin_trylock (&lock) ) return -EBUSY;
-> 
-> Should this be:
-> 
-> --- fs/devfs/base.c.old	Thu Oct 11 09:23:24 2001
-> +++ fs/devfs/base.c	Sun Oct 28 14:59:03 2001
-> @@ -3227,6 +3227,11 @@
->  	if (fs_info->devfsd_task == NULL)
->  	{
->  	    if ( !spin_trylock (&lock) ) return -EBUSY;
-> +	    if (fs_info->devfsd_task != NULL) {
-> +	         /* We lost race ... */
-> +	         spin_unlock (&lock);
-> +		 return -EBUSY;
-> +	    }
->  	    fs_info->devfsd_task = current;
->  	    spin_unlock (&lock);
->  	    fs_info->devfsd_file = file;
+Same for me with an Inspiron 8000. I haven't had much time to look
+carefully at it, though. 
 
-Damn! You're right. I broke that when I simplified the anti-race code
-back in June and replaced the #ifdef CONFIG_SMP bits with plain
-spinlocks. Unfortunately I didn't put back in a critcal line.
-Cut-and-paste error without the paste :-(
+-Luis
 
-OK, I've updated my both my trees. I'll feed this to Linus in my next
-release.
 
-				Regards,
+Erik Andersen <andersen@codepoet.org> writes:
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+> I have a Dell Latitude C800 laptop.  It works just great and
+> I can use agpgart + r128 + XFree86 4.0.1 to get nice full 
+> screen 3D.  tuxracer looks nice.
+> 
+> But if I suspend my laptop when the agpgart module is loaded
+> is seems to suspend just fine, but will not resume....  Just
+> a black screen (of death).   If I ensure that the agpgart and
+> r128 modules are not loaded (by commenting out the 'Load "dri"'
+> line in /etc/X11/XF86Config-4, then killing X and unloading 
+> the modules) then I can suspend.
+> 
+> Anyone else seeing similar problems with APM + agpgart?
+> The problem has has been the same with all the 2.4.x kernels
+> I've tried it on, though I am running 2.4.12-ac6 at the moment.
+> 
+>  -Erik
+> 
+> --
+> Erik B. Andersen             http://codepoet-consulting.com/
+> --This message was written using 73% post-consumer electrons--
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

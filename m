@@ -1,81 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318790AbSG0RDz>; Sat, 27 Jul 2002 13:03:55 -0400
+	id <S318795AbSG0RLo>; Sat, 27 Jul 2002 13:11:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318791AbSG0RDz>; Sat, 27 Jul 2002 13:03:55 -0400
-Received: from mallaury.noc.nerim.net ([62.4.17.82]:43021 "HELO
-	mallaury.noc.nerim.net") by vger.kernel.org with SMTP
-	id <S318790AbSG0RDy>; Sat, 27 Jul 2002 13:03:54 -0400
-Message-ID: <3D42D33F.7020507@inet6.fr>
-Date: Sat, 27 Jul 2002 19:07:11 +0200
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a) Gecko/20020702
-X-Accept-Language: en-us, en
+	id <S318796AbSG0RLo>; Sat, 27 Jul 2002 13:11:44 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56589 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318795AbSG0RLn>;
+	Sat, 27 Jul 2002 13:11:43 -0400
+Message-ID: <3D42D706.9899A4A0@zip.com.au>
+Date: Sat, 27 Jul 2002 10:23:18 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3-ac3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Ralf <ralf@hostweb.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Driver sis5513.c / sis630(ET)
-References: <200207271706.22124.ralf@hostweb.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Anton Altaparmakov <aia21@cantab.net>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH 2.5] Introduce 64-bit versions of 
+ PAGE_{CACHE_,}{MASK,ALIGN}
+References: <E17YRp5-0006H6-00@storm.christs.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ralf wrote:
+Anton Altaparmakov wrote:
+> 
+> Linus,
+> 
+> This patch introduces 64-bit versions of PAGE_{CACHE_,}MASK and
+> PAGE_{CACHE_,}ALIGN:
+>         PAGE_{CACHE_,}MASK_LL and PAGE_{CACHE_,}ALIGN_LL.
+> 
+> These are needed when 64-bit values are worked with on 32-bit
+> architectures, otherwise the high 32-bits are destroyed.
+> 
+> ...
+>  #define PAGE_SIZE      (1UL << PAGE_SHIFT)
+>  #define PAGE_MASK      (~(PAGE_SIZE-1))
+> +#define PAGE_MASK_LL   (~(u64)(PAGE_SIZE-1))
 
->Hi Lionel,
->
->the driver works well with the motherboard "ASUS TUSI-M", bios 
->revision 1015.
->
->http://www.asus.com.tw/mb/socket370/tusi-m/specification.htm
->
->This board has the SIS630ET chipset (reported as 630 by 'lspci'):
->
->00:00.0 Host bridge: Silicon Integrated Systems [SiS] 630 Host (rev 
->30)
->00:00.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] 
->(rev d0)
->00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513
->00:01.1 Ethernet controller: Silicon Integrated Systems [SiS] SiS900 
->10/100 Ethernet (rev 84)
->00:01.2 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 
->07)
->00:01.3 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 
->07)
->
->The chipset SIS630ET supports UDMA100:
->
->http://www.sis.com/products/chipsets/integrated/socket370/630chart.htm
->
->With the driver version 0.13 it is set to UDMA66 and 'hdparm -t' 
->results in 35 MB/s.
->
->With this little change in the driver source the chip is set to 
->UDMA100 and 'hdparm -t' results in 45 MB/s.
->
->-       { "SiS630",     PCI_DEVICE_ID_SI_630,   ATA_100,                
->SIS5513_LATENCY },
->+       { "SiS630",     PCI_DEVICE_ID_SI_630,   ATA_66,         
->SIS5513_LATENCY
->
->  
->
+The problem here is that we've explicitly forced the
+PAGE_foo type to unsigned long.
 
-Hum, my guess would have been ATA_100a.
-6xy/7xy chipsets tends to be the same IDE wise and 730 is of ATA_100a type.
-ATA_100a is an evolution of the chip design based on ATA_66, ATA_100 is 
-a new design (timing registers moved).
-Be careful, I can't guarantee that you are using correct timings, it 
-might work, but it may also throw your data by the window if you don't 
-pick the right timings configuration.
-I'll ask precisions to SiS engineers.
+If we instead take the "UL" out of PAGE_SIZE altogether,
+the compiler can then promote the type of PAGE_SIZE and PAGE_MASK
+to the widest type being used in the expression (ie: long long)
+and everything should work.
 
-hdparm -t only test read performance, and read timings are controlled by 
-the drive, the IDE controller only sets *write* timings. So hdparm 
-working does not guarantee anything...
-If I'm wrong, the linux-kernel mailing list is CCed, I'd be corrected in 
-an eye's blink...
+Which seems to be a much cleaner solution, if it works.
 
-LB.
+Will it work?
 
+-

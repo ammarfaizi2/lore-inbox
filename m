@@ -1,37 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270425AbUJTDWn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269101AbUJTA0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270425AbUJTDWn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 23:22:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270407AbUJTDWc
+	id S269101AbUJTA0O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 20:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269883AbUJTAZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 23:22:32 -0400
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:28043 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S270427AbUJTDSv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 23:18:51 -0400
-Date: Tue, 19 Oct 2004 20:18:26 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Andrew Morton <akpm@osdl.org>, Jeff Dike <jdike@karaya.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: generic hardirq handling for uml
-Message-ID: <20041020031826.GA9966@taniwha.stupidest.org>
-References: <20041020001124.GA29215@admingilde.org>
+	Tue, 19 Oct 2004 20:25:33 -0400
+Received: from mail.kroah.org ([69.55.234.183]:20404 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268092AbUJTATh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 20:19:37 -0400
+Subject: Re: [PATCH] I2C update for 2.6.9
+In-Reply-To: <1098231506495@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Tue, 19 Oct 2004 17:18:26 -0700
+Message-Id: <10982315063820@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041020001124.GA29215@admingilde.org>
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 20, 2004 at 02:11:24AM +0200, Martin Waitz wrote:
+ChangeSet 1.2073, 2004/10/19 15:21:33-07:00, khali@linux-fr.org
 
-> I just ported arch/um to generic hardirq handling.
+[PATCH] I2C: Update Kconfig for AMD bus drivers
 
-heh, i posted something similat too
+This updates the AMD entries i2c/busses/Kconfig in two ways:
+* Add missing PCI dependancy.
+* Reword the help so that users know exactly what is supported by each
+  driver.
 
-> -void free_irq(unsigned int irq, void *dev_id)
-[...]
-> -			free_irq_by_irq_and_dev(irq, dev_id);
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-that is actually needed and missing from the generic code, if you run
-w/o this you will get funnies won't you?
+
+ drivers/i2c/busses/Kconfig |   14 ++++++++------
+ 1 files changed, 8 insertions(+), 6 deletions(-)
+
+
+diff -Nru a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+--- a/drivers/i2c/busses/Kconfig	2004-10-19 16:53:53 -07:00
++++ b/drivers/i2c/busses/Kconfig	2004-10-19 16:53:53 -07:00
+@@ -40,21 +40,23 @@
+ 	  will be called i2c-ali15x3.
+ 
+ config I2C_AMD756
+-	tristate "AMD 756/766"
+-	depends on I2C && EXPERIMENTAL
++	tristate "AMD 756/766/768/8111 and nVidia nForce"
++	depends on I2C && PCI && EXPERIMENTAL
+ 	help
+ 	  If you say yes to this option, support will be included for the AMD
+-	  756/766/768 mainboard I2C interfaces.
++	  756/766/768 mainboard I2C interfaces.  The driver also includes
++	  support for the first (SMBus 1.0) I2C interface of the AMD 8111 and
++	  the nVidia nForce I2C interface.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-amd756.
+ 
+ config I2C_AMD8111
+ 	tristate "AMD 8111"
+-	depends on I2C && EXPERIMENTAL
++	depends on I2C && PCI && EXPERIMENTAL
+ 	help
+-	  If you say yes to this option, support will be included for the AMD
+-	  8111 mainboard I2C interfaces.
++	  If you say yes to this option, support will be included for the
++	  second (SMBus 2.0) AMD 8111 mainboard I2C interface.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-amd8111.
+

@@ -1,73 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbULFAyH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbULFBEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261458AbULFAyH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 19:54:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbULFAmV
+	id S261440AbULFBEf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 20:04:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbULFBEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 19:42:21 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:22027 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261444AbULFAle (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 19:41:34 -0500
-Date: Mon, 6 Dec 2004 01:41:30 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Tomasz K?oczko <kloczek@rudy.mif.pg.gda.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/char/moxa.c: #if 0 an unused function
-Message-ID: <20041206004130.GI2953@stusta.de>
-References: <20041205170247.GR2953@stusta.de> <Pine.LNX.4.61L.0412052112080.11466@rudy.mif.pg.gda.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61L.0412052112080.11466@rudy.mif.pg.gda.pl>
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 5 Dec 2004 20:04:35 -0500
+Received: from smtpq3.home.nl ([213.51.128.198]:50835 "EHLO smtpq3.home.nl")
+	by vger.kernel.org with ESMTP id S261440AbULFBE3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 20:04:29 -0500
+Message-ID: <41B3B016.4010906@keyaccess.nl>
+Date: Mon, 06 Dec 2004 02:04:22 +0100
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: matthieu castet <castet.matthieu@free.fr>
+CC: Adam Belay <ambx1@neo.rr.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.9+] PnPBIOS: Missing SMALL_TAG_ENDDEP tag
+References: <41B3A963.4090003@keyaccess.nl> <41B3ABFE.5090105@free.fr>
+In-Reply-To: <41B3ABFE.5090105@free.fr>
+Content-Type: multipart/mixed;
+ boundary="------------020005090901020301050006"
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 05, 2004 at 09:14:08PM +0100, Tomasz K?oczko wrote:
->...
-> >- *	5.  MoxaPortGetCurBaud(int port);				     
-> >*
-> > *	6.  MoxaPortSetBaud(int port, long baud);			     
-> > *
-> > *	7.  MoxaPortSetMode(int port, int databit, int stopbit, int parity); 
-> > *
-> > *	8.  MoxaPortSetTermio(int port, unsigned char *termio); 	     
-> > *
-> [..]
+This is a multi-part message in MIME format.
+--------------020005090901020301050006
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+matthieu castet wrote:
+
+>> -            if (option_independent == option)
+>> -                printk(KERN_WARNING "PnPBIOS: Missing 
+>> SMALL_TAG_STARTDEP tag\n");
 > 
-> Prabaly it will be good renumber this or make unnumbered (and all other 
-> comments with "Function <num>:" :)
+> this one shouldn't be removed
+> 
+>>              option = option_independent;
+>>              break;
+>>  
+>>          case SMALL_TAG_END:
+>> -            if (option_independent != option)
+>> -                printk(KERN_WARNING "PnPBIOS: Missing 
+>> SMALL_TAG_ENDDEP tag\n");
+> 
+> ok for this one, may be change it to pnp_dbg(...)
 
+Works for me to. Updated patch attached that only removes the missing 
+ENDDEP warning.
 
-Perhaps the following patch is the best solution:
+Rene.
 
+--------------020005090901020301050006
+Content-Type: text/x-patch;
+ name="linux-2.6.10-rc3_rsparser2.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.6.10-rc3_rsparser2.diff"
 
-diffstat output:
- drivers/char/moxa.c |    2 ++
- 1 files changed, 2 insertions(+)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc2-mm4-full/drivers/char/moxa.c.old	2004-12-06 01:30:18.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/drivers/char/moxa.c	2004-12-06 01:30:39.000000000 +0100
-@@ -3090,6 +3090,7 @@
- 	return (0);
- }
+--- linux-2.6.10-rc3.orig/drivers/pnp/pnpbios/rsparser.c	2004-12-04 03:10:03.000000000 +0100
++++ linux-2.6.10-rc3/drivers/pnp/pnpbios/rsparser.c	2004-12-06 01:59:44.000000000 +0100
+@@ -439,11 +439,7 @@
+ 			break;
  
-+#if 0
- long MoxaPortGetCurBaud(int port)
- {
+ 		case SMALL_TAG_END:
+-			if (option_independent != option)
+-				printk(KERN_WARNING "PnPBIOS: Missing SMALL_TAG_ENDDEP tag\n");
+-			p = p + 2;
+-        		return (unsigned char *)p;
+-			break;
++        		return p + 2;
  
-@@ -3097,6 +3098,7 @@
- 		return (0);
- 	return (moxaCurBaud[port]);
- }
-+#endif  /*  0  */
- 
- static void MoxaSetFifo(int port, int enable)
- {
+ 		default: /* an unkown tag */
+ 			len_err:
 
-
-
+--------------020005090901020301050006--

@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263746AbTEOCf2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 22:35:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263755AbTEOCf2
+	id S263752AbTEOCmM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 22:42:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263755AbTEOCmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 22:35:28 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:34208 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263746AbTEOCf1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 22:35:27 -0400
-Date: Wed, 14 May 2003 19:47:48 -0700 (PDT)
-Message-Id: <20030514.194748.77044174.davem@redhat.com>
-To: acme@conectiva.com.br
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: [PATCH] af_netlink: netlink_proto_init has to be core_initcall
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030515023550.GI6372@conectiva.com.br>
-References: <20030515023550.GI6372@conectiva.com.br>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 14 May 2003 22:42:12 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:25985
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S263752AbTEOCmL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 22:42:11 -0400
+Date: Wed, 14 May 2003 22:45:38 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Patrick Mochel <mochel@osdl.org>
+cc: Andrew Morton <akpm@digeo.com>, "" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.69-mm5: reverting i8259-shutdown.patch
+In-Reply-To: <Pine.LNX.4.44.0305141935440.9816-100000@cherise>
+Message-ID: <Pine.LNX.4.50.0305142243440.19782-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.44.0305141935440.9816-100000@cherise>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-   Date: Wed, 14 May 2003 23:35:50 -0300
+On Wed, 14 May 2003, Patrick Mochel wrote:
 
-   	Please pull from:
-   
-   bk://kernel.bkbits.net/acme/net-2.5
-   
-   	Jens, this one fixes the problem you reported, thanks!
+> Interesting. This is yet more proof that system-level devices cannot be
+> treated as common, everyday devices. Sure, it's nice to see them show up
+> in sysfs with little overhead, and very nice not to have to work about
+> them during shutdown or power transitions. But there are just too many
+> special cases (like getting the ordering right ;) that you have to worry
+> about.
+> 
+> So, what do we do with them? 
 
-Pulled, thanks for fixing this bug Arnaldo.
+Does the PIC shutdown callback get called _just_ before acpi_power_off?
+
+	Zwane
+-- 
+function.linuxpower.ca

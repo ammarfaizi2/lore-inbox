@@ -1,64 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVA1PUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVA1PYt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbVA1PUF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 10:20:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVA1PUE
+	id S261462AbVA1PYt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 10:24:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVA1PYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 10:20:04 -0500
-Received: from smtp3.pp.htv.fi ([213.243.153.36]:59540 "EHLO smtp3.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S261448AbVA1PT4 (ORCPT
+	Fri, 28 Jan 2005 10:24:48 -0500
+Received: from rproxy.gmail.com ([64.233.170.202]:50482 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261454AbVA1PWT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 10:19:56 -0500
-Date: Fri, 28 Jan 2005 17:19:54 +0200
-From: Paul Mundt <lethal@linux-sh.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Fwd: Re: flush_cache_page()
-Message-ID: <20050128151954.GQ2829@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <20050111223652.D30946@flint.arm.linux.org.uk>
+	Fri, 28 Jan 2005 10:22:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=CE64OD7HESjS4OeVOhz/8hwSziDEY3qHKMlxJ3wYhcqdOZu87mobvTccIiRdq9/l5CHXWnCttIEjwefPc5WFJGWCgVdEPmquO7zNTklQ450UiDdJ6jJ6IxG2Ag1y3ZnPhRSnaqRfJukWXhqxaeIMVp3jOZ2hl7AKRUAkNjzFI7k=
+Message-ID: <d120d500050128072268a5c2f0@mail.gmail.com>
+Date: Fri, 28 Jan 2005 10:22:18 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Olaf Hering <olh@suse.de>
+Subject: Re: atkbd_init lockup with 2.6.11-rc1
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
+In-Reply-To: <20050128145511.GA29340@suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
-Content-Disposition: inline
-In-Reply-To: <20050111223652.D30946@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050128132202.GA27323@suse.de> <20050128135827.GA28784@suse.de>
+	 <d120d50005012806435a17fe98@mail.gmail.com>
+	 <20050128145511.GA29340@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 28 Jan 2005 15:55:11 +0100, Olaf Hering <olh@suse.de> wrote:
+> On Fri, Jan 28, Dmitry Torokhov wrote:
+> 
+> > On Fri, 28 Jan 2005 14:58:27 +0100, Olaf Hering <olh@suse.de> wrote:
+> > > On Fri, Jan 28, Olaf Hering wrote:
+> > >
+> > > >
+> > > > My IBM RS/6000 B50 locks up with 2.6.11rc1, it dies in atkbd_init():
+> > >
+> > > It fails also on PReP, not only on CHRP. 2.6.10 looks like this:
+> > >
+> > > Calling initcall 0xc03bc430: atkbd_init+0x0/0x2c()
+> > > atkbd.c: keyboard reset failed on isa0060/serio1
+> > > atkbd.c: keyboard reset failed on isa0060/serio0
+> > >
+> >
+> > So it could not reset it even before, but it was not getting stuch
+> > tough... What about passing atkbd.reset=0?
+> 
+> I will try that.
+> Adding a printk after the outb() fixes it as well.
 
---4Ckj6UjgE2iN1+kY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Fixes as in "it reports that reset fails" again or it resets the
+keyboard cleanly and works fine?
 
-On Tue, Jan 11, 2005 at 10:36:52PM +0000, Russell King wrote:
-> However, since it's been rather a long time, I will need to go
-> back and redo this patch, along with all the other patches which
-> get ARMv6 VIPT aliasing caches working, and then confirm that this
-> does indeed end up with something which works.
->=20
-> I just don't want to go chasing my tail on something which essentially
-> is unacceptable.
->=20
-A bit late entering this thread (I didn't see it initially), but..
+> Do you have a version of that i8042 delay patch for 2.6.11-rc2-bk6?
+> Maybe it will help.
+> 
 
-Having the pfn available would be welcome for the SH-4 VIPT and sh64
-cases at least (or most likely any VIPT L1 for that matter), for the
-same reasons that have already been noted..
+No I don't, and I don't think you need all of it. What happens if you
+edit drivers/input/serio/i8042.c manually and stick udelay(7); in
+front of calls to i8042_write_data() in i8042_kbd_write() and
+i8042_aux_write()?
 
---4Ckj6UjgE2iN1+kY
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFB+lga1K+teJFxZ9wRAkqrAKCEXjVOXjfOGRr7KHvJtoEsiUgSgwCeJe7Z
-b/9f87C1DdOiH93JBnJy6SA=
-=Fjox
------END PGP SIGNATURE-----
-
---4Ckj6UjgE2iN1+kY--
+-- 
+Dmitry

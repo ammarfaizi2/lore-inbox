@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263573AbTEDJTw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 05:19:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbTEDJTw
+	id S263574AbTEDJZi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 05:25:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263576AbTEDJZh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 05:19:52 -0400
-Received: from dsl-62-3-122-162.zen.co.uk ([62.3.122.162]:7580 "EHLO
-	marx.trudheim.com") by vger.kernel.org with ESMTP id S263573AbTEDJTv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 05:19:51 -0400
-Subject: comparision between signed and unsigned
-From: Anders Karlsson <anders@trudheim.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-QEBvGToj6addAT9UXmKC"
-Organization: Trudheim Technology Limited
-Message-Id: <1052040732.25950.4.camel@marx>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4Rubber Turnip 
-Date: 04 May 2003 10:32:13 +0100
+	Sun, 4 May 2003 05:25:37 -0400
+Received: from WebDev.iNES.RO ([80.86.100.174]:36481 "EHLO webdev.ines.ro")
+	by vger.kernel.org with ESMTP id S263574AbTEDJZh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 May 2003 05:25:37 -0400
+Date: Sun, 4 May 2003 12:38:04 +0300 (EEST)
+From: Andrei Ivanov <andrei.ivanov@ines.ro>
+X-X-Sender: shadow@webdev.ines.ro
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: usb [mouse] not working in mm4
+In-Reply-To: <20030503193135.GA17970@kroah.com>
+Message-ID: <Pine.LNX.4.50L0.0305041235580.4098-100000@webdev.ines.ro>
+References: <Pine.LNX.4.50L0.0305031550330.4098-200000@webdev.ines.ro>
+ <20030503193135.GA17970@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-QEBvGToj6addAT9UXmKC
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-Hi list,
+No, on bk11 it does the same thing.
 
-Sitting here watching the compile output from 2.4.21-rc1-ac4 and
-noticing there is a _lot_ of warnings about comparisions between signed
-and unsigned values. The question I have is the following. If all the
-signed values were modified to unsigned to fix the warnings, how likely
-are things to break? Is there any reason to use signed values unless a
-specific reason when negative values are required?
 
-/Anders
+On Sat, 3 May 2003, Greg KH wrote:
 
---=-QEBvGToj6addAT9UXmKC
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
-
-iD8DBQA+tN4cLYywqksgYBoRAvvNAKCMdnOLllZjIjJu3ri15aSxKv/+ewCbBdUX
-RDx23WDufVV1iuWY4mhS7sQ=
-=X65q
------END PGP SIGNATURE-----
-
---=-QEBvGToj6addAT9UXmKC--
-
+> On Sat, May 03, 2003 at 03:55:12PM +0300, Andrei Ivanov wrote:
+> > usb 1-2: USB device not accepting new address=2 (error=-110)
+> > hub 1-0:0: new USB device on port 2, assigned address 3
+> > usb 1-2: USB device not accepting new address=3 (error=-110)
+> 
+> Hm, interrupts aren't getting to the usb host controller.  Does this
+> work ok on the latest -bk tree for you?
+> 
+> thanks,
+> 
+> greg k-h
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

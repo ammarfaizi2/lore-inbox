@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318203AbSHZSrU>; Mon, 26 Aug 2002 14:47:20 -0400
+	id <S318191AbSHZSnJ>; Mon, 26 Aug 2002 14:43:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318205AbSHZSrU>; Mon, 26 Aug 2002 14:47:20 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:32402 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S318203AbSHZSrU>; Mon, 26 Aug 2002 14:47:20 -0400
-Date: Mon, 26 Aug 2002 11:45:36 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Pavel Machek <pavel@elf.ucw.cz>, Andrea Arcangeli <andrea@suse.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mikael Pettersson <mikpe@csd.uu.se>,
-       john stultz <johnstul@us.ibm.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>, Leah Cunningham <leahc@us.ibm.com>,
-       wilhelm.nuesser@sap.com, paramjit@us.ibm.com, msw@redhat.com
-Subject: Re: [PATCH] tsc-disable_B9
-Message-ID: <159220000.1030387536@flay>
-In-Reply-To: <20020826161031.GA479@elf.ucw.cz>
-References: <1028812663.28883.32.camel@irongate.swansea.linux.org.uk> <1028860246.1117.34.camel@cog> <20020815165617.GE14394@dualathlon.random> <1029496559.31487.48.camel@irongate.swansea.linux.org.uk> <15708.64483.439939.850493@kim.it.uu.se> <20020821131223.GB1117@dualathlon.random> <1029939024.26425.49.camel@irongate.swansea.linux.org.uk> <20020821143323.GF1117@dualathlon.random> <1029942115.26411.81.camel@irongate.swansea.linux.org.uk> <20020821161317.GI1117@dualathlon.random> <20020826161031.GA479@elf.ucw.cz>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S318194AbSHZSnI>; Mon, 26 Aug 2002 14:43:08 -0400
+Received: from pat.uio.no ([129.240.130.16]:58556 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S318191AbSHZSnI>;
+	Mon, 26 Aug 2002 14:43:08 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Thunder from the hill <thunder@lightweight.ods.org>,
+       Zheng Jian-Ming <zjm@cis.nctu.edu.tw>, linux-kernel@vger.kernel.org
+Subject: Re: problems with changing UID/GID
+References: <Pine.LNX.4.44.0208260855480.3234-100000@hawkeye.luckynet.adm>
+	<1030382219.1751.14.camel@irongate.swansea.linux.org.uk>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 26 Aug 2002 20:47:02 +0200
+In-Reply-To: <1030382219.1751.14.camel@irongate.swansea.linux.org.uk>
+Message-ID: <shs4rdho3tl.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> And following your argument that these apps have been silenty broken
->> since 1999, if there's no broken app out there, nobody will ever get the
->> instruction fault. If there's any app broken out there we probably like
-> 
-> No. rdtsc is still usefull if you are clever and statistically filter
-> out. Also rdtsc provides you number of cycles, so if you want to know
-> how many cycles mov %eax,%ebx takes, you can do that even on
-> speedstep. Anything that correlates rdtsc to real time is broken, however.
+>>>>> " " == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-It's not correlating it to real time that's the problem. It's getting resceduled
-inbetween calls that hurts. Take your example.
+     > On Mon, 2002-08-26 at 15:58, Thunder from the hill wrote:
+    >> I personally like the task->cred->cr_uid, etc. approach. Helps
+    >> a lot.
 
-rdtsc
-mov %eax,%ebx
-			<- get rescheduled here
-rdtsc
+     > It changes the whole semantics of every security test in Linux,
+     > and breaks most of them totally. Our syscalls know the uid is
+     > constant during the call
 
-Broken. May even take negative "time".
+Right. Most people appear to prefer to make a lunge straight for
+CLONE_CRED.
 
-M.
+One of the first steps should rather be to build up support for a
+copy-on-write BSD-style 'ucred' struct that can be passed around the
+VFS.
+Without the latter there is no way to ensure that the compound VFS
+operations such as, say, lookup(), followed by a call to permission()
+followed by a call to dentry_open(), ->readpage(), etc. all use the
+same creds. This they *have* to do irrespective of whether or not the
+process is using CLONE_CRED, or you might end up using one set of
+privileges for the security checks and a different set for the actual
+file/device ops...
 
+Once those VFS changes have been done and audited, then one can start
+to add support for 'pcreds' a.k.a. process credentials and then
+finally CLONE_CRED...
+
+Cheers,
+  Trond

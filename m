@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262709AbTLBSEo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 13:04:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbTLBSDZ
+	id S262687AbTLBSFg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 13:05:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262725AbTLBSFA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 13:03:25 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:46822 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S262603AbTLBSDT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 13:03:19 -0500
-Date: Tue, 2 Dec 2003 10:02:51 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Murthy Kambhampaty <murthy.kambhampaty@goeci.com>
-Cc: "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
-       Russell Cattelan <cattelan@xfs.org>, Nathan Scott <nathans@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: XFS for 2.4
-Message-ID: <20031202180251.GB17045@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Murthy Kambhampaty <murthy.kambhampaty@goeci.com>,
-	'Marcelo Tosatti' <marcelo.tosatti@cyclades.com>,
-	Russell Cattelan <cattelan@xfs.org>, Nathan Scott <nathans@sgi.com>,
-	linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com,
-	Andrew Morton <akpm@osdl.org>
-References: <2D92FEBFD3BE1346A6C397223A8DD3FC0924C8@THOR.goeci.com>
+	Tue, 2 Dec 2003 13:05:00 -0500
+Received: from havoc.gtf.org ([63.247.75.124]:36499 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262687AbTLBSDX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 13:03:23 -0500
+Date: Tue, 2 Dec 2003 13:02:42 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Greg Stark <gsstark@mit.edu>
+Cc: Mike Fedyk <mfedyk@matchmail.com>, Erik Steffl <steffl@bigfoot.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: libata in 2.4.24?
+Message-ID: <20031202180241.GB1990@gtf.org>
+References: <Pine.LNX.4.44.0312010836130.13692-100000@logos.cnet> <3FCB8312.3050703@rackable.com> <87fzg4ckej.fsf@stark.dyndns.tv> <3FCBB15F.7050505@rackable.com> <3FCBB9F1.2080300@bigfoot.com> <87n0abbx2k.fsf@stark.dyndns.tv> <20031202055336.GO1566@mis-mike-wstn.matchmail.com> <20031202055852.GP1566@mis-mike-wstn.matchmail.com> <87zneb9o5q.fsf@stark.dyndns.tv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2D92FEBFD3BE1346A6C397223A8DD3FC0924C8@THOR.goeci.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <87zneb9o5q.fsf@stark.dyndns.tv>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 02, 2003 at 12:45:38PM -0500, Murthy Kambhampaty wrote:
-> If you can't come up with something more concrete than "I don't like your
-> coding style" and "I'm not sure your patch won't break something", it seems
-> only fair you take the XFS patches.
+On Tue, Dec 02, 2003 at 11:31:45AM -0500, Greg Stark wrote:
+> 
+> Mike Fedyk <mfedyk@matchmail.com> writes:
+> 
+> > > Libata, uses the scsi system instead of the existing ide layer because many
+> > > new sata controllers are using an interface that is very similair to scsi
+> > > (much like atapi).
+> 
+> Now I have a different question. Does the scsi-like SATA interface include tcq?
 
-Not your call, it's Marcelo's call.  And I and he have both suggested
-that the way to get XFS in is to have someone with some clout in the file
-system area agree that it is fine.  It's a perfectly reasonable request
-and the longer it goes unanswered the less likely it is that XFS will get
-integrated.  The fact that $XFS_USER wants it in is $XFS_USER's problem.
-$VFS_MAINTAINER needs to say "hey, this looks good, what's the fuss about?"
-and I suspect that Marcelo would be more interested.
+Yes, it does.  But it depends on whether or not the host controller
+supports TCQ.
 
-It is not, however, any more my call to make than it is your call to make.
-We're not doing Marcelo's job.
 
-It is also not unreasonable to reject a set of changes right before
-freezing 2.4.  2.4 is supposed to be dead.  Add XFS and what's next?
-Who's pet feature needs to go in?
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+> Because one of the long-standing issues with IDE drives and Postgres is the
+> fact that even after issuing an fsync the data may be sitting in the drive's
+> buffer.
+
+If true, this is an IDE driver bug...  assuming the drive itself
+doesn't lie about FLUSH CACHE results (a few do).
+
+
+> This doesn't happen with SCSI because the drives aren't forced to lie
+> about the data being on disk in order to handle subsequent requests. Turning
+> off write-caching on IDE drives absolutely destroys performance.
+
+If the drive lies, there isn't a darned thing we can do about it...
+
+
+> Do the new SATA drives and controllers provide a solution to this?
+
+If the drive lies, there isn't a darned thing the controller can do
+about it, either ;-)
+
+	Jeff
+
+
+

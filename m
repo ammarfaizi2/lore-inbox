@@ -1,61 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267964AbTBSDgF>; Tue, 18 Feb 2003 22:36:05 -0500
+	id <S267966AbTBSDp6>; Tue, 18 Feb 2003 22:45:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267951AbTBSDfA>; Tue, 18 Feb 2003 22:35:00 -0500
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:21477 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S267942AbTBSDeg>; Tue, 18 Feb 2003 22:34:36 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH]  Add a v850 config option to pass illegal insn traps to the kernel
-Cc: linux-kernel@vger.kernel.org
-Reply-To: Miles Bader <miles@gnu.org>
-Message-Id: <20030219034427.608A537BE@mcspd15.ucom.lsi.nec.co.jp>
-Date: Wed, 19 Feb 2003 12:44:27 +0900 (JST)
-From: miles@lsi.nec.co.jp (Miles Bader)
+	id <S267970AbTBSDp6>; Tue, 18 Feb 2003 22:45:58 -0500
+Received: from dp.samba.org ([66.70.73.150]:2237 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267966AbTBSDp4>;
+	Tue, 18 Feb 2003 22:45:56 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Max Krasnyansky <maxk@qualcomm.com>
+Cc: "David S. Miller" <davem@redhat.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Jean Tourrilhes <jt@bougret.hpl.hp.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family 
+In-reply-to: Your message of "Tue, 18 Feb 2003 10:50:49 -0800."
+             <5.1.0.14.2.20030218101309.048d4288@mail1.qualcomm.com> 
+Date: Wed, 19 Feb 2003 14:54:21 +1100
+Message-Id: <20030219035559.7527A2C079@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On the v850 RTE-MA1-CB-MULTI platform, these are normally intercepted by
-the monitor for the use of an external debugger, but if you want to use
-a linux-resident debugger, the kernel has to see them.
+In message <5.1.0.14.2.20030218101309.048d4288@mail1.qualcomm.com> you write:
+> At 07:46 PM 2/17/2003, David S. Miller wrote:
+> 
+> >After talking to Alexey, I don't like this patch.
+> >
+> >The new module subsystem was supposed to deal with things
+> >like this cleanly, and this patch is merely a hack to cover
+> >up for it's shortcomings.
 
-diff -ruN -X../cludes linux-2.5.62-uc0.orig/arch/v850/Kconfig linux-2.5.62-uc0/arch/v850/Kconfig
---- linux-2.5.62-uc0.orig/arch/v850/Kconfig	2003-02-12 11:26:18.000000000 +0900
-+++ linux-2.5.62-uc0/arch/v850/Kconfig	2003-02-19 11:40:02.000000000 +0900
-@@ -133,6 +133,11 @@
- 	  depends RTE_CB
- 	  default y
- 
-+   config RTE_CB_MULTI_DBTRAP
-+   	  bool "Pass illegal insn trap / dbtrap to kernel"
-+	  depends RTE_CB_MULTI
-+	  default n
-+
-    config RTE_CB_MA1_KSRAM
-    	  bool "Kernel in SRAM (limits size of kernel)"
- 	  depends RTE_CB_MA1 && RTE_CB_MULTI
-diff -ruN -X../cludes linux-2.5.62-uc0.orig/arch/v850/kernel/rte_cb_multi.c linux-2.5.62-uc0/arch/v850/kernel/rte_cb_multi.c
---- linux-2.5.62-uc0.orig/arch/v850/kernel/rte_cb_multi.c	2002-11-05 11:25:22.000000000 +0900
-+++ linux-2.5.62-uc0/arch/v850/kernel/rte_cb_multi.c	2003-02-19 11:41:13.000000000 +0900
-@@ -2,8 +2,8 @@
-  * include/asm-v850/rte_multi.c -- Support for Multi debugger monitor ROM
-  * 	on Midas lab RTE-CB series of evaluation boards
-  *
-- *  Copyright (C) 2001,02  NEC Corporation
-- *  Copyright (C) 2001,02  Miles Bader <miles@gnu.org>
-+ *  Copyright (C) 2001,02,03  NEC Corporation
-+ *  Copyright (C) 2001,02,03  Miles Bader <miles@gnu.org>
-  *
-  * This file is subject to the terms and conditions of the GNU General
-  * Public License.  See the file COPYING in the main directory of this
-@@ -23,6 +23,9 @@
-    the table.  */
- static long multi_intv_install_table[] = {
- 	0x40, 0x50,		/* trap vectors */
-+#ifdef CONFIG_RTE_CB_MULTI_DBTRAP
-+	0x60,			/* illegal insn / dbtrap */
-+#endif
- 	/* Note -- illegal insn trap is used by the debugger.  */
- 	0xD0, 0xE0, 0xF0,	/* GINT1 - GINT3 */
- 	0x240, 0x250, 0x260, 0x270, /* timer D interrupts */
+I don't quite understand.  
+
+There are some issue with this patch, however.
+
+Firstly, the owner field should probably be in struct proto_ops not
+struct socket, where the function pointers are.
+
+The sk thing looks reasonable at first glance.  Getting a reference to
+npf->owner, then holding it for the socket is a little confusing, but
+an obvious optimization over a naive "get, use, drop, get".
+
+In sys_accept:
+
+> @@ -1196,9 +1198,13 @@
+>  	if (!(newsock = sock_alloc())) 
+>  		goto out_put;
+>  
+> -	newsock->type = sock->type;
+> -	newsock->ops = sock->ops;
+> +	newsock->type  = sock->type;
+> +	newsock->ops   = sock->ops;
+> +	newsock->owner = sock->owner;
+>  
+> +	try_module_get(sock->owner);
+> +	newsock->owner = sock->owner;
+> +	
+>  	err = sock->ops->accept(sock, newsock, sock->file->f_flags);
+>  	if (err < 0)
+>  		goto out_release;
+
+You still need to check the result of try_module_get, and fail if it
+fails.  The *only* time this will fail is when someone is doing an
+"rmmod --wait" on the module, which presumably means they really do
+not want you to increase the reference count furthur.
+
+Hope that helps,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

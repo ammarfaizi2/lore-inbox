@@ -1,59 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132725AbRC2MME>; Thu, 29 Mar 2001 07:12:04 -0500
+	id <S132722AbRC2MKz>; Thu, 29 Mar 2001 07:10:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132724AbRC2MLz>; Thu, 29 Mar 2001 07:11:55 -0500
-Received: from frege-d-math-north-g-west.math.ethz.ch ([129.132.145.3]:26365
-	"EHLO frege.math.ethz.ch") by vger.kernel.org with ESMTP
-	id <S132723AbRC2MLs>; Thu, 29 Mar 2001 07:11:48 -0500
-Message-ID: <3AC32666.9EF161@math.ethz.ch>
-Date: Thu, 29 Mar 2001 14:11:18 +0200
-From: Giacomo Catenazzi <cate@math.ethz.ch>
-Reply-To: cate@debian.org
-X-Mailer: Mozilla 4.7C-SGI [en] (X11; I; IRIX 6.5 IP22)
-X-Accept-Language: en
+	id <S132723AbRC2MKe>; Thu, 29 Mar 2001 07:10:34 -0500
+Received: from helena.mi.uni-erlangen.de ([131.188.103.20]:5772 "EHLO
+	mi.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S132722AbRC2MK0>; Thu, 29 Mar 2001 07:10:26 -0500
+Date: Thu, 29 Mar 2001 14:05:44 +0200 (MEST)
+From: Walter Hofmann <snwahofm@mi.uni-erlangen.de>
+To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+cc: Jesse Pollard <jesse@cats-chateau.net>, Shawn Starr <spstarr@sh0n.net>,
+   linux-kernel@vger.kernel.org
+Subject: Re: Disturbing news..
+In-Reply-To: <200103281440.IAA48398@tomcat.admin.navo.hpc.mil>
+Message-ID: <Pine.GSO.3.96.1010329135819.12171A-100000@eumaios>
 MIME-Version: 1.0
-To: "Hen, Shmulik" <shmulik.hen@intel.com>
-CC: linux-kernel@vger.kernel.org, "'LNML'" <linux-net@vger.kernel.org>
-Subject: Re: Plans for 2.5
-In-Reply-To: <fa.ngc0npv.1dmkhh4@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Hen, Shmulik" wrote:
-> 
-> Just some general questions:
-> 
-> 1) Is there anywhere a list that describes what is intended to be in 2.5.x ?
 
-General/Big changes are discussed in:
-http://lwn.net/2001/0329/a/kernel-summit-agenda.php3
+On Wed, 28 Mar 2001, Jesse Pollard wrote:
 
-> 2) Are there any early releases of 2.5.x ?
-> 3) Are the things for 2.5.x being discussed on another mailing list ?
+> By itself it doesn't - but if you also don't have user/group/world rw and
+> don't own the file, you can't do anything to it.
 
-kbuild list discusses about:
+This is all completely useless. Why not remove world rw permissions in the
+first place. If the admin isn't even able to write a cron job that does
+this, all help is lost.
 
-new configuration language (an unified language: now there are
-three
-implementation: 2 shell like and one different, so it fail
-with most
-of changes).
+> It's only there to reduce accidents. If you want to go full out,
+> remove the symbols from the file.
 
-new makefiles. Actual makefile will fail with dependencies and
-modules.
+Just as useless.
 
-> 4) What is the time frame of releasing 2.5.x-final (or 2.6.x) ?
-> 
+> Now, if ELF were to be modified, I'd just add a segment checksum
+> for each segment, then put the checksum in the ELF header as well as
+> in the/a segment header just to make things harder. At exec time a checksum
+> verify could (expensive) be done on each segment. A reduced level could be
+> done only on the data segment or text segment. This would at least force
+> the virus to completly read the file to regenerate the checksum.
 
-> Specifically, I'm more interested in the network driver aspect.
-> 1) Are there any intended changes to the networking layer ?
-> 2) I over heard something about making the driver reentrant - any news ?
-> 3) What about support for IPv6 ? (I noticed it was marked as experimental
-> until now)
- 
+So? The virus will just redo the checksum. Sooner or later their will be a
+routine to do this in libbfd and this all reduces to a single additional
+line of code. 
 
+> That change would even allow for signature checks of the checksum if the
+> signature was stored somewhere else (system binaries/setuid binaries...).
+> But only in a high risk environment. This could even be used for a scanner
+> to detect ANY change to binaries (and fast too - signature check of checksums
+> wouldn't require reading the entire file).
 
-	giacomo
+One sane way to do this is to store the sig on a ro medium and make the
+kernel check the sig of every binary before it is run.
+
+HOWEVER, this means no compilers will work, and you have to delete all
+script languages like perl or python (or make all of them check the
+signature).
+
+Useless again, IMO.
+
+> In any case, the problem is limited to one user, even if nothing is done.
+
+Your best bet is to educate your users.
+
+Walter
+

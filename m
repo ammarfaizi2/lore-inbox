@@ -1,95 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUFBOjS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUFBOjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbUFBOjS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 10:39:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUFBOjS
+	id S261239AbUFBOjb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 10:39:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbUFBOjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 10:39:18 -0400
-Received: from ns1.g-housing.de ([62.75.136.201]:23172 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261184AbUFBOi6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 10:38:58 -0400
-Message-ID: <40BDE67A.9030402@g-house.de>
-Date: Wed, 02 Jun 2004 16:38:50 +0200
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040528)
-X-Accept-Language: en-us, en
+	Wed, 2 Jun 2004 10:39:31 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:52864 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261239AbUFBOjW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 10:39:22 -0400
+Date: Wed, 2 Jun 2004 10:39:06 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Markus Lidel <Markus.Lidel@shadowconnect.com>
+cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: Problem with ioremap which returns NULL in 2.6 kernel
+In-Reply-To: <40BDE1BB.3030605@shadowconnect.com>
+Message-ID: <Pine.LNX.4.53.0406021024400.3280@chaos>
+References: <40BC788A.3020103@shadowconnect.com> <20040601142122.GA7537@havoc.gtf.org>
+ <40BC9EF7.4060502@shadowconnect.com> <40BD1211.9030302@pobox.com>
+ <40BD95EB.40506@shadowconnect.com> <40BDD4C9.5070602@pobox.com>
+ <40BDDAD9.5070809@shadowconnect.com> <20040602134603.GA8589@havoc.gtf.org>
+ <40BDE1BB.3030605@shadowconnect.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: /bin/sh: line 1: defkeymap.c: Permission denied (2.4-BK)
-X-Enigmail-Version: 0.83.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, 2 Jun 2004, Markus Lidel wrote:
 
-hi,
+> Hello,
+>
+> Jeff Garzik wrote:
+> >>>>>My preferred approach would be:  consider that the hardware does not
+> >>>>>need the entire 0x8000000-byte area mapped.  Plain and simple.
+> >>>>>This is a "don't do that" situation, and that renders the other
+> >>>>>questions moot :)  You should only be mapping what you need to map.
+> >>>>Okay, i'll let try it out with only 64MB.
+> >>>Why do you need 64MB, even?  :)
+> >>I don't know how much space i need :-D But why does the device set the
+> >>size to 128MB then?
+> > Devices often export things you don't care about, such as direct access
+> > to internal chip RAM.
+> > Look through the driver that figure out the maximum value that the
+> > driver actually _uses_.  There is no need to guess.
+>
+> Okay, i've looked at it, but i don't think i could simply use less
+> space, because (if i understand the I2O spec right :-D) the controller
+> returns me a address inside this window, where i could write the I2O
+> message. So i ask the controller, where do you want my request, then he
+> tells me a address...
+>
+> If i only ioremap 64MB, and the controller tells me write at 80MB, i'm
+> in deep trouble :-D
+>
+> >> 	size = dev->resource[i].end-dev->resource[i].start+1;
+> > You should be using pci_resource_start() and pci_resource_len()
+> > to obtain this information.
+>
+> Yep, thanks, but a patch for this is already send :-)
+>
+> Best regards,
+>
 
-every now and then i get an error when trying to compile 2.4 kernels.
-to see what's going on i just moved drivers/char/defkeymap.* to
-somewhere else and did the following:
+I2O, as seen from the PCI/Bus, is a bus! Right? You have a
+PCI/Bus controller that provides for an interface into
+I2O? Right? Can you do `cat /proc/pci` and show what device
+you think it is?  I think you are attempting to access a bridge
+or something. I2O is supposed to be intelligent and to grab
+64 megabytes of host address space is the anthesis of this.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 
-- ---------------------------------
-$ la drivers/char/defkeymap.*
-ls: drivers/char/defkeymap.*: No such file or directory
-$ bk co drivers/char/defkeymap.c
-drivers/char/defkeymap.c 1.1: 262 lines
-$ bk co drivers/char/defkeymap.map
-drivers/char/defkeymap.map 1.1: 357 lines
-$ la drivers/char/defkeymap.*
-- -r--r--r--    1 evil users  11K Jun  2 16:26 drivers/char/defkeymap.c
-- -r--r--r--    1 evil users  12K Jun  2 16:26 drivers/char/defkeymap.map
-
-$ make bzImage 2>&1 | tail -n10
-make[3]: Entering directory `/usr/src/linux-2.4-BK/drivers/char'
-set -e ; loadkeys --mktable defkeymap.map | sed -e 's/^static *//' >
-defkeymap.c
-/bin/sh: line 1: defkeymap.c: Permission denied
-make[3]: *** [defkeymap.c] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.4-BK/drivers/char'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4-BK/drivers/char'
-make[1]: *** [_subdir_char] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4-BK/drivers'
-make: *** [_dir_drivers] Error 2
-$ umask
-0022
-- ---------------------------------
-
-i'll chmod drivers/char/defkeymap.c to 0644 then and it's compiling
-then. i can also *ignore* the error ("make -i") and the kernel will
-build fine. how comes? and why is the file 0444 at all?
-
-Thanks,
-Christian.
-
-PS: this is debian/unstable (i386), with
-$ gcc --version
-gcc (GCC) 3.3.3 (Debian 20040422)
-Copyright (C) 2003 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-$ ld -V
-GNU ld version 2.14.90.0.7 20031029 Debian GNU/Linux
-~  Supported emulations:
-~   elf_i386
-~   i386linux
-~   elf_x86_64
-- --
-BOFH excuse #377:
-
-Someone hooked the twisted pair wires into the answering machine.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFAveZ6+A7rjkF8z0wRAooXAJwLyxauqZ6Sb8TN3r3W0pkOZ/uiLgCfaCOI
-MGQkz3B3ilygOL9pA3alviw=
-=cpN3
------END PGP SIGNATURE-----

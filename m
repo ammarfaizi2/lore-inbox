@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbULEX3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbULEXcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261421AbULEX3w (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 18:29:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbULEX3w
+	id S261414AbULEXcn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 18:32:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbULEXcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 18:29:52 -0500
-Received: from agminet02.oracle.com ([141.146.126.229]:54758 "EHLO
-	agminet02.oracle.com") by vger.kernel.org with ESMTP
-	id S261414AbULEX3t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 18:29:49 -0500
-Date: Sun, 5 Dec 2004 15:29:09 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, David Woodhouse <dwmw2@infradead.org>,
-       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
-       libc-alpha@sources.redhat.com
-Subject: Re: Proposal for a userspace "architecture portability" library
-Message-ID: <20041205232909.GE26040@ca-server1.us.oracle.com>
-Mail-Followup-To: Paul Mackerras <paulus@samba.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	David Woodhouse <dwmw2@infradead.org>,
-	David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
-	libc-alpha@sources.redhat.com
-References: <16818.23575.549824.733470@cargo.ozlabs.ibm.com>
+	Sun, 5 Dec 2004 18:32:36 -0500
+Received: from gate.crashing.org ([63.228.1.57]:17366 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261420AbULEXap (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 18:30:45 -0500
+Subject: Re: [linux-pm] swsusp-bigdiff: power-managment changes that are
+	waiting in my tree
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>, mjg59@srcf.ucam.org,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+In-Reply-To: <20041205232440.GA1490@elf.ucw.cz>
+References: <20041205214910.GA1293@elf.ucw.cz>
+	 <1102284611.11763.97.camel@gaston>  <20041205232440.GA1490@elf.ucw.cz>
+Content-Type: text/plain
+Date: Mon, 06 Dec 2004 10:30:13 +1100
+Message-Id: <1102289413.11761.110.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16818.23575.549824.733470@cargo.ozlabs.ibm.com>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 05, 2004 at 11:53:43AM +1100, Paul Mackerras wrote:
-> Some of our kernel headers implement generally useful abstractions
-> across all of the architectures we support.  I would like to make an
-> "architecture portability" library, based on the kernel headers but as
-> a separate project from the kernel, and intended for use in userspace.
+On Mon, 2004-12-06 at 00:24 +0100, Pavel Machek wrote:
 
-	I'd love to see this also.  We've wrapped kernel-style bitops
-from ext2 in
-http://oss.oracle.com/projects/ocfs2-tools/src/trunk/libocfs2/include/bitops.h
-(code is very similar to the libext2fs version).  We've also done the
-kernel endian macros in userspace (glibc) in
-http://oss.oracle.com/projects/ocfs2-tools/src/trunk/libocfs2/include/byteorder.h.
-These might be useful (or not).  Also, I'd suggest list.h and
-rbtree.[ch].  We use them extensively, as they are nice implementations
-with little to no dependancies on anything else.
-	Again, we've taken the approach of not including kernel headers,
-instead making the kernel interface work via userspace methods.  I would
-love to leave that work up to this library, and then just use it.
+> We need to add pm_message_t to resume, I agree about that, but yes, it
+> would be quite bad if I added this, too.
+> 
+> All changes I'm doing are "break nothing", because pm_message_t is
+> typedefed to u32 for now. Therefore they can be safely merged in any
+> order etc...
 
-Joel
+Hrm... adding it to all resume, if done at once, won't break anything
+since nobody uses it yet.
 
--- 
+> For the documentation changes... I already rewrote that twice. I'm not
+> native english speaker and I need some sleep now. If you send me
+> nicely-looking diff, I'm likely to accept it :-).
 
-	Pitchers and catchers report.
+I'll think about it :)
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+Ben.
+
+

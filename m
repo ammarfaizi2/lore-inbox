@@ -1,68 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277405AbRJEPPz>; Fri, 5 Oct 2001 11:15:55 -0400
+	id <S277406AbRJEPUt>; Fri, 5 Oct 2001 11:20:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277406AbRJEPPq>; Fri, 5 Oct 2001 11:15:46 -0400
-Received: from getafix.lostland.net ([216.29.29.44]:42829 "EHLO
-	getafix.lostland.net") by vger.kernel.org with ESMTP
-	id <S277405AbRJEPP3>; Fri, 5 Oct 2001 11:15:29 -0400
-Date: Fri, 5 Oct 2001 11:15:58 -0400 (EDT)
-From: adrian <adrian@lostland.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Tekram 390U2W and 2.4.10
-Message-ID: <Pine.BSO.4.33.0110051048380.24274-100000@getafix.lostland.net>
+	id <S277409AbRJEPUi>; Fri, 5 Oct 2001 11:20:38 -0400
+Received: from robur.slu.se ([130.238.98.12]:49930 "EHLO robur.slu.se")
+	by vger.kernel.org with ESMTP id <S277406AbRJEPU0>;
+	Fri, 5 Oct 2001 11:20:26 -0400
+From: Robert Olsson <Robert.Olsson@data.slu.se>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15293.53328.435292.971669@robur.slu.se>
+Date: Fri, 5 Oct 2001 17:22:56 +0200
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@alex.org.uk, mingo@elte.hu, hadi@cyberus.ca (jamal),
+        linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru (Alexey Kuznetsov),
+        Robert.Olsson@data.slu.se (Robert Olsson),
+        bcrl@redhat.com (Benjamin LaHaise), netdev@oss.sgi.com,
+        torvalds@transmeta.com (Linus Torvalds),
+        sim@netnation.com (Simon Kirby)
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <E15pGhY-0004Qz-00@the-village.bc.nu>
+In-Reply-To: <302737894.1002234496@[195.224.237.69]>
+	<E15pGhY-0004Qz-00@the-village.bc.nu>
+X-Mailer: VM 6.92 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello,
+Alan Cox writes:
 
-   I have a Tekram SCSI card I've been using for a while, and it's always
-had problems in Windows with the newest drivers from Tekram, but works
-fine with the generic NCR drivers in Windows.  I've never had any problems
-with it in Linux until 2.4.10.  If I try something like:
+ > You only think that. After a few minutes the kiddie pulls down your routing
+ > because your route daemons execute no code. Also during the attack your sshd
+ > wont run so you cant log in to find out what is up
 
-# dd if=/dev/scd1 of=image.iso
+Indeed.
 
-I get:
+I have a real example from a university core router with BGP and full 
+Internet routing. I managed to get in via ssh during the DoS attack. 
+We see that the 5 min dropping rate is about the same as the input 
+rate. The duration of this attack was more half an hour and BGP survied 
+and the box was pretty manageable. This was with a hacked tulip driver 
+switching to RX-polling at high loads.
+ 
+eth2: UP Locked MII Full DuplexLink UP
+Admin up    6 day(s) 13 hour(s) 47 min 51 sec 
+Last input  NOW
+Last output NOW
+5min RX bit/s   23.9 M
+5min TX bit/s   1.1 M
+5min RX pkts/s  46439        
+5min TX pkts/s  759          
+5min TX errors  0            
+5min RX errors  0            
+5min RX dropped 47038        
+5min TX dropped 0            
+5min collisions 0            
 
-scsi0 channel 0 : resetting for second half of retries.
-SCSI bus is being reset for host 0 channel 0.
-ncr53c8xx_reset: pid=0 reset_flags=1 serial_number=0
-serial_number_at_timeout=0
-scsi0: device driver called scsi_done() for a synchronous reset.
-scsi0 channel 0 : resetting for second half of retries.
-SCSI bus is being reset for host 0 channel 0.
-ncr53c8xx_reset: pid=0 reset_flags=1 serial_number=0
-serial_number_at_timeout=0
-scsi0: device driver called scsi_done() for a synchronous reset.
-SCSI cdrom error : host 0 channel 0 id 4 lun 0 return code = 27070000
- I/O error: dev 0b:01, sector 400
-scsi0 channel 0 : resetting for second half of retries.
-SCSI bus is being reset for host 0 channel 0.
-ncr53c8xx_reset: pid=0 reset_flags=1 serial_number=0
-serial_number_at_timeout=0
-scsi0: device driver called scsi_done() for a synchronous reset.
-SCSI cdrom error : host 0 channel 0 id 4 lun 0 return code = 27070000
- I/O error: dev 0b:01, sector 402
-ncr53c895-0-<4,*>: FAST-20 SCSI 20.0 MB/s (50 ns, offset 7)
- I/O error: dev 0b:01, sector 654
- I/O error: dev 0b:01, sector 400
+Well, this was a router but I think we very soon have the same demands for
+most Internet servers.
 
-I've tried both NCR and SYMBIOS drivers, but same story.  However, I can
-successfully mount partitions and CDROM's and copy data without errors.
-And, in 2.4.9, dd'ing works without problems.  In Windows, the problem I
-had was that the SCSI bus would constantly reset itself every 5 or
-so seconds whenever a device was being access.  I don't know if these
-problems are related, but I thought I'd mention it.  I have tried moving
-the card to another system with a different motherboard, to satisfy
-curiosity.  The problem still exists.  I didn't notice any changes in the
-symbios or ncr drivers.  Any ideas?  Thanks.
-
-Regards,
-Adrian
-
+Cheers.
+						--ro
 
 

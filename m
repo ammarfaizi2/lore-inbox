@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131643AbRDJMqM>; Tue, 10 Apr 2001 08:46:12 -0400
+	id <S131669AbRDJMtm>; Tue, 10 Apr 2001 08:49:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131669AbRDJMqE>; Tue, 10 Apr 2001 08:46:04 -0400
-Received: from ns.suse.de ([213.95.15.193]:6667 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S131643AbRDJMp4>;
-	Tue, 10 Apr 2001 08:45:56 -0400
-Date: Tue, 10 Apr 2001 14:45:54 +0200
-From: Andi Kleen <ak@suse.de>
-To: Mark Salisbury <mbs@mc.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+	id <S131672AbRDJMtd>; Tue, 10 Apr 2001 08:49:33 -0400
+Received: from iris.mc.com ([192.233.16.119]:16081 "EHLO mc.com")
+	by vger.kernel.org with ESMTP id <S131669AbRDJMtZ>;
+	Tue, 10 Apr 2001 08:49:25 -0400
+From: Mark Salisbury <mbs@mc.com>
+To: David Schleef <ds@schleef.org>, David Schleef <ds@schleef.org>,
+        Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
 Subject: Re: No 100 HZ timer !
-Message-ID: <20010410144554.A16207@gruyere.muc.suse.de>
-In-Reply-To: <200104091830.NAA03017@ccure.karaya.com> <01040914220214.01893@pc-eng24.mc.com> <20010410075109.A9549@gruyere.muc.suse.de> <01041008110318.01893@pc-eng24.mc.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01041008110318.01893@pc-eng24.mc.com>; from mbs@mc.com on Tue, Apr 10, 2001 at 08:07:04AM -0400
+Date: Tue, 10 Apr 2001 08:34:47 -0400
+X-Mailer: KMail [version 1.0.29]
+Content-Type: text/plain; charset=US-ASCII
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Dike <jdike@karaya.com>,
+        schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20010410044336.A1934@stm.lbl.gov> <Pine.LNX.3.96.1010410135540.17123B-100000@artax.karlin.mff.cuni.cz> <20010410053105.B4144@stm.lbl.gov>
+In-Reply-To: <20010410053105.B4144@stm.lbl.gov>
+MIME-Version: 1.0
+Message-Id: <0104100840171D.01893@pc-eng24.mc.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 10, 2001 at 08:07:04AM -0400, Mark Salisbury wrote:
-> which kind of U/K accaounting are you referring to?
-> 
-> are you referring to global changes in world time? are you referring to time
-> used by a process? 
+On Tue, 10 Apr 2001, David Schleef wrote:
+> This just indicates that the interface needs to be richer -- i.e.,
+> such as having a "lazy timer" that means: "wake me up when _at least_
+> N ns have elapsed, but there's no hurry."  If waking you up at N ns
+> is expensive, then the wakeup is delayed until something else
+> interesting happens.
 
-The later.
+all POSIX timer and timer like functions (timer_xxx, nanosleep, alarm etc)
+are defined to operate on a 'no earlier than' semantic. i.e. if you ask to
+nanosleep for 500 nsec, you will sleep for no less than 500 nanoseconds, but
+possibly up to 20,000,500 nanoseconds.  this is because the maximum legal POSIX
+time resolution is 20,000,000 nanoseconds (1/50th second or 50hz because of
+european electricity and old hardware)
 
-> 
-> I think the reduction of clock interrupts by a factor of 10 would buy us some
-> performance margin that could be traded for a slightly more complex handler.
+-- 
+/*------------------------------------------------**
+**   Mark Salisbury | Mercury Computer Systems    **
+**   mbs@mc.com     | System OS - Kernel Team     **
+**------------------------------------------------**
+**  I will be riding in the Multiple Sclerosis    **
+**  Great Mass Getaway, a 150 mile bike ride from **
+**  Boston to Provincetown.  Last year I raised   **
+**  over $1200.  This year I would like to beat   **
+**  that.  If you would like to contribute,       **
+**  please contact me.                            **
+**------------------------------------------------*/
 
-It depends on your workload if you can trade that in. e.g. when a few hundred TCP
-sockets are active a lot of timer ticks will run some timer handler. Also generally
-the kernel has quite a lot of timers. There is some reduction on a idle system. That
-is no doubt useful for VM/UML/VMware where you can have idle sessions hanging around, 
-but otherwise it's not very interesting to optimize idle systems (except maybe for 
-power saving purposes)
-
-
--Andi

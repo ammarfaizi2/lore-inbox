@@ -1,60 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263178AbTDGBRt (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 21:17:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263177AbTDGBRt (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 21:17:49 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:23789 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S263178AbTDGBRr (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 21:17:47 -0400
-Subject: Re: Re: [PATCH][RESEND] socket interface for IPMI against 2.5.66-bk
-From: Louis Zhuang <louis.zhuang@linux.co.intel.com>
-To: Corey Minyard <minyard@acm.org>
-Cc: OPENIPMIML <openipmi-developer@lists.sourceforge.net>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E8D9CD2.8060506@acm.org>
-References: <1049363835.1168.6.camel@hawk.sh.intel.com>
-	 <3E8C63D4.8040807@mvista.com> <1049433965.1165.2.camel@hawk.sh.intel.com>
-	 <3E8D9CD2.8060506@acm.org>
-Content-Type: text/plain
-Organization: Intel Crop.
-Message-Id: <1049678799.1165.24.camel@hawk.sh.intel.com>
+	id S263180AbTDGBVA (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 21:21:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263181AbTDGBVA (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 21:21:00 -0400
+Received: from [12.47.58.55] ([12.47.58.55]:42452 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S263180AbTDGBU6 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 21:20:58 -0400
+Date: Sun, 6 Apr 2003 18:32:34 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.66-bk12 causes "rpm" errors
+Message-Id: <20030406183234.1e8abd7f.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.44.0304062117150.1198-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0304062117150.1198-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 07 Apr 2003 09:26:40 +0800
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Apr 2003 01:32:28.0583 (UTC) FILETIME=[8D09D370:01C2FCA5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-04-04 at 22:55, Corey Minyard wrote:
-> I've merged this in, but I made some adjustments:
+"Robert P. J. Day" <rpjday@mindspring.com> wrote:
+>
 > 
->     * I added a copyright to include/net/ipmi.h (just copied from
-> net/ipmi/af_ipmi.c)
-Just curious, should we add copyright even when I have announced it by
-'MODULE_LICENSE("GPL")'? I dislike too many leagal text in code...
->     * I added usage comments to include/net/ipmi.h
->     * I modified the ioctls to return EFAULT on a bad user address.
->     * I modified SIOCIPMIGETEVENT to take a pointer to an integer, not
-> an integer.  That's the way ioctls work, they always take a pointer,
-> even though it sucks, IMHO.
+>   got 2.5.66-bk12 to boot on my inspiron 8100, and ran 
+> "rpm -q iptables", got the following:
 > 
-> I also adapted it to the 2.4 kernel.
+> rpmdb: write: 0xbfffc2d0, 8192: Invalid argument
+> error: db4 error(22) from dbenv->open: Invalid argument
+> error: cannot open Packages index using db3 - Invalid argument (22)
+> error: cannot open Packages database in /var/lib/rpm
+> package iptables is not installed
 > 
-> I'll put out an experimental patch for this sometime soon (with a bunch
-> of other stuff).  I also have SMIC and full ACPI support as part of it,
-> and I'm waiting for them.
-> 
-> - -Corey
 
--- 
-Yours truly,
-Louis Zhuang
----------------
-My words are my own...
+Does it work OK with earlier 2.5 kernels?
 
-Fault Injection Test Harness Project
-BK tree: http://fault-injection.bkbits.net/linux-2.5
-Home Page: http://sf.net/projects/fault-injection
+The only change which comes to mind is the below one.  Could you do a
+patch -R of this and retest?
 
-Open HPI Project
-Home Page: http://sf.net/projects/openhpi
+Also, the log from `strace -f -o log rpm -q iptables' would be interesting.
+
+Thanks.
+
+
+
+ mm/filemap.c |   10 ++++------
+ 1 files changed, 4 insertions(+), 6 deletions(-)
+
+diff -puN mm/filemap.c~file-limit-checking-cleanup mm/filemap.c
+--- 25/mm/filemap.c~file-limit-checking-cleanup	2003-04-02 22:51:02.000000000 -0800
++++ 25-akpm/mm/filemap.c	2003-04-02 22:51:02.000000000 -0800
+@@ -1509,9 +1509,8 @@ inline int generic_write_checks(struct i
+ 				send_sig(SIGXFSZ, current, 0);
+ 				return -EFBIG;
+ 			}
+-			if (*pos > 0xFFFFFFFFULL || *count > limit-(u32)*pos) {
+-				/* send_sig(SIGXFSZ, current, 0); */
+-				*count = limit - (u32)*pos;
++			if (*count > limit - (typeof(limit))*pos) {
++				*count = limit - (typeof(limit))*pos;
+ 			}
+ 		}
+ 	}
+@@ -1525,9 +1524,8 @@ inline int generic_write_checks(struct i
+ 			send_sig(SIGXFSZ, current, 0);
+ 			return -EFBIG;
+ 		}
+-		if (*count > MAX_NON_LFS - (u32)*pos) {
+-			/* send_sig(SIGXFSZ, current, 0); */
+-			*count = MAX_NON_LFS - (u32)*pos;
++		if (*count > MAX_NON_LFS - (unsigned long)*pos) {
++			*count = MAX_NON_LFS - (unsigned long)*pos;
+ 		}
+ 	}
+ 
+
+_
 

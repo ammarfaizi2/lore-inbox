@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135350AbRAHVxc>; Mon, 8 Jan 2001 16:53:32 -0500
+	id <S132484AbRAHV4M>; Mon, 8 Jan 2001 16:56:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135351AbRAHVxW>; Mon, 8 Jan 2001 16:53:22 -0500
-Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:44791 "EHLO
-	mf2.private") by vger.kernel.org with ESMTP id <S135350AbRAHVxP>;
-	Mon, 8 Jan 2001 16:53:15 -0500
-Date: Mon, 8 Jan 2001 13:56:08 -0800 (PST)
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Reply-To: <whitney@math.berkeley.edu>
-To: Szabolcs Szakacsits <szaka@f-secure.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Subtle MM bug
-In-Reply-To: <Pine.LNX.4.30.0101082207290.3435-100000@fs129-124.f-secure.com>
-Message-ID: <Pine.LNX.4.30.0101081352400.954-100000@mf2.private>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132964AbRAHVzx>; Mon, 8 Jan 2001 16:55:53 -0500
+Received: from c-025.static.AT.KPNQwest.net ([193.154.188.25]:41459 "EHLO
+	stefan.sime.com") by vger.kernel.org with ESMTP id <S132484AbRAHVzh>;
+	Mon, 8 Jan 2001 16:55:37 -0500
+Date: Mon, 8 Jan 2001 22:54:51 +0100
+From: Stefan Traby <stefan@hello-penguin.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: `rmdir .` doesn't work in 2.4
+Message-ID: <20010108225451.A968@stefan.sime.com>
+Reply-To: Stefan Traby <stefan@hello-penguin.com>
+In-Reply-To: <20010108180857.A26776@athlon.random> <Pine.GSO.4.21.0101081236440.4061-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0101081236440.4061-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Mon, Jan 08, 2001 at 12:58:20PM -0500
+Organization: Stefan Traby Services && Consulting
+X-Operating-System: Linux 2.4.0-fijiji0 (i686)
+X-APM: 100% 400 min
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2001, Szabolcs Szakacsits wrote:
+On Mon, Jan 08, 2001 at 12:58:20PM -0500, Alexander Viro wrote:
 
-> AFAIK newer glibc = CVS glibc but the malloc() tune parameters work
-> via environment variables for the current stable ones as well,
+> Shell equivalent is rmdir `pwd`. Also portable.
 
-Hmm, this must have been introduced in libc6?  Unfortunately, I don't have
-the source code to MAGMA, and the binary I have is statically linked.  It
-does not contain the names of the environment variables you mentioned.
+Very portable - not.
 
-I'll arrange a binary linked against glibc2.2, and then your suggestion
-will hopefully do the trick.  Thanks for your kind help!
+rmdir "`pwd`" !!!
 
-Cheers,
-Wayne
+-- 
 
+  ciao - 
+    Stefan
 
-
+"     ( cd /lib ; ln -s libBrokenLocale-2.2.so libNiedersachsen.so )     "
+    
+Stefan Traby                Linux/ia32               fax:  +43-3133-6107-9
+Mitterlasznitzstr. 13       Linux/alpha            phone:  +43-3133-6107-2
+8302 Nestelbach             Linux/sparc       http://www.hello-penguin.com
+Austria                                    mailto://st.traby@opengroup.org
+Europe                                   mailto://stefan@hello-penguin.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

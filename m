@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130464AbQLSX0j>; Tue, 19 Dec 2000 18:26:39 -0500
+	id <S130219AbQLSXjV>; Tue, 19 Dec 2000 18:39:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130656AbQLSX03>; Tue, 19 Dec 2000 18:26:29 -0500
-Received: from virtualro.ic.ro ([194.102.78.138]:21262 "EHLO virtualro.ic.ro")
-	by vger.kernel.org with ESMTP id <S130464AbQLSX0U>;
-	Tue, 19 Dec 2000 18:26:20 -0500
-Date: Wed, 20 Dec 2000 00:56:01 +0200 (EET)
-From: Jani Monoses <jani@virtualro.ic.ro>
-To: linux-kernel@vger.kernel.org
-Subject: pci.c question [recent changes undone]
-Message-ID: <Pine.LNX.4.10.10012200048180.18898-100000@virtualro.ic.ro>
+	id <S130512AbQLSXjM>; Tue, 19 Dec 2000 18:39:12 -0500
+Received: from feral.com ([192.67.166.1]:19024 "EHLO feral.com")
+	by vger.kernel.org with ESMTP id <S130219AbQLSXjA>;
+	Tue, 19 Dec 2000 18:39:00 -0500
+Date: Tue, 19 Dec 2000 15:08:28 -0800 (PST)
+From: Matthew Jacob <mjacob@feral.com>
+Reply-To: mjacob@feral.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [ PATCH ] against 2.4.0-test13-pre3 - fixes builds for ALPHA
+Message-ID: <Pine.LNX.4.21.0012191506520.7545-100000@zeppo.feral.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-	Hi 
-	I'm curios what was that change & undo about in test12
-and test13pre3ac3 regarding the disabling of PCI IO and MM access while
-writing to the config registers in pci_read_bases().
+Hmm. Gotta build setup-*.c somehow. Alpha Config defines ALPHA_FOO (Generic or
+specific model #) but not vanilla alpha.
 
-These lines were cut from test 12 and now they are back.      
 
-      /* Disable IO and memory while we fiddle */
-       pci_read_config_word(dev, PCI_COMMAND, &cmd);
-       tmp = cmd & ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY);
-       pci_write_config_word(dev, PCI_COMMAND, tmp);
-	[.....]
-       pci_write_config_word(dev, PCI_COMMAND, cmd);
-
-Why were they cut in the first place?
-Can anyone enlighten me?
-
-Thanks,
-Jani.
+--- linux.orig/arch/alpha/config.in	Tue Dec 19 14:54:14 2000
++++ linux/arch/alpha/config.in	Tue Dec 19 14:53:05 2000
+@@ -4,6 +4,7 @@
+ #
+ 
+ define_bool CONFIG_UID16 n
++define_bool CONFIG_ALPHA y
+ 
+ mainmenu_name "Kernel configuration of Linux for Alpha machines"
+ 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

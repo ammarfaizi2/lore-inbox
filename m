@@ -1,108 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129166AbQKQWN6>; Fri, 17 Nov 2000 17:13:58 -0500
+	id <S129171AbQKQWO2>; Fri, 17 Nov 2000 17:14:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129171AbQKQWNs>; Fri, 17 Nov 2000 17:13:48 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:25102 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129166AbQKQWNa>;
-	Fri, 17 Nov 2000 17:13:30 -0500
-Message-ID: <3A15A638.86278EBB@mandrakesoft.com>
-Date: Fri, 17 Nov 2000 16:42:16 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+	id <S129412AbQKQWOT>; Fri, 17 Nov 2000 17:14:19 -0500
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:18180 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id <S129171AbQKQWOF>; Fri, 17 Nov 2000 17:14:05 -0500
+Date: Fri, 17 Nov 2000 21:43:37 +0000 (GMT)
+From: Matthew Kirkwood <matthew@hairy.beasts.org>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
+        mj@suse.cz
+Subject: Re: VGA PCI IO port reservations
+In-Reply-To: <200011171646.QAA01224@raistlin.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10011172134510.27177-100000@sphinx.mythic-beasts.com>
 MIME-Version: 1.0
-To: "Adam J. Richter" <adam@yggdrasil.com>
-CC: willy@meta-x.org, davem@redhat.com, linux-kernel@vger.kernel.org,
-        wtarreau@yahoo.fr
-Subject: Re: sunhme.c patch for new PCI interface (UNTESTED)
-In-Reply-To: <200011160833.AAA06880@adam.yggdrasil.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Adam J. Richter" wrote:
-> -static struct happy_meal *root_happy_dev = NULL;
-> -
->  #ifdef CONFIG_SBUS
-> +static struct happy_meal *root_happy_dev = NULL;
->  static struct quattro *qfe_sbus_list = NULL;
->  #endif
+On Fri, 17 Nov 2000, Russell King wrote:
 
-don't initialize static to zero/null explicitly..
-> -       if (dev == NULL) {
-> -               dev = init_etherdev(0, sizeof(struct happy_meal));
-> -       } else {
-> -               dev->priv = kmalloc(sizeof(struct happy_meal), GFP_KERNEL);
-> -               if (dev->priv == NULL)
-> -                       return -ENOMEM;
-> -       }
-> +       dev = init_etherdev(0, sizeof(struct happy_meal));
+> Therefore, it should be reserved independent of whether we have the
+> driver loaded/in kernel or not.
 
-allocation failure not checked
+Is this not an argument for a more flexible resource allocation
+API?  One offering both:
 
-> -static int __init happy_meal_pci_init(struct net_device *dev, struct pci_dev *pdev)
-> +static int __devinit happy_meal_pci_probe(struct pci_dev *pdev,
-> +                                         const struct pci_device_id *id)
+   res = allocate_resource(restype, dev, RES_ALLOC_UNUSED, region);
 
-Are you aware of any hotplug sunhme hardware?  If no, don't change it to
-__devinit...
+and
 
-> -       if (dev == NULL) {
-> -               dev = init_etherdev(0, sizeof(struct happy_meal));
-> -       } else {
-> -               dev->priv = kmalloc(sizeof(struct happy_meal), GFP_KERNEL);
-> -               if (dev->priv == NULL)
-> -                       return -ENOMEM;
-> -       }
-> +       dev = init_etherdev(0, sizeof(struct happy_meal));
+   res = allocate_resource(restype, dev_ RES_ALLOC_HW, region);
 
-check for failure.
+?
 
-also, ether_setup() call is not needed if you always call
-init_etherdev(NULL, ...).
+Maybe the kernel might ask:
 
+   allocate_resource(restype, dev, RES_ALLOC_UNMOVABLE_HW, region);
 
-> +static void __devexit happy_meal_pci_remove (struct pci_dev *pdev)
-> +{
-> +       struct happy_meal *hp = pdev->driver_data;
-> +
-> +       pci_free_consistent(hp->happy_dev,
-> +                           PAGE_SIZE,
-> +                           hp->happy_block,
-> +                           hp->hblock_dvma);
-> +       unregister_netdev(hp->dev);
-> +       kfree(hp->dev);
-> +}
+Matthew.
 
-zero pdev->driver_data.  If this driver has to be portable, use
-pci_{get,set}_drvdata() instead of directly accessing ::driver_data.
-
-> +static struct pci_device_id happymeal_pci_ids[] __devinitdata = {
-
-again, no __devxxx if not hotplug.
-
->  #ifdef CONFIG_PCI
-> -       cards += happy_meal_pci_probe(dev);
-> +       return pci_module_init(&happy_meal_pci_driver);
-> +#else
-> +       return (cards > 0) ? 0 : -ENODEV;
->  #endif
-
-ifdef not needed
-
-> +#ifdef CONFIG_PCI
-> +       pci_unregister_driver (&happy_meal_pci_driver);
-> +#endif
-
-ifdef not needed.
-
--- 
-Jeff Garzik             |
-Building 1024           | The chief enemy of creativity is "good" sense
-MandrakeSoft            |          -- Picasso
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

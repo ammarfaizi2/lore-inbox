@@ -1,85 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132060AbRBFAGN>; Mon, 5 Feb 2001 19:06:13 -0500
+	id <S132028AbRBFAGL>; Mon, 5 Feb 2001 19:06:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136065AbRBFAGC>; Mon, 5 Feb 2001 19:06:02 -0500
-Received: from beaker.bluetopia.net ([63.219.235.110]:34640 "EHLO
-	beaker.bluetopia.net") by vger.kernel.org with ESMTP
-	id <S136046AbRBFAFx>; Mon, 5 Feb 2001 19:05:53 -0500
-Date: Mon, 5 Feb 2001 19:05:36 -0500 (EST)
-From: Ricky Beam <jfbeam@bluetopia.net>
-To: "Dunlap, Randy" <randy.dunlap@intel.com>
-cc: Mikael Pettersson <mikpe@csd.uu.se>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: RE: [BUG] 2.4.1 Detects 64 MB RAM, actual 192MB
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDFC7@orsmsx31.jf.intel.com>
-Message-ID: <Pine.LNX.4.04.10102051856530.2712-100000@beaker.bluetopia.net>
+	id <S132060AbRBFAGC>; Mon, 5 Feb 2001 19:06:02 -0500
+Received: from mail-dns2-nj.dialogic.com ([146.152.228.11]:48648 "EHLO
+	mail-dns2-nj.dialogic.com") by vger.kernel.org with ESMTP
+	id <S136050AbRBFAFq>; Mon, 5 Feb 2001 19:05:46 -0500
+Message-ID: <EFC879D09684D211B9C20060972035B1D4686C@exchange2ca.sv.dialogic.com>
+From: "Miller, Brendan" <Brendan.Miller@Dialogic.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: smp_num_cpus redefined?  (compiling 2.2.18 for non-SMP?)
+Date: Mon, 5 Feb 2001 19:06:58 -0500 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Jan 2001, Dunlap, Randy wrote:
-...
 
-Interesting...  I just checked my machine (2.4.1-SMP) to see it only saw
-64MB when it has 256MB.
+I have a problem that would have started out as "I can't compile my device
+driver with 2.2.18".  I was compiling my device driver for non-SMP while my
+kernel (and thus /usr/src/linux) was SMP.  So I looked at compiling the
+kernel for non-SMP so that my /usr/src/linux would be non-SMP and my device
+driver would match.  Well, now just compiling 2.2.18 for non-SMP, I get
 
->From 2.4.0-test5:
-Linux version 2.4.0-test5-SMP (root@chickenboo) (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #12 SMP Thu Aug 10 12:56:38 EDT 2000
-BIOS-provided physical RAM map: 
- e820: 000000000009fc00 @ 0000000000000000 (usable) 
- e820: 0000000000000400 @ 000000000009fc00 (reserved)
- e820: 0000000000020000 @ 00000000000e0000 (reserved)
- e820: 000000000fee0000 @ 0000000000100000 (usable) 
- e820: 0000000000018000 @ 000000000ffe0000 (ACPI data)
- e820: 0000000000008000 @ 000000000fff8000 (ACPI NVS)
- e820: 0000000000001000 @ 00000000fec00000 (reserved)
- e820: 0000000000001000 @ 00000000fee00000 (reserved)
- e820: 0000000000040000 @ 00000000fffc0000 (reserved)
-Scan SMP from c0000000 for 1024 bytes.
-Scan SMP from c009fc00 for 1024 bytes. 
-Scan SMP from c00f0000 for 65536 bytes.
-found SMP MP-table at 000fb560 
-hm, page 000fb000 reserved twice.
-hm, page 000fc000 reserved twice.
-hm, page 000f6000 reserved twice.
-hm, page 000f7000 reserved twice.
-On node 0 totalpages: 65504
-zone(0): 4096 pages.
-zone(1): 61408 pages.
-zone(2): 0 pages.
+[root@multnomah linux]# make
+cc -D__KERNEL__ -I/usr/src/linux-2.2.18/include -Wall -Wstrict-prototypes
+-O2 -fomit-frame-pointer -
+fno-strict-aliasing -pipe -fno-strength-reduce -m486 -malign-loops=2
+-malign-jumps=2 -malign-functio
+ns=2 -DCPU=686 -DUTS_MACHINE='"i386"' -c -o init/version.o init/version.c
+make -C  kernel
+make[1]: Entering directory `/usr/src/linux-2.2.18/kernel'
+make all_targets
+make[2]: Entering directory `/usr/src/linux-2.2.18/kernel'
+cc -D__KERNEL__ -I/usr/src/linux-2.2.18/include -Wall -Wstrict-prototypes
+-O2 -fomit-frame-pointer -
+fno-strict-aliasing -pipe -fno-strength-reduce -m486 -malign-loops=2
+-malign-jumps=2 -malign-functio
+ns=2 -DCPU=686   -DEXPORT_SYMTAB -c ksyms.c
+In file included from /usr/src/linux-2.2.18/include/linux/modversions.h:16,
+                 from /usr/src/linux-2.2.18/include/linux/module.h:19,
+                 from ksyms.c:14:
+/usr/src/linux-2.2.18/include/linux/modules/i386_ksyms.ver:64: warning:
+`cpu_data' redefined
+/usr/src/linux-2.2.18/include/asm/processor.h:98: warning: this is the
+location of the previous defi
+nition
+/usr/src/linux-2.2.18/include/linux/modules/i386_ksyms.ver:74: warning:
+`smp_num_cpus' redefined
+/usr/src/linux-2.2.18/include/linux/smp.h:77: warning: this is the location
+of the previous definiti
+on
+/usr/src/linux-2.2.18/include/linux/modules/i386_ksyms.ver:78: warning:
+`cpu_online_map' redefined
+/usr/src/linux-2.2.18/include/linux/smp.h:84: warning: this is the location
+of the previous definiti
+on
+/usr/src/linux-2.2.18/include/linux/modules/i386_ksyms.ver:100: warning:
+`smp_call_function' redefin
+ed
+/usr/src/linux-2.2.18/include/linux/smp.h:83: warning: this is the location
+of the previous definiti
+on
+In file included from /usr/src/linux-2.2.18/include/linux/interrupt.h:51,
+                 from ksyms.c:21:
+/usr/src/linux-2.2.18/include/asm/hardirq.h:23: warning: `synchronize_irq'
+redefined
+/usr/src/linux-2.2.18/include/linux/modules/i386_ksyms.ver:80: warning: this
+is the location of the
+previous definition
+In file included from /usr/src/linux-2.2.18/include/linux/interrupt.h:52,
+                 from ksyms.c:21:
+/usr/src/linux-2.2.18/include/asm/softirq.h:75: warning: `synchronize_bh'
+redefined
+/usr/src/linux-2.2.18/include/linux/modules/i386_ksyms.ver:82: warning: this
+is the location of the
+previous definition
+/usr/src/linux-2.2.18/include/linux/kernel_stat.h: In function `kstat_irqs':
+In file included from ksyms.c:17:
+/usr/src/linux-2.2.18/include/linux/kernel_stat.h:47: `smp_num_cpus'
+undeclared (first use in this f
+unction)
+/usr/src/linux-2.2.18/include/linux/kernel_stat.h:47: (Each undeclared
+identifier is reported only o
+nce
+/usr/src/linux-2.2.18/include/linux/kernel_stat.h:47: for each function it
+appears in.)
+make[2]: *** [ksyms.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.2.18/kernel'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.2.18/kernel'
+make: *** [_dir_kernel] Error 2
 
->From 2.4.1:
-Linux version 2.4.1-SMP (root@chickenboo) (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #1 SMP Tue Jan 30 17:13:07 EST 2001
-BIOS-provided physical RAM map: 
- BIOS-e820: 000000000009fc00 @ 0000000000000000 (usable) 
- BIOS-e820: 0000000000000400 @ 000000000009fc00 (reserved)
- BIOS-e820: 0000000000020000 @ 00000000000e0000 (reserved)
- BIOS-e820: 0000000003f00000 @ 0000000000100000 (usable) 
- BIOS-e820: 0000000000001000 @ 00000000fec00000 (reserved)
- BIOS-e820: 0000000000001000 @ 00000000fee00000 (reserved)
- BIOS-e820: 0000000000040000 @ 00000000fffc0000 (reserved)
-Scan SMP from c0000000 for 1024 bytes.
-Scan SMP from c009fc00 for 1024 bytes. 
-Scan SMP from c00f0000 for 65536 bytes.
-found SMP MP-table at 000fb560 
-hm, page 000fb000 reserved twice.
-hm, page 000fc000 reserved twice.
-hm, page 000f6000 reserved twice.
-hm, page 000f7000 reserved twice.
-On node 0 totalpages: 16384
-zone(0): 4096 pages.
-zone(1): 12288 pages.
-zone(2): 0 pages.
+I get these same warnings when I compile my driver against either SMP or
+non-SMP 2.2.18 source.  FWIW, everything is fine with 2.2.14.  But I need
+2.2.18 for the NFS fixups.  I've searched for this "smp_num_cpus" redefined,
+and it seems that others have had the same problem, but no solutions have
+been posted.
 
-Nothing at all has changed in either the BIOS setup, compiler, etc.  All I
-did was reboot (and not pay it any attention.)  The configuration was the
-same (make oldconfig.)
+Did I describe the problem adequately?  Is there a solution?
 
---Ricky
+Please cc: me as I'm not on the list.
 
-
+Brendan Miller
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

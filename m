@@ -1,86 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264155AbTLEQgM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 11:36:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264254AbTLEQgL
+	id S264229AbTLEQgU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 11:36:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264254AbTLEQgU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 11:36:11 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:40929 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S264155AbTLEQeU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 11:34:20 -0500
-Date: Fri, 5 Dec 2003 13:55:18 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: john stultz <johnstul@us.ibm.com>
-Cc: Joel Becker <Joel.Becker@oracle.com>, lkml <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: get_cycles() on i386
-In-Reply-To: <1067988463.11437.115.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.44.0312050934040.1782-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+	Fri, 5 Dec 2003 11:36:20 -0500
+Received: from fw.osdl.org ([65.172.181.6]:45495 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264229AbTLEQew (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 11:34:52 -0500
+Date: Fri, 5 Dec 2003 08:27:27 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Lucio Maciel <lucio.maciel@agrofel.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Where'd the .config go?
+Message-Id: <20031205082727.556c3634.rddunlap@osdl.org>
+In-Reply-To: <1070566824.30087.2.camel@walker.agrofel.com.br>
+References: <20031204151852.GB16568@rdlg.net>
+	<20031204083331.7660077a.rddunlap@osdl.org>
+	<1070566824.30087.2.camel@walker.agrofel.com.br>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 04 Dec 2003 17:40:25 -0200 Lucio Maciel <lucio.maciel@agrofel.com.br> wrote:
 
+| Hi
+| 
+| On Thu, 2003-12-04 at 14:33, Randy.Dunlap wrote:
+| > On Thu, 4 Dec 2003 10:18:52 -0500 "Robert L. Harris" <Robert.L.Harris@rdlg.net> wrote:
+| > 
+| > | 
+| > | 
+| > | Just compiled 2.4.23-bk3 and noticed that the option to save the .config
+| > | somewhere in the kernel is missing.  Mistake somewhere or has this been
+| > | removed?
+| > 
+| > It's never been merged in 2.4.x.  Marcelo didn't want it.
+| > It's in 2.6.x.
+| 
+| There is a reason for this is not in 2.4?
+| Not essential, but it is a good help.
 
+It's Marcelo's decision and he's trying to reduce 2.4.x patches.
 
-Any concerns? 
+| > There's a 2.4.22-pre patch in this dir that you can try:
+| >   http://www.xenotime.net/linux/ikconfig/
+| > 
+| Again i'll have to patch every kernel, like XFS?
 
-On 4 Nov 2003, john stultz wrote:
+Right.
 
-> On Tue, 2003-11-04 at 15:22, Joel Becker wrote:
-> > Folks,
-> > 	Certain distributions are building all of their SMP kernels
-> > NUMA-aware.  This is great, as the kernels support boxes like the x440
-> > with no trouble.  However, this implicitly disables CONFIG_X86_TSC.
-> > While that is good for NUMA systems, and fine from a kernel timing
-> > standpoint, it also eliminates any generic access to the TSC via
-> > get_cycles().  With CONFIG_X86_TSC not defined, get_cycles() always
-> > returns 0.
-> > 	Given that >95% of machines will not be x440s, this means that a
-> > user of that kernel cannot access a high resolution timer via
-> > get_cycles().  I don't want to have to litter my code with rdtscll()
-> > when I managed to remove it!
-> > 	The proposed patch is trivial.  If the system has a TSC, it is
-> > available get_cycles().  This makes no change to the other parts of the
-> > kernel protected by CONFIG_X86_TSC.
-> 
-> CONFIG_X86_TSC be the devil. Personally, I'd much prefer dropping the
-> compile time option and using dynamic detection. Something like (not
-> recently tested and i believe against 2.5.something, but you get the
-> idea):
-> 
-> 
-> diff -Nru a/include/asm-i386/timex.h b/include/asm-i386/timex.h
-> --- a/include/asm-i386/timex.h	Mon Feb 24 21:09:32 2003
-> +++ b/include/asm-i386/timex.h	Mon Feb 24 21:09:32 2003
-> @@ -40,14 +40,10 @@
->  
->  static inline cycles_t get_cycles (void)
->  {
-> -#ifndef CONFIG_X86_TSC
-> -	return 0;
-> -#else
-> -	unsigned long long ret;
-> -
-> -	rdtscll(ret);
-> +	unsigned long long ret = 0;
-> +	if(cpu_has_tsc)
-> +		rdtscll(ret);
->  	return ret;
-> -#endif
->  }
->  
->  extern unsigned long cpu_khz;
-
-John, Joel, 
-
-I believe this is reliable. I'll apply it.
-
-Any concerns? 
-
-
+--
+~Randy
+MOTD:  Always include version info.

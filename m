@@ -1,41 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264865AbTF0W37 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 18:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264880AbTF0W36
+	id S264909AbTF0We2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 18:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264912AbTF0We2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 18:29:58 -0400
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:24328 "EHLO
-	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id S264865AbTF0W3x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 18:29:53 -0400
-To: Willy Tarreau <willy@w.ods.org>
-Cc: rth@twiddle.net, linux-kernel@vger.kernel.org
-Subject: Re: [ALPHA][2.5.7x] Problems with execve assembly rewriting
-Organization: Metropolis -- Nowhere
-X-Attribution: maz
-Reply-to: mzyngier@freesurf.fr
-References: <wrp4r2cpqye.fsf@hina.wild-wind.fr.eu.org>
-	<20030627202210.GA29680@alpha.home.local>
-From: Marc Zyngier <mzyngier@freesurf.fr>
-Date: Sat, 28 Jun 2003 00:42:37 +0200
-Message-ID: <wrpbrwjnnvm.fsf@hina.wild-wind.fr.eu.org>
-In-Reply-To: <20030627202210.GA29680@alpha.home.local> (Willy Tarreau's
- message of "Fri, 27 Jun 2003 22:22:10 +0200")
+	Fri, 27 Jun 2003 18:34:28 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:32205 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S264909AbTF0WeQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 18:34:16 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C33CFE.36105E13"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: ipc semaphore optimization
+Date: Fri, 27 Jun 2003 15:48:22 -0700
+Message-ID: <41F331DBE1178346A6F30D7CF124B24B2A4871@fmsmsx409.fm.intel.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: ipc semaphore optimization
+Thread-Index: AcM85VdBgJR/u5SxSJeEVLhszcNh/wAFgfHg
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "Andrew Morton" <akpm@digeo.com>
+Cc: "Manfred Spraul" <manfred@colorfullife.com>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 27 Jun 2003 22:48:22.0735 (UTC) FILETIME=[365425F0:01C33CFE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Willy" == Willy Tarreau <willy@w.ods.org> writes:
+This is a multi-part message in MIME format.
 
-Willy> So it may result from some garbage being used as a pointer, or
-Willy> a char * being jumped to.
+------_=_NextPart_001_01C33CFE.36105E13
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Well, problem was in fact a broken binutils package. Upgrading to
-2.13.90.0.18 let the system boot fine, while 2.13.90.0.10 leads to
-this strange crash...
+Hi Andrew,
 
-     M.
--- 
-Places change, faces change. Life is so very strange.
+> ipc/sem.c changed significantly between 2.5.72 and 2.5.73.  Could
+> you please update this, retest, resend?
+>=20
+> Please Cc Manfred on the update too, thanks.
+
+Updated patch relative to 2.5.73, tested and verified. Manfred's change
+is in the sem_undo area while this patch is in the wake-up path.
+
+- Ken
+
+------_=_NextPart_001_01C33CFE.36105E13
+Content-Type: application/octet-stream;
+	name="sem2573.patch"
+Content-Transfer-Encoding: base64
+Content-Description: sem2573.patch
+Content-Disposition: attachment;
+	filename="sem2573.patch"
+
+ZGlmZiAtTnVyIGxpbnV4LTIuNS43My9pcGMvc2VtLmMgbGludXgtMi41LjczLnNlbS9pcGMvc2Vt
+LmMKLS0tIGxpbnV4LTIuNS43My9pcGMvc2VtLmMJU3VuIEp1biAyMiAxMTozMjo0MSAyMDAzCisr
+KyBsaW51eC0yLjUuNzMuc2VtL2lwYy9zZW0uYwlGcmkgSnVuIDI3IDE1OjIzOjI2IDIwMDMKQEAg
+LTQ5LDYgKzQ5LDEwIEBACiAgKiAgICAgIGluY3JlYXNlLiBJZiB0aGVyZSBhcmUgZGVjcmVtZW50
+IG9wZXJhdGlvbnMgaW4gdGhlIG9wZXJhdGlvbnMKICAqICAgICAgYXJyYXkgd2UgZG8gdGhlIHNh
+bWUgYXMgYmVmb3JlLgogICoKKyAqIFdpdGggdGhlIGluY2FybmF0aW9uIG9mIE8oMSkgc2NoZWR1
+bGVyLCBpdCBiZWNvbWVzIHVubmVjZXNzYXJ5IHRvIHBlcmZvcm0KKyAqIGNoZWNrL3JldHJ5IGFs
+Z29yaXRobSBmb3Igd2FraW5nIHVwIGJsb2NrZWQgcHJvY2Vzc2VzIGFzIHRoZSBuZXcgc2NoZWR1
+bGVyCisgKiBpcyBiZXR0ZXIgYXQgaGFuZGxpbmcgdGhyZWFkIHN3aXRjaCB0aGFuIHRoZSBvbGQg
+b25lLgorICoKICAqIC9wcm9jL3N5c3ZpcGMvc2VtIHN1cHBvcnQgKGMpIDE5OTkgRHJhZ29zIEFj
+b3N0YWNoaW9haWUgPGRyYWdvc0BpbmFtZS5jb20+CiAgKgogICogU01QLXRocmVhZGVkLCBzeXNj
+dGwncyBhZGRlZApAQCAtMjU4LDggKzI2Miw3IEBACiAgKi8KIAogc3RhdGljIGludCB0cnlfYXRv
+bWljX3NlbW9wIChzdHJ1Y3Qgc2VtX2FycmF5ICogc21hLCBzdHJ1Y3Qgc2VtYnVmICogc29wcywK
+LQkJCSAgICAgaW50IG5zb3BzLCBzdHJ1Y3Qgc2VtX3VuZG8gKnVuLCBpbnQgcGlkLAotCQkJICAg
+ICBpbnQgZG9fdW5kbykKKwkJCSAgICAgaW50IG5zb3BzLCBzdHJ1Y3Qgc2VtX3VuZG8gKnVuLCBp
+bnQgcGlkKQogewogCWludCByZXN1bHQsIHNlbV9vcDsKIAlzdHJ1Y3Qgc2VtYnVmICpzb3A7CkBA
+IC0yODksMTAgKzI5Miw2IEBACiAJCWN1cnItPnNlbXZhbCA9IHJlc3VsdDsKIAl9CiAKLQlpZiAo
+ZG9fdW5kbykgewotCQlyZXN1bHQgPSAwOwotCQlnb3RvIHVuZG87Ci0JfQogCXNvcC0tOwogCXdo
+aWxlIChzb3AgPj0gc29wcykgewogCQlzbWEtPnNlbV9iYXNlW3NvcC0+c2VtX251bV0uc2VtcGlk
+ID0gcGlkOwpAQCAtMzM0LDIzICszMzMsMTQgQEAKIAogCWZvciAocSA9IHNtYS0+c2VtX3BlbmRp
+bmc7IHE7IHEgPSBxLT5uZXh0KSB7CiAJCQkKLQkJaWYgKHEtPnN0YXR1cyA9PSAxKQotCQkJY29u
+dGludWU7CS8qIHRoaXMgb25lIHdhcyB3b2tlbiB1cCBiZWZvcmUgKi8KLQogCQllcnJvciA9IHRy
+eV9hdG9taWNfc2Vtb3Aoc21hLCBxLT5zb3BzLCBxLT5uc29wcywKLQkJCQkJIHEtPnVuZG8sIHEt
+PnBpZCwgcS0+YWx0ZXIpOworCQkJCQkgcS0+dW5kbywgcS0+cGlkKTsKIAogCQkvKiBEb2VzIHEt
+PnNsZWVwZXIgc3RpbGwgbmVlZCB0byBzbGVlcD8gKi8KIAkJaWYgKGVycm9yIDw9IDApIHsKLQkJ
+CQkvKiBGb3VuZCBvbmUsIHdha2UgaXQgdXAgKi8KLQkJCXdha2VfdXBfcHJvY2VzcyhxLT5zbGVl
+cGVyKTsKLQkJCWlmIChlcnJvciA9PSAwICYmIHEtPmFsdGVyKSB7Ci0JCQkJLyogaWYgcS0+IGFs
+dGVyIGxldCBpdCBzZWxmIHRyeSAqLwotCQkJCXEtPnN0YXR1cyA9IDE7Ci0JCQkJcmV0dXJuOwot
+CQkJfQogCQkJcS0+c3RhdHVzID0gZXJyb3I7CiAJCQlyZW1vdmVfZnJvbV9xdWV1ZShzbWEscSk7
+CisJCQl3YWtlX3VwX3Byb2Nlc3MocS0+c2xlZXBlcik7CiAJCX0KIAl9CiB9CkBAIC0xMDYyLDcg
+KzEwNTIsNyBAQAogCWlmIChlcnJvcikKIAkJZ290byBvdXRfdW5sb2NrX2ZyZWU7CiAKLQllcnJv
+ciA9IHRyeV9hdG9taWNfc2Vtb3AgKHNtYSwgc29wcywgbnNvcHMsIHVuLCBjdXJyZW50LT5waWQs
+IDApOworCWVycm9yID0gdHJ5X2F0b21pY19zZW1vcCAoc21hLCBzb3BzLCBuc29wcywgdW4sIGN1
+cnJlbnQtPnBpZCk7CiAJaWYgKGVycm9yIDw9IDApCiAJCWdvdG8gdXBkYXRlOwogCkBAIC0xMDc1
+LDU1ICsxMDY1LDQ2IEBACiAJcXVldWUubnNvcHMgPSBuc29wczsKIAlxdWV1ZS51bmRvID0gdW47
+CiAJcXVldWUucGlkID0gY3VycmVudC0+cGlkOwotCXF1ZXVlLmFsdGVyID0gZGVjcmVhc2U7CiAJ
+cXVldWUuaWQgPSBzZW1pZDsKIAlpZiAoYWx0ZXIpCiAJCWFwcGVuZF90b19xdWV1ZShzbWEgLCZx
+dWV1ZSk7CiAJZWxzZQogCQlwcmVwZW5kX3RvX3F1ZXVlKHNtYSAsJnF1ZXVlKTsKIAotCWZvciAo
+OzspIHsKLQkJcXVldWUuc3RhdHVzID0gLUVJTlRSOwotCQlxdWV1ZS5zbGVlcGVyID0gY3VycmVu
+dDsKLQkJY3VycmVudC0+c3RhdGUgPSBUQVNLX0lOVEVSUlVQVElCTEU7Ci0JCXNlbV91bmxvY2so
+c21hKTsKKwlxdWV1ZS5zdGF0dXMgPSAtRUlOVFI7CisJcXVldWUuc2xlZXBlciA9IGN1cnJlbnQ7
+CisJY3VycmVudC0+c3RhdGUgPSBUQVNLX0lOVEVSUlVQVElCTEU7CisJc2VtX3VubG9jayhzbWEp
+OwogCi0JCWlmICh0aW1lb3V0KQotCQkJamlmZmllc19sZWZ0ID0gc2NoZWR1bGVfdGltZW91dChq
+aWZmaWVzX2xlZnQpOwotCQllbHNlCi0JCQlzY2hlZHVsZSgpOworCWlmICh0aW1lb3V0KQorCQlq
+aWZmaWVzX2xlZnQgPSBzY2hlZHVsZV90aW1lb3V0KGppZmZpZXNfbGVmdCk7CisJZWxzZQorCQlz
+Y2hlZHVsZSgpOwogCi0JCXNtYSA9IHNlbV9sb2NrKHNlbWlkKTsKLQkJaWYoc21hPT1OVUxMKSB7
+Ci0JCQlpZihxdWV1ZS5wcmV2ICE9IE5VTEwpCi0JCQkJQlVHKCk7Ci0JCQllcnJvciA9IC1FSURS
+TTsKLQkJCWdvdG8gb3V0X2ZyZWU7Ci0JCX0KLQkJLyoKLQkJICogSWYgcXVldWUuc3RhdHVzID09
+IDEgd2Ugd2hlcmUgd29rZW4gdXAgYW5kCi0JCSAqIGhhdmUgdG8gcmV0cnkgZWxzZSB3ZSBzaW1w
+bHkgcmV0dXJuLgotCQkgKiBJZiBhbiBpbnRlcnJ1cHQgb2NjdXJyZWQgd2UgaGF2ZSB0byBjbGVh
+biB1cCB0aGUKLQkJICogcXVldWUKLQkJICoKLQkJICovCi0JCWlmIChxdWV1ZS5zdGF0dXMgPT0g
+MSkKLQkJewotCQkJZXJyb3IgPSB0cnlfYXRvbWljX3NlbW9wIChzbWEsIHNvcHMsIG5zb3BzLCB1
+biwKLQkJCQkJCSAgY3VycmVudC0+cGlkLDApOwotCQkJaWYgKGVycm9yIDw9IDApIAotCQkJCWJy
+ZWFrOwotCQl9IGVsc2UgewotCQkJZXJyb3IgPSBxdWV1ZS5zdGF0dXM7Ci0JCQlpZiAoZXJyb3Ig
+PT0gLUVJTlRSICYmIHRpbWVvdXQgJiYgamlmZmllc19sZWZ0ID09IDApCi0JCQkJZXJyb3IgPSAt
+RUFHQUlOOwotCQkJaWYgKHF1ZXVlLnByZXYpIC8qIGdvdCBJbnRlcnJ1cHQgKi8KLQkJCQlicmVh
+azsKLQkJCS8qIEV2ZXJ5dGhpbmcgZG9uZSBieSB1cGRhdGVfcXVldWUgKi8KLQkJCWdvdG8gb3V0
+X3VubG9ja19mcmVlOwotCQl9CisJc21hID0gc2VtX2xvY2soc2VtaWQpOworCWlmKHNtYT09TlVM
+TCkgeworCQlpZihxdWV1ZS5wcmV2ICE9IE5VTEwpCisJCQlCVUcoKTsKKwkJZXJyb3IgPSAtRUlE
+Uk07CisJCWdvdG8gb3V0X2ZyZWU7CisJfQorCisJLyoKKwkgKiBJZiBxdWV1ZS5zdGF0dXMgIT0g
+LUVJTlRSIHdlIGFyZSB3b2tlbiB1cCBieSBhbm90aGVyIHByb2Nlc3MKKwkgKi8KKwllcnJvciA9
+IHF1ZXVlLnN0YXR1czsKKwlpZiAocXVldWUuc3RhdHVzICE9IC1FSU5UUikgeworCQlnb3RvIG91
+dF91bmxvY2tfZnJlZTsKIAl9CisKKwkvKgorCSAqIElmIGFuIGludGVycnVwdCBvY2N1cnJlZCB3
+ZSBoYXZlIHRvIGNsZWFuIHVwIHRoZSBxdWV1ZQorCSAqLworCWlmICh0aW1lb3V0ICYmIGppZmZp
+ZXNfbGVmdCA9PSAwKQorCQllcnJvciA9IC1FQUdBSU47CiAJcmVtb3ZlX2Zyb21fcXVldWUoc21h
+LCZxdWV1ZSk7CisJZ290byBvdXRfdW5sb2NrX2ZyZWU7CisKIHVwZGF0ZToKIAlpZiAoYWx0ZXIp
+CiAJCXVwZGF0ZV9xdWV1ZSAoc21hKTsKZGlmZiAtTnVyIGxpbnV4LTIuNS43My9pbmNsdWRlL2xp
+bnV4L3NlbS5oIGxpbnV4LTIuNS43My5zZW0vaW5jbHVkZS9saW51eC9zZW0uaAotLS0gbGludXgt
+Mi41LjczL2luY2x1ZGUvbGludXgvc2VtLmgJU3VuIEp1biAyMiAxMTozMjo0MiAyMDAzCisrKyBs
+aW51eC0yLjUuNzMuc2VtL2luY2x1ZGUvbGludXgvc2VtLmgJRnJpIEp1biAyNyAxNDo1NTo0NCAy
+MDAzCkBAIC0xMDksNyArMTA5LDYgQEAKIAlpbnQJCQlpZDsJIC8qIGludGVybmFsIHNlbSBpZCAq
+LwogCXN0cnVjdCBzZW1idWYgKgkJc29wczsJIC8qIGFycmF5IG9mIHBlbmRpbmcgb3BlcmF0aW9u
+cyAqLwogCWludAkJCW5zb3BzOwkgLyogbnVtYmVyIG9mIG9wZXJhdGlvbnMgKi8KLQlpbnQJCQlh
+bHRlcjsJIC8qIG9wZXJhdGlvbiB3aWxsIGFsdGVyIHNlbWFwaG9yZSAqLwogfTsKIAogLyogRWFj
+aCB0YXNrIGhhcyBhIGxpc3Qgb2YgdW5kbyByZXF1ZXN0cy4gVGhleSBhcmUgZXhlY3V0ZWQgYXV0
+b21hdGljYWxseQo=
+
+------_=_NextPart_001_01C33CFE.36105E13--

@@ -1,66 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271816AbTGXXJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 19:09:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271815AbTGXXJ5
+	id S271811AbTGXXIS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 19:08:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271812AbTGXXIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 19:09:57 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:50330 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S271814AbTGXXJW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 19:09:22 -0400
-Date: Thu, 24 Jul 2003 19:14:21 -0400
-From: Ben Collins <bcollins@debian.org>
-To: gaxt <gaxt@rogers.com>, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net
-Subject: Re: Firewire
-Message-ID: <20030724231421.GQ1512@phunnypharm.org>
-References: <3F1FE06A.5030305@rogers.com> <20030724223522.GA23196@ruvolo.net> <20030724223615.GN1512@phunnypharm.org> <20030724230928.GB23196@ruvolo.net>
+	Thu, 24 Jul 2003 19:08:18 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:6354 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id S271811AbTGXXIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 19:08:17 -0400
+Date: Fri, 25 Jul 2003 09:24:13 +1000
+From: CaT <cat@zip.com.au>
+To: Steven Cole <elenstev@mesatop.com>, bill davidsen <davidsen@tmr.com>,
+       linux-kernel@vger.kernel.org, Tomas Szepe <szepe@pinerecords.com>
+Subject: Re: Posting format
+Message-ID: <20030724232413.GA800@zip.com.au>
+References: <20030723201801.GB32585@rdlg.net> <20030723212224.A527@infradead.org> <20030723220037.GC32585@rdlg.net> <20030723225333.GC16244@louise.pinerecords.com> <bfn5v6$m20$1@gatekeeper.tmr.com> <1059059667.1672.202.camel@spc9.esa.lanl.gov> <20030724154732.GJ32585@rdlg.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030724230928.GB23196@ruvolo.net>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030724154732.GJ32585@rdlg.net>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 24, 2003 at 04:09:29PM -0700, Chris Ruvolo wrote:
-> On Thu, Jul 24, 2003 at 06:36:15PM -0400, Ben Collins wrote:
-> > I know damn well that 2.6.0-test1 is not running r578 of the ohci1394
-> > driver. In fact, that's 10 months old.
+On Thu, Jul 24, 2003 at 11:47:32AM -0400, Robert L. Harris wrote:
+*51 lines of unnecessary quoting snipped*
+> > More exposition regarding top vs bottom posting: Replying at the bottom
+> > results in an easily parseable tree. Consider the following conversation
+> > where everyone replies at the bottom.
 > 
-> Er.. whoops.  Sorry, that was from my 2.4 boot.  Here's the right one.  This
-> is at module load time.  The rest of the data is correct.
-> 
-> -Chris
-> 
-> 
-> ohci1394: $Rev: 986 $ Ben Collins <bcollins@debian.org>                         
-> PCI: Found IRQ 10 for device 0000:00:0b.0
-> ohci1394_0: OHCI-1394 1.0 (PCI): IRQ=[10]  MMIO=[db001000-db0017ff]  Max Packet=[2048]
-> raw1394: /dev/raw1394 device initialized
-> ieee1394: unsolicited response packet received - np
-> ieee1394: contents: ffc00160 ffc00000 00000000 60f30404                         
-> ieee1394: unsolicited response packet received - np
-> ieee1394: contents: ffc00560 ffc00000 00000000 60f30404
-> ieee1394: unsolicited response packet received - np
-> ieee1394: contents: ffc00960 ffc00000 00000000 60f30404
-> ieee1394: ConfigROM quadlet transaction error for node 00:1023
- 
-That's more like it, thanks.
+> On the other hand if everyone posted at the top it would be considerably
+> easier reading for those who have been following the conversation
+> without having to scroll down and figure out where comments and the
+> conversation is at.  You could read just the top post and go from there.
 
+That's why you snip your quoting appropriately.
 
-I've seen this before, but I can never reproduce it. Not with i386, nor
-with sparc64, and not running 2.4 or 2.6. I know what is happening
-though. The response packet is getting processed before the status
-packet (IOW, the ack for your request is getting back after the actual
-response to your request).
+> For those new to the conversation they can just start at the bottom and
+> scroll up.  When the next post comes in they just read the top post
 
-Not sure how that is possible, but I suspect it's just a bit of logic
-that needs to be applied, or queue the replies waiting for the ack.
+Or rather, scroll to somewhere near the bottom, scroll down some, scroll
+up to the next message, scroll down some, scroll up, scroll down, etc.
+All depends on how the replies were done. 
 
+> again instead of scrolling down to the bottom or middle somewhere to
+> figure out what/when/where.
+
+People who know how to trim quoting appropriately make this a non-issue.
+Generally the reply begins on the first visible page.
+
+The other advantage is that going past the bits of relevant quoted text,
+even just to quickly pass your eyes over them, gives you a nice reminder
+of what is being replied to and makes the subject fresher in your mind.
+It also helps clue you into what the sender is really replying to so that
+there's (potentially) less misunderstanding.
+
+> Using VI and Mutt, the cursor starts at the top not the bottom or
+> anywhere in the middle so there's and ease of use for CLI mail readers
+> as well instead of the GUI oriented.
+
+I use mutt and vim. This is a non-point. The spacebar works. With vi
+ndd works for quote removal (where n is the number of lines). For vim
+you have shift-v to begin your selection and just move the cursor down
+to where you want to cut. If the person you're replying to did their
+job then you doing yours is simplicity in itself. If they don't then
+it becomes more painful but it still is not difficult (or complex -
+just takes a wee bit longer).
 
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
+"How can I not love the Americans? They helped me with a flat tire the
+other day," he said.
+	- http://tinyurl.com/h6fo

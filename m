@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317540AbSFEDwX>; Tue, 4 Jun 2002 23:52:23 -0400
+	id <S317543AbSFED45>; Tue, 4 Jun 2002 23:56:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317541AbSFEDwW>; Tue, 4 Jun 2002 23:52:22 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:2314 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317540AbSFEDwV>;
-	Tue, 4 Jun 2002 23:52:21 -0400
-Date: Tue, 4 Jun 2002 20:49:45 -0700
-From: Greg KH <greg@kroah.com>
-To: bvermeul@devel.blackstar.nl
-Cc: Adam Trilling <agt10@columbia.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [2.5.19/20] KDE panel (kicker) not starting up
-Message-ID: <20020605034945.GA32577@kroah.com>
-In-Reply-To: <Pine.GSO.4.44.0206030918120.21429-100000@watsol.cc.columbia.edu> <Pine.LNX.4.33.0206032033030.569-100000@devel.blackstar.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Wed, 08 May 2002 02:35:38 -0700
+	id <S317544AbSFED44>; Tue, 4 Jun 2002 23:56:56 -0400
+Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:31642 "EHLO
+	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S317543AbSFED4z>;
+	Tue, 4 Jun 2002 23:56:55 -0400
+Message-ID: <3CFD8C07.6030607@tmsusa.com>
+Date: Tue, 04 Jun 2002 20:56:55 -0700
+From: J Sloan <joe@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020604
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
+In-Reply-To: <Pine.LNX.4.44.0206041418460.2614-100000@waste.org> <E17FQPj-0001Rr-00@starship>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 03, 2002 at 08:34:44PM +0200, bvermeul@devel.blackstar.nl wrote:
-> On Mon, 3 Jun 2002, Adam Trilling wrote:
-> 
-> > Make sure you have read and write perms on your home directory.  I had
-> > that happen due to a misplaced chown -R once.
-> > 
-> > This is not a kernel question, however, and probably shouldn't be on this
-> > list.
-> 
-> Everythink works using 2.5.17. So I think this *is* a kernel question.
-> I've had the same problem with 2.5.19 (and couldn't get 2.5.18 working 
-> properly)
+Daniel Phillips wrote:
 
-Just to add one more "me too" here, I've seen the same thing here.
+>If I recall correctly, XFS makes an attempt to provide such realtime 
+>guarantees, or at least the Solaris version does. 
+>
+When did Solaris ever support xfs?
 
-2.5.18 worked just fine from what I remember.
+> However, the operating 
+>system must be able to provide true realtime guarantees in order for the 
+>filesystem to provide them, and I doubt that the combination of XFS and 
+>Solaris can do that.
+>
+no, but the combination of xfs and irix has
+made a lot of folks happy -  and xfs/linux
+is coming along nicely as well...
 
-greg k-h
+Joe
+

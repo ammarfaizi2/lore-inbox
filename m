@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265247AbTFMIOO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 04:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265248AbTFMION
+	id S265251AbTFMI0r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 04:26:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265253AbTFMI0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 04:14:13 -0400
-Received: from verdi.et.tudelft.nl ([130.161.38.158]:640 "EHLO
-	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S265247AbTFMIOK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 04:14:10 -0400
-Message-Id: <200306130827.h5D8RrJ5004185@verdi.et.tudelft.nl>
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-X-Exmh-Isig-CompType: repl
-X-Exmh-Isig-Folder: linux-kernel
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>,
-       Andries Brouwer <aebr@win.tue.nl>, Alan Cox <alan@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: open(.. O_DIRECT ..) difference in between Linux and FreeBSD .. 
-In-Reply-To: Message from Arjan van de Ven <arjanv@redhat.com> 
-   of "Fri, 13 Jun 2003 07:47:02 -0000." <20030613074702.B30329@devserv.devel.redhat.com> 
-Mime-Version: 1.0
-Content-Type: text/plain
-Date: Fri, 13 Jun 2003 10:27:52 +0200
-From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
+	Fri, 13 Jun 2003 04:26:47 -0400
+Received: from [80.190.106.4] ([80.190.106.4]:36618 "EHLO mail.taytron.net")
+	by vger.kernel.org with ESMTP id S265251AbTFMI0q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 04:26:46 -0400
+From: "Florian Schirmer" <jolt@tuxbox.org>
+To: <linux-kernel@vger.kernel.org>
+Cc: <alan@lxorguk.ukuu.org.uk>, <duvall@emufarm.org>
+Subject: Re: RTC causes hard lockups in 2.5.70-mm8
+Date: Fri, 13 Jun 2003 10:40:28 +0200
+Message-ID: <000001c33187$71cca990$0100a8c0@space.taytron.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Arjan van de Ven wrote:
-> On Fri, Jun 13, 2003 at 01:12:57AM +0200, Rob van Nieuwkerk wrote:
-> > FYI:
-> > It appears that somewhere between RH kernels 2.4.18-27.7.x and 2.4.20-18.9
-> > something has changed so that my application needs a O_SYNC too besides
-> > the O_DIRECT to make sure that writes will be synchronous.  If I leave
-> > the O_SYNC out with 2.4.20-18.9 the write will happen physically 35
-> > seconds after the write() was done.
-> 
-> O_DIRECT is nothing but a hint and the 2.4.20-18.9 kernel decides to not
-> honor it
+> Alan asked whether it was a specific in or out instruction in the 
+> driver, but I don't know how to find out.
 
-Hi Arjan,
+rtc_read never returns. It is busy waiting for a rtc interrupt to arrive.
+Which will never do... I blaim ACPI, as it works fine with acpi=off.
 
-Do you mean that the 2.4.20-18.9 kernel always ignores the O_DIRECT flag ?
+Regards,
+  Florian
 
-	greetings,
-	Rob van Nieuwkerk

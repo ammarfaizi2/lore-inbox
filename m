@@ -1,91 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267919AbUHKDoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267922AbUHKDqV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267919AbUHKDoo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 23:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267921AbUHKDoo
+	id S267922AbUHKDqV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 23:46:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267921AbUHKDqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 23:44:44 -0400
-Received: from gizmo08bw.bigpond.com ([144.140.70.18]:21410 "HELO
-	gizmo08bw.bigpond.com") by vger.kernel.org with SMTP
-	id S267919AbUHKDoU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 23:44:20 -0400
-Message-ID: <4119960A.4010002@bigpond.net.au>
-Date: Wed, 11 Aug 2004 13:44:10 +1000
+	Tue, 10 Aug 2004 23:46:21 -0400
+Received: from gizmo09bw.bigpond.com ([144.140.70.19]:40160 "HELO
+	gizmo09bw.bigpond.com") by vger.kernel.org with SMTP
+	id S267923AbUHKDqJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 23:46:09 -0400
+Message-ID: <4119967D.3060705@bigpond.net.au>
+Date: Wed, 11 Aug 2004 13:46:05 +1000
 From: Peter Williams <pwil3058@bigpond.net.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: spaminos-ker@yahoo.com
-CC: Peter Williams <pwil3058@bigpond.net.au>,
-       William Lee Irwin III <wli@holomorphy.com>,
+To: Con Kolivas <kernel@kolivas.org>
+CC: spaminos-ker@yahoo.com, William Lee Irwin III <wli@holomorphy.com>,
        linux-kernel@vger.kernel.org
 Subject: Re: Scheduler fairness problem on 2.6 series (Attn: Nick Piggin and
  others)
-References: <20040811010116.GL11200@holomorphy.com> <20040811022143.4892.qmail@web13910.mail.yahoo.com> <20040811022345.GN11200@holomorphy.com> <41198859.7050807@bigpond.net.au> <411988DF.9010308@bigpond.net.au> <41199129.9080809@bigpond.net.au>
-In-Reply-To: <41199129.9080809@bigpond.net.au>
+References: <20040811010116.GL11200@holomorphy.com> <20040811022143.4892.qmail@web13910.mail.yahoo.com> <20040811022345.GN11200@holomorphy.com> <41198859.7050807@bigpond.net.au> <411988DF.9010308@bigpond.net.au> <41199129.9080809@bigpond.net.au> <cone.1092195076.205601.25569.502@pc.kolivas.org>
+In-Reply-To: <cone.1092195076.205601.25569.502@pc.kolivas.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Peter Williams wrote:
+Con Kolivas wrote:
+> Peter Williams writes:
 > 
 >> Peter Williams wrote:
 >>
->>> William Lee Irwin III wrote:
+>>> Peter Williams wrote:
 >>>
->>>> On Tue, Aug 10, 2004 at 07:21:43PM -0700, spaminos-ker@yahoo.com wrote:
+>>>> William Lee Irwin III wrote:
 >>>>
->>>>> I am not very familiar with all the parameters, so I just kept the 
->>>>> defaults
->>>>> Anything else I could try?
->>>>> Nicolas
+>>>>> On Tue, Aug 10, 2004 at 07:21:43PM -0700, spaminos-ker@yahoo.com 
+>>>>> wrote:
+>>>>>
+>>>>>> I am not very familiar with all the parameters, so I just kept the 
+>>>>>> defaults
+>>>>>> Anything else I could try?
+>>>>>> Nicolas
+>>>>>
+>>>>>
+>>>>>
+>>>>>
+>>>>>
+>>>>> No. It appeared that the SPA bits had sufficient fairness in them to
+>>>>> pass this test but apparently not quite enough.
+>>>>>
 >>>>
->>>>
->>>>
->>>>
->>>>
->>>> No. It appeared that the SPA bits had sufficient fairness in them to
->>>> pass this test but apparently not quite enough.
->>>>
+>>>> The interactive bonus may interfere with fairness (the throughput 
+>>>> bonus should actually help it for tasks with equal nice) so you 
+>>>> could try setting max_ia_bonus to zero (and possibly increasing 
+>>>> max_tpt_bonus). With "eb" mode this should still give good 
+>>>> interactive response but expect interactive response to suffer a 
+>>>> little in "pb" mode however renicing the X server to a negative 
+>>>> value should help.
 >>>
->>> The interactive bonus may interfere with fairness (the throughput 
->>> bonus should actually help it for tasks with equal nice) so you could 
->>> try setting max_ia_bonus to zero (and possibly increasing 
->>> max_tpt_bonus). With "eb" mode this should still give good 
->>> interactive response but expect interactive response to suffer a 
->>> little in "pb" mode however renicing the X server to a negative value 
->>> should help.
+>>>
+>>>
+>>> I should also have mentioned that fiddling with the promotion 
+>>> interval may help.
 >>
 >>
+>> Having reread your original e-mail I think that this problem is 
+>> probably   being caused by the interactive bonus mechanism classifying 
+>> the httpd server threads as "interactive" threads and giving them a 
+>> bonus.  But for some reason the daemon is not identified as 
+>> "interactive" meaning that it gets given a lower priority.  In this 
+>> situation if there's a large number of httpd threads (even with 
+>> promotion) it could take quite a while for the daemon to get a look 
+>> in.  Without promotion total starvation is even a possibility.
 >>
->> I should also have mentioned that fiddling with the promotion interval 
->> may help.
+>> Peter
+>> PS For both "eb" and "pb" modes, max_io_bonus should be set to zero on 
+>> servers (where interactive responsiveness isn't an issue).
+>> PPS For "sc" mode, try setting "interactive" to zero and "compute" to 1.
 > 
 > 
-> Having reread your original e-mail I think that this problem is probably 
->  being caused by the interactive bonus mechanism classifying the httpd 
-> server threads as "interactive" threads and giving them a bonus.  But 
-> for some reason the daemon is not identified as "interactive" meaning 
-> that it gets given a lower priority.  In this situation if there's a 
-> large number of httpd threads (even with promotion) it could take quite 
-> a while for the daemon to get a look in.  Without promotion total 
-> starvation is even a possibility.
-> 
-> Peter
-> PS For both "eb" and "pb" modes, max_io_bonus should be set to zero on 
-> servers (where interactive responsiveness isn't an issue).
-> PPS For "sc" mode, try setting "interactive" to zero and "compute" to 1.
+> No, compute should not be set to 1 for a server. It is reserved only for 
+> computational nodes, not regular servers. "Compute"  will increase 
+> latency which is undersirable.
 
-I've just run your tests on my desktop and with max_ia_bonus at its 
-default value I see the "delta = 3" with 20 threads BUT when I set 
-max_ia_bonus to zero they stop (in both "eb" and "pb" mode).  So I then 
-reran the tests with 60 threads and zero max_ia_bonus and no output was 
-generated by your testdelay script in either "eb" or "pb" modes.  I 
-didn't try "sc" mode as I have a ZAPHOD kernel loaded (not HYDRA) but 
-Con has reported that the problem is absent in his latest patches so 
-I'll update the "sc" mode in HYDRA to those patches.
+Sorry, my misunderstanding.
 
 Peter
 -- 

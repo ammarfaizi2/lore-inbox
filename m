@@ -1,64 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268514AbRG3LiE>; Mon, 30 Jul 2001 07:38:04 -0400
+	id <S268510AbRG3LZD>; Mon, 30 Jul 2001 07:25:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268516AbRG3Lhx>; Mon, 30 Jul 2001 07:37:53 -0400
-Received: from ha1.rdc2.nsw.optushome.com.au ([203.164.2.50]:45015 "EHLO
-	mss.rdc2.nsw.optushome.com.au") by vger.kernel.org with ESMTP
-	id <S268514AbRG3Lhg>; Mon, 30 Jul 2001 07:37:36 -0400
-Date: Tue, 31 Jul 2001 05:30:15 +1000
-From: Glenn <bug1@optushome.com.au>
-To: thierry@cri74.org
-Cc: debian-boot@lists.debian.org, linux-kernel@vger.kernel.org
-Subject: Re: [PCI] building PCI IDs/drivers DB from Linux kernel sources
-Message-Id: <20010731053015.5d098517.bug1@optushome.com.au>
-In-Reply-To: <20010730113319.A24939@pc04.cri.cur-archamps.fr>
-In-Reply-To: <20010730113319.A24939@pc04.cri.cur-archamps.fr>
-X-Mailer: Sylpheed version 0.5.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S268506AbRG3LYx>; Mon, 30 Jul 2001 07:24:53 -0400
+Received: from elektra.higherplane.net ([203.37.52.137]:53714 "EHLO
+	elektra.higherplane.net") by vger.kernel.org with ESMTP
+	id <S268503AbRG3LYo>; Mon, 30 Jul 2001 07:24:44 -0400
+Date: Mon, 30 Jul 2001 21:45:22 +1000
+From: john slee <indigoid@higherplane.net>
+To: Paul Mundt <lethal@ChaoticDreams.ORG>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Test mail
+Message-ID: <20010730214522.C1183@higherplane.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010730040747.A17077@ChaoticDreams.ORG>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, 30 Jul 2001 11:33:19 +0200
-"Thierry Laronde" <thierry@cri74.org> wrote:
+On Mon, Jul 30, 2001 at 04:07:47AM -0700, Paul Mundt wrote:
+> While these things are a nuisance, they're hardly that big of a deal. These
+> kind of things have existed forever, and people have somehow managed to get
+> by.
 
-> 
-> In order to allow a kind of light detection of hardware to be use during
-> installation, I wanted to build a database (for PCI: I start with the
-> easiest...) with the following format:
-> 
-> CLASS_ID	VENDOR_ID	DEVICE_ID	driver_name
-> 
-> I have decided to write a script (you will find all the stuff attached)
-> parsing the Linux kernel sources in order to do that.
-> 
-<snip>
-> 
-> Note: The DB constructed is _not_ garanty to be bullet proof. For example,
-> since this is only alpha tests, the class id are probably wrong for some
-> devices. Comments absolutely welcomed.
+they ARE a big deal.  someone, somewhere pays for the traffic.  they
+didn't CHOOSE to be flooded with virii/worms.  but their upstream won't
+be nice and say "aw you got hit by some email virus i wont bill you for
+that traffic..."
 
-I imported your db into gnumeric, sorted it to put the driver first,
-converted it to html (and .csv).
+your attitude seems similar to that of spammers.  "just press del!"
 
-http://people.debian.org/~bug1/dmod/linux-2.4.6-i386-pci.html
+j.
 
-A couple of possible problem entries
-
-The comma in the following
-53c7,8xx  256  4096  1
-53c7,8xx  256  4096  2
-53c7,8xx  256  4096  3
-53c7,8xx  256  4096  4
-
-and no number for device_id
-saa9730  512  4401  PCI_DEVICE_ID_PHILIPS_SAA9730
-pmc551  512  4528  PCI_DEVICE_ID_V3_SEMI_V370PDC
-
-(im not subscribed to lk-ml)
-
-
-Glenn
+-- 
+"Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson

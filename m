@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268769AbUI2SXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268786AbUI2Sk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268769AbUI2SXv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 14:23:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268779AbUI2SXv
+	id S268786AbUI2Sk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 14:40:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268800AbUI2Sk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 14:23:51 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:16878 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S268769AbUI2SXt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 14:23:49 -0400
-Date: Wed, 29 Sep 2004 20:21:43 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Ed Schouten <edschouten@gmail.com>
-Cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
-Subject: Re: [Patch] i386: Xbox support
-Message-ID: <20040929182143.GA21770@thundrix.ch>
-References: <65184.217.121.83.210.1096308147.squirrel@217.121.83.210> <4158AA5B.8090601@yahoo.com.au> <dc54396f040927214651393131@mail.gmail.com> <415915F0.2000803@yahoo.com.au> <dc54396f04092801465d278b73@mail.gmail.com>
+	Wed, 29 Sep 2004 14:40:59 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:31966 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268786AbUI2Sk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 14:40:58 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm4-S7
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+In-Reply-To: <20040928000516.GA3096@elte.hu>
+References: <1094683020.1362.219.camel@krustophenia.net>
+	 <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu>
+	 <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu>
+	 <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu>
+	 <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu>
+	 <20040924074416.GA17924@elte.hu>  <20040928000516.GA3096@elte.hu>
+Content-Type: text/plain
+Message-Id: <1096483257.1600.44.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
-Content-Disposition: inline
-In-Reply-To: <dc54396f04092801465d278b73@mail.gmail.com>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 29 Sep 2004 14:40:57 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-09-27 at 20:05, Ingo Molnar wrote:
+> i've released the -S7 VP patch:
+> 
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm4-S7
 
---WIyZ46R2i8wDzkSu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Disabling latency tracing does not seem to work.  To demonstrate:
 
-Salut,
+	echo 0 > /proc/sys/kernel/preempt_max_latency
+	echo 0 > /proc/sys/kernel/trace_enabled
+	modprobe foo-module (will reliably cause a ~3-600 usec latency in resolve_symbol)
+	check /proc/latency_trace, or dmesg, it will be the modprobe latency.
+	cat /proc/sys/kernel/trace_enabled, it is still 0
 
-On Tue, Sep 28, 2004 at 10:46:56AM +0200, Ed Schouten wrote:
-> Xbox Linux  has been around since  2001 if I  remember correctly and
-> there  are almost no  distributions around  that really  support the
-> Xbox.
+This definitely worked at one point.  Not sure when it broke.
 
-Didn't Andy Green mention that there was Mandrake 9 for the X-Box, way
-back in december 2002?
+Lee
 
-			    Tonnerre
-
---WIyZ46R2i8wDzkSu
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
-
-iD8DBQFBWv02/4bL7ovhw40RAmB0AJ42CWSChzTtIUDF3Ybss0nYsYb6UACeMYrb
-cc6c9t0O66Qw1hLtP/8hmS4=
-=J0r/
------END PGP SIGNATURE-----
-
---WIyZ46R2i8wDzkSu--

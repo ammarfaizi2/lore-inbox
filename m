@@ -1,63 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbUKDPV4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262261AbUKDPZs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262272AbUKDPV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 10:21:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbUKDPTu
+	id S262261AbUKDPZs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 10:25:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbUKDPZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 10:19:50 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:28890 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262255AbUKDPSx (ORCPT
+	Thu, 4 Nov 2004 10:25:48 -0500
+Received: from mail.kroah.org ([69.55.234.183]:9374 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262270AbUKDPUE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 10:18:53 -0500
-Date: Thu, 4 Nov 2004 16:19:48 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.1
-Message-ID: <20041104151948.GA25326@elte.hu>
-References: <OF4142E065.5AF4099C-ON86256F42.00513CF0@raytheon.com> <20041104151631.GA24056@elte.hu>
+	Thu, 4 Nov 2004 10:20:04 -0500
+Date: Wed, 3 Nov 2004 17:52:37 -0800
+From: Greg KH <greg@kroah.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] USB: fix compile warning for USB w/oPM
+Message-ID: <20041104015237.GA16864@kroah.com>
+References: <20041020023803.GF8597@taniwha.stupidest.org> <20041020235056.GA16606@kroah.com> <20041021002935.GA13781@taniwha.stupidest.org> <20041021021329.GA27812@kroah.com> <20041103091049.GB22469@taniwha.stupidest.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041104151631.GA24056@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
-	BAYES_00 -4.90, SORTED_RECIPS 2.70
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -2
+In-Reply-To: <20041103091049.GB22469@taniwha.stupidest.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> icmp/ping replies are handled by ksoftirqd. Once a networking request
-> has been handed to ksoftirqd it cannot be redirected to another CPU,
-> because softirq processing is fundamentally per-CPU. So if the network
-> interrupt hits the CPU where the RT-task is running then the RT task
-> will starve that ksoftirq instance (and hence the reply) even if
-> another CPU in the system is idle.
+On Wed, Nov 03, 2004 at 01:10:49AM -0800, Chris Wedgwood wrote:
+> Remove compile warning for USB w/o PM.
 > 
-> i agree that this is an SMP/RT artifact that should be fixed. hardirq
-> workload can be redirected to other CPUs because it's single-threaded,
-> but it's not that easy for softirq workload.
+> Signed-off-by: Chris Wedgwood <cw@f00f.org>
+> ---
 > 
-> i suspect the same phenomenon causes some of the other scheduling
-> artifacts ('frozen' X) you've noticed.
+> This one I even tested...  sorry about before!
 
-does the ping phenomenon go away if you chrt both the networking IRQ
-thread and both ksoftirqd's to above the RT task's priority? (this
-doesnt solve the problem though - that task has RT priority for a reason
-and on an SMP box the kernel should be able to schedule work without
-getting into this starvation scenario.)
+Already fixed in my tree from a patch from David Brownell.
 
-	Ingo
+thanks,
+
+greg k-h

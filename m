@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266888AbUJRQ5h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266892AbUJRRCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266888AbUJRQ5h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 12:57:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266901AbUJRQ5h
+	id S266892AbUJRRCe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 13:02:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266901AbUJRRCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 12:57:37 -0400
-Received: from mail.kroah.org ([69.55.234.183]:20697 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266888AbUJRQ5e (ORCPT
+	Mon, 18 Oct 2004 13:02:34 -0400
+Received: from adsl-209-204-138-32.sonic.net ([209.204.138.32]:55966 "EHLO
+	graphe.net") by vger.kernel.org with ESMTP id S266892AbUJRRCc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 12:57:34 -0400
-Date: Mon, 18 Oct 2004 09:45:39 -0700
-From: Greg KH <greg@kroah.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Alexandre Oliva <aoliva@redhat.com>, linux-kernel@vger.kernel.org,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: forcing PS/2 USB emulation off
-Message-ID: <20041018164539.GC18169@kroah.com>
-References: <orzn2lyw8k.fsf@livre.redhat.lsd.ic.unicamp.br> <200410172248.16571.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410172248.16571.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.6i
+	Mon, 18 Oct 2004 13:02:32 -0400
+Date: Mon, 18 Oct 2004 10:02:20 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@server.graphe.net
+To: Andrea Arcangeli <andrea@novell.com>
+cc: Andi Kleen <ak@suse.de>, haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: 4level page tables for Linux
+In-Reply-To: <20041013200414.GP17849@dualathlon.random>
+Message-ID: <Pine.LNX.4.58.0410180957500.9916@server.graphe.net>
+References: <20041012135919.GB20992@wotan.suse.de> <1097606902.10652.203.camel@localhost>
+ <20041013184153.GO17849@dualathlon.random> <20041013213558.43b3236c.ak@suse.de>
+ <20041013200414.GP17849@dualathlon.random>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -4.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 17, 2004 at 10:48:16PM -0500, Dmitry Torokhov wrote:
-> 
-> BTW, I think that handoff should be activated by default. I am lurking
-> in Gentoo forums and there are coultless people having problems with
-> their mice/touchpads detected properly unless they load their USB drivers
-> first.
+On Wed, 13 Oct 2004, Andrea Arcangeli wrote:
 
-I'm a little leary of changing the way the kernel grabs the USB hardware
-from the way we have been doing it for the past 6 years.  So by
-providing the option for people who have broken machines like these, we
-will let them work properly, and it should not affect any of the zillion
-other people out there with working hardware.
+> On Wed, Oct 13, 2004 at 09:35:58PM +0200, Andi Kleen wrote:
+> > page mapping level 4 (?) just guessing here.
+>
+> make sense.
+>
+> > PML4 is the name AMD and Intel use in their documentation. I don't see
+> > a particular reason to be different from them.
+>
+> just because we never say 'page mapping level 4', we think 'page table
+> level 4' or 'page directory level 4'.
 
-Or, if we can determine a specific model of hardware that really needs
-this option enabled, we can do that automatically.  If you look at the
-patch, we do that for some specific IBM machines for this very reason.
+Would it not be best to give up hardcoding these page mapping levels into
+the kernel? Linux should support N levels. pml4,pgd,pmd,pte needs to
+disappear and be replaced by
 
-Is there any consistancy with the type of hardware that you see being
-reported for this issue?
+pte_path[N]
 
-thanks,
+We are duplicating code for pgd, pmd, pte and now pml again and again. The
+code could be much simpler if this would be generalized. Various
+architectures would support different levels without some strange
+feature like f.e. pmd's being "optimized away".
 
-greg k-h
+Certainly the way that pml4 is proposed to be done is less invasive but we
+are creating something more and more difficult to maintain.

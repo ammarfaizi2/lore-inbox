@@ -1,62 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262845AbTCKGig>; Tue, 11 Mar 2003 01:38:36 -0500
+	id <S262846AbTCKHKU>; Tue, 11 Mar 2003 02:10:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262846AbTCKGig>; Tue, 11 Mar 2003 01:38:36 -0500
-Received: from tag.witbe.net ([81.88.96.48]:36618 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id <S262845AbTCKGif>;
-	Tue, 11 Mar 2003 01:38:35 -0500
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Matthew Harrell'" 
-	<mharrell-dated-1047753657.4eb01d@bittwiddlers.com>,
-       "'Kernel List'" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.64 boot problems
-Date: Tue, 11 Mar 2003 07:49:14 +0100
-Message-ID: <00c001c2e79a$5567c8c0$3f00a8c0@witbe>
+	id <S262849AbTCKHKU>; Tue, 11 Mar 2003 02:10:20 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:24136
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262846AbTCKHKT>; Tue, 11 Mar 2003 02:10:19 -0500
+Date: Tue, 11 Mar 2003 02:17:44 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: cpu-2.5.64-1
+In-Reply-To: <20030311042457.GL465@holomorphy.com>
+Message-ID: <Pine.LNX.4.50.0303110213390.29169-100000@montezuma.mastecende.com>
+References: <20030311042457.GL465@holomorphy.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-In-Reply-To: <20030310184052.GA1623@bittwiddlers.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Could you try the same config without APIC and IO APIC for Uniprocessor
-?
-I've a problem that is directly related to 2.5.64 and these features...
+On Mon, 10 Mar 2003, William Lee Irwin III wrote:
 
-Without them, 2.5.64 just boots fine...
+> Enable NUMA-Q's to run with more than 32 cpus by introducing a bitmap
+> ADT and using it for cpu bitmasks on i386. Only good for up to 60 cpus;
+> 64x requires support for node-local cluster ID to physical node routes.
+> 
+> Merged Randy Dunlap's cleanups last release; nothing's changed since.
 
-Regards,
-Paul
+Have you had an opportunity to test this code yet? If you can't get that 
+large a 32bit SMP box, you could fire off some 'extra' cpus on i386 then 
+fail them during boot around cpu_up, making sure to put the failed cpus 
+somewhere in the middle of your cpu map so that not only do you get a 
+sparse map but some on the other side of 32.
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
-> Matthew Harrell
-> Sent: Monday, March 10, 2003 7:41 PM
-> To: Kernel List
-> Subject: Re: 2.5.64 boot problems
-> 
-> 
-> > this is the first time i tried to use a 2.5.x kernel. i compiled it 
-> > successfully but at boot time it stops at "ok booting kernel"
-> 
-> I've got the same problem on my HP ZT1195 laptop and it only 
-> just started 
-> with the 2.5.64 kernels (and all bk snapshots).  2.5.63 
-> worked fine.  Config attached below
-> 
-> -- 
->   Matthew Harrell                          I no longer need 
-> to punish, deceive,
->   Bit Twiddlers, Inc.                       or compromise 
-> myself, unless I want
->   mharrell@bittwiddlers.com                 to stay employed.
-> 
-
+	Zwane
+-- 
+function.linuxpower.ca

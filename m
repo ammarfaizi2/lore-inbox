@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284456AbRLEPDR>; Wed, 5 Dec 2001 10:03:17 -0500
+	id <S280495AbRLEPUB>; Wed, 5 Dec 2001 10:20:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284453AbRLEPDH>; Wed, 5 Dec 2001 10:03:07 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:54948 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S284452AbRLEPCx>; Wed, 5 Dec 2001 10:02:53 -0500
-Importance: Normal
-Subject: Re: [Lse-tech] [RFC] [PATCH] Scalable Statistics Counters
-To: kiran@linux.ibm.com
-Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF29EF801E.F851F18D-ON85256B19.00510775@raleigh.ibm.com>
-From: "Niels Christiansen" <nchr@us.ibm.com>
-Date: Wed, 5 Dec 2001 10:02:33 -0500
-X-MIMETrack: Serialize by Router on D04NM104/04/M/IBM(Release 5.0.8 |June 18, 2001) at
- 12/05/2001 10:02:41 AM
+	id <S283155AbRLEPTv>; Wed, 5 Dec 2001 10:19:51 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:54984 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S283663AbRLEPTm>;
+	Wed, 5 Dec 2001 10:19:42 -0500
+Date: Wed, 5 Dec 2001 10:19:39 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Deep look into VFS
+In-Reply-To: <3C0E1CFD.1E2265FB@evision-ventures.com>
+Message-ID: <Pine.GSO.4.21.0112051009290.22944-100000@binet.math.psu.edu>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Kiran,
 
-> Statistics counters are used in many places in the Linux kernel,
-including
-> storage, network I/O subsystems etc.  These counters are not atomic since
 
-> accuracy is not so important. Nevertheless, frequent updation of these
-> counters result in cacheline bouncing among various cpus in a multi
-processor
-> environment. This patch introduces a new set of interfaces, which should
-> improve performance of such counters in MP environment.  This
-implementation
-> switches to code that is devoid of overheads for SMP if these interfaces
-> are used with a UP kernel.
->
-> Comments are welcome :)
->
->Regards,
->Kiran
+On Wed, 5 Dec 2001, Martin Dalecki wrote:
 
-I'm wondering about the scope of this.  My Ethernet adapter with, maybe, 20
-counter fields would have 20 counters allocated for each of my 16
-processors.
-The only way to get the total would be to use statctr_read() to merge them.
-Same for the who knows how many IP counters etc., etc.
+> Unless I'm compleatly misguided the lock on the superblock
+> should entierly prevent the race described inside the header comment
+> and we should be able to delete clear_inode from this function.
 
-How many and which counters were converted for the test you refer to?
+Huh?  We drop that lock before the return from this function.  So if you
+move clear_inode() after the return, you lose that protections.
 
-I do like the idea of a uniform access mechanism, though.  It is well in
-line
-with my thoughts about an architected interface for topology and
-instrumentation
-so I'll definitely get back to you as I try to collect requirements.
+What's more, you can't more that lock_super()/unlock_super() into iput()
+itself - you need it _not_ taken in the beginning of ext2_delete_inode()
+and you don't want it for quite a few filesystems.
 
-Niels
+Nothing VFS-specific here, just a bog-standard "you lose protection of
+semaphore once you call up()"...
+
+> PS. Deleting clear_inode() would help to simplify the
+> delete_inode parameters quite a significant bit, as
+> well as deleting the tail union in struct inode - that's the goal.
+
+Again, huh?
 

@@ -1,31 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264101AbRFSJmM>; Tue, 19 Jun 2001 05:42:12 -0400
+	id <S264103AbRFSJnM>; Tue, 19 Jun 2001 05:43:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264103AbRFSJmD>; Tue, 19 Jun 2001 05:42:03 -0400
-Received: from mauve.csi.cam.ac.uk ([131.111.8.38]:55290 "EHLO
-	mauve.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S264101AbRFSJlx>; Tue, 19 Jun 2001 05:41:53 -0400
-Date: Tue, 19 Jun 2001 10:41:51 +0100 (BST)
-From: Jeremy Sanders <jss@ast.cam.ac.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: rsync hangs on RedHat 2.4.2 or stock 2.4.4
-In-Reply-To: <Pine.LNX.4.33.0106121417130.10732-100000@xpc1.ast.cam.ac.uk>
-Message-ID: <Pine.LNX.4.33.0106191040230.9988-100000@xpc1.ast.cam.ac.uk>
+	id <S264108AbRFSJnC>; Tue, 19 Jun 2001 05:43:02 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:47373 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264103AbRFSJmu>; Tue, 19 Jun 2001 05:42:50 -0400
+Subject: Re: 2.4.5-ac15 -- Unresolved symbols "gameport_register_port" and "gameport_unregister_port" in char/joystick/[cs461x.o, emu10k1
+To: kaos@ocs.com.au (Keith Owens)
+Date: Tue, 19 Jun 2001 10:41:21 +0100 (BST)
+Cc: miles@megapathdsl.net (Miles Lane), linux-kernel@vger.kernel.org
+In-Reply-To: <18479.992943115@kao2.melbourne.sgi.com> from "Keith Owens" at Jun 19, 2001 07:31:55 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15CI0f-0005h1-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've found a patch which fixes the hanging problem, so I guess it's not
-linux-kernel which is at fault. Get it from Wayne Davison at:
+> .config.  If they are different then it was a menuconfig order
+> problem[*], if they are the same then I need your full .config, not
+> just an extract.
+> 
+> [*] A good reason to use CML2 ;)
 
- http://www.clari.net/~wayne/rsync-nohang.patch
-
-Jeremy
-
--- 
-Jeremy Sanders <jss@ast.cam.ac.uk>  http://www-xray.ast.cam.ac.uk/~jss/
-Pembroke College, Cambridge. UK   Institute of Astronomy, Cambridge. UK
-
-
+You don't need CML2 to resolve dependancy orders and clashes, CML1 is 
+expressing the constraints, its just a tool issue

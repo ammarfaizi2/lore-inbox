@@ -1,75 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274646AbRITUnR>; Thu, 20 Sep 2001 16:43:17 -0400
+	id <S274642AbRITUnR>; Thu, 20 Sep 2001 16:43:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274642AbRITUnH>; Thu, 20 Sep 2001 16:43:07 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:41273 "EHLO
-	deathstar.prodigy.com") by vger.kernel.org with ESMTP
-	id <S274645AbRITUmz>; Thu, 20 Sep 2001 16:42:55 -0400
-Date: Thu, 20 Sep 2001 16:43:19 -0400
-Message-Id: <200109202043.f8KKhJ202923@deathstar.prodigy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Athlon/K7-Opimisation problems
-X-Newsgroups: linux.dev.kernel
-In-Reply-To: <01090915115400.00173@c779218-a>
-Organization: TMR Associates, Schenectady NY
-From: davidsen@tmr.com (bill davidsen)
+	id <S274645AbRITUnI>; Thu, 20 Sep 2001 16:43:08 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:26093 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S274646AbRITUm4>;
+	Thu, 20 Sep 2001 16:42:56 -0400
+Subject: shutdown "anomoly" with kernel 2.4.9
+To: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+Date: Thu, 20 Sep 2001 16:43:19 -0400 (EDT)
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20010920204319.4E0741F76@havoc.gtf.org>
+From: mgm@havoc.gtf.org (Michael G. Mobley)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <01090915115400.00173@c779218-a> you write:
-| On Sunday 09 September 2001 10:07 am, Carsten Leonhardt wrote:
-| > Hi,
-| >
-| > here's my data regarding the K7 optimisation problem.
-| >
-| > Until last week I had a 1GHz Athlon with 133MHz FSB. I then bought a
-| > 1.4GHz Athlon, again 133MHz FSB.
-| >
-| > I never had any problems with the 1GHz processor, but as soon as I
-| > stuck the 1.4GHz processor in, the kernel oopsed itself to
-| > oblivion. (That was with kernel 2.4.5-ac5, approximately)
-| 
-| This is common enough it's becoming absurd.
 
-Never had a slower Athlon than 1.4, but I suppose the system could be
-underclocked as well;-) However, I have to think there's other stuff
-happen, see below.
+Folks,
 
-| >
-| > I also noticed that the computer booted ok with the Debian
-| > bootfloppies, which use a kernel compiled for i386. So after several
-| > kernel compile/boot cycles, I found out that I had to disable K7
-| > optimisation to make the system boot again.
-| >
-| > The mainboard is a Tyan Trinity KT-A (S2390B) with a VIA KT133A
-| > chipset.
-| >
-| > After reading here that it may be the PSU, I upgraded my 300W PSU to a
-| > 431W Enermax, which made no difference.
-| >
-| > The only difference I can make out between the working and the
-| > non-working CPU is the internal clockspeed of the CPU and the
-| > stepping (old: 2, new: 4).
-| 
-| Heat anyone? stepping 4 hasn't seemed to be the problem, at least not 
-| directly
-| What's the tempature difference between your 1Ghz and 1.4Ghz? both CPU 
-| and system? What kind of cooling do you have?
+I thought I'd mention something weird I'm seeing with kernel 2.4.9...
 
-In my case, if I compile a 686 kernel it is nice and stable, while an
-Athlon kernel is not. With all due respect I bet the temperature is dead
-the same regardless of kernel, so I can't blame temperature.
+BTW, I just recently subscribed to this list, but have scoured the
+archives and didn't find anything pertinent to this particular problem.
 
-The problem I have is seen only when I use Athlon code enabled with
-menuconfig, so the question is if the code is bad (as in timing
-sensitive), or if the compiler might be generating bad code for Athlon.
+When running kernel 2.4.9, my system cannot reliably reboot/
+halt/shutdown.  It hangs when killall5 sends out the TERM signal, as if
+init itself is terminating.  This is VERY repeatable (happens pretty
+much every time, whether the shutdown is through 'shutdown -r now',
+'reboot', 'halt', whatever...)
 
-Just a data point, I believe that the problems (at least those which are
-bugging me) are releated to something other than temperature.
+I wouldn't have thought this is a kernel problem, but, an identical build
+of 2.4.8 does not seem to exhibit this behavior.  And I've played around,
+making one change at a time, and that really is the ONLY difference.
 
+BTW, I'm building both kernels to exactly the same config.  (diff of the
+.configs show only three commented out sound card options that have been
+added to 2.4.9 as differences.)
+
+Brief system setup is:
+
+1xPIII/800, Asus P3V4X MB, 640MB RAM
+AHA29160 SCSI controller w/ 3 HDDs, 2 CDROMs
+No IDE
+USB, AGP, etc...
+etc. etc...  (Can provide more details if needed)
+GCC version is:  2.96
+Binutils version is: 2.10.91.0.2
+(Basically it's a stock RH7.1 install right now)
+
+Regards, 
+  Michael
 -- 
-bill davidsen <davidsen@tmr.com>
- "If I were a diplomat, in the best case I'd go hungry.  In the worst
-  case, people would die."
-		-- Robert Lipe
+                                              |  Michael G. Mobley
+                                              |  mgm@havoc.gtf.org

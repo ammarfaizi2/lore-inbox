@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272062AbRHVRhY>; Wed, 22 Aug 2001 13:37:24 -0400
+	id <S272065AbRHVRsG>; Wed, 22 Aug 2001 13:48:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272059AbRHVRhO>; Wed, 22 Aug 2001 13:37:14 -0400
-Received: from [209.202.108.240] ([209.202.108.240]:38673 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S272055AbRHVRg7>; Wed, 22 Aug 2001 13:36:59 -0400
-Date: Wed, 22 Aug 2001 13:36:57 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: adding accuracy to random timers on PPC - new config option or
- runtime  overhead?
-In-Reply-To: <3B83EC7B.B10F59C6@nortelnetworks.com>
-Message-ID: <Pine.LNX.4.33.0108221335000.12521-100000@terbidium.openservices.net>
+	id <S272063AbRHVRr4>; Wed, 22 Aug 2001 13:47:56 -0400
+Received: from d06lmsgate-3.uk.ibm.com ([195.212.29.3]:46833 "EHLO
+	d06lmsgate-3.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S272055AbRHVRrn>; Wed, 22 Aug 2001 13:47:43 -0400
+Importance: Normal
+Subject: Is there any interest in Dynamic API
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF7D8B08B8.41635C2F-ON80256AB0.0060953B@portsmouth.uk.ibm.com>
+From: "Richard J Moore" <richardj_moore@uk.ibm.com>
+Date: Wed, 22 Aug 2001 18:44:27 +0100
+X-MIMETrack: Serialize by Router on D06ML023/06/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 22/08/2001 18:45:04
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Aug 2001, Chris Friesen wrote:
+I was wondering whether the kernel community had any interest in seeing a
+dynamic api capability in the kernel. What I have in mind the ability for a
+kernel module to request a system call entry be added by supplying a call
+name to a create_dynamic_api service. This service would assign a system
+call number by looking for an unused slot (not from the beginning of the
+syscall table but from a defined location so as to avoid reserved calls).
+It would create a /proc/dynapi/api_name - the content of this file would
+contain the call number.
 
->
-> I'm looking at putting in PPC-specific code in add_timer_randomness() that would
-> be similar to the x86-specific stuff.
->
-> The problem is that the PPC601 uses real time clock registers while the other
-> PPC chips use a timebase register, so two different versions will be required.
-> Should I try and identify at runtime which it is (which would be extra
-> overhead), or should I add another config option to the kernel?
->
-> Thanks,
->
-> Chris
+It seems like a harmless enough idea. And I sort of like the idea of using
+a system call rather than turning a kernel module into a device driver just
+for the sake of a user communication mechanism.  I envisage this being of
+use to projects where they need a user-kernel interface but not a generic
+one.
 
-How about determining which one to use at boot time? That way there's no
-overhead, and there's no need to have yet another config option which probably
-doesn't need to be there.
+Comments please.
 
--- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+
+Richard Moore -  RAS Project Lead - Linux Technology Centre (ATS-PIC).
+http://oss.software.ibm.com/developerworks/opensource/linux
+Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
+IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
 

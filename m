@@ -1,43 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261958AbTIZGUh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 02:20:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbTIZGUh
+	id S261946AbTIZGOV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 02:14:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbTIZGOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 02:20:37 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:50567 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261958AbTIZGUg (ORCPT
+	Fri, 26 Sep 2003 02:14:21 -0400
+Received: from eu40.st74-net74.ip.superonlinecorporate.com ([213.74.74.40]:46350
+	"HELO viruswall.solmaz.com.tr") by vger.kernel.org with SMTP
+	id S261946AbTIZGOT convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 02:20:36 -0400
-Date: Thu, 25 Sep 2003 23:07:02 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
-Message-Id: <20030925230702.4ef87780.davem@redhat.com>
-In-Reply-To: <3F73D9C4.1050201@colorfullife.com>
-References: <3F73D9C4.1050201@colorfullife.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Sep 2003 02:14:19 -0400
+Message-ID: <EA16D384EF89C942B5948FEB8E5D2FF3061C5F@mailserver>
+From: Tarkan Erimer <TARKANE@solmaz.com.tr>
+To: "'Mikael Pettersson'" <mikpe@csd.uu.se>
+Cc: "lkml (linux-kernel@vger.kernel.org)" <linux-kernel@vger.kernel.org>
+Subject: RE: [BUG] Hard lock up exiting X on linux-2.6.0-test5/test5-mm4
+Date: Fri, 26 Sep 2003 09:14:12 +0300
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-9"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Sep 2003 08:16:36 +0200
-Manfred Spraul <manfred@colorfullife.com> wrote:
+Hi again Mikael,
 
-> Is that really the right solution? Add a full-packet copy to every driver?
+I tried last night with CONFIG_APM_DISPLAY_BLANK disabled and APM=y and that
+worked fine for me.
+Thanks for your very help. 
 
-In the short term, yes it is.
+Regards
 
-> IMHO the fastest solution would be to copy only the ip & tcp headers, 
-> and keep the rest as it is. And preferable in the network core, to avoid 
-> having to copy&paste that into every driver.
+Tarkan Erimer
 
-You're absolutely correct, but implementing this is far from trivial.
-There are assumptions all over the place that the protocol data
-immediately follows the protocol headers.
+-----Original Message-----
+From: Tarkan Erimer 
+Sent: 25 Eylül 2003 Perþembe 12:26
+To: 'Mikael Pettersson'
+Cc: lkml (linux-kernel@vger.kernel.org)
+Subject: RE: [BUG] Hard lock up exiting X on linux-2.6.0-test5/test5-mm4
 
-If you're willing to do all of the auditing and work, have at it.
-:-)
+
+Thanks for your reply, Mikael. I will try that, when I back to the home. 
+
+Tarkan Erimer
+
+-----Original Message-----
+From: Mikael Pettersson [mailto:mikpe@csd.uu.se] 
+Sent: 25 Eylül 2003 Perþembe 12:18
+To: Tarkan Erimer
+Cc: lkml (linux-kernel@vger.kernel.org)
+Subject: Re: [BUG] Hard lock up exiting X on linux-2.6.0-test5/test5-mm4
+
+
+Tarkan Erimer writes:
+ > I compile and run linux-2.6.0-test5-mm4. It works wonderful, but when I
+> switch to X windows it's OK. But, when I tried to exit X, it 
+> completely  >
+freezes the box. I tried this with open source nvidia (nv) driver and  >
+proprietary nvidia (nvidia)driver. Results are always same. My hardware is:
+> P-II 350, 384 RAM, BX board and Riva TNT gfx card. The same thing also  
+> >
+happened with vanilla linux-2.6.0-test5. I attached my .config and  >
+version_linux outputs. Any idea ?
+
+CONFIG_X86_UP_APIC=y
+...
+CONFIG_APM=m
+# CONFIG_APM_IGNORE_USER_SUSPEND is not set CONFIG_APM_DO_ENABLE=y #
+CONFIG_APM_CPU_IDLE is not set CONFIG_APM_DISPLAY_BLANK=y
+
+You may suffer from a broken graphics card BIOS that hangs
+if a local APIC timer interrupt arrives. I've seen this
+happen on G400 and Radeons, and an old S3 I think.
+
+Another issue, but not the one you're having, is that configuring APM=m is
+known to hang some BIOSen at the point when the APM module is unloaded,
+again due to BIOS code not handling local APIC interrupts.
+
+Fix: Disable CONFIG_APM_DISPLAY_BLANK. You don't need it.
+Also set APM=y if you're going to have it at all.
+
+(An alternative fix is to disable UP_APIC, but
+only do that as a last resort.)
+
+I also noticed you had enabled a lot of ACPI stuff.
+This is almost certainly pointless on a BX board.
+
+/Mikael
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org More majordomo info at
+http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

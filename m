@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268305AbUIQDIY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268326AbUIQENF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268305AbUIQDIY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 23:08:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUIQDIY
+	id S268326AbUIQENF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 00:13:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUIQENF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 23:08:24 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:31891 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S268331AbUIQDIX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 23:08:23 -0400
-Subject: Re: [RFC][PATCH] inotify 0.9
-From: Nicholas Miell <nmiell@gmail.com>
-To: Robert Love <rml@novell.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Bill Davidsen <davidsen@tmr.com>,
-       Jan Kara <jack@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1095388176.20763.29.camel@localhost>
-References: <Pine.LNX.3.96.1040916182127.20906B-100000@gatekeeper.tmr.com>
-	 <1095376979.23385.176.camel@betsy.boston.ximian.com>
-	 <1095377752.23913.3.camel@localhost.localdomain>
-	 <1095388176.20763.29.camel@localhost>
-Content-Type: text/plain
-Message-Id: <1095390499.2878.2.camel@entropy>
+	Fri, 17 Sep 2004 00:13:05 -0400
+Received: from [12.177.129.25] ([12.177.129.25]:4292 "EHLO
+	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S268326AbUIQENB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 00:13:01 -0400
+Message-Id: <200409170517.i8H5HU2J005387@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] UML - More EINTR protection
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.njm.1) 
-Date: Thu, 16 Sep 2004 20:08:20 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 17 Sep 2004 01:17:30 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-16 at 19:29, Robert Love wrote:
-> I think we want a solution that works well for both cases.
-> 
-> E.g., we have a few different needs:
-> 
-> 	- Stuff like Spotlight-esque automatic Indexers.
-> 	- File manager notifications
-> 	- Other GUI notifications (desktop, menus, etc.)
-> 	- To prevent polling (e.g. /proc/mtab)
-> 	- Existing dnotify users
-> 
-> dnotify is pretty lame for any of the above situations.  Even for
-> something as trivial as watching the current open directory in Nautilus,
-> look at the hoops we have to just through with FAM.
-> 
-> And dnotify utterly falls apart on removable media or for any "large"
-> sort of job, e.g. indexing.
+This adds retrying on EINTR to a couple more places.
 
-Isn't this the problem that XDSM/DMAPI is supposed to solve? Or is that
-one of those specs that's too ugly to be implemented?
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
+
+Index: 2.6.9-rc2/arch/um/kernel/helper.c
+===================================================================
+--- 2.6.9-rc2.orig/arch/um/kernel/helper.c	2004-09-16 22:59:06.000000000 -0400
++++ 2.6.9-rc2/arch/um/kernel/helper.c	2004-09-16 23:24:29.000000000 -0400
+@@ -132,7 +132,7 @@
+ 		return(-errno);
+ 	}
+ 	if(stack_out == NULL){
+-		pid = waitpid(pid, &status, 0);
++		CATCH_EINTR(pid = waitpid(pid, &status, 0));
+ 		if(pid < 0){
+ 			printk("run_helper_thread - wait failed, errno = %d\n",
+ 			       errno);
+@@ -151,7 +151,7 @@
+ {
+ 	int ret;
+ 
+-	ret = waitpid(pid, NULL, WNOHANG);
++	CATCH_EINTR(ret = waitpid(pid, NULL, WNOHANG));
+ 	if(ret < 0){
+ 		printk("helper_wait : waitpid failed, errno = %d\n", errno);
+ 		return(-errno);
 

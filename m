@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130950AbRA0NeK>; Sat, 27 Jan 2001 08:34:10 -0500
+	id <S131613AbRA0Nql>; Sat, 27 Jan 2001 08:46:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131613AbRA0NeA>; Sat, 27 Jan 2001 08:34:00 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:44550 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S130950AbRA0Ndy>;
-	Sat, 27 Jan 2001 08:33:54 -0500
-Date: Sat, 27 Jan 2001 14:33:48 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Matti Långvall 
-	<matti.langvall@sorliden.ornskoldsvik.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Running 2.4.0-ac11
-Message-ID: <20010127143348.D27929@suse.de>
-In-Reply-To: <3A720485.58D656A4@sorliden.ornskoldsvik.com> <20010127015122.E23160@suse.de> <3A72921C.D013F074@sorliden.ornskoldsvik.com> <20010127121742.A27553@suse.de> <3A72CD7B.62402916@sorliden.ornskoldsvik.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3A72CD7B.62402916@sorliden.ornskoldsvik.com>; from matti.langvall@sorliden.ornskoldsvik.com on Sat, Jan 27, 2001 at 02:30:35PM +0100
+	id <S132596AbRA0Nqc>; Sat, 27 Jan 2001 08:46:32 -0500
+Received: from mnmai05.mn.mediaone.net ([24.131.1.59]:65462 "EHLO
+	mnmai05.mn.mediaone.net") by vger.kernel.org with ESMTP
+	id <S131613AbRA0NqR>; Sat, 27 Jan 2001 08:46:17 -0500
+Date: Sat, 27 Jan 2001 07:46:09 -0600 (CST)
+From: "Scott M. Hoffman" <scott@mediaone.net>
+X-X-Sender: <scott@nic-31-c31-100.mn.mediaone.net>
+Reply-To: <scott1021@mediaone.net>
+To: Dale Christ <dechris@primary.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: System hangs completely
+In-Reply-To: <3A7227EB.B1F7F3F2@primary.net>
+Message-ID: <Pine.LNX.4.31.0101270743570.5219-100000@nic-31-c31-100.mn.mediaone.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 27 2001, Matti Långvall wrote:
-> You're right, no more Busy inodes.
+  Have you tried it with the modutiles 2.4.0 required by kernel 2.4.0?
 
-Good, so that was the cause.
+Dale Christ wrote:
+<<Snip>>
+[7.1.] Software:
+-- Versions installed: (if some fields are empty or look
+-- unusual then possibly you have very old versions)
+Linux localhost.localdomain 2.4.0i586 #9 Fri Jan 26 15:07:33 CST 2001
+i586 unknown
+Kernel modules         2.3.21
+Gnu C                  2.96
+Gnu Make               3.79.1
+Binutils               2.10.0.18
+Linux C Library        > libc.2.2
+Dynamic linker         ldd (GNU libc) 2.2
+Procps                 2.0.7
+Mount                  2.10m
+Net-tools              1.56
+Console-tools          0.3.3
+Sh-utils               2.0
+Modules Loaded         ide-scsi tulip emu10k1
+<<Snip>>
 
-> But magicdev is nice for us lazy people..
 
-No, the _concept_ is nice for lazy people but the current magicdev is
-not worth much. I know Alan has tinkered with a new version, hopefully
-that will be much better. Most newer drives have real (but polled)
-media notification event classes, which is a much better way to
-accomplish what magicdev is trying to do.
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

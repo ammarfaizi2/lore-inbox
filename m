@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266680AbUIENkH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266683AbUIENlI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266680AbUIENkH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 09:40:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266683AbUIENkH
+	id S266683AbUIENlI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 09:41:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266684AbUIENlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 09:40:07 -0400
-Received: from web52201.mail.yahoo.com ([206.190.39.83]:5991 "HELO
-	web52201.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266680AbUIENkD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 09:40:03 -0400
-Message-ID: <20040905134002.41285.qmail@web52201.mail.yahoo.com>
-Date: Sun, 5 Sep 2004 06:40:02 -0700 (PDT)
+	Sun, 5 Sep 2004 09:41:08 -0400
+Received: from web52202.mail.yahoo.com ([206.190.39.84]:35708 "HELO
+	web52202.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266683AbUIENlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 09:41:00 -0400
+Message-ID: <20040905134056.87431.qmail@web52202.mail.yahoo.com>
+Date: Sun, 5 Sep 2004 06:40:56 -0700 (PDT)
 From: linux lover <linux_lover2004@yahoo.com>
 Subject: Skbuff modification
 To: linux-kernel@vger.kernel.org
@@ -27,10 +27,7 @@ packet on network?
 Regards,
 linux lover
 
-
-	
-		
-__________________________________
-Do you Yahoo!?
-New and Improved Yahoo! Mail - 100MB free storage!
-http://promotions.yahoo.com/new_mail 
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

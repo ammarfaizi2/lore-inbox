@@ -1,59 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267695AbUHWWJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268097AbUHWWNV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267695AbUHWWJK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 18:09:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267489AbUHWWIs
+	id S268097AbUHWWNV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 18:13:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267597AbUHWWMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 18:08:48 -0400
-Received: from fw.osdl.org ([65.172.181.6]:8642 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267831AbUHWWID (ORCPT
+	Mon, 23 Aug 2004 18:12:52 -0400
+Received: from mail.tmr.com ([216.238.38.203]:55823 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S267598AbUHWWGm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 18:08:03 -0400
-Date: Mon, 23 Aug 2004 15:07:44 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] lazy TSS's I/O bitmap copy ...
-In-Reply-To: <Pine.LNX.4.58.0408231436370.3222@bigblue.dev.mdolabs.com>
-Message-ID: <Pine.LNX.4.58.0408231500160.17766@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0408231311460.3221@bigblue.dev.mdolabs.com>
- <20040823233249.09e93b86.ak@suse.de> <Pine.LNX.4.58.0408231436370.3222@bigblue.dev.mdolabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 23 Aug 2004 18:06:42 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: CD/DVD record
+Date: Mon, 23 Aug 2004 18:07:09 -0400
+Organization: TMR Associates, Inc
+Message-ID: <cgdpdk$l9i$1@gatekeeper.tmr.com>
+References: <4125B539.6040402@hist.no><4125B539.6040402@hist.no> <4125BA56.1060307@wiggly.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1093298420 21810 192.168.12.100 (23 Aug 2004 22:00:20 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+In-Reply-To: <4125BA56.1060307@wiggly.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 23 Aug 2004, Davide Libenzi wrote:
+Nigel Rantor wrote:
+> Helge Hafting wrote:
 > 
-> The eventually double GPF would happen only on TSS-IObmp-lazy tasks, ie 
-> tasks using the I/O bitmap.
+>>> Hmm...not sure about that. Not if you do want device specific fixes 
+>>> in there too...
+>>
+>>
+>> The question then becomes - how many percent of devices in use need 
+>> fixes to work?
+>> A simple program with _no_ fixes, that works with correct devices only 
+>> might not be that hard.
+>> After it becomes popular people simply take care to buy working 
+>> burners.  The old broken
+>> tend to get upgraded after a while, or they can be used with the old 
+>> cdrecord.
+>> [...]
+> 
+> 
+> Good point. Agreed.
+> 
+>>> I'll admit to having some time on my hands but acquiring equipment to 
+>>> test with would be a stumbling block for me.
+>>
+>>
+>> Take one thing at a time.  If you want to try this, start writing a 
+>> program that works well
+>> with your particular burner.  Chances are it'll work with many others 
+>> too.  And then you
+>> get patches from people who have other equipment.  You won't need to 
+>> have everything
+>> yourself.
+> 
+> 
+> Another good point. Agreed.
+> 
+>>> It would be nice if everyone could just put their egos aside and 
+>>> provide a united front wrt FOSS cd/dvd recording.
+>>
+>>
+>> :-) This goes for all open source.  I don't think it'll happen though. 
+>> :-/
+> 
+> 
+> Hat trick on the Good Point(tm) front. Agreed!
+> 
+> Well then I may go and look into cd recording then...hmm...
 
-You could also check for the error code (at least the low 16 bits) being 
-0, I guess, just to cut down the noise.
+I hate to say it, but why reinvent the wheel? I'm sure that if Jorg 
+doesn't support new technology there will be a project, either on 
+sourceforge or freestanding, to create OpenCDburn or some such. It would 
+be very hard to find someone as technically good as Jorg in this area, 
+and hard to find anyone worse at working with others.
 
->	 The check for the I/O opcode can certainly be 
-> done though, even if it'd make the code a little bit more complex.
+That's really sad, because if he would accept more from others and not 
+insist on having the last (or only) word on every issue the software 
+would move faster and with less hostility.
 
-Have to be very careful there to avoid nasty security issues. And with
-ins/outs, you can have various prefixes etc, so decoding is not as trivial
-as it could otherwise be. Even the regular in/out can have a data size
-overrides..
-
-in/out is also commonly used from vm86 mode, so decoding it really needs
-to get all of the segmentation base crap right too. Nasty nasty nasty. 
-
-In short, I think that if we do this at all, I'd much rather just do the
-simple "trap twice" thing that Davide did. It's too easy to get it wrong
-otherwise.
-
-Or we should make this careful decoder some generic x86 function. We're
-doing user instruction decoding in a number of places already, although I 
-don't know how careful they generally need to be. Sadly, I really think 
-that this one needs to be one of the most careful cases due to the vm86 
-usage.
-
-		Linus
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263484AbUCYRQC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 12:16:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263509AbUCYRNu
+	id S263467AbUCYRRd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 12:17:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263509AbUCYRQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 12:13:50 -0500
-Received: from virt-216-40-198-21.ev1servers.net ([216.40.198.21]:8966 "EHLO
-	virt-216-40-198-21.ev1servers.net") by vger.kernel.org with ESMTP
-	id S263484AbUCYRNJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 12:13:09 -0500
-Date: Thu, 25 Mar 2004 11:12:58 -0600
-From: Chuck Campbell <campbell@accelinc.com>
-To: linux-kernel@vger.kernel.org
-Subject: laptop issues: is there a driver for gigabyte wireless?
-Message-ID: <20040325171258.GA19535@helium.inexs.com>
-Mail-Followup-To: Chuck Campbell <campbell@accelinc.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Thu, 25 Mar 2004 12:16:09 -0500
+Received: from sea2-dav66.sea2.hotmail.com ([207.68.164.201]:24328 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S263483AbUCYROP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 12:14:15 -0500
+X-Originating-IP: [80.204.235.254]
+X-Originating-Email: [pupilla@hotmail.com]
+From: "Marco Berizzi" <pupilla@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: proxy arp behaviour
+Date: Thu, 25 Mar 2004 18:14:10 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1123
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1123
+Message-ID: <DAV6695HfqR77bieLYC00007982@hotmail.com>
+X-OriginalArrivalTime: 25 Aug 2001 04:49:10.0421 (UTC) FILETIME=[47C2E450:01C12D21]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello everybody,
 
-I'm contemplating a prostar laptop (8794 model).  As far as I can tell
-everything should work fine, except I don't know about the 802.11g wireless,
-which is Gigabyte GN-WIAG.
+I would like some info about proxy arp behaviour.
+I have a firewall linux running kernel 2.4.25
+with 3 NIC. Proxy arp is enabled on two of them
+(eth0 and eth1).
 
-Anyone know if this device will work under any 2.4 or 2.6 kernels?
-I got no hits on the kernel mailing list archive, so maybe someone knows
-more about it.
+eth1 configuration is here:
 
-If you know of any other issues with other h/w in this laptop, I'd appreciate
-hearing about it.
+ifconfig eth1 10.77.77.1 broadcast 10.77.77.3 netmask 255.255.255.252
+ip route del 10.77.77.0/30 dev eth1
+ip route add 172.17.1.0/24 dev eth1
 
-ATI Radeon 9700 
-  Should work, w/o acceleration, right?  If not, I need to know ASAP
+echo 1 > /proc/sys/net/ipv4/conf/eth1/proxy_arp
 
-Promise PDC20265R raid controller 
-  If raid doesn't work, it's not a problem, as long as I can see the disks.
-  I saw some stuff about "lost interrupt hell" on the lkml archives, but
-  nothing definitive.  Also all old.
+Hosts connected to eth1 are all 172.17.1.0/24.
+The linux box is now replying to arp requests
+that are sent by 172.17.1.0/24 hosts on the eth1
+network segment. Is this because ip on eth1 is
+10.77.77.1?
 
-3D Realtek sound ALC650 Codec 2.2
-  I see recent ALSA updates for this under 2.6, so I assume I'm fine here.
+I think that linux should not reply to arp request
+for 172.17.1.0/24 because of:
 
-thanks,
--chuck
+ip route add 172.17.1.0/24 dev eth1
+
+Is this a bug?
+
+TIA

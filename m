@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261525AbSJURDz>; Mon, 21 Oct 2002 13:03:55 -0400
+	id <S261390AbSJURA4>; Mon, 21 Oct 2002 13:00:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261531AbSJURDz>; Mon, 21 Oct 2002 13:03:55 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:47744 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S261525AbSJURDy>;
-	Mon, 21 Oct 2002 13:03:54 -0400
-Date: Mon, 21 Oct 2002 10:13:12 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: "Adam J. Richter" <adam@yggdrasil.com>, <linux-kernel@vger.kernel.org>,
-       <eblade@blackmagik.dynup.net>, Russell King <rmk@arm.linux.org.uk>
-Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not suspend
- devices
-In-Reply-To: <m18z0swtnr.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.44.0210211011060.963-100000@cherise.pdx.osdl.net>
+	id <S261499AbSJURA4>; Mon, 21 Oct 2002 13:00:56 -0400
+Received: from quark.didntduck.org ([216.43.55.190]:11016 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S261390AbSJURA4>; Mon, 21 Oct 2002 13:00:56 -0400
+Message-ID: <3DB4341F.20109@didntduck.org>
+Date: Mon, 21 Oct 2002 13:06:39 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>
+Subject: Re: [PATCH] fixes for building kernel using Intel compiler
+References: <F2DBA543B89AD51184B600508B68D4000E6AE154@fmsmsx103.fm.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nakajima, Jun wrote:
+> I think it depends on the assumptions for the compiler quality. If you don't
+> trust __attribute__ ((align(xxx)), many other things are broken as well. Why
+> do you need to check this particular one, especially?
 
-> Question, is there a method from the class shutdown code that we
-> can/should call, during reboot.  I just have this memory that for
-> network interfaces simply downing the interface tends to put it in
-> a quiescent state.  And I am wondering if that might be a general
-> thing we can take advantage of.  Though if the class remove methods
-> modify the data structures I guess that is out.
+Because the hardware requires it.
 
-No. Bringing down the network interface, at least, can be done from
-userspace.
-
-	-pat
+--
+				Brain Gerst
 

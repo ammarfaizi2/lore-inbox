@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270886AbTGVVa4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 17:30:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270889AbTGVVa4
+	id S269964AbTGVV3w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 17:29:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270079AbTGVV3v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 17:30:56 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:42001
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S270886AbTGVVax (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 17:30:53 -0400
-Date: Tue, 22 Jul 2003 14:45:57 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: different behaviour with badblocks on 2.6.0-test1-mm1-07int
-Message-ID: <20030722214557.GE1176@matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030722214253.GD1176@matchmail.com>
-Mime-Version: 1.0
+	Tue, 22 Jul 2003 17:29:51 -0400
+Received: from magic-mail.adaptec.com ([208.236.45.100]:1920 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S269964AbTGVV3t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 17:29:49 -0400
+Date: Tue, 22 Jul 2003 15:46:31 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Anders Gustafsson <andersg@0x63.nu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1 gets corrupted data when loading init
+Message-ID: <640742704.1058910391@aslan.btc.adaptec.com>
+In-Reply-To: <20030718113950.GF5964@h55p111.delphi.afb.lu.se>
+References: <20030718083458.GC5964@h55p111.delphi.afb.lu.se> <20030718095108.GE5964@h55p111.delphi.afb.lu.se> <20030718113950.GF5964@h55p111.delphi.afb.lu.se>
+X-Mailer: Mulberry/3.1.0b3 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030722214253.GD1176@matchmail.com>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 22, 2003 at 02:42:53PM -0700, Mike Fedyk wrote:
-> Hi,
+> On Fri, Jul 18, 2003 at 11:51:08AM +0200, Anders Gustafsson wrote:
+>> On Fri, Jul 18, 2003 at 10:34:58AM +0200, Anders Gustafsson wrote:
+>> > It breaks between 2.5.70 and 2.5.70-bk1, which contains a update in the
+>> > aic79xx-drivers, so my guess is related to that.
+>> 
+>> http://linux.bkbits.net:8080/linux-2.5/cset@1.1127.6.4 is the changeset that
+>> makes it stop working.
 > 
-> I was testing a hard drive with badblocks (from the e2fsprogs-1.34) on the
-> 2.6.0-test1-mm1-07int (with Con's scheduler patch), and I noticed in vmstat
-> and gkrellm that during the write passes there are reads on the same drive
-> when there should only be writes.
-> 
-> I tried stracing badblocks, but all it showed was write() calls, and vmstat
-> and gkrellm showed reads only, so it modified the behaviour.
-> 
-> Has anyone else seen this?
-> 
-> ii  e2fsprogs             1.33+1.34-WIP-2003.05 The EXT2 file system
-> utilities and libraries                  
-> 
+> Yeah, and reversing that on 2.6.0-test+bk with the attached patch makes it
+> work on 2.6.0-test1.
 
-Oh, and testing with the same hardware and userspace on 2.4.22-pre7 shows
-normal behaviour (writes with no reading, reads with no writing).
+There are a whole slew of later changesets that haven't made it in yet.
+The root cause of your particular problem is not the lun copy optimization,
+but a problem with the layout of a data structure that is dma'ed to the
+controller and a controller errata.  The fix for this is available in 
+the 20030603 bksend file at my site:
 
-This is with "badblocks -wso /tmp/hde.out /dev/hde > /dev/hde.log 2>&1 &" on
-a bash prompt on both kernels.
+http://people.FreeBSD.org/~gibbs/linux/SRC/
 
-Neither found any bad blocks, and /tmp is on a /dev/hda1
+I will try to find some time later this week to review the code that
+is now in 2.6 and generate updated changesets for that branch.
+
+--
+Justin
+

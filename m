@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277292AbRJJQHK>; Wed, 10 Oct 2001 12:07:10 -0400
+	id <S277294AbRJJQIA>; Wed, 10 Oct 2001 12:08:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277291AbRJJQHB>; Wed, 10 Oct 2001 12:07:01 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:64149 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S277292AbRJJQGv>; Wed, 10 Oct 2001 12:06:51 -0400
-Date: Wed, 10 Oct 2001 10:06:33 -0600
-Message-Id: <200110101606.f9AG6Xa21686@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: <Dennis.Heuer@stud.uni-hannover.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: packaging
-In-Reply-To: <Pine.LNX.4.33L.0110101041510.2847-100000@imladris.rielhome.conectiva>
-In-Reply-To: <20011011153220.3c2d2dde.Dennis.Heuer@stud.uni-hannover.de>
-	<Pine.LNX.4.33L.0110101041510.2847-100000@imladris.rielhome.conectiva>
+	id <S277299AbRJJQH6>; Wed, 10 Oct 2001 12:07:58 -0400
+Received: from nsd.mandrakesoft.com ([216.71.84.35]:30272 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S277296AbRJJQHm>; Wed, 10 Oct 2001 12:07:42 -0400
+Date: Wed, 10 Oct 2001 11:08:01 -0500 (CDT)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Luis Montgomery <monty@fismat1.fcfm.buap.mx>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.11: problem with at1700
+In-Reply-To: <Pine.GSO.4.21.0110100409260.27961-100000@fismat1.fcfm.buap.mx>
+Message-ID: <Pine.LNX.3.96.1011010110710.24939B-100000@mandrakesoft.mandrakesoft.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel writes:
-> On Thu, 11 Oct 2001 Dennis.Heuer@stud.uni-hannover.de wrote:
+
+
+On Wed, 10 Oct 2001, Luis Montgomery wrote:
+
 > 
-> > I'm shure you discussed this several times but...
+> I try to compile 2.4.11 and find this error:
 > 
-> Many, many times. Luckily there is a standard response,
-> which goes roughly as follows:
+> gcc -D__KERNEL__ -I/usr/src/linux-2.4.11/include -Wall -Wstrict-prototypes
+> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+> -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS
+> -include /usr/src/linux-2.4.11/include/linux/modversions.h   -c -o
+> at1700.o at1700.c
+> at1700.c:475: conflicting types for `read_eeprom'
+> at1700.c:161: previous declaration of `read_eeprom'
+> make[2]: *** [at1700.o] Error 1
 
-Indeed there is a standard response. In fact, the FAQ has a few
-paragraphs on the subject! Pity the FAQ wasn't consulted before
-posting this question :-(
-You know, the FAQ is mentioned in the welcome message when you sign up
-to the list, and at the bottom of every message on this list:
-Please read the FAQ at  http://www.tux.org/lkml/
+I sent an incomplete patch to Linus; just back out the patch for wait
+for a fix to appear in 2.4.12-pre1...
 
-There really is no excuse for not reading the FAQ.
+	Jeff
 
-> > a 30MB download makes me think of splitting the package.
-> 
-> "Go ahead, try to split the package yourself and find out
-> how impossible it is."
 
-"And don't ask us to do it for you"!
 
-				Regards,
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132708AbRDNBuj>; Fri, 13 Apr 2001 21:50:39 -0400
+	id <S132701AbRDNBki>; Fri, 13 Apr 2001 21:40:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132711AbRDNBu3>; Fri, 13 Apr 2001 21:50:29 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:27613 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S132708AbRDNBuY>;
-	Fri, 13 Apr 2001 21:50:24 -0400
-Message-ID: <3AD7A6ED.7626BE05@mandrakesoft.com>
-Date: Fri, 13 Apr 2001 21:25:01 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-17mdksmp i686)
-X-Accept-Language: en
+	id <S132702AbRDNBk2>; Fri, 13 Apr 2001 21:40:28 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:36021 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S132701AbRDNBkR>;
+	Fri, 13 Apr 2001 21:40:17 -0400
+Date: Fri, 13 Apr 2001 21:25:10 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org,
+        Linus Torvalds <torvalds@transmeta.com>, Linux390@de.ibm.com
+Subject: Re: EXPORT_SYMBOL for chrdev_open 2.4.3
+In-Reply-To: <20010413184740.A14659@vger.timpanogas.org>
+Message-ID: <Pine.GSO.4.21.0104132118060.24992-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Jes Sorensen <jes@linuxcare.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: modica@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: Proposal for a new PCI function call
-In-Reply-To: <3AD601B4.7E0B14E4@sgi.com> <3AD604B0.2713F08B@mandrakesoft.com> <d3vgo9ej5r.fsf@lxplus015.cern.ch>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen wrote:
-> >>>>> "Jeff" == Jeff Garzik <jgarzik@mandrakesoft.com> writes:
-> >> I think the function idea would let us do some sanity checking to
-> >> make sure drivers weren't setting this to 64bit on non-64 bit
-> >> busses and stuff.
-
-> Jeff> pci_set_dma_mask.  Modify that to do the additional checks you
-> Jeff> need.
-
-> Jeff> Nobody should be setting dma_mask directly anymore, it should be
-> Jeff> done through this function.
-
-> Hmmm, I was wondering if could come up with a pretty way to do this on
-> 32 bit boxes that wants to enable highmem DMA. Right now
-> pci_set_dma_mask() wants a dma_addr_t which means you have to do
-> #ifdef CONFIG_HIGHMEM <blah> #else <bleh> #endif.
-
-It seems to me that not doing #ifdef CONFIG_HIGHMEM right now is a
-bug...  I think it's the megaraid driver that wants to set dma_addr_t to
-a 64-bit mask.
 
 
-Alan Cox wrote:
-> pci_set_dma_mask_bits() ? So you could do
-> 
-> pci_set_dma_mask_bits(pdev, 64);
+On Fri, 13 Apr 2001, Jeff V. Merkey wrote:
 
-As they say, "six of one, 'half-dozen of the other."  I don't have a
-preference...
+> Not meaning to offend, but how could you know what everyone 
+> who uses Linux needs in every instance?  NT, NetWare, etc. all
+> expose these types of APIs for Backup and anti-virus software,
+> etc.  The APIs in question are the very calls user space apps
+> call through the syscall to indicate who is using a device. 
 
-	Jeff
+Backup and AV software is not in the kernel, so they would
+be unable to use the thing, exported or not. Please, don't
+bring the strawmen.
 
+Novell's model (aka. "we don't need no stinkin' userland, everything
+is NLM and security be damned") is better left to rot in hell with Novell.
 
--- 
-Jeff Garzik       | Sam: "Mind if I drive?"
-Building 1024     | Max: "Not if you don't mind me clawing at the dash
-MandrakeSoft      |       and shrieking like a cheerleader."
+> Sure, I can send blind I/O requests to a device and I guess 
+> someone running fdisk in user space can blow the device away from beneath 
+> me since I have no way of locking those partitions I exclusively
+> own and stopping this is these apis are removed and modules 
+> cannot call them.  
+
+Use filp_open() - it's that simple.
+

@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263280AbSLJR7w>; Tue, 10 Dec 2002 12:59:52 -0500
+	id <S263321AbSLJSHW>; Tue, 10 Dec 2002 13:07:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263313AbSLJR7w>; Tue, 10 Dec 2002 12:59:52 -0500
-Received: from willow.compass.com.ph ([202.70.96.38]:45322 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S263280AbSLJR7w>; Tue, 10 Dec 2002 12:59:52 -0500
-Subject: Re: [BUG]: agpgart for i810 chipsets broken in 2.5.51
-From: Antonino Daplas <adaplas@pol.net>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021210161725.GA577@codemonkey.org.uk>
-References: <1039522886.1041.17.camel@localhost.localdomain>
-	<20021210131143.GA26361@suse.de>
-	<1039538881.2025.2.camel@localhost.localdomain>
-	<20021210144852.GD26361@suse.de>
-	<1039547205.1086.25.camel@localhost.localdomain> 
-	<20021210161725.GA577@codemonkey.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1039553988.1055.8.camel@localhost.localdomain>
+	id <S263366AbSLJSHW>; Tue, 10 Dec 2002 13:07:22 -0500
+Received: from spacecake.plus.com ([195.166.148.239]:14976 "EHLO
+	unicorn.encapsulated.net") by vger.kernel.org with ESMTP
+	id <S263321AbSLJSHW>; Tue, 10 Dec 2002 13:07:22 -0500
+Date: Tue, 10 Dec 2002 18:09:31 +0000
+From: Spacecake <lkml@spacecake.plus.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: sflory@rackable.com, linux-kernel@vger.kernel.org
+Subject: Re: HPT372 RAID controller
+Message-Id: <20021210180931.0b174cd5.lkml@spacecake.plus.com>
+In-Reply-To: <1039480307.12051.8.camel@irongate.swansea.linux.org.uk>
+References: <20021208123134.4be342c7.lkml@spacecake.plus.com>
+	<3DF4E433.5010207@rackable.com>
+	<20021209203338.32e8665f.lkml@spacecake.plus.com>
+	<1039480307.12051.8.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 11 Dec 2002 02:01:25 +0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-10 at 21:17, Dave Jones wrote:
-> On Wed, Dec 11, 2002 at 12:07:45AM +0500, Antonino Daplas wrote:
->  > > That chunk of X code is crap. So much so, that someone even put a
->  > > comment there (not that what they suggested was much better).
->  > > 
->  > > See line 122 of http://www.atomised.org/docs/XFree86-4.2.1/agp_8c-source.html
->  > > 
->  > Ouch.  That's a sh??ty version check.  And it has to be present from
->  > 4.0.0 to 4.2.1, and if they don't correct it, 4.3.0.
-> 
-> Andreas Schwab pointed out to me, that due to the broken boolean check,
-> I can bump the version to 0.100 and it'll work. At least until the
-> X folks change/remove that code.
+Hi,
 
-I've tested using version 0.100 and it works just fine.
+> Check the notes on -ac kernels when doing this. I try and note when
+> stuff is stable or not
 
-Tony
+Because of a recent crash (the first ever using linux on this hardware,
+using 2.4.18 through 2.4.20), i went in search of these release notes. I
+feel really stupid here, but i can't find them, not on
+linux.org.uk/thefreeworld.net, google, kernel.org... umm?
 
+The crash in question was while copying between hard disks (both on the
+RAID controller) a directory tree of MP3s, about 95megs. I was in X at
+the time so i couldn't see any errors if there was some, and the machine
+totally locked up, tried pinging it etc, didn't work.
+Can't find any errors in logfiles or anything.
 
+The .config for the kernel was identical to my 2.4.20 config that has
+never crashed, except it has IDE Taskfile IO enabled, because from the
+help this seemed like a good thing.
+
+Do you want me to provide debugging info on this? It's okay if not, i'll
+just wait until stuff works in the main stable kernel :)
+
+Thanks,
+ - Daniel
+
+P.S. please CC any replies to me, i'm no longer subscribed to LKML.

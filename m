@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290808AbSARUlH>; Fri, 18 Jan 2002 15:41:07 -0500
+	id <S290809AbSARUkj>; Fri, 18 Jan 2002 15:40:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290810AbSARUk6>; Fri, 18 Jan 2002 15:40:58 -0500
-Received: from gent-smtp1.xs4all.be ([195.144.67.21]:50959 "EHLO
-	gent-smtp1.xs4all.be") by vger.kernel.org with ESMTP
-	id <S290808AbSARUkk>; Fri, 18 Jan 2002 15:40:40 -0500
-Message-ID: <3C488847.2000800@xs4all.be>
-Date: Fri, 18 Jan 2002 21:40:39 +0100
-From: Didier Moens <moensd@xs4all.be>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en, nl-be
-MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: OOPS in APM 2.4.18-pre4 with i830MP agpgart
-In-Reply-To: <3C487E68.1000404@xs4all.be> <E16RfZf-0007nk-00@the-village.bc.nu> <20020118212843.A6416@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S290810AbSARUkS>; Fri, 18 Jan 2002 15:40:18 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:59541 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S290808AbSARUkI> convert rfc822-to-8bit;
+	Fri, 18 Jan 2002 15:40:08 -0500
+Date: Fri, 18 Jan 2002 12:38:37 -0800 (PST)
+Message-Id: <20020118.123837.21900127.davem@redhat.com>
+To: groudier@free.fr
+Cc: hozer@drgw.net, linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+        rmk@arm.linux.org.uk, dan@embeddededge.com, mattl@mvista.com
+Subject: Re: pci_alloc_consistent from interrupt == BAD
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020118210150.Q1937-100000@gerard>
+In-Reply-To: <20020118130209.J14725@altus.drgw.net>
+	<20020118210150.Q1937-100000@gerard>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+   From: Gérard Roudier <groudier@free.fr>
+   Date: Fri, 18 Jan 2002 21:21:35 +0100 (CET)
 
->On Fri, Jan 18, 2002 at 08:25:19PM +0000, Alan Cox wrote:
-> > > Unfortunately, loading agpgart yields an oops when APM ("apm -s") is 
-> > > invoked, both in terminal and in X. APM functions perfectly when agpgart 
-> > > is absent.
-> > Looks like the author forgot to set the suspend/resume methods in the
-> > structure to the generic ones
->
->   1373 static int __init intel_i830_setup(struct pci_dev *i830_dev)
->   1374 {
->   1375     intel_i830_private.i830_dev = i830_dev;
->   1376     
-> ...
->   1404     agp_bridge.suspend = agp_generic_suspend;
->   1405     agp_bridge.resume = agp_generic_resume;
->
+   I have noted that some ports may [ever] require pci_alloc_consistent not
+   to be called from interrupt context. Just I will look into this when time
+   will allow.
+   
+Do not bother Gerard, these ports really are broken and
+pci_alloc_consistent must work from interrupts.
+   
+   I am not going to ever use not cache coherent hardware, even if I am ready
+   to make the sym driver work reliably on such brain-dead things. Just it is
+   not high priority stuff for now.
 
-I post an oops, 26'51" minutes later it gets diagnosed, and 3'26" after 
-that a patch is submitted.
-
-
-Quite speechless I am indeed.
-
-Didier
-
-
-
-
-
-
-
-
+Perhaps you misunderstand, it is not "lack of cache coherency" it is
+"cache needs flushing around DMA transfers" and this is handled
+perfectly by PCI DMA interfaces.  It is nothing you should be
+concerned about.

@@ -1,59 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269438AbUJFWGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269538AbUJFW2a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269438AbUJFWGk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 18:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269409AbUJFU1g
+	id S269538AbUJFW2a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 18:28:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269419AbUJFWYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 16:27:36 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:33453 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S269448AbUJFUUI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 16:20:08 -0400
-Message-Id: <200410062020.i96KKPN13520@raceme.attbi.com>
-Subject: Driver access ito PCI card memory space question.
-To: linux-kernel@vger.kernel.org
-Date: Wed, 6 Oct 2004 15:20:25 -0500 (CDT)
-From: kilian@bobodyne.com (Alan Kilian)
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 6 Oct 2004 18:24:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:61587 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269531AbUJFWVn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 18:21:43 -0400
+Date: Wed, 6 Oct 2004 15:25:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: rjw@sisk.pl, linux-kernel@vger.kernel.org, akpm@zip.com.au, agruen@suse.de
+Subject: Re: Fix random crashes in x86-64 swsusp
+Message-Id: <20041006152533.514fb51b.akpm@osdl.org>
+In-Reply-To: <20041006220600.GB25059@elf.ucw.cz>
+References: <200410052314.25253.rjw@sisk.pl>
+	<200410061206.56025.rjw@sisk.pl>
+	<20041006101238.GD1255@elf.ucw.cz>
+	<200410062346.29489.rjw@sisk.pl>
+	<20041006220600.GB25059@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek <pavel@suse.cz> wrote:
+>
+> Maybe we should memset freed memory to zero so such bugs are
+> prevented?
 
+It would make sense to poison these pages, yes.  Zero would not be a good
+choice of value, actually - something like 0xbb would cause nice oopses if
+someone used a pointer which was backed by __init memory.
 
-  Folks,
-
-     I'm not sure how to access the memory spaces on my PCI card.
-
-     I do 
-
-
-     From /var/log/messages:
-
-		SSE: Start of card attachment.
-		SSE: Found a DeCypher card, interrupting on line 3
-		SSE: Bar0 From 0xfeaff000 to 0xfeafffff F=0x200 MEMORY space
-		SSE: Bar1 From 0xfeafc000 to 0xfeafdfff F=0x200 MEMORY space
-		SSE: Bar2 From 0xfe000000 to 0xfe7fffff F=0x200 MEMORY space
-
-     My driver detects the card, and asks about the memory areas.
-
-     Then I do request_mem_area(0xfeaff000,4095, "SSE");
-
-     Then I do a readl(0xfeaff100); and get this:
-
-        Unable to handle kernel paging request at virtual address feaff100
-
-     Any hints? Maybe these are byte-addresses, and I need to do:
-     readl(0xfeaff100>>2);
-
-     I'm just beginning this adventure, so please excuse the basic 
-     questions.
-
-                           -Alan
-
--- 
-- Alan Kilian <kilian(at)timelogic.com> 
-Director of Bioinformatics, TimeLogic Corporation 763-449-7622
+CONFIG_DEBUG_PAGEALLOC will pick up this sort of bug, but that's i386-only.

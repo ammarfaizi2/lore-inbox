@@ -1,63 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262278AbVCBMUZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262284AbVCBMdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262278AbVCBMUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 07:20:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbVCBMUY
+	id S262284AbVCBMdV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 07:33:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbVCBMdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 07:20:24 -0500
-Received: from rproxy.gmail.com ([64.233.170.207]:59229 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262278AbVCBMUO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 07:20:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=TQ9J/zBkqsVi/o2r3KQ1n9nJpMlt4ouoyPTw8HtI2yUYhbeFZP/U4/uEbAVh4YdSbS8QfB9249S9AnQnrR6QHbevTWmRoVUBHarwEXEC5gQJpZ+nTR0fxGxJ7qta/iD2tH7npzTDqlehs7l2ojgcWJM5AZa3qwlBxN3QtVHmoCk=
-Message-ID: <3f250c71050302042059f36525@mail.gmail.com>
-Date: Wed, 2 Mar 2005 08:20:13 -0400
-From: Mauricio Lin <mauriciolin@gmail.com>
-Reply-To: Mauricio Lin <mauriciolin@gmail.com>
-To: Hugh Dickins <hugh@veritas.com>
-Subject: Re: [PATCH] A new entry for /proc
-Cc: Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
-       linux-kernel@vger.kernel.org, rrebel@whenu.com,
-       marcelo.tosatti@cyclades.com, nickpiggin@yahoo.com.au
-In-Reply-To: <3f250c710503010744390391e2@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050106202339.4f9ba479.akpm@osdl.org>
-	 <3f250c710502240343563c5cb0@mail.gmail.com>
-	 <20050224035255.6b5b5412.akpm@osdl.org>
-	 <3f250c7105022507146b4794f1@mail.gmail.com>
-	 <3f250c71050228014355797bd8@mail.gmail.com>
-	 <3f250c7105022801564a0d0e13@mail.gmail.com>
-	 <Pine.LNX.4.61.0502282029470.28484@goblin.wat.veritas.com>
-	 <3f250c7105030100085ab86bd2@mail.gmail.com>
-	 <3f250c710503010617537a3ca@mail.gmail.com>
-	 <3f250c710503010744390391e2@mail.gmail.com>
+	Wed, 2 Mar 2005 07:33:21 -0500
+Received: from spoetnik.kulnet.kuleuven.ac.be ([134.58.240.46]:10178 "EHLO
+	spoetnik.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id S262284AbVCBMdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 07:33:14 -0500
+Message-ID: <4225B167.3030903@mech.kuleuven.ac.be>
+Date: Wed, 02 Mar 2005 13:28:23 +0100
+From: Panagiotis Issaris <panagiotis.issaris@mech.kuleuven.ac.be>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] raw1394 missing failure handling
+References: <42259F3A.8000206@mech.kuleuven.ac.be> <1109763232.12379.6.camel@imp.csi.cam.ac.uk>
+In-Reply-To: <1109763232.12379.6.camel@imp.csi.cam.ac.uk>
+Content-Type: multipart/mixed;
+ boundary="------------090608090607080004000202"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does anyone know if the place I put pte_unmap is logical and safe
-after several pte increments?
+This is a multi-part message in MIME format.
+--------------090608090607080004000202
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-	pte = pte_offset_map(pmd, address);
-	address &= ~PMD_MASK;
-	end = address + size;
-	if (end > PMD_SIZE)
-		end = PMD_SIZE;
-	do {
-		pte_t page = *pte;
+Hi,
 
-		address += PAGE_SIZE;
-		pte++;
-		if (pte_none(page) || (!pte_present(page)))
-			continue;
-		*rss += PAGE_SIZE;
-	} while (address < end);
-	pte_unmap(pte);
+Anton Altaparmakov wrote:
 
-BR,
+>On Wed, 2005-03-02 at 12:10 +0100, Panagiotis Issaris wrote:
+>  
+>
+>>In the raw1394 driver the failure handling for
+>>a __copy_to_user call is missing.
+>>    
+>>
+>
+>Your patch is obviously incorrect as it doesn't free the request before
+>it returns.
+>  
+>
+Oops. Thanks for replying! Any more problems with the updated
+patch?
 
-Mauricio Lin.
+With friendly regards,
+Takis
+
+-- 
+  K.U.Leuven, Mechanical Eng.,  Mechatronics & Robotics Research Group
+  http://people.mech.kuleuven.ac.be/~pissaris/
+
+
+--------------090608090607080004000202
+Content-Type: text/x-patch;
+ name="pi-20050302T131628-linux_2_6_11-1394_copy_to_user_failure_handling.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pi-20050302T131628-linux_2_6_11-1394_copy_to_user_failure_handling.diff"
+
+diff -pruN linux-2.6.11/drivers/ieee1394/raw1394.c linux-2.6.11-pi/drivers/ieee1394/raw1394.c
+--- linux-2.6.11/drivers/ieee1394/raw1394.c	2005-03-02 11:44:26.000000000 +0100
++++ linux-2.6.11-pi/drivers/ieee1394/raw1394.c	2005-03-02 13:15:58.000000000 +0100
+@@ -443,7 +443,11 @@ static ssize_t raw1394_read(struct file 
+                         req->req.error = RAW1394_ERROR_MEMFAULT;
+                 }
+         }
+-        __copy_to_user(buffer, &req->req, sizeof(req->req));
++        if (__copy_to_user(buffer, &req->req, sizeof(req->req)))
++        {
++                free_pending_request(req);
++                return -EFAULT;
++        }
+ 
+         free_pending_request(req);
+         return sizeof(struct raw1394_request);
+
+--------------090608090607080004000202--

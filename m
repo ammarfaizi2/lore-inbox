@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133083AbREERfz>; Sat, 5 May 2001 13:35:55 -0400
+	id <S133105AbREERxj>; Sat, 5 May 2001 13:53:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133105AbREERfp>; Sat, 5 May 2001 13:35:45 -0400
-Received: from cabal.darkness.net ([204.56.57.2]:51751 "EHLO
-	cabal.darkness.net") by vger.kernel.org with ESMTP
-	id <S133083AbREERfb>; Sat, 5 May 2001 13:35:31 -0400
-Date: Sat, 5 May 2001 11:34:58 -0600
-From: Jeremy <heffner@darkness.net>
-To: Seth Goldberg <bergsoft@home.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: REVISED: Experimentation with Athlon and fast_page_copy
-Message-ID: <20010505113458.A14468@bletchley.darkness.net>
+	id <S135176AbREERxa>; Sat, 5 May 2001 13:53:30 -0400
+Received: from nwcst288.netaddress.usa.net ([204.68.23.33]:39162 "HELO
+	nwcst288.netaddress.usa.net") by vger.kernel.org with SMTP
+	id <S133105AbREERxP> convert rfc822-to-8bit; Sat, 5 May 2001 13:53:15 -0400
+Message-ID: <20010505175314.7785.qmail@nwcst288.netaddress.usa.net>
+Date: 5 May 2001 12:53:14 CDT
+From: shreenivasa H V <shreenihv@usa.net>
+To: linux-kernel@vger.kernel.org
+Subject: Could clock granularity be increased????
+X-MSMail-Priority: High
+X-Priority: 1
+X-Mailer: USANET web-mailer (34FM.0700.17C.01)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quick note.  I *AM* seeing this problem on a Tyan S2390B which has the
-Via KT133A chipset on it.
+Hi,
 
-AMD Athlon 1.33ghz
-2x256m DIMMs
-Linux 2.4.4-ac5
+Is there any way I could use a clock granularity of less than 10ms if I need
+to do some hacking of the kernel TCP code? Ideally I would require the
+interval of the order of 10-100 microseconds. 
+thanks,
+shreeni.
 
-I haven't done the ksymoops conversions yet, but please let me know if you'd
-like anything else.  But basically, it looks exactly like what all the IWILL
-owners are seeing.
-
-Any other tyan S2390B users?
-
-thx, -j
-
-
--- 
----------------------------------------------------------------------------
-                          heffner at darkness.net
-                       Darkness Network Engineering
-                   PGP public key available on request
-            My thoughts and opinions represent no one but myself
----------------------------------------------------------------------------
+____________________________________________________________________
+Get free email and a permanent address at http://www.netaddress.com/?N=1

@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263005AbTC0PlB>; Thu, 27 Mar 2003 10:41:01 -0500
+	id <S262984AbTC0Pnk>; Thu, 27 Mar 2003 10:43:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263025AbTC0PlB>; Thu, 27 Mar 2003 10:41:01 -0500
-Received: from mail.ithnet.com ([217.64.64.8]:4623 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S263005AbTC0PlA>;
-	Thu, 27 Mar 2003 10:41:00 -0500
-Date: Thu, 27 Mar 2003 16:52:01 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Patrick McHardy <kaber@trash.net>
-Cc: chris@sigsegv.plus.com, greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at sched.c:564! (2.4.20, 2.4.21-pre5-ac3)
-Message-Id: <20030327165201.12d2ef86.skraw@ithnet.com>
-In-Reply-To: <3E82F00F.7@trash.net>
-References: <20030326162538.GG2695@spackhandychoptubes.co.uk>
-	<20030326185236.GE24689@kroah.com>
-	<20030326192520.GH2695@spackhandychoptubes.co.uk>
-	<20030326193437.GI24689@kroah.com>
-	<20030327111600.GI2695@spackhandychoptubes.co.uk>
-	<3E82F00F.7@trash.net>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S262994AbTC0Pnk>; Thu, 27 Mar 2003 10:43:40 -0500
+Received: from meryl.it.uu.se ([130.238.12.42]:59827 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id <S262984AbTC0Pnj>;
+	Thu, 27 Mar 2003 10:43:39 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16003.7879.340300.737153@gargle.gargle.HOWL>
+Date: Thu, 27 Mar 2003 16:54:47 +0100
+From: mikpe@csd.uu.se
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] 2.4.21-pre5 correct scheduling of idle tasks [ all arch ]
+In-Reply-To: <31961.1048659043@kao2.melbourne.sgi.com>
+References: <31961.1048659043@kao2.melbourne.sgi.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Mar 2003 13:35:27 +0100
-Patrick McHardy <kaber@trash.net> wrote:
+Keith Owens writes:
+ > There are several inconsistencies in the scheduling of idle tasks and,
+ > for UP, tracking which task is on the cpu.  This patch standardizes
+ > idle task scheduling across all architectures and corrects the UP
+ > error, it is just a bug fix.
+...
+ > To make it worse, on UP a task is assigned to a cpu but never released.
+ > Very quickly, all tasks are marked as currently running on cpu 0 :(.
 
-> The ISDN bug is fixed, i sent a patch to LKML and the Maintainer last week.
-> I've attached the fix again, the one in isdn_ppp.c is responsible for 
-> the BUG()s.
+->cpus_runnable and task_has_cpu() are SMP-only, as a quick grep
+through 2.4.20 will tell you. There is no UP bug here to fix.
 
-It seems I can confirm that. Your patch indeed fixes my problem. 
-
-Thanks a lot
-Stephan
-
-
-
+/Mikael

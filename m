@@ -1,70 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263637AbTEWFzO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 01:55:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263638AbTEWFzN
+	id S263638AbTEWGFV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 02:05:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263642AbTEWGFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 01:55:13 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:60176 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263637AbTEWFzM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 01:55:12 -0400
-Date: Fri, 23 May 2003 07:07:15 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PCI changes for 2.5.69
-Message-ID: <20030523070715.A5038@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <10536411604060@kroah.com> <10536411602454@kroah.com>
-Mime-Version: 1.0
+	Fri, 23 May 2003 02:05:21 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:51145 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263638AbTEWGFU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 02:05:20 -0400
+Date: Thu, 22 May 2003 23:18:15 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.69-mm8
+Message-ID: <17990000.1053670694@[10.10.2.4]>
+In-Reply-To: <20030522021652.6601ed2b.akpm@digeo.com>
+References: <20030522021652.6601ed2b.akpm@digeo.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <10536411602454@kroah.com>; from greg@kroah.com on Thu, May 22, 2003 at 03:06:01PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 22, 2003 at 03:06:01PM -0700, Greg KH wrote:
-> ChangeSet 1.1210, 2003/05/22 10:30:35-07:00, greg@kroah.com
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.69/2.5.69-mm8/
 > 
-> PCI: add pci_get_dev() and pci_put_dev()
+> . One anticipatory scheduler patch, but it's a big one.  I have not stress
+>   tested it a lot.  If it explodes please report it and then boot with
+>   elevator=deadline.
 > 
-> Move the PCI core to start using these, enabling proper reference counting
-> on struct pci_dev.
+> . The slab magazine layer code is in its hopefully-final state.
 > 
-> 
->  drivers/pci/bus.c        |    2 +-
->  drivers/pci/hotplug.c    |    2 +-
->  drivers/pci/pci-driver.c |   41 +++++++++++++++++++++++++++++++++++++++++
->  drivers/pci/probe.c      |   18 ++++++++++++++++++
->  include/linux/pci.h      |    2 ++
->  5 files changed, 63 insertions(+), 2 deletions(-)
-> 
-> 
-> diff -Nru a/drivers/pci/bus.c b/drivers/pci/bus.c
-> --- a/drivers/pci/bus.c	Thu May 22 14:50:44 2003
-> +++ b/drivers/pci/bus.c	Thu May 22 14:50:44 2003
-> @@ -92,7 +92,7 @@
->  		if (!list_empty(&dev->global_list))
->  			continue;
->  
-> -		device_register(&dev->dev);
-> +		device_add(&dev->dev);
+> . Some VFS locking scalability work - stress testing of this would be
+>   useful.
 
-This doesn't match the patch description..
+Well, unsure about the problems I reported earlier - seems to be related
+to modem disconnects during SDET runs ... the hung session seems to lock
+up the system somehow. But that could have been around for ages - I'll
+try to be more scientific about reproducing it at some point.
 
-> +struct pci_dev *pci_get_dev (struct pci_dev *dev)
+SDET results are about the same, kernel compile is down a bit on systime
+(16-way NUMA-Q)
 
-Please fix up to adhere Documentation/CodingStyle (hint: placement
-of the opening brace is wrong).
+Kernbench: (make -j vmlinux, maximal tasks)
+                              Elapsed      System        User         CPU
+               2.5.69-mm7       46.58      117.00      578.47     1492.00
+               2.5.69-mm8       46.09      115.11      570.74     1487.25
 
-> +{
-> +	struct device *tmp;
-> +
-> +	if (!dev)
-> +		return NULL;
+      1004     2.0% default_idle
+       272     8.3% __copy_from_user_ll
+       129     1.7% __d_lookup
+        79     7.5% link_path_walk
+...
+       -50    -1.3% find_get_page
+       -55    -1.5% zap_pte_range
+       -66    -6.5% file_move
+       -74    -1.2% page_add_rmap
+       -80    -0.6% do_anonymous_page
+      -110    -6.9% schedule
+      -139    -7.0% atomic_dec_and_lock
+      -698    -0.4% total
+     -1139    -4.6% page_remove_rmap
 
-Does it make sense to allow NULL argument here?
+Not sure quite what that's all about, but there it is ;-)
 

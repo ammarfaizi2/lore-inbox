@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbULJNAl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbULJNLp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbULJNAl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 08:00:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbULJNAl
+	id S261196AbULJNLp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 08:11:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbULJNLp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 08:00:41 -0500
-Received: from tag.witbe.net ([81.88.96.48]:10894 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S261196AbULJNAd convert rfc822-to-8bit
+	Fri, 10 Dec 2004 08:11:45 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:63755 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261196AbULJNLn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 08:00:33 -0500
-Message-Id: <200412101300.iBAD0Ua31686@tag.witbe.net>
-Reply-To: <rol@as2917.net>
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Timothy Chavez'" <chavezt@gmail.com>, <linux-kernel@vger.kernel.org>
-Cc: <serue@us.ltcfwd.linux.ibm.com>, <sds@epoch.ncsc.mil>, <rml@novell.com>,
-       <ttb@tentacle.dhs.org>
-Subject: Re: [audit] Upstream solution for auditing file system objects
-Date: Fri, 10 Dec 2004 14:00:24 +0100
-Organization: AS2917
+	Fri, 10 Dec 2004 08:11:43 -0500
+Date: Fri, 10 Dec 2004 13:11:17 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: "Maciej W. Rozycki" <macro@mips.com>, Greg KH <greg@kroah.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Chris Dearman <chris@mips.com>
+Subject: Re: [PATCH] Don't touch BARs of host bridges
+In-Reply-To: <1102653999.22763.22.camel@gaston>
+Message-ID: <Pine.LNX.4.58L.0412100448490.30913@blysk.ds.pg.gda.pl>
+References: <Pine.LNX.4.61.0412092349560.6535@perivale.mips.com>
+ <1102653999.22763.22.camel@gaston>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-Reply-To: <f2833c760412091602354b4c95@mail.gmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcTeS7QtH6fS0axtTaOh7iQCRGwcrQAbFymQ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, 10 Dec 2004, Benjamin Herrenschmidt wrote:
 
-You could also have a look at LIDS. Though the target is not the same,
-some useful idea may be gathered there...
-
-http://www.lids.org/
-
-Regards,
-Paul
-
-Paul Rolland, rol(at)as2917.net
-ex-AS2917 Network administrator and Peering Coordinator
-
---
-
-Please no HTML, I'm not a browser - Pas d'HTML, je ne suis pas un navigateur
-
-"Some people dream of success... while others wake up and work hard at it" 
-
-  
-
-> -----Message d'origine-----
-> De : linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] De la part de 
-> Timothy Chavez
-> Envoyé : vendredi 10 décembre 2004 01:03
-> À : linux-kernel@vger.kernel.org
-> Cc : serue@us.ltcfwd.linux.ibm.com; sds@epoch.ncsc.mil; 
-> rml@novell.com; ttb@tentacle.dhs.org
-> Objet : [audit] Upstream solution for auditing file system objects
+> >  BARs of host bridges often have special meaning and AFAIK are best left 
+> > to be setup by the firmware or system-specific startup code and kept 
+> > intact by the generic resource handler.  For example a couple of host 
+> > bridges used for MIPS processors interpret BARs as target-mode decoders 
+> > for accessing host memory by PCI masters (which is quite reasonable).  
 > 
-> Greetings, 
->  
-> I'm writing this e-mail to facilitate some discussion on an audit
-> feature for inclusion to the mainline kernel's audit subsysystem. 
-> I've written out a "brief" description of the problem with some of the
-> associated problems it introduces and some of the outlines of
-> potential solutions below.  For the most part, the idea stays the
-> same, and the mechanism we use to implement it varies.
+> Not very reasonable in fact imho but that happens on some embedded PPCs
 
+ Well, some of these bridges may be used for peripheral devices (option
+cards) built around a CPU, typically after reprogramming the class code to
+something corresponding to their actual function.  Why should the address
+decoder circuitry suddenly change in this case?
 
+ Also even in the "host mode" another device may wish to examine what
+resources have been reserved by the host bridge (unlikely, I admit, but 
+in principle why not?).
+
+> was well :) So I agree, that would be useful to skip them. I'm not sure
+> about PCI_CLASS_NOT_DEFINED tho ...
+
+ These are pre-2.0 PCI devices -- from before the detailed classification
+was agreed upon.  AFAIK, just a couple of them exist -- I can name:  
+Intel's 82424 and 82425 families of i486 host bridges, their 82375 family
+of PCI-EISA bridges and their 82378/9 family of PCI-ISA bridges (also used
+in a few DEC Alpha systems).  There are probably a handful of other chips,
+all of them about ten years old.  Our i386 and ppc resource managers skip
+over them as well and I suppose this is a safe default.  If any of them
+needs BAR setup (none of these Intel ones), it can be added explicitly by
+means of its vendor:device ID.
+
+  Maciej

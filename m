@@ -1,114 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266704AbUIVARC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267189AbUIVARg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266704AbUIVARC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 20:17:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267189AbUIVARC
+	id S267189AbUIVARg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 20:17:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267424AbUIVARg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 20:17:02 -0400
-Received: from [62.206.217.67] ([62.206.217.67]:16284 "EHLO gw.localnet")
-	by vger.kernel.org with ESMTP id S266704AbUIVAQy (ORCPT
+	Tue, 21 Sep 2004 20:17:36 -0400
+Received: from holomorphy.com ([207.189.100.168]:59082 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267189AbUIVARa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 20:16:54 -0400
-Message-ID: <4150C448.5040604@trash.net>
-Date: Wed, 22 Sep 2004 02:16:08 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marc Ballarin <Ballarin.Marc@gmx.de>
-CC: "David S. Miller" <davem@davemloft.net>, rusty@rustcorp.com.au,
-       torvalds@osdl.org, netfilter-devel@lists.netfilter.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Warn people that ipchains and ipfwadm are going away.
-References: <1095721742.5886.128.camel@bach> <20040921143613.2dc78e2f.Ballarin.Marc@gmx.de> <1095803902.1942.211.camel@bach> <20040922003646.3a84f4c5.Ballarin.Marc@gmx.de> <20040921153600.2e732ea6.davem@davemloft.net> <20040922013516.753044db.Ballarin.Marc@gmx.de>
-In-Reply-To: <20040922013516.753044db.Ballarin.Marc@gmx.de>
-Content-Type: multipart/mixed;
- boundary="------------040005030203070902060303"
+	Tue, 21 Sep 2004 20:17:30 -0400
+Date: Tue, 21 Sep 2004 17:17:13 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
+       Hugh Dickins <hugh@veritas.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       felipe_alfaro@linuxmail.org, Florian Schmidt <mista.tapas@gmx.net>,
+       "K.R. Foley" <kr@cybsft.com>, Mark_H_Johnson@Raytheon.com
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R6
+Message-ID: <20040922001713.GK9106@holomorphy.com>
+References: <20040903120957.00665413@mango.fruits.de> <20040904195141.GA6208@elte.hu> <20040905140249.GA23502@elte.hu> <20040906110626.GA32320@elte.hu> <1094626562.1362.99.camel@krustophenia.net> <20040909192924.GA1672@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040909192924.GA1672@elte.hu>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040005030203070902060303
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+* Lee Revell <rlrevell@joe-job.com> wrote:
+>> preemption latency trace v1.0.6 on 2.6.9-rc1-bk12-VP-R6
+>> --------------------------------------------------
+>>  latency: 605 us, entries: 5 (5)  [VP:1 KP:1 SP:1 HP:1 #CPUS:1]
+>>     -----------------
+>>     | task: kswapd0/35, uid:0 nice:0 policy:0 rt_prio:0
+>>     -----------------
+>>  => started at: get_swap_page+0x23/0x490
+>>  => ended at:   get_swap_page+0x13f/0x490
+>> =======>
+>> 00000001 0.000ms (+0.606ms): get_swap_page (add_to_swap)
+>> 00000001 0.606ms (+0.000ms): sub_preempt_count (get_swap_page)
+>> 00000001 0.606ms (+0.000ms): update_max_trace (check_preempt_timing)
+>> 00000001 0.606ms (+0.000ms): _mmx_memcpy (update_max_trace)
+>> 00000001 0.607ms (+0.000ms): kernel_fpu_begin (_mmx_memcpy)
 
-Marc Ballarin wrote:
-
->On Tue, 21 Sep 2004 15:36:00 -0700
->"David S. Miller" <davem@davemloft.net> wrote:
->
->  
->
->>You can't have ipchains and iptables loaded at the same time.
->>You must first manually unload iptables, then you can
->>successfully load the ipchains module.
->>    
->>
->
->Yes, I know, something seems strange here.
->  
->
-
-Fixed by this patch. The conntrack protocols need ip_ct_log_invalid
-which is defined in ip_conntrack_standalone, so ip_conntrack is
-loaded automatically before ipchains. This patch moves it over to
-ip_conntrack_core.
-
-Dave, please apply on top of the other netfilter patches.
-
-Regards
-Patrick
+This appears to be the middle of the function, which is about right...
 
 
---------------040005030203070902060303
-Content-Type: text/plain;
- name="x"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="x"
+On Thu, Sep 09, 2004 at 09:29:24PM +0200, Ingo Molnar wrote:
+> yep, the get_swap_page() latency. I can easily trigger 10+ msec
+> latencies on a box with alot of swap by just letting stuff swap out. I
+> had a quick look but there was no obvious way to break the lock. Maybe
+> Andrew has better ideas? get_swap_page() is pretty stupid, it does a
+> near linear search for a free slot in the swap bitmap - this not only is
+> a latency issue but also an overhead thing as we do it for every other
+> page that touches swap.
+> rationale: this is pretty much the only latency that we still having
+> during heavy VM load and it would Just Be Cool if we fixed this final
+> one. audio daemons and apps like jackd use mlockall() so they are not
+> affected by swapping.
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/09/22 02:04:02+02:00 kaber@coreworks.de 
-#   {NETFILTER]: Move ip_ct_log_invalid to ip_conntrack_core.c
-#   
-#   Signed-off-by: Patrick McHardy <kaber@trash.net>
-# 
-# net/ipv4/netfilter/ip_conntrack_standalone.c
-#   2004/09/22 02:03:37+02:00 kaber@coreworks.de +0 -2
-#   {NETFILTER]: Move ip_ct_log_invalid to ip_conntrack_core.c
-#   
-#   Signed-off-by: Patrick McHardy <kaber@trash.net>
-# 
-# net/ipv4/netfilter/ip_conntrack_core.c
-#   2004/09/22 02:03:37+02:00 kaber@coreworks.de +1 -0
-#   {NETFILTER]: Move ip_ct_log_invalid to ip_conntrack_core.c
-#   
-#   Signed-off-by: Patrick McHardy <kaber@trash.net>
-# 
-diff -Nru a/net/ipv4/netfilter/ip_conntrack_core.c b/net/ipv4/netfilter/ip_conntrack_core.c
---- a/net/ipv4/netfilter/ip_conntrack_core.c	2004-09-22 02:10:28 +02:00
-+++ b/net/ipv4/netfilter/ip_conntrack_core.c	2004-09-22 02:10:28 +02:00
-@@ -74,6 +74,7 @@
- static kmem_cache_t *ip_conntrack_cachep;
- static kmem_cache_t *ip_conntrack_expect_cachep;
- struct ip_conntrack ip_conntrack_untracked;
-+unsigned int ip_ct_log_invalid;
- 
- DEFINE_PER_CPU(struct ip_conntrack_stat, ip_conntrack_stat);
- 
-diff -Nru a/net/ipv4/netfilter/ip_conntrack_standalone.c b/net/ipv4/netfilter/ip_conntrack_standalone.c
---- a/net/ipv4/netfilter/ip_conntrack_standalone.c	2004-09-22 02:10:28 +02:00
-+++ b/net/ipv4/netfilter/ip_conntrack_standalone.c	2004-09-22 02:10:28 +02:00
-@@ -48,8 +48,6 @@
- extern atomic_t ip_conntrack_count;
- DECLARE_PER_CPU(struct ip_conntrack_stat, ip_conntrack_stat);
- 
--unsigned int ip_ct_log_invalid = 0;
--
- static int kill_proto(const struct ip_conntrack *i, void *data)
- {
- 	return (i->tuplehash[IP_CT_DIR_ORIGINAL].tuple.dst.protonum == 
+I presume most of the time is due to scan_swap_map() and not much of the
+rest of get_swap_page(). Dangling hierarchical bitmaps off of the
+swap_info structures to accelerate the search sounds plausible, though
+code reuse is largely infeasible due to memory allocation concerns (it
+must be fully-populated during swaplist element creation). The space
+overhead should be 1 bit per unsigned short at the first level and 1
+bit per word for higher levels until the terms vanish. So that's
+si->max*sum(i>=0,BITS_PER_LONG**i<=si->max)floor(si->max/BITS_PER_LONG**i)
+<= si->max*/(1-1/BITS_PER_LONG) bits, or
+si->max*sizeof(long)/(BITS_PER_LONG-1) bytes, which is
+sizeof(long)/sizeof(short)/(BITS_PER_LONG-1) times the size of the
+original swap map, which is 2/31 on 32-bit and 4/63 on 64-bit of the
+size of the original swap map, both of which are just above 1/16 (1/496
+above on 32-bit and 1/1008 above on 64-bit), so the space overhead
+appears to be acceptable. A hierarchical bitmap should reduce the time
+requirements for the search from O(sum(si) si->max) to
+O(BITS_PER_LONG/lg(BITS_PER_LONG)). Sound reasonable?
 
---------------040005030203070902060303--
+
+-- wli

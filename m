@@ -1,30 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265215AbRF0Ba4>; Tue, 26 Jun 2001 21:30:56 -0400
+	id <S265202AbRF0BlA>; Tue, 26 Jun 2001 21:41:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265218AbRF0Bar>; Tue, 26 Jun 2001 21:30:47 -0400
-Received: from adsl-209-76-109-63.dsl.snfc21.pacbell.net ([209.76.109.63]:4736
-	"EHLO adsl-209-76-109-63.dsl.snfc21.pacbell.net") by vger.kernel.org
-	with ESMTP id <S265215AbRF0Bam>; Tue, 26 Jun 2001 21:30:42 -0400
-Date: Tue, 26 Jun 2001 18:30:14 -0700
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Message-Id: <200106270130.f5R1UEW01001@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-To: shaas@vibe.com, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.6 Pre 5 Not see all available RAM
-In-Reply-To: <002a01c0fe9f$ecc73fb0$6900a8c0@STUARTHAASW2K>
-In-Reply-To: <002a01c0fe9f$ecc73fb0$6900a8c0@STUARTHAASW2K>
-Reply-To: whitney@math.berkeley.edu
+	id <S265208AbRF0Bkt>; Tue, 26 Jun 2001 21:40:49 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:30605 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S265202AbRF0Bkk>;
+	Tue, 26 Jun 2001 21:40:40 -0400
+Date: Tue, 26 Jun 2001 21:40:36 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Paul Menage <pmenage@ensim.com>
+cc: "Mohammad A. Haque" <mhaque@haque.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] User chroot 
+In-Reply-To: <E15F43r-0003ls-00@pmenage-dt.ensim.com>
+Message-ID: <Pine.GSO.4.21.0106262138370.18037-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In mailing-lists.linux-kernel, you wrote:
 
-> I have discovered that while running 2.4.6pre5, the kernel does not
-> see all available RAM - I have 1GB and the kernel only sees ~899MB.
 
-The 1GB memory option in the kernel configuration is really the 896MB
-memory option.  So for more than 896MB, you need to select the 4GB
-memory option, which really is 4GB.
+On Tue, 26 Jun 2001, Paul Menage wrote:
 
-Wayne
+> But only root can set this up, since you currently have to be root in
+> order to chroot(). The (only) advantage of the user chroot() patch would
+> be that users would be able to do the same thing without root
+> intervention.
+
+You need to be root to do mknod. You need to do mknod to create /dev/zero.
+You need /dev/zero to get anywhere near the normal behaviour of the system.
 

@@ -1,106 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267437AbSLEXuf>; Thu, 5 Dec 2002 18:50:35 -0500
+	id <S267393AbSLEXsS>; Thu, 5 Dec 2002 18:48:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267440AbSLEXuf>; Thu, 5 Dec 2002 18:50:35 -0500
-Received: from HIC-SR1.hickam.af.mil ([131.38.214.75]:30086 "EHLO
-	hic-sr1.hickam.af.mil") by vger.kernel.org with ESMTP
-	id <S267437AbSLEXud>; Thu, 5 Dec 2002 18:50:33 -0500
-Message-ID: <A6B0BFA3B496A24488661CC25B9A0EFA333DF7@himl07.hickam.pacaf.ds.af.mil>
-From: Bingner Sam J Contractor PACAF CSS/SCHE 
-	<Sam.Bingner@hickam.af.mil>
-To: "'Roberto Nibali'" <ratz@drugphish.ch>,
-       Phil Oester <kernel@theoesters.com>
-Cc: "David S. Miller" <davem@redhat.com>, "'ja@ssi.bg'" <ja@ssi.bg>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>
-Subject: RE: hidden interface (ARP) 2.4.20
-Date: Thu, 5 Dec 2002 23:57:18 -0000 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S267423AbSLEXsS>; Thu, 5 Dec 2002 18:48:18 -0500
+Received: from hunnerberg.nijmegen.internl.net ([217.149.192.32]:39370 "EHLO
+	hunnerberg.nijmegen.internl.net") by vger.kernel.org with ESMTP
+	id <S267393AbSLEXsS>; Thu, 5 Dec 2002 18:48:18 -0500
+Date: Fri, 6 Dec 2002 00:55:10 +0100
+From: Frank van Maarseveen <F.vanMaarseveen@inter.nl.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: is KERNEL developement finished, yet ???
+Message-ID: <20021206005510.A7411@iapetus.localdomain>
+References: <F6E1228667B6D411BAAA00306E00F2A51539BA@pdc2.nestec.net> <200212041526.57501.shanehelms@eircom.net> <01c301c29bf5$201a9120$6a01a8c0@wa1hco>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01c301c29bf5$201a9120$6a01a8c0@wa1hco>; from wa1hco@adelphia.net on Wed, Dec 04, 2002 at 07:27:40PM -0500
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-to risk getting jumped on again, I still don't see why an address that is
--=ASSIGNED TO AN INTERFACE=- should be responded to on a completely
-different interface... if we wanted the ip address to be assigned to the
-system, there should be a pseudo interface that will work on any of the
-interfaces attached.  Why assign an address to an interface if it would work
-just the same if you assigned it to the loopback adapter?  Why would you
-assign an address to the loopback adapter if you wanted it to be accessed
-from the world?  
-
-Anyways, just wasting my breath by expressing my point of view... have fun
-
-Also, if anybody has a link to something that explains how to do this using
-an alternate method, or usage for arp_filter... I'd appreciate it if you
-could email me... I've been searching for like 2 hours and I havn't found
-anything useful.
-
-	Sam Bingner
-
------Original Message-----
-From: Roberto Nibali [mailto:ratz@drugphish.ch]
-Sent: Thursday, December 05, 2002 12:51 PM
-To: Phil Oester
-Cc: David S. Miller; Bingner Sam J Contractor PACAF CSS/SCHE;
-'ja@ssi.bg'; 'linux-kernel@vger.kernel.org'
-Subject: Re: hidden interface (ARP) 2.4.20
-
-
-Hello,
-
-First I would like to ask people not to post such patches to lkml but 
-rather to the LVS list, because this affects only LVS so far and we 
-cover all kernel versions pretty much up to date. Julian just needs to 
-do the s/__constant_htons/htons/ fixes and upload the changes to his site ;)
-
-The inclusion of the hidden feature has been discussed almost to death 
-on netdev (where these questions should have gone in the first place) 
-and it was decided against inclusion of this patch for various reasons.
-
-Phil Oester wrote:
-> So we should enable netfilter for all x-hundred webservers we have?  Or
-play games with routing tables?
-
-Yes. What is the problem? You need to setup the x-hundred webservers 
-anyway, 2 routing entry lines certainly won't hurt. Yes, I understand 
-that if you're in process of upgrading your webservers from 2.2.x to 
-2.4.x this is a bit of an additional pain. There are also other 
-solutions to this arp problem, but please address this on the LVS 
-mailinglist.
-
-> Why was something which:
+On Wed, Dec 04, 2002 at 07:27:40PM -0500, jeff millar wrote:
+> My opinion...
 > 
-> a) works
-> b) was present in 2.2.xx kernels
-> c) is trivial to include and doesn't seem to 'hurt' anything
-> 
-> ripped from 2.4 kernels?
+> Kernels are getting mature in the sense the there's not that many ways to do
+> tasking and hardware interface.  It no longer a game of invention but a game
+> of polishing.
 
-http://marc.theaimsgroup.com/?t=95743539800002&r=1&w=2
+no
 
-> What some people fail to grasp is that _many_ people in the real world are
-using 
- > the hidden flag in load balancing scenarios for its simplicity.
- > Removing it (without any particularly valid reason that anyone is
- > aware of) doesn't make much sense.
+Everytime once in a while someone thinks that everything which can
+be invented has been invented. Books like "The end of science". It's
+pure hubris.
 
-Depends if it was a hack before that shouldn't have been there in the 
-first place. In an evolutionary process things get optimized ... as has 
-happened with the network stack code.
+Around 1930 it was proven that is was impossible to travel to the
+moon. Then mankind discovered multi stage rockets and nuclear energy
+(not even needed for that).
 
-> -Phil
-> 
-> p.s. flame away, Dave
+It's incredible how narrow-minded established science sometimes is today
+(and often has been past centuries). There is too much conservatism and
+a general lack of imagination (though I must admit that no SF writer
+could come up with something as bizarre as quantum mechanics, QED,
+string theory and a few other things).
 
-Search the LVS and the netdev archives for constructive discussions 
-about it. No need to flame anyone. But hey, if people keep coming up 
-with this, DaveM and Alexey might get weak and put it back in 2.5.x :)
+Software and more specific kernel development has quite a short history
+compared to all of that. So, let's be humble and accept that what we
+do today will most likely be considered a trivial joke when the next
+century arrives.
 
-Best regards,
-Roberto Nibali, ratz
+You don't know what you do now know today.
+
 -- 
-echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
+Frank

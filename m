@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263464AbTDVTrz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 15:47:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263487AbTDVTrz
+	id S263414AbTDVTz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 15:55:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263478AbTDVTz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 15:47:55 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:12679 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263464AbTDVTry
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 15:47:54 -0400
-Date: Tue, 22 Apr 2003 16:02:58 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Balram Adlakha <b_adlakha@softhome.net>
+	Tue, 22 Apr 2003 15:55:27 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:7297 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263473AbTDVTz0 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 15:55:26 -0400
+Message-Id: <200304222007.h3MK7VLq007351@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Linus Torvalds <torvalds@transmeta.com>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] fbcon
-In-Reply-To: <200304240105.21711.b_adlakha@softhome.net>
-Message-ID: <Pine.LNX.4.53.0304221600370.14949@chaos>
-References: <200304240105.21711.b_adlakha@softhome.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: 2.5.68-bk3 #if cleanup (7/6)
+From: Valdis.Kletnieks@vt.edu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 22 Apr 2003 16:07:31 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Apr 2003, Balram Adlakha wrote:
+Yes, part 7 of 6.  I missed two cases of '#if !CONFIG' that I've
+changed to '#ifndef'
 
-> There seems to be a problem in the frame buffer console, It appears as if the
-> resolution has been changed from 1024x768 to 1024x800 or something like that
-> (I can only half see the sh prompt when it has come down), but the argument I
-> passed at boot time was still 788. It doesn't appear to have been solved
-> according to the bk csets taken from kernel.org.
->
+--- linux-2.5.68-bk3/include/linux/interrupt.h.dist	2003-04-22 13:57:47.000000000 -0400
++++ linux-2.5.68-bk3/include/linux/interrupt.h	2003-04-22 15:58:09.227201362 -0400
+@@ -49,7 +49,7 @@
+ /*
+  * Temporary defines for UP kernels, until all code gets fixed.
+  */
+-#if !CONFIG_SMP
++#ifndef CONFIG_SMP
+ # define cli()			local_irq_disable()
+ # define sti()			local_irq_enable()
+ # define save_flags(x)		local_save_flags(x)
+--- linux-2.5.68-bk3/arch/ppc/kernel/process.c.dist	2003-04-22 15:59:37.172062542 -0400
++++ linux-2.5.68-bk3/arch/ppc/kernel/process.c	2003-04-22 16:00:00.026582008 -0400
+@@ -550,7 +550,7 @@
+ 		++count;
+ 		sp = *(unsigned long *)sp;
+ 	}
+-#if !CONFIG_KALLSYMS
++#ifndef CONFIG_KALLSYMS
+ 	if (count > 0)
+ 		printk("\n");
+ #endif
 
-Did you reset your monitor so it remembers the height/width/centering for
-your new resolution? Maybe you didn't know?
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
 

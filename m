@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270987AbTGVSjn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 14:39:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270988AbTGVSjn
+	id S270986AbTGVSja (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 14:39:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270987AbTGVSja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 14:39:43 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:34979
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S270987AbTGVSjl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 14:39:41 -0400
-Date: Tue, 22 Jul 2003 14:54:43 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Erik Andersen <andersen@codepoet.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Promise SATA driver GPL'd
-Message-ID: <20030722185443.GB6004@gtf.org>
-References: <20030722184532.GA2321@codepoet.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030722184532.GA2321@codepoet.org>
-User-Agent: Mutt/1.3.28i
+	Tue, 22 Jul 2003 14:39:30 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:61312 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S270986AbTGVSj3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 14:39:29 -0400
+Date: Tue, 22 Jul 2003 20:04:16 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200307221904.h6MJ4Gnr001119@81-2-122-30.bradfords.org.uk>
+To: herbert@13thfloor.at
+Subject: Re: noaltroot bootparam [was Floppy Fallback]
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
+       trond.myklebust@fys.uio.no
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 22, 2003 at 12:45:33PM -0600, Erik Andersen wrote:
-> Some folk I've done some consulting work for bought a zillion
-> Promise SATA cards.  They were able to convince Promise to
-> release their SATA driver, which was formerly available only as 
-> a binary only kernel module, under the terms of the GPL.
+> Trond suggested to draft a patch to address the
+> Floppy Fallback issues (mentioned several times
+> on lkml) by adding a kernel boot parameter, to
+> disable the fallback, or to put it more general,
+> to disable alternate root device attempts ...
+>
+> Currently the NFS-Root Floppy Fallback is the 
+> only _user_ of such a boot parameter, but in 
+> future, this could be used to limit multiple
+> root situations to a make-or-brake ...
+>
+> please comment!
 
-That's definitely nice of the vendor.
+I think the best thing to do if it's not possible to mount an
+NFS-based root filesystem, is to wait 60 seconds, then try to contact
+the NFS server again.
 
-FWIW it does not include any RAID format support.
+Before the in-kernel bootloader was removed, the current behavior was
+quite useful - it was quite possible that a hard disk-less machine
+would boot from a floppy without using a bootloader, and mount it's
+root filesystem from an NFS server.  In this scenario, it would be
+impossible to boot the machine with the root on another device,
+without modifying the boot disk, so a fallback to root on a floppy was
+useful.
 
-> cards.  As a temporary download location, the GPL'd driver can be
-> obtained from http://www.busybox.net/pdc-ultra-1.00.0.10.tgz
+However, the in-kernel bootloader was removed in 2.6, so there is now
+no reason why an alternate root couldn't simply be specified at the
+boot prompt.
 
-Bart, Alan, and I have been looking at this.  It uses the ancient CAM
-model, that we don't really want to merge directly in the kernel.  It's
-very close to the libata model, from the user perspective, so life is 
-good.
+If the NFS server is not accessible because of a temporary problem,
+(too much network traffic, or it's rebooting for example), it makes
+sense to try again after 60 seconds.
 
-	Jeff
+Not trying the floppy should become the _default_ action.
 
-
+John.

@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290792AbSBFUfq>; Wed, 6 Feb 2002 15:35:46 -0500
+	id <S290798AbSBFUlG>; Wed, 6 Feb 2002 15:41:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290797AbSBFUfh>; Wed, 6 Feb 2002 15:35:37 -0500
-Received: from bitmover.com ([192.132.92.2]:22979 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S290792AbSBFUfb>;
-	Wed, 6 Feb 2002 15:35:31 -0500
-Date: Wed, 6 Feb 2002 12:35:27 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Christoph Hellwig <hch@ns.caldera.de>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-Message-ID: <20020206123527.R7674@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Christoph Hellwig <hch@ns.caldera.de>,
-	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020206000343.I14622@work.bitmover.com> <200202061935.g16JZLh18377@ns.caldera.de>
-Mime-Version: 1.0
+	id <S290795AbSBFUk4>; Wed, 6 Feb 2002 15:40:56 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54546 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S290798AbSBFUkp>;
+	Wed, 6 Feb 2002 15:40:45 -0500
+Message-ID: <3C6194C5.2561A0C8@mandrakesoft.com>
+Date: Wed, 06 Feb 2002 15:40:37 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Kirk Reiser <kirk@braille.uwo.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Need a clew WRT fig2dev
+In-Reply-To: <x7zo2mzi5v.fsf@speech.braille.uwo.ca>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200202061935.g16JZLh18377@ns.caldera.de>; from hch@ns.caldera.de on Wed, Feb 06, 2002 at 08:35:21PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Btw, is there a generic way to move repos cloned from Ted's (now
-> orphaned?) 2.4 tree to Linus' official one?
+Kirk Reiser wrote:
+> Hi Folks: I have been trying to make the docbook documentation in the
+> 2.5.3 tree but have run into a problem not having fig2dev.  I do not
+> seem to be able to find this utility or any reference to it.  It does
+> not appear to be in my docbook utilities at any rate.  Any suggestions
+> would certainly be appreciated.
 
-You can export the changes you want as a patch and if you ask, we'll send
-you a script which also exports your checkin comments in Linus' nifty
-new email->BK converter.  The format that we like (I believe, Wayne/Linus
-will correct errors) is:
+[jgarzik@cum rpm]$ rpm -qf `which fig2dev`
+transfig-3.2.3d-7mdk
 
-### Change the comments to ChangeSet below
-These are the changeset comments, i.e, the email message for the patch.
-
-### Change the comments to include/asm/whatever.h below
-The comments for include/asm/whatever.h
-
-In other words
-
-printf("### Change the comments to %s below\n", filename);
-
-And then it can be imported directly.
-
-To create an extra script to do this for a bk export -tpatch is straightforward.
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Jeff Garzik      | "I went through my candy like hot oatmeal
+Building 1024    |  through an internally-buttered weasel."
+MandrakeSoft     |             - goats.com

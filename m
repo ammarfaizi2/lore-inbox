@@ -1,49 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318101AbSIAVts>; Sun, 1 Sep 2002 17:49:48 -0400
+	id <S318118AbSIAV6A>; Sun, 1 Sep 2002 17:58:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318118AbSIAVts>; Sun, 1 Sep 2002 17:49:48 -0400
-Received: from p50887EBD.dip.t-dialin.net ([80.136.126.189]:31970 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S318101AbSIAVt2>; Sun, 1 Sep 2002 17:49:28 -0400
-Date: Sun, 1 Sep 2002 15:53:53 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Ralf Baechle <ralf@uni-koblenz.de>
-cc: Oliver Neukum <oliver@neukum.name>, <linux-kernel@vger.kernel.org>
+	id <S318123AbSIAV57>; Sun, 1 Sep 2002 17:57:59 -0400
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:62353 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S318118AbSIAV57> convert rfc822-to-8bit; Sun, 1 Sep 2002 17:57:59 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: Thunder from the hill <thunder@lightweight.ods.org>,
+       Ralf Baechle <ralf@uni-koblenz.de>
 Subject: Re: question on spinlocks
-In-Reply-To: <20020901210504.A22882@bacchus.dhis.org>
-Message-ID: <Pine.LNX.4.44.0209011553140.3234-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
+Date: Mon, 2 Sep 2002 00:02:41 +0200
+User-Agent: KMail/1.4.1
+Cc: <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0209011553140.3234-100000@hawkeye.luckynet.adm>
+In-Reply-To: <Pine.LNX.4.44.0209011553140.3234-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209020002.41381.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Sun, 1 Sep 2002, Ralf Baechle wrote:
-> On Sun, Sep 01, 2002 at 07:27:53PM +0200, Oliver Neukum wrote:
-> > is the following sequence legal ?
-> > 
-> > spin_lock_irqsave(...);
-> > ...
-> > spin_unlock(...);
-> > schedule();
-> > spin_lock(...);
-> > ...
-> > spin_unlock_irqrestore(...);
-> 
-> No; spin_lock_irqsave/spin_unlock_irqrestore and spin_lock/spin_unlock
-> have to be used in matching pairs.
+> > No; spin_lock_irqsave/spin_unlock_irqrestore and spin_lock/spin_unlock
+> > have to be used in matching pairs.
+>
+> If it was his least problem! He'll run straight into a "schedule w/IRQs
+> disabled" bug.
 
-If it was his least problem! He'll run straight into a "schedule w/IRQs 
-disabled" bug.
+OK, how do I drop an irqsave spinlock if I don't have flags?
 
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
+	Regards
+		Oliver
 

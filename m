@@ -1,67 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262158AbTJ3DQl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 22:16:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTJ3DQk
+	id S262164AbTJ3DRm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 22:17:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbTJ3DRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 22:16:40 -0500
-Received: from h1ab.lcom.net ([216.51.237.171]:30083 "EHLO digitasaru.net")
-	by vger.kernel.org with ESMTP id S262158AbTJ3DQj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 22:16:39 -0500
-Date: Wed, 29 Oct 2003 21:16:33 -0600
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Things that Longhorn seems to be doing right
-Message-ID: <20031030031631.GB15309@digitasaru.net>
-Reply-To: trelane@digitasaru.net
-Mail-Followup-To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>,
-	linux-kernel@vger.kernel.org
-References: <20031030013418.GD3094@digitasaru.net> <E1AF2xQ-0005xM-00@calista.eckenfels.6bone.ka-ip.net>
+	Wed, 29 Oct 2003 22:17:42 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:6930 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id S262164AbTJ3DRi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 22:17:38 -0500
+Date: Thu, 30 Oct 2003 12:17:32 +0900 (JST)
+Message-Id: <20031030.121732.12858700.yoshfuji@linux-ipv6.org>
+To: paulus@samba.org
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, davem@redhat.com,
+       jmorris@redhat.com
+Subject: Re: Bug somewhere in crypto or ipsec stuff
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <16288.30574.745348.194005@cargo.ozlabs.ibm.com>
+References: <16288.30574.745348.194005@cargo.ozlabs.ibm.com>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1AF2xQ-0005xM-00@calista.eckenfels.6bone.ka-ip.net>
-X-School: University of Iowa
-X-vi-or-emacs: vi *and* emacs!
-X-MSMail-Priority: High
-X-Priority: 1 (Highest)
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
-User-Agent: Mutt/1.5.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From Bernd Eckenfels on Thursday, 30 October, 2003:
->In article <20031030013418.GD3094@digitasaru.net> you wrote:
->> I don't see any reason why we *shouldn't* look at the problem and try to
->>  do it.  What reasons do you see for not persuing the problem to its
->>  inevitible implementation?
->Just do it. :)
->Greetings
->Bernd
+In article <16288.30574.745348.194005@cargo.ozlabs.ibm.com> (at Thu, 30 Oct 2003 13:29:02 +1100), Paul Mackerras <paulus@samba.org> says:
 
-Hee hee.  The Other Shoe Drops.  This ought to be written down as
-  Some-and-Such's Law: All Open Source Debates Will Continue Until Someone
-  Tells Someone Else to Shut Up and Code It.  ;)
+> I get this oops in strcmp, called from crypto_alg_lookup, when I run
+> the "spi" command from a freeswan snapshot from 13 October this year.
+> The kernel is 2.6.0-test9.
+> 
+> Oops: kernel access of bad area, sig: 11 [#1]
+:
+> Call trace:
+>  [c00cf058] crypto_alloc_tfm+0x1c/0x104
+>  [cd97fb34] ipcomp_init_state+0x90/0x118 [ipcomp]
+:
 
-Actually, I'm highly, highly tempted.  Only problem is that I have a
-  ton of other projects that require my attention.  If someone wants to
-  fight the CAP server and collaboration battles, I will.  Otherwise,
-  it'll have to wait until after I finish the projects I currently have
-  on the table.  :/
+> The problem is basically that crypto_alg_lookup gets called with NULL
+> for the `name' parameter.
 
-Or maybe if someone will get my professors off my back (and fill my brain
-  with the material so that I don't need to learn QM or E&M)  ;)   Aaah,
-  my good friend Jackson....
+I would just disallow name == NULL,
+well, what algorithm do you expect?
 
--Joseph
+===== crypto/api.c 1.30 vs edited =====
+--- 1.30/crypto/api.c	Sat Mar 29 20:16:58 2003
++++ edited/crypto/api.c	Thu Oct 30 12:07:43 2003
+@@ -36,6 +36,9 @@
+ struct crypto_alg *crypto_alg_lookup(const char *name)
+ {
+ 	struct crypto_alg *q, *alg = NULL;
++
++	if (!name)
++		return NULL;
+ 	
+ 	down_read(&crypto_alg_sem);
+ 	
+
+
 -- 
-Joseph===============================================trelane@digitasaru.net
-"Asked by CollabNet CTO Brian Behlendorf whether Microsoft will enforce its
- patents against open source projects, Mundie replied, 'Yes, absolutely.'
- An audience member pointed out that many open source projects aren't
- funded and so can't afford legal representation to rival Microsoft's. 'Oh
- well,' said Mundie. 'Get your money, and let's go to court.' 
-Microsoft's patents only defensive? http://swpat.ffii.org/players/microsoft
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

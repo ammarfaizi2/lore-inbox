@@ -1,101 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270325AbTGMSFv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 14:05:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270324AbTGMSFu
+	id S270322AbTGMRjk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 13:39:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270327AbTGMRjj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 14:05:50 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:28550 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S270325AbTGMSFt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 14:05:49 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 13 Jul 2003 11:13:09 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Scheduler woes ( was [patch] SCHED_SOFTRR linux scheduler policy)
- ...
-In-Reply-To: <1058097211.32496.30.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.55.0307131022560.14680@bigblue.dev.mcafeelabs.com>
-References: <Pine.LNX.4.55.0307091929270.4625@bigblue.dev.mcafeelabs.com> 
- <20030713115033.GA371@elf.ucw.cz> <1058097211.32496.30.camel@dhcp22.swansea.linux.org.uk>
+	Sun, 13 Jul 2003 13:39:39 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:8869 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S270322AbTGMRje (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 13:39:34 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+Organization: ( )
+To: <B.Zolnierkiewicz@elka.pw.edu.pl>, <axboe@suse.de>
+Subject: 2.5.75 - BUG in ide-iops.c, TCQ, AS, drive standby and i/o lockup
+Date: Sun, 13 Jul 2003 12:03:33 -0400
+User-Agent: KMail/1.5.2
+Cc: LKML <linux-kernel@vger.kernel.org>, <lista1@telia.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307131203.33270.ivg2@cornell.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Jul 2003, Alan Cox wrote:
+In thread "2.5.75 does not boot - TCQ oops,"
+I applied Jens Axboe's patch to boot a TCQ-enabled kernel.
+That resulted in massive filesystem corruption for me, and as I further 
+discovered it only occurs 8-depth tcq queue (versus 32 when it works).
+Elevator choice does not seem to matter for the bug.
 
-> On Sul, 2003-07-13 at 12:50, Pavel Machek wrote:
-> > Hi!
-> >
-> > > I finally found a couple of hours for this and I also found a machine were
-> > > I can run 2.5, since luck abandoned myself about this. The small page
-> > > describe the obvious and contain the trivial patch and the latecy test app :
-> > >
-> > > http://www.xmailserver.org/linux-patches/softrr.html
-> >
-> > What happens if evil user forks 60 processes, marks them all
-> > SCHED_SOFTRR, and tries to starve everyone else?
->
-> With the current scheduler you lose. Rik did some playing with a fair
-> share scheduler some time ago. That actually works very well for a lot
-> of these sorts of things. You can nice processes up (but only by
-> penalising your own processes) and conceptually you'd be able to soft
-> real time on a per user basis this way.
+The following occurs with a 32-depth tcq queue (tested my new xfs root)
+with AS:
 
-There are currently two kind of problems, that can be solved with
-different approaches. One is starvation and the other one is fairness
-among system users. Googling around for problems reported about
-starvation, we can find stuff reported by David Mosberger plus other real
-or artificial piece of code that makes the scheduler to starve other tasks
-(or at least assign CPU slices in a way less than optimal way). Since Ingo
-will be listening I'll go with some ideas. I believe we should have three
-domains inside the scheduler 1) RT 2) Interactive 3) Non-Interactive,
-having three different priority lists. It is possible to have 1 and 2
-collapsed to restrict the schema to a dual-domain. The algorithm should be
-like :
+I noticed machine lockups on screensaver activation, and got an oops while 
+working with kmail, but did not write down. Machine froze. 
+Tried to reproduce with heavy i/o, but the kernel worked fine for a long time 
+and I was not successful. I decided the bug must be triggered by the 20 
+minute machine standby, and reduced it to 5 seconds. After attempted wake up 
+and disk read/write activity (may take several tries), I get either:
 
-	if ((t = get_rt_task()) != NULL)
-		goto got_it;
-	if (time_to_pick_interactive() && (t = get_int_task()) != NULL)
-		goto got_it;
-	if (!(t = get_nint_task()))
-		t = idle();
-got_it:
-	...
+- Input/Output error on any shell command
+- I/O freezes, but things like dmesg, ls on current directory (cached?)
+	reports of:  hda: invalidating tag queue...ide_tcq_intr_timeout: timeout 
+waiting for completion interrupt
 
-Functions get_*() do the std bitmap lookup and O(1) fetch. The function
-time_to_pick_interactive() is a trivial function of the time consumed by
-interactive tasks and non-interactive tasks so that we can even eventually
-tune it with /proc. Even a super-trivial policy like :
+OR
 
-	static inline int time_to_pick_interactive(void) {
-		return rt->sched_num % N;
-	}
+The errors and oops (written by hand - disk was dead):
+=========================================
+hda: alt stat timeout
+hda: rw queued: status=0xc0
+hda: invalidating tag queue (1 commands)
+hda: status_timeout: status=0xc0 { Busy }
 
-would work. Even with N very small like 2, the greater timeslice allocated
-for interactive tasks will still assign a huge slice of CPU to them (a
-quadratic of cubic timeslice(prio) function will mark even more the gap).
-The EXPIRED_STARVING() thing simply does not work, expecially with a ten
-second setup. Also, it makes all interactive tasks to fall trough in the
-expired array. The above solution will guarantee that no starvation will
-be experienced by other tasks. You really want to make time_to_pick_interactive()
-a function of the allocated CPU time to achieve a better distribution.
-All the tricks available to hit the interactive selection machanism will
-fail under this solution. All non-iteractive tasks will have their
-*guaranteed* (and tunable) minimum CPU time. You can easily keep the time
-allocation information inside the run queue struct so that you can access
-them w/out extra locks.
+hda: drive not ready for command
+hda: status_timeout: status=0xc0
 
-Ingo, I know you're busy with other stuff but you should definitely take a
-look at some of the exposed cases, some of them are scary if you think at
-what they can do in a multi-user environment.
+hda: DMA disabled
+hda: drive not ready for command
+hda: status_timeout: status=0x80
+
+kernel BUG at drivers/ide/ide-iops.c: 1246!
+CPU:0
+EIP: 0060: [<c02bc2de>] 	Tainted: PF (my Nvidia module)
+....
+EIP is at do_reset1+0x2e/02x250
+Process pdflush...
+Call trace:
+	ide_do_reset + 0x17/0x20
+	idedisk_error+0x156/0x230
+	common_interrupt+0x18/0x20
+	ide_wait_stat+0xcc/0x130
+	start_request+0xc9/0x280
+	ide_do_request+0x26e/0x470
+	as_next_request+0x33/0x40
+	do_ide_request+0x1d/0x30
+	generic_unplug_device+0x78/0x80
+	blk_run_queues+0x7a/0xb0
+	xfs_iflush+0x1fd/0x510
+	xfs_inode_flush+0x298/0x2c0
+	generic_unplug_device+0x75/0x80
+	linvfs_writepage+0x0/0x110
+	linvfs_write_inode+0x32/0x40
+	write_inode+0x46/0x50
+	__sync_single_inode+0x1f9/0x230
+	writeback_inodes+0x4d/0xa0
+	wb_kupdate+0x9c/0x120
+	__pdflush+0xd2/0x1d0
+	pdflush+0x0/0x20
+	pdflush+0xf/0x20
+	wb_kupdate+0x0/0x120
+	kernel_thread_helper+0x0/0x10
+	kernel_thread_helper+0x5/0x1(?)
+	
+	Code: 0f 0b de 04 73 90 3a c0 80 bf 3d 02 00 00 20 74 0c 8b 44 24
+	
+	<3> ide_tcq_intr_timeout: timeout waiting for completion interrupt
+
+hda: invalidating tag queue (0 commands)
+hda: status_timeout: status=0x80 { Busy }
+
+hda: invalidating tag queue (0 commands)
+hda: status_timeout: status=0x80 { Busy }
+
+end_request: I/O error, dev hda, sector 26387519
+hda: drive not ready for command
+hda: status_timeout: status=0x80 { Busy }
+	
+hda: drive not ready for command
+note: pdflush[7] exited with preempt_count 1
+
+ide_tcq_intr_timeout: timeout waiting for completion interrupt
+hda: invalidating tag queue (0 commands)
+hda: status_timeout: status=0x80 { Busy }
+
+hda: drive not ready
+hda: status_timeout: status=0x80 { Busy }
+
+etc.......
 
 
-
-- Davide
 

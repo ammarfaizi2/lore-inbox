@@ -1,308 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264629AbSJORpk>; Tue, 15 Oct 2002 13:45:40 -0400
+	id <S264647AbSJORpL>; Tue, 15 Oct 2002 13:45:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264695AbSJORpj>; Tue, 15 Oct 2002 13:45:39 -0400
-Received: from mail18.svr.pol.co.uk ([195.92.67.23]:3591 "EHLO
-	mail18.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S264629AbSJORom>; Tue, 15 Oct 2002 13:44:42 -0400
-Date: Tue, 15 Oct 2002 18:47:28 +0100
-To: Linux Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>
-Subject: [PATCH] Device-mapper submission 5/7
-Message-ID: <20021015174728.GE27753@fib011235813.fsnet.co.uk>
+	id <S264673AbSJORpK>; Tue, 15 Oct 2002 13:45:10 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:4346 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S264647AbSJORox>; Tue, 15 Oct 2002 13:44:53 -0400
+Date: Tue, 15 Oct 2002 13:50:48 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
+       David Miller <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Stephen Tweedie <sct@redhat.com>
+Subject: Re: [PATCH] async poll for 2.5
+Message-ID: <20021015135048.F14596@redhat.com>
+References: <3DAB46FD.9010405@watson.ibm.com> <20021015110501.B11395@redhat.com> <3DAC52AD.3080904@watson.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DAC52AD.3080904@watson.ibm.com>; from nagar@watson.ibm.com on Tue, Oct 15, 2002 at 01:38:53PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Device mapper]
-The stripe target.  Maps a range of logical sectors across many
-physical volumes.
+On Tue, Oct 15, 2002 at 01:38:53PM -0400, Shailabh Nagar wrote:
+> So I guess the question would now be: whats keeping /dev/epoll from 
+> being included in the kernel given the time left before the feature freeze ?
 
---- a/drivers/md/Makefile	Tue Oct 15 18:24:37 2002
-+++ b/drivers/md/Makefile	Tue Oct 15 18:24:37 2002
-@@ -4,7 +4,8 @@
- 
- export-objs	:= md.o xor.o dm-table.o dm-target.o
- lvm-mod-objs	:= lvm.o lvm-snap.o lvm-fs.o
--dm-mod-objs	:= dm.o dm-hash.o dm-table.o dm-target.o dm-linear.o
-+dm-mod-objs	:= dm.o dm-hash.o dm-table.o dm-target.o dm-linear.o \
-+		   dm-stripe.o
- 
- # Note: link order is important.  All raid personalities
- # and xor.o must come before md.o, as they each initialise 
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/drivers/md/dm-stripe.c	Tue Oct 15 18:24:37 2002
-@@ -0,0 +1,258 @@
-+/*
-+ * Copyright (C) 2001 Sistina Software (UK) Limited.
-+ *
-+ * This file is released under the GPL.
-+ */
-+
-+#include "dm.h"
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/blkdev.h>
-+#include <linux/bio.h>
-+
-+struct stripe {
-+	struct dm_dev *dev;
-+	sector_t physical_start;
-+};
-+
-+struct stripe_c {
-+	uint32_t stripes;
-+
-+	/* The size of this target / num. stripes */
-+	uint32_t stripe_width;
-+
-+	/* stripe chunk size */
-+	uint32_t chunk_shift;
-+	sector_t chunk_mask;
-+
-+	struct stripe stripe[0];
-+};
-+
-+static inline struct stripe_c *alloc_context(int stripes)
-+{
-+	size_t len;
-+
-+	if (array_too_big(sizeof(struct stripe_c), sizeof(struct stripe),
-+			  stripes))
-+		return NULL;
-+
-+	len = sizeof(struct stripe_c) + (sizeof(struct stripe) * stripes);
-+
-+	return kmalloc(len, GFP_KERNEL);
-+}
-+
-+/*
-+ * Parse a single <dev> <sector> pair
-+ */
-+static int get_stripe(struct dm_target *ti, struct stripe_c *sc,
-+		      int stripe, char **argv)
-+{
-+	char *end;
-+	unsigned long start;
-+
-+	start = simple_strtoul(argv[1], &end, 10);
-+	if (*end)
-+		return -EINVAL;
-+
-+	if (dm_get_device(ti, argv[0], start, sc->stripe_width,
-+			  ti->table->mode, &sc->stripe[stripe].dev))
-+		return -ENXIO;
-+
-+	sc->stripe[stripe].physical_start = start;
-+	return 0;
-+}
-+
-+/*
-+ * FIXME: Nasty function, only present because we can't link
-+ * against __moddi3 and __divdi3.
-+ *
-+ * returns a == b * n
-+ */
-+static int multiple(sector_t a, sector_t b, sector_t *n)
-+{
-+	sector_t acc, prev, i;
-+
-+	*n = 0;
-+	while (a >= b) {
-+		for (acc = b, prev = 0, i = 1;
-+		     acc <= a;
-+		     prev = acc, acc <<= 1, i <<= 1)
-+			;
-+
-+		a -= prev;
-+		*n += i >> 1;
-+	}
-+
-+	return a == 0;
-+}
-+
-+/*
-+ * Construct a striped mapping.
-+ * <number of stripes> <chunk size (2^^n)> [<dev_path> <offset>]+
-+ */
-+static int stripe_ctr(struct dm_target *ti, int argc, char **argv)
-+{
-+	struct stripe_c *sc;
-+	sector_t width;
-+	uint32_t stripes;
-+	uint32_t chunk_size;
-+	char *end;
-+	int r, i;
-+
-+	if (argc < 2) {
-+		ti->error = "dm-stripe: Not enough arguments";
-+		return -EINVAL;
-+	}
-+
-+	stripes = simple_strtoul(argv[0], &end, 10);
-+	if (*end) {
-+		ti->error = "dm-stripe: Invalid stripe count";
-+		return -EINVAL;
-+	}
-+
-+	chunk_size = simple_strtoul(argv[1], &end, 10);
-+	if (*end) {
-+		ti->error = "dm-stripe: Invalid chunk_size";
-+		return -EINVAL;
-+	}
-+
-+	if (!multiple(ti->len, stripes, &width)) {
-+		ti->error = "dm-stripe: Target length not divisable by "
-+		    "number of stripes";
-+		return -EINVAL;
-+	}
-+
-+	sc = alloc_context(stripes);
-+	if (!sc) {
-+		ti->error = "dm-stripe: Memory allocation for striped context "
-+		    "failed";
-+		return -ENOMEM;
-+	}
-+
-+	sc->stripes = stripes;
-+	sc->stripe_width = width;
-+	ti->split_io = chunk_size;
-+
-+	/*
-+	 * chunk_size is a power of two
-+	 */
-+	if (!chunk_size || (chunk_size & (chunk_size - 1))) {
-+		ti->error = "dm-stripe: Invalid chunk size";
-+		kfree(sc);
-+		return -EINVAL;
-+	}
-+
-+	sc->chunk_mask = ((sector_t) chunk_size) - 1;
-+	for (sc->chunk_shift = 0; chunk_size; sc->chunk_shift++)
-+		chunk_size >>= 1;
-+	sc->chunk_shift--;
-+
-+	/*
-+	 * Get the stripe destinations.
-+	 */
-+	for (i = 0; i < stripes; i++) {
-+		if (argc < 2) {
-+			ti->error = "dm-stripe: Not enough destinations "
-+				"specified";
-+			kfree(sc);
-+			return -EINVAL;
-+		}
-+
-+		argv += 2;
-+
-+		r = get_stripe(ti, sc, i, argv);
-+		if (r < 0) {
-+			ti->error = "dm-stripe: Couldn't parse stripe "
-+				"destination";
-+			while (i--)
-+				dm_put_device(ti, sc->stripe[i].dev);
-+			kfree(sc);
-+			return r;
-+		}
-+	}
-+
-+	ti->private = sc;
-+	return 0;
-+}
-+
-+static void stripe_dtr(struct dm_target *ti)
-+{
-+	unsigned int i;
-+	struct stripe_c *sc = (struct stripe_c *) ti->private;
-+
-+	for (i = 0; i < sc->stripes; i++)
-+		dm_put_device(ti, sc->stripe[i].dev);
-+
-+	kfree(sc);
-+}
-+
-+static int stripe_map(struct dm_target *ti, struct bio *bio)
-+{
-+	struct stripe_c *sc = (struct stripe_c *) ti->private;
-+
-+	sector_t offset = bio->bi_sector - ti->begin;
-+	uint32_t chunk = (uint32_t) (offset >> sc->chunk_shift);
-+	uint32_t stripe = chunk % sc->stripes;	/* 32bit modulus */
-+	chunk = chunk / sc->stripes;
-+
-+	bio->bi_bdev = sc->stripe[stripe].dev->bdev;
-+	bio->bi_sector = sc->stripe[stripe].physical_start +
-+	    (chunk << sc->chunk_shift) + (offset & sc->chunk_mask);
-+	return 1;
-+}
-+
-+static int stripe_status(struct dm_target *ti,
-+			 status_type_t type, char *result, int maxlen)
-+{
-+	struct stripe_c *sc = (struct stripe_c *) ti->private;
-+	int offset;
-+	int i;
-+
-+	switch (type) {
-+	case STATUSTYPE_INFO:
-+		result[0] = '\0';
-+		break;
-+
-+	case STATUSTYPE_TABLE:
-+		offset = snprintf(result, maxlen, "%d " SECTOR_FORMAT,
-+				  sc->stripes, sc->chunk_mask + 1);
-+		for (i = 0; i < sc->stripes; i++) {
-+			offset +=
-+			    snprintf(result + offset, maxlen - offset,
-+				     " %s " SECTOR_FORMAT,
-+				     kdevname(sc->stripe[i].dev->dev),
-+				     sc->stripe[i].physical_start);
-+		}
-+		break;
-+	}
-+	return 0;
-+}
-+
-+static struct target_type stripe_target = {
-+	.name   = "striped",
-+	.module = THIS_MODULE,
-+	.ctr    = stripe_ctr,
-+	.dtr    = stripe_dtr,
-+	.map    = stripe_map,
-+	.status = stripe_status,
-+};
-+
-+int __init dm_stripe_init(void)
-+{
-+	int r;
-+
-+	r = dm_register_target(&stripe_target);
-+	if (r < 0)
-+		DMWARN("striped target registration failed");
-+
-+	return r;
-+}
-+
-+void dm_stripe_exit(void)
-+{
-+	if (dm_unregister_target(&stripe_target))
-+		DMWARN("striped target unregistration failed");
-+
-+	return;
-+}
---- a/drivers/md/dm.c	Tue Oct 15 18:24:37 2002
-+++ b/drivers/md/dm.c	Tue Oct 15 18:24:37 2002
-@@ -114,6 +114,7 @@
- 	xx(dm_hash)
- 	xx(dm_target)
- 	xx(dm_linear)
-+	xx(dm_stripe)
- #undef xx
- };
- 
+We don't need yet another event reporting mechanism as /dev/epoll presents.  
+I was thinking it should just be its own syscall but report its events in 
+the same way as aio.
+
+		-ben
+-- 
+"Do you seek knowledge in time travel?"

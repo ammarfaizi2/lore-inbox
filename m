@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129761AbQK2J4v>; Wed, 29 Nov 2000 04:56:51 -0500
+        id <S130193AbQK2KLH>; Wed, 29 Nov 2000 05:11:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130499AbQK2J4m>; Wed, 29 Nov 2000 04:56:42 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:5830 "EHLO math.psu.edu")
-        by vger.kernel.org with ESMTP id <S129761AbQK2J4a>;
-        Wed, 29 Nov 2000 04:56:30 -0500
-Date: Wed, 29 Nov 2000 04:26:02 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Tigran Aivazian <tigran@veritas.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: corruption
-In-Reply-To: <Pine.LNX.4.21.0011290918440.1425-100000@penguin.homenet>
-Message-ID: <Pine.GSO.4.21.0011290421060.14112-100000@weyl.math.psu.edu>
+        id <S130406AbQK2KK6>; Wed, 29 Nov 2000 05:10:58 -0500
+Received: from mail.jet.uk ([193.128.26.69]:45718 "EHLO site-2.jet.uk")
+        by vger.kernel.org with ESMTP id <S130193AbQK2KKg>;
+        Wed, 29 Nov 2000 05:10:36 -0500
+Message-ID: <3A24CEF2.7F0FBAE8@jet.uk>
+Date: Wed, 29 Nov 2000 09:40:02 +0000
+From: David Robson <David.Robson@jet.uk>
+Organization: JET Joint Undertaking
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Experimental kernel to enhance Solaris -> Linux NFS performance
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear All,
 
 
-On Wed, 29 Nov 2000, Tigran Aivazian wrote:
+The NFS HOWTO refers to NFS performance problems with Sparc Servers and
+Linux
+clients.  It mentions a patch at http://www.uio.no/~trondmy/src/   to
+overcome this
+problem.  It also mentions some "Alan Cox experimental kernels" which
+have been
+built with this patch.
 
-> On Wed, 29 Nov 2000, Alexander Viro wrote:
-> > 
-> > I'ld really like to see details on the box with ext2 corruption on SCSI.
-> > Tigran, IIRC you had it on SCSI boxen, right? Could you send me relevant
-> > part of logs?
-> > 
-> 
-> I definitely did have this very corruption on a 4xXeon SCSI-only box. But
+Unfortunately, it is not clear to me which of the patches at the trondmy
+site is the correct
+one for me.  I am starting with a Red Hat 6.1  (Linux 2.2.6) kernel.
 
-"This" as in "range of blocks duplicated onto another range", "random
-crap in indirect blocks" or both?
+Can anyone tell me
 
-> the bad news is that I reinstalled redhat7 on it immediately after this
-> happened so I don't have the logs. _However_, I don't need that particular
-> root filesystem there anymore (since more disks arrive today and I'm
-> rearranging stuff) so I'll try and corrupt it for you right now. Using
-> test12-pre3, unless you have better suggestions on what to do to help.
+1) Where is the correct patch?  or failing that, where do I get the
+prebuilt kernel?
+2)  How did the patch address the problem (just an overview)
 
-Could you look for duplicates too?
-							TIA,
-								Al
+
+Thanks very much
+
+Dave Robson
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

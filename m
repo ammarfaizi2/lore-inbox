@@ -1,48 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVDDEiR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261986AbVDDEle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbVDDEiR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 00:38:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVDDEiR
+	id S261986AbVDDEle (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 00:41:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVDDEle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 00:38:17 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:12194 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261537AbVDDEiL (ORCPT
+	Mon, 4 Apr 2005 00:41:34 -0400
+Received: from rproxy.gmail.com ([64.233.170.193]:5078 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261986AbVDDEkq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 00:38:11 -0400
-Date: Sun, 3 Apr 2005 21:36:36 -0700
-From: Paul Jackson <pj@engr.sgi.com>
-To: Andy Lutomirski <luto@myrealbox.com>
-Cc: kenneth.w.chen@intel.com, torvalds@osdl.org, nickpiggin@yahoo.com.au,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched: auto-tune migration costs [was: Re: Industry db
- benchmark result on recent 2.6 kernels]
-Message-Id: <20050403213636.05cddf52.pj@engr.sgi.com>
-In-Reply-To: <4250C19F.9070801@myrealbox.com>
-References: <200504020100.j3210fg04870@unix-os.sc.intel.com>
-	<20050402145351.GA11601@elte.hu>
-	<20050402215332.79ff56cc.pj@engr.sgi.com>
-	<20050403070415.GA18893@elte.hu>
-	<20050403043420.212290a8.pj@engr.sgi.com>
-	<4250C19F.9070801@myrealbox.com>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 4 Apr 2005 00:40:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=JmBZ3JyyAzzB9j1TQAIRwXUHK5heYaDW6IanjE87RrPoZG5iPDSs3d04VHoFn20wx3DDxXSeiwE251Stx6uF9+i607flqrayjzoVqGAbN5ptf7C9jG8JKpyB+FYRsmGpCc2W4CuwwxCCq2emNVlIk5MI8K0QW1ebSFiSRgbvegg=
+Message-ID: <8b46b8f105040321403a7a92b7@mail.gmail.com>
+Date: Mon, 4 Apr 2005 12:40:46 +0800
+From: MingJie Chang <mingjie.tw@gmail.com>
+Reply-To: MingJie Chang <mingjie.tw@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: how to cope with "Scheduling in interrupt" problem
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy wrote:
-> Not that I really know what I'm talking about here, but this sounds 
-> highly parallelizable.
+Dear all,
 
-I doubt it.  If we are testing the cost of a migration between CPUs
-alpha and beta, and at the same time testing betweeen CPUs gamma and
-delta, then often there will be some hardware that is shared by both the
-<alpha, beta> path, and the <gamma, delta> path.  This would affect the
-test results.
+I try to modify inet_sendmsg() and inet_recvmsg().
+To defer the time to notify a receiver, I use a timer for the problem.
+But it causes "Scheduling in interrupt" error.
+Is there any method to reform it?
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+Thank you for tour help
+
+Error:
+
+Scheduling in interrupt
+invalid operand: 0000
+CPU:    0
+EIP:    0819:[<c0005d6f>]    Not tainted
+EFLAGS: 00010286
+eax: 00000018   ebx: c19c2000   ecx: c0170894   edx: fbff9000
+esi: c19c2000   edi: c1d42da0   ebp: c19c3cf4   esp: c19c3cd0
+ds: 0821   es: 0821   ss: 0821
+Process ftp (pid: 1312, stackpage=c19c3000)<1>
+
+
+code:
+inet_sendmsg()
+{
+	.
+	.
+	.
+BYE:
+	
+	if(sock->send_nonnotify_size>0&&0==sock->send_set_timer)
+	{
+		sock->send_notify_timer.function=notify_receiver;		
+		sock->send_notify_timer.expires=MY_EXT_NOTIFY_TIME + jiffies;
+		sock->send_notify_timer.data=(unsigned long)(sock);
+		
+		dbprintk("set notify timer, sock addr=%p\n",sock);
+		add_timer(&sock->send_notify_timer);
+		sock->send_set_timer=1;
+	
+	}
+	release_sock(sock->sk);	
+}
+
+static void notify_receiver(unsigned long data)
+{
+	struct socket* sock=(struct socket*)data;
+	struct SHM_INFO shm_tmp;
+	
+	if(!sock||!sock->sk)
+		return;
+
+	lock_sock(sock->sk);
+	sock->send_set_timer=0;
+
+	if(sock->send_nonnotify_size)
+	{
+		dbprintk("notify_receiver:notify
+receivers,size=%d\n",sock->send_nonnotify_size);
+		sock->send_nonnotify_size=0;
+
+		shm_tmp.saddr=ntohl(sock->sk->saddr);
+		shm_tmp.sport=ntohl(sock->sk->sport);
+
+		shm_tmp.reqaddr=shm_tmp.saddr;
+		shm_tmp.reqport=shm_tmp.sport;
+		
+		shm_tmp.daddr=ntohl(sock->sk->daddr);
+		shm_tmp.dport=ntohl(sock->sk->dport);
+		shm_tmp.maddr=NULL;
+		release_sock(sock->sk);
+		
+		dbprintk("notift_recv: call send_data()......");
+		HYPERVISOR_send_data(&shm_tmp);
+		dbprintk("done\n");
+		return;
+	}	
+	
+	release_sock(sock->sk);
+}

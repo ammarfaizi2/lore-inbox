@@ -1,82 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130177AbQKNAZH>; Mon, 13 Nov 2000 19:25:07 -0500
+	id <S129469AbQKNAcA>; Mon, 13 Nov 2000 19:32:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130245AbQKNAY5>; Mon, 13 Nov 2000 19:24:57 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:11272 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S130177AbQKNAYq>; Mon, 13 Nov 2000 19:24:46 -0500
-Date: Tue, 14 Nov 2000 00:45:47 +0100
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Szabolcs Szakacsits <szaka@f-secure.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: reliability of linux-vm subsystem
-Message-ID: <20001114004547.D12931@arthur.ubicom.tudelft.nl>
-In-Reply-To: <Pine.LNX.4.30.0011132116420.20626-100000@fs129-190.f-secure.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.30.0011132116420.20626-100000@fs129-190.f-secure.com>; from szaka@f-secure.com on Mon, Nov 13, 2000 at 10:50:05PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S129566AbQKNAbu>; Mon, 13 Nov 2000 19:31:50 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:64018 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129469AbQKNAbk>; Mon, 13 Nov 2000 19:31:40 -0500
+Date: Mon, 13 Nov 2000 19:51:15 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Rasmus Andersen <rasmus@jaquet.dk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops on 2.2.17 [klogd bonus question]
+In-Reply-To: <20001113162155.A18009@jaquet.dk>
+Message-ID: <Pine.LNX.4.21.0011131950040.32472-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 13, 2000 at 10:50:05PM +0100, Szabolcs Szakacsits wrote:
-> On Mon, Nov 13, 2000 Erik Mouw wrote:
-> > Good, so the OOM killer works.
+
+
+On Mon, 13 Nov 2000, Rasmus Andersen wrote:
+
+> Hi.
 > 
-> But it doesn't work for this kind of application misbehaviours (or
-> user attacks):
+> I'm getting oopses on a linux 2.2.17 box when I try to do
+> tar cvIf <file> -X<file> /. Reproducably. This works fine 
+> for the std. RH 6.2 kernel (2.2.14-5). The resulting file 
+> is about 20MB.
 > 
-> main() { while(1) if (fork()) malloc(1); }
-
-Proper process limits stop the fork bomb.
-
-> or using IPC shared memory (code by Michal Zalewski)
-> 
-> int i,d=1; char*x; main(){ while(1){ x=shmat(shmget(0,10000000/d,511),0,0);
-> if(x==-1){ d*=10; continue; } for(i=0;i<10000000/d;i++) if(*(x+i)); } }
-
-I don't remember if this already fixed.
-
-> Linux 2.[24] "deadlocks" (without quotas). BTW, apparently FreeBSD, OpenBSD,
-> SCO also become unusable while e.g. Solaris and Tru64 survives (root can
-> clean up) both in non-overcommit and overcommit mode (no user quotas in
-> any case).
-> 
-> With the patch below [tried only with 2.2.18pre21 but it's easy to port to
-> 2.4 and should apply to any late 2.2 kernels] Linux should also survive in
-> both cases without any performance loss (well, trashing would start about
-> the same time by adding 1.66% extra swap as the original one).
-
-Looks like a nice feature to me. Any VM guru that cares to comment?
-
-> > Sounds quite normal to me. If you don't enforce process limits, you
-> > allow a normal user to thrash the system.
-> 
-> Home users don't quote themself so they must hit the reset button. Really
-> is this the maximum that the kernel can do? Also many enterprises expect
-> the OS won't deadlock in case of application misbehaviours so they don't
-> have to care about quota setup and can keep the good performance. This
-> shortcoming^Wfeature of the kernel is one of the reasons Linux is still
-> considered a toy or hobby OS by many ....
-
-This is a mechanism vs. policy issue. The kernel hands you enough
-mechanisms (well, except your patch) to handle misbehaving users. It is
-up to the sysadmin to enforce the policy. For the home user it means
-that the distribution providers have to set decent limits, for
-enterprises it means that they have to hire a sysadmin.
+> I would submit the oops, but it is run through klogd and
+> I seem to remember people expressing dissatisfaction 
+> with klogd. So what do I do now to get a usable oops
+> to submit?
 
 
-Erik
+I dont know anything wrong with klogd. 
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+
+Anyway, kill klogd so you'll get a non decoded oops on your screen and
+then you can decoded it with ksymoops.
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

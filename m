@@ -1,38 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUGEUe4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbUGEUgl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbUGEUe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 16:34:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbUGEUe4
+	id S262106AbUGEUgl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 16:36:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbUGEUgb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 16:34:56 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:43152 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262062AbUGEUez (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 16:34:55 -0400
-Date: Mon, 5 Jul 2004 13:32:30 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: David Ford <david+challenge-response@blue-labs.org>
+	Mon, 5 Jul 2004 16:36:31 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:50272 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262080AbUGEUgD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 16:36:03 -0400
+Subject: Re: Strange DMA timeouts
+From: Lasse Bang Mikkelsen <lbm-list@fatalerror.dk>
+To: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: segfaults and sockets
-Message-Id: <20040705133230.7439d301.davem@redhat.com>
-In-Reply-To: <40E9B8D0.10508@blue-labs.org>
-References: <40E9B8D0.10508@blue-labs.org>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+In-Reply-To: <ccc508$om2$1@sea.gmane.org>
+References: <1088958931.3205.8.camel@slaptop>
+	 <200407042152.56258.andrew@walrond.org> <1089028708.4759.3.camel@slaptop>
+	 <200407051411.56812.andrew@walrond.org> <1089042084.2444.1.camel@slaptop>
+	 <ccc508$om2$1@sea.gmane.org>
+Content-Type: text/plain
+Message-Id: <1089059850.2592.3.camel@slaptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 05 Jul 2004 22:37:30 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 05 Jul 2004 16:23:44 -0400
-David Ford <david+challenge-response@blue-labs.org> wrote:
+man, 2004-07-05 kl. 20:00 skrev Mario 'BitKoenig' Holbe:
+> Try another (bigger/newer) power supply and/or try connecting
+> the disk(s) to a second power supply.
 
+My machine is a laptop - difficult situation ;)
 
-> ioctl(5, 0x8906, 0x7fbfffeff0)          = 0
-> --- SIGSEGV (Segmentation fault) @ 0 (0) ---
-> +++ killed by SIGSEGV +++
+-- 
+Regards
 
-0x8906 is SIOCGSTAMP, aparently the app isn't using a large enough
-structure to capture the timestamp, and the kernel is thus overwriting
-some critical part of the stack causing it to crash.
+Lasse Bang Mikkelsen
+lbm@fatalerror.dk
+

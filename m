@@ -1,59 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271063AbTGPL1T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 07:27:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271062AbTGPL1T
+	id S271067AbTGPLat (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 07:30:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271066AbTGPLat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 07:27:19 -0400
-Received: from gatek.sysde.eads.net ([53.122.197.194]:7319 "HELO
-	gatek.sysde.eads.net") by vger.kernel.org with SMTP id S271063AbTGPL1N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 07:27:13 -0400
-Date: Wed, 16 Jul 2003 13:43:18 +0200 (CEST)
-From: Andreas Koehler <Andreas.Koehler@sysde.eads.net>
+	Wed, 16 Jul 2003 07:30:49 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:11259 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S271065AbTGPLaq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 07:30:46 -0400
+Date: Wed, 16 Jul 2003 13:45:36 +0200 (MEST)
+Message-Id: <200307161145.h6GBjaSi025681@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
 To: linux-kernel@vger.kernel.org
-Subject: Howto check for slow io-operations
-Message-ID: <Pine.LNX.4.44.0307161246390.1550-100000@koehan.vs.dasa.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: [BUG?] 2.5.71 removed request_module("scsi_hostadapter")
+Cc: linux-scsi@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+While trying to figure out why my SCSI modules don't autoload
+properly in 2.6.0-test1 and late 2.5 kernels, I found that
+patch-2.5.71 removed scsi.c's request_module("scsi_hostadapter").
+It seems that some driver model conversion changed scsi_register_device()
+to scsi_register_{driver,interface}(), but the latter don't do
+anything wrt autoloading the host adapter.
 
-sorry, if this is a little bit off-topic but I don't known where else to 
-ask for!
+Is this an oversight or is it intensional?
 
-The following situation is given:
-An executable uses a small :-) number of (POSIX-)threads. One of them is 
-the "input-thread" that blocks on select and delivers incoming data to a 
-reentrant queue. I need this thread to avoid a too high dropping rate for 
-udp data! A "processing-thread" reads the items from the queue and does 
-the "real" processing. I detected that the "input-thread" seems to be 
-potentially much faster than the "processing-thread" but under normal 
-load, I thought, this effect is regulated by the scheduler since busy 
-processes with SCHED_OTHER should have a higher priority than the 
-idle-process :-). 
-Unfortunately even under such conditions the number of items in the 
-internal queue between the "input-thread" and the "processing-thread" 
-increases continuously. Strange is, that the evaluation of /proc/stat and 
-/proc/loadavg showed idle schedules between 70 and 90 percent.
+I can probably work around this through "install" command
+kludgery in /etc/modprobe.conf, but that's (a) is ugly, and
+(b) probably won't work for configs with built-in SCSI core
+but modular host adapter.
 
-How is this possible?
-
-The only thing I could imagine is that the "processing-thread" is not 
-really busy but waits for the completion of some slow input/output 
-operations. Anyway - in this case it would be important to me to identify 
-this slow input/output operations.
-
-Does the kernel provide any logging facilities related to this 
-identification?
-
-Or does anbody know a solution for the original problem?
-
-I use the following environment:
-Red Hat Linux 8.0 3.2-7 with Linux version 2.4.18-14
-
-Much thanks
-Andreas
-
+/Mikael

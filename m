@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261922AbSJIR35>; Wed, 9 Oct 2002 13:29:57 -0400
+	id <S261862AbSJIRdA>; Wed, 9 Oct 2002 13:33:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261921AbSJIR35>; Wed, 9 Oct 2002 13:29:57 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26129 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261922AbSJIR34>; Wed, 9 Oct 2002 13:29:56 -0400
-Date: Wed, 9 Oct 2002 10:37:47 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Roman Zippel <zippel@linux-m68k.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       kbuild-devel <kbuild-devel@lists.sourceforge.net>
-Subject: Re: linux kernel conf 0.8
-In-Reply-To: <20021009191600.A1708@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.44.0210091033200.7355-100000@home.transmeta.com>
+	id <S261875AbSJIRdA>; Wed, 9 Oct 2002 13:33:00 -0400
+Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:10399
+	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
+	id <S261862AbSJIRcc>; Wed, 9 Oct 2002 13:32:32 -0400
+From: Tim Hockin <thockin@hockin.org>
+Message-Id: <200210091738.g99HcBY15929@www.hockin.org>
+Subject: Re: [PATCH] 2.5.41 s390 (8/8): 16 bit uid/gids.
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Wed, 9 Oct 2002 10:38:11 -0700 (PDT)
+Cc: schwidefsky@de.ibm.com (Martin Schwidefsky), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0210091022050.7355-100000@home.transmeta.com> from "Linus Torvalds" at Oct 09, 2002 10:24:04 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 9 Oct 2002, Sam Ravnborg wrote:
+> > Use common code for 16 bit user/groud id system calls on s390x.
 > 
-> Another suggestion about naming:
-> Take for example drivers/net:
-> cat Config.* | wc => 2149 lines
+> Please make this use the real CONFIG_UID16_SYSCALLS instead of using a 
+> magic __UID16 thing that is s390x-specific. Then you make everybody who 
+> currently uses CONFIG_UID16 do both CONFIG_UID16 and 
+> CONFIG_UID16_SYSCALLS.
 > 
-> A bit a structure could be needed here.
-> Net.conf  <= Name equals directory with upper-case first letter
-> 	- Cover the whole directory, and either implicit
-> 	  or explicit include other .conf files in that directory
-> 3c5xx.conf <= All the configuration for the 3c5xxx chipset drivers
-> rrunner.conf <= All configuration for rrunner driver
+> We don't want magic config options like __UID16 that aren't exposed as 
+> config options and make people go "Huh?!".
 
-Good point. Splitting up the big Config.in files is a good idea anyway, 
-and it becomes even more important when the Config.help information was 
-included in the file.
 
-However, I disagree with the naming - I'd rather have one common name for
-the "main" directory entry than have magic rules like "basename of the
-directory capitalized". I don't want to have to search for it.
+Linus, This is actually something I sent to Martin (and DaveM).  The __UID16
+crap is because s390x and Sparc64 (and others?) do not want the highuid
+stuff except in very specific places - namely compat code.  Just using
+CONFIG_UID16_SYSCALLS has the same bad side-effect as CONFIG_UID16 - all or
+nothing.  In short, we want to build uid16.o with highuid translations, and
+a few other compat objects, but not everything.  Ugly.
 
-I also think I'd perfer to have them all start with the same thing, so 
-that (again) it's clear when a directory has multiple configuration files. 
+I wasn't aware Martin had tried to push this one quite yet.  Have a
+preferred solution?  I'd already passed this by DaveM and he said the fun
+would be getting it past you :)
 
-So instead: how about just "Config" for the main per-directory
-configuration file, with sub-config's being "Config.3c5xx" and
-"Config.rrunner".
-
-		Linus
-
+Tim

@@ -1,32 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289619AbSAJTYj>; Thu, 10 Jan 2002 14:24:39 -0500
+	id <S289622AbSAJTZ3>; Thu, 10 Jan 2002 14:25:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289634AbSAJTYY>; Thu, 10 Jan 2002 14:24:24 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25868 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289627AbSAJTX7>; Thu, 10 Jan 2002 14:23:59 -0500
-Subject: Re: i810_audio driver v0.19 still freezes machine
-To: dledford@redhat.com (Doug Ledford)
-Date: Thu, 10 Jan 2002 19:35:28 +0000 (GMT)
-Cc: pavenis@latnet.lv (Andris Pavenis), tom@infosys.tuwien.ac.at,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3C3DDA8B.4090004@redhat.com> from "Doug Ledford" at Jan 10, 2002 01:16:43 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S289621AbSAJTZV>; Thu, 10 Jan 2002 14:25:21 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:43198 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S289622AbSAJTZG>; Thu, 10 Jan 2002 14:25:06 -0500
+From: Badari Pulavarty <pbadari@us.ibm.com>
+Message-Id: <200201101924.g0AJO6s02748@eng2.beaverton.ibm.com>
+Subject: Re: [PATCH] PAGE_SIZE IO for RAW (RAW VARY)
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Thu, 10 Jan 2002 11:24:06 -0800 (PST)
+Cc: axboe@suse.de (Jens Axboe), pbadari@us.ibm.com (Badari Pulavarty),
+        bcrl@redhat.com (Benjamin LaHaise), linux-kernel@vger.kernel.org,
+        marcelo@conectiva.com.br, axboe@brick.kernel.dk
+In-Reply-To: <20020110120926.J3357@inspiron.school.suse.de> from "Andrea Arcangeli" at Jan 10, 2002 11:09:26 AM PST
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16Okz2-0005JM-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm unable to duplicate this (the current 0.19 driver doesn't hang at all on 
-> me now under any of my tests).  Try to find a way to duplicate it (either by 
-> playing a specific wav file using the play command, or by doing something in 
-> particular to make artsd do it, or something else).  If you can find a way 
-> to duplicate it, then I can see about getting a proper fix for it.
+> 
+> fair enough. one way to do it certainly safely is to add a bitflag to
+> the struct blkkdev.
+> 
+> Andrea
+> 
 
-Make sure you test with both apic and non apic Doug. The previous hangs I
-fixed up were specific to APIC mode because the APIC means the irq arrival
-is later and more asynchronous
+Thanks to Andrea !! 
+
+How about adding a flag in blk_dev structure. (I currently couldn't find one).
+Set the flag for the drivers which support multiple bufferhead sizes in
+a single IO request and use this flag to do RAW VARY or not.
+
+Does this address everyones concerns ? I am willing to work with the
+drivers I tested/reviewed/verified to make the change to set the flag.
+As driver owners verify their drivers, could set the flag (in future).
+
+If everyone is okay with this approach, I can make a new patch for this.
+
+Thanks,
+Badari
+

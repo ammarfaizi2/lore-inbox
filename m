@@ -1,30 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318142AbSHQTSS>; Sat, 17 Aug 2002 15:18:18 -0400
+	id <S318145AbSHQTU1>; Sat, 17 Aug 2002 15:20:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318145AbSHQTSS>; Sat, 17 Aug 2002 15:18:18 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:7666 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318142AbSHQTSS>; Sat, 17 Aug 2002 15:18:18 -0400
-Subject: Re: PNPBIOS support -- 2.4.20pre3
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Garst R. Reese" <reese@isn.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3D5E471A.5990F8D9@isn.net>
-References: <3D5E471A.5990F8D9@isn.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 17 Aug 2002 20:21:35 +0100
-Message-Id: <1029612095.4647.7.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318706AbSHQTU1>; Sat, 17 Aug 2002 15:20:27 -0400
+Received: from sycorax.lbl.gov ([128.3.5.196]:13470 "EHLO sycorax.lbl.gov")
+	by vger.kernel.org with ESMTP id <S318145AbSHQTU0>;
+	Sat, 17 Aug 2002 15:20:26 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-pre3 hangs on boot on Duron/VIA
+References: <1a5f.3d5e4a78.902bc@trespassersw.daria.co.uk>
+From: Alex Romosan <romosan@sycorax.lbl.gov>
+Date: 17 Aug 2002 12:24:24 -0700
+In-Reply-To: <1a5f.3d5e4a78.902bc@trespassersw.daria.co.uk> (message from Jonathan Hudson on Sat, 17 Aug 2002 13:07:04 GMT)
+Message-ID: <87adnl2srb.fsf@sycorax.lbl.gov>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-08-17 at 13:52, Garst R. Reese wrote:
-> Configure.help lists this option, but it does not showup in make config.
-> Does it exist?
-> pls cc me.
+Jonathan Hudson <jonathan@daria.co.uk> writes:
 
-Only in -ac currently
+> 2.4.20-pre3 hangs on boot on a Duron/VIA system, immediately after
+> displaying the line:
+> 
+>  Initializing RT netlink socket 
+> 
 
+same thing on an athlon/via system. kernel was compiled with gcc 2.95
+2.4.20-pre2 boots fine.
+
+--alex--
+
+-- 
+| I believe the moment is at hand when, by a paranoiac and active |
+|  advance of the mind, it will be possible (simultaneously with  |
+|  automatism and other passive states) to systematize confusion  |
+|  and thus to help to discredit completely the world of reality. |

@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131174AbRCGUJd>; Wed, 7 Mar 2001 15:09:33 -0500
+	id <S130253AbRCGUQn>; Wed, 7 Mar 2001 15:16:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131179AbRCGUJS>; Wed, 7 Mar 2001 15:09:18 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:53129 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S131168AbRCGUIp>;
-	Wed, 7 Mar 2001 15:08:45 -0500
-Message-ID: <3AA6951B.45FDBC1B@mandrakesoft.com>
-Date: Wed, 07 Mar 2001 15:07:55 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: John Fremlin <chief@bandits.org>
-Cc: linux-kernel@vger.kernel.org, thood@excite.com
-Subject: Re: Forcible removal of modules
-In-Reply-To: <9038100.983917051702.JavaMail.imail@digger.excite.com> <m2vgpltkrh.fsf@boreas.yi.org.>
+	id <S131172AbRCGUQd>; Wed, 7 Mar 2001 15:16:33 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:42253 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S130253AbRCGUQP>;
+	Wed, 7 Mar 2001 15:16:15 -0500
+Date: Wed, 7 Mar 2001 21:15:36 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: David Balazic <david.balazic@uni-mb.si>, torvalds@transmeta.com,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: scsi vs ide performance on fsync's
+Message-ID: <20010307211536.G4653@suse.de>
+In-Reply-To: <3AA53DC0.C6E2F308@uni-mb.si> <20010306213720.U2803@suse.de> <20010307135135.B3715@redhat.com> <20010307151241.E526@suse.de> <20010307150556.L7453@redhat.com> <20010307195152.C4653@suse.de> <20010307191044.M7453@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010307191044.M7453@redhat.com>; from sct@redhat.com on Wed, Mar 07, 2001 at 07:10:44PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Fremlin wrote:
-> Why not set up the device driver to handle PM events itself. See
-> Documentation/pm.txt under Driver Interface.
+On Wed, Mar 07 2001, Stephen C. Tweedie wrote:
+> On Wed, Mar 07, 2001 at 07:51:52PM +0100, Jens Axboe wrote:
+> > On Wed, Mar 07 2001, Stephen C. Tweedie wrote:
+> > 
+> > My bigger concern is when the journalled fs has a log on a different
+> > queue.
+> 
+> For most fs'es, that's not an issue.  The fs won't start writeback on
+> the primary disk at all until the journal commit has been acknowledged
+> as firm on disk.
 
-For PCI drivers, you implement the ::suspend and ::remove hooks.
+But do you then force wait on that journal commit?
 
-> I have a race free version of pm_send_all if you want it.
+> Certainly for ext3, synchronisation between the log and the primary
+> disk is no big thing.  What really hurts is writing to the log, where
+> we have to wait for the log writes to complete before submitting the
+> commit write (which is sequentially allocated just after the rest of
+> the log blocks).  Specifying a barrier on the commit block would allow
+> us to keep the log device streaming, and the fs can deal with
+> synchronising the primary disk quite happily by itself.
 
-Is this the same thing that is in 2.4.3-pre3?
+A barrier operation is sufficient then. So you're saying don't
+over design, a simple barrier is all you need?
 
 -- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+Jens Axboe
+

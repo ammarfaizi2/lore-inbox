@@ -1,50 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311320AbSCLTLT>; Tue, 12 Mar 2002 14:11:19 -0500
+	id <S311322AbSCLTbo>; Tue, 12 Mar 2002 14:31:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311323AbSCLTK6>; Tue, 12 Mar 2002 14:10:58 -0500
-Received: from stud.fbi.fh-darmstadt.de ([141.100.40.65]:54421 "EHLO
-	stud.fbi.fh-darmstadt.de") by vger.kernel.org with ESMTP
-	id <S311320AbSCLTKz>; Tue, 12 Mar 2002 14:10:55 -0500
-Date: Tue, 12 Mar 2002 20:01:53 +0100 (CET)
-From: Jan-Marek Glogowski <glogow@stud.fbi.fh-darmstadt.de>
-To: Jeroen Geusebroek <j.geusebroek@infraxs.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.17 & HPT370 raid
-In-Reply-To: <64BA755D4BD38F4EBA330020C11C5F1C746D@infradc03.infraxs-nl.com>
-Message-ID: <Pine.LNX.4.30.0203121954560.32728-100000@stud.fbi.fh-darmstadt.de>
+	id <S311323AbSCLTbe>; Tue, 12 Mar 2002 14:31:34 -0500
+Received: from elin.scali.no ([62.70.89.10]:61967 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S311322AbSCLTb2>;
+	Tue, 12 Mar 2002 14:31:28 -0500
+Message-ID: <3C8E5712.20E5E317@scali.com>
+Date: Tue, 12 Mar 2002 20:29:22 +0100
+From: Steffen Persvold <sp@scali.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-ac18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Kernel profiling
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeroen
+List readers,
 
-> I'm trying to use the raid function of my motherboard (abit vp6) which has a HPT370 controller.
-> I compiled the kernel with HPTP370 support & also the support for HPT370 raid.
->
-> Everything seems to be working correctly, but i don't have the /dev/ataraid devices.
-> My kernel does shows it detected the harddisks correctly:
+Is it possible to use the kernel profiling functionality to do profiling on loadable modules ? If
+no, is there any other easy method ?
 
-[schnipp]
->  ataraid/d0: unknown partition table
-> Highpoint HPT370 Softwareraid driver for linux version 0.01
-> Drive 0 is 29311 Mb
-> Drive 1 is 29311 Mb
-> Raid array consists of 2 drives.
-[schnapp]
-> Did i forget anything? Do i have to create the /dev/ataraid devices myself?
-
-Yes, yes - http://people.redhat.com/arjanv/pdcraid/ataraidhowto.html
-
->From the page - "Currently, only RAID level 0 (striping) is supported, for
-the Promise Fasttrak(tm) and Highpoint HPT370 series of IDE RAID
-controllers." - everything else is well explained.
-
-You may also use the closed source linux drivers from
-www.highpoint-tech.com, if you need full support.
-
-Bye
-
-Jan-Marek
-
+Regards,
+-- 
+  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best
+ mailto:sp@scali.com |  http://www.scali.com  | performing MPI implementation:
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.13.8 -
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >320MBytes/s and <4uS latency

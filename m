@@ -1,65 +1,128 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130335AbRA2XgP>; Mon, 29 Jan 2001 18:36:15 -0500
+	id <S130167AbRA2Xot>; Mon, 29 Jan 2001 18:44:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130599AbRA2XgF>; Mon, 29 Jan 2001 18:36:05 -0500
-Received: from h24-67-108-36.cg.shawcable.net ([24.67.108.36]:384 "EHLO
-	ogah.cgma1.ab.wave.home.com") by vger.kernel.org with ESMTP
-	id <S130335AbRA2Xfz>; Mon, 29 Jan 2001 18:35:55 -0500
-Date: Mon, 29 Jan 2001 16:33:21 -0700
-From: Harold Oga <ogah@home.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.4.1-pre11
-Message-ID: <20010129163321.B642@ogah.cgma1.ab.wave.home.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10101281020540.3850-100000@penguin.transmeta.com> <E14NB8r-000063-00@roos.tartu-labor> <20010129032637.A642@ogah.cgma1.ab.wave.home.com> <87g0i2lj9r.fsf@ondrej.office.globe.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <87g0i2lj9r.fsf@ondrej.office.globe.cz>; from ondrej@globe.cz on Mon, Jan 29, 2001 at 11:55:44AM +0100
+	id <S131249AbRA2Xoi>; Mon, 29 Jan 2001 18:44:38 -0500
+Received: from blackdog.wirespeed.com ([208.170.106.25]:60431 "EHLO
+	blackdog.wirespeed.com") by vger.kernel.org with ESMTP
+	id <S130167AbRA2XoY>; Mon, 29 Jan 2001 18:44:24 -0500
+Message-ID: <3A7600D0.7040101@redhat.com>
+Date: Mon, 29 Jan 2001 17:46:24 -0600
+From: Joe deBlaquiere <jadb@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Roger Larsson <roger.larsson@norran.net>
+CC: Andrew Morton <andrewm@uow.edu.au>, yodaiken@fsmlabs.com,
+        Nigel Gamble <nigel@nrg.org>, linux-kernel@vger.kernel.org,
+        linux-audio-dev@ginette.musique.umontreal.ca
+Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
+In-Reply-To: <200101220150.UAA29623@renoir.op.net> <3A742A79.6AF39EEE@uow.edu.au> <3A74462A.80804@redhat.com> <01012923315600.01404@dox>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 29, 2001 at 11:55:44AM +0100, Ondrej Sury wrote:
->Harold Oga <ogah@home.com> writes:
->
->> Hi,
->>    I'm seeing similar problems with my system on 2.4.1-pre10.  This is an
->> AMD Thunderbird 900, MSI K7T Pro2-A mobo w/VIA KT133 chipset, UP, ide/scsi
->> mix.  2.4.1-pre10 works fine if I don't configure ACPI.  I'll try to
->> narrow down when this problem started showing up later today, as I
->> initially moved from 2.4.1-pre3 straight to 2.4.1-pre10.
->
->It's something between pre9 and pre10, and probably it's VIA chipset
->problem.
-Hi,
-   Ok, it appears that I have 2.4.1-pre10 working properly again.  Looks
-like the changes Andy made to the acpi_idle stuff was the problem.  I made
-the change Andy suggested on the acpi list, namely commenting out the line
-"pm_idle = acpi_idle;" at the bottom of /usr/src/linux/drivers/acpi/cpu.c,
-which seems to fix the problem.
-
-This patch makes it clear what I did:
---- linux/drivers/acpi/cpu.c.orig       Mon Jan 29 15:19:21 2001
-+++ linux/drivers/acpi/cpu.c    Mon Jan 29 15:22:14 2001
-@@ -329,12 +329,5 @@
-        acpi_pm_timer_init();
 
 
--#ifdef CONFIG_SMP
--       if (smp_num_cpus == 1)
--               pm_idle = acpi_idle;
--#else
--       pm_idle = acpi_idle;
--#endif
--
-        return 0;
- }
+Roger Larsson wrote:
 
--Harold  
+> On Sunday 28 January 2001 17:17, Joe deBlaquiere wrote:
+> 
+>> Andrew Morton wrote:
+>> 
+>>> There has been surprisingly little discussion here about the
+>>> desirability of a preemptible kernel.
+>> 
+>> And I think that is a very intersting topic... (certainly more
+>> interesting than hotmail's firewalling policy ;o)
+>> 
+>> Alright, so suppose I dream up an application which I think really
+>> really needs preemption (linux heart pacemaker project? ;o) I'm just not
+>> convinced that linux would ever be the correct codebase to start with.
+>> The fundamental design of every driver in the system presumes that there
+>> is no preemption.
+> 
+> 
+> please, no linux heart pacemaker at sourceforge... :-)
+> 
+> 
+>> A recent example I came across is in the MTD code which invokes the
+>> erase algorithm for CFI memory. This algorithm spews a command sequence
+>> to the flash chips followed by a list of sectors to erase. Following
+>> each sector adress, the chip will wait for 50usec for another address,
+>> after which timeout it begins the erase cycle. With a RTLinux-style
+>> approach the driver is eventually going to fail to issue the command in
+>> time. There isn't any logic to detect and correct the preemption case,
+>> so it just gets confused and thinks the erase failed. Ergo, RTLinux and
+>> MTD are mutually exclusive. (I should probably note that I do not intend
+>> this as an indictment of RTLinux or MTD, but just an example of why
+>> preemption breaks the Linux driver model).
+> 
+> 
+> Can't that happen in the 2.4.0 kernel too?
+> If interrupts are not disabled during the command queuing any (with more than 
+> 50 us execution time) interrupt might disturb the setup.
+> That part of the code should either:
+> a) accept partial success, and continue (can it check current success)
+> b) disable interrupts, then shouldn't it use
+>      spin_lock_irq(...) instead of spin_lock_bh(...)
+> 
+> Where is the code BTW? (file:line)
+> is it the functions named do_erase_1_by_16_oneblock?
+> 
+> 
+
+that's basically the one, just slightly modified to loop through a list 
+addresses instead of the single address. It's a negligible performance 
+gain, but simplified some other code I was testing.
+
+The point is that some small set of operations may need to be atomic and 
+or executed in a critical time period. Allowing these portions of code 
+to be preempted opens the door for unexpected failure cases.
+
+ 
+A 'perfect' driver would of course still be able to recover (or at least 
+guarantee it wouldn't crash). Sometimes the timing issues aren't known 
+or explictly stated, so the driver has 'never failed that way before' 
+because it hasn't been tested that way.
+
+> What about introducing a  timecritical_lock()
+> #define timecritical_lock(int maxtime_us)  {__cli(); } 
+> 	/* local processor only */
+> 
+> 
+> Any driver using the timecritical_lock are not 100% RTLinux compatible,
+> but should be ok in a preemtive kernel where timecritical_locks are 
+> short compared to "guarantees".
+> The parameter maxtime_us is a hint to system integrators - don't use drivers 
+> with high maxtime in a RT system.
+> 
+> But it will be extremly hart to make any guarantees...
+> If the driver needs the PCI bus, it might be locked for burst transfer...
+> SMP issues...
+> 
+> 
+>> Do we
+>> push drivers like MTD down into preemptable-Linux? Do we push all
+>> drivers down?
+> 
+> 
+> All drivers should be compatible with preemtive-Linux, they who are not are
+> unlikely to be compatible with the current Linux.
+> 
+> 
+
+some kind of timecritical_lock() is a possibility. It would seem that 
+such a construct would coexist with SMP and RTLinux. I guess I'm just a 
+pessimist in that I expect that having not an explicit lock on time 
+critical sections will eventually mean that something will invalidate 
+the timing.
+
 -- 
-"Life sucks, deal with it!"
+Joe
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,87 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289620AbSAWBWD>; Tue, 22 Jan 2002 20:22:03 -0500
+	id <S289615AbSAWB1N>; Tue, 22 Jan 2002 20:27:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289619AbSAWBVy>; Tue, 22 Jan 2002 20:21:54 -0500
-Received: from port-212-202-169-67.reverse.qdsl-home.de ([212.202.169.67]:23058
-	"EHLO drocklinux.dyndns.org") by vger.kernel.org with ESMTP
-	id <S289617AbSAWBVn> convert rfc822-to-8bit; Tue, 22 Jan 2002 20:21:43 -0500
-Date: Wed, 23 Jan 2002 02:20:54 +0100 (CET)
-Message-Id: <20020123.022054.884034824.rene.rebe@gmx.net>
-To: sgy@amc.com.au
-Cc: linux-kernel@vger.kernel.org, xioborg@yahoo.com
-Subject: Re: Athlon PSE/AGP Bug
-From: Rene Rebe <rene.rebe@gmx.net>
-In-Reply-To: <5.1.0.14.0.20020123112137.009ef8b0@mail.amc.localnet>
-In-Reply-To: <1011737673.10474.12.camel@psuedomode>
-	<c5qr4uk3adm53fgvuibld2tnjtnfnq0a5i@4ax.com>
-	<5.1.0.14.0.20020123112137.009ef8b0@mail.amc.localnet>
-X-Mailer: Mew version 2.1 on XEmacs 21.4.6 (Common Lisp)
+	id <S289617AbSAWB1D>; Tue, 22 Jan 2002 20:27:03 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:19258 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S289615AbSAWB05>; Tue, 22 Jan 2002 20:26:57 -0500
+Date: Wed, 23 Jan 2002 02:27:43 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Paul Mackerras <paulus@samba.org>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: pte-highmem-5
+Message-ID: <20020123022743.A18053@athlon.random>
+In-Reply-To: <20020122201002.E1547@athlon.random> <Pine.LNX.4.21.0201222045450.1352-100000@localhost.localdomain> <20020123003449.F1547@athlon.random> <15438.2595.750370.978428@argo.ozlabs.ibm.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <15438.2595.750370.978428@argo.ozlabs.ibm.com>; from paulus@samba.org on Wed, Jan 23, 2002 at 11:56:03AM +1100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Stuart Young <sgy@amc.com.au>
-Subject: Re: Athlon PSE/AGP Bug
-Date: Wed, 23 Jan 2002 11:36:56 +1100
-
-> At 04:52 PM 22/01/02 -0600, Steve Brueggeman wrote:
-> >I would like to see some indication that someone is collecting data
-> >related to "running stable with mem=nopentium on Athelon
-> >architecture", and maybe we can see a pattern here.  Heck maybe we see
-> >2 or 3 different patterns here.
+On Wed, Jan 23, 2002 at 11:56:03AM +1100, Paul Mackerras wrote:
+> Andrea Arcangeli writes:
 > 
-> Well I'm quite willing to give all the system specs we have at work and the 
-> ones I have at home (all up, this is about 12 Athlon's that are running 
-> Linux, all running fine so far with no issues) towards this process.
+> > Let's speak about this later. We should ring a bell as soon as we know
+> > what's really faster (invlpg at every kmap or global tlb flush once
+> > every 1024 kmaps?).
 > 
-> I've not seen your system specs, so I'm wondering what sort of m/board you 
-> have? The mention of the SiS AGP support makes me wonder if you are running 
-> an SiS chipset board. In the past, Linux kernel developers and the XFree86 
-> team have had a huge amount of trouble (or in some cases, flat refusal) in 
-> getting certain (usually up to date) specs out of SiS, and I'm wondering if 
-> maybe this could be related somehow, as none of the systems I've got have 
-> an SiS chipset in them (they are all AMD or VIA chipsets).
+> It would be really good if we could have whatever hooks are necessary
+> for each architecture to decide this issue in its own way.  On PPC for
 
-Yes the docs and driver for the graphic part of the sis630 suck (I
-helped debuggin/hacking it ...) - but the sis735 runs rock solid here!
-Using a mga450 and an Athlon XP1700+.
+you could implement pte_offset_nowait as you prefer (it has to
+be implemented in include/asm like pte_offset), so yes, if we implement
+nowait, you should be free to choose what's best to do on pcc
+automatically while fixing the compilation failures.
 
-Here I only see one Athlon system crashing all the time. This is a
-700Mhz Duron runnign in a Asus A7V. With a 2.4.16 kernel compiled with
-Athlon optimization all applications are crashing all time (sed, cc,
-gcc, sawfish - all. Simply sig-11), with a 2.4.4 kernel (using the
-same .config) it seem to run just fine. 4 passes of memtest86 showed
-no error, either ...
+at the moment there is either "persistent across schedule" or "atomic
+local" (not the optimized "_nowait" suggested by Hugh in replacement of
+"_atomic") and most of the time we depend on the requirements of the
+caller about nonblocking due spinlocks, or persistence for schedules. So
+there's not much to choose, only a few places could use both pte_offset
+or pte_offset_atomic (on the long run we could turn those, and the other
+_atomic into _nowait ones per Hugh suggestion, that would give you the
+"hook").
 
-I see the broken via chips involved most of the time.
+> example a global tlb flush is really expensive, it would be quicker
+> for us to either flush each kmap page individually or to flush the
+> range of addresses used for kmaps when we wrap.  At the very least I
+> would like to have a flush_tlb_kernel_range function which would get
+> called at the end of flush_all_zero_pkmaps instead of flush_tlb_all.
 
-We will try a i386-only optimized kernel tomorrow.
+that's certainly doable, on x86 it will just default to the
+global tlb flush because we can't flush it more efficiently than that.
 
-> Now I'm not saying this is an SiS issue, but maybe it's more prevalent with 
-> SiS chipsets? Until we get some hard data, who knows!
-> 
-> 
-> Stuart Young - sgy@amc.com.au
-> (aka Cefiar) - cefiar1@optushome.com.au
-> 
-> [All opinions expressed in the above message are my]
-> [own and not necessarily the views of my employer..]
-
-
-k33p h4ck1n6 and goo night
-  René
-
--- 
-René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
-
-eMail:    rene.rebe@gmx.net
-          rene@rocklinux.org
-
-Homepage: http://drocklinux.dyndns.org/rene/
-
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.
+Andrea

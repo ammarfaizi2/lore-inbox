@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129441AbRAXGxU>; Wed, 24 Jan 2001 01:53:20 -0500
+	id <S129401AbRAXHER>; Wed, 24 Jan 2001 02:04:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129383AbRAXGxK>; Wed, 24 Jan 2001 01:53:10 -0500
-Received: from mail.iex.net ([192.156.196.5]:37559 "EHLO mail.iex.net")
-	by vger.kernel.org with ESMTP id <S129401AbRAXGne>;
-	Wed, 24 Jan 2001 01:43:34 -0500
-Message-ID: <3A6E7991.6377220F@iex.net>
-Date: Tue, 23 Jan 2001 23:43:29 -0700
-From: Tim Sullivan <tsulliva@iex.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10 i686)
-X-Accept-Language: en
+	id <S129431AbRAXHEH>; Wed, 24 Jan 2001 02:04:07 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:34824 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129401AbRAXHDw>;
+	Wed, 24 Jan 2001 02:03:52 -0500
+Mail-Copies-To: never
+To: John Kacur <jkacur@home.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sigcontext on Linux-ppc in user space
+In-Reply-To: <3A6E282E.89053126@home.com>
+From: Andreas Jaeger <aj@suse.de>
+Date: 24 Jan 2001 08:02:23 +0100
+In-Reply-To: <3A6E282E.89053126@home.com> (John Kacur's message of "Tue, 23 Jan 2001 19:56:14 -0500")
+Message-ID: <u8puhdmo00.fsf@gromit.rhein-neckar.de>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-To: Matt_Domsch@Dell.com
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: No SCSI Ultra 160 with Adaptec Controller
-In-Reply-To: <CDF99E351003D311A8B0009027457F1403BF9C0C@ausxmrr501.us.dell.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt_Domsch@Dell.com wrote:
+John Kacur <jkacur@home.com> writes:
+
+> Does anyone know how to get at the struct sigcontext in a signal handler
+> on Linux for powerpc? sigaction of course lets you create a signal
+> handler as a function with the prototype void(*)(int, siginfo_t *, void
+> *)
+> where the last argument, a pointer to void, is the sigcontext. I believe
+> that the last argument is NOT defined by POSIX and so is implementation
+> dependent.
 > 
-> Yes, that code is still necessary.  There's a new aic7xxx driver by Justin
-> Gibbs at Adaptec which is now being beta tested which corrects this issue.
+> On Intel it seems sufficient to use #include <asm/sigcontext.h>
+> to get the definition of struct sigcontext, and then get the values
+> you'd like out of the signal handler. But on Linux for powerpc, the same
+> thing doesn't work. Does anyone know what the trick is here to
+> accomplish this?
 
-Justin's 6.0.9beta(latest release) hasn't corrected the problem yet.
+You should never include kernel headers in user space.
 
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.0.9 BETA
-        <Adaptec 29160 Ultra160 SCSI adapter>
-        aic7892: Wide Channel A, SCSI Id=7, 32/255 SCBs
+If you have a glibc 2.1 (or newer) based system, just include
+<signal.h> which will include <bits/sigcontext.h> with the struct
+(this works on all architectures).
 
-  Vendor: QUANTUM   Model: ATLAS10K2-TY367L  Rev: DDD6
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-(scsi0:A:0): async, 8bit
-scsi0:0:0:0: Tagged Queuing enabled.  Depth 8
-Detected scsi disk sda at scsi0, channel 0, id 0, lun 0
-(scsi0:A:0): async, 16bit
-(scsi0:A:0): synchronous at 80.0MHz DT, offset 0x7f, 16bit
-SCSI device sda: 71721820 512-byte hdwr sectors (36722 MB)
-
--tim
+Andreas
+-- 
+ Andreas Jaeger
+  SuSE Labs aj@suse.de
+   private aj@arthur.inka.de
+    http://www.suse.de/~aj
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

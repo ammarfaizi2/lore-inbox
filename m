@@ -1,23 +1,23 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311654AbSCNQuH>; Thu, 14 Mar 2002 11:50:07 -0500
+	id <S311669AbSCNQvr>; Thu, 14 Mar 2002 11:51:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311667AbSCNQt7>; Thu, 14 Mar 2002 11:49:59 -0500
-Received: from arsenal.visi.net ([206.246.194.60]:60923 "EHLO visi.net")
-	by vger.kernel.org with ESMTP id <S311654AbSCNQtp>;
-	Thu, 14 Mar 2002 11:49:45 -0500
-Date: Thu, 14 Mar 2002 11:46:03 -0500
-From: Ben Collins <bcollins@debian.org>
+	id <S311668AbSCNQvl>; Thu, 14 Mar 2002 11:51:41 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:45830 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S311669AbSCNQur>; Thu, 14 Mar 2002 11:50:47 -0500
+Date: Thu, 14 Mar 2002 17:50:45 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
 To: Hansen Martin <DKDD0MAR@Danfoss.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: Accessing serial device from within
-Message-ID: <20020314164603.GB4789@blimpo.internal.net>
+Message-ID: <20020314175045.A14754@ucw.cz>
 In-Reply-To: <829F632D2F25D411B6920008C716F831039FB26C@dd01-e01.drives.danfoss.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <829F632D2F25D411B6920008C716F831039FB26C@dd01-e01.drives.danfoss.dk>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <829F632D2F25D411B6920008C716F831039FB26C@dd01-e01.drives.danfoss.dk>; from DKDD0MAR@Danfoss.com on Thu, Mar 14, 2002 at 05:40:12PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -33,11 +33,8 @@ On Thu, Mar 14, 2002 at 05:40:12PM +0100, Hansen Martin wrote:
 > The reason I want to do it this way is that I don't want my module to only
 > fit one uart.
 
-The question is, why do this in the kernel, when it is more easily
-handled in userspace?
+You have to write what's called a line discipline driver.
 
 -- 
- .----------=======-=-======-=========-----------=====------------=-=-----.
-/       Ben Collins    --    Debian GNU/Linux    --    WatchGuard.com      \
-`          bcollins@debian.org   --   Ben.Collins@watchguard.com           '
- `---=========------=======-------------=-=-----=-===-======-------=--=---'
+Vojtech Pavlik
+SuSE Labs

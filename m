@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129532AbRAIQss>; Tue, 9 Jan 2001 11:48:48 -0500
+	id <S130387AbRAIQt2>; Tue, 9 Jan 2001 11:49:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130387AbRAIQsi>; Tue, 9 Jan 2001 11:48:38 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:40209 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S129532AbRAIQs1>;
-	Tue, 9 Jan 2001 11:48:27 -0500
-Message-ID: <3A5B401F.9D4BCBDF@innominate.de>
-Date: Tue, 09 Jan 2001 17:45:19 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
+	id <S131712AbRAIQtM>; Tue, 9 Jan 2001 11:49:12 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:22540 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S130387AbRAIQsy>;
+	Tue, 9 Jan 2001 11:48:54 -0500
+Date: Tue, 9 Jan 2001 17:48:32 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Christoph Hellwig <hch@caldera.de>,
+        "David S. Miller" <davem@redhat.com>, <riel@conectiva.com.br>,
+        <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <E14G1mB-0006vF-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0101091743090.5932-100000@e2>
 MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>, Christoph Rohland <cr@sap.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: VM subsystem bug in 2.4.0 ?
-In-Reply-To: <Pine.LNX.4.10.10101081003410.3750-100000@penguin.transmeta.com> <Pine.LNX.4.21.0101081621590.21675-100000@duckman.distro.conectiva> <20010109140932.E4284@redhat.com> <qwwhf387p4s.fsf@sap.com> <20010109153119.G9321@redhat.com> <qwwd7dw7mrd.fsf@sap.com> <20010109160511.I9321@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen C. Tweedie" wrote:
-> On Tue, Jan 09, 2001 at 04:45:10PM +0100, Christoph Rohland wrote:
+
+On Tue, 9 Jan 2001, Alan Cox wrote:
+
+> > > We have already shown that the IO-plugging API sucks, I'm afraid.
 > >
-> > AFAIU mlock'ed pages would never get deactivated since the ptes do not
-> > get dropped.
-> 
-> D'oh, right --- so can't you lock a segment just by bumping page_count
-> on its pages?
+> > it might not be important to others, but we do hold one particular
+> > SPECweb99 world record: on 2-way, 2 GB RAM, testing a load with a full
+>
+> And its real world value is exactly the same as the mindcraft NT
+> values. Don't forget that.
 
-Putting this together with an idea from Linus:
+( what you have not quoted is the part that says that the fileset is 9GB.
+This is one of the busiest and most complex block-IO Linux systems i've
+ever seen, this is why i quoted it - the talk was about block-IO
+performance, and Stephen said that our block IO sucks. It used to suck,
+but in 2.4, with the right patch from Jens, it doesnt suck anymore. )
 
-Linus Torvalds wrote:
-> On Mon, 8 Jan 2001, Rik van Riel wrote:
-> >
-> > We need a check in deactivate_page() to prevent the kernel
-> > from moving pages from locked shared memory segments to the
-> > inactive_dirty list.
-> >
-> > Christoph?  Linus?
-> 
-> The only solution I see is something like a "active_immobile" list, and
-> add entries to that list whenever "writepage()" returns 1 - instead of
-> just moving them to the active list.
+	Ingo
 
-Call it 'pinned'... the pinned list would have pages with use count = 2
-or more.  A page gets off the pinned list when its use count goes to 1
-in put_page.
-
---
-Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

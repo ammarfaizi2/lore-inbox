@@ -1,56 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136116AbRD0Q3N>; Fri, 27 Apr 2001 12:29:13 -0400
+	id <S136094AbRD0QmT>; Fri, 27 Apr 2001 12:42:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136118AbRD0Q3D>; Fri, 27 Apr 2001 12:29:03 -0400
-Received: from [209.225.10.21] ([209.225.10.21]:10746 "HELO mailrelay.local")
-	by vger.kernel.org with SMTP id <S136116AbRD0Q2v>;
-	Fri, 27 Apr 2001 12:28:51 -0400
-Message-ID: <3AE97687.A83EA963@elsitio.com.ar>
-Date: Fri, 27 Apr 2001 13:39:19 +0000
-From: Federico Edelman Anaya <fedelman@elsitio.com.ar>
-Reply-To: fedelman@elsitio.com.ar
-Organization: El Sitio
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en
+	id <S136107AbRD0QmJ>; Fri, 27 Apr 2001 12:42:09 -0400
+Received: from e145061.upc-e.chello.nl ([213.93.145.61]:53774 "EHLO
+	procyon.wilson.nl") by vger.kernel.org with ESMTP
+	id <S136094AbRD0Ql5>; Fri, 27 Apr 2001 12:41:57 -0400
+From: "Michel Wilson" <michel@procyon14.yi.org>
+To: "Jeff Chua" <jeffchua@silk.corp.fedex.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: 2.4.4-pre8 undefined symbols
+Date: Fri, 27 Apr 2001 18:41:47 +0200
+Message-ID: <NEBBLEJBILPLHPBNEEHIEEPICDAA.michel@procyon14.yi.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: FD in Kernel 2.4.x
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <Pine.LNX.4.33.0104280009070.1344-100000@boston.corp.fedex.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi! I am newbie in this list! .. I'm Federico Edelman Anaya ... well! ..
-I have a question ...
+I think Andrea's rwsem-patches fix these, but i'm not sure. You might give
+it a try, though.
 
-I need increase the FD (File Descriptors) ... I was change the value of
-the FD in kernel 2.2.17:
-
-/usr/include/bits/types.h:
-#define __FD_SETSIZE    1024    ->  4096
-
-/usr/src/linux/include/linux/posix_types.h
-#define __FD_SETSIZE    1024    ->  4096
-
-/usr/src/linux/include/linux/tasks.h
-#define NR_TASKS           512     ->  2048   /* On x86 Max 4092, or
-4090 w/APM configured. */
-
-
-Well... Kernel 2.4.3:
-/usr/include/bits/types.h:
-#define __FD_SETSIZE    1024    ->  4096
-
-/usr/src/linux/include/linux/posix_types.h
-#define __FD_SETSIZE    1024    ->  4096
-
-It's only change was posible to do ... Because, tasks.h doesn't exist!
-
-How can I do to increase the FD in the Kernel 2.4.3?
-
-Thanks!
-
-
-
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Jeff Chua
+> Sent: Friday, April 27, 2001 18:11
+> To: Linux Kernel
+> Cc: Jeff Chua
+> Subject: 2.4.4-pre8 undefined symbols
+>
+>
+>
+> depmod -ae yields the following errors under 2.4.4-pre8
+>
+> Any fix?
+>
+>
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.4-pre8/kernel/drivers/char/drm/i810.o
+> depmod:         rwsem_down_write_failed
+> depmod:         rwsem_wake
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.4-pre8/kernel/drivers/char/drm/mga.o
+> depmod:         rwsem_down_write_failed
+> depmod:         rwsem_wake
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.4-pre8/kernel/drivers/char/drm/r128.o
+> depmod:         rwsem_down_write_failed
+> depmod:         rwsem_wake
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.4-pre8/kernel/drivers/char/drm/radeon.o
+> depmod:         rwsem_down_write_failed
+> depmod:         rwsem_wake
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.4-pre8/kernel/drivers/char/drm/tdfx.o
+> depmod:         rwsem_down_write_failed
+> depmod:         rwsem_wake
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.4-pre8/kernel/fs/binfmt_aout.o
+> depmod:         rwsem_down_write_failed
+> depmod:         rwsem_wake
+>
+>
+>
+> Thanks,
+> Jeff
+> [ jchua@fedex.com ]
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

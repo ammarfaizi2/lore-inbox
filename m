@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311871AbSDIWWN>; Tue, 9 Apr 2002 18:22:13 -0400
+	id <S311885AbSDIWXq>; Tue, 9 Apr 2002 18:23:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311885AbSDIWWM>; Tue, 9 Apr 2002 18:22:12 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:34821 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S311871AbSDIWWM>; Tue, 9 Apr 2002 18:22:12 -0400
-Date: Wed, 10 Apr 2002 00:22:14 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: Benjamin LaHaise <bcrl@redhat.com>, Pavel Machek <pavel@suse.cz>,
-        Andrew Morton <akpm@zip.com.au>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>, nahshon@actcom.co.il,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, joeja@mindspring.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: faster boots?
-Message-ID: <20020409222214.GK5148@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200204080048.g380mt514749@lmail.actcom.co.il> <200204080057.g380vbO00868@vindaloo.ras.ucalgary.ca> <3CB0EF0B.14D48619@zip.com.au> <20020408095717.GB27999@atrey.karlin.mff.cuni.cz> <20020408174333.A28116@kushida.apsleyroad.org> <20020408124803.A14935@redhat.com> <20020409015657.A28889@kushida.apsleyroad.org>
+	id <S311936AbSDIWXp>; Tue, 9 Apr 2002 18:23:45 -0400
+Received: from dsl-213-023-030-077.arcor-ip.net ([213.23.30.77]:60320 "EHLO
+	duron.intern.kubla.de") by vger.kernel.org with ESMTP
+	id <S311885AbSDIWXo>; Tue, 9 Apr 2002 18:23:44 -0400
+Date: Wed, 10 Apr 2002 00:23:37 +0200
+From: Dominik Kubla <kubla@sciobyte.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: implementing soft-updates
+Message-ID: <20020409222337.GB31954@duron.intern.kubla.de>
+In-Reply-To: <20020409184605.A13621@cecm.usp.br> <20020409221725.GA23513@matchmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.3.28i
+X-No-Archive: yes
+Restrict: no-external-archive
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi!
-
-> > > > Well, noflushd already seems to work pretty well ;-). But I see kernel
-> > > > support may be required for SCSI.
-> > > 
-> > > I've had no luck at all with noflushd on my Toshiba Satellite 4070CDT.
-> > > It would spin down every few minutes, and then spin up _immediately_,
-> > > every time.  I have no idea why.
+On Tue, Apr 09, 2002 at 03:17:25PM -0700, Mike Fedyk wrote:
+> On Tue, Apr 09, 2002 at 06:46:05PM -0300, Alexis S. L. Carvalho wrote:
+> > Hi
 > > 
-> > Were you using the console?  Any activity on ttys causes device inode 
-> > atime/mtime updates which trigger disk spin ups.  The easiest way to 
-> > work around this is to run X while using devpts for the ptys.
+> > Does anyone know of any implementation of soft-updates over ext2? I'm
+> > starting a project on this for grad school, and I'd like to know of any
+> > previous (current?) efforts.
+> > 
 > 
-> I was using X, nodiratime on all /dev/hda mounts.  My friend who has the
-> small VAIO with a Crusoe chip also reports the same problem: noflushd
-> doesn't work with 2.4 kernels (versions that we tried), and the problem
-> is the same: it spins down and then spins up immediately afterward.
+> Heh, ext3? ;)
 
-It works for me, 2.4.18 on HP omnibook xe3.
+No. Ext3 uses journalling. Soft-updates is something different.
 
-You may want to watch /proc/stats to see if it is read or write
-activity that wakes disk up.
-
-									Pavel
+Dominik
 -- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+"Those who would give up essential Liberty to purchase a little
+temporary Safety deserve neither Liberty nor Safety." (Benjamin Franklin)

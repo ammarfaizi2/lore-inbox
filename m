@@ -1,55 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135664AbRAWBsy>; Mon, 22 Jan 2001 20:48:54 -0500
+	id <S135751AbRAWBxP>; Mon, 22 Jan 2001 20:53:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135751AbRAWBso>; Mon, 22 Jan 2001 20:48:44 -0500
-Received: from asbestos.linuxcare.com.au ([203.17.0.30]:60668 "EHLO halfway")
-	by vger.kernel.org with ESMTP id <S135664AbRAWBsd>;
-	Mon, 22 Jan 2001 20:48:33 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: Aaron Lehmann <aaronl@vitelus.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and ipmasq modules 
-In-Reply-To: Your message of "Sat, 20 Jan 2001 14:46:16 -0800."
-             <20010120144616.A16843@vitelus.com> 
-Date: Tue, 23 Jan 2001 12:48:20 +1100
-Message-Id: <E14KsZI-0006IU-00@halfway>
+	id <S135982AbRAWBxG>; Mon, 22 Jan 2001 20:53:06 -0500
+Received: from selene.cps.intel.com ([192.198.165.10]:62472 "EHLO
+	selene.cps.intel.com") by vger.kernel.org with ESMTP
+	id <S135751AbRAWBwy>; Mon, 22 Jan 2001 20:52:54 -0500
+Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDF4C@orsmsx31.jf.intel.com>
+From: "Dunlap, Randy" <randy.dunlap@intel.com>
+To: "'Duncan Laurie'" <duncan@virtualwire.org>
+Cc: Petr Matula <pem@informatics.muni.cz>, linux-kernel@vger.kernel.org
+Subject: RE: int. assignment on SMP + ServerWorks chipset
+Date: Mon, 22 Jan 2001 17:52:23 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20010120144616.A16843@vitelus.com> you write:
-> It was great to see that 2.4.0 reintroduced ipfwadm support! I had no
-> need for ipchains and ended up using the wrapper around it that
-> emulated ipfwadm. However, 2.[02].x used to have "special IP
-> masquerading modules" such as ip_masq_ftp.o, ip_masq_quake.o, etc. I
-> can't find these in 2.4.0. Where have they gone? Without important
-> modules such as ip_masq_ftp.o I cannot use non-passive ftp from behind
-> the masquerading firewall.
 
-Hi Aaron,
+> From: Duncan Laurie [mailto:duncan@virtualwire.org]
+> 
+> On Mon, 22 Jan 2001, Randy.Dunlap wrote:
+> 
+> Hi Randy,
+> 
+> Oops, I knew it was an STL2, but somehow couldn't get it right in the
+> message..  It looks like they both use ServerWorks LE chipsets, do you
+> know if the SBT2 has the same problem?
 
-The entire point of the netfilter kernel architecture is that we can
-just ask for packets at certain points, no #ifdefs, special hacks,
-etc.  Unfortunately, the previous masquerading code (used in 2.0 and
-2.2) looked really difficult to extract from the kernel.  Netfilter
-has changed a little since then (particularly NF_STOLEN), so it might
-be possible now.
+I don't have an SBT2 to test, but it's likely that they share
+this problem.  The only difference in them is supposed to be
+SBT2 using bigger/faster processors.
 
-So I reimplimented 2.2-style masquerading on top of the new NAT
-infrastructure: ideally this would mean that it could use the new
-helpers, but there were some minor technical problems, and it was
-never tested.  
+> I did see that your BIOS is build 16 (STL20.86B.0016.P01.0010111108)
+> while Petr has build 17 (STL20.86B.0017.P01.0011291152) which also
+> appears to be the latest release.  Not that it has any affect on this
+> particular problem, but it might explain why the patch worked for you
+> and not him.
+> 
+> I looked at the Technical Product Specification,
+> (ftp://download.intel.com/support/motherboards/server/stl2/stl
+2_tps.pdf)
+> and it appears that they have released BIOS updates to fix Errata 
+> regarding Linux boot problems, so chances are good that it may be fixed
+> by a future update.  Until then, the 'mpint' parameter patch seems
+> pretty harmless, yet flexible enough to handle subtle differences
+> in hardware and configuration.
 
-Those who berated Aaron for not wanting to upgrade: he is the Debian
-maintainer for crashme, gtk-theme-switch, koules, pngcrush, and
-xdaliclock.  By wasting his time making him convert a perfectly
-working system, you are taking away time from those projects.  I'd
-rather see him spend time on Cool Stuff(TM) which benefits all of us.
+Yes, I tested that one as well and it works for me, using
+"mpint=5,0,4,9".
+But now I need to upgrade the BIOS and I can't run phlash.exe!!!
 
-Cheers,
-Rusty.
---
-Premature optmztion is rt of all evl. --DK
+...
+
+| Here's my output from dump_pirq.  Is the PCI router info unique
+| enough so that you'll need to debug it instead of me doing so?
+| ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+| [root@localhost src]# ./dump_pirq
+|  
+| Interrupt routing table found at address 0xfdf10
+|   Version 1.0, 0 bytes
+|   Interrupt router is device ff:1f.7
+|   PCI exclusive interrupt mask: 0x0000 []
+|  
+| Interrupt router at ff:1f.7:
+| Could not read router info from /proc/bus/pci/ff/1f.7.
+| [root@localhost src]#
+| ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+|
+
+> Hrm, this certainly doesn't look right.  You mentioned in a previous
+> message that changing the OS type from PnP-aware did not have any
+> effect, but if disabled the BIOS might not be creating the PIRQ
+> tables.  Hopefully it will still take care of the IRQ routing, which
+> means you should be able to read the value directly.  (it better or
+> USB shouldn't work in UP!)  Try the following program:
+
+USB works in UP mode (smp kernel, with "nosmp noapic").
+
+dump_pirq in UP mode, PNP OS = Yes or No, gives the same
+output as above.  I'd still like to get dump_pirq
+working if you have something else that I could try.
+
+-----------------------------------------------
+USB Interrupt: 9
+-----------------------------------------------
+
+Yes, the BIOS assigns interrupt 9 to USB.  9 is the correct
+value as far as the BIOS is concerned.
+
+BTW, where is the <irq_routing_table> structure defined, in what
+spec?
+
+~Randy
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

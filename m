@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268090AbUIUWRG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268095AbUIUWX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268090AbUIUWRG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 18:17:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268094AbUIUWRG
+	id S268095AbUIUWX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 18:23:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268088AbUIUWX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 18:17:06 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23185 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268090AbUIUWRC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 18:17:02 -0400
-Date: Tue, 21 Sep 2004 15:16:57 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Roland Dreier <roland@topspin.com>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>
-Subject: Re: [PATCH] ppc64: Fix __raw_* IO accessors
-In-Reply-To: <52mzzjnuq7.fsf@topspin.com>
-Message-ID: <Pine.LNX.4.58.0409211510150.25656@ppc970.osdl.org>
-References: <1095758630.3332.133.camel@gaston> <1095761113.30931.13.camel@localhost.localdomain>
- <1095766919.3577.138.camel@gaston> <523c1bpghm.fsf@topspin.com>
- <Pine.LNX.4.58.0409211237510.25656@ppc970.osdl.org> <52mzzjnuq7.fsf@topspin.com>
+	Tue, 21 Sep 2004 18:23:56 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:41943 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S268083AbUIUWXv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 18:23:51 -0400
+From: Russ Anderson <rja@sgi.com>
+Message-Id: <200409212223.i8LMNUFV041295@ben.americas.sgi.com>
+Subject: Re: [Lhns-devel] Re: [ACPI] PATCH-ACPI based CPU hotplug[2/6]-ACPI Eject interface support
+To: anil.s.keshavamurthy@intel.com
+Date: Tue, 21 Sep 2004 17:23:30 -0500 (CDT)
+Cc: dtor_core@ameritech.net (Dmitry Torokhov),
+       acpi-devel@lists.sourceforge.net, len.brown@intel.com (Brown Len),
+       lhns-devel@lists.sourceforge.net (LHNS list),
+       linux-ia64@vger.kernel.org (Linux IA64),
+       linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <20040921145150.A27211@unix-os.sc.intel.com> from "Keshavamurthy Anil S" at Sep 21, 2004 02:51:50 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 21 Sep 2004, Roland Dreier wrote:
+Keshavamurthy Anil S wrote:
+> On Tue, Sep 21, 2004 at 12:51:36AM -0500, Dmitry Torokhov wrote:
+> > On Monday 20 September 2004 08:38 pm, Keshavamurthy Anil S wrote:
+> > 
+> > I actually think that on the highest level we should treat controlled and
+> > surprise ejects differently. With controlled ejects the system (kernel +
+> > userspace) can abort the sequence if something goes wrong while with surprise
+> > eject the device is physically gone. Even if driver refuses to detach or we
+> > have partition still mounted or something else if physical device is gone we
+> > don't have any choice except for trimming the tree and doing whatever we need
+> > to do.
 > 
-> That means using __raw_writel() is pretty much guaranteed to blow up
-> on IBM pSeries (and I do care about pSeries for my driver).
+> I agree, but when dealing with devices like CPU and Memory, not sure how the
+> rest of the Operating System handles surprise removal.
 
-Oh, that's true. And that's pretty clearly a bug, since it just means that 
-__raw_writel() can't even work in general.
+If by "surprise removal" you mean an Itanium CPU or Memory no longer are 
+accessable by the rest of the hardware, the result will be fatal MCA.  For 
+example,  if an Itanum CPU tried to load from Memory that no longer exists, 
+the load will time out and the CPU will generate a fatal MCA.  It may (or may
+not) be possible to enhance the MCA/linux error handling code to handle this 
+situation, but the current code does not.
 
-> Maybe something like the patch below would make sense?  (Reordering of
-> code is to make sure IO_TOKEN_TO_ADDR() is defined before the
-> __raw_*() functions; eeh.h has to be included after the in_*() and
-> out_*() functions are defined)
+>                                                        For now I will go ahead and
+> add a PRINTK saying that BUS_CHECK(surprise removal request) was received in the 
+> ACPI Processor and in the container driver, and when we hit that printk on a 
+> real hardware, I believe it would be the right time then to see how the OS behaves 
+> and do the right code then. For Now I will just go ahead and add a PRINTK.
+> 
+> Let me know if this step by step approach is okay to you.
+> 
+> thanks,
+> Anil
 
-I wonder if we could just remove the TOKEN/ADDR games. I think they were 
-done entirely as a debugging aid (but I could be wrong). In particular, 
-the compile-time type safefy should hopefully be better at finding these 
-things in the long run, and in the short run the TOKEN games have 
-obviously played their part.
 
-I wasn't using pp64 back when, maybe there's some other reason for playing
-games with the tokens? Who's the guity/knowledgeable party? Ben?
-
-		Linus
+-- 
+Russ Anderson, OS RAS/Partitioning Project Lead  
+SGI - Silicon Graphics Inc          rja@sgi.com

@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132546AbRDHMmP>; Sun, 8 Apr 2001 08:42:15 -0400
+	id <S132550AbRDHNKZ>; Sun, 8 Apr 2001 09:10:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132549AbRDHMmF>; Sun, 8 Apr 2001 08:42:05 -0400
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:22658 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S132546AbRDHMl6>; Sun, 8 Apr 2001 08:41:58 -0400
-Date: Sun, 8 Apr 2001 13:41:50 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Michael Reinelt <reinelt@eunet.at>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        =?iso-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Multi-function PCI devices
-Message-ID: <20010408134150.D1089@redhat.com>
-In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <Pine.LNX.4.10.10104071043360.1085-100000@linux.local> <20010407200053.B3280@redhat.com> <3ACF6D1D.63A2A2FE@mandrakesoft.com> <20010407205204.H3280@redhat.com> <3AD05410.495A2BDC@eunet.at>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="6WlEvdN9Dv0WHSBl"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AD05410.495A2BDC@eunet.at>; from reinelt@eunet.at on Sun, Apr 08, 2001 at 02:05:36PM +0200
+	id <S132551AbRDHNKQ>; Sun, 8 Apr 2001 09:10:16 -0400
+Received: from cx425802-a.blvue1.ne.home.com ([24.0.54.216]:48645 "EHLO
+	wr5z.localdomain") by vger.kernel.org with ESMTP id <S132550AbRDHNKM>;
+	Sun, 8 Apr 2001 09:10:12 -0400
+Date: Sun, 8 Apr 2001 08:10:05 -0500 (CDT)
+From: Thomas Molina <tmolina@home.com>
+To: =?iso-8859-1?q?Fran=E7ois=20Dupoux?= <fdupoux@free.fr>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: problem when booting 2.4.3 from a floppy disk
+In-Reply-To: <01040713471000.00368@fdupoux.org>
+Message-ID: <Pine.LNX.4.30.0104080802500.7236-100000@wr5z.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 7 Apr 2001, François Dupoux wrote:
 
---6WlEvdN9Dv0WHSBl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Hi,
+>
+> I have a strange bug when trying to boot a kernel-2.4.3 (official release)
+> from an 1.44 MB floppy disk. Just after the "Loading...........", there is an
+> infinite loop, and this message is printed:
+> 0200
+> AX: 0212
+> BX: BC00
+> CX: 5101
+> DX: 0000
+> 0200
+> AX: 0212
+> BX: BC00
+> CX: 5101
+> DX: 0000
+> ....
 
-On Sun, Apr 08, 2001 at 02:05:36PM +0200, Michael Reinelt wrote:
+Do you have any suspect hardware in your system?  The reason I ask is
+that I have a part time job working in a computer shop where I build and
+repair ix86 systems.  I've seen this occasionally when I use a 2.4.X
+boot floppy to diagnose system problems.  It hasn't been consistent and
+it hasn't happened often enough to correlate with anything else.
 
-> The simple solution: Gunters 'multifunction quirks'
-> clean solution #1: a new module according to Jeffs sample code
-> clean solution #2: 'invisible PCI bridge' from Linus
-[...]
-> Suggestion: multifunction quirks for 2.4, one of the clean solutions for
-> 2.5?
+I've resolved to keep formal statistics on systems which exhibit this
+problem so I would appreciate a cc on any followups to this.
 
-I would rather we went for something in 2.4 and stick with it in 2.5
-than changing again. (The parport ID list format changed in 2.2->2.4
-already in order to handle subsystem IDs.)
-
-Tim.
-*/
-
---6WlEvdN9Dv0WHSBl
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD4DBQE60FyOONXnILZ4yVIRAq4OAKCVmeYl3ZJRpA9Besx2F0MZJvzTkgCXSSM1
-3oW3ALbLA2FJ8Bg1ErTP4A==
-=7VTI
------END PGP SIGNATURE-----
-
---6WlEvdN9Dv0WHSBl--

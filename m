@@ -1,58 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267548AbUHEFCO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267544AbUHEFEV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267548AbUHEFCO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 01:02:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267550AbUHEFAy
+	id S267544AbUHEFEV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 01:04:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267551AbUHEFDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 01:00:54 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:8619 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S267544AbUHEE7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 00:59:51 -0400
-Subject: Re: SCHED_BATCH and SCHED_BATCH numbering
-From: Albert Cahalan <albert@users.sf.net>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Peter Williams <pwil3058@bigpond.net.au>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       kernel@kolivas.org, Andrew Morton OSDL <akpm@osdl.org>
-In-Reply-To: <4111A418.5030101@yahoo.com.au>
-References: <1091638227.1232.1750.camel@cube>
-	 <41118AAE.7090107@bigpond.net.au> <41118D0C.9090103@yahoo.com.au>
-	 <411196EE.9050408@bigpond.net.au> <41119A3B.2020202@yahoo.com.au>
-	 <4111A39C.40200@bigpond.net.au>  <4111A418.5030101@yahoo.com.au>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1091672930.3547.1781.camel@cube>
+	Thu, 5 Aug 2004 01:03:52 -0400
+Received: from mail.kroah.org ([69.55.234.183]:7808 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267544AbUHEFBT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 01:01:19 -0400
+Date: Wed, 4 Aug 2004 21:36:37 -0700
+From: Greg KH <greg@kroah.com>
+To: Alex Williamson <alex.williamson@hp.com>
+Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] dev_acpi: device driver for userspace access to ACPI
+Message-ID: <20040805043636.GA28244@kroah.com>
+References: <1091552426.4981.103.camel@tdi>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 04 Aug 2004 22:28:50 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1091552426.4981.103.camel@tdi>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-08-04 at 23:06, Nick Piggin wrote:
-> Peter Williams wrote:
+On Tue, Aug 03, 2004 at 11:00:26AM -0600, Alex Williamson wrote:
 > 
-> > Nick Piggin wrote:
-> >
-> >> However if you add or remove scheduling policies, your
-> >> p->policy method breaks.
-> >
-> >
-> > Not if Albert's numbering system is used.
-> >
-> 
-> What if another realtime policy is added? Or one is removed?
+>   Populating the sysfs tree didn't seem to generate as much interest as
+> I'd hoped and I don't think it kept with the spirit of sysfs very well.
 
-What if, what if...
+I'm sorry if I didn't speak up at the time, but I still think that your
+sysfs patches were the right way to go.  Why do you think they don't
+keep with the spirit of sysfs?  Do you have a pointer to your last
+patch that exported the acpi table info through sysfs?
 
-You're going to have to change the code anyway.
-One might toss this into <linux/sched.h> to make
-as a nice reminder:
+thanks,
 
-#define SCHEDS_RT (SCHED_RR|SCHED_FIFO)
-
-As it is now, SCHED_FIFO is already used as a
-bit flag in one place.
-
-
+greg k-h

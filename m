@@ -1,116 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262028AbREPVXn>; Wed, 16 May 2001 17:23:43 -0400
+	id <S262093AbREPVh6>; Wed, 16 May 2001 17:37:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262099AbREPVXd>; Wed, 16 May 2001 17:23:33 -0400
-Received: from ch-12-44-141-183.lcisp.com ([12.44.141.183]:18184 "EHLO
-	debian-home") by vger.kernel.org with ESMTP id <S261358AbREPVXP>;
-	Wed, 16 May 2001 17:23:15 -0400
-Date: Wed, 16 May 2001 16:23:12 -0500
-To: linux-kernel@vger.kernel.org
-Message-ID: <20010516162312.A19485@debian-home.lcisp.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="1yeeQ81UyVL57Vl7"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
-From: Gordon Sadler <gbsadler1@lcisp.com>
+	id <S262097AbREPVht>; Wed, 16 May 2001 17:37:49 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:55823 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262093AbREPVhd>; Wed, 16 May 2001 17:37:33 -0400
+Message-ID: <3B02F2EC.F189923@transmeta.com>
+Date: Wed, 16 May 2001 14:36:44 -0700
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Geert Uytterhoeven <geert@linux-m68k.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        viro@math.psu.edu
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <200105152141.f4FLff300686@vindaloo.ras.ucalgary.ca>
+		<Pine.LNX.4.05.10105160921220.23225-100000@callisto.of.borg>
+		<200105161822.f4GIMo509185@vindaloo.ras.ucalgary.ca>
+		<3B02D6AB.E381D317@transmeta.com>
+		<200105162001.f4GK18X10128@vindaloo.ras.ucalgary.ca>
+		<3B02DD79.7B840A5B@transmeta.com> <200105162054.f4GKsaF10834@vindaloo.ras.ucalgary.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Richard Gooch wrote:
+> >
+> > Because you are now, once again, tying two things that are
+> > completely and utterly unrelated: device classification and device
+> > name.  It breaks every time someone comes out with a new device
+> > which is "kind of like an old device, but not really," like
+> > CD-writers (which was kind-of-like WORM, kind-of-like CD-ROM) and
+> > DVD (kind-of-like CD)...
+> 
+> But all devices which export a CD-ROM interface will do so. So the
+> device node that is associated with the CD-ROM driver will export
+> CD-ROM semantics, and the trailing name will be "/cd".
+> 
+> Other interfaces a device exports, such as a CD-RW, appear as a
+> different device node ("generic" for SCSI, because we have no CD-RW
+> classification at this point).
+> 
+> My scheme works already, and works reliably. Nothing had to be done to
+> support the CD-ROM interface to CD-RW and DVD devices.
+> 
 
---1yeeQ81UyVL57Vl7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+It's still completely braindamaged: (a) these interfaces aren't
+disjoint.  They refer to the same device, and will interfere with each
+other; (b) it is highly undesirable to tie the naming to the interfaces
+in this way.  It further restricts the namespaces you can export, for one
+thing.
 
-Please CC replies as I'm not subscribed.
-I seem to be having some problems with sound ioctl's.
-
-I've attached a short c file that opens /dev/dsp, prints the fd, tries
-to issue SNDCTL_DSP_NONBLOCK ioctl, then does the same with /dev/audio.
-
-Both calls to ioctl for NONBLOCK yield Invalid Invalid argument.
-I've searched the kernel source under drivers/sound/ to see if/where
-this ioctl is defined. 
-
-grep -rl SNDCTL_DSP_NONBLOCK drivers/sound/*
-drivers/sound/audio.c
-drivers/sound/cmpci.c
-drivers/sound/cs4281/cs4281m.c
-drivers/sound/cs46xx.c
-drivers/sound/emu10k1/audio.c
-drivers/sound/es1370.c
-drivers/sound/es1371.c
-drivers/sound/esssolo1.c
-drivers/sound/i810_audio.c
-drivers/sound/maestro.c
-drivers/sound/maestro3.c
-drivers/sound/msnd_pinnacle.c
-drivers/sound/sonicvibes.c
-drivers/sound/trident.c
-drivers/sound/vwsnd.c
-drivers/sound/ymfpci.c
-
-Now I'm using a via chipset embedded sound.
-lsmod
-via82cxxx_audio        16496   0 (autoclean)
-soundcore               3472   2 (autoclean) [via82cxxx_audio]
-ac97_codec              8352   0 (autoclean) [via82cxxx_audio]
-
-So none of the files that use SNDCTL_DSP_NONBLOCK were compiled for my
-kernel. I came up with a question and 2 possible solutions.
-
-Question:
-  Are all ioctl's valid for all devices within a major block?
-
-Solutions:
- 1.  Turn on CONFIG_SOUND_OSS so sound.o is produced, however the
- Configure.help says, "...Say Y or M here (the module will be called
- sound.o) if you haven't found a driver for your sound card above, then
- pick your driver from the list below.
-       
- 2.  Determine a way to tell which ioctl's a particular driver supports.
-
-Any ideas here?
+	-hpa
 
 -- 
-Gordon Sadler
-
-
---1yeeQ81UyVL57Vl7
-Content-Type: text/x-csrc; charset=us-ascii
-Content-Disposition: attachment; filename="test.c"
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <linux/soundcard.h>
-
-
-
-int main()
-{
-  int fd, fd1, ver;
-  if((fd=open("/dev/dsp",O_WRONLY))<0)
-	  perror("open ");
-  printf (" %d is fd...\n",fd);
-  if (ioctl(fd, OSS_GETVERSION, &ver)<0)
-	  perror("ioctl ");
-  printf (" %x is version...\n",ver);
-  if (ioctl(fd, SNDCTL_DSP_NONBLOCK, NULL)<0)
-	  perror("ioctl ");
-  close(fd);
-  
-  if((fd1=open("/dev/audio",O_WRONLY))<0)
-	  perror("open ");
-  printf (" %d is fd1...\n",fd);
-  if (ioctl(fd1, SNDCTL_DSP_NONBLOCK, NULL)<0)
-	  perror("ioctl ");
-  close(fd1);
-  return 0;
-}
-  
-
---1yeeQ81UyVL57Vl7--
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

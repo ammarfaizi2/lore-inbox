@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129399AbRA2SuF>; Mon, 29 Jan 2001 13:50:05 -0500
+	id <S129532AbRA2SvH>; Mon, 29 Jan 2001 13:51:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129532AbRA2St4>; Mon, 29 Jan 2001 13:49:56 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:7714 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S129399AbRA2Stp> convert rfc822-to-8bit; Mon, 29 Jan 2001 13:49:45 -0500
-Message-ID: <4FAC40499714D31186C60060943F47A902C0C4F0@mtv-mven006e--n.engr.sgi.com>
-From: Yi Li <yili@sgi.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: Yi Li <yili@sgi.com>
-Subject: XFS file system Pre-Release
-Date: Mon, 29 Jan 2001 10:49:38 -0800
+	id <S131566AbRA2Su5>; Mon, 29 Jan 2001 13:50:57 -0500
+Received: from palrel1.hp.com ([156.153.255.242]:24837 "HELO palrel1.hp.com")
+	by vger.kernel.org with SMTP id <S129532AbRA2Suy>;
+	Mon, 29 Jan 2001 13:50:54 -0500
+Message-ID: <3A75BB81.3423F1B2@cup.hp.com>
+Date: Mon, 29 Jan 2001 10:50:41 -0800
+From: Rick Jones <raj@cup.hp.com>
+Organization: the Unofficial HP
+X-Mailer: Mozilla 4.75 [en] (X11; U; HP-UX B.11.00 9000/785)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+To: jamal <hadi@cyberus.ca>
+Cc: Andrew Morton <andrewm@uow.edu.au>, lkml <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
+In-Reply-To: <Pine.GSO.4.30.0101270729270.24088-100000@shell.cyberus.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I'll give this a shot later. Can you try with the sendfiled-ttcp?
+> http://www.cyberus.ca/~hadi/ttcp-sf.tar.gz
 
-SGI has made available the pre-release version 0.9 of its high-end XFS file
-system ported to Linux®. Code and detailed information are at
-http://oss.sgi.com/projects/xfs/prerelease.html.
+I guess I need to "leverage" some bits for netperf :)
 
-Thanks to the extensive interest and contributions from the community, the
-XFS file system for Linux has made significant progress since its Beta
-release in September 2000. Although there are still some features to be
-finalized, the pre-release code is currently stable in a majority of normal
-environments. We welcome and encourage interested users to try out the code
-aggressively in your test environments, so that we can work through the
-final stage of the development and bug fixes to meet your production needs. 
 
-SGI XFS Pre-release 0.9 is available in the following three fashions:
-· As a patch against linux-2.4.0. 
-· As a set of RPMs.
-· As a complete system installer which works with Red Hat 7.0 media to run
-XFS on the root partition.
+WRT getting data with links that cannot saturate a system, having
+something akin to the netperf service demand measure can help. Nothing
+terribly fancy - simply a conversion of the CPU utilization and
+throughput to a microseconds of CPU to transfer a KB of data. 
 
-We will be demonstrating XFS as the root file system for high availability
-and clustering solutions in SGI systems at LinuxWorld New York from January
-31 to February 2. Free XFS CDs will also be available at LinuxWorld.
+As for CKO and avoiding copies and such, if past experience is any guide
+(ftp://ftp.cup.hp.com/dist/networking/briefs/copyavoid.ps) you get a
+very nice synergistic effect once the last "access" of data is removed.
+CKO gets you say 10%, avoiding the copy gets you say 10%, but doing both
+at the same time gets you 30%.
 
-For more information on the open source project of XFS for Linux, please see
-http://oss.sgi.com/projects/xfs/index.html.
-
-Thanks very much - please email me at yili@sgi.com if you have any
-questions.
-
-Yi 
+rick jones
+http://www.netperf.org/
+-- 
+ftp://ftp.cup.hp.com/dist/networking/misc/rachel/
+these opinions are mine, all mine; HP might not want them anyway... :)
+feel free to email, OR post, but please do NOT do BOTH...
+my email address is raj in the cup.hp.com domain...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

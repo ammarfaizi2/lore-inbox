@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267158AbSKSSho>; Tue, 19 Nov 2002 13:37:44 -0500
+	id <S267175AbSKSSef>; Tue, 19 Nov 2002 13:34:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267160AbSKSShn>; Tue, 19 Nov 2002 13:37:43 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37124 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267158AbSKSShm>;
-	Tue, 19 Nov 2002 13:37:42 -0500
-Message-ID: <3DDA8698.7050006@pobox.com>
-Date: Tue, 19 Nov 2002 13:44:40 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-CC: Matt Reppert <arashi@arashi.yi.org>, linux-kernel@vger.kernel.org,
-       rusty@rustcorp.com.au
-Subject: Re: [PATCH] mii module broken under new scheme
-References: <7FA2FEC6B51@vcnet.vc.cvut.cz>
-In-Reply-To: <7FA2FEC6B51@vcnet.vc.cvut.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267173AbSKSSeb>; Tue, 19 Nov 2002 13:34:31 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:10624 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S267167AbSKSSe1>;
+	Tue, 19 Nov 2002 13:34:27 -0500
+Date: Tue, 19 Nov 2002 10:41:29 -0800
+From: Bob Miller <rem@osdl.org>
+To: trivial@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: [TRIVIAL PATCH 2.5.48] Remove compile warning from drivers/acpi/bus.c
+Message-ID: <20021119184129.GA1986@doc.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec wrote:
-
-> I think that retrieving module name from module's binary is wrong: I
-> need to have dummy.o (network driver) insmodded two times to get my
-> test environment up.
+Add the include of linux/device.h to remove a compile time waring
+from drivers/acpi/bus.c
 
 
-agreed... this requirement is why the redundant no_module_init is needed :(
+diff -Nru a/drivers/acpi/bus.c b/drivers/acpi/bus.c
+--- a/drivers/acpi/bus.c	Tue Nov 19 10:31:17 2002
++++ b/drivers/acpi/bus.c	Tue Nov 19 10:31:17 2002
+@@ -29,6 +29,7 @@
+ #include <linux/pm.h>
+ #include <linux/device.h>
+ #include <linux/proc_fs.h>
++#include <linux/device.h>
+ #ifdef CONFIG_X86
+ #include <asm/mpspec.h>
+ #endif
 
 
-> I do not think that it is correct that I must add multiple device support
-> to the dummy due to new module loader, and creating two dummy.o,
-> with different .modulename sections, also does not look like reasonable
-> solution to me.
-
-
-The promise of minimal driver breakage is rapidly fading away.
-
-	Jeff, still grumbling from last email message :)
-
-
+-- 
+Bob Miller					Email: rem@osdl.org
+Open Source Development Lab			Phone: 503.626.2455 Ext. 17

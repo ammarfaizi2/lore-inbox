@@ -1,25 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264066AbRFYVs3>; Mon, 25 Jun 2001 17:48:29 -0400
+	id <S263625AbRFYVns>; Mon, 25 Jun 2001 17:43:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264072AbRFYVsS>; Mon, 25 Jun 2001 17:48:18 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:1010 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S264066AbRFYVsE>; Mon, 25 Jun 2001 17:48:04 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200106252147.f5PLlPJt025763@webber.adilger.int>
+	id <S264066AbRFYVni>; Mon, 25 Jun 2001 17:43:38 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:51719 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263625AbRFYVnS>; Mon, 25 Jun 2001 17:43:18 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: EXT2 Filesystem permissions (bug)?
-In-Reply-To: <Pine.LNX.4.30.0106251729450.18996-100000@coredump.sh0n.net>
- "from Shawn Starr at Jun 25, 2001 05:33:32 pm"
-To: Shawn Starr <spstarr@sh0n.net>
-Date: Mon, 25 Jun 2001 15:47:25 -0600 (MDT)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+Date: 25 Jun 2001 14:42:50 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9h8b8q$s95$1@cesium.transmeta.com>
+In-Reply-To: <m28zigi7m4.fsf@boreas.yi.org.> <Pine.LNX.4.30.0106251729450.18996-100000@coredump.sh0n.net>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shawn Star writes:
+Followup to:  <Pine.LNX.4.30.0106251729450.18996-100000@coredump.sh0n.net>
+By author:    Shawn Starr <spstarr@sh0n.net>
+In newsgroup: linux.dev.kernel
+> 
 > Is this a bug or something thats undocumented somewhere?
 > 
 > d--------T
@@ -27,16 +32,39 @@ Shawn Star writes:
 > drwSrwSrwT
 > 
 > are these special bits? I'm not aware of +S and +T
+> 
 
----S------ = setuid (normally shows up as "s" if "x" is also set)
-------S--- = setgid (normally shows up as "s" if "x" is also set)
----------T = sticky bit (prevents non-owner from deleting a file in
-                         world-writable directory like /tmp)
+It's neither a bug nor undocumented.
 
-See chmod(1) for this info.
+"info ls" would have told you the following:
 
-Cheers, Andreas
+     The permissions listed are similar to symbolic mode
+     specifications
+     (*note Symbolic Modes::.).  But `ls' combines multiple bits into
+     the third character of each set of permissions as follows:
+    `s'
+          If the setuid or setgid bit and the corresponding executable
+          bit are both set.
+
+    `S'
+          If the setuid or setgid bit is set but the corresponding
+          executable bit is not set.
+
+    `t'
+          If the sticky bit and the other-executable bit are both set.
+
+    `T'
+          If the sticky bit is set but the other-executable bit is not
+          set.
+
+    `x'
+          If the executable bit is set and none of the above apply.
+
+    `-'
+          Otherwise.
+
+	-hpa
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

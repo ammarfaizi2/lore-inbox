@@ -1,82 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267096AbUBFADZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 19:03:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267100AbUBFADZ
+	id S266811AbUBEXyv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 18:54:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267094AbUBEXyv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 19:03:25 -0500
-Received: from agminet04.oracle.com ([141.146.126.231]:238 "EHLO
-	agminet04.oracle.com") by vger.kernel.org with ESMTP
-	id S267096AbUBFADF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 19:03:05 -0500
-Message-ID: <4022D99D.5080504@oracle.com>
-Date: Fri, 06 Feb 2004 01:02:37 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20040107
-X-Accept-Language: en-us, en
+	Thu, 5 Feb 2004 18:54:51 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:61114 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S266811AbUBEXys
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 18:54:48 -0500
+Date: Thu, 5 Feb 2004 21:51:49 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Stian Jordet <liste@jordet.nu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Oopses with both recent 2.4.x kernels and 2.6.x kernels
+In-Reply-To: <1075832813.5421.53.camel@chevrolet.hybel>
+Message-ID: <Pine.LNX.4.58L.0402052139420.16422@logos.cnet>
+References: <1075832813.5421.53.camel@chevrolet.hybel>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: Sid Boyce <sboyce@blueyonder.co.uk>
-Subject: update on Cisco VPN 403B: non-fatal oops on 2.6.2-mm1
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-White-List-Member: TRUE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Still cvpnd goes in __down and never comes back, but 2.6.2-mm1
-  has insmod segfaulting and provides a small trace... perhaps
-  someone at Cisco reads this, perhaps someone on lkml spots
-  something... anyway ;)
 
 
-Base distro is a RedHat9.
+On Tue, 3 Feb 2004, Stian Jordet wrote:
 
+> Hello,
+>
+> I have a server which was running 2.4.18 and 2.4.19 for almost 200 days
+> each, without problems. After an upgrade to 2.4.22, the box haven't been
+> up for 30 days in a row. This happened early november. I have caputered
+> oopses with both 2.4.23 and 2.6.1 which I have sent decoded to the list,
+> but have never got any reply.
+>
+> I have ran memtest86 on the box, no errors. What else can be the
+> problem? I could of course go back to 2.4.19, which I know worked fine,
+> but I there have been some fixed security holes since then...
+>
+> Any thoughts?
 
-Starting /usr/local/bin/vpnclient: cisco_ipsec: no version for "struct_module" found: kernel tainted.
-cisco_ipsec: no version magic, tainting kernel.
-cisco_ipsec: module license 'Proprietary' taints kernel.
-Unable to handle kernel paging request at virtual address 24510000
-  printing eip:
-c026de91
+Stian,
+
+I have seen your 2.4.x oopses and they seemed odd. The faults were
+happening in different functions (mostly inside VM "freeing" , due to
+what seems to be random crap in memory:
+
+ <1>Unable to handle kernel NULL pointer dereference at virtual address 00000021
+c0132e86
 *pde = 00000000
-Oops: 0000 [#1]
-PREEMPT
+
+eax: 00000000   ebx: 00000009   ecx: 000001d2   edx: 00000012
+esi: 00000000   edi: c17e38c0   ebp: c1047a00   esp: c86cbdb4
+
+>>EIP; c0132e86 <sync_page_buffers+e/a4>   <=====
+
+>>edi; c17e38c0 <_end+14b5844/bd23f84>
+>>ebp; c1047a00 <_end+d19984/bd23f84>
+>>esp; c86cbdb4 <_end+839dd38/bd23f84>
+
+Trace; c0132fdc <try_to_free_buffers+c0/ec>
+
+Code;  c0132e86 <sync_page_buffers+e/a4>
+00000000 <_EIP>:
+Code;  c0132e86 <sync_page_buffers+e/a4>   <=====
+   0:   f6 43 18 06               testb  $0x6,0x18(%ebx)   <=====
+Code;  c0132e8a <sync_page_buffers+12/a4>
+   4:   74 7c                     je     82 <_EIP+0x82> c0132f08
+<sync_page_buffers+90/a4>
+Code;  c0132e8c <sync_page_buffers+14/a4>
+   6:   b8 07 00 00 00            mov    $0x7,%eax
+Code;  c0132e91 <sync_page_buffers+19/a4>
+
+
+
+
+ <1>Unable to handle kernel NULL pointer dereference at virtual address
+00000028
+c015e3a2
+*pde = 00000000
+Oops: 0000
 CPU:    0
-EIP:    0060:[<c026de91>]    Tainted: PF  VLI
-EFLAGS: 00010246
-EIP is at register_netdev+0x1a/0x78
-eax: 00002525   ebx: 24510000   ecx: c04079c0   edx: fa94de44
-esi: 24510000   edi: fa94de44   ebp: f6a4dfa0   esp: f6a4df6c
-ds: 007b   es: 007b   ss: 0068
-Process insmod (pid: 1720, threadinfo=f6a4c000 task=f6b226b0)
-Stack: c03c22d0 fa948e44 fa8fe782 fa9202c0 f6a4df94 f6a4dfa0 fa8fe775 0804a008
-        00000000 c03b00f4 fa948e20 fa94dc00 c03c22b8 f6a4c000 c0130ec1 00000001
-        00000000 40023000 42132920 0000036b f6a4c000 c0347b82 40023000 00058051
-Call Trace:
-  [<fa8fe782>] init_module+0x62/0x8c [cisco_ipsec]
-  [<fa8fe775>] init_module+0x55/0x8c [cisco_ipsec]
-  [<c0130ec1>] sys_init_module+0x11c/0x234
-  [<c0347b82>] sysenter_past_esp+0x43/0x65
+EIP:    0010:[<c015e3a2>]    Not tainted
+EFLAGS: 00010203
 
-Code: 66 c7 43 54 02 10 8b 7c 24 04 8b 1c 24 83 c4 08 c3 83 ec 08 89 1c 24 89 74 24 04 89 c3 89 de e8 f6 c2 07 00 b8 25 00 00 00 88 c4 <ac> 38 e0 74 09 84 c0 75 f7 be 01 00 00 00 89 f0 48 85 c0 74 0f
-  /etc/init.d/vpnclient_init: line 140:  1720 Segmentation fault      /sbin/insmod ${PC}/${VPNMOD}
-Failed (insmod)
-Cisco Systems VPN Client Version 4.0.3 (B)
-Copyright (C) 1998-2003 Cisco Systems, Inc. All Rights Reserved.
-Client Type(s): Linux
-Running on: Linux 2.6.2-mm1 #1 Thu Feb 5 11:42:16 CET 2004 i686
+eax: 0100004d   ebx: 00000000   ecx: 000001d2   edx: 00000000
 
-FATAL: Module cipsec0 not found.
-<7>request_module: failed /sbin/modprobe -- cipsec0. error = 256
+Code;  c015e3a2 <journal_try_to_free_buffers+5a/98>
+00000000 <_EIP>:
+Code;  c015e3a2 <journal_try_to_free_buffers+5a/98>   <=====
+   0:   8b 5b 28                  mov    0x28(%ebx),%ebx   <=====
+Code;  c015e3a5 <journal_try_to_free_buffers+5d/98>
+   3:   f6 42 19 04               testb  $0x4,0x19(%edx)
+Code;  c015e3a9 <journal_try_to_free_buffers+61/98>
+   7:   74 17                     je     20 <_EIP+0x20> c015e3c2
+<journal_try_to_free_buffers+7a/98>
 
+And other similar oopses.
 
-Thanks,
+Are you sure there is nothing messing up the hardware ?
 
---alessandro
+How long have you ran memtest86? It can, sometimes, take a long to showup
+errors.
 
-  "Two rivers run too deep
-   The seasons change and so do I"
-       (U2, "Indian Summer Sky")
-
+The 2.6.x oopses on the same hardware is also a useful source of
+information.

@@ -1,96 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131521AbQLVBfC>; Thu, 21 Dec 2000 20:35:02 -0500
+	id <S131538AbQLVBoh>; Thu, 21 Dec 2000 20:44:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131609AbQLVBew>; Thu, 21 Dec 2000 20:34:52 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:18323 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S131521AbQLVBel>;
-	Thu, 21 Dec 2000 20:34:41 -0500
-Importance: Normal
-Subject: [PATCH] Re: e820 memory detection fix for ThinkPad
-To: alan@redhat.com, linux-kernel@vger.kernel.org
-From: "Marc Joosen" <mjoosen@us.ibm.com>
-Date: Thu, 21 Dec 2000 20:04:02 -0500
-Message-ID: <OF4FB68CB1.98A5E1AA-ON852569BD.000420DA@pok.ibm.com>
-X-MIMETrack: Serialize by Router on D01ML233/01/M/IBM(Release 5.0.6 |December 14, 2000) at
- 12/21/2000 08:04:04 PM
+	id <S131558AbQLVBo1>; Thu, 21 Dec 2000 20:44:27 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:57616 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S131538AbQLVBoV>;
+	Thu, 21 Dec 2000 20:44:21 -0500
+Message-ID: <3A42AA60.80FA07F7@innominate.de>
+Date: Fri, 22 Dec 2000 02:12:00 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+To: Paul Cassella <pwc@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Semaphores used for daemon wakeup
+In-Reply-To: <3A42380B.6E9291D1@sgi.com> <Pine.SGI.3.96.1001221130859.8463C-100000@fsgi626.americas.sgi.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paul Cassella wrote:
+> > int atomic_read_and_clear(atomic_t *p)
+> > {
+> >         int n = atomic_read(p);
+> >         atomic_sub(p, n);
+> >         return n;
+> > }
+> 
+> I don't think this will work; consider two callers doing the atomic_read()
+> at the same time, or someone else doing an atomic_dec() after the
+> atomic_read().
 
+Oh yes, mea culpa, this is a terrible primitive, yet it works for this
+application.  1) We don't have two callers 2) We only have atomic_inc
+from the other processes, and it's ok for the atomic_inc to occur after
+the atomic_read because that means the atomic_inc'er will then proceed
+to up() the atomic_sub'ers semaphore, and it won't block.
 
-David Weinhall wrote:
-
-> On Tue, Dec 19, 2000 at 07:16:40PM -0500, Marc Joosen wrote:
-> >
-> >   This is a tiny patch to make the int15/e820 memory mapping work on
-IBM
-> > ThinkPads. Until now, I have had to give lilo a mem= option with one
-meg
->
-> If this simple patch solves your problem, great! But in that case,
-> PLEASE add a note telling WHY the assignment is done for every
-> iteration; else some smarthead will probably submit a patch someday
-> in the future along the lines of "assigning this only once makes the
-> loop faster"...
->
-> Anyhow, good spotting!
-
-  Thanks for the tip, David. I hope that whoever wants to move that line
-out of the loop is aware that it is only executed ~10 times :) So I
-hereby submit a second version of the patch, that includes a link to
-the documentation and #defines the word SMAP (thanks to David Parsons
-for that):
-
-
---- linux/arch/i386/boot/setup.S.orig    Mon Oct 30 17:44:29 2000
-+++ linux/arch/i386/boot/setup.S   Thu Dec 21 19:37:12 2000
-@@ -289,10 +289,11 @@
- # a whole bunch of different types, and allows memory holes and
- # everything.  We scan through this memory map and build a list
- # of the first 32 memory areas, which we return at [E820MAP].
--#
-+# This is documented at http://www.teleport.com/~acpi/acpihtml/topic245.htm
-+
-+#define SMAP  0x534d4150
-
- meme820:
--    movl $0x534d4150, %edx        # ascii `SMAP'
-     xorl %ebx, %ebx               # continuation counter
-     movw $E820MAP, %di            # point into the whitelist
-                              # so we can have the bios
-@@ -300,13 +301,15 @@
-
- jmpe820:
-     movl $0x0000e820, %eax        # e820, upper word zeroed
-+    movl $SMAP, %edx              # do this every time, some
-+                             # bioses are forgetful
-     movl $20, %ecx           # size of the e820rec
-     pushw     %ds                 # data record.
-     popw %es
-     int  $0x15                    # make the call
-     jc   bail820                  # fall to e801 if it fails
-
--    cmpl $0x534d4150, %eax        # check the return is `SMAP'
-+    cmpl $SMAP, %eax              # check the return is `SMAP'
-     jne  bail820                  # fall to e801 if it fails
-
- #   cmpl $1, 16(%di)              # is this usable memory?
-
-
-  Again, please copy any comments to me (mjoosen@us.ibm.com), since
-I'm not subscribed to linux-kernel.
-
+I much preferred my original waiters = xchg(&sem.count, 0), but as noted
+it doesn't work with sparc.  A satisfying approach would be to create
+the new primitive up_down, which simplifies everything dramatically.
 
 --
-  Marc Joosen
-  Communication Link Design
-  IBM T.J. Watson Research Center
-  Yorktown Heights, NY
-
-
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

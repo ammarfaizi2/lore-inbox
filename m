@@ -1,90 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264018AbTJ1QKI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 11:10:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264019AbTJ1QKI
+	id S264021AbTJ1QFy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 11:05:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264023AbTJ1QFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 11:10:08 -0500
-Received: from mcomail04.maxtor.com ([134.6.76.13]:1041 "EHLO
-	mcomail04.maxtor.com") by vger.kernel.org with ESMTP
-	id S264018AbTJ1QKB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 11:10:01 -0500
-Message-ID: <785F348679A4D5119A0C009027DE33C105CDB3CA@mcoexc04.mlm.maxtor.com>
-From: "Mudama, Eric" <eric_mudama@Maxtor.com>
-To: "'Norman Diamond'" <ndiamond@wta.att.ne.jp>, linux-kernel@vger.kernel.org,
-       jw@pegasys.ws
-Subject: RE: Blockbusting news, results end
-Date: Tue, 28 Oct 2003 09:10:00 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Tue, 28 Oct 2003 11:05:54 -0500
+Received: from 24-216-47-96.charter.com ([24.216.47.96]:39554 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id S264021AbTJ1QFw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 11:05:52 -0500
+Date: Tue, 28 Oct 2003 11:05:50 -0500
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: CPU-Test similar to Memtest?
+Message-ID: <20031028160550.GA855@rdlg.net>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> -----Original Message-----
-> From: Norman Diamond
-> 
-> Someone else in this discussion estimated that physical 
-> sectors are around 1MB these days.  My friends at Toshiba
-> confirmed that physical sectors are much larger than
-> logical sectors.  The physical sector size resembles that
-> 1MB estimate far better than the 512B logical sector size.
 
-I don't think your friends know what they're talking about.
 
-Disk drives that use anything resembling the "standard" channel technology
-have 2 physical sector types: servo sectors and data sectors.  Servo sectors
-are designed to give the servo system a constant sample rate at any radius,
-therefore they're constant in time, but get physically closer as you get
-closer to the ID of the drive.  Data sectors are a fixed size, to hold a
-certain number of user bytes of data, and they can be split, etc, as needed
-to fit them nicely on the drive.
+On the heels of my system going nuts when I enabled Highmem I've played
+with the ram and starting to wonder if it might all be good and I might
+have a CPU just panic'ing for the fun of it.
 
-A modern disk has "a few" data sectors per servo sector at the OD (think
-3-4.5), and "a few less" at the ID of the drive. (think 1.5-2).
+I'm going to run MEMTEST today when I get home and get a chance to make
+a bootable CD but I'm wondering if there might be a "CPUTEST" or such
+utility anyone knows of that'll poke and prod a dual athalon real well
+and make sure I don't have a flaky cpu.
 
-The 1MB number can't possibly be a servo sector, since a modern drive
-transfers ~50-70MB/sec, which would imply that their servo system is holding
-postion within microns, only sampling 50-70 times/second.
+Robert
 
-I don't think any modern drive can hold 1MB on a single track, I know what
-our current limit is, and we're not there yet.  (Anyone can figure this out
-by looking at sequential read throughput per revolution)
 
-That would mean that to be 1MB for a data sector, or anywhere close, they're
-spanning a single data cylinder across tracks.  This doesn't make sense
-either.
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | GPG Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
 
-What I think is possible, but still unlikely, is that their defect
-management scheme might not be capable of handling single-block defects.
-However, disk drives have had that ability for tens of years, I can't see
-how they could possibly sell a drive that way.
+Life is not a destination, it's a journey.
+  Microsoft produces 15 car pileups on the highway.
+    Don't stop traffic to stand and gawk at the tragedy.
 
-There's also a chance that in doing the larger write, you "cleaned up" a
-poorly written adjacent track or ratty servo burst, which could account for
-it working now.
+--bp/iNruPH9dso1Pn
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Other than the track size and the DRAM buffer size, I can't think of
-anything else offhand in a disk drive that is "about 1MB"
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-The insides of these things are near voodoo-magic...
+iD8DBQE/npPe8+1vMONE2jsRAkHQAJ9bbr4n2ARsSbpqd6FMvSINxwP4MwCfcLOX
+Vro+NK3xaAOOuFLzZFM9+LI=
+=goza
+-----END PGP SIGNATURE-----
 
-> It is really hard to imagine a physical sector still being 
-> 512B because the inter-sector gaps would take some huge
-> multiple of the space occupied by the sectors.
-
-We measure these gaps in nanoseconds.  They're not that huge.  But yes,
-moving to a larger standard sector size would get you a significantly larger
-disk drive built from the same parts.
-
-> I'm sure the physical sectors are not 512B.
-
-I'm sure you're wrong.
-
-I'd imagine that since Seagate and WD and Maxtor are constantly duking it
-out to release the next generation of capacity, and we all wind up producing
-nearly-identical products when all is said and done, that they're using 512B
-data sectors also.
+--bp/iNruPH9dso1Pn--

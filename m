@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262638AbVAVAib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262630AbVAVBIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262638AbVAVAib (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 19:38:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262639AbVAVASB
+	id S262630AbVAVBIK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 20:08:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbVAVBIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 19:18:01 -0500
-Received: from waste.org ([216.27.176.166]:35463 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262628AbVAVAJz (ORCPT
+	Fri, 21 Jan 2005 20:08:10 -0500
+Received: from fw.osdl.org ([65.172.181.6]:36058 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262630AbVAVBIJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 19:09:55 -0500
-Date: Fri, 21 Jan 2005 18:09:49 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>
-X-PatchBomber: http://selenic.com/scripts/mailpatches
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <6.464233479@selenic.com>
-Message-Id: <7.464233479@selenic.com>
-Subject: [PATCH 6/8] core-small: Shrink futex queue hash
+	Fri, 21 Jan 2005 20:08:09 -0500
+Date: Fri, 21 Jan 2005 17:08:05 -0800 (PST)
+From: Bryce Harrington <bryce@osdl.org>
+To: Chris Wright <chrisw@osdl.org>
+cc: Andrew Morton <akpm@osdl.org>, <dev@osdl.org>,
+       <ltp-list@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
+       <stp-devel@lists.sourceforge.net>
+Subject: Re: [Dev] Re: Kernel Panic with LTP on 2.6.11-rc1 (was Re: LTP
+ Results for 2.6.x and 2.4.x)
+In-Reply-To: <20050121153308.I24171@build.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.33.0501211706430.32650-100000@osdlab.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CONFIG_CORE_SMALL reduce futex hash table
+On Fri, 21 Jan 2005, Chris Wright wrote:
+> * Andrew Morton (akpm@osdl.org) wrote:
+> > Bryce Harrington <bryce@osdl.org> wrote:
+> > I am unable to find the oops trace amongst all that stuff.  Help?
+> >
+> > (It would have been handy to include it in the bug report, actually)
+>
+> Yes, it would.  Or at least some better granularity leading up to the
+> problem.  I ran growfiles locally on 2.6.11-rc-bk and didn't have any
+> problem.  Could you strace growfiles and see what it was doing when it
+> killed the machine?
 
-Signed-off-by: Matt Mackall <mpm@selenic.com>
+Okay, I'll set up another run and try collecting that info.  Is there
+any other data that would be useful to collect while I'm at it?
 
-Index: tiny-new/kernel/futex.c
-===================================================================
---- tiny-new.orig/kernel/futex.c	2004-11-17 00:04:03.000000000 -0800
-+++ tiny-new/kernel/futex.c	2004-11-17 10:30:20.749824672 -0800
-@@ -40,7 +40,11 @@
- #include <linux/pagemap.h>
- #include <linux/syscalls.h>
- 
-+#ifdef CONFIG_CORE_SMALL
-+#define FUTEX_HASHBITS 4
-+#else
- #define FUTEX_HASHBITS 8
-+#endif
- 
- /*
-  * Futexes are matched on equal values of this key.
+Bryce
+

@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135708AbRDXSEQ>; Tue, 24 Apr 2001 14:04:16 -0400
+	id <S135644AbRDXSJr>; Tue, 24 Apr 2001 14:09:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135704AbRDXSEG>; Tue, 24 Apr 2001 14:04:06 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:24449 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S135707AbRDXSDv>; Tue, 24 Apr 2001 14:03:51 -0400
-Date: Tue, 24 Apr 2001 14:03:44 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Chin-Tser Huang <chuang@cs.utexas.edu>
-cc: alad@hss.hns.com, JColgan@safestory.com, linux-kernel@vger.kernel.org
-Subject: Re: Greetings! <kill children first>
-In-Reply-To: <Pine.GSO.4.33.0104241253470.178-100000@fugue.cs.utexas.edu>
-Message-ID: <Pine.LNX.3.95.1010424135734.18005A-100000@chaos.analogic.com>
+	id <S135560AbRDXSJ3>; Tue, 24 Apr 2001 14:09:29 -0400
+Received: from goat.cs.wisc.edu ([128.105.166.42]:8720 "EHLO goat.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id <S135644AbRDXSJO>;
+	Tue, 24 Apr 2001 14:09:14 -0400
+To: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG: Global FPU corruption in 2.2
+In-Reply-To: <cpxu23etpmc.fsf@goat.cs.wisc.edu>
+	<20010424164721.3598.qmail@theseus.mathematik.uni-ulm.de>
+From: Victor Zandy <zandy@cs.wisc.edu>
+Date: 24 Apr 2001 13:09:04 -0500
+In-Reply-To: "Christian Ehrhardt"'s message of "Tue, 24 Apr 2001 18:47:21 +0200"
+Message-ID: <cpxn196rwzj.fsf@goat.cs.wisc.edu>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Apr 2001, Chin-Tser Huang wrote:
+"Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de> writes:
+> Victor: Could you try to reproduce the system wide corruption if you
+> add an explicit call to stts(); at the very end of __switch_to?
+> This should prevent the FPU corruption from spreading.
 
-> Because there was a mail whose subject is "Children first in fork".
-> 
+After adding this call, I cannot reproduce the global corruption.
+There is still occasional local corruption of individual pi processes
+while pt is running.
 
-Gotta watch out for source-code that uses a 'reaper' to kill children
-from SIGCHLD. We'll get auto-mail from pervert.snuffer.com.
+Vic
 
-Cheers,
-Dick Johnson
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
 
 

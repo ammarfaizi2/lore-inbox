@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129101AbRA3LQX>; Tue, 30 Jan 2001 06:16:23 -0500
+	id <S129160AbRA3LWd>; Tue, 30 Jan 2001 06:22:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129759AbRA3LQN>; Tue, 30 Jan 2001 06:16:13 -0500
-Received: from [172.16.18.67] ([172.16.18.67]:29828 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S129704AbRA3LQI>; Tue, 30 Jan 2001 06:16:08 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com> 
-In-Reply-To: <Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com> 
-To: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-Cc: John Levon <moz@compsoc.man.ac.uk>, Timur Tabi <ttabi@interactivesi.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list 
-Mime-Version: 1.0
+	id <S129175AbRA3LWX>; Tue, 30 Jan 2001 06:22:23 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:51727 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129160AbRA3LWG>;
+	Tue, 30 Jan 2001 06:22:06 -0500
+Message-ID: <3A76A35F.6CD57281@innominate.de>
+Date: Tue, 30 Jan 2001 12:19:59 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rusty Russell <rusty@linuxcare.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
+In-Reply-To: <3A74451F.DA29FD17@uow.edu.au> <E14NPEr-0005LR-00@halfway>
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 30 Jan 2001 11:11:27 +0000
-Message-ID: <7085.980853087@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rusty Russell wrote:
+> 
+> In message <3A74451F.DA29FD17@uow.edu.au> you write:
+> >       http://www.uwsg.iu.edu/hypermail/linux/kernel/0005.3/0269.html
+> >
+> > A lot of the timer deletion races are hard to fix because of
+> > the deadlock problem.
+> 
+> Hmmm...
+> 
+>         For 2.5, changing the timer interface to disallow mod_timer or
+> add_timer (equivalent) on self, and making the timerfn return num
+> jiffies to next run (0 = don't rerun) would solve this, right?
+> I don't see a maintainable way of solving this otherwise,
 
-pgpkeys@hislinuxbox.com said:
->  Remember, most of you guys have been coding for years, or working on
-> the kernel for years. Some of us don't have that level of expertise,
-> are trying to get it, and feel like we're being told that information
-> is a private domain we aren't allowed in to.
+It seems silly not to provide direct support for such a simple, useful
+mechanism as a periodic timer.  This can be accomplished easily by
+adding a field 'periodic' to struct timer_list.  If 'periodic' is
+non-zero then run_timer_list uses it to set the 'expires' field and
+re-inserts the timer.
 
-Note that this is _precisely_ the reason I'm advocating the removal of 
-sleep_on(). When I was young and stupid (ok, "younger and stupider") I used 
-sleep_on() in my code. I pondered briefly the fact that I really couldn't 
-convince myself that it was safe, but because it was used in so many other 
-places, I decided I had to be missing something, and used it anyway.
-
-I was wrong. I was copying broken code. And now I want to remove all those 
-bad examples - for the benefit of those who are looking at them now and are 
-tempted to copy them.
+For what it's worth, this is backward compatible with the existing
+strategy.  The timer_list->function is still in complete control of
+things if it wants to be, but forbidding it from re-adding itself sounds
+like an awfully good idea.
 
 --
-dwmw2
-
-
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

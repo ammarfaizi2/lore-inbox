@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318959AbSIIVAu>; Mon, 9 Sep 2002 17:00:50 -0400
+	id <S318916AbSIIVEx>; Mon, 9 Sep 2002 17:04:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318960AbSIIVAu>; Mon, 9 Sep 2002 17:00:50 -0400
-Received: from mail.dts.de ([212.62.75.8]:58897 "HELO dtsroot.dts.intra")
-	by vger.kernel.org with SMTP id <S318959AbSIIVAs>;
-	Mon, 9 Sep 2002 17:00:48 -0400
-Message-ID: <3D7D0D02.6060604@dts.de>
-Date: Mon, 09 Sep 2002 23:05:06 +0200
-From: Andreas Kerl <andreas.kerl@dts.de>
-Reply-To: andreas.kerl@dts.de
-Organization: DTS Medien GmbH
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: de, en, en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: compile error 2.4.20.pre5-ac4 
-X-Enigmail-Version: 0.65.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S318920AbSIIVEw>; Mon, 9 Sep 2002 17:04:52 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:6128 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318916AbSIIVEs>; Mon, 9 Sep 2002 17:04:48 -0400
+Subject: Re: LMbench2.0 results
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@digeo.com>,
+       Paolo Ciarrocchi <ciarrocchi@linuxmail.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <E17oRol-0006pi-00@starship>
+References: <E17oRCu-0006pL-00@starship> <312431072.1031563589@[10.10.2.3]>
+	 <E17oRol-0006pi-00@starship>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 09 Sep 2002 22:11:58 +0100
+Message-Id: <1031605918.29792.55.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/ide/idedriver.o: In function `proc_ide_read_drivers':
-drivers/ide/idedriver.o(.text+0x4c9): undefined reference to `ide_modules'
-drivers/ide/idedriver.o: In function `proc_ide_read_identify':
-drivers/ide/idedriver.o(.text+0x791): undefined reference to 
-`taskfile_lib_get_identify'
-drivers/ide/idedriver.o: In function `proc_ide_read_settings':
-drivers/ide/idedriver.o(.text+0x8ca): undefined reference to 
-`ide_read_setting'
-drivers/ide/idedriver.o: In function `proc_ide_write_settings':
-drivers/ide/idedriver.o(.text+0xb44): undefined reference to 
-`ide_find_setting_by_name'
-drivers/ide/idedriver.o(.text+0xb9e): undefined reference to 
-`ide_write_setting'
-drivers/ide/idedriver.o: In function `proc_ide_write_driver':
-drivers/ide/idedriver.o(.text+0xea0): undefined reference to 
-`ide_replace_subdriver'
-drivers/ide/idedriver.o: In function `create_proc_ide_drives':
-drivers/ide/idedriver.o(.text+0x110b): undefined reference to 
-`generic_subdriver_entries'
-drivers/ide/idedriver.o: In function `create_proc_ide_interfaces':
-drivers/ide/idedriver.o(.text+0x12c5): undefined reference to `ide_hwifs'
-drivers/ide/idedriver.o: In function `destroy_proc_ide_interfaces':
-drivers/ide/idedriver.o(.text+0x1338): undefined reference to `ide_hwifs'
-make: *** [vmlinux] Fehler 1
+On Mon, 2002-09-09 at 17:55, Daniel Phillips wrote:
+> You need to look at it from the other direction: how do the needs of a
+> uniprocessor Clawhammer box differ from a Linksys adsl router?
+
+I've advocated several times having a single config option for "fine
+tuning" that sane people say "N" to and which if set lets you force
+small hash sizes, disable block layer support and kill various other
+'always needed' PC crap. Tell me - on a 4Mb embedded 386 running your
+toaster do you really care if the TCP hash lookup is a little slower
+than perfect scaling, and do you need a 64Kbyte mount hash ?
 

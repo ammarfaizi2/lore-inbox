@@ -1,75 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315919AbSGYRbo>; Thu, 25 Jul 2002 13:31:44 -0400
+	id <S315971AbSGYRdz>; Thu, 25 Jul 2002 13:33:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315870AbSGYRae>; Thu, 25 Jul 2002 13:30:34 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:65155
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S315806AbSGYRaZ>; Thu, 25 Jul 2002 13:30:25 -0400
-Date: Thu, 25 Jul 2002 10:33:25 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Richard Zidlicky 
-	<Richard.Zidlicky@stud.informatik.uni-erlangen.de>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] A generic RTC driver [0/3]
-Message-ID: <20020725173325.GC746@opus.bloom.county>
-Mime-Version: 1.0
+	id <S315921AbSGYRcG>; Thu, 25 Jul 2002 13:32:06 -0400
+Received: from epithumia.math.uh.edu ([129.7.128.2]:24544 "EHLO
+	epithumia.math.uh.edu") by vger.kernel.org with ESMTP
+	id <S315870AbSGYRbq>; Thu, 25 Jul 2002 13:31:46 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.28 and partitions
+References: <Pine.GSO.4.21.0207251245530.17621-100000@weyl.math.psu.edu>
+From: Jason L Tibbitts III <tibbs@math.uh.edu>
+Date: 25 Jul 2002 12:35:00 -0500
+In-Reply-To: Alexander Viro's message of "Thu, 25 Jul 2002 12:50:50 -0400 (EDT)"
+Message-ID: <ufafzy74sor.fsf@epithumia.math.uh.edu>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is essentially the same driver I've sent 3 time previously, except
-it's been broken down into 3 patches now, and it works on i386 (and
-should work on alpha) now.
+>>>>> "AV" == Alexander Viro <viro@math.psu.edu> writes:
 
-Patch 1 is the current version of the driver (switched to C99-style
-initializers, done in the current m68k CVS tree) and needed changes to
-select/compile it in general.  I had previously asked the m68k community
-if anyone objected to this being submitted by me, and I got Richard
-Zidlicky's (who's at the top of the file) approval, as well as Geert
-Uytterhoeven's approval.
+AV> ... and backups of your database are done on...?
 
-Patch 2 is the PPC portion of the patch, which creates
-include/asm-ppc/rtc.h.  This has been in the PPC bitkeeper tree for over
-a month now.  I can have Paul Mackerras send this to you instead, if you
-prefer.
+An identically configured machine in another building.  A 20-pack of
+160GB disks is under $5K; you can even swap out a complete set of
+disks and take them offsite since they're all in carriers.
 
-Patch 3 is my own slight bit of work.  This changes set_rtc_time(struct
-*rtc_time) to return an int instead of void.  This was done so that the
-arch-specific code here could do additional checks on the time and
-return an error if needed.  This then introduces
-include/asm-generic/rtc.h, include/asm-i386/rtc.h and
-include/asm-alpha/rtc.h.  include/asm-generic/rtc.h contains the
-get_rtc_time and set_rtc_time logic that is in drivers/char/rtc.c and
-has been tested on SMP i386.  This also modifies include/asm-ppc/rtc.h
-to return -ENODEV if no rtc hardware is present.
+The incredibly low costs of these things have forced a change in how
+many of us think about data storage.  Building a 2+TB filesystem is no
+longer a sign of insanity or too much money to spend (or both), it's a
+weekend project.
 
-And now onto the history of this driver.
-
-This has been in the m68k tree for a number of years now, so the general
-code behind it is quite sound.  This has also been abstracted to the
-point where it works on other archs (mainly due to m68k/PPC hybrid
-machines).  This is quite useful since a number of archs cannot use
-drivers/char/rtc.c because they have very different hardware, or other
-issues.
-
-This should also be useful on MIPS, who at one point in the past were
-about to copy the PPC rtc driver (drivers/macintosh/rtc.c) and quite
-probably useful on other archs as well.
-
-Based on some private feedback, the parisc-linux people have been using
-the 2.4 version of this driver for a while, so getting it to work on 2.5
-for them should be a trivial matter (it's currently in their tree,
-untested as other issues need to be resolved first).  I believe with
-some additional enhancements, ia64 will make use of this as well.  And
-if the MIPS community ever did make an rtc driver similar to
-drivers/macintosh/rtc.c, they should be able to use this one rather
-trivially.
-
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+ - J<

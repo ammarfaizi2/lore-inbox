@@ -1,62 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272590AbRILUzK>; Wed, 12 Sep 2001 16:55:10 -0400
+	id <S269693AbRILVdM>; Wed, 12 Sep 2001 17:33:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272592AbRILUzB>; Wed, 12 Sep 2001 16:55:01 -0400
-Received: from cpe.atm0-0-0-122182.bynxx2.customer.tele.dk ([62.243.2.100]:45565
-	"HELO marvin.athome.dk") by vger.kernel.org with SMTP
-	id <S272590AbRILUy6>; Wed, 12 Sep 2001 16:54:58 -0400
-Message-ID: <3B9FCBB7.9020806@fugmann.dhs.org>
-Date: Wed, 12 Sep 2001 22:55:19 +0200
-From: Anders Peter Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4+) Gecko/20010911
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Marco Colombo <marco@esi.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VIA chipset
-In-Reply-To: <Pine.LNX.4.33.0109122209470.8745-100000@Megathlon.ESI>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S271257AbRILVdC>; Wed, 12 Sep 2001 17:33:02 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:7940 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S269693AbRILVc7>;
+	Wed, 12 Sep 2001 17:32:59 -0400
+Message-ID: <20010912122826.A6153@bug.ucw.cz>
+Date: Wed, 12 Sep 2001 12:28:26 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Phil Thompson <Phil.Thompson@pace.co.uk>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: User Space Emulation of Devices
+In-Reply-To: <54045BFDAD47D5118A850002A5095CC30AC57D@exchange1.cam.pace.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <54045BFDAD47D5118A850002A5095CC30AC57D@exchange1.cam.pace.co.uk>; from Phil Thompson on Thu, Sep 06, 2001 at 09:25:08AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a A7M266 (1.33 Ghz, 133 Mhz fb), and all works perfectly:
-ATA100 + DMA + K7/3DNOW optimization.
+Hi!
 
-No craches yet (run for about 2 month).
-I'm very satisfied with this mobo - IMHO it's a good buy.
-
-Regards
-Anders Fugmann
-
-
-Marco Colombo wrote:
-
-> On Wed, 12 Sep 2001, Jussi Laako wrote:
+> Without going into the gory details, I have a requirement for a device
+> driver that does very little apart from pass on the open/close/read/write
+> "requests" onto a user space application to implement and pass back to the
+> driver.
 > 
-> 
->>Marco Colombo wrote:
->>
->>>Sorry to bother you again with this issue, Alan... by 'AMD chipsets'
->>>you mean BOTH north and south bridges (eg. 761 + 766) or does it include
->>>also AMD NB + VIA SB combo?
->>>AMD 761 + VIA 686B based MBs are quite common this days: are they "safe"
->>>(do you have failure reports)?
->>>
->>At least my ASUS A7M266 works very well. It has AMD 761 nb and VIA 686B sb
->>and the 686B is used only for IDE and IO interfaces. PCI bus comes from the
->>761, AFAIK.
->>
->> - Jussi Laako
->>
->>
-> 
-> Thanks for your answer! Can you please confirm me that both the ATA/100
-> controller (at ATA/66 or ATA/100 speed) and Athlon optimized kernels work?
-> 
-> .TM.
-> 
+> Does anything like this already exist?
 
-
-
+Something like that which would also pass ioctl()s would be *very*
+welcome.
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

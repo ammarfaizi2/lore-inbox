@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265329AbTFXAQX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 20:16:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265418AbTFXAQX
+	id S265439AbTFXAR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 20:17:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265450AbTFXAR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 20:16:23 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:7112 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265329AbTFXAQR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 20:16:17 -0400
-Subject: [KEXEC][ANNOUNCE] kexec for 2.5.73 available
-From: Andy Pfiffer <andyp@osdl.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Eric Biederman <ebiederm@xmission.com>,
-       Suparna Bhattacharya <suparna@in.ibm.com>, fastboot@osdl.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1056414583.1209.23.camel@andyp.pdx.osdl.net>
+	Mon, 23 Jun 2003 20:17:28 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:48328 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S265439AbTFXARV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 20:17:21 -0400
+Date: Mon, 23 Jun 2003 17:31:24 -0700
+From: Frank Cusack <fcusack@fcusack.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Luis Miguel Garcia <ktech@wanadoo.es>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel & BIOS return differing head/sector geometries
+Message-ID: <20030623173124.A2025@google.com>
+References: <20030624010906.08ad32f3.ktech@wanadoo.es> <20030624013908.B1133@pclin040.win.tue.nl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 23 Jun 2003 17:29:43 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030624013908.B1133@pclin040.win.tue.nl>; from aebr@win.tue.nl on Tue, Jun 24, 2003 at 01:39:08AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A patch set for kexec for 2.5.73 is now available. This patch set is
-based upon the stable 2.5.{67,68,69,70,71,72} versions.
+On Tue, Jun 24, 2003 at 01:39:08AM +0200, Andries Brouwer wrote:
+> Linux does not use the BIOS, and does not use CHS either, so geometry is
+> totally and completely irrelevant to Linux.
 
-This patch was tested to work on a dual P4-1.7GHz Xeon system, a
-uniprocessor P3-800 system, and a dual P3-866 system. I continue to
-observe strangeness with the re-initialization of the VESA framebuffer
-(character-based console TTY worked correctly), a kernel oops in the
-2.5.72 version on a 4-way while preparing the reboot memory buffer, and
-a hang seen when using the serial console (RS232). 
+Is that also true for 2.2?  I've had problems where large drives (60+G)
+do these geometry tricks, and if I don't force the geometry to what I
+want, fdisk (actually, sfdisk, dunno about fdisk) doesn't see the
+entire drive.
 
-More info here:
-http://www.osdl.org/archive/andyp/bloom/Code/Linux/Kexec/index.html
+Sometimes the BIOS doesn't report the specific geometry that the kernel
+detects means "LBA" (I think this depends partly on drive firmware) and 
+then the kernel writes out some goofy geometry to the partition table
+(I assume kernel geometry info is kept there?) and again I have problems
+accessing the entire drive.
 
-Unified full kexec patch for 2.5.73 is here:
-http://www.osdl.org/archive/andyp/kexec/2.5.73/kexec2-2.5.73-full.patch
+Also, if I later change the geometry, the previous partition table seems
+to become incorrect.  This one really confuses me, shouldn't the partition
+table be indexed by sectors?
 
-Source tarball of the matching user-mode utility for kexec 2.5.73:
-http://www.osdl.org/archive/andyp/kexec/2.5.73/kexec-tools-1.8-2.5.73.tgz
+Anyway, it's been a very long time since I've worked directly on this
+problem, so lots of my characterizations may be wrong.  But I do know
+that we force the geometry to specific values in our install, to combat
+specific problems we've encountered.
 
-Unstable 2.5.69 kexec patches from Eric Biederman are available here:
-http://www.xmission.com/~ebiederm/files/kexec/
-
-Regards,
-Andy
-
-
+/fc

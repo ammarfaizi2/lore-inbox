@@ -1,79 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263377AbTDLTD7 (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 15:03:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263379AbTDLTD7 (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 15:03:59 -0400
-Received: from wooledge.org ([209.142.155.49]:19204 "HELO pegasus.wooledge.org")
-	by vger.kernel.org with SMTP id S263377AbTDLTD6 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Apr 2003 15:03:58 -0400
-Date: Sat, 12 Apr 2003 15:15:13 -0400
-From: Greg Wooledge <greg@wooledge.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: NFS client hangs when X is running (2.4.20)
-Message-ID: <20030412191512.GA21966@pegasus.wooledge.org>
-References: <20030411233132.GA15999@pegasus.wooledge.org> <shsfzoodpgy.fsf@charged.uio.no>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="G4iJoqBmSsgzjUCe"
-Content-Disposition: inline
-In-Reply-To: <shsfzoodpgy.fsf@charged.uio.no>
-User-Agent: Mutt/1.4i
-X-Operating-System: OpenBSD 3.2
-X-www.distributed.net: 128 packets (128.00 stats units) [2,849,911 keys/s]
+	id S263374AbTDLTAj (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 15:00:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbTDLTAj (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 15:00:39 -0400
+Received: from h-66-166-225-55.CMBRMAOR.covad.net ([66.166.225.55]:15918 "EHLO
+	baradas.org") by vger.kernel.org with ESMTP id S263374AbTDLTAi (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Apr 2003 15:00:38 -0400
+From: Peter Barada <peter@baradas.org>
+To: dank@kegel.com
+Cc: linux-kernel@vger.kernel.org, crossgcc@sources.redhat.com
+In-reply-to: <3E983288.9000000@kegel.com> (message from Dan Kegel on Sat, 12
+	Apr 2003 08:36:40 -0700)
+Subject: Re: gcc-2.95 broken on PPC?
+References: <3E983288.9000000@kegel.com>
+Message-Id: <20030412191222.9654A98990@baradas.org>
+Date: Sat, 12 Apr 2003 15:12:22 -0400 (EDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---G4iJoqBmSsgzjUCe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > The down side is that creating cross compilers from gcc 3.x is a lot
+> > harder unless you already have a cross compiled glibc from gcc 2.95.x
+> > in the proper paths.
+>
+>Yep.  I'm not looking forward to dealing with that.  Shame the gcc
+>team keeps making building cross compilers harder.
 
-Trond Myklebust (trond.myklebust@fys.uio.no) wrote:
+It isn't that hard to build a cross compiler straight from the 3.x
+sources; just takes an extra pass.  I've had pretty good luck building
+m68k-linux and ppc-linux cross C/C++ compilers from the sources, all I
+needed to do was to build a boostrap C compiler that is used to build
+glibc, and then come back and build a full up C/C++ compiler.  Check
+out the build script from Bill Gatliff's site:
 
-> Sounds very much like a network card driver problem.
+<http://crossgcc.billgatliff.com/build-crossgcc.sh>
 
-I don't think so, simply because this has happened to me on two
-compeletely different Linux systems.  One (griffon) has a 3c59x
-card, and the other (dwarf) had a tulip and an ne2k-pci.
-
-(Or did you mean on the server side?  The OpenBSD box is using two
-RTL 8139 cards.)
-
->      > [5.] nfs: server pegasus not responding, still trying However,
->      > this is erroneous.  Pegasus (the OpenBSD box) responds
->      > perfectly to ping, showmount -e, ssh and so on.  Any existing
->      > ssh connections to pegasus continue working, even ones I
->      > started in an rxvt window in the 15-30 second period when the
->      > NFS subsystem hadn't locked up yet.  No other errors are
->      > reported.
->=20
-> .... and a tcpdump would show?
-
-I haven't tried that yet, but after discussing this with another
-person who was having the same problems, we learned that OpenBSD's
-firewall (pf) was blocking the Linux packets when configured with
-"scrub in all" (which is recommended in the OpenBSD FAQs).
-
-After commenting out the "scrub in all" and rebooting back to 2.4.20,
-I have X and NFS working simultaneously.
-
---=20
-Greg Wooledge                  |   "Truth belongs to everybody."
-greg@wooledge.org              |    - The Red Hot Chili Peppers
-http://wooledge.org/~greg/     |
-
---G4iJoqBmSsgzjUCe
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (OpenBSD)
-
-iD8DBQE+mGXAkAkqAYpL9t8RAohjAKDF61A1hE7sJLmPDQOKINuSeD3legCgqc+1
-lntcJ+vDpzrdIpHXbz1HqA4=
-=Zkst
------END PGP SIGNATURE-----
-
---G4iJoqBmSsgzjUCe--
+-- 
+Peter Barada
+peter@baradas.org

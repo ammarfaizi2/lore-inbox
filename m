@@ -1,49 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261623AbTCGPWg>; Fri, 7 Mar 2003 10:22:36 -0500
+	id <S261632AbTCGP3o>; Fri, 7 Mar 2003 10:29:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261626AbTCGPWg>; Fri, 7 Mar 2003 10:22:36 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:5013 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S261623AbTCGPWf>; Fri, 7 Mar 2003 10:22:35 -0500
-Date: Fri, 7 Mar 2003 09:33:00 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: Roman Zippel <zippel@linux-m68k.org>, Greg KH <greg@kroah.com>,
-       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
-In-Reply-To: <3E68A1F3.2020006@zytor.com>
-Message-ID: <Pine.LNX.4.44.0303070928560.26430-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261634AbTCGP3o>; Fri, 7 Mar 2003 10:29:44 -0500
+Received: from mail.gmx.net ([213.165.64.20]:16527 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S261632AbTCGP3n>;
+	Fri, 7 Mar 2003 10:29:43 -0500
+Message-Id: <5.2.0.9.2.20030307164223.00c7de70@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Fri, 07 Mar 2003 16:44:50 +0100
+To: Ingo Molnar <mingo@elte.hu>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [patch] "interactivity changes", sched-2.5.64-B2
+Cc: Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0303071543480.12493-100000@localhost.localdo
+ main>
+References: <Pine.LNX.4.44.0303071049500.7326-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Mar 2003, H. Peter Anvin wrote:
+At 03:45 PM 3/7/2003 +0100, Ingo Molnar wrote:
 
-> Roman Zippel wrote:
-> > 
-> > You are avoiding my question. If something goes into the kernel, the 
-> > kernel license would be the obvious choice. Granting additional rights or 
-> > using a dual license is a relatively small problem. But you must certainly 
-> > have a reason to choose a completely different license?
-> > 
-> 
-> I gave my reason.  You chose not to accept it, but that's not my problem.
+>btw., could you please revert the kernel/softirq.c change, and re-test
+>-j25 interactivity with that patch? That way we'll know exactly which
+>component of -B2 caused the improvement on your box.
 
-Correct me, IANAL, but my understanding is that klibc will be dual 
-GPL/<whatever it is now> by inclusion into the kernel tree, after all the 
-whole purpose is to provide an initramfs which will be linked into vmlinux 
-(Yes, linked not in the normal sense, but still). 
+Done.  If either the softirq.c change or changing WAKER_BONUS_RATIO value 
+(25:50:75) make any difference at all with what I'm doing, it's too close 
+for me to tell.
 
-So it'd rather be similar to some parts of the kernel which are already
-dual licensed (parts of ACPI I think being the latest example), and
-patches will be assumed to be contributed under that dual license, unless
-explicitly stated otherwise.
-
-Or not?
-
---Kai
-
+         -Mike
 

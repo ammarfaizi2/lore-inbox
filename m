@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262902AbUAMBcK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 20:32:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbUAMBcJ
+	id S262827AbUAMBbW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 20:31:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbUAMBbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 20:32:09 -0500
-Received: from mta4-svc.business.ntl.com ([62.253.164.44]:56299 "EHLO
-	mta4-svc.business.ntl.com") by vger.kernel.org with ESMTP
-	id S262902AbUAMBcC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 20:32:02 -0500
-Date: Tue, 13 Jan 2004 01:31:03 +0000 (GMT)
-From: Bart Oldeman <bartoldeman@users.sourceforge.net>
-X-X-Sender: enbeo@enm-bo-lt.enm.bris.ac.uk
-To: Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org, <akpm@osdl.org>
-Subject: Re: [PATCH] 2.6.1 (not 2.4.24!) mremap fixes broke shm alias mappings
-In-Reply-To: <Pine.LNX.4.58.0401121632230.14305@evo.osdl.org>
-Message-ID: <Pine.LNX.4.44.0401130119490.21515-100000@enm-bo-lt.enm.bris.ac.uk>
+	Mon, 12 Jan 2004 20:31:22 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:42254 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S262827AbUAMBbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 20:31:21 -0500
+Date: Tue, 13 Jan 2004 09:30:06 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+X-X-Sender: <raven@wombat.indigo.net.au>
+To: Tim Hockin <thockin@hockin.org>
+cc: Mike Waychison <Michael.Waychison@Sun.COM>,
+       Jim Carter <jimc@math.ucla.edu>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [autofs] [RFC] Towards a Modern Autofs
+In-Reply-To: <20040112225023.GA21399@hockin.org>
+Message-ID: <Pine.LNX.4.33.0401130928480.10047-100000@wombat.indigo.net.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-5.5, required 8, AWL,
+	BAYES_10, EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT,
+	REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jan 2004, Linus Torvalds wrote:
+On Mon, 12 Jan 2004, Tim Hockin wrote:
 
-> On Sun, 11 Jan 2004, Bart Oldeman wrote:
+> On Mon, Jan 12, 2004 at 11:26:30AM -0500, Mike Waychison wrote:
+> > /usr   /man1   server:/usr/man1   \
+> >          /man2   server:/usr/man2
 > >
-> > DOSEMU needs to alias memory, for instance to emulate the HMA. A long time
-> > ago this was done using mmaps of /proc/self/mem. This was replaced by
-> > mremap combined with IPC SHM during 2.1 development.
+> > is the same as the two distinct entries:
 > >
-> > According to DOSEMUs changelog you agreed to allow old_len==0:
-> >             - using _one_ big IPC shm segment and mremap(addr, 0 ...)
-> >               (Linus agreed on keeping shmat()+mremap(,0,..) functionality)
-> > so you agreed on something you have removed after all now!
+> > /usr/man1   server:/usr/man1
+> > /usr/man2   server:/usr/man2
+> >
+> > Now that I think about it, the discussion in my proposal paper about
+> > multimounts with no root offsets probably isn't required.
 >
-> Hey, I wouldn't remember all the special cases that aren't commented. But
-> I agree that a zero "old_len" is not bad in itself, and if DOSEMU uses it,
-> let's just continue to support it, and document it while we're at it.
+> The latter requires /usr/man1 and /usr/man2 to exist.  The former only
+> requires /usr to exist, right?
 >
-> So if this makes DOSEMU happy again, let's do it..
->
-> Pls confirm.
 
-sure, it's fine this way. Thanks!
+That's one possibility, but man1 and man2 could simply not call filler in
+the readdir call.
 
-We've already been discussing and playing with a cleaner alternative to
-mremap that works too (mmap'ing a file on tmpfs, perhaps via
-shm_open()). It's just that it's difficult to explain to users why DOSEMU
-worked on 2.6.0 and suddenly stopped working with the same configuration
-on 2.6.1.
+Ian
 
--- the consensus amongst DOSEMU developers seems to be that you should
-feel free to disallow this funny old_len==0 case in 2.7 if you like.
-
-Bart
 

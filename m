@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268616AbRG3OPu>; Mon, 30 Jul 2001 10:15:50 -0400
+	id <S268609AbRG3OPa>; Mon, 30 Jul 2001 10:15:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268614AbRG3OPl>; Mon, 30 Jul 2001 10:15:41 -0400
-Received: from mta02-svc.ntlworld.com ([62.253.162.42]:30598 "EHLO
-	mta02-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S268612AbRG3OPb>; Mon, 30 Jul 2001 10:15:31 -0400
-Date: Mon, 30 Jul 2001 15:15:38 +0100
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Kurt Garloff <garloff@suse.de>, Daniela Engert <dani@ngrt.de>
-Subject: Re: VIA KT133A / athlon / MMX
-Message-ID: <20010730151538.A5600@debian>
-Mail-Followup-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Kurt Garloff <garloff@suse.de>, Daniela Engert <dani@ngrt.de>
-In-Reply-To: <20010729222830.A25964@pckurt.casa-etp.nl> <20010730125012Z268576-720+7896@vger.kernel.org> <20010730154458.C4859@pckurt.casa-etp.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010730154458.C4859@pckurt.casa-etp.nl>
-User-Agent: Mutt/1.3.18i
-From: Michael <leahcim@ntlworld.com>
+	id <S268614AbRG3OPU>; Mon, 30 Jul 2001 10:15:20 -0400
+Received: from nbd.it.uc3m.es ([163.117.139.192]:59396 "EHLO nbd.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S268609AbRG3OPH>;
+	Mon, 30 Jul 2001 10:15:07 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200107301414.QAA01744@nbd.it.uc3m.es>
+Subject: Re: what's the semaphore in requests for?
+X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
+In-Reply-To: <20010730102418.G1981@suse.de> "from Jens Axboe at Jul 30, 2001
+ 10:24:18 am"
+To: Jens Axboe <axboe@suse.de>
+Date: Mon, 30 Jul 2001 16:14:53 +0200 (CEST)
+CC: linux kernel <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL89 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> > On Sun, 29 Jul 2001 22:28:30 +0200, Kurt Garloff wrote:
-> > [54:6]=Probe Next Tag State T1	0=disable   1=enable
-> 
-> Main suspect. (Should be 0)
+"Jens Axboe wrote:"
+> http://asimov.lib.uaa.alaska.edu/linux-kernel/archive/2001-Week-30/0165.html
 
-That's set in my stable kt133a system.
- 
-> > [54:0]=Fast Write-to-Read	0=disable   1=enable
-> 
-> Third candidate. (Should be 0)
+You say there [of the semaphore field in requests]:
 
-as is this one.
- 
-> > [68:2]=Burst Refresh(4 times)	0=disable   1=enable
-> 
-> Fourth candidate (Should be 0?)
+  Drivers can use it if they want completion to be signalled for a request 
+  (see end_that_request_last). However, see 2.4.7 where it's not ->waiting 
+  and the interface changed. 
 
-I set this one yesterday to see if it would trigger the problem, it
-didn't :o/ Same with a few differences between my system and 0x6b, which
-didn't either.
+end_that_request_ up's the semaphore if it's nonnull, but for that to make
+sense, someone must down it. Nobody does (in ll_rw_blk.c), So I assume it's
+entirely for my use in controlling access to the request.
 
-Out of curiosity, where are you getting the 'should be 0/1' details from?
--- 
-Michael.
- 
+So I don't believe it's involved in my problem.
+
+
+> > 2 processors + 1 userspace helper daemon on device = no bug 
+> > 2 processors + 2 userspace helper daemon on device = bug  (lockup)
+> > 1 processors + 1 userspace helper daemon on device = no bug 
+> > 1 processors + 2 userspace helper daemon on device = no bug 
+
+> And I'll restate here what I said then too -- SHOW THE CODE! Or send me
+> a crystal ball and I'll be happy to solve your races for you.
+
+Crystal balls would be nice. I'll see if I can get it down to something
+sendable. I can confirm the above results since I tried them again. After
+about 1.2GB of transfers, one cpu ended up not listening to NMI and the
+other was stuck in a spinlock (__down_writelock_failed, from memory),
+having called my request fn from the generic_unplug_device function,
+which in turn called a write spinlock on the device private request
+queue. The spinlocks aren't around sections of code that can sleep.
+
+Peter

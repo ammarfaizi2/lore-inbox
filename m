@@ -1,29 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261613AbTCGOyv>; Fri, 7 Mar 2003 09:54:51 -0500
+	id <S261630AbTCGPA3>; Fri, 7 Mar 2003 10:00:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261653AbTCGOyu>; Fri, 7 Mar 2003 09:54:50 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:47110 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S261613AbTCGOyu>; Fri, 7 Mar 2003 09:54:50 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200303071506.h27F6egj001846@81-2-122-30.bradfords.org.uk>
-Subject: Re: Make ipconfig.c work as a loadable module.
-To: linux@discworld.dyndns.org (Charles Cazabon)
-Date: Fri, 7 Mar 2003 15:06:40 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030307084357.A10344@discworld.dyndns.org> from "Charles Cazabon" at Mar 07, 2003 08:43:57 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S261623AbTCGPA3>; Fri, 7 Mar 2003 10:00:29 -0500
+Received: from apollo.sot.com ([195.74.13.237]:46097 "EHLO vscan.sot.com")
+	by vger.kernel.org with ESMTP id <S261612AbTCGPA2>;
+	Fri, 7 Mar 2003 10:00:28 -0500
+Date: Fri, 7 Mar 2003 17:13:48 +0200 (EET)
+From: Vadim Nekhoroshev <vn@sot.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-scsi@vger.kernel.org
+Subject: module aacraid 0.9.10dmb halt system
+Message-ID: <Pine.LNX.4.44.0303071710100.30229-100000@ares.sot.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Anything built static against glibs tends to be 400K+.
-> 
-> So don't use glibc.  Link staticly against diet-libc or klibc.
+I'm running aacraid module on kernel version 2.4.19, compiling with 
+support, SMP and system halt. If i running this module on kernel, 
+compiling without support SMP, all work fine.
 
-Or newlib.
+What are ideas ?
 
-John.
+Thanks,
+Vadim
+

@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131197AbRANKlX>; Sun, 14 Jan 2001 05:41:23 -0500
+	id <S131953AbRANKpe>; Sun, 14 Jan 2001 05:45:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131953AbRANKlO>; Sun, 14 Jan 2001 05:41:14 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:27556 "EHLO
-	fungus.svenskatest.se") by vger.kernel.org with ESMTP
-	id <S131197AbRANKlH>; Sun, 14 Jan 2001 05:41:07 -0500
-Date: Sun, 14 Jan 2001 11:40:57 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-To: "Mike A. Harris" <mharris@opensourceadvocate.org>
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: eth1: Transmit timed out, status 0000, PHY status 0000
-In-Reply-To: <Pine.LNX.4.31.0101130334190.716-100000@asdf.capslock.lan>
-Message-ID: <Pine.LNX.4.30.0101141132100.22034-100000@cola.teststation.com>
+	id <S132013AbRANKpX>; Sun, 14 Jan 2001 05:45:23 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:8198 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S131953AbRANKpS>; Sun, 14 Jan 2001 05:45:18 -0500
+Date: Sun, 14 Jan 2001 10:45:02 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Keith Owens <kaos@ocs.com.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Where did vm_operations_struct->unmap in 2.4.0 go? 
+In-Reply-To: <13920.979466751@ocs3.ocs-net>
+Message-ID: <Pine.LNX.4.30.0101141041160.4887-100000@imladris.demon.co.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Jan 2001, Mike A. Harris wrote:
+On Sun, 14 Jan 2001, Keith Owens wrote:
 
-> Becker's latest via-rhine driver ontop 2.2.18..
->
-> ...
-> eth1: Transmit timed out, status 0000, PHY status 0000,
-> resetting...
-[snip]
-> Keeps going nonstop until I ifdown eth1.
->
-> Card worked fine 2 days ago...
+> Note I said allowed, not supported.  I refuse to support any binary
+> only modules, my standard response to problems logged against binary
+> modules is "remove them and reproduce the problem".  Checking for ABI
+> violations is not supporting binary modules, it is detecting that they
+> are stuffed and telling the user to go pester their supplier instead of
+> polluting l-k with questions that will be ignored.
 
-So what did you change?
-Has the machine been up since then?
+Sensible. As long as it doesn't give rise to reports of the type "modutils
+didn't whinge so it's not the binary-only module's fault."
 
+-- 
+dwmw2
 
-Someone else with the same symptoms (in 2.4)
-    http://www.uwsg.iu.edu/hypermail/linux/net/0011.0/0027.html
-
-Becker's reply
-    http://www.uwsg.iu.edu/hypermail/linux/net/0011.0/0032.html
-
-"Try unplugging the system and doing a really cold boot. A soft-off does
- not reset the chip.
-
- If this solves the problem, we will have to add code to re-load the
- EEPROM info into the chip."
-
-
-There is no further reply in that thread.
-
-/Urban
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

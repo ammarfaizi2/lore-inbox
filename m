@@ -1,39 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269546AbRHHVfc>; Wed, 8 Aug 2001 17:35:32 -0400
+	id <S269568AbRHHVmZ>; Wed, 8 Aug 2001 17:42:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269568AbRHHVfW>; Wed, 8 Aug 2001 17:35:22 -0400
-Received: from umail.unify.com ([204.163.170.2]:23772 "EHLO umail.unify.com")
-	by vger.kernel.org with ESMTP id <S269546AbRHHVfN>;
-	Wed, 8 Aug 2001 17:35:13 -0400
-Message-ID: <419E5D46960FD211A2D5006008CAC79902E5C425@pcmailsrv1.sac.unify.com>
-From: "Manuel A. McLure" <mmt@unify.com>
-To: "'Mark Hahn'" <hahn@physics.mcmaster.ca>, jury gerold <geroldj@grips.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Athlon/MSI mobo combo broken?
-Date: Wed, 8 Aug 2001 14:35:07 -0700 
+	id <S269569AbRHHVmO>; Wed, 8 Aug 2001 17:42:14 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31758 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269568AbRHHVl5>; Wed, 8 Aug 2001 17:41:57 -0400
+Subject: Re: How does "alias ethX drivername" in modules.conf work?
+To: rhw@MemAlpha.CX (Riley Williams)
+Date: Wed, 8 Aug 2001 22:42:47 +0100 (BST)
+Cc: ankry@pg.gda.pl (Andrzej Krzysztofowicz), mra@pobox.com (Mark Atwood),
+        soruk@eridani.co.uk (Michael McConnell),
+        linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <Pine.LNX.4.33.0108082211410.12565-100000@infradead.org> from "Riley Williams" at Aug 08, 2001 10:31:02 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Ub6F-00068c-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> so far, the only plausible theory is that some individual factor(s)
-> (MB, bios settings, power quality, dram quality, etc) causes 
-> the instability that some people report.
- 
+One point to remind people of here. You can runtime rename interfaces.
+Almost all the needed kernel infrastructure is there already.
 
-Let me add my voice to the crowd. I have the same MSI K7T Turbo with an
-Athlon TBird 900MHz and 256M of PC133 SDRAM, and kernel 2.4.6 runs
-rock-stable on it. However, 2.4.7 hangs hard after a day or so of uptime -
-no response to pings, can't switch from X to a virtual console, etc. Sysrq-B
-will reboot, but other Sysrq-keys (like Sysrq-S or Sysrq-U) don't seem to
-work. Unfortunately I am invariably in X when this happens so I don't get to
-see ant OOPS text, and there is no OOPS information in the system log after
-the reboot.
-
---
-Manuel A. McLure - Unify Corp. Technical Support <mmt@unify.com>
-Zathras is used to being beast of burden to other peoples needs. Very sad
-life. Probably have very sad death, but at least there is symmetry.
+Alan

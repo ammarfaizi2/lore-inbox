@@ -1,154 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267637AbTAQTRT>; Fri, 17 Jan 2003 14:17:19 -0500
+	id <S267641AbTAQTSQ>; Fri, 17 Jan 2003 14:18:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267641AbTAQTRT>; Fri, 17 Jan 2003 14:17:19 -0500
-Received: from noose.gt.owl.de ([62.52.19.4]:37639 "EHLO noose.gt.owl.de")
-	by vger.kernel.org with ESMTP id <S267637AbTAQTQw>;
-	Fri, 17 Jan 2003 14:16:52 -0500
-Date: Fri, 17 Jan 2003 20:25:43 +0100
-From: Florian Lohoff <flo@rfc822.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: eepro100 - 802.1q - mtu size
-Message-ID: <20030117192542.GA2515@paradigm.rfc822.org>
-References: <20030117145357.GA1139@paradigm.rfc822.org> <20030117160840.GR12676@stingr.net> <20030117162818.GA1074@gtf.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
-Content-Disposition: inline
-In-Reply-To: <20030117162818.GA1074@gtf.org>
-User-Agent: Mutt/1.3.28i
-Organization: rfc822 - pure communication
+	id <S267644AbTAQTSQ>; Fri, 17 Jan 2003 14:18:16 -0500
+Received: from mailb.telia.com ([194.22.194.6]:52680 "EHLO mailb.telia.com")
+	by vger.kernel.org with ESMTP id <S267641AbTAQTSJ>;
+	Fri, 17 Jan 2003 14:18:09 -0500
+X-Original-Recipient: <linux-kernel@vger.kernel.org>
+Message-ID: <002801c2be5e$675e1ee0$4fc8a8c0@NERV.NERV>
+Reply-To: "Zydox" <Zydox@Smurfa.com>
+From: "Zydox" <Zydox@Smurfa.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: kernel BUG at revoke.c:329!
+Date: Fri, 17 Jan 2003 20:26:58 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This was what happend when I ran this serie of commands on a ramdisk...
 
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+mkfs -t ext3 /dev/ram0
+tune2fs -r 0 /dev/ram0
+mount /dev/ram0 /mnt/www
+rm /mnt/www/* -rf
+umount /mnt/www
+mkfs -t ext3 /dev/ram0
+tune2fs -r 0 /dev/ram0
+mount /dev/ram0 /mnt/www
+rm /mnt/www/* -rf
 
-On Fri, Jan 17, 2003 at 11:28:18AM -0500, Jeff Garzik wrote:
-> Regardless, people still use eepro100, so I would still like to get
-> eepro100 doing VLAN.
->=20
-> The reason why the patch was not accepted is that it changes one magic
-> number to another magic number, and without chipset docs, I had no idea
-> what either magic number really meant.
+Jan 17 20:18:45 Balthasar-2 kernel: kjournald starting.  Commit interval 5
+seconds
+Jan 17 20:18:45 Balthasar-2 kernel: EXT3 FS 2.4-0.9.18, 14 May 2002 on
+ramdisk(1,0), internal journal
+Jan 17 20:18:45 Balthasar-2 kernel: EXT3-fs: mounted filesystem with ordered
+data mode.
+Jan 17 20:19:03 Balthasar-2 kernel: kjournald starting.  Commit interval 5
+seconds
+Jan 17 20:19:03 Balthasar-2 kernel: EXT3 FS 2.4-0.9.18, 14 May 2002 on
+ramdisk(1,0), internal journal
+Jan 17 20:19:03 Balthasar-2 kernel: EXT3-fs: mounted filesystem with ordered
+data mode.
+Jan 17 20:19:03 Balthasar-2 kernel: Assertion failure in
+journal_revoke_Rsmp_c9928903() at revoke.c:329: "!(__builtin_constant_p(BH$
+Jan 17 20:19:03 Balthasar-2 kernel: ------------[ cut here ]------------
+Jan 17 20:19:03 Balthasar-2 kernel: kernel BUG at revoke.c:329!
+Jan 17 20:19:03 Balthasar-2 kernel: invalid operand: 0000
+Jan 17 20:19:03 Balthasar-2 kernel: nfsd lockd sunrpc 3c59x iptable_filter
+ip_tables ext3 jbd
+Jan 17 20:19:03 Balthasar-2 kernel: CPU:    1
+Jan 17 20:19:03 Balthasar-2 kernel: EIP:    0010:[<f082bf3c>]    Not tainted
+Jan 17 20:19:03 Balthasar-2 kernel: EFLAGS: 00010282
+Jan 17 20:19:03 Balthasar-2 kernel:
+Jan 17 20:19:03 Balthasar-2 kernel: EIP is at journal_revoke_Rsmp_c9928903
+[jbd] 0x13c (2.4.18-14smp)
+Jan 17 20:19:03 Balthasar-2 kernel: eax: 000000d0   ebx: ec319ec0   ecx:
+00000097   edx: ec2cdd60
+Jan 17 20:19:03 Balthasar-2 kernel: esi: ef5b3400   edi: ec319ec0   ebp:
+c1a99860   esp: ec2cddc0
+Jan 17 20:19:03 Balthasar-2 kernel: ds: 0018   es: 0018   ss: 0018
+Jan 17 20:19:03 Balthasar-2 kernel: Process rm (pid: 797,
+stackpage=ec2cd000)
+Jan 17 20:19:03 Balthasar-2 kernel: Stack: f08304a0 f082ef2b f082eec0
+00000149 f0830520 ecdfc164 ecdfc040 c1a99860
+Jan 17 20:19:03 Balthasar-2 kernel:        c1a99860 f0838ad4 c1a99860
+00000104 ec319ec0 00000103 00000400 00000001
+Jan 17 20:19:03 Balthasar-2 kernel:        00000000 ecdfc164 ecdfc164
+00000104 ec2cc000 f083b239 c1a99860 00000000
+Jan 17 20:19:03 Balthasar-2 kernel: Call Trace: [<f08304a0>] .rodata.str1.32
+[jbd] 0x12e0 (0xec2cddc0))
+Jan 17 20:19:03 Balthasar-2 kernel: [<f082ef2b>] .rodata.str1.1 [jbd] 0x48b
+(0xec2cddc4))
+Jan 17 20:19:03 Balthasar-2 kernel: [<f082eec0>] .rodata.str1.1 [jbd] 0x420
+(0xec2cddc8))
+Jan 17 20:19:03 Balthasar-2 kernel: [<f0830520>] .rodata.str1.32 [jbd]
+0x1360 (0xec2cddd0))
+Jan 17 20:19:03 Balthasar-2 kernel: [<f0838ad4>] ext3_forget [ext3] 0x94
+(0xec2cdde4))
+Jan 17 20:19:04 Balthasar-2 kernel: [<f083b239>] ext3_clear_blocks [ext3]
+0x119 (0xec2cde14))
+Jan 17 20:19:04 Balthasar-2 kernel: [<f082863f>] __journal_file_buffer [jbd]
+0x1bf (0xec2cde44))
+Jan 17 20:19:04 Balthasar-2 kernel: [<f083b45b>] ext3_free_data [ext3] 0x16b
+(0xec2cde5c))
+Jan 17 20:19:04 Balthasar-2 kernel: [<f0838c04>] start_transaction [ext3]
+0x94 (0xec2cde9c))
+Jan 17 20:19:04 Balthasar-2 kernel: [<f083bbc8>] ext3_truncate [ext3] 0x478
+(0xec2cdeb4))
+Jan 17 20:19:04 Balthasar-2 kernel: [<f082624a>] start_this_handle [jbd]
+0xaa (0xec2cded0))
+Jan 17 20:19:04 Balthasar-2 kernel: [<f0826445>] journal_start_Rsmp_36a229d3
+[jbd] 0xa5 (0xec2cdefc))
+Jan 17 20:19:04 Balthasar-2 kernel: [<f0827b9e>] journal_stop_Rsmp_691ba086
+[jbd] 0x17e (0xec2cdf10))
+Jan 17 20:19:04 Balthasar-2 kernel: [<f0838c04>] start_transaction [ext3]
+0x94 (0xec2cdf20))
+Jan 17 20:19:04 Balthasar-2 kernel: [<f0838dd9>] ext3_delete_inode [ext3]
+0x159 (0xec2cdf38))
+Jan 17 20:19:04 Balthasar-2 kernel: [<f0838c80>] ext3_delete_inode [ext3]
+0x0 (0xec2cdf4c))
+Jan 17 20:19:04 Balthasar-2 kernel: [<c0163969>] iput [kernel] 0x149
+(0xec2cdf54))
+Jan 17 20:19:04 Balthasar-2 kernel: [<c0160c39>] dput [kernel] 0xb9
+(0xec2cdf70))
+Jan 17 20:19:04 Balthasar-2 kernel: [<c01589f9>] sys_rmdir [kernel] 0xf9
+(0xec2cdf84))
+Jan 17 20:19:04 Balthasar-2 kernel: [<c0109437>] system_call [kernel] 0x33
+(0xec2cdfc0))
+Jan 17 20:19:04 Balthasar-2 kernel:
+Jan 17 20:19:04 Balthasar-2 kernel:
+Jan 17 20:19:04 Balthasar-2 kernel: Code: 0f 0b 49 01 c0 ee 82 f0 e9 54 ff
+ff ff 89 04 24 8b 44 24 2c
 
-I did the basic decoding of the config block - The result from looking
-at the gdb output is the same except the IP ARP Filter basic address
-which is now the documentations recommended default value and some
-mandatory bits which are filled.
-
-I also set the LONGRCV option which enables to use VLANs.
-
-I tried this patch which is against 2.4.20 with IPv4, IPv6, 802.1q and
-DHCP so i'd say full feature test ;). I did not try 82557 which
-might need different initialization as some bits are unused but that
-problem persists from before this change.
+// Regards Zydox
+   Zydox@Smurfa.com
 
 
-
---- drivers/net/eepro100.c-vanilla	Fri Jan 17 20:18:17 2003
-+++ drivers/net/eepro100.c	Fri Jan 17 20:19:39 2003
-@@ -496,19 +496,66 @@
- #endif
- };
-=20
--/* The parameters for a CmdConfigure operation.
--   There are so many options that it would be difficult to document each b=
-it.
--   We mostly use the default or recommended settings. */
--static const char i82557_config_cmd[CONFIG_DATA_SIZE] =3D {
--	22, 0x08, 0, 0,  0, 0, 0x32, 0x03,  1, /* 1=3DUse MII  0=3DUse AUI */
--	0, 0x2E, 0,  0x60, 0,
--	0xf2, 0x48,   0, 0x40, 0xf2, 0x80, 		/* 0x40=3DForce full-duplex */
--	0x3f, 0x05, };
-+#define i55x_CB1_TXFIFO_LIMIT(x)	((x)<<4)
-+#define i55x_CB1_RXFIFO_LIMIT(x)	((x)&0xf)
-+
-+#define i55x_CB3_MWIENABLE		(1<<0)
-+
-+#define i55x_CB6_EXTSTATCOUNT		(1<<5)
-+#define i55x_CB6_MANDBITS		(1<<1)
-+
-+#define i55x_CB7_DISCARDSHORT		(1<<0)
-+#define	i55x_CB7_UNDERRUNRETRY(x)	((x)<<1)
-+
-+#define i557_CB8_USEMII			(1<<0)
-+#define i558_CB8_MANDBITS		i557_CB8_USEMII
-+
-+#define i55x_CB10_MANDBITS		(3<<1)
-+#define i55x_CB10_PREAMBLELEN(x)	((x&3)<<4)
-+#define i55x_CB10_NSAI			(1<<3)
-+
-+#define i55x_CB12_INTERFRAMESPACE(x)	((x)<<4)
-+
-+#define i558_CB15_MANDBITS		(1<<3|1<<6)
-+#define i559_CB16_CRC16			(1<<5)
-+
-+#define i558_CB18_MANDBITS		(1<<7)
-+#define i558_CB18_FCTHRESH(x)		((x&7)<<4)
-+#define i558_CB18_LONGRCV		(1<<3)
-+#define i55x_CB18_PAD			(1<<1)
-+
-+#define i558_CB19_TXFC			(1<<2)
-+#define i558_CB19_AUTOFDX		(1<<7)
-+
-+#define i558_CB20_PRIFCLOC		(1<<5)
-+#define i558_CB20_MANDBITS		(0x1f)
-+
-+#define i558_CB21_MANDBITS		(0x05)
-+
- static const char i82558_config_cmd[CONFIG_DATA_SIZE] =3D {
--	22, 0x08, 0, 1,  0, 0, 0x22, 0x03,  1, /* 1=3DUse MII  0=3DUse AUI */
--	0, 0x2E, 0,  0x60, 0x08, 0x88,
--	0x68, 0, 0x40, 0xf2, 0x84,		/* Disable FC */
--	0x31, 0x05, };
-+	CONFIG_DATA_SIZE,			=09
-+	i55x_CB1_TXFIFO_LIMIT(0)|i55x_CB1_RXFIFO_LIMIT(8),=09
-+	0,	=09
-+	i55x_CB3_MWIENABLE,
-+	0,		=09
-+	0,			=09
-+	i55x_CB6_EXTSTATCOUNT|i55x_CB6_MANDBITS,
-+	i55x_CB7_UNDERRUNRETRY(1)|i55x_CB7_DISCARDSHORT,
-+	i558_CB8_MANDBITS,			=09
-+	0,
-+	i55x_CB10_MANDBITS|i55x_CB10_NSAI|i55x_CB10_PREAMBLELEN(2),
-+	0,
-+	i55x_CB12_INTERFRAMESPACE(6),
-+	0x00,							/* cb 13 - ARP Filter IP Address Low */
-+	0xf2,							/* cb 14 - ARP Filter IP Address High */
-+	i558_CB15_MANDBITS|i559_CB16_CRC16,		=09
-+	0,							/* cb 16 - FC Delay - LSB */
-+	0x40,							/* cb 17 - FC Delay - MSB */
-+	i558_CB18_MANDBITS|i558_CB18_FCTHRESH(7)|i558_CB18_LONGRCV|i55x_CB18_PAD,
-+	i558_CB19_TXFC|i558_CB19_AUTOFDX,	=09
-+	i558_CB20_PRIFCLOC|i558_CB20_MANDBITS,
-+	i558_CB21_MANDBITS,
-+	};
-=20
- /* PHY media interface chips. */
- static const char *phys[] =3D {
-
---=20
-Florian Lohoff                  flo@rfc822.org             +49-5201-669912
-                        Heisenberg may have been here.
-
---AhhlLboLdkugWU4S
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD4DBQE+KFi2Uaz2rXW+gJcRAo+SAJ9qjM5WAq9RGxrHVsZALQPqn2H90ACWOIYf
-mB/dbT2H7tITukJnCP9R/w==
-=Shzu
------END PGP SIGNATURE-----
-
---AhhlLboLdkugWU4S--

@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbVCTJvt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262061AbVCTKCK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbVCTJvt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 04:51:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbVCTJvt
+	id S262061AbVCTKCK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 05:02:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbVCTKCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 04:51:49 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:29336 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262075AbVCTJvn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 04:51:43 -0500
-Date: Sun, 20 Mar 2005 10:51:41 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] disable builtin modules
-In-Reply-To: <20050319230648.19238.42743.71351@clementine.local>
-Message-ID: <Pine.LNX.4.61.0503201049190.24849@yvahk01.tjqt.qr>
-References: <20050319230648.19238.42743.71351@clementine.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)
+	Sun, 20 Mar 2005 05:02:10 -0500
+Received: from lyle.provo.novell.com ([137.65.81.174]:50092 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S262061AbVCTKCH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 05:02:07 -0500
+Date: Sun, 20 Mar 2005 02:01:49 -0800
+From: Greg KH <gregkh@suse.de>
+To: Panagiotis Issaris <takis@lumumba.luc.ac.be>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.11.5
+Message-ID: <20050320100149.GA9694@suse.de>
+References: <20050319233209.A3125@lumumba.luc.ac.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050319233209.A3125@lumumba.luc.ac.be>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Mar 19, 2005 at 11:32:09PM +0100, Panagiotis Issaris wrote:
+> Hi Greg,
+> 
+> The changelog states that the patches for the AMD8111e and VIA-Rhine
+> originated from dilinger<at>debian.org although I was the one who they
+> originated from.
+> 
+> http://article.gmane.org/gmane.linux.kernel/282245
+> http://article.gmane.org/gmane.linux.kernel/282263
+> 
+> <dilinger:debian.org>:
+>   o Possible AMD8111e free irq issue
+>   o Possible VIA-Rhine free irq issue
 
->This patch makes it possible to disable built in code from the kernel
->command line. The patch is rather simple - it extends the compiled-in case 
->of module_init() to include __setup() with a name based on KBUILD_MODNAME.
+Sorry about that.  Trying to properly reference original authors when
+patches are forwarded from different sources is a tough task.
 
-What if there is already an option like the modname? I do not know of any 
-code that currently does so, but you never know.
+thanks for being understanding about it.
 
-Are acpi= and apm= already what your patch wants to extend to other modules?
-If not, there's conflict.
-
-
-
-Jan Engelhardt
--- 
+greg k-h

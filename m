@@ -1,62 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263131AbUK0AQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263127AbUK0APq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263131AbUK0AQY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 19:16:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263133AbUK0AQL
+	id S263127AbUK0APq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 19:15:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263131AbUK0ALs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 19:16:11 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:30724 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S263107AbUK0ANQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 19:13:16 -0500
-Message-ID: <41A7C68D.3060302@domdv.de>
-Date: Sat, 27 Nov 2004 01:13:01 +0100
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040918
-X-Accept-Language: en-us, en, de
-MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: Matthew Wilcox <matthew@wil.cx>, Alexandre Oliva <aoliva@redhat.com>,
-       dhowells <dhowells@redhat.com>, torvalds@osdl.org, hch@infradead.org,
-       linux-kernel@vger.kernel.org, libc-alpha@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-References: <19865.1101395592@redhat.com>	 <orvfbtzt7t.fsf@livre.redhat.lsd.ic.unicamp.br>	 <20041125210137.GD2849@parcelfarce.linux.theplanet.co.uk> <1101422103.19141.0.camel@localhost.localdomain>
-In-Reply-To: <1101422103.19141.0.camel@localhost.localdomain>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Nov 2004 19:11:48 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28903 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263135AbUK0AHP
+	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 19:07:15 -0500
+Date: Fri, 26 Nov 2004 16:58:33 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
+       Andrew Morton <AKPM@Osdl.ORG>,
+       Linux MM Mailing List <linux-mm@kvack.org>
+Subject: Re: [PATCH]: 1/4 batch mark_page_accessed()
+Message-ID: <20041126185833.GA7740@logos.cnet>
+References: <16800.47044.75874.56255@gargle.gargle.HOWL>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16800.47044.75874.56255@gargle.gargle.HOWL>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
-> On Thu, 2004-11-25 at 21:01 +0000, Matthew Wilcox wrote:
+On Sun, Nov 21, 2004 at 06:44:04PM +0300, Nikita Danilov wrote:
+> Batch mark_page_accessed() (a la lru_cache_add() and lru_cache_add_active()):
+> page to be marked accessed is placed into per-cpu pagevec
+> (page_accessed_pvec). When pagevec is filled up, all pages are processed in a
+> batch.
 > 
->>I'm not particularly stuck on the <user/> namespace.  We could invent
->>a better name.  How about <kern/> and <arch/> to replace <linux/>
->>and <asm/>?  Obviously keeping linux/ and asm/ symlinks for backwards
->>compatibility.
-> 
-> 
-> There's no _real_ need to keep them. All we need to fix is a handful of
-> libc implementations; anything else using them was broken anyway.
-> 
-<rant mode>
+> This is supposed to decrease contention on zone->lru_lock.
 
-Cute idea. So any new definition which is supposed to be used in 
-userspace will take at least a year to propagate - well, I know, one can 
-always look for the definition in the kernel headers, copy it, ...
-Now this is no solution.
+Here are the STP 8way results:
 
-And how do you want to deal with the fact that up to now all the 
-netfilter headers required for userspace programming live in the kernel 
-include tree? Now this has been like this for quite some years. Shall 
-one no longer use netfilter?
+8way:
 
-It is easy to be happy with the status quo and to reject any attempt to 
-change things for the better. If you really wanted to fix (g)libc you 
-would have taken action long ago. You're around for long enough.
+reaim default (database IO intensive load), increases performance _significantly_:
+------------------------------------------
+kernel: patch-2.6.10-rc2
+Peak load Test: Maximum Jobs per Minute 8491.96 (average of 3 runs)
+Quick Convergence Test: Maximum Jobs per Minute 8326.23 (average of 3 runs)
 
-</rant mode>
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+kernel: nikita-b2
+Peak load Test: Maximum Jobs per Minute 9039.56 (average of 3 runs)
+Quick Convergence Test: Maximum Jobs per Minute 8325.09 (average of 3 runs)
+
+
+reaim -w compute (compute intensive load), decreases performance:
+-----------------------------------------
+kernel: patch-2.6.10-rc2
+Peak load Test: Maximum Jobs per Minute 9591.82 (average of 3 runs)
+Quick Convergence Test: Maximum Jobs per Minute 9359.76 (average of 3 runs)
+
+kernel: nikita-b2
+Peak load Test: Maximum Jobs per Minute 9533.34 (average of 3 runs)
+Quick Convergence Test: Maximum Jobs per Minute 9324.25 (average of 3 runs)
+
+kernbench 
+
+Decreases performance significantly (on -j4 more notably), probably due to 
+the additional atomic operations as noted by Andrew:
+
+kernel: nikita-b2                               kernel: patch-2.6.10-rc2
+Host: stp8-002                                  Host: stp8-003
+
+Average Optimal -j 32 Load Run:                 Average Optimal -j 32 Load Run:
+Elapsed Time 130                                Elapsed Time 129.562
+User Time 872.816                               User Time 871.898
+System Time 88.978                              System Time 87.346
+Percent CPU 739.2                               Percent CPU 739.8
+Context Switches 35111.4                        Context Switches 34973.2
+Sleeps 28182.6                                  Sleeps 28465.2
+
+Average Maximal -j Load Run:                    Average Maximal -j Load Run:
+Elapsed Time 128.862                            Elapsed Time 128.334
+User Time 868.234                               User Time 867.702
+System Time 86.888                              System Time 85.318
+Percent CPU 740.6                               Percent CPU 742.2
+Context Switches 27278.2                        Context Switches 27210
+Sleeps 19889                                    Sleeps 19898.4
+
+Average Half Load -j 4 Run:                     Average Half Load -j 4 Run:
+Elapsed Time 274.916                            Elapsed Time 245.026
+User Time 833.63                                User Time 832.34
+System Time 73.704                              System Time 73.41
+Percent CPU 335.8                               Percent CPU 373.6
+Context Switches 12984.8                        Context Switches 13427.4
+Sleeps 21459.2                                  Sleeps 21642
+
+

@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVA0VWY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbVA0VWX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbVA0VWY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 16:22:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVA0VT7
+	id S261209AbVA0VWX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 16:22:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbVA0VUM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 16:19:59 -0500
-Received: from holomorphy.com ([66.93.40.71]:63419 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261182AbVA0VN3 (ORCPT
+	Thu, 27 Jan 2005 16:20:12 -0500
+Received: from fw.osdl.org ([65.172.181.6]:33258 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261213AbVA0VRh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 16:13:29 -0500
-Date: Thu, 27 Jan 2005 13:13:19 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rik van Riel <riel@redhat.com>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Mikael Pettersson <mikpe@csd.uu.se>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, James Antill <james.antill@redhat.com>,
-       Bryn Reeves <breeves@redhat.com>
-Subject: Re: don't let mmap allocate down to zero
-Message-ID: <20050127211319.GN10843@holomorphy.com>
-References: <Pine.LNX.4.61.0501261116140.5677@chimarrao.boston.redhat.com> <20050126172538.GN10843@holomorphy.com> <20050127050927.GR10843@holomorphy.com> <16888.46184.52179.812873@alkaid.it.uu.se> <20050127125254.GZ10843@holomorphy.com> <20050127142500.A775@flint.arm.linux.org.uk> <20050127151211.GB10843@holomorphy.com> <Pine.LNX.4.61.0501271420070.13927@chimarrao.boston.redhat.com> <20050127204455.GM10843@holomorphy.com> <Pine.LNX.4.61.0501271557300.13927@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0501271557300.13927@chimarrao.boston.redhat.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 27 Jan 2005 16:17:37 -0500
+Date: Thu, 27 Jan 2005 13:17:19 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jaco Kroon <jaco@kroon.co.za>
+cc: sebekpi@poczta.onet.pl, Vojtech Pavlik <vojtech@suse.cz>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: i8042 access timings
+In-Reply-To: <41F9545A.4080803@kroon.co.za>
+Message-ID: <Pine.LNX.4.58.0501271314070.2362@ppc970.osdl.org>
+References: <200501260040.46288.sebekpi@poczta.onet.pl> <41F888CB.8090601@kroon.co.za>
+ <Pine.LNX.4.58.0501270948280.2362@ppc970.osdl.org> <41F9545A.4080803@kroon.co.za>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Jan 2005, William Lee Irwin III wrote:
->> (b) sys_mremap() isn't covered.
-
-On Thu, Jan 27, 2005 at 03:58:12PM -0500, Rik van Riel wrote:
-> AFAICS it is covered.
-> >--- mm1-2.6.11-rc2.orig/mm/mremap.c	2005-01-26 00:26:43.000000000 -0800
-> >+++ mm1-2.6.11-rc2/mm/mremap.c	2005-01-27 12:34:34.000000000 -0800
-> >@@ -297,6 +297,8 @@
-> >	if (flags & MREMAP_FIXED) {
-> >		if (new_addr & ~PAGE_MASK)
-> >			goto out;
-> >+		if (!new_addr)
-> >+			goto out;
-> 
-> This looks broken, look at the MREMAP_FIXED part...
-
-The only way I can make sense of this is if you're trying to say that
-because the user is trying to pass in a fixed address, that 0 should
-then be permitted.
-
-The intention was to disallow vmas starting at 0 categorically. i.e. it
-is very intentional to deny the MREMAP_FIXED to 0 case of mremap().
-It was also the intention to deny the MAP_FIXED to 0 case of mmap(),
-though I didn't actually sweep that much (if at all).
 
 
--- wli
+On Thu, 27 Jan 2005, Jaco Kroon wrote:
+>
+> Hmm, just an idea, shouldn't the i8042_write_command be waiting until 
+> the device has asserted the pin to indicate that the buffer is busy? 
+
+No. Because then you might end up waiting forever for the _opposite_ 
+reason, namely that the hardware was so fast that you never saw it busy.
+
+> > The IO delay should be _before_ the read of the status, not after it.
+> > 
+> > So how about adding an extra "udelay(50)" to either the top of 
+> > i8042_wait_write(), or to the bottom of "i8042_write_command()"? Does that 
+> > make any difference?
+>
+> No.  No difference, still the same result.
+
+Oh, well. It was such a good theory, especially as it works fine with ACPI 
+off (if I understood your report correctly), so some other state is what 
+seems to bring it on.
+
+> > (50 usec is probably overkill, and an alternative is to just make the
+> > write_data/write_command inline functions in i8042-io.h use the
+> > "inb_p/outb_p" versions that put a serializing IO instruction in between,
+> > which should give you a nice 1us delay even on modern hardware.)
+>
+> ok, how would I try this?  Where can I find an example to code it from? 
+>   Sorry, I should probably be grepping ...
+
+If the udelay() didn't work, then this one isn't worth worryign about 
+either. Back to the drawing board.
+
+		Linus

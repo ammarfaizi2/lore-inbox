@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274774AbRKFFMX>; Tue, 6 Nov 2001 00:12:23 -0500
+	id <S275693AbRKFFRP>; Tue, 6 Nov 2001 00:17:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275082AbRKFFMN>; Tue, 6 Nov 2001 00:12:13 -0500
-Received: from mx5.port.ru ([194.67.57.15]:28947 "EHLO smtp5.port.ru")
-	by vger.kernel.org with ESMTP id <S274774AbRKFFMD>;
-	Tue, 6 Nov 2001 00:12:03 -0500
-From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200111060513.fA65DqZ26051@vegae.deep.net>
-Subject: 3.0.2 breaks linux-2.4.13-ac8 in tcp.c
-To: gcc-bugs@gcc.gnu.org
-Date: Tue, 6 Nov 2001 08:13:52 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S275082AbRKFFRG>; Tue, 6 Nov 2001 00:17:06 -0500
+Received: from zero.tech9.net ([209.61.188.187]:27919 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S275693AbRKFFQx>;
+	Tue, 6 Nov 2001 00:16:53 -0500
+Subject: [PATCH] Re: 2.4.14 errors on full build - Y
+From: Robert Love <rml@tech9.net>
+To: torvalds@transmeta.com
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <17526.1005022179@ocs3.intra.ocs.com.au>
+In-Reply-To: <17526.1005022179@ocs3.intra.ocs.com.au>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.100+cvs.2001.11.05.15.31 (Preview Release)
+Date: 06 Nov 2001 00:16:52 -0500
+Message-Id: <1005023814.1506.0.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-     well, not too much to add, maybe except that the RAM is ok and CPU is not
-   OC`ed...
+On Mon, 2001-11-05 at 23:49, Keith Owens wrote:
+> Doing a full build of 2.4.14 (everything set to Y where possible), got
+> the usual collection of errors.  Some of these errors have been around
+> for weeks, any chance of them getting fixed?
+> [...]
+>   drivers/block/ps2esdi.c:153: `THIS_MODULE' undeclared here (not in a function)
+>   drivers/block/ps2esdi.c:153: initializer element is not constant
+>   drivers/block/ps2esdi.c:153: (near initialization for `ps2esdi_fops.owner')
+>   drivers/block/ps2esdi.c:157: initializer element is not constant
+>   drivers/block/ps2esdi.c:157: (near initialization for `ps2esdi_fops')
 
-make[3]: Entering directory `/usr/src/linux/net/ipv4'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586    -c -o tcp.o tcp.c
-In file included from /usr/src/linux/include/net/checksum.h:33,
-                 from /usr/src/linux/include/net/tcp.h:30,
-                 from tcp.c:256:
-/usr/src/linux/include/asm/checksum.h:72:30: warning: multi-line string literals are deprecated
-/usr/src/linux/include/asm/checksum.h:105:17: warning: multi-line string literals are deprecated
-/usr/src/linux/include/asm/checksum.h:121:13: warning: multi-line string literals are deprecated
-/usr/src/linux/include/asm/checksum.h:161:17: warning: multi-line string literals are deprecated
-tcp.c: In function `tcp_close':
-tcp.c:1978: Internal compiler error in rtx_equal_for_memref_p, at alias.c:1121
-Please submit a full bug report,
-with preprocessed source if appropriate.
-See <URL:http://www.gnu.org/software/gcc/bugs.html> for instructions.
+Looks like this is just missing module.h ... simple fix attached. 
+Linus, please apply.
 
-cheers, Samium Gromoff
+diff -urN linux-2.4.14/drivers/block/ps2esdi.c linux/drivers/block/ps2esdi.c 
+--- linux-2.4.14/drivers/block/ps2esdi.c	Mon Nov  5 20:11:00 2001
++++ linux/drivers/block/ps2esdi.c	Tue Nov  6 00:14:57 2001
+@@ -47,6 +47,7 @@
+ #include <linux/mca.h>
+ #include <linux/init.h>
+ #include <linux/ioport.h>
++#include <linux/module.h>
+ 
+ #include <asm/system.h>
+ #include <asm/io.h>
+
+
+	Robert Love
+

@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbUL1XM3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbUL1XQh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbUL1XM3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 18:12:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbUL1XM3
+	id S261159AbUL1XQh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 18:16:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbUL1XQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 18:12:29 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:18847 "EHLO
+	Tue, 28 Dec 2004 18:16:37 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:20383 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261156AbUL1XMV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 18:12:21 -0500
-Subject: Re: PATCH: 2.6.10 - Still mishandles volumes without geometry data
+	id S261159AbUL1XQf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 18:16:35 -0500
+Subject: Re: PATCH: 2.6.10 - Incorrect return from PCI ide controller
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Francois Romieu <romieu@fr.zoreil.com>
 Cc: torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <58cb370e041228124878cb6e2a@mail.gmail.com>
-References: <1104155840.20898.3.camel@localhost.localdomain>
-	 <58cb370e041228124878cb6e2a@mail.gmail.com>
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+In-Reply-To: <20041228205553.GA18525@electric-eye.fr.zoreil.com>
+References: <1104158258.20952.44.camel@localhost.localdomain>
+	 <20041228205553.GA18525@electric-eye.fr.zoreil.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1104271702.26131.11.camel@localhost.localdomain>
+Message-Id: <1104271949.26109.14.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 28 Dec 2004 22:08:23 +0000
+Date: Tue, 28 Dec 2004 22:12:31 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok how about this revision which also silences the boot time CHS data as
-Bartlomiej suggested.
+On Maw, 2004-12-28 at 20:55, Francois Romieu wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> :
+> > This fixes the IT8172 driver. There are other drivers with this bug (eg
+> > generic) but the -ac IDE is sufficiently diverged from base that someone
+> > else needs to generate/test the more divergent cases.
+> 
+> ide_setup_pci_device{s} will always claim that everything is fine even
+> though do_ide_setup_pci_device() has some opportunity to fail.
+> 
+> Should it matter as well ?
 
---- linux.vanilla-2.6.10/drivers/ide/ide-disk.c	2004-12-25 21:15:34.000000000 +0000
-+++ linux-2.6.10/drivers/ide/ide-disk.c	2004-12-28 23:07:13.195925352 +0000
-@@ -84,6 +84,10 @@
- {
- 	unsigned long lba_sects, chs_sects, head, tail;
- 
-+	/* No non-LBA info .. so valid! */
-+	if (id->cyls == 0)
-+		return 1;
-+		
- 	/*
- 	 * The ATA spec tells large drives to return
- 	 * C/H/S = 16383/16/63 independent of their size.
-@@ -201,7 +205,8 @@
- 		head  = track % drive->head;
- 		cyl   = track / drive->head;
- 
--		pr_debug("%s: CHS=%u/%u/%u\n", drive->name, cyl, head, sect);
-+		if(cyl)
-+			pr_debug("%s: CHS=%u/%u/%u\n", drive->name, cyl, head, sect);
- 
- 		hwif->OUTB(0x00, IDE_FEATURE_REG);
- 		hwif->OUTB(nsectors.b.low, IDE_NSECTOR_REG);
-@@ -1239,8 +1257,9 @@
- 	if (id->buf_size)
- 		printk (" w/%dKiB Cache", id->buf_size/2);
- 
--	printk(", CHS=%d/%d/%d", 
--	       drive->bios_cyl, drive->bios_head, drive->bios_sect);
-+	if(drive->bios_cyl)
-+		printk(", CHS=%d/%d/%d", 
-+			drive->bios_cyl, drive->bios_head, drive->bios_sect);
- 	if (drive->using_dma)
- 		ide_dma_verbose(drive);
- 	printk("\n");
+Probably. It's less pressing because the bad cases are those where
+->init_one() errors with a positive return and we steal the device. The
+nasty one only showed up in -ac because it has a generic driver that can
+be told to capture all other IDE devices that are unknown, and it ran
+off with all the SATA devices until the bug was fixed 8)
+
 

@@ -1,56 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272554AbTHFVR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 17:17:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272570AbTHFVR3
+	id S272281AbTHFVUj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 17:20:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272325AbTHFVUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 17:17:29 -0400
-Received: from fw.osdl.org ([65.172.181.6]:4993 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272554AbTHFVR2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 17:17:28 -0400
-Date: Wed, 6 Aug 2003 14:19:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: diegocg@teleline.es, reiser@namesys.com, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: Filesystem Tests
-Message-Id: <20030806141905.40126313.akpm@osdl.org>
-In-Reply-To: <20030806180427.GC21290@matchmail.com>
-References: <3F306858.1040202@mrs.umn.edu>
-	<20030805224152.528f2244.akpm@osdl.org>
-	<3F310B6D.6010608@namesys.com>
-	<20030806183410.49edfa89.diegocg@teleline.es>
-	<20030806180427.GC21290@matchmail.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 6 Aug 2003 17:20:39 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:58127 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S272281AbTHFVUb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 17:20:31 -0400
+Message-ID: <3F31741F.30200@techsource.com>
+Date: Wed, 06 Aug 2003 17:33:19 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <piggin@cyberone.com.au>
+CC: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [PATCH] O13int for interactivity
+References: <200308050207.18096.kernel@kolivas.org> <1060060568.3f2f3d989683f@kolivas.org> <3F2F4076.1030009@cyberone.com.au> <200308052022.01377.kernel@kolivas.org> <3F2F87DA.7040103@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk <mfedyk@matchmail.com> wrote:
->
-> On Wed, Aug 06, 2003 at 06:34:10PM +0200, Diego Calleja Garc?a wrote:
->  > El Wed, 06 Aug 2003 18:06:37 +0400 Hans Reiser <reiser@namesys.com> escribi?:
->  > 
->  > > I don't think ext2 is a serious option for servers of the sort that 
->  > > Linux specializes in, which is probably why he didn't measure it.
->  > 
->  > Why?
+
+
+Nick Piggin wrote:
+
+> If cc1 is doing a lot of waiting on IO, I fail to see how it should be
+> called a CPU hog. OK I'll stop being difficult! I understand the problem
+> is that its behaviour suddenly changes from IO bound to CPU hog, right?
+> Then it seems like the scheduler's problem is that it doesn't adapt
+> quickly enough to this change.
 > 
->  Because if you have a power outage, or a crash, you have to run the
->  filesystem check tools on it or risk damaging it further.
-> 
->  Journaled filesystems have a much smaller chance of having problems after a
->  crash.
+> What you are doing is restricting some range so it can adapt more quickly
+> right? So you still have the problem in the cases where you are not
+> restricting this range.
 
-Journalled filesytems have a runtime cost, and you're paying that all the
-time.
 
-If you're going 200 days between crashes on a disk-intensive box then using
-a journalling fs to save 30 minutes at reboot time just doesn't stack up:
-you've lost much, much more time than that across the 200 days.
+For this, I reiterate my suggestion to intentionally over-shoot the 
+mark.  If you do it right, a process will run an inappropriate length of 
+time only every other time slice until the oscillation dies down.
 
-It all depends on what the machine is doing and what your max downtime
-requirements are.
+
+Let me give you an example.  Let's say you have a process which is being 
+interactive, and then suddenly becomes a CPU hog.
+
+In the case as it is (assumptions here), what happens is that the 
+priority is reduced by some amount until it reaches a level appropriate 
+for the new behavior.
+
+I get the impression that lower numbers mean higher priority, so here goes:
+
+- The process starts out with a priority of 10 (this may mean something 
+that I don't know about... just follow along).
+- It becomes a CPU hog sufficient to make it NEED to be at a priority of 30.
+- Over some number of time slices, the priority is changed something 
+like this:  10, 20, 25, 27, 28, 29, 30.
+
+
+Here's my alternative suggestion -- if 10 is pure interactive and 30 is 
+CPU hog, and you see some change in behavior, before, you would go half 
+way.  Now, instead, go one-and-a-half way.
+- Over some number of time slices, the priority is changed like this: 
+10, 40, 25, 32, 27, 31, 28, 30
+
+
+
+Let's say that you only get one time slice which is CPU hog, but others 
+are not, for the first case, you'd get something like this:
+10, 20, 15, 12, 11, 10
+
+For the second case, you'd get this:
+10, 40, -5, 17, 7, 11, 10
+
+
+Something like that.  So instead of getting tricked and having to 
+return, it over shoots but makes up for it the next time the process is run.
+
+
+This is a very incomplete thought and may be pure garbage, so please 
+forgive me if I'm being an idiot.  :)
+

@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271321AbRICIAg>; Mon, 3 Sep 2001 04:00:36 -0400
+	id <S271371AbRICINy>; Mon, 3 Sep 2001 04:13:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271371AbRICIA0>; Mon, 3 Sep 2001 04:00:26 -0400
-Received: from ns.roland.net ([65.112.177.35]:58628 "EHLO earth.roland.net")
-	by vger.kernel.org with ESMTP id <S271321AbRICIAT>;
-	Mon, 3 Sep 2001 04:00:19 -0400
-Message-ID: <001e01c1344e$e4bab7e0$bb1cfa18@JimWS>
-From: "Jim Roland" <jroland@roland.net>
-To: "David Hollister" <david@digitalaudioresources.org>
-Cc: "Jan Niehusmann" <jan@gondor.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010831044247.B811@gondor.com> <3B8EFF67.9010409@digitalaudioresources.org> <001101c132cd$cbbf7050$bb1cfa18@JimWS> <3B90F310.1030808@digitalaudioresources.org>
+	id <S271399AbRICINn>; Mon, 3 Sep 2001 04:13:43 -0400
+Received: from pv182180.reshsg.uci.edu ([128.195.182.180]:7410 "EHLO
+	pranika.wulf") by vger.kernel.org with ESMTP id <S271371AbRICINc>;
+	Mon, 3 Sep 2001 04:13:32 -0400
 Subject: Re: Athlon doesn't like Athlon optimisation?
-Date: Mon, 3 Sep 2001 03:03:18 -0500
+To: linux-kernel@vger.kernel.org
+Date: Mon, 3 Sep 2001 01:13:51 -0700 (PDT)
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Message-Id: <E15dorf-0003vE-00@pranika.wulf>
+From: Eric Olson <ejolson%pranika@fractal.math.unr.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm...missed that patch, but I'm not on 2.4.9 yet.  Can someone email that
-to me directly or repost to the list?
+I have found these Athlon problems are very interesting.
 
------ Original Message -----
-From: "David Hollister" <david@digitalaudioresources.org>
-To: "Jim Roland" <jroland@roland.net>
-Cc: "Jan Niehusmann" <jan@gondor.com>; <linux-kernel@vger.kernel.org>
-Sent: Saturday, September 01, 2001 9:39 AM
-Subject: Re: Athlon doesn't like Athlon optimisation?
+Is there a usermode memory testing program which uses the K7 MMX 3DNow
+streaming cache bypass load/store instruction sequences that appear in
+linux/arch/i386/lib/mmx.c ?
 
+Could Robert Redelmeier's burnMMX at 
+	http://users.ev1.net/~redelm/
+be modified for the Athlon to detect these problems?
 
-> Jim Roland wrote:
-> > Which kernel are you gentlemen using?  I have a Athlon 1.2GHz (not
-> > overclocked), 512MB PC133, and also an EPoX 8KTA3+, and have had no
-problems
-> > whatsoever (using kernel 2.4.2-2).
->
-> I'm on 2.4.9.  No overclocking.  I applied the patch that somebody (sorry,
-> forgot who) posted yesterday for arch/i386/lib/mmx.c and rebuilt the
-kernel with
-> Athlon optimization.  It now works.
-> --
-> David Hollister
-> Driversoft Engineering:  http://devicedrivers.com
-> Digital Audio Resources: http://digitalaudioresources.org
->
+It would be usefull to have a Microsoft Windows program that could 
+detect a faulty system without having to load Linux.  This would allow 
+testing a system in a store before purchase, and quick testing of a 
+new system shipped with Windows to determine whether it needs to be 
+returned before reformatting the harddisk and installing Linux.
 
+The reports I've know are for KT133 motherboards.  Have problems been 
+reported with the KT266 DDR-SDRAM chipsets as well?
+
+All the best, Eric Olson

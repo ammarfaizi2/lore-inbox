@@ -1,48 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262418AbTA2DFx>; Tue, 28 Jan 2003 22:05:53 -0500
+	id <S262492AbTA2DXe>; Tue, 28 Jan 2003 22:23:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262492AbTA2DFx>; Tue, 28 Jan 2003 22:05:53 -0500
-Received: from sex.inr.ac.ru ([193.233.7.165]:35747 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S262418AbTA2DFx>;
-	Tue, 28 Jan 2003 22:05:53 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200301290314.GAA31081@sex.inr.ac.ru>
-Subject: Re: [TEST FIX] Re: SSH Hangs in 2.5.59 and 2.5.55 but not 2.4.x,
-To: davem@redhat.com (David S. Miller)
-Date: Wed, 29 Jan 2003 06:14:55 +0300 (MSK)
-Cc: benoit-lists@fb12.de, dada1@cosmosbay.com, cgf@redhat.com, andersg@0x63.nu,
-       lkernel2003@tuxers.net, linux-kernel@vger.kernel.org, tobi@tobi.nu
-In-Reply-To: <20030128.160806.13210372.davem@redhat.com> from "David S. Miller" at Jan 28, 3 04:08:06 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S264665AbTA2DXe>; Tue, 28 Jan 2003 22:23:34 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:3814 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262492AbTA2DXd>;
+	Tue, 28 Jan 2003 22:23:33 -0500
+Date: Tue, 28 Jan 2003 19:26:50 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix max PCI bus number
+In-Reply-To: <3E3727ED.2020400@us.ibm.com>
+Message-ID: <Pine.LNX.4.33L2.0301281926280.31801-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Tue, 28 Jan 2003, Dave Hansen wrote:
 
-> BTW, Alexey, please please explain to me how that trick made
-> by tcp_trim_head() works. :-)  I am talking about how it is
-> setting ip_summed to CHECKSUM_HARDWARE blindly and not even
-> bothering to set skb->csum correctly.
+| The Stanford checker found this.
 
-skb->csum is not used inside TCP when skb->ip_summed==CHECKSUM_HW:
+Yep, looks like my patch.  I'll remove it from my patchset.
 
-void tcp_v4_send_check(struct sock *sk, struct tcphdr *th, int len,
-                       struct sk_buff *skb)
-{
-        struct inet_opt *inet = inet_sk(sk);
+-- 
+~Randy
 
-        if (skb->ip_summed == CHECKSUM_HW) {
-                th->check = ~tcp_v4_check(th, len, inet->saddr, inet->daddr, 0);
-                skb->csum = offsetof(struct tcphdr, check);
-
-And when pushing segment down to IP, it is initialized to offset of th->check.
-
-So, it is safe to make skb->ip_summed := CHECKSUM_HW any moment when
-we are lazy to recalculate checksum. Frankly speaking, it is not very good,
-I was confused _a_ _lot_ when seeing wrong checksums on those bogus
-zero-length packets in tcpdumps made by Christopher. But saves some
-source lines.
-
-Alexey

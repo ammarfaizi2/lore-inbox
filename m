@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131963AbQKWNXa>; Thu, 23 Nov 2000 08:23:30 -0500
+        id <S131963AbQKWNhL>; Thu, 23 Nov 2000 08:37:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132280AbQKWNXT>; Thu, 23 Nov 2000 08:23:19 -0500
-Received: from mailhost.tue.nl ([131.155.2.5]:31756 "EHLO mailhost.tue.nl")
-        by vger.kernel.org with ESMTP id <S131963AbQKWNXA>;
-        Thu, 23 Nov 2000 08:23:00 -0500
-Message-ID: <20001123135252.A4149@win.tue.nl>
-Date: Thu, 23 Nov 2000 13:52:52 +0100
-From: Guest section DW <dwguest@win.tue.nl>
-To: Neil Brown <neilb@cse.unsw.edu.au>, "Mohammad A. Haque" <mhaque@haque.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        Tigran Aivazian <tigran@veritas.com>
-Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
-In-Reply-To: <3A1CB07C.CEE01F1F@haque.net> <14876.45844.670274.366687@notabene.cse.unsw.edu.au>
+        id <S129859AbQKWNhC>; Thu, 23 Nov 2000 08:37:02 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:64782 "EHLO
+        almesberger.net") by vger.kernel.org with ESMTP id <S132484AbQKWNgu>;
+        Thu, 23 Nov 2000 08:36:50 -0500
+Date: Thu, 23 Nov 2000 14:06:30 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: Michael Elizabeth Chastain <mec@shout.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: beware of dead string constants
+Message-ID: <20001123140630.F599@almesberger.net>
+In-Reply-To: <200011221848.MAA05565@duracef.shout.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <14876.45844.670274.366687@notabene.cse.unsw.edu.au>; from Neil Brown on Thu, Nov 23, 2000 at 05:03:00PM +1100
+Content-Disposition: inline
+In-Reply-To: <200011221848.MAA05565@duracef.shout.net>; from mec@shout.net on Wed, Nov 22, 2000 at 12:48:30PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 23, 2000 at 05:03:00PM +1100, Neil Brown wrote:
+Michael Elizabeth Chastain wrote:
+> I have a compiler from gcc.gnu.org's CVS tree that's only a few days old,
+> so I can verify Jakub's claim.
 
-> Oh, good.  It's not just me and Tigran then.
+BTW, do you have any estimate of how much dead string space it actually
+removed ? (I.e. did the .data segment size change significantly, or was
+is lost in the normal inter-gcc-version noise ?)
 
-You have it all backwards. It would be good if it were
-just you and Tigran. Unfortunately it also hits me.
+Just curious,
+- Werner
 
-(I am reorganizing my disks, copying large trees from
-one place to the other. Always doing a diff -r between
-old and new before removing the old version.
-Yesterday I had a diff -r showing that the old version
-was corrupted and the new was OK. Of course a second
-look showed that the old version also was OK, the corruption
-must have been in the buffer cache, not on disk.)
-
-Andries
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

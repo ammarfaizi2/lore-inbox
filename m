@@ -1,60 +1,166 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130180AbQLDNrV>; Mon, 4 Dec 2000 08:47:21 -0500
+	id <S130187AbQLDNwb>; Mon, 4 Dec 2000 08:52:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130227AbQLDNrM>; Mon, 4 Dec 2000 08:47:12 -0500
-Received: from saw.sw.com.sg ([203.120.9.98]:8326 "HELO saw.sw.com.sg")
-	by vger.kernel.org with SMTP id <S130180AbQLDNrD>;
-	Mon, 4 Dec 2000 08:47:03 -0500
-Message-ID: <20001204211633.A16092@saw.sw.com.sg>
-Date: Mon, 4 Dec 2000 21:16:33 +0800
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: eepro100 driver update for 2.4
-In-Reply-To: <20001201175109.A4209@saw.sw.com.sg> <200012012145.eB1LjOl03300@moisil.dev.hydraweb.com>
-Mime-Version: 1.0
+	id <S130218AbQLDNwW>; Mon, 4 Dec 2000 08:52:22 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:55295 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S130187AbQLDNwJ>; Mon, 4 Dec 2000 08:52:09 -0500
+Message-ID: <3A2B9B39.AA240475@uow.edu.au>
+Date: Tue, 05 Dec 2000 00:25:13 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test12-pre3 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] inode dirty blocks  Re: test12-pre4
+In-Reply-To: <Pine.LNX.4.10.10012031828170.22914-100000@penguin.transmeta.com> <Pine.GSO.4.21.0012040054400.5055-100000@weyl.math.psu.edu>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <200012012145.eB1LjOl03300@moisil.dev.hydraweb.com>; from "Ion Badulescu" on Fri, Dec 01, 2000 at 01:45:24PM
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-On Fri, Dec 01, 2000 at 01:45:24PM -0800, Ion Badulescu wrote:
-> On Fri, 1 Dec 2000 17:51:09 +0800, Andrey Savochkin <saw@saw.sw.com.sg> wrote:
+Alexander Viro wrote:
 > 
-> > I've been promised that this issue would be looked up in Intel's errata by
-> > people who had the access to it, but I haven't got the results yet.
+> On Sun, 3 Dec 2000, Linus Torvalds wrote:
 > 
-> There is nothing relevant in the errata, unfortunately...
-
-Do you have it?
-The sympthomes are that the card triggers Flow Control Pause condition (and
-interrupt) on the last stages of the initialization or right after.
-And it happens with flow control being explicitly turned off.
-High network load considerably increase the chances of the event.
-After that the card stops to behave sane and reports status 0x7048.
-
-It may happen that we don't understand something in the initialization
-sequence, or just a plain hardware bug.
-
-> > The card itself doesn't report its revision in details.
-> > It can be checked by `lspci'.
-> > Rev 8 is 82559, if I remember, and rev 9 is 82559ER.
+> >
+> > Synching up with Alan and various other stuff. The most important one
+> > being the fix to the inode dirty block list.
 > 
-> No, 82559ER has its own PCI id, 0x1209. There is also a newer 82559 chip
-> which reports a different PCI device id, 0x1030 (I have one of those).
+> It doesn't solve the problem. If you unlink a file with dirty metadata
+> you have a nice chance to hit the BUG() in inode.c:83. I hope that patch
+> below closes all remaining holes. See analysis in previous posting
+> (basically, bforget() is not enough when we free the block; bh should
+> be removed from the inode's list regardless of the ->b_count).
 
-Yes, you're right.
+It's still happening.
 
-> For the old chips reporting 0x1229, revisions 1-3 are 82557, revisions
-> 4-5 are 82558 and revisions 6-8 are 82559.
+The good news is that I have a machine which does it within 15-30
+minutes.  The only interesting difference is that is has 64 megs
+of RAM (all the others are 256) and its IDE system is a lot slower.
 
-Best regards
-					Andrey V.
-					Savochkin
+I removed the UnlockPage() at line 623 of vmscan.c because that's
+causing assertion failures at swap.c:271.
+
+I changed destroy_inode() thusly:
+
+static void destroy_inode(struct inode *inode)
+{
+        if (!list_empty(&inode->i_dirty_buffers)) {
+                struct task_struct *tsk;
+
+                printk("&inode->i_dirty_buffers=0x%p\n", &inode->i_dirty_buffers);
+                printk("next=0x%p\n", inode->i_dirty_buffers.next);
+                printk("prev=0x%p\n", inode->i_dirty_buffers.prev);
+
+                read_lock(&tasklist_lock);
+                for_each_task(tsk) {
+                        printk("[%s]\n", tsk->comm);
+                        show_stack(tsk->thread.esp);
+                        printk("\n\n");
+                }
+                read_unlock(&tasklist_lock);
+
+                BUG();
+        }
+        kmem_cache_free(inode_cachep, (inode));
+}
+
+So we get a full task dump.  Otherwise this is vanilla test12-pre4 plus
+your bforget_inode() patch.  SMP kernel on UP hardware, so this is a
+good snapshot of system state.
+
+First the BUG trace:
+
+&inode->i_dirty_buffers=0xc1cc6c98
+next=0xc03e9a78
+prev=0xc03e9a78
+
+Trace; c021b8c5 <tvecs+5a3d/1a358>
+Trace; c021b9c2 <tvecs+5b3a/1a358>
+Trace; c0146a86 <iput+18e/194>
+Trace; c01451a6 <d_delete+66/ac>
+Trace; c013df5d <vfs_unlink+18d/1c0>
+Trace; c013e035 <sys_unlink+a5/118>
+Trace; c0108fdf <system_call+33/38>
+
+That's the same as before. Now some other interesting tasks.
+The fourth dbench may be interesting?  And look at what
+kswapd is doing.
+
+
+[dbench]
+Trace; c012bf9b <wakeup_kswapd+b3/d0>
+Trace; c012cc9e <__alloc_pages+246/2f8>
+Trace; c012671c <generic_file_write+270/454>
+Trace; c0144589 <dput+19/174>
+Trace; c013092a <sys_write+8e/c4>
+
+[dbench]
+Trace; c012bf9b <wakeup_kswapd+b3/d0>
+Trace; c012cc9e <__alloc_pages+246/2f8>
+Trace; c012671c <generic_file_write+270/454>
+Trace; c0144589 <dput+19/174>
+Trace; c013092a <sys_write+8e/c4>
+
+[dbench]
+Trace; c01c1557 <vgacon_cursor+1df/1e8>
+Trace; c018a34e <set_cursor+6e/80>
+Trace; c0118851 <printk+1a1/1b0>
+Trace; c0118851 <printk+1a1/1b0>
+Trace; c4800000 <_end+44e2e4c/10503eac>
+Trace; c0109324 <show_stack+d4/e8>
+Trace; c020c2c3 <stext_lock+759f/843c>
+Trace; c020c2c3 <stext_lock+759f/843c>
+Trace; c0145875 <destroy_inode+75/c4>
+Trace; c021b9b9 <tvecs+5b31/1a358>
+Trace; c0146a86 <iput+18e/194>
+Trace; c01451a6 <d_delete+66/ac>
+Trace; c013df5d <vfs_unlink+18d/1c0>
+Trace; c010002b <startup_32+2b/cb>
+
+(This is `current')
+
+[dbench]
+Trace; c01317fd <__wait_on_buffer+4d/e0>
+Trace; c0132cd9 <bread+45/70>
+Trace; c0156d6c <ext2_read_inode+104/3ec>
+Trace; c01465a8 <get_new_inode+cc/178>
+Trace; c014685d <iget4+f5/100>
+
+
+[kupdate]
+Trace; c01156ea <schedule_timeout+7a/9c>
+Trace; c0115614 <process_timeout+0/5c>
+Trace; c0135304 <kupdate+a4/110>
+Trace; c01074c3 <kernel_thread+23/30>
+
+[bdflush]
+Trace; c0135255 <bdflush+135/140>
+Trace; c01074c3 <kernel_thread+23/30>
+
+[kreclaimd]
+Trace; c0116209 <interruptible_sleep_on+4d/80>
+Trace; c012c03f <kreclaimd+5b/dc>
+Trace; c0105000 <empty_bad_page+0/1000>
+Trace; c01074c3 <kernel_thread+23/30>
+
+[kswapd]
+Trace; c01317fd <__wait_on_buffer+4d/e0>
+Trace; c0132cd9 <bread+45/70>
+Trace; c0157180 <ext2_update_inode+12c/408>
+Trace; c015748e <ext2_write_inode+32/6c>
+Trace; c0145d59 <sync_all_inodes+11d/168>
+Trace; c0146221 <prune_icache+31/124>
+Trace; c0146335 <shrink_icache_memory+21/30>
+Trace; c012bd3b <do_try_to_free_pages+5b/88>
+Trace; c0217b71 <tvecs+1ce9/1a358>
+Trace; c012bdf6 <kswapd+8e/180>
+Trace; c0105000 <empty_bad_page+0/1000>
+Trace; c01074c3 <kernel_thread+23/30>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

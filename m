@@ -1,28 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267239AbTBUIN5>; Fri, 21 Feb 2003 03:13:57 -0500
+	id <S267238AbTBUIL5>; Fri, 21 Feb 2003 03:11:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267242AbTBUIN4>; Fri, 21 Feb 2003 03:13:56 -0500
-Received: from smtp.actcom.co.il ([192.114.47.13]:14291 "EHLO
+	id <S267239AbTBUIL5>; Fri, 21 Feb 2003 03:11:57 -0500
+Received: from smtp.actcom.co.il ([192.114.47.13]:43217 "EHLO
 	lmail.actcom.co.il") by vger.kernel.org with ESMTP
-	id <S267239AbTBUINs>; Fri, 21 Feb 2003 03:13:48 -0500
-Date: Fri, 21 Feb 2003 10:20:54 +0200
+	id <S267238AbTBUILv>; Fri, 21 Feb 2003 03:11:51 -0500
+Date: Fri, 21 Feb 2003 10:18:55 +0200
 From: Muli Ben-Yehuda <mulix@mulix.org>
 To: Andreas Dilger <adilger@clusterfs.com>
 Cc: Jaroslav Kysela <perex@suse.cz>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] snd_pcm_oss_change_params is a stack offender
-Message-ID: <20030221082054.GL1202@actcom.co.il>
-References: <39710000.1045757490@[10.10.2.4]> <Pine.LNX.4.44.0302200847060.2493-100000@home.transmeta.com> <20030221073948.GJ1202@actcom.co.il> <20030221005852.K1723@schatzie.adilger.int>
+Subject: a
+Message-ID: <20030221081854.GK1202@actcom.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030221005852.K1723@schatzie.adilger.int>
 User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[again, with a real subject line this time. This just isn't my day]. 
+Bcc: 
+Subject: Re: [PATCH] snd_pcm_oss_change_params is a stack offender
+Reply-To: 
+In-Reply-To: <20030221005852.K1723@schatzie.adilger.int>
 
 On Fri, Feb 21, 2003 at 12:58:52AM -0700, Andreas Dilger wrote:
 > On Feb 21, 2003  09:39 +0200, Muli Ben-Yehuda wrote:
@@ -362,5 +363,4 @@ diff -Nru a/sound/core/oss/pcm_oss.c b/sound/core/oss/pcm_oss.c
 -- 
 Muli Ben-Yehuda
 http://www.mulix.org
-
 

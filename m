@@ -1,113 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267292AbTAWVpr>; Thu, 23 Jan 2003 16:45:47 -0500
+	id <S267276AbTAWVpg>; Thu, 23 Jan 2003 16:45:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267300AbTAWVpr>; Thu, 23 Jan 2003 16:45:47 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:57810 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267292AbTAWVpo>;
-	Thu, 23 Jan 2003 16:45:44 -0500
-Date: Thu, 23 Jan 2003 13:54:48 -0800
-From: Dave Olien <dmo@osdl.org>
-To: axboe@suse.de, akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org, markw@osdl.org, cliffw@osdl.org,
-       maryedie@osdl.org, jenny@osdl.org
-Subject: [BUG] BUG_ON in I/O scheduler, bugme # 288
-Message-ID: <20030123135448.A8801@acpi.pdx.osdl.net>
+	id <S267292AbTAWVpg>; Thu, 23 Jan 2003 16:45:36 -0500
+Received: from ulima.unil.ch ([130.223.144.143]:63708 "EHLO ulima.unil.ch")
+	by vger.kernel.org with ESMTP id <S267276AbTAWVpf>;
+	Thu, 23 Jan 2003 16:45:35 -0500
+Date: Thu, 23 Jan 2003 22:54:41 +0100
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: Jens Axboe <axboe@suse.de>
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, cdwrite@other.debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Can't burn DVD under 2.5.59 with ide-cd
+Message-ID: <20030123215441.GA12179@ulima.unil.ch>
+References: <200301231752.h0NHqOM5001079@burner.fokus.gmd.de> <20030123180124.GB9141@ulima.unil.ch> <20030123180653.GU910@suse.de> <20030123181002.GV910@suse.de> <20030123185554.GC9141@ulima.unil.ch> <20030123190711.GW910@suse.de> <20030123192140.GD9141@ulima.unil.ch> <20030123211805.GY910@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030123211805.GY910@suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 23, 2003 at 10:18:05PM +0100, Jens Axboe wrote:
 
-Jens, Andrew
+> No it's my mistake, should be blk_pc_request(). Sorry about that.
 
-The group here doing dbt2 workload measurements have hit a couple of
-problems APPARENTLY in the block I/O scheduler when doing write-intensive
-raw disk I/O through a DAC960 extremeraid 2000 controller.
-This wasn't a problem in 2.5.49.  It has appeared since then.
+Hello again ;-)
 
-I've filed a bug on the OSDL bugme database.  You can read it at:
+I don't have more sucess now:
 
-	http://bugme.osdl.org/show_bug.cgi?id=288
+Cdrecord-ProDVD-Clone 2.0 (i586-pc-linux-gnu) Copyright (C) 1995-2002 Jörg Schilling
+Unlocked features: ProDVD Clone 
+Limited  features: speed 
+This copy of cdrecord is licensed for: private/research/educational_non-commercial_use
+TOC Type: 1 = CD-ROM
+scsidev: '/dev/hdc'
+devname: '/dev/hdc'
+scsibus: -2 target: -2 lun: -2
+Warning: Open by 'devname' is unintentional and not supported.
+Linux sg driver version: 3.5.27
+Using libscg version 'schily-0.7'
+Driveropts: 'burnfree'
+atapi: 1
+Device type    : Removable CD-ROM
+Version        : 2
+Response Format: 2
+Capabilities   : 
+Vendor_info    : 'SONY    '
+Identifikation : 'DVD RW DRU-500A '
+Revision       : '1.0f'
+Device seems to be: Generic mmc2 DVD-R/DVD-RW.
+Using generic SCSI-3/mmc-2 DVD-R/DVD-RW driver (mmc_dvd).
+Driver flags   : DVD SWABAUDIO BURNFREE 
+Supported modes: TAO PACKET SAO SAO/R96R RAW/R96R
+Drive buf size : 8126464 = 7936 KB
+FIFO size      : 67108864 = 65536 KB
+Track 01: data  4001 MB        
+Total size:     4001 MB = 2048512 sectors
+Current Secsize: 2048
+Blocks total: 2298496 Blocks current: 2298496 Blocks remaining: 249984
+Starting to write CD/DVD at speed 1 in dummy TAO mode for single session.
+Last chance to quit, starting dummy write in 9 seconds.  0.24% done, estimate finish Thu Jan 23 22:58:58 2003
+   8 seconds.  0.49% done, estimate finish Thu Jan 23 22:58:59 2003
+   7 seconds.  0.73% done, estimate finish Thu Jan 23 22:58:59 2003
+   6 seconds.  0.98% done, estimate finish Thu Jan 23 22:58:59 2003
+   5 seconds.  1.22% done, estimate finish Thu Jan 23 22:58:59 2003
+   4 seconds.  1.46% done, estimate finish Thu Jan 23 22:58:59 2003
+   0 seconds. Operation starts.
+Waiting for reader process to fill input buffer ... input buffer ready.
+BURN-Free is ON.
+Starting new track at sector: 0
+Track 01:    4 of 4001 MB written (fifo  97%)  16.1x.cdrecord-prodvd: Success. write_g1: scsi sendcmd: no error
+CDB:  2A 00 00 00 08 B8 00 00 1F 00
+status: 0x2 (CHECK CONDITION)
+Sense Bytes:
+Sense Key: 0xFFFFFFFF [], Segment 0
+Sense Code: 0x00 Qual 0x00 (no additional sense information) Fru 0x0
+Sense flags: Blk 0 (not valid) 
+resid: 63488
+cmd finished after 0.010s timeout 100s
 
-I've also put a more complete report in my web site:
+write track data: error after 4571136 bytes
+Sense Bytes: 70 00 00 00 00 00 00 12 00 00 00 00 00 00 00 00 00 00
+Writing  time:    5.304s
+Average write speed 574.4x.
+Fixating...
+Fixating time:   77.059s
+cdrecord-prodvd: fifo had 1095 puts and 73 gets.
+cdrecord-prodvd: fifo was 0 times empty and 2 times full, min fill was 96%.
+Exit 254
 
-	http://www.osdl.org/archive/dmo/deadline_bugon.
+Thank you very much,
 
-Begin with the README file.
-
-For same reason, the README file isn't appearing on my web page.
-I'll look into that. In the mean time, I've included the contests
-of the README file below.
-
-I'm about to try reproducing the problem on a smaller hardware
-configuration.  Then, I'll test whether the same problem occurs with
-read intensive I/O.
-
-
-
-Dave Olien
-
-
--------------README---------------------------------------------------
-
-
-Summary:
-
-BUG_ON and system hangs occuring while doing write-itensive RAW disk I/O
-to disks on a DAC960 extremeRAID 2000 controller.
-
-It's possible the BUG_ON and system hangs are different, possibly
-even unrelated problems.  But I'm grouping them together for now
-until I've had more time to investigate.
-
-In this directory are:
-
-	DOT_CONFIG: the .config file for the kernel that was running.
-		
-	disktest.tar: a tar source file for the disktest program, 
-
-
-	disktest_2.5.59.sh: a script that runs the disktest program to
-			reproduce the system hanging events.
-
-	BUG_ON: A console listing of the BUG_ON event.
-
-	DISKTEST_STACKS: stack listings of the disktest threads that are
-		hung in I/O, taken by the sysrq stack trace command.
-
-
-The kernel being run was 2.5.59.  We also tried 2.5.59-mm2, and it
-failed as well.
-
-This was NOT a problem on linux 2.5.49.
-
-The distribution on that system was Redhat 7.3.  So, the gcc compiler version
-was 2.96.
-
-The hardware configuration originally used to produce the failure is:
-
-	8 Pentium III Xeon procssors.
-	16 gig of memory, but the kernel is configured to use only 4gig.
-	DAC960 extreme raid 2000, with 2 scsi channels, 11 disks on
-		each chanel.  Each disk is 70 gigabytes. Each disk is
-		its own logical device.
-
-
-The BUG_ON() was encountered running sapdb database with the dbt2 work load.
-The BUG_ON occurred at a time that the database was performing a checkpoint.
-This is a random write-intensive activity that is done over many
-disk devices.
-
-The I/O is done on RAW devices.
-
-Other times, the operating system didn't BUG_ON, but the system effectivly
-hung during these checkpoint episodes.
-
-We discovered that disktest could reproduce the problem with disktest
-when run on the same hardware platform.  I'm in the process of trying
-to reproduce the problem on a smaller configuration.  I'll also see
-if it's only a write-intesive problem, or if there is a similar problem
-with read-intensive I/O.
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

@@ -1,119 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271775AbRICSoJ>; Mon, 3 Sep 2001 14:44:09 -0400
+	id <S271777AbRICSqj>; Mon, 3 Sep 2001 14:46:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271777AbRICSn7>; Mon, 3 Sep 2001 14:43:59 -0400
-Received: from Backfire.WH8.TU-Dresden.De ([141.30.225.118]:17545 "EHLO
-	Backfire.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S271775AbRICSnu>; Mon, 3 Sep 2001 14:43:50 -0400
-Message-Id: <200109031844.f83Ii8tR028403@backfire.WH8.TU-Dresden.De>
-From: Gregor Jasny <gjasny@wh8.tu-dresden.de>
-Organization: Netzwerkadministrator WH8/DD
-To: linux-kernel@vger.kernel.org
-Subject: Oops AIC7xxx on EISA HP NetServer
-Date: Mon, 3 Sep 2001 20:44:08 +0200
-X-Mailer: KMail [version 1.3.1]
-X-PGP-fingerprint: B0FA 69E5 D8AC 02B3 BAEF  E307 BD3A E495 93DD A233
-X-PGP-public-key: finger gjasny@hell.wh8.tu-dresden.de
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_K1O3NGQ4VYS4CP9BOSLU"
+	id <S271780AbRICSq3>; Mon, 3 Sep 2001 14:46:29 -0400
+Received: from ns.caldera.de ([212.34.180.1]:9641 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S271777AbRICSqK>;
+	Mon, 3 Sep 2001 14:46:10 -0400
+Date: Mon, 3 Sep 2001 20:45:47 +0200
+From: Christoph Hellwig <hch@caldera.de>
+To: Andries.Brouwer@cwi.nl
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cleanup gendisk handling
+Message-ID: <20010903204547.A820@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	Andries.Brouwer@cwi.nl, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200109031835.SAA33971@vlet.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200109031835.SAA33971@vlet.cwi.nl>; from Andries.Brouwer@cwi.nl on Mon, Sep 03, 2001 at 06:35:25PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 03, 2001 at 06:35:25PM +0000, Andries.Brouwer@cwi.nl wrote:
+> 
+> Hmm - this looks almost identical to my patch 07.
+> Yes, a nice patch :-)
 
---------------Boundary-00=_K1O3NGQ4VYS4CP9BOSLU
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Although this patch is obviously inspired by your patch, there is
+a number of small differnces:
 
-Hi!
+ * I do not have the major argument to add_gendisk/del_gendisk that
+   you remove again in one of your later patches
+ * I don't mess at all with the array of gendisks - that is a 2.5 issue.
+ * I move all gendisk handling to drivers/block/genhd.c
+ * I do not inline theseslow-path routines :)
 
-I've decoded a oops that occurs when loading the new AIC7xxx driver 
-(2.4.9-ac6) on an EISA-AIC 7700 built in a HP Netserver II/LC.
+	Christoph
 
-If you need more information just mail to me or LKML I'm subscribed.
-
-Regards,
--G. Jasny
-
-
---------------Boundary-00=_K1O3NGQ4VYS4CP9BOSLU
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="oops.decoded"
-Content-Transfer-Encoding: base64
-Content-Description: Decoded AIC7xxx related Oops
-Content-Disposition: attachment; filename="oops.decoded"
-
-a3N5bW9vcHMgMi40LjEgb24gaTY4NiAyLjQuMTAtcHJlMi4gIE9wdGlvbnMgdXNlZAogICAgIC1W
-IChkZWZhdWx0KQogICAgIC1rIGtzeW1zIChzcGVjaWZpZWQpCiAgICAgLWwgbW9kdWxlcyAoc3Bl
-Y2lmaWVkKQogICAgIC1vIC9saWIvbW9kdWxlcy8yLjQuMTAtcHJlMi8gKGRlZmF1bHQpCiAgICAg
-LW0gU3lzdGVtLm1hcCAoc3BlY2lmaWVkKQoKRXJyb3IgKGV4cGFuZF9vYmplY3RzKTogY2Fubm90
-IHN0YXQoL2FpYzd4eHgubykgZm9yIGFpYzd4eHgKV2FybmluZyAobWFwX2tzeW1fdG9fbW9kdWxl
-KTogY2Fubm90IG1hdGNoIGxvYWRlZCBtb2R1bGUgYWljN3h4eCB0byBhIHVuaXF1ZSBtb2R1bGUg
-b2JqZWN0LiAgVHJhY2UgbWF5IG5vdCBiZSByZWxpYWJsZS4KVW5hYmxlIHRvIGhhbmRsZSBrZXJu
-ZWwgTlVMTCBwb2ludGVyIGRlcmVmZXJlbmNlIGF0IHZpcnR1YWwgYWRkcmVzcyAwMDAwMDAzYwpj
-MDE4NDYxMAoqcGRlID0gMDAwMDAwMDAKT29wczogMDAwMgpDUFU6ICAgIDAKRUlQOiAgICAwMDEw
-Ols8YzAxODQ2MTA+XQpVc2luZyBkZWZhdWx0cyBmcm9tIGtzeW1vb3BzIC10IGVsZjMyLWkzODYg
-LWEgaTM4NgpFRkxBR1M6IDAwMDEwMDgyCmVheDogMDAwMDAwMDAgICBlYng6IGMxMWVlNjAwICAg
-ZWN4OiAwMDAwMDAwMCAgIGVkeDogZmZmZmZmZmYKZXNpOiBjMTFlMmMwMCAgIGVkaTogYzExZTJk
-MDAgICBlYnA6IGMxMWUyYzAwICAgZXNwOiBjNWYyZmRjNApkczogMDAxOCAgIGVzOiAwMDE4ICAg
-c3M6IDAwMTgKUHJvY2VzcyBpbnNtb2QgKHBpZDogOCwgc3RhY2twYWdlPWM1ZjJmMDAwKQpTdGFj
-azogYzY4MDIxZGEgMDAwMDAwMDAgZmZmZmZmZmYgMDAwMDAwMDAgMDAwMDAyMDAgYzExZWU2MDAg
-MDAwMDAyMDAgMDAwMDAwZmMgCiAgICAgICAwMDAwMDAwZiBjNjgwY2ZkYyBjMTFlMmMwMCBjMTFl
-ZTVlMCBjMTFlMmQwMCAwMDAwMDAwMSBjMTFlMmQ1OCBjMTFlMmMwMCAKICAgICAgIDAwMDAwMGZj
-IDAwMDAwMDBmIGM2ODFhM2U0IGMxMWUyYzAwIGM2ODFhM2U0IGMxMWVlNThjIGM2ODFhM2U0IDAw
-MDAwMDI2IApDYWxsIFRyYWNlOiBbPGM2ODAyMWRhPl0gWzxjNjgwY2ZkYz5dIFs8YzY4MWEzZTQ+
-XSBbPGM2ODFhM2U0Pl0gWzxjNjgxYTNlND5dIAogICBbPGM2ODEyMTE5Pl0gWzxjNjgwNWRmNT5d
-IFs8YzY4MWEzZTQ+XSBbPGM2ODE4Y2EwPl0gWzxjMDE4NDM2ND5dIFs8YzY4MThkNDA+XSAKICAg
-WzxjNjgxOGRhMD5dIFs8YzAxODQzZTQ+XSBbPGM2ODE4ZGEwPl0gWzxjNjgwNjAzYj5dIFs8YzY4
-MThkYTA+XSBbPGM2ODAyNzQ0Pl0gCiAgIFs8YzY4MThjYTA+XSBbPGM2ODE4Y2EwPl0gWzxjNjgw
-MjA2OD5dIFs8YzAxNzU2Y2U+XSBbPGM2ODE4Y2EwPl0gWzxjNjgxOGNhMD5dIAogICBbPGM2ODAy
-MDY4Pl0gWzxjNjgwMjA2OD5dIFs8YzAxNzVmMWQ+XSBbPGM2ODE4Y2EwPl0gWzxjNjgwNTdhYT5d
-IFs8YzY4MThjYTA+XSAKICAgWzxjMDExMTQxZD5dIFs8YzY4MDIwNjA+XSBbPGMwMTA2YjQzPl0g
-CkNvZGU6IDg5IDUwIDNjIDMxIGMwIGMzIGI4IGZiIGZmIGZmIGZmIGMzIDhiIDU0IDI0IDA4IDIz
-IDU0IDI0IDA0IAoKPj5FSVA7IGMwMTg0NjEwIDxwY2lfc2V0X2RtYV9tYXNrKzEwLzFjPiAgIDw9
-PT09PQpUcmFjZTsgYzY4MDIxZGEgPFthaWM3eHh4XWFoY19kbWFtZW1fYWxsb2MrNjIvODQ+ClRy
-YWNlOyBjNjgwY2ZkYyA8W2FpYzd4eHhdYWhjX2luaXQrOTgvZjMwPgpUcmFjZTsgYzY4MWEzZTQg
-PFthaWM3eHh4XWFpYzc3NzBfaWRlbnRfdGFibGUrMjAvMzA+ClRyYWNlOyBjNjgxYTNlNCA8W2Fp
-Yzd4eHhdYWljNzc3MF9pZGVudF90YWJsZSsyMC8zMD4KVHJhY2U7IGM2ODFhM2U0IDxbYWljN3h4
-eF1haWM3NzcwX2lkZW50X3RhYmxlKzIwLzMwPgpUcmFjZTsgYzY4MTIxMTkgPFthaWM3eHh4XWFp
-Yzc3NzBfY29uZmlnKzI3MS81OTg+ClRyYWNlOyBjNjgwNWRmNSA8W2FpYzd4eHhdYWljNzc3MF9s
-aW51eF9wcm9iZSsxMTUvMTUwPgpUcmFjZTsgYzY4MWEzZTQgPFthaWM3eHh4XWFpYzc3NzBfaWRl
-bnRfdGFibGUrMjAvMzA+ClRyYWNlOyBjNjgxOGNhMCA8W2FpYzd4eHhdLmRhdGEuc3RhcnQrMjAw
-LzI2Yz4KVHJhY2U7IGMwMTg0MzY0IDxwY2lfYW5ub3VuY2VfZGV2aWNlKzFjLzU0PgpUcmFjZTsg
-YzY4MThkNDAgPFthaWM3eHh4XWFpYzd4eHhfZHJpdmVyX3RlbXBsYXRlKzM0Lzk0PgpUcmFjZTsg
-YzY4MThkYTAgPFthaWM3eHh4XWFpYzd4eHhfcGNpX2RyaXZlciswLzQwPgpUcmFjZTsgYzAxODQz
-ZTQgPHBjaV9yZWdpc3Rlcl9kcml2ZXIrNDgvNjA+ClRyYWNlOyBjNjgxOGRhMCA8W2FpYzd4eHhd
-YWljN3h4eF9wY2lfZHJpdmVyKzAvNDA+ClRyYWNlOyBjNjgwNjAzYiA8W2FpYzd4eHhdYWhjX2xp
-bnV4X3BjaV9wcm9iZSsyYi8zND4KVHJhY2U7IGM2ODE4ZGEwIDxbYWljN3h4eF1haWM3eHh4X3Bj
-aV9kcml2ZXIrMC80MD4KVHJhY2U7IGM2ODAyNzQ0IDxbYWljN3h4eF1haGNfbGludXhfZGV0ZWN0
-KzQ4LzdjPgpUcmFjZTsgYzY4MThjYTAgPFthaWM3eHh4XS5kYXRhLnN0YXJ0KzIwMC8yNmM+ClRy
-YWNlOyBjNjgxOGNhMCA8W2FpYzd4eHhdLmRhdGEuc3RhcnQrMjAwLzI2Yz4KVHJhY2U7IGM2ODAy
-MDY4IDxbYWljN3h4eF0udGV4dC5zdGFydCs4L2NjPgpUcmFjZTsgYzAxNzU2Y2UgPHNjc2lfcmVn
-aXN0ZXJfaG9zdCs1Mi8yZTA+ClRyYWNlOyBjNjgxOGNhMCA8W2FpYzd4eHhdLmRhdGEuc3RhcnQr
-MjAwLzI2Yz4KVHJhY2U7IGM2ODE4Y2EwIDxbYWljN3h4eF0uZGF0YS5zdGFydCsyMDAvMjZjPgpU
-cmFjZTsgYzY4MDIwNjggPFthaWM3eHh4XS50ZXh0LnN0YXJ0KzgvY2M+ClRyYWNlOyBjNjgwMjA2
-OCA8W2FpYzd4eHhdLnRleHQuc3RhcnQrOC9jYz4KVHJhY2U7IGMwMTc1ZjFkIDxzY3NpX3JlZ2lz
-dGVyX21vZHVsZSsyOS81OD4KVHJhY2U7IGM2ODE4Y2EwIDxbYWljN3h4eF0uZGF0YS5zdGFydCsy
-MDAvMjZjPgpUcmFjZTsgYzY4MDU3YWEgPFthaWM3eHh4XWFoY19wbGF0Zm9ybV9kdW1wX2NhcmRf
-c3RhdGUrMTEyLzI3MD4KVHJhY2U7IGM2ODE4Y2EwIDxbYWljN3h4eF0uZGF0YS5zdGFydCsyMDAv
-MjZjPgpUcmFjZTsgYzAxMTE0MWQgPHN5c19pbml0X21vZHVsZSs1MDUvNWEwPgpUcmFjZTsgYzY4
-MDIwNjAgPFthaWM3eHh4XWFoY19wcmludF9wYXRoKzAvMD4KVHJhY2U7IGMwMTA2YjQzIDxzeXN0
-ZW1fY2FsbCszMy80MD4KQ29kZTsgIGMwMTg0NjEwIDxwY2lfc2V0X2RtYV9tYXNrKzEwLzFjPgow
-MDAwMDAwMCA8X0VJUD46CkNvZGU7ICBjMDE4NDYxMCA8cGNpX3NldF9kbWFfbWFzaysxMC8xYz4g
-ICA8PT09PT0KICAgMDogICA4OSA1MCAzYyAgICAgICAgICAgICAgICAgIG1vdiAgICAlZWR4LDB4
-M2MoJWVheCkgICA8PT09PT0KQ29kZTsgIGMwMTg0NjEzIDxwY2lfc2V0X2RtYV9tYXNrKzEzLzFj
-PgogICAzOiAgIDMxIGMwICAgICAgICAgICAgICAgICAgICAgeG9yICAgICVlYXgsJWVheApDb2Rl
-OyAgYzAxODQ2MTUgPHBjaV9zZXRfZG1hX21hc2srMTUvMWM+CiAgIDU6ICAgYzMgICAgICAgICAg
-ICAgICAgICAgICAgICByZXQgICAgCkNvZGU7ICBjMDE4NDYxNiA8cGNpX3NldF9kbWFfbWFzaysx
-Ni8xYz4KICAgNjogICBiOCBmYiBmZiBmZiBmZiAgICAgICAgICAgIG1vdiAgICAkMHhmZmZmZmZm
-YiwlZWF4CkNvZGU7ICBjMDE4NDYxYiA8cGNpX3NldF9kbWFfbWFzaysxYi8xYz4KICAgYjogICBj
-MyAgICAgICAgICAgICAgICAgICAgICAgIHJldCAgICAKQ29kZTsgIGMwMTg0NjFjIDxwY2lfc2l6
-ZSswLzE0PgogICBjOiAgIDhiIDU0IDI0IDA4ICAgICAgICAgICAgICAgbW92ICAgIDB4OCglZXNw
-LDEpLCVlZHgKQ29kZTsgIGMwMTg0NjIwIDxwY2lfc2l6ZSs0LzE0PgogIDEwOiAgIDIzIDU0IDI0
-IDA0ICAgICAgICAgICAgICAgYW5kICAgIDB4NCglZXNwLDEpLCVlZHgKCgoxIHdhcm5pbmcgYW5k
-IDEgZXJyb3IgaXNzdWVkLiAgUmVzdWx0cyBtYXkgbm90IGJlIHJlbGlhYmxlLgo=
-
---------------Boundary-00=_K1O3NGQ4VYS4CP9BOSLU--
+-- 
+Of course it doesn't work. We've performed a software upgrade.

@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262059AbTCPCBL>; Sat, 15 Mar 2003 21:01:11 -0500
+	id <S262006AbTCPCNj>; Sat, 15 Mar 2003 21:13:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262345AbTCPCBL>; Sat, 15 Mar 2003 21:01:11 -0500
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:38591 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S262059AbTCPCBJ>; Sat, 15 Mar 2003 21:01:09 -0500
-Message-ID: <20030316021155.21883.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S262038AbTCPCNj>; Sat, 15 Mar 2003 21:13:39 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:48516 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262006AbTCPCNj>; Sat, 15 Mar 2003 21:13:39 -0500
+Date: Sat, 15 Mar 2003 18:24:20 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: colpatch@us.ibm.com, James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] NUMAQ subarchification
+Message-ID: <1650000.1047781459@[10.10.2.4]>
+In-Reply-To: <1047776836.1327.11.camel@irongate.swansea.linux.org.uk>
+References: <1047676332.5409.374.camel@mulgrave> <3E7284CA.6010907@us.ibm.com> <3E7285E7.8080802@us.ibm.com> <247240000.1047693951@flay> <1047776836.1327.11.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
-To: "Breno" <brenosp@brasilsec.com.br>,
-       "Kernel List" <linux-kernel@vger.kernel.org>
-Date: Sun, 16 Mar 2003 03:11:55 +0100
-Subject: Re: Demand paging - Kernel
-X-Originating-Ip: 213.4.13.153
-X-Originating-Server: ws5-7.us4.outblaze.com
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: "Breno" <brenosp@brasilsec.com.br> 
-Date: 	Sat, 15 Mar 2003 13:29:52 -0300 
-To: "Kernel List" <linux-kernel@vger.kernel.org> 
-Subject: Demand paging - Kernel 
- 
-> There is a possibility  to do demand paging in kernel space address ? 
- 
-Why? I would like to know your reasons :-) 
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
+>> No, *please* don't do this. Subarch for .c files is *broken*.
+>> Last time I looked (and I don't think anyone has fixed it since) 
+>> it requires copying files all over the place, making an unmaintainable
+>> nightmare. Either subarch needs fixing first, or we don't use it.
+> 
+> It was fixed in about 2.5.50-ac. I thought Linus had picked up the 
+> improved version of mach-default* too. Its used extensively for stuff
+> like PC9800 which is deeply un-PC
 
-Powered by Outblaze
+Cool, if that's in mainline, we're set ... if not, I guess we need to
+pull it out and steal it ;-)
+
+M.
+

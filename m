@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278396AbRJSNVm>; Fri, 19 Oct 2001 09:21:42 -0400
+	id <S278401AbRJSNYm>; Fri, 19 Oct 2001 09:24:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278400AbRJSNVc>; Fri, 19 Oct 2001 09:21:32 -0400
-Received: from conx.aracnet.com ([216.99.200.135]:12538 "HELO cj90.in.cjcj.com")
-	by vger.kernel.org with SMTP id <S278396AbRJSNVW>;
-	Fri, 19 Oct 2001 09:21:22 -0400
-Message-ID: <3BD028C8.20602@cjcj.com>
-Date: Fri, 19 Oct 2001 06:21:12 -0700
-From: cj <cj@cjcj.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Mark van Walraven <markv@wave.co.nz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.10 etherboot initrd init= problem
-In-Reply-To: <3BB0958B.8030703@cjcj.com> <20011011132047.A401@bee.lk> <20011019131913.A596@mail.wave.co.nz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S278402AbRJSNYc>; Fri, 19 Oct 2001 09:24:32 -0400
+Received: from castle.nmd.msu.ru ([193.232.112.53]:61965 "HELO
+	castle.nmd.msu.ru") by vger.kernel.org with SMTP id <S278401AbRJSNYQ>;
+	Fri, 19 Oct 2001 09:24:16 -0400
+Message-ID: <20011019173233.A12919@castle.nmd.msu.ru>
+Date: Fri, 19 Oct 2001 17:32:33 +0400
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: kuznet@ms2.inr.ac.ru
+Cc: linux-kernel@vger.kernel.org,
+        Christopher Friesen <cfriesen@nortelnetworks.com>
+Subject: Re: how to see manually specified proxy arp entries using "ip neigh"
+In-Reply-To: <3BCF2A44.60B295FD@nortelnetworks.com> <200110181925.XAA04814@ms2.inr.ac.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <200110181925.XAA04814@ms2.inr.ac.ru>; from "A.N.Kuznetsov" on Thu, Oct 18, 2001 at 11:25:42PM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That's it!  Thank you very much.  A thousand thanks.
+Alexey,
 
-Mark van Walraven wrote:
+On Thu, Oct 18, 2001 at 11:25:42PM +0400, A.N.Kuznetsov wrote:
+> 
+> > I (and others) have asked this a couple times here and on the netdev list, and
+> > so far nobody has answered it (not even negatively).
+> 
+> :-) And me answered to this hundred of times: "no way". :-)
+> 
+> Ability to add/delete them with "ip neigh" will be removed in the next
+> snapshot as well. The feature is obsolete.
 
->On Tue, Sep 25, 2001 at 07:32:43AM -0700, cj wrote:
->
->>Kernel panic: No init found.  Try passing init= option to kernel.
->>
->>These kernel command lines work with 2.4.9 but not 2.4.10:
->>auto rw root=/dev/ram ramdisk_size=8192
->>auto rw root=/dev/ram init=/sbin/init ramdisk_size=8192
->>auto rw root=/dev/ram init=/bin/ash ramdisk_size=8192
->>
->
->Are the execute permission bits set for /lib/ld-* in your initrd?
->
->Mark.
->
->
+Well, in solutions I ship to customers I need to use some proxy-arp features.
+I don't want to turn on proxy arp on an interface basis, because subtle
+mistakes in network configuration with proxy arp turned on may have serious
+consequences, including arp storm (sic!), and people, especially those called
+customers, do make mistakes.
+So far, the solution has been to manually create proxy arp entries, that are
+known to be safe.
 
+Are you opposing the idea of proxy arp entries being created not by an
+automatic discovery (arp on other interface)?
+Or you just want to cripple `ip'? :-)
 
+	Andrey

@@ -1,30 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132495AbRAGN4j>; Sun, 7 Jan 2001 08:56:39 -0500
+	id <S132311AbRAGN4j>; Sun, 7 Jan 2001 08:56:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132496AbRAGN43>; Sun, 7 Jan 2001 08:56:29 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:50190 "EHLO
+	id <S132495AbRAGN4a>; Sun, 7 Jan 2001 08:56:30 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:49934 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132495AbRAGN4M>; Sun, 7 Jan 2001 08:56:12 -0500
-Subject: Re: [PATCH] new bug report script
-To: juchem@uni-mannheim.de
-Date: Sun, 7 Jan 2001 13:58:00 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0101070808560.7104-100000@gandalf.math.uni-mannheim.de> from "Matthias Juchem" at Jan 07, 2001 08:48:22 AM
+	id <S132311AbRAGN4K>; Sun, 7 Jan 2001 08:56:10 -0500
+Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
+To: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sun, 7 Jan 2001 13:57:17 +0000 (GMT)
+Cc: cw@f00f.org (Chris Wedgwood), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        viro@math.psu.edu (Alexander Viro),
+        stefan@hello-penguin.com (Stefan Traby), linux-kernel@vger.kernel.org
+In-Reply-To: <m1r92fj10c.fsf@frodo.biederman.org> from "Eric W. Biederman" at Jan 07, 2001 12:05:07 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14FGKh-0002gh-00@the-village.bc.nu>
+Message-Id: <E14FGK1-0002gX-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is a patch against 2.4.0. It introduces a new bug reporting script
-> (scripts/bugreport.pl) that tries to simplify bug reporting for users. I
-> have also added a small hint to this script to REPORTING-BUGS.
+> Putting the LFS checks, & max filesize checks into the VFS sounds
+> right for 2.4.x because it fixes lots of filesystems, with just a
+> couple of lines of code. 
 
-The kernel doesnt require perl. I don't want to add a dependancy on perl
+Rather more than that, and it only fixes those using generic_file_*
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

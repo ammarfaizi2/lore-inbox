@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbVCAHeF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVCAHv1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbVCAHeF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 02:34:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbVCAHeE
+	id S261276AbVCAHv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 02:51:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261279AbVCAHv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 02:34:04 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:58282 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261291AbVCAHdu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 02:33:50 -0500
-Subject: Re: [PATCH 2.6.11-rc4-mm1] end-of-proces handling for acct-csa
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Jay Lan <jlan@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       Kaigai Kohei <kaigai@ak.jp.nec.com>, jbarnes@sgi.com
-In-Reply-To: <42236979.5030702@sgi.com>
-References: <421EA8FF.1050906@sgi.com>
-	 <20050224204646.704680e9.akpm@osdl.org>
-	 <1109314660.1738.206.camel@frecb000711.frec.bull.fr>
-	 <42236979.5030702@sgi.com>
-Date: Tue, 01 Mar 2005 08:33:29 +0100
-Message-Id: <1109662409.8594.50.camel@frecb000711.frec.bull.fr>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 01/03/2005 08:42:30,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 01/03/2005 08:42:37,
-	Serialize complete at 01/03/2005 08:42:37
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Mar 2005 02:51:27 -0500
+Received: from h155.mvista.com ([12.44.186.155]:25220 "EHLO imap.sh.mvista.com")
+	by vger.kernel.org with ESMTP id S261276AbVCAHvZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 02:51:25 -0500
+Subject: [patch] Fix e1000 driver disable interrupts bug for
+	realtime-preempt-2.6.11-rc4-V0.7.39-02
+From: Yang Yi <yyang@ch.mvista.com>
+Reply-To: yyang@ch.mvista.com
+To: mingo@elte.hu
+Cc: linux-kernel@vger.kernel.org, Rt-Dev@Mvista.Com
 Content-Type: text/plain
+Organization: MontaVista China R&D Center
+Message-Id: <1109663530.18759.207.camel@montavista2>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 01 Mar 2005 15:52:10 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-02-28 at 10:56 -0800, Jay Lan wrote:
-> The exit hook is essential for CSA to save off data before the data
-> is gone, A netlink type of thing does not help. BSD is in the same
-> situation. You can not replace the acct_process() call with a netlink.
-> If ELSA is to use the enhanced accounting data, it needs the CSA
-> eop handling at exit as well.
+Hi ,Ingo
 
-Why replace the acct_process()? The problem here is to add a new hook in
-the do_fork() and you can use the BSD accounting hook acct_process()
-which is already in the exit() routine. We don't need to replace it with
-a netlink because today there are no user space applications that need
-it. 
+this patch fixes e1000 driver disable interrupt bug when enabling
+"Complete Preemption (Realtime)".
 
-Best regards,
-Guillaume 
+Type: Defect Fix
+Disposition: submitted to LKML
+Signed-off-by: Yi Yang <yyang@ch.mvista.com>
+Description: When enabling Complete Real-time Preemption, e1000 driver
+always disables interrupts while calling e1000_xmit_frame, this will
+lead to some serious problem, for example, the time will be skewed
+because timer interrupt is also disabled, it also leads to network
+packet missed, netperf's result indicates that thing is very very bad.
+As a matter of fact, the reason is that
+spin_unlock_irqrestore(&adapter->tx_lock) won't restore flags under the
+Complete Preemption (Realtime) case, according to Real-time Preemption
+regular, spin_lock_irqsave(&adapter->tx_lock) also dosen't disable
+interrupts, so, local_irq_save and local_irq_restore should be changed
+into local_irq_save_nort and local_irq_restore_nort, respectively.
+
+--- a/drivers/net/e1000/e1000_main.c    2005-03-01 11:04:53.000000000
++0800
++++ b/drivers/net/e1000/e1000_main.c    2005-03-01 13:46:40.000000000
++0800
+@@ -1802,10 +1802,10 @@ e1000_xmit_frame(struct sk_buff *skb, st
+        if(adapter->pcix_82544)
+                count += nr_frags;
+
+-       local_irq_save(flags);
++       local_irq_save_nort(flags);
+        if (!spin_trylock(&adapter->tx_lock)) {
+                /* Collision - tell upper layer to requeue */
+-               local_irq_restore(flags);
++               local_irq_restore_nort(flags);
+                return NETDEV_TX_LOCKED;
+        }
 

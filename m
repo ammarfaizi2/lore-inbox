@@ -1,88 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267149AbSLKNi2>; Wed, 11 Dec 2002 08:38:28 -0500
+	id <S267164AbSLKNtM>; Wed, 11 Dec 2002 08:49:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267144AbSLKNhr>; Wed, 11 Dec 2002 08:37:47 -0500
-Received: from [66.70.28.20] ([66.70.28.20]:9739 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S267149AbSLKNgd>; Wed, 11 Dec 2002 08:36:33 -0500
-Date: Wed, 11 Dec 2002 14:23:38 +0100
-From: DervishD <raul@pleyades.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>, davem@redhat.com
-Subject: [PATCH] mmap.c (do_mmap_pgoff) 'repatched'.
-Message-ID: <20021211132338.GD48@DervishD>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="CUfgB8w4ZwR/yMy5"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+	id <S267165AbSLKNtM>; Wed, 11 Dec 2002 08:49:12 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:22916 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S267164AbSLKNtH>; Wed, 11 Dec 2002 08:49:07 -0500
+Date: Wed, 11 Dec 2002 08:58:21 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Pavel Machek <pavel@suse.cz>
+cc: Matti Aarnio <matti.aarnio@zmailer.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: IBM spamms me with error messages
+In-Reply-To: <20021211134730.GD3575@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.3.95.1021211085722.20098A-101000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1678434306-754755414-1039615101=:20098"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
---CUfgB8w4ZwR/yMy5
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+--1678434306-754755414-1039615101=:20098
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-    Hi Alan :))
+On Wed, 11 Dec 2002, Pavel Machek wrote:
 
-    The patch I sent you for mmap.c, correcting a corner case,
-namely the case where the requested size on a call to 'mmap()' was
-greater than SIZE_MAX-PAGE_SIZE, because the size was incorrectly
-page-aligned to size '0', does nothing if TASK_SIZE is the full
-address space for the task. This happens, for example, under sparc64.
+> Hi!
+> 
+> > > I replied to some mail on l-k and IBM spammed me with 20+ error
+> > > messages. Now it is apparently going to do that again.
+> > 
+> >    Still/again ?
+> 
+> Hehe, I replied to this, and got error, again.
+> 
+> 								Pavel
+> 
+> -- 
+> Casualities in World Trade Center: ~3k dead inside the building,
+> cryptography in U.S.A. and free speech in Czech Republic.
 
-    This new patch covers this case and works even if TASK_SIZE is
-very huge. My patch was completed by David S. Miller <davem@redhat.com>
-and now should work for all cases.
+You are not the only one. I will probably get spammed again. Here's
+the complete raw mail from their last spam.
 
-    The patch is against your 2.4.20-ac1 tree. If you have any doubt,
-please tell.
 
-    Thanks ;)
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 
-    Raúl
 
---CUfgB8w4ZwR/yMy5
-Content-Type: text/plain; charset=iso-8859-1
-Content-Description: mmap.c.diff
-Content-Disposition: attachment; filename="mmap.c.2.4.20-ac1.diff"
+--1678434306-754755414-1039615101=:20098
+Content-Type: APPLICATION/octet-stream; name="spam.gz"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.3.95.1021211085821.20098B@chaos.analogic.com>
+Content-Description: 
 
---- linux/mm/mmap.c.orig	2002-12-11 14:08:39.000000000 +0100
-+++ linux/mm/mmap.c	2002-12-11 14:09:54.000000000 +0100
-@@ -473,10 +473,6 @@
- }
- 
- 
--/*
-- *	NOTE: in this function we rely on TASK_SIZE being lower than
-- *	SIZE_MAX-PAGE_SIZE at least. I'm pretty sure that it is.
-- */
- 
- unsigned long do_mmap_pgoff(struct file * file, unsigned long addr, unsigned long len,
- 	unsigned long prot, unsigned long flags, unsigned long pgoff)
-@@ -493,14 +489,14 @@
- 	if (file && (!file->f_op || !file->f_op->mmap))
- 		return -ENODEV;
- 
--	if (!len)
-+	if (len == 0)
- 		return addr;
-+	
-+	len = PAGE_ALIGN(len);
- 
--	if (len > TASK_SIZE)
-+	if (len > TASK_SIZE || len == 0)
- 		return -EINVAL;
- 
--	len = PAGE_ALIGN(len);  /* This cannot be zero now */
--
- 	/* offset overflow? */
- 	if ((pgoff + (len >> PAGE_SHIFT)) < pgoff)
- 		return -EINVAL;
-
---CUfgB8w4ZwR/yMy5--
+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
+K9Ufbm30+i9xIh8MHRYAAA==
+--1678434306-754755414-1039615101=:20098--

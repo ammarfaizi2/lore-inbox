@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276966AbRJHQB4>; Mon, 8 Oct 2001 12:01:56 -0400
+	id <S272818AbRJHQFg>; Mon, 8 Oct 2001 12:05:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272818AbRJHQBv>; Mon, 8 Oct 2001 12:01:51 -0400
-Received: from [192.132.92.2] ([192.132.92.2]:14253 "EHLO
-	bitmover.bitmover.com") by vger.kernel.org with ESMTP
-	id <S276966AbRJHQBc>; Mon, 8 Oct 2001 12:01:32 -0400
-Date: Mon, 8 Oct 2001 09:02:03 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: [OT] testing internet performance, esp latency/drops?
-Message-ID: <20011008090203.L26223@work.bitmover.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S276977AbRJHQF1>; Mon, 8 Oct 2001 12:05:27 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27406 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272818AbRJHQFP>; Mon, 8 Oct 2001 12:05:15 -0400
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+To: hadi@cyberus.ca (jamal)
+Date: Mon, 8 Oct 2001 17:11:03 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        andrea@suse.de (Andrea Arcangeli), mingo@elte.hu (Ingo Molnar),
+        linux-kernel@vger.kernel.org (Linux-Kernel), netdev@oss.sgi.com,
+        torvalds@transmeta.com (Linus Torvalds)
+In-Reply-To: <Pine.GSO.4.30.0110081146050.5473-100000@shell.cyberus.ca> from "jamal" at Oct 08, 2001 11:57:11 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15qczg-00011N-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Merry kernel hackers, we recently installed a T1 line at bitmover.com and
-expected improved performance.  In some places we got it, pings to places
-in the silicon valley are a respectable 5-9 milliseconds.  FTP performance
-is a predictable 180KB/sec, as expected.
+> Agreed if you add the polling cardbus bit.
+> Note polling cardbus would require more changes than the above.
 
-However, web browsing sucks.  On about 80% of all links, there is a noticable
-hesitation, between 1-15 seconds, as it looks up the name and as it fetches
-the first page.  After that point, that site will appear to be OK.
+I don't think it does. There are two pieces to the problem
 
-It sounds to me like return packets are getting dropped a lot.  Which is 
-possible, but I'd like to know for sure.
+	a)	Not dying horribly
+	b)	Handling it elegantly
 
-Before I wander off to write a test for this, I'm wondering if anyone 
-knows of a test suite or a methodology which works.  I was thinking 
-about just coding every reference in bookmarks/history into a driver
-file which drove a connect-o-matic program that timed how fast it 
-could connect to each of those sites.  Any comments on that idea?
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+b) is driver specific (NAPI etc) and I think well understood to the point
+its being used already for performance reasons
+
+a) is as simple as 
+
+	if(stuck_in_irq(foo) && irq_shared(foo))
+	{
+		disable_real_irq(foo);
+		timer_fake_irq_foo();
+	}
+
+We know spoofing a shared irq is safe.
+
+Alan

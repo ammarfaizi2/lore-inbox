@@ -1,66 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbUK3G4B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261585AbUK3HRD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261984AbUK3G4B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 01:56:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbUK3G4A
+	id S261585AbUK3HRD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 02:17:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbUK3HRC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 01:56:00 -0500
-Received: from smtp-vbr4.xs4all.nl ([194.109.24.24]:8211 "EHLO
-	smtp-vbr4.xs4all.nl") by vger.kernel.org with ESMTP id S261984AbUK3Gzs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 01:55:48 -0500
-Date: Tue, 30 Nov 2004 07:55:55 +0100
-From: Jurriaan <thunder7@xs4all.nl>
-To: Kronos <kronos@people.it>
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Linux-fbdev-devel] why does radeonfb work fine in 2.6, but not in 2.4.29-pre1?
-Message-ID: <20041130065555.GA20972@middle.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
-References: <20041128184606.GA2537@middle.of.nowhere> <20041129213510.GA9551@dreamland.darkstar.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041129213510.GA9551@dreamland.darkstar.lan>
-X-Message-Flag: Still using Outlook? As you can see, it has some errors.
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 30 Nov 2004 02:17:02 -0500
+Received: from quechua.inka.de ([193.197.184.2]:37606 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261585AbUK3HQ5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 02:16:57 -0500
+From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Designing Another File System
+Organization: Deban GNU/Linux Homesite
+In-Reply-To: <41ABF7C5.5070609@comcast.net>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.8.1 (i686))
+Message-Id: <E1CZ2Fp-0005O7-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Tue, 30 Nov 2004 08:16:53 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Kronos <kronos@people.it>
-Date: Mon, Nov 29, 2004 at 10:35:10PM +0100
-> Il Sun, Nov 28, 2004 at 07:46:06PM +0100, Jurriaan ha scritto: 
-> > The same radeonfb-setup works fine in every 2.6 kernel I can remember
-> > (last tested with 2.6.10-rc2-mm3) but give the dreaded 'cannot map FB'
-> > in 2.4.29-pre1.
-> > 
-> > The card has 128 Mb of ram, and my system has 3 Mb of RAM.
-> > 
-> > Is there any reason the ioremap() call works on 2.6, but doesn't on 2.4?
-> 
-> Driver in 2.6 only ioremap()s the memory needed for the framebuffer,
-> while the one in 2.4 ioremap()s all the VRAM (and fails).
-> 
-> > Is there any way to test 2.4 with my radeonfb and all of my memory?
-> 
-> I proposed the following patch some time ago (for 2.4.28-pre2 IIRC) as a
-> quick fix:
-> 
-Thanks. I found that patch on google. Problem is: when I look through
-the radeonfb in 2.6, I don't see any assignments to rinfo->video_ram
-that indicate it maps less than the full amount.
+In article <41ABF7C5.5070609@comcast.net> you wrote:
+> when done; however, whatever the result, I'd assuredly give a free
+> license to implement the resulting file system in GPL2 licensed code (if
+> you're not making money off it, I'm not making money off it).
 
-> 
-> Problem is that fix->smem_len is used both by FBIOGET_FSCREENINFO to
-> report the amount of VRAM to userspace and by read/write/mmap on fb
-> for bounds checking. So with my patch FBIOGET_FSCREENINFO reports mapped
-> VRAM instead of physical VRAM.
-> 
-> smem_len should be splitted in (say) smem_mapped (for read/write/mmap)
-> and smem_total_vram (for FBIOGET_FSCREENINFO). I'll code something
-> tomorrow... -ENEEDSLEEP ;)
-> 
-Thanks,
-Jurriaan
--- 
-All wiyht. Rho sritched mg kegtops awound?
-Debian (Unstable) GNU/Linux 2.6.10-rc2-mm3 2x6078 bogomips load load 0.24
+You can't restrict the GPL.
+
+> I've examined briefly the overall concepts which go into several file
+> systems and pooled them together to create my basic requirements.  In
+> these include things such as:
+
+It is not a good idea to publish your ideas if you want to patent them.
+
+> - - localization of Inodes and related meta-data to prevent disk thrashing
+
+Why do you asume inodes?
+
+> - - 64 bit indices indicating the exact physical location on disk of
+> Inodes, giving a O(1) seek to the Inode itself
+
+How is that different from Logical Block Numbers with a fixed cluster
+factor? (besides it wastes more bits)
+
+> - - A design based around preventing information leaking by guaranteed
+> secure erasure of data (insofar that the journal even will finish wiping
+> out data when replaying a transaction)
+
+Hopefully  optional.
+
+> 2)  Are there any other security concerns aside from information leaking
+> (deleted data being left over on disk, which may pop up in incompletely
+> written files)?
+
+IT-Security is about availability and reliability also.
+
+> 3)  What basic information do I absolutely *need* in my super block?
+
+How should  WE know? (For mount you might want to have versioning and uuids)
+
+> 5)  What basic information do I absolutely *need* in my directory
+> entries? (I'm thinking {name,inode})
+
+Think about optimizations like NTFS, where you can sort directories by
+attributes and store often used attribtes in the dir, so you dont need a
+inode dereference (MFT lookup in case of ntfs)
+
+> Directories will have to be some sort of on disk BsomethingTree. . . B*,
+> B+, something.  I have no idea how to implement this :D  I'll assume I
+> treat the directory data as a logically contiguous file (yes I'm gonna
+> store directory data just like file data).  I could use a string hash of
+> the Directory Entry name with disambiguation at the end, except my
+> options here seem limited:
+
+Dont forget to optimize  directories for all  4: insertion/deletion/lookup
+and traversal.
+
+> I guess the second would be better?  I can't locate any directories on
+> my drive with >2000 entries *shrug*.  The end key is just the entry
+> {name,inode} pair.
+
+Do you want to run old style NNTP Servers?
+
+> Any ideas?
+
+In fact I miss a bit a new idea, so what makes your FS better, why should
+anyone use a non-open source implementation if it does not provide anything
+new?
+
+Greetings
+Bernd

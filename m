@@ -1,58 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316969AbSGXLu3>; Wed, 24 Jul 2002 07:50:29 -0400
+	id <S316994AbSGXLyF>; Wed, 24 Jul 2002 07:54:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316994AbSGXLu3>; Wed, 24 Jul 2002 07:50:29 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:65244 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S316969AbSGXLu2>;
-	Wed, 24 Jul 2002 07:50:28 -0400
-Date: Wed, 24 Jul 2002 13:53:22 +0200
-From: Jens Axboe <axboe@suse.de>
-To: martin@dalecki.de
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: please DON'T run 2.5.27 with IDE!
-Message-ID: <20020724115322.GC5159@suse.de>
-References: <Pine.SOL.4.30.0207241248380.17154-100000@mion.elka.pw.edu.pl> <3D3E90E4.3080108@evision.ag>
+	id <S316997AbSGXLyF>; Wed, 24 Jul 2002 07:54:05 -0400
+Received: from [213.69.232.58] ([213.69.232.58]:17674 "HELO schottelius.org")
+	by vger.kernel.org with SMTP id <S316994AbSGXLyE>;
+	Wed, 24 Jul 2002 07:54:04 -0400
+Date: Wed, 24 Jul 2002 15:57:11 +0200
+From: Nico Schottelius <nicos-mutt@pcsystems.de>
+To: Thunder from the hill <thunder@ngforever.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.5.27 floppy driver
+Message-ID: <20020724135711.GB1226@schottelius.org>
+References: <20020724134026.GB479@schottelius.org> <Pine.LNX.4.44.0207240549140.3366-100000@hawkeye.luckynet.adm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="O5XBE6gyVG5Rl6Rj"
 Content-Disposition: inline
-In-Reply-To: <3D3E90E4.3080108@evision.ag>
+In-Reply-To: <Pine.LNX.4.44.0207240549140.3366-100000@hawkeye.luckynet.adm>
+User-Agent: Mutt/1.4i
+X-MSMail-Priority: Is not really needed
+X-Mailer: Yam on Linux ?
+X-Operating-System: Linux flapp 2.5.27
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 24 2002, Marcin Dalecki wrote:
-> >>So look at drivers which call blk_start_queue() from within
-> >>q->request_fn context, which is, well, causing deliberate *recursion*.
-> >>
-> >
-> >
-> >Are you sure? If so they should first check whether queue is
-> >started/stopped, if they don't it is a bug.
-> 
-> void blk_start_queue(request_queue_t *q)
-> {
->         if (test_bit(QUEUE_FLAG_STOPPED, &q->queue_flags)) {
->                 unsigned long flags;
-> 
-> ================== possigle race here for qeue_flags BTW.
-> 
->                 spin_lock_irqsave(q->queue_lock, flags);
->                 clear_bit(QUEUE_FLAG_STOPPED, &q->queue_flags);
-> 
->                 if (!elv_queue_empty(q))
->                         q->request_fn(q);
-> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> If we call it from within request_fn then if this isn't recursion on the
-> kernel stack then I don't know...
-> 
->                 spin_unlock_irqrestore(q->queue_lock, flags);
->         }
-> }
 
-Care to enlighten us on exactly which block drivers call
-blk_start_queue() from request_fn?
+--O5XBE6gyVG5Rl6Rj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Jens Axboe
+Thunder from the hill [Wed, Jul 24, 2002 at 05:49:56AM -0600]:
+> On Wed, 24 Jul 2002, Nico Schottelius wrote:
+> > The floppy driver is broken in this kernel, too.
+>=20
+> Yes, and it will stay broken unless somebody nice comes along and fixes=
+=20
+> it. I don't have a floppy, so...
 
+is it impossible to use the one from .25 ?
+
+Nico
+
+--=20
+Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
+ils
+to mailing list!). If you don't know what pgp is visit www.gnupg.org.
+(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
+
+--O5XBE6gyVG5Rl6Rj
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9PrI3tnlUggLJsX0RAo/RAKCeBIisrdtH+TI6UUW8MLldqYntJwCgi/OT
+cVtanpzqp73/Th0aOddUVBA=
+=QrMy
+-----END PGP SIGNATURE-----
+
+--O5XBE6gyVG5Rl6Rj--

@@ -1,65 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129874AbRCGCCz>; Tue, 6 Mar 2001 21:02:55 -0500
+	id <S129845AbRCGCKD>; Tue, 6 Mar 2001 21:10:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129865AbRCGCCo>; Tue, 6 Mar 2001 21:02:44 -0500
-Received: from mnh-1-23.mv.com ([207.22.10.55]:24587 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S129861AbRCGCCh>;
-	Tue, 6 Mar 2001 21:02:37 -0500
-Message-Id: <200103070312.WAA04661@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: timw@splhi.com
-Cc: Jonathan Lahr <lahr@sequent.com>, Anton Blanchard <anton@linuxcare.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: kernel lock contention and scalability 
-In-Reply-To: Your message of "Tue, 06 Mar 2001 16:28:18 PST."
-             <20010306162818.A1095@kochanski.internal.splhi.com> 
+	id <S129847AbRCGCJx>; Tue, 6 Mar 2001 21:09:53 -0500
+Received: from h24-70-162-27.wp.shawcable.net ([24.70.162.27]:32275 "EHLO ubb")
+	by vger.kernel.org with ESMTP id <S129845AbRCGCJk>;
+	Tue, 6 Mar 2001 21:09:40 -0500
+Message-Id: <v04003a06b6cb43b4f87c@[24.70.162.12]>
+In-Reply-To: <Pine.LNX.4.30.0103061657570.19700-100000@waste.org>
+In-Reply-To: <15008.17278.154154.210086@pizda.ninka.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 06 Mar 2001 22:12:17 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Type: text/plain; charset="us-ascii"
+Organisation: Judean People's Front; Department of Whips, Chains, Thumb-Screws, Six Tons of Whipping Cream, the Entire Soprano Section of the Mormon Tabernacle Choir and Guest Apperances of Eva Peron aka Eric Conspiracy Secret Laboratories
+X-Disclaimer-1: This message has been edited from it's original form by members of the Eric Conspiracy.
+X-Disclaimer-2: There is no Eric Conspiracy.
+Date: Tue, 6 Mar 2001 20:07:33 -0600
+To: Oliver Xymoron <oxymoron@waste.org>, "David S. Miller" <davem@redhat.com>
+From: Tony Mantler <nicoya@apia.dhs.org>
+Subject: Re: The IO problem on multiple PCI busses
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        <linuxppc-dev@lists.linuxppc.org>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-timw@splhi.com said:
-> If you're a UP system, it never makes sense to spin in userland, since
-> you'll just burn up a timeslice and prevent the lock holder from
-> running. I haven't looked, but assume that their code only uses
-> spinlocks on SMP. If you're an SMP system, then you shouldn't be using
-> a spinlock unless the critical section is "short", in which case the
-> waiters should simply spin in userland rather than making system calls
-> which is simply overhead.
+At 5:01 PM -0600 3/6/2001, Oliver Xymoron wrote:
+>On Fri, 2 Mar 2001, David S. Miller wrote:
+>
+>>  > On PPC, we don't have an "IO" space neither, all we have is a range of
+>>  > memory addresses that will cause IO cycles to happen on the PCI bus.
+>>
+>> This is precisely what the "next MMAP is XXX space" ioctl I've
+>> suggested is for.  I think I've addressed this concern in my
+>> proposal already.  Look:
+>>
+>> 	fd = open("/proc/bus/pci/${BUS}/${DEV}", ...);
+>> 	if (fd < 0)
+>> 		return -errno;
+>> 	err = ioctl(fd, PCI_MMAP_IO, 0);
+>
+>I know I'm coming in on this late, but wouldn't it be cleaner to have
+>separate files for memory and io cycles, eg ${BUS}/${DEV}.(io|mem)?
+>They're logically different so they might as well be embodied separately.
 
-This is a problem that UML is going to have when I turn SMP back on.  
-Emulating a multiprocessor box on a UP host with the existing locking 
-primitives is going to result in exactly this problem.
+If I were designing this (and I'm not), I would do it as thus:
 
-> Actually, what's really needed here is an efficient form of
-> dynamically marking a process as non-preemptible so that when
-> acquiring a spinlock the process can ensure that it exits the critical
-> section as fast as possible, when it would relinquish its
-> non-preemptible privilege.
+/proc/bus/pci/${BUS}/${DEV} is same as it always is
+/proc/bus/pci/${BUS}/${DEV}.d/io.n for IO resources, where n is the number
+of the IO resource
+/proc/bus/pci/${BUS}/${DEV}.d/mem.n for Mem resouces, where n is...
+/proc/bus/pci/${BUS}/${DEV}.d/ints for interrupts, which would block on
+read when there are no interrupts pending, and after an interrupt is
+triggered the data read would be some sort of information about the
+interrupt.
 
-That sounds like a pretty fundamental (and abusable) mechanism.
+And that should (in theory) be all you need for writing a basic userspace
+PCI device driver. (You wouldn't really be able to set up DMA or such, but
+at that point I think "put the damn driver in the kernel" would be an
+appropriate utterance)
 
-I had a suggestion from an IBM guy at ALS last year to make UML "spin"-locks 
-actually sleep in the host (this doesn't make them sleep locks in userspace 
-because they don't call schedule), which sounds reasonable.  This gives the 
-lock-holder an opportunity to run immediately.  It's unclear to me what the 
-wake-up mechanism would be, though.
 
-Another thought I had was to raise the priority of a thread holding a 
-spinlock.  This would reduce the chance that it would be preempted by a thread 
-that will waste a timeslice spinning on that lock.  I don't know whether this 
-is a good idea either.
+This is just off the top of my head, so no warranties expressed or implied
+about the sanity of this kind of system.
 
-> Another synchronization method popular with database peeps is "post/
-> wait" for which SGI have a patch available for Linux. I understand
-> that this is relatively "light weight" and might be a better choice
-> for PG. 
+Come to think of it, is /proc really the best place to put all this stuff?
+It would be a pain to put it in /dev and mess with assigning majors and
+minors and making sure all the special devices get created and stuff...
+Makes me wish Linux had an /hw fs like on IRIX. (I suppose devfs is close,
+but I don't personally like the idea of completely replacing /dev with an
+automatic filesystem)
 
-URL?
+Anyways...
 
-				Jeff
+
+Cheers - Tony 'Nicoya' Mantler :)
+
+
+--
+Tony "Nicoya" Mantler - Renaissance Nerd Extraordinaire - nicoya@apia.dhs.org
+Winnipeg, Manitoba, Canada           --           http://nicoya.feline.pp.se/
 
 

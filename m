@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbTDQRss (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 13:48:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbTDQRsr
+	id S261821AbTDQRqn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 13:46:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbTDQRqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 13:48:47 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:1964 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261825AbTDQRsq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 13:48:46 -0400
-Date: Thu, 17 Apr 2003 20:00:42 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20-je2
-Message-ID: <20030417180042.GA594@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
+	Thu, 17 Apr 2003 13:46:42 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:6784 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S261821AbTDQRqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 13:46:40 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304171800.h3HI0e97000255@81-2-122-30.bradfords.org.uk>
+Subject: Re: Help with virus/hackers
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Thu, 17 Apr 2003 19:00:40 +0100 (BST)
+Cc: john@grabjohn.com (John Bradford), root@chaos.analogic.com,
+       jbriggs@briggsmedia.com (joe briggs),
+       linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
+In-Reply-To: <1050596810.31414.103.camel@dhcp22.swansea.linux.org.uk> from "Alan Cox" at Apr 17, 2003 05:26:51 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> > I've often wondered whether it would be worth connecting a very large
+> > serial EEPROM to a serial port interface, and have it effectively
+> > appear as a solid state printer, (to that you could cheaply log to an
+> > unmodifyable device).  Has anybody ever tried this?
+> 
+> Linux supports console on printer. Its not totally foolproof (there is
+> a famous story of someone who simply reprinted the past two days of logs
+> edited so the admins wouldnt realise when they looked)
 
-Download from:
-http://wh.fh-wedel.de/~joern/software/kernel/je/24/patch-2.4.20-je2
+!!!  You can't be serious :-)
 
-Included patches:
-checkstack	- statically check functions for stack usage
-stack_overflow	- print messages when 3k stack are used (7k without)
-remove_charraw	- adds a config option for drivers/char/raw.o
-msdospartitions	- don't always compile fs/partitions/msdos.o
-net_802cleanup	- cleanup the Makefile and move 802.3 into ipx
-CONFIG_BLKDISK	- put partitioning code etc. behind a config option
-noswap		- add a config option for swap support
-nohash		- experimental, unfinished, currently harmless
+> but it works pretty well. Just use a dot-matrix printer save keeping
+> HP, Lexmark or Xerox in business 8)
 
-Access to the individual patches will follow.
+Aren't you concerned with all of the trees that will be cut down to
+make that paper, though?
 
-Jörn
+I think 1 tree = about 50 reams.  Let's say you get through a ream a
+day, that's a tree every couple of months!
 
--- 
-Invincibility is in oneself, vulnerability is in the opponent.
--- Sun Tzu
+Maybe there is a way to encode the data in the rings of the tree while
+it's still growing, that would be the ultimate WORM device :-) :-)
+:-).
+
+John.

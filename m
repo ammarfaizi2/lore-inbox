@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132537AbRDGEbX>; Sat, 7 Apr 2001 00:31:23 -0400
+	id <S132547AbRDGEoW>; Sat, 7 Apr 2001 00:44:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132547AbRDGEbO>; Sat, 7 Apr 2001 00:31:14 -0400
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:22265
-	"EHLO vaio.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S132537AbRDGEa4>; Sat, 7 Apr 2001 00:30:56 -0400
-Message-ID: <3ACE97E0.B95A5748@linux-ide.org>
-Date: Fri, 06 Apr 2001 21:30:24 -0700
-From: Andre Hedrick <andre@linux-ide.org>
-Organization: Linux ATA Development
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16 i686)
-X-Accept-Language: en
+	id <S132548AbRDGEoN>; Sat, 7 Apr 2001 00:44:13 -0400
+Received: from ns1.justnet.com ([64.245.23.22]:40721 "EHLO ns1.justnet.com")
+	by vger.kernel.org with ESMTP id <S132547AbRDGEny>;
+	Sat, 7 Apr 2001 00:43:54 -0400
+From: Lee Leahu <lee@ricis.com>
+Reply-To: lee@ricis.com
+Organization: RICIS Inc
+To: linux-kernel@vger.kernel.org
+Subject: module problem with new kernel
+Date: Fri, 6 Apr 2001 23:42:37 -0500
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-To: Frank.Cornelis@rug.ac.be, linux-kernel@vger.kernel.org
-Subject: Re: linux 2.4.3 crashed my hard disk
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01040623423705.00821@linux>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hello everyone!
 
-You killed yourself....
+i recently installed suse 7.1 kernel 2.4.0-4GB on an IBM 600E laptop.
+it runs execellent!
+but i wanted to also have sound, so through make xconfig i added
+the sound module, then i found out i had to enable reiserfs (that's what fs i use)
+and pcmcia.
+now it's complaining that it can't find the modules - suse installed the modules in
+/usr/lib/modules/2.4.0-4GB and the new kernel is the plain 2.4.0 and is looking
+in /usr/lib/modules/2.4.0
 
-You do not have a host that will do idebus=66
-You have now dived you clock timing in half.
-You should expect to have a driver time out before the device is
-completed.
+can i make a symling from 2.4.0 to 2.4.0-4GB or is there a twist in it?
+
+is there a way i can tell from somewhere what all the options where used to complie the 
+original kernel from suse where?
 
 -- 
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
+Lee Leahu <lee@ricis.com>,
+System Admin,
+Web Developer,
+RICIS Inc,
+(708) 444-2690 (Work)
+(708) 467-2044 (Pager)

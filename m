@@ -1,96 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbTE2HEj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 03:04:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbTE2HEj
+	id S261956AbTE2HMK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 03:12:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbTE2HMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 03:04:39 -0400
-Received: from hank-fep8-0.inet.fi ([194.251.242.203]:13780 "EHLO
-	fep08.tmt.tele.fi") by vger.kernel.org with ESMTP id S261959AbTE2HE1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 03:04:27 -0400
-From: Pasi Savilaakso <pasi.savilaakso@pp.inet.fi>
-Organization: Linsystems
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20: Proccess stuck in __lock_page...
-Date: Thu, 29 May 2003 10:19:30 +0300
-User-Agent: KMail/1.5.2
+	Thu, 29 May 2003 03:12:10 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:20353
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S261956AbTE2HMJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 03:12:09 -0400
+Date: Thu, 29 May 2003 03:14:20 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Neil Brown <neilb@cse.unsw.edu.au>
+cc: pee@erkkila.org, Helge Hafting <helgehaf@aitel.hist.no>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Andrew Morton <akpm@digeo.com>, "" <linux-kernel@vger.kernel.org>,
+       "" <linux-mm@kvack.org>
+Subject: Re: 2.5.70-mm1 bootcrash, possibly RAID-1
+In-Reply-To: <16085.23940.164807.702704@notabene.cse.unsw.edu.au>
+Message-ID: <Pine.LNX.4.50.0305290313030.940-100000@montezuma.mastecende.com>
+References: <20030408042239.053e1d23.akpm@digeo.com> <3ED49A14.2020704@aitel.hist.no>
+ <20030528111345.GU8978@holomorphy.com> <3ED49EB8.1080506@aitel.hist.no>
+ <20030528113544.GV8978@holomorphy.com> <20030528225913.GA1103@hh.idb.hist.no>
+ <3ED54685.5020706@erkkila.org> <16085.23940.164807.702704@notabene.cse.unsw.edu.au>
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200305291019.34305.pasi.savilaakso@pp.inet.fi>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, 29 May 2003, Neil Brown wrote:
 
-Hi, all
+> I think this might fix the bug, but I haven't looked very closely
+> yet.  I will expore it more deeply when I get time.
+> 
+> NeilBrown
 
-I am not really sure if this is the same problem which I suffer from. But at 
-least it sounds like it is.
+No go;
 
-In my case I get total system freeze up every time I copy something from fs to 
-another and I have xawtv running. system is freezed up totally, no mouse 
-movement, no response to keyboard, hd activity light is lit and constantly 
-burning but nothing happens. First I thought that it could be a fs problem 
-but I have tested all kinds of combinations. 
-
-ext2->ext2
-ext2->ext3
-ext3->ext3
-ext3->reiserfs
-reiserfs ->reiserfs
-xfs->xfs 
-etc. 
-
-everytime with same results, hds are changed, mb is changed, nothing helps. I 
-cannot actually go back in kernel since 2.4.21-pre3 was first kernel which 
-works with my new motherboard. I dont remember when this started to happen. I 
-also suspected that It might be somekind pause problem so I left my system to 
-finish its copy process. but after 2 days I resetted computer an no files 
-were moved. Some progress has happened since now sound from bttv comes out 
-even system is freezed. some times ago the sound was freezed too. 
-
-lspci
-00:00.0 Host bridge: VIA Technologies, Inc. VT8377 [KT400 AGP] Host Bridge
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8235 PCI Bridge
-00:06.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture 
-(rev 02)
-00:06.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 
-02)
-00:07.0 Ethernet controller: 3Com Corporation 3c905 100BaseTX [Boomerang]
-00:0c.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
-00:10.0 USB Controller: VIA Technologies, Inc. USB (rev 80)
-00:10.1 USB Controller: VIA Technologies, Inc. USB (rev 80)
-00:10.2 USB Controller: VIA Technologies, Inc. USB (rev 80)
-00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
-00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
-00:11.1 IDE interface: VIA Technologies, Inc. VT82C586/B/686A/B PIPC Bus 
-Master IDE (rev 06)
-01:00.0 VGA compatible controller: ATI Technologies Inc Radeon R300 NE [Radeon 
-9700]
-01:00.1 Display controller: ATI Technologies Inc Radeon R300 [Radeon 9700] 
-(Secondary)
-
-everything else but ethernet controller and bt878 has changed. 
-
-I get random freezes if I read or write to one fs and I use my bt878. 
-
-This has been problem quite long time now and I first suspected something else 
-than kernel long time but I ruled them out one by one. Currently running with 
-2.4.21-rc6. 
+raid0:   comparing sdd1(4193152) with sdd1(4193152)
+raid0:   END
+raid0:   ==> UNIQUE
+raid0: 1 zones
+raid0: looking at sdc1
+raid0:   comparing sdc1(4193152) with sdd1(4193152)
+raid0:   EQUAL
+raid0: FINAL 1 zones
+raid0: multiple devices for 1 - aborting!
+slab error in cache_free_debugcheck(): cache `size-32': double free, or memory before object was overwritten
+Call Trace:
+ [<c0148da3>] kfree+0xf3/0x2e0
+ [<c0366a64>] raid0_run+0x234/0x250
+ [<c0366a64>] raid0_run+0x234/0x250
+ [<c012529a>] printk+0x1ca/0x280
+ [<c0371fa4>] do_md_run+0x2f4/0x560
+ [<c0371fbb>] do_md_run+0x30b/0x560
+ [<c012529a>] printk+0x1ca/0x280
+ [<c03724f2>] autorun_array+0x82/0xa0
+ [<c012529a>] printk+0x1ca/0x280
+ [<c03726ff>] autorun_devices+0x1ef/0x230
+ [<c0375569>] autostart_arrays+0x29/0xba
+ [<c036f8f6>] mddev_put+0x16/0xb0
+ [<c0250728>] capable+0x18/0x40
+ [<c03737de>] md_ioctl+0x56e/0x5a0
+ [<c0169759>] blkdev_open+0x29/0x30
+ [<c015f0dc>] dentry_open+0x14c/0x230
+ [<c0148c2a>] kmem_cache_free+0x1ca/0x250
+ [<c02a2f0b>] blkdev_ioctl+0x8b/0x3b1
+ [<c01747d6>] sys_ioctl+0x156/0x310
+ [<c056f6b7>] md_run_setup+0x57/0x80
+ [<c056ef28>] prepare_namespace+0x8/0xa0
+ [<c01050fb>] init+0x5b/0x210
+ [<c01050a0>] init+0x0/0x210
+ [<c01070e5>] kernel_thread_helper+0x5/0x10
 
 
-Pasi Savilaakso
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+1bSGCATNOy4O2C4RAnMWAKCDymJBC/+hiJy6BAfChv/HB3EI0wCfecrW
-iIQGtx028avmhGelBe/CUis=
-=kmyd
------END PGP SIGNATURE-----
-
-
+-- 
+function.linuxpower.ca

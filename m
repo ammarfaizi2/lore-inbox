@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263794AbTBJHO2>; Mon, 10 Feb 2003 02:14:28 -0500
+	id <S263977AbTBJHLO>; Mon, 10 Feb 2003 02:11:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263760AbTBJHO2>; Mon, 10 Feb 2003 02:14:28 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:29447 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S263794AbTBJHO1>; Mon, 10 Feb 2003 02:14:27 -0500
-Date: Mon, 10 Feb 2003 07:24:11 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Oliver Xymoron <oxymoron@waste.org>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Monta Vista software license terms
-Message-ID: <20030210072411.A15814@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Oliver Xymoron <oxymoron@waste.org>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.3.96L.1030205115551.1886A-100000@ndeb.net> <20030205171613.GB14909@nevyn.them.org> <87adhafx0d.fsf@topo.binary-only.priv> <20030205175428.A23701@infradead.org> <01c601c2cd7c$be4002a0$6a01a8c0@wa1hco> <20030210071854.GH28107@waste.org>
+	id <S263991AbTBJHLO>; Mon, 10 Feb 2003 02:11:14 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:39041 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S263977AbTBJHLN>;
+	Mon, 10 Feb 2003 02:11:13 -0500
+Date: Mon, 10 Feb 2003 08:20:38 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: David Lang <david.lang@digitalinsight.com>,
+       Con Kolivas <ckolivas@yahoo.com.au>,
+       lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3 / aa / rmap with contest]
+Message-ID: <20030210072038.GE31401@dualathlon.random>
+References: <Pine.LNX.4.44.0302092018180.15944-100000@dlang.diginsite.com> <Pine.LNX.4.50L.0302100228140.12742-100000@imladris.surriel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030210071854.GH28107@waste.org>; from oxymoron@waste.org on Mon, Feb 10, 2003 at 01:18:54AM -0600
+In-Reply-To: <Pine.LNX.4.50L.0302100228140.12742-100000@imladris.surriel.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 10, 2003 at 01:18:54AM -0600, Oliver Xymoron wrote:
-> Can they or do they? I know that people I've worked with have signed
-> broad NDAs on code they've gotten from MontaVista, though such
-> agreements almost certainly qualify as 'additional restrictions'
-> against the GPL.
+On Mon, Feb 10, 2003 at 02:29:20AM -0200, Rik van Riel wrote:
+> On Sun, 9 Feb 2003, David Lang wrote:
+> 
+> > note that issuing a fsync should change all pending writes to 'syncronous'
+> > as should writes to any partition mounted with the sync option, or writes
+> > to a directory with the S flag set.
+> 
+> Exactly.  This is nasty with our current data structures;
+> probably not something to do during the current code slush.
 
-The agreement for the trial download contains clauses that seem to
-qualify as such additional restrictions and would make redistribution
-illegal at least.  Fortunately that agreement is rather void in Europe
-anyway and I'll post the diff for the kernel tree of that demo soon.
+as I said, you can consider asychronous all requests submitted with
+current->mm, this will be 90% accurate.  This whole thing is an
+heuristic, if the heuristic fails the behaviour become like w/o SFQ so
+no regression. Also the latency of fsync is less critical than the
+latency of a read() syscall, again, this is statistically, sometime it
+can be the other way around.
 
+Andrea

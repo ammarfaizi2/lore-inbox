@@ -1,68 +1,290 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbUE1LrV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbUE1Lys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261830AbUE1LrV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 07:47:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbUE1LrU
+	id S261988AbUE1Lys (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 07:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbUE1Lys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 07:47:20 -0400
-Received: from 217-162-68-113.dclient.hispeed.ch ([217.162.68.113]:25737 "EHLO
-	steudten.com") by vger.kernel.org with ESMTP id S261685AbUE1LrP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 07:47:15 -0400
-Message-ID: <40B726C0.5030400@steudten.com>
-Date: Fri, 28 May 2004 13:47:12 +0200
-From: Thomas Steudten <alpha@steudten.com>
-Organization: STEUDTEN ENGINEERING
+	Fri, 28 May 2004 07:54:48 -0400
+Received: from spy23.spymac.net ([213.218.8.223]:56199 "EHLO spy23.spymac.net")
+	by vger.kernel.org with ESMTP id S261988AbUE1Lyj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 07:54:39 -0400
+Message-ID: <40B72886.3000507@spymac.com>
+Date: Fri, 28 May 2004 13:54:46 +0200
+From: Gunther Persoons <gunther_persoons@spymac.com>
+User-Agent: Mozilla Thunderbird 0.5+ (Windows/20040321)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-admin@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-alpha@vger.kernel.org
-Subject: Kernel crash/ oops >= 2.6.5 with gcc 3.4.0 on alpha
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Mailer: Mailer
-X-Check: 2c1783c72b2809387bfafaa1e08e3128
+To: Ed Tomlinson <edt@aei.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.7-rc1-mm1] cant mount reiserfs using -o barrier=flush
+References: <1085689455.7831.8.camel@localhost> <200405271928.33451.edt@aei.ca>
+In-Reply-To: <200405271928.33451.edt@aei.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Hey,
 
-Sorry, maybe I miss some message before.
+<>Following warnings only come when i mount with the option 
+barrier=flush, i have never seen them before.
+hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+hda: drive_cmd: error=0x04 { DriveStatusError }
 
-I build the 2.6.6 kernel with gcc-3.4.0 and it crashs after
-start some init scripts (got no log at this time).
-So I tried to rebuild my last build 2.6.5, and this
-crashs to. The build with gcc-3.3.3 works without problems.
-modutils-2.4.27
-
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0405.1/1532.html
-
-No other application seems to fail with gcc-3.4.0 so I think
-this problem is in context to the relocation, modules and gcc-3.4.0.
-
-make modules
-make[1]: `arch/alpha/kernel/asm-offsets.s' is up to date.
-   CC [M]  fs/binfmt_em86.o
-{standard input}: Assembler messages:
-{standard input}:7: Warning: setting incorrect section attributes for .got
-   CC [M]  fs/quota_v2.o
-{standard input}: Assembler messages:
-{standard input}:7: Warning: setting incorrect section attributes for .got
-   CC [M]  fs/autofs/dirhash.o
-   CC [M]  fs/autofs/init.o
-{standard input}: Assembler messages:
-{standard input}:7: Warning: setting incorrect section attributes for .got
-   CC [M]  fs/autofs/inode.o
+Also this line clearly states that barrier doesn't work on my harddrive 
+although it's and IDE drive.
+hda: barrier support doesn't work.
 
 
-On x86 everything works without problems.
+Ed Tomlinson wrote:
 
-Please CC me.
--- 
-Tom
-
-LINUX user since kernel 0.99.x 1994.
-RPM Alpha packages at http://alpha.steudten.com/packages
-Want to know what S.u.S.E 1995 cdrom-set contains?
-
-
+>Hi
+>
+>Think this is not just a barrier problem (unless barrier is the default).
+>One if my two drives gets the error below during operation.
+>The drive is the root drive and is mounted with defaults.  2.6.6-mm4
+>was the last kernel booted on this box.   The 2.6.7-rc1-mm1 was compiled
+>with 2.95 with the following fs options:
+>
+>CONFIG_EXT2_FS=y
+># CONFIG_EXT2_FS_XATTR is not set
+>CONFIG_EXT3_FS=m
+># CONFIG_EXT3_FS_XATTR is not set
+>CONFIG_JBD=m
+># CONFIG_JBD_DEBUG is not set
+>CONFIG_REISERFS_FS=y
+># CONFIG_REISERFS_CHECK is not set
+># CONFIG_REISERFS_PROC_INFO is not set
+># CONFIG_REISERFS_FS_XATTR is not set
+># CONFIG_JFS_FS is not set
+># CONFIG_XFS_FS is not set
+># CONFIG_MINIX_FS is not set
+># CONFIG_ROMFS_FS is not set
+># CONFIG_QUOTA is not set
+># CONFIG_AUTOFS_FS is not set
+>CONFIG_AUTOFS4_FS=m
+>
+>hda reports:
+>root@bert:/usr/src/linux# hdparm -iI /dev/hda
+>
+>/dev/hda:
+>
+> Model=WDC AC26400R, FwRev=15.01J15, SerialNo=WD-WM6271600165
+> Config={ HardSect NotMFM HdSw>15uSec SpinMotCtl Fixed DTR>5Mbs FmtGapReq }
+> RawCHS=13328/15/63, TrkSize=57600, SectSize=600, ECCbytes=40
+> BuffType=DualPortCache, BuffSize=512kB, MaxMultSect=16, MultSect=16
+> CurCHS=13328/15/63, CurSects=12594960, LBA=yes, LBAsects=12594960
+> IORDY=on/off, tPIO={min:160,w/IORDY:120}, tDMA={min:120,rec:120}
+> PIO modes:  pio0 pio1 pio2 pio3 pio4
+> DMA modes:  mdma0 mdma1 mdma2
+> UDMA modes: udma0 udma1 *udma2 udma3 udma4
+> AdvancedPM=no WriteCache=enabled
+> Drive conforms to: device does not report version:  1 2 3 4
+>
+> * signifies the current active mode
+>
+>
+>ATA device, with non-removable media
+>        Model Number:       WDC AC26400R
+>        Serial Number:      WD-WM6271600165
+>        Firmware Revision:  15.01J15
+>Standards:
+>        Supported: 4 3 2 1
+>        Likely used: 4
+>Configuration:
+>        Logical         max     current
+>        cylinders       13328   13328
+>        heads           15      15
+>        sectors/track   63      63
+>        --
+>        bytes/track: 57600      bytes/sector: 600
+>        CHS current addressable sectors:   12594960
+>        LBA    user addressable sectors:   12594960
+>        device size with M = 1024*1024:        6149 MBytes
+>        device size with M = 1000*1000:        6448 MBytes (6 GB)
+>Capabilities:
+>        LBA, IORDY(can be disabled)
+>        Buffer size: 512.0kB    bytes avail on r/w long: 40     Queue depth: 1
+>        Standby timer values: spec'd by Standard, no device specific minimum
+>        R/W multiple sector transfer: Max = 16  Current = 16
+>        DMA: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4
+>             Cycle time: min=120ns recommended=120ns
+>        PIO: pio0 pio1 pio2 pio3 pio4
+>             Cycle time: no flow control=160ns  IORDY flow control=120ns
+>Commands/features:
+>        Enabled Supported:
+>           *    READ BUFFER cmd
+>           *    WRITE BUFFER cmd
+>           *    Look-ahead
+>           *    Write cache
+>           *    Power Management feature set
+>           *    SMART feature set
+>
+>root@bert:/usr/src/linux# hdparm -iI /dev/hdb
+>
+>/dev/hdb:
+>
+> Model=Maxtor 6E030L0, FwRev=NAR61590, SerialNo=E178CV5E
+> Config={ Fixed }
+> RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
+> BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
+> CurCHS=17475/15/63, CurSects=16513875, LBA=yes, LBAsects=60058656
+> IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+> PIO modes:  pio0 pio1 pio2 pio3 pio4
+> DMA modes:  mdma0 mdma1 mdma2
+> UDMA modes: udma0 udma1 *udma2 udma3 udma4 udma5 udma6
+> AdvancedPM=yes: disabled (255) WriteCache=enabled
+> Drive conforms to: (null):
+>
+> * signifies the current active mode
+>
+>
+>ATA device, with non-removable media
+>        Model Number:       Maxtor 6E030L0
+>        Serial Number:      E178CV5E
+>        Firmware Revision:  NAR61590
+>Standards:
+>        Supported: 7 6 5 4
+>        Likely used: 7
+>Configuration:
+>        Logical         max     current
+>        cylinders       16383   17475
+>        heads           16      15
+>        sectors/track   63      63
+>        --
+>        CHS current addressable sectors:   16513875
+>        LBA    user addressable sectors:   60058656
+>        device size with M = 1024*1024:       29325 MBytes
+>        device size with M = 1000*1000:       30750 MBytes (30 GB)
+>Capabilities:
+>        LBA, IORDY(can be disabled)
+>        Queue depth: 1
+>        Standby timer values: spec'd by Standard, no device specific minimum
+>        R/W multiple sector transfer: Max = 16  Current = 16
+>        Advanced power management level: unknown setting (0x0000)
+>        Recommended acoustic management value: 192, current value: 254
+>        DMA: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 udma5 udma6
+>             Cycle time: min=120ns recommended=120ns
+>        PIO: pio0 pio1 pio2 pio3 pio4
+>             Cycle time: no flow control=120ns  IORDY flow control=120ns
+>Commands/features:
+>        Enabled Supported:
+>           *    NOP cmd
+>           *    READ BUFFER cmd
+>           *    WRITE BUFFER cmd
+>           *    Host Protected Area feature set
+>           *    Look-ahead
+>           *    Write cache
+>           *    Power Management feature set
+>                Security Mode feature set
+>           *    SMART feature set
+>           *    FLUSH CACHE EXT command
+>           *    Mandatory FLUSH CACHE command
+>           *    Device Configuration Overlay feature set
+>           *    Automatic Acoustic Management feature set
+>                SET MAX security extension
+>                Advanced Power Management feature set
+>           *    DOWNLOAD MICROCODE cmd
+>           *    SMART self-test
+>           *    SMART error logging
+>Security:
+>        Master password revision code = 65534
+>                supported
+>        not     enabled
+>        not     locked
+>        not     frozen
+>        not     expired: security count
+>        not     supported: enhanced erase
+>HW reset results:
+>        CBLID- above Vih
+>        Device num = 1 determined by CSEL
+>Checksum: correct
+>
+>hdb is accessed via dm and evms.   This is what the boot of reports:
+>
+>May 27 18:17:39 bert kernel: Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+>May 27 18:17:39 bert kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+>May 27 18:17:39 bert kernel: PIIX4: IDE controller at PCI slot 0000:00:14.1
+>May 27 18:17:39 bert kernel: PIIX4: chipset revision 1
+>May 27 18:17:39 bert kernel: PIIX4: not 100%% native mode: will probe irqs later
+>May 27 18:17:39 bert kernel:     ide0: BM-DMA at 0x10c0-0x10c7, BIOS settings: hda:pio, hdb:DMA
+>May 27 18:17:39 bert kernel:     ide1: BM-DMA at 0x10c8-0x10cf, BIOS settings: hdc:DMA, hdd:pio
+>May 27 18:17:39 bert kernel: hda: WDC AC26400R, ATA DISK drive
+>May 27 18:17:39 bert kernel: hdb: Maxtor 6E030L0, ATA DISK drive
+>May 27 18:17:39 bert kernel: Using anticipatory io scheduler
+>May 27 18:17:39 bert kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+>May 27 18:17:39 bert kernel: hdc: HL-DT-ST RW/DVD GCC-4480B, ATAPI CD/DVD-ROM drive
+>May 27 18:17:39 bert kernel: ide1 at 0x170-0x177,0x376 on irq 15
+>May 27 18:17:39 bert kernel: pnp: the driver 'ide' has been registered
+>May 27 18:17:39 bert kernel: hda: max request size: 128KiB
+>May 27 18:17:39 bert kernel: hda: 12594960 sectors (6448 MB) w/512KiB Cache, CHS=13328/15/63, UDMA(33)
+>May 27 18:17:39 bert kernel: hda: cache flushes supported
+>May 27 18:17:39 bert kernel:  hda: hda1 hda2 hda3
+>May 27 18:17:39 bert kernel: hdb: max request size: 128KiB
+>May 27 18:17:39 bert kernel: hdb: 60058656 sectors (30750 MB) w/2048KiB Cache, CHS=59582/16/63, UDMA(33)
+>May 27 18:17:39 bert kernel: hdb: cache flushes supported
+>May 27 18:17:39 bert kernel:  hdb: hdb1 hdb2 hdb3 hdb4 < hdb5 >
+> 
+>followed later by:
+>
+>May 27 18:18:05 bert kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+>May 27 18:18:05 bert kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
+>May 27 18:18:06 bert kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+>May 27 18:18:06 bert kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
+>May 27 18:19:21 bert kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+>May 27 18:19:21 bert kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
+>May 27 18:19:22 bert kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+>May 27 18:19:22 bert kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
+>May 27 18:20:01 bert kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+>May 27 18:20:01 bert kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
+>May 27 18:20:01 bert kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+>May 27 18:20:01 bert kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
+>May 27 18:21:27 bert kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+>May 27 18:21:27 bert kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
+>
+>
+>
+>
+>Hope this help,
+>
+>Ed
+>
+>On May 27, 2004 04:24 pm, Günther Persoons wrote:
+>  
+>
+>>Hey,
+>>When i mount my reiser partitie with the option barrier=flush i get
+>>following message and error:
+>>My harddrive is a 2.5 inch Fujitsu 20GB IDE.
+>>
+>>mount /dev/hda10 /tmp -o barrier=flush
+>>mount: wrong fs type, bad option, bad superblock on /dev/hda10,
+>>       or too many mounted file systems
+>>Log:
+>>ReiserFS: hda10: found reiserfs format "3.6" with standard journal
+>>ReiserFS: hda10: using ordered data mode
+>>reiserfs: using flush barriers
+>>ReiserFS: hda10: journal params: device hda10, size 8192, journal first
+>>block 18, max trans len 1024, max batch 900, max commit age 30, max
+>>trans age 30
+>>ReiserFS: hda10: checking transaction log (hda10)
+>>hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+>>hda: drive_cmd: error=0x04 { DriveStatusError }
+>>hda: barrier support doesn't work
+>>ReiserFS: hda10: warning: journal-837: IO error during journal replay
+>>ReiserFS: hda10: warning: Replay Failure, unable to mount
+>>ReiserFS: hda10: warning: sh-2022: reiserfs_fill_super: unable to
+>>initialize journal space
+>>    
+>>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
 

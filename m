@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263485AbTJVRAz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 13:00:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263486AbTJVRAz
+	id S263486AbTJVRCd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 13:02:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263489AbTJVRCd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 13:00:55 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:24324 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263485AbTJVRAz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 13:00:55 -0400
-Subject: Re: Fix x86 subarch breakage by the patch to allow more APIC irq
-	sources
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, jamesclv@us.ibm.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0310220929350.1586-100000@home.osdl.org>
-References: <Pine.LNX.4.44.0310220929350.1586-100000@home.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 22 Oct 2003 11:59:31 -0500
-Message-Id: <1066841973.12312.81.camel@mulgrave>
-Mime-Version: 1.0
+	Wed, 22 Oct 2003 13:02:33 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:32531 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263486AbTJVRCc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 13:02:32 -0400
+Date: Wed, 22 Oct 2003 18:02:30 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Jurriaan <thunder7@xs4all.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test8-mm1
+In-Reply-To: <20031021185326.GA1558@middle.of.nowhere>
+Message-ID: <Pine.LNX.4.44.0310221801390.25125-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-10-22 at 11:31, Linus Torvalds wrote:
-> I'd much rather do this the other way: I _detest_ "generic" values that 
-> architectures can override, when just defining the value in the 
-> architecture directly is smaller than the test for the generic value.
 
-That's fine by me...I was originally going to do it that way until I saw
-that two other subarchs had the same problem.
+> 2.6.0-test8 + this patch boots perfectly here:
 
-James
+Cool :-)
+ 
+> kernel /boot/vmlinuz-260test8fb root=/dev/md3 video=matroxfb:xres:1600,yres:1360,depth:16,pixclock:4116,left:304,right:64,upper:46,lower:1,hslen:192,vslen:3,fv:90,hwcursor=off hdd=scsi atkbd_softrepeat=1
+> 
+> This configuration didn't boot in 2.6.0-test8-mm1 (screen stayed in
+> 80x25 VGA mode and it crashed before the mode-switch).
+
+:-( I wonder if it has to do with the debugging code discussed in the 
+other emails.
 
 

@@ -1,156 +1,149 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261897AbRESRRm>; Sat, 19 May 2001 13:17:42 -0400
+	id <S261903AbRESR1X>; Sat, 19 May 2001 13:27:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261903AbRESRRc>; Sat, 19 May 2001 13:17:32 -0400
-Received: from www.wen-online.de ([212.223.88.39]:14098 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S261897AbRESRRZ>;
-	Sat, 19 May 2001 13:17:25 -0400
-Date: Sat, 19 May 2001 19:13:01 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: [RFC][PATCH] Re: Linux 2.4.4-ac10
-In-Reply-To: <20010518235852.R8080@redhat.com>
-Message-ID: <Pine.LNX.4.33.0105191743000.393-100000@mikeg.weiden.de>
+	id <S261905AbRESR1N>; Sat, 19 May 2001 13:27:13 -0400
+Received: from mons.uio.no ([129.240.130.14]:33982 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S261903AbRESR1A>;
+	Sat, 19 May 2001 13:27:00 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <15110.44238.305564.656129@charged.uio.no>
+Date: Sat, 19 May 2001 19:26:38 +0200
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        NFS maillist <nfs@lists.sourceforge.net>
+Subject: [PATCH] 2.4.4 fix bug in nfs_refresh_inode() and cleanup...
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
+ =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
+ Valley) (i386-redhat-linux)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Fri, 18 May 2001, Stephen C. Tweedie wrote:
+Linus,
 
-> That's the main problem with static parameters.  The problem you are
-> trying to solve is fundamentally dynamic in most cases (which is also
-> why magic numbers tend to suck in the VM.)
+  A bug was recently found in which nfs_refresh_inode() was returning
+EIO when servers, such as the Hummingbird, don't return the optional
+attributes on calls such as the setattr() call. This error was then
+being passed back to userland.
 
-Magic numbers might be sucking some performance right now ;-)
+  When investigating the bug, I also found a load of `debugging' code
+at the start of nfs_refresh_inode() that would actually mask serious
+bugs for us (returning EIO again, instead of Oopsing).
 
-Three back to back make -j 30 runs for three different kernels.
-Swap cache numbers are taken immediately after last completion.
+  The following patch fixes the bug, and gets rid of the bogus
+debugging stuff.
 
-Reference runs  (bad numbers.  cache collapse hurts.. a lot)
-real    12m8.157s  11m41.192s  11m36.069s  2.4.4.virgin
-user    7m57.710s   7m57.820s   7m57.150s
-sys     0m37.200s   0m37.070s   0m37.020s
-Swap cache: add 785029, delete 781670, find 243396/1051626
+Cheers,
+  Trond
 
-                    oddball.. infrequent, but happens
-                    vvvv
-real    10m30.470s  9m36.478s   9m50.512s  2.4.5-pre3.virgin
-user    7m54.300s   7m53.430s   7m55.200s
-sys     0m36.010s   0m36.850s   0m35.230s
-Swap cache: add 1018892, delete 1007053, find 821456/1447811
-
-real    9m9.679s    9m18.291s   8m55.981s  3.4.5-pre3.tweak
-user    7m55.590s   7m57.060s   7m55.850s
-sys     0m34.890s   0m34.370s   0m34.330s
-Swap cache: add 656966, delete 646676, find 325186/865183
-
---- linux-2.4.5-pre3/mm/vmscan.c.org	Thu May 17 16:44:23 2001
-+++ linux-2.4.5-pre3/mm/vmscan.c	Sat May 19 11:52:40 2001
-@@ -824,39 +824,17 @@
- #define DEF_PRIORITY (6)
- static int refill_inactive(unsigned int gfp_mask, int user)
+diff -u --recursive --new-file linux-2.4.4-fixes/fs/nfs/inode.c linux-2.4.4-refresh/fs/nfs/inode.c
+--- linux-2.4.4-fixes/fs/nfs/inode.c	Wed Apr 25 23:58:17 2001
++++ linux-2.4.4-refresh/fs/nfs/inode.c	Mon May 14 15:02:14 2001
+@@ -887,40 +887,23 @@
+  * A very similar scenario holds for the dir cache.
+  */
+ int
+-nfs_refresh_inode(struct inode *inode, struct nfs_fattr *fattr)
++__nfs_refresh_inode(struct inode *inode, struct nfs_fattr *fattr)
  {
--	int count, start_count, maxtry;
+ 	__u64		new_size, new_mtime;
+ 	loff_t		new_isize;
+ 	int		invalid = 0;
+-	int		error = -EIO;
 -
--	if (user) {
--		count = (1 << page_cluster);
--		maxtry = 6;
--	} else {
--		count = inactive_shortage();
--		maxtry = 1 << DEF_PRIORITY;
+-	if (!inode || !fattr) {
+-		printk(KERN_ERR "nfs_refresh_inode: inode or fattr is NULL\n");
+-		goto out;
+-	}
+-	if (inode->i_mode == 0) {
+-		printk(KERN_ERR "nfs_refresh_inode: empty inode\n");
+-		goto out;
 -	}
 -
--	start_count = count;
--	do {
--		if (current->need_resched) {
--			__set_current_state(TASK_RUNNING);
--			schedule();
--			if (!inactive_shortage())
--				return 1;
--		}
+-	if ((fattr->valid & NFS_ATTR_FATTR) == 0)
+-		goto out;
 -
--		count -= refill_inactive_scan(DEF_PRIORITY, count);
--		if (count <= 0)
--			goto done;
+-	if (is_bad_inode(inode))
+-		goto out;
+ 
+ 	dfprintk(VFS, "NFS: refresh_inode(%x/%ld ct=%d info=0x%x)\n",
+ 			inode->i_dev, inode->i_ino,
+ 			atomic_read(&inode->i_count), fattr->valid);
+ 
 -
--		/* If refill_inactive_scan failed, try to page stuff out.. */
--		swap_out(DEF_PRIORITY, gfp_mask);
+ 	if (NFS_FSID(inode) != fattr->fsid ||
+ 	    NFS_FILEID(inode) != fattr->fileid) {
+ 		printk(KERN_ERR "nfs_refresh_inode: inode number mismatch\n"
+ 		       "expected (0x%Lx/0x%Lx), got (0x%Lx/0x%Lx)\n",
+ 		       (long long)NFS_FSID(inode), (long long)NFS_FILEID(inode),
+ 		       (long long)fattr->fsid, (long long)fattr->fileid);
+-		goto out;
++		goto out_err;
+ 	}
+ 
+ 	/*
+@@ -933,8 +916,6 @@
+ 	new_size = fattr->size;
+  	new_isize = nfs_size_to_loff_t(fattr->size);
+ 
+-	error = 0;
 -
--		if (--maxtry <= 0)
--				return 0;
+ 	/*
+ 	 * Update the read time so we don't revalidate too often.
+ 	 */
+@@ -1024,11 +1005,9 @@
+ 
+ 	if (invalid)
+ 		nfs_zap_caches(inode);
++	return 0;
+ 
+-out:
+-	return error;
 -
--	} while (inactive_shortage());
--
--done:
--	return (count < start_count);
-+	int shortage = inactive_shortage();
-+	int large = freepages.high/2;
-+	int scale;
-+
-+	scale = shortage/large;
-+	scale += free_shortage()/large;
-+	if (scale > DEF_PRIORITY-1)
-+		scale = DEF_PRIORITY-1;
-+	if (refill_inactive_scan(DEF_PRIORITY-scale, shortage) < shortage)
-+		return swap_out(DEF_PRIORITY, gfp_mask);
-+	return 1;
+-out_changed:
++ out_changed:
+ 	/*
+ 	 * Big trouble! The inode has become a different object.
+ 	 */
+@@ -1042,7 +1021,8 @@
+ 	 * (But we fall through to invalidate the caches.)
+ 	 */
+ 	nfs_invalidate_inode(inode);
+-	goto out;
++ out_err:
++	return -EIO;
  }
-
- static int do_try_to_free_pages(unsigned int gfp_mask, int user)
-@@ -976,7 +954,8 @@
- 		 * We go to sleep for one second, but if it's needed
- 		 * we'll be woken up earlier...
- 		 */
--		if (!free_shortage() || !inactive_shortage()) {
-+		if (current->need_resched || !free_shortage() ||
-+				!inactive_shortage()) {
- 			interruptible_sleep_on_timeout(&kswapd_wait, HZ);
- 		/*
- 		 * If we couldn't free enough memory, we see if it was
-@@ -1054,7 +1033,7 @@
- 				if (!zone->size)
- 					continue;
-
--				while (zone->free_pages < zone->pages_low) {
-+				while (zone->free_pages < zone->inactive_clean_pages) {
- 					struct page * page;
- 					page = reclaim_page(zone);
- 					if (!page)
-
-
-Now, lets go back to the patch I posted which reduced context switches
-under load by ~40% (of ~685000) for a moment.  Kswapd is asleep while
-awaiting IO completion.  The guys who are pestering the sleeping kswapd
-are going to be doing page_launder to fix the shortage they're yammering
-at kswapd about.  We're nibbling away at the free shortage..  and the
-inactive_dirty list.  So now, we have an inactive shortage as well as
-a large free shortage when we enter refill_inactive.  (shortages became
-large because kswapd is sleeping on the job)
-
-6 * (1 << page_cluster) is larger than MAX_LAUNDER, but I don't see any
-reason to sneak up on the shortage instead of correcting it all at once.
-It takes too long to find out it's going to fail.  Why not just get it
-over with before every scrubber in the system is sleeping on IO.. except
-the ones doing swap pagebuffer allocations.  They can swapout, but they
-can't help push swap, so it'll all sit there until somebody wakes up no?
-
-If I'm interpreting the results right, taking it all on at once is saving
-a lot of what looks to me to be unnecessary swap.  I can't see those
-swap numbers as being anything other than unnecessary given that I see
-no evidence of cache collapse as in 2.4.4 and earlier kernels, and the
-job is getting done faster without them.
-
-	-Mike
-
-(yes, the last hunk looks out of place wrt my text.  however, it improves
-throughput nicely, so I left it in.  swap reduction and time savings are
-present without it.. just not quite as pretty;)
-
+ 
+ /*
+diff -u --recursive --new-file linux-2.4.4-fixes/include/linux/nfs_fs.h linux-2.4.4-refresh/include/linux/nfs_fs.h
+--- linux-2.4.4-fixes/include/linux/nfs_fs.h	Sat Apr 28 00:49:37 2001
++++ linux-2.4.4-refresh/include/linux/nfs_fs.h	Mon May 14 15:00:18 2001
+@@ -142,7 +142,7 @@
+ 				struct nfs_fattr *);
+ extern struct inode *nfs_fhget(struct dentry *, struct nfs_fh *,
+ 				struct nfs_fattr *);
+-extern int nfs_refresh_inode(struct inode *, struct nfs_fattr *);
++extern int __nfs_refresh_inode(struct inode *, struct nfs_fattr *);
+ extern int nfs_revalidate(struct dentry *);
+ extern int nfs_permission(struct inode *, int);
+ extern int nfs_open(struct inode *, struct file *);
+@@ -271,6 +271,14 @@
+ 	if (time_before(jiffies, NFS_READTIME(inode)+NFS_ATTRTIMEO(inode)))
+ 		return NFS_STALE(inode) ? -ESTALE : 0;
+ 	return __nfs_revalidate_inode(server, inode);
++}
++
++static inline int
++nfs_refresh_inode(struct inode *inode, struct nfs_fattr *fattr)
++{
++	if ((fattr->valid & NFS_ATTR_FATTR) == 0)
++		return 0;
++	return __nfs_refresh_inode(inode,fattr);
+ }
+ 
+ static inline loff_t

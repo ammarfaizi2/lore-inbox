@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292365AbSBYWep>; Mon, 25 Feb 2002 17:34:45 -0500
+	id <S292367AbSBYWfp>; Mon, 25 Feb 2002 17:35:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292367AbSBYWe3>; Mon, 25 Feb 2002 17:34:29 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:49137
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S292365AbSBYWdi>; Mon, 25 Feb 2002 17:33:38 -0500
-Date: Mon, 25 Feb 2002 14:34:15 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Jesper Juhl <jju@dif.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18 - the missing patch issue
-Message-ID: <20020225223415.GA4393@matchmail.com>
-Mail-Followup-To: Jesper Juhl <jju@dif.dk>, linux-kernel@vger.kernel.org
-In-Reply-To: <3C7AB9D5.9080906@dif.dk>
-Mime-Version: 1.0
+	id <S292370AbSBYWfi>; Mon, 25 Feb 2002 17:35:38 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27141 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292367AbSBYWfR>; Mon, 25 Feb 2002 17:35:17 -0500
+Subject: Re: Linux 2.4.18 - Full tarball is OK
+To: riel@conectiva.com.br (Rik van Riel)
+Date: Mon, 25 Feb 2002 22:49:33 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        chris@directcommunications.net (Chris Funderburg),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0202251931360.7820-100000@imladris.surriel.com> from "Rik van Riel" at Feb 25, 2002 07:32:03 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C7AB9D5.9080906@dif.dk>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16fTw5-0006a7-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 25, 2002 at 11:25:25PM +0100, Jesper Juhl wrote:
-> I suggest that instead of the previously proposed solutions an effort 
-> should instead be made to release 2.4.19 relatively fast. Instead of 
-> including a lot of fixes, only include the most critical known fixes in 
-> 2.4.19-pre1 (and maybe -pre2), then go to -rc1 as soon as possible and 
-> get 2.4.19 out the door pretty fast with important fixes and leave all 
-> other stuff for 2.4.20-pre1
+> > If so Marcelo can you put up 2.4.18-fixed patch and a borked-fixed diff ?
 > 
+> That would break hpa's incremental diff patches.
+> If somebody needs 2.4.18 + fix, they can just run 2.4.18-rc4.
 
-Does anyone know how long this bug has been in the kernel?
+That isnt the problem. Is 2.4.19-pre1 a patch versus the 2.4.18 tarball
+or the 2.4.18 patch ? Continue ad infinitum through every 2.4 release,
+add hundreds of confused emails about them to the kernel list and it ceases
+to look a smart idea to leave the two not matching
 
-If it's an old bug, 2.4.19-pre1 already has the fix, just like rc4 did...
+Alan
 
-This *one* bug isn't big enough to hurry, IMO.
-
-Mike

@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280132AbRLTGio>; Thu, 20 Dec 2001 01:38:44 -0500
+	id <S280190AbRLTGrN>; Thu, 20 Dec 2001 01:47:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282805AbRLTGie>; Thu, 20 Dec 2001 01:38:34 -0500
-Received: from svr3.applink.net ([206.50.88.3]:269 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S280190AbRLTGiO>;
-	Thu, 20 Dec 2001 01:38:14 -0500
-Message-Id: <200112200637.fBK6b2Sr014173@svr3.applink.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: Rik van Riel <riel@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Scheduler, Can we save some juice ...
-Date: Thu, 20 Dec 2001 00:33:23 -0600
-X-Mailer: KMail [version 1.3.2]
-Cc: Benjamin LaHaise <bcrl@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Davide Libenzi <davidel@xmailserver.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0112200149330.15741-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.33L.0112200149330.15741-100000@imladris.surriel.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S282805AbRLTGrD>; Thu, 20 Dec 2001 01:47:03 -0500
+Received: from marine.sonic.net ([208.201.224.37]:12840 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S280190AbRLTGq5>;
+	Thu, 20 Dec 2001 01:46:57 -0500
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Wed, 19 Dec 2001 22:46:52 -0800
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Subject: Re: aio
+Message-ID: <20011220064651.GB32678@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org, linux-aio@kvack.org
+In-Reply-To: <20011219224717.A3682@redhat.com> <20011219.213910.15269313.davem@redhat.com> <20011220005803.E3682@redhat.com> <20011219.220040.55725223.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011219.220040.55725223.davem@redhat.com>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 19 December 2001 21:50, Rik van Riel wrote:
-> On Tue, 18 Dec 2001, Linus Torvalds wrote:
-> > The thing is, I'm personally very suspicious of the "features for that
-> > exclusive 0.1%" mentality.
->
-> Then why do we have sendfile(), or that idiotic sys_readahead() ?
->
-> (is there _any_ use for sys_readahead() ?  at all ?)
->
-> cheers,
->
-> Rik
+On Wed, Dec 19, 2001 at 10:00:40PM -0800, David S. Miller wrote:
+> No I'm not talking about phttpd nor zeus, I'm talking about the guy
+> who did the hacks where he'd put the http headers + content into a
+> seperate file and just sendfile() that to the client.
+> 
+> I forget what his hacks were named, but there certainly was a longish
+> thread on this list about it about 1 year ago if memory serves.
 
 
-OK, here's another 0.1% for you.  Considering how Linux SMP
-doesn't have high CPU affinity, would it be possible to make a
-patch such that the additional CPUs remain in deep sleep/HALT
-mode until the first CPU hits a high-water mark of say 90% 
-utilization?  I've started doing this by hand with the (x)pulse
-application.   My goal is to save electricity and cut down on 
-excess heat when I'm just browsing the web and not compiling
-or seti@home'ing.
+Would that be Fabio Riccardi's X15 stuff?
 
-
+mrc
 -- 
-timothy.covell@ashavan.org.
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

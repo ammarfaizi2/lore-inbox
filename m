@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264919AbUH0NFX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264937AbUH0NHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264919AbUH0NFX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 09:05:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264923AbUH0NFX
+	id S264937AbUH0NHE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 09:07:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264884AbUH0NHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 09:05:23 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:26116 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S264919AbUH0NFR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 09:05:17 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Wouter Van Hemel <wouter-kernel@fort-knox.rave.org>
-Subject: Re: kernel 2.6.8 pwc patches and counterpatches
-Date: Fri, 27 Aug 2004 16:04:35 +0300
-X-Mailer: KMail [version 1.4]
-Cc: linux-kernel@vger.kernel.org
-References: <33193.151.37.215.244.1093530681.squirrel@webmail.azzurra.org> <200408270917.47656.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.61.0408271445120.578@senta.theria.org>
-In-Reply-To: <Pine.LNX.4.61.0408271445120.578@senta.theria.org>
+	Fri, 27 Aug 2004 09:07:04 -0400
+Received: from web25210.mail.ukl.yahoo.com ([217.12.10.70]:21924 "HELO
+	web25210.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S264953AbUH0NGX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 09:06:23 -0400
+Message-ID: <20040827130622.62816.qmail@web25210.mail.ukl.yahoo.com>
+Date: Fri, 27 Aug 2004 15:06:22 +0200 (CEST)
+From: =?iso-8859-1?q?Yann=20Rapaport?= <yannusonline@yahoo.fr>
+Subject: Link detection and netlink notification in Linux 2.4
+To: linux-kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200408271604.35400.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 27 August 2004 15:47, Wouter Van Hemel wrote:
-> On Fri, 27 Aug 2004, Denis Vlasenko wrote:
-> > Code is under GPL. You can add it back anyday. It's less work than
-> > writing such a long email.
->
-> I just happen to be better at writing rants than writing drivers. :)
+Hi all kernel users!
 
-You don't need to write anything. Just put *existing* driver back.
-It's doable even if you never ever wrote 'hello world' C program.
+I am currently working on implementing link state
+detection with netlink notification on a Linux 2.4.24
+kernel.
 
-> If the maintainer wants it pulled, I feel it would be stealing to add it
-> back into the kernel without his approval. Perhaps we could rewrite the
-> driver and merge it with some other webcam driver projects.
+The first solution that comes to my mind is to add a
+call to netdev_state_change() inside the
+netif_carrier_on() and netif_carrier_off() functions.
+But after reading the list archive ab out it, my
+understanding is that it is not possible to call
+netdev_state_change() at this level. This seems to be
+related being or not inside interrupts.
+Could anyone explain this to me?
 
-This is the problem. It is far easier to _feel_ something
-than to _do_ something.
--- 
-vda
+The right solution seems to be a kernel thread that
+looks up the device chain and tests the IFF_RUNNING
+flag to decide or not to notify netlink. Couldn't this
+set a performance problem?
+Testing the ETHTOOL_GLINK flag also seems a good idea
+to me. Which one is the most generic?
+
+As I understand it, this feature was one of the aims
+of the 2.5 kernel. Is it implemented in 2.6? Would you
+advise me any piece of code to have a look at?
+
+Thank you in advance.
+--
+Yann
+
+
+	
+
+	
+		
+Vous manquez d’espace pour stocker vos mails ? 
+Yahoo! Mail vous offre GRATUITEMENT 100 Mo !
+Créez votre Yahoo! Mail sur http://fr.benefits.yahoo.com/
+
+Le nouveau Yahoo! Messenger est arrivé ! Découvrez toutes les nouveautés pour dialoguer instantanément avec vos amis. A télécharger gratuitement sur http://fr.messenger.yahoo.com

@@ -1,60 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265723AbTFSHQv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 03:16:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265725AbTFSHQv
+	id S265717AbTFSHQo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 03:16:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265723AbTFSHQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 03:16:51 -0400
-Received: from [194.242.39.2] ([194.242.39.2]:60667 "EHLO
-	mail.sto-procent.art.pl") by vger.kernel.org with ESMTP
-	id S265723AbTFSHQq convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 03:16:46 -0400
-Date: Thu, 19 Jun 2003 09:30:12 +0200 (CEST)
-From: boka <boka@sto-procent.art.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Compile problem with 2.4.21, ac-1, openwall
-Message-ID: <Pine.LNX.4.56.0306190928010.6923@testosteron.sto-procent.art.pl>
+	Thu, 19 Jun 2003 03:16:43 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:48570 "EHLO
+	rwcrmhc12.attbi.com") by vger.kernel.org with ESMTP id S265721AbTFSHQj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 03:16:39 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Eric Altendorf <EricAltendorf@orst.edu>
+Reply-To: EricAltendorf@orst.edu
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       swsusp-devel@lists.sourceforge.net
+Subject: Re: RTC causes hard lockups in 2.5.70-mm8
+Date: Thu, 19 Jun 2003 00:31:54 -0700
+User-Agent: KMail/1.4.3
+References: <Pine.LNX.4.55L-032.0306122205210.4915@unix48.andrew.cmu.edu> <1055492730.5162.0.camel@dhcp22.swansea.linux.org.uk> <200306171232.27887.EricAltendorf@orst.edu>
+In-Reply-To: <200306171232.27887.EricAltendorf@orst.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200306190031.54686.EricAltendorf@orst.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
 
-I`m trying to compile stock 2.4.21 kernel with ac and openwall patches
-I have rh9 with all erratas applied. Compilation process ends with the
-following error:
+Oops.  Incorrect swsusp maillist address in previous email...sorry if 
+people get bounces when they reply to that msg.
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.21/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe
--mpreferred-stack-boundary=2 -march=pentium3   -nostdinc -iwithprefix
-include -DKBUILD_BASENAME=swapfile  -c -o swapfile.o swapfile.c
-swapfile.c: In function `sys_swapoff':
-swapfile.c:797: `victim' undeclared (first use in this function)
-swapfile.c:797: (Each undeclared identifier is reported only once
-swapfile.c:797: for each function it appears in.)
-swapfile.c:799: `tmp' undeclared (first use in this function)
-make[2]: *** [swapfile.o] error
-d 1
-make[2]: Opuszczam katalog `/usr/src/linux-2.4.21/mm'
-make[1]: *** [first_rule] error
-d 2
-make[1]: Opuszczam katalog `/usr/src/linux-2.4.21/mm'
-make: *** [_dir_mm] error
-d 2
+--eric
 
-gcc -v
-Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/specs
-Configured with: ../configure --prefix=/usr --mandir=/usr/share/man
---infodir=/usr/share/info --enable-shared --enable-threads=posix
---disable-checking --with-system-zlib --enable-__cxa_atexit
---host=i386-redhat-linux
-Thread model: posix
-gcc version 3.2.2 20030222 (Red Hat Linux 3.2.2-5)
+On Tuesday 17 June 2003 12:34, Eric Altendorf wrote:
+> On Friday 13 June 2003 01:25, Alan Cox wrote:
+> > On Gwe, 2003-06-13 at 03:12, Nathaniel W. Filardo wrote:
+> > > -----BEGIN PGP SIGNED MESSAGE-----
+> > > Hash: SHA1
+> > >
+> > > If I set CONFIG_RTC=m and rebuild, when the kernel autoloads
+> > > rtc.ko the system immediately locks hard, not responding even
+> > > to magic SysRq series. Backing out either of the rtc-* patches
+> > > from -mm8 does not seem to fix the problem.
+> >
+> > It seems to be ALI + ACPI related but I dont yet understand what
+> > is going on
+>
+> I'm running a Toshiba Libretto L2 (Crusoe, ACPI, ALI).  I don't
+> have any troubles with 2.5.63 (which happens to be my current
+> stable kernel).  However, I've been playing with 2.4.21 with just
+> the swsusp patches (not -ac) and with most builds I've tried there,
+> invoking hwclock always hangs the machine (which I assume is rtc
+> related).
+>
+> Let me know if I can provide any more information...
+>
+> Eric
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
---
-Dziwne to, ale wyborca nigdy nie czuje siê odpowiedzialny za zawód, jaki
-sprawia rz±d przez niego wybrany. Alberto Moravia
-pozdrawiam boka@sto-procent.art.pl

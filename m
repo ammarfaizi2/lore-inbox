@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262189AbVBQBZZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbVBQBmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262189AbVBQBZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 20:25:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbVBQBZY
+	id S262190AbVBQBmE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 20:42:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbVBQBmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 20:25:24 -0500
-Received: from hell.sks3.muni.cz ([147.251.210.30]:33441 "EHLO
-	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S262189AbVBQBZS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 20:25:18 -0500
-Date: Thu, 17 Feb 2005 02:25:11 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+	Wed, 16 Feb 2005 20:42:04 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:1423 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262190AbVBQBmA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 20:42:00 -0500
 To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Call for help: list of machines with working S3
-Message-ID: <20050217012511.GA11702@mail.muni.cz>
-References: <20050216124336.GA27874@mail.muni.cz> <20050216232257.GC3865@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050216232257.GC3865@elf.ucw.cz>
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.6+20040907i
+Cc: Gerold Jury <gjury@inode.at>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Larry McVoy <lm@bitmover.com>
+Subject: Re: [BK] upgrade will be needed
+References: <20050214020802.GA3047@bitmover.com>
+	<200502142324.43269.gjury@inode.at>
+	<20050214225704.GD16029@bitmover.com>
+	<200502150029.15993.gjury@inode.at>
+	<or7jla0vy4.fsf@livre.redhat.lsd.ic.unicamp.br>
+	<20050217000032.GG3865@elf.ucw.cz>
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: Red Hat Global Engineering Services Compiler Team
+Date: 16 Feb 2005 23:41:51 -0200
+In-Reply-To: <20050217000032.GG3865@elf.ucw.cz>
+Message-ID: <orpsz0klnk.fsf@livre.redhat.lsd.ic.unicamp.br>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 17, 2005 at 12:22:57AM +0100, Pavel Machek wrote:
-> > does anyone have some experiences with intel i855 video card and S3?
-> > 
-> > For me the binary driver from Intel works with S3 but only X server is restored
-> > not the text console. 
-> > 
-> > With open source driver nothing is restored. I try to use s3_bios or s3_mode,
-> > nothing helps. Using  vbetool and post causes backlight turn on but display is
-> > full of garbage (vertical lines of different colors).
-> 
-> Can you do vga=normal and attempt to reload fonts?
+On Feb 16, 2005, Pavel Machek <pavel@suse.cz> wrote:
 
-Did not help. Instead, this seems to be working with X.org and opensource driver:
+>> > I want to pay the fee for Linus and Alan.
 
-chvt 1
-vbetool vbestate save > /tmp/state
-echo 3 > /proc/acpi/sleep
-vbetool post
-vbetool vbestate restore < /tmp/state
-chvt 7
+>> I'd like to pay the fee to have Linus' license to use BK revoked.  But
+>> I probably can't afford it, oh well :-)
 
-(if X server is running then chvt to text console is necessary, but it works
-including DRI and XV overlay running) 
+> Easy, start working for OSDL, then start hacking arch or
+> whatever. Puff, you are his coworker, you are competing with Larry,
+> Linus license goes away.
 
-Can I get the current console so that chvt 7 can switch to the original console?
-
-
-Just re-POST seems to initialize first head connected to external CRT. The
-second head (connected to LFP) is not initialized. Do not know why :(
-
-This is the videocard: Intel Corp. 82852/855GM Integrated Graphics Device.
-Notebook: Acer TM 242FX
+Hey, cool!  The nice thing is that I probably don't even have to start
+hacking anything, I already (pretend to) maintain GNU CVS Utilities.
+Can I volunteer to maintain is for OSDL, at no charge?
 
 -- 
-Luká¹ Hejtmánek
+Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
+Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
+Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

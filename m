@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261406AbTIGUbf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 16:31:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbTIGUbf
+	id S261353AbTIGUiN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 16:38:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbTIGUiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 16:31:35 -0400
-Received: from ns.suse.de ([195.135.220.2]:49590 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261406AbTIGUbe (ORCPT
+	Sun, 7 Sep 2003 16:38:13 -0400
+Received: from b0jm34bky18he.bc.hsia.telus.net ([64.180.152.77]:59148 "EHLO
+	antichrist") by vger.kernel.org with ESMTP id S261353AbTIGUiL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 16:31:34 -0400
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: marcelo.tosatti@cyclades.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [2.4 patch] fix CONFIG_X86_L1_CACHE_SHIFT
-References: <20030907195557.GK14436@fs.tum.de.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 07 Sep 2003 22:30:52 +0200
-In-Reply-To: <20030907195557.GK14436@fs.tum.de.suse.lists.linux.kernel>
-Message-ID: <p73u17ojq83.fsf@oldwotan.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Sun, 7 Sep 2003 16:38:11 -0400
+Date: Sun, 7 Sep 2003 13:37:23 -0700
+From: carbonated beverage <ramune@net-ronin.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: cpu not being found by 2.6.0-test4, input event bug too
+Message-ID: <20030907203723.GA10617@net-ronin.org>
+References: <20030905032100.GA32489@net-ronin.org> <20030905101403.GA1026@net-ronin.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030905101403.GA1026@net-ronin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@fs.tum.de> writes:
+Tried an older kernel (2.5.6x-series) and the event input kernel log flood
+is happening there, too.
 
-> With CONFIG_M686 CONFIG_X86_L1_CACHE_SHIFT was set to 5, but a Pentium 4 
-> requires 7.
+Can't really test for SMP, etc. as -test3 was the first kernel I tried since
+2.5.4x that booted properly on this system, and didn't panic quickly on
+various stuff.  I can try a binary search across kernel versions, if I knew
+what to test for.
 
-It doesn't require 7, it just prefers 7. 
+Anyone have an idea?
 
-> The patch below does:
-> - set CONFIG_X86_L1_CACHE_SHIFT 7 for all Intel processors (needed for 
->   the Pentium 4)
-> - set CONFIG_X86_L1_CACHE_SHIFT 6 for the K6 (needed for the Athlon)
-
-I think these changes should be only done with CONFIG_X86_GENERIC is set.
-
-Otherwise the people who want kernels really optimized for their CPUs
-won't get the full benefit. On UP it does not make that much difference,
-but on a SMP kernel having a bigger than needed cache size wastes a lot
-of memory.
-
--Andi
+-- DN
+Daniel

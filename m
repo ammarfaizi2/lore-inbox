@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311919AbSCTIfo>; Wed, 20 Mar 2002 03:35:44 -0500
+	id <S311918AbSCTIbD>; Wed, 20 Mar 2002 03:31:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311921AbSCTIfe>; Wed, 20 Mar 2002 03:35:34 -0500
-Received: from gate.perex.cz ([194.212.165.105]:58888 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S311919AbSCTIf2>;
-	Wed, 20 Mar 2002 03:35:28 -0500
-Date: Wed, 20 Mar 2002 09:30:51 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: <perex@pnote.perex-int.cz>
-To: J Sloan <jjs@lexus.com>
-cc: "Wayne.Brown@altec.com" <Wayne.Brown@altec.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.7 make modules_install error (oss)
-In-Reply-To: <3C97889B.6060301@lexus.com>
-Message-ID: <Pine.LNX.4.33.0203200923380.715-100000@pnote.perex-int.cz>
+	id <S311919AbSCTIao>; Wed, 20 Mar 2002 03:30:44 -0500
+Received: from mons.uio.no ([129.240.130.14]:22998 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S311918AbSCTIal>;
+	Wed, 20 Mar 2002 03:30:41 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Organization: Dept. of Physics, University of Oslo
+To: NIIBE Yutaka <gniibe@m17n.org>
+Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
+Date: Wed, 20 Mar 2002 09:30:29 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Stephan von Krawczynski <skraw@ithnet.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <shswuwkujx5.fsf@charged.uio.no> <E16nKrq-0007uP-00@charged.uio.no> <200203200042.g2K0gnL19526@mule.m17n.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16nbUL-0004Ga-00@charged.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Mar 2002, J Sloan wrote:
+On Wednesday 20. March 2002 01:42, NIIBE Yutaka wrote:
 
-> Agreed, the oss drivers should _at least_
-> be maintained as an alternative, e.g. for
-> those of us who want reliable sound with
-> *low latency*
-> 
-> <explanation>
-> I haven't checked lately, but not too long
-> ago the alsa drivers were found to be one
-> of the worst sources of latency in the kernel.
-> </explanation>
+> IMO, it's no use to check the correctness for the inode when ->i_count ==
+> 0. We can reuse the memory of the client side inode, that's true,
+> but we don't need to check old data against new one at that time.
 
-You should really take care about your words. You've not written any
-technical reason to say these sentences. We are not aware about any
-problems against low-latency. Sure, OSS API emulation is only emulation,
-so there is additional layer which can be a bit slower than simplified
-native OSS drivers, but using ALSA API, we get really serious latencies
-even for multichannel hardware.
+I don't understand what you mean by this. As I see it, close-to-open 
+consistency checking mandates that you do this. What if somebody changed the 
+data on the server while you had the file closed?
 
-I propose to join to our efford and fix (or at least - point to) problems 
-(if any) in ALSA drivers. Thanks.
+Furthermore, inode->i_count == 0 offers no guarantees that the client doesn't 
+for instance have dirty pages to write out.
 
-						Jaroslav
+Messing around with the value of i_mode in nfs_find_actor as you want to do 
+in your patch is going to introduce new dimensions to this problem. For 
+instance, magically changing a regular file into a symlink without first 
+flushing out dirty pages and clearing the page cache is certainly going to 
+produce som "interesting" results...
+As I said yesterday: a test of the form
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project  http://www.alsa-project.org
-SuSE Linux    http://www.suse.com
+	if ((inode->i_mode & S_IFMT) != (fattr->mode & S_IFMT))
+		return 0;
 
+in nfs_find_actor might make sense since that forces the creation of a new 
+inode. However it doesn't help at all with the same race if inode->i_mode 
+hasn't changed. There is simply no way you can test for whether or not the 
+file is the same on the server.
+
+Cheers,
+  Trond

@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264887AbUDWReh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264889AbUDWRf4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264887AbUDWReh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 13:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264888AbUDWReh
+	id S264889AbUDWRf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 13:35:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264890AbUDWRf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 13:34:37 -0400
-Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:31128 "HELO
-	server5.heliogroup.fr") by vger.kernel.org with SMTP
-	id S264887AbUDWReg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 13:34:36 -0400
-From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
-To: mpt_linux_developer@lsil.com, linux-kernel@vger.kernel.org,
-       sjralston1@netscape.net
-Subject: Linux 2.6 MPT fusion bug
-Date: Fri, 23 Apr 2004 17:23:52 GMT
-Message-ID: <045ULNS12@server5.heliogroup.fr>
-X-Mailer: Pliant 91
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 23 Apr 2004 13:35:56 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:10942 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S264889AbUDWRfq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 13:35:46 -0400
+Message-Id: <200404231735.i3NHZRp3012111@eeyore.valparaiso.cl>
+To: weddy@grc.nasa.gov
+cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: TCP rto estimation patch 
+In-Reply-To: Message from Wesley Eddy <weddy@grc.nasa.gov> 
+   of "Fri, 23 Apr 2004 10:24:45 -0400." <20040423142445.GC501@grc.nasa.gov> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Fri, 23 Apr 2004 13:35:27 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I reported a fiew days ago Linux 2.6 not booting with no error message
-on a Dell PowerEdge 2600.
+Wesley Eddy <weddy@grc.nasa.gov> said:
+> The TCP RTO estimation algorithm defined in RFC 2988 is followed properly
+> in the kernel, however the constants alpha and beta in the specification
+> are hardcoded as 3 and 2 everywhere they occur in the kernel.  Since these
+> constants crop up multiple times, this is poor programming practice.  This
+> patch binds the numeric values to symbols RTT_ALPHA and RTTVAR_BETA, and
+> uses those symbolic values throughout the code.  Since using 2 and 3 for
+> these values is not mandatory, this makes tweaking them much easier.
 
-I've just tracked the problem down to a faulty SCSI cable raising a bug in MTP
-fusion driver for Linux kernel 2.6, up to Linux 2.6.6-rc2
+Why RTT_ALPHA and RTTVAR_BETA, and not just RTT_BETA? Or even RTO_xxx?
 
-Basically, one of the SCSI cable is wrong, probably a broken wire, so the BIOS
-sais that it's a narrow cable, and switches down to 40 MB/s instead of 320 MB/s
+Is there any reason to change them, ever? What happens if you change them?
+Restrictions on values? All this should go with such a patch IMHO (at least
+pointers to relevant discussion).
 
-With a 2.4 kernel, the Linux driver will report a fiew such error message:
-<4>SCSI Error: (1:5:0) Status=02h (CHECK CONDITION)
-<4> Key=6h (UNIT ATTENTION); FRU=02h
-<4> ASC/ASCQ=29h/02h "SCSI BUS RESET OCCURRED"
-<4> CDB: 28 00 00 00 18 3F 00 00 08 00
-and recover gracefully, and the machine works perfectly, just a little bit
-slower since the disks are connected at 40 MB/s.
+Must go over it with a fine comb to make sure no unrelated 2 or 3 got
+replaced... out of my league, sorry.
 
-With 2.6, the kernel with just hang immediately with absolutely no error message.
-
-If I change the faulty cable, both Linux 2.4 and 2.6 will run perfectly.
+Your patch is MIME-mangled, =3D, =20, =\n shows up all over the place here.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,84 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286364AbRLJTvg>; Mon, 10 Dec 2001 14:51:36 -0500
+	id <S286365AbRLJT65>; Mon, 10 Dec 2001 14:58:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286365AbRLJTvR>; Mon, 10 Dec 2001 14:51:17 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:51986 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S286364AbRLJTvE>; Mon, 10 Dec 2001 14:51:04 -0500
-Message-Id: <200112101950.fBAJoxg54527@aslan.scsiguy.com>
-To: Jens Axboe <axboe@suse.de>
-cc: LBJM <LB33JM16@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: highmem, aic7xxx, and vfat: too few segs for dma mapping 
-In-Reply-To: Your message of "Mon, 10 Dec 2001 20:21:30 +0100."
-             <20011210192130.GE12200@suse.de> 
-Date: Mon, 10 Dec 2001 12:50:59 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S286367AbRLJT6i>; Mon, 10 Dec 2001 14:58:38 -0500
+Received: from stingr.net ([212.193.33.37]:49678 "EHLO stingr.net")
+	by vger.kernel.org with ESMTP id <S286365AbRLJT6W>;
+	Mon, 10 Dec 2001 14:58:22 -0500
+Date: Mon, 10 Dec 2001 22:57:59 +0300
+From: Paul P Komkoff Jr <i@stingr.net>
+To: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com
+Subject: [PATCH] MTU vlan-related patch for tulip (2.4.x)
+Message-ID: <20011210225759.B11450@stingr.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Agent Tanya
+X-Mailer: Roxio Easy CD Creator 5.0
+X-RealName: Stingray Greatest Jr
+Organization: Bedleham International
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Ok I decided to try and trace this.
+Tired of patching everytime ... since vlan are now in official kernel
 
+I hope it will not break any things er ? should apply cleanly to latest 2.4
 ...
 
->		/*
->		 * The sg_count may be larger than nseg if
->		 * a transfer crosses a 32bit page.
->		 */ 
->
->hmm, here it already starts to smell fishy...
->
->		scb->sg_count = 0;
->		while(cur_seg < end_seg) {
->			bus_addr_t addr;
->			bus_size_t len;
->			int consumed;
->
->			addr = sg_dma_address(cur_seg);
->			len = sg_dma_len(cur_seg);
->			consumed = ahc_linux_map_seg(ahc, scb, sg, addr, len);
->
->ahc_linux_map_seg checks if scb->sg_count gets bigger than AHC_NSEG, in
->fact the test is
->
->	if (scb->sg_count + 1 > AHC_NSEC)
->		panic()
->
->What am I missing here?? I see nothing preventing hitting this panic in
->some circumstances.
 
-If you don't cross a 4GB boundary, this is the same as a static test
-that you never have more than AHC_NSEG segments.
 
->	if (scb->sg_count + 2 > AHC_NSEG)
->		panic()
->
->weee, we crossed a 4gb boundary and suddenly we have bigger problems
->yet. Ok, so what I think the deal is here is that AHC_NSEG are two
->different things to your driver and the mid layer.
->
->Am I missing something? It can't be this obvious.
-
-You will never cross a 4GB boundary on a machine with only 2GB of
-physical memory.  This report and another I have received are for
-configurations with 2GB or less memory.  This is not the cause of the
-problem.  Further, after this code was written, David Miller made the
-comment that an I/O that crosses a 4GB boundary will never be generated
-for the exact same reason that this check is included in the aic7xxx
-driver - you can't cross a 4GB page in a single PCI DAC transaction.  
-I should go verify that this is really the case in recent 2.4.X kernels.
-
-Saying that AHC_NSEG and the segment count exported to the mid-layer are
-too differnt things is true to some extent, but if the 4GB rule is not
-honored by the mid-layer implicitly, I would have to tell the mid-layer
-I can only handle half the number of segments I really can.  This isn't
-good for the memory footprint of the driver.  The test was added to
-protect against a situation that I don't believe can now happen in Linux.
-
-In truth, the solution to these kinds of problems is to export alignment,
-boundary, and range restrictions on memory mappings from the device
-driver to the layer creating the mappings.  This is the only way to
-generically allow a device driver to export a true segment limit.
+diff -urN linux-2.4.9-ac10-novlan/drivers/net/tulip/interrupt.c linux-2.4.9-ac10/drivers/net/tulip/interrupt.c
+--- linux-2.4.9-ac10-novlan/drivers/net/tulip/interrupt.c	Wed Jun 20 22:15:44 2001
++++ linux-2.4.9-ac10/drivers/net/tulip/interrupt.c	Mon Sep 10 18:44:12 2001
+@@ -128,8 +128,8 @@
+ 				   dev->name, entry, status);
+ 		if (--rx_work_limit < 0)
+ 			break;
+-		if ((status & 0x38008300) != 0x0300) {
+-			if ((status & 0x38000300) != 0x0300) {
++		if ((status & (0x38000000 | RxDescFatalErr | RxWholePkt)) != RxWholePkt) {
++			if ((status & (0x38000000 | RxWholePkt)) != RxWholePkt) {
+ 				/* Ingore earlier buffers. */
+ 				if ((status & 0xffff) != 0x7fff) {
+ 					if (tulip_debug > 1)
+@@ -155,10 +155,10 @@
+ 			struct sk_buff *skb;
+ 
+ #ifndef final_version
+-			if (pkt_len > 1518) {
++			if (pkt_len > 1522) {
+ 				printk(KERN_WARNING "%s: Bogus packet size of %d (%#x).\n",
+ 					   dev->name, pkt_len, pkt_len);
+-				pkt_len = 1518;
++				pkt_len = 1522;
+ 				tp->stats.rx_length_errors++;
+ 			}
+ #endif
+diff -urN linux-2.4.9-ac10-novlan/drivers/net/tulip/tulip.h linux-2.4.9-ac10/drivers/net/tulip/tulip.h
+--- linux-2.4.9-ac10-novlan/drivers/net/tulip/tulip.h	Wed Jun 20 22:19:02 2001
++++ linux-2.4.9-ac10/drivers/net/tulip/tulip.h	Mon Sep 10 18:42:27 2001
+@@ -186,7 +186,7 @@
+ 
+ enum desc_status_bits {
+ 	DescOwned = 0x80000000,
+-	RxDescFatalErr = 0x8000,
++	RxDescFatalErr = 0x4842,
+ 	RxWholePkt = 0x0300,
+ };
+ 
+@@ -264,7 +264,7 @@
+ 
+ #define MEDIA_MASK     31
+ 
+-#define PKT_BUF_SZ		1536	/* Size of each temporary Rx buffer. */
++#define PKT_BUF_SZ		1540	/* Size of each temporary Rx buffer. */
+ 
+ #define TULIP_MIN_CACHE_LINE	8	/* in units of 32-bit words */
+ 
+diff -urN linux-2.4.9-ac10-novlan/drivers/net/tulip/tulip_core.c linux-2.4.9-ac10/drivers/net/tulip/tulip_core.c
+--- linux-2.4.9-ac10-novlan/drivers/net/tulip/tulip_core.c	Mon Sep 10 18:50:47 2001
++++ linux-2.4.9-ac10/drivers/net/tulip/tulip_core.c	Mon Sep 10 18:39:59 2001
+@@ -59,7 +59,7 @@
+ #if defined(__alpha__) || defined(__arm__) || defined(__hppa__) \
+ 	|| defined(__sparc_) || defined(__ia64__) \
+ 	|| defined(__sh__) || defined(__mips__)
+-static int rx_copybreak = 1518;
++static int rx_copybreak = 1522;
+ #else
+ static int rx_copybreak = 100;
+ #endif
 
 --
-Justin
+Paul P 'Stingray' Komkoff 'Greatest' Jr // (icq)23200764 // (irc)Spacebar
+  PPKJ1-RIPE // (smtp)i@stingr.net // (http)stingr.net // (pgp)0xA4B4ECA4
+  

@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283759AbRLPVnK>; Sun, 16 Dec 2001 16:43:10 -0500
+	id <S284820AbRLPVsa>; Sun, 16 Dec 2001 16:48:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284820AbRLPVnA>; Sun, 16 Dec 2001 16:43:00 -0500
-Received: from [62.98.198.120] ([62.98.198.120]:22532 "EHLO
-	gandalf.rhpk.springfield.inwind.it") by vger.kernel.org with ESMTP
-	id <S283759AbRLPVms>; Sun, 16 Dec 2001 16:42:48 -0500
-Date: Sun, 16 Dec 2001 22:39:01 +0100 (CET)
-From: Cristiano Paris <c.paris@libero.it>
-To: <linux-kernel@vger.kernel.org>
-Subject: 815EP Linux problem with 2.4.17-rc1 (fwd)
-Message-ID: <Pine.LNX.4.33.0112162238460.21090-100000@gandalf.rhpk.springfield.inwind.it>
+	id <S284842AbRLPVsV>; Sun, 16 Dec 2001 16:48:21 -0500
+Received: from ausxc10.us.dell.com ([143.166.98.229]:27406 "EHLO
+	ausxc10.us.dell.com") by vger.kernel.org with ESMTP
+	id <S284820AbRLPVsJ>; Sun, 16 Dec 2001 16:48:09 -0500
+Message-ID: <71714C04806CD5119352009027289217022C40F5@ausxmrr502.us.dell.com>
+From: Matt_Domsch@Dell.com
+To: vherva@niksula.hut.fi, andrea@suse.com
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: malloc 1GB on a 2GB ia64 box fails - 17rc1 woes w/ qla1280 an
+	d reiserfs
+Date: Sun, 16 Dec 2001 15:47:54 -0600
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've recently bought a Asus Notebook, model L8490K which sports a 815EP
-chipset.
+> It didn't boot, though. qla1280 just hung after "verifying 
+> chip" phase.
+> Strangely, I don't see any changes to qla1280.c in -rc1.
 
-I've installed the Slackware 8.0 distribution and soon recompiled the
-2.4.17-rc1 kernel.
+That's a known heisenbug on ia64, and it's been around for a while, not new
+to recent kernels.  Generally it disappears if you reboot, or try
+introducing debugging to find it...
 
-After some time of using it I've experienced some kernel oops due to
-unhandled NULL pointer. I've just installed ksymoops so I'll try to debug
-the error myself but I would like to know which is the support status for
-this chipset. Have any problem been reported so far ?
+Thanks,
+Matt
 
-Thank you very much for your support.
-
-Cristiano
-
-
+-- 
+Matt Domsch
+Sr. Software Engineer
+Dell Linux Solutions
+www.dell.com/linux
+#1 US Linux Server provider with 24% (IDC Sept 2001)
+#2 Worldwide Linux Server provider with 17% (IDC Sept 2001)
+#3 Unix provider with 18% in the US (Dataquest)!

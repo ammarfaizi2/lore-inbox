@@ -1,145 +1,289 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbVC3Lxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261848AbVC3LzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261839AbVC3Lxk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 06:53:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVC3Lxk
+	id S261848AbVC3LzT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 06:55:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbVC3LzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 06:53:40 -0500
-Received: from general.keba.co.at ([193.154.24.243]:62354 "EHLO
-	helga.keba.co.at") by vger.kernel.org with ESMTP id S261839AbVC3LwM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 06:52:12 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: 2.6.11, IDE: Strange scheduling behaviour: high-pri RT process not scheduled?
-Date: Wed, 30 Mar 2005 13:52:05 +0200
-Message-ID: <AAD6DA242BC63C488511C611BD51F3673231C2@MAILIT.keba.co.at>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.11, IDE: Strange scheduling behaviour: high-pri RT process not scheduled?
-Thread-Index: AcU1Ht/KAqlxfYNPRUCm0PrICKCLEg==
-From: "kus Kusche Klaus" <kus@keba.com>
-To: <linux-kernel@vger.kernel.org>, <linux-ide@vger.kernel.org>,
-       <B.Zolnierkiewicz@elka.pw.edu.pl>
+	Wed, 30 Mar 2005 06:55:18 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:11403 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261848AbVC3Lwf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 06:52:35 -0500
+From: David Howells <dhowells@redhat.com>
+To: torvalds@osdl.org, akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] FRV: Fix kernel configuration
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
+Date: Wed, 30 Mar 2005 12:52:20 +0100
+Message-ID: <28590.1112183540@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've written a small test program which enables periodic RTC interrupts 
-at 8192 Hz and then goes into a loop reading /dev/rtc and collecting 
-timing statistics (using the rdtscl macro).
 
-The program runs at highest realtime scheduling priority (99) with
-memory 
-locked. In the loop, it doesn't do any I/O except for /dev/rtc reads, no
+The attached patch fixes the FRV configuration to work with 2.6.12-rc1. It
+does this by breaking out the kernel hacking menu into a separate file, in the
+same way this is done in other archs.
 
-memory allocations, nothing which could block or take time:
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+warthog>diffstat -p1 frv-kconfig-2612rc1.diff 
+ arch/frv/Kconfig       |  146 -------------------------------------------------
+ arch/frv/Kconfig.debug |   74 ++++++++++++++++++++++++
+ lib/Kconfig.debug      |    4 -
+ 3 files changed, 77 insertions(+), 147 deletions(-)
 
-  rdtscl(old);
-
-  for (i = 0; i < SAMPLES; ++i) {
-    if (read(fd, &rtcval, sizeof (unsigned long)) != sizeof (unsigned
-long)) {
-      fprintf(stderr, "%s: reading rtc data failed: %s\n", argv[0],
-              strerror(errno));
-      exit(1);
-    }
-    rtcval >>= 8;
-    --rtcval;
-    if (rtcval >= INTERRUPTS)
-      ++intr[INTERRUPTS];
-    else
-      ++intr[rtcval];
-    
-    rdtscl(new);
-    delta = new - old;
-    delta /= RESOLUTION;
-    if (delta >= INTERVALS)
-      ++cnt[INTERVALS];
-    else
-      ++cnt[delta];
-
-    old = new;
-  }
-
-The test system runs a 2.6.11 kernel (no SMP) on a Pentium3 500 MHz 
-embedded hardware. All filesystems are on a CF Card connected to the 
-primary IDE controller (intel 440BX chipset) in PIO mode 2. The CF
-card can transfer up to 2 MB/s. 
-There are 192 MB RAM, most of it free.
-The system is configured without swap space.
-
-As long as the system is idle otherwise, my program works as expected: 
-Most of the time, after an rtc interrupt the program gets the data from 
-/dev/rtc within less than 50 microseconds.
-
-Even with the test program running (which causes >16000 context switches
-
-per second), vmstat shows more than 95 % idle CPU. Hence, the CPU needed
-
-by the rtc irq handler and the test program is minimal.
-
-However, things break seriously when exercising the CF card in parallel 
-(e.g. with a dd if=/dev/hda of=/dev/null):
-
-* The rtc *interrupt handler* is delayed for up to 250 *micro*seconds. 
-This is very bad for my purpose, but easy to explain: It is roughly the 
-time needed to transfer 512 Bytes from a CF card which can transfer 2 
-Mbyte/sec, and obviously, the CPU blocks all interrupts while making pio
-
-transfers. (Why? Is this really necessary?)
-
-(I know because I instrumented the rtc irq handler with rdtscl(), too)
-
-* The *test program* is regularly blocked for 63 *milli*seconds, 
-sometimes for up to 300 *milli*seconds, which is absolutely
-unacceptable.
-
-* vmstat shows around 50 % sys CPU and around 50 % I/O wait, and 0 or
-1 % user CPU (zero idle CPU). context switches are down to around 
-500 from the expected >16000, which also indicates that my program is 
-scheduled much less often than it should. Most of the time, vmstat shows
-one running and one blocked process.
-
-Now the big question:
-*** Why doesn't my rt test program get *any* CPU for 63 jiffies? ***
-(the system ticks at 1000 HZ)
-
-* There is around 50 % idle CPU (I/O wait). I/O wait should not block my
-
-program, because my program neither performs any disk I/O nor swaps.
-
-* The dd program obviously gets some CPU regularly (because it copies 2 
-MB/s, and because no other program could cause the 1 % user CPU load). 
-The dd runs at normal shell scheduling priority, so it should be 
-preempted immediately by my test program!
-
-Some things I tried:
-1.) Using a mdma2 instead of a pio2 CF card: The CF card speed doubles
-    (4 MB/s instead of 2 MB/s), and the "blind time" of my test program
-    halves from 63 ms to 32 ms, but basically, the problem remains.
-2.) Using a realtime-preempt-2.6.12-rc1-V0.7.41-11 kernel with
-PREEMPT_RT:
-    If my test program runs at rtpri 99, the problem is gone: It is 
-    scheduled within 30 microseconds after the rtc interrupt.
-    If my test program runs at rtpri 1, it still suffers from delays 
-    in the 30 to 300 millisecond range.
-
-Thanks for any help!
-
-Klaus Kusche
-> Entwicklung Software - Steuerung
-> Software Development - Control
-> 
-> KEBA AG
-> A-4041 Linz
-> Gewerbepark Urfahr
-> Tel +43 / 732 / 7090-3120
-> Fax +43 / 732 / 7090-8919
-> E-Mail: kus@keba.com
-> www.keba.com
-> 
-> 
+diff -uNrp /warthog/kernels/linux-2.6.12-rc1/arch/frv/Kconfig linux-2.6.12-rc1-frv-tlbmiss/arch/frv/Kconfig
+--- /warthog/kernels/linux-2.6.12-rc1/arch/frv/Kconfig	2005-03-02 12:07:44.000000000 +0000
++++ linux-2.6.12-rc1-frv-tlbmiss/arch/frv/Kconfig	2005-03-30 12:00:04.000000000 +0100
+@@ -348,151 +348,7 @@ source "drivers/Kconfig"
+ 
+ source "fs/Kconfig"
+ 
+-menu "Kernel hacking"
+-
+-config DEBUG_KERNEL
+-	bool "Kernel debugging"
+-	help
+-	  Say Y here if you are developing drivers or trying to debug and
+-	  identify kernel problems.
+-
+-config EARLY_PRINTK
+-	bool "Early printk"
+-	depends on EMBEDDED && DEBUG_KERNEL
+-	default n
+-	help
+-	  Write kernel log output directly into the VGA buffer or to a serial
+-	  port.
+-
+-	  This is useful for kernel debugging when your machine crashes very
+-	  early before the console code is initialized. For normal operation
+-	  it is not recommended because it looks ugly and doesn't cooperate
+-	  with klogd/syslogd or the X server. You should normally N here,
+-	  unless you want to debug such a crash.
+-
+-config DEBUG_STACKOVERFLOW
+-	bool "Check for stack overflows"
+-	depends on DEBUG_KERNEL
+-
+-config DEBUG_SLAB
+-	bool "Debug memory allocations"
+-	depends on DEBUG_KERNEL
+-	help
+-	  Say Y here to have the kernel do limited verification on memory
+-	  allocation as well as poisoning memory on free to catch use of freed
+-	  memory.
+-
+-config MAGIC_SYSRQ
+-	bool "Magic SysRq key"
+-	depends on DEBUG_KERNEL
+-	help
+-	  If you say Y here, you will have some control over the system even
+-	  if the system crashes for example during kernel debugging (e.g., you
+-	  will be able to flush the buffer cache to disk, reboot the system
+-	  immediately or dump some status information). This is accomplished
+-	  by pressing various keys while holding SysRq (Alt+PrintScreen). It
+-	  also works on a serial console (on PC hardware at least), if you
+-	  send a BREAK and then within 5 seconds a command keypress. The
+-	  keys are documented in <file:Documentation/sysrq.txt>. Don't say Y
+-	  unless you really know what this hack does.
+-
+-config DEBUG_SPINLOCK
+-	bool "Spinlock debugging"
+-	depends on DEBUG_KERNEL
+-	help
+-	  Say Y here and build SMP to catch missing spinlock initialization
+-	  and certain other kinds of spinlock errors commonly made.  This is
+-	  best used in conjunction with the NMI watchdog so that spinlock
+-	  deadlocks are also debuggable.
+-
+-config DEBUG_SPINLOCK_SLEEP
+-	bool "Sleep-inside-spinlock checking"
+-	depends on DEBUG_KERNEL
+-	help
+-	  If you say Y here, various routines which may sleep will become very
+-	  noisy if they are called with a spinlock held.
+-
+-config DEBUG_PAGEALLOC
+-	bool "Page alloc debugging"
+-	depends on DEBUG_KERNEL
+-	help
+-	  Unmap pages from the kernel linear mapping after free_pages().
+-	  This results in a large slowdown, but helps to find certain types
+-	  of memory corruptions.
+-
+-config DEBUG_HIGHMEM
+-	bool "Highmem debugging"
+-	depends on DEBUG_KERNEL && HIGHMEM
+-	help
+-	  This options enables addition error checking for high memory systems.
+-	  Disable for production systems.
+-
+-config DEBUG_INFO
+-	bool "Compile the kernel with debug info"
+-	depends on DEBUG_KERNEL
+-	help
+-          If you say Y here the resulting kernel image will include
+-	  debugging info resulting in a larger kernel image.
+-	  Say Y here only if you plan to use gdb to debug the kernel.
+-	  If you don't debug the kernel, you can say N.
+-
+-config DEBUG_BUGVERBOSE
+-	bool "Verbose BUG() reporting"
+-	depends on DEBUG_KERNEL
+-
+-config FRAME_POINTER
+-	bool "Compile the kernel with frame pointers"
+-	depends on DEBUG_KERNEL
+-	help
+-	  If you say Y here the resulting kernel image will be slightly larger
+-	  and slower, but it will give very useful debugging information.
+-	  If you don't debug the kernel, you can say N, but we may not be able
+-	  to solve problems without frame pointers.
+-
+-config GDBSTUB
+-	bool "Remote GDB kernel debugging"
+-	depends on DEBUG_KERNEL
+-	select DEBUG_INFO
+-	select FRAME_POINTER
+-	help
+-	  If you say Y here, it will be possible to remotely debug the kernel
+-	  using gdb. This enlarges your kernel ELF image disk size by several
+-	  megabytes and requires a machine with more than 16 MB, better 32 MB
+-	  RAM to avoid excessive linking time. This is only useful for kernel
+-	  hackers. If unsure, say N.
+-
+-choice
+-	prompt "GDB stub port"
+-	default GDBSTUB_UART1
+-	depends on GDBSTUB
+-	help
+-	  Select the on-CPU port used for GDB-stub
+-
+-config GDBSTUB_UART0
+-	bool "/dev/ttyS0"
+-
+-config GDBSTUB_UART1
+-	bool "/dev/ttyS1"
+-
+-endchoice
+-
+-config GDBSTUB_IMMEDIATE
+-	bool "Break into GDB stub immediately"
+-	depends on GDBSTUB
+-	help
+-	  If you say Y here, GDB stub will break into the program as soon as
+-	  possible, leaving the program counter at the beginning of
+-	  start_kernel() in init/main.c.
+-
+-config GDB_CONSOLE
+-	bool "Console output to GDB"
+-	depends on KGDB
+-	help
+-	  If you are using GDB for remote debugging over a serial port and
+-	  would like kernel messages to be formatted into GDB $O packets so
+-	  that GDB prints them as program output, say 'Y'.
+-
+-endmenu
++source "arch/frv/Kconfig.debug"
+ 
+ source "security/Kconfig"
+ 
+diff -uNrp /warthog/kernels/linux-2.6.12-rc1/arch/frv/Kconfig.debug linux-2.6.12-rc1-frv-tlbmiss/arch/frv/Kconfig.debug
+--- /warthog/kernels/linux-2.6.12-rc1/arch/frv/Kconfig.debug	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.12-rc1-frv-tlbmiss/arch/frv/Kconfig.debug	2005-03-30 12:05:27.000000000 +0100
+@@ -0,0 +1,74 @@
++menu "Kernel hacking"
++
++source "lib/Kconfig.debug"
++
++config EARLY_PRINTK
++	bool "Early printk"
++	depends on EMBEDDED && DEBUG_KERNEL
++	default n
++	help
++	  Write kernel log output directly into the VGA buffer or to a serial
++	  port.
++
++	  This is useful for kernel debugging when your machine crashes very
++	  early before the console code is initialized. For normal operation
++	  it is not recommended because it looks ugly and doesn't cooperate
++	  with klogd/syslogd or the X server. You should normally N here,
++	  unless you want to debug such a crash.
++
++config DEBUG_STACKOVERFLOW
++	bool "Check for stack overflows"
++	depends on DEBUG_KERNEL
++
++config DEBUG_PAGEALLOC
++	bool "Page alloc debugging"
++	depends on DEBUG_KERNEL
++	help
++	  Unmap pages from the kernel linear mapping after free_pages().
++	  This results in a large slowdown, but helps to find certain types
++	  of memory corruptions.
++
++config GDBSTUB
++	bool "Remote GDB kernel debugging"
++	depends on DEBUG_KERNEL
++	select DEBUG_INFO
++	select FRAME_POINTER
++	help
++	  If you say Y here, it will be possible to remotely debug the kernel
++	  using gdb. This enlarges your kernel ELF image disk size by several
++	  megabytes and requires a machine with more than 16 MB, better 32 MB
++	  RAM to avoid excessive linking time. This is only useful for kernel
++	  hackers. If unsure, say N.
++
++choice
++	prompt "GDB stub port"
++	default GDBSTUB_UART1
++	depends on GDBSTUB
++	help
++	  Select the on-CPU port used for GDB-stub
++
++config GDBSTUB_UART0
++	bool "/dev/ttyS0"
++
++config GDBSTUB_UART1
++	bool "/dev/ttyS1"
++
++endchoice
++
++config GDBSTUB_IMMEDIATE
++	bool "Break into GDB stub immediately"
++	depends on GDBSTUB
++	help
++	  If you say Y here, GDB stub will break into the program as soon as
++	  possible, leaving the program counter at the beginning of
++	  start_kernel() in init/main.c.
++
++config GDB_CONSOLE
++	bool "Console output to GDB"
++	depends on GDBSTUB
++	help
++	  If you are using GDB for remote debugging over a serial port and
++	  would like kernel messages to be formatted into GDB $O packets so
++	  that GDB prints them as program output, say 'Y'.
++
++endmenu
+diff -uNrp /warthog/kernels/linux-2.6.12-rc1/lib/Kconfig.debug linux-2.6.12-rc1-frv-tlbmiss/lib/Kconfig.debug
+--- /warthog/kernels/linux-2.6.12-rc1/lib/Kconfig.debug	2005-03-23 17:09:27.000000000 +0000
++++ linux-2.6.12-rc1-frv-tlbmiss/lib/Kconfig.debug	2005-03-30 12:04:02.000000000 +0100
+@@ -108,7 +108,7 @@ config DEBUG_HIGHMEM
+ 
+ config DEBUG_BUGVERBOSE
+ 	bool "Verbose BUG() reporting (adds 70K)" if DEBUG_KERNEL && EMBEDDED
+-	depends on ARM || ARM26 || M32R || M68K || SPARC32 || SPARC64 || (X86 && !X86_64)
++	depends on ARM || ARM26 || M32R || M68K || SPARC32 || SPARC64 || (X86 && !X86_64) || FRV
+ 	default !EMBEDDED
+ 	help
+ 	  Say Y here to make BUG() panics output the file name and line number
+@@ -150,7 +150,7 @@ config DEBUG_FS
+ 
+ config FRAME_POINTER
+ 	bool "Compile the kernel with frame pointers"
+-	depends on DEBUG_KERNEL && ((X86 && !X86_64) || CRIS || M68K || M68KNOMMU)
++	depends on DEBUG_KERNEL && ((X86 && !X86_64) || CRIS || M68K || M68KNOMMU || FRV)
+ 	help
+ 	  If you say Y here the resulting kernel image will be slightly larger
+ 	  and slower, but it will give very useful debugging information.

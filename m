@@ -1,71 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266070AbUBJRuP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 12:50:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265992AbUBJR3d
+	id S266156AbUBJRym (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 12:54:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266120AbUBJRvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 12:29:33 -0500
-Received: from turing-police.cirt.vt.edu ([128.173.54.129]:48770 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S266028AbUBJR2h (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 12:28:37 -0500
-Message-Id: <200402101728.i1AHS354008665@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Daniel Jacobowitz <dan@debian.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Jeff Chua <jchua@fedex.com>, jeffchua@silk.corp.fedex.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] warning: `__attribute_used__' redefined 
-In-Reply-To: Your message of "Tue, 10 Feb 2004 12:10:55 EST."
-             <20040210171055.GA32612@nevyn.them.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.58.0402101434260.27213@boston.corp.fedex.com> <20040209225336.1f9bc8a8.akpm@osdl.org> <Pine.LNX.4.58.0402102150150.17289@silk.corp.fedex.com> <20040210082514.04afde4a.akpm@osdl.org> <Pine.LNX.4.58.0402100827100.2128@home.osdl.org>
-            <20040210171055.GA32612@nevyn.them.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1102005358P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 10 Feb 2004 12:51:09 -0500
+Received: from tristate.vision.ee ([194.204.30.144]:20702 "HELO mail.city.ee")
+	by vger.kernel.org with SMTP id S265979AbUBJR0V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 12:26:21 -0500
+Message-ID: <4029143B.30408@vision.ee>
+Date: Tue, 10 Feb 2004 19:26:19 +0200
+From: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Takashi Iwai <tiwai@suse.de>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: irq 7: nobody cared! (intel8x0 sound / 2.6.2-rc3-mm1)
+References: <4023BEA8.5060306@vision.ee> <s5hd68o2ia7.wl@alsa2.suse.de>
+In-Reply-To: <s5hd68o2ia7.wl@alsa2.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 10 Feb 2004 12:28:03 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1102005358P
-Content-Type: text/plain; charset=us-ascii
+Takashi Iwai wrote:
 
-On Tue, 10 Feb 2004 12:10:55 EST, Daniel Jacobowitz said:
+>
+>could you check the status register value when this happens with the
+>attached patch?
+>  
+>
+It never happened after applying this patch (not the right circumstances 
+I think). It always printed this:
 
-> This is what Debian has been using.  I believe the other folks with a
-> glibc-kernel-headers package based on 2.6 do something similar.  I
-> don't know how you'll feel about adding this sort of crap to the
+intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
 
-I found this in the Fedora linux-2.6.0-compile.patch included in their
-kernel-2.6.1-1.65.src.rpm.  A bit more hard-line. :)
+And sound worked.
 
-Anybody want to push it for the Linus or -mm trees? ;)
+Today discovered this message from dmesg:
 
---- linux-2.6.0-test11/include/linux/config.h~  2003-12-11 09:29:14.090625985 +0100
-+++ linux-2.6.0-test11/include/linux/config.h   2003-12-11 09:29:14.090625985 +0100
-@@ -2,5 +2,7 @@
- #define _LINUX_CONFIG_H
- 
- #include <linux/autoconf.h>
--
-+#ifndef __KERNEL__
-+#error including kernel header in userspace; use the glibc headers instead!
-+#endif
- #endif
+intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
+intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
+intel8x0: ignored irq, status = 0x300100, sta_mask = 0xf0
+irq 7: nobody cared!
+Call Trace:
+ [<c010c0f4>] __report_bad_irq+0x24/0x80
+ [<c010c1d1>] note_interrupt+0x61/0x90
+ [<c010c46d>] do_IRQ+0x10d/0x120
+ [<c0279e1c>] common_interrupt+0x18/0x20
+ [<c010c093>] handle_IRQ_event+0x23/0x60
+ [<c010c3e3>] do_IRQ+0x83/0x120
+ [<c0279e1c>] common_interrupt+0x18/0x20
+ [<f99a97dc>] dl_done_list+0x7c/0x110 [ohci_hcd]
+ [<f99aa114>] ohci_irq+0x84/0x160 [ohci_hcd]
+ [<f99ade79>] nic_irq+0x1a9/0x1d0 [forcedeth]
+ [<f996d52e>] usb_hcd_irq+0x2e/0x60 [usbcore]
+ [<c010c09f>] handle_IRQ_event+0x2f/0x60
+ [<c010c3e3>] do_IRQ+0x83/0x120
+ [<c0107000>] _stext+0x0/0x50
+ [<c0279e1c>] common_interrupt+0x18/0x20
+ [<c0107000>] _stext+0x0/0x50
+ [<c0108b53>] default_idle+0x23/0x30
+ [<c0108bbc>] cpu_idle+0x2c/0x40
+ [<c02fe70a>] start_kernel+0x13a/0x150
+ [<c02fe480>] unknown_bootoption+0x0/0x100
 
+handlers:
+[<f99a1720>] (snd_intel8x0_interrupt+0x0/0x200 [snd_intel8x0])
+Disabling IRQ #7
 
---==_Exmh_-1102005358P
-Content-Type: application/pgp-signature
+And mplayer stalls again. The 'ignored irq' message was the same and no 
+additional messages
+after call trace.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+/proc/interrupts:
 
-iD8DBQFAKRSjcC3lWbTT17ARAo8ZAKDI1AarM5viEFKTEOEbPWyxPREdAgCgs9tn
-edPXH7HVzYNer8m71lw/Up4=
-=izfA
------END PGP SIGNATURE-----
+           CPU0
+  0:   78008640          XT-PIC  timer
+  1:      35441          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  5:   18501105          XT-PIC  eth1
+  7:     203478          XT-PIC  NVidia nForce2
+  8:   22814379          XT-PIC  rtc
+  9:          0          XT-PIC  acpi
+ 11:     639763          XT-PIC  ide2, ehci_hcd
+ 12:   47894522          XT-PIC  ohci_hcd, eth0
+ 14:     589578          XT-PIC  ide0
+ 15:     115750          XT-PIC  ide1
+NMI:          0
+LOC:   78015575
+ERR:       3478
+MIS:          0
 
---==_Exmh_-1102005358P--
+Lenar

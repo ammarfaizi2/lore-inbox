@@ -1,71 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267288AbTAGAc3>; Mon, 6 Jan 2003 19:32:29 -0500
+	id <S267264AbTAGAmg>; Mon, 6 Jan 2003 19:42:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267289AbTAGAc3>; Mon, 6 Jan 2003 19:32:29 -0500
-Received: from ns.indranet.co.nz ([210.54.239.210]:3549 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id <S267288AbTAGAc1>; Mon, 6 Jan 2003 19:32:27 -0500
-Date: Tue, 07 Jan 2003 13:39:38 +1300
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Roman Zippel <zippel@linux-m68k.org>,
-       Andre Hedrick <andre@pyxtechnologies.com>
-cc: Oliver Xymoron <oxymoron@waste.org>, Andrew Morton <akpm@digeo.com>,
-       Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
-Message-ID: <17360000.1041899978@localhost.localdomain>
-In-Reply-To: <3E19B401.7A9E47D5@linux-m68k.org>
-References: <Pine.LNX.4.10.10301051924140.421-100000@master.linux-ide.org>
- <3E19B401.7A9E47D5@linux-m68k.org>
-X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S267268AbTAGAmg>; Mon, 6 Jan 2003 19:42:36 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:27570 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id <S267264AbTAGAmf>;
+	Mon, 6 Jan 2003 19:42:35 -0500
+Subject: Re: Honest does not pay here ...
+From: Steven Barnhart <sbarn03@softhome.net>
+To: Andrew Walrond <andrew@walrond.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3E1A1A2C.2000409@walrond.org>
+References: <200301041809.KAA06893@adam.yggdrasil.com>
+	<avaa2r$ggr$1@forge.intermeta.de> <3E18B76B.8050803@cox.net>
+	<avae9i$gv1$1@forge.intermeta.de> <3E18CC4D.1020604@cox.net>
+	<20030106234116.GH10752@merlin.emma.line.org> 
+	<3E1A1A2C.2000409@walrond.org>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 Jan 2003 19:51:11 -0500
+Message-Id: <1041900676.20298.15.camel@sbarn.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm.  The problem here is that there is a nontrivial probability that a 
-packet can pass both ethernet and TCP checksums and still not be right, 
-given the gigantic volumes of data that iSCSI is intended to be used with. 
-Back up a 100 terabyte array and it's more than 1%, back of the envelope.
+On Mon, 2003-01-06 at 19:07, Andrew Walrond wrote:
+> Fine for us developers, but 99.5% of users wouldn't recognise a c 
+> function if it jumped up and bit them on the ass. If it doesn't say 
+> "linux supported" on the box, they won't buy it. Google? Source Forge? 
+> ./configure? WTFIT?. Where is their freedom?
+> 
+> Until the manufacturers start providing good quality supported drivers 
+> for their hardware, binary or source, linux will stay exactly where it 
+> is now; a server room tool and a hobbyists playground.
+> 
+> I for one think thats a real shame
 
-Ethernet and TCP were both designed to be cheap to evaluate, not the 
-absolute last word in integrity.  There is a move underway to provide an 
-optional stronger TCP digest for IPv6, and if used with that then there is 
-no need for the iSCSI digest.  Otherwise, well, play dice with the data. 
-Loaded in your favour, but still dice.
+You are just being silly. Any half-decent person (including my grandma,
+seriously!) can set up distributions such as Mandrake and now maybe even
+Red Hat. The problem I see, especially here (but atleast normal people
+won't subscribe :P), is that a lot of Linux users hate proprietary
+software and bla bla you get what I was going to say there. Anyways its
+quite easy to set up a system and you no longer have to be a hobbyiest.
+you did read IDC's predictions didn't you? Linux has a chance of
+becoming #2 in the next year or so. Beats me what this had to do w/the
+topic either..geez.
 
-Andrew
-
---On Monday, January 06, 2003 17:51:13 +0100 Roman Zippel 
-<zippel@linux-m68k.org> wrote:
-
-> Hi,
->
->> If you know anything about iSCSI RFC draft and how storage truly works.
->> Cisco gets it wrong, they do not believe in supporting the full RFC.
->> So you get ERL=0, and now they turned of the "Header and Data Digests",
->> this is equal to turning off the iCRC in ATA, or CRC in SCSI between the
->> controller and the device.  For those people who think removing the
->> checksum test for the integrity of the data and command operations, you
->> get what you deserve.
->
-> Ever heard of TCP checksums? Ever heard of ethernet checksums? Which
-> transport doesn't use checksums nowadays? The digest makes only sense if
-> you can generate it for free in hardware or for debugging, otherwise
-> it's only a waste of cpu time. This makes the complete ERL 1 irrelevant
-> for a software implementation. With block devices you can even get away
-> with just ERL 0 to implement transparent recovery.
->
-> bye, Roman
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
-
+-- 
+Steven
+sbarn03@softhome.net
+GnuPG Fingerprint: 9357 F403 B0A1 E18D 86D5  2230 BB92 6D64 D516 0A94
 

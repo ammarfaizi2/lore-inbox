@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261807AbVBVJrx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbVBVJtM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbVBVJrx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 04:47:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbVBVJrx
+	id S261811AbVBVJtM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 04:49:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbVBVJtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 04:47:53 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:1190
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S261807AbVBVJrm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 04:47:42 -0500
-Subject: Re: E-cards for You
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Chuck Harding <cdharding@comcast.net>
-Cc: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
-In-Reply-To: <421AF1C6.2030902@comcast.net>
-References: <07754071.20040720063440@e-cards.com>
-	 <42150AB0.3070503@colannino.org>
-	 <200502171652.27868.gene.heskett@verizon.net>
-	 <Pine.LNX.4.62.0502171401190.12367@ghostwheel.llnl.gov>
-	 <20050217225246.GH23467@freenet.de>  <421AF1C6.2030902@comcast.net>
-Content-Type: text/plain
-Date: Tue, 22 Feb 2005 10:47:35 +0100
-Message-Id: <1109065655.4355.21.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Feb 2005 04:49:11 -0500
+Received: from math.ut.ee ([193.40.36.2]:36317 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S261811AbVBVJtC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 04:49:02 -0500
+Date: Tue, 22 Feb 2005 11:48:31 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>, sfr@canb.auug.org.au
+Subject: 2.4 compile errors in 32-bit sys_revcmsg fixes
+Message-ID: <Pine.SOC.4.61.0502221140040.6097@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-22 at 00:48 -0800, Chuck Harding wrote:
-> it has a miniscule false-positive rate, yet
-> catches all of the 419, phish, E-cards, etc, etc, etc, that get sent to 
-> the list. I am only an end-user in that I do
+This is todays 2.4.30-pre1+BK snapshot on a sparc64:
 
-419 spam mails in what timespan ? 
+gcc -D__ASSEMBLY__ -D__KERNEL__ -I/home/mroos/compile/linux-2.4/include -m64 -mcpu=ultrasparc -Wa,--undeclared-regs -ansi  -c -o sys32.o sys32.S
+gcc -D__KERNEL__ -I/home/mroos/compile/linux-2.4/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -m64 -pipe -mno-fpu -mcpu=ultrasparc -mcmodel=medlow -ffixed-g4 -fcall-used-g5 -fcall-used-g7 -Wno-sign-compare -Wa,--undeclared-regs -finline-limit=100000   -nostdinc -iwithprefix include -DKBUILD_BASENAME=sys_sparc32  -c -o 
+sys_sparc32.o sys_sparc32.c
+sys_sparc32.c: In function `cmsg32_recvmsg_fixup':
+sys_sparc32.c:2683: error: called object is not a function
+make[1]: *** [sys_sparc32.o] Error 1
 
-I get max. 1 per day which is really sent through the maillist. I guess
-the list is hit by min. 5000 per day, so what. Want you really to bitch
-about the one which slips through ?
+The lines in question are
+if ((clen64 < CMSG_ALIGN(sizeof(*ucmsg)))
+                  (clen64 > (orig_cmsg_len + wp - workbuf))) {
 
-Of course my spam filters / mail server get rid of dozens per day which
-pretend to come from the maillist.
+Is a "||" missing, or something else?
 
-> can't the admins at vger.kernel.org
-> set up the same kind of filtering so that the junk never even gets into 
-> the outbound majordomo queue? I've
+It appears the same lines are in most fixed architectures so probably 
+more architectures don't compile.
 
-Can you imagine what happens when they remove the filters ?
-
-tglx
-
-
+-- 
+Meelis Roos (mroos@linux.ee)

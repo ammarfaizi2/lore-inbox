@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264540AbUEPRcO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264129AbUEPRmg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264540AbUEPRcO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 13:32:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264402AbUEPRcN
+	id S264129AbUEPRmg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 13:42:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264402AbUEPRmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 13:32:13 -0400
-Received: from fw.osdl.org ([65.172.181.6]:34447 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264129AbUEPRcM (ORCPT
+	Sun, 16 May 2004 13:42:36 -0400
+Received: from siolinb.obspm.fr ([145.238.2.18]:63130 "EHLO siolinb.obspm.fr")
+	by vger.kernel.org with ESMTP id S264129AbUEPRme (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 13:32:12 -0400
-Date: Sun, 16 May 2004 10:29:36 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Christian Kujau <evil@g-house.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] "bk pull" does not update my sources...?
-Message-Id: <20040516102936.0c0df511.rddunlap@osdl.org>
-In-Reply-To: <40A7A145.5020201@g-house.de>
-References: <40A51CFB.7000305@g-house.de>
-	<c85lk9$96j$1@sea.gmane.org>
-	<40A7A145.5020201@g-house.de>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 16 May 2004 13:42:34 -0400
+Date: Sun, 16 May 2004 19:42:33 +0200 (CEST)
+From: Etienne Vogt <etienne.vogt@obspm.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: aic79xx trouble
+In-Reply-To: <200405132136.32703.bernd.schubert@pci.uni-heidelberg.de>
+Message-ID: <Pine.LNX.4.58.0405161930260.2851@siolinb.obspm.fr>
+References: <200405132125.28053.bernd.schubert@pci.uni-heidelberg.de>
+ <200405132136.32703.bernd.schubert@pci.uni-heidelberg.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 May 2004 19:13:41 +0200 Christian Kujau <evil@g-house.de> wrote:
 
-| -----BEGIN PGP SIGNED MESSAGE-----
-| Hash: SHA1
-| 
-| walt schrieb:
-| |> evil@sheep:/usr/src/linux-2.6-BK$ head -n5 Makefile
-| |> VERSION = 2
-| |> PATCHLEVEL = 6
-| |> SUBLEVEL = 6
-| |> EXTRAVERSION =
-| |
-| | This is correct.  Linus does not include the 'bk' in the 'extraversion'
-| | field.
-| 
-| so, the Makefile from the -bk snapshots (e.g. patch-2.6.6-bk1.bz2) was
-| edited and will show an EXTRAVERSION of "-bk1", while the original
-| Makefile does not? this is insane!
+On Thu, 13 May 2004, Bernd Schubert wrote:
 
-Right.  The bk tree does not contain -bkN or anything in the
-EXTRAVERSION string.  The bk snapshots do add that string.
+> Oh, I forgot the system specifications:
+>
+> - dual opteron on tyan S2882 board
+> - vanilla linux-2.4.26
+>
+> > we are just in the process of setting up a new server, which will serve the
+> > data of an IDE/SCSI raid system (transtec 5008). Some partions of this raid
+> > device are also mirrored via drbd to a failover system. During a full
+> > resync of all (3) failover partitions *from* the failover server, the
+> > main-server first logs many scsi errors and later the access to the
+> > raid-partitions completely locks up.
+> >
+> > Below is some relevant dmesg output, I already enabled the verbose option
+> > for the aic79xx driver. Should I also enable debugging, if so, which mode?
 
-I don't find it hard to keep them separated, but, yeah, that's the
-way it is.
+ The Adaptec Ultra320 cards (aic79xx) do not work reliably on Tyan Thunder
+motherboards. Lots of SCSI errors and eventually complete system lockup.
+I guess those motherboards have a crappy PCI bus with a lot of noise
+that can't cope with the high transfer speed of these SCSI cards.
+ I suggest you try an Ultra160 card. We have 3 Tyan Thunder based systems
+here (those are dual Athlon MP2800) that work fine with Adaptec Ultra160
+cards (aic7xxx) but give lots of errors with the Ultra320 cards.
 
---
-~Randy
+-- 
+		Etienne Vogt (Etienne.Vogt@obspm.fr)
+		Unix System Manager
+		Observatoire de Paris-Meudon, France

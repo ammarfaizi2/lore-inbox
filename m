@@ -1,66 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289108AbSAVA22>; Mon, 21 Jan 2002 19:28:28 -0500
+	id <S289094AbSAVA06>; Mon, 21 Jan 2002 19:26:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289104AbSAVA2S>; Mon, 21 Jan 2002 19:28:18 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:47370 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S289106AbSAVA2C>; Mon, 21 Jan 2002 19:28:02 -0500
-Message-ID: <3C4CB1FB.6AD8496E@linux-m68k.org>
-Date: Tue, 22 Jan 2002 01:27:39 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: yodaiken@fsmlabs.com
-CC: Daniel Phillips <phillips@bonn-fries.net>,
-        george anzinger <george@mvista.com>, Momchil Velikov <velco@fadata.bg>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <E16SgXE-0001i8-00@starship.berlin> <20020121084344.A13455@hq.fsmlabs.com> <E16SgwP-0001iN-00@starship.berlin> <20020121090602.A13715@hq.fsmlabs.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S289107AbSAVA0s>; Mon, 21 Jan 2002 19:26:48 -0500
+Received: from mail1.amc.com.au ([203.15.175.2]:5380 "HELO mail1.amc.com.au")
+	by vger.kernel.org with SMTP id <S289094AbSAVA0j>;
+	Mon, 21 Jan 2002 19:26:39 -0500
+Message-Id: <5.1.0.14.0.20020122110233.00a1e2e0@mail.amc.localnet>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 22 Jan 2002 11:26:33 +1100
+To: linux-kernel@vger.kernel.org
+From: Stuart Young <sgy@amc.com.au>
+Subject: Re: Athlon PSE/AGP Bug
+Cc: "David S. Miller" <davem@redhat.com>, akpm@zip.com.au, andrea@suse.de,
+        reid.hekman@ndsu.nodak.edu, alan@lxorg.ukuu.org
+In-Reply-To: <20020121.142320.123999571.davem@redhat.com>
+In-Reply-To: <3C4C5B26.3A8512EF@zip.com.au>
+ <20020121.053724.124970557.davem@redhat.com>
+ <20020121175410.G8292@athlon.random>
+ <3C4C5B26.3A8512EF@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+At 02:23 PM 21/01/02 -0800, David S. Miller wrote:
+>    I does seem that the nVidia driver is usually involved.
+>
+>I think this is all "just so happens" personally, and all the that
+>turning off the large pages really does is change the timings so that
+>whatever bug is really present simply becomes a heisenbug.
 
-yodaiken@fsmlabs.com wrote:
+I'd definitely agree with that. My home system seems rock stable in regards 
+to games. Every game problem I've had I've somehow tracked down to a memory 
+leak in the game (or another app running in the background) that 
+(assumedly) blew out the VM after a while. (Athlon 1400, Asus A7M, Creative 
+SBLive!, Asus V8200 GF3DDR, decent power supply and cooling).
 
-> > don't you?  As for the measured benefit, there have been a steady stream of
-> > postive reports on lkml.
-> 
-> I have not seen a single well structured benchmark that shows a significant
-> difference. I've seen lots of benchmarks with odd mixes of different patches
-> showing something unknown. How about a simple clear dbench?
+I would not be surprised if some of these "crashes" were power related. 
+It's quite possible that by slowing things down (even marginally) it will 
+reduce the current drain on the system. Some systems power supplies (and 
+associated m/board power circuitry) can be so touchy they become unstable, 
+and will eventually provide unclean power (usually an AC ripple on the DC). 
+ From there, chaos.
 
-So let's explore the benchmark argument a bit. A usual some things need
-to be clarified first.
-It would be useful to know what we actually want to measure in the
-benchmark. The main goal is to reduce scheduling latencies, so it would
-make sense to test this. Results can be found at
-http://www.gardena.net/benno/linux/audio/ and
-http://kpreempt.sourceforge.net/. I haven't found a direct compare of
-preemp+lockbreak and ll patch, but I wouldn't expect major differences
-and it isn't really important. It is only important that both approaches
-improve the scheduling latency considerably.
-Now what in this thread is mostly mentioned are i/o benchmarks.
-Improving i/o performance isn't really the main goal of the patches, so
-it's only important that i/o performance isn't harmed. So far I haven't
-seen any results indicating something like this, so case closed.
-Victor, could you please explain, what are you trying to prove with the
-benchmark argument??? I see you arguing a lot, but I don't really see
-for what.
-Finally my theory, why preempt performs better. If we assume that the
-kernel spends too much time in kernel space, we only need to look at the
-ll patch for possible latency problems. My favourites are two places -
-copy_(to|from)_user and page table scan. Both are likely places for
-loads like grep or kernel compile. I can see two possible effects here.
-First lots of small i/o can be issued faster instead copying data
-around. Second we spent too much time scanning the page tables looking
-for freeable pages, while already enough i/o is scheduled, so instead
-something useful is done and we just wait for the i/o to finish. Anyway,
-anyone who really wants to know it, could modify the profiling code and
-test where in kernel we schedule so often.
+Then you've got heat, which is the "next big killer" with the Athlon's. 
+They produce a lot of it, and if it doesn't circulate properly, you can 
+never expect anything reliable. Of course, the video card generally is 
+quite close to the CPU, and it generates heat too, and can suffer from all 
+sorts of issues if they get too hot.
 
-bye, Roman
+Almost all the Athlon problems I've looked at for friends (with lockups 
+specifically) have pretty much fallen into either; the above failure 
+categories, "broken hardware" or "kernel issues" (usually known issues, not 
+specific to Athlon).
+
+I doubt it's as bad as everyone makes out. Unfortunately people buy cheap 
+hardware because it's cheap, not because it's reliable.
+
+
+Stuart Young - sgy@amc.com.au
+(aka Cefiar) - cefiar1@optushome.com.au
+
+[All opinions expressed in the above message are my]
+[own and not necessarily the views of my employer..]
+

@@ -1,29 +1,27 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262600AbVDAEDP (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 31 Mar 2005 23:03:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbVDAEDP
+	id S262044AbVDAEQa (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 31 Mar 2005 23:16:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbVDAEQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 23:03:15 -0500
-Received: from [222.103.154.70] ([222.103.154.70]:41225 "HELO freemail.de")
-	by vger.kernel.org with SMTP id S262600AbVDAEDD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 23:03:03 -0500
-Message-ID: <727101c5364c$f8aae190$a08e5264@softwarenews>
-Reply-To: <softwarenews@freemail.de>
-From: <softwarenews@freemail.de>
+	Thu, 31 Mar 2005 23:16:30 -0500
+Received: from customer68-106-65.iplannetworks.net ([200.68.106.65]:19973 "HELO
+	iplannetworks.net") by vger.kernel.org with SMTP id S262044AbVDAEQ0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 23:16:26 -0500
+Message-ID: <d54301c5364c$c834e010$378ac4c4@servicenews>
+From: <servicenews@iplannetworks.net>
 To: <linux-kernel@vger.kernel.org>
-Subject: Photoshop 80 USD
-Date: Thu, 31 Mar 2005 23:54:26 +0400
+Subject: 
+Date: Thu, 31 Mar 2005 23:53:05 +0400
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262600AbVDAEDP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262044AbVDAEQa@vger.kernel.org>
 
 Geachte dames en heren,
  

@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269028AbUHZPPl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269045AbUHZPWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269028AbUHZPPl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 11:15:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269032AbUHZPPl
+	id S269045AbUHZPWE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 11:22:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269040AbUHZPWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 11:15:41 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:52724 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S269028AbUHZPPh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 11:15:37 -0400
-Date: Thu, 26 Aug 2004 17:15:29 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Olivier Galibert <galibert@pobox.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Christian Mayrhuber <christian.mayrhuber@gmx.net>,
-       reiserfs-list@namesys.com, Anton Altaparmakov <aia21@cam.ac.uk>,
-       linux-fsdevel@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826151529.GF29965@fs.tum.de>
-References: <20040824202521.GA26705@lst.de> <20040825163225.4441cfdd.akpm@osdl.org> <1093510983.23289.6.camel@imp.csi.cam.ac.uk> <200408261245.47734.christian.mayrhuber@gmx.net> <20040826115229.A18013@infradead.org> <20040826124334.GA39176@dspnet.fr.eu.org>
+	Thu, 26 Aug 2004 11:22:04 -0400
+Received: from prime.hereintown.net ([141.157.132.3]:30399 "EHLO
+	prime.hereintown.net") by vger.kernel.org with ESMTP
+	id S269045AbUHZPVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 11:21:55 -0400
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+From: Chris Meadors <clubneon@hereintown.net>
+To: linux-kernel@vger.kernel.org
+Cc: Raphael Jacquot <raphael.jacquot@imag.fr>
+In-Reply-To: <412DFB77.3020609@imag.fr>
+References: <200408101303.i7AD36bD014078@burner.fokus.fraunhofer.de>
+	 <1092150023.4383.8441.camel@hades.cambridge.redhat.com>
+	 <1092150335.1212.8.camel@clubneon.priv.hereintown.net>
+	 <412DFB77.3020609@imag.fr>
+Content-Type: text/plain
+Message-Id: <1093533551.3013.4.camel@clubneon.priv.hereintown.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040826124334.GA39176@dspnet.fr.eu.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.5.6.2 
+Date: Thu, 26 Aug 2004 11:19:11 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 02:43:34PM +0200, Olivier Galibert wrote:
-> On Thu, Aug 26, 2004 at 11:52:29AM +0100, Christoph Hellwig wrote:
-> > Sure, no one stops you from playing around with new semantics.  But please
-> > don't add them to the linux kernel stable series until we have semantics we
-> > a) want to stick to for a while and b) actually work.
+On Thu, 2004-08-26 at 17:02 +0200, Raphael Jacquot wrote:
+> Chris Meadors wrote:
+> > On Tue, 2004-08-10 at 16:00 +0100, David Woodhouse wrote:
+> > 
+> > 
+> >>Perhaps, though, it's time that the Linux distributions and also FreeBSD
+> >>and others who feel the need to patch cdrecord forked it and called it
+> >>something different.
+> > 
+> > 
+> > What happened to the dvdtools/dvdrecord project?
+> > http://www.nongnu.org/dvdrtools/
+> > 
+> > It seems to have disappeared about the time GNU had problems with their
+> > savannah server.
+> > 
 > 
-> He's not proposing to add it to 2.4, is he?
+> seems the site is functionnal
 
-2.6 is a stable series...
-
->   OG.
-
-cu
-Adrian
+I was just trying the download links on the nongnu.org site, all the
+files were missing there.  But heading over to
+http://machiel.generaal.net/index.php?subject=dvdrtools it does look
+like development is still continuing, if a little unoffically.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Chris
 

@@ -1,47 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264643AbUFRVwq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbUFRV5k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264643AbUFRVwq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 17:52:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264641AbUFRVts
+	id S263024AbUFRV5k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 17:57:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbUFRVzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 17:49:48 -0400
-Received: from cfcafw.sgi.com ([198.149.23.1]:31380 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S264527AbUFRVpB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 17:45:01 -0400
-From: Dimitri Sivanich <sivanich@sgi.com>
-Message-Id: <200406182144.i5ILiIFG001492@fsgi142.americas.sgi.com>
-Subject: Re: [PATCH]: Option to run cache reap in thread mode
-To: manfred@colorfullife.com (Manfred Spraul)
-Date: Fri, 18 Jun 2004 16:44:18 -0500 (CDT)
-Cc: akpm@osdl.org (Andrew Morton), sivanich@sgi.com (Dimitri Sivanich),
-       linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-       linux-mm@kvack.org
-In-Reply-To: <40D358C5.9060003@colorfullife.com> from "Manfred Spraul" at Jun 18, 2004 11:04:05 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 18 Jun 2004 17:55:55 -0400
+Received: from fw.osdl.org ([65.172.181.6]:45030 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264500AbUFRVv2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 17:51:28 -0400
+Date: Fri, 18 Jun 2004 14:48:12 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: torvalds@osdl.org, geert@linux-m68k.org, linux-m68k@lists.linux-m68k.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cross-sparse
+Message-Id: <20040618144812.2fe5ec3d.rddunlap@osdl.org>
+In-Reply-To: <20040618213338.GA4975@MAIL.13thfloor.at>
+References: <Pine.GSO.4.58.0406172304170.1495@waterleaf.sonytel.be>
+	<Pine.LNX.4.58.0406180925210.4669@ppc970.osdl.org>
+	<20040618213338.GA4975@MAIL.13thfloor.at>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> I'll write something:
-> - allow to disable the DMA kmalloc caches for archs that do not need them.
-> - increase the timer frequency and scan only a few caches in each timer.
-> - perhaps a quicker test for cache_reap to notice that nothing needs to 
-> be done. Right now four tests are done (!flags & _NO_REAP, 
-> ac->touched==0, ac->avail != 0, global timer not yet expired). It's 
-> possible to skip some tests. e.g. move the _NO_REAP caches on a separate 
-> list, replace the time_after(.next_reap,jiffies) with a separate timer.
-> 
-> --
->     Manfred
->
-Thanks for addressing this.  Sounds like some good improvements overall.
+On Fri, 18 Jun 2004 23:33:38 +0200 Herbert Poetzl wrote:
 
-One question though:  What about possible spinlock contention issues in the
-cache_reap timer processing, or is that unlikely here (even on a heavily loaded
-system with a large number of CPUs)?
+| On Fri, Jun 18, 2004 at 09:27:22AM -0700, Linus Torvalds wrote:
+| > On Thu, 17 Jun 2004, Geert Uytterhoeven wrote:
+| > > 
+| > > I wanted to give sparse a try on m68k, and noticed the current 
+| > > infrastructure doesn't handle cross-compilation (no sane m68k 
+| > > people compile kernels natively anymore, unless they run a 
+| > > Debian autobuilder ;-).
+| > > 
+| > > After hacking the include paths in the sparse sources, installing 
+| > > the resulting binary as m68k-linux-sparse, and applying the 
+| > > following patch, it seems to work fine!
+| > 
+| > Hmm.. It does make sense, but at the same time, sparse isn't even really 
+| > supposed to _care_ about the architecture. Especially not for a kernel 
+| > build.
+| 
+| apologies for assasinating this thread ...
+| 
+| I did an 'extensive' search with google (you do not want 
+| to know how many hits you get with 'sparse') and read 
+| most postings on the sparse mailinglist (linux-sparse),
+| found the freshmeat project pointing me to the 'new url'
+| http://www.codemonkey.org.uk/projects/sparse/ where I can
+| download 'sparse-2003-11-27.tar.gz', then found out that
+| there should be a maintained (up to date) version of it at 
+| 
+|    http://www.kernel.org/pub/software/devel/sparse/
+| 
+| but what I find there, seems of no use to me ...
+| (I'm no bitkeeper person) so I'm still looking for an url
+| where I can get a recent .tar to install that beast.
+| 
+| can anybody point me in the right direction, please?
 
-Dimitri Sivanich <sivanich@sgi.com>
+sure, get a tarball from here:
+  http://www.codemonkey.org.uk/projects/bitkeeper/sparse/
+
+--
+~Randy

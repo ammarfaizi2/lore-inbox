@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269869AbUJHAVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269960AbUJHAbA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269869AbUJHAVM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 20:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268182AbUJGW5v
+	id S269960AbUJHAbA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 20:31:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269952AbUJHA1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 18:57:51 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:18856
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S269886AbUJGWoO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 18:44:14 -0400
-Date: Thu, 7 Oct 2004 15:42:04 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: martijn@entmoot.nl, hzhong@cisco.com, jst1@email.com,
-       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       davem@redhat.com
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Message-Id: <20041007154204.44e71da6.davem@davemloft.net>
-In-Reply-To: <4165C58A.9030803@nortelnetworks.com>
-References: <00e501c4ac9a$556797d0$b83147ab@amer.cisco.com>
-	<41658C03.6000503@nortelnetworks.com>
-	<015f01c4acbe$cf70dae0$161b14ac@boromir>
-	<4165B9DD.7010603@nortelnetworks.com>
-	<20041007150035.6e9f0e09.davem@davemloft.net>
-	<4165C20D.8020808@nortelnetworks.com>
-	<20041007152634.5374a774.davem@davemloft.net>
-	<4165C58A.9030803@nortelnetworks.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 7 Oct 2004 20:27:30 -0400
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:18857 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S267657AbUJGW5g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 18:57:36 -0400
+Reply-To: <hzhong@cisco.com>
+From: "Hua Zhong" <hzhong@cisco.com>
+To: "'Jeff V. Merkey'" <jmerkey@drdos.com>,
+       "'Chris Friesen'" <cfriesen@nortelnetworks.com>
+Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, <jonathan@jonmasters.org>,
+       <jmerkey@comcast.net>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: Possible GPL Violation of Linux in Amstrad's E3 Videophone
+Date: Thu, 7 Oct 2004 15:57:32 -0700
+Organization: Cisco Systems
+Message-ID: <012101c4acc1$076cc150$b83147ab@amer.cisco.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <4165B3A0.3090003@drdos.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4939.300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 07 Oct 2004 16:39:06 -0600
-Chris Friesen <cfriesen@nortelnetworks.com> wrote:
+> $50,000 per copy -- that's a hell of a pricetag. Windows only 
+> goes for $100.00 a copy.
 
-> However, you chopped off what I consider the interesting part of my post.   I 
-> propose that if we call select() on a blocking file descriptor, we verify the 
-> checksum before saying that the socket is readable.  Then, at recvmsg() time, if 
-> it hasn't been checked already we would check it (to allow for the case of 
-> blocking socket without select()).
+Sure, I think Linux community could sell you a copy with
+*Windows* licenses and EULA. You get the binary of the kernel
+and use it on one computer only. For multiple accounts pay more. 
+Of course, you get no source code or the ability to modify it. :)
 
-So people who improperly use select() with blocking sockets get punished
-in a different way, with half the performance compared to today?
+> You guys should be flattered.
+> 
+> Let's see, 10,000 companies x $50,000.00 a pop = $500,000,000 
+> / year in license fees. What a deal. 500,000,000 / 300 developers 
+> = 1.1 million per year for each of you.
+> Sounds like good business to me.
+> 
+> Companies will line up to do this, and what's great is you will still 
+> get new licensees every year,
+> so long as you keep ahead of the curve with innovation.
+
+Not good for Linux. Although I am not a conspiracy thoery person,
+this "proposal" could be sponsored by M$ to bribe the whole community..
+
+Hua
+

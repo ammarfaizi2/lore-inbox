@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316243AbSEVQ2N>; Wed, 22 May 2002 12:28:13 -0400
+	id <S316246AbSEVQbH>; Wed, 22 May 2002 12:31:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316244AbSEVQ2M>; Wed, 22 May 2002 12:28:12 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45585 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316243AbSEVQ2L>; Wed, 22 May 2002 12:28:11 -0400
-Date: Wed, 22 May 2002 09:28:03 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S316247AbSEVQbG>; Wed, 22 May 2002 12:31:06 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:22792 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S316246AbSEVQbF>; Wed, 22 May 2002 12:31:05 -0400
+Date: Wed, 22 May 2002 09:30:48 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: vojtech@suse.cz
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] 2.5.17 /dev/ports
-In-Reply-To: <3CEB5F75.4000009@evision-ventures.com>
-Message-ID: <Pine.LNX.4.44.0205220925120.7580-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.10.10205220924310.4611-100000@www.transvirtual.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Wed, 22 May 2002, Martin Dalecki wrote:
+>On Wed, May 22, 2002 at 03:58:38PM +0100, Alan Cox wrote:
+> > > > IOCTL is ineed the way to go to implement such functionality...
+> > >
+> > > Yes, the EVIOCSREP ioctl will be the one soon (works for USB
+> > > keyboards now).
+> >
+> > The KBDRATE ioctl is already supported by all other keyboard drivers
+> > and used by XFree86....
 >
-> Remove support for /dev/port altogether.
+>Correct. And it'll work on USB as well once the console code is
+>interfaced to USB better than just by injecting scancodes into
+>pc_keyb.c.
+>
+>KBDRATE will work on console, while EVIOCSREP will work if you open the
+>keyboard as an event device.
 
-Yes, I don't think it has actually ever been used.
+Alan you are thinking to PC here. On embedded devices that run X it is
+just extra over head to use the VT interface. It would be much lighter
+weigth to use the /dev/input/event interface. Personally I like to see
+KBDRATE and alot of other junk go away in the console code. Intead we
+just use the input api and /dev/fb with DRI. I have talked to Jim Getty
+about this and likes to see things head in this direction.
 
-It was done purely because Minix did it that way, and it wasn't even
-compatible with Minix (I think Minix actually supoorted 2- and 4-byte
-accesses by just doign 2- and 4-byte read/write calls, the Linux code
-never did).
+P.S
+   Jim Getty was working on having X windows using the input api :-) 
+   
 
-Everybody always used the iobitmap/iopl interfaces under Linux as far as I
-know.
-
-Anybody: if you've ever used /dev/ports, holler _now_.
-
-		Linus
+   . ---
+   |o_o |
+   |:_/ |   Give Micro$oft the Bird!!!!
+  //   \ \  Use Linux!!!!
+ (|     | )
+ /'_   _/`\
+ ___)=(___/
 

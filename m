@@ -1,71 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbULNTtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbULNT7R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261639AbULNTtA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 14:49:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbULNTtA
+	id S261628AbULNT7R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 14:59:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbULNT7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 14:49:00 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:56752 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261587AbULNTsy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 14:48:54 -0500
-Date: Tue, 14 Dec 2004 13:48:49 -0600
-From: Brent Casavant <bcasavan@sgi.com>
-Reply-To: Brent Casavant <bcasavan@sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       Erik Jacobson <erikj@sgi.com>
-Subject: Re: [PATCH 0/3] NUMA boot hash allocation interleaving
-In-Reply-To: <20041214191348.GA27225@wotan.suse.de>
-Message-ID: <Pine.SGI.4.61.0412141333500.22462@kzerza.americas.sgi.com>
-References: <Pine.SGI.4.61.0412141140030.22462@kzerza.americas.sgi.com>
- <9250000.1103050790@flay> <20041214191348.GA27225@wotan.suse.de>
-Organization: "Silicon Graphics, Inc."
+	Tue, 14 Dec 2004 14:59:17 -0500
+Received: from fw.osdl.org ([65.172.181.6]:58860 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261628AbULNT7N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 14:59:13 -0500
+Date: Tue, 14 Dec 2004 11:58:47 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Werner Almesberger <wa@almesberger.net>,
+       Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
+       David Woodhouse <dwmw2@infradead.org>, Matthew Wilcox <matthew@wil.cx>,
+       David Howells <dhowells@redhat.com>, hch@infradead.org,
+       aoliva@redhat.com, linux-kernel@vger.kernel.org,
+       libc-hacker@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+In-Reply-To: <20041214194531.GB13811@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.58.0412141150460.3279@ppc970.osdl.org>
+References: <20041214135029.A1271@almesberger.net>
+ <200412141923.iBEJNCY9011317@laptop11.inf.utfsm.cl> <20041214194531.GB13811@mars.ravnborg.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Dec 2004, Andi Kleen wrote:
 
-> I originally was a bit worried about the TLB usage, but it doesn't
-> seem to be a too big issue (hopefully the benchmarks weren't too
-> micro though)
 
-I had the same thought about TLB usage.  I would have liked a way
-to map larger sections of memory with each TLB.  For example,
-if we were going to allocate 128 pages on a 32 node system, it
-would be nice to do 32 4 page allocations rather than 128 1 page
-allocations.  But I didn't see any suitable infrastructure in
-vmalloc or elsewhere to make that easily possible, so I didn't
-pursue it.
+On Tue, 14 Dec 2004, Sam Ravnborg wrote:
+> 
+> Today we only pull in stdarg.h from userspace - actually a compiler
+> dependent file.
 
-As far as benchmarks -- I was happy just to find a suitable TCP
-benchmark, though I share some of the same concern.  Other than
-the netperf TCP_CC and TCP_CRR I couldn't find anything that seemed
-like it might be a good test and could be set up with the resources
-at hand (i.e. I don't have a large cluster to pound on a web server
-benchmark).  That said, if someone does find an unresolvable problem
-with the TCP portion (3/3) of the patch, I hope 1/3 and 2/3 are still
-worthy of consideration.
+Indeed. You'll notice that gcc doesn't even put stdarg.h in /usr/include, 
+it's in the compiler-specific header file directory, usually something 
+like /usr/lib/gcc-lib/<vendor>/<version>/include.
 
-> I talked about it, but never implemented it. I am not aware of any
-> other implementation of this before Brent's.
+We used to compile with "-nostdinc" to make sure that you couldn't include 
+user files even by mistake, but that was removed for some reason I can't 
+for the life of me remember any more.
 
-To give credit where it's due, Erik Jacobson, also at SGI, proposed
-pretty much the same idea on 2003-11-12 in "available memory imbalance
-on large NUMA systems".  Andrew responded to that patch in a generally
-favorable manner, though asked whether we needed closer scrutinization
-of whether hashes were being sized appropriately on large systems
-(something that could still use further examination, BTW, particularly
-for the TCP ehash).  I used Erik's patch to identify the particular
-hashes I needed to tackle in this set.
+We probably should do it again. Something vaguely like
 
-Thanks,
-Brent
+	CFLAGS += -nostdinc -I $(CC -print-file-name=include)
 
--- 
-Brent Casavant                          If you had nothing to fear,
-bcasavan@sgi.com                        how then could you be brave?
-Silicon Graphics, Inc.                    -- Queen Dama, Source Wars
+should do it (and still pick up "stdarg.h").
+
+		Linus

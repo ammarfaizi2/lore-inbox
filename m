@@ -1,59 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266069AbRGDARv>; Tue, 3 Jul 2001 20:17:51 -0400
+	id <S266082AbRGDASv>; Tue, 3 Jul 2001 20:18:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266074AbRGDARm>; Tue, 3 Jul 2001 20:17:42 -0400
-Received: from mailhost.idcomm.com ([207.40.196.14]:33946 "EHLO
-	mailhost.idcomm.com") by vger.kernel.org with ESMTP
-	id <S266069AbRGDARb>; Tue, 3 Jul 2001 20:17:31 -0400
-Message-ID: <3B42610F.29D004FF@idcomm.com>
-Date: Tue, 03 Jul 2001 18:19:27 -0600
-From: "D. Stimits" <stimits@idcomm.com>
-Reply-To: stimits@idcomm.com
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: kernel-list <linux-kernel@vger.kernel.org>
-Subject: page reserved twice
+	id <S266079AbRGDASd>; Tue, 3 Jul 2001 20:18:33 -0400
+Received: from mail-smtp.socket.net ([216.106.1.32]:12292 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S266074AbRGDASP>; Tue, 3 Jul 2001 20:18:15 -0400
+Date: Tue, 3 Jul 2001 19:16:56 -0500
+From: "Gregory T. Norris" <haphazard@socket.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-usb-users@lists.sourceforge.net
+Subject: Re: 2.4.5 keyspan driver
+Message-ID: <20010703191655.A1714@glitch.snoozer.net>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>,
+	linux-usb-users@lists.sourceforge.net
+In-Reply-To: <20010630003323.A908@glitch.snoozer.net> <20010703103800.B28180@kroah.com> <20010703171953.A16664@glitch.snoozer.net> <20010703174950.A593@glitch.snoozer.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010703174950.A593@glitch.snoozer.net>
+User-Agent: Mutt/1.3.18i
+X-Operating-System: Linux glitch 2.4.5 #1 Tue Jul 3 17:05:50 CDT 2001 i686 unknown
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm curious if there is any significance to this, which occurs at each
-reboot on an SMP system running noapic (sometimes Netscape manages to
-produce a hard lockup on the system, sometimes a core dump indicates NS
-had signal 7, bus error, in cases where it doesn't lock the system),
-2.4.6-pre1 with XFS patches:
+In the hopes that it might prove helpful, I reran coldsync after
+loading usbserial.o and keyspan.o with the "debug=1" option.  Here's
+what was logged:
 
- kernel: BIOS-provided physical RAM map:
- kernel:  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- kernel:  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- kernel:  BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
- kernel:  BIOS-e820: 0000000000100000 - 000000000ffe0000 (usable)
- kernel:  BIOS-e820: 000000000ffe0000 - 000000000fff8000 (ACPI data)
- kernel:  BIOS-e820: 000000000fff8000 - 0000000010000000 (ACPI NVS)
- kernel: Scan SMP from c0000000 for 1024 bytes.
- kernel: Scan SMP from c009fc00 for 1024 bytes.
- kernel: Scan SMP from c00f0000 for 65536 bytes.
- kernel: found SMP MP-table at 000faf50
- kernel: hm, page 000fa000 reserved twice.
- kernel: hm, page 000fb000 reserved twice.
- kernel: hm, page 000f4000 reserved twice.
- thanteros kernel: hm, page 000f5000 reserved twice.
- thanteros kernel: On node 0 totalpages: 65504
- thanteros kernel: zone(0): 4096 pages.
- kernel: zone(1): 61408 pages.
- kernel: zone(2): 0 pages.
- kernel: Intel MultiProcessor Specification v1.1
- kernel:     Virtual Wire compatibility mode.
- kernel: OEM ID: _AMI_    Product ID: 840_CARMEL__ APIC at: 0xFEE00000
-
-
-Very similar messages seem to occur on a different machine with RH's
-2.4.2 kernel, BX chipset, and IO-APIC enabled. The machine this is from
-has had this message on earlier kernels as well, none of which had XFS
-patches. What is the significance (or consequence) of pages reserved
-twice?
-
-D. Stimits, stimits@idcomm.com
+----- <SNIP> -----
+Jul  3 19:10:45 glitch kernel: usbserial.c: USB Serial support registered for Generic
+Jul  3 19:10:45 glitch kernel: usb.c: registered new driver serial
+Jul  3 19:10:45 glitch kernel: usbserial.c: none matched
+Jul  3 19:10:45 glitch kernel: usbserial.c: v1.0.0 Greg Kroah-Hartman, greg@kroah.com, http://www.kroah.com/linux-usb/
+Jul  3 19:10:45 glitch kernel: usbserial.c: USB Serial Driver
+Jul  3 19:10:51 glitch kernel: usbserial.c: USB Serial support registered for Keyspan USA18X - (without firmware)
+Jul  3 19:10:51 glitch kernel: usbserial.c: none matched
+Jul  3 19:10:51 glitch kernel: usbserial.c: USB Serial support registered for Keyspan USA19 - (without firmware)
+Jul  3 19:10:51 glitch kernel: usbserial.c: none matched
+Jul  3 19:10:51 glitch kernel: usbserial.c: USB Serial support registered for Keyspan USA19W - (without firmware)
+Jul  3 19:10:51 glitch kernel: usbserial.c: none matched
+Jul  3 19:10:51 glitch kernel: usbserial.c: USB Serial support registered for Keyspan USA28 - (without firmware)
+Jul  3 19:10:51 glitch kernel: usbserial.c: none matched
+Jul  3 19:10:51 glitch kernel: usbserial.c: USB Serial support registered for Keyspan USA28X - (without firmware)
+Jul  3 19:10:51 glitch kernel: usbserial.c: none matched
+Jul  3 19:10:51 glitch kernel: usbserial.c: USB Serial support registered for Keyspan USA49W - (without firmware)
+Jul  3 19:10:51 glitch kernel: usbserial.c: none matched
+Jul  3 19:10:51 glitch kernel: usbserial.c: USB Serial support registered for Keyspan USA18X
+Jul  3 19:10:51 glitch kernel: usbserial.c: none matched
+Jul  3 19:10:51 glitch kernel: usbserial.c: USB Serial support registered for Keyspan USA19
+Jul  3 19:10:51 glitch kernel: usbserial.c: descriptor matches
+Jul  3 19:10:51 glitch kernel: usbserial.c: found bulk out
+Jul  3 19:10:51 glitch last message repeated 2 times
+Jul  3 19:10:51 glitch kernel: usbserial.c: found bulk in
+Jul  3 19:10:51 glitch last message repeated 3 times
+Jul  3 19:10:51 glitch kernel: usbserial.c: Keyspan USA19 converter detected
+Jul  3 19:10:51 glitch kernel: usbserial.c: get_free_serial 1
+Jul  3 19:10:51 glitch kernel: usbserial.c: get_free_serial - minor base = 0
+Jul  3 19:10:51 glitch kernel: usbserial.c: usb_serial_probe - setting up 4 port structures for this device
+Jul  3 19:10:51 glitch kernel: usbserial.c: Keyspan USA19 converter now attached to ttyUSB0 (or usb/tts/0 for devfs)
+Jul  3 19:10:51 glitch kernel: usbserial.c: USB Serial support registered for Keyspan USA19W
+Jul  3 19:10:51 glitch kernel: usbserial.c: USB Serial support registered for Keyspan USA28
+Jul  3 19:10:51 glitch kernel: usbserial.c: USB Serial support registered for Keyspan USA28X
+Jul  3 19:10:51 glitch kernel: usbserial.c: USB Serial support registered for Keyspan USA49W
+Jul  3 19:10:51 glitch kernel: keyspan.c: v1.0.0 Hugh Blemings <hugh@linuxcare.com>
+Jul  3 19:10:51 glitch kernel: keyspan.c: Keyspan USB to Serial Converter Driver
+Jul  3 19:10:56 glitch kernel: usbserial.c: serial_open
+Jul  3 19:10:56 glitch kernel: keyspan.c: keyspan_usa19_calc_baud 9600 ff b2.
+Jul  3 19:10:56 glitch kernel: usbserial.c: serial_ioctl - port 0, cmd 0x5401
+Jul  3 19:10:56 glitch kernel: usbserial.c: serial_ioctl - port 0, cmd 0x5402
+Jul  3 19:10:56 glitch kernel: usbserial.c: serial_set_termios - port 0
+Jul  3 19:10:56 glitch kernel: keyspan.c: keyspan_usa19_calc_baud 9600 ff b2.
+Jul  3 19:10:56 glitch kernel: usbserial.c: serial_ioctl - port 0, cmd 0x5401
+Jul  3 19:10:56 glitch kernel: usbserial.c: serial_ioctl - port 0, cmd 0x5401
+Jul  3 19:10:56 glitch kernel: usbserial.c: serial_ioctl - port 0, cmd 0x5402
+Jul  3 19:10:56 glitch kernel: usbserial.c: serial_set_termios - port 0
+Jul  3 19:10:56 glitch kernel: keyspan.c: keyspan_usa19_calc_baud 9600 ff b2.
+Jul  3 19:10:56 glitch kernel: usbserial.c: serial_ioctl - port 0, cmd 0x5401
+Jul  3 19:11:00 glitch kernel: usbserial.c: serial_write - port 0, 16 byte(s)
+Jul  3 19:11:00 glitch kernel: usbserial.c: serial_write - port 0, 26 byte(s)
+Jul  3 19:11:00 glitch kernel: usbserial.c: port_softint - port 0
+Jul  3 19:11:02 glitch kernel: usbserial.c: serial_write - port 0, 26 byte(s)
+Jul  3 19:11:02 glitch kernel: usbserial.c: port_softint - port 0
+Jul  3 19:11:04 glitch kernel: usbserial.c: serial_write - port 0, 26 byte(s)
+Jul  3 19:11:04 glitch kernel: usbserial.c: port_softint - port 0
+Jul  3 19:11:04 glitch kernel: usbserial.c: serial_ioctl - port 0, cmd 0x5401
+Jul  3 19:11:04 glitch kernel: usbserial.c: serial_ioctl - port 0, cmd 0x5402
+Jul  3 19:11:04 glitch kernel: usbserial.c: serial_set_termios - port 0
+Jul  3 19:11:04 glitch kernel: keyspan.c: keyspan_usa19_calc_baud 9600 ff b2.
+Jul  3 19:11:04 glitch kernel: usbserial.c: serial_ioctl - port 0, cmd 0x5401
+Jul  3 19:11:04 glitch kernel: usbserial.c: serial_write - port 0, 18 byte(s)
+Jul  3 19:11:04 glitch kernel: usbserial.c: port_softint - port 0
+Jul  3 19:11:06 glitch kernel: usbserial.c: serial_write - port 0, 18 byte(s)
+Jul  3 19:11:06 glitch kernel: usbserial.c: port_softint - port 0
+Jul  3 19:11:08 glitch kernel: usbserial.c: serial_write - port 0, 18 byte(s)
+Jul  3 19:11:08 glitch kernel: usbserial.c: port_softint - port 0
+Jul  3 19:11:10 glitch kernel: usbserial.c: serial_write - port 0, 18 byte(s)
+Jul  3 19:11:10 glitch kernel: usbserial.c: port_softint - port 0
+Jul  3 19:11:12 glitch kernel: usbserial.c: serial_write - port 0, 18 byte(s)
+Jul  3 19:11:12 glitch kernel: usbserial.c: port_softint - port 0
+Jul  3 19:11:14 glitch kernel: usbserial.c: serial_write - port 0, 18 byte(s)
+Jul  3 19:11:14 glitch kernel: usbserial.c: port_softint - port 0
+Jul  3 19:11:16 glitch kernel: usbserial.c: serial_write - port 0, 18 byte(s)
+Jul  3 19:11:16 glitch kernel: usbserial.c: port_softint - port 0
+Jul  3 19:11:18 glitch kernel: usbserial.c: serial_write - port 0, 18 byte(s)
+Jul  3 19:11:18 glitch kernel: usbserial.c: port_softint - port 0
+Jul  3 19:11:20 glitch kernel: usbserial.c: serial_write - port 0, 18 byte(s)
+Jul  3 19:11:20 glitch kernel: usbserial.c: port_softint - port 0
+Jul  3 19:11:22 glitch kernel: usbserial.c: serial_write - port 0, 18 byte(s)
+Jul  3 19:11:22 glitch kernel: usbserial.c: port_softint - port 0
+Jul  3 19:11:24 glitch kernel: usbserial.c: serial_close - port 0
+Jul  3 19:11:24 glitch kernel: keyspan.c: usa28_indat_callbacknonzero status: fffffffe on endpoint
+Jul  3 19:11:24 glitch kernel: 1.
+----- <SNIP> -----

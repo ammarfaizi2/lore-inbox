@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263356AbTDCMCM>; Thu, 3 Apr 2003 07:02:12 -0500
+	id <S263358AbTDCMHI>; Thu, 3 Apr 2003 07:07:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263358AbTDCMCM>; Thu, 3 Apr 2003 07:02:12 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:26117 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S263356AbTDCMCL>; Thu, 3 Apr 2003 07:02:11 -0500
-Date: Thu, 3 Apr 2003 14:13:29 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Badari Pulavarty <pbadari@us.ibm.com>
-cc: Joel.Becker@oracle.com, <linux-kernel@vger.kernel.org>
-Subject: Re: 64-bit kdev_t - just for playing
-In-Reply-To: <200304020931.38671.pbadari@us.ibm.com>
-Message-ID: <Pine.LNX.4.44.0304031256550.5042-100000@serv>
-References: <200303311541.50200.pbadari@us.ibm.com>
- <Pine.LNX.4.44.0304021413210.12110-100000@serv> <200304020931.38671.pbadari@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263363AbTDCMHI>; Thu, 3 Apr 2003 07:07:08 -0500
+Received: from griffon.mipsys.com ([217.167.51.129]:52184 "EHLO
+	zion.wanadoo.fr") by vger.kernel.org with ESMTP id <S263358AbTDCMHF>;
+	Thu, 3 Apr 2003 07:07:05 -0500
+Subject: Re: [Linux-fbdev-devel] [PATCH]: EDID parser
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: Sven Luther <luther@dpt-info.u-strasbg.fr>,
+       James Simmons <jsimmons@infradead.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, adaplas@pol.net
+In-Reply-To: <4A83DF6367@vcnet.vc.cvut.cz>
+References: <4A83DF6367@vcnet.vc.cvut.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1049372424.796.21.camel@zion.wanadoo.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 03 Apr 2003 14:20:24 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, 2 Apr 2003, Badari Pulavarty wrote:
+> No. With matroxfb, you have two framebuffer devices, /dev/fb0 & /dev/fb1,
+> which can be connected to any of three outputs: analog primary, analog
+> secondary and DVI. Analog primary & DVI share same pair of DDC cables,
+> and analog secondary has its own... And user can interconnect fb* with
+> outputs in almost any way he wants, as long as hardware supports it.
+>                                                         Petr Vandrovec
 
-> (ii) We need to worry about backward compatibility. For example:
-> 17th disk used to have <65, 0>. Now its major, minor is <8, 256>.
-> So /dev/ entires need to be re-created to match these, everytime
-> you reboot 2.4/2.5 etc. Greg KH udev might fix this for us. 
+It's +/- similar on radeon's and r128's...
 
-I expected something like this. As soon as we want to maintain 
-compatibility it can get quite ugly.
-I would prefer to leave the dev_t range below 0x10000 unchanged for 2.6 
-(this means in the kernel the minor bits stay at 8) and new dev_t entries 
-a created dynamically. Work which is currently still done in sd.c (e.g. 
-numbering/naming) can be incrementally moved to the generic code and 
-during 2.7 it can be dropped from sd.c. This way other drivers can 
-automatically benefit from this and don't have to reproduce the hacks 
-done in sd.c. Also if someone wants more partitions it would be a simple 
-switch in sd.c and all dev_t numbers are allocated dynamically.
+I think at this point, we really need to add a structure defining
+an "output" along with a few calls so the driver can tell us about
+the "default" output/head mapping and can be changed from userland.
 
-I am really interested why nobody wants to do now that small deciding step 
-to use dynamic dev_t numbers. Everyone agrees that we want to use dynamic 
-numbers, but almost everyone wants to hold on to static dev_t numbers. 
-What will be the next step after enlarging dev_t? Playing around with the 
-major/minor split will not help in the long term and only creates new 
-problems. On the other hand at this point it's trivial now to maintain 
-compability for old device numbers and create and use dynamic numbers.
+That way, the "struct fb_connection" would then be the parameter
+passed to those EDID routines...
 
-bye, Roman
+The driver would setup a default policy at boot based on what
+have been probed. But userland would be able to
+
+ - Request connection info from all outputs. Note that these contains
+more than just EDID. Some drivers can "probe" for the presence of
+something in the VGA or S-Video connectors by sensing the load on
+the signals, even if that "thing" cannot provide an EDID. So we need
+a bit more than just the EDID, something like
+
+  struct fb_connection_info {
+	int	index;	/* Absolute index of output on this card */
+	int	type;	/* FB_VGA, FB_DVI, FB_ADC, FB_LVDS, ... */
+ 	int	flags;	/* FB_CONN_PRESENCE, FB_VALID_EDID, ... */
+	u8	edid[128];
+  }
+
+ - Ask/Set output<->head mapping. Possibly by an ioctl to the head
+that sets the connection index. Of course, the driver may fail if
+the combo isn't supported. Also, the policy isn't defined on what
+happens to the head's current mode. I beleive the head should try to
+keep it's current mode unless it's not suitable to whatever have been
+detected on that connection.
+
+What do you think ?
+
+Ben.
 

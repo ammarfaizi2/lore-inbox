@@ -1,70 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130179AbRCCAej>; Fri, 2 Mar 2001 19:34:39 -0500
+	id <S130175AbRCCAbI>; Fri, 2 Mar 2001 19:31:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130180AbRCCAeS>; Fri, 2 Mar 2001 19:34:18 -0500
-Received: from FACULTY-41.ubishops.ca ([207.162.104.41]:56582 "HELO
-	thanatos.ubishops.ca") by vger.kernel.org with SMTP
-	id <S130179AbRCCAeO>; Fri, 2 Mar 2001 19:34:14 -0500
-Message-ID: <3AA03BE7.9057EDFC@mail.com>
-Date: Fri, 02 Mar 2001 19:33:43 -0500
-From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
-Reply-To: jdthoodREMOVETHIS@yahoo.co.uk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
+	id <S130179AbRCCAa7>; Fri, 2 Mar 2001 19:30:59 -0500
+Received: from clev-max5-cs-43.dial.bright.net ([209.143.46.237]:19981 "EHLO
+	skylab.winds.org") by vger.kernel.org with ESMTP id <S130175AbRCCAao>;
+	Fri, 2 Mar 2001 19:30:44 -0500
+Date: Fri, 2 Mar 2001 19:31:51 -0500 (EST)
+From: Byron Stanoszek <gandalf@skylab.winds.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Memory-related hangup (2.4.2-ac3)
+Message-ID: <Pine.LNX.4.31.0103021922240.5032-100000@skylab.winds.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Should isa-pnp utilize the PnP BIOS?
-In-Reply-To: <20010214092251.D1144@e-trend.de> <3A8AA725.7446DEA0@ubishops.ca> <20010214165758.L28359@e-trend.de> <20010214122244.H7859@conectiva.com.br>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay, a couple of people have responded positively to this 
-suggestion.  The next question is, how should it be implemented?
+Is there a reason why the kernel appears to hang temporarily for 3-5 minutes
+under this circumstance:
 
-How 'bout:
+gandalf:~> free
+             total       used       free     shared    buffers     cached
+Mem:        126700     125024       1676          0        964      61640
+-/+ buffers/cache:      62420      64280
+Swap:        97648      97648          0
 
-$ cd pcmcia-cs/modules
-$ cp pnp_bios.c pnp_proc.c pnp_rsrc.c /usr/src/linux/2.4.2a/drivers/pnp
-$ cd ../include/linux
-$ cp pnp_bios.h pnp_resource.h /usr/src/linux/2.4.2a/include/linux
-Edit makefiles
-Edit isapnp.c to include new global flag "isapnp_usepnpbios",
-  a MODULE_PARM, which each isapnp function checks at entry.
-  If the flag is set then: in the case of "low-level" functions,
-  return immediately; in the case of "high-level" functions, call
-  appropriate pnp_bios functions to perform the task; in the case
-  of isapnp_init(), just check isapnp_disabled and exit.  isapnp's
-  /proc interface would not be supported.  Presumably
-  inter_module_get_request() would be used to call the isapnp-bios
-  routines.
 
-Comments?  (Go easy on me; I'm a newbie at kernel hacking.)
+The system seems to favor the cache, but leaves no room for processes to use
+the remaining 64MB of ram. This happened while running netscape after viewing
+a couple of pages with a lot of images on them.
 
-Thomas
+Older kernels would happily allow processes to eat up cache space when memory
+was low. In fact, I used to be able to use 32MB of swap without any problems
+(even when netscape had more memory allocated to it than this now).
 
-> Hello, l-k.
-> 
-> On my ThinkPad 600, The ThinkPad PnP BIOS configures
-> all PnP devices at boot time.
-> 
-> If I load the isa-pnp.o driver it never detects any ISA PnP
-> devices: it says "isapnp: No Plug & Play device found".  This
-> is unfortunate, because it means that device drivers can't
-> find out from isa-pnp where the devices are.
-> 
-> David Hinds's pcmcia-cs package contains driver code that
-> interfaces with the PnP BIOS.  With it, one can list the resource
-> usage of ISA PnP devices (serial and parallel ports, sound chip,
-> etc.) and set them, using the "lspnp" and "setpnp" commands.
-> 
-> Would it not be useful if the isa-pnp driver would fall back
-> to utilizing the PnP BIOS (if possible) in order to read and
-> change ISA PnP device configurations when it can't do this
-> itself?  If so, could this perhaps be done by bringing the Hinds
-> PnP BIOS driver into the kernel and interfacing isa-pnp to it?
-> 
-> Thomas Hood
-> jdthood_AT_yahoo.co.uk   <- Change '_AT_' to '@'
+Lately with 2.4 kernels I had to add another 64MB swap file to the existing 32,
+and the performance seems no different than without it, when compared to the
+old way of letting netscape just use all 125MB if it wants to (and sacrifice
+cached files, which aren't important in this case).
+
+Is there a setting I can control to force the kernel to give up cache when
+memory is low without hanging the machine? I personally don't think 50% process
+memory + 50% cache is an ideal solution--especially when running stuff that
+really wants >= 150MB (RAM + swap).
+
+Actually I'd prefer having cache use half the remaining RAM not taken up by
+processes, instead of half the total RAM on the system. Any suggestions?
+
+Regards,
+ Byron
+
+--
+Byron Stanoszek                         Ph: (330) 644-3059
+Systems Programmer                      Fax: (330) 644-8110
+Commercial Timesharing Inc.             Email: byron@comtime.com
+

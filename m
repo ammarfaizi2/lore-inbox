@@ -1,91 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269786AbUJVGhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269856AbUJVGhL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269786AbUJVGhR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 02:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267808AbUJVGdj
+	id S269856AbUJVGhL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 02:37:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269786AbUJVGcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 02:33:39 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:52612 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S269854AbUJSQz2 (ORCPT
+	Fri, 22 Oct 2004 02:32:13 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:64729 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265144AbUJVGZN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 12:55:28 -0400
-Date: Tue, 19 Oct 2004 18:56:46 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, linux-kernel@vger.kernel.org,
+	Fri, 22 Oct 2004 02:25:13 -0400
+Date: Fri, 22 Oct 2004 08:24:28 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Bill Huey <bhuey@lnxw.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
        Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       "K.R. Foley" <kr@cybsft.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
        Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
        Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U6
-Message-ID: <20041019165646.GA14053@elte.hu>
-References: <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019144642.GA6512@elte.hu> <28172.195.245.190.93.1098199429.squirrel@195.245.190.93> <20041019185016.2af4fa86@mango.fruits.de>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+Message-ID: <20041022062428.GN32465@suse.de>
+References: <1098350190.26758.24.camel@thomas> <20041021095344.GA10531@suse.de> <1098352441.26758.30.camel@thomas> <20041021101103.GC10531@suse.de> <20041021195842.GA23864@nietzsche.lynx.com> <20041021201443.GF32465@suse.de> <20041021202422.GA24555@nietzsche.lynx.com> <20041021203350.GK32465@suse.de> <20041021203821.GA24628@nietzsche.lynx.com> <1098391421.27089.83.camel@thomas>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041019185016.2af4fa86@mango.fruits.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <1098391421.27089.83.camel@thomas>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Florian Schmidt <mista.tapas@gmx.net> wrote:
-
-> I don't get any oopses or panics, but i can observer a rather
-> interesting behaviour. When i enable the latency traces via
+On Thu, Oct 21 2004, Thomas Gleixner wrote:
+> On Thu, 2004-10-21 at 22:38, Bill Huey wrote:
+> > On Thu, Oct 21, 2004 at 10:33:50PM +0200, Jens Axboe wrote:
+> > > On Thu, Oct 21 2004, Bill Huey wrote:
+> > > > You use a semaphore to protect data, a completion isn't protecting data
+> > > > but preserving a certain kind of wait ordering in the code. The
+> > > > possibility of overloading the current mutex_t for PI makes for a conceptual
+> > > > mismatch when used in this case since having a kind of priority for
+> > > > completions is a bit odd. It's better to flat out use a completion
+> > > > instead, IMO.
+> > > 
+> > > Linux semaphores (being counted) have always been a fine fit for things
+> > > like the loop use, where you get to down it 10 times because you have 10
+> > > items pending. I know this isn't the traditional mutex and that it
+> > > doesn't protect data as such, but is was never abuse. It isn't overload.
+> > > Doing it with a traditional mutex (I'm assuming this is what mutex_t is
+> > > in Ingos tree) would be overload and a bad idea, indeed.
+> > 
+> > Well, this is something that's got to be considered by the larger Linux
+> > community and whether these conventions are to be kept or removed. It's
+> > a larger issue than what can be address in Ingo's preemption patch, but
+> > with inevitable need for something like this in the kernel (hard RT)
+> > it's really unavoidable collision. IMO, it's got to go, which is a nasty
+> > change.
+> > 
 > 
-> echo 1 > /proc/sys/kernel/trace_enabled
+> Hey, let's stop this here.
 > 
-> my machine starts to make little pauses of ca 3-4 secs. X "hangs" for
-> this duration and so does aplay when playing a .wav file. "hangs"
-> means that the X display seems to be locked. Interestingly enough all
-> keystrokes i entered during the "hang" seem to arrive fine after the
-> hang has ended. aplay experiences an xrun.
+> You are both (in)correct :)
+> 
+> 1. It makes no sense to discuss, why X has been considered correct for
+> time T.
 
-do you get the same pauses if you do 'dmesg -n 1'? Also, are you using
-preempt_thresh or the maximum-searching variant? preempt_thresh can
-generate _tons_ of messages with a low threshold, freezing the system in
-essence for long periods of time.
+Because it is correct. Debating that it's now incorrect because it
+inconveniently happens to make some detection scheme harder is silly.
 
-but this trace is weird:
+> 2. Counted semaphores are a valid use and should be marked explicit as
+> counted semaphores.
 
-> preemption latency trace v1.0.7 on 2.6.9-rc4-mm1-RT-U6
-> -------------------------------------------------------
->  latency: 1841 us, entries: 4000 (12990)   |   [VP:1 KP:1 SP:1 HP:1 #CPUS:1]
->     -----------------
->     | task: aplay/2160, uid:1000 nice:0 policy:0 rt_prio:0
->     -----------------
->  => started at: __schedule+0x3b/0x5d0 <c02a767b>
->  => ended at:   finish_task_switch+0x43/0xb0 <c0114ae3>
-> =======>
-> 00000001 0.000ms (+0.000ms): __schedule (ksoftirqd)
-> 00000001 0.000ms (+0.000ms): sched_clock (__schedule)
-> 00000002 0.000ms (+0.000ms): deactivate_task (__schedule)
-> 00000002 0.000ms (+0.000ms): dequeue_task (deactivate_task)
-> 04000002 0.000ms (+0.000ms): __switch_to (__schedule)
-> 04000002 0.001ms (+0.000ms): finish_task_switch (__schedule)
-> 04000000 0.001ms (+0.000ms): schedule (down_write)
-> 04000000 0.001ms (+0.000ms): __schedule (down_write)
-> 04000001 0.001ms (+0.000ms): sched_clock (__schedule)
-> 04000000 0.001ms (+0.000ms): schedule (down_write)
-> 04000000 0.001ms (+0.000ms): __schedule (down_write)
-> 04000001 0.002ms (+0.000ms): sched_clock (__schedule)
-> 04000000 0.002ms (+0.000ms): schedule (down_write)
+Indeed
 
-this doesnt seem like normal behavior. It seems two tasks are
-ping-pong-ing a semaphore but are unable to make any progress. The whole
-thing is non-preemptible because this semaphore was taken while in a 
-PREEMPT_ACTIVE section.
+> 3. Using mutexes and semaphores for event and completion signalling
+> should be converted to the appropriate interfaces. 
 
-(i'd say this is the BKL semaphore - it is quite special in that
-regard.)
+Agree. Do you test all your conversions? Whole-sale conversions like
+this tend to break at least some of the drivers. And that's totally
+unacceptable, breaking a working solution because of something that's
+not really a bug.
 
-	Ingo
+> A bunch of work, but not really hard.
+
+Not if you don't test it.
+
+-- 
+Jens Axboe
+

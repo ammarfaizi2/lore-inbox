@@ -1,87 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVCFHaN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVCFHcx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261327AbVCFHaN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 02:30:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVCFHaN
+	id S261330AbVCFHcx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 02:32:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVCFHcw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 02:30:13 -0500
-Received: from main.gmane.org ([80.91.229.2]:14800 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261327AbVCFHaD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 02:30:03 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andres Salomon <dilinger@voxel.net>
-Subject: Re: RFD: Kernel release numbering
-Date: Sun, 06 Mar 2005 02:29:42 -0500
-Message-ID: <pan.2005.03.06.07.29.40.620827@voxel.net>
-References: <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net> <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com> <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com> <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com> <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org> <422751C1.7030607@pobox.com> <20050303181122.GB12103@kroah.com> <20050303151752.00527ae7.akpm@osdl.org> <1109894511.21781.73.camel@localhost.localdomain> <20050303182820.46bd07a5.akpm@osdl.org> <1109933804.26799.11.camel@localhost.localdomain> <20050304032820.7e3cb06c.akpm@osdl.org> <1109940685.26799.18.camel@localhost.localdomain> <Pine.LNX.4.58.0503040959030.25732@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cpe-24-194-62-26.nycap.res.rr.com
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
-X-Gmane-MailScanner: Found to be clean
-X-Gmane-MailScanner: Found to be clean
-X-Gmane-MailScanner-SpamScore: ss
-X-MailScanner-From: glk-linux-kernel@m.gmane.org
-X-MailScanner-To: linux-kernel@vger.kernel.org
+	Sun, 6 Mar 2005 02:32:52 -0500
+Received: from tron.kn.vutbr.cz ([147.229.191.152]:29445 "EHLO
+	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S261330AbVCFHce
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 02:32:34 -0500
+Date: Sun, 6 Mar 2005 08:32:22 +0100 (CET)
+From: Daniel Rozsnyo <daniel@rozsnyo.com>
+X-X-Sender: daniel@a03-0431e.kn.vutbr.cz
+To: Linus Torvalds <torvalds@ppc970.osdl.org>
+cc: linux-kernel@vger.kernel.org, Daniel Rozsnyo <rozsnyo@kn.vutbr.cz>
+Subject: [PATCH] i386: remove extra spaces from cpu model id
+Message-ID: <Pine.LNX.4.62.0503060824410.18717@a03-0431e.kn.vutbr.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Spam-Flag: NO
+X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
+  identified this incoming email as possible spam.  The original message
+  has been attached to this so you can view it (if it isn't spam) or block
+  similar future email.  If you have any questions, see
+  the administrator of that system for details.
+  ____
+  Content analysis details:   (-4.0 points, 6.0 required)
+  ____
+   pts rule name              description
+  ---- ---------------------- --------------------------------------------
+   0.9 DATE_MISSING           Missing Date: header
+  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                              [score: 0.0000]
+  ____
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clearly I picked a bad week to go on vacation..
+Removes extra spaces which separate the frequency string from the cpu model id 
+itself (noticable e.g. on Intel Tualatin processors in /proc/cpuinfo)
 
+Signed-off-by: Daniel Rozsnyo <daniel@rozsnyo.com>
 
-On Fri, 04 Mar 2005
-10:18:41 -0800, Linus Torvalds wrote:
-[...]
-> 
-> Alan, I think your problem is that you really think that the tree _I_ want 
-> is what _you_ want.
-> 
-> I look at this from a _layering_ standpoint. Not from a "stable tree"  
-> standpoint at all.
-> 
-> We're always had the "wild" kernels, and 90% of the time the point of the
-> "wild" kernels has been to let people test out the experimental stuff,
-> that's not always ready for merging. Like it or not, I've considered even
-> the -ac kernel historically very much a "wild" thing, not a "bugfixes" 
-> thing.
-> 
-> What I'd like to set up is the reverse. The same way the "wild" kernels
-> tend to layer on top of my standard kernel, I'd like to have a lower
-> level, the "anti-wild" kernel.  Something that is comprised of patches
-> that _everybody_ can agree on, and that doesn't get anything else. AT ALL.
-> 
+---
 
-That is what I'm trying to do w/ my tree; obvious fixes only.  Most of
-the patches I've included in 2.6.10-asX have been stupid build fixes, and
-basic C problems (ie, deref'ing a pointer before it's been assigned).  The
-main time I make exceptions for that is for security fixes.  
+diff -urN linux-2.6.11.orig/arch/i386/kernel/cpu/common.c linux-2.6.11/arch/i386/kernel/cpu/common.c
+--- linux-2.6.11.orig/arch/i386/kernel/cpu/common.c	2005-03-02 08:37:47.000000000 +0100
++++ linux-2.6.11/arch/i386/kernel/cpu/common.c	2005-03-06 07:46:16.000000000 +0100
+@@ -59,7 +59,7 @@
+  int __init get_model_name(struct cpuinfo_x86 *c)
+  {
+  	unsigned int *v;
+-	char *p, *q;
++	char *src, *dst;
 
+  	if (cpuid_eax(0x80000000) < 0x80000004)
+  		return 0;
+@@ -71,17 +71,25 @@
+  	c->x86_model_id[48] = 0;
 
-> And that means that such a kernel would not get all patches that you'd
-> want. That's fine. That was never the aim of it. The _only_ point of
-> this kernel would be to have a baseline that nobody can disagree with.
-> 
-> In other words, it's not a "let's fix all serious bugs we can fix", but
-> a "this is the least common denominator that is basically acceptable to
-> everybody, regardless of what their objectives are".
-> 
-> So if you want to fix a security issue, and the fix is too big or
-> invasive or ugly for the "least common denominator" thing, then it
-> simply does not _go_ into that kernel. At that point, it goes into an
-> -ac kernel, or into my kernel, or into a vendor kernel. See?
->
+  	/* Intel chips right-justify this string for some dumb reason;
+-	   undo that brain damage */
+-	p = q = &c->x86_model_id[0];
+-	while ( *p == ' ' )
+-	     p++;
+-	if ( p != q ) {
+-	     while ( *p )
+-		  *q++ = *p++;
+-	     while ( q <= &c->x86_model_id[48] )
+-		  *q++ = '\0';	/* Zero-pad the rest */
++	   undo that, and also remove multiple spaces from the middle */
++	src = dst = &c->x86_model_id[0];
++
++	while ( *src == ' ' )			/* find the start */
++		src++;
++
++	while ( *src ) {
++		*dst++ = *src++;
++		if ( *src == ' ' ) {		/* first space: copy */
++			*dst++ = *src++;
++		}
++		while ( *src == ' ' ) {		/* next spaces: skip */
++			src++;
++		}
+  	}
 
-This is understandable.  I have included security fixes in -as that were
-non-trivial; if a 2.6.x.y tree is not willing to include them, then I
-guess it won't be what I was hoping.  I had emailed Chris before going on
-vacation, offering to work with him on 2.6.x.y (which would allow me to
-drop -as), but if security fixes aren't a higher priority thing (even
-in the face of invasive/ugly changes), then I guess there's still a need
-for -as/-ac.
-
-
++	while ( dst <= &c->x86_model_id[48] )
++		*dst++ = '\0';			/* zero-pad the rest */
++
+  	return 1;
+  }
 

@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVCDJaX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262597AbVCDJ36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbVCDJaX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 04:30:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbVCDJaX
+	id S262597AbVCDJ36 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 04:29:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262703AbVCDJ1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 04:30:23 -0500
-Received: from gate.perex.cz ([82.113.61.162]:26316 "EHLO mail.perex.cz")
-	by vger.kernel.org with ESMTP id S261551AbVCDJ1D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 04:27:03 -0500
-Date: Fri, 4 Mar 2005 10:16:38 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Dave Jones <davej@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andries Brouwer <aebr@win.tue.nl>,
-       davem@davemloft.net, jgarzik@pobox.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, notting@redhat.com
-Subject: Re: RFD: Kernel release numbering
-In-Reply-To: <20050303212115.GJ29371@redhat.com>
-Message-ID: <Pine.LNX.4.58.0503041011470.1739@pnote.perex-int.cz>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
- <42264F6C.8030508@pobox.com> <20050302162312.06e22e70.akpm@osdl.org>
- <42265A6F.8030609@pobox.com> <20050302165830.0a74b85c.davem@davemloft.net>
- <20050303011151.GJ10124@redhat.com> <20050302172049.72a0037f.akpm@osdl.org>
- <20050303012707.GK10124@redhat.com> <20050303145846.GA5586@pclin040.win.tue.nl>
- <20050303130901.655cb9c4.akpm@osdl.org> <20050303212115.GJ29371@redhat.com>
+	Fri, 4 Mar 2005 04:27:04 -0500
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:32618 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262711AbVCDJYX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 04:24:23 -0500
+Message-ID: <42282944.6020006@yahoo.com.au>
+Date: Fri, 04 Mar 2005 20:24:20 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: tglx@linutronix.de, linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+References: <20050302205826.523b9144.davem@davemloft.net>	<4226C235.1070609@pobox.com>	<20050303080459.GA29235@kroah.com>	<4226CA7E.4090905@pobox.com>	<Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>	<422751C1.7030607@pobox.com>	<20050303181122.GB12103@kroah.com>	<20050303151752.00527ae7.akpm@osdl.org>	<20050303234523.GS8880@opteron.random>	<20050303160330.5db86db7.akpm@osdl.org>	<20050304025746.GD26085@tolot.miese-zwerge.org>	<20050303213005.59a30ae6.akpm@osdl.org>	<1109924470.4032.105.camel@tglx.tec.linutronix.de> <20050304005450.05a2bd0c.akpm@osdl.org>
+In-Reply-To: <20050304005450.05a2bd0c.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Mar 2005, Dave Jones wrote:
+Andrew Morton wrote:
+> Thomas Gleixner <tglx@linutronix.de> wrote:
 
-> Other failures have been somewhat more dramatic.
-> I know ipsec-tools, and alsa-lib have both caused pain
-> on at least one occasion after the last 2-3 kernel updates.
+> 
+>>I don't see that the releases are stable. They are defined stable by
+>>proclamation. 
+> 
+> 
+> If they were stable we'd release the darn things!  *obviously* -rc kernels
+> are expected to still have problems.
+> 
 
-alsa-lib: You mean the problem with the emu10k1 based soundcards from
-Creative? It's because the multichannel devices were added and
-reorganized. But the basic functionality (sound from front speakers and
-analog capturing) should be preserved with all 1.0.x alsa-lib versions.
+Release the -rc kernel when it is stable. Then people will test them,
+and then they'll hopefully catch the small annoyances that give our
+real releases a bad reputation.
 
-						Jaroslav
+> -rc just means "please start testing", not "deploy me on your corporate
+> database server".
+> 
+> People are smart enough to know that -rc3 will be less buggy than -rc1.
+> 
+> And if they're worried about bugs then why are they running -rc's at all?
+> 
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
+Well they aren't in the current scheme. When doing real release candidates,
+they'll test* because they _are_ worried about bugs, and testing an -rc is
+an easy way to get all your little compilation problems fixed, and all your
+strage usb drivers working again for the realease. And without someone
+rewriting the page table code in the meantime.
+
+I could be completely wrong, but that's my feeling.
+
+* Maybe not on their live corporate database server though
+

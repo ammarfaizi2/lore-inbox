@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264260AbTKLT2y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 14:28:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264271AbTKLT2y
+	id S264276AbTKLTh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 14:37:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264283AbTKLTh0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 14:28:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:27043 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264260AbTKLT2x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 14:28:53 -0500
-Date: Wed, 12 Nov 2003 11:28:49 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Brian Litzinger <brian@top.worldcontrol.com>, linux-kernel@vger.kernel.org
-Subject: Re: Toshiba P25-S507 laptop and freezes with 2.6.0-test9
-Message-ID: <20031112112849.A12974@osdlab.pdx.osdl.net>
-References: <20031112182711.GA5454@top.worldcontrol.com>
-Mime-Version: 1.0
+	Wed, 12 Nov 2003 14:37:26 -0500
+Received: from mail010.syd.optusnet.com.au ([211.29.132.56]:58598 "EHLO
+	mail010.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264276AbTKLThZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 14:37:25 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20031112182711.GA5454@top.worldcontrol.com>; from brian@worldcontrol.com on Wed, Nov 12, 2003 at 10:27:11AM -0800
+Content-Transfer-Encoding: 7bit
+Message-ID: <16306.35809.15450.378197@wombat.chubb.wattle.id.au>
+Date: Thu, 13 Nov 2003 06:37:05 +1100
+To: Andi Kleen <ak@muc.de>
+Cc: Bernd Schubert <Bernd.Schubert@tc.pci.uni-heidelberg.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2 TB partition support
+In-Reply-To: <m3d6bybeiw.fsf@averell.firstfloor.org>
+References: <QugF.3Mq.7@gated-at.bofh.it>
+	<Qwit.771.11@gated-at.bofh.it>
+	<QR40.39P.53@gated-at.bofh.it>
+	<m3d6bybeiw.fsf@averell.firstfloor.org>
+X-Mailer: VM 7.14 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* brian@worldcontrol.com (brian@worldcontrol.com) wrote:
-> 
-> My Toshiba P25-S507 P4 2.8 running vanilla 2.6.0-test9 occasionally
-> freezes.  The freezes occur during events such as closing or opening
-> the lid or removing/inserting the power adapter and sometimes during
-> halt.
+>>>>> "Andi" == Andi Kleen <ak@muc.de> writes:
 
-These are ACPI events (at least lid and power adaptor).  So, are you
-compiling in ACPI support?  If so does it still happen with acpi=off
-kernel command line option?  Do you still have keyboard when it freezes?
-If so, alt-sysrq-p or alt-sysrq-t show anything useful?  And, finally,
-you aren't using an nVidia binary only module for that GeForce are you?
+Andi> Bernd Schubert <Bernd.Schubert@tc.pci.uni-heidelberg.de> writes:
+>> Are 2TB possible with an unpatched 2.4.x 64bit-AMD64 kernel? The
+>> partion is supposed to be reiserfs. I read an about 2 years old
+>> discussion about this and Hans Reiser statet that the maximum size
+>> is about 2GB. Unfortunality I don't know what this 'about' depends
+>> on.  Furthermore our server for this will be an Opteron and so
+>> perhaps this limit is much higher on 64bit systems.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Andi> In theory yes, but note that nobody tested the drivers for 64bit
+Andi> cleanness in block numbers. I would do careful testing first if
+Andi> your block driver supports
+>> 2TB.
+
+Has the kmalloc problem in Reiserfs gone away?  It used to be that the
+limit for a Reiser filesystem was determined by how many pointers
+could fit into a kmalloced chunk of memory; thus the 64-bit system
+limit was half teh 32-bit system limit.
+
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

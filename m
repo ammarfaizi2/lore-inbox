@@ -1,51 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264583AbUBIB5M (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 20:57:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264608AbUBIB5M
+	id S264563AbUBICnt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 21:43:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264565AbUBICnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 20:57:12 -0500
-Received: from linuxhacker.ru ([217.76.32.60]:57752 "EHLO shrek.linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S264583AbUBIB5J (ORCPT
+	Sun, 8 Feb 2004 21:43:49 -0500
+Received: from ns.suse.de ([195.135.220.2]:48001 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264563AbUBICnr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 20:57:09 -0500
-Date: Mon, 9 Feb 2004 03:56:59 +0200
-From: Oleg Drokin <green@linuxhacker.ru>
-To: James Bromberger <james@rcpt.to>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23 && md raid1 && reiserfs panic
-Message-ID: <20040209015659.GC1978@linuxhacker.ru>
-References: <20040207112302.GA2401@phobe.internal.pelicanmanufacturing.com.au> <200402081722.i18HMBFT074505@car.linuxhacker.ru> <20040209011040.GB27378@phobe.internal.pelicanmanufacturing.com.au>
+	Sun, 8 Feb 2004 21:43:47 -0500
+Subject: Re: [BUG] With size > XATTR_SIZE_MAX, getxattr(2) always returns
+	E2BIG
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Nathan Scott <nathans@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       "Theodore Ts'o" <tytso@thunk.org>
+In-Reply-To: <20040209012657.GA1466@frodo>
+References: <1075812739.21199.11.camel@E136.suse.de>
+	 <20040209012657.GA1466@frodo>
+Content-Type: text/plain
+Organization: SUSE Labs, SUSE LINUX AG
+Message-Id: <1076294577.2205.68.camel@nb.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040209011040.GB27378@phobe.internal.pelicanmanufacturing.com.au>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 09 Feb 2004 03:42:58 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-
-On Mon, Feb 09, 2004 at 09:10:40AM +0800, James Bromberger wrote:
-> > JB> The symptoms: rm a file from a working RAID1 md reiserfs filesystem, 
-> > JB> and I get a panic, rm(1) segfaults, and all further I/O to any interactive 
-> > JB> shells stop. The entire system is rednered incapable; reboot (via 
-> > JB> ctrl-alt-del) doesnt shutdown and the only action is to hard reset the box.
+On Mon, 2004-02-09 at 02:26, Nathan Scott wrote:
+> On Tue, Feb 03, 2004 at 01:52:19PM +0100, Andreas Gruenbacher wrote:
+> > Hello,
 > > 
-> > What if you run reiserfsck over the volume that seems to be corrupted,
-> > then fix the errors and then retry the operation?
-> Yes! That was it. Attached is the output I captured from reiserfsck. 
-> It identified the very file I was attempting to remove that was causing
-> the segfault in rm(1).
-> So I guess this is a reiserfs specific issue when it kills all disk I/O
-> when this correcption happens. Hmm.
+> > here is a fix for the getxattr and listxattr syscall. Explanation in the
+> > patch. Could you please apply? Thanks.
+> 
+> Our regression tests tripped a couple of problems with this;
+> here's a patch on top of yours (which is now 2.6.3-rc1).
 
-Yes, in-kernel reiserfs is not all that good when it comes to corrupted
-filesystems yet. The source of this corruption is yet unknown, though.
+Indeed, I got that case wrong. The patch looks correct. Thanks!
 
-You can fix the corruption with reiserfsck --fix-fixable, or
-reiserfsck --rebuild-tree if first one does not work.
-Be sure to use latest reiserfsprogs.
+I would move the missing test right before the copy_to_user as below,
+which is slightly better.
 
-Bye,
-    Oleg
+
+Index: linux-2.6.3-rc1.orig/fs/xattr.c
+===================================================================
+--- linux-2.6.3-rc1.orig.orig/fs/xattr.c
++++ linux-2.6.3-rc1.orig/fs/xattr.c
+@@ -140,7 +140,7 @@ getxattr(struct dentry *d, char __user *
+ 			goto out;
+ 		error = d->d_inode->i_op->getxattr(d, kname, kvalue, size);
+ 		if (error > 0) {
+-			if (copy_to_user(value, kvalue, error))
++			if (size && copy_to_user(value, kvalue, error))
+ 				error = -EFAULT;
+ 		} else if (error == -ERANGE && size >= XATTR_SIZE_MAX) {
+ 			/* The file system tried to returned a value bigger
+@@ -222,7 +222,7 @@ listxattr(struct dentry *d, char __user 
+ 			goto out;
+ 		error = d->d_inode->i_op->listxattr(d, klist, size);
+ 		if (error > 0) {
+-			if (copy_to_user(list, klist, error))
++			if (size && copy_to_user(list, klist, error))
+ 				error = -EFAULT;
+ 		} else if (error == -ERANGE && size >= XATTR_LIST_MAX) {
+ 			/* The file system tried to returned a list bigger
+
+> cheers.
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX AG
+

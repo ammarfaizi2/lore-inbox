@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130113AbQKNLNS>; Tue, 14 Nov 2000 06:13:18 -0500
+	id <S129324AbQKNLMi>; Tue, 14 Nov 2000 06:12:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129507AbQKNLNJ>; Tue, 14 Nov 2000 06:13:09 -0500
-Received: from oxmail1.ox.ac.uk ([129.67.1.1]:12260 "EHLO oxmail.ox.ac.uk")
-	by vger.kernel.org with ESMTP id <S129429AbQKNLNF>;
-	Tue, 14 Nov 2000 06:13:05 -0500
-Date: Tue, 14 Nov 2000 10:42:41 +0000
-From: Malcolm Beattie <mbeattie@sable.ox.ac.uk>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Peter Samuelson <peter@cadcamlab.org>, Torsten.Duwe@caldera.de,
-        Chris Evans <chris@scary.beasts.org>, linux-kernel@vger.kernel.org
-Subject: Re: Modprobe local root exploit
-Message-ID: <20001114104240.A30388@sable.ox.ac.uk>
-In-Reply-To: <20001113230210.F18203@wire.cadcamlab.org> <3864.974181019@kao2.melbourne.sgi.com>
+	id <S129507AbQKNLM2>; Tue, 14 Nov 2000 06:12:28 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:16907 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129324AbQKNLMW>;
+	Tue, 14 Nov 2000 06:12:22 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel <linux-kernel@i405.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: newbie, 2.4.0-test11-pre4 no compile when CONFIG_AGP=y 
+In-Reply-To: Your message of "Tue, 14 Nov 2000 00:56:13 -0800."
+             <0066CB04D783714B88D83397CCBCA0CD495F@spike2.i405.net> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3864.974181019@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Tue, Nov 14, 2000 at 04:50:19PM +1100
+Date: Tue, 14 Nov 2000 21:42:16 +1100
+Message-ID: <1779.974198536@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens writes:
-> All these patches against request_module are attacking the problem at
-> the wrong point.  The kernel can request any module name it likes,
-> using any string it likes, as long as the kernel generates the name.
-> The real problem is when the kernel blindly accepts some user input and
-> passes it straight to modprobe, then the kernel is acting like a setuid
-> wrapper for a program that was never designed to run setuid.
+On Tue, 14 Nov 2000 00:56:13 -0800, 
+linux-kernel <linux-kernel@i405.com> wrote:
+>I'll preface this saying I'm a kernel compile newbie and I could be making
+>the most basic of mistakes.
 
-Rather than add sanity checking to modprobe, it would be a lot easier
-and safer from a security audit point of view to have the kernel call
-/sbin/kmodprobe instead of /sbin/modprobe. Then kmodprobe can sanitise
-all the data and exec the real modprobe. That way the only thing that
-needs auditing is a string munging/sanitising program.
+You are.  Hand editing the .config file gives undefined results.  Make
+all changes through menuconfig or xconfig.  The config system does lots
+of work behind the scenes which is not peformed if you hand edit.
 
---Malcolm
-
--- 
-Malcolm Beattie <mbeattie@sable.ox.ac.uk>
-Unix Systems Programmer
-Oxford University Computing Services
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,70 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262767AbVCXKFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263078AbVCXKIo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262767AbVCXKFv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 05:05:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbVCXKFv
+	id S263078AbVCXKIo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 05:08:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263082AbVCXKIn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 05:05:51 -0500
-Received: from smtp-out.tiscali.no ([213.142.64.144]:48658 "EHLO
-	smtp-out.tiscali.no") by vger.kernel.org with ESMTP id S262767AbVCXKFk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 05:05:40 -0500
-Subject: Re: forkbombing Linux distributions
-From: Natanael Copa <mlists@tanael.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0503240805110.19487@yvahk01.tjqt.qr>
-References: <e0716e9f05032019064c7b1cec@mail.gmail.com>
-	 <20050322112628.GA18256@roll>
-	 <Pine.LNX.4.61.0503221247450.5858@yvahk01.tjqt.qr>
-	 <20050322124812.GB18256@roll> <20050322125025.GA9038@roll>
-	 <9cde8bff050323025663637241@mail.gmail.com> <1111581459.27969.36.camel@nc>
-	 <9cde8bff05032305044f55acf3@mail.gmail.com> <1111586058.27969.72.camel@nc>
-	 <Pine.LNX.4.61.0503231543030.10048@yvahk01.tjqt.qr>
-	 <1111590294.27969.114.camel@nc>
-	 <Pine.LNX.4.61.0503240805110.19487@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Thu, 24 Mar 2005 11:05:38 +0100
-Message-Id: <1111658739.22122.17.camel@nc>
+	Thu, 24 Mar 2005 05:08:43 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:10165 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263078AbVCXKIP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 05:08:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=mB1NdMhLVKXsJqPFmnj5mGEaCkc4GDjXibDj7PDQCulg5vlxq6UlDVJ7ATmMk1cRv1jpsB3zCooTrNPcqov8A5HJO3As5VbrQKE6JAFa30ZTWlQ01ubnGEs1m4nklb1pCLYooYHXwXiX0Se4RgdLiLcn354JPcReQhbiWu0kWGI=
+Message-ID: <8eca059b05032402081abeb7a3@mail.gmail.com>
+Date: Thu, 24 Mar 2005 18:08:14 +0800
+From: Tao Liu <liutao1980@gmail.com>
+Reply-To: Tao Liu <liutao1980@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6.12-rc1] drivers/net/amd8111e.c: fix NAPI interrupt in poll
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-24 at 08:07 +0100, Jan Engelhardt wrote:
-> >> >brings down almost all linux distro's while other *nixes survives.
-> >> 
-> >> Let's see if this can be confirmed.
-> >
-> >open/free/netbsd survives. I guess OSX does too.
-> 
-> Confirmed. My OpenBSD install copes very well with forkbombs.
-> However, I _was able_ to spawn a lot of shells by default.
-> The essence is that the number of processes/threads within
-> a _session group_ (correct word?) is limited. That way, you can
-> start a ton of "/bin/sh"s from one another, i.e.:
-> 
->  \__ login jengelh
->      \__ /bin/sh
->          \__ /bin/sh
->              \__ /bin/sh
-> ...
-> 
-> So I think that if you add a setsid() to your forkbomb,
-> you could once again be able to bring a system - BSD this time - down.
+This patch makes the netif_rx_complete() and rx_interrupt_enable
+atomic when exiting the poll() method, so to avoid interrupt in poll.
+It also fixes the rx interrupt check logic in interrupt handler.
 
-I seriously doubt that. Try raising your maxproc setting (sysctl
-kern.maxproc?) to something insane and try bombing again.
+Signed-off-by: Liu Tao <liutao1980@gmail.com>
 
-I tried to bring the box down by raising the limit to something similar
-linux default and run the classic ":() { :|:& };:" However, the bomb was
-stopped by maximum number of pipes and BSD survived.
-
-If you don't hit the maximum number of processes you will hit another
-limit.
-
---
-Natanael Copa
-
-
+--- linux-2.6.12-rc1-orig/drivers/net/amd8111e.c	2005-03-23
+17:18:04.000000000 +0800
++++ linux-2.6.12-rc1/drivers/net/amd8111e.c	2005-03-23 17:43:57.000000000 +0800
+@@ -738,6 +738,7 @@
+ 	short vtag;
+ #endif
+ 	int rx_pkt_limit = dev->quota;
++	unsigned long flags;
+ 	
+ 	do{   
+ 		/* process receive packets until we use the quota*/
+@@ -841,18 +842,19 @@
+ 	/* Receive descriptor is empty now */
+ 	dev->quota -= num_rx_pkt;
+ 	*budget -= num_rx_pkt;
++
++	spin_lock_irqsave(&lp->lock, flags);
+ 	netif_rx_complete(dev);
+-	/* enable receive interrupt */
+ 	writel(VAL0|RINTEN0, mmio + INTEN0);
+ 	writel(VAL2 | RDMD0, mmio + CMD0);
++	spin_unlock_irqrestore(&lp->lock, flags);
+ 	return 0;
++
+ rx_not_empty:
+ 	/* Do not call a netif_rx_complete */
+ 	dev->quota -= num_rx_pkt;	
+ 	*budget -= num_rx_pkt;
+ 	return 1;
+-
+-	
+ }
+ 
+ #else
+@@ -1261,18 +1263,20 @@
+ 	struct net_device * dev = (struct net_device *) dev_id;
+ 	struct amd8111e_priv *lp = netdev_priv(dev);
+ 	void __iomem *mmio = lp->mmio;
+-	unsigned int intr0;
++	unsigned int intr0, intren0;
+ 	unsigned int handled = 1;
+ 
+-	if(dev == NULL)
++	if(unlikely(dev == NULL))
+ 		return IRQ_NONE;
+ 
+-	if (regs) spin_lock (&lp->lock);
++	spin_lock(&lp->lock);
++
+ 	/* disabling interrupt */
+ 	writel(INTREN, mmio + CMD0);
+ 
+ 	/* Read interrupt status */
+ 	intr0 = readl(mmio + INT0);
++	intren0 = readl(mmio + INTEN0);
+ 
+ 	/* Process all the INT event until INTR bit is clear. */
+ 
+@@ -1293,11 +1297,11 @@
+ 			/* Schedule a polling routine */
+ 			__netif_rx_schedule(dev);
+ 		}
+-		else {
++		else if (intren0 & RINTEN0) {
+ 			printk("************Driver bug! \
+ 				interrupt while in poll\n");
+-			/* Fix by disabling interrupts */
+-			writel(RINT0, mmio + INT0);
++			/* Fix by disable receive interrupts */
++			writel(RINTEN0, mmio + INTEN0);
+ 		}
+ 	}
+ #else
+@@ -1321,7 +1325,7 @@
+ err_no_interrupt:
+ 	writel( VAL0 | INTREN,mmio + CMD0);
+ 	
+-	if (regs) spin_unlock(&lp->lock);
++	spin_unlock(&lp->lock);
+ 	
+ 	return IRQ_RETVAL(handled);
+ }

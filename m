@@ -1,10 +1,10 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262606AbTDAPaD>; Tue, 1 Apr 2003 10:30:03 -0500
+	id <S262607AbTDAPaF>; Tue, 1 Apr 2003 10:30:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262609AbTDAPaC>; Tue, 1 Apr 2003 10:30:02 -0500
-Received: from [81.2.110.254] ([81.2.110.254]:32239 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id <S262606AbTDAPaB>;
+	id <S262608AbTDAPaF>; Tue, 1 Apr 2003 10:30:05 -0500
+Received: from [81.2.110.254] ([81.2.110.254]:32495 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id <S262607AbTDAPaB>;
 	Tue, 1 Apr 2003 10:30:01 -0500
 Subject: Re: 64-bit kdev_t - just for playing
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
@@ -31,10 +31,10 @@ References: <UTC200303272027.h2RKRbf27546.aeb@smtp.cwi.nl>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1049208134.19703.12.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1049208134.16073.11.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 01 Apr 2003 15:42:24 +0100
+Date: 01 Apr 2003 15:42:14 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

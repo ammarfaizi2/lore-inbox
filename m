@@ -1,64 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265612AbSLPOAv>; Mon, 16 Dec 2002 09:00:51 -0500
+	id <S266771AbSLPOGY>; Mon, 16 Dec 2002 09:06:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265656AbSLPOAv>; Mon, 16 Dec 2002 09:00:51 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:23433 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265612AbSLPOAu>; Mon, 16 Dec 2002 09:00:50 -0500
-Date: Mon, 16 Dec 2002 09:10:30 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Brian Jackson <brian-kernel-list@mdrx.com>
-cc: Scott Robert Ladd <scott@coyotegulch.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/cpuinfo and hyperthreading
-In-Reply-To: <20021216135453.3823.qmail@escalade.vistahp.com>
-Message-ID: <Pine.LNX.3.95.1021216090324.20273A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266772AbSLPOGY>; Mon, 16 Dec 2002 09:06:24 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:35037
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266771AbSLPOGX>; Mon, 16 Dec 2002 09:06:23 -0500
+Subject: Re: 2.4.21-pre1 broke the ide-tape driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: m.c.p@wolk-project.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+In-Reply-To: <200212152338.AAA24823@harpo.it.uu.se>
+References: <200212152338.AAA24823@harpo.it.uu.se>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 16 Dec 2002 14:53:33 +0000
+Message-Id: <1040050413.13787.18.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Dec 2002, Brian Jackson wrote:
-
-> You could always boot once with nosmp and run some benchmarks and then 
-> reboot (with smp) and run some more benchmarks, and see if there is a 
-> difference. 
+On Sun, 2002-12-15 at 23:38, Mikael Pettersson wrote:
 > 
->  --Brian Jackson 
+> On Sun, 15 Dec 2002 02:23:34 +0100, Marc-Christian Petersen wrote:
+> >> Kernel 2.4.21-pre1 broke the ide-tape driver: the driver
+> >> now hangs during initialisation. 2.2 kernels (with Andre's
+> >> IDE patch) and 2.4 up to 2.4.20 do not have this problem.
+> >> My box has a Seagate STT8000A ATAPI tape drive as hdd;
+> >> hdc is a Philips CD-RW, and the controller is ICH2 (i850 chipset).
+> >http://linux.bkbits.net:8080/linux-2.4/patch@1.828?nav=index.html|ChangeSet@-7d|cset@1.828
 > 
-> 
-> Scott Robert Ladd writes: 
-> 
-> > Zwane Mwaikambo wrote:
-> >> It's ok.
-> > 
-> > I'm not so sure. 
-> > 
-> > To get the most benefit from two logical CPUs, don't I need the kernel to
-> > operate as a 2-CPU SMP system? 
-> > 
-> > Windows XP initializes the system as SMP with two CPUs; when I run an OpenMP
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-How do you know this? How can I learn what Windows does with
-Win/2000/professional? The only way I know I have two CPUs is when the
-machine fails to reboot because the file-system has been completely
-trashed by the two CPUs banging on it at the same time. The solution has
-been to remove one CPU. M$ claims; "Windows will over-power the system
-if two CPUs are present...." Direct quote. If you have two logical
-CPUs, you can't remove one, therefore, unless M$ has fixed the problem(s)
-in XP, you can't use Windows with two logical CPUs, i.e., hyperthreading.
+> Addendum: this patch fixes the init-time hang, and ide-tape does
+> seem to work fine, but 'rmmod ide-tape' oopses -- 2.4.20-ac2 also
+> oopses on 'rmmod ide-tape'.
 
-
-> > application under Windows, it reports two CPUs and a maximum of two threads.
-> > Under Linux, 
-> >
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+I don't unfortunately have any ide-tape devices. I'll take a look though
 

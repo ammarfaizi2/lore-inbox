@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267565AbUG2SMO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267554AbUG2STY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267565AbUG2SMO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 14:12:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267505AbUG2SJL
+	id S267554AbUG2STY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 14:19:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265201AbUG2SRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 14:09:11 -0400
-Received: from omx1-ext.SGI.COM ([192.48.179.11]:6338 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S267474AbUG2SHl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 14:07:41 -0400
-Date: Thu, 29 Jul 2004 13:07:32 -0500
-From: Greg Edwards <edwardsg@sgi.com>
-To: kai@germaschewski.name, sam@ravnborg.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] add ia64 support to rpm Makefile target
-Message-ID: <20040729180732.GA15920@sgi.com>
-Mime-Version: 1.0
+	Thu, 29 Jul 2004 14:17:07 -0400
+Received: from ozlabs.org ([203.10.76.45]:3532 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S264936AbUG2SQ1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 14:16:27 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16649.16040.106272.54705@cargo.ozlabs.ibm.com>
+Date: Thu, 29 Jul 2004 13:15:04 -0500
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, trini@kernel.crashing.org
+Subject: PPC8xx Maintainer patch
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On ia64, only the EFI (fat) partition is available to boot from.  The rpm
-needs to install the kernel under /boot/efi to be useable on ia64.
+Tom is looking after PPC8xx and the PPC boot code.
 
-Signed-off-by: Greg Edwards <edwardsg@sgi.com>
+Please apply.
 
+Thanks,
+Paul.
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/07/29 13:00:54-05:00 edwardsg@attica.americas.sgi.com 
-#   Add ia64 support to the rpm Makefile target.
-# 
-# scripts/package/mkspec
-#   2004/07/29 13:00:41-05:00 edwardsg@attica.americas.sgi.com +13 -2
-#   On ia64, only the EFI (fat) partition is available to boot from.  The
-#   rpm needs to install the kernel under /boot/efi to be useable on ia64.
-# 
-diff -Nru a/scripts/package/mkspec b/scripts/package/mkspec
---- a/scripts/package/mkspec	2004-07-29 13:04:34 -05:00
-+++ b/scripts/package/mkspec	2004-07-29 13:04:34 -05:00
-@@ -43,10 +43,21 @@
- echo "make clean && make"
- echo ""
- echo "%install"
--echo 'mkdir -p $RPM_BUILD_ROOT/boot $RPM_BUILD_ROOT/lib $RPM_BUILD_ROOT/lib/modules'
+===== MAINTAINERS 1.229 vs edited =====
+--- 1.229/MAINTAINERS	2004-07-24 22:00:59 -07:00
++++ edited/MAINTAINERS	2004-07-26 12:30:21 -07:00
+@@ -1283,6 +1283,13 @@
+ L:	linuxppc-embedded@lists.linuxppc.org
+ S:	Maintained
+ 
++LINUX FOR POWERPC EMBEDDED PPC8XX AND BOOT CODE
++P:	Tom Rini
++M:	trini@kernel.crashing.org
++W:	http://www.penguinppc.org/
++L:	linuxppc-embedded@lists.linuxppc.org
++S:	Maintained
 +
-+if [[ "$ARCH" != "ia64" ]]; then
-+	echo 'mkdir -p $RPM_BUILD_ROOT/boot $RPM_BUILD_ROOT/lib $RPM_BUILD_ROOT/lib/modules'
-+else
-+	echo 'mkdir -p $RPM_BUILD_ROOT/boot/efi $RPM_BUILD_ROOT/lib $RPM_BUILD_ROOT/lib/modules'
-+fi
- 
- echo 'INSTALL_MOD_PATH=$RPM_BUILD_ROOT make modules_install'
--echo 'cp $KBUILD_IMAGE $RPM_BUILD_ROOT'"/boot/vmlinuz-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
-+
-+if [[ "$ARCH" != "ia64" ]]; then
-+	echo 'cp $KBUILD_IMAGE $RPM_BUILD_ROOT'"/boot/vmlinuz-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
-+else
-+	echo 'cp $KBUILD_IMAGE $RPM_BUILD_ROOT'"/boot/efi/vmlinuz-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
-+	echo 'ln -s '"efi/vmlinuz-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION" '$RPM_BUILD_ROOT'"/boot/"
-+fi
- 
- echo 'cp System.map $RPM_BUILD_ROOT'"/boot/System.map-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
- 
+ LINUX FOR POWERPC EMBEDDED PPC85XX
+ P:     Kumar Gala
+ M:     kumar.gala@freescale.com
+

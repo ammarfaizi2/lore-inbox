@@ -1,63 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAEUdy>; Fri, 5 Jan 2001 15:33:54 -0500
+	id <S129818AbRAEUfo>; Fri, 5 Jan 2001 15:35:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129818AbRAEUdq>; Fri, 5 Jan 2001 15:33:46 -0500
-Received: from smtpnotes.altec.com ([209.149.164.10]:50698 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S129324AbRAEUd2>; Fri, 5 Jan 2001 15:33:28 -0500
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: "Matthew D. Pitts" <mpitts@suite224.net>
-cc: linux-kernel@vger.kernel.org
-Message-ID: <862569CB.0070DDEE.00@smtpnotes.altec.com>
-Date: Fri, 5 Jan 2001 14:33:12 -0600
-Subject: Re: Change of policy for future 2.2 driver submissions
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S129733AbRAEUfe>; Fri, 5 Jan 2001 15:35:34 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:62214 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130355AbRAEUfT>; Fri, 5 Jan 2001 15:35:19 -0500
+Date: Fri, 5 Jan 2001 16:43:28 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] changes to buffer.c (was Test12 ll_rw_block error)
+In-Reply-To: <Pine.LNX.4.21.0101051827440.1295-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0101051642260.2882-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Either I'm blind, or especially dense today, or both (quite possible :-) but I
-don't see any reference in patch-kernel to the extra version information.
-EXTRAVERSION is defined in the kernel Makefile, and I tried using the script
-found in the 2.4.0-test1 source like this:
+On Fri, 5 Jan 2001, Rik van Riel wrote:
 
-patch-kernel /usr/src/linux /pub/linux/kernel/v2.4/test-kernels
+> Also, you do not want the writer to block on writing out buffers
+> if bdflush could write them out asynchronously while the dirty
+> buffer producer can work on in the background.
 
-but the test-2 and following patches are not applied.  All I get is "Current
-kernel version is 2.4.0."  What am I missing?
-
-Wayne
-
-
-
-
-"Matthew D. Pitts" <mpitts@suite224.net> on 01/05/2001 12:50:26 PM
-
-To:   Wayne Brown/Corporate/Altec@Altec
-cc:   linux-kernel@vger.kernel.org
-
-Subject:  Re: Change of policy for future 2.2 driver submissions
-
-
-
-
-Wayne,
-
-The versions of patch-kernel included in 2.3/2.4 support extra version
-information, so patches from Linus and others (i.e. Alan Cox) can be applied
-if proper information is placed in the kernel Makefile.
-
-Matthew D. Pitts
-mpitts@suite224.net
-
-
-
-
+flush_dirty_buffers() do not wait on the buffers written to get clean.
 
 
 -

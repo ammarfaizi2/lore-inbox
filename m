@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268308AbTCFS6q>; Thu, 6 Mar 2003 13:58:46 -0500
+	id <S268311AbTCFTCb>; Thu, 6 Mar 2003 14:02:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268312AbTCFS6q>; Thu, 6 Mar 2003 13:58:46 -0500
-Received: from ns.suse.de ([213.95.15.193]:32784 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S268308AbTCFS6p>;
-	Thu, 6 Mar 2003 13:58:45 -0500
-Subject: Re: Better CLONE_SETTLS support for Hammer
-From: Andi Kleen <ak@suse.de>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E679A55.4030701@redhat.com>
-References: <3E664836.7040405@redhat.com>
-	<20030305190622.GA5400@wotan.suse.de> <3E6650D4.8060809@redhat.com>
-	<20030305212107.GB7961@wotan.suse.de> <3E668267.5040203@redhat.com>
-	<20030306010517.GB17865@wotan.suse.de> <3E66CB1A.6020107@redhat.com>
-	<20030306102720.GA23747@wotan.suse.de>  <3E679A55.4030701@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 06 Mar 2003 20:09:16 +0100
-Message-Id: <1046977757.1388.176.camel@averell>
-Mime-Version: 1.0
+	id <S268312AbTCFTCb>; Thu, 6 Mar 2003 14:02:31 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:16352 "EHLO
+	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
+	id <S268311AbTCFTCa>; Thu, 6 Mar 2003 14:02:30 -0500
+Date: Thu, 6 Mar 2003 19:14:47 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@digeo.com>
+cc: Dave McCracken <dmccr@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] nonlinear oddities
+In-Reply-To: <Pine.LNX.4.44.0303061618460.2422-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0303061903170.1215-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-06 at 19:58, Ulrich Drepper wrote:
+On Thu, 6 Mar 2003, Hugh Dickins wrote:
+> 1.  Revert MAP_NONLINEAR and VM_NONLINEAR: I can easily imagine wanting
+> VM_NONLINEAR in future, warning that vma is unusual, but currently it's
+> not useful: install_page just needs to SetPageAnon if the page is put
+> somewhere try_to_unmap_obj_one wouldn't be able to find it.
 
-> 
-> It's already part of the documented ABI.  Yes, if right now somebody
-> said r11 or whatever is declared the thread register, we could change
-> it.  But give it a few more weeks and it'll probably be impossible
+Now I think about it more, install_page's SetPageAnon is not good at all.
+That (unlocked) page may already be mapped into other vmas as a shared
+file page, non-zero mapcount, we can't suddenly switch it to Anon
+(pte_chained) without doing the work to handle that case.
 
-It's already pretty much impossible.
+Before Ingo's file-offset-in-pte, it would have been consistent without
+any SetPageAnon there, because the remapped pages would be unreliable
+unless locked, and having them unfindable is equivalent to being locked.
 
+But if we're to bother with file-offset-in-pte, then we have to bother
+with finding the remapped pages, handling mapped-earlier case properly.
 
-> You don't understand threads.  There is nothing broken or NPTL-specific
-> about the design.  Every thread creation mechanism must be signal save.
->  LinuxThreads's is not, which is a bit less of a problem since the
-> signal handling is broken, too, and signals are unlikely to arrive at
-> the new thread. Nevertheless, there are certainly spurious crashes which
-> are hard to reproduce and explain which can be attributed to this problem.
-
-I would have designed it with CLONE_BLOCKALLSIGNALS and then set it in
-the target process before unblocking signals. This would be in the 
-spirit of fork/exec and also what posix APIs do for similar
-problems (like pselect)
-
-But of course it's too late now. We'll have to live with this
-ugly thing.
-
-Just hope you won't run out of the argument registers for the next
-round of enhancements ;)
-
--Andi
-
+Hugh
 

@@ -1,32 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287892AbSAHFJj>; Tue, 8 Jan 2002 00:09:39 -0500
+	id <S287886AbSAHFJT>; Tue, 8 Jan 2002 00:09:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287648AbSAHFJa>; Tue, 8 Jan 2002 00:09:30 -0500
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:65402 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S287885AbSAHFJW>; Tue, 8 Jan 2002 00:09:22 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200201080213.g082DTD26512@devserv.devel.redhat.com>
-Subject: Re: [s-h] Re: ALSA patch for 2.5.2pre9 kernel
-To: acme@conectiva.com.br (Arnaldo Carvalho de Melo)
-Date: Mon, 7 Jan 2002 21:13:29 -0500 (EST)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        hch@ns.caldera.de (Christoph Hellwig), perex@suse.cz (Jaroslav Kysela),
-        sound-hackers@zabbo.net, linux-sound@vger.rutgers.edu,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020107181038.GB1026@conectiva.com.br> from "Arnaldo Carvalho de Melo" at Jan 07, 2002 04:10:38 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S287885AbSAHFJK>; Tue, 8 Jan 2002 00:09:10 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:30225 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S287648AbSAHFJA>; Tue, 8 Jan 2002 00:09:00 -0500
+Message-ID: <3C3A7DA7.381D033D@zip.com.au>
+Date: Mon, 07 Jan 2002 21:03:35 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Ivan Passos <ivan@cyclades.com>, linux-kernel@vger.kernel.org
+Subject: Re: Serial Driver Name Question (kernels 2.4.x)
+In-Reply-To: <3C38BC19.72ECE86@zip.com.au>,
+		<3C34024A.EDA31D24@zip.com.au>
+		<3C33E0D3.B6E932D6@zip.com.au>
+		<3C33BCF3.20BE9E92@cyclades.com>
+		<200201030637.g036bxe03425@vindaloo.ras.ucalgary.ca>
+		<200201062012.g06KCIu16158@vindaloo.ras.ucalgary.ca>
+		<3C38BC19.72ECE86@zip.com.au> <200201070636.g076asR25565@vindaloo.ras.ucalgary.ca>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> One ring^Wlayout to rule them all <stops here ;)> I would not be unhappy if
-> drivers/net became net/drivers, etc 8)
+[ tty driver name breakage ]
 
-Then where do you put the drivers categorized in other ways (multifunction
-devices like i2o for example) ?
+Richard, can we please get this wrapped up?
 
+My preferred approach is to change the driver naming scheme
+so that we don't have to put printf control-strings everywhere.
+We can remove a number of ifdefs that way.
+
+So for serial.c:
+
+--- linux-2.4.18-pre2/drivers/char/tty_io.c	Mon Jan  7 16:48:02 2002
++++ linux-akpm/drivers/char/tty_io.c	Mon Jan  7 20:56:38 2002
+@@ -193,10 +193,13 @@ _tty_make_name(struct tty_struct *tty, c
+ 
+ 	if (!tty) /* Hmm.  NULL pointer.  That's fun. */
+ 		strcpy(buf, "NULL tty");
+-	else
+-		sprintf(buf, name,
+-			idx + tty->driver.name_base);
+-		
++	else {
++#ifdef CONFIG_DEVFS_FS
++		sprintf(buf, "%s/%d", name, idx + tty->driver.name_base);
++#else
++		sprintf(buf, "%s%d", name, idx + tty->driver.name_base);
++#endif
++	}		
+ 	return buf;
+ }
+ 
+--- linux-2.4.18-pre2/drivers/char/serial.c	Mon Jan  7 16:48:02 2002
++++ linux-akpm/drivers/char/serial.c	Mon Jan  7 20:58:09 2002
+@@ -5387,7 +5387,7 @@ static int __init rs_init(void)
+ 	serial_driver.driver_name = "serial";
+ #endif
+ #if (LINUX_VERSION_CODE > 0x2032D && defined(CONFIG_DEVFS_FS))
+-	serial_driver.name = "tts/%d";
++	serial_driver.name = "tts";
+ #else
+ 	serial_driver.name = "ttyS";
+ #endif

@@ -1,75 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265791AbSKFQdj>; Wed, 6 Nov 2002 11:33:39 -0500
+	id <S265786AbSKFQ22>; Wed, 6 Nov 2002 11:28:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265807AbSKFQdi>; Wed, 6 Nov 2002 11:33:38 -0500
-Received: from thunk.org ([140.239.227.29]:13218 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S265791AbSKFQdh>;
-	Wed, 6 Nov 2002 11:33:37 -0500
-Date: Wed, 6 Nov 2002 11:39:15 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Andreas Dilger <adilger@clusterfs.com>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-rc1 dirty ext2 mount error
-Message-ID: <20021106163915.GA8072@think.thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Keith Owens <kaos@ocs.com.au>,
-	Andreas Dilger <adilger@clusterfs.com>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-References: <20021106084143.GN588@clusterfs.com> <24197.1036579429@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <24197.1036579429@ocs3.intra.ocs.com.au>
-User-Agent: Mutt/1.3.28i
+	id <S265789AbSKFQ22>; Wed, 6 Nov 2002 11:28:28 -0500
+Received: from ophelia.ess.nec.de ([193.141.139.8]:26854 "EHLO
+	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
+	id <S265786AbSKFQ20> convert rfc822-to-8bit; Wed, 6 Nov 2002 11:28:26 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Erich Focht <efocht@ess.nec.de>
+To: Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Subject: NUMA scheduler BK tree
+Date: Wed, 6 Nov 2002 17:34:42 +0100
+User-Agent: KMail/1.4.1
+Cc: Robert Love <rml@tech9.net>, Anton Blanchard <anton@samba.org>,
+       Ingo Molnar <mingo@elte.hu>, Stephen Hemminger <shemminger@osdl.org>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211061734.42713.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 06, 2002 at 09:43:49PM +1100, Keith Owens wrote:
-> VFS said that / was ext2, init ran fsck.ext2 against /, fstab says /
-> whoudl be ext2 and mount claims that it is ext2.  Lies!  It is still
-> ext3, the only indication is that lsmod shows a use count of 1 against
-> ext3.  Crashing out of this kernel and into 2.4.20-rc1 which has no
-> initrd gets the error.  And I thought I had got rid of ext3 ...
+Michael, Martin,
 
-Not a kernel bug.  Let's break this down....
+in order to make it easier to keep up with the main Linux tree I've
+set up a bitkeeper repository with our NUMA scheduler at
+       bk://numa-ef.bkbits.net/numa-sched
+(Web view:  http://numa-ef.bkbits.net/)
+This used to contain my node affine NUMA scheduler, I'll add extra
+trees when the additional patches for that are tested on top of our
+NUMA scheduler.
 
-(BTW this is why I'm not all that fond of initrd at all.  In fact, I
-have a very strong distatse for initrd....)
+Is it ok for you to have it this way or would you prefer having the
+core and the initial load balancer separate?
 
-> Linux version 2.4.18-14smp (bhcompile@stripples.devel.redhat.com) (gcc
-> version 3.2 20020903 (Red Hat Linux 8.0 3.2-7)) #1 SMP Wed Sep 4
-> 12:34:47 EDT 2002
-> has ext2 built in but it boots with initrd containing ext3 as a module.
-> VFS: Mounted root (ext2 filesystem)
+The tree is currently in sync with bk://linux.bkbits.net/linux-2.5 and
+I'll try to keep so.
 
-The kernel mounted the initrd filesystem here, which was ext2 based.
+Regards,
+Erich
 
-> ...
-> Loading jbd module
-> Journalled Block Device driver loaded 
-> Loading ext3 module
-> Mounting root filsystem
-> EXT3-fs: mounted filesystem with ordered data mode
-
-This is where the initrd system mounted the (real) root filesystem as
-ext3, and then did the pivotroot to switch the root filesystem from
-the initrd ramdisk to the real root filesystem.
-
-> init starts ...
-> [/sbin/fsck.ext2 (1) -- /] fsck.ext2 -a /dev/sda1 [PASSED]
-
-init doesn't actually run fsck.ext2.  Instead, init runs /etc/rc, and
-that in turn runs fsck, and fsck consults /etc/fstab to determine
-which fsck to run.  (So does mount when it creates /etc/mtab file
-after the root filesystem is remount read-write.)
-
-The reason why I haven't had fsck consult /proc/mounts is that it
-would be a special-case thing that only makes sense for the root
-filesystem, since that's the only filesystem which should be mounted
-at the time fsck runs.  Since fsck.ext2 and fsck.ext3 are identical,
-changing fsck so that it uses /proc/mounts is a rather moot change,
-aside from the cosmetic details of what fsck prints out.
-
-							- Ted

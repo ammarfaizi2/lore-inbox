@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265800AbSLNS0f>; Sat, 14 Dec 2002 13:26:35 -0500
+	id <S265752AbSLNSav>; Sat, 14 Dec 2002 13:30:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265815AbSLNS0f>; Sat, 14 Dec 2002 13:26:35 -0500
-Received: from adsl-67-114-19-186.dsl.pltn13.pacbell.net ([67.114.19.186]:33740
-	"HELO adsl-63-202-77-221.dsl.snfc21.pacbell.net") by vger.kernel.org
-	with SMTP id <S265800AbSLNS0e>; Sat, 14 Dec 2002 13:26:34 -0500
-Message-ID: <3DFB79B3.203@tupshin.com>
-Date: Sat, 14 Dec 2002 10:34:27 -0800
-From: Tupshin Harper <tupshin@tupshin.com>
+	id <S265797AbSLNSav>; Sat, 14 Dec 2002 13:30:51 -0500
+Received: from vsmtp3.tin.it ([212.216.176.223]:49382 "EHLO smtp3.cp.tin.it")
+	by vger.kernel.org with ESMTP id <S265752AbSLNSau>;
+	Sat, 14 Dec 2002 13:30:50 -0500
+Message-ID: <3DFB7B21.7040004@tin.it>
+Date: Sat, 14 Dec 2002 19:40:33 +0100
+From: AnonimoVeneziano <voloterreno@tin.it>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021210 Debian/1.2.1-3
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Oleg Drokin <green@namesys.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: JDIRTY JWAIT errors in 2.4.19
-References: <3DFAF9EF.6000501@tupshin.com> <20021214135550.A13549@namesys.com>
-In-Reply-To: <20021214135550.A13549@namesys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: IDE-CD and VT8235 issue!!!
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sigh...unfortunately that machine didn't have magic SysRq compiled in. 
-I'm going to build an idential kernel with Sysrq and reboot. Maybe I'll 
-see the error again in a month or so ;-(
+    Hi, I have this chip on a MSI KT4 Ultra (KT400 and VT8235) and an 
+Athlon 2400+.
 
--Tupshin
+I have noe the kernel 2.4.19 and all works fine, but 2.4.19 don't 
+support this chip (so no DMA & Co) and I've decided to upgrade to 2.4.20 
+to get it working.
+I've compiled in the Debian Way ( kernel-package) and installed the 
+kernel, then I've rebooted it.
+During the startup progress it have initialized the HDs fine , but when 
+he had reached the first CDROM ( a NEC DVD READER) it locked up with 
+this message:
 
-Oleg Drokin wrote:
+hdc: DMA disabled
+hdc: drive is not ready for command
+ide1: reset: success!
 
->Can you please execute SysRq-T, decode it with ksymoops and send us the result?
->
->  
->
-Sigh...unfortunately that machine didn't have magic SysRq compiled in. 
-I'm going to build an identical kernel with Sysrq and reboot. Maybe I'll 
-see the error again in a month or so ;-(
+and it repeats this messages in an infinite loop , I don't know how to 
+solve this , there isn't a patch or something else?
 
--Tupshin
+The kernel that I've tried (without success) are:
+
+kernel 2.4.20 (original)
+kernel 2.4.20 -ac2
+kernel-source-2.4.20 package by debian + patches
+kernel-2.5.50-ac1(doesen't boot)
+kernel-2.5.53 (doesen't compiles)
+
+Please help
+
+Thank u
+
+Byez
 

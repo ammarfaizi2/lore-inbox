@@ -1,46 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132173AbRAVQ7v>; Mon, 22 Jan 2001 11:59:51 -0500
+	id <S132670AbRAVRCq>; Mon, 22 Jan 2001 12:02:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132379AbRAVQ7m>; Mon, 22 Jan 2001 11:59:42 -0500
-Received: from dns-229.dhcp-248.nai.com ([161.69.248.229]:59593 "HELO
-	localdomain") by vger.kernel.org with SMTP id <S132173AbRAVQ72>;
-	Mon, 22 Jan 2001 11:59:28 -0500
-From: Davide Libenzi <davidel@xmail.virusscreen.com>
-Organization: myCIO.com
-Date: Mon, 22 Jan 2001 08:58:50 -0800
-X-Mailer: KMail [version 1.1.95.5]
-Content-Type: text/plain;
-  charset="us-ascii"
+	id <S132800AbRAVRCg>; Mon, 22 Jan 2001 12:02:36 -0500
+Received: from thalia.fm.intel.com ([132.233.247.11]:39438 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S132670AbRAVRCY>; Mon, 22 Jan 2001 12:02:24 -0500
+Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDF3D@orsmsx31.jf.intel.com>
+From: "Dunlap, Randy" <randy.dunlap@intel.com>
+To: "'Duncan Laurie'" <duncan@virtualwire.org>,
+        Petr Matula <pem@informatics.muni.cz>
 Cc: linux-kernel@vger.kernel.org
-To: "Hubertus Franke" <frankeh@us.ibm.com>, lse-tech@lists.sourceforge.net
-In-Reply-To: <OF705E9D76.E5523D4C-ON852569DC.004A374D@pok.ibm.com>
-In-Reply-To: <OF705E9D76.E5523D4C-ON852569DC.004A374D@pok.ibm.com>
-Subject: Re: [Lse-tech] Re: multi-queue scheduler update
+Subject: RE: int. assignment on SMP + ServerWorks chipset
+Date: Mon, 22 Jan 2001 09:01:51 -0800
 MIME-Version: 1.0
-Message-Id: <01012208585000.17926@ewok.dev.mycio.com>
-Content-Transfer-Encoding: 8bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 January 2001 08:57, Hubertus Franke wrote:
-> Per popular demand. Here are a few numbers for small thread counts
-> running the sched_yield_test benchmark on a 2-way SMP with the following
-> characteristics.
->
-> model name      : Pentium III (Katmai)
-> stepping        : 3
-> cpu MHz         : 551.266
-> cache size      : 512 KB
->
-> I compare 2.4.1-pre8  kernels (vanilla, table/prio scheduler and
-> multiqueue).
+Hi Duncan,
 
-What's 'table/prio scheduler' ?
+> From: Duncan Laurie [mailto:duncan@virtualwire.org]
+> 
+> Hi Petr,
+> 
+> I didn't consider that your hardware would have subtle differences
+> than Mr. Dunlap's Intel SBT2 board, but these could have made the
+> hard-coded values in the patch invalid.  So instead try the attached
+> patch, and this time you'll need to plug in some values into a boot
+> parameter to override the mptable entry.
+
+Petr's listing of /proc/interrupts also did not use IRQ 9
+(from Jan. 11, 2001 email).
+
+I expect that our STL2 boards are very much alike, with possible
+differences in processor speed and RAM size.  I also have
+disabled SCSI in BIOS SETUP while Petr has not, since he is using
+SCSI disks and I am using IDE.
+
+> This "mpint=" parameter allows you to alter a specific (IO)INT mptable
+> entry destination APIC and INT.  It takes four arguments, the first
+> two for looking up the entry to change in the current mptable by APIC
+> and INT, and the second two are for the new APIC and INT 
+> values to use.
+> (I also have an expanded version that allows more detailed
+> modifications but the number of arguments gets out of hand very fast)
+> 
+> The values to use depend on what your system is configured to use
+> for the USB interrupt.  This can be obtained by using the dump_pirq
+> utility from the recent pcmcia utilities.  (I made some modifications
+> to recognize the ServerWorks IRQ router which is available from
+> ftp://virtualwire.org/dump_pirq)
+
+Thanks for that.
+
+> The output you are looking for should look something like this:
+> 
+> Device 00:0f.0 (slot 0): ISA bridge
+>     INTA: link 0x01, irq mask 0x0400 [10]
+> 
+> The USB device is actually function 2, but uses INTA#.  The irq
+> mask value should give you the new INT value to put in the
+> mptable.  The old INT value can be read from the dmesg output
+> or by compiling and running mptable, which I also made available
+> at ftp://virtualwire.org/mptable.c.  (it appears to be '0' on your
+> hardware as well as Mr. Dunlap's)  The destination APIC should just
+> be the ID of the first IO-APIC in the system, in this case 4.
+
+I had also ported that program a few months ago, but was
+advised against it since the BIOS can build the MP table
+dynamically, and it could be from a skeleton table in EEPROM,
+so the mptable program could find and print the wrong version
+of the table.  Just a small warning.
+
+> So based on the example above, you would add "mpint=5,0,4,10" to
+> the boot parameters.  One caveat, this doesn't actually change the
+> mptable as it is stored in memory so if you use the mptable program
+> to view it you will still see the original values.
+
+Duncan, do you still think that there might be a BIOS MP table
+error?  Also, what would you propose as a long-term solution to
+this problem?  This patch or something else?
+
+Thanks,
+~Randy
 
 
-
-- Davide
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

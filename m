@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315709AbSHFVlt>; Tue, 6 Aug 2002 17:41:49 -0400
+	id <S315717AbSHFVmI>; Tue, 6 Aug 2002 17:42:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315717AbSHFVlt>; Tue, 6 Aug 2002 17:41:49 -0400
-Received: from virtmail.zianet.com ([216.234.192.37]:18854 "HELO zianet.com")
-	by vger.kernel.org with SMTP id <S315709AbSHFVlt>;
-	Tue, 6 Aug 2002 17:41:49 -0400
-Message-ID: <3D5045C1.6050302@zianet.com>
-Date: Tue, 06 Aug 2002 15:55:13 -0600
-From: kwijibo@zianet.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020802
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: davem@redhat.com, jgarzik@mandrakesoft.com
-Subject: Tigon3 and jumbo frames
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	id <S315721AbSHFVmI>; Tue, 6 Aug 2002 17:42:08 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:48884 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315717AbSHFVmH>; Tue, 6 Aug 2002 17:42:07 -0400
+Subject: Re: 2.4.19 See's incorrect cache size on P4 Xeons!?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Austin Gonyou <austin@digitalroadkill.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1028669517.6549.100.camel@UberGeek.coremetrics.com>
+References: <1028669517.6549.100.camel@UberGeek.coremetrics.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 07 Aug 2002 00:04:56 +0100
+Message-Id: <1028675096.18156.220.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does the new version of the tigon 3 (tg3) drivers support jumbo
-frames?  I have 2.4.19 using the v0.99 driver and I can't for the life
-of me get the card to work with the jumbo frames.  I have a switch
-that supports jumbo frames and I also have like 3-4 other computers
-attached to the switch that are using the e1000 drivers.  Between
-the comps with the e1000 drivers I can transmit/receive jumbo
-frames fine, but when I try to send/receive jumbo frames from the
-computer with the tg3 to any computer with the e1000 drivers it fails.  
-I can transmit/receive normal sized (1500 MTU) sized frames fine
-with the tg3 however. All the NICS have the MTU size set to 9000
-and I initiate the jumbo frames by 'ping -s 9000 192.168.1.1'.
-By glancing at the code I can see defines for the jumbo frames at it
-is defined to 9000.  I noticed in the changelog for 2.4.19 that there
-were quite a few changes to this driver and I am just wondering
-if somethin was possibly broken in the process.
+
+> On boot each processor is says it has 1MB L3, is 2.4.19 unable to read
+> that or something?
+
+At the moment we report the L1/L2 - we don't actually go decoding L3
+caches. They are quite new. We should do however.
 

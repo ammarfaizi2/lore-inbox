@@ -1,82 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270256AbTGRRWI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 13:22:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270262AbTGRRWH
+	id S270287AbTGRRZb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 13:25:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270283AbTGRRZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 13:22:07 -0400
-Received: from out001pub.verizon.net ([206.46.170.140]:21931 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP id S270256AbTGRRV4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 13:21:56 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-To: gene.heskett@verizon.net, linux-kernel@vger.kernel.org
-Subject: Re: usb in 2.4.22-pre6?
-Date: Fri, 18 Jul 2003 13:36:50 -0400
-User-Agent: KMail/1.5.1
-References: <200307160102.07774.gene.heskett@verizon.net>
-In-Reply-To: <200307160102.07774.gene.heskett@verizon.net>
-Organization: None that appears to be detectable by casual observers
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Fri, 18 Jul 2003 13:25:30 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:26497 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S270287AbTGRRYY (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 13:24:24 -0400
+Message-Id: <200307181739.h6IHdFq3006996@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] O6int for interactivity 
+In-Reply-To: Your message of "Fri, 18 Jul 2003 10:05:05 PDT."
+             <Pine.LNX.4.55.0307181004200.5608@bigblue.dev.mcafeelabs.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net> <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net> <200307170030.25934.kernel@kolivas.org> <200307170030.25934.kernel@kolivas.org> <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net> <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net> <5.2.1.1.2.20030718174433.01b12878@pop.gmx.net> <Pine.LNX.4.55.0307180951050.5608@bigblue.dev.mcafeelabs.com>
+            <Pine.LNX.4.55.0307181004200.5608@bigblue.dev.mcafeelabs.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1852680452P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307181336.50624.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.62.27] at Fri, 18 Jul 2003 12:36:50 -0500
+Date: Fri, 18 Jul 2003 13:39:15 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 16 July 2003 01:02, Gene Heskett wrote:
->Greets everybody;
->
->I have a camera, a Logitech(Sunplus ccd chipset) ClickSmart 310, usb
->interface, that almost works with qcam-vc.  But I just noticed,
-> after rebooting to 2.4.22-pre6 earlier today, that the display on
-> the camera no longer is reporting 'PC', and that there are some
-> messages that look like problems in dmesg.
->
->So my conclusion is that whatever has been adjusted in the usb
-> stuffs, has now rendered the camera totally un-reachable.
->
->This would make life difficult as I'm currently in negotiations with
->the Sunplus folks on the left coast trying to get a data sheet on
-> the chipset in it so that I might try to write a new driver for
-> these.
+--==_Exmh_-1852680452P
+Content-Type: text/plain; charset=us-ascii
 
-A PS: to this one, clues if you will, to be added to the other info 
-I've posted regarding a ClickSmart 310 camera, and the qcam-vc 
-drivers.
+On Fri, 18 Jul 2003 10:05:05 PDT, Davide Libenzi said:
+> On Fri, 18 Jul 2003, Davide Libenzi wrote:
+> 
+> > control them. It is right to apply uncontrolled unfairness to userspace
+> > tasks though.
+> 
+> s/It is right/It is not right/
 
-I built a kernel with usb debugging turned on, which made it work.  
-I'd also tried to build v4l into the kernel but that got an error 
-exit, so I went back to making it as a module.  So with everything 
-V4L related is as modules below.
+OK.. but is it right to apply *controlled* unfairness to userspace?
 
-The difference between the verbose usb debugging on/off apparently 
-does something to the timeing.  With the debugging on, it works but 
-the dmesg buffer is overrun so I don't get a full report only the 
-tail end, and with the debugging turned back off and the kernel 
-rebuilt, no other changes, then it fails, with these lines being 
-logged in /var/log/dmesg:
---------
-vid 0x04B8 pid 0x0005
-host/usb-uhci.c: interrupt, status 2, frame# 1641
-hub.c: usb_hub_port_status (2) failed (err = -84)
-hub.c: connect-debounce failed, port 3 disabled
---------
 
-And the device is not intitialized.
+--==_Exmh_-1852680452P
+Content-Type: application/pgp-signature
 
-Is this a usefull clue?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.26% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+iD8DBQE/GDDDcC3lWbTT17ARAidfAJ4vqPd93SmVG2zT4xu2j8EOwvCJGgCeKj7H
+48IBTK3QW0uWMV9Aht/XkjA=
+=7G5O
+-----END PGP SIGNATURE-----
 
+--==_Exmh_-1852680452P--

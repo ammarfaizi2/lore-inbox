@@ -1,51 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131643AbRDCMVa>; Tue, 3 Apr 2001 08:21:30 -0400
+	id <S131386AbRDCMXk>; Tue, 3 Apr 2001 08:23:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131386AbRDCMVU>; Tue, 3 Apr 2001 08:21:20 -0400
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:15233 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S131232AbRDCMVH>; Tue, 3 Apr 2001 08:21:07 -0400
-Date: Tue, 3 Apr 2001 14:20:24 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andries.Brouwer@cwi.nl, torvalds@transmeta.com, hpa@transmeta.com,
-        linux-kernel@vger.kernel.org, tytso@MIT.EDU
-Subject: Re: Larger dev_t
-Message-ID: <20010403142024.Z8155@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <20010403120911.B4561@nightmaster.csn.tu-chemnitz.de> <E14kPZz-0007tk-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S131644AbRDCMXY>; Tue, 3 Apr 2001 08:23:24 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15365 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131386AbRDCMWZ>; Tue, 3 Apr 2001 08:22:25 -0400
+Subject: Re: Stuck: What to do with solid locks?
+To: pete.lkml@toscano.org (Pete Toscano)
+Date: Tue, 3 Apr 2001 13:24:01 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010403001611.A1519@bubba.toscano.org> from "Pete Toscano" at Apr 03, 2001 12:16:11 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <E14kPZz-0007tk-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Apr 03, 2001 at 01:06:33PM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14kPqt-0007wJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 03, 2001 at 01:06:33PM +0100, Alan Cox wrote:
-> Device numbers/names have to be constant in order to detect
-> disk layout changes across boots.
+> This is very frustrating.  I really, really want to be able to start
+> doing something on my workstation without having to worry everytime
+> about it crashing.
 
-Names stay constant, but why the NUMBERS? The names should stay
-constant and represent the actual layout on each busses (say:
-sane hierachic enumeration) of course.
+Then install 2.2.19. 2.4.x isnt stable yet. If you have the time then oopses
+and debugging data are wonderful if not then 2.2 is stable.
 
-But /dev/ide/host0/bus0/target0/lun0/part1 could get a new device
-number on every reboot, right?
 
-I'm sure, I'm missing some important usage of device of device
-numers here (not counting the ones listed already), but I don't
-know what ;-)
+Alan
 
-Otherwise it would be too easy to remove static major/minors and
-all the fun allocating them. And LANANA would have one thing less
-to worry about ;-)
-
-One thing I certainly miss: DevFS is not mandatory (yet).
-
-Thanks & Regards
-
-Ingo Oeser
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbVCAAwI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbVCAA4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261181AbVCAAwI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 19:52:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbVCAAsA
+	id S261178AbVCAA4T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 19:56:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVCAAyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 19:48:00 -0500
-Received: from pop.gmx.net ([213.165.64.20]:62615 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261168AbVCAAn2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 19:43:28 -0500
-X-Authenticated: #26200865
-Message-ID: <4223BB3B.4060309@gmx.net>
-Date: Tue, 01 Mar 2005 01:45:47 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.2) Gecko/20040906
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: updating mtime for char/block devices?
-References: <42225CEE.1030104@gmx.net> <1109576878.6298.49.camel@laptopd505.fenrus.org>
-In-Reply-To: <1109576878.6298.49.camel@laptopd505.fenrus.org>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Mon, 28 Feb 2005 19:54:12 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:15507 "EHLO
+	pd3mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S261157AbVCAAxQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 19:53:16 -0500
+Date: Mon, 28 Feb 2005 18:52:17 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Fw: 2.6.11-rc4 doubles CPU temperature
+In-reply-to: <3D15Y-7Ju-17@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <4223BCC1.10608@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <3D15Y-7Ju-17@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven schrieb:
-> On Mon, 2005-02-28 at 00:51 +0100, Carl-Daniel Hailfinger wrote:
+Ben Castricum wrote:
 > 
->>Hi,
->>
->>is it intentional that
->>echo foo >/dev/hda1
->>doesn't update the mtime of the device node, but
->>echo foo >/dev/tty10
->>does update the mtime of the device node?
->>
->>And no, mounting with the noatime flag doesn't help because the
->>mtime is updated. IIRC some time ago this behaviour was different,
->>but I could easily be mistaken.
+> For some weird reason, 2.6.11-rc4 up to the current BK tree about 
+> doubles my
+> CPU temperature from 20 degrees Celcius to 40 while everything else is
+> unchanged (load/processes/config). The system does seem a bit more 
+> sluggish,
+> but that may just be a feeling. A cat /proc/cpu gives me
 > 
-> 
-> devices are tricky in general in this respect, /dev may be mounted read
-> only for example ;)
+> processor       : 0
+> vendor_id       : GenuineIntel
+> cpu family      : 6
+> model           : 6
+> model name      : Celeron (Mendocino)
+> stepping        : 5
+> cpu MHz         : 475.100
 
-Sorry for not specifying my real problem which is preventing disk access
-when my laptop is running on battery.
+How are you determining this temperature? 20 degrees seems pretty 
+unlikely for any CPU, let alone a Mendocino Celeron - 40 degrees is more 
+reasonable..
 
-Can I prevent mtime updates for all device files? Mounting /dev readonly
-would certainly help, but for that to work I'd have to move /dev to a
-different filesystem, right?
-
-
-Regards,
-Carl-Daniel
--- 
-http://www.hailfinger.org/

@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271845AbRIMQrJ>; Thu, 13 Sep 2001 12:47:09 -0400
+	id <S271844AbRIMQqk>; Thu, 13 Sep 2001 12:46:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271847AbRIMQrE>; Thu, 13 Sep 2001 12:47:04 -0400
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:17157 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S271848AbRIMQqv>; Thu, 13 Sep 2001 12:46:51 -0400
-Date: Thu, 13 Sep 2001 18:39:28 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: torvalds@transmeta.com
-Subject: [x86-64 patch 7/11] Fix RIP register name collision in ixj.c
-Message-ID: <20010913183928.A2615@suse.cz>
+	id <S271836AbRIMQq3>; Thu, 13 Sep 2001 12:46:29 -0400
+Received: from tisch.mail.mindspring.net ([207.69.200.157]:14133 "EHLO
+	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S271834AbRIMQqW>; Thu, 13 Sep 2001 12:46:22 -0400
+Subject: Re: Linux-2.2.20pre10
+From: Robert Love <rml@tech9.net>
+To: Willy TARREAU <tarreau@aemiaif.lip6.fr>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E15hQTK-0002hd-00@aemiaif.lip6.fr>
+In-Reply-To: <E15hQTK-0002hd-00@aemiaif.lip6.fr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13.99+cvs.2001.09.12.07.08 (Preview Release)
+Date: 13 Sep 2001 12:46:39 -0400
+Message-Id: <1000399606.23162.22.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 2001-09-13 at 02:59, Willy TARREAU wrote:
+> Robert M. Love pointed out that the command line parse could forget arguments
+> if either MAX_INIT_ENVS or MAX_INIT_ARGS were reached, and his patch seems to
+> fix it correctly :
 
-This patch changes name of one *unused* struct field (RIP) in the ixj.c
-telephony driver to a different name (XRIP), because it collides with
-the RIP register name on the x86-64.
+I have posted posted this patch multiple times for 2.2 and 2.4, to no
+avail -- in fact, it seems no one even thinks this is a bug.
 
---- linux/drivers/telephony/ixj.h	Thu Sep 13 16:13:23 2001
-+++ linux-64-latest/drivers/telephony/ixj.h	Thu Sep 13 16:16:59 2001
-@@ -574,7 +574,7 @@
- 				struct _CR0_BITREGS {
- 					BYTE CLK_EXT:1;		/* cr0[0:0] */
- 
--					BYTE RIP:1;	/* cr0[1:1] */
-+					BYTE XRIP:1;	/* cr0[1:1] */
- 
- 					BYTE AR:1;	/* cr0[2:2] */
- 
+to me, it is pretty clear that hitting MAX_INIT_ENVS _or_ MAX_INIT_ARGS
+kills the parse_options loop, when that should not occur until both are
+hit -- thus, this patch switches the breaks to continues.
+
+thanks for noticing, I hope it is applied.
+
+> --- linux-2.2.19-wt5-OE/init/main.c     Sat Sep  8 23:11:00 2001
+> +++ linux-2.2.19-wt5-OF/init/main.c     Sat Sep  8 23:24:13 2001
+> @@ -1292,11 +1292,11 @@
+>                  */
+>  		if (strchr(line,'=')) {
+>  			if (envs >= MAX_INIT_ENVS)
+> -                               break;
+> +                               continue;
+>  			envp_init[++envs] = line;
+>   		} else {
+>  			if (args >= MAX_INIT_ARGS)
+> -                               break;
+> +                               continue;
+>   			argv_init[++args] = line;
+>  		}
+>  	}
+
 -- 
-Vojtech Pavlik
-SuSE Labs
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 

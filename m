@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132822AbRDPBP1>; Sun, 15 Apr 2001 21:15:27 -0400
+	id <S132828AbRDPBY7>; Sun, 15 Apr 2001 21:24:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132823AbRDPBPS>; Sun, 15 Apr 2001 21:15:18 -0400
-Received: from quechua.inka.de ([212.227.14.2]:25370 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S132822AbRDPBO7>;
-	Sun, 15 Apr 2001 21:14:59 -0400
-From: Bernd Eckenfels <W1012@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: fsck, raid reconstruction & bad bad 2.4.3
-In-Reply-To: <20010415195903.1D0F7683B@mail.clouddancer.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.36 (i686))
-Message-Id: <E14oxbX-0000oM-00@sites.inka.de>
-Date: Mon, 16 Apr 2001 03:14:59 +0200
+	id <S132823AbRDPBYs>; Sun, 15 Apr 2001 21:24:48 -0400
+Received: from zmailer.org ([194.252.70.162]:3090 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S132824AbRDPBYf>;
+	Sun, 15 Apr 2001 21:24:35 -0400
+Date: Mon, 16 Apr 2001 04:24:15 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: David Findlay <david_j_findlay@yahoo.com.au>
+Cc: "Mike A. Harris" <mharris@opensourceadvocate.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: IP Acounting Idea for 2.5
+Message-ID: <20010416042415.A805@mea-ext.zmailer.org>
+In-Reply-To: <Pine.LNX.4.33.0104152039130.1616-100000@asdf.capslock.lan> <01041708461209.00352@workshop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01041708461209.00352@workshop>; from david_j_findlay@yahoo.com.au on Tue, Apr 17, 2001 at 08:46:12AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010415195903.1D0F7683B@mail.clouddancer.com> you wrote:
->>(There is no config file to disable/alter this .. no work-around that I
->>know of ..)
+On Tue, Apr 17, 2001 at 08:46:12AM +1000, David Findlay wrote:
+> On Monday 16 April 2001 10:40, you wrote:
+> > Perhaps I misunderstand what it is exactly you are trying to do,
+> > but I would think that this could be done entirely in userland by
+> > software that just adds rules for you instead of you having to do
+> > it manually.
+> 
+> I suppose, but it would be so much easier if the kernel did it automatically. 
+> Having a rule to go through for each IP address to be logged would be slower 
+> than implementing one rule that would log all of them. Doing this in the 
+> kernel would improve preformance.
 
-> You can't be serious.  Go sit down and think about what's going on.
+	Perhaps "netflow" would be an answer ?
 
-Well, there are two potential solutions:
+	It is cisco idea for collecting accounting data for
+	network flows.   System has a cache of flows for
+	which it collects data, and once the cache overflows
+	(or flow times out), data is sent to designated flow
+	collection server(s).
 
-a) stop rebuild until fsck is fixed
-b) wait with fsck until rebuild is fixed
+http://www.cisco.com/warp/public/cc/pd/iosw/ioft/neflct/tech/napps_wp.htm
 
-Both of them are valid. The first one is valid in a scenario where you want to
-decrease downtimes in favor of insecure operation/or multiple redundancy
+> David
 
-The second one is good if you prefer data consitency over small down times. It
-might actually speed up the bootup process, one has to measure this.
-
-Greetings
-Bernd
+/Matti Aarnio

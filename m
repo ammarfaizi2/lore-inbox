@@ -1,85 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263892AbUDFPdM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 11:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUDFPdD
+	id S263869AbUDFPre (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 11:47:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263875AbUDFPre
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 11:33:03 -0400
-Received: from smtp1.wanadoo.fr ([193.252.22.30]:55859 "EHLO
-	mwinf0101.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S263881AbUDFPcT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 11:32:19 -0400
-Subject: Re: reiserfs errors with 2.6.5-rc1-mm2
-From: equi-NoX <equi-NoX@wanadoo.fr>
-To: Chris Mason <mason@suse.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1081254739.4993.82.camel@watt.suse.com>
-References: <1081228317.1636.64.camel@ender.WORKGROUP>
-	 <1081254739.4993.82.camel@watt.suse.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-AoGKimhwjolhhQXiPvcN"
-Message-Id: <1081265570.1636.98.camel@ender.WORKGROUP>
+	Tue, 6 Apr 2004 11:47:34 -0400
+Received: from uranus.md1.de ([217.160.177.133]:28295 "EHLO uranus.md1.de")
+	by vger.kernel.org with ESMTP id S263869AbUDFPra (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 11:47:30 -0400
+Date: Tue, 6 Apr 2004 17:45:10 +0200
+To: linux-kernel@vger.kernel.org
+Cc: kraxel@bytesex.org
+Subject: [PATCH] SAA5246A Teletext driver also works with SAA5281
+Message-ID: <20040406154510.GA2075@t-online.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 06 Apr 2004 15:32:50 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+From: linux@MichaelGeng.de (Michael Geng)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---=-AoGKimhwjolhhQXiPvcN
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+the SAA5246A Teletext processor driver also works for the
+SAA5281 (I am the author of this driver).
 
-On Tue, 2004-04-06 at 12:32, Chris Mason wrote:
-> On Tue, 2004-04-06 at 01:11, equi-NoX wrote:
-> > oops excuse me :/
-> >=20
-> > This is one, I can send you others whether you want.
->=20
-> Ok, you need to grab the latest reiserfsprogs from ftp.namesys.com and
-> run reiserfsck.
->=20
-> It's really strange that you've got so many messages about freeing a
-> block that is already free for the same two block numbers.  Please send
-> along the results of the reiserfsck when you're done.
->=20
-> -chris
->=20
+This is not surprising because according to the data sheet of 
+the SAA5281 it is compatible to the SAA5246A. But now I have 
+tested this with a Siemens Multimedia Extension Board (MXB).
 
-but I have already done that ;)
+The following patch only changes comments in 
+/drivers/media/video/Kconfig and in the sources of the driver.
 
-I ran fsck.reiserfs on 04/01, first I ran
-fsck.reiserfs /dev/hdb1
-then
-fsck.reiserfs --fix-fixable /dev/hdb1
+I also added MODULE_AUTHOR and MODULE_DESCRIPTION macros which
+were missing up to now.
 
-but it said me I had to rebuild tree to fix the errors, so I ran
-fsck.reiserfs --rebuild-tree /dev/hdb1
+Michael
 
-And that's ok now
-
-
-I discovered those reiserfs errors because I was not able to modify some
-datas on my /home (which is /dev/hdb1)
-
-I have other logs with reiserfs errors if you want.
-Moreover those errors *disappeared* since I use non-mm 2.6.5-rc3 kernel
-
-
-equi-NoX
---=20
-hoping helping
-
---=-AoGKimhwjolhhQXiPvcN
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAcs2hrEI/NqtpJI4RAvcSAJ9JmL5asTl8RlpCclMGHV9FGOTqqACgmVz+
-P/jrvO7HclLFBUNBS7STK+s=
-=CBgA
------END PGP SIGNATURE-----
-
---=-AoGKimhwjolhhQXiPvcN--
-
+diff -u -N linux-2.6.5/drivers/media/video/Kconfig linux/drivers/media/video/Kconfig
+--- linux-2.6.5/drivers/media/video/Kconfig	Sun Apr  4 05:38:16 2004
++++ linux/drivers/media/video/Kconfig	Mon Apr  5 21:25:31 2004
+@@ -112,11 +112,11 @@
+ 	  It is also available as a module (cpia_usb).
+ 
+ config VIDEO_SAA5246A
+-	tristate "SAA5246A Teletext processor"
++	tristate "SAA5246A, SAA5281 Teletext processor"
+ 	depends on VIDEO_DEV && I2C
+ 	help
+-	  Support for I2C bus based teletext using the SAA5246A chip. Useful
+-	  only if you live in Europe.
++	  Support for I2C bus based teletext using the SAA5246A or SAA5281 
++	  chip. Useful only if you live in Europe.
+ 
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called saa5246a.
+Common subdirectories: linux-2.6.5/drivers/media/video/cx88 and linux/drivers/media/video/cx88
+diff -u -N linux-2.6.5/drivers/media/video/saa5246a.c linux/drivers/media/video/saa5246a.c
+--- linux-2.6.5/drivers/media/video/saa5246a.c	Sun Apr  4 05:36:58 2004
++++ linux/drivers/media/video/saa5246a.c	Mon Apr  5 21:20:40 2004
+@@ -1,9 +1,10 @@
+ /*
+- * Driver for the SAA5246A videotext decoder chip from Philips.
++ * Driver for the SAA5246A or SAA5281 Teletext (=Videotext) decoder chips from 
++ * Philips.
+  *
+- * Only capturing of videotext pages is tested. The SAA5246A chip also has
+- * a TV output but my hardware doesn't use it. For this reason this driver
+- * does not support changing any TV display settings.
++ * Only capturing of Teletext pages is tested. The chip also has a TV output 
++ * but my hardware doesn't use it. For this reason this driver does not support 
++ * changing any TV display settings.
+  *
+  * Copyright (C) 2004 Michael Geng <linux@MichaelGeng.de>
+  *
+@@ -47,6 +48,10 @@
+ #include <linux/videodev.h>
+ #include "saa5246a.h"
+ 
++MODULE_AUTHOR("Michael Geng <linux@MichaelGeng.de>");
++MODULE_DESCRIPTION("Philips SAA5246A, SAA5281 Teletext decoder driver");
++MODULE_LICENSE("GPL");
++
+ struct saa5246a_device
+ {
+ 	u8     pgbuf[NUM_DAUS][VTX_VIRTUALSIZE];
+@@ -764,8 +769,8 @@
+ 
+ static int __init init_saa_5246a (void)
+ {
+-	printk(KERN_INFO "SAA5246A driver (" IF_NAME
+-		" interface) for VideoText version %d.%d\n",
++	printk(KERN_INFO 
++		"SAA5246A (or compatible) Teletext decoder driver version %d.%d\n",
+ 		MAJOR_VERSION, MINOR_VERSION);
+ 	return i2c_add_driver(&i2c_driver_videotext);
+ }
+@@ -796,5 +801,3 @@
+ 	.release  = video_device_release,
+ 	.minor    = -1,
+ };
+-
+-MODULE_LICENSE("GPL");
+diff -u -N linux-2.6.5/drivers/media/video/saa5246a.h linux/drivers/media/video/saa5246a.h
+--- linux-2.6.5/drivers/media/video/saa5246a.h	Sun Apr  4 05:37:39 2004
++++ linux/drivers/media/video/saa5246a.h	Mon Apr  5 21:20:30 2004
+@@ -1,5 +1,7 @@
+ /*
+-   Driver for the SAA5246A videotext decoder chip from Philips.
++   Driver for the SAA5246A or SAA5281 Teletext (=Videotext) decoder chips from 
++   Philips.
++
+    Copyright (C) 2004 Michael Geng (linux@MichaelGeng.de)
+ 
+    This program is free software; you can redistribute it and/or modify
+Common subdirectories: linux-2.6.5/drivers/media/video/saa7134 and linux/drivers/media/video/saa7134

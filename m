@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315503AbSIHXNv>; Sun, 8 Sep 2002 19:13:51 -0400
+	id <S315540AbSIHXQ0>; Sun, 8 Sep 2002 19:16:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315540AbSIHXNv>; Sun, 8 Sep 2002 19:13:51 -0400
-Received: from ns.suse.de ([213.95.15.193]:39685 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S315503AbSIHXNv>;
-	Sun, 8 Sep 2002 19:13:51 -0400
-Date: Mon, 9 Sep 2002 01:18:33 +0200
-From: Dave Jones <davej@suse.de>
-To: Daniel Mehrmann <daniel.mehrmann@gmx.de>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4/2.5] Athlon CFLAGS
-Message-ID: <20020909011833.B14358@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Daniel Mehrmann <daniel.mehrmann@gmx.de>, alan@lxorguk.ukuu.org.uk,
-	linux-kernel@vger.kernel.org
-References: <200209082128.11316.daniel.mehrmann@gmx.de>
+	id <S315634AbSIHXQ0>; Sun, 8 Sep 2002 19:16:26 -0400
+Received: from purple.csi.cam.ac.uk ([131.111.8.4]:63708 "EHLO
+	purple.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S315540AbSIHXQZ>; Sun, 8 Sep 2002 19:16:25 -0400
+Message-Id: <5.1.0.14.2.20020909001700.03fdee00@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 09 Sep 2002 00:21:10 +0100
+To: mingo@elte.hu, torvalds@transmeta.com
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: pinpointed: PANIC caused by dequeue_signal() in current Linus
+  BK tree
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20020908234145.03fdaec0@pop.cus.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200209082128.11316.daniel.mehrmann@gmx.de>; from daniel.mehrmann@gmx.de on Sun, Sep 08, 2002 at 09:28:11PM +0200
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 08, 2002 at 09:28:11PM +0200, Daniel Mehrmann wrote:
- > Hi Alan,
- > 
- > i add for the AMD Athlon family some optimize compilerflags. 
- > Gcc 3.1 and 3.2 support more specific Athlon instructions as 3.0 or 2.95x. 
- > This patch for 2.4.19, 2.4.20-pre5 and 2.5.33 set a new "-march" flag:
- > 
- > Athlon TB/Duron 		+= -march=athlon-tbird
- > Athlon XP/Athlon4/Duron	+= -march=athlon-xp
- > Athlon MP				+= -march=athlon-mp
+Hi,
 
-I thought these were all just gcc aliases for the same options ?
-It's been a while since I looked at the gcc option parser, so I've
-forgotten exactly what happens, but at least you missed the
-bogus athlon-4 option.
+I had a look and the panic actually happens in collect_signal() in here:
 
-Are the gains between all these options really worth the added
-complexity ?
+static inline int collect_signal(int sig, struct sigpending *list, 
+siginfo_t *info)
+{
+         if (sigismember(&list->signal, sig)) {
+                 /* Collect the siginfo appropriate to this signal.  */
+                 struct sigqueue *q, **pp;
+                 pp = &list->head;
+                 while ((q = *pp) != NULL) {
+q becomes 0x5a5a5a5a  ^^^^^^^^^
+                         if (q->info.si_signo == sig)
+0x5a5a5a5a is dereferenced ^^^^^^^^^^^^^^^^
+                                 goto found_it;
+                         pp = &q->next;
+                 }
 
-        Dave
+Hope this helps.
+
+Best regards,
+
+         Anton
+
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

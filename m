@@ -1,78 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290871AbSASCZf>; Fri, 18 Jan 2002 21:25:35 -0500
+	id <S290904AbSASCg4>; Fri, 18 Jan 2002 21:36:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290900AbSASCZ0>; Fri, 18 Jan 2002 21:25:26 -0500
-Received: from kwur.wustl.edu ([128.252.23.167]:6528 "EHLO kwur.wustl.edu")
-	by vger.kernel.org with ESMTP id <S290871AbSASCZH>;
-	Fri, 18 Jan 2002 21:25:07 -0500
-Subject: [OOPS] 2.4.18-pre3+preempt, AthlonXP/KT266A
-From: Tom Joseph <ttjoseph@cs.wustl.edu>
+	id <S290905AbSASCgq>; Fri, 18 Jan 2002 21:36:46 -0500
+Received: from insws8502.gs.com ([204.4.182.11]:14248 "HELO insws8502.gs.com")
+	by vger.kernel.org with SMTP id <S290904AbSASCgf>;
+	Fri, 18 Jan 2002 21:36:35 -0500
+Message-Id: <FBC7494738B7D411BD7F00902798761908BFF31F@gsny49e.ny.fw.gs.com>
+From: "Ahmed, Zameer" <Zameer.Ahmed@gs.com>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 18 Jan 2002 20:25:17 -0600
-Message-Id: <1011407117.25086.12.camel@idiot>
-Mime-Version: 1.0
+Cc: "'zameer.ahmed@gs.com'" <Zameer.Ahmed@gs.com>
+Subject: High uptime but unpredicatble behaviour (machine slowing), any way to fix without rebooting?
+Date: Fri, 18 Jan 2002 21:36:32 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The below oops seems to happen randomly while in XFree86 (4.1.0),
-generally after several hours of X running.  I have a VIA KT266A
-motherboard + Athlon XP.  I'm running Debian sid with 2.4.18-pre3 +
-Robert Love's preempt patch.
+Hi All,
+	I am running machine having 2.2.12 kernel and its been running under
+moderate loads for 313 days. But now I find the kernel behaving errtically
+including dumping core while running top and recovering sometimes. Any idea
+why the machine has such a high system load? I would want to make this
+machine run more longer time than to reboot. It would be a shame to reboot
+the machine. 
 
-I'd be happy to provide any other pertinent information.  Please CC me
-in replies as I'm not subscribed.  Thanks!
+Any suggestions most welcome.
 
---Tom Joseph
-
-Unable to handle kernel paging request at virtual address ff9ebfd8
-c013613c
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c013613c>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010283
-eax: cb4bb9c0   ebx: cb4bb9c0   ecx: cadd0000   edx: cd562978
-esi: c7dbd000   edi: ff335062   ebp: ff9ebfd0   esp: cadd1f20
-ds: 0018   es: 0018   ss: 0018
-Process XFree86 (pid: 18196, stackpage=cadd1000)
-Stack: c7dbd038 c7dbd000 c7dbd008 cadd1f74 c0143c3b 00000001 c3b97a40
-00000304 
-       c0143f9b cadd1f6c 00000020 00000008 cfaf5740 00000001 00000002
-cadd0000 
-       00002e9e 00000022 00000000 00000000 c7dbd000 00000000 c014431a
-00000022 
-Call Trace: [<c0143c3b>] [<c0143f9b>] [<c014431a>] [<c0106e4b>] 
-Code: 8b 75 08 ff 4b 14 0f 94 c0 84 c0 0f 84 cb 00 00 00 53 e8 4d 
-
->>EIP; c013613c <fput+c/f0>   <=====
-Trace; c0143c3a <poll_freewait+2a/50>
-Trace; c0143f9a <do_select+1fa/220>
-Trace; c014431a <sys_select+32a/470>
-Trace; c0106e4a <system_call+32/38>
-Code;  c013613c <fput+c/f0>
-00000000 <_EIP>:
-Code;  c013613c <fput+c/f0>   <=====
-   0:   8b 75 08                  mov    0x8(%ebp),%esi   <=====
-Code;  c013613e <fput+e/f0>
-   3:   ff 4b 14                  decl   0x14(%ebx)
-Code;  c0136142 <fput+12/f0>
-   6:   0f 94 c0                  sete   %al
-Code;  c0136144 <fput+14/f0>
-   9:   84 c0                     test   %al,%al
-Code;  c0136146 <fput+16/f0>
-   b:   0f 84 cb 00 00 00         je     dc <_EIP+0xdc> c0136218
-<fput+e8/f0>
-Code;  c013614c <fput+1c/f0>
-  11:   53                        push   %ebx
-Code;  c013614e <fput+1e/f0>
-  12:   e8 4d 00 00 00            call   64 <_EIP+0x64> c01361a0
-<fput+70/f0>
+Thanks
+Zameer A.
 
 
+% uname -a
+Linux cow.jany.gs.com 2.2.12 #7 SMP Tue Dec 7 16:43:39 EST 1999 i686 unknown
 
+  9:33pm  up 313 days,  6:33,  1 user,  load average: 0.00, 0.10, 0.08
+67 processes: 66 sleeping, 1 running, 0 zombie, 0 stopped
+CPU0 states:  0.0% user, 100.0% system,  0.0% nice,  0.0% idle
+CPU1 states:  0.0% user, 100.0% system,  0.0% nice,  0.0% idle
+Mem:   971864K av,  848148K used,  123716K free,   65196K shrd,  341820K
+buff
+Swap: 1542200K av,    5172K used, 1537028K free                   31960K
+cached
 
+  PID USER     PRI  NI  SIZE  RSS SHARE LC STAT %CPU %MEM   TIME COMMAND
+22009 ahmedz    11   0   896  896   684  0 R     6.4  0.0   0:00 top
+11085 procmon    1   0 89980  87M 12008  1 S     2.1  9.2   1:48 secexpr
+    1 root       0   0   164  116    92  1 S     0.0  0.0   0:05 init
+    2 root       0   0     0    0     0  1 SW    0.0  0.0   0:09 kflushd
+    3 root       0   0     0    0     0  0 SW    0.0  0.0  24:54 kupdate
+    4 root       0   0     0    0     0  1 SW    0.0  0.0   0:00 kpiod
+    5 root       0   0     0    0     0  1 SW    0.0  0.0  12:59 kswapd
+  391 bin        0   0   136   92    76  0 S     0.0  0.0   0:01 portmap
+  437 root       0   0   396  384   296  1 S     0.0  0.0   3:19 syslogd
+  447 root       0   0   448  168   136  0 S     0.0  0.0   0:03 klogd
+  461 daemon     0   0   140  104    76  0 S     0.0  0.0   0:01 atd
+  474 root       0   0   152  108    80  1 S     0.0  0.0   1:23 crond
+  487 root       0   0   148   96    36  1 S     0.0  0.0   0:03 inetd
+  500 root       0   0  1052  480   356  1 S     0.0  0.0  17:54 named
+  513 root       0   0   292  268   168  1 S     0.0  0.0  94:27 routed
+  528 root       0   0  1356 1356  1164  0 S     0.0  0.1  50:55 xntpd

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267409AbSKQLP3>; Sun, 17 Nov 2002 06:15:29 -0500
+	id <S267484AbSKQLgW>; Sun, 17 Nov 2002 06:36:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267484AbSKQLP3>; Sun, 17 Nov 2002 06:15:29 -0500
-Received: from 2-103.ctame701-2.telepar.net.br ([200.181.170.103]:27404 "EHLO
+	id <S267485AbSKQLgW>; Sun, 17 Nov 2002 06:36:22 -0500
+Received: from 2-103.ctame701-2.telepar.net.br ([200.181.170.103]:33804 "EHLO
 	brinquendo.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S267409AbSKQLP1>; Sun, 17 Nov 2002 06:15:27 -0500
-Date: Sun, 17 Nov 2002 09:22:13 -0200
+	id <S267484AbSKQLgU>; Sun, 17 Nov 2002 06:36:20 -0500
+Date: Sun, 17 Nov 2002 09:43:07 -0200
 From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Christoph Hellwig <hch@lst.de>, Matthew Wilcox <willy@debian.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] smbfs: fix up header file cleanups
-Message-ID: <20021117112213.GB28051@conectiva.com.br>
+Subject: [PATCH] dquot: fix up header file cleanups
+Message-ID: <20021117114307.GB28227@conectiva.com.br>
 Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
 	Linus Torvalds <torvalds@transmeta.com>,
 	Christoph Hellwig <hch@lst.de>, Matthew Wilcox <willy@debian.org>,
@@ -41,46 +41,46 @@ You can import this changeset into BK by piping this whole message to:
 ===================================================================
 
 
-ChangeSet@1.852, 2002-11-17 09:19:49-02:00, acme@conectiva.com.br
+ChangeSet@1.853, 2002-11-17 09:41:00-02:00, acme@conectiva.com.br
   Fix up after header file cleanups: add <linux/mount.h> to
-  smbfs that got it implicitly before.
+  dquot that got it implicitly before.
 
 
- inode.c |    1 +
+ dquot.c |    1 +
  1 files changed, 1 insertion(+)
 
 
-diff -Nru a/fs/smbfs/inode.c b/fs/smbfs/inode.c
---- a/fs/smbfs/inode.c	Sun Nov 17 09:20:34 2002
-+++ b/fs/smbfs/inode.c	Sun Nov 17 09:20:34 2002
-@@ -22,6 +22,7 @@
- #include <linux/smp_lock.h>
- #include <linux/nls.h>
- #include <linux/seq_file.h>
+diff -Nru a/fs/dquot.c b/fs/dquot.c
+--- a/fs/dquot.c	Sun Nov 17 09:41:20 2002
++++ b/fs/dquot.c	Sun Nov 17 09:41:20 2002
+@@ -55,6 +55,7 @@
+ #include <linux/errno.h>
+ #include <linux/kernel.h>
+ #include <linux/fs.h>
 +#include <linux/mount.h>
- 
- #include <linux/smb_fs.h>
- #include <linux/smbno.h>
+ #include <linux/mm.h>
+ #include <linux/time.h>
+ #include <linux/types.h>
 
 ===================================================================
 
 
 This BitKeeper patch contains the following changesets:
-1.852
+1.853
 ## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch19294
-M'XL(`()[UST``]V4;VO;,!#&7T>?XB`O1VR=+#NQ64K6[B\M+&3T`\C2.3:U
-MK6#+60O^\-6RM1UI1EG9J]D2!M_I])R>'YK"=4]=-E&Z(3:%S[9WV43;EK2K
-M]BK0M@GRS@<VUOI`6-J&PO/+L&IU/1CJ9R*(F0^OE=,E[*GKLPD&T>,?=[>C
-M;++Y\.GZZMV&L>42+DK5;ND;.5@NF;/=7M6F7RE7UK8-7*?:OB%WV'A\3!T%
-MY\*_,<XC'B<C)ES.1XT&44DDPX5<))+]Z&%UK/VH"B+._4Q1CLAEG++W@,$B
-M%L!%B!CB''B:89K)=,9%QCF<+`IO$&:<G<._;>"":?A8W<*P`U4XZJ`D9?RG
-MJ&H"79-JAUV?@3(&WM95.]R&C1U:%Y1G7HA?VS=YT8,KE8.M=5#YT>SJ2E>N
-MOH.<"MM1P"[!-SY/V/K)"C;[RX<QKC@[>Z']H@\/BCPMUE"@?S^%-%J,`B.Y
-M&*DP>;$046HH+O*"3I_XZ6(/;DHY)C)*Y8&PX\R707N=4)9O/>]N92K3.C/H
-MF\!VVS_HY-POC(6W/O'%X@-UD7P&G?Q_H?OISU>8==\/PT.T?F;5*T#\(B0@
-?F_ZZD(XE/MU-NB1]TP_-$@N5)+%$=@_%$&*8^P0`````
+begin 664 bkpatch3735
+M'XL(`&"`UST``]U476^;,!1]CG_%E?(X`;[&!H)&E;7[5"<MRM2G:0^N,0$5
+M,`.3M1(_?F[2-EU6J>JTI_G;OO;QN;Y'GL/%H/MT)E6CR1P^FL&F,V5:K6RU
+ME;XRC7_9.\/:&&<(2M/HX/0\J%I5C[D>/.8+XLPK:54)6]T/Z0S]\&'%WG0Z
+MG:W??;CX_&9-2);!62G;C?ZJ+609L:;?RCH?EM*6M6E]V\MV:+3=73P];)T8
+MI<QE@7%(131A1'D\*<P1)4>=4\:3B)-;'Y;'W(]0$#%V=<$7$SJ0B+P%]!,1
+M`F4!8H`QT$7*,:74H\RU\"0HO$+P*#F%?^O`&5'POKJ&L0-96-U#J67NNJ*J
+M-:A:RW;LAA1DGL/KNFK'ZZ`Q8VO]\L01<6?S'Z.Q8$MI8>,&E2M-5U>JLO4-
+M7.K"]-HGYX"4Q@E9'4)!O!<F0JBDY.09]XLAV#'RU6/_%V$R81B*<-*,N@F3
+M,A&11!$]_=;',/L(<BKB2="$BYVJ#GN>E]5+:1%YU37+O-IH<WO^VSWZ]S^8
+M40Q9*!+.)IZ(9*\MOOA=6C05\?\KK7U$OH#7_]P5)Y75H^#\A=`^B1B0S.\^
+<G&-RA[]'E5I=#6.31:I0(F81^05+41]6VP0`````
 `
 end

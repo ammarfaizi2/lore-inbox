@@ -1,54 +1,107 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317367AbSFGXwN>; Fri, 7 Jun 2002 19:52:13 -0400
+	id <S317364AbSFGXuS>; Fri, 7 Jun 2002 19:50:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317368AbSFGXwM>; Fri, 7 Jun 2002 19:52:12 -0400
-Received: from wotug.org ([194.106.52.201]:10852 "EHLO gatemaster.ivimey.org")
-	by vger.kernel.org with ESMTP id <S317367AbSFGXwL>;
-	Fri, 7 Jun 2002 19:52:11 -0400
-Date: Sat, 8 Jun 2002 00:51:59 +0100 (BST)
-From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-X-X-Sender: ruthc@sharra.ivimey.org
-To: george anzinger <george@mvista.com>
-cc: ashieh@OCF.Berkeley.EDU, <linux-kernel@vger.kernel.org>
-Subject: Re: gettimeofday clock jump bug
-In-Reply-To: <3D012188.7B6ADC9F@mvista.com>
-Message-ID: <Pine.LNX.4.44.0206080046420.19463-100000@sharra.ivimey.org>
+	id <S317365AbSFGXuR>; Fri, 7 Jun 2002 19:50:17 -0400
+Received: from [193.87.76.14] ([193.87.76.14]:17352 "HELO kerberos.ynet.sk")
+	by vger.kernel.org with SMTP id <S317364AbSFGXuQ>;
+	Fri, 7 Jun 2002 19:50:16 -0400
+Date: Sat, 8 Jun 2002 01:52:23 +0200 (CEST)
+From: Tomas Vanderka <vanto@ynet.sk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel meltdown
+Message-ID: <Pine.LNX.4.44.0206080135310.16213-200000@marvin.ynet.sk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811740-1989807884-1023493943=:16213"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-ashieh@OCF.Berkeley.EDU wrote:
-> time() occasionally returns a
->bogus value (>1 hour jump forward, and a few microseconds later jumps back to
->the right time) on my box (Thunderbird 750, Asus K7V (KX133) kernel 2.4.17).
->This behavior sets in after the box is up for some period of time. I don't
->think this is related to the 686a configuration reset bug.
->
-On Fri, 7 Jun 2002, george anzinger wrote:
->I suspect that do_gettimeoffset() may be, on occasion,
->returning a negative number.  The normalizing code then
->works with this (unsigned) value until it is < 1,000,000. 
->If it came back as -1, this would generate an error of about
->1.19 hours.  I suspect the best fix would be to test the
->result from do_gettimeoffset() for something greater than
->say 20ms and if so set it to 0.
+---1463811740-1989807884-1023493943=:16213
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-I've just looked at the i386 time.c source and can see no obvious way for -1
-to be returned by do_gettimeoffset(). I note that this error is fixed in the
-next time() call, so I would instead expect the error to be one involving the 
-conversion of tv_secs/tv_usecs into the seconds return from time().
+Hi,
+yesterday morning I got almost the same oops and kernel BUG at 
+slab.c:1794! I am running an up box so It's not an smp problem i think.
+(I have lot of oopses since I added one hdd and changed raid0 to raid5. 
+aren't you using stuff like raid, lvm or reiserfs?)
+Just sent this because it looks like the same problem
 
-One possible way to check this out would be to change the test program from
-using the time() call to using gettimeofday(), and to ignore tv_usecs.
+VanTo
 
-Hope this helps,
+---1463811740-1989807884-1023493943=:16213
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=7d
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0206080152230.16213@marvin.ynet.sk>
+Content-Description: 
+Content-Disposition: attachment; filename=7d
 
-Ruth
-
--- 
-Ruth Ivimey-Cook
-Software engineer and technical writer.
-
+a3N5bW9vcHMgMi40LjUgb24gaTY4NiAyLjQuMTktcHJlOS1hYTIuICBPcHRp
+b25zIHVzZWQNCiAgICAgLVYgKGRlZmF1bHQpDQogICAgIC1LIChzcGVjaWZp
+ZWQpDQogICAgIC1sIC9wcm9jL21vZHVsZXMgKGRlZmF1bHQpDQogICAgIC1v
+IC9saWIvbW9kdWxlcy8yLjQuMTktcHJlOS1hYTIvIChkZWZhdWx0KQ0KICAg
+ICAtbSAvYm9vdC9TeXN0ZW0ubWFwLTIuNC4xOS1wcmU5LWFhMiAoc3BlY2lm
+aWVkKQ0KDQpObyBtb2R1bGVzIGluIGtzeW1zLCBza2lwcGluZyBvYmplY3Rz
+DQpObyBrc3ltcywgc2tpcHBpbmcgbHNtb2QNCmtlcm5lbCBCVUcgYXQgc2xh
+Yi5jOjE3OTQhDQppbnZhbGlkIG9wZXJhbmQ6IDAwMDANCkNQVTogICAgMA0K
+RUlQOiAgICAwMDEwOls8YzAxMmZjMzc+XSAgICBOb3QgdGFpbnRlZA0KVXNp
+bmcgZGVmYXVsdHMgZnJvbSBrc3ltb29wcyAtdCBlbGYzMi1pMzg2IC1hIGkz
+ODYNCkVGTEFHUzogMDAwMTAwMDINCmVheDogYmZmZmJmZmYgICBlYng6IDAw
+MDAwMDAwICAgZWN4OiAwMDAwMDA0MCAgIGVkeDogYzE4NGYyNjgNCmVzaTog
+MDAwMDAwMDUgICBlZGk6IGMxODRmMmUwICAgZWJwOiBlZmZlNWY1MCAgIGVz
+cDogZWZmZTVmMzANCmRzOiAwMDE4ICAgZXM6IDAwMTggICBzczogMDAxOA0K
+UHJvY2VzcyBrc3dhcGQgKHBpZDogNSwgc3RhY2twYWdlPWVmZmU1MDAwKQ0K
+U3RhY2s6IGMxODRmMjU4IDAwMDAwMDAwIDAwMDAwMDA2IDAwMDAwMDAyIDAw
+MDAwMDAyIDAwMDAwMDIwIDAwMDAwMWQwIGMwMjUwMzEwIA0KICAgICAgIGVm
+ZmU1ZjY0IGMwMTMwZTgzIDAwMDAwMDNjIDAwMDAwMWQwIDAwMDAwMDIwIGVm
+ZmU1ZjhjIGMwMTMwZjFmIGVmZmU1ZjdjIA0KICAgICAgIGVmZmU1ZjdjIDAw
+MDAwMDAwIGMwMjUwMzEwIDAwMDAwMDAwIGMwMjUwMzEwIDAwMDAwMDAxIGVm
+ZmU0MDAwIGVmZmU1ZmE0IA0KQ2FsbCBUcmFjZTogWzxjMDEzMGU4Mz5dIFs8
+YzAxMzBmMWY+XSBbPGMwMTMxMDdiPl0gWzxjMDEzMTBmNj5dIFs8YzAxMzEy
+NGY+XSANCiAgIFs8YzAxMDhhMDg+XSBbPGMwMTMxMWIwPl0gWzxjMDEwNTAw
+MD5dIFs8YzAxMDcyMDY+XSBbPGMwMTMxMWIwPl0gDQpDb2RlOiAwZiAwYiAw
+MiAwNyBlMCBlOCAyMSBjMCA4YiAwMCA0NiAzOSBkMCA3NSBlYSA4YiA0NSBl
+MCA4OSBmMiANCg0KDQo+PkVJUDsgYzAxMmZjMzcgPGttZW1fY2FjaGVfcmVh
+cCtlNy8yMDA+ICAgPD09PT09DQoNCj4+ZWF4OyBiZmZmYmZmZiBCZWZvcmUg
+Zmlyc3Qgc3ltYm9sDQo+PmVkeDsgYzE4NGYyNjggPEVORF9PRl9DT0RFKzE1
+NWU3OTQvPz8/Pz4NCj4+ZWRpOyBjMTg0ZjJlMCA8RU5EX09GX0NPREUrMTU1
+ZTgwYy8/Pz8/Pg0KPj5lYnA7IGVmZmU1ZjUwIDxFTkRfT0ZfQ09ERSsyZmNm
+NTQ3Yy8/Pz8/Pg0KPj5lc3A7IGVmZmU1ZjMwIDxFTkRfT0ZfQ09ERSsyZmNm
+NTQ1Yy8/Pz8/Pg0KDQpUcmFjZTsgYzAxMzBlODMgPHNocmlua19jYWNoZXMr
+MTMvNDA+DQpUcmFjZTsgYzAxMzBmMWYgPHRyeV90b19mcmVlX3BhZ2VzKzZm
+LzEwMD4NClRyYWNlOyBjMDEzMTA3YiA8a3N3YXBkX2JhbGFuY2VfcGdkYXQr
+NmIvYzA+DQpUcmFjZTsgYzAxMzEwZjYgPGtzd2FwZF9iYWxhbmNlKzI2LzUw
+Pg0KVHJhY2U7IGMwMTMxMjRmIDxrc3dhcGQrOWYvYzA+DQpUcmFjZTsgYzAx
+MDhhMDggPHJldF9mcm9tX2ZvcmsrMC8xOD4NClRyYWNlOyBjMDEzMTFiMCA8
+a3N3YXBkKzAvYzA+DQpUcmFjZTsgYzAxMDUwMDAgPF9zdGV4dCswLzA+DQpU
+cmFjZTsgYzAxMDcyMDYgPGtlcm5lbF90aHJlYWQrMjYvNDA+DQpUcmFjZTsg
+YzAxMzExYjAgPGtzd2FwZCswL2MwPg0KDQpDb2RlOyAgYzAxMmZjMzcgPGtt
+ZW1fY2FjaGVfcmVhcCtlNy8yMDA+DQowMDAwMDAwMCA8X0VJUD46DQpDb2Rl
+OyAgYzAxMmZjMzcgPGttZW1fY2FjaGVfcmVhcCtlNy8yMDA+ICAgPD09PT09
+DQogICAwOiAgIDBmIDBiICAgICAgICAgICAgICAgICAgICAgdWQyYSAgICAg
+IDw9PT09PQ0KQ29kZTsgIGMwMTJmYzM5IDxrbWVtX2NhY2hlX3JlYXArZTkv
+MjAwPg0KICAgMjogICAwMiAwNyAgICAgICAgICAgICAgICAgICAgIGFkZCAg
+ICAoJWVkaSksJWFsDQpDb2RlOyAgYzAxMmZjM2IgPGttZW1fY2FjaGVfcmVh
+cCtlYi8yMDA+DQogICA0OiAgIGUwIGU4ICAgICAgICAgICAgICAgICAgICAg
+bG9vcG5lIGZmZmZmZmVlIDxfRUlQKzB4ZmZmZmZmZWU+IGMwMTJmYzI1IDxr
+bWVtX2NhY2hlX3JlYXArZDUvMjAwPg0KQ29kZTsgIGMwMTJmYzNkIDxrbWVt
+X2NhY2hlX3JlYXArZWQvMjAwPg0KICAgNjogICAyMSBjMCAgICAgICAgICAg
+ICAgICAgICAgIGFuZCAgICAlZWF4LCVlYXgNCkNvZGU7ICBjMDEyZmMzZiA8
+a21lbV9jYWNoZV9yZWFwK2VmLzIwMD4NCiAgIDg6ICAgOGIgMDAgICAgICAg
+ICAgICAgICAgICAgICBtb3YgICAgKCVlYXgpLCVlYXgNCkNvZGU7ICBjMDEy
+ZmM0MSA8a21lbV9jYWNoZV9yZWFwK2YxLzIwMD4NCiAgIGE6ICAgNDYgICAg
+ICAgICAgICAgICAgICAgICAgICBpbmMgICAgJWVzaQ0KQ29kZTsgIGMwMTJm
+YzQyIDxrbWVtX2NhY2hlX3JlYXArZjIvMjAwPg0KICAgYjogICAzOSBkMCAg
+ICAgICAgICAgICAgICAgICAgIGNtcCAgICAlZWR4LCVlYXgNCkNvZGU7ICBj
+MDEyZmM0NCA8a21lbV9jYWNoZV9yZWFwK2Y0LzIwMD4NCiAgIGQ6ICAgNzUg
+ZWEgICAgICAgICAgICAgICAgICAgICBqbmUgICAgZmZmZmZmZjkgPF9FSVAr
+MHhmZmZmZmZmOT4gYzAxMmZjMzAgPGttZW1fY2FjaGVfcmVhcCtlMC8yMDA+
+DQpDb2RlOyAgYzAxMmZjNDYgPGttZW1fY2FjaGVfcmVhcCtmNi8yMDA+DQog
+ICBmOiAgIDhiIDQ1IGUwICAgICAgICAgICAgICAgICAgbW92ICAgIDB4ZmZm
+ZmZmZTAoJWVicCksJWVheA0KQ29kZTsgIGMwMTJmYzQ5IDxrbWVtX2NhY2hl
+X3JlYXArZjkvMjAwPg0KICAxMjogICA4OSBmMiAgICAgICAgICAgICAgICAg
+ICAgIG1vdiAgICAlZXNpLCVlZHgNCg0K
+---1463811740-1989807884-1023493943=:16213--

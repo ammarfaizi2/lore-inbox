@@ -1,58 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264788AbSJaIwk>; Thu, 31 Oct 2002 03:52:40 -0500
+	id <S264772AbSJaIrO>; Thu, 31 Oct 2002 03:47:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264791AbSJaIwk>; Thu, 31 Oct 2002 03:52:40 -0500
-Received: from mail.michigannet.com ([208.49.116.30]:1042 "EHLO
-	member.michigannet.com") by vger.kernel.org with ESMTP
-	id <S264788AbSJaIwi>; Thu, 31 Oct 2002 03:52:38 -0500
-Date: Thu, 31 Oct 2002 03:58:56 -0500
-From: Paul <set@pobox.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.45
-Message-ID: <20021031085856.GF7170@squish.home.loc>
-Mail-Followup-To: Paul <set@pobox.com>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0210301651120.6719-100000@penguin.transmeta.com> <20021031013724.GG2073@asus.verdurin.priv> <3DC08C37.6060909@pobox.com>
+	id <S264787AbSJaIrO>; Thu, 31 Oct 2002 03:47:14 -0500
+Received: from port326.ds1-brh.adsl.cybercity.dk ([217.157.160.207]:30307 "EHLO
+	mail.jaquet.dk") by vger.kernel.org with ESMTP id <S264772AbSJaIrN>;
+	Thu, 31 Oct 2002 03:47:13 -0500
+Date: Thu, 31 Oct 2002 09:53:32 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_TINY
+Message-ID: <20021031095332.F5815@jaquet.dk>
+References: <20021030233605.A32411@jaquet.dk> <20021031083205.GC833@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="yH1ZJFh+qWm+VodA"
 Content-Disposition: inline
-In-Reply-To: <3DC08C37.6060909@pobox.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021031083205.GC833@suse.de>; from axboe@suse.de on Thu, Oct 31, 2002 at 09:32:05AM +0100
+X-PGP-Key: http://www.jaquet.dk/rasmus/pubkey.asc
+X-PGP-Fingerprint: 925A 8E4B 6D63 1C22 BFB9  29CF 9592 4049 9E9E 26CE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com>, on Wed Oct 30, 2002 [08:49:43 PM] said:
-> Adam Huffman wrote:
-> 
-> > gcc -Wp,-MD,drivers/md/.dm-ioctl.o.d -D__KERNEL__ -Iinclude -Wall
-> >-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
-> >-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
-> >-march=athlon -Iarch/i386/mach-generic -nostdinc -iwithprefix include
-> >-DKBUILD_BASENAME=dm_ioctl   -c -o drivers/md/dm-ioctl.o
-> >drivers/md/dm-ioctl.c
-> >drivers/md/dm-ioctl.c: In function `create':
-> >drivers/md/dm-ioctl.c:588: incompatible type for argument 1 of
-> >`set_device_ro'
-> >drivers/md/dm-ioctl.c: In function `reload':
-> >drivers/md/dm-ioctl.c:874: incompatible type for argument 1 of
-> >`set_device_ro'
-> >make[2]: *** [drivers/md/dm-ioctl.o] Error 1
-> >make[1]: *** [drivers/md] Error 2
-> >make: *** [drivers] Error 2
-> > 
-> >
-> 
-> 
-> yeah, don't use it for now, it needs more cleanups.
-> 
-> 
-	Hi;
 
-	I need lvm to test this kernel series. I am not using
-md stuff, but this is where it breaks for me too. If there
-are corrective patches, please let us know...
+--yH1ZJFh+qWm+VodA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Paul
-set@pobox.com
+On Thu, Oct 31, 2002 at 09:32:05AM +0100, Jens Axboe wrote:
+> On Wed, Oct 30 2002, Rasmus Andersen wrote:
+> >  o noswap: Disabling swap by stubbing out all of swapfile.c,
+> >    swap_stat.c, page_io.c, highmem.c and some of memory.c.=20
+> >    Patch at: www.jaquet.dk/kernel/config_tiny/2.5.44-noswap
+>=20
+> You can't stub out all of highmem.c, it's also used for bounce io
+> (highmem as well as isa for > 16mb adresses)
+
+OK, I missed the ISA > 16MB stuff. I have a look at it again.
+I don't think that people is going to have CONFIG_HIGHMEM
+and CONFIG_TINY on at the same time anyways (could be expressed
+explicitly, though).
+
+Thanks for your comments,
+  Rasmus
+
+--yH1ZJFh+qWm+VodA
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE9wO+MlZJASZ6eJs4RArkSAKCC0q3daMzoZQekr/q2IbUGHo4T1wCfZ6jO
+t/HLZrcxL3fQK9rSJtFexI8=
+=LADP
+-----END PGP SIGNATURE-----
+
+--yH1ZJFh+qWm+VodA--

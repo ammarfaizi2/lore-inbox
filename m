@@ -1,39 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262994AbVCKAki@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262718AbVCKAkA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262994AbVCKAki (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 19:40:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263303AbVCKAkg
+	id S262718AbVCKAkA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 19:40:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbVCKAhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 19:40:36 -0500
-Received: from fire.osdl.org ([65.172.181.4]:62881 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262994AbVCKAkJ (ORCPT
+	Thu, 10 Mar 2005 19:37:48 -0500
+Received: from ozlabs.org ([203.10.76.45]:2526 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262806AbVCKAgW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 19:40:09 -0500
-Date: Thu, 10 Mar 2005 16:39:56 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christian Kujau <evil@g-house.de>
-Cc: linux-kernel@vger.kernel.org, elenstev@mesatop.com, mauriciolin@gmail.com
-Subject: Re: oom with 2.6.11
-Message-Id: <20050310163956.0a5ff1d7.akpm@osdl.org>
-In-Reply-To: <423063DB.40905@g-house.de>
-References: <422DC2F1.7020802@g-house.de>
-	<3f250c710503090518526d8b90@mail.gmail.com>
-	<3f250c7105030905415cab5192@mail.gmail.com>
-	<422F016A.2090107@g-house.de>
-	<423063DB.40905@g-house.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 10 Mar 2005 19:36:22 -0500
+Date: Fri, 11 Mar 2005 11:11:20 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Ingo Oeser <ioe-lkml@axxeo.de>
+Cc: Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+       Paul Mackerras <paulus@samba.org>, linuxppc64-dev@lists.linuxppc.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PPC64] Allow emulation of mfpvr on ppc64 kernel
+Message-ID: <20050311001120.GA6512@localhost.localdomain>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Ingo Oeser <ioe-lkml@axxeo.de>, Andrew Morton <akpm@osdl.org>,
+	Anton Blanchard <anton@samba.org>, Paul Mackerras <paulus@samba.org>,
+	linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
+References: <20050310021848.GD30435@localhost.localdomain> <200503102317.04027.ioe-lkml@axxeo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503102317.04027.ioe-lkml@axxeo.de>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Kujau <evil@g-house.de> wrote:
->
-> i was going to compile 2.6.11-rc5-bk4, to sort out the "bad" kernel.
-> compiling went fine. ok, finished some email, ok, suddenly my swap was
-> used up again, and no memory left - uh oh! OOM again, with 2.6.11-rc5-bk2!
+On Thu, Mar 10, 2005 at 11:17:03PM +0100, Ingo Oeser wrote:
+> David Gibson wrote:
+> > Andrew, please apply.
+> >
+> > Allow userspace programs on ppc64 to use the (privileged) mfpvr
+> > instruction to determine the processor type.  At the moment it
+> > emulates the instruction to provide the real PVR value, though it
+> > could be made to lie in future if for some reason we wish to restrict
+> > what CPU features userspace uses.
+> 
+> Why not putting the required information into the AUX table
+> when executing your ELF programs? I loved this feature in the
+> ix86 arch.
 
-Well if you ran out of swap then yes, the oom-killer will visit you.
+Because this is easy and is the way we already do it on ppc32..?
 
-Why did you run out of swapspace?
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist.  NOT _the_ _other_ _way_
+				| _around_!
+http://www.ozlabs.org/people/dgibson

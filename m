@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264855AbUBNGy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 01:54:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264889AbUBNGy7
+	id S264889AbUBNHKW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 02:10:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbUBNHKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 01:54:59 -0500
-Received: from h0060089601a0.ne.client2.attbi.com ([24.34.92.88]:56290 "EHLO
-	sevoog.kriation.com") by vger.kernel.org with ESMTP id S264855AbUBNGy6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 01:54:58 -0500
-Date: Sat, 14 Feb 2004 01:54:59 -0500
-From: Armen Kaleshian <akaleshian@kriation.com>
-To: ameer armaly <ameer@charter.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel boot order
-Message-ID: <20040214065459.GA18235@sevoog.kriation.com>
-References: <Pine.LNX.4.58.0402132237320.14412@debian>
+	Sat, 14 Feb 2004 02:10:22 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:10963 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264889AbUBNHKV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Feb 2004 02:10:21 -0500
+Date: Fri, 13 Feb 2004 23:06:15 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: jt@hpl.hp.com
+Cc: jt@bougret.hpl.hp.com, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
+       shemminger@osdl.org
+Subject: Re: [PATCH 2.6 IrDA] new driver : stir4200
+Message-Id: <20040213230615.5849145c.davem@redhat.com>
+In-Reply-To: <20040214015059.GA25979@bougret.hpl.hp.com>
+References: <20040214015059.GA25979@bougret.hpl.hp.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402132237320.14412@debian>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What do you mean by what parts? The kernel enables your system devices, and then
-other services are started based on what you have specified to start at the run
-level you've set the machine to boot to.
+On Fri, 13 Feb 2004 17:50:59 -0800
+Jean Tourrilhes <jt@bougret.hpl.hp.com> wrote:
 
-Please clarify your question so that I may better answer it.
+> 	After a long maturation, this is time to send you the latest
+> version of the stir4200 USB driver. Initially started by Paul Stewart,
+> modified by Martin Diehl and me, and later partially rewriten by
+> Stephen Hemminger.
+ ...
+> 	Would you mind pushing that to Linus ?
 
---Armen
+I'll queue this up for 2.6.4-pre1, thanks.
 
-On Fri, Feb 13, 2004 at 10:39:11PM -0500, ameer armaly wrote:
-: Hi all.
-: What determines the order in which parts of the kernel are loaded?  Is it
-: in main.c or omsething like that or is it in the link order, or something
-: totally different.
-: Please reply privately to me at ameer@charter.net since I can't handle 300
-: msgs a day.
-: Thanks,
-: 
-: 
-: 
-: Ameer
-: 
-: -
-: To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-: the body of a message to majordomo@vger.kernel.org
-: More majordomo info at  http://vger.kernel.org/majordomo-info.html
-: Please read the FAQ at  http://www.tux.org/lkml/
+If you address Al Viro's concerns, just send me a relative patch with the
+fix.  Thanks again.

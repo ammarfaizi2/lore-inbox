@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132895AbREFF3Y>; Sun, 6 May 2001 01:29:24 -0400
+	id <S132958AbREFGDD>; Sun, 6 May 2001 02:03:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132898AbREFF3O>; Sun, 6 May 2001 01:29:14 -0400
-Received: from smarty.smart.net ([207.176.80.102]:26121 "EHLO smarty.smart.net")
-	by vger.kernel.org with ESMTP id <S132895AbREFF3B>;
-	Sun, 6 May 2001 01:29:01 -0400
-From: Rick Hohensee <humbubba@smarty.smart.net>
-Message-Id: <200105060357.XAA29873@smarty.smart.net>
-Subject: Re: inserting a Forth-like language into the Linux kernel
+	id <S132959AbREFGCx>; Sun, 6 May 2001 02:02:53 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:19475 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S132958AbREFGCk>;
+	Sun, 6 May 2001 02:02:40 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
-Date: Sat, 5 May 2001 23:57:01 -0400 (EDT)
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Announce: modutils 2.4.6 is available 
+Date: Sun, 06 May 2001 16:02:35 +1000
+Message-ID: <819.989128955@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kspamd/H3sm is now making continuous writes to tty1 from an 
-in-kernel thread. It was locking on a write to /dev/console by
-init, so I made /dev/console a plain file. This is after 
-hollowing out sys_syslog to be a null routine, and various 
-other minor destruction.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I am now typing at you on tty4 or so while the kernel itself 
-sends an endless stream of d's to tty1. It will scroll-lock 
-and un-scroll-lock, which is how I can tell it's not just a 
-static screen of d's.
+Content-Type: text/plain; charset=us-ascii
 
-I don't know about H1 S&M, but the ability to open a tty
-normally directly into kernelspace may prove popular, particularly 
-with a Forth on that tty in that kernelspace. Persons with actual 
-kernel clue may want to look at allowing /dev/console users and 
-an in-kernel tty user to play nice. For my purposes I'll do without 
-a real /dev/console and syslogging for now. 
+ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
 
-Now I get to find out how many worlds of trouble I didn't foresee
-in _reading_ a tty from the kernel :o)
+modutils-2.4.6.tar.gz           Source tarball, includes RPM spec file
+modutils-2.4.6-1.src.rpm        As above, in SRPM format
+modutils-2.4.6-1.i386.rpm       Compiled with egcs-2.91.66, glibc 2.1.2
+modutils-2.4.6-1.sparc64.rpm    Not available yet, waiting for a sparc machine.
+modutils-2.4.6-1.ia64.rpm       Compiled with gcc 2.96-ia64-000717 snap 001117,
+				libc-2.2.1.
+patch-modutils-2.4.6.gz         Patch from modutils 2.4.5 to 2.4.6.
 
-If someone knows of another example of interpreter-like behavior 
-directly in a unix in-kernel thread I'd like to know about it.  
+Related kernel patches.
 
-Rick Hohensee
-www.clienux.com
-The userland H3sm is in 
-ftp://ftp.gwdg.de/pub/linux/include/clienux/interim
+patch-2.4.2-persistent.gz       Adds persistent data and generic string
+				support to kernel 2.4.2 onwards.  Optional.
+
+Changelog extract
+
+	* Replace uint64_t with u_int64_t for glibc 2.0.  Luis Carlos Yamamoto.
+	* /dev/rtc can be a module.  Urs Thuermann.
+	* Do not assume that malloc(0) returns a pointer.  Bug report by
+	  Kiichiro Naka, different fix by Keith Owens.
+	* Cross compile changes.  Maciej W. Rozycki.
+	* Better explanation for rmmod -a.   Marc Herbert.
+	* Remove modules(2) references.  Debian #69398.
+ 	* hppa dp is $global$, not data_start.  Richard Hirst.
+ 	* hppa64 stub for millicode calls must not use dp.  Richard Hirst.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.3 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE69Oj4i4UHNye0ZOoRAl/cAJ9Sppko57LNUHb92z01+CUDW7vMHQCff8kF
+jOxArOcYlyk9MHHa7vRUS18=
+=mWGA
+-----END PGP SIGNATURE-----
+

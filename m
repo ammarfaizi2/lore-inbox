@@ -1,77 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263296AbTCNJEV>; Fri, 14 Mar 2003 04:04:21 -0500
+	id <S263288AbTCNJOA>; Fri, 14 Mar 2003 04:14:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263297AbTCNJEU>; Fri, 14 Mar 2003 04:04:20 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:62726
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S263296AbTCNJEJ>; Fri, 14 Mar 2003 04:04:09 -0500
-Date: Fri, 14 Mar 2003 01:13:53 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "rain.wang" <rain.wang@mic.com.tw>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: system hang on HDIO_DRIVE_RESET! help!
-In-Reply-To: <3E7192A2.CADEAE6D@mic.com.tw>
-Message-ID: <Pine.LNX.4.10.10303140105210.9395-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263290AbTCNJOA>; Fri, 14 Mar 2003 04:14:00 -0500
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:27914
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
+	id <S263288AbTCNJN6>; Fri, 14 Mar 2003 04:13:58 -0500
+Subject: 2.5.64-mm6: oops in elv_remove_request
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+In-Reply-To: <20030313190247.GQ836@suse.de>
+References: <1047576167.1318.4.camel@ixodes.goop.org>
+	 <20030313175454.GP836@suse.de> <1047578690.1322.17.camel@ixodes.goop.org>
+	 <20030313190247.GQ836@suse.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1047633884.1147.3.camel@ixodes.goop.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 14 Mar 2003 01:24:44 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Rain,
-
-The only way to deal with this is to treat the operations a failed and
-punch them back out to block for clean up.  Now we failed the a command.
-However, I think I need to set a default block hook during the reset
-process for the drive, channel, hba ... depending on the magnitude of the
-wrecking ball generated.  I need to offline Alan for this core dump.
-
-The hang is in the clean ups after the reset.
-
-I suspect the driver/hba is in DMA and drive is not.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-------------------------------------
-Pokemon (n), A Jamaican proctologist
-------------------------------------
-
-On Fri, 14 Mar 2003, rain.wang wrote:
-
-> Alan Cox wrote:
+On Thu, 2003-03-13 at 11:02, Jens Axboe wrote: 
+> Nope cdrecord is fine, but I think only open by device name works
+> currently. So you'd need to do
 > 
-> > On Fri, 2003-03-07 at 06:04, rain.wang wrote:
-> > > > Once I understand what the problems all are yes. The BUG() is good, it
-> > > > confirms that what we are both seeing is the same thing - the reset is
-> > > > managing to issue two commands to the controller at the same time.
-> > >
-> > > Hi,
-> > >     thank you, Alan. I tested pre5-ac2 patch and that seems all ok.
-> >
-> > Thanks for the confirmation it is fixed
+> # cdrecord -dev=/dev/hdX -inq
 > 
-> Hi Alan,
->     for 2.4.21-pre5-ac2 and -ac3 patch also.
->     there's still problem on reset. when I do 'hdparm -w /dev/hda' once
-> after another, all seems ok.  but when I make a shell script and let
-> 'hdparm -w' run in several times loop, system would always crashed
-> at the second time and left oops messages:
->     kernel BUG at ide.c:1700!
->     ...
-> so, if any bugs still locking there?
-> 
-> rain.w
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> to print inquiry data, for instance.
 
+I get this with some random cdrecord rpm:
+
+# cdrecord dev=/dev/hdc -inq
+Cdrecord 2.01a05 (i686-pc-linux-gnu) Copyright (C) 1995-2002 J?rg
+Schilling
+scsidev: '/dev/hdc'
+devname: '/dev/hdc'
+scsibus: -2 target: -2 lun: -2
+Warning: Open by 'devname' is unintentional and not supported.
+Linux sg driver version: 3.5.27
+Using libscg version 'schily-0.7'
+cdrecord: Operation not permitted. Cannot send SCSI cmd via ioctl
+
+strace shows this:
+
+open("/dev/hdc", O_RDWR|O_NONBLOCK)     = 3
+fcntl64(3, F_GETFL)                     = 0x8802 (flags O_RDWR|O_NONBLOCK|O_LARGEFILE)
+fcntl64(3, F_SETFL, O_RDWR|O_LARGEFILE) = 0
+ioctl(3, 0x5382, 0xbfffc490)            = 0
+ioctl(3, 0x5386, 0xbfffc48c)            = 0
+ioctl(3, 0x2282, 0xbfffc494)            = 0
+write(2, "Linux sg driver version: 3.5.27\n", 32) = 32
+ioctl(3, 0x5382, 0xbfffc430)            = 0
+ioctl(3, 0x5386, 0xbfffc42c)            = 0
+ioctl(3, 0x2201, 0xbfffc344)            = 0
+fstat64(3, {st_mode=S_IFBLK|0660, st_rdev=makedev(22, 0), ...}) = 0
+write(1, "Using libscg version \'schily-0.7"..., 34) = 34
+ioctl(3, 0x2272, 0xbfffc674)            = 0
+ioctl(3, 0x2272, 0xbfffc670)            = 0
+ioctl(3, 0x2272, 0xbfffc644)            = 0
+ioctl(3, 0x2272, 0xbfffc640)            = 0
+brk(0x80a4000)                          = 0x80a4000
+gettimeofday({1047632019, 859019}, NULL) = 0
+write(3, "*\0\0\0$\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 42) = -1 EPERM (Operation not permitted)
+ioctl(3, 0x2201, 0xbfff45f4)            = 0
+gettimeofday({1047632019, 859188}, NULL) = 0
+write(2, "cdrecord: Operation not permitte"..., 66) = 66
+munmap(0x40013000, 4096)                = 0
+
+With the version or cdrtools I compiled, I get an instant oops+lockup
+with the above command when running with anticipatory scheduler in
+2.5.64-mm6 (hand written):
+
+elv_remove_request
+ide_end_request
+cdrom_end_request
+cdrom_decode_status
+cdrom_newpc_intr
+ide_do_request
+ide_intr
+cdrom_newpc_intr
+handle_IRQ_event
+do_IRQ
+default_idle
+     "
+common_interrupt
+...
+
+I'll try it with deadline and see what happens... seems to work OK:
+
+# ./cdrecord dev=/dev/hdc -inq
+Cdrecord 2.01a05 (i686-pc-linux-gnu) Copyright (C) 1995-2002 J?rg Schilling
+scsidev: '/dev/hdc'
+devname: '/dev/hdc'
+scsibus: -2 target: -2 lun: -2
+Warning: Open by 'devname' is unintentional and not supported.
+Linux sg driver version: 3.5.27
+Using libscg version 'schily-0.7'
+Device type    : Removable CD-ROM
+Version        : 2
+Response Format: 2
+Capabilities   :
+Vendor_info    : 'PLEXTOR '
+Identifikation : 'CD-R   PX-W4824A'
+Revision       : '1.04'
+Device seems to be: Generic mmc CD-RW.
+
+though I don't seem to be able to set up a default device in
+/etc/cdrecord.conf.
+
+	J
 

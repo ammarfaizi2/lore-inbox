@@ -1,176 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263581AbTJCB4p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 21:56:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263586AbTJCB4p
+	id S263601AbTJCB70 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 21:59:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263602AbTJCB70
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 21:56:45 -0400
-Received: from mail7.speakeasy.net ([216.254.0.207]:58033 "EHLO
-	mail.speakeasy.net") by vger.kernel.org with ESMTP id S263581AbTJCB4l
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 21:56:41 -0400
-Date: Thu, 2 Oct 2003 18:56:35 -0700
-Message-Id: <200310030156.h931uZhL015129@magilla.sf.frob.com>
-From: Roland McGrath <roland@redhat.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-Fcc: ~/Mail/linus
-Subject: [PATCH] fix vsyscall page in core dumps
-X-Zippy-Says: HOW could a GLASS be YELLING??
+	Thu, 2 Oct 2003 21:59:26 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:5323 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S263601AbTJCB7Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 21:59:24 -0400
+Date: Fri, 3 Oct 2003 03:59:23 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Cc: karim@opersys.com, linux-kernel@vger.kernel.org, vserver@solucorp.qc.ca
+Subject: Re: [Xen-devel] Re: [ANNOUNCE] Xen high-performance x86 virtualization
+Message-ID: <20031003015923.GA5080@DUK2.13thfloor.at>
+Mail-Followup-To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>,
+	karim@opersys.com, linux-kernel@vger.kernel.org,
+	vserver@solucorp.qc.ca
+References: <3F7C7180.2020404@opersys.com> <E1A58aF-0000iT-00@wisbech.cl.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1A58aF-0000iT-00@wisbech.cl.cam.ac.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I sent this change to Linus around the time of 2.5.70, but I just now
-noticed that it never made it in.
+On Thu, Oct 02, 2003 at 07:53:51PM +0100, Keir Fraser wrote:
+> > 
+> > Keir Fraser wrote:
+> > > Full recursion needs full virtualization. Our approach offers much
+> > > better performance in the situations where full virtualization isn't
+> > > required -- i.e., where it's feasible to distribute a ported OS.
+> > 
+> > I noticed that the SOSP Xen paper briefly mentions Jacques Gelinas' work
+> > on VServers (http://www.solucorp.qc.ca/miscprj/s_context.hc). While
+> > Jacques' work hasn't attracted as much public attention as other Linux
+> > virtualization efforts, I've personally found the approach and concepts
+> > quite fascinating. Among other things, most of the code implementing the
+> > contexts is architecture-independent (save for a few syscalls added to
+> > arch/*/kernel/entry.S). So, thinking aloud here, I'm wondering in what
+> > circumstances I'd prefer using something as architecture specific as
+> > Xen over something as architecture independent as Jacques' VServers?
+> > (Granted VServers can't run Windows, but I'm asking this from the angle
+> > of people looking for resource isolation in the Linux context.) Among
+> > other things, VServers are already in use by many ISPs to provide
+> > simultaneous hosting of many "virtual machines" on the same box while
+> > maintaining strict separation between machines and still providing a
+> > secure environment.
+> 
+> One of the main differences is that we provide resource isolation, so
+> that each virtual machine only gets the resources that its sponsor
+> paid for. This allows companies providing virtual servers to
+> provide differentiated service according to the amount paid.
 
-My change to core dumps that was included with the vsyscall DSO
-implementation had a bug (braino on my part).  Core dumps don't include the
-full page of the vsyscall DSO, and so don't accurately represent the whole
-memory image of the process.  This patch fixes it.  I have tested it on
-x86, but not tested the same change to 32-bit core dumps on AMD64 (haven't
-even compiled on AMD64).
+although the resources are usually shared in vserver environments
+(this _is_ considered an advantage) Jacques' VServers allow the
+administrator to limit the resources available to each virtual
+server (like memory, file handles, processes, cpu power and disk
+space), which should provide similar functionality ...
 
-I've also included the corresponding change for the IA64 code that was
-copied blindly from the x86 vsyscall implementation, which looks like more
-change than it is since I preserved the formatting of the copied code
-instead of arbitrarily diddling it along with the trivial symbol name
-changes.  I haven't compiled or tested on ia64.
+best,
+Herbert
 
-
-Thanks,
-Roland
-
-
-
-Index: linux-2.6/include/asm-i386/elf.h
-===================================================================
-RCS file: /home/cvs/linux-2.5/include/asm-i386/elf.h,v
-retrieving revision 1.11
-diff -b -p -u -r1.11 elf.h
---- linux-2.6/include/asm-i386/elf.h 1 Oct 2003 05:03:36 -0000 1.11
-+++ linux-2.6/include/asm-i386/elf.h 3 Oct 2003 00:01:23 -0000
-@@ -157,7 +157,10 @@ do {									      \
- 	for (i = 0; i < VSYSCALL_EHDR->e_phnum; ++i) {			      \
- 		struct elf_phdr phdr = vsyscall_phdrs[i];		      \
- 		if (phdr.p_type == PT_LOAD) {				      \
-+			BUG_ON(ofs != 0);				      \
- 			ofs = phdr.p_offset = offset;			      \
-+			phdr.p_memsz = PAGE_ALIGN(phdr.p_memsz);	      \
-+			phdr.p_filesz = phdr.p_memsz;			      \
- 			offset += phdr.p_filesz;			      \
- 		}							      \
- 		else							      \
-@@ -175,7 +178,7 @@ do {									      \
- 	for (i = 0; i < VSYSCALL_EHDR->e_phnum; ++i) {			      \
- 		if (vsyscall_phdrs[i].p_type == PT_LOAD)		      \
- 			DUMP_WRITE((void *) vsyscall_phdrs[i].p_vaddr,	      \
--				   vsyscall_phdrs[i].p_filesz);		      \
-+				   PAGE_ALIGN(vsyscall_phdrs[i].p_memsz));    \
- 	}								      \
- } while (0)
- 
-Index: linux-2.6/arch/x86_64/ia32/ia32_binfmt.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/arch/x86_64/ia32/ia32_binfmt.c,v
-retrieving revision 1.18
-diff -b -p -u -r1.18 ia32_binfmt.c
---- linux-2.6/arch/x86_64/ia32/ia32_binfmt.c 14 Aug 2003 06:38:10 -0000 1.18
-+++ linux-2.6/arch/x86_64/ia32/ia32_binfmt.c 3 Oct 2003 00:01:23 -0000
-@@ -82,9 +82,12 @@ do {									      \
- 	int i;								      \
- 	Elf32_Off ofs = 0;						      \
- 	for (i = 0; i < VSYSCALL32_EHDR->e_phnum; ++i) {		      \
--		struct elf_phdr phdr = vsyscall_phdrs[i];		      \
-+		struct elf32_phdr phdr = vsyscall_phdrs[i];		      \
- 		if (phdr.p_type == PT_LOAD) {				      \
-+			BUG_ON(ofs != 0);				      \
- 			ofs = phdr.p_offset = offset;			      \
-+			phdr.p_memsz = PAGE_ALIGN(phdr.p_memsz);	      \
-+			phdr.p_filesz = phdr.p_memsz;			      \
- 			offset += phdr.p_filesz;			      \
- 		}							      \
- 		else							      \
-@@ -99,10 +102,10 @@ do {									      \
- 		(const struct elf32_phdr *) (VSYSCALL32_BASE		      \
- 					   + VSYSCALL32_EHDR->e_phoff);	      \
- 	int i;								      \
--	for (i = 0; i < VSYSCALL32_EHDR->e_phnum; ++i) {		      \
-+	for (i = 0; i < VSYSCALL_EHDR->e_phnum; ++i) {			      \
- 		if (vsyscall_phdrs[i].p_type == PT_LOAD)		      \
- 			DUMP_WRITE((void *) (u64) vsyscall_phdrs[i].p_vaddr,	      \
--				   vsyscall_phdrs[i].p_filesz);		      \
-+				   PAGE_ALIGN(vsyscall_phdrs[i].p_memsz));    \
- 	}								      \
- } while (0)
- 
-Index: linux-2.6/include/asm-ia64/elf.h
-===================================================================
-RCS file: /home/cvs/linux-2.5/include/asm-ia64/elf.h,v
-retrieving revision 1.10
-diff -b -p -u -r1.10 elf.h
---- linux-2.6/include/asm-ia64/elf.h 17 Jul 2003 17:24:28 -0000 1.10
-+++ linux-2.6/include/asm-ia64/elf.h 3 Oct 2003 00:08:56 -0000
-@@ -206,42 +206,46 @@ do {										\
- 	NEW_AUX_ENT(AT_SYSINFO_EHDR, (unsigned long) GATE_EHDR);		\
- } while (0)
- 
-+
- /*
-- * These macros parameterize elf_core_dump in fs/binfmt_elf.c to write out extra segments
-- * containing the gate DSO contents.  Dumping its contents makes post-mortem fully
-- * interpretable later without matching up the same kernel and hardware config to see what
-- * IP values meant.  Dumping its extra ELF program headers includes all the other
-- * information a debugger needs to easily find how the gate DSO was being used.
-+ * These macros parameterize elf_core_dump in fs/binfmt_elf.c to write out
-+ * extra segments containing the gate DSO contents.  Dumping its
-+ * contents makes post-mortem fully interpretable later without matching up
-+ * the same kernel and hardware config to see what PC values meant.
-+ * Dumping its extra ELF program headers includes all the other information
-+ * a debugger needs to easily find how the gate DSO was being used.
-  */
- #define ELF_CORE_EXTRA_PHDRS		(GATE_EHDR->e_phnum)
- #define ELF_CORE_WRITE_EXTRA_PHDRS						\
- do {										\
--	const struct elf_phdr *const gate_phdrs =				\
--		(const struct elf_phdr *) (GATE_ADDR + GATE_EHDR->e_phoff);	\
-+	const struct elf_phdr *const vsyscall_phdrs =			      \
-+		(const struct elf_phdr *) (GATE_BASE + GATE_EHDR->e_phoff);   \
- 	int i;									\
--	Elf64_Off ofs = 0;							\
-+	Elf32_Off ofs = 0;						      \
- 	for (i = 0; i < GATE_EHDR->e_phnum; ++i) {				\
--		struct elf_phdr phdr = gate_phdrs[i];				\
-+		struct elf_phdr phdr = vsyscall_phdrs[i];		      \
- 		if (phdr.p_type == PT_LOAD) {					\
-+			BUG_ON(ofs != 0);				      \
- 			ofs = phdr.p_offset = offset;				\
-+			phdr.p_memsz = PAGE_ALIGN(phdr.p_memsz);	      \
-+			phdr.p_filesz = phdr.p_memsz;			      \
- 			offset += phdr.p_filesz;				\
--		} else								\
-+		}							      \
-+		else							      \
- 			phdr.p_offset += ofs;					\
- 		phdr.p_paddr = 0; /* match other core phdrs */			\
- 		DUMP_WRITE(&phdr, sizeof(phdr));				\
- 	}									\
- } while (0)
--
- #define ELF_CORE_WRITE_EXTRA_DATA					\
- do {									\
--	const struct elf_phdr *const gate_phdrs =			\
--		(const struct elf_phdr *) (GATE_ADDR			\
--					   + GATE_EHDR->e_phoff);	\
-+	const struct elf_phdr *const vsyscall_phdrs =			      \
-+		(const struct elf_phdr *) (GATE_BASE + GATE_EHDR->e_phoff);   \
- 	int i;								\
- 	for (i = 0; i < GATE_EHDR->e_phnum; ++i) {			\
--		if (gate_phdrs[i].p_type == PT_LOAD)			\
--			DUMP_WRITE((void *) gate_phdrs[i].p_vaddr,	\
--				   gate_phdrs[i].p_filesz);		\
-+		if (vsyscall_phdrs[i].p_type == PT_LOAD)		      \
-+			DUMP_WRITE((void *) vsyscall_phdrs[i].p_vaddr,	      \
-+				   PAGE_ALIGN(vsyscall_phdrs[i].p_memsz));    \
- 	}								\
- } while (0)
- 
+>  -- Keir

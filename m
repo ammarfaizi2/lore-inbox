@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261722AbTDQREm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 13:04:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbTDQREm
+	id S261783AbTDQRGh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 13:06:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbTDQRGh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 13:04:42 -0400
-Received: from tag.witbe.net ([81.88.96.48]:11795 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S261722AbTDQREl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 13:04:41 -0400
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Pau Aliagas'" <linuxnow@newtral.org>,
-       "'lkml'" <linux-kernel@vger.kernel.org>
-Subject: Re: cannot boot 2.5.67
-Date: Thu, 17 Apr 2003 19:16:36 +0200
-Message-ID: <018401c30505$1a1e6200$6400a8c0@witbe>
+	Thu, 17 Apr 2003 13:06:37 -0400
+Received: from riptidesoftware.com ([66.147.50.178]:36029 "EHLO
+	ns1.riptidesoftware.com") by vger.kernel.org with ESMTP
+	id S261783AbTDQRGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 13:06:36 -0400
+Message-ID: <3E9EE1B3.7080801@aet-usa.com>
+Date: Thu, 17 Apr 2003 13:17:39 -0400
+From: Christopher Curtis <ccurtis@aet-usa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: John Bradford <john@grabjohn.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, root@chaos.analogic.com,
+       joe briggs <jbriggs@briggsmedia.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Help with virus/hackers
+References: <200304171545.h3HFjPoH000129@81-2-122-30.bradfords.org.uk>
+In-Reply-To: <200304171545.h3HFjPoH000129@81-2-122-30.bradfords.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-In-Reply-To: <Pine.LNX.4.44.0304171900490.1143-100000@pau.intranet.ct>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Got the same starting with 2.5.67...
-I took the .config from the booting 2.5.66, made a 2.5.67 kernel,
-and when booting, booh :-(
+John Bradford wrote:
 
-It was a RH8 base, Lilo... I'll try tonite to find out which option
-is responsible of that...
+> I've often wondered whether it would be worth connecting a very large
+> serial EEPROM to a serial port interface, and have it effectively
+> appear as a solid state printer, (to that you could cheaply log to an
+> unmodifyable device).  Has anybody ever tried this?
 
-Regards,
-Paul
+I suspect there are better solutions; namely another host running 
+something like passlogd with the xmit wires cut and the hosts sending 
+udp broadcast messages (or plug it into the monitor port of the switch). 
+  Also, since the poster was running Woody, apt-cron'ing security might 
+also lend itself to usefulness, along with apt-listchanges and maybe a 
+little expect script.
 
-> I have a rh9 installation, grub is properly configured, and 
-> when I select 
-> to boot a 2.5 kernel it does not even decompress it. It stops 
-> even before 
-> printing the kernel version.
-> 
+rgds,
+Chris
 

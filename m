@@ -1,70 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263738AbTGOGWN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 02:22:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbTGOGWM
+	id S263355AbTGOGcz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 02:32:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263542AbTGOGcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 02:22:12 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:59525 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263738AbTGOGWD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 02:22:03 -0400
-Date: Tue, 15 Jul 2003 08:36:12 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Vojtech Pavlik <vojtech@suse.cz>,
-       Nigel Cunningham <ncunningham@clear.net.nz>,
-       Jamie Lokier <jamie@shareable.org>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Swsusp-devel] Re: Thoughts wanted on merging Software Suspend enhancements
-Message-ID: <20030715063612.GB27368@ucw.cz>
-References: <20030712225143.GA1508@elf.ucw.cz> <20030713133517.GD19132@mail.jlokier.co.uk> <20030713193114.GD570@elf.ucw.cz> <1058130071.1829.2.camel@laptop-linux> <20030713210934.GK570@elf.ucw.cz> <1058147684.2400.9.camel@laptop-linux> <20030714201245.GC24964@ucw.cz> <20030714201804.GF902@elf.ucw.cz> <20030714204143.GA25731@ucw.cz> <20030714230219.GB11283@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 15 Jul 2003 02:32:55 -0400
+Received: from 12-240-128-156.client.attbi.com ([12.240.128.156]:55765 "EHLO
+	carlthompson.net") by vger.kernel.org with ESMTP id S263355AbTGOGcq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 02:32:46 -0400
+Message-ID: <1058251644.b873c9b752cd4@carlthompson.net>
+X-Priority: 3 (Normal)
+Date: Mon, 14 Jul 2003 23:47:24 -0700
+From: Carl Thompson <cet@carlthompson.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.test1: Temporary "lock-up" with snd-ali5451 driver
+MIME-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Disposition: inline
-In-Reply-To: <20030714230219.GB11283@elf.ucw.cz>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) 4.0-cvs
+X-Originating-IP: 192.168.0.163
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 15, 2003 at 01:02:19AM +0200, Pavel Machek wrote:
+[This problem still exists in 2.6.0test1]
 
-> > > > > Having listened to the arguments, I'll make pressing Escape to cancel
-> > > > > the suspend a feature which defaults to being disabled and can be
-> > > > > enabled via a proc entry in 2.4. I won't add code to poll for ACPI (or
-> > > > > APM) events :>
-> > > > 
-> > > > I'd suggest making it a mappable function in the keymap, like reboot is
-> > > > for example. Both for initiating and stopping the suspend. How about
-> > > > that?
-> > > 
-> > > Any user can load his own keymap, I believe... And I do not like
-> > > having special /proc options for esc key...
-> > 
-> > So what? He can press ctrl-alt-del or whatever if he has access to the
-> > keyboard anyway. Nevertheless I don't see any way to cause harm by
-> > cancelling a sw-suspend other than if a server was shutting down due to
-> > the UPS batteries being empty. And in that case the machine will be in a
-> > locked room anyway.
-> 
-> ctrl-alt-del maps to "echo you lost" on many machines. It just signals
-> init, does nothing more.
-> 
-> That UPS is bad enough... It should be okay to have server locked but
-> have its keyboard/monitor publicly available.
+I am not on the kernel mailing list so please CC me with any responses.
 
-I'm very much sure this feature (having a server locked, while
-keyboard/screen is accessible) is much LESS useful than being able to
-stop an suspend in progress. That's if the suspend isn't lightning fast,
-of course, which is is not.
+I am forwarding this to the kernel list because
+  1. adding printk()s to the driver suggests the lock-up happens before
+     module_init() is called
+  2. this driver is now part of the kernel
+  3. I got no response on the ALSA list
 
-Unfortunately, while you can route the start-suspend command through
-userspace (init, whatever) like the reboot command is, but I fear when
-the suspend is in progress, it's not possible to talk to userspace
-anymore ...
+----- Forwarded Message -----
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Hello, I have a problem the answer to which I have not found with a search
+of the list archives or google.
+
+My laptop (emachines M5305 Widescreen) has an Ali M5451 audio controller.
+Whenever is insert the snd-ali5451 driver, the whole computer hangs for
+about 10 seconds.  The screen does not change, the keyboard does not work,
+the mouse pointer does not move.  It looks very much like the system has
+locked up.  After this long pause things start working including sound
+which then works fine.  In fact, events seem to be queued while the system
+is unresponsive.
+
+This happens with both the module compiled from 0.9.4 for use with Linux
+2.4.21 and with the module from Linux 2.5.72.
+
+Changes to my IRQ routing settings have no effect.
+
+The sound card shares interrupts with the usb ports.  I'm not sure if it can
+be told to use a different interrupt (but it should share correctly,
+right?).
+
+Loading the OSS trident driver does not cause any problems [except on 2.5
+where the trident driver causes my hard disks to stop working!?].
+
+I am certain the problem happens when inserting the actual snd-ali5451
+module and not one of the other modules.
+
+No syslog messages of any kind seem to be generated.
+
+Does anyone have any idea what the problem could be?
+
+Thank you,
+Carl Thompson
+
+----- End Forwarded Message -----
+
+
+

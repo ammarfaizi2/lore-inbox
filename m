@@ -1,46 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262417AbTHYWmf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 18:42:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262411AbTHYWl4
+	id S262364AbTHYWxi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 18:53:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbTHYWxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 18:41:56 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14039 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262408AbTHYWlt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 18:41:49 -0400
-Message-ID: <3F4A9096.2000700@pobox.com>
-Date: Mon, 25 Aug 2003 18:41:26 -0400
+	Mon, 25 Aug 2003 18:53:38 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:7119 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262364AbTHYWxc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 18:53:32 -0400
+Date: Mon, 25 Aug 2003 18:53:30 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Fwd: [CFT] Clean up yenta_socket
-References: <20030825003529.K16635@flint.arm.linux.org.uk>
-In-Reply-To: <20030825003529.K16635@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: [bk patch] add hw_random driver
+Message-ID: <20030825225330.GA9559@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-WIBNI?
 
-Anyway, MSI needs more than the standard size as well.
+Marcelo, please do a
 
-But I would actually prefer the interface to go the other way:
+	bk pull bk://kernel.bkbits.net/jgarzik/hwrandom-2.4
 
-	pci_save_state(pdev);
-		and
-	pci_restore_state(pdev);
+I have sent the patch in a separate email, privately to you, for review.
 
-Allocate and store the state in a pointer in struct pci_dev, or 
-somesuch.  And somebody other than the low-level driver figures out the 
-amount to save and restore.
+Others may download the patch from
 
-	Jeff
+ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.4/2.4.22-hwrandom1.patch.bz2
 
+This will update the following files:
 
+ Documentation/Configure.help  |   15 
+ Documentation/hw_random.txt   |  138 +++++++++
+ arch/i386/kernel/head.S       |    4 
+ arch/i386/kernel/setup.c      |   78 +++--
+ drivers/char/Config.in        |    4 
+ drivers/char/Makefile         |    1 
+ drivers/char/hw_random.c      |  631 ++++++++++++++++++++++++++++++++++++++++++
+ include/asm-i386/cpufeature.h |   19 +
+ include/asm-i386/msr.h        |    1 
+ 9 files changed, 864 insertions(+), 27 deletions(-)
+
+through these ChangeSets:
+
+<jgarzik@redhat.com> (03/08/25 1.1069)
+   [ia32] mention that X86_VENDOR_ID is tied to NCAPINTS,
+   in a comment in arch/i386/kernel/head.S.
+
+<mikpe@csd.uu.se> (03/08/09 1.1068)
+   [ia32] adjust X86_VENDOR_ID offset in head.S, due to new NCAPINTS
+
+<jgarzik@redhat.com> (03/08/07 1.1067)
+   [hw_random] add combined Intel+AMD+VIA h/w RNG driver
+
+<jgarzik@redhat.com> (03/08/07 1.1066)
+   [ia32] Via, Intel cpu capabilities update
+   
+   * /proc/cpuinfo support for Intel Prescott New Instructions (PNI)
+   * /proc/cpuinfo support for Centuar Extended Feature Flags
+     (including "xstore", Via RNG support)
+   * at boot time, input x86 capability data for the two featuresets
+   * sync include/asm-i386/cpufeature.h definitions with 2.6.x
 

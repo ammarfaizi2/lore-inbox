@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266798AbUIIXJO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUIIXOz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266798AbUIIXJO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 19:09:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266810AbUIIXJO
+	id S265044AbUIIXOz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 19:14:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUIIXOz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 19:09:14 -0400
-Received: from holomorphy.com ([207.189.100.168]:20404 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266798AbUIIXJJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 19:09:09 -0400
-Date: Thu, 9 Sep 2004 16:09:05 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cacheline align pagevec structure
-Message-ID: <20040909230905.GO3106@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	linux-kernel@vger.kernel.org
-References: <20040909163929.GA4484@logos.cnet> <20040909155226.714dc704.akpm@osdl.org>
+	Thu, 9 Sep 2004 19:14:55 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:32942 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S265044AbUIIXOy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 19:14:54 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R6
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       rlrevell@joe-job.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       felipe_alfaro@linuxmail.org, mista.tapas@gmx.net, kr@cybsft.com,
+       Mark_H_Johnson@Raytheon.com
+In-Reply-To: <20040909224535.GN3106@holomorphy.com>
+References: <20040903120957.00665413@mango.fruits.de>
+	 <20040904195141.GA6208@elte.hu> <20040905140249.GA23502@elte.hu>
+	 <20040906110626.GA32320@elte.hu>
+	 <1094626562.1362.99.camel@krustophenia.net> <20040909192924.GA1672@elte.hu>
+	 <20040909130526.2b015999.akpm@osdl.org>
+	 <20040909224535.GN3106@holomorphy.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094767887.15731.0.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040909155226.714dc704.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 09 Sep 2004 23:11:39 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
->> I do not see a problem with changing pagevec to "15" page pointers either, 
->> Andrew, is there a special reason for that "16"? Is intentional to align
->> to 64 kbytes (IO device alignment)? I dont think that matters much because
->> of the elevator which sorts and merges requests anyway?
+On Iau, 2004-09-09 at 23:45, William Lee Irwin III wrote:
+> Something odd is going on, in part because I get *blistering* IO speeds
+> running benchmarks like dbench, tiobench, et al on tmpfs with striped
+> swap. In fact, IO speeds markedly faster than any other filesystem I've
+> ever tried, by about 30MB/s (i.e. wirespeed, where others fall about
+> 37.5% short of it). Virtual alignment issues do hurt, but the core
+> allocation algorithm appears to be better than good, it's astounding.
 
-On Thu, Sep 09, 2004 at 03:52:26PM -0700, Andrew Morton wrote:
-> No, it was just a randomly-chosen batching factor.
-> The tradeoff here is between
-> a) lock acquisition frequency versus lock hold time (increasing the size
->    helps).
-> b) icache misses versus dcache misses. (increasing the size probably hurts).
-> I suspect that some benefit would be seen from making the size very small
-> (say, 4). And on some machines, making it larger might help.
+Thats a very atypical load where you can expect to get long linear write
+outs. The seek v write numbers for a disk nowdays have more in common
+with a tape drive. Paging tends to be much much more random.
 
-Reducing arrival rates by an Omega(NR_CPUS) factor would probably help,
-though that may blow the stack on e.g. larger Altixen. Perhaps
-O(lg(NR_CPUS)), e.g. NR_CPUS > 1 ? 4*lg(NR_CPUS) : 4 etc., will suffice,
-though we may have debates about how to evaluate lg(n) at compile-time...
-Would be nice if calls to sufficiently simple __attribute__((pure))
-functions with constant args were considered constant expressions by gcc.
+Alan
 
--- wli

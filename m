@@ -1,34 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279564AbRJXN1F>; Wed, 24 Oct 2001 09:27:05 -0400
+	id <S279581AbRJXNfr>; Wed, 24 Oct 2001 09:35:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279566AbRJXN0z>; Wed, 24 Oct 2001 09:26:55 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:32265 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S279564AbRJXN0n>; Wed, 24 Oct 2001 09:26:43 -0400
-Message-Id: <200110241327.f9ODR6dN031464@pincoya.inf.utfsm.cl>
-To: "Per Jessen" <per@computer.org>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.2.20pre10 
-In-Reply-To: Message from "Per Jessen" <per@computer.org> 
-   of "Mon, 22 Oct 2001 20:13:42 +0200." <3BCECF00002B24D0@mta9n.bluewin.ch> (added by postmaster@bluewin.ch) 
-Date: Wed, 24 Oct 2001 10:27:06 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S279572AbRJXNfg>; Wed, 24 Oct 2001 09:35:36 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:5620 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S279576AbRJXNf2>; Wed, 24 Oct 2001 09:35:28 -0400
+Date: Wed, 24 Oct 2001 14:36:01 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Dave Garry <daveg@firsdown.demon.co.uk>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.4.12 / linux-2.4.13 parallel port problem
+Message-ID: <20011024143601.M7544@redhat.com>
+In-Reply-To: <3BD6BF43.D347719B@firsdown.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="5YKxbtAlDq2FnV+Q"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BD6BF43.D347719B@firsdown.demon.co.uk>; from daveg@firsdown.demon.co.uk on Wed, Oct 24, 2001 at 02:16:51PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Per Jessen" <per@computer.org> said:
 
+--5YKxbtAlDq2FnV+Q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Oct 24, 2001 at 02:16:51PM +0100, Dave Garry wrote:
+
+> With kernel 2.4.12 and 2.4.13 the parallel port on
+> my machine looks like this according to dmesg:
+>=20
+> parport0: PC-style at 0x378 [PCSPP,TRISTATE]
+
+Yes.  It's showing you what modes it is prepared to use.
+
+> Under 2.4.10 is looks like this:
 [...]
+> parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE,COMPAT,ECP]
 
-> Alan Cox, living in the UK, may be *somewhat* subject to US legislation.
-> Ties between the US and the UK are strong, and it is understandable if a UK-
-> resident person does not feel entirely out of reach of US law
-> enforcement.
+A bug; it was showing you what modes the hardware was capable of,
+_despite_ knowing that it wasn't going to use it.
 
-He works for Red Hat...
--- 
-Dr. Horst H. von Brand                Usuario #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+The parport driver will only use ECP and parallel port FIFO modes if
+it has an IRQ to use.  Try 'irq=3Dauto'.
+
+Tim.
+*/
+
+--5YKxbtAlDq2FnV+Q
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE71sPAyaXy9qA00+cRAq8eAKCl1bz0UtUuRid4FDD8VQini/rqVwCgmABS
+WbiHDrVTBm0Htpum08eZfZU=
+=/jCc
+-----END PGP SIGNATURE-----
+
+--5YKxbtAlDq2FnV+Q--

@@ -1,67 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266887AbUBEV32 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 16:29:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266863AbUBEV3E
+	id S266883AbUBEVlz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 16:41:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266818AbUBEVjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 16:29:04 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:14720 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S266883AbUBEV11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 16:27:27 -0500
-Date: Thu, 5 Feb 2004 21:36:50 GMT
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200402052136.i15LaoGw000342@81-2-122-30.bradfords.org.uk>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Jens Axboe <axboe@suse.de>, Tomas Zvala <tomas@zvala.cz>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040205210623.GA1541@elf.ucw.cz>
-References: <20040203131837.GF3967@aurora.fi.muni.cz>
- <Pine.LNX.4.53.0402030839380.31203@chaos>
- <401FB78A.5010902@zvala.cz>
- <20040203152805.GI11683@suse.de>
- <20040205182335.GB294@elf.ucw.cz>
- <200402052004.i15K4Bqx000266@81-2-122-30.bradfords.org.uk>
- <20040205210623.GA1541@elf.ucw.cz>
-Subject: Re: 2.6.0, cdrom still showing directories after being erased
+	Thu, 5 Feb 2004 16:39:35 -0500
+Received: from gprs146-127.eurotel.cz ([160.218.146.127]:21633 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S266785AbUBEVjA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 16:39:00 -0500
+Date: Thu, 5 Feb 2004 22:38:37 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Tony Lindgren <tony@atomide.com>
+Cc: linux-kernel@vger.kernel.org, davej@redhat.com
+Subject: Re: [PATCH] powernow-k8 max speed sanity check
+Message-ID: <20040205213837.GF1541@elf.ucw.cz>
+References: <20040131203512.GA21909@atomide.com> <20040203131432.GE550@openzaurus.ucw.cz> <20040205181704.GC7658@atomide.com> <20040205184841.GB590@elf.ucw.cz> <20040205213303.GA9757@atomide.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040205213303.GA9757@atomide.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quote from Pavel Machek <pavel@suse.cz>:
-> Hi!
+Hi!
+
+> Here's some comments after trying out your 2 patches. 
 > 
-> > > mount
-> > > umount
-> > > cdrecord -blank
-> > > mount
-> > > see old data
-> > > 
-> > > That looks pretty bad. If there's no other solution, we might just
-> > > document it, but...
-> > 
-> > I think cdrecord should be hacked to complain loudly if the device is
-> > already mounted.  Regardless of the device cache not being cleared,
-> > (which is a firmware bug, in my opinion), blanking a mounted device is
-> > usually not what the user intended.  This is not a kernel problem as
-> > such, and should be dealt with in userspace.
+> First, the PCMCIA patch worked great, I can now plug/unplug power cord with
+> yenta_socket loaded :) Maybe now I can _haul_ this laptop to a cafe and use 
+> the WLAN, hehe. In case anybody else needs them, I'll put the
+> patches 
+
+Good.
+
+> The powernow-k8.c patch did not work, as my numpst is 8, not 3. So why not
+> just ignore the numpst, as it is not used?
+
+What are the BIOS people smoking? I thought they have left some old
+tables there, but they keep updating them...
+
+
+> Maybe replace this
 > 
-> But it is _not_ mounted at that point. User did no mistake.
+>  		if (psb->numpst != 1) {
+>  			printk(KERN_ERR BFX "numpst must be 1\n");
+> -			return -ENODEV;
+> +			if (psb->numpst == 3) {
+> +				printk(KERN_INFO PFX "assuming arima notebug\n");
+> +				arima = 1;
+> +			} else
+> +				return -ENODEV;
+>  		}
+> 
+> With this instead:
+>  
+>  		dprintk(KERN_DEBUG PFX "numpst: 0x%x\n", psb->numpst);
+>  		if (psb->numpst != 1) {
+> -			printk(KERN_ERR BFX "numpst must be 1\n");
+> -			return -ENODEV;
+> +			printk(KERN_WARNING BFX "numpst listed as %i "
+> +			       "should be 1. Using 1.\n", psb->numpst);
+>  		}
 
-OK, then this proves that this thread has been going on _way_ too
-long, because not only have we discussed both scenarios during the
-course of it, but I have managed to confuse both of them in the same
-post :-).
+Well, I wanted some way to detect exactly this broken machine. You
+might want to simply put == 8 there.. but proper solution is DMI blacklist. 
 
-In the scenario you describe, where the disc is unmounted, there is
-nothing for cdrecord to complain about.  All that could really be done
-is to hack cdrecord to reset the device afterwards for broken devices,
-which would presumably flush the device's own cache.  However, even
-this may not be sufficient, as from reading another post in this
-thread, it seems that we need to force the drive to report that the
-media has changed before the kernel will flush _it's_ buffers.
+> I see a little problem with hardcoding the values:
+> 
+> +		if (arima) {
+> +			ppst[1].fid = 0x8;
+> +			ppst[1].vid = 0x6;
+> +#ifdef THREE
+> +			ppst[2].fid = 0xa;
+> +			ppst[2].vid = 0x2;
+> +#endif
+>  		}
+> 
+> This would fail if I upgraded my CPU, right? 
 
-Obviously, that could be worked around in the kernel, but I would
-expect the device to report media changed if it's been erased,
-(although whether that is part of the spec or not, I have no idea).
+Yes.
 
-John.
+> What do you think about using module options maxfid and maxvid?
+
+Well, the original BIOS has not only maximum values wrong, but also
+1600MHz wrong, as far as I can tell...
+
+Something like /proc/frequencies file would be needed where you could
+
+echo "0 0xa; 0x8 0x6; 0xa 0x2" > /proc/frequencies to override. You
+need to override all of them, not just top one.
+							Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

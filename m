@@ -1,52 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269428AbRHLUgA>; Sun, 12 Aug 2001 16:36:00 -0400
+	id <S269021AbRHLVJW>; Sun, 12 Aug 2001 17:09:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269431AbRHLUfu>; Sun, 12 Aug 2001 16:35:50 -0400
-Received: from leng.mclure.org ([64.81.48.142]:3854 "EHLO
-	leng.internal.mclure.org") by vger.kernel.org with ESMTP
-	id <S269428AbRHLUfe>; Sun, 12 Aug 2001 16:35:34 -0400
-Date: Sun, 12 Aug 2001 13:35:39 -0700
-From: Manuel McLure <manuel@mclure.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Hang problem on Tyan K7 Thunder resolved -- SB Live! heads-up
-Message-ID: <20010812133539.A17802@ulthar.internal.mclure.org>
-In-Reply-To: <20010812113142.G948@ulthar.internal.mclure.org> <E15W1eR-000691-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <E15W1eR-000691-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Aug 12, 2001 at 13:15:59 -0700
-X-Mailer: Balsa 1.2.pre1
+	id <S269436AbRHLVJL>; Sun, 12 Aug 2001 17:09:11 -0400
+Received: from dv1.dataventures.com ([207.188.144.122]:4323 "EHLO
+	dv1.dataventures.com") by vger.kernel.org with ESMTP
+	id <S269021AbRHLVI5>; Sun, 12 Aug 2001 17:08:57 -0400
+Message-ID: <3B76F05B.59E7E66E@dataventures.com>
+Date: Sun, 12 Aug 2001 15:08:43 -0600
+From: Donald Thompson <dlt@dataventures.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Stallion EasyIO and devfs
+In-Reply-To: <Pine.LNX.4.31.0107161135530.13603-100000@dv1.dataventures.com> <200107310112.f6V1C5e13968@mobilix.ras.ucalgary.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Works correctly. Didn't patch properly into 2.4.7 properly, think it
+just
+had the wrong line numbers. But patching it in by hand was no problem.
+I'm 
+missing compatability symlinks, so that I get links from /dev/ttyE/* to 
+/dev/ttyE*, but thats another problem.
 
-On 2001.08.12 13:15 Alan Cox wrote:
-> > On 2001.08.12 05:04 Alan Cox wrote:
-> > > The in kernel one seemed fine. The 2.4.8 update one is definitely
-> broken
-> > > on
-> > > SMP boxes
-> > 
-> > I'm getting 2.4.8 Oopsen that seem to be in emu10k1 code on UP - see my
-> > message "2.4.8 oops in ksoftirqd_CPU0"...
-> 
-> Yep. So far the new driver that Linus took from a non maintaier breaks
-> 
-> 	SMP
-> 	Some mixers
-> 	Uniprocessor with some cards
-> 	Surround sound (spews noise on cards)
-> 
-> so I think Linus should do the only sane thing - back it out. I'm backing
-> it out of -ac. Of my three boxes, one spews noise, one locks up smp and
-> one works.
+-Don
 
-Does the CVS driver work? If it does I can try that one instead of the
-in-kernel one.
-
--- 
-Manuel A. McLure KE6TAW | ...for in Ulthar, according to an ancient
-<manuel@mclure.org>     | and significant law, no man may kill a cat.
-<http://www.mclure.org> |             -- H.P. Lovecraft
+Richard Gooch wrote:
+> 
+> Donald Thompson writes:
+> > I've got a stallion EasyIO PCI 4 port card running on kernel 2.4.4.
+> > Loading the stallion.o module does not seem to create the proper device files
+> > for me using devfs.
+> >
+> > Upon loading the module I get the following devices created:
+> >
+> > /dev/ttyE
+> > /dev/cue
+> > /dev/staliomem/0
+> > /dev/staliomem/1
+> > /dev/staliomem/2
+> > /dev/staliomem/3
+> >
+> > I don't get /dev/ttyE0 through /dev/ttyE3 or /dev/ttyE/0 through
+> > /dev/ttyE/3, which is what I believe should be happening.
+> 
+> Please apply the following patch to drivers/char/stallion.c and let me
+> know if that helps.
+> 
+>                                 Regards,
+> 
+>                                         Richard....
+> Permanent: rgooch@atnf.csiro.au
+> Current:   rgooch@ras.ucalgary.ca
+> 
+> --- stallion.c~ Fri Mar  2 14:12:07 2001
+> +++ stallion.c  Mon Jul 30 21:08:34 2001
+> @@ -139,8 +139,13 @@
+>  static char    *stl_drvtitle = "Stallion Multiport Serial Driver";
+>  static char    *stl_drvname = "stallion";
+>  static char    *stl_drvversion = "5.6.0";
+> +#ifdef CONFIG_DEVFS_FS
+> +static char    *stl_serialname = "ttyE/%d";
+> +static char    *stl_calloutname = "cue/%d";
+> +#else
+>  static char    *stl_serialname = "ttyE";
+>  static char    *stl_calloutname = "cue";
+> +#endif
+> 
+>  static struct tty_driver       stl_serial;
+>  static struct tty_driver       stl_callout;

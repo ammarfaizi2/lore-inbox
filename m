@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264416AbRGISCP>; Mon, 9 Jul 2001 14:02:15 -0400
+	id <S264432AbRGISDP>; Mon, 9 Jul 2001 14:03:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264433AbRGISCG>; Mon, 9 Jul 2001 14:02:06 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:64273 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264416AbRGISBx>; Mon, 9 Jul 2001 14:01:53 -0400
-Date: Mon, 9 Jul 2001 11:00:44 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <andrewm@uow.edu.au>,
-        Abraham vd Merwe <abraham@2d3d.co.za>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: msync() bug
-In-Reply-To: <Pine.LNX.4.21.0107091852580.923-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0107091058490.14375-100000@penguin.transmeta.com>
+	id <S264433AbRGISDF>; Mon, 9 Jul 2001 14:03:05 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:45070 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S264432AbRGISCw>;
+	Mon, 9 Jul 2001 14:02:52 -0400
+Date: Mon, 9 Jul 2001 15:02:46 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Rick Hohensee <humbubba@smarty.smart.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Microsoft's word
+In-Reply-To: <200107090839.EAA14883@smarty.smart.net>
+Message-ID: <Pine.LNX.4.33L.0107091501430.9081-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 9 Jul 2001, Rick Hohensee wrote:
 
-On Mon, 9 Jul 2001, Hugh Dickins wrote:
->
-> As it stands, yes.  But shouldn't there be some kind of VM_ASIFRESERVED
-> vma flag to treat all its pages as if they were reserved, for /dev/mem?
+> This is what my earlier rant was about. I wasn't clear. Sorry. I do
+> believe this pertains to linux-kernel.
 
-Sure, that is doable. We do in fact already have the flag - you could
-think of the VM_IO as that kind of flag already. I wouldn't object to that
-kind of change in the 2.5.x timeframe. We already have vmscan ignoring
-VM_IO objects, we could do the same to copy_mm() and to mmdrop().
+Sorry. I do believe this is your third troll in 2 weeks.
 
-		Linus
+Have you stopped working on clienux and devoted your time
+to trolling? ;)
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

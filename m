@@ -1,203 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266069AbTBQAQu>; Sun, 16 Feb 2003 19:16:50 -0500
+	id <S266637AbTBQAfA>; Sun, 16 Feb 2003 19:35:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266095AbTBQAQu>; Sun, 16 Feb 2003 19:16:50 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46598 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266069AbTBQAQr>; Sun, 16 Feb 2003 19:16:47 -0500
-Date: Sun, 16 Feb 2003 16:23:04 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>, Anton Blanchard <anton@samba.org>,
-       Andrew Morton <akpm@digeo.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@holomorphy.com>
-Subject: Re: more signal locking bugs?
-In-Reply-To: <Pine.LNX.4.44.0302162100140.24528-100000@dbl.q-ag.de>
-Message-ID: <Pine.LNX.4.44.0302161620020.1609-100000@home.transmeta.com>
+	id <S266645AbTBQAfA>; Sun, 16 Feb 2003 19:35:00 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:59046 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S266637AbTBQAe6>; Sun, 16 Feb 2003 19:34:58 -0500
+Date: Sun, 16 Feb 2003 16:44:46 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: lse-tech <lse-tech@lists.sourceforge.net>, Andrew Morton <akpm@digeo.com>
+Subject: Performance of ext3 on large systems
+Message-ID: <66390000.1045442686@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+OK, so I guess we all know that ext3 doesn't scale well. But by 
+accident, I have some numbers on exactly how bad it really is:
 
-On Sun, 16 Feb 2003, Manfred Spraul wrote:
-> 
-> What about this minimal patch? The performance critical operation is 
-> signal delivery - we should fix the synchronization between signal 
-> delivery and exec first.
+Kernbench-2: (make -j N vmlinux, where N = 2 x num_cpus)
+                                   Elapsed        User      System         CPU
+            2.5.61-mjb0.1-ext3       48.47      564.13      143.16     1458.67
+            2.5.61-mjb0.1-ext2       46.06      563.04      115.36     1472.33
 
-Ok, I committed this alternative change, which isn't quite as minimal, but 
-looks a lot cleaner to me.
+(look at system time ... eeek!)
 
-Also, looking at execve() and other paths, we do seem to have sufficient 
-protection from the tasklist_lock that signal delivery should be fine. So 
-despite a long and confused thread, I think in the end the only real bug 
-was the one Martin found which should be thus fixed..
+diffprofile (+ is worse with ext3, - better)
 
-		Linus
-
----
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1054  -> 1.1055 
-#	include/linux/signal.h	1.8     -> 1.9    
-#	     fs/proc/array.c	1.42    -> 1.43   
-#	      kernel/sched.c	1.158   -> 1.159  
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/02/16	torvalds@home.transmeta.com	1.1055
-# Clean up and fix locking around signal rendering
-# --------------------------------------------
-#
-diff -Nru a/fs/proc/array.c b/fs/proc/array.c
---- a/fs/proc/array.c	Sun Feb 16 16:22:45 2003
-+++ b/fs/proc/array.c	Sun Feb 16 16:22:45 2003
-@@ -180,51 +180,74 @@
- 	return buffer;
- }
- 
-+static char * render_sigset_t(const char *header, sigset_t *set, char *buffer)
-+{
-+	int i, len;
-+
-+	len = strlen(header);
-+	memcpy(buffer, header, len);
-+	buffer += len;
-+
-+	i = _NSIG;
-+	do {
-+		int x = 0;
-+
-+		i -= 4;
-+		if (sigismember(set, i+1)) x |= 1;
-+		if (sigismember(set, i+2)) x |= 2;
-+		if (sigismember(set, i+3)) x |= 4;
-+		if (sigismember(set, i+4)) x |= 8;
-+		*buffer++ = (x < 10 ? '0' : 'a' - 10) + x;
-+	} while (i >= 4);
-+
-+	*buffer++ = '\n';
-+	*buffer = 0;
-+	return buffer;
-+}
-+
- static void collect_sigign_sigcatch(struct task_struct *p, sigset_t *ign,
- 				    sigset_t *catch)
- {
- 	struct k_sigaction *k;
- 	int i;
- 
--	sigemptyset(ign);
--	sigemptyset(catch);
-+	k = p->sighand->action;
-+	for (i = 1; i <= _NSIG; ++i, ++k) {
-+		if (k->sa.sa_handler == SIG_IGN)
-+			sigaddset(ign, i);
-+		else if (k->sa.sa_handler != SIG_DFL)
-+			sigaddset(catch, i);
-+	}
-+}
-+
-+static inline char * task_sig(struct task_struct *p, char *buffer)
-+{
-+	sigset_t pending, shpending, blocked, ignored, caught;
-+
-+	sigemptyset(&pending);
-+	sigemptyset(&shpending);
-+	sigemptyset(&blocked);
-+	sigemptyset(&ignored);
-+	sigemptyset(&caught);
- 
-+	/* Gather all the data with the appropriate locks held */
- 	read_lock(&tasklist_lock);
- 	if (p->sighand) {
- 		spin_lock_irq(&p->sighand->siglock);
--		k = p->sighand->action;
--		for (i = 1; i <= _NSIG; ++i, ++k) {
--			if (k->sa.sa_handler == SIG_IGN)
--				sigaddset(ign, i);
--			else if (k->sa.sa_handler != SIG_DFL)
--				sigaddset(catch, i);
--		}
-+		pending = p->pending.signal;
-+		shpending = p->signal->shared_pending.signal;
-+		blocked = p->blocked;
-+		collect_sigign_sigcatch(p, &ignored, &caught);
- 		spin_unlock_irq(&p->sighand->siglock);
- 	}
- 	read_unlock(&tasklist_lock);
--}
--
--static inline char * task_sig(struct task_struct *p, char *buffer)
--{
--	sigset_t ign, catch;
- 
--	buffer += sprintf(buffer, "SigPnd:\t");
--	buffer = render_sigset_t(&p->pending.signal, buffer);
--	*buffer++ = '\n';
--	buffer += sprintf(buffer, "ShdPnd:\t");
--	buffer = render_sigset_t(&p->signal->shared_pending.signal, buffer);
--	*buffer++ = '\n';
--	buffer += sprintf(buffer, "SigBlk:\t");
--	buffer = render_sigset_t(&p->blocked, buffer);
--	*buffer++ = '\n';
--
--	collect_sigign_sigcatch(p, &ign, &catch);
--	buffer += sprintf(buffer, "SigIgn:\t");
--	buffer = render_sigset_t(&ign, buffer);
--	*buffer++ = '\n';
--	buffer += sprintf(buffer, "SigCgt:\t"); /* Linux 2.0 uses "SigCgt" */
--	buffer = render_sigset_t(&catch, buffer);
--	*buffer++ = '\n';
-+	/* render them all */
-+	buffer = render_sigset_t("SigPnd:\t", &pending, buffer);
-+	buffer = render_sigset_t("ShdPnd:\t", &shpending, buffer);
-+	buffer = render_sigset_t("SigBlk:\t", &blocked, buffer);
-+	buffer = render_sigset_t("SigIgn:\t", &ignored, buffer);
-+	buffer = render_sigset_t("SigCgt:\t", &caught, buffer);
- 
- 	return buffer;
- }
-diff -Nru a/include/linux/signal.h b/include/linux/signal.h
---- a/include/linux/signal.h	Sun Feb 16 16:22:45 2003
-+++ b/include/linux/signal.h	Sun Feb 16 16:22:45 2003
-@@ -151,8 +151,6 @@
- 	}
- }
- 
--extern char * render_sigset_t(sigset_t *set, char *buffer);
--
- /* Some extensions for manipulating the low 32 signals in particular.  */
- 
- static inline void sigaddsetmask(sigset_t *set, unsigned long mask)
-diff -Nru a/kernel/sched.c b/kernel/sched.c
---- a/kernel/sched.c	Sun Feb 16 16:22:45 2003
-+++ b/kernel/sched.c	Sun Feb 16 16:22:45 2003
-@@ -2095,21 +2095,6 @@
- 	}
- }
- 
--char * render_sigset_t(sigset_t *set, char *buffer)
--{
--	int i = _NSIG, x;
--	do {
--		i -= 4, x = 0;
--		if (sigismember(set, i+1)) x |= 1;
--		if (sigismember(set, i+2)) x |= 2;
--		if (sigismember(set, i+3)) x |= 4;
--		if (sigismember(set, i+4)) x |= 8;
--		*buffer++ = (x < 10 ? '0' : 'a' - 10) + x;
--	} while (i >= 4);
--	*buffer = 0;
--	return buffer;
--}
--
- void show_state(void)
- {
- 	task_t *g, *p;
+12702 .text.lock.inode
+7786 default_idle
+1706 ext3_dirty_inode
+1694 start_this_handle
+1636 ext3_do_update_inode
+1304 .text.lock.dir
+983 journal_add_journal_head
+903 __find_get_block_slow
+797 .text.lock.sem
+630 __mark_inode_dirty
+567 __brelse
+537 __find_get_block
+523 __wake_up
+459 ext3_get_inode_loc
+454 find_get_page
+434 __blk_queue_bounce
+382 generic_fillattr
+360 fd_install
+357 do_get_write_access
+308 d_lookup
+290 vfs_read
+289 do_anonymous_page
+272 dput
+267 file_ra_state_init
+249 journal_get_write_access
+243 page_remove_rmap
+222 link_path_walk
+220 may_open
+195 vm_enough_memory
+189 ext3_readdir
+186 journal_stop
+185 journal_dirty_metadata
+152 __fput
+148 update_atime
+110 zap_pte_range
+105 .text.lock.sched
+100 fput
+96 buffered_rmqueue
+95 filemap_nopage
+93 ext3_prepare_write
+90 page_add_rmap
+86 find_next_usable_block
+76 block_write_full_page
+71 journal_cancel_revoke
+70 bh_lru_install
+65 journal_unlock_journal_head
+64 .text.lock.namei
+63 do_page_cache_readahead
+61 log_space_left
+61 ext3_check_dir_entry
+59 __copy_from_user_ll
+58 kfree
+58 journal_commit_transaction
+54 kmem_cache_free
+54 do_sync_read
+54 .text.lock.char_dev
+50 ext3_get_block_handle
+...
+-52 find_vma
+-58 page_address
+-58 get_empty_filp
+-60 do_generic_mapping_read
+-74 ext2_readdir
+-85 generic_file_open
+-87 atomic_dec_and_lock
+-109 file_move
+-513 dentry_open
+-1468 follow_mount
+-2091 .text.lock.file_table
 

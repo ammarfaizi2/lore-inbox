@@ -1,51 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286224AbSAAI4I>; Tue, 1 Jan 2002 03:56:08 -0500
+	id <S287566AbSAAJR7>; Tue, 1 Jan 2002 04:17:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287563AbSAAIzt>; Tue, 1 Jan 2002 03:55:49 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:43015 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S286224AbSAAIzp>; Tue, 1 Jan 2002 03:55:45 -0500
-Date: Tue, 1 Jan 2002 02:55:40 -0600
-To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: State of the new config & build system
-Message-ID: <20020101085540.GB1303@cadcamlab.org>
-In-Reply-To: <20011227174723.V25698@work.bitmover.com> <19047.1009504678@ocs3.intra.ocs.com.au> <20011231200359.A22497@bluemug.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011231200359.A22497@bluemug.com>
-User-Agent: Mutt/1.3.24i
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S287773AbSAAJRj>; Tue, 1 Jan 2002 04:17:39 -0500
+Received: from h24-71-223-13.cg.shawcable.net ([24.71.223.13]:35697 "EHLO
+	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id <S287566AbSAAJRi>; Tue, 1 Jan 2002 04:17:38 -0500
+Date: Tue, 01 Jan 2002 02:17:32 -0700 (MST)
+From: Tim Keating <tkeating@shaw.ca>
+Subject: Another .text.exit error.  2.4.18pre1
+X-X-Sender: <tkeating@darkspace.hidden.net>
+To: linux-kernel@vger.kernel.org
+Message-id: <Pine.LNX.4.33.0201010206291.217-100000@darkspace.hidden.net>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[Mike Touloumtzis]
-> Why not use '$(GCC) -c -Wp,-MD,foo.d foo.c' to generate the
-> dependencies as a side effect of the regular compile step?
+ld -m elf_i386 -T /usr/src/linux-pre/arch/i386/vmlinux.lds -e stext
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
+init/version.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
+mm/mm.o fs/fs.o ipc/ipc.o \
+         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o
+drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o
+drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/cdrom/driver.o
+drivers/pci/driver.o drivers/video/video.o drivers/input/inputdrv.o \
+        net/network.o \
+        /usr/src/linux-pre/arch/i386/lib/lib.a
+/usr/src/linux-pre/lib/lib.a /usr/src/linux-pre/arch/i386/lib/lib.a \
+        --end-group \
+        -o vmlinux
+net/network.o(.text.lock+0x16f0): undefined reference to `local symbols in
+discarded section .text.exit'
+make: *** [vmlinux] Error 1
 
-As Keith said, kbuild 2.5 *does* use 'gcc -MD' - although the *current*
-system does not.
 
-Linus has said that he doesn't like -MD, and he has a point: it only
-extracts dependencies for your *current* compile, which means they have
-to be rebuilt if you change CONFIG options.  However, those CONFIG
-options would cause rebuilding of the file *anyway*, and -MD is almost
-free since the preprocessor already has to read the files in question,
-so I'm not convinced that it's a big deal.
+Using Keith Owens perl script I found in message;
 
-> The "build whole clean tree" case is a common one even among kernel
-> developers, e.g. for compile-testing patches before resending them.
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0112.3/0700.html
 
-One of the main points of kbuild 2.5 is that, unlike the current
-system, it tracks dependencies perfectly.  Thus you should almost never
-have to run 'make clean' before test compiling something - unless you
-need to see non-fatal compile warnings.
+I get ...
 
-It may take some time to get used to the soon-to-be new reality of "ok,
-so I just applied eight kernel patches from three different places but
-I know I don't need to bother with 'make clean' because the dependency
-system is just *that good*."
 
-Peter
+Finding objects, 438 objects, ignoring 0 module(s)
+Finding conglomerates, ignoring 35 conglomerate(s)
+Scanning objects
+Error: ./net/ipv4/netfilter/ip_nat_snmp_basic.o .text.lock refers to
+0000003c R_386_PC32        .text.exit
+Done
+
+I'm sorry .. not on the list.  Please cc me if you require more info.
+
+Tim
+
+-- 
+If you want to speak to someone knowledgeable about computers and who
+knows what's going on in "the local computer store", then you are forced
+to talk to yourself... (;-))
+

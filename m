@@ -1,127 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267995AbUHFAzO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268037AbUHFA5e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267995AbUHFAzO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 20:55:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268037AbUHFAzO
+	id S268037AbUHFA5e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 20:57:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268039AbUHFA5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 20:55:14 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:52882 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S267995AbUHFAzA convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 20:55:00 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Thu, 5 Aug 2004 20:57:34 -0400
+Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:24922 "HELO
+	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268037AbUHFAzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 20:55:35 -0400
+Message-ID: <4112D6FD.4030707@yahoo.com.au>
+Date: Fri, 06 Aug 2004 10:55:25 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040726 Debian/1.7.1-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] Automatically enable bigsmp on big HP machines
-Date: Thu, 5 Aug 2004 17:54:25 -0700
-Message-ID: <88056F38E9E48644A0F562A38C64FB600289B2DC@scsmsx403.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Automatically enable bigsmp on big HP machines
-Thread-Index: AcR66flDYTVLjPMsQYGaRkvx6V4WkwAYBhrA
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Andi Kleen" <ak@suse.de>, <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 06 Aug 2004 00:54:27.0211 (UTC) FILETIME=[EC6855B0:01C47B4F]
+To: Phillip Lougher <phillip@lougher.demon.co.uk>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] VFS readahead bug in 2.6.8-rc[1-3]
+References: <41127371.1000603@lougher.demon.co.uk>
+In-Reply-To: <41127371.1000603@lougher.demon.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Phillip Lougher wrote:
+
+> Hi,
+>
+> There is a readahead bug in do_generic_mapping_read (filemap.c).  This
+> bug appears to have been introduced in 2.6.8-rc1.  Specifically the bug
+> is caused by an incorrect code change which causes VFS to call
+> readpage() for indexes beyond the end of files where the file length is
+> zero or a 4k multiple.
+>
+> In Squashfs this causes a variety of almost immediate OOPes because
+> Squashfs trusts the VFS not to pass invalid index values.  For other
+> filesystems it may also be causing subtle bugs.  I have received
+> prune_dcache oopes similar to Gene Heskett's (which was also
+> pointer corruption), and so it may fix this and other reported
+> readahead bugs.
+>
+> The patch is against 2.6.8-rc3.
+>
+
+Good work - bug is mine, sorry.
+
+You actually re-introduce a bug where read can return incorrect
+data due to i_size changing from under it (I introduced this bug
+while fixing that one).
+
+My fix was to re-check i_size and update 'nr' after doing the
+->readpage. You could probably fix up both problems with your
+patch and also copying the hunk down to after i_size gets rechecked.
+Does that sound ok?
 
 
-Instead of handling these individually for particular systems, 
-can't we just switch to bigsmp whenever we see more than 8 CPU 
-in the CPU enumeration and no other subarchitecture is selected by 
-any dmi override.
+The root of the problem is that i_size gets checked from multiple
+places that it can get out of synch. A nice fix would be to snapshot
+i_size once, and pass that around everywhere. Unfortunately this is
+very intrusive.
 
-I had some patch that does soemthing like this, a while back. If 
-you are OK with the idea, I can dig out that patch and send it. 
-
-Thanks,
-Venki
-
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org 
->[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Andi Kleen
->Sent: Thursday, August 05, 2004 5:39 AM
->To: akpm@osdl.org
->Cc: linux-kernel@vger.kernel.org
->Subject: [PATCH] Automatically enable bigsmp on big HP machines
->
->
->This enables apic=bigsmp automatically on some big HP machines 
->that need it. 
->This makes them boot without kernel parameters on a generic 
->arch kernel.
->
->Also it removes an unnecessary panic in the same area.
->
->-Andi
->
->diff -u linux-2.6.7/arch/i386/kernel/dmi_scan.c-HP 
->linux-2.6.7/arch/i386/kernel/dmi_scan.c
->--- linux-2.6.7/arch/i386/kernel/dmi_scan.c-HP	2004-08-05 
->14:00:29.325072566 +0200
->+++ linux-2.6.7/arch/i386/kernel/dmi_scan.c	2004-08-05 
->14:19:57.058593500 +0200
->@@ -272,6 +272,16 @@
-> }  
-> #endif
-> 
->+static __init int hp_ht_bigsmp(struct dmi_blacklist *d) 
->+{ 
->+#ifdef CONFIG_X86_GENERICARCH
->+ 	extern int dmi_bigsmp;
->+ 	printk(KERN_NOTICE "%s detected: force use of 
->apic=bigsmp\n", d->ident);
->+ 	dmi_bigsmp = 1;
->+#endif
->+ 	return 0;
->+} 
->+
-> /*
->  *	Process the DMI blacklists
->  */
->@@ -460,6 +455,17 @@
-> #endif	// CONFIG_ACPI_BOOT
-> 
-> #ifdef	CONFIG_ACPI_PCI
->+
->+	{ hp_ht_bigsmp, "HP ProLiant DL760 G2", {
->+			MATCH(DMI_BIOS_VENDOR, "HP"),
->+			MATCH(DMI_BIOS_VERSION, "P44-"),
->+			NO_MATCH, NO_MATCH }},
->+
->+	{ hp_ht_bigsmp, "HP ProLiant DL740", {
->+			MATCH(DMI_BIOS_VENDOR, "HP"),
->+			MATCH(DMI_BIOS_VERSION, "P47-"),
->+			NO_MATCH, NO_MATCH }},
->+
-> 	/*
-> 	 *	Boxes that need ACPI PCI IRQ routing disabled
-> 	 */
->diff -u linux-2.6.7/arch/i386/kernel/io_apic.c-HP 
->linux-2.6.7/arch/i386/kernel/io_apic.c
->--- linux-2.6.7/arch/i386/kernel/io_apic.c-HP	2004-08-05 
->14:00:29.328072077 +0200
->+++ linux-2.6.7/arch/i386/kernel/io_apic.c	2004-08-05 
->14:17:49.595383418 +0200
->@@ -1714,7 +1714,7 @@
-> 		reg_00.raw = io_apic_read(apic, 0);
-> 		spin_unlock_irqrestore(&ioapic_lock, flags);
-> 		if (reg_00.bits.ID != mp_ioapics[apic].mpc_apicid)
->-			panic("could not set ID!\n");
->+			printk(" could not set ID!\n");
-> 		else
-> 			printk(" ok.\n");
-> 	}
->-
->To unsubscribe from this list: send the line "unsubscribe 
->linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->

@@ -1,24 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262412AbUCaUFe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 15:05:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUCaUFe
+	id S262413AbUCaUI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 15:08:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbUCaUI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 15:05:34 -0500
-Received: from build.arklinux.oregonstate.edu ([128.193.0.51]:31368 "EHLO
-	test.arklinux.org") by vger.kernel.org with ESMTP id S262412AbUCaUFa
+	Wed, 31 Mar 2004 15:08:59 -0500
+Received: from build.arklinux.oregonstate.edu ([128.193.0.51]:32136 "EHLO
+	test.arklinux.org") by vger.kernel.org with ESMTP id S262413AbUCaUIw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 15:05:30 -0500
-Date: Wed, 31 Mar 2004 12:15:01 -0800 (PST)
+	Wed, 31 Mar 2004 15:08:52 -0500
+Date: Wed, 31 Mar 2004 12:18:23 -0800 (PST)
 From: bero@arklinux.org
 X-X-Sender: bero@build.arklinux.oregonstate.edu
 To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] Aureal Vortex sound drivers broken in 2.6.5-rc3-mm3
-Message-ID: <Pine.LNX.4.58.0403311213590.14154@build.arklinux.oregonstate.edu>
+Subject: Re: [PATCH] Aureal Vortex sound drivers broken in 2.6.5-rc3-mm3
+In-Reply-To: <Pine.LNX.4.58.0403311213590.14154@build.arklinux.oregonstate.edu>
+Message-ID: <Pine.LNX.4.58.0403311217430.14154@build.arklinux.oregonstate.edu>
+References: <Pine.LNX.4.58.0403311213590.14154@build.arklinux.oregonstate.edu>
 X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
 X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1048562944-990213000-1080764101=:14154"
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1048562944-1104645776-1080764303=:14154"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -26,10 +28,15 @@ X-Mailing-List: linux-kernel@vger.kernel.org
   while the remaining parts are likely unreadable without MIME-aware tools.
   Send mail to mime@docserver.cac.washington.edu for more info.
 
----1048562944-990213000-1080764101=:14154
+---1048562944-1104645776-1080764303=:14154
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-SSIA - fix attached.
+On Wed, 31 Mar 2004 bero@arklinux.org wrote:
+
+> SSIA - fix attached.
+
+I've overlooked another occurence of the same thing in the last patch -- 
+updated patch attached.
 
 LLaP
 bero
@@ -40,11 +47,11 @@ http://www.arklinux.org/
 
 Redistribution and processing of this message is subject to
 http://www.arklinux.org/terms.php
----1048562944-990213000-1080764101=:14154
+---1048562944-1104645776-1080764303=:14154
 Content-Type: TEXT/PLAIN; charset=US-ASCII; name="linux-2.6.5-rc3-mm3-aureal-fix.patch"
 Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.58.0403311215010.14154@build.arklinux.oregonstate.edu>
-Content-Description: Fix Aureal
+Content-ID: <Pine.LNX.4.58.0403311218230.14154@build.arklinux.oregonstate.edu>
+Content-Description: Updated Aureal fix
 Content-Disposition: attachment; filename="linux-2.6.5-rc3-mm3-aureal-fix.patch"
 
 LS0tIGxpbnV4LTIuNi40L2luY2x1ZGUvbGludXgvcGNpX2lkcy5oLmFyawky
@@ -81,6 +88,16 @@ DQorCSh4LT5yZXYgPCAzICYmIHgtPmRldmljZSA9PSBQQ0lfREVWSUNFX0lE
 X0FVUkVBTF9WT1JURVhfMSkgfHwgXA0KKwkoeC0+cmV2IDwgMHhmZSAmJiB4
 LT5kZXZpY2UgPT0gUENJX0RFVklDRV9JRF9BVVJFQUxfVk9SVEVYXzIpIHx8
 IFwNCiAJKHgtPnJldiA8IDB4ZmUgJiYgeC0+ZGV2aWNlID09IFBDSV9ERVZJ
-Q0VfSURfQVVSRUFMX0FEVkFOVEFHRSkpDQogDQogDQo=
+Q0VfSURfQVVSRUFMX0FEVkFOVEFHRSkpDQogDQogDQotLS0gbGludXgtMi42
+LjQvc291bmQvcGNpL2F1ODh4MC9hdTg4MjAuYy5hcmsJMjAwNC0wNC0wMSAw
+NToxNzowMC44ODQzODc0NDggKzAyMDANCisrKyBsaW51eC0yLjYuNC9zb3Vu
+ZC9wY2kvYXU4OHgwL2F1ODgyMC5jCTIwMDQtMDQtMDEgMDU6MTc6MDUuNjMz
+NjY1NDQ4ICswMjAwDQpAQCAtMSw3ICsxLDcgQEANCiAjaW5jbHVkZSAiYXU4
+ODIwLmgiDQogI2luY2x1ZGUgImF1ODh4MC5oIg0KIHN0YXRpYyBzdHJ1Y3Qg
+cGNpX2RldmljZV9pZCBzbmRfdm9ydGV4X2lkc1tdID0gew0KLQl7UENJX1ZF
+TkRPUl9JRF9BVVJFQUwsIFBDSV9ERVZJQ0VfSURfQVVSRUFMX1ZPUlRFWCwN
+CisJe1BDSV9WRU5ET1JfSURfQVVSRUFMLCBQQ0lfREVWSUNFX0lEX0FVUkVB
+TF9WT1JURVhfMSwNCiAJIFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIDAsIDAs
+IDAsfSwNCiAJezAsfQ0KIH07DQo=
 
----1048562944-990213000-1080764101=:14154--
+---1048562944-1104645776-1080764303=:14154--

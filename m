@@ -1,77 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266034AbUAUTP1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 14:15:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266102AbUAUTP1
+	id S266097AbUAUTUt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 14:20:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266099AbUAUTUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 14:15:27 -0500
-Received: from sandershosting.com ([69.26.136.138]:62628 "HELO
-	sandershosting.com") by vger.kernel.org with SMTP id S266034AbUAUTPZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 14:15:25 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: David Sanders <linux@sandersweb.net>
-Reply-To: David Sanders <linux@sandersweb.net>
-Organization: SandersWeb.net
-Message-Id: <200401211412.55229@sandersweb.net>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: [PATCH-BK-2.6] NTFS fix "du" and "stat" output (NTFS 2.1.6).
-Date: Wed, 21 Jan 2004 14:14:56 -0500
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-References: <Pine.SOL.4.58.0401191413180.7391@yellow.csi.cam.ac.uk> <200401211318.53776@sandersweb.net>
-In-Reply-To: <200401211318.53776@sandersweb.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	Wed, 21 Jan 2004 14:20:49 -0500
+Received: from [128.173.54.129] ([128.173.54.129]:6528 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S266097AbUAUTUr (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 14:20:47 -0500
+Message-Id: <200401211920.i0LJKZ2a003504@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.6.1-mm4 
+In-Reply-To: Your message of "Wed, 21 Jan 2004 19:46:32 +0100."
+             <400EC908.4020801@gmx.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040115225948.6b994a48.akpm@osdl.org> <4007B03C.4090106@gmx.de>
+            <400EC908.4020801@gmx.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_668682134P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 21 Jan 2004 14:20:35 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 21 January 2004 01:24 pm, David Sanders wrote:
-> On Monday 19 January 2004 09:15 am, Anton Altaparmakov wrote:
-> > This fixes the erroneous "du" and "stat" output people reported on
-> > ntfs partitions containing compressed directories.
->
-> Thanks for the quick patch.  There are still problems with the
-> reported disk usage.  I use as an example the file win.ini.  With the
-> 2.4.24 kernel I get the following results:
-> $ ls -l win.ini
-> -r--r-----    1 root     staff         399 Jan 27  2003 win.ini
->
-> $ stat win.ini
->   File: "win.ini"
->   Size: 399       	Blocks: 2          IO Block: 1024   Regular File
-> Device: 305h/773d	Inode: 1023        Links: 1
-> Access: (0440/-r--r-----)  Uid: (    0/    root)   Gid: (   50/  
-> staff) Access: Thu Jan 15 15:34:09 2004
-> Modify: Mon Jan 27 18:54:00 2003
-> Change: Sun Sep 22 07:23:44 2002
->
-> $ du -h win.ini
-> 1.0k	win.ini
->
-> But, under the 2.6.1 kernel:
-> $ ls -l win.ini
-> -r-xr-x---    1 root     staff         399 Jan 27  2003 win.ini
->
-> $ stat win.ini
->   File: "win.ini"
->   Size: 399       	Blocks: 0          IO Block: 4096   Regular File
-> Device: 305h/773d	Inode: 1023        Links: 1
-> Access: (0550/-r-xr-x---)  Uid: (    0/    root)   Gid: (   50/  
-> staff) Access: Thu Jan 15 15:34:09 2004
-> Modify: Mon Jan 27 18:54:00 2003
-> Change: Mon Jan 27 18:54:00 2003
->
-> $ du -h win.ini
-> 0	win.ini
->
-> Now, surely the 2.4.24 kernel is reporting the more accurate disk
-> usage since with 2.6.1 it reports 0 blocks (vice 2).
->
-> Thanks in advance,
-Also, chkdsk in winnt4 reports the cluster size in 512 bytes.  The ntfs 
-driver seems to think the size is 4096 bytes (or 1024 bytes in 2.4 
-kernel). Thanks,
--- 
-David Sanders
-linux@sandersweb.net
+--==_Exmh_668682134P
+Content-Type: text/plain; charset=us-ascii
+
+On Wed, 21 Jan 2004 19:46:32 +0100, "Prakash K. Cheemplavam" said:
+> Ok, here is the stack backtrace:
+> 
+> I hope it helps, otherwise I could try compiling in frame-pointers. (I 
+> used another logger to get this...)
+> 
+> Is it nvidia driver doing something bad (which earlier kernels didn't do)?
+> 
+> Jan 21 19:25:39 tachyon Badness in pci_find_subsys at 
+> drivers/pci/search.c:132
+> Jan 21 19:25:39 tachyon Call Trace:
+> Jan 21 19:25:39 tachyon [<c027a7f8>] pci_find_subsys+0xe8/0xf0
+> Jan 21 19:25:39 tachyon [<c027a82f>] pci_find_device+0x2f/0x40
+> Jan 21 19:25:39 tachyon [<c027a6e8>] pci_find_slot+0x28/0x50
+
+If this is the NVidia graphics driver, it's been doing it at least since 2.5.6something,
+at least that I've seen.  It's basically calling pci_find_slot in an interrupt context,
+which ends up calling pci_find_subsys which complains about it.  One possible
+solution would be for the code to be changed to call pci_find_slot during module
+initialization and save the return value, and use that instead.  Yes, I know this
+prevents hotplugging.  Who hotplugs graphics cards? ;)
+
+--==_Exmh_668682134P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFADtEDcC3lWbTT17ARAkolAKC0Bsttm2gn8U8maWRfuHx2Ji+uCwCeI/Pw
+4uUuV6n8lRoncT+qbO7W0Bw=
+=j/My
+-----END PGP SIGNATURE-----
+
+--==_Exmh_668682134P--

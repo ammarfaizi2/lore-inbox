@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266209AbUIEF5g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266218AbUIEGEH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266209AbUIEF5g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 01:57:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266218AbUIEF5g
+	id S266218AbUIEGEH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 02:04:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266221AbUIEGEH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 01:57:36 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:20635 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266209AbUIEF5d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 01:57:33 -0400
-Subject: Re: [OT] NVIDIA Driver 1.0-6111 fix
-From: Lee Revell <rlrevell@joe-job.com>
-To: Tim Fairchild <tim@bcs4me.com>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Christoph Hellwig <hch@infradead.org>,
-       Sid Boyce <sboyce@blueyonder.co.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200409051529.08786.tim@bcs4me.com>
-References: <200409050203.i8523X6W031952@localhost.localdomain>
-	 <1094355154.6575.604.camel@krustophenia.net>
-	 <200409051529.08786.tim@bcs4me.com>
-Content-Type: text/plain
-Message-Id: <1094363862.6575.645.camel@krustophenia.net>
+	Sun, 5 Sep 2004 02:04:07 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:24748
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S266218AbUIEGEE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 02:04:04 -0400
+Date: Sat, 4 Sep 2004 23:02:10 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: akpm@osdl.org, torvalds@osdl.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/3] beat kswapd with the proverbial clue-bat
+Message-Id: <20040904230210.03fe3c11.davem@davemloft.net>
+In-Reply-To: <413AA7B2.4000907@yahoo.com.au>
+References: <413AA7B2.4000907@yahoo.com.au>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 05 Sep 2004 01:57:42 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-09-05 at 01:29, Tim Fairchild wrote:
-> On Sunday 05 Sep 2004 13:32, Lee Revell wrote:
-> 
-> > I meant that the number of people using the nvidia driver was way more
-> > than I would have thought.  There are a *lot* of people gaming on Linux
-> > these days, I had no idea.  This is great.
-> 
-> I knew what you meant, and yes, it's cool. The 2.6 kernel is looking better 
-> than ever for gaming IMO...
-> 
+On Sun, 05 Sep 2004 15:44:18 +1000
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-Some guy showed up on one of the linux-audio lists with a question about
-installing the voluntary preemption patches.  Turned out he was a gamer
-who had been using the Linux audio distros because they gave him the
-best latency.
+> So my solution? Just teach kswapd and the watermark code about higher
+> order allocations in a fairly simple way. If pages_low is (say), 1024KB,
+> we now also require 512KB of order-1 and above pages, 256K of order-2
+> and up, 128K of order 3, etc. (perhaps we should stop at about order-3?)
 
-Man, would I be scared to run into that guy on a UT server.
+Whether to stop at order 3 is indeed an interesting question.
 
-Lee
+The reality is that the high-order allocations come mostly from folks
+using jumbo 9K MTUs on gigabit and faster technologies.  On x86, an
+order 2 would cover those packet allocations, but on sparc64 for example
+order 1 would be enough, whereas on a 2K PAGE_SIZE system order 3 would
+be necessary.
 
+People using e1000 cards are hitting this case, and some of the e1000
+developers are going to play around with using page array based SKBs
+(via the existing SKB page frags mechanism).  So instead of allocating
+a huge linear chunk for RX packets, they'll allocate a header area of
+256 bytes then an array of pages to cover the rest.
+
+Right now, my current suggestion would not be to stop at a certain order.

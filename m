@@ -1,34 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262923AbVCWVKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVCWVKI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262923AbVCWVKk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 16:10:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262917AbVCWVKR
+	id S261338AbVCWVKI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 16:10:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbVCWVIA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 16:10:17 -0500
-Received: from fire.osdl.org ([65.172.181.4]:59569 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262923AbVCWVHv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 16:07:51 -0500
-Date: Wed, 23 Mar 2005 13:07:24 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, mahalcro@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] Keys: Use RCU to manage session keyring pointer
-Message-Id: <20050323130724.1aacfcf3.akpm@osdl.org>
-In-Reply-To: <29285.1111609185@redhat.com>
-References: <29204.1111608899@redhat.com>
-	<29285.1111609185@redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Mar 2005 16:08:00 -0500
+Received: from alog0321.analogic.com ([208.224.222.97]:45972 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262937AbVCWU4X
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 15:56:23 -0500
+Date: Wed, 23 Mar 2005 15:56:12 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Arjan van de Ven <arjan@infradead.org>
+cc: sounak chakraborty <sounakrin@yahoo.co.in>, linux-kernel@vger.kernel.org
+Subject: Re: repeat a function after fixed time period
+In-Reply-To: <1111610935.6306.97.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.61.0503231551570.16734@chaos.analogic.com>
+References: <20050323194308.8459.qmail@web53307.mail.yahoo.com> 
+ <Pine.LNX.4.61.0503231522070.16567@chaos.analogic.com>
+ <1111610935.6306.97.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells <dhowells@redhat.com> wrote:
->
-> The attached patch uses RCU to manage the session keyring pointer in struct
->  signal_struct.
+On Wed, 23 Mar 2005, Arjan van de Ven wrote:
 
-So are these patches dependent upon the
-keys-use-rcu-to-manage-session-keyring-pointer work?
+>
+>>
+>> This kernel code should do just fine.
+>>
+>>
+>>
+>> struct INFO {
+>>      struct timer_list timer;            // For test timer
+>>      atomic_t running;                   // Timer is running
+>>      };
+>>
+>> //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+>> //
+>> //   This stops the timer. This must NOT be called with a spin-lock
+>> //   held.
+>> //
+>> static void stop_timer()
+>> {
+>>      if(atomic_read(&info->running))
+>>      {
+>>          atomic_dec(&info->running);
+>
+> this is a race.
+
+No, never. stop_timer() can be called at any time, even from
+interrupt context. The last guy to touch info->running wins.
+The logic works just perfectly.
+
+>
+>>          if(info->timer.function)
+>>              del_timer(&info->timer);
+>
+> you probably want del_timer_sync() here.
+>
+>
+>> static void start_timer(void)
+>> {
+>>      if(!atomic_read(&info->running))
+>>      {
+>>          atomic_inc(&info->running);
+>
+> same race.
+
+No such race at all.
+
+
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

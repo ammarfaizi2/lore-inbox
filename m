@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318348AbSHEJXR>; Mon, 5 Aug 2002 05:23:17 -0400
+	id <S318349AbSHEJYr>; Mon, 5 Aug 2002 05:24:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318349AbSHEJXQ>; Mon, 5 Aug 2002 05:23:16 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:12284 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318348AbSHEJXQ>; Mon, 5 Aug 2002 05:23:16 -0400
-Subject: Re: Thread group exit
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Zeuner, Axel" <Axel.Zeuner@partner.commerzbank.com>
+	id <S318353AbSHEJYr>; Mon, 5 Aug 2002 05:24:47 -0400
+Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:1920 "EHLO
+	DervishD.pleyades.net") by vger.kernel.org with ESMTP
+	id <S318349AbSHEJYq>; Mon, 5 Aug 2002 05:24:46 -0400
+Date: Mon, 05 Aug 2002 11:36:01 +0200
+Organization: Pleyades
+To: jamagallon@able.es, raul@pleyades.net
+Subject: Re: Just cosmethic but...
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <A1081E14241CD4119D2B00508BCF80410843F27D@SV021558>
-References: <A1081E14241CD4119D2B00508BCF80410843F27D@SV021558>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 05 Aug 2002 11:45:28 +0100
-Message-Id: <1028544328.17780.18.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Message-ID: <3D4E4701.mailBI21XG5T@viadomus.com>
+References: <3D4DAC97.mailYI11WJXY@viadomus.com>
+ <20020804231921.GA5118@junk.cps.unizar.es>
+In-Reply-To: <20020804231921.GA5118@junk.cps.unizar.es>
+User-Agent: nail 9.31 6/18/02
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+From: DervishD <raul@pleyades.net>
+Reply-To: DervishD <raul@pleyades.net>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-05 at 09:58, Zeuner, Axel wrote:
-> I would expect, that changes of the parent of one member of the thread group
-> do not affect the interactions between the members of the group. 
-> Corrections are welcome.
-> (Please cc mails to me, I read only the archives of the 
-> linux-kernel list.)
+    Hi Magallon :)
 
-I agree with your diagnosis I'm not convinced by your change. The thread
-groups are only used by NGPT not by glibc pthreads while the problem is
-true across both.
+>>     So, how about raising that 8 digits to at least 10, thus allowing
+>> pretty tabulations up to 9 Gb of RAM?
+>Why 10 ?
 
-Possibly the right fix is to remove the reparent to init increment of
-self_exec_id and instead explicitly check process 1 in the signal paths.
+    Just for being conservative ;)) Truly, the whole format should be
+changed, but...
 
-Opinions ?
+>13 digits (nice number ;))
 
+    I think that 13 digits will fit well too ;))
+
+    Raúl

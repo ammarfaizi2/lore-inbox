@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315276AbSHIRBn>; Fri, 9 Aug 2002 13:01:43 -0400
+	id <S315179AbSHIRAY>; Fri, 9 Aug 2002 13:00:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315279AbSHIRBn>; Fri, 9 Aug 2002 13:01:43 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3091 "EHLO
+	id <S315200AbSHIRAX>; Fri, 9 Aug 2002 13:00:23 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59666 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315276AbSHIRBm>; Fri, 9 Aug 2002 13:01:42 -0400
-Date: Fri, 9 Aug 2002 09:52:53 -0700 (PDT)
+	id <S315179AbSHIRAX>; Fri, 9 Aug 2002 13:00:23 -0400
+Date: Fri, 9 Aug 2002 09:51:30 -0700 (PDT)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Daniel Phillips <phillips@arcor.de>, <frankeh@watson.ibm.com>,
-       <davidm@hpl.hp.com>, David Mosberger <davidm@napali.hpl.hp.com>,
+To: Daniel Phillips <phillips@arcor.de>
+cc: frankeh@watson.ibm.com, <davidm@hpl.hp.com>,
+       David Mosberger <davidm@napali.hpl.hp.com>,
        "David S. Miller" <davem@redhat.com>, <gh@us.ibm.com>,
-       <Martin.Bligh@us.ibm.com>, William Lee Irwin III <wli@holomorphy.com>,
+       <Martin.Bligh@us.ibm.com>, <wli@holomorphy.com>,
        <linux-kernel@vger.kernel.org>
 Subject: Re: large page patch (fwd) (fwd)
-In-Reply-To: <Pine.LNX.4.44L.0208091317220.23404-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.44.0208090951570.1436-100000@home.transmeta.com>
+In-Reply-To: <E17dCQa-0001Nv-00@starship>
+Message-ID: <Pine.LNX.4.44.0208090949240.1436-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 9 Aug 2002, Rik van Riel wrote:
+On Fri, 9 Aug 2002, Daniel Phillips wrote:
+> > 
+> > Note that even active defrag won't be able to handle the case where you 
+> > want have lots of big pages, consituting a large percentage of available 
+> > memory.
 > 
-> > Also, I think the jury (ie Andrew) is still out on whether rmap is worth
-> > it.
-> 
-> One problem we're running into here is that there are absolutely
-> no tools to measure some of the things rmap is supposed to fix,
-> like page replacement.
+> Perhaps I'm missing something, but I don't see why.
 
-Read up on positivism.
+The statistics are against you. rmap won't help at all with all the other 
+kernel allocations, and the dcache/icache is often large, and on big 
+machines while there may be tens of thousands of idle entries, there will 
+also be hundreds of _non_idle entries that you can't just remove.
 
-"If it can't be measured, it doesn't exist".
+> Slab allocations would not have GFP_DEFRAG (I mistakenly wrote GFP_LARGE 
+> earlier) and so would be allocated outside ZONE_LARGE.
 
-The point being that there are things we can measure, and until anything 
-else comes around, those are the things that will have to guide us.
+.. at which poin tyou then get zone balancing problems.
+
+Or we end up with the same kind of special zone that we have _anyway_ in
+the current large-page patch, in which case the point of doing this is
+what?
 
 		Linus
 

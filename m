@@ -1,70 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUHJIe1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261987AbUHJIhX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbUHJIe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 04:34:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUHJIe0
+	id S261987AbUHJIhX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 04:37:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbUHJIhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 04:34:26 -0400
-Received: from mail1.bluewin.ch ([195.186.1.74]:42697 "EHLO mail1.bluewin.ch")
-	by vger.kernel.org with ESMTP id S262329AbUHJIeF (ORCPT
+	Tue, 10 Aug 2004 04:37:22 -0400
+Received: from unthought.net ([212.97.129.88]:3009 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S261987AbUHJIfy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 04:34:05 -0400
-Date: Tue, 10 Aug 2004 10:33:50 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.8-rc4 [RESEND] via-rhine: Really call rhine_power_init()
-Message-ID: <20040810083350.GA23771@k3.hellgate.ch>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0408091958450.1839@ppc970.osdl.org>
+	Tue, 10 Aug 2004 04:35:54 -0400
+Date: Tue, 10 Aug 2004 10:35:53 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Bug zapper?  :)
+Message-ID: <20040810083553.GB27443@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	John Richard Moser <nigelenki@comcast.net>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	linux-kernel@vger.kernel.org
+References: <4117D98C.2030203@comcast.net> <200408100042.37159.vda@port.imtp.ilyichevsk.odessa.ua> <41180443.9030900@comcast.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408091958450.1839@ppc970.osdl.org>
-X-Operating-System: Linux 2.6.8-rc3-mm1 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <41180443.9030900@comcast.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is my third and last attempt to get this fix merged for 2.6.8.
+On Mon, Aug 09, 2004 at 07:09:55PM -0400, John Richard Moser wrote:
+...
+> Now, we could try another approach at this, below.
+> 
+> /* get_food(char **a)
+> * Gets the current food.
+> *
+> * INPUT:
+> *  - char **a
+> *    Pointer to a pointer for the outputted food.
+> * OUTPUT:
+> *  - Return
+> *    none.
+> *  - *a
+> *    Set to a copy of the current food.
+> * PROCESS:
+> *  - Set '*a' to a newly allocated block of memory containing a copy
+> *    of the current food (global_food)
+> * STATE CHANGE:
+> *  none.
+> */
+...
 
-Without this patch, mainline via-rhine cannot wake the chip if some other
-driver puts it to D3. The problem has hit quite a few people already.
+There's just more to it than this.
 
-This is a fix for the heisenbug with via-rhine refusing to work
-sometimes. Patch "[9/9] Restructure reset code" contained a change made
-necessary by patch [8/9]. Mainline merged [8/9] for 2.6.8 and is still
-missing the fix, while -mm got it with [9/9].
+Even in the almost "self explanatory" example you gave, even with your
+suggested style of commenting, there are still problems:
 
-Jesper Juhl provided crucial test data when no one else was able to
-reproduce the symptoms.
+Your comments do not describe who's responsible for allocating/freeing
+which memory areas the various pointers point at.
 
-Roger
+Your get_food() function will cause a write at address 0 if malloc()
+fails.
 
-Signed-off-by: Roger Luethi <rl@hellgate.ch>
+So, you have provided some good examples that no particular commenting
+style is going to solve the common problems that all larger C software
+projects face to some extent (memory management and error handling).
 
---- tmp/drivers/net/via-rhine.c.00_broken	2004-07-29 13:58:17.000000000 +0200
-+++ tmp/drivers/net/via-rhine.c	2004-07-30 15:12:36.656007543 +0200
-@@ -748,6 +748,8 @@ static int __devinit rhine_init_one(stru
- 	}
- #endif /* USE_MMIO */
- 	dev->base_addr = ioaddr;
-+	rp = netdev_priv(dev);
-+	rp->quirks = quirks;
- 
- 	rhine_power_init(dev);
- 
-@@ -792,10 +794,8 @@ static int __devinit rhine_init_one(stru
- 
- 	dev->irq = pdev->irq;
- 
--	rp = netdev_priv(dev);
- 	spin_lock_init(&rp->lock);
- 	rp->pdev = pdev;
--	rp->quirks = quirks;
- 	rp->mii_if.dev = dev;
- 	rp->mii_if.mdio_read = mdio_read;
- 	rp->mii_if.mdio_write = mdio_write;
+...
+> These comment blocks are *MUCH* more verbose.
+
+Agreed  :)
+
+> They describe the process 
+> loosely, but do give enough information to allow understanding without 
+> questions.
+
+That's where I disagree.
+
+They do provide an illusion of knowledge though (for example, you did
+not mention the built-in segfault mechanism, that was a hidden feature).
+
+> The large amount of extra commentary is worth it, IMHO.
+
+Comments are good.  Frequent comments are very good - if they are
+correct and actually helpful.
+
+I view it this way; if code is not commented, the only explanation is
+that the author didn't feel it was worth commenting.  Code that is not
+worth even a comment, should be removed from whatever project it is in,
+to be replaced by something actually worth commenting.   (no, I'm not
+bashing any particular part of the Linux kernel or anything like that -
+this is my personal view for projects that I'm involved in).
+
+However; comments are NOT a substitute for all the other aspects
+required for good and reliable code.
+
+Comments are one little part of the larger puzzle.  Ignoring their
+importance is inexcusable - but they are not the magic silver bullet all
+by themselves either.
+
+
+My 0.02 Euro
+ (as someone working on another large project that actually needs
+  to run reliably)
+
+-- 
+
+ / jakob
+

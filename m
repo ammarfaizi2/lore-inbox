@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262455AbUKBOOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262230AbUKBONc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262455AbUKBOOL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 09:14:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262448AbUKBOOI
+	id S262230AbUKBONc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 09:13:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbUKBOM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 09:14:08 -0500
-Received: from ns1.g-housing.de ([62.75.136.201]:13525 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S262577AbUKBOHK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 09:07:10 -0500
-Message-ID: <41879488.10601@g-house.de>
-Date: Tue, 02 Nov 2004 15:07:04 +0100
-From: Christian <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.6+ (Windows/20041008)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 5 compile errors for 2.4-BK
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Tue, 2 Nov 2004 09:12:59 -0500
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:58712 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S262023AbUKBOD0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 09:03:26 -0500
+Subject: Re: [PATCH 2.4] usb serial write fix
+From: Paul Fulghum <paulkf@microgate.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041101193616.2d517e77@lembas.zaitcev.lan>
+References: <mailman.1099321382.10097.linux-kernel2news@redhat.com>
+	 <20041101193616.2d517e77@lembas.zaitcev.lan>
+Content-Type: text/plain
+Message-Id: <1099404208.2856.25.camel@deimos.microgate.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 02 Nov 2004 08:03:29 -0600
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-every day my scripts compile several kernel from the latest -BK tree,
-since oct, 30. there are 5 compile errors shown in:
+On Mon, 2004-11-01 at 21:36, Pete Zaitcev wrote:
 
-make[3]: [neighbour.o] Error 1 (ignored)
-make[3]: [core.o] Error 1 (ignored)
-make[3]: [arp.o] Error 1 (ignored)
-make[3]: [ipv4.o] Error 1 (ignored)
-make[1]: [first_rule] Error 2 (ignored)
+> Why testing for signals? Do you expect any?
 
-[and that's why these 2 occur too:]
+post_helper can run in a user process as well
+as keventd. The user process can get a signal
+like HUP to pppd.
 
-make: [vmlinux] Error 1 (ignored)
-make: [zImage] Error 2 (ignored)
+> Tying up a shared thread just because of this just does not look right.
 
-full make logs, configs here:
-http://www.nerdbynature.de/bits/sheep/latest-kernel/
-  - make-2.4-i386-BK.log
-  - make-2.4-ppc-BK.log
-  - errors-2.4-i386-BK.log
-  - errors-2.4-ppc-BK.log
-  - config-i386-2.4.28-rc1
-  - config-ppc-2.4.28-rc1
+OK. 
 
-this is all with debian/unstable, using gcc-3.4.2, binutils-2.15 (both 
-for native i386-compiler and cross-compiler)
+post_helper could hold the job and reschedule the work routine,
+so it does not block other work routines.
+Throwing the job away is not workable.
 
-maybe someone may find this useful...
+> Looking at pl2303 in 2.4, I do not see any difference between its ->write
+> method and generic_write which would be specific to pl2303. The key
+> difference is that generic_write participates in the protocol governed by
+> port->write_busy. So why don't you simply drop pl2303_write?
 
-thanks,
-Christian.
+That might fix the problem for pl2303, but if other component drivers
+have driver specific write routines that do not implement this protocol,
+they will have the problem also.
+
+It seemed a better to fix this in one location instead
+of auditing all component drivers and replicating a
+fix in multiple places. Maybe no other component drivers
+implement a driver specific write routine, I have not checked.
+
+If pl2303_write has no necessary difference from generic_write
+then pl2303_write should certainly be dropped.
+
 -- 
-BOFH excuse #303:
+Paul Fulghum
+paulkf@microgate.com
 
-fractal radiation jamming the backbone

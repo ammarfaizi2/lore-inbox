@@ -1,56 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261305AbSLJNzP>; Tue, 10 Dec 2002 08:55:15 -0500
+	id <S261678AbSLJOTT>; Tue, 10 Dec 2002 09:19:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261663AbSLJNzP>; Tue, 10 Dec 2002 08:55:15 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:52683 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S261305AbSLJNzO>; Tue, 10 Dec 2002 08:55:14 -0500
-Date: Tue, 10 Dec 2002 14:03:01 +0000
-From: Dave Jones <davej@suse.de>
-To: Antonino Daplas <adaplas@pol.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG]: agpgart for i810 chipsets broken in 2.5.51
-Message-ID: <20021210140301.GC26361@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Antonino Daplas <adaplas@pol.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1039522886.1041.17.camel@localhost.localdomain> <20021210131143.GA26361@suse.de> <1039538881.2025.2.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S261689AbSLJOTT>; Tue, 10 Dec 2002 09:19:19 -0500
+Received: from ronispc.Chem.McGill.CA ([132.206.205.91]:7559 "EHLO
+	ronispc.chem.mcgill.ca") by vger.kernel.org with ESMTP
+	id <S261678AbSLJOTR>; Tue, 10 Dec 2002 09:19:17 -0500
+From: David Ronis <ronis@ronispc.chem.mcgill.ca>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1039538881.2025.2.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15861.63731.843221.742384@ronispc.chem.mcgill.ca>
+Date: Tue, 10 Dec 2002 09:23:47 -0500
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: ronis@onsager.chem.mcgill.ca, linux-kernel@vger.kernel.org
+Subject: Re: build failure in 2.4.20
+In-Reply-To: <20021210134251.GG17522@fs.tum.de>
+References: <15860.46389.654483.692231@ronispc.chem.mcgill.ca>
+	<20021210134251.GG17522@fs.tum.de>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: ronis@onsager.chem.mcgill.ca
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 10, 2002 at 09:47:24PM +0500, Antonino Daplas wrote:
 
- > >  > 2.  The i810 driver for Xfree86 will also fail to load because of
- > >  > version mismatch (0.99 vs 1.0).  Rolling back the version corrects the
- > >  > problem.
- > > Ugh, that's great. So X has to be patched every time the agpgart code
- > > gets a new revision ? That sounds really unpleasant.
- > Actually, X is complaining that the kernel version was too old, crazy
- > no?
+Hi Adrian,
 
-Very much so. I'm grabbing the X source right now to find out exactly
-what games they're playing. Hopefully I'll not regret it too much.
+Thanks for the reply.  Although Marc-Christian's suggestion seems to
+have worked, here's what I did:
 
- > >  > No patches because I don't want to uglify the code :-)
- > > I'll ping you when I have something to test.
- > Ok.
+I used a clean tarball and applied no patches.  The .config file,
+however, was the one I had in the 2.4.19 tree.  I had applied the
+2.4.20 patch to that tree, but then deleted everything (except for the
+.config file) and started over.  I also have repeated the same
+procedure on another machine and in both cases CONFIG_M686FXSR=y, even
+though one of them has a PIII while the other is a Celeron, and the
+appropriate CPU configuration option was selected in xconfig on each.
 
-btw, iirc you were the guy who wanted agpgart initialised sooner
-due to the way the i810 framebuffer worked ?
-How much sooner are we talking ? What puzzles me, is looking
-at the link order in the makefiles, agpgart should already be
-getting initialised before the framebuffer code, but doesn't
-seem to be for reasons unknown..
+Is this cause for concern?  Things seem to be working properly--other
+than the fact that the version number (2.4.0) is messed up.
 
-Another issue on this same case, is that for this to work out,
-we'll need some kconfig magick so that if the framebuffer is 'Y'
-rather than 'M' the i810 gart module must be forced to 'Y' too.
+David
 
-        Dave
 
+Adrian Bunk writes:
+ > On Mon, Dec 09, 2002 at 10:22:29AM -0500, David Ronis wrote:
+ > Content-Description: message body text
+ > > 
+ > > I've been trying to upgrade my kernel from 2.4.19 to 2.4.20 on a
+ > > linux-i686-gnu box [I use gcc-2.95.3, GNU ld version 2.13, GNU
+ > > assembler 2.13].
+ > > 
+ > > I first tried patching the kernel sources, reran xconfig and then
+ > > 
+ > > 	 make bzImage && make modules && make modules install
+ > > 
+ > > The build died in the make modules step, in the ppp driver tree
+ > > complaining about not finding zlib.c.  
+ > > 
+ > > I deleted the source tree and started again with a full 2.4.20
+ > > tarball.  After configureing,  I ran
+ > > 
+ > >  make dep && make clean && make bzImage && make modules && make modules install
+ > > 
+ > > and get:
+ > >...
+ > >         -o vmlinux
+ > > drivers/net/net.o(.data+0xd4): undefined reference to `local symbols in discarded section .text.exit'
+ > > make: *** [vmlinux] Error 1
+ > > 
+ > > 
+ > > It sounds like this is a problem with ld or as, but I'm not sure.  Any
+ > > suggestions?
+ > >...
+ > > Here's my .config file
+ > >...
+ > > CONFIG_M686FXSR=y
+ > >...
+ > 
+ > This doesn't look right, it should be CONFIG_M686. Did you apply any 
+ > patches against the "full 2.4.20 tarball" after you unpackaged it or did 
+ > you accidentially send the wrong .config?
+ > 
+ > cu
+ > Adrian
+ > 
+ > -- 
+ > 
+ >        "Is there not promise of rain?" Ling Tan asked suddenly out
+ >         of the darkness. There had been need of rain for many days.
+ >        "Only a promise," Lao Er said.
+ >                                        Pearl S. Buck - Dragon Seed
+ > 

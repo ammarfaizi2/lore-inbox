@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272818AbRJTMCT>; Sat, 20 Oct 2001 08:02:19 -0400
+	id <S273065AbRJTMOl>; Sat, 20 Oct 2001 08:14:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272838AbRJTMB7>; Sat, 20 Oct 2001 08:01:59 -0400
-Received: from fe170.worldonline.dk ([212.54.64.199]:35596 "HELO
-	fe170.worldonline.dk") by vger.kernel.org with SMTP
-	id <S272818AbRJTMBt>; Sat, 20 Oct 2001 08:01:49 -0400
-Date: Sat, 20 Oct 2001 14:01:16 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Torrey Hoffman <torrey.hoffman@myrio.com>
-Cc: "'Peter Moscatt'" <pmoscatt@yahoo.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Can't see IDE CDR-W after compile ?
-Message-ID: <20011020140116.B654@suse.de>
-In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CA79@mail0.myrio.com>
+	id <S273108AbRJTMOb>; Sat, 20 Oct 2001 08:14:31 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:9479 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S273065AbRJTMOS>; Sat, 20 Oct 2001 08:14:18 -0400
+Date: Sat, 20 Oct 2001 14:14:54 +0200
+From: thunder7 <thunder7@xs4all.nl>
+To: Krzysztof Oledzki <ole@ans.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bug in "raid5: measuring checksumming speed"
+Message-ID: <20011020141454.A7819@xs4all.nl>
+In-Reply-To: <Pine.LNX.4.33.0110201342410.19999-100000@dark.pcgames.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CA79@mail0.myrio.com>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0110201342410.19999-100000@dark.pcgames.pl>; from ole@ans.pl on Sat, Oct 20, 2001 at 01:54:54PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 19 2001, Torrey Hoffman wrote:
-> The other driver is the IDE-SCSI emulation layer.  This works better for
-> some things, including ripping music CD's.  And, as you have discovered, it
-> is a requirement for CDR's.  For example, using the IDE-SCSI driver I can
-> rip audio with my Toshiba DVD drive at 10x speed, but with the "normal IDE"
-> driver it could not even go at 1x speed.
+On Sat, Oct 20, 2001 at 01:54:54PM +0200, Krzysztof Oledzki wrote:
+> Hello,
+> 
+> It seems that there is something wrong with measuring checksumming speed -
+> on my two P3 boxes linux chooses pIII_sse but pII_mmx and p5_mmx are
+> reported as faster instructions:
+> 
+I read somewhere that PIII_sse has better cache behaviour. You could
+check this by reading the source, of course.
 
-THat is funny, since the code for ripping audio is in the generic CDROM
-layer and this shared by both ide-cd and sr. Exactly the same cdb is
-sent down regardless of your setup.
-
-So maybe your ripping program is accessing the CDROM differently
-depending on the bus type (eg using sg for sr, maybe?).
-
--- 
-Jens Axboe
-
+Good luck,
+Jurriaan

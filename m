@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262227AbSJKANF>; Thu, 10 Oct 2002 20:13:05 -0400
+	id <S262235AbSJKAM5>; Thu, 10 Oct 2002 20:12:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262241AbSJKANE>; Thu, 10 Oct 2002 20:13:04 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:48858 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S262227AbSJKAL5>;
-	Thu, 10 Oct 2002 20:11:57 -0400
-Date: Thu, 10 Oct 2002 17:17:42 -0700
+	id <S262230AbSJKALp>; Thu, 10 Oct 2002 20:11:45 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:986 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S262227AbSJKALZ>;
+	Thu, 10 Oct 2002 20:11:25 -0400
+Date: Thu, 10 Oct 2002 17:17:10 -0700
 To: irda-users@lists.sourceforge.net, Jeff Garzik <jgarzik@mandrakesoft.com>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5] : ir251_lmp_timer_race-2.diff
-Message-ID: <20021011001742.GG6645@bougret.hpl.hp.com>
+Subject: [PATCH 2.5] : ir251_qos_param-2.diff
+Message-ID: <20021011001710.GF6645@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,104 +23,178 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir251_lmp_timer_race-2.diff :
----------------------------
-	o [CORRECT] Start timer before sending event to fix race condition
-	o [FEATURE] Improve the IrLMP event debugging messages.
+ir251_qos_param-2.diff :
+----------------------
+	o [FEATURE] Fix some comments
+	o [FEATURE] printk warning when we detect buggy QoS from peer
+	o [CORRECT] Workaround NULL QoS bitfields
+	o [CORRECT] Workaround oversized QoS bitfields
+	o [FEATURE] Add sysctl "max_tx_window" to limit IrLAP Tx Window
 
 
-diff -u -p linux/net/irda/irlmp_event.d3.c linux/net/irda/irlmp_event.c
---- linux/net/irda/irlmp_event.d3.c	Thu Oct 10 15:25:48 2002
-+++ linux/net/irda/irlmp_event.c	Thu Oct 10 15:31:09 2002
-@@ -514,10 +514,10 @@ static int irlmp_state_disconnected(stru
+
+diff -u -p linux/net/irda/qos.d3.c linux/net/irda/qos.c
+--- linux/net/irda/qos.d3.c	Thu Oct 10 14:54:58 2002
++++ linux/net/irda/qos.c	Thu Oct 10 15:11:27 2002
+@@ -70,13 +70,18 @@ unsigned sysctl_min_tx_turn_time = 10;
+  * 1.2, chapt 5.3.2.1, p41). But, this number includes the LAP header
+  * (2 bytes), and CRC (32 bits at 4 Mb/s). So, for the I field (LAP
+  * payload), that's only 2042 bytes. Oups !
+- * I've had trouble trouble transmitting 2048 bytes frames with USB
+- * dongles and nsc-ircc at 4 Mb/s, so adjust to 2042... I don't know
+- * if this bug applies only for 2048 bytes frames or all negociated
+- * frame sizes, but all hardware seem to support "2048 bytes" frames.
+- * You can use the sysctl to play with this value anyway.
++ * My nsc-ircc hardware has troubles receiving 2048 bytes frames at 4 Mb/s,
++ * so adjust to 2042... I don't know if this bug applies only for 2048
++ * bytes frames or all negociated frame sizes, but you can use the sysctl
++ * to play with this value anyway.
+  * Jean II */
+ unsigned sysctl_max_tx_data_size = 2042;
++/*
++ * Maximum transmit window, i.e. number of LAP frames between turn-around.
++ * This allow to override what the peer told us. Some peers are buggy and
++ * don't always support what they tell us.
++ * Jean II */
++unsigned sysctl_max_tx_window = 7;
  
- 		irlmp_next_lsap_state(self, LSAP_SETUP_PEND);
- 
--		irlmp_do_lap_event(self->lap, LM_LAP_CONNECT_REQUEST, NULL);
--
- 		/* Start watchdog timer (5 secs for now) */
- 		irlmp_start_watchdog_timer(self, 5*HZ);
+ static int irlap_param_baud_rate(void *instance, irda_param_t *param, int get);
+ static int irlap_param_link_disconnect(void *instance, irda_param_t *parm, 
+@@ -184,7 +189,19 @@ int msb_index (__u16 word) 
+ {
+ 	__u16 msb = 0x8000;
+ 	int index = 15;   /* Current MSB */
+-	
 +
-+		irlmp_do_lap_event(self->lap, LM_LAP_CONNECT_REQUEST, NULL);
- 		break;
- 	case LM_CONNECT_INDICATION:
- 		if (self->conn_skb) {
-@@ -529,8 +529,6 @@ static int irlmp_state_disconnected(stru
- 
- 		irlmp_next_lsap_state(self, LSAP_CONNECT_PEND);
- 
--		irlmp_do_lap_event(self->lap, LM_LAP_CONNECT_REQUEST, NULL);
--
- 		/* Start watchdog timer
- 		 * This is not mentionned in the spec, but there is a rare
- 		 * race condition that can get the socket stuck.
-@@ -543,10 +541,12 @@ static int irlmp_state_disconnected(stru
- 		 * a backup plan. 1 second is plenty (should be immediate).
- 		 * Jean II */
- 		irlmp_start_watchdog_timer(self, 1*HZ);
++	/* Check for buggy peers.
++	 * Note : there is a small probability that it could be us, but I
++	 * would expect driver authors to catch that pretty early and be
++	 * able to check precisely what's going on. If a end user sees this,
++	 * it's very likely the peer. - Jean II */
++	if (word == 0) {
++		WARNING("%s(), Detected buggy peer, adjust null PV to 0x1!\n",
++			 __FUNCTION__);
++		/* The only safe choice (we don't know the array size) */
++		word = 0x1;
++	}
 +
-+		irlmp_do_lap_event(self->lap, LM_LAP_CONNECT_REQUEST, NULL);
- 		break;
- 	default:
--		IRDA_DEBUG(2, "%s(), Unknown event %s\n",
--			   __FUNCTION__, irlmp_event[event]);
-+		IRDA_DEBUG(1, "%s(), Unknown event %s on LSAP %#02x\n",
-+			   __FUNCTION__, irlmp_event[event], self->slsap_sel);
- 		if (skb)
- 			dev_kfree_skb(skb);
- 		break;
-@@ -604,8 +604,8 @@ static int irlmp_state_connect(struct ls
- 		irlmp_next_lsap_state(self, LSAP_DISCONNECTED);
- 		break;
- 	default:
--		IRDA_DEBUG(0, "%s(), Unknown event %s\n",
--			 __FUNCTION__, irlmp_event[event]);
-+		IRDA_DEBUG(0, "%s(), Unknown event %s on LSAP %#02x\n", 
-+			   __FUNCTION__, irlmp_event[event], self->slsap_sel);
- 		if (skb)
- 			dev_kfree_skb(skb);
- 		break;
-@@ -666,8 +666,8 @@ static int irlmp_state_connect_pend(stru
- 		irlmp_next_lsap_state(self, LSAP_DISCONNECTED);
- 		break;
- 	default:
--		IRDA_DEBUG(0, "%s(), Unknown event %s\n",
--			    __FUNCTION__, irlmp_event[event]);
-+		IRDA_DEBUG(0, "%s(), Unknown event %s on LSAP %#02x\n",
-+			   __FUNCTION__, irlmp_event[event], self->slsap_sel);
- 		if (skb)
- 			dev_kfree_skb(skb);
- 		break;
-@@ -757,8 +757,8 @@ static int irlmp_state_dtr(struct lsap_c
- 		irlmp_disconnect_indication(self, reason, skb);
- 		break;
- 	default:
--		IRDA_DEBUG(0, "%s(), Unknown event %s\n",
--			    __FUNCTION__, irlmp_event[event]);
-+		IRDA_DEBUG(0, "%s(), Unknown event %s on LSAP %#02x\n",
-+			   __FUNCTION__, irlmp_event[event], self->slsap_sel);
- 		if (skb)
- 			dev_kfree_skb(skb);
- 		break;
-@@ -830,8 +830,8 @@ static int irlmp_state_setup(struct lsap
- 		irlmp_disconnect_indication(self, LM_CONNECT_FAILURE, NULL);
- 		break;
- 	default:
--		IRDA_DEBUG(0, "%s(), Unknown event %s\n",
--			    __FUNCTION__, irlmp_event[event]);
-+		IRDA_DEBUG(0, "%s(), Unknown event %s on LSAP %#02x\n",
-+			   __FUNCTION__, irlmp_event[event], self->slsap_sel);
- 		if (skb)
- 			dev_kfree_skb(skb);
- 		break;
-@@ -889,8 +889,8 @@ static int irlmp_state_setup_pend(struct
- 		irlmp_disconnect_indication(self, reason, NULL);
- 		break;
- 	default:
--		IRDA_DEBUG(0, "%s(), Unknown event %s\n",
--			   __FUNCTION__, irlmp_event[event]);
-+		IRDA_DEBUG(0, "%s(), Unknown event %s on LSAP %#02x\n",
-+			   __FUNCTION__, irlmp_event[event], self->slsap_sel);
- 		if (skb)
- 			dev_kfree_skb(skb);
+ 	while (msb) {
+ 		if (word & msb)
+ 			break;   /* Found it! */
+@@ -335,10 +352,14 @@ void irlap_adjust_qos_settings(struct qo
+ 
+ 	/*
+ 	 * Make sure the mintt is sensible.
++	 * Main culprit : Ericsson T39. - Jean II
+ 	 */
+ 	if (sysctl_min_tx_turn_time > qos->min_turn_time.value) {
+ 		int i;
+ 
++		WARNING("%s(), Detected buggy peer, adjust mtt to %dus!\n",
++			 __FUNCTION__, sysctl_min_tx_turn_time);
++
+ 		/* We don't really need bits, but easier this way */
+ 		i = value_highest_bit(sysctl_min_tx_turn_time, min_turn_times,
+ 				      8, &qos->min_turn_time.bits);
+@@ -398,6 +419,11 @@ void irlap_adjust_qos_settings(struct qo
+ 	if (qos->data_size.value > sysctl_max_tx_data_size)
+ 		/* Allow non discrete adjustement to avoid loosing capacity */
+ 		qos->data_size.value = sysctl_max_tx_data_size;
++	/*
++	 * Override Tx window if user request it. - Jean II
++	 */
++	if (qos->window_size.value > sysctl_max_tx_window)
++		qos->window_size.value = sysctl_max_tx_window;
+ }
+ 
+ /*
+diff -u -p linux/net/irda/irsysctl.d3.c linux/net/irda/irsysctl.c
+--- linux/net/irda/irsysctl.d3.c	Thu Oct 10 14:55:26 2002
++++ linux/net/irda/irsysctl.c	Thu Oct 10 15:11:27 2002
+@@ -35,7 +35,7 @@
+ #define NET_IRDA 412 /* Random number */
+ enum { DISCOVERY=1, DEVNAME, DEBUG, FAST_POLL, DISCOVERY_SLOTS,
+        DISCOVERY_TIMEOUT, SLOT_TIMEOUT, MAX_BAUD_RATE, MIN_TX_TURN_TIME,
+-       MAX_TX_DATA_SIZE, MAX_NOREPLY_TIME, WARN_NOREPLY_TIME,
++       MAX_TX_DATA_SIZE, MAX_TX_WINDOW, MAX_NOREPLY_TIME, WARN_NOREPLY_TIME,
+        LAP_KEEPALIVE_TIME };
+ 
+ extern int  sysctl_discovery;
+@@ -48,6 +48,7 @@ extern char sysctl_devname[];
+ extern int  sysctl_max_baud_rate;
+ extern int  sysctl_min_tx_turn_time;
+ extern int  sysctl_max_tx_data_size;
++extern int  sysctl_max_tx_window;
+ extern int  sysctl_max_noreply_time;
+ extern int  sysctl_warn_noreply_time;
+ extern int  sysctl_lap_keepalive_time;
+@@ -69,6 +70,8 @@ static int max_min_tx_turn_time = 10000;
+ static int min_min_tx_turn_time = 0;
+ static int max_max_tx_data_size = 2048;		/* See qos.c - IrLAP spec */
+ static int min_max_tx_data_size = 64;
++static int max_max_tx_window = 7;		/* See qos.c - IrLAP spec */
++static int min_max_tx_window = 1;
+ static int max_max_noreply_time = 40;		/* See qos.c - IrLAP spec */
+ static int min_max_noreply_time = 3;
+ static int max_warn_noreply_time = 3;		/* 3s == standard */
+@@ -125,6 +128,9 @@ static ctl_table irda_table[] = {
+ 	{ MAX_TX_DATA_SIZE, "max_tx_data_size", &sysctl_max_tx_data_size,
+ 	  sizeof(int), 0644, NULL, &proc_dointvec_minmax, &sysctl_intvec,
+ 	  NULL, &min_max_tx_data_size, &max_max_tx_data_size },
++	{ MAX_TX_WINDOW, "max_tx_window", &sysctl_max_tx_window,
++	  sizeof(int), 0644, NULL, &proc_dointvec_minmax, &sysctl_intvec,
++	  NULL, &min_max_tx_window, &max_max_tx_window },
+ 	{ MAX_NOREPLY_TIME, "max_noreply_time", &sysctl_max_noreply_time,
+ 	  sizeof(int), 0644, NULL, &proc_dointvec_minmax, &sysctl_intvec,
+ 	  NULL, &min_max_noreply_time, &max_max_noreply_time },
+diff -u -p linux/net/irda/parameters.d3.c linux/net/irda/parameters.c
+--- linux/net/irda/parameters.d3.c	Thu Oct 10 14:55:59 2002
++++ linux/net/irda/parameters.c	Thu Oct 10 15:14:30 2002
+@@ -200,11 +200,13 @@ static int irda_extract_integer(void *se
+ {
+ 	irda_param_t p;
+ 	int n = 0;
++	int extract_len;	/* Real lenght we extract */
+ 	int err;
+ 
+ 	p.pi = pi;     /* In case handler needs to know */
+ 	p.pl = buf[1]; /* Extract lenght of value */
+ 	p.pv.i = 0;    /* Clear value */
++	extract_len = p.pl;	/* Default : extract all */
+ 
+ 	/* Check if buffer is long enough for parsing */
+ 	if (len < (2+p.pl)) {
+@@ -217,18 +219,30 @@ static int irda_extract_integer(void *se
+ 	/*
+ 	 * Check that the integer length is what we expect it to be. If the
+ 	 * handler want a 16 bits integer then a 32 bits is not good enough
++	 * PV_INTEGER means that the handler is flexible.
+ 	 */
+ 	if (((type & PV_MASK) != PV_INTEGER) && ((type & PV_MASK) != p.pl)) {
+ 		ERROR("%s: invalid parameter length! "
+ 		      "Expected %d bytes, but value had %d bytes!\n",
+ 		      __FUNCTION__, type & PV_MASK, p.pl);
+ 
+-		/* Skip parameter */
+-		return p.pl+2;
++		/* Most parameters are bit/byte fields or little endian,
++		 * so it's ok to only extract a subset of it (the subset
++		 * that the handler expect). This is necessary, as some
++		 * broken implementations seems to add extra undefined bits.
++		 * If the parameter is shorter than we expect or is big
++		 * endian, we can't play those tricks. Jean II */
++		if((p.pl < (type & PV_MASK)) || (type & PV_BIG_ENDIAN)) {
++			/* Skip parameter */
++			return p.pl+2;
++		} else {
++			/* Extract subset of it, fallthrough */
++			extract_len = type & PV_MASK;
++		}
+ 	}
+ 
+ 
+-	switch (p.pl) {
++	switch (extract_len) {
+ 	case 1:
+ 		n += irda_param_unpack(buf+2, "b", &p.pv.i);
  		break;

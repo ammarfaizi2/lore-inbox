@@ -1,38 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267154AbUBSAFf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 19:05:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267157AbUBSAFf
+	id S267107AbUBRX4u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 18:56:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267125AbUBRX4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 19:05:35 -0500
-Received: from adsl-66-127-195-58.dsl.snfc21.pacbell.net ([66.127.195.58]:28032
-	"EHLO panda.mostang.com") by vger.kernel.org with ESMTP
-	id S267154AbUBSAFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 19:05:32 -0500
+	Wed, 18 Feb 2004 18:56:50 -0500
+Received: from vsmtp2alice.tin.it ([212.216.176.142]:59614 "EHLO vsmtp2.tin.it")
+	by vger.kernel.org with ESMTP id S267107AbUBRX4t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 18:56:49 -0500
+Message-ID: <40338BD900019FE8@vsmtp2.tin.it> (added by postmaster@virgilio.it)
+From: Marco Gulino <rockman81@tin.it>
+Subject: Re: 2.6.3: lilo warnings
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Intel x86-64 support merge
-References: <1qHr5-2tJ-39@gated-at.bofh.it> <1qHr5-2tJ-37@gated-at.bofh.it> <1qIZw-6b9-17@gated-at.bofh.it> <1qJsI-6Be-57@gated-at.bofh.it>
-From: David Mosberger-Tang <David.Mosberger@acm.org>
-Date: 18 Feb 2004 16:05:22 -0800
-In-Reply-To: <1qJsI-6Be-57@gated-at.bofh.it>
-Message-ID: <ugisi4vsql.fsf@panda.mostang.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+Date: Thu, 19 Feb 2004 00:56:40 +0100
+References: <1qIZy-6b9-25@gated-at.bofh.it> <1qJsI-6Be-55@gated-at.bofh.it>
+User-Agent: KNode/0.7.6
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 19 Feb 2004 00:40:24 +0100, Arjan van de Ven <arjan@fenrus.demon.nl> said:
+Jens Bäckman wrote:
 
-  Arjan> On Wed, 2004-02-18 at 23:57, H. Peter Anvin wrote:
-  >>  Because they were caught by surprise and just hacked the chips
-  >> they had in the pipeline, presumably.
+> These are fixed by a recent fix in slackware-current. Look at the
+> ChangeLog for Slackware, and take neccessary actions.
 
-  Arjan> fair enough; I hope this means the next generation has this
-  Arjan> wart fixed...
-
-I wouldn't hold my breath.  My impression was that the Intel chipset
-folks don't want I/O MMU because (a) Windows doesn't need it and (b)
-real machines use (close-to-)64-bit-capable hardware.
-
-	--david
+Thanks :-) solved!
+it's the devs package!
+Hi :-)

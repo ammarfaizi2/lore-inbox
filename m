@@ -1,43 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268502AbTBOBDn>; Fri, 14 Feb 2003 20:03:43 -0500
+	id <S268504AbTBOBEo>; Fri, 14 Feb 2003 20:04:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268503AbTBOBDn>; Fri, 14 Feb 2003 20:03:43 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:25217
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268497AbTBOBDm>; Fri, 14 Feb 2003 20:03:42 -0500
-Subject: RE: openbkweb-0.0
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: vlad@geekizoid.com
-Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
-       "'Larry McVoy'" <lm@bitmover.com>,
-       "'Jamie Lokier'" <jamie@shareable.org>
-In-Reply-To: <008e01c2d48d$d0fe28f0$0200a8c0@wsl3>
-References: <008e01c2d48d$d0fe28f0$0200a8c0@wsl3>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045275223.2961.8.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 15 Feb 2003 02:13:44 +0000
+	id <S268505AbTBOBEo>; Fri, 14 Feb 2003 20:04:44 -0500
+Received: from warden3-p.diginsite.com ([208.147.64.186]:2967 "HELO
+	warden3.diginsite.com") by vger.kernel.org with SMTP
+	id <S268504AbTBOBEl>; Fri, 14 Feb 2003 20:04:41 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Jamie Lokier <jamie@shareable.org>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org
+Date: Fri, 14 Feb 2003 17:13:47 -0800 (PST)
+Subject: Re: openbkweb-0.0
+In-Reply-To: <Pine.LNX.4.50.0302141701510.988-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.44.0302141709190.5249-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-02-15 at 01:01, Vlad@geekizoid.com wrote:
-> We eat less.  Seriously, it's not like you can't work under the
-> circumstances - you just refuse to.  That's your choice - one I respect.
-> Why try to, or even advocate limiting Larry's choices? 
+anyone who wants to can setup a bitkeeper server, set it to sync with
+bkbits.net every 5 min and re-export the data (including the SCCS
+formatted metadata) any way they want. Larry has even encouraged people to
+do this.
 
-I'm not. I treated it just like any other document I couldn't read,
-I asked for it in a sane format. The author kindly sent me it. The
-rest of the thread is Larry's invention. I don't care what Larry
-does with bitkeeper, any more than I care about clearcase.
+what he is refusing to do is to pay the cash for the bandwith to support
+this.
 
-The transaction is the same thing as 
-"A word file, can yo send me that in text"
-"Thanks"
+I'll volunteer to run such a server so that you purists don't have to get
+your hands dirty by touching bitkeeper, as long as someone else is paying
+the bandwidth and hosting costs (and I'm not requiring a colo facility,
+someone's house with appropriate bandwidth is good enough for me. I'm
+willing to cut any corners that can be cut to keep it cheap)
 
-the rest is touchy people inventing sinister plots that don't exist
+David Lang
 
 
+ On Fri, 14 Feb 2003, Davide Libenzi wrote:
+
+> Date: Fri, 14 Feb 2003 17:05:08 -0800 (PST)
+> From: Davide Libenzi <davidel@xmailserver.org>
+> To: Jamie Lokier <jamie@shareable.org>
+> Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+> Subject: Re: openbkweb-0.0
+>
+> On Sat, 15 Feb 2003, Jamie Lokier wrote:
+>
+> > Larry McVoy wrote:
+> > > But nobody seems willing to stand up and say "well, maybe if we hadn't been
+> > > stealing all this music these laws might not have come into existence".
+> > >
+> > > I'll leave you to make the BitKeeper connection, I'm sure you are smart
+> > > enough to do so.
+> >
+> > On this we agree.  Point well made!
+> >
+> > The best thing for all may be a huge whip round to pay Bitmover enough
+> > for them to be _happy_ to open the protocol.
+>
+> IMHO, Larry does not even need to "open the protocol". He could simply
+> release a tool with limited functionalities under a different license.
+> Wrong ?
+>
+>
+>
+> > Anyone want to start a fund?  I offer to donate US$100 (and that's 2
+> > weeks income for me ATM).
+>
+> You might want to pass the above text through 'sed' using s/weeks/hours/ :)
+>
+>
+>
+>
+> - Davide
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

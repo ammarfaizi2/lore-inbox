@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129113AbQJ3QsD>; Mon, 30 Oct 2000 11:48:03 -0500
+	id <S129048AbQJ3Qve>; Mon, 30 Oct 2000 11:51:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129128AbQJ3Qrx>; Mon, 30 Oct 2000 11:47:53 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:50284 "EHLO saturn.homenet")
-	by vger.kernel.org with ESMTP id <S129113AbQJ3Qro>;
-	Mon, 30 Oct 2000 11:47:44 -0500
-Date: Mon, 30 Oct 2000 16:47:58 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: J{rvensivu Riku <galaxy@cs.tut.fi>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Support for Compaq's NC3134 & NC3135 via the eepro100.o (82559
- chip) ?
-In-Reply-To: <Pine.GSO.4.21.0010301718110.6057-100000@korppi.cs.tut.fi>
-Message-ID: <Pine.LNX.4.21.0010301643200.2555-100000@saturn.homenet>
+	id <S129075AbQJ3QvX>; Mon, 30 Oct 2000 11:51:23 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:60946 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129048AbQJ3QvE>;
+	Mon, 30 Oct 2000 11:51:04 -0500
+Message-ID: <39FDA69C.92B090A6@mandrakesoft.com>
+Date: Mon, 30 Oct 2000 11:49:32 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: root@chaos.analogic.com
+CC: John Levon <moz@compsoc.man.ac.uk>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kmalloc() allocation.
+In-Reply-To: <Pine.LNX.3.95.1001030111027.1186A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2000, J{rvensivu Riku wrote:
-> Useless to mention, Compaq doesn't have linux drivers for this board.
+"Richard B. Johnson" wrote:
+> Now, I could set up a linked-list of buffers and use vmalloc()
+> if the buffers were allocated from non-paged RAM. I don't think
+> they are. These buffers must be present during an interrupt.
 
-Why useless? It is the vendor's responsibility to write most efficient
-drivers for their hardware, at least that was the case with the previously
-popular systems like Windows and I don't see why it shouldn't be the case
-with Linux which has successfully replaced those. Ask Compaq for the
-driver and ask all your friends to ask them for it too -- customer demand
-and satisfaction is what matters (or should matter) to commercial entities
-;)
+Non-paged RAM?  I'm not sure what you mean by that.
 
-Regards,
-Tigran
+Both kmalloc and vmalloc allocate pages, but neither will allocate pages
+that the system will swap out (page out).  [vk]malloc pages are always
+around during an interrupt.
+
+	Jeff
 
 
+
+
+-- 
+Jeff Garzik             | "Mind if I drive?"  -Sam
+Building 1024           | "Not if you don't mind me clawing at the
+MandrakeSoft            |  dash and shrieking like a cheerleader."
+                        |                     -Max
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,29 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274273AbRISXn3>; Wed, 19 Sep 2001 19:43:29 -0400
+	id <S274274AbRISXq7>; Wed, 19 Sep 2001 19:46:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274274AbRISXnU>; Wed, 19 Sep 2001 19:43:20 -0400
-Received: from [24.254.60.20] ([24.254.60.20]:29941 "EHLO
-	femail30.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S274273AbRISXnB>; Wed, 19 Sep 2001 19:43:01 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: safemode <safemode@speakeasy.net>, torvalds@transmeta.com (Linus Torvalds),
+	id <S274286AbRISXqt>; Wed, 19 Sep 2001 19:46:49 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:46577 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274284AbRISXqe>;
+	Wed, 19 Sep 2001 19:46:34 -0400
+Date: Thu, 20 Sep 2001 01:46:48 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: David Howells <dhowells@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Manfred Spraul <manfred@colorfullife.com>, Ulrich.Weigand@de.ibm.com,
         linux-kernel@vger.kernel.org
-Subject: Re: Re[2]: [PATCH] Athlon bug stomper. Pls apply.
-Date: Wed, 19 Sep 2001 16:41:45 -0700
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <20010919154701.A7381@stud.ntnu.no> <9oafeu$1o0$1@penguin.transmeta.com> <20010919171454Z274108-760+14176@vger.kernel.org>
-In-Reply-To: <20010919171454Z274108-760+14176@vger.kernel.org>
-MIME-Version: 1.0
-Message-Id: <01091916414501.00579@c779218-a>
-Content-Transfer-Encoding: 7BIT
+Subject: Re: Deadlock on the mm->mmap_sem
+Message-ID: <20010920014648.F720@athlon.random>
+In-Reply-To: <andrea@suse.de> <7486.1000941940@warthog.cambridge.redhat.com> <20010920013421.D720@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010920013421.D720@athlon.random>; from andrea@suse.de on Thu, Sep 20, 2001 at 01:34:21AM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 19 September 2001 10:15 am, safemode wrote:
-> It works fine on the KX133 chipset that is on the Abit KA7 motherboard.
->  So, i for one have not applied the patch.
+On Thu, Sep 20, 2001 at 01:34:21AM +0200, Andrea Arcangeli wrote:
+> On Thu, Sep 20, 2001 at 12:25:40AM +0100, David Howells wrote:
+> > 
+> > Andrea Arcangeli <andrea@suse.de> wrote:
+> > > On Wed, Sep 19, 2001 at 07:26:33PM +0100, David Howells wrote:
+> > > > > if we go generic then I strongly recommend my version of the generic
+> > > > > semaphores is _much_ faster (and cleaner) than this one
+> > > >
+> > > > Not so:-) Your patch, Andrea, grabs the spinlock far more than is necessary.
+> > > 
+> > > then why your microbenchmarks says my version is much faster?
+> > 
+> > They don't:
+> 
+> ok, so I drop my objections, you must have changed something radical
 
-That would be because the bug is specific to the KT133A chipset...
+hey no! It was a very unfair comparison! my rwsem are non inlined, yours
+are.
+
+Andrea

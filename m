@@ -1,37 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130120AbQKFRng>; Mon, 6 Nov 2000 12:43:36 -0500
+	id <S129555AbQKFRo4>; Mon, 6 Nov 2000 12:44:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130116AbQKFRn0>; Mon, 6 Nov 2000 12:43:26 -0500
-Received: from TRAMPOLINE.THUNK.ORG ([216.175.175.172]:4868 "EHLO
-	trampoline.thunk.org") by vger.kernel.org with ESMTP
-	id <S130113AbQKFRnU>; Mon, 6 Nov 2000 12:43:20 -0500
-Date: Mon, 6 Nov 2000 13:42:52 -0500
-Message-Id: <200011061842.eA6Igqs16111@trampoline.thunk.org>
-To: davem@redhat.com
-CC: bsuparna@in.ibm.com, linux-kernel@vger.kernel.org, ak@suse.de,
-        kanoj@google.engr.sgi.com
-In-Reply-To: <200011060314.TAA22656@pizda.ninka.net> (davem@redhat.com)
-Subject: Re: Oddness in i_shared_lock and page_table_lock nesting hierarchies ?
-From: tytso@mit.edu
-Phone: (781) 391-3464
-In-Reply-To: <CA25698E.002082E9.00@d73mta05.au.ibm.com> <200011060314.TAA22656@pizda.ninka.net>
+	id <S129725AbQKFRoq>; Mon, 6 Nov 2000 12:44:46 -0500
+Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:50932 "EHLO
+	passion.cygnus") by vger.kernel.org with ESMTP id <S129555AbQKFRoa>;
+	Mon, 6 Nov 2000 12:44:30 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <00110617370400.24534@dax.joh.cam.ac.uk> 
+In-Reply-To: <00110617370400.24534@dax.joh.cam.ac.uk>  <00110616471600.01646@dax.joh.cam.ac.uk> <23007.973524894@redhat.com> <6786.973530532@redhat.com> 
+To: "James A. Sutherland" <jas88@cam.ac.uk>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Dan Hollis <goemon@anime.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Oliver Xymoron <oxymoron@waste.org>, Keith Owens <kaos@ocs.com.au>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page] 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 06 Nov 2000 17:44:08 +0000
+Message-ID: <10507.973532648@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Sun, 5 Nov 2000 19:14:29 -0800
-   From: "David S. Miller" <davem@redhat.com>
 
-   It is a well known bug amongst gurus :-) I sent a linux24 bug addition
-   to Ted Ty'tso a week or so ago but he dropped it aparently.
+jas88@cam.ac.uk said:
+>  Except this isn't possible with the hardware in question! If it were,
+> there would be no problem. In cases where the hardware doesn't support
+> the functionality userspace "needs", why put the kludge in the kernel?
 
-I got it, but I thought it was fixed before I had a chance to add it to
-the bug list.  I got confused by one of Linus's descriptions of fixes to
-the test10-pre* series.
+> If userspace wants to know what settings it set last time, it should
+> store those values somewhere.
 
-Sorry; my bad.  I'll get it added to the list.
+No. You have to reset the hardware fully each time you load the module. 
+Although you _expect_ it to be in the state in which you left it, you can't 
+be sure of that. 
 
-						- Ted
+
+jas88@cam.ac.uk said:
+> Eh? You just load the driver once, probably on boot, to configure sane
+> values. This time round, you use an argument (or an ioctl or whatever)
+> to specify the values you want. (cat /etc/sysconfig/sound/
+> defaultvolume > /dev/sound/mixer or whatever). After that, the module
+> can be unloaded and loaded as needed, without any need to touch the
+> mixer settings except in response to *explicit* "set volume" commands
+> from userspace. 
+
+Agreed. Where 'whatever' == persistent storage of some form. I care not 
+what form that takes. If you can store the data entirely in userspace and 
+still have them present at the time the driver initialises the hardware, 
+that's fine. 
+
+
+--
+dwmw2
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267949AbTB1PUM>; Fri, 28 Feb 2003 10:20:12 -0500
+	id <S267963AbTB1PSW>; Fri, 28 Feb 2003 10:18:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267951AbTB1PTw>; Fri, 28 Feb 2003 10:19:52 -0500
-Received: from ns.suse.de ([213.95.15.193]:27149 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267949AbTB1PTo>;
-	Fri, 28 Feb 2003 10:19:44 -0500
-Date: Fri, 28 Feb 2003 16:30:00 +0100
-From: Andi Kleen <ak@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Matthew Wilcox <willy@debian.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Proposal: Eliminate GFP_DMA
-Message-ID: <20030228153000.GA17745@wotan.suse.de>
-References: <20030228064631.G23865@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <p73heao7ph2.fsf@amdsimf.suse.de> <20030228141234.H23865@parcelfarce.linux.theplanet.co.uk> <1046445897.16599.60.camel@irongate.swansea.linux.org.uk> <20030228143405.I23865@parcelfarce.linux.theplanet.co.uk> <1046447737.16599.83.camel@irongate.swansea.linux.org.uk> <20030228145614.GA27798@wotan.suse.de> <20030228152502.GA32449@gtf.org>
+	id <S267967AbTB1PSW>; Fri, 28 Feb 2003 10:18:22 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:62132 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S267963AbTB1PSW>;
+	Fri, 28 Feb 2003 10:18:22 -0500
+Date: Fri, 28 Feb 2003 10:28:38 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Dave Jones <davej@codemonkey.org.uk>, Andrew Morton <akpm@digeo.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
+       cliffw@osdl.org, akpm@zip.com.au, slpratt@austin.ibm.com,
+       levon@movementarian.org, haveblue@us.ibm.com
+Subject: Re: [PATCH] documentation for basic guide to profiling
+Message-ID: <20030228152838.GB32449@gtf.org>
+References: <8550000.1046419962@[10.10.2.4]> <20030228002935.256ffa98.akpm@digeo.com> <20030228112238.GJ4911@codemonkey.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030228152502.GA32449@gtf.org>
+In-Reply-To: <20030228112238.GJ4911@codemonkey.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That's a bit broken...  I have an ALS4000 PCI soundcard that is a 24-bit
-> soundcard.  pci_set_dma_mask should support 24-bits accordingly,
-> otherwise it's a bug in your platform implementation...  Nobody will be
-> able to use certain properly-written drivers on your platform otherwise.
+On Fri, Feb 28, 2003 at 11:22:38AM +0000, Dave Jones wrote:
+> On Fri, Feb 28, 2003 at 12:29:35AM -0800, Andrew Morton wrote:
+> 
+>  > > +Athalon		opcontrol --setup --vmlinux=/boot/vmlinux \
+>  >    Athlon
+> 
+> Also x86-64 as of 0.5.1
 
-It supports it for pci_alloc_consistent (by mapping it to an GFP_DMA
-allocation)
-
-Just for pci_map_single/pci_map_sg() it is not supported and will 
-error out when the passed address doesn't fit the mask. That behaviour
-is 100% compatible with IA32 which does the same. 
-
--Andi
+Alpha is supported too... (as least I saw the kernel part go in)

@@ -1,43 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262780AbSI2PkM>; Sun, 29 Sep 2002 11:40:12 -0400
+	id <S262779AbSI2Pps>; Sun, 29 Sep 2002 11:45:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262782AbSI2PkM>; Sun, 29 Sep 2002 11:40:12 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:25028 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S262780AbSI2PkK>;
-	Sun, 29 Sep 2002 11:40:10 -0400
-Date: Sun, 29 Sep 2002 17:45:16 +0200
+	id <S262781AbSI2Pps>; Sun, 29 Sep 2002 11:45:48 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:58820 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S262779AbSI2Ppr>;
+	Sun, 29 Sep 2002 11:45:47 -0400
+Date: Sun, 29 Sep 2002 17:50:51 +0200
 From: Jens Axboe <axboe@suse.de>
-To: "Trever L. Adams" <tadams-lists@myrealbox.com>
-Cc: james <jdickens@ameritech.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: murrayr@brain.org
 Subject: Re: v2.6 vs v3.0
-Message-ID: <20020929154516.GE1014@suse.de>
-References: <Pine.LNX.4.44.0209281826050.2198-100000@home.transmeta.com> <200209290114.15994.jdickens@ameritech.net> <1033312735.1326.3.camel@aurora.localdomain>
+Message-ID: <20020929155051.GF1014@suse.de>
+References: <Pine.LNX.4.44.0209281826050.2198-100000@home.transmeta.com> <200209290716.g8T7GNwf000562@darkstar.example.net> <20020929091229.GA1014@suse.de> <20020929111918.GA1639@Master.Wizards>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1033312735.1326.3.camel@aurora.localdomain>
+In-Reply-To: <20020929111918.GA1639@Master.Wizards>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 29 2002, Trever L. Adams wrote:
-> On Sun, 2002-09-29 at 02:14, james wrote:
-> > How many people are sitting on the sidelines waiting for guarantee
-> > that ide is not going to blow up on our filesystems and take our
-> > data with it. Guarantee that ide is working and not dangerous to our
-> > data, then I bet a lot more people will come back and bang on 2.5. 
-> 
-> I can tell you right now that I am one of these.  I usually would have
-> been involved in testing it for my situations/needs several months
-> ago, but I have been very leary of the IDE and block changes.  I have
-> one machine (a router) that I could test it on if I knew that the
-> dangers of IDE and block were at least low and that the IPv4 and
-> associated networking connection tracking and NAT stuff worked.
+On Sun, Sep 29 2002, Murray J. Root wrote:
+> On Sun, Sep 29, 2002 at 11:12:29AM +0200, Jens Axboe wrote:
+> > On Sun, Sep 29 2002, jbradford@dial.pipex.com wrote:
+> > > > Anyway, people who are having VM trouble with the current 2.5.x series, 
+> > > > please _complain_, and tell what your workload is. Don't sit silent and 
+> > > > make us think we're good to go.. And if Ingo is right, I'll do the 3.0.x 
+> > > > thing.
+> > > 
+> > > I think the broken IDE in 2.5.x has meant that it got seriously less
+> > > testing overall than previous development trees :-(.  Maybe after
+> > > halloween when it stabilises a bit more we'll get more reports in.
+> > 
+> > 2.5 is definitely desktop stable, so please test it if you can. Until
+> > recently there was a personal show stopper for me, the tasklist
+> > deadline. Now 2.5 is happily running on my desktop as well.
+> > 
+> > 2.5 IDE stability should be just as good as 2.4-ac.
+> > 
+> Hmm - our definitions must be different.
 
-How many accounts of the new block layer corrupting data have you been
-aware of? Since 2.5.1-preX when bio was introduced, I know of one such
-bug: floppy, due to the partial completion changes. Hardly critical.
+Not necessarily, you may just have worse luck than me.
+
+> ASUS P4S533 (SiS645DX chipset)
+> P4 2Ghz
+> 1G PC2700 RAM
+> 
+> Disable SMP, enable APIC & IO APIC
+> Get "WARNING - Unexpected IO APIC found"
+> system freezes
+> 
+> Disable IO APIC, enable ACPI
+> system detects ACPI, builds table, freezes.
+> 
+> Disable ACPI, enable ide-scsi in the kernel
+> kernel panic analyzing hdc
+> 
+> None of these have been reported because I haven't had time to do all the
+> work involved in making a report that anyone on the team will read.
+
+But you have time to write this email and complain that it doesn't work?
+-> /dev/null, until you send proper reports.
 
 -- 
 Jens Axboe

@@ -1,57 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268120AbUIPOkK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268111AbUIPOkE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268120AbUIPOkK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 10:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268113AbUIPOip
+	id S268111AbUIPOkE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 10:40:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268115AbUIPOhn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 10:38:45 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52748 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S268111AbUIPOgX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 10:36:23 -0400
-Date: Thu, 16 Sep 2004 15:36:16 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Albert Cahalan <albert@users.sf.net>, Jakub Jelinek <jakub@redhat.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: get_current is __pure__, maybe __const__ even
-Message-ID: <20040916153616.D31029@flint.arm.linux.org.uk>
-Mail-Followup-To: Andi Kleen <ak@muc.de>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Albert Cahalan <albert@users.sf.net>,
-	Jakub Jelinek <jakub@redhat.com>,
-	Albert Cahalan <albert@users.sourceforge.net>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <1095288600.1174.5968.camel@cube> <20040915231518.GB31909@devserv.devel.redhat.com> <20040915232956.GE9106@holomorphy.com> <1095300619.2191.6392.camel@cube> <20040916023604.GH9106@holomorphy.com> <20040916100419.A31029@flint.arm.linux.org.uk> <20040916091128.GA55409@muc.de> <20040916103045.B31029@flint.arm.linux.org.uk> <20040916110355.GA20448@muc.de>
+	Thu, 16 Sep 2004 10:37:43 -0400
+Received: from mail.kroah.org ([69.55.234.183]:14004 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268105AbUIPOeG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 10:34:06 -0400
+Date: Thu, 16 Sep 2004 07:33:22 -0700
+From: Greg KH <greg@kroah.com>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Suspend2 merge: New exports.
+Message-ID: <20040916143322.GB32352@kroah.com>
+References: <1095333619.3327.189.camel@laptop.cunninghams>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040916110355.GA20448@muc.de>; from ak@muc.de on Thu, Sep 16, 2004 at 01:03:55PM +0200
+In-Reply-To: <1095333619.3327.189.camel@laptop.cunninghams>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16, 2004 at 01:03:55PM +0200, Andi Kleen wrote:
-> > The scheduler quite rightly expects, for any thread, that any variable
-> > which may be stored in a CPU register before the context switch has the
-> > same value as after the context switch.
+On Thu, Sep 16, 2004 at 09:20:19PM +1000, Nigel Cunningham wrote:
 > 
-> Just current isn't a varible, it's some inline assembly in a inline
-> function.  The question was if that function could be marked const/pure. 
+> This patch adds exports for functions used by suspend2. Needed, of
+> course, when suspend is compiled as modules.
 
-Sigh.  What does that matter?
+Why even allow suspend as a module?  It seems like a pretty core chunk
+of code that should be present all the time.
 
-current_thread, which is what we should be talking about here, is
-indeed a function, but its returned value depends wholely on the
-stack pointer value.
+> diff -ruN linux-2.6.9-rc1/fs/buffer.c software-suspend-linux-2.6.9-rc1-rev3/fs/buffer.c
+> --- linux-2.6.9-rc1/fs/buffer.c	2004-09-07 21:58:52.000000000 +1000
+> +++ software-suspend-linux-2.6.9-rc1-rev3/fs/buffer.c	2004-09-09 19:36:24.000000000 +1000
+> @@ -2916,7 +2975,7 @@
+>   *
+>   * try_to_free_buffers() is non-blocking.
+>   */
+> -static inline int buffer_busy(struct buffer_head *bh)
+> +inline int buffer_busy(struct buffer_head *bh)
+>  {
+>  	return atomic_read(&bh->b_count) |
+>  		(bh->b_state & ((1 << BH_Dirty) | (1 << BH_Lock)));
 
-Since the stack pointer and thread info are invariably coupled
-together, it is right to mark it const/pure.
+Why this change?  buffer_busy() is not exported now.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+> diff -ruN linux-2.6.9-rc1/fs/ioctl.c software-suspend-linux-2.6.9-rc1-rev3/fs/ioctl.c
+> --- linux-2.6.9-rc1/fs/ioctl.c	2004-09-07 21:58:53.000000000 +1000
+> +++ software-suspend-linux-2.6.9-rc1-rev3/fs/ioctl.c	2004-09-09 19:36:24.000000000 +1000
+> @@ -138,8 +138,7 @@
+>  
+>  /*
+>   * Platforms implementing 32 bit compatibility ioctl handlers in
+> - * modules need this exported
+> + * modules need this exported. So does Suspend2 (when made as
+> + * modules), so the export_symbol is now unconditional.
+>   */
+> -#ifdef CONFIG_COMPAT
+>  EXPORT_SYMBOL(sys_ioctl);
+> -#endif
+
+What ioctls does suspend2 call?  That seems very strange.
+
+> diff -ruN linux-2.6.9-rc1/kernel/panic.c software-suspend-linux-2.6.9-rc1-rev3/kernel/panic.c
+> --- linux-2.6.9-rc1/kernel/panic.c	2004-09-07 21:59:00.000000000 +1000
+> +++ software-suspend-linux-2.6.9-rc1-rev3/kernel/panic.c	2004-09-09 19:36:24.000000000 +1000
+> @@ -18,12 +18,14 @@
+>  #include <linux/sysrq.h>
+>  #include <linux/syscalls.h>
+>  #include <linux/interrupt.h>
+> +#include <linux/suspend.h>
+>  #include <linux/nmi.h>
+>  
+>  int panic_timeout;
+>  int panic_on_oops;
+>  int tainted;
+>  
+> +EXPORT_SYMBOL(tainted);
+>  EXPORT_SYMBOL(panic_timeout);
+>  
+>  struct notifier_block *panic_notifier_list;
+
+Why is the include needed here just to export a symbol (nevermind the
+fact that we should never export tainted in the first place.)
+
+thanks,
+
+greg k-h

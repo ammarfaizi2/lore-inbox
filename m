@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263424AbTDCVbd 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 16:31:33 -0500
+	id S263333AbTDCVbH 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 16:31:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S263421AbTDCVbc 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 16:31:32 -0500
-Received: from amsfep15-int.chello.nl ([213.46.243.28]:41749 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S263424AbTDCVbU 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 16:31:20 -0500
-Message-ID: <009c01c2fa29$f7b2d290$2e77c23e@pentium4>
-From: "Jonathan Vardy" <jonathanv@explainerdc.com>
-To: "Peter L. Ashford" <ashford@sdsc.edu>,
-       "Jonathan Vardy" <jonathan@explainerdc.com>
-Cc: <linux-raid@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-References: <Pine.GSO.4.30.0304030858080.20118-100000@multivac.sdsc.edu>
-Subject: Re: RAID 5 performance problems
-Date: Thu, 3 Apr 2003 23:42:47 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id S263357AbTDCVbH 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 16:31:07 -0500
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:13512 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S263333AbTDCVbG 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 16:31:06 -0500
+Subject: Re: linux build process request
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Stuart MacDonald <stuartm@connecttech.com>
+Cc: uclinux-dev@uclinux.org, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <010501c2fa07$7dee9ce0$294b82ce@connecttech.com>
+References: <200304011308.15196.tendim@tendim.cjb.net>
+	 <200304012258.47696.tendim@tendim.cjb.net>
+	 <010501c2fa07$7dee9ce0$294b82ce@connecttech.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049406141.1175.4.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 03 Apr 2003 23:42:21 +0200
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The ONLY reason that I can think of to use round cables would be for
-> looks.  From a performance or reliability standpoint, they are a waste of
-> money.  I routinely build systems with dual 8-channel IDE RAID cards
-> (3Ware 7500-8) and 16 disks, and ONLY use flat cables.
+On Thu, 2003-04-03 at 19:36, Stuart MacDonald wrote:
+> Something I'd like to see is a "make help" or "make targets" target
+> that would simply echo out the list of available targets in the linux
+> kernel build process and a description of what each one does.
 
-I use rounded cables in my case for a few reasons:
-- The distance between my promise and my drives is small yet the promise
-cables are long, the rounded cables I have are 12" long and fit very neatly
-- The promise cables had two IDE connectors but I only wanted to put one
-drive per channel; the rounded cables are single cables
-- Air flow; because of my small casing the flat promise cables were
-contricting the airflow quite a bit, the rounded less
-- flexibility; I found the flat cables hard to bend in to place whereas the
-round cables you could twist easily
+This is already implemented in 2.5...
 
-I've added a link which should make it clear that rounded cables in my case
-are a benefit to me. What I was worried about was that they could be
-inferior quality and thus be a factor in my raid performance.
+try "make help" :-)
 
-http://www.datzegik.com/DSC00056.JPG
+________________________________________________________________________
+Linux Registered User #287198
 

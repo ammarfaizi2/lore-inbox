@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279248AbRJWFLF>; Tue, 23 Oct 2001 01:11:05 -0400
+	id <S279243AbRJWFSi>; Tue, 23 Oct 2001 01:18:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279246AbRJWFKq>; Tue, 23 Oct 2001 01:10:46 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:55300 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S279245AbRJWFKh>;
-	Tue, 23 Oct 2001 01:10:37 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: george anzinger <george@mvista.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: How should we do a 64-bit jiffies? 
-In-Reply-To: Your message of "Mon, 22 Oct 2001 08:12:24 MST."
-             <3BD43758.32646D49@mvista.com> 
-Mime-Version: 1.0
+	id <S279244AbRJWFS1>; Tue, 23 Oct 2001 01:18:27 -0400
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:36234 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S279243AbRJWFSY>;
+	Tue, 23 Oct 2001 01:18:24 -0400
+Message-ID: <3BD4FDBF.7BF7FAEE@pobox.com>
+Date: Mon, 22 Oct 2001 22:18:55 -0700
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: drevil@warpcore.org
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module
+In-Reply-To: <20011022172742.B445@virtucon.warpcore.org> <E15vnuN-0003jW-00@the-village.bc.nu> <20011022203159.A20411@virtucon.warpcore.org> <20011022214324.A18888@alcove.wittsend.com> <20011022211622.B20411@virtucon.warpcore.org> <003801c15b7d$6e2e4410$01c510ac@c779218a> <20011023000826.A22123@virtucon.warpcore.org>
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 23 Oct 2001 15:10:48 +1000
-Message-ID: <1164.1003813848@ocs3.intra.ocs.com.au>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001 08:12:24 -0700, 
-george anzinger <george@mvista.com> wrote:
->I am working on POSIX timers where there is defined a CLOCK_MONOTONIC. 
->The most reasonable implementation of this clock is that it is "uptime"
->or jiffies.  The problem is that it is most definitely not MONOTONIC
->when it rolls back to 0 :(  Thus the need for 64-bits.
+drevil@warpcore.org wrote:
 
-If you want to leave existing kernel code alone so it still uses 32 bit
-jiffies, just maintain a separate high order 32 bit field which is only
-used by the code that really needs it.  On 32 bit machines, the jiffie
-code does
+> I'm not complaining about the NVidia driver here. I'm simply stating that IMHO,
+> I find it odd that for years microsoft has not only retained binary
+> compatability within a release of windows but API compatability.
 
-  old_jiffies = jiffies++;
-  if (jiffies < old_jiffies)
-  	++high_jiffies;
+That's simply note true, as many windows
+users have pointed out to you.
 
-You will need a spin lock around that on 32 bit systems, but that is
-true for anything that tries to do 64 bit counter updates on a 32 bit
-system.  None of your suggestions will work on ix86, it does not
-support atomic updates on 64 bit fields in hardware.
+> There should
+> not be a change to the kernel that would require changes in the driver in a
+> "stable development" release tree, it's really that simple in my perhaps
+> somewhat limited view. Admittedly, this breakage (which is still in doubt) that
+> might have happened did happen with a "pre" version, but I feel this response
+> would have been no different even if that was not the case.
+
+nvidia is the party who maintains the nvidia driver -
+and they have stated that they do not support "pre"
+kernel releases. Therefore, you ought to stick with
+official releases.
+
+(Funny, I never have that problem with my voodoo3!)
+
+Also, you mentioned "customers" - most customers
+would take a dim view of a sys admin who reboots
+systems left and right to try various "pre" kernels!
+
+You had best install the distro and leave it at that,
+except of course that you keep up with updates.
+
+cu
+
+jjs
+
+
 

@@ -1,59 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277380AbRKMT6G>; Tue, 13 Nov 2001 14:58:06 -0500
+	id <S278742AbRKMUBG>; Tue, 13 Nov 2001 15:01:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278685AbRKMT54>; Tue, 13 Nov 2001 14:57:56 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42502 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S277380AbRKMT5q>; Tue, 13 Nov 2001 14:57:46 -0500
-Message-ID: <3BF17B1A.70102@zytor.com>
-Date: Tue, 13 Nov 2001 11:57:14 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en, sv
+	id <S278695AbRKMUA4>; Tue, 13 Nov 2001 15:00:56 -0500
+Received: from anime.net ([63.172.78.150]:50188 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S278742AbRKMUAp>;
+	Tue, 13 Nov 2001 15:00:45 -0500
+Date: Tue, 13 Nov 2001 12:00:28 -0800 (PST)
+From: Dan Hollis <goemon@anime.net>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+cc: <linux-kernel@vger.kernel.org>, <lars.nakkerud@compaq.com>
+Subject: Re: Tuning Linux for high-speed disk subsystems
+In-Reply-To: <Pine.LNX.4.30.0111131519440.933-100000@mustard.heime.net>
+Message-ID: <Pine.LNX.4.30.0111131159120.796-100000@anime.net>
 MIME-Version: 1.0
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: fdutils.
-In-Reply-To: <Pine.GSO.3.96.1011113201300.11222A-100000@delta.ds2.pg.gda.pl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej W. Rozycki wrote:
+On Tue, 13 Nov 2001, Roy Sigurd Karlsbakk wrote:
+> After some testing at Compaq's lab in Oslo, I've come to the conclusion
+> that Linux cannot scale higher than about 30-40MB/sec in or out of a
+> hardware or software RAID-0 set with several stripe/chunk sizes tried out.
 
-> On 13 Nov 2001, H. Peter Anvin wrote:
-> 
->>Thankfully, the LS-120/LS-240 hardware is actually sane.
-> 
->  Do you mean there is a SCSI version available or merely the ATAPI
-> implementation is within the spec?
-> 
+We managed >100mb/sec from a raid5 IDE setup, SMP athlon on Tyan S2460
+with promise controllers.
 
-
-I believe both, but the important thing is that it's an ATAPI/SCSI
-implementation, including a soft eject button, and not that horrible
-legacy floppy crap.
-
-
-> 
->>Unfortunately the zip drive probably kept it from displacing legacy
->>floppies, at least in the short term.
-> 
->  Unfortunately at the time I was interested in a removeable storage
-> replacement technology, there was only SCSI Zip available -- no SCSI
-> LS-120 drives.  I might have not been the only one, so they got what they
-> asked for. 
-> 
-
-
-That wasn't what kept it from becoming standard, though.  The marketing of
-Zip was a bit too good, but Zip couldn't have displaced the legacy floppy,
-since it wasn't compatible.
-
-	-hpa
-
-
+-Dan
+-- 
+[-] Omae no subete no kichi wa ore no mono da. [-]
 

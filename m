@@ -1,76 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261876AbTGAJyw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 05:54:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTGAJyw
+	id S261919AbTGAKCK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 06:02:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTGAKCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 05:54:52 -0400
-Received: from mx02.qsc.de ([213.148.130.14]:55521 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id S261876AbTGAJyt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 05:54:49 -0400
-Date: Tue, 1 Jul 2003 12:12:40 +0200
-From: Wiktor Wodecki <wodecki@gmx.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] O1int 0307010922 for 2.5.73 interactivity
-Message-ID: <20030701101238.GB686@gmx.de>
-Reply-To: Johoho <johoho@hojo-net.de>
-References: <200307010944.46971.kernel@kolivas.org> <200307010952.26595.kernel@kolivas.org>
+	Tue, 1 Jul 2003 06:02:10 -0400
+Received: from mail022.syd.optusnet.com.au ([210.49.20.149]:51410 "EHLO
+	mail022.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261919AbTGAKCI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 06:02:08 -0400
+Date: Tue, 1 Jul 2003 20:15:09 +1000
+To: rmoser <mlmoser@comcast.net>
+Cc: "Leonard Milcin Jr." <thervoy@post.pl>, linux-kernel@vger.kernel.org
+Subject: Re: File System conversion -- ideas
+Message-ID: <20030701101509.GC3587@cancer>
+References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk> <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEF8F.7050607@post.pl> <200306291445470220.01DC8D9F@smtp.comcast.net> <3EFF3FFA.60806@post.pl> <3EFF4177.6000705@post.pl> <200306291548060930.02159FEE@smtp.comcast.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200307010952.26595.kernel@kolivas.org>
-X-message-flag: Linux - choice of the GNU generation
-X-Operating-System: Linux 2.5.73-bk7-O1int0307010949 i686
-X-PGP-KeyID: 182C9783
-X-Info: X-PGP-KeyID, send an email with the subject 'public key request' to wodecki@gmx.de
+In-Reply-To: <200306291548060930.02159FEE@smtp.comcast.net>
 User-Agent: Mutt/1.5.4i
+From: Stewart Smith <stewart@linux.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jun 29, 2003 at 03:48:06PM -0400, rmoser wrote:
 
---opJtzjQTFsWo+cga
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Yeppers.  Also that the eventual goal (at least in  my mind) is to allow
+> this to be done on a running r/w filesystem safely, which isn't as tough
+> a problem as it sounds.
 
-Hello,
+Yes it is. In fact, it is more of a problem then you think.
 
-On Tue, Jul 01, 2003 at 09:52:26AM +1000, Con Kolivas wrote:
-> On Tue, 1 Jul 2003 09:44, Con Kolivas wrote:
-> > Here is an evolution of the O1int design to minimise audio skips/smooth=
- X.
-> > I've been forced to work with even less sleep than usual because of this
-> > but I'm getting quite happy with it now.
-=20
-for normale usage I'm happy with it, even under heavy load (two kernel
-compiles with -j4 on a single processor machine) I can type into my
-xterms mostly instantly.
-However starting new applications/xterm's is a pain, a plain xterm which
-starts normally within a second takes about 3-5secs. Openoffice isn't
-usable at all. But on the other side I normally don't compile with
--j4...
-However the xmms didn't skip once while playing. I applied this patch
-ontop of 2.5.73-bk7.
+Think of this simple scenario:
+a script is running that downloads a kernel patch, applies it to a tree,
+then renames the directory to $1-$patchname.
+
+Half way through this, during the patch, the backup script comes through
+and starts to backup the filesystem.
 
 
---=20
-Regards,
+Now - wipe the drive clean at the end and restore it to a sane state.
 
-Wiktor Wodecki
+Doing live things on storage systems without transactions, snapshots or
+whatever you want to call them is tricky at best. resizing is going to 
+cause headaches.
 
---opJtzjQTFsWo+cga
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/AV6W6SNaNRgsl4MRAtXpAJ0Y8ukTTS4Y+aMTmAtnwsQ/a6hfSgCeLhwj
-qDe4U3ZTnlxfU5TPDNhcKPs=
-=H55U
------END PGP SIGNATURE-----
-
---opJtzjQTFsWo+cga--
+-- 
+Stewart Smith
+Vice President, Linux Australia
+http://www.linux.org.au (personal: http://www.flamingspork.com)

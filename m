@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVCREXc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbVCREmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261327AbVCREXc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 23:23:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVCREXc
+	id S261463AbVCREmP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 23:42:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVCREmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 23:23:32 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:49624 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261327AbVCREX2 (ORCPT
+	Thu, 17 Mar 2005 23:42:15 -0500
+Received: from gate.crashing.org ([63.228.1.57]:46794 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261463AbVCREmK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 23:23:28 -0500
-Date: Thu, 17 Mar 2005 23:23:10 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Paul Mackerras <paulus@samba.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Keir Fraser <Keir.Fraser@cl.cam.ac.uk>,
-       Jesse Barnes <jbarnes@engr.sgi.com>, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ian.Pratt@cl.cam.ac.uk, kurt@garloff.de, Christian.Limpach@cl.cam.ac.uk
-Subject: Re: [PATCH] Xen/i386 cleanups - AGP bus/phys cleanups
-In-Reply-To: <16954.7656.838769.483631@cargo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.61.0503172321001.8711@chimarrao.boston.redhat.com>
-References: <E1DBX0o-0000sV-00@mta1.cl.cam.ac.uk> <16952.41973.751326.592933@cargo.ozlabs.ibm.com>
- <200503161406.01788.jbarnes@engr.sgi.com> <29ab1884ee5724e9efcfe43f14d13376@cl.cam.ac.uk>
- <16953.20279.77584.501222@cargo.ozlabs.ibm.com> <1111067594.1213.27.camel@localhost.localdomain>
- <16954.7656.838769.483631@cargo.ozlabs.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Mar 2005 23:42:10 -0500
+Subject: Re: [PATCH 2/2] Thinkpad Suspend Powersave: Add D2 power saving
+	code for Thinkpads with Radeon video chipsets
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-thinkpad@linux-thinkpad.org, "Brown, Len" <len.brown@intel.com>,
+       Volker Braun <volker.braun@physik.hu-berlin.de>
+In-Reply-To: <20050318033928.GD4851@thunk.org>
+References: <3.518178082@mit.edu> <1111015144.15510.47.camel@gaston>
+	 <20050318033928.GD4851@thunk.org>
+Content-Type: text/plain
+Date: Fri, 18 Mar 2005 15:41:06 +1100
+Message-Id: <1111120866.25180.154.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Mar 2005, Paul Mackerras wrote:
+On Thu, 2005-03-17 at 22:39 -0500, Theodore Ts'o wrote:
+> On Thu, Mar 17, 2005 at 10:19:04AM +1100, Benjamin Herrenschmidt wrote:
+> > You probably want to remove the bit that does
+> > 
+> > 	OUTREG(TV_DAC_CNTL, INREG(TV_DAC_CNTL) | 0x07000000);
+> > 
+> > Or you'll lose TV output :)
+> 
+> I'm not using TV output, and the original patch stated:
+> 
+> > > +		/* Power down TV DAC, that saves a significant amount of power,
+> > > +		 * we'll have something better once we actually have some TVOut
+> > > +		 * support
+> > > +		 */
 
-> However, the idea of having phys_to_agp/agp_to_phys (or 
-> virt_to_agp/agp_to_virt) sounds like it wouldn't be too much effort, if 
-> it would help Xen.
+Yup, I know, I wrote this bit :)
 
-It would be absolutely trivial.  On most architectures you would have:
+> I suppose I should renable the TV DAC and see how much power it
+> actually consumes if I enable it.  It would seem to me that we should
+> have a way that we can power down whatever parts of the video chipset
+> that we're not using.  (For example if I don't have anything connected
+> to the VGA output, it would be good if we could power that down too...)
 
-#define virt_to_agp  virt_to_phys
-#define agp_to_virt  phys_to_virt
+We can power down the internal DAC too, yes, and the TMDS transmitter
+when no DVI is plugged, etc.. and we can also lower the chip clock :) I
+do intend to do these things. The problem right now is
+that the above will break some users who have a BIOS that can set
+TV-Out. Maybe some sysfs attribute ? At least until I can properly
+probe all ports including the TV Out (I'm working on that). Ultimately,
+the driver should be able to properly detect everything that is
+connected.
 
-On Xen you would have:
+Ben.
 
-#define virt_to_agp  virt_to_bus
-#define agp_to_virt  bus_to_virt
-
-Or, more likely, defined to arbitrary_machine_to_phys
-or whatever it was called ;)
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan

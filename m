@@ -1,59 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272573AbTHPCpk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 22:45:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272576AbTHPCpk
+	id S272576AbTHPD2o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 23:28:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272577AbTHPD2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 22:45:40 -0400
-Received: from guug.galileo.edu ([168.234.203.30]:12044 "EHLO guug.galileo.edu")
-	by vger.kernel.org with ESMTP id S272573AbTHPCpj (ORCPT
+	Fri, 15 Aug 2003 23:28:44 -0400
+Received: from mail.kroah.org ([65.200.24.183]:28299 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S272576AbTHPD2n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 22:45:39 -0400
-Date: Fri, 15 Aug 2003 20:40:00 -0600
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: James Simmons <jsimmons@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: FBDEV updates.
-Message-ID: <20030816024000.GA11710@guug.org>
-References: <Pine.LNX.4.44.0308152319570.30952-100000@phoenix.infradead.org> <1060990952.881.89.camel@gaston>
+	Fri, 15 Aug 2003 23:28:43 -0400
+Date: Fri, 15 Aug 2003 20:28:33 -0700
+From: Greg KH <greg@kroah.com>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] Driver Core fixes for 2.6.0-test3
+Message-ID: <20030816032833.GA6680@kroah.com>
+References: <20030815182459.GA3755@kroah.com> <20030815215459.Y639@nightmaster.csn.tu-chemnitz.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1060990952.881.89.camel@gaston>
-User-Agent: Mutt/1.5.4i
-From: Otto Solares <solca@guug.org>
+In-Reply-To: <20030815215459.Y639@nightmaster.csn.tu-chemnitz.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 16, 2003 at 01:42:32AM +0200, Benjamin Herrenschmidt wrote:
+On Fri, Aug 15, 2003 at 09:54:59PM +0200, Ingo Oeser wrote:
+> Hi Greg,
+
+Hi, I've brought this back to lkml as I'm getting tired of private email
+threads about this topic.  Hope you don't mind.
+
+> On Fri, Aug 15, 2003 at 11:25:00AM -0700, Greg KH wrote:
+> > Here's some driver core changes that do the following things:
+> > 	- remove struct device.name field and fix up remaining
+> > 	  subsystems
 > 
-> > 
-> > Will do. I like to also handle Video mode change. Even userland will like 
-> > to know when a mode change happened. For userland a signal can be sent. 
-> > This would be useful for someone in X that runs fbset in a Xterm. This 
-> > hoses the X server. It would be nice if the X server would see the signal 
-> > change and adapt to it. Fbset could in theory be used again to change a VC 
-> > size. Yuck!!!! But it is what people want.
+> Could you point me to the rationale about this?
 > 
-> And for good reasons as we still have to deal with cases
-> where neither the driver nor modedb knows what the monitor supports...
+> I for one considered "everything should have a name" policy very
+> useful and extendible.
 
-It could be really cool if in sysfs be a file with
-video modes, something like this:
+The main problem is that we don't want to be putting name databases in
+the kernel, like PCI, PnP, and USB were starting to do.  People were
+starting to complain that the PCI and USB names were not the "proper"
+name, as we didn't have enough room for the "full" name.
 
-1024x768x24@80
-1024x768x24@60
-800x600x24@60
-600x400x16@75
+Naming databases belong in userspace.  For PCI, PnP, and USB we can
+determine the name ourselves from userspace using lspci, lspnp, and
+lsusb.  Getting rid of the name field prevents us from relying on kernel
+code when we shouldn't be.
 
-and other file named current_mode (or something) with the
-current setting, you just echo a value there and bingo,
-a video mode change with the desired refresh rate, is that
-hard? EDID and modedb can help us here.
+> Not that I would like to change that back, just like to know why
+> this is done, why so late and why after introducing it into all
+> drivers in core?
 
-Don't you think?
+We messed up, and we're now fixing that before people start to rely on
+it :)
 
--solca
+Now some subsystems still want to export a "name" as there is no other
+way to determine the type of the device (no vendor or product ids.)  For
+them, a name field is just fine to have.  For example, I moved the name
+field back into the i2c_client and i2c_adapter structures for this very
+reason.
 
+Hey, we're saving kernel memory, and this is a problem?  :)
+
+Hope this helps explain things.
+
+greg k-h

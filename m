@@ -1,69 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262993AbTJZJqM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 04:46:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263010AbTJZJqM
+	id S263009AbTJZJmN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 04:42:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263010AbTJZJmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 04:46:12 -0500
-Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:14208
-	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
-	id S262993AbTJZJqI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 04:46:08 -0500
-From: Tovar <tvr@penngrove.fdns.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test9 better on VAIO R505EL and PowerMac 8500
-Message-Id: <E1ADhTk-0000hY-00@penngrove.fdns.net>
-Date: Sun, 26 Oct 2003 01:46:32 -0800
+	Sun, 26 Oct 2003 04:42:12 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19681 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263009AbTJZJl6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 04:41:58 -0500
+Date: Sun, 26 Oct 2003 09:41:57 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Andrew Morton <akpm@osdl.org>
+Cc: arekm@pld-linux.org, linux-kernel@vger.kernel.org, jmorris@redhat.com,
+       sds@epoch.ncsc.mil, manfred@colorfullife.com
+Subject: Re: 2.6.0-test9 and sleeping function called from invalid context
+Message-ID: <20031026094157.GV7665@parcelfarce.linux.theplanet.co.uk>
+References: <200310260045.52094.arekm@pld-linux.org> <20031025185055.4d9273ae.akpm@osdl.org> <20031025224950.001b4055.akpm@osdl.org> <20031026082610.GU7665@parcelfarce.linux.theplanet.co.uk> <20031026014153.0fdbd50a.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031026014153.0fdbd50a.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Things look much better for me, 2.6.0-test9 seems pretty good for i386, and
-looks encouraging for PPC.  Using the criterion posted with that release, i
-don't have many outstanding issues.
+On Sun, Oct 26, 2003 at 01:41:53AM -0700, Andrew Morton wrote:
 
-Important issues for PowerMac 8500
+> > AFAICS, we can move d_add() right before taking the spinlock.  It's there
+> > to protect the ->proc_dentry assignment.
+> 
+> In which case we don't need to take the lock at all.  Two instances.
 
-  'drivers/block/swim3.c' is broken.  It does not compile and while a simple
-	patch (see Bug #1370) cleans up the compilation, the driver doesn't
-	seem to recognize the hardware.  Another patch exists which fixes 
-	that, but it will need to evaluated by someone like 'benh' and is
-	likely to be too complex for current 2.6.0 criteria.
+Yes, we do.  At least we used to - the other side of that code assumes
+that holding the spinlock is enough to keep ->proc_dentry unchanged.
+And no, I hadn't done the analysis of changes that had come with the
+"task" ugliness.
 
-  No other big issues for me, aside from a minor annoyance of losing video 
-	sync switching from X back to a 'controlfb' framebuffer.
+> What protects against concurrent execution of proc_pid_lookup() and
+> proc_task_lookup()?  I think nothing, because one is at /proc/42 and the
+> other is at /proc/41/42; the parent dir inodes are different.  hmm.
+>
+> > *However*, I would like to point out that we are holding ->i_sem on the
+> > procfs root at that point, so any blocking code in d_instantiate() would
+> > better be careful to avoid deadlocks if it wants to play with procfs itself -
+> > we are not in a locking-neutral situation here, spinlock or not.
+> 
+> "procfs root", or parent dir??
 
-Minor issues include:
-
-  The Mac SCSI drivers get quite a few compilation warnings, and one stack
-	trace per drive at boot time, which don't seem to be fatal.
-
-  Ejecting a CDROM seems to get a two or three instances of "slab error in
-	cache_free_debugcheck()".
-
-  If RAID5 is reconstructing parity, then when 'bootlogd' tries to start up, 
-	everything stalls until reconstruction completes, making the machine
-	appears to be hung in the meanwhile.
-
-Important issues for Sony VAIO R505EL
-
-  ohci1394/sbp2 is still broken and prevents CD/RW operations, but that is
-	mostly patchable and will probably need to wait for 2.6.1 according 
-	Linus' criterion.
-
-  All other significant issues pertain to software suspend, and that being
-	experimental, they can be ignored for 2.6.0 release.  
-
-Minor issues include:
-
-  The laptop 'power' button and the lid switch each give an identical
-	"sleeping... from invalid context at mm/slab.c:1856"
-
-  'serial_cs' tries to free IO ports twice (still looking at that one).
-
-  'ide-cs.c' still uses MOD_INC_USE_COUNT and MOD_DEC_USE_COUNT (probably
-	OK if you don't need to suspend).
-
-So, much better than the last summary, but i'm not ready to run -test9 on 
-the PPC unattended and i'm still stuck with Windows on the laptop if i'm 
-not at home.  MOL is still untested.
-					-- JM
+For proc_pid_lookup() they are the same.

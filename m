@@ -1,39 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbUKJTly@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbUKJTsY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbUKJTly (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 14:41:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbUKJTlM
+	id S262039AbUKJTsY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 14:48:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbUKJTsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 14:41:12 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:466 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262117AbUKJTku (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 14:40:50 -0500
-Subject: Re: 2.6 vs 2.4: pxe booting system won't restart
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Brian Jackson <notiggy@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <fb20c214041110103647fc6b51@mail.gmail.com>
-References: <fb20c214041110103647fc6b51@mail.gmail.com>
+	Wed, 10 Nov 2004 14:48:24 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:57769
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S262039AbUKJTsS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 14:48:18 -0500
+Subject: Re: CELF interest in suspend-to-flash
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
+       Tim Bird <tim.bird@am.sony.com>, LKML <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+In-Reply-To: <20041110154136.GA12444@logos.cnet>
+References: <419256F8.3010305@am.sony.com>
+	 <1100109991.12290.41.camel@desktop.cunninghams>
+	 <20041110154136.GA12444@logos.cnet>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1100111849.20555.23.camel@localhost.localdomain>
+Organization: linutronix
+Date: Wed, 10 Nov 2004 20:39:52 +0100
+Message-Id: <1100115592.3405.36.camel@thomas>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 10 Nov 2004 18:37:31 +0000
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-11-10 at 18:36, Brian Jackson wrote:
-> I'm having a problem with 2.6 (many versions), and my Via Epia M10000
-> not rebooting correctly. 2.4 works fine. The problem is after the
-> computer restarts, and the pxe stuff from the bios tries to do it's
-> thing, it fails. I get the following error:
-> PXE_M0F: Exiting Intel PXE ROM.
+On Wed, 2004-11-10 at 13:41 -0200, Marcelo Tosatti wrote:
+> > On Thu, 2004-11-11 at 04:59, Tim Bird wrote:
+> > > Hi all,
+> > > 
+> > > Lately, the CE Linux Forum power management working group is showing some
+> > > interest in suspend-to-flash.  Is there any current work in this area?
+> > > 
+> > > Who should we talk to if we want to get involved with this (or lead
+> > > an effort if there isn't one)?
+> > 
+> > Can flash be treated as a swap device at the moment? If so, it might
+> > simply be a matter of specifying the same parameter used in swapon for
+> > the resume2= boot parameter.
 > 
-> Then the bios tries to fallback to other means of booting, and there
-> are none. Anybody got any clues where to start looking for fixes?
+> Sure, you only need to have the flash as a block device (ie driven 
+> by the IDE code).
 
-Remove the kernel code that powers down the ethernet chip. If that works
-then poke VIA.
+That's true, if you are talking about Compact FLash which pretends to be
+a harddisk, but I assume that the embedded people are talking about raw
+FLASH chips. It's possible do this, but it will need some tweaks to the
+MTD code
+
+tglx
+
+
+
+
 

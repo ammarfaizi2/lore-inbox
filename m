@@ -1,82 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266890AbUHOUqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266891AbUHOUyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266890AbUHOUqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 16:46:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266891AbUHOUqJ
+	id S266891AbUHOUyN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 16:54:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266897AbUHOUyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 16:46:09 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:25800 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266890AbUHOUqD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 16:46:03 -0400
-Date: Sun, 15 Aug 2004 22:45:55 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Roman Zippel <zippel@linux-m68k.org>, Sam Ravnborg <sam@ravnborg.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: menuconfig displays dependencies [Was: select FW_LOADER -> depends HOTPLUG]
-Message-ID: <20040815204555.GS1387@fs.tum.de>
-References: <20040809203840.GB19748@mars.ravnborg.org> <Pine.LNX.4.58.0408100130470.20634@scrub.home> <20040810084411.GI26174@fs.tum.de> <20040810211656.GA7221@mars.ravnborg.org> <Pine.LNX.4.58.0408120027330.20634@scrub.home> <20040814074953.GA20123@mars.ravnborg.org> <20040814210523.GG1387@fs.tum.de> <20040814223749.GA7243@mars.ravnborg.org> <20040815202111.GR1387@fs.tum.de> <20040815203245.GA14336@mars.ravnborg.org>
+	Sun, 15 Aug 2004 16:54:13 -0400
+Received: from AGrenoble-152-1-30-171.w82-122.abo.wanadoo.fr ([82.122.148.171]:11976
+	"EHLO awak.dyndns.org") by vger.kernel.org with ESMTP
+	id S266891AbUHOUyL convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 16:54:11 -0400
+Subject: Re: Linux SATA RAID FAQ
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1092520163.27405.11.camel@localhost.localdomain>
+References: <E1BvFmM-0007W5-00@calista.eckenfels.6bone.ka-ip.net>
+	 <1092315392.21994.52.camel@localhost.localdomain> <411BA7A1.403@pobox.com>
+	 <411BA940.5000300@pobox.com>
+	 <1092520163.27405.11.camel@localhost.localdomain>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1092603242.7421.6.camel@nomade>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040815203245.GA14336@mars.ravnborg.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 15 Aug 2004 22:54:02 +0200
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 15, 2004 at 10:32:45PM +0200, Sam Ravnborg wrote:
-> On Sun, Aug 15, 2004 at 10:21:11PM +0200, Adrian Bunk wrote:
-> > > CONFIG_FOO
-> > > 
-> > > Depends on:
-> > > CONFIG_BAR: [ ] "Prompt for BAR"
-> > 
-> > 
-> > Assuming I'm configuring a kernel for i386, what should I see when 
-> > pressing 'd' on the following driver?
-> > 
-> > 
-> > config OAKNET
-> >         tristate "National DP83902AV (Oak ethernet) support"
-> >         depends on NET_ETHERNET && PPC && BROKEN
-> >         select CRC32
-> > 
-> What about:
-> Depends on:
->   [ ] "Prompt for NET_ETHERNET"	(CONFIG_NET_ETHERNET)
->   --- "Promt ..." (CONFIG_PPC)
->   --- " Prompt ... " (CONFIG_BROKEN)
-
-CONFIG_BROKEN is available.
-
-And in other cases, e.g. I2C_ALGOBIT might be a dependency, but depends 
-itself on I2C which might be disabled.
-
-> Selects
->   "Prompt for CRC32)" (CONFIG_CRC32)
+Le sam 14/08/2004 à 23:49, Alan Cox a écrit :
+> > > * Caching
 > 
-> That would make sense to me at least.
+> Is it battery backed ? If it is battery backed then its useful, if not
+> then it becomes less useful although not always. The i2o drivers have
+> some ioctls so you can turn on writeback caching even without battery
+> backup. While this is suicidal for filesytems its just great for swap..
 
-Showing all !i386 drivers on i386 will make it harder for people to find 
-the drivers they actually need.
+Isn't sufficient to have it do ordered writes ? If you power your
+machine off, you'll have things half-written anyway, the only thing
+important with journaled filesystems (and raid5 arrays) is to have
+writes staying between barriers.
 
-> If I ever look into it I will touch upon the corner cases for sure.
-
-Thanks.
-
-BTW:
-"make oldconfig" will need a similar treatment before we can start 
-changing selects to depends.
-
-> 	Sam
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+	Xav
 

@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264452AbSIVSCO>; Sun, 22 Sep 2002 14:02:14 -0400
+	id <S264453AbSIVSIv>; Sun, 22 Sep 2002 14:08:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264453AbSIVSCO>; Sun, 22 Sep 2002 14:02:14 -0400
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:6784 "EHLO
-	dad.molina") by vger.kernel.org with ESMTP id <S264452AbSIVSCN>;
-	Sun, 22 Sep 2002 14:02:13 -0400
-Date: Sun, 22 Sep 2002 13:07:18 -0500 (CDT)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@dad.molina
-To: Jurriaan <thunder7@xs4all.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ide-scsi problems (identical) in 2.5.38 and 2.4.20-pre7-ac3:
- CoD != 0 in idescsi_pc_intr
-In-Reply-To: <20020922065504.GA1009@middle.of.nowhere>
-Message-ID: <Pine.LNX.4.44.0209221252490.909-100000@dad.molina>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264454AbSIVSIv>; Sun, 22 Sep 2002 14:08:51 -0400
+Received: from p508E9036.dip.t-dialin.net ([80.142.144.54]:9170 "EHLO
+	minerva.local.lan") by vger.kernel.org with ESMTP
+	id <S264453AbSIVSIu>; Sun, 22 Sep 2002 14:08:50 -0400
+From: Martin Loschwitz <madkiss@madkiss.org>
+Date: Sun, 22 Sep 2002 20:13:59 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.5.38-ml2
+Message-ID: <20020922181358.GA16388@minerva.local.lan>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="45Z9DzgjV8m4Oswq"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 22 Sep 2002, Jurriaan wrote:
 
-> selected parts of dmesg:
-> 
-> hdg: LITE-ON LTR-40125W, ATAPI CD/DVD-ROM drive
-> ide-cd: passing drive hdg to ide-scsi emulation.
-> scsi1 : SCSI host adapter emulation for IDE ATAPI devices
->   Vendor: LITE-ON   Model: LTR-40125W        Rev: WS05
->   Type:   CD-ROM                             ANSI SCSI revision: 02
-> sr3: scsi3-mmc drive: 12x/12x writer cd/rw xa/form2 cdda tray
-> 
-> After writing for a while, it says:
-> ide-scsi: CoD != 0 in idescsi_pc_intr
-> hdg: ATAPI reset complete
+--45Z9DzgjV8m4Oswq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I could not duplicate this error in 2.5.38-bk.
+Ok, this version is fixed.
 
-However, I did notice some other anomalies during testing.  My testing 
-consisted of dd if=/dev/cdrom of=cd.iso under 2.4.18-10 and 2.5.38-bk.  I 
-tried both a small mail spool (2 MB) cd and a large document cd (637 MB).  
-The small file copied fine under both, but 2.5.38-bk read two fewer 
-sectors than 2.4.18-10 (32404 vs. 32406).  On disk, the files created 
-were:
+Summary of changes from v2.5.38-ml1 to v2.5.38-ml2
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
--rw-r--r--    1 root     root     668475392 Sep 22 12:01 cd2.iso
--rw-r--r--    1 root     root     668479488 Sep 22 11:51 cd.iso
+o [PATCH] fix UP_APIC linkage problem in 2.5.3[78] (Mikael Pettersson <mikp=
+e@csd.uu.se>)
 
-from the same source cd.
+Linux 2.5.38-ml2 is available at http://www.madkiss.org/kernel/2.5.38/
 
+--=20
+  .''`.   Name: Martin Loschwitz
+ : :'  :  E-Mail: madkiss@madkiss.org
+ `. `'`   www: http://www.madkiss.org/=20
+   `-     Use Debian GNU/Linux - http://www.debian.org   =20
+
+--45Z9DzgjV8m4Oswq
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9jghmHPo+jNcUXjARAkRCAJ48+2zxK2u/eDh4l//MCbszceytBACfdsWX
+lcqsp5PkIZ306I7QRWj+RUk=
+=qDdi
+-----END PGP SIGNATURE-----
+
+--45Z9DzgjV8m4Oswq--

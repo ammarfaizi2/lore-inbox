@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268037AbUHFA5e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268009AbUHFA7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268037AbUHFA5e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 20:57:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268039AbUHFA5e
+	id S268009AbUHFA7P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 20:59:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268042AbUHFA7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 20:57:34 -0400
-Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:24922 "HELO
-	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268037AbUHFAzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 20:55:35 -0400
-Message-ID: <4112D6FD.4030707@yahoo.com.au>
-Date: Fri, 06 Aug 2004 10:55:25 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040726 Debian/1.7.1-4
-X-Accept-Language: en
+	Thu, 5 Aug 2004 20:59:15 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:4754 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268009AbUHFA7J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 20:59:09 -0400
+Date: Thu, 5 Aug 2004 20:59:07 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@dhcp83-102.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RSS ulimit enforcement for 2.6.8
+In-Reply-To: <20040805175334.47f3054b.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44.0408052056160.8229-100000@dhcp83-102.boston.redhat.com>
 MIME-Version: 1.0
-To: Phillip Lougher <phillip@lougher.demon.co.uk>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] VFS readahead bug in 2.6.8-rc[1-3]
-References: <41127371.1000603@lougher.demon.co.uk>
-In-Reply-To: <41127371.1000603@lougher.demon.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phillip Lougher wrote:
+On Thu, 5 Aug 2004, Andrew Morton wrote:
 
-> Hi,
->
-> There is a readahead bug in do_generic_mapping_read (filemap.c).  This
-> bug appears to have been introduced in 2.6.8-rc1.  Specifically the bug
-> is caused by an incorrect code change which causes VFS to call
-> readpage() for indexes beyond the end of files where the file length is
-> zero or a 4k multiple.
->
-> In Squashfs this causes a variety of almost immediate OOPes because
-> Squashfs trusts the VFS not to pass invalid index values.  For other
-> filesystems it may also be causing subtle bugs.  I have received
-> prune_dcache oopes similar to Gene Heskett's (which was also
-> pointer corruption), and so it may fix this and other reported
-> readahead bugs.
->
-> The patch is against 2.6.8-rc3.
->
+> Good question.  What I'm groping for here is some definition of what we
+> actually want the feature to _do_.  Once we have that, and have suitably
+> argued about it, we can then go off and see if the patch actually does it.
 
-Good work - bug is mine, sorry.
+What I want the feature to do is allow users to set an
+RSS rlimit to prevent a process from hogging up all the
+machine's memory.
 
-You actually re-introduce a bug where read can return incorrect
-data due to i_size changing from under it (I introduced this bug
-while fixing that one).
+I am not looking for a hard memory limit, since that
+would just cause extra IO, which has bad consequences
+for the rest of the system.
 
-My fix was to re-check i_size and update 'nr' after doing the
-->readpage. You could probably fix up both problems with your
-patch and also copying the hunk down to after i_size gets rechecked.
-Does that sound ok?
+In addition, I would like the patch to be relatively
+low impact, not giving us much maintenance overhead or
+much runtime overhead.
 
+If anybody has good reasons for needing hard per-process
+RSS limits, let us know.  So far I haven't seen anybody
+with a workload that somehow requires a hard limit.
 
-The root of the problem is that i_size gets checked from multiple
-places that it can get out of synch. A nice fix would be to snapshot
-i_size once, and pass that around everywhere. Unfortunately this is
-very intrusive.
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

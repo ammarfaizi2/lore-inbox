@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268321AbTBWKUd>; Sun, 23 Feb 2003 05:20:33 -0500
+	id <S268109AbTBWKHh>; Sun, 23 Feb 2003 05:07:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268310AbTBWKUd>; Sun, 23 Feb 2003 05:20:33 -0500
-Received: from ns.suse.de ([213.95.15.193]:28946 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S268308AbTBWKUb>;
-	Sun, 23 Feb 2003 05:20:31 -0500
-Date: Sun, 23 Feb 2003 11:30:39 +0100
-From: Andi Kleen <ak@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: hch@infradead.org, ak@suse.de, sim@netnation.com,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: Longstanding networking / SMP issue? (duplextest)
-Message-ID: <20030223103039.GA19725@wotan.suse.de>
-References: <20030221104541.GA18417@wotan.suse.de> <20030223.011217.04700323.davem@redhat.com> <20030223100234.B15347@infradead.org> <20030223.015511.63413067.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030223.015511.63413067.davem@redhat.com>
+	id <S268113AbTBWKHT>; Sun, 23 Feb 2003 05:07:19 -0500
+Received: from [207.44.168.39] ([207.44.168.39]:9699 "EHLO ensim.rackshack.net")
+	by vger.kernel.org with ESMTP id <S268236AbTBWKGU>;
+	Sun, 23 Feb 2003 05:06:20 -0500
+Message-ID: <35950.80.191.78.43.1046004090.squirrel@www.irandata.com>
+Date: Sun, 23 Feb 2003 16:11:30 +0330 (IRT)
+Subject: Unidirectional links
+From: <abangar@irandata.com>
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+X-MSMail-Priority: Normal
+X-Mailer: SquirrelMail (version 1.2.5)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 23, 2003 at 01:55:11AM -0800, David S. Miller wrote:
->    From: Christoph Hellwig <hch@infradead.org>
->    Date: Sun, 23 Feb 2003 10:02:34 +0000
-> 
->    On Sun, Feb 23, 2003 at 01:12:17AM -0800, David S. Miller wrote:
->    > +static struct socket *__icmp_socket[NR_CPUS];
->    > +#define icmp_socket	__icmp_socket[smp_processor_id()]
->    
->    This should be per-cpu data
->    
-> My bad.  Thanks for spotting this.
+Dear list members
 
-Won't work if the IPv4 code is ever made modular.
+I'm new to this list....
+My company had a leased line with 64K bandwidth that can send and receive
+over it...nowadays , they leases a new satelite links with 2M bandwidth
+that can only receive from it..both this two connection has some ip
+address in different rangs (C class for leased line and A class for
+satelite)..now how can i configure my linux box that can send via leased
+line and receive from satelite link...i read the linux advanced routing
+and traffice control but i can't understand any things....please help me
 
--Andi
+thanks
+
+Hamed Abangar
+
+

@@ -1,79 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262159AbTHTTGd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 15:06:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262151AbTHTTGd
+	id S262151AbTHTTHM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 15:07:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbTHTTHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 15:06:33 -0400
-Received: from c2mailgwalt.mailcentro.com ([207.183.238.112]:30360 "EHLO
-	c2mailgwalt.mailcentro.com") by vger.kernel.org with ESMTP
-	id S262159AbTHTTGb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 15:06:31 -0400
-X-Version: Mailcentro(english)
-X-SenderIP: 80.58.9.46
-X-SenderID: 7831070
-From: "Jose Luis Alarcon Sanchez" <jlalarcon@chevy.zzn.com>
-Message-Id: <E96C2F4A05ED921428A526DA41374385@jlalarcon.chevy.zzn.com>
-Date: Wed, 20 Aug 2003 21:06:25 +0200
-X-Priority: Normal
-Content-Type: text/plain; charset=iso-8859-1
-To: linuxmodule@altern.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test3 module compilation
-X-Mailer: Web Based Pronto
+	Wed, 20 Aug 2003 15:07:12 -0400
+Received: from hera.kernel.org ([63.209.29.2]:40884 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S262151AbTHTTHJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 15:07:09 -0400
+To: linux-kernel@vger.kernel.org
+From: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2.6.0-t3: vfs/ext3 do_lookup bug?!
+Date: Wed, 20 Aug 2003 12:06:34 -0700
+Organization: OSDL
+Message-ID: <bi0grq$49r$1@build.pdx.osdl.net>
+References: <20030820171431.0211930e.martin.zwickel@technotrend.de> <20030820113625.6a75d699.akpm@osdl.org>
+Reply-To: torvalds@osdl.org
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Trace: build.pdx.osdl.net 1061406394 4411 172.20.1.2 (20 Aug 2003 19:06:34 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Wed, 20 Aug 2003 19:06:34 +0000 (UTC)
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----- Begin Original Message ----
- From: <linuxmodule@altern.org>
-Sent: Wed, 20 Aug 2003 18:39:19 +0200 (CEST)
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test3 module compilation
+Andrew Morton wrote:
 
-I am trying to compile a module on 2.6.0-test3 kernel. The makefile i
-am using is a pretty normal one : 
+> Martin Zwickel <martin.zwickel@technotrend.de> wrote:
+>>
+>> Today I wanted to check out some src-files from cvs.
+>>  But my fault was, that I ran cvs twice at the same time.
+>> 
+>>  so two "cvs upd -d -A" are now in 'D' state.
+>> 
+>>  I think they got stuck because both tried to access the same file.
+> 
+> How odd.  Were they the only processes which were in D state?
 
-CFLAGS = -D__KERNEL__ -DMODULE -I/usr/src/linux-2.6.0-test3/include -O
-dummy.o: dummy.c
+They are probably hung on the same semaphore, ie "dir->i_sem". They almost
+certainly are not deadlocked on each other: something else has either left
+the directory semaphore locked, or is in turn waiting for something else.
 
-The module i am trying to compile is taken from the kernel itself
-(dummy network device driver). The
-compilation works flawlessly but when i try to insert the module i get
-: invalid module format.
-What am i doing wrong because i have modutils and module-init and both
-work, since the same module (dummy)
-compiled with the kernel itself can be inserted and removed without
-the previous error message.
-Is there something i should know about the compilation process ? The
-kernel-compiled module (dummy.ko) has
-about 10 Kbytes and dummy.ko compiled by me has only 2 Kbytes :(
+Martin - do you have the _full_ list of processes available?
 
-Thank you in advance
-Snowdog
----- End Original Message ----
-
-  Try to give a look to this "Linux Weekly News" article:
-
-     http://lwn.net/Articles/21823
-
-  Good luck.
-
-  Regards.
-
-  Jose.
-
-
-http://linuxespana.scripterz.org
-
-FreeBSD RELEASE 4.8.
-Mandrake Linux 9.1 Kernel 2.6.0-test3 XFS.
-Registered BSD User 51101.
-Registered Linux User #213309.
-Memories..... You are talking about memories. 
-Rick Deckard. Blade Runner.
-
-
-Get your Free E-mail at http://chevy.zzn.com
-___________________________________________________________
-Get your own Web-based E-mail Service at http://www.zzn.com
+                Linus

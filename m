@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131039AbRALBPK>; Thu, 11 Jan 2001 20:15:10 -0500
+	id <S131188AbRALBQU>; Thu, 11 Jan 2001 20:16:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131188AbRALBPA>; Thu, 11 Jan 2001 20:15:00 -0500
-Received: from comunit.de ([195.21.213.33]:23068 "HELO comunit.de")
-	by vger.kernel.org with SMTP id <S131039AbRALBOv>;
-	Thu, 11 Jan 2001 20:14:51 -0500
-Message-ID: <3A5E5A80.EA2ECBC8@cut.de>
-Date: Fri, 12 Jan 2001 02:14:40 +0100
-From: Bjoern Kriews <bkr@cut.de>
-Organization: Bleeding Edge, Inc.
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.0-test13-pre7-bkr i686)
-X-Accept-Language: en
+	id <S132260AbRALBQK>; Thu, 11 Jan 2001 20:16:10 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:54286 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S131188AbRALBP7>; Thu, 11 Jan 2001 20:15:59 -0500
+From: Paul Mackerras <paulus@linuxcare.com.au>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.1-pre2: q&d-fix: EXPORT_SYMBOL(rpc_release_task) and 
- mmu_cr4_features 
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14942.23127.188103.787383@diego.linuxcare.com.au>
+Date: Fri, 12 Jan 2001 12:13:59 +1100 (EST)
+To: linux-kernel@vger.kernel.org
+Subject: ENOMEM on socket writes
+X-Mailer: VM 6.75 under Emacs 20.4.1
+Reply-To: paulus@linuxcare.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Using 2.4, and the prereleases since about early December or so, I
+have been seeing rsync dying with an error "write: unable to allocate
+memory".  Rsync is writing on a socket which is set non-blocking and
+the write is apparently returning ENOMEM.
 
---- linux-2.4.1-pre2-rfs-i/arch/i386/kernel/i386_ksyms.c~       Thu Dec 
-7 06:00:12 2000
-+++ linux-2.4.1-pre2-rfs-i/arch/i386/kernel/i386_ksyms.c        Fri Jan
-12 01:58:37 2001
-@@ -71,6 +71,8 @@
- EXPORT_SYMBOL(apm_info);
- EXPORT_SYMBOL(gdt);
- 
-+EXPORT_SYMBOL(mmu_cr4_features);
-+
- EXPORT_SYMBOL_NOVERS(__down_failed);
- EXPORT_SYMBOL_NOVERS(__down_failed_interruptible);
- EXPORT_SYMBOL_NOVERS(__down_failed_trylock);
---- linux/net/sunrpc/sunrpc_syms.c~     Sat Apr 22 01:08:52 2000
-+++ linux/net/sunrpc/sunrpc_syms.c      Fri Jan 12 01:50:10 2001
-@@ -36,6 +36,7 @@
- EXPORT_SYMBOL(rpciod_up);
- EXPORT_SYMBOL(rpc_new_task);
- EXPORT_SYMBOL(rpc_wake_up_status);
-+EXPORT_SYMBOL(rpc_release_task);
- 
- /* RPC client functions */
- EXPORT_SYMBOL(rpc_create_client);
+Is this actually a new behaviour, or just something which was possible
+all along but which has been made more likely by the recent VM
+changes?
+
+>From the point of view of the application, ENOMEM is a little hard to
+deal with constructively.  Select will say that the socket is
+writable, so there doesn't seem to be a good way of waiting until the
+write has a chance of succeeding.  About the only thing that I can see
+to do is just to spin trying the write over and over - does anyone
+have a better idea?
+
+Paul.
+
+-- 
+Paul Mackerras, Open Source Research Fellow, Linuxcare, Inc.
++61 2 6262 8990 tel, +61 2 6262 8991 fax
+paulus@linuxcare.com.au, http://www.linuxcare.com.au/
+Linuxcare.  Support for the revolution.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

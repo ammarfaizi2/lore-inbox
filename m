@@ -1,67 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbVCVCrB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262288AbVCVCsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262208AbVCVCrB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 21:47:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262553AbVCVCqx
+	id S262288AbVCVCsW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 21:48:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbVCVCrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 21:46:53 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:5068 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262208AbVCVCli (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 21:41:38 -0500
-Subject: Re: [PATCH][2/2] SquashFS
-From: Josh Boyer <jdub@us.ibm.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Phillip Lougher <phillip@lougher.demon.co.uk>,
-       Paulo Marques <pmarques@grupopie.com>, Andrew Morton <akpm@osdl.org>,
-       greg@kroah.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20050321224937.GQ1390@elf.ucw.cz>
-References: <20050314170653.1ed105eb.akpm@osdl.org>
-	 <A572579D-94EF-11D9-8833-000A956F5A02@lougher.demon.co.uk>
-	 <20050314190140.5496221b.akpm@osdl.org> <423727BD.7080200@grupopie.com>
-	 <20050321101441.GA23456@elf.ucw.cz> <423EEEC2.9060102@lougher.demon.co.uk>
-	 <20050321190044.GD1390@elf.ucw.cz> <423F0C67.6000006@lougher.demon.co.uk>
-	 <20050321224937.GQ1390@elf.ucw.cz>
-Content-Type: text/plain
-Date: Mon, 21 Mar 2005 20:41:05 -0600
-Message-Id: <1111459265.20190.15.camel@windu.rchland.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Mar 2005 21:47:19 -0500
+Received: from vms048pub.verizon.net ([206.46.252.48]:19603 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S262288AbVCVCnu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 21:43:50 -0500
+Date: Mon, 21 Mar 2005 21:43:43 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [DVB patch 22/48] nxt2002: fix max frequency
+In-reply-to: <20050322013457.300618000@abc>
+To: linux-kernel@vger.kernel.org
+Cc: Johannes Stezenbach <js@linuxtv.org>, Andrew Morton <akpm@osdl.org>
+Reply-to: gene.heskett@verizon.net
+Message-id: <200503212143.43518.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20050322013427.919515000@abc> <20050322013457.300618000@abc>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-03-21 at 23:49 +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > >Perhaps squashfs is good enough improvement over cramfs... But I'd
-> > >like those 4Gb limits to go away.
-> > 
-> > So would I.  But it is a totally groundless reason to refuse kernel 
-> > submission because of that, Squashfs users are quite happily using it 
-> > with such a "terrible" limitation.  I'm asking for Squashfs to be put in 
-> > the kernel _now_ because users are asking me to do it _now_.  If it 
-> 
-> Putting it into kernel because users want it is... not a good
-> reason. You should put it there if it is right thing to do. I believe
-> you should address those endianness issues and drop V1 support. If
-> breaking 4GB limit does not involve on-disk format change, it may be
-> okay to merge. After code is merged, doing format changes will be
-> hard...
+On Monday 21 March 2005 20:23, Johannes Stezenbach wrote:
+>Patch by Taylor Jacob and Tom Dombrosky: There was a typo in the
+> BBTI/B2C2 specs that stated the upper frequency of the
+> air2pc/nxt2002 was 806Mhz, not 860Mhz.
+>
+Thanks, although I hadn't discovered it yet, waiting for market 166 to 
+go live sometime this year I hope.
 
-No, it's not.  If the on disk format needs to change, it's usually a
-sign that the code has changed enough to warrant a version change.  And
-there are examples of that all over the kernel.  Ext3, JFFS2, and
-Reiser4, are just a few.  The SquashFS code is very useful as it is
-today.  There is no reason to delay it's inclusion because it has a 4GiB
-limitation.
+>Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
+>
+> nxt2002.c |    2 +-
+> 1 files changed, 1 insertion(+), 1 deletion(-)
+>
+>Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/nxt2002.c
+>===================================================================
+>---
+> linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/nxt2002.c 200
+>5-03-22 00:15:13.000000000 +0100 +++
+> linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/nxt2002.c	2005-03-
+>22 00:17:45.000000000 +0100 @@ -671,7 +671,7 @@ static struct
+> dvb_frontend_ops nxt2002_o .name = "Nextwave nxt2002 VSB/QAM
+> frontend",
+> 		.type = FE_ATSC,
+> 		.frequency_min =  54000000,
+>-		.frequency_max = 806000000,
+>+		.frequency_max = 860000000,
+>                 /* stepsize is just a guess */
+> 		.frequency_stepsize = 166666,
+> 		.caps = FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 | FE_CAN_FEC_3_4 |
+>
+>--
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-And while I agree that something should be included in the kernel for
-the "right" reasons, you still have to listen to users.  In this case,
-those users range from the embedded world to actual distributions.
-
-This is a useful, stable, and _maintained_ filesystem and I'm a bit
-surprised that there is this much resistance to it's inclusion.
-
-josh
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.34% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

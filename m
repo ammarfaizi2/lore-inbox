@@ -1,70 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbUJaC1p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbUJaChz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261476AbUJaC1p (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 22:27:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbUJaC1p
+	id S261475AbUJaChz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 22:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbUJaChz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 22:27:45 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:40149 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261476AbUJaC1c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 22:27:32 -0400
-Subject: Re: [BK PATCHES] ide-2.6 update
-From: Kevin Freeman <kfreem02@comcast.net>
-To: linux-kernel@vger.kernel.org
-Cc: edmudama@gmail.com
-Content-Type: text/plain
-Date: Sat, 30 Oct 2004 21:27:25 -0500
-Message-Id: <1099189645.26214.31.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Sat, 30 Oct 2004 22:37:55 -0400
+Received: from smtpout.mac.com ([17.250.248.44]:19921 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261475AbUJaChq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 22:37:46 -0400
+In-Reply-To: <20041030233532.GA24640@work.bitmover.com>
+References: <1098972379.3109.24.camel@gonzales> <20041028151004.GA3934@work.bitmover.com> <41827B89.4070809@hispalinux.es> <20041029173642.GA5318@work.bitmover.com> <41828707.3050803@hispalinux.es> <57875.65.208.227.246.1099074830.squirrel@www.lrsehosting.com> <4182923D.5040500@hispalinux.es> <40231.65.208.227.246.1099077274.squirrel@www.lrsehosting.com> <2540F67A-2A31-11D9-857E-000393ACC76E@mac.com> <31064.65.208.227.246.1099168970.squirrel@www.lrsehosting.com> <20041030233532.GA24640@work.bitmover.com>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <CB531A18-2AE5-11D9-857E-000393ACC76E@mac.com>
 Content-Transfer-Encoding: 7bit
+Cc: James Bruce <bruce@andrew.cmu.edu>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrea Arcangeli <andrea@novell.com>,
+       Xavier Bestel <xavier.bestel@free.fr>,
+       Scott Lockwood <lkml@www.lrsehosting.com>,
+       Ram?n Rey Vicente <ramon.rey@hispalinux.es>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Roman Zippel <zippel@linux-m68k.org>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: BK kernel workflow
+Date: Sat, 30 Oct 2004 22:37:23 -0400
+To: Larry McVoy <lm@bitmover.com>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric wrote:
-> One of two things is happening: 
-> 
-> 1) Two drives are identically corrupted, producing the invalid serial
-> numbers being reported in the ID block.  My belief is that this wasn't
-> likely, given the low volume of reports.  The reported bad SN was
-> "M0000000000000000000" which based on our firmware, I don't see how it
-> could happen.  A corruption of the config sector (the most likely
-> cause) *should* be catastrophic to the drive's functionality.
-> 
-> 2) There is a code or hardware bug somewhere outside of the drive
-> itself that is causing this data to become corrupted.
-> 
-> Either way, I believe the best course of action is to RMA the drives
-> for new ones.  I don't think good stuff will come from having the
-> linux kernel use drives that appear to be broken.
-> 
-> It'd be nice to test these drives on more systems, or with a bus
-> analyzer, to identify the cause.
-> 
-> --eric
+On Oct 30, 2004, at 19:35, Larry McVoy wrote:
+> Indeed.  Kyle's comments were clearly without basis in fact.  Saying
+> that you aren't bound by the terms of the license because you didn't
+> download the code, your co-worker did, is no different than saying 
+> "hey,
+> look at this!  A copy of the Linux kernel!  Now how did that get here?
+> Well, I didn't put it here so I think I'll ignore the terms of the 
+> GPL."
 
-I am experiencing the same problem with recent kernels.  This machine
-has 2 Maxtor drives (4D080H4) with the same invalid serial number
-( D4000000 ).  The machine was happily running Fedora Core 2 for quite
-some time with no hard drive errors.  The drives themselves were
-previously installed in a Windows XP machine, also without incident.
-Note that in the current machine, Windows XP 64-bit beta Device Manager
-also displays an error related to duplicate drive IDs.
+The critical difference with the GPL is that it doesn't _add_ 
+restrictions.
+Without the GPL you may use the code however you want as long as
+you don't distribute.  With the GPL, you may use the code however you
+want internally, and you can distribute provided you follow some rules.
+The GPL is your only license to distribute at all, so if you want to do 
+so
+you must follow its _distribution_ restrictions.
 
-System motherboard is a Chaintech VNF3-250 (NForce3). One drive is on
-the onboard IDE controller, the other is attached to a Silicon Image PCI
-IDE controller. Connecting both drives to the onboard IDE controller
-under Linux results in the error message "ignoring undecoded slave"
-and /dev/hdb is not available to the system.  Fedora kernel 2.6.8-1.521
-(based on 2.6.8-rc4-bk3) was among the last to allow the system to boot
-with both drives attached to the onboard IDE controller.
+Besides, I never said anything about one user taking a copy another
+user downloaded.  Here is what I said:
 
-hdparm, dmesg output at:
-http://home.comcast.net/~kfreem02/4D080H4/index.html
+> If someone else in the company I work for obtains BK, or if the company
+> itself obtains and uses BK, I am _not_ bound by their decisions, 
+> because
+> I am a separate entity, and I did not agree to said terms (Assuming 
+> that
+> this does not conflict with an employment contract).  Therefore you 
+> can't
+> assume association through business.
 
-Please cc me on any followups.
+This means that if my coworker downloads and uses the software I am in
+no way bound by _his_ agreeing to the license.  If I illegally obtain a
+copy from him (IE: stealing from his HDD) then that's another issue.  
+But
+he can agree to _no_ license that limits my individual rights (Unless I
+signed some draconian employment contract that lets my boss do that).
 
-Thanks,
-Kevin Freeman
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
+
 

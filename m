@@ -1,63 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280922AbRKOPrP>; Thu, 15 Nov 2001 10:47:15 -0500
+	id <S280925AbRKOQCG>; Thu, 15 Nov 2001 11:02:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280921AbRKOPrG>; Thu, 15 Nov 2001 10:47:06 -0500
-Received: from netsrvr.ami.com.au ([203.55.31.38]:30473 "EHLO
-	netsrvr.ami.com.au") by vger.kernel.org with ESMTP
-	id <S280923AbRKOPqx>; Thu, 15 Nov 2001 10:46:53 -0500
-Message-Id: <200111150629.fAF6SKg20602@numbat.os2.ami.com.au>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Linux kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
-cc: davem@redhat.com
-Subject: BOOTP and 2.4.14
+	id <S280929AbRKOQB5>; Thu, 15 Nov 2001 11:01:57 -0500
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:36870 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S280925AbRKOQBp>;
+	Thu, 15 Nov 2001 11:01:45 -0500
+Date: Thu, 15 Nov 2001 09:00:23 -0800
+From: Greg KH <greg@kroah.com>
+To: Martin McWhorter <m_mcwhorter@prairiegroup.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Possible Bug: 2.4.14 USB Keyboard
+Message-ID: <20011115090023.A10511@kroah.com>
+In-Reply-To: <3BF2DFBF.6090502@prairiegroup.com> <20011114145312.A6925@kroah.com> <3BF3D029.7070609@prairiegroup.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 15 Nov 2001 14:28:19 +0800
-From: summer@os2.ami.com.au
+Content-Disposition: inline
+In-Reply-To: <3BF3D029.7070609@prairiegroup.com>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Thu, 18 Oct 2001 15:54:03 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 15, 2001 at 08:24:41AM -0600, Martin McWhorter wrote:
+> 
+> Yes. I appoligize for not being clear. I get the same results with plain 
+> 2.4.14 w/out the preemptive patch.
 
-I'm trying to configure a system to boot with root on NFS. I have it 
-working, but there are problems.
+Thanks for the files.  It looks like the USB drivers are being bound to
+your devices properly.
 
-The most serious are that the DNS domain name is set wrongly, and NIS 
-domain's not set at all.
+What does the kernel log say when you plug in your keyboard?
 
-The IP address offered and accepted in 192.168.1.20.
+thanks,
 
-The DNS domain name being set is 168.1.20, and the host name 192.
-
-
-I'm looking at the ipconfig.c source, around line 1324 where I see this 
-code:
-			case 4:
-				if ((dp = strchr(ip, '.'))) {
-					*dp++ = '\0';
-					strncpy(system_utsname.domainname, dp, __NEW_UTS_LEN);
-					system_utsname.domainname[__NEW_UTS_LEN] = '\0';
-				}
-				strncpy(system_utsname.nodename, ip, __NEW_UTS_LEN);
-				system_utsname.nodename[__NEW_UTS_LEN] = '\0';
-				ic_host_name_set = 1;
-				break;
-
-
-I can see how the dnsdomain name's being set, and it does not look 
-right to me.
-
-If someone can prepare a patch for me, I'll be delighted to test it.
-
-
--- 
-Cheers
-John Summerfield
-
-Microsoft's most solid OS: http://www.geocities.com/rcwoolley/
-
-Note: mail delivered to me is deemed to be intended for me, for my 
-disposition.
-
-
-
+greg k-h

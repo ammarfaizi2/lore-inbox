@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266991AbTA2TmW>; Wed, 29 Jan 2003 14:42:22 -0500
+	id <S266535AbTA2Tkn>; Wed, 29 Jan 2003 14:40:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267021AbTA2TmW>; Wed, 29 Jan 2003 14:42:22 -0500
-Received: from adsl-67-120-62-187.dsl.lsan03.pacbell.net ([67.120.62.187]:52231
-	"EHLO exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S266991AbTA2TmV>; Wed, 29 Jan 2003 14:42:21 -0500
-Message-ID: <11E89240C407D311958800A0C9ACF7D1A33D71@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'Rusty Lynch'" <rusty@linux.co.intel.com>,
-       Stanley Wang <stanley.wang@linux.co.intel.com>
-Cc: Scott Murray <scottm@somanetworks.com>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       PCI_Hot_Plug_Discuss <pcihpd-discuss@lists.sourceforge.net>
-Subject: RE: [Pcihpd-discuss] [RFC] Enhance CPCI Hot Swap driver
-Date: Wed, 29 Jan 2003 11:51:43 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S266944AbTA2Tkn>; Wed, 29 Jan 2003 14:40:43 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:11650 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S266535AbTA2Tkm>; Wed, 29 Jan 2003 14:40:42 -0500
+Message-Id: <200301291949.h0TJnW4K007895@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel.org frontpage 
+In-Reply-To: Your message of "Wed, 29 Jan 2003 19:37:50 GMT."
+             <20030129193750.D6261@flint.arm.linux.org.uk> 
+From: Valdis.Kletnieks@vt.edu
+References: <200301290947.h0T9lKa9000750@darkstar.example.net> <3E37A46B.4080907@zytor.com> <200301291509.h0TF9S4K003537@turing-police.cc.vt.edu> <3E3819CB.2090409@zytor.com> <3E381F47.8060200@nortelnetworks.com> <200301291855.h0TItM4K007010@turing-police.cc.vt.edu>
+            <20030129193750.D6261@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1530471676P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 29 Jan 2003 14:49:32 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, January 28, 2003 at 12:40 AM, Rusty Lynch wrote:
-> 
-> On Tue, 2003-01-28 at 23:50, Stanley Wang wrote:
-> > Hi, Scott,
-> > After reading your CPCI Hot Swap support codes, I have a suggestion
-> > to enhance it:
-> > How about to make it be full hot swap compliant?
-> > I mean we could also do some works like "disable_slot" when 
-> we receive
-> > the #ENUM & EXT signal. Hence the user could yank the hot 
-> swap board 
-> > without issuing command on the console.
-> > How do you think about it?
-> > 
-> 
-> How does this behavior translate to "full hot swap 
-> compliant"?  I assume
-> you are talking about wording from PICMG 2.16, which in my opinion
-> describes the full software stack, not just the driver.  Any kind of
-> full CPCI solution would have all the user space components to
-> coordinate disabling a slot before the operator physically yanks the
-> board (and therefore behave as PICMG specifies).  I'm not so sure the
-> driver knows enough to make a policy decision on what to do when an
-> operator bypasses the world and just yanks a board out with 
-> no warning.
+--==_Exmh_1530471676P
+Content-Type: text/plain; charset=us-ascii
 
-How is this functionally different from ejecting a PCMCIA card in use? Is
-the driver obligated to do more than prevent a system crash and present
-errors to user level until the last close? 
+On Wed, 29 Jan 2003 19:37:50 GMT, Russell King said:
 
-Ed
+> I believe a script signs the files on ftp.kernel.org, which means the
+> private key is on the master machine, probably without a pass phrase.
+> That means that if the master server is compromised, its highly likely
+> that a rogue file will have a correct signature.
+
+OK.. I missed that part, and thought somebody was doing a check-and-balance
+before files went out.
+
+> The only way to be completely sure is for Linus to gpg-sign the patches
+> himself at source with a known gpg key using a secure pass phrase before
+
+Now there's a thought.. ;)
+
+
+--==_Exmh_1530471676P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+ODBMcC3lWbTT17ARAuZ7AKCdGYUrHtMoP0ZwPOiBPYhXcf1XcACg+oTI
+7OTwJIhbDvcbpFI0PQJhuwE=
+=0uzb
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1530471676P--

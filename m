@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261648AbUDSSLh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 14:11:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbUDSSLh
+	id S261661AbUDSSMb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 14:12:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbUDSSMb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 14:11:37 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31960 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261661AbUDSSLf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 14:11:35 -0400
-Date: Mon, 19 Apr 2004 11:05:53 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, zwane@linuxpower.ca
-Subject: Re: [PATCH] floppy98.c: use kernel min/max
-Message-Id: <20040419110553.47a588d1.rddunlap@osdl.org>
-In-Reply-To: <20040419180522.A14468@infradead.org>
-References: <20040418194357.4cd02a06.rddunlap@osdl.org>
-	<200404191414.15702.bzolnier@elka.pw.edu.pl>
-	<20040419085116.1d8576a6.rddunlap@osdl.org>
-	<200404191859.29846.bzolnier@elka.pw.edu.pl>
-	<20040419180522.A14468@infradead.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 19 Apr 2004 14:12:31 -0400
+Received: from smtp-out8.xs4all.nl ([194.109.24.9]:32019 "EHLO
+	smtp-out8.xs4all.nl") by vger.kernel.org with ESMTP id S261615AbUDSSM2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 14:12:28 -0400
+Date: Mon, 19 Apr 2004 20:11:59 +0200
+From: Jurriaan <thunder7@xs4all.nl>
+To: Ken Moffat <ken@kenmoffat.uklinux.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: KVM issues with recent 2.6 kernels
+Message-ID: <20040419181159.GA10708@middle.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
+References: <Pine.LNX.4.58.0404191216020.31750@ppg_penguin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0404191216020.31750@ppg_penguin>
+X-Message-Flag: Still using Outlook? As you can see, it has some errors.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Apr 2004 18:05:22 +0100 Christoph Hellwig wrote:
+From: Ken Moffat <ken@kenmoffat.uklinux.net>
+Date: Mon, Apr 19, 2004 at 12:36:30PM +0100
+> Hi,
+> 
+>  I'm seeing some oddities on two 2.6 boxes here.  I use a Belkin Omni
+> 4-way PS/2 KVM switch.  It has a "hot key" to switch boxes (scroll-lock
+> twice, then number 1-4).  This has always been a little problematic on
+> 2.4 (you have to get the timing of the key presses right, worst case
+> when you get to the session either the number has been treated as input,
+> or the display has scroll-lock turned on), but usable.
 
-| On Mon, Apr 19, 2004 at 06:59:29PM +0200, Bartlomiej Zolnierkiewicz wrote:
-| > BTW at least PC9800 IDE support needs reworking - it is one BIG hack
-| 
-| Please just kill it then.  PC9800 wasn't completly merged ever and there
-| haven't been atempts for ages.  No need to stall development because of it.
+I have a 4 port Vista KVM from Rose Electronics, where hot key is a
+single left control. That doesn't interfere as much.
 
-Is some development stalled because of it?
+I'm running 2.6.x on 2 machines, windows XP on a third.
 
-The current (status quo) isn't good.
-It either needs to be fixed or removed.
+> 
+>  The duron is now being used to do things in xterms.  From time to time
+> the alt key stops being recognised (no alt-tab to switch windows, no
+> ctrl-alt-n to switch desktops).  And then after again switching machines
+> it suddenly starts working properly again.
+> 
+>  Any suggestions on where to look, or which parts of my .config would be
+> relevant ?
+> 
+Does your KVM also have keys on the kvm to switch? If so, does the
+problem go away if you use those?
 
---
-~Randy
+Otherwise, perhaps hack drivers/input/keyboard/atkbd.c (dunno if that is
+the correct path) to log when a scroll-lock is received) and then throw
+away that keypress?
+
+Good luck,
+Jurriaan
+-- 
+"Satire is great, but for Nazis you use baseball bats and broken bottles."
+        Woody Allen
+Debian (Unstable) GNU/Linux 2.6.5-mm6 2x6062 bogomips 2.86 1.98

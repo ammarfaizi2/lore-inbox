@@ -1,85 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVAHGkj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbVAHHHm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261964AbVAHGkj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 01:40:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbVAHGiY
+	id S261920AbVAHHHm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 02:07:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbVAHHGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 01:38:24 -0500
-Received: from mail.kroah.org ([69.55.234.183]:22918 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261932AbVAHFst convert rfc822-to-8bit
+	Sat, 8 Jan 2005 02:06:50 -0500
+Received: from mail.kroah.org ([69.55.234.183]:12422 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261920AbVAHFsp convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 00:48:49 -0500
-Subject: Re: [PATCH] I2C patches for 2.6.10
-In-Reply-To: <1105162776515@kroah.com>
+	Sat, 8 Jan 2005 00:48:45 -0500
+Subject: Re: [PATCH] USB and Driver Core patches for 2.6.10
+In-Reply-To: <1105163265931@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 7 Jan 2005 21:39:36 -0800
-Message-Id: <11051627762989@kroah.com>
+Date: Fri, 7 Jan 2005 21:47:45 -0800
+Message-Id: <11051632653471@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7BIT
 From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.445.10, 2004/12/21 11:09:21-08:00, khali@linux-fr.org
+ChangeSet 1.1938.446.15, 2004/12/15 16:32:41-08:00, david-b@pacbell.net
 
-[PATCH] I2C: Remove checksum code in eeprom driver
+[PATCH] USB: usbfs changes for usb_dev->ep[] (3/15)
 
-As a follow-up to my earlier proposal to remove the checksum code from
-the i2c eeprom driver, here is a patch that does just that. This shrinks
-the driver size by around 5%, and paves the way for further fixes and
-cleanups.
+Updates usbfs to stop using usb_epnum_to_ep_desc().  In the process,
+it acquires better error detection on its urb submit path.
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/i2c/chips/eeprom.c |   19 -------------------
- 1 files changed, 19 deletions(-)
+ drivers/usb/core/devio.c |   39 +++++++++++++++++++++++++--------------
+ 1 files changed, 25 insertions(+), 14 deletions(-)
 
 
-diff -Nru a/drivers/i2c/chips/eeprom.c b/drivers/i2c/chips/eeprom.c
---- a/drivers/i2c/chips/eeprom.c	2005-01-07 14:55:12 -08:00
-+++ b/drivers/i2c/chips/eeprom.c	2005-01-07 14:55:12 -08:00
-@@ -43,13 +43,6 @@
- /* Insmod parameters */
- SENSORS_INSMOD_1(eeprom);
- 
--static int checksum = 0;
--module_param(checksum, bool, 0);
--MODULE_PARM_DESC(checksum, "Only accept eeproms whose checksum is correct");
--
--
--/* EEPROM registers */
--#define EEPROM_REG_CHECKSUM	0x3f
- 
- /* Size of EEPROM in bytes */
- #define EEPROM_SIZE		256
-@@ -168,7 +161,6 @@
- /* This function is called by i2c_detect */
- int eeprom_detect(struct i2c_adapter *adapter, int address, int kind)
+diff -Nru a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
+--- a/drivers/usb/core/devio.c	2005-01-07 15:49:37 -08:00
++++ b/drivers/usb/core/devio.c	2005-01-07 15:49:37 -08:00
+@@ -808,7 +808,7 @@
  {
--	int i, cs;
- 	struct i2c_client *new_client;
- 	struct eeprom_data *data;
- 	int err = 0;
-@@ -204,17 +196,6 @@
+ 	struct usbdevfs_urb uurb;
+ 	struct usbdevfs_iso_packet_desc *isopkt = NULL;
+-	struct usb_endpoint_descriptor *ep_desc;
++	struct usb_host_endpoint *ep;
+ 	struct async *as;
+ 	struct usb_ctrlrequest *dr = NULL;
+ 	unsigned int u, totlen, isofrmlen;
+@@ -829,14 +829,17 @@
+ 		if ((ret = checkintf(ps, ifnum)))
+ 			return ret;
+ 	}
++	if ((uurb.endpoint & ~USB_ENDPOINT_DIR_MASK) != 0)
++		ep = ps->dev->ep_in [uurb.endpoint & USB_ENDPOINT_NUMBER_MASK];
++	else
++		ep = ps->dev->ep_out [uurb.endpoint & USB_ENDPOINT_NUMBER_MASK];
++	if (!ep)
++		return -ENOENT;
+ 	switch(uurb.type) {
+ 	case USBDEVFS_URB_TYPE_CONTROL:
+-		if ((uurb.endpoint & ~USB_ENDPOINT_DIR_MASK) != 0) {
+-			if (!(ep_desc = usb_epnum_to_ep_desc(ps->dev, uurb.endpoint)))
+-				return -ENOENT;
+-			if ((ep_desc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) != USB_ENDPOINT_XFER_CONTROL)
+-				return -EINVAL;
+-		}
++		if ((ep->desc.bmAttributes & USB_ENDPOINT_XFERTYPE_MASK)
++				!= USB_ENDPOINT_XFER_CONTROL)
++			return -EINVAL;
+ 		/* min 8 byte setup packet, max arbitrary */
+ 		if (uurb.buffer_length < 8 || uurb.buffer_length > PAGE_SIZE)
+ 			return -EINVAL;
+@@ -865,6 +868,12 @@
+ 		break;
  
- 	/* prevent 24RF08 corruption */
- 	i2c_smbus_write_quick(new_client, 0);
--
--	/* Now, we do the remaining detection. It is not there, unless you force
--	   the checksum to work out. */
--	if (checksum) {
--		cs = 0;
--		for (i = 0; i <= 0x3e; i++)
--			cs += i2c_smbus_read_byte_data(new_client, i);
--		cs &= 0xff;
--		if (i2c_smbus_read_byte_data (new_client, EEPROM_REG_CHECKSUM) != cs)
--			goto exit_kfree;
--	}
+ 	case USBDEVFS_URB_TYPE_BULK:
++		switch (ep->desc.bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) {
++		case USB_ENDPOINT_XFER_CONTROL:
++		case USB_ENDPOINT_XFER_ISOC:
++			return -EINVAL;
++		/* allow single-shot interrupt transfers, at bogus rates */
++		}
+ 		uurb.number_of_packets = 0;
+ 		if (uurb.buffer_length > MAX_USBFS_BUFFER_SIZE)
+ 			return -EINVAL;
+@@ -876,9 +885,10 @@
+ 		/* arbitrary limit */
+ 		if (uurb.number_of_packets < 1 || uurb.number_of_packets > 128)
+ 			return -EINVAL;
+-		if (!(ep_desc = usb_epnum_to_ep_desc(ps->dev, uurb.endpoint)))
+-			return -ENOENT;
+-		interval = 1 << min (15, ep_desc->bInterval - 1);
++		if ((ep->desc.bmAttributes & USB_ENDPOINT_XFERTYPE_MASK)
++				!= USB_ENDPOINT_XFER_ISOC)
++			return -EINVAL;
++		interval = 1 << min (15, ep->desc.bInterval - 1);
+ 		isofrmlen = sizeof(struct usbdevfs_iso_packet_desc) * uurb.number_of_packets;
+ 		if (!(isopkt = kmalloc(isofrmlen, GFP_KERNEL)))
+ 			return -ENOMEM;
+@@ -902,12 +912,13 @@
  
- 	data->nature = UNKNOWN;
- 	/* Detect the Vaio nature of EEPROMs.
+ 	case USBDEVFS_URB_TYPE_INTERRUPT:
+ 		uurb.number_of_packets = 0;
+-		if (!(ep_desc = usb_epnum_to_ep_desc(ps->dev, uurb.endpoint)))
+-			return -ENOENT;
++		if ((ep->desc.bmAttributes & USB_ENDPOINT_XFERTYPE_MASK)
++				!= USB_ENDPOINT_XFER_INT)
++			return -EINVAL;
+ 		if (ps->dev->speed == USB_SPEED_HIGH)
+-			interval = 1 << min (15, ep_desc->bInterval - 1);
++			interval = 1 << min (15, ep->desc.bInterval - 1);
+ 		else
+-			interval = ep_desc->bInterval;
++			interval = ep->desc.bInterval;
+ 		if (uurb.buffer_length > MAX_USBFS_BUFFER_SIZE)
+ 			return -EINVAL;
+ 		if (!access_ok((uurb.endpoint & USB_DIR_IN) ? VERIFY_WRITE : VERIFY_READ, uurb.buffer, uurb.buffer_length))
 

@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266164AbRGLQYf>; Thu, 12 Jul 2001 12:24:35 -0400
+	id <S266151AbRGLQep>; Thu, 12 Jul 2001 12:34:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266166AbRGLQY0>; Thu, 12 Jul 2001 12:24:26 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:18191 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S266164AbRGLQYS>;
-	Thu, 12 Jul 2001 12:24:18 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200107121623.f6CGNV569053@saturn.cs.uml.edu>
-Subject: Re: Switching Kernels without Rebooting?
-To: riel@conectiva.com.br (Rik van Riel)
-Date: Thu, 12 Jul 2001 12:23:31 -0400 (EDT)
-Cc: cslater@wcnet.org (C. Slater), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0107121236310.20836-100000@imladris.rielhome.conectiva> from "Rik van Riel" at Jul 12, 2001 12:39:55 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S266171AbRGLQef>; Thu, 12 Jul 2001 12:34:35 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:20235 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266151AbRGLQeS>; Thu, 12 Jul 2001 12:34:18 -0400
+Date: Thu, 12 Jul 2001 09:31:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Gunther Mayer <Gunther.Mayer@t-online.de>
+cc: <linux-kernel@vger.kernel.org>, <tytso@mit.edu>
+Subject: Re: Patch(2.4.6):serial unmaintained (bugfix pci timedia/sunix/exsys
+ pci  cards)
+In-Reply-To: <3B4DD05F.99C2C71@t-online.de>
+Message-ID: <Pine.LNX.4.33.0107120929500.6595-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel writes:
 
-> I won't have time to put in a project as huge and difficult
-> as upgrading the kernel "live", but I'll be around to try
-> and teach people about how the kernel works.
+On Thu, 12 Jul 2001, Gunther Mayer wrote:
+>
+> this  one-liner fixes a longstanding bug in serial
+> for Timedia/Sunix/Exsys PCI cards !
 
-I think I see a business opportunity here.
+This should already be fixed in 2.4.7-pre6, can you verify that it works
+for you?
 
-Live upgrades require data structure conversion and other horrors.
-You can't just write the code and expect it to maintain itself.
-You'd need to rewrite half of it every time, for every patch level.
-
-The 24x7 places might be willing to pay somebody to do this.
-It's consulting work really. The customer says "I want to go
-from 2.4.8 to 2.4.12", you say "OK, $320405 please.", and you
-make a custom upgrade procedure for them.
-
+		Linus
 

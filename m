@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263059AbUD2DUQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263088AbUD2DWq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263059AbUD2DUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 23:20:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbUD2DUP
+	id S263088AbUD2DWq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 23:22:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263124AbUD2DWq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 23:20:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:38090 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263059AbUD2DT7 (ORCPT
+	Wed, 28 Apr 2004 23:22:46 -0400
+Received: from mail41-s.fg.online.no ([148.122.161.41]:31725 "EHLO
+	mail41-s.fg.online.no") by vger.kernel.org with ESMTP
+	id S263088AbUD2DWY convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 23:19:59 -0400
-Date: Wed, 28 Apr 2004 20:19:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marc Singer <elf@buici.com>
-Cc: riel@redhat.com, brettspamacct@fastclick.com, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-Message-Id: <20040428201924.719dfb68.akpm@osdl.org>
-In-Reply-To: <20040429031059.GA26060@buici.com>
-References: <20040428180038.73a38683.akpm@osdl.org>
-	<Pine.LNX.4.44.0404282143360.19633-100000@chimarrao.boston.redhat.com>
-	<20040428185720.07a3da4d.akpm@osdl.org>
-	<20040429022944.GA24000@buici.com>
-	<20040428193541.1e2cf489.akpm@osdl.org>
-	<20040429031059.GA26060@buici.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Apr 2004 23:22:24 -0400
+From: Kenneth =?iso-8859-1?q?Aafl=F8y?= <keaafloy@online.no>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Upgrading to 2.6 from Debian Woody (Was: No Subject)
+Date: Thu, 29 Apr 2004 05:22:22 +0200
+User-Agent: KMail/1.6.2
+References: <S263020AbUD2DDO/20040429030314Z+1040@vger.kernel.org>
+In-Reply-To: <S263020AbUD2DDO/20040429030314Z+1040@vger.kernel.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200404290522.22634.keaafloy@online.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Singer <elf@buici.com> wrote:
->
-> > That's what people have been asking for.  What are you suggesting should
-> > happen instead?
-> 
-> I'm thinking that the problem is that the page cache is greedier that
-> most people expect.  For example, if I could hold the page cache to be
-> under a specific size, then I could do some performance measurements.
-> E.g, compile kernel with a 768K page cache, 512K, 256K and 128K.  On a
-> machine with loads of RAM, where's the optimal page cache size?
+On Thursday 29 April 2004 05:03, whitehorse@mustika.net wrote:
+>  I have a problem in compiling kernel 2.6.4 from kernel 2.4.19. I use
+>  Debian woody. When I rebooting new kernel, some message occur such:
+>  "modprobe: QM_MODULES: function not implemented"
+>  and I can't load my modules when boot. I would like to waiting any one who
+>  answer this. Please send to this mail. Thanks
 
-Nope, there's no point in leaving free memory floating about when the
-kernel can and will reclaim clean pagecache on demand.
+I bet your problems would be solved by upgrading your dist to sid, as woody is 
+pretty old, and does not contain the all the fixes in sid. Although I could 
+be wrong, and all your troubles might be solved by a 'apt-get install 
+modules-init-tools', in any case it is you distribution that is the problem, 
+not the linux kernel, so please report this to the appropriate mailing list 
+or support forum.
 
-What you discuss above is just an implementation detail.  Forget it.  What
-are the requirements?  Thus far I've seen
+Another point would be that this is really a distribuition problem, and 
+usually is solved by searching the appriopriate mailing list or forum.
 
-a) updatedb causes cache reclaim
-
-b) updatedb causes swapout
-
-c) prefer that openoffice/mozilla not get paged out when there's heavy
-   pagecache demand.
-
-For a) we don't really have a solution.  Some have been proposed but they
-could have serious downsides.
-
-For b) and c) we can tune the pageout-vs-cache reclaim tendency with
-/proc/sys/vm/swappiness, only nobody seems to know that.
-
-What else is there?
+Kenneth

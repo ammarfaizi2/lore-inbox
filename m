@@ -1,45 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262084AbSJQU0N>; Thu, 17 Oct 2002 16:26:13 -0400
+	id <S262003AbSJQU0M>; Thu, 17 Oct 2002 16:26:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262065AbSJQUZt>; Thu, 17 Oct 2002 16:25:49 -0400
-Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:2948 "EHLO
-	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S262034AbSJQUYM>; Thu, 17 Oct 2002 16:24:12 -0400
-Message-ID: <3DA24B4A0064C333@mel-rta8.wanadoo.fr> (added by
-	    postmaster@wanadoo.fr)
-From: christophe varoqui <christophe.varoqui@free.fr>
-Subject: block allocators and LVMs
-To: linux-kernel@vger.kernel.org
-Date: Thu, 17 Oct 2002 22:30:05 +0200
-Organization: devoteam
-User-Agent: KNode/0.7.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
+	id <S262084AbSJQUZx>; Thu, 17 Oct 2002 16:25:53 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:35518 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262003AbSJQUZn>;
+	Thu, 17 Oct 2002 16:25:43 -0400
+Date: Thu, 17 Oct 2002 13:24:11 -0700 (PDT)
+Message-Id: <20021017.132411.102443707.davem@redhat.com>
+To: bgerst@didntduck.org
+Cc: eric@bartonsoftware.com, linux-kernel@vger.kernel.org
+Subject: Re: kernel vaddr -> struct page
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3DAF0E81.4000101@didntduck.org>
+References: <200210171911.g9HJBHk02456@bartonsoftware.com>
+	<3DAF0E81.4000101@didntduck.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
+   From: Brian Gerst <bgerst@didntduck.org>
+   Date: Thu, 17 Oct 2002 15:24:49 -0400
 
-reading the recent threads about FS block allocator algorithms and about 
-possible integration of a new volume management framework, I wondered if 
-the role of intelligent block allocators and/or online FS defragmentation  
-could be replaced by a block remapper in the LVM subsystem.
-
-On one hand, online defrag seems hard to achieve (Tru64 advfs still can't 
-get it right after 4 years) and intelligently allocating blocks can be 
-costly (not to say it could be useless on a heavily fragmented logical 
-volume) ... on the other hand, the pvmove envisionned by M. Thornber seems 
-quite able to handle the extend remapping.
-
-The block device layer is pretty well positioned to know about disk head 
-seeks and could do IO accounting per extend. These information seems 
-sufficient to efficiently order extends.
-
-Am I completely out of my mind ?
-Evidently, I would be very proud if not but I can handle responses like 
-"crap. just stop thinking man"
-
-.
-cvaroqui
+   virt_to_page()
+   
+Doesn't work on vmalloc() data, he said that was a possibility for his
+case.

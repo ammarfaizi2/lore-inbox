@@ -1,63 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbUKSOEP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbUKSOGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261411AbUKSOEP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 09:04:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbUKSOEP
+	id S261421AbUKSOGE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 09:06:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbUKSOGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 09:04:15 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:32275 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S261411AbUKSOEL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 09:04:11 -0500
-Message-ID: <419DEF98.9040303@conectiva.com.br>
-Date: Fri, 19 Nov 2004 11:05:28 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Organization: Conectiva S.A.
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Wright <chrisw@osdl.org>
-Cc: Ross Kendall Axe <ross.axe@blueyonder.co.uk>,
-       James Morris <jmorris@redhat.com>, netdev@oss.sgi.com,
-       Stephen Smalley <sds@epoch.ncsc.mil>,
-       lkml <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] linux 2.9.10-rc1: Fix oops in unix_dgram_sendmsg when
- using SELinux and SOCK_SEQPACKET
-References: <Xine.LNX.4.44.0411180257300.3144-100000@thoron.boston.redhat.com> <Xine.LNX.4.44.0411180305060.3192-100000@thoron.boston.redhat.com> <20041118084449.Z14339@build.pdx.osdl.net> <419D6746.2020603@blueyonder.co.uk> <20041118231943.B14339@build.pdx.osdl.net>
-In-Reply-To: <20041118231943.B14339@build.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Nov 2004 09:06:03 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:27105 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261419AbUKSOFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 09:05:54 -0500
+Date: Fri, 19 Nov 2004 15:05:52 +0100
+From: Jan Kara <jack@suse.cz>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Allow disabling quota messages to console
+Message-ID: <20041119140552.GA7518@atrey.karlin.mff.cuni.cz>
+References: <20041119114558.GA11334@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.53.0411191303550.11131@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0411191303550.11131@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> >  Hello!
+> >
+> >  Attached patch allows disabling of quota messages about exceeding of
+> >limits to console (some people don't like them disturbing their output).
+> >The patch applies well to any recent kernel. Please apply.
+> >
+> You already posted this patch in the past, yet it's not in in 2.6.10-rc2.
+  Yes, that's exactly why I'm resending it (which I forgot to mention,
+sorry) because it probably got lost somewhere...
 
-
-Chris Wright wrote:
-> * Ross Kendall Axe (ross.axe@blueyonder.co.uk) wrote:
+								Honza
 > 
->>Taking this idea further, couldn't we split unix_dgram_sendmsg into 2 
->>functions, do_unix_dgram_sendmsg and do_unix_connectionless_sendmsg (and 
->>similarly for unix_stream_sendmsg), then all we'd need is:
->>
->><pseudocode>
->>static int do_unix_dgram_sendmsg(...);
->>static int do_unix_stream_sendmsg(...);
->>static int do_unix_connectionless_sendmsg(...);
->>static int do_unix_connectional_sendmsg(...);
-> 
-> 
-> We could probably break it down to better functions and helpers, but I'm
-> not sure that's quite the breakdown.  That looks to me like an indirect
-> way to pass a flag which is already encoded in the ops and sk_type.
-> At anyrate, for 2.6.10 the changes should be small and obvious.
-> Better refactoring should be left for 2.6.11.
-
-Hey, go ahead, do the split and please, please use sk->sk_prot, that is
-the way to do the proper split and will allow us to nuke several
-pointers in struct sock (sk_slab, sk_owner for now) :-)
-
-I have a friend doing this for X.25, will submit his patches as soon
-as we do some more testing and 2.6.10 is out.
-
-- Arnaldo
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131831AbRA3CTj>; Mon, 29 Jan 2001 21:19:39 -0500
+	id <S129101AbRA3CfH>; Mon, 29 Jan 2001 21:35:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131946AbRA3CT3>; Mon, 29 Jan 2001 21:19:29 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:37024 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S131831AbRA3CTV>; Mon, 29 Jan 2001 21:19:21 -0500
-Date: Tue, 30 Jan 2001 02:18:47 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: List User <lists@chaven.com>
-cc: Chris Evans <chris@scary.beasts.org>, Tony.Young@ir.com, slug@slug.org.au,
-        csa@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: Linux Disk Performance/File IO per process
-In-Reply-To: <037d01c08a44$9bb9ace0$160912ac@stcostlnds2zxj>
-Message-ID: <Pine.SOL.4.21.0101300215050.21740-100000@green.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129143AbRA3Ce5>; Mon, 29 Jan 2001 21:34:57 -0500
+Received: from mail4.bigmailbox.com ([209.132.220.35]:55047 "EHLO
+	mail4.bigmailbox.com") by vger.kernel.org with ESMTP
+	id <S129101AbRA3Cel>; Mon, 29 Jan 2001 21:34:41 -0500
+Date: Mon, 29 Jan 2001 18:34:26 -0800
+Message-Id: <200101300234.SAA20191@mail4.bigmailbox.com>
+Content-Type: text/plain
+Content-Disposition: inline
+Content-Transfer-Encoding: binary
+X-Mailer: MIME-tools 4.104 (Entity 4.116)
+Mime-Version: 1.0
+X-Originating-Ip: [198.147.65.9]
+From: "Quim K Holland" <qkholland@my-deja.com>
+To: neilb@cse.unsw.edu.au, torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Desk check of raid5.c patch from mtew@cds.duke.edu?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Jan 2001, List User wrote:
+I've been following the recent 2.4.1-pre series and am wondering why the following one-liner
+(obviously correct) patch has not been applied.  Maybe the original request from Neil to Linus
+did not get through?
 
-> Just wanted to 'chime' in here.  Yes this would be noisy and will have
-> an affect on system performance however these statistics are what are
-> used in conjunction with several others to size systems as well as to
-> plan on growth.  If Linux is to be put into an enterprise environment
-> these types of statistics will be needed.
-> 
-> When you start hooking up 100's of 'physical volumes' (be it real
-> disks or raided logical drives) this data helps you pin-point
-> problems.  I think the idea of having the ability to turn such
-> accounting on/off via /proc entry a very nice method of doing things.
+<http://marc.theaimsgroup.com/?l=linux-raid&m=97936073620401&w=2>
 
-Question: how will the extra overhead of checking this configuration
-compare with just doing it anyway?
-
-If the code ends up as:
-
-if (stats_enabled)
-  counter++;
-
-then you'd be better off keeping stats enabled all the time...
-
-Obviously it'll be a bit more complex, but will the stats code be able to
-remove itself completely when disabled, even at runtime??
-
-Might be possible with IBM's dprobes, perhaps...?
-
-> That way you can leave it off for normal run-time but when users
-> complain or DBA's et al you can turn it on get some stats for a couple
-> hours/days whatever, then turn it back off and plan an upgrade or
-> re-create a logical volume or stripping set.
-
-NT allows boot-time (en|dis)abling of stats; they quote a percentage for
-the performance hit caused - 4%, or something like that?? Of course, they
-don't say whether that's a 486 on a RAID array or a quad Xeon on IDE, so
-the accuracy of that figure is a bit questionable...
+--- drivers/md/raid5.c  2001/01/13 04:31:15     1.1
++++ drivers/md/raid5.c  2001/01/13 04:31:30
+@@ -1071,7 +1071,7 @@
+                bh->b_end_io(bh, 1);
+        }
+        while ((bh=return_fail)) {
+-               return_ok = bh->b_reqnext;
++               return_fail = bh->b_reqnext;
+                bh->b_reqnext = NULL;
+                bh->b_end_io(bh, 0);
+        }
 
 
-James.
+------------------------------------------------------------
+--== Sent via Deja.com ==--
+http://www.deja.com/
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

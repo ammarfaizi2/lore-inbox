@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbVC3Nsx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbVC3Nvo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261894AbVC3Nsx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 08:48:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbVC3Nsw
+	id S261895AbVC3Nvo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 08:51:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVC3Nvo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 08:48:52 -0500
-Received: from mail-in-09.arcor-online.net ([151.189.21.49]:1924 "EHLO
-	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261894AbVC3Nsv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 08:48:51 -0500
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: Accessing data structure from kernel space
-To: linux lover <linux_lover2004@yahoo.com>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Wed, 30 Mar 2005 14:27:13 +0200
-References: <fa.kvq30up.1h3mr8j@ifi.uio.no>
-User-Agent: KNode/0.7.7
+	Wed, 30 Mar 2005 08:51:44 -0500
+Received: from general.keba.co.at ([193.154.24.243]:41371 "EHLO
+	helga.keba.co.at") by vger.kernel.org with ESMTP id S261895AbVC3Nvi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 08:51:38 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1DGcHz-0001Tk-NF@be1.7eggert.dyndns.org>
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: 2.6.11, USB: High latency?
+Date: Wed, 30 Mar 2005 15:51:33 +0200
+Message-ID: <AAD6DA242BC63C488511C611BD51F3673231C5@MAILIT.keba.co.at>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.11, USB: High latency?
+Thread-Index: AcU1L5XQyEe5UL1URE2EFwpTPmGahA==
+From: "kus Kusche Klaus" <kus@keba.com>
+To: <stern@rowland.harvard.edu>, <linux-usb-users@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux lover <linux_lover2004@yahoo.com> wrote:
+I'm performing realtime latency tests (for details about the hardware
+and software, see my mail "[BUG] 2.6.11: Random SCSI/USB errors when
+reading from USB memory stick" erlier today).
 
->        I successfully added linked list data structure
->   in kernel in header file. Write a C source file and
-> add it to kernel directory. then write 2 system calls
-> that read and write to linked list from user space
-> through that syscalls.
->        recompile kernel. Now able to read/write that
-> linked list.
->        I want to write user data in that linked list
-> and allow kernel to use that info in linked list. Is
-> my approach to send data from user to kernel  and
-> store there as long as OS is not rebooted is right?
+Even when the errors described in my previous mail does not occur,
+massive USB stick transfers cause latencies of 1 to 2 milliseconds,
+which is way too much for realtime control systems. 
 
-- A linked list is bad for random access to large amounts of data.
-  Why is a linked list suitable for your data?
-- Did you think about SMP races?
-- Why does it need to be in the kernel? Could a daemon do the job?
-- to be continued
+I observe these latencies on a vanilla 2.6.11 at any rtprio (even 99),
+and on realtime-preempt-2.6.12-rc1-V0.7.41-11 at low rtprio (1). When
+running the program on realtime-preempt-2.6.12-rc1-V0.7.41-11 with
+rtprio 99, the latencies are gone, but using a rtprio higher than the
+interrupt handlers is not realistic.
+
+Is there anything which can be done about it?
+
+Klaus Kusche
+> Entwicklung Software - Steuerung
+> Software Development - Control
+> 
+> KEBA AG
+> A-4041 Linz
+> Gewerbepark Urfahr
+> Tel +43 / 732 / 7090-3120
+> Fax +43 / 732 / 7090-8919
+> E-Mail: kus@keba.com
+> www.keba.com
+> 
+> 

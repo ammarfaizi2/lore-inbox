@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263927AbTLELYX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 06:24:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263923AbTLELYW
+	id S263914AbTLELW1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 06:22:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263921AbTLELW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 06:24:22 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:61144 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S263922AbTLELYS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 06:24:18 -0500
-Date: Fri, 5 Dec 2003 12:20:50 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Erez Zadok <ezk@cs.sunysb.edu>
-Cc: Phillip Lougher <phillip@lougher.demon.co.uk>,
-       Kallol Biswas <kbiswas@neoscale.com>, linux-kernel@vger.kernel.org,
-       "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
-Subject: Re: partially encrypted filesystem
-Message-ID: <20031205112050.GA29975@wohnheim.fh-wedel.de>
-References: <3FCF7AD5.4050501@lougher.demon.co.uk> <200312041941.hB4Jfm0E008607@agora.fsl.cs.sunysb.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200312041941.hB4Jfm0E008607@agora.fsl.cs.sunysb.edu>
-User-Agent: Mutt/1.3.28i
+	Fri, 5 Dec 2003 06:22:27 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:36255 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP id S263914AbTLELW0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 06:22:26 -0500
+Date: Fri, 5 Dec 2003 11:22:01 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Andy Isaacson <adi@hexapodia.org>
+cc: Rob Landley <rob@landley.net>, linux-kernel@vger.kernel.org
+Subject: Re: Is there a "make hole" (truncate in middle) syscall?
+In-Reply-To: <20031204172348.A14054@hexapodia.org>
+Message-ID: <Pine.SOL.4.58.0312051119240.9902@green.csi.cam.ac.uk>
+References: <200312041432.23907.rob@landley.net> <20031204172348.A14054@hexapodia.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 December 2003 14:41:48 -0500, Erez Zadok wrote:
-> 
-> Part of our stackable f/s project (FiST) includes a Gzipfs stackable
-> compression f/s.  There was a paper on it in Usenix 2001 and there's code in
-> the latest fistgen package.  See
-> http://www1.cs.columbia.edu/~ezk/research/fist/
-> 
-> Performance of Gzipfs is another matter, esp. for writes in the middle of
-> files. :-)
+On Thu, 4 Dec 2003, Andy Isaacson wrote:
+> On Thu, Dec 04, 2003 at 02:32:23PM -0600, Rob Landley wrote:
+> I'm curious -- does NTFS implement sparse files?  Does the Win32 API
+> provide any way to manipulate them?  Does the NT kernel have any sparse
+> file handling?
 
-You don't seriously treat big files as a single gzip stream, do you?
-;)
+Yes it does.  The new NTFS Linux driver has full support for sparse files
+as does Windows of course.
 
-Jörn
+Windows does provide a function which is just "make hole".  It takes
+starting offset and length (or was it ending offset instead of length,
+can't remember) and makes this sparse (obviously aligning to cluster
+boundaries, etc).
 
+Best regards,
+
+	Anton
 -- 
-Geld macht nicht glücklich.
-Glück macht nicht satt.
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267406AbUIATSq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267417AbUIATVA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267406AbUIATSq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 15:18:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267411AbUIATSq
+	id S267417AbUIATVA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 15:21:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267415AbUIATVA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 15:18:46 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:33863 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S267406AbUIATSo
+	Wed, 1 Sep 2004 15:21:00 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:36244 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S267417AbUIATUw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 15:18:44 -0400
-Date: Wed, 1 Sep 2004 21:20:54 +0200
+	Wed, 1 Sep 2004 15:20:52 -0400
+Date: Wed, 1 Sep 2004 21:23:03 +0200
 From: Sam Ravnborg <sam@ravnborg.org>
 To: Tom Rini <trini@kernel.crashing.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Carsten Milling <cmil@hashtable.de>
-Subject: Re: [PATCH][PPC32] Fix the 'checkbin' target
-Message-ID: <20040901192054.GA7219@mars.ravnborg.org>
+Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.9-rc1-mm2
+Message-ID: <20040901192303.GB7219@mars.ravnborg.org>
 Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
-	Linus Torvalds <torvalds@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Carsten Milling <cmil@hashtable.de>
-References: <20040901180356.GD19730@smtp.west.cox.net>
+	Gene Heskett <gene.heskett@verizon.net>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <20040830235426.441f5b51.akpm@osdl.org> <200408311454.48673.gene.heskett@verizon.net> <20040831194135.GB19724@mars.ravnborg.org> <20040901173509.GC19730@smtp.west.cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040901180356.GD19730@smtp.west.cox.net>
+In-Reply-To: <20040901173509.GC19730@smtp.west.cox.net>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 01, 2004 at 11:03:56AM -0700, Tom Rini wrote:
-> Hello.
+On Wed, Sep 01, 2004 at 10:35:09AM -0700, Tom Rini wrote:
+  
+> > -__modules := $(sort $(shell grep -h .ko /dev/null $(wildcard $(MODVERDIR)/*.mod)))
+> > +__modules := $(sort $(shell grep -h '\.ko' /dev/null $(wildcard $(MODVERDIR)/*.mod)))
+> >  modules := $(patsubst %.o,%.ko,$(wildcard $(__modules:.ko=.o)))
+> >  
+> >  .PHONY: $(modules)
 > 
-> Currently, the checkbin target on PPC32 isn't quite right.  First, one
-> of the tests (to ensure that some instructions are known to gas) is
-> never actually invoked because 'checkbin' doesn't know about stuff set
-> in .config, so we always have the 'else' case run.  This changes to
-> always running the test and telling the user to upgrade to at least
-> binutils 2.12.1.  The next problem is that we were doing $(AS) -o
-> /dev/null ... in both that test, as well as another.  The problem here
-> is that the checkbin target is run on the install targets, meaning that
-> /dev/null will get unlinked when the test passes.  To get around this we
-> use .tmp_gas_check as the output file instead.
-> 
-> Assuming Sam doesn't object, I hope this can go in quickly.  Thanks.
-> 
-> Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+> D'oh...  Wouldn't .modpost need the same change?
 
-Looks good to me - and it solves the critical /dev/null
-bug in ppc.
+Even worse. I already did the same change for modpost - without
+fixing it for modinst :-(
 
-Linus please apply.
+The modpost change is part of the bk-kbuild.patch
 
 	Sam

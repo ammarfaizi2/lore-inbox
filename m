@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268669AbUHLTVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268548AbUHLTZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268669AbUHLTVl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 15:21:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268673AbUHLTVk
+	id S268548AbUHLTZU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 15:25:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268673AbUHLTZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 15:21:40 -0400
-Received: from host81-7-2-179.adsl.v21.co.uk ([81.7.2.179]:53469 "EHLO
-	hilly.house") by vger.kernel.org with ESMTP id S268669AbUHLTVd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 15:21:33 -0400
-Message-ID: <411BC339.30504@vu.a.la>
-Date: Thu, 12 Aug 2004 20:21:29 +0100
-From: Charlie Brej <brejc8@vu.a.la>
-User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Reproducable user mode system hang
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Aug 2004 15:25:20 -0400
+Received: from pop.gmx.de ([213.165.64.20]:60079 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268550AbUHLTZP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 15:25:15 -0400
+X-Authenticated: #12437197
+Date: Thu, 12 Aug 2004 22:25:35 +0300
+From: Dan Aloni <da-x@colinux.org>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Generation of *.s files from *.S files in kbuild
+Message-ID: <20040812192535.GA20953@callisto.yi.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have seem to have found a method to hang the kernel from user mode. The system 
-hangs and does not print an Oops. It still responds to network pings but nothing 
-else.
+Hello, 
 
-I have successfully crashed the 2.6 kernels on three different machines (all 
-athlon 2.6 kernels):
-Linux rain.cs.man.ac.uk 2.6.5-1.358 #1 Sat May 8 09:04:50 EDT 2004 i686 athlon 
-i386 GNU/Linux
-Linux solem.cs.man.ac.uk 2.6.6-1.374 #1 Wed May 19 12:44:14 EDT 2004 i686 athlon 
-i386 GNU/Linux
-Linux hogshead 2.4.20-8 #1 Thu Mar 13 17:18:24 EST 2003 i686 athlon i386 GNU/Linux
+Is the generation of *.s files from *.S files in the kernel
+build system a wide spread phenomenon? As far as I can see
+only vmlinux.lds.s is built that way in my default i386 config.
 
-This problem does not occur on any 2.4 kernel machines I have tried.
+It causes problems when trying to cross-build a kernel on a 
+file system that has case-insensitive filenames, or on a GNU
+port that is case insensitive (such as Cygwin).
 
-Reproducing the problem:
-
-Unfortunately the problem occurs in the middle of a program execution and I have 
-been unable to track it down.
-
-Download kmd 0.9.19pre1 from (If anyone wants I could distribute my binarys):
-http://www.cs.man.ac.uk/~brejc8/kmd/dist/KMD-0.9.19.pre1.tar.gz
-In user mode configure, compile and execute from the source directory:
-"./kmd -e ./jimulator"
-In the memory windows in the address box type in "E1000000" and press return.
-This should now crash the system.
-
-Kmd sporns an emulator (jimulator) with which it communicates using stdin/out 
-pipes. I suspect it is a problem in the pipe communication. It occurs even when 
-run under valgrind. I don't know of many methods of narrowing down the search.
+If anyone wondered, I'm trying to cross build a Linux kernel
+on a Cygwin system using a Linux native toolchain, in order
+to make development of the Windows port of coLinux easier
+for some people.
 
 -- 
-         Charlie Brej
-APT Group, Dept. Computer Science, University of Manchester
-Web: http://www.cs.man.ac.uk/~brejc8/ Tel: +44 161 275 6844
-Mail: IT302, Manchester University, Manchester, M13 9PL, UK
+Dan Aloni
+da-x@colinux.org

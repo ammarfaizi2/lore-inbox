@@ -1,86 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264229AbUFHFh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264657AbUFHFmF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264229AbUFHFh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 01:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264657AbUFHFh2
+	id S264657AbUFHFmF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 01:42:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264809AbUFHFmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 01:37:28 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:56080 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S264229AbUFHFhZ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 01:37:25 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Tim Connors <tconnors+linuxkernel1086656992@astro.swin.edu.au>,
-       John Bradford <john@grabjohn.com>
-Subject: Re:  why swap at all?
-Date: Tue, 8 Jun 2004 08:29:35 +0300
-X-Mailer: KMail [version 1.4]
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Michael Brennan <mbrennan@ezrs.com>, linux-kernel@vger.kernel.org
-References: <40BB88B5.8080300@ezrs.com> <200406010910.i519AWsm000213@81-2-122-30.bradfords.org.uk> <slrn-0.9.7.4-20652-23232-200406081109-tc@hexane.ssi.swin.edu.au>
-In-Reply-To: <slrn-0.9.7.4-20652-23232-200406081109-tc@hexane.ssi.swin.edu.au>
+	Tue, 8 Jun 2004 01:42:05 -0400
+Received: from web51803.mail.yahoo.com ([206.190.38.234]:27016 "HELO
+	web51803.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264657AbUFHFmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 01:42:00 -0400
+Message-ID: <20040608054200.66080.qmail@web51803.mail.yahoo.com>
+Date: Mon, 7 Jun 2004 22:42:00 -0700 (PDT)
+From: Phy Prabab <phyprabab@yahoo.com>
+Subject: Re: [PATCH] Staircase Scheduler v6.3 for 2.6.7-rc2
+To: Andrew Morton <akpm@osdl.org>
+Cc: kernel@kolivas.org, linux-kernel@vger.kernel.org, zwane@linuxpower.ca,
+       wli@holomorphy.com
+In-Reply-To: <20040607195011.34f8e84e.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200406080829.35948.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 08 June 2004 04:18, Tim Connors wrote:
-> I just got an interesting problem - possibly (or not?) related to
-> this:
->
-> I have my laptop with 256MB of RAM, running 2.4.25-pre7, uptime 48
-> days. Every morning, I come in and have to wait 2 minutes while
-> everything comes back into RAM, after the daily slocate. So I did a
-> swapoff -a, and it failed despite all the applications and cache and
-> tmpfs adding up to far less than 256MB (more like 128).
->
-> I closed mozilla, which let me do a swapoff -a.
->
-> All was well for a few days, but then thismorning, my partitions were
-> mounted ro, and an oops was in syslog at the same time as all the
-> slocate work:
-[alloc failures + oops snipped]
+The test case is a build system that links headers (ln
+-s) and runs bison and flex on a couple of files. 
+strace shows no difference between running on 2.4.23
+compared to running on 2.6.7-rc2bk8s63.
 
-prolonged oom condition triggers lots of rarely user error paths
-in kernel (and applications). Most probably slocate hit one of bugs
-still living in one of them.
+Unfortuneately, I can not send this out, but I am
+trying to get a tet case that will demostrate this.
 
-> So OOM - but why? The cache was registering 65MB used.
-> 24353,23> cat /proc/meminfo
->         total:    used:    free:  shared: buffers:  cached:
-> Mem:  262647808 256618496  6029312        0  4820992 67239936
-> Swap:        0        0        0
-> MemTotal:       256492 kB
-> MemFree:          5888 kB
-> MemShared:           0 kB
-> Buffers:          4708 kB
-> Cached:          65664 kB
-> SwapCached:          0 kB
-> Active:          77944 kB
-> Inactive:       142308 kB
-> HighTotal:           0 kB
-> HighFree:            0 kB
-> LowTotal:       256492 kB
-> LowFree:          5888 kB
-> SwapTotal:           0 kB
-> SwapFree:            0 kB
+In the mean time, what can I do to try understand this
+slowdown?
 
-Maybe this is not the state of the meminfo at the time of oom
-condition. oops killed the task and had freed its memory,
-which is now used by cache.
+Thank you for your time.
+Phy
 
-> Why was it so eager to kill applications, and not reclaim some of that
-> swap space? Is this a problem that is known on 2.4, and can't be fixed
-> (I can't use 2.6 on my laptop yet, far too many problems to even
-> start - eg the suspend to ram on APM thread).
->
-> Is there another output of a /proc file you want? I'll try not to get
-> the urge to use/reboot the box in the meantime.
+--- Andrew Morton <akpm@osdl.org> wrote:
+> Phy Prabab <phyprabab@yahoo.com> wrote:
+> >
+> > Also please note the degredation between
+> >  2.6.7-rc2-bk8-s63:
+> > 
+> >  A:  35.57user 38.18system 1:20.28elapsed 91%CPU
+> >  B:  35.54user 38.40system 1:19.48elapsed 93%CPU
+> >  C:  35.48user 38.28system 1:20.94elapsed 91%CPU
+> > 
+> >  Interesting how much more time is spent in both
+> user
+> >  and kernel space between the two kernels.  Also
+> note
+> >  that 2.4.x exhibits even greater delta:
+> > 
+> >  A:  28.32user 29.51system 1:01.17elapsed 93%CPU
+> >  B:  28.54user 29.40system 1:01.48elapsed 92%CPU
+> >  B:  28.23user 28.80system 1:00.21elapsed 94%CPU
+> > 
+> >  Could anyone suggest a way to understand why the
+> >  difference between the 2.6 kernels and the 2.4
+> >  kernels?
+> 
+> This is very very bad.
+> 
+> It's a uniprocessor machine, yes?
+> 
+> Could you describe the workload a bit more?  Is it
+> something which others
+> can get their hands on?
+> 
+> It spends a lot of time in the kernel for a build
+> system.  I wonder why.
+> 
+> At a guess I'd say either a) you're hitting some
+> path in the kernel which
+> is going for a giant and bogus romp through memory,
+> trashing CPU caches or
+> b) your workload really dislikes
+> run-child-first-after-fork or c) the page
+> allocator is serving up pages which your access
+> pattern dislikes or d)
+> something else.
+> 
+> It's certainly interesting.
 
-vmstat log of this event may be useful.
--- 
-vda
+
+	
+		
+__________________________________
+Do you Yahoo!?
+Friends.  Fun.  Try the all-new Yahoo! Messenger.
+http://messenger.yahoo.com/ 

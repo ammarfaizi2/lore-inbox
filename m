@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281617AbRKMMQJ>; Tue, 13 Nov 2001 07:16:09 -0500
+	id <S277228AbRKMMW7>; Tue, 13 Nov 2001 07:22:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281620AbRKMMP7>; Tue, 13 Nov 2001 07:15:59 -0500
-Received: from mail.loewe-komp.de ([62.156.155.230]:63750 "EHLO
-	mail.loewe-komp.de") by vger.kernel.org with ESMTP
-	id <S281617AbRKMMPv>; Tue, 13 Nov 2001 07:15:51 -0500
-Message-ID: <3BF10EF1.FD4075B6@loewe-komp.de>
-Date: Tue, 13 Nov 2001 13:15:45 +0100
-From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-Organization: LOEWE. Hannover
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.9-ac3 i686)
-X-Accept-Language: de, en
+	id <S276369AbRKMMWu>; Tue, 13 Nov 2001 07:22:50 -0500
+Received: from thor.hol.gr ([194.30.192.25]:13284 "HELO thor.hol.gr")
+	by vger.kernel.org with SMTP id <S276057AbRKMMWg>;
+	Tue, 13 Nov 2001 07:22:36 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Panagiotis Moustafellos <panxer@hol.gr>
+Reply-To: panxer@hol.gr
+To: linux-kernel@vger.kernel.org
+Subject: Re: Another plane crash
+Date: Tue, 13 Nov 2001 14:23:34 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <01111217115501.00320@gryppas>
+In-Reply-To: <01111217115501.00320@gryppas>
 MIME-Version: 1.0
-To: william fitzgerald <william.fitzgerald3@beer.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: printk performance logging without syslogd for router
-In-Reply-To: <6169641FA9FA29E43946AEB269F1EA2E@william.fitzgerald3.beer.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01111314233400.00239@gryppas>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-william fitzgerald wrote:
-> 
-> hi all,
-> 
-> (perforamnce logging of network stack through a
-> linux router)
-> 
-> the main question:
-> 
-> is there a way i can buffer or record  the printk
-> statements and print them to disk  after my
-> packets have gone through the router?
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-there is an option in syslogd to prevent immediatly
-writing to the logfile:
+I am very very sorry, I didnt mean to post it on the LKML..
+my apologies to you all.
+Friendly,
+- --------
+Panagiotis Moustafellos
+(aka panXer)
+- --------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-prefix the log with a dash:
-
-kern.*	-/var/log/kernelmessages
+iD8DBQE78RDLbGyRbxX5XdQRAmEOAJ0cbL7oJAm+IuNUCyLXP3IcDn1u6QCgsY/g
+MasXkJXrthjaWpgvC3/O54A=
+=yxC+
+-----END PGP SIGNATURE-----

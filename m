@@ -1,47 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262494AbTIPU7p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 16:59:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262498AbTIPU7p
+	id S262498AbTIPVPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 17:15:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbTIPVPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 16:59:45 -0400
-Received: from gprs151-26.eurotel.cz ([160.218.151.26]:11395 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262494AbTIPU7o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 16:59:44 -0400
-Date: Tue, 16 Sep 2003 22:59:31 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add likely around access_ok for uaccess
-Message-ID: <20030916205931.GF1205@elf.ucw.cz>
-References: <3F644E36.5010402@colorfullife.com> <20030916194929.GF602@elf.ucw.cz> <20030916205545.GA14153@gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030916205545.GA14153@gtf.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Tue, 16 Sep 2003 17:15:16 -0400
+Received: from mikonos.cyclades.com.br ([200.230.227.67]:52490 "EHLO
+	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
+	id S262498AbTIPVPK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 17:15:10 -0400
+Date: Tue, 16 Sep 2003 18:16:58 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+X-X-Sender: marcelo@logos.cnet
+To: Olivier Galibert <galibert@limsi.fr>
+cc: Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Stephan von Krawczynski <skraw@ithnet.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       <neilb@cse.unsw.edu.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: experiences beyond 4 GB RAM with 2.4.22
+In-Reply-To: <20030916195345.GB68728@dspnet.fr.eu.org>
+Message-ID: <Pine.LNX.4.44.0309161814410.15569-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > while trying to figure out why sysv msg is around 30% slower than pipes 
-> > > for data transfers I noticed that gcc's autodetection (3.2.2) guesses 
-> > > the "if(access_ok())" tests in uaccess.h wrong and puts the error memset 
-> > > into the direct path and the copy out of line.
-> > > 
-> > > The attached patch adds likely to the tests - any objections? What about 
-> > > the archs except i386?
+
+On Tue, 16 Sep 2003, Olivier Galibert wrote:
+
+> On Tue, Sep 16, 2003 at 07:10:57PM +0200, Pavel Machek wrote:
+> > Hi!
 > > 
-> > How much speedup did you gain?
+> > > > Well, I do understand the bounce buffer problem, but honestly the current way
+> > > > of handling the situation seems questionable at least. If you ever tried such a
+> > > > system you notice it is a lot worse than just dumping the additional ram above
+> > > > 4GB. You can really watch your network connections go bogus which is just
+> > > > unacceptable. Is there any thinkable way to ommit the bounce buffers and still
+> > > > do something useful with the beyond-4GB ram parts?
+> > > 
+> > > The 2.6 tree is somewhat better about this but at the end of the day if
+> > > your I/O subsystem can't do the job your box will not perform ideally.
+> > > For some workloads its a huge win to have the extra RAM, for others the
+> > > I/O is a real pain. 
+> > 
+> > If he has trouble logging in, then there's a bug somewhere.
+> > Bounce buffers should not slow machine down more than
+> > 2x, and from his description it looks like way worse slowdown. 
 > 
-> How much can it hurt?
+> The box does not just slowdown, the box crawls on the floor wimpering.
+> Nothing works except ping until the i/os are finished (and they seem
+> to crawl too), then everything works perfectly again.
+> 
+> We're quite eager to fix the problem too, if you want us to test some
+> things.
 
-The change is obviously okay, I just wanted to know... If it gains 30%
-on sysv messages.. that would be pretty big surprise.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Which card and driver are you using for IO? 3ware?
+
+How much RAM do you have?
+
+I remember I tested heavy IO loads (heavy swapping and dbench) on 8GB
+machine and all worked fine (interactive terminal, etc) but that was a
+looong time ago back in 2.4.
+
+
+
+
+
+
+

@@ -1,75 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264048AbUDWLEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264780AbUDWL2W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264048AbUDWLEo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 07:04:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264780AbUDWLEn
+	id S264780AbUDWL2W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 07:28:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264781AbUDWL2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 07:04:43 -0400
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:9883 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S264048AbUDWLEl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 07:04:41 -0400
-Date: Fri, 23 Apr 2004 12:04:37 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Szakacsits Szabolcs <szaka@sienet.hu>
-cc: Dave Jones <davej@redhat.com>, linux-ntfs-dev@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: NTFS null dereference x2
-In-Reply-To: <Pine.LNX.4.21.0404171505580.30107-100000@mlf.linux.rulez.org>
-Message-ID: <Pine.SOL.4.58.0404231202310.3112@yellow.csi.cam.ac.uk>
-References: <Pine.LNX.4.21.0404171505580.30107-100000@mlf.linux.rulez.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 23 Apr 2004 07:28:17 -0400
+Received: from holomorphy.com ([207.189.100.168]:37288 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264780AbUDWL2Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 07:28:16 -0400
+Date: Fri, 23 Apr 2004 04:28:12 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>, david@gibson.dropbear.id.au,
+       linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
+Subject: Re: put_page() tries to handle hugepages but fails
+Message-ID: <20040423112812.GH743@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, david@gibson.dropbear.id.au,
+	linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
+References: <20040423081856.GJ9243@zax> <20040423013437.1f2b8fc6.akpm@osdl.org> <20040423102824.GF743@holomorphy.com> <20040423033522.03ab14fc.akpm@osdl.org> <20040423104744.GG743@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040423104744.GG743@holomorphy.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Apr 2004, Szakacsits Szabolcs wrote:
-> Dave Jones <davej@redhat.com> wrote:
-> > if vol is NULL, everything falls apart..
->
-> AFAIS, neither vol nor vol->sb can be NULL below. The !vol check, that
-> fooled you or an automatic checker, is bogus and probably it slipped
-> through the user space library, thanks.
->
-> Please note, by the patch you would introduce a real bug when you
-> dereference the now uninitialized sb to assign a value to block_size.
+On Fri, Apr 23, 2004 at 03:35:22AM -0700, Andrew Morton wrote:
+>> Sure.
+>> This of course duplicates huge_page_release(), which can be killed off.
 
-Thanks.  While at present vol nor vol->sb can be NULL, I have changed the
-code in my tree to do the assignments after the checks for completeness
-sake.  I of course also moved the assignment that the patch ignored as
-well, otherwise as Szaka said, it would all go horribly wrong...
+On Fri, Apr 23, 2004 at 03:47:44AM -0700, William Lee Irwin III wrote:
+> Ah, but mm/hugetlb.c is putting the destructor in head->lru.prev not
+> head[1].mapping; fix below along with nuking  huge_page_release().
 
-Best regards,
+I just noticed a general problem where ->mapping is often referred to
+naked and so either needs to be filled in for the base pages of the
+superpage or the examiners need to be referred to the head of the superpage.
+Likewise with ->index, which is apparently now used to hold the order.
+In general, if they're superpage properties, either the examiners must
+be referred to the head of the superpage, or (wastefully) the values must
+be replicated across the base pages. The current scheme to prevent radix
+tree deadlocks and other nastinesses with multiple insertions (e.g.
+inserting an entry into the radix tree for each base page, which I've
+seen naive abuses of shit themselves several times before) reduces the
+resolution of the pagecache indices, which is problematic in various
+ways with respect to finding the right base page without updating
+excessive numbers of callers. The reason why this is less of a problem
+than it sounds like is that the base page lookups usually go through
+pagetables, which effectively act either as radix trees with an
+insertion for each base page (normal cpus) or radix trees with low-
+resolution indices with procedural API's to recover offsets into the
+superpage and the proper base page (i386, ppc64).
 
-	Anton
+I'll be off the net all weekend, so hopefully the interested parties can
+use this info to resolve the remainder of the hugetlb put_page() issues.
+The work here is just cleaning up self-inconsistencies so it's not hard.
 
-> > --- linux-2.6.5/fs/ntfs/attrib.c~     2004-04-16 22:45:53.000000000 +0100
-> > +++ linux-2.6.5/fs/ntfs/attrib.c      2004-04-16 22:46:47.000000000 +0100
-> > @@ -1235,16 +1235,19 @@
-> >       u8 *al_end = al + initialized_size;
-> >       run_list_element *rl;
-> >       struct buffer_head *bh;
-> > -     struct super_block *sb = vol->sb;
-> > +     struct super_block *sb;
-> >       unsigned long block_size = sb->s_blocksize;
-> >       unsigned long block, max_block;
-> >       int err = 0;
-> > -     unsigned char block_size_bits = sb->s_blocksize_bits;
-> > +     unsigned char block_size_bits;
-> >
-> >       ntfs_debug("Entering.");
-> >       if (!vol || !run_list || !al || size <= 0 || initialized_size < 0 ||
-> >                       initialized_size > size)
-> >               return -EINVAL;
-> > +     sb = vol->sb;
-> > +     block_size_bits = sb->s_blocksize_bits;
-> > +
-> >       if (!initialized_size) {
-> >               memset(al, 0, size);
-> >               return 0;
 
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+-- wli

@@ -1,70 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263507AbUCYRrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 12:47:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263505AbUCYRrP
+	id S263455AbUCYRq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 12:46:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263505AbUCYRq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 12:47:15 -0500
-Received: from colino.net ([62.212.100.143]:12272 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S263507AbUCYRrH (ORCPT
+	Thu, 25 Mar 2004 12:46:56 -0500
+Received: from atlrel6.hp.com ([156.153.255.205]:35524 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S263455AbUCYRqw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 12:47:07 -0500
-Date: Thu, 25 Mar 2004 18:46:20 +0100
-From: Colin Leroy <colin@colino.net>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: linux-kernel@vger.kernel.org, <linux-usb-devel@lists.sf.net>
-Subject: [PATCH] Re: [linux-usb-devel] Re: [OOPS] reproducible oops with
- 2.6.5-rc2-bk3
-Message-Id: <20040325184620.3b6b070c@jack.colino.net>
-In-Reply-To: <Pine.LNX.4.44L0.0403251153110.1083-100000@ida.rowland.org>
-References: <13c901c41287$d29bb040$3cc8a8c0@epro.dom>
-	<Pine.LNX.4.44L0.0403251153110.1083-100000@ida.rowland.org>
-Organization: 
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 2.2.4; powerpc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Thu__25_Mar_2004_18_46_20_+0100_e+ldxy0l7YsI6t.p"
+	Thu, 25 Mar 2004 12:46:52 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] Remove <asm/setup.h> from cmdlinepart.c
+Date: Thu, 25 Mar 2004 10:46:45 -0700
+User-Agent: KMail/1.6.1
+Cc: dwmw2@infradead.org, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403251046.45232.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Remove include of <asm/setup.h> from cmdlinepart.c.  This
+is not be needed for i386 (it builds fine with this patch),
+and ia64 doesn't supply a setup.h.
 
---Multipart=_Thu__25_Mar_2004_18_46_20_+0100_e+ldxy0l7YsI6t.p
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+asm/setup.h contains a hodge-podge of stuff with no real
+consistency between architectures.  It appears to be
+included mainly by arch-specific drivers:
+	acsi (Atari disks)
+	amiflop (Amiga floppy)
+	z2ram (ZorroII ram disk)
+	amiserial (Amiga serial)
+	...
+and under arch-specific #ifdefs:
+	fbcon (under __mc68000__ or CONFIG_APUS)
+	fonts (ditto)
+	logo (CONFIG_M68K)
+	...
 
-On 25 Mar 2004 at 11h03, Alan Stern wrote:
-
-Hi, 
-
-Found out !
-cdc-acm wants both interfaces to be ready (cur_altsetting initialized) when acm_probe() is called. Hence, we have to make two parts out of the loop in message.c::usb_set_configuration(): one to init things, one to register them. 
-
-The attached patch does that. It fixes the oops, and doesn't break any of my USB peripheral (printer, scanner, mouse, and diskonkey).
-
-I hope it's fine enough to go in :)
--- 
-Colin
-
---Multipart=_Thu__25_Mar_2004_18_46_20_+0100_e+ldxy0l7YsI6t.p
-Content-Type: application/octet-stream;
- name="cdc-acm.oops.patch"
-Content-Disposition: attachment;
- filename="cdc-acm.oops.patch"
-Content-Transfer-Encoding: base64
-
-LS0tIGRyaXZlcnMvdXNiL2NvcmUvbWVzc2FnZS5jLm9yaWcJMjAwNC0wMy0yNSAxODozNDowNC4w
-MDAwMDAwMDAgKzAxMDAKKysrIGRyaXZlcnMvdXNiL2NvcmUvbWVzc2FnZS5jCTIwMDQtMDMtMjUg
-MTg6NDI6NDEuMjY3Njk3MjI0ICswMTAwCkBAIC0xMTc4LDEwICsxMTc4LDE3IEBACiAJCQkJIGRl
-di0+YnVzLT5idXNudW0sIGRldi0+ZGV2cGF0aCwKIAkJCQkgY29uZmlndXJhdGlvbiwKIAkJCQkg
-YWx0LT5kZXNjLmJJbnRlcmZhY2VOdW1iZXIpOworCQl9CisJCQorCQkvKiBhbGwgaW50ZXJmYWNl
-cyBhcmUgaW5pdGlhbGl6ZWQsIHdlIGNhbiBub3cgCisJCSAqIHJlZ2lzdGVyIHRoZW0KKwkJICov
-CisJCWZvciAoaSA9IDA7IGkgPCBjcC0+ZGVzYy5iTnVtSW50ZXJmYWNlczsgKytpKSB7CisJCQlz
-dHJ1Y3QgdXNiX2ludGVyZmFjZSAqaW50ZiA9IGNwLT5pbnRlcmZhY2VbaV07CiAJCQlkZXZfZGJn
-ICgmZGV2LT5kZXYsCiAJCQkJInJlZ2lzdGVyaW5nICVzIChjb25maWcgIyVkLCBpbnRlcmZhY2Ug
-JWQpXG4iLAogCQkJCWludGYtPmRldi5idXNfaWQsIGNvbmZpZ3VyYXRpb24sCi0JCQkJYWx0LT5k
-ZXNjLmJJbnRlcmZhY2VOdW1iZXIpOworCQkJCWludGYtPmN1cl9hbHRzZXR0aW5nLT5kZXNjLmJJ
-bnRlcmZhY2VOdW1iZXIpOwogCQkJZGV2aWNlX3JlZ2lzdGVyICgmaW50Zi0+ZGV2KTsKIAkJCXVz
-Yl9jcmVhdGVfZHJpdmVyZnNfaW50Zl9maWxlcyAoaW50Zik7CiAJCX0K
-
---Multipart=_Thu__25_Mar_2004_18_46_20_+0100_e+ldxy0l7YsI6t.p--
+===== drivers/mtd/cmdlinepart.c 1.5 vs edited =====
+--- 1.5/drivers/mtd/cmdlinepart.c	Wed May 28 09:01:08 2003
++++ edited/drivers/mtd/cmdlinepart.c	Wed Mar 24 11:48:19 2004
+@@ -28,7 +28,6 @@
+ 
+ #include <linux/mtd/mtd.h>
+ #include <linux/mtd/partitions.h>
+-#include <asm/setup.h>
+ #include <linux/bootmem.h>
+ 
+ /* error message prefix */

@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261661AbUDNUjN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 16:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUDNUjN
+	id S261682AbUDNUm7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 16:42:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbUDNUm7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 16:39:13 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:23436 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261661AbUDNUjM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 16:39:12 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Duncan Sands <baldrick@free.fr>, Greg KH <greg@kroah.com>
-Subject: Re: [linux-usb-devel] [PATCH 7/9] USB usbfs: destroy submitted urbs only on the disconnected interface
-Date: Wed, 14 Apr 2004 22:39:08 +0200
-User-Agent: KMail/1.5.1
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Frederic Detienne <fd@cisco.com>
-References: <200404141245.37101.baldrick@free.fr> <200404141733.11599.oliver@neukum.org> <200404141739.56829.baldrick@free.fr>
-In-Reply-To: <200404141739.56829.baldrick@free.fr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Apr 2004 16:42:59 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:38073 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S261682AbUDNUm6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 16:42:58 -0400
+Date: Wed, 14 Apr 2004 21:42:12 +0100
+From: Dave Jones <davej@redhat.com>
+To: walt <wa1ter@myrealbox.com>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.5-bk]  'modules_install' failed to install modules
+Message-ID: <20040414204212.GM24970@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	walt <wa1ter@myrealbox.com>, linux-kernel@vger.kernel.org
+References: <407D5B7F.107@myrealbox.com> <20040414161827.GA2229@mars.ravnborg.org> <20040414170010.GA23419@redhat.com> <20040414202554.GA12020@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200404142239.08408.oliver@neukum.org>
+In-Reply-To: <20040414202554.GA12020@mars.ravnborg.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 14, 2004 at 10:25:54PM +0200, Sam Ravnborg wrote:
 
-> > I would prefer a real WARN_ON() so that the imbedded people compiling
-> > for size are not affected.
->
-> What do you mean?  How is a real WARN_ON() better?
+ > This does not match your failure report 100%.
+ > I assume what you did was something like:
+ > 
+ > make bzImage
+ > make modules
+ > make install		<= This would trigger the above case
+ > make modules_install
 
-WARN_ON can be defined away to make a smaller kernel. Code that does
-not use it takes away that option.
+That's quite possible.
 
-	Regards
-		Oliver
+ > Anyway here is the fix.
+ > Please let me know if you still se problems.
+
+I'll give it a shot.
+
+		Dave
 

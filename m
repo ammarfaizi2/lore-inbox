@@ -1,48 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262997AbTI2Vhx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 17:37:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbTI2Vgz
+	id S263011AbTI2Vi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 17:38:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbTI2Vi7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 17:36:55 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25991 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262987AbTI2Vgo
+	Mon, 29 Sep 2003 17:38:59 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:5804 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S263011AbTI2ViX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 17:36:44 -0400
-Message-ID: <3F78A5DE.7010803@pobox.com>
-Date: Mon, 29 Sep 2003 17:36:30 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Mon, 29 Sep 2003 17:38:23 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: [PATCH 2.5] USB speedtouch: extra debug messages
+Date: Mon, 29 Sep 2003 23:39:51 +0200
+User-Agent: KMail/1.5.1
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ULL fixes for qlogicfc
-References: <E1A41Rq-0000NJ-00@hardwired> <20030929172329.GD6526@gtf.org> <bla4fg$pbp$1@cesium.transmeta.com> <3F789FE8.6050504@pobox.com> <3F78A2FF.6070203@zytor.com>
-In-Reply-To: <3F78A2FF.6070203@zytor.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309292339.51710.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Jeff Garzik wrote:
-
->>0xffffffff without a prefix is signed.
-
-> No, it's not.
-[...]
-> ... so 0x7fffffff is signed int, but 0xffffffff is unsigned int on an
-> I32-model system (all Linux systems are I32-model.)
+ speedtch.c |   10 +++++++---
+ 1 files changed, 7 insertions(+), 3 deletions(-)
 
 
-I was looking at C99 standard as I typed that :)  But I thought it was 
-referring to raw storage size, and that things changed on some 64-bit 
-platforms.
-
-So, I stand corrected.
-
-	Jeff
-
-
-
+diff -Nru a/drivers/usb/misc/speedtch.c b/drivers/usb/misc/speedtch.c
+--- a/drivers/usb/misc/speedtch.c	Tue Sep 30 00:11:41 2003
++++ b/drivers/usb/misc/speedtch.c	Tue Sep 30 00:11:41 2003
+@@ -880,8 +880,10 @@
+ 		return -EINVAL;
+ 
+ 	/* only support AAL5 */
+-	if ((vcc->qos.aal != ATM_AAL5) || (vcc->qos.rxtp.max_sdu < 0) || (vcc->qos.rxtp.max_sdu > ATM_MAX_AAL5_PDU))
++	if ((vcc->qos.aal != ATM_AAL5) || (vcc->qos.rxtp.max_sdu < 0) || (vcc->qos.rxtp.max_sdu > ATM_MAX_AAL5_PDU)) {
++		dbg ("udsl_atm_open: unsupported ATM type %d!", vcc->qos.aal);
+ 		return -EINVAL;
++	}
+ 
+ 	if (!instance->firmware_loaded) {
+ 		dbg ("udsl_atm_open: firmware not loaded!");
+@@ -891,11 +893,13 @@
+ 	down (&instance->serialize); /* vs self, udsl_atm_close */
+ 
+ 	if (udsl_find_vcc (instance, vpi, vci)) {
++		dbg ("udsl_atm_open: %hd/%d already in use!", vpi, vci);
+ 		up (&instance->serialize);
+ 		return -EADDRINUSE;
+ 	}
+ 
+ 	if (!(new = kmalloc (sizeof (struct udsl_vcc_data), GFP_KERNEL))) {
++		dbg ("udsl_atm_open: no memory for vcc_data!");
+ 		up (&instance->serialize);
+ 		return -ENOMEM;
+ 	}
+@@ -1220,7 +1224,7 @@
+ 
+ 	for (i = 0; i < num_rcv_urbs; i++)
+ 		if ((result = usb_unlink_urb (instance->receivers [i].urb)) < 0)
+-			dbg ("udsl_usb_disconnect: usb_unlink_urb on receive urb %d returned %d", i, result);
++			dbg ("udsl_usb_disconnect: usb_unlink_urb on receive urb %d returned %d!", i, result);
+ 
+ 	/* wait for completion handlers to finish */
+ 	do {
+@@ -1256,7 +1260,7 @@
+ 
+ 	for (i = 0; i < num_snd_urbs; i++)
+ 		if ((result = usb_unlink_urb (instance->senders [i].urb)) < 0)
+-			dbg ("udsl_usb_disconnect: usb_unlink_urb on send urb %d returned %d", i, result);
++			dbg ("udsl_usb_disconnect: usb_unlink_urb on send urb %d returned %d!", i, result);
+ 
+ 	/* wait for completion handlers to finish */
+ 	do {

@@ -1,61 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130791AbRCMDVi>; Mon, 12 Mar 2001 22:21:38 -0500
+	id <S130588AbRCMEEQ>; Mon, 12 Mar 2001 23:04:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130824AbRCMDV2>; Mon, 12 Mar 2001 22:21:28 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:11149 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S130791AbRCMDVO>;
-	Mon, 12 Mar 2001 22:21:14 -0500
-Date: Mon, 12 Mar 2001 22:20:46 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Nathan Paul Simons <npsimons@fsmlabs.com>
-cc: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: system call for process information?
-In-Reply-To: <20010312195647.A32437@fsmlabs.com>
-Message-ID: <Pine.GSO.4.21.0103122202270.28460-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130661AbRCMEEG>; Mon, 12 Mar 2001 23:04:06 -0500
+Received: from vp175062.reshsg.uci.edu ([128.195.175.62]:5390 "EHLO
+	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
+	id <S130588AbRCMEDx>; Mon, 12 Mar 2001 23:03:53 -0500
+Date: Mon, 12 Mar 2001 20:03:20 -0800
+Message-Id: <200103130403.f2D43Kh10666@moisil.dev.hydraweb.com>
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux Knernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Modular versus non-modular ISAPNP
+In-Reply-To: <3AAD8DB4.9DAC348C@mandrakesoft.com>
+User-Agent: tin/1.5.7-20001104 ("Paradise Regained") (UNIX) (Linux/2.2.18 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 12 Mar 2001 22:02:12 -0500, Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
 
+> It is highly recommended to always compile with CONFIG_ISAPNP=y due to
+> these differences.  If you grep around for CONFIG_ISAPNP versus
+> CONFIG_ISAPNP_MODULE, you'll see that many drivers are woefully
+> unprepared for isapnp support compiled as a module.
 
-On Mon, 12 Mar 2001, Nathan Paul Simons wrote:
+Another entry for the Kernel Janitor's List, perhaps?
 
-> On Mon, Mar 12, 2001 at 09:21:37PM +0000, Guennadi Liakhovetski wrote:
-> > CPU utilisation. Each new application has to calculate it (ps, top, qps,
-> > kps, various sysmons, procmons, etc.). Wouldn't it be worth it having a
-> > syscall for that? Wouldn't it be more optimal?
+Ion
 
-The first rule of optimization: don't. I.e. optimizing something that
-is not a bottleneck is pointless.
-
-
-> 	No, it wouldn't be worth it because you're talking about 
-> sacrificing simplicity and kernel speed in favor of functionality.
-
-Or, in that case, in favour of nothing. It doesn't add any functionality.
-
-> This has been know to lead to "bloat-ware".  Every new syscall you
-> add takes just a little bit more time and space in the kernel, and
-> when only a small number of programs will be using it, it's really 
-> not worth it.  This time and space may not be large, but once you
-> get _your_ syscall added, why can't everyone else get theirs added 
-> as well?  And so, after making about a thousand specialized syscalls
-> standard in the kernel, you end up with IRIX (from what I've heard).
-
-	In that case there is much simpler argument.
-
-If your program checks the system load so often that converting results
-from ASCII to integers takes noticable time - all you are measuring
-is the load created by that program. In other words, any program that
-would get any speedup from such syscall is absolutely worthless, since
-the load created by measurement will drown the load you are trying
-to measure.
-
-	End of story. It's not only unnecessary and tasteless, it's
-useless. 
-								Cheers,
-									Al
-
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

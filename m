@@ -1,104 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbVDCNkT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVDCNs5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261737AbVDCNkT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 09:40:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVDCNkT
+	id S261738AbVDCNs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 09:48:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbVDCNs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 09:40:19 -0400
-Received: from smtpout19.mailhost.ntl.com ([212.250.162.19]:41345 "EHLO
-	mta13-winn.mailhost.ntl.com") by vger.kernel.org with ESMTP
-	id S261737AbVDCNkG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 09:40:06 -0400
-Message-ID: <424FF235.2090505@gentoo.org>
-Date: Sun, 03 Apr 2005 14:40:05 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
-X-Accept-Language: en-us, en
+	Sun, 3 Apr 2005 09:48:57 -0400
+Received: from wproxy.gmail.com ([64.233.184.205]:26039 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261738AbVDCNsx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 09:48:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=JE9VWnDD/UuvUN2WHbm1hMbjhbAz3LXssU5+hUecXkt/vZhUqxwVYxqc7f+KIu2geYtqLVcr+y9sjG9CwwCyFGnas7lEJkRXXVjBuYBAcRKaJypIcD893Z/nNz+OGNpnJ6oWzDJsqrOR9krjXR6i7LxGyPs3NJIjwlwzYrNmsgs=
+Message-ID: <424FF442.1060006@gmail.com>
+Date: Sun, 03 Apr 2005 15:48:50 +0200
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050324)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-To: Peter Baumann <waste.manager@gmx.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       habraken@yahoo.com, greg@kroah.com, aniel.ritz@gmx.ch
-Subject: Re: [Bug] invalid mac address after rebooting (kernel 2.6.11.5)
-References: <20050323122423.GA24316@faui00u.informatik.uni-erlangen.de> <20050323185225.11097185.akpm@osdl.org> <20050324110102.GA30711@faui00u.informatik.uni-erlangen.de>
-In-Reply-To: <20050324110102.GA30711@faui00u.informatik.uni-erlangen.de>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Alexander Nyberg <alexn@dsv.su.se>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc1-bk does not boot x86_64
+References: <424FE590.5060507@gmail.com> <1112533321.2369.1.camel@localhost.localdomain>
+In-Reply-To: <1112533321.2369.1.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
+From: Michael Thonke <iogl64nx@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Baumann wrote:
-> On Wed, Mar 23, 2005 at 06:52:25PM -0800, Andrew Morton wrote:
+Thanks Alexander this sort this out.
+No system boots w/o problems :-)
+
+Alexander Nyberg wrote:
+
+>>I tried the recent 2.6.12-rc1-bk5 snapshot from kernel.org.
+>>When I want to boot my x86_64 system only a green line appears on screen.
+>>The config is the same as in 2.6.12-rc1-bk4 which works flawlessly on my
+>>system.
+>>
+>>I only saw the message that CPU0 and CPU1 where initialized. And then
+>>there was
+>>Brinnging up CPUs and it stopped.
+>>
+>>Its an Intel Pentium4 640 with (EMT64,HT,EIST,CIE enabled).
+>>The graphic card is an Nvidia 6600GT PCIe device.
+>>    
+>>
+>
+>I had the same nasty surprise this morning, this will probably help:
+>
+>
+>Well, this is a brown paper bag for someone.  The new protocol
+>registration locking uses a rwlock to limit access to the protocol list.
+>Unfortunately, the initialisation:
+>
+>static rwlock_t proto_list_lock;
+>
+>Only works to initialise the lock as unlocked on platforms whose unlock
+>signal is all zeros.  On other platforms, they think it's already locked
+>and hang forever.
+>
+>Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
+>
+>
+>===== net/core/sock.c 1.67 vs edited =====
+>--- 1.67/net/core/sock.c	2005-03-26 17:04:35 -06:00
+>+++ edited/net/core/sock.c	2005-04-02 13:37:20 -06:00
+>@@ -1352,7 +1352,7 @@
 > 
->>Peter Baumann <Peter.B.Baumann@stud.informatik.uni-erlangen.de> wrote:
->>
->>>
->>>I'm hitting an annoying bug in kernel 2.6.11.5
->>>
->>>Every time I _reboot_ (warmstart) my pc my two network cards won't get
->>>recognized any longer.
->>>
->>>Following error message appears on my screen:
->>>
->>>PCI: Enabling device 0000:00:0b.0 (0000 -> 0003)
->>>ACPI: PCI interrupt 0000:00:0b.0[A] -> GSI 19 (level, low) -> IRQ 19
->>>3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
->>>0000:00:0b.0: 3Com PCI 3c905B Cyclone 100baseTx at 0x1000. Vers LK1.1.19
->>>PCI: Setting latency timer of device 0000:00:0b.0 to 64
->>>*** EEPROM MAC address is invalid.
->>>3c59x: vortex_probe1 fails.  Returns -22
->>>3c59x: probe of 0000:00:0b.0 failed with error -22
->>>PCI: Enabling device 0000:00:0d.0 (0000 -> 0003)
->>>ACPI: PCI interrupt 0000:00:0d.0[A] -> GSI 19 (level, low) -> IRQ 19
->>>0000:00:0d.0: 3Com PCI 3c905B Cyclone 100baseTx at 0x1080. Vers LK1.1.19
->>>PCI: Setting latency timer of device 0000:00:0d.0 to 64
->>>*** EEPROM MAC address is invalid.
->>>3c59x: vortex_probe1 fails.  Returns -22
->>>3c59x: probe of 0000:00:0d.0 failed with error -22
->>>
->>>This doesn't happen with older kernels (especially with 2.6.10) and so
->>>I've done a binary search and narrowed it down to 2.6.11-rc5 where it
->>>first hits me.
->>>
->>>My config, lspci output and the dmesg output of the working and non-working
->>>version can be found at [1]
->>>
->>>Feel free to ask if any information is missing or if I am supposed to try
->>>a patch.
->>
->>Thanks for doing the bsearch - it helps.
->>
->>There were no driver changes between 2.6.11-rc4 and 2.6.11-rc5.
->>
->>The only PCI change I see is
->>
->>--- drivers/pci/pci.c   22 Jan 2005 03:20:37 -0000      1.71
->>+++ drivers/pci/pci.c   24 Feb 2005 18:02:37 -0000      1.72
->>@@ -268,7 +268,7 @@
->>                return -EIO; 
->> 
->>        pci_read_config_word(dev,pm + PCI_PM_PMC,&pmc);
->>-       if ((pmc & PCI_PM_CAP_VER_MASK) != 2) {
->>+       if ((pmc & PCI_PM_CAP_VER_MASK) > 2) {
->>                printk(KERN_DEBUG
->>                       "PCI: %s has unsupported PM cap regs version (%u)\n",
->>                       dev->slot_name, pmc & PCI_PM_CAP_VER_MASK);
->>
->>and you're not getting that message (are you?)
->>
+> EXPORT_SYMBOL(sk_common_release);
 > 
+>-static rwlock_t proto_list_lock;
+>+static DEFINE_RWLOCK(proto_list_lock);
+> static LIST_HEAD(proto_list);
 > 
-> Reverting the above patch solved it.
+> int proto_register(struct proto *prot, int alloc_slab)
+>
+>
+>-
+>
+>
+>
+>  
+>
 
-A gentoo user also reported this, but according to the bug report, this 
-happens on every bootup (as opposed to only every warm boot)
-
-http://bugs.gentoo.org/87142
-
-I asked him to try reverting the patch shown above and that helped his 
-situation too.
-
-What's next towards getting this fixed for real?
-
-Daniel

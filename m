@@ -1,15 +1,15 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261489AbTDDE66 (for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 23:58:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbTDDE66 (for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 23:58:58 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:18053 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S261489AbTDDExA (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Apr 2003 23:53:00 -0500
-Date: Fri, 4 Apr 2003 00:08:14 +0000
+	id S263438AbTDDFDu (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 00:03:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbTDDFDk (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 00:03:40 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:23429 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S263357AbTDDE5h (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Apr 2003 23:57:37 -0500
+Date: Fri, 4 Apr 2003 00:12:47 +0000
 From: Adam Belay <ambx1@neo.rr.com>
 To: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] PnP Changes for 2.5.66
-Message-ID: <20030404000814.GC11574@neo.rr.com>
+Message-ID: <20030404001247.GJ11574@neo.rr.com>
 Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
 	linux-kernel@vger.kernel.org
 References: <20030404000731.GB11574@neo.rr.com>
@@ -21,466 +21,355 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -Nru a/drivers/pnp/pnpbios/core.c b/drivers/pnp/pnpbios/core.c
---- a/drivers/pnp/pnpbios/core.c	Thu Apr  3 23:41:16 2003
-+++ b/drivers/pnp/pnpbios/core.c	Thu Apr  3 23:41:16 2003
-@@ -32,6 +32,18 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-  */
-+ 
-+/* Change Log
-+ *
-+ * Adam Belay - <ambx1@neo.rr.com> - March 16, 2003
-+ * rev 1.01	Only call pnp_bios_dev_node_info once
-+ *		Added pnpbios_print_status
-+ *		Added several new error messages and info messages
-+ *		Added pnpbios_interface_attach_device
-+ *		integrated core and proc init system
-+ *		Introduced PNPMODE flags
-+ *		Removed some useless includes
-+ */
+diff -Nru a/sound/isa/dt019x.c b/sound/isa/dt019x.c
+--- a/sound/isa/dt019x.c	Thu Apr  3 23:40:39 2003
++++ b/sound/isa/dt019x.c	Thu Apr  3 23:40:39 2003
+@@ -25,11 +25,7 @@
+ #include <linux/init.h>
+ #include <linux/sched.h>
+ #include <linux/wait.h>
+-#ifndef LINUX_ISAPNP_H
+-#include <linux/isapnp.h>
+-#define isapnp_card pci_bus
+-#define isapnp_dev pci_dev
+-#endif
++#include <linux/pnp.h>
+ #include <sound/core.h>
+ #define SNDRV_GET_ID
+ #include <sound/initval.h>
+@@ -87,159 +83,124 @@
+ MODULE_PARM_SYNTAX(dma8, SNDRV_DMA8_DESC);
  
- #include <linux/types.h>
- #include <linux/module.h>
-@@ -46,9 +58,7 @@
- #include <linux/mm.h>
- #include <linux/smp.h>
- #include <asm/desc.h>
--#include <linux/ioport.h>
- #include <linux/slab.h>
--#include <linux/pci.h>
- #include <linux/kmod.h>
- #include <linux/completion.h>
- #include <linux/spinlock.h>
-@@ -93,6 +103,7 @@
- } pnp_bios_callpoint;
+ struct snd_card_dt019x {
+-#ifdef __ISAPNP__
+-	struct isapnp_dev *dev;
+-	struct isapnp_dev *devmpu;
+-	struct isapnp_dev *devopl;
+-#endif	/* __ISAPNP__ */
++	struct pnp_dev *dev;
++	struct pnp_dev *devmpu;
++	struct pnp_dev *devopl;
+ };
  
- static union pnp_bios_expansion_header * pnp_bios_hdr = NULL;
-+struct pnp_dev_node_info node_info;
+-static snd_card_t *snd_dt019x_cards[SNDRV_CARDS] = SNDRV_DEFAULT_PTR;
+-
+-#ifdef __ISAPNP__
+-static struct isapnp_card *snd_dt019x_isapnp_cards[SNDRV_CARDS] __devinitdata = SNDRV_DEFAULT_PTR;
+-static const struct isapnp_card_id *snd_dt019x_isapnp_id[SNDRV_CARDS] __devinitdata = SNDRV_DEFAULT_PTR;
+-
+-static struct isapnp_card_id snd_dt019x_pnpids[] __devinitdata = {
++static struct pnp_card_device_id snd_dt019x_pnpids[] __devinitdata = {
+ 	/* DT197A30 */
+-	{
+-		ISAPNP_CARD_ID('R','W','B',0x1688),
+-		.devs = { ISAPNP_DEVICE_ID('@','@','@',0x0001),
+-			ISAPNP_DEVICE_ID('@','X','@',0x0001),
+-			ISAPNP_DEVICE_ID('@','H','@',0x0001) }
+-	},
++	{ .id = "RWB1688", .devs = { { "@@@0001" }, { "@X@0001" }, { "@H@0001" }, } },
+ 	/* DT0196 / ALS-007 */
+-	{
+-		ISAPNP_CARD_ID('A','L','S',0x0007),
+-		.devs = { ISAPNP_DEVICE_ID('@','@','@',0x0001),
+-			ISAPNP_DEVICE_ID('@','X','@',0x0001),
+-			ISAPNP_DEVICE_ID('@','H','@',0x0001) }
+-	},
+-	{ ISAPNP_CARD_END, }
++	{ .id = "ALS0007", .devs = { { "@@@0001" }, { "@X@0001" }, { "@H@0001" }, } },
++	{ .id = "",  }
+ };
  
- /* The PnP BIOS entries in the GDT */
- #define PNP_GDT    (GDT_ENTRY_PNPBIOS_BASE * 8)
-@@ -237,9 +248,46 @@
-  *
-  */
+-ISAPNP_CARD_TABLE(snd_dt019x_pnpids);
++MODULE_DEVICE_TABLE(pnp_card, snd_dt019x_pnpids);
  
--static void pnpbios_warn_unexpected_status(const char * module, u16 status)
-+static void pnpbios_print_status(const char * module, u16 status)
+-#endif	/* __ISAPNP__ */
+ 
+ #define DRIVER_NAME	"snd-card-dt019x"
+ 
+ 
+-#ifdef __ISAPNP__
+-static int __init snd_card_dt019x_isapnp(int dev, struct snd_card_dt019x *acard)
++static int __init snd_card_dt019x_isapnp(int dev, struct snd_card_dt019x *acard,
++							   struct pnp_card_link *card,
++							   const struct pnp_card_device_id *pid)
  {
--	printk(KERN_ERR "PnPBIOS: %s: Unexpected status 0x%x\n", module, status);
-+	switch(status) {
-+	case PNP_SUCCESS:
-+	printk(KERN_ERR "PnPBIOS: %s: function successful\n", module);
-+	case PNP_NOT_SET_STATICALLY:
-+	printk(KERN_ERR "PnPBIOS: %s: unable to set static resources\n", module);
-+	case PNP_UNKNOWN_FUNCTION:
-+	printk(KERN_ERR "PnPBIOS: %s: invalid function number passed\n", module);
-+	case PNP_FUNCTION_NOT_SUPPORTED:
-+	printk(KERN_ERR "PnPBIOS: %s: function not supported on this system\n", module);
-+	case PNP_INVALID_HANDLE:
-+	printk(KERN_ERR "PnPBIOS: %s: invalid handle\n", module);
-+	case PNP_BAD_PARAMETER:
-+	printk(KERN_ERR "PnPBIOS: %s: invalid parameters were passed\n", module);
-+	case PNP_SET_FAILED:
-+	printk(KERN_ERR "PnPBIOS: %s: unable to set resources\n", module);
-+	case PNP_EVENTS_NOT_PENDING:
-+	printk(KERN_ERR "PnPBIOS: %s: no events are pending\n", module);
-+	case PNP_SYSTEM_NOT_DOCKED:
-+	printk(KERN_ERR "PnPBIOS: %s: the system is not docked\n", module);
-+	case PNP_NO_ISA_PNP_CARDS:
-+	printk(KERN_ERR "PnPBIOS: %s: no isapnp cards are installed on this system\n", module);
-+	case PNP_UNABLE_TO_DETERMINE_DOCK_CAPABILITIES:
-+	printk(KERN_ERR "PnPBIOS: %s: cannot determine the capabilities of the docking station\n", module);
-+	case PNP_CONFIG_CHANGE_FAILED_NO_BATTERY:
-+	printk(KERN_ERR "PnPBIOS: %s: unable to undock, the system does not have a battery\n", module);
-+	case PNP_CONFIG_CHANGE_FAILED_RESOURCE_CONFLICT:
-+	printk(KERN_ERR "PnPBIOS: %s: could not dock due to resource conflicts\n", module);
-+	case PNP_BUFFER_TOO_SMALL:
-+	printk(KERN_ERR "PnPBIOS: %s: the buffer passed is too small\n", module);
-+	case PNP_USE_ESCD_SUPPORT:
-+	printk(KERN_ERR "PnPBIOS: %s: use ESCD instead\n", module);
-+	case PNP_MESSAGE_NOT_SUPPORTED:
-+	printk(KERN_ERR "PnPBIOS: %s: the message is unsupported\n", module);
-+	case PNP_HARDWARE_ERROR:
-+	printk(KERN_ERR "PnPBIOS: %s: a hardware failure has occured\n", module);
-+	default:
-+	printk(KERN_ERR "PnPBIOS: %s: unexpected status 0x%x\n", module, status);
-+	}
- }
- 
- void *pnpbios_kmalloc(size_t size, int f)
-@@ -299,7 +347,7 @@
- {
- 	int status = __pnp_bios_dev_node_info( data );
- 	if ( status )
--		pnpbios_warn_unexpected_status( "dev_node_info", status );
-+		pnpbios_print_status( "dev_node_info", status );
- 	return status;
- }
- 
-@@ -334,7 +382,7 @@
- 	int status;
- 	status =  __pnp_bios_get_dev_node( nodenum, boot, data );
- 	if ( status )
--		pnpbios_warn_unexpected_status( "get_dev_node", status );
-+		pnpbios_print_status( "get_dev_node", status );
- 	return status;
- }
- 
-@@ -362,7 +410,7 @@
- 	int status;
- 	status =  __pnp_bios_set_dev_node( nodenum, boot, data );
- 	if ( status ) {
--		pnpbios_warn_unexpected_status( "set_dev_node", status );
-+		pnpbios_print_status( "set_dev_node", status );
- 		return status;
- 	}
- 	if ( !boot ) { /* Update devlist */
-@@ -452,7 +500,7 @@
- 	int status;
- 	status = __pnp_bios_get_stat_res( info );
- 	if ( status )
--		pnpbios_warn_unexpected_status( "get_stat_res", status );
-+		pnpbios_print_status( "get_stat_res", status );
- 	return status;
- }
- 
-@@ -489,7 +537,7 @@
- 	int status;
- 	status = __pnp_bios_isapnp_config( data );
- 	if ( status )
--		pnpbios_warn_unexpected_status( "isapnp_config", status );
-+		pnpbios_print_status( "isapnp_config", status );
- 	return status;
- }
- 
-@@ -511,7 +559,7 @@
- 	int status;
- 	status = __pnp_bios_escd_info( data );
- 	if ( status )
--		pnpbios_warn_unexpected_status( "escd_info", status );
-+		pnpbios_print_status( "escd_info", status );
- 	return status;
- }
- 
-@@ -534,7 +582,7 @@
- 	int status;
- 	status = __pnp_bios_read_escd( data, nvram_base );
- 	if ( status )
--		pnpbios_warn_unexpected_status( "read_escd", status );
-+		pnpbios_print_status( "read_escd", status );
- 	return status;
- }
- 
-@@ -658,7 +706,7 @@
- 				d = 1;
- 				break;
- 			default:
--				pnpbios_warn_unexpected_status( "pnp_dock_thread", status );
-+				pnpbios_print_status( "pnp_dock_thread", status );
- 				continue;
- 		}
- 		if(d != docked)
-@@ -753,19 +801,17 @@
- 
- static int pnpbios_get_resources(struct pnp_dev * dev, struct pnp_resource_table * res)
- {
--	struct pnp_dev_node_info node_info;
- 	u8 nodenum = dev->number;
- 	struct pnp_bios_node * node;
- 
- 	/* just in case */
- 	if(!pnpbios_is_dynamic(dev))
- 		return -EPERM;
--	if (pnp_bios_dev_node_info(&node_info) != 0)
--		return -ENODEV;
-+
- 	node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
- 	if (!node)
- 		return -1;
--	if (pnp_bios_get_dev_node(&nodenum, (char )0, node)) {
-+	if (pnp_bios_get_dev_node(&nodenum, (char )PNPMODE_DYNAMIC, node)) {
- 		kfree(node);
- 		return -ENODEV;
- 	}
-@@ -777,7 +823,6 @@
- 
- static int pnpbios_set_resources(struct pnp_dev * dev, struct pnp_resource_table * res)
- {
--	struct pnp_dev_node_info node_info;
- 	u8 nodenum = dev->number;
- 	struct pnp_bios_node * node;
- 	int ret;
-@@ -785,18 +830,17 @@
- 	/* just in case */
- 	if (!pnpbios_is_dynamic(dev))
- 		return -EPERM;
--	if (pnp_bios_dev_node_info(&node_info) != 0)
--		return -ENODEV;
-+
- 	node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
- 	if (!node)
- 		return -1;
--	if (pnp_bios_get_dev_node(&nodenum, (char )1, node))
-+	if (pnp_bios_get_dev_node(&nodenum, (char )PNPMODE_STATIC, node))
- 		return -ENODEV;
- 	if(!pnp_write_resources((char *)node->data,(char *)node->data + node->size,res)){
- 		kfree(node);
- 		return -1;
- 	}
--	ret = pnp_bios_set_dev_node(node->handle, (char)0, node);
-+	ret = pnp_bios_set_dev_node(node->handle, (char)PNPMODE_DYNAMIC, node);
- 	kfree(node);
- 	if (ret > 0)
- 		ret = -1;
-@@ -805,23 +849,18 @@
- 
- static int pnpbios_disable_resources(struct pnp_dev *dev)
- {
--	struct pnp_dev_node_info node_info;
- 	struct pnp_bios_node * node;
- 	int ret;
- 	
- 	/* just in case */
- 	if(dev->flags & PNPBIOS_NO_DISABLE || !pnpbios_is_dynamic(dev))
- 		return -EPERM;
--	if (!dev || !dev->active)
--		return -EINVAL;
--	if (pnp_bios_dev_node_info(&node_info) != 0)
--		return -ENODEV;
-+
- 	/* the value of this will be zero */
- 	node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
- 	if (!node)
- 		return -ENOMEM;
--	ret = pnp_bios_set_dev_node(dev->number, (char)0, node);
--	dev->active = 0;
-+	ret = pnp_bios_set_dev_node(dev->number, (char)PNPMODE_DYNAMIC, node);
- 	kfree(node);
- 	if (ret > 0)
- 		ret = -1;
-@@ -879,6 +918,8 @@
- 	dev->protocol = &pnpbios_protocol;
- 
- 	pnp_add_device(dev);
-+	pnpbios_interface_attach_device(node);
-+
- 	return 0;
- }
- 
-@@ -903,8 +944,16 @@
- 
- 	for(nodenum=0; nodenum<0xff; ) {
- 		u8 thisnodenum = nodenum;
--		if (pnp_bios_get_dev_node(&nodenum, (char )0, node))
--			break;
-+		/* eventually we will want to use PNPMODE_STATIC here but for now
-+		 * dynamic will help us catch buggy bioses to add to the blacklist.
-+		 */
-+		if (!pnpbios_dont_use_current_config) {
-+			if (pnp_bios_get_dev_node(&nodenum, (char )PNPMODE_DYNAMIC, node))
-+				break;
-+		} else {
-+			if (pnp_bios_get_dev_node(&nodenum, (char )PNPMODE_STATIC, node))
-+				break;
-+		}
- 		nodes_got++;
- 		dev =  pnpbios_kmalloc(sizeof (struct pnp_dev), GFP_KERNEL);
- 		if (!dev)
-@@ -972,7 +1021,8 @@
- 	if(pnpbios_disabled || (dmi_broken & BROKEN_PNP_BIOS)) {
- 		printk(KERN_INFO "PnPBIOS: Disabled\n");
- 		return -ENODEV;
+-	const struct isapnp_card_id *id = snd_dt019x_isapnp_id[dev];
+-	struct isapnp_card *card = snd_dt019x_isapnp_cards[dev];
+-	struct isapnp_dev *pdev;
+-
+-	acard->dev = isapnp_find_dev(card, id->devs[0].vendor, id->devs[0].function, NULL);
+-	if (acard->dev->active) {
+-		acard->dev = NULL;
+-		return -EBUSY;
 -	}
-+	} else
-+		printk(KERN_INFO "PnPBIOS: Scanning system for PnP BIOS support...\n");
- 
- 	/*
-  	 * Search the defined area (0xf0000-0xffff0) for a valid PnP BIOS
-@@ -1016,17 +1066,34 @@
- 		}
- 		break;
+-	acard->devmpu = isapnp_find_dev(card, id->devs[1].vendor, id->devs[1].function, NULL);
+-	if (acard->devmpu->active) {
+-		acard->dev = acard->devmpu = NULL;
+-		return -EBUSY;
+-	}
+-	acard->devopl = isapnp_find_dev(card, id->devs[2].vendor, id->devs[2].function, NULL);
+-	if (acard->devopl->active) {
+-		acard->dev = acard->devmpu = acard->devopl = NULL;
+-		return -EBUSY;
++	struct pnp_dev *pdev;
++	struct pnp_resource_table * cfg = kmalloc(sizeof(struct pnp_resource_table), GFP_KERNEL);
++	int err;
++
++	if (!cfg)
++		return -ENOMEM;
++
++	acard->dev = pnp_request_card_device(card, pid->devs[0].id, NULL);
++	if (acard->dev == NULL) {
++		kfree (cfg);
++		return -ENODEV;
  	}
--	if (!pnp_bios_present())
-+	if (!pnp_bios_present()) {
-+		printk(KERN_INFO "PnPBIOS: A PnP BIOS was not detected.\n");
- 		return -ENODEV;
++	acard->devmpu = pnp_request_card_device(card, pid->devs[1].id, NULL);
++	acard->devopl = pnp_request_card_device(card, pid->devs[2].id, NULL);
+ 
+ 	pdev = acard->dev;
+-	if (!pdev || pdev->prepare(pdev)<0)
+-		return -EAGAIN;
++	pnp_init_resource_table(cfg);
+ 
+ 	if (port[dev] != SNDRV_AUTO_PORT)
+-		isapnp_resource_change(&pdev->resource[0], port[dev], 16);
++		pnp_resource_change(&cfg->port_resource[0], port[dev], 16);
+ 	if (dma8[dev] != SNDRV_AUTO_DMA)
+-		isapnp_resource_change(&pdev->dma_resource[0], dma8[dev],
++		pnp_resource_change(&cfg->dma_resource[0], dma8[dev],
+ 			1);
+ 	if (irq[dev] != SNDRV_AUTO_IRQ)
+-		isapnp_resource_change(&pdev->irq_resource[0], irq[dev], 1);
++		pnp_resource_change(&cfg->irq_resource[0], irq[dev], 1);
+ 
+-	if (pdev->activate(pdev)<0) {
+-		printk(KERN_ERR PFX "DT-019X AUDIO isapnp configure failure\n");
+-		return -EBUSY;
+-	}
+-	port[dev] = pdev->resource[0].start;
+-	dma8[dev] = pdev->dma_resource[0].start;
+-	irq[dev] = pdev->irq_resource[0].start;
++	if ((pnp_manual_config_dev(pdev, cfg, 0)) < 0)
++		printk(KERN_ERR PFX "DT-019X AUDIO the requested resources are invalid, using auto config\n");
++	err = pnp_activate_dev(pdev);
++	if (err < 0) {
++		printk(KERN_ERR PFX "DT-019X AUDIO pnp configure failure\n");
++		kfree(cfg);
++		return err;
 +	}
 +
-+	/*
-+	 * we found a pnpbios, now let's load the rest of the driver
-+	 */
-+
-+	/* read the node info */
-+	if (pnp_bios_dev_node_info(&node_info)) {
-+		printk(KERN_ERR "PnPBIOS: Unable to get node info.  Aborting.\n");
-+		return -EIO;
-+	}
-+
-+	/* register with the pnp layer */
- 	pnp_register_protocol(&pnpbios_protocol);
--	build_devlist();
--	/*if ( ! dont_reserve_resources )*/
--		/*reserve_resources();*/
-+
- #ifdef CONFIG_PROC_FS
-+	/* start the proc interface */
- 	r = pnpbios_proc_init();
- 	if (r)
- 		return r;
- #endif
-+
-+	/* scan for pnpbios devices */
-+	build_devlist();
-+
++	port[dev] = pnp_port_start(pdev, 0);
++	dma8[dev] = pnp_dma(pdev, 0);
++	irq[dev] = pnp_irq(pdev, 0);
+ 	snd_printdd("dt019x: found audio interface: port=0x%lx, irq=0x%lx, dma=0x%lx\n",
+ 			port[dev],irq[dev],dma8[dev]);
+ 
+ 	pdev = acard->devmpu;
+-	if (!pdev || pdev->prepare(pdev)<0) 
+-		return 0;
+-
+-	if (mpu_port[dev] != SNDRV_AUTO_PORT)
+-		isapnp_resource_change(&pdev->resource[0], mpu_port[dev],
+-			2);
+-	if (mpu_irq[dev] != SNDRV_AUTO_IRQ)
+-		isapnp_resource_change(&pdev->irq_resource[0], mpu_irq[dev],
+-			1);
+ 
+-	if (pdev->activate(pdev)<0) {
+-		printk(KERN_ERR PFX "DT-019X MPU-401 isapnp configure failure\n");
+-		mpu_port[dev] = -1;
+-		acard->devmpu = NULL;
+-	} else {
+-		mpu_port[dev] = pdev->resource[0].start;
+-		mpu_irq[dev] = pdev->irq_resource[0].start;
++	if (pdev != NULL) {
++		pnp_init_resource_table(cfg);
++		if (mpu_port[dev] != SNDRV_AUTO_PORT)
++			pnp_resource_change(&cfg->port_resource[0], mpu_port[dev], 2);
++		if (mpu_irq[dev] != SNDRV_AUTO_IRQ)
++			pnp_resource_change(&cfg->irq_resource[0], mpu_irq[dev], 1);
++			if ((pnp_manual_config_dev(pdev, cfg, 0)) < 0)
++			printk(KERN_ERR PFX "DT-019X MPU401 the requested resources are invalid, using auto config\n");
++			err = pnp_activate_dev(pdev);
++			if (err < 0)
++				goto __mpu_error;
++		mpu_port[dev] = pnp_port_start(pdev, 0);
++		mpu_irq[dev] = pnp_irq(pdev, 0);
+ 		snd_printdd("dt019x: found MPU-401: port=0x%lx, irq=0x%lx\n",
+ 			 	mpu_port[dev],mpu_irq[dev]);
++	} else {
++		__mpu_error:
++		if (pdev) {
++			pnp_release_card_device(pdev);
++			printk(KERN_ERR PFX "DT-019X MPU401 pnp configure failure, skipping\n");
++		}
++		acard->devmpu = NULL;
++		mpu_port[dev] = -1;
+ 	}
+ 
+ 	pdev = acard->devopl;
+-	if (!pdev || pdev->prepare(pdev)<0)
+-		return 0;
+-
+-	if (fm_port[dev] != SNDRV_AUTO_PORT)
+-		isapnp_resource_change(&pdev->resource[0], fm_port[dev], 4);
+-
+-	if (pdev->activate(pdev)<0) {
+-		printk(KERN_ERR PFX "DT-019X OPL3 isapnp configure failure\n");
+-		fm_port[dev] = -1;
+-		acard->devopl = NULL;
+-	} else {
+-		fm_port[dev] = pdev->resource[0].start;
++	if (pdev != NULL) {
++		pnp_init_resource_table(cfg);
++		if (fm_port[dev] != SNDRV_AUTO_PORT)
++			pnp_resource_change(&cfg->port_resource[0], fm_port[dev], 4);
++		if ((pnp_manual_config_dev(pdev, cfg, 0)) < 0)
++			printk(KERN_ERR PFX "DT-019X OPL3 the requested resources are invalid, using auto config\n");
++		err = pnp_activate_dev(pdev);
++		if (err < 0)
++			goto __fm_error;
++		fm_port[dev] = pnp_port_start(pdev, 0);
+ 		snd_printdd("dt019x: found OPL3 synth: port=0x%lx\n",fm_port[dev]);
+-	}
+-
+-	return 0;
+-}
+-
+-static void snd_card_dt019x_deactivate(struct snd_card_dt019x *acard)
+-{
+-	if (acard->dev) {
+-		acard->dev->deactivate(acard->dev);
+-		acard->dev = NULL;
+-	}
+-	if (acard->devmpu) {
+-		acard->devmpu->deactivate(acard->devmpu);
+-		acard->devmpu = NULL;
+-	}
+-	if (acard->devopl) {
+-		acard->devopl->deactivate(acard->devopl);
++	} else {
++		__fm_error:
++		if (pdev) {
++			pnp_release_card_device(pdev);
++			printk(KERN_ERR PFX "DT-019X OPL3 pnp configure failure, skipping\n");
++		}
+ 		acard->devopl = NULL;
++		fm_port[dev] = -1;
+ 	}
+-}
+-#endif	/* __ISAPNP__ */
+ 
+-static void snd_card_dt019x_free(snd_card_t *card)
+-{
+-	struct snd_card_dt019x *acard = (struct snd_card_dt019x *)card->private_data;
+-
+-	if (acard != NULL) {
+-#ifdef __ISAPNP__
+-		snd_card_dt019x_deactivate(acard);
+-#endif	/* __ISAPNP__ */
+-	}
++	kfree(cfg);
++	return 0;
+ }
+ 
+-static int __init snd_card_dt019x_probe(int dev)
++static int __init snd_card_dt019x_probe(int dev, struct pnp_card_link *pcard, const struct pnp_card_device_id *pid)
+ {
+ 	int error;
+ 	sb_t *chip;
+@@ -251,18 +212,11 @@
+ 				 sizeof(struct snd_card_dt019x))) == NULL)
+ 		return -ENOMEM;
+ 	acard = (struct snd_card_dt019x *)card->private_data;
+-	card->private_free = snd_card_dt019x_free;
+ 
+-#ifdef __ISAPNP__
+-	if ((error = snd_card_dt019x_isapnp(dev, acard))) {
++	if ((error = snd_card_dt019x_isapnp(dev, acard, pcard, pid))) {
+ 		snd_card_free(card);
+ 		return error;
+ 	}
+-#else
+-	printk(KERN_ERR PFX "you have to enable PnP support ...\n");
+-	snd_card_free(card);
+-	return -ENOSYS;
+-#endif	/* __ISAPNP__ */
+ 
+ 	if ((error = snd_sbdsp_create(card, port[dev],
+ 				      irq[dev],
+@@ -324,13 +278,12 @@
+ 		snd_card_free(card);
+ 		return error;
+ 	}
+-	snd_dt019x_cards[dev] = card;
++	pnp_set_card_drvdata(pcard, card);
  	return 0;
  }
  
-diff -Nru a/drivers/pnp/pnpbios/proc.c b/drivers/pnp/pnpbios/proc.c
---- a/drivers/pnp/pnpbios/proc.c	Thu Apr  3 23:41:16 2003
-+++ b/drivers/pnp/pnpbios/proc.c	Thu Apr  3 23:41:16 2003
-@@ -31,7 +31,6 @@
- 
- static struct proc_dir_entry *proc_pnp = NULL;
- static struct proc_dir_entry *proc_pnp_boot = NULL;
--static struct pnp_dev_node_info node_info;
- 
- static int proc_read_pnpconfig(char *buf, char **start, off_t pos,
-                                int count, int *eof, void *data)
-@@ -136,7 +135,7 @@
- 		/* 26 = the number of characters per line sprintf'ed */
- 		if ((p - buf + 26) > count)
- 			break;
--		if (pnp_bios_get_dev_node(&nodenum, 1, node))
-+		if (pnp_bios_get_dev_node(&nodenum, PNPMODE_STATIC, node))
- 			break;
- 		p += sprintf(p, "%02x\t%08x\t%02x:%02x:%02x\t%04x\n",
- 			     node->handle, node->eisa_id,
-@@ -193,6 +192,30 @@
- 	return count;
+-#ifdef __ISAPNP__
+-static int __init snd_dt019x_isapnp_detect(struct isapnp_card *card,
+-					    const struct isapnp_card_id *id)
++static int __init snd_dt019x_pnp_probe(struct pnp_card_link *card,
++					    const struct pnp_card_device_id *pid)
+ {
+ 	static int dev;
+ 	int res;
+@@ -338,9 +291,7 @@
+ 	for ( ; dev < SNDRV_CARDS; dev++) {
+ 		if (!enable[dev])
+ 			continue;
+-		snd_dt019x_isapnp_cards[dev] = card;
+-		snd_dt019x_isapnp_id[dev] = id;
+-		res = snd_card_dt019x_probe(dev);
++		res = snd_card_dt019x_probe(dev, card, pid);
+ 		if (res < 0)
+ 			return res;
+ 		dev++;
+@@ -348,17 +299,28 @@
+         }
+         return -ENODEV;
  }
- 
-+int pnpbios_interface_attach_device(struct pnp_bios_node * node)
-+{
-+	char name[3];
-+	struct proc_dir_entry *ent;
+-#endif /* __ISAPNP__ */
 +
-+	sprintf(name, "%02x", node->handle);
-+	if ( !pnpbios_dont_use_current_config ) {
-+		ent = create_proc_entry(name, 0, proc_pnp);
-+		if (ent) {
-+			ent->read_proc = proc_read_node;
-+			ent->write_proc = proc_write_node;
-+			ent->data = (void *)(long)(node->handle);
-+		}
-+	}
-+	ent = create_proc_entry(name, 0, proc_pnp_boot);
-+	if (ent) {
-+		ent->read_proc = proc_read_node;
-+		ent->write_proc = proc_write_node;
-+		ent->data = (void *)(long)(node->handle+0x100);
-+		return 0;
-+	}
-+	return -EIO;
++static void __devexit snd_dt019x_pnp_remove(struct pnp_card_link * pcard)
++{
++	snd_card_t *card = (snd_card_t *) pnp_get_card_drvdata(pcard);
++	snd_card_disconnect(card);
++	snd_card_free_in_thread(card);
 +}
 +
- /*
-  * When this is called, pnpbios functions are assumed to
-  * work and the pnpbios_dont_use_current_config flag
-@@ -200,14 +223,6 @@
-  */
- int __init pnpbios_proc_init( void )
++static struct pnp_card_driver dt019x_pnpc_driver = {
++	.flags          = PNP_DRIVER_RES_DISABLE,
++	.name           = "dt019x",
++	.id_table       = snd_dt019x_pnpids,
++	.probe          = snd_dt019x_pnp_probe,
++	.remove         = __devexit_p(snd_dt019x_pnp_remove),
++};
+ 
+ static int __init alsa_card_dt019x_init(void)
  {
--	struct pnp_bios_node *node;
--	struct proc_dir_entry *ent;
--	char name[3];
--	u8 nodenum;
--
--	if (pnp_bios_dev_node_info(&node_info))
--		return -EIO;
--	
- 	proc_pnp = proc_mkdir("pnp", proc_bus);
- 	if (!proc_pnp)
- 		return -EIO;
-@@ -219,36 +234,6 @@
- 	create_proc_read_entry("escd_info", 0, proc_pnp, proc_read_escdinfo, NULL);
- 	create_proc_read_entry("escd", S_IRUSR, proc_pnp, proc_read_escd, NULL);
- 	create_proc_read_entry("legacy_device_resources", 0, proc_pnp, proc_read_legacyres, NULL);
--	
--	node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
--	if (!node)
--		return -ENOMEM;
--
--	for (nodenum=0; nodenum<0xff; ) {
--		u8 thisnodenum = nodenum;
--		if (pnp_bios_get_dev_node(&nodenum, 1, node) != 0)
--			break;
--		sprintf(name, "%02x", node->handle);
--		if ( !pnpbios_dont_use_current_config ) {
--			ent = create_proc_entry(name, 0, proc_pnp);
--			if (ent) {
--				ent->read_proc = proc_read_node;
--				ent->write_proc = proc_write_node;
--				ent->data = (void *)(long)(node->handle);
--			}
--		}
--		ent = create_proc_entry(name, 0, proc_pnp_boot);
--		if (ent) {
--			ent->read_proc = proc_read_node;
--			ent->write_proc = proc_write_node;
--			ent->data = (void *)(long)(node->handle+0x100);
--		}
--		if (nodenum <= thisnodenum) {
--			printk(KERN_ERR "%s Node number 0x%x is out of sequence following node 0x%x. Aborting.\n", "PnPBIOS: proc_init:", (unsigned int)nodenum, (unsigned int)thisnodenum);
--			break;
--		}
--	}
--	kfree(node);
+ 	int cards = 0;
  
- 	return 0;
+-#ifdef __ISAPNP__
+-	cards += isapnp_probe_cards(snd_dt019x_pnpids, snd_dt019x_isapnp_detect);
+-#else
+-	printk(KERN_ERR PFX "you have to enable ISA PnP support.\n");
+-#endif
++	cards += pnp_register_card_driver(&dt019x_pnpc_driver);
++
+ #ifdef MODULE
+ 	if (!cards)
+ 		printk(KERN_ERR "no DT-019X / ALS-007 based soundcards found\n");
+@@ -368,10 +330,7 @@
+ 
+ static void __exit alsa_card_dt019x_exit(void)
+ {
+-	int dev;
+-
+-	for (dev = 0; dev < SNDRV_CARDS; dev++)
+-		snd_card_free(snd_dt019x_cards[dev]);
++	pnp_unregister_card_driver(&dt019x_pnpc_driver);
  }
-diff -Nru a/include/linux/pnpbios.h b/include/linux/pnpbios.h
---- a/include/linux/pnpbios.h	Thu Apr  3 23:41:16 2003
-+++ b/include/linux/pnpbios.h	Thu Apr  3 23:41:16 2003
-@@ -29,7 +29,7 @@
- #include <linux/pci.h>
  
- /*
-- * Status codes (warnings and errors)
-+ * Return codes
-  */
- #define PNP_SUCCESS                     0x00
- #define PNP_NOT_SET_STATICALLY          0x7f
-@@ -75,6 +75,7 @@
- #define PNPMSG_POWER_OFF		0x41
- #define PNPMSG_PNP_OS_ACTIVE		0x42
- #define PNPMSG_PNP_OS_INACTIVE		0x43
-+
- /*
-  * Plug and Play BIOS flags
-  */
-@@ -88,6 +89,12 @@
- #define pnpbios_is_static(x) (((x)->flags & 0x0100) == 0x0000)
- #define pnpbios_is_dynamic(x) ((x)->flags & 0x0080)
- 
-+/*
-+ * Function Parameters
-+ */
-+#define PNPMODE_STATIC 1
-+#define PNPMODE_DYNAMIC 0
-+
- /* 0x8000 through 0xffff are OEM defined */
- 
- #pragma pack(1)
-@@ -125,8 +132,10 @@
- 
- /* non-exported */
- extern int  pnpbios_dont_use_current_config;
-+extern struct pnp_dev_node_info node_info;
- extern void *pnpbios_kmalloc(size_t size, int f);
- extern int pnpbios_init (void);
-+extern int pnpbios_interface_attach_device(struct pnp_bios_node * node);
- extern int pnpbios_proc_init (void);
- extern void pnpbios_proc_exit (void);
- 
+ module_init(alsa_card_dt019x_init)

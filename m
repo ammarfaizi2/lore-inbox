@@ -1,48 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268922AbRHFSk6>; Mon, 6 Aug 2001 14:40:58 -0400
+	id <S268924AbRHFTBO>; Mon, 6 Aug 2001 15:01:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268924AbRHFSks>; Mon, 6 Aug 2001 14:40:48 -0400
-Received: from dhcp233054.columbus.rr.com ([204.210.233.54]:15891 "HELO
-	neutral.verbum.org") by vger.kernel.org with SMTP
-	id <S268922AbRHFSkk>; Mon, 6 Aug 2001 14:40:40 -0400
-To: linux-kernel@vger.kernel.org
+	id <S268926AbRHFTBF>; Mon, 6 Aug 2001 15:01:05 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:12162 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S268924AbRHFTAn>; Mon, 6 Aug 2001 15:00:43 -0400
+Date: Mon, 6 Aug 2001 15:00:07 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Colin Walters <walters@cis.ohio-state.edu>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: eepro100 (PCI ID 82820) lockups/failure
-In-Reply-To: <87elqs2wbx.church.of.emacs@space-ghost.verbum.org>
-	<20010806022727.A25793@saw.sw.com.sg>
-X-Attribution: Colin
-X-Face: %'w-_>8Mj2_'=;I$myE#]G"'D>x3CY_rk,K06:mXFUvWy>;3I"BW3_-MAiUby{O(mn"wV@m
- dd`)Vk[27^^Sa<qRKA=qTu-uV/qLcGrMm-}A24N2wgr)5%_46(#WMTajfXc_DBt)&'/(J1
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/21.0.104
- (powerpc-debian-linux-gnu)
-Organization: The Ohio State University Dept. of Computer and Info. Science
-From: Colin Walters <walters@cis.ohio-state.edu>
-Date: Mon, 06 Aug 2001 14:39:14 -0400
-In-Reply-To: <20010806022727.A25793@saw.sw.com.sg> (Andrey Savochkin's
- message of "Mon, 6 Aug 2001 02:27:27 -0700")
-Message-ID: <873d75janh.church.of.emacs@space-ghost.verbum.org>
+In-Reply-To: <873d75janh.church.of.emacs@space-ghost.verbum.org>
+Message-ID: <Pine.LNX.3.95.1010806144632.8686A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Savochkin <saw@saw.sw.com.sg> writes:
+On Mon, 6 Aug 2001, Colin Walters wrote:
 
-> Someone who experiences such timeouts needs to figure out how much
-> time it really can take before a command is accepted.  Some time ago
-> the timeout was increased by the factor of 10, and now the current
-> timeout looks being insufficient.  It might be a problem with the
-> time of specific commands or specific chip revisions.  Or some
-> hardware is too clever and somehow optimizes those repeated read
-> operations, so that they no longer take a fixed number of bus
-> cycles.
+> Andrey Savochkin <saw@saw.sw.com.sg> writes:
+> 
+> > Someone who experiences such timeouts needs to figure out how much
+> > time it really can take before a command is accepted.  Some time ago
+> > the timeout was increased by the factor of 10, and now the current
+> > timeout looks being insufficient.  It might be a problem with the
+> > time of specific commands or specific chip revisions.  Or some
+> > hardware is too clever and somehow optimizes those repeated read
+> > operations, so that they no longer take a fixed number of bus
+> > cycles.
+> 
+[SNIPPED...]
 
-Shouldn't a udelay(1) always take one microsecond, regardless of
-hardware optimizations?
+This may not be a timing problem, but rather a problem that was
+attempted to be fixed with some timing change.
 
-> In short, that patch isn't a real solution.  If someone provides me
-> with the information which commands times-out and how much time they
-> really need, we could have a real solution.
+Possible problem (and solution). Given:
 
-How can I help?  Instrument the code by hand with printk statements?
-Or is there a better way?
+	writel(value, pci_reg);
+	status = readl(pci_reg);
+
+The second readl() may (read will) complete before the writel().
+This is because writes to the PCI bus may be posted (queued). The
+first read will force all writes to complete, however the value
+read may be something that was not yet affected by the write.
+
+	writel(value, pci_reg);
+	status = readl(pci_reg);
+	status = readl(pci_reg);
+
+Would fix, but gcc may "optimize" one of these away, therefore I
+suggest reading something, within the boards address space that
+is never used, i.e., some offset that gives the model number or
+something. It must actually respond to a read because otherwise
+performance will degrade while waiting for the PCI bus error.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

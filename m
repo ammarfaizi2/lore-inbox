@@ -1,118 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267264AbUHRP2F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266916AbUHRPa3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267264AbUHRP2F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 11:28:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266919AbUHRP2F
+	id S266916AbUHRPa3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 11:30:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267194AbUHRPa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 11:28:05 -0400
-Received: from pD951734E.dip.t-dialin.net ([217.81.115.78]:31106 "EHLO
-	undata.org") by vger.kernel.org with ESMTP id S267338AbUHRP1e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 11:27:34 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P2
-From: Thomas Charbonnel <thomas@undata.org>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-In-Reply-To: <s5hzn4s4lr6.wl@alsa2.suse.de>
-References: <20040816023655.GA8746@elte.hu>
-	 <1092624221.867.118.camel@krustophenia.net>
-	 <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu>
-	 <1092627691.867.150.camel@krustophenia.net>
-	 <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net>
-	 <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost>
-	 <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu>
-	 <1092831726.5777.160.camel@localhost>  <s5hzn4s4lr6.wl@alsa2.suse.de>
-Content-Type: text/plain
-Message-Id: <1092842775.7682.7.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 18 Aug 2004 17:26:16 +0200
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Aug 2004 11:30:29 -0400
+Received: from mail-gw4.njit.edu ([128.235.251.32]:23962 "EHLO
+	mail-gw4.njit.edu") by vger.kernel.org with ESMTP id S266916AbUHRPaO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 11:30:14 -0400
+Date: Wed, 18 Aug 2004 11:27:56 -0400 (EDT)
+From: Rahul Jain <rbj2@oak.njit.edu>
+To: "L. A. Walsh" <law@tlinx.org>
+cc: Darren Williams <dsw@gelato.unsw.edu.au>, Rahul Jain <rbj2@oak.njit.edu>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel recompilation error
+In-Reply-To: <41226871.5080900@tlinx.org>
+Message-ID: <Pine.GSO.4.58.0408181123030.6808@chrome.njit.edu>
+References: <Pine.GSO.4.58.0408162058310.17241@chrome.njit.edu>
+ <20040817044343.GA17796@cse.unsw.EDU.AU> <41226871.5080900@tlinx.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai wrote :
-> At Wed, 18 Aug 2004 14:22:07 +0200,
-> Thomas Charbonnel wrote:
-> > 
-> > As a side note, and this has already been reported here several times,
-> > the SA_INTERRUPT flag set notably by the sound card drivers handlers is
-> > not honored on current kernels if the device is not the first one to be
-> > registered. A simple fix would be to add SA_INTERRUPT handlers at the
-> > beginning instead of the end of the irq queue in setup_irq.
-> > 
-> > Similarly, when using SA_SAMPLE_RANDOM, all devices on the given irq
-> > contribute to the entropy, even those that have a predictable interrupt
-> > rate (e.g. sound cards), and/or for which the number of interrupts could
-> > outweight the number of interrupts of the original SA_SAMPLE_RANDOM
-> > driver. 
-> 
-> Hmm, something like this?
-> 
-> 
-> Takashi
-> 
-> --- linux/arch/i386/kernel/irq.c	2004-08-18 15:15:18.272067276 +0200
-> +++ linux/arch/i386/kernel/irq.c	2004-08-18 15:26:13.513979698 +0200
-> @@ -219,15 +219,22 @@ inline void synchronize_irq(unsigned int
->  asmlinkage int handle_IRQ_event(unsigned int irq,
->  		struct pt_regs *regs, struct irqaction *action)
->  {
-> -	int status = 1;	/* Force the "do bottom halves" bit */
-> -	int retval = 0;
-> -
-> -	if (!(action->flags & SA_INTERRUPT))
-> +	int status;
-> +	int ret, retval = 0;
-> +	struct irqaction *ac;
-> +
-> +	status = 0;
-> +	for (ac = action; ac; ac = ac->next)
-> +		status |= ac->flags;
-> +	if (!(status & SA_INTERRUPT))
->  		local_irq_enable();
->  
-> +	status = 0;
->  	do {
-> -		status |= action->flags;
-> -		retval |= action->handler(irq, action->dev_id, regs);
-> +		ret = action->handler(irq, action->dev_id, regs);
-> +		if (ret)
-> +			status |= action->flags;
-> +		retval |= ret;
->  		action = action->next;
->  	} while (action);
->  	if (status & SA_SAMPLE_RANDOM)
+Hi,
 
-I was thinking more of something like this :
+Thanks for your response.
 
---- irq.c.orig  2004-08-16 14:26:34.000000000 +0200
-+++ irq.c       2004-08-18 17:23:18.011059064 +0200
-@@ -955,11 +955,16 @@
-                        return -EBUSY;
-                }
+I tried compiling a new kernel with the "Loopback Device Support" option
+in 'menuconfig' set as a module. However I am still getting the same error.
+Is there something more that I am missing ?? I am using RH9
 
--               /* add new interrupt at end of irq queue */
--               do {
--                       p = &old->next;
--                       old = *p;
--               } while (old);
-+               if (new->flags & SA_INTERRUPT)
-+                       /* add interrupt at the start of the queue */
-+                       new->next = old;
-+               else
-+                       /* add new interrupt at end of irq queue */
-+                       do {
-+                               p = &old->next;
-+                               old = *p;
-+                       } while (old);
-+
-                shared = 1;
-        }
+Thanks,
+Rahul.
 
-Thomas
+On Tue, 17 Aug 2004, L. A. Walsh wrote:
 
-
+>
+> Yep...if ya ever find yourself running on a no-loop back kernel -- first
+> thing to do is compile-up a new one with it enabled so you can make
+> new kernels! :-)
+>
+> -l
+>
+> Darren Williams wrote:
+>
+> >Hi Rahul
+> >As a guess the kernel you are compiling on
+> >does not have loopback enabled and therefore
+> >you are seeing this message.
+> >
+> >I use to see this message on RH7 and 8 if
+> >I had no loopback device.
+> >
+> >Darren
+> >
+> >On Mon, 16 Aug 2004, Rahul Jain wrote:
+> >
+> >
+> >
+> >>Hi,
+> >>
+> >>This is the first time I am seeing this error while recompiling the
+> >>kernel. Could someone plz explain what it means and how to fix it.
+> >>
+> >>I get this error message when I run the command 'make install'. Till this
+> >>point everything else works out properly.
+> >>
+> >>Error Message
+> >>-------------
+> >>All of your loopback devices are in use.
+> >>mkinitrd failed
+> >>
+> >>The commands run before this were
+> >>make mrproper
+> >>make menuconfig
+> >>make dep
+> >>make bzImage
+> >>make modules and
+> >>make modules_install
+> >>
+> >>Thanks,
+> >>Rahul.
+> >>
+> >>-
+> >>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >>the body of a message to majordomo@vger.kernel.org
+> >>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >>Please read the FAQ at  http://www.tux.org/lkml/
+> >>
+> >>
+> >--------------------------------------------------
+> >Darren Williams <dsw AT gelato.unsw.edu.au>
+> >Gelato@UNSW <www.gelato.unsw.edu.au>
+> >--------------------------------------------------
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> >
+>
+> --
+>     In the marketplace of "Real goods", capitalism is limited by safety
+>     regulations, consumer protection laws, and product liability.  In
+>     the computer industry, what protects consumers (other than vendor
+>     good will that seems to diminish inversely to their size)?
+>
+>
+>

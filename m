@@ -1,88 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130515AbRAaBqn>; Tue, 30 Jan 2001 20:46:43 -0500
+	id <S131230AbRAaBtd>; Tue, 30 Jan 2001 20:49:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131230AbRAaBqd>; Tue, 30 Jan 2001 20:46:33 -0500
-Received: from dns2.chaven.com ([207.238.162.18]:27298 "EHLO shell.chaven.com")
-	by vger.kernel.org with ESMTP id <S130515AbRAaBqW>;
-	Tue, 30 Jan 2001 20:46:22 -0500
-Message-ID: <033c01c08b27$5944a430$160912ac@stcostlnds2zxj>
-From: "List User" <lists@chaven.com>
-To: "Timur Tabi" <ttabi@interactivesi.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <FLRPM.A.TsC.j41d6@dinero.interactivesi.com>
-Subject: Re: Request: increase in PCI bus limit
-Date: Tue, 30 Jan 2001 19:44:23 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S131386AbRAaBtY>; Tue, 30 Jan 2001 20:49:24 -0500
+Received: from quechua.inka.de ([212.227.14.2]:10342 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S131230AbRAaBtQ>;
+	Tue, 30 Jan 2001 20:49:16 -0500
+From: Bernd Eckenfels <inka-user@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
+Message-Id: <E14NmOc-0001Tc-00@sites.inka.de>
+Date: Wed, 31 Jan 2001 02:49:18 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-He's probably sending it to the list the same reason why most in tech
-circles do.
-To cut down on the amount of work required.  Personally I would love to have
-all my custom changes put into a 'standard' distribution that way I wouldn't
-need
-to keep as many custom notes for x,y,z platforms or what-else.  Also for the
-fact that it gives something back (generally if I run into a situation there
-is a good
-chance that someone else will run into it as well, so if I can make _his_
-life
-easier if he doesn't have the same knowledge it's worth it).
+In article <20010131133123.A7875@metastasis.f00f.org> you wrote:
+> On Tue, Jan 30, 2001 at 02:17:57PM -0800, David S. Miller wrote:
 
-Steve
------ Original Message -----
-From: "Timur Tabi" <ttabi@interactivesi.com>
-To: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, January 30, 2001 18:36
-Subject: Re: Request: increase in PCI bus limit
+>     8.5MB/sec sounds like half-duplex 100baseT.
 
+> No; I'm 100% its  FD; HD gives 40k/sec TCP because of collisions and
+> such like.
 
-> ** Reply to message from Christopher Neufeld <neufeld@linuxcare.com> on
-Tue, 30
-> Jan 2001 16:08:32 -0800
->
->
-> > Would it be possible to bump it up to 128, or even
-> > 256, in later 2.4.* kernel releases?  That would allow this customer to
-> > work with an unpatched kernel, at the cost of an additional 3.5 kB of
-> > variables in the kernel.
->
-> I don't think that's going to happen.  If we did this for your obscure
-system,
-> then we'd have to do it for every obscure system, and before you know it,
-the
-> kernel is 200KB larger.
->
-> Besides, why is your client afraid of patched kernels?  It sounds like a
-very
-> odd request from someone with a linuxcare.com email address.  I would
-think that
-> you'd WANT to provide patched kernels so that the customer can keep paying
-you
-> (until they learn how to use a text editor, at which point they can patch
-the
-> kernel themselves!!!)
->
->
-> --
-> Timur Tabi - ttabi@interactivesi.com
-> Interactive Silicon - http://www.interactivesi.com
->
-> When replying to a mailing-list message, please direct the reply to the
-mailing list only.  Don't send another copy to me.
->
+>     Positive you are running at full duplex all the way to the
+>     netapp, and if so how many switches sit between you and this
+>     netapp?
+
+> It's FD all the way (we hardwire everything to 100-FD and never trust
+> auto-negotiate); I see no errors or such like anywhere.
+
+> There are ... <pause> ... 3 switches between four switches in
+> between, mostly linked via GE. I'm not sure if latency might be an
+> issue here, is it was critical I can imagine 10 km of glass might be
+> a problem but it's not _that_ far...
+
+>   --cw
+
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > Please read the FAQ at http://www.tux.org/lkml/
->
 
+
+
+> -------------------------------------------------------------------------------
+>    Achtung: diese Newsgruppe ist eine unidirektional gegatete Mailingliste.
+>      Antworten nur per Mail an die im Reply-To-Header angegebene Adresse.
+>                    Fragen zum Gateway -> newsmaster@inka.de.
+> -------------------------------------------------------------------------------
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

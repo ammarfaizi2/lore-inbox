@@ -1,62 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbUCCHZt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 02:25:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262407AbUCCHZt
+	id S262409AbUCCHud (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 02:50:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262411AbUCCHud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 02:25:49 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56725 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262406AbUCCHZr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 02:25:47 -0500
-To: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [CFT][PATCH] 2.6.4-rc1 remove x86 boot page tables
-References: <D36CE1FCEFD3524B81CA12C6FE5BCAB002FFE999@fmsmsx406.fm.intel.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 02 Mar 2004 23:47:41 -0700
-In-Reply-To: <D36CE1FCEFD3524B81CA12C6FE5BCAB002FFE999@fmsmsx406.fm.intel.com>
-Message-ID: <m18yii4eb6.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Wed, 3 Mar 2004 02:50:33 -0500
+Received: from web20909.mail.yahoo.com ([216.136.226.231]:45969 "HELO
+	web20909.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262409AbUCCHu1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 02:50:27 -0500
+Message-ID: <20040303075026.2822.qmail@web20909.mail.yahoo.com>
+Date: Tue, 2 Mar 2004 23:50:26 -0800 (PST)
+From: Anonymous <anon78344@yahoo.com>
+Subject: Re: init dies after reboot
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.53.0403021145150.489@chaos>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Tolentino, Matthew E" <matthew.e.tolentino@intel.com> writes:
 
-> > I have rewritten and compiled tested the boot_ioremap code but I don't
-> > have a configuration to test it. This effects the EFI code and the
-> > numa srat code.   It might be worth replacing boot_ioremap with __va()
-> > to reduce the amount of error checking necessary.
+Thanks for answer, but the thing with core is
+imposible as I said that there is no /proc/1 dir :(
+
+--- "Richard B. Johnson" <root@chaos.analogic.com>
+wrote:
+> On Tue, 2 Mar 2004, Anonymous wrote:
 > 
-> I just blindly applied this patch and tried it on an x86 EFI system
-> with no luck.  It's not mapping correctly for some reason.  I'll look
-> at the problem closer in a bit.
+> > Hello
+> >
+> > I encountered a strange problem, and i'm not sure
+> that
+> > it originates or not in the kernel.
+> > the probl. is that on many slack boxes init dies
+> after
+> > some time, but the OS is still up and running.
+> > if I 'ps aux' the machine,no init, and /proc/1
+> doesn't
+> > exist.
+> > although, `lsof | grep init` shows:init          1
+> > root  cwd    DIR        8,3        472         2 /
+> > init          1   root  rtd    DIR        8,3
+> > 472         2 /
+> > init          1   root  txt    REG        8,3
+> > 468916     15607 /sbin/init
+> > init          1   root    0r   CHR        1,3
+> >        5659 /dev/null
+> > init          1   root    1u   CHR        1,3
+> >        5659 /dev/null
+> > init          1   root    2u   CHR        1,3
+> >        5659 /dev/null
+> > init          1   root   10u  FIFO        8,3
+> >      137774 /dev/initctl
+> >
+> >
+> > Any kind of ideea?
+> >
+> > Thanks,
+> > Uwe Bower
+> 
+> The kernel will never send a signal 9 to init.
+> However, it can
+> send many other signals. If the signal handler in
+> init got
+> corrupt from a buffer overrun, bad memory, etc.,
+> it's quite
+> possible for init to die. When it dies, it would
+> usually
+> die as a result of a seg-fault. You can observe
+> /proc/1/cwd to
+> see where init lives. There may be a core-file in
+> that directory.
+> The core-file might be able to give you a hint.
+> Also, somebody
+> who has su privs can `cp /dev/random /dev/initctl`
+> with some
+> interesting results.
+> 
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.4.24 on an i686 machine
+> (797.90 BogoMips).
+>             Note 96.31% of all statistics are
+> fiction.
+> 
+> 
 
 
-I know what the worst of the problem is.  efi_stub.S assumes there are
-identity mapped pages, which my patch removes.
-
-However there is at least this chunk of code:
-	/*
-	 * Show what we know for posterity
-	 */
-	c16 = (efi_char16_t *) boot_ioremap(efi.systab->fw_vendor, 2);
-	if (c16) {
-		for (i = 0; i < sizeof(vendor) && *c16; ++i)
-			vendor[i] = *c16++;
-		vendor[i] = '\0';
-	} else
-		printk(KERN_ERR PFX "Could not map the firmware vendor!\n");
-
-	printk(KERN_INFO PFX "EFI v%u.%.02u by %s \n",
-	       efi.systab->hdr.revision >> 16,
-	       efi.systab->hdr.revision & 0xffff, vendor);
-
-That is broken anyway.  boot_ioremap only supports one mapping at
-a time and you are using the efi.systab mapping after removing it.
-
-And the it is coded efi_enter_virtual_mode is not even optional.  Ugh.
-
-Eric
+__________________________________
+Do you Yahoo!?
+Yahoo! Search - Find what you’re looking for faster
+http://search.yahoo.com

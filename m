@@ -1,96 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261569AbUCDJ05 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 04:26:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbUCDJ05
+	id S261157AbUCDJ3T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 04:29:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbUCDJ3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 04:26:57 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:58083 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S261569AbUCDJ0y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 04:26:54 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Added KGDB documentation 
-Date: Thu, 4 Mar 2004 14:56:43 +0530
-User-Agent: KMail/1.5
-Cc: Tom Rini <trini@kernel.crashing.org>, Pavel Machek <pavel@ucw.cz>,
-       George Anzinger <george@mvista.com>
+	Thu, 4 Mar 2004 04:29:19 -0500
+Received: from kettenhemdhuehner.de ([217.160.131.79]:31155 "EHLO
+	p15104972.pureserver.info") by vger.kernel.org with ESMTP
+	id S261157AbUCDJ3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 04:29:17 -0500
+From: Kristian =?iso-8859-15?q?K=F6hntopp?= <kris@koehntopp.de>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+Subject: Re: Desktop Filesystem Benchmarks in 2.6.3
+Date: Thu, 4 Mar 2004 10:28:07 +0100
+User-Agent: KMail/1.5.4
+Cc: David Weinehall <david@southpole.se>, Andrew Ho <andrewho@animezone.org>,
+       Dax Kelson <dax@gurulabs.com>, Peter Nelson <pnelson@andrew.cmu.edu>,
+       Hans Reiser <reiser@namesys.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
+       jfs-discussion@www-124.southbury.usf.ibm.com, reiserfs-list@namesys.com,
+       linux-xfs@oss.sgi.com
+References: <4044119D.6050502@andrew.cmu.edu> <200403031059.26483.robin.rosenberg.lists@dewire.com> <1078309141.863.3.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1078309141.863.3.camel@teapot.felipe-alfaro.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200403041456.43267.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
+Message-Id: <200403041028.07235.kris@koehntopp.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wednesday 03 March 2004 11:19, Felipe Alfaro Solana wrote:
+> The problem is that I couldn't save anything: the XFS volume refused to
+> mount and the XFS recovery tools refused to fix anything. It was just a
+> single disk bad block. For example in ext2/3 critical parts are
+> replicated several times over the volume, so there's minimal chance of
+> being unable to mount the volume and recover important files.
 
-I have added some documentation to core-lite.patch. It's as follows. 
-Comments/feedback?
-Thanks.
--- 
-Amit Kale
-EmSysSoft (http://www.emsyssoft.com)
-KGDB: Linux Kernel Source Level Debugger (http://kgdb.sourceforge.net)
+That is a misconception. What is being replicated multiple times in ext2 is 
+the superblock and the block group descriptors. But these are not really 
+needed for recovery (as long as they have default values, which is the case 
+in the vast majority of installations).
 
-Documentation/kgdb.txt
-==================
-KGDB Linux kernel source level debugger
+What is not being replicated is the block allocation bitmap, inode allocation 
+bitmap and the inodes themselves.
 
-Amit S. Kale <amitkale@emsyssoft.com>
-Last updated March 2004.
+By running "mke2fs -S" on a ext2 file system, you will rewrite all 
+superblocks, all block group descriptors, and all allocation bitmaps, but 
+leave the inodes themselves intact. You can recreate the filesystem from that 
+with e2fsck, proving that the information from the replicated parts of the 
+file systems is not really necessary. All that e2fsck needs to recover the 
+system is the information from the inodes. If they are damaged (and they are 
+not replicated), the files having inodes in damaged blocks cannot be 
+recovered.
 
-Introduction:
-kgdb is a source level debugger for linux kernel. It is used along with gdb to
-debug a linux kernel. Kernel developers can debug a kernel similar to
-application programs with use of kgdb. It makes it possible to place
-breakpoints in kernel code, step through the code and observe variables.
-
-Two machines are required for using kgdb. One of these machines is a
-development machine and the other is a test machine. The machines are
-connected through a serial line, a null-modem cable which connects their
-serial ports. The kernel to be debugged runs on the test machine. gdb runs on
-the development machine. The serial line is used by gdb to communicate to the
-kernel being debugged.
-
-This version of kgdb is a lite version. It is available on i386 platform uses
-a serial line for communicating to gdb. Full kgdb containing more features and
-support more architecture is available along with plenty of documentation at
-http://kgdb.sourceforge.net/
-
-Compiling a kernel:
-Enable Kernel hacking -> Kernel Debugging -> KGDB: kernel debugging with
-remote gdb
-
-Only generic serial port (8250) is supported in the lite version. Configure
-8250 options.
-
-Booting the kernel:
-Kernel command line option "kgdbwait" makes kgdb wait for gdb connection
-during booting of a kernel. If you have configured simple serial port, the
-port number and speed can be overriden on command line by using option
-"kgdb8250=portnumber,speed", where port numbers are 0-3 for COM1 to COM4
-respectively and supported speeds are 9600, 19200, 38400, 57600, 115200.
-Example: kgdbwait kgdb8250=0,115200
-
-Connecting gdb:
-If you have used "kgdbwait", kgdb prints a message "Waiting for connection
-from remote gdb..." on the console and waits for connection from gdb. At this
-point you connect gdb to kgdb.
-Example: 
-   % gdb ./vmlinux
-   (gdb) set remotebaud 115200
-   (gdb) target remote /dev/ttyS0
-
-Once connected, you can debug a kernel the way you would debug an application
-program.
+Kristian
 

@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268360AbUH2XBw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268365AbUH2XC5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268360AbUH2XBw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 19:01:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268365AbUH2XBw
+	id S268365AbUH2XC5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 19:02:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268369AbUH2XC5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 19:01:52 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:37593 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S268360AbUH2XAV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 19:00:21 -0400
-Subject: Re: SMP Panic caused by [PATCH] sched: consolidate sched domains
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Nathan Lynch <nathanl@austin.ibm.com>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Matthew Dobson <colpatch@us.ibm.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1093801714.29741.15.camel@booger>
-References: <1093786747.1708.8.camel@mulgrave>
-	<200408290948.06473.jbarnes@engr.sgi.com>
-	<1093798704.10973.15.camel@mulgrave>
-	<200408291007.50553.jbarnes@engr.sgi.com>
-	<1093800241.1708.25.camel@mulgrave>  <1093801714.29741.15.camel@booger>
-Content-Type: text/plain
+	Sun, 29 Aug 2004 19:02:57 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21735 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268365AbUH2XCe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 19:02:34 -0400
+Message-ID: <41326079.9090402@pobox.com>
+Date: Sun, 29 Aug 2004 19:02:17 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Francois Romieu <romieu@fr.zoreil.com>
+CC: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH,RFT] 8139cp TSO support
+References: <20040829212205.GA2864@havoc.gtf.org> <20040829222831.GA9496@electric-eye.fr.zoreil.com>
+In-Reply-To: <20040829222831.GA9496@electric-eye.fr.zoreil.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 29 Aug 2004 18:59:49 -0400
-Message-Id: <1093820392.1708.73.camel@mulgrave>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-08-29 at 13:48, Nathan Lynch wrote:
-> I've got a patch which reinitializes sched domains at cpu hotplug time. 
-> We need something like this on ppc64 for partitioned systems (we run
-> into the same issue when adding a cpu which wasn't present at boot).  I
-> had been waiting to post it until some cpu hotplug issues with preempt
-> were solved, but it seems it would help the case of hotplugging
-> secondary cpus at boot, so I'll submit that soon.
+Francois Romieu wrote:
+> Jeff Garzik <jgarzik@pobox.com> :
+> [...]
+> 
+>>Also, the r8169 implementation should be similar, if someone (Francois?)
+>>wants to tackle it.
+> 
+> 
+> I'll copy and test it tomorrow on r8169 if nobody beats me.
+> 
+> On a related note, 8139cp probably wants something like the patch below for
+> the usual SG handling (on top of 2.6.9-rc1 + -mm1 + TSO patch):
+> 
+> - suspicious length in pci_unmap_single;
+> - wait for the last frag before freeing the relevant skb;
+> - no need to crash when facing some unexpected csum combination.
 
-Well, but the only time you should need to alter a priori knowledge like
-this is if you're actually altering the NUMA topology, isn't it?  Simply
-bringing up a CPU in a known numa system shouldn't need to alter
-scheduling domain information on CPU hotplug because the cpu
-automatically becomes part of an existing domain (where it was
-originally accounted for as missing).
+Looks OK except for
 
-However, if you hotplug a numa node, then you're adding to the
-scheduling domain and would thus need to initialise the new node and its
-CPUs.
 
-James
+> diff -puN drivers/net/8139cp.c~8139cp-010 drivers/net/8139cp.c
+> --- linux-2.6.9-rc1/drivers/net/8139cp.c~8139cp-010	2004-08-29 23:47:07.000000000 +0200
+> +++ linux-2.6.9-rc1-fr/drivers/net/8139cp.c	2004-08-30 00:16:13.000000000 +0200
+> @@ -807,7 +807,6 @@ static int cp_start_xmit (struct sk_buff
+>  
+>  		cp->tx_skb[entry].skb = skb;
+>  		cp->tx_skb[entry].mapping = mapping;
+> -		cp->tx_skb[entry].frag = 0;
+>  		entry = NEXT_TX(entry);
+>  	} else {
+>  		struct cp_desc *txd;
 
+You definitely want to set .len on the no-frags path...
 

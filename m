@@ -1,52 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129481AbQKMX6e>; Mon, 13 Nov 2000 18:58:34 -0500
+	id <S130360AbQKMX6u>; Mon, 13 Nov 2000 18:58:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130251AbQKMX6Y>; Mon, 13 Nov 2000 18:58:24 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:60165 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S129481AbQKMX6O>; Mon, 13 Nov 2000 18:58:14 -0500
-Date: Tue, 14 Nov 2000 00:19:20 +0100
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Roger Larsson <roger@norran.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 Status/TODO page (test11-pre3)
-Message-ID: <20001114001918.C12931@arthur.ubicom.tudelft.nl>
-In-Reply-To: <200011121939.eACJd9D01319@trampoline.thunk.org> <20001112233144.L4824@arthur.ubicom.tudelft.nl> <00111323580000.01856@dox>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <00111323580000.01856@dox>; from roger@norran.net on Mon, Nov 13, 2000 at 11:58:00PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S130350AbQKMX6f>; Mon, 13 Nov 2000 18:58:35 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:10244 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S130024AbQKMX6P>; Mon, 13 Nov 2000 18:58:15 -0500
+Date: Mon, 13 Nov 2000 18:28:08 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: UDMA66/100 errors...
+Message-ID: <Pine.LNX.4.21.0011131822090.793-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2000 by Mike A. Harris - All rights reserved
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 13, 2000 at 11:58:00PM +0100, Roger Larsson wrote:
-> On Sunday 12 November 2000 23:31, Erik Mouw wrote:
-> > I can still hang the system with XMMS (1.0.1) using real-time priority.
-> > The system doesn't die, but it is completely unresponsive. There is no
-> > sound, but after the MP3 file is played, the system works again. I can
-> > reproduce this behaviour with usb-uhci and uhci-alt on 2.4.0-test10.
-> > I haven't test test11-pre3 yet, but the changes don't look too big that
-> > the "bug" has been fixed.
-> 
-> Does it use non blocking IO?
-> In such case you might have created an infinite loop at high priority
-> resulting in a busylock of all other processes.
+Kernel == 2.2.17 + ReiserFS + IDE patches
 
-Possible, I didn't look at the source. It would explain the behaviour,
-but why isn't there any sound?
+I'm getting the following error when I try and enable UDMA on my
+new IBM Deskstar UDMA100 drive:
 
 
-Erik
+/dev/hdb:
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+ Model=IBM-DTLA-307030, FwRev=TX4OA50C, SerialNo=YKDYKGF1437
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
+ BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=60036480
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4
+ DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 udma5
+
+
+1 root@asdf:/stuff# hdparm -c1m16k1d1X67 /dev/hdb
+
+/dev/hdb:
+ setting 32-bit I/O support flag to 1
+ setting multcount to 16
+ setting using_dma to 1 (on)
+ setting keep_settings to 1 (on)
+ setting xfermode to 67 (UltraDMA mode3)
+ide0: Speed warnings UDMA 3/4/5 is not functional.
+ HDIO_DRIVE_CMD(setxfermode) failed: Bad address
+ multcount    = 16 (on)
+ I/O support  =  1 (32-bit)
+ using_dma    =  1 (on)
+ keepsettings =  1 (on)
+
+1 root@asdf:/stuff# lspci
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3] (rev 04)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3 AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C596 ISA [Apollo PRO] (rev 23)
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 10)
+00:07.3 Host bridge: VIA Technologies, Inc.: Unknown device 3050 (rev 30)
+00:11.0 Multimedia video controller: 3Dfx Interactive, Inc. Voodoo (rev 02)
+00:12.0 VGA compatible controller: Cirrus Logic GD 5446
+00:13.0 Ethernet controller: Winbond Electronics Corp W89C940
+
+
+I'm using a standard 40pin cable measured at just less than 18 inches.
+/dev/hda1 is a Quantum Fireball EL 7.6G.  The setup works at UDMA66
+aparently no problem, however if I try to enable UDMA mode 3/4/5 I get
+the above error.  Must I use the 80 conductor cable?  Is it safe to use
+the 80 pin cable and have both drives plugged into it?  Here is the
+stats on the Quantum:
+
+/dev/hda:
+
+ Model=QUANTUM FIREBALL EL7.6A, FwRev=A08.1100, SerialNo=347816714615
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=15907/15/63, TrkSize=32256, SectSize=21298, ECCbytes=4
+ BuffType=DualPortCache, BuffSize=418kB, MaxMultSect=16, MultSect=16
+ CurCHS=15907/15/63, CurSects=1597178085, LBA=yes, LBAsects=15032115
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4
+ DMA modes: sdma0 sdma1 sdma2 mdma0 mdma1 mdma2 udma0 udma1 *udma2
+
+
+
+
+
+
+
+----------------------------------------------------------------------
+      Mike A. Harris  -  Linux advocate  -  Open source advocate
+          This message is copyright 2000, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
+
+#[Mike A. Harris bash tip #1 - separate history files per virtual console]
+# Put the following at the bottom of your ~/.bash_profile
+[ ! -d ~/.bash_histdir ] && mkdir ~/.bash_histdir
+tty |grep "^/dev/tty[0-9]" >& /dev/null && \
+        export HISTFILE=~/.bash_histdir/.$(tty | sed -e 's/.*\///')
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

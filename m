@@ -1,48 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbUHQLrT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbUHQLxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbUHQLrT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 07:47:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbUHQLrT
+	id S261711AbUHQLxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 07:53:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263972AbUHQLxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 07:47:19 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:40157 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S261602AbUHQLrS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 07:47:18 -0400
-From: Andreas Messer <andreas.messer@gmx.de>
-Reply-To: andreas.messer@gmx.de
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: 2.6.8.1 Mis-detect CRDW as CDROM
-Date: Tue, 17 Aug 2004 13:47:01 +0200
-User-Agent: KMail/1.6.2
-References: <200408171114.i7HBExCu028332@burner.fokus.fraunhofer.de>
-In-Reply-To: <200408171114.i7HBExCu028332@burner.fokus.fraunhofer.de>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Tue, 17 Aug 2004 07:53:09 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:52485 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261711AbUHQLxF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 07:53:05 -0400
+Date: Tue, 17 Aug 2004 12:53:03 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Warren Togami <wtogami@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Markus.Lidel@shadowconnect.com
+Subject: Re: Merge I2O patches from -mm
+Message-ID: <20040817125303.A21238@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Warren Togami <wtogami@redhat.com>, linux-kernel@vger.kernel.org,
+	Markus.Lidel@shadowconnect.com
+References: <411F37CC.3020909@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408171347.01420.satura@proton>
-X-ID: G0bkVkZTYeXclMi5b4rx1BxXYggRY7aObLmcmr8oj2kknQULTnMOwR@t-dialin.net
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <411F37CC.3020909@redhat.com>; from wtogami@redhat.com on Sun, Aug 15, 2004 at 12:15:40AM -1000
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling wrote:
-> Judging from the number of reports, I would guess that the Linux kernel is
-> much more insecure than cdrecord.
->
-> What some people did (chmod on /dev/ entries) was definitely always a
-> bigger security risk than running cdrecord suid root.
+On Sun, Aug 15, 2004 at 12:15:40AM -1000, Warren Togami wrote:
+> This is a request to please merge the I2O patches currently in Andrew 
+> Morton's -mm tree into the mainline kernel.  They resolve all known 
+> reported issues with I2O RAID devices.  If they can be included soon, it 
+> would be possible to implement and test direct installation before FC3 
+> Test2 freeze.
 
-I, dont think, that running cdrecord suid root is a risk, but i think, that 
-there are much more cd-recording applications, not based on cdrecord, which 
-may be insecure. Or perhaps someone will write a little programm, wich will 
-override the firmware.
-I think its a good way to filter the commands within the kernel. Its a 
-additional security-barrage. 
+I've looked over it and except for the i2o_scsi driver it looks sane.
 
-Andreas
--- 
-gnuPG keyid: 0xE94F63B7 fingerprint: D189 D5E3 FF4B 7E24 E49D 7638 07C5 924C 
-E94F 63B7
+Cosmetic fixups I'd like to see done befoee merging to mainline:
+
+ - run the code through Lindent
+ - stop the needless file renaming.  Splitting up i2o_core.c into multiple
+   files is fine, but please don' rename the other drivers for the sake of
+   it
+
+Now to i2o_scsi:
+
+ - the logic of "demand-allocating" Scsi_Hosts looks rather bad to me,
+   life would be much simpler with a Scsi_Host per i2o device.
+ - the slave_configure/i2o_scsi_probe_dev logical is quite horriblebut
+   fortunately with the suggestion above it would just go away
+ - the global list of hosts and wlaking it on exit is a very bad design,
+   that's something the ->remove callback should do on per-device basis
+ - the completely lack of SCSI EH in this driver scares me, does the firmware
+   really handle all EH?
+
+cosemtic stuff in here:
+
+ - <asm/*.h> after <linux/*.h>.
+ - please include scsi headers using <scsi/*.h> (after linux and asm headers)
+ - please use the standard pr_Debug instead of DBG
+ - please reorder the functions a little so you don't need forward-declarations
+

@@ -1,68 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267561AbUHEFri@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267563AbUHEFtB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267561AbUHEFri (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 01:47:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267557AbUHEFrh
+	id S267563AbUHEFtB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 01:49:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267562AbUHEFtB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 01:47:37 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:3473 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S267561AbUHEFrY (ORCPT
+	Thu, 5 Aug 2004 01:49:01 -0400
+Received: from fw.osdl.org ([65.172.181.6]:15579 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267555AbUHEFso (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 01:47:24 -0400
-Date: Thu, 5 Aug 2004 07:47:12 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.enemy.org>
-Cc: linux-kernel@vger.kernel.org, schilling@fokus.fraunhofer.de
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <20040805054712.GF10376@suse.de>
-References: <20040804125818.GM10340@suse.de> <200408050056.i750ujfQ010136@wildsau.enemy.org>
+	Thu, 5 Aug 2004 01:48:44 -0400
+Date: Wed, 4 Aug 2004 22:47:09 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Tupshin Harper1 <tupshin@tupshin.com>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: /dev/hdl not showing up because of
+ fix-ide-probe-double-detection patch
+Message-Id: <20040804224709.3c9be248.akpm@osdl.org>
+In-Reply-To: <4111651E.1040406@tupshin.com>
+References: <411013F7.7080800@tupshin.com>
+	<4111651E.1040406@tupshin.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408050056.i750ujfQ010136@wildsau.enemy.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05 2004, H.Rosmanith (Kernel Mailing List) wrote:
-> > On Wed, Aug 04 2004, Jens Axboe wrote:
-> > > > + * Sat Jun 12 12:48:12 CEST 2004 herp - Herbert Rosmanith
-> > > > + *     Force ATAPI driver if dev= starts with /dev/hd and device
-> > > > + *     is present in /proc/ide/hdX
-> > > > + *
-> > > 
-> > > That's an extremely bad idea, you want to force ATA driver in either
-> > > case.
-> > 
-> > Which, happily, is what already happens and why it works fine when you
+Tupshin Harper1 <tupshin@tupshin.com> wrote:
+>
+> Tupshin Harper1 wrote:
 > 
-> okay - my last email in this matter to LKML, but: it seems to only work
-> fine if you use ide-scsi and configure it acordingly. on our system, where
-> I have disabled scsi completely (ide-scsi doesnt work at all for certain
-> tasks, and beside from that, I need scsi), cdrecord/cdrtools will
-> terminate with "Cannot open /dev/hdX. Cannot open SCSI driver".
+> > I have an x86 setup with a large(9) number of ide hard drives. With 
+> > 2.6.8-rc2, all of them show up (as a,b,d,e,f,g,h,i,j,k, and l), but on 
+> > 2.6.8-rc2-mm1, the last one (hdl) does not show up, even though it's a 
+> > slave on the same controller as hdk. Everything about the config is 
+> > identical between the two. Is there some default limit or other 
+> > restriction in the current mm kernels that's preventing that drive 
+> > from showing up? I haven't tried any other recent mm kernels, so I 
+> > don't know when this was introduced.
+> >
+> > -Tupshin
 > 
-> this is the reason why the patch forces the ata (atapi?) driver. no
-> SCSI driver or configuring of ide-scsi required.
+> Well, I found the source of the problem. Dmesg gives a "ignoring 
+> undecoded slave" message, which is coming from the 
+> fix-ide-probe-double-detection patch.
 
-Maybe newer version broke then. Until very recently, cdrecord worked
-just fine as-is and used SG_IO access method when you used open by
-device name. Which was just the way we wanted it.
+Ah, thanks for working that out.
 
-If that doesn't work now, I suggest you take it up with Joerg. It's a
-problem with his program.
+Did you know that Cc: stands for "copy culprit"?
 
-> > just do -dev=/dev/hdX. What should be removed is the warning that
-> > cdrecord spits out when you do this, and the whole ATAPI thing
-> > should just mirror ATA and scsi-linux-ata be killed completely.
-> > 
-> > So I suggest you do that instead and send it to Joerg,
-> > cdrecord/cdrtool
+> Both /dev/hdk and /dev/hdl are the same model of hard drive, and 
+> unfortunately, they both report that they are Model 
+> M0000000000000000000, which triggers the double detection removal.
 > 
-> well, sigh .... been there, done that, but emails to Joerg seem to
-> have a long RTT. therefore, LKML. sorry for the inconvenience :->
-
-Is there no cdrecord list? lkml surely isn't appropriate.
-
--- 
-Jens Axboe
-
+> Does anybody have a suggestion (besides maintaining my own kernel 
+> without this patch)? Is the serial number settable? Is there a boot 
+> param I can use?
+> 
+> Also, what is in /proc/ide/hd?/identity besides serial number. The two 
+> drives have very similar identity files, but they are slightly 
+> different. Could that additional info be used to check for duplicates?
+> 
+> -Tupshin
+> 
+> ---snippet from dmesg---
+> PDC20276: IDE controller at PCI slot 0000:00:0c.0
+> ACPI: PCI interrupt 0000:00:0c.0[A] -> GSI 19 (level, low) -> IRQ 19
+> PDC20276: chipset revision 1
+> PDC20276: 100% native mode on irq 19
+>     ide4: BM-DMA at 0xdc00-0xdc07, BIOS settings: hdi:pio, hdj:pio
+>     ide5: BM-DMA at 0xdc08-0xdc0f, BIOS settings: hdk:pio, hdl:pio
+> hdi: SAMSUNG SV8004H, ATA DISK drive
+> hdj: Maxtor 6Y250P0, ATA DISK drive
+> ide4 at 0xec00-0xec07,0xe802 on irq 19
+> hdk: Maxtor 4R120L0, ATA DISK drive
+> hdl: Maxtor 4R120L0, ATA DISK drive
+> ide-probe: ignoring undecoded slave
+> ide5 at 0xe400-0xe407,0xe002 on irq 19
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

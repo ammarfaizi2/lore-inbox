@@ -1,112 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133040AbRDUXQ6>; Sat, 21 Apr 2001 19:16:58 -0400
+	id <S133025AbRDUXTI>; Sat, 21 Apr 2001 19:19:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133025AbRDUXQv>; Sat, 21 Apr 2001 19:16:51 -0400
-Received: from fe050.worldonline.dk ([212.54.64.206]:26121 "HELO
-	fe050.worldonline.dk") by vger.kernel.org with SMTP
-	id <S133040AbRDUXQc>; Sat, 21 Apr 2001 19:16:32 -0400
-Message-ID: <3AE2328A.10703@eisenstein.dk>
-Date: Sun, 22 Apr 2001 03:23:22 +0200
-From: Jesper Juhl <juhl@eisenstein.dk>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-mosix i586; en-US; m18) Gecko/20010131 Netscape6/6.01
-X-Accept-Language: en, da
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] minor correctness fix to the Documentation/rtc.txt example program.
-Content-Type: multipart/mixed;
- boundary="------------060903050608020008090107"
+	id <S133041AbRDUXS6>; Sat, 21 Apr 2001 19:18:58 -0400
+Received: from brimstone.ucr.edu ([138.23.89.35]:62214 "EHLO brimstone.ucr.edu")
+	by vger.kernel.org with ESMTP id <S133025AbRDUXSv>;
+	Sat, 21 Apr 2001 19:18:51 -0400
+Date: Sat, 21 Apr 2001 16:18:51 -0700
+From: ruschein@brimstone.ucr.edu
+To: linux-kernel@vger.kernel.org
+Subject: Linker Error With Kernel 2.4.4pre6 and GCC 2.95.3 (Debian)
+Message-ID: <20010421161851.A24134@brimstone.ucr.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060903050608020008090107
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Here is what I get under a fairly recent Debian woody:
 
+/usr/src/kernel/linux-2.4.4-pre6/lib/lib.a(rwsem.o): In function `__rwsem_do_wake':
+rwsem.o(.text+0x2e): undefined reference to `__builtin_expect'
+rwsem.o(.text+0x6f): undefined reference to `__builtin_expect'
+make: *** [vmlinux] Error 1
+bender:/usr/src/kernel/linux-2.4.4-pre6 [root]# gcc --version
+2.95.3
 
--------- Original Message --------
-Subject: [PATCH] minor correctness fix to the Documentation/rtc.txt 
-example program.
-Date: Sun, 22 Apr 2001 03:06:04 +0200
-From: Jesper Juhl <juhl@eisenstein.dk>
-To: p_gortmaker@yahoo.com
-CC: linux-net@vger.kernel.org
+-- 
+Johannes
+--
+Dr. Johannes Ruscheinski
+Infomine Lead Programmer            ***              LINUX,             ***
+EMail:    ruschein@infomine.ucr.edu ***                                 ***
+Location: science library, room 218 *** The Choice Of A GNU Generation! ***
+Phone:    (909) 787-2290
 
-Hi,
+If you want to send me any documents please read
+http://www.infradead.org/fileexchange.html first.  Thanks!
 
-When compiling the example program from Documentation/rtc.txt there is a
-tiny compiler warning about main() not returning int. That is no big
-deal, but for the sake of correctness (and since main actually does
-return a value on error) I have made a small patch to fix it (see below,
-patch also attached as 'rtc.txt-patch').
+ /"\
+ \ /     ASCII RIBBON CAMPAIGN
+  X        AGAINST HTML MAIL
+ / \
 
-The patch is pretty self explaining. It changes the return type of main
-to int and adds a call to exit(0) at the end of main(), so now we have
-killed the warning and return a meaningfull value on sucessfull completion.
-
-The patch is against vanilla 2.4.3 and applies cleanly and the program
-in rtc.txt compiles and runs without a problem after applying the patch.
-
-I hope you like the patch and will apply it (comments and criticism is
-welcome) :-)
-
-
------[ Start of patch ]-----
-
---- linux-2.4.3-vanilla/Documentation/rtc.txt   Sun Apr 22 02:33:10 2001
-+++ linux-2.4.3/Documentation/rtc.txt   Sun Apr 22 02:39:55 2001
-@@ -89,7 +89,7 @@
-   #include <unistd.h>
-   #include <errno.h>
-
--void main(void) {
-+int main(void) {
-
-   int i, fd, retval, irqcount = 0;
-   unsigned long tmp, data;
-@@ -277,5 +277,6 @@
- 
-irqcount);
-
-   close(fd);
-+exit(0);
-
-   } /* end main */
-
------[ End of patch ]-----
-
-
-Best regards,
-Jesper Juhl - juhl@eisenstein.dk
-
-
---------------060903050608020008090107
-Content-Type: text/plain;
- name="rtc.txt-patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="rtc.txt-patch"
-
---- linux-2.4.3-vanilla/Documentation/rtc.txt	Sun Apr 22 02:33:10 2001
-+++ linux-2.4.3/Documentation/rtc.txt	Sun Apr 22 02:39:55 2001
-@@ -89,7 +89,7 @@
- #include <unistd.h>
- #include <errno.h>
- 
--void main(void) {
-+int main(void) {
- 
- int i, fd, retval, irqcount = 0;
- unsigned long tmp, data;
-@@ -277,5 +277,6 @@
- 								 irqcount);
- 
- close(fd);
-+exit(0);
- 
- } /* end main */
-
-
---------------060903050608020008090107--
-
+"Sanity's just a one trick pony anyway.  You only get one trick --
+ rational thinking -- but when you're good and crazy, the sky's the limit!"
+ -- The Tick"

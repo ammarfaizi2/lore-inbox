@@ -1,25 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264084AbRFKLem>; Mon, 11 Jun 2001 07:34:42 -0400
+	id <S264088AbRFKLiM>; Mon, 11 Jun 2001 07:38:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264087AbRFKLec>; Mon, 11 Jun 2001 07:34:32 -0400
-Received: from [193.81.166.111] ([193.81.166.111]:37629 "EHLO
-	tcint1ntsrv.topcall.co.at") by vger.kernel.org with ESMTP
-	id <S264084AbRFKLeU>; Mon, 11 Jun 2001 07:34:20 -0400
-Message-ID: <41EA756DBC9FD0118CFC0020AFDB5C5A188DE7@tcint1ntsrv>
-From: Zehetbauer Thomas <TZ@link.topcall.co.at>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: IBM PPC 405 series little endian?
-Date: Mon, 11 Jun 2001 13:34:21 +0200
-X-Priority: 3
+	id <S264089AbRFKLiC>; Mon, 11 Jun 2001 07:38:02 -0400
+Received: from HSE-MTL-ppp72834.qc.sympatico.ca ([64.229.202.135]:8076 "HELO
+	oscar.casa.dyndns.org") by vger.kernel.org with SMTP
+	id <S264088AbRFKLht>; Mon, 11 Jun 2001 07:37:49 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Jonathan Morton <chromi@cyberspace.org>, Ed Tomlinson <tomlins@cam.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: what is using memory?
+Date: Mon, 11 Jun 2001 07:37:46 -0400
+X-Mailer: KMail [version 1.2]
+Cc: linux-mm@kvack.org
+In-Reply-To: <l03130300b74a2f8d4db6@[192.168.239.105]>
+In-Reply-To: <l03130300b74a2f8d4db6@[192.168.239.105]>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.0.1458.49)
-Content-Type: text/plain
+Message-Id: <01061107374601.06951@oscar>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has someone experimented with running linux in little-endian mode on IBM
-PowerPC 405 (Walnut) yet?
+On Monday 11 June 2001 04:20, Jonathan Morton wrote:
+> >My box has
+> >
+> >320280K
+> >
+> >from proc/meminfo
+> >
+> > 17140	buffer
+> >123696	cache
+> > 32303	free
+> >
+> >leaving unaccounted
+> >
+> >123627K
+>
+> This is your processes' memory, the inode and dentry caches, and possibly
+> some extra kernel memory which may be allocated after boot time.  It is
+> *very* much accounted for.
 
-TIA
-Tom
+No its not.  For instance the slab caches encompass the inode and dentry
+caches.  Point I was/am tring to make is not that this memory is lost or
+not need, but that is it _not_ accounted.  ie. There is not way to tell
+what is using it, hense we cannot see leaks or places that could be 
+optimized.
+
+I have attempted to count all memory I could.  The 123M is what is left in
+the kernel overhead bucket...
+
+Ed Tomlinson

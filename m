@@ -1,64 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbULAP7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbULAQBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261289AbULAP7r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 10:59:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbULAP7r
+	id S261290AbULAQBV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 11:01:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbULAQBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 10:59:47 -0500
-Received: from motgate8.mot.com ([129.188.136.8]:12944 "EHLO motgate8.mot.com")
-	by vger.kernel.org with ESMTP id S261289AbULAP7j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 10:59:39 -0500
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Transfer-Encoding: 7bit
-Message-Id: <01D8FD1F-43B2-11D9-9FBC-000393DBC2E8@freescale.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-From: Kumar Gala <kumar.gala@freescale.com>
-Subject: platform device / driver model ?
-Date: Wed, 1 Dec 2004 09:59:39 -0600
-X-Mailer: Apple Mail (2.619)
+	Wed, 1 Dec 2004 11:01:21 -0500
+Received: from zamok.crans.org ([138.231.136.6]:37331 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S261290AbULAQBC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 11:01:02 -0500
+To: linux-os@analogic.com
+Cc: John Que <qwejohn@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: intird.img file missing - cannot boot.
+References: <BAY14-F2141AE33478CA464C1B3C7AFBF0@phx.gbl>
+	<Pine.LNX.4.61.0412011031460.4358@chaos.analogic.com>
+From: Mathieu Segaud <matt@minas-morgul.org>
+Date: Wed, 01 Dec 2004 17:01:12 +0100
+In-Reply-To: <Pine.LNX.4.61.0412011031460.4358@chaos.analogic.com>
+	(linux-os@chaos.analogic.com's message of "Wed, 1 Dec 2004 10:38:04
+	-0500 (EST)")
+Message-ID: <87vfbmvwhj.fsf@barad-dur.crans.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm working on moving the PPC 85xx port to use the new driver model.  
-The 85xx family is a PowerPC SoC (core + various peripherals on a 
-single chip).  An example of a chip would be the MPC8540.  The MPC8540 
-has an e500 PPC core and uarts, ethernet, pci, etc.  For ethernet it 
-has two Gig-E and one 10/100 interface.  The gig-e vs 10/100 interface 
-use the same driver however, the 10/100 interface has some limited 
-functionality.
+linux-os <linux-os@chaos.analogic.com> disait dernièrement que :
 
-In making the changes I've got two questions on how to handle things:
+> On Wed, 1 Dec 2004, John Que wrote:
+>
+>> Hello,
+>>
+>> I had made some tests with mkinitrd , I deleted /boot/intird-2.6.7.img
+>> and booted (without renaming the /boot/intird-2.6.7.img.old I have
+>> to intird-2.6.7.img).
+>>
+>> I use this intird-2.6.7.img image in boot (ext3 is not part of the
+>> kernel image).
+>> (I am working with Fedora with 2.6.7 , and with grub).
+>>
+>> So when booting I get the mesages:
+>> ....
+>> /intrd/intird-2.6.7.img
+>> error 15: File Mot Fount
+>> ...
+>>
+>> what should I do ? can I use a Fedora boot diskette and then
+>> mount the boot partition and rename the file ? (the
+>> intird-2.6.7.img.old is , as
+>> I said,under boot)
+>> How can I do this mounting?
+>> (If I remember well , a boot CD like KNPOIX does not have write permissions.)
+>>
+>> Regards,
+>> John
+>>
+>
+> When you get to the blue boot screen, just select another boot image
+> and boot that.
 
-1. I was planning on having platform_data point at a structure which 
-contained device flags and a board_data pointer.  The device flag would 
-be used to pass on information to the driver to distinguish minor 
-feature devices.  For example, between the gig-e interface would have 
-the following flags set HAS_RMON | HAS_GIGABIT, where the 10/100 would 
-not set either.  Additionally, there is some information which is more 
-board specific.  For example, why ethernet PHY was used, does it 
-support an external interrupt for status, etc.   This information would 
-be in the board_data pointer.
+or if you know the name of the initrd you want to use in place of the regular,
+you can use 'e' key to edit the entry you want; just change the name of the
+initrd file to the right one. and boot it with 'b' key.
+Being able to change the boot configuration at boot time is the very one of my
+prefered features GRUB has and lilo does not.
+>
+> If you have mucked with the original and have no others, boot
+> from the installation CD. Follow the "repair" prompts. Eventually
+> your partition will be mounted somewhere and you can fix it.
+> If you have a seperate /boot partition, just mount that and
+> rename the file back or edit grub.conf to show the right one
+> that goes with the right image.
 
-struct foobar {
-	u32	flags;
-	void *board_data;
-}
+if he knows where the real initrd is, no need to go thru the repair procedure,
+editing the boot entries at boot time is possible with the grub.
 
-My question is where to put the definition of the structure or is there 
-a better way to do what I'm doing that already exists in the driver 
-model?  I'm concerned about putting it in an include/asm-ppc since its 
-feasible that the same ethernet block could be used on a non-powerpc 
-device and the driver would still be valid.  Actually, I think we have 
-this case coming up with a USB block being on both an ARM and PPC based 
-CPUs from Freescale.
+-- 
+> Can you explain this behaviour?
 
-2. Since board_data would be defined by the driver what is the best 
-place to put its structure definition.  It seems rather evil to have 
-arch/ppc/platforms/foo.c including a header from drivers/net/.
+Yes
+--
+Alan
 
-thanks
+[Oh wait you want to know why...]
 
-- Kumar
+	- Alan Cox on linux-kernel
 

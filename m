@@ -1,36 +1,30 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317264AbSFCEIn>; Mon, 3 Jun 2002 00:08:43 -0400
+	id <S317265AbSFCEOz>; Mon, 3 Jun 2002 00:14:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317265AbSFCEIm>; Mon, 3 Jun 2002 00:08:42 -0400
-Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:49137 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S317264AbSFCEIl>; Mon, 3 Jun 2002 00:08:41 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: make balance_classzone() use list.h 
-In-Reply-To: Your message of "Sun, 02 Jun 2002 16:13:12 MST."
-             <20020602231312.GR14918@holomorphy.com> 
-Date: Mon, 03 Jun 2002 14:11:30 +1000
-Message-Id: <E17EjBq-0004GG-00@wagner.rustcorp.com.au>
+	id <S317266AbSFCEOy>; Mon, 3 Jun 2002 00:14:54 -0400
+Received: from rj.SGI.COM ([192.82.208.96]:50902 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S317265AbSFCEOy>;
+	Mon, 3 Jun 2002 00:14:54 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, release 3.0 is available 
+In-Reply-To: Your message of "Mon, 03 Jun 2002 00:06:16 -0400."
+             <Pine.SGI.4.30.0206030005240.8974404-100000@attila.stevens-tech.edu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 03 Jun 2002 14:14:24 +1000
+Message-ID: <30529.1023077664@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020602231312.GR14918@holomorphy.com> you write:
-> balance_classzone() does a number of open-coded list operations. This
-> adjusts balance_classzone() to use generic list.h operations as well
-> as renaming __freed and restructuring some of the control flow to use
-> if (unlikely(...))) goto handle_rare_case; for additional conciseness
-> and reducing the number of indentation levels required.
-> 
-> Against 2.5.19
+On Mon, 3 Jun 2002 00:06:16 -0400, 
+Hayden James <hjames@stevens-tech.edu> wrote:
+>Why was CML2 support removed?
 
-No, it seems to be against 2.5.19+some of your previous patches.
+ESR has dropped off the list.  CML2 and kbuild 2.5 are completely
+independent and having the two in the same patch was getting messy.
+The config rules in kbuild 2.5 are clean, support for other variants of
+CML can be added at any time.
 
-The trivial patch system (almost by definition) does not handle
-interdependent patches, sorry. 8(
-
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

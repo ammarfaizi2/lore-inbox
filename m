@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288639AbSAIKea>; Wed, 9 Jan 2002 05:34:30 -0500
+	id <S289320AbSAIKYu>; Wed, 9 Jan 2002 05:24:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288662AbSAIKeU>; Wed, 9 Jan 2002 05:34:20 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:16192 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S288639AbSAIKeJ>; Wed, 9 Jan 2002 05:34:09 -0500
-Date: Wed, 9 Jan 2002 11:33:15 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Robert Love <rml@tech9.net>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020109113315.D1543@inspiron.school.suse.de>
-In-Reply-To: <20020108030431.0099F38C58@perninha.conectiva.com.br> <Pine.LNX.4.21.0201081153160.19178-100000@freak.distro.conectiva> <3C3B5305.267EFC14@zip.com.au>
-Mime-Version: 1.0
+	id <S289319AbSAIKYk>; Wed, 9 Jan 2002 05:24:40 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:4356 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S289318AbSAIKY2>; Wed, 9 Jan 2002 05:24:28 -0500
+Message-ID: <3C3C1A54.62DBF079@aitel.hist.no>
+Date: Wed, 09 Jan 2002 11:24:20 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.2-pre10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>, linux-kernel@vger.kernel.org
+Subject: Re: fs corruption recovery?
+In-Reply-To: <3C3BB082.8020204@fit.edu>
+		<20020108200705.S769@lynx.adilger.int> <200201090326.g093QBF27608@vindaloo.ras.ucalgary.ca>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3C3B5305.267EFC14@zip.com.au>; from akpm@zip.com.au on Tue, Jan 08, 2002 at 12:13:57PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 08, 2002 at 12:13:57PM -0800, Andrew Morton wrote:
-> Marcelo Tosatti wrote:
-> > 
-> > > Andrew Morten`s read-latency.patch is a clear winner for me, too.
-> > 
-> > AFAIK Andrew's code simply adds schedule points around the kernel, right?
-> > 
-> > If so, nope, I do not plan to integrate it.
+Richard Gooch wrote:
 > 
-> I haven't sent it to you yet :)  It improves the kernel.  That's
-> good, isn't it?  (There are already forty or fifty open-coded
-> rescheduling points in the kernel.  That patch just adds the
-> missing (and most important) ten).  
+> Andreas Dilger writes:
+[...]
+> > Is the data really that valuable, and you don't have a backup?  It may
+> > cost you several thousand dollars to do a recovery from such a company.
+> > Yet, it isn't worth doing backups, it appears.
+> 
+> And these companies don't really do much that you can't do yourself. I
+> had a failing drive some years ago, where some sectors couldn't be
+> read. So I tried to dd the raw device to a file elsewhere. Of course,
+> dd will quit when it has an I/O error. So I wrote a recovery utility
+> that writes a zero sector if reading the input sector gives an I/O
+> error. Unfortunately, I couldn't mount the file (too much corruption),
+> but I was able to use debugfs on it. I got the most important data
+> back.
+> 
+> While I was waiting for 48 hours for the data to be pulled off (each
+> time a bad sector was encountered, the drive would retry several
+> times, with lots of clicking and rattling), I contacted one of these
+> recovery companies. I wanted to know if they could recover the bad
+> sectors. I was told no. After some probing, it turns out that all they
+> do is basically what I was doing. They just charge $2000 for it.
+> 
+> No doubt if you took your drive to your local CIA/KGB/MI6 offices,
+> they could recover some of those bad sectors. But I hear they charge
+> their customers quite a lot...
 
-yes, only make sure not to add live locks.
+No need for CIA/KGB.  There are companies that do more than this.  
+If necessary, they disassemble the drive in a clean room and use 
+their own reading equipment.  This allows recovery
+from fried drive electronics and broken motors/heads.  And sometimes
+(partial) recovery from scratches and other bad sectors.
 
-> reviewable place - submit_bh().  However that won't prevent
+If you really need this, consider
+http://www.ibasuk.com/technology/patan.htm
 
-agreed, I also merged this part of mini-ll in 18pre2aa1 infact.
-
-Andrea
+Helge Hafting

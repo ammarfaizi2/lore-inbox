@@ -1,73 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310178AbSCFVY4>; Wed, 6 Mar 2002 16:24:56 -0500
+	id <S310197AbSCFV1G>; Wed, 6 Mar 2002 16:27:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310194AbSCFVYq>; Wed, 6 Mar 2002 16:24:46 -0500
-Received: from mta01-svc.ntlworld.com ([62.253.162.41]:9885 "EHLO
-	mta01-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S310178AbSCFVYf>; Wed, 6 Mar 2002 16:24:35 -0500
-Date: Wed, 6 Mar 2002 21:27:00 +0000
-From: Malcolm Beattie <mbeattie@clueful.co.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jeff Dike <jdike@karaya.com>, David Woodhouse <dwmw2@infradead.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, Benjamin LaHaise <bcrl@redhat.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Arch option to touch newly allocated pages
-Message-ID: <20020306212700.A16144@clueful.co.uk>
-In-Reply-To: <200203062025.PAA03727@ccure.karaya.com> <E16iiQQ-00087K-00@the-village.bc.nu>
+	id <S310202AbSCFV1B>; Wed, 6 Mar 2002 16:27:01 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:31762 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S310197AbSCFV0o>;
+	Wed, 6 Mar 2002 16:26:44 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Vincent Bernat <bernat@free.fr>
+Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au
+Subject: Re: xmms segfaulting on 2.4.18 and 2.4.19-pre2-ac2 + oops 
+In-Reply-To: Your message of "Wed, 06 Mar 2002 16:35:29 BST."
+             <m3pu2hn1z2.fsf@neo.loria> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E16iiQQ-00087K-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Mar 06, 2002 at 08:54:14PM +0000
+Date: Thu, 07 Mar 2002 08:26:32 +1100
+Message-ID: <19185.1015449992@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-> > Yeah, MADV_DONTNEED looks right.  UML and Linux/s390 (assuming VM has the
-> > equivalent of MADV_DONTNEED) would need a hook in free_pages to make that
-> > happen.
-> 
-> VM allows you to give it back a page and if you use it again you get a
-> clean copy.
+On Wed, 06 Mar 2002 16:35:29 +0100, 
+Vincent Bernat <bernat@free.fr> wrote:
+>EIP:    0010:[3c59x:__insmod_3c59x_S.bss_L40+828820/101914768]    Not tainted
+>Call Trace: [3c59x:__insmod_3c59x_S.bss_L40+829092/101914496] [3c59x:__insmod_3c59x_S.bss_L40+828820/101914768] [3c59x:__insmod_3c59x_S.bss_L40+829678/101913910] [3c59x:__insmod_3c59x_S.bss_L40+817016/101926572] [3c59x:__insmod_3c59x_S.bss_L40+802037/101941551] 
+>I can't use the sound card any more (already used). xmms wasn't using
+>the network. I didn't do a ksymoops on the another oops but it was
+>located on 3c59x too.
 
-Yep, clean as in a page of zeroes when you touch it. (DIAGNOSE X'10' as
-documented in the "CP Programming Services" manual, to be precise).
+The oops is not in 3c59x.  You are letting klogd convert the oops and
+klogd has been broken for years.  <rant>Why do distributors insist on
+shipping such broken code?</rant>.  Always run klogd with the -x flag
+to keep its sticky fingers off the oops then you can get clean data for
+ksymoops to decode.
 
->             What it seems to lack is the more ideal "here have this page
-> and if I reuse it trap if you did throw it out" semantic.
-
-We're looking at ways of having fancier memory management information
-pass between Linux and CP (it's safer to say CP (the "kernel" part of
-VM/ESA and z/VM) than VM, given the ambiguous and confusing dual
-meaning of "VM" otherwise :-).
-
-> > > That BTW is an issue for more than UML - it has a bearing on running
-> > > lots of Linux instances on any supervisor/virtualising system like S/390
-> > 
-> > On a side note, the "unused memory is wasted memory" behavior that UML and 
-> > Linux/s390 inherit is also less than optimal for the host.
-> 
-> Yes. I believe IBM folks are studying that
-
-Indeed. A "quich hack" that turns out to have rather useful, fun
-properties is to have a little device driver (can be a module) which
-stores "negative pages" in the page cache by allocating page cache
-pages for the device's inode and then invoking the CP "release page"
-call mentioned above. Linux thinks the page is "useful" and so keeps
-it around until memory pressure kicks it out whereas the underlying
-CP knows it's a hole making the resident size and working set of the
-Linux image reduce. Add in a bit of feedback to get Linux re-reading
-the "device" into cache proportionally to how much CP wants to kick
-*out* resident pages from the image. Fun... However, closer
-integration with the main mm system is the "proper" way to do it
-(but depends on stuff like the latency, overheads and information
-shared with CP so is a little more than an afternoon hack.)
-
---Malcolm
-
--- 
-Malcolm Beattie <mbeattie@clueful.co.uk>
-Linux Technical Consultant
-IBM EMEA Enterprise Server Group...
-...from home, speaking only for myself

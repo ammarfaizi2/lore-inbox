@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbTE1XGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 19:06:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261669AbTE1XGZ
+	id S261564AbTE1XHd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 19:07:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbTE1XHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 19:06:25 -0400
-Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:38542
-	"HELO mail.theoesters.com") by vger.kernel.org with SMTP
-	id S261661AbTE1XGB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 19:06:01 -0400
-Date: Wed, 28 May 2003 16:19:17 -0700
-From: Phil Oester <kernel@theoesters.com>
-To: Robert Love <rml@tech9.net>
-Cc: procps-list@redhat.com, linux-kernel@vger.kernel.org, riel@nl.linux.org
-Subject: Re: [announce] procps 2.0.13 with NPTL enhancements
-Message-ID: <20030528161917.A4097@ns1.theoesters.com>
-References: <1054134550.783.102.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1054134550.783.102.camel@localhost>; from rml@tech9.net on Wed, May 28, 2003 at 03:09:10PM +0000
+	Wed, 28 May 2003 19:07:32 -0400
+Received: from c177031.adsl.hansenet.de ([213.39.177.31]:29929 "EHLO
+	sfhq.hn.org") by vger.kernel.org with ESMTP id S261564AbTE1XH2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 19:07:28 -0400
+Message-ID: <3ED543F5.2020308@portrix.net>
+Date: Thu, 29 May 2003 01:19:17 +0200
+From: Jan Dittmer <j.dittmer@portrix.net>
+Organization: portrix.net GmbH
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030521 Debian/1.3.1-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: what happened to i2c-proc
+References: <m3d6i3avnk.fsf@ccs.covici.com> <20030528202921.GA8349@localhost>
+In-Reply-To: <20030528202921.GA8349@localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any comment on the procps v3.1.8 located here:
-
-http://procps.sourceforge.net/
-
-Seems it is actively maintained...
-
--Phil
-
-On Wed, May 28, 2003 at 03:09:10PM +0000, Robert Love wrote:
-> I am ecstatic beyond words to announce the release of procps version
-> 2.0.13.
+Jose Luis Domingo Lopez wrote:
+> On Wednesday, 28 May 2003, at 12:22:23 -0400,
+> John Covici wrote:
 > 
-> 	Robert "Why the Hell am I maintaining this" Love
+> 
+>>I am trying to compile appropriate modules for lm sensors in 2.5.70,
+>>but there seems to be no way to configure i2c-proc -- it seems to be
+>>there for other architectures, but not for i386.
+>>
+> 
+> Or maybe something changed in the meantime, and problems are in
+> user-space, the fact is it doesn't work:
+> 
+> server:~# sensors -v
+> sensors version 2.6.5
+> 
+
+The sensors proc interface didn't make it to 2.5. You have to use sysfs 
+to check the sensors (/sys/devices/legacy/...). Userspace didn't get 
+converted yet, so all libsensor based programs (ie. all) don't work anymore
+
+Jan
+

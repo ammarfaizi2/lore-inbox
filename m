@@ -1,128 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285183AbRLXRSL>; Mon, 24 Dec 2001 12:18:11 -0500
+	id <S285188AbRLXSAm>; Mon, 24 Dec 2001 13:00:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285184AbRLXRSC>; Mon, 24 Dec 2001 12:18:02 -0500
-Received: from nlaknet.slt.lk ([203.115.0.2]:3498 "EHLO laknet.slt.lk")
-	by vger.kernel.org with ESMTP id <S285183AbRLXRRx>;
-	Mon, 24 Dec 2001 12:17:53 -0500
-Message-ID: <3C280D5B.274EC187@sltnet.lk>
-Date: Mon, 24 Dec 2001 23:23:39 -0600
-From: Ishan Oshadi Jayawardena <ioshadi@sltnet.lk>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17-2 i686)
-X-Accept-Language: en
+	id <S285189AbRLXSAd>; Mon, 24 Dec 2001 13:00:33 -0500
+Received: from warden.digitalinsight.com ([208.29.163.2]:44426 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S285188AbRLXSAZ>; Mon, 24 Dec 2001 13:00:25 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Doug Ledford <dledford@redhat.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
+        Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
+Date: Mon, 24 Dec 2001 09:34:45 -0800 (PST)
+Subject: Re: [patch] Assigning syscall numbers for testing
+In-Reply-To: <3C27608B.4030900@redhat.com>
+Message-ID: <Pine.LNX.4.40.0112240933110.24605-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-To: sfr@canb.auug.org.au, lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] A slightly smarter dmi_scan.c
-Content-Type: multipart/mixed;
- boundary="------------29845CCAE1C230EF8F04C323"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------29845CCAE1C230EF8F04C323
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+you miss the point, the syscall numbers will not nessasarily be consistant
+from boot to boot so if your code does not check for them it's seriously
+broken (and remember this is only for stuff in experimental status). The
+hope is that most if not all of the real checking can end up being done in
+glibc
 
-> APM can also be compiled as a module.
+David Lang
 
-Right. Thanks. I blatantly ignored that APM can be built as modules ;(
-The fixed patch is here.
 
-Cheerio !
 
-	- ioj
+ On Mon, 24 Dec 2001, Doug Ledford wrote:
 
-~~~~
-    Ask not of race, but ask of conduct: 
-    From the stick is born the sacred fire:
-    The wise ascetic, though lowly born,
-    Is noble in his modest self-control.
-                - Gotama Buddha
-.
---------------29845CCAE1C230EF8F04C323
-Content-Type: text/plain; charset=us-ascii;
- name="dmi.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="dmi.patch"
-
---- linux/arch/i386/kernel/dmi_scan.c	Mon Dec 24 22:50:41 2001
-+++ linux/arch/i386/kernel/dmi_scan.c.c	Mon Dec 24 22:53:21 2001
-@@ -255,26 +255,29 @@
- 
- static __init int set_realmode_power_off(struct dmi_blacklist *d)
- {
-+#if defined (CONFIG_APM) || defined (CONFIG_APM_MODULE)
-        if (apm_info.realmode_power_off == 0)
-        {
-                apm_info.realmode_power_off = 1;
-                printk(KERN_INFO "%s bios detected. Using realmode poweroff only.\n", d->ident);
-        }
-+#endif
-        return 0;
- }
- 
--
- /* 
-  * Some laptops require interrupts to be enabled during APM calls 
-  */
- 
- static __init int set_apm_ints(struct dmi_blacklist *d)
- {
-+#if defined (CONFIG_APM) || defined (CONFIG_APM_MODULE)
- 	if (apm_info.allow_ints == 0)
- 	{
- 		apm_info.allow_ints = 1;
- 		printk(KERN_INFO "%s machine detected. Enabling interrupts during APM calls.\n", d->ident);
- 	}
-+#endif
- 	return 0;
- }
- 
-@@ -284,15 +287,16 @@
- 
- static __init int apm_is_horked(struct dmi_blacklist *d)
- {
-+#if defined (CONFIG_APM) || defined (CONFIG_APM_MODULE)
- 	if (apm_info.disabled == 0)
- 	{
- 		apm_info.disabled = 1;
- 		printk(KERN_INFO "%s machine detected. Disabling APM.\n", d->ident);
- 	}
-+#endif
- 	return 0;
- }
- 
--
- /*
-  *  Check for clue free BIOS implementations who use
-  *  the following QA technique
-@@ -311,10 +315,12 @@
- 
- static __init int broken_apm_power(struct dmi_blacklist *d)
- {
-+#if defined (CONFIG_APM) || defined (CONFIG_APM_MODULE)
- 	apm_info.get_power_status_broken = 1;
- 	printk(KERN_WARNING "BIOS strings suggest APM bugs, disabling power status reporting.\n");
-+#endif
- 	return 0;
--}		
-+}
- 
- /*
-  * Check for a Sony Vaio system
-@@ -341,8 +347,10 @@
-  
- static __init int swab_apm_power_in_minutes(struct dmi_blacklist *d)
- {
-+#if defined (CONFIG_APM) || defined (CONFIG_APM_MODULE)
- 	apm_info.get_power_status_swabinminutes = 1;
- 	printk(KERN_WARNING "BIOS strings suggest APM reports battery life in minutes and wrong byte order.\n");
-+#endif
- 	return 0;
- }
- 
-
---------------29845CCAE1C230EF8F04C323--
-
+> Date: Mon, 24 Dec 2001 12:06:19 -0500
+> From: Doug Ledford <dledford@redhat.com>
+> To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> Cc: Keith Owens <kaos@ocs.com.au>, Benjamin LaHaise <bcrl@redhat.com>,
+>      linux-kernel@vger.kernel.org
+> Subject: Re: [patch] Assigning syscall numbers for testing
+>
+> Alan Cox wrote:
+>
+> >>Well, I'm not going to mess with code, but here's the example.  Say you
+> >>start at syscall 240 for dynamic registration.  Someone then submits a patch
+> >>
+> >
+> > The number you start at depends on the kernel you run.
+> >
+> >
+> >>modify the base of your patch, but if it has been accepted into any real
+> >>kernels anywhere, then someone could inadvertently end up running a user
+> >>space app compiled against Linus' new kernel and that uses the newly
+> >>allocated syscalls 240 and 241.  If that's run on an older kernel with your
+> >>
+> >
+> > The code on execution will read the syscall numbers from procfs. It will
+> > find new numbers and call those. Its a very simple implementation of lazy
+> > binding. It only breaks if you actually run out of syscalls, and then it
+> > fails safe.
+> >
+> > Alan
+> >
+> >
+>
+> No it doesn't.  You are *assuming* that *all* code will check the lazy
+> syscall bindings.  My example was about code using the predefined syscall
+> number for new functions on an older kernel where those functions don't
+> exist, but where they overlap with the older dynamic syscall numbers.  In
+> short, the patch is safe for code that uses the lazy binding, but it can
+> still overlap with future syscall numbers and code that doesn't use the lazy
+> binding but instead uses predefined numbers.
+>
+> --
+>
+>   Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+>        Please check my web site for aic7xxx updates/answers before
+>                        e-mailing me about problems
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

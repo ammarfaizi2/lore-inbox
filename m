@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277059AbRJDBKa>; Wed, 3 Oct 2001 21:10:30 -0400
+	id <S277060AbRJDBMt>; Wed, 3 Oct 2001 21:12:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277060AbRJDBKT>; Wed, 3 Oct 2001 21:10:19 -0400
-Received: from [209.237.5.66] ([209.237.5.66]:15778 "EHLO clyde.stargateip.com")
-	by vger.kernel.org with ESMTP id <S277059AbRJDBKK>;
-	Wed, 3 Oct 2001 21:10:10 -0400
-From: "Ian Thompson" <ithompso@stargateip.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: How can I jump to non-linux address space?
-Date: Wed, 3 Oct 2001 18:10:31 -0700
-Message-ID: <NFBBIBIEHMPDJNKCIKOBEEGJCAAA.ithompso@stargateip.com>
+	id <S277061AbRJDBMj>; Wed, 3 Oct 2001 21:12:39 -0400
+Received: from shell.cyberus.ca ([209.195.95.7]:61624 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S277060AbRJDBMc>;
+	Wed, 3 Oct 2001 21:12:32 -0400
+Date: Wed, 3 Oct 2001 21:10:10 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: <kuznet@ms2.inr.ac.ru>, <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
+        <Robert.Olsson@data.slu.se>, <netdev@oss.sgi.com>,
+        <torvalds@transmeta.com>, <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <20011003150355.A3780@redhat.com>
+Message-ID: <Pine.GSO.4.30.0110032105150.8016-100000@shell.cyberus.ca>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-I'm sorry if this is off-topic, but I wasn't sure where else to ask...
 
-My kernel is running from RAM, and I want to jump to an address in ROM
-(which unfortunately, the kernel doesn't seem to know anything about).  I
-don't plan on trying to resume the kernel after doing this.  However, I'm
-getting a prefetch abort.  If I try and load the data, I get a similar
-error: "Unable to handle kernel paging request at virtual address 00003000"
-where 0x3000 is the ROM address I'm trying to jump to / load from.  How can
-I pass execution to this address?  Do I have to turn off the MMU?  FYI, I'm
-running a 2.2 variant on an XScale, and used inline assembly to generate the
-load & the branch.
+On Wed, 3 Oct 2001, Benjamin LaHaise wrote:
 
-Thanks for your help,
+> On Wed, Oct 03, 2001 at 08:53:58PM +0400, kuznet@ms2.inr.ac.ru wrote:
+> > Citing my old explanation:
+> >
+> > >"Polling" is not a real polling in fact, it just accepts irqs as
+> > >events waking rx softirq with blocking subsequent irqs.
+> > >Actual receive happens at softirq.
+> > >
+> > >Seems, this approach solves the worst half of livelock problem completely:
+> > >irqs are throttled and tuned to load automatically.
+> > >Well, and drivers become cleaner.
+>
+> Well, this sounds like a 2.5 patch.  When do we get to merge it?
 
--ian
+
+It is backward compatible to 2.4 netif_rx() which means it can go in now.
+The problem is netdrivers that want to use the interface have to be
+morphed.
+As a general disclaimer, i really dont mean to put down Ingo's efforts i
+just think the irq mitigation idea as is now is wrong for both 2.4 and 2.5
+
+cheers,
+jamal
 

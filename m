@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261907AbTAXSzu>; Fri, 24 Jan 2003 13:55:50 -0500
+	id <S261733AbTAXTAK>; Fri, 24 Jan 2003 14:00:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261934AbTAXSzt>; Fri, 24 Jan 2003 13:55:49 -0500
-Received: from packet.digeo.com ([12.110.80.53]:18133 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261907AbTAXSzt>;
-	Fri, 24 Jan 2003 13:55:49 -0500
-Date: Fri, 24 Jan 2003 11:05:20 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: jlnance@unity.ncsu.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.59-mm5
-Message-Id: <20030124110520.63e69314.akpm@digeo.com>
-In-Reply-To: <20030124161729.GA15945@ncsu.edu>
-References: <20030123195044.47c51d39.akpm@digeo.com>
-	<20030124161729.GA15945@ncsu.edu>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Jan 2003 19:04:55.0240 (UTC) FILETIME=[7B394480:01C2C3DB]
+	id <S261836AbTAXTAK>; Fri, 24 Jan 2003 14:00:10 -0500
+Received: from web80301.mail.yahoo.com ([66.218.79.17]:22458 "HELO
+	web80301.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261733AbTAXTAJ>; Fri, 24 Jan 2003 14:00:09 -0500
+Message-ID: <20030124190917.37534.qmail@web80301.mail.yahoo.com>
+Date: Fri, 24 Jan 2003 11:09:17 -0800 (PST)
+From: Kevin Lawton <kevinlawton2001@yahoo.com>
+Subject: Re: Simple patches for Linux as a guest OS in a plex86 VM (please consider) 
+To: Valdis.Kletnieks@vt.edu
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <200301241901.h0OJ1j0V005436@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jlnance@unity.ncsu.edu wrote:
->
-> On Thu, Jan 23, 2003 at 07:50:44PM -0800, Andrew Morton wrote:
-> >   So what anticipatory scheduling does is very simple: if an application
-> >   has performed a read, do *nothing at all* for a few milliseconds.  Just
-> >   return to userspace (or to the filesystem) in the expectation that the
-> >   application or filesystem will quickly submit another read which is
-> >   closeby.
-> 
-> Does this affect the faulting in of executable pages as well?
-> 
+--- Valdis.Kletnieks@vt.edu wrote:
 
-Yes.  It should in theory decrease average major fault latency when there's
-I/O load.  That is unproven.
+> It turns out that the 99% of the work to cover the 1% of the cases is really
+> important.  The usual reason for doing VM is to isolate images from each
+> other
 
+Plex86 can 100% isolate guests from each other.  What I'm saying
+is, it takes 99% of the work to do a full x86 VM which doesn't
+need those 2 macros for PUSHF/POPF.  (my oversimplified, but
+yet useful explanation of the state of affairs)
 
+You have to do a lot of work to "get under the hood" of an
+OS, to fix up a few cases where if you let them run native,
+they'll get the wrong information or make the wrong thing
+happen.  Not to the other guests, but to themselves.  So if
+you don't need to do those things, you can let them run
+without all the black magic.  Let's take such conversation
+out-of-band.  It doesn't belong on the LK list.
+
+-Kevin
+
+__________________________________________________
+Do you Yahoo!?
+New DSL Internet Access from SBC & Yahoo!
+http://sbc.yahoo.com

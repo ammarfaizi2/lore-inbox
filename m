@@ -1,38 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129150AbQKVK4X>; Wed, 22 Nov 2000 05:56:23 -0500
+	id <S129231AbQKVLAD>; Wed, 22 Nov 2000 06:00:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129231AbQKVK4N>; Wed, 22 Nov 2000 05:56:13 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:19725 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S129150AbQKVKzy>;
-	Wed, 22 Nov 2000 05:55:54 -0500
-Date: Wed, 22 Nov 2000 12:25:43 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Tobias Ringstrom <tori@tellus.mine.nu>
-Cc: dhinds@zen.stanford.edu, torvalds@transmeta.com,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why not PCMCIA built-in and yenta/i82365 as modules
-Message-ID: <20001122122543.A28963@mea-ext.zmailer.org>
-In-Reply-To: <Pine.LNX.4.21.0011212328570.30344-100000@svea.tellus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0011212328570.30344-100000@svea.tellus>; from tori@tellus.mine.nu on Tue, Nov 21, 2000 at 11:34:45PM +0100
+	id <S129777AbQKVK7o>; Wed, 22 Nov 2000 05:59:44 -0500
+Received: from nifty.blue-labs.org ([208.179.0.193]:31785 "EHLO
+	nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
+	id <S129231AbQKVK7j>; Wed, 22 Nov 2000 05:59:39 -0500
+Message-ID: <3A1BA00E.7BA78AA@linux.com>
+Date: Wed, 22 Nov 2000 02:29:34 -0800
+From: David Ford <david@linux.com>
+Organization: Blue Labs
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: test11 spontaneous reboot
+Content-Type: multipart/mixed;
+ boundary="------------6BEC1338E29F11B786652FEB"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 21, 2000 at 11:34:45PM +0100, Tobias Ringstrom wrote:
-> The subject says it all. Is there any particular (technical) reason
-> why I must have both the generic pcmcia code and the controller support
-> built-in, or build all of them as modules?
-> 
-> /Tobias
+This is a multi-part message in MIME format.
+--------------6BEC1338E29F11B786652FEB
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Wasn't there some strange laptop model which had PCMCIA floppy/CDROM,
-which are unavailable to bootstrap process, unless PCMCIA is supported
-at the booting kernel ?
+Something appears to be broken.  One of my servers is going through
+seemingly random spontaneous reboots with nothing to indicate why.
 
-Or was it about USB floppy at some other laptop?
+model name      : Pentium III (Coppermine)
+features        : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca
+cmov pat pse36 mmx fxsr sse
+
+It's a VIA Technologies chipset.  I had no problems with it on test8, it
+ran happily for 29 days before the upgrade.  I build the kernel on the
+same machine (nec versa lx) that I build with for all my other software.
+
+boot dmesg is at http://stuph.org/dmesg-lastboot, I don't have anything
+else to go on at the moment, consider this a heads up that something is
+broken.
+
+-d
+
+
+--------------6BEC1338E29F11B786652FEB
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="david.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for David Ford
+Content-Disposition: attachment;
+ filename="david.vcf"
+
+begin:vcard 
+n:Ford;David
+x-mozilla-html:TRUE
+adr:;;;;;;
+version:2.1
+email;internet:david@kalifornia.com
+title:Blue Labs Developer
+x-mozilla-cpt:;14688
+fn:David Ford
+end:vcard
+
+--------------6BEC1338E29F11B786652FEB--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

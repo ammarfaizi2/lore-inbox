@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266675AbUBMByj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 20:54:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266679AbUBMByj
+	id S266646AbUBMCBm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 21:01:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266658AbUBMCBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 20:54:39 -0500
-Received: from CPE-65-28-18-238.kc.rr.com ([65.28.18.238]:36518 "EHLO
-	mail.2thebatcave.com") by vger.kernel.org with ESMTP
-	id S266675AbUBMByh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 20:54:37 -0500
-Message-ID: <52417.192.168.1.12.1076637281.squirrel@mail.2thebatcave.com>
-Date: Thu, 12 Feb 2004 19:54:41 -0600 (CST)
-Subject: getting usb mass storage to finish before running init?
-From: "Nick Bartos" <spam99@2thebatcave.com>
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+	Thu, 12 Feb 2004 21:01:42 -0500
+Received: from mail.shareable.org ([81.29.64.88]:20866 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S266646AbUBMCBk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 21:01:40 -0500
+Date: Fri, 13 Feb 2004 02:01:13 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Tim Hockin <thockin@sun.com>
+Cc: Jim Houston <jim.houston@ccur.com>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-kernel@vger.kernel.org, george@mvista.com
+Subject: Re: PATCH - raise max_anon limit
+Message-ID: <20040213020113.GD25499@mail.shareable.org>
+References: <20040211222849.GL9155@sun.com> <20040211144844.0e4a2888.akpm@osdl.org> <20040211233852.GN9155@sun.com> <20040211155754.5068332c.akpm@osdl.org> <20040212003840.GO9155@sun.com> <20040211164233.5f233595.akpm@osdl.org> <20040212010822.GP9155@sun.com> <20040211172046.37e18a2f.akpm@osdl.org> <1076606773.990.165.camel@new.localdomain> <20040212184903.GS9155@sun.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040212184903.GS9155@sun.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there any way to get the kernel to finish initializing usb mass storage
-devices before running init?
+Tim Hockin wrote:
+> > The rational for avoiding immediate reuse of id values is to catch
+> > application errors.   Consider:
+> > 
+> > 	fd1 = open_like_call(...);
+> > 	read(fd1,...);
+> > 	close(fd1);
+> > 	fd2 = open_like_call(...);
+> > 	write(fd1...);
+> > 
+> > If fd2 has a different value than the recently closed fd1, the
+> > error is detected immediately.
+> 
+> Is that really worth working around in such a gross way?  No offense to the
+> idea, but that's a pretty dumb bug to be hacking a failsafe for :)
 
-I have a problem where I am trying to boot off usb, but the storage device
-is not detected when I am trying to do fsck and mount the flash device
-from my init scripts.
+I'm pretty sure POSIX requires fd2 to be equal to fd1 if it is the
+lowest free file descriptor number.
 
-I can put a sleep in there but that is sloppy, and can not really be
-relied apon (since technically there is no way I can know how long the
-detection phase will take), and also I may be waisting time (which I don't
-want to, I want a fast booting router).
+Unfortunately.  An O(1) fd allocation algorithm would be nice.
 
-I cannot poll to wait for the device to exist in /proc/partitions or in
-/dev, since some routers will boot off ide and may not even have usb
-devices.
-
-I would like to hack the kernel to wait to run init until after the usb
-stuff is done (although I don't really know where to start, I don't know
-where the usb or init stuff is ran from), or find some clean & reliable
-way of detecting when it is done (even if it doesn't need to load usb).
-
-I was sort of hoping there was some little-known kernel option that may
-help me...
-
-Ideas?
+-- Jamie

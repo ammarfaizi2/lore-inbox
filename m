@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261433AbUCDEKM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 23:10:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbUCDEHQ
+	id S261437AbUCDEN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 23:13:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbUCDEK0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 23:07:16 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:48316 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261448AbUCDEGf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 23:06:35 -0500
-Date: Wed, 3 Mar 2004 23:07:12 -0500
-From: Hui Zhou <zhouhui@wam.umd.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Slow wireless network after enable acpi
-Message-ID: <20040304040712.GA22070@turquoise.nrockv01.md.comcast.net>
+	Wed, 3 Mar 2004 23:10:26 -0500
+Received: from gate.crashing.org ([63.228.1.57]:61638 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261448AbUCDEJN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 23:09:13 -0500
+Subject: Re: Resume only part of device tree?
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1078361326.3203.47.camel@calvin.wpcb.org.au>
+References: <1078344202.3203.22.camel@calvin.wpcb.org.au>
+	 <1078353622.15320.25.camel@gaston>
+	 <1078361326.3203.47.camel@calvin.wpcb.org.au>
+Content-Type: text/plain
+Message-Id: <1078372625.15323.57.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 04 Mar 2004 14:57:06 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, sorry for bothering you.
+On Thu, 2004-03-04 at 11:48, Nigel Cunningham wrote:
+> Hi.
+> 
+> My implementation saved the image in two parts. 'Pageset 2' contains the
+> LRU pages (active & inactive lists). 'Pageset 1' contains all other data
+> to be saved. At resume time, I read pageset 1 and copy the original
+> kernel data back. Then I want to resume the storage devices and read
+> pageset 2 before resuming all devices and waking everything else up. It
+> would also be good to not resume all devices when writing the state to
+> the swap partition, but I have other means of ensuring the consistency
+> of the image that mean I'm not so worried then.
 
-I recently installed redhat 9 on my laptop- HP/ZE1115 with duron
-processor, every thing with via chipsets, using SMC 802.11b pcmcia
-card.
+I don't see any good way to do that at this point. With a tree
+structure, it would be possible to revive only the parents of
+the storage device you are concerned in, but at this point, we
+don't have this possibility
 
-Some how the bios doesn't boot from hardrive (must be bad sectors),
-installed redhat and boot from grub floppy. Compiled kernel with
-2.4.25. The wiless card uses tainted driver ADM8211. First-time
-compiled with apm, every thing is OK, but the laptop gets so hot
-without the support of apm. Recompiled with acpi, now the laptop cools
-down, but the network get very slow. Still pings my desktop with 1~2
-ms, but ssh to it waits for ever. Same thing for internet browsing.
+Ben.
 
-Every thing is compiled into kernel, except the wireless driver
-8211.o. The computer runs other program seems OK.
 
-Let me know if I should post more infomation and thanks for attention.
-
--Hui

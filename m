@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315547AbSEVOne>; Wed, 22 May 2002 10:43:34 -0400
+	id <S315480AbSEVOma>; Wed, 22 May 2002 10:42:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315539AbSEVOmf>; Wed, 22 May 2002 10:42:35 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:54706 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S315441AbSEVOm3>;
-	Wed, 22 May 2002 10:42:29 -0400
-Date: Wed, 22 May 2002 16:42:12 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Vojtech Pavlik <vojtech@suse.cz>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Padraig Brady <padraig@antefacto.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.17 /dev/ports
-Message-ID: <20020522164212.A1309@ucw.cz>
-In-Reply-To: <20020522155603.B765@ucw.cz> <E17AXZW-0001wM-00@the-village.bc.nu>
+	id <S315528AbSEVOlB>; Wed, 22 May 2002 10:41:01 -0400
+Received: from bitmover.com ([192.132.92.2]:32445 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S315441AbSEVOkk>;
+	Wed, 22 May 2002 10:40:40 -0400
+Date: Wed, 22 May 2002 07:40:41 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Daniel Phillips <phillips@bonn-fries.net>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Htree directory index for Ext2, updated
+Message-ID: <20020522074041.B12265@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200205170736.g4H7aNj281162@saturn.cs.uml.edu> <E178xSu-0000Dc-00@starship> <20020518172634.GK21295@turbolinux.com> <E17ASeO-0001xB-00@starship> <20020522102354.GB802@turbolinux.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 22, 2002 at 03:58:38PM +0100, Alan Cox wrote:
-
-> > > IOCTL is ineed the way to go to implement such functionality...
+On Wed, May 22, 2002 at 04:23:54AM -0600, Andreas Dilger wrote:
+> On May 22, 2002  11:43 +0200, Daniel Phillips wrote:
+> > On Saturday 18 May 2002 19:26, Andreas Dilger wrote:
+> > > On May 18, 2002  08:13 +0200, Daniel Phillips wrote:
+> > > > I cloned a repository that is arranged like:
+> > > > 
+> > > >   somedir
+> > > >     |
+> > > >     |--linux
+> > > >     |    |
+> > > >     |    The usual stuff
+> > > >     |
+> > > >      `---other things
+> > > > 
+> > > > Bitkeeper wants the destination for the import to be 'somedir', and
+> > > > cannot figure out how to apply a patch that looks like:
+> > > > +++ src/include/linux/someheader.h, for instance.
+> > > 
+> > > And that is bad in what way?
 > > 
-> > Yes, the EVIOCSREP ioctl will be the one soon (works for USB keyboards
-> > now).
+> > It is bad in that there is no way to import the patch into BitKeeper.
+> > 
+> > It looks like a hole in BitKeeper.  How do you suggest I apply my
+> > perfectly normal patch?
 > 
-> The KBDRATE ioctl is already supported by all other keyboard drivers and
-> used by XFree86....
+> cd somedir/linux; patch -p1 < foo.diff; bk citool
 
-Correct. And it'll work on USB as well once the console code is
-interfaced to USB better than just by injecting scancodes into
-pc_keyb.c.
+bk import -tpatch foo.diff somedir/linux
 
-KBDRATE will work on console, while EVIOCSREP will work if you open the
-keyboard as an event device.
+also works, does the same thing, but handles renames.  Not needed for
+simple patches but you might get in the habit of using it anyway so
+the odd rename is caught.
 
+Cheers,
 -- 
-Vojtech Pavlik
-SuSE Labs
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

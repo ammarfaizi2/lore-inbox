@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVBWSNj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbVBWSS0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261519AbVBWSNj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 13:13:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbVBWSNj
+	id S261516AbVBWSS0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 13:18:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVBWSSZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 13:13:39 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61625 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261519AbVBWSNd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 13:13:33 -0500
-Date: Wed, 23 Feb 2005 04:06:08 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: "Andrey J. Melnikoff (TEMHOTA)" <temnota@kmv.ru>,
-       Vasily Averin <vvs@sw.ru>
-Cc: Matt Domsch <Matt_Domsch@dell.com>, linux-kernel@vger.kernel.org,
-       "Mukker, Atul" <Atulm@lsil.com>,
-       "Bagalkote, Sreenivas" <sreenib@lsil.com>
-Subject: v2.4 megaraid2 update Re: [PATCH] Prevent NMI oopser
-Message-ID: <20050223070607.GA8812@dmt.cnet>
-References: <41F5FC96.2010103@sw.ru> <20050131231752.GA17126@logos.cnet> <42011EFA.10109@sw.ru> <20050202190626.GB18763@lists.us.dell.com> <42012ACC.4090806@sw.ru> <20050202201914.GC18763@lists.us.dell.com> <20050207202745.GA19104@kmv.ru>
+	Wed, 23 Feb 2005 13:18:25 -0500
+Received: from mail.kroah.org ([69.55.234.183]:11498 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261516AbVBWSSS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 13:18:18 -0500
+Date: Wed, 23 Feb 2005 09:53:58 -0800
+From: Greg KH <greg@kroah.com>
+To: Michal Januszewski <spock@gentoo.org>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Bootsplash for 2.6.11-rc4
+Message-ID: <20050223175358.GN13081@kroah.com>
+References: <20050218165254.GA1359@elf.ucw.cz> <20050219011433.GA5954@spock.one.pl> <20050219230326.GB13135@kroah.com> <20050220131505.GC19282@spock.one.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050207202745.GA19104@kmv.ru>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050220131505.GC19282@spock.one.pl>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi, 
-
-As the megaraid2 maintainers dont seem to care about v2.4 mainline at all, completly 
-ignoring my requests to fix the NMI oopser bug for several months, I'm applying the RHEL3 
-update + inline reordering, which should do it.
-
-At this point I'm quite sure they wont answer this message either.  :( 
-
-Thanks Vasily and Andrey.
-
-On Mon, Feb 07, 2005 at 11:27:45PM +0300, Andrey J. Melnikoff (TEMHOTA) wrote:
-> Hi Matt, Marcelo!
->  On Wed, Feb 02, 2005 at 02:19:14PM -0600, Matt Domsch wrote next:
+On Sun, Feb 20, 2005 at 02:15:05PM +0100, Michal Januszewski wrote:
+> On Sat, Feb 19, 2005 at 03:03:26PM -0800, Greg KH wrote:
 > 
-> > On Wed, Feb 02, 2005 at 10:32:28PM +0300, Vasily Averin wrote:
-> > > >As a hack, one could #define inline /*nothing*/ in megaraid2.h to
-> > > >avoid this, but it would be nice if the functions could all get
-> > > >reordered such that inlining works properly, and the need for function
-> > > >declarations in megaraid2.h would disappear completely.
-> > > 
-> > > 
-> > > Could you fix it by additional patch? Or you going to prepare a new one?
+> > Pavel, I agree with Michal, take a look at this version of the code
+> > instead of the version that you posted.  It's a _whole_ lot more sane,
+> > and possibly even mergable.
+> > 
+> > Michal, any thoughts on submitting it for inclusion?  It seems pretty
+> > stable now.
 > 
-> Any chance to include this two patches before 2.4.30 release?
-> 
-> Vasily Averin patch:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=110737085714273&w=2
-> And my (incremental) patch:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=110738438005846&w=2
+> It is pretty stable indeed, I haven't had any major bug reports for 
+> quite some time now. It's probably as ready as it's ever going to be.
+> So the question is: what should I do with it? Who do I send it to?
+
+As per Documentation/SubmittingPatches, you take the patch, split it up
+into logic parts, and post it here at lkml, with a Signed-off-by: line
+and a good ChangeLog description in each email.
+
+We can take it from there...
+
+thanks,
+
+greg k-h

@@ -1,77 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264911AbTK3N1v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 08:27:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264912AbTK3N1v
+	id S264901AbTK3NYP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 08:24:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264907AbTK3NYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 08:27:51 -0500
-Received: from mailhost.tue.nl ([131.155.2.7]:43020 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S264911AbTK3N1t (ORCPT
+	Sun, 30 Nov 2003 08:24:15 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:56729 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S264901AbTK3NX7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 08:27:49 -0500
-Date: Sun, 30 Nov 2003 14:26:49 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Szakacsits Szabolcs <szaka@sienet.hu>
-Cc: Andrew Clausen <clausen@gnu.org>, Apurva Mehta <apurva@gmx.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       bug-parted@gnu.org
-Subject: Re: Disk Geometries reported incorrectly on 2.6.0-testX
-Message-ID: <20031130132649.GC5738@win.tue.nl>
-References: <20031128045854.GA1353@home.woodlands> <20031128142452.GA4737@win.tue.nl> <20031129022221.GA516@gnu.org> <Pine.LNX.4.58.0311290550190.21441@ua178d119.elisa.omakaista.fi> <20031129123451.GA5372@win.tue.nl> <20031129222722.GA505@gnu.org> <20031130003428.GA5465@win.tue.nl> <Pine.LNX.4.58.0311301210540.2329@ua178d119.elisa.omakaista.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0311301210540.2329@ua178d119.elisa.omakaista.fi>
-User-Agent: Mutt/1.3.25i
+	Sun, 30 Nov 2003 08:23:59 -0500
+Message-ID: <3FC9EF65.8040807@colorfullife.com>
+Date: Sun, 30 Nov 2003 14:23:49 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "john smith" <john.smith77@gmx.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Kernel modul licensing issues
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 30, 2003 at 01:10:36PM +0200, Szakacsits Szabolcs wrote:
-> 
-> On Sun, 30 Nov 2003, Andries Brouwer wrote:
-> 
-> > Just ask yourself this question: does Windows XP require a bootable
-> > partition to start below the 1024 cylinder mark?
-> > Windows NT4 has such a restriction. Not Windows 2000 or XP.
-> 
-> Wrong:
-> 	http://support.microsoft.com/default.aspx?scid=kb;en-us;282191
+John wrote:
 
-"Wrong" - what a pessimism. That URL just confirms what I wrote:
-Windows XP has no such restriction. If you explicitly ask Windows XP
-to use oldfashioned means, then of course that is your own choice.
+>I have some licensing issues with the linux GPL and the implications
+>on a project which incorporates partial non-GPL code which I want
+>to release as linux kernel module.
+>  
+>
+Wrong mailing list.
+You must find a lawyer, and he'll answer your questions.
 
-> > > > Usually booting goes like this: the BIOS reads sector 0 (the MBR)
-> > > > from the first disk, and starts the code found there. What happens
-> > > > afterwards is up to that code. If that code uses CHS units to find
-> > > > a partition, and if the program that wrote the table has different
-> > > > ideas about those units than the BIOS, booting may fail.
-> > > Exactly.
-> > Good. We agree.
-> 
-> I'm glad also. So what actually [cs]fdisk do with the CHS entries in the
-> partition table? Ignore them? Might they convert a given partition start to
-> different CHS units if the partition entry was deleted then recreated at
-> the same cylinder? 
+>I have implemented a proprietary algorithm in user space which I'm not
+>allowed to release under the GPL. From a _technical_ point of view I
+>could compile the code as kernel module which offers a certain API.
+>Note that the kernel module would have only very limited dependency
+>on the kernel, i.e. apart from memory allocation functions (kmalloc,
+>kfree, vmalloc, vfree) and potentially some "locks" (spinlock, big
+>reader lock or rcu) the code is totally independent from the kernel.
+>
+RCU is a patented algorithm - mention that to your lawyer. Your creation 
+must not be derived from the kernel (because creating derived works is 
+an exclusive right of the copyright owner, and you don't have and won't 
+get a permission), and it must not infringe the RCU patents.
 
-Ha, now we are getting down to business.
-*fdisk evolves in time, so the answer is very version dependent.
-Let me answer for today's fdisk.
+>As far as the interaction with the algorithm API is concerned the
+>frontend submits kernel data structures to the algorithm module _but_ 
+>since the algorithm has no declaration of kernel structures it does
+>neither use nor modify the kernel data. It's just stored and returned
+>to the user via certain API functions.
+>
+You have written an algorithm module that is tightly coupled to the 
+Linux kernel, and you think it's not derived from the kernel, correct? 
+As a non-lawyer, it'd say that's wrong.
+"Derived work" is a legal term, your lawyer might be able to figure out 
+if your combination is a derived work.
+The drivers that are more or less accepted as not-derived run on 
+multiple operating systems - e.g. the nvidia ethernet driver uses the 
+same source code for Windows and Linux, and nvlib.o works on Linux and 
+FreeBSD.
 
-Disk geometry is determined as follows (see fdisk.c:get_geometry())
-
-        heads = user_heads ? user_heads :
-                pt_heads ? pt_heads :
-                kern_heads ? kern_heads : 255;
-        sectors = user_sectors ? user_sectors :
-                pt_sectors ? pt_sectors :
-                kern_sectors ? kern_sectors : 63;
-
-that is, if the user has specified a geometry on the command line,
-then that is what we use; otherwise, if there is a partition
-table already and we are able to guess a geometry from that, use that;
-otherwise, if the kernel has some idea, use that; finally use */255/63
-when no information is available.
-
-Andries
+--
+    Manfred
+P.S.: You might need a team of lawyers: the definition of derived work 
+differs from country to country.
 

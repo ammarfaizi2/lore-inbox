@@ -1,56 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131455AbRC0RIX>; Tue, 27 Mar 2001 12:08:23 -0500
+	id <S131446AbRC0RKy>; Tue, 27 Mar 2001 12:10:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131459AbRC0RIN>; Tue, 27 Mar 2001 12:08:13 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:64272
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S131455AbRC0RII>; Tue, 27 Mar 2001 12:08:08 -0500
-Date: Tue, 27 Mar 2001 09:06:48 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Uncle George <gatgul@voicenet.com>
-cc: linux-kernel@vger.kernel.org, Jeremy Jackson <jerj@coplanar.net>
-Subject: Re: slow latencies on IDE disk drives( controller? )
-In-Reply-To: <3AC080F3.6A09863C@voicenet.com>
-Message-ID: <Pine.LNX.4.10.10103270904490.16125-100000@master.linux-ide.org>
+	id <S131448AbRC0RKI>; Tue, 27 Mar 2001 12:10:08 -0500
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:27148
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S131446AbRC0RJ2>; Tue, 27 Mar 2001 12:09:28 -0500
+Date: Tue, 27 Mar 2001 12:08:37 -0500
+From: Chris Mason <mason@suse.com>
+To: Christoph Lameter <christoph@lameter.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ReiserFS phenomenon with 2.4.2 ac24/ac12
+Message-ID: <284560000.985712917@tiny>
+In-Reply-To: <Pine.LNX.4.21.0103270820190.6242-100000@home.lameter.com>
+X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-#define PCI_VENDOR_ID_CONTAQ            0x1080
-#define PCI_DEVICE_ID_CONTAQ_82C599     0x0600
-#define PCI_DEVICE_ID_CONTAQ_82C693     0xc693
 
- * linux/drivers/block/cy82c693.c       Version 0.34    Dec. 13, 1999
- *
- *  Copyright (C) 1998-99 Andreas S. Krebs (akrebs@altavista.net), Maintainer
- *  Copyright (C) 1998-99 Andre Hedrick, Integrater
+On Tuesday, March 27, 2001 08:21:07 AM -0800 Christoph Lameter
+<christoph@lameter.com> wrote:
 
- * Notes:
- * - I recently got a 16.8G IBM DTTA, so I was able to test it with
- *   a large and fast disk - the results look great, so I'd say the
- *   driver is working fine :-)
- *   hdparm -t reports 8.17 MB/sec at about 6% CPU usage for the DTTA
- * - this is my first linux driver, so there's probably a lot  of room
- *   for optimizations and bug fixing, so feel free to do it.
- * - use idebus=xx parameter to set PCI bus speed - needed to calc
- *   timings for PIO modes (default will be 40)
- * - if using PIO mode it's a good idea to set the PIO mode and
- *   32-bit I/O support (if possible), e.g. hdparm -p2 -c1 /dev/hda
- * - I had some problems with my IBM DHEA with PIO modes < 2
- *   (lost interrupts) ?????
- * - first tests with DMA look okay, they seem to work, but there is a
- *   problem with sound - the BusMaster IDE TimeOut should fixed this
+>  
+> <-------------debugreiserfs, 2000------------->
+> reiserfsprogs 3.x.0h
+> 9454 is free in true bitmap
+>  
+> ===================================================================
+> LEAF NODE (9454) contains level=1, nr_items=11, free_space=16 rdkey
+> -------------------------------------------------------------------------
+> ------ |  3|1928 5204 0x0 SD, len 44, entry count 65535, fsck need 0,
+> format new| (NEW SD), mode d---------, size 96, nlink 2, mtime 03/23/2001
+> 20:49:37
+> -------------------------------------------------------------------------
+> ------ |  4|1928 5204 0x1 DIR, len 184, entry count 5, fsck need 0,
+> format old| ###: Name                     length    Object key
+> Hash     Gen number
+>   0: ".                        "(  1)   1928           5204           0
+> 1, loc b0,  state 4 ()
+>   1: "..                       "(  2)      1              2           0
+> 2, loc a8,  state 4 ()
+>   2: "cache3A0F94EA0A00557.html"( 25)   5204           5334  1942043776
+> 0, loc 88,  state 4 ()
+>   3: "cache3A0F94EA0A00557.html"( -6) 263760           5334        5248
+> 86, loc 88,  state 4 (BROKEN)
+>   4: "cache3A8CCC6A0490B05.gifcache393C2B6A2CD2DF1.crumb"( 50) 263760
+> 64136        5248   86, loc 50,  state 4 (BROKEN)
 
-This is your fix....
+Ok, notice how entry 2 and 3 are the same file name?  That is a big part of
+your problem, and it should never happen with the normal kernel code.  The
+two lines that show up as (BROKEN) mean their hash values are incorrect.
 
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
+So, were there errors present before you ran reiserfsck -x?  Had you run
+any version of reiserfsck (with -x or --rebuild-tree) before that?
+
+I'm guessing these problems were caused by reiserfsck, things caused by
+kernel bug would tend towards much more random errors.  The solution will
+probably be an upgrade to the latest fsck version, but I'd like to make
+sure we've got the problem nailed down.
+
+-chris
 

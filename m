@@ -1,40 +1,28 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317139AbSFFSyG>; Thu, 6 Jun 2002 14:54:06 -0400
+	id <S317096AbSFFSvA>; Thu, 6 Jun 2002 14:51:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317141AbSFFSyB>; Thu, 6 Jun 2002 14:54:01 -0400
-Received: from ns.suse.de ([213.95.15.193]:53778 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317139AbSFFSxw>;
-	Thu, 6 Jun 2002 14:53:52 -0400
-Date: Thu, 6 Jun 2002 20:53:52 +0200
-From: Dave Jones <davej@suse.de>
-To: Stuart MacDonald <stuartm@connecttech.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S317114AbSFFSta>; Thu, 6 Jun 2002 14:49:30 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:20363 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S317096AbSFFSsf>;
+	Thu, 6 Jun 2002 14:48:35 -0400
+Date: Thu, 6 Jun 2002 20:48:35 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200206061848.UAA19403@harpo.it.uu.se>
+To: stuartm@connecttech.com
 Subject: Re: [BUG] dd, floppy, 2.5.18
-Message-ID: <20020606205352.C16262@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Stuart MacDonald <stuartm@connecttech.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <02aa01c20d86$ae9e8bc0$294b82ce@connecttech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 06, 2002 at 02:19:22PM -0400, Stuart MacDonald wrote:
- > I'm willing to help with some testing to figure out the problem; I use
- > this dd method to make diskette images for customers all the time, and
- > I will need it fixed for 2.6.x.
+On Thu, 6 Jun 2002 14:19:22 -0400, Stuart MacDonald wrote:
+># uname -a
+>Linux moll 2.5.18 #1 SMP Wed May 29 15:18:20 EDT 2002 i686 unknown
 
-There's a patch included in 2.5.20-dj3 from Mikael Pettersson,
-which should address the corruption on IO problem.
-You can also fish out the individual patch at..
-http://www.codemonkey.org.uk/patches/merged/2.5.20/dj3/
+[various floppy problems]
 
-        Dave
+The floppy driver got broken in 2.5.13. Please try the following patch:
+http://www.csd.uu.se/~mikpe/linux/patches/2.5/patch-fix-floppy-2.5.20
+It works for me and at least one other person.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+/Mikael

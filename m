@@ -1,79 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262100AbTEEIlF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 04:41:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbTEEIlF
+	id S262108AbTEEIrG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 04:47:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbTEEIrG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 04:41:05 -0400
-Received: from pccn7.mppmu.mpg.de ([134.107.2.238]:33727 "EHLO
-	pccn7.mppmu.mpg.de") by vger.kernel.org with ESMTP id S262100AbTEEIlD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 04:41:03 -0400
-Date: Mon, 5 May 2003 10:53:27 +0200 (CEST)
-From: Peter Breitenlohner <peb@mppmu.mpg.de>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: PROBLEM: linux-2.4.20 kernel bug (sound: ac97_codec.c prints garbage)
-Message-ID: <Pine.LNX.4.55.0305051038460.4368@pcl321.mppmu.mpg.de>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1803957763-736455324-1052124807=:4368"
+	Mon, 5 May 2003 04:47:06 -0400
+Received: from [12.47.58.20] ([12.47.58.20]:33913 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S262105AbTEEIrD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 04:47:03 -0400
+Date: Mon, 5 May 2003 02:01:04 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: dougg@torque.net
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: illegal context for sleeping ... rmmod ide-cd + ide-scsi
+Message-Id: <20030505020104.0abc66ba.akpm@digeo.com>
+In-Reply-To: <3EB62347.8020109@torque.net>
+References: <3EB62347.8020109@torque.net>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 05 May 2003 08:59:27.0780 (UTC) FILETIME=[A2178640:01C312E4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Douglas Gilbert <dougg@torque.net> wrote:
+>
+> In lk 2.5.69 (and in 68) both the ide-cd and ide-scsi
+> modules generate a "sleeping function called from illegal
+> context" stack trace when removed.
+> 
+> After "rmmod ide-cd" this appears:
+>   Debug: sleeping function called from illegal context
+>          at include/asm/semaphore.h:119
+>   Call Trace:
+>    [<c011dcec>] __might_sleep+0x5c/0x70
 
---1803957763-736455324-1052124807=:4368
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+ide_unregister_subdriver() does spin_lock_irqsave(&ide_lock), then
+calls auto_remove_settings(), which does down(&ide_setting_sem);
 
-Hi Alan,
+A simple fix might be:
 
-you might not exactly be the right person for this, but at least you are
-(have been) associated with sound.
+diff -puN drivers/ide/ide.c~ide_setting_sem-fix drivers/ide/ide.c
+--- 25/drivers/ide/ide.c~ide_setting_sem-fix	2003-05-05 01:59:01.000000000 -0700
++++ 25-akpm/drivers/ide/ide.c	2003-05-05 02:00:21.000000000 -0700
+@@ -1131,13 +1131,12 @@ ide_settings_t *ide_find_setting_by_name
+  *
+  *	Automatically remove all the driver specific settings for this
+  *	drive. This function may sleep and must not be called from IRQ
+- *	context. Takes the settings_lock
++ *	context. The caller must hold ide_setting_sem.
+  */
+  
+ static void auto_remove_settings (ide_drive_t *drive)
+ {
+ 	ide_settings_t *setting;
+-	down(&ide_setting_sem);
+ repeat:
+ 	setting = drive->settings;
+ 	while (setting) {
+@@ -1147,7 +1146,6 @@ repeat:
+ 		}
+ 		setting = setting->next;
+ 	}
+-	up(&ide_setting_sem);
+ }
+ 
+ /**
+@@ -2350,9 +2348,11 @@ int ide_unregister_subdriver (ide_drive_
+ {
+ 	unsigned long flags;
+ 	
++	down(&ide_setting_sem);
+ 	spin_lock_irqsave(&ide_lock, flags);
+ 	if (drive->usage || drive->driver == &idedefault_driver || DRIVER(drive)->busy) {
+ 		spin_unlock_irqrestore(&ide_lock, flags);
++		up(&ide_setting_sem);
+ 		return 1;
+ 	}
+ #if defined(CONFIG_BLK_DEV_IDEPNP) && defined(CONFIG_PNP) && defined(MODULE)
+@@ -2363,6 +2363,7 @@ int ide_unregister_subdriver (ide_drive_
+ 	ide_remove_proc_entries(drive->proc, generic_subdriver_entries);
+ #endif
+ 	auto_remove_settings(drive);
++	up(&ide_setting_sem);
+ 	drive->driver = &idedefault_driver;
+ 	setup_driver_defaults(drive);
+ 	spin_unlock_irqrestore(&ide_lock, flags);
 
-PROBLEM:
+_
 
-1. linux-2.4.20 kernel bug (sound: ac97_codec.c prints garbage)
-
-2. A change in drivers/sound/ac97_codec.c introduced between 2.4.18 and
-2.4.20 has the consequence that ac97_codec.c prints garbage to the syslog.
-
-3. sound
-
-4. 2.4.20
-
-8. This ought to be fixed as per the attached patch (or equivalent).
-
-Some comments:
-1. the format for the first snprintf is broken ("%0x4X" instead of "%4X").
-2. the function should return after the first snprintf.
-
-Possibly all this has already been noticed. If not I would appreciate it that
-could be fixed for the upcoming 2.4.21.
-
-regards
-Peter Breitenlohner <peb@mppmu.mpg.de>
---1803957763-736455324-1052124807=:4368
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="linux-2.4.20-patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.55.0305051053270.4368@pcl321.mppmu.mpg.de>
-Content-Description: 
-Content-Disposition: attachment; filename="linux-2.4.20-patch"
-
-LS0tIGxpbnV4LTIuNC4yMC9kcml2ZXJzL3NvdW5kL2FjOTdfY29kZWMuYy5v
-cmlnCTIwMDItMTEtMjkgMDA6NTM6MTQuMDAwMDAwMDAwICswMTAwDQorKysg
-bGludXgtMi40LjIwL2RyaXZlcnMvc291bmQvYWM5N19jb2RlYy5jCTIwMDMt
-MDUtMDMgMTc6NDM6MTQuMDAwMDAwMDAwICswMjAwDQpAQCAtNjY2LDExICs2
-NjYsMTMgQEANCiBzdGF0aWMgY2hhciAqY29kZWNfaWQodTE2IGlkMSwgdTE2
-IGlkMiwgY2hhciAqYnVmKQ0KIHsNCiAJaWYoaWQxJjB4ODA4MCkNCi0JCXNu
-cHJpbnRmKGJ1ZiwgMTAsICIlMHg0WDolMHg0WCIsIGlkMSwgaWQyKTsNCi0J
-YnVmWzBdID0gKGlkMSA+PiA4KTsNCi0JYnVmWzFdID0gKGlkMSAmIDB4RkYp
-Ow0KLQlidWZbMl0gPSAoaWQyID4+IDgpOw0KLQlzbnByaW50ZihidWYrMywg
-NywgIiVkIiwgaWQyJjB4RkYpOw0KKwkJc25wcmludGYoYnVmLCAxMCwgIiUw
-NFg6JTA0WCIsIGlkMSwgaWQyKTsNCisJZWxzZSB7DQorCQlidWZbMF0gPSAo
-aWQxID4+IDgpOw0KKwkJYnVmWzFdID0gKGlkMSAmIDB4RkYpOw0KKwkJYnVm
-WzJdID0gKGlkMiA+PiA4KTsNCisJCXNucHJpbnRmKGJ1ZiszLCA3LCAiJWQi
-LCBpZDImMHhGRik7DQorCX0NCiAJcmV0dXJuIGJ1ZjsNCiB9DQogIA0K
-
---1803957763-736455324-1052124807=:4368--

@@ -1,55 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263679AbUAaCT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 21:19:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263695AbUAaCT0
+	id S263695AbUAaCZI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 21:25:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264472AbUAaCZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 21:19:26 -0500
-Received: from hera.kernel.org ([63.209.29.2]:11663 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S263679AbUAaCTZ (ORCPT
+	Fri, 30 Jan 2004 21:25:08 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:63933 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263695AbUAaCZD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 21:19:25 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: PATCH to access old-style FAT fs
-Date: Sat, 31 Jan 2004 02:19:16 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, with we do not fancy
-Message-ID: <bvf3b3$6pr$2@terminus.zytor.com>
-References: <20040126173949.GA788@frodo.local> <20040128202443.GA9246@frodo.local> <87bron7ppd.fsf@devron.myhome.or.jp> <20040129105624.GA1072@frodo.local>
+	Fri, 30 Jan 2004 21:25:03 -0500
+Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
+From: john stultz <johnstul@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
+       andrea <andrea@suse.de>, Joel Becker <Joel.Becker@oracle.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Chris McDermott <lcm@us.ibm.com>
+In-Reply-To: <m1ad45x986.fsf@ebiederm.dsl.xmission.com>
+References: <1075344395.1592.87.camel@cog.beaverton.ibm.com>
+	 <m1ad45x986.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Message-Id: <1075515631.2492.11.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1075515556 6971 66.80.2.163 (31 Jan 2004 02:19:16 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Sat, 31 Jan 2004 02:19:16 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: hpa@smyrno.(none) (H. Peter Anvin)
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 30 Jan 2004 18:20:32 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20040129105624.GA1072@frodo.local>
-By author:    Frodo Looijaard <frodol@dds.nl>
-In newsgroup: linux.dev.kernel
+On Fri, 2004-01-30 at 16:17, Eric W. Biederman wrote:
+> john stultz <johnstul@us.ibm.com> writes:
 > 
-> I have run a small test in MS-DOS 5.00:
+> > All,
+> >         This is my port of the x86-64 vsyscall gettimeofday code to
+> > i386. This patch moves gettimeofday into userspace, so it can be called
+> > without the syscall overhead, greatly improving performance. This is
+> > important for any application, like a database, which heavily uses
+> > gettimeofday for timestamping. It supports both the TSC and IBM x44X
+> > cyclone time source.
 > 
->   1) Create a new directory
->   2) Create five files in it
->   3) Change the first character of the second filename to 0x00 with an editor
->   4) Do a DIR listing: only one file is seen
->      Linux shows four files!
->   5) Create a new file
->   6) Do a DIR listing: there are five files
+> > 
+> > Example performance gain: (vs. int80)
+> > Normal gettimeofday 
+> > gettimeofday ( 1665576us / 1000000runs ) = 1.665574us
+> > vsyscall LD_PRELOAD gettimeofday
+> > gettimeofday ( 868378us / 1000000runs ) = 0.868377us
 > 
-> So MS-DOS 5.00 at least does stop when a 0x00 marker is found, but does
-> not write new 0x00 markers when a 0x00 marker is overwritten. 
-> 
+> And what is the performance gain over using the kernel sysenter
+> implementation?
 
-This is of course dangerous, since it could create conflicts.
+Sorry, I hadn't gotten around to upgrading the glibc on my dev box. 
 
-Thus, I suggest we do write new 0x00 markers; even though it's not
-required (it only matters if the filesystem is out of spec and
-therefore by definition corrupt), it would help the Psion, and
-wouldn't cause any problems for in-spec filesystems.
+Here's the sysenter comparison:
 
-	-hpa
+Normal gettimeofday
+gettimeofday ( 1239215us / 1000000runs ) = 1.239214us
+vsyscall LD_PRELOAD gettimeofday
+gettimeofday ( 805117us / 1000000runs ) = 0.805116us
+
+
+It should be noted that all the numbers I've posted so far are using the
+cyclone timesource. Here's the test running using the TSC timesource
+(sysenter as well):
+
+Normal gettimeofday
+gettimeofday ( 586046us / 1000000runs ) = 0.586045us
+vsyscall LD_PRELOAD gettimeofday
+gettimeofday ( 179972us / 1000000runs ) = 0.179972us
+
+
+thanks
+-john
+

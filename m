@@ -1,61 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262024AbVAYRXt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262018AbVAYR0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262024AbVAYRXt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 12:23:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbVAYRUX
+	id S262018AbVAYR0X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 12:26:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbVAYR0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 12:20:23 -0500
-Received: from mail.suse.de ([195.135.220.2]:41193 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262029AbVAYRRD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 12:17:03 -0500
-Subject: Re: [patch 1/13] Qsort
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Olaf Kirch <okir@suse.de>, Andi Kleen <ak@muc.de>,
-       Nathan Scott <nathans@sgi.com>,
-       Mike Waychison <Michael.Waychison@sun.com>,
-       Jesper Juhl <juhl-lkml@dif.dk>, Felipe Alfaro Solana <lkml@mac.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Buck Huppmann <buchk@pobox.com>, Neil Brown <neilb@cse.unsw.edu.au>,
-       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
-       Andrew Morton <akpm@osdl.org>, Tim Hockin <thockin@hockin.org>
-In-Reply-To: <1106672637.11449.24.camel@lade.trondhjem.org>
-References: <20050122203326.402087000@blunzn.suse.de>
-	 <41F570F3.3020306@sun.com> <20050125065157.GA8297@muc.de>
-	 <200501251112.46476.agruen@suse.de> <20050125120023.GA8067@muc.de>
-	 <20050125120507.GH19199@suse.de>
-	 <1106671920.11449.11.camel@lade.trondhjem.org>
-	 <1106672028.9607.33.camel@winden.suse.de>
-	 <1106672637.11449.24.camel@lade.trondhjem.org>
-Content-Type: text/plain
-Organization: SUSE Labs
-Message-Id: <1106673415.9607.36.camel@winden.suse.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 25 Jan 2005 18:16:56 +0100
+	Tue, 25 Jan 2005 12:26:23 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:41456 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262018AbVAYR0I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 12:26:08 -0500
+From: Nick Pollitt <npollitt@mvista.com>
+Organization: MontaVista
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: Configure mangles hex values
+Date: Tue, 25 Jan 2005 09:25:57 -0800
+User-Agent: KMail/1.7.2
+Cc: kaos@sgi.com, Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200501241416.36422.npollitt@mvista.com> <200501241441.56586.npollitt@mvista.com> <20050125092021.GA19359@logos.cnet>
+In-Reply-To: <20050125092021.GA19359@logos.cnet>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501250925.57693.npollitt@mvista.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-25 at 18:03, Trond Myklebust wrote:
-> ty den 25.01.2005 Klokka 17:53 (+0100) skreiv Andreas Gruenbacher:
-> > On Tue, 2005-01-25 at 17:52, Trond Myklebust wrote:
-> > > So here's an iconoclastic question or two:
-> > > 
-> > >   Why can't clients sort the list in userland, before they call down to
-> > > the kernel?
-> > 
-> > Tell that to Sun Microsystems.
-> 
-> Whatever Sun chooses to do or not do changes nothing to the question of
-> why our client would want to do a quicksort in the kernel.
+Hello.  I'm thinking that the 0x was stripped for purely cosmetic reasons 
+rather than anything functional.  I had originally thought that the readln 
+function might need the formatting, but taking a closer look at it now I 
+don't see any need.
 
-Well, it determines what we must accept, both on the server side and the
-client side.
+Nick
 
-Cheers,
--- 
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX GMBH
-
+On Tuesday 25 January 2005 1:20 am, Marcelo Tosatti wrote:
+> Hi Nick,
+>
+> Curiosity: What was the reason for stripping the leading 0x?
+>
+> On Mon, Jan 24, 2005 at 02:41:56PM -0800, Nick Pollitt wrote:
+> > Sorry about previous message.
+> >
+> > The hex function in scripts/Configure strips the leading 0x from hex
+> > values. The 0x needs to be there in autoconf.h, and stripping it out
+> > causes the following problematic scenario:
+> >
+> > If I start with a hex value in my config file like this:
+> > CONFIG_LOWMEM_SIZE=0x40000000
+> > and then run make oldconfig, it strips out the '0x' so I end up with
+> > this: CONFIG_LOWMEM_SIZE=40000000
+> > Then if I run make xconfig, it doesn't think this is a valid hex value,
+> > so it replaces my value with the default:
+> > CONFIG_LOWMEM_SIZE=0x20000000
+> >
+> > The following patch removes the lines that strip out 0x, and inserts the
+> > 0x if appropriate.
+> >
+> > --- scripts/Configure.orig 2005-01-24 13:31:55.000000000 -0800
+> > +++ scripts/Configure 2005-01-24 13:34:20.000000000 -0800
+> > @@ -378,15 +378,18 @@
+> >  function hex () {
+> >   old=$(eval echo "\${$2}")
+> >   def=${old:-$3}
+> > - def=${def#*[x,X]}
+> >   while :; do
+> >     readln "$1 ($2) [$def] " "$def" "$old"
+> > -   ans=${ans#*[x,X]}
+> > -   if expr "$ans" : '[0-9a-fA-F][0-9a-fA-F]*$' > /dev/null; then
+> > -     define_hex "$2" "0x$ans"
+> > +   if expr "$ans" : '0x[0-9a-fA-F][0-9a-fA-F]*$' > /dev/null; then
+> > +     define_hex "$2" "$ans"
+> >       break
+> >     else
+> > -     help "$2"
+> > +     if expr "$ans" : '[0-9a-fA-F][0-9a-fA-F]*$' > /dev/null; then
+> > +       define_hex "$2" "0x$ans"
+> > +       break
+> > +     else
+> > +       help "$2"
+> > +     fi
+> >     fi
+> >   done
+> >  }

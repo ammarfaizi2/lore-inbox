@@ -1,33 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263058AbRE1Nji>; Mon, 28 May 2001 09:39:38 -0400
+	id <S263060AbRE1Nlj>; Mon, 28 May 2001 09:41:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263060AbRE1Nj2>; Mon, 28 May 2001 09:39:28 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5906 "EHLO
+	id <S263061AbRE1Nl3>; Mon, 28 May 2001 09:41:29 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:7698 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263058AbRE1NjP>; Mon, 28 May 2001 09:39:15 -0400
-Subject: Re: Linux 2.4.5-ac2
-To: fabio@chromium.com (Fabio Riccardi)
-Date: Mon, 28 May 2001 14:37:00 +0100 (BST)
-Cc: laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org,
-        andrea@suse.de (Andrea Arcangeli), bentw@chello.nl (Ben Twijnstra)
-In-Reply-To: <3B11C9AB.72075EC6@chromium.com> from "Fabio Riccardi" at May 27, 2001 08:44:43 PM
+	id <S263060AbRE1NlS>; Mon, 28 May 2001 09:41:18 -0400
+Subject: Re: Overkeen CDROM disk-change messages
+To: harri@synopsys.COM (Harald Dunkel)
+Date: Mon, 28 May 2001 14:38:39 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), rankinc@pacbell.net (Chris Rankin),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3B11DB3A.E99D0895@Synopsys.COM> from "Harald Dunkel" at May 28, 2001 06:59:38 AM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E154NCe-000375-00@the-village.bc.nu>
+Message-Id: <E154NEF-00037I-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Performance is back to that of 2.4.2-ac26, and stability is a lot better. Under
-> heavy FS pressure 2.4.5-ac2 is about 5-10% faster than vanilla 2.4.5, the aa1,2
-> kernels have the same performance of vanilla 2.4.5.
-> 
-> Which one of your changes affected performance so much?
+> If there is no CD in the drive, why are there messages in kern.log 
+> about a CD change? Shouldn't it be something like 'CD drive empty'?
 
-Its much more a case that the 2.4.5 tree got fixed and I picked up the 2.4.5
-changes. Its still not perfect (bigmem will deadlock again as in 2.4.5 vanilla
-now) but its a much better basis to work from again
-
+Because that is what the drive is reporting back to the OS

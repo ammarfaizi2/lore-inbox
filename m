@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281183AbRKYWvc>; Sun, 25 Nov 2001 17:51:32 -0500
+	id <S281184AbRKYWxc>; Sun, 25 Nov 2001 17:53:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281185AbRKYWvX>; Sun, 25 Nov 2001 17:51:23 -0500
-Received: from [213.96.124.18] ([213.96.124.18]:22767 "HELO dardhal")
-	by vger.kernel.org with SMTP id <S281183AbRKYWvG>;
-	Sun, 25 Nov 2001 17:51:06 -0500
-Date: Sun, 25 Nov 2001 23:50:58 +0100
-From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
-	<jdomingo@internautas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Idea for next kernels stables
-Message-ID: <20011125235058.B1250@dardhal.mired.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.42.0111251928240.3571-100000@ids.big.univali.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.42.0111251928240.3571-100000@ids.big.univali.br>
-User-Agent: Mutt/1.3.23i
+	id <S281185AbRKYWxX>; Sun, 25 Nov 2001 17:53:23 -0500
+Received: from dsl-213-023-043-168.arcor-ip.net ([213.23.43.168]:45319 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S281184AbRKYWxN>;
+	Sun, 25 Nov 2001 17:53:13 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Chris Wedgwood <cw@f00f.org>,
+        Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+Subject: Re: Journaling pointless with today's hard disks?
+Date: Sun, 25 Nov 2001 23:55:43 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org, Andre Hedrick <andre@linux-ide.org>
+In-Reply-To: <tgpu68gw34.fsf@mercury.rus.uni-stuttgart.de> <20011125221418.A9672@weta.f00f.org>
+In-Reply-To: <20011125221418.A9672@weta.f00f.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E1688Bc-00005W-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, 25 November 2001, at 19:44:55 -0200,
-Marcus Grando wrote:
+On November 25, 2001 10:14 am, Chris Wedgwood wrote:
+> On Sat, Nov 24, 2001 at 02:03:11PM +0100, Florian Weimer wrote:
+> Now, since EMC, NetApp, Sun, HP, Compaq, etc. all have products which
+> presumable depend on this behavior, I don't think it's going to go
+> away, it perhaps will just become important to know which drives are
+> brain-damaged and list them so people can avoid them.
+> 
+> As this will affect the Windows world too consumer pressure will
+> hopefully rectify this problem.
 
-> 
-> Hi,
-> 
-> I have an idea for next kernels stables.
-> 
-> Before pre´s releases a release -rc it would have the paper of final test, 
-> not to have problem of a stable version to leave with problems.
-> 
-That is something has been proposed several times in past months. As now
-the 2.4.x kernel series maintainer is Marcelo Tosatti, we can expect a
-different approach to kernel releases to that of what Linus Torvalds has
-been doing in the past (himself said he is not a good maintainer because
-"he gets bored and releases the code soon").
+Andre Hedrik has put together a site with exactly this intention, check out:
 
--- 
-José Luis Domingo López
-Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
- 
-jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
-jdomingo AT internautas DOT   org  => Spam at your own risk
+    http://linuxdiskcert.org/
 
+Of course, there's a lot of hard work between here and having a useful 
+database, but, hey, well begun and all that...
+
+According to Andre:
+
+"the requirements are they apply a patch run a series of tests and then I 
+will submit to the OEM for rebutal and if there is no resolution the drive 
+and the test procedure on how to reproduce the error will be posted"
+
+--
+Daniel

@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269289AbUIHSvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269302AbUIHSwp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269289AbUIHSvP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 14:51:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269302AbUIHSvP
+	id S269302AbUIHSwp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 14:52:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269303AbUIHSwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 14:51:15 -0400
-Received: from mail.tmr.com ([216.238.38.203]:11789 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S269304AbUIHSuA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 14:50:00 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: New 200Gb disk
-Date: Wed, 08 Sep 2004 14:50:15 -0400
-Organization: TMR Associates, Inc
-Message-ID: <chnjrr$u3k$1@gatekeeper.tmr.com>
-References: <200409080747.15573.gene.heskett@verizon.net><200409080747.15573.gene.heskett@verizon.net> <20040908115746.GY3106@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 8 Sep 2004 14:52:32 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:20242 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S269302AbUIHSwR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 14:52:17 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Tommy Reynolds <Tommy.Reynolds@MegaCoder.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: proc stalls
+Date: Wed, 8 Sep 2004 21:52:37 +0300
+User-Agent: KMail/1.5.4
+References: <20040908054101.GR2966@washoe.rutgers.edu> <20040908141848.GB21729@washoe.rutgers.edu> <20040908105650.398e951a.Tommy.Reynolds@MegaCoder.com>
+In-Reply-To: <20040908105650.398e951a.Tommy.Reynolds@MegaCoder.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1094668987 30836 192.168.12.100 (8 Sep 2004 18:43:07 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-In-Reply-To: <20040908115746.GY3106@holomorphy.com>
+Content-Disposition: inline
+Message-Id: <200409082152.37022.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> On Wed, Sep 08, 2004 at 07:47:15AM -0400, Gene Heskett wrote:
-> 
->>I intend to use this disk with amanda as a FILE repository to replace 
->>a failed tape changer.  Are there any gotcha's I should be aware of.  
->>Running a 2.6.9-rc1-mm2 kernel ATM.  Ext3 filesystems only.
-> 
-> 
-> 25GB disks have been supported for a very long time. =)
+On Wednesday 08 September 2004 18:56, Tommy Reynolds wrote:
+> Uttered Yaroslav Halchenko <yoh@psychology.rutgers.edu>, spake thus:
+> > that problem was linked to the fact that nfs-mounted directory became
+> > unavailable...
+> > Any ideas on how to further debug this situation to avoid future
+> > problems?
+>
+> This is the required behavior for "hard" NFS mounts.  NFS doesn't
+> deal with servers that drop off-line very well.
+>
+> Perhaps you should use the "soft" and/or the "timeo=N" value.  A
+> "soft" mount will not cause your client to hang if the server goes
+> away.  Unfortunately, this also has implications for application
+> program's ideas about file integrity, but there you go.
 
-I assume from the smiley that this is some kind of in-joke, since it's 
-not obviously related to the question in the subject... Could you share 
-it? Is this the joke about "three disks walk into a bar, a PATA, a SATA, 
-and a SCSI..." or what?
+Think about some very important work being run on NFS-mounted file,
+and server is brought down while you're at lunch. I much prefer
+client to hang forever (i.e., no 'soft' option!), waiting for admin
+to take action.
 
-I assumed the OP had a legitimate question.
+I use 'hard,intr' so admin can kill 'hung' processed if (s)he wants to.
+--
+vda
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me

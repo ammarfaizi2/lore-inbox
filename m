@@ -1,63 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269038AbUINV6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269494AbUINV6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269038AbUINV6j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 17:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269592AbUINRKA
+	id S269494AbUINV6l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 17:58:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269673AbUINVtz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 13:10:00 -0400
-Received: from mo01.iij4u.or.jp ([210.130.0.20]:56812 "EHLO mo01.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S269531AbUINQNE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 12:13:04 -0400
-Date: Wed, 15 Sep 2004 01:12:53 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] mips: fixed do_signal in arch/mips/kernel/signal.c
-Message-Id: <20040915011253.6c0a1bb1.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Sep 2004 17:49:55 -0400
+Received: from pop.gmx.de ([213.165.64.20]:32428 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S269038AbUINVoL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 17:44:11 -0400
+X-Authenticated: #1700068
+From: r2 <torsten.foertsch@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Mouse Problems with 2.6
+Date: Tue, 14 Sep 2004 23:43:46 +0200
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200409142344.00646.r2@opi.home>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The change of get_signal_to_deliver() is followed.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+Hi,
 
-diff -urN -X dontdiff vr-orig/arch/mips/kernel/signal.c vr/arch/mips/kernel/signal.c
---- vr-orig/arch/mips/kernel/signal.c	Wed Sep 15 00:50:11 2004
-+++ vr/arch/mips/kernel/signal.c	Wed Sep 15 00:31:06 2004
-@@ -480,10 +480,8 @@
- 	struct pt_regs *regs, int signr, sigset_t *set, siginfo_t *info);
- 
- static inline void handle_signal(unsigned long sig, siginfo_t *info,
--	sigset_t *oldset, struct pt_regs *regs)
-+	struct k_sigaction *ka, sigset_t *oldset, struct pt_regs *regs)
- {
--	struct k_sigaction *ka = &current->sighand->action[sig-1];
--
- 	switch(regs->regs[0]) {
- 	case ERESTART_RESTARTBLOCK:
- 	case ERESTARTNOHAND:
-@@ -535,6 +533,7 @@
- 
- asmlinkage int do_signal(sigset_t *oldset, struct pt_regs *regs)
- {
-+	struct k_sigaction ka;
- 	siginfo_t info;
- 	int signr;
- 
-@@ -560,9 +559,9 @@
- 	if (!oldset)
- 		oldset = &current->blocked;
- 
--	signr = get_signal_to_deliver(&info, regs, NULL);
-+	signr = get_signal_to_deliver(&info, &ka, regs, NULL);
- 	if (signr > 0) {
--		handle_signal(signr, &info, oldset, regs);
-+		handle_signal(signr, &info, &ka, oldset, regs);
- 		return 1;
- 	}
- 
+since I have recently updated to kernel 2.6 (Suse 2.6.5-7.108-default) my 
+mouse is going crazy from time to time and I am seeing such messages in my 
+logfile:
+
+kernel: psmouse.c: Mouse at isa0060/serio2/input0 lost synchronization, 
+throwing 2 bytes away.
+
+How can this be avoided?
+
+My notebook has a touchpad built in and I have additional connected an old 
+Logitech 3 Button PS/2 mouse:
+
+<6>input: PS/2 Logitech Mouse on isa0060/serio2
+<6>serio: i8042 AUX2 port at 0x60,0x64 irq 12
+<6>serio: i8042 AUX3 port at 0x60,0x64 irq 12
+<6>Synaptics Touchpad, model: 1
+<6> Firmware: 5.6
+<6> 180 degree mounted touchpad
+<6> Sensor: 18
+<6> new absolute packet format
+<6> Touchpad has extended capability bits
+<6> -> four buttons
+<6> -> multifinger detection
+<6> -> palm detection
+<6>input: SynPS/2 Synaptics TouchPad on isa0060/serio4
+
+I'd also like to get the old kernel 2.4 touchpad behaviour. With 2.4 the it 
+had sent a Button1 event by simply touching it. Now I have to press the 
+appropriate button.
+
+I have seen the module parameter "proto" in the source. Is it worth to play 
+with it?
+
+Thanks,
+Torsten
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBR2YWwicyCTir8T4RAjCfAKCmHnMSqXUOYmimEB1HhneZjOsVPACeIU0U
+zYaC0HEupjEHsJTreBF0NQM=
+=aYmG
+-----END PGP SIGNATURE-----

@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129272AbRCFUd1>; Tue, 6 Mar 2001 15:33:27 -0500
+	id <S129072AbRCFUd1>; Tue, 6 Mar 2001 15:33:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129072AbRCFUdI>; Tue, 6 Mar 2001 15:33:08 -0500
-Received: from mail.libertysurf.net ([213.36.80.91]:47910 "EHLO
-	mail.libertysurf.net") by vger.kernel.org with ESMTP
-	id <S129797AbRCFUcf>; Tue, 6 Mar 2001 15:32:35 -0500
-From: Paul Bristow <paul@paulbristow.net>
-Reply-To: paul@paulbristow.net
-To: Konrad Stopsack <konrad@stopsack.de>
-Subject: Re: IDE bug in 2.4.2-ac12?
-Date: Tue, 6 Mar 2001 21:32:46 +0000
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <01030620134000.00343@Stopsack>
-In-Reply-To: <01030620134000.00343@Stopsack>
-Cc: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+	id <S129175AbRCFUdJ>; Tue, 6 Mar 2001 15:33:09 -0500
+Received: from 64-60-75-69-cust.telepacific.net ([64.60.75.69]:26887 "EHLO
+	racerx.ixiacom.com") by vger.kernel.org with ESMTP
+	id <S129424AbRCFUcy>; Tue, 6 Mar 2001 15:32:54 -0500
+Message-ID: <3AA54902.AFF8550@ixiacom.com>
+Date: Tue, 06 Mar 2001 12:30:58 -0800
+From: Bryan Rittmeyer <bryan@ixiacom.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01030621324600.01403@zoltar.paulbristow.lan>
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: conducting TCP sessions with non-local IPs
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 March 2001 19:13, Konrad Stopsack wrote:
-> Hello guys,
->
-> I hope you've read my posting "DMA problem with ZIP drive and VIA
-> VT82C598MVP / VT82C586B chip" (why does anybody answer?).
-> I now tried the 2.4.2-ac12 kernel including the latest VIA 82c586b driver
-> (version 3.21), but the effects were almost the same:
-> - just when the kernel tried to access to the hard disk during boot, DMA
-> errors were occured
-> - "hdparm /dev/hda" displayed 9 MB per second (and not 11 MB like without
-> ZIP) - /proc/ide/via reported 16 MB transfer rate (and not 33MB like
-> without ZIP drive)
-> - Kernel 2.4.2-ac12 reports a "ide-floppy: hdd: I/O error, pc = 5a, key = 
-> 5, asc = 24, ascq =  0" error, 2.4.2 doesn't
->
-> My IDE configuration is:
-> /dev/hda: Hard disk  => Primary IDE controller
-> /dev/hdc CD-ROM  => Secondary IDE controller
-> /dev/hdd: ZIP           => Secondary IDE controller
->
-> Could you please tell me whether it's a bug or a feature?
+Hello linux-kernel,
 
-OK.  The ZIP drive can not handle uDMA, so it's normal for the secondary 
-controller to drop back.  In my opinion, the primary controller should stay 
-at uDMA speed, but it is PC hardware so it is perfectly possible there is 
-something cheap that locks them together.  I will bring up ac-12 and check 
-the error message...
+Is there any way to conduct TCP sessions (IE have a userland process
+connect out, or accept connections) using non-local IPs? By "non-local"
+I just mean IPs that aren't assigned to an interface, but do fall into
+the network range of a running interface (so netmask, gateway, etc are
+"known").
 
-> I'm really waiting for your answer - else I might get crazy with this
-> problem
->
-> :-((
->
-> I attached both dmesg and /proc/ide/via, and my old posting.
->
-> cu Konrad
+For example, I want to bring up an interface for 10.0.0.0/255.255.255.0
+and assign it IP 10.0.0.1 Then, I want a process to accept TCP
+connections on, say, 10.0.0.2:1234 or 10.0.0.200:4567 even though these
+IPs are not assigned to any interface. Also, I want to be able to
+connect out with source IP 10.0.0.2 or 10.0.0.200, etc. I will need to
+be able to do this for potentially all IPs in the network, so bringing
+up a new IP-aliased interface (eth0:0, eth0:1, etc) is not feasible.
+Compound that with the fact that I could need to do this for many
+networks, and clearly doing an "ifconfig up" on all possible IPs is not
+a very efficient option.
+
+I have tried enabling "ip_nonlocal_bind" and that prevents a bind call
+to a non-local IP from failing. However, I don't think that's sufficient
+to conduct full TCP/IP sessions from any IP on the network.
+
+This is a really wierd question, but I'm curious if its possible with
+current 2.4.X kernels and, if it's not, how difficult would it be to add
+support for. What areas of the network stack would require modification?
+
+Thanks!
+
+Regards,
+
+Bryan Rittmeyer
 
 -- 
-Paul Bristow
-http://paulbristow.net/linux/idefloppy.html
-Linux ide-floppy maintainer
+Bryan Rittmeyer
+mailto:bryan@ixiacom.com
+Ixia Communications
+26601 W. Agoura Rd.
+Calabasas, CA 91302

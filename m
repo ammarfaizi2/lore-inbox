@@ -1,68 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbVCIKpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262282AbVCIKgC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262279AbVCIKpN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 05:45:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262276AbVCIKpF
+	id S262282AbVCIKgC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 05:36:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbVCIKf3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 05:45:05 -0500
-Received: from smtp.gentoo.org ([134.68.220.30]:55965 "EHLO smtp.gentoo.org")
-	by vger.kernel.org with ESMTP id S262344AbVCIKjH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 05:39:07 -0500
-Subject: amd64 - ide_cd errors
-From: Jeremy Huddleston <eradicator@gentoo.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-uienSsDZ4YrTta0s3qAb"
-Date: Wed, 09 Mar 2005 02:39:06 -0800
-Message-Id: <1110364746.20392.125.camel@cid.outersquare.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Wed, 9 Mar 2005 05:35:29 -0500
+Received: from web60606.mail.yahoo.com ([216.109.118.244]:35417 "HELO
+	web60606.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262282AbVCIKcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 05:32:48 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=Fodyf7XpGdn8cDSDdQ44mYXNysgs67GbmeKhwKM2m4tzpLgLd6D61KUHaCnsWFryISc+BVuq4I3bsc/DYeTrfP4YKD3xTvpzAE/w8cKESzMJ/wMV2NkeXYQG+bOFlRyWBPYCh8BwK7o+0QvrIhPgpX2wFbzhZiR+LX57r8e/mxs=  ;
+Message-ID: <20050309103248.84827.qmail@web60606.mail.yahoo.com>
+Date: Wed, 9 Mar 2005 02:32:48 -0800 (PST)
+From: selvakumar nagendran <kernelselva@yahoo.com>
+Subject: Re: Random number generator in Linux kernel
+To: vintya@excite.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: 6667
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+        I think ur idea of generating a random number
+with a seed will not be effective. The kernel comes up
+with true random number generation by using the random
+interaction of device drivers with the kernel. I think
+that will be more effective than ur logic. It provides
+true randomness and it avoids any guess. 
+For more details u please refer the book ' Linux
+kernel development' by Robert M Love Appendix C kernel
+Random Number Generator. If u still want to stick to
+ur own logic then u can implement it as a function
+inside the kernel.
 
---=-uienSsDZ4YrTta0s3qAb
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Regards,
+selva
 
-I have a dvd+-rw drive (LITE-ON DVDRW LDW-411S with FS0K firmware).  The
-drive appears to opperate correctly.  I can mount media, read from it,
-and burn just fine, but printk output indicates some error.
+--- Vineet Joglekar <vintya@excite.com> wrote:
+> 
+> Hi all,
+> 
+> Can someone please tell me where can I find and
+> which random/pseudo-random number generator can I
+> use inside the linux kernel? (2.4.28)
+> 
+> I found out 1 function get_random_bytes() in
+> linux/drivers/char/random.c but thats not what I
+> want.
+> 
+> I want a function where I will be supplying a seed
+> to that function as an input, and will get a random
+> number back. If same seed is used, same number
+> should be generated again.
+> 
+> Can anybody please help me with that?
+> 
+> Thanks and regards,
+> 
+> Vineet.
+> 
+> _______________________________________________
+> Join Excite! - http://www.excite.com
+> The most personalized portal on the Web!
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-2.6.10:
-hdc: packet command error: status=3D0x51 { DriveReady SeekComplete Error }
-hdc: packet command error: error=3D0x54
-ide: failed opcode was 100
 
-2.6.11:
-hdc: packet command error: status=3D0x51 { DriveReady SeekComplete Error }
-hdc: packet command error: error=3D0x54 { AbortedCommand
-LastFailedSense=3D0x05 }
-ide: failed opcode was: unknown
-
-These messages do not appear if media is not in the tray.  If media is
-in the tray, these messages will repeat continuously (at a rate of about
-2 per second).  The media doesn't need to be mounted, just present.
-
-Additionally, this did not occur when this drive was in an i686 box, but
-it does occur now that it is in an x86_64 box.
-
-Has anyone seen a problem like this or have any suggestions?
-
-Thanks,
-Jeremy
-
---=-uienSsDZ4YrTta0s3qAb
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCLtJKOpjtAl+gMRURAj/OAKCSW82p1Zvi8MUEYiDGYTBmi1qeAgCeNB8g
-g/K1+F1INsSBwDQ2r3ZJV+4=
-=Go/n
------END PGP SIGNATURE-----
-
---=-uienSsDZ4YrTta0s3qAb--
-
+	
+		
+__________________________________ 
+Celebrate Yahoo!'s 10th Birthday! 
+Yahoo! Netrospective: 100 Moments of the Web 
+http://birthday.yahoo.com/netrospective/

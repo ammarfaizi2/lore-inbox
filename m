@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275044AbRJCEsg>; Wed, 3 Oct 2001 00:48:36 -0400
+	id <S275373AbRJCE57>; Wed, 3 Oct 2001 00:57:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275338AbRJCEs0>; Wed, 3 Oct 2001 00:48:26 -0400
-Received: from blount.mail.mindspring.net ([207.69.200.226]:2108 "EHLO
-	blount.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S275044AbRJCEsU>; Wed, 3 Oct 2001 00:48:20 -0400
-Subject: Re: Modutils 2.5 change, start running this command now
-From: Robert Love <rml@tech9.net>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <31135.1002083784@kao2.melbourne.sgi.com>
-In-Reply-To: <31135.1002083784@kao2.melbourne.sgi.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.14.99+cvs.2001.09.30.08.08 (Preview Release)
-Date: 03 Oct 2001 00:48:50 -0400
-Message-Id: <1002084533.858.1.camel@phantasy>
+	id <S275624AbRJCE5s>; Wed, 3 Oct 2001 00:57:48 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:7934 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S275373AbRJCE5h>; Wed, 3 Oct 2001 00:57:37 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Tue, 2 Oct 2001 22:57:51 -0600
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, lvm-devel@sistina.com
+Subject: Re: 2.4.11-pre2 fs/buffer.c: invalidate: busy buffer
+Message-ID: <20011002225751.A8954@turbolinux.com>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org, lvm-devel@sistina.com
+In-Reply-To: <20011002190547.A3323@cm.nu> <9pe345$8ic$1@penguin.transmeta.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9pe345$8ic$1@penguin.transmeta.com>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-10-03 at 00:36, Keith Owens wrote:
-> In current modutils, a module that does not export symbols and does not
-> say EXPORT_NO_SYMBOLS defaults to exporting all symbols.  This is a
-> hangover from kernel 2.0 and will be removed when modutils 2.5 appears,
-> shortly after the kernel 2.5 branch is created.
+On Oct 03, 2001  04:10 +0000, Linus Torvalds wrote:
+> In article <20011002190547.A3323@cm.nu>, Shane Wegner  <shane@cm.nu> wrote:
+> >I am getting the following out of fs/buffer.c immediately
+> >after bootup.  The kernel is 2.4.11-pre2 when the message
+> >was added.
+> >
+> >Oct  2 17:35:08 continuum kernel: invalidate: busy buffer
+> >Oct  2 17:35:08 continuum last message repeated 7 times
+> >
+> >I assume this is an error though it doesn't seem to say so. 
+> 
+> Well, it's an error, but it's an error in that LVM invalidates the block
+> devices a bit too much, and the message really tells you that the code
+> refused to invalidate stuff that must not be invalidated.
+> 
+> It's harmless, although I hope that the LVM people will become a bit
+> less invalidation-happy as a result of the warning (it's always happened
+> before, it just hasn't warned about it in earlier kernels).
 
-This is an excellent move.
+Given that 2.4.10+ have devices in page cache, is there _any_ reason
+why what the kernel sees on a device would be different than what user
+space reads from a device?  I don't think it was ever an issue between
+whole-disk-dev and partition-dev aliasing, since both user-space and
+the kernel are accessing the same device.
 
-> Starting with modutils 2.5, modules must explicitly say what their
-> intention is for symbols.  That will break a lot of existing modules.
-> The command below lists the modules on your system that will be
-> affected.  All code maintainers need to run this against their 2.4
-> modules and do one of two things.  Either export the required symbols
-> (remember to add the .o file to export-objs in the Makefile) or add
-> EXPORT_NO_SYMBOLS; somewhere in the module (no change to Makefile).
+If not, then we can just change the PV_FLUSH code to not do
+invalidate_buffers() on the device for kernels 2.4.10+.  There never
+was a very strong reason to do it for disk identification.
 
-Once 2.5 starts, I'll be happy to go over modules with this script and
-fix up stuff that is unmaintained.
+Cheers, Andreas
 
->  objdump -h `modprobe -l` | \
->  awk '/file format/{file = $1}/__ksymtab/{file = ""}/\.comment/ && file != "" {print file}'
-
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+CC'd LVM folks to get their input on this.
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

@@ -1,74 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277393AbRJVBFG>; Sun, 21 Oct 2001 21:05:06 -0400
+	id <S277396AbRJVBN4>; Sun, 21 Oct 2001 21:13:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277395AbRJVBE4>; Sun, 21 Oct 2001 21:04:56 -0400
-Received: from mail.courier-mta.com ([66.92.103.29]:2967 "EHLO
-	mail.courier-mta.com") by vger.kernel.org with ESMTP
-	id <S277393AbRJVBEu>; Sun, 21 Oct 2001 21:04:50 -0400
-Date: Sun, 21 Oct 2001 21:05:22 -0400 (EDT)
-From: Sam Varshavchik <mrsam@courier-mta.com>
-X-X-Sender: <geo@ny.email-scan.com>
-Reply-To: linux-kernel@vger.kernel.org
-To: PinkFreud <pf-kernel@mirkwood.net>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: SMP lockup with 2.4.12 on VIA chipset (still does it)
-In-Reply-To: <fa.md0b7rv.1c5ob3p@ifi.uio.no>
-Message-ID: <Pine.LNX.4.33.0110212100120.32144-200000@ny.email-scan.com>
-X-No-Archive: Yes
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_ny.email-scan.com-32514-1003712723-0001-2"
+	id <S277398AbRJVBNr>; Sun, 21 Oct 2001 21:13:47 -0400
+Received: from mailout5-0.nyroc.rr.com ([24.92.226.122]:26314 "EHLO
+	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S277396AbRJVBNh>; Sun, 21 Oct 2001 21:13:37 -0400
+Message-ID: <013201c15a96$f3b47a10$1a01a8c0@allyourbase>
+From: "Dan Maas" <dmaas@dcine.com>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <fa.fbu5gjv.1526gp4@ifi.uio.no> <fa.ltbaijv.13jgcr7@ifi.uio.no>
+Subject: Re: The new X-Kernel !
+Date: Sun, 21 Oct 2001 21:14:51 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+>  At present fbdev is just a dumb framebuffer. In time I plan to merge both
+> DRI and fbdev into one common interface. Their is alot of ideas on where
+> graphics handling should be done. IMO the kernel should only manage the
+> state of the hardware amoung the various processes.
 
---=_ny.email-scan.com-32514-1003712723-0001-2
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+The Right Way To Do Graphics, According to Dan (tm):
+----------------------------------------------------
 
-On Sat, 20 Oct 2001, PinkFreud wrote:
+1. kernel driver accepts buffers of drawing commands from user-space clients
+and sends them to graphics card via DMA. Also provides interface for clients
+to allocate pieces of video RAM. Also maintains per-client graphics engine
+state that is context-switched as necessary; textures and framebuffers are
+demand-paged between system RAM and video RAM. Also provides "global"
+controls like graphics mode switching and hardware
+cursor position.
+(DRI does most of this today)
 
-> Please note that this lockup does *NOT* happen with 2.2.19 with SMP, nor
-> does it happen with 2.4.x WITHOUT SMP.  Therefore, I would think
-> whatever's causing this has to do with something that changed in SMP
-> between 2.2.x and 2.4.x.  Please feel free to yell at me if I should post
-> this elsewhere.
+2. user-space library maps from a convenient platform-neutral API (i.e.
+OpenGL) to card-specific buffers of drawing commands.
 
-Try the following patch, and see if it works.  It fixes one potential 
-source of SMP hard lockups for 2.4.7+.  I'm not sure if its fixed yet in 
-2.4.12.  
+3. user-space window server process owns the only visible framebuffer in
+video RAM. Clients give the window server the address of their private
+non-visible framebuffer and wake up the server whenever its contents change.
+Window server assembles the visible desktop by blitting client framebuffers
+to the visible framebuffer. Window server also dispatches input events
+(keypresses/mouse clicks) to appropriate client processes.
 
--- 
-Sam
+(this is basically how Mac OSX works, except OSX does most of these
+operations in software so it is very sluggish)
 
---=_ny.email-scan.com-32514-1003712723-0001-2
-Content-Type: text/plain; charset=us-ascii; name="linux-2.4.7-ioapicdebugfix.patch"
-Content-Transfer-Encoding: base64
-Content-ID: <Pine.LNX.4.33.0110212105220.32144@ny.email-scan.com>
-Content-Description: 
-Content-Disposition: attachment; filename="linux-2.4.7-ioapicdebugfix.patch"
+Advantages of this approach:
+1. clients running on the local machine get full DMA access to the video
+hardware.
+2. window server can do real alpha-channel compositing (true
+transparent/non-rectangular windows).
+3. slow/crashed clients can not harm the window server or other clients.
+4. clients don't have to double-buffer because the window server does it for
+them.
+5. full-screen clients (e.g. games) can be allowed to usurp the window
+server and get direct access to input devices and video hardware.
+6. to achieve network transparency, a "stub" client can be written that
+sends input events and receives drawing commands over a socket.
+7. GUI toolkits can offer a retained-mode API that maps high-level commands
+(e.g. "draw a button") directly to graphics hardware, instead of long, slow
+X protocol streams.
 
-KioqIGxpbnV4L2FyY2gvaTM4Ni9rZXJuZWwvaW9fYXBpYy5jLm9yaWcJVHVl
-IE9jdCAgOSAyMToxMToxMCAyMDAxDQotLS0gbGludXgvYXJjaC9pMzg2L2tl
-cm5lbC9pb19hcGljLmMJVHVlIE9jdCAgOSAyMToxMzowMyAyMDAxDQoqKioq
-KioqKioqKioqKioNCioqKiAxMjQ4LDEyNjEgKioqKg0KICAJYWNrX0FQSUNf
-aXJxKCk7DQogIA0KICAJaWYgKCEodiAmICgxIDw8IChpICYgMHgxZikpKSkg
-ew0KICAjaWZkZWYgQVBJQ19NSVNNQVRDSF9ERUJVRw0KICAJCWF0b21pY19p
-bmMoJmlycV9taXNfY291bnQpOw0KICAjZW5kaWYNCiAgCQlzcGluX2xvY2so
-JmlvYXBpY19sb2NrKTsNCiAgCQlfX21hc2tfYW5kX2VkZ2VfSU9fQVBJQ19p
-cnEoaXJxKTsNCiAgI2lmZGVmIEFQSUNfTE9DS1VQX0RFQlVHDQohIAkJZm9y
-ICg7Oykgew0KISAJCQlzdHJ1Y3QgaXJxX3Bpbl9saXN0ICplbnRyeSA9IGly
-cV8yX3BpbiArIGlycTsNCiAgCQkJdW5zaWduZWQgaW50IHJlZzsNCiAgDQog
-IAkJCWlmIChlbnRyeS0+cGluID09IC0xKQ0KLS0tIDEyNDgsMTI2NCAtLS0t
-DQogIAlhY2tfQVBJQ19pcnEoKTsNCiAgDQogIAlpZiAoISh2ICYgKDEgPDwg
-KGkgJiAweDFmKSkpKSB7DQorICNpZmRlZiBBUElDX0xPQ0tVUF9ERUJVRw0K
-KyAJCXN0cnVjdCBpcnFfcGluX2xpc3QgKmVudHJ5Ow0KKyAjZW5kaWYNCisg
-DQogICNpZmRlZiBBUElDX01JU01BVENIX0RFQlVHDQogIAkJYXRvbWljX2lu
-YygmaXJxX21pc19jb3VudCk7DQogICNlbmRpZg0KICAJCXNwaW5fbG9jaygm
-aW9hcGljX2xvY2spOw0KICAJCV9fbWFza19hbmRfZWRnZV9JT19BUElDX2ly
-cShpcnEpOw0KICAjaWZkZWYgQVBJQ19MT0NLVVBfREVCVUcNCiEgCQlmb3Ig
-KGVudHJ5ID0gaXJxXzJfcGluICsgaXJxOzspIHsNCiAgCQkJdW5zaWduZWQg
-aW50IHJlZzsNCiAgDQogIAkJCWlmIChlbnRyeS0+cGluID09IC0xKQ0K
---=_ny.email-scan.com-32514-1003712723-0001-2--
+i.e. this system provides a superset of the features we have today, because
+it is a "meta" windowing system where every client is equivalent to an X
+server or a DRI client.
+
+Disadvantages:
+1. would probably require >$1 million investment in software engineering to
+implement, could not be done as a free product.
+2. demands a sophisticated resource-management system to demand-page
+fine-grained resources to and from the video card; may not be fully
+implementable on today's graphics hardware.
+3. only a single graphics card vendor provides (partial) documentation for a
+card that is fast and functional enough to make this idea interesting (ATI).
+4. a translation layer would have to be written to emulate X for legacy
+clients.
+5. Linux/UNIX people mostly don't give a sh*t about good graphics.
+
+Regards,
+Dan
+

@@ -1,81 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262421AbVCCV6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262654AbVCCXCa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262421AbVCCV6m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 16:58:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbVCCVuv
+	id S262654AbVCCXCa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 18:02:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262649AbVCCXAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 16:50:51 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:5898 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262535AbVCCVrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 16:47:12 -0500
-Date: Thu, 3 Mar 2005 22:47:09 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: george@mvista.com
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] kernel/posix-timers.c: cleanups
-Message-ID: <20050303214709.GO4608@stusta.de>
+	Thu, 3 Mar 2005 18:00:34 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:27888 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262691AbVCCW5s
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 17:57:48 -0500
+Date: Thu, 3 Mar 2005 16:55:42 -0600
+To: Paul Mackerras <paulus@samba.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Rene Rebe <rene@exactcode.de>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>, chrisw@osdl.org
+Subject: Re: [PATCH] trivial fix for 2.6.11 raid6 compilation on ppc w/ Altivec
+Message-ID: <20050303225542.GB16886@austin.ibm.com>
+References: <422751D9.2060603@exactcode.de> <422756DC.6000405@pobox.com> <16935.36862.137151.499468@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <16935.36862.137151.499468@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.5.6+20040523i
+From: olof@austin.ibm.com (Olof Johansson)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following cleanups:
-- make a needlessly global function static
-- remove the unused global function do_posix_clock_notimer_create
+On Fri, Mar 04, 2005 at 09:30:22AM +1100, Paul Mackerras wrote:
+> > I nominate this as a candidate for linux-2.6.11 release branch.  :)
+> 
+> No.  Unfortunately if you fix ppc64 here you will break ppc, and vice
+> versa.  Yes, we are going to reconcile the cur_cpu_spec definitions
+> between ppc and ppc64. :)
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+The proper fix is to get the cpu_has_feature patch merged up from -mm,
+but that's 99% cleanup and 1% bugfix. So here's a more appropriate fix
+for the 2.6.11 patch stream. This goes on top of the one that just got
+merged there.
+
+
+-Olof
+
 
 ---
 
- include/linux/posix-timers.h |    3 +--
- kernel/posix-timers.c        |    9 ++-------
- 2 files changed, 3 insertions(+), 9 deletions(-)
 
---- linux-2.6.11-rc5-mm1-full/include/linux/posix-timers.h.old	2005-03-03 16:57:39.000000000 +0100
-+++ linux-2.6.11-rc5-mm1-full/include/linux/posix-timers.h	2005-03-03 16:57:51.000000000 +0100
-@@ -89,8 +89,7 @@
- 
- void register_posix_clock(clockid_t clock_id, struct k_clock *new_clock);
- 
--/* Error handlers for timer_create, nanosleep and settime */
--int do_posix_clock_notimer_create(struct k_itimer *timer);
-+/* Error handlers for nanosleep and settime */
- int do_posix_clock_nonanosleep(clockid_t, int flags, struct timespec *);
- int do_posix_clock_nosettime(clockid_t, struct timespec *tp);
- 
---- linux-2.6.11-rc5-mm1-full/kernel/posix-timers.c.old	2005-03-03 16:56:44.000000000 +0100
-+++ linux-2.6.11-rc5-mm1-full/kernel/posix-timers.c	2005-03-03 16:58:32.000000000 +0100
-@@ -1252,11 +1252,6 @@
- 	return -EINVAL;
- }
- 
--int do_posix_clock_notimer_create(struct k_itimer *timer)
--{
--	return -EINVAL;
--}
--
- int do_posix_clock_nonanosleep(clockid_t clock, int flags, struct timespec *t)
- {
- #ifndef ENOTSUP
-@@ -1423,7 +1418,7 @@
- 	up(&clock_was_set_lock);
- }
- 
--long clock_nanosleep_restart(struct restart_block *restart_block);
-+static long clock_nanosleep_restart(struct restart_block *restart_block);
- 
- asmlinkage long
- sys_clock_nanosleep(clockid_t which_clock, int flags,
-@@ -1562,7 +1557,7 @@
- /*
-  * This will restart clock_nanosleep.
-  */
--long
-+static long
- clock_nanosleep_restart(struct restart_block *restart_block)
- {
- 	struct timespec t;
+Here's a patch that will work for both PPC and PPC64. The proper way to
+fix this in mainline is to merge -mm's cpu_has_feature patch, but for
+the stable 2.6.11-series, this much less intrusive (i.e. just the pure
+bugfix, not the cleanup part).
 
+Signed-off-by: Olof Johansson <olof@austin.ibm.com>
+
+
+Index: linux-2.5/drivers/md/raid6altivec.uc
+===================================================================
+--- linux-2.5.orig/drivers/md/raid6altivec.uc	2005-03-03 16:46:47.000000000 -0600
++++ linux-2.5/drivers/md/raid6altivec.uc	2005-03-03 16:48:03.000000000 -0600
+@@ -108,7 +108,11 @@ int raid6_have_altivec(void);
+ int raid6_have_altivec(void)
+ {
+ 	/* This assumes either all CPUs have Altivec or none does */
++#ifdef CONFIG_PPC64
++	return cur_cpu_spec->cpu_features & CPU_FTR_ALTIVEC;
++#else
+ 	return cur_cpu_spec[0]->cpu_features & CPU_FTR_ALTIVEC;
++#endif
+ }
+ #endif
+ 

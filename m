@@ -1,101 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262461AbTJYHHT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 03:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbTJYHHT
+	id S262531AbTJYHRu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 03:17:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbTJYHRu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 03:07:19 -0400
-Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:60044
-	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
-	id S262461AbTJYHHR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 03:07:17 -0400
-From: John Mock <kd6pag@qsl.net>
-To: Pavel Machek <pavel@ucw.cz>
+	Sat, 25 Oct 2003 03:17:50 -0400
+Received: from as102.hinet.hr ([195.29.150.42]:23300 "EHLO as102.htnet.hr")
+	by vger.kernel.org with ESMTP id S262531AbTJYHRt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Oct 2003 03:17:49 -0400
+From: Mark B <mark@lemna.hr>
+To: kris <kris.buggenhout@skynet.be>
+Subject: Re: problems with Seagate 120 GB drives when mutlwrite = 16
+Date: Sat, 25 Oct 2003 09:23:27 +0200
+User-Agent: KMail/1.5
+References: <1066578892.3091.11.camel@borg-cube.lan> <200310191908.14369.bzolnier@elka.pw.edu.pl> <1067002420.3015.7.camel@borg-cube.lan>
+In-Reply-To: <1067002420.3015.7.camel@borg-cube.lan>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kill unneccessary debug printk [PATCH]
-Message-Id: <E1ADIWJ-00012u-00@penngrove.fdns.net>
-Date: Sat, 25 Oct 2003 00:07:31 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310250923.27866.mark@lemna.hr>
+X-Trace: as102.htnet.hr 1067066347 22771 195.29.150.2 (Sat, 25 Oct 2003 09:19:07 +0200)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    > Better yet, let's take this opportunity to do this more cleanly.  How 
-    > about having something like /sys/power/vmode (or /proc/...) contain that 
-    > inforemation instead?  With luck, it might even be few kernel bytes than
-    > the original printk (or at least not much more).  (I know nothing about
-    > either /proc or /sys, so it would take me awhile to suggest a patch).
+Hi,
 
-    Well, you probably know about as much as I do. I'm afraid I'm just
-    going to take the easy way out.
-								    Pavel
+On Friday 24 October 2003 15:33, kris wrote:
+> The 60GB disk (with the OS) is working fine on my nforce ide controller.
+> but the 120GB disks are not... I verified, it is not a cabling issue...
+> used different cables, different lengths, at the moment they are
+> connected with shielded rounded cables.
+>
+> Is there a fix for this ( not the workaround ... disabling dma) or are
+> these 120Gb disks just plain bad choice.... ;(
 
-OK, then, here's a quick fix (perhaps someone else can refine it) which 
-reads back saved video mode via '/sys/power/gmode'.  Maybe someone else
-who understand mechanism better than i do can come up with some cleaner
-code to do the same thing (or at least find a better place to put this).
-Hopefully, i've at least picked the right CONFIG variable...
+No, the same is on smaller Seagate disks, I have alot of 40GB Seagates running 
+on 2.4.16/18 and they put the message on every boot, I can't remember 100% 
+for 2.4.16, but 18 definetly.
 
-				-- JM
 
-Attachment: Patch to 2.6.0-test8-bk2
--------------------------------------------------------------------------------
---- ./kernel/power/disk.c.orig	2003-10-17 14:42:53.000000000 -0700
-+++ ./kernel/power/disk.c	2003-10-25 00:02:10.000000000 -0700
-@@ -326,10 +326,55 @@
- 	.attrs = g,
- };
- 
--
- static int __init pm_disk_init(void)
- {
- 	return sysfs_create_group(&power_subsys.kset.kobj,&attr_group);
- }
- 
- core_initcall(pm_disk_init);
-+
-+#ifdef CONFIG_VIDEO_SELECT
-+/*
-+ *	gmode - report graphics mode
-+ *
-+ * In order for software suspend to succeed, the video mode must match that
-+ * supplied via the console or from the kernel command line.  This provides
-+ * an orderly means of retrieving that information (rather than grep'ing
-+ * 'dmesg' at an appropriate time, as was the previous means of obtaining
-+ * this datum).
-+ *
-+ * TO DO:  Make sure framebuffer code updates 'saved_videomode' if it is
-+ *	   capable of changing the video mode ('vesafb' apparently cannot).
-+ */
-+extern unsigned long saved_videomode;
-+
-+static ssize_t gmode_show(struct subsystem * subsys, char * buf)
-+{
-+	return sprintf(buf,"0x%lx\n",saved_videomode);
-+}
-+
-+static ssize_t gmode_store(struct subsystem * s, const char * buf, size_t n) {
-+	return -EINVAL;
-+}
-+
-+/* Probably should use some macro which makes 'gmode' read-only, since the
-+   above code didn't report an error when storing into /sys/prog/gmode */
-+power_attr(gmode);
-+
-+static struct attribute * g2[] = {
-+	&gmode_attr.attr,
-+	NULL,
-+};
-+
-+static struct attribute_group attr_group2 = {
-+	.attrs = g2,
-+};
-+
-+static int __init pm_gmode_init(void)
-+{
-+	return sysfs_create_group(&power_subsys.kset.kobj,&attr_group2);
-+}
-+
-+core_initcall(pm_gmode_init);
-+
-+#endif /* CONFIG_VIDEO_SELECT */
+-- 
+Mark Burazin 
+mark@lemna.hr
+---<>---<>---<>---<>---<>---<>---<>---<>---<>
+Lemna d.o.o.
+http://www.lemna.biz - info@lemna.hr
+<>---<>---<>---<>---<>---<>---<>---<>---<>---
 
-===============================================================================
+

@@ -1,36 +1,27 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S157300AbQGQQi3>; Mon, 17 Jul 2000 12:38:29 -0400
-Received: by vger.rutgers.edu id <S157408AbQGQQhU>; Mon, 17 Jul 2000 12:37:20 -0400
-Received: from devserv.devel.redhat.com ([207.175.42.156]:2339 "EHLO devserv.devel.redhat.com") by vger.rutgers.edu with ESMTP id <S157452AbQGQQgl>; Mon, 17 Jul 2000 12:36:41 -0400
-Date: Mon, 17 Jul 2000 17:44:12 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Linux Performance Monitoring <linux-perf@www-klinik.uni-mainz.de>, linux-fsdevel@vger.rutgers.edu
-Cc: Chris Evans <chris@ferret.lmh.ox.ac.uk>, Stephen Tweedie <sct@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.rutgers.edu
-Subject: sard-0.6 released
-Message-ID: <20000717174412.A6090@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S157008AbQGQTBe>; Mon, 17 Jul 2000 15:01:34 -0400
+Received: by vger.rutgers.edu id <S157028AbQGQTAW>; Mon, 17 Jul 2000 15:00:22 -0400
+Received: from [216.18.11.193] ([216.18.11.193]:7449 "HELO duke.electric.net") by vger.rutgers.edu with SMTP id <S157185AbQGQS6V>; Mon, 17 Jul 2000 14:58:21 -0400
+From: Chester Carey <ccarey@intrinsyc.com>
+Organization: Intrinsyc
+To: linux-kernel@vger.rutgers.edu
+Subject: NFS root
+Date: Mon, 17 Jul 2000 12:10:28 -0700
+X-Mailer: KMail [version 1.0.29]
+Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Message-Id: <00071712143500.29824@ccarey>
+Content-Transfer-Encoding: 7BIT
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hi all,
+Hi everyone, I am currently trying to get a NFS root file system working on an
+embedded device. Everything seems to go fine until I get to init, it trys to run
+init and then nothing (no kernel messages or anything else). The ramdisk works
+fine when booted from memeory rather than NFS. Has anyone had a similar problem
+or does anyone know a fix for this
 
-sard-0.6 is being uploaded to
-
-	ftp.uk.linux.org:/pub/linux/sct/fs/profiling/
-
-Included are the sard disk profiling patches for Red Hat 2.2.16-3
-kernels, plain 2.2.17pre12, and for 2.4.0test5pre1.
-
-This patch also includes a modified version of atsar-1.5 (the Linux
-"sar" clone) which understands the newer sard kernel output format.
-There are no changes in functionality in this version, although the
-2.4 patch has been cleaned up somewhat.
-
-Cheers,
- Stephen
-
+Chester Carey
+Intrinsyc Software 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

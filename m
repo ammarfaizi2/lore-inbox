@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265022AbTIIX7y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 19:59:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265021AbTIIX7y
+	id S265082AbTIJAET (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 20:04:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265083AbTIJAET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 19:59:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:26315 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264178AbTIIX7w (ORCPT
+	Tue, 9 Sep 2003 20:04:19 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:3847 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S265082AbTIJAES (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 19:59:52 -0400
-Date: Tue, 9 Sep 2003 16:54:14 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: akpm@osdl.org, lkml <linux-kernel@vger.kernel.org>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: [PATCH] pdc4030: return needs value; function needs return;
-Message-Id: <20030909165414.2f0a5113.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Tue, 9 Sep 2003 20:04:18 -0400
+Date: Wed, 10 Sep 2003 02:04:16 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Bernd Schubert <bernd-schubert@web.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: inode generation numbers
+Message-ID: <20030910020416.A1603@pclin040.win.tue.nl>
+References: <200309092108.37805.bernd-schubert@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200309092108.37805.bernd-schubert@web.de>; from bernd-schubert@web.de on Tue, Sep 09, 2003 at 09:08:37PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 09, 2003 at 09:08:37PM +0200, Bernd Schubert wrote:
 
-Hi,
+> for a user space nfs-daemon it would be helpful to get the inode generation 
+> numbers. However it seems the fstat() from the glibc doesn't support this, 
+> but refering to some google search fstat() from some (not all) other unixes 
+> does.
+> Does anyone know how to read those numbers from userspace with linux?
 
-Please apply to 2.6.0-test5.
+For ext2:
+The i_generation field of a file can be read and set using
+the EXT2_IOC_GETVERSION and EXT2_IOC_SETVERSION ioctls.
 
---
-~Randy
-
-
-diff -Naurp ./drivers/ide/legacy/pdc4030.c~clean ./drivers/ide/legacy/pdc4030.c
---- ./drivers/ide/legacy/pdc4030.c~clean	2003-09-08 12:50:06.000000000 -0700
-+++ ./drivers/ide/legacy/pdc4030.c	2003-09-09 16:35:33.000000000 -0700
-@@ -304,7 +304,7 @@ int __init ide_probe_for_pdc4030(void)
- 
- #ifndef MODULE
- 	if (enable_promise_support == 0)
--		return;
-+		return 0;
- #endif
- 
- 	for (index = 0; index < MAX_HWIFS; index++) {
-@@ -317,7 +317,7 @@ int __init ide_probe_for_pdc4030(void)
- #endif
- 		}
- 	}
--#ifdef MODULE
-+#ifndef MODULE
- 	return 0;
- #endif
- }

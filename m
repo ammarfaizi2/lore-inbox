@@ -1,64 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293559AbSBZKIW>; Tue, 26 Feb 2002 05:08:22 -0500
+	id <S293560AbSBZKTx>; Tue, 26 Feb 2002 05:19:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293560AbSBZKIM>; Tue, 26 Feb 2002 05:08:12 -0500
-Received: from point41.gts.donpac.ru ([213.59.116.41]:2564 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S293559AbSBZKIF>;
-	Tue, 26 Feb 2002 05:08:05 -0500
-Date: Tue, 26 Feb 2002 13:12:08 +0300
-From: Andrey Panin <pazke@orbita1.ru>
-To: Greg KH <greg@kroah.com>
+	id <S293561AbSBZKTn>; Tue, 26 Feb 2002 05:19:43 -0500
+Received: from asooo.flowerfire.com ([63.254.226.247]:22975 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S293560AbSBZKTc>; Tue, 26 Feb 2002 05:19:32 -0500
+Date: Tue, 26 Feb 2002 04:19:24 -0600
+From: Ken Brownfield <brownfld@irridia.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove unneeded inode semaphores from driverfs
-Message-ID: <20020226101208.GA285@pazke.ipt>
-Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020226085946.GB278@pazke.ipt> <20020226085952.GA30564@kroah.com>
+Subject: Re: [PATCH][RFC] ServerWorks autodma behavior
+Message-ID: <20020226041924.B930@asooo.flowerfire.com>
+In-Reply-To: <20020226032629.A930@asooo.flowerfire.com> <E16feI5-0008WC-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020226085952.GA30564@kroah.com>
-User-Agent: Mutt/1.3.27i
-X-Uname: Linux pazke 2.5.3-dj3 
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E16feI5-0008WC-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Feb 26, 2002 at 09:52:57AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 26, 2002 at 09:52:57AM +0000, Alan Cox wrote:
+| > I have a lot of ServerWorks OSB4 IDE hardware, which has the annoyingly
+| > suboptimal behavior of corrupting filesystems when DMA is active.
+| 
+| With newer kernels you should get a panic because we spot the "I'm going
+| to get 4 bytes stuck in the FIFO and DMA your inodes shifted 4 bytes down the
+| disk behaviour" - at least in the cases I could study
+| 
+| What set up do you have ?
 
---pf9I7BMVVzbSWLtt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+These machines are Tyan Thunder LE (S2510) non-SCSI boards with Seagate
+drives.  Dual-P3.
 
-On Tue, Feb 26, 2002 at 12:59:53AM -0800, Greg KH wrote:
-> On Tue, Feb 26, 2002 at 11:59:46AM +0300, Andrey Panin wrote:
-> > Hi,
-> >=20
-> > __remove_file() in driverfs/inode.c calls down(&dentry->d_inode->i_sem)
-> > before calling vfs_unlink(dentry->d_parent->d_inode,dentry) which=20
-> > tries to claim the same semaphore causing the livelock.
-> > driverfs_remove_dir() makes the same calling vfs_rmdir().
->=20
-> What kernel version did you generate this patch for?  This patch doesn't
-> apply at all to 2.5.5, and it looks like this problem is already fixed.
+| > Unfortunately, serverworks.c (in recent 2.4, at least) does not honor
+| > the CONFIG_IDEDMA_AUTO config option -- it turns dma on only unless
+| > "ide=nodma" is set on the kernel command line.
+| 
+| You actually really to just turn off UDMA from experience.
 
-It's against 2.5.5-pre1, I was out of the net for some days and
-couldn't check final 2.5.5.
+Yeah -- but I'd like to be able to enable it if I need the performance
+on a more DMA-able motherboard.  Turning it off entirely would have
+worked, of course.
 
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
---pf9I7BMVVzbSWLtt
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+| >  	if (hwif->dma_base) {
+| > +#ifdef CONFIG_IDEDMA_AUTO
+| >  		if (!noautodma)
+| >  			hwif->autodma = 1;
+| > +#endif
+| 
+| I would have expected this to be a fix in the core code to ignore
+| hwif->autodma but I'll admit I've not looked to see if that is practical.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+That may be -- I was sticking with the obvious, least-invasive, least
+IDE-core-clued evaluation. :)  This is also the same treatment of
+noautodma found in the VIA driver.  The autodma setting from ide-pci
+does seem to be correct -- deleting the code segment produces the same
+DMA end-results, in the end, for ServerWorks.
 
-iD8DBQE8e194Bm4rlNOo3YgRAtJeAJ9WQoLpB10wnJp7Hi/nz1sszNqtwgCbB8WW
-ASsiKKLkMVfyeaCJdmTRj1E=
-=+1O+
------END PGP SIGNATURE-----
+Thanks much,
+-- 
+Ken.
+brownfld@irridia.com
 
---pf9I7BMVVzbSWLtt--

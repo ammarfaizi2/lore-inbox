@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263099AbTCWTN7>; Sun, 23 Mar 2003 14:13:59 -0500
+	id <S263149AbTCWTQo>; Sun, 23 Mar 2003 14:16:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263148AbTCWTN7>; Sun, 23 Mar 2003 14:13:59 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:34308 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S263099AbTCWTN6>; Sun, 23 Mar 2003 14:13:58 -0500
-Date: Sun, 23 Mar 2003 20:25:03 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>, Pavel Machek <pavel@ucw.cz>,
-       szepe@pinerecords.com, arjanv@redhat.com, alan@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Ptrace hole / Linux 2.2.25
-Message-ID: <20030323192503.GA14181@atrey.karlin.mff.cuni.cz>
-References: <200303171604.h2HG4Zc30291@devserv.devel.redhat.com> <1047923841.1600.3.camel@laptop.fenrus.com> <20030317182040.GA2145@louise.pinerecords.com> <20030317182709.GA27116@gtf.org> <20030321211708.GC12211@zaurus.ucw.cz> <20030323110052.5267cba8.skraw@ithnet.com> <3E7DB99B.5050509@pobox.com>
+	id <S263150AbTCWTQo>; Sun, 23 Mar 2003 14:16:44 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:26789
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263149AbTCWTQn>; Sun, 23 Mar 2003 14:16:43 -0500
+Subject: Re: ISAPNP BUG: 2.4.65 ne2000 driver w. isapnp not working
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "M.H.VanLeeuwen" <vanl@megsinet.net>
+Cc: mflt1@micrologica.com.hk, ambx1@neo.rr.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E7E0A73.3D00B9CB@megsinet.net>
+References: <3E7DE01B.2B6985DF@megsinet.net>
+	 <1048443865.10727.36.camel@irongate.swansea.linux.org.uk>
+	 <3E7E0A73.3D00B9CB@megsinet.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048452010.10712.69.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E7DB99B.5050509@pobox.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 23 Mar 2003 20:40:10 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff!
+On Sun, 2003-03-23 at 19:26, M.H.VanLeeuwen wrote:
+> Here is the ordering of initcall from System.map file w/ my change.
+> I take it that you want isapnp_init after pci*_init also, or is it sufficient
+> like it is, after the acpi*_init?
 
-> I think you misunderstand my point:  there was a patch posted which 
-> fixes the ptrace issue.  If you want to fix your kernel, there are two 
-> options:  either you are capable enough apply that patch yourself, 
-> otherwise get a kernel update from a vendor.
+pci and pnpbios must come before isapnp as well. Otherwise IGP based systems
+will MCE on boot
 
-Sorry, but you seem to forget that a significant amount of people use
-kernel.org kernels, but don't monitor LKML nor are able to choose from
-the various patches floating there the most appropriate fix.
-
-If 2.4.21 were expected in a few days, it would make sense to delay the
-fix, but this doesn't seem to be the case, so I think that a hot-fix
-really should be released quickly (either as 2.4.20.1 or 2.4.21)
-
-> As for Alan, his task was easier:  Guess how many patches are in 2.2.25? 
->  One.  ;-)
-
-And why couldn't it be the same for 2.4.21?
-
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-The better the better, the better the bet.

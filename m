@@ -1,65 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbTJSVMm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 17:12:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbTJSVMm
+	id S262201AbTJSVO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 17:14:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbTJSVO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 17:12:42 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:29834 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262228AbTJSVMk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 17:12:40 -0400
-Subject: Re: HighPoint 374
-From: Joel Smith <joelsmith17@comcast.net>
-To: Tomi Orava <Tomi.Orava@ncircle.nullnet.fi>, linux-kernel@vger.kernel.org
-In-Reply-To: <41102.192.168.9.10.1066584247.squirrel@ncircle.nullnet.fi>
-References: <00b801c3955c$7e623100$0514a8c0@HUSH>
-	 <1066579176.7363.3.camel@milo.comcast.net>
-	 <41102.192.168.9.10.1066584247.squirrel@ncircle.nullnet.fi>
-Content-Type: text/plain
-Message-Id: <1066597959.7576.11.camel@milo.comcast.net>
+	Sun, 19 Oct 2003 17:14:58 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:25617 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S262201AbTJSVO4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 17:14:56 -0400
+Date: Sun, 19 Oct 2003 23:13:40 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Sinelnikov Evgeny <linux4sin@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.6.0-test5: ioctl.h: _IOC_TYPECHECK: Is it a bug?
+Message-ID: <20031019211340.GA7524@win.tue.nl>
+References: <200310090253.01449.sin@info.sgu.ru>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 19 Oct 2003 14:12:40 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310090253.01449.sin@info.sgu.ru>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 09, 2003 at 11:39:04PM +0400, Sinelnikov Evgeny wrote:
 
-
-> > In 2.4.21 and 2.4.22 it's working great for me.  I'm using the
-> > "experimental" IDE Raid with two disks on a HPT 374 controller with the
-> > drivers that come with the kernel.
+> I have problem with linux-utils.2.12 compile on 2.6.0-test5 headers. From this 
+> version instead 2.6.0-test4 was changed next file where added next string:
 > 
-> I have tried these versions in the past as well without success.
-> However, I don't use HPT-raid features at all ie. I'm using the
-> disks as JBOD. What hardware do you have and have you enabled
-> ACPI/local-apic/io-apic ? What brand & model of disk-drives you
-> are using with HPT374 controller ? And finally what does
-> the /proc/interrupts show for you ?
+> include/asm-i386/ioctl.h:
+> #define _IOC_TYPECHECK(t) \
+>         ((sizeof(t) == sizeof(t[1]) && \
+>           sizeof(t) < (1 << _IOC_SIZEBITS)) ? \
+>           sizeof(t) : __invalid_size_argument_for_IOC)
+> 
+> This string have problems with compiling files using _IOR macros from ioctl.h
+> Here is example from util-linux-2.12:
+> #define BLKBSZGET  _IOR(0x12,112,sizeof(int))
 
-The disks are both 80 GB Western Digital 7200RPM/8 MB cache (WD800JB). 
-FWIW, the motherboard is an Abit IT7-Max 2 v. 2.0, and I'm currently
-using 2.4.22-ck2.  The HPT374 chip is on the motherboard.  I don't have
-any ACPI stuff enabled, and I'm not sure what apic is.
+Normally, user space includes <sys/ioctl.h>, which again includes
+<asm/ioctl.h> which defines _IOR etc.
 
-Here's my /proc/interrupts:
+It sounds like you use a symlink /usr/include/asm into a kernel source tree.
+Doing such things is discouraged. For people that follow kernel development
+the kernel source tree changes from day to day. When some utility shows
+obscure errors it would be necessary to recall when, and with what kernel
+headers it was last compiled in order to debug the problem. That is not good
+for stability and reproducibility.
 
-           CPU0
-  0:  490407020          XT-PIC  timer
-  1:     160679          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  4:          0          XT-PIC  usb-uhci
-  5:   31664356          XT-PIC  eth1, Intel 82801DB-ICH4
-  7:   35088687          XT-PIC  usb-uhci, nvidia
-  9:          0          XT-PIC  usb-uhci
- 11:    1895235          XT-PIC  ide2, ide3
- 12:    4340909          XT-PIC  PS/2 Mouse
- 15:     117429          XT-PIC  ide1
-NMI:          0
-ERR:          0
+Moreover, there are no guarantees that kernel headers work in user space.
+Often they do for some kernel versions and don't for other kernel versions.
+It is the task of the distributor of include files to pick a suitable set.
 
-HTH,
+Finally, when something is wrong with util-linux, please tell aeb@cwi.nl.
+(There used to be a mailing list but I think it has been killed since
+the recent spam floods.)
 
-Joel Smith
+Andries
 

@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265477AbTANWsN>; Tue, 14 Jan 2003 17:48:13 -0500
+	id <S265457AbTANWzi>; Tue, 14 Jan 2003 17:55:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265484AbTANWsN>; Tue, 14 Jan 2003 17:48:13 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:28906 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S265477AbTANWsK>;
-	Tue, 14 Jan 2003 17:48:10 -0500
-From: Cort Dougan <cort@fsmlabs.com>
-Date: Tue, 14 Jan 2003 15:54:28 -0700
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OFFTOPIC] RMS and reactions to him
-Message-ID: <20030114225428.GB3363@host109.fsmlabs.com>
-References: <11E89240C407D311958800A0C9ACF7D1A33D3E@EXCHANGE> <Pine.LNX.4.10.10301141436330.23438-100000@master.linux-ide.org>
+	id <S265470AbTANWzi>; Tue, 14 Jan 2003 17:55:38 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:3202 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S265457AbTANWzh>;
+	Tue, 14 Jan 2003 17:55:37 -0500
+Date: Tue, 14 Jan 2003 15:04:18 -0800
+From: Bob Miller <rem@osdl.org>
+To: DervishD <raul@pleyades.net>
+Cc: Philippe Troin <phil@fifi.org>, root@chaos.analogic.com,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Changing argv[0] under Linux.
+Message-ID: <20030114230418.GB4603@doc.pdx.osdl.net>
+References: <Pine.LNX.3.95.1030114140811.13496A-100000@chaos.analogic.com> <87iswrzdf1.fsf@ceramic.fifi.org> <20030114220401.GB241@DervishD>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10301141436330.23438-100000@master.linux-ide.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030114220401.GB241@DervishD>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is great proof of my increasingly firm opinion that the open-source
-movement would be absolutely dead if free mental healthcare was available
-to all who needed it... 
+On Tue, Jan 14, 2003 at 11:04:01PM +0100, DervishD wrote:
+>     Hi Philippe :)
+> 
+> > You just overwrote all your arguments (argv[0] and others) and part of
+> > the environment.
+> 
+>     Oh, sh*t, you're true, and that is the problem I was afraid to
+> suffer from. Then, all I can do is overwrite argv[0] with a new
+> string whose length is less or equal than the existing one.
+> 
+>     Well, I suppose I must go with that limitation.
+> 
+>     Thanks, Philippe, for the code snipped and the explanation.
+> 
+>     Raúl
+> -
 
-} MTV, "Celebrity Death Match" !
-} 
-} RMS starts out and F(l)UDS the arean with piles of GNU.
-} 	(the gnoo is drowning everyone)
-} 
-} LM is stunned by the calm GNOO floodling the area.
-} 
-} RMS using a PRINTER hits LM with a pounding blown to the rear.
-} 
-} LM use a quick attribute of BitMover to reveal the heart of GNU is
-} 	Licensed to BSD!
-} 
-} RMS reaches for the split ends to add more gray fuzz to hide the BSD,
-} while gazing in the air.
-} 
-} LM removes the printer from his bleeding skinny butt, and wildly swings
-} knocking off the head of RMS.
-} 	(the blood taints the crowd)
+Or you can copy your all your args and env to a temporary place and
+then re-build your args and env with the new argv[0] in it's place.
+But you must be carefull that your new argv[0] length plus the 
+length of all remaining args, envp and pointers is not greater than
+the system defined size for this space.
+
+-- 
+Bob Miller					Email: rem@osdl.org
+Open Source Development Lab			Phone: 503.626.2455 Ext. 17

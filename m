@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132569AbRDHQK0>; Sun, 8 Apr 2001 12:10:26 -0400
+	id <S132570AbRDHQdn>; Sun, 8 Apr 2001 12:33:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132570AbRDHQKP>; Sun, 8 Apr 2001 12:10:15 -0400
-Received: from beton.btnet.cz ([62.80.85.76]:3844 "HELO beton.btnet.cz")
-	by vger.kernel.org with SMTP id <S132569AbRDHQKE>;
-	Sun, 8 Apr 2001 12:10:04 -0400
-Date: Sun, 8 Apr 2001 18:09:53 +0200
-From: clock@beton.btnet.cz
+	id <S132571AbRDHQdd>; Sun, 8 Apr 2001 12:33:33 -0400
+Received: from usw-sf-sshgate.sourceforge.net ([216.136.171.253]:11252 "EHLO
+	usw-sf-netmisc.sourceforge.net") by vger.kernel.org with ESMTP
+	id <S132570AbRDHQdZ>; Sun, 8 Apr 2001 12:33:25 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: TCP stack misbehaviour?
-Message-ID: <20010408180953.B411@beton.btnet.cz>
-Reply-To: clock@ghost.btnet.cz
-In-Reply-To: <000701c0c046$17001920$5517fea9@local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <000701c0c046$17001920$5517fea9@local>; from manfred@colorfullife.com on Sun, Apr 08, 2001 at 06:07:55PM +0200
+Subject: kgdb for 2.4.3 kernels
+Message-Id: <E14mI7w-0007T7-00@usw-pr-shell1.sourceforge.net>
+From: "Amit S. Kale" <akale@users.sourceforge.net>
+Date: Sun, 08 Apr 2001 09:33:24 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 08, 2001 at 06:07:55PM +0200, Manfred Spraul wrote:
-> Could you add more details and post them to linux-kernel?
-> 
-> * which kernel version
+Hi,
 
-2.2.18
+OOPS! I sent a wrong mail earlier under the same subject.
 
-> * both sides linux, or one side linux, the other one something else
+Linux kernel source level debugger, kgdb for linux kernel 2.4.3
+is available from http://kgdb.sourceforge.net/
 
-both sides 2.2.18 linux
+This version has following improvements over kgdb for 2.4.2 kernels:
+1. Changed #ifdef __SMP__ statements to #ifdef CONFIG_SMP. 
+2. Removed EXTRAVERSION=-kgdb line from the Makefile. This had
+caused change in the name of the kernel. It was inconvenient in some
+setups. If name of the kernel was already changed, the patch would fail
+at this line.
 
-> * a tcpdump that shows the problem, preferably 2 dumps, from both sides
-> of the cable
-> 
-> --
->     Manfred
-> 
-
--- 
-Karel Kulhavy                     http://atrey.karlin.mff.cuni.cz/~clock
+Regards.
+--
+Amit S. Kale
+<akale@users.sourceforge.net>
+Linux kernel source level debugger    http://kgdb.sourceforge.net/
+Translation filesystem                http://trfs.sourceforge.net/

@@ -1,65 +1,165 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273002AbTHPOyN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 10:54:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273018AbTHPOyN
+	id S273068AbTHPOuq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 10:50:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273076AbTHPOuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 10:54:13 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:13019
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S273002AbTHPOyK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 10:54:10 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [PATCH] O16.2int
-Date: Sun, 17 Aug 2003 01:00:34 +1000
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <20030816130735.3ec67ac9.lista1@telia.com> <200308170009.06461.kernel@kolivas.org> <3F3E4293.4080408@cyberone.com.au>
-In-Reply-To: <3F3E4293.4080408@cyberone.com.au>
+	Sat, 16 Aug 2003 10:50:46 -0400
+Received: from village.ehouse.ru ([193.111.92.18]:48656 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S273068AbTHPOuk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 10:50:40 -0400
+From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+To: Hugh Dickins <hugh@veritas.com>, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.4.22pre6aa1
+Date: Sat, 16 Aug 2003 18:50:36 +0400
+User-Agent: KMail/1.5
+Cc: <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0308161456170.1284-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0308161456170.1284-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200308170100.34866.kernel@kolivas.org>
+Message-Id: <200308161850.36692.rathamahata@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Aug 2003 00:41, Nick Piggin wrote:
-> Hi Con,
-> Up late fixing the scheduler? ;)
+Hi Hugh and Andrew,
 
-Sigh.. yeah it was killing me slowly before and now it's killing me more 
-rapidly. Seems I age a year with each patch release. Very occasionally I wish 
-I was doing this in daylight hours instead of starting all my hacking at 10pm 
-when the family has gone to bed.
+On Saturday 16 August 2003 18:00, Hugh Dickins wrote:
+> On Sat, 16 Aug 2003, Hugh Dickins wrote:
+> > Or, as in the patch Sergey is currently testing below, shmem_truncate
+> > must be prepared to truncate_inode_pages again.  That's the approach
+> > I originally implemented in 2.5, but I grew disgusted with it every
+> > time I thought of partial truncation trundling twice through
+> > truncate_inode_pages (it can easily be avoided when nrpages == 0,
+> > but that's unlikely in partial truncation).
+> >
+> > So VM_PAGEIN flag stuff to restrict it to when it might be necessary;
+> > extended to cover other races when reading the page at the same time
+> > as truncating (though I think generic_file_read has a window of this
+> > kind that we've never worried about).  I expect to split the patch
+> > into several before sending Marcelo and Andrew.
+>
+> And here is the patch I claimed to be below.
+> If you apply it to anything other than 2.4.22-pre6aa1,
+> please be careful to check that it has applied correctly.
+> Originally I made a patch against 2.4.22-pre6, and then applied to
+> 2.4.22-pre6aa1: but I have never seen patch make such a mess of it!
 
-> Quick question: have you been Contest-ing your patches much? Would
-> you like me to if you haven't the time?
+I just want to confirm that I wasn't able to repeat this problem
+with the patch below (applied to 2.4.22-pre7aa1) after more than
+3 days of testing. I'll inform you if any issues will arise.
+Thank you!
 
-Not as frequently as I'd like no. If you can do nice repeatable runs it would 
-be very nice of you thanks. I like to spend as much time as I can testing 
-them locally on real world usage, and each time I planned to do some 
-benchmarking there was always something else I needed to try after others 
-responded. 2.6.0-test3-mm2 #85 doesn't even begin to tell you how many 
-kernels I've booted. I've almost rebooted enough to install windows.
+>
+> Hugh
+>
+> --- 2.4.22-pre6aa1/mm/shmem.c	Thu Jul 31 15:23:58 2003
+> +++ linux/mm/shmem.c	Mon Aug 11 21:00:55 2003
+> @@ -92,6 +92,9 @@
+>
+>  #define VM_ACCT(size)    (PAGE_CACHE_ALIGN(size) >> PAGE_SHIFT)
+>
+> +/* info->flags needs a VM_flag to handle pagein/truncate race efficiently
+> */ +#define VM_PAGEIN	 VM_READ
+> +
+>  /* Pretend that each entry is of this size in directory's i_size */
+>  #define BOGO_DIRENT_SIZE 20
+>
+> @@ -435,6 +438,18 @@
+>
+>  	BUG_ON(info->swapped > info->next_index);
+>  	spin_unlock(&info->lock);
+> +
+> +	if (inode->i_mapping->nrpages && (info->flags & VM_PAGEIN)) {
+> +		/*
+> +		 * Call truncate_inode_pages again: racing shmem_unuse_inode
+> +		 * may have swizzled a page in from swap since vmtruncate or
+> +		 * generic_delete_inode did it, before we lowered next_index.
+> +		 * Also, though shmem_getpage checks i_size before adding to
+> +		 * cache, no recheck after: so fix the narrow window there too.
+> +		 */
+> +		truncate_inode_pages(inode->i_mapping, inode->i_size);
+> +	}
+> +
+>  	if (freed)
+>  		shmem_free_blocks(inode, freed);
+>  }
+> @@ -459,6 +474,19 @@
+>  					attr->ia_size>>PAGE_CACHE_SHIFT,
+>  						&page, SGP_READ);
+>  			}
+> +			/*
+> +			 * Reset VM_PAGEIN flag so that shmem_truncate can
+> +			 * detect if any pages might have been added to cache
+> +			 * after truncate_inode_pages.  But we needn't bother
+> +			 * if it's being fully truncated to zero-length: the
+> +			 * nrpages check is efficient enough in that case.
+> +			 */
+> +			if (attr->ia_size) {
+> +				struct shmem_inode_info *info = SHMEM_I(inode);
+> +				spin_lock(&info->lock);
+> +				info->flags &= ~VM_PAGEIN;
+> +				spin_unlock(&info->lock);
+> +			}
+>  		}
+>  	}
+>
+> @@ -511,7 +539,6 @@
+>  	struct address_space *mapping;
+>  	swp_entry_t *ptr;
+>  	unsigned long idx;
+> -	unsigned long limit;
+>  	int offset;
+>
+>  	idx = 0;
+> @@ -543,13 +570,9 @@
+>  	inode = info->inode;
+>  	mapping = inode->i_mapping;
+>  	delete_from_swap_cache(page);
+> -
+> -	/* Racing against delete or truncate? Must leave out of page cache */
+> -	limit = (inode->i_state & I_FREEING)? 0:
+> -		(inode->i_size + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
+> -
+> -	if (idx >= limit || add_to_page_cache_unique(page,
+> -			mapping, idx, page_hash(mapping, idx)) == 0) {
+> +	if (add_to_page_cache_unique(page,
+> +		 	mapping, idx, page_hash(mapping, idx)) == 0) {
+> +		info->flags |= VM_PAGEIN;
+>  		ptr[offset].val = 0;
+>  		info->swapped--;
+>  	} else if (add_to_swap_cache(page, entry) != 0)
+> @@ -634,6 +657,7 @@
+>  		 * Add page back to page cache, unref swap, try again.
+>  		 */
+>  		add_to_page_cache_locked(page, mapping, index);
+> +		info->flags |= VM_PAGEIN;
+>  		spin_unlock(&info->lock);
+>  		swap_free(swap);
+>  		goto getswap;
+> @@ -809,6 +833,7 @@
+>  			swap_free(swap);
+>  		} else if (add_to_page_cache_unique(swappage,
+>  			mapping, idx, page_hash(mapping, idx)) == 0) {
+> +			info->flags |= VM_PAGEIN;
+>  			entry->val = 0;
+>  			info->swapped--;
+>  			spin_unlock(&info->lock);
+> @@ -868,6 +893,7 @@
+>  					goto failed;
+>  				goto repeat;
+>  			}
+> +			info->flags |= VM_PAGEIN;
+>  		}
+>
+>  		spin_unlock(&info->lock);
 
-If you're interested, this is the script I ran for maximum repeatability in 
-minimum timespace of the tests that varied a lot. I had a separate ext3 
-partition on another hard disk called /ext3 (explains the command)
-
-oops just noticed you cc'ed lkml. ah what the heck I'll cc it as well
-Con
-
-#!/bin/sh
-contest -k $1 -o /ext3/dump -n 1 no_load cacherun process_load ctar_load \
-xtar_load io_load io_other read_load list_load mem_load dbench_load
-contest -k $1 -o /ext3/dump -n 1 process_load ctar_load \
-xtar_load io_load io_other read_load list_load mem_load dbench_load
-contest -k $1 -o /ext3/dump -n 1 ctar_load \
-xtar_load io_load dbench_load
-contest -k $1 -o /ext3/dump -n 1 io_load dbench_load
-contest -r
-
-
+-- 
+                   Best regards,
+                   Sergey S. Kostyliov <rathamahata@php4.ru>
+                   Public PGP key: http://sysadminday.org.ru/rathamahata.asc

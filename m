@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267783AbTBNGfh>; Fri, 14 Feb 2003 01:35:37 -0500
+	id <S268226AbTBNGiB>; Fri, 14 Feb 2003 01:38:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268221AbTBNGfh>; Fri, 14 Feb 2003 01:35:37 -0500
-Received: from host5.veoweb.net ([209.197.252.6]:22459 "EHLO host5.veoweb.net")
-	by vger.kernel.org with ESMTP id <S267783AbTBNGfh>;
-	Fri, 14 Feb 2003 01:35:37 -0500
-Message-ID: <3E4C8E8A.1010101@linuxtestproject.org>
-Date: Fri, 14 Feb 2003 00:36:58 -0600
-From: Paul Larson <plars@linuxtestproject.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
+	id <S268229AbTBNGiB>; Fri, 14 Feb 2003 01:38:01 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:58268 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S268226AbTBNGiA>; Fri, 14 Feb 2003 01:38:00 -0500
+Date: Thu, 13 Feb 2003 22:47:44 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: suparna@in.ibm.com, "Eric W. Biederman" <ebiederm@xmission.com>
+cc: fastboot@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [KEXEC][PATCH] Modified (smaller) x86 kexec hwfixes patch
+Message-ID: <51710000.1045205264@[10.10.2.4]>
+In-Reply-To: <20030214085915.A1466@in.ibm.com>
+References: <20030213161014.A14361@in.ibm.com>
+ <m1heb8w737.fsf@frodo.biederman.org> <20030214085915.A1466@in.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: lkml <linux-kernel@vger.kernel.org>, edesio@task.com.br
-Subject: Re: 2.5.60 cheerleading...
-References: <200302132154.h1DLs3ar012874@darkstar.example.net>            <1045173477.28494.66.camel@plars> <200302132220.h1DMKtFT011682@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - host5.veoweb.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
-X-AntiAbuse: Sender Address Domain - linuxtestproject.org
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For anyone interested, I have a few items put up at:
-http://ltp.sourceforge.net/errata
+Running on my 4-way P3 test box (just SMP, not NUMA) kexec_test
+prints this:
 
-It's nothing fancy yet, but I'll work on it some more tomorrow.  Please 
-let me know if you have any suggestions.
+Synchronizing SCSI caches: 
+Shutting down devices
+Starting new kernel
+kexec_test 1.8 starting...
+eax: 0E1FB007 ebx: 0000011C ecx: 00000000 edx: 00000000
+esi: 00000000 edi: 00000000 esp: 00000000 ebp: 00000000
+idt: 00000000 C0000000
+gdt: 0000006F 000000A0
+Switching descriptors.
+Descriptors changed.
+Legacy pic setup.
+In real mode.
 
-Thanks,
-Paul Larson
+Without that I just get:
+
+Synchronizing SCSI caches: 
+Shutting down devices
+Starting new kernel
+
+Can someone interpret?
 

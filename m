@@ -1,72 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268203AbTBNB4J>; Thu, 13 Feb 2003 20:56:09 -0500
+	id <S268208AbTBNB7K>; Thu, 13 Feb 2003 20:59:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268207AbTBNB4J>; Thu, 13 Feb 2003 20:56:09 -0500
-Received: from ns.cinet.co.jp ([61.197.228.218]:56330 "EHLO multi.cinet.co.jp")
-	by vger.kernel.org with ESMTP id <S268203AbTBNB4H>;
-	Thu, 13 Feb 2003 20:56:07 -0500
-Message-ID: <E6D19EE98F00AB4DB465A44FCF3FA46903A331@ns.cinet.co.jp>
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: "'Christoph Hellwig '" <hch@infradead.org>
-Cc: "'Linux Kernel Mailing List '" <linux-kernel@vger.kernel.org>,
-       "'Alan Cox '" <alan@lxorguk.ukuu.org.uk>
-Subject: RE: [PATCHSET] PC-9800 subarch. support for 2.5.60 (3/34) AC#3
-Date: Fri, 14 Feb 2003 11:05:57 +0900
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-2022-jp"
+	id <S268209AbTBNB7K>; Thu, 13 Feb 2003 20:59:10 -0500
+Received: from dp.samba.org ([66.70.73.150]:59372 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S268208AbTBNB7I>;
+	Thu, 13 Feb 2003 20:59:08 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: kuznet@ms2.inr.ac.ru, Roman Zippel <zippel@linux-m68k.org>,
+       davem@redhat.com, kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Migrating net/sched to new module interface 
+In-reply-to: Your message of "Thu, 13 Feb 2003 20:16:19 -0300."
+             <20030213201619.A2092@almesberger.net> 
+Date: Fri, 14 Feb 2003 12:57:38 +1100
+Message-Id: <20030214020901.22E6C2C002@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the comments. 
-
------Original Message-----
-From: Christoph Hellwig
-To: Osamu Tomita
-Cc: Linux Kernel Mailing List; Alan Cox
-Sent: 2003/02/12 23:43
-Subject: Re: [PATCHSET] PC-9800 subarch. support for 2.5.60 (3/34) AC#3
-
-> On Wed, Feb 12, 2003 at 10:25:49PM +0900, Osamu Tomita wrote:
->> +ifneq ($(CONFIG_PC9800),y)
->>  obj-$(CONFIG_BLK_DEV_FD)	+= floppy.o
->> +else
->> +obj-$(CONFIG_BLK_DEV_FD)	+= floppy98.o
->> +endif
+In message <20030213201619.A2092@almesberger.net> you write:
+> m.au on Fri, Jan 17, 2003 at 01:27:56PM +1100
 > 
-> Please use a different config option for your floppy driver, i.e.
-> CONFIG_BLK_DEV_FD98
-I'll do that way.
+> Sorry for the long pause ...
+> 
+> Rusty Russell wrote:
+> > They gave us SMP.  What do we gain for your change?
+> 
+> Mainly a simpler interface - one that doesn't treat module unloading
+> as such a special case, but just as yet another fairly regular
+> synchronization problem.
+> 
+> This should also have a performance impact: the current approach
+> puts "code locking" outside of the module, and "data locking" inside
+> of it. Unifying this eliminates one layer of locking mechanisms.
 
->> +#if !defined(CONFIG_PC9800) && !defined(CONFIG_PC98)
->> +#error This driver works only for NEC PC-9800 series
->> +#endif
-> 
-> this shoiuld be handled by the config system..
-> 
-> > +	/* Following `TAG: INITIALIZER' notations are GNU CC extension.
-*/
-> +	flags:	LP_EXIST | LP_ABORTOPEN,
-> +	chars:	LP_INIT_CHAR,
-> +	time:	LP_INIT_TIME,
-> +	wait:	LP_INIT_WAIT,
-> +};
-> 
-> please use C99-style initializers here.
+Um, no.  You're special case "optimizing" it.
 
->> +		unsigned long eflags;
->> +
->> +		save_flags(eflags);
->> +		cli();		/* interrupts while check is fairly bad
-*/
-> 
-> use proper spinlocking.
-These 3 points are already in update patch (23/34).
-And I'm working to fix other points in lp_old98.c.
-I'll resend patches soon.
+When you have an object which may vanish, the linux kernel idiom runs
+something like this:
 
-Thanks again,
-Osamu Tomita
- 
+	write_lock()
+	find available object in list
+	inc object refcount
+	write_unlock()
+
+The writelock protects the infrastructure, the refcount protects the
+object.  Deleting is done in two stages (mark deleted and drop
+refcount, then whoever drops the refcount to 0 actually does the
+free).  Usually "mark deleted" means simply remove from the list, but
+not always.
+
+The current module code uses exactly the same idiom for the code
+itself: we use a heavily read-optimized lock, but that's an
+implementation detail.
+
+Now, could you instead lock all the (arbitrary, widespread, unrelated)
+accesses to the object, instead of the object itself?  Sure.  It'd be
+unique in the kernel, and involve changing the way every interface
+works, and probably expose some of the complexity to every module
+author (every workable implementation I've seen has this problem), but
+you could do it.  See below for why I don't think it's worth it.
+
+> Independent of this, we should fix the interfaces that give us
+> unstoppable callbacks. These are just disasters waiting to happen,
+> modules or no.
+
+I assume you're referring to the many places where we assume that the
+structure being added was not dynamically allocated, so don't bother
+to protect against its deletion?
+
+That is, of course, orthogonal.
+
+And in general, I agree: not including a refcount is asking for
+trouble.  But these reference counts are *not* free.  The module
+reference counts, by comparison, can be made extremely cheap (see
+implementation), because we can allocate a cacheline per cpu, and we
+can bias "read" speed in preference of awful "write" speed.
+
+In summary: the most obvious implementation is to lock to module as an
+object separately from any objects it might create.  The current
+implementation is extremely fast, requires neither module changes nor
+(many) interface changes, and in effect canonicalizes a single
+existing method of locking, which coders seem quite comfortable with.
+
+Given these reasons, you can see why I no longer discuss new
+implementation ideas with people 8(
+
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+

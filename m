@@ -1,66 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281762AbRLVSVN>; Sat, 22 Dec 2001 13:21:13 -0500
+	id <S286842AbRLVS1N>; Sat, 22 Dec 2001 13:27:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286835AbRLVSVD>; Sat, 22 Dec 2001 13:21:03 -0500
-Received: from DSL05-106.LABridge.com ([206.117.134.106]:32896 "EHLO
-	xi.blackbean.org") by vger.kernel.org with ESMTP id <S281762AbRLVSUp>;
-	Sat, 22 Dec 2001 13:20:45 -0500
-Date: Sat, 22 Dec 2001 10:20:43 -0800
-To: Adam Keys <akeys@post.cis.smu.edu>
+	id <S286835AbRLVS1D>; Sat, 22 Dec 2001 13:27:03 -0500
+Received: from svr3.applink.net ([206.50.88.3]:33799 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S286842AbRLVS05>;
+	Sat, 22 Dec 2001 13:26:57 -0500
+Message-Id: <200112221826.fBMIQfSr023992@svr3.applink.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, hpa@zytor.com (H. Peter Anvin)
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in      Configure.help.
+Date: Sat, 22 Dec 2001 12:22:54 -0600
+X-Mailer: KMail [version 1.3.2]
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE Harddrive Performance
-Message-ID: <20011222182043.GA4474@blackbean.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.24i
-From: Jim Radford <radford@blackbean.org>
+In-Reply-To: <E16Hh1v-0003FP-00@the-village.bc.nu>
+In-Reply-To: <E16Hh1v-0003FP-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> hda: Maxtor 93073U6, ATA DISK drive
-> hdc: Maxtor 90840D6, ATA DISK drive
- 
-> /dev/hda:
->  Timing buffered disk reads:  64 MB in 86.98 seconds =753.46 kB/sec
-> /dev/hdc:
->  Timing buffered disk reads:  64 MB in  5.63 seconds = 11.37 MB/sec
+On Saturday 22 December 2001 01:57, Alan Cox wrote:
+> > > of Metrics.  The funny thing is that Thomas Jefferson, an American
+> > > President, suggested the Metric system to the French while he was
+> > > ambassador there.
+> >>
+> >> Ewhat?!
+>
+> Must be a new disney movie...
 
-I'm in the same boat with my Maxtor 54098U8.  It has been getting
-progressively slower.  Two weeks ago I was getting a whopping 3MB/s,
-now I get:
+OK.  I guess that this seems like an "Al Gore Invented the Internet" thing
+except that the system that he proposed was of his own invention (if not
+the idea of basing it on ten.) 
 
-/dev/hda:
- Timing buffered disk reads:  64 MB in 115.29 seconds =568.44 kB/sec
+The facts are that a number of people in the scientific community had talked 
+about these things off and on for centuries.  Thomas Jefferson is the first 
+recorded government official known to have made an official recommendation 
+for its use (again of his own derivation.)  Alas, the US government was not 
+feeling _that_ brave yet, so they decided on an slightly altered system of 
+Imperial units.   
 
-My CDROM (ide-scsi) is faster than this!
+As well all know, the French were fealing quite pissed off at everything
+that had ever existed prior to 1789.  In 1791, a very much living Louis XVI 
+summoned a commision to study changing the system of weights and measures.  
+It was during the Reign of Terror that they started making Guillotines based 
+on their newly fangled metre.   Now, did Louis die of a new fangled 
+Guillotine?  My French history fails me here.
 
-# time dd if=/dev/scd0 of=/dev/null count=32k bs=512
-real    0m8.443s
 
-  = 1.8MB/sec
+This thread has become  horribly off-topic.....
 
-The wierd thing is that I don't get any errors, but I have just
-switched from emacs to vi. :-) I ran Maxtor's powermax.exe and their
-90sec test hadn't finished after 20 minutes so I rebooted. :-(
 
-Same results with 2.4.9 - 2.4.17.
-
--Jim
-
-VP_IDE: VIA vt82c686a (rev 14) IDE UDMA66 controller on pci00:07.1
-
-# hdparm /dev/hda
-
-/dev/hda:
- multcount    = 16 (on)
- I/O support  =  1 (32-bit)
- unmaskirq    =  1 (on)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 4865/255/63, sectors = 78165360, start = 0
- busstate     =  1 (on)
+-- 
+timothy.covell@ashavan.org.

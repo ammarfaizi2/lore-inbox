@@ -1,48 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130741AbQKJSO1>; Fri, 10 Nov 2000 13:14:27 -0500
+	id <S131118AbQKJSVR>; Fri, 10 Nov 2000 13:21:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131371AbQKJSOR>; Fri, 10 Nov 2000 13:14:17 -0500
-Received: from z211-19-81-189.dialup.wakwak.ne.jp ([211.19.81.189]:25329 "EHLO
-	220fx.luky.org") by vger.kernel.org with ESMTP id <S130741AbQKJSN4>;
-	Fri, 10 Nov 2000 13:13:56 -0500
-To: axboe@suse.de
-Cc: shibata@luky.org, linux-kernel@vger.kernel.org
-Subject: Re: patch: atapi dvd-ram support
-In-Reply-To: <20001029141214.B615@suse.de>
-In-Reply-To: <20001028201047.A5879@suse.de>
-	<20001029134145N.shibata@luky.org>
-	<20001029141214.B615@suse.de>
-X-Mailer: Mew version 1.94.2 on XEmacs 21.1 (Canyonlands)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S131129AbQKJSVH>; Fri, 10 Nov 2000 13:21:07 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:57610 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131118AbQKJSVB>; Fri, 10 Nov 2000 13:21:01 -0500
+Message-ID: <3A0C3C7F.FF594CE9@transmeta.com>
+Date: Fri, 10 Nov 2000 10:20:47 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10-pre3 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
+To: davej@suse.de
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Fwd: CPU detection revamp (Request for comments)]
+In-Reply-To: <Pine.LNX.4.21.0011101751080.514-100000@neo.local>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <20001111031748S.shibata@luky.org>
-Date: Sat, 11 Nov 2000 03:17:48 +0900
-From: Hisaaki Shibata <shibata@luky.org>
-X-Dispatcher: imput version 20000228(IM140)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+davej@suse.de wrote:
+> 
+> Hi hpa,
+> 
+>  First test, the AMD K6-2.
+> 
+> Before your patch..
+>         cpu family      : 5
+>         model           : 8
+>         stepping        : 12
+> 
+> After..
+> 
+>         cpu family      : 5
+>         model           : 8
+>         stepping        : 4
+> 
+> Line 1826 of setup.c
+> 
+>         c->x86_mask = tfms & 7;
+> 
+> Should be..
+> 
+>         c->x86_mask = tfms & 15;
+> 
+> I think?
+> 
+> Also, look at the feature flags:
+> before:
+> flags           : fpu vme de pse tsc msr mce cx8 sep mtrr pge mmx 3dnow
+> 
+> after:
+> features        : fpu vme de pse tsc msr mce cx8 pge mmx syscall 3dnow
+> 
+> Note, I lost MTRR & sep. This may be related to the stepping bug
+> though. I'll recompile a kernel with the &15 fix, and see if that cures
+> all.
+> 
 
-> Or you could try the 2.4 version, as I said originally the 2.2 patch
-> hasn't been tested at all. It would be nice to know if that works
-> for you, as I may have screwed up the backport a bit.
+That is actually correct -- the K6-2 doesn't actually have mtrr and sep,
+but has syscall and k6_mtrr instead (the stepping bug causes k6_mtrr not
+to show up.)  Part of the bugginess of the old system was using one flag
+for multiple purposes.  This was Linux' doing, not AMD's, by the way.
 
-I tested on 2.4-test10 + dvd-ram-240t10p5.diff.bz2 + dvdram-ro_fix.diff env.
-It occured oops too :-(.
-
-And I forgot to say that my DVD-RAM drive is a new 9.4GB DVD-RAM model drive.
-
-Best Regards,
-
-Hisaaki Shibata
+> btw, whilst all this is getting a shakedown, how about renaming
+> that 'x86_mask' field to the more obvious 'x86_stepping' ?
+> c->x86 would make more sense as c->x86_family too thinking about it.
+> 
 
 -- 
- WWWWW  shibata@luky.org
- |O-O|  Hisaaki Shibata
-0(mmm)0 P-mail: 070-5419-3233    IRC: #luky
-   ~    http://his.luky.org/ last update:2000.3.12
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

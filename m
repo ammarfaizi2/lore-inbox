@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263639AbTDTQ5y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 12:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263642AbTDTQ5y
+	id S263631AbTDTQzA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 12:55:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263632AbTDTQy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 12:57:54 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:32128 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263639AbTDTQ5w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 12:57:52 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304201712.h3KHCsBu000709@81-2-122-30.bradfords.org.uk>
+	Sun, 20 Apr 2003 12:54:59 -0400
+Received: from siaab1aa.compuserve.com ([149.174.40.1]:61399 "EHLO
+	siaab1aa.compuserve.com") by vger.kernel.org with ESMTP
+	id S263631AbTDTQy7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 12:54:59 -0400
+Date: Sun, 20 Apr 2003 13:03:02 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
 Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
-To: skraw@ithnet.com (Stephan von Krawczynski)
-Date: Sun, 20 Apr 2003 18:12:54 +0100 (BST)
-Cc: john@grabjohn.com (John Bradford), alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030420185512.763df745.skraw@ithnet.com> from "Stephan von Krawczynski" at Apr 20, 2003 06:55:12 PM
-X-Mailer: ELM [version 2.5 PL6]
+To: "arjanv@redhat.com" <arjanv@redhat.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200304201306_MC3-1-3537-115@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> On Sun, 20 Apr 2003 14:59:00 +0100 (BST)
-> John Bradford <john@grabjohn.com> wrote:
-> 
-> > > Ok, you mean active error-recovery on reading. My basic point is the
-> > > writing case. A simple handling of write-errors from the drivers level and
-> > > a retry to write on a different location could help a lot I guess.
-> > 
-> > A filesystem is not the place for that - it could either be done at a
-> > lower level, like I suggested in a separate post, or at a much higher
-> > level - E.G. a database which encounters a write error could dump it's
-> > entire contents to a tape drive, shuts down, and page an
-> > administrator, on the basis that the write error indicated impending
-> > drive failiure.
-> 
-> Can you tell me what is so particularly bad about the idea to cope a
-> little bit with braindead (or just-dying) hardware?
+arjan wrote:
 
-Nothing - what is wrong is to implement it in a filesystem, where it
-does not belong.
 
-> See, a car (to name a real good example) is not primarily built to have
-> accidents.
+>> You will if it writes and fails to read back. The disk can't invent a
+>> sector that is gone. 
+>
+> but linux can if you use an raid1 mirror... maybe we should teach the md
+> layer to write back the data from the other disk on a "bad sector"
+> error.
 
-Stunt cars are built to survive accidents.  All cars _could_ be built
-like stunt cars, but they aren't.
 
-> Anyway everybody might agree that having a safety belt built into it
-> is a good idea, just to make the best out of a bad situation - even
-> if it never happens - , or not?
+  I have some ugly code that forces all reads from a mirror set to
+a specific copy, set via a global sysctl.  This lets you do things
+like make a backup from disk 0, then verify against disk 1 and take
+action if something is wrong.
 
-Exactly, that is why most modern hard disks retry on write failiure.
 
-John.
+------
+ Chuck

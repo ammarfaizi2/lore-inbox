@@ -1,60 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267686AbUJTPMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267561AbUJTPSg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267686AbUJTPMj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 11:12:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268340AbUJTPHz
+	id S267561AbUJTPSg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 11:18:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266663AbUJTPO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 11:07:55 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:13952 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S268197AbUJTPHO
+	Wed, 20 Oct 2004 11:14:26 -0400
+Received: from gw02.applegatebroadband.net ([207.55.227.2]:28138 "EHLO
+	data.mvista.com") by vger.kernel.org with ESMTP id S268279AbUJTPJk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 11:07:14 -0400
-Date: Wed, 20 Oct 2004 11:06:47 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Ian Campbell <icampbell@arcom.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Module compilation
-In-Reply-To: <1098284383.29412.1741.camel@icampbell-debian>
-Message-ID: <Pine.LNX.4.61.0410201102090.12170@chaos.analogic.com>
-References: <Pine.LNX.4.61.0410201034590.12062@chaos.analogic.com>
- <1098284383.29412.1741.camel@icampbell-debian>
+	Wed, 20 Oct 2004 11:09:40 -0400
+Message-ID: <41767FA8.9090104@mvista.com>
+Date: Wed, 20 Oct 2004 08:09:28 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Len Brown <len.brown@intel.com>
+CC: Tim Schmielau <tim@physik3.uni-rostock.de>,
+       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: gradual timeofday overhaul
+References: <Pine.LNX.4.53.0410200441210.11067@gockel.physik3.uni-rostock.de> <1098258460.26595.4320.camel@d845pe>
+In-Reply-To: <1098258460.26595.4320.camel@d845pe>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Oct 2004, Ian Campbell wrote:
+Len Brown wrote:
+> On Tue, 2004-10-19 at 23:05, Tim Schmielau wrote:
+> 
+>>I think we could do it in the following steps:
+>>
+>>  1. Sync up jiffies with the monotonic clock,...
+>>  2. Decouple jiffies from the actual interrupt counter...
+>>  3. Increase HZ all the way up to 1e9....
 
-> On Wed, 2004-10-20 at 15:36, Richard B. Johnson wrote:
->
->> Could whomever remade the kernel Makefile, please add
->> a variable, initially set to "", like CFLAGS_KERNEL, that
->> is exported and is always included on the compiler command-
->> line?
->
-> Does the existing EXTRA_CFLAGS do what you want?
->
+Before we do any of the above, I think we need to stop and ponder just what a 
+"jiffie" is.  Currently it is, by default (or historically) the "basic tick" of 
+the system clock.  On top of this a lot of interpolation code has been "grafted" 
+to allow the system to resolve time to finer levels, i.e. to the nanosecond. 
+But none of this interpolation code actually changes the tick, i.e. the 
+interrupt still happens at the same periodic rate.
 
-Well it's exported and gets on the command-line, but it's
-not a "CFLAG" I want, but a definition to be passed to
-the compiler. Using EXTRA_CFLAGS is no different than
-using CFLAGS which, for a human readable implicit
-documentation perspective, is incorrect (not a compiler flag).
+As the "basic tick", it is used to do a lot of accounting and scheduling house 
+keeping AND as a driver of the system timers.
 
-> I believe you can also set CFLAGS_blah.o if you just want extra stuff
-> for a single file.
->
-> Ian.
->
-> -- 
-> Ian Campbell, Senior Design Engineer
->                                        Web: http://www.arcom.com
-> Arcom, Clifton Road, 			Direct: +44 (0)1223 403 465
-> Cambridge CB1 7EA, United Kingdom	Phone:  +44 (0)1223 411 200
->
+So, by this definition, it REQUIRES a system interrupt.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 GrumpyMips).
-                  98.36% of all statistics are fiction.
+I have built a "tick less" system and have evidence from that that such systems 
+are over load prone.  The faster the context switch rate, the more accounting 
+needs to be done.  On the otherhand, the ticked system has flat accounting 
+overhead WRT load.
+
+Regardless of what definitions we settle on, the system needs an interrupt 
+source to drive the system timers, and, as I indicate above, the accounting and 
+scheduling stuff.  It is a MUST that these interrupts occure at the required 
+times or the system timers will be off.  This is why we have a jiffies value 
+that is "rather odd" in the x86 today.
+
+George
+
+
+> 
+> 
+>>Thoughts?
+> 
+> 
+> Yes, for long periods of idle, I'd like to see the periodic clock tick
+> disabled entirely.  Clock ticks causes the hardware to exit power-saving
+> idle states.
+> 
+> The current design with HZ=1000 gives us 1ms = 1000usec between clock
+> ticks.  But some platforms take nearly that long just to enter/exit low
+> power states; which means that on Linux the hardware pays a long idle
+> state exit latency (performance hit) but gets little or no power savings
+> from the time it resides in that idle state.
+> 
+> thanks,
+> -Len
+> 
+> 
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+

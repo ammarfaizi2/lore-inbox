@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291585AbSBHO2G>; Fri, 8 Feb 2002 09:28:06 -0500
+	id <S291414AbSBHOoK>; Fri, 8 Feb 2002 09:44:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291580AbSBHO14>; Fri, 8 Feb 2002 09:27:56 -0500
-Received: from h108-129-61.datawire.net ([207.61.129.108]:31756 "HELO
-	mail.datawire.net") by vger.kernel.org with SMTP id <S291547AbSBHO1n>;
-	Fri, 8 Feb 2002 09:27:43 -0500
-Subject: Re: IBM ThinkPad - Redundant entry in serial pci_table
-From: Shawn Starr <shawn.starr@datawire.net>
-To: Andrey Panin <pazke@orbita1.ru>
-Cc: Linux <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020208103353.GA741@pazke.ipt>
-In-Reply-To: <1013029931.15007.2.camel@unaropia> 
-	<20020208103353.GA741@pazke.ipt>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1.99 (Preview Release)
-Date: 08 Feb 2002 09:30:14 -0500
-Message-Id: <1013178614.369.7.camel@unaropia>
+	id <S291580AbSBHOoA>; Fri, 8 Feb 2002 09:44:00 -0500
+Received: from jalon.able.es ([212.97.163.2]:1019 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S291414AbSBHOnk>;
+	Fri, 8 Feb 2002 09:43:40 -0500
+Date: Fri, 8 Feb 2002 15:43:32 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Felipe Contreras <al593181@mail.mty.itesm.mx>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Weird bug in linux, glibc, gcc or what?
+Message-ID: <20020208154332.A3336@werewolf.able.es>
+In-Reply-To: <20020207135749.GA4545@sion.mty.itesm.mx>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20020207135749.GA4545@sion.mty.itesm.mx>; from al593181@mail.mty.itesm.mx on jue, feb 07, 2002 at 14:57:49 +0100
+X-Mailer: Balsa 1.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wasn't able to get the serial port working. I couldn't find any
-devices. It works in Win2k though.
 
-Shawn.
+On 20020207 Felipe Contreras wrote:
+>Hi,
+>
+>I've found a weird problem in linuxthreads. When I get out of a thread it
+>happends one of three, the new thread get's defuct and the proccess never
+>ends, it segfaults, or it works.
+>
+>The most weird is that it depends on the kernel, and also when I run the
+>test trought gdb there is no problem.
+>
+>Here is the test:
+>
+>#include <pthread.h>
+>
+>void *test(void *arg) {
+>	puts("Thread2");
+>	return 0;
+>}
+>
+>int main() {
+>	pthread_t tt;
+>	puts("Before Thread2");
+>	pthread_create(&tt,NULL,test,NULL);
+>	puts("After Thread2");
+>	return 0;
+>}
+>
 
+Buggy program that could give unspecified behaviour, unless pthread
+standard talks about orphaned threads...
 
-On Fri, 2002-02-08 at 05:33, Andrey Panin wrote:
-> Hi Shawn,
-> 
-> does this Xircom serial port really work ?
-> "register_serial(): autoconfig failed" message is highly suspicious.
-> 
-> Best regards.
-> 
-> -- 
-> Andrey Panin            | Embedded systems software engineer
-> pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+Your main program can die (exit) before child thread ends, so it has
+nobody to notify its dying or return to.
+
+Try with a sleep(1) before main return, or better, do a
+pthread_join().
+
 -- 
-Shawn Starr
-Developer Support Engineer
-Datawire Communication Networks Inc.
-10 Carlson Court, Suite 300
-Toronto, ON, M9W 6L2
-T: 416-213-2001 ext 179  F: 416-213-2008
-
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.18-pre9-slb #3 SMP Fri Feb 8 01:33:12 CET 2002 i686

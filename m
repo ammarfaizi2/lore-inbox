@@ -1,43 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbULKXtI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262032AbULKXvw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbULKXtI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 18:49:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbULKXtI
+	id S262032AbULKXvw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 18:51:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbULKXvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 18:49:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20136 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261959AbULKXtG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 18:49:06 -0500
-Date: Sat, 11 Dec 2004 19:24:50 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: tvrtko.ursulin@sophos.com
-Cc: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, urban@teststation.com
-Subject: Re: [BUG ?] smbfs open always succeeds
-Message-ID: <20041211212450.GI9995@logos.cnet>
-References: <OF30DAAE12.E64B9793-ON80256F66.003C453F-80256F66.003D0A18@sophos.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF30DAAE12.E64B9793-ON80256F66.003C453F-80256F66.003D0A18@sophos.com>
-User-Agent: Mutt/1.5.5.1i
+	Sat, 11 Dec 2004 18:51:52 -0500
+Received: from fw.osdl.org ([65.172.181.6]:39615 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262032AbULKXvs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 18:51:48 -0500
+Message-ID: <41BB86F1.4080804@osdl.org>
+Date: Sat, 11 Dec 2004 15:46:57 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Camilo A. Reyes" <camilo@leamonde.no-ip.org>
+CC: Sean Neakums <sneakums@zork.net>, linux-kernel@vger.kernel.org
+Subject: Re: modprobe: QM_MODULES: Funtion not implemented on kernel 2.6.9
+References: <20041211195133.GA2210@leamonde.no-ip.org> <6uvfb8leqg.fsf@zork.zork.net> <20041211214625.GA2324@leamonde.no-ip.org> <6ur7lwlcrk.fsf@zork.zork.net> <20041211220810.GA2432@leamonde.no-ip.org>
+In-Reply-To: <20041211220810.GA2432@leamonde.no-ip.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 10, 2004 at 11:06:42AM +0000, tvrtko.ursulin@sophos.com wrote:
-> >It seems Andrew applied this to the -mm tree.
-> >
-> >smb_file_open-retval-fix.patch
-> 
-> Hm, I guess I should have spotted that but unfortunately I don't have 
-> enough time to keep up with mm lately. :I
-> 
-> Marcelo, are you planning to put it in 2.4 ?
 
-After it has been present in a major v2.6 release (v2.6.11) for a few months
-to guarantee there are no negative side effects, yes.
+> Right, and I'm trying to find it as we speak, just wanted to clarify the
+> confusion on my first email. Im looking for it in ftp.us.kernel.org but
+> its kinda hard since there are all this different folders and things,
+> not really sure in which one it would be...
 
-Written to my whiteboard as a remainder, my memory is quite bad. :) 
+I get it here:
+http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
 
+-- 
+~Randy

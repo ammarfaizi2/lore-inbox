@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129106AbRBOMX6>; Thu, 15 Feb 2001 07:23:58 -0500
+	id <S129075AbRBOM2t>; Thu, 15 Feb 2001 07:28:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129136AbRBOMXs>; Thu, 15 Feb 2001 07:23:48 -0500
-Received: from pcow025o.blueyonder.co.uk ([195.188.53.125]:60431 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S129106AbRBOMXe>;
-	Thu, 15 Feb 2001 07:23:34 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Compaq Alpha: missing i-cache invalidates in ptrace (2.2.18, 2.4.0) ?
-Reply-To: James Cownie <jcownie@etnus.com>
-Date: Thu, 15 Feb 2001 12:23:27 +0000
-From: James Cownie <jcownie@etnus.com>
-Message-ID: <14TNRY-4xc-00@etnus.com>
+	id <S129276AbRBOM2j>; Thu, 15 Feb 2001 07:28:39 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:50183 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S129075AbRBOM2S>; Thu, 15 Feb 2001 07:28:18 -0500
+Date: Thu, 15 Feb 2001 12:28:10 +0000
+From: Tim Waugh <twaugh@redhat.com>
+To: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Netmos PCI parallel card
+Message-ID: <20010215122810.W9459@redhat.com>
+In-Reply-To: <Pine.LNX.4.30.0102151149240.30393-300000@jdi.jdimedia.nl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="Vmb+IyT2VBRvgrJP"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0102151149240.30393-300000@jdi.jdimedia.nl>; from i.palsenberg@jdimedia.nl on Thu, Feb 15, 2001 at 11:52:46AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I've been seeing some peculiar effects on Alpha boxes (particularly on
-SMPs) where threads run right past breakpoints planted by a debugger.
-(This on 2.2 series kernels).
+--Vmb+IyT2VBRvgrJP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Looking at the code in arch/alpha/kernel/ptrace.c there appears to be
-nowhere where flush_icache_range is called. According to the Alpha
-architecture manual you must execute a "call_pal imb" (which is what
-flush_icache_range turns into) after changing the I-stream.
+On Thu, Feb 15, 2001 at 11:52:46AM +0100, Igmar Palsenberg wrote:
 
-So :-
+> Attached is a patch to make a Netmos PCI parallal port card working.
 
-1) Anyone agree with me that flush_icache_range ought to be called
-   after any ptrace write which modifies an executable page ?
-   (Or have I missed something which has this effect ?)
+Please try the following patch instead.  That card _should_ have a
+working ECR.
 
-2) If so, would patches be accepted ?
+<URL:ftp://people.redhat.com/twaugh/patches/linux24/linux-netmos.patch>
 
-The same problem also appears to exist in 2.4...
+Tim.
+*/
 
-Thanks
+--Vmb+IyT2VBRvgrJP
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
--- Jim 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-James Cownie	<jcownie@etnus.com>
-Etnus, LLC.     +44 117 9071438
-http://www.etnus.com
+iD8DBQE6i8tYONXnILZ4yVIRAshRAJ48magS7k2tH8PDX2uWVPqN6EXx2gCfdoQI
+X1wt+cTqSjc/nVS0A8Ilk9E=
+=qugK
+-----END PGP SIGNATURE-----
 
+--Vmb+IyT2VBRvgrJP--

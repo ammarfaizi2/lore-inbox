@@ -1,61 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263166AbUEJXlS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbUEJXo7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263166AbUEJXlS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 19:41:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUEJXjz
+	id S261791AbUEJXo7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 19:44:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbUEJXo6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 19:39:55 -0400
-Received: from cathy.bmts.com ([216.183.128.202]:19413 "EHLO cathy.bmts.com")
-	by vger.kernel.org with ESMTP id S261791AbUEJXhp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 19:37:45 -0400
-Date: Mon, 10 May 2004 19:36:59 -0400
-From: Mike Houston <mikeserv@bmts.com>
+	Mon, 10 May 2004 19:44:58 -0400
+Received: from pacific.moreton.com.au ([203.143.235.130]:48645 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id S262079AbUEJXjy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 19:39:54 -0400
+Message-ID: <40A012A4.7060703@snapgear.com>
+Date: Tue, 11 May 2004 09:39:16 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
-Message-Id: <20040510193659.77e474a7.mikeserv@bmts.com>
-In-Reply-To: <409FFB44.5030304@keyaccess.nl>
-References: <409F4944.4090501@keyaccess.nl>
-	<200405102125.51947.bzolnier@elka.pw.edu.pl>
-	<409FF068.30902@keyaccess.nl>
-	<409FFB44.5030304@keyaccess.nl>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: [PATCH]: linux-2.6.6-uc0 (MMU-less fixups)
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-bmts-MailScanner: Found to be clean
-X-bmts-MailScanner-SpamCheck: 
-X-MailScanner-From: mikeserv@bmts.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 May 2004 23:59:32 +0200
-Rene Herman <rene.herman@keyaccess.nl> wrote:
+Hi All,
 
-> Rene Herman wrote:
-> 
-> > With this one, the cache flushing noise is no more, but still a problem 
-> > unfortunately. With or without these patches, 2.6.6 powers down the 
-> > drive during reboot. This is very annoying, seeing as how it immediately 
-> > needs to spin up again for POST.
-> 
-> Sorry, mistaken. This only happens _with_ your change. Without, 2.6.6 
-> just complains.
-> 
-> Rene.
+An update of the uClinux (MMU-less) fixups against 2.6.6.
+A lot of things merged in 2.6.6, so only a handful of patches
+for general uClinux and m68knommu.
 
-I am having this "spin up" behaviour with plain 2.6.6 (I haven't tried any patches)
+http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.6-uc0.patch.gz
 
-On reboot, after it suspended the drives, there is a roughly 15 second delay at post while the bios is initializing the hard disks. During this time the hard disk LED is lit.
+Change log:
 
-Shut down and power up behaviour is normal, it's only on a reboot that the above occurs.
+. integrate armnommu support                   Hyok S. Choi
+. add find_next_bit() to m68knommu bitops.h    me
+. merge with linux-2.6.6                       me
 
-Hardware: Pentium4, Gigabyte motherboard, i845, ICH2 IDE controllers.
-Disks:  Two identical Maxtor 40 Gb 6E040L0 models. Primary master and primary slave. UDMA (100).
+Regards
+Greg
 
-Note that I do hear a bit of a "cache flush" noise, but I assume that's normal because Windows XP makes that same noise when shutting down. It seems to be a normal hard disk sound.
 
-I do not get any complaints like you have in the boot logs though. Everything is normal unless I reboot (and even that is just a trivial delay and probably not at all harmful)
 
-Mike
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude          EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

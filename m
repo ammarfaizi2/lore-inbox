@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317047AbSEWXVt>; Thu, 23 May 2002 19:21:49 -0400
+	id <S317045AbSEWXXO>; Thu, 23 May 2002 19:23:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317045AbSEWXVs>; Thu, 23 May 2002 19:21:48 -0400
-Received: from naur.csee.wvu.edu ([157.182.194.28]:26039 "EHLO
-	naur.csee.wvu.edu") by vger.kernel.org with ESMTP
-	id <S317044AbSEWXVr>; Thu, 23 May 2002 19:21:47 -0400
-Subject: Re: Reg. asm-sparc64/processor.h
-From: Shanti Katta <katta@csee.wvu.edu>
-To: "David S. Miller" <davem@redhat.com>
-Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20020522.205224.63641863.davem@redhat.com>
-Content-Type: text/plain
+	id <S317048AbSEWXXN>; Thu, 23 May 2002 19:23:13 -0400
+Received: from 102-208-ADSL.red.retevision.es ([80.224.208.102]:39996 "EHLO
+	head.redvip.net") by vger.kernel.org with ESMTP id <S317045AbSEWXXL>;
+	Thu, 23 May 2002 19:23:11 -0400
+Message-ID: <3CED7A65.7010004@zaralinux.com>
+Date: Fri, 24 May 2002 01:25:25 +0200
+From: Jorge Nerin <comandante@zaralinux.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.0rc2) Gecko/20020510
+X-Accept-Language: es-es, en-us
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Cannot write a 90' cd
+In-Reply-To: <3CED69EB.2060003@zaralinux.com> <20020524005754.I27005@ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 23 May 2002 19:24:35 -0400
-Message-Id: <1022196275.2591.4.camel@indus>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-05-22 at 23:52, David S. Miller wrote:
+Vojtech Pavlik wrote:
 > 
-> If you want the 'u64' type, define __KERNEL__.  That is what
-> every platform does, protect the types without underscores with
-> a __KERNEL__ ifdef.
-Hi,
-In asm-sparc64/processor.h (2.4.18), in thread_struct structure, there
-are 3 fields:
-        u64 *user_cntd0, *user_cntd1;
-        u64 kernel_cntd0, kernel_cntd1;
-        u64 pcr_reg; 
+> 90 minute CD-Rs have a tighter leading track, and only some CD-R drives
+> are able to cope with that. For example my Ricoh doesn't, failing some
+> 54 minutes after start. There is nothing you can do about that.
+> 
 
-which are defined without #ifdef __KERNEL__ . I guess, this is a bug,
-which needs fixing.
+It could be that, but I suspect something strange, the cd reports itself to be 
+about 80', then cdrecord is unable to write past this 80', after cdrecord 
+fixates the cd and ejects it I can see that there is still a virgin zone of 
+about 5 milimeters at the edge of the disk.
 
-Thanks
--Regards
--Shanti Katta
+On the other hand I have been able to overburn some cd to gain about half a 
+minute when needed, but these were 74 or 80 minutes media.
+
+The most strange thing is the scsi error, "no error":
+
+Input/output error. write_g1: scsi sendcmd: no error
+CDB:  2A 00 00 05 7D 89 00 00 1F 00
+status: 0x2 (CHECK CONDITION)
+Sense Bytes: 70 00 05 00 00 00 00 0A 00 00 00 00 63 00 00 00
+Sense Key: 0x5 Illegal Request, Segment 0
+Sense Code: 0x63 Qual 0x00 (end of user area encountered on this track) Fru 0x0
+Sense flags: Blk 0 (not valid)
+cmd finished after 0.004s timeout 40s
+
+-- 
+Jorge Nerin
+<comandante@zaralinux.com>
 

@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264021AbTDWNDT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 09:03:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264023AbTDWNDT
+	id S264024AbTDWNF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 09:05:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264025AbTDWNF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 09:03:19 -0400
-Received: from [203.197.168.150] ([203.197.168.150]:53004 "HELO
-	mailscanout256k.tataelxsi.co.in") by vger.kernel.org with SMTP
-	id S264021AbTDWNDT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 09:03:19 -0400
-Message-ID: <3EA69279.F14467F9@tataelxsi.co.in>
-Date: Wed, 23 Apr 2003 18:47:45 +0530
-From: "Prasanta Sadhukhan" <prasanta@tataelxsi.co.in>
-X-Mailer: Mozilla 4.6 [en] (WinNT; I)
-X-Accept-Language: en
+	Wed, 23 Apr 2003 09:05:29 -0400
+Received: from pop.gmx.de ([213.165.65.60]:39661 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264024AbTDWNF1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 09:05:27 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Andrew Kirilenko <icedank@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Stored data missed in setup.S
+Date: Wed, 23 Apr 2003 16:17:23 +0300
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: setting LAA
-Content-Type: text/plain; charset=x-user-defined
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200304231617.23243.icedank@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-    I was trying to set the LAA through the familiar command of
-"ifconfig tr hw tr 4000deadbeef" but is is giving SIOCSHWADDR: Invalid
-argument.
+Hello!
 
-While going through the ifconfig manpage, I found that the hw classes
-supported are ether, ax25, ARCnet and netcom.
-"tr" is not mentioned.
+I feel myself stupid, when fighting against setup.S. Here is small piece of 
+code (/arch/i386/boot/setup.S)
 
-Is it that setting of LAA in token ring is dispensed from the 2.4
-kernels. If it is not, is there any patch for it?
-Can someone please send me the patch as I tried in the net with no
-success
+--->
+start_of_setup: # line 160
+	# bla bla bla - some checking code
+        movb    $1, %al
+        movb    %al, (0x100)
+....
+....
+        pushw   %ax
+        movb    (0x100), %al
+        cmpb    $1, %al
+        popw    %ax # pop don't change any flags - 386 asm reference
+        je     bail820 # and it don't jump -- al != 1
+meme820: # line 300
+<---
 
-Thanks & Refgards
-Prasanta
+Any ideas? I've spent two days, trying to understand what's going on - no luck 
+at all...
 
-
+Best regards,
+Andrew.

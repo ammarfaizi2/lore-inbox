@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272041AbTG2TGs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 15:06:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272043AbTG2TGT
+	id S272010AbTG2TK0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 15:10:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272011AbTG2TK0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 15:06:19 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:35560 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S272041AbTG2TGL (ORCPT
+	Tue, 29 Jul 2003 15:10:26 -0400
+Received: from fw.osdl.org ([65.172.181.6]:31398 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272010AbTG2TKS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 15:06:11 -0400
-Subject: Re: [BUG] 2.6.0-test2 loses time on 486
-From: john stultz <johnstul@us.ibm.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200307291734.h6THYhmp012585@harpo.it.uu.se>
-References: <200307291734.h6THYhmp012585@harpo.it.uu.se>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1059505144.14761.55.camel@w-jstultz2.beaverton.ibm.com>
+	Tue, 29 Jul 2003 15:10:18 -0400
+Date: Tue, 29 Jul 2003 11:58:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: albert@users.sourceforge.net, zwane@arm.linux.org.uk,
+       linux-yoann@ifrance.com, linux-kernel@vger.kernel.org, akpm@digeo.com,
+       vortex@scyld.com, jgarzik@pobox.com
+Subject: Re: another must-fix: major PS/2 mouse problem
+Message-Id: <20030729115825.5347b487.akpm@osdl.org>
+In-Reply-To: <1059482410.3862.120.camel@cube>
+References: <1054431962.22103.744.camel@cube>
+	<3EDCF47A.1060605@ifrance.com>
+	<1054681254.22103.3750.camel@cube>
+	<3EDD8850.9060808@ifrance.com>
+	<1058921044.943.12.camel@cube>
+	<20030724103047.31e91a96.akpm@osdl.org>
+	<1059097601.1220.75.camel@cube>
+	<20030725201914.644b020c.akpm@osdl.org>
+	<Pine.LNX.4.53.0307261112590.12159@montezuma.mastecende.com>
+	<1059447325.3862.86.camel@cube>
+	<20030728201459.78c8c7c6.akpm@osdl.org>
+	<1059482410.3862.120.camel@cube>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 29 Jul 2003 11:59:06 -0700
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-07-29 at 10:34, Mikael Pettersson wrote:
-> My old 486 test box is losing time at an alarming rate
-> when running 2.6.0-test kernels. It loses almost 2 minutes
-> per hour, less if it sits idle. This problem does not
-> occur when it's running a 2.4 kernel.
+Albert Cahalan <albert@users.sourceforge.net> wrote:
+>
+> > So this looks OK, yes?
 > 
-> There's nothing noteworthy in dmesg.
-> 
-> This has been going on since at least the 2.5.7x kernels,
-> and possible also the 2.5.6x kernels. I strongly suspect
-> a bug in the time-keeping changes in late 2.5 kernels.
-> The 486 has no TSC, and I don't have an NTP server to
-> keep my machines' times in sync.
+> I suppose boomerang_interrupt itself is OK.
+> Spending 104 ms in IRQ 0, 31 ms in IRQ 11, and
+> 44 ms in IRQ 14 is not at all OK. I was hoping
+> to get under 200 microseconds for everything.
 
-Hmm.  Sounds like you're loosing interrupts. This can happen due to
-poorly behaving drivers (disabling interrupts for too long), or odd
-hardware. The change from HZ=100 to HZ=1000 probably made this more
-visible on your box, so could you try setting HZ back to 100 and see if
-that helps (you may still lose time, but at a much slower rate). 
+I misread that.
 
-Also what drivers are you running with?
+Last time I checked (which was about 18 months ago) the maximum
+interrupts-off time on a 500MHz desktop-class machine was 80 microseconds.
 
-thanks
--john
-
-
+Something is broken there.  Do you have another machine to sanity check
+against?

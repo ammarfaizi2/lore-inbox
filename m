@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129524AbQLREbs>; Sun, 17 Dec 2000 23:31:48 -0500
+	id <S130599AbQLREqE>; Sun, 17 Dec 2000 23:46:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130599AbQLREb3>; Sun, 17 Dec 2000 23:31:29 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:56329 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129524AbQLREbS>; Sun, 17 Dec 2000 23:31:18 -0500
-Date: Sun, 17 Dec 2000 21:58:32 -0600
-To: ferret@phonewave.net
-Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-        Dana Lacoste <dana.lacoste@peregrine.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Linus's include file strategy redux
-Message-ID: <20001217215831.V3199@cadcamlab.org>
-In-Reply-To: <14908.29798.413845.663365@wire.cadcamlab.org> <Pine.LNX.3.96.1001217120047.29402A-100000@tarot.mentasm.org>
-Mime-Version: 1.0
+	id <S131413AbQLREpy>; Sun, 17 Dec 2000 23:45:54 -0500
+Received: from cx518206-b.irvn1.occa.home.com ([24.21.107.123]:2820 "EHLO
+	pobox.com") by vger.kernel.org with ESMTP id <S130599AbQLREpm>;
+	Sun, 17 Dec 2000 23:45:42 -0500
+From: "Barry K. Nathan" <barryn@pobox.com>
+Message-Id: <200012180415.UAA00809@pobox.com>
+Subject: [PATCH] 2.4.0test13-pre3 apm.o unresolved symbols
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Sun, 17 Dec 2000 20:15:18 -0800 (PST)
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Reply-To: barryn@pobox.com
+In-Reply-To: <E147oJK-0004nf-00@the-village.bc.nu> from "Alan Cox" at Dec 18, 2000 12:37:47 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.96.1001217120047.29402A-100000@tarot.mentasm.org>; from ferret@phonewave.net on Sun, Dec 17, 2000 at 12:08:35PM -0800
-From: Peter Samuelson <peter@cadcamlab.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(Linus Torvalds added to the cc list because there's now a patch to fix
+the problem.)
 
-[ferret@phonewave.net]
-> One last question: WHY is the kernel's top-level Makefile handling
-> this symlink?
+Alan Cox wrote:
+> pm.o should be listed as a symbol exporting object in kernel/Makefile
 
-Where do you think it should be handled?  'make modules_install' seems
-like the most logical place, to me.
+Ok, here's a patch that does this. Tested for both the in-kernel and
+module cases.
 
-Peter
+-Barry K. Nathan <barryn@pobox.com>
+
+diff -ruN linux-2.4.0test13pre3/kernel/Makefile linux-2.4.0test13pre3bkn/kernel/Makefile
+--- linux-2.4.0test13pre3/kernel/Makefile	Sun Dec 17 14:17:47 2000
++++ linux-2.4.0test13pre3bkn/kernel/Makefile	Sun Dec 17 17:55:11 2000
+@@ -9,7 +9,7 @@
+ 
+ O_TARGET := kernel.o
+ 
+-export-objs = signal.o sys.o kmod.o context.o ksyms.o
++export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o
+ 
+ obj-y     = sched.o dma.o fork.o exec_domain.o panic.o printk.o \
+ 	    module.o exit.o itimer.o info.o time.o softirq.o resource.o \
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

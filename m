@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281541AbRLBRRl>; Sun, 2 Dec 2001 12:17:41 -0500
+	id <S281504AbRLBRSb>; Sun, 2 Dec 2001 12:18:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281513AbRLBRRb>; Sun, 2 Dec 2001 12:17:31 -0500
-Received: from cs6669235-16.austin.rr.com ([66.69.235.16]:25729 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S281504AbRLBRRV>; Sun, 2 Dec 2001 12:17:21 -0500
-Date: Sun, 2 Dec 2001 11:17:16 -0600 (CST)
-From: Erik Elmore <lk@bigsexymo.com>
-X-X-Sender: <lk@localhost.localdomain>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Mike Fedyk <mfedyk@matchmail.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: EXT3 - freeze ups during disk writes
-In-Reply-To: <3C0946C7.798208C3@zip.com.au>
-Message-ID: <Pine.LNX.4.33.0112021116190.13663-100000@localhost.localdomain>
+	id <S281513AbRLBRSW>; Sun, 2 Dec 2001 12:18:22 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:56337 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S281504AbRLBRSL>;
+	Sun, 2 Dec 2001 12:18:11 -0500
+Date: Sun, 2 Dec 2001 15:18:00 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrew Morton <akpm@zip.com.au>, Larry McVoy <lm@bitmover.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Henning Schmiedehausen <hps@intermeta.de>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Coding style - a non-issue
+In-Reply-To: <Pine.LNX.4.33.0111301643170.1224-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0112021516520.4079-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've seen a couple of reports where ext3 appears to exacerbate
-> the effects of poor hdparm settings.  What is your raw disk
-> throughput, from `hdparm -t /dev/hda'?
+On Fri, 30 Nov 2001, Linus Torvalds wrote:
+> On Fri, 30 Nov 2001, Rik van Riel wrote:
+> >
+> > I'm very interested too, though I'll have to agree with Larry
+> > that Linux really isn't going anywhere in particular and seems
+> > to be making progress through sheer luck.
+>
+> Hey, that's not a bug, that's a FEATURE!
 
-`hdparm -t /dev/hda` reports:
+Don't forget the fact that 2.4 is the first kernel you
+managed to get stable under high load since 1.2.
 
-# hdparm -t /dev/hda
+Both 2.0 and 2.2 didn't get stable until Alan took over
+and Alan's 2.4 fork got stable some 4 months before your
+2.4 tree got stable.
 
-/dev/hda:
- Timing buffered disk reads:  64 MB in 16.76 seconds =  3.82 MB/sec
+I think you've pretty much proven how well random
+development works.
 
+regards,
 
-Erik
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
 
+http://www.surriel.com/		http://distro.conectiva.com/
 

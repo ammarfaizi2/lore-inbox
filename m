@@ -1,69 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267669AbRGPTAr>; Mon, 16 Jul 2001 15:00:47 -0400
+	id <S267671AbRGPTA0>; Mon, 16 Jul 2001 15:00:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267670AbRGPTAh>; Mon, 16 Jul 2001 15:00:37 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:3846 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S267669AbRGPTAT>;
-	Mon, 16 Jul 2001 15:00:19 -0400
-Date: Mon, 16 Jul 2001 16:00:16 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Kanoj Sarcar <kanojsarcar@yahoo.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>, Dirk Wetter <dirkw@rentec.com>,
-        Mike Galbraith <mikeg@wen-online.de>, <linux-mm@kvack.org>,
-        "Stephen C. Tweedie" <sct@redhat.com>
-Subject: Re: [PATCH] Separate global/perzone inactive/free shortage 
-In-Reply-To: <20010716155126.37887.qmail@web14306.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.33L.0107161553090.5738-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S267670AbRGPTAR>; Mon, 16 Jul 2001 15:00:17 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:47599 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S267669AbRGPS76>; Mon, 16 Jul 2001 14:59:58 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200107161853.f6GIrxdQ002885@webber.adilger.int>
+Subject: Re: [PATCH] 64 bit scsi read/write
+In-Reply-To: <Pine.LNX.4.33.0107141325460.1063-100000@rossi.itg.ie>
+ "from Paul Jakma at Jul 14, 2001 01:27:37 pm"
+To: Paul Jakma <paulj@alphyra.ie>
+Date: Mon, 16 Jul 2001 12:53:59 -0600 (MDT)
+CC: Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Jul 2001, Kanoj Sarcar wrote:
+Paul Jamka writes:
+> On Fri, 13 Jul 2001, Andreas Dilger wrote:
+> > put your journal on NVRAM, you will have blazing synchronous I/O.
+> 
+> so ext3 supports having the journal somewhere else then. question: can
+> the journal be on tmpfs?
 
-> Just a quick note. A per-zone page reclamation
-> method like this was what I had advocated and sent
-> patches to Linus for in the 2.3.43 time frame or so.
-> I think later performance work ripped out that work.
+There are patches for this (2.2 only, not 2.4) but it is not in the core
+ext3 code yet.  The ext3 design and on-disk layout allow for it (and the
+e2fsprogs have the basic support for it), so it will not be a major change
+to start using external devices for journals.
 
-Yes, the system ended up swapping as soon as the first zone
-was filled up and after that would fill up the other zones;
-the way the system stabilised was cycling through the pages
-of one zone and leaving the lower zones alone.
+If you are keen to do performance testing (on a temporary filesystem, for
+sure), you can hack around the current lack of ext3 support for journal
+devices by doing the following (works for reiserfs also) with LVM:
 
-This reduced the amount of available VM of a 1GB system
-to 128MB, which is somewhat suboptimal ;)
+1) create a PV on NVRAM/SSD/ramdisk (needs hacks to LVM code to support the
+   NVRAM device, or you can loopback mount the device ;-)  It should be big
+   enough to hold the entire journal + a bit of overhead*
+2) create a VG and LV on the ramdisk
+3) create a PV on a regular disk, add it to the above VG
+4) extend the LV with the new PV space**
+5) create a 4kB blocksize ext2 filesystem on this LV
+6) use "dumpe2fs <LV NAME>" to find the free blocks count in the first group
+7) use "tune2fs -J size=<blocks * blocksize> <LV name>" to create the
+   journal, where "blocks" <= number of free blocks in first group and
+   also <= (number of blocks on NVRAM device - overhead*)
 
-What we learned from that is that we need to have some
-way to auto-balance the reclaiming, keeping the objective
-of evicting the least used page from RAM in mind.
+You _should_ have the journal on NVRAM now, along with the superblock and
+all of the metadata for the first group.  This will also improve performance
+as the superblock and group descriptor tables are hot spots as well.
 
-> I guess the problem is that a lot of the different
-> page reclamation schemes first of all do not know
-> how to reclaim pages for a specific zone,
+Of course, once support for external journal devices is added to ext3, it
+will simply be a matter of doing "tune2fs -J device=<NVRAM device>".
 
-> try_to_swap_out is a good example, which can be solved
-> by rmaps.
+Cheers, Andreas
+---------------
+*) For ext3, you need enough extra space for the superblock, group descriptors,
+   one block and inode bitmap, the first inode table, (and lost+found if
+   you don't want to do extra work deleting lost+found before creating the
+   journal, and re-creating it afterwards).  The output from "dumpe2fs"
+   will tell you the number of inode blocks and group descriptor blocks.
+   For reiserfs it is hard to tell exactly where the file will go, but if
+   you had, say, a 64MB NVRAM device and a new filesystem, you could expect
+   the journal to be put entirely on the NVRAM device.
 
-Indeed. Most of the time things go right, but the current
-system cannot cope at all when things go wrong. I think we
-really want things like rmaps and more sturdy reclaiming
-mechanisms to cope with these worst cases (and also to make
-the common case easier to get right).
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+**) The LV will have the NVRAM device as the first Logical Extent, so this
+   will also be logically the first part of the filesystem.  The PEs added
+   to the LV will be appended to the NVRAM device.
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

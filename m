@@ -1,49 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269316AbUJFQDP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269322AbUJFQH7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269316AbUJFQDP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 12:03:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269206AbUJFQDP
+	id S269322AbUJFQH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 12:07:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269325AbUJFQH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 12:03:15 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:11435 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269316AbUJFQDE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 12:03:04 -0400
-Subject: Re: [PATCH] Console: fall back to /dev/null when no console is
-	availlable
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Greg KH <greg@kroah.com>, J?rn Engel <joern@wohnheim.fh-wedel.de>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041005221333.L6910@flint.arm.linux.org.uk>
-References: <20041005185214.GA3691@wohnheim.fh-wedel.de>
-	 <20041005212712.I6910@flint.arm.linux.org.uk>
-	 <20041005210659.GA5276@kroah.com>
-	 <20041005221333.L6910@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1097074822.29251.51.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 06 Oct 2004 16:00:23 +0100
+	Wed, 6 Oct 2004 12:07:58 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:6016 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S269322AbUJFQH4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 12:07:56 -0400
+Date: Wed, 6 Oct 2004 12:07:43 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "David S. Miller" <davem@davemloft.net>
+cc: Chris Friesen <cfriesen@nortelnetworks.com>, joris@eljakim.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+In-Reply-To: <20041006084128.38e9970d.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.61.0410061158050.3236@chaos.analogic.com>
+References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl>
+ <20041006080104.76f862e6.davem@davemloft.net> <Pine.LNX.4.61.0410061110260.6661@chaos.analogic.com>
+ <20041006082145.7b765385.davem@davemloft.net> <41640FE2.3080704@nortelnetworks.com>
+ <20041006084128.38e9970d.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-10-05 at 22:13, Russell King wrote:
-> I'm redirecting them in the /sbin/hotplug script to something sane,
-> but I think the kernel itself should be directing these three fd's
-> to somewhere whenever it invokes any user program, even if it is
-> /dev/null.
+On Wed, 6 Oct 2004, David S. Miller wrote:
 
-Someone should yes. There are lots of fascinating things happen when
-hotplug opens a system file, it gets assigned fd 2 and then we write to
-stderr.
+> On Wed, 06 Oct 2004 09:31:46 -0600
+> Chris Friesen <cfriesen@nortelnetworks.com> wrote:
+>
+>> David S. Miller wrote:
+>>
+>>> So if select returns true, and another one of your threads
+>>> reads all the data from the file descriptor, what would you
+>>> like the behavior to be for the current thread when it calls
+>>> read?
+>>
+>> What about the single-threaded case?
+>
+> Incorrect UDP checksums could cause the read data to
+> be discarded.  We do the copy into userspace and checksum
+> computation in parallel.  This is totally legal and we've
+> been doing it since 2.4.x first got released.
+>
+> Use non-blocking sockets with select()/poll() and be happy.
 
-> I think Alan disagrees with me, but I think the history that these
-> types of problems _keep_ cropping up over and over is proof enough
-> that it's necessary for sane userspace.
+Gawd. This is damn awful. How could this possibly be justified?
+You can't have a system call that lies. We already have an OS
+that does that. Certainly, no other Unix OS in the past has
+thrown away integrity with such aplomb. Next, in the interest
+of "performance", you'll probably only occasionally provide
+file-data, as well.
 
-Userspace to userspace execution is quite precisely defined. What
-happens for kernel->userspace isn't so I have no problem with the kernel
-attaching hotplug to the system console.
+You can't do this. When there is some well-defined procedure
+such as select() or poll(), that is designed to provide a
+reliable way of knowing that a read will succeed, you or
+anybody else don't have the authority to declare that it's
+not important to actually have it work.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.5-1.358-noreg on an i686 machine (5537.79 BogoMips).
+             Note 96.31% of all statistics are fiction.
+

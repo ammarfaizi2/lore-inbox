@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262821AbREVVE1>; Tue, 22 May 2001 17:04:27 -0400
+	id <S262826AbREVVH5>; Tue, 22 May 2001 17:07:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262824AbREVVES>; Tue, 22 May 2001 17:04:18 -0400
-Received: from are.twiddle.net ([64.81.246.98]:34177 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S262821AbREVVEE>;
-	Tue, 22 May 2001 17:04:04 -0400
-Date: Tue, 22 May 2001 14:02:06 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: Jonathan Lundell <jlundell@pobox.com>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
-Subject: Re: alpha iommu fixes
-Message-ID: <20010522140206.B4662@twiddle.net>
-Mail-Followup-To: Jonathan Lundell <jlundell@pobox.com>,
-	Andrea Arcangeli <andrea@suse.de>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15112.62766.368436.236478@pizda.ninka.net> <20010521131959.M30738@athlon.random> <20010521155151.A10403@jurassic.park.msu.ru> <20010521105339.A1907@twiddle.net> <20010522025658.A1116@athlon.random> <20010522162916.B15155@athlon.random> <20010522184409.A791@jurassic.park.msu.ru> <20010522170016.D15155@athlon.random> <20010522132815.A4573@twiddle.net> <p05100312b7307eda5292@[207.213.214.37]>
-Mime-Version: 1.0
+	id <S262827AbREVVHr>; Tue, 22 May 2001 17:07:47 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31748 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262826AbREVVHi>; Tue, 22 May 2001 17:07:38 -0400
+Subject: Re: scheduling callbacks in user space triggered via kernel....
+To: ashok.raj@intel.com (Raj, Ashok)
+Date: Tue, 22 May 2001 22:05:02 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org ("Linux-Kernel (E-mail)")
+In-Reply-To: <9319DDF797C4D211AC4700A0C96B7C9404AC1F7D@orsmsx42.jf.intel.com> from "Raj, Ashok" at May 22, 2001 01:15:56 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <p05100312b7307eda5292@[207.213.214.37]>; from jlundell@pobox.com on Tue, May 22, 2001 at 01:48:23PM -0700
+Content-Transfer-Encoding: 7bit
+Message-Id: <E152JKx-0002TG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 22, 2001 at 01:48:23PM -0700, Jonathan Lundell wrote:
-> 64KB for 8-bit DMA; 128KB for 16-bit DMA. [...]  This doesn't
-> apply to bus-master DMA, just the legacy (8237) stuff.
+> Is there a method to schedule user mode code from kernel agent?
 
-Would this 8237 be something on the ISA card, or something on
-the old pc mainboards?  I'm wondering if we can safely ignore
-this issue altogether here...
+You can wake user processes,send them signals etc but ingeneral its not
+a good idea
 
-> There was also a 24-bit address limitation.
+> registers with the kernel mode agent with a function/parm to run, then when
+> the callback is appropriate the kerenl agent triggers this callback to
+> happen.
 
-Yes, that's in the number of address lines going to the isa card.
-We work around that one by having an iommu arena from 8M to 16M
-and forcing all ISA traffic to go through there.
+The unix model is much more that the app does
 
+	while(1)
+	{
+		get_event(fd);
+		switcH(event)
+		{
+				..
+			...
+		}
+	}
 
-r~
+> or a method to bind a function to a file handle, when there is Completed IO,
+> the kernel would call the registered function with a parameter of the buffer
+> submitted for IO.
+
+The b_end_io callback can possibly be used, or Ben's asynchronosu callbacks,
+but that deals with kernel level completion.
+
+Alan
+

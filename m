@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318184AbSIETml>; Thu, 5 Sep 2002 15:42:41 -0400
+	id <S318040AbSIETnw>; Thu, 5 Sep 2002 15:43:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318188AbSIETml>; Thu, 5 Sep 2002 15:42:41 -0400
-Received: from maild.telia.com ([194.22.190.101]:25296 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id <S318184AbSIETmk>;
-	Thu, 5 Sep 2002 15:42:40 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-To: Jens Axboe <axboe@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
-       Suparna Bhattacharya <suparna@in.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: One more bio for for floppy users in 2.5.33..
-References: <20020905183117.GA22592@suse.de>
-	<Pine.LNX.4.33.0209051136090.1307-100000@penguin.transmeta.com>
-	<20020905183809.GA23195@suse.de>
-From: Peter Osterlund <petero2@telia.com>
-Date: 05 Sep 2002 21:47:08 +0200
-In-Reply-To: <20020905183809.GA23195@suse.de>
-Message-ID: <m2ofbcz0ar.fsf@p4.localdomain>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S318059AbSIETnw>; Thu, 5 Sep 2002 15:43:52 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:51446 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S318040AbSIETnu>; Thu, 5 Sep 2002 15:43:50 -0400
+Message-ID: <3D77B38D.2090402@watson.ibm.com>
+Date: Thu, 05 Sep 2002 15:42:05 -0400
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: linux-aio@kvack.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: libaio 0.3.90 -- test release for sync up
+References: <20020905011755.A7979@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> writes:
+Ben,
 
-> And yes, this is 100% identical to the earlier bio code (I forget what
-> revisions, and that was prior to BK I think).
+Any updates on when we can see some more "core" aio code for 2.5 ?
 
-It changed in 2.5.5-pre1:
+Is the code you've been developing substantially the same as in 2.4 ?
+ From a brief examination of the 2.4 aio code for raw I/O, it doesn't 
+look like it'll need a whole lot of changes except to use bio's. Or do 
+you have a different design in place now ?
 
-<axboe@burns.home.kernel.dk> (02/02/11 1.262.3.11)
-	Remove nr_sectors from bio_end_io end I/O callback. It was a relic
-	from when completion was potentially called more than once to indicate
-	partial end I/O. These days bio->bi_end_io is _only_ called when I/O
-	has completed on the entire bio.
+Any comments/dates will be much appreciated....
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+- Shailabh
+
+Benjamin LaHaise wrote:
+> Hello,
+> 
+> Well, Andrea seems to be trying to fork libaio, but he never sent 
+> any patches to me, so I don't know what his complaint with me as 
+> maintainer is.  I hope he finds it in his heart to submit *patches* 
+> for any changes he's making.  Anyways, here's a test release going 
+> in the direction I've meant to for libaio-0.4.0 -- 0.3.15 is a 
+> compatible release for folks running Red Hat Advanced Server and 
+> does not break source/binary compatibility.  0.4.0 on the other 
+> hand breaks source compatibility to match the changes made for 2.5, 
+> but should still provide backwards compatible symbols.  I've also 
+> tossed the beginnings of man pages in man/ for people to hack on 
+> (Alan, Bert you guys need to synch up with each other on list).  
+> ChangeLog bits are below, the test cases have not been updated for 
+> the new API, nor has it been tested in any way mean or form.  I'll 
+> try to get a 0.3.91 out before I leave tomorrow afternoon, but if 
+> not it will wait until Tuesday.
+> 
+> 		-ben
+
+
+

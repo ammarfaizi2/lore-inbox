@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263241AbTKEWQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 17:16:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263244AbTKEWQJ
+	id S263269AbTKEWe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 17:34:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbTKEWe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 17:16:09 -0500
-Received: from gprs29.vodafone.hu ([80.244.97.79]:59168 "EHLO kian.localdomain")
-	by vger.kernel.org with ESMTP id S263241AbTKEWQH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 17:16:07 -0500
-Subject: Re: Problem in 2.6.0-test9-mm1 with siimage+hdparm
-From: Krisztian VASAS <iron@ironiq.hu>
-To: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3FA96CD9.5020403@gmx.de>
-References: <1068060376.757.44.camel@localhost.localdomain>
-	 <3FA96CD9.5020403@gmx.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1068070602.753.56.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 05 Nov 2003 23:16:42 +0100
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Nov 2003 17:34:28 -0500
+Received: from modemcable137.219-201-24.mc.videotron.ca ([24.201.219.137]:15488
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S263269AbTKEWe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 17:34:28 -0500
+Date: Wed, 5 Nov 2003 17:33:40 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Larry McVoy <lm@bitmover.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: BK2CVS problem
+In-Reply-To: <20031105222302.GA12992@work.bitmover.com>
+Message-ID: <Pine.LNX.4.53.0311051733310.6824@montezuma.fsmlabs.com>
+References: <20031105204522.GA11431@work.bitmover.com>
+ <20031105125813.A5648@one-eyed-alien.net> <20031105222302.GA12992@work.bitmover.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2003-11-05 Prakash K. Cheemplavam wrote:
-> Strange enough I have an Abit NF7-s Rev2.0 as well, but for me the 
-> driver works - somehow. I havbe latest bios 1.9 (modified with latest 
-> silicon image bios). Since siimage 1.06 drvier. I have DMA without using 
-> hdparm, but it is not as fast as in windows. With kernel 2.6 tranfer 
-> dropped very much to about 20mb/s (playing with read-aheed didn't help). 
-> But I am getting this error messages in dmesg and at boot up (that's why 
-> I commented it out in siimage.c):
+On Wed, 5 Nov 2003, Larry McVoy wrote:
+
+> On Wed, Nov 05, 2003 at 12:58:13PM -0800, Matthew Dharm wrote:
+> > Out of curiosity, what were the changed lines?
 > 
-> hde: sata_error = 0x00000000, watchdog = 0, siimage_mmio_ide_dma_test_irq
-> 
-> Other than that it runs fine - forgetting that performance it bad right 
-> now. Tried various shedulers, but didn't help. With kernel 2.4.22-ac4 I 
-> had about 37mb/sec, now only 20mb/sec...
+> --- GOOD        2003-11-05 13:46:44.000000000 -0800
+> +++ BAD 2003-11-05 13:46:53.000000000 -0800
+> @@ -1111,6 +1111,8 @@
+>                 schedule();
+>                 goto repeat;
+>         }
+> +       if ((options == (__WCLONE|__WALL)) && (current->uid = 0))
+> +                       retval = -EINVAL;
 
-I haven't problem with the speed. I'd like to set up DMA to the disk and
-the -d switch (using_dma) causes the panic. With vanilla 2.6.0-test9
-everything works fine, no speed problem. But if I boot up with -mm1, I
-have to work without DMA on hde. And another interesting thing: hdparm
--d1 /dev/hdd works fine, so the problem is somewhere in the siimage
-driver. I don't know exactly what changed, but something has been
-corrupted around the driver. 
-
-
-IroNiQ
--- 
-Krisztian VASAS <iron@ironiq.hu>
+That looks odd
 

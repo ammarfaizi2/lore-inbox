@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263595AbRFNSLh>; Thu, 14 Jun 2001 14:11:37 -0400
+	id <S263597AbRFNSMH>; Thu, 14 Jun 2001 14:12:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263597AbRFNSL1>; Thu, 14 Jun 2001 14:11:27 -0400
-Received: from [212.18.228.90] ([212.18.228.90]:49170 "HELO
-	carrot.linuxgrrls.org") by vger.kernel.org with SMTP
-	id <S263595AbRFNSLQ>; Thu, 14 Jun 2001 14:11:16 -0400
-Message-ID: <3B28FE41.8010908@linuxgrrls.org>
-Date: Thu, 14 Jun 2001 19:11:13 +0100
-From: Rachel Greenham <rachel@linuxgrrls.org>
-Organization: LinuxGrrls.Org
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3-ac6 i686; en-US; rv:0.9.1) Gecko/20010607 Netscape6/6.1b1
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: David Monniaux <monniaux_nospam@arbouse.ens.fr>
-Cc: linux-kernel@vger.kernel.org
+	id <S263521AbRFNSL5>; Thu, 14 Jun 2001 14:11:57 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:44813 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263597AbRFNSLr>; Thu, 14 Jun 2001 14:11:47 -0400
 Subject: Re: more on VIA 686B (trials)
-In-Reply-To: <20010614194402.A19960@picsou.chatons>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: gphat@cafes.net (Cory Watson)
+Date: Thu, 14 Jun 2001 19:10:22 +0100 (BST)
+Cc: monniaux_nospam@arbouse.ens.fr (David Monniaux),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <01061413111300.06452@achmed> from "Cory Watson" at Jun 14, 2001 01:11:13 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15AbZW-00054e-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Abit KT7A, kernel oops right after boot... :(  Can be solved to turning off 
+> 'Enhance Chip Performance' in the BIOS, but then our chip performance is 
+> un'Enhance'd, and we can't have that!  So back to the K6 kernel.
 
+And praying it doesnt go wrong on you - has it not occurred to you that the
+extremely high throughput copies that the mmx copy we use causes will
+occasionally happen by chance and get you anyway ?
 
-David Monniaux wrote:
-
->I replaced this mobo+Duron with an ASUS A7V133+Athlon, which
->work perfectly well.
->Athlon-optimized kernel, UDMA100, no problem whatsoever.
->
-Which is odd, because that's exactly my combination (ASUS A7V133 + 
-Athlon), and I get crashes with DMA on anything from 2.4.3-ac7 onwards, 
-but up to 2.4.3-ac6 is rock-steady. (my crash test is "bonnie -s 1024" 
-:-)) I wonder what's different between our machines (apart from distro, 
-which I wouldn't expect to be relevant)? Clock speed? We tried 
-downclocking my Athlon to 1.0 GHz but it made no difference.
-
-I've been tinkering (have no kernel programming experience) with 
-selectively forward-porting the 2.4.3-ac6 code to newer kernels for my 
-own use at least, but haven't got it right yet.
-
--- 
-Rachel
-
+Alan
 

@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVAMRS3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbVAMRS7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261207AbVAMRS3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 12:18:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVAMROY
+	id S261250AbVAMRS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 12:18:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbVAMRSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 12:14:24 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:52986 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261207AbVAMRNo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 12:13:44 -0500
-Subject: Re: [PATCH] release_pcibus_dev() crash
-From: John Rose <johnrose@austin.ibm.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200501121655.42947.jbarnes@engr.sgi.com>
-References: <1105576756.8062.17.camel@sinatra.austin.ibm.com>
-	 <200501121655.42947.jbarnes@engr.sgi.com>
+	Thu, 13 Jan 2005 12:18:39 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:41700 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261256AbVAMRRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 12:17:51 -0500
+Subject: Re: thoughts on kernel security issues
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       Greg KH <greg@kroah.com>, chrisw@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0501130822280.2310@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>
+	 <20050112185133.GA10687@kroah.com>
+	 <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
+	 <20050112161227.GF32024@logos.cnet>
+	 <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>
+	 <20050112205350.GM24518@redhat.com>
+	 <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org>
+	 <20050112182838.2aa7eec2.akpm@osdl.org> <20050113033542.GC1212@redhat.com>
+	 <Pine.LNX.4.58.0501122025140.2310@ppc970.osdl.org>
+	 <20050113082320.GB18685@infradead.org>
+	 <Pine.LNX.4.58.0501130822280.2310@ppc970.osdl.org>
 Content-Type: text/plain
-Message-Id: <1105636311.30960.8.camel@sinatra.austin.ibm.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <1105632757.4624.59.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 13 Jan 2005 11:11:51 -0600
-Content-Transfer-Encoding: 7bit
+Date: Thu, 13 Jan 2005 16:12:37 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse-
+On Iau, 2005-01-13 at 16:38, Linus Torvalds wrote:
+> It wouldn't be a global flag. It's a per-process flag. For example, many 
+> people _do_ need to execute binaries in their home directory. I do it all 
+> the time. I know what a compiler is.
 
-I'm having trouble with enabling the legacy PCI stuff.  I added #define
-HAVE_PCI_LEGACY to pci.h, but probe.c doesn't build:
-
-drivers/pci/probe.c: In function `pci_create_legacy_files':
-drivers/pci/probe.c:50: error: `pci_read_legacy_io' undeclared (first
-use in this function)
-drivers/pci/probe.c:50: error: (Each undeclared identifier is reported
-only oncedrivers/pci/probe.c:50: error: for each function it appears
-in.)
-drivers/pci/probe.c:51: error: `pci_write_legacy_io' undeclared (first
-use in this function)
-drivers/pci/probe.c:60: error: `pci_mmap_legacy_mem' undeclared (first
-use in this function)
-
-Am I missing something obvious? :)
-
-Thanks-
-John
-
-On Wed, 2005-01-12 at 18:55, Jesse Barnes wrote:
-> On Wednesday, January 12, 2005 4:39 pm, John Rose wrote:
-> > The removal of the class device from sysfs is carried out explicitly by
-> > class_device_del(), which occurs prior to class_device_put().  The class
-> > device is gone from sysfs by the time class_device_put() is called.  As
-> > such, this release function should not carry out sysfs cleanups for the
-> > class device.
-> >
-> > I'm unsure how pci_remove_legacy_files() doesn't cause the same crash for
-> > those who implemented it, but I'll leave that alone for now.
-> 
-> Feel free to fix it too.  I haven't tested the removal case, so thanks for 
-> catching it.
-> 
-> Jesse
-> 
+noexec has never been worth anything because of scripts. Kernel won't
+load that binary, I can write a script to do it.
 

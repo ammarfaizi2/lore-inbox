@@ -1,267 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265228AbSKSL1K>; Tue, 19 Nov 2002 06:27:10 -0500
+	id <S264867AbSKSLrq>; Tue, 19 Nov 2002 06:47:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265236AbSKSL1K>; Tue, 19 Nov 2002 06:27:10 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:25040 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S265228AbSKSL1D>; Tue, 19 Nov 2002 06:27:03 -0500
-Message-Id: <4.3.2.7.2.20021119122403.00b50d70@mail.dns-host.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Tue, 19 Nov 2002 12:34:24 +0100
-To: linux-kernel@vger.kernel.org
-From: Margit Schubert-While <margit@margit.com>
-Subject: Linux 2.4.19 patch for Suse compatibility
+	id <S264984AbSKSLrq>; Tue, 19 Nov 2002 06:47:46 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:3200 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id <S264867AbSKSLrp>;
+	Tue, 19 Nov 2002 06:47:45 -0500
+Date: Tue, 19 Nov 2002 12:54:44 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: mbm@tinc.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.48: BUG() at kernel/module.c:1000
+Message-ID: <20021119115444.GA2011@vana>
+References: <200211182239.gAIMdBL04074@mort.demon.co.uk> <20021118235221.4B9A92C237@lists.samba.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021118235221.4B9A92C237@lists.samba.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	Below is a patch to include an ioctl that Suse kernels use
-	at bootup. (Against vanilla 2.4.19)
-	Comments ? Can it be included in 2.4.20(-rc*) ?
+On Tue, Nov 19, 2002 at 10:50:42AM +1100, Rusty Russell wrote:
+> In message <200211182239.gAIMdBL04074@mort.demon.co.uk> you write:
+> > The code (get_sizes) that calculates the amount of space required
+> > by the sections assumes that the first one is loaded at address
+> > zero (or large alignment) when performing subsequent alignments.
+> 
+> Please test this patch (Petr, contains fix for you too).
 
-	Margit
+Hi Rusty,
+  I was getting oopses with your patch (due to uninitialized common_length).
+With this one (against clean 2.5.48) it works fine (both parport
+and vmmon can be insmodded/rmmoded (parport only until it is used by lp,
+but that's another story)).
 
-diff -ur /tmp/linux-2.4.19/include/asm-alpha/ioctls.h 
-/usr/src/linux/include/asm-alpha/ioctls.h
---- /tmp/linux-2.4.19/include/asm-alpha/ioctls.h        2001-04-14 
-05:26:07.000000000 +0200
-+++ /usr/src/linux/include/asm-alpha/ioctls.h   2002-11-14 
-10:06:16.000000000 +0100
-@@ -91,6 +92,7 @@
-  #define TIOCGSID       0x5429  /* Return the session ID of FD */
-  #define TIOCGPTN       _IOR('T',0x30, unsigned int) /* Get Pty Number (of 
-pty-mux device) */
-  #define TIOCSPTLCK     _IOW('T',0x31, int)  /* Lock/unlock Pty */
-+#define TIOCGDEV       _IOR('T',0x32, unsigned int) /* Get real dev no 
-below /dev/console */
+  I also modified copy_sections code to verify that we are not
+overrunning allocated regions. So now you should get -ENOEXEC instead
+of BUG() + corrupted kernel.
+					Best regards,
+						Petr Vandrovec
+						vandrove@vc.cvut.cz
 
-  #define TIOCSERCONFIG  0x5453
-  #define TIOCSERGWILD   0x5454
-diff -ur /tmp/linux-2.4.19/include/asm-arm/ioctls.h 
-/usr/src/linux/include/asm-arm/ioctls.h
---- /tmp/linux-2.4.19/include/asm-arm/ioctls.h  2001-02-09 
-01:32:44.000000000 +0100
-+++ /usr/src/linux/include/asm-arm/ioctls.h     2002-11-14 
-10:06:16.000000000 +0100
-@@ -49,6 +49,7 @@
-  #define TIOCGSID       0x5429  /* Return the session ID of FD */
-  #define TIOCGPTN       _IOR('T',0x30, unsigned int) /* Get Pty Number (of 
-pty-mux device) */
-  #define TIOCSPTLCK     _IOW('T',0x31, int)  /* Lock/unlock Pty */
-+#define TIOCGDEV       _IOR('T',0x32, unsigned int) /* Get real dev no 
-below /dev/console */
 
-  #define FIONCLEX       0x5450  /* these numbers need to be adjusted. */
-  #define FIOCLEX                0x5451
-diff -ur /tmp/linux-2.4.19/include/asm-i386/ioctls.h 
-/usr/src/linux/include/asm-i386/ioctls.h
---- /tmp/linux-2.4.19/include/asm-i386/ioctls.h 2002-08-03 
-02:39:45.000000000 +0200
-+++ /usr/src/linux/include/asm-i386/ioctls.h    2002-11-14 
-10:06:16.000000000 +0100
-@@ -49,6 +49,7 @@
-  #define TIOCGSID       0x5429  /* Return the session ID of FD */
-  #define TIOCGPTN       _IOR('T',0x30, unsigned int) /* Get Pty Number (of 
-pty-mux device) */
-  #define TIOCSPTLCK     _IOW('T',0x31, int)  /* Lock/unlock Pty */
-+#define TIOCGDEV       _IOR('T',0x32, unsigned int) /* Get real dev no 
-below /dev/console */
-
-  #define FIONCLEX       0x5450  /* these numbers need to be adjusted. */
-  #define FIOCLEX                0x5451
-diff -ur /tmp/linux-2.4.19/include/asm-ia64/ioctls.h 
-/usr/src/linux/include/asm-ia64/ioctls.h
---- /tmp/linux-2.4.19/include/asm-ia64/ioctls.h 2000-02-07 
-03:42:40.000000000 +0100
-+++ /usr/src/linux/include/asm-ia64/ioctls.h    2002-11-14 
-10:06:16.000000000 +0100
-@@ -54,6 +54,7 @@
-  #define TIOCGSID       0x5429  /* Return the session ID of FD */
-  #define TIOCGPTN       _IOR('T',0x30, unsigned int) /* Get Pty Number (of 
-pty-mux device) */
-  #define TIOCSPTLCK     _IOW('T',0x31, int)  /* Lock/unlock Pty */
-+#define TIOCGDEV       _IOR('T',0x32, unsigned int) /* Get real dev no 
-below /dev/console */
-
-  #define FIONCLEX       0x5450  /* these numbers need to be adjusted. */
-  #define FIOCLEX                0x5451
-diff -ur /tmp/linux-2.4.19/include/asm-m68k/ioctls.h 
-/usr/src/linux/include/asm-m68k/ioctls.h
---- /tmp/linux-2.4.19/include/asm-m68k/ioctls.h 1998-02-13 
-01:25:04.000000000 +0100
-+++ /usr/src/linux/include/asm-m68k/ioctls.h    2002-11-14 
-10:06:16.000000000 +0100
-@@ -49,6 +49,7 @@
-  #define TIOCGSID       0x5429  /* Return the session ID of FD */
-  #define TIOCGPTN       _IOR('T',0x30, unsigned int) /* Get Pty Number (of 
-pty-mux device) */
-  #define TIOCSPTLCK     _IOW('T',0x31, int)  /* Lock/unlock Pty */
-+#define TIOCGDEV       _IOR('T',0x32, unsigned int) /* Get real dev no 
-below /dev/console */
-
-  #define FIONCLEX       0x5450  /* these numbers need to be adjusted. */
-  #define FIOCLEX                0x5451
-diff -ur /tmp/linux-2.4.19/include/asm-mips/ioctls.h 
-/usr/src/linux/include/asm-mips/ioctls.h
---- /tmp/linux-2.4.19/include/asm-mips/ioctls.h 2001-09-09 
-19:43:01.000000000 +0200
-+++ /usr/src/linux/include/asm-mips/ioctls.h    2002-11-14 
-10:06:16.000000000 +0100
-@@ -89,6 +89,7 @@
-  #define TIOCGSID       0x7416  /* Return the session ID of FD */
-  #define TIOCGPTN       _IOR('T',0x30, unsigned int) /* Get Pty Number (of 
-pty-mux device) */
-  #define TIOCSPTLCK     _IOW('T',0x31, int)  /* Lock/unlock Pty */
-+#define TIOCGDEV       _IOR('T',0x32, unsigned int) /* Get real dev no 
-below /dev/console */
-
-  #define TIOCSERCONFIG  0x5488
-  #define TIOCSERGWILD   0x5489
-diff -ur /tmp/linux-2.4.19/include/asm-mips64/ioctls.h 
-/usr/src/linux/include/asm-mips64/ioctls.h
---- /tmp/linux-2.4.19/include/asm-mips64/ioctls.h       2001-09-09 
-19:43:02.000000000 +0200
-+++ /usr/src/linux/include/asm-mips64/ioctls.h  2002-11-14 
-10:06:16.000000000 +0100
-@@ -89,6 +89,7 @@
-  #define TIOCGSID       0x7416  /* Return the session ID of FD */
-  #define TIOCGPTN       _IOR('T',0x30, unsigned int) /* Get Pty Number (of 
-pty-mux device) */
-  #define TIOCSPTLCK     _IOW('T',0x31, int)  /* Lock/unlock Pty */
-+#define TIOCGDEV       _IOR('T',0x32, unsigned int) /* Get real dev no 
-below /dev/console */
-
-  #define TIOCSERCONFIG  0x5488
-  #define TIOCSERGWILD   0x5489
-diff -ur /tmp/linux-2.4.19/include/asm-ppc/ioctls.h 
-/usr/src/linux/include/asm-ppc/ioctls.h
---- /tmp/linux-2.4.19/include/asm-ppc/ioctls.h  2001-05-22 
-00:02:06.000000000 +0200
-+++ /usr/src/linux/include/asm-ppc/ioctls.h     2002-11-14 
-10:06:16.000000000 +0100
-@@ -92,6 +92,7 @@
-  #define TIOCGSID       0x5429  /* Return the session ID of FD */
-  #define TIOCGPTN       _IOR('T',0x30, unsigned int) /* Get Pty Number (of 
-pty-mux device) */
-  #define TIOCSPTLCK     _IOW('T',0x31, int)  /* Lock/unlock Pty */
-+#define TIOCGDEV       _IOR('T',0x32, unsigned int) /* Get real dev no 
-below /dev/console */
-
-  #define TIOCSERCONFIG  0x5453
-  #define TIOCSERGWILD   0x5454
-diff -ur /tmp/linux-2.4.19/include/asm-ppc64/ioctls.h 
-/usr/src/linux/include/asm-ppc64/ioctls.h
---- /tmp/linux-2.4.19/include/asm-ppc64/ioctls.h        2002-08-03 
-02:39:45.000000000 +0200
-+++ /usr/src/linux/include/asm-ppc64/ioctls.h   2002-11-14 
-10:06:16.000000000 +0100
-@@ -96,6 +96,7 @@
-  #define TIOCGSID       0x5429  /* Return the session ID of FD */
-  #define TIOCGPTN       _IOR('T',0x30, unsigned int) /* Get Pty Number (of 
-pty-mux device) */
-  #define TIOCSPTLCK     _IOW('T',0x31, int)  /* Lock/unlock Pty */
-+#define TIOCGDEV       _IOR('T',0x32, unsigned int) /* Get real dev no 
-below /dev/console */
-
-  #define TIOCSERCONFIG  0x5453
-  #define TIOCSERGWILD   0x5454
-diff -ur /tmp/linux-2.4.19/include/asm-s390/ioctls.h 
-/usr/src/linux/include/asm-s390/ioctls.h
---- /tmp/linux-2.4.19/include/asm-s390/ioctls.h 2001-02-13 
-23:13:44.000000000 +0100
-+++ /usr/src/linux/include/asm-s390/ioctls.h    2002-11-14 
-10:06:16.000000000 +0100
-@@ -57,6 +57,7 @@
-  #define TIOCGSID       0x5429  /* Return the session ID of FD */
-  #define TIOCGPTN       _IOR('T',0x30, unsigned int) /* Get Pty Number (of 
-pty-mux device) */
-  #define TIOCSPTLCK     _IOW('T',0x31, int)  /* Lock/unlock Pty */
-+#define TIOCGDEV       _IOR('T',0x32, unsigned int) /* Get real dev no 
-below /dev/console */
-
-  #define FIONCLEX       0x5450  /* these numbers need to be adjusted. */
-  #define FIOCLEX                0x5451
-diff -ur /tmp/linux-2.4.19/include/asm-s390x/ioctls.h 
-/usr/src/linux/include/asm-s390x/ioctls.h
---- /tmp/linux-2.4.19/include/asm-s390x/ioctls.h        2001-02-13 
-23:13:44.000000000 +0100
-+++ /usr/src/linux/include/asm-s390x/ioctls.h   2002-11-14 
-10:06:16.000000000 +0100
-@@ -57,6 +57,7 @@
-  #define TIOCGSID       0x5429  /* Return the session ID of FD */
-  #define TIOCGPTN       _IOR('T',0x30, unsigned int) /* Get Pty Number (of 
-pty-mux device) */
-  #define TIOCSPTLCK     _IOW('T',0x31, int)  /* Lock/unlock Pty */
-+#define TIOCGDEV       _IOR('T',0x32, unsigned int) /* Get real dev no 
-below /dev/console */
-
-  #define FIONCLEX       0x5450  /* these numbers need to be adjusted. */
-  #define FIOCLEX                0x5451
-diff -ur /tmp/linux-2.4.19/include/asm-sh/ioctls.h 
-/usr/src/linux/include/asm-sh/ioctls.h
---- /tmp/linux-2.4.19/include/asm-sh/ioctls.h   1999-11-06 
-19:40:31.000000000 +0100
-+++ /usr/src/linux/include/asm-sh/ioctls.h      2002-11-14 
-10:06:16.000000000 +0100
-@@ -80,6 +81,7 @@
-  #define TIOCGSID       _IOR('T', 41, pid_t) /* 0x5429 */ /* Return the 
-session ID of FD */
-  #define TIOCGPTN       _IOR('T',0x30, unsigned int) /* Get Pty Number (of 
-pty-mux device) */
-  #define TIOCSPTLCK     _IOW('T',0x31, int)  /* Lock/unlock Pty */
-+#define TIOCGDEV       _IOR('T',0x32, unsigned int) /* Get real dev no 
-below /dev/console */
-
-  #define TIOCSERCONFIG  _IO('T', 83) /* 0x5453 */
-  #define TIOCSERGWILD   _IOR('T', 84,  int) /* 0x5454 */
-diff -ur /tmp/linux-2.4.19/include/asm-sparc/ioctls.h 
-/usr/src/linux/include/asm-sparc/ioctls.h
---- /tmp/linux-2.4.19/include/asm-sparc/ioctls.h        2002-08-03 
-02:39:45.000000000 +0200
-+++ /usr/src/linux/include/asm-sparc/ioctls.h   2002-11-14 
-10:06:16.000000000 +0100
-@@ -99,6 +100,7 @@
-  #define TIOCSSERIAL    0x541F
-  #define TCSBRKP                0x5425
-  #define TIOCTTYGSTRUCT 0x5426
-+#define TIOCGDEV       _IOR('T',0x32, unsigned int) /* Get real dev no 
-below /dev/console */
-  #define TIOCSERCONFIG  0x5453
-  #define TIOCSERGWILD   0x5454
-  #define TIOCSERSWILD   0x5455
-diff -ur /tmp/linux-2.4.19/include/asm-sparc64/ioctls.h 
-/usr/src/linux/include/asm-sparc64/ioctls.h
---- /tmp/linux-2.4.19/include/asm-sparc64/ioctls.h      2002-08-03 
-02:39:45.000000000 +0200
-+++ /usr/src/linux/include/asm-sparc64/ioctls.h 2002-11-14 
-10:06:16.000000000 +0100
-@@ -100,6 +101,7 @@
-  #define TIOCSSERIAL    0x541F
-  #define TCSBRKP                0x5425
-  #define TIOCTTYGSTRUCT 0x5426
-+#define TIOCGDEV       _IOR('T',0x32, unsigned int) /* Get real dev no 
-below /dev/console */
-  #define TIOCSERCONFIG  0x5453
-  #define TIOCSERGWILD   0x5454
-  #define TIOCSERSWILD   0x5455
-diff -u /tmp/linux-2.4.19/drivers/char/tty_io.c 
-/usr/src/linux/drivers/char/tty_io.c
---- /tmp/linux-2.4.19/drivers/char/tty_io.c     2002-08-03 
-02:39:43.000000000 +0200
-+++ /usr/src/linux/drivers/char/tty_io.c        2002-11-14 
-10:06:34.000000000 +0100
-@@ -1765,7 +1806,8 @@
-  #endif
-                 case TIOCTTYGSTRUCT:
-                         return tiocttygstruct(tty, (struct tty_struct *) arg);
--
-+               case TIOCGDEV:
-+                       return put_user (kdev_t_to_nr (real_tty->device), 
-(unsigned int*) arg);
-                 /*
-                  * Break handling
-                  */
-
+--- linux/kernel/module.c	2002-11-18 14:50:48.000000000 +0100
++++ linux/kernel/module.c	2002-11-19 12:49:37.000000000 +0100
+@@ -607,14 +607,17 @@
+ {
+ 	void *dest;
+ 	unsigned long *use;
++	unsigned long max;
+ 
+ 	/* Only copy to init section if there is one */
+ 	if (strstr(name, ".init") && mod->module_init) {
+ 		dest = mod->module_init;
+ 		use = &used->init_size;
++		max = mod->init_size;
+ 	} else {
+ 		dest = mod->module_core;
+ 		use = &used->core_size;
++		max = mod->core_size;
+ 	}
+ 
+ 	/* Align up */
+@@ -622,6 +625,9 @@
+ 	dest += *use;
+ 	*use += sechdr->sh_size;
+ 
++	if (*use > max)
++		return ERR_PTR(-ENOEXEC);
++
+ 	/* May not actually be in the file (eg. bss). */
+ 	if (sechdr->sh_type != SHT_NOBITS)
+ 		memcpy(dest, base + sechdr->sh_offset, sechdr->sh_size);
+@@ -788,9 +794,10 @@
+ /* Get the total allocation size of the init and non-init sections */
+ static struct sizes get_sizes(const Elf_Ehdr *hdr,
+ 			      const Elf_Shdr *sechdrs,
+-			      const char *secstrings)
++			      const char *secstrings,
++			      unsigned long common_length)
+ {
+-	struct sizes ret = { 0, 0 };
++	struct sizes ret = { 0, common_length };
+ 	unsigned i;
+ 
+ 	/* Everything marked ALLOC (this includes the exported
+@@ -943,10 +950,9 @@
+ 	mod->live = 0;
+ 	module_unload_init(mod);
+ 
+-	/* How much space will we need?  (Common area in core) */
+-	sizes = get_sizes(hdr, sechdrs, secstrings);
+-	common_length = read_commons(hdr, &sechdrs[symindex]);
+-	sizes.core_size += common_length;
++	/* How much space will we need?  (Common area in first) */
++	sizes = get_sizes(hdr, sechdrs, secstrings,
++			  common_length = read_commons(hdr, &sechdrs[symindex]));
+ 
+ 	/* Set these up, and allow archs to manipulate them. */
+ 	mod->core_size = sizes.core_size;
+@@ -973,7 +979,7 @@
+ 	mod->module_core = ptr;
+ 
+ 	ptr = module_alloc(mod->init_size);
+-	if (!ptr) {
++	if (!ptr && mod->init_size) {
+ 		err = -ENOMEM;
+ 		goto free_core;
+ 	}

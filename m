@@ -1,69 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVAQQE3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbVAQQNt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbVAQQE3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 11:04:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbVAQQE3
+	id S261934AbVAQQNt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 11:13:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbVAQQNt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 11:04:29 -0500
-Received: from relay.axxeo.de ([213.239.199.237]:40636 "EHLO relay.axxeo.de")
-	by vger.kernel.org with ESMTP id S262041AbVAQQEO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 11:04:14 -0500
-From: Ingo Oeser <ioe-lkml@axxeo.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Make pipe data structure be a circular list of pages, rather
-Date: Mon, 17 Jan 2005 17:03:58 +0100
-User-Agent: KMail/1.7.1
-Cc: linux@horizon.com, Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050108082535.24141.qmail@science.horizon.com> <Pine.LNX.4.58.0501141550000.2310@ppc970.osdl.org> <Pine.LNX.4.58.0501151838010.8178@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0501151838010.8178@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Jan 2005 11:13:49 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:61657 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261934AbVAQQNr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 11:13:47 -0500
+Date: Mon, 17 Jan 2005 16:13:35 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Robert Wisniewski <bob@watson.ibm.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       karim@opersys.com, hch@infradead.org, tglx@linutronix.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc1-mm1
+Message-ID: <20050117161335.GA9404@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Robert Wisniewski <bob@watson.ibm.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, karim@opersys.com,
+	tglx@linutronix.de, linux-kernel@vger.kernel.org
+References: <20050114002352.5a038710.akpm@osdl.org> <1105740276.8604.83.camel@tglx.tec.linutronix.de> <41E85123.7080005@opersys.com> <20050116162127.GC26144@infradead.org> <41EAC560.30202@opersys.com> <16874.50688.68959.36156@kix.watson.ibm.com> <20050116123212.1b22495b.akpm@osdl.org> <16874.54187.919814.272833@kix.watson.ibm.com> <1105911624.8734.55.camel@laptopd505.fenrus.org> <16875.56543.264481.586616@kix.watson.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501171703.59028.ioe-lkml@axxeo.de>
+In-Reply-To: <16875.56543.264481.586616@kix.watson.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Mon, Jan 17, 2005 at 10:48:52AM -0500, Robert Wisniewski wrote:
+> Wow - disabling interrupts is handfuls to tens of cycles, so that means
+> some architectures take thousands of cycles to do atomic operations.  Then
+> I would definitely agree we should not be using atomic operations on those,
+> fwiw, out of curiosity, what archs make atomic ops so expensive.
+> 
+> Andrew, on the broader note.  If the community feels disabling interrupts
+> is the better way to go for the variables (I think it's index and count) we
+> were protecting with atomic ops then as the code stands things should be
+> fine with that approach and we can make that change.
 
-Linus Torvalds wrote:
-> +static long do_splice_from(struct inode *pipe, struct file *out, size_t len, unsigned long flags) 
-> +static long do_splice_to(struct file *in, struct inode *pipe, size_t len, unsigned long flags) 
-> +static long do_splice(struct file *in, struct file *out, size_t len, unsigned long flags) 
-> +asmlinkage long sys_splice(int fdin, int fdout, size_t len, unsigned long flags) 
-
-That part looks quite perfect. As long as they stay like this, I'm totally 
-happy. I have even no problem about limiting to a length, since I can use that
-to measure progress (e.g. a simple progress bar). 
-
-This way I also keep the process as an "actor" like "linux@horizon.com" pointed out.
-
-It has unnecessary scheduling overhead, but the ability to stop/resume
-the transfer by killing the process doing it is worth it, I agree.
-
-So I would put a structure in the inode identifying the special device
-and check, whether the "in" and "out" parameters are from devices suitable
-for a direct on wire transfer. If they are, I just set up some registers
-and wait for the transfer to happen. 
-
-Then I get an interrupt/wakeup, if the requested amount is streamed, increment some 
-user space pointers, switch to user space, user space tells me abort or stream
-more and I follow. 
- 
-Continue until abort by user or streaming problems happen.
-
-Just to give you an idea: I debugged such a machine and I had a hard hanging 
-kernel with interrupts disabled. It still got data from a tuner, through an
-MPEG decoder, an MPEG demultiplexer and played it to the audio card.
-Not just a buffer like ALSA/OSS, but as long as I would like and it's end to end
-without any CPU intervention.
-
-That behavior would be perfect, but I could also live with a "pushing process".
-
-
-Regards
-
-Ingo Oeser
+The thing I'm unhappy with is what the code does currently.  I haven't
+looked at the code enough nor through about the problem enough to tell
+you what's the right thing to do.  Knowing that will involve review of
+the architecture and serious benchmarking on a few plattforms.
 

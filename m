@@ -1,76 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262490AbSJTNH3>; Sun, 20 Oct 2002 09:07:29 -0400
+	id <S262568AbSJTNNb>; Sun, 20 Oct 2002 09:13:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262547AbSJTNH3>; Sun, 20 Oct 2002 09:07:29 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:57913 "EHLO
-	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
-	id <S262490AbSJTNH2>; Sun, 20 Oct 2002 09:07:28 -0400
-Date: Sun, 20 Oct 2002 14:14:24 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: mingming cao <cmm@us.ibm.com>
-cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>,
-       <dipankar@in.ibm.com>
-Subject: Re: [PATCH]IPC locks breaking down with RCU
-In-Reply-To: <3DAF5266.3F606821@us.ibm.com>
-Message-ID: <Pine.LNX.4.44.0210201346180.1710-100000@localhost.localdomain>
+	id <S262617AbSJTNNb>; Sun, 20 Oct 2002 09:13:31 -0400
+Received: from ns.suse.de ([213.95.15.193]:23050 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S262568AbSJTNNa>;
+	Sun, 20 Oct 2002 09:13:30 -0400
+Mail-Copies-To: never
+To: Andi Kleen <ak@muc.de>
+Cc: Jeff Dike <jdike@karaya.com>, john stultz <johnstul@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>, andrea <andrea@suse.de>,
+       lkml <linux-kernel@vger.kernel.org>,
+       george anzinger <george@mvista.com>,
+       Stephen Hemminger <shemminger@osdl.org>, discuss@x86-64.org
+Subject: Re: [PATCH] linux-2.5.43_vsyscall_A0
+References: <20021019031002.GA16404@averell>
+	<200210190450.XAA06161@ccure.karaya.com>
+	<20021019040238.GA21914@averell>
+From: Andreas Jaeger <aj@suse.de>
+Date: Sun, 20 Oct 2002 15:19:32 +0200
+In-Reply-To: <20021019040238.GA21914@averell> (Andi Kleen's message of "Sat,
+ 19 Oct 2002 06:02:38 +0200")
+Message-ID: <u8lm4tcknv.fsf@gromit.moeb>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) XEmacs/21.4 (Artificial
+ Intelligence, i386-suse-linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Oct 2002, mingming cao wrote:
-> Hi Linus,
-> 
-> This is the latest version of the ipc lock patch.  It breaks down the
-> three global IPC locks into one lock per IPC ID,  also addresses the
-> cache line bouncing problem  introduced in the original patch. The
-> original post could be found at:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=102980357802682&w=2
-> 
-> The original patch breaks down the global IPC locks, yet added another
-> layer of locking to protect the IPC ID array in case of resizing. Some
-> concern was raised that the read/write lock may cause cache line
-> bouncing.
-> 
-> Since write lock is only used when the array is dynamically resized, 
-> RCU seems perfectly fit for this situation.  By doing so it could reduce
-> the possible lock contention in some applications where the IPC
-> resources are heavily used, without introducing cache line bouncing.
-> 
-> Besides the RCU changes, it also remove the redundant ipc_lockall() and
-> ipc_unlockall() as suggested by Hugh Dickins.
-> 
-> Patch is against 2.5.43 kernel. It requires Dipankar Sarma's
-> read_barrier_depends RCU helper patch:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=103479438017486&w=2
-> 
-> We use the ipc lock on OracleApps and it gave us the best number. 
-> Please include.
+Andi Kleen <ak@muc.de> writes:
 
-This looks very good to me: I'm glad you found the RCU idea works out.
-No need for performance numbers, this is now clearly the right way to
-go.  And read_barrier_depends is in 2.5.44, so no problem there.
+> [full quote for context]
+>
+> On Sat, Oct 19, 2002 at 06:49:59AM +0200, Jeff Dike wrote:
+>> ak@muc.de said:
+>> > Guess you'll have some problems then with UML on x86-64, which always
+>> > uses vgettimeofday. But it's only used for gettimeofday() currently,
+>> > perhaps it's  not that bad when the UML child runs with the host's
+>> > time.
+>> 
+>> It's not horrible, but it's still broken.  There are people who depend
+>> on UML being able to keep its own time separately from the host.
+>> 
+>> > I guess it would be possible to add some support for UML to map own
+>> > code over the vsyscall reserved locations. UML would need to use the
+>> > syscalls then. But it'll be likely ugly. 
+>> 
+>> Yeah, it would be.
+>> 
+>> My preferred solution would be for libc to ask the kernel where the vsyscall
+>> area is.  That's reasonably clean and virtualizable.  Andrea doesn't like it
+>> because it adds a few instructions to the vsyscall address calculation.
+>
+> I would have no problems with adding that to the x86-64 kernel. It could
+> be passed in by the ELF environment vector and added to the ABI. 
+> Overhead should be negligible, it just needs a single table lookup.  
+> Andreas, what do you think ? 
 
-I'm ignorant of RCU, and my mind goes mushy around memory barriers,
-but I expect you've consulted the best there; and I'll be wanting to
-refer to this implementation as a nice example of how to use RCU.
-But please make a couple of small cleanups, unless you disagree.
+Create a new AT_ constant, and pass it via the auxiliary vector and we
+can use it in glibc.
 
-Now delete spinlock_t ary and all references to it: only grow_ary
-is using it, and it's already protected by sem, and we'd be in
-trouble with concurrent allocations if it were not.
-
-And I'd be happier to see ipc_unlock without those conditionals i.e.
-delete the "if(lid >= ids->size) return;" and the "if (out)" - they
-seem to encourage calling ipc_unlock where ipc_lock did not succeed,
-but that would be unsafe.  If you found somewhere that's being done,
-I think we need to fix that place, not work around it in ipc_unlock.
-
-Linus is away this week (so I've left him off, to avoid clogging up
-/dev/null): perhaps Andrew could take your patch into his -mm tree
-when you've made those changes (or persuaded us against)?
-
-Hugh
-
+Andreas
+-- 
+ Andreas Jaeger
+  SuSE Labs aj@suse.de
+   private aj@arthur.inka.de
+    http://www.suse.de/~aj

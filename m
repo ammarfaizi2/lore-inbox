@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268998AbUHZOHf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269005AbUHZOMb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268998AbUHZOHf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 10:07:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268937AbUHZOEH
+	id S269005AbUHZOMb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 10:12:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268907AbUHZOIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 10:04:07 -0400
-Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:53654 "EHLO
-	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S268972AbUHZOCU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 10:02:20 -0400
-Subject: Re: reiser4 plugins (was: silent semantic changes with reiser4)
-From: Christophe Saout <christophe@saout.de>
-To: Rik van Riel <riel@redhat.com>
-Cc: Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@osdl.org>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
-       reiserfs-list@namesys.com
-In-Reply-To: <Pine.LNX.4.44.0408260952230.26316-100000@chimarrao.boston.redhat.com>
-References: <Pine.LNX.4.44.0408260952230.26316-100000@chimarrao.boston.redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-f/zgBaXUVBVdKW8WeC3r"
-Date: Thu, 26 Aug 2004 16:02:02 +0200
-Message-Id: <1093528922.11694.41.camel@leto.cs.pocnet.net>
+	Thu, 26 Aug 2004 10:08:18 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5893 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S268961AbUHZOEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 10:04:12 -0400
+Date: Thu, 26 Aug 2004 15:04:04 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       thomas@undata.org
+Subject: Re: [PATCH] Fix shared interrupt handling of SA_INTERRUPT and SA_SAMPLE_RANDOM
+Message-ID: <20040826150404.D21364@flint.arm.linux.org.uk>
+Mail-Followup-To: Takashi Iwai <tiwai@suse.de>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	thomas@undata.org
+References: <s5heklxhjbg.wl@alsa2.suse.de> <20040824204508.3b31449f.akpm@osdl.org> <s5hoekzfowc.wl@alsa2.suse.de> <20040825134112.5aefaf8e.akpm@osdl.org> <s5h1xhum5ar.wl@alsa2.suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.92.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <s5h1xhum5ar.wl@alsa2.suse.de>; from tiwai@suse.de on Thu, Aug 26, 2004 at 02:50:52PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 26, 2004 at 02:50:52PM +0200, Takashi Iwai wrote:
+> At Wed, 25 Aug 2004 13:41:12 -0700,
+> Andrew Morton wrote:
+> > 
+> > Takashi Iwai <tiwai@suse.de> wrote:
+> > >
+> > > Anyway, suppressing the unnecessary call of add_interrupt_randomness()
+> > >  should be still valid.  The reduced patch is below.
+> (snip)
+> > 
+> > Shouldn't that be `if (ret == IRQ_HANDLED)'?
+> 
+> Yes, it's more strict.
 
---=-f/zgBaXUVBVdKW8WeC3r
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I don't think so.  Look at what's going on.  If "ret" is IRQ_HANDLED
+all well and fine.  However, look at how "retval" is being used:
 
-Am Donnerstag, den 26.08.2004, 09:52 -0400 schrieb Rik van Riel:
+static void __report_bad_irq(int irq, irq_desc_t *desc, irqreturn_t action_ret)
+{
+...
+        if (action_ret != IRQ_HANDLED && action_ret != IRQ_NONE) {
+                printk(KERN_ERR "irq event %d: bogus return value %x\n",
+                                irq, action_ret);
+        } else {
+                printk(KERN_ERR "irq %d: nobody cared!\n", irq);
+        }
 
-> > That's your opinion. reiser4 seems to work very well.
->=20
-> Have you tried /bin/cp, or a backup+restore ?
->=20
-> What happened to your file streams ?
+So, we're looking to see not only if a handler returned IRQ_HANDLED,
+but also if a handler returned _some other value_ other than IRQ_HANDLED
+or IRQ_NONE.
 
-1. I wasn't talking about reiser4 plugins, not about the
-   file-as-a-directory thing or file streams
-2. reiser4 doesn't currently have those
-3. I don't really like file streams
-
-:-)
-
-But I'm using ACLs on a server and had to forward-port an rsync patch to
-make full backups using rsync possible. That's not really better.
-
-
---=-f/zgBaXUVBVdKW8WeC3r
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBLe1aZCYBcts5dM0RAuFwAJ4nm0ZkE8Cd5yP8yMwoco1sH1jHLwCgkfRO
-7ByUg/+SA5E9S3tIdnNLk/o=
-=ytd6
------END PGP SIGNATURE-----
-
---=-f/zgBaXUVBVdKW8WeC3r--
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,64 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262097AbUK3Oxl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262094AbUK3PDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262097AbUK3Oxl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 09:53:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbUK3Oxl
+	id S262094AbUK3PDe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 10:03:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbUK3PDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 09:53:41 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:37801 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262097AbUK3Oxj (ORCPT
+	Tue, 30 Nov 2004 10:03:34 -0500
+Received: from egg.hpc2n.umu.se ([130.239.45.244]:3996 "EHLO egg.hpc2n.umu.se")
+	by vger.kernel.org with ESMTP id S262094AbUK3PD1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 09:53:39 -0500
-Message-Id: <200411301451.iAUEptDH006868@laptop11.inf.utfsm.cl>
-To: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
-cc: Christian Mayrhuber <christian.mayrhuber@gmx.net>,
-       reiserfs-list@namesys.com, Hans Reiser <reiser@namesys.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: file as a directory 
-In-Reply-To: Message from Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk> 
-   of "Mon, 29 Nov 2004 22:59:31 -0000." <41ABA9D3.7020602@st-andrews.ac.uk> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Tue, 30 Nov 2004 11:51:55 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Tue, 30 Nov 2004 10:03:27 -0500
+Date: Tue, 30 Nov 2004 16:03:24 +0100
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.10-rc2 - kernel BUG at mm/page_alloc.c:575
+Message-ID: <20041130150324.GN4329@hpc2n.umu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040722i
+From: Ake.Sandgren@hpc2n.umu.se (Ake)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk> said:
-> Horst von Brand wrote:
-> >Now think about files with other formats, for instance the (in)famous
-> >sendmail.cf, or less structured stuff like you find in /etc/init.d/, or
-> >just Postgres databases (with fun stuff like permissions on records and
-> >fields)... or just people groping in /etc/passwd wanting to find the whole
-> >entry (not just one field), or perhaps look at the 15th character of the
-> >entry for John Doe.
+Doing dd to xfs filesystem produced the following.
+Rebuilding with debug pagealloc and a few more in case it will help
+tracking it down.
 
-> >This way lies utter madness (what format description should be applied to
-> >what file this time around?). Plus shove all this garbage into the kernel?!
+The kernel also has the udm2 patches applied and the xfs filesystem is
+on a dm_multipath:ed disk.
 
-> I was suggesting this idea mainly form XML files, where the tags define 
-> the parts clearly.
+It so far looks repeatable.
 
-Use a XML parsing library then.
+Please CC me.
 
-> In addition, I was suggesting that some of the XPath syntax (normally 
-> used for within-XML selection) could be extended above the file level 
-> into the file system.
+------------[ cut here ]------------
+kernel BUG at mm/page_alloc.c:575!
+invalid operand: 0000 [#1]
+SMP 
+Modules linked in: xfs dm_round_robin md5 ipv6 uhci_hcd ohci_hcd ehci_hcd usbcore qla2300 qla2xxx scsi_transport_fc e1000 i2c_i801 i2c_core hw_random floppy rtc dm_multipath dm_mod autofs4 sg ext3 jbd sd_mod aic79xx scsi_mod
+CPU:    15
+EIP:    0060:[<c0138d63>]    Not tainted VLI
+EFLAGS: 00010002   (2.6.10-rc2-udm2-hpc2n-p4-smp) 
+EIP is at buffered_rmqueue+0x175/0x1f4
+eax: 00000001   ebx: c029f480   ecx: 00001000   edx: 00049878
+esi: c1930f00   edi: 00000000   ebp: f2568f04   esp: f2568ee0
+ds: 007b   es: 007b   ss: 0068
+Process  (pid: 0, threadinfo=f2568000 task=ec889000)
+Stack: c029ed00 c1930f00 00000000 00000000 c029f500 c1930f00 c029ed00 baadf00d 
+       00000000 f2568f54 c01390f4 c029ed00 00000000 00000200 f256a000 f256a012 
+       f256a012 00000001 00000001 00000001 ec889000 00000000 c029f600 00000000 
+Call Trace:
+ [<c0103437>] show_stack+0x80/0x96
+ [<c01035ce>] show_registers+0x15f/0x1c3
+ [<c01037c5>] die+0xfa/0x180
+ [<c0103ccf>] do_invalid_op+0x102/0x104
+ [<c01030cb>] error_code+0x2b/0x30
+ [<c01390f4>] __alloc_pages+0x312/0x333
+ [<c013913c>] __get_free_pages+0x27/0x40
+ [<c013c2f5>] kmem_getpages+0x20/0xce
+ [<c013cf9a>] cache_grow+0xab/0x14a
+ [<c013d1a7>] cache_alloc_refill+0x16e/0x20f
+ [<c013d411>] kmem_cache_alloc+0x4a/0x4c
+ =======================
+Unable to handle kernel paging request at virtual address 00060030
+ printing eip:
+c0103388
+*pde = 00000000
+Oops: 0000 [#2]
+SMP 
+Modules linked in: xfs dm_round_robin md5 ipv6 uhci_hcd ohci_hcd ehci_hcd usbcore qla2300 qla2xxx scsi_transport_fc e1000 i2c_i801 i2c_core hw_random floppy rtc dm_multipath dm_mod autofs4 sg ext3 jbd sd_mod aic79xx scsi_mod
+CPU:    15
+EIP:    0060:[<c0103388>]    Not tainted VLI
+EFLAGS: 00010096   (2.6.10-rc2-udm2-hpc2n-p4-smp) 
+EIP is at show_trace+0x7b/0xaa
+eax: 00060ffd   ebx: f2569000   ecx: 00000000   edx: 00000086
+esi: f2569000   edi: 00060000   ebp: f2568d50   esp: f2568d38
+ds: 007b   es: 007b   ss: 0068
+Process  (pid: 0, threadinfo=f2568000 task=ec889000)
+Stack: c0270c6f c013d411 00060ffd f2568f40 00000018 00000000 f2568d6c c0103437 
+       00000000 f2568ee0 f2568000 f2568eac 00000000 f2568da4 c01035ce 00000000 
+       f2568ee0 00000000 f2568000 ec889000 00010002 c029a242 00680d68 00000001 
+Call Trace:
+ [<c0103437>] show_stack+0x80/0x96
+ [<c01035ce>] show_registers+0x15f/0x1c3
+ [<c01037c5>] die+0xfa/0x180
+ [<c01115ba>] do_page_fault+0x316/0x63f
+ [<c01030cb>] error_code+0x2b/0x30
+ [<c0103437>] show_stack+0x80/0x96
+ [<c01035ce>] show_registers+0x15f/0x1c3
+ [<c01037c5>] die+0xfa/0x180
+ [<c0103ccf>] do_invalid_op+0x102/0x104
+ [<c01030cb>] error_code+0x2b/0x30
+ [<c01390f4>] __alloc_pages+0x312/0x333
+ [<c013913c>] __get_free_pages+0x27/0x40
+ [<c013c2f5>] kmem_getpages+0x20/0xce
+ [<c013cf9a>] cache_grow+0xab/0x14a
+ [<c013d1a7>] cache_alloc_refill+0x16e/0x20f
+ [<c013d411>] kmem_cache_alloc+0x4a/0x4c
+ =======================
+Unable to handle kernel paging request at virtual address 00060030
+ printing eip:
+c0103388
+*pde = 00000000
+Recursive die() failure, output suppressed
+ <1>Unable to handle kernel paging request at virtual address 21a9214f
+ printing eip:
+c0113226
+*pde = 00000000
+Recursive die() failure, output suppressed
 
-Urgh.
 
-> The problems you mention are all related to non-XML file format issues, 
-
-Most (say 99,95%) files aren't XML; and if they are, the requisite parsing
-is probably on hand already, so...
-
-> which was only a minor comment in parenthesis in my original mail. I am 
-> happy to do it only for XML to begin with (and if possible later see if 
-> it can be done for SOME non-XML formats).
-
-Please don't.
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Ake Sandgren, HPC2N, Umea University, S-90187 Umea, Sweden
+Internet: ake@hpc2n.umu.se	Phone: +46 90 7866134 Fax: +46 90 7866126
+Mobile: +46 70 7716134 WWW: http://www.hpc2n.umu.se

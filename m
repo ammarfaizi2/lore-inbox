@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290671AbSBFQyu>; Wed, 6 Feb 2002 11:54:50 -0500
+	id <S290675AbSBFQzA>; Wed, 6 Feb 2002 11:55:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290669AbSBFQyk>; Wed, 6 Feb 2002 11:54:40 -0500
-Received: from bitmover.com ([192.132.92.2]:65466 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S290665AbSBFQy0>;
-	Wed, 6 Feb 2002 11:54:26 -0500
-Date: Wed, 6 Feb 2002 08:54:23 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-Message-ID: <20020206085423.F7674@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.31.0202051928330.2375-100000@cesium.transmeta.com> <87g04eljw6.fsf@CERT.Uni-Stuttgart.DE>
-Mime-Version: 1.0
+	id <S290669AbSBFQyu>; Wed, 6 Feb 2002 11:54:50 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:7673 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S290665AbSBFQyn>;
+	Wed, 6 Feb 2002 11:54:43 -0500
+From: David Mosberger <davidm@hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <87g04eljw6.fsf@CERT.Uni-Stuttgart.DE>; from Weimer@CERT.Uni-Stuttgart.DE on Wed, Feb 06, 2002 at 04:17:29PM +0100
+Content-Transfer-Encoding: 7bit
+Message-ID: <15457.24490.49714.443106@napali.hpl.hp.com>
+Date: Wed, 6 Feb 2002 08:54:02 -0800
+To: Christoph Hellwig <hch@caldera.de>
+Cc: David Mosberger <davidm@hpl.hp.com>,
+        Michael Madore <mmadore@turbolinux.com>, linux-ia64@linuxia64.org,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [Linux-ia64] Proper fix for sym53c8xx_2 driver and dma64_addr_t
+In-Reply-To: <20020206092129.A8739@caldera.de>
+In-Reply-To: <3C6043E5.D1F40E5D@turbolinux.com>
+	<20020205223804.A22012@caldera.de>
+	<15456.21030.840746.209377@napali.hpl.hp.com>
+	<20020206092129.A8739@caldera.de>
+X-Mailer: VM 7.00 under Emacs 21.1.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 06, 2002 at 04:17:29PM +0100, Florian Weimer wrote:
-> Linus Torvalds <torvalds@transmeta.com> writes:
-> 
-> > The long-range plan, and the real payoff, comes if main developers start
-> > using bk too, which should make syncing a lot easier. That will take some
-> > time, I suspect.
-> 
-> Do you think that at some point, using BitKeeper will become mandatory
-> for subsystem maintainers?  ("mandatory" in the sense that
-> non-BitKeeper input is dealt with in a less timely fashion, for
-> example.)
+>>>>> On Wed, 6 Feb 2002 09:21:29 +0100, Christoph Hellwig <hch@caldera.de> said:
 
-If BK makes things dramatically easier for Linus, then there may be a
-naturally tendency for him to look at BK patches first.  
+  Christoph> On Tue, Feb 05, 2002 at 01:44:06PM -0800, David Mosberger
+  Christoph> wrote: IA64 needs to define dma64_addr_t.
 
-On the other hand, he's only been using it for a week and he isn't saying
-it is the best thing since sliced bread.  So it's a bit premature to
-predict whether he will be using it in a month or not.  We hope so,
-and we'll keep working to make you happy with it, but Linus is a harsh
-judge - if BK doesn't help out, he'll kick it out the door.
+  >>  Not before the driver writers understand when to use it.
 
-And finally, almost all of the part of the back and forth over the
-last week was about how to make BK better at accepting and generating
-traditional patches.  You will *always* be able to send BK traditional
-patches, whether Linus uses BK or not.  That was true before he used it
-and his use of BK has done nothing but make it be better.  For example,
-we're working out a plain text format for comments in the patch headers
-so that you can comment individual changes on a per file basis in the
-patch.
+  Christoph> Architecture maintainers are not supposed to decide
+  Christoph> whether driver writers understand APIs.  The dma64_addr_t
+  Christoph> type is part of the PCI DMA interface and IA64 needs to
+  Christoph> defines it.
 
-So the summary is that you'll always be able to do regular patches, even
-if Linus continues to use BK.  There may come a time where the value of
-using BK - to you - is quite high.  If not, we're back to diff&patch or
-some other way.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Then find a better way to catch errant uses of dma64_addr_t.  I have
+spent too much time discussing the DMA API with Dave M to see it being
+misused for no good reason.  It will take some time until there are
+enough sample drivers that show proper usage of the DMA interface.
+There is almost no driver that needs dma64_addr_t.  We can add it
+once there is an ia64 driver that *really* needs it.
+
+  Christoph> Linus, could you please accept the below patch to define
+  Christoph> dma64_addr_t on IA64?
+
+Christoph, if you want this type your linux distro, you can add it
+with your own patch.  For the time being, I'm the ia64 linux
+maintainer so I hope you can respect my decisions.
+
+	--david

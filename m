@@ -1,78 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264257AbTLVAKu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 19:10:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264267AbTLVAKu
+	id S264266AbTLVAFw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 19:05:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264267AbTLVAFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 19:10:50 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:33929 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264257AbTLVAKs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 19:10:48 -0500
-Date: Mon, 22 Dec 2003 01:10:39 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Raul Miller <moth@magenta.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: user problem with usb duo mouse and keyboard
-Message-ID: <20031222001039.GA16419@ucw.cz>
-References: <20031221154331.Z28449@links.magenta.com> <20031221213950.GA14664@ucw.cz> <20031221170323.D28449@links.magenta.com> <20031221223443.GA15744@ucw.cz> <20031221175121.E28449@links.magenta.com> <20031221230042.GA15960@ucw.cz> <20031221182757.F28449@links.magenta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031221182757.F28449@links.magenta.com>
-User-Agent: Mutt/1.5.4i
+	Sun, 21 Dec 2003 19:05:51 -0500
+Received: from bay8-dav35.bay8.hotmail.com ([64.4.26.92]:7693 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S264266AbTLVAFu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 19:05:50 -0500
+X-Originating-IP: [194.236.130.199]
+X-Originating-Email: [nikomail@hotmail.com]
+From: "Nicklas Bondesson" <nikomail@hotmail.com>
+To: "'Walt H'" <waltabbyh@comcast.net>, <linux-kernel@vger.kernel.org>
+Subject: RE: Error mounting root fs on 72:01 using Promise FastTrak TX2000 (PDC20271)
+Date: Mon, 22 Dec 2003 01:05:49 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <3FE5CB0E.6060702@comcast.net>
+Thread-Index: AcPH4MNRXBvSI+pTTmm2mInozEX+ewAPWmRA
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Message-ID: <BAY8-DAV35IMKT7Fvnj0000fb07@hotmail.com>
+X-OriginalArrivalTime: 22 Dec 2003 00:05:49.0339 (UTC) FILETIME=[5B0966B0:01C3C81F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 21, 2003 at 06:27:57PM -0500, Raul Miller wrote:
+Now I'm sucessfully booting my system with the 2.4.23 kernel using only one
+of the drives (hde). There is not a single line in the logs that says
+anything about the Promise ATARAID driver is beeing fired up, so my guess is
+that it doesn't load if no one is calling on it. When I try to boot from the
+RAID it dies right after the "NET4: Unix domain sockets 1.0/SMP for Linux"
+message. I think it's when the ATARAID driver is about to fire up. I have no
+idea at all what to do now. It must have something to do with the hard
+drives since this is the only thing that has changed. Maybee I'm missing
+some important kernel setting option or so? (I don't think so, but one never
+know for sure). Also what have changed in the Promise / ATARAID since
+2.4.18?.
 
-> On Mon, Dec 22, 2003 at 12:00:42AM +0100, Vojtech Pavlik wrote:
-> > hid-core.c includes hid.h, which in turn, if DEBUG is defined, includes
-> > hid-debug.h. That last file defines some functions (hid_dump_input,
-> > hid_dump_device), which are called by hid-core.c.
-> ...
-> > This is the problem! Don't ever use usbkbd and usbmouse. Use hid
-> > instead.
+/Nicke
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Walt H
+Sent: den 21 december 2003 17:32
+To: Nicklas Bondesson
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Error mounting root fs on 72:01 using Promise FastTrak TX2000
+(PDC20271)
+
+Nicklas Bondesson wrote:
+> Nopes, I get the kernel panic before the driver loads or when it does, 
+> however I'm not seeing any ataraid driver message at all. This is 
+> really strange I think. The only thing that has changed in my setup 
+> are the harddrives. I really need to get this working. Do you have any 
+> suggestions what-so-ever what to do? I really appreciate your help on
+this.
 > 
-> Oh!
+> /Nicke
 > 
-> And, looking at the docs on those modules, I see nice big warnings that
-> say something similar...
-> 
-> Looking further, these modules where build and installed by default
-> when I installed my system (debian, with the 2.4.18-bf2.4 kernel), and
-> I've been carrying forward that configuration on my hand-built kernels,
-> and never realized I needed to get rid of those modules.
-> 
-> I see the hid-debug messages in syslog now, but the keyboard and mouse
-> are working properly as well.  Do you want to pursue this any further?
-> [If so, I can send you the messages.]
 
-If they are working, then no.
+Well, since you're using raid1, you should be able to pass a root=/dev/hda1
+(or whatever your / is located) using the same kernel and at least boot
+using this kernel. Then maybe you can use dmesg etc.. to see what the driver
+is actually doing. From your original post, it looks like you're using Lilo,
+so you'll need to boot using the old kernel first and change the lilo entry.
 
-> [It's perhaps of note that the extra keys on the keyboard are reported
-> as scancode 0 by showkey (with other release scan codes) when plugged
+-Walt
 
-This is normal. This is because the keycodes are above 128 and that's
-all that you can fit into a single signed byte.
 
-> in via usb and which have different keypress scan codss when plugged as
-> a ps/2 keyboard.]
-
-This is also normal and can be fixed via the setkeycodes utility. The
-driver cannot be preconfigured for every PS/2 keyboard out there,
-because their scancodes conflict. On USB the configuration is static,
-because USB carries much more information about the keys.
-
-> [[There's a slight chance that [to avoid confused messages from other
-> people in my situation] a warning message from hid about usbkbd and
-> usbmouse would be a good idea.]]
-
-Maybe. But fortunately current distros get it right.
-
-> Thank you very much.
-> Sorry about the confusion,
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org More majordomo info at
+http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261769AbSI2UQP>; Sun, 29 Sep 2002 16:16:15 -0400
+	id <S261787AbSI2UPG>; Sun, 29 Sep 2002 16:15:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261771AbSI2UQP>; Sun, 29 Sep 2002 16:16:15 -0400
-Received: from [213.4.129.129] ([213.4.129.129]:50346 "EHLO tsmtp5.mail.isp")
-	by vger.kernel.org with ESMTP id <S261769AbSI2UQH>;
-	Sun, 29 Sep 2002 16:16:07 -0400
-Date: Sun, 29 Sep 2002 22:15:32 +0200
-From: Arador <diegocg@teleline.es>
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ALSA update [1/10] - 2002/06/24
-Message-Id: <20020929221532.72e87790.diegocg@teleline.es>
-In-Reply-To: <Pine.LNX.4.33.0209292026550.591-100000@pnote.perex-int.cz>
-References: <Pine.LNX.4.33.0209292026550.591-100000@pnote.perex-int.cz>
-X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+	id <S261788AbSI2UPF>; Sun, 29 Sep 2002 16:15:05 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:36312 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S261787AbSI2UPF>; Sun, 29 Sep 2002 16:15:05 -0400
+Date: Sun, 29 Sep 2002 22:20:21 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use __attribute__((malloc)) for gcc 3.2
+In-Reply-To: <p733crssjdl.fsf@oldwotan.suse.de>
+Message-ID: <Pine.NEB.4.44.0209292219280.12605-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Sep 2002 20:30:14 +0200 (CEST)
-Jaroslav Kysela <perex@suse.cz> escribió:
+On 29 Sep 2002, Andi Kleen wrote:
 
-> Hi,
-> 
-> 	1-st patch from first set of ALSA update patches.
+>...
+> I will move it into linux/compiler.h to add some more clutter to include hell,
+> because it requires even more #include <linux/compiler.h>
+>...
 
+kernel.h includes compiler.h so it shouldn't make a difference.
 
-I sent a bugfix to the alsa devel list (i'm not
-subscribed and i received a message that said
-that my message was waiting for moderator ACK,
-i don't know more). I sent it to the driver
-maintainer. It's not included in ths set of
-patches as i can see. It makes isapnp to work
-correctly.
+> -Andi
 
+cu
+Adrian
 
---- cmi8330.c.broken	Thu Sep 12 16:39:04 2002
-+++ cmi8330.c	Thu Sep 12 16:39:10 2002
-@@ -46,6 +46,11 @@
- #include <sound/driver.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-+#ifndef LINUX_ISAPNP_H
-+#include <linux/isapnp.h>
-+#define isapnp_card pci_bus
-+#define isapnp_dev pci_dev
-+#endif
- #include <sound/core.h>
- #include <sound/ad1848.h>
- #include <sound/sb.h>
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 

@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262425AbTB1OXp>; Fri, 28 Feb 2003 09:23:45 -0500
+	id <S266998AbTB1OYz>; Fri, 28 Feb 2003 09:24:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266998AbTB1OXp>; Fri, 28 Feb 2003 09:23:45 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28435 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262425AbTB1OXo>;
-	Fri, 28 Feb 2003 09:23:44 -0500
-Date: Fri, 28 Feb 2003 14:34:05 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Matthew Wilcox <willy@debian.org>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Proposal: Eliminate GFP_DMA
-Message-ID: <20030228143405.I23865@parcelfarce.linux.theplanet.co.uk>
-References: <20030228064631.G23865@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <p73heao7ph2.fsf@amdsimf.suse.de> <20030228141234.H23865@parcelfarce.linux.theplanet.co.uk> <1046445897.16599.60.camel@irongate.swansea.linux.org.uk>
+	id <S267089AbTB1OYy>; Fri, 28 Feb 2003 09:24:54 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:34193
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266998AbTB1OYy>; Fri, 28 Feb 2003 09:24:54 -0500
+Subject: Re: Protecting processes from the OOM killer
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ville Herva <vherva@niksula.hut.fi>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030228141917.GF159052@niksula.cs.hut.fi>
+References: <3E5EB9A8.3010807@kegel.com>
+	 <1046439618.16599.22.camel@irongate.swansea.linux.org.uk>
+	 <20030228141917.GF159052@niksula.cs.hut.fi>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046446674.16779.62.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1046445897.16599.60.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Fri, Feb 28, 2003 at 03:24:58PM +0000
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 28 Feb 2003 15:37:56 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 28, 2003 at 03:24:58PM +0000, Alan Cox wrote:
-> On Fri, 2003-02-28 at 14:12, Matthew Wilcox wrote:
-> > i'm not the kind of person who just changes the header file and breaks all
-> > the drivers.  plan:
+On Fri, 2003-02-28 at 14:19, Ville Herva wrote:
+> On Fri, Feb 28, 2003 at 01:40:19PM +0000, you [Alan Cox] wrote:
 > > 
-> >  - Add the GFP_ATOMIC_DMA & GFP_KERNEL_DMA definitions
-> >  - Change the drivers
-> >  - Delete the GFP_DMA definition
+> > How about by not allowing your system to excessively overcommit.
+> > Everything else is armwaving "works half the time" stuff. 
 > 
-> Needless pain for people maintaining cross release drivers. Save it for
-> 2.7 where we should finally do the honourable deed given x86-64 may well
-> be mainstream, and simply remove GFP_DMA and expect people to use 
-> pci_*
+> Which invites the question: the strict overcommit stuff from -ac (the 'echo
+> {2,3} > /proc/sys/vm/overcommit_memory' stuff) hasn't found it's way to
+> mainline yet, has it? I wonder if it would be compatible with up-to-date
+> -aa vm...
 
-umm.  are you volunteering to convert drivers/net/macmace.c to the pci_*
-API then?  also, GFP_DMA is used on, eg, s390 to get memory below 2GB and
-on ia64 to get memory below 4GB.
+Marcelo didn't want it for base. Its in 2.5 and in -ac. There is no
+longer any rmap requirement on the code so it should "just work" with
+the -aa changes too
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk

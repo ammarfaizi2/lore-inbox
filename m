@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293599AbSCFP6N>; Wed, 6 Mar 2002 10:58:13 -0500
+	id <S293631AbSCFP7z>; Wed, 6 Mar 2002 10:59:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293625AbSCFP6D>; Wed, 6 Mar 2002 10:58:03 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:57836 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S293599AbSCFP5z>; Wed, 6 Mar 2002 10:57:55 -0500
-Date: Wed, 6 Mar 2002 17:43:28 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Vincent Bernat <bernat@free.fr>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@zip.com.au>
-Subject: Re: xmms segfaulting on 2.4.18 and 2.4.19-pre2-ac2 + oops
-In-Reply-To: <m3pu2hn1z2.fsf@neo.loria>
-Message-ID: <Pine.LNX.4.44.0203061739480.19993-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293633AbSCFP7o>; Wed, 6 Mar 2002 10:59:44 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:64262 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S293631AbSCFP7h>;
+	Wed, 6 Mar 2002 10:59:37 -0500
+Date: Wed, 6 Mar 2002 08:59:57 -0700
+From: yodaiken@fsmlabs.com
+To: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>
+Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux   Maintainers
+Message-ID: <20020306085957.A9147@hq.fsmlabs.com>
+In-Reply-To: <20020305165233.A28212@fireball.zosima.org.suse.lists.linux.kernel> <3C8543CC.A6017F76@zip.com.au.suse.lists.linux.kernel> <p73vgca11b7.fsf@oldwotan.suse.de> <20020306111745.G6531@suse.de> <20020306144849.GB28744@stingr.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20020306144849.GB28744@stingr.net>; from i@stingr.net on Wed, Mar 06, 2002 at 05:48:49PM +0300
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Mar 2002, Vincent Bernat wrote:
+On Wed, Mar 06, 2002 at 05:48:49PM +0300, Paul P Komkoff Jr wrote:
+> Replying to Dave Jones:
+> >  Something I've not yet worked out is why none of the proponents of
+> >  arch, subversion etc are offering to run a mirror of Linus'
+> >  bitkeeper tree for those who don't want to use bk, but
+> >  "must have 0-day kernels".
+> 
+> Because they do not want bitkeeper, and do not know how to bk pull & export
+> WITHOUT bk itself :)
 
-> Unable to handle kernel paging request at virtual address d8d5c000
-> d8d56730
-> *pde = 17c45067
-> Oops: 0000
-> CPU:    0
-> EIP:    0010:[3c59x:__insmod_3c59x_S.bss_L40+828820/101914768]    Not tainted
-> EFLAGS: 00210202
-> eax: 00000001   ebx: 00000003   ecx: ffff389f   edx: fffff888
-> esi: fffff888   edi: d8d59fa6   ebp: d8d5bffe   esp: c445fe90
-> ds: 0018   es: 0018   ss: 0018
-> Process xmms (pid: 2679, stackpage=c445f000)
-> Stack: d8d56840 d8d56730 cae1c710 cae1c6f0 00000000 00000004 00000004 00000001 
->        f871f871 00000c29 000003ec 00000400 cae1c680 c551b3c0 d8d56a8a cae1c680 
->        c7a8b500 c7a8b480 00000400 000003ec cae1c680 00000400 cae1c680 00000400 
-> Call Trace: [3c59x:__insmod_3c59x_S.bss_L40+829092/101914496] [3c59x:__insmod_3c59x_S.bss_L40+828820/101914768] [3c59x:__insmod_3c59x_S.bss_L40+829678/101913910] [3c59x:__insmod_3c59x_S.bss_L40+817016/101926572] [3c59x:__insmod_3c59x_S.bss_L40+802037/101941551] 
-> Code: 8b 75 00 e9 87 00 00 00 8b 75 00 81 f6 00 80 00 00 eb 7c 8b 
-> Using defaults from ksymoops -t elf32-i386 -a i386
+Really, that's too stupid for words. Let them first figure out how to
+keep the data from passing through any proprietary routers in the Internet.
 
-I don't think its the 3com's driver fault, please run the decoded oops 
-right after xmms crashes and make sure the map file specified is the 
-correct one. Check out ksymoops(8) for perhaps more help.
+The real answer is that they can't do it. 
 
-	Zwane
 
+
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 

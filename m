@@ -1,78 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264266AbTLVAFw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 19:05:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264267AbTLVAFv
+	id S264151AbTLVAYf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 19:24:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264163AbTLVAYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 19:05:51 -0500
-Received: from bay8-dav35.bay8.hotmail.com ([64.4.26.92]:7693 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S264266AbTLVAFu
+	Sun, 21 Dec 2003 19:24:35 -0500
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:25308 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S264151AbTLVAYe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 19:05:50 -0500
-X-Originating-IP: [194.236.130.199]
-X-Originating-Email: [nikomail@hotmail.com]
-From: "Nicklas Bondesson" <nikomail@hotmail.com>
-To: "'Walt H'" <waltabbyh@comcast.net>, <linux-kernel@vger.kernel.org>
-Subject: RE: Error mounting root fs on 72:01 using Promise FastTrak TX2000 (PDC20271)
-Date: Mon, 22 Dec 2003 01:05:49 +0100
+	Sun, 21 Dec 2003 19:24:34 -0500
+Message-ID: <3FE645E3.30602@rackable.com>
+Date: Sun, 21 Dec 2003 17:16:19 -0800
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+CC: linux-kernel@vger.kernel.org, linux@3ware.com
+Subject: Re: 3ware driver broken with 2.4.22/23 ?
+References: <20031221112113.GE916@mail.muni.cz>
+In-Reply-To: <20031221112113.GE916@mail.muni.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <3FE5CB0E.6060702@comcast.net>
-Thread-Index: AcPH4MNRXBvSI+pTTmm2mInozEX+ewAPWmRA
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Message-ID: <BAY8-DAV35IMKT7Fvnj0000fb07@hotmail.com>
-X-OriginalArrivalTime: 22 Dec 2003 00:05:49.0339 (UTC) FILETIME=[5B0966B0:01C3C81F]
+X-OriginalArrivalTime: 22 Dec 2003 00:24:33.0411 (UTC) FILETIME=[F9092D30:01C3C821]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now I'm sucessfully booting my system with the 2.4.23 kernel using only one
-of the drives (hde). There is not a single line in the logs that says
-anything about the Promise ATARAID driver is beeing fired up, so my guess is
-that it doesn't load if no one is calling on it. When I try to boot from the
-RAID it dies right after the "NET4: Unix domain sockets 1.0/SMP for Linux"
-message. I think it's when the ATARAID driver is about to fire up. I have no
-idea at all what to do now. It must have something to do with the hard
-drives since this is the only thing that has changed. Maybee I'm missing
-some important kernel setting option or so? (I don't think so, but one never
-know for sure). Also what have changed in the Promise / ATARAID since
-2.4.18?.
-
-/Nicke
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Walt H
-Sent: den 21 december 2003 17:32
-To: Nicklas Bondesson
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Error mounting root fs on 72:01 using Promise FastTrak TX2000
-(PDC20271)
-
-Nicklas Bondesson wrote:
-> Nopes, I get the kernel panic before the driver loads or when it does, 
-> however I'm not seeing any ataraid driver message at all. This is 
-> really strange I think. The only thing that has changed in my setup 
-> are the harddrives. I really need to get this working. Do you have any 
-> suggestions what-so-ever what to do? I really appreciate your help on
-this.
+Lukas Hejtmanek wrote:
 > 
-> /Nicke
+> Can firmware upgrade help? Or there is an issue with something other not related
+> to 3ware card?
 > 
 
-Well, since you're using raid1, you should be able to pass a root=/dev/hda1
-(or whatever your / is located) using the same kernel and at least boot
-using this kernel. Then maybe you can use dmesg etc.. to see what the driver
-is actually doing. From your original post, it looks like you're using Lilo,
-so you'll need to boot using the old kernel first and change the lilo entry.
+   Generally not with such a small rev difference.  You could try the 
+latest driver, and firmware in the 7.7.  The driver source is on the Red 
+Hat drivers disk.  You should be able to drop in the .c, and .h in 
+drivers/scsi, and recompile.
+http://3ware.com/support/download.asp?code=5&id=7.7.0&softtype=Driver&releasenotes=&os=Windows
 
--Walt
+PS- Personally I'd suspect an XFS bug.  Try reiserfs.  I've been running 
+2.4.23pres, and 2.4.23 on hundreds of 3ware of numerous different types. 
+  With no issue with the prior firmware release.
+-- 
+There is no such thing as obsolete hardware.
+Merely hardware that other people don't want.
+(The Second Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
 
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org More majordomo info at
-http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,88 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265641AbRFWFdj>; Sat, 23 Jun 2001 01:33:39 -0400
+	id <S265648AbRFWFkT>; Sat, 23 Jun 2001 01:40:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265642AbRFWFd3>; Sat, 23 Jun 2001 01:33:29 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:30983 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S265641AbRFWFdU>; Sat, 23 Jun 2001 01:33:20 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>, Jens Axboe <axboe@suse.de>
-Subject: Re: [RFC] Early flush (was: spindown)
-Date: Sat, 23 Jun 2001 07:10:45 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Mike Galbraith <mikeg@wen-online.de>, Rik van Riel <riel@conectiva.com.br>,
-        Pavel Machek <pavel@suse.cz>, John Stoffel <stoffel@casc.com>,
-        Roger Larsson <roger.larsson@norran.net>, thunder7@xs4all.nl,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0106171156410.318-100000@mikeg.weiden.de> <200106201612.f5KGCca06372@vindaloo.ras.ucalgary.ca> <20010623012550.B415@pelks01.extern.uni-tuebingen.de>
-In-Reply-To: <20010623012550.B415@pelks01.extern.uni-tuebingen.de>
+	id <S265646AbRFWFj7>; Sat, 23 Jun 2001 01:39:59 -0400
+Received: from mailhost.idcomm.com ([207.40.196.14]:18361 "EHLO
+	mailhost.idcomm.com") by vger.kernel.org with ESMTP
+	id <S265645AbRFWFjy>; Sat, 23 Jun 2001 01:39:54 -0400
+Message-ID: <3B342C08.941D5F46@idcomm.com>
+Date: Fri, 22 Jun 2001 23:41:28 -0600
+From: "D. Stimits" <stimits@idcomm.com>
+Reply-To: stimits@idcomm.com
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01062307104500.00430@starship>
-Content-Transfer-Encoding: 7BIT
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Cleanup kbuild for aic7xxx
+In-Reply-To: <200106230504.f5N54AU84337@aslan.scsiguy.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 23 June 2001 01:25, Daniel Kobras wrote:
-> On Wed, Jun 20, 2001 at 10:12:38AM -0600, Richard Gooch wrote:
-> > Daniel Phillips writes:
-> > > I'd like that too, but what about sync writes?  As things stand now,
-> > > there is no option but to spin the disk back up.  To get around this
-> > > we'd have to change the basic behavior of the block device and
-> > > that's doable, but it's an entirely different proposition than the
-> > > little patch above.
+"Justin T. Gibbs" wrote:
+> 
+> >> >Users don't have to manually select "rebuild firmware".  They can
+> >> >rely on the generated files already in the aic7xxx directory.  This
+> >> >is why the option defaults to off.
 > >
-> > I don't care as much about sync writes. They don't seem to happen very
-> > often on my boxes.
->
-> syslog and some editors are the most common users of sync writes. vim,
-> e.g., per default keeps fsync()ing its swapfile. Tweaking the configuration
-> of these apps, this can be prevented fairly easy though. Changing sync
-> semantics for this matter on the other hand seems pretty awkward to me. I'd
-> expect an application calling fsync() to have good reason for having its
-> data flushed to disk _now_, no matter what state the disk happens to be in.
-> If it hasn't, fix the app, not the kernel.
+> >For the SGI patched kernels based on either 2.4.5 or 2.4.6-pre1, I have
+> >had to manually select this for a 7892 controller. Without manually
+> >selecting it, it guarantees boot failure. I don't know if this is due to
+> >the SGI modifications or not. The real problem I found is that during
+> >boot failure, there was no meaningful debug message.
+> 
+> I don't know why your kernel source is out of sync.  I will have to
+> go pull down the 2.4.5 and 2.4.6 trees and see if some portion of
+> my patches never made it into those trees.  It also looks like the
+> comment section for this option didn't make it into my 2.4.4 and above
+> patches.  I'll correct this on this on Monday.  Here's the relevent
+> info.  Do you have any comments on what would make it more useful?
+> 
+> +Build Adapter Firmware with Kernel Build
+> +CONFIG_AIC7XXX_BUILD_FIRMWARE
+> +  This option should only be enabled if you are modifying the
+> +  firmware source to the aic7xxx driver and wish to have the
+> +  generated firmware include files updated during a normal
+> +  kernel build.  The assmebler for the firmware requires
+> +  lex and yacc or their equivalents, as well as the db v1
+> +  library.  You may have to install additional packages or
+> +  modify the assmebler make file or the files it includes
+> +  if your build environment is different than that of the
+> +  author.
 
-But apps shouldn't have to know about the special requirements of laptops.  
-I've been playing a little with the idea of creating a special block device 
-for laptops that goes between the vfs and the real block device, and adds the 
-behaviour of being able to buffer writes in memory.  In all respects it would 
-seem to the vfs to be a disk.  So far this is just a thought experiment.
+I would add a note to try without it at first, but if bootup starts
+normally, then hangs in what seems like a controller or filesystem
+failure of a scsi drive, try to enable the option.
 
-> > > You know about this project no doubt:
-> > >
-> > >    http://noflushd.sourceforge.net/
-> >
-> > Only vaguely. It's huge. Over 2300 lines of C code and >560 lines in
-> > .h files! As you say, not really lightweight. There must be a better
-> > way.
->
-> noflushd would benefit a lot from being able to set bdflush parameters per
-> device or per disk. So I'm really eager to see what Daniel comes up with.
-> Currently, we can only turn kupdate either on or off as a whole, which
-> means that noflushd implements a crude replacement for the benefit of
-> multi-disk setups. A lot of the cruft stems from there.
+(this would give some hint about debugging an aic7xxx failure,
+regardless of error messages)
 
-Yes, another person to talk to about this is Jens Axboe who has been doing 
-some serious hacking on the block layer.  I thought I'd get the early flush 
-patch working well for one disk before generalizing to N ;-)
+D. Stimits, stimits@idcomm.com
 
-> > Also, I suspect (without having looked at the code) that it
-> > doesn't handle memory pressure well. Things may get nasty when we run
-> > low on free pages.
->
-> It doesn't handle memory pressure at all. It doesn't have to. noflushd only
-> messes with kupdate{,d} but leaves bdflush (formerly known as kflushd)
-> alone. If memory gets tight, bdflush starts writing out dirty buffers,
-> which makes the disk spin up, and we're back to normal.
-
-Exactly.  And in addition, when bdflush does wake up, I try to get kupdate 
-out of the way as much as possible, though I've been following the 
-traditional recipe and having it submit all buffers past a certain age.  This 
-is quite possibily a bad thing to do because it could starve the swapper.  
-Ouch.
-
---
-Daniel
+> 
+> >Missing firmware rebuild is fatal for my system, SMP x86 with integrated
+> >7892. Messages and config menu information is inadequate, it requires a
+> >bit of pounding the head on the wall to figure it out.
+> 
+> It is hard to make the kernel driver give a reasonable message for every
+> possible error that running with incompatible components may cause.
+> 
+> --
+> Justin

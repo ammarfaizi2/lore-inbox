@@ -1,56 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265313AbVBDWYe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264971AbVBDWYf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265313AbVBDWYe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 17:24:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264971AbVBDWU7
+	id S264971AbVBDWYf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 17:24:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264721AbVBDWUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 17:20:59 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:29065 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264420AbVBDWHK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 17:07:10 -0500
-From: Tom Zanussi <zanussi@us.ibm.com>
+	Fri, 4 Feb 2005 17:20:48 -0500
+Received: from gannet.scg.man.ac.uk ([130.88.94.110]:523 "EHLO
+	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
+	id S263185AbVBDWHQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 17:07:16 -0500
+Message-ID: <4203F2DB.9010604@gentoo.org>
+Date: Fri, 04 Feb 2005 22:10:35 +0000
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16899.61954.289521.334673@tut.ibm.com>
-Date: Fri, 4 Feb 2005 16:06:58 -0600
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Tom Zanussi <zanussi@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Robert Wisniewski <bob@watson.ibm.com>, Tim Bird <tim.bird@AM.SONY.COM>,
-       karim@opersys.com
-Subject: Re: [PATCH] relayfs redux, part 3
-In-Reply-To: <20050204213909.GA26241@infradead.org>
-References: <16899.55393.651042.627079@tut.ibm.com>
-	<20050204213909.GA26241@infradead.org>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-pm@osdl.org
+Subject: [-mm PATCH] driver model: PM type conversions in drivers/mmc
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------070000070008090008010708"
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CxBbf-000LZh-BG*jgJT72zYQ8.*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig writes:
- > in the filesystem path especially relayfs_create_entry and the functions
- > called by it seem overly complex, probably because copying from ramfs
- > which allows namespace operations from userland.  See the totally untested
- > code below for how it could be done more cleanly.
+This is a multi-part message in MIME format.
+--------------070000070008090008010708
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Thanks, I'll do some simplification as you suggest.
+This fixes PM driver model type checking for drivers/mmc.
+Acked by Pavel Machek.
 
- > 
- > What I really dislike is the code for automatically creating complex
- > hiearchies.  What kinds of hierachies does LTT use?  It shouldn't be
- > more than subsystem/{stream1, stream2, ..., streamN}, right?  In that
- > case I think we could leave it to the user to take of that himself.
- > 
+Signed-off-by: Daniel Drake <dsd@gentoo.org>
 
-Yeah, I was debating whether to keep that code or just export a
-creat_subdir() function instead, which I think I'll do after all.  ltt
-doesn't really doesn't need much of a hierarchy beyond ltt/ or maybe
-one more deep e.g. ltt/trace ltt/flight, and I doubt many other
-applications would either.
+--------------070000070008090008010708
+Content-Type: text/x-patch;
+ name="mmc-pm-type-safety.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mmc-pm-type-safety.patch"
 
-Tom
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/mmc/mmc.c linux-dsd/drivers/mmc/mmc.c
+--- linux-2.6.11-rc2-mm2/drivers/mmc/mmc.c	2005-02-02 21:54:17.000000000 +0000
++++ linux-dsd/drivers/mmc/mmc.c	2005-02-02 21:26:44.000000000 +0000
+@@ -884,7 +884,7 @@ EXPORT_SYMBOL(mmc_free_host);
+  *	@host: mmc host
+  *	@state: suspend mode (PM_SUSPEND_xxx)
+  */
+-int mmc_suspend_host(struct mmc_host *host, u32 state)
++int mmc_suspend_host(struct mmc_host *host, pm_message_t state)
+ {
+ 	mmc_claim_host(host);
+ 	mmc_deselect_cards(host);
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/mmc/mmci.c linux-dsd/drivers/mmc/mmci.c
+--- linux-2.6.11-rc2-mm2/drivers/mmc/mmci.c	2005-02-02 21:54:17.000000000 +0000
++++ linux-dsd/drivers/mmc/mmci.c	2005-02-02 21:27:17.000000000 +0000
+@@ -603,7 +603,7 @@ static int mmci_remove(struct amba_devic
+ }
+ 
+ #ifdef CONFIG_PM
+-static int mmci_suspend(struct amba_device *dev, u32 state)
++static int mmci_suspend(struct amba_device *dev, pm_message_t state)
+ {
+ 	struct mmc_host *mmc = amba_get_drvdata(dev);
+ 	int ret = 0;
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/mmc/pxamci.c linux-dsd/drivers/mmc/pxamci.c
+--- linux-2.6.11-rc2-mm2/drivers/mmc/pxamci.c	2005-02-02 21:54:17.000000000 +0000
++++ linux-dsd/drivers/mmc/pxamci.c	2005-02-02 21:27:33.000000000 +0000
+@@ -558,7 +558,7 @@ static int pxamci_remove(struct device *
+ }
+ 
+ #ifdef CONFIG_PM
+-static int pxamci_suspend(struct device *dev, u32 state, u32 level)
++static int pxamci_suspend(struct device *dev, pm_message_t state, u32 level)
+ {
+ 	struct mmc_host *mmc = dev_get_drvdata(dev);
+ 	int ret = 0;
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/mmc/wbsd.c linux-dsd/drivers/mmc/wbsd.c
+--- linux-2.6.11-rc2-mm2/drivers/mmc/wbsd.c	2005-02-02 21:54:17.000000000 +0000
++++ linux-dsd/drivers/mmc/wbsd.c	2005-02-02 21:28:50.000000000 +0000
+@@ -1563,7 +1563,7 @@ static int wbsd_remove(struct device* de
+  */
+ 
+ #ifdef CONFIG_PM
+-static int wbsd_suspend(struct device *dev, u32 state, u32 level)
++static int wbsd_suspend(struct device *dev, pm_message_t state, u32 level)
+ {
+ 	DBGF("Not yet supported\n");
+ 
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/include/linux/mmc/host.h linux-dsd/include/linux/mmc/host.h
+--- linux-2.6.11-rc2-mm2/include/linux/mmc/host.h	2004-12-24 21:34:58.000000000 +0000
++++ linux-dsd/include/linux/mmc/host.h	2005-02-02 21:26:34.000000000 +0000
+@@ -98,7 +98,7 @@ extern void mmc_free_host(struct mmc_hos
+ #define mmc_priv(x)	((void *)((x) + 1))
+ #define mmc_dev(x)	((x)->dev)
+ 
+-extern int mmc_suspend_host(struct mmc_host *, u32);
++extern int mmc_suspend_host(struct mmc_host *, pm_message_t);
+ extern int mmc_resume_host(struct mmc_host *);
+ 
+ extern void mmc_detect_change(struct mmc_host *);
 
-
+--------------070000070008090008010708--

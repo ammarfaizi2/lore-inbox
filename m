@@ -1,72 +1,149 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264517AbSIVUag>; Sun, 22 Sep 2002 16:30:36 -0400
+	id <S264518AbSIVUbK>; Sun, 22 Sep 2002 16:31:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264518AbSIVUag>; Sun, 22 Sep 2002 16:30:36 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:20868 "HELO ulima.unil.ch")
-	by vger.kernel.org with SMTP id <S264517AbSIVUaf>;
-	Sun, 22 Sep 2002 16:30:35 -0400
-Date: Sun, 22 Sep 2002 22:35:42 +0200
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: Martin Loschwitz <madkiss@madkiss.org>
+	id <S264520AbSIVUbK>; Sun, 22 Sep 2002 16:31:10 -0400
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:48603 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S264518AbSIVUbH> convert rfc822-to-8bit; Sun, 22 Sep 2002 16:31:07 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: wolk-devel@lists.sourceforge.net, wolk-announce@lists.sourceforge.net
+Subject: [ANNOUNCE] WOLK v3.6 FINAL
+Date: Sun, 22 Sep 2002 22:35:41 +0200
+X-Mailer: KMail [version 1.4]
+Organization: WOLK - Working Overloaded Linux Kernel
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.38-ml2
-Message-ID: <20020922203541.GA26899@ulima.unil.ch>
-References: <20020922181358.GA16388@minerva.local.lan>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
-Content-Disposition: inline
-In-Reply-To: <20020922181358.GA16388@minerva.local.lan>
-User-Agent: Mutt/1.4i
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209222235.29618.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi there,
 
---r5Pyd7+fXNt84Ff3
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+this is v3.6 FINAL of WOLK. This is the last release of the 3.x series!
 
-On Sun, Sep 22, 2002 at 08:13:59PM +0200, Martin Loschwitz wrote:
-> Ok, this version is fixed.
 
-Hello,
+Here we go, Changelog from v3.5 -> v3.6
+---------------------------------------
 
-it miss the floppy fix...
+ o indicates work by WOLK Developers (almost me)
+ + indicates work by WOLK Users
 
-  gcc-3.2 -Wp,-MD,./.floppy.o.d -D__KERNEL__
--I/usr/src/linux-2.5/include -Wall -Wstrict-prototypes -Wno-trigraphs
--O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe
--mpreferred-stack-boundary=3D2 -march=3Di686
--I/usr/src/linux-2.5/arch/i386/mach-generic -nostdinc -iwithprefix
-include -DMODULE   -DKBUILD_BASENAME=3Dfloppy   -c -o floppy.o floppy.c
-floppy.c: In function `cleanup_module':
-floppy.c:4565: `drive' undeclared (first use in this function)
-floppy.c:4565: (Each undeclared identifier is reported only once
-floppy.c:4565: for each function it appears in.)
-floppy.c:4559: warning: unused variable `i'
-floppy.c:4573: warning: statement with no effect
-make[2]: *** [floppy.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.5/drivers/block'
-make[1]: *** [block] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5/drivers'
-make: *** [drivers] Error 2
++   add:        SuperPage Support for alpha, sparc64 and x86
+                 This is an EXPERIMENTAL PATCH. Apply manually! Nr. 990
 
-	Gr=E9goire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+o   add:        SCSI-Idle for v2.4.19 + SCSI Idle Daemon in WOLK-Tools package
 
---r5Pyd7+fXNt84Ff3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+o   add:        oom_killer updates from v2.4.19 final
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+o   add:        some another ext3 additions from v2.4.20-pre5
 
-iD8DBQE9jimcFDWhsRXSKa0RAhZMAJsEewPjBiO4UaGTn2QrW5Lcr03KDACbBc1V
-73o2pLe9v0V0w9aaWKAG3K0=
-=4ZI8
------END PGP SIGNATURE-----
+o   add:        VFS Soft/Hard-Limit of FileDescriptors
 
---r5Pyd7+fXNt84Ff3--
+o   add:        ebtables v2.0
+
++   fixed:      USB v2.4.19 compile problems / missing definitions
+
++   fixed:      BlueTooth v2.4.19 compile problems / missing definitions
+
++   fixed:      Some Config dependencies for ISDN / USB Stuff
+
+o   fixed:      LSM compile problems. totally conflicts with CTX(vserver)
+
+o   fixed:      One AIO reversed #ifdef -> #ifndef
+
+o   fixed:      Forgot to add "gr_is_capable(cap)" to #ifndef CONFIG_LSM
+                 This broke capabilities to add/remove with grsecurity!
+
+o   update:     MIPL Mobile IPv6 v0.9.4
+
+o   update:     Bridge with Netfilter firewalling v0.0.7
+
+o   update:     ACPI (Sep 18th, 2002) (use pci=noacpi when you have problems)
+
+o   update:     e2compression v0.4.43
+
+o   update:     SOFFIC (Secure On-the-Fly File Integrity Checker) v0.1
+
+o   update:     Crypto v2.4.19-1
+                 includes new options:
+                 - 3DES cipher (64bit blocksize)
+                 - GOST cipher (64bit blocksize)
+                 - NULL cipher (NO CRYPTO)
+                 - RIPEMD160 digest
+                 - SHA256 digest
+                 - SHA384 digest
+                 - SHA512 digest
+                 - Atomic Loop Crypto
+                 - Loop IV hack
+                 - Loop Crypto Debugging
+                 - IPSEC tunneling (ipsec_tunnel) support
+
+o   update:     Compressed Cache v0.24-pre4
+                 
+o   update:     HTB v3.6-020525
+                 
+o   update:     grsecurity v1.9.7 final
+                 + gradm v1.5 final in the WOLK-tools package
+                 
+o   update:     IBM's NGPT2 (Next Generation Posix Threading 2) v2.0.2
+                 
+o   update:     htree ext3 directory indexing 2.4.19-3-dxdir
+                 
+o   update:     UML - User-Mode-Linux v2.4.18-53
+
+o   update:     NTFS Filesystem Driver v2.1.0a
+
+o   update:     XFree v4.2.0 DRM/DRI Drivers from 2.4.20-preX-acX tree
+                 
+o   update:     JFS v1.0.22
+
+o   update:     Intel EtherExpress PRO/100 Support (Alternate Driver) v2.1.6
+                 
+o   update:     Intel EtherExpress PRO/1000 Gigabit NIC Support v4.3.2
+
+o   update:     i810/i815 Framebuffer Device Driver v0.0.33
+                 
+o   change:     CTX12 (Virtual private servers and security contexts)
+                 and disable vservers if grsecurity is selected (breaks gradm)
+
+o   removed:    some ext3 additions
+                 (causes system locking at high disk i/o)
+
+
+
+Release Info:
+-------------
+Date   : 22th September, 2002
+Time   : 11:45 pm CET
+URL    : http://sf.net/projects/wolk
+
+
+md5sums:
+--------
+abbb41870e7f2d68894ad254ee04379c *linux-2.4.18-wolk3.5-to-3.6.patch.bz2
+31a52bd394478c023103331909e86c6d *linux-2.4.18-wolk3.5-to-3.6.patch.gz
+4325558fed5d3d34ead1f0e701dfb576 *linux-2.4.18-wolk3.6-fullkernel.tar.bz2
+2f79315cf6977b749f0e3be3742d218b *linux-2.4.18-wolk3.6-fullkernel.tar.gz
+2e84031f07a0958a2de8e71276cb4552 *linux-2.4.18-wolk3.6-patch.patch.bz2
+61178792c7eb21e01bebf60535caf244 *linux-2.4.18-wolk3.6-patch.patch.gz
+2efd7753fc31a86fa39b87df38fc78c7 *linux-2.4.18-wolk3.6-patchset.tar.bz2
+b12c6147b97b03bb34ff4bc9a8f27d31 *linux-2.4.18-wolk3.6-patchset.tar.gz
+
+
+Have fun!
+
+-- 
+Kind regards
+        Marc-Christian Petersen
+
+http://sourceforge.net/projects/wolk
+
+PGP/GnuPG Key: 1024D/569DE2E3DB441A16
+Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
+Key available at www.keyserver.net. Encrypted e-mail preferred.
+
+

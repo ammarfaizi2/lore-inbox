@@ -1,65 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316860AbSHAThq>; Thu, 1 Aug 2002 15:37:46 -0400
+	id <S316856AbSHATqG>; Thu, 1 Aug 2002 15:46:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316896AbSHAThq>; Thu, 1 Aug 2002 15:37:46 -0400
-Received: from smtp1.auracom.net ([165.154.140.23]:37603 "EHLO
-	smtp1.auracom.net") by vger.kernel.org with ESMTP
-	id <S316860AbSHAThp>; Thu, 1 Aug 2002 15:37:45 -0400
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: garym@teledyn.com
-Subject: Kernel compiled from source won't read /parts/ of a CD?
-From: Gary Lawrence Murphy <garym@canada.com>
-X-Home-Page: http://www.teledyn.com
-Organization: TCI Business Innovation through Open Source Computing
-Date: 01 Aug 2002 15:40:58 -0400
-Message-ID: <m2bs8mtlit.fsf@maya.dyndns.org>
-Reply-To: Gary Lawrence Murphy <garym@canada.com>
-X-Url: http://www.teledyn.com/
+	id <S316878AbSHATqG>; Thu, 1 Aug 2002 15:46:06 -0400
+Received: from p50887441.dip.t-dialin.net ([80.136.116.65]:18617 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316856AbSHATqG>; Thu, 1 Aug 2002 15:46:06 -0400
+Date: Thu, 1 Aug 2002 13:49:07 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Mukesh Rajan <mrajan@ics.uci.edu>, <linux-kernel@vger.kernel.org>,
+       <mlord@pobox.com>
+Subject: Re: IDE, putting HD to sleep causes "lost interrupt"
+In-Reply-To: <Pine.LNX.4.10.10207310958520.25961-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.44.0208011348020.5119-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+Hi,
 
+On Wed, 31 Jul 2002, Andre Hedrick wrote:
+> Because you need to call
+> 
+> hdparm -w /dev/hda		<--- Reset Device
+> hdparm -C /dev/hda		<--- query status, repeat until good.
+> hdparm -X** /dev/hda		<--- transfer rate mode set
+> hdparm -m** /dev/hda		<--- set multiple
+> hdparm -d* /dev/hda		<--- set DMA
+> 
+> You effectively kill (disable command mode) the drive has to be kick
+> started.
 
-This is one of the strangest situations I have ever seen: my
-re-compiled Linux 2.4.18 kernel now /refuses/ to read /only/ the
-"/Mandrake" directory branch of all three of the Mandrake distribution
-CDs.  It /has/ to be some kernel option, but I can't figure which one;
-any advice or debugging hints at all are greatly appreciated.
+Well, mind how horribly that sucks if your hdparm is on the disk you've 
+sent to sleep. Thus, never send your disk containing /sbin to sleep...
 
-I had to recompile a Mandrake 8.2 kernel to remove pcmcia support (so
-I could use the sf release of it) Using the stock Mandrake 8.2 binary
-kernel, the CDs can be read just fine, it is only the kernel that I
-compiled from the linux-2.4.18-6mdk.src package that has this trouble.
-There are no warning messages, only one line returned to the console
-to say "ls /Mandrake: Invalid argument" and one line in syslog to say
-"ISO 9660: RRIP_1991A" and that's the total diagnostic information I
-have.
-
-Using /usr/bin/isoinfo, I can list the CD contents just fine; all the
-unix tools (ls, cd, cp ...) and rpm cannot read /Mandrake.
-
-What could I have possibly omitted from the kernel config to cause
-this?  How could that one directory be singled out by a simple kernel
-config problem? (or could it be a gcc 2.96 problem?)
-
+			Thunder
 -- 
-Gary Lawrence Murphy <garym@teledyn.com> TeleDynamics Communications Inc
-Business Innovations Through Open Source Systems: http://www.teledyn.com
-"Computers are useless.  They can only give you answers."(Pablo Picasso)
+.-../../-./..-/-..- .-./..-/.-.././.../.-.-.-
 
-
---=-=-=
-
-
-
--- 
-Gary Lawrence Murphy <garym@teledyn.com> TeleDynamics Communications Inc
-Business Innovations Through Open Source Systems: http://www.teledyn.com
-"Computers are useless.  They can only give you answers."(Pablo Picasso)
-
-
---=-=-=--

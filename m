@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281281AbRKMHoG>; Tue, 13 Nov 2001 02:44:06 -0500
+	id <S281417AbRKMHqG>; Tue, 13 Nov 2001 02:46:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281416AbRKMHn5>; Tue, 13 Nov 2001 02:43:57 -0500
-Received: from ns.caldera.de ([212.34.180.1]:52707 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S281281AbRKMHnh>;
-	Tue, 13 Nov 2001 02:43:37 -0500
-Date: Tue, 13 Nov 2001 08:43:29 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Linux 2.4.15-pre4 - merge with Alan
-Message-ID: <20011113084329.A14963@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
-	"J . A . Magallon" <jamagallon@able.es>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <20011113004846.G1531@werewolf.able.es> <200111130014.fAD0Eel15650@ns.caldera.de> <20011113014248.A1487@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011113014248.A1487@werewolf.able.es>; from jamagallon@able.es on Tue, Nov 13, 2001 at 01:42:48AM +0100
+	id <S281416AbRKMHp4>; Tue, 13 Nov 2001 02:45:56 -0500
+Received: from auucp0.ams.ops.eu.uu.net ([195.129.70.39]:35465 "EHLO
+	auucp0.ams.ops.eu.uu.net") by vger.kernel.org with ESMTP
+	id <S281417AbRKMHpo>; Tue, 13 Nov 2001 02:45:44 -0500
+Date: Tue, 13 Nov 2001 08:44:13 +0100 (CET)
+From: kees <kees@schoen.nl>
+To: <linux-kernel@vger.kernel.org>
+Subject: report: tun device
+Message-ID: <Pine.LNX.4.33.0111130840570.16711-100000@schoen3.schoen.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 13, 2001 at 01:42:48AM +0100, J . A . Magallon wrote:
-> This should also stay, so ?
-> 
-> -   if [ "$CONFIG_MIPS_ITE8172" = "y" ]; then
-> -      dep_tristate 'ITE I2C Algorithm' CONFIG_ITE_I2C_ALGO $CONFIG_I2C
-> -      if [ "$CONFIG_ITE_I2C_ALGO" != "n" ]; then
-> -         dep_tristate '  ITE I2C Adapter' CONFIG_ITE_I2C_ADAP $CONFIG_ITE_I2C_ALGO
-> -      fi
-> -   fi
+Hi
 
-*nod* - maybe someone should merge that driver into CVS..
+I have build 2.4.15pre3 but stil can't use /dev/net/tun (vtund).
 
-	Christoph
+from logfile:
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+Nov 13 08:38:29 schoen3 vtund[16676]: Session merin[xxx.xxx.xxx.xxx:1402]
+opened
+Nov 13 08:38:29 schoen3 vtund[16676]: Can't allocate tun device. File
+descriptorNov 13 08:38:29 schoen3 vtund[16676]: Session merin closed
+Nov 13 08:38:35 schoen3 vtund[16677]: Session merin[xxx.xxx.xxx.xxx:1403]
+opened
+Nov 13 08:38:35 schoen3 vtund[16677]: Can't allocate tun device. File
+descriptorNov 13 08:38:35 schoen3 vtund[16677]: Session merin closed
+
+kees
+

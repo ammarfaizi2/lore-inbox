@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262743AbTIAI0w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 04:26:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262754AbTIAI0w
+	id S262756AbTIAIyM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 04:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262763AbTIAIyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 04:26:52 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:50951 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262743AbTIAI0u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 04:26:50 -0400
-Date: Mon, 1 Sep 2003 09:26:46 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: Fix up power managment in 2.6
-Message-ID: <20030901092646.B15370@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
-	Linus Torvalds <torvalds@osdl.org>,
-	kernel list <linux-kernel@vger.kernel.org>,
-	Patrick Mochel <mochel@osdl.org>
-References: <20030831232812.GA129@elf.ucw.cz> <20030901075726.A12457@flint.arm.linux.org.uk> <20030901081154.GB155@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030901081154.GB155@elf.ucw.cz>; from pavel@suse.cz on Mon, Sep 01, 2003 at 10:11:54AM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Mon, 1 Sep 2003 04:54:12 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:53148 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262756AbTIAIyL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 04:54:11 -0400
+Date: Mon, 1 Sep 2003 10:52:27 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Petr Baudis <pasky@ucw.cz>, linux-fbdev-users@lists.sourceforge.net,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-users] Re: Total radeonfb failure on both 2.6.0-test4
+ and 2.6.0-test4-mm4
+In-Reply-To: <1062344399.32736.51.camel@gaston>
+Message-ID: <Pine.GSO.4.21.0309011051560.5048-100000@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 01, 2003 at 10:11:54AM +0200, Pavel Machek wrote:
-> Its the only way to have power managment working by 2.6.1.
+On Sun, 31 Aug 2003, Benjamin Herrenschmidt wrote:
+> >   It appears that the 2.6 driver is essentially the old one, without Ben's
+> > patch (which fixed framebuffer for me on 2.4). Is there a version of this
+> > updated driver for 2.6 as well? Is there any reason why it is not integrated
+> > yet?
+> 
+> I'm working on a new driver for 2.6 that include my 2.4 updates, a
+> slightly reworked version of Kronos and Jon i2c DDC code and some
+> more source cleanup (split the driver in separate files actually).
+> 
+> It's not finished yet though. I'm not yet sure I'll add support for
+> dual head in the first version neither, all of this pretty much depends
+> on how much time I'll be able to dedicate to it during the upcoming
+> week.
 
-Rubbish.  PM is now working here on ARM again - within a week of Pat's
-change.
+What about `release early, release often', and add the dual-head support after
+your first release? ;-)
 
-> Lots of
-> work went into pm during 2.5 series, and Patrick invalidated all that
-> with one, 140KB, untested and broken patch (and he managed to break
-> about all rules about patch submission).
+Gr{oetje,eeting}s,
 
-I agree that it needed public review _before_ hitting Linus' tree - a
-change of that magnitude with only half the subsystems fixed up should
-not go directly into Linus' tree without review.
+						Geert
 
-> It is not possible to fix damage he done within week.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-It is my understanding that the old PM in 2.5 was not suitable for
-the PPC architecture and the new PM model is.  As far as the drivers
-are concerned, the interface presented is a definite improvement on
-what there was before (there are a few things which I'd like to see
-further improvement on, but that's not a subject for discussion in
-this thread.)
-
-I don't particularly care about kernel/power/* because its not useful
-for me - whereas you obviously do.  Maybe that's where your axe is
-grinding.  But whatever, don't throw the baby (driver model changes)
-out with the bath water.
-
-And finally, there's longer than a week to fix it. 8)
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

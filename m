@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273696AbRI0TbK>; Thu, 27 Sep 2001 15:31:10 -0400
+	id <S273826AbRI0Tga>; Thu, 27 Sep 2001 15:36:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273705AbRI0TbA>; Thu, 27 Sep 2001 15:31:00 -0400
-Received: from borg.org ([208.218.135.231]:31492 "HELO borg.org")
-	by vger.kernel.org with SMTP id <S273696AbRI0Tas>;
-	Thu, 27 Sep 2001 15:30:48 -0400
-Date: Thu, 27 Sep 2001 15:31:14 -0400
-From: Kent Borg <kentborg@borg.org>
-To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.9-ac16
-Message-ID: <20010927153114.A4190@borg.org>
-In-Reply-To: <20010927185107.A17861@lightning.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S273741AbRI0TgV>; Thu, 27 Sep 2001 15:36:21 -0400
+Received: from smtp3.cern.ch ([137.138.131.164]:45526 "EHLO smtp3.cern.ch")
+	by vger.kernel.org with ESMTP id <S273705AbRI0TgA>;
+	Thu, 27 Sep 2001 15:36:00 -0400
+To: Christoph Hellwig <hch@caldera.de>
+Cc: David Balazic <david.balazic@uni-mb.si>, linux-kernel@vger.kernel.org
+Subject: Re: IBMs LVM ?
+In-Reply-To: <3B9E255C.8943D6BB@uni-mb.si> <200109111526.f8BFQLr25266@ns.caldera.de> <20010911115713.D29347@turbolinux.com> <20010911200633.A5816@caldera.de>
+From: Jes Sorensen <jes@sunsite.dk>
+Date: 27 Sep 2001 21:36:19 +0200
+In-Reply-To: Christoph Hellwig's message of "Tue, 11 Sep 2001 20:06:33 +0200"
+Message-ID: <d3u1xov32k.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010927185107.A17861@lightning.swansea.linux.org.uk>; from laughing@shared-source.org on Thu, Sep 27, 2001 at 06:51:07PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's working for me.  I have loaded up three X sessions, and bunches
-of software running.  My 500 MHz PIII with 192 MB of RAM and 255 MB of
-swap in current use is certainly willing to take some time if I try to
-get from one X session to another.  And some Netscape windows seem
-stubborn about refreshing, but I think it's looking good.
+>>>>> "Christoph" == Christoph Hellwig <hch@caldera.de> writes:
 
-Having been a complainer, I hereby say it seems fixed.
+Christoph> On Tue, Sep 11, 2001 at 11:57:13AM -0600, Andreas Dilger
+Christoph> wrote:
+>> Do you have a specific complaint?  The current LVM kernel code
+>> isn't all that robust either (and the user-space code is not very
+>> pretty).
 
+Christoph> Please take a barf-bag, look at the code, look at the
+Christoph> unneded abstrations, look at the uneeded interfaces, look
+Christoph> at the code-duplication, look at the over-engineering.
 
--kb, the Kent who of course had to put the preemption patch in there
-too.
+At least the IBM guys seem interested in listening and taking
+code/suggestions from the community. There was a fairly productive BOF
+at OLS a couple of months ago. Thats a lot more than we can say about
+the current LVM.
+
+Jes

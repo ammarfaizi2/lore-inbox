@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132297AbRANL3X>; Sun, 14 Jan 2001 06:29:23 -0500
+	id <S129413AbRANLdj>; Sun, 14 Jan 2001 06:33:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132302AbRANL3N>; Sun, 14 Jan 2001 06:29:13 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:40679 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S132297AbRANL3B>; Sun, 14 Jan 2001 06:29:01 -0500
-Message-ID: <3A618F17.FD285E2B@uow.edu.au>
-Date: Sun, 14 Jan 2001 22:35:51 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>,
-        lad <linux-audio-dev@ginette.musique.umontreal.ca>
-Subject: Re: low-latency scheduling patch for 2.4.0
-In-Reply-To: <3A57DA3E.6AB70887@uow.edu.au>
+	id <S129742AbRANLda>; Sun, 14 Jan 2001 06:33:30 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:29961 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129413AbRANLdM>;
+	Sun, 14 Jan 2001 06:33:12 -0500
+Date: Sun, 14 Jan 2001 12:33:10 +0100
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Andi Kleen <ak@suse.de>, Igmar Palsenberg <i.palsenberg@jdimedia.nl>,
+        Harald Welte <laforge@gnumonks.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0 + iproute2
+Message-ID: <20010114123310.A23011@gruyere.muc.suse.de>
+In-Reply-To: <14945.26991.35849.95234@pizda.ninka.net> <Pine.LNX.4.30.0101141013080.16469-100000@jdi.jdimedia.nl> <14945.28354.209720.579437@pizda.ninka.net> <20010114115215.A22550@gruyere.muc.suse.de> <14945.34208.281500.226085@pizda.ninka.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <14945.34208.281500.226085@pizda.ninka.net>; from davem@redhat.com on Sun, Jan 14, 2001 at 02:55:28AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Sun, Jan 14, 2001 at 02:55:28AM -0800, David S. Miller wrote:
 > 
-> A patch against kernel 2.4.0 final which provides low-latency
-> scheduling is at
+> Andi Kleen writes:
+>  > In my opinion (rt)netlink would benefit a lot from introducing 5-10
+>  > new errnos and possibly a new socket option to get a string/number
+>  > with the exact error.
 > 
->         http://www.uow.edu.au/~andrewm/linux/schedlat.html#downloads
-> 
+> Introducing 5-10 new errnos just for rtnetlink is a big waste when we
+> already have socket extended errors which are perfect for this
+> purpose.
 
-This has been updated for 2.4.1-pre3
+Just makes the interface rather complicated for the user, but ok. 
 
-- Fixed latency problems with some /proc files and forking
-  when many files are open.
+How would you pass the extended errors? As strings or as to be defined 
+new numbers? I would prefer strings, because the number namespace could
+turn out to be as nasty to maintain as the current sysctl one. 
 
-- Fixed the tcp-minisocks thing.
 
-- The patch now works properly on SMP.
-
-  If a wakeup is directed to a SCHED_FIFO or SCHED_RR
-  task then we request a reschedule on *all* non-idle
-  CPUs.
-
-  This causes any CPU which is holding a long-lived
-  spinlock to bale out, allowing the target CPU to
-  acquire the spinlock and then reschedule normally.
-
-  Bit of a hack, but it works very well and there
-  is no impact on the system unless there are
-  non-SCHED_OTHER tasks running.
-
-  Five lines of code :)
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

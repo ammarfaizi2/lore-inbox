@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280978AbRLVQLV>; Sat, 22 Dec 2001 11:11:21 -0500
+	id <S286812AbRLVQQL>; Sat, 22 Dec 2001 11:16:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286812AbRLVQLL>; Sat, 22 Dec 2001 11:11:11 -0500
-Received: from fluent1.pyramid.net ([206.100.220.212]:54072 "EHLO
-	fluent1.pyramid.net") by vger.kernel.org with ESMTP
-	id <S286808AbRLVQLB>; Sat, 22 Dec 2001 11:11:01 -0500
-Message-Id: <4.3.2.7.2.20011222080457.00be8100@10.1.1.42>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Sat, 22 Dec 2001 08:10:25 -0800
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        dirk@staf.planetinternet.be (Dirk Moerenhout)
-From: Stephen Satchell <list@fluent2.pyramid.net>
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in
-  Configure.hel
-Cc: jeffm@iglou.com (Jeff Mcadams), linux-kernel@vger.kernel.org
-In-Reply-To: <E16HnxA-0004SS-00@the-village.bc.nu>
-In-Reply-To: <Pine.LNX.4.33.0112221538560.214-100000@dirk>
+	id <S286818AbRLVQPx>; Sat, 22 Dec 2001 11:15:53 -0500
+Received: from sushi.toad.net ([162.33.130.105]:7890 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S286812AbRLVQPb>;
+	Sat, 22 Dec 2001 11:15:31 -0500
+Subject: Re: APM driver patch summary
+From: Thomas Hood <jdthood@mail.com>
+To: Andreas Steinmetz <ast@domdv.de>
+Cc: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>,
+        Russell King <rmk@arm.linux.org.uk>,
+        Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <XFMail.20011222154452.ast@domdv.de>
+In-Reply-To: <XFMail.20011222154452.ast@domdv.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 22 Dec 2001 11:13:58 -0500
+Message-Id: <1009037653.807.14.camel@thanatos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 03:20 PM 12/22/01 +0000, Alan Cox wrote:
->It gets worse the deeper you go. Over an HDLC based link for example
->sequences of five one bits take longer to send due to bitstuffing. Any
->networking terminology is generally grossly simplified.
+Thanks.
 
-Interestingly, the subject of bit-stuffing came up during the discussion of 
-modem testing, because of the HDLC framing used in V.42 error 
-control.  Statistics provided by the representative from Hayes (R.I.P.) 
-showed that bit-stuffing occurred in roughly 1 out of 64 bits in the data 
-path when V.42 bis data compression was enabled.  The 1:63 ratio held over 
-a surprisingly wide range of data patterns, all the way from repeated 
-single characters through text in English, French, German, and Chinese to 
-the output of a 64-bit random number generator.  When v.42 bis data 
-compression was disabled, the average ratio was about the same but there 
-was considerably more spread because of data pattern sensitivity.
+I have put Andreas's idle patch, Russell King's notification patch,
+and a combined patch up at:
+   http://panopticon.csustan.edu/thood/apm.html
 
-Which is grossly off-topic but I thought a few of you might be interested.
+--
+Thomas Hood
 
-Stephen Satchell
+On Sat, 2001-12-22 at 09:44, Andreas Steinmetz wrote:
+> Hi,
+> I merged 2., 3. and 4. (attached) with some modifications.
+> 
+> 1. There is now a module parameter apm-idle-threshold which allows to override
+>    the compiled in idle percentage threshold above which BIOS idle calls are
+>    done.
+> 
+> 2. I modified Andrej's mechanism to detect a defunct BIOS (stating 'does stop
+>    CPU' when it actually doesn't) to take into account that there's other
+>    interrupts than the timer interrupt that could reactivate the cpu.
+>    As there's 16 hardware interrupts on x86 (apm is arch specific anyway) I do
+>    use a leaky bucket counter for a maximum of 16 idle rounds until jiffies is
+>    increased. When the counter reaches zero it stays at this value and the
+>    system idle routine is called. If BIOS idle is a noop then the counter
+>    reaches zero fast, thus effectively halting the cpu.
+> 
+> Andrej, could you please test the patch if it works for your laptop?
+
 

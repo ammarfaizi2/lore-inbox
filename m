@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129185AbQJ3HkD>; Mon, 30 Oct 2000 02:40:03 -0500
+	id <S129038AbQJ3ICC>; Mon, 30 Oct 2000 03:02:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129219AbQJ3Hjx>; Mon, 30 Oct 2000 02:39:53 -0500
-Received: from [209.249.10.20] ([209.249.10.20]:60858 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S129185AbQJ3Hjj>; Mon, 30 Oct 2000 02:39:39 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Mon, 30 Oct 2000 00:39:37 -0800
-Message-Id: <200010300839.AAA10601@baldur.yggdrasil.com>
-To: aer-list@mailandnews.com
-Subject: Re: / on ramfs, possible?
-Cc: linux-kernel@vger.kernel.org
+	id <S129040AbQJ3IBw>; Mon, 30 Oct 2000 03:01:52 -0500
+Received: from falcon.prod.itd.earthlink.net ([207.217.120.74]:17056 "EHLO
+	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S129038AbQJ3IBj>; Mon, 30 Oct 2000 03:01:39 -0500
+From: "Akbar A." <syedali011@earthlink.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: cool dev help..
+Date: Mon, 30 Oct 2000 02:05:59 -0600
+Message-ID: <DBEJKMEBBLEKDCBLJDBPCEBGCMAA.syedali011@earthlink.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
+In-Reply-To: <200010300839.AAA10601@baldur.yggdrasil.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anders Eriksson <aer-list@mailandnews.com> writes:
->I want my / to be a ramfs filesystem. I intend to populate it from an 
->initrd image, and then remount / as the ramfs filesystem. Is that at 
->all possible? The way I see it the kernel requires / on a device 
->(major,minor) or nfs.
->
->Am I out of luck using ramfs as /? If it's easy to fix, how do I fix it?
+cool write up..
+http://www.linuxdoc.org/LDP/tlk/tlk.html
 
-	We do that right now with cramfs.  You might want to examine
-ftp://ftp.yggdrasil.com/pub/dist/booting/make-ramdisk-0.19.tar.gz.
+but i just had 1 question:
+is there anything similar to what microsoft has pulled of with msdn in the
+linux world?
+i mean there is man and all,
+but is there anything more "user friendly" and in the digital means besides
+Beg. Linux Programming (2nd edition)?
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+it would be really cool, if someone could point me out to something if it
+existed...
+
+
+laterz,
+akbar A.
+
+"you must find out what is already known, lest you waste your time doing
+poorly what others have done well."
+page 29- "The Practice of Programming"
+;vertexabuse.cjb.net
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

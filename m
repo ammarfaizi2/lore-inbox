@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136092AbRD0PrM>; Fri, 27 Apr 2001 11:47:12 -0400
+	id <S135958AbRD0P44>; Fri, 27 Apr 2001 11:56:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136091AbRD0PrC>; Fri, 27 Apr 2001 11:47:02 -0400
-Received: from medusa.sparta.lu.se ([194.47.250.193]:30982 "EHLO
-	medusa.sparta.lu.se") by vger.kernel.org with ESMTP
-	id <S136097AbRD0Pqv>; Fri, 27 Apr 2001 11:46:51 -0400
-Date: Fri, 27 Apr 2001 16:31:05 +0200 (MET DST)
-From: Bjorn Wesen <bjorn@sparta.lu.se>
+	id <S136091AbRD0P4r>; Fri, 27 Apr 2001 11:56:47 -0400
+Received: from t2.redhat.com ([199.183.24.243]:58877 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S135958AbRD0P4h>; Fri, 27 Apr 2001 11:56:37 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <3AE99CE8.BD325F52@antefacto.com> 
+In-Reply-To: <3AE99CE8.BD325F52@antefacto.com>  <Pine.LNX.3.96.1010426203656.22847A-100000@medusa.sparta.lu.se> 
 To: Padraig Brady <padraig@antefacto.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ramdisk/tmpfs/ramfs/memfs ?
-In-Reply-To: <3AE99CE8.BD325F52@antefacto.com>
-Message-ID: <Pine.LNX.3.96.1010427162631.4416A-100000@medusa.sparta.lu.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ramdisk/tmpfs/ramfs/memfs ? 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 27 Apr 2001 16:56:35 +0100
+Message-ID: <15296.988386995@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Apr 2001, Padraig Brady wrote:
-> for a partition. If I understand correctly ramfs just points
-> to the file data which are pages in the cache marked not to be
 
-It does not even do that - as of 2.4, the VFS in the kernel also knows how
-to cache a filestructure itself. It's in the dentry-cache. So ramfs just
-provides the thin mapping between VFS operations and the VFS caches
-(dentries, inodes, pages) like any other 2.4 filesystem - with the
-difference that ramfs does not need to know anything about actually
-transferring the cache entries to a backing store (a physical filesystem).
+padraig@antefacto.com said:
+> btw I get my initial root filesystem from a compact flash that can be
+> accessed just like a hardisk. It's writeable also like a harddisk, but
+> we boot with it readonly, and only mount it rw if we want to save
+> config or whatever. We definitely wouldn't swap to it as it has
+> limited erase/write cycles. The filesystem is compressed ext2.
 
-Take a look at fs/ramfs/inode.c, it's just some hundred odd lines of
-code and worth reading to find out more about how 2.4's VFS works.
+Why copy it into RAM? Why not use cramfs and either turn the writable
+directories into symlinks into a ramfs which you create at boot time, or 
+union-mount a ramfs over the top of it?
 
-> uncached. Doh! is ramfs supported in 2.2?
 
-Don't think so, for the above reason.
+padraig@antefacto.com said:
+> As for using JFFS2 + MTD ramdisk intead of ext2+e2compr+ramdisk is not
+> an option as the only advantage would be journalling, you still can't
+> resize. IMHO JFFS is only required where you have flash without an IDE
+> interface.
 
--BW
+True. We are currently lacking a compact, compressing, journalling 
+filesystem for use on block devices. It's been suggested that we could make 
+JFFS2 work on them, by making a fake MTD device which uses a block device 
+as backing store. Nobody's yet shown me the code though :)
+
+--
+dwmw2
+
 

@@ -1,92 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbULNWbD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbULNWdP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261689AbULNWbD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 17:31:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbULNW3I
+	id S261705AbULNWdP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 17:33:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbULNWdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 17:29:08 -0500
-Received: from motgate8.mot.com ([129.188.136.8]:29903 "EHLO motgate8.mot.com")
-	by vger.kernel.org with ESMTP id S261716AbULNW0T (ORCPT
+	Tue, 14 Dec 2004 17:33:06 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:36247 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261668AbULNW2Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 17:26:19 -0500
-Date: Tue, 14 Dec 2004 16:26:06 -0600 (CST)
-From: Kumar Gala <galak@linen.sps.mot.com>
-To: linus@osdl.org
-Cc: akpm@osdl.org, linuxppc-embedded@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: [PATCH][PPC32] Fix SPE state corruption on e500
-Message-ID: <Pine.LNX.4.61.0412141602320.17357@linen.sps.mot.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 14 Dec 2004 17:28:16 -0500
+Date: Tue, 14 Dec 2004 23:28:04 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: George Anzinger <george@mvista.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Lee Revell <rlrevell@joe-job.com>,
+       LKML <linux-kernel@vger.kernel.org>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc3-mm1-V0.7.33-0
+Message-ID: <20041214222804.GC22043@elte.hu>
+References: <20041124101626.GA31788@elte.hu> <20041203205807.GA25578@elte.hu> <20041207132927.GA4846@elte.hu> <20041207141123.GA12025@elte.hu> <20041214132834.GA32390@elte.hu> <1103052853.3582.46.camel@localhost.localdomain> <1103054908.14699.20.camel@krustophenia.net> <1103057144.3582.51.camel@localhost.localdomain> <20041214211828.GA17216@elte.hu> <41BF60A1.1080606@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41BF60A1.1080606@mvista.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
 
-Unfortunately the restoring of SPE state was causing data corruption since 
-we were restoring based on the size of the altivec context and not 
-the SPE context.  Also, fixed setting of last_task_used_spe on 
-start_thread, flush_thread, and exit_thread.
+* George Anzinger <george@mvista.com> wrote:
 
-Patch should go in for 2.6.10.
+> >the two projects are obviously complementary and i have no intention to
+> >reinvent the wheel in any way. Best would be to bring hires timers up to
+> >upstream-mergable state (independently of the -RT patch) and ask Andrew
+> >to include it in -mm, then i'd port -RT to it automatically.
+> 
+> Well, I guess I am just backward :) I plan to port it to the current
+> RT today or tomorrow (if all goes well).  I will then work on the
+> changes needed to get it into -mm.  Guess I will be supporting two
+> versions for a bit...
 
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+very good - i can carry it along in -RT, and your VST bits are certainly
+an immediate bonus feature for the non-hard-RT (=laptop, desktop, audio)
+folks too.
 
---
-
-diff -Nru a/arch/ppc/kernel/process.c b/arch/ppc/kernel/process.c
---- a/arch/ppc/kernel/process.c	2004-12-14 15:59:07 -06:00
-+++ b/arch/ppc/kernel/process.c	2004-12-14 15:59:07 -06:00
-@@ -321,7 +321,7 @@
- 	trap = TRAP(regs);
- 	if (trap == 0x300 || trap == 0x600)
- 		printk("DAR: %08lX, DSISR: %08lX\n", regs->dar, regs->dsisr);
--	printk("TASK = %p[%d] '%s' THREAD: %p",
-+	printk("TASK = %p[%d] '%s' THREAD: %p\n",
- 	       current, current->pid, current->comm, current->thread_info);
- 	printk("Last syscall: %ld ", current->thread.last_syscall);
- 
-@@ -370,6 +370,10 @@
- 		last_task_used_math = NULL;
- 	if (last_task_used_altivec == current)
- 		last_task_used_altivec = NULL;
-+#ifdef CONFIG_SPE
-+	if (last_task_used_spe == current)
-+		last_task_used_spe = NULL;
-+#endif
- }
- 
- void flush_thread(void)
-@@ -378,6 +382,10 @@
- 		last_task_used_math = NULL;
- 	if (last_task_used_altivec == current)
- 		last_task_used_altivec = NULL;
-+#ifdef CONFIG_SPE
-+	if (last_task_used_spe == current)
-+		last_task_used_spe = NULL;
-+#endif
- }
- 
- void
-@@ -480,6 +488,10 @@
- 		last_task_used_math = NULL;
- 	if (last_task_used_altivec == current)
- 		last_task_used_altivec = NULL;
-+#ifdef CONFIG_SPE
-+	if (last_task_used_spe == current)
-+		last_task_used_spe = NULL;
-+#endif
- 	memset(current->thread.fpr, 0, sizeof(current->thread.fpr));
- 	current->thread.fpscr = 0;
- #ifdef CONFIG_ALTIVEC
-diff -Nru a/arch/ppc/kernel/signal.c b/arch/ppc/kernel/signal.c
---- a/arch/ppc/kernel/signal.c	2004-12-14 15:59:07 -06:00
-+++ b/arch/ppc/kernel/signal.c	2004-12-14 15:59:07 -06:00
-@@ -319,7 +319,7 @@
- 	if (!__get_user(msr, &sr->mc_gregs[PT_MSR]) && (msr & MSR_SPE) != 0) {
- 		/* restore spe registers from the stack */
- 		if (__copy_from_user(current->thread.evr, &sr->mc_vregs,
--				     sizeof(sr->mc_vregs)))
-+				     ELF_NEVRREG * sizeof(u32)))
- 			return 1;
- 	} else if (current->thread.used_spe)
- 		memset(&current->thread.evr, 0, ELF_NEVRREG * sizeof(u32));
+	Ingo

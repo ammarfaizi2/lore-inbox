@@ -1,148 +1,217 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288780AbSAIEXk>; Tue, 8 Jan 2002 23:23:40 -0500
+	id <S288788AbSAIEhB>; Tue, 8 Jan 2002 23:37:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288781AbSAIEXa>; Tue, 8 Jan 2002 23:23:30 -0500
-Received: from codeblau.walledcity.de ([212.84.209.34]:51470 "EHLO codeblau.de")
-	by vger.kernel.org with ESMTP id <S288780AbSAIEXR>;
-	Tue, 8 Jan 2002 23:23:17 -0500
-Date: Wed, 9 Jan 2002 05:23:31 +0100
-From: Felix von Leitner <felix-dietlibc@fefe.de>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, andersen@codepoet.org
-Subject: Re: [RFC] klibc requirements
-Message-ID: <20020109042331.GB31644@codeblau.de>
-Mail-Followup-To: felix-dietlibc@fefe.de, linux-kernel@vger.rutgers.edu
-In-Reply-To: <20020108192450.GA14734@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020108192450.GA14734@kroah.com>
-User-Agent: Mutt/1.3.24i
+	id <S288783AbSAIEgx>; Tue, 8 Jan 2002 23:36:53 -0500
+Received: from smtp018.mail.yahoo.com ([216.136.174.115]:43015 "HELO
+	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S288480AbSAIEgh>; Tue, 8 Jan 2002 23:36:37 -0500
+Message-ID: <003801c198e0$5a85a9d0$4b53cc8e@zhujj>
+From: "Michael Zhu" <mylinuxk@yahoo.ca>
+To: "Jens Axboe" <axboe@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020107213749.18573.qmail@web14911.mail.yahoo.com> <20020108081515.A19380@suse.de>
+Subject: Re: About the request queue of block device
+Date: Tue, 8 Jan 2002 23:36:27 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus spake Greg KH (greg@kroah.com):
-> First off, I do not want to fork off yet another tiny libc
-> implementation,
+Hi, Jens, thank you very much for you kindly reply.
+Your advice is very helpful to me. I've made some
+revisions according to your advice. The attachment
+contains some functions of mine. I don't know whether
+I am right. I've done some test, but failed.
 
-It's good to hear that.
+In your mail you said that I can replace floppy
+blk_dev
+make_request_fn with my own that does the encryption
+on write and stacks a new buffer head on top of the
+other for READ, defining my own b_end_io function for
+that to decrypt on READ end I/O. How can I stacks a
+new buffer head on top of the other for READ? Is it
+necessary? How to implement this? Please give me a
+hand on this. Thank you very much.
 
-> Now that people are riled up, and want to talk about it, let's try to
-> describe the problem and see if any of the existing libc implementations
-> help solve them.  Here's what I see as a list of requirements for a
-> klibc like library that can be used by initramfs programs (please,
-> everyone else jump in here with their requirements too):
+BTW, I've browsed the source code of __make_request()
+function in the ll_rw_blk.c file. Do I need to call
+the 'bh = create_bounce(rw, bh);' before I can access
+the bh->b_data? You know the buffer data may point
+into the high memory. My failure is because of this?
 
-My understanding of what "initramfs programs" actually means is vague at
-best.  Are these just programs that are intended to work in an initial
-ram disk?  Or is it a special collection that is included in the kernel
-distribution?
+I am so sorry to take you so much time and trouble.
+But I really need your help. Thank you very much.
 
-I don't see why we would need to include those programs with the kernel.
-The kernel tries hard to provide backwards compatibility to old versions
-of syscalls that have changed over the years.  That's why we _have_ a
-standard.  Also, we don't ship glibc with the kernel sources, and we
-didn't when our libc was Linux specific.
+Michael
 
-If we follow that argumentation and are talking here about programs that
-aren't included in the kernel, why demand a specific libc for them at
-all?  Of course glibc is out of the question, but both the kernel API
-_and_ the libc API are standardized.  It does not make sense to write
-code that demands a specific libc if it can be avoided.  If you need
-any special syscall supported that is not yet part of the diet libc or
-uClibc, Eric and I will probably be glad to add support for it.
 
-> 	- portable, runs on all platforms that the kernel currently
-> 	  works on, but doesn't have to run on any non-Linux based OS.
-> 	- tiny.  If we link statically it should be _small_.  Both
-> 	  dietLibc and uClibc are good examples of the size goal.  We do
-> 	  not need to support all of POSIX here, only what we really
-> 	  need.
+P.S.: The following is my source code.
 
-When you link statically, it does not matter whether the libc also
-supports the rest of POSIX.  The size of libc.a does not matter.  It
-only matters which parts are referenced.  Since we are talking about new
-software specifically written for Linux and with the goal to be small,
-there are no legacy requirements to cater to.  We can write code without
-printf and stdio, for example.  Also, we probably don't need regular
-expressions or DNS.  Those are the big space hogs when linking
-statically against a libc.  In the diet libc, all of the above are very
-small, but avoiding them in the first place is better then optimizing
-them for small size.
 
-And if we don't use all that bloaty code, it does not matter if we use
-diet libc, uClibc or tomorrow's next great small libc.
+asmlinkage void kti_b_end_io(struct buffer_head *bh, int uptodate)
+{
+        int j;
+        pmy_b_end_io private;
 
-> 	- If we end up having a lot of different programs in initramfs,
-> 	  a dynamic version of the library should be available.  This
-> 	  shared library should be _small_ and only contain the symbols
-> 	  that are needed by the programs to run.  This should be able
-> 	  to be determined at build time.
+        private = bh->b_private;
+        bh->b_private = NULL;
+        bh->b_end_io = private->b_end_io;
 
-This may look like a good idea, but dynamic linking should be avoided.
-Trust me on this.  While it is possible to squeeze the dynamic loader
-down to below 10k, 10k really is a lot of code.  And empty program with
-the diet libc is way below 1k on x86.  So to reap the benefit of dynamic
-linking, you would need a lot of programs.  Also please note that -fPIC
-makes code larger.  And we need to keep symbols around, which makes up a
-substantial part of the shared diet libc.
+        if(uptodate){
+                for(j = 0; j < bh->b_size; j ++)
+                        bh->b_data[j] ^= 0xaa;
+        }
 
-How many programs are we talking about here?  And what should they do?
+        bh->b_end_io(bh, uptodate);
 
-You can make a libc.so that only contains the superset of the symbols
-used by your initramdisk programs.  But then you have to remake the
-libc.so if you add another program, so that's not very flexible.
+        kfree(private);
+}
 
-What I want to say here is: don't make rash decisions.  Profile, don't
-speculate.  Also, don't underestimate the amount of time dynamic linking
-takes.  It may seem insignificant on today's monster CPUs, but it isn't.
-I optimized my boot sequence to below 3 seconds from the start of init
-to the shell prompt on tty1 (the other ttys are spawned immediately).
-All the dynamic linking and shell script overhead adds up quickly.
+asmlinkage int (*original_make_request_fn)(request_queue_t * q, int rw,
+                                  struct buffer_head *bh);
 
-Please read http://www.fefe.de/dietlibc/talk.pdf for some more info
-(slightly less than 100k).
+asmlinkage pmy_b_end_io kti_get_private(void)
+{
+	pmy_b_end_io ptr = NULL;
+        while (!ptr) {
+        	ptr = (pmy_b_end_io)kmalloc(sizeof(my_b_end_io), GFP_NOIO);
+                if(!ptr) {
+                	__set_current_state(TASK_RUNNING);
+                                current->policy |= SCHED_YIELD;
+                                schedule();
+                }
+        }
 
-> 	- It has to "not suck" :)  This is a lovely relative feeling
-> 	  about the quality of the code base, ease at building the
-> 	  library, ease at understanding the code, and responsiveness of
-> 	  the developers of the library.
+        return ptr;
+}
 
-While I am of course sure to be the libc developer that sucks least ;),
-I again would advise not to rush to any hasty decisions.  Don't bind
-yourself to a libc unless you have to or there are any benefits to be
-gained.  I fail to see the benefits.  Currently, the diet libc produces
-the smallest binaries by a healthy margin, but binding yourself to the
-diet libc does not gain you anything over using APIs that are portable
-across all libcs.  In fact, I avoided offering any diet libc specific
-APIs at all (with the exception of write12.h).
+asmlinkage int kti_make_request_fn(request_queue_t * q, int rw,
+                             struct buffer_head *bh)
+{
+        int retcode;
+        int i;
+        pmy_b_end_io private;
 
-> I had asked the dietLibc authors about the ability of tweaking their
-> library into something that resembles the above, but didn't get a
-> response.
+        switch (rw) {
+            case READA:
+            case READ:
+                private = kti_get_private();
+                private->bh = bh;
+                private->b_end_io = bh->b_end_io;
+                bh->b_private = private;
 
-Huh?
-What email are you talking about here?
+                bh->b_end_io = kti_b_end_io;
 
-Your initial email asked whether you could use parts of the diet libc
-for diethotplug and for tweaking, and I said OK.
+                break;
 
-> Hence my post.  I would love to work with the authors of an
-> existing libc to build such a library, as I have other things I would
-> rather work on than a libc :)
+            case WRITE:
+                for(i = 0; i < bh->b_size; i ++)
+                        bh->b_data[i] ^= 0xaa;
 
-Before doing any real work, we need to get the specification straight.
-What exactly do we need?  The initrd stuff is too vague for my taste.
-How many programs do we want to have?  What should those programs do?
+                break;
+        }
 
-> Comments from the various libc authors?  Comments from other kernel
-> developers about requirements and goals they would like to see from such
-> a libc?
+    retcode = original_make_request_fn(q, rw, bh);
+    return retcode;
+}
 
-I think you need to ask initrd users.
-My understanding was that people want to use the IP autoconfiguration
-stuff from the kernel to initrd.  Is that still so?  What other programs
-are needed?
+int init_module()
+{
+    int i;
 
-Felix
+    spin_lock_irq(&io_request_lock);
+    original_make_request_fn = blk_dev[2].request_queue.make_request_fn;
+    blk_dev[2].request_queue.make_request_fn = kti_make_request_fn;
+    spin_unlock_irq(&io_request_lock);
+
+    return 0;
+}
+
+void cleanup_module()
+{
+    spin_lock_irq(&io_request_lock);
+    blk_dev[2].request_queue.make_request_fn = original_make_request_fn;
+    spin_unlock_irq(&io_request_lock);
+}
+
+
+
+----- Original Message ----- 
+From: "Jens Axboe" <axboe@suse.de>
+To: "Michael Zhu" <mylinuxk@yahoo.ca>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Monday, January 07, 2002 11:15 PM
+Subject: Re: About the request queue of block device
+
+
+> On Mon, Jan 07 2002, Michael Zhu wrote:
+> > Hello, everyone, I have a question about the request
+> > queue of block device.
+> > 
+> > I intercept the request function of floppy disk device
+> > by changing the pointer, 
+> >  "blk_dev[2].request_queue.request_fn", in my kernel
+> > module. The following is the source code.
+> > 
+> > original_request_fn_proc =
+> > blk_dev[2].request_queue.request_fn;
+> > blk_dev[2].request_queue.request_fn =
+> > my_request_fn_proc;
+> 
+> I'm sure you are protecting access to the queues appropriately?
+> 
+> > In my own my_request_fn_proc() I use the "req =
+> > blkdev_entry_next_request(&rq->queue_head)" function
+> > to get the pointer of the request structure. When
+> > req->cmd is WRITE I encrypt all the b_data buffer of
+> > the buffer header. Then I call the
+> > original_request_fn_proc(). And it works. The data on
+> > the floppy disk is some kind of cipher data. The
+> 
+> Irk... You are effectively killing plugging of the floppy driver with
+> this approach. You do realise that when your replacement request_fn is
+> called, there are probably more than one request on the queue?
+> 
+> > trouble is when the req->cmd is READ. I don't know
+> > whether the b_data buffer contains the data read from
+> > the floppy disk after I call the
+> > original_request_fn_proc() function. When read a block
+> > from the block device, where is the data is placed?
+> 
+> If it's quick, then it's _probably_ there. The problem is, you'll
+> basically have to iterate all buffers in the request and do get_bh on
+> them prior to submitting to the original floppy request_fn, then
+> afterwards wait on completion (out of your own request_fn context). You
+> should probably off load that to a dedicated thread. And then do
+> processing on a make_request_fn basis instead so you only have to deal
+> with single buffer_heads at the time, ie replace floppy blk_dev
+> make_request_fn with your own that does the encryption on write and
+> stacks a new buffer head on top of the other for READ, defining your own
+> b_end_io function for that to decrypt on READ end I/O.
+> 
+> Any particular reason your not using the loop device and just writing
+> your own crypt plugin??
+> 
+> > In my module I use the blkdev_next_request() function
+> > to get the next request. When I want to do the same
+> > thing to this next request, the Linux kernel
+> > deadlocked. I must reboot the OS. What is wrong?
+> 
+> You are probably walking right into the queue head and using that as a
+> request, boom.
+> 
+> -- 
+> Jens Axboe
+
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
+

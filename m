@@ -1,79 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132131AbRAPXFB>; Tue, 16 Jan 2001 18:05:01 -0500
+	id <S132416AbRAPXNX>; Tue, 16 Jan 2001 18:13:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132600AbRAPXEv>; Tue, 16 Jan 2001 18:04:51 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:19048 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S132131AbRAPXEk>; Tue, 16 Jan 2001 18:04:40 -0500
-Date: Wed, 17 Jan 2001 00:05:10 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: tytso@valinux.com
-Cc: linux-kernel@vger.kernel.org, alan@redhat.com, aviro@redhat.com
-Subject: Re: Locking problem in 2.2.18/19-pre7? (fs/inode.c and fs/dcache.c)
-Message-ID: <20010117000510.E19265@athlon.random>
-In-Reply-To: <E14IbPR-0007Ye-00@beefcake.hdqt.valinux.com> <20010116203334.C19265@athlon.random> <E14IcR5-0008HB-00@beefcake.hdqt.valinux.com>
-Mime-Version: 1.0
+	id <S132600AbRAPXNO>; Tue, 16 Jan 2001 18:13:14 -0500
+Received: from palrel3.hp.com ([156.153.255.226]:37650 "HELO palrel3.hp.com")
+	by vger.kernel.org with SMTP id <S132416AbRAPXNI>;
+	Tue, 16 Jan 2001 18:13:08 -0500
+Message-ID: <3A64D582.6CFB35D@cup.hp.com>
+Date: Tue, 16 Jan 2001 15:13:06 -0800
+From: Rick Jones <raj@cup.hp.com>
+Organization: the Unofficial HP
+X-Mailer: Mozilla 4.75 [en] (X11; U; HP-UX B.11.00 9000/785)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [Fwd: Is sendfile all that sexy? (fwd)]
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E14IcR5-0008HB-00@beefcake.hdqt.valinux.com>; from tytso@valinux.com on Tue, Jan 16, 2001 at 12:10:31PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 16, 2001 at 12:10:31PM -0800, Theodore Y. Ts'o wrote:
-> Actually, looking at the fast path of down_trylock compared to huge mess
-> of code that's currently there, I actually suspect that using
-> down_trylock() would actually be faster, since in the fast path case
-> there would only two assembly language instructions, whereas the code
+> : >Agreed -- the hard-coded Nagle algorithm makes no sense these days.
+> :
+> : The fact I dislike about the HP-UX implementation is that it is so
+> : _obviously_ stupid.
+> :
+> : And I have to say that I absolutely despise the BSD people.  They did
+> : sendfile() after both Linux and HP-UX had done it, and they must have
+> : known about both implementations.  And they chose the HP-UX braindamage,
+> : and even brag about the fact that they were stupid and didn't understand
+> : TCP_CORK (they don't say so in those exact words, of course - they just
+> : show that they were stupid and clueless by the things they brag about).
+> :
+> : Oh, well. Not everybody can be as goodlooking as me. It's a curse.
 
-The fast path of the current code never hits the "huge mess" (aka wait_event
-done with a seralizing spinlock). The main difference is that down() is using
-an atomic logic, while `int block' runs out of order and it's serialized only
-by the spinlock. I personally prefer current version because serializing
-instructions are usually more expensive and I don't consider "huge mess" the
-wait event interface as it makes perfect sense there IMHO.
+nor it would seem, as humble :)
 
-> Ah, OK.  Well, we're currently tracking down a slow inode leak which is
-> only happening on SMP machines, especially our mailhubs.  It's gradual,
+Hello Linus, my name is Rick Jones. I am the person at Hewlett-Packard
+who drafted the "so _obviously_ stupid" sendfile() interface of HP-UX.
+Some of your critique (quoted above) found its way to my inbox and I
+thought I would introduce myself to you to give you an opportunity to
+expand a bit on your criticism. In return, if you like, I would be more
+than happy to describe a bit of the history of sendfile() on HP-UX.
+Perhaps (though I cannot say with any certainty) it will help explain
+why HP-UX sendfile() is spec'd the way it is.
 
-How long does it takes to reproduce? BTW, I assume you can reproduce also with
-vanilla 2.2.x latest kernels.
+rick jones
+never forget what leads to the downfall of the protagonist in Greek
+tragedy...
 
-I suspect that the problem is the caller that is missing an iput or dput. (it
-maybe also an userspace application, just check that nothing gets fixed by
-SYSRQ+I before using the Big Red Button)
-
-Note also that killing all apps won't decrease of 1 the number of inodes
-allocated.  The inodes allocated will _never_ shrink (that's why we need the
-hard limit inode-max).  Deleting all in-use inodes is the only way to have them
-to showup in the freelist (and they still won't be freed but at least you'll
-see that they're not leaked somewhere ;). So the debugging isn't very friendly
-unless you play with the sources (2.4.x is much better).
-
-> but if you don't reboot the machine before you run out of inodes, it
-> will print the "inode-max limit reach" message, and then shortly after
-> that lock up the entire machine locks up until someone can come in and
-> hit the Big Red Button.  Monitoring the machine before it locks up, we
-
-If SYSRQ+I doesn't help, can you try to reproduce with vanilla 2.2.19pre7aa1
-(that also sets the inode-max and the inode-hash to a rasonable value for big
-boxes, and it fixes the inode-hash function to avoid huge collisions)?
-
-Recent 2.2.xaa are running on the same heavily loaded SMP boxes that was able
-to reproduce the common code inode leak we had in mid 2.2.x.  They doesn't show
-problems anymore since the last fix (that is the one we discussed in this
-thread). So I tend to believe this could be a bug in some non-common or
-unofficial piece of code or in userspace. But hey, this is just a guess.
-
-> the machine died.  (Yeah, we could put a reboot command into crontab,
-> but you should only need to do hacks like that on Windows NT machines.
-> :-)
-
-;)
-
-Andrea
+-- 
+ftp://ftp.cup.hp.com/dist/networking/misc/rachel/
+these opinions are mine, all mine; HP might not want them anyway... :)
+feel free to email, OR post, but please do NOT do BOTH...
+my email address is raj in the cup.hp.com domain...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

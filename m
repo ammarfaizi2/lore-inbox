@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272616AbTHFVYE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 17:24:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272619AbTHFVYE
+	id S272619AbTHFVZX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 17:25:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272622AbTHFVZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 17:24:04 -0400
-Received: from mail.kroah.org ([65.200.24.183]:26843 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S272616AbTHFVYB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 17:24:01 -0400
-Date: Wed, 6 Aug 2003 14:23:36 -0700
-From: Greg KH <greg@kroah.com>
-To: Micha Feigin <michf@post.tau.ac.il>
-Cc: Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: usbcore module can't unload after swsusp
-Message-ID: <20030806212335.GA7387@kroah.com>
-References: <1060197664.1368.14.camel@litshi.luna.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 6 Aug 2003 17:25:23 -0400
+Received: from fepC.post.tele.dk ([195.41.46.147]:44252 "EHLO
+	fepC.post.tele.dk") by vger.kernel.org with ESMTP id S272619AbTHFVZR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 17:25:17 -0400
+From: Henrik Raeder Clausen <henrik@fangorn.dk>
+To: linux-kernel@vger.kernel.org
+Subject: ieee1394 (Firewire) driver problem
+Date: Wed, 6 Aug 2003 23:25:15 +0200
+User-Agent: KMail/1.5
+References: <3F306858.1040202@mrs.umn.edu> <20030806180427.GC21290@matchmail.com> <20030806141905.40126313.akpm@osdl.org>
+In-Reply-To: <20030806141905.40126313.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <1060197664.1368.14.camel@litshi.luna.local>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200308062325.15502.henrik@fangorn.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 06, 2003 at 10:42:06PM +0300, Micha Feigin wrote:
-> I am running a patched kernel 2.4.21 with acpi and swsusp ver 1.0.3
-> with usb compiled in as a module.
-> 
-> When kernel loads for the first time everything works fine, all usb
-> modules can be loaded and unloaded properly. After suspending and
-> restarting, the computer comes up fine and everything works. The
-> problem is that at this point, when I try to unload the usbcore module
-> it gets to the point of calling usb_hub_cleanup in drivers/usb/hub.c.
-> At this points it tried to kill khubd with killproc, which works fine
-> (the process is stoped), with a return value of 0. The problem is that
-> at this point the function locks on the call
-> wait_for_completion(&khubd_exited); which never returns, and rmmod gets
-> locked. I tried changing the DECLARE_COMPLETION call so that it will be
-> redone each time the module starts but it didn't solve the problem. Any
-> ideas on how to further persue this or whether there is a known
-> solution?
+   Hi
 
-Unload the usb modules before suspending.
+   This is my first post here, bear with me if I'm not providing enough 
+detail.
 
-Good luck,
+   I have found what seems to be a problem with the ieee1394 (Firewire) driver 
+in 2.6.0-test2. The driver works (for me) only if compiled as a module, not 
+compiled statically into the kernel. When compiled statically, it aborts 
+loading complaining that it cannot find the module. This module is of course 
+not around, since the driver is compiled in.
 
-greg k-h
+   The problem has been there since I started toying around with 2.5.3X. 
+
+    My computer is a generic Athlon XP 1800+, with a very generic (read: 
+cheapo) Firewire controller. 
+
+
+   Have fun!
+
+	Henrik Ræder Clausen
+	Copenhagen

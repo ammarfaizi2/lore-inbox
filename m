@@ -1,142 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310487AbSCCAZ6>; Sat, 2 Mar 2002 19:25:58 -0500
+	id <S310488AbSCCAe2>; Sat, 2 Mar 2002 19:34:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310488AbSCCAZj>; Sat, 2 Mar 2002 19:25:39 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:40709
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S310487AbSCCAZe>; Sat, 2 Mar 2002 19:25:34 -0500
-Date: Sat, 2 Mar 2002 16:25:05 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: john slee <indigoid@higherplane.net>
-cc: Hans-Peter Jansen <hpj@urpla.net>, Henrik Lassen <henrik@lassen.dk>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        ataraid-list@redhat.com
-Subject: Re: Please
-In-Reply-To: <20020302230317.GB32121@higherplane.net>
-Message-ID: <Pine.LNX.4.10.10203021610330.5944-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S310489AbSCCAeS>; Sat, 2 Mar 2002 19:34:18 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16397 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S310488AbSCCAeH>; Sat, 2 Mar 2002 19:34:07 -0500
+Date: Sun, 3 Mar 2002 00:33:51 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: erich@uruk.org
+Cc: Julian Anastasov <ja@ssi.bg>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Szekeres Bela <szekeres@lhsystems.hu>,
+        Daniel Gryniewicz <dang@fprintf.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
+Subject: Re: Network Security hole (was -> Re: arp bug )
+Message-ID: <20020303003351.B6120@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.44.0203030035030.9147-100000@u.domain.uli> <E16hJki-0000rY-00@trillium-hollow.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16hJki-0000rY-00@trillium-hollow.org>; from erich@uruk.org on Sat, Mar 02, 2002 at 04:21:24PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Mar 2002, john slee wrote:
+On Sat, Mar 02, 2002 at 04:21:24PM -0800, erich@uruk.org wrote:
+> The fact that the routing layer and application layers of Linux's
+> TCP/IP stack are one and the same is a difficulty here which the
+> IP firewalling code in Linux does not fix.  I.e. if I wanted to
+> have routing as well, but not accept any packets internally *not*
+> destined for my interface, I'm not sure how to specify it without
+> something like TCP wrappers, as sleazy as they can be, and they
+> don't offer this kind of capability in general as is.
 
-> On Sat, Mar 02, 2002 at 04:43:58PM +0100, Hans-Peter Jansen wrote:
-> > The problem is called Andre Hedrick, a guy who is talking in miracles,
-> > but seems to be unable to fix either the issues with:
-> >  - the single TX4 with multiple PDC20270
-> > nor:
-> >  - multiple TX2 with PDC20268
-> > 
-> > or at least ignores further communication on that problems, if you
-> > don't use some magic storage peoples language.(*) TM in a parallel 
-> > universe, not too far from here...
-> 
-> so you're going to fix the problems yourself then?
-> 
-> j.
+Linux 2.4 netfilter:
 
-You mean this does not work for you?  Serious question, not being flip.
+Incoming                                                 Outgoing
+interface                                                interface
+  ----+------------------- FORWARD -----------------+------->
+      |                                             ^
+      v                                             |
+    INPUT -------------> Application -----------> OUTPUT
 
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-AMD7441: IDE controller on PCI bus 00 dev 39
-AMD7441: chipset revision 3
-AMD7441: not 100% native mode: will probe irqs later
-AMD7441: disabling single-word DMA support (revision < C4)
-    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:pio
-PDC20270: IDE controller on PCI bus 03 dev 08
-PDC20270: chipset revision 2
-PDC20270: not 100% native mode: will probe irqs later
-    ide2: BM-DMA at 0x9000-0x9007, BIOS settings: hde:pio, hdf:pio
-    ide3: BM-DMA at 0x9008-0x900f, BIOS settings: hdg:pio, hdh:pio
-PDC20270: IDE controller on PCI bus 03 dev 10
-PDC20270: chipset revision 2
-PDC20270: not 100% native mode: will probe irqs later
-PDC20270: ROM enabled at 0x000dc000
-    ide4: BM-DMA at 0xa400-0xa407, BIOS settings: hdi:pio, hdj:pio
-    ide5: BM-DMA at 0xa408-0xa40f, BIOS settings: hdk:pio, hdl:pio
-hda: IBM-DTLA-307075, ATA DISK drive
-hdc: LTN242, ATAPI CD/DVD-ROM drive
-hde: Maxtor 4G160J8, ATA DISK drive
-hdg: Maxtor 4G160J8, ATA DISK drive
-hdi: Maxtor 4G160J8, ATA DISK drive
-hdk: Maxtor 4G160J8, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-ide2 at 0x8000-0x8007,0x8402 on irq 11
-ide3 at 0x8800-0x8807,0x8c02 on irq 11
-ide4 at 0x9400-0x9407,0x9802 on irq 11
-ide5 at 0x9c00-0x9c07,0xa002 on irq 11
-hda: 150136560 sectors (76870 MB) w/1916KiB Cache, CHS=9345/255/63, UDMA(100)
-hde: 320173056 sectors (163929 MB) w/2048KiB Cache, CHS=19929/255/63, UDMA(100)
-hdg: 320173056 sectors (163929 MB) w/2048KiB Cache, CHS=19929/255/63, UDMA(100)
-hdi: 320173056 sectors (163929 MB) w/2048KiB Cache, CHS=19929/255/63, UDMA(100)
-hdk: 320173056 sectors (163929 MB) w/2048KiB Cache, CHS=19929/255/63, UDMA(100)
-Partition check:
- /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 < p5 p6 p7 p8 p9 p10 >
- /dev/ide/host2/bus0/target0/lun0: p1
- /dev/ide/host2/bus1/target0/lun0: p1
- /dev/ide/host4/bus0/target0/lun0: p1
- /dev/ide/host4/bus1/target0/lun0: p1
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
+The names in capitals are the names of the tables.  You can control
+packets that the local machine sees completely independently of what
+gets routed through the machine with a kernel supporting iptables
+by adding the appropriate rules to the input and forward tables.
 
-
-
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-AMD7441: IDE controller on PCI bus 00 dev 39
-AMD7441: chipset revision 3
-AMD7441: not 100% native mode: will probe irqs later
-AMD7441: disabling single-word DMA support (revision < C4)
-    ide0: BM-DMA at 0xb000-0xb007, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xb008-0xb00f, BIOS settings: hdc:DMA, hdd:pio
-PDC20269: IDE controller on PCI bus 00 dev 40
-PDC20269: chipset revision 2
-PDC20269: not 100% native mode: will probe irqs later
-    ide2: BM-DMA at 0xd400-0xd407, BIOS settings: hde:pio, hdf:pio
-    ide3: BM-DMA at 0xd408-0xd40f, BIOS settings: hdg:pio, hdh:pio
-PDC20269: IDE controller on PCI bus 00 dev 48
-PDC20269: chipset revision 2
-PDC20269: not 100% native mode: will probe irqs later
-    ide4: BM-DMA at 0xe800-0xe807, BIOS settings: hdi:pio, hdj:pio
-    ide5: BM-DMA at 0xe808-0xe80f, BIOS settings: hdk:pio, hdl:pio
-hda: IBM-DTLA-307075, ATA DISK drive
-hdc: LTN242, ATAPI CD/DVD-ROM drive
-hde: Maxtor 4G160J8, ATA DISK drive
-hdg: Maxtor 4G160J8, ATA DISK drive
-hdi: Maxtor 4G160J8, ATA DISK drive
-hdk: Maxtor 4G160J8, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-ide2 at 0xc400-0xc407,0xc802 on irq 10
-ide3 at 0xcc00-0xcc07,0xd002 on irq 10
-ide4 at 0xd800-0xd807,0xdc02 on irq 11
-ide5 at 0xe000-0xe007,0xe402 on irq 11
-hda: 150136560 sectors (76870 MB) w/1916KiB Cache, CHS=9345/255/63, UDMA(100)
-hde: 320173056 sectors (163929 MB) w/2048KiB Cache, CHS=19929/255/63, UDMA(133)
-hdg: 320173056 sectors (163929 MB) w/2048KiB Cache, CHS=19929/255/63, UDMA(133)
-hdi: 320173056 sectors (163929 MB) w/2048KiB Cache, CHS=19929/255/63, UDMA(133)
-hdk: 320173056 sectors (163929 MB) w/2048KiB Cache, CHS=19929/255/63, UDMA(133)
-Partition check:
- /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 < p5 p6 p7 p8 p9 p10 >
- /dev/ide/host2/bus0/target0/lun0: p1
- /dev/ide/host2/bus1/target0/lun0: p1
- /dev/ide/host4/bus0/target0/lun0: p1
- /dev/ide/host4/bus1/target0/lun0: p1
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-
-
-Clearly they work, the obvious point that is missed is the work is not
-being accepted.  Oh and I am human, too, regardless what most think or
-hate about me.
-
-Regards,
-
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

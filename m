@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271964AbRIDMor>; Tue, 4 Sep 2001 08:44:47 -0400
+	id <S271962AbRIDMnQ>; Tue, 4 Sep 2001 08:43:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271960AbRIDMog>; Tue, 4 Sep 2001 08:44:36 -0400
-Received: from ha1.rdc2.nsw.optushome.com.au ([203.164.2.50]:23783 "EHLO
-	mss.rdc2.nsw.optushome.com.au") by vger.kernel.org with ESMTP
-	id <S271961AbRIDMo2>; Tue, 4 Sep 2001 08:44:28 -0400
-Subject: CPU context corrupt?
-From: Aquila <aquila@hypox.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S271961AbRIDMnH>; Tue, 4 Sep 2001 08:43:07 -0400
+Received: from [144.137.83.84] ([144.137.83.84]:54262 "EHLO e4.eyal.emu.id.au")
+	by vger.kernel.org with ESMTP id <S271962AbRIDMmw>;
+	Tue, 4 Sep 2001 08:42:52 -0400
+Message-ID: <3B94C8A9.EA7D4E72@eyal.emu.id.au>
+Date: Tue, 04 Sep 2001 22:27:21 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jari Ruusu <jari.ruusu@pp.inet.fi>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Announce loop-AES-v1.4d file/swap crypto package
+In-Reply-To: <3B93B32A.69D25916@pp.inet.fi> <3B93EE69.5674035F@eyal.emu.id.au> <3B940291.C752F45B@pp.inet.fi>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13 (Preview Release)
-Date: 04 Sep 2001 22:33:08 +1000
-Message-Id: <999606788.1571.12.camel@hamlet>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Jari Ruusu wrote:
+> 
+> Eyal Lebedinsky wrote:
+> > Jari Ruusu wrote:
+> > > In short: If file and swap crypto is all you need, this package is a hassle
+> > > free replacement for international crypto patch and HVR's crypto-api.
+> >
+> > 1) It claims to allow you to specify the kernel sources dir, but it then
+> > runs 'depmod' without a nominated version which is only valid if you
+> > are building for the running kernel. I now have it doing
+> >         depmod -ae $(KERNELRELEASE)
+> 
+> I will fix that in next release. However, most systems (if not all) run
+> depmod from bootup initialization scripts. Depmod from the Makefile is only
+> needed when you intend to use the driver immediately without rebooting.
 
-I have had this problem quite a while now: when playing tribes2 or when
-a particular CPU intensive xscreensaver is running, X would often hang.
-I used to be able to ssh from another box or use SysRq-K to kill X and
-restart (but I never figured out what the problem was).
+Problem is that one gets tons of errors due to the use of the wrong
+kernel.
+The exact way for doing it right is actually:
+	depmod -ae $(KERNELRELEASE) -F $(LS)/System.map
 
-Ever since upgrading to 2.4.9-ac3 (from 2.4.8-ac5 I believe), whenever
-it hangs in X the computer would beep and give this message in syslog:
+> Loop-AES build instructions _require_ you to disable the loop driver in the
+> kernel. If you have two loop.o drivers, you skipped some build instructions.
 
-Sep  4 21:43:41 hamlet kernel: CPU 0: Machine Check Exception:
-0000000000000004
-Sep  4 21:43:41 hamlet kernel: Bank 1: f600200000000152 at
-7600200000000152
-Sep  4 21:43:41 hamlet kernel: Bank 2: d40040000000017a at
-540040000000017a
-Sep  4 21:43:41 hamlet kernel: Kernel panic: CPU context corrupt
+It is not in the kernel, it is in my /lib/modules as it was built
+originally.
+I want to keep it there while I play with the new module, and not lose
+the
+original. Naturally, just my preference, not everybodies.
 
-It hangs there, and SysRq-K is no longer able to kill X properly. sshd
-stops working as well. What does this message mean? Do I have faulty
-hardware? 
-
-My CPU is an Athlon 1.2Ghz, not overclocked. Any ideas what's wrong?
-
-Thanks,
-Aq.
-
-
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>

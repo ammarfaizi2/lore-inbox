@@ -1,95 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266578AbUJIGJb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266555AbUJIGiQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266578AbUJIGJb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 02:09:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266543AbUJIGHz
+	id S266555AbUJIGiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 02:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266572AbUJIGiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 02:07:55 -0400
-Received: from mail23.syd.optusnet.com.au ([211.29.133.164]:62873 "EHLO
-	mail23.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266547AbUJIFx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 01:53:26 -0400
-Message-ID: <41677CBC.7050705@kolivas.org>
-Date: Sat, 09 Oct 2004 15:53:00 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Sat, 9 Oct 2004 02:38:16 -0400
+Received: from ppsw-3.csi.cam.ac.uk ([131.111.8.133]:29653 "EHLO
+	ppsw-3.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S266555AbUJIGiO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 02:38:14 -0400
+Date: Sat, 9 Oct 2004 07:38:09 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: BlaisorBlade <blaisorblade_spam@yahoo.it>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: [patch 1/1] dm: fix printk warnings about whether %lu/%Lu is
+ right for sector_t
+In-Reply-To: <200410090204.46720.blaisorblade_spam@yahoo.it>
+Message-ID: <Pine.LNX.4.60.0410090736560.584@hermes-1.csi.cam.ac.uk>
+References: <20041008144034.EB891B557@zion.localdomain>
+ <200410082245.39119.blaisorblade_personal@yahoo.it>
+ <Pine.LNX.4.60.0410082221340.26699@hermes-1.csi.cam.ac.uk>
+ <200410090204.46720.blaisorblade_spam@yahoo.it>
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       "K.R. Foley" <kr@cybsft.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Florian Schmidt <mista.tapas@gmx.net>, Mark_H_Johnson@raytheon.com,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Subject: Re: Preemption model (was Re: voluntary-preempt-2.6.9-rc3-mm3-T3)
-References: <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu>	 <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu>	 <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu>	 <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu>	 <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu>	 <20041007105230.GA17411@elte.hu>	 <1097297824.1442.132.camel@krustophenia.net>	 <cone.1097298596.537768.1810.502@pc.kolivas.org>	 <1097299260.1442.142.camel@krustophenia.net>  <416775CD.70706@kolivas.org>	 <1097299886.1442.145.camel@krustophenia.net> <41677862.2020806@kolivas.org> <1097300995.1442.156.camel@krustophenia.net>
-In-Reply-To: <1097300995.1442.156.camel@krustophenia.net>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig5C38F097978EF73EB9E1190B"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig5C38F097978EF73EB9E1190B
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Lee Revell wrote:
-> On Sat, 2004-10-09 at 01:34, Con Kolivas wrote:
+On Sat, 9 Oct 2004, BlaisorBlade wrote:
+> On Friday 08 October 2004 23:57, Anton Altaparmakov wrote:
+> > On Fri, 8 Oct 2004, Paolo Giarrusso wrote:
+> > > On Friday 08 October 2004 22:11, Anton Altaparmakov wrote:
+> > > > On Fri, 8 Oct 2004, Andrew Morton wrote:
+> > > > > blaisorblade_spam@yahoo.it wrote:
 > 
->>Lee Revell wrote:
->>
->>>>>>>With VP and PREEMPT in general, does the scheduler always run the
->>>>>>>highest priority process, or do we only preempt if a SCHED_FIFO process
->>>>>>>is runnable?
->>>>>>
->>>>>>Always the highest priority runnable.
->>>>>>
->>>>>
->>>>>
->>>>>Hmm, interesting.  Would there be any advantage to a mode where only
->>>>>SCHED_FIFO tasks can preempt?  This seems like a much lighter way to
->>>>>solve the realtime problem.
->>>>
->>>>No, the linux scheduler has always been preemptible. PREEMPT and VP just 
->>>>allows it to preempt kernel code paths as well. It could be modified to 
->>>>do such a thing but apart from real time applications it would perform 
->>>>very badly overall.
->>>
->>>
->>>I am talking about a mode where we only allow a SCHED_FIFO process to
->>>preempt a kernel code path.  In every other case it works like !PREEMPT.
->>>
->>>This is apparently how kernel preemption worked on SVR4.
->>
->>Yes it could. If you ask nicely, Ingo might even throw in yet another 
->>config option in the kernel. It gets messy if multiple people start 
->>hacking on the same thing when it's under heavy development.
+> > Yes I know in the kernel and on i386 it makes no difference, I said that
+> > already.  But on some systems it does make a difference.  I have seen it
+> > myself and I have had it reported. 
 > 
+> > Thinking about it when I said 
+> > architectures I possibly meant to say "other Unix flavours", I think one
+> > of the *BSDs was the one where I saw the difference between %L and %ll
+> > manifest itself.
+> Ok, I thought hardware archs - for other Unixes you're right.
 > 
-> Oh, I was not going to post a patch, I don't know the code nearly well
-> enough at this point :-).  But it looks pretty straightforward.
+> Sorry for this and thanks for the lesson. Bye
+> > Sorry, it is not.  I find it somewhat strange that you choose gcc and
+> > glibc to say what is correct...  Ever heard of standards?!?
+> Yes, I heard them, I just never bought ISO standards.
 
-I was talking about me ;-)
+Just search google and you will find plenty of places offering them for 
+free download...
 
-Cheers,
-Con
+Best regards,
 
-
---------------enig5C38F097978EF73EB9E1190B
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBZ3y+ZUg7+tp6mRURAqWRAJ0erK1zSZN2hafZjCWL97GDUzOqZQCeIyd/
-enxVtyvl/q1+7Dt9vE/QEYs=
-=txQF
------END PGP SIGNATURE-----
-
---------------enig5C38F097978EF73EB9E1190B--
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

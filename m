@@ -1,72 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263012AbTC0PeG>; Thu, 27 Mar 2003 10:34:06 -0500
+	id <S263005AbTC0PlB>; Thu, 27 Mar 2003 10:41:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263028AbTC0PeG>; Thu, 27 Mar 2003 10:34:06 -0500
-Received: from jessie.softnet.si ([212.103.128.68]:42646 "EHLO softnet.si")
-	by vger.kernel.org with ESMTP id <S263012AbTC0PeE>;
-	Thu, 27 Mar 2003 10:34:04 -0500
-Date: Thu, 27 Mar 2003 16:45:23 +0100
-From: Damjan Bole <damjanbole@gmx.net>
-To: Martin Zwickel <martin.zwickel@technotrend.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21pre6: usb ports/mouse not detected
-Message-Id: <20030327164523.1030f0ff.damjanbole@gmx.net>
-In-Reply-To: <20030327142101.6a414743.martin.zwickel@technotrend.de>
-References: <20030327130546.1f1d6d1f.damjanbole@gmx.net>
-	<20030327142101.6a414743.martin.zwickel@technotrend.de>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S263025AbTC0PlB>; Thu, 27 Mar 2003 10:41:01 -0500
+Received: from mail.ithnet.com ([217.64.64.8]:4623 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S263005AbTC0PlA>;
+	Thu, 27 Mar 2003 10:41:00 -0500
+Date: Thu, 27 Mar 2003 16:52:01 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Patrick McHardy <kaber@trash.net>
+Cc: chris@sigsegv.plus.com, greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at sched.c:564! (2.4.20, 2.4.21-pre5-ac3)
+Message-Id: <20030327165201.12d2ef86.skraw@ithnet.com>
+In-Reply-To: <3E82F00F.7@trash.net>
+References: <20030326162538.GG2695@spackhandychoptubes.co.uk>
+	<20030326185236.GE24689@kroah.com>
+	<20030326192520.GH2695@spackhandychoptubes.co.uk>
+	<20030326193437.GI24689@kroah.com>
+	<20030327111600.GI2695@spackhandychoptubes.co.uk>
+	<3E82F00F.7@trash.net>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the hint, I compiled usb stuff as modules and I get little further, optical mouse light is on (successful init?) but still no go. Usb driver reports this unknown device is not claimed by any active driver. Broken compatibility with via kt266a?
+On Thu, 27 Mar 2003 13:35:27 +0100
+Patrick McHardy <kaber@trash.net> wrote:
+
+> The ISDN bug is fixed, i sent a patch to LKML and the Maintainer last week.
+> I've attached the fix again, the one in isdn_ppp.c is responsible for 
+> the BUG()s.
+
+It seems I can confirm that. Your patch indeed fixes my problem. 
+
+Thanks a lot
+Stephan
 
 
-usb.c: registered new driver usbdevfs
-usb.c: registered new driver hub
-usb-uhci.c: $Revision: 1.275 $ time 15:31:12 Mar 27 2003
-usb-uhci.c: High bandwidth mode enabled
-usb-uhci.c: USB UHCI at I/O 0xdc00, IRQ 12
-usb-uhci.c: Detected 2 ports
-usb.c: new USB bus registered, assigned bus number 1
-hub.c: USB hub found
-hub.c: 2 ports detected
-usb-uhci.c: USB UHCI at I/O 0xd800, IRQ 12
-usb-uhci.c: Detected 2 ports
-usb.c: new USB bus registered, assigned bus number 2
-hub.c: USB hub found
-hub.c: 2 ports detected
-usb-uhci.c: USB UHCI at I/O 0xd400, IRQ 12
-usb-uhci.c: Detected 2 ports
-usb.c: new USB bus registered, assigned bus number 3
-hub.c: USB hub found
-hub.c: 2 ports detected
-usb-uhci.c: v1.275:USB Universal Host Controller Interface driver
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS 2.4-0.9.19, 19 August 2002 on ide0(3,4), internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-Real Time Clock Driver v1.10e
-hub.c: new USB device 00:11.2-2, assigned address 2
-usb.c: USB device 2 (vend/prod 0x46d/0xc00c) is not claimed by any active driver
 
-
- 
-
-On Thu, 27 Mar 2003 14:21:01 +0100
-Martin Zwickel <martin.zwickel@technotrend.de> wrote:
-
-> On Thu, 27 Mar 2003 13:05:46 +0100
-> Damjan Bole <damjanbole@gmx.net> bubbled:
-> 
-> > Hi
-> > 
-> > Switching from 2.4.21pre5 to pre6 I've found out my usb mouse is
-> > dead and no usb port is detected on my msi kt266pro2. I used same
-> > (make oldconfig) as in pre5. I included dmesg logs below. regards
-> 
-> I had the same problem few hours ago.
-> Loading usb-ohci/ehci-hcd as a module fixed it for me ...
-> But it's just a "It Works for Me(tm)" ...

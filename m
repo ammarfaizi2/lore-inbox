@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263769AbTLEAeE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 19:34:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263766AbTLEAeD
+	id S263607AbTLEAnd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 19:43:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263766AbTLEAnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 19:34:03 -0500
-Received: from fep06-0.kolumbus.fi ([193.229.0.57]:27106 "EHLO
-	fep06-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S263769AbTLEAeB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 19:34:01 -0500
-Date: Fri, 5 Dec 2003 00:33:09 +0200 (MET DST)
-From: Szakacsits Szabolcs <szaka@sienet.hu>
-X-X-Sender: szaka@ua178d119.elisa.omakaista.fi
-To: Rob Landley <rob@landley.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Is there a "make hole" (truncate in middle) syscall?
-In-Reply-To: <200312041802.52067.rob@landley.net>
-Message-ID: <Pine.LNX.4.58.0312050024390.2330@ua178d119.elisa.omakaista.fi>
-References: <200312041432.23907.rob@landley.net>
- <Pine.LNX.4.58.0312042300550.2330@ua178d119.elisa.omakaista.fi>
- <200312041802.52067.rob@landley.net>
+	Thu, 4 Dec 2003 19:43:33 -0500
+Received: from sbcs.cs.sunysb.edu ([130.245.1.15]:52457 "EHLO
+	sbcs.cs.sunysb.edu") by vger.kernel.org with ESMTP id S263607AbTLEAnc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 19:43:32 -0500
+Date: Thu, 4 Dec 2003 19:43:19 -0500 (EST)
+From: Avishay Traeger <atraeger@cs.sunysb.edu>
+X-X-Sender: atraeger@compserv1
+To: linux-kernel@vger.kernel.org
+Subject: unsigned long event initialization
+Message-ID: <Pine.GSO.4.53.0312041928280.19421@compserv1>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On Thu, 4 Dec 2003, Rob Landley wrote:
-> > Depends what you do, what fs you use. Using XFS XFS_IOC_GETBMAPX you might
-> > get a huge improvement, see e.g. some numbers,
-> >
-> > 	http://marc.theaimsgroup.com/?l=reiserfs&m=105827549109079&w=2
-> >
-> > The problem is, 0 general purpose (like cp, tar, cat, etc) util supports
-> > it, you have to code your app accordingly.
-> 
-> Okay, I'll bite.  How would one go about adding hole support to cat? :)
+I am trying to figure out exactly how Linux assigns generation numbers to
+inodes.  In most filesystems (such as ext2/ext3) the generation number is
+assigned to event++.  This variable is declared in kernel/timer.c, but
+apparently not initialized.  I made 3 files, each one immediately after a
+reboot, and this is the information I got:
 
-As I wrote above, for XFS use XFS_IOC_GETBMAPX and read only the blocks in
-use from the disk and dump a preallocated buffer filled with zeros for the
-holes.
+generation#
+10417bbc
+bf612079
+8cf4b829
 
-For other filesytems you should use FIBMAP but it's so inefficient,
-limited, etc that probably it's not worth doing because in general you
-would end up being slower.
+>From what I can tell, event is only incremented in a few places in the fs
+directory.  Can someone please explain if event is actually initialized,
+and if so, to what?  And if it is initialized to a specific number, how
+are these generation numbers so big and varied?
 
-	Szaka
+tia.
+
+Avishay Traeger
+
+File System and Storage Lab
+Computer Science Department
+Stony Brook University

@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267623AbTACSig>; Fri, 3 Jan 2003 13:38:36 -0500
+	id <S267628AbTACSrS>; Fri, 3 Jan 2003 13:47:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267625AbTACSig>; Fri, 3 Jan 2003 13:38:36 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:41994 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267623AbTACSif>; Fri, 3 Jan 2003 13:38:35 -0500
-Date: Fri, 3 Jan 2003 10:41:41 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: linux-kernel@vger.kernel.org, <sfr@canb.auug.org.au>, <rth@twiddle.net>,
-       <rmk@arm.linux.org.uk>, <bjornw@axis.com>, <davidm@hpl.hp.com>,
-       <geert@linux-m68k.org>, <ralf@gnu.org>, <paulus@samba.org>,
-       <anton@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       <gniibe@m17n.org>, <kkojima@rr.iij4u.or.jp>,
-       "David S. Miller" <davem@redhat.com>, <ak@suse.de>
-Subject: Re: [PATCH] extable cleanup
-In-Reply-To: <20030103082410.94B0E2C275@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0301031036560.2750-100000@home.transmeta.com>
+	id <S267626AbTACSrR>; Fri, 3 Jan 2003 13:47:17 -0500
+Received: from ligur.expressz.com ([212.24.178.154]:19407 "EHLO expressz.com")
+	by vger.kernel.org with ESMTP id <S267625AbTACSrP>;
+	Fri, 3 Jan 2003 13:47:15 -0500
+Date: Fri, 3 Jan 2003 19:55:45 +0100 (CET)
+From: "BODA Karoly jr." <woockie@expressz.com>
+To: sparclinux@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.5.54-sparc64 compile errors
+In-Reply-To: <Mutt.LNX.4.44.0301040331530.18132-100000@blackbird.intercode.com.au>
+Message-ID: <Pine.LNX.3.96.1030103194702.7821A-100000@ligur.expressz.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 4 Jan 2003, James Morris wrote:
 
-On Fri, 3 Jan 2003, Rusty Russell wrote:
->
-> Fairly straightforward consolidation of extable handling.  Sparc64 is
-> trickiest, with its extable range stuff (ideally, the ranges would be
-> in a separate __extable_range section, then the extable walking code
-> could be made common, too).
-> 
-> Only tested on x86: ppc and sparc64 written untested, others broken.
+> See the patch below for a fix for this.
+[...]
+> You need to set CONFIG_INPUT=y to fix this at the moment (even if you 
+> don't have any input devices configured).
 
-Did you test on a true i386, which needs exception handling very early on 
-to handle the test for broken WP? In other words, are all the exception 
-table data structures properly initialized?
+	Thank you for the help for everyone the compile was successful.
+With preempt didn't boot the machine. This is a possible couse only, I
+made more changes between the two version's (booting and not booting)
+config.
+	After booting I can't insmod (even with insmod nor with modprobe)
+anything with the following error message:
 
-And did you check that an oops in the init handling works correctly before
-the kallsyms table has been initialized? That "initcall(symbol_init)"  
-makes me suspect it won't..
+mortimer:~# modprobe nfs
+WARNING: Error inserting sunrpc (/lib/modules/2.5.54/kernel/net/sunrpc/sunrpc.ko): Cannot allocate memory
+WARNING: Error inserting lockd (/lib/modules/2.5.54/kernel/fs/lockd/lockd.ko): Cannot allocate memory
+FATAL: Error inserting nfs (/lib/modules/2.5.54/kernel/fs/nfs/nfs.ko): Cannot allocate memory
 
-There was a reason why "extable_init()" was in init/main.c, and was done 
-_early_.
+With strace I found this, is it normal?
+238   create_module(0, 0)               = -1 ENOSYS (Function not implemented)
 
-		Linus
+module-init-tools version 0.9.7
+
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+
+-- 
+						Woockie
+..."what is there in this world that makes living worthwhile?"
+Death thought about it. "CATS," he said eventually, "CATS ARE NICE."
+			           (Terry Pratchett, Sourcery)
 

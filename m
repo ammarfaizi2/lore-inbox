@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269410AbUINPMq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269379AbUINPOe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269410AbUINPMq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 11:12:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269267AbUINPJp
+	id S269379AbUINPOe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 11:14:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269267AbUINPNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 11:09:45 -0400
-Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:1920
-	"HELO home.linuxace.com") by vger.kernel.org with SMTP
-	id S269378AbUINPId (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 11:08:33 -0400
-Date: Tue, 14 Sep 2004 08:08:32 -0700
-From: Phil Oester <kernel@linuxace.com>
-To: lkml@einar-lueck.de
-Cc: "David S. Miller" <davem@davemloft.net>, hadi@cyberus.ca,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [RFC][PATCH 2/2] ip multipath, bk head (EXPERIMENTAL)
-Message-ID: <20040914150832.GA5667@linuxace.com>
-References: <41457848.6040808@de.ibm.com> <1095129624.1060.45.camel@jzny.localdomain> <20040913224232.4b979c7d.davem@davemloft.net> <4146E65D.6070309@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4146E65D.6070309@de.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 14 Sep 2004 11:13:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:50121 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269384AbUINPL3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 11:11:29 -0400
+Date: Tue, 14 Sep 2004 08:06:14 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [no patch] broken use of mm_release / deactivate_mm
+In-Reply-To: <4146E6F0.5030405@yahoo.com.au>
+Message-ID: <Pine.LNX.4.58.0409140803090.2378@ppc970.osdl.org>
+References: <20040913190633.GA22639@apps.cwi.nl> <Pine.LNX.4.58.0409131224440.2378@ppc970.osdl.org>
+ <4146E6F0.5030405@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 14, 2004 at 02:38:53PM +0200, Einar Lueck wrote:
-> I attached the patch the way you requested in the other thread.
+
+
+On Tue, 14 Sep 2004, Nick Piggin wrote:
+> > 
+> > I agree. Looks like the "exit_mm()" should really be a "mmput()".
+> > 
+> > Can we have a few more eyes on this thing? Ingo, Nick?
 > 
-> Regards
-> Einar
+> AFAIKS yes. exit_mm doesn't look legal unless its dropping the current
+> mm context. And mmput looks like it should clean up everything - it is
+> used almost exactly the same way to cleanup a failure case in copy_mm.
 
-		If you say Y here, alternative routes are cached
-+         in the routing cache and on cache lookup route is chosen in
-+         Round Robin fashon.            
+Does everybody also agree that the 
 
-Shouldn't this instead say
+	if (p->active_mm)
+		mmdrop(p->active_mm);
 
-If you say Y here, alternative routes are cached
-in the routing cache and on cache lookup a route is chosen using
-the policy selected in 'Multipath policy'
+should also be dropped, and that mmput() does all of that correctly too?
 
-or somesuch.  IOW, round robin is not always the policy.
+(Again, looking at all the counts etc, I think the answer is a resounding 
+yes, but dammit, this code has obviously never gotten any testing at all, 
+since it effectively never happens).
 
-Phil
+		Linus

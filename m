@@ -1,63 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261881AbVDESgY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261921AbVDETgY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261881AbVDESgY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 14:36:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbVDESdz
+	id S261921AbVDETgY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 15:36:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVDEStn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 14:33:55 -0400
-Received: from fire.osdl.org ([65.172.181.4]:22958 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261882AbVDESdH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 14:33:07 -0400
-Date: Tue, 5 Apr 2005 11:32:41 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, stable@kernel.org, netdev@oss.sgi.com
-Subject: Re: [07/08] [TCP] Fix BIC congestion avoidance algorithm error
-Message-ID: <20050405113241.3389c9b8@dxpl.pdx.osdl.net>
-In-Reply-To: <20050405112608.0b3c07f0.davem@davemloft.net>
-References: <20050405164539.GA17299@kroah.com>
-	<20050405164758.GH17299@kroah.com>
-	<20050405182202.GA11979@thunk.org>
-	<20050405112608.0b3c07f0.davem@davemloft.net>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Apr 2005 14:49:43 -0400
+Received: from smtp.blackdown.de ([213.239.206.42]:42200 "EHLO
+	smtp.blackdown.de") by vger.kernel.org with ESMTP id S261890AbVDESrT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 14:47:19 -0400
+From: Juergen Kreileder <jk@blackdown.de>
+To: Esben Stien <b0ef@esben-stien.name>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Logitech MX1000 Horizontal Scrolling
+References: <873bxfoq7g.fsf@quasar.esben-stien.name>
+	<87zmylaenr.fsf@quasar.esben-stien.name>
+	<20050204195410.GA5279@ucw.cz>
+	<873bvyfsvs.fsf@quasar.esben-stien.name>
+	<87zmxil0g8.fsf@quasar.esben-stien.name>
+	<1110056942.16541.4.camel@localhost>
+	<87sm37vfre.fsf@quasar.esben-stien.name>
+	<87wtsjtii6.fsf@quasar.esben-stien.name>
+	<20050308205210.GA3986@ucw.cz> <1112083646.12986.3.camel@localhost>
+	<87psxcsq06.fsf@quasar.esben-stien.name> <87u0mn3l4e.fsf@blackdown.de>
+	<87acodvrw5.fsf@quasar.esben-stien.name>
+	<87br8ttgpw.fsf@quasar.esben-stien.name>
+X-PGP-Key: http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0x730A28A5
+X-PGP-Fingerprint: 7C19 D069 9ED5 DC2E 1B10  9859 C027 8D5B 730A 28A5
+Mail-Followup-To: Esben Stien <b0ef@esben-stien.name>,
+	linux-kernel@vger.kernel.org
+Date: Tue, 05 Apr 2005 20:47:16 +0200
+Message-ID: <87r7hp83ij.fsf@blackdown.de>
+Organization: Blackdown Java-Linux Team
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Apr 2005 11:26:08 -0700
-"David S. Miller" <davem@davemloft.net> wrote:
+Esben Stien <b0ef@esben-stien.name> writes:
 
-> On Tue, 5 Apr 2005 14:22:02 -0400
-> Theodore Ts'o <tytso@mit.edu> wrote:
-> 
-> > If the congestion control alogirthm is "Reno-like", what is
-> > user-visible impact to users?  There are OS's out there with TCP/IP
-> > stacks that are still using Reno, aren't there?  
-> 
-> An incorrect implementation of any congestion control algorithm
-> has ramifications not considered when the congestion control
-> author verified the design of his algorithm.
-> 
-> This has a large impact on every user on the internet, not just
-> Linux machines.
-> 
-> Perhaps on a microscopic scale "this" part of the BIC algorithm
-> was just behaving Reno-like due to the bug, but what implications
-> does that error have as applied to the other heuristics in BIC?
-> This is what I'm talking about.  BIC operates in several modes,
-> one of which is a pseudo binary search mode, and another is a
-> less aggressive slower increase mode.
+> Esben Stien <b0ef@esben-stien.name> writes:
+>
+>> can't find a single problem with the device.
+>
+> I should mention a couple of things after some testing: There are
+> some inconsistencies with regard to cruise control.
+>
+> When I press TOP CLICK BACKWARD/TOP CLICK FORWARD to cruise control
+> down/up, it waits about 100ms
 
-> Therefore I think fixes to congestion control algorithms which
-> are enabled by default always should take a high priority in
-> the stable kernels.
+The pause is actually generated by the device, probably to make single
+step scrolling easier.
 
-Also, hopefully distro vendors will pick up 2.6.11.X fixes and update their customers.
+> before it starts cruising. This means that pressing a single click
+> does not move me anywhere. I have to hold the key down and wait
+> until it starts cruising.
 
+That's a problem with xbindkeys. Without xbindkeys, the X events are
+(p = press, r = release)
+
+        p 11/12, p 4/5, r 4/5, ( <pause>, ( p 4/5, r 4/5 )* )?, r 11/12
+
+As the 11/12 events are a bit annoying (Mozilla, but not Firefox,
+interprets them as a left click), I use xbindkeys to bind them to
+nothing.  But xbindkeys seems to have problems with the press 11/12
+and release 11/12 events being interrupted by 4/5 events, it eats
+everything before the pause =>
+
+        ( <pause>, ( p 4/5, r 4/5 )* )?, r 11/12
+
+> When I press HORIZONTAL LEFT/HORIZONTAL RIGHT to cruise control
+> left/right, it starts immediately going one step in the direction,
+> then waits about 100ms before it starts cruising left/right
+> again. This means that a single click takes me one click in the
+> horizontal direction.
+
+For horizontal scrolling I see:
+
+p 6/7, r 6/7, ( <pause>, ( p 6/7, r 6/7 )* )?
+
+That's OK with me.  If vertical scrolling would work the same way
+(ie. without the additional 11/12 events), I'd be happy.
+
+Anyhow, this looks a problem with X not the kernel.  evtest shows that
+the device reports similar event sequences for tilting the wheel and
+the cruise control buttons.
+
+E.g. scrolling left by tilting the wheel:
+
+,----
+| Event: time 1112723029.967722, type 1 (Key), code 280 (?), value 1
+| Event: time 1112723029.967729, type 0 (Reset), code 0 (Reset), value 0
+| Event: time 1112723029.983709, type 2 (Relative), code 6 (HWheel), value -1
+| Event: time 1112723029.983715, type 0 (Reset), code 0 (Reset), value 0
+| Event: time 1112723030.359712, type 2 (Relative), code 6 (HWheel), value -1
+| Event: time 1112723030.359719, type 0 (Reset), code 0 (Reset), value 0
+| Event: time 1112723030.463706, type 2 (Relative), code 6 (HWheel), value -1
+| Event: time 1112723030.463715, type 0 (Reset), code 0 (Reset), value 0
+| Event: time 1112723030.551708, type 1 (Key), code 280 (?), value 0
+| Event: time 1112723030.551712, type 0 (Reset), code 0 (Reset), value 0
+`----
+
+and scrolling down with the cruise controll button:
+
+,----
+| Event: time 1112723159.628081, type 1 (Key), code 279 (?), value 1
+| Event: time 1112723159.628090, type 0 (Reset), code 0 (Reset), value 0
+| Event: time 1112723159.644084, type 2 (Relative), code 8 (Wheel), value -1
+| Event: time 1112723159.644091, type 0 (Reset), code 0 (Reset), value 0
+| Event: time 1112723160.020068, type 2 (Relative), code 8 (Wheel), value -1
+| Event: time 1112723160.020075, type 0 (Reset), code 0 (Reset), value 0
+| Event: time 1112723160.124067, type 2 (Relative), code 8 (Wheel), value -1
+| Event: time 1112723160.124075, type 0 (Reset), code 0 (Reset), value 0
+| Event: time 1112723160.212060, type 1 (Key), code 279 (?), value 0
+`----
+
+Note the 280 and 279 events at the start and end.
+
+
+        Juergen
+
+-- 
+Juergen Kreileder, Blackdown Java-Linux Team
+http://blog.blackdown.de/

@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129057AbQKDUtu>; Sat, 4 Nov 2000 15:49:50 -0500
+	id <S129215AbQKDU6w>; Sat, 4 Nov 2000 15:58:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129215AbQKDUtj>; Sat, 4 Nov 2000 15:49:39 -0500
-Received: from spock.linux.it ([151.99.137.27]:49400 "HELO spock.linux.it")
-	by vger.kernel.org with SMTP id <S129057AbQKDUtg>;
-	Sat, 4 Nov 2000 15:49:36 -0500
-Date: Sat, 4 Nov 2000 19:49:37 +0100
-From: "Marco d'Itri" <md@Linux.IT>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: Linux-2.4.0-test10
-Message-ID: <20001104194937.E3423@wonderland.linux.it>
-In-Reply-To: <E13qiR9-0008FT-00@the-village.bc.nu> <20001102171717.L1876@redhat.com>
-Mime-Version: 1.0
+	id <S129093AbQKDU6n>; Sat, 4 Nov 2000 15:58:43 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:48142 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129057AbQKDU62>; Sat, 4 Nov 2000 15:58:28 -0500
+From: Peter Samuelson <peter@cadcamlab.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001102171717.L1876@redhat.com>; from sct@redhat.com on Thu, Nov 02, 2000 at 05:17:17PM +0000
+Content-Transfer-Encoding: 7bit
+Message-ID: <14852.30826.706592.165270@wire.cadcamlab.org>
+Date: Sat, 4 Nov 2000 14:58:18 -0600 (CST)
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>, linux-kernel@vger.kernel.org
+Subject: Re: asm/resource.h
+In-Reply-To: <3A032C1D.D50C8D46@transmeta.com>
+	<3A032E4E.A08DC0EB@timpanogas.org>
+	<20001103203336.L1041@wire.cadcamlab.org>
+	<20001104143703.A14407@vger.timpanogas.org>
+X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
+X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
+        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
+        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 02, "Stephen C. Tweedie" <sct@redhat.com> wrote:
 
- >2.2 O_SYNC is actually broken too --- it doesn't sync all metadata (in
- >particular, it doesn't update the inode), but I'd rather fix that for
- >2.4 rather than change 2.2, as the main users of O_SYNC, databases,
- >are writing to preallocated files anyway.
-What about fsync(2)? Will it update metadata too?
+[Jeff V. Merkey <jmerkey@vger.timpanogas.org>]
+> I got a little further with the lock up problem, and it is related to
+> MPS reporting a 2nd processor being present in some PPro systems when
+> in fact only one CPU is really installed (but MPS is reporting
+> default table entry 6 with a second CPU as present).
 
--- 
-ciao,
-Marco
+Wow, that's a lousy BIOS.  You mean it actually *can't tell* if there's
+a CPU in the second socket or not?
 
+I remember a couple years ago Linus remarked that *every time* Linux
+tried to rely on a BIOS feature, there'd be at least one bug report
+traceable to a buggy BIOS somewhere.  Proven once again.... (:
 
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

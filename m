@@ -1,50 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262683AbTJNRvm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 13:51:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262686AbTJNRvm
+	id S262787AbTJNSbS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 14:31:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbTJNSbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 13:51:42 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:50588 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262683AbTJNRv3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 13:51:29 -0400
-Date: Tue, 14 Oct 2003 10:45:03 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: "YOSHIFUJI Hideaki / _$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
-Cc: shep@alum.mit.edu, kuznet@ms2.inr.ac.ru, pekkas@netcore.fi,
-       jmorris@redhat.com, netdev@oss.sgi.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
-Subject: Re: [PATCH] fix numbering of lines in /proc/net/tcp
- (linux-2.6.0-test7)
-Message-Id: <20031014104503.12ca907e.davem@redhat.com>
-In-Reply-To: <20031015.013848.133364889.yoshfuji@linux-ipv6.org>
-References: <200310141619.h9EGJWWB013461@ginger.lcs.mit.edu>
-	<20031015.013848.133364889.yoshfuji@linux-ipv6.org>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 14 Oct 2003 14:31:18 -0400
+Received: from ip5.searssiding.com ([216.54.166.5]:25316 "EHLO
+	texas.encore.com") by vger.kernel.org with ESMTP id S262787AbTJNSbM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 14:31:12 -0400
+Message-ID: <3F8C40EC.FBA11955@compro.net>
+Date: Tue, 14 Oct 2003 14:31:08 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20-ert i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux-kernel@vger.kernel.org, dmarkh@cfl.rr.com
+Subject: Re: Can't build external module against 2.6.0-test6 kernel
+References: <3F8544DF.85E7CA81@compro.net> <20031009152350.GA897@mars.ravnborg.org> <3F8BDDE5.84074872@compro.net> <20031014174431.GA922@mars.ravnborg.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Oct 2003 01:38:48 +0900 (JST)
-YOSHIFUJI Hideaki / _$B5HF#1QL@ <yoshfuji@linux-ipv6.org> wrote:
-
-> In article <200310141619.h9EGJWWB013461@ginger.lcs.mit.edu> (at Tue, 14 Oct 2003 12:19:32 -0400), Tim Shepard <shep@alum.mit.edu> says:
+Sam Ravnborg wrote:
 > 
-> > I am not sure what the behavior is supposed to be.  Is there a spec
-> > anywhere for the interface with /proc/net/tcp?
+> On Tue, Oct 14, 2003 at 07:28:37AM -0400, Mark Hounschell wrote:
+> > Ok, I can now build it but I have to hardcode _my_ include directories in the
+> > Makefile like:
+> >
+> > /home/markh/work2/pcirtom_tst/driver/Makefile:
+> >
+> > EXTRA_CFLAGS = -I/home/markh/work2/pcirtom_tst/include/linux/sys
+> > -I/home/markh/work2/pcirtom_tst/include/linux
+> > -I/home/markh/work2/pcirtom_tst/include
+> Use:
+> EXTRA_CFLAGS := -I$(src)/include/linux/sys
+> EXTRA_CFLAGS += -I$(src)/include/linux
+> EXTRA_CFLAGS += -I$(src)/include
+>
+> [Sidenote - you should only need the second line. Files in include/sys
+> should be included as:
+> #include <sys/file.h>
 > 
-> Yes, I think the original is okay because the bucket is shared between
-> tcp6 and tcp4, and I don't want to change this behavior in 2.6 from 2.4.x.
-> (so, we need to fix 2.6.x.)
+> And there should be no .h files in the linux directory].
+>
+> > ifneq   ($(KERNELRELEASE),)
+> >         obj-m   += rtom.o
+> > else
+> >         KDIR    := /lib/modules/$(shell uname -r)/build
+> >         PWD     := $(shell pwd)
+> > default:
+> >         $(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
+> > endif
+> >
+> > My driver tree looks like
+> >
+> > driver/
+> > include/
+> > diags/
+> > samples/
+> > library/
+> >
+> > I've also tried setting the EXTRA_CFLAGS var in the top makefile but it
+> > doesn't seem to get passed down when the driver is compiled??
+> EXTRA_CFLAGS are only relevant for the current kbuild Makefile - so
+> it does not make sense to add it to the top-level Makefile.
+> 
+>         Sam
 
-In the meantime I've applied Tim's patch because it is definitely
-a step in the right direction and the current 2.6.x behavior makes
-no sense at all :-)
+Thanks, defining the EXTRA-CFLAGS how and where you indicated did the trick.
+Is there also now special tricks for getting a library that goes with the driver
+to work? None of my IOCTLS are making it into the driver.
 
-We can add a fix on top to make 2.6.x behave more closely to 2.4.x
-(by sharing numbers between v4 and v6).  If that proves to be very
-difficult to do, it's not absolutely critical to preserve this behavior
-I think.
+Ragards
+Mark

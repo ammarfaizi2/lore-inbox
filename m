@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129283AbQKUTSM>; Tue, 21 Nov 2000 14:18:12 -0500
+	id <S131041AbQKUTTc>; Tue, 21 Nov 2000 14:19:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129977AbQKUTSC>; Tue, 21 Nov 2000 14:18:02 -0500
-Received: from piglet.twiddle.net ([207.104.6.26]:48138 "EHLO
-	piglet.twiddle.net") by vger.kernel.org with ESMTP
-	id <S129283AbQKUTRw>; Tue, 21 Nov 2000 14:17:52 -0500
-Date: Tue, 21 Nov 2000 10:47:20 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Michal Jaegermann <michal@ellpspace.math.ualberta.ca>,
-        linux-kernel@vger.kernel.org, axp-list@redhat.com
-Subject: Re: ux164 (ruffian) fixes
-Message-ID: <20001121104720.A11074@twiddle.net>
-In-Reply-To: <20001121184609.A2889@jurassic.park.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <20001121184609.A2889@jurassic.park.msu.ru>
+	id <S131040AbQKUTTW>; Tue, 21 Nov 2000 14:19:22 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:12438 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129977AbQKUTTM>; Tue, 21 Nov 2000 14:19:12 -0500
+Date: Tue, 21 Nov 2000 19:40:23 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Johannes Erdfelt <johannes@erdfelt.com>,
+        Ingo Molnar <mingo@chiara.elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.0test11-ac1
+In-Reply-To: <E13yICI-000504-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.3.96.1001121193320.28403C-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 21, 2000 at 06:46:09PM +0300, Ivan Kokshaysky wrote:
->    Interesting, other pyxis machines do not seem to be so sensitive,
->    so I guess some design problems with ux164 motherboard - all this
->    looks pretty much like timing issues.
+On Tue, 21 Nov 2000, Alan Cox wrote:
 
-Wow.  Thanks for following through on this.
+> Its completely unsafe. The CPU in question is NOT intel. It has no APIC
+> instead you poke around randomly in MMIO space and the box dies. You have
+> to check the cpu capabilities too
 
+ Well, does any SMP board map anything into the local APIC space?  After
+saying there a real APIC there???  Now *THAT* is completely unsafe.  How
+is that supposed to work when there actually is an APIC-equipped CPU put
+in?
 
-r~
+ Poking unoccupied space leads to bus error exceptions for certain archs
+but I can't actually recall existence of such events for i386... 
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,158 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVAMJW5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVAMJnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261297AbVAMJW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 04:22:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVAMJW5
+	id S261318AbVAMJnR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 04:43:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVAMJnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 04:22:57 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:42141 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261297AbVAMJWs (ORCPT
+	Thu, 13 Jan 2005 04:43:17 -0500
+Received: from box3.punkt.pl ([217.8.180.76]:26387 "HELO box.punkt.pl")
+	by vger.kernel.org with SMTP id S261318AbVAMJnM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 04:22:48 -0500
-Date: Thu, 13 Jan 2005 10:22:47 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: nickpiggin@yahoo.com.au, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] possible rq starvation on oom
-Message-ID: <20050113092246.GJ2815@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 13 Jan 2005 04:43:12 -0500
+From: Mariusz Mazur <mmazur@kernel.pl>
+To: Andrew Walrond <andrew@walrond.org>
+Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.10.0
+Date: Thu, 13 Jan 2005 10:42:25 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org
+References: <200501081613.27460.mmazur@kernel.pl> <200501121211.23475.mmazur@kernel.pl> <200501130813.42545.andrew@walrond.org>
+In-Reply-To: <200501130813.42545.andrew@walrond.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
+Message-Id: <200501131042.25470.mmazur@kernel.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On czwartek 13 styczeñ 2005 09:13, Andrew Walrond wrote:
+> I know you are deliberately vague in the faq ;) But what about something
+> like X11? It needs the real config.h in order to build the kernel DRM
+> drivers.
 
-I stumbled across this the other day. The block layer only uses a single
-memory pool for request allocation, so it's very possible for eg writes
-to have allocated them all at any point in time. If that is the case and
-the machine is low on memory, a reader attempting to allocate a request
-and failing in blk_alloc_request() can get stuck for a long time since
-no one is there to wake it up.
+I'm a distribution vendor. If x11 really required having current kernel config 
+at compile time to function properly, I'd start sending threats to its 
+authors.
 
-The solution is either to add the extra mempool so both reads and writes
-have one, or attempt to handle the situation. I chose the latter, to
-save the extra memory required for the additional mempool with
-BLKDEV_MIN_RQ statically allocated requests per-queue.
+> Should it be built against 
+>  1) llh + blank config.h
 
-If a read allocation fails and we have no readers in flight for this
-queue, mark us rq-starved so that the next write being freed will wake
-up the sleeping reader(s). Same situation would happen for writes as
-well of course, it's just a lot more unlikely.
+Yes, if an app really does require config.h (and it *shouldn't*), it ought to 
+have the sanest possible default configuration (by default I mean without 
+depending on any CONFIG_). And again that's something I can tell you as a 
+distro vendor.
 
-Signed-off-by: Jens Axboe <axboe@suse.de>
+>  2) llh + real config.h
 
-===== drivers/block/ll_rw_blk.c 1.281 vs edited =====
---- 1.281/drivers/block/ll_rw_blk.c	2004-12-01 09:13:57 +01:00
-+++ edited/drivers/block/ll_rw_blk.c	2005-01-13 10:17:36 +01:00
-@@ -1438,6 +1438,7 @@
- 	struct request_list *rl = &q->rq;
- 
- 	rl->count[READ] = rl->count[WRITE] = 0;
-+	rl->starved[READ] = rl->starved[WRITE] = 0;
- 	init_waitqueue_head(&rl->wait[READ]);
- 	init_waitqueue_head(&rl->wait[WRITE]);
- 	init_waitqueue_head(&rl->drain);
-@@ -1618,6 +1619,22 @@
- 	ioc->last_waited = jiffies;
- }
- 
-+static void __freed_request(request_queue_t *q, int rw)
-+{
-+	struct request_list *rl = &q->rq;
-+
-+	if (rl->count[rw] < queue_congestion_off_threshold(q))
-+		clear_queue_congested(q, rw);
-+
-+	if (rl->count[rw] + 1 <= q->nr_requests) {
-+		smp_mb();
-+		if (waitqueue_active(&rl->wait[rw]))
-+			wake_up(&rl->wait[rw]);
-+
-+		blk_clear_queue_full(q, rw);
-+	}
-+}
-+
- /*
-  * A request has just been released.  Account for it, update the full and
-  * congestion status, wake up any waiters.   Called under q->queue_lock.
-@@ -1627,17 +1644,17 @@
- 	struct request_list *rl = &q->rq;
- 
- 	rl->count[rw]--;
--	if (rl->count[rw] < queue_congestion_off_threshold(q))
--		clear_queue_congested(q, rw);
--	if (rl->count[rw]+1 <= q->nr_requests) {
-+
-+	__freed_request(q, rw);
-+
-+	if (unlikely(rl->starved[rw ^ 1]))
-+		__freed_request(q, rw ^ 1);
-+
-+	if (!rl->count[READ] && !rl->count[WRITE]) {
- 		smp_mb();
--		if (waitqueue_active(&rl->wait[rw]))
--			wake_up(&rl->wait[rw]);
--		blk_clear_queue_full(q, rw);
-+		if (unlikely(waitqueue_active(&rl->drain)))
-+			wake_up(&rl->drain);
- 	}
--	if (unlikely(waitqueue_active(&rl->drain)) &&
--	    !rl->count[READ] && !rl->count[WRITE])
--		wake_up(&rl->drain);
- }
- 
- #define blkdev_free_rq(list) list_entry((list)->next, struct request, queuelist)
-@@ -1669,8 +1686,7 @@
- 
- 	switch (elv_may_queue(q, rw)) {
- 		case ELV_MQUEUE_NO:
--			spin_unlock_irq(q->queue_lock);
--			goto out;
-+			goto rq_starved;
- 		case ELV_MQUEUE_MAY:
- 			break;
- 		case ELV_MQUEUE_MUST:
-@@ -1688,6 +1704,7 @@
- 
- get_rq:
- 	rl->count[rw]++;
-+	rl->starved[rw] = 0;
- 	if (rl->count[rw] >= queue_congestion_on_threshold(q))
- 		set_queue_congested(q, rw);
- 	spin_unlock_irq(q->queue_lock);
-@@ -1703,6 +1720,18 @@
- 		 */
- 		spin_lock_irq(q->queue_lock);
- 		freed_request(q, rw);
-+
-+		/*
-+		 * in the very unlikely event that allocation failed and no
-+		 * requests for this direction was pending, mark us starved
-+		 * so that freeing of a request in the other direction will
-+		 * notice us. another possible fix would be to split the
-+		 * rq mempool into READ and WRITE
-+		 */
-+rq_starved:
-+		if (unlikely(rl->count[rw] == 0))
-+			rl->starved[rw] = 1;
-+
- 		spin_unlock_irq(q->queue_lock);
- 		goto out;
- 	}
-===== include/linux/blkdev.h 1.157 vs edited =====
---- 1.157/include/linux/blkdev.h	2004-11-11 09:39:16 +01:00
-+++ edited/include/linux/blkdev.h	2005-01-13 10:16:43 +01:00
-@@ -95,6 +95,7 @@
- 
- struct request_list {
- 	int count[2];
-+	int starved[2];
- 	mempool_t *rq_pool;
- 	wait_queue_head_t wait[2];
- 	wait_queue_head_t drain;
+And if you have some exotic configuration or such, and your app does support 
+it, then you should be using your kernel's config.h (though it would be 
+preferable if you just added the appropriate CONFIG_s to otherwise empty 
+config.h).
+
+>  3) kernel source
+>
+> I guess this ambiguity would go away once the real kernel headers have been
+> sanitized for userspace (ie we could always use the real config.h without
+> fear of breakage) But as you have already stated, the issues are complex,
+> and consensus is lacking. The longer the status quo continues, the more
+> apps are going to break when we do get round to it.
+>
+> And I think, in this instance, the "shut up and hack" response is
+> inappropriate; Either these changes come from a senior linux hacker, or
+> they will be ignored/derided (again).
 
 -- 
-Jens Axboe
-
+In the year eighty five ten
+God is gonna shake his mighty head
+He'll either say,
+"I'm pleased where man has been"
+Or tear it down, and start again

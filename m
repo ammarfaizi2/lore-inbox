@@ -1,61 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269042AbUIXXIX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269043AbUIXXM0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269042AbUIXXIX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 19:08:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269043AbUIXXIX
+	id S269043AbUIXXM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 19:12:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269049AbUIXXM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 19:08:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:61852 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269042AbUIXXIT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 19:08:19 -0400
-Date: Fri, 24 Sep 2004 16:08:17 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Chris Wright <chrisw@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: mlock(1)
-Message-ID: <20040924160817.Y1924@build.pdx.osdl.net>
-References: <41547C16.4070301@pobox.com> <20040924132247.W1973@build.pdx.osdl.net> <1096060045.10800.4.camel@localhost.localdomain> <20040924151906.X1924@build.pdx.osdl.net> <41549FEF.30008@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <41549FEF.30008@pobox.com>; from jgarzik@pobox.com on Fri, Sep 24, 2004 at 06:30:07PM -0400
+	Fri, 24 Sep 2004 19:12:26 -0400
+Received: from mail1.speakeasy.net ([216.254.0.201]:57985 "EHLO
+	mail1.speakeasy.net") by vger.kernel.org with ESMTP id S269043AbUIXXMX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 19:12:23 -0400
+Date: Fri, 24 Sep 2004 16:12:19 -0700
+Message-Id: <200409242312.i8ONCJ6w004680@magilla.sf.frob.com>
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix PTRACE_ATTACH race with real parent's wait calls
+X-Fcc: ~/Mail/linus
+X-Windows: a terminal disease.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jeff Garzik (jgarzik@pobox.com) wrote:
-> Chris Wright wrote:
-> > * Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
-> > >On Gwe, 2004-09-24 at 21:22, Chris Wright wrote:
-> >>>Hard to say if it's a policy decision outside the scope of the app.
-> >>>Esp. if the app knows it needs to not be swapped.  Either something that
-> >>>has realtime needs, or more specifically, privacy needs.  Don't need to
-> >>>mlock all of gpg to ensure key data never hits swap.
-> >>
-> >>Keys are a different case anyway. We can swap them if we have encrypted
-> >>swap (hardware or software) and we could use the crypto lib just to
-> >>crypt some pages in swap although that might be complex. As such a
-> >>MAP_CRYPT seems better than mlock. If we don't have cryptable swap then
-> >>fine its mlock.
-> > 
-> > Yeah, sounds nice.  This is still very much an app specific policy, not
-> > something that a helper such as mlock(1) would solve.
-> 
-> It's all app-specific policy.  mlock(1) allows the sysadmin to apply 
-> app-specific policy on top of whatever app-specific policy the engineer 
-> has chosen to hardcode into his app.
-> 
-> A smart sysadmin that knows the working set of his _local configuration_ 
-> of a given app is sometimes in a better position to make a decision 
-> about mlockall(2) than the engineer.
+There is a race between PTRACE_ATTACH and the real parent calling wait.
+For a moment, the task is put in PT_PTRACED but with its parent still
+pointing to its real_parent.  In this circumstance, if the real parent
+calls wait without the WUNTRACED flag, he can see a stopped child status,
+which wait should never return without WUNTRACED when the caller is not
+using ptrace.  Here it is not the caller that is using ptrace, but some
+third party.
 
-OK, that's fine.  I just wanted to highlight some situations
-where it's preferable to leave that hardcoded in the application.
+This patch avoids this race condition by only setting PT_PTRACED while
+holding the tasklist_lock.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+ptrace_attach used task_lock for this, and a comment in sched.h says that
+it covers ->ptrace.  But in fact, no other users of ->ptrace use task_lock
+for synchronization.  The places that clear ->ptrace all do so while
+holding tasklist_lock for write.  That seems appropriate to me, as there
+are encoded assumptions that ->ptrace and the parent links get updated
+atomically.  Using tasklist_lock here makes the assumptions in the wait
+code work right, so that the race window I described above can't happen.
+
+
+Thanks,
+Roland
+
+Signed-off-by: Roland McGrath <roland@redhat.com>
+
+Index: 2.6/kernel/ptrace.c
+===================================================================
+RCS file: /home/roland/redhat/bkcvs/linux-2.5/kernel/ptrace.c,v
+retrieving revision 1.36
+diff -B -b -p -u -r1.36 ptrace.c
+--- 2.6/kernel/ptrace.c 23 Sep 2004 23:35:16 -0000 1.36
++++ 2.6/kernel/ptrace.c 24 Sep 2004 22:46:40 -0000
+@@ -129,14 +129,22 @@ int ptrace_attach(struct task_struct *ta
+ 	retval = security_ptrace(current, task);
+ 	if (retval)
+ 		goto bad;
++	task_unlock(task);
++
++	retval = capable(CAP_SYS_PTRACE); /* Hold no locks while calling.  */
++
++	write_lock_irq(&tasklist_lock);
++
++	/* Re-check with tasklist_lock held. */
++	if (unlikely(task->ptrace & PT_PTRACED)) {
++		write_unlock_irq(&tasklist_lock);
++		return -EPERM;
++	}
+ 
+ 	/* Go */
+ 	task->ptrace |= PT_PTRACED;
+-	if (capable(CAP_SYS_PTRACE))
++	if (retval)
+ 		task->ptrace |= PT_PTRACE_CAP;
+-	task_unlock(task);
+-
+-	write_lock_irq(&tasklist_lock);
+ 	__ptrace_link(task, current);
+ 	write_unlock_irq(&tasklist_lock);
+ 
+
+

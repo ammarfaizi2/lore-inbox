@@ -1,66 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262439AbTFGA5r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 20:57:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbTFGA5r
+	id S262445AbTFGA6H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 20:58:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbTFGA6H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 20:57:47 -0400
-Received: from almesberger.net ([63.105.73.239]:60170 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S262439AbTFGA5p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 20:57:45 -0400
-Date: Fri, 6 Jun 2003 22:11:00 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: chas williams <chas@cmf.nrl.navy.mil>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations (take 2)
-Message-ID: <20030606221100.L3232@almesberger.net>
-References: <20030606211005.H3232@almesberger.net> <200306070057.h570vtsG003449@ginger.cmf.nrl.navy.mil>
+	Fri, 6 Jun 2003 20:58:07 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:40340
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262445AbTFGA6E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 20:58:04 -0400
+Subject: Re: siI3112 crash on enabling dma
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: apeeters@lashout.net
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1054929160.1793.121.camel@localhost>
+References: <1054929160.1793.121.camel@localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1054948154.17185.45.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200306070057.h570vtsG003449@ginger.cmf.nrl.navy.mil>; from chas@cmf.nrl.navy.mil on Fri, Jun 06, 2003 at 08:56:06PM -0400
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 07 Jun 2003 02:09:14 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-chas williams wrote:
-> but parts of the control/config plane still arent synchronus.
-> how about atm_async_release()?
+On Gwe, 2003-06-06 at 20:52, Adriaan Peeters wrote:
+> I tried 2.4.21-rc7-ac1 too, but the dma isn't enabled by default either.
 
-That's just "tag and go away". If I understood Dave right, he
-wants the device to actually disappear at that point (well, at
-what would be the equivalent point for devices).
+That suprises me somewhat. 7-ac1 should force DMA on
 
-Of course, "tag and go away" is relatively easy, and you can
-even make it partially look as if you'd destroy things
-immediately, e.g. by putting the old "ATM device" layer under
-a network device layer. When that dreaded async call comes,
-you drop the network device layer part, leave the ATM device
-intact, and start working towards getting rid of it too. (E.g.
-by failing all system calls related to it, much like what
-happens when atmsigd dies.)
+> hda: Maxtor 6Y080M0, ATA DISK drive
+> hda: DMA disabled
+> hdc: Maxtor 6Y080M0, ATA DISK drive
+> hdc: DMA disabled
 
-> actually i believe its up to the driver author to make sure that
-> a vcc isnt used after the close completes.
+These are Maxtor drives with SATA convertors ? If so make sure the
+convertor is set for UDMA100 not UDMA133 mode. (See www.siimage.com
+support pages)
 
-When a driver's "close" function returns, the driver must have
-released all externally visible resources (e.g. VPI/VCI) that
-belong to the VCC, and ideally all invisible resources (e.g.
-buffers). There must be no more calls to "push".
+Can you send me a dmesg from 7ac1 please
 
-In return, the stack must not make any other calls for that
-VCC after invoking "close".
-
-Hmm, and I should have written all this in the device driver
-interface document :-)
-
->  but very few (if any) try to do this.  
-
-Looks like trouble ...
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

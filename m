@@ -1,70 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312586AbSDSWAP>; Fri, 19 Apr 2002 18:00:15 -0400
+	id <S313113AbSDSWFb>; Fri, 19 Apr 2002 18:05:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313070AbSDSWAN>; Fri, 19 Apr 2002 18:00:13 -0400
-Received: from smtp5.us.dell.com ([143.166.83.100]:34480 "EHLO
-	smtp5.us.dell.com") by vger.kernel.org with ESMTP
-	id <S312586AbSDSWAM>; Fri, 19 Apr 2002 18:00:12 -0400
-Date: Fri, 19 Apr 2002 17:00:11 -0500 (CDT)
-From: Robert Hentosh <robert@dell.com>
-X-X-Sender: robert@humbolt.us.dell.com
-Reply-To: Robert_Hentosh@dell.com
-To: linux-kernel@vger.kernel.org
-cc: johnsonm@redhat.com, <alan@redhat.com>, <arjanv@redhat.com>
-Subject: [PATCH] reboot=bios is invalidating cache incorrectly
-Message-ID: <Pine.LNX.4.44.0204191651160.32269-100000@humbolt.us.dell.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313114AbSDSWFa>; Fri, 19 Apr 2002 18:05:30 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:19131 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S313113AbSDSWFa>;
+	Fri, 19 Apr 2002 18:05:30 -0400
+Date: Fri, 19 Apr 2002 14:56:51 -0700 (PDT)
+Message-Id: <20020419.145651.82832824.davem@redhat.com>
+To: greearb@candelatech.com
+Cc: rddunlap@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: unresolved symbol: __udivdi3
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3CC092F2.8090009@candelatech.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Sorry for the trashed email and patch.  Apparently Outlook knows better 
-than I where to do word wrapping on patches.
+   From: Ben Greear <greearb@candelatech.com>
+   Date: Fri, 19 Apr 2002 14:58:10 -0700
 
-Here it is again from pine.
+   then I get another unresolved symbol:
+   __umodi3
+   
+Someone needs to add this routine under arch/sparc/lib/
 
+   I'm guessing that there is some optimization the compiler is doing that
+   is using the mod operator somehow, but I am unsure about how to work around
+   this.
 
-
-When specifying the kernel parameter reboot=bios the assembly code that is 
-executed to switch to real mode and call the bios vector contains an 
-error.  This causes rebooting via bios to hang in certain conditions.
-
-The hand assembled routine contained in the array "real_mode_switch" 
-contains INVD which invalidates the CPU caches, unfortunately the routine 
-was just previously copied via memcpy and is contained in the cache.  This 
-leads to unexpected results.  The following patch replaces INVD with 
-WBINVD which will insure that the routine is written to RAM before 
-invalidating the cache, providing more reliable reboots.
-
-This patch applies cleanly to 2.4.18 and 2.5.8.  It probably also works 
-with all 2.2.x, 2.4.x and 2.5.x kernels.
-
-This fixes a long standing bug that prevented reliable reboots on some 
-platforms.
-
-
-Regards,
-Robert Hentosh
-
-
---
-Robert Hentosh
-Sr. Software Engineer
-Dell Linux Solutions www.dell.com/linux
-
-
---- linux-2.4.18.orig/arch/i386/kernel/process.c	Fri Apr 19 14:37:21 2002
-+++ linux-2.4.18/arch/i386/kernel/process.c	Fri Apr 19 14:41:11 2002
-@@ -253,7 +253,7 @@
- 	0x66, 0x0f, 0x20, 0xc3,			/*    movl  %cr0,%ebx        */
- 	0x66, 0x81, 0xe3, 0x00, 0x00, 0x00, 0x60,	/*    andl  $0x60000000,%ebx */
- 	0x74, 0x02,				/*    jz    f                */
--	0x0f, 0x08,				/*    invd                   */
-+	0x0f, 0x09,				/*    wbinvd                 */
- 	0x24, 0x10,				/* f: andb  $0x10,al         */
- 	0x66, 0x0f, 0x22, 0xc0			/*    movl  %eax,%cr0        */
- };
-
-
+"guessing"?  Have a look the definition of do_div in asm-sparc/div64.h
+it explicitly does a mod operation :-)

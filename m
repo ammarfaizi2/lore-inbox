@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbVBICnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbVBICsR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbVBICnm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 21:43:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbVBICly
+	id S261758AbVBICsR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 21:48:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbVBICsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 21:41:54 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:5249 "EHLO
-	mail.bitmover.com") by vger.kernel.org with ESMTP id S261762AbVBICjd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 21:39:33 -0500
-Date: Tue, 8 Feb 2005 18:39:28 -0800
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Jon Smirl <jonsmirl@gmail.com>, "Theodore Ts'o" <tytso@mit.edu>,
+	Tue, 8 Feb 2005 21:48:16 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:7808 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261758AbVBICsH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 21:48:07 -0500
+Date: Wed, 9 Feb 2005 03:47:49 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Larry McVoy <lm@bitmover.com>
+cc: Jon Smirl <jonsmirl@gmail.com>, "Theodore Ts'o" <tytso@mit.edu>,
        Stelian Pop <stelian@popies.net>,
        Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
 Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050209023928.GB4828@bitmover.com>
-Mail-Followup-To: lm@bitmover.com,
-	Roman Zippel <zippel@linux-m68k.org>, Jon Smirl <jonsmirl@gmail.com>,
-	Theodore Ts'o <tytso@mit.edu>, Stelian Pop <stelian@popies.net>,
-	Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
-References: <20050205233841.GA20875@bitmover.com> <20050208154343.GH3537@crusoe.alcove-fr> <20050208155845.GB14505@bitmover.com> <Pine.LNX.4.61.0502081812090.6118@scrub.home> <20050208181634.GA20261@bitmover.com> <Pine.LNX.4.61.0502081942200.6118@scrub.home> <20050209000733.GA6308@thunk.org> <Pine.LNX.4.61.0502090208580.6118@scrub.home> <9e47339105020818242fd9f6fa@mail.gmail.com> <Pine.LNX.4.61.0502090328490.30794@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0502090328490.30794@scrub.home>
-User-Agent: Mutt/1.5.6+20040907i
-From: lm@bitmover.com (Larry McVoy)
+In-Reply-To: <20050209023928.GB4828@bitmover.com>
+Message-ID: <Pine.LNX.4.61.0502090346470.30794@scrub.home>
+References: <20050205233841.GA20875@bitmover.com> <20050208154343.GH3537@crusoe.alcove-fr>
+ <20050208155845.GB14505@bitmover.com> <Pine.LNX.4.61.0502081812090.6118@scrub.home>
+ <20050208181634.GA20261@bitmover.com> <Pine.LNX.4.61.0502081942200.6118@scrub.home>
+ <20050209000733.GA6308@thunk.org> <Pine.LNX.4.61.0502090208580.6118@scrub.home>
+ <9e47339105020818242fd9f6fa@mail.gmail.com> <Pine.LNX.4.61.0502090328490.30794@scrub.home>
+ <20050209023928.GB4828@bitmover.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 09, 2005 at 03:35:37AM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Tue, 8 Feb 2005, Jon Smirl wrote:
-> 
-> > Larry has said he will do the work you want if you pay him.
-> 
-> Usually I'm all for giving the benefit of the doubt, but in this case I'd 
-> prefer to know exactly, what I would get for the money.
-> But as I said by now I know enough about this that I can do the job 
-> myself, all I need is a cooperating bk user.
+Hi,
 
-Translation: someone else who is welling to violate the BK license
-because I don't want to take the risk.  
+On Tue, 8 Feb 2005, Larry McVoy wrote:
 
-Nice, Roman.  All I need is a cooperating third party who is willing to
-give me your code under a different (albeit invalid) license.
--- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+> Nice, Roman.  All I need is a cooperating third party who is willing to
+> give me your code under a different (albeit invalid) license.
+
+Short version: Bullshit.
+Long version: See previous mails.
+
+bye, Roman

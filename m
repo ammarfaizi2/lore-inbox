@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbUKWNAQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbUKWNDl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbUKWNAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 08:00:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbUKWM4d
+	id S261221AbUKWNDl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 08:03:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbUKWNA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 07:56:33 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:26787 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261221AbUKWM4A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 07:56:00 -0500
-Date: Tue, 23 Nov 2004 14:56:48 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: Florian Schmidt <mista.tapas@gmx.net>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
-Message-ID: <20041123135648.GA14458@elte.hu>
-References: <20041122005411.GA19363@elte.hu> <20041122020741.5d69f8bf@mango.fruits.de> <20041122094602.GA6817@elte.hu> <56781.195.245.190.93.1101119801.squirrel@195.245.190.93> <20041122132459.GB19577@elte.hu> <20041122142744.0a29aceb@mango.fruits.de> <65529.195.245.190.94.1101133129.squirrel@195.245.190.94> <20041122154516.GC2036@elte.hu> <9182.195.245.190.93.1101142412.squirrel@195.245.190.93> <20041123135508.GA13786@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041123135508.GA13786@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 23 Nov 2004 08:00:28 -0500
+Received: from host-3.tebibyte16-2.demon.nl ([82.161.9.107]:2568 "EHLO
+	doc.tebibyte.org") by vger.kernel.org with ESMTP id S261221AbUKWM67
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 07:58:59 -0500
+Message-ID: <41A33403.70107@tebibyte.org>
+Date: Tue, 23 Nov 2004 13:58:43 +0100
+From: Chris Ross <chris@tebibyte.org>
+Organization: At home (Eindhoven, The Netherlands)
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: pt-br, pt
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>, linux-kernel@vger.kernel.org,
+       Jan Kara <jack@suse.cz>
+Subject: Re: 2.6.10-rc2-mm3 - oops on boot
+References: <20041121223929.40e038b2.akpm@osdl.org>	<41A26BD4.8000509@eyal.emu.id.au> <20041122151049.6b9dc575.akpm@osdl.org>
+In-Reply-To: <20041122151049.6b9dc575.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton escreveu:
+> Well devfs has a NULL sb->s_bdev, so the oops is no surprise.  However I'm
+> a bit surprised that we even got that far into the quota code.
 
-> Saw at least a couple of XRUNs in a 20 (4*5) minute test-run. CPU load
-> doesn't get above 30% on my laptop (P4/UP 2.533Ghz).
+The panic on boot on my machine is related to the quota code, but it 
+wasn't in quota_off. I haven't had a chance to find out exactly where 
+yet, but I've made the simple change you've given. I'll find out this 
+evening whether it fixes it for me.
 
-i'm wondering, do you get any xruns (or other bad behavior) if you use
-the dummy ALSA driver for the latency test?
-
-	Ingo
+Regards,
+Chris R.

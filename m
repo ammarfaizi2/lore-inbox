@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267575AbSKQUJ2>; Sun, 17 Nov 2002 15:09:28 -0500
+	id <S267586AbSKQUUW>; Sun, 17 Nov 2002 15:20:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267579AbSKQUJ2>; Sun, 17 Nov 2002 15:09:28 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55817 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267575AbSKQUJ0>; Sun, 17 Nov 2002 15:09:26 -0500
-Date: Sun, 17 Nov 2002 12:16:28 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Matthew Wilcox <willy@debian.org>
-cc: Christoph Hellwig <hch@lst.de>, <linux-kernel@vger.kernel.org>,
-       <kernel-janitor-discuss@lists.sourceforge.net>
-Subject: Re: [PATCH] change allow_write_access/deny_write_access prototype
-In-Reply-To: <20021117194742.D7530@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44.0211171212360.1370-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267583AbSKQUUW>; Sun, 17 Nov 2002 15:20:22 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:22360 "EHLO
+	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267582AbSKQUUU>; Sun, 17 Nov 2002 15:20:20 -0500
+Date: Sun, 17 Nov 2002 15:28:26 -0500
+From: Doug Ledford <dledford@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Scsi Mailing List <linux-scsi@vger.kernel.org>
+Subject: Several Misc SCSI updates...
+Message-ID: <20021117202826.GE3280@redhat.com>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux Scsi Mailing List <linux-scsi@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+These bring the scsi subsys up to the new module loader semantics.  There 
+is more work to be done on inter-module locking here, but we need to solve 
+the whole module->live is 0 during init problem first or else it's a waste 
+of time.
 
-On Sun, 17 Nov 2002, Matthew Wilcox wrote:
-> 
-> I'm quite happy to test that my header cleanups don't break things --
-> but there are many things which don't currently compile anyway.  I try
-> to enable the things I think my changes will break, but I didn't spot
-> the isapnp one my pci_dev changes broke.  Could I ask that you update
-> defconfig with your .config again so we can be sure things don't break
-> _your_ build?
+bk://linux-scsi.bkbits.net/scsi-dledford
 
-Breaking my build is ok, I can trivially fix those. Usually it's a 
-one-liner, and that's not the thing I worry about.
+ChangeSet@1.866, 2002-11-17 15:02:31-05:00, dledford@flossy.devel.redhat.com
+  Merge bk://linux.bkbits.net/linux-2.5
+  into flossy.devel.redhat.com:/usr/local/home/dledford/bk/linus-2.5
 
-I worry about the fact that I'm aboud to releaser 2.5.48, and then it
-doesn't compile for some silly reason, even though I've obviously tested 
-it on my configurations and fixed the problems _I_ saw.
+ChangeSet@1.810.1.5, 2002-11-16 21:31:05-05:00, dledford@aladin.rdu.redhat.com
+  Christoph Hellwig posted a patch that conflicted with a lot of my own
+  changes, so this is the merge of his work into my own.
 
-Cleaning up header files is fine, but the trivial part is to remove the 
-line that includes another header file. The _real_ work is trying to 
-figure out that nothing else broke as a result, and I think that's what a 
-janitor who does these things should really care about.
+ChangeSet@1.810.1.4, 2002-11-16 21:22:06-05:00, dledford@aladin.rdu.redhat.com
+  aic7xxx_old: fix check_region/request_region usage so that the module
+        may be loaded/unloaded/reloaded
 
-The whole "janitor" name to me implies somebody who does the hand and ugly 
-and mostly boring thing that needs to be done to clean stuff up and make 
-sure things work smoothly. A "janitorial" patch that leaves broken pieces 
-in random places of the tree doesn't sound very janitorial to me, if you 
-see what I mean..
+ChangeSet@1.810.1.3, 2002-11-16 20:59:23-05:00, dledford@aladin.rdu.redhat.com
+  Update high level scsi drivers to use struct list_head in templates
+  Update scsi.c for struct list_head in upper layer templates
+  Update scsi.c for new module loader semantics
 
-			Linus
+ChangeSet@1.810.1.2, 2002-11-16 14:51:42-05:00, dledford@aladin.rdu.redhat.com
+  scsi.c:
+  - Comment out GET_USE_COUNT, it's a bogus test anyway
+  - Don't panic on failure to allocate sg table slab slots, fail gracefully
+  - init_scsi() leaks all sorts of crap on failed module load
 
+ChangeSet@1.805.6.1, 2002-11-11 18:02:55-05:00, dledford@aladin.rdu.redhat.com
+  mptscsih.h: compile fix
+
+
+-- 
+  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+         Red Hat, Inc. 
+         1801 Varsity Dr.
+         Raleigh, NC 27606
+  

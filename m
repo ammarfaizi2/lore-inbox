@@ -1,100 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266680AbUJIKmw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266684AbUJIKoq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266680AbUJIKmw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 06:42:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266684AbUJIKmw
+	id S266684AbUJIKoq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 06:44:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266687AbUJIKop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 06:42:52 -0400
-Received: from pop.gmx.de ([213.165.64.20]:14752 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266680AbUJIKms (ORCPT
+	Sat, 9 Oct 2004 06:44:45 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:23495 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S266684AbUJIKoc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 06:42:48 -0400
-X-Authenticated: #911537
-Date: Sat, 9 Oct 2004 12:47:02 +0200
-From: torbenh@gmx.de
-To: linux-kernel@vger.kernel.org
-Subject: voluntary-preempt T3 latency spikes with fan speed change
-Message-ID: <20041009104702.GA14649@mobilat.informatik.uni-bremen.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Sat, 9 Oct 2004 06:44:32 -0400
+Date: Sat, 9 Oct 2004 12:46:00 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "K.R. Foley" <kr@cybsft.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Florian Schmidt <mista.tapas@gmx.net>, Mark_H_Johnson@raytheon.com,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Subject: Re: voluntary-preempt-2.6.9-rc3-mm3-T3
+Message-ID: <20041009104600.GB19062@elte.hu>
+References: <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu> <20041007105230.GA17411@elte.hu> <1097297824.1442.132.camel@krustophenia.net> <cone.1097298596.537768.1810.502@pc.kolivas.org> <1097299260.1442.142.camel@krustophenia.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <1097299260.1442.142.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-hi...
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-i am seeing latency spikes (ie jack xruns) when the fan of my 
-asus l3d laptop changes speed.
+> > > With VP and PREEMPT in general, does the scheduler always run the
+> > > highest priority process, or do we only preempt if a SCHED_FIFO process
+> > > is runnable?
+> > 
+> > Always the highest priority runnable.
+> > 
+> 
+> Hmm, interesting.  Would there be any advantage to a mode where only
+> SCHED_FIFO tasks can preempt?  This seems like a much lighter way to
+> solve the realtime problem.
 
-is there any chance to fix this ?
-i have turned off acpi in the kernel, as this gives me latency spikes
-all over.
+it could be done, but i dont think we should do it. It makes RT
+scheduling much more of a special-case. Right now RT scheduling is 99%
+like normal scheduling - with the difference that RT priorities are
+"higher" than the normal priorities and that each RT priority level is
+"exclusive": the scheduler will let such tasks run until they want,
+without applying fairness policies.
 
-i am quite new to the VP patches, and want to help where i can.
+by making RT tasks more of a special case we'd destabilize the whole
+thing: there would be kernel preemptability bugs that only RT tasks
+would hit - resulting in a steady deterioration of PREEMPT support in
+the kernel. (the ratio of RT tasks is perhaps 0.1% of all use, or less.) 
+So applying _any_ RT-only technique besides the bare minimum is asking
+for trouble in the long run.
 
-i also got a quite strange latency trace here:
+furthermore, we had hard-to-trigger SMP bugs that the PREEMPT kernel
+triggered much faster - resulting in an indirect stabilization of our
+SMP code. If nothing else then this alone makes PREEMPT very useful.
 
-could someone sched some light on this please ?
-
-
-preemption latency trace v1.0.7 on 2.6.9-rc3-mm2-VP-T1
--------------------------------------------------------
- latency: 4579 us, entries: 45 (45)   |   [VP:1 KP:1 SP:1 HP:1 #CPUS:1]
-    -----------------
-    | task: ardour/5244, uid:1000 nice:0 policy:0 rt_prio:0
-    -----------------
- => started at: do_IRQ+0x19/0x60
- => ended at:   irq_exit+0x3c/0x50
-=======>
-00010000 0.000ms (+0.000ms): do_IRQ (common_interrupt)
-00010000 0.000ms (+0.000ms): do_IRQ (<415a3011>)
-00010000 0.000ms (+0.000ms): do_IRQ (<00000000>)
-00010001 0.000ms (+0.002ms): mask_and_ack_8259A (__do_IRQ)
-00010001 0.002ms (+0.000ms): redirect_hardirq (__do_IRQ)
-00010000 0.002ms (+0.000ms): handle_IRQ_event (__do_IRQ)
-00010000 0.003ms (+0.000ms): timer_interrupt (handle_IRQ_event)
-00010001 0.003ms (+0.006ms): mark_offset_tsc (timer_interrupt)
-00010001 0.010ms (+0.000ms): do_timer (timer_interrupt)
-00010001 0.010ms (+0.000ms): update_wall_time (do_timer)
-00010001 0.010ms (+0.000ms): update_wall_time_one_tick (update_wall_time)
-00010001 0.011ms (+0.000ms): update_process_times (timer_interrupt)
-00010001 0.011ms (+0.000ms): update_one_process (update_process_times)
-00010001 0.011ms (+0.000ms): run_local_timers (update_process_times)
-00010001 0.011ms (+0.000ms): raise_softirq (update_process_times)
-00010001 0.012ms (+0.000ms): scheduler_tick (update_process_times)
-00010001 0.012ms (+0.000ms): sched_clock (scheduler_tick)
-00010002 0.013ms (+0.000ms): task_timeslice (scheduler_tick)
-00010002 0.013ms (+0.000ms): dequeue_task (scheduler_tick)
-00010002 0.013ms (+0.000ms): effective_prio (scheduler_tick)
-00010002 0.013ms (+0.000ms): enqueue_task (scheduler_tick)
-00010001 0.013ms (+0.000ms): preempt_schedule (scheduler_tick)
-00010001 0.014ms (+0.000ms): profile_tick (timer_interrupt)
-00010000 0.014ms (+4.561ms): preempt_schedule (timer_interrupt)
-00010001 4.576ms (+0.000ms): note_interrupt (__do_IRQ)
-00010001 4.576ms (+0.000ms): end_8259A_irq (__do_IRQ)
-00010001 4.576ms (+0.000ms): enable_8259A_irq (__do_IRQ)
-00010001 4.577ms (+0.000ms): preempt_schedule (__do_IRQ)
-00010000 4.577ms (+0.000ms): preempt_schedule (__do_IRQ)
-00010000 4.577ms (+0.000ms): irq_exit (do_IRQ)
-00000001 4.577ms (+0.000ms): do_softirq (irq_exit)
-00000001 4.577ms (+0.000ms): __do_softirq (do_softirq)
-00000001 4.577ms (+0.000ms): wake_up_process (do_softirq)
-00000001 4.577ms (+0.000ms): try_to_wake_up (wake_up_process)
-00000001 4.577ms (+0.000ms): task_rq_lock (try_to_wake_up)
-00000002 4.578ms (+0.000ms): activate_task (try_to_wake_up)
-00000002 4.578ms (+0.000ms): sched_clock (activate_task)
-00000002 4.578ms (+0.000ms): recalc_task_prio (activate_task)
-00000002 4.579ms (+0.000ms): effective_prio (recalc_task_prio)
-00000002 4.579ms (+0.000ms): enqueue_task (activate_task)
-00000001 4.579ms (+0.000ms): preempt_schedule (try_to_wake_up)
-00000001 4.579ms (+0.000ms): sub_preempt_count (irq_exit)
-00000001 4.580ms (+0.000ms): update_max_trace (check_preempt_timing)
-00000001 4.580ms (+0.000ms): _mmx_memcpy (update_max_trace)
-00000001 4.580ms (+0.000ms): kernel_fpu_begin (_mmx_memcpy)
-
--- 
-torben Hohn
-http://galan.sourceforge.net -- The graphical Audio language
+	Ingo

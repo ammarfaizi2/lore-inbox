@@ -1,32 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269583AbRHMAD0>; Sun, 12 Aug 2001 20:03:26 -0400
+	id <S269018AbRHMAVe>; Sun, 12 Aug 2001 20:21:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269589AbRHMADQ>; Sun, 12 Aug 2001 20:03:16 -0400
-Received: from inet-mail3.oracle.com ([148.87.2.203]:9114 "EHLO
-	inet-mail3.oraclecorp.com") by vger.kernel.org with ESMTP
-	id <S269583AbRHMADE>; Sun, 12 Aug 2001 20:03:04 -0400
-Message-ID: <3B7719BF.C6DC958A@oracle.com>
-Date: Mon, 13 Aug 2001 02:05:19 +0200
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
-X-Accept-Language: en
+	id <S269041AbRHMAVY>; Sun, 12 Aug 2001 20:21:24 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:4369 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S269018AbRHMAVN>;
+	Sun, 12 Aug 2001 20:21:13 -0400
+Date: Sun, 12 Aug 2001 21:21:05 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Performance 2.4.8 is worse than 2.4.x<8
+In-Reply-To: <9l70hc$1sd$1@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0108122112090.6118-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.9-pre1 unresolved symbols in fat.o/smbfs.o
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-depmod: *** Unresolved symbols in /lib/modules/2.4.9-pre1/kernel/fs/fat/fat.o
-depmod: 	generic_file_llseek
-depmod: *** Unresolved symbols in /lib/modules/2.4.9-pre1/kernel/fs/smbfs/smbfs.o
-depmod: 	generic_file_llseek
- 
---alessandro
+On Sun, 12 Aug 2001, Linus Torvalds wrote:
 
- "this is no time to get cute, it's a mad dog's promenade
-  so walk tall, or baby don't walk at all"
-                (Bruce Springsteen, 'New York City Serenade')
+> Word of warning: there are some loads on which 2.4.7 will simply lock
+> up.  If you don't want to take all the new code, at least take the
+> changes to fs/buffer.c and refill_buffer() or whatever.
+
+I'll do my best to merge some of the obviously correct
+pieces of VM code from -linus to -ac.
+
+> That said, me and Marcelo are still working on making sure it's good
+> under _all_ loads..
+
+I wonder how much you'd be willing to give up in the
+common case in order to prevent the system from falling
+over under strange loads. Hypothetically speaking, that
+is, I don't really have anything in mind yet ;)
+
+cheers,
+
+Rik
+--
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

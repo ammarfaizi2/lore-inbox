@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262662AbSJWBrt>; Tue, 22 Oct 2002 21:47:49 -0400
+	id <S262479AbSJWBw4>; Tue, 22 Oct 2002 21:52:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262664AbSJWBrt>; Tue, 22 Oct 2002 21:47:49 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:36651 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S262662AbSJWBrs>; Tue, 22 Oct 2002 21:47:48 -0400
-Date: Wed, 23 Oct 2002 03:51:58 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, ak@muc.de,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       george anzinger <george@mvista.com>, Jeff Dike <jdike@karaya.com>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Bill Davidsen <davidsen@tmr.com>
-Subject: Re: [RFC] linux-2.5.44_vsyscall-proc_A0
-Message-ID: <20021023015157.GI11242@dualathlon.random>
-References: <1035336629.954.90.camel@cog> <1035336772.954.95.camel@cog>
-Mime-Version: 1.0
+	id <S262568AbSJWBw4>; Tue, 22 Oct 2002 21:52:56 -0400
+Received: from web21501.mail.yahoo.com ([66.163.169.12]:32935 "HELO
+	web21501.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S262479AbSJWBw4>; Tue, 22 Oct 2002 21:52:56 -0400
+Message-ID: <20021023015905.63415.qmail@web21501.mail.yahoo.com>
+Date: Tue, 22 Oct 2002 18:59:05 -0700 (PDT)
+From: Lk Overrun <lkoverrun@yahoo.com>
+Subject: Brust data send problem on gigabit NIC on Linux
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1035336772.954.95.camel@cog>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22, 2002 at 06:32:51PM -0700, john stultz wrote:
-> All
-> 	Well, just to fan the flames a bit, here is a patch (applies on top of
-> vsyscall_A1)that adds a /proc/vsyscall interface which gives the address
-> of the vsyscall page if its mapped in. This could be then used to help
-> the UML folks virtualize things, as well as give a cross platform
-> interface that could be used. There's probably a better place in /proc
-> for this, but this is just something to start from. 
-> 	
-> Let me know your thoughts.
+Hi, I am seeking advice on how to best send out huge
+number of packets on a gigabit ethernet interface.  I
+am using kernel 2.4.19.  I try to send out as many as
+possible 15Kbyte-long ethernet packets to try to
+utilize the giga-bit/sec bandwidth.  My CPU is really
+fast (2 GHz) amd I dump the packets to the interface
+in a  tight loop in user space.  However, I can only
+reach around 400 Mbits/sec before the packets get
+dropped.  The queue discipline (qdisc) seems to be
+responsible because the queue length (txqueuelen) is
+only 100 by default, and the queue just cannot store
+so many packets at once.  I can eliminate the packet
+drop by raising the queue length to somewhere like
+60000 but that is not practical because it uses too
+much memory. It seems I need some delay between
+sending packets but I cannot sleep for less than 10 ms
+(1/Hz) in user space and 10 ms is too long.
 
-there is no point for this last patch. The vsyscall_ptr is the vsyscall
-number.
+I am using raw socket bypassing the IP stack and my
+NIC is the Intel Pro1000 (using the e1000.o driver).
 
-This is equivalent to a proc that shows the syscall number of
-sys_gettimeofday, useless, cat on unistd.h and vsyscall.h will avoid a
-waste of kernel mem.
+What is the best way to send raw ethernet packets,
+reaching gigabit range withuut packet drop on Linux? 
+Thanks for any advice.
 
-the uml folks need to replace the vsyscalls, they just know their
-address, like they just know the syscall number of sys_gettimeofday.
+ 
 
-Andrea
+__________________________________________________
+Do you Yahoo!?
+Y! Web Hosting - Let the expert host your web site
+http://webhosting.yahoo.com/

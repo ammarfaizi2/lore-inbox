@@ -1,76 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269653AbRHCWwD>; Fri, 3 Aug 2001 18:52:03 -0400
+	id <S269672AbRHCWyx>; Fri, 3 Aug 2001 18:54:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269658AbRHCWvy>; Fri, 3 Aug 2001 18:51:54 -0400
-Received: from srv01s4.cas.org ([134.243.50.9]:23025 "EHLO srv01.cas.org")
-	by vger.kernel.org with ESMTP id <S269653AbRHCWvn>;
-	Fri, 3 Aug 2001 18:51:43 -0400
-From: Mike Harrold <mharrold@cas.org>
-Message-Id: <200108032251.SAA10057@mah21awu.cas.org>
-Subject: Re: [OT] DMCA loop hole
-To: nick@snowman.net
-Date: Fri, 3 Aug 2001 18:51:44 -0400 (EDT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jap3003+response@ksu.edu,
-        pgallen@randomlogic.com (Paul G. Allen), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0108031830170.2386-100000@ns> from "nick@snowman.net" at Aug 03, 2001 06:31:24 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S269667AbRHCWyo>; Fri, 3 Aug 2001 18:54:44 -0400
+Received: from cs159246.pp.htv.fi ([213.243.159.246]:57975 "EHLO
+	porkkala.cs159246.pp.htv.fi") by vger.kernel.org with ESMTP
+	id <S269658AbRHCWy3>; Fri, 3 Aug 2001 18:54:29 -0400
+Message-ID: <3B6B2B9F.1CFC220A@pp.htv.fi>
+Date: Sat, 04 Aug 2001 01:54:23 +0300
+From: Jussi Laako <jlaako@pp.htv.fi>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Russell King <rmk@arm.linux.org.uk>
+CC: Per Jessen <per.jessen@enidan.com>, linux-kernel@vger.kernel.org,
+        linux-laptop@vger.kernel.org
+Subject: Re: PCMCIA control I82365 stops working with 2.4.4
+In-Reply-To: <3B5D8A0A002D181A@mta2n.bluewin.ch> <20010801114105.A26615@flint.arm.linux.org.uk> <3B68557B.7816FE4B@pp.htv.fi> <20010801202409.A27667@flint.arm.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Russell King wrote:
 > 
-> Yeah it is.  EULA has become totally valid and should be upheld by any
-> courts who come across one.  (In the US at least.  I don't know the
-> situation outside the US).  One of the recent bills/acts/whatever made
-> this change.
-> 	Nick
+> Hmm, I'm not an x86 expert, so I'll have to leave you here.  What I do 
+> know is that yenta is for PCI-based PCMCIA controllers with CardBus 
+> support. i82365 is for ISA PCMCIA controllers only.
 
-I believe you refer to UCITA which is a STATE bill, not a federal bill.
-All 50 states are passing/sitting-on versions of this bill. I believe
-Virginia is the only state that has passed the bill AND is enforcing
-it. Others have "delayed" it's effective date.
+The machine has CardBus (at least CB-logo beside slots). It's Toshiba
+Satellite 300CDS.
 
-However, MANY states are passing/debating subsequent bills that NULLIFY
-other states' UCITA bills, because the flaws in the UCITA bills are
-becoming more apparent.
+ - Jussi Laako
 
-Regards,
+--- 8< ---
+00:00.0 Host bridge: Toshiba America Info Systems 601 (rev 2c)
+00:04.0 VGA compatible controller: Chips and Technologies F65555 HiQVPro
+(rev c6)
+00:0b.0 USB Controller: NEC Corporation USB (rev 02)
+00:11.0 Communication controller: Toshiba America Info Systems FIR Port (rev
+21)
+00:13.0 CardBus bridge: Toshiba America Info Systems ToPIC97 (rev 20)
+00:13.1 CardBus bridge: Toshiba America Info Systems ToPIC97 (rev 20)
+--- 8< ---
 
-/Mike
-
-> 
-> On Fri, 3 Aug 2001, Alan Cox wrote:
-> 
-> > > >From Paul G. Allen on Wednesday, 01 August, 2001:
-> > > >To take another angle, those of us who actively look for exploits in software (because companies like M$ fail to do so themselves) risk being sued for doing so.
-> > > 
-> > > Hrm.  Very good point.  However, under most EULA's I've seen, reverse
-> > >   engineering is already a no-no.
-> > 
-> > Most EULA's are not legal contracts. In civilised countries the right to
-> > disassemble is enshrined in law (ironically it comes in Europe from trying
-> > to keep car manufacturers from running monopolistic scams not from the
-> > software people doing the same)
-> > 
-> > In the USA its a lot less clear. You can find laws explicitly claiming both,
-> > and since US law is primarily about who has loads of money, its a bit
-> > irrelevant
-> > 
-> > Alan
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+-- 
+PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+Available at PGP keyservers

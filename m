@@ -1,120 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285133AbRLRVBN>; Tue, 18 Dec 2001 16:01:13 -0500
+	id <S285156AbRLRU4y>; Tue, 18 Dec 2001 15:56:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285160AbRLRVBE>; Tue, 18 Dec 2001 16:01:04 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:41487 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S285133AbRLRVAv>; Tue, 18 Dec 2001 16:00:51 -0500
-Date: Tue, 18 Dec 2001 17:46:00 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Momchil Velikov <velco@fadata.bg>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Copying to loop device hangs up everything
-In-Reply-To: <871yhu25p3.fsf@fadata.bg>
-Message-ID: <Pine.LNX.4.21.0112181745240.4473-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S285151AbRLRU4r>; Tue, 18 Dec 2001 15:56:47 -0500
+Received: from vega.digitel2002.hu ([213.163.0.181]:62886 "EHLO
+	vega.digitel2002.hu") by vger.kernel.org with ESMTP
+	id <S285133AbRLRU4l>; Tue, 18 Dec 2001 15:56:41 -0500
+Date: Tue, 18 Dec 2001 21:56:32 +0100
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] DRM OS
+Message-ID: <20011218205632.GD28560@vega.digitel2002.hu>
+Reply-To: lgb@lgb.hu
+In-Reply-To: <20011218121034.B23308@vitelus.com> <Pine.LNX.4.33L.0112181843520.28489-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0112181843520.28489-100000@duckman.distro.conectiva>
+User-Agent: Mutt/1.3.24i
+X-Operating-System: vega Linux 2.4.16 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 18, 2001 at 06:44:41PM -0200, Rik van Riel wrote:
+> On Tue, 18 Dec 2001, Aaron Lehmann wrote:
+> > On Tue, Dec 18, 2001 at 09:05:55PM +0100, Dave Jones wrote:
+> > > Remember DMCA ? Remember SSSCA ?
+> >
+> > I watch DVD's with DeCSS. Come and get me.
+> 
+> Punishable by fines of up to $500,000 and 5 years
+> in prison, per violation.
+> 
+> That adds up quickly if you watch multiple movies
+> a week.
 
-Momchil, 
+Ehh. What if I don't want (let's say) I can't pay money for a DVD player
+software? Is there any legal DVD player sw for Linux? For win it's not
+solution for me since win is not legal unless I buy it :) So I can't watch
+my own DVD disk according the law? Imho it's against the constitution of
+most countries: if I beleive that Open Source is the RIGHT solution (let'say
+this is my religion, namely: I beleive in freedom so I can only use open
+source softwares :), then I can't watch DVDs. So I'm under detrimental
+distinction because of my religion. Hmm ;-( [sorry it's very OT maybe some
+linux-kernel-flame mailing list should be created, like linux-flame mailing
+list in Hungary :)]
 
-Your fix does not look right. We _have_ to sync pages at
-sync_page_buffers(), we cannot "ignore" them.
-
-On 16 Dec 2001, Momchil Velikov wrote:
-
-> >>>>> "Momchil" == Momchil Velikov <velco@fadata.bg> writes:
-> 
-> >>>>> "David" == David Gomez <davidge@jazzfree.com> writes:
-> David> On 16 Dec 2001, Momchil Velikov wrote:
-> 
-> >>> [...]
-> >>> 
-> David> Thanks ;), this patch solves the problem and copying a lot of data to the
-> David> loop device now doesn't hang the computer.
-> >>> 
-> David> Is this patch going to be applied to the stable kernel ? Marcelo ?
-> >>> 
-> >>> I've had exactly the same hangups with or without the patch.
-> 
-> David> I've tested several times after applying the loop-deadlock patch and the
-> David> bug seems to be fixed. No more hangups while copying a lot of data to
-> David> loopback devices. Post more info about your hangups, maybe is another
-> David> different loop device deadlock.
-> 
-> Momchil> Maybe it's different I don't know. Looks like I've found a fix and in
-> Momchil> a minute I'll test _without_ the Andrea's patch and post whatever
-> Momchil> comes out of it.
-> 
-> It turned out that Andrea's patch is needed and it needs to be
-> augmented slightly.  The loop_thread can do the following:
-> 
-> loop_thread
-> -> do_bh_filebacked
-> -> lo_send
-> -> ...
-> ->  kmem_cache_alloc
-> -> ...
-> -> shrink_cache
-> -> try_to_release_page
-> -> try_to_free_buffers
-> -> sync_page_buffers
-> -> __wait_on_buffer
-> 
-> And if the buffer must be flushed to the loopback device we deadlock.
-> 
-> The following patch is the Andrea's one + one additional change -- we
-> don't allow the loop_thread to wait in sync_page_buffers.
-> 
-> Regards,
-> -velco
-> 
-> diff -Nru a/drivers/block/loop.c b/drivers/block/loop.c
-> --- a/drivers/block/loop.c	Sun Dec 16 23:50:25 2001
-> +++ b/drivers/block/loop.c	Sun Dec 16 23:50:25 2001
-> @@ -578,6 +578,8 @@
->  	atomic_inc(&lo->lo_pending);
->  	spin_unlock_irq(&lo->lo_lock);
->  
-> +	current->flags |= PF_NOIO;
-> +
->  	/*
->  	 * up sem, we are running
->  	 */
-> diff -Nru a/fs/buffer.c b/fs/buffer.c
-> --- a/fs/buffer.c	Sun Dec 16 23:50:25 2001
-> +++ b/fs/buffer.c	Sun Dec 16 23:50:25 2001
-> @@ -1045,7 +1045,7 @@
->  
->  	/* First, check for the "real" dirty limit. */
->  	if (dirty > soft_dirty_limit) {
-> -		if (dirty > hard_dirty_limit)
-> +		if (dirty > hard_dirty_limit && !(current->flags & PF_NOIO))
->  			return 1;
->  		return 0;
->  	}
-> @@ -2448,6 +2448,8 @@
->  		/* Second time through we start actively writing out.. */
->  		if (test_and_set_bit(BH_Lock, &bh->b_state)) {
->  			if (!test_bit(BH_launder, &bh->b_state))
-> +				continue;
-> +			if (current->flags & PF_NOIO)
->  				continue;
->  			wait_on_buffer(bh);
->  			tryagain = 1;
-> diff -Nru a/include/linux/sched.h b/include/linux/sched.h
-> --- a/include/linux/sched.h	Sun Dec 16 23:50:25 2001
-> +++ b/include/linux/sched.h	Sun Dec 16 23:50:25 2001
-> @@ -426,6 +426,7 @@
->  #define PF_MEMALLOC	0x00000800	/* Allocating memory */
->  #define PF_MEMDIE	0x00001000	/* Killed for out-of-memory */
->  #define PF_FREE_PAGES	0x00002000	/* per process page freeing */
-> +#define PF_NOIO		0x00004000	/* avoid generating further I/O */
->  
->  #define PF_USEDFPU	0x00100000	/* task used FPU this quantum (SMP) */
->  
-> 
-
+- Gabor

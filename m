@@ -1,49 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131584AbRCQLDa>; Sat, 17 Mar 2001 06:03:30 -0500
+	id <S131606AbRCQLYK>; Sat, 17 Mar 2001 06:24:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131599AbRCQLDV>; Sat, 17 Mar 2001 06:03:21 -0500
-Received: from diup-10-48.inter.net.il ([213.8.10.48]:5124 "EHLO
-	callisto.yi.org") by vger.kernel.org with ESMTP id <S131584AbRCQLDC>;
-	Sat, 17 Mar 2001 06:03:02 -0500
-Date: Sat, 17 Mar 2001 13:01:39 +0200 (IST)
-From: Dan Aloni <karrde@callisto.yi.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] fs/nls/Makefile - fix a dependency problem
-Message-ID: <Pine.LNX.4.32.0103171242300.984-100000@callisto.yi.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131607AbRCQLYA>; Sat, 17 Mar 2001 06:24:00 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:55935 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S131606AbRCQLXz>; Sat, 17 Mar 2001 06:23:55 -0500
+Date: Sat, 17 Mar 2001 06:23:00 -0500
+From: Tim Waugh <twaugh@redhat.com>
+To: "Michael B. Allen" <mballen@erols.com>
+Cc: Tim Moore <timothymoore@bigfoot.com>, linux-kernel@vger.kernel.org
+Subject: Re: parport not detected
+Message-ID: <20010317062300.C13877@redhat.com>
+In-Reply-To: <20010316185253.A865@nano.foo.net> <3AB2C527.667F774D@bigfoot.com> <20010317010551.A1865@nano.foo.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010317010551.A1865@nano.foo.net>; from mballen@erols.com on Sat, Mar 17, 2001 at 01:05:51AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Mar 17, 2001 at 01:05:51AM -0500, Michael B. Allen wrote:
 
-The problem:
-  When both nls_iso8859_8 and nls_cp1255 are compiled into the kernel
-  (=Y), init_nls_iso8859_8() is called before init_nls_cp1255() - this
-  causes iso_8859_8 to call request_module() which obviously fails.
+> I setup everything as you describe below. I don't remember having to
+> do all this stuff before(on other machines anyway). I guess I'm used to
+> RH's fluffed-up stock kernels.
 
-Kernel log: (from dmesg + traces I added)
-  TRACE: init_nls_iso8859_8()
-  request_module[nls_cp1255]: Root fs not mounted
-  Unable to load NLS charset cp1255
-  TRACE: init_nls_cp1255()
+Which stock kernel didn't work for you?
 
-The fix: (changing the link order of the two modules)
-
---- linux-2.4.2-ac20/fs/nls/Makefile	Sat Mar  3 16:13:21 2001
-+++ linux-2.4.2-ac20/fs/nls/Makefile	Sat Mar 17 12:39:28 2001
-@@ -42,7 +42,7 @@
- obj-$(CONFIG_NLS_ISO8859_5)	+= nls_iso8859-5.o
- obj-$(CONFIG_NLS_ISO8859_6)	+= nls_iso8859-6.o
- obj-$(CONFIG_NLS_ISO8859_7)	+= nls_iso8859-7.o
--obj-$(CONFIG_NLS_ISO8859_8)	+= nls_iso8859-8.o nls_cp1255.o
-+obj-$(CONFIG_NLS_ISO8859_8)	+= nls_cp1255.o nls_iso8859-8.o
- obj-$(CONFIG_NLS_ISO8859_9)	+= nls_iso8859-9.o
- obj-$(CONFIG_NLS_ISO8859_10)	+= nls_iso8859-10.o
- obj-$(CONFIG_NLS_ISO8859_13)	+= nls_iso8859-13.o
-
---
-Dan Aloni
-dax@karrde.org
-
+Tim.
+*/

@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289081AbSAUGjw>; Mon, 21 Jan 2002 01:39:52 -0500
+	id <S289082AbSAUGlw>; Mon, 21 Jan 2002 01:41:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289082AbSAUGjd>; Mon, 21 Jan 2002 01:39:33 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:24969 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S289081AbSAUGjR>; Mon, 21 Jan 2002 01:39:17 -0500
-Date: Sun, 20 Jan 2002 23:39:11 -0700
-Message-Id: <200201210639.g0L6dBp22342@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: devfsd-v1.3.22 available
+	id <S289085AbSAUGln>; Mon, 21 Jan 2002 01:41:43 -0500
+Received: from dsl-ma-2.static.minn.net ([216.177.158.51]:34569 "EHLO
+	Rollie.cranston.com") by vger.kernel.org with ESMTP
+	id <S289082AbSAUGlY>; Mon, 21 Jan 2002 01:41:24 -0500
+Date: Mon, 21 Jan 2002 00:32:56 -0600 (CST)
+From: M A <ma@cranston.com>
+To: robert w hall <bobh@n-cantrell.demon.co.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: AOL in Negotiations to Buy Red Hat?
+In-Reply-To: <pSedZbA7TgS8Ew8P@n-cantrell.demon.co.uk>
+Message-ID: <Pine.LNX.4.20.0201210029360.15868-100000@Rollie.cranston.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. I've just released version 1.3.22 of my devfsd (devfs
-daemon) at: http://www.atnf.csiro.au/~rgooch/linux/
+The move by AOl will have a major impact on the linux community.
+Linux will enter the consumer market in mass !
+IBM is pushing linux on the business(server) side.
 
-Tarball directly available from:
-ftp://ftp.??.kernel.org/pub/linux/daemons/devfsd/devfsd.tar.gz
+Cheers,
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/daemons/devfsd/devfsd.tar.gz
+m a
 
-This works with devfs-patch-v130, kernel 2.3.46 and devfs-patch-v99.7
-(or later).
+On Sat, 19 Jan 2002, robert w hall wrote:
 
-The main changes are:
+> In article <9C5DA8E6-0CB9-11D6-AC06-0030657B7B46@mac.com>, Pagani,
+> Ronald <paganir@mac.com> writes
+> >Now, what on earth would they want with RedHat?? Hrmm.. Microsloth ain't 
+> >seen nothin' if that monster emerges...
+> 
+> well - AOL could replace that nice-looking young lady in their tele-ads
+> (the one with the dress like a vdu) with Alan Cox in Wizard's hat n
+> cloak :-)
+> 
+> -- 
+> robert w hall
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-- Fixed <write_old_sd_name> when there are more than 26 SCSI discs
-
-- Fixed <get_old_name> to ignore new compatibility names for IDE
-  devices. Consolidated SCSI code. Consolidated IDE code
-
-- Fixed <action_compat> to ignore new compatibility names for IDE
-  devices.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

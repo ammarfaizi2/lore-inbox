@@ -1,79 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262857AbUJ1GoK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262875AbUJ1Gty@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262857AbUJ1GoK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 02:44:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262875AbUJ1GoB
+	id S262875AbUJ1Gty (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 02:49:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262876AbUJ1Gog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 02:44:01 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:58306 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262857AbUJ1Gfa (ORCPT
+	Thu, 28 Oct 2004 02:44:36 -0400
+Received: from fw.osdl.org ([65.172.181.6]:51347 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262870AbUJ1Gnc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 02:35:30 -0400
-Date: Thu, 28 Oct 2004 08:36:30 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
-Message-ID: <20041028063630.GD9781@elte.hu>
-References: <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <5225.195.245.190.94.1098880980.squirrel@195.245.190.94> <20041027135309.GA8090@elte.hu> <12917.195.245.190.94.1098890763.squirrel@195.245.190.94> <20041027205126.GA25091@elte.hu> <20041027211957.GA28571@elte.hu> <33083.192.168.1.5.1098919913.squirrel@192.168.1.5>
+	Thu, 28 Oct 2004 02:43:32 -0400
+Date: Wed, 27 Oct 2004 23:41:09 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       jakub@redhat.com
+Subject: Re: [PATCH] Make key management syscalls work on PPC/PPC64
+Message-Id: <20041027234109.19b39e93.akpm@osdl.org>
+In-Reply-To: <24857.1098904121@redhat.com>
+References: <24857.1098904121@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <33083.192.168.1.5.1098919913.squirrel@192.168.1.5>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9, BAYES_00 -4.90,
-	UPPERCASE_25_50 0.00
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Howells <dhowells@redhat.com> wrote:
+>
+> The attached patch permits my key management stuff to be used on PPC, PPC64
+>  and PPC on PPC64.
 
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+Please remember to test your patches with CONFIG_KEYS=n
 
-> >> ok, i've uploaded RT-V0.4.2 which has more of the same: it fixes other
-> >> missed preemption checks. Does it make any difference to the xruns on
-> >> your UP box?
-> >
-> > uploaded RT-V0.4.3 - there was a thinko in the latency tracer that
-> > caused early boot failures.
-> >
-> 
-> Yes, the xrun rate has decreased, slightly. RT-V0.4.3 is now ranking
-> under 10 per 5 min (~2/min), with jackd -R -r44100 -p128 -n2,
-> fluidsynth x 6.
-> 
-> Better still, but not to par as RT-U3, under the very same conditions.
+--- 25-power4/kernel/sys.c~ppc-ppc64-make-key-management-syscalls-work-fix	2004-10-27 23:26:16.330512080 -0700
++++ 25-power4-akpm/kernel/sys.c	2004-10-27 23:27:04.516186744 -0700
+@@ -286,6 +286,7 @@ cond_syscall(compat_set_mempolicy)
+ cond_syscall(sys_add_key)
+ cond_syscall(sys_request_key)
+ cond_syscall(sys_keyctl)
++cond_syscall(compat_keyctl)
+ cond_syscall(compat_sys_socketcall)
+ 
+ /* arch-specific weak syscall entries */
+_
 
-how much idle time do you have in the RT-U3 and in the RT-V0.4 tests,
-compared? If it's close to 100% then make sure you have the following
-debug options disabled:
-
- # CONFIG_DEBUG_SLAB is not set
- # CONFIG_DEBUG_PREEMPT is not set
- # CONFIG_DEBUG_SPINLOCK_SLEEP is not set
- # CONFIG_PREEMPT_TIMING is not set
- # CONFIG_RWSEM_DEADLOCK_DETECT is not set
- # CONFIG_FRAME_POINTER is not set
- # CONFIG_DEBUG_STACKOVERFLOW is not set
- # CONFIG_DEBUG_STACK_USAGE is not set
- # CONFIG_DEBUG_PAGEALLOC is not set
-
-RWSEM_DEADLOCK, DEBUG_PREEMPT, PREEMPT_TIMING and LATENCY_TRACE are
-especially expensive, so depending on the amount of kernel work done, it
-can make or break the total balance of CPU time used and you could get
-xruns not only due to kernel latencies but purely due to having not
-enough CPU time to generate audio output. (fluidsynth is a software
-audio generator?)
-
-	Ingo

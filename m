@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267275AbTBIO6C>; Sun, 9 Feb 2003 09:58:02 -0500
+	id <S267281AbTBIPI3>; Sun, 9 Feb 2003 10:08:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267277AbTBIO6C>; Sun, 9 Feb 2003 09:58:02 -0500
-Received: from mgr1.xmission.com ([198.60.22.201]:23146 "EHLO
-	mgr1.xmission.com") by vger.kernel.org with ESMTP
-	id <S267275AbTBIO6B>; Sun, 9 Feb 2003 09:58:01 -0500
-Message-ID: <3E466E84.3060907@xmission.com>
-Date: Sun, 09 Feb 2003 08:06:44 -0700
-From: MaxF <maxer1@xmission.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030123
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Firewire Buslink dirve incorrectly detected as a LiteOn in 2.4.20
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	id <S267282AbTBIPI3>; Sun, 9 Feb 2003 10:08:29 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:4369 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S267281AbTBIPI1>; Sun, 9 Feb 2003 10:08:27 -0500
+Subject: Re: [PATCH][2.5][3/15] smp_call_function/_on_cpu - i386
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 09 Feb 2003 09:18:05 -0600
+Message-Id: <1044803887.1979.39.camel@mulgrave>
+Mime-Version: 1.0
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All kernels post 2.4.20-xx are detecting my firewire Buslink CD-RW
-as:
 
-Feb  9 07:54:19 maxer kernel:   Vendor: LITE-ON   Model: 
-LTR-48125W        Rev: VS06
 
-Buslink model #RW4848FE
+The voyager pieces of this don't provide the smp_call_function_on_cpu(),
+since voyager doesn't compile kernel/smp.c, so voyager will break the
+first time someone uses the new function.
 
-I do have however a second drive that is a Lite-On, but is not firewire.
+As a general comment, wouldn't it be better simply to make
+smp_call_function an alias for smp_call_function_on_cpu with the mask
+being the cpu_online_map?  That way we'd reduce the amount of duplicated
+code.
 
-Any ideas?
+James
 
-Frank
 

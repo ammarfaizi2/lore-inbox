@@ -1,82 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264326AbTCUXsr>; Fri, 21 Mar 2003 18:48:47 -0500
+	id <S264311AbTCUXou>; Fri, 21 Mar 2003 18:44:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264322AbTCUXsq>; Fri, 21 Mar 2003 18:48:46 -0500
-Received: from tux.rsn.bth.se ([194.47.143.135]:61081 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S264320AbTCUXso>;
-	Fri, 21 Mar 2003 18:48:44 -0500
-Subject: Re: An oops while running 2.5.65-mm2
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Andrew Morton <akpm@digeo.com>
-Cc: jjs <jjs@tmsusa.com>, linux-kernel@vger.kernel.org,
-       Netfilter-devel <netfilter-devel@lists.netfilter.org>
-In-Reply-To: <1048209554.1103.21.camel@tux.rsn.bth.se>
-References: <3E7A1ABF.7050402@tmsusa.com>
-	 <20030320122931.0d2f208f.akpm@digeo.com>
-	 <1048209554.1103.21.camel@tux.rsn.bth.se>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048291181.1105.38.camel@tux.rsn.bth.se>
+	id <S264312AbTCUXou>; Fri, 21 Mar 2003 18:44:50 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:36872 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S264311AbTCUXos>;
+	Fri, 21 Mar 2003 18:44:48 -0500
+Date: Fri, 21 Mar 2003 15:55:53 -0800
+From: Greg KH <greg@kroah.com>
+To: "Kevin P. Fleming" <kpfleming@cox.net>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net, dsteklof@us.ibm.com
+Subject: Re: small devfs patch for 2.5.65, plan to replace /sbin/hotplug
+Message-ID: <20030321235553.GB18010@kroah.com>
+References: <20030321014048.A19537@baldur.yggdrasil.com> <3E7B79D5.3060903@cox.net> <20030321232131.GA18010@kroah.com> <3E7BA329.2060806@cox.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 22 Mar 2003 00:59:42 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E7BA329.2060806@cox.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-03-21 at 02:19, Martin Josefsson wrote:
-
-> You are correct. It was a list_del() that caused it (at least I think
-> so, it's 2am right now).
+On Fri, Mar 21, 2003 at 04:41:29PM -0700, Kevin P. Fleming wrote:
+> Greg KH wrote:
+> >>Are you still considering smalldevfs for 2.6 inclusion? If not, then I'd 
+> >>like to discuss with you (and Greg KH) the possibility of just 
+> >>eliminating devfs entirely, and moving to a userspace version that is 
+> >>driven entirely by /sbin/hotplug.
+> >
+> >
+> >You mean with something like this:
+> >	http://www.linuxsymposium.org/2003/view_abstract.php?talk=94
+> >:)
+> >
 > 
-> 1. conntrack helper adds an expectation and adds that to a list hanging
-> of off a connection.
-> 
-> 2. the expected connection arrives. the expectation is still on the
-> list.
-> 
-> 3. the original connection that caused the expectation terminates but
-> the expectation still thinks it's added to the list.
-> 
-> 4. the expected connection terminates and list_del() is called to remove
-> it from the list which doesn't exist anymore. boom!
+> Yep, that's the one. Sounds very simple and straightforward to me. The most 
+> complex part will be defining some file structure to define the user's 
+> desired naming policy to the agent that handles the hotplug events.
 
-Ok, the previous patch was a little bit incorrect. It did fix the use
-after free bug (which can cause corruption if the slabmemory is
-reallocated before we write to it) but lost some internal information.
-I can't see that we use this anywhere after this point but here's the
-proper patch.
+Exactly.  Luckily it looks like I'm starting to get a lot of help with
+this :)
 
-Sorry about that.
+As I'm still working on providing enough support from within sysfs to
+export all the data we need, Dan Stekloff (cced) has started to work on
+a design document for how the userspace stuff will work.
 
+I just need a few more hours per day...
 
---- linux-2.5.64-bk10/net/ipv4/netfilter/ip_conntrack_core.c.orig	2003-03-21 01:42:57.000000000 +0100
-+++ linux-2.5.64-bk10/net/ipv4/netfilter/ip_conntrack_core.c	2003-03-22 00:43:28.000000000 +0100
-@@ -274,6 +274,7 @@
- 		 * the un-established ones only */
- 		if (exp->sibling) {
- 			DEBUGP("remove_expectations: skipping established %p of %p\n", exp->sibling, ct);
-+			exp->expectant = NULL;
- 			continue;
- 		}
- 
-@@ -327,9 +328,11 @@
- 	WRITE_LOCK(&ip_conntrack_lock);
- 	/* Delete our master expectation */
- 	if (ct->master) {
--		/* can't call __unexpect_related here,
--		 * since it would screw up expect_list */
--		list_del(&ct->master->expected_list);
-+		if (ct->master->expectant) {
-+			/* can't call __unexpect_related here,
-+			 * since it would screw up expect_list */
-+			list_del(&ct->master->expected_list);
-+		}
- 		kfree(ct->master);
- 	}
- 	WRITE_UNLOCK(&ip_conntrack_lock);
--- 
-/Martin
+thanks,
 
-Never argue with an idiot. They drag you down to their level, then beat you with experience.
+greg k-h

@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbULVFGo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbULVFGs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261303AbULVFGo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 00:06:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbULVFGo
+	id S261309AbULVFGs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 00:06:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbULVFGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 00:06:44 -0500
-Received: from mail.kroah.org ([69.55.234.183]:20160 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261303AbULVFGm (ORCPT
+	Wed, 22 Dec 2004 00:06:48 -0500
+Received: from mail.kroah.org ([69.55.234.183]:22720 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261309AbULVFGq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 00:06:42 -0500
-Date: Tue, 21 Dec 2004 21:06:24 -0800
+	Wed, 22 Dec 2004 00:06:46 -0500
+Date: Tue, 21 Dec 2004 21:03:45 -0800
 From: Greg KH <greg@kroah.com>
 To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-usb-devel@lists.sourcefoge.net.kroah.org,
+Cc: Oliver Neukum <oliver@neukum.org>, linux-usb-devel@lists.sourceforge.net,
        linux-kernel@vger.kernel.org, laforge@gnumonks.org
 Subject: Re: My vision of usbmon
-Message-ID: <20041222050624.GC31076@kroah.com>
-References: <20041219230454.5b7f83e3@lembas.zaitcev.lan> <20041222005726.GA13317@kroah.com> <20041221172906.3b9cbbbd@lembas.zaitcev.lan>
+Message-ID: <20041222050345.GA31076@kroah.com>
+References: <20041219230454.5b7f83e3@lembas.zaitcev.lan> <200412201525.52149.oliver@neukum.org> <20041221182514.5ed935e2@lembas.zaitcev.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041221172906.3b9cbbbd@lembas.zaitcev.lan>
+In-Reply-To: <20041221182514.5ed935e2@lembas.zaitcev.lan>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 21, 2004 at 05:29:06PM -0800, Pete Zaitcev wrote:
-> On Tue, 21 Dec 2004 16:57:26 -0800, Greg KH <greg@kroah.com> wrote:
+On Tue, Dec 21, 2004 at 06:25:14PM -0800, Pete Zaitcev wrote:
 > 
-> > It looks great, thanks for doing this work.  Let me know when you want
-> > it added to the kernel tree.
-> 
-> Thanks, Greg. There's a little tidbit in usbmon about which I wish you to
-> make a pronouncement explicitly:
-> 
-> +	/* XXX Is this how I pin struct bus? Ask linux-usb-devel */
-> +	kobject_get(&ubus->class_dev.kobj);
-> +	mbus->u_bus = ubus;
-> +	ubus->mon_bus = mbus;
+> Generally, the type of coding which requires a use of memory barriers in drivers
+> is a bug or a latent bug, so I am sorry for the above. It was a sacrifice to
+> make usbmon invisible if it's not actively monitoring. Sorry about that.
 
-Use usb_bus_get() instead.  Ick, that function's implementation sucks,
-I'll go clean it up and export it for you to be able to use from your
-code.
+Well, why do that?  Why not do something like the security hooks do, and
+have a default "noop" hook if we don't have a monitor, and when you load
+the monitor, it switches the hook to point to your code?
 
 thanks,
 

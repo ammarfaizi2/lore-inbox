@@ -1,76 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286315AbRLTSXJ>; Thu, 20 Dec 2001 13:23:09 -0500
+	id <S286311AbRLTSQ7>; Thu, 20 Dec 2001 13:16:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286316AbRLTSXA>; Thu, 20 Dec 2001 13:23:00 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:44568 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S286315AbRLTSWv>; Thu, 20 Dec 2001 13:22:51 -0500
-Date: Thu, 20 Dec 2001 19:22:55 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Gergely Nagy <algernon@debian.org>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: 2.4.17rc2aa1
-Message-ID: <20011220192255.B1477@athlon.random>
-In-Reply-To: <20011219161610.I1395@athlon.random> <83k7vjdk8j.wl@iluvatar.ath.cx> <20011219215208.U1395@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20011219215208.U1395@athlon.random>; from andrea@suse.de on Wed, Dec 19, 2001 at 09:52:08PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S286315AbRLTSQj>; Thu, 20 Dec 2001 13:16:39 -0500
+Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:44422 "EHLO
+	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
+	id <S286314AbRLTSQZ>; Thu, 20 Dec 2001 13:16:25 -0500
+Date: Thu, 20 Dec 2001 18:16:24 +0000 (GMT)
+From: Matt Bernstein <matt@theBachChoir.org.uk>
+To: Steven Cole <scole@lanl.gov>
+cc: esr@thyrsus.com, <linux-kernel@vger.kernel.org>
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
+In-Reply-To: <200112201721.KAA05522@tstac.esa.lanl.gov>
+Message-ID: <Pine.LNX.4.43.0112201810340.16545-100000@nick.dcs.qmul.ac.uk>
+X-URL: http://www.theBachChoir.org.uk/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 19, 2001 at 09:52:08PM +0100, Andrea Arcangeli wrote:
-> On Wed, Dec 19, 2001 at 09:32:12PM +0100, Gergely Nagy wrote:
-> > > This should fix the last loop deadlocks under VM pressure, if not please
-> > > let me know.
-> > > 
-> > 
-> > Unfortunately, it doesn't. I'll do a SysRq+T and kysmoops combo as
-> > soon as I boot into that kernel again (probably later tonight).
-> 
-> perfect, thanks.
+I believe that the main purpose of documentation, help etc is to get the
+information across in a way that is most easily understood, ie that
+minimises the number of support questions.. ..and everyone surely knows
+what GB, MB and KB stand for. So let's leave it at that. Where's the "i"
+in "megabyte" ? Or is 1MiB 1000000 bytes, rather than 1048576?
 
-My desktop running rc2aa1 crashed in lo_send a few minutes ago while
-testing oom conditions with simultaneous heavy I/O to the loop device,
-so I had a chance to fix another bug. Maybe this is what you
-experienced, but I also got an oops (maybe you didn't seen the oops
-because the machine hanged up?). Just guessing.
+It's confusing enough with the 10 "Mb" networking / 1.44 "MB" floppy
+distinction already..
 
-Anyways here the fix (untested as usual :)
+At 11:02 -0700 Steven Cole wrote:
 
---- 2.4.17rc2aa1/fs/buffer.c.~1~	Wed Dec 19 03:43:24 2001
-+++ 2.4.17rc2aa1/fs/buffer.c	Thu Dec 20 19:02:02 2001
-@@ -2337,7 +2337,7 @@
- 	struct buffer_head *bh;
- 
- 	page = find_or_create_page(bdev->bd_inode->i_mapping, index, GFP_NOFS);
--	if (IS_ERR(page))
-+	if (!page)
- 		return NULL;
- 
- 	if (!PageLocked(page))
---- 2.4.17rc2aa1/mm/filemap.c.~1~	Wed Dec 19 03:43:23 2001
-+++ 2.4.17rc2aa1/mm/filemap.c	Thu Dec 20 19:01:53 2001
-@@ -942,7 +942,7 @@
- 	spin_unlock(&pagecache_lock);
- 	if (!page) {
- 		struct page *newpage = alloc_page(gfp_mask);
--		page = ERR_PTR(-ENOMEM);
-+		page = NULL;
- 		if (newpage) {
- 			spin_lock(&pagecache_lock);
- 			page = __find_lock_page_helper(mapping, index, *hash);
+>Now, granted that this is the "standard", should there be some discussion related to this
+>change, or is everyone comfortable with this?  It certainly made me do a double take.
+>
+>Here is a snippet from the diff between versions 2.75 and 2.76 of Configure.help:
+>
+>@@ -344,8 +344,8 @@
+>   If you are compiling a kernel which will never run on a machine with
+>   more than 960 megabytes of total physical RAM, answer "off" here
+>   (default choice and suitable for most users). This will result in a
+>-  "3GB/1GB" split: 3GB are mapped so that each process sees a 3GB
+>-  virtual memory space and the remaining part of the 4GB virtual memory
+>+  "3GiB/1GiB" split: 3GiB are mapped so that each process sees a 3GiB
+>+  virtual memory space and the remaining part of the 4GiB virtual memory
+>   space is used by the kernel to permanently map as much physical memory
+>   as possible.
 
-
-
-explanation: grab_cache_page must definitely return NULL in case of oom,
-that's the API used by the callers. find_or_create_page can use the same
-API as well (there's no point for the ERR_PTR(-ENOMEM) complication).
-
-Andrea

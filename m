@@ -1,44 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285329AbRLGAXT>; Thu, 6 Dec 2001 19:23:19 -0500
+	id <S285340AbRLGAWT>; Thu, 6 Dec 2001 19:22:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285341AbRLGAXA>; Thu, 6 Dec 2001 19:23:00 -0500
-Received: from 12-224-36-149.client.attbi.com ([12.224.36.149]:6663 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S285329AbRLGAWy>;
-	Thu, 6 Dec 2001 19:22:54 -0500
-Date: Thu, 6 Dec 2001 16:21:55 -0800
-From: Greg KH <greg@kroah.com>
-To: Rene Rebe <rene.rebe@gmx.net>
-Cc: jonathan@daria.co.uk, linux-kernel@vger.kernel.org
+	id <S285341AbRLGAWD>; Thu, 6 Dec 2001 19:22:03 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:11144 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S285340AbRLGAVu>; Thu, 6 Dec 2001 19:21:50 -0500
+Date: Thu, 6 Dec 2001 17:21:44 -0700
+Message-Id: <200112070021.fB70Lik02148@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Rene Rebe <rene.rebe@gmx.net>, greg@kroah.com, jonathan@daria.co.uk,
+        linux-kernel@vger.kernel.org
 Subject: Re: Q: device(file) permissions for USB
-Message-ID: <20011206162155.R2710@kroah.com>
-In-Reply-To: <fa.ljcupnv.1ghotjk@ifi.uio.no> <664.3c0fd1b7.a66fa@trespassersw.daria.co.uk> <20011206223050.179cd30e.rene.rebe@gmx.net> <20011206152721.M2710@kroah.com> <20011207004521.19a131d4.rene.rebe@gmx.net> <20011206160055.O2710@kroah.com> <20011207011134.04c2a4af.rene.rebe@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011207011134.04c2a4af.rene.rebe@gmx.net>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Thu, 08 Nov 2001 18:50:27 -0800
+In-Reply-To: <Pine.GSO.4.21.0112061903230.29985-100000@binet.math.psu.edu>
+In-Reply-To: <20011207005707.6a09706a.rene.rebe@gmx.net>
+	<Pine.GSO.4.21.0112061903230.29985-100000@binet.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 07, 2001 at 01:11:34AM +0100, Rene Rebe wrote:
+Alexander Viro writes:
 > 
-> Ok I did not searched this far. But this way you also change the nodes for
-> USB hard-discs, net-interfaces, ... to 666 - the same insecure as my find
-> solotion ...
+> 
+> On Fri, 7 Dec 2001, Rene Rebe wrote:
+> 
+> > > > usbdevfs does not require devfs, which enables the majority of Linux
+> > > > users to actually use it.
+> > > 
+> > > s/majority of/& sane/
+> > 
+> > Writing bash scripts is easier than adding two lines to devfsd.conf?? Btw.
+> > sane users do not use such a mahor/messy distro ...
+> 
+> Sane users don't run stuff with known unfixable security holes.  The
+> only variant that has any promise to get that crap fixed got no
+> testing to speak about.
 
-I was making a simple script, to match your simple defvsd line.  Yes,
-you can (and should) make this more complex.  See the linux-hotplug
-mailing list for a recent discussion by the gphoto developers about
-this very problem.
+I gave it as much testing as I could, but there comes a point where
+you don't get any more test reports (because people are lazy) where
+you have to throw it out for a pre-patch which *will* get testing.
+I got tired of begging for people to test it.
 
-> OK. Might be well for backward-compatibility - but the devfs solution
-> would be a very nice option.
+Basic chicken and egg problem. It's the same reason Linus released
+2.4.0-test* when it was really 2.3.99++.
 
-Will not happen.
+> Ask Richard if you don't believe me - or grep the l-k archives.
+> Again, all variants of devfs up to and including 2.4.16 are
+> unfixable according to devfs author.
 
-thanks,
+It's a matter of degree. I did fix it, by putting locking and
+refcounting in. Is that a re-write or a fix? It's a grey area. I've
+been calling it a re-write, but you could also argue that it's "fix".
 
-greg k-h
+My main claim is that the old core wasn't amenable to fixing with a
+few tweaks here and there.
+
+Anyway, this is all semantics and history. All that matters is that
+the latest code is much better, and I'm working on getting the last
+wrinkles out. We're still in a pre-patch, so no need to panic yet.
+I've been diligent about fixing things (mostly battling with
+incomplete bug reports).
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

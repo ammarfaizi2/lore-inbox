@@ -1,57 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265125AbUF1SrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265130AbUF1Sru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265125AbUF1SrR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 14:47:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265128AbUF1SrR
+	id S265130AbUF1Sru (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 14:47:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265131AbUF1Sru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 14:47:17 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:2315 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S265125AbUF1SrP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 14:47:15 -0400
-Date: Mon, 28 Jun 2004 20:37:09 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: TCP-RST Vulnerability - Doubt
-Message-ID: <20040628183709.GL29808@alpha.home.local>
-References: <40DC9B00@webster.usu.edu> <20040625150532.1a6d6e60.davem@redhat.com> <cbp62t$a38$1@news.cistron.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cbp62t$a38$1@news.cistron.nl>
-User-Agent: Mutt/1.4i
+	Mon, 28 Jun 2004 14:47:50 -0400
+Received: from math.ut.ee ([193.40.5.125]:12511 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S265130AbUF1Srr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 14:47:47 -0400
+Date: Mon, 28 Jun 2004 21:47:44 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Patrick Dreker <patrick@dreker.de>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: IDE Timeout problem on Intel PIIX3 (Triton 2) chipset
+In-Reply-To: <E1Bevgk-0007jR-4F@rhn.tartu-labor>
+Message-ID: <Pine.GSO.4.44.0406282142540.5432-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 28, 2004 at 01:22:37PM +0000, Miquel van Smoorenburg wrote:
-> 
-> MD5 protection on BGP sessions isn't very common yet.
+> Any kernel above and including 2.4.21 (including 2.6.5 and 2.6.7, others not
+> tested) produces the following errors quite often (once or twice per minute,
+> with the corresponding delay) and the harddisk drops out of DMA.
 
-The Cisco routers we deployed 3.5 years ago were already configured with MD5
-enabled on BGP, this was on IOS 12.0 at this time. And I guess that Cisco
-still has a good share amongst the BGP setups.
+Same here. 3 computers with PIIX4, 2 (or maybe even 3, need to check the
+850M Conner too) different disks (all pre-udma but mwdma, 2.5G Seagate
+Medalist and 850M WD Caviar). The common denominator seems to be PIIX
+chip (PIIX3 and PIIX4 reported so far) and multiword DMA.
 
-> MD5 uses CPU,
-> and routers don't usually have much of that. Which means that now an
-> MD5 CPU attack is possible instead of a TCP RST attack.
+It came with 2.4.19 for me - 2.4.18 (and thus also Debian Woody) is fine
+but anything with a newer kernel (incl. 2.6.*) is broken - DMA timeouts.
 
-MD5 is not that much expensive. I even wonder if all those new routers
-with VPN hardware acceleration, MD5 could not be computed in hardware
-at nearly no cost.
- 
-> The "TTL hack" solution is safer. Make sure sender uses a TTL
-> of 255, on the receiver discard all packets with a TTL < 255.
-> You can use iptables to implement that on a Linux box.
+So maybe it is a little different (since your 2.4.20 works) but still
+very similar.
 
-This will not work in an eBGP multi-hop setup. However, you can often
-still discard packets with a TTL < 252 or something like that, which
-might imply a packet from outside the provider's area.
+-- 
+Meelis Roos (mroos@linux.ee)
 
-But the real problem is that the provider should do the anti-spoofing
-himself and not accept BGP packets from the wrong NIC ! And it's relatively
-easy to show them where they're bad.
-
-Regards,
-Willy
 

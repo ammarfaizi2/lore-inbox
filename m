@@ -1,159 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131119AbRCGQuN>; Wed, 7 Mar 2001 11:50:13 -0500
+	id <S131114AbRCGQxn>; Wed, 7 Mar 2001 11:53:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131120AbRCGQuD>; Wed, 7 Mar 2001 11:50:03 -0500
-Received: from [62.90.5.51] ([62.90.5.51]:23058 "EHLO salvador.shunra.co.il")
-	by vger.kernel.org with ESMTP id <S131119AbRCGQtw>;
-	Wed, 7 Mar 2001 11:49:52 -0500
-Message-ID: <F1629832DE36D411858F00C04F24847A11DEFD@SALVADOR>
-From: Ofer Fryman <ofer@shunra.co.il>
-To: "'Hen, Shmulik'" <shmulik.hen@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: spinlock help
-Date: Wed, 7 Mar 2001 18:54:16 +0200 
+	id <S131118AbRCGQxd>; Wed, 7 Mar 2001 11:53:33 -0500
+Received: from [213.97.184.209] ([213.97.184.209]:3968 "HELO piraos.com")
+	by vger.kernel.org with SMTP id <S131114AbRCGQxZ>;
+	Wed, 7 Mar 2001 11:53:25 -0500
+Message-ID: <20010307165243.669.qmail@piraos.com>
+Date: Wed, 7 Mar 2001 17:52:43 +0100 (CET)
+From: German Gomez Garcia <german@piraos.com>
+Subject: Re: Problems with gdb and latest kernels (SIG32)
+To: kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2448.0)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
+X-Mailer: Mahogany, 0.62 'Mars', compiled for Linux 2.4.2 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can clear interrupts in the beginning of the routine, inside it use
-test_and_set_bit() and clear_bit(), or you can replace the device xmit
-pointer(dev->start_xmit) with a pointer to your routine, anyway eepro100
-still sound better even for your purpose.
 
-Ofer.
+On Wed, 7 Mar 2001 17:46:09 +0100 (CET) German Gomez Garcia <german@piraos.com> wrote:
 
------Original Message-----
-From: Hen, Shmulik [mailto:shmulik.hen@intel.com]
-Sent: Wednesday, March 07, 2001 12:47 PM
-To: 'Ofer Fryman'; Hen, Shmulik
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: spinlock help
+>         Hello,
+> 
+>         I'm trying to debug some multithreaded apps, I'm using gdb-5.0 and
+> glibc-2.2.2. GDB works without problems for non-threaded apps, but whenever
+> I try to debug a threaded one I got "SIG32, Real-time event 32" instead of
+> the signal that would tell gdb that a new threaded is created. Anybody has
+> also experiment this? Is this a GDB bug? a GLibc bug? or a kernel related
+> problem? (kernel has NO bugs :-)
+> 
+>         I'm using 2.4.2-ac13, but it also happens with 2.4.2, and later,
+> doesn't check with previous kernels.
 
-e100 implements all sorts of hooks for our intermediate driver (kind of a
-co-development effort), so eepro100 is out of the question for us.
+        Reading the ChangeLog for glibc-linuxthreads I found something about
+ASSUME_REALTIME_SIGNALS being undef by default, I'm currently recompiling
+the C library with it enabled, more info later ...
 
-	Shmulik.
+        - german
 
-From: Ofer Fryman [mailto:ofer@shunra.co.il]
-Sent: Wednesday, March 07, 2001 12:31 PM
-To: 'Hen, Shmulik'
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: spinlock help
-
-
-Did you try looking at Becker eepro100 driver it seems to be simple, no
-unnecessary spin_lock_irqsave?.
-
------Original Message-----
-From: Hen, Shmulik [mailto:shmulik.hen@intel.com]
-Sent: Wednesday, March 07, 2001 11:21 AM
-To: 'nigel@nrg.org'; Manoj Sontakke
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: spinlock help
+-------------------------------------------------------------------------
+German Gomez Garcia         | "This isn't right.  This isn't even wrong."
+<german@piraos.com>         |                         -- Wolfgang Pauli
 
 
-How about if the same sequence occurred, but from two different drivers ?
-
-We've had some bad experience with this stuff. Our driver, which acts as an
-intermediate net driver, would call the hard_start_xmit in the base driver.
-The base driver, wanting to block receive interrupts would issue a
-'spin_lock_irqsave(a,b)' and process the packet. If the TX queue is full, it
-could call an indication entry point in our intermediate driver to signal it
-to stop sending more packets. Since our indication function handles many
-types of indications but can process them only one at a time, we wanted to
-block other indications while queuing the request.
-
-The whole sequence would look like that:
-
-[our driver]
-	ans_send() {
-		.
-		.
-		e100_hard_start_xmit(dev, skb);
-		.
-		.
-	}
-
-[e100.o]
-	e100_hard_start_xmit() {
-		.
-		.
-		spin_lock_irqsave(a,b);
-		.
-		.
-		if(tx_queue_full)
-			ans_notify(TX_QUEUE_FULL);	<--
-		.
-		.
-		spin_unlock_irqrestore(a,b);
-	}
-	
-[our driver]
-	ans_notify() {
-		.
-		.
-		spin_lock_irqsave(c,d);
-		queue_request(req_type);
-		spin_unlock_irqrestore(c,d);	<--
-		.
-		.
-	}
-
-At that point, for some reason, interrupts were back and the e100.o would
-hang in an infinite loop (we verified it on kernel 2.4.0-test10 +kdb that
-the processor was enabling interrupts and that the e100_isr was called for
-processing an Rx int.).
-
-How is that possible that a 'spin_unlock_irqrestore(c,d)' would also restore
-what should have been restored only with a 'spin_unlock_irqrestore(a,b)' ?
-
-
-	Thanks in advance,
-	Shmulik Hen      
-      Software Engineer
-	Linux Advanced Networking Services
-	Intel Network Communications Group
-	Jerusalem, Israel.
-
------Original Message-----
-From: Nigel Gamble [mailto:nigel@nrg.org]
-Sent: Wednesday, March 07, 2001 1:54 AM
-To: Manoj Sontakke
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: spinlock help
-
-
-On Tue, 6 Mar 2001, Manoj Sontakke wrote:
-> 1. when spin_lock_irqsave() function is called the subsequent code is
-> executed untill spin_unloc_irqrestore()is called. is this right?
-
-Yes.  The protected code will not be interrupted, or simultaneously
-executed by another CPU.
-
-> 2. is this sequence valid?
-> 	spin_lock_irqsave(a,b);
-> 	spin_lock_irqsave(c,d);
-
-Yes, as long as it is followed by:
-
-	spin_unlock_irqrestore(c, d);
-	spin_unlock_irqrestore(a, b);
-
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

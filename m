@@ -1,30 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278344AbRJOVQv>; Mon, 15 Oct 2001 17:16:51 -0400
+	id <S278428AbRJOVXL>; Mon, 15 Oct 2001 17:23:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278360AbRJOVQl>; Mon, 15 Oct 2001 17:16:41 -0400
-Received: from mailrelay2.inwind.it ([212.141.54.102]:23012 "EHLO
-	mailrelay2.inwind.it") by vger.kernel.org with ESMTP
-	id <S278344AbRJOVQ3>; Mon, 15 Oct 2001 17:16:29 -0400
-Message-ID: <3BCB523C.7060800@inwind.it>
-Date: Mon, 15 Oct 2001 23:16:44 +0200
-From: Michele Mencacci <shire@inwind.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-us
+	id <S278437AbRJOVXB>; Mon, 15 Oct 2001 17:23:01 -0400
+Received: from abstract.com.mx ([209.209.190.216]:61838 "EHLO apexmail.kih.net")
+	by vger.kernel.org with ESMTP id <S278428AbRJOVWt>;
+	Mon, 15 Oct 2001 17:22:49 -0400
+Date: Mon, 15 Oct 2001 16:22:22 -0500 (CDT)
+From: grouch <grouch@apex.net>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: VIA chipset
+In-Reply-To: <Pine.LNX.4.10.10110151635040.23528-100000@coffee.psychology.mcmaster.ca>
+Message-ID: <Pine.LNX.4.30.0110151619190.13446-100000@paq.edgers.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: HD problem!
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello there!
-I have a prob with 2.4.XX kernel version.
-It doesn't read the partition table of my 4th HD, It says "unknown 
-partition table", but the HD is OK, if I use kernel 2.2.19 all works fine.
-Anybody can help me to understand whats wrong?
-Thanx in advance
+On Mon, 15 Oct 2001, Mark Hahn wrote:
+>> The stable machine that runs the same brand and model motherboard as the
+>> one that is causing troubles is running 2.4.5. It has a WDC
+>
+>same bios revision?  I think you posted some excerpts of the PCI
+>config, and they differed in USB, which is odd.
+>
 
-                            Mike
+Same bios; I flashed both boards using the info here:
+http://www.tyan.com/support/html/b_tr_100at.html
+and this bios (why are they always .exe files?):
+ftp://ftp.tyan.com/bios/trinity/s1590s_at100/v90w116c.exe
+
 

@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290297AbSBORZf>; Fri, 15 Feb 2002 12:25:35 -0500
+	id <S290215AbSBORZL>; Fri, 15 Feb 2002 12:25:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290293AbSBORZW>; Fri, 15 Feb 2002 12:25:22 -0500
-Received: from ns.suse.de ([213.95.15.193]:18188 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S290228AbSBORZL>;
-	Fri, 15 Feb 2002 12:25:11 -0500
-Date: Fri, 15 Feb 2002 18:25:07 +0100
-From: Dave Jones <davej@suse.de>
-To: "Eric S. Raymond" <esr@thyrsus.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux-Kernel list <linux-kernel@vger.kernel.org>,
-        dirk.hohndel@intel.com
-Subject: Re: Disgusted with kbuild developers
-Message-ID: <20020215182507.B27880@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	"Eric S. Raymond" <esr@thyrsus.com>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Linux-Kernel list <linux-kernel@vger.kernel.org>,
-	dirk.hohndel@intel.com
-In-Reply-To: <3C6D3D9A.565EC59D@mandrakesoft.com> <20020215115147.A7528@thyrsus.com>
+	id <S290228AbSBORZB>; Fri, 15 Feb 2002 12:25:01 -0500
+Received: from h24-78-175-24.nv.shawcable.net ([24.78.175.24]:7580 "EHLO
+	oof.localnet") by vger.kernel.org with ESMTP id <S290215AbSBORYw>;
+	Fri, 15 Feb 2002 12:24:52 -0500
+Date: Fri, 15 Feb 2002 09:24:36 -0800
+From: Simon Kirby <sim@netnation.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: fsync delays for a long time.
+Message-ID: <20020215172436.GA6842@netnation.com>
+In-Reply-To: <Pine.SGI.4.31.0202140951330.3076325-100000@fsgi03.fnal.gov> <E16bPqi-0000c5-00@the-village.bc.nu> <3C6C2342.5044B738@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020215115147.A7528@thyrsus.com>; from esr@thyrsus.com on Fri, Feb 15, 2002 at 11:51:47AM -0500
+In-Reply-To: <3C6C2342.5044B738@zip.com.au>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 15, 2002 at 11:51:47AM -0500, Eric S. Raymond wrote:
+On Thu, Feb 14, 2002 at 12:51:14PM -0800, Andrew Morton wrote:
 
- > I don't understand what is upsetting you.  Is there some rule that all
- > conversations with Linus must go through Jeff Garzik?  If so, I was never
- > informed of it.
+> Alan Cox wrote:
+> > 
+> > > run my gdbm application and bonnie test on the same device.
+> > > When gdbm comes to the point when it calls fsync it delays for a long
+> > > time.
+> > 
+> > fsync on a very large file is very slow on the 2.2 kernels
+> 
+> This could very well be due to request allocation starvation.
+> fsync is sleeping in __get_request_wait() while bonnie keeps
+> on stealing all the requests.
+> 
+> Recall that patch you dropped on Tuesday? :)
 
- No, but at the least keeping Linux-Kernel in the loop would be
- considered not just nice, but a somewhat more courteous method
- than 'sending someone around to go see Linus' when your pet
- project isn't getting the acceptance you hoped for.
+Not sure if this is related, but I still can't get 2.4 or 2.5 kernels to
+actually read and write at the same time during a large file copy between
+two totally separate devices (eg: from hda1 to hdc1).  "vmstat 1" shows
+reads with no writing for about 6-8 seconds followed by writes with no
+reading for about 5-6 seconds, repeat.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Is there a patch available that could fix this?
+
+Simon-
+
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

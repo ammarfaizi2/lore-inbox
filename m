@@ -1,158 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280620AbRKJMV6>; Sat, 10 Nov 2001 07:21:58 -0500
+	id <S280624AbRKJMV6>; Sat, 10 Nov 2001 07:21:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280624AbRKJMVt>; Sat, 10 Nov 2001 07:21:49 -0500
-Received: from mmohlmann.demon.nl ([212.238.27.16]:12548 "HELO
-	brand.mmohlmann.demon.nl") by vger.kernel.org with SMTP
-	id <S280623AbRKJMVp>; Sat, 10 Nov 2001 07:21:45 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Mathijs Mohlmann <mathijs@knoware.nl>
-To: andrea@suse.de, jgarzik@mandrakesoft.com
-Subject: [PATCH] fix loop with disabled tasklets
-Date: Sat, 10 Nov 2001 13:21:56 +0100
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011110122141.B2C68231A4@brand.mmohlmann.demon.nl>
+	id <S280623AbRKJMVu>; Sat, 10 Nov 2001 07:21:50 -0500
+Received: from eos.telenet-ops.be ([195.130.132.40]:55211 "EHLO
+	eos.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S280620AbRKJMVk>; Sat, 10 Nov 2001 07:21:40 -0500
+Date: Sat, 10 Nov 2001 13:21:39 +0100
+From: Sven Vermeulen <sven.vermeulen@rug.ac.be>
+To: Linux-Kernel Development Mailinglist 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: Networking: repeatable oops in 2.4.15-pre2
+Message-ID: <20011110132139.A872@Zenith.starcenter>
+Mail-Followup-To: Linux-Kernel Development Mailinglist <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="3MwIy2ne0vdjdPXF"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux 2.4.15-pre2
+X-Telephone: +32 486 460306
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-	I have a questions about the current softirq implementation.
+--3MwIy2ne0vdjdPXF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Looking at kernel/softirq.c:418 and futher. When the tasklet is disabled it 
-is rescheduled. This is fine, but __cpu_raise_softirq is also called. This 
-means that ksoftirqd will loop until the tasklet is enabled. 
-Normaly this is no biggy, because user processes still come through.
-But during boot -when the tasklet_enable is yet to be called by "the idle 
-thread"- the system will lockup. This happens during the boot of my sun4m 
-with the keyboard tasklet.
+J Sloan (jjs@pobox.com) wrote:
+> I have been running the 2.4.15-pre kernels and
+> have found an interesting oops. I can reproduce
+> it immediately, and reliably, just by issuing an ssh
+> command (as a normal user).
 
-To demonstrate, i wrote a module. Inserting this will result in 0% idle time. 
-Inserting this with the below patch, the system simply goes on.
+I'm currently running Linux 2.4.15-pre2 and have no troubles with ssh. I can
+safely login onto other hosts, or issuing commands like
+	ssh -l someuser@somehost mutt
+or copy files
+	scp somefile someuser@somehost:
 
-If this really is an issue, this patch fixes it. It does change the current
-behavior a bit though. Currently when a tasklet is run while it is already
-running on a different cpu, the task is rescheduled. This results in the 
-tasklet being executed two times. With this patch applied, it will not. (this 
-is still good according to kernel/include/interrups.h:83 and futher).
+I'm not using OpenSSH 3.0 yet (2.9p2). I'm not running any firewall or
+transparent proxying.
 
-	i'm not sure about the enable_tasklet bit. I think it will prevent
-people from calling tasklet_enable from within an interrupt handler. But then
-again, why do you want to do that? Thanx, velco and
-	
-	Any comments?
+PS My apologies that this reply isn't like it should be (no Message-ID to
+   what it is replying) but I've removed the mail before I could reply...
 
-	me
+--=20
+Taking advice on what the GPL means from Microsoft is like taking
+Stalin's word on the meaning of the US Constitution. ~(Eben Moglen)
 
-#define MODULE
-#include <linux/module.h>
-#include <linux/sched.h>
-#include <linux/interrupt.h>
+--3MwIy2ne0vdjdPXF
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-MODULE_LICENSE("GPL");
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-void
-dummy_lockit(unsigned long nill)
-{
-	printk("doing the lockit\n");
-	return;
-}
+iD8DBQE77RvTXfqz7M26L9sRAhwKAJ4qad0rPVYdhkLLo86pEmoW7rE9tACgkYAQ
+QJnyO+PXh6cOPcfnlp9ZnGk=
+=8pQb
+-----END PGP SIGNATURE-----
 
-DECLARE_TASKLET_DISABLED(lockit, dummy_lockit, 0);
-int
-init_module(void)
-{
-	printk("going to lock\n");
-	tasklet_schedule(&lockit);
-	return(0);
-}
-
-void
-cleanup_module(void)
-{
-	tasklet_enable(&lockit);
-	set_current_state(TASK_INTERRUPTIBLE);
-	schedule_timeout(HZ); /* some time to do dummy_lockit */
-
-	printk("bye\n");
-}
-
-
-diff -ruN linux-2.4.14/include/linux/interrupt.h 
-linux/include/linux/interrupt.h
---- linux-2.4.14/include/linux/interrupt.h	Sat Nov  3 11:20:41 2001
-+++ linux/include/linux/interrupt.h	Sat Nov 10 12:28:14 2001
-@@ -185,13 +185,15 @@
- static inline void tasklet_enable(struct tasklet_struct *t)
- {
- 	smp_mb__before_atomic_dec();
--	atomic_dec(&t->count);
-+	if (atomic_dec_and_test(&t->count))
-+		__cpu_raise_softirq(smp_processor_id(), TASKLET_SOFTIRQ);
- }
- 
- static inline void tasklet_hi_enable(struct tasklet_struct *t)
- {
- 	smp_mb__before_atomic_dec();
--	atomic_dec(&t->count);
-+	if (atomic_dec_and_test(&t->count))
-+		__cpu_raise_softirq(smp_processor_id(), HI_SOFTIRQ);
- }
- 
- extern void tasklet_kill(struct tasklet_struct *t);
-diff -ruN linux-2.4.14/kernel/softirq.c linux/kernel/softirq.c
---- linux-2.4.14/kernel/softirq.c	Thu Nov  8 15:58:24 2001
-+++ linux/kernel/softirq.c	Sat Nov 10 12:27:24 2001
-@@ -188,21 +188,19 @@
- 
- 		list = list->next;
- 
--		if (tasklet_trylock(t)) {
--			if (!atomic_read(&t->count)) {
-+		if (!atomic_read(&t->count)) {
-+			if (tasklet_trylock(t)) {
- 				if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
- 					BUG();
- 				t->func(t->data);
- 				tasklet_unlock(t);
--				continue;
- 			}
--			tasklet_unlock(t);
-+			continue;
- 		}
- 
- 		local_irq_disable();
- 		t->next = tasklet_vec[cpu].list;
- 		tasklet_vec[cpu].list = t;
--		__cpu_raise_softirq(cpu, TASKLET_SOFTIRQ);
- 		local_irq_enable();
- 	}
- }
-@@ -222,21 +220,19 @@
- 
- 		list = list->next;
- 
--		if (tasklet_trylock(t)) {
--			if (!atomic_read(&t->count)) {
-+		if (!atomic_read(&t->count)) {
-+			if (tasklet_trylock(t)) {
- 				if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
- 					BUG();
- 				t->func(t->data);
- 				tasklet_unlock(t);
--				continue;
- 			}
--			tasklet_unlock(t);
-+			continue;
- 		}
- 
- 		local_irq_disable();
- 		t->next = tasklet_hi_vec[cpu].list;
- 		tasklet_hi_vec[cpu].list = t;
--		__cpu_raise_softirq(cpu, HI_SOFTIRQ);
- 		local_irq_enable();
- 	}
- }
+--3MwIy2ne0vdjdPXF--

@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314085AbSGUMtH>; Sun, 21 Jul 2002 08:49:07 -0400
+	id <S314451AbSGUNLd>; Sun, 21 Jul 2002 09:11:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314451AbSGUMtH>; Sun, 21 Jul 2002 08:49:07 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:40455 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S314085AbSGUMtG>;
-	Sun, 21 Jul 2002 08:49:06 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Announce: ksymoops 2.4.6 is available 
-Date: Sun, 21 Jul 2002 22:51:44 +1000
-Message-ID: <21426.1027255904@ocs3.intra.ocs.com.au>
+	id <S314548AbSGUNLd>; Sun, 21 Jul 2002 09:11:33 -0400
+Received: from se1.cogenit.fr ([195.68.53.173]:55001 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S314451AbSGUNLd>;
+	Sun, 21 Jul 2002 09:11:33 -0400
+Date: Sun, 21 Jul 2002 15:14:21 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: Mark Spencer <markster@linux-support.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Zaptel Pseudo TDM Bus
+Message-ID: <20020721151421.A26656@fafner.intra.cogenit.fr>
+References: <Pine.LNX.4.33.0207201814170.25617-100000@hoochie.linux-support.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0207201814170.25617-100000@hoochie.linux-support.net>; from markster@linux-support.net on Sat, Jul 20, 2002 at 06:25:49PM -0500
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Greetings,
 
-Content-Type: text/plain; charset=us-ascii
+Mark Spencer <markster@linux-support.net> :
+[...]
+> 	Over the past year, Linux Support Services, Inc.  and Zapata
+> Telephony, Inc. have been working together on building the "Zaptel" pseudo
+> TDM bus architecture, and having at least 7 supported boards in a variety
+> of roles (T1, E1, multi-port T1, E1, FXS and FXO with USB, PCI, ISA, and
+> Ethernet interfaces), we are now interesting in getting comments on the
+> driver architecture and moving towards integration into the 2.5 kernel.
 
-ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/ksymoops/v2.4
+A few remarks after a quick glance at zaptel-0.2.0 
+- copy_{to/from}_user() may sleep. Don't call it with spinlock held
+  (see Documentation/DocBook/kernel-locking.tmpl)
+- avoid unchecked copy_{to/from}_user() and friends.
+- the failure paths aren't consistent: sometime goto, sometime not.
+- the failure paths don't always do their job regarding kmalloc/kfree balance
+- fcstab[] declaration is duplicated
+- please put blank lines after variables declarations in function body
+- zt_common_ioctl/zt_ctl_ioctl() on less than 14/24 screens would be nice
 
-ksymoops-2.4.6.tar.gz		Source tarball, includes RPM spec file
-ksymoops-2.4.6-1.src.rpm	As above, in SRPM format
-ksymoops-2.4.6-1.i386.rpm	Compiled with 2.96 20000731, glibc 2.2.2
-patch-ksymoops-2.4.6.gz		Patch from ksymoops 2.4.5 to 2.4.6.
+[...]
+> 	I am very interested in seeking comments both on our driver
+> framework, and on how to go about submitting this for kernel inclusion if
+> appropriate.
 
-Changelog extract
+The kernel parts are appropriate imho (hint, hint: split these from userspace
+code in zaptel package). Cosmetic/CodingStyle issues apart, bugs are lurking
+in the code.
 
-	* m68k call trace does not have trailing ' '.  Reported by
-	  Richard Zidlicky.
-	* MIPS has a hole in the register dump, skip $26 and $27 (k0, k1).
-	  Maciej W. Rozycki.
-	* Only print decoded registers if they resolve to kernel symbols.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE9Oq5ei4UHNye0ZOoRAhqWAKDANeYZmpoFTCCkSay0J145efDMdwCeO1ZV
-J5yrpbjdSqFv3vOtRyb1Euo=
-=EzNN
------END PGP SIGNATURE-----
-
+-- 
+Ueimor

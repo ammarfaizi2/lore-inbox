@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbVCLK34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVCLKgP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbVCLK34 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 05:29:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVCLK34
+	id S261334AbVCLKgP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 05:36:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVCLKgO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 05:29:56 -0500
-Received: from smtp1.Stanford.EDU ([171.67.16.123]:19349 "EHLO
-	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S261342AbVCLK3y
+	Sat, 12 Mar 2005 05:36:14 -0500
+Received: from smtp3.Stanford.EDU ([171.67.16.138]:27324 "EHLO
+	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S261334AbVCLKgM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 05:29:54 -0500
-Date: Sat, 12 Mar 2005 02:29:52 -0800 (PST)
+	Sat, 12 Mar 2005 05:36:12 -0500
+Date: Sat, 12 Mar 2005 02:36:10 -0800 (PST)
 From: Junfeng Yang <yjf@stanford.edu>
 To: chaffee@bmrc.berkeley.edu
 cc: mc@cs.Stanford.EDU,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [CHECKER] crash + fsck cause file systems to contain loops (msdos
- and vfat, 2.6.11)
-Message-ID: <Pine.GSO.4.44.0503120220190.10643-100000@elaine24.Stanford.EDU>
+Subject: [CHECKER] sync doesn't flush everything out (msdos and vfat, 2.6.11)
+Message-ID: <Pine.GSO.4.44.0503120230540.10944-100000@elaine24.Stanford.EDU>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,21 +24,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-We are from the Stanford Checker team and are currently developing a file
-system checker call FiSC.  FiSC mainly focuses on finding crash-recovery
-errors.  We applied it to FiSC and found a serious error where crash then
-recovery cause the file system to contain loops.
+This is yet another report from FiSC :)  This time FiSC complains that
+sync on msdos and vfat doesn't flush everything out.  Crash after sync
+still causes data loss.
 
-To reproduce the warning, download and run our test cases at
+Test cases and crashed disk images can be found at
+http://fisc.stanford.edu/bug8    (msdos)
+http://fisc.stanford.edu/bug11   (vfat)
 
-http://fisc.stanford.edu/bug7/crash.c (for msdos)
-http://fisc.stanford.edu/bug10/crash.c (for vfat)
-
-you can also find the crashed disk images in the corresponding
-directories.
-
-We are not sure if these are bugs or not.  Your
-confirmations/clarifications on this are well appreciated.
+Confirmations/clarifications are apprecitaed.
 
 -Junfeng
+
 

@@ -1,3416 +1,1278 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264893AbTGKSdF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 14:33:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264957AbTGKScl
+	id S265039AbTGKSmn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 14:42:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264891AbTGKSh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 14:32:41 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:17540
+	Fri, 11 Jul 2003 14:37:56 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:24452
 	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264956AbTGKSB3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 14:01:29 -0400
-Date: Fri, 11 Jul 2003 19:15:09 +0100
+	id S264994AbTGKSEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 14:04:16 -0400
+Date: Fri, 11 Jul 2003 19:18:02 +0100
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200307111815.h6BIF9jr017356@hraefn.swansea.linux.org.uk>
+Message-Id: <200307111818.h6BII2kA017410@hraefn.swansea.linux.org.uk>
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: update ITE audio
+Subject: PATCH: update via audio driver, make it work on esd add new chips
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.75/sound/oss/ite8172.c linux-2.5.75-ac1/sound/oss/ite8172.c
---- linux-2.5.75/sound/oss/ite8172.c	2003-07-10 21:05:40.000000000 +0100
-+++ linux-2.5.75-ac1/sound/oss/ite8172.c	2003-07-11 16:46:58.000000000 +0100
-@@ -42,15 +42,17 @@
-  *      * Memory mapping the audio buffers, and the ioctl controls that go
-  *        with it.
-  *      * S/PDIF output.
-+ *      * I2S support.
-  *  3. The following is not supported:
-- *      * I2S input.
-  *      * legacy audio mode.
-  *  4. Support for volume button interrupts is implemented but doesn't
-  *     work yet.
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.75/sound/oss/via82cxxx_audio.c linux-2.5.75-ac1/sound/oss/via82cxxx_audio.c
+--- linux-2.5.75/sound/oss/via82cxxx_audio.c	2003-07-10 21:06:55.000000000 +0100
++++ linux-2.5.75-ac1/sound/oss/via82cxxx_audio.c	2003-07-11 17:31:26.000000000 +0100
+@@ -2,17 +2,20 @@
+  * Support for VIA 82Cxxx Audio Codecs
+  * Copyright 1999,2000 Jeff Garzik
   *
-  *  Revision history
-- *    02.08.2001  0.1   Initial release
-+ *    02.08.2001  Initial release
-+ *    06.22.2001  Added I2S support
++ * Updated to support the VIA 8233/8235 audio subsystem
++ * Alan Cox <alan@redhat.com> (C) Copyright 2002, 2003 Red Hat Inc
++ *
+  * Distributed under the GNU GENERAL PUBLIC LICENSE (GPL) Version 2.
+  * See the "COPYING" file distributed with this software for more info.
++ * NO WARRANTY
+  *
+  * For a list of known bugs (errata) and documentation,
+  * see via-audio.pdf in linux/Documentation/DocBook.
+  * If this documentation does not exist, run "make pdfdocs".
+- *
   */
-+#include <linux/version.h>
- #include <linux/module.h>
- #include <linux/string.h>
- #include <linux/ioport.h>
-@@ -80,6 +82,19 @@
- #undef IT8172_VERBOSE_DEBUG
- #define DBG(x) {}
  
-+#define IT8172_MODULE_NAME "IT8172 audio"
-+#define PFX IT8172_MODULE_NAME
+ 
+-#define VIA_VERSION	"1.9.1"
++#define VIA_VERSION	"1.9.1-ac3-2.5"
+ 
+ 
+ #include <linux/config.h>
+@@ -81,10 +84,13 @@
+ #define VIA_DEFAULT_FRAG_TIME		20
+ #define VIA_DEFAULT_BUFFER_TIME		500
+ 
++/* the hardware has a 256 fragment limit */
++#define VIA_MIN_FRAG_NUMBER		2
++#define VIA_MAX_FRAG_NUMBER		128
 +
-+#ifdef IT8172_DEBUG
-+#define dbg(format, arg...) printk(KERN_DEBUG PFX ": " format "\n" , ## arg)
-+#else
-+#define dbg(format, arg...) do {} while (0)
-+#endif
-+#define err(format, arg...) printk(KERN_ERR PFX ": " format "\n" , ## arg)
-+#define info(format, arg...) printk(KERN_INFO PFX ": " format "\n" , ## arg)
-+#define warn(format, arg...) printk(KERN_WARNING PFX ": " format "\n" , ## arg)
+ #define VIA_MAX_FRAG_SIZE		PAGE_SIZE
+-#define VIA_MIN_FRAG_SIZE		64
++#define VIA_MIN_FRAG_SIZE		(VIA_MAX_BUFFER_DMA_PAGES * PAGE_SIZE / VIA_MAX_FRAG_NUMBER)
+ 
+-#define VIA_MIN_FRAG_NUMBER		2
+ 
+ /* 82C686 function 5 (audio codec) PCI configuration registers */
+ #define VIA_ACLINK_STATUS	0x40
+@@ -116,7 +122,10 @@
+ #define VIA_PCM_STATUS			0x00
+ #define VIA_PCM_CONTROL			0x01
+ #define VIA_PCM_TYPE			0x02
++#define VIA_PCM_LEFTVOL			0x02
++#define VIA_PCM_RIGHTVOL		0x03
+ #define VIA_PCM_TABLE_ADDR		0x04
++#define VIA_PCM_STOPRATE		0x08	/* 8233+ */
+ #define VIA_PCM_BLOCK_COUNT		0x0C
+ 
+ /* XXX unused DMA channel for FM PCM data */
+@@ -125,6 +134,12 @@
+ #define VIA_BASE0_FM_OUT_CHAN_CTRL	0x21
+ #define VIA_BASE0_FM_OUT_CHAN_TYPE	0x22
+ 
++/* Six channel audio output on 8233 */
++#define VIA_BASE0_MULTI_OUT_CHAN		0x40
++#define VIA_BASE0_MULTI_OUT_CHAN_STATUS		0x40
++#define VIA_BASE0_MULTI_OUT_CHAN_CTRL		0x41
++#define VIA_BASE0_MULTI_OUT_CHAN_TYPE		0x42
 +
-+
- static const unsigned sample_shift[] = { 0, 1, 1, 2 };
+ #define VIA_BASE0_AC97_CTRL		0x80
+ #define VIA_BASE0_SGD_STATUS_SHADOW	0x84
+ #define VIA_BASE0_GPI_INT_ENABLE	0x8C
+@@ -133,6 +148,12 @@
+ #define VIA_INTR_FM			((1<<2) |  (1<<6) | (1<<10))
+ #define VIA_INTR_MASK		(VIA_INTR_OUT | VIA_INTR_IN | VIA_INTR_FM)
  
- 
-@@ -226,75 +241,84 @@
- #define POLL_COUNT   0x5000
- 
- 
--#define IT8172_MODULE_NAME "IT8172 audio"
--#define PFX IT8172_MODULE_NAME ": "
-+/* --------------------------------------------------------------------- */
- 
-+/*
-+ * Define DIGITAL1 as the I2S channel, since it is not listed in
-+ * soundcard.h.
++/* Newer VIA we need to monitor the low 3 bits of each channel. This
++   mask covers the channels we don't yet use as well 
 + */
-+#define SOUND_MIXER_I2S        SOUND_MIXER_DIGITAL1
-+#define SOUND_MASK_I2S         SOUND_MASK_DIGITAL1
-+#define SOUND_MIXER_READ_I2S   MIXER_READ(SOUND_MIXER_I2S)
-+#define SOUND_MIXER_WRITE_I2S  MIXER_WRITE(SOUND_MIXER_I2S)
- 
- /* --------------------------------------------------------------------- */
- 
- struct it8172_state {
--    /* list of it8172 devices */
--    struct list_head devs;
--
--    /* the corresponding pci_dev structure */
--    struct pci_dev *dev;
-+	/* list of it8172 devices */
-+	struct list_head devs;
- 
--    /* soundcore stuff */
--    int dev_audio;
-+	/* the corresponding pci_dev structure */
-+	struct pci_dev *dev;
- 
--    /* hardware resources */
--    unsigned long io;
--    unsigned int irq;
--
--    /* PCI ID's */
--    u16 vendor;
--    u16 device;
--    u8 rev; /* the chip revision */
--
--    /* options */
--    int spdif_volume; /* S/PDIF output is enabled if != -1 */
-+	/* soundcore stuff */
-+	int dev_audio;
- 
-+	/* hardware resources */
-+	unsigned long io;
-+	unsigned int irq;
++ 
++#define VIA_NEW_INTR_MASK		0x77077777UL
 +
-+	/* PCI ID's */
-+	u16 vendor;
-+	u16 device;
-+	u8 rev; /* the chip revision */
-+
-+	/* options */
-+	int spdif_volume; /* S/PDIF output is enabled if != -1 */
-+	int i2s_volume;   /* current I2S out volume, in OSS format */
-+	int i2s_recording;/* 1 = recording from I2S, 0 = not */
-+    
- #ifdef IT8172_DEBUG
--    /* debug /proc entry */
--    struct proc_dir_entry *ps;
--    struct proc_dir_entry *ac97_ps;
-+	/* debug /proc entry */
-+	struct proc_dir_entry *ps;
-+	struct proc_dir_entry *ac97_ps;
- #endif /* IT8172_DEBUG */
+ /* VIA_BASE0_AUDIO_xxx_CHAN_TYPE bits */
+ #define VIA_IRQ_ON_FLAG			(1<<0)	/* int on each flagged scatter block */
+ #define VIA_IRQ_ON_EOL			(1<<1)	/* int at end of scatter list */
+@@ -250,11 +271,15 @@
+ 	unsigned is_record : 1;
+ 	unsigned is_mapped : 1;
+ 	unsigned is_enabled : 1;
++	unsigned is_multi: 1;	/* 8233 6 channel */
+ 	u8 pcm_fmt;		/* VIA_PCM_FMT_xxx */
++	u8 channels;		/* Channel count */
  
--    struct ac97_codec codec;
-+	struct ac97_codec *codec;
+ 	unsigned rate;		/* sample rate */
+ 	unsigned int frag_size;
+ 	unsigned int frag_number;
++	
++	unsigned char intmask;
  
--    unsigned short pcc, capcc;
--    unsigned dacrate, adcrate;
-+	unsigned short pcc, capcc;
-+	unsigned dacrate, adcrate;
+ 	volatile struct via_sgd_table *sgtable;
+ 	dma_addr_t sgt_handle;
+@@ -273,19 +298,31 @@
+ 	struct pci_dev *pdev;
+ 	long baseaddr;
  
--    spinlock_t lock;
--    struct semaphore open_sem;
--    mode_t open_mode;
--    wait_queue_head_t open_wait;
--
--    struct dmabuf {
--	void *rawbuf;
--	dma_addr_t dmaaddr;
--	unsigned buforder;
--	unsigned numfrag;
--	unsigned fragshift;
--	void* nextIn;
--	void* nextOut;
--	int count;
--	int curBufPtr;
--	unsigned total_bytes;
--	unsigned error; /* over/underrun */
--	wait_queue_head_t wait;
--	/* redundant, but makes calculations easier */
--	unsigned fragsize;
--	unsigned dmasize;
--	unsigned fragsamples;
--	/* OSS stuff */
--	unsigned mapped:1;
--	unsigned ready:1;
--	unsigned stopped:1;
--	unsigned ossfragshift;
--	int ossmaxfrags;
--	unsigned subdivision;
--    } dma_dac, dma_adc;
-+	spinlock_t lock;
-+	struct semaphore open_sem;
-+	mode_t open_mode;
-+	wait_queue_head_t open_wait;
-+
-+	struct dmabuf {
-+		void *rawbuf;
-+		dma_addr_t dmaaddr;
-+		unsigned buforder;
-+		unsigned numfrag;
-+		unsigned fragshift;
-+		void* nextIn;
-+		void* nextOut;
-+		int count;
-+		int curBufPtr;
-+		unsigned total_bytes;
-+		unsigned error; /* over/underrun */
-+		wait_queue_head_t wait;
-+		/* redundant, but makes calculations easier */
-+		unsigned fragsize;
-+		unsigned dmasize;
-+		unsigned fragsamples;
-+		/* OSS stuff */
-+		unsigned mapped:1;
-+		unsigned ready:1;
-+		unsigned stopped:1;
-+		unsigned ossfragshift;
-+		int ossmaxfrags;
-+		unsigned subdivision;
-+	} dma_dac, dma_adc;
+-	struct ac97_codec ac97;
++	struct ac97_codec *ac97;
++	spinlock_t ac97_lock;
+ 	spinlock_t lock;
+ 	int card_num;		/* unique card number, from 0 */
+ 
+ 	int dev_dsp;		/* /dev/dsp index from register_sound_dsp() */
+ 
+ 	unsigned rev_h : 1;
++	unsigned legacy: 1;	/* Has legacy ports */
++	unsigned intmask: 1;	/* Needs int bits */
++	unsigned sixchannel: 1;	/* 8233/35 with 6 channel support */
++	unsigned volume: 1;
+ 
+ 	int locked_rate : 1;
++	
++	int mixer_vol;		/* 8233/35 volume  - not yet implemented */
+ 
+ 	struct semaphore syscall_sem;
+ 	struct semaphore open_sem;
+ 
++	/* The 8233/8235 have 4 DX audio channels, two record and
++	   one six channel out. We bind ch_in to DX 1, ch_out to multichannel
++	   and ch_fm to DX 2. DX 3 and REC0/REC1 are unused at the
++	   moment */
++	   
+ 	struct via_channel ch_in;
+ 	struct via_channel ch_out;
+ 	struct via_channel ch_fm;
+@@ -352,17 +389,19 @@
+ 
+ static struct pci_device_id via_pci_tbl[] __initdata = {
+ 	{ PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_5,
+-	  PCI_ANY_ID, PCI_ANY_ID, },
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
++	{ PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8233_5,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
+ 	{ 0, }
+ };
+ MODULE_DEVICE_TABLE(pci,via_pci_tbl);
+ 
+ 
+ static struct pci_driver via_driver = {
+-	.name		= VIA_MODULE_NAME,
+-	.id_table	= via_pci_tbl,
+-	.probe		= via_init_one,
+-	.remove		= __devexit_p(via_remove_one),
++	name:		VIA_MODULE_NAME,
++	id_table:	via_pci_tbl,
++	probe:		via_init_one,
++	remove:		__devexit_p(via_remove_one),
  };
  
- /* --------------------------------------------------------------------- */
-@@ -305,114 +329,114 @@
  
- static inline unsigned ld2(unsigned int x)
+@@ -426,7 +465,13 @@
+ 
+ static inline void sg_begin (struct via_channel *chan)
  {
--    unsigned r = 0;
-+	unsigned r = 0;
- 	
--    if (x >= 0x10000) {
--	x >>= 16;
--	r += 16;
--    }
--    if (x >= 0x100) {
--	x >>= 8;
--	r += 8;
--    }
--    if (x >= 0x10) {
--	x >>= 4;
--	r += 4;
--    }
--    if (x >= 4) {
--	x >>= 2;
--	r += 2;
--    }
--    if (x >= 2)
--	r++;
--    return r;
-+	if (x >= 0x10000) {
-+		x >>= 16;
-+		r += 16;
-+	}
-+	if (x >= 0x100) {
-+		x >>= 8;
-+		r += 8;
-+	}
-+	if (x >= 0x10) {
-+		x >>= 4;
-+		r += 4;
-+	}
-+	if (x >= 4) {
-+		x >>= 2;
-+		r += 2;
-+	}
-+	if (x >= 2)
-+		r++;
-+	return r;
- }
- 
- /* --------------------------------------------------------------------- */
- 
- static void it8172_delay(int msec)
- {
--    unsigned long tmo;
--    signed long tmo2;
-+	unsigned long tmo;
-+	signed long tmo2;
- 
--    if (in_interrupt())
--	return;
-+	if (in_interrupt())
-+		return;
-     
--    tmo = jiffies + (msec*HZ)/1000;
--    for (;;) {
--	tmo2 = tmo - jiffies;
--	if (tmo2 <= 0)
--	    break;
--	schedule_timeout(tmo2);
--    }
-+	tmo = jiffies + (msec*HZ)/1000;
-+	for (;;) {
-+		tmo2 = tmo - jiffies;
-+		if (tmo2 <= 0)
-+			break;
-+		schedule_timeout(tmo2);
-+	}
+-	outb (VIA_SGD_START, chan->iobase + VIA_PCM_CONTROL);
++	DPRINTK("Start with intmask %d\n", chan->intmask);
++	DPRINTK("About to start from %d to %d\n", 
++		inl(chan->iobase + VIA_PCM_BLOCK_COUNT),
++		inb(chan->iobase + VIA_PCM_STOPRATE + 3));
++	outb (VIA_SGD_START|chan->intmask, chan->iobase + VIA_PCM_CONTROL);
++	DPRINTK("Status is now %02X\n", inb(chan->iobase + VIA_PCM_STATUS));
++	DPRINTK("Control is now %02X\n", inb(chan->iobase + VIA_PCM_CONTROL));
  }
  
  
- static unsigned short
- get_compat_rate(unsigned* rate)
- {
--    unsigned rate_out = *rate;
--    unsigned short sr;
-+	unsigned rate_out = *rate;
-+	unsigned short sr;
-     
--    if (rate_out >= 46050) {
--	sr = CC_SR_48000; rate_out = 48000;
--    } else if (rate_out >= 41250) {
--	sr = CC_SR_44100; rate_out = 44100;
--    } else if (rate_out >= 35200) {
--	sr = CC_SR_38400; rate_out = 38400;
--    } else if (rate_out >= 27025) {
--	sr = CC_SR_32000; rate_out = 32000;
--    } else if (rate_out >= 20625) {
--	sr = CC_SR_22050; rate_out = 22050;
--    } else if (rate_out >= 17600) {
--	sr = CC_SR_19200; rate_out = 19200;
--    } else if (rate_out >= 13513) {
--	sr = CC_SR_16000; rate_out = 16000;
--    } else if (rate_out >= 10313) {
--	sr = CC_SR_11025; rate_out = 11025;
--    } else if (rate_out >= 8800) {
--	sr = CC_SR_9600; rate_out = 9600;
--    } else if (rate_out >= 6750) {
--	sr = CC_SR_8000; rate_out = 8000;
--    } else {
--	sr = CC_SR_5500; rate_out = 5500;
--    }
-+	if (rate_out >= 46050) {
-+		sr = CC_SR_48000; rate_out = 48000;
-+	} else if (rate_out >= 41250) {
-+		sr = CC_SR_44100; rate_out = 44100;
-+	} else if (rate_out >= 35200) {
-+		sr = CC_SR_38400; rate_out = 38400;
-+	} else if (rate_out >= 27025) {
-+		sr = CC_SR_32000; rate_out = 32000;
-+	} else if (rate_out >= 20625) {
-+		sr = CC_SR_22050; rate_out = 22050;
-+	} else if (rate_out >= 17600) {
-+		sr = CC_SR_19200; rate_out = 19200;
-+	} else if (rate_out >= 13513) {
-+		sr = CC_SR_16000; rate_out = 16000;
-+	} else if (rate_out >= 10313) {
-+		sr = CC_SR_11025; rate_out = 11025;
-+	} else if (rate_out >= 8800) {
-+		sr = CC_SR_9600; rate_out = 9600;
-+	} else if (rate_out >= 6750) {
-+		sr = CC_SR_8000; rate_out = 8000;
-+	} else {
-+		sr = CC_SR_5500; rate_out = 5500;
-+	}
- 
--    *rate = rate_out;
--    return sr;
-+	*rate = rate_out;
-+	return sr;
+@@ -442,6 +487,10 @@
+ 	return 0;
  }
  
- static void set_adc_rate(struct it8172_state *s, unsigned rate)
- {
--    unsigned long flags;
--    unsigned short sr;
-+	unsigned long flags;
-+	unsigned short sr;
-     
--    sr = get_compat_rate(&rate);
-+	sr = get_compat_rate(&rate);
++static int via_sg_offset(struct via_channel *chan)
++{
++	return inl (chan->iobase + VIA_PCM_BLOCK_COUNT) & 0x00FFFFFF;
++}
  
--    spin_lock_irqsave(&s->lock, flags);
--    s->capcc &= ~CC_SR_MASK;
--    s->capcc |= sr;
--    outw(s->capcc, s->io+IT_AC_CAPCC);
--    spin_unlock_irqrestore(&s->lock, flags);
-+	spin_lock_irqsave(&s->lock, flags);
-+	s->capcc &= ~CC_SR_MASK;
-+	s->capcc |= sr;
-+	outw(s->capcc, s->io+IT_AC_CAPCC);
-+	spin_unlock_irqrestore(&s->lock, flags);
+ /****************************************************************
+  *
+@@ -505,6 +554,8 @@
+ 	via_chan_stop (card->baseaddr + VIA_BASE0_PCM_OUT_CHAN);
+ 	via_chan_stop (card->baseaddr + VIA_BASE0_PCM_IN_CHAN);
+ 	via_chan_stop (card->baseaddr + VIA_BASE0_FM_OUT_CHAN);
++	if(card->sixchannel)
++		via_chan_stop (card->baseaddr + VIA_BASE0_MULTI_OUT_CHAN);
  
--    s->adcrate = rate;
-+	s->adcrate = rate;
- }
+ 	/*
+ 	 * clear any existing stops / flags (sanity check mainly)
+@@ -512,6 +563,8 @@
+ 	via_chan_status_clear (card->baseaddr + VIA_BASE0_PCM_OUT_CHAN);
+ 	via_chan_status_clear (card->baseaddr + VIA_BASE0_PCM_IN_CHAN);
+ 	via_chan_status_clear (card->baseaddr + VIA_BASE0_FM_OUT_CHAN);
++	if(card->sixchannel)
++		via_chan_status_clear (card->baseaddr + VIA_BASE0_MULTI_OUT_CHAN);
  
+ 	/*
+ 	 * clear any enabled interrupt bits
+@@ -531,6 +584,14 @@
+ 	if (tmp != new_tmp)
+ 		outb (0, card->baseaddr + VIA_BASE0_FM_OUT_CHAN_TYPE);
  
- static void set_dac_rate(struct it8172_state *s, unsigned rate)
- {
--    unsigned long flags;
--    unsigned short sr;
-+	unsigned long flags;
-+	unsigned short sr;
-     
--    sr = get_compat_rate(&rate);
-+	sr = get_compat_rate(&rate);
- 
--    spin_lock_irqsave(&s->lock, flags);
--    s->pcc &= ~CC_SR_MASK;
--    s->pcc |= sr;
--    outw(s->pcc, s->io+IT_AC_PCC);
--    spin_unlock_irqrestore(&s->lock, flags);
-+	spin_lock_irqsave(&s->lock, flags);
-+	s->pcc &= ~CC_SR_MASK;
-+	s->pcc |= sr;
-+	outw(s->pcc, s->io+IT_AC_PCC);
-+	spin_unlock_irqrestore(&s->lock, flags);
- 
--    s->dacrate = rate;
-+	s->dacrate = rate;
- }
- 
- 
-@@ -420,89 +444,88 @@
- 
- static u16 rdcodec(struct ac97_codec *codec, u8 addr)
- {
--    struct it8172_state *s = (struct it8172_state *)codec->private_data;
--    unsigned long flags;
--    unsigned short circp, data;
--    int i;
--    
--    spin_lock_irqsave(&s->lock, flags);
--
--    for (i = 0; i < POLL_COUNT; i++)
--	if (!(inw(s->io+IT_AC_CIRCP) & CIRCP_CPS))
--	    break;
--    if (i == POLL_COUNT)
--	printk(KERN_INFO PFX "rdcodec: codec ready poll expired!\n");
--
--    circp = addr & CIRCP_CIA_MASK;
--    circp |= (codec->id << CIRCP_CID_BIT);
--    circp |= CIRCP_RWC; // read command
--    outw(circp, s->io+IT_AC_CIRCP);
--
--    /* now wait for the data */
--    for (i = 0; i < POLL_COUNT; i++)
--	if (inw(s->io+IT_AC_CIRCP) & CIRCP_DPVF)
--	    break;
--    if (i == POLL_COUNT)
--	printk(KERN_INFO PFX "rdcodec: read poll expired!\n");
-+	struct it8172_state *s = (struct it8172_state *)codec->private_data;
-+	unsigned long flags;
-+	unsigned short circp, data;
-+	int i;
-+    
-+	spin_lock_irqsave(&s->lock, flags);
- 
--    data = inw(s->io+IT_AC_CIRDP);
--    spin_unlock_irqrestore(&s->lock, flags);
-+	for (i = 0; i < POLL_COUNT; i++)
-+		if (!(inw(s->io+IT_AC_CIRCP) & CIRCP_CPS))
-+			break;
-+	if (i == POLL_COUNT)
-+		err("rdcodec: codec ready poll expired!");
-+
-+	circp = addr & CIRCP_CIA_MASK;
-+	circp |= (codec->id << CIRCP_CID_BIT);
-+	circp |= CIRCP_RWC; // read command
-+	outw(circp, s->io+IT_AC_CIRCP);
-+
-+	/* now wait for the data */
-+	for (i = 0; i < POLL_COUNT; i++)
-+		if (inw(s->io+IT_AC_CIRCP) & CIRCP_DPVF)
-+			break;
-+	if (i == POLL_COUNT)
-+		err("rdcodec: read poll expired!");
- 
--    return data;
-+	data = inw(s->io+IT_AC_CIRDP);
-+	spin_unlock_irqrestore(&s->lock, flags);
-+
-+	return data;
- }
- 
- 
- static void wrcodec(struct ac97_codec *codec, u8 addr, u16 data)
- {
--    struct it8172_state *s = (struct it8172_state *)codec->private_data;
--    unsigned long flags;
--    unsigned short circp;
--    int i;
--    
--    spin_lock_irqsave(&s->lock, flags);
--
--    for (i = 0; i < POLL_COUNT; i++)
--	if (!(inw(s->io+IT_AC_CIRCP) & CIRCP_CPS))
--	    break;
--    if (i == POLL_COUNT)
--	printk(KERN_INFO PFX "wrcodec: codec ready poll expired!\n");
--
--    circp = addr & CIRCP_CIA_MASK;
--    circp |= (codec->id << CIRCP_CID_BIT);
--    circp &= ~CIRCP_RWC; // write command
-+	struct it8172_state *s = (struct it8172_state *)codec->private_data;
-+	unsigned long flags;
-+	unsigned short circp;
-+	int i;
-+    
-+	spin_lock_irqsave(&s->lock, flags);
-+
-+	for (i = 0; i < POLL_COUNT; i++)
-+		if (!(inw(s->io+IT_AC_CIRCP) & CIRCP_CPS))
-+			break;
-+	if (i == POLL_COUNT)
-+		err("wrcodec: codec ready poll expired!");
-+
-+	circp = addr & CIRCP_CIA_MASK;
-+	circp |= (codec->id << CIRCP_CID_BIT);
-+	circp &= ~CIRCP_RWC; // write command
- 
--    outw(data,  s->io+IT_AC_CIRDP);  // send data first
--    outw(circp, s->io+IT_AC_CIRCP);
-+	outw(data,  s->io+IT_AC_CIRDP);  // send data first
-+	outw(circp, s->io+IT_AC_CIRCP);
- 
--    spin_unlock_irqrestore(&s->lock, flags);
-+	spin_unlock_irqrestore(&s->lock, flags);
- }
- 
- 
- static void waitcodec(struct ac97_codec *codec)
- {
--    unsigned short temp;
-+	unsigned short temp;
-+
-+	/* codec_wait is used to wait for a ready state after
-+	   an AC97_RESET. */
-+	it8172_delay(10);
- 
--    /* codec_wait is used to wait for a ready state after
--       an AC97_RESET. */
--    it8172_delay(10);
--
--    temp = rdcodec(codec, 0x26);
--
--    // If power down, power up
--    if (temp & 0x3f00) {
--	// Power on
--	wrcodec(codec, 0x26, 0);
--	it8172_delay(100);
--	// Reread
- 	temp = rdcodec(codec, 0x26);
--    }
-+
-+	// If power down, power up
-+	if (temp & 0x3f00) {
-+		// Power on
-+		wrcodec(codec, 0x26, 0);
-+		it8172_delay(100);
-+		// Reread
-+		temp = rdcodec(codec, 0x26);
-+	}
-     
--    // Check if Codec REF,ANL,DAC,ADC ready***/
--    if ((temp & 0x3f0f) != 0x000f) {
--	printk(KERN_INFO PFX "codec reg 26 status (0x%x) not ready!!\n",
--	       temp);
--	return;
--    }
-+	// Check if Codec REF,ANL,DAC,ADC ready***/
-+	if ((temp & 0x3f0f) != 0x000f) {
-+		err("codec reg 26 status (0x%x) not ready!!", temp);
-+		return;
-+	}
- }
- 
- 
-@@ -510,120 +533,120 @@
- 
- static inline void stop_adc(struct it8172_state *s)
- {
--    struct dmabuf* db = &s->dma_adc;
--    unsigned long flags;
--    unsigned char imc;
-+	struct dmabuf* db = &s->dma_adc;
-+	unsigned long flags;
-+	unsigned char imc;
-     
--    if (db->stopped)
--	return;
-+	if (db->stopped)
-+		return;
- 
--    spin_lock_irqsave(&s->lock, flags);
-+	spin_lock_irqsave(&s->lock, flags);
- 
--    s->capcc &= ~(CC_CA | CC_CP | CC_CB2L | CC_CB1L);
--    s->capcc |= CC_CSP;
--    outw(s->capcc, s->io+IT_AC_CAPCC);
-+	s->capcc &= ~(CC_CA | CC_CP | CC_CB2L | CC_CB1L);
-+	s->capcc |= CC_CSP;
-+	outw(s->capcc, s->io+IT_AC_CAPCC);
-     
--    // disable capture interrupt
--    imc = inb(s->io+IT_AC_IMC);
--    outb(imc | IMC_CCIM, s->io+IT_AC_IMC);
-+	// disable capture interrupt
-+	imc = inb(s->io+IT_AC_IMC);
-+	outb(imc | IMC_CCIM, s->io+IT_AC_IMC);
- 
--    db->stopped = 1;
-+	db->stopped = 1;
- 
--    spin_unlock_irqrestore(&s->lock, flags);
-+	spin_unlock_irqrestore(&s->lock, flags);
- }	
- 
- static inline void stop_dac(struct it8172_state *s)
- {
--    struct dmabuf* db = &s->dma_dac;
--    unsigned long flags;
--    unsigned char imc;
-+	struct dmabuf* db = &s->dma_dac;
-+	unsigned long flags;
-+	unsigned char imc;
-     
--    if (db->stopped)
--	return;
-+	if (db->stopped)
-+		return;
- 
--    spin_lock_irqsave(&s->lock, flags);
-+	spin_lock_irqsave(&s->lock, flags);
- 
--    s->pcc &= ~(CC_CA | CC_CP | CC_CB2L | CC_CB1L);
--    s->pcc |= CC_CSP;
--    outw(s->pcc, s->io+IT_AC_PCC);
-+	s->pcc &= ~(CC_CA | CC_CP | CC_CB2L | CC_CB1L);
-+	s->pcc |= CC_CSP;
-+	outw(s->pcc, s->io+IT_AC_PCC);
-     
--    // disable playback interrupt
--    imc = inb(s->io+IT_AC_IMC);
--    outb(imc | IMC_PCIM, s->io+IT_AC_IMC);
-+	// disable playback interrupt
-+	imc = inb(s->io+IT_AC_IMC);
-+	outb(imc | IMC_PCIM, s->io+IT_AC_IMC);
- 
--    db->stopped = 1;
-+	db->stopped = 1;
-     
--    spin_unlock_irqrestore(&s->lock, flags);
-+	spin_unlock_irqrestore(&s->lock, flags);
- }	
- 
- static void start_dac(struct it8172_state *s)
- {
--    struct dmabuf* db = &s->dma_dac;
--    unsigned long flags;
--    unsigned char imc;
--    unsigned long buf1, buf2;
-+	struct dmabuf* db = &s->dma_dac;
-+	unsigned long flags;
-+	unsigned char imc;
-+	unsigned long buf1, buf2;
-     
--    if (!db->stopped)
--	return;
-+	if (!db->stopped)
-+		return;
-     
--    spin_lock_irqsave(&s->lock, flags);
-+	spin_lock_irqsave(&s->lock, flags);
- 
--    // reset Buffer 1 and 2 pointers to nextOut and nextOut+fragsize
--    buf1 = virt_to_bus(db->nextOut);
--    buf2 = buf1 + db->fragsize;
--    if (buf2 >= db->dmaaddr + db->dmasize)
--	buf2 -= db->dmasize;
--    
--    outl(buf1, s->io+IT_AC_PCB1STA);
--    outl(buf2, s->io+IT_AC_PCB2STA);
--    db->curBufPtr = IT_AC_PCB1STA;
--    
--    // enable playback interrupt
--    imc = inb(s->io+IT_AC_IMC);
--    outb(imc & ~IMC_PCIM, s->io+IT_AC_IMC);
-+	// reset Buffer 1 and 2 pointers to nextOut and nextOut+fragsize
-+	buf1 = virt_to_bus(db->nextOut);
-+	buf2 = buf1 + db->fragsize;
-+	if (buf2 >= db->dmaaddr + db->dmasize)
-+		buf2 -= db->dmasize;
-+    
-+	outl(buf1, s->io+IT_AC_PCB1STA);
-+	outl(buf2, s->io+IT_AC_PCB2STA);
-+	db->curBufPtr = IT_AC_PCB1STA;
-+    
-+	// enable playback interrupt
-+	imc = inb(s->io+IT_AC_IMC);
-+	outb(imc & ~IMC_PCIM, s->io+IT_AC_IMC);
- 
--    s->pcc &= ~(CC_CSP | CC_CP | CC_CB2L | CC_CB1L);
--    s->pcc |= CC_CA;
--    outw(s->pcc, s->io+IT_AC_PCC);
-+	s->pcc &= ~(CC_CSP | CC_CP | CC_CB2L | CC_CB1L);
-+	s->pcc |= CC_CA;
-+	outw(s->pcc, s->io+IT_AC_PCC);
-     
--    db->stopped = 0;
-+	db->stopped = 0;
- 
--    spin_unlock_irqrestore(&s->lock, flags);
-+	spin_unlock_irqrestore(&s->lock, flags);
- }	
- 
- static void start_adc(struct it8172_state *s)
- {
--    struct dmabuf* db = &s->dma_adc;
--    unsigned long flags;
--    unsigned char imc;
--    unsigned long buf1, buf2;
-+	struct dmabuf* db = &s->dma_adc;
-+	unsigned long flags;
-+	unsigned char imc;
-+	unsigned long buf1, buf2;
-     
--    if (!db->stopped)
--	return;
-+	if (!db->stopped)
-+		return;
- 
--    spin_lock_irqsave(&s->lock, flags);
--
--    // reset Buffer 1 and 2 pointers to nextIn and nextIn+fragsize
--    buf1 = virt_to_bus(db->nextIn);
--    buf2 = buf1 + db->fragsize;
--    if (buf2 >= db->dmaaddr + db->dmasize)
--	buf2 -= db->dmasize;
--    
--    outl(buf1, s->io+IT_AC_CAPB1STA);
--    outl(buf2, s->io+IT_AC_CAPB2STA);
--    db->curBufPtr = IT_AC_CAPB1STA;
-+	spin_lock_irqsave(&s->lock, flags);
- 
--    // enable capture interrupt
--    imc = inb(s->io+IT_AC_IMC);
--    outb(imc & ~IMC_CCIM, s->io+IT_AC_IMC);
-+	// reset Buffer 1 and 2 pointers to nextIn and nextIn+fragsize
-+	buf1 = virt_to_bus(db->nextIn);
-+	buf2 = buf1 + db->fragsize;
-+	if (buf2 >= db->dmaaddr + db->dmasize)
-+		buf2 -= db->dmasize;
-+    
-+	outl(buf1, s->io+IT_AC_CAPB1STA);
-+	outl(buf2, s->io+IT_AC_CAPB2STA);
-+	db->curBufPtr = IT_AC_CAPB1STA;
-+
-+	// enable capture interrupt
-+	imc = inb(s->io+IT_AC_IMC);
-+	outb(imc & ~IMC_CCIM, s->io+IT_AC_IMC);
- 
--    s->capcc &= ~(CC_CSP | CC_CP | CC_CB2L | CC_CB1L);
--    s->capcc |= CC_CA;
--    outw(s->capcc, s->io+IT_AC_CAPCC);
-+	s->capcc &= ~(CC_CSP | CC_CP | CC_CB2L | CC_CB1L);
-+	s->capcc |= CC_CA;
-+	outw(s->capcc, s->io+IT_AC_CAPCC);
-     
--    db->stopped = 0;
-+	db->stopped = 0;
- 
--    spin_unlock_irqrestore(&s->lock, flags);
-+	spin_unlock_irqrestore(&s->lock, flags);
- }	
- 
- /* --------------------------------------------------------------------- */
-@@ -633,94 +656,103 @@
- 
- static inline void dealloc_dmabuf(struct it8172_state *s, struct dmabuf *db)
- {
--    struct page *page, *pend;
-+	struct page *page, *pend;
- 
--    if (db->rawbuf) {
--	/* undo marking the pages as reserved */
--	pend = virt_to_page(db->rawbuf + (PAGE_SIZE << db->buforder) - 1);
--	for (page = virt_to_page(db->rawbuf); page <= pend; page++)
--	    ClearPageReserved(page);
--	pci_free_consistent(s->dev, PAGE_SIZE << db->buforder,
--			    db->rawbuf, db->dmaaddr);
--    }
--    db->rawbuf = db->nextIn = db->nextOut = NULL;
--    db->mapped = db->ready = 0;
-+	if (db->rawbuf) {
-+		/* undo marking the pages as reserved */
-+		pend = virt_to_page(db->rawbuf +
-+				    (PAGE_SIZE << db->buforder) - 1);
-+		for (page = virt_to_page(db->rawbuf); page <= pend; page++)
-+			mem_map_unreserve(page);
-+		pci_free_consistent(s->dev, PAGE_SIZE << db->buforder,
-+				    db->rawbuf, db->dmaaddr);
-+	}
-+	db->rawbuf = db->nextIn = db->nextOut = NULL;
-+	db->mapped = db->ready = 0;
- }
- 
- static int prog_dmabuf(struct it8172_state *s, struct dmabuf *db,
- 		       unsigned rate, unsigned fmt, unsigned reg)
- {
--    int order;
--    unsigned bytepersec;
--    unsigned bufs;
--    struct page *page, *pend;
--
--    if (!db->rawbuf) {
--	db->ready = db->mapped = 0;
--	for (order = DMABUF_DEFAULTORDER; order >= DMABUF_MINORDER; order--)
--	    if ((db->rawbuf = pci_alloc_consistent(s->dev,
--						   PAGE_SIZE << order,
--						   &db->dmaaddr)))
--		break;
--	if (!db->rawbuf)
--	    return -ENOMEM;
--	db->buforder = order;
--	/* now mark the pages as reserved;
--	   otherwise remap_page_range doesn't do what we want */
--	pend = virt_to_page(db->rawbuf + (PAGE_SIZE << db->buforder) - 1);
--	for (page = virt_to_page(db->rawbuf); page <= pend; page++)
--	    SetPageReserved(page);
--    }
--
--    db->count = 0;
--    db->nextIn = db->nextOut = db->rawbuf;
--    
--    bytepersec = rate << sample_shift[fmt];
--    bufs = PAGE_SIZE << db->buforder;
--    if (db->ossfragshift) {
--	if ((1000 << db->ossfragshift) < bytepersec)
--	    db->fragshift = ld2(bytepersec/1000);
--	else
--	    db->fragshift = db->ossfragshift;
--    } else {
--	db->fragshift = ld2(bytepersec/100/(db->subdivision ?
--					    db->subdivision : 1));
--	if (db->fragshift < 3)
--	    db->fragshift = 3;
--    }
--    db->numfrag = bufs >> db->fragshift;
--    while (db->numfrag < 4 && db->fragshift > 3) {
--	db->fragshift--;
-+	int order;
-+	unsigned bytepersec;
-+	unsigned bufs;
-+	struct page *page, *pend;
-+
-+	if (!db->rawbuf) {
-+		db->ready = db->mapped = 0;
-+		for (order = DMABUF_DEFAULTORDER;
-+		     order >= DMABUF_MINORDER; order--)
-+			if ((db->rawbuf =
-+			     pci_alloc_consistent(s->dev,
-+						  PAGE_SIZE << order,
-+						  &db->dmaaddr)))
-+				break;
-+		if (!db->rawbuf)
-+			return -ENOMEM;
-+		db->buforder = order;
-+		/* now mark the pages as reserved;
-+		   otherwise remap_page_range doesn't do what we want */
-+		pend = virt_to_page(db->rawbuf +
-+				    (PAGE_SIZE << db->buforder) - 1);
-+		for (page = virt_to_page(db->rawbuf); page <= pend; page++)
-+			mem_map_reserve(page);
++	if(card->sixchannel)
++	{
++		tmp = inb (card->baseaddr + VIA_BASE0_MULTI_OUT_CHAN_TYPE);
++		new_tmp = tmp & ~(VIA_IRQ_ON_FLAG|VIA_IRQ_ON_EOL|VIA_RESTART_SGD_ON_EOL);
++		if (tmp != new_tmp)
++			outb (0, card->baseaddr + VIA_BASE0_MULTI_OUT_CHAN_TYPE);
 +	}
 +
-+	db->count = 0;
-+	db->nextIn = db->nextOut = db->rawbuf;
-+    
-+	bytepersec = rate << sample_shift[fmt];
-+	bufs = PAGE_SIZE << db->buforder;
-+	if (db->ossfragshift) {
-+		if ((1000 << db->ossfragshift) < bytepersec)
-+			db->fragshift = ld2(bytepersec/1000);
+ 	udelay(10);
+ 
+ 	/*
+@@ -561,6 +622,9 @@
+ {
+ 	struct via_info *card = ac97->private_data;
+ 	int rate_reg;
++	u32 dacp;
++	u32 mast_vol, phone_vol, mono_vol, pcm_vol;
++	u32 mute_vol = 0x8000;	/* The mute volume? -- Seems to work! */
+ 
+ 	DPRINTK ("ENTER, rate = %d\n", rate);
+ 
+@@ -577,16 +641,32 @@
+ 	rate_reg = chan->is_record ? AC97_PCM_LR_ADC_RATE :
+ 			    AC97_PCM_FRONT_DAC_RATE;
+ 
+-	via_ac97_write_reg (ac97, AC97_POWER_CONTROL,
+-		(via_ac97_read_reg (ac97, AC97_POWER_CONTROL) & ~0x0200) |
+-		0x0200);
++	/* Save current state */
++	dacp=via_ac97_read_reg(ac97, AC97_POWER_CONTROL);
++	mast_vol = via_ac97_read_reg(ac97, AC97_MASTER_VOL_STEREO);
++	mono_vol = via_ac97_read_reg(ac97, AC97_MASTER_VOL_MONO);
++	phone_vol = via_ac97_read_reg(ac97, AC97_HEADPHONE_VOL);
++	pcm_vol = via_ac97_read_reg(ac97, AC97_PCMOUT_VOL);
++	/* Mute - largely reduces popping */
++	via_ac97_write_reg(ac97, AC97_MASTER_VOL_STEREO, mute_vol);
++	via_ac97_write_reg(ac97, AC97_MASTER_VOL_MONO, mute_vol);
++	via_ac97_write_reg(ac97, AC97_HEADPHONE_VOL, mute_vol);
++       	via_ac97_write_reg(ac97, AC97_PCMOUT_VOL, mute_vol);
++	/* Power down the DAC */
++	via_ac97_write_reg(ac97, AC97_POWER_CONTROL, dacp|0x0200);
+ 
++        /* Set new rate */
+ 	via_ac97_write_reg (ac97, rate_reg, rate);
+ 
+-	via_ac97_write_reg (ac97, AC97_POWER_CONTROL,
+-		via_ac97_read_reg (ac97, AC97_POWER_CONTROL) & ~0x0200);
+-
+-	udelay (10);
++	/* Power DAC back up */
++	via_ac97_write_reg(ac97, AC97_POWER_CONTROL, dacp);
++	udelay (200); /* reduces popping */
++
++	/* Restore volumes */
++	via_ac97_write_reg(ac97, AC97_MASTER_VOL_STEREO, mast_vol);
++	via_ac97_write_reg(ac97, AC97_MASTER_VOL_MONO, mono_vol);
++	via_ac97_write_reg(ac97, AC97_HEADPHONE_VOL, phone_vol);
++	via_ac97_write_reg(ac97, AC97_PCMOUT_VOL, pcm_vol);
+ 
+ 	/* the hardware might return a value different than what we
+ 	 * passed to it, so read the rate value back from hardware
+@@ -626,9 +706,19 @@
+ {
+ 	memset (chan, 0, sizeof (*chan));
+ 
++	if(card->intmask)
++		chan->intmask = 0x23;	/* Turn on the IRQ bits */
++		
+ 	if (chan == &card->ch_out) {
+ 		chan->name = "PCM-OUT";
+-		chan->iobase = card->baseaddr + VIA_BASE0_PCM_OUT_CHAN;
++		if(card->sixchannel)
++		{
++			chan->iobase = card->baseaddr + VIA_BASE0_MULTI_OUT_CHAN;
++			chan->is_multi = 1;
++			DPRINTK("Using multichannel for pcm out\n");
++		}
 +		else
-+			db->fragshift = db->ossfragshift;
-+	} else {
-+		db->fragshift = ld2(bytepersec/100/(db->subdivision ?
-+						    db->subdivision : 1));
-+		if (db->fragshift < 3)
-+			db->fragshift = 3;
-+	}
- 	db->numfrag = bufs >> db->fragshift;
--    }
--    db->fragsize = 1 << db->fragshift;
--    if (db->ossmaxfrags >= 4 && db->ossmaxfrags < db->numfrag)
--	db->numfrag = db->ossmaxfrags;
--    db->fragsamples = db->fragsize >> sample_shift[fmt];
--    db->dmasize = db->numfrag << db->fragshift;
--    memset(db->rawbuf, (fmt & (CC_DF>>CC_FMT_BIT)) ? 0 : 0x80, db->dmasize);
--    
--    // set data length register
--    outw(db->fragsize, s->io+reg+2);
--    db->ready = 1;
-+	while (db->numfrag < 4 && db->fragshift > 3) {
-+		db->fragshift--;
-+		db->numfrag = bufs >> db->fragshift;
-+	}
-+	db->fragsize = 1 << db->fragshift;
-+	if (db->ossmaxfrags >= 4 && db->ossmaxfrags < db->numfrag)
-+		db->numfrag = db->ossmaxfrags;
-+	db->fragsamples = db->fragsize >> sample_shift[fmt];
-+	db->dmasize = db->numfrag << db->fragshift;
-+	memset(db->rawbuf, (fmt & (CC_DF>>CC_FMT_BIT)) ? 0 : 0x80, bufs);
-+    
-+#ifdef IT8172_VERBOSE_DEBUG
-+	dbg("rate=%d, fragsize=%d, numfrag=%d, dmasize=%d",
-+	    rate, db->fragsize, db->numfrag, db->dmasize);
-+#endif
++			chan->iobase = card->baseaddr + VIA_BASE0_PCM_OUT_CHAN;
+ 	} else if (chan == &card->ch_in) {
+ 		chan->name = "PCM-IN";
+ 		chan->iobase = card->baseaddr + VIA_BASE0_PCM_IN_CHAN;
+@@ -659,9 +749,8 @@
+  *      Performs some of the preparations necessary to begin
+  *      using a PCM channel.
+  *
+- *      Currently the preparations consist in
+- *      setting the
+- *      PCM channel to a known state.
++ *      Currently the preparations consist of
++ *      setting the PCM channel to a known state.
+  */
  
--    return 0;
-+	// set data length register
-+	outw(db->fragsize, s->io+reg+2);
-+	db->ready = 1;
+ 
+@@ -707,6 +796,11 @@
+ 
+ 	DPRINTK ("ENTER\n");
+ 
 +
-+	return 0;
- }
- 
- static inline int prog_dmabuf_adc(struct it8172_state *s)
- {
--    stop_adc(s);
--    return prog_dmabuf(s, &s->dma_adc, s->adcrate,
--		       (s->capcc & CC_FMT_MASK) >> CC_FMT_BIT,
--		       IT_AC_CAPCC);
-+	stop_adc(s);
-+	return prog_dmabuf(s, &s->dma_adc, s->adcrate,
-+			   (s->capcc & CC_FMT_MASK) >> CC_FMT_BIT,
-+			   IT_AC_CAPCC);
- }
- 
- static inline int prog_dmabuf_dac(struct it8172_state *s)
- {
--    stop_dac(s);
--    return prog_dmabuf(s, &s->dma_dac, s->dacrate,
--		       (s->pcc & CC_FMT_MASK) >> CC_FMT_BIT,
--		       IT_AC_PCC);
-+	stop_dac(s);
-+	return prog_dmabuf(s, &s->dma_dac, s->dacrate,
-+			   (s->pcc & CC_FMT_MASK) >> CC_FMT_BIT,
-+			   IT_AC_PCC);
- }
- 
- 
-@@ -728,918 +760,1127 @@
- 
- static irqreturn_t it8172_interrupt(int irq, void *dev_id, struct pt_regs *regs)
- {
--    struct it8172_state *s = (struct it8172_state *)dev_id;
--    struct dmabuf* dac = &s->dma_dac;
--    struct dmabuf* adc = &s->dma_adc;
--    unsigned char isc, vs;
--    unsigned short vol, mute;
--    unsigned long newptr;
--    
--    spin_lock(&s->lock);
--
--    isc = inb(s->io+IT_AC_ISC);
--
--    /* fastpath out, to ease interrupt sharing */
--    if (!(isc & (ISC_VCI | ISC_CCI | ISC_PCI))) {
--	spin_unlock(&s->lock);
--	return IRQ_NONE;
--    }
--
--    /* clear audio interrupts first */
--    outb(isc | ISC_VCI | ISC_CCI | ISC_PCI, s->io+IT_AC_ISC);
--    
--    /* handle volume button events */
--    if (isc & ISC_VCI) {
--	vs = inb(s->io+IT_AC_VS);
--	outb(0, s->io+IT_AC_VS);
--	vol = inw(s->io+IT_AC_PCMOV);
--	mute = vol & PCMOV_PCMOM;
--	vol &= PCMOV_PCMLCG_MASK;
--	if ((vs & VS_VUP) && vol > 0)
--	    vol--;
--	if ((vs & VS_VDP) && vol < 0x1f)
--	    vol++;
--	vol |= (vol << PCMOV_PCMRCG_BIT);
--	if (vs & VS_VMP)
--	    vol |= (mute ^ PCMOV_PCMOM);
--	outw(vol, s->io+IT_AC_PCMOV);
--    }
--    
--    /* update capture pointers */
--    if (isc & ISC_CCI) {
--	if (adc->count > adc->dmasize - adc->fragsize) {
--	    // Overrun. Stop ADC and log the error
--	    stop_adc(s);
--	    adc->error++;
--	    printk(KERN_INFO PFX "adc overrun\n");
--	} else {
--	    newptr = virt_to_bus(adc->nextIn) + 2*adc->fragsize;
--	    if (newptr >= adc->dmaaddr + adc->dmasize)
--		newptr -= adc->dmasize;
-+	struct it8172_state *s = (struct it8172_state *)dev_id;
-+	struct dmabuf* dac = &s->dma_dac;
-+	struct dmabuf* adc = &s->dma_adc;
-+	unsigned char isc, vs;
-+	unsigned short vol, mute;
-+	unsigned long newptr;
-+    
-+	spin_lock(&s->lock);
-+
-+	isc = inb(s->io+IT_AC_ISC);
-+
-+	/* fastpath out, to ease interrupt sharing */
-+	if (!(isc & (ISC_VCI | ISC_CCI | ISC_PCI))) {
-+		spin_unlock(&s->lock);
-+		return IRQ_NONE;
-+	}
-+    
-+	/* clear audio interrupts first */
-+	outb(isc | ISC_VCI | ISC_CCI | ISC_PCI, s->io+IT_AC_ISC);
-+    
-+	/* handle volume button events (ignore if S/PDIF enabled) */
-+	if ((isc & ISC_VCI) && s->spdif_volume == -1) {
-+		vs = inb(s->io+IT_AC_VS);
-+		outb(0, s->io+IT_AC_VS);
-+		vol = inw(s->io+IT_AC_PCMOV);
-+		mute = vol & PCMOV_PCMOM;
-+		vol &= PCMOV_PCMLCG_MASK;
-+		if ((vs & VS_VUP) && vol > 0)
-+			vol--;
-+		if ((vs & VS_VDP) && vol < 0x1f)
-+			vol++;
-+		vol |= (vol << PCMOV_PCMRCG_BIT);
-+		if (vs & VS_VMP)
-+			vol |= (mute ^ PCMOV_PCMOM);
-+		outw(vol, s->io+IT_AC_PCMOV);
-+	}
-+    
-+	/* update capture pointers */
-+	if (isc & ISC_CCI) {
-+		if (adc->count > adc->dmasize - adc->fragsize) {
-+			// Overrun. Stop ADC and log the error
-+			stop_adc(s);
-+			adc->error++;
-+			dbg("adc overrun");
-+		} else {
-+			newptr = virt_to_bus(adc->nextIn) + 2*adc->fragsize;
-+			if (newptr >= adc->dmaaddr + adc->dmasize)
-+				newptr -= adc->dmasize;
- 	    
--	    outl(newptr, s->io+adc->curBufPtr);
--	    adc->curBufPtr = (adc->curBufPtr == IT_AC_CAPB1STA) ?
--		IT_AC_CAPB2STA : IT_AC_CAPB1STA;
-+			outl(newptr, s->io+adc->curBufPtr);
-+			adc->curBufPtr = (adc->curBufPtr == IT_AC_CAPB1STA) ?
-+				IT_AC_CAPB2STA : IT_AC_CAPB1STA;
- 	    
--	    adc->nextIn += adc->fragsize;
--	    if (adc->nextIn >= adc->rawbuf + adc->dmasize)
--		adc->nextIn -= adc->dmasize;
-+			adc->nextIn += adc->fragsize;
-+			if (adc->nextIn >= adc->rawbuf + adc->dmasize)
-+				adc->nextIn -= adc->dmasize;
- 	    
--	    adc->count += adc->fragsize;
--	    adc->total_bytes += adc->fragsize;
-+			adc->count += adc->fragsize;
-+			adc->total_bytes += adc->fragsize;
- 
--	    /* wake up anybody listening */
--	    if (waitqueue_active(&adc->wait))
--		wake_up_interruptible(&adc->wait);
--	}
--    }
--    
--    /* update playback pointers */
--    if (isc & ISC_PCI) {
--	newptr = virt_to_bus(dac->nextOut) + 2*dac->fragsize;
--	if (newptr >= dac->dmaaddr + dac->dmasize)
--	    newptr -= dac->dmasize;
-+			/* wake up anybody listening */
-+			if (waitqueue_active(&adc->wait))
-+				wake_up_interruptible(&adc->wait);
++	chan->intmask = 0;
++	if(card->intmask)
++		chan->intmask = 0x23;	/* Turn on the IRQ bits */
++		
+ 	if (chan->sgtable != NULL) {
+ 		DPRINTK ("EXIT\n");
+ 		return 0;
+@@ -777,6 +871,16 @@
+ 	outl (chan->sgt_handle, chan->iobase + VIA_PCM_TABLE_ADDR);
+ 	udelay (20);
+ 	via_ac97_wait_idle (card);
++	/* load no rate adaption, stereo 16bit, set up ring slots */
++	if(card->sixchannel)
++	{
++		if(!chan->is_multi)
++		{
++			outl (0xFFFFF | (0x3 << 20) | (chan->frag_number << 24), chan->iobase + VIA_PCM_STOPRATE);
++			udelay (20);
++			via_ac97_wait_idle (card);
 +		}
 +	}
-+    
-+	/* update playback pointers */
-+	if (isc & ISC_PCI) {
-+		newptr = virt_to_bus(dac->nextOut) + 2*dac->fragsize;
-+		if (newptr >= dac->dmaaddr + dac->dmasize)
-+			newptr -= dac->dmasize;
- 	
--	outl(newptr, s->io+dac->curBufPtr);
--	dac->curBufPtr = (dac->curBufPtr == IT_AC_PCB1STA) ?
--	    IT_AC_PCB2STA : IT_AC_PCB1STA;
-+		outl(newptr, s->io+dac->curBufPtr);
-+		dac->curBufPtr = (dac->curBufPtr == IT_AC_PCB1STA) ?
-+			IT_AC_PCB2STA : IT_AC_PCB1STA;
- 	
--	dac->nextOut += dac->fragsize;
--	if (dac->nextOut >= dac->rawbuf + dac->dmasize)
--	    dac->nextOut -= dac->dmasize;
-+		dac->nextOut += dac->fragsize;
-+		if (dac->nextOut >= dac->rawbuf + dac->dmasize)
-+			dac->nextOut -= dac->dmasize;
- 	
--	dac->count -= dac->fragsize;
--	dac->total_bytes += dac->fragsize;
-+		dac->count -= dac->fragsize;
-+		dac->total_bytes += dac->fragsize;
  
--	/* wake up anybody listening */
--	if (waitqueue_active(&dac->wait))
--	    wake_up_interruptible(&dac->wait);
-+		/* wake up anybody listening */
-+		if (waitqueue_active(&dac->wait))
-+			wake_up_interruptible(&dac->wait);
- 	
--	if (dac->count <= 0)
--	    stop_dac(s);
--    }
-+		if (dac->count <= 0)
-+			stop_dac(s);
+ 	DPRINTK ("inl (0x%lX) = %x\n",
+ 		chan->iobase + VIA_PCM_TABLE_ADDR,
+@@ -880,8 +984,11 @@
+ 	assert (chan != NULL);
+ 
+ 	if (reset)
++	{
+ 		/* reset to 8-bit mono mode */
+ 		chan->pcm_fmt = 0;
++		chan->channels = 1;
 +	}
-     
--    spin_unlock(&s->lock);
--    return IRQ_HANDLED;
-+	spin_unlock(&s->lock);
+ 
+ 	/* enable interrupts on FLAG and EOL */
+ 	chan->pcm_fmt |= VIA_CHAN_TYPE_MASK;
+@@ -892,8 +999,83 @@
+ 	/* set interrupt select bits where applicable (PCM in & out channels) */
+ 	if (!chan->is_record)
+ 		chan->pcm_fmt |= VIA_CHAN_TYPE_INT_SELECT;
++	
++	DPRINTK("SET FMT - %02x %02x\n", chan->intmask , chan->is_multi);
++	
++	if(chan->intmask)
++	{
++		u32 m;
++
++		/*
++		 *	Channel 0x4 is up to 6 x 16bit and has to be
++		 *	programmed differently 
++		 */
++		 		
++		if(chan->is_multi)
++		{
++			u8 c = 0;
++			
++			/*
++			 *	Load the type bit for num channels
++			 *	and 8/16bit
++			 */
++			 
++			if(chan->pcm_fmt & VIA_PCM_FMT_16BIT)
++				c = 1 << 7;
++			if(chan->pcm_fmt & VIA_PCM_FMT_STEREO)
++				c |= (2<<4);
++			else
++				c |= (1<<4);
++				
++			outb(c, chan->iobase + VIA_PCM_TYPE);
++			
++			/*
++			 *	Set the channel steering
++			 *	Mono
++			 *		Channel 0 to slot 3
++			 *		Channel 0 to slot 4
++			 *	Stereo
++			 *		Channel 0 to slot 3
++			 *		Channel 1 to slot 4
++			 */
++			 
++			switch(chan->channels)
++			{
++				case 1:
++					outl(0xFF000000 | (1<<0) | (1<<4) , chan->iobase + VIA_PCM_STOPRATE);
++					break;
++				case 2:
++					outl(0xFF000000 | (1<<0) | (2<<4) , chan->iobase + VIA_PCM_STOPRATE);
++					break;
++				case 4:
++					outl(0xFF000000 | (1<<0) | (2<<4) | (3<<8) | (4<<12), chan->iobase + VIA_PCM_STOPRATE);
++					break;
++				case 6:
++					outl(0xFF000000 | (1<<0) | (2<<4) | (5<<8) | (6<<12) | (3<<16) | (4<<20), chan->iobase + VIA_PCM_STOPRATE);
++					break;
++			}				
++		}
++		else
++		{
++			/*
++			 *	New style, turn off channel volume
++			 *	control, set bits in the right register
++			 */	
++			outb(0x0, chan->iobase + VIA_PCM_LEFTVOL);
++			outb(0x0, chan->iobase + VIA_PCM_RIGHTVOL);
++
++			m = inl(chan->iobase + VIA_PCM_STOPRATE);
++			m &= ~(3<<20);
++			if(chan->pcm_fmt & VIA_PCM_FMT_STEREO)
++				m |= (1 << 20);
++			if(chan->pcm_fmt & VIA_PCM_FMT_16BIT)
++				m |= (1 << 21);
++			outl(m, chan->iobase + VIA_PCM_STOPRATE);
++		}		
++	}
++	else
++		outb (chan->pcm_fmt, chan->iobase + VIA_PCM_TYPE);
+ 
+-	outb (chan->pcm_fmt, chan->iobase + VIA_PCM_TYPE);
+ 
+ 	DPRINTK ("EXIT, pcm_fmt = 0x%02X, reg = 0x%02X\n",
+ 		 chan->pcm_fmt,
+@@ -948,7 +1130,7 @@
+ 
+ 	via_chan_clear (card, chan);
+ 
+-	val = via_set_rate (&card->ac97, chan, val);
++	val = via_set_rate (card->ac97, chan, val);
+ 
+ 	DPRINTK ("EXIT, returning %d\n", val);
+ 	return val;
+@@ -1034,15 +1216,25 @@
+ 	/* mono */
+ 	case 1:
+ 		chan->pcm_fmt &= ~VIA_PCM_FMT_STEREO;
++		chan->channels = 1;
+ 		via_chan_pcm_fmt (chan, 0);
+ 		break;
+ 
+ 	/* stereo */
+ 	case 2:
+ 		chan->pcm_fmt |= VIA_PCM_FMT_STEREO;
++		chan->channels = 2;
+ 		via_chan_pcm_fmt (chan, 0);
+ 		break;
+ 
++	case 4:
++	case 6:
++		if(chan->is_multi)
++		{
++			chan->pcm_fmt |= VIA_PCM_FMT_STEREO;
++			chan->channels = val;
++			break;
++		}
+ 	/* unknown */
+ 	default:
+ 		printk (KERN_WARNING PFX "unknown number of channels\n");
+@@ -1076,9 +1268,8 @@
+ 
+ 		DPRINTK ("\n");
+ 
+-		chan->frag_size = (VIA_DEFAULT_FRAG_TIME * chan->rate *
+-				   ((chan->pcm_fmt & VIA_PCM_FMT_STEREO) ? 2 : 1) *
+-				   ((chan->pcm_fmt & VIA_PCM_FMT_16BIT) ? 2 : 1)) / 1000 - 1;
++		chan->frag_size = (VIA_DEFAULT_FRAG_TIME * chan->rate * chan->channels
++				   * ((chan->pcm_fmt & VIA_PCM_FMT_16BIT) ? 2 : 1)) / 1000 - 1;
+ 
+ 		shift = 0;
+ 		while (chan->frag_size) {
+@@ -1112,6 +1303,8 @@
+ 
+ 	if (chan->frag_number < VIA_MIN_FRAG_NUMBER)
+                 chan->frag_number = VIA_MIN_FRAG_NUMBER;
++        if (chan->frag_number > VIA_MAX_FRAG_NUMBER)
++        	chan->frag_number = VIA_MAX_FRAG_NUMBER;
+ 
+ 	if ((chan->frag_number * chan->frag_size) / PAGE_SIZE > VIA_MAX_BUFFER_DMA_PAGES)
+ 		chan->frag_number = (VIA_MAX_BUFFER_DMA_PAGES * PAGE_SIZE) / chan->frag_size;
+@@ -1156,7 +1349,7 @@
+ 
+ /**
+  *	via_chan_flush_frag - Flush partially-full playback buffer to hardware
+- *	@chan: Channel whose DMA table will be displayed
++ *	@chan: Channel whose DMA table will be flushed
+  *
+  *	Flushes partially-full playback buffer to hardware.
+  */
+@@ -1194,6 +1387,7 @@
+ {
+ 	assert (chan->is_active == sg_active(chan->iobase));
+ 
++	DPRINTK ("MAYBE START %s\n", chan->name);
+ 	if (!chan->is_active && chan->is_enabled) {
+ 		chan->is_active = 1;
+ 		sg_begin (chan);
+@@ -1267,6 +1461,8 @@
+ 	assert (codec->private_data != NULL);
+ 
+ 	card = codec->private_data;
++	
++	spin_lock(&card->ac97_lock);
+ 
+ 	/* Every time we write to register 80 we cause a transaction.
+ 	   The only safe way to clear the valid bit is to write it at
+@@ -1297,6 +1493,7 @@
+ 	if (((data & 0x007F0000) >> 16) == reg) {
+ 		DPRINTK ("EXIT, success, data=0x%lx, retval=0x%lx\n",
+ 			 data, data & 0x0000FFFF);
++		spin_unlock(&card->ac97_lock);
+ 		return data & 0x0000FFFF;
+ 	}
+ 
+@@ -1304,6 +1501,7 @@
+ 		reg, ((data & 0x007F0000) >> 16));
+ 
+ err_out:
++	spin_unlock(&card->ac97_lock);
+ 	DPRINTK ("EXIT, returning 0\n");
+ 	return 0;
+ }
+@@ -1335,6 +1533,8 @@
+ 
+ 	card = codec->private_data;
+ 
++	spin_lock(&card->ac97_lock);
++	
+ 	data = (reg << 16) + value;
+ 	outl (data, card->baseaddr + VIA_BASE0_AC97_CTRL);
+ 	udelay (10);
+@@ -1349,6 +1549,7 @@
+ 	printk (KERN_WARNING PFX "timeout after AC97 codec write (0x%X, 0x%X)\n", reg, value);
+ 
+ out:
++	spin_unlock(&card->ac97_lock);
+ 	DPRINTK ("EXIT\n");
+ }
+ 
+@@ -1368,7 +1569,7 @@
+ 			assert (pci_get_drvdata (pdev) != NULL);
+ 
+ 			card = pci_get_drvdata (pdev);
+-			if (card->ac97.dev_mixer == minor)
++			if (card->ac97->dev_mixer == minor)
+ 				goto match;
+ 		}
+ 	}
+@@ -1377,7 +1578,7 @@
+ 	return -ENODEV;
+ 
+ match:
+-	file->private_data = &card->ac97;
++	file->private_data = card->ac97;
+ 
+ 	DPRINTK ("EXIT, returning 0\n");
+ 	return 0;
+@@ -1399,7 +1600,30 @@
+ 
+ 	rc = via_syscall_down (card, nonblock);
+ 	if (rc) goto out;
+-
++	
++#if 0
++	/*
++	 *	Intercept volume control on 8233 and 8235
++	 */
++	if(card->volume)
++	{
++		switch(cmd)
++		{
++			case SOUND_MIXER_READ_VOLUME:
++				return card->mixer_vol;
++			case SOUND_MIXER_WRITE_VOLUME:
++			{
++				int v;
++				if(get_user(v, (int *)arg))
++				{
++					rc = -EFAULT;
++					goto out;
++				}
++				card->mixer_vol = v;
++			}
++		}
++	}		
++#endif
+ 	rc = codec->mixer_ioctl(codec, cmd, arg);
+ 
+ 	up (&card->syscall_sem);
+@@ -1493,25 +1717,28 @@
+         	udelay (100);
+ 	}
+ 
++	if(card->legacy)
++	{
+ #if 0 /* this breaks on K7M */
+-	/* disable legacy stuff */
+-	pci_write_config_byte (pdev, 0x42, 0x00);
+-	udelay(10);
++		/* disable legacy stuff */
++		pci_write_config_byte (pdev, 0x42, 0x00);
++		udelay(10);
+ #endif
+ 
+-	/* route FM trap to IRQ, disable FM trap */
+-	pci_write_config_byte (pdev, 0x48, 0x05);
+-	udelay(10);
+-
++		/* route FM trap to IRQ, disable FM trap */
++		pci_write_config_byte (pdev, 0x48, 0x05);
++		udelay(10);
++	}
++	
+ 	/* disable all codec GPI interrupts */
+ 	outl (0, pci_resource_start (pdev, 0) + 0x8C);
+ 
+ 	/* WARNING: this line is magic.  Remove this
+ 	 * and things break. */
+ 	/* enable variable rate */
+- 	tmp16 = via_ac97_read_reg (&card->ac97, AC97_EXTENDED_STATUS);
++ 	tmp16 = via_ac97_read_reg (card->ac97, AC97_EXTENDED_STATUS);
+  	if ((tmp16 & 1) == 0)
+- 		via_ac97_write_reg (&card->ac97, AC97_EXTENDED_STATUS, tmp16 | 1);
++ 		via_ac97_write_reg (card->ac97, AC97_EXTENDED_STATUS, tmp16 | 1);
+ 
+ 	DPRINTK ("EXIT, returning 0\n");
+ 	return 0;
+@@ -1534,16 +1761,20 @@
+ 
+ 	assert (card != NULL);
+ 
+-	memset (&card->ac97, 0, sizeof (card->ac97));
+-	card->ac97.private_data = card;
+-	card->ac97.codec_read = via_ac97_read_reg;
+-	card->ac97.codec_write = via_ac97_write_reg;
+-	card->ac97.codec_wait = via_ac97_codec_wait;
++	card->ac97 = ac97_alloc_codec();
++	if(card->ac97 == NULL)
++		return -ENOMEM;
++		
++	card->ac97->private_data = card;
++	card->ac97->codec_read = via_ac97_read_reg;
++	card->ac97->codec_write = via_ac97_write_reg;
++	card->ac97->codec_wait = via_ac97_codec_wait;
+ 
+-	card->ac97.dev_mixer = register_sound_mixer (&via_mixer_fops, -1);
+-	if (card->ac97.dev_mixer < 0) {
++	card->ac97->dev_mixer = register_sound_mixer (&via_mixer_fops, -1);
++	if (card->ac97->dev_mixer < 0) {
+ 		printk (KERN_ERR PFX "unable to register AC97 mixer, aborting\n");
+ 		DPRINTK ("EXIT, returning -EIO\n");
++		ac97_release_codec(card->ac97);
+ 		return -EIO;
+ 	}
+ 
+@@ -1552,25 +1783,27 @@
+ 		printk (KERN_ERR PFX "unable to reset AC97 codec, aborting\n");
+ 		goto err_out;
+ 	}
+-
+-	if (ac97_probe_codec (&card->ac97) == 0) {
++	
++	mdelay(10);
++	
++	if (ac97_probe_codec (card->ac97) == 0) {
+ 		printk (KERN_ERR PFX "unable to probe AC97 codec, aborting\n");
+ 		rc = -EIO;
+ 		goto err_out;
+ 	}
+ 
+ 	/* enable variable rate */
+-	tmp16 = via_ac97_read_reg (&card->ac97, AC97_EXTENDED_STATUS);
+-	via_ac97_write_reg (&card->ac97, AC97_EXTENDED_STATUS, tmp16 | 1);
++	tmp16 = via_ac97_read_reg (card->ac97, AC97_EXTENDED_STATUS);
++	via_ac97_write_reg (card->ac97, AC97_EXTENDED_STATUS, tmp16 | 1);
+ 
+  	/*
+  	 * If we cannot enable VRA, we have a locked-rate codec.
+  	 * We try again to enable VRA before assuming so, however.
+  	 */
+- 	tmp16 = via_ac97_read_reg (&card->ac97, AC97_EXTENDED_STATUS);
++ 	tmp16 = via_ac97_read_reg (card->ac97, AC97_EXTENDED_STATUS);
+  	if ((tmp16 & 1) == 0) {
+- 		via_ac97_write_reg (&card->ac97, AC97_EXTENDED_STATUS, tmp16 | 1);
+- 		tmp16 = via_ac97_read_reg (&card->ac97, AC97_EXTENDED_STATUS);
++ 		via_ac97_write_reg (card->ac97, AC97_EXTENDED_STATUS, tmp16 | 1);
++ 		tmp16 = via_ac97_read_reg (card->ac97, AC97_EXTENDED_STATUS);
+  		if ((tmp16 & 1) == 0) {
+  			card->locked_rate = 1;
+  			printk (KERN_WARNING PFX "Codec rate locked at 48Khz\n");
+@@ -1581,8 +1814,9 @@
+ 	return 0;
+ 
+ err_out:
+-	unregister_sound_mixer (card->ac97.dev_mixer);
++	unregister_sound_mixer (card->ac97->dev_mixer);
+ 	DPRINTK ("EXIT, returning %d\n", rc);
++	ac97_release_codec(card->ac97);
+ 	return rc;
+ }
+ 
+@@ -1592,9 +1826,10 @@
+ 	DPRINTK ("ENTER\n");
+ 
+ 	assert (card != NULL);
+-	assert (card->ac97.dev_mixer >= 0);
++	assert (card->ac97->dev_mixer >= 0);
+ 
+-	unregister_sound_mixer (card->ac97.dev_mixer);
++	unregister_sound_mixer (card->ac97->dev_mixer);
++	ac97_release_codec(card->ac97);
+ 
+ 	DPRINTK ("EXIT\n");
+ }
+@@ -1619,11 +1854,11 @@
+  *	Locking: inside card->lock
+  */
+ 
+-static void via_intr_channel (struct via_channel *chan)
++static void via_intr_channel (struct via_info *card, struct via_channel *chan)
+ {
+ 	u8 status;
+ 	int n;
+-
++	
+ 	/* check pertinent bits of status register for action bits */
+ 	status = inb (chan->iobase) & (VIA_SGD_FLAG | VIA_SGD_EOL | VIA_SGD_STOPPED);
+ 	if (!status)
+@@ -1642,6 +1877,7 @@
+ 	assert (n >= 0);
+ 	assert (n < chan->frag_number);
+ 
++	
+ 	/* reset SGD data structure in memory to reflect a full buffer,
+ 	 * and advance the h/w ptr, wrapping around to zero if needed
+ 	 */
+@@ -1656,48 +1892,44 @@
+ 	/* accounting crap for SNDCTL_DSP_GETxPTR */
+ 	chan->n_irqs++;
+ 	chan->bytes += chan->frag_size;
++	/* FIXME - signed overflow is undefined */
+ 	if (chan->bytes < 0) /* handle overflow of 31-bit value */
+ 		chan->bytes = chan->frag_size;
+-
++	/* all following checks only occur when not in mmap(2) mode */
++	if (!chan->is_mapped)
++	{
++		/* If we are recording, then n_frags represents the number
++		 * of fragments waiting to be handled by userspace.
++		 * If we are playback, then n_frags represents the number
++		 * of fragments remaining to be filled by userspace.
++		 * We increment here.  If we reach max number of fragments,
++		 * this indicates an underrun/overrun.  For this case under OSS,
++		 * we stop the record/playback process.
++		 */
++		if (atomic_read (&chan->n_frags) < chan->frag_number)
++			atomic_inc (&chan->n_frags);
++		assert (atomic_read (&chan->n_frags) <= chan->frag_number);
++		if (atomic_read (&chan->n_frags) == chan->frag_number) {
++			chan->is_active = 0;
++			via_chan_stop (chan->iobase);
++		}
++	}
+ 	/* wake up anyone listening to see when interrupts occur */
+-	if (waitqueue_active (&chan->wait))
+-		wake_up_all (&chan->wait);
++	wake_up_all (&chan->wait);
+ 
+ 	DPRINTK ("%s intr, status=0x%02X, hwptr=0x%lX, chan->hw_ptr=%d\n",
+ 		 chan->name, status, (long) inl (chan->iobase + 0x04),
+ 		 atomic_read (&chan->hw_ptr));
+ 
+-	/* all following checks only occur when not in mmap(2) mode */
+-	if (chan->is_mapped)
+-		return;
+-
+-	/* If we are recording, then n_frags represents the number
+-	 * of fragments waiting to be handled by userspace.
+-	 * If we are playback, then n_frags represents the number
+-	 * of fragments remaining to be filled by userspace.
+-	 * We increment here.  If we reach max number of fragments,
+-	 * this indicates an underrun/overrun.  For this case under OSS,
+-	 * we stop the record/playback process.
+-	 */
+-	if (atomic_read (&chan->n_frags) < chan->frag_number)
+-		atomic_inc (&chan->n_frags);
+-	assert (atomic_read (&chan->n_frags) <= chan->frag_number);
+-
+-	if (atomic_read (&chan->n_frags) == chan->frag_number) {
+-		chan->is_active = 0;
+-		via_chan_stop (chan->iobase);
+-	}
+-
+-	DPRINTK ("%s intr, channel n_frags == %d\n", chan->name,
+-		 atomic_read (&chan->n_frags));
++	DPRINTK ("%s intr, channel n_frags == %d, missed %d\n", chan->name,
++		 atomic_read (&chan->n_frags), missed);
+ }
+ 
+ 
+-static irqreturn_t via_interrupt(int irq, void *dev_id, struct pt_regs *regs)
++static irqreturn_t  via_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+ {
+ 	struct via_info *card = dev_id;
+ 	u32 status32;
+-	int handled = 0;
+ 
+ 	/* to minimize interrupt sharing costs, we use the SGD status
+ 	 * shadow register to check the status of all inputs and
+@@ -1708,12 +1940,10 @@
+ 	if (!(status32 & VIA_INTR_MASK))
+         {
+ #ifdef CONFIG_MIDI_VIA82CXXX
+-	    	 if (card->midi_devc) {
++	    	 if (card->midi_devc)
+                     	uart401intr(irq, card->midi_devc, regs);
+-			handled = 1;
+-		}
+ #endif
+-		goto out;
++		return IRQ_HANDLED;
+     	}
+ 	DPRINTK ("intr, status32 == 0x%08X\n", status32);
+ 
+@@ -1722,21 +1952,42 @@
+ 	 */
+ 	spin_lock (&card->lock);
+ 
+-	if (status32 & VIA_INTR_OUT) {
+-		handled = 1;
+-		via_intr_channel (&card->ch_out);
+-	}
+-	if (status32 & VIA_INTR_IN) {
+-		handled = 1;
+-		via_intr_channel (&card->ch_in);
+-	}
+-	if (status32 & VIA_INTR_FM) {
+-		handled = 1;
+-		via_intr_channel (&card->ch_fm);
+-	}
++	if (status32 & VIA_INTR_OUT)
++		via_intr_channel (card, &card->ch_out);
++	if (status32 & VIA_INTR_IN)
++		via_intr_channel (card, &card->ch_in);
++	if (status32 & VIA_INTR_FM)
++		via_intr_channel (card, &card->ch_fm);
++
+ 	spin_unlock (&card->lock);
+-out:
+-	return IRQ_RETVAL(handled);
++	
++	return IRQ_HANDLED;
++}
++
++static irqreturn_t via_new_interrupt(int irq, void *dev_id, struct pt_regs *regs)
++{
++	struct via_info *card = dev_id;
++	u32 status32;
++
++	/* to minimize interrupt sharing costs, we use the SGD status
++	 * shadow register to check the status of all inputs and
++	 * outputs with a single 32-bit bus read.  If no interrupt
++	 * conditions are flagged, we exit immediately
++	 */
++	status32 = inl (card->baseaddr + VIA_BASE0_SGD_STATUS_SHADOW);
++	if (!(status32 & VIA_NEW_INTR_MASK))
++		return IRQ_NONE;
++	/*
++	 * goes away completely on UP
++	 */
++	spin_lock (&card->lock);
++
++	via_intr_channel (card, &card->ch_out);
++	via_intr_channel (card, &card->ch_in);
++	via_intr_channel (card, &card->ch_fm);
++
++	spin_unlock (&card->lock);
 +	return IRQ_HANDLED;
  }
  
- /* --------------------------------------------------------------------- */
  
-+static loff_t it8172_llseek(struct file *file, loff_t offset, int origin)
-+{
-+	return -ESPIPE;
-+}
-+
-+
- static int it8172_open_mixdev(struct inode *inode, struct file *file)
- {
--    int minor = minor(inode->i_rdev);
--    struct list_head *list;
--    struct it8172_state *s;
--
--    for (list = devs.next; ; list = list->next) {
--	if (list == &devs)
--	    return -ENODEV;
--	s = list_entry(list, struct it8172_state, devs);
--	if (s->codec.dev_mixer == minor)
--	    break;
--    }
--    file->private_data = s;
--    return 0;
-+	int minor = MINOR(inode->i_rdev);
-+	struct list_head *list;
-+	struct it8172_state *s;
-+
-+	for (list = devs.next; ; list = list->next) {
-+		if (list == &devs)
-+			return -ENODEV;
-+		s = list_entry(list, struct it8172_state, devs);
-+		if (s->codec->dev_mixer == minor)
-+			break;
-+	}
-+	file->private_data = s;
-+	return 0;
- }
- 
- static int it8172_release_mixdev(struct inode *inode, struct file *file)
- {
--    return 0;
-+	return 0;
-+}
-+
-+
-+static u16
-+cvt_ossvol(unsigned int gain)
-+{
-+	u16 ret;
-+    
-+	if (gain == 0)
-+		return 0;
-+    
-+	if (gain > 100)
-+		gain = 100;
-+    
-+	ret = (100 - gain + 32) / 4;
-+	ret = ret > 31 ? 31 : ret;
-+	return ret;
- }
- 
- 
- static int mixdev_ioctl(struct ac97_codec *codec, unsigned int cmd,
- 			unsigned long arg)
- {
--    return codec->mixer_ioctl(codec, cmd, arg);
-+	struct it8172_state *s = (struct it8172_state *)codec->private_data;
-+	unsigned int left, right;
-+	unsigned long flags;
-+	int val;
-+	u16 vol;
-+    
-+	/*
-+	 * When we are in S/PDIF mode, we want to disable any analog output so
-+	 * we filter the master/PCM channel volume ioctls.
-+	 *
-+	 * Also filter I2S channel, which AC'97 knows nothing about.
-+	 */
-+
-+	switch (cmd) {
-+	case SOUND_MIXER_WRITE_VOLUME:
-+		// if not in S/PDIF mode, pass to AC'97
-+		if (s->spdif_volume == -1)
-+			break;
-+		return 0;
-+	case SOUND_MIXER_WRITE_PCM:
-+		// if not in S/PDIF mode, pass to AC'97
-+		if (s->spdif_volume == -1)
-+			break;
-+		if (get_user(val, (int *)arg))
-+			return -EFAULT;
-+		right = ((val >> 8)  & 0xff);
-+		left = (val  & 0xff);
-+		if (right > 100)
-+			right = 100;
-+		if (left > 100)
-+			left = 100;
-+		s->spdif_volume = (right << 8) | left;
-+		vol = cvt_ossvol(left);
-+		vol |= (cvt_ossvol(right) << PCMOV_PCMRCG_BIT);
-+		if (vol == 0)
-+			vol = PCMOV_PCMOM; // mute
-+		spin_lock_irqsave(&s->lock, flags);
-+		outw(vol, s->io+IT_AC_PCMOV);
-+		spin_unlock_irqrestore(&s->lock, flags);
-+		return put_user(s->spdif_volume, (int *)arg);
-+	case SOUND_MIXER_READ_PCM:
-+		// if not in S/PDIF mode, pass to AC'97
-+		if (s->spdif_volume == -1)
-+			break;
-+		return put_user(s->spdif_volume, (int *)arg);
-+	case SOUND_MIXER_WRITE_I2S:
-+		if (get_user(val, (int *)arg))
-+			return -EFAULT;
-+		right = ((val >> 8)  & 0xff);
-+		left = (val  & 0xff);
-+		if (right > 100)
-+			right = 100;
-+		if (left > 100)
-+			left = 100;
-+		s->i2s_volume = (right << 8) | left;
-+		vol = cvt_ossvol(left);
-+		vol |= (cvt_ossvol(right) << I2SV_I2SRCG_BIT);
-+		if (vol == 0)
-+			vol = I2SV_I2SOM; // mute
-+		outw(vol, s->io+IT_AC_I2SV);
-+		return put_user(s->i2s_volume, (int *)arg);
-+	case SOUND_MIXER_READ_I2S:
-+		return put_user(s->i2s_volume, (int *)arg);
-+	case SOUND_MIXER_WRITE_RECSRC:
-+		if (get_user(val, (int *)arg))
-+			return -EFAULT;
-+		if (val & SOUND_MASK_I2S) {
-+			s->i2s_recording = 1;
-+			outb(DRSS_I2S, s->io+IT_AC_DRSS);
-+			return 0;
-+		} else {
-+			s->i2s_recording = 0;
-+			outb(DRSS_AC97_PRIM, s->io+IT_AC_DRSS);
-+			// now let AC'97 select record source
-+			break;
-+		}
-+	case SOUND_MIXER_READ_RECSRC:
-+		if (s->i2s_recording)
-+			return put_user(SOUND_MASK_I2S, (int *)arg);
-+		else
-+			// let AC'97 report recording source
-+			break;
-+	}
-+
-+	return codec->mixer_ioctl(codec, cmd, arg);
- }
- 
- static int it8172_ioctl_mixdev(struct inode *inode, struct file *file,
- 			       unsigned int cmd, unsigned long arg)
- {
--    struct it8172_state *s = (struct it8172_state *)file->private_data;
--    struct ac97_codec *codec = &s->codec;
-+	struct it8172_state *s = (struct it8172_state *)file->private_data;
-+	struct ac97_codec *codec = s->codec;
- 
--    return mixdev_ioctl(codec, cmd, arg);
-+	return mixdev_ioctl(codec, cmd, arg);
- }
- 
- static /*const*/ struct file_operations it8172_mixer_fops = {
--    .owner	= THIS_MODULE,
--    .llseek	= no_llseek,
--    .ioctl	= it8172_ioctl_mixdev,
--    .open	= it8172_open_mixdev,
--    .release	= it8172_release_mixdev,
-+	owner:	THIS_MODULE,
-+	llseek:	it8172_llseek,
-+	ioctl:	it8172_ioctl_mixdev,
-+	open:	it8172_open_mixdev,
-+	release:	it8172_release_mixdev,
- };
- 
- /* --------------------------------------------------------------------- */
- 
- static int drain_dac(struct it8172_state *s, int nonblock)
- {
--    unsigned long flags;
--    int count, tmo;
-+	unsigned long flags;
-+	int count, tmo;
- 	
--    if (s->dma_dac.mapped || !s->dma_dac.ready)
--	return 0;
-+	if (s->dma_dac.mapped || !s->dma_dac.ready || s->dma_dac.stopped)
-+		return 0;
- 
--    for (;;) {
--	spin_lock_irqsave(&s->lock, flags);
--	count = s->dma_dac.count;
--	spin_unlock_irqrestore(&s->lock, flags);
--	if (count <= 0)
--	    break;
-+	for (;;) {
-+		spin_lock_irqsave(&s->lock, flags);
-+		count = s->dma_dac.count;
-+		spin_unlock_irqrestore(&s->lock, flags);
-+		if (count <= 0)
-+			break;
-+		if (signal_pending(current))
-+			break;
-+		//if (nonblock)
-+		//return -EBUSY;
-+		tmo = 1000 * count / s->dacrate;
-+		tmo >>= sample_shift[(s->pcc & CC_FMT_MASK) >> CC_FMT_BIT];
-+		it8172_delay(tmo);
-+	}
- 	if (signal_pending(current))
--	    break;
--	if (nonblock)
--	    return -EBUSY;
--	tmo = 1000 * count / s->dacrate;
--	tmo >>= sample_shift[(s->pcc & CC_FMT_MASK) >> CC_FMT_BIT];
--	it8172_delay(tmo);
--    }
--    if (signal_pending(current))
--	return -ERESTARTSYS;
--    return 0;
-+		return -ERESTARTSYS;
-+	return 0;
- }
- 
- /* --------------------------------------------------------------------- */
- 
-+
-+/*
-+ * Copy audio data to/from user buffer from/to dma buffer, taking care
-+ * that we wrap when reading/writing the dma buffer. Returns actual byte
-+ * count written to or read from the dma buffer.
-+ */
-+static int copy_dmabuf_user(struct dmabuf *db, char* userbuf,
-+			    int count, int to_user)
-+{
-+	char* bufptr = to_user ? db->nextOut : db->nextIn;
-+	char* bufend = db->rawbuf + db->dmasize;
-+	
-+	if (bufptr + count > bufend) {
-+		int partial = (int)(bufend - bufptr);
-+		if (to_user) {
-+			if (copy_to_user(userbuf, bufptr, partial))
-+				return -EFAULT;
-+			if (copy_to_user(userbuf + partial, db->rawbuf,
-+					 count - partial))
-+				return -EFAULT;
-+		} else {
-+			if (copy_from_user(bufptr, userbuf, partial))
-+				return -EFAULT;
-+			if (copy_from_user(db->rawbuf,
-+					   userbuf + partial,
-+					   count - partial))
-+				return -EFAULT;
-+		}
-+	} else {
-+		if (to_user) {
-+			if (copy_to_user(userbuf, bufptr, count))
-+				return -EFAULT;
-+		} else {
-+			if (copy_from_user(bufptr, userbuf, count))
-+				return -EFAULT;
-+		}
-+	}
-+	
-+	return count;
-+}
-+
-+
- static ssize_t it8172_read(struct file *file, char *buffer,
- 			   size_t count, loff_t *ppos)
- {
--    struct it8172_state *s = (struct it8172_state *)file->private_data;
--    struct dmabuf *db = &s->dma_adc;
--    ssize_t ret;
--    unsigned long flags;
--    int cnt, bufcnt, avail;
-+	struct it8172_state *s = (struct it8172_state *)file->private_data;
-+	struct dmabuf *db = &s->dma_adc;
-+	ssize_t ret;
-+	unsigned long flags;
-+	int cnt, remainder, avail;
-+
-+	if (ppos != &file->f_pos)
-+		return -ESPIPE;
-+	if (db->mapped)
-+		return -ENXIO;
-+	if (!access_ok(VERIFY_WRITE, buffer, count))
-+		return -EFAULT;
-+	ret = 0;
- 
--    if (ppos != &file->f_pos)
--	return -ESPIPE;
--    if (db->mapped)
--	return -ENXIO;
--    if (!access_ok(VERIFY_WRITE, buffer, count))
--	return -EFAULT;
--    ret = 0;
--
--    while (count > 0) {
--	// wait for samples in capture buffer
--	do {
--	    spin_lock_irqsave(&s->lock, flags);
--	    if (db->stopped)
--		start_adc(s);
--	    avail = db->count;
--	    spin_unlock_irqrestore(&s->lock, flags);
--	    if (avail <= 0) {
--		if (file->f_flags & O_NONBLOCK) {
--		    if (!ret)
--			ret = -EAGAIN;
--		    return ret;
--		}
--		interruptible_sleep_on(&db->wait);
--		if (signal_pending(current)) {
--		    if (!ret)
--			ret = -ERESTARTSYS;
--		    return ret;
--		}
--	    }
--	} while (avail <= 0);
--
--	cnt = count > avail ? avail : count;
--	bufcnt = cnt;
--	if (cnt % db->fragsize) {
--	    // round count up to nearest fragment
--	    int newcnt = db->fragsize * ((cnt + db->fragsize) / db->fragsize);
--	    cnt = newcnt;
--	}
--
--	// copy from nextOut to user
--	if (copy_to_user(buffer, db->nextOut, bufcnt)) {
--	    if (!ret)
--		ret = -EFAULT;
--	    return ret;
--	}
-+	while (count > 0) {
-+		// wait for samples in capture buffer
-+		do {
-+			spin_lock_irqsave(&s->lock, flags);
-+			if (db->stopped)
-+				start_adc(s);
-+			avail = db->count;
-+			spin_unlock_irqrestore(&s->lock, flags);
-+			if (avail <= 0) {
-+				if (file->f_flags & O_NONBLOCK) {
-+					if (!ret)
-+						ret = -EAGAIN;
-+					return ret;
-+				}
-+				interruptible_sleep_on(&db->wait);
-+				if (signal_pending(current)) {
-+					if (!ret)
-+						ret = -ERESTARTSYS;
-+					return ret;
-+				}
-+			}
-+		} while (avail <= 0);
-+
-+		// copy from nextOut to user
-+		if ((cnt = copy_dmabuf_user(db, buffer, count > avail ?
-+					    avail : count, 1)) < 0) {
-+			if (!ret)
-+				ret = -EFAULT;
-+			return ret;
-+		}
- 
-+		spin_lock_irqsave(&s->lock, flags);
-+		db->count -= cnt;
-+		spin_unlock_irqrestore(&s->lock, flags);
-+
-+		db->nextOut += cnt;
-+		if (db->nextOut >= db->rawbuf + db->dmasize)
-+			db->nextOut -= db->dmasize;	
-+
-+		count -= cnt;
-+		buffer += cnt;
-+		ret += cnt;
-+	} // while (count > 0)
-+
-+	/*
-+	 * See if the dma buffer count after this read call is
-+	 * aligned on a fragsize boundary. If not, read from
-+	 * buffer until we reach a boundary, and let's hope this
-+	 * is just the last remainder of an audio record. If not
-+	 * it means the user is not reading in fragsize chunks, in
-+	 * which case it's his/her fault that there are audio gaps
-+	 * in their record.
-+	 */
- 	spin_lock_irqsave(&s->lock, flags);
--	db->count -= cnt;
-+	remainder = db->count % db->fragsize;
-+	if (remainder) {
-+		db->nextOut += remainder;
-+		if (db->nextOut >= db->rawbuf + db->dmasize)
-+			db->nextOut -= db->dmasize;
-+		db->count -= remainder;
-+	}
- 	spin_unlock_irqrestore(&s->lock, flags);
- 
--	db->nextOut += cnt;
--	if (db->nextOut >= db->rawbuf + db->dmasize)
--	    db->nextOut -= db->dmasize;	
--
--	count -= bufcnt;
--	buffer += bufcnt;
--	ret += bufcnt;
--    } // while (count > 0)
--
--    return ret;
-+	return ret;
- }
- 
- static ssize_t it8172_write(struct file *file, const char *buffer,
- 			    size_t count, loff_t *ppos)
- {
--    struct it8172_state *s = (struct it8172_state *)file->private_data;
--    struct dmabuf *db = &s->dma_dac;
--    ssize_t ret;
--    unsigned long flags;
--    int cnt, bufcnt, avail;
--
--    if (ppos != &file->f_pos)
--	return -ESPIPE;
--    if (db->mapped)
--	return -ENXIO;
--    if (!access_ok(VERIFY_READ, buffer, count))
--	return -EFAULT;
--    ret = 0;
--    
--    while (count > 0) {
--	// wait for space in playback buffer
--	do {
--	    spin_lock_irqsave(&s->lock, flags);
--	    avail = db->dmasize - db->count;
--	    spin_unlock_irqrestore(&s->lock, flags);
--	    if (avail <= 0) {
--		if (file->f_flags & O_NONBLOCK) {
--		    if (!ret)
--			ret = -EAGAIN;
--		    return ret;
--		}
--		interruptible_sleep_on(&db->wait);
--		if (signal_pending(current)) {
--		    if (!ret)
--			ret = -ERESTARTSYS;
--		    return ret;
--		}
--	    }
--	} while (avail <= 0);
-+	struct it8172_state *s = (struct it8172_state *)file->private_data;
-+	struct dmabuf *db = &s->dma_dac;
-+	ssize_t ret;
-+	unsigned long flags;
-+	int cnt, remainder, avail;
-+
-+	if (ppos != &file->f_pos)
-+		return -ESPIPE;
-+	if (db->mapped)
-+		return -ENXIO;
-+	if (!access_ok(VERIFY_READ, buffer, count))
-+		return -EFAULT;
-+	ret = 0;
-+    
-+	while (count > 0) {
-+		// wait for space in playback buffer
-+		do {
-+			spin_lock_irqsave(&s->lock, flags);
-+			avail = db->dmasize - db->count;
-+			spin_unlock_irqrestore(&s->lock, flags);
-+			if (avail <= 0) {
-+				if (file->f_flags & O_NONBLOCK) {
-+					if (!ret)
-+						ret = -EAGAIN;
-+					return ret;
-+				}
-+				interruptible_sleep_on(&db->wait);
-+				if (signal_pending(current)) {
-+					if (!ret)
-+						ret = -ERESTARTSYS;
-+					return ret;
-+				}
-+			}
-+		} while (avail <= 0);
- 	
--	cnt = count > avail ? avail : count;
--	// copy to nextIn
--	if (copy_from_user(db->nextIn, buffer, cnt)) {
--	    if (!ret)
--		ret = -EFAULT;
--	    return ret;
--	}
--
--	bufcnt = cnt;
--	if (cnt % db->fragsize) {
--	    // round count up to nearest fragment, and fill remainder of
--	    // fragment with silence
--	    int newcnt = db->fragsize * ((cnt + db->fragsize) / db->fragsize);
--	    memset(db->nextIn + cnt, (s->pcc & CC_DF) ? 0 : 0x80, newcnt - cnt);
--	    cnt = newcnt;
--	}
-+		// copy to nextIn
-+		if ((cnt = copy_dmabuf_user(db, (char*)buffer,
-+					    count > avail ?
-+					    avail : count, 0)) < 0) {
-+			if (!ret)
-+				ret = -EFAULT;
-+			return ret;
-+		}
- 
--	spin_lock_irqsave(&s->lock, flags);
--	db->count += cnt;
--	if (db->stopped)
--	    start_dac(s);
--	spin_unlock_irqrestore(&s->lock, flags);
-+		spin_lock_irqsave(&s->lock, flags);
-+		db->count += cnt;
-+		if (db->stopped)
-+			start_dac(s);
-+		spin_unlock_irqrestore(&s->lock, flags);
- 	
--	db->nextIn += cnt;
--	if (db->nextIn >= db->rawbuf + db->dmasize)
--	    db->nextIn -= db->dmasize;
-+		db->nextIn += cnt;
-+		if (db->nextIn >= db->rawbuf + db->dmasize)
-+			db->nextIn -= db->dmasize;
- 	
--	count -= bufcnt;
--	buffer += bufcnt;
--	ret += bufcnt;
--    } // while (count > 0)
-+		count -= cnt;
-+		buffer += cnt;
-+		ret += cnt;
-+	} // while (count > 0)
- 	
--    return ret;
-+	/*
-+	 * See if the dma buffer count after this write call is
-+	 * aligned on a fragsize boundary. If not, fill buffer
-+	 * with silence to the next boundary, and let's hope this
-+	 * is just the last remainder of an audio playback. If not
-+	 * it means the user is not sending us fragsize chunks, in
-+	 * which case it's his/her fault that there are audio gaps
-+	 * in their playback.
-+	 */
-+	spin_lock_irqsave(&s->lock, flags);
-+	remainder = db->count % db->fragsize;
-+	if (remainder) {
-+		int fill_cnt = db->fragsize - remainder;
-+		memset(db->nextIn, 0, fill_cnt);
-+		db->nextIn += fill_cnt;
-+		if (db->nextIn >= db->rawbuf + db->dmasize)
-+			db->nextIn -= db->dmasize;
-+		db->count += fill_cnt;
-+	}
-+	spin_unlock_irqrestore(&s->lock, flags);
-+
-+	return ret;
- }
- 
- /* No kernel lock - we have our own spinlock */
- static unsigned int it8172_poll(struct file *file,
- 				struct poll_table_struct *wait)
- {
--    struct it8172_state *s = (struct it8172_state *)file->private_data;
--    unsigned long flags;
--    unsigned int mask = 0;
--
--    if (file->f_mode & FMODE_WRITE)
--	poll_wait(file, &s->dma_dac.wait, wait);
--    if (file->f_mode & FMODE_READ)
--	poll_wait(file, &s->dma_adc.wait, wait);
--    spin_lock_irqsave(&s->lock, flags);
--    if (file->f_mode & FMODE_READ) {
--	if (s->dma_adc.count >= (signed)s->dma_adc.fragsize)
--	    mask |= POLLIN | POLLRDNORM;
--    }
--    if (file->f_mode & FMODE_WRITE) {
--	if (s->dma_dac.mapped) {
--	    if (s->dma_dac.count >= (signed)s->dma_dac.fragsize) 
--		mask |= POLLOUT | POLLWRNORM;
--	} else {
--	    if ((signed)s->dma_dac.dmasize >=
--		s->dma_dac.count + (signed)s->dma_dac.fragsize)
--		mask |= POLLOUT | POLLWRNORM;
--	}
--    }
--    spin_unlock_irqrestore(&s->lock, flags);
--    return mask;
-+	struct it8172_state *s = (struct it8172_state *)file->private_data;
-+	unsigned long flags;
-+	unsigned int mask = 0;
-+
-+	if (file->f_mode & FMODE_WRITE) {
-+		if (!s->dma_dac.ready)
-+			return 0;
-+		poll_wait(file, &s->dma_dac.wait, wait);
-+	}
-+	if (file->f_mode & FMODE_READ) {
-+		if (!s->dma_adc.ready)
-+			return 0;
-+		poll_wait(file, &s->dma_adc.wait, wait);
-+	}
-+	
-+	spin_lock_irqsave(&s->lock, flags);
-+	if (file->f_mode & FMODE_READ) {
-+		if (s->dma_adc.count >= (signed)s->dma_adc.fragsize)
-+			mask |= POLLIN | POLLRDNORM;
-+	}
-+	if (file->f_mode & FMODE_WRITE) {
-+		if (s->dma_dac.mapped) {
-+			if (s->dma_dac.count >= (signed)s->dma_dac.fragsize) 
-+				mask |= POLLOUT | POLLWRNORM;
-+		} else {
-+			if ((signed)s->dma_dac.dmasize >=
-+			    s->dma_dac.count + (signed)s->dma_dac.fragsize)
-+				mask |= POLLOUT | POLLWRNORM;
-+		}
-+	}
-+	spin_unlock_irqrestore(&s->lock, flags);
-+	return mask;
- }
- 
- static int it8172_mmap(struct file *file, struct vm_area_struct *vma)
- {
--    struct it8172_state *s = (struct it8172_state *)file->private_data;
--    struct dmabuf *db;
--    unsigned long size;
--
--    lock_kernel();
--    if (vma->vm_flags & VM_WRITE)
--	db = &s->dma_dac;
--    else if (vma->vm_flags & VM_READ)
--	db = &s->dma_adc;
--    else {
--	unlock_kernel();
--	return -EINVAL;
--    }
--    if (vma->vm_pgoff != 0) {
--	unlock_kernel();
--	return -EINVAL;
--    }
--    size = vma->vm_end - vma->vm_start;
--    if (size > (PAGE_SIZE << db->buforder)) {
--	unlock_kernel();
--	return -EINVAL;
--    }
--    if (remap_page_range(vma, vma->vm_start, virt_to_phys(db->rawbuf),
--			 size, vma->vm_page_prot)) {
-+	struct it8172_state *s = (struct it8172_state *)file->private_data;
-+	struct dmabuf *db;
-+	unsigned long size;
-+
-+	lock_kernel();
-+	if (vma->vm_flags & VM_WRITE)
-+		db = &s->dma_dac;
-+	else if (vma->vm_flags & VM_READ)
-+		db = &s->dma_adc;
-+	else {
-+		unlock_kernel();
-+		return -EINVAL;
-+	}
-+	if (vma->vm_pgoff != 0) {
-+		unlock_kernel();
-+		return -EINVAL;
-+	}
-+	size = vma->vm_end - vma->vm_start;
-+	if (size > (PAGE_SIZE << db->buforder)) {
-+		unlock_kernel();
-+		return -EINVAL;
-+	}
-+	if (remap_page_range(vma, vma->vm_start, virt_to_phys(db->rawbuf),
-+			     size, vma->vm_page_prot)) {
-+		unlock_kernel();
-+		return -EAGAIN;
-+	}
-+	db->mapped = 1;
- 	unlock_kernel();
--	return -EAGAIN;
--    }
--    db->mapped = 1;
--    unlock_kernel();
--    return 0;
-+	return 0;
- }
- 
- 
- #ifdef IT8172_VERBOSE_DEBUG
- static struct ioctl_str_t {
--    unsigned int cmd;
--    const char* str;
-+	unsigned int cmd;
-+	const char* str;
- } ioctl_str[] = {
--    {SNDCTL_DSP_RESET, "SNDCTL_DSP_RESET"},
--    {SNDCTL_DSP_SYNC, "SNDCTL_DSP_SYNC"},
--    {SNDCTL_DSP_SPEED, "SNDCTL_DSP_SPEED"},
--    {SNDCTL_DSP_STEREO, "SNDCTL_DSP_STEREO"},
--    {SNDCTL_DSP_GETBLKSIZE, "SNDCTL_DSP_GETBLKSIZE"},
--    {SNDCTL_DSP_SAMPLESIZE, "SNDCTL_DSP_SAMPLESIZE"},
--    {SNDCTL_DSP_CHANNELS, "SNDCTL_DSP_CHANNELS"},
--    {SOUND_PCM_WRITE_CHANNELS, "SOUND_PCM_WRITE_CHANNELS"},
--    {SOUND_PCM_WRITE_FILTER, "SOUND_PCM_WRITE_FILTER"},
--    {SNDCTL_DSP_POST, "SNDCTL_DSP_POST"},
--    {SNDCTL_DSP_SUBDIVIDE, "SNDCTL_DSP_SUBDIVIDE"},
--    {SNDCTL_DSP_SETFRAGMENT, "SNDCTL_DSP_SETFRAGMENT"},
--    {SNDCTL_DSP_GETFMTS, "SNDCTL_DSP_GETFMTS"},
--    {SNDCTL_DSP_SETFMT, "SNDCTL_DSP_SETFMT"},
--    {SNDCTL_DSP_GETOSPACE, "SNDCTL_DSP_GETOSPACE"},
--    {SNDCTL_DSP_GETISPACE, "SNDCTL_DSP_GETISPACE"},
--    {SNDCTL_DSP_NONBLOCK, "SNDCTL_DSP_NONBLOCK"},
--    {SNDCTL_DSP_GETCAPS, "SNDCTL_DSP_GETCAPS"},
--    {SNDCTL_DSP_GETTRIGGER, "SNDCTL_DSP_GETTRIGGER"},
--    {SNDCTL_DSP_SETTRIGGER, "SNDCTL_DSP_SETTRIGGER"},
--    {SNDCTL_DSP_GETIPTR, "SNDCTL_DSP_GETIPTR"},
--    {SNDCTL_DSP_GETOPTR, "SNDCTL_DSP_GETOPTR"},
--    {SNDCTL_DSP_MAPINBUF, "SNDCTL_DSP_MAPINBUF"},
--    {SNDCTL_DSP_MAPOUTBUF, "SNDCTL_DSP_MAPOUTBUF"},
--    {SNDCTL_DSP_SETSYNCRO, "SNDCTL_DSP_SETSYNCRO"},
--    {SNDCTL_DSP_SETDUPLEX, "SNDCTL_DSP_SETDUPLEX"},
--    {SNDCTL_DSP_GETODELAY, "SNDCTL_DSP_GETODELAY"},
--    {SNDCTL_DSP_GETCHANNELMASK, "SNDCTL_DSP_GETCHANNELMASK"},
--    {SNDCTL_DSP_BIND_CHANNEL, "SNDCTL_DSP_BIND_CHANNEL"},
--    {OSS_GETVERSION, "OSS_GETVERSION"},
--    {SOUND_PCM_READ_RATE, "SOUND_PCM_READ_RATE"},
--    {SOUND_PCM_READ_CHANNELS, "SOUND_PCM_READ_CHANNELS"},
--    {SOUND_PCM_READ_BITS, "SOUND_PCM_READ_BITS"},
--    {SOUND_PCM_READ_FILTER, "SOUND_PCM_READ_FILTER"}
-+	{SNDCTL_DSP_RESET, "SNDCTL_DSP_RESET"},
-+	{SNDCTL_DSP_SYNC, "SNDCTL_DSP_SYNC"},
-+	{SNDCTL_DSP_SPEED, "SNDCTL_DSP_SPEED"},
-+	{SNDCTL_DSP_STEREO, "SNDCTL_DSP_STEREO"},
-+	{SNDCTL_DSP_GETBLKSIZE, "SNDCTL_DSP_GETBLKSIZE"},
-+	{SNDCTL_DSP_SAMPLESIZE, "SNDCTL_DSP_SAMPLESIZE"},
-+	{SNDCTL_DSP_CHANNELS, "SNDCTL_DSP_CHANNELS"},
-+	{SOUND_PCM_WRITE_CHANNELS, "SOUND_PCM_WRITE_CHANNELS"},
-+	{SOUND_PCM_WRITE_FILTER, "SOUND_PCM_WRITE_FILTER"},
-+	{SNDCTL_DSP_POST, "SNDCTL_DSP_POST"},
-+	{SNDCTL_DSP_SUBDIVIDE, "SNDCTL_DSP_SUBDIVIDE"},
-+	{SNDCTL_DSP_SETFRAGMENT, "SNDCTL_DSP_SETFRAGMENT"},
-+	{SNDCTL_DSP_GETFMTS, "SNDCTL_DSP_GETFMTS"},
-+	{SNDCTL_DSP_SETFMT, "SNDCTL_DSP_SETFMT"},
-+	{SNDCTL_DSP_GETOSPACE, "SNDCTL_DSP_GETOSPACE"},
-+	{SNDCTL_DSP_GETISPACE, "SNDCTL_DSP_GETISPACE"},
-+	{SNDCTL_DSP_NONBLOCK, "SNDCTL_DSP_NONBLOCK"},
-+	{SNDCTL_DSP_GETCAPS, "SNDCTL_DSP_GETCAPS"},
-+	{SNDCTL_DSP_GETTRIGGER, "SNDCTL_DSP_GETTRIGGER"},
-+	{SNDCTL_DSP_SETTRIGGER, "SNDCTL_DSP_SETTRIGGER"},
-+	{SNDCTL_DSP_GETIPTR, "SNDCTL_DSP_GETIPTR"},
-+	{SNDCTL_DSP_GETOPTR, "SNDCTL_DSP_GETOPTR"},
-+	{SNDCTL_DSP_MAPINBUF, "SNDCTL_DSP_MAPINBUF"},
-+	{SNDCTL_DSP_MAPOUTBUF, "SNDCTL_DSP_MAPOUTBUF"},
-+	{SNDCTL_DSP_SETSYNCRO, "SNDCTL_DSP_SETSYNCRO"},
-+	{SNDCTL_DSP_SETDUPLEX, "SNDCTL_DSP_SETDUPLEX"},
-+	{SNDCTL_DSP_GETODELAY, "SNDCTL_DSP_GETODELAY"},
-+	{SNDCTL_DSP_GETCHANNELMASK, "SNDCTL_DSP_GETCHANNELMASK"},
-+	{SNDCTL_DSP_BIND_CHANNEL, "SNDCTL_DSP_BIND_CHANNEL"},
-+	{OSS_GETVERSION, "OSS_GETVERSION"},
-+	{SOUND_PCM_READ_RATE, "SOUND_PCM_READ_RATE"},
-+	{SOUND_PCM_READ_CHANNELS, "SOUND_PCM_READ_CHANNELS"},
-+	{SOUND_PCM_READ_BITS, "SOUND_PCM_READ_BITS"},
-+	{SOUND_PCM_READ_FILTER, "SOUND_PCM_READ_FILTER"}
- };
- #endif    
- 
- static int it8172_ioctl(struct inode *inode, struct file *file,
- 			unsigned int cmd, unsigned long arg)
- {
--    struct it8172_state *s = (struct it8172_state *)file->private_data;
--    unsigned long flags;
--    audio_buf_info abinfo;
--    count_info cinfo;
--    int count;
--    int val, mapped, ret, diff;
-+	struct it8172_state *s = (struct it8172_state *)file->private_data;
-+	unsigned long flags;
-+	audio_buf_info abinfo;
-+	count_info cinfo;
-+	int count;
-+	int val, mapped, ret, diff;
- 
--    mapped = ((file->f_mode & FMODE_WRITE) && s->dma_dac.mapped) ||
--	((file->f_mode & FMODE_READ) && s->dma_adc.mapped);
-+	mapped = ((file->f_mode & FMODE_WRITE) && s->dma_dac.mapped) ||
-+		((file->f_mode & FMODE_READ) && s->dma_adc.mapped);
- 
- #ifdef IT8172_VERBOSE_DEBUG
--    for (count=0; count<sizeof(ioctl_str)/sizeof(ioctl_str[0]); count++) {
--	if (ioctl_str[count].cmd == cmd)
--	    break;
--    }
--    if (count < sizeof(ioctl_str)/sizeof(ioctl_str[0]))
--	printk(KERN_INFO PFX "ioctl %s\n", ioctl_str[count].str);
--    else
--	printk(KERN_INFO PFX "ioctl unknown, 0x%x\n", cmd);
-+	for (count=0; count<sizeof(ioctl_str)/sizeof(ioctl_str[0]); count++) {
-+		if (ioctl_str[count].cmd == cmd)
-+			break;
-+	}
-+	if (count < sizeof(ioctl_str)/sizeof(ioctl_str[0]))
-+		dbg("ioctl %s, arg=0x%08x",
-+		    ioctl_str[count].str, (unsigned int)arg);
-+	else
-+		dbg("ioctl unknown, 0x%x", cmd);
- #endif
-     
--    switch (cmd) {
--    case OSS_GETVERSION:
--	return put_user(SOUND_VERSION, (int *)arg);
--
--    case SNDCTL_DSP_SYNC:
--	if (file->f_mode & FMODE_WRITE)
--	    return drain_dac(s, file->f_flags & O_NONBLOCK);
--	return 0;
-+	switch (cmd) {
-+	case OSS_GETVERSION:
-+		return put_user(SOUND_VERSION, (int *)arg);
-+
-+	case SNDCTL_DSP_SYNC:
-+		if (file->f_mode & FMODE_WRITE)
-+			return drain_dac(s, file->f_flags & O_NONBLOCK);
-+		return 0;
- 		
--    case SNDCTL_DSP_SETDUPLEX:
--	return 0;
-+	case SNDCTL_DSP_SETDUPLEX:
-+		return 0;
- 
--    case SNDCTL_DSP_GETCAPS:
--	return put_user(DSP_CAP_DUPLEX | DSP_CAP_REALTIME |
--			DSP_CAP_TRIGGER | DSP_CAP_MMAP, (int *)arg);
-+	case SNDCTL_DSP_GETCAPS:
-+		return put_user(DSP_CAP_DUPLEX | DSP_CAP_REALTIME |
-+				DSP_CAP_TRIGGER | DSP_CAP_MMAP, (int *)arg);
- 		
--    case SNDCTL_DSP_RESET:
--	if (file->f_mode & FMODE_WRITE) {
--	    stop_dac(s);
--	    synchronize_irq(s->irq);
--	    s->dma_dac.count = s->dma_dac.total_bytes = 0;
--	    s->dma_dac.nextIn = s->dma_dac.nextOut = s->dma_dac.rawbuf;
--	}
--	if (file->f_mode & FMODE_READ) {
--	    stop_adc(s);
--	    synchronize_irq(s->irq);
--	    s->dma_adc.count = s->dma_adc.total_bytes = 0;
--	    s->dma_adc.nextIn = s->dma_adc.nextOut = s->dma_adc.rawbuf;
--	}
--	return 0;
-+	case SNDCTL_DSP_RESET:
-+		if (file->f_mode & FMODE_WRITE) {
-+			stop_dac(s);
-+			synchronize_irq();
-+			s->dma_dac.count = s->dma_dac.total_bytes = 0;
-+			s->dma_dac.nextIn = s->dma_dac.nextOut =
-+				s->dma_dac.rawbuf;
-+		}
-+		if (file->f_mode & FMODE_READ) {
-+			stop_adc(s);
-+			synchronize_irq();
-+			s->dma_adc.count = s->dma_adc.total_bytes = 0;
-+			s->dma_adc.nextIn = s->dma_adc.nextOut =
-+				s->dma_adc.rawbuf;
-+		}
-+		return 0;
- 
--    case SNDCTL_DSP_SPEED:
--	if (get_user(val, (int *)arg))
--	    return -EFAULT;
--	if (val >= 0) {
--	    if (file->f_mode & FMODE_READ) {
--		stop_adc(s);
--		set_adc_rate(s, val);
--		if ((ret = prog_dmabuf_adc(s)))
--		    return ret;
--	    }
--	    if (file->f_mode & FMODE_WRITE) {
--		stop_dac(s);
--		set_dac_rate(s, val);
--		if ((ret = prog_dmabuf_dac(s)))
--		    return ret;
--	    }
--	}
--	return put_user((file->f_mode & FMODE_READ) ?
--			s->adcrate : s->dacrate, (int *)arg);
--
--    case SNDCTL_DSP_STEREO:
--	if (get_user(val, (int *)arg))
--	    return -EFAULT;
--	if (file->f_mode & FMODE_READ) {
--	    stop_adc(s);
--	    if (val)
--		s->capcc |= CC_SM;
--	    else
--		s->capcc &= ~CC_SM;
--	    outw(s->capcc, s->io+IT_AC_CAPCC);
--	    if ((ret = prog_dmabuf_adc(s)))
--		return ret;
--	}
--	if (file->f_mode & FMODE_WRITE) {
--	    stop_dac(s);
--	    if (val)
--		s->pcc |= CC_SM;
--	    else
--		s->pcc &= ~CC_SM;
--	    outw(s->pcc, s->io+IT_AC_PCC);
--	    if ((ret = prog_dmabuf_dac(s)))
--		return ret;
--	}
--	return 0;
-+	case SNDCTL_DSP_SPEED:
-+		if (get_user(val, (int *)arg))
-+			return -EFAULT;
-+		if (val >= 0) {
-+			if (file->f_mode & FMODE_READ) {
-+				stop_adc(s);
-+				set_adc_rate(s, val);
-+				if ((ret = prog_dmabuf_adc(s)))
-+					return ret;
-+			}
-+			if (file->f_mode & FMODE_WRITE) {
-+				stop_dac(s);
-+				set_dac_rate(s, val);
-+				if ((ret = prog_dmabuf_dac(s)))
-+					return ret;
-+			}
-+		}
-+		return put_user((file->f_mode & FMODE_READ) ?
-+				s->adcrate : s->dacrate, (int *)arg);
- 
--    case SNDCTL_DSP_CHANNELS:
--	if (get_user(val, (int *)arg))
--	    return -EFAULT;
--	if (val != 0) {
--	    if (file->f_mode & FMODE_READ) {
--		stop_adc(s);
--		if (val >= 2) {
--		    val = 2;
--		    s->capcc |= CC_SM;
-+	case SNDCTL_DSP_STEREO:
-+		if (get_user(val, (int *)arg))
-+			return -EFAULT;
-+		if (file->f_mode & FMODE_READ) {
-+			stop_adc(s);
-+			if (val)
-+				s->capcc |= CC_SM;
-+			else
-+				s->capcc &= ~CC_SM;
-+			outw(s->capcc, s->io+IT_AC_CAPCC);
-+			if ((ret = prog_dmabuf_adc(s)))
-+				return ret;
- 		}
--		else
--		    s->capcc &= ~CC_SM;
--		outw(s->capcc, s->io+IT_AC_CAPCC);
--		if ((ret = prog_dmabuf_adc(s)))
--		    return ret;
--	    }
--	    if (file->f_mode & FMODE_WRITE) {
--		stop_dac(s);
--		switch (val) {
--		case 1:
--		    s->pcc &= ~CC_SM;
--		    break;
--		case 2:
--		    s->pcc |= CC_SM;
--		    break;
--		default:
--		    // FIX! support multichannel???
--		    val = 2;
--		    s->pcc |= CC_SM;
--		    break;
-+		if (file->f_mode & FMODE_WRITE) {
-+			stop_dac(s);
-+			if (val)
-+				s->pcc |= CC_SM;
-+			else
-+				s->pcc &= ~CC_SM;
-+			outw(s->pcc, s->io+IT_AC_PCC);
-+			if ((ret = prog_dmabuf_dac(s)))
-+				return ret;
- 		}
--		outw(s->pcc, s->io+IT_AC_PCC);
--		if ((ret = prog_dmabuf_dac(s)))
--		    return ret;
--	    }
--	}
--	return put_user(val, (int *)arg);
-+		return 0;
-+
-+	case SNDCTL_DSP_CHANNELS:
-+		if (get_user(val, (int *)arg))
-+			return -EFAULT;
-+		if (val != 0) {
-+			if (file->f_mode & FMODE_READ) {
-+				stop_adc(s);
-+				if (val >= 2) {
-+					val = 2;
-+					s->capcc |= CC_SM;
-+				}
-+				else
-+					s->capcc &= ~CC_SM;
-+				outw(s->capcc, s->io+IT_AC_CAPCC);
-+				if ((ret = prog_dmabuf_adc(s)))
-+					return ret;
-+			}
-+			if (file->f_mode & FMODE_WRITE) {
-+				stop_dac(s);
-+				switch (val) {
-+				case 1:
-+					s->pcc &= ~CC_SM;
-+					break;
-+				case 2:
-+					s->pcc |= CC_SM;
-+					break;
-+				default:
-+					// FIX! support multichannel???
-+					val = 2;
-+					s->pcc |= CC_SM;
-+					break;
-+				}
-+				outw(s->pcc, s->io+IT_AC_PCC);
-+				if ((ret = prog_dmabuf_dac(s)))
-+					return ret;
-+			}
-+		}
-+		return put_user(val, (int *)arg);
- 		
--    case SNDCTL_DSP_GETFMTS: /* Returns a mask */
--	return put_user(AFMT_S16_LE|AFMT_U8, (int *)arg);
-+	case SNDCTL_DSP_GETFMTS: /* Returns a mask */
-+		return put_user(AFMT_S16_LE|AFMT_U8, (int *)arg);
- 		
--    case SNDCTL_DSP_SETFMT: /* Selects ONE fmt*/
--	if (get_user(val, (int *)arg))
--	    return -EFAULT;
--	if (val != AFMT_QUERY) {
--	    if (file->f_mode & FMODE_READ) {
--		stop_adc(s);
--		if (val == AFMT_S16_LE)
--		    s->capcc |= CC_DF;
--		else {
--		    val = AFMT_U8;
--		    s->capcc &= ~CC_DF;
--		}
--		outw(s->capcc, s->io+IT_AC_CAPCC);
--		if ((ret = prog_dmabuf_adc(s)))
--		    return ret;
--	    }
--	    if (file->f_mode & FMODE_WRITE) {
--		stop_dac(s);
--		if (val == AFMT_S16_LE)
--		    s->pcc |= CC_DF;
--		else {
--		    val = AFMT_U8;
--		    s->pcc &= ~CC_DF;
-+	case SNDCTL_DSP_SETFMT: /* Selects ONE fmt*/
-+		if (get_user(val, (int *)arg))
-+			return -EFAULT;
-+		if (val != AFMT_QUERY) {
-+			if (file->f_mode & FMODE_READ) {
-+				stop_adc(s);
-+				if (val == AFMT_S16_LE)
-+					s->capcc |= CC_DF;
-+				else {
-+					val = AFMT_U8;
-+					s->capcc &= ~CC_DF;
-+				}
-+				outw(s->capcc, s->io+IT_AC_CAPCC);
-+				if ((ret = prog_dmabuf_adc(s)))
-+					return ret;
-+			}
-+			if (file->f_mode & FMODE_WRITE) {
-+				stop_dac(s);
-+				if (val == AFMT_S16_LE)
-+					s->pcc |= CC_DF;
-+				else {
-+					val = AFMT_U8;
-+					s->pcc &= ~CC_DF;
-+				}
-+				outw(s->pcc, s->io+IT_AC_PCC);
-+				if ((ret = prog_dmabuf_dac(s)))
-+					return ret;
-+			}
-+		} else {
-+			if (file->f_mode & FMODE_READ)
-+				val = (s->capcc & CC_DF) ?
-+					AFMT_S16_LE : AFMT_U8;
-+			else
-+				val = (s->pcc & CC_DF) ?
-+					AFMT_S16_LE : AFMT_U8;
- 		}
--		outw(s->pcc, s->io+IT_AC_PCC);
--		if ((ret = prog_dmabuf_dac(s)))
--		    return ret;
--	    }
--	} else {
--	    if (file->f_mode & FMODE_READ)
--		val = (s->capcc & CC_DF) ? AFMT_S16_LE : AFMT_U8;
--	    else
--		val = (s->pcc & CC_DF) ? AFMT_S16_LE : AFMT_U8;
--	}
--	return put_user(val, (int *)arg);
-+		return put_user(val, (int *)arg);
- 		
--    case SNDCTL_DSP_POST:
--	return 0;
-+	case SNDCTL_DSP_POST:
-+		return 0;
- 
--    case SNDCTL_DSP_GETTRIGGER:
--	val = 0;
--	spin_lock_irqsave(&s->lock, flags);
--	if (file->f_mode & FMODE_READ && !s->dma_adc.stopped)
--	    val |= PCM_ENABLE_INPUT;
--	if (file->f_mode & FMODE_WRITE && !s->dma_dac.stopped)
--	    val |= PCM_ENABLE_OUTPUT;
--	spin_unlock_irqrestore(&s->lock, flags);
--	return put_user(val, (int *)arg);
-+	case SNDCTL_DSP_GETTRIGGER:
-+		val = 0;
-+		spin_lock_irqsave(&s->lock, flags);
-+		if (file->f_mode & FMODE_READ && !s->dma_adc.stopped)
-+			val |= PCM_ENABLE_INPUT;
-+		if (file->f_mode & FMODE_WRITE && !s->dma_dac.stopped)
-+			val |= PCM_ENABLE_OUTPUT;
-+		spin_unlock_irqrestore(&s->lock, flags);
-+		return put_user(val, (int *)arg);
- 		
--    case SNDCTL_DSP_SETTRIGGER:
--	if (get_user(val, (int *)arg))
--	    return -EFAULT;
--	if (file->f_mode & FMODE_READ) {
--	    if (val & PCM_ENABLE_INPUT)
--		start_adc(s);
--	    else
--		stop_adc(s);
--	}
--	if (file->f_mode & FMODE_WRITE) {
--	    if (val & PCM_ENABLE_OUTPUT)
--		start_dac(s);
--	    else
--		stop_dac(s);
--	}
--	return 0;
-+	case SNDCTL_DSP_SETTRIGGER:
-+		if (get_user(val, (int *)arg))
-+			return -EFAULT;
-+		if (file->f_mode & FMODE_READ) {
-+			if (val & PCM_ENABLE_INPUT)
-+				start_adc(s);
-+			else
-+				stop_adc(s);
-+		}
-+		if (file->f_mode & FMODE_WRITE) {
-+			if (val & PCM_ENABLE_OUTPUT)
-+				start_dac(s);
-+			else
-+				stop_dac(s);
-+		}
-+		return 0;
- 
--    case SNDCTL_DSP_GETOSPACE:
--	if (!(file->f_mode & FMODE_WRITE))
--	    return -EINVAL;
--	abinfo.fragsize = s->dma_dac.fragsize;
--	spin_lock_irqsave(&s->lock, flags);
--	count = s->dma_dac.count;
--	if (!s->dma_dac.stopped)
--	    count -= (s->dma_dac.fragsize - inw(s->io+IT_AC_PCDL));
--	spin_unlock_irqrestore(&s->lock, flags);
--	if (count < 0)
--	    count = 0;
--	abinfo.bytes = s->dma_dac.dmasize - count;
--	abinfo.fragstotal = s->dma_dac.numfrag;
--	abinfo.fragments = abinfo.bytes >> s->dma_dac.fragshift;      
--	return copy_to_user((void *)arg, &abinfo, sizeof(abinfo)) ? -EFAULT : 0;
--
--    case SNDCTL_DSP_GETISPACE:
--	if (!(file->f_mode & FMODE_READ))
--	    return -EINVAL;
--	abinfo.fragsize = s->dma_adc.fragsize;
--	spin_lock_irqsave(&s->lock, flags);
--	count = s->dma_adc.count;
--	if (!s->dma_adc.stopped)
--	    count += (s->dma_adc.fragsize - inw(s->io+IT_AC_CAPCDL));
--	spin_unlock_irqrestore(&s->lock, flags);
--	if (count < 0)
--	    count = 0;
--	abinfo.bytes = count;
--	abinfo.fragstotal = s->dma_adc.numfrag;
--	abinfo.fragments = abinfo.bytes >> s->dma_adc.fragshift;      
--	return copy_to_user((void *)arg, &abinfo, sizeof(abinfo)) ? -EFAULT : 0;
-+	case SNDCTL_DSP_GETOSPACE:
-+		if (!(file->f_mode & FMODE_WRITE))
-+			return -EINVAL;
-+		abinfo.fragsize = s->dma_dac.fragsize;
-+		spin_lock_irqsave(&s->lock, flags);
-+		count = s->dma_dac.count;
-+		if (!s->dma_dac.stopped)
-+			count -= (s->dma_dac.fragsize -
-+				  inw(s->io+IT_AC_PCDL));
-+		spin_unlock_irqrestore(&s->lock, flags);
-+		if (count < 0)
-+			count = 0;
-+		abinfo.bytes = s->dma_dac.dmasize - count;
-+		abinfo.fragstotal = s->dma_dac.numfrag;
-+		abinfo.fragments = abinfo.bytes >> s->dma_dac.fragshift;      
-+		return copy_to_user((void *)arg, &abinfo, sizeof(abinfo)) ?
-+			-EFAULT : 0;
-+
-+	case SNDCTL_DSP_GETISPACE:
-+		if (!(file->f_mode & FMODE_READ))
-+			return -EINVAL;
-+		abinfo.fragsize = s->dma_adc.fragsize;
-+		spin_lock_irqsave(&s->lock, flags);
-+		count = s->dma_adc.count;
-+		if (!s->dma_adc.stopped)
-+			count += (s->dma_adc.fragsize -
-+				  inw(s->io+IT_AC_CAPCDL));
-+		spin_unlock_irqrestore(&s->lock, flags);
-+		if (count < 0)
-+			count = 0;
-+		abinfo.bytes = count;
-+		abinfo.fragstotal = s->dma_adc.numfrag;
-+		abinfo.fragments = abinfo.bytes >> s->dma_adc.fragshift;      
-+		return copy_to_user((void *)arg, &abinfo, sizeof(abinfo)) ?
-+			-EFAULT : 0;
- 		
--    case SNDCTL_DSP_NONBLOCK:
--	file->f_flags |= O_NONBLOCK;
--	return 0;
--
--    case SNDCTL_DSP_GETODELAY:
--	if (!(file->f_mode & FMODE_WRITE))
--	    return -EINVAL;
--	spin_lock_irqsave(&s->lock, flags);
--	count = s->dma_dac.count;
--	if (!s->dma_dac.stopped)
--	    count -= (s->dma_dac.fragsize - inw(s->io+IT_AC_PCDL));
--	spin_unlock_irqrestore(&s->lock, flags);
--	if (count < 0)
--	    count = 0;
--	return put_user(count, (int *)arg);
--
--    case SNDCTL_DSP_GETIPTR:
--	if (!(file->f_mode & FMODE_READ))
--	    return -EINVAL;
--	spin_lock_irqsave(&s->lock, flags);
--	cinfo.bytes = s->dma_adc.total_bytes;
--	count = s->dma_adc.count;
--	if (!s->dma_adc.stopped) {
--	    diff = s->dma_adc.fragsize - inw(s->io+IT_AC_CAPCDL);
--	    count += diff;
--	    cinfo.bytes += diff;
--	    cinfo.ptr = inl(s->io+s->dma_adc.curBufPtr) - s->dma_adc.dmaaddr;
--	} else
--	    cinfo.ptr = virt_to_bus(s->dma_adc.nextIn) - s->dma_adc.dmaaddr;
--	if (s->dma_adc.mapped)
--	    s->dma_adc.count &= s->dma_adc.fragsize-1;
--	spin_unlock_irqrestore(&s->lock, flags);
--	if (count < 0)
--	    count = 0;
--	cinfo.blocks = count >> s->dma_adc.fragshift;
--	if (copy_to_user((void *)arg, &cinfo, sizeof(cinfo)))
--		return -EFAULT;
--	return 0;
--
--    case SNDCTL_DSP_GETOPTR:
--	if (!(file->f_mode & FMODE_READ))
--	    return -EINVAL;
--	spin_lock_irqsave(&s->lock, flags);
--	cinfo.bytes = s->dma_dac.total_bytes;
--	count = s->dma_dac.count;
--	if (!s->dma_dac.stopped) {
--	    diff = s->dma_dac.fragsize - inw(s->io+IT_AC_CAPCDL);
--	    count -= diff;
--	    cinfo.bytes += diff;
--	    cinfo.ptr = inl(s->io+s->dma_dac.curBufPtr) - s->dma_dac.dmaaddr;
--	} else
--	    cinfo.ptr = virt_to_bus(s->dma_dac.nextOut) - s->dma_dac.dmaaddr;
--	if (s->dma_dac.mapped)
--	    s->dma_dac.count &= s->dma_dac.fragsize-1;
--	spin_unlock_irqrestore(&s->lock, flags);
--	if (count < 0)
--	    count = 0;
--	cinfo.blocks = count >> s->dma_dac.fragshift;
--	if (copy_to_user((void *)arg, &cinfo, sizeof(cinfo)))
--		return -EFAULT;
--	return 0;
--
--    case SNDCTL_DSP_GETBLKSIZE:
--	if (file->f_mode & FMODE_WRITE)
--	    return put_user(s->dma_dac.fragsize, (int *)arg);
--	else
--	    return put_user(s->dma_adc.fragsize, (int *)arg);
-+	case SNDCTL_DSP_NONBLOCK:
-+		file->f_flags |= O_NONBLOCK;
-+		return 0;
-+
-+	case SNDCTL_DSP_GETODELAY:
-+		if (!(file->f_mode & FMODE_WRITE))
-+			return -EINVAL;
-+		spin_lock_irqsave(&s->lock, flags);
-+		count = s->dma_dac.count;
-+		if (!s->dma_dac.stopped)
-+			count -= (s->dma_dac.fragsize -
-+				  inw(s->io+IT_AC_PCDL));
-+		spin_unlock_irqrestore(&s->lock, flags);
-+		if (count < 0)
-+			count = 0;
-+		return put_user(count, (int *)arg);
-+
-+	case SNDCTL_DSP_GETIPTR:
-+		if (!(file->f_mode & FMODE_READ))
-+			return -EINVAL;
-+		spin_lock_irqsave(&s->lock, flags);
-+		cinfo.bytes = s->dma_adc.total_bytes;
-+		count = s->dma_adc.count;
-+		if (!s->dma_adc.stopped) {
-+			diff = s->dma_adc.fragsize - inw(s->io+IT_AC_CAPCDL);
-+			count += diff;
-+			cinfo.bytes += diff;
-+			cinfo.ptr = inl(s->io+s->dma_adc.curBufPtr) -
-+				s->dma_adc.dmaaddr;
-+		} else
-+			cinfo.ptr = virt_to_bus(s->dma_adc.nextIn) -
-+				s->dma_adc.dmaaddr;
-+		if (s->dma_adc.mapped)
-+			s->dma_adc.count &= s->dma_adc.fragsize-1;
-+		spin_unlock_irqrestore(&s->lock, flags);
-+		if (count < 0)
-+			count = 0;
-+		cinfo.blocks = count >> s->dma_adc.fragshift;
-+		return copy_to_user((void *)arg, &cinfo, sizeof(cinfo));
-+
-+	case SNDCTL_DSP_GETOPTR:
-+		if (!(file->f_mode & FMODE_READ))
-+			return -EINVAL;
-+		spin_lock_irqsave(&s->lock, flags);
-+		cinfo.bytes = s->dma_dac.total_bytes;
-+		count = s->dma_dac.count;
-+		if (!s->dma_dac.stopped) {
-+			diff = s->dma_dac.fragsize - inw(s->io+IT_AC_CAPCDL);
-+			count -= diff;
-+			cinfo.bytes += diff;
-+			cinfo.ptr = inl(s->io+s->dma_dac.curBufPtr) -
-+				s->dma_dac.dmaaddr;
-+		} else
-+			cinfo.ptr = virt_to_bus(s->dma_dac.nextOut) -
-+				s->dma_dac.dmaaddr;
-+		if (s->dma_dac.mapped)
-+			s->dma_dac.count &= s->dma_dac.fragsize-1;
-+		spin_unlock_irqrestore(&s->lock, flags);
-+		if (count < 0)
-+			count = 0;
-+		cinfo.blocks = count >> s->dma_dac.fragshift;
-+		return copy_to_user((void *)arg, &cinfo, sizeof(cinfo));
-+
-+	case SNDCTL_DSP_GETBLKSIZE:
-+		if (file->f_mode & FMODE_WRITE)
-+			return put_user(s->dma_dac.fragsize, (int *)arg);
-+		else
-+			return put_user(s->dma_adc.fragsize, (int *)arg);
- 
--    case SNDCTL_DSP_SETFRAGMENT:
--	if (get_user(val, (int *)arg))
--	    return -EFAULT;
--	if (file->f_mode & FMODE_READ) {
--	    stop_adc(s);
--	    s->dma_adc.ossfragshift = val & 0xffff;
--	    s->dma_adc.ossmaxfrags = (val >> 16) & 0xffff;
--	    if (s->dma_adc.ossfragshift < 4)
--		s->dma_adc.ossfragshift = 4;
--	    if (s->dma_adc.ossfragshift > 15)
--		s->dma_adc.ossfragshift = 15;
--	    if (s->dma_adc.ossmaxfrags < 4)
--		s->dma_adc.ossmaxfrags = 4;
--	    if ((ret = prog_dmabuf_adc(s)))
--		return ret;
--	}
--	if (file->f_mode & FMODE_WRITE) {
--	    stop_dac(s);
--	    s->dma_dac.ossfragshift = val & 0xffff;
--	    s->dma_dac.ossmaxfrags = (val >> 16) & 0xffff;
--	    if (s->dma_dac.ossfragshift < 4)
--		s->dma_dac.ossfragshift = 4;
--	    if (s->dma_dac.ossfragshift > 15)
--		s->dma_dac.ossfragshift = 15;
--	    if (s->dma_dac.ossmaxfrags < 4)
--		s->dma_dac.ossmaxfrags = 4;
--	    if ((ret = prog_dmabuf_dac(s)))
--		return ret;
--	}
--	return 0;
-+	case SNDCTL_DSP_SETFRAGMENT:
-+		if (get_user(val, (int *)arg))
-+			return -EFAULT;
-+		if (file->f_mode & FMODE_READ) {
-+			stop_adc(s);
-+			s->dma_adc.ossfragshift = val & 0xffff;
-+			s->dma_adc.ossmaxfrags = (val >> 16) & 0xffff;
-+			if (s->dma_adc.ossfragshift < 4)
-+				s->dma_adc.ossfragshift = 4;
-+			if (s->dma_adc.ossfragshift > 15)
-+				s->dma_adc.ossfragshift = 15;
-+			if (s->dma_adc.ossmaxfrags < 4)
-+				s->dma_adc.ossmaxfrags = 4;
-+			if ((ret = prog_dmabuf_adc(s)))
-+				return ret;
-+		}
-+		if (file->f_mode & FMODE_WRITE) {
-+			stop_dac(s);
-+			s->dma_dac.ossfragshift = val & 0xffff;
-+			s->dma_dac.ossmaxfrags = (val >> 16) & 0xffff;
-+			if (s->dma_dac.ossfragshift < 4)
-+				s->dma_dac.ossfragshift = 4;
-+			if (s->dma_dac.ossfragshift > 15)
-+				s->dma_dac.ossfragshift = 15;
-+			if (s->dma_dac.ossmaxfrags < 4)
-+				s->dma_dac.ossmaxfrags = 4;
-+			if ((ret = prog_dmabuf_dac(s)))
-+				return ret;
-+		}
-+		return 0;
- 
--    case SNDCTL_DSP_SUBDIVIDE:
--	if ((file->f_mode & FMODE_READ && s->dma_adc.subdivision) ||
--	    (file->f_mode & FMODE_WRITE && s->dma_dac.subdivision))
--	    return -EINVAL;
--	if (get_user(val, (int *)arg))
--	    return -EFAULT;
--	if (val != 1 && val != 2 && val != 4)
--	    return -EINVAL;
--	if (file->f_mode & FMODE_READ) {
--	    stop_adc(s);
--	    s->dma_adc.subdivision = val;
--	    if ((ret = prog_dmabuf_adc(s)))
--		return ret;
--	}
--	if (file->f_mode & FMODE_WRITE) {
--	    stop_dac(s);
--	    s->dma_dac.subdivision = val;
--	    if ((ret = prog_dmabuf_dac(s)))
--		return ret;
--	}
--	return 0;
-+	case SNDCTL_DSP_SUBDIVIDE:
-+		if ((file->f_mode & FMODE_READ && s->dma_adc.subdivision) ||
-+		    (file->f_mode & FMODE_WRITE && s->dma_dac.subdivision))
-+			return -EINVAL;
-+		if (get_user(val, (int *)arg))
-+			return -EFAULT;
-+		if (val != 1 && val != 2 && val != 4)
-+			return -EINVAL;
-+		if (file->f_mode & FMODE_READ) {
-+			stop_adc(s);
-+			s->dma_adc.subdivision = val;
-+			if ((ret = prog_dmabuf_adc(s)))
-+				return ret;
-+		}
-+		if (file->f_mode & FMODE_WRITE) {
-+			stop_dac(s);
-+			s->dma_dac.subdivision = val;
-+			if ((ret = prog_dmabuf_dac(s)))
-+				return ret;
-+		}
-+		return 0;
- 
--    case SOUND_PCM_READ_RATE:
--	return put_user((file->f_mode & FMODE_READ) ?
--			s->adcrate : s->dacrate, (int *)arg);
--
--    case SOUND_PCM_READ_CHANNELS:
--	if (file->f_mode & FMODE_READ)
--	    return put_user((s->capcc & CC_SM) ? 2 : 1, (int *)arg);
--	else
--	    return put_user((s->pcc & CC_SM) ? 2 : 1, (int *)arg);
-+	case SOUND_PCM_READ_RATE:
-+		return put_user((file->f_mode & FMODE_READ) ?
-+				s->adcrate : s->dacrate, (int *)arg);
-+
-+	case SOUND_PCM_READ_CHANNELS:
-+		if (file->f_mode & FMODE_READ)
-+			return put_user((s->capcc & CC_SM) ? 2 : 1,
-+					(int *)arg);
-+		else
-+			return put_user((s->pcc & CC_SM) ? 2 : 1,
-+					(int *)arg);
- 	    
--    case SOUND_PCM_READ_BITS:
--	if (file->f_mode & FMODE_READ)
--	    return put_user((s->capcc & CC_DF) ? 16 : 8, (int *)arg);
--	else
--	    return put_user((s->pcc & CC_DF) ? 16 : 8, (int *)arg);
-+	case SOUND_PCM_READ_BITS:
-+		if (file->f_mode & FMODE_READ)
-+			return put_user((s->capcc & CC_DF) ? 16 : 8,
-+					(int *)arg);
-+		else
-+			return put_user((s->pcc & CC_DF) ? 16 : 8,
-+					(int *)arg);
- 
--    case SOUND_PCM_WRITE_FILTER:
--    case SNDCTL_DSP_SETSYNCRO:
--    case SOUND_PCM_READ_FILTER:
--	return -EINVAL;
--    }
-+	case SOUND_PCM_WRITE_FILTER:
-+	case SNDCTL_DSP_SETSYNCRO:
-+	case SOUND_PCM_READ_FILTER:
-+		return -EINVAL;
-+	}
- 
--    return mixdev_ioctl(&s->codec, cmd, arg);
-+	return mixdev_ioctl(s->codec, cmd, arg);
- }
- 
- 
- static int it8172_open(struct inode *inode, struct file *file)
- {
--    int minor = minor(inode->i_rdev);
--    DECLARE_WAITQUEUE(wait, current);
--    unsigned long flags;
--    struct list_head *list;
--    struct it8172_state *s;
--    int ret;
--    
--    for (list = devs.next; ; list = list->next) {
--	if (list == &devs)
--	    return -ENODEV;
--	s = list_entry(list, struct it8172_state, devs);
--	if (!((s->dev_audio ^ minor) & ~0xf))
--	    break;
--    }
--    file->private_data = s;
--    /* wait for device to become free */
--    down(&s->open_sem);
--    while (s->open_mode & file->f_mode) {
--	if (file->f_flags & O_NONBLOCK) {
--	    up(&s->open_sem);
--	    return -EBUSY;
-+	int minor = MINOR(inode->i_rdev);
-+	DECLARE_WAITQUEUE(wait, current);
-+	unsigned long flags;
-+	struct list_head *list;
-+	struct it8172_state *s;
-+	int ret;
-+    
-+#ifdef IT8172_VERBOSE_DEBUG
-+	if (file->f_flags & O_NONBLOCK)
-+		dbg(__FUNCTION__ ": non-blocking");
-+	else
-+		dbg(__FUNCTION__ ": blocking");
-+#endif
-+	
-+	for (list = devs.next; ; list = list->next) {
-+		if (list == &devs)
-+			return -ENODEV;
-+		s = list_entry(list, struct it8172_state, devs);
-+		if (!((s->dev_audio ^ minor) & ~0xf))
-+			break;
+@@ -1766,18 +2017,32 @@
+ 		return -EIO;
  	}
--	add_wait_queue(&s->open_wait, &wait);
--	__set_current_state(TASK_INTERRUPTIBLE);
--	up(&s->open_sem);
--	schedule();
--	remove_wait_queue(&s->open_wait, &wait);
--	set_current_state(TASK_RUNNING);
--	if (signal_pending(current))
--	    return -ERESTARTSYS;
-+	file->private_data = s;
-+	/* wait for device to become free */
- 	down(&s->open_sem);
--    }
-+	while (s->open_mode & file->f_mode) {
-+		if (file->f_flags & O_NONBLOCK) {
-+			up(&s->open_sem);
+ 
+-	/* make sure FM irq is not routed to us */
+-	pci_read_config_byte (card->pdev, VIA_FM_NMI_CTRL, &tmp8);
+-	if ((tmp8 & VIA_CR48_FM_TRAP_TO_NMI) == 0) {
+-		tmp8 |= VIA_CR48_FM_TRAP_TO_NMI;
+-		pci_write_config_byte (card->pdev, VIA_FM_NMI_CTRL, tmp8);
++	/* VIA requires this is done */
++	pci_write_config_byte(card->pdev, PCI_INTERRUPT_LINE, card->pdev->irq);
++	
++	if(card->legacy)
++	{
++		/* make sure FM irq is not routed to us */
++		pci_read_config_byte (card->pdev, VIA_FM_NMI_CTRL, &tmp8);
++		if ((tmp8 & VIA_CR48_FM_TRAP_TO_NMI) == 0) {
++			tmp8 |= VIA_CR48_FM_TRAP_TO_NMI;
++			pci_write_config_byte (card->pdev, VIA_FM_NMI_CTRL, tmp8);
++		}
++		if (request_irq (card->pdev->irq, via_interrupt, SA_SHIRQ, VIA_MODULE_NAME, card)) {
++			printk (KERN_ERR PFX "unable to obtain IRQ %d, aborting\n",
++				card->pdev->irq);
++			DPRINTK ("EXIT, returning -EBUSY\n");
 +			return -EBUSY;
 +		}
-+		add_wait_queue(&s->open_wait, &wait);
-+		__set_current_state(TASK_INTERRUPTIBLE);
-+		up(&s->open_sem);
-+		schedule();
-+		remove_wait_queue(&s->open_wait, &wait);
-+		set_current_state(TASK_RUNNING);
-+		if (signal_pending(current))
-+			return -ERESTARTSYS;
-+		down(&s->open_sem);
-+	}
- 
--    spin_lock_irqsave(&s->lock, flags);
-+	spin_lock_irqsave(&s->lock, flags);
- 
--    if (file->f_mode & FMODE_READ) {
--	s->dma_adc.ossfragshift = s->dma_adc.ossmaxfrags =
--	    s->dma_adc.subdivision = s->dma_adc.total_bytes = 0;
--	s->capcc &= ~(CC_SM | CC_DF);
--	set_adc_rate(s, 8000);
--	if ((minor & 0xf) == SND_DEV_DSP16)
--	    s->capcc |= CC_DF;
--	outw(s->capcc, s->io+IT_AC_CAPCC);
--	if ((ret = prog_dmabuf_adc(s)))
--	    return ret;
--    }
--    if (file->f_mode & FMODE_WRITE) {
--	s->dma_dac.ossfragshift = s->dma_dac.ossmaxfrags =
--	    s->dma_dac.subdivision = s->dma_dac.total_bytes = 0;
--	s->pcc &= ~(CC_SM | CC_DF);
--	set_dac_rate(s, 8000);
--	if ((minor & 0xf) == SND_DEV_DSP16)
--	    s->pcc |= CC_DF;
--	outw(s->pcc, s->io+IT_AC_PCC);
--	if ((ret = prog_dmabuf_dac(s)))
--	    return ret;
--    }
+ 	}
 -
--    spin_unlock_irqrestore(&s->lock, flags);
--
--    s->open_mode |= file->f_mode & (FMODE_READ | FMODE_WRITE);
--    up(&s->open_sem);
--    return 0;
-+	if (file->f_mode & FMODE_READ) {
-+		s->dma_adc.ossfragshift = s->dma_adc.ossmaxfrags =
-+			s->dma_adc.subdivision = s->dma_adc.total_bytes = 0;
-+		s->capcc &= ~(CC_SM | CC_DF);
-+		set_adc_rate(s, 8000);
-+		if ((minor & 0xf) == SND_DEV_DSP16)
-+			s->capcc |= CC_DF;
-+		outw(s->capcc, s->io+IT_AC_CAPCC);
-+		if ((ret = prog_dmabuf_adc(s))) {
-+			spin_unlock_irqrestore(&s->lock, flags);
-+			return ret;
+-	if (request_irq (card->pdev->irq, via_interrupt, SA_SHIRQ, VIA_MODULE_NAME, card)) {
+-		printk (KERN_ERR PFX "unable to obtain IRQ %d, aborting\n",
+-			card->pdev->irq);
+-		DPRINTK ("EXIT, returning -EBUSY\n");
+-		return -EBUSY;
++	else 
++	{
++		if (request_irq (card->pdev->irq, via_new_interrupt, SA_SHIRQ, VIA_MODULE_NAME, card)) {
++			printk (KERN_ERR PFX "unable to obtain IRQ %d, aborting\n",
++				card->pdev->irq);
++			DPRINTK ("EXIT, returning -EBUSY\n");
++			return -EBUSY;
 +		}
-+	}
-+	if (file->f_mode & FMODE_WRITE) {
-+		s->dma_dac.ossfragshift = s->dma_dac.ossmaxfrags =
-+			s->dma_dac.subdivision = s->dma_dac.total_bytes = 0;
-+		s->pcc &= ~(CC_SM | CC_DF);
-+		set_dac_rate(s, 8000);
-+		if ((minor & 0xf) == SND_DEV_DSP16)
-+			s->pcc |= CC_DF;
-+		outw(s->pcc, s->io+IT_AC_PCC);
-+		if ((ret = prog_dmabuf_dac(s))) {
-+			spin_unlock_irqrestore(&s->lock, flags);
-+			return ret;
-+		}
-+	}
-+    
-+	spin_unlock_irqrestore(&s->lock, flags);
-+
-+	s->open_mode |= (file->f_mode & (FMODE_READ | FMODE_WRITE));
-+	up(&s->open_sem);
-+	return 0;
- }
+ 	}
  
- static int it8172_release(struct inode *inode, struct file *file)
- {
--    struct it8172_state *s = (struct it8172_state *)file->private_data;
-+	struct it8172_state *s = (struct it8172_state *)file->private_data;
+ 	DPRINTK ("EXIT, returning 0\n");
+@@ -1792,15 +2057,15 @@
+  */
  
--    lock_kernel();
--    if (file->f_mode & FMODE_WRITE)
--	drain_dac(s, file->f_flags & O_NONBLOCK);
--    down(&s->open_sem);
--    if (file->f_mode & FMODE_WRITE) {
--	stop_dac(s);
--	dealloc_dmabuf(s, &s->dma_dac);
--    }
--    if (file->f_mode & FMODE_READ) {
--	stop_adc(s);
--	dealloc_dmabuf(s, &s->dma_adc);
--    }
--    s->open_mode &= (~file->f_mode) & (FMODE_READ|FMODE_WRITE);
--    up(&s->open_sem);
--    wake_up(&s->open_wait);
--    unlock_kernel();
--    return 0;
-+#ifdef IT8172_VERBOSE_DEBUG
-+	dbg(__FUNCTION__);
-+#endif
-+	lock_kernel();
-+	if (file->f_mode & FMODE_WRITE)
-+		drain_dac(s, file->f_flags & O_NONBLOCK);
-+	down(&s->open_sem);
-+	if (file->f_mode & FMODE_WRITE) {
-+		stop_dac(s);
-+		dealloc_dmabuf(s, &s->dma_dac);
-+	}
-+	if (file->f_mode & FMODE_READ) {
-+		stop_adc(s);
-+		dealloc_dmabuf(s, &s->dma_adc);
-+	}
-+	s->open_mode &= ((~file->f_mode) & (FMODE_READ|FMODE_WRITE));
-+	up(&s->open_sem);
-+	wake_up(&s->open_wait);
-+	unlock_kernel();
-+	return 0;
- }
- 
- static /*const*/ struct file_operations it8172_audio_fops = {
--    .owner	= THIS_MODULE,
--    .llseek	= no_llseek,
--    .read	= it8172_read,
--    .write	= it8172_write,
--    .poll	= it8172_poll,
--    .ioctl	= it8172_ioctl,
--    .mmap	= it8172_mmap,
--    .open	= it8172_open,
--    .release	= it8172_release,
-+	owner:	THIS_MODULE,
-+	llseek:	it8172_llseek,
-+	read:	it8172_read,
-+	write:	it8172_write,
-+	poll:	it8172_poll,
-+	ioctl:	it8172_ioctl,
-+	mmap:	it8172_mmap,
-+	open:	it8172_open,
-+	release:	it8172_release,
+ static struct file_operations via_dsp_fops = {
+-	.owner		= THIS_MODULE,
+-	.open		= via_dsp_open,
+-	.release	= via_dsp_release,
+-	.read		= via_dsp_read,
+-	.write		= via_dsp_write,
+-	.poll		= via_dsp_poll,
+-	.llseek		= no_llseek,
+-	.ioctl		= via_dsp_ioctl,
+-	.mmap		= via_dsp_mmap,
++	owner:		THIS_MODULE,
++	open:		via_dsp_open,
++	release:	via_dsp_release,
++	read:		via_dsp_read,
++	write:		via_dsp_write,
++	poll:		via_dsp_poll,
++	llseek: 	no_llseek,
++	ioctl:		via_dsp_ioctl,
++	mmap:		via_dsp_mmap,
  };
  
  
-@@ -1657,51 +1898,51 @@
- static int proc_it8172_dump (char *buf, char **start, off_t fpos,
- 			     int length, int *eof, void *data)
- {
--    struct it8172_state *s;
--    int cnt, len = 0;
--
--    if (list_empty(&devs))
--	return 0;
--    s = list_entry(devs.next, struct it8172_state, devs);
--
--    /* print out header */
--    len += sprintf(buf + len, "\n\t\tIT8172 Audio Debug\n\n");
--
--    // print out digital controller state
--    len += sprintf (buf + len, "IT8172 Audio Controller registers\n");
--    len += sprintf (buf + len, "---------------------------------\n");
--    cnt=0;
--    while (cnt < 0x72) {
--	if (cnt == IT_AC_PCB1STA || cnt == IT_AC_PCB2STA ||
--	    cnt == IT_AC_CAPB1STA || cnt == IT_AC_CAPB2STA ||
--	    cnt == IT_AC_PFDP) {
--	    len+= sprintf (buf + len, "reg %02x = %08x\n",
--			   cnt, inl(s->io+cnt));
--	    cnt += 4;
--	} else {
--	    len+= sprintf (buf + len, "reg %02x = %04x\n",
--			   cnt, inw(s->io+cnt));
--	    cnt += 2;
--	}
--    }
--    
--    /* print out CODEC state */
--    len += sprintf (buf + len, "\nAC97 CODEC registers\n");
--    len += sprintf (buf + len, "----------------------\n");
--    for (cnt=0; cnt <= 0x7e; cnt = cnt +2)
--	len+= sprintf (buf + len, "reg %02x = %04x\n",
--		       cnt, rdcodec(&s->codec, cnt));
-+	struct it8172_state *s;
-+	int cnt, len = 0;
+@@ -1812,11 +2077,14 @@
  
--    if (fpos >=len){
--	*start = buf;
-+	if (list_empty(&devs))
-+		return 0;
-+	s = list_entry(devs.next, struct it8172_state, devs);
-+
-+	/* print out header */
-+	len += sprintf(buf + len, "\n\t\tIT8172 Audio Debug\n\n");
-+
-+	// print out digital controller state
-+	len += sprintf (buf + len, "IT8172 Audio Controller registers\n");
-+	len += sprintf (buf + len, "---------------------------------\n");
-+	cnt=0;
-+	while (cnt < 0x72) {
-+		if (cnt == IT_AC_PCB1STA || cnt == IT_AC_PCB2STA ||
-+		    cnt == IT_AC_CAPB1STA || cnt == IT_AC_CAPB2STA ||
-+		    cnt == IT_AC_PFDP) {
-+			len+= sprintf (buf + len, "reg %02x = %08x\n",
-+				       cnt, inl(s->io+cnt));
-+			cnt += 4;
-+		} else {
-+			len+= sprintf (buf + len, "reg %02x = %04x\n",
-+				       cnt, inw(s->io+cnt));
-+			cnt += 2;
+ 	assert (card != NULL);
+ 
+-	/* turn off legacy features, if not already */
+-	pci_read_config_byte (card->pdev, VIA_FUNC_ENABLE, &tmp8);
+-	if (tmp8 & (VIA_CR42_SB_ENABLE |  VIA_CR42_FM_ENABLE)) {
+-		tmp8 &= ~(VIA_CR42_SB_ENABLE | VIA_CR42_FM_ENABLE);
+-		pci_write_config_byte (card->pdev, VIA_FUNC_ENABLE, tmp8);
++	if(card->legacy)
++	{
++		/* turn off legacy features, if not already */
++		pci_read_config_byte (card->pdev, VIA_FUNC_ENABLE, &tmp8);
++		if (tmp8 & (VIA_CR42_SB_ENABLE |  VIA_CR42_FM_ENABLE)) {
++			tmp8 &= ~(VIA_CR42_SB_ENABLE | VIA_CR42_FM_ENABLE);
++			pci_write_config_byte (card->pdev, VIA_FUNC_ENABLE, tmp8);
 +		}
-+	}
-+    
-+	/* print out CODEC state */
-+	len += sprintf (buf + len, "\nAC97 CODEC registers\n");
-+	len += sprintf (buf + len, "----------------------\n");
-+	for (cnt=0; cnt <= 0x7e; cnt = cnt +2)
-+		len+= sprintf (buf + len, "reg %02x = %04x\n",
-+			       cnt, rdcodec(s->codec, cnt));
-+
-+	if (fpos >=len){
-+		*start = buf;
-+		*eof =1;
-+		return 0;
-+	}
-+	*start = buf + fpos;
-+	if ((len -= fpos) > length)
-+		return length;
- 	*eof =1;
--	return 0;
--    }
--    *start = buf + fpos;
--    if ((len -= fpos) > length)
--	return length;
--    *eof =1;
--    return len;
-+	return len;
+ 	}
  
- }
- #endif /* IT8172_DEBUG */
-@@ -1712,244 +1953,307 @@
- #define NR_DEVICE 5
+ 	via_stop_everything (card);
+@@ -1911,10 +2179,10 @@
  
- static int spdif[NR_DEVICE] = { 0, };
-+static int i2s_fmt[NR_DEVICE] = { 0, };
  
- static unsigned int devindex = 0;
+ struct vm_operations_struct via_mm_ops = {
+-	.nopage		= via_mm_nopage,
++	nopage:		via_mm_nopage,
  
- MODULE_PARM(spdif, "1-" __MODULE_STRING(NR_DEVICE) "i");
- MODULE_PARM_DESC(spdif, "if 1 the S/PDIF digital output is enabled");
-+MODULE_PARM(i2s_fmt, "1-" __MODULE_STRING(NR_DEVICE) "i");
-+MODULE_PARM_DESC(i2s_fmt, "the format of I2S");
- 
- MODULE_AUTHOR("Monta Vista Software, stevel@mvista.com");
--MODULE_DESCRIPTION("IT8172 AudioPCI97 Driver");
--MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("IT8172 Audio Driver");
- 
- /* --------------------------------------------------------------------- */
- 
- static int __devinit it8172_probe(struct pci_dev *pcidev,
- 				  const struct pci_device_id *pciid)
- {
--    struct it8172_state *s;
--    int i, val;
--    unsigned short pcisr, vol;
--    unsigned char legacy, imc;
--    char proc_str[80];
--    
--    if (pcidev->irq == 0) 
--	return -1;
--
--    if (!(s = kmalloc(sizeof(struct it8172_state), GFP_KERNEL))) {
--	printk(KERN_ERR PFX "alloc of device struct failed\n");
--	return -1;
--    }
-+	struct it8172_state *s;
-+	int i, val;
-+	unsigned short pcisr, vol;
-+	unsigned char legacy, imc;
-+	char proc_str[80];
-+    
-+	if (pcidev->irq == 0) 
-+		return -1;
-+
-+	if (!(s = kmalloc(sizeof(struct it8172_state), GFP_KERNEL))) {
-+		err("alloc of device struct failed");
-+		return -1;
-+	}
- 	
--    memset(s, 0, sizeof(struct it8172_state));
--    init_waitqueue_head(&s->dma_adc.wait);
--    init_waitqueue_head(&s->dma_dac.wait);
--    init_waitqueue_head(&s->open_wait);
--    init_MUTEX(&s->open_sem);
--    spin_lock_init(&s->lock);
--    s->dev = pcidev;
--    s->io = pci_resource_start(pcidev, 0);
--    s->irq = pcidev->irq;
--    s->vendor = pcidev->vendor;
--    s->device = pcidev->device;
--    pci_read_config_byte(pcidev, PCI_REVISION_ID, &s->rev);
--    s->codec.private_data = s;
--    s->codec.id = 0;
--    s->codec.codec_read = rdcodec;
--    s->codec.codec_write = wrcodec;
--    s->codec.codec_wait = waitcodec;
--
--    if (!request_region(s->io, pci_resource_len(pcidev,0),
--			IT8172_MODULE_NAME)) {
--	printk(KERN_ERR PFX "io ports %#lx->%#lx in use\n",
--		s->io, s->io + pci_resource_len(pcidev,0)-1);
--	goto err_region;
--    }
--    if (request_irq(s->irq, it8172_interrupt, SA_INTERRUPT,
--		    IT8172_MODULE_NAME, s)) {
--	printk(KERN_ERR PFX "irq %u in use\n", s->irq);
--	goto err_irq;
--    }
--
--    printk(KERN_INFO PFX "IO at %#lx, IRQ %d\n", s->io, s->irq);
--
--    /* register devices */
--    if ((s->dev_audio = register_sound_dsp(&it8172_audio_fops, -1)) < 0)
--	goto err_dev1;
--    if ((s->codec.dev_mixer =
--	 register_sound_mixer(&it8172_mixer_fops, -1)) < 0)
--	goto err_dev2;
-+	memset(s, 0, sizeof(struct it8172_state));
-+	init_waitqueue_head(&s->dma_adc.wait);
-+	init_waitqueue_head(&s->dma_dac.wait);
-+	init_waitqueue_head(&s->open_wait);
-+	init_MUTEX(&s->open_sem);
-+	spin_lock_init(&s->lock);
-+	s->dev = pcidev;
-+	s->io = pci_resource_start(pcidev, 0);
-+	s->irq = pcidev->irq;
-+	s->vendor = pcidev->vendor;
-+	s->device = pcidev->device;
-+	pci_read_config_byte(pcidev, PCI_REVISION_ID, &s->rev);
-+	
-+	s->codec = ac97_alloc_codec();
-+	if(s->codec == NULL)
-+		goto err_codec;
-+		
-+	s->codec->private_data = s;
-+	s->codec->id = 0;
-+	s->codec->codec_read = rdcodec;
-+	s->codec->codec_write = wrcodec;
-+	s->codec->codec_wait = waitcodec;
-+
-+	if (!request_region(s->io, pci_resource_len(pcidev,0),
-+			    IT8172_MODULE_NAME)) {
-+		err("io ports %#lx->%#lx in use",
-+		    s->io, s->io + pci_resource_len(pcidev,0)-1);
-+		goto err_region;
-+	}
-+	if (request_irq(s->irq, it8172_interrupt, SA_INTERRUPT,
-+			IT8172_MODULE_NAME, s)) {
-+		err("irq %u in use", s->irq);
-+		goto err_irq;
-+	}
-+
-+	info("IO at %#lx, IRQ %d", s->io, s->irq);
-+
-+	/* register devices */
-+	if ((s->dev_audio = register_sound_dsp(&it8172_audio_fops, -1)) < 0)
-+		goto err_dev1;
-+	if ((s->codec->dev_mixer =
-+	     register_sound_mixer(&it8172_mixer_fops, -1)) < 0)
-+		goto err_dev2;
- 
- #ifdef IT8172_DEBUG
--    /* initialize the debug proc device */
--    s->ps = create_proc_read_entry(IT8172_MODULE_NAME, 0, NULL,
--				   proc_it8172_dump, NULL);
-+	/* intialize the debug proc device */
-+	s->ps = create_proc_read_entry(IT8172_MODULE_NAME, 0, NULL,
-+				       proc_it8172_dump, NULL);
- #endif /* IT8172_DEBUG */
- 	
--    /*
--     * Reset the Audio device using the IT8172 PCI Reset register. This
--     * creates an audible double click on a speaker connected to Line-out.
--     */
--    IT_IO_READ16(IT_PM_PCISR, pcisr);
--    pcisr |= IT_PM_PCISR_ACSR;
--    IT_IO_WRITE16(IT_PM_PCISR, pcisr);
--    /* wait up to 100msec for reset to complete */
--    for (i=0; pcisr & IT_PM_PCISR_ACSR; i++) {
--	it8172_delay(10);
--	if (i == 10)
--	    break;
-+	/*
-+	 * Reset the Audio device using the IT8172 PCI Reset register. This
-+	 * creates an audible double click on a speaker connected to Line-out.
-+	 */
- 	IT_IO_READ16(IT_PM_PCISR, pcisr);
--    }
--    if (i == 10) {
--	printk(KERN_ERR PFX "chip reset timeout!\n");
--	goto err_dev3;
--    }
--    
--    /* enable pci io and bus mastering */
--    if (pci_enable_device(pcidev))
--	goto err_dev3;
--    pci_set_master(pcidev);
--
--    /* get out of legacy mode */
--    pci_read_config_byte (pcidev, 0x40, &legacy);
--    pci_write_config_byte (pcidev, 0x40, legacy & ~1);
--    
--    s->spdif_volume = -1;
--    /* check to see if s/pdif mode is being requested */
--    if (spdif[devindex]) {
--	printk(KERN_INFO PFX "enabling S/PDIF output\n");
--	s->spdif_volume = 0;
--	outb(GC_SOE, s->io+IT_AC_GC);
--    } else {
--	printk(KERN_INFO PFX "disabling S/PDIF output\n");
--	outb(0, s->io+IT_AC_GC);
--    }
--    
--    /* cold reset the AC97 */
--    outw(CODECC_CR, s->io+IT_AC_CODECC);
--    udelay(1000);
--    outw(0, s->io+IT_AC_CODECC);
--    /* need to delay around 500msec(bleech) to give
--       some CODECs enough time to wakeup */
--    it8172_delay(500);
--    
--    /* AC97 warm reset to start the bitclk */
--    outw(CODECC_WR, s->io+IT_AC_CODECC);
--    udelay(1000);
--    outw(0, s->io+IT_AC_CODECC);
--    
--    /* codec init */
--    if (!ac97_probe_codec(&s->codec))
--	goto err_dev3;
--
--    /* Enable Volume button interrupts */
--    imc = inb(s->io+IT_AC_IMC);
--    outb(imc & ~IMC_VCIM, s->io+IT_AC_IMC);
--
--    /* Un-mute PCM and FM out on the controller */
--    vol = inw(s->io+IT_AC_PCMOV);
--    outw(vol & ~PCMOV_PCMOM, s->io+IT_AC_PCMOV);
--    vol = inw(s->io+IT_AC_FMOV);
--    outw(vol & ~FMOV_FMOM, s->io+IT_AC_FMOV);
--
--    /* set channel defaults to 8-bit, mono, 8 Khz */
--    s->pcc = 0;
--    s->capcc = 0;
--    set_dac_rate(s, 8000);
--    set_adc_rate(s, 8000);
--
--    /* set mic to be the recording source */
--    val = SOUND_MASK_MIC;
--    mixdev_ioctl(&s->codec, SOUND_MIXER_WRITE_RECSRC, (unsigned long)&val);
--
--    /* mute master and PCM when in S/PDIF mode */
--    if (s->spdif_volume != -1) {
--	val = 0x0000;
--	mixdev_ioctl(&s->codec, SOUND_MIXER_WRITE_VOLUME,
--		     (unsigned long)&val);
--	mixdev_ioctl(&s->codec, SOUND_MIXER_WRITE_PCM,
-+	pcisr |= IT_PM_PCISR_ACSR;
-+	IT_IO_WRITE16(IT_PM_PCISR, pcisr);
-+	/* wait up to 100msec for reset to complete */
-+	for (i=0; pcisr & IT_PM_PCISR_ACSR; i++) {
-+		it8172_delay(10);
-+		if (i == 10)
-+			break;
-+		IT_IO_READ16(IT_PM_PCISR, pcisr);
-+	}
-+	if (i == 10) {
-+		err("chip reset timeout!");
-+		goto err_dev3;
-+	}
-+    
-+	/* enable pci io and bus mastering */
-+	if (pci_enable_device(pcidev))
-+		goto err_dev3;
-+	pci_set_master(pcidev);
-+
-+	/* get out of legacy mode */
-+	pci_read_config_byte (pcidev, 0x40, &legacy);
-+	pci_write_config_byte (pcidev, 0x40, legacy & ~1);
-+    
-+	s->spdif_volume = -1;
-+	/* check to see if s/pdif mode is being requested */
-+	if (spdif[devindex]) {
-+		info("enabling S/PDIF output");
-+		s->spdif_volume = 0;
-+		outb(GC_SOE, s->io+IT_AC_GC);
-+	} else {
-+		info("disabling S/PDIF output");
-+		outb(0, s->io+IT_AC_GC);
-+	}
-+    
-+	/* check to see if I2S format requested */
-+	if (i2s_fmt[devindex]) {
-+		info("setting I2S format to 0x%02x", i2s_fmt[devindex]);
-+		outb(i2s_fmt[devindex], s->io+IT_AC_I2SMC);
-+	} else {
-+		outb(I2SMC_I2SF_I2S, s->io+IT_AC_I2SMC);
-+	}
-+
-+	/* cold reset the AC97 */
-+	outw(CODECC_CR, s->io+IT_AC_CODECC);
-+	udelay(1000);
-+	outw(0, s->io+IT_AC_CODECC);
-+	/* need to delay around 500msec(bleech) to give
-+	   some CODECs enough time to wakeup */
-+	it8172_delay(500);
-+    
-+	/* AC97 warm reset to start the bitclk */
-+	outw(CODECC_WR, s->io+IT_AC_CODECC);
-+	udelay(1000);
-+	outw(0, s->io+IT_AC_CODECC);
-+    
-+	/* codec init */
-+	if (!ac97_probe_codec(s->codec))
-+		goto err_dev3;
-+
-+	/* add I2S as allowable recording source */
-+	s->codec->record_sources |= SOUND_MASK_I2S;
-+	
-+	/* Enable Volume button interrupts */
-+	imc = inb(s->io+IT_AC_IMC);
-+	outb(imc & ~IMC_VCIM, s->io+IT_AC_IMC);
-+
-+	/* Un-mute PCM and FM out on the controller */
-+	vol = inw(s->io+IT_AC_PCMOV);
-+	outw(vol & ~PCMOV_PCMOM, s->io+IT_AC_PCMOV);
-+	vol = inw(s->io+IT_AC_FMOV);
-+	outw(vol & ~FMOV_FMOM, s->io+IT_AC_FMOV);
-+    
-+	/* set channel defaults to 8-bit, mono, 8 Khz */
-+	s->pcc = 0;
-+	s->capcc = 0;
-+	set_dac_rate(s, 8000);
-+	set_adc_rate(s, 8000);
-+
-+	/* set mic to be the recording source */
-+	val = SOUND_MASK_MIC;
-+	mixdev_ioctl(s->codec, SOUND_MIXER_WRITE_RECSRC,
- 		     (unsigned long)&val);
--    }
-+
-+	/* mute AC'97 master and PCM when in S/PDIF mode */
-+	if (s->spdif_volume != -1) {
-+		val = 0x0000;
-+		s->codec->mixer_ioctl(s->codec, SOUND_MIXER_WRITE_VOLUME,
-+				     (unsigned long)&val);
-+		s->codec->mixer_ioctl(s->codec, SOUND_MIXER_WRITE_PCM,
-+				     (unsigned long)&val);
-+	}
-     
- #ifdef IT8172_DEBUG
--    sprintf(proc_str, "driver/%s/%d/ac97", IT8172_MODULE_NAME, s->codec.id);
--    s->ac97_ps = create_proc_read_entry (proc_str, 0, NULL,
--					 ac97_read_proc, &s->codec);
-+	sprintf(proc_str, "driver/%s/%d/ac97", IT8172_MODULE_NAME,
-+		s->codec->id);
-+	s->ac97_ps = create_proc_read_entry (proc_str, 0, NULL,
-+					     ac97_read_proc, s->codec);
+ #ifndef VM_RESERVED
+-	.swapout	= via_mm_swapout,
++	swapout:	via_mm_swapout,
  #endif
-     
--    /* store it in the driver field */
--    pci_set_drvdata(pcidev, s);
--    pcidev->dma_mask = 0xffffffff;
--    /* put it into driver list */
--    list_add_tail(&s->devs, &devs);
--    /* increment devindex */
--    if (devindex < NR_DEVICE-1)
--	devindex++;
--    return 0;
-+	/* store it in the driver field */
-+	pci_set_drvdata(pcidev, s);
-+	pcidev->dma_mask = 0xffffffff;
-+	/* put it into driver list */
-+	list_add_tail(&s->devs, &devs);
-+	/* increment devindex */
-+	if (devindex < NR_DEVICE-1)
-+		devindex++;
-+	return 0;
- 
-  err_dev3:
--    unregister_sound_mixer(s->codec.dev_mixer);
-+	unregister_sound_mixer(s->codec->dev_mixer);
-  err_dev2:
--    unregister_sound_dsp(s->dev_audio);
-+	unregister_sound_dsp(s->dev_audio);
-  err_dev1:
--    printk(KERN_ERR PFX "cannot register misc device\n");
--    free_irq(s->irq, s);
-+	err("cannot register misc device");
-+	free_irq(s->irq, s);
-  err_irq:
--    release_region(s->io, pci_resource_len(pcidev,0));
-+	release_region(s->io, pci_resource_len(pcidev,0));
-  err_region:
--    kfree(s);
--    return -1;
-+ 	ac97_release_codec(s->codec);
-+ err_codec:
-+	kfree(s);
-+	return -1;
- }
- 
- static void __devinit it8172_remove(struct pci_dev *dev)
- {
--    struct it8172_state *s = pci_get_drvdata(dev);
-+	struct it8172_state *s = pci_get_drvdata(dev);
- 
--    if (!s)
--	return;
--    list_del(&s->devs);
-+	if (!s)
-+		return;
-+	list_del(&s->devs);
- #ifdef IT8172_DEBUG
--    if (s->ps)
--	remove_proc_entry(IT8172_MODULE_NAME, NULL);
-+	if (s->ps)
-+		remove_proc_entry(IT8172_MODULE_NAME, NULL);
- #endif /* IT8172_DEBUG */
--    synchronize_irq(s->irq);
--    free_irq(s->irq, s);
--    release_region(s->io, pci_resource_len(dev,0));
--    unregister_sound_dsp(s->dev_audio);
--    unregister_sound_mixer(s->codec.dev_mixer);
--    kfree(s);
--    pci_set_drvdata(dev, NULL);
-+	synchronize_irq();
-+	free_irq(s->irq, s);
-+	release_region(s->io, pci_resource_len(dev,0));
-+	unregister_sound_dsp(s->dev_audio);
-+	unregister_sound_mixer(s->codec->dev_mixer);
-+	ac97_codec_release(s->codec);
-+	kfree(s);
-+	pci_set_drvdata(dev, NULL);
- }
- 
- 
- 
- static struct pci_device_id id_table[] __devinitdata = {
--    { PCI_VENDOR_ID_ITE, PCI_DEVICE_ID_ITE_IT8172G_AUDIO, PCI_ANY_ID,
--      PCI_ANY_ID, 0, 0 },
--    { 0, }
-+	{ PCI_VENDOR_ID_ITE, PCI_DEVICE_ID_ITE_IT8172G_AUDIO, PCI_ANY_ID,
-+	  PCI_ANY_ID, 0, 0 },
-+	{ 0, }
  };
  
- MODULE_DEVICE_TABLE(pci, id_table);
+@@ -2129,7 +2397,6 @@
+ 		 file, buffer, count, ppos ? ((unsigned long)*ppos) : 0);
  
- static struct pci_driver it8172_driver = {
--	.name		= IT8172_MODULE_NAME,
--	.id_table	= id_table,
--	.probe		= it8172_probe,
--	.remove		= it8172_remove,
-+	name: IT8172_MODULE_NAME,
-+	id_table: id_table,
-+	probe: it8172_probe,
-+	remove: it8172_remove
- };
+ 	assert (file != NULL);
+-	assert (buffer != NULL);
+ 	card = file->private_data;
+ 	assert (card != NULL);
  
- static int __init init_it8172(void)
- {
--    printk("version v0.26 time " __TIME__ " " __DATE__ "\n");
--    return pci_module_init(&it8172_driver);
-+	if (!pci_present())   /* No PCI bus in this machine! */
-+		return -ENODEV;
-+	info("version v0.5 time " __TIME__ " " __DATE__);
-+	return pci_module_init(&it8172_driver);
+@@ -2287,11 +2554,12 @@
+ 	DPRINTK ("Flushed block %u, sw_ptr now %u, n_frags now %d\n",
+ 		n, chan->sw_ptr, atomic_read (&chan->n_frags));
+ 
+-	DPRINTK ("regs==%02X %02X %02X %08X %08X %08X %08X\n",
++	DPRINTK ("regs==S=%02X C=%02X TP=%02X BP=%08X RT=%08X SG=%08X CC=%08X SS=%08X\n",
+ 		 inb (card->baseaddr + 0x00),
+ 		 inb (card->baseaddr + 0x01),
+ 		 inb (card->baseaddr + 0x02),
+ 		 inl (card->baseaddr + 0x04),
++		 inl (card->baseaddr + 0x08),
+ 		 inl (card->baseaddr + 0x0C),
+ 		 inl (card->baseaddr + 0x80),
+ 		 inl (card->baseaddr + 0x84));
+@@ -2300,7 +2568,10 @@
+ 		goto handle_one_block;
+ 
+ out:
+-	return userbuf - orig_userbuf;
++	if (userbuf - orig_userbuf)
++		return userbuf - orig_userbuf;
++	else
++		return ret;
  }
  
- static void __exit cleanup_it8172(void)
- {
--    printk(KERN_INFO PFX "unloading\n");
--    pci_unregister_driver(&it8172_driver);
-+	info("unloading");
-+	pci_unregister_driver(&it8172_driver);
+ 
+@@ -2314,7 +2585,6 @@
+ 		 file, buffer, count, ppos ? ((unsigned long)*ppos) : 0);
+ 
+ 	assert (file != NULL);
+-	assert (buffer != NULL);
+ 	card = file->private_data;
+ 	assert (card != NULL);
+ 
+@@ -2410,6 +2680,7 @@
+ 
+ 	add_wait_queue(&chan->wait, &wait);
+ 	for (;;) {
++		DPRINTK ("FRAGS %d FRAGNUM %d\n", atomic_read(&chan->n_frags), chan->frag_number);
+ 		__set_current_state(TASK_INTERRUPTIBLE);
+ 		if (atomic_read (&chan->n_frags) >= chan->frag_number)
+ 			break;
+@@ -2535,7 +2806,7 @@
+ 		info.fragments,
+ 		info.bytes);
+ 
+-	return copy_to_user(arg, &info, sizeof (info)) ? -EFAULT : 0;
++	return copy_to_user (arg, &info, sizeof (info))?-EFAULT:0;
  }
  
- module_init(init_it8172);
- module_exit(cleanup_it8172);
  
-+/* --------------------------------------------------------------------- */
-+
-+#ifndef MODULE
-+
-+/* format is: it8172=[spdif],[i2s:<I2S format>] */
-+
-+static int __init it8172_setup(char *options)
-+{
-+	char* this_opt;
-+	static unsigned __initdata nr_dev = 0;
-+
-+	if (nr_dev >= NR_DEVICE)
-+		return 0;
-+
-+	if (!options || !*options)
-+		return 0;
-+
-+	for(this_opt=strtok(options, ",");
-+	    this_opt; this_opt=strtok(NULL, ",")) {
-+		if (!strncmp(this_opt, "spdif", 5)) {
-+			spdif[nr_dev] = 1;
-+		} else if (!strncmp(this_opt, "i2s:", 4)) {
-+			if (!strncmp(this_opt+4, "dac", 3))
-+				i2s_fmt[nr_dev] = I2SMC_I2SF_DAC;
-+			else if (!strncmp(this_opt+4, "adc", 3))
-+				i2s_fmt[nr_dev] = I2SMC_I2SF_ADC;
-+			else if (!strncmp(this_opt+4, "i2s", 3))
-+				i2s_fmt[nr_dev] = I2SMC_I2SF_I2S;
-+		}
-+	}
-+
-+	nr_dev++;
-+	return 1;
-+}
-+
-+__setup("it8172=", it8172_setup);
-+
-+#endif /* MODULE */
+@@ -2567,7 +2838,7 @@
+ 	if (chan->is_active) {
+ 		unsigned long extra;
+ 		info.ptr = atomic_read (&chan->hw_ptr) * chan->frag_size;
+-		extra = chan->frag_size - inl (chan->iobase + VIA_PCM_BLOCK_COUNT);
++		extra = chan->frag_size - via_sg_offset(chan);
+ 		info.ptr += extra;
+ 		info.bytes += extra;
+ 	} else {
+@@ -2579,7 +2850,7 @@
+ 		info.blocks,
+ 		info.ptr);
+ 
+-	return copy_to_user(arg, &info, sizeof (info)) ? -EFAULT : 0;
++	return copy_to_user (arg, &info, sizeof (info))?-EFAULT:0;
+ }
+ 
+ 
+@@ -2688,7 +2959,7 @@
+                 rc = put_user (val, (int *)arg);
+ 		break;
+ 
+-	/* query or set number of channels (1=mono, 2=stereo) */
++	/* query or set number of channels (1=mono, 2=stereo, 4/6 for multichannel) */
+         case SNDCTL_DSP_CHANNELS:
+ 		if (get_user(val, (int *)arg)) {
+ 			rc = -EFAULT;
+@@ -2709,11 +2980,10 @@
+ 
+ 			val = rc;
+ 		} else {
+-			if ((rd && (card->ch_in.pcm_fmt & VIA_PCM_FMT_STEREO)) ||
+-			    (wr && (card->ch_out.pcm_fmt & VIA_PCM_FMT_STEREO)))
+-				val = 2;
++			if (rd)
++				val = card->ch_in.channels;
+ 			else
+-				val = 1;
++				val = card->ch_out.channels;
+ 		}
+ 		DPRINTK ("CHANNELS EXIT, returning %d\n", val);
+                 rc = put_user (val, (int *)arg);
+@@ -2873,10 +3143,11 @@
+ 
+ 			val = chan->frag_number - atomic_read (&chan->n_frags);
+ 
++			assert(val >= 0);
++				
+ 			if (val > 0) {
+ 				val *= chan->frag_size;
+-				val -= chan->frag_size -
+-				       inl (chan->iobase + VIA_PCM_BLOCK_COUNT);
++				val -= chan->frag_size - via_sg_offset(chan);
+ 			}
+ 			val += chan->slop_len % chan->frag_size;
+ 		} else
+@@ -2982,7 +3253,7 @@
+ static int via_dsp_open (struct inode *inode, struct file *file)
+ {
+ 	int minor = minor(inode->i_rdev);
+-	struct via_info *card = NULL;
++	struct via_info *card;
+ 	struct pci_dev *pdev = NULL;
+ 	struct via_channel *chan;
+ 	struct pci_driver *drvr;
+@@ -2995,6 +3266,7 @@
+ 		return -EINVAL;
+ 	}
+ 
++	card = NULL;
+ 	while ((pdev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pdev)) != NULL) {
+ 		drvr = pci_dev_driver (pdev);
+ 		if (drvr == &via_driver) {
+@@ -3037,9 +3309,11 @@
+ 
+ 		/* why is this forced to 16-bit stereo in all drivers? */
+ 		chan->pcm_fmt = VIA_PCM_FMT_16BIT | VIA_PCM_FMT_STEREO;
++		chan->channels = 2;
+ 
++		// TO DO - use FIFO: via_capture_fifo(card, 1);
+ 		via_chan_pcm_fmt (chan, 0);
+-		via_set_rate (&card->ac97, chan, 44100);
++		via_set_rate (card->ac97, chan, 44100);
+ 	}
+ 
+ 	/* handle output to analog source */
+@@ -3052,16 +3326,17 @@
+ 			/* if in duplex mode make the recording and playback channels
+ 			   have the same settings */
+ 			chan->pcm_fmt = VIA_PCM_FMT_16BIT | VIA_PCM_FMT_STEREO;
++			chan->channels = 2;
+ 			via_chan_pcm_fmt (chan, 0);
+-                        via_set_rate (&card->ac97, chan, 44100);
++                        via_set_rate (card->ac97, chan, 44100);
+ 		} else {
+ 			 if ((minor & 0xf) == SND_DEV_DSP16) {
+ 				chan->pcm_fmt = VIA_PCM_FMT_16BIT;
+ 				via_chan_pcm_fmt (chan, 0);
+-				via_set_rate (&card->ac97, chan, 44100);
++				via_set_rate (card->ac97, chan, 44100);
+ 			} else {
+ 				via_chan_pcm_fmt (chan, 1);
+-				via_set_rate (&card->ac97, chan, 8000);
++				via_set_rate (card->ac97, chan, 8000);
+ 			}
+ 		}
+ 	}
+@@ -3091,7 +3366,7 @@
+ 
+ 	if (file->f_mode & FMODE_WRITE) {
+ 		rc = via_dsp_drain_playback (card, &card->ch_out, nonblock);
+-		if (rc)
++		if (rc && rc != ERESTARTSYS)	/* Nobody needs to know about ^C */
+ 			printk (KERN_DEBUG "via_audio: ignoring drain playback error %d\n", rc);
+ 
+ 		via_chan_free (card, &card->ch_out);
+@@ -3130,11 +3405,12 @@
+ 	DPRINTK ("ENTER\n");
+ 
+ 	if (printed_version++ == 0)
+-		printk (KERN_INFO "Via 686a audio driver " VIA_VERSION "\n");
++		printk (KERN_INFO "Via 686a/8233/8235 audio driver " VIA_VERSION "\n");
+ 
+ 	rc = pci_enable_device (pdev);
+ 	if (rc)
+ 		goto err_out;
++		
+ 
+ 	rc = pci_request_regions (pdev, "via82cxxx_audio");
+ 	if (rc)
+@@ -3154,6 +3430,7 @@
+ 	card->baseaddr = pci_resource_start (pdev, 0);
+ 	card->card_num = via_num_cards++;
+ 	spin_lock_init (&card->lock);
++	spin_lock_init (&card->ac97_lock);
+ 	init_MUTEX (&card->syscall_sem);
+ 	init_MUTEX (&card->open_sem);
+ 
+@@ -3166,7 +3443,15 @@
+ 	 * which means it has a few extra features */
+ 	if (pci_resource_start (pdev, 2) > 0)
+ 		card->rev_h = 1;
+-
++		
++	/* Overkill for now, but more flexible done right */
++	
++	card->intmask = id->driver_data;
++	card->legacy = !card->intmask;
++	card->sixchannel = id->driver_data;
++	
++	if(card->sixchannel)
++		printk(KERN_INFO PFX "Six channel audio available\n");
+ 	if (pdev->irq < 1) {
+ 		printk (KERN_ERR PFX "invalid PCI IRQ %d, aborting\n", pdev->irq);
+ 		rc = -ENODEV;
+@@ -3179,6 +3464,8 @@
+ 		goto err_out_kfree;
+ 	}
+ 
++	pci_set_master(pdev);
++	
+ 	/*
+ 	 * init AC97 mixer and codec
+ 	 */
+@@ -3222,26 +3509,29 @@
+ 	/* Disable by default */
+ 	card->midi_info.io_base = 0;
+ 
+-	pci_read_config_byte (pdev, 0x42, &r42);
+-	/* Disable MIDI interrupt */
+-	pci_write_config_byte (pdev, 0x42, r42 | VIA_CR42_MIDI_IRQMASK);
+-	if (r42 & VIA_CR42_MIDI_ENABLE)
++	if(card->legacy)
+ 	{
+-		if (r42 & VIA_CR42_MIDI_PNP) /* Address selected by iobase 2 - not tested */
+-			card->midi_info.io_base = pci_resource_start (pdev, 2);
+-		else /* Address selected by byte 0x43 */
++		pci_read_config_byte (pdev, 0x42, &r42);
++		/* Disable MIDI interrupt */
++		pci_write_config_byte (pdev, 0x42, r42 | VIA_CR42_MIDI_IRQMASK);
++		if (r42 & VIA_CR42_MIDI_ENABLE)
+ 		{
+-			u8 r43;
+-			pci_read_config_byte (pdev, 0x43, &r43);
+-			card->midi_info.io_base = 0x300 + ((r43 & 0x0c) << 2);
+-		}
++			if (r42 & VIA_CR42_MIDI_PNP) /* Address selected by iobase 2 - not tested */
++				card->midi_info.io_base = pci_resource_start (pdev, 2);
++			else /* Address selected by byte 0x43 */
++			{
++				u8 r43;
++				pci_read_config_byte (pdev, 0x43, &r43);
++				card->midi_info.io_base = 0x300 + ((r43 & 0x0c) << 2);
++			}
+ 
+-		card->midi_info.irq = -pdev->irq;
+-		if (probe_uart401(& card->midi_info, THIS_MODULE))
+-		{
+-			card->midi_devc=midi_devs[card->midi_info.slots[4]]->devc;
+-			pci_write_config_byte(pdev, 0x42, r42 & ~VIA_CR42_MIDI_IRQMASK);
+-			printk("Enabled Via MIDI\n");
++			card->midi_info.irq = -pdev->irq;
++			if (probe_uart401(& card->midi_info, THIS_MODULE))
++			{
++				card->midi_devc=midi_devs[card->midi_info.slots[4]]->devc;
++				pci_write_config_byte(pdev, 0x42, r42 & ~VIA_CR42_MIDI_IRQMASK);
++				printk("Enabled Via MIDI\n");
++			}
+ 		}
+ 	}
+ #endif
+@@ -3501,7 +3791,7 @@
+ 	}
+ 
+ 	sprintf (s, "driver/via/%d/ac97", card->card_num);
+-	if (!create_proc_read_entry (s, 0, 0, ac97_read_proc, &card->ac97)) {
++	if (!create_proc_read_entry (s, 0, 0, ac97_read_proc, card->ac97)) {
+ 		rc = -EIO;
+ 		goto err_out_info;
+ 	}

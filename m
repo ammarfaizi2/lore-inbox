@@ -1,129 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265787AbRFXXOb>; Sun, 24 Jun 2001 19:14:31 -0400
+	id <S265793AbRFXXTl>; Sun, 24 Jun 2001 19:19:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265789AbRFXXOW>; Sun, 24 Jun 2001 19:14:22 -0400
-Received: from alcove.wittsend.com ([130.205.0.20]:43661 "EHLO
-	alcove.wittsend.com") by vger.kernel.org with ESMTP
-	id <S265788AbRFXXOP>; Sun, 24 Jun 2001 19:14:15 -0400
-Date: Sun, 24 Jun 2001 19:14:00 -0400
-From: "Michael H. Warfield" <mhw@wittsend.com>
-To: Rasmus Andersen <rasmus@jaquet.dk>
-Cc: linux-computone@lazuli.wittsend.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] catch potential null derefs in drivers/char/ip2main.c (245ac16)
-Message-ID: <20010624191400.A17692@alcove.wittsend.com>
-Mail-Followup-To: Rasmus Andersen <rasmus@jaquet.dk>,
-	linux-computone@lazuli.wittsend.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20010624230606.G847@jaquet.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.2i
-In-Reply-To: <20010624230606.G847@jaquet.dk>; from rasmus@jaquet.dk on Sun, Jun 24, 2001 at 11:06:06PM +0200
+	id <S265791AbRFXXTb>; Sun, 24 Jun 2001 19:19:31 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:42506 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S265794AbRFXXTQ>; Sun, 24 Jun 2001 19:19:16 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org
+Subject: Re: FAT32 superiority over ext2 :-)
+Date: Mon, 25 Jun 2001 01:22:17 +0200
+X-Mailer: KMail [version 1.2]
+Cc: viro@math.psu.edu, phillips@bonn-fries.net, chaffee@cs.berkeley.edu,
+        storner@image.dk, mnalis-umsdos@voyager.hr
+In-Reply-To: <200106242254.f5OMsxQ405511@saturn.cs.uml.edu>
+In-Reply-To: <200106242254.f5OMsxQ405511@saturn.cs.uml.edu>
+MIME-Version: 1.0
+Message-Id: <0106250122170H.00430@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 24, 2001 at 11:06:06PM +0200, Rasmus Andersen wrote:
-> Hi.
+On Monday 25 June 2001 00:54, Albert D. Cahalan wrote:
+> By dumb luck (?), FAT32 is compatible with the phase-tree algorithm
+> as seen in Tux2. This means it offers full data integrity.
+> Yep, it whips your typical journalling filesystem. Look at what
+> we have in the superblock (boot sector):
+>
+>     __u32  fat32_length;  /* sectors/FAT */
+>     __u16  flags;         /* bit 8: fat mirroring, low 4: active fat */
+>     __u8   version[2];    /* major, minor filesystem version */
+>     __u32  root_cluster;  /* first cluster in root directory */
+>     __u16  info_sector;   /* filesystem info sector */
+>
+> All in one atomic write, one can...
+>
+> 1. change the active FAT
+> 2. change the root directory
+> 3. change the free space count
+>
+> That's enough to atomically move from one phase to the next.
+> You create new directories in the free space, and make FAT
+> changes to an inactive FAT copy. Then you write the superblock
+> to atomically transition to the next phase.
 
-> (My last mail to dougm@computone.com bounced. Is there another
-> maintainer for drivers/char/ip2main.c somewhere?)
+Yes, FAT is what inspired me to go develop the algorithm.  However, two 
+words: 'lost clusters'.  Now that may just be an implemenation detail ;-)
 
-	I'm still here.  :-)  Just look one more line down below
-Doug's line.  There I am.
-
-	I'm responsible for the kernel / driver integration end of it
-anyways.
-
-	I'll find out what's up with Doug, but this is my issue to deal
-with anyways.  And yes, I'm looking at it.  I've got a couple of other
-patches on the back burner that are overdue for integration.
-
-> The patch below tries to avoid dereferencing (potential)
-> NULL pointers. It was reported by the Stanford team way
-> back and applies against 245ac16 and 246p6. It could
-> probably be done nicer but that would take someone that
-> actually understands this code.
-
-> --- linux-245-ac16-clean/drivers/char/ip2main.c	Sat May 19 20:58:17 2001
-> +++ linux-245-ac16/drivers/char/ip2main.c	Sun Jun 24 22:37:27 2001
-> @@ -866,36 +866,38 @@
->  			}
->  
->  #ifdef	CONFIG_DEVFS_FS
-> -			sprintf( name, "ipl%d", i );
-> -			i2BoardPtrTable[i]->devfs_ipl_handle =
-> -				devfs_register (devfs_handle, name,
-> -					DEVFS_FL_DEFAULT,
-> -					IP2_IPL_MAJOR, 4 * i,
-> -					S_IRUSR | S_IWUSR | S_IRGRP | S_IFCHR,
-> -					&ip2_ipl, NULL);
-> +			if (i2BoardPtrTable[i] && pB) {
-> +				sprintf( name, "ipl%d", i );
-> +				i2BoardPtrTable[i]->devfs_ipl_handle =
-> +					devfs_register (devfs_handle, name,
-> +							DEVFS_FL_DEFAULT,
-> +							IP2_IPL_MAJOR, 4 * i,
-> +							S_IRUSR | S_IWUSR | S_IRGRP | S_IFCHR,
-> +							&ip2_ipl, NULL);
->  
-> -			sprintf( name, "stat%d", i );
-> -			i2BoardPtrTable[i]->devfs_stat_handle =
-> -				devfs_register (devfs_handle, name,
-> -					DEVFS_FL_DEFAULT,
-> -					IP2_IPL_MAJOR, 4 * i + 1,
-> -					S_IRUSR | S_IWUSR | S_IRGRP | S_IFCHR,
-> -					&ip2_ipl, NULL);
-> +				sprintf( name, "stat%d", i );
-> +				i2BoardPtrTable[i]->devfs_stat_handle =
-> +					devfs_register (devfs_handle, name,
-> +							DEVFS_FL_DEFAULT,
-> +							IP2_IPL_MAJOR, 4 * i + 1,
-> +							S_IRUSR | S_IWUSR | S_IRGRP | S_IFCHR,
-> +							&ip2_ipl, NULL);
->  
-> -			for ( box = 0; box < ABS_MAX_BOXES; ++box )
-> -			{
-> -			    for ( j = 0; j < ABS_BIGGEST_BOX; ++j )
-> -			    {
-> -				if ( pB->i2eChannelMap[box] & (1 << j) )
-> +				for ( box = 0; box < ABS_MAX_BOXES; ++box )
->  				{
-> -				    tty_register_devfs(&ip2_tty_driver,
-> -					0, j + ABS_BIGGEST_BOX *
-> -						(box+i*ABS_MAX_BOXES));
-> -				    tty_register_devfs(&ip2_callout_driver,
-> -					0, j + ABS_BIGGEST_BOX *
-> -						(box+i*ABS_MAX_BOXES));
-> +					for ( j = 0; j < ABS_BIGGEST_BOX; ++j )
-> +					{
-> +						if ( pB->i2eChannelMap[box] & (1 << j) )
-> +						{
-> +							tty_register_devfs(&ip2_tty_driver,
-> +									   0, j + ABS_BIGGEST_BOX *
-> +									   (box+i*ABS_MAX_BOXES));
-> +							tty_register_devfs(&ip2_callout_driver,
-> +									   0, j + ABS_BIGGEST_BOX *
-> +									   (box+i*ABS_MAX_BOXES));
-> +						}
-> +					}
->  				}
-> -			    }
->  			}
->  #endif
->  
-> -- 
-> Regards,
->         Rasmus(rasmus@jaquet.dk)
-> 
-> A chicken and an egg are lying in bed. The chicken is smoking a
-> cigarette with a satisfied smile on it's face and the egg is frowning
-> and looking a bit pissed off. The egg mutters, to no-one in particular,
-> "Well, I guess we answered THAT question..."
-
--- 
- Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
-  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
-  NIC whois:  MHW9      |  An optimist believes we live in the best of all
- PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
-
+--
+Daniel

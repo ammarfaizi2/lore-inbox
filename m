@@ -1,155 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262192AbVANVmG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbVANVoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbVANVmG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 16:42:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbVANVkP
+	id S262190AbVANVoP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 16:44:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbVANVnF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 16:40:15 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:62442 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262123AbVANVe6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 16:34:58 -0500
-Date: Fri, 14 Jan 2005 13:34:41 -0800
-From: Dave Jiang <dave.jiang@gmail.com>
+	Fri, 14 Jan 2005 16:43:05 -0500
+Received: from poros.telenet-ops.be ([195.130.132.44]:30109 "EHLO
+	poros.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S262124AbVANVj5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 16:39:57 -0500
+Message-ID: <41E83C2D.6070101@nero.com>
+Date: Fri, 14 Jan 2005 22:39:57 +0100
+From: Gian-Carlo Pascutto <gpascutto@nero.com>
+Organization: Ahead Software AG
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, torvalds@osdl.org, smaurer@teja.com, dsaxena@plexity.net,
-       linux@arm.linux.org.uk, drew.moseley@intel.com,
-       mporter@kernel.crashing.org, greg@kroah.com
-Subject: Re: [PATCH 2/5] resource: some driver updates for u64 resource
-Message-ID: <20050114213441.GC21248@plexity.net>
-Reply-To: dave.jiang@gmail.com
-References: <20050114200627.GB19386@plexity.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050114200627.GB19386@plexity.net>
-Organization: Intel Corp.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Subject: ServerWorks CSB6 DMA problems
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Updated driver patch with the proper unsigned long long printk typecast.
+Hi all,
 
-Signed-off-by: Dave Jiang <dave.jiang@gmail.com>
+is anyone aware of the status of ServerWorks CSB6's chipset DMA support?
 
+On a machine with a RHEL3 kernel (2.4.21-27.0.1.EL), the kernel seems to 
+enable UDMA33 on the first connected disk (Seagate 7200.7) but uses PIO 
+mode on the second (Maxtor 6Y080P0).
 
-diff -Naur linux-2.6.11-rc1/drivers/ide/pci/cmd64x.c linux-2.6.11-rc1-u64/drivers/ide/pci/cmd64x.c
---- linux-2.6.11-rc1/drivers/ide/pci/cmd64x.c	2005-01-13 14:39:55.967192424 -0700
-+++ linux-2.6.11-rc1-u64/drivers/ide/pci/cmd64x.c	2005-01-14 14:08:25.811743240 -0700
-@@ -560,7 +560,8 @@
- #ifdef __i386__
- 	if (dev->resource[PCI_ROM_RESOURCE].start) {
- 		pci_write_config_byte(dev, PCI_ROM_ADDRESS, dev->resource[PCI_ROM_RESOURCE].start | PCI_ROM_ADDRESS_ENABLE);
--		printk(KERN_INFO "%s: ROM enabled at 0x%08lx\n", name, dev->resource[PCI_ROM_RESOURCE].start);
-+		printk(KERN_INFO "%s: ROM enabled at 0x%16llx\n", name, 
-+				(unsigned long long)dev->resource[PCI_ROM_RESOURCE].start);
- 	}
- #endif
- 
-diff -Naur linux-2.6.11-rc1/drivers/ide/pci/hpt34x.c linux-2.6.11-rc1-u64/drivers/ide/pci/hpt34x.c
---- linux-2.6.11-rc1/drivers/ide/pci/hpt34x.c	2005-01-13 14:39:56.013185432 -0700
-+++ linux-2.6.11-rc1-u64/drivers/ide/pci/hpt34x.c	2005-01-14 14:08:58.225815552 -0700
-@@ -175,8 +175,8 @@
- 		if (pci_resource_start(dev, PCI_ROM_RESOURCE)) {
- 			pci_write_config_byte(dev, PCI_ROM_ADDRESS,
- 				dev->resource[PCI_ROM_RESOURCE].start | PCI_ROM_ADDRESS_ENABLE);
--			printk(KERN_INFO "HPT345: ROM enabled at 0x%08lx\n",
--				dev->resource[PCI_ROM_RESOURCE].start);
-+			printk(KERN_INFO "HPT345: ROM enabled at 0x%16llx\n",
-+				(unsigned long long)dev->resource[PCI_ROM_RESOURCE].start);
- 		}
- 		pci_write_config_byte(dev, PCI_LATENCY_TIMER, 0xF0);
- 	} else {
-diff -Naur linux-2.6.11-rc1/drivers/ide/pci/pdc202xx_new.c linux-2.6.11-rc1-u64/drivers/ide/pci/pdc202xx_new.c
---- linux-2.6.11-rc1/drivers/ide/pci/pdc202xx_new.c	2005-01-13 14:39:56.561102136 -0700
-+++ linux-2.6.11-rc1-u64/drivers/ide/pci/pdc202xx_new.c	2005-01-14 14:09:48.380190928 -0700
-@@ -277,8 +277,8 @@
- 	if (dev->resource[PCI_ROM_RESOURCE].start) {
- 		pci_write_config_dword(dev, PCI_ROM_ADDRESS,
- 			dev->resource[PCI_ROM_RESOURCE].start | PCI_ROM_ADDRESS_ENABLE);
--		printk(KERN_INFO "%s: ROM enabled at 0x%08lx\n",
--			name, dev->resource[PCI_ROM_RESOURCE].start);
-+		printk(KERN_INFO "%s: ROM enabled at 0x%16llx\n",
-+			name, (unsigned long long)dev->resource[PCI_ROM_RESOURCE].start);
- 	}
- 
- #ifdef CONFIG_PPC_PMAC
-diff -Naur linux-2.6.11-rc1/drivers/ide/pci/pdc202xx_old.c linux-2.6.11-rc1-u64/drivers/ide/pci/pdc202xx_old.c
---- linux-2.6.11-rc1/drivers/ide/pci/pdc202xx_old.c	2005-01-13 14:39:56.562101984 -0700
-+++ linux-2.6.11-rc1-u64/drivers/ide/pci/pdc202xx_old.c	2005-01-14 14:10:14.544213392 -0700
-@@ -528,8 +528,8 @@
- 	if (dev->resource[PCI_ROM_RESOURCE].start) {
- 		pci_write_config_dword(dev, PCI_ROM_ADDRESS,
- 			dev->resource[PCI_ROM_RESOURCE].start | PCI_ROM_ADDRESS_ENABLE);
--		printk(KERN_INFO "%s: ROM enabled at 0x%08lx\n",
--			name, dev->resource[PCI_ROM_RESOURCE].start);
-+		printk(KERN_INFO "%s: ROM enabled at 0x%16llx\n",
-+			name, (unsigned long long)dev->resource[PCI_ROM_RESOURCE].start);
- 	}
- 
- 	/*
+I found out this is for good reasons because after enabling UDMA100 on 
+both disks, via hdparm, filesystem corruption quickly resulted.
 
-diff -Naur linux-2.6.11-rc1/drivers/serial/8250_pci.c linux-2.6.11-rc1-u64/drivers/serial/8250_pci.c
---- linux-2.6.11-rc1/drivers/serial/8250_pci.c	2004-12-24 14:35:23.000000000 -0700
-+++ linux-2.6.11-rc1-u64/drivers/serial/8250_pci.c	2005-01-14 09:32:32.850175896 -0700
-@@ -589,8 +589,8 @@
- 	else
- 		offset += idx * board->uart_offset;
- 
--	maxnr = (pci_resource_len(dev, bar) - board->first_offset) /
--		(8 << board->reg_shift);
-+	maxnr = (pci_resource_len(dev, bar) - board->first_offset) >>
-+		(board->reg_shift + 3);
- 
- 	if (board->flags & FL_REGION_SZ_CAP && idx >= maxnr)
- 		return 1;
-diff -Naur linux-2.6.11-rc1/drivers/video/console/vgacon.c linux-2.6.11-rc1-u64/drivers/video/console/vgacon.c
---- linux-2.6.11-rc1/drivers/video/console/vgacon.c	2005-01-13 14:40:05.305772744 -0700
-+++ linux-2.6.11-rc1-u64/drivers/video/console/vgacon.c	2005-01-13 11:45:41.842460952 -0700
-@@ -190,7 +190,7 @@
- 		vga_video_port_val = VGA_CRT_DM;
- 		if ((ORIG_VIDEO_EGA_BX & 0xff) != 0x10) {
- 			static struct resource ega_console_resource =
--			    { "ega", 0x3B0, 0x3BF };
-+			    { .name = "ega", .start = 0x3B0, .end = 0x3BF };
- 			vga_video_type = VIDEO_TYPE_EGAM;
- 			vga_vram_end = 0xb8000;
- 			display_desc = "EGA+";
-@@ -198,9 +198,9 @@
- 					 &ega_console_resource);
- 		} else {
- 			static struct resource mda1_console_resource =
--			    { "mda", 0x3B0, 0x3BB };
-+			    { .name = "mda", .start = 0x3B0, .end = 0x3BB };
- 			static struct resource mda2_console_resource =
--			    { "mda", 0x3BF, 0x3BF };
-+			    { .name = "mda", .start = 0x3BF, .end = 0x3BF };
- 			vga_video_type = VIDEO_TYPE_MDA;
- 			vga_vram_end = 0xb2000;
- 			display_desc = "*MDA";
-@@ -223,14 +223,14 @@
- 
- 			if (!ORIG_VIDEO_ISVGA) {
- 				static struct resource ega_console_resource
--				    = { "ega", 0x3C0, 0x3DF };
-+				    = { .name = "ega", .start = 0x3C0, .end = 0x3DF };
- 				vga_video_type = VIDEO_TYPE_EGAC;
- 				display_desc = "EGA";
- 				request_resource(&ioport_resource,
- 						 &ega_console_resource);
- 			} else {
- 				static struct resource vga_console_resource
--				    = { "vga+", 0x3C0, 0x3DF };
-+				    = { .name = "vga+", .start = 0x3C0, .end = 0x3DF };
- 				vga_video_type = VIDEO_TYPE_VGAC;
- 				display_desc = "VGA+";
- 				request_resource(&ioport_resource,
-@@ -274,7 +274,7 @@
- 			}
- 		} else {
- 			static struct resource cga_console_resource =
--			    { "cga", 0x3D4, 0x3D5 };
-+			    { .name = "cga", .start = 0x3D4, .end = 0x3D5 };
- 			vga_video_type = VIDEO_TYPE_CGA;
- 			vga_vram_end = 0xba000;
- 			display_desc = "*CGA";
+Googling turns up a lot of talk about buggy CSB4 chipsets, but nothing 
+about the CSB6, actually several posts claiming it should work ok. The 
+above experience and the kernel's selection suggest that's not the whole 
+story though.
+
+Basically, I'm curious if there's any *safe* way to get some more 
+performance out of this configuration on Linux, or if I'm SOL. I mean, 
+the Maxtor in PIO mode works at about 2Mb/s... :-/
+
+-- 
+GCP

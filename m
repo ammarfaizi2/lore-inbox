@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267215AbRGPGbh>; Mon, 16 Jul 2001 02:31:37 -0400
+	id <S267213AbRGPGww>; Mon, 16 Jul 2001 02:52:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267216AbRGPGb1>; Mon, 16 Jul 2001 02:31:27 -0400
-Received: from tahallah.demon.co.uk ([158.152.175.193]:2820 "EHLO
-	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S267215AbRGPGbJ>; Mon, 16 Jul 2001 02:31:09 -0400
-Date: Mon, 16 Jul 2001 07:30:01 +0100 (BST)
-From: Alex Buell <alex.buell@tahallah.demon.co.uk>
-X-X-Sender: <alex@tahallah.demon.co.uk>
-Reply-To: <alex.buell@tahallah.demon.co.uk>
-To: Alexander Viro <viro@math.psu.edu>
-cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, Adam <adam@eax.com>,
-        Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Duplicate '..' in /lib
-In-Reply-To: <Pine.GSO.4.21.0107160128320.26491-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.33.0107160727520.634-100000@tahallah.demon.co.uk>
+	id <S267216AbRGPGwm>; Mon, 16 Jul 2001 02:52:42 -0400
+Received: from [212.199.49.31] ([212.199.49.31]:10756 "EHLO cupotka.dyn.ee")
+	by vger.kernel.org with ESMTP id <S267213AbRGPGw1>;
+	Mon, 16 Jul 2001 02:52:27 -0400
+Date: Mon, 16 Jul 2001 12:52:03 +0300 (IDT)
+From: CuPoTKa <cupotka@cupotka.dyn.ee>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel 2.4.6 bug - problems with CM8338A soundchip.
+Message-ID: <Pine.LNX.4.33.0107161237440.2356-100000@cupotka.dyn.ee>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Jul 2001, Alexander Viro wrote:
 
-> 	Alex, could you do strace of that? It would clarify the situation.
+Part of kernel.log:
+kernel: cm: version $Revision: 5.64 $ time 01:44:06 Jul 16 2001
+kernel: PCI: Found IRQ 10 for device 00:0f.0
+kernel: cm: found CM8338A adapter at io 0xdc00 irq 10
 
-Unfortunately there's no working version of strace for the sparc32-linux
-platform. :o( If anyone knows better, I'd be infinitely grateful - mail me
-privately.
+Problem: Sound isn't smooth. It makes strange noise instead music.
 
-As it turns out, the extraneous '..' is actually a file. I did a rm ..*,
-which left the original .. directory alone but removed the .. file. Did a
-e2fsck on reboot, no problems found.
+I use:
+Linux version 2.4.6 (gcc version 2.95.4 20010703 (Debian prerelease)).
+Debian testing/unstable linux.
+Single PII, 400Mhz CPU.
+M748MR PCCHIPS motherboard.
 
--- 
-Hey, they *are* out to get you, but it's nothing personal.
+Usefull information: I compiled 2 kernels with CMedia 8338 chip support.
+One is kernel 2.4.5 and another 2.4.6. It works with 2.4.5 and dosn't with
+2.4.6.
 
-http://www.tahallah.demon.co.uk
+Thanks.
 

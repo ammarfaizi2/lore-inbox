@@ -1,49 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310439AbSCBU1E>; Sat, 2 Mar 2002 15:27:04 -0500
+	id <S310440AbSCBU14>; Sat, 2 Mar 2002 15:27:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310441AbSCBU0y>; Sat, 2 Mar 2002 15:26:54 -0500
-Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:16605 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S310440AbSCBU0p>;
-	Sat, 2 Mar 2002 15:26:45 -0500
-Message-ID: <3C81356F.3020903@candelatech.com>
-Date: Sat, 02 Mar 2002 13:26:23 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S310441AbSCBU1v>; Sat, 2 Mar 2002 15:27:51 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28420 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S310440AbSCBU1e>; Sat, 2 Mar 2002 15:27:34 -0500
+Subject: Re: 2.4.19-pre2 compile bug
+To: greearb@candelatech.com (Ben Greear)
+Date: Sat, 2 Mar 2002 20:42:03 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <3C813400.8080001@candelatech.com> from "Ben Greear" at Mar 02, 2002 01:20:16 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Julian Anastasov <ja@ssi.bg>, erich@uruk.org,
-        Szekeres Bela <szekeres@lhsystems.hu>,
-        Daniel Gryniewicz <dang@fprintf.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Network Security hole (was -> Re: arp bug )
-In-Reply-To: <E16hG2i-0008Kq-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16hGKS-0008N2-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> gcc -D__KERNEL__ -I/home/greear/kernel/2.4/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include /home/greear/kernel/2.4/linux/include/linux/modversions.h  -DKBUILD_BASENAME=cciss  -c -o cciss.o cciss.c
+> cciss.c: In function `cciss_remove_one':
+> cciss.c:2129: too few arguments to function `sendcmd'
 
-
-Alan Cox wrote:
-
->>	As for (2) I don't see how this can be remotely
->>exploited but my opinion is that it should be fixed.
->>
-> 
-> "Fixed" ? How do you fix standards compliant behaviour ?
-
-
-Alan, Alan...you just have to learn to Innovate(tm) :)
-
-
-
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
-
+Fixed in -ac2 - there is a NULL) missing off the end of that one it seems

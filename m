@@ -1,122 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262042AbUJYXgV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbUJYXyw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262042AbUJYXgV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 19:36:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbUJYXdW
+	id S261298AbUJYXyw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 19:54:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbUJYPLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 19:33:22 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:7868 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262040AbUJYX2h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 19:28:37 -0400
-Subject: Re: [Ext2-devel] Re: [PATCH 2/3] ext3 reservation allow turn off
-	for specifed file
-From: Mingming Cao <cmm@us.ibm.com>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: Ray Lee <ray-lk@madrabbit.org>, Andrew Morton <akpm@osdl.org>,
-       sct@redhat.com, pbadari@us.ibm.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net
-In-Reply-To: <1098736389.9692.7243.camel@w-ming2.beaverton.ibm.com>
-References: <1097846833.1968.88.camel@sisko.scot.redhat.com>
-	<1097856114.4591.28.camel@localhost.localdomain>
-	<1097858401.1968.148.camel@sisko.scot.redhat.com>
-	<1097872144.4591.54.camel@localhost.localdomain>
-	<1097878826.1968.162.camel@sisko.scot.redhat.com> <109787 
-	<1098147705.8803.1084.camel@w-ming2.beaverton.ibm.com> 
-	<1098294941.18850.4.camel@orca.madrabbit.org> 
-	<1098736389.9692.7243.camel@w-ming2.beaverton.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 25 Oct 2004 16:05:44 -0700
-Message-Id: <1098745548.9754.7427.camel@w-ming2.beaverton.ibm.com>
+	Mon, 25 Oct 2004 11:11:33 -0400
+Received: from ip22-176.tor.istop.com ([66.11.176.22]:57512 "EHLO
+	crlf.tor.istop.com") by vger.kernel.org with ESMTP id S261858AbUJYOq3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 10:46:29 -0400
+Cc: raven@themaw.net
+Subject: [PATCH 15/28] VFS: Mountpoint file descriptor umount support
+In-Reply-To: <10987155332448@sun.com>
+X-Mailer: gregkh_patchbomb_levon_offspring
+Date: Mon, 25 Oct 2004 10:46:09 -0400
+Message-Id: <10987155691365@sun.com>
+References: <10987155332448@sun.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Mike Waychison <michael.waychison@sun.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-25 at 13:33, Mingming Cao wrote:
-> On Wed, 2004-10-20 at 10:55, Ray Lee wrote:
-> > On Mon, 2004-10-18 at 18:01 -0700, Mingming Cao wrote:
-> > > On Mon, 2004-10-18 at 16:42, Andrew Morton wrote:
-> > > > Applications currently pass a seeky-access hint into the kernel via
-> > > > posix_fadvise(POSIX_FADV_RANDOM).  It would be nice to hook into that
-> > 
-> > [...]
-> > 
-> > > Just thought seeky random write application could use the existing ioctl
-> > > to let the kernel know it does not need reservation at all. Isn't that
-> > > more straightforward?
-> > 
-> > Going the ioctl route seems to imply that userspace would have to do a
-> > posix_fadvise() call and the ioctl, as opposed to just the fadvise. No?
-> > I'm betting the fadvise call is a little more portable as well.
-> 
-> Agreed. How about this: add a check in ext3_prepare_write(), if user passed seeky-access hint through posix_fadvise(via check for file->f_ra.ra_pages == 0), if so, close the reservation window.  But we still need previous patch to handle window size 0(no reservation) in reservation code.
+This patch adds functionality to mountfd so that a user can perform the
+various types of umount (forced umount, not-busy umount, lazy-umount).
 
-The previous patch could re-open the reservation in the case user then
-switch back to POSIX_FADV_NORMAL or POSIZ_FADV_SEQUENTAIL. Updated
-version included. We set the window size to -1 if the user pass the
-POSIX_FADV_RANDOM, instead of 0, to differentiate the case when user
-really want to close the window by ioctl.  We could re-open the window
-only when user pass the POSIX_FADV_SEQUENTAIL (or POSIX_FADV_NORMAL
-hint) and the window was closed because of previous seeky access hint.
-
-Currently the readahead is turned off if the userspace passed a seeky access hint to kernel by POSIX_FADVISE. It would be nice to turn off the block allocation reservation as well for seeky random write.
-
-
+Signed-off-by: Mike Waychison <michael.waychison@sun.com>
 ---
 
- linux-2.6.9-rc4-mm1-ming/fs/ext3/balloc.c |    2 +-
- linux-2.6.9-rc4-mm1-ming/fs/ext3/inode.c  |   17 +++++++++++++++++
- 2 files changed, 18 insertions(+), 1 deletion(-)
+ fs/mountfd.c       |   20 ++++++++++++++++++++
+ fs/namespace.c     |    2 +-
+ include/linux/fs.h |    5 ++++-
+ 3 files changed, 25 insertions(+), 2 deletions(-)
 
-diff -puN fs/ext3/inode.c~ext3_turn_off_reservation_by_fadvise fs/ext3/inode.c
---- linux-2.6.9-rc4-mm1/fs/ext3/inode.c~ext3_turn_off_reservation_by_fadvise	2004-10-25 18:25:44.135751800 -0700
-+++ linux-2.6.9-rc4-mm1-ming/fs/ext3/inode.c	2004-10-25 21:43:16.194964928 -0700
-@@ -1001,6 +1001,7 @@ static int ext3_prepare_write(struct fil
- 	int ret, needed_blocks = ext3_writepage_trans_blocks(inode);
- 	handle_t *handle;
- 	int retries = 0;
-+	int windowsz = 0;
+Index: linux-2.6.9-quilt/fs/mountfd.c
+===================================================================
+--- linux-2.6.9-quilt.orig/fs/mountfd.c	2004-10-22 17:17:40.736271288 -0400
++++ linux-2.6.9-quilt/fs/mountfd.c	2004-10-22 17:17:41.367175376 -0400
+@@ -11,6 +11,8 @@
  
- retry:
- 	handle = ext3_journal_start(inode, needed_blocks);
-@@ -1008,6 +1009,22 @@ retry:
- 		ret = PTR_ERR(handle);
- 		goto out;
+ #define VFSMOUNT(filp) ((struct vfsmount *)((filp)->private_data))
+ 
++extern int do_umount(struct vfsmount *mnt, int flags);
++
+ static struct vfsmount *mfdfs_mnt;
+ 
+ static void mfdfs_read_inode(struct inode *inode);
+@@ -72,6 +74,18 @@ static int mfd_release(struct inode *ino
+ 	return 0;
+ }
+ 
++static long mfd_umount(struct file *mountfilp, int flags)
++{
++	struct vfsmount *mnt;
++	int error;
++	
++	mnt = mntget(VFSMOUNT(mountfilp));
++
++	error = do_umount(mnt, flags);
++
++	return error;
++}
++
+ static int mfd_ioctl(struct inode *inode, struct file *filp,
+ 		     unsigned int cmd, unsigned long arg);
+ static struct file_operations mfd_file_ops = {
+@@ -243,6 +257,12 @@ static int mfd_ioctl(struct inode *inode
+ 	switch (cmd) {
+ 	case MOUNTFD_IOC_GETDIRFD:
+ 		return mfd_getdirfd(filp);
++	case MOUNTFD_IOC_DETACH:
++		return mfd_umount(filp, MNT_DETACH);
++	case MOUNTFD_IOC_UNMOUNT:
++		return mfd_umount(filp, 0);
++	case MOUNTFD_IOC_FORCEDUNMOUNT:
++		return mfd_umount(filp, MNT_FORCE);
  	}
-+
-+	/*
-+	 * if user passed a seeky-access hint to kernel,
-+	 * through POSIX_FADV_RANDOM,(file->r_ra.ra_pages is cleared)
-+	 * turn off reservation for block allocation correspondingly.
-+	 *
-+	 * Otherwise, if user switch back to POSIX_FADV_SEQUENTIAL or
-+	 * POSIX_FADV_NORMAL, re-open the reservation window.
-+	 */
-+	windowsz = atomic_read(&EXT3_I(inode)->i_rsv_window.rsv_goal_size);
-+	if ((windowsz > 0) && (!file->f_ra.ra_pages))
-+		atomic_set(&EXT3_I(inode)->i_rsv_window.rsv_goal_size, -1);
-+	if ((windowsz == -1) && file->f_ra.ra_pages)
-+		atomic_set(&EXT3_I(inode)->i_rsv_window.rsv_goal_size,
-+					EXT3_DEFAULT_RESERVE_BLOCKS);
-+
- 	ret = block_prepare_write(page, from, to, ext3_get_block);
- 	if (ret)
- 		goto prepare_write_failed;
-diff -puN fs/ext3/balloc.c~ext3_turn_off_reservation_by_fadvise fs/ext3/balloc.c
---- linux-2.6.9-rc4-mm1/fs/ext3/balloc.c~ext3_turn_off_reservation_by_fadvise	2004-10-25 21:23:05.152071432 -0700
-+++ linux-2.6.9-rc4-mm1-ming/fs/ext3/balloc.c	2004-10-25 21:24:48.136415432 -0700
-@@ -1154,7 +1154,7 @@ int ext3_new_block(handle_t *handle, str
- 	struct ext3_sb_info *sbi;
- 	struct reserve_window_node *my_rsv = NULL;
- 	struct reserve_window_node *rsv = &EXT3_I(inode)->i_rsv_window;
--	unsigned short windowsz = 0;
-+	int windowsz = 0;
- #ifdef EXT3FS_DEBUG
- 	static int goal_hits, goal_attempts;
- #endif
-
-_
+ 	return -ENOTTY;
+ }
+Index: linux-2.6.9-quilt/fs/namespace.c
+===================================================================
+--- linux-2.6.9-quilt.orig/fs/namespace.c	2004-10-22 17:17:40.738270984 -0400
++++ linux-2.6.9-quilt/fs/namespace.c	2004-10-22 17:17:41.368175224 -0400
+@@ -601,7 +601,7 @@ static void umount_tree(struct vfsmount 
+ 	spin_lock(&vfsmount_lock);
+ }
+ 
+-static int do_umount(struct vfsmount *mnt, int flags)
++int do_umount(struct vfsmount *mnt, int flags)
+ {
+ 	struct super_block * sb = mnt->mnt_sb;
+ 	int retval;
+Index: linux-2.6.9-quilt/include/linux/fs.h
+===================================================================
+--- linux-2.6.9-quilt.orig/include/linux/fs.h	2004-10-22 17:17:40.739270832 -0400
++++ linux-2.6.9-quilt/include/linux/fs.h	2004-10-22 17:17:41.369175072 -0400
+@@ -214,7 +214,10 @@ extern int leases_enable, dir_notify_ena
+ #define FIBMAP	   _IO(0x00,1)	/* bmap access */
+ #define FIGETBSZ   _IO(0x00,2)	/* get the block size used for bmap */
+ 
+-#define MOUNTFD_IOC_GETDIRFD _IO('p', 0xa0)
++#define MOUNTFD_IOC_GETDIRFD      _IO('p', 0xa0)
++#define MOUNTFD_IOC_UNMOUNT       _IO('p', 0xa1)
++#define MOUNTFD_IOC_DETACH        _IO('p', 0xa2)
++#define MOUNTFD_IOC_FORCEDUNMOUNT _IO('p', 0xa3)
+ 
+ #ifdef __KERNEL__
+ 
 

@@ -1,44 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136477AbRD3H6v>; Mon, 30 Apr 2001 03:58:51 -0400
+	id <S136478AbRD3IAb>; Mon, 30 Apr 2001 04:00:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136478AbRD3H6m>; Mon, 30 Apr 2001 03:58:42 -0400
-Received: from smtp3.xs4all.nl ([194.109.127.132]:61451 "EHLO smtp3.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S136477AbRD3H6i>;
-	Mon, 30 Apr 2001 03:58:38 -0400
-From: thunder7@xs4all.nl
-Date: Mon, 30 Apr 2001 07:40:27 +0200
-To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [lkml]Re: Mounting an external USB host-powered ZIP 250 drive hangs in mount()
-Message-ID: <20010430074027.A3914@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-In-Reply-To: <20010429075856.A821@middle.of.nowhere> <20010429211346.A8349@one-eyed-alien.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20010429211346.A8349@one-eyed-alien.net>; from mdharm-kernel@one-eyed-alien.net on Sun, Apr 29, 2001 at 09:13:46PM -0700
+	id <S136479AbRD3IAY>; Mon, 30 Apr 2001 04:00:24 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:12691 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S136478AbRD3IAJ>; Mon, 30 Apr 2001 04:00:09 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Mon, 30 Apr 2001 01:00:00 -0700
+Message-Id: <200104300800.BAA02079@adam.yggdrasil.com>
+To: jgarzik@mandrakesoft.com, mpakovic@fdn.com
+Subject: Re: 2.4.4 fork.c changes cause linuxconf to fail
+Cc: hahn@coffee.psychology.mcmaster.ca, linux-kernel@vger.kernel.org,
+        peter.osterlund@mailbox.swipnet.se, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 29, 2001 at 09:13:46PM -0700, Matthew Dharm wrote:
-> I see you're using the alternate uhci driver... are hte results the same
-> with the other UHCI driver?
+Jeff Garzik wrote:
+>Michael Pakovic wrote:
+>> The changes to kernel/fork.c from 2.4.4-pre1 to 2.4.4-pre3 (and in
+>> 2.4.4) cause the RedHat 6.2 linuxconf utility to fail with the message
+>> "broken pipe".  The linuxconf utility will run the first time, but all
+>> subsequent runs give the "broken pipe" error.  The error message is
+>> generated as a result of a fflush command in linuxconf.  I can provide
+>> more information upon request.
 
-I have read in the help-files that that was the one to use on this
-VIA694 motherboard.
-> 
-> Can you turn on usb mass storage verbose debuggig (compile option) and then
-> send me the logs?
-> 
-I'll do that. In the meantime, 2.4.4 does work - so it's something in
-the ac12 kernel that prevents it from working. Unfortunately I can't try
-ac13 or ac14, since the pcnet32 code doesn't compile in those.
+>This patch is definitely breaking things, but AFAIK the fork.c change
+>only breaks buggy applications...  Adam would you say that assertion is
+>correct?
 
-Jurriaan
--- 
-And money rides while people crawl
-And another quiet night goes by
-	Oysterband - Another quiet night in England
-GNU/Linux 2.4.4 SMP/ReiserFS 2x1743 bogomips load av: 0.27 0.06 0.02
+	Yes, and they're probably all bugs that were biting us
+sporadically before.  We should take the opportunity to squash them
+while they're out in the open.
+
+	We'd better squash those bugs quickly too, because Peter
+Osterlund has produced a patch that runs the child first without
+giving all of the CPU allocation to the child, and this apparently
+is enough to eliminate the problems people have been seeing while
+retaining the benefit of running the child first.  So, I imagine
+2.4.5 will not expose these problems.
+
+	Peter emailed his patch to linux-kernel, but, for some reason, I
+have only seen the copy that was cc'ed directly to me.  I have tried his
+patch and added two lines so that the child is still run first even
+when current->counter == 0 (stealing some CPU allocation to do so).
+I have not benchmarked it, but I do know from testing that without
+my addition, the parent would still run first about a 1/4-1/5th of
+the time (consistent with the Linux's allocation of 5 ticks to a
+regular priority process), and, with this patch, that reduces to about
+1/30th.  If the performance benefit of running the child first is
+noticible on bencharks, it should be worth doing it the other 20%
+of the time as well.  Anyhow, here is my modification of Peter Osterlund's
+patch, against 2.4.4:
+
+
+--- linux-2.4.4/kernel/fork.c	Thu Apr 26 06:11:17 2001
++++ linux/kernel/fork.c	Mon Apr 30 00:37:30 2001
+@@ -666,16 +666,20 @@
+ 	p->pdeath_signal = 0;
+ 
+ 	/*
+-	 * Give the parent's dynamic priority entirely to the child.  The
+-	 * total amount of dynamic priorities in the system doesn't change
+-	 * (more scheduling fairness), but the child will run first, which
+-	 * is especially useful in avoiding a lot of copy-on-write faults
+-	 * if the child for a fork() just wants to do a few simple things
+-	 * and then exec(). This is only important in the first timeslice.
+-	 * In the long run, the scheduling behavior is unchanged.
++	 * "share" dynamic priority between parent and child, thus the
++	 * total amount of dynamic priorities in the system doesn't change,
++	 * more scheduling fairness. The parent yields to let the child run
++	 * first, which is especially useful in avoiding a lot of
++	 * copy-on-write faults if the child for a fork() just wants to do a
++	 * few simple things and then exec(). This is only important in the
++	 * first timeslice. In the long run, the scheduling behavior is
++	 * unchanged.
+ 	 */
+-	p->counter = current->counter;
+-	current->counter = 0;
++	p->counter = (current->counter + 1) >> 1;
++	if (p->counter == 0)
++		p->counter = 1;
++	current->counter >>= 1;
++	current->policy |= SCHED_YIELD;
+ 	current->need_resched = 1;
+ 
+ 	/*

@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265266AbTLFWRa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 17:17:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265267AbTLFWR3
+	id S265268AbTLFWcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 17:32:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265269AbTLFWcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 17:17:29 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:35803 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S265266AbTLFWR2 (ORCPT
+	Sat, 6 Dec 2003 17:32:16 -0500
+Received: from fw.osdl.org ([65.172.181.6]:62370 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265268AbTLFWcP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 17:17:28 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Sat, 6 Dec 2003 23:17:22 +0100 (MET)
-Message-Id: <UTC200312062217.hB6MHM118492.aeb@smtp.cwi.nl>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH - RFC] number of Solaris slices
+	Sat, 6 Dec 2003 17:32:15 -0500
+Date: Sat, 6 Dec 2003 14:32:08 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Larry McVoy <lm@bitmover.com>
+cc: Wakko Warner <wakko@animx.eu.org>, linux-kernel@vger.kernel.org
+Subject: Re: cdrecord hangs my computer
+In-Reply-To: <20031206220227.GA19016@work.bitmover.com>
+Message-ID: <Pine.LNX.4.58.0312061429080.2092@home.osdl.org>
+References: <Law9-F31u8ohMschTC00001183f@hotmail.com>
+ <Pine.LNX.4.58.0312060011130.2092@home.osdl.org> <3FD1994C.10607@stinkfoot.org>
+ <20031206084032.A3438@animx.eu.org> <Pine.LNX.4.58.0312061044450.2092@home.osdl.org>
+ <20031206220227.GA19016@work.bitmover.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-People tell me that SOLARIS_X86_NUMSLICE should be 16 instead of 8.
-And it seems there is some truth in that.
 
-On the other hand, there have certainly been times that 8 was the
-right number. Instead of using a define for the number of slices
-(partitions, if you prefer), is it OK for all Solaris versions to
-use v->v_nparts?
 
-Andries
+On Sat, 6 Dec 2003, Larry McVoy wrote:
+>
+> Hey, that "piece of crap" has burned one heck of a lot of ISO images of
+> Linux over the years.
 
---- /linux/2.6/linux-2.6.0-test11/linux/fs/partitions/msdos.c	Wed Nov 26 21:44:30 2003
-+++ ./msdos.c	Sat Dec  6 22:55:58 2003
-@@ -170,7 +170,7 @@
- #ifdef CONFIG_SOLARIS_X86_PARTITION
- 	Sector sect;
- 	struct solaris_x86_vtoc *v;
--	int i;
-+	int i, numslices;
- 
- 	v = (struct solaris_x86_vtoc *)read_dev_sector(bdev, offset+1, &sect);
- 	if (!v)
-@@ -186,7 +186,12 @@
- 		put_dev_sector(sect);
- 		return;
- 	}
--	for (i=0; i<SOLARIS_X86_NUMSLICE && state->next<state->limit; i++) {
-+
-+	numslices = v->v_nparts;
-+	if (numslices > SOLARIS_X86_NUMSLICE)
-+		numslices = SOLARIS_X86_NUMSLICE;
-+
-+	for (i=0; i<numslices && state->next<state->limit; i++) {
- 		struct solaris_x86_slice *s = &v->v_slice[i];
- 		if (s->s_size == 0)
- 			continue;
---- /linux/2.6/linux-2.6.0-test11/linux/include/linux/genhd.h	Wed Nov 26 21:43:08 2003
-+++ ./genhd.h	Sat Dec  6 22:53:06 2003
-@@ -212,7 +212,7 @@
- 
- #ifdef CONFIG_SOLARIS_X86_PARTITION
- 
--#define SOLARIS_X86_NUMSLICE	8
-+#define SOLARIS_X86_NUMSLICE	16
- #define SOLARIS_X86_VTOC_SANE	(0x600DDEEEUL)
- 
- struct solaris_x86_slice {
+And so does windows. That doesn't make it good.
+
+> How about a nod of thanks to the author before you tell him you don't
+> like his interface?
+
+I tried to tell him why numbers are bad. Very politely, explaining that a
+lot of devices cannot be enumerated by a traditional "bus/dev/lun" scheme.
+He basically cursed at me, and told me that that is how SCSI works. Never
+mind that IDE isn't SCSI, and even SCSI doesn't work that way any more
+(iSCSI comes to mind).
+
+I can be polite. But when there is no reason to be polite, I can be blunt
+too.
+
+				Linus

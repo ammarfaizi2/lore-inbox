@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262105AbVDFFP3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262110AbVDFFRl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262105AbVDFFP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 01:15:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbVDFFP3
+	id S262110AbVDFFRl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 01:17:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbVDFFRh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 01:15:29 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:12015 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262090AbVDFFPW
+	Wed, 6 Apr 2005 01:17:37 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:8967 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S262106AbVDFFR0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 01:15:22 -0400
-To: davidm@hpl.hp.com
-cc: Christoph Lameter <clameter@engr.sgi.com>, Andi Kleen <ak@muc.de>,
-       Christoph Lameter <clameter@sgi.com>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mel Gorman <mel@csn.ul.ie>, linux-ia64@vger.kernel.org,
-       Jens.Maurer@gmx.net
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: [PATCH] add a clear_pages function to clear pages of higher order 
-In-reply-to: Your message of Tue, 05 Apr 2005 21:48:22 PDT.
-             <16979.27158.381388.691910@napali.hpl.hp.com> 
-Date: Tue, 05 Apr 2005 22:15:18 -0700
-Message-Id: <E1DJ2sp-0004jm-00@w-gerrit.beaverton.ibm.com>
+	Wed, 6 Apr 2005 01:17:26 -0400
+Date: Tue, 5 Apr 2005 22:17:40 -0700
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Benjamin LaHaise <bcrl@kvack.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
+       linux-aio@kvack.org
+Subject: Re: [RFC] Add support for semaphore-like structure with support for asynchronous I/O
+Message-ID: <20050406051740.GA8045@nietzsche.lynx.com>
+References: <1112224663.18019.39.camel@lade.trondhjem.org> <1112309586.27458.19.camel@lade.trondhjem.org> <20050331161350.0dc7d376.akpm@osdl.org> <1112318537.11284.10.camel@lade.trondhjem.org> <20050401141225.GA3707@in.ibm.com> <20050404155245.GA4659@in.ibm.com> <20050404162216.GA18469@kvack.org> <1112637395.10602.95.camel@lade.trondhjem.org> <20050405154641.GA27279@kvack.org> <1112750457.14586.53.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1112750457.14586.53.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.5.8i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 05 Apr 2005 21:48:22 PDT, David Mosberger wrote:
-> >>>>> On Tue, 5 Apr 2005 17:33:59 -0700 (PDT), Christoph Lameter <clameter@engr.sgi.com> said:
+On Tue, Apr 05, 2005 at 09:20:57PM -0400, Trond Myklebust wrote:
+> ty den 05.04.2005 Klokka 11:46 (-0400) skreiv Benjamin LaHaise:
 > 
->   Christoph> Which benchmark would you recommend for this?
+> > I can see that goal, but I don't think introducing iosems is the right 
+> > way to acheive it.  Instead (and I'll start tackling this), how about 
+> > factoring out the existing semaphore implementations to use a common 
+> > lib/semaphore.c, much like lib/rwsem.c?  The iosems can be used as a 
+> > basis for the implementation, but we can avoid having to do a giant 
+> > s/semaphore/iosem/g over the kernel tree.
 > 
-> I don't know about "recommend", but I think SPECweb, SPECjbb,
-> the-UNIX-multi-user-benchmark-whose-name-I-keep-forgetting, and in
-> general anything that involves process-activity and/or large working
-> sets might be interesting (in other words: anything but
-> microbenchmarks; I'm afraid).
+> If you're willing to take this on then you have my full support and I'd
+> be happy to lend a hand.
 
-SpecSDET, Aim7 or ReAim from OSDL are probably what you are thinking
-of.
+I would expect also that some RT subgroups would be highly interested in
+getting it to respect priority for reworking parts of softirq.
 
-gerrit
+bill
+

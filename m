@@ -1,82 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281594AbRKPWfn>; Fri, 16 Nov 2001 17:35:43 -0500
+	id <S281599AbRKPWfx>; Fri, 16 Nov 2001 17:35:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281599AbRKPWfY>; Fri, 16 Nov 2001 17:35:24 -0500
-Received: from domino1.resilience.com ([209.245.157.33]:5838 "EHLO
-	intranet.resilience.com") by vger.kernel.org with ESMTP
-	id <S281597AbRKPWfL>; Fri, 16 Nov 2001 17:35:11 -0500
-Message-ID: <3BF5952E.E73BB648@resilience.com>
-Date: Fri, 16 Nov 2001 14:37:34 -0800
-From: Jeff Golds <jgolds@resilience.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.13 i686)
-X-Accept-Language: en
+	id <S281597AbRKPWfn>; Fri, 16 Nov 2001 17:35:43 -0500
+Received: from [208.129.208.52] ([208.129.208.52]:50181 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S281603AbRKPWfb>;
+	Fri, 16 Nov 2001 17:35:31 -0500
+Date: Fri, 16 Nov 2001 14:44:30 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Mike Kravetz <kravetz@us.ibm.com>
+cc: lse-tech@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Real Time Runqueue
+In-Reply-To: <20011116122005.E1152@w-mikek2.des.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.40.0111161419180.998-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: Stefan Smietanowski <stesmi@stesmi.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] AMD SMP capability sanity checking.
-In-Reply-To: <Pine.LNX.4.30.0111162302160.22827-100000@Appserv.suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> 
-> On Fri, 16 Nov 2001, Stefan Smietanowski wrote:
-> 
-> > Would you mind writing what each of these actually is?
-> > Athlon 661 doesn't tell me much, neither does Duron 671.
-> > That's just an example, which is which?
-> 
-> The numbers translate to the family/model/stepping fields
-> of /proc/cpuinfo.
-> 
-> The only older models certified as safe for SMP are.
-> 
->  Athlon model 6, stepping 0 CPUID = 660
->  Athlon model 6, stepping 1 CPUID = 661
->  Duron  model 7, stepping 0 CPUID = 670
-> 
-> The newer models..
->  model 6 stepping 2 and above 662
->  model 7 stepping 1 and above 671
-> 
-> have a cpuid flag that must be compared to find out if they
-> are capable or not. Note that these id's tally with XP's and MP's.
-> The capability bit is the only way to distinguish between these models.
-> 
+On Fri, 16 Nov 2001, Mike Kravetz wrote:
 
-So the MP has the SMP capable bit set and the XP does not?
+> As you may know, a few of us are experimenting with multi-runqueue
+> scheduler implementations.  One area of concern is where to place
+> realtime tasks.  It has been my assumption, that POSIX RT semantics
+> require a specific ordering of tasks such as SCHED_FIFO and SCHED_RR.
+> To accommodate this ordering, I further believe that the simplest
+> solution is to ensure that all realtime tasks reside on the same
+> runqueue.  In our MQ scheduler we have a separate runqueue for all
+> realtime tasks.  The problem is that maintaining a separate realtime
+> runqueue is a pain and results in some fairly complex/ugly code.
+>
+> Since I'm not a realtime expert, I would like to ask if my assumption
+> about strict ordering of RT tasks is accurate.  Also, is anyone aware
+> of other ways to approach this problem?
 
-If so, I'm not convinced this is the correct way to approach this
-issue.  My reasoning is based on the fact that AMD is not exactly a
-impartial source of information.  AMD wants to sell more MP chips, so
-they can say that only MP chips are SMP capable even if XP chips work
-just fine.
+I do not use a separate queue coz, if it's single, it becomes a common
+lock for all CPUs.
+RT tasks are scheduled as usual and the only problem arises in
+reschedule_idle() when an RT task is pushed onto the run queue when
+1) on its CPU it is _not_ running the idle
+2) on its CPU is running another RT task with higher priority
 
-Now, with your patch, if people successfully use XP chips in an SMP
-configuration, you're giving the maintainers of the Linux kernel the
-opportunity to ignore oopses reported from these people and I think
-that's a bad thing.  If someone can show that XPs are truly not SMP
-capable, then, by all means, implement your patch as written.
+In that case a "good CPU" discovery loop is triggered, the task is moved
+on that CPU runqueue, need_resched is set, an IPI is sent and on return
+from the remote CPU IPI  path the RT task is run.
+A good solution would be ( i'm not doing it now ), in setscheduler() to
+move the task in a way to have an even distribution of RT tasks among
+CPUs.
 
-The way I'd prefer to see this handled is that things are assumed to
-work until proven otherwise.  Sort of like the SMP Celeron systems
-people have been using: Is there _any_ reason to believe that Celeron's
-can't do SMP?  Sure doesn't seem like it except for Intel's statement
-that Celerons aren't SMP capable.  And if you decide to taint oopses
-from people with such configurations, I think you'll be doing the Linux
-community a disservice.
 
--Jeff
 
-P.S.  BTW, I don't know all the Athlon steppings, but it sure looks like
-_a lot_ of older Athlons/Durons are SMP capable.  Does it seem likely
-that this suddenly changed when AMD stamped XP or MP on the chip?
 
--- 
-Jeff Golds
-Sr. Software Engineer
-jgolds@resilience.com
+- Davide
+
+
+

@@ -1,746 +1,340 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268180AbTBNFOE>; Fri, 14 Feb 2003 00:14:04 -0500
+	id <S268182AbTBNFTt>; Fri, 14 Feb 2003 00:19:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268181AbTBNFOE>; Fri, 14 Feb 2003 00:14:04 -0500
-Received: from dp.samba.org ([66.70.73.150]:53376 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S268180AbTBNFNx>;
-	Fri, 14 Feb 2003 00:13:53 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Remove exec_usermodehelper
-Date: Fri, 14 Feb 2003 14:11:43 +1100
-Message-Id: <20030214052345.E440B2C0F1@lists.samba.org>
+	id <S268181AbTBNFTt>; Fri, 14 Feb 2003 00:19:49 -0500
+Received: from pine.compass.com.ph ([202.70.96.37]:37194 "HELO
+	pine.compass.com.ph") by vger.kernel.org with SMTP
+	id <S268182AbTBNFTo>; Fri, 14 Feb 2003 00:19:44 -0500
+Subject: [PATCH][FBDEV]: fbcon module unloading
+From: Antonino Daplas <adaplas@pol.net>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1045199953.1589.31.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 14 Feb 2003 13:30:34 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.  Adds "wait" flag to call_usermodehelper,
-replaces three users of exec_usermodehlper with the (simpler)
-call_usermodehelper.
+Hi James,
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Although fbcon can be compiled as a module, it cannot be safely unloaded
+yet.  If fbcon is unloaded, it typically results in a frozen box. 
+Allowing fbcon to successfully unload may be not so useful with typical
+usage, but will be very helpful for developers. So here's a preliminary
+patch to allow unloading of fbcon.
 
-Name: exec_usermodehelper sucks
-Author: Rusty Russell, Marcel Holtmann
-Status: Tested on 2.5.60-bk2
+The main logic of the patch is when a console driver calls
+take_over_console(), 'conswitchp' will be saved to 'defcsw'.  When it
+calls give_up_console() later on, aside from just unmapping the console
+driver (which is what the original code does), it will also attempt to
+reinstall the default console using the saved 'defcsw'pointer.
 
-D: Urban Widmark points out that modprobe calls system() in many
-D: configurations, which drops privs since request_module() doesn't
-D: doesn't set ruid and rguid.
-D:
-D: This gets rid of exec_usermodehelper and makes everyone use
-D: call_usermodehelper, which has a new "wait" flag.
+To minimize complexity, only one driver will be allowed to 'take over'
+the console at a time.  Succeeding calls to take_over_console() will
+fail unless the driver gives up the console.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.60-bk2/include/linux/kmod.h working-2.5.60-bk2-kmod-noclean/include/linux/kmod.h
---- linux-2.5.60-bk2/include/linux/kmod.h	2003-01-02 12:35:15.000000000 +1100
-+++ working-2.5.60-bk2-kmod-noclean/include/linux/kmod.h	2003-02-13 14:35:39.000000000 +1100
-@@ -21,6 +21,7 @@
+I made this a kernel config option, marked DANGEROUS. Also, only drivers
+with an info->fbops->fb_release() hook will be allowed to unload. The
+fb_release() hook need not do anything. Currently, fbcon on top of
+vga16fb, rivafb or i810fb can be unloaded.  I have tested this using
+dummycon and vgacon. 
+
+Upon unload, the restored console will be partially corrupted.  Also, I
+think unicode mapped characters are not fully restored.
+
+Any comments welcome.
+
+Tony
+
+
+diff -Naur linux-2.5.59-orig/drivers/char/vt.c linux-2.5.59/drivers/char/vt.c
+--- linux-2.5.59-orig/drivers/char/vt.c	2003-02-14 02:43:42.000000000 +0000
++++ linux-2.5.59/drivers/char/vt.c	2003-02-14 03:15:50.000000000 +0000
+@@ -109,6 +109,7 @@
  
- #include <linux/config.h>
- #include <linux/errno.h>
-+#include <linux/compiler.h>
+
+ const struct consw *conswitchp;
++const struct consw *defcsw = NULL; /* for recovery of default console */
  
- #ifdef CONFIG_KMOD
- extern int request_module(const char * name);
-@@ -29,8 +30,7 @@ static inline int request_module(const c
- #endif
+ /* A bitmap for codes <32. A bit of 1 indicates that the code
+  * corresponding to that bit number invokes some special action
+@@ -2571,10 +2572,14 @@
+ 	int i, j = -1;
+ 	const char *desc;
  
- #define try_then_request_module(x, mod) ((x) ?: request_module(mod), (x))
--extern int exec_usermodehelper(char *program_path, char *argv[], char *envp[]);
--extern int call_usermodehelper(char *path, char *argv[], char *envp[]);
-+extern int call_usermodehelper(char *path, char *argv[], char *envp[], int wait);
++	if (deflt && defcsw != NULL)
++		return;
+ 	desc = csw->con_startup();
+ 	if (!desc) return;
+-	if (deflt)
++	if (deflt) {
++		defcsw = conswitchp;
+ 		conswitchp = csw;
++	}
  
- #ifdef CONFIG_HOTPLUG
- extern char hotplug_path [];
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.60-bk2/kernel/kmod.c working-2.5.60-bk2-kmod-noclean/kernel/kmod.c
---- linux-2.5.60-bk2/kernel/kmod.c	2003-02-13 13:29:01.000000000 +1100
-+++ working-2.5.60-bk2-kmod-noclean/kernel/kmod.c	2003-02-13 14:35:39.000000000 +1100
-@@ -14,8 +14,10 @@
+ 	for (i = first; i <= last; i++) {
+ 		int old_was_color;
+@@ -2616,11 +2621,78 @@
  
- 	Unblock all signals when we exec a usermode process.
- 	Shuu Yamaguchi <shuu@wondernetworkresources.com> December 2000
--*/
- 
-+	call_usermodehelper wait flag, and remove exec_usermodehelper.
-+	Rusty Russell <rusty@rustcorp.com.au>  Jan 2003
-+*/
- #define __KERNEL_SYSCALLS__
- 
- #include <linux/config.h>
-@@ -31,112 +33,11 @@
- #include <linux/workqueue.h>
- #include <linux/security.h>
- #include <linux/mount.h>
-+#include <linux/kernel.h>
- #include <asm/uaccess.h>
- 
- extern int max_threads, system_running;
- 
--static inline void
--use_init_fs_context(void)
--{
--	struct fs_struct *our_fs, *init_fs;
--	struct dentry *root, *pwd;
--	struct vfsmount *rootmnt, *pwdmnt;
--	struct namespace *our_ns, *init_ns;
--
--	/*
--	 * Make modprobe's fs context be a copy of init's.
--	 *
--	 * We cannot use the user's fs context, because it
--	 * may have a different root than init.
--	 * Since init was created with CLONE_FS, we can grab
--	 * its fs context from "init_task".
--	 *
--	 * The fs context has to be a copy. If it is shared
--	 * with init, then any chdir() call in modprobe will
--	 * also affect init and the other threads sharing
--	 * init_task's fs context.
--	 *
--	 * We created the exec_modprobe thread without CLONE_FS,
--	 * so we can update the fields in our fs context freely.
--	 */
--
--	init_fs = init_task.fs;
--	init_ns = init_task.namespace;
--	get_namespace(init_ns);
--	our_ns = current->namespace;
--	current->namespace = init_ns;
--	put_namespace(our_ns);
--	read_lock(&init_fs->lock);
--	rootmnt = mntget(init_fs->rootmnt);
--	root = dget(init_fs->root);
--	pwdmnt = mntget(init_fs->pwdmnt);
--	pwd = dget(init_fs->pwd);
--	read_unlock(&init_fs->lock);
--
--	/* FIXME - unsafe ->fs access */
--	our_fs = current->fs;
--	our_fs->umask = init_fs->umask;
--	set_fs_root(our_fs, rootmnt, root);
--	set_fs_pwd(our_fs, pwdmnt, pwd);
--	write_lock(&our_fs->lock);
--	if (our_fs->altroot) {
--		struct vfsmount *mnt = our_fs->altrootmnt;
--		struct dentry *dentry = our_fs->altroot;
--		our_fs->altrootmnt = NULL;
--		our_fs->altroot = NULL;
--		write_unlock(&our_fs->lock);
--		dput(dentry);
--		mntput(mnt);
--	} else 
--		write_unlock(&our_fs->lock);
--	dput(root);
--	mntput(rootmnt);
--	dput(pwd);
--	mntput(pwdmnt);
--}
--
--int exec_usermodehelper(char *program_path, char *argv[], char *envp[])
--{
--	int i;
--	struct task_struct *curtask = current;
--
--	set_special_pids(1, 1);
--
--	use_init_fs_context();
--
--	/* Prevent parent user process from sending signals to child.
--	   Otherwise, if the modprobe program does not exist, it might
--	   be possible to get a user defined signal handler to execute
--	   as the super user right after the execve fails if you time
--	   the signal just right.
--	*/
--	flush_signals(curtask);
--	flush_signal_handlers(curtask);
--	spin_lock_irq(&curtask->sighand->siglock);
--	sigemptyset(&curtask->blocked);
--	recalc_sigpending();
--	spin_unlock_irq(&curtask->sighand->siglock);
--
--	for (i = 0; i < curtask->files->max_fds; i++ ) {
--		if (curtask->files->fd[i]) close(i);
--	}
--
--	switch_uid(INIT_USER);
--
--	/* Give kmod all effective privileges.. */
--	curtask->euid = curtask->fsuid = 0;
--	curtask->egid = curtask->fsgid = 0;
--	security_task_kmod_set_label();
--
--	/* Allow execve args to be in kernel space. */
--	set_fs(KERNEL_DS);
--
--	/* Go, go, go... */
--	if (execve(program_path, argv, envp) < 0)
--		return -errno;
--	return 0;
--}
--
- #ifdef CONFIG_KMOD
- 
- /*
-@@ -144,29 +45,6 @@ int exec_usermodehelper(char *program_pa
- */
- char modprobe_path[256] = "/sbin/modprobe";
- 
--static int exec_modprobe(void * module_name)
--{
--	static char * envp[] = { "HOME=/", "TERM=linux", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
--	char *argv[] = { modprobe_path, "--", (char*)module_name, NULL };
--	int ret;
--
--	if (!system_running)
--		return -EBUSY;
--
--	ret = exec_usermodehelper(modprobe_path, argv, envp);
--	if (ret) {
--		static unsigned long last;
--		unsigned long now = jiffies;
--		if (now - last > HZ) {
--			last = now;
--			printk(KERN_DEBUG
--			       "kmod: failed to exec %s -s -k %s, errno = %d\n",
--			       modprobe_path, (char*) module_name, errno);
--		}
--	}
--	return ret;
--}
--
- /**
-  * request_module - try to load a kernel module
-  * @module_name: Name of module
-@@ -180,24 +58,18 @@ static int exec_modprobe(void * module_n
-  * If module auto-loading support is disabled then this function
-  * becomes a no-operation.
-  */
--int request_module(const char * module_name)
-+int request_module(const char *module_name)
+ void give_up_console(const struct consw *csw)
  {
--	pid_t pid;
--	int waitpid_result;
--	sigset_t tmpsig;
--	int i, ret;
-+	unsigned int max_modprobes;
-+	int ret;
-+	char *argv[] = { modprobe_path, "--", (char*)module_name, NULL };
-+	static char *envp[] = { "HOME=/",
-+				"TERM=linux",
-+				"PATH=/sbin:/usr/sbin:/bin:/usr/bin",
-+				NULL };
- 	static atomic_t kmod_concurrent = ATOMIC_INIT(0);
- #define MAX_KMOD_CONCURRENT 50	/* Completely arbitrary value - KAO */
- 	static int kmod_loop_msg;
--	unsigned long saved_policy = current->policy;
--
--	current->policy = SCHED_NORMAL;
--	/* Don't allow request_module() when the system isn't set up */
--	if ( ! system_running ) {
--		printk(KERN_ERR "request_module[%s]: not ready\n", module_name);
--		ret = -EPERM;
--		goto out;
--	}
+-	int i;
++	const char *desc;
++	int i, j = -1, first = -1, last = -1;
  
- 	/* If modprobe needs a service that is in a module, we get a recursive
- 	 * loop.  Limit the number of running kmod threads to max_threads/2 or
-@@ -207,61 +79,44 @@ int request_module(const char * module_n
- 	 * process tables to get the command line, proc_pid_cmdline is static
- 	 * and it is not worth changing the proc code just to handle this case. 
- 	 * KAO.
-+	 *
-+
-+	 * "trace the ppid" is simple, but will fail if someone's
-+	 * parent exits.  I think this is as good as it gets. --RR
- 	 */
--	i = max_threads/2;
--	if (i > MAX_KMOD_CONCURRENT)
--		i = MAX_KMOD_CONCURRENT;
-+	max_modprobes = min(max_threads/2, MAX_KMOD_CONCURRENT);
- 	atomic_inc(&kmod_concurrent);
--	if (atomic_read(&kmod_concurrent) > i) {
-+	if (atomic_read(&kmod_concurrent) > max_modprobes) {
-+		/* We may be blaming an innocent here, but unlikely */
- 		if (kmod_loop_msg++ < 5)
- 			printk(KERN_ERR
--			       "kmod: runaway modprobe loop assumed and stopped\n");
-+			       "request_module: runaway loop modprobe %s\n",
-+			       module_name);
- 		atomic_dec(&kmod_concurrent);
--		ret = -ENOMEM;
--		goto out;
-+		return -ENOMEM;
- 	}
- 
--	pid = kernel_thread(exec_modprobe, (void*) module_name, 0);
--	if (pid < 0) {
--		printk(KERN_ERR "request_module[%s]: fork failed, errno %d\n", module_name, -pid);
--		atomic_dec(&kmod_concurrent);
--		ret = pid;
--		goto out;
-+	ret = call_usermodehelper(modprobe_path, argv, envp, 1);
-+	if (ret != 0) {
-+		static unsigned long last;
-+		unsigned long now = jiffies;
-+		if (now - last > HZ) {
-+			last = now;
-+			printk(KERN_DEBUG
-+			       "request_module: failed %s -- %s. error = %d\n",
-+			       modprobe_path, module_name, ret);
+-	for(i = 0; i < MAX_NR_CONSOLES; i++)
+-		if (con_driver_map[i] == csw)
++	for(i = 0; i < MAX_NR_CONSOLES; i++) {
++		if (con_driver_map[i] == csw) {
++			if (first == -1)
++				first = i;
++			last = i;
+ 			con_driver_map[i] = NULL;
 +		}
- 	}
--
--	/* Block everything but SIGKILL/SIGSTOP */
--	spin_lock_irq(&current->sighand->siglock);
--	tmpsig = current->blocked;
--	siginitsetinv(&current->blocked, sigmask(SIGKILL) | sigmask(SIGSTOP));
--	recalc_sigpending();
--	spin_unlock_irq(&current->sighand->siglock);
--
--	waitpid_result = waitpid(pid, NULL, __WCLONE);
- 	atomic_dec(&kmod_concurrent);
--
--	/* Allow signals again.. */
--	spin_lock_irq(&current->sighand->siglock);
--	current->blocked = tmpsig;
--	recalc_sigpending();
--	spin_unlock_irq(&current->sighand->siglock);
--
--	if (waitpid_result != pid) {
--		printk(KERN_ERR "request_module[%s]: waitpid(%d,...) failed, errno %d\n",
--		       module_name, pid, -waitpid_result);
--	}
--	ret = 0;
--out:
--	current->policy = saved_policy;
- 	return ret;
- }
- #endif /* CONFIG_KMOD */
- 
--
- #ifdef CONFIG_HOTPLUG
- /*
- 	hotplug path is set via /proc/sys
- 	invoked by hotplug-aware bus drivers,
--	with exec_usermodehelper and some thread-spawner
-+	with call_usermodehelper
- 
- 	argv [0] = hotplug_path;
- 	argv [1] = "usb", "scsi", "pci", "network", etc;
-@@ -285,7 +140,8 @@ struct subprocess_info {
- 	char *path;
- 	char **argv;
- 	char **envp;
--	pid_t retval;
-+	int wait;
-+	int retval;
- };
- 
- /*
-@@ -298,13 +154,30 @@ static int ____call_usermodehelper(void 
- 
- 	retval = -EPERM;
- 	if (current->fs->root)
--		retval = exec_usermodehelper(sub_info->path, sub_info->argv, sub_info->envp);
-+		retval = execve(sub_info->path, sub_info->argv,sub_info->envp);
- 
- 	/* Exec failed? */
--	sub_info->retval = (pid_t)retval;
-+	sub_info->retval = retval;
- 	do_exit(0);
- }
- 
-+/* Keventd can't block, but this (a child) can. */
-+static int wait_for_helper(void *data)
-+{
-+	struct subprocess_info *sub_info = data;
-+	pid_t pid;
++	}
 +
-+	pid = kernel_thread(____call_usermodehelper, sub_info,
-+			    CLONE_VFORK | SIGCHLD);
-+	if (pid < 0)
-+		sub_info->retval = pid;
++	if (defcsw == NULL)
++		return;
++	conswitchp = defcsw;
++	defcsw = NULL;
++
++	desc = conswitchp->con_startup();
++	if (!desc) return;
++
++	for (i = first; i <= last; i++) {
++		int old_was_color;
++		int currcons = i;
++
++		con_driver_map[i] = conswitchp;
++
++		if (!vc_cons[i].d || !vc_cons[i].d->vc_sw)
++			continue;
++		j = i;
++		if (IS_VISIBLE)
++			save_screen(i);
++		old_was_color = vc_cons[i].d->vc_can_do_color;
++		vc_cons[i].d->vc_sw->con_deinit(vc_cons[i].d);
++		visual_init(i, 0);
++		set_origin(i);
++
++		/*
++		 * partial reset_terminal()
++		 */
++		top = 0;
++		bottom = video_num_lines;
++		gotoxy(i, x, y);
++		save_cur(i);
++		update_attr(i);
++
++
++		/* If the console changed between mono <-> color, then
++		 * the attributes in the screenbuf will be wrong.  The
++		 * following resets all attributes to something sane.
++		 */
++		if (old_was_color != vc_cons[i].d->vc_can_do_color ||
++		    IS_VISIBLE)
++			clear_buffer_attributes(i);
++
++		if (IS_VISIBLE)
++			update_screen(i);
++		if (vc_cons[i].d->vc_tty) {
++			kill_pg(vc_cons[i].d->vc_tty->pgrp, SIGWINCH, 1);
++			vc_cons[i].d->vc_tty->winsize.ws_col = 
++				video_num_columns;
++			vc_cons[i].d->vc_tty->winsize.ws_row = 
++				video_num_lines;
++		}
++	}
++	printk("Console: switching ");
++	if (j >= 0)
++		printk("to %s %s %dx%d\n",
++		       vc_cons[j].d->vc_can_do_color ? "colour" : "mono",
++		       desc, vc_cons[j].d->vc_cols, vc_cons[j].d->vc_rows);
 +	else
-+		sys_wait4(pid, (unsigned int *)&sub_info->retval, 0, NULL);
++		printk("to %s\n", desc);
 +
-+	complete(sub_info->complete);
+ }
+ 
+ #endif
+diff -Naur linux-2.5.59-orig/drivers/video/console/Kconfig linux-2.5.59/drivers/video/console/Kconfig
+--- linux-2.5.59-orig/drivers/video/console/Kconfig	2003-02-14 02:50:50.000000000 +0000
++++ linux-2.5.59/drivers/video/console/Kconfig	2003-02-14 04:35:01.000000000 +0000
+@@ -106,6 +106,19 @@
+ 	tristate "Framebuffer Console support"
+ 	depends on FB
+ 
++config FRAMEBUFFER_CONSOLE_UNLOAD
++	bool "Allow Framebuffer Console Module Unloading (DANGEROUS)"
++	depends on FRAMEBUFFER_CONSOLE=m
++	default n
++	---help---
++          If you say Y, the framebuffer console module can be unloaded 
++          and the console reverted to the default console driver that was
++          loaded at boot time.  Not all drivers support unloading, and even
++          if it does, it might leave you with a corrupted display.
++
++          Unless you are a framebuffer driver developer, or you really know
++          what you're doing, say N here.
++
+ config PCI_CONSOLE
+ 	bool
+ 	depends on FRAMEBUFFER_CONSOLE
+diff -Naur linux-2.5.59-orig/drivers/video/console/fbcon.c linux-2.5.59/drivers/video/console/fbcon.c
+--- linux-2.5.59-orig/drivers/video/console/fbcon.c	2003-02-14 02:44:46.000000000 +0000
++++ linux-2.5.59/drivers/video/console/fbcon.c	2003-02-14 03:00:19.000000000 +0000
+@@ -202,6 +202,23 @@
+ static void fbcon_bmove_rec(struct display *p, int sy, int sx, int dy,
+ 			    int dx, int height, int width, u_int y_break);
+ 
++/*
++ * fbcon module unloading 
++ */
++
++#ifdef CONFIG_FRAMEBUFFER_CONSOLE_UNLOAD
++static void __init fbcon_mod_unload(struct fb_info *info)
++{
++	if (!info->fbops->fb_release)
++		__unsafe(THIS_MODULE);
++}
++#else
++static void __init fbcon_mod_unload(struct fb_info *info)
++{
++	__unsafe(THIS_MODULE);
++}
++#endif /* CONFIG_FRAMEBUFFER_CONSOLE_UNLOAD */
++
+ #ifdef CONFIG_MAC
+ /*
+  * On the Macintoy, there may or may not be a working VBL int. We need to probe
+@@ -585,7 +602,7 @@
+ 	struct fb_info *info;
+ 	struct vc_data *vc;
+ 	static int done = 0;
+-	int irqres = 1;
++	int irqres = 1, i;
+ 
+ 	/*
+ 	 *  If num_registered_fb is zero, this is a call for the dummy part.
+@@ -595,8 +612,11 @@
+ 		return display_desc;
+ 	done = 1;
+ 
+-	info = registered_fb[num_registered_fb-1];	
+-	if (!info)	return NULL;
++	for (i = 0; i < FB_MAX; i++) {
++		info = registered_fb[i];	
++		if (info != NULL)
++			break;
++	}
+ 	info->currcon = -1;
+ 	
+ 	owner = info->fbops->owner;
+@@ -2562,19 +2582,86 @@
+ 
+ int __init fb_console_init(void)
+ {
++	struct fb_info *info = NULL;
++	int i, unit = 0;
++
+ 	if (!num_registered_fb)
+ 		return -ENODEV;
++	for (i = 0; i < FB_MAX; i++) {
++		info = registered_fb[i];
++		if (info != NULL) {
++			unit = i;
++			break;
++		}
++	}
++	for (i = 0; i < MAX_NR_CONSOLES; i++)
++		con2fb_map[i] = unit;
+ 	take_over_console(&fb_con, first_fb_vc, last_fb_vc, fbcon_is_default);
++	fbcon_mod_unload(info);
 +	return 0;
 +}
 +
- /*
-  * This is run by keventd.
-  */
-@@ -313,14 +186,21 @@ static void __call_usermodehelper(void *
- 	struct subprocess_info *sub_info = data;
- 	pid_t pid;
- 
--	/*
--	 * CLONE_VFORK: wait until the usermode helper has execve'd successfully
--	 * We need the data structures to stay around until that is done.
--	 */
--	pid = kernel_thread(____call_usermodehelper, sub_info, CLONE_VFORK | SIGCHLD);
--	if (pid < 0)
-+	/* CLONE_VFORK: wait until the usermode helper has execve'd
-+	 * successfully We need the data structures to stay around
-+	 * until that is done.  */
-+	if (sub_info->wait)
-+		pid = kernel_thread(wait_for_helper, sub_info,
-+				    CLONE_KERNEL | SIGCHLD);
-+	else
-+		pid = kernel_thread(____call_usermodehelper, sub_info,
-+				    CLONE_VFORK | SIGCHLD);
++#ifdef CONFIG_FRAMEBUFFER_CONSOLE_UNLOAD
++static int __exit fbcon_exit(void) 
++{
++	struct fb_info *info;
++	int i, j, mapped;
 +
-+	if (pid < 0) {
- 		sub_info->retval = pid;
--	complete(sub_info->complete);
-+		complete(sub_info->complete);
-+	} else if (!sub_info->wait)
-+		complete(sub_info->complete);
- }
- 
- /**
-@@ -328,15 +208,17 @@ static void __call_usermodehelper(void *
-  * @path: pathname for the application
-  * @argv: null-terminated argument list
-  * @envp: null-terminated environment list
-+ * @wait: wait for the application to finish and return status.
-  *
-- * Runs a user-space application.  The application is started asynchronously.  It
-- * runs as a child of keventd.  It runs with full root capabilities.  keventd silently
-- * reaps the child when it exits.
-+ * Runs a user-space application.  The application is started
-+ * asynchronously if wait is not set, and runs as a child of keventd.
-+ * (ie. it runs with full root capabilities).
-  *
-- * Must be called from process context.  Returns zero on success, else a negative
-- * error code.
-+ * Must be called from process context.  Returns a negative error code
-+ * if program was not execed successfully, or (exitcode << 8 + signal)
-+ * of the application (0 if wait is not set).
-  */
--int call_usermodehelper(char *path, char **argv, char **envp)
-+int call_usermodehelper(char *path, char **argv, char **envp, int wait)
- {
- 	DECLARE_COMPLETION(done);
- 	struct subprocess_info sub_info = {
-@@ -344,6 +226,7 @@ int call_usermodehelper(char *path, char
- 		.path		= path,
- 		.argv		= argv,
- 		.envp		= envp,
-+		.wait		= wait,
- 		.retval		= 0,
- 	};
- 	DECLARE_WORK(work, __call_usermodehelper, &sub_info);
-@@ -381,7 +264,6 @@ void dev_probe_unlock(void)
- 	up(&dev_probe_sem);
- }
- 
--EXPORT_SYMBOL(exec_usermodehelper);
- EXPORT_SYMBOL(call_usermodehelper);
- 
- #ifdef CONFIG_KMOD
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.60-bk2/arch/i386/mach-voyager/voyager_thread.c working-2.5.60-bk2-kmod-noclean/arch/i386/mach-voyager/voyager_thread.c
---- linux-2.5.60-bk2/arch/i386/mach-voyager/voyager_thread.c	2003-02-13 13:28:55.000000000 +1100
-+++ working-2.5.60-bk2-kmod-noclean/arch/i386/mach-voyager/voyager_thread.c	2003-02-13 14:35:38.000000000 +1100
-@@ -57,7 +57,7 @@ voyager_thread_start(void)
- }
- 
- static int
--execute_helper(void *string)
-+execute(const char *string)
- {
- 	int ret;
- 
-@@ -74,23 +74,14 @@ execute_helper(void *string)
- 		NULL,
- 	};
- 
--	if((ret = exec_usermodehelper(argv[0], argv, envp)) < 0) {
--		printk(KERN_ERR "Voyager failed to execute \"%s\"\n",
--		       (char *)string);
-+	if ((ret = call_usermodehelper(argv[0], argv, envp, 1)) != 0) {
-+		printk(KERN_ERR "Voyager failed to run \"%s\": %i\n",
-+		       string, ret);
- 	}
- 	return ret;
- }
- 
- static void
--execute(char *string)
--{
--	if(kernel_thread(execute_helper, (void *)string, CLONE_VFORK | SIGCHLD) < 0) {
--		printk(KERN_ERR "Voyager failed to fork before exec of \"%s\"\n",
--		       string);
--	}
--}
--
--static void
- check_from_kernel(void)
- {
- 	if(voyager_status.switch_off) {
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.60-bk2/drivers/acpi/thermal.c working-2.5.60-bk2-kmod-noclean/drivers/acpi/thermal.c
---- linux-2.5.60-bk2/drivers/acpi/thermal.c	2003-02-11 14:26:01.000000000 +1100
-+++ working-2.5.60-bk2-kmod-noclean/drivers/acpi/thermal.c	2003-02-13 14:35:38.000000000 +1100
-@@ -430,7 +430,7 @@ acpi_thermal_call_usermode (
- 	envp[0] = "HOME=/";
- 	envp[1] = "PATH=/sbin:/bin:/usr/sbin:/usr/bin";
- 	
--	call_usermodehelper(argv[0], argv, envp);
-+	call_usermodehelper(argv[0], argv, envp, 0);
- 
- 	return_VALUE(0);
- }
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.60-bk2/drivers/base/hotplug.c working-2.5.60-bk2-kmod-noclean/drivers/base/hotplug.c
---- linux-2.5.60-bk2/drivers/base/hotplug.c	2003-02-07 19:18:28.000000000 +1100
-+++ working-2.5.60-bk2-kmod-noclean/drivers/base/hotplug.c	2003-02-13 14:35:38.000000000 +1100
-@@ -114,7 +114,7 @@ static int do_hotplug (struct device *de
- 
- 	pr_debug ("%s: %s %s %s %s %s %s\n", __FUNCTION__, argv [0], argv[1],
- 		  envp[0], envp[1], envp[2], envp[3]);
--	retval = call_usermodehelper (argv [0], argv, envp);
-+	retval = call_usermodehelper (argv [0], argv, envp, 0);
- 	if (retval)
- 		pr_debug ("%s - call_usermodehelper returned %d\n",
- 			  __FUNCTION__, retval);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.60-bk2/drivers/bluetooth/bt3c_cs.c working-2.5.60-bk2-kmod-noclean/drivers/bluetooth/bt3c_cs.c
---- linux-2.5.60-bk2/drivers/bluetooth/bt3c_cs.c	2003-02-11 14:26:01.000000000 +1100
-+++ working-2.5.60-bk2-kmod-noclean/drivers/bluetooth/bt3c_cs.c	2003-02-13 14:35:38.000000000 +1100
-@@ -24,18 +24,14 @@
- #include <linux/config.h>
- #include <linux/module.h>
- 
--#define __KERNEL_SYSCALLS__
--
- #include <linux/kernel.h>
- #include <linux/kmod.h>
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/types.h>
- #include <linux/sched.h>
--#include <linux/delay.h>
- #include <linux/timer.h>
- #include <linux/errno.h>
--#include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/ioport.h>
- #include <linux/spinlock.h>
-@@ -405,7 +401,6 @@ void bt3c_interrupt(int irq, void *dev_i
- 
- 
- 
--
- /* ======================== HCI interface ======================== */
- 
- 
-@@ -489,65 +484,23 @@ static int bt3c_hci_ioctl(struct hci_dev
- 
- 
- #define FW_LOADER  "/sbin/bluefw"
--static int errno;
--
--
--static int bt3c_fw_loader_exec(void *dev)
--{
--	char *argv[] = { FW_LOADER, "pccard", dev, NULL };
--	char *envp[] = { "HOME=/", "TERM=linux", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
--	int err;
--
--	err = exec_usermodehelper(FW_LOADER, argv, envp);
--	if (err)
--		printk(KERN_WARNING "bt3c_cs: Failed to exec \"%s pccard %s\".\n", FW_LOADER, (char *)dev);
--
--	return err;
--}
- 
- 
- static int bt3c_firmware_load(bt3c_info_t *info)
- {
--	sigset_t tmpsig;
- 	char dev[16];
--	pid_t pid;
--	int result;
-+	int err;
- 
--	/* Check if root fs is mounted */
--	if (!current->fs->root) {
--		printk(KERN_WARNING "bt3c_cs: Root filesystem is not mounted.\n");
--		return -EPERM;
--	}
-+	char *argv[] = { FW_LOADER, "pccard", dev, NULL };
-+	char *envp[] = { "HOME=/", "TERM=linux", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
- 
- 	sprintf(dev, "%04x", info->link.io.BasePort1);
- 
--	pid = kernel_thread(bt3c_fw_loader_exec, (void *)dev, 0);
--	if (pid < 0) {
--		printk(KERN_WARNING "bt3c_cs: Forking of kernel thread failed (errno=%d).\n", -pid);
--		return pid;
--	}
--
--	/* Block signals, everything but SIGKILL/SIGSTOP */
--	spin_lock_irq(&current->sighand->siglock);
--	tmpsig = current->blocked;
--	siginitsetinv(&current->blocked, sigmask(SIGKILL) | sigmask(SIGSTOP));
--	recalc_sigpending();
--	spin_unlock_irq(&current->sighand->siglock);
--
--	result = waitpid(pid, NULL, __WCLONE);
--
--	/* Allow signals again */
--	spin_lock_irq(&current->sighand->siglock);
--	current->blocked = tmpsig;
--	recalc_sigpending();
--	spin_unlock_irq(&current->sighand->siglock);
--
--	if (result != pid) {
--		printk(KERN_WARNING "bt3c_cs: Waiting for pid %d failed (errno=%d).\n", pid, -result);
--		return -result;
--	}
-+	err = call_usermodehelper(FW_LOADER, argv, envp, 1);
-+	if (err)
-+		printk(KERN_WARNING "bt3c_cs: Failed to run \"%s pccard %s\" (errno=%d).\n", FW_LOADER, dev, err);
- 
--	return 0;
-+	return err;
- }
- 
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.60-bk2/drivers/ieee1394/nodemgr.c working-2.5.60-bk2-kmod-noclean/drivers/ieee1394/nodemgr.c
---- linux-2.5.60-bk2/drivers/ieee1394/nodemgr.c	2003-02-13 13:28:58.000000000 +1100
-+++ working-2.5.60-bk2-kmod-noclean/drivers/ieee1394/nodemgr.c	2003-02-13 14:35:39.000000000 +1100
-@@ -786,7 +786,7 @@ static void nodemgr_call_policy(char *ve
- #ifdef CONFIG_IEEE1394_VERBOSEDEBUG
- 	HPSB_DEBUG("NodeMgr: %s %s %016Lx", argv[0], verb, (long long unsigned)ud->ne->guid);
- #endif
--	value = call_usermodehelper(argv[0], argv, envp);
-+	value = call_usermodehelper(argv[0], argv, envp, 0);
- 	kfree(buf);
- 	kfree(envp);
- 	if (value != 0)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.60-bk2/drivers/input/input.c working-2.5.60-bk2-kmod-noclean/drivers/input/input.c
---- linux-2.5.60-bk2/drivers/input/input.c	2003-01-02 12:30:27.000000000 +1100
-+++ working-2.5.60-bk2-kmod-noclean/drivers/input/input.c	2003-02-13 14:35:39.000000000 +1100
-@@ -383,7 +383,7 @@ static void input_call_hotplug(char *ver
- 		argv[0], argv[1], envp[0], envp[1], envp[2], envp[3], envp[4]);
- #endif
- 
--	value = call_usermodehelper(argv [0], argv, envp);
-+	value = call_usermodehelper(argv [0], argv, envp, 0);
- 
- 	kfree(buf);
- 	kfree(envp);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.60-bk2/drivers/isdn/hardware/eicon/divasmain.c working-2.5.60-bk2-kmod-noclean/drivers/isdn/hardware/eicon/divasmain.c
---- linux-2.5.60-bk2/drivers/isdn/hardware/eicon/divasmain.c	2003-02-07 19:17:42.000000000 +1100
-+++ working-2.5.60-bk2-kmod-noclean/drivers/isdn/hardware/eicon/divasmain.c	2003-02-13 14:35:39.000000000 +1100
-@@ -263,7 +263,7 @@ static void diva_adapter_trapped(void *c
- 		pdpc->card_failed = 0;
- 		argv[2] = &adapter[0];
- 
--		ret = call_usermodehelper(argv[0], argv, envp);
-+		ret = call_usermodehelper(argv[0], argv, envp, 0);
- 
- 		if (ret) {
- 			printk(KERN_ERR
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.60-bk2/drivers/net/hamradio/baycom_epp.c working-2.5.60-bk2-kmod-noclean/drivers/net/hamradio/baycom_epp.c
---- linux-2.5.60-bk2/drivers/net/hamradio/baycom_epp.c	2003-02-07 19:19:56.000000000 +1100
-+++ working-2.5.60-bk2-kmod-noclean/drivers/net/hamradio/baycom_epp.c	2003-02-13 14:35:39.000000000 +1100
-@@ -369,15 +369,14 @@ static char eppconfig_path[256] = "/usr/
- 
- static char *envp[] = { "HOME=/", "TERM=linux", "PATH=/usr/bin:/bin", NULL };
- 
--static int errno;
--
--static int exec_eppfpga(void *b)
-+/* eppconfig: called during ifconfig up to configure the modem */
-+static int eppconfig(struct baycom_state *bc)
- {
--	struct baycom_state *bc = (struct baycom_state *)b;
- 	char modearg[256];
- 	char portarg[16];
--        char *argv[] = { eppconfig_path, "-s", "-p", portarg, "-m", modearg, NULL};
--        int i;
-+        char *argv[] = { eppconfig_path, "-s", "-p", portarg, "-m", modearg,
-+			 NULL };
-+        int ret;
- 
- 	/* set up arguments */
- 	sprintf(modearg, "%sclk,%smodem,fclk=%d,bps=%d,divider=%d%s,extstat",
-@@ -388,39 +387,7 @@ static int exec_eppfpga(void *b)
- 	sprintf(portarg, "%ld", bc->pdev->port->base);
- 	printk(KERN_DEBUG "%s: %s -s -p %s -m %s\n", bc_drvname, eppconfig_path, portarg, modearg);
- 
--	i = exec_usermodehelper(eppconfig_path, argv, envp);
--	if (i < 0) {
--                printk(KERN_ERR "%s: failed to exec %s -s -p %s -m %s, errno = %d\n",
--                       bc_drvname, eppconfig_path, portarg, modearg, i);
--                return i;
--        }
--        return 0;
--}
--
--
--/* eppconfig: called during ifconfig up to configure the modem */
--
--static int eppconfig(struct baycom_state *bc)
--{
--        int i, pid, r;
--	mm_segment_t fs;
--
--        pid = kernel_thread(exec_eppfpga, bc, CLONE_FS);
--        if (pid < 0) {
--                printk(KERN_ERR "%s: fork failed, errno %d\n", bc_drvname, -pid);
--                return pid;
--        }
--	fs = get_fs();
--        set_fs(KERNEL_DS);      /* Allow i to be in kernel space. */
--	r = waitpid(pid, &i, __WCLONE);
--	set_fs(fs);
--        if (r != pid) {
--                printk(KERN_ERR "%s: waitpid(%d) failed, returning %d\n",
--		       bc_drvname, pid, r);
--		return -1;
--        }
--	printk(KERN_DEBUG "%s: eppfpga returned %d\n", bc_drvname, i);
--	return i;
-+	return call_usermodehelper(eppconfig_path, argv, envp, 1);
- }
- 
- /* ---------------------------------------------------------------------- */
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.60-bk2/drivers/pnp/pnpbios/core.c working-2.5.60-bk2-kmod-noclean/drivers/pnp/pnpbios/core.c
---- linux-2.5.60-bk2/drivers/pnp/pnpbios/core.c	2003-02-13 13:28:59.000000000 +1100
-+++ working-2.5.60-bk2-kmod-noclean/drivers/pnp/pnpbios/core.c	2003-02-13 14:35:39.000000000 +1100
-@@ -602,7 +602,7 @@ static int pnp_dock_event(int dock, stru
- 		info->location_id, info->serial, info->capabilities);
- 	envp[i] = 0;
- 	
--	value = call_usermodehelper (argv [0], argv, envp);
-+	value = call_usermodehelper (argv [0], argv, envp, 0);
- 	kfree (buf);
- 	kfree (envp);
++	for (i = 0; i < FB_MAX; i++) {
++		info = registered_fb[i];
++		if (info != NULL && !info->fbops->fb_release)
++			return -EINVAL;
++	}
++
++	del_timer_sync(&cursor_timer);
++#ifdef CONFIG_AMIGA
++	if (MACH_IS_AMIGA) 
++		free_irq(IRQ_AMIGA_VERTB, fbcon_vbl_handler);
++#endif				/* CONFIG_AMIGA */
++#ifdef CONFIG_ATARI
++	if (MACH_IS_ATARI) 
++		free_irq(IRQ_AUTO_4, fbcon_vbl_handler);
++#endif				/* CONFIG_ATARI */
++#ifdef CONFIG_MAC
++	if (MACH_IS_MAC && vbl_detected) 
++		free_irq(IRQ_MAC_VBL, fbcon_vbl_handler);
++#endif				/* CONFIG_MAC */
++#if defined(__arm__) && defined(IRQ_VSYNCPULSE)
++	free_irq(IRQ_VSYNCPULSE, fbcon_vbl_handler);
++#endif
++	if (softback_buf) 
++		kfree((void *) softback_buf);
++
++	for (i = 0; i < FB_MAX; i++) {
++		mapped = 0;
++		info = registered_fb[i];
++		if (info == NULL)
++			continue;
++		for (j = 0; j < MAX_NR_CONSOLES; j++) {
++			if (con2fb_map[j] == i) {
++				con2fb_map[j] = -1;
++				mapped = 1;
++			}
++		}
++		if (mapped) {
++			info->fbops->fb_release(info, 0); 
++			module_put(info->fbops->owner);
++			kfree(info->display_fg);
++		}
++	}
  	return 0;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.60-bk2/net/bluetooth/hci_core.c working-2.5.60-bk2-kmod-noclean/net/bluetooth/hci_core.c
---- linux-2.5.60-bk2/net/bluetooth/hci_core.c	2003-01-02 12:33:56.000000000 +1100
-+++ working-2.5.60-bk2-kmod-noclean/net/bluetooth/hci_core.c	2003-02-13 14:35:39.000000000 +1100
-@@ -114,7 +114,7 @@ static int hci_run_hotplug(char *dev, ch
- 	envp[3] = astr;
- 	envp[4] = NULL;
- 	
--	return call_usermodehelper(argv[0], argv, envp);
-+	return call_usermodehelper(argv[0], argv, envp, 0);
  }
- #else
- #define hci_run_hotplug(A...)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.60-bk2/net/core/dev.c working-2.5.60-bk2-kmod-noclean/net/core/dev.c
---- linux-2.5.60-bk2/net/core/dev.c	2003-02-07 19:22:29.000000000 +1100
-+++ working-2.5.60-bk2-kmod-noclean/net/core/dev.c	2003-02-13 14:35:39.000000000 +1100
-@@ -2942,6 +2942,6 @@ static int net_run_sbin_hotplug(struct n
- 	envp [i++] = action_str;
- 	envp [i] = 0;
  
--	return call_usermodehelper(argv [0], argv, envp);
-+	return call_usermodehelper(argv [0], argv, envp, 0);
- }
- #endif
+ void __exit fb_console_exit(void)
+ {
++	if (fbcon_exit())
++		return;
+ 	give_up_console(&fb_con);
+ }	
++module_exit(fb_console_exit);
++#endif /* CONFIG_FRAMEBUFFER_CONSOLE_UNLOAD */
+ 
+ module_init(fb_console_init);
+-module_exit(fb_console_exit);
+ 
+ /*
+  *  Visible symbols for modules
+diff -Naur linux-2.5.59-orig/drivers/video/vga16fb.c linux-2.5.59/drivers/video/vga16fb.c
+--- linux-2.5.59-orig/drivers/video/vga16fb.c	2003-02-14 02:43:49.000000000 +0000
++++ linux-2.5.59/drivers/video/vga16fb.c	2003-02-14 03:06:33.000000000 +0000
+@@ -305,7 +305,8 @@
+ 
+ 	if (!cnt) {
+ 		memset(&par->state, 0, sizeof(struct vgastate));
+-		par->state.flags = 8;
++		par->state.flags = VGA_SAVE_FONTS | VGA_SAVE_MODE |
++			VGA_SAVE_CMAP;
+ 		save_vga(&par->state);
+ 	}
+ 	atomic_inc(&par->ref_count);
+
+

@@ -1,80 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267283AbUJBFOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267285AbUJBFbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267283AbUJBFOL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 01:14:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUJBFOL
+	id S267285AbUJBFbk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 01:31:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUJBFbh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 01:14:11 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:6003 "EHLO
-	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S267283AbUJBFOF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 01:14:05 -0400
-Date: Sat, 02 Oct 2004 01:13:54 -0400
-From: Andre Bonin <kernel@bonin.ca>
-Subject: Module building oddities with <module>-objs under Kernel 2.6.8.1
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <415E3912.3000900@bonin.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2)
- Gecko/20040803
+	Sat, 2 Oct 2004 01:31:37 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:1664 "EHLO midnight.suse.cz")
+	by vger.kernel.org with ESMTP id S267285AbUJBFbf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Oct 2004 01:31:35 -0400
+Date: Sat, 2 Oct 2004 07:31:18 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Greg KH <greg@kroah.com>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, Andrew Morton <akpm@osdl.org>,
+       "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm4
+Message-ID: <20041002053117.GA1211@ucw.cz>
+References: <20040926181021.2e1b3fe4.akpm@osdl.org> <1096586774l.5206l.1l@werewolf.able.es> <20040930170505.6536197c.akpm@osdl.org> <200410010030.39826.dtor_core@ameritech.net> <20041001180101.GC14015@kroah.com> <20041001182602.GA1613@ucw.cz> <20041001234156.GB9505@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041001234156.GB9505@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey all,
-I have a simple module in datasim.c and several service functions in 
-another file status.c
+On Fri, Oct 01, 2004 at 04:41:56PM -0700, Greg KH wrote:
+> On Fri, Oct 01, 2004 at 08:26:02PM +0200, Vojtech Pavlik wrote:
+> > On Fri, Oct 01, 2004 at 11:01:01AM -0700, Greg KH wrote:
+> > > On Fri, Oct 01, 2004 at 12:30:39AM -0500, Dmitry Torokhov wrote:
+> > > > On Thursday 30 September 2004 07:05 pm, Andrew Morton wrote:
+> > > > > > One other question. Isn't /dev/input/mice supposed to be a multiplexor
+> > > > > > for mice ? I think I remember some time when I could have both a PS2 and
+> > > > > > a USB mouse connected and X pointer followed both. Now if I boot with the
+> > > > > > USB mouse plugged, the PS2 one does not work. If I boot with usb unplugged
+> > > > > > and plug it after boot, both work; usb mouse works fine, and PS2 just
+> > > > > > jumps half screen each time I move it, and with big delays.
+> > > > > > 
+> > > > > 
+> > > > 
+> > > > I bet it's USB legacy emulation topic again. Try loading USB modules first
+> > > > and then psmouse, should help.
+> > > > 
+> > > > Vojtech, what is the status of USB handoff patches. I have seen several
+> > > > variants and so far heard only success stories from people using them. Can
+> > > > we have them in kernel proper?
+> > > 
+> > > They are already in the -mm tree, but they need to be explicitly enabled
+> > > with a boot command line option to have the handoff happen.
+> >  
+> > I think we really need them by default. I had seven bugs with touchpads,
+> > lost synchronization with PS/2 mice and similar fixed just by enabling
+> > this patch unconditionally in the SuSE tree.
+> 
+> Hm, let's let the patch make it into mainline and they I'll consider
+> making it the default.  Ok?
+ 
+OK.
 
-The module compiles fine (no warnings) with the following Makefile, but 
-the printk function doesn't seem to output anything.  The output doesn't 
-show with dmesg, tail -f /var/message and everything else I tried.
-
-The same code works fine if copy-pasted inside the datasim.c module (and 
-not compiled using datasim-objs: in the makefile).  It also works fine 
-if i do the ugly thing of (*shudder*)  #include "status.c"
-
-/usr/bin/nm datasim.ko yields "U    printk".
-
-I know the entry points get called properly because the module is 
-loaded, and functions after the printk's that set up sysfs attributes 
-are successfull (and appear under sysfs).
-
-I find it odd that if i compile with the datasim-objs stuff that i can't 
-view the printk, but if i comment it out and do #include "datasim.c" it 
-works fine. 
-
-Thanks
-
-Here is the Makefile.
-----------------------------------------------------
-KDIR         := /usr/src/linux
-PWD          := $(shell pwd)
-
-obj-m        += datasim.o
-datasim-objs := status.o
-
-all:
-    $(MAKE) -C $(KDIR) SUBDIRS=$(PWD)
-
-clean:
-    rm -rf *.o
-    rm -rf *.ko
-    rm -rf *.mod.c
-    rm -rf .datasim*
-    rm -rf .built-in.o.cmd
-    rm -rf *~
-    rm -rf *.cache
-    sudo rm -rf .tmp_versions
-install:
-    sudo /sbin/insmod datasim.ko
-uninstall:
-    sudo /sbin/rmmod datasim.ko
-TAGS:
-    etags *.c   
-
-
-
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

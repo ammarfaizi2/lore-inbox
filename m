@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262422AbTENQxL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 12:53:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262578AbTENQxK
+	id S262633AbTENQ5T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 12:57:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbTENQ5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 12:53:10 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:64469 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S262422AbTENQxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 12:53:10 -0400
-Date: Wed, 14 May 2003 18:06:30 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Ray Lee <ray-lk@madrabbit.org>
-Cc: thomas@horsten.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.69 Changes to Kconfig and i386 Makefile to include support for various K7 optimizations
-Message-ID: <20030514170630.GA21120@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Ray Lee <ray-lk@madrabbit.org>, thomas@horsten.com,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <1052930982.12607.243.camel@orca.madrabbit.org>
+	Wed, 14 May 2003 12:57:19 -0400
+Received: from waste.org ([209.173.204.2]:9931 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262609AbTENQ5Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 12:57:16 -0400
+Date: Wed, 14 May 2003 12:10:00 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 must-fix list, v3
+Message-ID: <20030514171000.GB23380@waste.org>
+References: <20030514032712.0c7fa0d1.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1052930982.12607.243.camel@orca.madrabbit.org>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030514032712.0c7fa0d1.akpm@digeo.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14, 2003 at 09:49:42AM -0700, Ray Lee wrote:
+On Wed, May 14, 2003 at 03:27:12AM -0700, Andrew Morton wrote:
+> 
+> Quite a lot of changes here.  Mostly additions, but some things have been
+> crossed off.
 
- > > I don't think this is worth the extra complication. The potential wins
- > > (if any) outweigh the confusion to users who might have no clue as to 
- > > what core they have. 
- > How's about a "This CPU" option instead, a la gcccpuopt [1], that sets
- > the correct CPU options for the current machine/gcc combo?
+Has handling of async write errors fallen off your radar? Should I
+start pushing that again?
 
-arch/i386/Makefile already does this. the original poster wanted to
-increase the granularity further, splitting athlon into several types
-of athlon.
-
-		Dave
-
+-- 
+Matt Mackall : http://www.selenic.com : of or relating to the moon

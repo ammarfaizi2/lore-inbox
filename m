@@ -1,61 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbUDXXuA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbUDXX6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261982AbUDXXuA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Apr 2004 19:50:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbUDXXuA
+	id S261988AbUDXX6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Apr 2004 19:58:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbUDXX6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Apr 2004 19:50:00 -0400
-Received: from pxy6allmi.all.mi.charter.com ([24.247.15.57]:39606 "EHLO
-	proxy6-grandhaven.chartermi.net") by vger.kernel.org with ESMTP
-	id S261982AbUDXXt6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Apr 2004 19:49:58 -0400
-Message-ID: <408AFD6C.9080100@quark.didntduck.org>
-Date: Sat, 24 Apr 2004 19:51:08 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040312
-X-Accept-Language: en-us, en
+	Sat, 24 Apr 2004 19:58:25 -0400
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:33931 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261988AbUDXX6Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Apr 2004 19:58:24 -0400
+Message-ID: <408AFF1C.903@yahoo.com.au>
+Date: Sun, 25 Apr 2004 09:58:20 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
+To: FabF <Fabian.Frederick@skynet.be>
 CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fix warning in prefetch_range
-Content-Type: multipart/mixed;
- boundary="------------040106090109060102050001"
-X-Charter-MailScanner-Information: 
-X-Charter-MailScanner: 
+Subject: Re: IDE throughput in 2.6 - it's good!
+References: <1082820563.2268.10.camel@bluerhyme.real3>
+In-Reply-To: <1082820563.2268.10.camel@bluerhyme.real3>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040106090109060102050001
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+FabF wrote:
+> 	Here's what we can call a server direction.2.6 is unbeatable there due
+> to IO scheduler (i.e. As-iosched, cfq and noop rock'n'roll)
 
-Fix this warning:
-include/linux/prefetch.h: In function `prefetch_range':
-include/linux/prefetch.h:62: warning: pointer of type `void *' used in 
-arithmetic
+Well, which one were you using just now? AS I assume?
 
---
-				Brian Gerst
+> 
+> 	There are no good conclusions at all although ,at this state of
+> development, IMHO, 2.4 seems more 'client friendly' and 2.6 server
+> oriented in this chapter.
 
---------------040106090109060102050001
-Content-Type: text/plain;
- name="prefetch-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="prefetch-1"
-
-diff -urN linux-2.6.5-rc1-bk/include/linux/prefetch.h linux/include/linux/prefetch.h
---- linux-2.6.5-rc1-bk/include/linux/prefetch.h	2004-04-14 23:53:11.000000000 -0400
-+++ linux/include/linux/prefetch.h	2004-04-16 11:12:25.840194048 -0400
-@@ -59,7 +59,7 @@
- {
- #ifdef ARCH_HAS_PREFETCH
- 	char *cp;
--	char *end = addr + len;
-+	char *end = (char *)addr + len;
- 
- 	for (cp = addr; cp < end; cp += PREFETCH_STRIDE)
- 		prefetch(cp);
-
---------------040106090109060102050001--
+IO scheduler wise, AS should be good for "clients" (ie. desktop)
+because it is the desktop where AS's possible small throughput
+regressions are not a big problem even if they did arise.

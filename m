@@ -1,131 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264075AbTIIMHk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 08:07:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264083AbTIIMHk
+	id S264077AbTIIMHm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 08:07:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264083AbTIIMHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 08:07:40 -0400
-Received: from gprs146-185.eurotel.cz ([160.218.146.185]:58498 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S264075AbTIIMHU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 08:07:20 -0400
-Date: Tue, 9 Sep 2003 14:07:06 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: bkcvs vs. -test5 diff
-Message-ID: <20030909120706.GA12391@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Tue, 9 Sep 2003 08:07:42 -0400
+Received: from dns.toxicfilms.tv ([150.254.37.24]:32648 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S264077AbTIIMHZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 08:07:25 -0400
+Date: Tue, 9 Sep 2003 14:07:23 +0200 (CEST)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: Bernhard Rosenkraenzer <bero@arklinux.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 2.6.0-test5-mm1] Fix build with debug disabled
+In-Reply-To: <Pine.LNX.4.51.0309091358350.14559@dns.toxicfilms.tv>
+Message-ID: <Pine.LNX.4.51.0309091406550.14654@dns.toxicfilms.tv>
+References: <Pine.LNX.4.56.0309091317320.9188@dot.kde.org>
+ <Pine.LNX.4.51.0309091358350.14559@dns.toxicfilms.tv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-I did diff between 2.6.0-test5 and bkcvs, and it seems there are some
-differences. Is it my fault or something wrong in bkcvs?
-
-								Pavel
-
---- clean/drivers/pcmcia/tcic.c	2003-08-27 12:00:29.000000000 +0200
-+++ /usr/src/linux-cvs/drivers/pcmcia/tcic.c	2003-07-14 01:47:01.000000000 +0200
-@@ -372,6 +372,9 @@
- static struct platform_device tcic_device = {
- 	.name = "tcic-pcmcia",
- 	.id = 0,
-+	.dev = {
-+		.name = "tcic-pcmcia",
-+	},
- };
- 
- 
-@@ -379,6 +382,15 @@
- {
-     int i, sock, ret = 0;
-     u_int mask, scan;
-+    servinfo_t serv;
-+
-+    DEBUG(0, "%s\n", version);
-+    pcmcia_get_card_services_info(&serv);
-+    if (serv.Revision != CS_RELEASE_CODE) {
-+	printk(KERN_NOTICE "tcic: Card Services release "
-+	       "does not match!\n");
-+	return -1;
-+    }
- 
-     if (driver_register(&tcic_driver))
- 	return -1;
---- clean/drivers/pcmcia/yenta_socket.h	2003-09-09 12:45:29.000000000 +0200
-+++ /usr/src/linux-cvs/drivers/pcmcia/yenta_socket.h	2003-06-30 22:34:07.000000000 +0200
-@@ -95,15 +95,6 @@
-  */
- #define CB_MEM_PAGE(map)	(0x40 + (map))
- 
--struct yenta_socket;
--
--struct cardbus_type {
--	int	(*override)(struct yenta_socket *);
--	void	(*save_state)(struct yenta_socket *);
--	void	(*restore_state)(struct yenta_socket *);
--	int	(*sock_init)(struct yenta_socket *);
--};
--
- struct yenta_socket {
- 	struct pci_dev *dev;
- 	int cb_irq, io_irq;
-@@ -111,13 +102,9 @@
- 	struct timer_list poll_timer;
- 
- 	struct pcmcia_socket socket;
--	struct cardbus_type *type;
- 
- 	/* A few words of private data for special stuff of overrides... */
- 	unsigned int private[8];
--
--	/* PCI saved state */
--	u32 saved_state[18];
- };
- 
- 
---- clean/usr/initramfs_data.S	2003-07-27 22:31:46.000000000 +0200
-+++ /usr/src/linux-cvs/usr/initramfs_data.S	2003-07-20 21:11:39.000000000 +0200
-@@ -1,30 +1,2 @@
--/*
--  initramfs_data includes the compressed binary that is the
--  filesystem used for early user space.
--  Note: Older versions of "as" (prior to binutils 2.11.90.0.23
--  released on 2001-07-14) dit not support .incbin.
--  If you are forced to use older binutils than that then the
--  following trick can be applied to create the resulting binary:
--
--
--  ld -m elf_i386  --format binary --oformat elf32-i386 -r \
--  -T initramfs_data.scr initramfs_data.cpio.gz -o initramfs_data.o
--   ld -m elf_i386  -r -o built-in.o initramfs_data.o
--
--  initramfs_data.scr looks like this:
--SECTIONS
--{
--       .init.ramfs : { *(.data) }
--}
--
--  The above example is for i386 - the parameters vary from architectures.
--  Eventually look up LDFLAGS_BLOB in an older version of the
--  arch/$(ARCH)/Makefile to see the flags used before .incbin was introduced.
--
--  Using .incbin has the advantage over ld that the correct flags are set
--  in the ELF header, as required by certain architectures.
--*/
--
--.section .init.ramfs,"a"
-+	.section .init.ramfs,"a"
- .incbin "usr/initramfs_data.cpio.gz"
--
-Only in /usr/src/linux-cvs/usr: initramfs_data.cpio
-Only in /usr/src/linux-cvs/usr: initramfs_data.cpio.gz
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+> Hi Alan,
+Oops, I meant Hi Andrew!

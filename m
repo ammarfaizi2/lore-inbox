@@ -1,127 +1,226 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261568AbTFJKTU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 06:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbTFJKTU
+	id S261411AbTFJK2q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 06:28:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbTFJK2p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 06:19:20 -0400
-Received: from webmail26.rediffmail.com ([203.199.83.148]:63623 "HELO
-	rediffmail.com") by vger.kernel.org with SMTP id S261568AbTFJKTG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 06:19:06 -0400
-Date: 10 Jun 2003 10:32:40 -0000
-Message-ID: <20030610103240.3422.qmail@webmail26.rediffmail.com>
-MIME-Version: 1.0
-From: "jairam nair" <jairamnair@rediffmail.com>
-Reply-To: "jairam nair" <jairamnair@rediffmail.com>
+	Tue, 10 Jun 2003 06:28:45 -0400
+Received: from [203.94.130.164] ([203.94.130.164]:16030 "EHLO bad-sports.com")
+	by vger.kernel.org with ESMTP id S261411AbTFJK2l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 06:28:41 -0400
+Date: Tue, 10 Jun 2003 20:15:58 +1000 (EST)
+From: Brett <generica@email.com>
+X-X-Sender: brett@bad-sports.com
 To: linux-kernel@vger.kernel.org
-Subject: Problem while Crosscompiling Ksymoops
-Content-type: text/plain;
-	format=flowed
-Content-Disposition: inline
+Subject: ppp compressed data badness
+Message-ID: <Pine.LNX.4.44.0306102005110.5866-200000@bad-sports.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1590404226-2001578385-1055240158=:6152"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
-    I am trying to cross compile ksymoops-2.4.9 for Strong ARM. 
-But i
-am getting a segmentation Fault. The error messages is as below.
-    Can anybody tell me what should be given for DEF_MAP, since in 
-the
-target machine there is no System.map file.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-  Can anybody give some idea on this.
-
-Thanks and regards
-      Jairam
-
-arm-linux-gcc -Dlinux -Wall -Wno-conversion -Waggregate-return
--Wstrict-prototypes -Wmissing-prototypes
--DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
--DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
--DDEF_OBJECTS=\"/lib/modules/*r/\"
--DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
--I/skiff/local/include   -c -o ksymoops.o ksymoops.c
-arm-linux-gcc -Dlinux -Wall -Wno-conversion -Waggregate-return
--Wstrict-prototypes -Wmissing-prototypes
--DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
--DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
--DDEF_OBJECTS=\"/lib/modules/*r/\"
--DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
--I/skiff/local/include   -c -o io.o io.c
-arm-linux-gcc -Dlinux -Wall -Wno-conversion -Waggregate-return
--Wstrict-prototypes -Wmissing-prototypes
--DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
--DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
--DDEF_OBJECTS=\"/lib/modules/*r/\"
--DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
--I/skiff/local/include   -c -o ksyms.o ksyms.c
-arm-linux-gcc -Dlinux -Wall -Wno-conversion -Waggregate-return
--Wstrict-prototypes -Wmissing-prototypes
--DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
--DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
--DDEF_OBJECTS=\"/lib/modules/*r/\"
--DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
--I/skiff/local/include   -c -o map.o map.c
-arm-linux-gcc -Dlinux -Wall -Wno-conversion -Waggregate-return
--Wstrict-prototypes -Wmissing-prototypes
--DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
--DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
--DDEF_OBJECTS=\"/lib/modules/*r/\"
--DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
--I/skiff/local/include   -c -o misc.o misc.c
-arm-linux-gcc -Dlinux -Wall -Wno-conversion -Waggregate-return
--Wstrict-prototypes -Wmissing-prototypes
--DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
--DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
--DDEF_OBJECTS=\"/lib/modules/*r/\"
--DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
--I/skiff/local/include   -c -o object.o object.c
-arm-linux-gcc -Dlinux -Wall -Wno-conversion -Waggregate-return
--Wstrict-prototypes -Wmissing-prototypes
--DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
--DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
--DDEF_OBJECTS=\"/lib/modules/*r/\"
--DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
--I/skiff/local/include   -c -o oops.o oops.c
-arm-linux-gcc -Dlinux -Wall -Wno-conversion -Waggregate-return
--Wstrict-prototypes -Wmissing-prototypes
--DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
--DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
--DDEF_OBJECTS=\"/lib/modules/*r/\"
--DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
--I/skiff/local/include   -c -o re.o re.c
-arm-linux-gcc -Dlinux -Wall -Wno-conversion -Waggregate-return
--Wstrict-prototypes -Wmissing-prototypes
--DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
--DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
--DDEF_OBJECTS=\"/lib/modules/*r/\"
--DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
--I/skiff/local/include   -c -o symbol.o symbol.c
-arm-linux-gcc io.o ksyms.o ksymoops.o map.o misc.o object.o 
-oops.o
-re.o symbol.o -Dlinux -Wall -Wno-conversion -Waggregate-return
--Wstrict-prototypes -Wmissing-prototypes
--DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
--DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
--DDEF_OBJECTS=\"/lib/modules/*r/\"
--DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
--I/skiff/local/include -L/skiff/local/lib -arm-linux-ld,-Bstatic 
--lbfd
--liberty -arm-linux-ld,-Bdynamic -o ksymoops
-collect2: ld terminated with signal 11 [Segmentation fault], 
-core
-dumped
-make: *** [ksymoops] Error 1
+--1590404226-2001578385-1055240158=:6152
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
 
+Hey,
 
+for a few 2.5 kernels, i've been having intermittent problems with pppd
 
+PPP: VJ decompression error
 
+Jun 10 20:37:05 lapsis pppd[932]: rcvd [Compressed data] 03 dc 16 50 03 0e c0 f6 ...
+Jun 10 20:37:16 lapsis pppd[932]: rcvd [Compressed data] 04 12 0b 28 59 c1 98 0a ...
+Jun 10 20:37:55 lapsis pppd[932]: rcvd [Compressed data] 04 5a a7 48 02 20 05 41 ...
 
+fun stuff like that
 
-___________________________________________________
-Get www. mycompany .com and 5 matching email ids.
-Just Rs. 1499/ year.
-Click here http://www.rediffmailpro.com
+it only stops web traffic
 
+pppd version 2.4.1
+
+[root@lapsis log]# lsmod
+Module                  Size  Used by
+ppp_deflate             4416  0
+zlib_deflate           21528  1 ppp_deflate
+zlib_inflate           21280  1 ppp_deflate
+bsd_comp                5280  0
+ppp_async               9280  1 [unsafe]
+ppp_generic            22288  7 ppp_deflate,bsd_comp,ppp_async
+slhc                    5888  1 ppp_generic
+ipt_MASQUERADE          2592  1
+iptable_mangle          1920  0
+iptable_nat            18188  2 ipt_MASQUERADE
+ipt_REJECT              4320  7
+ipt_limit               1696  21
+ipt_state               1184  4
+ip_conntrack           23536  3 ipt_MASQUERADE,iptable_nat,ipt_state
+ipt_LOG                 4512  7
+ipt_ULOG                5320  12
+iptable_filter          1984  1
+ip_tables              14400  9 
+ipt_MASQUERADE,iptable_mangle,iptable_nat,ipt_REJECT,ipt_limit,ipt_state,ipt_LOG,ipt_ULOG,iptable_filter
+8250_cs                 6404  0
+xirc2ps_cs             15856  0
+
+entire ppp session attached
+
+thanks,
+
+	/ Brett
+
+--1590404226-2001578385-1055240158=:6152
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=log
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0306102015580.6152@bad-sports.com>
+Content-Description: 
+Content-Disposition: attachment; filename=log
+
+SnVuIDEwIDIwOjA5OjM0IGxhcHNpcyBwcHBkWzkzMl06IHBwcGQgMi40LjEg
+c3RhcnRlZCBieSByb290LCB1aWQgMA0KSnVuIDEwIDIwOjA5OjM0IGxhcHNp
+cyBwcHBkWzkzMl06IHVzaW5nIGNoYW5uZWwgNw0KSnVuIDEwIDIwOjA5OjM0
+IGxhcHNpcyBwcHBkWzkzMl06IFVzaW5nIGludGVyZmFjZSBwcHAwDQpKdW4g
+MTAgMjA6MDk6MzQgbGFwc2lzIHBwcGRbOTMyXTogQ29ubmVjdDogcHBwMCA8
+LS0+IC9kZXYvdHRzLzENCkp1biAxMCAyMDowOTozNCBsYXBzaXMgcHBwZFs5
+MzJdOiBzZW50IFtMQ1AgQ29uZlJlcSBpZD0weDEgPGFzeW5jbWFwIDB4MD4g
+PG1hZ2ljIDB4YTUzZDdhZDc+IDxwY29tcD4gPGFjY29tcD5dDQpKdW4gMTAg
+MjA6MDk6MzQgbGFwc2lzIHBwcGRbOTMyXTogcmN2ZCBbTENQIENvbmZBY2sg
+aWQ9MHgxIDxhc3luY21hcCAweDA+IDxtYWdpYyAweGE1M2Q3YWQ3PiA8cGNv
+bXA+IDxhY2NvbXA+XQ0KSnVuIDEwIDIwOjA5OjM0IGxhcHNpcyBwcHBkWzkz
+Ml06IHJjdmQgW3Byb3RvPTB4M2RdIGMwIDAwIDAwIDAwDQpKdW4gMTAgMjA6
+MDk6MzQgbGFwc2lzIC9ldGMvaG90cGx1Zy9uZXQuYWdlbnQ6IEJhZCBORVQg
+aW52b2NhdGlvbjogJElOVEVSRkFDRSBpcyBub3Qgc2V0DQpKdW4gMTAgMjA6
+MDk6MzUgbGFwc2lzIC9ldGMvaG90cGx1Zy9uZXQuYWdlbnQ6IGFzc3VtaW5n
+IHBwcDAgaXMgYWxyZWFkeSB1cA0KSnVuIDEwIDIwOjA5OjM2IGxhcHNpcyBw
+cHBkWzkzMl06IHJjdmQgW3Byb3RvPTB4M2RdIGMwIDAwIDAwIDAxDQpKdW4g
+MTAgMjA6MDk6MzYgbGFwc2lzIHBwcGRbOTMyXTogcmN2ZCBbTENQIENvbmZS
+ZXEgaWQ9MHgxIDxhc3luY21hcCAweDA+IDxhdXRoIHBhcD4gPG1hZ2ljIDB4
+YmQxNzc4NzM+IDxwY29tcD4gPGFjY29tcD4gPG1ycnUgMTUwMD4gPHNzbmhm
+PiA8ZW5kcG9pbnQgW2xvY2FsOjcwLjcyLjY5LjZkLjc1LjczXT5dDQpKdW4g
+MTAgMjA6MDk6MzYgbGFwc2lzIHBwcGRbOTMyXTogc2VudCBbTENQIENvbmZS
+ZWogaWQ9MHgxIDxtcnJ1IDE1MDA+IDxzc25oZj5dDQpKdW4gMTAgMjA6MDk6
+MzcgbGFwc2lzIHBwcGRbOTMyXTogcmN2ZCBbTENQIENvbmZSZXEgaWQ9MHgy
+IDxhc3luY21hcCAweDA+IDxhdXRoIHBhcD4gPG1hZ2ljIDB4YmQxNzc4NzM+
+IDxwY29tcD4gPGFjY29tcD5dDQpKdW4gMTAgMjA6MDk6MzcgbGFwc2lzIHBw
+cGRbOTMyXTogc2VudCBbTENQIENvbmZBY2sgaWQ9MHgyIDxhc3luY21hcCAw
+eDA+IDxhdXRoIHBhcD4gPG1hZ2ljIDB4YmQxNzc4NzM+IDxwY29tcD4gPGFj
+Y29tcD5dDQpKdW4gMTAgMjA6MDk6MzcgbGFwc2lzIHBwcGRbOTMyXTogc2Vu
+dCBbUEFQIEF1dGhSZXEgaWQ9MHgxIHVzZXI9ImdlbmVyaWNhIiBwYXNzd29y
+ZD08aGlkZGVuPl0NCkp1biAxMCAyMDowOTo0MCBsYXBzaXMgcHBwZFs5MzJd
+OiBzZW50IFtQQVAgQXV0aFJlcSBpZD0weDIgdXNlcj0iZ2VuZXJpY2EiIHBh
+c3N3b3JkPTxoaWRkZW4+XQ0KSnVuIDEwIDIwOjA5OjQwIGxhcHNpcyBwcHBk
+WzkzMl06IHJjdmQgW1BBUCBBdXRoQWNrIGlkPTB4MiAiIl0NCkp1biAxMCAy
+MDowOTo0MCBsYXBzaXMgcHBwZFs5MzJdOiBzZW50IFtJUENQIENvbmZSZXEg
+aWQ9MHgxIDxhZGRyIDAuMC4wLjA+IDxjb21wcmVzcyBWSiAwZiAwMT4gPG1z
+LWRuczEgMC4wLjAuMD4gPG1zLWRuczMgMC4wLjAuMD5dDQpKdW4gMTAgMjA6
+MDk6NDAgbGFwc2lzIHBwcGRbOTMyXTogc2VudCBbQ0NQIENvbmZSZXEgaWQ9
+MHgxIDxkZWZsYXRlIDE1PiA8ZGVmbGF0ZShvbGQjKSAxNT4gPGJzZCB2MSAx
+NT5dDQpKdW4gMTAgMjA6MDk6NDAgbGFwc2lzIHBwcGRbOTMyXTogcmN2ZCBb
+SVBDUCBDb25mUmVxIGlkPTB4MyA8Y29tcHJlc3MgVkogMGYgMDE+IDxhZGRy
+IDIwMy4xMzQuMjQuMTA3Pl0NCkp1biAxMCAyMDowOTo0MCBsYXBzaXMgcHBw
+ZFs5MzJdOiBzZW50IFtJUENQIENvbmZBY2sgaWQ9MHgzIDxjb21wcmVzcyBW
+SiAwZiAwMT4gPGFkZHIgMjAzLjEzNC4yNC4xMDc+XQ0KSnVuIDEwIDIwOjA5
+OjQwIGxhcHNpcyBwcHBkWzkzMl06IHJjdmQgW0NDUCBDb25mUmVxIGlkPTB4
+NCA8IDEyIDA2IDAwIDAwIDAwIDAxPiA8IDExIDA1IDAwIDAxIDAzPiA8YnNk
+IHYxIDEyPiA8cHJlZGljdG9yIDE+XQ0KSnVuIDEwIDIwOjA5OjQwIGxhcHNp
+cyBwcHBkWzkzMl06IHNlbnQgW0NDUCBDb25mUmVqIGlkPTB4NCA8IDEyIDA2
+IDAwIDAwIDAwIDAxPiA8IDExIDA1IDAwIDAxIDAzPl0NCkp1biAxMCAyMDow
+OTo0MCBsYXBzaXMgcHBwZFs5MzJdOiByY3ZkIFtJUENQIENvbmZOYWsgaWQ9
+MHgxIDxhZGRyIDIwMy4xMzQuNTEuMjAxPiA8bXMtZG5zMSAyMDMuMTM0LjI0
+LjcwPiA8bXMtZG5zMyAyMDMuMTM0LjI2LjcwPl0NCkp1biAxMCAyMDowOTo0
+MCBsYXBzaXMgcHBwZFs5MzJdOiBzZW50IFtJUENQIENvbmZSZXEgaWQ9MHgy
+IDxhZGRyIDIwMy4xMzQuNTEuMjAxPiA8Y29tcHJlc3MgVkogMGYgMDE+IDxt
+cy1kbnMxIDIwMy4xMzQuMjQuNzA+IDxtcy1kbnMzIDIwMy4xMzQuMjYuNzA+
+XQ0KSnVuIDEwIDIwOjA5OjQwIGxhcHNpcyBwcHBkWzkzMl06IHJjdmQgW0ND
+UCBDb25mUmVqIGlkPTB4MSA8ZGVmbGF0ZSAxNT4gPGRlZmxhdGUob2xkIykg
+MTU+XQ0KSnVuIDEwIDIwOjA5OjQwIGxhcHNpcyBwcHBkWzkzMl06IHNlbnQg
+W0NDUCBDb25mUmVxIGlkPTB4MiA8YnNkIHYxIDE1Pl0NCkp1biAxMCAyMDow
+OTo0MCBsYXBzaXMgcHBwZFs5MzJdOiByY3ZkIFtDQ1AgQ29uZlJlcSBpZD0w
+eDUgPGJzZCB2MSAxMj4gPHByZWRpY3RvciAxPl0NCkp1biAxMCAyMDowOTo0
+MCBsYXBzaXMgcHBwZFs5MzJdOiBzZW50IFtDQ1AgQ29uZkFjayBpZD0weDUg
+PGJzZCB2MSAxMj4gPHByZWRpY3RvciAxPl0NCkp1biAxMCAyMDowOTo0MCBs
+YXBzaXMgcHBwZFs5MzJdOiByY3ZkIFtJUENQIENvbmZBY2sgaWQ9MHgyIDxh
+ZGRyIDIwMy4xMzQuNTEuMjAxPiA8Y29tcHJlc3MgVkogMGYgMDE+IDxtcy1k
+bnMxIDIwMy4xMzQuMjQuNzA+IDxtcy1kbnMzIDIwMy4xMzQuMjYuNzA+XQ0K
+SnVuIDEwIDIwOjA5OjQwIGxhcHNpcyBwcHBkWzkzMl06IGxvY2FsICBJUCBh
+ZGRyZXNzIDIwMy4xMzQuNTEuMjAxDQpKdW4gMTAgMjA6MDk6NDAgbGFwc2lz
+IHBwcGRbOTMyXTogcmVtb3RlIElQIGFkZHJlc3MgMjAzLjEzNC4yNC4xMDcN
+Ckp1biAxMCAyMDowOTo0MCBsYXBzaXMgcHBwZFs5MzJdOiBwcmltYXJ5ICAg
+RE5TIGFkZHJlc3MgMjAzLjEzNC4yNC43MA0KSnVuIDEwIDIwOjA5OjQwIGxh
+cHNpcyBwcHBkWzkzMl06IHNlY29uZGFyeSBETlMgYWRkcmVzcyAyMDMuMTM0
+LjI2LjcwDQpKdW4gMTAgMjA6MDk6NDAgbGFwc2lzIHBwcGRbOTMyXTogcmN2
+ZCBbQ0NQIENvbmZBY2sgaWQ9MHgyIDxic2QgdjEgMTU+XQ0KSnVuIDEwIDIw
+OjA5OjQwIGxhcHNpcyBwcHBkWzkzMl06IEJTRC1Db21wcmVzcyAoMTUvMTIp
+IGNvbXByZXNzaW9uIGVuYWJsZWQNCkp1biAxMCAyMDowOTo0MSBsYXBzaXMg
+cHBwZFs5MzJdOiByY3ZkIFtDQ1AgQ29uZlJlcSBpZD0weDYgPGJzZCB2MSAx
+Mj5dDQpKdW4gMTAgMjA6MDk6NDEgbGFwc2lzIHBwcGRbOTMyXTogc2VudCBb
+Q0NQIENvbmZSZXEgaWQ9MHgzIDxkZWZsYXRlIDE1PiA8ZGVmbGF0ZShvbGQj
+KSAxNT4gPGJzZCB2MSAxNT5dDQpKdW4gMTAgMjA6MDk6NDEgbGFwc2lzIHBw
+cGRbOTMyXTogc2VudCBbQ0NQIENvbmZBY2sgaWQ9MHg2IDxic2QgdjEgMTI+
+XQ0KSnVuIDEwIDIwOjA5OjQxIGxhcHNpcyBwcHBkWzkzMl06IHJjdmQgW0ND
+UCBDb25mUmVqIGlkPTB4MyA8ZGVmbGF0ZSAxNT4gPGRlZmxhdGUob2xkIykg
+MTU+XQ0KSnVuIDEwIDIwOjA5OjQxIGxhcHNpcyBwcHBkWzkzMl06IHNlbnQg
+W0NDUCBDb25mUmVxIGlkPTB4NCA8YnNkIHYxIDE1Pl0NCkp1biAxMCAyMDow
+OTo0MSBsYXBzaXMgcHBwZFs5MzJdOiByY3ZkIFtDQ1AgQ29uZkFjayBpZD0w
+eDQgPGJzZCB2MSAxNT5dDQpKdW4gMTAgMjA6MDk6NDEgbGFwc2lzIHBwcGRb
+OTMyXTogQlNELUNvbXByZXNzICgxNS8xMikgY29tcHJlc3Npb24gZW5hYmxl
+ZA0KSnVuIDEwIDIwOjEwOjU4IGxhcHNpcyBwcHBkWzkzMl06IHJjdmQgW0Nv
+bXByZXNzZWQgZGF0YV0gMDAgZWEgMzQgNmEgMDEgNjkgZjggMjggLi4uDQpK
+dW4gMTAgMjA6MTA6NTggbGFwc2lzIHBwcGRbOTMyXTogc2VudCBbQ0NQIFJl
+c2V0UmVxIGlkPTB4NV0NCkp1biAxMCAyMDoxMDo1OCBsYXBzaXMga2VybmVs
+OiBQUFA6IFZKIGRlY29tcHJlc3Npb24gZXJyb3INCkp1biAxMCAyMDoxMDo1
+OCBsYXBzaXMgcHBwZFs5MzJdOiByY3ZkIFtDQ1AgUmVzZXRBY2sgaWQ9MHg1
+XQ0KSnVuIDEwIDIwOjEyOjAwIGxhcHNpcyBwcHBkWzkzMl06IHJjdmQgW0Nv
+bXByZXNzZWQgZGF0YV0gMDEgNGQgM2UgMzggMDAgMjAgMTUgNDAgLi4uDQpK
+dW4gMTAgMjA6MTI6MDAgbGFwc2lzIHBwcGRbOTMyXTogc2VudCBbQ0NQIFJl
+c2V0UmVxIGlkPTB4Nl0NCkp1biAxMCAyMDoxMjowMCBsYXBzaXMgcHBwZFs5
+MzJdOiByY3ZkIFtDb21wcmVzc2VkIGRhdGFdIDAxIDRmIDNlIGU4IDAwIDUw
+IDM3IDAwIC4uLg0KSnVuIDEwIDIwOjEyOjAxIGxhcHNpcyBwcHBkWzkzMl06
+IHJjdmQgW0NvbXByZXNzZWQgZGF0YV0gMDEgNTggZGMgZTMgNzMgYTAgMWYg
+YjcgLi4uDQpKdW4gMTAgMjA6MTI6MDEgbGFwc2lzIHBwcGRbOTMyXTogcmN2
+ZCBbQ29tcHJlc3NlZCBkYXRhXSAwMSA1OSA2ZSA3MCA1YyBlOCAwMCBiMSAu
+Li4NCkp1biAxMCAyMDoxMjowMSBsYXBzaXMgcHBwZFs5MzJdOiBzZW50IFtD
+Q1AgUmVzZXRSZXEgaWQ9MHg2XQ0KSnVuIDEwIDIwOjEyOjAxIGxhcHNpcyBw
+cHBkWzkzMl06IHJjdmQgW0NvbXByZXNzZWQgZGF0YV0gMDEgNWIgNmUgNzAg
+YWQgZDggMDUgNzkgLi4uDQpKdW4gMTAgMjA6MTI6MDIgbGFwc2lzIHBwcGRb
+OTMyXTogc2VudCBbQ0NQIFJlc2V0UmVxIGlkPTB4Nl0NCkp1biAxMCAyMDox
+MjowMiBsYXBzaXMgcHBwZFs5MzJdOiByY3ZkIFtDb21wcmVzc2VkIGRhdGFd
+IDAxIDdmIDgyIGYyIDAxIGFjIDAyIGViIC4uLg0KSnVuIDEwIDIwOjEyOjAz
+IGxhcHNpcyBwcHBkWzkzMl06IHJjdmQgW0NDUCBSZXNldEFjayBpZD0weDZd
+DQpKdW4gMTAgMjA6MTI6MDQgbGFwc2lzIGxhc3QgbWVzc2FnZSByZXBlYXRl
+ZCAyIHRpbWVzDQpKdW4gMTAgMjA6MTM6MzggbGFwc2lzIHBwcGRbOTMyXTog
+cmN2ZCBbQ29tcHJlc3NlZCBkYXRhXSAwMSAzOSAwMSA2OCAwYiBjMCA1YyAw
+YyAuLi4NCkp1biAxMCAyMDoxMzozOCBsYXBzaXMgcHBwZFs5MzJdOiBzZW50
+IFtDQ1AgUmVzZXRSZXEgaWQ9MHg3XQ0KSnVuIDEwIDIwOjEzOjM4IGxhcHNp
+cyBwcHBkWzkzMl06IHJjdmQgW0NDUCBSZXNldEFjayBpZD0weDddDQpKdW4g
+MTAgMjA6MTQ6MjQgbGFwc2lzIHBwcGRbOTMyXTogcmN2ZCBbQ29tcHJlc3Nl
+ZCBkYXRhXSAwMCA3NyAwNiBlYSAwMSA2YyAwNSBlOSAuLi4NCkp1biAxMCAy
+MDoxNDoyNCBsYXBzaXMgcHBwZFs5MzJdOiBMb3N0IGNvbXByZXNzaW9uIHN5
+bmM6IGRpc2FibGluZyBjb21wcmVzc2lvbg0KSnVuIDEwIDIwOjE0OjI0IGxh
+cHNpcyBwcHBkWzkzMl06IHNlbnQgW0NDUCBUZXJtUmVxIGlkPTB4OCJMb3N0
+IGNvbXByZXNzaW9uIHN5bmMiXQ0KSnVuIDEwIDIwOjE0OjI0IGxhcHNpcyBw
+cHBkWzkzMl06IHJjdmQgW0NvbXByZXNzZWQgZGF0YV0gMDAgNzggMDYgZWEg
+MDIgYjggMDMgYjggLi4uDQpKdW4gMTAgMjA6MTQ6MjQgbGFwc2lzIHBwcGRb
+OTMyXTogcmN2ZCBbQ29tcHJlc3NlZCBkYXRhXSAwMCA3OSAwNiBlYiBkZiA4
+YyBmYSA2MCAuLi4NCkp1biAxMCAyMDoxNDoyNSBsYXBzaXMgcHBwZFs5MzJd
+OiByY3ZkIFtDb21wcmVzc2VkIGRhdGFdIDAwIDdhIDA2IGVhIDAwIGM4IGZj
+IDQ4IC4uLg0KSnVuIDEwIDIwOjE0OjI1IGxhcHNpcyBrZXJuZWw6IFBQUDog
+VkogZGVjb21wcmVzc2lvbiBlcnJvcg0KSnVuIDEwIDIwOjE0OjI1IGxhcHNp
+cyBwcHBkWzkzMl06IHJjdmQgW0NvbXByZXNzZWQgZGF0YV0gMDAgN2MgMzUg
+ZGUgMDAgY2MgMDAgMDAgLi4uDQpKdW4gMTAgMjA6MTQ6MjUgbGFwc2lzIHBw
+cGRbOTMyXTogcmN2ZCBbQ29tcHJlc3NlZCBkYXRhXSAwMCA3ZCAwNiBlYSAw
+MiBlYyAwMCA2OSAuLi4NCkp1biAxMCAyMDoxNDoyNSBsYXBzaXMga2VybmVs
+OiBQUFA6IFZKIGRlY29tcHJlc3Npb24gZXJyb3INCkp1biAxMCAyMDoxNDoy
+NSBsYXBzaXMgcHBwZFs5MzJdOiByY3ZkIFtDQ1AgVGVybUFjayBpZD0weDhd
+DQpKdW4gMTAgMjA6MTQ6MjYgbGFwc2lzIHBwcGRbOTMyXTogcmN2ZCBbQ29t
+cHJlc3NlZCBkYXRhXSAwMCA4NSBlZiBjNiAwMCAyYyAwMyAzMCAuLi4NCkp1
+biAxMCAyMDoxNDoyNyBsYXBzaXMgcHBwZFs5MzJdOiByY3ZkIFtDb21wcmVz
+c2VkIGRhdGFdIDAwIDg2IDBiIDVhIDAxIGU4IDAyIGExIC4uLg0KSnVuIDEw
+IDIwOjE0OjI3IGxhcHNpcyBwcHBkWzkzMl06IHJjdmQgW0NvbXByZXNzZWQg
+ZGF0YV0gMDAgODcgMDYgZWEgMDMgOTQgMDUgMWEgLi4uDQoNCg==
+--1590404226-2001578385-1055240158=:6152--

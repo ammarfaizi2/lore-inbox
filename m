@@ -1,59 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268980AbUJELKh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268979AbUJELKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268980AbUJELKh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 07:10:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268984AbUJELKh
+	id S268979AbUJELKU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 07:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268978AbUJELKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 07:10:37 -0400
-Received: from 115.N1.EF.nwx-server.de ([217.114.219.115]:48310 "EHLO
-	115.N1.EF.nwx-server.de") by vger.kernel.org with ESMTP
-	id S268981AbUJELK1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 07:10:27 -0400
-Subject: kernel BUG at buffer.c:603
-From: Axel Waggershauser <awagger@web.de>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Tue, 05 Oct 2004 13:10:03 +0200
-Message-Id: <1096974603.1254.32.camel@sowas>
+	Tue, 5 Oct 2004 07:10:19 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:54405 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S268979AbUJELKK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 07:10:10 -0400
+Date: Tue, 5 Oct 2004 13:09:46 +0200
+From: Michelle Konzack <linux4michelle@freenet.de>
+To: newbie <linux-kernel@vger.kernel.org>
+Subject: Re: Heavy load of graphics
+Message-ID: <20041005110945.GD15926@freenet.de>
+References: <20041005050100.76032.qmail@web52902.mail.yahoo.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ 	protocol="application/pgp-signature"; boundary="k4f25fnPtRuIRUb3"
+Content-Disposition: inline
+In-Reply-To: <20041005050100.76032.qmail@web52902.mail.yahoo.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I have a new machine with an  Adaptec AAC-RAID (rev 01) SATA raid
-controller (aacraid module) running a
-
-Linux version 2.4.27-1-686-smp (joshk@trollwife) (gcc version 3.3.4
-(Debian 1:3.3.4-9)) #1 SMP Fri Sep 3 06:34:36 UTC 2004
-
-kernel. It keeps crashing (oops) after several hours of running bonnie.
-Most of the time I get a "kernel BUG at buffer.c:603" wich looks like
-this
-
-    if (bh->b_prev_free || bh->b_next_free) BUG();
-
-in function
-
-    static void __insert_into_lru_list(struct buffer_head * bh, int
-blist)
-
-There has been an other oops as well: "unable to handle kernel paging
-request at virtual address 619139d0". This combined with several hints
-on the net suggests that faulty hardware might be the cause. I checked
-the 1G ram with memtest86+ - no problem...
-
-Google revealed several other buffer.c:xxx bugs but none in line 603 so
-I thouhgt, it might be worth to ask.
+--k4f25fnPtRuIRUb3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-Thanks, for any help (if someone happens to know _the_ ultimate mem- or
-harddisk-test, I'd be happy to stress this machine as long as it has
-to...)
+Am 2004-10-05 06:01:00, schrieb Ankit Jain:
+> hi
+>=20
+> well i am using linux 9.0 kernel 2.4 ver. 128 Mb RAM
+
+What is Linux 9.0 ???
+
+Linux =3D Kernel =3D 2.4/2.6
+
+9.0 =3D SuSE, RedHat, Mandrake ???
+
+> i have seen not only on this sytem but the other one
+> having 512 Mb RAM the most of the memory is lost or
+> taken by graphics or xserver. on my system around 90%
+> is occupied by the xsever and on the sys with 512 Mb
+> RAM around 70% is occupied. how to reduce this load. i
+
+This is normaly, because Linux use the Memory very efficient.
+
+> oculd not get any article or stuff relate to this . if
+> we can do something in kernel or in some way reduce
+> this load while working in GUI envt
+
+No, because this will slow down Linux.
+
+> thanks
+>=20
+> Ankit
 
 
-regards,
-  Axel
+--k4f25fnPtRuIRUb3
+Content-Type: application/pgp-signature; name="signature.pgp"
+Content-Description: Digital signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD4DBQFBYoD5C0FPBMSS+BIRAvq3AJi9FaUE2Xc+Cv9PTr4VZz/rPyDGAJ9jbOW6
+ZTMJBCGAAOKN2lvJoFRjgg==
+=qQl5
+-----END PGP SIGNATURE-----
+
+--k4f25fnPtRuIRUb3--

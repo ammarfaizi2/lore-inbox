@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262931AbUKXXkD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262938AbUKXXml@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262931AbUKXXkD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 18:40:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262895AbUKXXh7
+	id S262938AbUKXXml (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 18:42:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbUKXXhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 18:37:59 -0500
-Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:914 "EHLO
-	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
-	id S262928AbUKXXah (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 18:30:37 -0500
-Date: Wed, 24 Nov 2004 18:14:28 +0100
-From: Guido Guenther <agx@sigxcpu.org>
-To: linux-kernel@vger.kernel.org
-Cc: jonmason@us.ibm.com
-Subject: pcnet32: 79c976 with fiber optic
-Message-ID: <20041124171427.GA29693@bogon.ms20.nix>
+	Wed, 24 Nov 2004 18:37:36 -0500
+Received: from rproxy.gmail.com ([64.233.170.192]:41805 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262938AbUKXX00 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 18:26:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=T3u0TQmXF8UMah5qiItDWlKbtaEOKbAlRewpu1Tqye/lYw04HepSZQI9RwesuEzlld04ag7TGZwdGpSQJcEUROWt77OyuNZt5l6cRTpc54VPk405rrSx0TY9TfkjJP2pipL4GmeIb1q+vohmMqTM/T2Oa2HgvdPq8I1zJhFXhpA=
+Message-ID: <8783be6604112412397b46c767@mail.gmail.com>
+Date: Wed, 24 Nov 2004 15:39:28 -0500
+From: Ross Biro <ross.biro@gmail.com>
+Reply-To: Ross Biro <ross.biro@gmail.com>
+To: Ole Laursen <olau@cs.aau.dk>
+Subject: Re: Isolating two network processes on same machine
+Cc: linux-kernel@vger.kernel.org, d507a@cs.aau.dk
+In-Reply-To: <tv8r7mj1dwr.fsf@homer.cs.aau.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <tv8r7mj1dwr.fsf@homer.cs.aau.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have a Allied Telesys using a 79c976 with a fibre optic connectior.
-pcnet32 detects the card fine but looses the link when I ifup the
-interface. If I use:
+> The problem is that we need to run several instances of our network
+> application on the same test machine since we have too few machines.
+> But when we create two IP addresses on the same machine with
+> 
 
---- tmp/linux-2.6.9/drivers/net/pcnet32.c	2004-10-18 23:53:45.000000000 +0200
-+++ linux-2.6.9/drivers/net/pcnet32.c	2004-11-24 15:52:27.000000000 +0100
-@@ -1425,6 +1425,8 @@
- 	val |= 0x10;
-     lp->a.write_csr (ioaddr, 124, val);
- 
-+    printk(KERN_DEBUG "pcnet32: Skipping AMD workaround\n");
-+#if 0
-     /* 24 Jun 2004 according AMD, in order to change the PHY,
-      * DANAS (or DISPM for 79C976) must be set; then select the speed,
-      * duplex, and/or enable auto negotiation, and clear DANAS */
-@@ -1446,6 +1448,7 @@
- 	    lp->a.write_bcr(ioaddr, 32, val);
- 	}
-     }
-+#endif
- 
- #ifdef DO_DXSUFLO
-     if (lp->dxsuflo) { /* Disable transmit stop on und
+The easiest solution is probably to have the FreeBSD box DNAT the
+linux boxes so they don't know they are talking to themselves.  Then
+you only need to use 1 ip address per linux box.
 
-it works fine. Any idea what exactly causes the problem?
-Cheers,
- -- Guido
+    Ross

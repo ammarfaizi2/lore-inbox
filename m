@@ -1,47 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267927AbTBRRid>; Tue, 18 Feb 2003 12:38:33 -0500
+	id <S267944AbTBRRmh>; Tue, 18 Feb 2003 12:42:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267929AbTBRRid>; Tue, 18 Feb 2003 12:38:33 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:24256 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S267927AbTBRRic>; Tue, 18 Feb 2003 12:38:32 -0500
-Date: Tue, 18 Feb 2003 11:48:15 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: why is "scripts/elfconfig.h" not removed with "make mrproper"?
-In-Reply-To: <Pine.LNX.4.44.0302181059210.15334-100000@dell>
-Message-ID: <Pine.LNX.4.44.0302181147460.24975-100000@chaos.physics.uiowa.edu>
+	id <S267945AbTBRRmh>; Tue, 18 Feb 2003 12:42:37 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:50158 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S267944AbTBRRmg>;
+	Tue, 18 Feb 2003 12:42:36 -0500
+Message-ID: <3E5272A0.80803@us.ibm.com>
+Date: Tue, 18 Feb 2003 09:51:28 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix kirq code for clustered mode
+Content-Type: multipart/mixed;
+ boundary="------------050604080001000905070301"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Feb 2003, Robert P. J. Day wrote:
+This is a multi-part message in MIME format.
+--------------050604080001000905070301
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
->   i just verified that the original 2.5.62 kernel tree does not
-> start with the header file "scripts/elfconfig.h".  this file is
-> created by running "make xconfig", even when nothing is configured.
-> but that file is *not* removed by running "make mrproper", which
-> i would think it should be.
+The new kirq code breaks clustered apic mode.  This 2-liner fixes it.
+It should compile down to the same thing, unless you're using a
+clustered apic sub-arch.
 
-Right.
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 
---Kai
+--------------050604080001000905070301
+Content-Type: text/plain;
+ name="kirq-apicid-fix-2.5.62-2.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kirq-apicid-fix-2.5.62-2.patch"
 
+diff -ru linux-2.5.62-clean/arch/i386/kernel/io_apic.c linux-2.5.62-kirqfix/arch/i386/kernel/io_apic.c
+--- linux-2.5.62-clean/arch/i386/kernel/io_apic.c	Mon Feb 17 14:56:10 2003
++++ linux-2.5.62-kirqfix/arch/i386/kernel/io_apic.c	Tue Feb 18 09:44:22 2003
+@@ -441,7 +441,7 @@
+ 		Dprintk("irq = %d moved to cpu = %d\n", selected_irq, min_loaded);
+ 		/* mark for change destination */
+ 		spin_lock(&desc->lock);
+-		irq_balance_mask[selected_irq] = target_cpu_mask;
++		irq_balance_mask[selected_irq] = cpu_to_logical_apicid(min_loaded);
+ 		spin_unlock(&desc->lock);
+ 		/* Since we made a change, come back sooner to 
+ 		 * check for more variation.
+@@ -515,7 +515,7 @@
+ 	
+ 	/* push everything to CPU 0 to give us a starting point.  */
+ 	for (i = 0 ; i < NR_IRQS ; i++)
+-		irq_balance_mask[i] = 1 << 0;
++		irq_balance_mask[i] = cpu_to_logical_apicid(0);
+ 	for (;;) {
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		time_remaining = schedule_timeout(time_remaining);
+Only in linux-2.5.62-kirqfix/arch/i386/kernel: io_apic.c~
 
-===== scripts/Makefile 1.30 vs edited =====
---- 1.30/scripts/Makefile	Sun Feb 16 21:20:26 2003
-+++ edited/scripts/Makefile	Tue Feb 18 11:47:10 2003
-@@ -17,6 +17,8 @@
- # Let clean descend into subdirs
- subdir-	:= lxdialog kconfig
- 
-+clean-files := elfconfig.h
-+
- # fixdep is needed to compile other host programs
- $(addprefix $(obj)/,$(filter-out fixdep,$(build-targets))): $(obj)/fixdep
- 
+--------------050604080001000905070301--
 

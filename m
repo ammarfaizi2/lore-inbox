@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289555AbSAONCW>; Tue, 15 Jan 2002 08:02:22 -0500
+	id <S289563AbSAONJD>; Tue, 15 Jan 2002 08:09:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289559AbSAONCM>; Tue, 15 Jan 2002 08:02:12 -0500
-Received: from jalon.able.es ([212.97.163.2]:56268 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S289555AbSAONCC>;
-	Tue, 15 Jan 2002 08:02:02 -0500
-Date: Tue, 15 Jan 2002 11:32:13 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unable to compile 2.4.14 on alpha
-Message-ID: <20020115113213.A1539@werewolf.able.es>
-In-Reply-To: <20020114212550.A17323@animx.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20020114212550.A17323@animx.eu.org>; from wakko@animx.eu.org on mar, ene 15, 2002 at 03:25:50 +0100
-X-Mailer: Balsa 1.3.0
+	id <S289568AbSAONIy>; Tue, 15 Jan 2002 08:08:54 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:52999 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S289563AbSAONIg>; Tue, 15 Jan 2002 08:08:36 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15428.14268.730698.637522@laputa.namesys.com>
+Date: Tue, 15 Jan 2002 17:07:56 +0300
+To: trond.myklebust@fys.uio.no
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, Hans-Peter Jansen <hpj@urpla.net>,
+        linux-kernel@vger.kernel.org,
+        Reiserfs mail-list <Reiserfs-List@Namesys.COM>
+Subject: Re: [BUG] symlink problem with knfsd and reiserfs 
+In-Reply-To: <15428.6953.453942.415989@charged.uio.no>
+In-Reply-To: <20020115115019.89B55143B@shrek.lisa.de>
+	<15428.6953.453942.415989@charged.uio.no>
+X-Mailer: VM 7.00 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Trond Myklebust writes:
+ > >>>>> " " == Hans-Peter Jansen <hpj@urpla.net> writes:
+ > 
+ >      > In syslog, this message appears: Jan 15 00:21:03 elfe kernel:
+ >      > nfs_refresh_inode: inode 50066 mode changed, 0100664 to 0120777
+ > 
+ > The error is basically telling you that ReiserFS filehandles are being
+ > reused by the server. Doesn't Reiser provide a generation count to
+ > guard against this sort of thing?
 
-On 20020115 Wakko Warner wrote:
->arch/alpha/kernel/kernel.o(.exitcall.exit+0x0): undefined reference to `local symbols in discarded section .text.exit'
+Yes, inode->i_generation is stored in the file handle:
+fs/reiserfs/inode.c:reiserfs_dentry_to_fh().
 
-Too bew binutils. .17 works again.
+Hans-Peter, what version of NFS are you using and have you remounted
+clients after upgrading to the newer kernel?
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.18-pre3-beo #5 SMP Sun Jan 13 02:14:04 CET 2002 i686
+ > 
+ > My 'fix' just solves the immediate problem of the wrong file mode. It
+ > does not solve the problems of data corruption that can occur when the
+ > client is incapable of distinguishing the 'old' and 'new' files that
+ > share the same filehandle.
+
+This requires i_generation overflow (modulo bug in reiserfs).
+
+ > 
+ > Cheers,
+ >   Trond
+
+Nikita.

@@ -1,66 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264709AbUDVVrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264691AbUDVVuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264709AbUDVVrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 17:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264694AbUDVVrJ
+	id S264691AbUDVVuU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 17:50:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264693AbUDVVuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 17:47:09 -0400
-Received: from mailwasher.lanl.gov ([192.16.0.25]:30810 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S264709AbUDVVrE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 17:47:04 -0400
-Subject: 2.6.6-rc2 addition warnings with gcc-3.4.0 and some timing results.
-From: Steven Cole <elenstev@mesatop.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1082670435.1324.106.camel@spc0.esa.lanl.gov>
+	Thu, 22 Apr 2004 17:50:20 -0400
+Received: from mail.kroah.org ([65.200.24.183]:6555 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264691AbUDVVuM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 17:50:12 -0400
+Date: Thu, 22 Apr 2004 14:49:48 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] USB fixes for 2.6.6-rc2
+Message-ID: <20040422214948.GA2142@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5-4mdk 
-Date: Thu, 22 Apr 2004 15:47:15 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I built the current 2.6.6-rc2 tree recently pulled from
-bk://linus.bkbits.net/linux-2.5 using both gcc-3.3.2 as shipped with
-Mandrake 10, and with the recent release of gcc-3.4.0, which was built
-with all the defaults for an i686 system.
+Hi,
 
-The builds were performed in two separate directories, each made with
-bk export -tplain ../dirname.
+Here are some important USB fixes for 2.6.6-rc2.  They are all pretty
+small and "obvious" (hopefully.)  The most important one is the uhci
+fix, as lots of people are hitting that recently.
 
-The times are for a make -j3 bzImage on a dual PIII 733 Mhz system.
-Make oldconfig was run first, using the same .config in each case.
-The running kernel was 2.6.6-rc2 built with gcc-3.4.0.
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/usb-2.6
 
-Gcc-3.4.0 appears to be a little faster. The kernel builds were run
-several times.  The time results were consistent.
+Patches will be posted to linux-usb-devel as a follow-up thread for
+those who want to see them.
 
-A few additional warnings were received with gcc-3.4.0.
+thanks,
 
-gcc-3.3.2	688.38user 52.69system 6:13.64elapsed 198%CPU 
-$ size vmlinux
-   text    data     bss     dec     hex filename
-3064764  360496  176584 3601844  36f5b4 vmlinux
+greg k-h
 
-gcc-3.4.0	599.56user 40.25system 5:23.11elapsed 198%CPU
-$ size vmlinux
-   text    data     bss     dec     hex filename
-3005436  359728  176552 3541716  360ad4 vmlinux
+ drivers/usb/class/cdc-acm.c   |   91 ++++++++++++++++------------
+ drivers/usb/core/hcd-pci.c    |    5 +
+ drivers/usb/gadget/ether.c    |   49 ++++++++-------
+ drivers/usb/gadget/rndis.c    |  135 +++++++++++++++++++++++++++---------------
+ drivers/usb/gadget/rndis.h    |    7 +-
+ drivers/usb/host/ehci-hcd.c   |   17 ++++-
+ drivers/usb/host/ehci-hub.c   |   16 +++-
+ drivers/usb/host/uhci-hcd.c   |   36 ++++++-----
+ drivers/usb/misc/tiglusb.c    |   52 ++++++++--------
+ drivers/usb/net/usbnet.c      |    6 +
+ drivers/usb/serial/ftdi_sio.c |    4 -
+ drivers/usb/storage/dpcm.c    |    9 +-
+ 12 files changed, 262 insertions(+), 165 deletions(-)
+-----
 
-Warnings only with gcc-3.4.0:
+<colin:colino.net>:
+  o USB: fix cdc-acm as it is still (differently) broken
 
-  CC      arch/i386/pci/pcbios.o
-arch/i386/pci/pcbios.c: In function `pcibios_get_irq_routing_table':
-arch/i386/pci/pcbios.c:424: warning: read-write constraint does not allow a register
-arch/i386/pci/pcbios.c:424: warning: read-write constraint does not allow a register
+<jan:ccsinfo.com>:
+  o USB: ftdi patch fixup
 
-  CC      fs/xfs/xfs_iget.o
-include/asm/rwsem.h: In function `xfs_ilock_nowait':
-include/asm/rwsem.h:126: warning: read-write constraint does not allow a register
-include/asm/rwsem.h:126: warning: read-write constraint does not allow a register
-include/asm/rwsem.h:126: warning: read-write constraint does not allow a register
-include/asm/rwsem.h:126: warning: read-write constraint does not allow a register
+Alan Stern:
+  o USB: Important bugfix for UHCI list management code
 
-Steven
+David Brownell:
+  o USB: usbnet and pl2301/2302 reset
+  o USB: rndis gadget driver updates
+  o USB: ehci handles pci misbehavior better
+
+Greg Kroah-Hartman:
+  o USB: fix cdc-acm warnings due to previous patch
+  o USB: Don't try to suspend devices that do not support it
+
+Romain Lievin:
+  o USB: tiglusb: wrong timeout value
+
+William Lee Irwin III:
+  o USB: silence dpcm warning
 

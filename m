@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVCEWs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVCEXaB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261307AbVCEWs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 17:48:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVCEWsS
+	id S261216AbVCEXaB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 18:30:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVCEX1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 17:48:18 -0500
-Received: from coderock.org ([193.77.147.115]:47781 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261309AbVCEWnH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 17:43:07 -0500
-Subject: [patch 04/15] block/swim_iop: replace direct assignment with set_current_state()
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org, nacc@us.ibm.com,
-       janitor@sternwelten.at
-From: domen@coderock.org
-Date: Sat, 05 Mar 2005 23:42:52 +0100
-Message-Id: <20050305224252.DBEE71F205@trashy.coderock.org>
+	Sat, 5 Mar 2005 18:27:21 -0500
+Received: from atlmail.prod.rxgsys.com ([64.74.124.160]:55244 "EHLO
+	bastet.signetmail.com") by vger.kernel.org with ESMTP
+	id S261322AbVCEXDZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 18:03:25 -0500
+Date: Sat, 5 Mar 2005 18:03:12 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: domen@coderock.org
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org, c.lucas@ifrance.com
+Subject: Re: [patch 14/15] drivers/block/*: convert to pci_register_driver
+Message-ID: <20050305230312.GA12887@havoc.gtf.org>
+References: <20050305224327.781571F07A@trashy.coderock.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050305224327.781571F07A@trashy.coderock.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Mar 05, 2005 at 11:43:27PM +0100, domen@coderock.org wrote:
+> 
+> convert from pci_module_init to pci_register_driver
+> 
+> Signed-off-by: Christophe Lucas <c.lucas@ifrance.com>
+> Signed-off-by: Domen Puncer <domen@coderock.org>
+> ---
+> 
+> 
+>  kj-domen/drivers/block/DAC960.c |    2 +-
+>  kj-domen/drivers/block/cciss.c  |    2 +-
+>  kj-domen/drivers/block/sx8.c    |    2 +-
+>  kj-domen/drivers/block/umem.c   |    2 +-
+
+
+I ACK the sx8 portion.
+
+Please CC me (the maintainer) on all sx8 patches.
+
+	Jeff
 
 
 
-Any comments would be appreciated. 
-
-set_current_state() is used instead of direct assignment of
-current->state.
-
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-Signed-off-by: Domen Puncer <domen@coderock.org>
----
-
-
- kj-domen/drivers/block/swim_iop.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN drivers/block/swim_iop.c~set_current_state-drivers_block_swim_iop drivers/block/swim_iop.c
---- kj/drivers/block/swim_iop.c~set_current_state-drivers_block_swim_iop	2005-03-05 16:09:16.000000000 +0100
-+++ kj-domen/drivers/block/swim_iop.c	2005-03-05 16:09:16.000000000 +0100
-@@ -338,7 +338,7 @@ static int swimiop_eject(struct floppy_s
- 			err = -EINTR;
- 			break;
- 		}
--		current->state = TASK_INTERRUPTIBLE;
-+		set_current_state(TASK_INTERRUPTIBLE);
- 		schedule_timeout(1);
- 	}
- 	release_drive(fs);
-_

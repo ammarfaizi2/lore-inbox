@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbUKSMMe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbUKSMWY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261379AbUKSMMe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 07:12:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbUKSMKR
+	id S261397AbUKSMWY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 07:22:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbUKSMWP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 07:10:17 -0500
-Received: from gprs214-244.eurotel.cz ([160.218.214.244]:1152 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261381AbUKSMJI (ORCPT
+	Fri, 19 Nov 2004 07:22:15 -0500
+Received: from cantor.suse.de ([195.135.220.2]:62186 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261384AbUKSMVp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 07:09:08 -0500
-Date: Fri, 19 Nov 2004 13:08:56 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: 2.6.10-rc2 swsusp status & framebuffer problems
-Message-ID: <20041119120856.GA1233@elf.ucw.cz>
+	Fri, 19 Nov 2004 07:21:45 -0500
+Date: Fri, 19 Nov 2004 13:19:10 +0100
+From: Andi Kleen <ak@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andi Kleen <ak@suse.de>, David Woodhouse <dwmw2@infradead.org>,
+       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: RFC: let x86_64 no longer define X86
+Message-ID: <20041119121909.GF21483@wotan.suse.de>
+References: <20041119005117.GM4943@stusta.de> <20041119085132.GB26231@wotan.suse.de> <419DC922.1020809@pobox.com> <20041119103418.GB30441@wotan.suse.de> <1100863700.21273.374.camel@baythorne.infradead.org> <20041119115539.GC21483@wotan.suse.de> <1100865050.21273.376.camel@baythorne.infradead.org> <20041119120549.GD21483@wotan.suse.de> <419DE33E.2000208@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <419DE33E.2000208@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Nov 19, 2004 at 07:12:46AM -0500, Jeff Garzik wrote:
+> Andi Kleen wrote:
+> >I don't know details about the driver, but it's not enabled on x86-64 
+> >because x86-64 doesn't have ISA set.
+> 
+> 
+> which I disagree with.  CONFIG_ISA should include southbridge devices 
+> behind a PCI<->ISA bridge.  There is zero value to a more stricter 
+> "there is a physical ISA bus in this machine" definition.
 
-If works for me, modulo graphics problems. So if it is broken on your
-machine, try finding driver that is responsible.
+There is. It gets rid of many tens of drivers that are not and will never
+be 64bit clean and have a snowball in hell chances to work on x86-64.
 
-Graphics problems: for some reason, swsusp now eats cursor
-(radeonfb)... or is it softcursor breakage? There are more problems in
-framebuffer, something seems to be very wrong in palete handling. (I
-set green palete by default. mutt likes to reset terminal in such way
-that font goes white; with -rc2 it affects even non-current console).
- 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+In theory you could invent a new ISA_SLOT or ISA_BROKEN config for them,
+but since ISA does the job quite well for near everybody except
+for one or two corner cases I don't see any sense in changing it.
+
+-Andi

@@ -1,43 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262742AbRFCCnH>; Sat, 2 Jun 2001 22:43:07 -0400
+	id <S262746AbRFCCsR>; Sat, 2 Jun 2001 22:48:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262743AbRFCCm5>; Sat, 2 Jun 2001 22:42:57 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:43780 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S262742AbRFCCmp>;
-	Sat, 2 Jun 2001 22:42:45 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Jeff Dike <jdike@karaya.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: What is i386 thread.trapno? 
-In-Reply-To: Your message of "Sat, 02 Jun 2001 21:31:42 EST."
-             <200106030231.VAA03708@ccure.karaya.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 03 Jun 2001 12:42:38 +1000
-Message-ID: <17271.991536158@ocs3.ocs-net>
+	id <S262747AbRFCCsH>; Sat, 2 Jun 2001 22:48:07 -0400
+Received: from jcwren-1.dsl.speakeasy.net ([216.254.53.52]:45552 "EHLO
+	jcwren.com") by vger.kernel.org with ESMTP id <S262746AbRFCCr6>;
+	Sat, 2 Jun 2001 22:47:58 -0400
+Reply-To: <jcwren@jcwren.com>
+From: "John Chris Wren" <jcwren@jcwren.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: select() - Linux vs. BSD
+Date: Sat, 2 Jun 2001 22:47:49 -0400
+Message-ID: <NDBBKBJHGFJMEMHPOPEGIEBCCIAA.jcwren@jcwren.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 02 Jun 2001 21:31:42 -0500, 
-Jeff Dike <jdike@karaya.com> wrote:
->The i386 page fault handler sets trap_no to 14, so the fault isn't coming from 
->there, but I can't see where a SIGSEGV is being delivered to a process with 
->thread.trap_no == 1.
+
 >
->So:
->	What do these trap numbers mean?
->	Where can I read about them?
+> lost@l-w.net wrote:
+> > Of course, not looking at the sets upon a zero return is a
+> fairly obvious
+> > optimization as there is little point in doing so.
+>
+> No; a fairly obvious optimisation is to avoid calling FD_ZERO if you
+> can clear the bits individually when you test them.
+>
+> When you examine the sets, you can clear each bit that you examine and
+> then you know you have a zero set.  Then you can set only the relevant
+> bits for the next call to select().
+>
+> If you can't rely on the sets being cleared on a timeout, then you
+> will have to call FD_ZERO in that case, or you will have to go through
+> the list of descriptors and clear them individually.  (This can be
+> avoided but it means keeping track of state between successive calls
+> to select()).  This is contrary to the non-timeout case, where you
+> stop checking bits when you have counted N of them set.
+>
+> So you see, there is a handy optimisation if you can assume the sets
+> are zeroed on timeout.
+>
 
-Intel Architecture Software Developer's Manual Volume 3: System
-Programming.  Interrupt and Exception Handling, table 5.1 (postscript
-extract of that table has been copied in separate private mail).
-intel-ia32-arch-vol3-24319202.pdf.
+I would have said just the opposite.  That if it you have a large number of
+handles you're waiting on, and you have to go back through and set the bits
+everytime you timeout that you would incur a larger overhead.  From the
+perspective of my application, it would have been more efficient to not zero
+them (I was waiting on a number of serial channels, and the timeout was used
+to periodically pump more data to the serial channel.  When I received data,
+I buffered it, and another thread took care of processing it).
 
->and
->	Where's this segfault coming from?
+It all really depends on the coding style of your program, and what you need
+to do on a timeout.  Certain types of applications would benefit from
+non-zero'ing, others from zeroing.
 
-Probably do_debug() which sets trapno = 1 and also uses
-handle_vm86_trap(,,1).
+All what is *most* important is that the behavior is clearly understood and
+well documented.  A google search made it pretty clear that it was a source
+of confusion.
+
+--John
 

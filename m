@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264842AbTFBSmc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 14:42:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264841AbTFBSmc
+	id S264847AbTFBSpj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 14:45:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264848AbTFBSpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 14:42:32 -0400
-Received: from main.gmane.org ([80.91.224.249]:9941 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264840AbTFBSma (ORCPT
+	Mon, 2 Jun 2003 14:45:39 -0400
+Received: from [193.6.138.45] ([193.6.138.45]:33790 "EHLO delfin.klte.hu")
+	by vger.kernel.org with ESMTP id S264847AbTFBSpi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 14:42:30 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Nicholas Wourms <nwourms@myrealbox.com>
-Subject: Re: supermount for 2.5 test version available
-Date: Mon, 02 Jun 2003 14:53:55 -0400
-Message-ID: <3EDB9D43.50200@myrealbox.com>
-References: <E19Mk2A-000C2r-00.arvidjaar-mail-ru@f13.mail.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	Mon, 2 Jun 2003 14:45:38 -0400
+Date: Mon, 2 Jun 2003 20:59:03 +0200 (DFT)
+From: Fekete Gabor <feketga@delfin.klte.hu>
+To: Daniel Ritz <daniel.ritz@gmx.ch>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 762] New: cs4232, cs4236 module loading problem
+In-Reply-To: <200306011856.34369.daniel.ritz@gmx.ch>
+Message-ID: <Pine.A41.4.20.0306022057350.14498-100000@delfin.klte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Borzenkov wrote:
-> Test version of supermount for kernel 2.5.70 is available on
-> http://supermount-ng.sf.net/
+
+
+On Sun, 1 Jun 2003, Daniel Ritz wrote:
+
+> yaroslav's linux-sound tree has two fixes to cs4236.c, i think they fix the
+> reported oops. 
 > 
+yes, they do :)
+thanks
 
-Thanks for doing this!!!
-
-Cheers,
-Nicholas
+feketga
 
 

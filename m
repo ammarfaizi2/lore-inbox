@@ -1,50 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264506AbUBSFRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 00:17:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264310AbUBSFRQ
+	id S266178AbUBSFk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 00:40:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266194AbUBSFk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 00:17:16 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26076 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264506AbUBSFRO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 00:17:14 -0500
-Message-ID: <403446C9.7070803@pobox.com>
-Date: Thu, 19 Feb 2004 00:16:57 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix microcode change for i386
-References: <20040219011159.6f60aa69.ak@suse.de>
-In-Reply-To: <20040219011159.6f60aa69.ak@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Feb 2004 00:40:59 -0500
+Received: from main.gmane.org ([80.91.224.249]:12515 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266178AbUBSFk4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 00:40:56 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jan Rychter <jan@rychter.com>
+Subject: Re: Oopsing cryptoapi (or loop device?) on 2.6.*
+Date: Wed, 18 Feb 2004 13:40:34 -0800
+Message-ID: <m2ekssf4ml.fsf@tnuctip.rychter.com>
+References: <402A4B52.1080800@centrum.cz> <402A7765.FD5A7F9E@users.sourceforge.net>
+ <m265e9oyrs.fsf@tnuctip.rychter.com>
+ <402F877C.C9B693C1@users.sourceforge.net>
+ <m2k72n9pth.fsf@tnuctip.rychter.com>
+ <40322094.83061A32@users.sourceforge.net>
+ <m24qtpikmd.fsf@tnuctip.rychter.com>
+ <4033714A.FFFEBD6C@users.sourceforge.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 1053host190.starwoodbroadband.com
+X-Spammers-Please: blackholeme@rychter.com
+User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.4 (Reasonable Discussion,
+ linux)
+Cancel-Lock: sha1:jWVeaDlRmBtirTw8QTRTsppVc44=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> This patch should fix the i386 compile problem in the microcode driver I caused with
-> the IA32e updates.
-> 
-> diff -u linux-2.6.3-amd64/arch/i386/kernel/microcode.c-o linux-2.6.3-amd64/arch/i386/kernel/microcode.c
-> --- linux-2.6.3-amd64/arch/i386/kernel/microcode.c-o	2004-02-19 00:19:32.000000000 +0100
-> +++ linux-2.6.3-amd64/arch/i386/kernel/microcode.c	2004-02-19 00:56:41.000000000 +0100
-> @@ -371,8 +371,8 @@
->  	spin_lock_irqsave(&microcode_update_lock, flags);          
->  
->  	/* write microcode via MSR 0x79 */
-> -	wrmsr(MSR_IA32_UCODE_WRITE, (u64)(uci->mc->bits), 
-> -	      (u64)(uci->mc->bits) >> 32);
-> +	wrmsr(MSR_IA32_UCODE_WRITE, (u32)(unsigned long)(uci->mc->bits), 
-> +	      (u32)(((unsigned long)uci->mc->bits) >> 32));
+--=-=-=
 
+>>>>> "Jari" == Jari Ruusu <jariruusu@users.sourceforge.net>:
+ Jari> Jan Rychter wrote: Do you mind doing a a quick grep:
+ >>
+ Jari> cd /path/to/your/kernel/source grep "Jari Ruusu"
+ Jari> drivers/block/loop.c
+ >>
+ Jari> If you see my name there, your kerneli.org cryptoapi enabled
+ Jari> kernel is running same loop code I wrote years ago. Those
+ Jari> loop-jari-something patches that you find on the net, are just
+ Jari> copies of old loop-AES code.
+ >>
+ >> No, it is not running this code. The code that works well for me is
+ >> the external cryptoapi (as modules) with last update in Feb 2002.
 
-You still want to do two 16-bit shifts instead of a single 32-bit shift.
+ Jari> Then you are running loop that fails in few seconds using my
+ Jari> tests.
 
-	Jeff
+I guess I am just lucky, because that hasn't failed me in years. I think
+I can live with that for now.
 
+ >> How do you get a file-backed encrypted filesystem to work under
+ >> Linux 2.4.24?
 
+Looking at the (lack of) answers to my question, I gather there is no
+clear-cut answer, or rather that the answer is "you don't".
+
+ Jari> Writable file backed loops received death sentence when GFP_NOFS
+ Jari> was introduced to kernel, and they have been on death row since
+ Jari> then. The best way is to set up partition backed loop using
+ Jari> loop-AES. Mainline loop is still prone to deadlock, both file
+ Jari> backed and device backed.
+
+Is everyone aware of these issues?
+
+And, just wondering -- if loop-AES works so much better, why hasn't it
+been included in the kernel?
+
+--J.
+
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQBAM9vYLth4/7/QhDoRAr3XAJ9yCh1UUyvZN8dS9yEx5RI2FdkiHgCgwJMs
+dpNRCOT4YxqrJr6MmRmVgII=
+=Ee5i
+-----END PGP SIGNATURE-----
+--=-=-=--
 

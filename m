@@ -1,234 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317536AbSG3BCx>; Mon, 29 Jul 2002 21:02:53 -0400
+	id <S317844AbSG3BGh>; Mon, 29 Jul 2002 21:06:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317602AbSG3BCx>; Mon, 29 Jul 2002 21:02:53 -0400
-Received: from zero.tech9.net ([209.61.188.187]:16394 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S317536AbSG3BCu>;
-	Mon, 29 Jul 2002 21:02:50 -0400
-Subject: Re: [PATCH] spinlock.h cleanup
-From: Robert Love <rml@tech9.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1027989220.1016.273.camel@sinai>
-References: <Pine.LNX.4.33.0207291725580.1722-100000@penguin.transmeta.com>
-	<1027989053.929.263.camel@sinai>  <1027989220.1016.273.camel@sinai>
-Content-Type: text/plain
+	id <S318165AbSG3BGh>; Mon, 29 Jul 2002 21:06:37 -0400
+Received: from mg02.austin.ibm.com ([192.35.232.12]:40329 "EHLO
+	mg02.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S317844AbSG3BGg>; Mon, 29 Jul 2002 21:06:36 -0400
+Message-ID: <000f01c23766$a04259d0$2c060e09@beavis>
+From: "Andrew Theurer" <habanero@us.ibm.com>
+To: "James Bourne" <jbourne@mtroyal.ab.ca>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
+       "Marcelo Tosatti" <marcelo@conectiva.com.br>
+References: <Pine.LNX.4.44.0207291838160.20963-100000@skuld.mtroyal.ab.ca>
+Subject: Re: Linux 2.4.19-rc3 (hyperthreading)
+Date: Mon, 29 Jul 2002 20:15:39 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8.99 
-Date: 29 Jul 2002 18:06:11 -0700
-Message-Id: <1027991172.1617.351.camel@sinai>
-Mime-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-07-29 at 17:33, Robert Love wrote:
 
-> To better answer your question, I just checked and indeed it seems all
-> gcc's >= 2.95 are OK.
+> On Mon, 29 Jul 2002, Andrew Theurer wrote:
+>
+> > On Monday 29 July 2002 4:28 pm, Alan Cox wrote:
+> > > Its quite possible the irq routing ought to be smarter, at the moment
+> > > I'm not sure of the best approaches.
+> >
+> > Agreed, we need some sort of irqbalance, and I intend to test with
+Ingo's and
+> > Andrea's approaches. With that addition, I may even see an improvement
+with
+> > hyperthreading. But for an rc release, I think it would be prudent to
+revert
+> > the "new code" for default hyperthreading behavior, and attack the whole
+> > problem in 2.4.20 or later release.
+>
+> Ingo Molnars patches for .17 and .18 worked
+> well for us, and did balance the ints load across all the CPUs very well.
+>
+> You can find the patches I used agains 2.4.18 at
+> http://www.hardrock.org/kernel/
+>
+> BTW, this was on a production box for approximately one month,
+> then the box mysteriously crashed.  Due to the fact that our load wasn't
+> utilizing the hyperthreading that much I removed acpismp=force from the
+> boot string.
+>
+> The are balanced across the 2 real CPUs.
 
-I was informed by Andrew Morton that he uses egcs... normally I would
-prefer to abandon an old compiler, but Andrew is an immediate exception
-in my book :)
+Thanks for the info.  Did you get any performance results for before and
+after?  I did try Ingo's patch a while back, and I experienced about a 8%
+drop in performance.  I did not have hyperthreading on, just a simple case
+comparing balance to no balance.  The overhead of the ioapic programming was
+too high.  Increasing the time between reroutes by 20 got me back to the
+same performance as no balancing at all.  I intend to test his patch again,
+along with Andrea's next.
 
-I do not know if egcs 1.1.2 has the bug or not.  For Andrew's sake, and
-architectures that still recommend egcs-1.1.2, attached is a version of
-the patch that keeps the compiler workaround.
-
-We can either merge the original and see who screams or merge this
-now... either is fine with me.  If the former, I will be prepared to
-send of a patch to restore the workaround.
-
-	Robert Love
-
-diff -urN linux-2.5.29-bk/include/linux/preempt.h linux/include/linux/preempt.h
---- linux-2.5.29-bk/include/linux/preempt.h	Mon Jul 29 15:59:01 2002
-+++ linux/include/linux/preempt.h	Mon Jul 29 16:34:12 2002
-@@ -1,6 +1,11 @@
- #ifndef __LINUX_PREEMPT_H
- #define __LINUX_PREEMPT_H
- 
-+/*
-+ * include/linux/preempt.h - macros for accessing and manipulating
-+ * preempt_count (used for kernel preemption, interrupt count, etc.)
-+ */
-+
- #include <linux/config.h>
- 
- #define preempt_count() (current_thread_info()->preempt_count)
-@@ -37,7 +42,7 @@
- #else
- 
- #define preempt_disable()		do { } while (0)
--#define preempt_enable_no_resched()	do {} while(0)
-+#define preempt_enable_no_resched()	do { } while (0)
- #define preempt_enable()		do { } while (0)
- #define preempt_check_resched()		do { } while (0)
- 
-diff -urN linux-2.5.29-bk/include/linux/spinlock.h linux/include/linux/spinlock.h
---- linux-2.5.29-bk/include/linux/spinlock.h	Mon Jul 29 15:59:01 2002
-+++ linux/include/linux/spinlock.h	Mon Jul 29 16:34:33 2002
-@@ -11,39 +11,80 @@
- #include <asm/system.h>
- 
- /*
-- * These are the generic versions of the spinlocks and read-write
-- * locks..
-+ * These are the generic versions of the spinlocks and read-write locks..
-  */
--#define spin_lock_irqsave(lock, flags)		do { local_irq_save(flags);       spin_lock(lock); } while (0)
--#define spin_lock_irq(lock)			do { local_irq_disable();         spin_lock(lock); } while (0)
--#define spin_lock_bh(lock)			do { local_bh_disable();          spin_lock(lock); } while (0)
--
--#define read_lock_irqsave(lock, flags)		do { local_irq_save(flags);       read_lock(lock); } while (0)
--#define read_lock_irq(lock)			do { local_irq_disable();         read_lock(lock); } while (0)
--#define read_lock_bh(lock)			do { local_bh_disable();          read_lock(lock); } while (0)
--
--#define write_lock_irqsave(lock, flags)		do { local_irq_save(flags);      write_lock(lock); } while (0)
--#define write_lock_irq(lock)			do { local_irq_disable();        write_lock(lock); } while (0)
--#define write_lock_bh(lock)			do { local_bh_disable();         write_lock(lock); } while (0)
--
--#define spin_unlock_irqrestore(lock, flags)	do { _raw_spin_unlock(lock);  local_irq_restore(flags); preempt_enable(); } while (0)
--#define _raw_spin_unlock_irqrestore(lock, flags) do { _raw_spin_unlock(lock);  local_irq_restore(flags); } while (0)
--#define spin_unlock_irq(lock)			do { _raw_spin_unlock(lock);  local_irq_enable(); preempt_enable();       } while (0)
--#define spin_unlock_bh(lock)			do { spin_unlock(lock); local_bh_enable(); } while (0)
--
--#define read_unlock_irqrestore(lock, flags)	do { _raw_read_unlock(lock);  local_irq_restore(flags); preempt_enable(); } while (0)
--#define read_unlock_irq(lock)			do { _raw_read_unlock(lock);  local_irq_enable(); preempt_enable(); } while (0)
--#define read_unlock_bh(lock)			do { read_unlock(lock);  local_bh_enable();        } while (0)
--
--#define write_unlock_irqrestore(lock, flags)	do { _raw_write_unlock(lock); local_irq_restore(flags); preempt_enable(); } while (0)
--#define write_unlock_irq(lock)			do { _raw_write_unlock(lock); local_irq_enable(); preempt_enable();       } while (0)
--#define write_unlock_bh(lock)			do { write_unlock(lock); local_bh_enable();        } while (0)
--#define spin_trylock_bh(lock)			({ int __r; local_bh_disable();\
--						__r = spin_trylock(lock);      \
--						if (!__r) local_bh_enable();   \
--						__r; })
-+#define spin_lock_irqsave(lock, flags) \
-+	do { local_irq_save(flags); spin_lock(lock); } while (0)
- 
--/* Must define these before including other files, inline functions need them */
-+#define spin_lock_irq(lock) \
-+	do { local_irq_disable(); spin_lock(lock); } while (0)
-+
-+#define spin_lock_bh(lock) \
-+	do { local_bh_disable(); spin_lock(lock); } while (0)
-+
-+#define read_lock_irqsave(lock, flags) \
-+	do { local_irq_save(flags); read_lock(lock); } while (0)
-+
-+#define read_lock_irq(lock) \
-+	do { local_irq_disable(); read_lock(lock); } while (0)
-+
-+#define read_lock_bh(lock) \
-+	do { local_bh_disable(); read_lock(lock); } while (0)
-+
-+#define write_lock_irqsave(lock, flags) \
-+	do { local_irq_save(flags); write_lock(lock); } while (0)
-+
-+#define write_lock_irq(lock) \
-+	do { local_irq_disable(); write_lock(lock); } while (0)
-+
-+#define write_lock_bh(lock) \
-+	do { local_bh_disable(); write_lock(lock); } while (0)
-+
-+#define spin_unlock_irqrestore(lock, flags) do { \
-+	_raw_spin_unlock(lock); local_irq_restore(flags); preempt_enable(); \
-+} while (0)
-+
-+#define _raw_spin_unlock_irqrestore(lock, flags) \
-+	do { _raw_spin_unlock(lock); local_irq_restore(flags); } while (0)
-+
-+#define spin_unlock_irq(lock) do { \
-+	_raw_spin_unlock(lock);  local_irq_enable(); preempt_enable(); \
-+} while (0)
-+
-+#define spin_unlock_bh(lock) \
-+	do { spin_unlock(lock); local_bh_enable(); } while (0)
-+
-+#define read_unlock_irqrestore(lock, flags) do {\
-+	_raw_read_unlock(lock); local_irq_restore(flags); preempt_enable(); \
-+} while (0)
-+
-+#define read_unlock_irq(lock) do { \
-+	_raw_read_unlock(lock); local_irq_enable(); preempt_enable(); \
-+} while (0)
-+
-+#define read_unlock_bh(lock) do { \
-+	read_unlock(lock); local_bh_enable(); \
-+} while (0)
-+
-+#define write_unlock_irqrestore(lock, flags) do { \
-+	_raw_write_unlock(lock); local_irq_restore(flags); preempt_enable(); \
-+} while (0)
-+
-+#define write_unlock_irq(lock) do { \
-+	_raw_write_unlock(lock); local_irq_enable(); preempt_enable(); \
-+} while (0)
-+
-+#define write_unlock_bh(lock) \
-+	do { write_unlock(lock); local_bh_enable(); } while (0)
-+
-+#define spin_trylock_bh(lock)	({ int __r; local_bh_disable();\
-+				__r = spin_trylock(lock);      \
-+				if (!__r) local_bh_enable();   \
-+				__r; })
-+
-+/*
-+ * Must define these before including other files, inline functions need them
-+ */
- 
- #include <linux/stringify.h>
- 
-@@ -63,8 +104,11 @@
- #ifdef CONFIG_SMP
- #include <asm/spinlock.h>
- 
--#elif !defined(spin_lock_init) /* !SMP and spin_lock_init not previously
--                                  defined (e.g. by including asm/spinlock.h */
-+/*
-+ * !CONFIG_SMP and spin_lock_init not previously defined
-+ * (e.g. by including include/asm/spinlock.h)
-+ */
-+#elif !defined(spin_lock_init)
- 
- #ifndef CONFIG_PREEMPT
- # define atomic_dec_and_lock(atomic,lock) atomic_dec_and_test(atomic)
-@@ -119,8 +149,6 @@
- 
- #endif /* !SMP */
- 
--#ifdef CONFIG_PREEMPT
--
- #define spin_lock(lock)	\
- do { \
- 	preempt_disable(); \
-@@ -129,6 +157,7 @@
- 
- #define spin_trylock(lock)	({preempt_disable(); _raw_spin_trylock(lock) ? \
- 				1 : ({preempt_enable(); 0;});})
-+
- #define spin_unlock(lock) \
- do { \
- 	_raw_spin_unlock(lock); \
-@@ -142,19 +171,6 @@
- #define write_trylock(lock)	({preempt_disable();_raw_write_trylock(lock) ? \
- 				1 : ({preempt_enable(); 0;});})
- 
--#else
--
--#define spin_lock(lock)			_raw_spin_lock(lock)
--#define spin_trylock(lock)		_raw_spin_trylock(lock)
--#define spin_unlock(lock)		_raw_spin_unlock(lock)
--
--#define read_lock(lock)			_raw_read_lock(lock)
--#define read_unlock(lock)		_raw_read_unlock(lock)
--#define write_lock(lock)		_raw_write_lock(lock)
--#define write_unlock(lock)		_raw_write_unlock(lock)
--#define write_trylock(lock)		_raw_write_trylock(lock)
--#endif
--
- /* "lock on reference count zero" */
- #ifndef ATOMIC_DEC_AND_LOCK
- #include <asm/atomic.h>
+-Andrew Theurer
 

@@ -1,78 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264121AbUKZVKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263012AbUKZVCQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264121AbUKZVKF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 16:10:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264122AbUKZVGH
+	id S263012AbUKZVCQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 16:02:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbUKZUqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 16:06:07 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:6077 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S264126AbUKZVFR (ORCPT
+	Fri, 26 Nov 2004 15:46:30 -0500
+Received: from mail.gmx.net ([213.165.64.20]:54999 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264113AbUKZUeK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 16:05:17 -0500
-Date: Fri, 26 Nov 2004 22:05:01 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Priority Inheritance Test (Real-Time Preemption)
-Message-ID: <20041126210501.GA23381@elte.hu>
-References: <20041126010841.GA3563@elte.hu> <Pine.OSF.4.05.10411261649150.23754-100000@da410.ifa.au.dk> <20041126204138.GB21180@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041126204138.GB21180@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 26 Nov 2004 15:34:10 -0500
+X-Authenticated: #20450766
+Date: Thu, 25 Nov 2004 23:46:28 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: LM Sensors <sensors@stimpy.netroedge.com>
+cc: Len Brown <len.brown@intel.com>, linux-kernel@vger.kernel.org,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [sensors] system slow since ~ 2.6.7
+In-Reply-To: <20041125211941.27eac8f0.khali@linux-fr.org>
+Message-ID: <Pine.LNX.4.60.0411252337400.1631@poirot.grange>
+References: <Pine.LNX.4.60.0411180115490.941@poirot.grange>
+ <1101186291.20008.247.camel@d845pe> <Pine.LNX.4.60.0411242139090.2319@poirot.grange>
+ <20041125211941.27eac8f0.khali@linux-fr.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello and thanks for the help!
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+On Thu, 25 Nov 2004, Jean Delvare wrote:
 
-> it can produce such a flow on SMP, or if you add in a third non-RT
-> task (task-C). Agreed?
+> > This reminds me: about a year ago my CPU fan burnt down. Then too,
+> > shortly after booting the PC, it slowed down. Then by accident I
+> > noticed in BIOS CPU temperature 98 deg C. With a new fan problem
+> > disappeared.
+> 
+> Wow, 98, no less. You're lucky it didn't catch on fire, you know.
 
-here's the 4-task flow. I've simplified the operations to make it easier
-to overview: "L1-success means" 'task locked lock1 and got it'. 
-"L1-wait" means it tried to get lock1 but has to wait. "RT-prio" means a
-non-RT task got boosted to RT priority. "old-prio" means priority got
-restored to the original non-RT value. "UL-1" means 'unlocked lock1'.
+Yep, I do:-) I read some hot reports about hot AMDs right after that 
+adventure:-)
 
-	task-A		task-B		task-C		task-RT
-	-------------------------------------------------------
-	L2-success
-			L1-success
-					L1-wait
-					.		L2-wait
-					.		boost-A
-	RT-prio				.		.
-	L1-wait				.		.
-	boost-B				.		.
-	.		RT-prio		.		.
-	.		[ 1 ms ]	.		.
-	.		UL-1		.		.
-	.		!RT-prio	.		.
-	get-L1				.		.
-	[ 1 ms ]			.		.
-	UL-1				.		.
-					get-L1		.
-	UL-2						.
-	old-prio					.
-							get-L2
-							L1-wait
-							boost-C
-					RT-prio		.
-					[ 1 msec ]	.
-					UL-1		.
-					old-prio	.
-							get-L1
-							[ success ]
+> There were some significant changes to the via686a driver in 2.6.6 and
+> 2.6.7.
+> 
+> 2.6.6: Limit initialization was removed from the driver. The same was
+> done for most other drivers. The limits have to be set by either the
+> BIOS or user-space, not kernel drivers. Also, chip initialization is now
+> less agressive (previous version would possibly arbitrarily overwrite
+> BIOS settings).
+> 
+> 2.6.7: Conversion formulas were reworked for a better accuracy. Errors
+> were previously introduced by incorrect rounding.
+> 
+> I think that the changes in 2.6.6 are the ones affecting you.
 
-this is a 3 milliseconds worst-case. Ok?
+In the meantime I tried 2.6.5 - same behaviour as 2.6.7.
 
-	Ingo
+> > Yes, some coefficients are definitely wrong. Here are a
+> > couple of snapshots:
+> > 
+> > via686a-isa-e200
+> > Adapter: ISA adapter
+> > CPU core:  +1.09 V  (min =  +2.00 V, max =  +2.50 V)   ALARM
+> > +2.5V:     +1.16 V  (min =  +3.10 V, max =  +1.57 V)   ALARM
+> > I/O:       +3.40 V  (min =  +4.13 V, max =  +4.13 V)   ALARM
+> > +5V:       +5.55 V  (min =  +6.44 V, max =  +6.44 V)   ALARM
+> > +12V:      +4.81 V  (min = +15.60 V, max = +15.60 V)   ALARM
+> > CPU Fan:  5443 RPM  (min =    0 RPM, div = 2)          
+> > P/S Fan:     0 RPM  (min =    0 RPM, div = 2)          
+> > SYS Temp:  +45.4 C  (high =   +45 C, hyst =   +40 C)   ALARM
+> > CPU Temp:  +34.5 C  (high =   +60 C, hyst =   +55 C)   
+> > SBr Temp:  +28.4 C  (high =   +65 C, hyst =   +60 C)   
+> 
+> Blame your BIOS! It did not properly configure voltage limits, among
+> others. BTW, Vcore, +2.5V and +12V look awfully wrong anyway. I/O and
+> +5V are acceptable but even +5V is a bit too high IMHO. Never heard of
+> your motherboard model before, seems to be a rare one. Maybe Asus didn't
+> put much support on it. 
+
+Well, don't know how rare it is - I did find it on the ASUS site.
+
+> Notice the ALARM in SYS Temp, which is probably causing the system to
+> throttle.
+
+Yep. However, I saw ALARM without throttling sometimes too.
+
+> > via686a-isa-e200
+> > Adapter: ISA adapter
+> > CPU core:  +1.09 V  (min =  +2.00 V, max =  +2.50 V)   ALARM
+> > +2.5V:     +1.16 V  (min =  +3.10 V, max =  +1.57 V)   ALARM
+> > I/O:       +3.40 V  (min =  +4.13 V, max =  +4.13 V)   ALARM
+> > +5V:       +5.55 V  (min =  +6.44 V, max =  +6.44 V)   ALARM
+> > +12V:      +4.81 V  (min = +15.60 V, max = +15.60 V)   ALARM
+> > CPU Fan:  5487 RPM  (min =    0 RPM, div = 2)          
+> > P/S Fan:     0 RPM  (min =    0 RPM, div = 2)          
+> > SYS Temp:  +45.2 C  (high =   +91 C, hyst =   +40 C)   ALARM
+> > CPU Temp:  +34.4 C  (high =   +60 C, hyst =   +55 C)   
+> > SBr Temp:  +28.4 C  (high =   +65 C, hyst =   +60 C)   
+> > 
+> > Notice how SYS Temp high changed...
+> 
+> Did it change *on its own*?
+
+Hm, at least, I certainly didn't do anything to change it.
+
+> Weird. Note that 91 = 45 << 1 + 1. I wonder
+> if it could be some kind of read error. Will the value change 
+
+Sorry? Did you mean "will it change again after that?" Well, not sure any 
+more, but, I think, it did.
+
+> > Can my guesses be correct and how can the situation be fixed?
+> 
+> Pick the latest default configuration file for sensors here:
+> http://www2.lm-sensors.nu/%7Elm78/cvs/lm_sensors2/etc/sensors.conf.eg
+> Save as /etc/sensors.conf, edit the via686a-* section, especially the
+> "set temp1_high" and set temp1_hyst" values. I'd suggest:
+> 
+>     set temp1_hyst 55
+>     set temp1_over 60
+> 
+> Save the changes and run "sensors -s". Your system should hopefully be
+> back to full speed right after that. So all you have to do is make sure
+> that "sensors -s" is called after you load the via686a driver at boot
+> time.
+
+Indeed! Just modifying these 2 values in my sensors.conf brought the 
+system back to normal under 2.6.9! I'll get the latest config later. 
+Thanks!
+
+> You should take a look at the hardware monitoring options in your BIOS
+> setup screen if it has any. Maybe you can configure the boot value of
+> temp1_high directly there, and it may provide hints about voltages as
+> well.
+
+In BIOS one can only monitor sensors.
+
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
+

@@ -1,330 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267097AbSKWXYH>; Sat, 23 Nov 2002 18:24:07 -0500
+	id <S267106AbSKWXxy>; Sat, 23 Nov 2002 18:53:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267101AbSKWXYH>; Sat, 23 Nov 2002 18:24:07 -0500
-Received: from medelec.uia.ac.be ([143.169.17.1]:37900 "EHLO medelec.uia.ac.be")
-	by vger.kernel.org with ESMTP id <S267097AbSKWXYC>;
-	Sat, 23 Nov 2002 18:24:02 -0500
-Date: Sun, 24 Nov 2002 00:31:03 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: torvalds@transmeta.com, davej@codemonkey.org.uk
-Cc: linux-kernel@vger.kernel.org, Matt_Domsch@Dell.com, rob@osinvestor.com
-Subject: [PATCH] linux-2.5.49 - Watchdog drivers
-Message-ID: <20021124003103.A8544@medelec.uia.ac.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S267109AbSKWXxy>; Sat, 23 Nov 2002 18:53:54 -0500
+Received: from elin.scali.no ([62.70.89.10]:53778 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S267106AbSKWXxw>;
+	Sat, 23 Nov 2002 18:53:52 -0500
+Date: Sun, 24 Nov 2002 01:02:23 +0100 (CET)
+From: Steffen Persvold <sp@scali.com>
+X-X-Sender: sp@sp-laptop.isdn.scali.no
+To: linux-kernel@vger.kernel.org, <linux.nics@intel.com>
+Subject: Intel GbE performance on E7500
+Message-ID: <Pine.LNX.4.44.0211240016280.1004-100000@sp-laptop.isdn.scali.no>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, Dave,
+Hi all,
 
-included the patch for linux-2.5.49 to make the watchdog drivers working again.
-Could you apply this to the current tree please?
+Lately I've been playing with Intel Gigabit adapters on two SuperMicro 
+P4DPR-6GM+ motherboards which have the Intel E7500 chipset and one 
+onboard Intel 82544GC Gigabit Ethernet controller (and other features). 
+I've also put in a Intel 82546EB Dual Gigabit Ethernet controller as a 
+add-in card in the 100MHz PCI-X slot (64bit). I've been experiencing 
+some (IMHO) wierd behavior, and come to you guys for advice.
 
-PS: the patch is also ftp-able at: ftp://medelec.uia.ac.be/pub/linux/kernel-patches/wd-2.5.49-patch
+As some of you may know the E7500 chipset has a Hub design. On these 
+particular motherboards there is a memory controller (the MCH) and one 
+P64H2 PCI-X bridge (and also a south bridge of course). The P64H2 has two 
+PCI-X busses where one is dedicated to onboard devices (where the 
+82544GC sits) and the other to the PCI-X slot (where the 82546EB dual card 
+sits). The onboard bus runs in PCI mode at 66 MHz (because of the 
+SCSI controller I guess) wheras the external bus runs in PCI-X mode. The 
+P64H2 is connected to the MCH with a 1Gbyte/sec Hub-Link.
 
-Greetings,
-Wim.
+These boxes run the 2.4.20-rc2 kernel which uses the 4.4.12-k1 e1000 
+driver (no special options). They are connected back-to-back with 
+crossover cables (the oboard devices are connected together and the 
+external devices are connected together). I'm using standard MTU, 1500 
+bytes.
 
-diff -urN linux-2.5.49/drivers/char/Makefile linux-2.5.49-watchdog-patch/drivers/char/Makefile
---- linux-2.5.49/drivers/char/Makefile	Fri Nov 22 22:41:09 2002
-+++ linux-2.5.49-watchdog-patch/drivers/char/Makefile	Sun Nov 24 00:00:48 2002
-@@ -77,12 +77,11 @@
- obj-$(CONFIG_NWFLASH) += nwflash.o
- obj-$(CONFIG_SCx200_GPIO) += scx200_gpio.o
- 
--obj-$(CONFIG_WATCHDOGS)	+= watchdog/
-+obj-$(CONFIG_WATCHDOG)	+= watchdog/
- obj-$(CONFIG_MWAVE) += mwave/
- obj-$(CONFIG_AGP) += agp/
- obj-$(CONFIG_DRM) += drm/
- obj-$(CONFIG_PCMCIA) += pcmcia/
--
- 
- # Files generated that shall be removed upon make clean
- clean-files := consolemap_deftbl.c defkeymap.c qtronixmap.c
-diff -urN linux-2.5.49/drivers/char/i810-tco.h linux-2.5.49-watchdog-patch/drivers/char/i810-tco.h
---- linux-2.5.49/drivers/char/i810-tco.h	Fri Nov 22 22:40:52 2002
-+++ linux-2.5.49-watchdog-patch/drivers/char/i810-tco.h	Thu Jan  1 01:00:00 1970
-@@ -1,42 +0,0 @@
--/*
-- *	i810-tco 0.05:	TCO timer driver for i8xx chipsets
-- *
-- *	(c) Copyright 2000 kernel concepts <nils@kernelconcepts.de>, All Rights Reserved.
-- *				http://www.kernelconcepts.de
-- *
-- *	This program is free software; you can redistribute it and/or
-- *	modify it under the terms of the GNU General Public License
-- *	as published by the Free Software Foundation; either version
-- *	2 of the License, or (at your option) any later version.
-- *	
-- *	Neither kernel concepts nor Nils Faerber admit liability nor provide
-- *	warranty for any of this software. This material is provided
-- *	"AS-IS" and at no charge.
-- *
-- *	(c) Copyright 2000	kernel concepts <nils@kernelconcepts.de>
-- *				developed for
-- *                              Jentro AG, Haar/Munich (Germany)
-- *
-- *	TCO timer driver for i8xx chipsets
-- *	based on softdog.c by Alan Cox <alan@redhat.com>
-- *
-- *	For history and the complete list of supported I/O Controller Hub's
-- *	see i810-tco.c
-- */
--
--
--/*
-- * Some address definitions for the i810 TCO
-- */
--
--#define	TCOBASE		ACPIBASE + 0x60	/* TCO base address		*/
--#define TCO1_RLD	TCOBASE + 0x00	/* TCO Timer Reload and Current Value */
--#define TCO1_TMR	TCOBASE + 0x01	/* TCO Timer Initial Value	*/
--#define	TCO1_DAT_IN	TCOBASE + 0x02	/* TCO Data In Register		*/
--#define	TCO1_DAT_OUT	TCOBASE + 0x03	/* TCO Data Out Register	*/
--#define	TCO1_STS	TCOBASE + 0x04	/* TCO1 Status Register		*/
--#define	TCO2_STS	TCOBASE + 0x06	/* TCO2 Status Register		*/
--#define TCO1_CNT	TCOBASE + 0x08	/* TCO1 Control Register	*/
--#define TCO2_CNT	TCOBASE + 0x0a	/* TCO2 Control Register	*/
--
--#define	SMI_EN		ACPIBASE + 0x30	/* SMI Control and Enable Register */
-diff -urN linux-2.5.49/drivers/char/watchdog/i810-tco.h linux-2.5.49-watchdog-patch/drivers/char/watchdog/i810-tco.h
---- linux-2.5.49/drivers/char/watchdog/i810-tco.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.5.49-watchdog-patch/drivers/char/watchdog/i810-tco.h	Sun Nov 24 00:23:52 2002
-@@ -0,0 +1,42 @@
-+/*
-+ *	i810-tco 0.05:	TCO timer driver for i8xx chipsets
-+ *
-+ *	(c) Copyright 2000 kernel concepts <nils@kernelconcepts.de>, All Rights Reserved.
-+ *				http://www.kernelconcepts.de
-+ *
-+ *	This program is free software; you can redistribute it and/or
-+ *	modify it under the terms of the GNU General Public License
-+ *	as published by the Free Software Foundation; either version
-+ *	2 of the License, or (at your option) any later version.
-+ *
-+ *	Neither kernel concepts nor Nils Faerber admit liability nor provide
-+ *	warranty for any of this software. This material is provided
-+ *	"AS-IS" and at no charge.
-+ *
-+ *	(c) Copyright 2000	kernel concepts <nils@kernelconcepts.de>
-+ *				developed for
-+ *                              Jentro AG, Haar/Munich (Germany)
-+ *
-+ *	TCO timer driver for i8xx chipsets
-+ *	based on softdog.c by Alan Cox <alan@redhat.com>
-+ *
-+ *	For history and the complete list of supported I/O Controller Hub's
-+ *	see i810-tco.c
-+ */
-+
-+
-+/*
-+ * Some address definitions for the i810 TCO
-+ */
-+
-+#define	TCOBASE		ACPIBASE + 0x60	/* TCO base address		*/
-+#define TCO1_RLD	TCOBASE + 0x00	/* TCO Timer Reload and Current Value */
-+#define TCO1_TMR	TCOBASE + 0x01	/* TCO Timer Initial Value	*/
-+#define	TCO1_DAT_IN	TCOBASE + 0x02	/* TCO Data In Register		*/
-+#define	TCO1_DAT_OUT	TCOBASE + 0x03	/* TCO Data Out Register	*/
-+#define	TCO1_STS	TCOBASE + 0x04	/* TCO1 Status Register		*/
-+#define	TCO2_STS	TCOBASE + 0x06	/* TCO2 Status Register		*/
-+#define TCO1_CNT	TCOBASE + 0x08	/* TCO1 Control Register	*/
-+#define TCO2_CNT	TCOBASE + 0x0a	/* TCO2 Control Register	*/
-+
-+#define	SMI_EN		ACPIBASE + 0x30	/* SMI Control and Enable Register */
-diff -urN linux-2.5.49/drivers/char/watchdog/wd501p.h linux-2.5.49-watchdog-patch/drivers/char/watchdog/wd501p.h
---- linux-2.5.49/drivers/char/watchdog/wd501p.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.5.49-watchdog-patch/drivers/char/watchdog/wd501p.h	Sun Nov 24 00:24:08 2002
-@@ -0,0 +1,91 @@
-+/*
-+ *	Industrial Computer Source WDT500/501 driver for Linux 1.3.x
-+ *
-+ *	(c) Copyright 1995	CymruNET Ltd
-+ *				Innovation Centre
-+ *				Singleton Park
-+ *				Swansea
-+ *				Wales
-+ *				UK
-+ *				SA2 8PP
-+ *
-+ *	http://www.cymru.net
-+ *
-+ *	This driver is provided under the GNU General Public License, incorporated
-+ *	herein by reference. The driver is provided without warranty or
-+ *	support.
-+ *
-+ *	Release 0.04.
-+ *
-+ */
-+
-+#include <linux/config.h>
-+
-+#define WDT_COUNT0		(io+0)
-+#define WDT_COUNT1		(io+1)
-+#define WDT_COUNT2		(io+2)
-+#define WDT_CR			(io+3)
-+#define WDT_SR			(io+4)	/* Start buzzer on PCI write */
-+#define WDT_RT			(io+5)	/* Stop buzzer on PCI write */
-+#define WDT_BUZZER		(io+6)	/* PCI only: rd=disable, wr=enable */
-+#define WDT_DC			(io+7)
-+
-+/* The following are only on the PCI card, they're outside of I/O space on
-+ * the ISA card: */
-+#define WDT_CLOCK		(io+12)	/* COUNT2: rd=16.67MHz, wr=2.0833MHz */
-+/* inverted opto isolated reset output: */
-+#define WDT_OPTONOTRST		(io+13)	/* wr=enable, rd=disable */
-+/* opto isolated reset output: */
-+#define WDT_OPTORST		(io+14)	/* wr=enable, rd=disable */
-+/* programmable outputs: */
-+#define WDT_PROGOUT		(io+15)	/* wr=enable, rd=disable */
-+
-+#define WDC_SR_WCCR		1	/* Active low */
-+#define WDC_SR_TGOOD		2
-+#define WDC_SR_ISOI0		4
-+#define WDC_SR_ISII1		8
-+#define WDC_SR_FANGOOD		16
-+#define WDC_SR_PSUOVER		32	/* Active low */
-+#define WDC_SR_PSUUNDR		64	/* Active low */
-+#define WDC_SR_IRQ		128	/* Active low */
-+
-+#ifndef WDT_IS_PCI
-+
-+/*
-+ *	Feature Map 1 is the active high inputs not supported on your card.
-+ *	Feature Map 2 is the active low inputs not supported on your card.
-+ */
-+
-+#ifdef CONFIG_WDT_501		/* Full board */
-+
-+#ifdef CONFIG_WDT501_FAN	/* Full board, Fan has no tachometer */
-+#define FEATUREMAP1		0
-+#define WDT_OPTION_MASK		(WDIOF_OVERHEAT|WDIOF_POWERUNDER|WDIOF_POWEROVER|WDIOF_EXTERN1|WDIOF_EXTERN2|WDIOF_FANFAULT)
-+#else
-+#define FEATUREMAP1		WDC_SR_FANGOOD
-+#define WDT_OPTION_MASK		(WDIOF_OVERHEAT|WDIOF_POWERUNDER|WDIOF_POWEROVER|WDIOF_EXTERN1|WDIOF_EXTERN2)
-+#endif
-+
-+#define FEATUREMAP2		0
-+#endif
-+
-+#ifndef CONFIG_WDT_501
-+#define CONFIG_WDT_500
-+#endif
-+
-+#ifdef CONFIG_WDT_500		/* Minimal board */
-+#define FEATUREMAP1		(WDC_SR_TGOOD|WDC_SR_FANGOOD)
-+#define FEATUREMAP2		(WDC_SR_PSUOVER|WDC_SR_PSUUNDR)
-+#define WDT_OPTION_MASK		(WDIOF_OVERHEAT)
-+#endif
-+
-+#else
-+
-+#define FEATUREMAP1		(WDC_SR_TGOOD|WDC_SR_FANGOOD)
-+#define FEATUREMAP2		(WDC_SR_PSUOVER|WDC_SR_PSUUNDR)
-+#define WDT_OPTION_MASK		(WDIOF_OVERHEAT)
-+#endif
-+
-+#ifndef FEATUREMAP1
-+#error "Config option not set"
-+#endif
-diff -urN linux-2.5.49/drivers/char/wd501p.h linux-2.5.49-watchdog-patch/drivers/char/wd501p.h
---- linux-2.5.49/drivers/char/wd501p.h	Fri Nov 22 22:40:13 2002
-+++ linux-2.5.49-watchdog-patch/drivers/char/wd501p.h	Thu Jan  1 01:00:00 1970
-@@ -1,91 +0,0 @@
--/*
-- *	Industrial Computer Source WDT500/501 driver for Linux 1.3.x
-- *
-- *	(c) Copyright 1995	CymruNET Ltd
-- *				Innovation Centre
-- *				Singleton Park
-- *				Swansea
-- *				Wales
-- *				UK
-- *				SA2 8PP
-- *
-- *	http://www.cymru.net
-- *
-- *	This driver is provided under the GNU General Public License, incorporated
-- *	herein by reference. The driver is provided without warranty or 
-- *	support.
-- *
-- *	Release 0.04.
-- *
-- */
--
--#include <linux/config.h>
--
--#define WDT_COUNT0		(io+0)
--#define WDT_COUNT1		(io+1)
--#define WDT_COUNT2		(io+2)
--#define WDT_CR			(io+3)
--#define WDT_SR			(io+4)	/* Start buzzer on PCI write */
--#define WDT_RT			(io+5)	/* Stop buzzer on PCI write */
--#define WDT_BUZZER		(io+6)	/* PCI only: rd=disable, wr=enable */
--#define WDT_DC			(io+7)
--
--/* The following are only on the PCI card, they're outside of I/O space on
-- * the ISA card: */
--#define WDT_CLOCK		(io+12)	/* COUNT2: rd=16.67MHz, wr=2.0833MHz */
--/* inverted opto isolated reset output: */
--#define WDT_OPTONOTRST		(io+13)	/* wr=enable, rd=disable */
--/* opto isolated reset output: */
--#define WDT_OPTORST		(io+14)	/* wr=enable, rd=disable */
--/* programmable outputs: */
--#define WDT_PROGOUT		(io+15)	/* wr=enable, rd=disable */
--
--#define WDC_SR_WCCR		1	/* Active low */
--#define WDC_SR_TGOOD		2
--#define WDC_SR_ISOI0		4
--#define WDC_SR_ISII1		8
--#define WDC_SR_FANGOOD		16
--#define WDC_SR_PSUOVER		32	/* Active low */
--#define WDC_SR_PSUUNDR		64	/* Active low */
--#define WDC_SR_IRQ		128	/* Active low */
--
--#ifndef WDT_IS_PCI
--
--/*
-- *	Feature Map 1 is the active high inputs not supported on your card.
-- *	Feature Map 2 is the active low inputs not supported on your card.
-- */
-- 
--#ifdef CONFIG_WDT_501		/* Full board */
--
--#ifdef CONFIG_WDT501_FAN	/* Full board, Fan has no tachometer */
--#define FEATUREMAP1		0
--#define WDT_OPTION_MASK		(WDIOF_OVERHEAT|WDIOF_POWERUNDER|WDIOF_POWEROVER|WDIOF_EXTERN1|WDIOF_EXTERN2|WDIOF_FANFAULT)
--#else
--#define FEATUREMAP1		WDC_SR_FANGOOD
--#define WDT_OPTION_MASK		(WDIOF_OVERHEAT|WDIOF_POWERUNDER|WDIOF_POWEROVER|WDIOF_EXTERN1|WDIOF_EXTERN2)
--#endif
--
--#define FEATUREMAP2		0
--#endif
--
--#ifndef CONFIG_WDT_501
--#define CONFIG_WDT_500
--#endif
--
--#ifdef CONFIG_WDT_500		/* Minimal board */
--#define FEATUREMAP1		(WDC_SR_TGOOD|WDC_SR_FANGOOD)
--#define FEATUREMAP2		(WDC_SR_PSUOVER|WDC_SR_PSUUNDR)
--#define WDT_OPTION_MASK		(WDIOF_OVERHEAT)
--#endif
--
--#else
--
--#define FEATUREMAP1		(WDC_SR_TGOOD|WDC_SR_FANGOOD)
--#define FEATUREMAP2		(WDC_SR_PSUOVER|WDC_SR_PSUUNDR)
--#define WDT_OPTION_MASK		(WDIOF_OVERHEAT)
--#endif
--
--#ifndef FEATUREMAP1
--#error "Config option not set"
--#endif
+When I run netpipe-2.4 on these devices to benchmark some latencies and 
+stuff, I get very different results. First I test one of the external 
+devices (eth1 which is one of the 82546EB devices) :
+
+Latency: 0.000123
+Now starting main loop
+  0:         1 bytes 2037 times -->    0.06 Mbps in 0.000123 sec
+  1:         2 bytes 2025 times -->    0.12 Mbps in 0.000125 sec
+  2:         3 bytes 2001 times -->    0.18 Mbps in 0.000125 sec
+  3:         4 bytes 1334 times -->    0.24 Mbps in 0.000125 sec
+  4:         6 bytes 1501 times -->    0.37 Mbps in 0.000125 sec
+  5:         8 bytes 1001 times -->    0.49 Mbps in 0.000125 sec
+  6:        12 bytes 1251 times -->    0.73 Mbps in 0.000125 sec
+  7:        13 bytes  834 times -->    0.97 Mbps in 0.000102 sec
+  8:        16 bytes 1126 times -->    1.79 Mbps in 0.000068 sec
+  9:        19 bytes 2066 times -->    2.31 Mbps in 0.000063 sec
+ 10:        21 bytes 2519 times -->    2.56 Mbps in 0.000063 sec
+ 11:        24 bytes 2664 times -->    2.93 Mbps in 0.000063 sec
+
+I interrupt the test and start over :
+
+Latency: 0.000063
+Now starting main loop
+  0:         1 bytes 3983 times -->    0.12 Mbps in 0.000063 sec
+  1:         2 bytes 3991 times -->    0.24 Mbps in 0.000063 sec
+  2:         3 bytes 3990 times -->    0.36 Mbps in 0.000063 sec
+  3:         4 bytes 2654 times -->    0.49 Mbps in 0.000063 sec
+  4:         6 bytes 2987 times -->    0.73 Mbps in 0.000063 sec
+  5:         8 bytes 1987 times -->    0.97 Mbps in 0.000063 sec
+  6:        12 bytes 2485 times -->    1.37 Mbps in 0.000067 sec
+  7:        13 bytes 1562 times -->    0.79 Mbps in 0.000125 sec
+  8:        16 bytes  924 times -->    0.98 Mbps in 0.000125 sec
+  9:        19 bytes 1125 times -->    1.16 Mbps in 0.000125 sec
+ 10:        21 bytes 1264 times -->    1.28 Mbps in 0.000125 sec
+ 11:        24 bytes 1334 times -->    1.47 Mbps in 0.000125 sec
+
+
+Ok, so I think this must be some of the "interrupt coalescing" logic which 
+is interferring (netpipe is by default ping-pong traffic). So I test the 
+other 82546EB device (eth2), same result.
+
+_But_ (and here is the point) when I test the onboard 82544GC device I get 
+a very different result :
+
+Latency: 0.000030
+Now starting main loop
+  0:         1 bytes 8208 times -->    0.27 Mbps in 0.000028 sec
+  1:         2 bytes 8876 times -->    0.54 Mbps in 0.000028 sec
+  2:         3 bytes 8927 times -->    0.82 Mbps in 0.000028 sec
+  3:         4 bytes 5981 times -->    1.10 Mbps in 0.000028 sec
+  4:         6 bytes 6785 times -->    1.66 Mbps in 0.000028 sec
+  5:         8 bytes 4523 times -->    2.21 Mbps in 0.000028 sec
+  6:        12 bytes 5659 times -->    3.31 Mbps in 0.000028 sec
+  7:        13 bytes 3761 times -->    3.50 Mbps in 0.000028 sec
+  8:        16 bytes 4071 times -->    4.39 Mbps in 0.000028 sec
+  9:        19 bytes 5057 times -->    5.17 Mbps in 0.000028 sec
+ 10:        21 bytes 5634 times -->    5.32 Mbps in 0.000030 sec
+ 11:        24 bytes 5537 times -->    6.46 Mbps in 0.000028 sec
+
+
+It has _half_ the latency of the other devices, _and_ it is consistent 
+(i.e not bouncing up and down). When I test them with large messages (for 
+bandwidth) they all perform equally.
+
+What could be the reason for this rather large latency difference ? 
+
+I would appreciate any input, and would be happy to test out other 
+versions of the driver (although I don't think this is a driver issue).
+
+PS:
+
+I must admit, less than 30us latency with an interrupt driven technology 
+is very impressive (I know there are other GbE devices which acheives this 
+too).
+
+DS
+
+ Regards,
+ -- 
+  Steffen Persvold   |       Scali AS      
+ mailto:sp@scali.com |  http://www.scali.com
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY
+

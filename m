@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbUE1EQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265793AbUE1ESb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbUE1EQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 00:16:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265793AbUE1EQZ
+	id S265793AbUE1ESb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 00:18:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265800AbUE1ESb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 00:16:25 -0400
-Received: from mail.renesas.com ([202.234.163.13]:28149 "EHLO
-	mail02.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S262730AbUE1EQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 00:16:22 -0400
-Date: Fri, 28 May 2004 13:16:11 +0900 (JST)
-Message-Id: <20040528.131611.28785624.takata.hirokazu@renesas.com>
+	Fri, 28 May 2004 00:18:31 -0400
+Received: from [61.109.177.163] ([61.109.177.163]:25095 "HELO chikushi-u.ac.jp")
+	by vger.kernel.org with SMTP id S265793AbUE1ES1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 00:18:27 -0400
+Message-ID: <c52701c4446a$f52e74fb$4018e695@chikushi-u.ac.jp>
+From: "Marilyn Groves" <marilyn.groves_eg@macplast.it>
 To: linux-kernel@vger.kernel.org
-Cc: takata@linux-m32r.org
-Subject: [PATCH] m32r - Upgrade to v2.6.6 kernel
-From: Hirokazu Takata <takata@linux-m32r.org>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Very powerful weightloss now available.
+Date: Fri, 28 May 2004 00:12:50 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-I would like to send the latest 2.6.6 kernel patch for 
-the Renesas M32R processor.
-
-Patch information to the stock 2.6.6 kernel is placed as follows:
-- m32r architecture dependent portions (arch/m32r, include/asm-m32r)
-  http://www.linux-m32r.org/public/linux-2.6.6_m32r_20040528.arch-m32r.patch
-
-In this M32R kernel,
-- OProfile is newly supported.
-- Architecture-dependent portion codes have been modified for gcc-3.4.0.
-
-Best Regards,
---
-Hirokazu Takata
-Linux/M32R Project: http://www.linux-m32r.org/
+Hello, I have a special_offer for you...
+WANT TO LOSE WEIGHT?
+The most powerful weightloss is now available
+without prescription. All natural Adipren720
+100% Money Back Guarantée!
+- Lose up to 19% Total Body Weight.
+- Up to 300% more Weight Loss while dieting.
+- Loss of 20-35% abdominal Fat.
+- Reduction of 40-70% overall Fat under skin.
+- Increase metabolic rate by 76.9% without Exercise.
+- Boost your Confidence level and Self Esteem.
+- Burns calorized fat.
+- Suppresses appetite for sugar.
+Get the facts about all-natural Adipren720 <http://www.8721diet.biz/default45.htm>
+If you wish not to be contacted again please
+enter your email address here. <http://www.8721diet.biz/r.html>
 

@@ -1,76 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263390AbTDGMAI (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 08:00:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263391AbTDGMAI (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 08:00:08 -0400
-Received: from tomts12.bellnexxia.net ([209.226.175.56]:3763 "EHLO
-	tomts12-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S263390AbTDGMAE (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 08:00:04 -0400
-Date: Mon, 7 Apr 2003 08:07:26 -0400 (EDT)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Robert Love <rml@tech9.net>
-cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.66-bk12 causes "rpm" errors
-In-Reply-To: <1049679689.753.170.camel@localhost>
-Message-ID: <Pine.LNX.4.44.0304070800170.1241-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S263389AbTDGMAB (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 08:00:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263390AbTDGMAB (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 08:00:01 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:30867
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263389AbTDGMAA (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 08:00:00 -0400
+Subject: Re: [PATCH] new syscall: flink
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030407091120.GA50075@dspnet.fr.eu.org>
+References: <Pine.BSO.4.44.0304062250250.9407-100000@kwalitee.nolab.conman.org>
+	 <b6qruf$elf$1@cesium.transmeta.com> <b6r9cv$jof$1@news.cistron.nl>
+	 <20030407081800.GA48052@dspnet.fr.eu.org>
+	 <20030407043555.G13397@devserv.devel.redhat.com>
+	 <20030407091120.GA50075@dspnet.fr.eu.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1049713992.2965.23.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 07 Apr 2003 12:13:12 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Apr 2003, Robert Love wrote:
-
-> On Sun, 2003-04-06 at 21:32, Andrew Morton wrote:
+On Llu, 2003-04-07 at 10:11, Olivier Galibert wrote:
+> On Mon, Apr 07, 2003 at 04:35:56AM -0400, Jakub Jelinek wrote:
+> > There is at most one path associated with an opened file - d_path on
+> > file->f_dentry. If a fd has no path, don't permit flink().
+> > Alternatively, flink() could have 3 arguments, 2 like link and an opened
+> > fd, which would atomically do if fd describes the same object as buf,
+> > link buf to newname.
 > 
-> > Does it work OK with earlier 2.5 kernels?
-> > 
-> > The only change which comes to mind is the below one.  Could you do a
-> > patch -R of this and retest?
-> 
-> This has been happening since 2.5.60-ish.
-> 
-> It is NPTL-related.  Mr. Day, doing this:
-> 
-> 	LD_ASSUME_KERNEL=2.2.5 rpm <...>
-> 
-> should "fix" the problem.
+> That breaks one of the main uses, creating with open a temporary file
+> in /tmp, unlinking it, then later hooking it up somewhere else in the
+> filesystem.
 
-ok, based on messing around this morning with this, here's what
-i've found.
-
-(first, apologies to andrew morton; when i said his patch applied
-on top of bk12, i was just confused.  it's a "battle tactic". :-)
-
-all of this is based on my RH 9 (shrike) box, running on a dell
-inspiron 8100.
-
-first, the rpm flaw exists using all three variations of the
-kernel i tested:
-
-  2.5.66
-  2.5.66-bk12
-  2.5.66-bk12-mm (bk12 minus andrew's filemap patch)
-
-the interesting part is that doing something simple like "rpm -q rpm"
-works for a non-root user; it fails only when root tries it, even
-though the operation is only a query.  go figure.
-
-next, backing out from rpm-4.2-0.69 to rpm-4.2-0.66 didn't seem to
-fix the problem (at least, not for me -- a previous poster claimed
-that it fixed it for him, but it didn't solve the problem here).
-
-finally, using:
-
-  LD_ASSUME_KERNEL=2.2.5 rpm -q rpm
-
-solves the problem (at least under the 2.5.66-bk12-mm kernel i'm
-running at the moment -- i'll assume it does the same under the
-others).
-
-take whatever you can get from this.
-
-rday
-
-p.s.  more 2.5.66-bk12 oddities coming up shortly
-
+/tmp is normally on another file system so its not going to work anyway
 

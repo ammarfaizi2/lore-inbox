@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266490AbRGQNlZ>; Tue, 17 Jul 2001 09:41:25 -0400
+	id <S266507AbRGQNbp>; Tue, 17 Jul 2001 09:31:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266505AbRGQNlP>; Tue, 17 Jul 2001 09:41:15 -0400
-Received: from tower.t16.ds.pwr.wroc.pl ([156.17.232.1]:44734 "HELO
-	tower.t16.ds.pwr.wroc.pl") by vger.kernel.org with SMTP
-	id <S266490AbRGQNlJ>; Tue, 17 Jul 2001 09:41:09 -0400
-Date: Tue, 17 Jul 2001 15:40:51 +0200 (CEST)
-From: Przemyslaw Wegrzyn <czajnik@tower.t16.ds.pwr.wroc.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Misleading Documentation/proc.txt ?
-Message-ID: <Pine.LNX.4.21.0107171525050.815-100000@tower.t16.ds.pwr.wroc.pl>
+	id <S266500AbRGQNbf>; Tue, 17 Jul 2001 09:31:35 -0400
+Received: from scooter.wvu.edu ([157.182.140.80]:59352 "EHLO scooter.wvu.edu")
+	by vger.kernel.org with ESMTP id <S266507AbRGQNbV>;
+	Tue, 17 Jul 2001 09:31:21 -0400
+Message-ID: <3B543E28.4060303@wvu.edu>
+Date: Tue, 17 Jul 2001 09:31:20 -0400
+From: David Shepard <dshepard@wvu.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010715
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: CS46XX Module with 2.4.6 kernel on IBM Thinkpad A20m
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+CS46XX Module with 2.4.6 kernel on IBM Thinkpad A20m-
 
-Hello!
+The sound on this laptop works inconsistently. lsmod indicates that all 
+modules to operate this device are properly loaded(cs46xx, soundcore, 
+ac97_codec).  Sound works fine for a given length of time. If you then 
+stop listening to say, an .mp3 on xmms,  the program will sometimes 
+ exit with what sounds like an audible "spike".  Any attempt to access 
+the audio immediately after this will end in failure, with the error 
+message "could not connect to device /dev/dsp". However if you wait a 
+while, it will work again. Sometimes. I recall this happening with an 
+older kernel version a while back as well, except the only way to fix 
+this problem back then was to restart the system.  One of the options I 
+chose during kernel configuration was "use persistent dma buffers".
 
-I'd like to know what is the actual meaning of the second number in
-/proc/sys/fs/file-nr ?
-In Documentation/filesystems/proc.txt I can see:
-
-"The three  values  in file-nr denote the number of allocated file
-handles, the number of used file handles, and the maximum number of file
-handles."
-
-But I can see that the second number actually is the number of _free_
-handles from the allocated handles pool !
-
-Is proc.txt not updated or what ? The same with both 2.2.19 and 2.4.x
-
--=Czaj-nick=-
+Just wondering if anyone knows what causes this.
 
 
+Thanks,
+David Shepard.
 

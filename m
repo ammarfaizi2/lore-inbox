@@ -1,50 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287595AbSA1NXN>; Mon, 28 Jan 2002 08:23:13 -0500
+	id <S289118AbSA1Nmr>; Mon, 28 Jan 2002 08:42:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288302AbSA1NXD>; Mon, 28 Jan 2002 08:23:03 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:11526 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S287595AbSA1NW5>;
-	Mon, 28 Jan 2002 08:22:57 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "kumar M" <kumarm4@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: exporting kernel symbols 
-In-Reply-To: Your message of "Mon, 28 Jan 2002 13:13:38 -0000."
-             <F127UjC2XxF6P0mCmg600006436@hotmail.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 29 Jan 2002 00:22:44 +1100
-Message-ID: <6909.1012224164@ocs3.intra.ocs.com.au>
+	id <S289171AbSA1Nmh>; Mon, 28 Jan 2002 08:42:37 -0500
+Received: from cp66906-a.roemd1.lb.nl.home.com ([213.51.11.249]:61069 "EHLO
+	lx01.intranet.invantive.com") by vger.kernel.org with ESMTP
+	id <S289101AbSA1NmZ>; Mon, 28 Jan 2002 08:42:25 -0500
+Date: Mon, 28 Jan 2002 15:41:57 +0100
+Message-Id: <200201281441.g0SEfvp08440@lx01.intranet.invantive.com>
+From: "Guido Leenders" <guido.leenders@invantive.com>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Diego Calleja <grundig@teleline.es>,
+        lkml <linux-kernel@vger.kernel.org>, <guido.leenders@invantive.com>
+Subject: Re: PROBLEM: 2.4.17 crashes (VM bug?) after heavy system load
+X-Mailer: NeoMail 1.25
+X-IPAddress: 195.6.68.165
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jan 2002 13:13:38 +0000, 
-"kumar M" <kumarm4@hotmail.com> wrote:
->On a freshly installed RedHat 7.1 machine
->with 2.4.2-2 kernel,  a 'make modules'
->throws up  errors such as  :
->----------------------------------------
->/usr/src/linux-2.4/include/linux/module.h:173: nondigits in number and not 
->hexadecimal
->/usr/src/linux-2.4/include/linux/module.h:173: parse error before `62dada05'
->/usr/src/linux-2.4/include/linux/module.h:173: 
->`inter_module_register_R_ver_str' declared as function returning a function
->/usr/src/linux-2.4/include/linux/module.h:173: warning: function declaration 
->isn't a prototype
->.......................................................
->
->So we do a 'make mrproper' and 'make menuconfig' and
->save and exit without any changes to configuration.
->Then we rebuild the kernel.
->make dep & make modules are done smoothly.
->
->Can you let us know why we should be doing make mrproper
->on a system freshly installed  with redhat 7.1(2.4.2-2smp)
+Dear Roy,
 
-RedHat do something strange with module symbols.  I have never
-understood what they are trying to do nor why it messes up a normal
-kernel compile.  Ask RH what the build procedure is for their
-distributed kernels and why a normal build goes wrong.
+this is indeed the problem I find. Will try 18-pre7.
 
+Regards,
+
+Guido
+
+
+
+> On Sun, 27 Jan 2002, Alan Cox wrote:
+> 
+> > > On 27 ene 2002, 22:49:17, Guido Leenders wrote:
+> > > >
+> > > > [1.] One line summary of the problem:
+> > > >
+> > > > Especially during times of heavy I/O, swapping and CPU 
+processing, the
+> > > > OS crashes with an Oops.
+> > > I think andrea's patches should be applied into stable mainline 
+NOW.
+> >
+> > Its up to Andrea to break up his patches and feed them to Marcelo 
+as he
+> > has been asked. It also won't make any odds to this trace I suspect.
+> >
+> > Trying 2.4.18pre7 or applying the LRU patch to 2.4.17 that Ben 
+LaHaise did
+> > should sort most of the 2.4.17 crashes out
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-
+kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> 
+> What makes Andrea's patches better than Rik's?
+> 
+> My recent problem with the vm was easily solved with rmap.
+> 
+> See http://karlsbakk.net/dev/kernel/vm-fsckup.txt for more info
+> 
+> roy
+> 
+> --
+> Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+> 
+> Computers are like air conditioners.
+> They stop working when you open Windows.
+> 
+> 
+
+-- 
+NeoMail - Webmail that doesn't suck... as much.
+http://neomail.sourceforge.net

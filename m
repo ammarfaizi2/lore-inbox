@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262963AbTEBP5w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 11:57:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262964AbTEBP5w
+	id S263013AbTEBQuK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 12:50:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbTEBQuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 11:57:52 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:21916 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262963AbTEBP5v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 11:57:51 -0400
-Date: Fri, 2 May 2003 09:04:55 -0700
-From: Greg KH <greg@kroah.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: [2.5 patch] kill the last occurances of usb_serial_get_by_minor
-Message-ID: <20030502160455.GA10397@kroah.com>
-References: <20030502153723.GS21168@fs.tum.de>
-Mime-Version: 1.0
+	Fri, 2 May 2003 12:50:09 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:31403
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S263013AbTEBQuJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 12:50:09 -0400
+Message-ID: <3EB2A468.6050602@redhat.com>
+Date: Fri, 02 May 2003 10:01:28 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030501
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nat Ersoz <nat.ersoz@myrio.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: strsep() question/modification
+References: <1051890980.20514.32.camel@ersoz.et.myrio.com>
+In-Reply-To: <1051890980.20514.32.camel@ersoz.et.myrio.com>
+X-Enigmail-Version: 0.75.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030502153723.GS21168@fs.tum.de>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 02, 2003 at 05:37:23PM +0200, Adrian Bunk wrote:
-> I got an error at the final linking of 2.5.68-bk11. It seems the patch 
-> below is needed.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Heh, you're using USB_SERIAL_CONSOLE?  crazy...
+Nat Ersoz wrote:
 
-Anyway, yes, you're right.  I'll add this to my tree and send it off to
-Linus in my next round of patches.  Thanks a lot for finding this and
-the patch.
+> strsep() looks a bit busted to to me.
 
-greg k-h
+It is not.  This is the expected behavior.
+
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+sqRo2ijCOnn/RHQRAsu8AJwNb8TS3uWcc7YZcEc61PNsMKjyFQCgr41w
+AROeQLbWcywNV78cgKJPOvw=
+=vk1s
+-----END PGP SIGNATURE-----
+

@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267062AbSKSRpP>; Tue, 19 Nov 2002 12:45:15 -0500
+	id <S267029AbSKSRm3>; Tue, 19 Nov 2002 12:42:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267068AbSKSRpP>; Tue, 19 Nov 2002 12:45:15 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16403 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267062AbSKSRpO>;
-	Tue, 19 Nov 2002 12:45:14 -0500
-Message-ID: <3DDA7A30.4010403@pobox.com>
-Date: Tue, 19 Nov 2002 12:51:44 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
-X-Accept-Language: en-us, en
+	id <S267035AbSKSRm3>; Tue, 19 Nov 2002 12:42:29 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52309 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S267029AbSKSRm1>; Tue, 19 Nov 2002 12:42:27 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andy Pfiffer <andyp@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Werner Almesberger <wa@almesberger.net>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Mike Galbraith <efault@gmx.de>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Subject: Re: [ANNOUNCE][CFT] kexec for v2.5.48 && kexec-tools-1.7
+References: <Pine.LNX.4.44.0211190930400.25643-100000@home.transmeta.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 Nov 2002 10:48:46 -0700
+In-Reply-To: <Pine.LNX.4.44.0211190930400.25643-100000@home.transmeta.com>
+Message-ID: <m1wun9zc01.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: Matt Reppert <arashi@arashi.yi.org>
-CC: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: [PATCH] mii module broken under new scheme
-References: <20021119115041.11ece7dc.arashi@arashi.yi.org>
-In-Reply-To: <20021119115041.11ece7dc.arashi@arashi.yi.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Reppert wrote:
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-> drivers/net/mii.c doesn't export module init/cleanup functions. That 
-> means it
-> can't be loaded under the new module scheme. This patch adds do-nothing
-> functions for it, which allows it to load. (8139too depends on mii, so
-> without this I don't have network.)
+> On Tue, 19 Nov 2002, Dave Hansen wrote:
+> > 
+> > I have a couple of ideas.  But, first, is it hard to reconstruct the 
+> > memory map?
+> 
+> Hmm.. You shouldn't need to reconstruct it. It's all there in the
+> 
+> 	struct e820map e820;
+> 
+> (yeah, we will have modified it to match the setup of the running kernel, 
+> but on the whole it should all be there, no?)
 
+Yep.  We just need to get that information out to user space.
 
-
-ahhh!   I was wondering what was up, but since I was busy with other 
-things I just compiled it into the kernel and continued on my way.
-
-That's a bug in the new module loader.
-
-	Jeff
-
-
-
+Eric

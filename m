@@ -1,105 +1,267 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269267AbUJEOH1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269130AbUJEOEG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269267AbUJEOH1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 10:07:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269246AbUJEOH1
+	id S269130AbUJEOEG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 10:04:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269080AbUJEOCw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 10:07:27 -0400
-Received: from mail.gmx.de ([213.165.64.20]:19854 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S269193AbUJEOFn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 10:05:43 -0400
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
+	Tue, 5 Oct 2004 10:02:52 -0400
+Received: from mail.renesas.com ([202.234.163.13]:24535 "EHLO
+	mail03.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S269272AbUJEOBT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 10:01:19 -0400
+Date: Tue, 05 Oct 2004 23:00:54 +0900 (JST)
+Message-Id: <20041005.230054.241896216.takata.hirokazu@renesas.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.9-rc3-mm2
-Date: Tue, 5 Oct 2004 16:07:25 +0200
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <20041004020207.4f168876.akpm@osdl.org>
-In-Reply-To: <20041004020207.4f168876.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart6131556.eAKClla0zn";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
+Subject: [PATCH 2.6.9-rc3-mm2] [m32r] Remove arch/m32r/m32700ut/m32r-flash.c
+From: Hirokazu Takata <takata.hirokazu@renesas.com>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410051607.40860.dominik.karall@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart6131556.eAKClla0zn
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Please remove arch/m32r/m32700ut/m32r-flash.c.
+It is no longer used.
 
-On Monday 04 October 2004 11:02, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2=
-=2E6
->.9-rc3-mm2/
+Thanks.
 
-some more scheduling/preempt problems. following patches were applied:
-=2D--=20
-25/include/linux/netfilter_ipv4/ip_conntrack.h~conntrack-preempt-safety-fix=
-=20
-Mon Oct  4 14:36:19 2004
-+++ 25-akpm/include/linux/netfilter_ipv4/ip_conntrack.h Mon Oct  4 14:37:02=
-=20
-2004
-@@ -311,10 +311,11 @@ struct ip_conntrack_stat
-        unsigned int expect_delete;
- };
-=20
-=2D#define CONNTRACK_STAT_INC(count)                              \
-=2D       do {                                                    \
-=2D               per_cpu(ip_conntrack_stat, get_cpu()).count++;  \
-=2D               put_cpu();                                      \
-+#define CONNTRACK_STAT_INC(count)                                      \
-+       do {                                                            \
-+               preempt_disable();                                      \
-+               per_cpu(ip_conntrack_stat, smp_processor_id()).count++; \
-+               preempt_disable();                                      \
-        } while (0)
-=20
- /* eg. PROVIDES_CONNTRACK(ftp); */
-_
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
 
-=2D-- 25/include/net/neighbour.h~neigh_stat-preempt-fix-fix       Mon Oct  =
-4=20
-14:39:22 2004
-+++ 25-akpm/include/net/neighbour.h     Mon Oct  4 14:39:22 2004
-@@ -113,8 +113,9 @@ struct neigh_statistics
-=20
- #define NEIGH_CACHE_STAT_INC(tbl, field)                               \
-        do {                                                            \
-=2D               (per_cpu_ptr((tbl)->stats, get_cpu())->field)++;        \
-=2D               put_cpu();                                              \
-+               preempt_disable();                                      \
-+               (per_cpu_ptr((tbl)->stats, smp_processor_id())->field)++; \
-+               preempt_enable();                                       \
-        } while (0)
-=20
- struct neighbour
-_
+ arch/m32r/m32700ut/m32r-flash.c |  227 ----------------------------------------
+ 1 files changed, 227 deletions(-)
 
-i uploaded syslog with panics to http://stud4.tuwien.ac.at/~e0227135/kernel/
-the first panic occurred after modprobe ip_conntrack.
 
-best regards,
-dominik
-
---nextPart6131556.eAKClla0zn
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iQCVAwUAQWKqrAvcoSHvsHMnAQIymQP9GzdSfWptj4oxhlKHzxpgJIk0uhUbW71r
-SQ499bOWaJLSF/EjsrsTWOGiyvd1GQF8KfVd+qQ1Rl6So2kdAnhhobwWYLiqBURr
-RVWe4GCiN9NVbXstQyROBexWAe9p6a23Iex5UaXXf0m4YtSZ/fx4amcu38ln9YLp
-qUv3jRfucJk=
-=86Q8
------END PGP SIGNATURE-----
-
---nextPart6131556.eAKClla0zn--
+diff -ruNp a/arch/m32r/m32700ut/m32r-flash.c b/arch/m32r/m32700ut/m32r-flash.c
+--- a/arch/m32r/m32700ut/m32r-flash.c	2004-10-01 11:14:54.000000000 +0900
++++ b/arch/m32r/m32700ut/m32r-flash.c	1970-01-01 09:00:00.000000000 +0900
+@@ -1,227 +0,0 @@
+-/*
+- * Flash memory access on M32R based devices
+- *
+- * Copyright (C) 2003	Takeo Takahashi
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version
+- * 2 of the License, or (at your option) any later version.
+- *
+- * $Id$
+- */
+-
+-#include <linux/config.h>
+-#include <linux/module.h>
+-#include <linux/types.h>
+-#include <linux/ioport.h>
+-#include <linux/kernel.h>
+-
+-#include <linux/mtd/mtd.h>
+-#include <linux/mtd/map.h>
+-#include <linux/mtd/partitions.h>
+-
+-#include <asm/m32r.h>
+-#include <asm/io.h>
+-
+-#define WINDOW_ADDR (0xa0000000)	/* start of flash memory */
+-
+-static __u8 m32r_read8(struct map_info *map, unsigned long ofs)
+-{
+-	return readb(map->map_priv_1 + ofs);
+-}
+-
+-static __u16 m32r_read16(struct map_info *map, unsigned long ofs)
+-{
+-	return readw(map->map_priv_1 + ofs);
+-}
+-
+-static __u32 m32r_read32(struct map_info *map, unsigned long ofs)
+-{
+-	return readl(map->map_priv_1 + ofs);
+-}
+-
+-static void m32r_copy_from(struct map_info *map, void *to, unsigned long from, ssize_t len)
+-{
+-	memcpy(to, (void *)(map->map_priv_1 + from), len);
+-}
+-
+-static void m32r_write8(struct map_info *map, __u8 d, unsigned long adr)
+-{
+-	writeb(d, map->map_priv_1 + adr);
+-}
+-
+-static void m32r_write16(struct map_info *map, __u16 d, unsigned long adr)
+-{
+-	writew(d, map->map_priv_1 + adr);
+-}
+-
+-static void m32r_write32(struct map_info *map, __u32 d, unsigned long adr)
+-{
+-	writel(d, map->map_priv_1 + adr);
+-}
+-
+-static void m32r_copy_to(struct map_info *map, unsigned long to, const void *from, ssize_t len)
+-{
+-	memcpy((void *)(map->map_priv_1 + to), from, len);
+-}
+-
+-static struct map_info m32r_map = {
+-	name:		"M32R flash",
+-	read8:		m32r_read8,
+-	read16:		m32r_read16,
+-	read32:		m32r_read32,
+-	copy_from:	m32r_copy_from,
+-	write8:		m32r_write8,
+-	write16:	m32r_write16,
+-	write32:	m32r_write32,
+-	copy_to:	m32r_copy_to,
+-
+-	map_priv_1:	WINDOW_ADDR,
+-	map_priv_2:	-1,
+-};
+-
+-#ifdef CONFIG_PLAT_M32700UT
+-#define M32700UT_FLASH_SIZE		0x00400000
+-static struct mtd_partition m32700ut_partitions[] = {
+-	{
+-		name:		"M32700UT boot firmware",
+-		size:		0x30000,		/* 192KB */
+-		offset:		0,
+-		mask_flags:	MTD_WRITEABLE,  	/* force read-only */
+-	}, {
+-		name:		"M32700UT kernel",
+-		size:		0xd0000,		/* 832KB */
+-		offset:		MTDPART_OFS_APPEND,
+-	}, {
+-		name:		"M32700UT root",
+-		size:		0x2f0000,		/* 3008KB */
+-		offset:		MTDPART_OFS_APPEND,
+-	}, {
+-		name:		"M32700UT params",
+-		size:		MTDPART_SIZ_FULL,	/* 64KB */
+-		offset:		MTDPART_OFS_APPEND,
+-	}
+-};
+-#endif
+-
+-extern int parse_redboot_partitions(struct mtd_info *master, struct mtd_partition **pparts);
+-extern int parse_bootldr_partitions(struct mtd_info *master, struct mtd_partition **pparts);
+-
+-static struct mtd_partition *parsed_parts;
+-static struct mtd_info *mymtd;
+-
+-int __init m32r_mtd_init(void)
+-{
+-	struct mtd_partition *parts;
+-	int nb_parts = 0, ret;
+-	int parsed_nr_parts = 0;
+-	const char *part_type;
+-	unsigned long base = -1UL;
+-
+-
+-	/* Default flash buswidth */
+-	m32r_map.buswidth = 2;
+-
+-	/*
+-	 * Static partition definition selection
+-	 */
+-	part_type = "static";
+-
+-#ifdef CONFIG_PLAT_M32700UT
+-	parts = m32700ut_partitions;
+-	nb_parts = ARRAY_SIZE(m32700ut_partitions);
+-	m32r_map.size = M32700UT_FLASH_SIZE;
+-	m32r_map.buswidth = 2;
+-#endif
+-
+-	/*
+-	 * For simple flash devices, use ioremap to map the flash.
+-	 */
+-	if (base != (unsigned long)-1) {
+-		if (!request_mem_region(base, m32r_map.size, "flash"))
+-			return -EBUSY;
+-		m32r_map.map_priv_2 = base;
+-		m32r_map.map_priv_1 = (unsigned long)
+-				ioremap(base, m32r_map.size);
+-		ret = -ENOMEM;
+-		if (!m32r_map.map_priv_1)
+-			goto out_err;
+-	}
+-
+-	/*
+-	 * Now let's probe for the actual flash.  Do it here since
+-	 * specific machine settings might have been set above.
+-	 */
+-	printk(KERN_NOTICE "M32R flash: probing %d-bit flash bus\n", m32r_map.buswidth*8);
+-	mymtd = do_map_probe("m5drv", &m32r_map);
+-	ret = -ENXIO;
+-	if (!mymtd)
+-		goto out_err;
+-	mymtd->module = THIS_MODULE;
+-
+-	/*
+-	 * Dynamic partition selection stuff (might override the static ones)
+-	 */
+-#ifdef CONFIG_MTD_REDBOOT_PARTS
+-	if (parsed_nr_parts == 0) {
+-		ret = parse_redboot_partitions(mymtd, &parsed_parts);
+-
+-		if (ret > 0) {
+-			part_type = "RedBoot";
+-			parsed_nr_parts = ret;
+-		}
+-	}
+-#endif
+-#ifdef CONFIG_MTD_BOOTLDR_PARTS
+-	if (parsed_nr_parts == 0) {
+-		ret = parse_bootldr_partitions(mymtd, &parsed_parts);
+-		if (ret > 0) {
+-			part_type = "Compaq bootldr";
+-			parsed_nr_parts = ret;
+-		}
+-	}
+-#endif
+-
+-	if (parsed_nr_parts > 0) {
+-		parts = parsed_parts;
+-		nb_parts = parsed_nr_parts;
+-	}
+-
+-	if (nb_parts == 0) {
+-		printk(KERN_NOTICE "M32R flash: no partition info available, registering whole flash at once\n");
+-		add_mtd_device(mymtd);
+-	} else {
+-		printk(KERN_NOTICE "Using %s partition definition\n", part_type);
+-		add_mtd_partitions(mymtd, parts, nb_parts);
+-	}
+-	return 0;
+-
+- out_err:
+-	if (m32r_map.map_priv_2 != -1) {
+-		iounmap((void *)m32r_map.map_priv_1);
+-		release_mem_region(m32r_map.map_priv_2, m32r_map.size);
+-	}
+-	return ret;
+-}
+-
+-static void __exit m32r_mtd_cleanup(void)
+-{
+-	if (mymtd) {
+-		del_mtd_partitions(mymtd);
+-		map_destroy(mymtd);
+-		if (parsed_parts)
+-			kfree(parsed_parts);
+-	}
+-	if (m32r_map.map_priv_2 != -1) {
+-		iounmap((void *)m32r_map.map_priv_1);
+-		release_mem_region(m32r_map.map_priv_2, m32r_map.size);
+-	}
+-}
+-
+-module_init(m32r_mtd_init);
+-module_exit(m32r_mtd_cleanup);
+-
+-MODULE_AUTHOR("Takeo Takahashi");
+-MODULE_DESCRIPTION("M32R Flash map driver");
+-MODULE_LICENSE("GPL");

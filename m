@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132034AbRCVOqK>; Thu, 22 Mar 2001 09:46:10 -0500
+	id <S132039AbRCVOsa>; Thu, 22 Mar 2001 09:48:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132037AbRCVOpv>; Thu, 22 Mar 2001 09:45:51 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2311 "EHLO
+	id <S132037AbRCVOsU>; Thu, 22 Mar 2001 09:48:20 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5383 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132034AbRCVOpn>; Thu, 22 Mar 2001 09:45:43 -0500
-Subject: Re: regression testing
-To: root@chaos.analogic.com
-Date: Thu, 22 Mar 2001 14:47:18 +0000 (GMT)
-Cc: nbecker@fred.net, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.95.1010322083448.20107C-100000@chaos.analogic.com> from "Richard B. Johnson" at Mar 22, 2001 08:39:06 AM
+	id <S132039AbRCVOsG>; Thu, 22 Mar 2001 09:48:06 -0500
+Subject: Re: [PATCH] pcnet32 compilation fix for 2.4.3pre6
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Thu, 22 Mar 2001 14:49:05 +0000 (GMT)
+Cc: ankry@green.mif.pg.gda.pl (Andrzej Krzysztofowicz),
+        torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <3ABA00BB.A9C2DF1B@mandrakesoft.com> from "Jeff Garzik" at Mar 22, 2001 08:40:11 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14g6My-0002dw-00@the-village.bc.nu>
+Message-Id: <E14g6Oj-0002eA-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Regression testing __is__ what happens when 10,000 testers independently
-> try to break the software!
+> hmm, on second thought, I think I would prefer the attached patch
+> (compiled but not tested).
 
-Nope. Thats stress testing and a limited amount of coverage testing.
+Pointless...
 
-> Canned so-called "regression-test" schemes will fail to test at least
-> 90 percent of the code paths, while attempting to "test" 100 percent
-> of the code!
+> Hardware usually returns all 1's when it's not present, or not working,
+> so think checking for addresses filled with 1's is a good idea too.
 
-Then they are not well designed. Tools like gprof and the kernel profiling
-will let you measure code path coverage of a test series
+If the multicast bit is set then we already fail the address. Your test
+does nothing.
+
+Alan
 

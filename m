@@ -1,60 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270652AbTHOR51 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 13:57:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270671AbTHOR51
+	id S270654AbTHORu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 13:50:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270659AbTHORu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 13:57:27 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:50702 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S270652AbTHOR5X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 13:57:23 -0400
-Message-ID: <3F3D2290.6070804@techsource.com>
-Date: Fri, 15 Aug 2003 14:12:32 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O12.2int for interactivity
-References: <20030804195058.GA8267@cray.fish.zetnet.co.uk> <20030814070119.GN32488@holomorphy.com> <3F3BEA65.8080907@techsource.com> <200308160238.05185.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 15 Aug 2003 13:50:56 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:52893 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S270654AbTHORuy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 13:50:54 -0400
+Subject: Re: PIT, TSC and power management [was: Re: 2.6.0-test3 "loosing
+	ticks"]
+From: john stultz <johnstul@us.ibm.com>
+To: Charles Lepple <clepple@ghz.cc>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F3C272E.7060702@ghz.cc>
+References: <20030813014735.GA225@timothyparkinson.com>
+	 <1060793667.10731.1437.camel@cog.beaverton.ibm.com>
+	 <20030814171703.GA10889@mail.jlokier.co.uk>
+	 <1060882084.10732.1588.camel@cog.beaverton.ibm.com>
+	 <3F3C272E.7060702@ghz.cc>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1060969733.10731.1604.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 15 Aug 2003 10:48:53 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Con Kolivas wrote:
-> On Fri, 15 Aug 2003 06:00, Timothy Miller wrote:
+On Thu, 2003-08-14 at 17:19, Charles Lepple wrote:
+> I also see the time offset problem (Athlon MP 2000+ x2, Tyan S2460 m/b, 
+> 2.6.0-test{1,2,3}) but it is most noticeable when I have amd76x_pm 
+> installed (it's not in 2.6.x yet, but a late 2.5.x patch was posted to 
+> LKML a little while back).
 > 
->>If my guess from my previous email was correct (that is pri 5 gets
->>shorter timeslide than pri 6), then that means that tasks of higher
->>static priority have are penalized more than lower pri tasks for expiring.
->>
->>Say a task has to run for 15ms.  If it's at a priority that gives it a
->>10ms timeslice, then it'll expire and get demoted.  If it's at a
->>priority that gives it a 20ms timeslice, then it'll not expire and
->>therefore get promoted.
->>
->>Is that fair?
+> amd76x_pm is roughly equivalent to ACPI C2 idling, but since my BIOS 
+> doesn't export any C-state functionality to the kernel ACPI code, I am 
+> stuck with letting amd76x_pm frob the chipset registers. A quick look at 
+> AMD's datasheets does not indicate that a return from C2 should cause 
+> much delay at all-- if I understand the timing requirements correctly, 
+> it would have to sit for more than 1 ms to miss more than one interrupt. 
+> That said, I don't see any missing interrupts indicated in 
+> /proc/interrupts, nor do any such messages appear in the kernel logs.
+
+In this case you're throttling the cpu frequency. This affects the
+frequency the TSC updates, which makes it very hard to use the TSC as a
+timesource (the cpu_freq notifier tries to compensate by changing the
+tsc multiplier but my systems don't have cpu_freq drivers, so I've not
+seen it work). 
+
+> Brings up another question: does the "try HZ=100" suggestion still apply 
+> for these faster machines? I would think that if HZ=1000 is too fast, 
+> then at least an occasional lost interrupt would be logged.
+
+If you're losing interrupts and the lost-tick detection code is not
+compensating, shifting back to HZ=100 just tries to minimize the
+problem. 
+
+ 
+> When using the TSC for time-of-day, I generally have to set tick to 
+> 10200 or somewhere thereabouts. ntpd usually gives up after a few hours, 
+> though, so I presume that this value for tick is only good for a certain 
+> combination of processor load and planetary alignment.
 > 
+> I booted with clock=pit to test that, and now I need tick=9963 
+> (according to adjtimex's configuration routine). However, that makes the 
+> clock jump all over the place, with ntpd making step adjustments +/- 2 
+> seconds every 5 minutes.
 > 
-> Yes, it's a simple cutoff at the end of the timeslice. If you use up the 
-> timeslice allocated to you, then you have to pass a test to see if you can go 
-> onto the active array or get expired. Since higher static priority (lower 
-> nice) tasks get longer timeslices, they are less likely to expire unless they 
-> are purely cpu bound and never sleep.
+> > Approximately at what rate does it skew?
+> 
+> Well, it's not constant, and I don't trust the tick values given above, 
+> since they don't seem to hold true for long.
 
 
-Ok, I'm just a little confused, because of this inversion of "high 
-priority" with "low numbers".
+Do these problems still show when you're not using the amd76x_pm?
 
-First, am I correct in understanding that a lower number means a higher 
-priority?
 
-And for a higher priority, in addition to begin run before all tasks of 
-lower priority, they also get a longer timeslice?
+> > Does ntpdate -b <server> set it properly?
+> 
+> I'm confused. Are there cases where a step time adjustment would fail? 
+> Is there a possibility that the kernel is rejecting ntpd's step 
+> adjustments? (I presume that these use the same as 'ntpdate -b'; 
+> specifically, the time is not slewed.)
+
+Well, depending on how ntp is compiled, it could use stime, rather then
+settimeofday. This causes ntp to set the time on average .5 seconds off
+the desired time. Since .5 is outside the .128 sec slew boundary, ntp 
+will do another step adjustment which has the same poor accuracy. This
+results in ntp just hopping back and forth around the desired time. 
+
+thanks
+-john
 
 

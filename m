@@ -1,67 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137053AbREKFic>; Fri, 11 May 2001 01:38:32 -0400
+	id <S137049AbREKFvG>; Fri, 11 May 2001 01:51:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137054AbREKFiX>; Fri, 11 May 2001 01:38:23 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:46086 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S137053AbREKFiG>;
-	Fri, 11 May 2001 01:38:06 -0400
-Date: Thu, 10 May 2001 21:39:30 -0700
-From: Greg KH <greg@kroah.com>
-To: clameter@lameter.com, linux-kernel@vger.kernel.org
-Cc: Drew Bertola <drew@drewb.com>
-Subject: Re: USB broken in 2.4.4? Serial Ricochet works, USB performance sucks.
-Message-ID: <20010510213930.A8483@kroah.com>
-In-Reply-To: <20010509222456.A4960@kroah.com> <Pine.LNX.4.10.10105092324130.30061-100000@melchi.fuller.edu> <20010510200750.A29230@drewb.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="IS0zKkzwUGydFO0o"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010510200750.A29230@drewb.com>; from drew@drewb.com on Thu, May 10, 2001 at 08:07:50PM -0700
-X-Operating-System: Linux 2.2.19 (i586)
+	id <S137054AbREKFu5>; Fri, 11 May 2001 01:50:57 -0400
+Received: from mail.uni-kl.de ([131.246.137.52]:54501 "EHLO mail.uni-kl.de")
+	by vger.kernel.org with ESMTP id <S137049AbREKFun>;
+	Fri, 11 May 2001 01:50:43 -0400
+Message-ID: <XFMail.20010511075040.backes@rhrk.uni-kl.de>
+X-Mailer: XFMail 1.4.4 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Date: Fri, 11 May 2001 07:50:40 +0200 (CEST)
+X-Face: B^`ajbarE`qo`-u#R^.)e]6sO?X)FpoEm\>*T:H~b&S;U/h$2>my}Otw5$+BDxh}t0TGU?>
+ O8Bg0/jQW@P"eyp}2UMkA!lMX2QmrZYW\F,OpP{/s{lA5aG'0LRc*>n"HM@#M~r8Ub9yV"0$^i~hKq
+ P-d7Vz;y7FPh{XfvuQA]k&X+CDlg"*Y~{x`}U7Q:;l?U8C,K\-GR~>||pI/R+HBWyaCz1Tx]5
+Reply-To: Joachim Backes <backes@rhrk.uni-kl.de>
+Organization: University of Kaiserslautern,
+ Computer Center [Supercomputing division]
+From: Joachim Backes <backes@rhrk.uni-kl.de>
+To: LINUX Kernel <linux-kernel@vger.kernel.org>
+Subject: make menuconfig versus make xconfig, Kernel 2.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I made an update from Kernel 2.2.19 to 2.4.4, and I made
+a copy from the 2.2.19 .config file into the 2.4.4 directory.
 
---IS0zKkzwUGydFO0o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+After that, I was wondering about the following fact:
 
-On Thu, May 10, 2001 at 08:07:50PM -0700, Drew Bertola wrote:
-> 
-> Joey Hess had a problem similar to what you described, though he noticed
-> it while using the pcmcia ricochet modem.  He passed along this patch:
+"make menuconfig" for kernel 2.4.4 showed (what seems to
+be correct) for ATA/IDE the same kernel configuration, as it
+was shown in 2.2.19, when using the 2.2.19 ".config".
 
-Doh!  I've only fixed this same kind of problem about 3 different times
-in the usb-serial drivers.  clameter, could you try the attached patch
-against 2.4.4 and see if that fixes the MTU issue for you?
+But: 2.4.4 "make xconfig" using the 2.2.19 .config showed
+a disabled ATA/IDE configuration.
 
-Thanks Drew for reminding me of this.
+Only after saving the 2.4.4 configuration produced by "make menuconfig",
+then the configuration for ATA/IDE was correctly displayed by "make xconfig".
 
-greg k-h
+Regards
 
+Joachim Backes
 
---IS0zKkzwUGydFO0o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="usb-acm-2.4.4.patch"
+--
 
---- linux-2.4.4/drivers/usb/acm.c	Fri Feb 16 16:06:17 2001
-+++ linux-2.4/drivers/usb/acm.c	Thu May 10 21:29:29 2001
-@@ -233,8 +240,14 @@
- 		dbg("nonzero read bulk status received: %d", urb->status);
- 
- 	if (!urb->status & !acm->throttle)  {
--		for (i = 0; i < urb->actual_length && !acm->throttle; i++)
-+		for (i = 0; i < urb->actual_length && !acm->throttle; i++) {
-+			/* if we insert more than TTY_FLIPBUF_SIZE characters, 
-+			 * we drop them. */
-+			if (tty->flip.count >= TTY_FLIPBUF_SIZE) {
-+				tty_flip_buffer_push(tty);
-+			}
- 			tty_insert_flip_char(tty, data[i], 0);
-+		}
- 		tty_flip_buffer_push(tty);
- 	}
- 
+Joachim Backes <backes@rhrk.uni-kl.de>       | Univ. of Kaiserslautern
+Computer Center, High Performance Computing  | Phone: +49-631-205-2438 
+D-67653 Kaiserslautern, PO Box 3049, Germany | Fax:   +49-631-205-3056 
+---------------------------------------------+------------------------
+WWW: http://hlrwm.rhrk.uni-kl.de/home/staff/backes.html  
 
---IS0zKkzwUGydFO0o--

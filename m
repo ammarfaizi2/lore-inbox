@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUHFMmX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265038AbUHFMqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbUHFMmX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 08:42:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265489AbUHFMmX
+	id S265038AbUHFMqd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 08:46:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265087AbUHFMqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 08:42:23 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:58119 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261474AbUHFMmV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 08:42:21 -0400
-Date: Fri, 6 Aug 2004 14:30:56 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Herbert Xu <herbert@gondor.apana.org.au>,
-       greearb@candelatech.com, akpm@osdl.org, alan@redhat.com,
-       jgarzik@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: VLAN support for 3c59x/3c90x
-Message-ID: <20040806123056.GA23005@alpha.home.local>
-References: <20040730121004.GA21305@alpha.home.local> <E1BqkzY-0003mK-00@gondolin.me.apana.org.au> <20040731083308.GA24496@alpha.home.local> <410B67B1.4080906@pobox.com> <20040731101152.GG1545@alpha.home.local> <20040731141222.GJ2429@mea-ext.zmailer.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 6 Aug 2004 08:46:33 -0400
+Received: from mailr.eris.qinetiq.com ([128.98.1.9]:57494 "HELO
+	qinetiq-tim.net") by vger.kernel.org with SMTP id S265038AbUHFMqY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 08:46:24 -0400
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc3-mm1
+Date: Fri, 6 Aug 2004 13:48:58 +0100
+User-Agent: KMail/1.6.1
+Cc: Andrew Morton <akpm@osdl.org>
+References: <20040805031918.08790a82.akpm@osdl.org>
+In-Reply-To: <20040805031918.08790a82.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040731141222.GJ2429@mea-ext.zmailer.org>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200408061349.02992.m.watts@eris.qinetiq.com>
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.26.0.10; VDF: 6.26.0.62; host: mailr.qinetiq-tim.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matti,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Sat, Jul 31, 2004 at 05:12:22PM +0300, Matti Aarnio wrote:
-<...> 
-> In the receive descriptors there might appear a TL bit (Frame Too Long),
-> which is just telling that frame size exceeds 1518 bytes.
-> If RW (Receive Watchdog; RDES0<4>) has tripped, then there is at least
-> 2048 bytes long frame, most likely longer than 2560 bytes.
-> 
-> Based on my reading of  ds21143hrm.pdf  (copy of which I have), I do
-> think it is safe to just receive larger frames with Tulip, and IGNORE
-> the "TL" bit.
-> 
-> Receiving 1522 byte frames from ethernet with Tulip should be trivial.
-> Will that be true with 21140 -- oddly I don't have a copy of 21140 HRM
-> in PDF form...  Possibly I got it in paper long ago.
 
-I've just found a document on intel's site comparing 21140 and 21143.
-Its reference is 27810701 and its title : "21140-AF to 21143-xD Upgrade".
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc3/2.6
+>.8-rc3-mm1/
+>
 
-Since there's nothing about the subject in this document, I assume that
-they behave equally. I don't have the time right now, but probably will
-during this week-end to make new tests with the doc. For those
-interested, the 21143 HRM's reference is 27807401.
+This now boots nicely on my Dual Opteron.
 
-Regards,
-Willy
+Disk I/O still sucks badly though...
 
+Mark.
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ Trusted Information Management
+Trusted Solutions and Services group
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBE34+Bn4EFUVUIO0RAqzoAKDRlcp3WoWN7tIblVoaABR8V8GLLACfUWtw
+q+ueFCLaS6WnbBgIpZqh1eI=
+=sVE8
+-----END PGP SIGNATURE-----

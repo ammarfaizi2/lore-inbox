@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbTDPWWM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 18:22:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbTDPWWM
+	id S261665AbTDPWWu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 18:22:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbTDPWWu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 18:22:12 -0400
-Received: from [12.47.58.203] ([12.47.58.203]:49484 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S261807AbTDPWWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 18:22:11 -0400
-Date: Wed, 16 Apr 2003 15:32:59 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, george@mvista.com,
-       James.Bottomley@SteelEye.com, shemminger@osdl.org, alex@ssi.bg
-Subject: Re: [PATCH] linux-2.5.67_lost-tick-fix_A2
-Message-Id: <20030416153259.6f99bb4e.akpm@digeo.com>
-In-Reply-To: <1050530545.1077.120.camel@w-jstultz2.beaverton.ibm.com>
-References: <1050530545.1077.120.camel@w-jstultz2.beaverton.ibm.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Apr 2003 22:34:00.0781 (UTC) FILETIME=[46D267D0:01C30468]
+	Wed, 16 Apr 2003 18:22:50 -0400
+Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:49784 "EHLO
+	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id S261665AbTDPWWr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 18:22:47 -0400
+Date: Thu, 17 Apr 2003 00:34:18 +0200 (CEST)
+From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
+To: Geller Sandor <wildy@petra.hos.u-szeged.hu>
+cc: Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-pre7 - aic79xx
+In-Reply-To: <Pine.LNX.4.44.0304161543100.22459-100000@petra.hos.u-szeged.hu>
+Message-ID: <Pine.LNX.4.53.0304170027280.4298@lt.wsisiz.edu.pl>
+References: <Pine.LNX.4.44.0304161543100.22459-100000@petra.hos.u-szeged.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz <johnstul@us.ibm.com> wrote:
->
-> 	This patch fixes a race in the timer_interrupt code caused by
-> detect_lost_tick().
+On Wed, 16 Apr 2003, Geller Sandor wrote:
 
-Does this also fix the problem which Alex identified?
+> I don't use the aic79xx driver in the -ac tree. In another thread, 1 or 2
+> weeks ago Justin Gibbs stated, that his latest drivers are the most
+> stable. I'm using an Intel 7501VW2 motherboard in a production server, so
+> I don't want to test drivers, which can cause filesystem corruption. Maybe
+> Lukasz can test with noapic - I suggest Justin's drivers, and if the
+> problem still exists, test with the 'noapic' boot parameter, and track
+> down the problem. Regards,
 
+Well, I'm using it also in a production server. I can't test it.
+My problem activating, when process updatedb running on big home 
+area.
+
+-- 
+*[ £ukasz Tr±biñski ]*
+SysAdmin @wsisiz.edu.pl

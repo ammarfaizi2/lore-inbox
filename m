@@ -1,137 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbVADA3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261974AbVACXlJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbVADA3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 19:29:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbVADAWM
+	id S261974AbVACXlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 18:41:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVACXcs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 19:22:12 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38151 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262030AbVADAPW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 19:15:22 -0500
-Date: Tue, 4 Jan 2005 01:15:16 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Mark_H_Johnson@raytheon.com
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       nico@cam.org, dwmw2@infradead.org, linux-mtd@lists.infradead.org
-Subject: [2.6 patch] add missing dependencies on MTD_PARTITIONS (fwd)
-Message-ID: <20050104001516.GU2980@stusta.de>
-References: <OF0551C40F.E8032010-ON86256F7E.007EFEBA-86256F7E.007EFF1F@raytheon.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 3 Jan 2005 18:32:48 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:26264 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261958AbVACXas (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 18:30:48 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: 2.6.10-mm1 [failure on AMD64]
+Date: Mon, 3 Jan 2005 15:30:35 -0800
+User-Agent: KMail/1.7.1
+Cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
+References: <20050103011113.6f6c8f44.akpm@osdl.org> <200501030919.20670.jbarnes@engr.sgi.com> <200501040029.15623.rjw@sisk.pl>
+In-Reply-To: <200501040029.15623.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <OF0551C40F.E8032010-ON86256F7E.007EFEBA-86256F7E.007EFF1F@raytheon.com>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200501031530.36502.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 03, 2005 at 05:07:08PM -0600, Mark_H_Johnson@raytheon.com wrote:
-> I was looking to compare RT latency between this kernel and the latest from
-> Ingo and I had the following warnings / errors building 2.6.10-mm1:
-> 
-> [no apparent compile / link errors]
->...
-> *** Warning: "del_mtd_partitions" [drivers/mtd/maps/scx200_docflash.ko]
-> undefined!
-> *** Warning: "add_mtd_partitions" [drivers/mtd/maps/scx200_docflash.ko]
-> undefined!
->...
+On Monday, January 3, 2005 3:29 pm, Rafael J. Wysocki wrote:
+> On a dual-Opteron w/ NUMA I had to apply the Jesse's patch to compile the
+> kernel, but it does not boot.  It only prints this to the serial console:
+>
+> Bootdata ok (command line is root=/dev/sdb3 vga=792 earlyprintk=ttyS0,57600
+> console=ttyS0,57600 console=tty0)
+> Linux version 2.6.10-mm1 (rafael@chimera) (gcc version 3.3.4 (pre 3.3.5
+> 20040809)) #1 SMP Mon Jan 3 23:09:30 CET 2005
+> BIOS-provided physical RAM map:
+>  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+>  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+>  BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+>  BIOS-e820: 0000000000100000 - 000000003fff0000 (usable)
+>  BIOS-e820: 000000003fff0000 - 000000003ffff000 (ACPI data)
+>  BIOS-e820: 000000003ffff000 - 0000000040000000 (ACPI NVS)
+>  BIOS-e820: 00000000ff7c0000 - 0000000100000000 (reserved)
+> kernel direct mapping tables upto ffff810100000000 @ 8000-c000
+> Scanning NUMA topology in Northbridge 24
+> Number of nodes 2 (10010)
+> Node 0 already present. Skipping
+> Node 1 already present. Skipping
+> No NUMA configuration found
+> Faking a node at 0000000000000000-000000003fff0000
+> Bootmem setup node 0 0000000000000000-000000003fff0000
+> No mptable found.
+> ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
+> Processor #0 15:5 APIC version 16
+> ACPI: LAPIC (acpi_id[0x02] lapic_id[0x01] enabled)
+> Processor #1 15:5 APIC version 16
+> ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
+> IOAPIC[0]: apic_id 2, version 17, address 0xfec00000, GSI 0-23
+> ACPI: IOAPIC (id[0x03] address[0xfc9fe000] gsi_base[24])
+> IOAPIC[1]: apic_id 3, version 17, address 0xfc9fe000, GSI 24-27
+> ACPI: IOAPIC (id[0x04] address[0xfc9ff000] gsi_base[28])
+> IOAPIC[2]: apic_id 4, version 17, address 0xfc9ff000, GSI 28-31
+> ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+> Setting APIC routing to flat
+> Using ACPI (MADT) for SMP configuration information
+> Checking aperture...
+> CPU 0: aperture @ f0000000 size 128 MB
+> CPU 1: aperture @ f0000000 size 128 MB
+>
+> and then it goes into an infinite loop that writes some garbage to the
+> framebuffer (yellow lines on top of the screen).
+>
+> On a UP AMD64 it boots, but then it does not work appropriately (eg. at KDE
+> startup the box hangs for a while and I get the message like "The process
+> for the file protocol has terminated unexpectedly" and desktop icons are
+> not displayed, and I get a "cpu overload" message from arts etc.).
+>
+> Please let me know if you need more information.
 
+Try wli's patch, subject "[bootfix] pass used_node_mask by reference in 
+2.6.10-mm1".
 
-Known bug, fix below:
-
-
-<--  snip  -->
-
-
-Date:   Mon, 27 Dec 2004 23:50:15 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: nico@cam.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] add missing dependencies on MTD_PARTITIONS
-
-On Tue, Dec 28, 2004 at 12:23:48AM +0200, Michael S. Tsirkin wrote:
-
-> Hello!
-
-Hi Michael!
-
-> Sorry, I had a wrong subject.
-> 
-> It seems that you can disable MTD partitioning support 
-> but enable , e.g. NAND.
-> And, if you are upgrading from and older kernel without
-> the paritioning option, and do oldconfig and are not careful,
-> thats what you end up with.
-> But, lots of code is calling del_mtd_partitions now, so you get
-> unresolved del_mtd_partitions.
-> 
-> Its easy to work around this by enabling partitioning, but
-> should not the dependency be added in the relevant KConfig?
-
-First of all thanks for your report.
-You didn't send the exact error mesage.
-I'm able to reproduce the following in 2.6.10-rc3-mm1:
-
-<--  snip  -->
-
-...
-  LD      .tmp_vmlinux1
-drivers/built-in.o(.init.text+0x6464b): In function `init_scx200_docflash':
-: undefined reference to `add_mtd_partitions'
-drivers/built-in.o(.init.text+0x66ab8): In function `ns_init_module':
-: undefined reference to `add_mtd_partitions'
-drivers/built-in.o(.exit.text+0x8bf4): In function `cleanup_scx200_docflash':
-: undefined reference to `del_mtd_partitions'
-make: *** [.tmp_vmlinux1] Error 1
-
-<--  snip  -->
-
-The patch below fixes them.
-
-Please tell whether this fixes the problems you observed.
-
-> Cc me directly, I'm not on the list.
-> Thanks,
-> MST
-
-cu
-Adrian
-
-
-diffstat output:
- drivers/mtd/maps/Kconfig |    2 +-
- drivers/mtd/nand/Kconfig |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc3-mm1-full/drivers/mtd/maps/Kconfig.old	2004-12-27 23:43:00.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/drivers/mtd/maps/Kconfig	2004-12-27 23:44:01.000000000 +0100
-@@ -159,7 +159,7 @@
- 
- config MTD_SCx200_DOCFLASH
- 	tristate "Flash device mapped with DOCCS on NatSemi SCx200"
--	depends on X86 && MTD_CFI
-+	depends on X86 && MTD_CFI && MTD_PARTITIONS
- 	help
- 	  Enable support for a flash chip mapped using the DOCCS signal on a
- 	  National Semiconductor SCx200 processor.
---- linux-2.6.10-rc3-mm1-full/drivers/mtd/nand/Kconfig.old	2004-12-27 23:44:44.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/drivers/mtd/nand/Kconfig	2004-12-27 23:45:37.000000000 +0100
-@@ -198,7 +198,7 @@
-  
-  config MTD_NAND_NANDSIM
-  	bool "Support for NAND Flash Simulator"
-- 	depends on MTD_NAND
-+ 	depends on MTD_NAND && MTD_PARTITIONS
- 
- 	help
- 	  The simulator may simulate verious NAND flash chips for the
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+Jesse

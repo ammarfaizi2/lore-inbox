@@ -1,41 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbUJ3VZX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbUJ3V0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261331AbUJ3VZX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 17:25:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbUJ3VZX
+	id S261329AbUJ3V0O (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 17:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbUJ3V0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 17:25:23 -0400
-Received: from [211.228.251.18] ([211.228.251.18]:55819 "HELO yahoo.com")
-	by vger.kernel.org with SMTP id S261331AbUJ3VZS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 17:25:18 -0400
-Message-ID: <dbf101c4beea$b48164a0$515b8948@swift_blazinxwgfckbgas>
-From: "update-list" <swift_blazinxwgfckbgas@yahoo.com>
-To: "online apps" <linux-kernel@vger.kernel.org>
-Subject: Get to a higher level fast
-Date: Sat, 30 Oct 2004 19:41:13 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Sat, 30 Oct 2004 17:26:14 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:15805 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261329AbUJ3V0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 17:26:08 -0400
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+From: Lee Revell <rlrevell@joe-job.com>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: Ingo Molnar <mingo@elte.hu>, Paul Davis <paul@linuxaudiosystems.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+In-Reply-To: <20041030231358.6f1eeeac@mango.fruits.de>
+References: <20041029172243.GA19630@elte.hu>
+	 <20041029203619.37b54cba@mango.fruits.de> <20041029204220.GA6727@elte.hu>
+	 <20041029233117.6d29c383@mango.fruits.de> <20041029212545.GA13199@elte.hu>
+	 <1099086166.1468.4.camel@krustophenia.net> <20041029214602.GA15605@elte.hu>
+	 <1099091566.1461.8.camel@krustophenia.net> <20041030115808.GA29692@elte.hu>
+	 <1099158570.1972.5.camel@krustophenia.net> <20041030191725.GA29747@elte.hu>
+	 <20041030214738.1918ea1d@mango.fruits.de>
+	 <1099165925.1972.22.camel@krustophenia.net>
+	 <20041030221548.5e82fad5@mango.fruits.de>
+	 <1099167996.1434.4.camel@krustophenia.net>
+	 <20041030231358.6f1eeeac@mango.fruits.de>
+Content-Type: text/plain
+Date: Sat, 30 Oct 2004 17:26:06 -0400
+Message-Id: <1099171567.1424.9.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Play safe!
-Dear linux-kernel,  become f i n a n c i a l l y  self-contained thanks
-Win-Win thinking ...
-I am averaging 12,000 monthly and will prove it to you!
-Take the step and ask for Explanations on this topic! You can too!
-email to Entrepreneur50@mighty.co.za
-with " Please Explain " in the first line...
-also include your Ph# if you wish to talk to me in person.
+On Sat, 2004-10-30 at 23:13 +0200, Florian Schmidt wrote:
+> ah, ok.. tarball updated. The third argument is now a percentage. If the
+> cycle count difference between two different wakeups differs more than the
+> specified percentage from the "perfect" period, then a line is printed to
+> the terminal showing by how much percent it differs. 
 
+OK this is pretty sweet.  With T3 the jitter never exceeds 7% on an idle
+system.  As soon as I start moving the mouse this goes to 7 or 8%.  I
+cannot get it to go higher than 10%.  Moving windows around has no
+effect, the highest jitter happens when I type or move the mouse really
+fast IOW it corresponds to the interrupt rate.
 
-or easily cancel by emailing to unregister@mighty.co.za with " No More " in
-the top line.
-Thanks kindly.
+This is a pretty good baseline for what an xrun-free system would look
+like.  Now to test the latest version...
+
+Lee
 

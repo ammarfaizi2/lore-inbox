@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261815AbUCGWYh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 17:24:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbUCGWYg
+	id S262342AbUCGW3o (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 17:29:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbUCGW3o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 17:24:36 -0500
-Received: from host179-214.pool80181.interbusiness.it ([80.181.214.179]:1920
+	Sun, 7 Mar 2004 17:29:44 -0500
+Received: from host179-214.pool80181.interbusiness.it ([80.181.214.179]:2432
 	"EHLO numb.darktech.org") by vger.kernel.org with ESMTP
-	id S261815AbUCGWYa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 17:24:30 -0500
-Date: Sun, 7 Mar 2004 23:26:36 +0100 (CET)
+	id S262342AbUCGW3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 17:29:38 -0500
+Date: Sun, 7 Mar 2004 23:31:53 +0100 (CET)
 From: Carlo Orecchia <carlo@numb.darktech.org>
-To: "David B. Stevens" <dsteven3@maine.rr.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: KERNEL 2.6.3 and MAXTOR 160 GB
-In-Reply-To: <404B5612.80506@maine.rr.com>
-Message-ID: <Pine.LNX.4.44.0403072320180.2714-100000@numb.darktech.org>
+To: linux-kernel@vger.kernel.org
+Subject: KERNEL 2.6.3 and MAXTOR 160 GB
+Message-ID: <Pine.LNX.4.44.0403072328560.2768-100000@numb.darktech.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+HI
+
+I'm running redhat 9 on an XP 1800 and a ASUS A7A266. I recently buy a new 
+HD a maxtor Diamond Plus 160 with 8 mega cache. The fact is that the 
+kernel that comes 
+with REDHAT (2.4.20-8) shows the entire size of the disk (163.7 gb) but 
+the kernel 2.6.1 or 2.6.3 does not. It only shows 137 gb. I'm getting 
+crazy trying to understand why this is happening! Please let 
+me know if theres a patch to fix this. I really  found amazing the 2.6 
+kernel and i don't want to come back to use the 2.4!
+What can i do? 
 
 
-Sorry my stupid mistake .. this is the correct message from boot:
-Thanks for any reply!!
+Regards
+
+Carlo Orecchia
+
+
+this is the message from boot:
+Thanks for any reply!
 
 ide: Assuming 33MHz system bus speed for PIO modes; override with 
 idebus=xx
@@ -58,49 +72,6 @@ input: PC Speaker
 serio: i8042 AUX port at 0x60,0x64 irq 12
 input: ImPS/2 Logitech Wheel Mouse on isa0060/serio1
 serio: i8042 KBD port at 0x60,0x64 irq 1
-input: AT Translated Set 2 keyboard on isa0060/serio0
-Advanced Linux Sound Architecture Driver Version 1.0.2c (Thu Feb 05 
-15:41:49 2004 UTC).
-ALSA device list:
-  #0: C-Media PCI CMI8738-MC6 (model 55) at 0xb000, irq 9
-NET: Registered protocol family 2
-IP: routing cache hash table of 8192 buckets, 64Kbytes
-TCP: Hash tables configured (established 262144 bind 65536)
-IPv4 over IPv4 tunneling driver
-GRE over IPv4 tunneling driver
-ip_conntrack version 2.1 (6143 buckets, 49144 max) - 300 bytes per 
-conntrack
-ip_tables: (C) 2000-2002 Netfilter core team
-ipt_recent v0.3.1: Stephen Frost <sfrost@snowman.net>.  
-http://snowman.net/projects/ipt_recent/
-arp_tables: (C) 2002 David S. Miller
-NET: Registered protocol family 1
-NET: Registered protocol family 17
-NET: Registered protocol family 15
-ACPI: (supports S0 S1 S4 S5)
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: mounted filesystem with ordered data mode.
-VFS: Mounted root (ext3 filesystem) readonly.
-Freeing unused kernel memory: 272k freed
-drivers/usb/core/usb.c: registered new driver usbfs
-drivers/usb/core/usb.c: registered new driver hub
-ohci_hcd: 2004 Feb 02 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
-ohci_hcd: block sizes: ed 64 td 64
-ohci_hcd 0000:00:02.0: OHCI Host Controller
-ohci_hcd 0000:00:02.0: irq 9, pci mem f1864000
-ohci_hcd 0000:00:02.0: new USB bus registered, assigned bus number 1
-hub 1-0:1.0: USB hub found
-hub 1-0:1.0: 4 ports detected
-ohci_hcd 0000:00:06.0: OHCI Host Controller
-ohci_hcd 0000:00:06.0: irq 9, pci mem f1866000
-ohci_hcd 0000:00:06.0: new USB bus registered, assigned bus number 2
-hub 2-0:1.0: USB hub found
-hub 2-0:1.0: 2 ports detected
-drivers/usb/core/usb.c: registered new driver hid
-drivers/usb/input/hid-core.c: v2.0:USB HID core driver
-drivers/usb/core/usb.c: registered new driver usbkbd
-drivers/usb/input/usbkbd.c: :USB HID Boot Protocol keyboard driver
-drivers/usb/core/usb.c: registered new driver usbmouse
 
 
 Here is the .config of kernel (ATA section)
@@ -172,4 +143,5 @@ CONFIG_BLK_DEV_IDEDMA=y
 CONFIG_IDEDMA_AUTO=y
 # CONFIG_DMA_NONPCI is not set
 # CONFIG_BLK_DEV_HD is not set
+
 

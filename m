@@ -1,79 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267829AbUJLVWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267841AbUJLVX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267829AbUJLVWa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 17:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267841AbUJLVWa
+	id S267841AbUJLVX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 17:23:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267850AbUJLVX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 17:22:30 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:48900 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S267829AbUJLVWZ
+	Tue, 12 Oct 2004 17:23:57 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:25570 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S267841AbUJLVXp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 17:22:25 -0400
-Date: Wed, 13 Oct 2004 07:21:54 +1000
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-usb-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [HID] Fix hiddev devfs oops
-Message-ID: <20041012212153.GA24663@gondor.apana.org.au>
-References: <20041005124914.GA1009@gondor.apana.org.au> <20041011172147.GA3066@logos.cnet>
+	Tue, 12 Oct 2004 17:23:45 -0400
+Subject: Re: [ckrm-tech] Re: [Lse-tech] [PATCH] cpusets - big numa cpu and
+	memory placement
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: Paul Jackson <pj@sgi.com>
+Cc: Rick Lindsley <ricklind@us.ibm.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Simon.Derr@bull.net,
+       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
+       efocht@hpce.nec.com, LSE Tech <lse-tech@lists.sourceforge.net>,
+       hch@infradead.org, steiner@sgi.com, Jesse Barnes <jbarnes@sgi.com>,
+       sylvain.jeaugey@bull.net, djh@sgi.com,
+       LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
+       sivanich@sgi.com
+In-Reply-To: <20041011155831.3e8d6b2f.pj@sgi.com>
+References: <20041007072842.2bafc320.pj@sgi.com>
+	 <200410071905.i97J57TS014336@owlet.beaverton.ibm.com>
+	 <20041009191556.06e09c67.pj@sgi.com> <1097532415.4038.50.camel@arrakis>
+	 <20041011155831.3e8d6b2f.pj@sgi.com>
+Content-Type: text/plain
+Organization: IBM LTC
+Message-Id: <1097616152.6239.4.camel@arrakis>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="WIyZ46R2i8wDzkSu"
-Content-Disposition: inline
-In-Reply-To: <20041011172147.GA3066@logos.cnet>
-User-Agent: Mutt/1.5.6+20040722i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 12 Oct 2004 14:22:33 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---WIyZ46R2i8wDzkSu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Mon, Oct 11, 2004 at 02:21:47PM -0300, Marcelo Tosatti wrote:
-> On Tue, Oct 05, 2004 at 10:49:14PM +1000, Herbert Xu wrote:
-> > 
-> > There is a long-standing devfs_unregister oops in hid/hiddev.  It's
-> > caused by hid calling hiddev_exit before unregistering itself which
-> > in turn calls hiddev_disconnect.
-> > 
-> > hiddev_exit removes the directory which contains the hiddev devices.
-> > Therefore it needs to be called after the hiddev devices have been
-> > disconnected.
-> > 
-> > This patch fixes that.
-> > 
-> > Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-> > 
-> > Marcelo, the same fix is needed in 2.4 as well.
+On Mon, 2004-10-11 at 15:58, Paul Jackson wrote:
+> Matthew wrote:
+> > One of the cool thing about using sched_domains as your partitioning
+> > element is that in reality, tasks run on *CPUs*, not *domains*. 
 > 
-> Would be nice to have a version which applies to 2.4 also.
+> Unfortunately, my manager has reminded me of an essential deliverable
+> that I have for another project, due in two weeks.  I'm going to need
+> every one of those days.  So I will have to take a two week sabbatical
+> from this design work.
+> 
+> It might make sense to reconvene this work on a new thread, with a last
+> message on this monster thread inviting all interested parties to come
+> on over.  I suspect a few folks will be happy to see this thread wind
+> down.
+> 
+> I'd guess lse-tech (my preference) or ckrm-tech would be a suitable
+> forum for this new thread.
+> 
+> Carry on.
 
-I did include a 2.4 patch in that email :)
+Sounds good, Paul.  I think the discussion on this thread was kind of
+winding down anyway.  In two weeks I'll have some more work done on my
+code, particularly trying to get the cpusets/CKRM filesystem interface
+to play with my sched_domains code.  We'll be able to digest all the the
+information, requirements, requests, etc. on this thread and start a
+fresh discussion on (or at least closer to) the same page.
 
-Here it is again.
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+-Matt
 
---WIyZ46R2i8wDzkSu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="p-2.4"
-
-===== drivers/usb/hid-core.c 1.30 vs edited =====
---- 1.30/drivers/usb/hid-core.c	2004-08-08 18:59:53 +10:00
-+++ edited/drivers/usb/hid-core.c	2004-10-05 22:33:52 +10:00
-@@ -1459,8 +1459,8 @@
- 
- static void __exit hid_exit(void)
- {
--	hiddev_exit();
- 	usb_deregister(&hid_driver);
-+	hiddev_exit();
- }
- 
- module_init(hid_init);
-
---WIyZ46R2i8wDzkSu--

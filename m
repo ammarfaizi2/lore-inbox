@@ -1,71 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266654AbUG0WAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266655AbUG0WFM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266654AbUG0WAs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 18:00:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266655AbUG0WAs
+	id S266655AbUG0WFM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 18:05:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266657AbUG0WFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 18:00:48 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:57994 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S266654AbUG0WAp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 18:00:45 -0400
-Subject: Use of __pa() with CONFIG_NONLINEAR
-From: Dave Hansen <haveblue@us.ibm.com>
-To: linux-mm <linux-mm@kvack.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Tue, 27 Jul 2004 18:05:12 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:8870 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266655AbUG0WFF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 18:05:05 -0400
+Subject: Re: [PATCH 2.6.8-rc2] intel8x0.c to include CK804 audio support
+From: Lee Revell <rlrevell@joe-job.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Paul Jackson <pj@sgi.com>, Andrew Morton <akpm@osdl.org>, achew@nvidia.com,
+       linux-kernel <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
+In-Reply-To: <200407270943.23292.vda@port.imtp.ilyichevsk.odessa.ua>
+References: <DBFABB80F7FD3143A911F9E6CFD477B03F95DD@hqemmail02.nvidia.com>
+	 <1090902426.1094.33.camel@mindpipe> <20040726215738.5c4a8b42.pj@sgi.com>
+	 <200407270943.23292.vda@port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain
-Message-Id: <1090965630.15847.575.camel@nighthawk>
+Message-Id: <1090965918.1094.122.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 27 Jul 2004 15:00:30 -0700
+Date: Tue, 27 Jul 2004 18:05:18 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So, for CONFIG_NONLINEAR, we introduce a new indirection layer for
-virtual to physical conversions (and the inverse as well).  Our
-implementation uses some data structures to do this (patch is here:
-http://lwn.net/Articles/79124/), and the side-effect is that we can't
-use __pa() or __va() until after the initialization has run, which is
-early in setup_arch().
+On Tue, 2004-07-27 at 02:43, Denis Vlasenko wrote:
+> On Tuesday 27 July 2004 07:57, Paul Jackson wrote:
+> > > For now the only fix for people using an X environment ... insert file
+> > > ...
+> >
+> > Another fix is to copy from a non-brain damaged window, such as a gui
+> > text editor window (nedit, for example).
+> >
+> > I'm guessing that the tabs are lost in the cut or copy operation, not in
+> > the paste operation.
+> 
+> because 'cut' in a xterm cannot know that those eight spaces
+> once were a tab. xterm is probably storing screen as a char+attr
+> two-dimensional array. There are no tabs, only spaces.
+> 
+> > But file insertion is, in general, a sufficiently winning choice that I
+> > think it's better just to get in the habit of always inserting patches
+> > that way, at least on email clients that support it.
+> 
+> I do it all the time.
 
-But, there are quite a few things that obviously need physical addresses
-earlier than that, such as cr3 initialization at compile-time.  So, in
-Dave McCracken's patch, he introduced a new function: __boot_pa() that
-does what the old __pa() did.
+The easiest suggestion I have seen so far is:
 
-This is the largest and hardest to maintain part of the CONFIG_NONLINEAR
-patch at this point, and I'd love to start merging bits of it back in. 
-Would anybody object to a patch that just does this for a bunch of
-architectures?
+diff foo bar | xclip
 
---- include/asm-i386/page.h.orig	2004-07-27 14:31:09.000000000 -0700
-+++ include/asm-i386/page.h	2004-07-27 14:31:36.000000000 -0700
-@@ -128,8 +128,10 @@ static __inline__ int get_order(unsigned
- #define PAGE_OFFSET		((unsigned long)__PAGE_OFFSET)
- #define VMALLOC_RESERVE		((unsigned long)__VMALLOC_RESERVE)
- #define MAXMEM			(-__PAGE_OFFSET-__VMALLOC_RESERVE)
--#define __pa(x)			((unsigned long)(x)-PAGE_OFFSET)
--#define __va(x)			((void *)((unsigned long)(x)+PAGE_OFFSET))
-+#define __boot_pa(x)		((unsigned long)(x)-PAGE_OFFSET)
-+#define __boot_va(x)		((void *)((unsigned long)(x)+PAGE_OFFSET))
-+#define __pa(x)			__boot_pa(x)
-+#define __va(x)			__boot_va(x)
- #define pfn_to_kaddr(pfn)      __va((pfn) << PAGE_SHIFT)
- #ifndef CONFIG_DISCONTIGMEM
- #define pfn_to_page(pfn)	(mem_map + (pfn))
+Much easier than 'insert file', works perfectly.  This is not installed
+on Debian by default for some reason.
 
-We will, of course be overriding __{v,p}a() for any architectures that
-we do nonlinear with, later on.
+Might be a useful FAQ addition.
 
-The only other thing I can think of is to make __pa() effectively the
-boot-time, simple one, and make virt_to_phys() the more sophisticated
-one that we override with nonlinear.  But, some architectures '#define
-__pa() virt_to_phys()', while others do the opposite, so that approach
-could be significantly more work.  
-
-Does anybody really remember what the different between the __{p,v}a()
-functions and the virt_to_phys() ones is supposed to be?
-
--- Dave
+Lee
 

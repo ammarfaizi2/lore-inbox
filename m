@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263290AbTJUTkt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 15:40:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263293AbTJUTkt
+	id S263275AbTJUThr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 15:37:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263280AbTJUThr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 15:40:49 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:32531 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263290AbTJUTkr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 15:40:47 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: [RFC] frandom - fast random generator module
-Date: 21 Oct 2003 19:30:45 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bn41h5$i87$1@gatekeeper.tmr.com>
-References: <3F8E552B.3010507@users.sf.net> <200310161245.59939.ioe-lkml@rameria.de>
-X-Trace: gatekeeper.tmr.com 1066764645 18695 192.168.12.62 (21 Oct 2003 19:30:45 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Tue, 21 Oct 2003 15:37:47 -0400
+Received: from virt-216-40-198-21.ev1servers.net ([216.40.198.21]:39438 "EHLO
+	virt-216-40-198-21.ev1servers.net") by vger.kernel.org with ESMTP
+	id S263275AbTJUThq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 15:37:46 -0400
+Date: Tue, 21 Oct 2003 14:31:28 -0500
+From: Chuck Campbell <campbell@accelinc.com>
+To: Norman Diamond <ndiamond@wta.att.ne.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Blockbusting news, results are in
+Message-ID: <20031021193128.GA18618@helium.inexs.com>
+Reply-To: campbell@accelinc.com
+Mail-Followup-To: Chuck Campbell <campbell@accelinc.com>,
+	Norman Diamond <ndiamond@wta.att.ne.jp>,
+	linux-kernel@vger.kernel.org
+References: <175701c397e6$b36e5310$24ee4ca5@DIAMONDLX60>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <175701c397e6$b36e5310$24ee4ca5@DIAMONDLX60>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200310161245.59939.ioe-lkml@rameria.de>,
-Ingo Oeser  <ioe-lkml@rameria.de> wrote:
-| On Thursday 16 October 2003 10:22, Eli Billauer wrote:
+On Wed, Oct 22, 2003 at 12:18:33AM +0900, Norman Diamond wrote:
+> It still seems that either Linux must
+> be made to work around known bad blocks or else hard disks and Linux cannot
+> be used together on a computer.
 
-| > (4) The module is small: 6kB of source code as a standalone module, and
-| > 2.3 kB of kernel memory.
-| 
-| That's a price worth as an "default to off" option. We have much more
-| seldom used stuff in the kernel and maintain it, which is a bigger mess
-| than this.
+That is a bit of a troll.  I suspect that 70 - 90 percent of linux 
+installations on a computer are using hard disks.  Yet the number of people
+having the same problem as you doesn't appear to be 100% of those.
 
-Yes, and it could be disabled to take no resources, unlike the Athlon
-pagefault bugfix, which is forced in all kernels instead of just those
-destined for those which need the fix.
+Making intentionally inflammatory statements to try and win others to your 
+point of view tends to do exactly the opposite.
+
+If there are enough people experiencing the problem, it gets fixed, at least
+as far as I can tell.  There have been a nunmber of viable ideas proposed
+in this thread to handle the situation you are talking about, and while
+none of them are exactly what you proposed, feel free to write code.  Baiting
+comments like the above don't really accomplish anything constructive.
+
+-chuck
+
+
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.

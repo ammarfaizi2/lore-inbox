@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269070AbRG3SUv>; Mon, 30 Jul 2001 14:20:51 -0400
+	id <S269068AbRG3SWV>; Mon, 30 Jul 2001 14:22:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269068AbRG3SUo>; Mon, 30 Jul 2001 14:20:44 -0400
-Received: from [64.175.255.50] ([64.175.255.50]:12700 "HELO kobayashi.soze.net")
-	by vger.kernel.org with SMTP id <S269072AbRG3SUe>;
-	Mon, 30 Jul 2001 14:20:34 -0400
-Date: Mon, 30 Jul 2001 11:20:14 -0700 (PDT)
-From: Justin Guyett <justin@soze.net>
-X-X-Sender: <tyme@kobayashi.soze.net>
-To: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Test mail
-In-Reply-To: <Pine.LNX.4.33.0107301334390.27931-100000@terbidium.openservices.net>
-Message-ID: <Pine.LNX.4.33.0107301115080.4835-100000@kobayashi.soze.net>
+	id <S269071AbRG3SWL>; Mon, 30 Jul 2001 14:22:11 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:3858 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S269068AbRG3SVz>; Mon, 30 Jul 2001 14:21:55 -0400
+Date: Mon, 30 Jul 2001 15:21:57 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Khalid Aziz <khalid@fc.hp.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Support for serial console on legacy free machines
+In-Reply-To: <3B60880E.9FBAA76B@fc.hp.com>
+Message-ID: <Pine.LNX.4.33L.0107301520040.5582-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, 30 Jul 2001, Ignacio Vazquez-Abrams wrote:
+On Thu, 26 Jul 2001, Khalid Aziz wrote:
 
-> The problem is that in plenty of large companies not only are you stuck with
-> Windows, but you're also stuck with either Outlook or Notes because of
-> corporate decisions (i.e., Exchange or Domino). Trust me; been there, done
-> that.
+> serial console. The bummer is this table was designed by Microsoft and
+> Microsoft owns the copyright on it. Microsoft primarily designed this
 
-Hmm... linux developers at large corporations are stuck with [only]
-windows?  How do they get anything done?  Just because you're stuck with
-outlook for scheduling or whatever doesn't mean you can't send to mailing
-lists from another mailer, another OS, or another country.
+Microsoft owns the copyright on that particular document.
+
+If I were to give you an mp3 with descriptions of what
+various bits to poke at you'd be free to do whatever you
+want with that info ;)
+
+In fact, I suspect you're already free to do whatever
+you want with the info contained in the document...
+
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
 
 
-justin
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

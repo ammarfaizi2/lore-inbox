@@ -1,83 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271900AbTGRWj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 18:39:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271914AbTGRWj0
+	id S271945AbTGRWnC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 18:43:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271941AbTGRWmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 18:39:26 -0400
-Received: from web13305.mail.yahoo.com ([216.136.175.41]:2160 "HELO
-	web13305.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S271900AbTGRWis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 18:38:48 -0400
-Message-ID: <20030718225344.37834.qmail@web13305.mail.yahoo.com>
-Date: Fri, 18 Jul 2003 15:53:44 -0700 (PDT)
-From: Ronald Jerome <imun1ty@yahoo.com>
-Subject: Re: 2.5.72 insmod question
-To: rddunlap@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20030718073536.5e60cc3d.rddunlap@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 18 Jul 2003 18:42:49 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:8920
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S271939AbTGRWmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 18:42:20 -0400
+Subject: Re: DVD-RAM crashing system
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Svein Ove Aas <svein.ove@aas.no>
+Cc: Nachman Yaakov Ziskind <awacs@egps.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200307190008.32137.svein.ove@aas.no>
+References: <20030718160643.A21755@egps.egps.com>
+	 <200307190008.32137.svein.ove@aas.no>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058568886.19512.111.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 18 Jul 2003 23:54:46 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well I would also mention for the Redhat users
-especially redhat v9.0 users to grab the rawhide
-versions of the updated modutils and mkinitrd.
+On Gwe, 2003-07-18 at 23:08, Svein Ove Aas wrote:
+> My suggestion is this: As the hardware is obviously broken, and disabling DMA 
+> would cause a horrendous performance drop anyway, you should get a new 
+> chipset. Return the one you have as broken.
 
-Especially if they want to be able to boot kernels 2.4
-and 2.5, 2.6 series
+Update to 2.4.20. That will put IDE disks into MWDMA2 on the Serverworks
+OSB4 and avoid the mistrigger with CD-ROM errors. The later serverworks
+(CSB5, CSB6) is fine btw but can hit the CD-ROM mistrigger too
 
-
-I had to reinstall redhat because the rusty mod-utils
-alone did not allow the mkinitrd to work for 2.5
-kernels.  Had soemone help me do some modification to
-mkinitrd to geta good working initrd.
-
-Anhow few things happened and I ended up reinstalling
-my redhat v9.0 and this time installed the rawhide
-rpm's modutils and mkinitrd.  
-
-
---- "Randy.Dunlap" <rddunlap@osdl.org> wrote:
-> On Fri, 18 Jul 2003 13:50:45 +0200 Tomas Szepe
-> <szepe@pinerecords.com> wrote:
-> 
-> | > [rddunlap@osdl.org]
-> | > 
-> | > And you probably should read over the 2.6
-> migration document:
-> | >  
-> http://www.codemonkey.org.uk/post-halloween-2.5.txt
-> | 
-> | Wouldn't it be a good idea to print a similar note
-> during
-> | "make *config" in the 2.6.0-test series?  I mean,
-> this must
-> | be the 80th or so post of its kind this week.
-> 
-> Sure, that sounds good to me.  Some way to get that
-> message to
-> the masses, since putting it in an email signature
-> doesn't get
-> the message to the right people... :(
-> 
-> --
-> ~Randy
-> For Linux-2.6:
-> http://www.codemonkey.org.uk/post-halloween-2.5.txt
->   or http://lwn.net/Articles/39901/
->
-http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
-__________________________________
-Do you Yahoo!?
-SBC Yahoo! DSL - Now only $29.95 per month!
-http://sbc.yahoo.com

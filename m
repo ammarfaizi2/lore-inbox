@@ -1,69 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266454AbRGCHJX>; Tue, 3 Jul 2001 03:09:23 -0400
+	id <S265563AbRGCHFo>; Tue, 3 Jul 2001 03:05:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265565AbRGCHJN>; Tue, 3 Jul 2001 03:09:13 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:60431 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S266454AbRGCHJF>; Tue, 3 Jul 2001 03:09:05 -0400
-Date: Tue, 3 Jul 2001 09:08:34 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [patch] fix TI 1410 lockups
-Message-ID: <20010703090834.I639@arthur.ubicom.tudelft.nl>
-Mime-Version: 1.0
+	id <S265565AbRGCHFe>; Tue, 3 Jul 2001 03:05:34 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:45478 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S265563AbRGCHFY>;
+	Tue, 3 Jul 2001 03:05:24 -0400
+Message-ID: <3B416EAE.B02C7751@mandrakesoft.com>
+Date: Tue, 03 Jul 2001 03:05:18 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Sean Hunter <sean@dev.sportingbet.com>
+Cc: kaos@ocs.com.au, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: modules and 2.5
+In-Reply-To: <3B415489.77425364@mandrakesoft.com> <20010703075050.B15457@dev.sportingbet.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Sean Hunter wrote:
+> 
+> Does this defeat my favourite module-related gothcha, that the machine panics
+> if I have (say) a scsi driver builtin to the kernel and the same driver tries
+> to load itself as a module?
 
-This patch fixes machine lockups with a TI 1410 cardbus bridge (as used
-on Lucent PCI-PCMCIA adapter for Orinoco cards). The patch is against
-linux-2.4.5-ac23.
+Other, existing mechanisms should prevent conflicts here.  If a builtin
+SCSI driver loads successfully, then its calls to request_region,
+request_mem_region, or pci_request_regions should have succeeded.
 
-Index: include/linux/pci_ids.h
-===================================================================
-RCS file: /home/erik/cvsroot/elinux/include/linux/pci_ids.h,v
-retrieving revision 1.1.1.90
-diff -u -r1.1.1.90 pci_ids.h
---- include/linux/pci_ids.h	2001/07/03 00:30:13	1.1.1.90
-+++ include/linux/pci_ids.h	2001/07/03 06:48:16
-@@ -524,6 +524,7 @@
- #define PCI_DEVICE_ID_TI_1251B		0xac1f
- #define PCI_DEVICE_ID_TI_4410		0xac41
- #define PCI_DEVICE_ID_TI_4451		0xac42
-+#define PCI_DEVICE_ID_TI_1410		0xac50
- #define PCI_DEVICE_ID_TI_1420		0xac51
- 
- #define PCI_VENDOR_ID_SONY		0x104d
-Index: drivers/pcmcia/yenta.c
-===================================================================
-RCS file: /home/erik/cvsroot/elinux/drivers/pcmcia/yenta.c,v
-retrieving revision 1.1.1.61
-diff -u -r1.1.1.61 yenta.c
---- drivers/pcmcia/yenta.c	2001/07/03 00:27:54	1.1.1.61
-+++ drivers/pcmcia/yenta.c	2001/07/03 06:48:51
-@@ -793,6 +793,7 @@
- 	{ PD(TI,1251A),	&ti_ops },
- 	{ PD(TI,1211),	&ti_ops },
- 	{ PD(TI,1251B),	&ti_ops },
-+	{ PD(TI,1410),	&ti_ops },
- 	{ PD(TI,1420),	&ti_ops },
- 	{ PD(TI,4410),	&ti_ops },
- 	{ PD(TI,4451),	&ti_ops },
-
-
-Erik
+If so, any attempt to grab those I/O regions by another driver,
+including another instance of the same driver, should fail.
 
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Jeff Garzik      | "I respect faith, but doubt is
+Building 1024    |  what gives you an education."
+MandrakeSoft     |           -- Wilson Mizner

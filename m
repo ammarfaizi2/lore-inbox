@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268439AbTBYVrD>; Tue, 25 Feb 2003 16:47:03 -0500
+	id <S268578AbTBYV6C>; Tue, 25 Feb 2003 16:58:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268441AbTBYVrD>; Tue, 25 Feb 2003 16:47:03 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7945 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268439AbTBYVrC>; Tue, 25 Feb 2003 16:47:02 -0500
-Date: Tue, 25 Feb 2003 21:57:15 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: atomic_t (24 bits???)
-Message-ID: <20030225215715.H21014@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.3.95.1030225140554.20186A-100000@chaos> <20030225191711.GA25331@nevyn.them.org>
+	id <S268579AbTBYV6C>; Tue, 25 Feb 2003 16:58:02 -0500
+Received: from bitmover.com ([192.132.92.2]:57528 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S268578AbTBYV6C>;
+	Tue, 25 Feb 2003 16:58:02 -0500
+Date: Tue, 25 Feb 2003 14:08:11 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: William Lee Irwin III <wli@holomorphy.com>, Chris Wedgwood <cw@f00f.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030225220811.GA9317@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Chris Wedgwood <cw@f00f.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Larry McVoy <lm@bitmover.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030222231552.GA31268@work.bitmover.com> <3610000.1045957443@[10.10.2.4]> <20030224045616.GB4215@work.bitmover.com> <48940000.1046063797@[10.10.2.4]> <20030224065826.GA5665@work.bitmover.com> <1046093309.1246.6.camel@irongate.swansea.linux.org.uk> <20030225051956.GA18302@f00f.org> <20030225052602.GW10411@holomorphy.com> <20030225212115.GB21870@f00f.org> <20030225212134.GD10411@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030225191711.GA25331@nevyn.them.org>; from dan@debian.org on Tue, Feb 25, 2003 at 02:17:11PM -0500
+In-Reply-To: <20030225212134.GD10411@holomorphy.com>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 25, 2003 at 02:17:11PM -0500, Daniel Jacobowitz wrote:
-> There are other platforms where you can't reliably use the whole word. 
-> Some ARM atomic_t implementations are like this, although I don't know
-> if the one in the kernel is.
+On Tue, Feb 25, 2003 at 01:21:34PM -0800, William Lee Irwin III wrote:
+> On Mon, Feb 24, 2003 at 09:26:02PM -0800, William Lee Irwin III wrote:
+> >> Could you help identify the regressions? Profiles? Workload?
+> 
+> On Tue, Feb 25, 2003 at 01:21:15PM -0800, Chris Wedgwood wrote:
+> > I the OSDL data that Cliff White pointed out sufficient to work-with,
+> > or do you want specific tests run with oprofile outputs?
+> 
+> oprofile is what's needed. Looks like he's taking care of that too.
 
-The ARM atomic_t isn't 24-bit - it's a full paid up member of the
-32-bit club. 8)
-
+Without doing something about the page coloring problem (and he might be)
+the numbers will be fairly meaningless.
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,46 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbTIZMNq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 08:13:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbTIZMNq
+	id S261779AbTIZMjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 08:39:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbTIZMjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 08:13:46 -0400
-Received: from amsfep11-int.chello.nl ([213.46.243.20]:52773 "EHLO
-	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262063AbTIZMNp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 08:13:45 -0400
-Date: Fri, 26 Sep 2003 14:14:06 +0200
-Message-Id: <200309261214.h8QCE6iG004999@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 088] Sun-3 SBUS updates
+	Fri, 26 Sep 2003 08:39:09 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25301 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261779AbTIZMjF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 08:39:05 -0400
+Date: Fri, 26 Sep 2003 13:39:04 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] expand_resource()
+Message-ID: <20030926123904.GI24824@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sun-3 SBUS updates: Rename remaining occurrencies of struct linux_sbus_device
-to struct sbus_dev for source code compatibility with SPARC
 
---- linux-2.4.23-pre5/include/asm-m68k/dvma.h	2 Mar 2003 20:58:23 -0000	1.1.1.1.2.1
-+++ linux-m68k-2.4.23-pre5/include/asm-m68k/dvma.h	14 Jun 2003 11:40:33 -0000
-@@ -110,7 +110,7 @@
- /* Linux DMA information structure, filled during probe. */
- struct Linux_SBus_DMA {
- 	struct Linux_SBus_DMA *next;
--	struct linux_sbus_device *SBus_dev;
-+	struct sbus_dev *SBus_dev;
- 	struct sparc_dma_registers *regs;
- 
- 	/* Status, misc info */
+We have a situation where we descend through the resource tree and
+figure out that firmware has set up the resources wrongly.  This patch
+allows us to grow our parent's resource to accommodate our requirements.
 
-Gr{oetje,eeting}s,
+I'm looking for feedback at this point, not application, so I've mangled
+the patch to make it hard to apply.
 
-						Geert
+diff -u -p -r1.2 resource.c
+--- kernel/resource.c   12 Aug 2003 19:11:29 -0000      1.2
++++ kernel/resource.c   26 Sep 2003 02:28:45 -0000
+@@ -250,6 +252,62 @@ int allocate_resource(struct resource *r
+                err = -EBUSY;
+        write_unlock(&resource_lock);
+        return err;
++}
++
++/*
++ * Expand an existing resource by size amount.
++ */
++int expand_resource(struct resource *res, unsigned long size,
++                          unsigned long align)
++{
++       unsigned long start, end;
++
++       /* see if we can expand above */
++       end = (res->end + size + align - 1) & ~(align - 1);
++
++       write_lock(&resource_lock);
++       if (res->sibling) {
++               if (res->sibling->start > end)
++                       goto end;
++       } else {
++               if (res->parent->end >= end)
++                       goto end;
++       }
++
++       /* now try below */
++       start = ((res->start - size + align) & ~(align - 1)) - align;
++
++       if (res->parent->child == res) {
++               if (res->start <= start)
++                       goto start;
++       } else {
++               struct resource *prev = res->parent->child;
++               while (prev->sibling != res)
++                       prev = prev->sibling;
++               if (prev->end < start)
++                       goto start;
++       }
++
++       write_unlock(&resource_lock);
++       return -ENOMEM;
++
++ start:
++       res->start = start;
++       write_unlock(&resource_lock);
++       return 0;
++ end:
++       res->end = end;
++       write_unlock(&resource_lock);
++       return 0;
+ }
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

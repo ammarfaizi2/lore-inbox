@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315179AbSGDXrX>; Thu, 4 Jul 2002 19:47:23 -0400
+	id <S315171AbSGDXrV>; Thu, 4 Jul 2002 19:47:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315265AbSGDXrC>; Thu, 4 Jul 2002 19:47:02 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37901 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315179AbSGDXqD>;
-	Thu, 4 Jul 2002 19:46:03 -0400
-Message-ID: <3D24E032.F0793112@zip.com.au>
-Date: Thu, 04 Jul 2002 16:54:26 -0700
+	id <S315239AbSGDXq4>; Thu, 4 Jul 2002 19:46:56 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37133 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315171AbSGDXqA>;
+	Thu, 4 Jul 2002 19:46:00 -0400
+Message-ID: <3D24E02E.82839D0@zip.com.au>
+Date: Thu, 04 Jul 2002 16:54:22 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 12/27] set TASK_RUNNING in cond_resched()
+Subject: [patch 11/27] add new list_splice_init()
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,60 +22,185 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-do_select() does set_current_state(TASK_INTERRUPTIBLE) then calls
-__pollwait() which calls __get_free_page() and the cond_resched() which
-I added to the pagecache reclaim code never returns.
+A little cleanup: Most callers of list_splice() immediately
+reinitialise the source list_head after calling list_splice().
 
-The patch makes cond_resched() more useful by setting current->state to
-TASK_RUNNING before scheduling.
+So create a new list_splice_init() which does all that.
 
 
 
 
- include/linux/sched.h |    3 ++-
- kernel/ksyms.c        |    1 +
- kernel/sched.c        |    6 ++++++
- 3 files changed, 9 insertions(+), 1 deletion(-)
+ drivers/block/ll_rw_blk.c        |    3 +--
+ drivers/ieee1394/ieee1394_core.c |    3 +--
+ fs/fs-writeback.c                |   14 +++++---------
+ fs/jfs/jfs_txnmgr.c              |    5 +----
+ fs/mpage.c                       |   14 +++++---------
+ fs/nfs/write.c                   |    3 +--
+ include/linux/list.h             |   36 ++++++++++++++++++++++++++++--------
+ 7 files changed, 42 insertions(+), 36 deletions(-)
 
---- 2.5.24/include/linux/sched.h~cond_resched-fix	Thu Jul  4 16:17:17 2002
-+++ 2.5.24-akpm/include/linux/sched.h	Thu Jul  4 16:22:11 2002
-@@ -837,10 +837,11 @@ static inline int need_resched(void)
- 	return unlikely(test_thread_flag(TIF_NEED_RESCHED));
+--- 2.5.24/drivers/block/ll_rw_blk.c~list_splice_init	Thu Jul  4 16:17:16 2002
++++ 2.5.24-akpm/drivers/block/ll_rw_blk.c	Thu Jul  4 16:17:16 2002
+@@ -964,8 +964,7 @@ void blk_run_queues(void)
+ 		return;
+ 	}
+ 
+-	list_splice(&blk_plug_list, &local_plug_list);
+-	INIT_LIST_HEAD(&blk_plug_list);
++	list_splice_init(&blk_plug_list, &local_plug_list);
+ 	spin_unlock_irq(&blk_plug_lock);
+ 	
+ 	while (!list_empty(&local_plug_list)) {
+--- 2.5.24/drivers/ieee1394/ieee1394_core.c~list_splice_init	Thu Jul  4 16:17:16 2002
++++ 2.5.24-akpm/drivers/ieee1394/ieee1394_core.c	Thu Jul  4 16:17:16 2002
+@@ -740,8 +740,7 @@ void abort_requests(struct hpsb_host *ho
+         host->ops->devctl(host, CANCEL_REQUESTS, 0);
+ 
+         spin_lock_irqsave(&host->pending_pkt_lock, flags);
+-        list_splice(&host->pending_packets, &llist);
+-        INIT_LIST_HEAD(&host->pending_packets);
++        list_splice_init(&host->pending_packets, &llist);
+         spin_unlock_irqrestore(&host->pending_pkt_lock, flags);
+ 
+         list_for_each(lh, &llist) {
+--- 2.5.24/fs/fs-writeback.c~list_splice_init	Thu Jul  4 16:17:16 2002
++++ 2.5.24-akpm/fs/fs-writeback.c	Thu Jul  4 16:17:16 2002
+@@ -220,8 +220,7 @@ static void sync_sb_inodes(struct super_
+ 	struct list_head *head;
+ 	const unsigned long start = jiffies;	/* livelock avoidance */
+ 
+-	list_splice(&sb->s_dirty, &sb->s_io);
+-	INIT_LIST_HEAD(&sb->s_dirty);
++	list_splice_init(&sb->s_dirty, &sb->s_io);
+ 	head = &sb->s_io;
+ 	while ((tmp = head->prev) != head) {
+ 		struct inode *inode = list_entry(tmp, struct inode, i_list);
+@@ -262,13 +261,10 @@ static void sync_sb_inodes(struct super_
+ 			break;
+ 	}
+ out:
+-	if (!list_empty(&sb->s_io)) {
+-		/*
+-		 * Put the rest back, in the correct order.
+-		 */
+-		list_splice(&sb->s_io, sb->s_dirty.prev);
+-		INIT_LIST_HEAD(&sb->s_io);
+-	}
++	/*
++	 * Put the rest back, in the correct order.
++	 */
++	list_splice_init(&sb->s_io, sb->s_dirty.prev);
+ 	return;
  }
  
-+extern void __cond_resched(void);
- static inline void cond_resched(void)
- {
- 	if (need_resched())
--		schedule();
-+		__cond_resched();
+--- 2.5.24/fs/mpage.c~list_splice_init	Thu Jul  4 16:17:16 2002
++++ 2.5.24-akpm/fs/mpage.c	Thu Jul  4 16:22:10 2002
+@@ -490,8 +490,7 @@ mpage_writepages(struct address_space *m
+ 
+ 	write_lock(&mapping->page_lock);
+ 
+-	list_splice(&mapping->dirty_pages, &mapping->io_pages);
+-	INIT_LIST_HEAD(&mapping->dirty_pages);
++	list_splice_init(&mapping->dirty_pages, &mapping->io_pages);
+ 
+         while (!list_empty(&mapping->io_pages) && !done) {
+ 		struct page *page = list_entry(mapping->io_pages.prev,
+@@ -538,13 +537,10 @@ mpage_writepages(struct address_space *m
+ 		page_cache_release(page);
+ 		write_lock(&mapping->page_lock);
+ 	}
+-	if (!list_empty(&mapping->io_pages)) {
+-		/*
+-		 * Put the rest back, in the correct order.
+-		 */
+-		list_splice(&mapping->io_pages, mapping->dirty_pages.prev);
+-		INIT_LIST_HEAD(&mapping->io_pages);
+-	}
++	/*
++	 * Put the rest back, in the correct order.
++	 */
++	list_splice_init(&mapping->io_pages, mapping->dirty_pages.prev);
+ 	write_unlock(&mapping->page_lock);
+ 	if (bio)
+ 		mpage_bio_submit(WRITE, bio);
+--- 2.5.24/fs/jfs/jfs_txnmgr.c~list_splice_init	Thu Jul  4 16:17:16 2002
++++ 2.5.24-akpm/fs/jfs/jfs_txnmgr.c	Thu Jul  4 16:17:16 2002
+@@ -2975,10 +2975,7 @@ int jfs_sync(void)
+ 			}
+ 		}
+ 		/* Add anon_list2 back to anon_list */
+-		if (!list_empty(&TxAnchor.anon_list2)) {
+-			list_splice(&TxAnchor.anon_list2, &TxAnchor.anon_list);
+-			INIT_LIST_HEAD(&TxAnchor.anon_list2);
+-		}
++		list_splice_init(&TxAnchor.anon_list2, &TxAnchor.anon_list);
+ 		add_wait_queue(&jfs_sync_thread_wait, &wq);
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		TXN_UNLOCK();
+--- 2.5.24/fs/nfs/write.c~list_splice_init	Thu Jul  4 16:17:16 2002
++++ 2.5.24-akpm/fs/nfs/write.c	Thu Jul  4 16:17:16 2002
+@@ -1110,8 +1110,7 @@ nfs_commit_rpcsetup(struct list_head *he
+ 	/* Set up the RPC argument and reply structs
+ 	 * NB: take care not to mess about with data->commit et al. */
+ 
+-	list_splice(head, &data->pages);
+-	INIT_LIST_HEAD(head);
++	list_splice_init(head, &data->pages);
+ 	first = nfs_list_entry(data->pages.next);
+ 	last = nfs_list_entry(data->pages.prev);
+ 	inode = first->wb_inode;
+--- 2.5.24/include/linux/list.h~list_splice_init	Thu Jul  4 16:17:16 2002
++++ 2.5.24-akpm/include/linux/list.h	Thu Jul  4 16:17:16 2002
+@@ -136,6 +136,19 @@ static inline int list_empty(list_t *hea
+ 	return head->next == head;
  }
  
- /* Reevaluate whether the task has signals pending delivery.
---- 2.5.24/kernel/sched.c~cond_resched-fix	Thu Jul  4 16:17:17 2002
-+++ 2.5.24-akpm/kernel/sched.c	Thu Jul  4 16:22:11 2002
-@@ -1447,6 +1447,12 @@ asmlinkage long sys_sched_yield(void)
- 	return 0;
- }
- 
-+void __cond_resched(void)
++static inline void __list_splice(list_t *list, list_t *head)
 +{
-+	set_current_state(TASK_RUNNING);
-+	schedule();
++	list_t *first = list->next;
++	list_t *last = list->prev;
++	list_t *at = head->next;
++
++	first->prev = head;
++	head->next = first;
++
++	last->next = at;
++	at->prev = last;
 +}
 +
- asmlinkage long sys_sched_get_priority_max(int policy)
+ /**
+  * list_splice - join two lists
+  * @list: the new list to add.
+@@ -145,15 +158,22 @@ static inline void list_splice(list_t *l
  {
- 	int ret = -EINVAL;
---- 2.5.24/kernel/ksyms.c~cond_resched-fix	Thu Jul  4 16:17:17 2002
-+++ 2.5.24-akpm/kernel/ksyms.c	Thu Jul  4 16:22:11 2002
-@@ -473,6 +473,7 @@ EXPORT_SYMBOL(preempt_schedule);
- #endif
- EXPORT_SYMBOL(schedule_timeout);
- EXPORT_SYMBOL(sys_sched_yield);
-+EXPORT_SYMBOL(__cond_resched);
- EXPORT_SYMBOL(set_user_nice);
- EXPORT_SYMBOL(task_nice);
- EXPORT_SYMBOL_GPL(idle_cpu);
+ 	list_t *first = list->next;
+ 
+-	if (first != list) {
+-		list_t *last = list->prev;
+-		list_t *at = head->next;
+-
+-		first->prev = head;
+-		head->next = first;
++	if (first != list)
++		__list_splice(list, head);
++}
+ 
+-		last->next = at;
+-		at->prev = last;
++/**
++ * list_splice_init - join two lists and reinitialise the emptied list.
++ * @list: the new list to add.
++ * @head: the place to add it in the first list.
++ *
++ * The list at @list is reinitialised
++ */
++static inline void list_splice_init(list_t *list, list_t *head)
++{
++	if (!list_empty(list)) {
++		__list_splice(list, head);
++		INIT_LIST_HEAD(list);
+ 	}
+ }
+ 
 
 -

@@ -1,97 +1,284 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263245AbUCTIEx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 03:04:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263246AbUCTIEx
+	id S263247AbUCTIei (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 03:34:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263248AbUCTIei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 03:04:53 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:35627 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263245AbUCTIEv (ORCPT
+	Sat, 20 Mar 2004 03:34:38 -0500
+Received: from mail.fh-wedel.de ([213.39.232.194]:36019 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S263247AbUCTIe3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 03:04:51 -0500
-Date: Sat, 20 Mar 2004 00:02:35 -0800
-From: Paul Jackson <pj@sgi.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
-       akpm@osdl.org, haveblue@us.ibm.com, hch@infradead.org
-Subject: Re: [PATCH] Introduce nodemask_t ADT [0/7]
-Message-Id: <20040320000235.5e72040a.pj@sgi.com>
-In-Reply-To: <20040320031843.GY2045@holomorphy.com>
-References: <1079651064.8149.158.camel@arrakis>
-	<20040318165957.592e49d3.pj@sgi.com>
-	<1079659184.8149.355.camel@arrakis>
-	<20040318175654.435b1639.pj@sgi.com>
-	<1079737351.17841.51.camel@arrakis>
-	<20040319165928.45107621.pj@sgi.com>
-	<20040320031843.GY2045@holomorphy.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 20 Mar 2004 03:34:29 -0500
+Date: Sat, 20 Mar 2004 09:34:11 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@digeo.com>, viro@parcelfarce.linux.theplanet.co.uk,
+       Sytse Wielinga <s.b.wielinga@student.utwente.nl>
+Subject: [PATCH] cowlinks v2
+Message-ID: <20040320083411.GA25934@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Other ways to reduce cpumask copies:
+Hi!
 
- 1) Additional macros, for example a boolean cpus_intersect(x,y), which
-    is true iff x overlaps y, and saves the tmp cpumask in the code:
+Version 2 of my cowlink patch, tested and currently running on my
+machine.
 
-        cpus_and(tmp, target_cpu_mask, allowed_mask);
-        if (!cpus_empty(tmp)) {
+Al, I'd especially like your opinion on it.  Would you accept
+something like this?
 
-    or a cpus_subset(x,y) "is x a subset of y" macro to replace this:
+Changes since v1:
+o moved break_cow_link() check to get_write_access()
+o added inode locking when changing flags
+o switched to mark_inode_dirty_sync()
 
-        cpus_and(tmp, cpumask, cpu_callout_map);
-        BUG_ON(!cpus_equal(cpumask, tmp));
+TODO:
+o Disallow fcntl() for filesystems without support
+o Proper support for ext[23]
+o Switch to mark_inode_dirty() without sync?
+o Library support for
+  o copyfile() (link and set cow-flag)
+  o cow_open() (break link if open() fails)
 
-   with this:
-
-	BUG_ON(!cpus_subset(cpumask, cpu_callout_map));
-
- 2) Using existing macros more carefully, for example using cpu_set() to
-    set the bit in the following, and saving the copy by assignment:
-
-	pending_irq_balance_cpumask[irq] = cpumask_of_cpu(new_cpu);
-
-    or using the existing cpu_isset() macro, replacing the code (seen
-    in part above ;):
-
-        cpus_and(allowed_mask, cpu_online_map, irq_affinity[selected_irq]);
-        target_cpu_mask = cpumask_of_cpu(min_loaded);
-        cpus_and(tmp, target_cpu_mask, allowed_mask);
-        if (!cpus_empty(tmp)) {
-
-    with the code:
-
-	if (cpu_isset(min_loaded, cpu_online_map) && cpu_isset(min_loaded, irq_affinity[selected_irq]) {
-
-    The current nested and ifdef'd complexity of the cpumask macro headers works
-    against such efficient coding - it's non-trivial to see just what macros are
-    available.  The youngins reading this may not appreciate the value of reducing
-    brain load; but the oldins might.
-
- 2) Pass a cpumask pointer to a function that generates a cpumask instead of
-    taking one as a return value, letting the called function fill in the memory
-    so referenced.  We should not be trying to hide such details, unless we can
-    do so seamlessly and consistent with traditional 'C' semantics.
-
- 3) Passing a const cpumask pointer to a function that examines a cpumask
-    instead of passing the cpumask by value (on small systems, its one word
-    either way - on big systems, it saves copying a multiword mask on the
-    stack).
-
- 4) Throwing away dead code:
-
-	static int physical_balance = 0;
-        cpumask_t tmp;
-	cpus_shift_right(tmp, cpu_online_map, 2);
-	if (smp_num_siblings > 1 && !cpus_empty(tmp)
-		physical_balance = 1;
-
-The above code fragments are from arch/i386 in 2.6.3-rc1-mm1.
+Jörn
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Premature optimization is the root of all evil.
+-- Donald Knuth
+
+
+ fs/ext2/inode.c       |    3 +-
+ fs/ext3/inode.c       |    4 ++
+ fs/fcntl.c            |   21 +++++++++++++++
+ fs/namei.c            |   70 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/fcntl.h |    3 ++
+ include/linux/fs.h    |    3 ++
+ 6 files changed, 102 insertions(+), 2 deletions(-)
+
+--- linux-2.6.4/include/linux/fcntl.h~cowlink	2004-03-19 17:38:48.000000000 +0100
++++ linux-2.6.4/include/linux/fcntl.h	2004-03-19 17:52:49.000000000 +0100
+@@ -23,6 +23,9 @@
+ #define DN_ATTRIB	0x00000020	/* File changed attibutes */
+ #define DN_MULTISHOT	0x80000000	/* Don't remove notifier */
+ 
++#define F_SETCOW	(F_LINUX_SPECIFIC_BASE+3)
++#define F_GETCOW	(F_LINUX_SPECIFIC_BASE+4)
++
+ #ifdef __KERNEL__
+ 
+ #if BITS_PER_LONG == 32
+--- linux-2.6.4/include/linux/fs.h~cowlink	2004-03-19 17:47:29.000000000 +0100
++++ linux-2.6.4/include/linux/fs.h	2004-03-19 17:52:49.000000000 +0100
+@@ -137,6 +137,9 @@
+ #define S_DEAD		32	/* removed, but still open directory */
+ #define S_NOQUOTA	64	/* Inode is not counted to quota */
+ #define S_DIRSYNC	128	/* Directory modifications are synchronous */
++#define S_COWLINK	256	/* Hard links have copy on write semantics.
++				 * This flag has no meaning for directories,
++				 * but is inherited to directory children */
+ 
+ /*
+  * Note that nosuid etc flags are inode-specific: setting some file-system
+--- linux-2.6.4/fs/fcntl.c~cowlink	2004-03-19 17:47:15.000000000 +0100
++++ linux-2.6.4/fs/fcntl.c	2004-03-19 17:59:20.000000000 +0100
+@@ -282,6 +282,20 @@
+ 
+ EXPORT_SYMBOL(f_delown);
+ 
++static long fcntl_setcow(struct file *filp, unsigned long arg)
++{
++	struct inode *inode = filp->f_dentry->d_inode;
++
++	spin_lock(&inode->i_lock);
++	if (arg)
++		inode->i_flags |= S_COWLINK;
++	else
++		inode->i_flags &= ~S_COWLINK;
++	mark_inode_dirty_sync(inode);
++	spin_unlock(&inode->i_lock);
++	return 0;
++}
++
+ static long do_fcntl(unsigned int fd, unsigned int cmd,
+ 		     unsigned long arg, struct file * filp)
+ {
+@@ -346,6 +360,13 @@
+ 		case F_NOTIFY:
+ 			err = fcntl_dirnotify(fd, filp, arg);
+ 			break;
++		case F_SETCOW:
++			err = fcntl_setcow(filp, arg);
++			break;
++		case F_GETCOW:
++			err = (filp->f_dentry->d_inode->i_flags & S_COWLINK) /
++				S_COWLINK;
++			break;
+ 		default:
+ 			break;
+ 	}
+--- linux-2.6.4/fs/namei.c~cowlink	2004-03-19 17:47:19.000000000 +0100
++++ linux-2.6.4/fs/namei.c	2004-03-19 18:10:00.000000000 +0100
+@@ -224,6 +224,33 @@
+ }
+ 
+ /*
++ * Files with the S_COWLINK flag set cannot be written to, if more
++ * than one hard link to them exists.  Ultimately, this function
++ * should copy the inode, assign the copy to the dentry and lower use
++ * count of the old inode - one day.
++ * For now, it is sufficient to return an error and let userspace
++ * deal with the messy part.  Not exactly the meaning of
++ * copy-on-write, but much better than writing to fifty files at once
++ * and noticing month later.
++ *
++ * Yes, this breaks the kernel interface and is simply wrong.  This
++ * is intended behaviour, so Linus will not merge the code before
++ * it is complete.  Or will he?
++ */
++static int break_cow_link(struct inode *inode)
++{
++	if (!(inode->i_flags & S_COWLINK))
++		return 0;
++	if (!S_ISREG(inode->i_mode))
++		return 0;
++	if (inode->i_nlink < 2)
++		return 0;
++	/* TODO: As soon as sendfile can do normal file copies, use that
++	 * and always return 0 */
++	return -EMLINK;
++}
++
++/*
+  * get_write_access() gets write permission for a file.
+  * put_write_access() releases this write permission.
+  * This is used for regular files.
+@@ -243,7 +270,14 @@
+ 
+ int get_write_access(struct inode * inode)
+ {
++	int error;
++
+ 	spin_lock(&inode->i_lock);
++	error = break_cow_link(inode);
++	if (error) {
++		spin_unlock(&inode->i_lock);
++		return error;
++	}
+ 	if (atomic_read(&inode->i_writecount) < 0) {
+ 		spin_unlock(&inode->i_lock);
+ 		return -ETXTBSY;
+@@ -1148,6 +1182,10 @@
+ 	if (!error) {
+ 		inode_dir_notify(dir, DN_CREATE);
+ 		security_inode_post_create(dir, dentry, mode);
++		spin_lock(&inode->i_lock);
++		dentry->d_inode->i_flags |= dir->i_flags & S_COWLINK;
++		mark_inode_dirty_sync(inode);
++		spin_unlock(&inode->i_lock);
+ 	}
+ 	return error;
+ }
+@@ -1522,6 +1560,9 @@
+ 	if (!error) {
+ 		inode_dir_notify(dir, DN_CREATE);
+ 		security_inode_post_mkdir(dir,dentry, mode);
++		spin_lock(&inode->i_lock);
++		dentry->d_inode->i_flags |= dir->i_flags & S_COWLINK;
++		spin_unlock(&inode->i_lock);
+ 	}
+ 	return error;
+ }
+@@ -1820,6 +1861,13 @@
+ 		return -EXDEV;
+ 
+ 	/*
++	 * Cowlink attribute is inherited from directory, but here,
++	 * the inode already has one.  If they don't match, bail out.
++	 */
++	if ((dir->i_flags ^ old_dentry->d_inode->i_flags) & S_COWLINK)
++		return -EMLINK;
++
++	/*
+ 	 * A link to an append-only or immutable file cannot be created.
+ 	 */
+ 	if (IS_APPEND(inode) || IS_IMMUTABLE(inode))
+@@ -1997,6 +2045,24 @@
+ 	return error;
+ }
+ 
++static int cow_allow_rename(struct inode *old_dir, struct dentry *old_dentry,
++			    struct inode *new_dir)
++{
++	/* source and target share directory: allow */
++	if (old_dir == new_dir)
++		return 0;
++	/* source and target directory have identical cowlink flag: allow */
++	if (! ((old_dentry->d_inode->i_flags ^ new_dir->i_flags) & S_COWLINK))
++		return 0;
++	/* We could always fail here, but cowlink flag is only defined for
++	 * files and directories, so let's allow special files */
++	if (!S_ISREG(old_dentry->d_inode->i_mode))
++		return -EMLINK;
++	if (!S_ISDIR(old_dentry->d_inode->i_mode))
++		return -EMLINK;
++	return 0;
++}
++
+ int vfs_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 	       struct inode *new_dir, struct dentry *new_dentry)
+ {
+@@ -2020,6 +2086,10 @@
+ 	if (!old_dir->i_op || !old_dir->i_op->rename)
+ 		return -EPERM;
+ 
++	error = cow_allow_rename(old_dir, old_dentry, new_dir);
++	if (error)
++		return error;
++
+ 	DQUOT_INIT(old_dir);
+ 	DQUOT_INIT(new_dir);
+ 
+--- linux-2.6.4/fs/ext2/inode.c~cowlink	2004-03-19 17:44:02.000000000 +0100
++++ linux-2.6.4/fs/ext2/inode.c	2004-03-19 17:52:49.000000000 +0100
+@@ -1020,6 +1020,7 @@
+ {
+ 	unsigned int flags = EXT2_I(inode)->i_flags;
+ 
++	inode->i_flags  = flags;
+ 	inode->i_flags &= ~(S_SYNC|S_APPEND|S_IMMUTABLE|S_NOATIME|S_DIRSYNC);
+ 	if (flags & EXT2_SYNC_FL)
+ 		inode->i_flags |= S_SYNC;
+@@ -1191,7 +1192,7 @@
+ 
+ 	raw_inode->i_blocks = cpu_to_le32(inode->i_blocks);
+ 	raw_inode->i_dtime = cpu_to_le32(ei->i_dtime);
+-	raw_inode->i_flags = cpu_to_le32(ei->i_flags);
++	raw_inode->i_flags = cpu_to_le32(inode->i_flags);
+ 	raw_inode->i_faddr = cpu_to_le32(ei->i_faddr);
+ 	raw_inode->i_frag = ei->i_frag_no;
+ 	raw_inode->i_fsize = ei->i_frag_size;
+--- linux-2.6.4/fs/ext3/inode.c~cowlink	2004-03-19 17:44:02.000000000 +0100
++++ linux-2.6.4/fs/ext3/inode.c	2004-03-19 17:52:49.000000000 +0100
+@@ -2447,6 +2447,7 @@
+ {
+ 	unsigned int flags = EXT3_I(inode)->i_flags;
+ 
++	inode->i_flags  = flags;
+ 	inode->i_flags &= ~(S_SYNC|S_APPEND|S_IMMUTABLE|S_NOATIME|S_DIRSYNC);
+ 	if (flags & EXT3_SYNC_FL)
+ 		inode->i_flags |= S_SYNC;
+@@ -2629,7 +2630,8 @@
+ 	raw_inode->i_mtime = cpu_to_le32(inode->i_mtime.tv_sec);
+ 	raw_inode->i_blocks = cpu_to_le32(inode->i_blocks);
+ 	raw_inode->i_dtime = cpu_to_le32(ei->i_dtime);
+-	raw_inode->i_flags = cpu_to_le32(ei->i_flags);
++	raw_inode->i_flags = cpu_to_le32((ei->i_flags & ~S_COWLINK) |
++					 (inode->i_flags & S_COWLINK));
+ #ifdef EXT3_FRAGMENTS
+ 	raw_inode->i_faddr = cpu_to_le32(ei->i_faddr);
+ 	raw_inode->i_frag = ei->i_frag_no;

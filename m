@@ -1,49 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263150AbTC1Vj0>; Fri, 28 Mar 2003 16:39:26 -0500
+	id <S263159AbTC1VnR>; Fri, 28 Mar 2003 16:43:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263162AbTC1Vj0>; Fri, 28 Mar 2003 16:39:26 -0500
-Received: from cpe-024-033-021-148.midsouth.rr.com ([24.33.21.148]:10125 "EHLO
-	braindead") by vger.kernel.org with ESMTP id <S263150AbTC1VjZ>;
-	Fri, 28 Mar 2003 16:39:25 -0500
-From: Warren Turkal <wturkal@cbu.edu>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Arne Koewing <ark@gmx.net>
-Subject: Re: [BUG] laptop keyboard, even more info
-Date: Fri, 28 Mar 2003 15:50:14 -0600
-User-Agent: KMail/1.5.1
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <200303220605.54478.wturkal@cbu.edu> <87y92zr57o.fsf@localhost.i-did-not-set--mail-host-address--so-tickle-me> <1048880210.598.1.camel@teapot>
-In-Reply-To: <1048880210.598.1.camel@teapot>
+	id <S263163AbTC1VnQ>; Fri, 28 Mar 2003 16:43:16 -0500
+Received: from ns0.cobite.com ([208.222.80.10]:28945 "EHLO ns0.cobite.com")
+	by vger.kernel.org with ESMTP id <S263159AbTC1VnP>;
+	Fri, 28 Mar 2003 16:43:15 -0500
+Date: Fri, 28 Mar 2003 16:54:26 -0500 (EST)
+From: David Mansfield <lkml@dm.cobite.com>
+X-X-Sender: david@admin
+To: Andrew Morton <akpm@digeo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: very poor performance in 2.5.66[-mm1]
+In-Reply-To: <20030328124451.2d09bd33.akpm@digeo.com>
+Message-ID: <Pine.LNX.4.44.0303281641320.11928-100000@admin>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303281550.14426.wturkal@cbu.edu>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 28 March 2003 01:36 pm, Felipe Alfaro Solana wrote:
-> On Fri, 2003-03-28 at 10:05, Arne Koewing wrote:
-> > >> I have tested that the Fn-F2 combination works in bios and grub and
-> > >> continues to work until the 2.5.65 kernel is loaded.
-> > >>
-> > >> I think this is a regression in the keyboard handling for the 2.5.65
-> > >> kernel....
-> >
-> > I don't think this is caused by the input-layer. Linux is not passing
-> > Fn-X keypresses to your BIOS. If you've enabled ACPI that ought to be
-> > the reason for this.
->
-> Also, XFree86 4.3.0 seems to inhibit Fn key combinations on some
-> scenarios. On my laptop, I can't use Fn+F3 to switch between LCD and CRT
-> while running X.
+On Fri, 28 Mar 2003, Andrew Morton wrote:
+> > After all of the rave reviews about the interactivity fixes (both regular 
+> > and I/O scheduler related), I decided to give the 2.5.latest a try on my 
+> > desktop machine (system described below)
+> > 
+> > I started X, everything seemed fine, maybe a bit faster.  I opened a 
+> > 'gnome-terminal' and typed 'ls -ltr'.  Wow, it was 20x slower.
+> > 
+> > Here are the timings for 'ls -ltr':
+> > 
+> > 2.5.66-mm1:      'ls -ltr'         31 seconds
+> > 2.5.66-mm1:      'ls -ltr | cat'   2 seconds
+> > 2.4.18-rhlatest: 'ls -ltr'         1.14 seconds
+> 
+> How many files were there?
 
-Fn key gets killed before X. Also, it works fine in X when I am in 2.5.63.
+1337 files.
 
-Warren
+> My /usr/bin contains 3168 files.  An `ls -ltr' in gnome-terminal takes 9.6
+> seconds.  In rxvt it takes 0.5 seconds.  That's an 850MHz P3.
+> 
+> So gnome-terminal appears to be a pretty slow application.  My guess would be
+> that something in the 2.5 kernel has exposed a marginality or an outright
+> bug in it.
+
+Yes. gnome-terminal is godawful slow on RHAT 8.0 (it does Xrender
+alpha-channel crap for every character to get the anti-aliasing).  But I
+think the problem has to do with the pipe/pty wakeups.  After 'ls' writes
+a line to the pty, it seems as though the gnome-terminal is being woken up
+(even though 'ls' has more to write), it's generating the Xrender 
+X-command and sending it to X.  X is waking up and rendering it (which 
+forces a complete update of the screen).
+
+Under 2.4.18-whatever, it would seem as though 'ls' is generating a large
+number of lines of output before the gnome-terminal is waking up, causing
+a dramatically fewer number of redraws.
+
+> It would be interesting to edit include/asm-i386/param.h and set HZ to 100.
+> 
+
+I'll try to check this out over the weekend.
+
+David
+
 -- 
-Treasurer, GOLUM, Inc.
-http://www.golum.org
+/==============================\
+| David Mansfield              |
+| lkml@dm.cobite.com           |
+\==============================/
 

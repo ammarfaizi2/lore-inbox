@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266808AbRHRTaE>; Sat, 18 Aug 2001 15:30:04 -0400
+	id <S266806AbRHRT1e>; Sat, 18 Aug 2001 15:27:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266827AbRHRT3y>; Sat, 18 Aug 2001 15:29:54 -0400
-Received: from mail.erisksecurity.com ([208.179.59.234]:40497 "EHLO
-	Tidal.eRiskSecurity.com") by vger.kernel.org with ESMTP
-	id <S266808AbRHRT3m>; Sat, 18 Aug 2001 15:29:42 -0400
-Message-ID: <3B7EC211.1010205@blue-labs.org>
-Date: Sat, 18 Aug 2001 15:29:21 -0400
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010815
-X-Accept-Language: en-us
+	id <S266808AbRHRT1Y>; Sat, 18 Aug 2001 15:27:24 -0400
+Received: from nbd.it.uc3m.es ([163.117.139.192]:5380 "EHLO nbd.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S266806AbRHRT1P>;
+	Sat, 18 Aug 2001 15:27:15 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200108181927.VAA03583@nbd.it.uc3m.es>
+Subject: Re: scheduling with io_lock held in 2.4.6
+X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
+In-Reply-To: <3B7C607A.58B9E36@zip.com.au> "from Andrew Morton at Aug 16, 2001
+ 05:08:26 pm"
+To: Andrew Morton <akpm@zip.com.au>
+Date: Sat, 18 Aug 2001 21:27:09 +0200 (CEST)
+CC: ptb@it.uc3m.es, linux kernel <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL89 (25)]
 MIME-Version: 1.0
-To: David Lang <dlang@diginsite.com>
-CC: Ralf Baechle <ralf@uni-koblenz.de>, Justin Guyett <justin@soze.net>,
-        Jim Roland <jroland@roland.net>, linux-kernel@vger.kernel.org
-Subject: Re: Aliases
-In-Reply-To: <Pine.LNX.4.33.0108180554500.18300-100000@dlang.diginsite.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try before you buy.
+"A month of sundays ago Andrew Morton wrote:"
+> "Peter T. Breuer" wrote:
+> > I've been plagued for a month by smp lockups in my block driver
+> > that I eventually deduced were due to somebody else scheduling while
+> > holding the io_request_lock spinlock.
 
+> >   Aug 17 01:41:00 xilofon kernel: Scheduling with io lock held in process 0
+> >   Aug 17 01:41:01 xilofon last message repeated 87 times
+> >   Aug 17 01:41:01 xilofon kernel: Scheduling with io lock held in process 1141
 
+> Replace the printk with a BUG(), feed the result into ksymooops.
+> Or use show_trace(0).
+> 
+> But if you're running SMP, scheduling with a lock held
+> is quite legal - it'll be held by another CPU.  In that case
 
-# ip a a 192.168.0.0/24 brd + dev eth0
-# ip r a 192.168.0.1/32 via 208.179.59.1 dev eth0
+Err, yes, I had initially made that mistake, but was fortunately running
+on a single cpu machine. I fixed the test to check that the spinlock
+was taken on the same cpu as we are now scheduling on and the test still
+triggers.
 
-# ip r g 192.168.0.1
-192.168.0.1 via 208.179.59.1 dev eth0  src 208.179.59.2
-    cache  mtu 1500 advmss 1460
+> you'll need to record which CPU holds the lock.
 
-# ip r g 192.168.0.2
-192.168.0.2 dev eth0  src 192.168.0.0
-    cache  mtu 1500 advmss 1460
+My initial conclusion, based on recording file and line numbers every
+time the spinlock is taken, is that end_that_request_last from ll_rw_blk.c
+sometimes schedules under the io_request_lock.
 
-David
+I am still investigating, in the hope of pinning it down more exactly. If
+anyone recognizes what goes on, please tell me.
 
-David Lang wrote:
-
->the problem with adding an entire netblock to an interface is that you
->frequently have a gateway on that netblock that belongs to another
->machine so you want to add 253 out of 256 addresses to your machine.
->
->how do you do that easily?
->
->example gateway is 192.168.1.1 and you want the rest of the 192.168.1.x
->network aliased on the machine.
->
-
-
+Peter

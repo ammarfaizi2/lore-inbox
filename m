@@ -1,66 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263418AbTGASwR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 14:52:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263451AbTGASwR
+	id S263338AbTGAS4I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 14:56:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263407AbTGAS4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 14:52:17 -0400
-Received: from slimnet.xs4all.nl ([194.109.194.192]:7297 "EHLO gatekeeper.slim")
-	by vger.kernel.org with ESMTP id S263418AbTGASwL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 14:52:11 -0400
-Subject: Re: ata-scsi driver update
-From: Jurgen Kramer <gtm.kramer@inter.nl.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F00CEDC.2010806@pobox.com>
-References: <3F00CEDC.2010806@pobox.com>
-Content-Type: text/plain
-Message-Id: <1057086391.3444.3.camel@paragon.slim>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-1) 
-Date: 01 Jul 2003 21:06:31 +0200
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Jul 2003 14:56:08 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:49321 "EHLO
+	pasta.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S263338AbTGAS4F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 14:56:05 -0400
+Message-Id: <200307011911.h61JBrP8026175@pasta.boston.redhat.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: semtimedop() support on s390/s390x
+In-Reply-To: Your message of "Mon, 30 Jun 2003 15:06:09 EDT."
+Date: Tue, 01 Jul 2003 15:11:53 -0400
+From: Ernie Petrides <petrides@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Monday, 30-Jun-2003 at 15:6 EDT, Pete Zaitcev wrote:
 
-I've just tried your patch. Compiling fails at make dep:
+> > Date: Mon, 30 Jun 2003 14:33:28 -0400
+> > From: Ernie Petrides <petrides@redhat.com>
+>
+> > On Friday, 27-Jun-2003 at 23:5 EDT, Pete Zaitcev wrote:
+>
+> > > > +-	if (call <= SEMCTL)
+> > > > ++	if (call <= SEMTIMEDOP)
+> > > >   		switch (call) {
+> > > >  +		case SEMTIMEDOP:
+> > >
+> > > I guess this is the reason for the ENOSYS. Good catch!
+> >
+> > Thanks ... there's no substitute for actual testing.  :)
+> >
+> > That odd "switch-optimization" sequence in the s390x compat code
+> > is also in several 2.5.73 (....) architectures, but none of
+> > them have yet implemented semtimedop() support:
+> >
+> > 	h8300, m68k, m68knommu, sh, sparc, sparc64
+> >
+> > They'll all hit the same problem if/when they ever do semtimedop().
+>
+> What do folks think about the attached patch, then?
+>
+> Linus was making noises that he wishes to throttle "cleanups",
+> and this is a cleanup. But still... It's contained in arch code.
+> I'm pretty sure I can slip it in quietly if there's a sense
+> it is likely to save us the same problem in the future.
+>
+> Also, I hate "<=" irrationally for some reason. I always
+> use "<" and ">=". This has something to do with programming
+> in pseudo-code and compiling by hand. On some brain-dead CPUs
+> and with some data types it is a better comparison.
+>
+> I'll replicate to s390 and see if s390 -S output changes
+> if the source level looks ok to Martin's & Ulrich's eyes.
+>
+> -- Pete
 
-mv /usr/src/linux-2.4.21/include/linux/modules/scsi_syms.ver.tmp
-/usr/src/linux-2.4.21/include/linux/modules/scsi_syms.ver
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.21/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 
--nostdinc -iwithprefix include -E -D__GENKSYMS__ 53c700.c
-| /sbin/genksyms  -k 2.4.21 >
-/usr/src/linux-2.4.21/include/linux/modules/53c700.ver.tmp
-In file included from 53c700.c:142:
-53c700.h:40:2: #error "Config.in must define either
-CONFIG_53C700_IO_MAPPED or CONFIG_53C700_MEM_MAPPED to use this scsi
-core."
-53c700.c:163:22: 53c700_d.h: No such file or directory
-mv /usr/src/linux-2.4.21/include/linux/modules/53c700.ver.tmp
-/usr/src/linux-2.4.21/include/linux/modules/53c700.ver
-make[4]: *** No rule to make target `libata.c', needed by
-`/usr/src/linux-2.4.21/include/linux/modules/libata.ver'.  Stop.
-make[4]: Leaving directory `/usr/src/linux-2.4.21/drivers/scsi'
-make[3]: *** [_sfdep_scsi] Error 2
-make[3]: Leaving directory `/usr/src/linux-2.4.21/drivers'
-make[2]: *** [fastdep] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.21/drivers'
-make[1]: *** [_sfdep_drivers] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.21'
-make: *** [dep-files] Error 2
+Actually, what I called the "odd switch-optimization sequence" is in
+fact a lose-lose.  To clean up the code, the 3 "switch" constructs
+that are guarded by 3 "if" statements should be merged into a single
+conventional "switch".  On s390, this would reduce the code size by
+96 bytes and only increase the .rodata section size by 88 bytes.  So,
+there would be a minor memory savings, more efficient code execution,
+and more maintainable source code.
 
-Under SCSI low-level drivers only ATA support and Intel PIIX/ICH support
-are selected.
-
-This is with a freshly installed and patched 2.4.21.
-
-Greetings,
-
-Jurgen
-
-
+Cheers.  -ernie

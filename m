@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267564AbUBSUcy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 15:32:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267557AbUBSUcy
+	id S267557AbUBSUi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 15:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267566AbUBSUi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 15:32:54 -0500
-Received: from bolt.sonic.net ([208.201.242.18]:50362 "EHLO bolt.sonic.net")
-	by vger.kernel.org with ESMTP id S267565AbUBSUcs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 15:32:48 -0500
-Date: Thu, 19 Feb 2004 12:32:34 -0800
-From: David Hinds <dhinds@sonic.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Silla Rizzoli <silla@netvalley.it>, linux-kernel@vger.kernel.org,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: 2.4.25 yenta problem and small fix/workaround
-Message-ID: <20040219203234.GC1819@sonic.net>
-References: <200402191222.45709.silla@netvalley.it> <Pine.LNX.4.58L.0402191011470.29796@logos.cnet>
+	Thu, 19 Feb 2004 15:38:26 -0500
+Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:51210
+	"EHLO muru.com") by vger.kernel.org with ESMTP id S267557AbUBSUiV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 15:38:21 -0500
+Date: Thu, 19 Feb 2004 12:39:20 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Intel x86-64 support patch breaks amd64
+Message-ID: <20040219203919.GA8285@atomide.com>
+References: <20040219183448.GB8960@atomide.com> <20040220171337.10cd1ae8.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58L.0402191011470.29796@logos.cnet>
-User-Agent: Mutt/1.4.2i
+In-Reply-To: <20040220171337.10cd1ae8.ak@suse.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Feb 2004, Silla Rizzoli wrote:
->
-> Inserting a PC Card in my laptop (IMB R40 2681) with kernel 2.4.25
-> results in the following message:
->
-> Feb 19 11:10:16 [kernel] cs: socket d603e000 voltage interrogation timed out
->
-> This sometimes happens with 2.6.x too, but issuing cardctl insert
-> 0 usually solves the problem, however in this case it didn't. I
-> tried to modify all the pcmcia_core module parameters but to no
-> avail, the socket remained dead.
+* Andi Kleen <ak@suse.de> [040219 11:24]:
+> 
+> You need the appended patch to build on Uni Processor again. I already
+> submitted it to Linus, but he doesn't seem to have merged it yet
+> (or alternatively compile for SMP) 
 
-That is a pisser.  What brand and model of laptop is this, exactly?
-Did you ever use the pcmcia-cs modules on this laptop, and if so, did
-they behave the same?  Does this happen with a specific card?  Which
-one(s) are you using?  Does it happen if you hot insert the card, or
-only if the card is inserted at startup?  What CardBus bridge do you
-have (use 'lspci -v')?
+OK, that compiles, but does not boot. Tt's not the *.S files, not the 
+*.c, files, I think it's in the .h files somewhere.
 
-As Marcello said, the change was introduced specifically to avoid this
-sort of problem, on certain other laptops.
+Undoing *.S files did not help. Undoing *.c files did not help. 
+Finally undoing the *.h files booted... I'll try to narrow it down more.
 
--- Dave
+Yeah, this is UP machine. Also just remembered I don't have a serial port
+for lowe level printk's :)
+
+Tony

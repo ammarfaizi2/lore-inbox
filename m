@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbRAPPh0>; Tue, 16 Jan 2001 10:37:26 -0500
+	id <S130510AbRAPPyC>; Tue, 16 Jan 2001 10:54:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129792AbRAPPhR>; Tue, 16 Jan 2001 10:37:17 -0500
-Received: from penguin.roanoke.edu ([199.111.154.8]:42510 "EHLO
-	penguin.roanoke.edu") by vger.kernel.org with ESMTP
-	id <S129511AbRAPPhI>; Tue, 16 Jan 2001 10:37:08 -0500
-Message-ID: <3A646CBB.3D4355E5@linuxjedi.org>
-Date: Tue, 16 Jan 2001 10:46:03 -0500
-From: "David L. Parsley" <parsley@linuxjedi.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
+	id <S129792AbRAPPxn>; Tue, 16 Jan 2001 10:53:43 -0500
+Received: from mail2.megatrends.com ([155.229.80.11]:10250 "EHLO
+	mail2.megatrends.com") by vger.kernel.org with ESMTP
+	id <S130454AbRAPPxf>; Tue, 16 Jan 2001 10:53:35 -0500
+Message-ID: <1355693A51C0D211B55A00105ACCFE64E9518C@ATL_MS1>
+From: Venkatesh Ramamurthy <Venkateshr@ami.com>
+To: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Subject: Linux not adhering to BIOS Drive boot order?
+Date: Tue, 16 Jan 2001 10:49:05 -0500
 MIME-Version: 1.0
-To: Jakub Jelinek <jakub@redhat.com>, linux-kernel@vger.kernel.org,
-        leitner@convergence.de, mingo@elte.hu
-Subject: Re: Is sendfile all that sexy?
-In-Reply-To: <20010116114018.A28720@convergence.de> <Pine.LNX.4.30.0101161338270.947-100000@elte.hu> <20010116134737.A29366@convergence.de> <20010116144849.B19949@pcep-jamie.cern.ch> <20010116152023.A32180@convergence.de> <3A646322.B76A1661@linuxjedi.org> <20010116100506.C1120@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jakub Jelinek wrote:
+Hi,
+I have one issue which requires fix from the linux kernel. 
+Initially i put a SCSI controller and install the OS on the drive connected
+to it. After installing the OS (on sda), the customer puts another SCSI
+controller. The BIOS for the first controller has BIOS enabled and for the
+second controller does not have the BIOS enabled. 
 
-> > This makes me wonder...
-> > 
-> > If the kernel only kept a queue of the three smallest unused fd's, and
-> > when the queue emptied handed out whatever it liked, how many things
-> > would break?  I suspect this would cover a lot of bases...
-> 
-> First it would break Unix98 and other standards:
-[snip]
+The linux loads the driver for the second controller first and assigns sda
+to it first , and the actual boot drive gets some sdX device node. 
+>From the lilo prompt we can override it with root=/dev/sdX to boot to the
+correct drive and controller, but for a end -user using these cards, this is
+no fun.
 
-Yeah, I reallized it would violate at least POSIX.  The discussion was
-just bandying about ways to avoid an expensive 'open()' without breaking
-lots of utilities and glibc stuff.  This might be something that could
-be configured for specific server environments, where performance is
-more imporant than POSIX/Unix98, but you still don't want to completely
-break the system.  Just a thought, brain-damaged as it might be. ;-)
 
-regards,
-	David
+Can the linux kernel be changed in such a way that kernel will look for the
+actual boot drive and re-order the drives so that mounting can go on in the
+right order.
 
--- 
-David L. Parsley
-Network Administrator
-Roanoke College
+we need some kind of signature being written in the drive, which the kernel
+will use for determining the boot drive and later re-order drives, if
+required.
+
+Is someone handling this already? 
+
+TIA
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

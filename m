@@ -1,41 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263461AbREYAJV>; Thu, 24 May 2001 20:09:21 -0400
+	id <S263467AbREYATm>; Thu, 24 May 2001 20:19:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263464AbREYAJC>; Thu, 24 May 2001 20:09:02 -0400
-Received: from kwanon.research.canon.com.au ([203.12.172.254]:52498 "HELO
-	kwanon.research.canon.com.au") by vger.kernel.org with SMTP
-	id <S263461AbREYAIv>; Thu, 24 May 2001 20:08:51 -0400
-Subject: Big-ish SCSI disks
-To: linux-kernel@vger.kernel.org
-Date: Fri, 25 May 2001 10:05:02 +1000 (EST)
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20010525000502.B998037530@zapff.research.canon.com.au>
-From: gjohnson@research.canon.com.au (Greg Johnson)
+	id <S263468AbREYATd>; Thu, 24 May 2001 20:19:33 -0400
+Received: from stine.vestdata.no ([195.204.68.10]:65028 "EHLO
+	stine.vestdata.no") by vger.kernel.org with ESMTP
+	id <S263467AbREYATT>; Thu, 24 May 2001 20:19:19 -0400
+Date: Fri, 25 May 2001 02:18:42 +0200
+From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+To: Chuck Wu <wu@cnds.jhu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Two-machine cluster efficient approach(?) Comment? Thanks.
+Message-ID: <20010525021840.C29754@vestdata.no>
+In-Reply-To: <Pine.BSI.4.05L.10105241825270.25527-100000@commedia.cnds.jhu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 0.95.5i
+In-Reply-To: <Pine.BSI.4.05L.10105241825270.25527-100000@commedia.cnds.jhu.edu>; from Chuck Wu on Thu, May 24, 2001 at 06:32:10PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi kernel poeple,
+On Thu, May 24, 2001 at 06:32:10PM -0400, Chuck Wu wrote:
+> Two machines want to be accessed by the same IP address and
+> share workload. Can not change the router. Can only change 
+> local linux system. Will the following approach work? Thanks.
 
-Can anyone out there say for certain that 76GB SCSI disks should
-just work with kernel versions 2.2 and/or 2.4? We need to get some
-big disk space and have heard reports of problems with disks
-bigger than 30GB under linux.
+You should check out Linux Virtual Server; it does something simular
+(only it doesn't reply to arp-requests with broadcast-address, but with
+one of the servers' ethernet-address).
 
-Thanks.
+> Solution:
+> ---------
+> 1. Reserve an unused IP as the to be publicized "Server IP", actually no
+>    machine takes it. So, it is kind of "virtual IP".
+> 2. Alias the NIC of those two work stations to this "virtual IP" so they
+>    can accept packets to this "virtual IP".
+> 3. For ARP request packet to this "virtual IP", those two work stations
+>    will return the MAC broadcast address. Then, all the packets to the
+>    "virtual IP" will be broadcast to this subnet and those two machines
+>    will get such packtes.
+> 4. Before such packets gets into the TCP/IP stack, use a hash function
+>    to filter the packets. Say, workstation A will accept packets whose
+>    source IP is an odd number and discard the packets with even-number
+>    source IP.
 
-Greg.
+If this work, a useful addon would be to use something a little more
+advanced, to allow it to scale to more than 2 servers.
 
--- 
-+------------------------------------------------------+
-| Do you want to know more? www.geocities.com/worfsom/ |
-|              ..ooOO Greg Johnson OOoo..              |
-| HW/SW Engineer        gjohnson@research.canon.com.au |
-| Canon Information Systems Research Australia (CISRA) |
-| 1 Thomas Holt Dr., North Ryde, NSW, 2113,  Australia |
-|      "I FLEXed my BISON and it went YACC!" - me.     |
-+------------------------------------------------------+
+> 5. For the outgoing packets from those two workstations, change the source
+>    IP address to be the "virtual IP".
+> 6. Have another thread keep ping each other, once another workstation
+>    crashes, change my hash function to accept all the packets to the
+>    "virtual IP". Whenever another workstation resumes, switch back to
+>    the original hash function.
+> 
+>    Do you think if this approach will work? There is also a question I
+> am not quite sure, can two machines's NICs be aliased to the same "virtual
+> IP"? Will it cause some conflicts? And, it seems I need to change the
+> linux kernel source code. I am not pretty sure where is the location of
+> the source code related to the above operations. Like, can you tell me the
+> location of the linux kernel source code to answer an ARP request packet,
+> to build a hash function to filter the incoming IP packets before it
+> enters the TCP/IP stack?
 
+
+--
+Ragnar Kjørstad
+Big Storage

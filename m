@@ -1,97 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272060AbRHVReo>; Wed, 22 Aug 2001 13:34:44 -0400
+	id <S272056AbRHVReo>; Wed, 22 Aug 2001 13:34:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272056AbRHVRei>; Wed, 22 Aug 2001 13:34:38 -0400
-Received: from wks121.navicsys.com ([207.180.73.121]:46284 "EHLO noop.")
-	by vger.kernel.org with ESMTP id <S272055AbRHVReb>;
-	Wed, 22 Aug 2001 13:34:31 -0400
-To: linux-kernel@vger.kernel.org
-Cc: acpi@phobos.fachschaften.tu-muenchen.de
-Subject: AGP support locks X  kernel v2.4.9
-In-Reply-To: <XFMail.20010818013001.bmihulka@hulkster.net>
-From: Nick Papadonis <nick@coelacanth.com>
-Organization: None
-X-Face: 01-z%.O)i7LB;Cnxv)c<Qodw*J*^HU}]Y-1MrTwKNn<1_w&F$rY\\NU6U\ah3#y3r<!M\n9
- <vK=}-Z{^\-b)djP(pD{z1OV;H&.~bX4Tn'>aA5j@>3jYX:)*O6:@F>it.>stK5,i^jk0epU\$*cQ9
- !)Oqf[@SOzys\7Ym}:2KWpM=8OCC`
-Content-Type: text/plain; charset=US-ASCII
-Date: 22 Aug 2001 13:31:05 -0400
-In-Reply-To: <XFMail.20010818013001.bmihulka@hulkster.net> (bmihulka@hulkster.net's message of "Sat, 18 Aug 2001 01:30:01 -0500 (CDT)")
-Message-ID: <m3pu9oovc6.fsf@coelacanth.com>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.1 (Cuyahoga Valley)
+	id <S272055AbRHVRel>; Wed, 22 Aug 2001 13:34:41 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:9732 "EHLO
+	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S272054AbRHVReY>; Wed, 22 Aug 2001 13:34:24 -0400
+Message-ID: <3B83ED5B.2A717A65@t-online.de>
+Date: Wed, 22 Aug 2001 19:35:23 +0200
+From: Gunther.Mayer@t-online.de (Gunther Mayer)
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.6-ac5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Gerd Knorr <kraxel@bytesex.org>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        alan@redhat.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: yenta_socket hangs sager laptop in kernel 2.4.6-> PNPBIOS life saver
+In-Reply-To: <slrn9o270m.rg.kraxel@bytesex.org> from "Gerd Knorr" at Aug 20, 1 06:45:06 pm <200108202252.CAA00742@mops.inr.ac.ru> <200108212037.f7LKb15N009912@bytesex.masq.in-berlin.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-New information:
-
-I tried compiling agp support and the i810 DRI as modules for kernel v2.4.9.
-X exits out with:
-
-(II) I810(0): Buffer map : bfb000
-(II) I810(0): [drm] added 256 4096 byte DMA buffers
-I810 Dma Initialization Failed
-
-
-When recompiling the v2.4.8 kernel with the same configuration, X
-starts fine.
-
-I wonder what the delta between the two is?
-
-- Nick
-
-bmihulka@hulkster.net writes:
-
-> I did experience this.  But when you choose AGP as a module it disables
-> the drm of the i810.  I then added it back as a module and the X server would
-> not work.  Without the i810 drm module it will work.  I did not test AGP in the
-> kernel without the drm module, which may work.
+Gerd Knorr wrote:
 > 
-> On a side note the 2.4.5 kernels acpi implimentation will show the correct
-> battery and ac adaptor status.  The stock kernels after that will not without
-> the new acpi patches.  I have also had the problem of a shutdown will lock the
-> system and I have to pull the plug and battery to turn off.
+> In lists.linux.kernel, you wrote:
+> >  Hello!
+> >
+> > > Same problem here.  I've spend some time today to figure what is going
+> > > on.  Workaround:
+> > > -           min = PCIBIOS_MIN_IO;
+> > > +           min = 0x4000 /* PCIBIOS_MIN_IO */;
+> >
+> >  I do not know how to thank you... You saved my life. :-)
+> >  How did you guess this?
 > 
-> Brian
+> Long trial-and-error session.  Deactivate code and see if it still does
+> crash to narrow down the code lines which trigger the lockup.  Once I've
+> figured that enabling the I/O-Windows triggers the lookup the guess was
+> easy ...
 > 
-> On 18-Aug-2001 Nick Papadonis wrote:
-> > This solved the problem.  Apparently AGP has to be built as a module
-> > in kernels v2.4.8 or X will lock up?  Anyone else experience this?
-> > 
-> >> I'm not sure that this is the problem you are having,
-> >> but I had a problem with X when I was playing with the
-> >> ACPI stuff and recompiling the kernel on my vaio. Try 
-> >> setting CONFIG_AGP=m (i.e. make AGP support a module,
-> >> as opposed to being compiled in-kernel.) if it isn't. 
-> >> Once I did that, X started up just fine. Good luck.
-> >> 
-> >> Dave
-> > 
-> > 
-> > Dave Morgan <daves_spam_account@yahoo.com> writes:
-> >> >> I tried this and it doesn't disable the console. 
-> >> The /proc/acpi
-> >> >> represents the correct power status.  When I tried
-> >> to
-> >> >> start up X the following error occurs:
-> >> >> 
-> >> >> I810 Dma Initialization Failed
-> >> >> XIO:  fatal IO error 104 (Connection reset by peer)
-> >> >on X server 
-> >> >":0.0"
-> >> >>       after 0 requests (0 known processed) with 0
-> >> >events remaining.
-> >> >> 
-> >> >> So the work around must break something else?
-> >> 
-> >> >Follup:  
-> >> 
-> >> >This isn't because of the ACPI code.  It's something
-> >> >that happens in
-> >> >my 2.4.8 kernel wo ACPI compiled in.  This behavior
-> >> is >not shown with
-> >> >the 2.2.16 kernel.
+> > > Looks like a ressource conflict to me.  The kernel gives I/O ranges to
+> > > the cardbus socket which it thinks are free but which are *not* free for
+> > > some reason (and probably used for APM stuff).  BIOS bug?  PCI quirks
+> > > time?
 
--- 
-Nick
+Longstanding Linux Bug: "ignore a _seven_ year old standard called PNPBIOS".
+
+> >
+> >  The same hardware is here, Mitac M722. :-) BTW what bios is installed
+> >  on your one?
+> 
+> "SYSTEM BIOS R1.02"
+> 
+> >  Anyway, Windows with the _same_ bios manages to guess and to reserve
+> >  a few of ports tagged as some obscure "motherboard resources":
+> >  230-233, 398-399, 4d0-4d1, 1000-103f(!), 1400-140f(!) and 3810-381f.
+> >  yenta_socket eats ones marked with !. At least 1400 is really critical,
+> >  it is interface to SM mode.
+> 
+> 0x1000 is critical too.  Activating the first I/O window only is enough
+> to hang the notebook on any APM activity.
+
+PNPBIOS _easily_ resolves this problem !
+
+Try -ac Kernels with integrated PNPBIOS and "lspnp -v",
+then you will see your "motherboard resources". No magic.
+
+Note: Linux currently does _not_ yet reserve these resources automatically
+(although I think the standalone pcmcia package has such an option).
+
+By confirming (and posting your lspnp results) you could encourage
+some developers to rectify this situation :-)
+
+Alan, 2.4 would largely benefit from PNPBIOS, do you plan
+to submit this to LT (probably with the proposed life saver fix) ?
+
+
+-
+Gunther

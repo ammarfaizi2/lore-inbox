@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261565AbSIZVoN>; Thu, 26 Sep 2002 17:44:13 -0400
+	id <S261531AbSIZVuP>; Thu, 26 Sep 2002 17:50:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261566AbSIZVoN>; Thu, 26 Sep 2002 17:44:13 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14350 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261565AbSIZVoM>;
-	Thu, 26 Sep 2002 17:44:12 -0400
-Message-ID: <3D9380C8.4030807@pobox.com>
-Date: Thu, 26 Sep 2002 17:48:56 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S261546AbSIZVuP>; Thu, 26 Sep 2002 17:50:15 -0400
+Received: from ext-ch1gw-1.online-age.net ([216.34.191.35]:9438 "EHLO
+	ext-ch1gw-1.online-age.net") by vger.kernel.org with ESMTP
+	id <S261531AbSIZVuO>; Thu, 26 Sep 2002 17:50:14 -0400
+Message-ID: <A9713061F01AD411B0F700D0B746CA6802FC14D8@vacho6misge.cho.ge.com>
+From: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>
+To: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
+       "'Arjan van de Ven'" <arjanv@redhat.com>
+Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: Distributing drivers independent of the kernel source tree
+Date: Thu, 26 Sep 2002 17:55:16 -0400
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Arjan van de Ven <arjanv@redhat.com>,
-       "GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: Distributing drivers independent of the kernel source tree
-References: <A9713061F01AD411B0F700D0B746CA6802FC14D6@vacho6misge.cho.ge.com> 	<1033074519.2698.5.camel@localhost.localdomain> <1033076462.1269.196.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> One additional item that may be useful, for Red Hat at least there is a
-> little kit to build additional driver disks.
+>>/lib/modules/`uname -r`/build
+>>(yes it's a symlink usually, but that doesn't matter)
 
+> That's true for installing modules, but I'm wondering about getting a
+> standalone module compiled. I.e., what is a reliable method 
+> for locating the
+> include files for the kernel?
 
-...available at:  http://people.redhat.com/dledford/
+Doh!! Sorry Arjan, in haste, I misread your response. I get it now.
 
-it's pretty neat...
-
+Thanks Arjan,
+Thanks for pointing that out Tommy.

@@ -1,60 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbUKBLo3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbUKBLwb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbUKBLo3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 06:44:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbUKBLo2
+	id S261200AbUKBLwb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 06:52:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbUKBLwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 06:44:28 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:29899 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261204AbUKBLoX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 06:44:23 -0500
-Date: Tue, 2 Nov 2004 12:45:22 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Bill Huey <bhuey@lnxw.com>
-Cc: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.5 (networking problems)
-Message-ID: <20041102114522.GA7874@elte.hu>
-References: <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <417F7D7D.5090205@stud.feec.vutbr.cz> <20041027134822.GA7980@elte.hu> <417FD9F2.8060002@stud.feec.vutbr.cz> <20041028115719.GA9563@elte.hu> <20041030000234.GA20986@nietzsche.lynx.com> <20041102085650.GA3973@nietzsche.lynx.com> <20041102093758.GA28014@elte.hu> <20041102110810.GA11393@nietzsche.lynx.com>
+	Tue, 2 Nov 2004 06:52:31 -0500
+Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:39118 "EHLO
+	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S261200AbUKBLwW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 06:52:22 -0500
+Subject: Re: XMMS (or some other audio player) 'hang' issues with intel8x0
+	and dmix plugin [u]
+From: Christophe Saout <christophe@saout.de>
+To: Jan Knutar <jk-lkml@sci.fi>
+Cc: Martin Schlemmer <azarah@nosferatu.za.org>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       Takashi Iwai <tiwai@suse.de>, alsa-user@lists.sourceforge.net
+In-Reply-To: <200411021340.03164.jk-lkml@sci.fi>
+References: <1099284142.11924.17.camel@nosferatu.lan>
+	 <1099385872.21422.10.camel@leto.cs.pocnet.net>
+	 <200411021340.03164.jk-lkml@sci.fi>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-E9sevDcFr9tshL72PbSN"
+Date: Tue, 02 Nov 2004 12:52:09 +0100
+Message-Id: <1099396329.713.4.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041102110810.GA11393@nietzsche.lynx.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Bill Huey <bhuey@lnxw.com> wrote:
+--=-E9sevDcFr9tshL72PbSN
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> On Tue, Nov 02, 2004 at 10:37:58AM +0100, Ingo Molnar wrote:
-> > * Bill Huey <bhuey@lnxw.com> wrote:
-> > > [nasty networking crash trace]
-> ...
-> > which attempts to fix this particular deadlock.
-> 
-> getting closer...
-> 
-> http:590 BUG: lock held at task exit time!
->  [c03f9e84] {r:0,a:-1,kernel_sem.lock}
->  .. held by:              http/  590 [dc0508a0, 121]
->  ... acquired at:  __schedule+0x3ac/0x850
+Am Dienstag, den 02.11.2004, 13:40 +0200 schrieb Jan Knutar:
 
-hm. Something called do_exit() with the BKL held which is a no-no. Do
-you have a stacktrace, is this sys_exit() or some other code calling
-do_exit()?
+> > I've tracked this down to what seems to be a bug in the libalsa dmix
+> > code with mmap emulation. If the sound output was stopped for some
+> > reason (stream paused or underrun) the library will accept more data
+> > until the buffer is full but never restart the output.
+>=20
+> Strangely, I've observed these kinds of "Hangs" with bmp and mplayer,
+> without mmap mode enabled in either. Also using dmix as in the other
+> reports here. Could of course be some third application using alsa in
+> mmap mode, I suppose.
 
-	Ingo
+It might have something to do whether dmix needs to convert the data or
+not. In my case /proc shows that the card supports 48kHz but bmp plays a
+44kHz file.
+
+> Unfortunately, I have no strace to offer right now as the bug is happenin=
+g
+> randomly and I haven't been able to find any method by which to reproduce
+> it.
+
+100% reproducable on my machine. I stopped debugging when I found out
+that it happened somewhere deep inside the libalsa dmix core, the code
+didn't look easy to follow.
+
+> What's strange is that almost always when it happens, either mplayer or
+> beep-media-player will have an extra forked process.
+
+This has something to do with dmix forking off a process, I don't know
+exactly what it is for, it does something with the dmix unix socket
+in /tmp.
+
+
+--=-E9sevDcFr9tshL72PbSN
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBh3TpZCYBcts5dM0RApiGAJ4sjGfiKFZGJ0S+wWIa2BOPyfE1iwCfZGdb
+J7hBuWXn+1HzAMkyP9X6F4Q=
+=jSBj
+-----END PGP SIGNATURE-----
+
+--=-E9sevDcFr9tshL72PbSN--
+

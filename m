@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266840AbTBTWrv>; Thu, 20 Feb 2003 17:47:51 -0500
+	id <S264834AbTBTWqo>; Thu, 20 Feb 2003 17:46:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266996AbTBTWrv>; Thu, 20 Feb 2003 17:47:51 -0500
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:43794 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S266840AbTBTWrs>; Thu, 20 Feb 2003 17:47:48 -0500
-Date: Thu, 20 Feb 2003 22:57:52 +0000
-From: John Levon <levon@movementarian.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Zwane Mwaikambo <zwane@holomorphy.com>,
-       Chris Wedgwood <cw@f00f.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous reboots)
-Message-ID: <20030220225752.GB85293@compsoc.man.ac.uk>
-References: <Pine.LNX.4.44.0302202258130.4400-100000@localhost.localdomain> <Pine.LNX.4.44.0302201428540.1159-100000@penguin.transmeta.com>
+	id <S265684AbTBTWqo>; Thu, 20 Feb 2003 17:46:44 -0500
+Received: from ithilien.qualcomm.com ([129.46.51.59]:21415 "EHLO
+	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S264834AbTBTWqm>; Thu, 20 Feb 2003 17:46:42 -0500
+Message-Id: <5.1.0.14.2.20030220145240.0d449118@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 20 Feb 2003 14:56:22 -0800
+To: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       torvalds@transmeta.com, ak@suse.de, davem@redhat.com
+From: Max Krasnyansky <maxk@qualcomm.com>
+Subject: Re: ioctl32 consolidation
+In-Reply-To: <20030220223119.GA18545@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302201428540.1159-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18lzdY-000API-00*7FVnmmNr/CA*
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 20, 2003 at 02:32:02PM -0800, Linus Torvalds wrote:
+At 02:31 PM 2/20/2003, Pavel Machek wrote:
+>Hi!
+>
+>Currently, 32-bit emulation in kernel has *5* copies, and its >1000
+>lines each. Plus, locking of all but x86-64 architectures is broken
+>(I'm told by andi ;-).
+>
+>So, here's patch that starts sharing sys32_ioctl() [as a first step],
+>which should rmove locking problems.
+>
+>I've done the work for x86-64 and sparc64; if it looks good I'll
+>attempt to do other architectures. [Unless maintainers prefer to do it
+>themselves: I don't have easy access to 64-bit machines besides
+>hammer.]
 
-> I think the _real_ simplification is to just have the task switch do this 
-> in the tail:
-> 
-> 	if (prev->state & TASK_DEAD)
-> 		put_task_struct(prev);
-> 
-> suddenly we don't have any issues at all with possibly freeing stuff 
-> before its time, since we're guaranteed to keep the process around untill 
-> we've properly scheduled out of it.
+Nice. I'm glad that somebody started looking at this (I was going to work 
+on that but didn't have time for it).
+Patch looks ok to me.
 
-Side note ... if there's a sleepable context in which oprofile can
-synchronise its buffers (i.e. after the task can possible run on a CPU
-again, and before the task_struct itself is freed/reused), that would be
-very handy.
+Eventually we'll be able to kill ugly mess like arch/sparc64/kernel/ioctl32.c.
+That stuff really belongs to the actual subsystems that implement those ioctls.
 
-Currently we're masking out any samples when PF_EXITING is set for
-current(), which is obviously less than ideal.
-
-Would this be such a spot ? Basically somewhere that profile_exit_task
-can sit.
-
-regards
-john
+Thanks
+Max
 

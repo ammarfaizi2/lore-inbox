@@ -1,86 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbUDDMAz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 08:00:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUDDMAz
+	id S262335AbUDDL4o (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 07:56:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbUDDL4o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 08:00:55 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:55522 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S262347AbUDDMAw (ORCPT
+	Sun, 4 Apr 2004 07:56:44 -0400
+Received: from [80.72.36.106] ([80.72.36.106]:8135 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S262335AbUDDL4m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 08:00:52 -0400
-Date: Sun, 4 Apr 2004 14:00:51 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Ralf Baechle <ralf@linux-mips.org>
-Subject: Re: drivers/char/dz.[ch]: reason for keeping?
-Message-ID: <20040404120051.GF27362@lug-owl.de>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Ralf Baechle <ralf@linux-mips.org>
-References: <20040404101241.A10158@flint.arm.linux.org.uk> <20040404111712.GE27362@lug-owl.de> <20040404122958.A14991@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KUZuYByudWJZmlfy"
-Content-Disposition: inline
-In-Reply-To: <20040404122958.A14991@flint.arm.linux.org.uk>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sun, 4 Apr 2004 07:56:42 -0400
+Date: Sun, 4 Apr 2004 13:56:37 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: wolk-devel@lists.sourceforge.net, Alan Stern <stern@rowland.harvard.edu>,
+       lkml <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net, speedtouch@ml.free.fr,
+       akpm@osdl.org
+Subject: Re: [linux-usb-devel] speedtouch and/or USB problem (2.6.4-WOLK2.3
+ and 2.6.5-rc3-mm4)
+In-Reply-To: <Pine.LNX.4.58.0404021519270.30573@alpha.polcom.net>
+Message-ID: <Pine.LNX.4.58.0404041352530.8952@alpha.polcom.net>
+References: <Pine.LNX.4.44L0.0403271851040.2209-100000@ida.rowland.org>
+ <200403311121.27731@WOLK> <Pine.LNX.4.58.0404021519270.30573@alpha.polcom.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2 Apr 2004, Grzegorz Kulewski wrote:
 
---KUZuYByudWJZmlfy
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Wed, 31 Mar 2004, Marc-Christian Petersen wrote:
+> 
+> > On Sunday 28 March 2004 00:51, Alan Stern wrote:
+> > 
+> > Hi Grzegorz,
+> > 
+> > > > When running modem_run on 2.6.4-WOLK2.3 it locks in D state on one of USB
+> > > > ioctls. It works at least on 2.6.2-rc2. I have no idea what causes this
+> > > > bug so I sent it to all lists.
+> > > > Please help if you can.
+> > > > Grzegorz Kulewski
+> > 
+> > > Try applying this patch:
+> > > http://marc.theaimsgroup.com/?l=linux-usb-devel&m=108016447231291&q=raw
+> > 
+> > Did this help Grzegorz?
+> 
+> No, it did not. This time I tried 2.6.5-rc3-mm4. Seems the patch was 
+> already applied in this release. modem_run did not lock (disk sleep state) 
+> in the same place, but it locked after writing synchronization succeded 
+> to system log. It seems that there is no kernel-stack-for-process-in-proc 
+> option in mm (Andrew, can you add it?), so there is no callstack.
 
-On Sun, 2004-04-04 12:29:58 +0100, Russell King <rmk+lkml@arm.linux.org.uk>
-wrote in message <20040404122958.A14991@flint.arm.linux.org.uk>:
-> On Sun, Apr 04, 2004 at 01:17:12PM +0200, Jan-Benedict Glaw wrote:
-> So we just need the VAX people to confirm that the new driver works
-> for them, and then for _someone_ to remove the old driver (either
-> the MIPS or the VAX people.)
+Everything seems to work stable on vanilla 2.6.5 + "few debuging and 
+statistic patches that do not touch anything very important", so probably 
+on true vanilla 2.6.5 too. So only -mm and wolk are broken?
 
-Let me do some surgery :)
+What do you think about it?
 
-Interrupt setup is a bit tricky on the VAXen. First, they actually have
-separated RX and TX IRQ and these aren't static. IRQ probing needs to be
-redone (at least can't be easily copied) since the new dz_init() is
-basically a complete new rewrite...
 
-> > While at it, I've already implemented some SERIO changes. That'll allow
-> > the dz.c driver to announce that it waits for LK-style keyboard on one
-> > port and VSXXX-style mouse/digitizer on the 2nd port...
->=20
-> Which dz.c ? 8)
+Grzegorz Kulewski
 
-Old ./drivers/char/dz.c + VAX changes + SERIO changes, that is :)  I
-guess best practice is that VAX people first merge up with MIPS folks,
-then we snatch the old driver together and have a beer...
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---KUZuYByudWJZmlfy
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAb/jzHb1edYOZ4bsRAsAWAJ9tKmndQDMffUMVjxuCie3+JDATAACeOqaW
-xSYttut1VuBJXGlsS2/qPb4=
-=8F3N
------END PGP SIGNATURE-----
-
---KUZuYByudWJZmlfy--

@@ -1,23 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262744AbUDFHeQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 03:34:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263651AbUDFHeQ
+	id S263654AbUDFHfO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 03:35:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263655AbUDFHfO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 03:34:16 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:6539 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262744AbUDFHeO (ORCPT
+	Tue, 6 Apr 2004 03:35:14 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:11916 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263654AbUDFHfE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 03:34:14 -0400
-Date: Tue, 6 Apr 2004 00:33:18 -0700
+	Tue, 6 Apr 2004 03:35:04 -0400
+Date: Tue, 6 Apr 2004 00:34:24 -0700
 From: Paul Jackson <pj@sgi.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: nickpiggin@yahoo.com.au, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org, mbligh@aracnet.com, akpm@osdl.org,
-       colpatch@us.ibm.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
+       akpm@osdl.org, wli@holomorphy.com, colpatch@us.ibm.com
 Subject: Re: [PATCH] mask ADT: new mask.h file [2/22]
-Message-Id: <20040406003318.5ff58e68.pj@sgi.com>
-In-Reply-To: <20040406070342.GG791@holomorphy.com>
+Message-Id: <20040406003424.75a9b1d3.pj@sgi.com>
+In-Reply-To: <40725455.5040407@yahoo.com.au>
 References: <20040329041253.5cd281a5.pj@sgi.com>
 	<1081128401.18831.6.camel@bach>
 	<20040405000528.513a4af8.pj@sgi.com>
@@ -25,9 +24,8 @@ References: <20040329041253.5cd281a5.pj@sgi.com>
 	<20040405010839.65bf8f1c.pj@sgi.com>
 	<1081227547.15274.153.camel@bach>
 	<20040405230601.62c0b84c.pj@sgi.com>
-	<40724CF4.5090705@yahoo.com.au>
-	<20040405233415.2c7c3a96.pj@sgi.com>
-	<20040406070342.GG791@holomorphy.com>
+	<1081233543.15274.190.camel@bach>
+	<40725455.5040407@yahoo.com.au>
 Organization: SGI
 X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -36,49 +34,17 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't worry, Bill.  It doesn't look like anyone wants to change
-cpumask_t to struct cpumask.  I just wasn't objecting to it - shouldn't
-even have mentioned it.
+Nick, responding to Rusty:
+> > I certainly don't want
+> > to learn 28 nodemask and 28 cpumask primitives.
+> > 
+> 
+> If they are all equivalent operations,
 
-> so please run things by arch maintainers
+In this case, they are equivalent.   The nodemask.h header in this patch
+series is very close to being:
 
-I'll be doing that.  And I'm sure Andrew wouldn't consider it otherwise.
-
-> for the love of $DEITY, **NOT** "struct cpumask_struct".
-
-I think we can all heartily agree to that advice.
-
-> You should also bear in mind that the current implementations of these
-> operations use a macro calling convention, thereby altering their output
-> operands as a side-effect without call-by-reference. 
-
-Ah - I think you just explained to me Rusty's 'That'd be a noop', to which
-I had responded 'Huh?'.  Thanks.
-
-And the added ampersands that Rusty added a couple of messages before that.
-
-Duh ... smacking forehead.
-
-Output operands need to be passed by pointer (which fact may or may not
-be hidden in a macro ...).
-
-At the risk of embarrassing myself again in public, how about this:
-
-    typedef struct { DECLARE_BITMAP(bits, NR_CPUS); } cpumask_t;
-
-    #define cpus_or(d,s1,s2) _cpus_or(&d, &s1, &s2)
-
-    static inline void _cpus_or(cpumask_t *d, const cpumask_t *s1, const cpumask_t *s2)
-    {
-	bitmap_or(d->bits, s1->bits, s2->bits, NR_CPUS);
-    }
-
-It would be used exactly as it is today:
-
-    cpumask_t x, y, z;
-    cpus_or(x, y, z);
-
-
+    < cpumask.h sed -e 's/cpu/node/' -e 's/NR_CPUS/MAX_NUMNODES/' > nodemask.h
 
 -- 
                           I won't rest till it's the best ...

@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270753AbUJUPL4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270764AbUJUP05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270753AbUJUPL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 11:11:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270718AbUJUPIV
+	id S270764AbUJUP05 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 11:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270766AbUJUP0l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 11:08:21 -0400
-Received: from moutng.kundenserver.de ([212.227.126.191]:24294 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S270748AbUJUPF4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 11:05:56 -0400
-Message-ID: <4177D06A.40308@corscience.de>
-Date: Thu, 21 Oct 2004 17:06:18 +0200
-From: Simon Braunschmidt <braunschmidt@corscience.de>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: de-DE, de, en-us, en
+	Thu, 21 Oct 2004 11:26:41 -0400
+Received: from fire.osdl.org ([65.172.181.4]:32395 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S270748AbUJUPXC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 11:23:02 -0400
+Message-ID: <4177D226.7020607@osdl.org>
+Date: Thu, 21 Oct 2004 08:13:42 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Timothy Miller <miller@techsource.com>
-CC: LKML Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-References: <4176E08B.2050706@techsource.com> <1098311393.15517.4.camel@localhost> <4177CD5A.8010309@techsource.com>
-In-Reply-To: <4177CD5A.8010309@techsource.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86_64: add an option to configure oops stack dump
+References: <200410201907.i9KJ7r2s022648@hera.kernel.org>
+In-Reply-To: <200410201907.i9KJ7r2s022648@hera.kernel.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:8519ad80e38159671026452e53963bc3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Miller schrieb:
+Linux Kernel Mailing List wrote:
+> ChangeSet 1.2016, 2004/10/20 08:11:53-07:00, ak@muc.de
+> 
+> 	[PATCH] x86_64: add an option to configure oops stack dump
+> 	
+> 	Add an kstack= option to configure how much stack should be printed on a
+> 	oops.
+> 	
+> 	Signed-off-by: Andi Kleen <ak@suse.de>
+> 	Signed-off-by: Andrew Morton <akpm@osdl.org>
+> 	Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 > 
 > 
-> Kasper Sandberg wrote:
 > 
->> well.. while i like this idea, i doubt it is ever going to work, since
->> 3d would probably be a requirement, and with stuff like nvidia around, i
->> doubt most people would want to pay the money it would require, since
->> ati and nvidia can smash out millions of cards, while it would probably
->> be at best, a couple of thousands of these opensource cards that could
->> be sold, i, for one would like to pay, however i dont think mainstream
->> will... and as of for 2d only, well :| i kindof needs 3d :(
->> but certainly a good idea, and maybe in future, if linux grows more
->> used, it will actually be possible to do something real kicking ass ;)
->>
->>
+>  traps.c |    8 ++++++++
+>  1 files changed, 8 insertions(+)
 > 
-> Perhaps typical end users are not our target market.  Instead, maybe we 
-> should be targeting companies that sell workstations and servers who 
-> want something which maximized stability, regardless of the cost and 
-> performance.
 > 
-> If you're selling a $5000 workstation, you might be willing to pay $300 
-> for a graphics card that saves you thousands in customer support calls 
-> that don't have to happen.
-> 
+> diff -Nru a/arch/x86_64/kernel/traps.c b/arch/x86_64/kernel/traps.c
+> --- a/arch/x86_64/kernel/traps.c	2004-10-20 12:08:04 -07:00
+> +++ b/arch/x86_64/kernel/traps.c	2004-10-20 12:08:04 -07:00
+> @@ -900,3 +900,11 @@
+>  	return -1; 
+>  } 
+>  __setup("oops=", oops_dummy); 
+> +
+> +static int __init kstack_setup(char *s)
+> +{
+> +	kstack_depth_to_print = simple_strtoul(s,NULL,0);
+> +	return 0;
+> +}
+> +__setup("kstack=", kstack_setup);
 
-Is $300 with 3D in the class of geforce2/ati_r200?
+I'm happy to see this, but I don't see why it's arch-specific...
 
-Simon
+-- 
+~Randy

@@ -1,64 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262308AbRERMdN>; Fri, 18 May 2001 08:33:13 -0400
+	id <S262306AbRERMlx>; Fri, 18 May 2001 08:41:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262309AbRERMdE>; Fri, 18 May 2001 08:33:04 -0400
-Received: from cr502987-a.rchrd1.on.wave.home.com ([24.42.47.5]:17936 "EHLO
-	the.jukie.net") by vger.kernel.org with ESMTP id <S262308AbRERMcz>;
-	Fri, 18 May 2001 08:32:55 -0400
-Date: Fri, 18 May 2001 08:32:33 -0400 (EDT)
-From: Bart Trojanowski <bart@jukie.net>
-X-X-Sender: <bart@localhost>
-To: sebastien person <sebastien.person@sycomore.fr>
-cc: liste noyau linux <linux-kernel@vger.kernel.org>
-Subject: Re: [newbie] timer in module
-In-Reply-To: <20010518135441.59bab0ce.sebastien.person@sycomore.fr>
-Message-ID: <Pine.LNX.4.33.0105180814170.18504-100000@localhost>
+	id <S262310AbRERMln>; Fri, 18 May 2001 08:41:43 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:51718 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S262306AbRERMli>;
+	Fri, 18 May 2001 08:41:38 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15109.5911.790765.946985@argo.ozlabs.ibm.com>
+Date: Fri, 18 May 2001 22:35:35 +1000 (EST)
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: cort@fsmlabs.com, benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] [RESEND] fs/binfmt_elf.c changes vs 2.4.5-pre3
+X-Mailer: VM 6.75 under Emacs 20.4.1
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 May 2001, sebastien person wrote:
+Linus,
 
-> I have a network module that need to regularly get data from network
-> adaptater.
-> But I don't know if it safe to do a loop with a timer in the module.
+This patch against 2.4.5-pre3 makes 3 changes to fs/binfmt_elf.c:
 
-First off you have to decide where you want to run your 'get data'.  There
-are three context you can pick from: user priority or from the kernel.  If
-you run the loop below from a user context then you will have a very
-unresponsive system but at least other things will still run.  If you run
-that from a kernel context nothing else will run... unless you explicitly
-call the scheduler.
+1. It fixes the csp calculation so that it actually achieves the 16
+   byte final alignment that the comment claims.  Previously the csp
+   calculation didn't take the AT_NULL entry into account.  If you
+   look at the current fs/binfmt_elf.c there is a "sp -= 2" that is
+   not reflected in the csp calculation, unlike all the other
+   decrements of sp.
 
-> My aim is to do a get data call every x seconds (x is variable).
+2. It allows each architecture to add extra aux table entries by
+   defining DLINFO_ARCH_ITEMS and ARCH_DLINFO in <asm/elf.h>.  We need
+   this on PowerPC to add entries for the cache line size, and to add
+   entries for compatibility with older broken glibc's.
 
-You mentioned a timer... it runs in kernel context but at least it
-will not end up hanging your system up.  This is how you would use one:
+3. It removes the extra 16 bytes that were left free for PowerPC - in
+   the past we had to move the auxiliary table up to cope with broken
+   glibc's (now we cope by adding special AT_IGNORE entries using the
+   ARCH_DLINFO macro).
 
-struct tq_struct timer;
-init_timer(&timer);
-timer.routine = func;
-timer.data = something;
-mod_timer(&timer, 5*HZ); // 5 seconds from now
+Please apply this to your tree.
 
-void func( unsigned long something ) {
-	get_data( something );
-	mod_timer(&timer, 5*HZ); // again in 5 seconds
-}
+Thanks,
+Paul.
 
-Make sure you call 'del_timer_sync' once you are done.
-
-> Is it better to let an external program executing timer call and get data
-> call via ioctl ?
-
-Since you are getting data every 5 seconds you may as well use a user
-space program.  It does not seem like you are looking for phenomenal
-responsiveness here.
-
-Bart.
-
--- 
-	WebSig: http://www.jukie.net/~bart/sig/
-
+diff -Nru a/fs/binfmt_elf.c b/fs/binfmt_elf.c
+--- a/fs/binfmt_elf.c	Wed May 16 18:45:10 2001
++++ b/fs/binfmt_elf.c	Wed May 16 18:45:10 2001
+@@ -135,12 +135,13 @@
+ 
+ 	/*
+ 	 * Force 16 byte _final_ alignment here for generality.
+-	 * Leave an extra 16 bytes free so that on the PowerPC we
+-	 * can move the aux table up to start on a 16-byte boundary.
+ 	 */
+-	sp = (elf_addr_t *)((~15UL & (unsigned long)(u_platform)) - 16UL);
++	sp = (elf_addr_t *)(~15UL & (unsigned long)(u_platform));
+ 	csp = sp;
+-	csp -= DLINFO_ITEMS*2 + (k_platform ? 2 : 0);
++	csp -= (1+DLINFO_ITEMS)*2 + (k_platform ? 2 : 0);
++#ifdef DLINFO_ARCH_ITEMS
++	csp -= DLINFO_ARCH_ITEMS*2;
++#endif
+ 	csp -= envc+1;
+ 	csp -= argc+1;
+ 	csp -= (!ibcs ? 3 : 1);	/* argc itself */
+@@ -174,6 +175,13 @@
+ 	NEW_AUX_ENT(10, AT_EUID, (elf_addr_t) current->euid);
+ 	NEW_AUX_ENT(11, AT_GID, (elf_addr_t) current->gid);
+ 	NEW_AUX_ENT(12, AT_EGID, (elf_addr_t) current->egid);
++#ifdef ARCH_DLINFO
++	/* 
++	 * ARCH_DLINFO must come last so platform specific code can enforce
++	 * special alignment requirements on the AUXV if necessary (eg. PPC).
++	 */
++	ARCH_DLINFO;
++#endif
+ #undef NEW_AUX_ENT
+ 
+ 	sp -= envc+1;

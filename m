@@ -1,70 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310140AbSCHURM>; Fri, 8 Mar 2002 15:17:12 -0500
+	id <S288071AbSCHUPl>; Fri, 8 Mar 2002 15:15:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310998AbSCHURF>; Fri, 8 Mar 2002 15:17:05 -0500
-Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:41886 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S310140AbSCHUQq>; Fri, 8 Mar 2002 15:16:46 -0500
-Date: Fri, 8 Mar 2002 20:16:33 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Terje Eggestad <terje.eggestad@scali.com>,
-        Ben Greear <greearb@candelatech.com>,
-        Davide Libenzi <davidel@xmailserver.org>,
-        george anzinger <george@mvista.com>
-Subject: Re: gettimeofday() system call timing curiosity
-Message-ID: <20020308201633.C18247@kushida.apsleyroad.org>
-In-Reply-To: <E16iz57-0002SW-00@the-village.bc.nu> <1015515815.4373.61.camel@pc-16.office.scali.no> <a68bo4$b18$1@cesium.transmeta.com> <20020308013222.B14779@kushida.apsleyroad.org> <3C88157E.5010106@zytor.com> <20020308015701.C14779@kushida.apsleyroad.org> <20020308183049.A18247@kushida.apsleyroad.org> <3C89080D.8060503@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C89080D.8060503@zytor.com>; from hpa@zytor.com on Fri, Mar 08, 2002 at 10:50:53AM -0800
+	id <S310140AbSCHUPb>; Fri, 8 Mar 2002 15:15:31 -0500
+Received: from 213-97-45-174.uc.nombres.ttd.es ([213.97.45.174]:61445 "EHLO
+	pau.intranet.ct") by vger.kernel.org with ESMTP id <S288071AbSCHUPR>;
+	Fri, 8 Mar 2002 15:15:17 -0500
+Date: Fri, 8 Mar 2002 21:15:07 +0100 (CET)
+From: Pau Aliagas <linuxnow@wanadoo.es>
+X-X-Sender: pau@pau.intranet.ct
+To: lkml <linux-kernel@vger.kernel.org>, Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
+In-Reply-To: <Pine.LNX.4.44L.0203081334250.2181-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.44.0203082059180.2580-100000@pau.intranet.ct>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> > On my laptop, the median of rdtsc+gettimeofday+rdtsc times is 470 cycles
-> > for most runs of 1000, but is occasionally 453 cycles.
+On Fri, 8 Mar 2002, Rik van Riel wrote:
+
+> On Fri, 8 Mar 2002, Pau Aliagas wrote:
 > 
-> What that indicates to me is that 1000 is way too small of a sample. 
-> You're only talking a difference of 17,000 cycles, which could -- 
-> especially with cache effects -- easily be the time spent in an 
-> interrupt handler.
+> > I'd recommend everybody to give arch a try.
+> 
+> If you could setup a public arch repository of the 2.4 / 2.5
+> kernel of which everybody can copy/clone their arch kernel
+> repository, that would be a good start.
 
-No, interrupt handlers don't (or shouldn't) affect the measurement.
+It is not necessary to setup a central repository.
 
-It's the _median_ that varies from 453 to 470, not the _mean_, so the
-accumulation to 17000 cycles doesn't apply.
+We need a reference archive to keep in sync with; then everybody branches
+from there and syncs back and forth. The reference archive would be the
+official kernel branch.
 
-I do rdtsc, then gettimeofday(), then rdtsc.  I record (a) the actual
-time values, and (b) the difference between the two rdtsc measurements.
+You could then have public archives to share your patchsets. And access 
+other's archives who you are interested in staying in sync with.
 
-First I store 1000 of the difference measurements -- those are the "time
-taken to do measurement in TSC cycles".  I don't want to store a very
-large number of these measurements because of the memory it takes, but
-perhaps 1000 isn't quite enough (it isn't on the laptop, and is fine on
-all the other machines).
+> Even better would be an arch kernel repository that is kept
+> up-to-date (automatically?) or gated from the bitkeeper tree.
 
-Then I sort those and take the 499'th to get the median.
+We only need to update to the latest kernel to have the repository
+updated, nothing else. You commit the patchset as "patch-2.5.6" and that's
+it. Then you grep you kernel25--rik and apply the changes from the
+official branch automatically, reconciling differences. Once you want to 
+"export" your changes to Linus, you export it in one or more patchsets.
 
-Assuming that at least 50% of the calls don't receive an interrupt or
-reschedule in the middle (a reasonable assumption), then that median
-gives me a good idea of how long a measurement takes _when there is no
-interrupt or reschedule_.
+> That would give us some real way to compare the two tools.
 
-Then I take approx. 1000000 measurements using the same code, and
-discard all those that took longer than the median threshold determined
-earlier.
+It seems obvious that bitkeeper is in very good shape; I'm not at all
+against people using, but I'm sure that if a few people tried arch, they'd 
+be gratefully surprised. Testing and improvement is needed and very 
+welcome as well as kernel hackers aiming to try it.
 
-This means that whenever an interrupt happened, that sample is discarded.
+Pau
 
-Finally, I do a simple least-squares linear regression through the
-remaining samples (normally 400000-600000 or so) to calculate the slope.
-
-The slope is what's printed.
-
-cheers,
--- Jamie

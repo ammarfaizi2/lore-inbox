@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267541AbRGMVGJ>; Fri, 13 Jul 2001 17:06:09 -0400
+	id <S267546AbRGMVHW>; Fri, 13 Jul 2001 17:07:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267540AbRGMVF7>; Fri, 13 Jul 2001 17:05:59 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:45318 "EHLO
-	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S267539AbRGMVFk>; Fri, 13 Jul 2001 17:05:40 -0400
-Date: 13 Jul 2001 22:22:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: viro@math.psu.edu
-cc: linux-kernel@vger.kernel.org
-Message-ID: <84l4sXb1w-B@khms.westfalen.de>
-In-Reply-To: <Pine.GSO.4.21.0107130623510.17323-100000@weyl.math.psu.edu>
-Subject: Re: Question about ext2
-X-Mailer: CrossPoint v3.12d.kh7 R/C435
-MIME-Version: 1.0
+	id <S267544AbRGMVHK>; Fri, 13 Jul 2001 17:07:10 -0400
+Received: from weta.f00f.org ([203.167.249.89]:13187 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S267539AbRGMVHD>;
+	Fri, 13 Jul 2001 17:07:03 -0400
+Date: Sat, 14 Jul 2001 09:07:03 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Andreas Dilger <adilger@turbolinux.com>
+Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, Ben LaHaise <bcrl@redhat.com>,
+        Ragnar Kjxrstad <kernel@ragnark.vestdata.no>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        mike@bigstorage.com, kevin@bigstorage.com, linux-lvm@sistina.com
+Subject: Re: [PATCH] 64 bit scsi read/write
+Message-ID: <20010714090703.B5737@weta.f00f.org>
+In-Reply-To: <200107132041.f6DKfqM8013404@webber.adilger.int>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <Pine.GSO.4.21.0107130623510.17323-100000@weyl.math.psu.edu>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Disposition: inline
+In-Reply-To: <200107132041.f6DKfqM8013404@webber.adilger.int>
+User-Agent: Mutt/1.3.18i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@math.psu.edu (Alexander Viro)  wrote on 13.07.01 in <Pine.GSO.4.21.0107130623510.17323-100000@weyl.math.psu.edu>:
+On Fri, Jul 13, 2001 at 02:41:52PM -0600, Andreas Dilger wrote:
 
-> The only really obscure part is dropping an extra reference if victim is
-> a directory - then we know that we are cannibalizing the last external
-> link to it and the only link that remains is victim's ".". We don't want
-> it to prevent victim's removal, so we drive i_nlink of victim to zero.
+    Yes, RAID should have a journal or other ordering enforcement, but
+    it really isn't any worse in this regard than a single disk.  Even
+    on a single disk you don't have any guarantees of data ordering,
+    so if you change the file and the power is lost, some of the
+    sectors will make it to disk and some will not => fsck, with
+    possible data corrpution or loss.
 
-Does this stuff work right with those cases which do linkcount=1 either  
-because the fs doesn't have a link count, or because the real link count  
-has grown too large?
+How so? On a single disk you can either disable write-caching or for
+SCSI disks you can use barriers of sorts.
 
-MfG Kai
+At which time, you can either assume a sector is written or not.
+
+
+   --cw

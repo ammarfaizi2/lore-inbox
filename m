@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262731AbUASUNY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 15:13:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbUASUNY
+	id S263513AbUASUXR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 15:23:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263522AbUASUXR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 15:13:24 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:57018 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262730AbUASUNW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 15:13:22 -0500
-Date: Mon, 19 Jan 2004 15:13:15 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Clay Haapala <chaapala@cisco.com>
-cc: linux-kernel@vger.kernel.org, <linux-scsi@vger.kernel.org>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: [PATCH] Add CRC32C chksums to crypto routines
-In-Reply-To: <yqujisje43q9.fsf@chaapala-lnx2.cisco.com>
-Message-ID: <Xine.LNX.4.44.0401191512140.1564-100000@thoron.boston.redhat.com>
+	Mon, 19 Jan 2004 15:23:17 -0500
+Received: from ms-smtp-02-lbl.southeast.rr.com ([24.25.9.101]:60296 "EHLO
+	ms-smtp-02-eri0.southeast.rr.com") by vger.kernel.org with ESMTP
+	id S263513AbUASUXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 15:23:15 -0500
+Message-ID: <400C3CEA.1060004@us.ibm.com>
+Date: Mon, 19 Jan 2004 15:24:10 -0500
+From: Santiago Leon <santil@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: jgarzik@pobox.com
+Subject: [PATCH] IBM PowerPC Virtual Ethernet Driver
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Jan 2004, Clay Haapala wrote:
+Here's a patch that adds the inter-partition Virtual Ethernet driver for 
+newer IBM iSeries and pSeries systems:
 
-> This patch against 2.6.1 adds CRC32C checksumming capabilities to the
-> crypto routines.  The structure of it is based wholly on the existing
-> digest (md5) routines, the main difference being that chksums are
-> often used in an "accumulator" fashion, effectively requiring one to
-> set the seed, and the digest algorithms don't do that.
+http://www-124.ibm.com/linux/patches/ppc64/ibmveth.patch
 
-Looks good to me.
+The patch applies against the 2.4.25-pre6 tree...
 
+Jeff, can you formally add this driver to 2.4?... I'm waiting for some
+ppc64 architectural addition to send out the driver for 2.6...
 
-- James
+Comments and suggestions are always welcome...
 -- 
-James Morris
-<jmorris@redhat.com>
-
+Santiago A. Leon
+Power Linux Development
+IBM Linux Technology Center
 

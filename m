@@ -1,47 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVABUro@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVABUvz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261328AbVABUro (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 15:47:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbVABUrn
+	id S261324AbVABUvz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 15:51:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVABUvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 15:47:43 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:27062 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261328AbVABUrm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 15:47:42 -0500
-To: Christoph Hellwig <hch@lst.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] disallow modular capabilities
-References: <20050102200032.GA8623@lst.de> <m1mzvry3sf.fsf@muc.de>
-	<20050102203005.GA9491@lst.de>
-From: Andi Kleen <ak@muc.de>
-Date: Sun, 02 Jan 2005 21:47:41 +0100
-In-Reply-To: <20050102203005.GA9491@lst.de> (Christoph Hellwig's message of
- "Sun, 2 Jan 2005 21:30:05 +0100")
-Message-ID: <m1is6fy2vm.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Sun, 2 Jan 2005 15:51:55 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:31249 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261324AbVABUvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 15:51:52 -0500
+Date: Sun, 2 Jan 2005 21:51:51 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Pavel Machek <pavel@ucw.cz>, luto@myrealbox.com, aebr@win.tue.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: the umount() saga for regular linux desktop users
+Message-ID: <20050102205151.GE4183@stusta.de>
+References: <20050102193724.GA18136@elf.ucw.cz> <20050102201147.GB4183@stusta.de> <200501022134.16338.oliver@neukum.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501022134.16338.oliver@neukum.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@lst.de> writes:
+On Sun, Jan 02, 2005 at 09:34:16PM +0100, Oliver Neukum wrote:
+> Am Sonntag, 2. Januar 2005 21:11 schrieb Adrian Bunk:
+> > On Sun, Jan 02, 2005 at 08:37:24PM +0100, Pavel Machek wrote:
+> > 
+> > > Well, umount -l can be handy, but it does not allow you to get your CD
+> > > back from the drive.
+> > > 
+> > > umount --kill that kills whoever is responsible for filesystem being
+> > > busy would solve part of the problem (that can be done in userspace,
+> > > today).
+> > >...
+> > 
+> > What's wrong with
+> > 
+> >   fuser -k /mnt && umount /mnt
+> 
+> 1. Would need suid.
 
-> On Sun, Jan 02, 2005 at 09:28:00PM +0100, Andi Kleen wrote:
->> Christoph Hellwig <hch@lst.de> writes:
->> 
->> > There's been a bugtraq report about a root exploit with modular
->> > capabilities LSM support out for more than a week.
->> 
->> It was a root exploit only triggerable by root. Not exactly
->> what I would call a real problem.
->
-> At least Debian currently inserts the capabilities module on boot.
+It needs suid only if you aren't root and you want to kill processes you 
+don't own.
 
-That is fine as long as they control all code executed before
-that module loading.  And if they do not it is their own fault
-and they have to fix that in user space or compile the capability in.
-Unix policy is to not stop root from doing stupid things because
-that would also stop him from doing clever things.
+Yes, this might cause problems e.g. if users are allowed to mount their 
+cdroms, but simply allowing them to kill processes of other users who 
+access this device isn't a solution, too.
 
--Anddi
+> 2. Is a mindless slaughter of important processes.
+
+It's what Pavel wanted to get included in umount.
+
+Usually, you'll let fuser give you the list of processes and inspect 
+them manually.
+
+> 3. Is a race condition.
+
+Then put it into a while loop that executes until umount returns 0.
+
+I still fail to see why I should implement half of fuser in umount. 
+Either you are working at the command line and know about fuser or you 
+are working through a GUI which can offer you a "kill all applications 
+accessing this device" button that calls fuser.
+
+> 	Regards
+> 			Oliver
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

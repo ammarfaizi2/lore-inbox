@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265448AbTFMRhs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 13:37:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265453AbTFMRhs
+	id S265455AbTFMRqL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 13:46:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265456AbTFMRqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 13:37:48 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:44722
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S265448AbTFMRhr convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 13:37:47 -0400
-Subject: Re: linux-2.4.21 released
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Damian =?iso-8859-2?Q?Ko=B3kowski?= <deimos@deimos.one.pl>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>, stefan@stefan-foerster.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030613171903.GA797@deimos.one.pl>
-References: <200306131453.h5DErX47015940@hera.kernel.org>
-	 <20030613165628.GE28609@in-ws-001.cid-net.de>
-	 <20030613165625.GA573@deimos.one.pl>
-	 <20030613193709.49f22332.skraw@ithnet.com>
-	 <20030613171903.GA797@deimos.one.pl>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Organization: 
-Message-Id: <1055526549.5162.78.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 13 Jun 2003 18:49:10 +0100
+	Fri, 13 Jun 2003 13:46:11 -0400
+Received: from netmail01.services.quay.plus.net ([212.159.14.219]:46498 "HELO
+	netmail01.services.quay.plus.net") by vger.kernel.org with SMTP
+	id S265455AbTFMRqJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 13:46:09 -0400
+From: "Riley Williams" <Riley@Williams.Name>
+To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+Cc: "Linux Kernel Maillist" <linux-kernel@vger.kernel.org>
+Subject: RE: /proc/bus/pci
+Date: Fri, 13 Jun 2003 18:59:58 +0100
+Message-ID: <BKEGKPICNAKILKJKMHCACECCEFAA.Riley@Williams.Name>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <Pine.LNX.4.56.0306131226130.3625@filesrv1.baby-dragons.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-06-13 at 18:19, Damian KoÅ‚kowski wrote:
-> On Fri, Jun 13, 2003 at 07:37:09PM +0200, Stephan von Krawczynski wrote:
-> > How about telling the maintainer?
-> 
-> That is a good idea, but I thought that someone else have that trouble too, so I
-> ignore that.
-> 
-> I will report the bug with via-rhine to ACPId maintainers.
+Hi James.
 
-Is this with 2.4.20/2.4.21rc or with the -ac tree and/or added current
-ACPI ?
+ >> All forms of hard disk interface - that I do know.
+ >>
+ >> ST-506 = Seagate Technology model 506 hard drive
+ >>          (which set the MFM and RLL standards)
+
+ >	st506 was ONLY mfm. There were no st506 drive that had
+ >	RLL encodings.
+
+Curiously enough, my first hard drive was an ST-506 used with
+an RLL controller for the usual 45% increase in capacity. All
+I can say is that it worked fine from when I bought it new
+(for £350.00) through to when I had to replace the (genuine
+IBM) PC/XT motherboard after it failed.
+
+The new motherboard was a 386dx/25 and had on-board IDE and
+related, so I had to get an IDE drive at the same time.
+
+Oh - yes, I was shocked at the speed difference between the
+two systems. Then again, who wouldn't be...
+
+Best wishes from Riley.
+---
+ * Nothing as pretty as a smile, nothing as ugly as a frown.
+
+---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.488 / Virus Database: 287 - Release Date: 5-Jun-2003
 

@@ -1,68 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316361AbSEOKu3>; Wed, 15 May 2002 06:50:29 -0400
+	id <S313512AbSEOLKH>; Wed, 15 May 2002 07:10:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316374AbSEOKu2>; Wed, 15 May 2002 06:50:28 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:47623 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S316361AbSEOKu1>; Wed, 15 May 2002 06:50:27 -0400
-Message-ID: <3CE22EA8.60905@evision-ventures.com>
-Date: Wed, 15 May 2002 11:47:20 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S313628AbSEOLKG>; Wed, 15 May 2002 07:10:06 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2321 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313512AbSEOLKF>; Wed, 15 May 2002 07:10:05 -0400
+Subject: Re: InfiniBand BOF @ LSM - topics of interest
+To: zaitcev@redhat.com (Pete Zaitcev)
+Date: Wed, 15 May 2002 12:29:20 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), Tony.P.Lee@nokia.com, lmb@suse.de,
+        woody@co.intel.com, linux-kernel@vger.kernel.org, zaitcev@redhat.com
+In-Reply-To: <20020515010107.A31154@devserv.devel.redhat.com> from "Pete Zaitcev" at May 15, 2002 01:01:07 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IDE PIO write Fix #2
-In-Reply-To: <3CE0795B.62C956F0@cinet.co.jp> <3CE0D6DE.8090407@evision-ventures.com> <abroiv$ifs$1@penguin.transmeta.com>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E177wy8-0001hK-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Linus Torvalds napisa³:
-> In article <3CE0D6DE.8090407@evision-ventures.com>,
-> Martin Dalecki  <dalecki@evision-ventures.com> wrote:
-> 
->>>--- linux-2.5.15/drivers/ide/ide-taskfile.c.orig	Fri May 10 11:49:35 2002
->>>+++ linux-2.5.15/drivers/ide/ide-taskfile.c	Tue May 14 10:40:43 2002
->>>@@ -606,7 +606,7 @@
->>> 		if (!ide_end_request(drive, rq, 1))
->>> 			return ide_stopped;
->>> 
->>>-	if ((rq->current_nr_sectors==1) ^ (stat & DRQ_STAT)) {
->>>+	if ((rq->nr_sectors == 1) ^ ((stat & DRQ_STAT) != 0)) {
->>
-> 
-> Well, that's definitely an improvement - the original code makes no
-> sense at all, since it's doing a bitwise xor on two bits that are not
-> the same, and then uses that as a boolean value.
-> 
-> Your change at least makes it use the bitwise xor on properly logical
-> values, making the bitwise xor work as a _logical_ xor. 
-> 
-> Although at that point I'd just get rid of the xor, and replace it by
-> the "!=" operation - which is equivalent on logical ops.
-> 
-> 
->>> 		pBuf = ide_map_rq(rq, &flags);
->>> 		DTF("write: %p, rq->current_nr_sectors: %d\n", pBuf, (int) rq->current_nr_sectors);
->>
->>
->>Hmm. There is something else that smells in the above, since the XOR operator
->>doesn't seem to be proper. Why shouldn't we get DRQ_STAT at all on short
->>request? Could you perhaps just try to replace it with an OR?
-> 
-> 
-> The XOR operation is a valid op, if you just use it on valid values,
-> which the patch does seem to make it do.
-> 
-> I don't know whether the logic is _correct_ after that, but at least
-> there is some remote chance that it might make sense.
-> 
-> 		Linus
+> The thing about Infiniband is that its scope is so great.
+> If you consider Infiniband was only a glorified PCI with serial
+> connector, the congestion control is not an issue. Credits
 
-As far as I can see the patch makes sense. It is just exposing a problem
-which was hidden before.
+Congestion control is always an issue 8
+
+> are quite sufficient to provide per link flow control, and
+> everything would work nicely with a couple of switches.
+> Such was the original plan, anyways, but somehow cluster
+> ninjas managed to hijack the spec and we have the rabid
+> overengineering running amok. In fact, they ran so far
+> that Intel jumped ship and created PCI Express, and we
+> have discussions about congestion control. Sad, really...
+
+My interest is in the question "does infiniband have usable congestion
+control for tcp/clustering/networking". I don't actually care if it doesn't
+and I'd rather have most congestion control in software anyway.
+
+Alan
 

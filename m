@@ -1,314 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbUJYITI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbUJYIVx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbUJYITI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 04:19:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbUJYITI
+	id S261710AbUJYIVx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 04:21:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbUJYITx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 04:19:08 -0400
-Received: from chilli.pcug.org.au ([203.10.76.44]:46796 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S261678AbUJYHfj (ORCPT
+	Mon, 25 Oct 2004 04:19:53 -0400
+Received: from [211.58.254.17] ([211.58.254.17]:39824 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S261726AbUJYHsb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 03:35:39 -0400
-Date: Mon, 25 Oct 2004 17:35:24 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, ppc64-dev <linuxppc64-dev@ozlabs.org>
-Subject: [PATCH] iSeries console: cleanup after tty_write user copies
- removal
-Message-Id: <20041025173524.43932e3e.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 25 Oct 2004 03:48:31 -0400
+Date: Mon, 25 Oct 2004 16:48:27 +0900
+From: Tejun Heo <tj@home-tj.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: mochel@osdl.org, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC/PATCH] Per-device parameter support (4/16)
+Message-ID: <20041025074827.GB20995@home-tj.org>
+References: <20041023042550.GE3456@home-tj.org> <1098679520.8098.20.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Mon__25_Oct_2004_17_35_24_+1000_B12iLCj5s.Z48zzM"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1098679520.8098.20.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Mon__25_Oct_2004_17_35_24_+1000_B12iLCj5s.Z48zzM
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+On Mon, Oct 25, 2004 at 02:45:20PM +1000, Rusty Russell wrote:
+> On Sat, 2004-10-23 at 13:25 +0900, Tejun Heo wrote:
+> >  dp_04_module_param_ranged.diff
+> > 
+> >  This is the 4th patch of 16 patches for devparam.
+> > 
+> >  This patch implements module_param_flag() and module_param_invflag().
+> > They appear as boolean parameter to the outside, and bitwise OR the
+> > specified flag to flags when the specified boolean value is 1 and 0
+> > respectively.
+> 
+> Comment is wrong, of course:
 
-Hi Andrew,
+ Yeah, definitely.  Sorry. :-P
 
-This patch just removes more of the infrastructure in the PPC64 iSeries
-console driver that is no longer needed since we no longer need to do
-copies from user mode in the tty drivers.
+> this patch adds range to the kernel_param
+> structure.  But I'm not convinced that it's a great idea.  It could be
+> added using the same method (kp->arg) used to extend the others instead.
+> 
+> (Same logic applied to spinlocking param variants).
+> 
+> It comes down to usage: currently there are few range-needing users, but
+> maybe that's because MODULE_PARM didn't support it.  So I would drop
+> this or implement it as a wrapper, and later we can add it when it takes
+> over the world.  Although I'd probably just add args to
+> module_param_call: I like having it as the "base".
 
-Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+ And yes again.  I also thought it would look cleaner to implement
+range checking using a wrapping argument.  But my rationales to include
+them directly were
+
+ 1. Most driver parameters need range-checking.  I haven't seen many
+    driver parameters which don't require range-checking.  The range
+    values are also useful for non-integer parameters including strings
+    and arrays.
+
+ 2. If we use separate range structure.  We would either
+    - have two different sets (vanilla and ranged) of standard parameter
+      set/get functions
+    - or, end up using the wrapped version for both. (turning off range
+      checking with some special value.)
+    And both didn't look very attractive to me.  #1 is just not good
+    and #2 seems a bit pointless as we'll always be using the wrapping
+    argument for all types of paramters (integer, charp, string, array...).
+
+ So, I folded range into the kernel_param structure.
+
+> The other thing is the min=1 max=0 case: I'd prefer INT_MAX, INT_MIN
+> etc. instead I think so there's no special cases.
+
+ The thing is that the min, max values are used for all types
+including signed and unsigned types.  min=MIN_MAX, max=INT_MIN will be
+interpreted as a valid [INT_MAX, (unsigned)INT_MAX + 1] range for
+unsigned int parameters.  So, I had to choose some value which,
+regardless of type, maintains their relative relation, so the 1 and 0.
+However, I do agree that plain 1, 0 doesn't look very clear.  How
+about using something like the following?
+
+#define PARAM_UNRANGED_MIN	1
+#define PARAM_UNRANGED_MAX	0
+
+or
+
+#define PARAM_UNRANGED		1, 0
+
+ I think it's better to be a bit feature-rich in module/device
+paramter handling because by doing so we can avoid duplicated codes in
+many places.
+
 -- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+tejun
 
-diff -ruN 2.6.10-rc1-bk2/drivers/char/viocons.c 2.6.10-rc1-bk2-viocons.1/drivers/char/viocons.c
---- 2.6.10-rc1-bk2/drivers/char/viocons.c	2004-10-25 15:37:13.000000000 +1000
-+++ 2.6.10-rc1-bk2-viocons.1/drivers/char/viocons.c	2004-10-25 17:03:17.000000000 +1000
-@@ -83,15 +83,6 @@
- 	u8 data[VIOCHAR_MAX_DATA];
- };
- 
--/*
-- * This is a place where we handle the distribution of memory
-- * for copy_from_user() calls.  The buffer_available array is to
-- * help us determine which buffer to use.
-- */
--#define VIOCHAR_NUM_CFU_BUFFERS	7
--static struct viocharlpevent viocons_cfu_buffer[VIOCHAR_NUM_CFU_BUFFERS];
--static atomic_t viocons_cfu_buffer_available[VIOCHAR_NUM_CFU_BUFFERS];
--
- #define VIOCHAR_WINDOW		10
- #define VIOCHAR_HIGHWATERMARK	3
- 
-@@ -207,50 +198,6 @@
- }
- 
- /*
-- * This function should ONLY be called once from viocons_init2
-- */
--static void viocons_init_cfu_buffer(void)
--{
--	int i;
--
--	for (i = 1; i < VIOCHAR_NUM_CFU_BUFFERS; i++)
--		atomic_set(&viocons_cfu_buffer_available[i], 1);
--}
--
--static struct viocharlpevent *viocons_get_cfu_buffer(void)
--{
--	int i;
--
--	/*
--	 * Grab the first available buffer.  It doesn't matter if we
--	 * are interrupted during this array traversal as long as we
--	 * get an available space.
--	 */
--	for (i = 0; i < VIOCHAR_NUM_CFU_BUFFERS; i++)
--		if (atomic_dec_if_positive(&viocons_cfu_buffer_available[i])
--				== 0 )
--			return &viocons_cfu_buffer[i];
--	hvlog("\n\rviocons: viocons_get_cfu_buffer : no free buffers found");
--	return NULL;
--}
--
--static void viocons_free_cfu_buffer(struct viocharlpevent *buffer)
--{
--	int i;
--
--	i = buffer - &viocons_cfu_buffer[0];
--	if (i >= (sizeof(viocons_cfu_buffer) / sizeof(viocons_cfu_buffer[0]))) {
--		hvlog("\n\rviocons: viocons_free_cfu_buffer : buffer pointer not found in list.");
--		return;
--	}
--	if (atomic_read(&viocons_cfu_buffer_available[i]) != 0) {
--		hvlog("\n\rviocons: WARNING : returning unallocated cfu buffer.");
--		return;
--	}
--	atomic_set(&viocons_cfu_buffer_available[i], 1);
--}
--
--/*
-  * Add data to our pending-send buffers.  
-  *
-  * NOTE: Don't use printk in here because it gets nastily recursive.
-@@ -438,15 +385,14 @@
-  * NOTE: Don't use printk in here because it gets nastily recursive.  hvlog
-  * can be used to log to the hypervisor buffer
-  */
--static int internal_write(struct port_info *pi, const char *buf,
--			  size_t len, struct viocharlpevent *viochar)
-+static int internal_write(struct port_info *pi, const char *buf, size_t len)
- {
- 	HvLpEvent_Rc hvrc;
- 	size_t bleft;
- 	size_t curlen;
- 	const char *curbuf;
- 	unsigned long flags;
--	int copy_needed = (viochar == NULL);
-+	struct viocharlpevent *viochar;
- 
- 	/*
- 	 * Write to the hvlog of inbound data are now done prior to
-@@ -462,25 +408,13 @@
- 
- 	spin_lock_irqsave(&consolelock, flags);
- 
--	/*
--	 * If the internal_write() was passed a pointer to a
--	 * viocharlpevent then we don't need to allocate a new one
--	 * (this is the case where we are internal_writing user space
--	 * data).  If we aren't writing user space data then we need
--	 * to get an event from viopath.
--	 */
--	if (copy_needed) {
--		/* This one is fetched from the viopath data structure */
--		viochar = (struct viocharlpevent *)
--			vio_get_event_buffer(viomajorsubtype_chario);
--		/* Make sure we got a buffer */
--		if (viochar == NULL) {
--			spin_unlock_irqrestore(&consolelock, flags);
--			hvlog("\n\rviocons: Can't get viochar buffer in internal_write().");
--			return -EAGAIN;
--		}
--		initDataEvent(viochar, pi->lp);
-+	viochar = vio_get_event_buffer(viomajorsubtype_chario);
-+	if (viochar == NULL) {
-+		spin_unlock_irqrestore(&consolelock, flags);
-+		hvlog("\n\rviocons: Can't get vio buffer in internal_write().");
-+		return -EAGAIN;
- 	}
-+	initDataEvent(viochar, pi->lp);
- 
- 	curbuf = buf;
- 	bleft = len;
-@@ -493,25 +427,16 @@
- 			curlen = bleft;
- 
- 		viochar->event.xCorrelationToken = pi->seq++;
--
--		if (copy_needed) {
--			memcpy(viochar->data, curbuf, curlen);
--			viochar->len = curlen;
--		}
--
-+		memcpy(viochar->data, curbuf, curlen);
-+		viochar->len = curlen;
- 		viochar->event.xSizeMinus1 =
- 		    offsetof(struct viocharlpevent, data) + curlen;
- 
- 		hvrc = HvCallEvent_signalLpEvent(&viochar->event);
- 		if (hvrc) {
--			spin_unlock_irqrestore(&consolelock, flags);
--			if (copy_needed)
--				vio_free_event_buffer(viomajorsubtype_chario, viochar);
--
- 			hvlog("viocons: error sending event! %d\n", (int)hvrc);
--			return len - bleft;
-+			goto out;
- 		}
--
- 		curbuf += curlen;
- 		bleft -= curlen;
- 	}
-@@ -519,14 +444,9 @@
- 	/* If we didn't send it all, buffer as much of it as we can. */
- 	if (bleft > 0)
- 		bleft -= buffer_add(pi, curbuf, bleft);
--	/*
--	 * Since we grabbed it from the viopath data structure, return
--	 * it to the data structure.
--	 */
--	if (copy_needed)
--		vio_free_event_buffer(viomajorsubtype_chario, viochar);
-+out:
-+	vio_free_event_buffer(viomajorsubtype_chario, viochar);
- 	spin_unlock_irqrestore(&consolelock, flags);
--
- 	return len - bleft;
- }
- 
-@@ -603,18 +523,8 @@
- 
- 	hvlogOutput(s, count);
- 
--	if (!viopath_isactive(pi->lp)) {
--		/*
--		 * This is a VERY noisy trace message in the case where the
--		 * path manager is not active or in the case where this
--		 * function is called prior to viocons initialization.  It is
--		 * being commented out for the sake of a clear trace buffer.
--		 */
--#if 0
--		 hvlog("\n\rviocons_write: path not active to lp %d", pi->lp);
--#endif
-+	if (!viopath_isactive(pi->lp))
- 		return;
--	}
- 
- 	/* 
- 	 * Any newline character found will cause a
-@@ -627,17 +537,16 @@
- 			 * Newline found. Print everything up to and 
- 			 * including the newline
- 			 */
--			internal_write(pi, &s[begin], index - begin + 1,
--					NULL);
-+			internal_write(pi, &s[begin], index - begin + 1);
- 			begin = index + 1;
- 			/* Emit a carriage return as well */
--			internal_write(pi, &cr, 1, NULL);
-+			internal_write(pi, &cr, 1);
- 		}
- 	}
- 
- 	/* If any characters left to write, write them now */
- 	if ((index - begin) > 0)
--		internal_write(pi, &s[begin], index - begin, NULL);
-+		internal_write(pi, &s[begin], index - begin);
- }
- 
- /*
-@@ -721,11 +630,9 @@
- /*
-  * TTY Write method
-  */
--static int viotty_write(struct tty_struct *tty,
--			const unsigned char *buf, int count)
-+static int viotty_write(struct tty_struct *tty, const unsigned char *buf,
-+		int count)
- {
--	int ret;
--	int total = 0;
- 	struct port_info *pi;
- 
- 	pi = get_port_data(tty);
-@@ -746,16 +653,10 @@
- 	 * viotty_write call and, since the viopath isn't active to this
- 	 * partition, return count.
- 	 */
--	if (!viopath_isactive(pi->lp)) {
--		/* Noisy trace.  Commented unless needed. */
--#if 0
--		 hvlog("\n\rviotty_write: viopath NOT active for lp %d.",pi->lp);
--#endif
-+	if (!viopath_isactive(pi->lp))
- 		return count;
--	}
- 
--	total = internal_write(pi, buf, count, NULL);
--	return total;
-+	return internal_write(pi, buf, count);
- }
- 
- /*
-@@ -774,7 +675,7 @@
- 		hvlogOutput(&ch, 1);
- 
- 	if (viopath_isactive(pi->lp))
--		internal_write(pi, &ch, 1, NULL);
-+		internal_write(pi, &ch, 1);
- }
- 
- /*
-@@ -1270,8 +1171,6 @@
- 		viotty_driver = NULL;
- 	}
- 
--	viocons_init_cfu_buffer();
--
- 	unregister_console(&viocons_early);
- 	register_console(&viocons);
- 
-
---Signature=_Mon__25_Oct_2004_17_35_24_+1000_B12iLCj5s.Z48zzM
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBfKzB4CJfqux9a+8RAiOxAJ9o6O9SWD/ZZzy3rBZcVoMqyWWdxACfUa/S
-tk6qC+jeypdy2U5qH6CHC7o=
-=8iF8
------END PGP SIGNATURE-----
-
---Signature=_Mon__25_Oct_2004_17_35_24_+1000_B12iLCj5s.Z48zzM--

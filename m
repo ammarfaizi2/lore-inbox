@@ -1,165 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266252AbUIAM1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266289AbUIAMa6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266252AbUIAM1r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 08:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266304AbUIAM1r
+	id S266289AbUIAMa6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 08:30:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266295AbUIAMa6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 08:27:47 -0400
-Received: from ppsw-3.csi.cam.ac.uk ([131.111.8.133]:14787 "EHLO
-	ppsw-3.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S266252AbUIAM0m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 08:26:42 -0400
-Subject: Re: ncpfs problems
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Peter Astrand <peter@cendio.se>
-Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0409011322580.29446-100000@maggie.lkpg.cendio.se>
-References: <Pine.LNX.4.44.0409011322580.29446-100000@maggie.lkpg.cendio.se>
-Content-Type: text/plain
-Organization: University of Cambridge Computing Service, UK
-Message-Id: <1094041592.20655.110.camel@imp.csi.cam.ac.uk>
+	Wed, 1 Sep 2004 08:30:58 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:25311 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S266289AbUIAMaq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 08:30:46 -0400
+Message-ID: <35fb2e59040901053015051ab9@mail.gmail.com>
+Date: Wed, 1 Sep 2004 13:30:45 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: "prasad@atc.tcs.co.in" <prasad@atc.tcs.co.in>
+Subject: Re: Embedded Linux :: How different is it?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <51980.203.200.212.145.1094033022.squirrel@203.200.212.145>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 01 Sep 2004 13:26:33 +0100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+References: <51980.203.200.212.145.1094033022.squirrel@203.200.212.145>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-01 at 12:57, Peter Astrand wrote:
-> Thanks for your quick response. 
-> 
-> > > I'm having severe problems with ncpfs. What I'm trying to accomplish is to
-> > > run KDE with a NCP-mounted home directory. This actually worked with the 2.4
-> > > kernel, 
+On Wed, 1 Sep 2004 15:33:42 +0530 (IST), prasad@atc.tcs.co.in
+<prasad@atc.tcs.co.in> wrote:
 
-Interesting.  On our suse 9.0 based system we have problems with KDE
-shutting down.  The DCOP server in particular fails to shutdown.  We
-tracked this to be the problem that the DCOP server opens a file,
-deletes it immediately and then still uses it.  But ncpfs doesn't have
-posix semantics and the file is gone for good as soon as it is deleted
-hence the dcop server cannot access it and it hangs.
+> am sorry if its irrelevant here but i have always had this doubt
+> and this doubt is growing stronger as i see more and more embedded
+> linux based companies coming up!
 
-Note this same problem breaks openoffice and other applications, too,
-because the wrapper script suse installs uses perl -i and other apps use
-that too or sed -i, too.  I had to modify everything to use -i.orig to
-make things work.  (Aside: -i means open file, delete it, create it,
-parse opened,deleted file and write modified version to the newly
-created file, close deleted file, close new file and since on ncpfs
-"delete it" destroys the file completely, "parse opened,deleted file"
-returns nothing at all and so the total effect of doing perl -i or sed
--i is to truncate the file you are modifying to zero size!)
+Embedded Linux companies are all about offering extra value-added
+services. Anyone can go read one of the limited number of books on
+Embedded Linux, or one of the many on the kernel itself (Linux Kernel
+Development is a good introductory read because it's - as the folks I
+work with would say - a manageable size and also a fun read at the
+same time) and either roll their own environment from scratch or use
+tools such as crosstool and PTXdist to make their life easier.
+Montavista (and the various other available embedded vendors) take the
+effort out of the process by supplying the toolchains and kernel ports
+so that developers don't have to figure this all out in the limited
+time that they usually have available - especially those unfamiliar
+with using Linux who have a six month deadline.
 
-> but the problem with "df"/"statfs" reporting zero bytes free
-> > > required patching of the startkde script. 
+So there's a bandwaggon right now and if you look at the various
+surveys (VDC reckon the market for embedded Linux devices will double
+between 2003 and 2006), for example on the Linux Devices market
+snapshot, you can see that no one vendor currently has a majority of
+the market out there. You have to judge each offering on its own
+merits.
 
-I patched ncpfs to always report 2GiB free space on all mount points. 
-That works for us as quota is done on a per directory level so there is
-no meaningful concept of free space for "df"/"statfs" and many
-applications require "df" to return free space or they fail to run...
+> How different is a embedded linux kernel from the normal mainstream
 
-And the other problem we have is that ncpfs kernel driver doesn't
-implement hardlinks but this one I solved by writing a Vurtial HardLink
-implementation for ncpfs which basically implements hardlinks but only
-on the local machine and only until you "umount" after which they
-disappear.  That makes most applications work as they all only use
-hardlinks for locking or instead of rename and hence no hard links are
-left after the program has finished running and hence at umount time
-nothing bad happens (my modifications would give a warning message the
-user if any hardlinks are left at umount time).
+Functionally it is identical but the compilation options will have
+been adjusted to remove unwanted code for memory footprint or
+performance reasons. The kernel might have been built using the newer
+embedded specifc options (e.g. to remove certain processor support)
+and it might actually turn out that the ucLinux 2.4 kernel tree is in
+use on devices where there is no MMU. The kernel will also likely have
+a bunch of patches that for whatever reason are available but not in
+the stock kernel as nobody else wants to use them.
 
-> > With 2.6.x you should get free space on a volume if you mount volume
-> > or subdirectory instead of all volumes from server (i.e. you used -V
-> > option to ncpmount).
-> 
-> Yes, this works. 
-> 
-> > > * When shutting down KDE, the file system startas reporting EIO 
-> > > (Input/output error). It's also very un-responsive; if one process runs
-> > > read() (returning EIO) in a tight loop, other processes hangs forever (well,
-> > > at least > 12 hours). 
-> > 
-> > Someone aborted process in the middle of ncpfs operation with SIGKIL.  
-> > As ncp request/responses are handled in context of calling
-> > process, if you SIGKILL process after it sent request but before it
-> > received response, connection is invalidated.  
-> 
-> This is _major_ drawback. The mount shouldn't stop working just because 
-> you killed a process. 
+The kernel you get given by device manufacturer X is not magically
+different from a stock kernel but just a little patched and built with
+whatever device they have in mind.
 
-I quite agree.  This sounds like it might be the explanation for our
-ncpfs problems where the ncp sequence numbers become out of sync and we
-cannot talk to the server any more.  The machine then needs to be
-rebooted before the user can log back in again.  However we seem to be
-getting these quite randomly and I don't think it only happens when
-killing applications.
+> one. e.g. I have seen linux run on a mobile phone.
 
-> > But it should not hang other processes which have nothing to do with
-> > ncpfs.
-> 
-> Probably it doesn't; all hangs I've experienced has been with processes
-> using NCP mount.
-> 
-> > If you run in a loop process which does some (failing) ncpfs operation,
-> > other processes which want to use that mountpoint of course blocks:
-> > Linux semaphores are not fair.
-> 
-> So, the ncpfs client is sort of "single-threaded"? 
-> 
-> > If you do not want SIGKILL to abort connection, replace
-> > sigmask(SIGKILL) with sigmask(0) in fs/ncpfs/sock.c.  But then you may
-> > get unkillable process in the case TCP connected server dies, or if you'll
-> > set infinite timeout for UDP/IPX servers.
-> 
-> Not good. Are these two alternatives the only ones? Patching the kernel is 
-> not an option for us; our customers are only using unmodified kernels from 
-> their distribution or perhaps kernel.org. 
-> 
-> Having unkillable processes are frustrating, but it's probably better than
-> being able to kill the entire mount by a single SIGKILL. So, if these are
-> the only options, I guess the unkillable process solution should be
-> default.
-> 
-> > > * Some files are impossible to remove, for example the files in 
-> > > ~/.kde/socket-dhcp-253-234: An unlink returns EBUSY:
-> > > 
-> > > unlink("kdeinit_maggie_2")              = -1 EBUSY (Device or resource busy)
-> > > 
-> > > Do you have any ideas what can cause this? Do you consider ncpfs stable
-> > > enough to be used for the home directory? 
-> > 
-> > File is open... You cannot remove opened files from Netware filesystem.
-> 
-> In my opinion, ncpfs should try to emulate POSIX semantics as close as
-> possible. This means that "strong" should be default, and it should be
-> possible to remove open files. Even if the Netware server refuses this
-> operation, why cannot it be simulated by ncpfs? At least this should be
-> possible to implement by using "silly deletes", as NFS does, but since NCP
-> is stateful, too me it seems like this shouldn't be necessary.
+For example using an ARM7TDMI type core or something similar.
 
-Amen.  I am probably going to be implementing posix semantics on unlink
-for our 2.4 kernel based ncpfs module to fix our dcop server shutdown
-problems soon.  Let me know if you want a copy of the patch...  Note you
-might have to rework it quite a bit for 2.6 and even for a kernel.org
-2.4 since we have a _lot_ of ncpfs patches locally to make it work for
-us.
+> When i buy it, am i not entitled to get the source-code???
 
-> > I cannot think about any other reason why you should get EBUSY.
-> 
-> The glibc 2.3.3 manpage for unlink actually says that EBUSY shouldn't
-> happen on Linux.
-> 
-> 
-> (Please CC me on this topic.)
+Of course you can. This whole issue has been discussed before - your
+best bet is to give them a call or send them an email and ask them for
+a link to the sourcecode.
 
-Best regards,
+Then try to perhaps get somewhere with persuading them to honour their
+GPL commitment.
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
+Various projects, e.g. busybox, maintain a hall of shame and you'll
+always find somewhere like slashdot to moan about company Y.
+Unfortunately this does not mean that they will actually every release
+the source (few of us have the resources to go suing every vendor we
+buy devices from today - there are folks that will do it and certainly
+community pressure but at the end of the day things can drag out for a
+very long time trying to get the matter resolved properly) nor that
+you'll find out exactly what they're using without dissecting the
+images loaded on the flash chips in the device.
 
+Jon.

@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264690AbTAJJBR>; Fri, 10 Jan 2003 04:01:17 -0500
+	id <S264705AbTAJJCd>; Fri, 10 Jan 2003 04:02:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264697AbTAJJBR>; Fri, 10 Jan 2003 04:01:17 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:18310 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264690AbTAJJBR>;
-	Fri, 10 Jan 2003 04:01:17 -0500
-Date: Fri, 10 Jan 2003 01:00:51 -0800 (PST)
-Message-Id: <20030110.010051.99112058.davem@redhat.com>
-To: Robert.Olsson@data.slu.se
-Cc: sp@scali.com, alan@lxorguk.ukuu.org.uk, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: NAPI and tg3
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15901.44924.430586.886@robur.slu.se>
-References: <15899.21204.884559.523678@robur.slu.se>
-	<Pine.LNX.4.44.0301080059060.1128-100000@sp-laptop.isdn.scali.no>
-	<15901.44924.430586.886@robur.slu.se>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264716AbTAJJBc>; Fri, 10 Jan 2003 04:01:32 -0500
+Received: from dp.samba.org ([66.70.73.150]:41118 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S264683AbTAJJB3>;
+	Fri, 10 Jan 2003 04:01:29 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Michael Hunold <m.hunold@gmx.de>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [BUG][2.5] System crash with PCI drivers that handle the same devices 
+In-reply-to: Your message of "Wed, 08 Jan 2003 18:23:18 BST."
+             <3E1C5E86.9050700@gmx.de> 
+Date: Fri, 10 Jan 2003 19:23:00 +1100
+Message-Id: <20030110091013.42E1F2C407@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Robert Olsson <Robert.Olsson@data.slu.se>
-   Date: Thu, 9 Jan 2003 18:21:00 +0100
+In message <3E1C5E86.9050700@gmx.de> you write:
+> Hello Rusty and others,
 
-   Before it's get forgotten...
+I'm not sure why I'm in here...
 
-Applied, thanks.
+Have you tried doung both these builtin?
+
+Your drivers also have the same name, which is odd, at least.  Also,
+you should use SET_MODULE_OWNER or set .owner = THIS_MODULE.
+
+Jeff prefers SET_MODULE_OWNER, but I never figured out why.
+
+Sorry I can't be of more help,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

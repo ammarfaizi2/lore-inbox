@@ -1,59 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317861AbSGZREg>; Fri, 26 Jul 2002 13:04:36 -0400
+	id <S317856AbSGZQvL>; Fri, 26 Jul 2002 12:51:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317864AbSGZREf>; Fri, 26 Jul 2002 13:04:35 -0400
-Received: from bitmover.com ([192.132.92.2]:32647 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S317861AbSGZREe>;
-	Fri, 26 Jul 2002 13:04:34 -0400
-Date: Fri, 26 Jul 2002 10:07:47 -0700
-From: Larry McVoy <lm@bitmover.com>
+	id <S317852AbSGZQvL>; Fri, 26 Jul 2002 12:51:11 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:22883 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S317849AbSGZQvJ>; Fri, 26 Jul 2002 12:51:09 -0400
+Date: Fri, 26 Jul 2002 18:54:11 +0200
+From: Kurt Garloff <garloff@suse.de>
 To: Alexander Viro <viro@math.psu.edu>
-Cc: Larry McVoy <lm@bitmover.com>, Federico Ferreres <fferreres@ojf.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Funding GPL projects or funding the GPL?
-Message-ID: <20020726100747.J760@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Alexander Viro <viro@math.psu.edu>, Larry McVoy <lm@bitmover.com>,
-	Federico Ferreres <fferreres@ojf.com>, linux-kernel@vger.kernel.org
-References: <20020726094259.H760@work.bitmover.com> <Pine.GSO.4.21.0207261247360.21586-100000@weyl.math.psu.edu>
+Cc: Linux SCSI list <linux-scsi@vger.kernel.org>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] sd_many done right (1/5)
+Message-ID: <20020726165411.GI19721@nbkurt.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Alexander Viro <viro@math.psu.edu>,
+	Linux SCSI list <linux-scsi@vger.kernel.org>,
+	Linux kernel list <linux-kernel@vger.kernel.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>
+References: <20020726154533.GD19721@nbkurt.etpnet.phys.tue.nl> <Pine.GSO.4.21.0207261245070.21586-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qi3SIpffvxS/TM8d"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0207261247360.21586-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Fri, Jul 26, 2002 at 01:01:21PM -0400
+In-Reply-To: <Pine.GSO.4.21.0207261245070.21586-100000@weyl.math.psu.edu>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.16-schedJ2 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 26, 2002 at 01:01:21PM -0400, Alexander Viro wrote:
-> On Fri, 26 Jul 2002, Larry McVoy wrote:
-> > to Microsoft.  I've thought about it a lot and my attempts have pretty
-> > much failed, so it's encouraging to see someone else thinking hard 
-> > about this.
-> 
-> Larry, what the hell are you smoking?  It's a repost from tabloid, for
-> fsck sake - clearly says so in the beginning.  Thinking is, indeed, hard
-> for these guys, but what's encouraging about that?
 
-Even tabloids can have good content, though I agree it's rare.
-After watching all the dot com and open source companies take a
-dive when it became apparent that no business model == no business,
-it's somewhat nice to see someone besides myself trying to figure out
-an answer which is actually sustainable.  It's not an enjoyable thing,
-everyone hates you if you don't work all day long on their problems
-for free, but it's a good topic for further thought.
+--qi3SIpffvxS/TM8d
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I think that the guy is on the right track, I've frequently described
-software sales as similar to insurance, noone pays what it actually costs
-to handle the problem, everyone pays a little and the cost is spread
-out over everyone.  The more people who pay, the less each has to pay,
-and that seems to be his message.  I agree with that.  He's basically
-right in theory, the problem is putting it into practice looks hard
-or impossible.  But maybe someone will figure out a way, so I'm
-trying to be encouraging.
+Hi Al,
 
-Consider this my obligatory, once a year, "that's a good idea" post.
-Intended to balance out the zillion other posts saying "that's braindead".  :)
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+On Fri, Jul 26, 2002 at 12:45:41PM -0400, Alexander Viro wrote:
+> On Fri, 26 Jul 2002, Kurt Garloff wrote:
+> > The patches are all available at
+> > http://www.suse.de/~garloff/linux/scsi-many/
+>=20
+> As long as you realize that it won't go in 2.5 in that form...
+
+The sd parts can and should be ported to 2.5, I think.
+The /proc/scsi/scsi extensions and other stuff I wrote to support it,=20
+won't be needed, as we have driverfs in 2.5.
+And, of course, the device number management will be solved in a more
+general way, but I do not yet see how.=20
+
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE Linux AG, Nuernberg, DE                            SCSI, Security
+
+--qi3SIpffvxS/TM8d
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9QX6zxmLh6hyYd04RAh9EAJsGWbSklVEHhX5rVdXKuvr3RBxSQQCcDX9b
+EZqUgwpVP+k/zVMsel8PJkk=
+=AkXg
+-----END PGP SIGNATURE-----
+
+--qi3SIpffvxS/TM8d--

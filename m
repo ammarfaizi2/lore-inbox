@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268691AbTBZJ0J>; Wed, 26 Feb 2003 04:26:09 -0500
+	id <S268700AbTBZJcz>; Wed, 26 Feb 2003 04:32:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268692AbTBZJ0J>; Wed, 26 Feb 2003 04:26:09 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:14889 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S268691AbTBZJ0J>; Wed, 26 Feb 2003 04:26:09 -0500
-To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+	id <S268701AbTBZJcz>; Wed, 26 Feb 2003 04:32:55 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:31236 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id <S268700AbTBZJcy>; Wed, 26 Feb 2003 04:32:54 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302260944.h1Q9idTZ000538@81-2-122-30.bradfords.org.uk>
+Subject: Re: syslog full of kernel BUGS, frequent intermittent instability
+To: coyote1@cytanet.com.cy (wyleus)
+Date: Wed, 26 Feb 2003 09:44:39 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Server shipments [was Re: Minutes from Feb 21 LSE Call]
-References: <E18nu68-0004Ty-00@calista.inka.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 26 Feb 2003 02:36:13 -0700
-In-Reply-To: <E18nu68-0004Ty-00@calista.inka.de>
-Message-ID: <m165r7mliq.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+In-Reply-To: <20030226041214.71e1ddc7.coyote1@cytanet.com.cy> from "wyleus" at Feb 26, 2003 04:12:14 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net> writes:
+> My recently installed Mandrake 9.0 has been unstable since day one.
+> The syslog is full of kernel BUG lines (see below), the crashes are
+> frequent, and I don't know how to reproduce them - recognize no
+> pattern to them.
 
-> In article <03022522230400.04587@tabby> you wrote:
-> > The output is fed to memory on every clock tick. (most Cray processors have 4
-> 
-> > memory busses for each processor - two for input data, one for output data 
-> > and one for the instruction stream
-> 
-> The fastest Cray on top500.org is T3E1200 on rank _22_, the fastest IBM is
-> ranked _2_ with a Power3 PRocessor. There are 13 IBM systems before the
-> first (fastest) Cray system. Of course those GFlops are measured for
-> parallel problems, but there are a lot out there.
+[snip]
 
-And it is especially interesting when you note that among 2-5 the
-ratings are so close a strong breeze can cause an upset.  And that #5
-is composed of dual CPU P4 Xeon nodes....
+Since you have eliminated a lot of the hardware, I would check whether
+the PSU is working correctly, if necessary by swapping in a spare one
+for a day or two.
 
-Eric
+The easiest way to exercise the machine is probably to do kernel
+compiles in a loop.  Memtest will exercise the memory, but not
+particularly exercise the CPU.
 
-
+John.

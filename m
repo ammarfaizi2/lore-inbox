@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288717AbSADSfg>; Fri, 4 Jan 2002 13:35:36 -0500
+	id <S288720AbSADSf4>; Fri, 4 Jan 2002 13:35:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288716AbSADSf0>; Fri, 4 Jan 2002 13:35:26 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12548 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288721AbSADSfL>;
-	Fri, 4 Jan 2002 13:35:11 -0500
-Message-ID: <3C35F5DA.61A57A3E@mandrakesoft.com>
-Date: Fri, 04 Jan 2002 13:35:06 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-CC: Dave Jones <davej@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-        Linux-Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH 2.5.2.7: io.h cleanup and userspace nudge
-In-Reply-To: <Pine.LNX.4.33.0201041916490.20620-100000@Appserv.suse.de>
-		<3C35F290.140BB2C7@mandrakesoft.com> <200201041831.g04IVAD23320@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S288719AbSADSfr>; Fri, 4 Jan 2002 13:35:47 -0500
+Received: from kura.mail.jippii.net ([195.197.172.113]:29349 "HELO
+	kura.mail.jippii.net") by vger.kernel.org with SMTP
+	id <S288716AbSADSfh> convert rfc822-to-8bit; Fri, 4 Jan 2002 13:35:37 -0500
+Message-ID: <1200795.1010169416398.JavaMail.jackdeth@jippii.fi>
+Date: Fri, 4 Jan 2002 20:36:56 +0200 (EET)
+From: jackdeth@jippii.fi
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.17 & bttv: vmalloc failures with 1GB memory
+Mime-Version: 1.0
+Content-Type: text/plain; Charset=iso-8859-1; Format=Flowed
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Jippii webmail - http://www.jippiigroup.com/
+X-Originating-IP: 213.139.166.70/195.197.160.195
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
-> Please test this change on a libc5 system before unleashing a
-> potential horror. All the world *is not* glibc!
+i'm having problems using video capture under linux. i've tried several 
+capturing programs using libavifile. i can sometimes get capturing to 
+work right after reboot, but after using machine for some time 
+(cache/buffers fill up etc?), it stops working and i get messages like 
+this:
 
-(1) This is a devel series, the time for such changes, and (2) and it's
-easy enough for libc5 systems to include their own sanitized copy of
-kernel headers just like MDK, RHAT, and others are doing now for glibc.
+Jan  2 23:25:44 xxx kernel: bttv: vmalloc_32(4259840) failed
+Jan  2 23:25:44 xxx kernel: bttv: vmalloc_32(4259840) failed
+Jan  2 23:26:50 xxx last message repeated 13 times
 
-	Jeff
+currently i'm using stock kernel 2.4.17 with 4gb highmem support and 
+bttv. my system is as follows:
+
+athlonxp 1600+
+epox 8kha+
+1GB memory
+bt878 tv-card
+
+could this be related to the recent allocation and cache freeing problems?
 
 
+please cc me on replys.
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+__
+Tämän ilmaisen suomalaisen sähköpostin tarjosi http://www.jippii.fi/
+Käy tutustumassa netin parhaaseen pelipaikkaan Pasimaailmaan.
+

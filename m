@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265414AbSLHN3m>; Sun, 8 Dec 2002 08:29:42 -0500
+	id <S261290AbSLHN0u>; Sun, 8 Dec 2002 08:26:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265754AbSLHN3m>; Sun, 8 Dec 2002 08:29:42 -0500
-Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:29111 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265414AbSLHN3m>; Sun, 8 Dec 2002 08:29:42 -0500
-Subject: Re: [BUG] 2.4.20-BK
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, hps@intermeta.de
-In-Reply-To: <200212081337.56002.m.c.p@wolk-project.de>
-References: <200212071434.11514.m.c.p@wolk-project.de>
-	<200212072036.08500.m.c.p@wolk-project.de> <asv3d8$nr$1@forge.intermeta.de>
-	 <200212081337.56002.m.c.p@wolk-project.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 08 Dec 2002 14:13:24 +0000
-Message-Id: <1039356804.6942.0.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S261317AbSLHN0u>; Sun, 8 Dec 2002 08:26:50 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:1920 "EHLO
+	bilbo.tmr.com") by vger.kernel.org with ESMTP id <S261290AbSLHN0t>;
+	Sun, 8 Dec 2002 08:26:49 -0500
+Date: Sun, 8 Dec 2002 08:34:27 -0500 (EST)
+From: davidsen <root@tmr.com>
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] ctxbench 2.4.18 and 2.5.50
+In-Reply-To: <Pine.LNX.4.44.0212080810350.11404-300000@bilbo.tmr.com>
+Message-ID: <Pine.LNX.4.44.0212080830430.11459-100000@bilbo.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-12-08 at 12:37, Marc-Christian Petersen wrote:
-> On Sunday 08 December 2002 10:29, Henning P. Schmiedehausen wrote:
-> 
-> Hi Henning,
-> 
-> > >    ide0: BM-DMA at 0x9400-0x9407, BIOS settings: hda:pio, hdb:pio
-> > >    ide1: BM-DMA at 0x9408-0x940f, BIOS settings: hdc:pio, hdd:pio
-> > >    ide2: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
-> > >    ide3: BM-DMA at 0xffa8-0xffaf, BIOS settings: hda:pio, hdb:DMA
-> >
-> > Shouldn't these bei hde - hdh ? I'd be scared by my machine reporting
-> > hda thrice. :-)
-> That's why I've writte this also ;) It's an exact output of what I got.
+On Sun, 8 Dec 2002, Bill Davidsen wrote:
 
-Send me an lspci -vxx
+> As these results show, best results were from using a uni kernel, but an 
+> SMP kernel with "nosmp" was faster than running SMP. The problem is that 
+> with 2.5 kernels the SMP results for multiple runs vary by up to 2:1, and 
+> for uni kernels it's more like 5-10% max. I have tried longer runs, more 
+> runs, and gotten the same results even in single user mode.
+
+Oops, a note of clarification on test names:
+  2.5.50	uni kernel
+  2.5.50smp	smp kernel
+  2.5.50uni	smp kernel with "nosmp"
+
+Yes, I know that's not intuitive, but all my kernels are SMP, the uni 
+tests are an afterthought...
 

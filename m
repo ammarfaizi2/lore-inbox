@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263065AbTH0CP0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 22:15:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263068AbTH0CP0
+	id S263032AbTH0C1E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 22:27:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbTH0C1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 22:15:26 -0400
-Received: from smtp016.mail.yahoo.com ([216.136.174.113]:55300 "HELO
-	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263065AbTH0CPZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 22:15:25 -0400
-Subject: Re: linux-2.4.22 released
-From: =?ISO-8859-1?Q?Ram=F3n?= Rey =?UTF-8?Q?Vicente?=
-	 =?UTF-8?Q?=F3=AE=A0=92?= <retes_simbad@yahoo.es>
-To: Diego Calleja =?ISO-8859-1?Q?Garc=EDa?= <aradorlinux@yahoo.es>
-Cc: Adrian Bunk <bunk@fs.tum.de>, jamagallon@able.es,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030827002947.078cbdc8.aradorlinux@yahoo.es>
-References: <200308251148.h7PBmU8B027700@hera.kernel.org>
-	 <20030825132358.GC14108@merlin.emma.line.org>
-	 <1061818535.1175.27.camel@debian> <20030825211307.GA3346@werewolf.able.es>
-	 <20030825222215.GX7038@fs.tum.de> <1061857293.15168.3.camel@debian>
-	 <20030826234901.1726adec.aradorlinux@yahoo.es>
-	 <20030826215544.GI7038@fs.tum.de>
-	 <20030827002947.078cbdc8.aradorlinux@yahoo.es>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1061950515.1166.41.camel@debian>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 27 Aug 2003 04:15:16 +0200
-Content-Transfer-Encoding: 8bit
+	Tue, 26 Aug 2003 22:27:04 -0400
+Received: from dyn-ctb-203-221-73-100.webone.com.au ([203.221.73.100]:41478
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S263032AbTH0C1B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 22:27:01 -0400
+Message-ID: <3F4C16E7.9010601@cyberone.com.au>
+Date: Wed, 27 Aug 2003 12:26:47 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alex Riesen <fork0@users.sourceforge.net>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]O18.1int
+References: <200308231555.24530.kernel@kolivas.org> <yw1xr83accpa.fsf@users.sourceforge.net> <20030825094240.GJ16080@Synopsys.COM> <yw1xad9yca8j.fsf@users.sourceforge.net> <3F49E482.7030902@cyberone.com.au> <20030825102933.GA14552@Synopsys.COM> <20030826222032.GA1055@steel.home>
+In-Reply-To: <20030826222032.GA1055@steel.home>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El mié, 27-08-2003 a las 00:29, Diego Calleja García escribió:
 
-> > - it's easy to use ALSA even when it's not inside the kernel
-> > - within a few months 2.6.0 will be released with ALSA included -
-> >   together with the point above I don't see a reason why ALSA would be
-> >   badly needed in 2.4
-> 
-> Those are valid points. Still I'd love to see ALSA in 2.4. I guess this is a
-> matter of opinion....the VM bits from Andrea are far more important (I've read
-> several bug reports from people who can't get big machines working ie: kswapd decides
-> to take all the cpu for 1 minute)
 
-I think VM are more important that any other things at this moment, but
-is not the only thing to take care of.
--- 
-Ramón Rey Vicente       <ramon dot rey at hispalinux dot es>
-        jabber ID       <rreylinux at jabber dot org>
-------------------------------------------------------------
-gpg public key ID 0xBEBD71D5 # http://pgp.escomposlinux.org/
+Alex Riesen wrote:
+
+>Alex Riesen, Mon, Aug 25, 2003 12:29:33 +0200:
+>  
+>
+>>Nick Piggin, Mon, Aug 25, 2003 12:27:14 +0200:
+>>    
+>>
+>>>If you have some spare time perhaps you could test my scheduler
+>>>patch.
+>>>      
+>>>
+>>i'll try to. Can't promise to have it today, though.
+>>
+>>    
+>>
+>
+>tried 7a. What I noticed first, is that the problem with rxvt eating up
+>all cpu time is gone :) Also applications get less priorities (11-16).
+>Can't say everything is very smooth, but somehow it makes very good
+>impression. No really rough edges, but I have to admit I tried only pure
+>cpu load (bash -c 'while :; do :; done').
+>Applications feel to start faster (subjective).
+>X was/is not niced.
+>  
+>
+
+Thanks.. try renicing X to -10 or even -20.
+
 

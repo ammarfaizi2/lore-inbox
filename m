@@ -1,64 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271699AbRHQVDm>; Fri, 17 Aug 2001 17:03:42 -0400
+	id <S271707AbRHQVQD>; Fri, 17 Aug 2001 17:16:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271595AbRHQVDd>; Fri, 17 Aug 2001 17:03:33 -0400
-Received: from camus.xss.co.at ([194.152.162.19]:10763 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id <S271659AbRHQVDS>;
-	Fri, 17 Aug 2001 17:03:18 -0400
-Message-ID: <3B7D8685.FE574210@xss.co.at>
-Date: Fri, 17 Aug 2001 23:03:01 +0200
-From: Andreas Haumer <andreas@xss.co.at>
-Organization: xS+S - *x Software + Systeme
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
+	id <S271694AbRHQVPx>; Fri, 17 Aug 2001 17:15:53 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:45488 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S271707AbRHQVPm>;
+	Fri, 17 Aug 2001 17:15:42 -0400
+Date: Fri, 17 Aug 2001 16:15:50 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Andi Kleen <ak@suse.de>
+cc: Terje Eggestad <terje.eggestad@scali.no>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] processes with shared vm
+Message-ID: <6400000.998082950@baldur>
+In-Reply-To: <20010817225537.B2429@gruyere.muc.suse.de>
+In-Reply-To: <997973469.7632.10.camel@pc-16.suse.lists.linux.kernel>
+ <oupelqbw0z4.fsf@pigdrop.muc.suse.de>
+ <998038019.7627.21.camel@pc-16.office.scali.no> <36530000.998058370@baldur>
+ <20010817225537.B2429@gruyere.muc.suse.de>
+X-Mailer: Mulberry/2.1.0b3 (Linux/x86)
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Pavel Machek <pavel@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Bulent Abali <abali@us.ibm.com>,
-        "Dirk W. Steinberg" <dws@dirksteinberg.de>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: Swapping for diskless nodes
-In-Reply-To: <Pine.LNX.4.33L.0108162146120.5646-100000@imladris.rielhome.conectiva>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+--On Friday, August 17, 2001 22:55:37 +0200 Andi Kleen <ak@suse.de> wrote:
 
-Rik van Riel wrote:
-> 
-> On Thu, 16 Aug 2001, Pavel Machek wrote:
-> 
-> > I'd call that configuration error. If swap-over-nbd works in all but
-> > such cases, its okay with me.
-> 
-> Agreed. I'm very interested in this case too, I guess we
-> should start testing swap-over-nbd and trying to fix things
-> as we encounter them...
-> 
-As I promised a few days ago I have just released the newest 
-version of our NBD swap patches for Linux-2.2.19.
-You can find them together with the NBD swap server and
-client source code under the following URL:
+> Even with a tgid you would need some way to avoid its counter wrapping
+> and getting reused.
 
-<ftp://ftp.xss.co.at/pub/Linux/NBD/nbdswap-1.2-1.tar.gz>
+While in theory the pid that is used for tgid should never die while the 
+thread group exists, this case needs to be handled for thread groups in 
+general.  The number shouldn't be re-used for a pid as long as it's in use 
+as a tgid.
 
-It works for us, and we think it works reasonably well.
-YMMV, though. Please check it out and tell us what you
-think. We would really like to see something like this
-to be included in Linux-2.5.
+> Also gtop should display correct results even with the programs
+> that don't use CLONE_THREAD.
 
-Suggestions, improvements and ideas are welcome.
+Are there any programs that use CLONE_VM and not CLONE_THREAD?
 
-Regards,
+Actually I think we should make tgid visible in /proc in general because 
+it's a useful thing to know, whether it's the right mechanism for gtop or 
+not.  I'll work up a patch.
 
-- andreas
+Dave McCracken
 
--- 
-Andreas Haumer                     | mailto:andreas@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
+

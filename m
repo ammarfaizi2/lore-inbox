@@ -1,30 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269534AbUJLJNj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269549AbUJLJQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269534AbUJLJNj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 05:13:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269553AbUJLJNj
+	id S269549AbUJLJQY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 05:16:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269553AbUJLJQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 05:13:39 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:16606 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S269534AbUJLJNh (ORCPT
+	Tue, 12 Oct 2004 05:16:24 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:60844 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S269549AbUJLJQO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 05:13:37 -0400
-Date: Tue, 12 Oct 2004 11:15:01 +0200
+	Tue, 12 Oct 2004 05:16:14 -0400
+Date: Tue, 12 Oct 2004 11:17:40 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Daniel Walker <dwalker@mvista.com>, "K.R. Foley" <kr@cybsft.com>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Wen-chien Jesse Sung <jesse@cola.voip.idv.tw>,
-       Mark_H_Johnson@Raytheon.com
-Subject: [patch] VP-2.6.9-rc4-mm1-T6
-Message-ID: <20041012091501.GA18562@elte.hu>
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>,
+       Florian Schmidt <mista.tapas@gmx.net>, Mark_H_Johnson@raytheon.com,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm3-T3
+Message-ID: <20041012091740.GA18736@elte.hu>
+References: <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu> <20041007105230.GA17411@elte.hu> <1097555404.1553.18.camel@krustophenia.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041011215909.GA20686@elte.hu>
+In-Reply-To: <1097555404.1553.18.camel@krustophenia.net>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -37,21 +35,29 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-i've uploaded -T6:
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-T6
+> Just to recap, these are the three problem areas that still produce
+> latencies over 500 usec on my machine.
+> 
+> 	journal_clean_checkpoint_list
 
-this should fix the UP build issues reported by many. -T6 also brings
-back the ->break_lock framework and converts a few more locks to raw.
+you might want to send this trace to Andrew too - the primary master of
+ext3 latency-breaking.
 
-SMP is still expected to be flaky due to the zombie-task problem(s). But
-UP is not out of the 'extremely experimental' status either.
+> 	rt_garbage_collect
 
-to create a -T6 tree from scratch the patching order is:
+this one is still nasty and needs revisiting.
 
-   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
- + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc4.bz2
- + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/2.6.9-rc4-mm1.bz2
- + http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-T6
+> 	vga console
+> 
+> I have found that the latter does not require switching back and forth
+> to X; anything that produces a lot of console output can trigger 500
+> usec latencies.
+
+the vga console one we got rid of at a certain stage and it now
+resurfaced. The issue was doing VGA-text-RAM copies/memsets under the
+vga_lock. Maybe there were changes in vgacon recently that moved some of
+those back under the lock?
 
 	Ingo

@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262417AbVAKDvh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262441AbVAKD4g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262417AbVAKDvh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 22:51:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbVAKDsx
+	id S262441AbVAKD4g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 22:56:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbVAKDzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 22:48:53 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:6118 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262429AbVAJSXH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 13:23:07 -0500
-Date: Mon, 10 Jan 2005 10:23:04 -0800
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: kj <kernel-janitors@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: [UPDATE PATCH] scsi/qla1280: replace schedule_timeout() with ssleep()
-Message-ID: <20050110182304.GF3099@us.ibm.com>
-References: <20050110164703.GD14307@nd47.coderock.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050110164703.GD14307@nd47.coderock.org>
-X-Operating-System: Linux 2.6.10 (i686)
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 10 Jan 2005 22:55:46 -0500
+Received: from gizmo10ps.bigpond.com ([144.140.71.20]:4299 "HELO
+	gizmo10ps.bigpond.com") by vger.kernel.org with SMTP
+	id S262441AbVAKDxl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 22:53:41 -0500
+Message-ID: <41E34DBD.3050804@bigpond.net.au>
+Date: Tue, 11 Jan 2005 14:53:33 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jake Moilanen <moilanen@austin.ibm.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Michal Kaczmarski <fallow@op.pl>, Shane Shrybman <shrybman@aei.ca>
+Subject: [PATCH] V-6.1 ZAPHOD Single Priority Array O(1) CPU Scheduler
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 10, 2005 at 05:47:03PM +0100, Domen Puncer wrote:
-> Patchset of 171 patches is at http://coderock.org/kj/2.6.10-bk13-kj/
-> 
-> Quick patch summary: about 30 new, 30 merged, 30 dropped.
-> Seems like most external trees are merged in -linus, so i'll start
-> (re)sending old patches.
+Version 6.1 of the ZAPHOD single priority array scheduler patches for
+the 2.6.10 kernel are now available for download and evaluation from:
 
-<snip>
+<http://prdownloads.sourceforge.net/cpuse/patch-2.6.10-spa_zaphod_FULL-v6.1?download>
 
-> all patches:
-> ------------
+This contains the extra per runqueue CPU statistics for improving GA 
+fitness functions that we discussed.
 
-<snip>
+struct runq_cpustats {
+#ifdef CONFIG_SMP
+	unsigned long long timestamp_last_tick;
+#endif
+	unsigned long long total_delay;
+	unsigned long long total_rt_delay;
+	unsigned long long total_intr_delay;
+	unsigned long long total_fork_delay;
+	unsigned long long total_sinbin;
+};
 
-> msleep-drivers_scsi_ppa.patch
+total_delay - is total time spent by tasks waiting for CPU on this runqueue
+total_rt_delay - as for total_delay but only for real time tasks
+total_intr_delay - is total time spent by tasks waiting for CPU on this 
+runqueue after being woken to service an interrupt
+total_fork_delay - is total time spent by tasks waiting for CPU on this 
+runqueue for their first time slice after forking
 
-Please drop this patch, as it incorrectly uses msleep() around waitqueues.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-> msleep-drivers_scsi_qla1280.patch
-
-Please conside replacing with the following patch:
-
-Description: Use ssleep() instead of schedule_timeout to guarantee the task
-delays as expected.
-
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-
-
---- 2.6.10-v/drivers/scsi/qla1280.c	2004-12-24 13:35:40.000000000 -0800
-+++ 2.6.10/drivers/scsi/qla1280.c	2005-01-05 14:23:05.000000000 -0800
-@@ -2939,7 +2939,7 @@ qla1280_bus_reset(struct scsi_qla_host *
- 		ha->bus_settings[bus].failed_reset_count++;
- 	} else {
- 		spin_unlock_irq(HOST_LOCK);
--		schedule_timeout(reset_delay * HZ);
-+		ssleep(reset_delay);
- 		spin_lock_irq(HOST_LOCK);
- 
- 		ha->bus_settings[bus].scsi_bus_dead = 0;
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

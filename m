@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316587AbSF0G0n>; Thu, 27 Jun 2002 02:26:43 -0400
+	id <S316608AbSF0Ghl>; Thu, 27 Jun 2002 02:37:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316608AbSF0G0m>; Thu, 27 Jun 2002 02:26:42 -0400
-Received: from students.depaul.edu ([140.192.1.100]:29937 "HELO
-	students.depaul.edu") by vger.kernel.org with SMTP
-	id <S316587AbSF0G0l>; Thu, 27 Jun 2002 02:26:41 -0400
-Message-ID: <3D1A7AB1.D4955601@students.depaul.edu>
-Date: Wed, 26 Jun 2002 21:38:41 -0500
-From: Larry Garfield <lgarfiel@students.depaul.edu>
-Reply-To: lgarfiel@students.depaul.edu
-Organization: DePaul University
-X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S316663AbSF0Ghk>; Thu, 27 Jun 2002 02:37:40 -0400
+Received: from k7g317-2.kam.afb.lu.se ([130.235.57.218]:6063 "EHLO
+	cheetah.psv.nu") by vger.kernel.org with ESMTP id <S316608AbSF0Ghk>;
+	Thu, 27 Jun 2002 02:37:40 -0400
+Date: Thu, 27 Jun 2002 08:35:05 +0200 (CEST)
+From: Peter Svensson <petersv@psv.nu>
+To: Robert Love <rml@tech9.net>
+cc: Dan Sturtevant <dsturtev@plogic.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: x86 Page Sizes
+In-Reply-To: <1025129491.1144.7.camel@icbm>
+Message-ID: <Pine.LNX.4.44.0206270832400.1602-100000@cheetah.psv.nu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, zaurus-general@lists.sourceforge.net
-Subject: Re: [Zaurus-general] Re: New Zaurus Wishlist - removable media handling
-References: <Pine.LNX.3.96.1020627032159.2332J-100000@pioneer>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomasz Rola wrote:
+On 26 Jun 2002, Robert Love wrote:
+
+> Kernel has 4K pages in user and kernel space.  It is the same address
+> space and segment, just uses MMU protection.
 > 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On Thu, 27 Jun 2002, David Golden wrote:
-> 
-> >
-> > > And Unix filesystems were NOT designed for removable media.
-> >
-> > (LKML cc'd because this rant *might* be coherent enough to explain it
-> > to Linux kernel hackers)
-> >
-> > The main problem I have with the Linux filesystems is this:
+> x86 does 4K pages.
 
-<snippink>
+The x86 cpus can use 4K or 4M pages in the hardware. The 4M pages are 
+restricted to the kernel in Linux due to various problems. This has been 
+discussed on this list a while ago. The thread was called "Have the 2.4 
+kernel memory management problems on large machines been fixed?" the last 
+time around.
 
-> As a former Amiga user and now yet another Linux user, I probably know
-> what you mean. Well, I'm not a kernel engineer but maybe it could be done
-> with a virtual fs like /dev - so that
-> 
-> 1. /dev/ is not polluted
-> 2. /mnt and other real disk space is not polluted
+4M pages are useful to minimize tlb misses which can be costly for some 
+algorithms.
 
-Well, I am neither a former Amiga user nor a kernel developer (but
-GNU/Linux user), so I understood MOST of what you two said. ;-)  Coming
-from a user-angle, though, the main problem with the Linux file system
-"style", for lack of a better word, is the unified file tree.  
+Peter
+--
+Peter Svensson      ! Pgp key available by finger, fingerprint:
+<petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
+------------------------------------------------------------------------
+Remember, Luke, your source will be with you... always...
 
-What?  The unified file tree?  Yes, the unified file tree.  The idea
-that the silver plastic round thing you just put into the front of the
-computer is accessed.... "under" the "storage" in the computer?  Does
-that, conceptually, metaphorically, make sense?  No, it doesn't.  Nor
-does the need to explicitly "mount" and "umount" (the n having gotten
-lost while moving from one office to another a few years back) a floppy
-disk.  This is one place where, I hate to say it, drive letters a la
-DOS/Windows (or some other top-level identifier) are significantly
-better from a user perspective.
-
--- 
-Larry Garfield			AIM: LOLG42
-lgarfiel@students.depaul.edu	ICQ: 6817012
-
--- "If at first you don't succeed, skydiving isn't for you." :-)
 

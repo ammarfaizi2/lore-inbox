@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312162AbSCTUsr>; Wed, 20 Mar 2002 15:48:47 -0500
+	id <S312181AbSCTVBL>; Wed, 20 Mar 2002 16:01:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312157AbSCTUsh>; Wed, 20 Mar 2002 15:48:37 -0500
-Received: from lightning.hereintown.net ([207.196.96.3]:57291 "EHLO
-	lightning.hereintown.net") by vger.kernel.org with ESMTP
-	id <S293226AbSCTUsX>; Wed, 20 Mar 2002 15:48:23 -0500
-Date: Wed, 20 Mar 2002 16:05:50 -0500 (EST)
-From: Chris Meadors <clubneon@hereintown.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: VM_EXEC cicular dependancies
-Message-ID: <Pine.LNX.4.40.0203201559220.7618-100000@rc.priv.hereintown.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312180AbSCTVBA>; Wed, 20 Mar 2002 16:01:00 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16145 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S312166AbSCTVAm>; Wed, 20 Mar 2002 16:00:42 -0500
+Date: Wed, 20 Mar 2002 21:00:34 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Chris Meadors <clubneon@hereintown.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: VM_EXEC cicular dependancies
+Message-ID: <20020320210034.D28066@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.40.0203201559220.7618-100000@rc.priv.hereintown.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Still trying to get 2.5.7 to compile for the Alpha.
+On Wed, Mar 20, 2002 at 04:05:50PM -0500, Chris Meadors wrote:
+> What is the prefered method for resolving this?
 
-I've got it down to a handful of undefined symbols at link time, the worst
-of which are the "flush_cache" like functions which should be included
-from <asm/pgtable.h> but as of now for the Alpha code they reside in
-<asm/pgalloc.h>.
+See the thread which I started:
 
-So I moved the defines over to pgtable.h, but I find one of the functions
-uses the "VM_EXEC" define from <linux/mm.h>.  As luck would have it, mm.h
-includes pgtable.h.
+Date:   Thu, 28 Feb 2002 20:48:26 +0000
+To:     linux-kernel@vger.kernel.org
+Subject: Maze of include files, all producing errors...
 
-What is the prefered method for resolving this?
-
--Chris
 -- 
-Two penguins were walking on an iceberg.  The first penguin said to the
-second, "you look like you are wearing a tuxedo."  The second penguin
-said, "I might be..."                         --David Lynch, Twin Peaks
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,28 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264639AbUGFWZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264584AbUGFWbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264639AbUGFWZi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 18:25:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264640AbUGFWZi
+	id S264584AbUGFWbO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 18:31:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264640AbUGFWbO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 18:25:38 -0400
-Received: from fw.osdl.org ([65.172.181.6]:8844 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264639AbUGFWZf (ORCPT
+	Tue, 6 Jul 2004 18:31:14 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42895 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264584AbUGFWbM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 18:25:35 -0400
-Date: Tue, 6 Jul 2004 15:28:17 -0700
+	Tue, 6 Jul 2004 18:31:12 -0400
+Date: Tue, 6 Jul 2004 15:34:17 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: jim.houston@comcast.net
-Cc: kevcorry@us.ibm.com, linux-kernel@vger.kernel.org, dm-devel@redhat.com,
-       torvalds@osdl.org, agk@redhat.com
-Subject: Re: [PATCH] 1/1: Device-Mapper: Remove 1024 devices limitation
-Message-Id: <20040706152817.38ce1151.akpm@osdl.org>
-In-Reply-To: <1089151650.985.129.camel@new.localdomain>
-References: <200407011035.13283.kevcorry@us.ibm.com>
-	<200407021233.09610.kevcorry@us.ibm.com>
-	<20040702124218.0ad27a85.akpm@osdl.org>
-	<200407061323.27066.kevcorry@us.ibm.com>
-	<20040706142335.14efcfa4.akpm@osdl.org>
-	<1089151650.985.129.camel@new.localdomain>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-mm6
+Message-Id: <20040706153417.237e454e.akpm@osdl.org>
+In-Reply-To: <20040706125438.GS21066@holomorphy.com>
+References: <20040705023120.34f7772b.akpm@osdl.org>
+	<20040706125438.GS21066@holomorphy.com>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -30,49 +25,47 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Houston <jim.houston@comcast.net> wrote:
+William Lee Irwin III <wli@holomorphy.com> wrote:
 >
-> On Tue, 2004-07-06 at 17:23, Andrew Morton wrote:
-> > Kevin Corry <kevcorry@us.ibm.com> wrote:
-> > >
-> > > After talking with Alasdair a bit, there might be one bug in the "dm-use-idr"
-> > > patch I submitted before. It seems (based on some comments in lib/idr.c) that
-> > > the idr_find() routine might not return NULL if the desired ID value is not
-> > > in the tree.
-> > 
-> > 
-> > Confused.  idr_find() returns the thing it found, or NULL.  To which
-> > comments do you refer?
-> 
-> Hi Andrew, Kevin,
-> 
-> Kevin is correct.  It's more of the nonsense related to having a counter
-> in the upper bits of the id.  If you call idr_find with an id that is
-> beyond the currently allocated space it ignores the upper bits and
-> returns one of the entries that is in the allocated space.  This
-> aliasing is most annoying.
+> Third, some naive check for undefined symbols failed to understand the
+> relocation types indicating that a given operand refers to some hard
+> register, which manifest as undefined symbols in ELF executables. A
+> patch to refine its criteria, which I used to build with, follows. rmk
+> and hpa have some other ideas on this undefined symbol issue I've not
+> quite had the opportunity to get a clear statement of yet.
 
-erk, OK, we have vestigial bits still.  Note that MAX_ID_SHIFT is now 31 on
-32-bit, so we're still waggling the top bit.
+I converted that to a non-fatal warning due to the same problem on sparc64.
 
-> I'm attaching an untested patch which removes the counter in the upper
-> bits of the id and makes idr_find return NULL if the requested id is
-> beyond the allocated space.
-
-Would you have time to get it tested please?
-
->  I suspect that there are problems with
-> id values which are less than zero.
-
-Me too.  I'd only be confident in the 0..2G range.
+Here's the current patch against -linus.  I think I'll drop it.  Could you
+please work with rmk to come up with a final version?
 
 
-> -#endif
-> +	if (id >= (1 << n))
-> +		return NULL;
->  	while (n > 0 && p) {
->  		n -= IDR_BITS;
->  		p = p->ary[(id >> n) & IDR_MASK];
-> 
+diff -puN Makefile~check-for-undefined-symbols Makefile
+--- 25/Makefile~check-for-undefined-symbols	Tue Jul  6 14:41:49 2004
++++ 25-akpm/Makefile	Tue Jul  6 15:33:15 2004
+@@ -586,6 +586,15 @@ define rule_verify_kallsyms
+ 		(echo Inconsistent kallsyms data, try setting CONFIG_KALLSYMS_EXTRA_PASS ; rm .tmp_kallsyms* ; false)
+ endef
+ 
++# Warn if there are undefined symbols in the final linked image.  They can lead
++# to silent link failures.
++define rule_check_vmlinux
++	if $(NM) $@ | grep -q '^ *U '; then				\
++		echo 'ldchk: $@: final image has undefined symbols:';	\
++		$(NM) $@ | sed 's/^ *U \(.*\)/  \1/p;d';		\
++	fi;
++endef
++
+ quiet_cmd_kallsyms = KSYM    $@
+ cmd_kallsyms = $(NM) -n $< | $(KALLSYMS) $(foreach x,$(CONFIG_KALLSYMS_ALL),--all-symbols) > $@
+ 
+@@ -612,6 +621,7 @@ define rule_vmlinux
+ 	$(rule_vmlinux__); \
+ 	$(call do_system_map, $@, System.map)
+ 	$(rule_verify_kallsyms)
++	$(rule_check_vmlinux)
+ endef
+ 
+ vmlinux: $(vmlinux-objs) $(kallsyms.o) arch/$(ARCH)/kernel/vmlinux.lds.s FORCE
+_
 
-I think the above test is unneeded?

@@ -1,96 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319072AbSIDFxC>; Wed, 4 Sep 2002 01:53:02 -0400
+	id <S319075AbSIDFxy>; Wed, 4 Sep 2002 01:53:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319073AbSIDFxC>; Wed, 4 Sep 2002 01:53:02 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:26889 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S319072AbSIDFxB>; Wed, 4 Sep 2002 01:53:01 -0400
-Message-ID: <3D75A0DB.AAA60362@aitel.hist.no>
-Date: Wed, 04 Sep 2002 07:57:47 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.32 i686)
-X-Accept-Language: no, en, en
-MIME-Version: 1.0
-To: ptb@it.uc3m.es
-CC: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] mount flag "direct"
-References: <200209031730.g83HUIb15556@oboe.it.uc3m.es>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S319074AbSIDFxy>; Wed, 4 Sep 2002 01:53:54 -0400
+Received: from rom.cscaper.com ([216.19.195.129]:11687 "HELO mail.cscaper.com")
+	by vger.kernel.org with SMTP id <S319073AbSIDFxw>;
+	Wed, 4 Sep 2002 01:53:52 -0400
+Subject: IDE-DVD problems [excuse former idiotic topic]
+Content-Transfer-Encoding: 7BIT
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       Benjamin LaHaise <bcrl@redhat.com>
+From: "Joseph N. Hall" <joseph@5sigma.com>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Mime-version: 1.0
+Date: Tue, 3 Sep 2002 23:00 -0700
+X-mailer: Mailer from Hell v1.0
+Message-Id: <20020904055352Z319073-685+42531@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Peter T. Breuer" wrote:
+Yes, DMA makes the drive completely non functional and eventually
+hangs the machine after some amount of attempted use.  This is
+regardless of when DMA is enabled, whether via the standard
+RedHat "harddiskn" mechanism or manually with hdparm.
+
+  -joseph
+
+On Tue, 3 Sep 2002 22:37:57 -0700, Matthew Dharm <mdharm-kernel@one-eyed-alien.net> wrote:
 > 
-> "A month of sundays ago David Lang wrote:"
-> > Peter, the thing that you seem to be missing is that direct mode only
-> > works for writes, it doesn't force a filesystem to go to the hardware for
-> > reads.
+> Have you tried enabling DMA on the drive?
 > 
-> Yes it does. I've checked! Well, at least I've checked that writing
-> then reading causes the reads to get to the device driver. I haven't
-> checked what reading twice does.
-
-You tried reading from a file?  For how long are you going to
-work on that data you read?  The other machine may ruin it anytime,
-even instantly after you read it.
-
-Now, try "ls -l" twice instead of reading from a file.  Notice
-that no io happens the second time.  Here we're reading
-metadata instead of file data.  This sort of stuff
-is cached in separate caches that assumes nothing
-else modifies the disk.
-
-
-
+> Matt
 > 
-> If it doesn't cause the data to be read twice, then it ought to, and
-> I'll fix it (given half a clue as extra pay ..:-)
-> 
-> > for many filesystems you cannot turn off their internal caching of data
-> > (metadata for some, all data for others)
-> 
-> Well, let's take things one at a time. Put in a VFS mechanism and then
-> convert some FSs to use it.
-> 
-> > so to implement what you are after you will have to modify the filesystem
-> > to not cache anything, since you aren't going to do this for every
-> 
-> Yes.
-> 
-> > filesystem you end up only haivng this option on the one(s) that you
-> > modify.
-> 
-> I intend to make the generic mechanism attractive.
+> On Tue, Sep 03, 2002 at 06:45:00PM -0700, Joseph N. Hall wrote:
+> > Dear Kernel Folks,
+> >
+> > I am trying to determine the cause of the poor performance of a
+> > an IDE DVD device on my new machine.  I have an IDE Panasonic DF-210-type
+> > DVD-RAM/R/ROM in a new machine with Soyo KT333 motherboard.  It
+> > transfers data slowly (below DVD speed), consumes large amounts of
+> > system time, and slows down the user interface and even system
+> > clock (which can run as slow as 1/4 speed while the drive is
+> > going).
+> >
+> > The interrupt ERR count below seems to be mostly related to use
+> > of the DVD drive.
+> >
+> > Maybe it's something simple.  If not, I'll be glad to do further
+> > work to help diagnose the problem.
 
-It won't be attractive, for the simple reason that a no-cache fs
-will be devastatingly slow.  A program that read a file one byte at
-a time will do 1024 disk accesses to read a single kilobyte.  And
-it will do that again if you run it again.  
-
-Nobody will have time to wait for this, and this alone makes your
-idea useless.  To get an idea  - try booting with mem=4M and suffer.
-a cacheless fs will be much much worse than that.
-
-Using nfs or similiar will be so much faster.  Existing
-network fs'es work around complexities by using one machine as
-disk server, others simply transfers requests to and from that machine
-and let it sort things out alone.
-
-The main reason I can imagine for letting two machines write to
-the *same* disk is performance.  Going cacheless won't give you
-that.  But you *can* beat nfs and friends by going for
-a "distributed ext2" or similiar where the participating machines
-talks to each other about who writes where.  
-Each machine locks down the blocks they want to cache, with
-either a shared read lock or a exclusive write lock.
-
-There is a lot of performance tricks you may use, such as
-pre-reserving some free blocks for each machine, some ranges
-of inodes and so on, so each can modify those without
-asking the others.  Then re-distribute stuff occationally so
-nobody runs out while the others have plenty.
-
-
-Helge Hafting

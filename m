@@ -1,49 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315267AbSFDRRN>; Tue, 4 Jun 2002 13:17:13 -0400
+	id <S315279AbSFDRUe>; Tue, 4 Jun 2002 13:20:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315277AbSFDRRM>; Tue, 4 Jun 2002 13:17:12 -0400
-Received: from pop.gmx.net ([213.165.64.20]:41421 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S315267AbSFDRQ7>;
-	Tue, 4 Jun 2002 13:16:59 -0400
-Message-ID: <004201c20beb$40147da0$0200a8c0@MichaelKerrisk>
-From: "Michael Kerrisk" <m.kerrisk@gmx.net>
-To: "Stephen Rothwell" <sfr@canb.auug.org.au>,
-        "Marcelo Tosatti" <marcelo@conectiva.com.br>
-Cc: "LKML" <linux-kernel@vger.kernel.org>, "Matthew Wilcox" <matthew@wil.cx>,
-        "Michael Kerrisk" <mtk16@ext.canterbury.ac.nz>
-Subject: Re: [PATCH] Make file leases more stable
-Date: Tue, 4 Jun 2002 19:14:00 +0200
+	id <S315282AbSFDRUd>; Tue, 4 Jun 2002 13:20:33 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:34322 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S315279AbSFDRUc>; Tue, 4 Jun 2002 13:20:32 -0400
+Date: Tue, 4 Jun 2002 10:20:28 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Miles Lane <miles@megapathdsl.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.20-dj1 + fbcmap.c patch -- neofb.c:71: video/neomagic.h: No
+ such file or directory
+In-Reply-To: <1023209774.20260.24.camel@agate>
+Message-ID: <Pine.LNX.4.44.0206040945150.29334-100000@www.transvirtual.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 4.72.3110.1
-X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3110.3
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->If you deem it appropriate, please apply this patch.
->
->It makes the file leases much more stable and reliable in the
->presence of multiple shared leases.  This patch cannot make
->things worse than they currently are. :-)
->
->There is a further problem with leases that I am working on, but that
->is harder and will require more testing.
 
-<patch snipped>
+> gcc -D__KERNEL__ -I/usr/src/linux-2.5/include -Wall -Wstrict-prototypes
+> -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer
+> -pipe -mpreferred-stack-boundary=2 -march=i686
+> -DKBUILD_BASENAME=neofb  -c -o neofb.o neofb.c
+> neofb.c:71: video/neomagic.h: No such file or directory
 
-I have tested this patch out.  It fixes the issues that I raised in my 
-note on 1 May, with the exception of the non-blocking 
-case, which Steven has acknowledged separately to me that he is 
-still working on.  Some of the changes fix bad breakages,
-and the patch doesn't seem to introduce any new problems,
-so I'd certeinly vote for its application.
+Yipes. Didn't sync up into Linus tree. I'm going to sync up soon again.
+Just as soon as I get approval from a few driver maintainers.
 
-Cheers
-
-Michael
 

@@ -1,38 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbULXNyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbULXOFt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbULXNyq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Dec 2004 08:54:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbULXNyq
+	id S261372AbULXOFt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Dec 2004 09:05:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbULXOFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Dec 2004 08:54:46 -0500
-Received: from albireo.enyo.de ([212.9.189.169]:26827 "EHLO albireo.enyo.de")
-	by vger.kernel.org with ESMTP id S261323AbULXNyp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Dec 2004 08:54:45 -0500
-From: Florian Weimer <fw@deneb.enyo.de>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix inlining related build failures in mxser.c
-References: <Pine.LNX.4.61.0412240155070.3504@dragon.hygekrogen.localhost>
-	<Pine.LNX.4.61.0412241306340.19395@yvahk01.tjqt.qr>
-	<Pine.LNX.4.61.0412241431580.3707@dragon.hygekrogen.localhost>
-Date: Fri, 24 Dec 2004 14:54:43 +0100
-In-Reply-To: <Pine.LNX.4.61.0412241431580.3707@dragon.hygekrogen.localhost>
-	(Jesper Juhl's message of "Fri, 24 Dec 2004 14:33:37 +0100 (CET)")
-Message-ID: <87zn03u7h8.fsf@deneb.enyo.de>
+	Fri, 24 Dec 2004 09:05:49 -0500
+Received: from pcsmail.patni.com ([203.124.139.197]:50585 "EHLO
+	pcsmail.patni.com") by vger.kernel.org with ESMTP id S261372AbULXOFl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Dec 2004 09:05:41 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: Pseudo Driver hangs :b_elv_sequence ?SUSE 8.0 SP3
+Date: Fri, 24 Dec 2004 19:35:39 +0530
+Message-ID: <374639AB1012AA4C840022842AA95BC203C70374@ruby.patni.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: What's wrong with Documentation/DocBook/kernel-api.tmpl? (was Re: Something wrong when transform Documentation/DocBook/*.tmpl into pdf)
+Thread-Index: AcTpr8DiPj5xQBunRsqzO3hhC3fOvAAcxhuwAAQgf0A=
+From: "Kotian, Deepak" <Deepak.Kotian@patni.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jesper Juhl:
+Please ignore this POST, I am getting a response from SUSE.
 
->> Add -funit-at-a-time to the CFLAGS, and the compiler is happy.
->> 
-> But, does unit-at-a-time work reliably for all compilers on all archs back 
-> to and including gcc 2.95.3 ? 
+Thanks and Regard
+Deepak
 
-Unit-at-a-time is only available in GCC 3.4 and above.
-Function-at-a-time will still be supported in GCC 4.0, but this
-version will use unit-at-a-time by default (if optimization is
-enable).
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Kotian, Deepak
+Sent: Friday, December 24, 2004 4:27 AM
+To: linux-kernel@vger.kernel.org
+Subject: Pseudo Driver hangs :b_elv_sequence ?SUSE 8.0 SP3
+Importance: High
+
+
+Hi,
+
+I saw a response from you on  b_elv_sequence over here.
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0301.3/0472.html
+
+I have observed a similar problem in 2.4.21-138 kernel which comes along 
+with SUSE 8.0 SP3. 
+
+This is mainly for SUSE. I presume, SUSE folks are active on this forum and would respond immediately.Please excuse others, sorry.
+
+In Our pseudo block driver a Defect occurs only when read is done from urandom device & 
+write to raw device. It basically hangs in kiobuf module.
+
+We are using the buffer_head structure.
+
+We have found by trial and error and looking the source at of raid and md devices that if b_elv_sequence parameter is set to zero, it is OK and our driver does not have a problem.
+On looking at the site,we found that you are aware of it. Could you please elaborate.
+
+Question:
+ Please let us know your views on the b_elv_sequence and reason to set it to zero. 
+ We need to justify whether our fix is correct.
+
+Also, this is not there SLES 9.0 with kernel 2.6 as buffer head concept is gone.
+But is the functionality mapped of this flag mapped somewhere in 2.6 or it is not
+needed. Anyone here is aware of it.
+
+P.S.
+I have posted on SUSE support, not sure when I get response after internal
+processing. As it is very urgent for me. I am posting it here as well.
+
+Thanks and Regards
+Deepak
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

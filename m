@@ -1,47 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263031AbVBCWkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263244AbVBCWqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263031AbVBCWkr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 17:40:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbVBCWas
+	id S263244AbVBCWqi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 17:46:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263020AbVBCWqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 17:30:48 -0500
-Received: from gprs215-229.eurotel.cz ([160.218.215.229]:13258 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262962AbVBCWVo (ORCPT
+	Thu, 3 Feb 2005 17:46:37 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:20389 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263269AbVBCWpw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 17:21:44 -0500
-Date: Thu, 3 Feb 2005 23:01:41 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Dominik Brodowski <linux@dominikbrodowski.de>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: cpufreq problem wrt suspend/resume on Athlon64
-Message-ID: <20050203220141.GB1098@elf.ucw.cz>
-References: <200502021428.12134.rjw@sisk.pl> <20050203124006.GA18142@isilmar.linta.de> <20050203142057.GA1402@elf.ucw.cz> <200502032246.13057.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502032246.13057.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 3 Feb 2005 17:45:52 -0500
+Date: Thu, 3 Feb 2005 14:45:38 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Andrew Morton <akpm@osdl.org>
+cc: torvalds@osdl.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, jlan@sgi.com
+Subject: Re: move-accounting-function-calls-out-of-critical-vm-code-paths.patch
+In-Reply-To: <20050203140904.7c67a144.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0502031436460.26183@schroedinger.engr.sgi.com>
+References: <20050110184617.3ca8d414.akpm@osdl.org>
+ <Pine.LNX.4.58.0502031319440.25268@schroedinger.engr.sgi.com>
+ <20050203140904.7c67a144.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 3 Feb 2005, Andrew Morton wrote:
 
-> > You may not run k8 notebook on max frequency on battery. Your system
-> > will crash; and you might even damage battery.
-> 
-> When I don't compile in cpufreq, it seems to run at 1,8 GHz (the max)
-> all the time, on AC power as well as on battery.  Along with what you're
-> saying it leads to the conclusion that in fact I have to compile in cpufreq
-> or I can damage the battery otherwise.  Is that right?
+> Has any performance testing been done?
 
-To clarify:
+Jay did some performance testing and found minor performance increases
+without my page fault patches. But then the performance without the page
+fault patches is already so bad due to the page_table_lock
+contention that this is not so important.
 
-Your vendor did the wrong thing. They should probably fix their
-BIOS.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+> > acct_update_integrals is only useful to call if stime changes otherwise
+> > it will simply return. It is therefore best to relocate the function call
+> > to acct_update_integral into the function that updates stime which is
+> > account_system_time and remove it from the vm code paths.
+>
+> But that changes (breaks) the semantics significantly.  A task will now
+> only have its BSD accounting fields updated when it happens to be
+> interrupted by the timer.  Some tasks:
+>
+> 	for ( ; ; ) {
+> 		nanosleep(2 milliseconds);
+> 		do_stuff_for(0.5 milliseconds);
+> 	}
+>
+> will see their BSD accounting fields remaining stuck firmly at zero.
+>
+> I think?
+
+Accounting is only effective is stime changes even with the current
+code. If the process never gets its stime increased then also the
+accounting does nothing. There is no change in that behavior.
+
+> > update_mem_hiwater finds the rss hiwater mark. RSS limits are checked in
+> > account_system_time().
+>
+> Linux doesn't check rss limits anywhere.  We check CPU usage in
+> account_system_time().
+
+Yuck. I was mistaken in what check_rlimit does.
+
+> Most of this could be fixed up by updating these counters at schedule()
+> time as well, although that would become somewhat inaccurate if we later
+> decide to implement rss enforcement at pagefault time.
+
+Right. I hope that Roland's changes for higher resolution of cputime would
+make that possible. But this is Jay's thing not mine. I just want to make
+sure that the CSA patches does not get in the way of our attempts to
+improve the performance of the page fault handler. In the discussions on
+linux-mm there was also some concern about adding these calls.

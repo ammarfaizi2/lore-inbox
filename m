@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319300AbSH2SnT>; Thu, 29 Aug 2002 14:43:19 -0400
+	id <S319298AbSH2Sld>; Thu, 29 Aug 2002 14:41:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319301AbSH2SnT>; Thu, 29 Aug 2002 14:43:19 -0400
-Received: from p50839D4A.dip.t-dialin.net ([80.131.157.74]:6918 "EHLO
-	calista.inka.de") by vger.kernel.org with ESMTP id <S319300AbSH2SnS>;
-	Thu, 29 Aug 2002 14:43:18 -0400
-Date: Thu, 29 Aug 2002 20:47:39 +0200
-To: Bernd Eckenfels <ecki-news2002-08@lina.inka.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and full ipv6 - will it happen?
-Message-ID: <20020829184739.GA8552@lina.inka.de>
-References: <20020827160722.GA13412@alcove.wittsend.com> <E17k8H8-0003Le-00@sites.inka.de> <20020829020501.GA21384@alcove.wittsend.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20020829020501.GA21384@alcove.wittsend.com>
-User-Agent: Mutt/1.4i
-From: Bernd Eckenfels <ecki@lina.inka.de>
+	id <S319299AbSH2Slc>; Thu, 29 Aug 2002 14:41:32 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:33033 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S319298AbSH2Sl2>; Thu, 29 Aug 2002 14:41:28 -0400
+Message-ID: <3D6E6B64.66203783@zip.com.au>
+Date: Thu, 29 Aug 2002 11:43:48 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Badari Pulavarty <pbadari@us.ibm.com>
+CC: linux-kernel@vger.kernel.org, Gerrit Huizenga <gerrit@us.ibm.com>,
+       Hans-J Tannenberger <hjt@us.ibm.com>,
+       Janet Morgan <janetmor@us.ibm.com>, Mike Anderson <andmike@us.ibm.com>,
+       Martin Bligh <mjbligh@us.ibm.com>
+Subject: Re: 2.5.32 IO performance issues
+References: <200208291820.g7TIKHA19433@eng2.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 28, 2002 at 10:05:01PM -0400, Michael H. Warfield wrote:
-> 	This all does raise another question, though.  Why don't link local
-> addresses work...  Link local scoped addresses should be valid and work
-> between hosts on the same "link" or subnet (colision zone, flat network,
-> whatever you want to call it).
+Badari Pulavarty wrote:
+> 
+> Hi,
+> 
+> I am having severe IO performance problems with 2.5.32 (2.5.31 works fine).
+> I was wondering what caused this.
+> 
+> As you can see, IO rate went from
+> 
+>                 384MB/sec with 6% CPU utilization on 2.5.31
+>                         to
+>                 120MB/sec with 19% CPU utilization on 2.5.32
+> 
+> ...
+> 151712 default_idle                             2370.5000
+> 21622 __scsi_end_request                       122.8523
 
-they work only if you specify a device. Which is logical if you have more
-than one device, it is less so, if you have only one.
-
-> ] [root@alcove mhw]# ping6 -c 2 fe80::8200:280:c8ff:fecf:bf06
-> ] connect: Invalid argument
-
-you need to give -I eth1 like it is decribed in the ping6 manpage:
-
-     -I interface address
-              Set source address to specified interface  address.  Argu­
-              ment  may  be  numeric  IP address or name of device. When
-              pinging IPv6 link-local address this option is required.
-
-Greetings
-Bernd
--- 
-  (OO)      -- Bernd_Eckenfels@Wendelinusstrasse39.76646Bruchsal.de --
- ( .. )  ecki@{inka.de,linux.de,debian.org} http://home.pages.de/~eckes/
-  o--o     *plush*  2048/93600EFD  eckes@irc  +497257930613  BE5-RIPE
-(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!
+block-highmem is bust for scsi. (aic7xxx at least).  Does
+http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.32/2.5.32-mm2/broken-out/scsi_hack.patch
+fix it?

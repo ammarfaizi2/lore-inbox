@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264037AbTKJSwI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 13:52:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264058AbTKJSwI
+	id S264056AbTKJTI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 14:08:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbTKJTI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 13:52:08 -0500
-Received: from mta8.algx.net ([67.92.168.237]:5182 "EHLO chimta03.algx.net")
-	by vger.kernel.org with ESMTP id S264037AbTKJSwD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 13:52:03 -0500
-Date: Mon, 10 Nov 2003 11:28:17 -0700
-From: Ben Smith <ben@enercast.com>
-Subject: Enercast invitation
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Reply-to: info@enercast.com
-Message-id: <0HO5006T5GADNQ@chimmx03.algx.net>
-MIME-version: 1.0
-X-Mailer: Message sent using Broadc@stHTML Mailer 4.4.4
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
+	Mon, 10 Nov 2003 14:08:56 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:23057 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S264056AbTKJTIz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 14:08:55 -0500
+Message-ID: <3FAFE22B.3030108@zytor.com>
+Date: Mon, 10 Nov 2003 11:08:27 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031030
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Davide Libenzi <davidel@xmailserver.org>, Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel.bkbits.net off the air
+References: <3FAFD1E5.5070309@zytor.com> <Pine.LNX.4.44.0311101004150.2097-100000@bigblue.dev.mdolabs.com> <20031110183722.GE6834@x30.random>
+In-Reply-To: <20031110183722.GE6834@x30.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good Afternoon,
+Andrea Arcangeli wrote:
+> 
+> you must pick file2 before file1:
+> 
+> 	you:
+> 
+> 	do
+> 		get file2
+> 		get repo-file1-j
+> 		get file1
+> 	while file2 != file1 && sleep 10
+>
 
-I would like to invite you for a free - no obligation two week trial to Enercast.com  - the fastest growing energy information service.  Industry response has been outstanding!  We are very interested in gaining your feedback.   
+Okay... I'm starting to think the sequencing requirements on these files
+may be hard to maintain across multiple levels of rsync... but perhaps
+I'm wrong, in particular if 'file2' sorts hierachially-lexically last
+and 'file1' first...
 
-Did you want me to set you up for a free two week trial?  Please let me know one way or another, thank you!
-
-Best Regards,
-
-Ben Smith
-Enercast.com - http://www.enercast.com
-1675 Larimer Street
-Corporate Plaza - Suite 415
-Denver  CO, 80202
-720.889.3038 - ph.
-720.889.3053 - fax
-ben@enercast.com
-
-
+	-hpa
 

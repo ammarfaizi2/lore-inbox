@@ -1,58 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266821AbUIIUth@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266117AbUIIUu3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266821AbUIIUth (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 16:49:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266175AbUIIUtg
+	id S266117AbUIIUu3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 16:50:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266073AbUIIUuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 16:49:36 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:46267 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266117AbUIIUtU (ORCPT
+	Thu, 9 Sep 2004 16:50:09 -0400
+Received: from imr2.ericy.com ([198.24.6.3]:8671 "EHLO imr2.ericy.com")
+	by vger.kernel.org with ESMTP id S266136AbUIIUt0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 16:49:20 -0400
-Date: Thu, 9 Sep 2004 22:49:54 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, zwane@linuxpower.ca, hch@infradead.org,
-       wli@holomorphy.com, linux-kernel@vger.kernel.org, scott@timesys.com,
-       arjanv@redhat.com
-Subject: Re: [patch] generic-hardirqs-2.6.9-rc1-mm4.patch
-Message-ID: <20040909204954.GA8635@elte.hu>
-References: <20040908120613.GA16916@elte.hu> <20040908182509.GA6009@elte.hu> <20040908211415.GA20168@elte.hu> <200409092224.49690.rjw@sisk.pl> <20040909134047.41aab7a4.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040909134047.41aab7a4.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 9 Sep 2004 16:49:26 -0400
+Message-ID: <4140BFCE.8010701@ericsson.com>
+Date: Thu, 09 Sep 2004 16:40:46 -0400
+From: Makan Pourzandi <Makan.Pourzandi@ericsson.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Serge E. Hallyn" <hallyn@CS.WM.EDU>
+CC: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
+       Axelle Apvrille <axelle.apvrille@trusted-logic.fr>, serue@us.ibm.com,
+       david.gordon@ericsson.com, gaspoucho@yahoo.com
+Subject: Re: [ANNOUNCE] Release Digsig 1.3.1: kernel module for run-time authentication
+ of binaries
+References: <41407CF6.2020808@ericsson.com> <20040909092457.L1973@build.pdx.osdl.net> <41409378.5060908@ericsson.com> <20040909105520.U1924@build.pdx.osdl.net> <20040909190511.GB28807@escher.cs.wm.edu>
+In-Reply-To: <20040909190511.GB28807@escher.cs.wm.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Andrew Morton <akpm@osdl.org> wrote:
 
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> >
-> > I've got this trace (on x86-64):
-> > 
-> >  general protection fault: 0000 [1] PREEMPT
-> >  CPU 0
-> >  Modules linked in: usbserial parport_pc lp parport joydev sg st sd_mod sr_mod 
-> >  scsi_mod snd_seq_oss snd_seq_midi_evend
-> >  Pid: 694, comm: kjournald Not tainted 2.6.9-rc1-mm4
-> >  RIP: 0010:[<ffffffff802ac605>] 
-> >  <ffffffff802ac605>{__journal_clean_checkpoint_list+389}
+Serge E. Hallyn wrote:
+> Quoting Chris Wright (chrisw@osdl.org):
 > 
-> You should revert
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm4/broken-out/journal_clean_checkpoint_list-latency-fix.patch
-> - it seems to be sick.
+>>* Makan Pourzandi (Makan.Pourzandi@ericsson.com) wrote:
+> 
+> ...
+> 
+>>>We realized that when a shared library is opened by a binary it can 
+>>>still be modified. To solve the problem, we block the write access to 
+>>>the shared binary while it is loaded.
+>>
+>>AFAICT, this means anybody with read access to a file can block all
+>>writes.  This doesn't sound great.
+> 
+> 
+> True.
+> 
 
-the variant in the VP patch (for this latency) is pretty stable. Will
-post splitups later.
+I want to narrow down the discussion, I believe that some people could 
+get confused with the mention of "file" here. AFAICT, the above problem 
+only concerns the shared libraries. Digsig applies only to binaries: in 
+digsig_file_mmap() implementing the file_mmap LSM hook, if the file is 
+not executable there is a return and no verification or any other 
+blocking is done.
 
-	Ingo
+For executables, there is no meaning to load them on read mode, you 
+should have execute permission. if you then load them for execution 
+IMHO, it makes sense to block the writing on that file.
+
+For shared libraries, you're right. the problem exists, the shared 
+libraries can be loaded being only readable (even though I remember 
+reading in exec.c:sys_uselib() kernel 2.6.8.1 that the shared libraries 
+must be both readable and executable due to "security reasons", but I'm 
+not an expert and definitely readable is enough to load the shared 
+library but I'll be happy to learn more about this.)
+
+> This could be fixed by adding a check at the top of dsi_file_mmap for
+> file->f_dentry->d_inode->i_mode & MAY_EXEC.  Of course then shared
+> libraries which are installed without execute permissions will cause
+> apps to break.  On my quick test, I couldn't run xterm or vi  :)
+> 
+> Note that blocking writes requires that the file be a valid ELF file,
+> as this is all that digsig mediates.  So I'm not sure which we worry
+> about more - the fact that all shared libraries have to be installed
+> with execute permissions (under the proposed solution), or that write
+
+
+My 2 cents, a quick browsing on my machine (fedora core 1) shows that 
+almost all my shared libraries are installed with both execution and 
+read permissions.  IMHO, I don't believe then that this should be 
+considered as a major issue.
+
+
+> to an ELF file can be prevented by mmap(PROT_EXEC).  Presumably, if
+
+Regards,
+Makan
+
+> you are replacing an ELF file, you will always want to do 
+> "mv foo.so foo.so.del; cp new/foo.so foo.so" anyway.
+> 
+> Thoughts?
+> 
+> thanks,
+> -serge
+> 
+
+-- 
+
+Makan Pourzandi, Open Systems Lab
+Ericsson Research, Montreal, Canada
+*This email does not represent or express the opinions of Ericsson Inc.*
+

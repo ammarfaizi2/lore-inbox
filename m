@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbVAJSfF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262403AbVAJSf0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbVAJSfF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 13:35:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbVAJSbs
+	id S262403AbVAJSf0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 13:35:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbVAJSYD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 13:31:48 -0500
-Received: from smtp.uninet.ee ([194.204.0.4]:12039 "EHLO smtp.uninet.ee")
-	by vger.kernel.org with ESMTP id S262425AbVAJSYE (ORCPT
+	Mon, 10 Jan 2005 13:24:03 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:5304 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262411AbVAJSKW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 13:24:04 -0500
-Message-ID: <41E2C820.3060204@tuleriit.ee>
-Date: Mon, 10 Jan 2005 20:23:28 +0200
-From: Indrek Kruusa <indrek.kruusa@tuleriit.ee>
-Reply-To: indrek.kruusa@tuleriit.ee
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Steve Bergman <steve@rueb.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Proper procedure for reporting possible security vulnerabilities?
-References: <41E2B181.3060009@rueb.com>
-In-Reply-To: <41E2B181.3060009@rueb.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Jan 2005 13:10:22 -0500
+Date: Mon, 10 Jan 2005 10:10:16 -0800
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: kj <kernel-janitors@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [KJ] [announce] 2.6.10-bk13-kj
+Message-ID: <20050110181016.GD3099@us.ibm.com>
+References: <20050110164703.GD14307@nd47.coderock.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050110164703.GD14307@nd47.coderock.org>
+X-Operating-System: Linux 2.6.10 (i686)
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Bergman wrote:
+On Mon, Jan 10, 2005 at 05:47:03PM +0100, Domen Puncer wrote:
+> Patchset of 171 patches is at http://coderock.org/kj/2.6.10-bk13-kj/
+> 
+> Quick patch summary: about 30 new, 30 merged, 30 dropped.
+> Seems like most external trees are merged in -linus, so i'll start
+> (re)sending old patches.
 
-> There seems to be some confusion in certain quarters as to the proper 
-> procedure for reporting possible kernel security issues.   
-> REPORTING-BUGS says send bug reports to the maintainer of that area of 
-> the kernel.
+<snip>
 
+> msleep-drivers_scsi_imm.patch
 
-Unfortunately my english is not on a par with this but this document 
-*needs* updating at every corner and after that the direct hyperlink to 
-this document on the kernel.org should be placed above links of the 
-kernel source (currently it is somewhere at the middle of the page). And 
-the note "please read before using vanilla kernel" should be in red. It 
-*seems* to me that there is a big cap between reality and this 
-document/common sense (in the days of heavily patched kernels and 2.6 
-devel. model). There should be several separate parts in this document: 
-for kernel developers, for distro makers, for "smart" users, for 
-"enthusiasts"....
+This patch should be dropped. The msleep() call will ignore waitqueue events
+set up by prepare_to_wait().
 
-regards,
-Indrek
-
+Thanks,
+Nish

@@ -1,77 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268739AbUHTUo0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268758AbUHTUpW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268739AbUHTUo0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 16:44:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268731AbUHTUls
+	id S268758AbUHTUpW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 16:45:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268763AbUHTUpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 16:41:48 -0400
-Received: from dh138.citi.umich.edu ([141.211.133.138]:29880 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S268734AbUHTUkW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 16:40:22 -0400
-Subject: Re: Strange NFS client behavior on 2.6.6 and higher {Scanned}
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: rettw@rtwnetwork.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <32995.172.20.32.77.1093032267.squirrel@172.20.32.77>
-References: <32995.172.20.32.77.1093032267.squirrel@172.20.32.77>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1093034419.17122.49.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 20 Aug 2004 16:40:20 -0400
+	Fri, 20 Aug 2004 16:45:19 -0400
+Received: from mta2.srv.hcvlny.cv.net ([167.206.5.68]:15792 "EHLO
+	mta2.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S268737AbUHTUne (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 16:43:34 -0400
+Date: Fri, 20 Aug 2004 16:43:31 -0400
+From: Nathan Bryant <nbryant@optonline.net>
+Subject: Re: [ACPI] [PATCH][RFC] fix ACPI IRQ routing after S3 suspend
+In-reply-to: <4126621B.3090701@optonline.net>
+To: Nathan Bryant <nbryant@optonline.net>
+Cc: stefandoesinger@gmx.at, acpi-devel@lists.sourceforge.net,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       "Brown, Len" <len.brown@intel.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       "Li, Shaohua" <shaohua.li@intel.com>
+Message-id: <41266273.1010604@optonline.net>
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary="Boundary_(ID_VHQcvSeJne7dc570S2E+ug)"
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+References: <88056F38E9E48644A0F562A38C64FB6002A934AC@scsmsx403.amr.corp.intel.com>
+ <41265443.9050800@optonline.net> <200408202201.54083.stefandoesinger@gmx.at>
+ <4126621B.3090701@optonline.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På fr , 20/08/2004 klokka 16:04, skreiv Rett D. Walters:
+This is a multi-part message in MIME format.
 
-> Using a 2.4 client, the file slowly counts up as data is
-> written when pushing to a 2.4 server.  Using 2.6.6 against
-> a 2.6 server the file is written in large multi-megabyte
-> clumps instead.
+--Boundary_(ID_VHQcvSeJne7dc570S2E+ug)
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 8BIT
 
-Probably. The VM decides when to push out data in 2.6.x. In 2.4.x we had
-artificial hard limits on the number of dirty pages that were allowed to
-exist, now all that is controlled by the VM.
 
->   However using a 2.6.6 client against a
-> 2.4 server acts just like it used to, with a "trickle"
-> write.
+Oops. Forgot the patch again. See attached.
 
-Huh?
+Nathan Bryant wrote:
 
->   A tcpdump trace of the 2.6.6 client against a 2.6
-> server show no traffic being transmitted and then suddenly
-> a burst of 20,000 packets sent then nothing, until the
-> next burst.
+> Stefan Dösinger wrote:
+>
+>> If I re-programm the IRQ to something else than IRQ10, the device 
+>> doesn't resume too. So it's not only a problem of IRQ 11.
+>>  
+>>
+> Seems like an anything-at-all-other-than-IRQ-10 problem. If the 
+> current thinking is right, your BIOS is assigning IRQ10 during boot, 
+> so moving it anywhere else is what causes problems.
+>
+> But the current thinking doesn't quite seem right, because it seeems 
+> like we're seeing these problems after the irqrouter is resumed. Can 
+> you verify that with the attached patch? The patch should give us 
+> enough information as long as you've got the proper kernel loglevel set.
+>
+> Now, I wonder if the only reason it works when you set IRQ 10 is that 
+> some other driver is unconditionally claiming the interrupt...
+>
+> Nathan
+>
+>> The ipw2100 driver calls pci_disable_device in it's suspend handler. 
+>> But I think the ipw2100 maintainers need help with suspend/resume 
+>> because James Ketrenos can't test it on his own system.
+>>  
+>>
+> pci_disable_device() only turns off bus-mastering, it doesn't unmap 
+> the I/O or disable the slot. Maybe we also need to set power state D3 
+> and do a device-specific disable-interrupts, but I think D0 gets 
+> restored for us pretty early during resume anyway...
+>
+> Anyway, something doesn't quite add up...
+>
+> Nathan
+>
 
-See above. Note that this is pretty much the way block devices work
-too...
 
-> It appears to me that the 2.6.6 client against a 2.6
-> server scenario that the 2.6.6 client is caching the data
-> then writing it in these large clumps.  As a data comm
-> engineer by profession, this seems a little strange. 
-> Sending 20000 packets in large, very fast bursts will
-> increase the likelyhood of causing congestion at the
-> receiver which could lead to packet loss.
+--Boundary_(ID_VHQcvSeJne7dc570S2E+ug)
+Content-type: text/x-patch; name=pci_linkdebug.patch
+Content-transfer-encoding: 7BIT
+Content-disposition: inline; filename=pci_linkdebug.patch
 
-That's why we have added TCP support as well as congestion control
-algorithms for UDP. I've seen no signs of new congestion issues with
-2.6.x in tests on a clean network. Rather I've seen vastly improved
-write performance against faster servers precisely because the new
-VM-driven stuff allows us to cache more data both on the client and the
-server side.
+===== drivers/acpi/pci_link.c 1.32 vs edited =====
+--- 1.32/drivers/acpi/pci_link.c	2004-08-18 19:26:48 -04:00
++++ edited/drivers/acpi/pci_link.c	2004-08-20 16:28:40 -04:00
+@@ -717,6 +717,8 @@
+ 
+ 	ACPI_FUNCTION_TRACE("irqrouter_resume");
+ 
++	printk(KERN_DEBUG "irqrouter_resume: called.\n");
++
+ 	list_for_each(node, &acpi_link.entries) {
+ 
+ 		link = list_entry(node, struct acpi_pci_link, node);
 
-> I am using NFS v3 over UDP, and have tried using async and sync, and
-> setting the rsize/wsize to 8k etc to no avail.
-
-It sounds to me as if you really want to be using O_SYNC or (better
-still) O_DIRECT writes. You basically want to stream the data to the
-server immediately without any caching right?
-
-The "sync" mount option should also give you similar behaviour.
-
-Cheers,
-  Trond
+--Boundary_(ID_VHQcvSeJne7dc570S2E+ug)--

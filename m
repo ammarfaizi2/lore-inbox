@@ -1,47 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267450AbUHJG4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267449AbUHJG4N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267450AbUHJG4W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 02:56:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267451AbUHJG4W
+	id S267449AbUHJG4N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 02:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267450AbUHJG4N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 02:56:22 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:59917 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267450AbUHJG4S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 02:56:18 -0400
-Date: Tue, 10 Aug 2004 07:55:59 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-Cc: Tomas Szepe <szepe@pinerecords.com>, Pavel Machek <pavel@suse.cz>,
-       netdev@oss.sgi.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ipw2100 wireless driver
-Message-ID: <20040810075558.A14154@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jeff Chua <jeffchua@silk.corp.fedex.com>,
-	Tomas Szepe <szepe@pinerecords.com>, Pavel Machek <pavel@suse.cz>,
-	netdev@oss.sgi.com, kernel list <linux-kernel@vger.kernel.org>
-References: <20040714114135.GA25175@elf.ucw.cz> <Pine.LNX.4.60.0407141947270.27995@boston.corp.fedex.com> <20040714115523.GC2269@elf.ucw.cz> <20040809201556.GB9677@louise.pinerecords.com> <Pine.LNX.4.61.0408101258130.1290@boston.corp.fedex.com>
+	Tue, 10 Aug 2004 02:56:13 -0400
+Received: from gate.crashing.org ([63.228.1.57]:22998 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S267449AbUHJG4F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 02:56:05 -0400
+Subject: Re: [RFC] Fix Device Power Management States
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>, David Brownell <david-b@pacbell.net>
+In-Reply-To: <Pine.LNX.4.50.0408092131260.24154-100000@monsoon.he.net>
+References: <Pine.LNX.4.50.0408090311310.30307-100000@monsoon.he.net>
+	 <1092098425.14102.69.camel@gaston>
+	 <Pine.LNX.4.50.0408092131260.24154-100000@monsoon.he.net>
+Content-Type: text/plain
+Message-Id: <1092120750.14102.95.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.61.0408101258130.1290@boston.corp.fedex.com>; from jeffchua@silk.corp.fedex.com on Tue, Aug 10, 2004 at 01:02:07PM +0800
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 10 Aug 2004 16:52:30 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 10, 2004 at 01:02:07PM +0800, Jeff Chua wrote:
-> 
-> On Mon, 9 Aug 2004, Tomas Szepe wrote:
-> 
-> > ipw2100 0.51 from ipw2100.sf.net builds using gcc-2.95.3 "out of the box."
-> 
-> Well, this is really good news!
-> 
-> I just downloaded 0.51 compiled with gcc-2.95.3 and got it working on my 
-> IBM X31 with WEP. Even better, 0.51 doesn't need hostap-driver.
 
-Btw, any vounteer for merging the hostap-based generic ieee80211_* files
-from the ipw2100 driver with the hostap driver in the wireless-2.6 tree?
+> It's easy enough to change which order things get stopped/started in. What
+> matters more is the conceptual shift in responsibility for who
+> stops/starts the devices, or rather their interfaces.
+> 
+> It also requires a mapping from struct device -> struct class_device that
+> the drivers will have to initialize.
+
+Yup, but class devices don't follow the bus topology, do they ?
+
+> > What about passing the previous state to restore ? could be useful...
+> 
+> It's saved in dev->power.pm_resume, so drivers can check it.
+> 
+> > Who calls it ? It's the driver calling it's bus or what ? It make no
+> > sense to power manage a device before suspending activity... I agree it
+> > may be worth splitting dev_start/stop from PM transitions proper, that
+> > would help dealing with various policies, however, there are still some
+> > dependencies between those, and they all need to be tied to the bus
+> > topology.
+> 
+> The driver core calls it in device_power_down() (as was in the patch ;),
+> in physical topological order. The ordering of the calls is up the power
+> management core, but it just wouldn't make sense to power down a device
+> that wasn't stopped. Would be easy enough to add a check for it..
+> 
+> Note it would make sense to power down a device without stopping, if the
+> device had no device driver bound to it (e.g. unclaimed devices that are
+> in D0 unnecessarily; or unclaimed devices that need to be powered down
+> during a suspend transition).
+
+Ok, just be careful with that as some "platform" devices may not have a
+driver bound and still don't want to be powered down... but we could
+create fake drivers...
+
+> > What about partial tree ? We need to suspend childs first and we need to
+> > tied PM transition with dev_start/stop (or have some way to indicate the
+> > device we want it to auto-resume when it gets a request, or something).
+> > We need to work out policy a bit more here I suppose...
+> 
+> Policy can come later; we have to have a working model first.
+> 
+> As far as partial trees go, it can be done using the posted patch.  Think
+> about why you want to suspend/resume a partial tree - to use a particular
+> leaf device. You know what device it is, and by virtue of the driver
+> model, you know each of its ancestors. So, you walk the tree up to the
+> root, and restart all the way down. Then, you re-stop it all the way back
+> up. Should be ~10 lines of code that is left as an exercise against the
+> posted patch. :)
+> 
+> 
+> 	Pat
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 

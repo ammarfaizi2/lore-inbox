@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbUK1Wi3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbUK1WiX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261295AbUK1Wi3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 17:38:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbUK1Wi3
+	id S261203AbUK1WiX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 17:38:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbUK1WiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 17:38:29 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:28342 "HELO
+	Sun, 28 Nov 2004 17:38:23 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:27062 "HELO
 	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261295AbUK1WiZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 17:38:25 -0500
-Subject: Re: Suspend 2 merge: 24/51: Keyboard and serial console hooks.
+	id S261203AbUK1WiU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 17:38:20 -0500
+Subject: Re: Suspend 2 merge: 19/51: Remove MTRR sysdev support.
 From: Nigel Cunningham <ncunningham@linuxmail.org>
 Reply-To: ncunningham@linuxmail.org
 To: Pavel Machek <pavel@ucw.cz>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041125192834.GB1302@elf.ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041125182250.GI1417@openzaurus.ucw.cz>
 References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <1101296414.5805.286.camel@desktop.cunninghams>
-	 <20041124132949.GB13145@infradead.org>  <20041125192834.GB1302@elf.ucw.cz>
+	 <1101295453.5805.263.camel@desktop.cunninghams>
+	 <20041125182250.GI1417@openzaurus.ucw.cz>
 Content-Type: text/plain
-Message-Id: <1101680341.4343.291.camel@desktop.cunninghams>
+Message-Id: <1101680114.4343.288.camel@desktop.cunninghams>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Mon, 29 Nov 2004 09:34:57 +1100
+Date: Mon, 29 Nov 2004 09:34:53 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Fri, 2004-11-26 at 06:28, Pavel Machek wrote:
-> > > Here we add simple hooks so that the user can interact with suspend
-> > > while it is running. (Hmm. The serial console condition could be
-> > > simplified :>). The hooks allow you to do such things as:
-
-> > > - change the amount of detail of debugging info shown
+On Fri, 2004-11-26 at 05:22, Pavel Machek wrote:
+> Hi!
 > 
-> Use sysrq-X as you do during runtime.
+> > This patch removes sysdev support for MTRRs (potential SMP hang and
+> > shouldn't be done with interrupts done anyway). Instead, we save and
+> > restore MTRRs when entering and exiting the processor freezers (ie when
+> > saving the registers & context for each CPU via an SMP call).
+> 
+> This will break acpi s3...
 
-No, I don't do this anymore. When I did, I had problems post-resume with
-the keyboard handler sometimes thinking SysRq was still pressed.
+MTRR support is via sysdev is by design broken (SMP deadlock possible),
+so you need to add it to the right place in your S3 code. (ie, it's not
+that I'm breaking S3. It's already broken, but works while you only
+support suspending !SMP).
+
+Regards,
+
+Nigel
 -- 
 Nigel Cunningham
 Pastoral Worker

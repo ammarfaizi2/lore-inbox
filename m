@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbTDENH1 (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 08:07:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbTDENH0 (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 08:07:26 -0500
-Received: from userk185.dsl.pipex.com ([62.188.58.185]:30595 "HELO
-	userk185.dsl.pipex.com") by vger.kernel.org with SMTP
-	id S262190AbTDENHZ (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 5 Apr 2003 08:07:25 -0500
-From: "Sean Hunter" <sean@uncarved.com>
-Date: Sat, 5 Apr 2003 13:18:56 +0000
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Oops every write with ext3 + sync + data=journal
-Message-ID: <20030405131856.GA5107@uncarved.com>
-Mail-Followup-To: Sean Hunter <sean@uncarved.com>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200304050525_MC3-1-331B-F7E4@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304050525_MC3-1-331B-F7E4@compuserve.com>
-User-Agent: Mutt/1.5.3i
+	id S262196AbTDENUn (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 08:20:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbTDENUn (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 08:20:43 -0500
+Received: from imladris.surriel.com ([66.92.77.98]:37066 "EHLO
+	imladris.surriel.com") by vger.kernel.org with ESMTP
+	id S262196AbTDENUl (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 5 Apr 2003 08:20:41 -0500
+Date: Sat, 5 Apr 2003 08:31:58 -0500 (EST)
+From: Rik van Riel <riel@imladris.surriel.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: William Lee Irwin III <wli@holomorphy.com>,
+       Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@digeo.com>,
+       "" <mingo@elte.hu>, "" <hugh@veritas.com>, "" <dmccr@us.ibm.com>,
+       "" <linux-kernel@vger.kernel.org>, "" <linux-mm@kvack.org>
+Subject: Re: objrmap and vmtruncate
+In-Reply-To: <8950000.1049518163@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.50L.0304050831400.2553-100000@imladris.surriel.com>
+References: <20030405024414.GP16293@dualathlon.random>
+ <Pine.LNX.4.44.0304042255390.32336-100000@chimarrao.boston.redhat.com>
+ <20030405041018.GG993@holomorphy.com> <8950000.1049518163@[10.10.2.4]>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 05, 2003 at 05:24:40AM -0500, Chuck Ebbert wrote:
-> Sean Hunter <sean@uncarved.com> wrote:
-> 
-> 
-> >rw,sync,data=journal,nosuid,nodev
-> 
-> 
-> Is there any good reason for using sync and data=journal together?
+On Fri, 4 Apr 2003, Martin J. Bligh wrote:
 
-As I understood it (perhaps incorrectly) if you were mounting a drivE
-"sync" data=journal was the way to go.
+> I don't think we have an app that has 1000 processes mapping the whole
+> file 1000 times per process. If we do, shooting the author seems like
+> the best course of action to me.
 
-Perhaps that's wrong.
+Please, don't shoot akpm ;)
 
-Sean
+Rik
+-- 
+Engineers don't grow up, they grow sideways.
+http://www.surriel.com/		http://kernelnewbies.org/

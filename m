@@ -1,63 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbVAZA1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262240AbVAZAUv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262272AbVAZA1y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 19:27:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbVAZAZR
+	id S262240AbVAZAUv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 19:20:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbVAZAUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 19:25:17 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:21710 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262268AbVAZAXy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 19:23:54 -0500
-Subject: [RFC][PATCH 5/5] do not unnecessarily memset the pgdats
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, Dave Hansen <haveblue@us.ibm.com>, apw@shadowen.org
-From: Dave Hansen <haveblue@us.ibm.com>
-Date: Tue, 25 Jan 2005 16:23:48 -0800
-Message-Id: <E1CtayL-00077d-00@kernel.beaverton.ibm.com>
+	Tue, 25 Jan 2005 19:20:15 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:40322 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262240AbVAZARr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 19:17:47 -0500
+Subject: Re: [RFC][PATCH] new timeofday arch specific hooks (v. A2)
+From: john stultz <johnstul@us.ibm.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       Paul Mackerras <paulus@samba.org>, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>, Max Asbock <amax@us.ibm.com>,
+       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>
+In-Reply-To: <1106697227.5235.28.camel@gaston>
+References: <1106607089.30884.10.camel@cog.beaverton.ibm.com>
+	 <1106607153.30884.12.camel@cog.beaverton.ibm.com>
+	 <1106620134.15850.3.camel@gaston>
+	 <1106694561.30884.52.camel@cog.beaverton.ibm.com>
+	 <1106697227.5235.28.camel@gaston>
+Content-Type: text/plain
+Date: Tue, 25 Jan 2005 16:17:35 -0800
+Message-Id: <1106698655.1589.8.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-01-26 at 10:53 +1100, Benjamin Herrenschmidt wrote:
+> On Tue, 2005-01-25 at 15:09 -0800, john stultz wrote:
+> 
+> > The performance is a concern, and right now there are issues (ntp_scale
+> > being the top of the list) however I hope they can be resolved. Looking
+> > at ppc64's do_gettimeofday() vs this implementation there we do have
+> > more overhead, but maybe you could suggest how we can avoid some of it?
+> 
+> I would suggest reclaculating the scale factor and offset for ntp
+> adjustement regulary from the timer tick or so, not on each gettimeofday
+> call.
 
-Both the pgdats and the struct zonelist are zeroed unnecessarily.
-The zonelist is a member of the pgdat, so any time the pgdat is
-cleared, so is the zonelist.  All of the architectures present a
-zeroed pgdat to the generic code, so it's not necessary to set it
-again.
+Agreed. I'll get something like this done for the next release.
 
-Not clearing it like this allows the functions to be reused by
-the memory hotplug code.  The only architecture which has a
-dependence on these clears is i386.  The previous patch in this
-series fixed that up.
 
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
----
+> Also, I have some updates to the ppc64 implementation where I regulary
+> update the pre-scale offset into the post-scale one so that the
+> timebase-prescale substraction always gives a 32 bits number. I do that
+> so my fast userland gettimeofday can be implemented more easily and more
+> efficiently for 32 bits processes. I yet have to check how I can hook
+> those things into your new scheme.
 
- arch/i386/mm/init.c             |    0 
- memhotplug-dave/mm/page_alloc.c |    2 --
- 2 files changed, 2 deletions(-)
+Hmm. In my code, I move the interval delta (similar to your pre-scale
+offset) to system_time (seems to be equivalent to the post-scale) at
+each call to timeofday_interrupt_hook(). So while 64 bits are normally
+used, you could probably get away doing the interval delta calculations
+in 32bits if your timesource frequency isn't too large. This would only
+be done in the arch-specific 32bit vsyscall code, right?
 
-diff -puN arch/i386/kernel/setup.c~A2.2-dont-memset-pgdats arch/i386/kernel/setup.c
-diff -puN arch/i386/mm/discontig.c~A2.2-dont-memset-pgdats arch/i386/mm/discontig.c
-diff -puN include/asm-i386/mmzone.h~A2.2-dont-memset-pgdats include/asm-i386/mmzone.h
-diff -puN mm/page_alloc.c~A2.2-dont-memset-pgdats mm/page_alloc.c
---- memhotplug/mm/page_alloc.c~A2.2-dont-memset-pgdats	2005-01-25 14:23:52.000000000 -0800
-+++ memhotplug-dave/mm/page_alloc.c	2005-01-25 14:23:52.000000000 -0800
-@@ -1488,7 +1488,6 @@ static void __init build_zonelists(pg_da
- 	/* initialize zonelists */
- 	for (i = 0; i < GFP_ZONETYPES; i++) {
- 		zonelist = pgdat->node_zonelists + i;
--		memset(zonelist, 0, sizeof(*zonelist));
- 		zonelist->zones[0] = NULL;
- 	}
- 
-@@ -1535,7 +1534,6 @@ static void __init build_zonelists(pg_da
- 		struct zonelist *zonelist;
- 
- 		zonelist = pgdat->node_zonelists + i;
--		memset(zonelist, 0, sizeof(*zonelist));
- 
- 		j = 0;
- 		k = ZONE_NORMAL;
-diff -puN arch/i386/mm/init.c~A2.2-dont-memset-pgdats arch/i386/mm/init.c
-_
+> > I still want to support vsyscall gettimeofday, although it does have to
+> > be done on an arch-by-arch basis. It's likely the systemcfg data
+> > structure can still be generated and exported. I'll look into it and see
+> > what can be done.
+> 
+> Well, since it only contains the prescale and postscale offsets and the
+> scaling value, it only needs to be updated when they change, so a hook
+> here would be fine.
+
+Great, thats what I was hoping.
+
+thanks
+-john
+

@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311452AbSCSRGt>; Tue, 19 Mar 2002 12:06:49 -0500
+	id <S311454AbSCSRKa>; Tue, 19 Mar 2002 12:10:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311453AbSCSRGj>; Tue, 19 Mar 2002 12:06:39 -0500
-Received: from are.twiddle.net ([64.81.246.98]:26250 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S311452AbSCSRG3>;
-	Tue, 19 Mar 2002 12:06:29 -0500
-Date: Tue, 19 Mar 2002 09:05:59 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Andi Kleen <ak@suse.de>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, davidm@hpl.hp.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.1-pre5: per-cpu areas
-Message-ID: <20020319090559.A6266@twiddle.net>
-Mail-Followup-To: Andi Kleen <ak@suse.de>,
-	Rusty Russell <rusty@rustcorp.com.au>, davidm@hpl.hp.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020318083511.A19810@wotan.suse.de> <E16n74r-00024V-00@wagner.rustcorp.com.au> <20020319011534.A32751@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S311456AbSCSRKU>; Tue, 19 Mar 2002 12:10:20 -0500
+Received: from exchange.macrolink.com ([64.173.88.99]:53264 "EHLO
+	exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S311454AbSCSRKC>; Tue, 19 Mar 2002 12:10:02 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D13A7718@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: Changing KB, MB, and GB to KiB, MiB, and GiB inConfigure.help
+Date: Tue, 19 Mar 2002 09:10:00 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 19, 2002 at 01:15:34AM +0100, Andi Kleen wrote:
-> That would be the idea. gcc would learn how to use the %gs segment prefix
-> (similar to the equivalent feature in Windows compilers).
+Pete Cervasio wrote:
+> 
+> At 02:00 PM 3/18/2002 -0500, Mike Dresser wrote:
 
-Yep.  There are vague plans to do just that.
+> >Dunno about that, the S/N ratio on slashdot seems to get into the kB's
+> >somedays.
+> >
+> 
+> Your threshold is set too high.  Read at -1 for megabels.  ;)
 
+What's brown and sounds like a bel?  :)
 
-r~
+---------------------------------------------------------------- 
+Ed Vance              serial24@macrolink.com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------
+

@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263245AbTDBXw5>; Wed, 2 Apr 2003 18:52:57 -0500
+	id <S263264AbTDBXyo>; Wed, 2 Apr 2003 18:54:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263247AbTDBXw5>; Wed, 2 Apr 2003 18:52:57 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:31045 "EHLO
-	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
-	id <S263245AbTDBXw4>; Wed, 2 Apr 2003 18:52:56 -0500
-Date: Thu, 3 Apr 2003 01:06:16 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Dave McCracken <dmccr@us.ibm.com>
-cc: Andrew Morton <akpm@digeo.com>, <linux-mm@kvack.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.5.66-mm2] Fix page_convert_anon locking issues
-In-Reply-To: <102170000.1049325787@baldur.austin.ibm.com>
-Message-ID: <Pine.LNX.4.44.0304030101430.1279-100000@localhost.localdomain>
+	id <S263265AbTDBXyo>; Wed, 2 Apr 2003 18:54:44 -0500
+Received: from dclient217-162-108-200.hispeed.ch ([217.162.108.200]:32260 "HELO
+	ritz.dnsalias.org") by vger.kernel.org with SMTP id <S263264AbTDBXym> convert rfc822-to-8bit;
+	Wed, 2 Apr 2003 18:54:42 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: Re: [PATCH 2.5] OSS opl3sa2: bring in sync with 2.4
+Date: Thu, 3 Apr 2003 02:04:44 +0200
+User-Agent: KMail/1.4.3
+Cc: Adam Belay <ambx1@neo.rr.com>, linux-kernel <linux-kernel@vger.kernel.org>
+References: <200303292040.15091.daniel.ritz@gmx.ch> <Pine.LNX.4.50.0304021751490.26002-100000@montezuma.mastecende.com>
+In-Reply-To: <Pine.LNX.4.50.0304021751490.26002-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200304030204.44258.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Apr 2003, Dave McCracken wrote:
-> --On Wednesday, April 02, 2003 15:09:03 -0800 Andrew Morton
-> <akpm@digeo.com> wrote:
-> > 
-> > How about setting PageAnon at the _start_ of the operation? 
-> > page_remove_rmap() will cope with that OK.
-> 
-> Hmm... I was gonna say that page_remove_rmap will BUG() if it doesn't find
-> the entry, but it's only under DEBUG and could easily be changed.  Lemme
-> think on this one a bit.  I need to assure myself it's safe to go unlocked
-> in the middle.
+On Thursday 03 April 2003 00:53, Zwane Mwaikambo wrote:
+> On Sat, 29 Mar 2003, Daniel Ritz wrote:
+> > hi adam
+> >
+> > for your oss-2.5 tree. this patch brings sound/oss/opl3sa2.c in sync with
+> > 2.4. compiles and works (testes on my toshiba tecra 8000). against
+> > 2.5.66-bk
+>
+> Firstly thank you very much for getting this done. Do you happen to use
+> isapnp for configuration?
 
-Yes, it's an interesting idea, but by no means clear it's safe.
-I'll think about it too, but sorry, no more tonight.
+yes, a plain "modprobe opl3sa2" is enough, no params, nothing in modprobe.conf...
+(and it's actually playing sound)
 
-Hugh
+>
+> Thanks,
+> 	Zwane
+
+rgds
+-daniel
+
 

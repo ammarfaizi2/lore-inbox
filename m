@@ -1,471 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261600AbSLRNtm>; Wed, 18 Dec 2002 08:49:42 -0500
+	id <S265098AbSLRNuo>; Wed, 18 Dec 2002 08:50:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264672AbSLRNtm>; Wed, 18 Dec 2002 08:49:42 -0500
-Received: from [212.122.164.10] ([212.122.164.10]:47752 "EHLO
-	pechkin.minfin.bg") by vger.kernel.org with ESMTP
-	id <S261600AbSLRNtg>; Wed, 18 Dec 2002 08:49:36 -0500
-Reply-To: <larry@minfin.bg>
-From: "Kostadin Karaivanov" <larry@minfin.bg>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.5.52 hangs on boot
-Date: Wed, 18 Dec 2002 16:01:13 +0200
-Message-ID: <001f01c2a69d$ed52fb70$1504a8c0@larry2>
-MIME-Version: 1.0
+	id <S267253AbSLRNuo>; Wed, 18 Dec 2002 08:50:44 -0500
+Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:48286 "EHLO
+	mail.kolivas.net") by vger.kernel.org with ESMTP id <S265098AbSLRNum>;
+	Wed, 18 Dec 2002 08:50:42 -0500
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+  charset="us-ascii"
+From: Con Kolivas <conman@kolivas.net>
+Reply-To: conman@kolivas.net
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.4.20-ck2
+Date: Thu, 19 Dec 2002 00:58:25 +1100
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200212190058.39029.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have Toshiba satellite pro 4300 notebook it hangs trying to boot 2.5.52
-in my /var/log/syslog I have 6 oops messages per boot (I asume its hapend
-when init trys to initialize my vts)
-I apply decoded one of oppses (its my first try with ksymoops so it can be
-wrongly configured or the options I use can allso be wrong ) and my .config
-file :
-
-
-root@laptop:~# sh ops.sh
-ksymoops 2.4.8 on i686 2.4.20-xfs.  Options used
-     -v /boot/vmlinuz.2.5 (specified)
-     -K (specified)
-     -L (specified)
-     -o /lib/modules/2.5.52 (specified)
-     -m /boot/System.2.5 (specified)
-
-/usr/bin/nm: /boot/vmlinuz.2.5: File format not recognized
-Error (pclose_local): read_nm_symbols pclose failed 0x100
-Warning (read_vmlinux): no kernel symbols in vmlinux, is /boot/vmlinuz.2.5 a
-valid vmlinux file?
-No modules in ksyms, skipping objects
-Dec 17 21:26:31 laptop kernel:  divide error: 0000
-Dec 17 21:26:31 laptop kernel: CPU:    0
-Dec 17 21:26:31 laptop kernel: EIP:    0060:[<c02844c4>]    Not tainted
-Dec 17 21:26:31 laptop kernel: EFLAGS: 00010246
-Dec 17 21:26:31 laptop kernel: eax: 00000400   ebx: c04429c0   ecx: 00000000
-edx: 00000000
-Dec 17 21:26:31 laptop kernel: esi: c7e77400   edi: c7e77400   ebp: 00000001
-esp: c7cb5dfc
-Dec 17 21:26:31 laptop kernel: ds: 0068   es: 0068   ss: 0068
-Dec 17 21:26:31 laptop kernel: Process agetty (pid: 99, threadinfo=c7cb4000
-task=c5d466e0)
-Dec 17 21:26:31 laptop kernel: Stack: c04412c8 c7e77400 c0133bd0 c0397c8c
-00000000 00000000 c0136e4e c7fdf880
-Dec 17 21:26:31 laptop kernel:        00000000 00000100 00000010 00000000
-00000000 00000000 c7e77400 c04429c0
-Dec 17 21:26:31 laptop kernel:        c04412c8 00000003 c04429c0 c7e77400
-00000001 c0283e84 00000003 00000001
-Dec 17 21:26:31 laptop kernel: Call Trace: [<c0133bd0>]  [<c0136e4e>]
-[<c0283e84>]  [<c024a09a>]  [<c024a197>]  [<c024d9c4>]
- [<c023c335>]  [<c0152d26>]  [<c0156f04>]  [<c015830f>]  [<c0152fd6>]
-[<c0149102>]  [<c0148f68>]  [<c01493bb>]  [<c010940f>]
-Dec 17 21:26:31 laptop kernel: Code: f7 76 30 31 d2 89 44 24 20 8b 43 10 8b
-4e 34 f7 f1 89 44 24
-Reading Oops report from the terminal
-Dec 17 21:26:31 laptop kernel: CPU:    0
-Dec 17 21:26:31 laptop kernel: EIP:    0060:[<c02844c4>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-Dec 17 21:26:31 laptop kernel: EFLAGS: 00010246
-Dec 17 21:26:31 laptop kernel: eax: 00000400   ebx: c04429c0   ecx: 00000000
-edx: 00000000
-Dec 17 21:26:31 laptop kernel: esi: c7e77400   edi: c7e77400   ebp: 00000001
-esp: c7cb5dfc
-Dec 17 21:26:31 laptop kernel: ds: 0068   es: 0068   ss: 0068
-Dec 17 21:26:31 laptop kernel: Stack: c04412c8 c7e77400 c0133bd0 c0397c8c
-00000000 00000000 c0136e4e c7fdf880
-Dec 17 21:26:31 laptop kernel:        00000000 00000100 00000010 00000000
-00000000 00000000 c7e77400 c04429c0
-Dec 17 21:26:31 laptop kernel:        c04412c8 00000003 c04429c0 c7e77400
-00000001 c0283e84 00000003 00000001
-Dec 17 21:26:31 laptop kernel: Call Trace: [<c0133bd0>]  [<c0136e4e>]
-[<c0283e84>]  [<c024a09a>]  [<c024a197>]  [<c024d9c4>]
- [<c023c335>]  [<c0152d26>]  [<c0156f04>]  [<c015830f>]  [<c0152fd6>]
-[<c0149102>]  [<c0148f68>]  [<c01493bb>]  [<c010940f>]
-Dec 17 21:26:31 laptop kernel: Code: f7 76 30 31 d2 89 44 24 20 8b 43 10 8b
-4e 34 f7 f1 89 44 24
-
-
->>EIP; c02844c4 <accel_clear_margins+64/100>   <=====
-
->>ebx; c04429c0 <pixmap.1+1840/2000>
-
-Trace; c0133bd0 <buffered_rmqueue+90/150>
-Trace; c0136e4e <cache_grow+20e/220>
-Trace; c0283e84 <vgacon_dummy+4/10>
-Trace; c024a09a <redraw_screen+fa/190>
-Trace; c024a197 <visual_init+47/110>
-Trace; c024d9c4 <con_stop+24/90>
-Trace; c023c335 <tty_open+105/400>
-Trace; c0152d26 <cdput+36/60>
-Trace; c0156f04 <vfs_permission+4/110>
-Trace; c015830f <unlock_rename+3f/50>
-Trace; c0152fd6 <register_chrdev+96/f0>
-Trace; c0149102 <dentry_open+32/1c0>
-Trace; c0148f68 <sys_chown+28/60>
-Trace; c01493bb <get_unused_fd+12b/1b0>
-Trace; c010940f <syscall_call+7/b>
-
-Code;  c02844c4 <accel_clear_margins+64/100>
-00000000 <_EIP>:
-Code;  c02844c4 <accel_clear_margins+64/100>   <=====
-   0:   f7 76 30                  divl   0x30(%esi)   <=====
-Code;  c02844c7 <accel_clear_margins+67/100>
-   3:   31 d2                     xor    %edx,%edx
-Code;  c02844c9 <accel_clear_margins+69/100>
-   5:   89 44 24 20               mov    %eax,0x20(%esp,1)
-Code;  c02844cd <accel_clear_margins+6d/100>
-   9:   8b 43 10                  mov    0x10(%ebx),%eax
-Code;  c02844d0 <accel_clear_margins+70/100>
-   c:   8b 4e 34                  mov    0x34(%esi),%ecx
-Code;  c02844d3 <accel_clear_margins+73/100>
-   f:   f7 f1                     div    %ecx
-Code;  c02844d5 <accel_clear_margins+75/100>
-  11:   89 44 24 00               mov    %eax,0x0(%esp,1)
-
-
-root@laptop:~#grep -v ^#  /usr/src/linux-2.5.52/.config
-
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_SWAP=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-
-CONFIG_EXPERIMENTAL=y
-
-CONFIG_NET=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-
-CONFIG_MPENTIUMIII=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_PREEMPT=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_TOSHIBA=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-
-CONFIG_PM=y
-
-CONFIG_APM=y
-CONFIG_APM_DO_ENABLE=y
-CONFIG_APM_CPU_IDLE=y
-CONFIG_APM_DISPLAY_BLANK=y
-CONFIG_APM_RTC_IS_GMT=y
-CONFIG_CPU_FREQ=y
-CONFIG_CPU_FREQ_24_API=y
-CONFIG_X86_SPEEDSTEP=y
-
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-CONFIG_EISA=y
-CONFIG_MCA=y
-
-CONFIG_HOTPLUG=y
-
-CONFIG_PCMCIA=y
-CONFIG_CARDBUS=y
-
-
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-
-
-
-
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-
-CONFIG_IDE=y
-
-CONFIG_BLK_DEV_IDE=y
-
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDEFLOPPY=y
-
-CONFIG_BLK_DEV_CMD640=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-
-
-
-
-
-
-
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETFILTER=y
-CONFIG_UNIX=y
-CONFIG_NET_KEY=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_NET_IPIP=m
-CONFIG_NET_IPGRE=m
-CONFIG_INET_ECN=y
-CONFIG_INET_AH=y
-CONFIG_INET_ESP=y
-CONFIG_XFRM_USER=y
-
-CONFIG_IP_NF_CONNTRACK=y
-CONFIG_IP_NF_FTP=y
-CONFIG_IP_NF_IRC=y
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_MATCH_LIMIT=y
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_PKTTYPE=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_ECN=m
-CONFIG_IP_NF_MATCH_DSCP=m
-CONFIG_IP_NF_MATCH_AH_ESP=m
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_HELPER=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_CONNTRACK=m
-CONFIG_IP_NF_MATCH_UNCLEAN=m
-CONFIG_IP_NF_MATCH_OWNER=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_TARGET_MIRROR=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_NAT_LOCAL=y
-CONFIG_IP_NF_NAT_SNMP_BASIC=m
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_ECN=m
-CONFIG_IP_NF_TARGET_DSCP=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_ULOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_ARPTABLES=m
-CONFIG_IP_NF_ARPFILTER=m
-
-CONFIG_IPV6_SCTP__=y
-
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_CBQ=y
-CONFIG_NET_SCH_HTB=y
-CONFIG_NET_SCH_CSZ=y
-CONFIG_NET_SCH_PRIO=y
-CONFIG_NET_SCH_RED=y
-CONFIG_NET_SCH_SFQ=y
-CONFIG_NET_SCH_TEQL=y
-CONFIG_NET_SCH_TBF=y
-CONFIG_NET_SCH_GRED=y
-CONFIG_NET_SCH_DSMARK=y
-CONFIG_NET_SCH_INGRESS=y
-CONFIG_NET_QOS=y
-CONFIG_NET_ESTIMATOR=y
-CONFIG_NET_CLS=y
-CONFIG_NET_CLS_TCINDEX=y
-CONFIG_NET_CLS_ROUTE4=y
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_NET_CLS_FW=y
-CONFIG_NET_CLS_U32=y
-CONFIG_NET_CLS_RSVP=y
-CONFIG_NET_CLS_RSVP6=y
-CONFIG_NET_CLS_POLICE=y
-
-
-CONFIG_NETDEVICES=y
-
-
-
-
-
-
-
-CONFIG_NET_PCMCIA=y
-CONFIG_PCMCIA_3C574=m
-
-
-
-
-
-CONFIG_INPUT=y
-
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_MOUSE_SERIAL=y
-CONFIG_MOUSE_INPORT=y
-CONFIG_MOUSE_ATIXL=y
-CONFIG_MOUSE_LOGIBM=y
-CONFIG_MOUSE_PC110PAD=y
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-
-CONFIG_SERIAL_8250=y
-
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-
-
-CONFIG_BUSMOUSE=y
-
-CONFIG_INTEL_RNG=y
-CONFIG_RTC=y
-
-
-
-
-CONFIG_QUOTACTL=y
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=m
-CONFIG_EXT2_FS_XATTR=y
-CONFIG_EXT2_FS_POSIX_ACL=y
-CONFIG_XFS_FS=y
-CONFIG_XFS_QUOTA=y
-CONFIG_XFS_POSIX_ACL=y
-
-CONFIG_SMB_FS=y
-CONFIG_SMB_NLS_DEFAULT=y
-CONFIG_SMB_NLS_REMOTE="cp437"
-CONFIG_ZISOFS_FS=y
-CONFIG_FS_MBCACHE=m
-CONFIG_FS_POSIX_ACL=y
-
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_ISO8859_1=y
-
-CONFIG_FB=y
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_PCI_CONSOLE=y
-CONFIG_FBCON_ADVANCED=y
-CONFIG_FONTWIDTH8_ONLY=y
-CONFIG_FONT_SUN8x16=y
-CONFIG_FONTS=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-CONFIG_FONT_PEARL_8x8=y
-CONFIG_FONT_ACORN_8x8=y
-CONFIG_FONT_MINI_4x6=y
-
-CONFIG_SOUND=y
-
-
-CONFIG_SND=y
-
-
-
-CONFIG_SND_YMFPCI=y
-
-
-
-
-CONFIG_DEBUG_KERNEL=y
-
-CONFIG_SECURITY=y
-CONFIG_SECURITY_CAPABILITIES=y
-
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_HMAC=y
-CONFIG_CRYPTO_NULL=m
-CONFIG_CRYPTO_MD4=y
-CONFIG_CRYPTO_MD5=y
-CONFIG_CRYPTO_SHA1=y
-CONFIG_CRYPTO_SHA256=y
-CONFIG_CRYPTO_DES=y
-CONFIG_CRYPTO_BLOWFISH=y
-CONFIG_CRYPTO_TWOFISH=y
-CONFIG_CRYPTO_SERPENT=y
-
-CONFIG_ZLIB_INFLATE=y
-CONFIG_X86_BIOS_REBOOT=y
-
-
-
-
-Kostadin Karaivanov
-Senior System Administrator @ Ministry Of Finance
-tel: +359 2 98592062
-larry@minfin.bg
-
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Updated my patchset
+
+Includes:
+O(1) scheduler with batch scheduling
+Preemptible - updated
+Low Latency - updated
+AA vm addons
+or
+Rmap15b - updated
+Read latency2 - added
+ALSA 0.90rc2
+Supermount
+XFS 1.2pre3
+ACPI - updated
+Variable Hz - added
+
+
+added extras available by request but not in the default patch (less tested 
+and tuning changes):
+
+Tuning - added
+1000Hz with autoregulated timeslice - updated/resync
+Compressed Caching 0.24pre5 - updated - *still not safe with preempt*
+
+Get it here:
+http://kernel.kolivas.net
+
+Cheers,
+Con
+
+P.S. feel free to contact me with comments, suggestions, patches or questions.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE+AH8DF6dfvkL3i1gRAj6DAKCDXYmsUWUEDm/QNGlnE0R+XWmFigCfYL7L
+6uuEedutsFDS/CKdkq1q8PY=
+=f/3S
+-----END PGP SIGNATURE-----

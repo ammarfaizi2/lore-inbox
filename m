@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269281AbRHGSak>; Tue, 7 Aug 2001 14:30:40 -0400
+	id <S269284AbRHGSlW>; Tue, 7 Aug 2001 14:41:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269274AbRHGSab>; Tue, 7 Aug 2001 14:30:31 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:55569 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S269280AbRHGSaZ>; Tue, 7 Aug 2001 14:30:25 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Ed Tomlinson <tomlins@cam.org>, "Stephen C. Tweedie" <sct@redhat.com>
-Subject: Re: [RFC] using writepage to start io
-Date: Tue, 7 Aug 2001 20:36:20 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-In-Reply-To: <755760000.997128720@tiny> <20010807120234.D4036@redhat.com> <20010807113944.D229E7B53@oscar.casa.dyndns.org>
-In-Reply-To: <20010807113944.D229E7B53@oscar.casa.dyndns.org>
+	id <S269290AbRHGSlM>; Tue, 7 Aug 2001 14:41:12 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:53922 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S269284AbRHGSlD>; Tue, 7 Aug 2001 14:41:03 -0400
+Date: Tue, 7 Aug 2001 14:40:57 -0400 (EDT)
+From: Ben LaHaise <bcrl@redhat.com>
+X-X-Sender: <bcrl@touchme.toronto.redhat.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>
+Subject: Re: [RFC][DATA] re "ongoing vm suckage"
+In-Reply-To: <3B7030B3.9F2E8E67@zip.com.au>
+Message-ID: <Pine.LNX.4.33.0108071426380.30280-100000@touchme.toronto.redhat.com>
 MIME-Version: 1.0
-Message-Id: <0108072036200D.02365@starship>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 August 2001 13:39, Ed Tomlinson wrote:
-> On August 7, 2001 07:02 am, Stephen C. Tweedie wrote:
-> > On Mon, Aug 06, 2001 at 11:18:26PM +0200, Daniel Phillips wrote:
-> > > > On Monday, August 06, 2001 09:45:12 PM +0200 Daniel Phillips
-> > > >
-> > > > Grin, we're talking in circles.  My point is that by having two
-> > > > threads, bdflush is allowed to skip over older buffers in favor
-> > > > of younger ones because somebody else is responsible for writing
-> > > > the older ones out.
-> > >
-> > > Yes, and you can't imagine an algorithm that could do that with
-> > > *one* thread?
-> >
-> > FWIW, we've seen big performance degradations in the past when
-> > testing different ext3 checkpointing modes.  You can't reuse a disk
-> > block in the journal without making sure that the data in it has
-> > been flushed to disk, so ext3 does regular checkpointing to flush
-> > journaled blocks out.  That can interact very badly with normal VM
-> > writeback if you're not careful: having two threads doing the same
-> > thing at the same time can just thrash the disk.
-> >
-> > Parallel sync() calls from multiple processes has shown up the same
-> > behaviour on ext2 in the past.  I'd definitely like to see at most
-> > one thread of writeback per disk to avoid that.
+On Tue, 7 Aug 2001, Andrew Morton wrote:
+
+> Ben, are you using software RAID?
 >
-> Be carefull here.  I have a system (solaris) at the office that has 96
-> drives on it.  Do we really want 96 writeback threads?  With 96
-> drives, suspect the bus bandwidth would be the limiting factor.
+> The throughput problems which Mike Black has been seeing with
+> ext3 seem to be specific to an interaction with software RAID5
+> and possibly highmem.  I've never been able to reproduce them.
 
-Surely these are grouped into some kind of raid?  You'd have one queue
-per raid.  Since the buffer submission is nonblocking[1] it's a matter
-of taste whether that translates into multiple threads or not.
+Yes, but I'm using raid 0.  The ratio of highmem to normal memory is
+~3.25:1, and it would seem that this is breaking write throttling somehow.
+The interaction between vm and io throttling is not at all predictable.
+Certainly, pulling highmem out of the equation results in writes
+proceeding at the speed of the disk, which makes me wonder if the bounce
+buffer allocation is triggering the vm code to attempt to free more
+memory.... Ah, and that would explain why shorter io queues makes things
+smoother: less memory pressure is occuring on the normal memory zone from
+bounce buffers.  The original state of things was allowing several hundred
+MB of ram to be allocated for bounce buffers, which lead to a continuous
+shortage, causing kswapd et al to spin in a loop making no progress.
 
-[1] So long as you don't run into the low level request limits which
-should never happen if you pay attention to how much IO is in flight.
+Hmmm, how to make kswapd/bdflush/kreclaimd all back off until progress is
+made in cleaning the io queue?
 
---
-Daniel
+		-ben
+
+

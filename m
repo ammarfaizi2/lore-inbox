@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129436AbRBDQZA>; Sun, 4 Feb 2001 11:25:00 -0500
+	id <S129057AbRBDQqS>; Sun, 4 Feb 2001 11:46:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131967AbRBDQYu>; Sun, 4 Feb 2001 11:24:50 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:8172 "EHLO
-	VL-MS-MR003.sc1.videotron.ca") by vger.kernel.org with ESMTP
-	id <S129436AbRBDQYi>; Sun, 4 Feb 2001 11:24:38 -0500
-From: Mathieu Dube <mathieu_dube@videotron.ca>
-Reply-To: mathieu_dube@videotron.ca
-Organization: Mondo-Live
-To: linux-kernel@vger.kernel.org
-Subject: Re: accept
-Date: Sun, 4 Feb 2001 11:40:55 -0500
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <200102040044.f140i7a473095@saturn.cs.uml.edu>
-In-Reply-To: <200102040044.f140i7a473095@saturn.cs.uml.edu>
-Cc: acahalan@cs.uml.edu
+	id <S129078AbRBDQqI>; Sun, 4 Feb 2001 11:46:08 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27407 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129057AbRBDQpz>; Sun, 4 Feb 2001 11:45:55 -0500
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+To: bsuparna@in.ibm.com
+Date: Sun, 4 Feb 2001 16:46:39 +0000 (GMT)
+Cc: sct@redhat.com (Stephen C. Tweedie), linux-kernel@vger.kernel.org,
+        kiobuf-io-devel@lists.sourceforge.net,
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        hch@caldera.de (Christoph Hellwig), ak@suse.de (Andi Kleen)
+In-Reply-To: <CA2569E9.004A4E23.00@d73mta05.au.ibm.com> from "bsuparna@in.ibm.com" at Feb 04, 2001 06:54:58 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Message-Id: <01020411423601.00110@grndctrl>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14PSJF-0001qi-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 03 Feb 2001, you wrote:
-> > What does it typically mean when accept returns 0
-> > and that the perror outputs "Interupted system call"??
+> It appears that we are coming across 2 kinds of requirements for kiobuf
+> vectors - and quite a bit of debate centering around that.
 > 
-> During the call, your process received a signal.
-> Most system calls are affected in this way, so that
-> you may break out of what you are doing by sending
-> a signal to yourself with alarm().
-> 
-> It sucks too, since you have to wrap nearly every
-> system call in a while loop. You can avoid some of
-> the trouble with careful use of sigaction() to make
-> the OS restart system calls in some conditions.
-Could it be the SIG32 signal that pthreads use ??
--- 
-Mathieu Dube
-Mondo-Live
+> 1. In the block device i/o world, where large i/os may be involved, we'd
+> 2. In the networking world, we deal with smaller fragments (for protocol
+
+Its probably worth commenting at this point that the I2O message passing layers
+do indeed have both #1 and #2 type descriptor chains to optimise performance
+for different tasks. We arent the only people to hit this.
+
+I2O supports 
+	offset, pagelist, length
+
+where the middle pages in the list are entirely copied
+
+And sets of
+	addr, len
+
+tuples.
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,68 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129765AbQLDV6t>; Mon, 4 Dec 2000 16:58:49 -0500
+	id <S129725AbQLDWGW>; Mon, 4 Dec 2000 17:06:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130003AbQLDV6j>; Mon, 4 Dec 2000 16:58:39 -0500
-Received: from tellus.thn.htu.se ([193.10.192.40]:55056 "EHLO thn.htu.se")
-	by vger.kernel.org with ESMTP id <S129765AbQLDV61>;
-	Mon, 4 Dec 2000 16:58:27 -0500
-Date: Mon, 4 Dec 2000 22:27:05 +0100 (CET)
-From: Richard Torkar <ds98rito@thn.htu.se>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: HPT366 + SMP = slight corruption in 2.3.99 - 2.4.0-11
-In-Reply-To: <Pine.LNX.4.30.0012041249020.22668-100000@anime.net>
-Message-ID: <Pine.LNX.4.30.0012042223520.1412-100000@toor.thn.htu.se>
+	id <S129724AbQLDWGN>; Mon, 4 Dec 2000 17:06:13 -0500
+Received: from nread2.inwind.it ([212.141.53.75]:36510 "EHLO relay4.inwind.it")
+	by vger.kernel.org with ESMTP id <S129410AbQLDWGF>;
+	Mon, 4 Dec 2000 17:06:05 -0500
+From: Roberto Ragusa <robertoragusa@technologist.com>
+To: linux-kernel@vger.kernel.org
+Date: Mon, 04 Dec 2000 22:21:53 +0200
+Message-ID: <yam8373.2691.155547848@a4000>
+In-Reply-To: <14888.93.991512.725794@notabene.cse.unsw.edu.au>
+X-Mailer: YAM 2.1 [060] AmigaOS E-Mail Client (c) 1995-2000 by Marcel Beck  http://www.yam.ch
+Subject: Re: kernel panic in SoftwareRAID autodetection
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 01-Dec-00, Neil Brown wrote:
+> On Friday December 1, robertoragusa@technologist.com wrote:
+>> I found a real showstopper problem in the SoftwareRAID autodetect
+>> code; 2.4.0-test10 and 2.4.0-test11 are affected (I didn't test
+>> previous versions).
+[detailed report]
+> 
+> Fixed in 2.4.0-test12pre3.  
 
-Dan Hollis wrote:
+I tried 2.4.0-test12pre3.
+The problem is *not* fixed: kernel panic again.
 
-> On Tue, 5 Dec 2000, Gerard Sharp wrote:
-> > Gnea wrote:
-> > > >  [1.] One line summary of the problem:
-> > > >  Intermittent corruption of 4 bytes in SMP kernels using HPT366
-> > > [snip]
-> > > Have you tried updating the bios on the bp6? This solved a LOT of
-> > > problems for me, and afaik, ru is the latest...
-> > RU seems the latest. Flashed bios as per your nicely detailed
-> > instructions.
-> > No improvement in condition, alas.
->
-> HPT366 on BP6 is just broken. Corruption and lockups happen under
-> microsoft-windoze as well.
->
+Please CC to me because I'm not a LKML subscriber.
 
-Not my experience Dan.
-
-I've used my BP6 + HPT366 for a while now and I haven't had on lockup.
-No corruption either.
-
-Presently I use 2.4.0-test11-p4 and I have been following the 2.3.* kernel
-since the day I got the BP6.
-
-I have two Celeron 500 which are *not* o/c.
-I have seti@home running on this box 24/7.
-I use the latest BIOS.
-
-I guess I'm lucky *grin*
-
-
-
-/Richard
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6LAwsUSLExYo23RsRAtY+AKCOuqpfcSa73zzpHQfddSY/7JG8IACffPRe
-UzfNUJ7t3y2jdsS4jmS4Ggg=
-=FdqO
------END PGP SIGNATURE-----
-
+-- 
+        Roberto Ragusa   robertoragusa at technologist.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

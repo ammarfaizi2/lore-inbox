@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129136AbQKSHVA>; Sun, 19 Nov 2000 02:21:00 -0500
+	id <S129152AbQKSHWl>; Sun, 19 Nov 2000 02:22:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129152AbQKSHUu>; Sun, 19 Nov 2000 02:20:50 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:9738 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S129136AbQKSHUl>;
-	Sun, 19 Nov 2000 02:20:41 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200011190650.eAJ6oMs06975@saturn.cs.uml.edu>
-Subject: Re: sunhme.c patch for new PCI interface (UNTESTED)
-To: adam@yggdrasil.com (Adam J. Richter)
-Date: Sun, 19 Nov 2000 01:50:22 -0500 (EST)
-Cc: davem@redhat.com, jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org,
-        willy@meta-x.org, wtarreau@yahoo.fr
-In-Reply-To: <200011172215.OAA06687@adam.yggdrasil.com> from "Adam J. Richter" at Nov 17, 2000 02:15:03 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S131716AbQKSHWb>; Sun, 19 Nov 2000 02:22:31 -0500
+Received: from blue.cdf.toronto.edu ([128.100.31.7]:13316 "EHLO
+	blue.cdf.utoronto.ca") by vger.kernel.org with ESMTP
+	id <S129152AbQKSHWS>; Sun, 19 Nov 2000 02:22:18 -0500
+Date: Sun, 19 Nov 2000 02:03:42 -0500 (EST)
+From: Andrew Park <apark@cdf.toronto.edu>
+To: linux-kernel@vger.kernel.org
+Subject: neighbour table?
+In-Reply-To: <3A17739A.29AFFAC6@linux.com>
+Message-ID: <Pine.LNX.4.21.0011190158480.3036-100000@blue.cdf.utoronto.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam J. Richter writes:
+I get a message
 
-> 	Can I have a hot plug PCI bridge card that connects to
-> a regular PCI backplane (perhaps as some kind of CardBus docking
-> station card)?  If so, all PCI drivers should use __dev{init,exit}{,data}.
+	neighbour table overflow
 
-PCI is certainly hot-plug hardware, but not on common desktop PCs.
-Since PCI is so popular and so often not hot-plug, users should
-not be forced to have hot-plug PCI support when they only need
-hot-plug SCSI, etc.
+What does that mean?  It seems that
 
-Obvious hack:  __pciinit, __pciexit, __pciinitdata...
+	net/ipv4/route.c
+
+is the place where it prints this.  But under what circumstances
+does this happen?
+Thanks
+
+-A.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

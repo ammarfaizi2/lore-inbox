@@ -1,72 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbULSCkf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbULSDOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261267AbULSCkf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Dec 2004 21:40:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbULSCke
+	id S261264AbULSDOk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Dec 2004 22:14:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbULSDOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Dec 2004 21:40:34 -0500
-Received: from rproxy.gmail.com ([64.233.170.204]:57468 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261267AbULSCk2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Dec 2004 21:40:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Ywd2XJkqKe89+frJ6awlR4L09Lb72iFrF4JzF8+UDevEtzi7+Vx2BdWkavj0bcGAztCEhY9ynXGPQ7Vou/Ax8jvJtKwAmqksMicaVoaUsUQEPxLgax1eVOuBxRY7P4iXcDo0NtZl0V0QFy5JcqFfRLTURacLZG3nHacLMn3Rnss=
-Message-ID: <29495f1d04121818403f949fdd@mail.gmail.com>
-Date: Sat, 18 Dec 2004 18:40:21 -0800
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: [PATCH] Remove RCU abuse in cpu_idle()
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Dipankar Sarma <dipankar@in.ibm.com>, Li Shaohua <shaohua.li@intel.com>,
-       Len Brown <len.brown@intel.com>
-In-Reply-To: <Pine.LNX.4.61.0412112244000.7847@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 18 Dec 2004 22:14:40 -0500
+Received: from ppp-202.176.140.131.revip.asianet.co.th ([202.176.140.131]:19083
+	"EHLO mhfl2.mhf.dom") by vger.kernel.org with ESMTP id S261264AbULSDOh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Dec 2004 22:14:37 -0500
+From: Michael Frank <mhf@berlios.de>
+To: softwaresuspend-devel@lists.berlios.de
+Subject: Re: [SoftwareSuspend-devel] 2.6 Suspend PM issues
+Date: Sun, 19 Dec 2004 11:14:24 +0800
+Cc: Pavel Machek <pavel@ucw.cz>, Patrick Mochel <mochel@digitalimplant.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200412171315.50463.mhf@berlios.de> <20041218074202.GG29084@elf.ucw.cz> <20041218075003.GA3015@elf.ucw.cz>
+In-Reply-To: <20041218075003.GA3015@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-References: <20041205004557.GA2028@us.ibm.com>
-	 <20041205232007.7edc4a78.akpm@osdl.org>
-	 <Pine.LNX.4.61.0412060157460.1036@montezuma.fsmlabs.com>
-	 <20041206160405.GB1271@us.ibm.com>
-	 <Pine.LNX.4.61.0412060941560.5219@montezuma.fsmlabs.com>
-	 <20041206192243.GC1435@us.ibm.com>
-	 <Pine.LNX.4.61.0412110804500.5214@montezuma.fsmlabs.com>
-	 <Pine.LNX.4.61.0412112123490.7847@montezuma.fsmlabs.com>
-	 <Pine.LNX.4.61.0412112205290.7847@montezuma.fsmlabs.com>
-	 <Pine.LNX.4.61.0412112244000.7847@montezuma.fsmlabs.com>
+Content-Disposition: inline
+Message-Id: <200412191114.25930.mhf@berlios.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Dec 2004 22:49:28 -0700 (MST), Zwane Mwaikambo
-<zwane@arm.linux.org.uk> wrote:
-> On Sat, 11 Dec 2004, Zwane Mwaikambo wrote:
-> 
-> > > Introduce cpu_idle_wait() on architectures requiring modification of
-> > > pm_idle from modules, this will ensure that all processors have updated
-> > > their cached values of pm_idle upon exit. This patch is to address the bug
-> > > report at http://bugme.osdl.org/show_bug.cgi?id=1716 and replaces the
-> > > current code fix which is in violation of normal RCU usage as pointed out
-> > > by Stephen, Dipankar and Paul.
+On Saturday 18 December 2004 15:50, Pavel Machek wrote:
+> Hi!
+>
+> > > > > > By what was discussed wrt ALSA issue I gather that you still
+> > > > > > resume _all_ drivers after doing the atomic copy?
+> > > > > >
+> > > > > > As explained earlier this year, if this is the case, it is
+> > > > > > firstly unacceptable as it will result in loss of data in many
+> > > > > > applications and secondly very clumsy.
+> > > > > >
+> > > > > > Example With 2.4 OK, with 2.6 It would fail:
+> > > > > > A datalogger connected to a seral port of a notebook in the
+> > > > > > field. Data transfer in progress which can be put on hold bo
+> > > > > > lowering RTS (HW handshake) but _cannot_ be restarted. Battery
+> > > > > > low, must suspend to change battery, upon resume transfer can
+> > > > > > continue.
+> > > > > >
+> > > > > > Will this be taken care of?
+> > > >
+> > > > Driver will get enough info in its resume routine ("hey, it is
+> > > > resume, but it is only resume after atomic copy"), so it can ignore
+> > > > the resume if it really needs to.
+> > >
+> > > Each driver has to make the decision when to ignore resume? that would
+> > > add a lot of bloat as well as lots of work to implement and test the
+> > > changes for 100s of drivers...
+> >
+> > No, only those drivers where extra resume does some damage. So far I
+> > know about one, and that's your data logging device.
+>
+> ...which will not work anyway, swsusp1 or swsusp2. Have you actually
+> tried it?
 
-<snip>
+I put suspend support into 2.4 serial driver and use it. It does work.
 
-> +       wmb();
-> +       do {
-> +               schedule_timeout(HZ);
-> +               cpus_and(map, cpu_idle_map, cpu_online_map);
-> +       } while (!cpus_empty(map));
+2.6 serial driver suspend was not working a year ago, have not tried since.
 
-<snip>
+>
+> During boot, BIOS is probably going to play with RTS anyway. So no
+> matter what you do during suspend, you are probably going to screw it
+> up anyway on the boot just before resume.
 
-All of these schedule_timeout() calls are broken. They do not set the
-state before hand and therefore will return early. Since you're not
-checking for signals and there are no waitqueue events around the
-code, I'm assuming you can just use ssleep(1) instead of the current
-schedule_timeout() calls.
+Luckily not on several of my machines and the linux 2.4 driver at least 
+does not turn the lines on until resume tells it to do so...
 
-Thanks,
-Nish
+>
+> So there are currently 0 examples where extra resume hurts.
+
+still 1 ;) and the same thing would apply to using an USB dongle and 
+there will be many applications were it hurts as well.
+
+Then, extra resume is not required, it's bad when it causes strain on the 
+power source (notebook battery low), is a clumsy implementation and slows 
+suspend process down.
+
+Michael

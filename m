@@ -1,88 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317094AbSEXGKP>; Fri, 24 May 2002 02:10:15 -0400
+	id <S317097AbSEXGNw>; Fri, 24 May 2002 02:13:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317096AbSEXGKO>; Fri, 24 May 2002 02:10:14 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:36261 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317094AbSEXGKM>;
-	Fri, 24 May 2002 02:10:12 -0400
-Date: Fri, 24 May 2002 11:43:18 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: BALBIR SINGH <balbir.singh@wipro.com>
-Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
-        Paul McKenney <paul.mckenney@us.ibm.com>,
-        lse-tech@lists.sourceforge.net
-Subject: Re: [RFC] Dynamic percpu data allocator
-Message-ID: <20020524114318.A11249@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-In-Reply-To: <20020523183835.E4714@in.ibm.com> <AAEGIMDAKGCBHLBAACGBOEKFCJAA.balbir.singh@wipro.com>
+	id <S317101AbSEXGNv>; Fri, 24 May 2002 02:13:51 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:46824 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317097AbSEXGNt>;
+	Fri, 24 May 2002 02:13:49 -0400
+Date: Thu, 23 May 2002 22:59:27 -0700 (PDT)
+Message-Id: <20020523.225927.132611174.davem@redhat.com>
+To: wjhun@ayrnetworks.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Possible discrepancy regarding streaming DMA mappings in
+ DMA-mapping.txt?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020523162425.G7205@ayrnetworks.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 24, 2002 at 10:07:59AM +0530, BALBIR SINGH wrote:
-> Hello, Dipankar,
-> 
-> I would prefer to use the existing slab allocator for this.
-> I am not sure if I understand your requirements for the per-cpu
-> allocator correctly, please correct me if I do not.
-> 
-> What I would like to see
-> 
-> 1. Have per-cpu slabs instead of per-cpu cpucache_t. One should
->    be able to tell for which caches we want per-cpu slabs. This
->    way we can make even kmalloc per-cpu. Since most of the kernel
->    would use and dispose memory before they migrate across cpus.
->    I think this would be useful, but again no data to back it up.
+   From: William Jhun <wjhun@ayrnetworks.com>
+   Date: Thu, 23 May 2002 16:24:25 -0700
+   
+   However, shouldn't pci_dma_sync_*() be called *before* each
+   PCI_DMA_TODEVICE DMA transfer (after the CPU write, of course) and
+   *after* each PCI_DMA_FROMDEVICE DMA transfer (before CPU access)? And,
+   of course, before and after a "bidirectional" DMA, if appropriate.
+   
+CPU owns the data before pci_map_{sg,single}(), afterwards device
+owns the data.  If CPU wants ownership again, it must wait for
+device to finish with the data when do a pci_sync_{sg,single}().
 
-Allocating cpu-local memory is a different issue altogether.
-Eventually for NUMA support, we will have to do such allocations
-that supports choosing memory closest to a group of CPUs.
-
-The per-cpu data allocator allocates one copy for *each* CPU.
-It uses the slab allocator underneath. Eventually, when/if we have
-per-cpu/numa-node slab allocation, the per-cpu data allocator
-can allocate every CPU's copy from memory closest to it.
-
-I suppose you worked on DYNIX/ptx ? Think of this as dynamic
-plocal. 
-
-> 
-> 2. I hate the use of NR_CPUS. If I compiled an SMP kernel on a two
->    CPU machine, I still end up with support for 32 CPUs. What I would
-
-If you don't like it, just define NR_CPUS to 2 and recompile.
-
-
->    like to see is that in new kernel code, we should use treat equivalent
->    classes of CPUs as belonging to the same CPU. For example
-> 
->    void *blkaddrs[NR_CPUS];
-> 
->    while searching, instead of doing
-> 
->    blkaddrs[smp_processor_id()], if the slot for smp_processor_id() is full,
->    we should look through
-> 
->    for (i = 0; i < NR_CPUS; i++) {
->      look into blkaddrs[smp_processor_id() + i % smp_number_of_cpus()(or
-> whatever)]
->      if successful break
->    }
-
-How will it work ? You could be accessing memory beyond blkaddrs[].
-
-I use NR_CPUS for allocations because if I don't, supporting CPU
-hotplug will be a nightmare. Resizing so many data structures is
-not an option. I believe Rusty and/or cpu hotplug work is
-adding a for_each_cpu() macro to walk the CPUs that take
-care of everything including sparse CPU numbers. Until then,
-I would use for (i = 0; i < smp_num_cpus; i++).
-
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+You are thinking about CPU cache flushing, and that is a detail
+handled transparently to the DMA apis.  If you follow the rules
+described in the documentation and in my previous paragraph,
+the ARCH specific code does the right thing for you.

@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317463AbSINSvo>; Sat, 14 Sep 2002 14:51:44 -0400
+	id <S317471AbSINTMf>; Sat, 14 Sep 2002 15:12:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317468AbSINSvo>; Sat, 14 Sep 2002 14:51:44 -0400
-Received: from h00010256f583.ne.client2.attbi.com ([66.30.243.14]:33731 "EHLO
-	portent.dyndns.org") by vger.kernel.org with ESMTP
-	id <S317463AbSINSvo>; Sat, 14 Sep 2002 14:51:44 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Lev Makhlis <mlev@despammed.com>
-To: ricklind@us.ibm.com
-Subject: Re: [RFC][PATCH] sard changes for 2.5.34
-Date: Sat, 14 Sep 2002 14:57:54 -0400
-User-Agent: KMail/1.4.2
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200209141457.54905.mlev@despammed.com>
+	id <S317473AbSINTMe>; Sat, 14 Sep 2002 15:12:34 -0400
+Received: from qix.net ([207.40.214.9]:35088 "EHLO neocygnus.qix.net")
+	by vger.kernel.org with ESMTP id <S317471AbSINTMe>;
+	Sat, 14 Sep 2002 15:12:34 -0400
+Date: Sat, 14 Sep 2002 15:27:32 -0400
+From: Dave Maietta <dave@qix.net>
+To: linux-kernel@vger.kernel.org
+Cc: trivial@rustcorp.com.au
+Subject: [TRIVIAL][PATCH] 2.4 drivers_char_random.c fix sample shellscripts
+Message-ID: <20020914152732.A8713@hell>
+Reply-To: dave@qix.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.2.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +#define MSEC(x) ((x) * 1000 / HZ)
+This fixes the sample shellscripts given in the comments of 
+drivers/char/random.c.
+The scripts save and restore random seeds for /dev/random across reboots.
 
-Perhaps it would be better to report the times in ticks using 
-jiffies_to_clock_t(), and let the userland do further conversions?
-The macro above has an overflow problem, it creates a counter
-that wraps at 2^32 / HZ (instead of 2^32), and theoretically, the
-userland doesn't even know what the internal HZ is.  The overflow
-can be avoided with something like
-#define MSEC(x) (((x) / HZ) * 1000 + ((x) % HZ) * 1000 / HZ)
-but I think it would be cleaner just to change the units to ticks,
-especially if we're moving it to a different file and procps will
-need to be changed anyway.
+--- linux/drivers/char/random.c.orig	2002-09-14 14:56:03.000000000 -0400
++++ linux/drivers/char/random.c	2002-09-14 14:56:51.000000000 -0400
+@@ -175,7 +175,7 @@
+   *	chmod 600 $random_seed
+   *	poolfile=/proc/sys/kernel/random/poolsize
+   *	[ -r $poolfile ] && bytes=`cat $poolfile` || bytes=512
+- *	dd if=/dev/urandom of=$random_seed count=1 bs=bytes
++ *	dd if=/dev/urandom of=$random_seed count=1 bs=$bytes
+   *
+   * and the following lines in an appropriate script which is run as
+   * the system is shutdown:
+@@ -188,7 +188,7 @@
+   *	chmod 600 $random_seed
+   *	poolfile=/proc/sys/kernel/random/poolsize
+   *	[ -r $poolfile ] && bytes=`cat $poolfile` || bytes=512
+- *	dd if=/dev/urandom of=$random_seed count=1 bs=bytes
++ *	dd if=/dev/urandom of=$random_seed count=1 bs=i$bytes
+   *
+   * For example, on most modern systems using the System V init
+   * scripts, such code fragments would be found in
+
+Dave Maietta
+37167 North Orchard Cr #4-60
+Westland MI 48186
+734-326-3059 

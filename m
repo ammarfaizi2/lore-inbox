@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293139AbSCEB1J>; Mon, 4 Mar 2002 20:27:09 -0500
+	id <S293142AbSCEBb1>; Mon, 4 Mar 2002 20:31:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293142AbSCEB06>; Mon, 4 Mar 2002 20:26:58 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:40709 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S293139AbSCEB0k>;
-	Mon, 4 Mar 2002 20:26:40 -0500
-Date: Mon, 4 Mar 2002 22:26:30 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19pre1aa1
-In-Reply-To: <20020305020546.W20606@dualathlon.random>
-Message-ID: <Pine.LNX.4.44L.0203042225340.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293143AbSCEBbR>; Mon, 4 Mar 2002 20:31:17 -0500
+Received: from sydney1.au.ibm.com ([202.135.142.193]:32530 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S293142AbSCEBbM>; Mon, 4 Mar 2002 20:31:12 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Robert Love <rml@tech9.net>
+Subject: Re: [PATCH] Fast Userspace Mutexes III. 
+Cc: torvalds@transmeta.com, matthew@hairy.beasts.org, bcrl@redhat.com,
+        david@mysql.com, wli@holomorphy.com, linux-kernel@vger.kernel.org,
+        Hubertus Franke <frankeh@watson.ibm.com>
+In-Reply-To: Your message of "04 Mar 2002 14:49:51 CDT."
+             <1015271393.15277.112.camel@phantasy> 
+Date: Tue, 05 Mar 2002 12:34:29 +1100
+Message-Id: <E16i3qX-0005H3-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Mar 2002, Andrea Arcangeli wrote:
-> On Mon, Mar 04, 2002 at 09:01:31PM -0300, Rik van Riel wrote:
-> > This could be expressed as:
-> >
-> > "node A"  HIGHMEM A -> HIGHMEM B -> NORMAL -> DMA
-> > "node B"  HIGHMEM B -> HIGHMEM A -> NORMAL -> DMA
->
-> Highmem? Let's assume you speak about "normal" and "dma" only of course.
->
-> And that's not always the right zonelist layout. If an allocation asks for
-> ram from a certain node, like during the ram bindings, we should use the
-> current layout of the numa zonelist. If node A is the preferred, than we
-> should allocate from node A first,
+In message <1015271393.15277.112.camel@phantasy> you write:
+> > +static spinlock_t futex_lock = SPIN_LOCK_UNLOCKED;
+> 
+> Could we make this per-waitqueue?
 
-You're forgetting about the fact that this NUMA box only
-has 1 ZONE_NORMAL and 1 ZONE_DMA while it has multiple
-HIGHMEM zones...
+Yes, once someone gives benchmarks proving it's worth doing the whole
+"multiple locks and cache aligned" thing.  Until then, it's premature
+optimization.
 
-This makes the fallback pattern somewhat more complex.
+> We should do:
+> 
+> 	#define FUTEX_UP	1
+> 	#define FUTEX_DOWN	-1
 
-regards,
+Ack.  Definitely.
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
+> here.  The preempt statements compile away if CONFIG_PREEMPT is not set,
+> so you can just put them in, even on arches that don't do preemption
+> yet.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+Oops, that code shouldn't have been in patch, and the only reason that
+preempt_disable() was commented out is that I tested the patch on 2.4.
 
+> ... oh, and I would love an example of using it in userspace ;)
+
+I'll throw it in for patch IV. 8)
+
+> Nice work, Rusty.
+
+I don't know if I can accept the kudos: it's now hovering at about 70%
+my code, but only 20% my ideas.
+
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

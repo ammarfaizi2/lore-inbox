@@ -1,85 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268144AbUJOQh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268170AbUJOQlk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268144AbUJOQh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 12:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268134AbUJOQgu
+	id S268170AbUJOQlk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 12:41:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268134AbUJOQka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 12:36:50 -0400
-Received: from siaag2af.compuserve.com ([149.174.40.136]:64206 "EHLO
-	siaag2af.compuserve.com") by vger.kernel.org with ESMTP
-	id S268170AbUJOQeq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 12:34:46 -0400
-Date: Fri, 15 Oct 2004 12:29:39 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [PATCH] [2.6] Avoid silly recompile when LOCALVERSION changes
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200410151233_MC3-1-8C4F-6F81@compuserve.com>
-MIME-Version: 1.0
+	Fri, 15 Oct 2004 12:40:30 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:57566 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S268169AbUJOQic (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 12:38:32 -0400
+Subject: Re: per-process shared information
+From: Albert Cahalan <albert@users.sf.net>
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: Hugh Dickins <hugh@veritas.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton OSDL <akpm@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Albert Cahalan <albert@users.sourceforge.net>
+In-Reply-To: <20041015162000.GB17849@dualathlon.random>
+References: <Pine.LNX.4.44.0410151207140.5682-100000@localhost.localdomain>
+	 <1097846353.2674.13298.camel@cube>
+	 <20041015162000.GB17849@dualathlon.random>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1097857912.2669.13548.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 15 Oct 2004 12:31:52 -0400
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This is really annoying...
+On Fri, 2004-10-15 at 12:20, Andrea Arcangeli wrote:
 
-  Any code that needs the kernel release name should include <utsname.h>
-and use system_utsname.release instead of referring to UTS_RELEASE
-from <version.h>
+> the problem is that when ps xav wants to know the RSS it reads statm,
+> so we just cannot hurt ps xav to show the "old shared" information that
+> would be extremely slow to collect.
 
-  sound/core/info.c and drivers/block/floppy.c need fixing as well.
+Currently, ps uses /proc/*/stat for that. The /proc/*/statm
+file is read to determine TRS and DRS, which are broken now.
+That it, unless you count "ps -o OL_m" format.
 
-  And at first glance, drivers/scsi/sg.c seems not to need version.h at all...
+The top program uses /proc/*/statm for many more fields:
 
-  drivers/scsi/aic7xxx and drivers/serial/8250*.c are also affected but they seem
-more problematic.
+%MEM  Memory usage (RES)
+VIRT  Virtual Image (kb)
+SWAP  Swapped size (kb)
+RES   Resident size (kb)
+CODE  Code size (kb)
+DATA  Data+Stack size (kb)
+SHR   Shared Mem size (kb)
+nDRT  Dirty Pages count
 
+> I was only not happy about dropping the old feature completely instead
+> of providing it with a different new API. Now I think the solution Hugh
+> just proposed with the anon_rss should mimic the old behaviour well
+> enough and it's probably the right way to go, it's still not literally
+> the same, but I doubt most people from userspace could notice the
+> difference, and most important it provides useful information, which is
+> the number of _physical_ pages mapped that aren't anonymous memory, this
+> is very valuable info and it's basically the same info that people was
+> getting from the old "shared". So I like it.
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-
---- linux-2.6.9-rc4/arch/i386/kernel/process.c.orig     2004-10-15 11:48:01.000000000 -0400
-+++ linux-2.6.9-rc4/arch/i386/kernel/process.c  2004-10-15 11:55:57.711016144 -0400
-@@ -28,7 +28,7 @@
- #include <linux/a.out.h>
- #include <linux/interrupt.h>
- #include <linux/config.h>
--#include <linux/version.h>
-+#include <linux/utsname.h>
- #include <linux/delay.h>
- #include <linux/reboot.h>
- #include <linux/init.h>
-@@ -230,7 +230,7 @@
- 
-        if (regs->xcs & 3)
-                printk(" ESP: %04x:%08lx",0xffff & regs->xss,regs->esp);
--       printk(" EFLAGS: %08lx    %s  (%s)\n",regs->eflags, print_tainted(),UTS_RELEASE);
-+       printk(" EFLAGS: %08lx    %s  (%s)\n",regs->eflags, print_tainted(), system_utsname.release);
-        printk("EAX: %08lx EBX: %08lx ECX: %08lx EDX: %08lx\n",
-                regs->eax,regs->ebx,regs->ecx,regs->edx);
-        printk("ESI: %08lx EDI: %08lx EBP: %08lx",
---- linux-2.6.9-rc4/arch/i386/kernel/traps.c.orig       2004-10-15 11:48:15.000000000 -0400
-+++ linux-2.6.9-rc4/arch/i386/kernel/traps.c    2004-10-15 11:54:00.000000000 -0400
-@@ -25,7 +25,7 @@
- #include <linux/highmem.h>
- #include <linux/kallsyms.h>
- #include <linux/ptrace.h>
--#include <linux/version.h>
-+#include <linux/utsname.h>
- #include <linux/kprobes.h>
- 
- #ifdef CONFIG_EISA
-@@ -233,7 +233,7 @@
-        printk("CPU:    %d\nEIP:    %04x:[<%08lx>]    %s VLI\nEFLAGS: %08lx"
-                        "   (%s) \n",
-                smp_processor_id(), 0xffff & regs->xcs, regs->eip,
--               print_tainted(), regs->eflags, UTS_RELEASE);
-+               print_tainted(), regs->eflags, system_utsname.release);
-        print_symbol("EIP is at %s\n", regs->eip);
-        printk("eax: %08lx   ebx: %08lx   ecx: %08lx   edx: %08lx\n",
-                regs->eax, regs->ebx, regs->ecx, regs->edx);
+What exactly would be the difference, and when might users see it?
 
 
-
---Chuck Ebbert  15-Oct-04  12:28:34

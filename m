@@ -1,67 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262626AbRFNNlQ>; Thu, 14 Jun 2001 09:41:16 -0400
+	id <S262649AbRFNNuh>; Thu, 14 Jun 2001 09:50:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262649AbRFNNlG>; Thu, 14 Jun 2001 09:41:06 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:22670 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S262626AbRFNNkx>;
-	Thu, 14 Jun 2001 09:40:53 -0400
-Message-ID: <3B28BEDE.738A2BF9@mandrakesoft.com>
-Date: Thu, 14 Jun 2001 09:40:46 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Michal Jaegermann <michal@harddata.com>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: Minor "cleanup" patches for 2.4.5-ac kernels
-In-Reply-To: <20010612183832.A29923@mail.harddata.com> <3B26BBDB.1EF70F79@mandrakesoft.com> <20010612200457.A30127@mail.harddata.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S262651AbRFNNuS>; Thu, 14 Jun 2001 09:50:18 -0400
+Received: from AMontpellier-201-1-1-185.abo.wanadoo.fr ([193.252.31.185]:13331
+	"EHLO awak") by vger.kernel.org with ESMTP id <S262649AbRFNNuL>;
+	Thu, 14 Jun 2001 09:50:11 -0400
+Subject: IDE read error hangs kernel
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10.99 (Preview Release)
+Date: 14 Jun 2001 15:46:20 +0200
+Message-Id: <992526381.5875.9.camel@nomade>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Jaegermann wrote:
-> 
-> On Tue, Jun 12, 2001 at 09:03:23PM -0400, Jeff Garzik wrote:
-> > Michal Jaegermann wrote:
-> > > --- linux-2.4.5ac/drivers/pci/quirks.c~ Tue Jun 12 16:31:12 2001
-> > > +++ linux-2.4.5ac/drivers/pci/quirks.c  Tue Jun 12 17:13:18 2001
-> > > @@ -18,6 +18,7 @@
-> > >  #include <linux/pci.h>
-> > >  #include <linux/init.h>
-> > >  #include <linux/delay.h>
-> > > +#include <linux/sched.h>
-> > >
-> > >  #undef DEBUG
-> > >
-> > > There is no problem if SMP is not configured.
-> >
-> > no the better place for this is include/asm-i386/delay.h.
-> 
-> You mean to put "#include <linux/sched.h>" into include/linux/delay.h?
-> Otherwise this will not help very much on Alpha when I run into
-> the problem; or other architectures. :-)  Works for me and indeed
-> it may be a better place.
+Hi,
 
-This is an architecture-level thing.  include/asm-$arch/delay not
-include/linux/delay.h
-
-Currently, Alpha does not need to include sched.h at all...
+I have a DVD (IDE, using ide-scsi) with read errors, and when reading it
+(UDF-mounted or directly with xine) on the read error the drive clicks,
+I have an error in the log and, after a while, the kernel hangs.
 
 
-> > Then Andrea suggested to
-> > simply un-inline udelay, which solved the compile problem in an even
-> > better way.  (we cannot un-inline udelay on x86 I think)
-> 
-> How about other architectures?  Each will need an individual treatment?
+Here is the (hand-copied) log:
 
-Each arch will need individual treatment, but each alpha should decide
-for itself whether or not to un-inline udelay.  It may not be possible
-on some archs.
+scsi0:  ERROR on channel 0, id 1, lun 0, CDB: Request Sense 00 00 00 40 00
+Info fld=0x1f6fa0, Current sd0b:00: sense key Medium Error
+Additional sense indicates Unrecovered read error
+ I/O error: dev 0b:00, sector 8240768
+scsi : aborting command due to timeout : pid 0, scsi 0, channel 0, id 1, lun 0 Read (10) 00 00 1f 6f a2 00 00 06 00
 
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+
+Any hint to make this non-fatal ?
+
+Xav
+

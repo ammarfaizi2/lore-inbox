@@ -1,85 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264272AbTEOU2A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 16:28:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264237AbTEOU2A
+	id S264243AbTEOUKL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 16:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264244AbTEOUKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 16:28:00 -0400
-Received: from elaine24.Stanford.EDU ([171.64.15.99]:9405 "EHLO
-	elaine24.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S264272AbTEOU16 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 16:27:58 -0400
-Date: Thu, 15 May 2003 13:40:42 -0700 (PDT)
-From: Junfeng Yang <yjf@stanford.edu>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: mc@cs.stanford.edu
-Subject: [CHECKER] 2 potential out-of-bound user-pointer errors in fs/readdir.c
-In-Reply-To: <Pine.GSO.4.44.0305112337160.3242-100000@elaine24.Stanford.EDU>
-Message-ID: <Pine.GSO.4.44.0305151329550.29285-100000@elaine24.Stanford.EDU>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 15 May 2003 16:10:11 -0400
+Received: from 136.231.118.64.mia-ftl.netrox.net ([64.118.231.136]:11716 "EHLO
+	smtp.netrox.net") by vger.kernel.org with ESMTP id S264243AbTEOUJX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 16:09:23 -0400
+Subject: Re: 2.6 must-fix list, v2
+From: Robert Love <rml@tech9.net>
+To: shaheed <srhaque@iee.org>
+Cc: Felipe Alfaro Solana <yo@felipe-alfaro.com>,
+       Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200305152107.17419.srhaque@iee.org>
+References: <1050146434.3e97f68300fff@netmail.pipex.net>
+	 <1052990397.3ec35bbd5e008@netmail.pipex.net> <1053012743.899.5.camel@icbm>
+	 <200305152107.17419.srhaque@iee.org>
+Content-Type: text/plain
+Message-Id: <1053030280.899.27.camel@icbm>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.3 (1.3.3-2) (Preview Release)
+Date: 15 May 2003 16:24:41 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-05-15 at 16:07, shaheed wrote:
 
-Hi,
+> I'm sorry to appear foolish, but as explained above, I genuinely don't 
+> understand why this does not belong in the kernel. I would be grateful for 
+> elaboration. If I really am being thick, then just ignore me and I'll just 
+> solve this for myself using route 4.
 
-Enclosed are two warnings found in fs/readdir.c, where user provided
-pointers are accessed out of 'verified' bounds.
+Oh, one other problem with doing it in the kernel via INIT_TASK:
 
-The warnings are found by: first, whenenver we see calls to verify_area,
-access_ok and all the no-underscore versions of *_user functions, we
-remember the verified bounds. when a user-pointer is accessed thru
-__*_user functions, we check if the verified bound is big enough.
+You end up affining any kernel threads, which you absolutely do not want
+to do _implicitly_. Maybe explicitly, but certainly not implicitly as a
+blind consequence.
 
-Please confirm or clarify. Thanks!
+Doing it via init is really the way to go.
 
--Junfeng
+Regards,
 
-
----------------------------------------------------------
-
-[BUG] copy_to_user verifies that [0, namelen) of dirent->d_name is okay to
-write, but the following __put_user accesses dirent->d_name + namelen
-
-/home/junfeng/linux-2.5.69/fs/readdir.c:239:filldir64:
-ERROR:BUFFER:239:239:memory operation error (len < off + n) (__put_user(0,
-(void*)(char*)&dirent->d_name + (char*)(long unsigned
-int)namlen):(void*)(char*)&dirent->d_name + (char*)(long unsigned
-int)namlen, len = sym_8, off = sym_8 + 0, n = 1, min (off + n - len = 1)
-
-		goto efault;
-	if (__put_user(d_type, &dirent->d_type))
-		goto efault;
-	if (copy_to_user(dirent->d_name, name, namlen))
-		goto efault;
-
-Error --->
-	if (__put_user(0, dirent->d_name + namlen))
-		goto efault;
-	((char *) dirent) += reclen;
-	buf->current_dir = dirent;
----------------------------------------------------------
-
-[BUG] copy_to_user verifies that [0, namelen) of dirent->d_name is okay to
-write, but the following __put_user accesses dirent->d_name + namelen
-
-/home/junfeng/linux-2.5.69/fs/readdir.c:154:filldir:
-ERROR:BUFFER:154:154:memory operation error (len < off + n) (__put_user(0,
-(void*)(char*)&dirent->d_name + (char*)(long unsigned
-int)namlen):(void*)(char*)&dirent->d_name + (char*)(long unsigned
-int)namlen, len = sym_8, off = sym_8 + 0, n = 1, min (off + n - len = 1)
-
-		goto efault;
-	if (__put_user(reclen, &dirent->d_reclen))
-		goto efault;
-	if (copy_to_user(dirent->d_name, name, namlen))
-		goto efault;
-
-Error --->
-	if (__put_user(0, dirent->d_name + namlen))
-		goto efault;
-	((char *) dirent) += reclen;
-	buf->current_dir = dirent;
-
+	Robert Love
 

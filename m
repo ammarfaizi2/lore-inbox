@@ -1,29 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268456AbTBNP0E>; Fri, 14 Feb 2003 10:26:04 -0500
+	id <S268439AbTBNPd5>; Fri, 14 Feb 2003 10:33:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268455AbTBNP0E>; Fri, 14 Feb 2003 10:26:04 -0500
-Received: from ns.suse.de ([213.95.15.193]:52237 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S268456AbTBNP0D>;
-	Fri, 14 Feb 2003 10:26:03 -0500
-Date: Fri, 14 Feb 2003 15:47:23 +0100
-From: Andi Kleen <ak@suse.de>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH][2.5][14/14] smp_call_function_on_cpu - x86_64
-Message-ID: <20030214144723.GA25691@wotan.suse.de>
-References: <Pine.LNX.4.50.0302140412190.3518-100000@montezuma.mastecende.com> <Pine.LNX.4.50.0302140751530.3518-100000@montezuma.mastecende.com>
-Mime-Version: 1.0
+	id <S268447AbTBNPd5>; Fri, 14 Feb 2003 10:33:57 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:44265 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S268439AbTBNPd4>; Fri, 14 Feb 2003 10:33:56 -0500
+Date: Fri, 14 Feb 2003 07:43:43 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 355] New: Error when compiling SCSI drivers (Adaptec, Seagate
+ etc.)
+Message-ID: <57590000.1045237423@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0302140751530.3518-100000@montezuma.mastecende.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 14, 2003 at 07:52:15AM -0500, Zwane Mwaikambo wrote:
-> One liner to fix num_cpus == 0 on SMP kernel w/ UP box
+http://bugme.osdl.org/show_bug.cgi?id=355
 
-Shouldn't num_cpus be 1 in that case ?
+           Summary: Error when compiling SCSI drivers (Adaptec, Seagate
+                    etc.)
+    Kernel Version: 2.5.60 (- bk4)
+            Status: NEW
+          Severity: normal
+             Owner: andmike@us.ibm.com
+         Submitter: martinsteeg@t-online.de
 
--Andi
+
+Software Environment: linnx Kernel 2.5.60 ( and snapshots -bk1 ... -bk4)  
+Problem Description:   
+  In the change of linux-2.5.59 to linux-2.5.60, the struct scsi_cmnd   
+  was changed in that the fields host, target, lun, channel are replaced   
+  by fields of the device field (struct scsi_device*): host, id, lun,
+channel       
+  This is not reflected in several SCSI drivers, e.g. the change is not  
+  considered for Adaptec and Seagate SCSI controllers.  
+  
+Proposal to fix the Problem:  
+1. some new defines for drivers/scsi/scsi.h  
++#define SCSICMND_HOST     device->host  
++#define SCSICMND_TARGET   device->id  
++#define SCSICMND_LUN      device->lun  
++#define SCSICMND_CHANNEL  device->channel  
+2. replacing the lines of drivers/scsi/*.c containing the following code  
+-(ptr)->host  
++)ptr)->SCSICMND_HOST  
+-(ptr)->target  
++)ptr)->SCSICMND_TARGET  
+-(ptr)->lun  
++)ptr)->SCSICMND_LUN  
+-(ptr)->channel  
++)ptr)->SCSICMND_CHANNEL
+
+

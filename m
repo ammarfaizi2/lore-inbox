@@ -1,145 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266798AbUI0RBx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266311AbUI0REK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266798AbUI0RBx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 13:01:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266813AbUI0Q75
+	id S266311AbUI0REK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 13:04:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266674AbUI0REK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 12:59:57 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:13306 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S266798AbUI0Q7d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 12:59:33 -0400
-In-Reply-To: <hJgnR3dPmMe8ppFeFKO0pB44tv8@topspin.com>
-X-Mailer: roland_patchbomb
-Date: Mon, 27 Sep 2004 09:59:30 -0700
-Message-Id: <EE2dyGkZeSfcJ4lDD7m02FcquyE@topspin.com>
+	Mon, 27 Sep 2004 13:04:10 -0400
+Received: from smtp3.adl2.internode.on.net ([203.16.214.203]:60680 "EHLO
+	smtp3.adl2.internode.on.net") by vger.kernel.org with ESMTP
+	id S266311AbUI0RDz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 13:03:55 -0400
+Subject: [PATCH] __VMALLOC_RESERVE export
+From: Antony Suter <suterant@users.sourceforge.net>
+To: List LKML <linux-kernel@vger.kernel.org>
+Cc: torvalds@osdl.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-fK25Nq18YKLoqGU8Y2go"
+Message-Id: <1096304623.9430.8.camel@hikaru.lan>
 Mime-Version: 1.0
-To: greg@kroah.com, linux-kernel@vger.kernel.org
-From: Roland Dreier <roland@topspin.com>
-X-SA-Exim-Connect-IP: 127.0.0.1
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: [PATCH][2/2] [RESEND] USB: use HOTPLUG_ENV_VAR in core/usb.c
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 27 Sep 2004 16:59:30.0701 (UTC) FILETIME=[5B0EBBD0:01C4A4B3]
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 28 Sep 2004 03:03:43 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use the new HOTPLUG_ENV_VAR macro is drivers/usb/core/usb.c.  In
-addition to cleaning up the code, this fixes a (probably harmless) bug
-here: for each value added to the environment, the code did
 
-	length += sprintf(...);
+--=-fK25Nq18YKLoqGU8Y2go
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-and then
+__VMALLOC_RESERVE itself is not exported but is used by something that
+is. This patch is against 2.6.9-rc2-bk11
 
-	scratch += length;
+This is required by the nvidia binary driver 1.0.6111
 
-which means that we skip the sum of the lengths of all the values
-we've put so far, rather than just the length of the value we just
-put.  This is probably harmless since we're unlikely to run out of
-space but if nothing else it's setting a bad example....
+(2 long lines are being wrapped by my emailer)
 
-I've tested this on a system with USB floppy and CD-ROM; hotplug gets
-the same environment with the patch as without.
+####
 
+diff -u -pruaN linux-orig/arch/i386/mm/init.c
+linux-new/arch/i386/mm/init.c
+--- linux-orig/arch/i386/mm/init.c	2004-09-26 03:43:57.944613000 +1000
++++ linux-new/arch/i386/mm/init.c	2004-09-28 02:37:21.787922000 +1000
+@@ -41,6 +41,7 @@
+ #include <asm/sections.h>
+=20
+ unsigned int __VMALLOC_RESERVE =3D 128 << 20;
++EXPORT_SYMBOL(__VMALLOC_RESERVE);
+=20
+ DEFINE_PER_CPU(struct mmu_gather, mmu_gathers);
+ unsigned long highstart_pfn, highend_pfn;
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
+--=20
+- Antony Suter  (suterant users sourceforge net)  "Bonta"
+- "Facts do not cease to exist because they are ignored." - Aldous Huxley
 
-Index: linux-bk/drivers/usb/core/usb.c
-===================================================================
---- linux-bk.orig/drivers/usb/core/usb.c	2004-09-12 15:21:27.000000000 -0700
-+++ linux-bk/drivers/usb/core/usb.c	2004-09-12 19:28:23.000000000 -0700
-@@ -564,9 +564,7 @@
- {
- 	struct usb_interface *intf;
- 	struct usb_device *usb_dev;
--	char *scratch;
- 	int i = 0;
--	int length = 0;
- 
- 	if (!dev)
- 		return -ENODEV;
-@@ -591,8 +589,6 @@
- 		return -ENODEV;
- 	}
- 
--	scratch = buffer;
--
- #ifdef	CONFIG_USB_DEVICEFS
- 	/* If this is available, userspace programs can directly read
- 	 * all the device descriptors we don't tell them about.  Or
-@@ -600,37 +596,27 @@
- 	 *
- 	 * FIXME reduce hardwired intelligence here
- 	 */
--	envp [i++] = scratch;
--	length += snprintf (scratch, buffer_size - length,
-+	if (HOTPLUG_ENV_VAR(buffer, buffer_size, envp, num_envp, i,
- 			    "DEVICE=/proc/bus/usb/%03d/%03d",
--			    usb_dev->bus->busnum, usb_dev->devnum);
--	if ((buffer_size - length <= 0) || (i >= num_envp))
-+			    usb_dev->bus->busnum, usb_dev->devnum))
- 		return -ENOMEM;
--	++length;
--	scratch += length;
- #endif
- 
- 	/* per-device configurations are common */
--	envp [i++] = scratch;
--	length += snprintf (scratch, buffer_size - length, "PRODUCT=%x/%x/%x",
-+	if (HOTPLUG_ENV_VAR(buffer, buffer_size, envp, num_envp, i,
-+			    "PRODUCT=%x/%x/%x",
- 			    usb_dev->descriptor.idVendor,
- 			    usb_dev->descriptor.idProduct,
--			    usb_dev->descriptor.bcdDevice);
--	if ((buffer_size - length <= 0) || (i >= num_envp))
-+			    usb_dev->descriptor.bcdDevice))
- 		return -ENOMEM;
--	++length;
--	scratch += length;
- 
- 	/* class-based driver binding models */
--	envp [i++] = scratch;
--	length += snprintf (scratch, buffer_size - length, "TYPE=%d/%d/%d",
-+	if (HOTPLUG_ENV_VAR(buffer, buffer_size, envp, num_envp, i,
-+			    "TYPE=%d/%d/%d",
- 			    usb_dev->descriptor.bDeviceClass,
- 			    usb_dev->descriptor.bDeviceSubClass,
--			    usb_dev->descriptor.bDeviceProtocol);
--	if ((buffer_size - length <= 0) || (i >= num_envp))
-+			    usb_dev->descriptor.bDeviceProtocol))
- 		return -ENOMEM;
--	++length;
--	scratch += length;
- 
- 	if (usb_dev->descriptor.bDeviceClass == 0) {
- 		struct usb_host_interface *alt = intf->cur_altsetting;
-@@ -639,18 +625,14 @@
- 		 * agents are called for all interfaces, and can use
- 		 * $DEVPATH/bInterfaceNumber if necessary.
- 		 */
--		envp [i++] = scratch;
--		length += snprintf (scratch, buffer_size - length,
--			    "INTERFACE=%d/%d/%d",
--			    alt->desc.bInterfaceClass,
--			    alt->desc.bInterfaceSubClass,
--			    alt->desc.bInterfaceProtocol);
--		if ((buffer_size - length <= 0) || (i >= num_envp))
-+		if (HOTPLUG_ENV_VAR(buffer, buffer_size, envp, num_envp, i,
-+				    "INTERFACE=%d/%d/%d",
-+				    alt->desc.bInterfaceClass,
-+				    alt->desc.bInterfaceSubClass,
-+				    alt->desc.bInterfaceProtocol))
- 			return -ENOMEM;
--		++length;
--		scratch += length;
--
- 	}
-+
- 	envp[i++] = NULL;
- 
- 	return 0;
+--=-fK25Nq18YKLoqGU8Y2go
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBWEfuZu6XKGV+xxoRAqdfAKCKRC49HBtKebAnGneJtxIvIwl0PwCgivc9
+5chcXbjmLSefsJEF6Eshh+0=
+=doLF
+-----END PGP SIGNATURE-----
+
+--=-fK25Nq18YKLoqGU8Y2go--
 

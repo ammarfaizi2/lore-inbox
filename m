@@ -1,60 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292224AbSBBFCv>; Sat, 2 Feb 2002 00:02:51 -0500
+	id <S292231AbSBBFvB>; Sat, 2 Feb 2002 00:51:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292225AbSBBFCl>; Sat, 2 Feb 2002 00:02:41 -0500
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:22283
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S292224AbSBBFCd>; Sat, 2 Feb 2002 00:02:33 -0500
-Message-Id: <5.1.0.14.2.20020201234626.00b03838@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 01 Feb 2002 23:58:00 -0500
-To: linux-kernel@vger.kernel.org
-From: Stevie O <stevie@qrpff.net>
-Subject: apm.c and multiple battery slots
+	id <S292232AbSBBFuv>; Sat, 2 Feb 2002 00:50:51 -0500
+Received: from bitmover.com ([192.132.92.2]:24194 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S292231AbSBBFul>;
+	Sat, 2 Feb 2002 00:50:41 -0500
+Date: Fri, 1 Feb 2002 21:50:40 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Charles Cazabon <linux-kernel@discworld.dyndns.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Bitkeeper change granularity (was Re: A modest proposal -- We need a patch penguin)
+Message-ID: <20020201215040.F27081@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Charles Cazabon <linux-kernel@discworld.dyndns.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <lm@bitmover.com> <200202011111.g11BBVf0009257@tigger.cs.uni-dortmund.de> <20020201083855.C8664@work.bitmover.com> <20020202001058.UXDU10685.femail14.sdc1.sfba.home.com@there> <20020201191928.D2122@twoflower.internal.do>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020201191928.D2122@twoflower.internal.do>; from linux-kernel@discworld.dyndns.org on Fri, Feb 01, 2002 at 07:19:28PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an Inspiron 8100 and 2.4.13-ac5, with apmd-final. (I'm holding off 
-upgrading until I stop seeing so much stuff about VM problems on lkml). It 
-has two battery slots, left and right.
+On Fri, Feb 01, 2002 at 07:19:28PM -0600, Charles Cazabon wrote:
+> Rob Landley <landley@trommello.org> wrote:
+> > 
+> > The problem is, if they use bitkeeper (with a temporary respository), all 
+> > these temporary commits (debugging tries saved in case they want to roll back 
+> > during development) get propagated into the main repository when they do a 
+> > merge.  They can't tell it "done, okay, squash this into one atomic change to 
+> > check in somewhere else, with the whole change history as maybe one comment".
+> 
+> Something like:
+> 
+>   bk start-temporary-fork
 
-If I put the battery in the left slot and run 'apm' I get
+    bk clone main temporary-fork
 
-AC on-line, battery charging: 84% (4:12)
+>   [hack hack hack]
+>   bk commit
+>   [hack hack hack]
+>   bk revert 
 
-If I take out the battery and run apm I get
+    bk fix -c
 
-AC on-line, no system battery
+>   [hack hack hack]
+>   bk commit 
+>   [hack hack hack]
+>   bk commit
+>   bk fold-back-into-main-tree-as-one-atomic-update
 
-If I put it into the right slot I get
+    bk push
 
-AC on-line
-
-and /proc/apm says I have -1% battery free and -1 minutes remaining ;)
-
---
-
-The battery was designed to go into the right slot, not the left (left is 
-where the floppy drive goes).
-
---
-
-I went to apm.c to look into patching it to support multiple batteries.
-
-I found this function:
-static int apm_get_battery_status(which, status, bat, life, nbat <- battery #)
-
-but it's #if 0'd out, and isn't referred to anywhere in the code. I looked 
-at the changelog in the file to try to determine when it stopped being 
-used, and why, but I found no useful information, and I can't even ask the 
-person who did it, since they didn't tell me they did...
-
-
---
-Stevie-O
-
-Real programmers use COPY CON PROGRAM.EXE
-
+All exists, works as described, no changes necessary.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

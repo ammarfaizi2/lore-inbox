@@ -1,70 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262094AbSJDPjQ>; Fri, 4 Oct 2002 11:39:16 -0400
+	id <S262189AbSJDP5r>; Fri, 4 Oct 2002 11:57:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262095AbSJDPjQ>; Fri, 4 Oct 2002 11:39:16 -0400
-Received: from netlx009.civ.utwente.nl ([130.89.1.91]:60561 "EHLO
-	netlx009.civ.utwente.nl") by vger.kernel.org with ESMTP
-	id <S262094AbSJDPjP>; Fri, 4 Oct 2002 11:39:15 -0400
-Date: Fri, 4 Oct 2002 17:44:35 +0200 (CEST)
-From: Gcc k6 testing account <caligula@cam029208.student.utwente.nl>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.40 : loadlin failure + analysys WAS : 2.5.32 bootfailure
- for nfsroot
-In-Reply-To: <200210022109.g92L9Cp32061@Port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.44.0210041731580.2792-100000@cam029208.student.utwente.nl>
+	id <S262190AbSJDP5r>; Fri, 4 Oct 2002 11:57:47 -0400
+Received: from pat.uio.no ([129.240.130.16]:65158 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S262189AbSJDP5q>;
+	Fri, 4 Oct 2002 11:57:46 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15773.48067.804268.678391@charged.uio.no>
+Date: Fri, 4 Oct 2002 18:03:15 +0200
+To: David Howells <dhowells@cambridge.redhat.com>
+Cc: Jan Harkes <jaharkes@cs.cmu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] AFS filesystem for Linux (2/2) 
+In-Reply-To: <27402.1033746973@warthog.cambridge.redhat.com>
+References: <trond.myklebust@fys.uio.no>
+	<15773.47490.564575.814249@charged.uio.no>
+	<27402.1033746973@warthog.cambridge.redhat.com>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Oct 2002, Denis Vlasenko wrote:
+>>>>> " " == David Howells <dhowells@cambridge.redhat.com> writes:
 
-> On 1 October 2002 22:17, caligula@cam029208.student.utwente.nl wrote:
-> > I build 3 kernels:zdisk,zImage and bzImge. All with gcc 2.95.3 and
-> > all with the same lean kernelconfig.
-> >
-> > Results:
-> > 1) zdisk -->booting fine from floppy,stops when it can't find a
-> > rootfilesystem. which is obvious since no ide/scsci
-> > /nfsroot/ramdisk/initrd  is compiled in. So thumbs up with this setup.
-> >
-> > 2)loadin + zImage --> loadlin loads kernel from hard disk,starts
-> > unzipping . The dots which indicate the progress keeps going,until ...
-> > whush,black screen followed by soft reboot.
-> >
-> > 3)loadlin +bzImage -->same symptoms as loadlin+zimage.
-> >
-> > The same setup works flawless with 2.4.x and 2.5.x <=2.5.31
-> >
-> > So now the questions. What did change from .31 to .32 wich could have
-> > influenced the interaction of loadin with the kernel? And how can I
-> > debug this?  I'm no coder but turning on debugging code with #defines
-> > is in my reach.
+    >> Whereas I doubt that AFS uses RPCSEC_GSS, I believe that the
+    >> kerberos code itself (+ upcall mechanism for getting user
+    >> tokens etc.) could be reused by you. I presume that you would
+    >> make use of the sunrpc code too?
 
-> 
-> <shameless plug>
-> 
-> I had some problems with loadlin too, got scared by its source,
-> cooked up a replacement:
-> 
-> http://imtp.ilyichevsk.odessa.ua/linux/vda/linld/
-> </shameless plug>
-> 
+     > I would if I could, but RxRPC is a sufficiently different
+     > protocol to make that impractical:-/
 
-Ave Denis.
+How badly does it differ? If you are talking only about a couple of
+differences in the RPC headers, then that is something that can easily
+be overcome...
 
-I tested all the kernels  from 2.5.32 up to 2.5.40 (actually the ones who 
-compiled fine with my config). They all work with linld.  Thanx for the 
-tool. 
-
-Greetz Mu
-
-
-
-
-
-
-
-
+Cheers,
+  Trond

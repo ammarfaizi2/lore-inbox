@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261586AbSIXHAz>; Tue, 24 Sep 2002 03:00:55 -0400
+	id <S261585AbSIXG4k>; Tue, 24 Sep 2002 02:56:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261587AbSIXHAy>; Tue, 24 Sep 2002 03:00:54 -0400
-Received: from vti01.vertis.nl ([145.66.4.26]:44805 "EHLO vti01.vertis.nl")
-	by vger.kernel.org with ESMTP id <S261586AbSIXHAy>;
-	Tue, 24 Sep 2002 03:00:54 -0400
-Message-Id: <200209240704.g8O74Ur01620@fokkensr.vertis.nl>
-Content-Type: text/plain; charset=US-ASCII
-From: Rolf Fokkens <fokkensr@fokkensr.vertis.nl>
-To: Robert Love <rml@tech9.net>
-Subject: Re: [PATCH] 32bit wraps and USER_HZ [64 bit counters], kernel 2.5.37
-Date: Tue, 24 Sep 2002 09:04:25 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-References: <200209222207.g8MM7MM04998@fokkensr.vertis.nl> <200209232208.g8NM8bN05831@fokkensr.vertis.nl> <1032819194.25745.241.camel@phantasy>
-In-Reply-To: <1032819194.25745.241.camel@phantasy>
+	id <S261586AbSIXG4k>; Tue, 24 Sep 2002 02:56:40 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59916 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261585AbSIXG4j>;
+	Tue, 24 Sep 2002 02:56:39 -0400
+Message-ID: <3D900DBA.6080400@pobox.com>
+Date: Tue, 24 Sep 2002 03:01:14 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: "Gustafson, Geoffrey R" <geoffrey.r.gustafson@intel.com>,
+       "'Andy Pfiffer'" <andyp@osdl.org>, cgl_discussion@osdl.org,
+       "Rhoads, Rob" <rob.rhoads@intel.com>,
+       hardeneddrivers-discuss@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Hardeneddrivers-discuss] RE: [cgl_discussion] Some Initial Comments
+ on DDH-Spec-0.5h.pdf
+References: <EDC461A30AC4D511ADE10002A5072CAD01FD8CEA@orsmsx119.jf.intel.com>	<3D8FC2DA.3010107@pobox.com> <m1k7lbkicd.fsf@frodo.biederman.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 24 September 2002 00:13, Robert Love wrote:
-> Having arrays statically created at NR_CPUS inside the task_struct is
-> just gross.  Especially with NR_CPUS=32.  That is 128 bytes each!  Now
-> with your changes, it is 256 bytes each!
+Eric W. Biederman wrote:
+> Oh, and don't forget that the hardware specification that drivers are
+> written to, many times are not generally available greatly reducing 
+> the pool of capable people who have the opportunity to review the and
+> debug the drivers.  I would make it a requirement for a hardened
+> driver that both the code and the hardware documentation be publicly
+> available so the code can easily be reviewed by as many people as wish
+> to.
 
-I can understand that. However from a user point of view statistics are very 
-usefull information, but not specifically the per-processor statistics.
 
-I assume you mean to leave out the per-process statistics? Or do you mean to 
-kmalloc the per-processor statistics when needed - that is: only when 
-processes are running or maybe when the user has chosen to turn then on (some 
-sysctl maybe)? 
+This is a good point that bears highlighting.  Donald Becker's [and thus 
+the kernel's] eepro100.c had certain bugs for years, simply because 
+access to Intel E100 hardware docs was damn near impossible to obtain.
 
-Rolf
+I don't see driver hardening being very feasible on such drivers, where 
+the vendor refuses to allow kernel engineers access needed to get their 
+hardware working and stable.  [why vendors want crappy Linux support, 
+I'll never know]
+
+	Jeff
+
+
+P.S.  In all fairness, Intel is doing a really good job maintaining the 
+e100 and e1000 drivers nowadays, and e100 docs should be public very 
+soon.  [e1000 docs? who knows...]
+

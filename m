@@ -1,92 +1,199 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263419AbUEROj3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbUERTd7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263419AbUEROj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 10:39:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263483AbUEROj3
+	id S261830AbUERTd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 15:33:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbUERTd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 10:39:29 -0400
-Received: from vsmtp3alice.tin.it ([212.216.176.143]:38537 "EHLO
-	vsmtp3alice.tin.it") by vger.kernel.org with ESMTP id S263419AbUEROjX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 10:39:23 -0400
-From: The Jackal <jackal@capitanlug.it>
-Reply-To: jackal@capitanlug.it
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: make menuconfig command with kernel 2.6.4
-Date: Tue, 18 May 2004 16:40:12 +0200
-User-Agent: KMail/1.6.2
+	Tue, 18 May 2004 15:33:59 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:21439 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261830AbUERTdw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 May 2004 15:33:52 -0400
+From: Mark Gross <mgross@linux.jf.intel.com>
+Organization: Intel
+To: Christoph Hellwig <hch@infradead.org>,
+       Mark Gross <mgross@linux.jf.intel.com>
+Subject: Re: ANNOUNCE: CE Linux Forum - Specification V1.0 draft
+Date: Tue, 18 May 2004 12:32:48 -0700
+User-Agent: KMail/1.5.4
+Cc: Tim Bird <tim.bird@am.sony.com>,
+       linux kernel <linux-kernel@vger.kernel.org>
+References: <40A90D00.7000005@am.sony.com> <200405171342.49891.mgross@linux.intel.com> <20040518074854.A7348@infradead.org>
+In-Reply-To: <20040518074854.A7348@infradead.org>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405181640.12253.jackal@capitanlug.it>
+Content-Disposition: inline
+Message-Id: <200405181232.48226.mgross@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, all.. I have a problem with the makeconfig command.
-Is this a problem of my system or a kernel/compiler bug?!
+On Monday 17 May 2004 23:48, Christoph Hellwig wrote:
+> On Mon, May 17, 2004 at 01:42:49PM -0700, Mark Gross wrote:
+> > All that these "organizations" are doing is collecting REAL requirements
+> > for features that REAL application developers need.  As well as putting
+> > up resources to enable the features.
+> >
+> > These features represent input from real application developers and
+> > system integrators on requirements that would be cool for their
+> > applications if Linux supported them.  Why not look at them from the
+> > "what features are missing from Linux today and by whom" point of view?
+>
+> Have you ever worked ina real life software shop?  For every given feature
+> X you can find N customers X1...XN that will declare they want this
+> feature. Even more for every given customer Y you'll always find M feature
+> he'll absolutely want.  Until you tell him it's not in the next version
+> unless he provides founding where the feature set usually gets shrunk down
+> a lot.
+>
+
+I have worked in a number of real life software shops.  The more effective 
+shops I've worked in have been those where the developers where open minded 
+enough to read the "requirements" to extract the true needs.  
+
+I'm sensing you are not so open minded about recognizing requirements and 
+needs.
+
+> Even the most clueless project manager gets this, and the engineering
+> response cuts down this list a lot.
+>
+
+so.
+
+> With many of the large opensource projects this traditional scheme pretty
+> much falls flat because for every given feature F there's always N broken
+> implementations and the 'project managers' solution is rather to filter
+> what features are usefull enough and what implementation is good enough.
+>
+
+It seems to me that these organization are doing just this.  Those features or 
+requirements that stick across major revisions of such specifications and 
+become more stable are likely the usefull enough features with good enough 
+implantation's, that are worth looking at.
+
+> CELinux doesn't help either job, it's just listing the implementation
+> details of the broken patches of a bunch of companies with vested interest,
+> barely mentioning the requirements they try to fullfill.
+>
+
+Yeah, the decomposition of the features/implementations to requirements does 
+need work in these things.  CELF is a new group.  However; I think CGL isn't 
+so bad at this.
+
+> You'd make our life a lot easier by first writing down the requirement,
+> the thinking of soultions instead of taking the one $MEMBERCOMPANY
+> proposed, where that thinking shoould involve talking to the mailinglists
+> for that area and finally proposing a patch describing _the requirement_,
+> not what you've done.  CELinux, just like CGL or DCL has very much failed
+> this procedure.
+>
+
+I agree that patches should get posted with requirement and implementation 
+detail in addition to the patch itself.  However; I see a lot of patches that 
+provide neither posted by every one.
+
+> So far I can't see CElinux as anything but a useless specication tricking
+> PHBs into buying a products of the member companies because they're
+> following a specification (of which $PHB of course doesn't know how useless
+> it is)
+>
+> > The patches do get submitted on a regular basis to the LKML.  Many seem
+> > to get ignored.
+>
+> If patches aren't even discussed on lkml it means you've done something
+> very wrong.  I don't really remember any of the patches you submitted on
+> lkml.
+
+I didn't post it.
+
+>
+> But let's take one of the patches, the first one I looked at on your wiki
+> apart:
+
+Lets not.  
+
+This about requirements, missing features and needs aplication developers 
+have.  The example below is simply one patch to enhance the kenrel latency 
+for applications using IDE drives.  Its also an old patch for an older 
+kenrel.
+
+This topic is not about implementation pulled out of some embedded linux 
+kernel hack implemented by some CE company in the past to work around latency 
+issues with a base kernel that didn't have good kernel preemption behavior.  
+
+This topic is about features that are worth considering and enhancements 
+needed by your users.
+
+The follow snippet is clearly an implementation attempting to fullfill some 
+type of latency requierement that the IDE implementation was blocking.
+
+Actualy I think this code may be related to boot time reduction.  It may be 
+worth looking at the CELF specification to see if there is a boot time 
+reduction section.
+
+>
+> --- linux-2.4.20.orig/drivers/ide/ide.c	Thu Nov 28 23:53:13 2002
+> +++ celinux-040213/drivers/ide/ide.c	Thu Feb 12 10:25:12 2004
+> @@ -2739,12 +2776,17 @@
+>   */
+>  void ide_delay_50ms (void)
+>  {
+> +#ifdef CONFIG_IDE_PREEMPT
+> +	__set_current_state(TASK_UNINTERRUPTIBLE);
+> +	schedule_timeout(1+HZ/20); /* from 2.5 */
+> +#else /* CONFIG_IDE_PREEMPT */
+>  #ifndef CONFIG_BLK_DEV_IDECS
+>  	mdelay(50);
+>  #else
+>  	__set_current_state(TASK_UNINTERRUPTIBLE);
+>  	schedule_timeout(HZ/20);
+>  #endif /* CONFIG_BLK_DEV_IDECS */
+> +#endif /* CONFIG_IDE_PREEMPT */
+>  }
+>
+> This great piece 'called IDE-preempt' to be buzzword-compliant is (and
+> that's noticeable just from looking at the diff!) so braindead that it's
+> not explainable by incompetence alone.  You'd get your same result by just
+> _disabling_ CONFIG_BLK_DEV_IDECS instead of adding another broken config
+> option (modulo 2.6 adjustments to the sleep time).
+>
+> Every engineer with the slightest clue would first disable that option, or
+> if ide-cs support is actually needed think _why_ it's different instead of
+> just adding a config option to disable it.  Either it's safe to always use
+> the sleeping variant in which case the original ifdef should go away, or
+> it's not in which case your patch is completely broken.
+>
+
+OK I'll bite, but just because in your blind hostility and haste you've made a 
+mistake ;)
+
+Just taking this code out of context (typically a bad thing to do) I would say 
+you would like to have CONFIG_BLK_DEV_IDECS enabled.  Note the "#ifndef" to 
+avoid the mdelay call.  However; this wont help much if you don't have your 
+IDE drive connected to a PCMCIA adapter and you are using the card services 
+driver.
+
+Most REAL software shops that ship product end up having to make such hacks to 
+enable critical paths for applications and avoid the implementation of more 
+general solutions based on engineering costs.  This patch is clearly a hack 
+to enable partial or enhance kernel preemption on the ide path. 
+
+These are some of the types of problems engineers at REAL software shops have 
+to solve to be able to ship REAL product for REAL money.  If you haven't HAD 
+to produce code like this yourself at some point in your carrier then you've 
+lived a sheltered life.
+
+Its disingenuous for you to get on your ivory tower to point and laugh.
+
+> So if I can give you guys from the various industry consortia some hints:
+>
+>  o think before you code
+>  o don't drink and code
+>  o get a clue
+
+It would be cool if you could be a bit more open minded about what these 
+organizations are doing and consider the requirements and the needs they are 
+trying to address.
 
 
-Here the output of my bash:
-
-root@Anubis:/usr/src/linux-2.6.4# make oldconfig
-  HOSTCC  scripts/basic/fixdep
-In file included from /usr/include/bits/posix1_lim.h:126,
-                 from /usr/include/limits.h:144,
-                 from /usr/lib/gcc-lib/i486-slackware-linux/3.3.3/include/limits.h:122,
-                 from /usr/lib/gcc-lib/i486-slackware-linux/3.3.3/include/syslimits.h:7,
-                 from /usr/lib/gcc-lib/i486-slackware-linux/3.3.3/include/limits.h:11,
-                 from scripts/basic/fixdep.c:105:
-/usr/include/bits/local_lim.h:36:26: linux/limits.h: No such file or directory
-In file included from /usr/include/netinet/in.h:212,
-                 from scripts/basic/fixdep.c:107:
-/usr/include/bits/socket.h:305:24: asm/socket.h: No such file or directory
-scripts/basic/fixdep.c: In function `use_config':
-scripts/basic/fixdep.c:193: error: `PATH_MAX' undeclared (first use in this 
-function)
-scripts/basic/fixdep.c:193: error: (Each undeclared identifier is reported 
-only once
-scripts/basic/fixdep.c:193: error: for each function it appears in.)
-scripts/basic/fixdep.c:193: warning: unused variable `s'
-scripts/basic/fixdep.c: In function `parse_dep_file':
-scripts/basic/fixdep.c:289: error: `PATH_MAX' undeclared (first use in this 
-function)
-scripts/basic/fixdep.c:289: warning: unused variable `s'
-make[1]: *** [scripts/basic/fixdep] Error 1
-make: *** [scripts_basic] Error 2
-root@Anubis:/usr/src/linux-2.6.4#
-
-
-And here the ver_linux script output:
-
-root@Anubis:/usr/src/linux-2.6.4/scripts# ./ver_linux
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
-
-Linux Anubis 2.6.4 #2 SMP Sat Mar 27 17:30:32 CET 2004 i686 unknown unknown 
-GNU/Linux
-
-Gnu C                  3.3.3
-Gnu make               3.80
-binutils               2.15.90.0.3
-util-linux             2.12
-mount                  2.12
-module-init-tools      3.0
-e2fsprogs              1.35
-pcmcia-cs              3.2.7
-PPP                    2.4.2
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Linux C++ Library      5.0.5
-Procps                 2.0.18
-Net-tools              1.60
-Kbd                    1.12
-Sh-utils               5.2.1
-Modules Loaded         yenta_socket pcmcia_core
-root@Anubis:/usr/src/linux-2.6.4/scripts#
-
-
-Thanks and regards,
-
-The Jackal

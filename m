@@ -1,78 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268942AbTBZVYG>; Wed, 26 Feb 2003 16:24:06 -0500
+	id <S268761AbTBZVjg>; Wed, 26 Feb 2003 16:39:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268944AbTBZVYF>; Wed, 26 Feb 2003 16:24:05 -0500
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:52164 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S268942AbTBZVXz>; Wed, 26 Feb 2003 16:23:55 -0500
+	id <S268774AbTBZVjg>; Wed, 26 Feb 2003 16:39:36 -0500
+Received: from mx12.arcor-online.net ([151.189.8.88]:36017 "EHLO
+	mx12.arcor-online.net") by vger.kernel.org with ESMTP
+	id <S268761AbTBZVje>; Wed, 26 Feb 2003 16:39:34 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>, jt@hpl.hp.com
 Subject: Re: Invalid compilation without -fno-strict-aliasing
-From: Albert Cahalan <albert@users.sf.net>
-To: root@chaos.analogic.com
-Cc: Daniel Jacobowitz <dan@debian.org>, jt@hpl.hp.com,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org, Jouni Malinen <jkmaline@cc.hut.fi>
-In-Reply-To: <Pine.LNX.3.95.1030226151646.5261A-100000@chaos>
-References: <Pine.LNX.3.95.1030226151646.5261A-100000@chaos>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 26 Feb 2003 16:30:29 -0500
-Message-Id: <1046295029.1090.122.camel@cube>
-Mime-Version: 1.0
+Date: Thu, 27 Feb 2003 05:41:06 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200302262107.h1QL7dPr001970@eeyore.valparaiso.cl>
+In-Reply-To: <200302262107.h1QL7dPr001970@eeyore.valparaiso.cl>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20030226214951.B47F2EBEAB@mx12.arcor-online.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-02-26 at 15:19, Richard B. Johnson wrote:
-> On Wed, 26 Feb 2003, Daniel Jacobowitz wrote:
-
->>> It was supposed to force x, which may be cached in a register,
->>> to be written to memory __now__. It doesn't seem to do anything.
->>> I think FORCE_TO_MEM() needs to claim that it uses most all the
->>> registers. That will make sure that any register values get
->>> written to their final memory locations.
->>
->> If so it wouldn't be inside the #APP/#NOAPP markers.  You didn't
->> answer my other question: was X in memory at the time?
+On Wednesday 26 February 2003 22:07, Horst von Brand wrote:
+> Jean Tourrilhes <jt@bougret.hpl.hp.com> said:
+> > On Wed, Feb 26, 2003 at 04:38:10PM +0100, Horst von Brand wrote:
+> > > Jean Tourrilhes <jt@bougret.hpl.hp.com> said:
+> > > > 	It looks like a compiler bug to me...
+> > > > 	Some users have complained that when the following code is
+> > > > compiled without the -fno-strict-aliasing, the order of the write and
+> > > > memcpy is inverted (which mean a bogus len is mem-copied into the
+> > > > stream).
+> > > > 	Code (from linux/include/net/iw_handler.h) :
+> > > > --------------------------------------------
+> > > > static inline char *
+> > > > iwe_stream_add_event(char *	stream,		/* Stream of events */
+> > > > 		     char *	ends,		/* End of stream */
+> > > > 		     struct iw_event *iwe,	/* Payload */
+> > > > 		     int	event_len)	/* Real size of payload */
+> > > > {
+> > > > 	/* Check if it's possible */
+> > > > 	if((stream + event_len) < ends) {
+> > > > 		iwe->len = event_len;
+> > > > 		memcpy(stream, (char *) iwe, event_len);
+> > > > 		stream += event_len;
+> > > > 	}
+> > > > 	return stream;
+> > > > }
+> > > > --------------------------------------------
+> > > > 	IMHO, the compiler should have enough context to know that the
+> > > > reordering is dangerous. Any suggestion to make this simple code more
+> > > > bullet proof is welcomed.
+> > >
+> > > The compiler is free to assume char *stream and struct iw_event *iwe
+> > > point to separate areas of memory, due to strict aliasing.
+> >
+> > 	Which is true and which is not the problem I'm complaining about.
 >
-> It was in %ebx register and didn't go back to NNN(%esp) where
-> it came from. Like I said, it did do anything.
->
->> You should be using something like __asm__ __volatile__ (""::"m"(x))
->> anyway.
->
-> Yep. Probably.
+> ... the compiler thus goes and reorders the frobbing of the variables, as
+> they are (assumed) separate.
 
-I wrote that from my memory and gcc documentation. With none
-of my 3 compilers did I see the sample code failing, so I
-wasn't able to perform a useful test. There may be some little
-detail I missed.
+Actually, the compiler appears to view &iwe->len and (char *) iwe as 
+separate, which I find surprising.
 
-I've had the code working, with gcc 3.0 I'd guess, on both
-PowerPC and something strange. The code relies on "r" being
-a suitable register; this might only be true for common RISC
-architectures. So this is semi-portable code, able to be used
-where the gcc porter followed the suggestion to use "r" as
-the normal sort of register. Since x86 is notably lacking in
-the concept of general purpose registers, the above might not
-apply.
+Regards,
 
-Add :"memory" (a clobber) on the end if you want to be brutal.
-This may produce slower code though.
-
-The basic idea is to convince gcc that some assembly code
-will access the data via a pointer. Probably somebody else
-has already posted a fixed version.
-
-With a recent gcc, look into the __may_alias__ attribute.
-
-This kind of stuff sure is poorly documented, isn't it?
-Has anybody ever seen a reasonable explanation of the new
-C99 restrict keyword, including scope interactions? How
-about a list of gcc bugs in this area? Even with a recent
-gcc, control over aliasing is really crude. I ought to be
-able to specify a list of types and objects that do or do
-not alias, with each other or with the first one specified.
-
-
-
+Daniel

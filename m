@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129348AbQLPU2W>; Sat, 16 Dec 2000 15:28:22 -0500
+	id <S129752AbQLPUbM>; Sat, 16 Dec 2000 15:31:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129752AbQLPU2L>; Sat, 16 Dec 2000 15:28:11 -0500
-Received: from uucp.nl.uu.net ([193.79.237.146]:40349 "EHLO uucp.nl.uu.net")
-	by vger.kernel.org with ESMTP id <S129348AbQLPU2F>;
-	Sat, 16 Dec 2000 15:28:05 -0500
-Date: Sat, 16 Dec 2000 20:45:19 +0100 (CET)
-From: kees <kees@schoen.nl>
-To: Peter Samuelson <peter@cadcamlab.org>
-cc: Dima Brodsky <dima@cs.ubc.ca>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Sound (emu10k1) broken in 2.2.18
-In-Reply-To: <20001216105823.H3199@cadcamlab.org>
-Message-ID: <Pine.LNX.4.21.0012162042310.3635-100000@schoen3.schoen.nl>
+	id <S131818AbQLPUbC>; Sat, 16 Dec 2000 15:31:02 -0500
+Received: from gadolinium.btinternet.com ([194.73.73.111]:19081 "EHLO
+	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
+	id <S129752AbQLPUay>; Sat, 16 Dec 2000 15:30:54 -0500
+Date: Sat, 16 Dec 2000 20:00:10 +0000 (GMT)
+From: davej@suse.de
+To: Rico Tudor <rico@patrec.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ServerWorks docs?
+In-Reply-To: <20001216190710.1514.qmail@pc7.prs.nunet.net>
+Message-ID: <Pine.LNX.4.21.0012161956020.7396-100000@neo.local>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Peter,
+On 16 Dec 2000, Rico Tudor wrote:
 
-In _my_ case I compiled the EMU10K straight into the kernel.
-dmesg shows it's found. The funny thing is that a second machine with an
-es1371 board alos fails with 2.2.18.
+> Does anyone have reference material for the ServerWorks northbridge?
+> I want to add their chipsets to my ECC-monitoring utility, but their
+> web site is little more than marketing drivel.  Plus, they don't respond
+> to e-mail.
 
-2.2.17 is ok. Taking that .config and 'make oldconfig' produces a kernel
-that doesnt allow the emu10k to work. (as for the es1371).
+I've tried on several occasions, but not got anywhere.
+Judging by the comments on the lm-sensors homepage, chances of them
+publically releasing register level info seems pretty slim.
 
-Kees
+regards,
 
+Davej.
 
-On Sat, 16 Dec 2000, Peter Samuelson wrote:
-
-> 
-> [Dima Brodsky]
-> > 	cat x > /dev/dsp
-> 
-> > 	bash: /dev/dsp: No such device
-> > 
-> > But an ls -l shows:
-> > 
-> > crw-rw-rw-   1 root     sys       14,   3 Dec 15 21:25 dsp
-> > crw-rw-rw-   1 root     sys       14,  19 Dec 15 21:25 dsp1
-> 
-> 'ls -l' is useless, here.  Sure the device files exist, but bash is
-> telling you that, kernel-side, they are not connected to anything.
-> 
-> - Do you have emu10k1 compiled in, or as a module?
-> - Does your SBLive appear to have been detected?  (Check 'dmesg')
-> - If emu10k1 is a module, is the module loaded?  Does it seem to detect
->   your SBLive when loaded?  (Again check 'dmesg')
-> 
-> Peter
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+-- 
+| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
+| SuSE Labs
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

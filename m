@@ -1,75 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265807AbUFDPJQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265200AbUFDPPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265807AbUFDPJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 11:09:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265790AbUFDPJQ
+	id S265200AbUFDPPl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 11:15:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265730AbUFDPPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 11:09:16 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:47821 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S265807AbUFDPJG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 11:09:06 -0400
-Message-ID: <40C090DE.55A6C699@nospam.org>
-Date: Fri, 04 Jun 2004 17:10:22 +0200
-From: Zoltan Menyhart <Zoltan.Menyhart_AT_bull.net@nospam.org>
-Reply-To: Zoltan.Menyhart@bull.net
-Organization: Bull S.A.
-X-Mailer: Mozilla 4.78 [en] (X11; U; AIX 4.3)
-X-Accept-Language: fr, en
+	Fri, 4 Jun 2004 11:15:41 -0400
+Received: from [202.125.86.130] ([202.125.86.130]:7379 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S265200AbUFDPPh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 11:15:37 -0400
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Scheduler questions
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: removable media support on 2.6.x
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Date: Fri, 4 Jun 2004 20:41:53 +0530
+Message-ID: <1118873EE1755348B4812EA29C55A9722AF016@esnmail.esntechnologies.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: removable media support on 2.6.x
+Thread-index: AcRKRkS63KTDfQLvSBi8hsnyeIJhWQ==
+From: "Jinu M." <jinum@esntechnologies.co.in>
+To: <linux-kernel@vger.kernel.org>
+Cc: <kernelnewbies@nl.linux.org>,
+       "Surendra I." <surendrai@esntechnologies.co.in>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd like to understand which task structure elements are protected by
-which locks (as far as scheduling is concerned). Is there somewhere a
-paper summarizing the mutual exclusion rules ?
+Hi All,
 
-Let's take some code e.g. from the 2.6.5 kernel:
+We are developing a storage driver (block driver) on 2.6.x kernel. The 
+hardware we are using supports media removal on the fly. We are facing
+some problem when the media is removed while the disk is mounted. The
+system freezes and the module count never goes to zero.
 
-set_cpus_allowed(task_t *p, cpumask_t new_mask):
+This is what we do when the disk is removed on the fly.
 
-	rq = task_rq_lock(p, &flags)
-	__set_cpus_allowed(p, new_mask, &req):
+disk_removed(...)
+{
+	/* invalidate disk */
+	if(gDisk->bdev) {
+		invalidate_bdev(gDisk->bdev, 1);
+		bdput(gDisk->bdev);
+	}
 
-		p->cpus_allowed = new_mask
-		/*
-		 * If the task is not on a runqueue (and not running), then
-		 * it is sufficient to simply update the task's cpu field.
-		 */
-		if (!p->array && !task_running(rq, p))
-			set_task_cpu(p, any_online_cpu(p->cpus_allowed))
-		/* ... */
+	/* indicates that no disk present */
+	set_capacity(gDisk->gd, 0);
 
-	task_rq_unlock(rq, &flags)
+	/* cleanup gendisk */
+	del_gendisk(gDisk->gd);
+	put_disk(gDisk->gd);
 
-Apparently, the "p->cpus_allowed" and the "p->thread_info->cpu" fields
-are protected by the "(&per_cpu(runqueues, (p->thread_info->cpu)))->lock".
+	/* clean up blkqueue */
+	blk_cleanup_queue(gDisk->blkqueue);
+}
 
-Which are the other task structure elements protected by the same lock ?
+disk_removed() is called from the workqueue that is initiated from the
+tasklet()<=isr() on card removal.
 
-Let's take an example:
+We guess invalidate_bdev() is the culprit ;) but would like to know
+from you all if we are doing some mistake. Is there something missing
+or something wrong in the way we are trying to provide removable media
+support?
 
-- I've got a sleeping task that ran on the CPU #3 previously
-- I want to set its CPU mask equal to {1, 2}
-- I take the lock of the run queue #3
-- I do set the CPU mask of the task
-- It's not running (BTW when can happen that "p->array" is NULL and the
-  task is still running ?)
-- I do set the task's CPU e.g. equal to 2. As a consequence, the task
-  falls out of the protection provided by the lock of the run queue #3.
-- Someone else deciding to play with the same task, s/he takes the
-  lock of the run queue #2 !!!
-- Me, I have not arrived yet to the unlock. There are stuffs to do before.
-- Both of us think to have the exclusive access right to the task...
+Thanks in advance,
 
-Can someone explain me, please, why I have to take a run queue lock
-to protect a not running task, and why we do not use "proc_lock"
-instead ?
-
-Thanks,
-
-Zoltán Menyhárt
+-Jinu

@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263637AbTHOLlA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 07:41:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263638AbTHOLlA
+	id S263597AbTHOLcr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 07:32:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTHOLcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 07:41:00 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:14609 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263637AbTHOLk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 07:40:59 -0400
-Date: Fri, 15 Aug 2003 12:40:55 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Dave Jones <davej@redhat.com>,
-       Jonathan Morton <chromi@chromatix.demon.co.uk>,
-       Robert Toole <tooler@tooleweb.homelinux.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: agpgart failure on KT400
-Message-ID: <20030815124055.A8940@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dave Jones <davej@redhat.com>,
-	Jonathan Morton <chromi@chromatix.demon.co.uk>,
-	Robert Toole <tooler@tooleweb.homelinux.com>,
-	linux-kernel@vger.kernel.org
-References: <3F3C2DA0.1030504@tooleweb.homelinux.com> <BD8AF95A-CEC1-11D7-A88B-003065664B7C@chromatix.demon.co.uk> <20030815105733.GC22433@redhat.com>
-Mime-Version: 1.0
+	Fri, 15 Aug 2003 07:32:47 -0400
+Received: from h000.c007.snv.cp.net ([209.228.33.228]:43430 "HELO
+	c007.snv.cp.net") by vger.kernel.org with SMTP id S263597AbTHOLcq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 07:32:46 -0400
+X-Sent: 15 Aug 2003 11:32:44 GMT
+Date: Fri, 15 Aug 2003 13:32:54 +0200
+From: Uberto Barbini <uberto@ubiland.net>
+X-Mailer: The Bat! (v1.62i) Personal
+Reply-To: Uberto Barbini <uberto@ubiland.net>
+X-Priority: 3 (Normal)
+Message-ID: <188187847079.20030815133254@ubiland.net>
+To: linux-kernel@vger.kernel.org
+Subject: Mtrr problem on via M10000 with 2.6.0-test3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030815105733.GC22433@redhat.com>; from davej@redhat.com on Fri, Aug 15, 2003 at 11:57:33AM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 15, 2003 at 11:57:33AM +0100, Dave Jones wrote:
-> is at least a few evenings work.  I'm just one guy.  Unless Red Hat
-> decide that AGP3 is something they really really must have for some
-> future 2.4 release, it isn't going to happen by me. Period.
-> I'm just up to my eyes in other work.
+Every time, X (4.3.99.10) reports at starting:
 
-Red Hat has merged the crap AGP3 patches for 2.4 in AS3.0 at least..
+(WW) via(0): "Failed to setup write-combining range(0xe4000000,0x4000000)
+
+The same error appears with vesa driver too.
+I enabled mtrr in kernel and tried
+
+less /proc/mtrr
+
+...
+reg03: base=0e40000000 (3648MB), size= 8MB: write-combining, count=1
+
+The values seem right.
+I also tried to change the ram amount for the video card (8-64) on bios and
+it'll report correctly.
+
+The problem is present at least since 2.6.0-test1, and with all X
+versions.
+
+Some other informations: I'm using gentoo and loaded via_agp and
+agpgart, apart the error X runs nicely at first but after some time it
+freeze all (telnet not responding).
+
+Thanks for any hints or help.
+
+Uberto Barbini
 

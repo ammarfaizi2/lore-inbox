@@ -1,66 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316878AbSILSPJ>; Thu, 12 Sep 2002 14:15:09 -0400
+	id <S316853AbSILSWo>; Thu, 12 Sep 2002 14:22:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316880AbSILSPJ>; Thu, 12 Sep 2002 14:15:09 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:46349 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S316878AbSILSPI>; Thu, 12 Sep 2002 14:15:08 -0400
-Message-Id: <200209121815.g8CIFdp06612@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Jan Kasprzak <kas@informatics.muni.cz>, linux-kernel@vger.kernel.org
-Subject: Re: AMD 760MPX DMA lockup
-Date: Thu, 12 Sep 2002 21:10:47 -0200
-X-Mailer: KMail [version 1.3.2]
-References: <20020912161258.A9056@fi.muni.cz>
-In-Reply-To: <20020912161258.A9056@fi.muni.cz>
+	id <S316883AbSILSWo>; Thu, 12 Sep 2002 14:22:44 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:33552 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S316853AbSILSWn>; Thu, 12 Sep 2002 14:22:43 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15744.56469.104338.357738@laputa.namesys.com>
+Date: Thu, 12 Sep 2002 22:27:33 +0400
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Subject: lookup on unlinked directory.
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+X-Meat: Ham
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 September 2002 12:12, Jan Kasprzak wrote:
+Hello,
 
-> my dual athlon box is unstable in some situations. I can consistently
-> lock it up by running the following code:
->
-> fd = open("/dev/hda3", O_RDWR);
-> for (i=0; i<1024*1024; i++) {
-> 	read(fd, buffer, 8192);
-> 	lseek(fd, -8192, SEEK_CUR);
-> 	write(fd, buffer, 8192);
-> }
+why ->create(), ->unlink(), and ->readdir() are disabled on the unlinked
+but open directory (one with ->i_flags |= S_DEAD), but ->lookup() is
+not?  This is especially strange, because ->rmdir() usually removes dot
+and dotdot, but link_path_walk() will pretend they still exist.
 
-8 GB... Can you make it loop over much lesser size?
+Is this so for being able to do "cd .." from inside unlinked directory?
 
-for (j=0; j<1024; j++) {
-  fd = open("/dev/hda3", O_RDWR);
-  for (i=0; i<1024; i++) {
-  	read(fd, buffer, 8192);
-  	lseek(fd, -8192, SEEK_CUR);
-  	write(fd, buffer, 8192);
-  }
-  close(fd);
-  printf(<some stats>);
-}
-
-I assume removing read+lseek eliminates lockup?
-
-> I tried to put the tested disk to a separate IDE controller
-> (Promise PDC20269 PCI card) - then I do not get a complete lockup,
-> just the drive starts to complain about the DMA timeout, and the kernel
-> reesets the controller. However, DMA timeouts start to occur even on
-> the primary controller.
-
-Is it IDE related or not? 
-If you can test it over SCSI/NFS/ramdisk/???...
-
-> When I switch off the DMA (hdparm -d0 /dev/hda), the problem goes away
-> (however, the disk is very slow, as expected).
-
-At which DMA/UDMA mode it starts to fail?
---
-vda
+Nikita.

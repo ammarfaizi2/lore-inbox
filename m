@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132653AbQLNVPg>; Thu, 14 Dec 2000 16:15:36 -0500
+	id <S129773AbQLNVT5>; Thu, 14 Dec 2000 16:19:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129773AbQLNVP0>; Thu, 14 Dec 2000 16:15:26 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:520 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S132653AbQLNVPL>;
-	Thu, 14 Dec 2000 16:15:11 -0500
-Message-ID: <3A39313B.A904F05@mandrakesoft.com>
-Date: Thu, 14 Dec 2000 15:44:43 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S133023AbQLNVTr>; Thu, 14 Dec 2000 16:19:47 -0500
+Received: from moot.mb.ca ([64.4.83.10]:64520 "EHLO moot.cdir.mb.ca")
+	by vger.kernel.org with ESMTP id <S129773AbQLNVTm>;
+	Thu, 14 Dec 2000 16:19:42 -0500
+Date: Thu, 14 Dec 2000 14:49:14 -0600 (CST)
+From: "Michael J. Dikkema" <mjd@moot.ca>
 To: linux-kernel@vger.kernel.org
-Subject: Re: test13-pre1 changelog
-In-Reply-To: <1850783421.976808359@primetime2>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: 2.2.18 + DHCP + nfsroot
+Message-ID: <Pine.LNX.4.21.0012141434270.9058-100000@sliver.moot.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The test13-pre1 changelog was something along the lines of "alright, I
-am sick of this Makefile crap.  I fixed some, clean up the rest."
 
-;-)
+I'm having problems getting my machines to load nfsroot since I went from
+2.2.16 -> 2.2.18. I don't have access to the boot messages, as the
+machines are 2000 miles away, but the DHCP messages aren't showing up
+anymore, but instead a bunch of RPC messages are. Has anything changed
+with regards to DHCP or nfs root since 2.2.17?
 
--- 
-Jeff Garzik         |
-Building 1024       | These are not the J's you're lookin' for.
-MandrakeSoft        | It's an old Jedi mind trick.
+Thanks in advance.
+
+,.;::
+: Michael J. Dikkema
+| Systems / Network Admin - Internet Solutions, Inc.
+| http://www.moot.ca   Work: (204) 982-1060
+; mjd@moot.ca
+',.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

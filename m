@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292560AbSBZAgA>; Mon, 25 Feb 2002 19:36:00 -0500
+	id <S292576AbSBZAlA>; Mon, 25 Feb 2002 19:41:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292567AbSBZAfu>; Mon, 25 Feb 2002 19:35:50 -0500
-Received: from paloma12.e0k.nbg-hannover.de ([62.181.130.12]:16283 "HELO
-	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S292560AbSBZAfe>; Mon, 25 Feb 2002 19:35:34 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: 2.4.19-preX: What we really need: -AA patches finally in the tree
-Date: Tue, 26 Feb 2002 01:35:18 +0100
-X-Mailer: KMail [version 1.3.9]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200202260135.18913.Dieter.Nuetzel@hamburg.de>
+	id <S292549AbSBZAku>; Mon, 25 Feb 2002 19:40:50 -0500
+Received: from jalon.able.es ([212.97.163.2]:39569 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S292576AbSBZAki>;
+	Mon, 25 Feb 2002 19:40:38 -0500
+Date: Tue, 26 Feb 2002 01:40:31 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: andersen@codepoet.org
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCHSET] Linux 2.4.18-jam1
+Message-ID: <20020226014031.C1744@werewolf.able.es>
+In-Reply-To: <20020226010604.A1744@werewolf.able.es> <20020226003404.GA31119@codepoet.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20020226003404.GA31119@codepoet.org>; from andersen@codepoet.org on mar, feb 26, 2002 at 01:34:05 +0100
+X-Mailer: Balsa 1.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Without them we do _NOT_ calm the flamewar against Linux's 2.4 VM.
-Second, it is time for the outstanding ReiserFS patches.
-If we are somewhat risky we put Ingo's GREAT O(1)-scheduler in, too.
-Preemption is than another story.
 
-Thank you for any feedback in advance.
-This not intended as a flamewar start.
+On 20020226 Erik Andersen wrote:
+>On Tue Feb 26, 2002 at 01:06:04AM +0100, J.A. Magallon wrote:
+>> Hi.
+>> 
+>> Moved to 2.4.18-final. Only change is inclusion of fix for the
+>> binfmt personality change lost in hyperspace between rc4 and final
+>> (matters only in non-x86):
+>
+>Mind pushing the 30-aic7xxx-6.2.5.gz patch to Marcelo?
+>
 
--Dieter
+I have no concern in pushing anything to marcelo (my first vote would
+be for vm-27, I can swear it makes a difference), but official 
+mantainers know what they are doing.
+
 -- 
-Dieter Nützel
-Graduate Student, Computer Science
-
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel@hamburg.de
-
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.18-jam1 #1 SMP Tue Feb 26 00:06:55 CET 2002 i686

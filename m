@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269448AbUINP72@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265773AbUINP4Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269448AbUINP72 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 11:59:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269457AbUINPx4
+	id S265773AbUINP4Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 11:56:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269448AbUINP4P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 11:53:56 -0400
-Received: from cantor.suse.de ([195.135.220.2]:26761 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269454AbUINPuJ (ORCPT
+	Tue, 14 Sep 2004 11:56:15 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:60634 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269291AbUINPzw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 11:50:09 -0400
-Message-ID: <4147128A.9030706@suse.de>
-Date: Tue, 14 Sep 2004 17:47:22 +0200
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
-X-Accept-Language: en-us, en
+	Tue, 14 Sep 2004 11:55:52 -0400
+Date: Tue, 14 Sep 2004 08:52:10 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Hanna Linder <hannal@us.ibm.com>, rth@twiddle.net,
+       ink@jurassic.park.msu.ru, linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [RFT 2.6.9-rc1 alpha sys_alcor.c] [1/2] convert pci_find_device to pci_get_device
+Message-ID: <925340000.1095177130@w-hlinder.beaverton.ibm.com>
+In-Reply-To: <20040914031705.GX9106@holomorphy.com>
+References: <806400000.1095118633@w-hlinder.beaverton.ibm.com> <20040914020257.GF9106@holomorphy.com> <20040914031705.GX9106@holomorphy.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: HP/Compaq (Winbond) SD/MMC reader supported
-References: <41383D02.5060709@drzeus.cx> <20040913223827.GA28524@elf.ucw.cz> <41467216.6070508@drzeus.cx> <20040914150013.GB27621@elf.ucw.cz> <41470B5A.2010005@drzeus.cx> <20040914152406.GA9581@elf.ucw.cz>
-In-Reply-To: <20040914152406.GA9581@elf.ucw.cz>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
+--On Monday, September 13, 2004 08:17:05 PM -0700 William Lee Irwin III <wli@holomorphy.com> wrote:
 
-> Stefan, could you take a look? I rm -rf'ed my copy of windows :-(.
+> On Mon, Sep 13, 2004 at 07:02:57PM -0700, William Lee Irwin III wrote:
+>> I can run it through a compiler, but I won't be able to do meaningful
+>> runtime testing on it as I only have tincup and alphapc systems. They
+>> look safe at first glance.
+> 
+> More specifically, if these were merely alpha-specific drivers, I could
+> do meaningful testing as they would attempt to be detected this way.
+> But this is system-specific initialization executed conditionally on
+> the system type, so as the systems I have are not the ones affected by
+> these patches, if I were to attempt a runtime test I would merely
+> discover that the code was not executed.
 
-Me too, but fortunately i exchanged the nx5k with somebody else who 
-hasn't :-)
+Bill,
 
-Texas Instruments PCIxx20 Integrated FlashMedia controller
-Driver: tifm.sys
+That is fine if you could just compile it that would satisfy me.
 
-Memory range: 90280000-90280fff
-IRQ: 18
+Thanks.
 
-	Stefan
+Hanna
+

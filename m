@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267598AbTALXIw>; Sun, 12 Jan 2003 18:08:52 -0500
+	id <S267607AbTALWz1>; Sun, 12 Jan 2003 17:55:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267595AbTALXIk>; Sun, 12 Jan 2003 18:08:40 -0500
-Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:49336
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S267636AbTALXHa>; Sun, 12 Jan 2003 18:07:30 -0500
-Date: Sun, 12 Jan 2003 18:16:15 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: Robert Love <rml@tech9.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: any chance of 2.6.0-test*?
-In-Reply-To: <1042412421.834.103.camel@phantasy>
-Message-ID: <Pine.LNX.4.44.0301121809190.28794-100000@xanadu.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267610AbTALWz1>; Sun, 12 Jan 2003 17:55:27 -0500
+Received: from dsl-213-023-067-166.arcor-ip.net ([213.23.67.166]:6280 "EHLO
+	neon.pearbough.net") by vger.kernel.org with ESMTP
+	id <S267618AbTALWzY>; Sun, 12 Jan 2003 17:55:24 -0500
+Date: Mon, 13 Jan 2003 00:03:12 +0100
+From: axel@pearbough.net
+To: Andrew Walrond <andrew@walrond.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Moderated forum for linux-kernel
+Message-ID: <20030112230312.GA1485@neon.pearbough.net>
+Mail-Followup-To: Andrew Walrond <andrew@walrond.org>,
+	linux-kernel@vger.kernel.org
+References: <3E21ECC2.1040404@walrond.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E21ECC2.1040404@walrond.org>
+User-Agent: Mutt/1.4i
+Organization: pearbough.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Jan 2003, Robert Love wrote:
+Hi Andrew!
 
-> On Sun, 2003-01-12 at 17:51, Rob Wilkens wrote:
-> 
-> > [...]
-> 
-> And faster, cleaner, simpler, and smaller.  Yup.
-> 
-> In the history of trolls on lkml, you are rising to the top.  Are you
-> proud?
+On Sun, 12 Jan 2003, Andrew Walrond wrote:
 
-What amazes me the most is the ability this guy has to have people generate
-replies.  Even Linus got caught.  That's nearly better than RMS postings so 
-far...
+> Better Thread organisation and seperate topic areas for drivers, 
+> patches, ide, ...
+
+Doesnt a good mail client manage this well. I'm using procmail to filter
+certain patterns in lkml subjects into different mailboxes.
+
+> Moderated forums (Off-topic threads policed and deleted)
+
+I guess this is just way too much work for the moderator ;)
+You know how much mail traffic this list produces. Someone, most of the
+people here do all the work past their real job, I guess.
+
+> Read only forums (write for registered/invited members)
+
+The linux kernel development relies on the work and efforts of all the
+diligent people here. What if there is an important topic on this read-only
+list and there are people who have some useful information to contribute?
 
 
-Nicolas
-
+Best regards,
+Axel Siebenwirth

@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbTK1I1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 03:27:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbTK1I1Y
+	id S262076AbTK1JHk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 04:07:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbTK1JHj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 03:27:24 -0500
-Received: from ztxmail02.ztx.compaq.com ([161.114.1.206]:8465 "EHLO
-	ztxmail02.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S262070AbTK1I1X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 03:27:23 -0500
-Message-ID: <3FC707B6.1070704@mailandnews.com>
-Date: Fri, 28 Nov 2003 14:00:46 +0530
-From: Raj <raju@mailandnews.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031016
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Fri, 28 Nov 2003 04:07:39 -0500
+Received: from ns.tasking.nl ([195.193.207.2]:62732 "EHLO ns.tasking.nl")
+	by vger.kernel.org with ESMTP id S262076AbTK1JHj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Nov 2003 04:07:39 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Strange behavior observed w.r.t 'su' command
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: 2.6.0-test9/10 speedtouch glitch
+Organization: Altium SOFTWARE B.V.
+References: <200311272023.56413.vlad@lazarenko.net> <200311272143.05662.baldrick@free.fr> <200311272339.26205.vlad@lazarenko.net> <200311272339.26205.vlad@lazarenko.net> <200311280001.30220.baldrick@free.fr>
+X-Face: "A(HPX!owGRCdtOX\NKs=ac*&x%/sYJMc;M<L&"^kH9ogp5;"w#UVc0yt3K{@n#.E+=k>qd bqZYYQvB9_xdS1l+B2\z;:p71RNxrja;ir>Dj?6%GzFA!o>gOL&G}8X;icnhqP|=TU,O@JVM%5LL:X ,G&IkRk9n%h7hZFUltu%RB=ctrdfu?[vSRV%Wzcn;#o>[K0C6_'q*~^+toc))w-Qb8*,afMHVCrNG6
+X-Attribution: KB
+Reply-To: kees.bakker@altium.nl (Kees Bakker)
+From: Kees Bakker <spam@altium.nl>
+Date: 28 Nov 2003 10:06:22 +0100
+Message-ID: <siwu9kuak1.fsf@koli.tasking.nl>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+NNTP-Posting-Host: 172.17.1.96
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi, i am not sure if this is a kernel problem or an 'su' related issue, 
-but this is what  i have observed. Tried on 2.4.20-8 ( RH 9.0 kernel ) 
-and latest 2.6.0-test11.
+>>>>> Duncan Sands writes:
+> 
+> On Thursday 27 November 2003 23:39, Vladimir Lazarenko wrote:
+>> 
+>> Using Debian/sid with latest available usbmgr.
+>> Tho the module itself loads successfully, just that modem_run isn't able to
+>> see the device, I think at that point hotplug has to complete already?
+> 
+> What error message do you get exactly?  When running what command?
 
-- log in as any normal user. ( on Console.).
-- su - root
-- from root prompt, run 'ps' and check the pid of 'su'.
-- kill -9 <pid of su>
-After the kill command, strangely my keyboard switches to unbuffered 
-mode ( a key press is processed immediately ). Also, i alternate between 
-the root prompt and the normal user prompt.
-Every key press switches from root prompt to normal user prompt and vice 
-versa. Typing 'whoami' at the respective prompts displays 'normal user' 
-and 'root' for the respective prompts.
+I always thought that modem_run (the user-space driver) and the kernel
+driver don't match. Am I wrong?
 
-What could be wrong ? Or am i doing something which i shouldnt be doing ?
-
-/Raj
-
+		Kees
 

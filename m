@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262137AbVAJHoe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbVAJHtc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262137AbVAJHoe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 02:44:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbVAJHod
+	id S262138AbVAJHtc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 02:49:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262140AbVAJHtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 02:44:33 -0500
-Received: from asclepius3.uwa.edu.au ([130.95.128.60]:61575 "EHLO
-	asclepius.uwa.edu.au") by vger.kernel.org with ESMTP
-	id S262137AbVAJHo3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 02:44:29 -0500
-X-UWA-Client-IP: 130.95.13.9 (UWA)
-Date: Mon, 10 Jan 2005 15:44:22 +0800
-From: bernard@blackham.com.au
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Shaw <shawv@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: Screwy clock after apm suspend
-Message-ID: <20050110074422.GA17710@mussel>
-References: <7bb8b8de05010710085ea81da9@mail.gmail.com> <20050109224711.GF1353@elf.ucw.cz> <200501092328.54092.shawv@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501092328.54092.shawv@comcast.net>
-User-Agent: Mutt/1.5.6+20040818i
-X-SpamTest-Info: Profile: Formal (192/041231)
-X-SpamTest-Info: Profile: Detect Hard [UCS 290904]
-X-SpamTest-Info: Profile: SysLog
-X-SpamTest-Info: Profile: Marking Spam - Subject (UCS) [02-08-04]
-X-SpamTest-Status: Not detected
-X-SpamTest-Version: SMTP-Filter Version 2.0.0 [0125], KAS/Release
+	Mon, 10 Jan 2005 02:49:32 -0500
+Received: from bernache.ens-lyon.fr ([140.77.167.10]:37793 "EHLO
+	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S262138AbVAJHt3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 02:49:29 -0500
+Message-ID: <41E23383.60702@ens-lyon.fr>
+Date: Mon, 10 Jan 2005 08:49:23 +0100
+From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
+Reply-To: Brice.Goglin@ens-lyon.org
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Dave Airlie <airlied@gmail.com>
+Cc: Benoit Boissinot <bboissin@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       Mike Werner <werner@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-mm2
+References: <20050106002240.00ac4611.akpm@osdl.org>	 <40f323d005010701395a2f8d00@mail.gmail.com>	 <21d7e99705010718435695f837@mail.gmail.com>	 <40f323d00501080427f881c68@mail.gmail.com>	 <21d7e99705010805487322533e@mail.gmail.com>	 <40f323d0050108074112ae4ac7@mail.gmail.com>	 <21d7e99705010817386f55e836@mail.gmail.com>	 <40f323d005010906093ba08ba4@mail.gmail.com>	 <41E13C87.3050306@ens-lyon.fr> <21d7e99705010923403a57c7a6@mail.gmail.com>
+In-Reply-To: <21d7e99705010923403a57c7a6@mail.gmail.com>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Report: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 09, 2005 at 11:28:53PM -0800, Shaw wrote:
-> On Sunday 09 January 2005 02:47 pm, Pavel Machek wrote:
-> > Probably code to compensate clock after ACPI suspend breaks apm case
-> >
-> > arch/i386/kernel/time.c, can you comment out
-> > jiffies += sleep_length * HZ;
-> >
-> > in timer_resume to see if it goes away?
+> I've another patch on top of -mm2 anyone wanna try this.. i'm
+> interested in finding out when the atomic_inc actually is happening...
 > 
-> Worked like a charm.  I'm not seeing any time drift after your suggested 
-> change.
+> Dave.
 
-AIUI, this also means that a machine's uptime does not include time
-whilst suspended. This was the behaviour prior to 2.6.10 and seems to be
-more desirable as it counts the time the machine is actually running,
-not just time since boot. Is there a good reason why we can't go back to
-this?
+Hi,
 
-Bernard.
+I still only see "agp_backend_acquire failed on atomic read".
 
+Regards
+Brice

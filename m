@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265689AbTAOGvS>; Wed, 15 Jan 2003 01:51:18 -0500
+	id <S265787AbTAOHAa>; Wed, 15 Jan 2003 02:00:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265725AbTAOGvH>; Wed, 15 Jan 2003 01:51:07 -0500
-Received: from dp.samba.org ([66.70.73.150]:41158 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265689AbTAOGvF>;
-	Wed, 15 Jan 2003 01:51:05 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Olaf Dietsche <olaf.dietsche@t-online.de>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-       trivial@rustcorp.com.au, Neil Brown <neilb@cse.unsw.edu.au>,
-       dwmw2@redhat.com
-Subject: Re: [PATCH] [TRIVIAL] kstrdup 
-In-reply-to: Your message of "Tue, 14 Jan 2003 12:48:11 BST."
-             <87bs2kkl50.fsf@goat.bogus.local> 
-Date: Wed, 15 Jan 2003 17:55:29 +1100
-Message-Id: <20030115065959.6FEE32C30A@lists.samba.org>
+	id <S265791AbTAOHAa>; Wed, 15 Jan 2003 02:00:30 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:990 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S265787AbTAOHA3>;
+	Wed, 15 Jan 2003 02:00:29 -0500
+Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E01087ADB@orsmsx402.jf.intel.com>
+From: "Feldman, Scott" <scott.feldman@intel.com>
+To: Jeff Garzik <jgarzik@pobox.com>,
+       Louis Zhuang <louis.zhuang@linux.co.intel.com>
+Cc: jgarzik@redhat.com, "Feldman, Scott" <scott.feldman@intel.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: RE: [BUG FIX] e100 initialization issue on STL2 motherboard
+Date: Tue, 14 Jan 2003 23:09:17 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+content-class: urn:content-classes:message
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <87bs2kkl50.fsf@goat.bogus.local> you write:
-> +extern void *kmemdup(const void *, __kernel_size_t, int);
-> +  
-> +static inline char *kstrdup(const char *s, int flags)
-> +	{ return kmemdup(s, strlen(s) + 1, flags); }
-> +static inline char *strdup(const char *s) { return kstrdup(s, GFP_KERNEL); }
+Jeff Garzik wrote:
+> On Tue, Jan 14, 2003 at 01:51:55PM +0800, Louis Zhuang wrote:
+> > 	The patch will increase waiting time in SCB 
+> initialization. It will 
+> > resolve the issue on STL2 motherboard. Pls apply.
+> 
+> Sorry, not applied.
+> 
+> I was kinda hoping Scott would fix that up.  It is a verified 
+> problem (SMBus timeout, IIRC?), and this does indeed fix the problem.
 
-I disagree with this approach.  (1) because strdup hides an allocation
-assumption: it's too dangerous an interface, (2) because introducing a
-new interface is a much bigger deal than consolidating existing ones.
+Agreed, don't apply this patch - it's not the right fix.
 
-But really, I only keep the kstrdup patch around to irritate Linus.
+The solution requires a specific TCO workaround on 82559 to
+schedule_timeout after hard reset of the controller, and then follow
+that with a wait for TCO traffic to quiesce.  Patch forthcoming...
 
-Thanks!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-scott

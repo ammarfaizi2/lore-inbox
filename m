@@ -1,64 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289212AbSASNTY>; Sat, 19 Jan 2002 08:19:24 -0500
+	id <S287816AbSASNja>; Sat, 19 Jan 2002 08:39:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289211AbSASNTP>; Sat, 19 Jan 2002 08:19:15 -0500
-Received: from 90dyn204.com21.casema.net ([62.234.21.204]:36747 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S289213AbSASNS5>; Sat, 19 Jan 2002 08:18:57 -0500
-Message-Id: <200201191318.OAA13552@cave.bitwizard.nl>
-Subject: Re: rm-ing files with open file descriptors
-In-Reply-To: <1011444389.25261.5.camel@bip> from Xavier Bestel at "Jan 19, 2002
- 01:46:29 pm"
-To: Xavier Bestel <xavier.bestel@free.fr>
-Date: Sat, 19 Jan 2002 14:18:52 +0100 (MET)
-CC: Alexander Viro <viro@math.psu.edu>, Matthias Schniedermeyer <ms@citd.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S289031AbSASNjV>; Sat, 19 Jan 2002 08:39:21 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:8134 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S287816AbSASNjJ>; Sat, 19 Jan 2002 08:39:09 -0500
+From: Christoph Rohland <cr@sap.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Wilhelm Nuesser <wilhelm.nuesser@sap.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: clarification about redhat and vm
+In-Reply-To: <E16RFE9-00042W-00@the-village.bc.nu> <3C485169.7070005@sap.com>
+	<20020118200700.A21279@athlon.random>
+Organisation: SAP LinuxLab
+Date: Sat, 19 Jan 2002 11:50:59 +0100
+In-Reply-To: <20020118200700.A21279@athlon.random> (Andrea Arcangeli's
+ message of "Fri, 18 Jan 2002 20:07:01 +0100")
+Message-ID: <m3wuye397w.fsf@linux.local>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.4 (Artificial
+ Intelligence, i386-suse-linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-SAP: out
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xavier Bestel wrote:
-> On Sat, 2002-01-19 at 13:29, Alexander Viro wrote:
-> > 
-> > 
-> > On 19 Jan 2002, Xavier Bestel wrote:
-> > 
-> > > On Sat, 2002-01-19 at 13:16, Matthias Schniedermeyer wrote:
-> > > > > > Well no. new_fd will refer to a completely new, empty file
-> > > > > > which has no relation to the old file at all.
-> > > > > > 
-> > > > > > There is no way to recreate a file with a nlink count of 0,
-> > > > > > well that is until someone adds flink(fd, newpath) to the kernel.
-> > > > > > 
-> > > > > 
-> > > > > This *might* work:
-> > > > > 
-> > > > > link("/proc/self/fd/40", newpath);
-> > > > 
-> > > > cat /proc/<id>/fd/<nr> > whatever
-> > > > actually works.
-> > > 
-> > > Once it's unliked ? I doubt it.
-> > 
-> > Egads...  It certainly works, unlinked or not.  Please learn the basics of
-> > Unix filesystem semantics.
-> 
-> Indeed, it works, but it doesn't with a true symlink. What kind of a
-> link is that /proc/<id>/fd/<nr> entry ? It's not a symlink even if it
-> looks like one.
+Hi Andrea,
 
-Highly correct!
+On Fri, 18 Jan 2002, Andrea Arcangeli wrote:
+> and I assume you were using either ext2 or reiserfs anyways, so the
+> fsync problem never affected you since the first place (also with
+> older kernels) I believe.
 
-			Roger. 
+It was done on ext2 _and_ against raw devices. Same dendency on both
+setups.
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+Further on I doubt the test is very depended on fsync. It should be
+swap io limited since it runs with a way too small memory
+configuration.
+
+If you have enough memory the test is not very IO intensive either
+despite the fact that a big database is running. To bring the database
+really into IO you have to add application servers. (Fujitsu Siemens
+took 160 4way Linux servers to saturate a database server running
+Solaris on 64way FSC Primepower.)
+
+BTW since we are just bashing VMs: I always hear that 2.2 is so much
+better: The first 2.2 kernel which could really survive this test was
+2.2.19!
+
+Greetings
+		Christoph
+
+
+

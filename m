@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263231AbTCYRvM>; Tue, 25 Mar 2003 12:51:12 -0500
+	id <S263229AbTCYRuH>; Tue, 25 Mar 2003 12:50:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263236AbTCYRvM>; Tue, 25 Mar 2003 12:51:12 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:41554 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S263231AbTCYRvK>; Tue, 25 Mar 2003 12:51:10 -0500
-Date: Tue, 25 Mar 2003 18:04:09 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: akpm@zip.com.au, <linux-kernel@vger.kernel.org>
-Subject: Re: fix unuse_pmd() OOM handling
-In-Reply-To: <20030325170139.GK1350@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0303251801530.10350-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S263230AbTCYRuH>; Tue, 25 Mar 2003 12:50:07 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:21770 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263229AbTCYRuG>; Tue, 25 Mar 2003 12:50:06 -0500
+Date: Tue, 25 Mar 2003 18:01:08 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BK FBDEV] A few more updates.
+Message-ID: <20030325180108.E24418@flint.arm.linux.org.uk>
+Mail-Followup-To: James Simmons <jsimmons@infradead.org>,
+	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.33.0303251031180.4272-100000@maxwell.earthlink.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0303251031180.4272-100000@maxwell.earthlink.net>; from jsimmons@infradead.org on Tue, Mar 25, 2003 at 10:32:11AM -0800
+X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Mar 2003, William Lee Irwin III wrote:
-> Fix unuse_pmd() OOM handling for pte_chain_alloc() failures.
-> Unfortunately I'm not able to trigger anything more than light
-> swapping loads to test this with.
+On Tue, Mar 25, 2003 at 10:32:11AM -0800, James Simmons wrote:
+> Linus, please do a
+> 
+> 	bk pull http://fbdev.bkbits.net/fbdev-2.5
 
-Sorry, Bill: please ignore this one, Andrew: I'm preparing a
-better patch for this, extracted from my anobjrmap patches.
+Patch?
 
-Hugh
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268066AbUJDMFL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268060AbUJDMJN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268066AbUJDMFL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 08:05:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268060AbUJDMFK
+	id S268060AbUJDMJN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 08:09:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268069AbUJDMJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 08:05:10 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:7070 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S268066AbUJDMEz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 08:04:55 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Jan De Luyck <lkml@kcore.org>
-Subject: Re: [2.6.9-rc3] suspend-to-disk oddities
-Date: Mon, 4 Oct 2004 14:06:40 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-References: <200410041107.12049.lkml@kcore.org> <200410041331.44453.oliver@neukum.org> <200410041359.07047.lkml@kcore.org>
-In-Reply-To: <200410041359.07047.lkml@kcore.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200410041406.40222.oliver@neukum.org>
+	Mon, 4 Oct 2004 08:09:13 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:3346 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268060AbUJDMJJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 08:09:09 -0400
+Message-ID: <4d8e3fd3041004050927c42438@mail.gmail.com>
+Date: Mon, 4 Oct 2004 14:09:08 +0200
+From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Reply-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+To: Jari Ruusu <jariruusu@users.sourceforge.net>
+Subject: Re: [PATCH] AES x86-64-asm impl.
+Cc: Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@osdl.org>,
+       Florian Bohrer <florian.bohrer@t-online.de>,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org
+In-Reply-To: <41613937.8BF0FE0D@users.sourceforge.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <2KWl4-wq-25@gated-at.bofh.it>
+	 <m3acv4zz5f.fsf@averell.firstfloor.org>
+	 <41613937.8BF0FE0D@users.sourceforge.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 4. Oktober 2004 13:59 schrieb Jan De Luyck:
-> On Monday 04 October 2004 13:31, Oliver Neukum wrote:
-> > Am Montag, 4. Oktober 2004 11:07 schrieb Jan De Luyck:
-> > > Just tried swsusp, works great, besides a few strange things:
-> > >
-> > > - The suspend routine is unable to shutdown the mysqld process:
-> > >
-> > > Oct  4 10:19:43 precious kernel: Stopping tasks:
-> > > ================================================= Oct  4 10:19:43
-> > > precious kernel:  stopping tasks failed (1 tasks remaining) Oct  4
-> > > 10:19:43 precious kernel: Restarting tasks...<6> Strange, mysqld not
-> > > stopped Oct  4 10:19:43 precious kernel:  done
-> > >
-> > > - USB subsystem is totally unworking until I reinitialise it (using
-> > > /etc/init.d/hotplug restart)
+On Mon, 04 Oct 2004 14:51:19 +0300, Jari Ruusu
+<jariruusu@users.sourceforge.net> wrote:
+> Andi Kleen wrote:
+> > Florian.Bohrer@t-online.de (Florian Bohrer) writes:
+> > > the asm-code is from Jari Ruusu (loop-aes).
+> > > the org. glue-code is from Fruhwirth Clemens.
 > >
-> > Precisely how does it fail?
+> > Thanks. I will add it to the x86-64 patchkit.
 > 
-> This is after a successfull suspend-resume.
+> Here we go again...
 > 
-> It doesn't work, period. No messages in the logs, anything I plug in isn't 
-> reacted to, lsusb gives nothing. It's just 'not there'.
+> Linus promised that he will not merge my code, and I am quite happy with my
+> code not being anywhere near mainline linux cryptoapi.
+> 
+> Linus, please consider dropping this.
 
-Does "cat /proc/bus/usb/devices" give you an empty file or does it hang?
-Is that modular USB or is it compiled into the kernel? OHCI or UHCI?
+I guess Linus will do so,
+but may I ask you why don't you want to see your code merged in mainline ?
 
-	Regards
-		Oliver
+Thanks.
+
+-- 
+Paolo
+Personal home page: www.ciarrocchi.tk
+See my photos: http://paolociarrocchi.fotopic.net/
+Buy cool stuff here: http://www.cafepress.com/paoloc

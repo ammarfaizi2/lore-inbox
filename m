@@ -1,54 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbVANICE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbVANIFe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261647AbVANICE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 03:02:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbVANICE
+	id S261725AbVANIFe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 03:05:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbVANIFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 03:02:04 -0500
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:15264
-	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
-	with ESMTP id S261647AbVANICA (ORCPT
+	Fri, 14 Jan 2005 03:05:34 -0500
+Received: from rdrz.de ([217.160.107.209]:47300 "HELO rdrz.de")
+	by vger.kernel.org with SMTP id S261725AbVANIFY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 03:02:00 -0500
-Message-ID: <41E77C76.3070204@bio.ifi.lmu.de>
-Date: Fri, 14 Jan 2005 09:01:58 +0100
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Gregory Boyce <gboyce@badbelly.com>
+	Fri, 14 Jan 2005 03:05:24 -0500
+Date: Fri, 14 Jan 2005 09:05:22 +0100
+From: Raphael Zimmerer <killekulla@rdrz.de>
+To: Andres Salomon <dilinger@voxel.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel releases for security updates
-References: <Pine.LNX.4.61.0501121340560.20156@buddha.badbelly.com>
-In-Reply-To: <Pine.LNX.4.61.0501121340560.20156@buddha.badbelly.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: 2.6.10-as1
+Message-ID: <20050114080522.GA26525@rdrz.de>
+Mail-Followup-To: Andres Salomon <dilinger@voxel.net>,
+	linux-kernel@vger.kernel.org
+References: <1105605448.7316.13.camel@localhost>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
+Content-Disposition: inline
+In-Reply-To: <1105605448.7316.13.camel@localhost>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gregory Boyce wrote
 
-> Rather than actually putting out point releases for the previously 
-> released kernels, why not just create a centralized repository for the 
-> security patches?  In a lot of cases security patches can be applied as is 
-> to a number of different kernel revisions.  For the ones that cannot, 
-> variances of the patches could be posted along with it clearly marked as 
-> to which patches apply to which kernels.
-> 
-> Thoughts?
+--5vNYLRcllDrimb99
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I guess the new -as tree is more or less achieving what you want. If
-Andres gets enough support from other people, it might be possible to
-maintain even more than one or two former releases...
+On Thu, Jan 13, 2005 at 03:37:28AM -0500, Andres Salomon wrote:
+> The goal of this tree is to form a stable base for vendors/distributors
+> to use for their kernels. In order to do this, I intend to include only
+> security fixes and obvious bugfixes, from various sources.
 
-[x] Voting for the -as tree to become an official tree on kernel.org :-)
+Thank you very much for your effort. I'am looking forward to see your
+tree as 2.6.x.y :)
 
-cu,
-Frank
+By the way, I don't hink this is intentional:
 
--- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr. 17           Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
-* Rekursion kann man erst verstehen, wenn man Rekursion verstanden hat. *
+killekulla@flori:~/src/kernel/test$ find linux-2.6.10 -name '*.orig'
+killekulla@flori:~/src/kernel/test$ cp -rl linux-2.6.10 linux-2.6.10-as1
+killekulla@flori:~/src/kernel/test$ zcat patch-2.6.10-as1.gz | patch -sp1 -d linux-2.6.10-as1
+killekulla@flori:~/src/kernel/test$ find linux-2.6.10-as1/ -name '*.orig'
+linux-2.6.10-as1/fs/nfs/dir.c.orig
+linux-2.6.10-as1/fs/binfmt_elf.c.orig
+linux-2.6.10-as1/mm/mmap.c.orig
+linux-2.6.10-as1/net/sunrpc/sched.c.orig
+linux-2.6.10-as1/net/sunrpc/xdr.c.orig
+linux-2.6.10-as1/arch/x86_64/ia32/ia32_aout.c.orig
+linux-2.6.10-as1/drivers/acpi/video.c.orig
+linux-2.6.10-as1/security/dummy.c.orig
+linux-2.6.10-as1/include/linux/ipv6.h.orig
+linux-2.6.10-as1/include/asm-sparc64/pgtable.h.orig
+
+--5vNYLRcllDrimb99
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFB531CUcUgUprPgz4RAjIuAJ4lehVfr40pcBDwF5dhKrVSNLrvSACdHRjX
+PEmZM88KW5DvToRxm4XEDW8=
+=zbk7
+-----END PGP SIGNATURE-----
+
+--5vNYLRcllDrimb99--

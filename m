@@ -1,75 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265732AbTFSHux (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 03:50:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265733AbTFSHuw
+	id S265733AbTFSH51 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 03:57:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265734AbTFSH51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 03:50:52 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24328 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S265732AbTFSHuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 03:50:50 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: How do I make this thing stop laging?  Reboot?  Sounds like 
- Windows!
-Date: 19 Jun 2003 01:04:20 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <bcrqq4$edi$1@cesium.transmeta.com>
-References: <200306172030230870.01C9900F@smtp.comcast.net> <3EF0214A.3000103@aitel.hist.no>
+	Thu, 19 Jun 2003 03:57:27 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:13771 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S265733AbTFSH5Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 03:57:25 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Andreas Boman <aboman@midgaard.us>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.72 O(1) interactivity bugfix
+Date: Thu, 19 Jun 2003 18:11:21 +1000
+User-Agent: KMail/1.5.2
+Cc: Mike Galbraith <efault@gmx.de>
+References: <1055983621.1753.23.camel@asgaard.midgaard.us> <5.2.0.9.2.20030619071327.00ce7ee8@pop.gmx.net> <200306191635.33965.kernel@kolivas.org>
+In-Reply-To: <200306191635.33965.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306191811.21427.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3EF0214A.3000103@aitel.hist.no>
-By author:    Helge Hafting <helgehaf@aitel.hist.no>
-In newsgroup: linux.dev.kernel
+On Thu, 19 Jun 2003 16:35, Con Kolivas wrote:
+> On Thu, 19 Jun 2003 16:13, Mike Galbraith wrote:
+> > At 11:12 AM 6/19/2003 +1000, Con Kolivas wrote:
+> > >On Thu, 19 Jun 2003 10:47, Andreas Boman wrote:
+> > > > On Wed, 2003-06-18 at 19:38, Con Kolivas wrote:
+> > > > > I had another look at 2.5 and noticed the max sleep avg is set to
+> > > > > 10 seconds instead of 2 seconds in 2.4. This could make a _big_
+> > > > > difference to new forked tasks if they all start out penalised as
+> > > > > most
+> > > > > non-interactive. It can take 5 times longer before they get the
+> > > > > balance right. Can you try with this set to 2 or even 1 second on
+> > > > > 2.5?
+> > > >
+> > > > Ahh, thanks Con, setting MAX_SLEEP_AVG to 2 *almost* removes all xmms
+> > > > skipping here, a song *may* skip during desktop switches sometime
+> > > > during the first 5 sec or so of playback IFF make -j20 is running. On
+> > > > a mostly idle box (well LoadAvg 3 or so is mostly idle isnt it? ;)
+> > > > desktop switching doesnt cause skips anymore 8)
+> > >
+> > >That's nice; a MAX_SLEEP_AVG of 1 second will shorten that 5 seconds to
+> > > half that as well. What you describe makes perfect sense given that
+> > > achieving a balance is an exponential function where the MSA is the
+> > > time constant.
+> >
+> > However, that will also send X and friends go off to the expired array
+> > _very_ quickly.  This will certainly destroy interactive feel under load
+> > because your desktop can/will go away for seconds at a time.  Try to drag
+> > a window while a make -j10 is running, and it'll get choppy as heck. 
+> > AFAIKT, anything that you do to increase concurrency in a global manner
+> > is _going_ to have the side effect of damaging interactive feel to some
+> > extent.  The one and only source of desktop responsiveness is the large
+> > repository of cpu ticks a task is allowed to save up for a rainy day.
 >
-> rmoser wrote:
-> [...]
-> > Ten minutes later I get the brains to run top.  It seems I have about
-> > 50 MB in swap, and 54 MB free memory.  So I wait ten minutes more.
-> > 
-> > No change.
-> > 
-> > % swapoff -a; swapon -a
-> > 
-> > Fixes all my problems.
-> > 
-> > Now this long story shows something:  The kernel appears to be unable
-> > to intelligently pull swap back into RAM.  What gives?
-> > 
-> Because the problem _is_ unsolvable.  You want the kernel
-> to go "oh, lots of free memory showed up, lets pull
-> everything in from swap just in case someone might need it."
-> 
-> 
-> That would solve _your_ problem.  But lots of other people
-> would get another problem - much _more_ swapping:
-> 
-> Whenever they quit one big app to run another big one,
-> everything is pulled in from swap before the next
-> big app start.  Then it starts, and push everything out
-> again.  The current system lets you quit one app,
-> the stuff in swap remains there until someone actually use it,
-> and lots of free memory remain in case it is needed.
-> 
-> The "intelligent" thing is to leave stuff in swap until
-> some app needs it, and pull it in then.  Perhaps with
-> some read-ahead/clustering to minimize io load.
-> 
+> Indeed that's what I thought and found as well. I have a question though -
+> do non interactive tasks have periods of inactivity where they collect
+> sleep times or is it just interactive tasks that exhibit this? Why I'm
+> asking is, what if the interactivity bonus is based on the best interactive
+> setting that task has received, and make this one much slower at decaying
+> than the sleep_avg. Say one second for max_sleep_avg and 60 seconds for
+> max_interactive_bonus? So it can become interactive very quickly (and
+> therefore also should start as non interactive) but becomes non-interactive
+> slowly.
 
-This is why you pull things in from swap, but keep tabs on the fact
-that it's clean against swap and therefore can be culled at will if
-you don't need it.  In other words -- it's present *both* in swap and
-RAM.
+I tried creating this myself and on first testing it seems the best all round 
+so far. I'll make a patch later on for ppl to try, but in a nutshell it does 
+this in sched.h:
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+	unsigned long sleep_avg;
++	unsigned long best_sleep_avg;
+	unsigned long sleep_timestamp;
+
+this in sched.c:
+
+#define MAX_SLEEP_AVG          (HZ)
+
+...
+
+	bonus = 
+MAX_USER_PRIO*PRIO_BONUS_RATIO*(p->best_sleep_avg/100)/MAX_SLEEP_AVG/100 -
+			MAX_USER_PRIO*PRIO_BONUS_RATIO/100/2;
+
+
+...
+			p->sleep_avg = MAX_SLEEP_AVG;
++		if ((p->sleep_avg * 100) > p->best_sleep_avg)
++			p->best_sleep_avg = p->sleep_avg * 100;
+		p->prio = effective_prio(p);
+
+...
+
+		p->sleep_avg--;
++	if (p->best_sleep_avg)
++		p->best_sleep_avg--;
+
+...
+	p->rt_priority = lp.sched_priority;
++	p->sleep_avg = 0;
++	p->best_sleep_avg = 0;
+
+and this in fork.c:
+
+	p->sleep_timestamp = jiffies;
++	p->sleep_avg = 0;
++	p->best_sleep_avg = 0;
+
+
+Sorry I dont have a full patch for people to try at this moment as there are 
+so many O(1) kernels I"m working with. This basically works out the sleep 
+average over 1 second, but the priority on the best over 100 seconds.
+
+Con
+

@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130559AbQLRW32>; Mon, 18 Dec 2000 17:29:28 -0500
+	id <S130427AbQLRWbi>; Mon, 18 Dec 2000 17:31:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130701AbQLRW3W>; Mon, 18 Dec 2000 17:29:22 -0500
-Received: from shell.ca.us.webchat.org ([216.152.64.152]:2974 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S130559AbQLRW3E>; Mon, 18 Dec 2000 17:29:04 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Jamie Lokier" <lk@tantalophile.demon.co.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: /dev/random: really secure?
-Date: Mon, 18 Dec 2000 13:58:37 -0800
-Message-ID: <NCBBLIEPOCNJOAEKBEAKOEJJMIAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-In-Reply-To: <20001218213801.A19903@pcep-jamie.cern.ch>
-Importance: Normal
+	id <S130584AbQLRWb2>; Mon, 18 Dec 2000 17:31:28 -0500
+Received: from 4dyn46.com21.casema.net ([212.64.95.46]:21777 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S130427AbQLRWbT>;
+	Mon, 18 Dec 2000 17:31:19 -0500
+Date: Mon, 18 Dec 2000 23:00:24 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: usb broken in 2.4.0 test 12 versus 2.2.18
+Message-ID: <20001218230024.A20322@home.ds9a.nl>
+Mail-Followup-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <B7F9A3E3FDDDD11185510000F8BDBBF2019C79D3@mcdc-atl-5.cdc.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre4i
+In-Reply-To: <B7F9A3E3FDDDD11185510000F8BDBBF2019C79D3@mcdc-atl-5.cdc.gov>; from xxh1@cdc.gov on Mon, Dec 18, 2000 at 04:33:26PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 18, 2000 at 04:33:26PM -0500, Heitzso wrote:
+> I have a Canon usb camera that I access via a
+> recent copy of the s10sh program (with -u option).
+> 
+> Getting to the camera via s10sh -u worked through 
+> large sections of 2.4.0 test X but broke recently.  
+> I cannot say for certain which test/patch the 
+> break occurred in.
 
-> David Schwartz wrote:
+It works for me (s100), at least on my laptop. I do note that it gives
+timeouts if the computer is busy otherwise.
 
-> > The code does its best to estimate how much actual entropy it
-> > is gathering.
+gphoto2 isn't able to retrieve images using recent 2.4.0testX kernels, I
+haven't tried earlier kernels yet. It is able to list filenames though.
 
-> A potential weakness.  The entropy estimator can be manipulated by
-> feeding data which looks random to the estimator, but which is in fact
-> not random at all.
+Regards,
 
-> -- Jamie
+bert hubert
 
-	Sort of, but not really. You are correct to the extent that it's possible
-for someone to make the RNG think it has somewhat more actualy entropy than
-it actually has. However, you can't directly feed seeds into the RNG anyway
-without root access.
-
-	The process of feeding those seeds into the RNG would inject some actual
-entropy at the same time. And so long as the RNG was ever properly seeded,
-it will always produce cryptographically secure random numbers no matter
-what.
-
-	Even if it's not properly seeded, it doesn't take long before the machine
-accumulates enough entropy to be cryptographically secure. So there is only
-a brief window of vulnerability after the machine is started and before it
-has accumulated sufficient entropy.
-
-	During that window, the amount of entropy present might be underestimated.
-The simple fix is for programs that really need good entropy to be extra
-conservative within a few minutes of startup.
-
-	DS
-
+-- 
+PowerDNS                     Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

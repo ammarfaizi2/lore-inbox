@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVAHRef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVAHSAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbVAHRef (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 12:34:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVAHRee
+	id S261229AbVAHSAr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 13:00:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbVAHSAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 12:34:34 -0500
-Received: from mail-ext.curl.com ([66.228.88.132]:1034 "HELO mail-ext.curl.com")
-	by vger.kernel.org with SMTP id S261220AbVAHReb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 12:34:31 -0500
-To: "linux-os" <linux-os@chaos.analogic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /dev/random vs. /dev/urandom
-References: <20050107190536.GA14205@mtholyoke.edu> <20050107213943.GA6052@pclin040.win.tue.nl> <Pine.LNX.4.61.0501071729330.22391@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0501071729330.22391@chaos.analogic.com>
-From: "Patrick J. LoPresti" <patl@curl.com>
-Date: 08 Jan 2005 12:34:30 -0500
-Message-ID: <s5gzmzjbza1.fsf@egghead.curl.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sat, 8 Jan 2005 13:00:47 -0500
+Received: from mail.lysator.liu.se ([130.236.254.3]:46328 "EHLO
+	mail.lysator.liu.se") by vger.kernel.org with ESMTP id S261229AbVAHSAl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 13:00:41 -0500
+From: "Jonas Svensson" <jonass@lysator.liu.se>
+Organization: http://www.lysator.liu.se/
+To: linux-kernel@vger.kernel.org
+Date: Sat, 08 Jan 2005 19:00:34 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: ATA: abnormal status 0x8 on port 0xD881E31C
+Reply-To: jonass@lysator.liu.se
+Message-ID: <41E02DD2.30892.14CDB4FC@localhost>
+X-mailer: Pegasus Mail for Windows (4.21b)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os <linux-os@chaos.analogic.com> writes:
+I got this message "ATA: abnormal status 0x8 on port 0xD881E31C", 
+is that a known problem? Linux version 2.6.10-bk9 (jonas@landaree) 
+(gcc version 3.3.3 20040412 (Red Hat Linux 3.3.3-7)) #1 Sat Jan 8 
+17:47:28 CET 2005. HW: Asus P3B-F mainboard and Promise tx2+ sata-
+adapter.
 
-> In this case I AND with 1, which should produce as many '1's as
-> '0's, ... and clearly does not.
 
-Actually, a fair coin flipped N times is unlikely to come up heads
-exactly N/2 times, and the probability of this drops quickly as N
-grows.
+Jan  8 18:27:52 landaree kernel: sata_promise PATA port found
+Jan  8 18:27:52 landaree kernel: ata1: SATA max UDMA/133 cmd 0xD881E200 ctl 0xD881E238 bmdma 0x0 irq 11
+Jan  8 18:27:53 landaree kernel: ata2: SATA max UDMA/133 cmd 0xD881E280 ctl 0xD881E2B8 bmdma 0x0 irq 11
+Jan  8 18:27:53 landaree sshd:  succeeded
+Jan  8 18:27:53 landaree kernel: ata3: PATA max UDMA/133 cmd 0xD881E300 ctl 0xD881E338 bmdma 0x0 irq 11
+Jan  8 18:27:53 landaree kernel: ata1: no device found (phy stat 00000000)
+Jan  8 18:27:53 landaree kernel: scsi0 : sata_promise
+Jan  8 18:27:53 landaree kernel: ata2: dev 0 ATA, max UDMA/133, 312581808 sectors: lba48
+Jan  8 18:27:53 landaree kernel: ata2: dev 0 configured for UDMA/133
+Jan  8 18:27:53 landaree xinetd: xinetd startup succeeded
+Jan  8 18:27:53 landaree kernel: scsi1 : sata_promise
+Jan  8 18:27:53 landaree kernel: ATA: abnormal status 0x8 on port 0xD881E31C
+Jan  8 18:27:54 landaree kernel: ata3: disabling port
+Jan  8 18:27:54 landaree kernel: scsi2 : sata_promise
+/Jonas Svensson
+-- 
+jonass@lysator.liu.se, <http://www.lysator.liu.se/~jonass/>
 
-What is true is that it will usually come up heads N/2 times, give or
-take sqrt(N).  Mathematicians call this the "Central Limit Theorem".
-
-For example, take N=32.  The square root of 32 is a little less than
-6.  So we expect to see between 16-6 (i.e., 10) and 16+6 (i.e., 22)
-heads in a typical trial.  (Of course, in one trial out of 4 billion
-it will come up all heads.  The Central Limit Theorem is about "usual"
-outcomes, not every outcome.)
-
-So we expect between 10 and 22 odds/evens in your trial.
-
-> Trying /dev/random
-> 0100000101010000010001000101000000000000000101000100010000000101
->   odds = 14 evens = 18
-> Trying /dev/urandom
-> 0001010001000100000101000100010001000000000000000000010000000000
->   odds = 10 evens = 22
-> LINUX> ./xxx
-> Trying /dev/random
-> 0100000100010101000101010101010101000100010000010001010000000101
->   odds = 20 evens = 12
-> Trying /dev/urandom
-> 0100000100000101010001000101010001010001000000010101010100010000
->   odds = 18 evens = 14
-
-Well how about that.  Try it with larger N, and you will find it gets
-even harder to hit a case where the total is outside the sqrt(N) error
-margin.  And of course, as a percentage of N, sqrt(N) only shrinks as
-N grows.
-
-If you doubt any of this, try it with a real coin.  Or read a book on
-probability.
-
- - Pat

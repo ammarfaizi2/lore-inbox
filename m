@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbRBBLpM>; Fri, 2 Feb 2001 06:45:12 -0500
+	id <S129460AbRBBLwW>; Fri, 2 Feb 2001 06:52:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129460AbRBBLpC>; Fri, 2 Feb 2001 06:45:02 -0500
-Received: from smtp3.xs4all.nl ([194.109.127.132]:61444 "EHLO smtp3.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S129406AbRBBLor>;
-	Fri, 2 Feb 2001 06:44:47 -0500
-Date: Fri, 2 Feb 2001 11:43:34 +0000
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: Mark Orr <markorr@intersurf.com>
-Cc: linux-kernel@vger.kernel.org, arobinso@nyx.net, miquels@cistron.nl
-Subject: Re: esp causing crashes..
-Message-ID: <20010202114334.A1877@grobbebol.xs4all.nl>
-In-Reply-To: <20010201231806.B2684@grobbebol.xs4all.nl> <XFMail.20010202034407.markorr@intersurf.com>
+	id <S129524AbRBBLwM>; Fri, 2 Feb 2001 06:52:12 -0500
+Received: from ns.caldera.de ([212.34.180.1]:14605 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S129460AbRBBLwE>;
+	Fri, 2 Feb 2001 06:52:04 -0500
+Date: Fri, 2 Feb 2001 12:51:35 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: bsuparna@in.ibm.com, linux-kernel@vger.kernel.org,
+        kiobuf-io-devel@lists.sourceforge.net
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
+Message-ID: <20010202125135.A12245@caldera.de>
+Mail-Followup-To: "Stephen C. Tweedie" <sct@redhat.com>,
+	bsuparna@in.ibm.com, linux-kernel@vger.kernel.org,
+	kiobuf-io-devel@lists.sourceforge.net
+In-Reply-To: <20010201193221.D11607@redhat.com> <200102012046.VAA16746@ns.caldera.de> <20010201212508.G11607@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <XFMail.20010202034407.markorr@intersurf.com>; from markorr@intersurf.com on Fri, Feb 02, 2001 at 03:44:07AM -0600
-X-OS: Linux grobbebol 2.4.1-ac1 
+X-Mailer: Mutt 1.0i
+In-Reply-To: <20010201212508.G11607@redhat.com>; from sct@redhat.com on Thu, Feb 01, 2001 at 09:25:08PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 02, 2001 at 03:44:07AM -0600, Mark Orr wrote:
-> Well that surely shouldnt happen...I use minicom all the time (I still
-> call BBSes), and havent had any crashes.  I can quit/disconnect, or 
-> quit/stay connected and it works okay.   I've even got it set up to
-> use 230000bps, which is the max my Zoom will take.
+On Thu, Feb 01, 2001 at 09:25:08PM +0000, Stephen C. Tweedie wrote:
+> > No.  Just allow passing the multiple of the devices blocksize over
+> > ll_rw_block.
+> 
+> That was just one example: you need the sub-ios just as much when
+> you split up an IO over stripe boundaries in LVM or raid0, for
+> example.
 
+IIRC that's why you designed (and I thought of independandly) clone-kiobufs.
 
-I'll try the suggestions you sent. regarding the esp -- iI foirgot to
-mention that it also crashes when I unplug the connection from a router
-and reconnect to the E2864i. it even sometimes crashes when somebody
-calls in (e.g. faxes are received) or if I push the front switches that
-emit data to the esp card.
+> Secondly, ll_rw_block needs to die anyway: you can expand
+> the blocksize up to PAGE_SIZE but not beyond, whereas something like
+> ll_rw_kiobuf can submit a much larger IO atomically (and we have
+> devices which don't start to deliver good throughput until you use
+> IO sizes of 1MB or more).
 
-weird. note that I use OSS drivers, not builtin sound. maybe an option
-to check out too. to me it sounds like corruption in memory that causes
-the crash.
+Completly agreed.
+
+> If I've got a vector (page X, offset 0, length PAGE_SIZE) and I want
+> to split it in two, I have to make two new vectors (page X, offset 0,
+> length n) and (page X, offset n, length PAGE_SIZE-n).  That implies
+> copying both vectors.
+> 
+> If I have a page vector with a single offset/length pair, I can build
+> a new header with the same vector and modified offset/length to split
+> the vector in two without copying it.
+
+You just say in the higher-level structure ignore from x to y even if
+they have an offset in their own vector.
+
+	Christoph
+
 -- 
-Grobbebol's Home                   |  Don't give in to spammers.   -o)
-http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
-Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  
+Of course it doesn't work. We've performed a software upgrade.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

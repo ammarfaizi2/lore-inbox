@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264716AbTA2VoE>; Wed, 29 Jan 2003 16:44:04 -0500
+	id <S264665AbTA2Vnp>; Wed, 29 Jan 2003 16:43:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265126AbTA2VoE>; Wed, 29 Jan 2003 16:44:04 -0500
-Received: from B574a.pppool.de ([213.7.87.74]:40578 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S264716AbTA2VoC>; Wed, 29 Jan 2003 16:44:02 -0500
-Subject: Re: NFS client locking hangs for period
-From: Daniel Egger <degger@fhm.edu>
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: linux-kernel@vger.kernel.org, NFS@lists.sourceforge.net
-In-Reply-To: <200301280801.h0S81Ns10071@Port.imtp.ilyichevsk.odessa.ua>
-References: <20030124184951.A23608@blackjesus.async.com.br>
-	 <15922.2657.267195.355147@notabene.cse.unsw.edu.au>
-	 <20030126140200.A25438@blackjesus.async.com.br>
-	 <200301280801.h0S81Ns10071@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-thtLCaaeE54Z3roHDSuK"
-Organization: 
-Message-Id: <1043875672.1094.19.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 29 Jan 2003 22:53:33 +0100
+	id <S264716AbTA2Vnp>; Wed, 29 Jan 2003 16:43:45 -0500
+Received: from postal2.lbl.gov ([131.243.248.26]:44761 "EHLO postal2.lbl.gov")
+	by vger.kernel.org with ESMTP id <S264665AbTA2Vnp>;
+	Wed, 29 Jan 2003 16:43:45 -0500
+Message-ID: <3E384D41.9080605@lbl.gov>
+Date: Wed, 29 Jan 2003 13:53:05 -0800
+From: Thomas Davis <tadavis@lbl.gov>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021017
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-pre4
+References: <Pine.LNX.4.53L.0301290143350.27119@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.53L.0301290143350.27119@freak.distro.conectiva>
+Content-Type: multipart/mixed;
+ boundary="------------010206060702030408080103"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-thtLCaaeE54Z3roHDSuK
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+This is a multi-part message in MIME format.
+--------------010206060702030408080103
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Am Die, 2003-01-28 um 09.00 schrieb Denis Vlasenko:
 
-> It was not really *that* difficult for me. I used devfs and symlinks.
-> /etc, /var, /tmp are different directories per client,
-> /home, /usr are shared. The rest stays on root fs readonly.
-> ssh to NFS server if you want to modify some files on root fs.
+This simple one line patch adds the missing ac97 support that the fm801 
+driver already uses.
 
-This will only work dandy if the server runs the same OS on the=20
-same architecture and its own system is well enough equipped to
-do software installations and bootstraps. Although I'm using Linux on
-my server as well as the same architecture as most of the clients
-I sometimes experience troubles working in the chrooted client
-environment.
+thomas
 
---=20
-Servus,
-       Daniel
 
---=-thtLCaaeE54Z3roHDSuK
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+--------------010206060702030408080103
+Content-Type: text/plain;
+ name="forte_ac97_codec.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="forte_ac97_codec.diff"
 
-iD8DBQA+OEdYchlzsq9KoIYRAoQgAKCMUnP+wIgZEuNa7JjPpKhKwUBrgQCgqwus
-B3gub+1OpuHgBsDPC6ZSG00=
-=+ueY
------END PGP SIGNATURE-----
+--- linux-2.4.21-pre2/drivers/sound/ac97_codec.c	Tue Dec 24 15:37:53 2002
++++ linux-2.4.20-ac1/drivers/sound/ac97_codec.c	Fri Dec  6 00:07:04 2002
+@@ -133,6 +133,7 @@
+ 	{0x43525931, "Cirrus Logic CS4299 rev A", &crystal_digital_ops},
+ 	{0x43525933, "Cirrus Logic CS4299 rev C", &crystal_digital_ops},
+ 	{0x43525934, "Cirrus Logic CS4299 rev D", &crystal_digital_ops},
++	{0x44543031, "Forte Media FM801",       &null_ops},
+ 	{0x45838308, "ESS Allegro ES1988",	&null_ops},
+ 	{0x49434511, "ICE1232",			&null_ops}, /* I hope --jk */
+ 	{0x4e534331, "National Semiconductor LM4549", &null_ops},
 
---=-thtLCaaeE54Z3roHDSuK--
+--------------010206060702030408080103--
 

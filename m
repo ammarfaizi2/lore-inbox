@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268495AbTCFW4e>; Thu, 6 Mar 2003 17:56:34 -0500
+	id <S261177AbTCFXBW>; Thu, 6 Mar 2003 18:01:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268496AbTCFW4W>; Thu, 6 Mar 2003 17:56:22 -0500
-Received: from meryl.it.uu.se ([130.238.12.42]:46847 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id <S268495AbTCFW4P>;
-	Thu, 6 Mar 2003 17:56:15 -0500
-From: Mikael Pettersson <mikpe@user.it.uu.se>
-MIME-Version: 1.0
+	id <S261186AbTCFXBU>; Thu, 6 Mar 2003 18:01:20 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:12804 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261177AbTCFXA3>;
+	Thu, 6 Mar 2003 18:00:29 -0500
+Date: Thu, 6 Mar 2003 21:42:30 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Dominik Brodowski <linux@brodo.de>
+Cc: Pavel Machek <pavel@suse.cz>, davej@suse.de,
+       John Clemens <john@deater.net>, cpufreq@www.linux.org.uk,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] Re: cpufreq: allow user to specify voltage
+Message-ID: <20030306204230.GC276@elf.ucw.cz>
+References: <20030225190949.GM12028@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.44.0302251419290.12073-100000@pianoman.cluster.toy> <20030225193341.GA19556@atrey.karlin.mff.cuni.cz> <20030228211638.GA888@brodo.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15975.54404.895292.258958@gargle.gargle.HOWL>
-Date: Fri, 7 Mar 2003 00:06:44 +0100
-To: "sudharsan  vijayaraghavan" <my_goal@rediffmail.com>
-Cc: linux-kernel@vger.kernel.org, svijayar@cisco.com,
-       narendiran_srinivasan@satyam.com
-Subject: Re: fd_install question ??
-In-Reply-To: <20030306224608.29991.qmail@webmail17.rediffmail.com>
-References: <20030306224608.29991.qmail@webmail17.rediffmail.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <20030228211638.GA888@brodo.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sudharsan  vijayaraghavan writes:
- >          // f1->f_vfsmnt = f2->f_vfsmnt = 
- > mntget(mntget(pipe_mnt));
- > -->        f1->f_vfsmnt = f2->f_vfsmnt = f3->f_vfsmnt = 
- > mntget(mntget(pipe_mnt));
- >          // f1->f_dentry = f2->f_dentry = dget(dentry);
- > -->        f1->f_dentry = f2->f_dentry = f3->f_dentry = 
- > dget(dentry);
+Hi!
 
-A unified diff would have been much more readable.
+> And for powernow-k7.c , the file
+> 
+> /sys/devices/sys/cpu0/scaling_setvoltage
+> 
+> should show the current voltage for the current speed (scaling_setspeed).
+> "echoing" a different value (must be lower than the current voltage) changes
+> the voltage for this frequency only. However, this override is "static" so
+> that if you switch to a different frequency in the meantime but get back to
+> the one you wanted to override the voltage setting for, the new 
+> user-specified value is remembered.
+> 
+> This is untested (don't have a powernow-k7-capable notebook), so handle with
+> care.
 
-You now have one more reference to ->f_vfsmnt and ->f_dentry, so I
-suspect you're missing one mntget() and one dget() above. The usual
-impact of a too low ref count is that the object is reassigned while
-you're still using it, with memory corruption & oopses as the result.
-
-/Mikael
+Thanx, it works. I'd drop "can't set higher voltage" limitation
+[hardware protects you, anyway, and if you make it so low your system
+is unstable you can no longer fix it without reboot], but that's
+minor.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

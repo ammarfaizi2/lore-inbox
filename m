@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266930AbSLKBAZ>; Tue, 10 Dec 2002 20:00:25 -0500
+	id <S266938AbSLKBOy>; Tue, 10 Dec 2002 20:14:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266932AbSLKBAZ>; Tue, 10 Dec 2002 20:00:25 -0500
-Received: from smtp09.iddeo.es ([62.81.186.19]:53937 "EHLO smtp09.retemail.es")
-	by vger.kernel.org with ESMTP id <S266930AbSLKBAY>;
-	Tue, 10 Dec 2002 20:00:24 -0500
-Date: Wed, 11 Dec 2002 02:07:37 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4] Dcache Fastwalk for 2.4.20
-Message-ID: <20021211010737.GA2879@werewolf.able.es>
-References: <58240000.1039480933@w-hlinder>
+	id <S266939AbSLKBOy>; Tue, 10 Dec 2002 20:14:54 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:23528 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S266938AbSLKBOx>;
+	Tue, 10 Dec 2002 20:14:53 -0500
+Date: Tue, 10 Dec 2002 17:22:36 -0800
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Alessandro Suardi <alessandro.suardi@oracle.com>
+Subject: Re: module-init-tools 0.9.3 -- "missing" issue
+Message-ID: <20021211012236.GB5853@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <58240000.1039480933@w-hlinder>; from hannal@us.ibm.com on Tue, Dec 10, 2002 at 01:42:13 +0100
-X-Mailer: Balsa 1.4.1
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rusty Russell wrote :
+> In message <3DF67878.6090703@oracle.com> you write:
+> >   to modprobe vfat - but not the full irda stack, I'll report this
+> >   separately to Jean) _and_ on 2.4.20 (modular IrDA and PPP are
+> 
+> I'd appreciate receiving a copy of that irda report.  It's probably
+> not Jean's fault.
 
-On 2002.12.10 Hanna Linder wrote:
->
->Hi Marcelo,
->
->	This patch is a backport of the work Al Viro and I did
->in 2.5 to decrease cacheline bouncing during dcache lookup. This
->also removes path_init and replaces it with path_lookup (hence
->the changes in intermezzo and nfsd) as it is in 2.5.
->	Please consider this for inclusion in the next 2.4.2* release.
->
->Thanks.
->
->Hanna Linder
->IBM Linux Technology Center
->
+	I've just managed to load and run Linux-IrDA on 2.5.51, and
+apart from a few warning (see my other e-mail) it was working. I even
+tested PPP over IrCOMM. But I didn't check smc-ircc.
+	So, this one might be *mine* ;-)
 
-Is you mailer wrapping the patch ?
+	Have fun...
 
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.20-jam1 (gcc 3.2 (Mandrake Linux 9.1 3.2-4mdk))
+	Jean

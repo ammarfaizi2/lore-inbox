@@ -1,81 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270658AbTHCFNz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 01:13:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270810AbTHCFNy
+	id S270880AbTHCFei (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 01:34:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270931AbTHCFei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 01:13:54 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:3205
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S270658AbTHCFNo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 01:13:44 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: "Scott L. Burson" <gyro@zeta-soft.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SMP performance problem in 2.4 (was: Athlon spinlock performance)
-Date: Sun, 3 Aug 2003 15:18:45 +1000
-User-Agent: KMail/1.5.3
-Cc: Mathieu.Malaterre@creatis.insa-lyon.fr, Andrew Morton <akpm@osdl.org>
-References: <16171.31418.271319.316382@kali.zeta-soft.com>
-In-Reply-To: <16171.31418.271319.316382@kali.zeta-soft.com>
+	Sun, 3 Aug 2003 01:34:38 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:63237 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S270880AbTHCFeh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 01:34:37 -0400
+Date: Sun, 3 Aug 2003 01:22:51 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.0-test2-mm3
+In-Reply-To: <20030802222839.1904a247.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.53.0308030118580.3473@montezuma.mastecende.com>
+References: <20030802152202.7d5a6ad1.akpm@osdl.org>
+ <Pine.LNX.4.53.0308030106380.3473@montezuma.mastecende.com>
+ <20030802222839.1904a247.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308031518.45625.kernel@kolivas.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Scott
+On Sat, 2 Aug 2003, Andrew Morton wrote:
 
-On Sun, 3 Aug 2003 06:03, Scott L. Burson wrote:
-> In one approximately 60-second period with the problematic workload
-> running, `try_to_free_pages' was called 511 times.  It made 2597 calls to
-> `shrink_caches', which made 2592 calls to `shrink_cache' (i.e. it was very
-> rare for `kmem_cache_reap' to release enough pages itself).  The main loop
-> of `shrink_cache' was executed -- brace yourselves -- 189 million times!
-> During that time it called `page_cache_release' on only 31265 pages.
+> Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
+> >
+> > On Sat, 2 Aug 2003, Andrew Morton wrote:
+> > 
+> > > . I don't think anyone has reported on whether 2.6.0-test2-mm2 fixed any
+> > >   PS/2 or synaptics problems.  You are all very bad.
+> > 
+> > It works now by disabling CONFIG_MOUSE_PS2_SYNAPTICS
+> > 
+> 
+> err, that's a bug isn't it?
 
-I noticed a curly section of the vm code when I was playing around with some 
-hacks that are in the -ck kernel and this section might be helpful as it 
-wasn't a hack so much as a fix in mm/vmscan.c around line 600. The problem
-is when the priority drops to 1 it should do the most cache reaping but
-instead bypasses some of it.
-You could try this modification and see if it helps.
+I've had a hard time following the saga behind the synaptics code. I know 
+there is some external thing you have to download but never got round to 
+doing it. I'll give that a go now too with CONFIG_MOUSE_PS2_SYNAPTICS. 
+Colour me lazy...
 
-This isn't a real patch but you should get the idea. 
-
-Con
-
- 	nr_pages -= kmem_cache_reap(gfp_mask);
--	if (nr_pages <= 0)
--		return 0;
-+	if (nr_pages < 1)
-+		goto shrinkcheck;
-
- 	nr_pages = chunk_size;
- 	/* try to keep the active list 2/3 of the size of the cache */
- 	ratio = (unsigned long) nr_pages * nr_active_pages / ((nr_inactive_pages + 1) * 2);
- 	refill_inactive(ratio);
- 
- 	nr_pages = shrink_cache(nr_pages, classzone, gfp_mask, priority);
--	if (nr_pages <= 0)
--		return 0;
-+	/*
-+	 * Will return if nr_pages have been freed unless the
-+	 * priority managed to reach 1. If the vm is under this much
-+	 * pressure then shrink the d/i/dqcaches regardless. CK 2003
-+	 */
-+shrinkcheck:
-+	if (nr_pages < 1){
-+		if (priority > 1)
-+			return 0;
-+		else
-+			nr_pages = 0;
-+		}
-+
-
- 	shrink_dcache_memory(priority, gfp_mask);
- 	shrink_icache_memory(priority, gfp_mask);
-
+-- 
+function.linuxpower.ca

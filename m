@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273691AbRIWXdn>; Sun, 23 Sep 2001 19:33:43 -0400
+	id <S273692AbRIWXzN>; Sun, 23 Sep 2001 19:55:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273692AbRIWXdd>; Sun, 23 Sep 2001 19:33:33 -0400
-Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:39951 "EHLO
-	moria.gondor.com") by vger.kernel.org with ESMTP id <S273691AbRIWXdT>;
-	Sun, 23 Sep 2001 19:33:19 -0400
-Date: Mon, 24 Sep 2001 01:33:29 +0200
-From: Jan Niehusmann <jan@gondor.com>
-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
-Message-ID: <20010924013328.A29582@gondor.com>
-In-Reply-To: <11433641523.20010918175148@port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
+	id <S273701AbRIWXzD>; Sun, 23 Sep 2001 19:55:03 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:7370 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S273692AbRIWXyt>; Sun, 23 Sep 2001 19:54:49 -0400
+Date: Sun, 23 Sep 2001 19:55:00 -0400
+From: Chris Mason <mason@suse.com>
+To: Wolly <wwolly@gmx.net>, linux-kernel@vger.kernel.org
+Subject: Re: Huge disk performance degradation STILL IN 2.4.10
+Message-ID: <2100580000.1001289300@tiny>
+In-Reply-To: <200109232319.BAA02449@enigma.deepspace.net>
+In-Reply-To: <200109211723.TAA00638@enigma.deepspace.net>
+ <200109232319.BAA02449@enigma.deepspace.net>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <11433641523.20010918175148@port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 18, 2001 at 05:51:48PM +0300, VDA wrote:
-> Since we don't have any negative feedback on Athlon bug
-> stomper, I think patch could be applied to
-> arch/i386/kernel/pci-pc.c in mainline kernel.
 
-BTW, just for the statistics: On the Duron 600 machine, for which
-I reported the athlon bug, the fix does not work. Register 0x55 has
-a default value of 0x81, but setting it to 0x01 (as the fix does)
-doesn't solve the problem, athlon optimised 2.4.9 kernels still fail
-to run. 
 
-But, OTOH, the computer in question regulary oopses on 2.4.0-test7 which
-didn't have the athlon optimises page copy routine at all, so it may be
-just a case of faulty hardware :-(
+On Monday, September 24, 2001 01:19:18 AM +0200 Wolly <wwolly@gmx.net>
+wrote:
 
-Jan
+> Hi kernel hackers, 
+> 
+> As soon as 2.4.10 was out, I got the patch and tested it again. 
+> The problem is still there and did not get better at all. 
+> 
+
+Could you please mount the FS with -o notail and try again?  I think your
+test is hitting a worst case in the 2.4.x reiserfs tail code.
+
+-chris
+
 

@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262304AbSJARV0>; Tue, 1 Oct 2002 13:21:26 -0400
+	id <S262180AbSJAQsu>; Tue, 1 Oct 2002 12:48:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262199AbSJARIc>; Tue, 1 Oct 2002 13:08:32 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51211 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262216AbSJARCT>;
-	Tue, 1 Oct 2002 13:02:19 -0400
-Message-ID: <3D99D640.8030301@pobox.com>
-Date: Tue, 01 Oct 2002 13:07:12 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S262175AbSJAQrZ>; Tue, 1 Oct 2002 12:47:25 -0400
+Received: from gate.perex.cz ([194.212.165.105]:34311 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S262171AbSJAQqN>;
+	Tue, 1 Oct 2002 12:46:13 -0400
+Date: Tue, 1 Oct 2002 18:47:55 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2nd ALSA update [5/12] - 2002/08/15
+Message-ID: <Pine.LNX.4.33.0210011846170.20016-100000@pnote.perex-int.cz>
 MIME-Version: 1.0
-To: Felipe W Damasio <felipewd@elipse.com.br>
-CC: Kent Yoder <key@austin.ibm.com>, linux-kernel@vger.kernel.org,
-       tsbogend@alpha.franken.de
-Subject: Re: [PATCH] pcnet32 cable status check
-References: <Pine.LNX.4.44.0210011129330.14607-100000@ennui.austin.ibm.com> <029401c2696a$9adc8bb0$1c00a8c0@elipse.com.br>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felipe W Damasio wrote:
->     Also, you shouldn't need the timer stuff to keep track of link change.
-> Just the mii_check_media and netif_carrier_{on|off} and you should be fine.
 
-That depends on the hardware, specifically the presence of a reliable 
-link interrupt....
+A big one. Please, download it here:
+ftp://ftp.alsa-project.org/pub/kernel-patches/set#2/5.patch
 
+						Jaroslav
+
+ChangeSet@1.648, 2002-10-01 10:16:17+02:00, perex@suse.cz
+  ALSA update 2002/08/15 :
+    - C99 structure initializers - second set of changes
+    - USB MIDI driver
+      - more device info for Roland/EDIROL devices
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project  http://www.alsa-project.org
+SuSE Linux    http://www.suse.com
 

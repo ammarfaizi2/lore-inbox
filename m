@@ -1,46 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262989AbVDBEMi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262990AbVDBEOR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262989AbVDBEMi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 23:12:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262991AbVDBEMi
+	id S262990AbVDBEOR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 23:14:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262995AbVDBEOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 23:12:38 -0500
-Received: from rproxy.gmail.com ([64.233.170.201]:13403 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262989AbVDBEMf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 23:12:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=s9GAh1Bla7wOkTIEKDXL4/zyDoeRFpDnM+y4oajfplzMy4WpE7Mu4Gm/dQX01NJFk5xfjy6eVWjH8yXCyej+6I65zzy+4wNtJiTTSiKvz8ZWB1WOAsMi6zHCqJm1ivrT0RC0kXS4I+gCw5Bb/AF2atxSjv7n+fTPGXuDPMW5V6k=
-Message-ID: <d160a820050401201225b52674@mail.gmail.com>
-Date: Fri, 1 Apr 2005 23:12:35 -0500
-From: Michael Freeman <mlfreeman@gmail.com>
-Reply-To: Michael Freeman <mlfreeman@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: LaCie Silverscreen Runs Linux, But No Source
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 1 Apr 2005 23:14:16 -0500
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:58194 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262990AbVDBEMr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 23:12:47 -0500
+Message-ID: <424E1BBB.50800@yahoo.com.au>
+Date: Sat, 02 Apr 2005 14:12:43 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+CC: mingo@elte.hu, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       kenneth.w.chen@intel.com
+Subject: Re: [patch] sched: improve pinned task handling again!
+References: <20050401185812.A5598@unix-os.sc.intel.com> <424E0D58.1070700@yahoo.com.au> <20050401200509.C5598@unix-os.sc.intel.com>
+In-Reply-To: <20050401200509.C5598@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The LaCie Silverscreen external hard drive / media player contains a
-~4 MByte ROMFS image that has a gzipped Linux kernel, Busybox, and a
-few other assorted things.  However, LaCie makes no mention of using
-GPLed software, nor do they offer any source code for download.  Has
-anyone ever noticed this before (and, if so, what's the status on
-source)?
-You can download this firmware from
-http://www.lacie.com/download/drivers/SilverScreen.zip -- the file
-called romfs.bin is a plain romfs volume.  I successfully mounted it
-using Knoppix and was able to browse the contents of the image.
+Siddha, Suresh B wrote:
+> On Sat, Apr 02, 2005 at 01:11:20PM +1000, Nick Piggin wrote:
+> 
+>>How important is this? Any application to real workloads? Even if
+>>not, I agree it would be nice to improve this more. I don't know
+>>if I really like this approach - I guess due to what it adds to
+>>fastpaths.
+> 
+> 
+> Ken initially observed with older kernels(2.4 kernel with Ingo's sched), it was 
+> happening with few hundred processes. 2.6 is not that bad and it improved
+> with recent fixes. It is not very important. We want to raise the flag
+> and see if we can comeup with a decent solution.
+> 
 
-Please CC me directly, because I'm not subscribed to this list. 
+OK.
 
-I apologize if this was discovered before, but my archive searches
-found no reference.
+> We changed nr_running from "unsigned long" to "unsigned int". So on 64-bit
+> architectures, our change to fastpath is not a big deal.
+> 
 
-(if I had the source, I'd probably buy one of these things).
+Yeah I see. You are looking at data from remote runqueues a bit
+more often too, although I think they're all places where the
+remote cacheline would have already been touched recently.
 
---Michael L. Freeman
+> 
+>>Now presumably if the all_pinned logic is working properly in the
+>>first place, and it is correctly causing balancing to back-off, you
+>>could tweak that a bit to avoid livelocks? Perhaps the all_pinned
+>>case should back off faster than the usual doubling of the interval,
+>>and be allowed to exceed max_interval?
+> 
+> 
+> Coming up with that number(how much to exceed) will be a big task. It depends
+> on number of cpus and how fast they traverse the runqueue,...
+> 
+
+Well we probably don't need to really fine tune it a great deal.
+Just pick a lage number that should work OK on most CPU speeds
+and CPU counts.
+
+-- 
+SUSE Labs, Novell Inc.
+

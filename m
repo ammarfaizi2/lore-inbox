@@ -1,81 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263374AbTIBAQx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 20:16:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263384AbTIBAQu
+	id S263362AbTIBAPP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 20:15:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263371AbTIBAPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 20:16:50 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:32523 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S263374AbTIBAQF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 20:16:05 -0400
-Date: Tue, 2 Sep 2003 02:16:03 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] keyboard - was: Re: Linux 2.6.0-test4
-Message-ID: <20030902021603.A1167@pclin040.win.tue.nl>
-References: <20030831120605.08D6.CHRIS@heathens.co.nz> <20030901160125.GL22127@charite.de>
+	Mon, 1 Sep 2003 20:15:15 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:1944 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id S263362AbTIBAPK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 20:15:10 -0400
+Date: Tue, 2 Sep 2003 10:13:22 +1000
+From: CaT <cat@zip.com.au>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Mike Fedyk <mfedyk@matchmail.com>, Wes Janzen <superchkn@sbcglobal.net>,
+       Maciej Soltysiak <solt@dns.toxicfilms.tv>, linux-kernel@vger.kernel.org,
+       webmaster@kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: -mm patches on www.kernel.org ?
+Message-ID: <20030902001322.GA1286@zip.com.au>
+References: <Pine.LNX.4.51.0308071636100.31463@dns.toxicfilms.tv> <20030901211108.GE31760@matchmail.com> <3F53B937.10103@sbcglobal.net> <20030901225339.GH31760@matchmail.com> <3F53DEE1.5000709@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030901160125.GL22127@charite.de>; from Ralf.Hildebrandt@charite.de on Mon, Sep 01, 2003 at 06:01:25PM +0200
+In-Reply-To: <3F53DEE1.5000709@zytor.com>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[I changed the subject to be slightly more indicative of contents.]
-
-On Mon, Sep 01, 2003 at 06:01:25PM +0200, Ralf Hildebrandt wrote:
-> * Chris Heath <chris@heathens.co.nz>:
-> > > Aug 27 18:53:41 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
-> > > Aug 27 19:15:14 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0xb9, on isa0060/serio0) pressed.
-> > > Aug 27 19:42:50 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
-> > > Aug 28 10:14:14 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
-> > > 
-> > > Basically, CTRL was stuck. Even when I switched to X11.
-> > 
-> > Well, this completely baffles me.  I thought X11 maintains its own
-> > keydown array.
-
-It can do that only when it gets uncontaminated data.
-
-> I applied your patch, and alas:
+On Mon, Sep 01, 2003 at 05:05:53PM -0700, H. Peter Anvin wrote:
+> Mike Fedyk wrote:
+> >On Mon, Sep 01, 2003 at 04:25:11PM -0500, Wes Janzen wrote:
+> >
+> >>I think he's saying, why not put a link to the mm kernels from the 
+> >>www.kernel.org homepage, just like the ac kernels...  At least that's 
+> >>how I read it.
+> >
+> >Ok, then I can agree with that.
 > 
-> Sep  1 16:12:19 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0xb9, on isa0060/serio0) pressed.
-> Sep  1 16:12:19 hummus2 kernel: i8042 history: ae 9d e0 48 e0 c8 e0 38 56 d6 e0 b8 e0 b8 39 b9
+> Can't do it.  The -mm kernels aren't a single patch, they're patch sets, 
+> and they won't work with the system that we have set up.  If akpm wants 
+> to make a unified patch for each patch set in addition to the set itself 
+> then it can be done.
 
-I don't know why you say "alas". I read (two key releases, then)
-press UpArrow, release UpArrow, RAlt, some key, release some key, release RAlt,
-funny: again release RAlt, press space bar, release space bar.
+AFAIK he does. I always apply a single patch. The individual patches
+are in the break-out directory for easy viewing but the actual dir
+contains the patch that contains all the break-out patches AFAIK.
 
-So, nothing "Unknown" about this 0xb9 key - it is the spacebar release.
-
-But i8042.c will do an unxlate when it thinks the key is down, so it
-did not think so. But we saw the key down a moment ago. Apparently
-the line
-
-	set_bit(data | (i8042_last_e0 << 7), i8042_unxlate_seen);
-
-did not set i8042_unxlate_seen for data = 0x39. And it is clear why:
-The sequence e0 b8 e0 b8 is a repetition, the second e0 sets i8042_last_e0,
-but after the second b8 we bail out without clearing i8042_last_e0 again.
-*BUG*.
-
-Conclusion: in the skipped double release case we must clear i8042_last_e0.
-
-Andries
-
-Vojtech: Note: 1 line should be added in i8042.c:i8042_interrupt().
-[A stopgap - in fact all this i8042_unxlate_seen stuff should be ripped out.]
-
---- serio/i8042.c~      Sat Aug  9 22:16:42 2003
-+++ serio/i8042.c       Tue Sep  2 03:09:12 2003
-@@ -410,6 +410,7 @@
-                        /* work around hardware that doubles key releases */
-                        if (index == i8042_last_release) {
-                                dbg("i8042 skipped double release (%d)\n", index);
-+                               i8042_last_e0 = 0;
-                                continue;
-                        }
-                        if (index == 0xaa || index == 0xb6)
-
+-- 
+"How can I not love the Americans? They helped me with a flat tire the
+other day," he said.
+	- http://tinyurl.com/h6fo

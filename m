@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264717AbRFUMh1>; Thu, 21 Jun 2001 08:37:27 -0400
+	id <S264939AbRFUMn7>; Thu, 21 Jun 2001 08:43:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264939AbRFUMhR>; Thu, 21 Jun 2001 08:37:17 -0400
-Received: from ns.suse.de ([213.95.15.193]:39432 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S264717AbRFUMhH>;
-	Thu, 21 Jun 2001 08:37:07 -0400
-To: Ingo Rohloff <rohloff@in.tum.de>
+	id <S264942AbRFUMnt>; Thu, 21 Jun 2001 08:43:49 -0400
+Received: from web13605.mail.yahoo.com ([216.136.175.116]:11013 "HELO
+	web13605.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S264939AbRFUMni>; Thu, 21 Jun 2001 08:43:38 -0400
+Message-ID: <20010621124337.44506.qmail@web13605.mail.yahoo.com>
+Date: Thu, 21 Jun 2001 05:43:37 -0700 (PDT)
+From: Balbir Singh <balbir_soni@yahoo.com>
+Subject: Re: Is it useful to support user level drivers
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Loop encryption module locking bug (linux-2.4.5).
-In-Reply-To: <20010621135043.A13107@lxmayr6.informatik.tu-muenchen.de.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 21 Jun 2001 14:36:58 +0200
-In-Reply-To: Ingo Rohloff's message of "21 Jun 2001 13:55:33 +0200"
-Message-ID: <ouppubyxb4l.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+In-Reply-To: <E15D2GI-00019a-00@the-village.bc.nu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-<sarcasm>
-I think your mail is offtopic for linux-kernel: it doesn't mention Microsoft or user space
-java programming or pointer to random unrelated web pages, but an actual kernel bug.
-</sarcasm> 
-
-Ingo Rohloff <rohloff@in.tum.de> writes:
+--- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> The problem is that the IRQ has to be cleared in
+> kernel space, because otherwise
+> you may deadlock. 
 > 
-> If lo_open doesn't call the cipher lock function and 
-> lo_release doesn't call the cipher unlock function, the issue
-> is resolved. (So code gets deleted in the patch.)
 
-I think it would be better if the low level module stays locked also while the 
-control fd is open. That would match the semantics of most other devices.
+I agree, the idea is to clear the IRQ in kernel space
+and then deliver to user level programs interested
+using a signal (Real time SIGINT or something similar)
+If somebody is interested I could in sometime come
+up with what I have in mind and send it to this list,
+accept comments and criticism.
 
-Right fix probably is to call ->lock twice in loop_set_status()
+Balbir
 
-[Also the locking is not SMP safe, but that's a different issue, for the e.g. ->lock
-would need to be replaced with a struct module *owner and also some other locking]
 
--Andi
+__________________________________________________
+Do You Yahoo!?
+Get personalized email addresses from Yahoo! Mail
+http://personal.mail.yahoo.com/

@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261966AbSJDXNB>; Fri, 4 Oct 2002 19:13:01 -0400
+	id <S261919AbSJDXEQ>; Fri, 4 Oct 2002 19:04:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261971AbSJDXNA>; Fri, 4 Oct 2002 19:13:00 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59663 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261966AbSJDXM7>; Fri, 4 Oct 2002 19:12:59 -0400
-Date: Fri, 4 Oct 2002 16:20:01 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@zip.com.au>,
-       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 'sticky pages' support in the VM, futex-2.5.38-C5
-In-Reply-To: <20021004234706.A6683@kushida.apsleyroad.org>
-Message-ID: <Pine.LNX.4.44.0210041614221.2465-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261934AbSJDXEQ>; Fri, 4 Oct 2002 19:04:16 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:2018 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261919AbSJDXEM>;
+	Fri, 4 Oct 2002 19:04:12 -0400
+Date: Fri, 04 Oct 2002 16:02:16 -0700 (PDT)
+Message-Id: <20021004.160216.58843127.davem@redhat.com>
+To: lm@bitmover.com
+Cc: tom_gall@mac.com, linux-kernel@vger.kernel.org
+Subject: Re: New BK License Problem?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021004140802.E24148@work.bitmover.com>
+References: <AD47B5CD-D7DB-11D6-A2D4-0003939E069A@mac.com>
+	<20021004140802.E24148@work.bitmover.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Larry McVoy <lm@bitmover.com>
+   Date: Fri, 4 Oct 2002 14:08:02 -0700
+   
+   The clause is specifically designed to target those companies which 
+   produce or sell commercial SCM systems.  That's why we explicitly 
+   left out "distribute".  The open source developers have nothing to
+   worry about.
 
-On Fri, 4 Oct 2002, Jamie Lokier wrote:
-> 
-> I thought that futex-based locks were only reliable with PROT_SEM
-> memory, for architectures that define PROT_SEM (e.g. PPC) -- because of
-> the need for locking primitives to work in a cache coherent manner.
+I don't have any problems with what you're trying to achieve, but my
+fear is that it doesn't even do that.
 
-That was my initial thought, to make it portable.
-
-It turns out that all the real uses of it want to just be able to use it 
-in a less portable manner, and put futexes anywhere, and in particular in 
-perfectly regular anonymous memory.
-
-And since that works fine on all sane hardware, the point of PROT_SEM and 
-special casing just wasn't really there.
-
-Does that mean that such common futex usage won't be portable to broken
-hardware? Yup. The alternative was to make things cumbersome for
-_everybody_, and since 99.9% of all existing hardware is sane (and the 
-remaining insane hw base tends to be going away anyway), it looks like it 
-was the right decision.
-
-So now glibc can (and does) put semaphores on the stack etc random places, 
-without having to worry about it.
-
-		Linus
-
+Nothing in your license changes stops someone from dark-room
+duplicating bitkeeper.  Just as clone Intel processors are sold
+quite legally today.  Intel lost their attempts to stop that and
+my current guess is that you have a smaller legal representation
+than Intel has :-)

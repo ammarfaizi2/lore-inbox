@@ -1,36 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263007AbVAFUn4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262948AbVAFUv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263007AbVAFUn4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 15:43:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbVAFUj6
+	id S262948AbVAFUv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 15:51:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVAFUtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 15:39:58 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:33980 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263043AbVAFUj1 (ORCPT
+	Thu, 6 Jan 2005 15:49:05 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:52098 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263032AbVAFUoi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 15:39:27 -0500
-Message-ID: <41DD89EA.9F79D76C@sgi.com>
-Date: Thu, 06 Jan 2005 10:56:42 -0800
-From: Mike Werner <werner@sgi.com>
-X-Mailer: Mozilla 4.8 [en] (X11; U; IRIX64 6.5-ALPHA-1289606320 IP35)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: opps 2.6.10-mm2
+	Thu, 6 Jan 2005 15:44:38 -0500
+Date: Thu, 6 Jan 2005 21:44:31 +0100
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Andi Kleen <ak@suse.de>, greg@kroah.com,
+       linux-usb-devel@lists.sourceforge.net, vandrove@vc.cvut.cz,
+       mst@mellanox.co.il, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org
+Subject: Re: [PATCH] macros to detect existance of unlocked_ioctl and ioctl_compat
+Message-ID: <20050106204431.GH28889@wotan.suse.de>
+References: <20050105133448.59345b04.akpm@osdl.org> <20050106140636.GE25629@mellanox.co.il> <20050106145356.GA18725@infradead.org> <20050106163559.GG5772@vana.vc.cvut.cz> <20050106165715.GH1830@wotan.suse.de> <20050106172613.GI5772@vana.vc.cvut.cz> <20050106175342.GA28889@wotan.suse.de> <20050106193520.GA5481@kroah.com> <20050106195144.GE28889@wotan.suse.de> <20050106115959.45d793e1.davem@davemloft.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20050106115959.45d793e1.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can you apply this and see if it helps you.
+On Thu, Jan 06, 2005 at 11:59:59AM -0800, David S. Miller wrote:
+> On Thu, 6 Jan 2005 20:51:44 +0100
+> Andi Kleen <ak@suse.de> wrote:
+> 
+> > DaveM can probably give you more details since he tried unsucessfully
+> > to make it work. I think the problem is that there is no enough
+> > information for the compat layer to convert everything.
+> 
+> When the usbfs async stuff writes back the status, we are no
+> longer within the original syscall/ioctl execution any more,
+> therefore we don't know if we're doing this for a compat task
+> or not.
 
-diff -Nru a/drivers/char/agp/generic.c b/drivers/char/agp/generic.c
---- a/drivers/char/agp/generic.c        2005-01-06 09:26:31 -08:00
-+++ b/drivers/char/agp/generic.c        2005-01-06 09:26:31 -08:00
-@@ -211,6 +211,7 @@
-                new->memory[i] = virt_to_phys(addr);
-                new->page_count++;
-        }
-+       new->bridge = bridge;
- 
-        flush_agp_mappings();
+[...]
+
+Thanks Dave for the update. I misremembered and I don't think
+I can fix this up for x86-64.  We'll need a new interface of some sort.
+
+-Andi

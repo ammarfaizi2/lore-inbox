@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265002AbUFXN6o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265252AbUFXN6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265002AbUFXN6o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 09:58:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265253AbUFXN6o
+	id S265252AbUFXN6u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 09:58:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265253AbUFXN6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 09:58:44 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:65291 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S265002AbUFXNxp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 09:53:45 -0400
-Date: Thu, 24 Jun 2004 15:53:43 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Greg KH <greg@kroah.com>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Mariusz Mazur <mmazur@kernel.pl>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.7.0
-Message-ID: <20040624135343.GH3072@pclin040.win.tue.nl>
-References: <200406240102.23162.mmazur@kernel.pl> <40DA16E8.6070902@nortelnetworks.com> <20040624055832.GA10531@kroah.com>
+	Thu, 24 Jun 2004 09:58:50 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:3456 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265252AbUFXN6D (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 09:58:03 -0400
+Message-Id: <200406240607.i5O67uQ1020287@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       lkml <linux-kernel@vger.kernel.org>, Joshua Brindle <jbrindle@snu.edu>,
+       "Serge E. Hallyn" <hallyn@CS.WM.EDU>
+Subject: Re: [PATCH][SELINUX] Extend and revise calls to secondary module 
+In-Reply-To: Your message of "Tue, 22 Jun 2004 10:49:45 EDT."
+             <1087915785.6237.42.camel@moss-spartans.epoch.ncsc.mil> 
+From: Valdis.Kletnieks@vt.edu
+References: <1087915785.6237.42.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040624055832.GA10531@kroah.com>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : 
+Content-Type: multipart/signed; boundary="==_Exmh_1118315926P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 24 Jun 2004 02:07:55 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 23, 2004 at 10:58:32PM -0700, Greg KH wrote:
-> On Wed, Jun 23, 2004 at 07:48:56PM -0400, Chris Friesen wrote:
-> > 
-> > Maybe this should be a topic for the kernel summit or a BOF session at
-> > OLS?
+--==_Exmh_1118315926P
+Content-Type: text/plain; charset=us-ascii
+
+On Tue, 22 Jun 2004 10:49:45 EDT, you said:
+> This patch extends the set of calls to the secondary security module
+> by SELinux as well as revising a few existing calls to support other
+> security modules and to more cleanly stack with the capability module.
+> Please apply.
 > 
-> I don't see any objections, just no patches have been submitted that do
-> this work.  Why would a BOF be needed to create a patch?  :)
+> Signed-off-by:  Stephen Smalley <sds@epoch.ncsc.mil>
 
-Let me contradict this. Several people, probably independently,
-submitted a header setup and a patch that did the required work
-for a small handful of header files.
+Thank you.  :)
 
-As far as I know Linus has not reacted to such patches.
+For those who tuned in late, this patch is a superset of a patch I had to make to
+get some LSM work of mine to play nice with SELinux (my original request to the
+SELinux crew included 2 other hooks which I since retracted, having found other
+solutions).
 
-Since the total amount of work is, like Jeff says, incredibly long and tedious,
-it is unreasonable to expect that all be done before anything is put in the
-default kernel tree.
+It also addresses at least some of the things that Serge Hallyn was looking at
+doing with some other LSM work, and also cleans up some issues for yet a third
+thing that Serge and I were semi-collaborating on (no Serge, I hadn't forgotten
+about that, I was sort of dragging my feet waiting for this patch to show up
+and make my life a lot simpler.. ;)
 
-At some point in time Linus either has to describe his setup, or
-accept a setup someone submits.  Maybe a BOF would be useful to
-find out precisely what requirements there are, but only if Linus
-is present, because we have had enough discussion already.
 
-Andries
 
+--==_Exmh_1118315926P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFA2m+7cC3lWbTT17ARAu9NAKDhms19Kd8RXLeVUAmjKD9rGf231QCg8dkh
+pyTmsxm7IESUvr/sFHcMuU0=
+=4sme
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1118315926P--

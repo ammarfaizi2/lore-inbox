@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264094AbTDWPsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 11:48:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbTDWPsZ
+	id S264091AbTDWPtR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 11:49:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbTDWPtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 11:48:25 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:3343
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S264094AbTDWPrs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 11:47:48 -0400
-Subject: Re: kernel ring buffer accessible by users
-From: Robert Love <rml@tech9.net>
-To: Werner Almesberger <wa@almesberger.net>
-Cc: Julien Oster <frodo@dereference.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030423125602.B1425@almesberger.net>
-References: <frodoid.frodo.87wuhmh5ab.fsf@usenet.frodoid.org>
-	 <1051031876.707.804.camel@localhost> <20030423125602.B1425@almesberger.net>
-Content-Type: text/plain
-Message-Id: <1051113589.707.948.camel@localhost>
+	Wed, 23 Apr 2003 11:49:17 -0400
+Received: from h80ad26b0.async.vt.edu ([128.173.38.176]:20610 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S264091AbTDWPsi (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 11:48:38 -0400
+Message-Id: <200304231600.h3NG0aCs019316@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: =?ISO-8859-2?Q?Pawe=B3_Go=B3aszewski?= <blues@ds.pg.gda.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.68 kernel no initrd 
+In-Reply-To: Your message of "Wed, 23 Apr 2003 15:49:54 +0200."
+             <Pine.LNX.4.51L.0304231547460.12634@piorun.ds.pg.gda.pl> 
+From: Valdis.Kletnieks@vt.edu
+References: <000701c306f6$cf100180$0200a8c0@satellite> <1050859494.595.4.camel@teapot.felipe-alfaro.com>
+            <Pine.LNX.4.51L.0304231547460.12634@piorun.ds.pg.gda.pl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.2 (1.3.2-1) (Preview Release)
-Date: 23 Apr 2003 11:59:49 -0400
+Content-Type: multipart/signed; boundary="==_Exmh_980076719P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 23 Apr 2003 12:00:36 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-04-23 at 11:56, Werner Almesberger wrote:
+--==_Exmh_980076719P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> How do you know what is sensitive information ? A kernel debug
-> message may just say something like "bad message 47 65 68 65 69 6d",
-> and the kernel has no idea that this is actually a password
+On Wed, 23 Apr 2003 15:49:54 +0200, =3D?ISO-8859-2?Q?Pawe=3DB3_Go=3DB3asz=
+ewski?=3D said:
+> initrd gives much more flexibility.
+> I can make one kernel and use it on _all_ of my mashines, just change =
 
-Why on earth would the user give the kernel a password?
+> initrd. quick, nice and flexible with proper initrd tools set.
 
-The point is user input like telephone numbers or passwords should never
-be fed into the kernel anyhow.  On the rare case it is (apparently this
-ISDN instance, assuming it is actually from dmesg and not syslog), the
-kernel should not echo it.
+Amen.  initrd isn't just for modules - I'd not need an initrd at all if I=
+ could
+figure out how to start up an LVM volume group from kernelspace - I suspe=
+ct
+people with / on a RAID disk have similar issues...
 
-	Robert Love
 
+--==_Exmh_980076719P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+prijcC3lWbTT17ARAtZnAJ4mBqePRtbyQaYhfSEnUUaN7SQq7ACgzun2
+GsPT3ddaRmF2Jh37zqNQ0T8=
+=5Ypq
+-----END PGP SIGNATURE-----
+
+--==_Exmh_980076719P--

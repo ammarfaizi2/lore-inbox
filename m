@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbUJWOvQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbUJWOvS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261209AbUJWOvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 10:51:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbUJWOr4
+	id S261222AbUJWOvS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 10:51:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbUJWOrm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 10:47:56 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:46606 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261209AbUJWOrA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 10:47:00 -0400
-Subject: Re: [PATCH} Trivial - fix drm_agp symbol export
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
-       Dave Airlie <airlied@linux.ie>
-In-Reply-To: <9e473391041023073578b11eb6@mail.gmail.com>
-References: <9e473391041022214570eab48a@mail.gmail.com>
-	 <20041023095644.GC30137@infradead.org>
-	 <9e473391041023073578b11eb6@mail.gmail.com>
-Content-Type: text/plain
-Message-Id: <1098542801.7207.0.camel@laptop.fenrus.com>
+	Sat, 23 Oct 2004 10:47:42 -0400
+Received: from holomorphy.com ([207.189.100.168]:43212 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261202AbUJWOoO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 10:44:14 -0400
+Date: Sat, 23 Oct 2004 07:44:09 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Matt Mackall <mpm@selenic.com>
+Subject: Re: The naming wars continue...
+Message-ID: <20041023144409.GP17038@holomorphy.com>
+References: <200410230919_MC3-1-8D02-817C@compuserve.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Sat, 23 Oct 2004 16:46:41 +0200
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.6 (++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (2.6 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[62.195.31.207 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[62.195.31.207 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410230919_MC3-1-8D02-817C@compuserve.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-23 at 10:35 -0400, Jon Smirl wrote:
-> How do I deal with something like a Red Hat kernel where CONFIG_AGP is
-> set but the kernel may be running on hardware without AGP present. 
+On Fri, 22 Oct 2004 at 18:15:49 -0700 William Lee Irwin III wrote:
+>> I'm sure you have a well-founded logically consistent self-consistent
+>> method of defining what release candidates are; unfortunately hordes of
+>> others do, too, and their notions are in turn all subtly inconsistent
+>> with yours and each other's, and they're all relatively vocal about them.
 
-Nowadays RH builds AGP into the kernel always ;)
--- 
+On Sat, Oct 23, 2004 at 09:17:52AM -0400, Chuck Ebbert wrote:
+>   Others are arguing about _subtle_ differences; what Linus did was huge
+> by comparison.  It's as if they were discussing what shade of red to call
+> something and Linus came along and declared it green!
+>   "Release candidate" means candidate for release.  Simple and easy to
+> understand, no?  Does Linus plan on possibly releaseing -rc1 as 2.6.10
+> tomorrow?  I don't think so...
+>   I plan to start testing 2.6.10 upon its final release.
 
+Logical consistency can be quantified no further than consistency or
+inconsistency. There is no useful notion of degree of such.
+
+
+-- wli

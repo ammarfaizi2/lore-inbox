@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261371AbSKXP0c>; Sun, 24 Nov 2002 10:26:32 -0500
+	id <S261375AbSKXPb0>; Sun, 24 Nov 2002 10:31:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261375AbSKXP0c>; Sun, 24 Nov 2002 10:26:32 -0500
-Received: from holomorphy.com ([66.224.33.161]:5516 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261371AbSKXP0c>;
-	Sun, 24 Nov 2002 10:26:32 -0500
-Date: Sun, 24 Nov 2002 07:30:17 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: akpm@digeo.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: opps in kswapd
-Message-ID: <20021124153017.GC18063@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ed Tomlinson <tomlins@cam.org>, akpm@digeo.com, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org
-References: <25282B06EFB8D31198BF00508B66D4FA03EA5B14@fmsmsx114.fm.intel.com> <200211241001.27971.tomlins@cam.org> <20021124150039.GB18063@holomorphy.com> <200211241021.54957.tomlins@cam.org>
+	id <S261376AbSKXPb0>; Sun, 24 Nov 2002 10:31:26 -0500
+Received: from mail-2.tiscali.it ([195.130.225.148]:33406 "EHLO
+	mail.tiscali.it") by vger.kernel.org with ESMTP id <S261375AbSKXPbZ>;
+	Sun, 24 Nov 2002 10:31:25 -0500
+Date: Sun, 24 Nov 2002 16:38:42 +0100
+From: Kronos <kronos@kronoz.cjb.net>
+To: linux-kernel@vger.kernel.org
+Subject: [2.5.49] Serial registered twice
+Message-ID: <20021124153842.GA586@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200211241021.54957.tomlins@cam.org>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, I wrote:
->>>> Okay, you've jumped into oblivion. What fs's were you using here?
+In my bootlog I see this:
 
-On Sun, Nov 24, 2002 at 10:01:27AM -0500, Ed Tomlinson wrote:
->>> reiserfs.  (sorry about the subject line)
+Serial: 8250/16550 driver $Revision: 1.90 $ IRQ sharing enabled
+tts/0 at I/O 0x3f8 (irq = 4) is a 16550A
+tts/1 at I/O 0x2f8 (irq = 3) is a 16550A
+pnp: the driver 'serial' has been registered
+pnp: pnp: match found with the PnP device '00:0c' and the driver 'serial'
+devfs_register(tts/0): could not append to parent, err: -17
+tts/0 at I/O 0x3f8 (irq = 4) is a 16550A
+pnp: pnp: match found with the PnP device '00:10' and the driver 'serial'
+devfs_register(tts/1): could not append to parent, err: -17
+tts/1 at I/O 0x2f8 (irq = 3) is a 16550A
 
-On November 24, 2002 10:00 am, William Lee Irwin III wrote:
->> Did you have CONFIG_HUGETLB_FS=y and/or the patch in this thread applied?
+>From my .config:
 
-On Sun, Nov 24, 2002 at 10:21:54AM -0500, Ed Tomlinson wrote:
-> No.  hense the apology about the subject line (now updated).
-> Ed
+CONFIG_PNP=y
+CONFIG_PNP_NAMES=y
+CONFIG_PNP_DEBUG=y
+CONFIG_PNPBIOS=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_EXTENDED=y
+CONFIG_SERIAL_8250_SHARE_IRQ=y
+CONFIG_SERIAL_CORE=y
+CONFIG_DEVFS_FS=y
+CONFIG_DEVFS_MOUNT=y
 
-Okay, thanks. I'll start looking into the state of reiserfsv3 in 2.5.49+
-I think this is a filesystem-specific issue given the procedure in which
-the bad callback address was encountered.
 
-
-Thanks,
-Bill
+ciao,
+Luca
+-- 
+Reply-To: kronos@kronoz.cjb.net
+Home: http://kronoz.cjb.net
+"La mia teoria scientifica preferita e` quella secondo la quale gli 
+ anelli di Saturno sarebbero interamente composti dai bagagli andati 
+ persi nei viaggi aerei." -- Mark Russel

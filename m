@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272824AbTHSQ5S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 12:57:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272816AbTHSQ5S
+	id S272685AbTHSRHi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 13:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272882AbTHSRHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 12:57:18 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:43649 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S276366AbTHSQaj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 12:30:39 -0400
-Date: Tue, 19 Aug 2003 17:30:34 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
-Cc: Paolo Ornati <javaman@katamail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Documentation for PC Architecture
-Message-ID: <20030819163034.GA15033@mail.jlokier.co.uk>
-References: <20030819010205.GE11081@mail.jlokier.co.uk> <Pine.LNX.4.44.0308182202550.27238-100000@localhost.localdomain>
-Mime-Version: 1.0
+	Tue, 19 Aug 2003 13:07:38 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:12496 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S272685AbTHSQwg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 12:52:36 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308182202550.27238-100000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16194.21969.433434.73614@napali.hpl.hp.com>
+Date: Tue, 19 Aug 2003 09:52:33 -0700
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SCO's "proof"
+In-Reply-To: <20030819153056.GB3059@gtf.org>
+References: <3F422809.7080806@yahoo.com>
+	<20030819153056.GB3059@gtf.org>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nagendra Singh Tomar wrote:
-> 	What is this 2nd address translation you are mentioning. 
-> I always thought that for the sake of cleanliness we just forget about the 
-> 384K of memory starting from 640K. RAM anyway is cheap.
-> Pl correct me if I'm missing something.
+>>>>> On Tue, 19 Aug 2003 11:30:56 -0400, Jeff Garzik <jgarzik@pobox.com> said:
 
-That is probably true of modern machines.  It is hard to tell from the
-e820 map on two machines I just looked at, because other bits of RAM
-are missing, more than 384k.
+  Jeff> On Tue, Aug 19, 2003 at 09:37:13AM -0400, Brandon Stewart
+  Jeff> wrote:
+  >> compliments of "d1rkinator" from yahoo finance message board:
 
-The original question asked about "the PC architecture", and I can say
-for sure that a PC with 1MB does not just forget about 384k of it :)
+  >> The code SCO finds offending:
 
--- Jamie
+  >> www.heise.de/newsticker/data/jk-19.08.03-000/imh0.jpg
+  >> www.heise.de/newsticker/data/jk-19.08.03-000/imh1.jpg
+
+  Jeff> Why the heck is ia64 inventing its own mutex spinlocks?
+
+  Jeff> Sigh.
+
+  Jeff> Here's the original Heise article, for those who read German:
+  Jeff> http://www.heise.de/newsticker/data/jk-19.08.03-000/
+
+It's not ia64, it's the SGI platform-specific code...
+
+	--david

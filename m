@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261935AbSIYHjt>; Wed, 25 Sep 2002 03:39:49 -0400
+	id <S261936AbSIYHqq>; Wed, 25 Sep 2002 03:46:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261936AbSIYHjs>; Wed, 25 Sep 2002 03:39:48 -0400
-Received: from 62-190-218-65.pdu.pipex.net ([62.190.218.65]:7684 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S261935AbSIYHjs>; Wed, 25 Sep 2002 03:39:48 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209250749.g8P7nmiT000178@darkstar.example.net>
-Subject: Re: hdparm -Y hangup
-To: davidsen@tmr.com (Bill Davidsen)
-Date: Wed, 25 Sep 2002 08:49:48 +0100 (BST)
-Cc: padraig.brady@corvil.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96.1020924170534.19732B-100000@gatekeeper.tmr.com> from "Bill Davidsen" at Sep 24, 2002 05:06:57 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S261937AbSIYHqq>; Wed, 25 Sep 2002 03:46:46 -0400
+Received: from aba.krakow.pl ([62.233.163.30]:56500 "HELO two.aba.krakow.pl")
+	by vger.kernel.org with SMTP id <S261936AbSIYHqp>;
+	Wed, 25 Sep 2002 03:46:45 -0400
+Date: Wed, 25 Sep 2002 09:51:59 +0200
+From: =?iso-8859-2?Q?Pawe=B3?= Krawczyk <kravietz@aba.krakow.pl>
+To: Simon Kirby <sim@netnation.com>
+Cc: Adam Goldstein <Whitewlf@Whitewlf.net>, linux-kernel@vger.kernel.org
+Subject: Re: Very High Load, kernel 2.4.18, apache/mysql
+Message-ID: <20020925075159.GD28695@aba.krakow.pl>
+References: <20020925052411.GA8951@netnation.com> <E46487E7-D053-11D6-BCD3-000502C90EA3@Whitewlf.net> <20020925072026.GA9670@netnation.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20020925072026.GA9670@netnation.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Hrm, OK thanks for the info. Perhaps it should be removed
-> > > from hdparm or a (DANGEROUS) put beside the description
-> > > until it's fixed.
-> > 
-> > The person to contact would be Mark Lord, the hdparm maintainer, (see the
-> > hdparm manual page for his E-Mail address).
-> 
-> Rather than have Mark Lord set the option DANGEROUS (it shouldn't be)
-> perhaps it could be made to work more than once... Odd problem, is
-> something not getting set or cleared when the drive is spun up the first
-> time?
+On Wed, Sep 25, 2002 at 12:20:26AM -0700, Simon Kirby wrote:
 
-With my Maxtor disk connected to a PIIX3 IDE interface and stock kernel 2.4.19, I get this behavior:
+> Again, not locking, but fsync().  It's safe providing your machine never
+> crashes. :)  Of course, there's still a chance it can be corrupted
+> _with_ fsync() anyway, but the difference is the clients will get a
+> result beore it guarantees the data will be on disk.
 
-# hdparm -Y /dev/hda
+Many Linux distributions configure syslog to use synchronous writes
+for each logged line, which caused very high load on busy systems
+I've seen.
 
-Disk sleeps
+Go through your /etc/syslog.conf and change every "/var/log/messages"
+to "-/var/log/messages", the minus enables asynchronous writes.
 
-# find
+Also try disabling logging for Apache at all for some time (set ErrorLog,
+AccessLog or CustomLog to /dev/null) and see what happens.
 
-No disk activity - it doesn't wake up.  It doesn't work once for me, it always hangs on the first attempt.
-
-So, I try dmesg on another console - no new output.
-
-# hdparm -w /dev/hda
-
-Performs a device reset, and the disk spins up.
-
-# dmesg
-
-hda: ide_set_handler: handler not null; c0181050
-hda: dma_intr: status=0xd0 { Busy }
-hda: DMA disabled
-hda: ide_set_handler: handler not null; old=c0181050, new=c017b160
-bug: kernel timer added twice at c017afe1.
-hda: ide_set_handler: handler not null; old=c017b160, new=c017b160
-ide0: reset: success
-
-Obviously, if you're going to try to repeat this, sync the disk beforehand, because I assume that a device reset will loose data in the disk's write cache.
-
-John.
+-- 
+Pawe³ Krawczyk, Kraków, Poland  http://echelon.pl/kravietz/
+horses: http://kabardians.com/
+crypto: http://ipsec.pl/

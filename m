@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131157AbRDFDhi>; Thu, 5 Apr 2001 23:37:38 -0400
+	id <S131205AbRDFEMX>; Fri, 6 Apr 2001 00:12:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131184AbRDFDh3>; Thu, 5 Apr 2001 23:37:29 -0400
-Received: from ferret.phonewave.net ([208.138.51.183]:48654 "EHLO
-	tarot.mentasm.org") by vger.kernel.org with ESMTP
-	id <S131157AbRDFDhU>; Thu, 5 Apr 2001 23:37:20 -0400
-Date: Thu, 5 Apr 2001 20:35:41 -0700
+	id <S131206AbRDFEME>; Fri, 6 Apr 2001 00:12:04 -0400
+Received: from ohiper1-134.apex.net ([209.250.47.149]:10756 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S131205AbRDFEL6>; Fri, 6 Apr 2001 00:11:58 -0400
+Date: Thu, 5 Apr 2001 23:10:25 -0500
+From: Steven Walter <srwalter@yahoo.com>
 To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: OOPS report for L2 cacheable size setting at 512MB on TD5TH dual P200
-Message-ID: <20010405203541.A29396@ferret.phonewave.net>
+Subject: Oopsen everywhere in open_namei, kernel 2.4.3
+Message-ID: <20010405231025.A736@hapablap.dyn.dhs.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="J2SCkAp4GZ/dPZZf"
 Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-From: idalton@ferret.phonewave.net
+User-Agent: Mutt/1.2.5i
+X-Uptime: 11:08pm  up 11 min,  1 user,  load average: 1.06, 1.03, 0.60
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[1.] One line summary of the problem:
 
-OOPS report for L2 cacheable size setting at 512MB on TD5TH dual P200
+--J2SCkAp4GZ/dPZZf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-[2.] Full description of the problem/report:
+Right after a boot, I got 5 oopsen within about 8 minutes.  There are
+only two unique ones, which are attached.  Each one occured at least
+twice.  Someone know what's going on?
+-- 
+-Steven
+Freedom is the freedom to say that two plus two equals four.
 
-My system board BIOS has two settings for L2 cacheable size: 64MB and
-512MB. Previous kernels would lock when initialising the
-framebuffer. This one initialises framebuffer but crashes later.
+--J2SCkAp4GZ/dPZZf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=bug4a
 
-[3.] Keywords (i.e., modules, networking, kernel):
-
-kernel initialisation
-
-[4.] Kernel version (from /proc/version):
-
-Linux version 2.4.3cc (root@heathen) (gcc version 2.95.3 20010315
-(Debian release)) #1 SMP Fri Mar 30 14:22:48 PST 2001
-
-[5.] Output of Oops.. message (if applicable) with symbolic information
-     resolved (see Documentation/oops-tracing.txt)
-
-
-ksymoops 2.3.7 on i586 2.4.3cc.  Options used
+ksymoops 2.3.4 on i586 2.4.3.  Options used
      -V (default)
      -k /proc/ksyms (default)
      -l /proc/modules (default)
-     -o /lib/modules/2.4.3cc/ (default)
-     -m /boot/System.map-2.4.3cc (default)
+     -o /lib/modules/2.4.3/ (default)
+     -m /boot/System.map-2.4.3 (default)
 
 Warning: You did not tell me where to find symbol information.  I will
 assume that the log matches the kernel and modules that are running
@@ -55,314 +49,104 @@ If the current kernel and/or modules do not match the log, you can get
 more accurate output by telling me the kernel version and where to find
 map, modules, ksyms etc.  ksymoops -h explains the options.
 
-Warning (compare_maps): ksyms_base symbol
-__VERSIONED_SYMBOL(cuecat_process_scancode) not found in System.map.
-Ignoring ksyms_base entry
-Warning (compare_maps): snd symbol pm_register not found in
-/usr/lib/alsa-modules/2.4.3cc/0.5/snd.o.  Ignoring
-/usr/lib/alsa-modules/2.4.3cc/0.5/snd.o entry
-Warning (compare_maps): snd symbol pm_send not found in
-/usr/lib/alsa-modules/2.4.3cc/0.5/snd.o.  Ignoring
-/usr/lib/alsa-modules/2.4.3cc/0.5/snd.o entry
-Warning (compare_maps): snd symbol pm_unregister not found in
-/usr/lib/alsa-modules/2.4.3cc/0.5/snd.o.  Ignoring
-/usr/lib/alsa-modules/2.4.3cc/0.5/snd.o entry
-Reading Oops report from the terminal
-Unable to handle kernel paging request at virtual address 418146e0
-c02f5407
+Unable to handle kernel paging request at virtual address 78e85047
+c01378c3
 *pde = 00000000
 Oops: 0002
-CPU:    1
-EIP:    0010:[<c02f5407>]
+CPU:    0
+EIP:    0010:[<c01378c3>]
 Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010202
-eax: c02f5468   ebx: c02f53fc   ecx: c02f53f4   edx: c02f53f4
-esi: c02f5404   edi: 00000000   ebp: c02ecc60   esp: c1229ef8
+EFLAGS: 00010297
+eax: 00000000   ebx: c3121460   ecx: 00000001   edx: 000003e8
+esi: ffffffff   edi: 00000001   ebp: 00000001   esp: c4b43f4c
 ds: 0018   es: 0018   ss: 0018
-Process swapper (pid: 0, stackpage=c1229000)
-Stack: c011db55 c02f53fc c03056a0 00000020 00000000 c02ecc60 c018021e
-00000286
-       c122bda0 c011a4be c03056a0 00000020 c011a3a7 00000000 00000001
-       c02ed060
-       00000020 0000000e c011a24d c02ed060 c0305a00 c02ea9c0 0000000e
-       c1229f74
-Call Trace: [<c011db55>] [<c018021e>] [<c011a4be>] [<c011a3a7>]
-[<c011a24d>] [<c01089aa>] [<c010517
-       [<c0107050>] [<c0105170>] [<c010519c>] [<c0105202>] [<c011a24d>]
-       [<c01089aa>]
-Code: c0 04 54 2f c0 0c 54 2f c0 0c 54 2f c0 f4 53 2f c0 68 60 2a
+Process modemlights_app (pid: 301, stackpage=c4b43000)
+Stack: 00000000 080be760 00000001 c72e4000 ffffffff 00000000 00000004 c47d0ac0 
+       c012c87e c72e4000 00000001 000001b6 c4b43f84 00000010 c47d0ac0 c1241240 
+       00000001 c72e4000 00000000 00000001 00000001 c012cb89 c72e4000 00000000 
+Call Trace: [<c012c87e>] [<c012cb89>] [<c0106d73>] 
+Code: ff 89 46 50 e8 78 3b ff ff 89 46 54 8b 4d e0 8b 7d 0c 89 4d 
 
->>EIP; c02f5407 <tv1+207/804>   <=====
-Trace; c011db55 <timer_bh+281/2dc>
-Trace; c018021e <ide_intr+12a/194>
-Trace; c011a4be <bh_action+46/a4>
-Trace; c011a3a7 <tasklet_hi_action+4f/7c>
-Trace; c011a24d <do_softirq+5d/8c>
-Trace; c01089aa <do_IRQ+ea/fc>
-Trace; c0107050 <ret_from_intr+0/20>
-Trace; c0105170 <default_idle+0/34>
-Trace; c010519c <default_idle+2c/34>
-Trace; c0105202 <cpu_idle+3e/54>
-Trace; c011a24d <do_softirq+5d/8c>
-Trace; c01089aa <do_IRQ+ea/fc>
-Code;  c02f5407 <tv1+207/804>
-0000000000000000 <_EIP>:
-Code;  c02f5407 <tv1+207/804>   <=====
-   0:   c0 04 54 2f               rolb   $0x2f,(%esp,%edx,2)   <=====
-Code;  c02f540b <tv1+20b/804>
-   4:   c0 0c 54 2f               rorb   $0x2f,(%esp,%edx,2)
-Code;  c02f540f <tv1+20f/804>
-   8:   c0 0c 54 2f               rorb   $0x2f,(%esp,%edx,2)
-Code;  c02f5413 <tv1+213/804>
-   c:   c0                        (bad)
-Code;  c02f5414 <tv1+214/804>
-   d:   f4                        hlt
-Code;  c02f5415 <tv1+215/804>
-   e:   53                        push   %ebx
-Code;  c02f5416 <tv1+216/804>
-   f:   2f                        das
-Code;  c02f5417 <tv1+217/804>
-  10:   c0 68 60 2a               shrb   $0x2a,0x60(%eax)
-
-Kernel panic: Aiee, killing interrupt handler!
-
-5 warnings issued.  Results may not be reliable.
-
-[6.] A small shell script or example program which triggers the
-     problem (if possible)
-
-TMC TD5TH v1.1 motherboard. L2 cacheable size set to 512MB in the
-BIOS. SMP configuration.
-
-[7.] Environment
-[7.1.] Software (add the output of the ver_linux script here)
-[7.2.] Processor information (from /proc/cpuinfo):
-
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 5
-model           : 4
-model name      : Pentium MMX
-stepping        : 4
-cpu MHz         : 199.434
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : yes
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr mce cx8 apic mmx
-bogomips        : 398.13
-
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 5
-model           : 4
-model name      : Pentium MMX
-stepping        : 4
-cpu MHz         : 199.434
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : yes
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr mce cx8 apic mmx
-bogomips        : 398.13
-
-[7.3.] Module information (from /proc/modules):
-
-No modules loading at the time it crashes.
-
-[7.4.] Loaded driver and hardware information (/proc/ioports,
-/proc/iomem)
-
-0000-001f : dma1
-0020-003f : pic1
-0040-005f : timer
-0060-006f : keyboard
-0070-007f : rtc
-0080-008f : dma page reg
-00a0-00bf : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-0213-0213 : isapnp read
-0220-022f : Sound Blaster 16
-0240-024f : Sound Blaster AWE32/64
-02e8-02ef : serial(set)
-02f8-02ff : serial(set)
-0300-0301 : Sound Blaster AWE32/64 - MPU-401
-0330-0331 : Sound Blaster 16 - MPU-401
-0376-0376 : ide1
-0388-038b : Sound Blaster 16 - FM
-03c0-03df : vga+
-03e8-03ef : serial(set)
-03f6-03f6 : ide0
-03f8-03ff : serial(set)
-0620-0623 : Sound Blaster AWE32/64 - WaveTable
-0a20-0a23 : Sound Blaster AWE32/64 - WaveTable
-0a79-0a79 : isapnp write
-0cf8-0cff : PCI conf1
-0e20-0e23 : Sound Blaster AWE32/64 - WaveTable
-6000-601f : Intel Corporation 82371SB PIIX3 USB [Natoma/Triton II]
-  6000-601f : usb-uhci
-6100-61ff : Adaptec AHA-7850
-6200-627f : Digital Equipment Corporation DECchip 21140 [FasterNet]
-  6200-627f : eth0
-6300-63ff : ATI Technologies Inc 3D Rage Pro 215GP
-f000-f00f : Intel Corporation 82371SB PIIX3 IDE [Natoma/Triton II]
-  f000-f007 : ide0
-  f008-f00f : ide1
+>>EIP; c01378c3 <open_namei+3f7/590>   <=====
+Trace; c012c87e <filp_open+2e/4c>
+Trace; c012cb89 <sys_open+35/b4>
+Trace; c0106d73 <system_call+33/40>
+Code;  c01378c3 <open_namei+3f7/590>
+00000000 <_EIP>:
+Code;  c01378c3 <open_namei+3f7/590>   <=====
+   0:   ff 89 46 50 e8 78         decl   0x78e85046(%ecx)   <=====
+Code;  c01378c9 <open_namei+3fd/590>
+   6:   3b ff                     cmp    %edi,%edi
+Code;  c01378cb <open_namei+3ff/590>
+   8:   ff 89 46 54 8b 4d         decl   0x4d8b5446(%ecx)
+Code;  c01378d1 <open_namei+405/590>
+   e:   e0 8b                     loopne ffffff9b <_EIP+0xffffff9b> c013785e <open_namei+392/590>
+Code;  c01378d3 <open_namei+407/590>
+  10:   7d 0c                     jge    1e <_EIP+0x1e> c01378e1 <open_namei+415/590>
+Code;  c01378d5 <open_namei+409/590>
+  12:   89 4d 00                  mov    %ecx,0x0(%ebp)
 
 
-00000000-0009fbff : System RAM
-0009fc00-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000c8000-000ca7ff : Extension ROM
-000f0000-000fffff : System ROM
-00100000-07ffffff : System RAM
-  00100000-00235c3f : Kernel code
-  00235c40-002acfff : Kernel data
-e0000000-e0ffffff : ATI Technologies Inc 3D Rage Pro 215GP
-  e0000000-e0ffffff : atyfb
-e1000000-e1ffffff : Matrox Graphics, Inc. MGA 2164W [Millennium II]
-e2000000-e27fffff : Matrox Graphics, Inc. MGA 2164W [Millennium II]
-e2800000-e2803fff : Matrox Graphics, Inc. MGA 2164W [Millennium II]
-e2804000-e280407f : Digital Equipment Corporation DECchip 21140
-[FasterNet]
-  e2804000-e280407f : eth0
-e2805000-e2805fff : Adaptec AHA-7850
-  e2805000-e2805fff : aic7xxx
-e2806000-e2806fff : ATI Technologies Inc 3D Rage Pro 215GP
-fec00000-fec00fff : reserved
-fee00000-fee00fff : reserved
-ffff0000-ffffffff : reserved
+1 warning issued.  Results may not be reliable.
 
-[7.5.] PCI information ('lspci -vvv' as root)
+--J2SCkAp4GZ/dPZZf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=bug5a
 
-00:00.0 Host bridge: Intel Corporation 430HX - 82439HX TXC [Triton II]
-(rev 01)
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-	ParErr- Stepping- SERR- FastB2B-        Status: Cap- 66Mhz- UDF-
-	FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR-
-	<PERR-
-        Latency: 32
+ksymoops 2.3.4 on i586 2.4.3.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.3/ (default)
+     -m /boot/System.map-2.4.3 (default)
 
-00:07.0 ISA bridge: Intel Corporation 82371SB PIIX3 ISA [Natoma/Triton
-II] (rev 01)
-        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop-
-	ParErr- Stepping- SERR- FastB2B-        Status: Cap- 66Mhz- UDF-
-	FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR-
-	<PERR-
-        Latency: 0
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-00:07.1 IDE interface: Intel Corporation 82371SB PIIX3 IDE
-[Natoma/Triton II] (prog-if 80 [Master])
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
-	ParErr- Stepping- SERR- FastB2B-        Status: Cap- 66Mhz- UDF-
-	FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR-
-	<PERR-
-        Latency: 32
-        Region 4: I/O ports at f000 [size=16]
-
-00:07.2 USB Controller: Intel Corporation 82371SB PIIX3 USB
-[Natoma/Triton II] (rev 01) (prog-if 00
-[UHCI])
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
-	ParErr- Stepping- SERR- FastB2B-        Status: Cap- 66Mhz- UDF-
-	FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR-
-	<PERR-
-        Latency: 32
-        Interrupt: pin D routed to IRQ 11
-        Region 4: I/O ports at 6000 [size=32]
-
-00:08.0 SCSI storage controller: Adaptec AHA-7850 (rev 01)
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-        ParErr- Stepping- SERR- FastB2B-        Status: Cap- 66Mhz- UDF-
-        FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR-
-        <PERR-
-        Latency: 32 (1000ns min, 1000ns max), cache line size 08
-        Interrupt: pin A routed to IRQ 16
-        Region 0: I/O ports at 6100 [disabled] [size=256]
-        Region 1: Memory at e2805000 (32-bit, non-prefetchable)
-        [size=4K]
-
-00:09.0 Ethernet controller: Digital Equipment Corporation DECchip 21140
-[FasterNet] (rev 22)
-        Subsystem: Netgear FA310TX Fast Ethernet
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-	ParErr- Stepping- SERR- FastB2B-        Status: Cap- 66Mhz- UDF-
-	FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR-
-	<PERR-
-        Latency: 32 (5000ns min, 10000ns max), cache line size 08
-        Interrupt: pin A routed to IRQ 17
-        Region 0: I/O ports at 6200 [size=128]
-        Region 1: Memory at e2804000 (32-bit, non-prefetchable)
-	[size=128]
-        Expansion ROM at <unassigned> [disabled] [size=256K]
-
-00:0a.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro
-215GP (rev 5c) (prog-if 00 [VGA])
-        Subsystem: ATI Technologies Inc: Unknown device 0080
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-	ParErr- Stepping+ SERR- FastB2B-        Status: Cap- 66Mhz- UDF-
-	FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR-
-	<PERR-
-        Latency: 32 (2000ns min), cache line size 08
-        Interrupt: pin A routed to IRQ 18
-        Region 0: Memory at e0000000 (32-bit, prefetchable) [size=16M]
-        Region 1: I/O ports at 6300 [size=256]
-        Region 2: Memory at e2806000 (32-bit, non-prefetchable)
-	[size=4K]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-
-00:0b.0 VGA compatible controller: Matrox Graphics, Inc. MGA 2164W
-[Millennium II] (prog-if 00 [VGA])
-        Subsystem: Matrox Graphics, Inc.: Unknown device 1300
-        Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop-
-	ParErr- Stepping- SERR- FastB2B-        Status: Cap- 66Mhz- UDF-
-	FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR-
-	<PERR-
-        Interrupt: pin A routed to IRQ 19
-        Region 0: Memory at e1000000 (32-bit, prefetchable) [disabled]
-	[size=16M]
-        Region 1: Memory at e2800000 (32-bit, non-prefetchable)
-	[disabled] [size=16K]
-        Region 2: Memory at e2000000 (32-bit, non-prefetchable)
-	[disabled] [size=8M]
-        Expansion ROM at <unassigned> [disabled] [size=64K]
-
-
-[7.6.] SCSI information (from /proc/scsi/scsi)
-
-Attached devices:
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: IBM      Model: DNES-309170      Rev: SA30
-  Type:   Direct-Access                    ANSI SCSI revision: 03
-Host: scsi0 Channel: 00 Id: 05 Lun: 00
-  Vendor: SONY     Model: CD-ROM CDU-8005  Rev: 1.0g
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 06 Lun: 00
-  Vendor: SONY     Model: CD-ROM CDU-8005  Rev: 1.0g
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-
-[7.7.] Other information that might be relevant to the problem
-       (please look in /proc and include all information that you
-       think to be relevant):
-[X.] Other notes, patches, fixes, workarounds:
-
-The last few lines of console log:
-
-Mounted devfs on /dev
-Freeing unused kernel memory: 224k freed
-Unable to handle kernel paging request at virtual address 418146e0
- printing eip:
-c02f5407
+Unable to handle kernel paging request at virtual address 78e8504a
+c01378c3
 *pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c01378c3>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00210293
+eax: 00000000   ebx: c7f2f260   ecx: 00000004   edx: 00000000
+esi: ffffffff   edi: 00000001   ebp: 00000001   esp: c317ff4c
+ds: 0018   es: 0018   ss: 0018
+Process gpm (pid: 462, stackpage=c317f000)
+Stack: 00000000 08058240 00000001 c784b000 00200286 00000000 00000004 c76e1f40 
+       c012c87e c784b000 00000001 00000001 c317ff84 00000002 c76e1f40 c1241240 
+       00000001 c784b000 00000000 00000001 00000001 c012cb89 c784b000 00000000 
+Call Trace: [<c012c87e>] [<c012cb89>] [<c0106d73>] 
+Code: f6 75 77 f7 c5 00 02 00 00 74 5c 53 e8 ec ec ff ff 89 c6 83 
+
+>>EIP; c01378c3 <open_namei+3f7/590>   <=====
+Trace; c012c87e <filp_open+2e/4c>
+Trace; c012cb89 <sys_open+35/b4>
+Trace; c0106d73 <system_call+33/40>
+Code;  c01378c3 <open_namei+3f7/590>
+00000000 <_EIP>:
+Code;  c01378c3 <open_namei+3f7/590>   <=====
+   0:   f6 75 77                  div    0x77(%ebp),%al   <=====
+Code;  c01378c6 <open_namei+3fa/590>
+   3:   f7 c5 00 02 00 00         test   $0x200,%ebp
+Code;  c01378cc <open_namei+400/590>
+   9:   74 5c                     je     67 <_EIP+0x67> c013792a <open_namei+45e/590>
+Code;  c01378ce <open_namei+402/590>
+   b:   53                        push   %ebx
+Code;  c01378cf <open_namei+403/590>
+   c:   e8 ec ec ff ff            call   ffffecfd <_EIP+0xffffecfd> c01365c0 <get_write_access+0/20>
+Code;  c01378d4 <open_namei+408/590>
+  11:   89 c6                     mov    %eax,%esi
+Code;  c01378d6 <open_namei+40a/590>
+  13:   83 00 00                  addl   $0x0,(%eax)
+
+
+1 warning issued.  Results may not be reliable.
+
+--J2SCkAp4GZ/dPZZf--

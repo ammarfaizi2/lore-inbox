@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271148AbTGXI0B (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 04:26:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271156AbTGXI0B
+	id S270520AbTGXIfY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 04:35:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270524AbTGXIfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 04:26:01 -0400
-Received: from in02-fes1.whowhere.com ([209.202.220.218]:2283 "HELO
-	whowhere.com") by vger.kernel.org with SMTP id S271148AbTGXIZu
+	Thu, 24 Jul 2003 04:35:24 -0400
+Received: from fep04.swip.net ([130.244.199.132]:39898 "EHLO
+	fep04-svc.swip.net") by vger.kernel.org with ESMTP id S270520AbTGXIfT convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 04:25:50 -0400
-To: linux-kernel@vger.kernel.org
-Date: Thu, 24 Jul 2003 08:40:48  0000
-From: "Dean McEwan" <dean.mcewan@eudoramail.com>
-Message-ID: <HJLHINMLOKGNEEAA@whowhere.com>
-Mime-Version: 1.0
-X-Sent-Mail: off
-Reply-To: dean.mcewan@eudoramail.com
-X-Mailer: MailCity Service
-X-Priority: 3
-Subject: Switching to the OSL License, in a dual way.
-X-Sender-Ip: 80.0.111.88
-Organization: Lycos Mail  (http://www.mail.eudoramail.com)
-Content-Type: text/plain; charset=us-ascii
-Content-Language: en
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Jul 2003 04:35:19 -0400
+From: Michal Semler <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: Martin Zwickel <martin.zwickel@technotrend.de>
+Subject: Re: passing my own compiler options into linux kernel compiling
+Date: Thu, 24 Jul 2003 10:50:25 +0200
+User-Agent: KMail/1.5.2
+References: <200307240916.17530.cijoml@volny.cz> <20030724100111.343d84cd.martin.zwickel@technotrend.de>
+In-Reply-To: <20030724100111.343d84cd.martin.zwickel@technotrend.de>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200307241050.25094.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- After recently reading Mr. Stallman's online *BLURB*
-at www.stallman.org, specifically the diary entry
-on June 28th 2003, I am disturbed, I would like to
-work on helping you people move to a OSL licence,
-work out copyright owners and add the OSL option to each 
-individual file one by one.
+Hi,
 
- I am willing to pay to track down unfindable people.
+-O4 is a feature - for example MPlayer (www.mplayerhq.hu) using it.
 
- This license does not lose you any additional freedoms,
-in fact it is more legally secure so it gains you
-legal security, as well as the traditional GNU freedoms
-which RMS is jeopordising with a disgusting set of
-*IDEALS*. 
+Is easyer way of passing these args planned? Editing source every time I 
+change kernel is not goood way. make oldconfig adding these args is better 
+way.
 
-In cases where members have died I will pay to track down their copyright "bequethers".
+Michal
 
-I will build up a copyright list for each file using BK 
-and the CHANGELIST/SET files, as well as listed file
-copyright holders in that file.
+Dne èt 24. èervence 2003 10:01 jste napsal(a):
+> On Thu, 24 Jul 2003 09:16:17 +0200
+>
+> Michal Semler <cijoml@volny.cz> bubbled:
+> > Hello,
+> >
+> > I use gcc-3.3 and I would like compile my kernel with flags:
+> >
+> > -O4 -march=pentium3 -mcpu=pentium3
+>
+> -O4 is useless. max is -O3
+>
+> try this file: arch/i386/Makefile
+> there is something like:
+>
+> ifdef CONFIG_MPENTIUMIII
+> CFLAGS += -march=i686
+> endif
+>
+> maybe this helps...
+>
+> Regards,
+> Martin
 
----
-Cheers, Dean McEwan.
-One of 4 members of the board of DM. TECH.
-
-
-
-Need a new email address that people can remember
-Check out the new EudoraMail at
-http://www.eudoramail.com

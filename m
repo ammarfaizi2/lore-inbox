@@ -1,34 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318890AbSHMAUR>; Mon, 12 Aug 2002 20:20:17 -0400
+	id <S318893AbSHMArW>; Mon, 12 Aug 2002 20:47:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318891AbSHMAUR>; Mon, 12 Aug 2002 20:20:17 -0400
-Received: from pool-138-89-150-47.mad.east.verizon.net ([138.89.150.47]:14976
-	"HELO lemur.sytes.net") by vger.kernel.org with SMTP
-	id <S318890AbSHMAUQ>; Mon, 12 Aug 2002 20:20:16 -0400
-Message-ID: <3D5850AC.6010106@lemur.sytes.net>
-Date: Mon, 12 Aug 2002 20:19:56 -0400
-From: Mathias Kretschmer <mathias@lemur.sytes.net>
-Reply-To: mathias.kretschmer@verizon.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en, zh-tw
-MIME-Version: 1.0
+	id <S318894AbSHMArV>; Mon, 12 Aug 2002 20:47:21 -0400
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:5519 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S318893AbSHMArV>;
+	Mon, 12 Aug 2002 20:47:21 -0400
+Date: Mon, 12 Aug 2002 19:44:54 -0500 (CDT)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
 To: linux-kernel@vger.kernel.org
-Subject: savage frame buffer support ?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: pte_chain leak in rmap code (2.5.31)
+In-Reply-To: <Pine.LNX.4.44L.0208121119270.23404-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.44.0208121942371.25611-100000@dad.molina>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 12 Aug 2002, Rik van Riel wrote:
 
-Does anyone know the status of the Savage support for Linux's
-frame buffer ?
+> On Mon, 12 Aug 2002, Christian Ehrhardt wrote:
+> 
+> > Note the strange use of continue and break which both achieve the same!
+> > What was meant to happen (judging from rmap-13c) is that we break
+> > out of the for-Loop once SWAP_FAIL or SWAP_ERROR is returned from
+> > try_to_unmap_one. However, this doesn't happen and a subsequent call
+> > to pte_chain_free will use the wrong value for prev_pc.
+> 
+> Excellent hunting!   Thank you!
+> 
+> Your fix should work too, although in my opinion it's a
+> little bit too subtle, so I've changed it into:
+> 
+> 	                                case SWAP_FAIL:
+>                                         ret = SWAP_FAIL;
+>                                         goto give_up;
+>                                 case SWAP_ERROR:
+>                                         ret = SWAP_ERROR;
+>                                         goto give_up;
+>                         }
+>                 }
+> give_up:
 
-With lots of those chips being used in laptops and embedded mobos
-it'd be great to have accelerated support for them.
+Any chance this is the cause of the following? 
 
-Cheers,
+---------------extract-----------------------
 
-Mathias
+Subject:  Re: [patch 1/21] random fixes
+From:     Adam Kropelin <akropel1@rochester.rr.com>
+Date:     2002-08-12 2:54:31
+
+FYI, just got this while un-tarring a kernel tree with 
+2.5.31+everything.gz:
+(no nvidia ;)
+
+Date: Sun, 11 Aug 2002 20:40:31 -0700
+From: Andrew Morton <akpm@zip.com.au>
+
+That'll be this one:
+
+                BUG_ON(page->pte.chain != NULL);
+
+we've had a few reports of this dribbling in since rmap went in.  But
+nothing repeatable enough for it to be hunted down.
+
+But we do have a repeatable inconsistency happening with ntpd and
+memory pressure.  That may be related, but in that case it's probably
+related to mlock().
+
+So.  An open bug, alas.
+
+
 

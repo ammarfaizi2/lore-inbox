@@ -1,95 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288593AbSAUVz1>; Mon, 21 Jan 2002 16:55:27 -0500
+	id <S288668AbSAUV6E>; Mon, 21 Jan 2002 16:58:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288548AbSAUVzP>; Mon, 21 Jan 2002 16:55:15 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:20240 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S288511AbSAUVzI>;
-	Mon, 21 Jan 2002 16:55:08 -0500
-Date: Mon, 21 Jan 2002 14:54:38 -0700
-From: yodaiken@fsmlabs.com
-To: Robert Love <rml@tech9.net>
-Cc: yodaiken@fsmlabs.com, Daniel Phillips <phillips@bonn-fries.net>,
+	id <S288667AbSAUV5s>; Mon, 21 Jan 2002 16:57:48 -0500
+Received: from zero.tech9.net ([209.61.188.187]:26385 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S288548AbSAUV5e>;
+	Mon, 21 Jan 2002 16:57:34 -0500
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+From: Robert Love <rml@tech9.net>
+To: yodaiken@fsmlabs.com
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
         george anzinger <george@mvista.com>, Momchil Velikov <velco@fadata.bg>,
         Arjan van de Ven <arjan@fenrus.demon.nl>,
         Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020121145438.B18422@hq.fsmlabs.com>
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <E16SgwP-0001iN-00@starship.berlin> <20020121090602.A13715@hq.fsmlabs.com> <E16ShcU-0001ip-00@starship.berlin> <20020121095051.B14139@hq.fsmlabs.com> <1011648179.850.473.camel@phantasy>
+In-Reply-To: <20020121144937.A18422@hq.fsmlabs.com>
+In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu>
+	<E16SgXE-0001i8-00@starship.berlin> <20020121084344.A13455@hq.fsmlabs.com>
+	<E16SgwP-0001iN-00@starship.berlin> <20020121090602.A13715@hq.fsmlabs.com>
+	<1011647882.8596.466.camel@phantasy>  <20020121144937.A18422@hq.fsmlabs.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 21 Jan 2002 17:01:45 -0500
+Message-Id: <1011650506.850.483.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <1011648179.850.473.camel@phantasy>; from rml@tech9.net on Mon, Jan 21, 2002 at 04:22:58PM -0500
-Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 21, 2002 at 04:22:58PM -0500, Robert Love wrote:
-> On Mon, 2002-01-21 at 11:50, yodaiken@fsmlabs.com wrote:
-> > On Mon, Jan 21, 2002 at 05:48:30PM +0100, Daniel Phillips wrote:
-> 
-> > > Consider a thread reading from disk in such a way that readahead is no help, 
-> > > i.e., perhaps the disk is fragmented.  At each step the IO thread schedules a 
-> > > read and sleeps until the read completes, then schedules the next one.  At 
-> > > the same time there is a hog in the kernel, or perhaps there is 
-> > > competition from other tasks using the kernel.  In any event, it will 
-> > > frequently transpire that at the time the disk IO completes there is somebody 
-> > > in the kernel.  Without preemption the IO thread has to wait until the kernel 
-> > > hog blocks, hits a scheduling point or exits the kernel.
+On Mon, 2002-01-21 at 16:49, yodaiken@fsmlabs.com wrote:
+
+> > (average of 4 runs of `dbench 16')
+> > 2.5.3-pre1:		25.7608 MB/s
+> > 2.5.3-pre1-preempt:	32.341 MB/s
 > > 
-> > 
-> > So your claim is that:
-> > 	Preemption improves latency when there are both kernel cpu bound
-> > 	tasks and tasks that are I/O bound with very low cache hit
-> > 	rates?
-> > 
-> > Is that it?
-> > 
-> > Can you give me an example of a CPU bound task that runs
-> > mostly in kernel? Doesn't that seem like a kernel bug?
-> 
-> It doesn't have to run mostly in the kernel.  It just has to be in the
-> kernel when the I/O-bound tasks awakes.  Further, there are plenty of
+> > (old, average of 4 runs of `dbench 16')
+> > 2.5.2-pre11:		24.5364 MB/s
+> > 2.5.2-pre11-preempt:	27.5192 MB/s
 
-How does that work? Won't the switch happen on exit from the kernel?
+> Robert, with all due respect, my tests of dbench show such high
+> variation that 4 miserable runs prove exactly nothing.
 
-> what we consider CPU-bound tasks that are interactive and/or
-> graphics-oriented and this adds much to their time in the kernel.
+Well you asked for dbench.  Would you prefer 10 runs each?  There were,
+however, no statistical anomalies and the variation was low enough such
+that I suspect I could construct a reasonable confidence interval from
+these 16 runs.
 
-I'm not sure what an "interactive and/or graphics-oriented" CPU bound
-task might be. Is there a definition?
+I've run these tests over and over again sufficiently that the
+repeatability of obtaining improved marks under a preemptive kernel is
+evident to me.
 
-> In a given period of time, a CPU bound task can run at any allotment
-> within it is given.  On the other hand, an I/O-bound task spends much
-> time blocked and thus can only run when I/O is available and it is
-> awake.  It is thus advantageous to schedule it within the bounds of the
-> I/O being available, and as tightly in those bounds as possible.  This
-> more fairly distributes scheduling to all tasks.  Same goes for RT
-> tasks, interactive tasks, etc.
+You can see very old (2.4.6) yet still positive results from Nigel, too:
+http://kpreempt.sourceforge.net.
 
-So you think of an "I/O bound task" as  "an I/O bound task that spends
-most of its timeblocked". Won't the latencies of such tasks already be
-pretty high? I'd think that better caching and read-ahead is the correct
-fix.
+I guess the point is, everyone argues preemption is detrimental to
+throughput.  I'm not going to argue that we aren't adding complexity,
+because clearly we are.  But now we have tests showing throughput is
+improved and people still argue.  I've seen the same behavior under
+bonnie, timing kernel compiles, etc ...
 
+> Did these even come on the same filesystem?
 
-> The result is faster wake-up-to-run and thus higher throughput.  I just
-> sent some dbench scores to correlate this.
-> 
-> > I still keep missing these reports. Can you help me here?
-> > (Obviously "my laptop seems more effervescent" is not what I'm looking
-> >  for.)
-> 
-> While we certainly need tangible empirical benefits, users finding their
-> desktop experience smoother and thus more enjoyable is just about the
-> best thing we can ask for.
+Yes, why would you suspect otherwise?
 
-It depends on what you want. 
-
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+	Robert Love
 

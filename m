@@ -1,48 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263245AbRFENF4>; Tue, 5 Jun 2001 09:05:56 -0400
+	id <S263246AbRFENH0>; Tue, 5 Jun 2001 09:07:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263246AbRFENFq>; Tue, 5 Jun 2001 09:05:46 -0400
-Received: from medusa.sparta.lu.se ([194.47.250.193]:16402 "EHLO
-	medusa.sparta.lu.se") by vger.kernel.org with ESMTP
-	id <S263245AbRFENFm>; Tue, 5 Jun 2001 09:05:42 -0400
-Date: Tue, 5 Jun 2001 13:50:48 +0200 (MET DST)
-From: Bjorn Wesen <bjorn@sparta.lu.se>
-To: johan.adolfsson@axis.com
-cc: Oleg Drokin <green@linuxhacker.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: USB requiring PCI
-In-Reply-To: <005c01c0ecf6$4343ca40$a1b270d5@homeip.net>
-Message-ID: <Pine.LNX.3.96.1010605134927.9033A-100000@medusa.sparta.lu.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263973AbRFENHQ>; Tue, 5 Jun 2001 09:07:16 -0400
+Received: from tangens.hometree.net ([212.34.181.34]:38037 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S263246AbRFENHI>; Tue, 5 Jun 2001 09:07:08 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
+Newsgroups: hometree.linux.kernel
+Subject: Re: TRG vger.timpanogas.org hacked
+Date: Tue, 5 Jun 2001 13:07:05 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <9filhp$hj$1@forge.intermeta.de>
+In-Reply-To: <20010604183642.A855@vger.timpanogas.org>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 991746425 9422 212.34.181.4 (5 Jun 2001 13:07:05 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Tue, 5 Jun 2001 13:07:05 +0000 (UTC)
+X-Copyright: (C) 1996-2001 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Jun 2001 johan.adolfsson@axis.com wrote:
-> I don't know the details of the implementation, but the CRIS port
-> (ETRAX 100LX) has support for USB but no PCI.
+"Jeff V. Merkey" <jmerkey@vger.timpanogas.org> writes:
 
-A builtin non-PCI USB-host controller, that is. And the driver is in the
-kernel so we do support it as well :) 
+>is curious as to how these folks did this.  They exploited BIND 8.2.3
 
-/BW
+Look below.
 
-> > > AC> o       Make USB require PCI                            (me)
-> > > Huh?!
-> > > How about people from StrongArm sa11x0 port, who have USB host
-> controller (in
-> > > sa1111 companion chip) but do not have PCI?
-> >
-> > The strongarm doesnt have a USB master but a slave.
-> >
-> > > Probably there are more such embedded architectures with USB
-> controllers,
-> > > but not PCI bus.
-> >
-> > Currently we don't support any of them.
-> >
-> > > How about ISA USB host controllers?
-> >
-> > They do not exist.
+>to get in and logs indicated that someone was using a "back door" in 
+>Novell's NetWare proxy caches to perform the attack (since several 
+>different servers were used as "blinds" to get in).  
 
+There is AFAIK no known exploit to BIND 8.2.3 and I don't see why
+anyone should use a "novell Netcache backdoor". If I'd want to hack
+your box, I would use this:
+
+% telnet vger.timpanogas.com 22     
+Trying 207.109.151.240...
+Connected to vger.timpanogas.com.
+Escape character is '^]'.
+SSH-1.5-1.2.27
+^]
+telnet> quit
+
+Well known exploits downloadable at any of the better hacking sites.
+
+>We are unable to determine just how they got in exactly, but they 
+>kept trying and created an oops in the affected code which allowed 
+>the attack to proceed.  
+
+Come on, you can't be _that_ blind. Either you didn't install all your
+vendor recommended updates or you installed self rolled programs and
+got caught.
+
+You even get connects on the telnet port (no daemon, though), so you
+either have a hosts.allow (which _is_ spoofable) or a non-cleaned up
+[x]inetd.conf which means you didn't harden your box for Internet
+usage.
+
+If you don't prepare your box for a hostile environment, you get
+hit. First law of the Internet.
+
+	Regards
+		Henning
+
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbULBULR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbULBUMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbULBULR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 15:11:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbULBULQ
+	id S261752AbULBUMt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 15:12:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbULBUMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 15:11:16 -0500
-Received: from mail1.skjellin.no ([80.239.42.67]:1159 "EHLO mx1.skjellin.no")
-	by vger.kernel.org with ESMTP id S261745AbULBULO (ORCPT
+	Thu, 2 Dec 2004 15:12:43 -0500
+Received: from fw.osdl.org ([65.172.181.6]:19338 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261749AbULBUMc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 15:11:14 -0500
-Message-ID: <41AF76E0.5050907@tomt.net>
-Date: Thu, 02 Dec 2004 21:11:12 +0100
-From: Andre Tomt <andre@tomt.net>
-User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: tglx@linutronix.de
-Cc: Andrew Morton <akpm@osdl.org>, andrea@suse.de,
-       marcelo.tosatti@cyclades.com, LKML <linux-kernel@vger.kernel.org>,
-       nickpiggin@yahoo.com.au
-Subject: Re: [PATCH] oom killer (Core)
-References: <20041201104820.1.patchmail@tglx>	 <20041201211638.GB4530@dualathlon.random>	 <1101938767.13353.62.camel@tglx.tec.linutronix.de>	 <20041202033619.GA32635@dualathlon.random>	 <1101985759.13353.102.camel@tglx.tec.linutronix.de>	 <1101995280.13353.124.camel@tglx.tec.linutronix.de>	 <20041202164725.GB32635@dualathlon.random>	 <20041202085518.58e0e8eb.akpm@osdl.org>	 <20041202180823.GD32635@dualathlon.random>	 <1102013716.13353.226.camel@tglx.tec.linutronix.de>	 <20041202110729.57deaf02.akpm@osdl.org>	 <1102014493.13353.239.camel@tglx.tec.linutronix.de>	 <20041202112208.34150647.akpm@osdl.org> <1102015450.13353.245.camel@tglx.tec.linutronix.de>
-In-Reply-To: <1102015450.13353.245.camel@tglx.tec.linutronix.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Dec 2004 15:12:32 -0500
+Date: Thu, 2 Dec 2004 12:12:28 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       James Morris <jmorris@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
+       Darrel Goeddel <dgoeddel@trustedcs.com>
+Subject: Re: [PATCH 4/6] Add dynamic context transition support to SELinux
+Message-ID: <20041202121228.F2357@build.pdx.osdl.net>
+References: <1102002189.26015.107.camel@moss-spartans.epoch.ncsc.mil> <20041202103456.O14339@build.pdx.osdl.net> <1102013788.26015.192.camel@moss-spartans.epoch.ncsc.mil> <20041202111859.A2357@build.pdx.osdl.net> <1102017022.26015.249.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1102017022.26015.249.camel@moss-spartans.epoch.ncsc.mil>; from sds@epoch.ncsc.mil on Thu, Dec 02, 2004 at 02:50:22PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner wrote:
-> On Thu, 2004-12-02 at 11:22 -0800, Andrew Morton wrote:
->>You can issue sysrq commands over serial consoles too.
+* Stephen Smalley (sds@epoch.ncsc.mil) wrote:
+> On Thu, 2004-12-02 at 14:18, Chris Wright wrote:
+> > No, I was thinking of actually tracking the threads, since you know when
+> > they come and go.  One way would be to share task_security_struct via
+> > refcnt for threads, although this could get sticky.
 > 
-> I know, but the console and the reset button are 150km away. When I dial
-> into the machine or try to connect via the network, I cannot connect
-> with the current kernels. Neither 2.4, because the fork fails, nor 2.6
-> because oom killed sshd. So I cannot send anything except a service man,
-> who drives 150km to hit sysrq-F or the reset button.
+> Hmm...that would be a significant change, and I'm not clear that the
+> existing security_task_alloc() hook even allows for it (no clone_flags
+> passed to it).  ptrace_sid could also be an issue for sharing.
 
-Get one of those terminal server/concentrators that export the serial 
-consoles over IP. Or one of those KVM-over-IP extenders. Worth every penny.
+True, guess that's filed under "sticky" ;-)
 
-[sorry thomas, forgot reply all first time aound, so you'll get a dupe.]
+> Note that the mm checking logic is already after one permission check
+> (setcurrent), which will only be allowed to the small set of privileged
+> processes that use this feature.  That acts as the gatekeeper for any
+> use of this feature, then the dyntransition check controls the possible
+> transitions among security contexts using this feature.  In the case of
+> exec-based transitions, the corresponding transition check is deferred
+> until the actual exec processing.  So even as it stands, arbitrary
+> processes aren't allowed to reach the code in question, which is better
+> than the [gs]etpriority cases.
+
+OK, I misread that any threaded app could write to /proc/self/attr/current
+and trigger that loop, only to fail the avc lookup.  Yes, now I see the
+PROCESS__SETCURRENT test, thanks.
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

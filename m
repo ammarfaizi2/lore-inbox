@@ -1,36 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268133AbUHKRjS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268131AbUHKRlv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268133AbUHKRjS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 13:39:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268135AbUHKRjS
+	id S268131AbUHKRlv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 13:41:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268134AbUHKRlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 13:39:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:47081 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268133AbUHKRjR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 13:39:17 -0400
-Date: Wed, 11 Aug 2004 13:39:13 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@dhcp83-102.boston.redhat.com
-To: "Konstantin G. Khlebnikov" <c00nst@ezmail.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [QUESTION] shift pages in mmap
-In-Reply-To: <875636570.20040811124415@ezmail.ru>
-Message-ID: <Pine.LNX.4.44.0408111339040.23161-100000@dhcp83-102.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 11 Aug 2004 13:41:51 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:56334 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S268131AbUHKRlt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 13:41:49 -0400
+Date: Wed, 11 Aug 2004 18:41:48 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ipw2100 wireless driver
+Message-ID: <20040811184148.A30660@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Tomas Szepe <szepe@pinerecords.com>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20040810101640.GF9034@atrey.karlin.mff.cuni.cz> <4119F203.1070009@linux.intel.com> <20040811114437.A27439@infradead.org> <411A478E.1080101@linux.intel.com> <20040811093043.522cc5a0@dell_ss3.pdx.osdl.net> <20040811163333.GE10100@louise.pinerecords.com> <20040811175105.A30188@infradead.org> <20040811170208.GG10100@louise.pinerecords.com> <20040811181142.A30309@infradead.org> <20040811172222.GI10100@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040811172222.GI10100@louise.pinerecords.com>; from szepe@pinerecords.com on Wed, Aug 11, 2004 at 07:22:22PM +0200
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Aug 2004, Konstantin G. Khlebnikov wrote:
+On Wed, Aug 11, 2004 at 07:22:22PM +0200, Tomas Szepe wrote:
+> And btw, mails to hch@infradead.org bounce.
 
->    how implement fast page alligned shift (cyclic rotate)
->    pages in anonymous mmap ?
-
-Do you mean mremap(2) ?
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+not for just about everyone else on the planet :)
 

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267280AbTAPVa1>; Thu, 16 Jan 2003 16:30:27 -0500
+	id <S267287AbTAPVjL>; Thu, 16 Jan 2003 16:39:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267282AbTAPVa1>; Thu, 16 Jan 2003 16:30:27 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:7113 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S267280AbTAPVa0>;
-	Thu, 16 Jan 2003 16:30:26 -0500
-Message-ID: <F760B14C9561B941B89469F59BA3A847137F76@orsmsx401.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: Michael Dreher <dreher@math.tu-freiberg.de>, linux-kernel@vger.kernel.org
-Cc: acpi-devel@lists.sourceforge.net
-Subject: RE: [ACPI] 2.5.58 hangs at boot 
-Date: Thu, 16 Jan 2003 13:38:52 -0800
+	id <S267285AbTAPVjK>; Thu, 16 Jan 2003 16:39:10 -0500
+Received: from delphin.mathe.tu-freiberg.de ([139.20.24.12]:56264 "EHLO
+	delphin.mathe.tu-freiberg.de") by vger.kernel.org with ESMTP
+	id <S267284AbTAPVjJ> convert rfc822-to-8bit; Thu, 16 Jan 2003 16:39:09 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Michael Dreher <dreher@math.tu-freiberg.de>
+To: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
+Subject: Re: hda has changed heads [solved]
+Date: Thu, 16 Jan 2003 22:49:13 +0100
+User-Agent: KMail/1.4.3
+References: <200301112249.11624.dreher@math.tu-freiberg.de> <200301162151.34206.dreher@math.tu-freiberg.de> <20030116212109.GB22359@win.tue.nl>
+In-Reply-To: <20030116212109.GB22359@win.tue.nl>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-content-class: urn:content-classes:message
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301162249.13124.dreher@math.tu-freiberg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Michael Dreher [mailto:dreher@math.tu-freiberg.de] 
-> 2.5.58 hangs during booting, at this place:
-> 
-> ......
-> BIO: pool of 256 setup, 15Kb (60 bytes/bio)
-> biovec pool[0]:   1 bvecs: 256 entries (12 bytes)
-> biovec pool[1]:   4 bvecs: 256 entries (48 bytes)
-> biovec pool[2]:  16 bvecs: 256 entries (192 bytes)
-> biovec pool[3]:  64 bvecs: 256 entries (768 bytes)
-> biovec pool[4]: 128 bvecs: 256 entries (1536 bytes)
-> biovec pool[5]: 256 bvecs: 256 entries (3072 bytes)
-> ACPI: Subsystem revision 20030109
-> 
-> 2.5.56 was working OK, except the usual usb problems.
+Am Donnerstag, 16. Januar 2003 22:21 schrieb Andries Brouwer:
+> On Thu, Jan 16, 2003 at 09:51:34PM +0100, Michael Dreher wrote:
 
-Hi Michael,
+> > My solution is: reboot into 2.5.50. run lilo there. reboot into
+> > 2.5.58. 
+> >
+> > This is annoying. Any ideas how to solve this ?
+>
+> You have not revealed your lilo version.
 
-Can you stick a printk in ev_sci_handler and see if that's being called
-repeatedly?
+The old version was 22.1. Now I have upgraded to 22.3.2, and it works:
 
-If not, then could you please narrow down where after the version
-printout things are getting hung up?
+karpfen:/home/dreher # lilo
+Warning: Kernel & BIOS return differing head/sector geometries for device 
+0x80
+    Kernel: 14120 cylinders, 16 heads, 63 sectors
+      BIOS: 1024 cylinders, 255 heads, 63 sectors
+Added testing *
+Added linux
+Added failsafe
+Added linux-2.5.56
+Added linux-2.5.50
+Added windows
 
-Thanks -- Regards -- Andy
+Very good. Thank you very much for your quick help.
+
+Michael
+

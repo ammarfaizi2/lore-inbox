@@ -1,91 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263347AbUCNMEr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 07:04:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263348AbUCNMEr
+	id S263348AbUCNMJC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 07:09:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263350AbUCNMJC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 07:04:47 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:63194 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id S263347AbUCNMEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 07:04:45 -0500
-Date: Sun, 14 Mar 2004 13:04:27 +0100 (MET)
-From: Arjen Verweij <A.Verweij2@ewi.tudelft.nl>
-Reply-To: a.verweij@student.tudelft.nl
-To: Craig Bradney <cbradney@zip.com.au>
-cc: Ross Dickson <ross@datscreative.com.au>,
-       "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
-       <linux-kernel@vger.kernel.org>, Jamie Lokier <jamie@shareable.org>,
-       Ian Kumlien <pomac@vapor.com>, Jesse Allen <the3dfxdude@hotmail.com>,
-       Daniel Drake <dan@reactivated.net>
-Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround
- instead of apic ack delay.
-In-Reply-To: <Pine.GHP.4.44.0403090007110.9764-100000@elektron.its.tudelft.nl>
-Message-ID: <Pine.GHP.4.44.0403141301390.29651-100000@elektron.its.tudelft.nl>
+	Sun, 14 Mar 2004 07:09:02 -0500
+Received: from [192.118.35.248] ([192.118.35.248]:10953 "EHLO ILEX2.IL.NDS.COM")
+	by vger.kernel.org with ESMTP id S263348AbUCNMJA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 07:09:00 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: 
+Date: Sun, 14 Mar 2004 14:08:57 +0200
+Message-ID: <31058754212B50469824909BE90A4CFBB6B995@ILEX2.IL.NDS.COM>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.1 and irq balancing
+Thread-Index: AcPZpG2hzJO47IlTQEeslKjRIvwu+AABm65gDASM8zA=
+From: "Ernst, Yehuda" <yernst@ndsisrael.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I added a section about Wake-on-LAN on my humble website. Most of you
-never seem to turn your boxes off, but maybe it could proof useful in the
-future.
-
-http://atlas.et.tudelft.nl/verwei90/nforce2/wol.html
-
-Regards,
-
-Arjen
-
-On Tue, 9 Mar 2004, Arjen Verweij wrote:
-
-> Yes, but for me the temp diff in Celsius between idle and load for the CPU
-> is almost 20 degrees. This has a dramatic impact on the case temperature
-> when it is closed because I haven't added fans in the top of the case yet.
->
-> So you see I value the disconnect quite a bit. Maybe when I get better
-> cooling I will disable it altogether in the BIOS so this headache will
-> disappear forever ;)
->
-> Arjen
->
-> On Mon, 8 Mar 2004, Craig Bradney wrote:
->
-> > Hi Arjen
-> >
-> > <snip>
-> >
-> > > So far I have seen this only once, and I don't know what causes it.
-> > >
-> > > Ross, I prefer using your old patch because it keeps my temperature within
-> > > reasonable bounds when the case is closed. Sorry.
-> > >
-> >
-> > <snip>
-> >
-> > I have put the idle=C1halt patch that Ross released a little while back
-> > now into Gentoo-dev-sources-2.6.3 as I reported to the list yesterday. I
-> > no longer use the old apic_tack=2 patch. I have been playing silly
-> > buggers with hardware, but so far the PC has made it to 11 hours and now
-> > 7 hours with no issues.
-> >
-> > After those 11 hours I decided I'd change the PC setup in here and
-> > disconnected a fan and a hard drive and moved my server s/w (apache etc)
-> > to this PC so I only have one in here fpr now.
-> >
-> > Right now, CPU is at 34C which is only 1-3C higher than with the other
-> > patch, including having one less fan sucking air out the back of the
-> > box. Motherboard is actually lower (27C) than before (29C). Ambient room
-> > temp is normal.
-> >
-> > After those 11 hours, I am quite sure that on normal use (ie not
-> > compiling) the motherboard and cpu was 1-2C lower than with apic_tack=2.
-> >
-> > regards
-> > Craig
-> >
->
->
-
+unsubscribe 
+***********************************************************************************
+Information contained in this email message is intended only for use of the individual or entity named above. If the reader of this message is not the intended recipient, or the employee or agent responsible to deliver it to the intended recipient, you are hereby notified that any dissemination, distribution or copying of this communication is strictly prohibited. If you have received this communication in error, please immediately notify the postmaster@ndsisrael.com and destroy the original message.
+***********************************************************************************

@@ -1,55 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262903AbUCKAIx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 19:08:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262907AbUCKAIx
+	id S262719AbUCKALy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 19:11:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262915AbUCKALy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 19:08:53 -0500
-Received: from ns2.len.rkcom.net ([80.148.32.9]:52374 "EHLO ns2.len.rkcom.net")
-	by vger.kernel.org with ESMTP id S262903AbUCKAIN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 19:08:13 -0500
-From: Florian Schanda <ma1flfs@bath.ac.uk>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.3/scsi: Unexpected busfree while idle
-Date: Thu, 11 Mar 2004 00:10:16 +0000
-User-Agent: KMail/1.6.1
+	Wed, 10 Mar 2004 19:11:54 -0500
+Received: from pop.gmx.de ([213.165.64.20]:20653 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262719AbUCKALt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 19:11:49 -0500
+X-Authenticated: #4512188
+Message-ID: <404FAECF.6080105@gmx.de>
+Date: Thu, 11 Mar 2004 01:11:59 +0100
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040216)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200403110010.21485.ma1flfs@bath.ac.uk>
+To: walt <wa1ter@myrealbox.com>
+CC: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] udev 021 release
+References: <fa.fkf6pbs.vk4328@ifi.uio.no> <fa.aj3o3v7.pgqn9l@ifi.uio.no> <404F9E5F.2010001@myrealbox.com>
+In-Reply-To: <404F9E5F.2010001@myrealbox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+walt wrote:
+> Prakash K. Cheemplavam wrote:
+> 
+>> walt wrote:
+>>
+>>> Prakash K. Cheemplavam wrote:
+>>>
+>>>> When I insert a zip the /dev for the partition doesn't get created 
+>>>> (ie hdd4, fdisk shows it though).
+>>>
+>>>
+>>>
+>>>
+>>> My Zips always show up as /dev/sda4 (scsi disks).
+>>
+>>
+>>
+>> Do you have SCSI support compiled in? For me it doesn't (I have no 
+>> SCSI support in, as well.) Are you using a USB ZIP? I have a ATAPI 
+>> ZIP, so it makes no sense appearing as a SCSI device.
+> 
+> 
+> Yes, I have SCSI support compiled into the kernel, and SCSI-disk as well.
+> If you have SCSI/SCSI-disk support compiled as modules they should be 
+> loaded
+> automatically.
+> 
+> As far as I know all Zip drives are SCSI devices disguised as parallel/USB/
+> IDE devices, but all required SCSI-disk support because that is what they
+> really are underneath the disguise.
+> 
+> Try it and see what happens.
 
-Hi all,
+Nope, I don't think so, because before udev with the evil devfs 
+/dev/hdd4 appeared...
 
-what does the following message mean (during scsi init at boot)?
+So, unless you have a ATAPI ZIp on your own, I won't bother trying SCSI.
 
-scsi0: Unexpected busfree while idle
-SEQADDR == 0x1
+bye,
 
-It appears each second or so, and the system can't move on. It only happens if 
-a specific drive is on the scsi bus.
-
-Does it mean that drive is broken?
-
-The scsi bios (during system bootup, before linux) detects all discs properly 
-(including this one), and in the scsi bios i can "veryfiy media" and it 
-doesn't complain.
-
-
-Thanks in advance,
-
-	Florian
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAT65rfCf8muQVS4cRAhi5AJ4oOQIrN2FkJs+3hWbNHvCFjnW2dACgkiqs
-nnJ7vQa0yDwvnnIWZJQiylw=
-=BJte
------END PGP SIGNATURE-----
+Prakash

@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313601AbSDPF0b>; Tue, 16 Apr 2002 01:26:31 -0400
+	id <S313603AbSDPFbt>; Tue, 16 Apr 2002 01:31:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313603AbSDPF0a>; Tue, 16 Apr 2002 01:26:30 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:22800 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S313601AbSDPF03>; Tue, 16 Apr 2002 01:26:29 -0400
-Date: Tue, 16 Apr 2002 01:22:35 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] for_each_zone / for_each_pgdat
-In-Reply-To: <20020416024458.H26561@dualathlon.random>
-Message-ID: <Pine.LNX.4.21.0204160117230.18902-100000@freak.distro.conectiva>
+	id <S313604AbSDPFbs>; Tue, 16 Apr 2002 01:31:48 -0400
+Received: from 66-224-32-37.atgi.net ([66.224.32.37]:53266 "EHLO sr71.net")
+	by vger.kernel.org with ESMTP id <S313603AbSDPFbr>;
+	Tue, 16 Apr 2002 01:31:47 -0400
+Message-ID: <3CBBB735.9050406@us.ibm.com>
+Date: Mon, 15 Apr 2002 22:31:33 -0700
+From: "David C. Hansen" <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020326
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@zip.com.au>
+CC: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: OOPS caused by ext2 changes
+In-Reply-To: <3CBB7B73.8090104@us.ibm.com> <3CBB9A15.E04FDA10@zip.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
+>Dave Hansen wrote:
+>
+>>Andrew Morton and I discused this earlier.  I have some more information
+>>now.  The problem: "dbench 64" run on a small (~120meg) partition with
+>>1k block sizes produces Oopses.
+>>
+>>This changeset:
+>>http://linus.bkbits.net:8080/linux-2.5/patch@1.248.2.6?nav=index.html|ChangeSet|cset@1.248.2.6
+>>is the culprit.  Without it applied, none of this happens.
+>>
+>However it seems that there's potential for a buffer reference
+>leak in ext2_get_branch:
+>
+>See, sb_bread() bumps b_count, but on the `goto changed;'
+>branch we lose track of that buffer.
+>
+>b_count is only 16 bits, so it's conceivable that the
+>count wraps to zero, and that is fatal.
+>
+>It would be interesting to replace that `goto changed;' 
+>with { __brelse(bh); goto changed; }.  Plus maybe a
+>debug printk to see if we are indeed hitting that path.
+>
+Well, I'm a little bit clearer about what's going on now.  I noticed 
+that verify_chain() is inline, and that is what is actually Oopsing. 
+ Any idea how we're getting 8 into edx?  
 
-On Tue, 16 Apr 2002, Andrea Arcangeli wrote:
+edx: 00000008
+Code;  c013dea4 <__brelse+4/20>   <=====
+   0:   8b 42 14                  mov    0x14(%edx),%eax   <=====
 
-> On Mon, Apr 15, 2002 at 04:20:58PM -0700, William Lee Irwin III wrote:
-> > I won't scream too loud, but I think it's pretty much done right as is.
-> 
-> Regardless if that's the cleaner implementation or not, I don't see
-> much the point of merging those cleanups in 2.4 right now: it won't
-> make any functional difference to users and it's only a self contained
-> code cleanup,
-
-Thats exactly why they can be merged easily: They are self contained code
-cleanups, as you said.
-
-> while other patches that make a runtime difference aren't merged yet.
-
-They aren't merged yet because they are intrusive and, in your case (-aa
-VM patches), they are not obviously correct and are hard to understand.
-
-We're making progress, though. The writeout scheduling changes (which were
-easy for me to understand) have been merged already.
-
+Is the Indirect array getting junk into it?
 

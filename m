@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310187AbSCPJDG>; Sat, 16 Mar 2002 04:03:06 -0500
+	id <S310190AbSCPJlX>; Sat, 16 Mar 2002 04:41:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310186AbSCPJCt>; Sat, 16 Mar 2002 04:02:49 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:48052 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S310178AbSCPJCg>;
-	Sat, 16 Mar 2002 04:02:36 -0500
-Date: Sat, 16 Mar 2002 04:02:35 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Paul Allen <allenp@nwlink.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Ext2 zeros inode in directory entry when deleting files.
-In-Reply-To: <3C93012F.9080601@nwlink.com>
-Message-ID: <Pine.GSO.4.21.0203160354130.4093-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S310191AbSCPJlO>; Sat, 16 Mar 2002 04:41:14 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:64014 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S310190AbSCPJlB>; Sat, 16 Mar 2002 04:41:01 -0500
+Date: Sat, 16 Mar 2002 04:40:53 -0500
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Anders Gustafsson <andersg@0x63.nu>, arjanv@redhat.com,
+        linux-kernel@vger.kernel.org, mochel@osdl.org
+Subject: Re: [PATCH] devexit fixes in i82092.c
+Message-ID: <20020316044053.A11660@devserv.devel.redhat.com>
+In-Reply-To: <3C92AD1F.30909@mandrakesoft.com> <Pine.LNX.4.33.0203152339200.31551-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0203152339200.31551-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Mar 15, 2002 at 11:40:30PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 16 Mar 2002, Paul Allen wrote:
-
-> While helping a friend recover from a catastrophic "rm -rf" accident,
-> I discovered that deleted files have the inode number in their old
-> directory entries zeroed.  This makes it impossible to match file
-> names with recovered files.  I've verified this behavior on Mandrake
-> 8.1 with Mandrake's stock 2.4.8 kernel.  In my kernel sources and
-> in the stock 2.4.8 sources, the function ext2_delete_entry() in
-> fs/ext2/dir.c has this line:
+On Fri, Mar 15, 2002 at 11:40:30PM -0800, Linus Torvalds wrote:
 > 
-> 	dir->inode = 0;
+> On Fri, 15 Mar 2002, Jeff Garzik wrote:
+> > 
+> > I wonder if mochel already code for this, or has thought about this... 
+> >  Just like suspend, IMO we ideally should use the device tree to 
+> > shutdown the system, agreed?
 > 
-> I've done some searching with Google for discussion of this feature.
+> Ideally we should, yes. Although if we really turn off power, it doesn't 
+> much matter.
 
-Try "A Fast Filesystem for UNIX(tm)", by McKusick et.al.
+It kind of does for warm reboots. I'm getting more and more reports that
+on warm reboot, the bios then can't boot again because we left some
+hardware (usually the scsi or ide controller) in a state the bios didn't expect.
+While I consider it a bios duty to reset the hw, using the device-tree for
+clean shutdown of hardware at least would allow us to make it work.
+
+> This is what I want. Those reboot/shutdown notifiers are completely and 
+> utterly buggy, and cannot sanely handle any kind of device hierarchy.
+
+Device owned notifiers could indeed go; the question is if
+non-device owned ones (the only purpose of those would
+probably cluster filesystems) should make a "fake" device or
+keep using the current mechanism.
+
+Greetings,
+  Arjan van de Ven
+
 

@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291193AbSBVB6M>; Thu, 21 Feb 2002 20:58:12 -0500
+	id <S291272AbSBVCO2>; Thu, 21 Feb 2002 21:14:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291204AbSBVB6C>; Thu, 21 Feb 2002 20:58:02 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:4317 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S291193AbSBVB5w>;
-	Thu, 21 Feb 2002 20:57:52 -0500
-Message-ID: <3C75B1E0.ADC9B488@vnet.ibm.com>
-Date: Thu, 21 Feb 2002 20:50:08 -0600
-From: Tom Gall <tom_gall@vnet.ibm.com>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2 ppc)
-X-Accept-Language: en
+	id <S291297AbSBVCOS>; Thu, 21 Feb 2002 21:14:18 -0500
+Received: from ginsberg.uol.com.br ([200.231.206.26]:61126 "EHLO
+	ginsberg.uol.com.br") by vger.kernel.org with ESMTP
+	id <S291272AbSBVCOM>; Thu, 21 Feb 2002 21:14:12 -0500
+Date: Thu, 21 Feb 2002 23:14:11 -0300 (BRT)
+From: Cesar Suga <sartre@linuxbr.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: HPT366: DMA errors?
+Message-ID: <Pine.LNX.4.40.0202212304240.438-100000@sartre.linuxbr.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: bug(?): SET_PERSONALITY 2.4.18-rc3
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+	Hello, all.
 
-While getting 2.4.18-rc[1|2] up and running on ppc64 the following bug
-surfaced. Least I think it's a bug. You be the judge. If it's not, we'd
-kinda like to know why not.
+	I am using an ABIT BP6 board (SMP, 2 Celerons at 366MHz, none
+overclocked, *very* stable) which uses the HPT366 controller. I am getting
+through these messages when using the *original* ATA cable (never touched
+before) or a replacement one:
 
-in fs/binfmt_elf.c I believe the following patch appears to be needed
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
 
-------8<----------8<--------------------
-diff -urN linuxppc64_2_4.bld-rc.borked/fs/binfmt_elf.c
-linuxppc64_2_4.bld-rc/fs/binfmt_elf.c
---- linuxppc64_2_4.bld-rc.borked/fs/binfmt_elf.c        Wed Feb 20
-13:32:56 2002
-+++ linuxppc64_2_4.bld-rc/fs/binfmt_elf.c       Thu Feb 21 17:27:04 2002
-@@ -568,6 +565,9 @@
-			// printk(KERN_WARNING "ELF: Ambiguous type, using ELF\n");
-			interpreter_type = INTERPRETER_ELF;
-		}
-+	} else {
-+		/* Executables without an interpreter also need a personality  */
-+		SET_PERSONALITY(elf_ex, ibcs2_interpreter);
-	}
+	(when the drive first fscks from a dirty reboot)
 
-	/* OK, we are done with that, now set up the arg stuff,
-----8<-------------8<------------------
+	And, in kernel messages, whilst doing hdparm -tT /dev/hde3:
 
-otherwise a static application would be run without SET_PERSONALITY
-being called, which On ppc64, very quickly leads to a bad day.
+->	invalidate: busy buffer
+	(from fs/buffer.c)
 
-Regards,
+	(yes, it is wrong to use hde3, but when I use hde, but whatever;
+using hda3 or hda did not matter when I used this *same* HDD with normal
+IDE cable (not using HPT366))
 
-Tom
+	I am not using *any* special features (untuned HDD), drive was set
+to DMA mode 4 at the HPT BIOS.
 
--- 
-Tom Gall - [embedded] [PPC64 | PPC32] Code Monkey
-Peace, Love &                  "Where's the ka-boom? There was
-Linux Technology Center         supposed to be an earth
-http://www.ibm.com/linux/ltc/   shattering ka-boom!"
-(w) tom_gall@vnet.ibm.com       -- Marvin Martian
-(w) 507-253-4558
-(h) tgall@rochcivictheatre.org
+	Any clues on this? I am using kernel 2.4.17, libc 2.2.4, hdparm
+4.1.
+
+	PS: For now, I'll use this HDD with the normal cables, as I fear
+corruption. (yes, the drive runs *perfectly* with the normal cables and
+not connected to the HPT366 IDE. It is a Seagate ST310211A HDD.)
+
+	Thanks,
+	Cesar Suga <sartre@linuxbr.com>
+

@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272369AbRH3Rp6>; Thu, 30 Aug 2001 13:45:58 -0400
+	id <S272371AbRH3Ruj>; Thu, 30 Aug 2001 13:50:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272370AbRH3Rps>; Thu, 30 Aug 2001 13:45:48 -0400
-Received: from age.cs.columbia.edu ([128.59.22.100]:51472 "EHLO
-	age.cs.columbia.edu") by vger.kernel.org with ESMTP
-	id <S272369AbRH3Rpl>; Thu, 30 Aug 2001 13:45:41 -0400
-Date: Thu, 30 Aug 2001 13:45:57 -0400 (EDT)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: <mike_phillips@urscorp.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <OF071248D9.F16220EF-ON85256AB8.0059A701@urscorp.com>
-Message-ID: <Pine.LNX.4.33.0108301345260.9230-100000@age.cs.columbia.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272372AbRH3Ru3>; Thu, 30 Aug 2001 13:50:29 -0400
+Received: from mclean.mail.mindspring.net ([207.69.200.57]:17157 "EHLO
+	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S272371AbRH3RuT>; Thu, 30 Aug 2001 13:50:19 -0400
+Subject: Re: Linux 2.4.9-ac4
+From: Robert Love <rml@tech9.net>
+To: Alan Cox <laughing@shared-source.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010830154637.A4570@lightning.swansea.linux.org.uk>
+In-Reply-To: <20010830154637.A4570@lightning.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
+Date: 30 Aug 2001 13:50:35 -0400
+Message-Id: <999193838.3255.3.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Aug 2001 mike_phillips@urscorp.com wrote:
+On Thu, 2001-08-30 at 10:46, Alan Cox wrote:
+> 2.4.9-ac4
+> <snip>
 
-> > So I have this number, -200, which is stored in an int. I have this 
-> other
-> > number, 200, which is stored in an unsigned char. Everybody in his right
-> > mind will agree that -200 is smaller than 200, the compiler will do just
-> > that, yet you disagree???
-> 
-> Now try doing that with an int and an unsigned int, you'll get 200, not 
-> -200.
+`make xconfig' fails on 2.4.9-ac4 with:
+drivers/video/Config.in: 359: unterminated 'if' condition
 
-You'll get a warning with -Wsign-compare, which is what the argument was 
-all about.
+...someone forgot a /.  following patch fixes it:
 
-Ion
+
+--- linux-2.4.9-ac4/drivers/video/Config.in	Thu Aug 30 13:22:04 2001
++++ linux/drivers/video/Config.in	Thu Aug 30 13:45:47 2001
+@@ -356,7 +356,7 @@
+ 	   "$CONFIG_FB_RIVA" = "y" -o "$CONFIG_FB_ATY128" = "y" -o \
+ 	   "$CONFIG_FB_FM2" = "y" -o "$CONFIG_FB_SGIVW" = "y" -o \
+ 	   "$CONFIG_FB_RADEON" = "y" -o "$CONFIG_FB_PVR2" = "y" -o \
+-	   "$CONFIG_FB_3DFX" = "y" -o "$CONFIG_FB_SIS" = "y" -o 
++	   "$CONFIG_FB_3DFX" = "y" -o "$CONFIG_FB_SIS" = "y" -o \
+ 	   "$CONFIG_FB_VOODOO1" = "y" ]; then
+ 	 define_tristate CONFIG_FBCON_CFB32 y
+       else
+
 
 -- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 

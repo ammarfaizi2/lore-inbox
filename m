@@ -1,77 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132870AbQLHVjp>; Fri, 8 Dec 2000 16:39:45 -0500
+	id <S132939AbQLHVmP>; Fri, 8 Dec 2000 16:42:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132954AbQLHVjZ>; Fri, 8 Dec 2000 16:39:25 -0500
-Received: from ip252.uni-com.net ([205.198.252.252]:26117 "HELO www.nondot.org")
-	by vger.kernel.org with SMTP id <S132870AbQLHVjT>;
-	Fri, 8 Dec 2000 16:39:19 -0500
-Date: Fri, 8 Dec 2000 17:10:47 -0600 (CST)
-From: Chris Lattner <sabre@nondot.org>
-To: linux-kernel@vger.kernel.org, orbit-list@gnome.org
-Cc: korbit-cvs@lists.sourceforge.net
-Subject: ANNOUNCE: Linux Kernel ORB: kORBit
-Message-ID: <Pine.LNX.4.21.0012081626140.7741-100000@www.nondot.org>
+	id <S132985AbQLHVmF>; Fri, 8 Dec 2000 16:42:05 -0500
+Received: from www.rccacm.org ([209.166.59.114]:1299 "EHLO www.rccacm.org")
+	by vger.kernel.org with ESMTP id <S132954AbQLHVlt>;
+	Fri, 8 Dec 2000 16:41:49 -0500
+Date: Fri, 8 Dec 2000 12:55:51 -0800 (PST)
+From: Bryan Whitehead <driver@rccacm.org>
+To: David Riley <oscar@the-rileys.net>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Disableing USB.
+In-Reply-To: <3A3037E9.6D5378A8@the-rileys.net>
+Message-ID: <Pine.LNX.4.21.0012081250481.27549-100000@www.rccacm.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Er... Well, the traditional solution has been "don't build it into your
+> kernel if you don't want it", but in the case of stock kernels, that
+> isn't always an option, I suppose.  Theoretically, the two devices
+> shouldn't step on each other, but this is a computer.  Theory is so far
+> removed from practice that it's... Well, I can't think up a good
+> analogy.  It's far.
+> 
+> *looks at kernel config options*
+> 
+> Well, it looks like the usb cores (UHCI and OHCI) can be modular.  Why
+> aren't they in the stock kernel, other than possibly autodetection
+> problems?  If they are built as modules, using expert mode in RedHat or
+> whatever equivalent may be in other dists may let you avoid insmodding
+> the USB stuff...
 
-This email is here to announce the availability of a port of ORBit (the
-GNOME ORB) to the Linux kernel.  This ORB, named kORBit, is available from
-our sourceforge web site (http://korbit.sourceforge.net/).  A kernel ORB
-allows you to write kernel extensions in CORBA and have the kernel call
-into them, or to call into the kernel through CORBA.  This opens the door
-to a wide range of experiments/hacks:
+Nope. Expert just means you'll be doing allot of stuff manually, Like
+partitioning, package selection, configureing X, and some net stuff. 
 
-* We can now write device drivers in perl, and let them run on the iMAC
-  across the hall from you. :)
-* Through the use of a LD_PRELOAD'd syscall wrapper library, you can
-  forward system calls through CORBA to an arbitrary local/remote machine.
-* CORBA servers are implemented as Linux kernel modules, so they may be
-  dynamically loaded or unloaded from a running system at any time.  CORBA
-  servers expose their IOR's through a /proc/corba filesystem.
-* Filesystems may be implemented as remote CORBA objects and mounted on
-  the local machine, by using 'mount -t corbafs -o IOR:... none /mnt/corba'
+> Beyond that, having a command-line disable feature does seem pretty
+> neat.  Although why would you want to disable procfs?  Maybe I missed
+> something there, but it seems awful darn important to leave out. :-)
 
-This are just some of the features available _RIGHT_NOW_ that are
-supported by kORBit.  I'm sure that YOU can think of many more.
-
-Implementation:
-We implemented this port by providing a user->kernel mapping layer that
-consists of providing standard system header files for the "user" code to
-#include.  In these header files, we do the mapping required.  For
-example, we implement a <stdio.h> that #defines printf to printk (as a
-trivial example).  Only user level code sees or uses these wrappers... all
-of our modifications to the Linux kernel are contained within the
-linux/net/korbit subdirectory.  
-
-This is currently implemented with a 2.4.0test10 kernel, although forward
-porting should be very easy.  This project was implemented as a cs423
-semester project by Chris Lattner, Fredrik Vraalsen, Andy Reitz, and Keith
-Wessel at the University of Illinois @ Urbana Champaign.
-
-Unresolved issues:
-* Our poll model is not optimial.  Currently we actually do a real poll on
-  a (struct socket *) set.  This causes relatively high latencies (on the
-  order 1 second, worst case) for CORBA requests.  Our waitqueues are not
-  working quite as well as they should.  :)
-* Security is completely unimplemented.  Someone could use corba
-  interfaces to read any file on your system, for example (if the
-  CORBA-FileServer module is installed).  Thus, this is really more for
-  prototyping and development than actual real world use. :)
-
-If you have any questions or comments, please feel free to contact us at:
-
-Chris Lattner, Fredrik Vraalsen, Andy Reitz, Keith Wessel
-<korbit-cvs@lists.sourceforge.net>
-
-btw, yes we are quite crazy, but what good is it to be normal and
-conformist afterall?  :)
+I was just using that as an example. Being able to disbale whatever part
+of the kernel you want might be really helpfull in many cases... Maybe
+procfs was a bad example... :P
 
 
-
+-- 
+---
+Bryan Whitehead
+Email: driver@rccacm.org
+WorkE: driver@jpl.nasa.gov
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

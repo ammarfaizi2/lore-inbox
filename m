@@ -1,270 +1,172 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261819AbVDEQ7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbVDEQ7s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261819AbVDEQ7t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 12:59:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261828AbVDEQuL
+	id S261823AbVDEQ7s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 12:59:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbVDEQ5o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 12:50:11 -0400
-Received: from mail.kroah.org ([69.55.234.183]:61849 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261815AbVDEQsi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 12:48:38 -0400
-Date: Tue, 5 Apr 2005 09:47:43 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: dhowells@redhat.com, pbadari@us.ibm.com
-Subject: [06/08] rwsem fix
-Message-ID: <20050405164743.GG17299@kroah.com>
-References: <20050405164539.GA17299@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050405164539.GA17299@kroah.com>
-User-Agent: Mutt/1.5.8i
+	Tue, 5 Apr 2005 12:57:44 -0400
+Received: from hades.almg.gov.br ([200.198.60.36]:44957 "EHLO
+	hades.almg.gov.br") by vger.kernel.org with ESMTP id S261823AbVDEQxM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 12:53:12 -0400
+Message-ID: <4252C27D.9060503@almg.gov.br>
+Date: Tue, 05 Apr 2005 13:53:17 -0300
+From: Humberto Massa <humberto.massa@almg.gov.br>
+User-Agent: Mozilla Thunderbird 1.0+ (Windows/20050224)
+MIME-Version: 1.0
+To: linux-os@analogic.com, debian-legal@lists.debian.org,
+       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear
+ copyright notice.
+References: <UwJpRC.A.8E.5erUCB@murphy>
+In-Reply-To: <UwJpRC.A.8E.5erUCB@murphy>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
+Richard B. Johnson wrote:
 
-------------------
+ >On Tue, 5 Apr 2005, Humberto Massa wrote:
+ >
+ >>Josselin Mouette wrote:
+ >>
+ >>>You are mixing apples and oranges. The fact that the GFDL sucks has
+ >>>nothing to do with the firmware issue. With the current situation of
+ >>>firmwares in the kernel, it is illegal to redistribute binary images
+ >>>of the kernel. Full stop. End of story. Bye bye. Redhat and SuSE may
+ >>>still be willing to distribute such binary images, but it isn't our
+ >>>problem.
+ >
+ >Wrong! It is perfectly legal in the United States, and I'm pretty sure
+ >in your country, to distribute or redistribute copyrighted works.
+ >Otherwise there wouldn't be any bookstores or newspaper stands.
 
-We should merge this backport - it's needed to prevent deadlocks when
-dio_complete() does up_read() from IRQ context.  And perhaps other places.
+Oops, you are missing important stuff here: the book publishers and the
+newspaper/magazine editors have EXPLICIT PERMISSION by the copyright
+holders to distribute the copyrighted works.
 
-From: David Howells <dhowells@redhat.com>
+Now, the bookstores and newspapers stands have IMPLICIT permission to
+distribute them because of the Doctrine of First Sale (roughly: if you
+buy a legally printed book you can sell the same book; you can sell your
+WinXP box with everything you bought inside).
 
-[PATCH] rwsem: Make rwsems use interrupt disabling spinlocks
+Other than the doctrine of First Sale, and, in the USofA, some cases
+covered by Fair Use, copyrighted works can only be distributed by their
+authors/owners (*) and by people explicitly authorized to do so.
 
-The attached patch makes read/write semaphores use interrupt disabling
-spinlocks in the slow path, thus rendering the up functions and trylock
-functions available for use in interrupt context.  This matches the
-regular semaphore behaviour.
+And, other than the Fair Use rights and similar statutory rights in
+other jurisdictions, only the authors/owners of copyrighted works have
+the right to create derivative works, too.
 
-I've assumed that the normal down functions must be called with interrupts
-enabled (since they might schedule), and used the irq-disabling spinlock
-variants that don't save the flags.
+(*) owners because copyrights can be transferred.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
-Tested-by: Badari Pulavarty <pbadari@us.ibm.com>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-Signed-off-by: Chris Wright <chrisw@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+ >There is nothing about firmware that is any different than any other
+ >component of a product. If the product was legally obtained and it
+ >requires firmware to run, then there are no special considerations
+ >about how one inserts the firmware into the product.
 
-diff -Nru a/lib/rwsem-spinlock.c b/lib/rwsem-spinlock.c
---- a/lib/rwsem-spinlock.c	2005-04-01 23:22:40 -08:00
-+++ b/lib/rwsem-spinlock.c	2005-04-01 23:22:40 -08:00
-@@ -140,12 +140,12 @@
- 
- 	rwsemtrace(sem, "Entering __down_read");
- 
--	spin_lock(&sem->wait_lock);
-+	spin_lock_irq(&sem->wait_lock);
- 
- 	if (sem->activity >= 0 && list_empty(&sem->wait_list)) {
- 		/* granted */
- 		sem->activity++;
--		spin_unlock(&sem->wait_lock);
-+		spin_unlock_irq(&sem->wait_lock);
- 		goto out;
- 	}
- 
-@@ -160,7 +160,7 @@
- 	list_add_tail(&waiter.list, &sem->wait_list);
- 
- 	/* we don't need to touch the semaphore struct anymore */
--	spin_unlock(&sem->wait_lock);
-+	spin_unlock_irq(&sem->wait_lock);
- 
- 	/* wait to be given the lock */
- 	for (;;) {
-@@ -181,10 +181,12 @@
-  */
- int fastcall __down_read_trylock(struct rw_semaphore *sem)
- {
-+	unsigned long flags;
- 	int ret = 0;
-+
- 	rwsemtrace(sem, "Entering __down_read_trylock");
- 
--	spin_lock(&sem->wait_lock);
-+	spin_lock_irqsave(&sem->wait_lock, flags);
- 
- 	if (sem->activity >= 0 && list_empty(&sem->wait_list)) {
- 		/* granted */
-@@ -192,7 +194,7 @@
- 		ret = 1;
- 	}
- 
--	spin_unlock(&sem->wait_lock);
-+	spin_unlock_irqrestore(&sem->wait_lock, flags);
- 
- 	rwsemtrace(sem, "Leaving __down_read_trylock");
- 	return ret;
-@@ -209,12 +211,12 @@
- 
- 	rwsemtrace(sem, "Entering __down_write");
- 
--	spin_lock(&sem->wait_lock);
-+	spin_lock_irq(&sem->wait_lock);
- 
- 	if (sem->activity == 0 && list_empty(&sem->wait_list)) {
- 		/* granted */
- 		sem->activity = -1;
--		spin_unlock(&sem->wait_lock);
-+		spin_unlock_irq(&sem->wait_lock);
- 		goto out;
- 	}
- 
-@@ -229,7 +231,7 @@
- 	list_add_tail(&waiter.list, &sem->wait_list);
- 
- 	/* we don't need to touch the semaphore struct anymore */
--	spin_unlock(&sem->wait_lock);
-+	spin_unlock_irq(&sem->wait_lock);
- 
- 	/* wait to be given the lock */
- 	for (;;) {
-@@ -250,10 +252,12 @@
-  */
- int fastcall __down_write_trylock(struct rw_semaphore *sem)
- {
-+	unsigned long flags;
- 	int ret = 0;
-+
- 	rwsemtrace(sem, "Entering __down_write_trylock");
- 
--	spin_lock(&sem->wait_lock);
-+	spin_lock_irqsave(&sem->wait_lock, flags);
- 
- 	if (sem->activity == 0 && list_empty(&sem->wait_list)) {
- 		/* granted */
-@@ -261,7 +265,7 @@
- 		ret = 1;
- 	}
- 
--	spin_unlock(&sem->wait_lock);
-+	spin_unlock_irqrestore(&sem->wait_lock, flags);
- 
- 	rwsemtrace(sem, "Leaving __down_write_trylock");
- 	return ret;
-@@ -272,14 +276,16 @@
-  */
- void fastcall __up_read(struct rw_semaphore *sem)
- {
-+	unsigned long flags;
-+
- 	rwsemtrace(sem, "Entering __up_read");
- 
--	spin_lock(&sem->wait_lock);
-+	spin_lock_irqsave(&sem->wait_lock, flags);
- 
- 	if (--sem->activity == 0 && !list_empty(&sem->wait_list))
- 		sem = __rwsem_wake_one_writer(sem);
- 
--	spin_unlock(&sem->wait_lock);
-+	spin_unlock_irqrestore(&sem->wait_lock, flags);
- 
- 	rwsemtrace(sem, "Leaving __up_read");
- }
-@@ -289,15 +295,17 @@
-  */
- void fastcall __up_write(struct rw_semaphore *sem)
- {
-+	unsigned long flags;
-+
- 	rwsemtrace(sem, "Entering __up_write");
- 
--	spin_lock(&sem->wait_lock);
-+	spin_lock_irqsave(&sem->wait_lock, flags);
- 
- 	sem->activity = 0;
- 	if (!list_empty(&sem->wait_list))
- 		sem = __rwsem_do_wake(sem, 1);
- 
--	spin_unlock(&sem->wait_lock);
-+	spin_unlock_irqrestore(&sem->wait_lock, flags);
- 
- 	rwsemtrace(sem, "Leaving __up_write");
- }
-@@ -308,15 +316,17 @@
-  */
- void fastcall __downgrade_write(struct rw_semaphore *sem)
- {
-+	unsigned long flags;
-+
- 	rwsemtrace(sem, "Entering __downgrade_write");
- 
--	spin_lock(&sem->wait_lock);
-+	spin_lock_irqsave(&sem->wait_lock, flags);
- 
- 	sem->activity = 1;
- 	if (!list_empty(&sem->wait_list))
- 		sem = __rwsem_do_wake(sem, 0);
- 
--	spin_unlock(&sem->wait_lock);
-+	spin_unlock_irqrestore(&sem->wait_lock, flags);
- 
- 	rwsemtrace(sem, "Leaving __downgrade_write");
- }
-diff -Nru a/lib/rwsem.c b/lib/rwsem.c
---- a/lib/rwsem.c	2005-04-01 23:22:40 -08:00
-+++ b/lib/rwsem.c	2005-04-01 23:22:40 -08:00
-@@ -150,7 +150,7 @@
- 	set_task_state(tsk, TASK_UNINTERRUPTIBLE);
- 
- 	/* set up my own style of waitqueue */
--	spin_lock(&sem->wait_lock);
-+	spin_lock_irq(&sem->wait_lock);
- 	waiter->task = tsk;
- 	get_task_struct(tsk);
- 
-@@ -163,7 +163,7 @@
- 	if (!(count & RWSEM_ACTIVE_MASK))
- 		sem = __rwsem_do_wake(sem, 0);
- 
--	spin_unlock(&sem->wait_lock);
-+	spin_unlock_irq(&sem->wait_lock);
- 
- 	/* wait to be given the lock */
- 	for (;;) {
-@@ -219,15 +219,17 @@
-  */
- struct rw_semaphore fastcall *rwsem_wake(struct rw_semaphore *sem)
- {
-+	unsigned long flags;
-+
- 	rwsemtrace(sem, "Entering rwsem_wake");
- 
--	spin_lock(&sem->wait_lock);
-+	spin_lock_irqsave(&sem->wait_lock, flags);
- 
- 	/* do nothing if list empty */
- 	if (!list_empty(&sem->wait_list))
- 		sem = __rwsem_do_wake(sem, 0);
- 
--	spin_unlock(&sem->wait_lock);
-+	spin_unlock_irqrestore(&sem->wait_lock, flags);
- 
- 	rwsemtrace(sem, "Leaving rwsem_wake");
- 
-@@ -241,15 +243,17 @@
-  */
- struct rw_semaphore fastcall *rwsem_downgrade_wake(struct rw_semaphore *sem)
- {
-+	unsigned long flags;
-+
- 	rwsemtrace(sem, "Entering rwsem_downgrade_wake");
- 
--	spin_lock(&sem->wait_lock);
-+	spin_lock_irqsave(&sem->wait_lock, flags);
- 
- 	/* do nothing if list empty */
- 	if (!list_empty(&sem->wait_list))
- 		sem = __rwsem_do_wake(sem, 1);
- 
--	spin_unlock(&sem->wait_lock);
-+	spin_unlock_irqrestore(&sem->wait_lock, flags);
- 
- 	rwsemtrace(sem, "Leaving rwsem_downgrade_wake");
- 	return sem;
+Except for the fact that there may be EULA clauses in the firmware that
+came with the product, or in the software that came with the product and
+is (in that other OS) in charge of loading said firmware.
+
+And the fact that software is covered by different laws in different
+countries, too.
+
+ >If you are a GPL-religious-zealot who believes that you are supposed to
+ >get the technical design (i.e. the software schematics) of the hardware
+ >device for free so you can copy it, then you are going to have to learn
+ >something about intellectual property.
+
+I am not. And please don't use those words. Copyrights, trademarks,
+patents and trade secrets are limited rights, not properties.
+
+ >The firmware, in most cases, are the bits generated by a design program
+ >that creates the function of the device. It's what the manufacturer
+ >paid 5-10 engineers over a period of a year or so to produce. The rest
+ >of the design is just some chips you can get off-the-shelf. Even if the
+ >manufacturer said; "Here you are.... You can have the design....". You
+ >don't have the "compilers" and other stuff necessary to turn this
+ >design into the firmware unless you planned to steal the design.
+
+This makes a lot of sense.
+
+ >So, you either accept the firmware component, thanking the manufacturer
+ >for it, or you go cry foul someplace else.
+
+Right on, sister.
+
+ >This whole firmware thing is a non-issue, blown way out of proportion
+ >by people who don't have a clue.
+
+Naah, there is some serious issues here. Read on for more.
+
+ >Sometimes a manufacturer doesn't have a separate bag-of-bits to supply
+ >competing operating systems. Instead, only one "driver" for one OS was
+ >produced by the manufacturer.  Extracting those bits, from offset-N to
+ >offset-M in that driver likely constitutes fair use as long as the
+ >product wasn't stolen and the driver was distributed with the product,
+ >or was publicly available.
+
+You are not 100% right on this. Let's see: first, "fair use" is a
+doctrine that is not widespread in non-USofA jurisdictions; second,
+extracting those bits constitutes creating a derivative work, which is
+not allowed without explicit consent of the copyright owner; and third,
+you would have to get a judge to consider this fair use to be on the
+safe side, ie -- not really practical.
+
+Even if you were 100% right on this, neither kernel.org nor debian.org
+would have the right to redistribute said firmware without explicit
+consent of the copyright owner. It would be completely free (even
+DFSG-free) if d-i or some other kernel installer asked for the diskette
+that came with the user's device and extracted the bits in the moment of
+the extraction... but it would not be very practical, would it?  It
+would be better if your install could be done without such hoops.
+
+Even in the case that the copyright owner gave explicit consent for,
+say, kernel.org to redistribute its firmware (or even gave consent for
+Debian to redistribute its firmware) the firmware could not be in
+debian/main because this would not be DFSG-free.
+
+ >>Yes, GFDL has nothing to do with the main issue. No, it is not
+ >>necessarily illegal to redistribute binary images of the kernel as
+ >>they are today (see below). The first problem is that they (the
+ >>complete w/firmware kernel binary images) are not DFSG-free, anyway.
+ >>The second problem is that some firmware blobs don't have explicitly
+ >>stated in the kernel tree which exactly are their licensing terms for
+ >>redistribution -- those are, in principle, undistributable.
+ >>
+ >>>Putting the firmwares outside the kernel makes them distributable.
+ >>>Some distributions will want to include them, some others not. But
+ >>>the important point is that it makes that redistribution legal.
+ >>>
+ >>>
+ >>If putting the firmwares outside the kernel makes *them*
+ >>distributable, then the binary kernel image is already distributable
+ >>-- just not DFSG-free. The important fact WRT Debian, IMHO, is that
+ >>putting the firmwares outside the kernel makes the kernel binary image
+ >>DFSG-free.
+ >>
+ >>HTH, Massa
+ >
+ >
+ >
+ >Cheers, Dick Johnson Penguin : Linux version 2.6.11 on an i686 machine
+ >(5537.79 BogoMips).  Notice : All mail here is now cached for review by
+ >Dictator Bush.  98.36% of all statistics are fiction.
+ >
+
+Just so you know I'm not really talking out of my rear end, IANAL, but I
+have four years of legal training, and I have worked two years as a
+paralegal in a DA's office, and I am married to a DA (married for eight
+years, she is a DA for eleven years) whom I ask some legal insight from
+time to time. Yes, I know how to do legal research. Ok, my jurisdiction
+is not the same as yours [our laws are generally saner :-) even if our
+law enforcement is often not].
+
+HTH,
+
+Massa
+
+
 

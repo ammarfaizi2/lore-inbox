@@ -1,89 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263464AbTKYXRU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 18:17:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbTKYXRT
+	id S263299AbTKYXM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 18:12:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263408AbTKYXM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 18:17:19 -0500
-Received: from natsmtp01.rzone.de ([81.169.145.166]:36572 "EHLO
-	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S263464AbTKYXRR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 18:17:17 -0500
-Message-ID: <3FC3E2F4.4080809@softhome.net>
-Date: Wed, 26 Nov 2003 00:17:08 +0100
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2/2.4/2.6 VMs: do malloc() ever return NULL?
-References: <3FC358B5.3000501@softhome.net> <Pine.LNX.4.53.0311251510310.6584@chaos>
-In-Reply-To: <Pine.LNX.4.53.0311251510310.6584@chaos>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Nov 2003 18:12:58 -0500
+Received: from tolkor.sgi.com ([198.149.18.6]:43243 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id S263299AbTKYXM5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 18:12:57 -0500
+Date: Tue, 25 Nov 2003 17:11:08 -0600
+From: Jack Steiner <steiner@sgi.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: Jes Sorensen <jes@trained-monkey.org>, Alexander Viro <viro@math.psu.edu>,
+       Andrew Morton <akpm@osdl.org>,
+       "William Lee Irwin, III" <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org, jbarnes@sgi.com
+Subject: Re: hash table sizes
+Message-ID: <20031125231108.GA5675@sgi.com>
+References: <16323.23221.835676.999857@gargle.gargle.HOWL> <20031125204814.GA19397@sgi.com> <20031125211611.GE26811@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031125211611.GE26811@krispykreme>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
+On Wed, Nov 26, 2003 at 08:16:11AM +1100, Anton Blanchard wrote:
+>  
+> Hi,
 > 
-> As documented, malloc() will never fail as long as there
-> is still address space (not memory) available. This is
-> the required nature of the over-commit strategy. This is
-> necessary because many programs never even touch all the
-> memory they allocate.
+> > Some architectures (IA64, for example) dont have severe limitations on
+> > usage of vmalloc space. Would it make sense to use vmalloc on these
+> > architectures. Even if the max size of the structures being allocated
+> > is limited to an acceptible size, it still concentrates the memory on
+> > a single node. 
 > 
+> The kernel region on many architectures is mapped with large pages, we
+> would lose that by going to vmalloc.
+> 
+> Anton
 
-   We are reading different mans? My man malloc(3) clearly states that 
-malloc() can return NULL. (*)
 
-   May I ask you one question? Did you were ever doing once graceful
-failure of application under memory pressure? Looks like not.
+That was a concern to me too. However, on IA64, all page structs are
+in the vmalloc region (it isnt allocated by vmalloc but is in the
+same region as vmalloc'ed pages. They are mapped with 16k pages instead of the 64MB 
+pages used for memory allocated by kmalloc).
 
-   I can guess why sendmail allocates memory it never touches - memory
-pools. There are situations where you really cannot fail - and memory
-allocation failures are really nasty. Do you wanna to lose your e-mails? 
-No? So then think twice, while implementing lazy allocators.
+Before switching to 16K pages for the page structs, we made numerous performance
+measurements. As far as we could tell, there was no performce degradation
+caused by the smaller pages. It seems to me that if page structs are ok 
+being mapped by 16k pages, the hash tables would be ok too. 
 
-   So from my tests I see that by default Linux is not safe. You allocate
-memory - malloc() != NULL. Then later you try to write to this memory
-and you get killed by oom_killer. What is the point of this? Your
-reasoning doesn't sound to me.
 
-   Memory pools used by applications exactly to make grace error
-handling under memory pressure - but it looks like this stuff under
-Linux gets no testing at all. And default settings could make from
-simple bug complete disaster.
-
- > You can turn OFF over-commit by doing:
- >
- > echo "2" >proc/sys/vm/overcommit_memory
- >
- > However, you will probably find that many programs fail
- > or seg-fault when normally they wouldn't. So, if you don't
- > mind restarting sendmail occasionally, then turn off over-commit.
- >
-
-   I shall try overcommit_memory == 2 tomorrow and say what I see.
-
-P.S. For example application I have ported right now to kernel space has
-a limitiation - it must never ever allocate memory: memory consumption
-is known, protocol just have no situation like ENOMEM - it _must_ fail
-to initialize on start-up. No - not to being killed by oom_killer in
-middle of processing. think carrier grade and/or just good programming
-technics.
-
-(*) Great optimization opportunities: remove from all programmes checks 
-of the return value if malloc(). As by your words - why not?
 
 -- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
---                                                           _ _ _
-  Because the kernel depends on it existing. "init"          |_|*|_|
-  literally _is_ special from a kernel standpoint,           |_|_|*|
-  because its' the "reaper of zombies" (and, may I add,      |*|*|*|
-  that would be a great name for a rock band).
-                                 -- Linus Torvalds
+Thanks
+
+Jack Steiner (steiner@sgi.com)          651-683-5302
+Principal Engineer                      SGI - Silicon Graphics, Inc.
 
 

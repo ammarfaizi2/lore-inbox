@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273147AbRIPXNn>; Sun, 16 Sep 2001 19:13:43 -0400
+	id <S273229AbRIPXTZ>; Sun, 16 Sep 2001 19:19:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273210AbRIPXNY>; Sun, 16 Sep 2001 19:13:24 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:50958 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S273147AbRIPXNE>;
-	Sun, 16 Sep 2001 19:13:04 -0400
-Date: Mon, 17 Sep 2001 01:13:23 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>, arjanv@redhat.com,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: [patch] block highmem zero bounce v14
-Message-ID: <20010917011323.B12955@suse.de>
-In-Reply-To: <20010917000012.B12270@suse.de> <E15il3t-00061s-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15il3t-00061s-00@the-village.bc.nu>
+	id <S273228AbRIPXTQ>; Sun, 16 Sep 2001 19:19:16 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:56590 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S273210AbRIPXTA>;
+	Sun, 16 Sep 2001 19:19:00 -0400
+Date: Mon, 17 Sep 2001 01:16:56 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Andreas Dilger <adilger@turbolabs.com>
+Cc: <linux-raid@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] multipath RAID personality, 2.4.10-pre9
+In-Reply-To: <20010916150806.E1541@turbolinux.com>
+Message-ID: <Pine.LNX.4.33.0109170113010.3960-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 17 2001, Alan Cox wrote:
-> > Most of it is really a cautious back port of the 2.5 stuff I've been
-> > working on, and with the above considerations it is/was meant as a 2.4
-> > thing :-)
-> 
-> So better deferred until 2.5, tried in 2.5 and backported to 2.4 IMHO
 
-Maybe. At least the first thing I would like is for the pci64 patch to
-be merged in 2.4. That should be very doable without risking breakage.
-When that is done it's easier to see what the block-highmem patch does.
-And I believe that we _can_ merge it in 2.4 without a 2.5 trial, it's
-really not that intrusive.
+On Sun, 16 Sep 2001, Andreas Dilger wrote:
 
--- 
-Jens Axboe
+> I'm not sure I understand why this is here? [...]
+
+(it's mostly an outdated and incorrect comment.)
+
+> If we are talking about a multipath situation, there IS only a single
+> disk, so which path is chosen is mostly irrelevant. [...]
+
+yes, but not necesserily so. If there is a physically redundant topology
+of connections that are otherwise equivalent (the majority of today's
+solution are not in this category), then it might make sense to 'load
+balance' between available paths. We are prepared to do this,
+architecturally.
+
+> [...] Also, it is my understanding that with some multipath hardware,
+> if you read from the "backup" path it will kill access to the primary
+> path (this can be used when more than one system access shared disk
+> for failover).  As a result, we should always read from the "primary"
+> path for each disk unless there is an error.
+
+yes, and this is being done currently, only the primary path is used.
+
+	Ingo
 

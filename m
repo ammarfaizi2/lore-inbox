@@ -1,74 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264810AbUEKQKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264813AbUEKQNn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264810AbUEKQKk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 12:10:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264811AbUEKQKk
+	id S264813AbUEKQNn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 12:13:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264816AbUEKQNn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 12:10:40 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40350 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264810AbUEKQKa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 12:10:30 -0400
-Message-ID: <40A0FAE9.90900@pobox.com>
-Date: Tue, 11 May 2004 12:10:17 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Tue, 11 May 2004 12:13:43 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:61156 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S264813AbUEKQNl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 12:13:41 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] fix init_idle() locking problem
+Date: Tue, 11 May 2004 10:13:38 -0600
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <200405101032.18508.bjorn.helgaas@hp.com> <20040511093913.GA17185@elte.hu>
+In-Reply-To: <20040511093913.GA17185@elte.hu>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Kurt Garloff <garloff@suse.de>,
-       Linux SCSI list <linux-scsi@vger.kernel.org>,
-       Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Format Unit can take many hours
-References: <20040511114936.GI4828@tpkurt.garloff.de> <20040511122037.GG1906@suse.de>
-In-Reply-To: <20040511122037.GG1906@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405111013.39122.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Tue, May 11 2004, Kurt Garloff wrote:
+On Tuesday 11 May 2004 3:39 am, Ingo Molnar wrote:
+> * Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+> > init_idle() removes "idle" from its runqueue, but there's a window
+> > between looking up the runqueue and locking it, where another CPU can
+> > move "idle" to a different runqueue, i.e., via load_balance().
 > 
->>Hi,
->>
->>the timeout for FORMAT_UNIT should be much longer; I've seen 8hrs
->>already (75Gig). I've increased the timeout from 2hrs to 12hrs.
->>
->>Regards,
->>-- 
->>Kurt Garloff  <garloff@suse.de>                            Cologne, DE 
->>SUSE LINUX AG, Nuernberg, DE                          SUSE Labs (Head)
-> 
-> 
->>--- linux-2.6.5.orig/drivers/scsi/scsi_ioctl.c	2004-04-04 05:38:20.000000000 +0200
->>+++ linux-2.6.5/drivers/scsi/scsi_ioctl.c	2004-05-11 08:59:12.837421215 +0200
->>@@ -26,12 +26,12 @@
->> #include "scsi_logging.h"
->> 
->> #define NORMAL_RETRIES			5
->>-#define IOCTL_NORMAL_TIMEOUT			(10 * HZ)
->>-#define FORMAT_UNIT_TIMEOUT		(2 * 60 * 60 * HZ)
->>+#define IOCTL_NORMAL_TIMEOUT		(10 * HZ)
->>+#define FORMAT_UNIT_TIMEOUT		(12 * 60 * 60 * HZ)
->> #define START_STOP_TIMEOUT		(60 * HZ)
->> #define MOVE_MEDIUM_TIMEOUT		(5 * 60 * HZ)
->> #define READ_ELEMENT_STATUS_TIMEOUT	(5 * 60 * HZ)
->>-#define READ_DEFECT_DATA_TIMEOUT	(60 * HZ )  /* ZIP-250 on parallel port takes as long! */
->>+#define READ_DEFECT_DATA_TIMEOUT	(60 * HZ)  /* ZIP-250 on parallel port takes as long! */
->> 
->> #define MAX_BUF PAGE_SIZE
-> 
-> 
-> block/scsi_ioctl.c should likely receive similar treatment then.
+> the sched-domains patches that are now in BK solve this problem in a
+> cleaner way: the rule is that no cross-CPU balancing is allowed until
+> all CPUs have booted up.
 
+Thanks for fixing this the right way.  I'll try it out in the next couple
+days.  Nice coincidence that all the sched-domains stuff went in the
+same day :-)
 
-This timeout is dependent on media size, I should think...
+> [ btw., your patch does not seem to be correct anyway - if an online CPU
+> 'steals' the new idle task then it will also most likely run it - and
+> that is disastrous for any CLONE_IDLETASK task. (e.g. on x86 the EIP has
+> random content, most likely crashing that CPU.) ]
 
-Is there any reason to think that this timeout will _not_ be continually 
-patched in the future, as larger and larger sizes are used?
+I'm sure my patch wasn't complete, but it did address something
+that still looks strange to me.  The current code is:
 
-	Jeff
+	void __init init_idle(task_t *idle, int cpu)
+	{
+	        runqueue_t *idle_rq = cpu_rq(cpu), *rq = cpu_rq(task_cpu(idle));
+	        unsigned long flags;
 
+	        local_irq_save(flags);
+	        double_rq_lock(idle_rq, rq);
 
+	        idle_rq->curr = idle_rq->idle = idle;
 
+The fact that we look up the runqueue, lock it, and use it without
+rechecking that we got the correct one certainly is suspicious at
+the micro point of view.
+
+But, if you say this window is not a problem anymore because of the
+larger design, I'll take your word for it.
+
+Bjorn

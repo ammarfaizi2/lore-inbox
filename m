@@ -1,107 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287896AbSABSvA>; Wed, 2 Jan 2002 13:51:00 -0500
+	id <S287897AbSABS5a>; Wed, 2 Jan 2002 13:57:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287897AbSABSuu>; Wed, 2 Jan 2002 13:50:50 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:39178
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S287896AbSABSud>; Wed, 2 Jan 2002 13:50:33 -0500
-Date: Wed, 2 Jan 2002 10:48:00 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Flavio Stanchina <flavio.stanchina@tin.it>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ide.2.4.16.12102001.patch: please provide help for new config
- options
-In-Reply-To: <20020102122032.MFVM3377.fep43-svc.tin.it@there>
-Message-ID: <Pine.LNX.4.10.10201020926230.10050-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S287900AbSABS5U>; Wed, 2 Jan 2002 13:57:20 -0500
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:22402 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S287897AbSABS5L>; Wed, 2 Jan 2002 13:57:11 -0500
+Date: Wed, 02 Jan 2002 10:55:42 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] Re: highmem and usb [was
+ "sr: unaligned transfer" in 2.5.2-pre1]
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+        Matthew Dharm <mdharm@one-eyed-alien.net>, Greg KH <greg@kroah.com>
+Message-id: <07e501c193bf$14cb7800$6800000a@brownell.org>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+X-Priority: 3
+X-MSMail-priority: Normal
+In-Reply-To: <m23d1trr4w.fsf@pengo.localdomain> <20011230122756.L1821@suse.de>
+ <20011230212700.B652@one-eyed-alien.net> <20011231125157.D1246@suse.de>
+ <20011231145455.C6465@one-eyed-alien.net>
+ <065e01c192fd$fe066e20$6800000a@brownell.org> <20020101233423.I16092@suse.de>
+ <06c801c1934e$1fc01a20$6800000a@brownell.org> <20020102103252.B28530@suse.de>
+ <07c401c193bc$90ad5d60$6800000a@brownell.org> <20020102194404.A482@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jan 2002, Flavio Stanchina wrote:
-
-> Andre,
-> I downloaded the ide.2.4.16.12102001.patch from linuxdiskcert.org and I 
-> applied it to 2.4.17. Compiles fine, but now I'm looking for documentation 
-> and there doesn't seem to be any on linuxdiskcert.org. Could you provide 
-> us with basic help text for the following new configuration options?
+> > OK, I think I'm clear on this much then:  in 2.5, to support block drivers
+> > over USB (usb-storage only, for now) there needs to be an addition to
+> > the buffer addressing model in usbcore, as exposed by URBs.
+> > 
+> >   - Current "transfer_buffer" + "transfer_buffer_length" mode needs to
+> >     stay, since most drivers aren't block drivers.
 > 
-> CONFIG_IDEDISK_STROKE
+> Why? Surely USB block drivers are not the only ones that want to support
+> highmem.
 
-Should you have a system w/ an AWARD Bios and your drives are larger than
-32GB and it will not boot, one is required to perform a few OEM operations
-first.  The option is called "STROKE" because it allows one to "soft clip"
-the drive to work around a barrier limit.  For Maxtor drives it is called
-"jumpon.exe".  Please search Maxtor's web-site for "JUMPON.EXE".  IBM has
-an similar tool but I need to find a referrence.
-
-Generally "N"
-
-> CONFIG_IDE_TASK_IOCTL
-
-This is a direct raw access to the media.  It is a complex but eligant
-solution to test and validate the domain of the hardware and perform below
-the driver data recover if needed.  This is the most basic form of
-media-forensics..
-
-Generally "N"
-
-> CONFIG_IDE_TASKFILE_IO
-
-This is the "Jewel" of the patch.  It will go away and become the new
-driver core.  Since all the chipsets/host side hardware deal w/ their
-exceptions in "their local code" currently, adpotion of a standardized
-data-transport is the only logical solution.  Additionally we packetize
-the requests and gain rapid performance and a reduction in system latency.
-Additionally by using a memory struct for the commands we can redirect to
-a MMIO host hardware in the next generation of controllers, specifically
-second generation Ultra133 and Serial ATA.
-
-Since this is a major transition, it was deemed necessary to make the
-driver paths buildable in separtate models.  Therefore if using this
-option fails for your arch then we need to address the needs for that
-arch.
-
-Generally "Y"
-
-> CONFIG_BLK_DEV_IDEDMA_FORCED
-
-This is an old piece of lost code from Linux 2.0 Kernels.
-
-Generally "N"
-
-> CONFIG_IDEDMA_ONLYDISK
-
-This is used if you know your ATAPI Devices are going to fail DMA
-Transfers.
-
-Generally "N"
-
-> Which ones are we supposed to enable for better performance, reliability, 
-> etc. and which ones are for compatibility? I would guess 
-> CONFIG_IDEDMA_ONLYDISK pertains to the latter category for example.
-
-This option is used by Distros because of the listed problem above.
+Once the capability is there, it'll find other uses.  But allowing them is not
+the same as requiring them.  Getting rid of the current model would break
+every USB driver, rather than just ones that want to support highmem.
 
 
-> Please CC me, I'm not on linux-kernel.
+> >   - Add some kind of "page + offset" addressing model.
+> 
+> Yes
+> 
+> > Discussion of details can be taken off LKML, it'd seem.  Though I'm
+> > curious when the scatterlist->address field will vanish, making these
+> > changes a requirement.  Is that a 2.5.2 thing?
+> 
+> Maybe 2.5.3, dunno for sure.
+
+A bit of  a delay would make things a bit easier ... :)
+Of course, if scatterlist->address doesn't work any more,
+it won't matter much.
+
+- Dave
+
+
+> > Also, I noticed that include/asm-sparc/pci.h doesn't include the
+> > standard pci_map_page() call ... what's up with that?  That surely
+> > causes portability problems.
+> 
+> It probably isn't up to snuff yet.
 > 
 > -- 
-> Ciao,
->     Flavio Stanchina
->     Trento - Italy
+> Jens Axboe
 > 
-> "The best defense against logic is ignorance."
-> http://spazioweb.inwind.it/fstanchina/
-> 
-
-Flavio,
-
-If this does not explain it all please ask for more, thanks!
-
-Respectfully,
-
-Andre Hedrick
-Linux ATA Development
 

@@ -1,271 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264588AbTLLNng (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 08:43:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264589AbTLLNng
+	id S264589AbTLLNxq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 08:53:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264582AbTLLNxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 08:43:36 -0500
-Received: from khemmis.raceme.org ([80.67.180.228]:34436 "EHLO
-	khemmis.raceme.org") by vger.kernel.org with ESMTP id S264588AbTLLNnN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 08:43:13 -0500
-Message-ID: <32972.81.56.216.251.1071236577.squirrel@webmail.raceme.org>
-Date: Fri, 12 Dec 2003 14:42:57 +0100 (CET)
-Subject: PROBLEM: system freezes on 2.6.0-test11
-From: "Vincent Deffontaines" <vincent@gryzor.com>
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.1
-MIME-Version: 1.0
-Content-Type: multipart/mixed;boundary="----=_20031212144257_83559"
-X-Priority: 3
-Importance: Normal
+	Fri, 12 Dec 2003 08:53:46 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:12810 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id S264578AbTLLNxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 08:53:42 -0500
+Date: Fri, 12 Dec 2003 22:46:49 +0900 (JST)
+Message-Id: <20031212.224649.20046672.yoshfuji@linux-ipv6.org>
+To: jmorris@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sysctl vs /proc/sys
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <Xine.LNX.4.44.0312120815170.2611-100000@thoron.boston.redhat.com>
+References: <20031212.215837.31545329.yoshfuji@linux-ipv6.org>
+	<Xine.LNX.4.44.0312120815170.2611-100000@thoron.boston.redhat.com>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_20031212144257_83559
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+In article <Xine.LNX.4.44.0312120815170.2611-100000@thoron.boston.redhat.com> (at Fri, 12 Dec 2003 08:20:41 -0500 (EST)), James Morris <jmorris@redhat.com> says:
 
-Greetings,
+> On Fri, 12 Dec 2003, YOSHIFUJI Hideaki / [iso-2022-jp] 吉藤英明 wrote:
+> 
+> > Or, I'd rather propose introducing sysctlbyname(2).
+> 
+> See the thread at 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=105788786819578&w=2
 
-I have experienced 3 kernel freezes on 2.6.0-test11 this far, within a few
-days. I don't know how to reproduce them.
+Thanks, James. I think I missed the thread.
 
-Today's freeze just happened, at uptime 2days, 4 hours, 23minutes
-(informations from gkrellm, which stopped refreshing them after the
-crash).
+Well, some applications which can run on *BSD* and Linux uses sysctl.
+Because using procfs changes the semantics, I'd love to have sysctlbyname().
 
-I have had a look in system logs, and could find no message of interest
-(no special message was issued to syslog apart from exim checking its
-queue).
+Can we get the exact previous value from /proc/sys atomicly?
+If so, I'm ok not to have sysctlbyname(2) 
+because we can have sysctlbyname(3).
 
-When freeze occurs : I have no control whatsoever on the system : both
-keyboard and mouse are without effect. The machine cannot be reached
-(ping, ssh) through the network. The screen output is totally blocked
-(gkrellm displays stop scrolling, too).
+If no, please let's have sysctlbyname(2); there ARE
+something we cannot do only without sysctl variants.
 
-The only solution I have found to this is a hard reboot. I have also
-noticed that everytime this freeze occured, the CPU fan was turning (and
-kept turning after the freeze). (This is a laptop).
+Note: sysctlbyname(3) and sysctlnametomib(3) is in FreeBSD.
 
-At the time of the crash I was doing nothing but browsing with Galeon, and
-playing an mp3 on xmms.
-I am running a non-patched 2.6.0-test11, and don't run any "exotic" or
-"non-standard" service (ssh, exim, portmap, nfs client running).
-
-It may be possible that a hardware problem be the source of this problem -
-if you tell me it can help, I can run on 2.4.23 for some time and see if
-the freeze still occurs.
-
-This machine has no special load, it compiles new kernels and other
-softwares without problems ; these freezes are quite mysterious to me.
-
-Please Cc: me in replies, as I am not subscribed to this ML.
-
-
-Vincent
-
-Below are technical informations.
-I run a Debian sid (unstable) system, as up-to-date as can be.
-
-lspci -vvv attached
+--yoshfuji
 
 
 
-################
-/proc/modules :
-
-serial_cs 7112 1 - Live 0xd0916000
-sg 30232  - Live 0xd0930000
-uhci_hcd 29936  - Live 0xd0927000
-usb_storage 24448  - Live 0xd0920000
-snd_maestro3 21444  - Live 0xd08ff000
-snd_ac97_codec 52068 1 snd_maestro3, Live 0xd0908000
-xirc2ps_cs 15824 1 - Live 0xd08f2000
-
-#################
-processor :
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 8
-model name      : Celeron (Coppermine)
-stepping        : 10
-cpu MHz         : 930.301
-cache size      : 128 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov pat pse36 mmx fxsr sse
-bogomips        : 1839.10
-
-#################
-
-
-ver_linux output:
-
-Linux dV 2.6.0-test11 #4 Sun Nov 30 03:52:22 CET 2003 i686 GNU/Linux
-
-Gnu C                  3.3.3
-Gnu make               3.80
-util-linux             2.12
-mount                  2.12
-module-init-tools      0.9.15-pre4
-e2fsprogs              1.35-WIP
-pcmcia-cs              3.2.5
-nfs-utils              1.0.6
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Procps                 3.1.14
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               5.0.91
-Modules Loaded         serial_cs sg uhci_hcd usb_storage snd_maestro3
-snd_ac97_codec xirc2ps_cs
-#################
-------=_20031212144257_83559
-Content-Type: application/octet-stream; name="lspci-vvv"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="lspci-vvv"
-
-MDA6MDAuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycC4gODI4MzAgODMwIENoaXBzZXQgSG9zdCBC
-cmlkZ2UgKHJldiAwMykKCVN1YnN5c3RlbTogSW50ZWwgQ29ycC46IFVua25vd24gZGV2aWNlIDE5
-NjkKCUNvbnRyb2w6IEkvTy0gTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdB
-U25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlIrIEZhc3RCMkItCglTdGF0dXM6IENhcCsgNjZN
-aHotIFVERi0gRmFzdEIyQi0gUGFyRXJyLSBERVZTRUw9ZmFzdCA+VEFib3J0LSA8VEFib3J0LSA8
-TUFib3J0KyA+U0VSUi0gPFBFUlItCglMYXRlbmN5OiAwCglSZWdpb24gMDogTWVtb3J5IGF0IDx1
-bmFzc2lnbmVkPiAoMzItYml0LCBwcmVmZXRjaGFibGUpCglDYXBhYmlsaXRpZXM6IFs0MF0gIzA5
-IFsyMTA1XQoKMDA6MDIuMCBWR0EgY29tcGF0aWJsZSBjb250cm9sbGVyOiBJbnRlbCBDb3JwLiA4
-MjgzMCBDR0MgW0NoaXBzZXQgR3JhcGhpY3MgQ29udHJvbGxlcl0gKHJldiAwMykgKHByb2ctaWYg
-MDAgW1ZHQV0pCglTdWJzeXN0ZW06IEhld2xldHQtUGFja2FyZCBDb21wYW55OiBVbmtub3duIGRl
-dmljZSAwMDIxCglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJ
-TlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQoJU3RhdHVzOiBD
-YXArIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPWZhc3QgPlRBYm9ydC0gPFRB
-Ym9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogMAoJSW50ZXJydXB0OiBwaW4g
-QSByb3V0ZWQgdG8gSVJRIDkKCVJlZ2lvbiAwOiBNZW1vcnkgYXQgZTgwMDAwMDAgKDMyLWJpdCwg
-cHJlZmV0Y2hhYmxlKSBbc2l6ZT0xMjhNXQoJUmVnaW9uIDE6IE1lbW9yeSBhdCBlMDAwMDAwMCAo
-MzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT01MTJLXQoJQ2FwYWJpbGl0aWVzOiBbZDBd
-IFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lvbiAxCgkJRmxhZ3M6IFBNRUNsay0gRFNJKyBEMSsgRDIt
-IEF1eEN1cnJlbnQ9MG1BIFBNRShEMC0sRDEtLEQyLSxEM2hvdC0sRDNjb2xkLSkKCQlTdGF0dXM6
-IEQwIFBNRS1FbmFibGUtIERTZWw9MCBEU2NhbGU9MCBQTUUtCgowMDowMi4xIERpc3BsYXkgY29u
-dHJvbGxlcjogSW50ZWwgQ29ycC4gODI4MzAgQ0dDIFtDaGlwc2V0IEdyYXBoaWNzIENvbnRyb2xs
-ZXJdCglTdWJzeXN0ZW06IEhld2xldHQtUGFja2FyZCBDb21wYW55OiBVbmtub3duIGRldmljZSAw
-MDIxCglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZH
-QVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQoJU3RhdHVzOiBDYXArIDY2
-TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPWZhc3QgPlRBYm9ydC0gPFRBYm9ydC0g
-PE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogMCAoMjI1MG5zIG1heCkKCVJlZ2lvbiAw
-OiBNZW1vcnkgYXQgZjAwMDAwMDAgKDMyLWJpdCwgcHJlZmV0Y2hhYmxlKSBbc2l6ZT0xMjhNXQoJ
-UmVnaW9uIDE6IE1lbW9yeSBhdCBlMDA4MDAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBb
-c2l6ZT01MTJLXQoJQ2FwYWJpbGl0aWVzOiBbZDBdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lvbiAx
-CgkJRmxhZ3M6IFBNRUNsay0gRFNJKyBEMSsgRDItIEF1eEN1cnJlbnQ9MG1BIFBNRShEMC0sRDEt
-LEQyLSxEM2hvdC0sRDNjb2xkLSkKCQlTdGF0dXM6IEQwIFBNRS1FbmFibGUtIERTZWw9MCBEU2Nh
-bGU9MCBQTUUtCgowMDoxZC4wIFVTQiBDb250cm9sbGVyOiBJbnRlbCBDb3JwLiA4MjgwMUNBL0NB
-TSBVU0IgKEh1YiAjMSkgKHJldiAwMSkgKHByb2ctaWYgMDAgW1VIQ0ldKQoJU3Vic3lzdGVtOiBI
-ZXdsZXR0LVBhY2thcmQgQ29tcGFueTogVW5rbm93biBkZXZpY2UgMDAyMQoJQ29udHJvbDogSS9P
-KyBNZW0tIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBT
-dGVwcGluZy0gU0VSUi0gRmFzdEIyQi0KCVN0YXR1czogQ2FwLSA2Nk1oei0gVURGLSBGYXN0QjJC
-KyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlIt
-IDxQRVJSLQoJTGF0ZW5jeTogMAoJSW50ZXJydXB0OiBwaW4gQSByb3V0ZWQgdG8gSVJRIDkKCVJl
-Z2lvbiA0OiBJL08gcG9ydHMgYXQgMTgwMCBbc2l6ZT0zMl0KCjAwOjFkLjEgVVNCIENvbnRyb2xs
-ZXI6IEludGVsIENvcnAuIDgyODAxQ0EvQ0FNIFVTQiAoSHViICMyKSAocmV2IDAxKSAocHJvZy1p
-ZiAwMCBbVUhDSV0pCglTdWJzeXN0ZW06IEhld2xldHQtUGFja2FyZCBDb21wYW55OiBVbmtub3du
-IGRldmljZSAwMDIxCglDb250cm9sOiBJL08rIE1lbS0gQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1l
-bVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQoJU3RhdHVz
-OiBDYXAtIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0
-LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglMYXRlbmN5OiAwCglJbnRlcnJ1cHQ6
-IHBpbiBCIHJvdXRlZCB0byBJUlEgNQoJUmVnaW9uIDQ6IEkvTyBwb3J0cyBhdCAxODIwIFtzaXpl
-PTMyXQoKMDA6MWQuMiBVU0IgQ29udHJvbGxlcjogSW50ZWwgQ29ycC4gODI4MDFDQS9DQU0gVVNC
-IChIdWIgIzMpIChyZXYgMDEpIChwcm9nLWlmIDAwIFtVSENJXSkKCVN1YnN5c3RlbTogSGV3bGV0
-dC1QYWNrYXJkIENvbXBhbnk6IFVua25vd24gZGV2aWNlIDAwMjEKCUNvbnRyb2w6IEkvTysgTWVt
-LSBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBp
-bmctIFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENhcC0gNjZNaHotIFVERi0gRmFzdEIyQisgUGFy
-RXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVS
-Ui0KCUxhdGVuY3k6IDAKCUludGVycnVwdDogcGluIEMgcm91dGVkIHRvIElSUSA1CglSZWdpb24g
-NDogSS9PIHBvcnRzIGF0IDE4NDAgW3NpemU9MzJdCgowMDoxZS4wIFBDSSBicmlkZ2U6IEludGVs
-IENvcnAuIDgyODAxQkFNL0NBTSBQQ0kgQnJpZGdlIChyZXYgNDEpIChwcm9nLWlmIDAwIFtOb3Jt
-YWwgZGVjb2RlXSkKCUNvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVt
-V0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlIrIEZhc3RCMkItCglTdGF0dXM6
-IENhcC0gNjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9ZmFzdCA+VEFib3J0LSA8
-VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglMYXRlbmN5OiAwCglCdXM6IHByaW1hcnk9
-MDAsIHNlY29uZGFyeT0wMiwgc3Vib3JkaW5hdGU9MDIsIHNlYy1sYXRlbmN5PTY0CglJL08gYmVo
-aW5kIGJyaWRnZTogMDAwMDIwMDAtMDAwMDJmZmYKCU1lbW9yeSBiZWhpbmQgYnJpZGdlOiBmZmYw
-MDAwMC0wMDBmZmZmZgoJUHJlZmV0Y2hhYmxlIG1lbW9yeSBiZWhpbmQgYnJpZGdlOiBmZmYwMDAw
-MC0wMDBmZmZmZgoJQnJpZGdlQ3RsOiBQYXJpdHktIFNFUlItIE5vSVNBKyBWR0EtIE1BYm9ydC0g
-PlJlc2V0LSBGYXN0QjJCLQoKMDA6MWYuMCBJU0EgYnJpZGdlOiBJbnRlbCBDb3JwLiA4MjgwMUNB
-TSBJU0EgQnJpZGdlIChMUEMpIChyZXYgMDEpCglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFzdGVy
-KyBTcGVjQ3ljbGUrIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBG
-YXN0QjJCLQoJU3RhdHVzOiBDYXAtIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VM
-PW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglMYXRlbmN5
-OiAwCgowMDoxZi4xIElERSBpbnRlcmZhY2U6IEludGVsIENvcnAuIDgyODAxQ0FNIElERSBVMTAw
-IChyZXYgMDEpIChwcm9nLWlmIDhhIFtNYXN0ZXIgU2VjUCBQcmlQXSkKCVN1YnN5c3RlbTogSGV3
-bGV0dC1QYWNrYXJkIENvbXBhbnk6IFVua25vd24gZGV2aWNlIDAwMjEKCUNvbnRyb2w6IEkvTysg
-TWVtLSBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3Rl
-cHBpbmctIFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENhcC0gNjZNaHotIFVERi0gRmFzdEIyQisg
-UGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8
-UEVSUi0KCUxhdGVuY3k6IDAKCUludGVycnVwdDogcGluIEEgcm91dGVkIHRvIElSUSA1CglSZWdp
-b24gMDogSS9PIHBvcnRzIGF0IDxpZ25vcmVkPgoJUmVnaW9uIDE6IEkvTyBwb3J0cyBhdCA8aWdu
-b3JlZD4KCVJlZ2lvbiAyOiBJL08gcG9ydHMgYXQgPGlnbm9yZWQ+CglSZWdpb24gMzogSS9PIHBv
-cnRzIGF0IDxpZ25vcmVkPgoJUmVnaW9uIDQ6IEkvTyBwb3J0cyBhdCAxODYwIFtzaXplPTE2XQoJ
-UmVnaW9uIDU6IE1lbW9yeSBhdCBlMDEwMDAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBb
-ZGlzYWJsZWRdIFtzaXplPTFLXQoKMDA6MWYuMyBTTUJ1czogSW50ZWwgQ29ycC4gODI4MDFDQS9D
-QU0gU01CdXMgQ29udHJvbGxlciAocmV2IDAxKQoJU3Vic3lzdGVtOiBIZXdsZXR0LVBhY2thcmQg
-Q29tcGFueTogVW5rbm93biBkZXZpY2UgMDAyMQoJQ29udHJvbDogSS9PKyBNZW0tIEJ1c01hc3Rl
-ci0gU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUi0g
-RmFzdEIyQi0KCVN0YXR1czogQ2FwLSA2Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNF
-TD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJSW50ZXJy
-dXB0OiBwaW4gQiByb3V0ZWQgdG8gSVJRIDkKCVJlZ2lvbiA0OiBJL08gcG9ydHMgYXQgMTg4MCBb
-c2l6ZT0zMl0KCjAyOjAyLjAgQ29tbXVuaWNhdGlvbiBjb250cm9sbGVyOiBFU1MgVGVjaG5vbG9n
-eSBFUzI4MzgvMjgzOSBTdXBlckxpbmsgTW9kZW0gKHJldiAwMSkKCVN1YnN5c3RlbTogSGV3bGV0
-dC1QYWNrYXJkIENvbXBhbnk6IFVua25vd24gZGV2aWNlIDAwMjAKCUNvbnRyb2w6IEkvTysgTWVt
-LSBCdXNNYXN0ZXItIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBp
-bmctIFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENhcCsgNjZNaHotIFVERi0gRmFzdEIyQi0gUGFy
-RXJyLSBERVZTRUw9ZmFzdCA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlIt
-CglJbnRlcnJ1cHQ6IHBpbiBBIHJvdXRlZCB0byBJUlEgNQoJUmVnaW9uIDA6IEkvTyBwb3J0cyBh
-dCAyNDAwIFtzaXplPTE2XQoJQ2FwYWJpbGl0aWVzOiBbYzBdIFBvd2VyIE1hbmFnZW1lbnQgdmVy
-c2lvbiAyCgkJRmxhZ3M6IFBNRUNsay0gRFNJLSBEMS0gRDIrIEF1eEN1cnJlbnQ9NTVtQSBQTUUo
-RDArLEQxLSxEMissRDNob3QrLEQzY29sZCspCgkJU3RhdHVzOiBEMCBQTUUtRW5hYmxlKyBEU2Vs
-PTAgRFNjYWxlPTAgUE1FLQoKMDI6MDMuMCBNdWx0aW1lZGlhIGF1ZGlvIGNvbnRyb2xsZXI6IEVT
-UyBUZWNobm9sb2d5IEVTMTk4OCBBbGxlZ3JvLTEgKHJldiAxMikKCVN1YnN5c3RlbTogSGV3bGV0
-dC1QYWNrYXJkIENvbXBhbnk6IFVua25vd24gZGV2aWNlIDAwMjEKCUNvbnRyb2w6IEkvTysgTWVt
-LSBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBp
-bmctIFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENhcCsgNjZNaHotIFVERi0gRmFzdEIyQisgUGFy
-RXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVS
-Ui0KCUxhdGVuY3k6IDY0ICg1MDBucyBtaW4sIDYwMDBucyBtYXgpCglJbnRlcnJ1cHQ6IHBpbiBB
-IHJvdXRlZCB0byBJUlEgNQoJUmVnaW9uIDA6IEkvTyBwb3J0cyBhdCAyMDAwIFtzaXplPTI1Nl0K
-CUNhcGFiaWxpdGllczogW2MwXSBQb3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMgoJCUZsYWdzOiBQ
-TUVDbGstIERTSSsgRDErIEQyKyBBdXhDdXJyZW50PTBtQSBQTUUoRDAtLEQxKyxEMissRDNob3Qr
-LEQzY29sZC0pCgkJU3RhdHVzOiBEMCBQTUUtRW5hYmxlLSBEU2VsPTAgRFNjYWxlPTAgUE1FLQoK
-MDI6MDQuMCBDYXJkQnVzIGJyaWRnZTogTzIgTWljcm8sIEluYy4gT1o2OTMzIENhcmRidXMgQ29u
-dHJvbGxlciAocmV2IDAxKQoJU3Vic3lzdGVtOiBIZXdsZXR0LVBhY2thcmQgQ29tcGFueTogVW5r
-bm93biBkZXZpY2UgMDAyMQoJQ29udHJvbDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xl
-LSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZysgU0VSUi0gRmFzdEIyQi0KCVN0
-YXR1czogQ2FwKyA2Nk1oei0gVURGLSBGYXN0QjJCLSBQYXJFcnItIERFVlNFTD1zbG93ID5UQWJv
-cnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDE2OAoJSW50ZXJy
-dXB0OiBwaW4gQSByb3V0ZWQgdG8gSVJRIDkKCVJlZ2lvbiAwOiBNZW1vcnkgYXQgMTAwMDAwMDAg
-KDMyLWJpdCwgbm9uLXByZWZldGNoYWJsZSkgW3NpemU9NEtdCglCdXM6IHByaW1hcnk9MDIsIHNl
-Y29uZGFyeT0wMywgc3Vib3JkaW5hdGU9MDYsIHNlYy1sYXRlbmN5PTE3NgoJTWVtb3J5IHdpbmRv
-dyAwOiAxMDQwMDAwMC0xMDdmZjAwMCAocHJlZmV0Y2hhYmxlKQoJTWVtb3J5IHdpbmRvdyAxOiAx
-MDgwMDAwMC0xMGJmZjAwMAoJSS9PIHdpbmRvdyAwOiAwMDAwNDAwMC0wMDAwNDBmZgoJSS9PIHdp
-bmRvdyAxOiAwMDAwNDQwMC0wMDAwNDRmZgoJQnJpZGdlQ3RsOiBQYXJpdHktIFNFUlItIElTQS0g
-VkdBLSBNQWJvcnQtID5SZXNldC0gMTZiSW50KyBQb3N0V3JpdGUrCgkxNi1iaXQgbGVnYWN5IGlu
-dGVyZmFjZSBwb3J0cyBhdCAwMDAxCgowMjowNC4xIENhcmRCdXMgYnJpZGdlOiBPMiBNaWNybywg
-SW5jLiBPWjY5MzMgQ2FyZGJ1cyBDb250cm9sbGVyIChyZXYgMDEpCglTdWJzeXN0ZW06IEhld2xl
-dHQtUGFja2FyZCBDb21wYW55OiBVbmtub3duIGRldmljZSAwMDIxCglDb250cm9sOiBJL08rIE1l
-bSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBw
-aW5nKyBTRVJSLSBGYXN0QjJCLQoJU3RhdHVzOiBDYXArIDY2TWh6LSBVREYtIEZhc3RCMkItIFBh
-ckVyci0gREVWU0VMPXNsb3cgPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJS
-LQoJTGF0ZW5jeTogMTY4CglJbnRlcnJ1cHQ6IHBpbiBCIHJvdXRlZCB0byBJUlEgOQoJUmVnaW9u
-IDA6IE1lbW9yeSBhdCAxMDAwMTAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT00
-S10KCUJ1czogcHJpbWFyeT0wMiwgc2Vjb25kYXJ5PTA3LCBzdWJvcmRpbmF0ZT0wYSwgc2VjLWxh
-dGVuY3k9MTc2CglNZW1vcnkgd2luZG93IDA6IDEwYzAwMDAwLTEwZmZmMDAwIChwcmVmZXRjaGFi
-bGUpCglNZW1vcnkgd2luZG93IDE6IDExMDAwMDAwLTExM2ZmMDAwCglJL08gd2luZG93IDA6IDAw
-MDA0ODAwLTAwMDA0OGZmCglJL08gd2luZG93IDE6IDAwMDA0YzAwLTAwMDA0Y2ZmCglCcmlkZ2VD
-dGw6IFBhcml0eS0gU0VSUi0gSVNBLSBWR0EtIE1BYm9ydC0gPlJlc2V0LSAxNmJJbnQrIFBvc3RX
-cml0ZSsKCTE2LWJpdCBsZWdhY3kgaW50ZXJmYWNlIHBvcnRzIGF0IDAwMDEKCg==
-------=_20031212144257_83559--
-
+ 

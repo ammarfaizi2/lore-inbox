@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263378AbTC2Dgm>; Fri, 28 Mar 2003 22:36:42 -0500
+	id <S263382AbTC2EjY>; Fri, 28 Mar 2003 23:39:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263379AbTC2Dgm>; Fri, 28 Mar 2003 22:36:42 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:19154 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S263378AbTC2Dgl>; Fri, 28 Mar 2003 22:36:41 -0500
-Date: Fri, 28 Mar 2003 19:47:54 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 517] New: Can't compile 2.5.66 w/i810fb support 
-Message-ID: <51790000.1048909674@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S263383AbTC2EjY>; Fri, 28 Mar 2003 23:39:24 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:32709 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S263382AbTC2EjX> convert rfc822-to-8bit; Fri, 28 Mar 2003 23:39:23 -0500
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780B7177A5@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'lkml (linux-kernel@vger.kernel.org)'" 
+	<linux-kernel@vger.kernel.org>,
+       "'Ingo Molnar (mingo@redhat.com)'" <mingo@redhat.com>
+Subject: migration_thread()'s priority too low?
+Date: Fri, 28 Mar 2003 20:50:32 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-http://bugme.osdl.org/show_bug.cgi?id=517
+Hi all, Ingo
 
-           Summary: Can't compile 2.5.66 w/i810fb support
-    Kernel Version: 2.5.66
-            Status: NEW
-          Severity: blocking
-             Owner: jsimmons@infradead.org
-         Submitter: tmasoner_33@comcast.net
+I am having some trouble in the priority-inheritance wakeup code when
+using FIFO tasks - I was wondering: migration_thread() has the equivalent of
+a FIFO priority 0; thus, it will be left out by any FIFO task and migration
+won't work - I don't think this is causing the problem to my test cases, but
+I was curious anyway.
 
+Setting it in 2.5.66's sched.c like this
 
-Distribution: Gentoo
-Hardware Environment: P-III/Celeron
-Software Environment: 
-Problem Description: Kernel won't compile with i810 frame buffer support
-enabled
+@@ -2436,7 +2435,7 @@
+  */
+ static int migration_thread(void * data)
+ {
+-	struct sched_param param = { .sched_priority = MAX_RT_PRIO-1 };
++	struct sched_param param = { .sched_priority = 0 };
+ 	int cpu = (long) data;
+ 	runqueue_t *rq;
+ 	int ret;
 
-Steps to reproduce: Enable Frame Buffer Support -> Intel i810/815 support
+gives it max priority; it'd be interesting though to have an extra level so
+have FIFO 99 be 1 in the index and 0 still be free for system stuff.
 
-Results from make bzImage :
+Of course I can be missing anything really clear. Is it intentionate that
+migration_thread() has FIFO 0?
 
-make -f scripts/Makefile.build obj=arch/i386/lib
-  GEN     .version
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-
-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -
-mpreferred-stack-boundary=2 -march=pentium3 -Iinclude/asm-i386/mach-default
-- fomit-frame-pointer -nostdinc -iwithprefix include    -
-DKBUILD_BASENAME=version -DKBUILD_MODNAME=version -c -o init/version.o 
-init/version.c
-   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o 
-init/mounts.o init/initramfs.o
-        ld -m elf_i386  -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o 
-arch/i386/kernel/init_task.o   init/built-in.o --start-group
-usr/built-in.o   arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o
-arch/i386/mach- default/built-in.o  kernel/built-in.o  mm/built-in.o
-fs/built-in.o  ipc/built- in.o  security/built-in.o  crypto/built-in.o
-lib/lib.a  arch/i386/lib/lib.a   drivers/built-in.o  sound/built-in.o
-arch/i386/pci/built-in.o  net/built-in.o - -end-group  -o vmlinux
-drivers/built-in.o(.text+0x99032): In function `i810fb_imageblit':
-: undefined reference to `__memcpy'
-make: *** [vmlinux] Error 1
-
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)

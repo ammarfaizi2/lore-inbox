@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269072AbUJKRL6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269038AbUJKRL7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269072AbUJKRL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 13:11:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269038AbUJKRKv
+	id S269038AbUJKRL7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 13:11:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269104AbUJKRKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 13:10:51 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:25241 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S269065AbUJKRJF
+	Mon, 11 Oct 2004 13:10:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28329 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269038AbUJKRIH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 13:09:05 -0400
-Message-ID: <416ABE31.3040004@ens-lyon.fr>
-Date: Mon, 11 Oct 2004 19:09:05 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
-Reply-To: Brice.Goglin@ens-lyon.org
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+	Mon, 11 Oct 2004 13:08:07 -0400
+Message-ID: <416ABDE4.3030502@pobox.com>
+Date: Mon, 11 Oct 2004 13:07:48 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: suspend-to-RAM [was Re: Totally broken PCI PM calls]
-References: <1097455528.25489.9.camel@gaston> <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org> <16746.299.189583.506818@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0410102102140.3897@ppc970.osdl.org> <16746.2820.352047.970214@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0410110739150.3897@ppc970.osdl.org> <20041011145628.GA2672@elf.ucw.cz> <416AAC5F.7020109@ens-lyon.fr> <20041011161718.GA1045@elf.ucw.cz>
-In-Reply-To: <20041011161718.GA1045@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Brian Lazara <blazara@nvidia.com>
+CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, manfred@colorfullife.com
+Subject: Re: Linux 2.4.28-pre4
+References: <20041008112135.GG16028@logos.cnet> <1097512373.6780.4.camel@localhost.localdomain>
+In-Reply-To: <1097512373.6780.4.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>On my N600c, suspend-to-RAM seems to complete... but when I try to wake 
->>up the laptop (by pressing the power button), it blinks strangely and 
->>then immediately shutdowns instead of resuming...
-> 
-> 
-> Your machine is probabl different from N620c i this regard...
-> 
-> Can you test if it reaches start of wakeup.S? Just insert infinite
-> loop there...
-> 								Pavel
+Brian Lazara wrote:
+> At some point, can we get forcedeth.c updated in 2.4.x? We've taken the
+> latest from 2.6.8 and posted a patch against 2.4.27, but it isn't
+> getting picked up. See 
+> http://www.uwsg.indiana.edu/hypermail/linux/kernel/0408.1/1523.html
 
-Well, my apologies, the behavior changed recently:
-* S1 seems to work.
-* S3 is so buggy: suspend still seem to complete. Pushing the power 
-button to resume doesn't shutdown the machine anymore: the laptop wakes 
-up but doesn't write or do anything. I'm only able to stop it by 
-pressing the power button.
+Nobody has submitted a forcedeth update to me for 2.4.
 
-Regards,
-Brice Goglin
+These things don't just happen by magic ;-)
+
+	Jeff
+
+
 

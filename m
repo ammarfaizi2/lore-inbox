@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132441AbQLJVlL>; Sun, 10 Dec 2000 16:41:11 -0500
+	id <S132811AbQLJVlb>; Sun, 10 Dec 2000 16:41:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131251AbQLJVlB>; Sun, 10 Dec 2000 16:41:01 -0500
-Received: from dfmail.f-secure.com ([194.252.6.39]:45070 "HELO
-	dfmail.f-secure.com") by vger.kernel.org with SMTP
-	id <S130895AbQLJVkx>; Sun, 10 Dec 2000 16:40:53 -0500
-Date: Sun, 10 Dec 2000 23:23:13 +0200 (MET DST)
-From: Szabolcs Szakacsits <szaka@f-secure.com>
-To: Tigran Aivazian <tigran@veritas.com>
-cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>
+	id <S132684AbQLJVlL>; Sun, 10 Dec 2000 16:41:11 -0500
+Received: from 62-6-231-238.btconnect.com ([62.6.231.238]:8967 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S130895AbQLJVlJ>;
+	Sun, 10 Dec 2000 16:41:09 -0500
+Date: Sun, 10 Dec 2000 21:12:45 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Szabolcs Szakacsits <szaka@f-secure.com>
+cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
 Subject: Re: [PATCH] NR_RESERVED_FILES broken in 2.4 too
-In-Reply-To: <Pine.LNX.4.21.0012101708270.1350-100000@penguin.homenet>
-Message-ID: <Pine.LNX.4.30.0012102258270.5455-100000@fs129-190.f-secure.com>
+In-Reply-To: <Pine.LNX.4.30.0012102227070.5455-100000@fs129-190.f-secure.com>
+Message-ID: <Pine.LNX.4.21.0012102105190.1601-100000@penguin.homenet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 10 Dec 2000, Szabolcs Szakacsits wrote:
+> Or 0 shouldn't be between 0 and NR_RESERVED_FILES. Right? Wrong. I saw
+> it happens, you can reproduce it if you lookup the nr_free_files
+> value, allocate that much by root, don't release them and
+> immediately after this start to allocate fd's by user app. 
 
-On Sun, 10 Dec 2000, Tigran Aivazian wrote:
+Ok, let's slowly understand each other. The scenario you suggest is:
 
-> problem (e.g. you mentioned something about allocating more than NR_FILES
-> on SMP -- what do you mean?) which you are not explaining clearly.
+a) measure nr_free_files and let root exhaust all freelist entries. Now
+the freelist is empty and nr_free_files = 0.
 
-E.g. situation, only one file struct left for allocation. One CPU goes
-into get_empty_filp and before kmem_cache_alloc unlocks file_list,
-another CPU gets also into get_empty_filp and locks file_list at the
-top and goes on the same path, the end result potentially can be both
-will increase nr_files instead of only one. But I don't think it's a
-big issue at *present* that could cause any problems ...
+b) now let the user app allocate (from the slab cache) lots of new file
+structures. He can keep doing so until nr_files hits max_files.
 
-> You just say "it is broken and here is the patch" but that, imho, is not
-> enough. (ok, one could overcome the laziness and actually _read_ your
-> patch to see what you _think_ is broken but surely it is better if you
-> explain it yourself?).
+Now what? Now root tries to allocate some and obviously he can't because
+the freelist is empty. So what? Where is the bug? This is an expected
+behaviour to me -- since the freelist is empty there are no more reserved
+file structures for root. Which part of this do you believe is wrong? Or
+do you believe that this is not the case at all? I.e. something else
+happens in the above scenario which I am still missing? If so, please
+explain.
 
-Sorry I didn't explain, I thought it's short enough and significantly
-faster to understand reading the code then my poor English ;)
+If, however, you believe that the above _is_ the case but it should _not_
+happen then you are proposing a completely new policy of file structure
+allocation which you believe is superior. It is quite possible so let's
+all understand your new policy and let Linus decide whether it's better
+than the existing one. But if so, don't tell me you are fixing a bug
+because it is not a bug -- it's a redesign of file structure allocator.
 
-	Szaka
+Regards,
+Tigran
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

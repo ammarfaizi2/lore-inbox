@@ -1,60 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314059AbSDQErM>; Wed, 17 Apr 2002 00:47:12 -0400
+	id <S314060AbSDQExZ>; Wed, 17 Apr 2002 00:53:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314060AbSDQErL>; Wed, 17 Apr 2002 00:47:11 -0400
-Received: from mail.mtroyal.ab.ca ([142.109.10.24]:41225 "EHLO
-	mail.mtroyal.ab.ca") by vger.kernel.org with ESMTP
-	id <S314059AbSDQErK>; Wed, 17 Apr 2002 00:47:10 -0400
-Date: Tue, 16 Apr 2002 22:47:07 -0600 (MDT)
-From: James Bourne <jbourne@MtRoyal.AB.CA>
-Subject: Re: SMP P4 APIC/interrupt balancing
-In-Reply-To: <2634920014.1018993422@[10.10.2.3]>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Message-id: <Pine.LNX.4.44.0204162244420.9280-100000@skuld.mtroyal.ab.ca>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+	id <S314061AbSDQExY>; Wed, 17 Apr 2002 00:53:24 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:2576 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S314060AbSDQExY>;
+	Wed, 17 Apr 2002 00:53:24 -0400
+Date: Tue, 16 Apr 2002 20:52:36 -0700
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] USB device support for 2.5.8 (take 2)
+Message-ID: <20020417035236.GC29897@kroah.com>
+In-Reply-To: <20020417025104.GC29064@kroah.com> <Pine.LNX.4.33.0204162121060.13362-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 20 Mar 2002 01:21:46 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Apr 2002, Martin J. Bligh wrote:
-
-> > Current kernel is 2.4.18 with the LSE APIC Routing patch
-> > (http://sourceforge.net/projects/lse).  2.4.18 stock (well ok, -rc4) 
-> > has much the same results.
+On Tue, Apr 16, 2002 at 09:35:33PM -0700, Linus Torvalds wrote:
 > 
-> I hate to ask trivial questions, but you did read the notes that
-> come with the APIC routing patch, and actually enable it, right?
-> IIRC, there was something about a command line parameter needed.
 > 
-> just checking ...
-
-:) I knew I should have included that in the original message, but it's
-also in the dmesg output.  append"idle=poll" is there.
-
-There may be other issues, and I need to get physical access to the system
-to check (tomorrow)...  
-
-Regards
-James Bourne
-
+> On Tue, 16 Apr 2002, Greg KH wrote:
+> >
+> > Linus, here is an updated changeset series with the USB device support.
 > 
-> M.
+> Since I haven't pulled any of the usb device updates yet, might I suggest:
 > 
+>  - redoing the BK archive completely without the broken series (ie an
+>    actual "bk undo")
 
--- 
-James Bourne, Supervisor Data Centre Operations
-Mount Royal College, Calgary, AB, CA
-www.mtroyal.ab.ca
+Well since you don't want to pull it, I can just trash this tree, it
+only contains the Lineo code.
 
-******************************************************************************
-This communication is intended for the use of the recipient to which it is
-addressed, and may contain confidential, personal, and or privileged
-information. Please contact the sender immediately if you are not the
-intended recipient of this communication, and do not copy, distribute, or
-take action relying on it. Any communication received in error, or
-subsequent reply, should be deleted or destroyed.
-******************************************************************************
+>  - explaining to me what a "usb device" is, that isn't a normal USB
+>    device? Why is "usb/device/xxx" different from the existing USB device
+>    drivers?
 
+It's code to be a USB client device, not a USB host device, which is
+what we currently have.  It is used in embedded devices that run Linux,
+like the new Sharp device (can't remember the name right now...)
+
+> In other words, please explain what the _point_ of this code is?
+> Especially since the code is obvious crap, from the little I looked at it,
+> and quite frankly my immediate reaction is that it shouldn't get even
+> _close_ to the kernel before it has gone through some _major_ cleanup.
+> 
+> Let's face it, look at the absolute SHIT in usbd-debug.c, where somebody
+> has re-created strcmp/strcpy/etc, except with stupid names, and bad
+> implementation.
+> 
+> In short, I refuse to pull this crap. The people who wrote it were either
+> on drugs, incompetent, or just plain crazy. "Just say no".
+
+Sorry.  I spend most of my time on this code just cleaning the format
+and removing build errors, instead of looking at the content :(
+
+I'll work on fixing all of the crap before submitting it again.
+
+thanks,
+
+greg k-h

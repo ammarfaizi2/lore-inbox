@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261317AbSKNSVX>; Thu, 14 Nov 2002 13:21:23 -0500
+	id <S261544AbSKNSbS>; Thu, 14 Nov 2002 13:31:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261544AbSKNSVX>; Thu, 14 Nov 2002 13:21:23 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30483 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261317AbSKNSVW>;
-	Thu, 14 Nov 2002 13:21:22 -0500
-Message-ID: <3DD3EB3D.8050606@pobox.com>
-Date: Thu, 14 Nov 2002 13:28:13 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
-X-Accept-Language: en-us, en
+	id <S261609AbSKNSbR>; Thu, 14 Nov 2002 13:31:17 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:7889 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261544AbSKNSaM>;
+	Thu, 14 Nov 2002 13:30:12 -0500
+Date: Thu, 14 Nov 2002 10:45:18 -0800
+From: Hanna Linder <hannal@us.ibm.com>
+Reply-To: Hanna Linder <hannal@us.ibm.com>
+To: Joyce Tan <blutot@yahoo.com>,
+       kernel mailing list <linux-kernel@vger.kernel.org>
+cc: hannal@us.ibm.com
+Subject: Re: No keyboard when 2.5.47 boots
+Message-ID: <18310000.1037299518@w-hlinder>
+In-Reply-To: <20021114100608.89194.qmail@web41013.mail.yahoo.com>
+References: <20021114100608.89194.qmail@web41013.mail.yahoo.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: Matthew Wilcox <willy@debian.org>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       mochel@osdl.org
-Subject: Re: [PATCH] eliminate pci_dev name
-References: <20021114171017.B30392@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20021114171017.B30392@parcelfarce.linux.theplanet.co.uk>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
 
-> diff -urpNX dontdiff linux-2.5.47/include/linux/pci.h 
-> linux-2.5.47-willy/include/linux/pci.h
-> --- linux-2.5.47/include/linux/pci.h	2002-11-14 10:52:17.000000000 -0500
-> +++ linux-2.5.47-willy/include/linux/pci.h	2002-11-14 
-> 11:43:40.000000000 -0500
-> @@ -371,7 +371,6 @@ struct pci_dev {
->  	struct resource dma_resource[DEVICE_COUNT_DMA];
->  	struct resource irq_resource[DEVICE_COUNT_IRQ];
+Turn on CONFIG_SERIO under Input Device Support
+(read the help for it for more info)
+
+Hanna
+
+
+--On Thursday, November 14, 2002 02:06:08 AM -0800 Joyce Tan 
+<blutot@yahoo.com> wrote:
+
+> Hi,
 >
-> -	char		name[90];	/* device name */
->  	char		slot_name[8];	/* slot name */
->  	int		active;		/* ISAPnP: device is active */
->  	int		ro;		/* ISAPnP: read only */
+> I compiled linux-2.5.47 but when my linux reboots, the
+> keyboard is not present.
 >
-
-
-Patch looks pretty good to me... seems like the obvious (and useful) 
-cleanup.
-
-You should increase DEVICE_NAME_SIZE in include/linux/device.h from 80 
-to 90, though.  I assume you don't want to take the other option, which 
-is to audit every use and all the id strings to make sure they're short 
-enough.  In fact, IIRC, device name increased in size due to some really 
-long PCI names, so I think '90' will wind up the preferred value in any 
-case.
-
-	Jeff
-
+> here is my .config file.
+>
+> thanks
+> joyce
+>
+>
+>
+>
+>
+> __________________________________________________
+> Do you Yahoo!?
+> Yahoo! Web Hosting - Let the expert host your site
+> http://webhosting.yahoo.com
 
 

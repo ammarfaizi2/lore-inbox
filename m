@@ -1,109 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264158AbUDBTHg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 14:07:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264162AbUDBTHg
+	id S264124AbUDBTdP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 14:33:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264129AbUDBTdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 14:07:36 -0500
-Received: from gprs214-53.eurotel.cz ([160.218.214.53]:896 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S264158AbUDBTHV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 14:07:21 -0500
-Date: Fri, 2 Apr 2004 20:23:58 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: mj@ucw.cz, jack@ucw.cz, "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cowlinks v2
-Message-ID: <20040402182357.GB410@elf.ucw.cz>
-References: <20040320083411.GA25934@wohnheim.fh-wedel.de> <s5gznab4lhm.fsf@patl=users.sf.net> <20040320152328.GA8089@wohnheim.fh-wedel.de> <20040329171245.GB1478@elf.ucw.cz> <s5g7jx31int.fsf@patl=users.sf.net> <20040329231635.GA374@elf.ucw.cz> <20040402165440.GB24861@wohnheim.fh-wedel.de> <20040402180128.GA363@elf.ucw.cz> <20040402181707.GA28112@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040402181707.GA28112@wohnheim.fh-wedel.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Fri, 2 Apr 2004 14:33:15 -0500
+Received: from sweetums.bluetronic.net ([24.199.150.42]:47763 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S264124AbUDBTdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 14:33:11 -0500
+Date: Fri, 2 Apr 2004 14:29:44 -0500 (EST)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Olaf Zaplinski <o.zaplinski@broadnet-mediascape.de>,
+       <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+Subject: Re: 2.6.4: disabling SCSI support not possible
+In-Reply-To: <20040402144216.A12306@flint.arm.linux.org.uk>
+Message-ID: <Pine.GSO.4.33.0404021418140.10369-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 2 Apr 2004, Russell King wrote:
+>usb-storage should depend on SCSI rather than forcing SCSI to be
+>enabled.
 
-> > > If you really want cowlinks and hardlinks to be intermixed freely, I'd
-> > > happily agree with you as soon as you can define the behaviour for all
-> > > possible cases in a simple document and none of them make me scared
-> > > again.  Show me that it is possible and makes sense.
-> > 
-> > Okay:
-> > 
-> >             User/kernel API modifications for cowlinks
-> > 
-> > open(..., O_RDWR) may return ENOSPACE
-> > 
-> > new syscall is introduced, copyfile(int fd_from, int fd_to). fd_to
-> > must be empty, or it returns -EINVAL. copyfile() copies content of
-> > file from one file to another. It may return success even through
-> > there's not enough space on filesystem to actually do the copy. It is
-> > also pretty fast.
-> > 
-> > another syscall is introduced for diff and friends, long long
-> > get_data_id(int fd). It may only be used on non-zero-length regular
-> > files. if get_data_id(fd1) == get_data_id(fd2), it means that files
-> > fd1 and fd2 contain same data and you do not need to read them to
-> > check it.
-> 
-> Sounds good, but you missed the hell part.
+Actually, it should "require" SCSI, but the kernel configuration logic
+does not support that.
 
-:-).
+>Using 'select' is all very well for the case where the target
+>configuration symbol is not user selectable, but in the case that
+>it is, it leads to the confusion shown above.
 
-> Now you write to either one of the six files.  What happens?
-> 
-> Give me a clean proposal how this is simple, defined and not too
-> dangerous for the unaware.  Then I agree, there is no hell involved.
+Indeed.  "select" is very useful for enabling options that cannot otherwise
+be enabled.  However, it gets mis-applied in cases like this to address the
+"stupid user" problem. (see above re: missing "require")  In fact, the
+only place I can forgive the use of select on user selectable options in
+within the input layer options -- select is used to force a valid usable
+configuration instead of letting someone compile a kernel without any
+keyboard support, BUT, it's still user tunable if "embedded" is enabled.
 
-Okay, now I have to start talking about implementation. Assume ext2 as
-a base. Theres new object "cowid" which contains, well, id for
-get_data_id() and usage count. Each inode either has pointer to
-"cowid" object, or it is plain old regular file.
+--Ricky
 
-INODE123 Usage count = 2.
+(see also: http://bk.troz.com:14690/linux-2.6-bk/user=jfbeam/cset@1.1396
+ for additional SELECT removals.)
 
-> What happens, if you copyfile() a file that has two links?
 
-copyfile results in:
-
-INODE123 Usage count = 2, pointer to cowid 567
-COWID 567: Usage count = 2
-INODE124 Usage count = 1, pointer to cowid 567
-
-> Then you link() the result.
-
-No, problem just increase usage count on inode124:
-
-INODE123 Usage count = 2, pointer to cowid 567
-COWID 567: Usage count = 2
-INODE124 Usage count = 2, pointer to cowid 567
-
-> Then you copyfile() one of those two links.
-
-Creates another inode pointing at same old cowid:
-
-INODE123 Usage count = 2, pointer to cowid 567
-COWID 567: Usage count = 3
-INODE124 Usage count = 2, pointer to cowid 567
-INODE125 Usage count = 1, pointer to cowid 567
-
-> Then you link()...
-
-INODE123 Usage count = 2, pointer to cowid 567
-COWID 567: Usage count = 3
-INODE124 Usage count = 2, pointer to cowid 567
-INODE125 Usage count = 2, pointer to cowid 567
-
-Now, if I write to any inode with has cowid, data have to be copied,
-and pointer to cowid deleted from that inode .
-
-								Pavel
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

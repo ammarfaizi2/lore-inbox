@@ -1,29 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270772AbRHWXsv>; Thu, 23 Aug 2001 19:48:51 -0400
+	id <S270774AbRHWXtl>; Thu, 23 Aug 2001 19:49:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270783AbRHWXsl>; Thu, 23 Aug 2001 19:48:41 -0400
-Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:54975
-	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
-	id <S270772AbRHWXs1>; Thu, 23 Aug 2001 19:48:27 -0400
-Date: Thu, 23 Aug 2001 16:48:44 -0700 (PDT)
-From: Justin Guyett <justin@soze.net>
-X-X-Sender: <tyme@kobayashi.soze.net>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: mmap() return value when length == 0
-In-Reply-To: <Pine.LNX.4.10.10108231945450.8694-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.4.33.0108231647400.7753-100000@kobayashi.soze.net>
+	id <S270783AbRHWXtc>; Thu, 23 Aug 2001 19:49:32 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8973 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270774AbRHWXtT>; Thu, 23 Aug 2001 19:49:19 -0400
+Subject: Re: File System Limitations
+To: fred@arkansaswebs.com (Fred)
+Date: Fri, 24 Aug 2001 00:52:29 +0100 (BST)
+Cc: tmh@nothing-on.tv (Tony Hoyle), linux-kernel@vger.kernel.org
+In-Reply-To: <01082318405901.12319@bits.linuxball> from "Fred" at Aug 23, 2001 06:40:59 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15a4Gz-0004uz-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Aug 2001, Mark Hahn wrote:
+> glibc-2.2.2-10
 
-> I hope you meant close.
-yeah, sorry :)  close not fclose.
+Your C library is new enough
 
+> [root@bits /a5]# dd if=/dev/zero of=./tgb count=4000 bs=1M
+> File size limit exceeded (core dumped)
 
-justin
+But your dd program might not be
 
+Alan

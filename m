@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbULNAkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbULNAmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbULNAkM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 19:40:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbULNAkM
+	id S261358AbULNAmO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 19:42:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbULNAmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 19:40:12 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:48284 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261357AbULNAkJ (ORCPT
+	Mon, 13 Dec 2004 19:42:14 -0500
+Received: from main.gmane.org ([80.91.229.2]:16780 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261358AbULNAmG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 19:40:09 -0500
-Date: Tue, 14 Dec 2004 11:36:56 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-xfs@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] some XFS cleanups (fwd)
-Message-ID: <20041214003656.GA1215@frodo>
-References: <20041207193533.GG7250@stusta.de> <20041208050348.GI1611@frodo> <20041214000621.GO23151@stusta.de>
+	Mon, 13 Dec 2004 19:42:06 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kevin Puetz <puetzk@puetzk.org>
+Subject: Re: [WISHLIST] IBM HD Shock detection in Linux
+Date: Mon, 13 Dec 2004 18:41:53 -0600
+Message-ID: <cplcsi$2rj$1@sea.gmane.org>
+References: <1102888882.15558.2.camel@ksyrium.local> <Pine.LNX.4.61.0412122305010.29854@yvahk01.tjqt.qr> <1102889485.15558.5.camel@ksyrium.local> <Pine.LNX.4.61.0412122314560.10353@yvahk01.tjqt.qr> <Pine.LNX.4.61.0412122345440.3369@dragon.hygekrogen.localhost> <Pine.LNX.4.61.0412122340320.31793@yvahk01.tjqt.qr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041214000621.GO23151@stusta.de>
-User-Agent: Mutt/1.5.3i
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 12-219-2-179.client.mchsi.com
+User-Agent: KNode/0.8.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 14, 2004 at 01:06:21AM +0100, Adrian Bunk wrote:
+Jan Engelhardt wrote:
+
+>>that it stops the harddrive. How effective that is I don't know - I have
+>>no further knowledge or experience with this.
 > 
-> Would it be OK to make vfs_dmapiops #ifdef on the DMAPI code?
-> 
+> stop is a good operation, but I doubt the heads won't scratch the cyls
+> when the disk is falling from a desk's height.
+ 
+It's not going to get the platter spun down, but it might survive if it
+managed to get the head off the platter and into the cradle. If we figure
+it's got a 20ms seek time (laptop drive, should be ~right) it should be
+able to get the heads off to the side within about 4cm... clever :-)
 
-Yep, that should be fine.
+> Jan Engelhardt
 
-cheers.
 
--- 
-Nathan

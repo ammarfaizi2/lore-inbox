@@ -1,66 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbUARMwX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 07:52:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbUARMwX
+	id S261522AbUARNEv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 08:04:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbUARNEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 07:52:23 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:32917 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261188AbUARMwV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 07:52:21 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Subject: Re: [PATCH] fix/improve modular IDE (Re: [PATCH] modular IDE for 2.6.1 ugly but working fix)
-Date: Sun, 18 Jan 2004 13:56:14 +0100
-User-Agent: KMail/1.5.3
-Cc: Sam Ravnborg <sam@ravnborg.org>, Witold Krecicki <adasi@kernel.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200401171313.52545.adasi@kernel.pl> <200401171702.35705.bzolnier@elka.pw.edu.pl> <200401181252.49861.arekm@pld-linux.org>
-In-Reply-To: <200401181252.49861.arekm@pld-linux.org>
+	Sun, 18 Jan 2004 08:04:51 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:20137 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261522AbUARNEt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jan 2004 08:04:49 -0500
+Message-ID: <400A846A.6000003@colorfullife.com>
+Date: Sun, 18 Jan 2004 14:04:42 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200401181356.14767.bzolnier@elka.pw.edu.pl>
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sendfile calls lock_verify_area with wrong parameters
+References: <400A7DF5.4060704@colorfullife.com>
+In-Reply-To: <400A7DF5.4060704@colorfullife.com>
+Content-Type: multipart/mixed;
+ boundary="------------040506030808040505000805"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 18 of January 2004 12:52, Arkadiusz Miskiewicz wrote:
-> Dnia sob 17. stycznia 2004 17:02, Bartlomiej Zolnierkiewicz napisa³:
-> > On Saturday 17 of January 2004 16:38, Sam Ravnborg wrote:
-> > > > +ide-core-objs += ide.o ide-default.o ide-io.o ide-iops.o ide-lib.o \
-> > > > +	ide-probe.o ide-taskfile.o
-> > >
-> > > It would be more consistent to use "ide-core-y" since this is
-> > > what the following lines are expanded to.
-> > >
-> > > > +
-> > > > +ide-core-$(CONFIG_BLK_DEV_CMD640)	+= pci/cmd640.o
-> > >
-> > > Like this line.
-> >
-> > Yep, thanks!
+This is a multi-part message in MIME format.
+--------------040506030808040505000805
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Manfred Spraul wrote:
+
+>+	if (!ppos)
+>+		ppos = &in_file->f_pos;
+>  
 >
-> Could you send updated patch so we could test it?
->
-> Also would be nice if ide-detect name was used instead of ide-generic so it
-> will be consistent with 2.4 naming.
+Too early - in_file not yet initialized.
 
-ide-detect != ide-generic
+An updated (and tested with 2.6.1-mm4) patch is attached - sorry for the 
+noise.
 
-In 2.4 you have to load ide-detect after loading chipset module.
-In 2.6+patch you don't have to load anything after loading chipset module.
+--
+    Manfred
 
-ide-detect is used for all chipset modules to probe for drives.
-ide-generic is generic/default host driver - you use it only if you don't have
-specific modules for your IDE chipsets.
+--------------040506030808040505000805
+Content-Type: text/plain;
+ name="patch-locks-sendfile"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-locks-sendfile"
 
-> ps. patch by Witold Krecicki works for other drivers - I've seen it working
-> - but it's hacky anyway.
+--- 2.6/fs/read_write.c	2004-01-17 12:19:38.000000000 +0100
++++ build-2.6/fs/read_write.c	2004-01-18 13:42:11.000000000 +0100
+@@ -559,7 +559,9 @@
+ 		goto fput_in;
+ 	if (!in_file->f_op || !in_file->f_op->sendfile)
+ 		goto fput_in;
+-	retval = locks_verify_area(FLOCK_VERIFY_READ, in_inode, in_file, in_file->f_pos, count);
++	if (!ppos)
++		ppos = &in_file->f_pos;
++	retval = locks_verify_area(FLOCK_VERIFY_READ, in_inode, in_file, *ppos, count);
+ 	if (retval)
+ 		goto fput_in;
+ 
+@@ -588,9 +590,6 @@
+ 	if (retval)
+ 		goto fput_out;
+ 
+-	if (!ppos)
+-		ppos = &in_file->f_pos;
+-
+ 	if (!max)
+ 		max = min(in_inode->i_sb->s_maxbytes, out_inode->i_sb->s_maxbytes);
+ 
 
-Sure, it works for other *PCI* drivers, but not ie. PPC ones (easy to fix).
-
---bart
+--------------040506030808040505000805--
 

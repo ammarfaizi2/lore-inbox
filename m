@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263740AbUDVIYM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263835AbUDVIdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263740AbUDVIYM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 04:24:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263866AbUDVIYM
+	id S263835AbUDVIdI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 04:33:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263875AbUDVIdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 04:24:12 -0400
-Received: from denise.shiny.it ([194.20.232.1]:32176 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id S263740AbUDVIYJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 04:24:09 -0400
-Message-ID: <XFMail.20040422102359.pochini@shiny.it>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
+	Thu, 22 Apr 2004 04:33:08 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15627 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263835AbUDVIdF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 04:33:05 -0400
+Date: Thu, 22 Apr 2004 09:33:02 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jason Cox <steel300@gentoo.org>
+Cc: James Simmons <jsimmons@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Change number of tty devices
+Message-ID: <20040422093302.B19797@flint.arm.linux.org.uk>
+Mail-Followup-To: Jason Cox <steel300@gentoo.org>,
+	James Simmons <jsimmons@infradead.org>,
+	linux-kernel@vger.kernel.org
+References: <E1BFhPh-00027s-IL@smtp.gentoo.org> <Pine.LNX.4.44.0404212109580.10680-100000@phoenix.infradead.org> <E1BGTsk-0000va-Bx@smtp.gentoo.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <20040421132047.026ab7f2.davem@redhat.com>
-Date: Thu, 22 Apr 2004 10:23:59 +0200 (CEST)
-From: Giuliano Pochini <pochini@shiny.it>
-To: "David S. Miller" <davem@redhat.com>
-Subject: Re: tcp vulnerability?  haven't seen anything on it here...
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       cfriesen@nortelnetworks.com,
-       =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E1BGTsk-0000va-Bx@smtp.gentoo.org>; from steel300@gentoo.org on Thu, Apr 22, 2004 at 02:24:06AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 21-Apr-2004 David S. Miller wrote:
-> On Wed, 21 Apr 2004 19:03:40 +0200
-> Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
+On Thu, Apr 22, 2004 at 02:24:06AM +0000, Jason Cox wrote:
+> > When the kernel supports multi-desktop systems we will have to deal
+> > with the serial and VT issue. Most likely the serial tty drivers will
+> > be given a different major number. 
 > 
->> Heise.de made it appear, as if the only news was that with tcp
->> windows, the propability of guessing the right sequence number is not
->> 1:2^32 but something smaller.  They said that 64k packets would be
->> enough, so guess what the window will be.
->
-> Yes, that is their major discovery.  You need to guess the ports
-> and source/destination addresses as well, which is why I don't
-> consider this such a serious issue personally.
+> Why isn't this done now?
 
-Yes, but it is possible, expecially for long sessions. Also,
-data injections is also possible with the same method, because
-the receiver accepts everything inside the window, which is
-usually 64k. Out of curiosity: in case Linux receives two
-packets relative to the same portion of the stream, does it
-check if the overlapping data is the same ? It would add extra
-security about data injection in case the data has not been
-sent to userspace yet.
+It's a API change and requires a flag day "everyone update their
+filesystem."  Especially in a stable kernel series.
 
-
---
-Giuliano.
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262939AbTC0OBI>; Thu, 27 Mar 2003 09:01:08 -0500
+	id <S262945AbTC0OFT>; Thu, 27 Mar 2003 09:05:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262940AbTC0OBI>; Thu, 27 Mar 2003 09:01:08 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:43140 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id <S262939AbTC0OBH>; Thu, 27 Mar 2003 09:01:07 -0500
-Date: Thu, 27 Mar 2003 15:12:15 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Bas Vermeulen <bvermeul@blackstar.nl>
-Cc: Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21-pre6
-Message-ID: <20030327141215.GA25094@wohnheim.fh-wedel.de>
-References: <E18yVqr-0004gQ-00@roos.tartu-labor> <Pine.LNX.4.33.0303271144400.27475-100000@devel.blackstar.nl>
+	id <S262943AbTC0OFT>; Thu, 27 Mar 2003 09:05:19 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:38627 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262942AbTC0OFR>;
+	Thu, 27 Mar 2003 09:05:17 -0500
+Date: Thu, 27 Mar 2003 06:12:41 -0800 (PST)
+Message-Id: <20030327.061241.105170741.davem@redhat.com>
+To: trond.myklebust@fys.uio.no
+Cc: shmulik.hen@intel.com, dane@aiinet.com,
+       bonding-devel@lists.sourceforge.net,
+       bonding-announce@lists.sourceforge.net, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       torvalds@transmeta.com, mingo@redhat.com, kuznet@ms2.inr.ac.ru
+Subject: Re: BUG or not? GFP_KERNEL with interrupts disabled.
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <shssmt8vqz7.fsf@charged.uio.no>
+References: <Pine.LNX.4.44.0303271406230.7106-100000@jrslxjul4.npdj.intel.com>
+	<20030327.054357.17283294.davem@redhat.com>
+	<shssmt8vqz7.fsf@charged.uio.no>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.33.0303271144400.27475-100000@devel.blackstar.nl>
-User-Agent: Mutt/1.3.28i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 March 2003 11:45:18 +0100, Bas Vermeulen wrote:
-> On Thu, 27 Mar 2003, Meelis Roos wrote:
-> > 
-> > HDLC started generating warnings in some -pre and they are still there:
-> > 
-> > /oma/compile/linux-2.4/include/linux/modules/hdlc.ver:3: warning: `__ver_register_hdlc_device' redefined
-> > /oma/compile/linux-2.4/include/linux/modules/hdlc_generic.ver:3: warning: this is the location of the previous definition
-> > /oma/compile/linux-2.4/include/linux/modules/hdlc.ver:5: warning: `__ver_unregister_hdlc_device' redefined
-> > /oma/compile/linux-2.4/include/linux/modules/hdlc_generic.ver:5: warning: this is the location of the previous definition
-> 
-> Try copying .config away, make mrproper, then the normal routine.
-> That should fix things for you.
+   From: Trond Myklebust <trond.myklebust@fys.uio.no>
+   Date: 27 Mar 2003 15:11:56 +0100
 
-Well, if more that make dep is needed, doesn't this point to a bug in
-Config.in and/or Makefile? ;)
+        > IRQ disabling is meant to be stronger than softint disabling.
+   
+   In that case, you'll need to have things like spin_lock_irqrestore()
+   call local_bh_enable() in order to run the pending softirqs. Is that
+   worth the trouble?
 
-I agree, those have less impact, but they should get fixed as well.
+"trouble" is a weird word to use when the current behavior is
+just wrong. :-)
 
-Jörn
-
--- 
-Courage is not the absence of fear, but rather the judgement that
-something else is more important than fear.
--- Ambrose Redmoon
+My point is that it doesn't matter what the fix is, running
+softints while hw IRQs are disabled must be fixed.

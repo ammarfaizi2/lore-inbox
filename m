@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279180AbRKHNPz>; Thu, 8 Nov 2001 08:15:55 -0500
+	id <S279547AbRKHN2p>; Thu, 8 Nov 2001 08:28:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279274AbRKHNPr>; Thu, 8 Nov 2001 08:15:47 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:61965 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S279180AbRKHNPi>; Thu, 8 Nov 2001 08:15:38 -0500
-Message-ID: <3BEA91DA.6D204726@evision-ventures.com>
-Date: Thu, 08 Nov 2001 15:08:26 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-Reply-To: dalecki@evision.ag
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: dalecki@evision.ag, Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Using %cr2 to reference "current"
-In-Reply-To: <E161TWH-0004G9-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
+	id <S279588AbRKHN2g>; Thu, 8 Nov 2001 08:28:36 -0500
+Received: from pool-141-158-41-82.phil.east.verizon.net ([141.158.41.82]:47488
+	"EHLO jsmith.org.org") by vger.kernel.org with ESMTP
+	id <S279547AbRKHN22>; Thu, 8 Nov 2001 08:28:28 -0500
+Subject: Problems with recent kernels
+From: "Justin R. Smith" <jsmith@mcs.drexel.edu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.0+cvs.2001.11.06.15.04 (Preview Release)
+Date: 08 Nov 2001 08:27:49 -0500
+Message-Id: <1005226069.12034.0.camel@jsmith.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > somehow encouraged by the compiler comparisions between gcc and intel's
-> > free compiler, which use the register passing for anything local
-> > to the actual code, where the speed gains are up to 20% im currently
-> 
-> I was under the impression intels compiler was profoundly non-free ?
-> 
-> > quite inclined to do the redo and finish the experiment.
-> > BTW.> It's not just asm fixpus that have to be done for this
-> > to work. For example all the c files with -fno-omit-frame-pointer
-> 
-> 20% is a nice large number
+Please respond to me personally since I am not subscribed to this list.
 
-I just wanted to note that I got already the wohle fixup until
-the stage where the first schedule() occures during the kernel
-initialization... printk and so on all seem to work nicely ;-).
-Well the where some errors which had to be fixed until this.
-For example the decompress_kernel function should have the
-attribute asmlinkage and boot/compressed/misc.c should not export
-enything else.
+Is there a problem with some of the recent kernels? (2.4.12-2.4.14)
 
-Further debugging will occur this evening...
+I am running Redhat 7.1 on two systems:
+
+1. a Pentium II system using the ext2 file systems on all partitions.
+
+2. a Pentium III system using the ext2 file system.
+
+ When I switched to kernel version 2.4.12 on both machines, I
+encountered problems:
+
+1. the Pentium II machine had major file system errors on boot after
+clean shutdowns (major =  fsck must be run in manual mode). After a few
+reboots, the system was unusable. I reinstalled the operating system and
+upgraded the kernel to 2.4.9 and it has run perfectly since.
+
+2. the Pentium III system had different problems (under kernel 2.4.12):
+many applications crashed with error messages 
+
+     xmalloc cannot allocate 10 bytes
+
+although the system has 300 meg of RAM and a gig of swap.
+
+When I moved to the 2.4.14 kernel on the Pentium II machine, I got a
+file system error after a clean shutdown, but it wasn't as severe as the
+problems I had earlier: the damaged file system passed the fsck test.
+Again, retreating to 2.4.9 solved the problems.
+
+Any suggestions?
+-- 
+

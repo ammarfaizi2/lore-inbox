@@ -1,92 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262099AbVCHT3M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVCHTeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262099AbVCHT3M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 14:29:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbVCHTZ1
+	id S261382AbVCHTeo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 14:34:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVCHTbw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 8 Mar 2005 14:31:52 -0500
+Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:3344 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S262070AbVCHTZ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 8 Mar 2005 14:25:27 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:6313 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261424AbVCHTV7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 14:21:59 -0500
-Subject: Re: [PATCH] 2.6.10 -  direct-io async short read bug
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: suparna@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>,
-       =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1110302614.24286.61.camel@dyn318077bld.beaverton.ibm.com>
-References: <1110189607.11938.14.camel@frecb000686>
-	 <20050307223917.1e800784.akpm@osdl.org>  <20050308090946.GA4100@in.ibm.com>
-	 <1110302614.24286.61.camel@dyn318077bld.beaverton.ibm.com>
-Content-Type: multipart/mixed; boundary="=-5v3QEISAr9EgK1gFqDgJ"
-Organization: 
-Message-Id: <1110309508.24286.74.camel@dyn318077bld.beaverton.ibm.com>
+Date: Tue, 8 Mar 2005 20:25:30 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Daniel Staaf <dst@bostream.nu>, LKML <linux-kernel@vger.kernel.org>,
+       Andrei Mikhailovsky <andrei@arhont.com>,
+       Ian Campbell <icampbell@arcom.com>,
+       Ronald Bultje <rbultje@ronald.bitfreak.net>,
+       Gerd Knorr <kraxel@bytesex.org>
+Subject: [PATCH 2.6] Fix i2c messsage flags in video drivers
+Message-Id: <20050308202530.2fbfae9a.khali@linux-fr.org>
+In-Reply-To: <20050308201504.6aee36d5.khali@linux-fr.org>
+References: <1110024688.5494.2.camel@whale.core.arhont.com>
+	<422A5473.7030306@osdl.org>
+	<1110115990.5611.2.camel@whale.core.arhont.com>
+	<422CCBF4.1060902@osdl.org>
+	<20050308201504.6aee36d5.khali@linux-fr.org>
+X-Mailer: Sylpheed version 1.0.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 08 Mar 2005 11:18:28 -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
---=-5v3QEISAr9EgK1gFqDgJ
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+While working on the saa7110 driver I found a problem with the way
+various video drivers (found on Zoran-based boards) prepare i2c messages
+to be used by i2c_transfer. The drivers improperly copy the i2c client
+flags as the message flags, while both sets are mostly unrelated. The
+net effect in this case is to trigger an I2C block read instead of the
+expected I2C block write. The fix is simply not to pass any flag,
+because none are needed.
+
+I think this patch qualifies hands down as a "critical bug fix" to be
+included in whatever bug-fix-only trees exist these days. As far as I
+can see, all Zoran-based boards are broken in 2.6.11 without this patch.
+
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+
+diff -u -rN linux-2.6.11-bk3/drivers/media/video.orig/adv7170.c linux-2.6.11-bk3/drivers/media/video/adv7170.c
+--- linux-2.6.11-bk3/drivers/media/video.orig/adv7170.c	Tue Mar  8 10:27:14 2005
++++ linux-2.6.11-bk3/drivers/media/video/adv7170.c	Tue Mar  8 12:19:04 2005
+@@ -130,7 +130,7 @@
+ 		u8 block_data[32];
+ 
+ 		msg.addr = client->addr;
+-		msg.flags = client->flags;
++		msg.flags = 0;
+ 		while (len >= 2) {
+ 			msg.buf = (char *) block_data;
+ 			msg.len = 0;
+diff -u -rN linux-2.6.11-bk3/drivers/media/video.orig/adv7175.c linux-2.6.11-bk3/drivers/media/video/adv7175.c
+--- linux-2.6.11-bk3/drivers/media/video.orig/adv7175.c	Tue Mar  8 10:27:14 2005
++++ linux-2.6.11-bk3/drivers/media/video/adv7175.c	Tue Mar  8 12:18:57 2005
+@@ -126,7 +126,7 @@
+ 		u8 block_data[32];
+ 
+ 		msg.addr = client->addr;
+-		msg.flags = client->flags;
++		msg.flags = 0;
+ 		while (len >= 2) {
+ 			msg.buf = (char *) block_data;
+ 			msg.len = 0;
+diff -u -rN linux-2.6.11-bk3/drivers/media/video.orig/bt819.c linux-2.6.11-bk3/drivers/media/video/bt819.c
+--- linux-2.6.11-bk3/drivers/media/video.orig/bt819.c	Tue Mar  8 10:27:15 2005
++++ linux-2.6.11-bk3/drivers/media/video/bt819.c	Tue Mar  8 12:18:51 2005
+@@ -146,7 +146,7 @@
+ 		u8 block_data[32];
+ 
+ 		msg.addr = client->addr;
+-		msg.flags = client->flags;
++		msg.flags = 0;
+ 		while (len >= 2) {
+ 			msg.buf = (char *) block_data;
+ 			msg.len = 0;
+diff -u -rN linux-2.6.11-bk3/drivers/media/video.orig/saa7114.c linux-2.6.11-bk3/drivers/media/video/saa7114.c
+--- linux-2.6.11-bk3/drivers/media/video.orig/saa7114.c	Tue Mar  8 10:27:15 2005
++++ linux-2.6.11-bk3/drivers/media/video/saa7114.c	Tue Mar  8 12:18:20 2005
+@@ -163,7 +163,7 @@
+ 		u8 block_data[32];
+ 
+ 		msg.addr = client->addr;
+-		msg.flags = client->flags;
++		msg.flags = 0;
+ 		while (len >= 2) {
+ 			msg.buf = (char *) block_data;
+ 			msg.len = 0;
+diff -u -rN linux-2.6.11-bk3/drivers/media/video.orig/saa7185.c linux-2.6.11-bk3/drivers/media/video/saa7185.c
+--- linux-2.6.11-bk3/drivers/media/video.orig/saa7185.c	Tue Mar  8 10:27:15 2005
++++ linux-2.6.11-bk3/drivers/media/video/saa7185.c	Tue Mar  8 12:18:12 2005
+@@ -118,7 +118,7 @@
+ 		u8 block_data[32];
+ 
+ 		msg.addr = client->addr;
+-		msg.flags = client->flags;
++		msg.flags = 0;
+ 		while (len >= 2) {
+ 			msg.buf = (char *) block_data;
+ 			msg.len = 0;
 
 
-> Andrew, please don't apply the original patch. We shouldn't even attempt
-> to submit IO beyond the filesize. We should truncate the IO request to
-> filesize. I will send a patch today to fix this.
-> 
 
-Well, spoke too soon. This is an ugly corner case :( But I have
-a ugly hack to fix it :)
-
-Let me ask you a basic question: Do we support DIO reads on a file
-which is not blocksize multiple in size ? (say 12K - 10 bytes) ?
-
-What about the ones which are not 4K but 512 byte multiple ? (say 7K) ?
-
-I need answer to those, to figure out how hard I should try to fix this.
-
-Anyway, here is ugly version of the patch - which will limit the IO
-size to filesize and uses lower blocksizes to read the file (since
-the filesize is only 3K, it would go down to 512 byte blocksize).
-
-Thanks,
-Badari
-
---=-5v3QEISAr9EgK1gFqDgJ
-Content-Disposition: attachment; filename=aio-dio-short-read.patch
-Content-Type: text/plain; name=aio-dio-short-read.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
---- fs/direct-io.c.org	2005-03-08 09:53:31.823761712 -0800
-+++ fs/direct-io.c	2005-03-08 12:09:33.280084600 -0800
-@@ -1180,6 +1180,22 @@ __blockdev_direct_IO(int rw, struct kioc
- 		addr = (unsigned long)iov[seg].iov_base;
- 		size = iov[seg].iov_len;
- 		end += size;
-+
-+		/*
-+		 * If we are trying to read beyond end of the file
-+		 * truncate the IO request to filesize.
-+		 * This is ugly: we change iov_len and nr_segs,
-+		 * but need to do this here since we may need to
-+		 * bail out if the filesize is not blocksize multiple
-+		 * and we may need to do fine-grain blocksizes.
-+		 */	
-+		if ((rw == READ) && (end > i_size_read(inode))) {
-+			iov[seg].iov_len -= (end - i_size_read(inode));
-+			size = iov[seg].iov_len;
-+			end = i_size_read(inode);
-+			nr_segs = seg + 1;	/* Ugly - to break the loop */
-+		}
-+
- 		if ((addr & blocksize_mask) || (size & blocksize_mask))  {
- 			if (bdev)
- 				 blkbits = bdev_blkbits;
-
---=-5v3QEISAr9EgK1gFqDgJ--
-
+-- 
+Jean Delvare

@@ -1,76 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274813AbTGaPdM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 11:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270143AbTGaPbz
+	id S270109AbTGaPgv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 11:36:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274814AbTGaPes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 11:31:55 -0400
-Received: from dslb138.fsr.net ([12.7.7.138]:60599 "EHLO sandall.us")
-	by vger.kernel.org with ESMTP id S272516AbTGaPaT (ORCPT
+	Thu, 31 Jul 2003 11:34:48 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:48018 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S274822AbTGaPdi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 11:30:19 -0400
-Message-ID: <1059665595.3f2936bb2d3a7@horde.sandall.us>
-Date: Thu, 31 Jul 2003 08:33:15 -0700
-From: Eric Sandall <eric@sandall.us>
-To: Dirk Huste <dirkhuste@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Majordomo results: <no subject>
-References: <200307311058.h6VAwfQ29574@mailgate5.cinetic.de>
-In-Reply-To: <200307311058.h6VAwfQ29574@mailgate5.cinetic.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
-X-Originating-IP: 134.121.40.89
+	Thu, 31 Jul 2003 11:33:38 -0400
+Date: Thu, 31 Jul 2003 17:33:37 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Emulating i486 on i386 (was: TSCs are a no-no on i386)
+Message-ID: <20030731153337.GB1873@lug-owl.de>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
+References: <1059595260.10447.6.camel@dhcp22.swansea.linux.org.uk> <20030730203318.GH1873@lug-owl.de> <20030731002230.GE22991@fs.tum.de> <20030731062252.GM1873@lug-owl.de> <20030731071719.GA26249@alpha.home.local> <20030731113838.GU1873@lug-owl.de> <1059652268.16608.8.camel@dhcp22.swansea.linux.org.uk> <20030731121448.GW1873@lug-owl.de> <20030731130130.GY1873@lug-owl.de> <1059664158.5031.26.camel@workshop.saharacpt.lan>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="XINLVIUB+MD9CVAm"
+Content-Disposition: inline
+In-Reply-To: <1059664158.5031.26.camel@workshop.saharacpt.lan>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scrive Dirk Huste <dirkhuste@web.de>:
-> don't want to disturbe ... maybe i didn't get the right mailing list, but
-> general sounds good ....
-> 
-> today i tried to compile a newer kernel version ... i thought i made anything
-> right so far ... but things aren't always as easy as they seem to be,
-> especially for a newbie ... 
-> 
-> configured kernel, created bzImage, modules ... installed them in  the
-> correct paths ... configured lilo.conf and executed lilo ...
-> 
-> as result first "anything" works fine, while reboot, until lilo tries to load
-> the new kernel:
-> 
-> Loading kernelxyz .... -> black screen: but the laptop ( gericom
-> webshocks,with mini - pci - bussytem ) still seems to work in the background
-> ...
-> 
-> still i would be glad if anybody, who knows what went wrong, could take some
-> time and give me a hind about troubleshooting
-> 
-> THX  DK :)
 
-Check out this page: 
-http://www.kernel.org/pub/linux/kernel/people/davej/misc/post-halloween-2.5.txt
+--XINLVIUB+MD9CVAm
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-It has the fix for your problem.
+On Thu, 2003-07-31 17:09:19 +0200, Martin Schlemmer <azarah@gentoo.org>
+wrote in message <1059664158.5031.26.camel@workshop.saharacpt.lan>:
+> On Thu, 2003-07-31 at 15:01, Jan-Benedict Glaw wrote:
+> > On Thu, 2003-07-31 14:14:48 +0200, Jan-Benedict Glaw <jbglaw@lug-owl.de>
+> > wrote in message <20030731121448.GW1873@lug-owl.de>:
+> > > On Thu, 2003-07-31 12:51:09 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk>
+> > > wrote in message <1059652268.16608.8.camel@dhcp22.swansea.linux.org.u=
+k>:
+> > > > On Iau, 2003-07-31 at 12:38, Jan-Benedict Glaw wrote:
+> > So there we are. Thanks to someone who pointed me to LD_DEBUG et al., I
+> > see that my _init() is called too late:
+> >=20
+> > amtus:~/sigill_catcher# LD_DEBUG=3Dall LD_VERBOSE=3D1
+> > LD_PRELOAD=3D./libsigill.so apt-get update 2> ld_infos                 =
+               =20
+> > Illegal instruction
+> > amtus:~/sigill_catcher# grep 'calling init' ld_infos=20
+> > 00691:  calling init: /lib/libc.so.6
+> > 00691:  calling init: /lib/libdl.so.2
+> > 00691:  calling init: /lib/libgcc_s.so.1
+> > 00691:  calling init: /lib/libm.so.6
+> > 00691:  calling init: /usr/lib/libstdc++.so.5
+> >=20
+> > As I guessed, libstdc++5's _init() is called before mine (LD_PRELOADed)
+> > _init() function and thus, I cannot intercept this SIGILL, as it
+> > seems...
+> >=20
+>=20
+> You could do what we do with our path sandbox - basically you
+> use a wrapper that setup the environment (prob not needed in
+> your case), and then spawn bash with our sandbox lib preloaded,
+> which then calls whatever should be 'path sandboxed'.
 
--sandalle
+Care to send some URL? I haven't found it ad hoc by Google...
 
--- 
-PGP Key Fingerprint:  FCFF 26A1 BE21 08F4 BB91  FAED 1D7B 7D74 A8EF DD61
-http://search.keyserver.net:11371/pks/lookup?op=get&search=0xA8EFDD61
+MfG, JBG
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCS/E/IT$ d-- s++:+>: a-- C++(+++) BL++++VIS>$ P+(++) L+++ E-(---) W++ N+@ o?
-K? w++++>-- O M-@ V-- PS+(+++) PE(-) Y++(+) PGP++(+) t+() 5++ X(+) R+(++)
-tv(--)b++(+++) DI+@ D++(+++) G>+++ e>+++ h---(++) r++ y+
-------END GEEK CODE BLOCK------
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
 
-Eric Sandall                     |  Source Mage GNU/Linux Developer
-eric@sandall.us                  |  http://www.sourcemage.org/
-http://eric.sandall.us/          |  SysAdmin @ Inst. Shock Physics @ WSU
-http://counter.li.org/  #196285  |  http://www.shock.wsu.edu/
+--XINLVIUB+MD9CVAm
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
--------------------------------------------------
-This mail sent through IMP: http://horde.org/imp/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
+iD8DBQE/KTbRHb1edYOZ4bsRAgrWAJ9n15FwmkMJQiKZ0jpTt7f+Vb0JAACcD+Nr
+XYoWsq501cjDj0Ktli9xb20=
+=RHKg
+-----END PGP SIGNATURE-----
+
+--XINLVIUB+MD9CVAm--

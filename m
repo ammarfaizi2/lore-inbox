@@ -1,43 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129930AbQL2TRj>; Fri, 29 Dec 2000 14:17:39 -0500
+	id <S132024AbQL2TS7>; Fri, 29 Dec 2000 14:18:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130061AbQL2TRa>; Fri, 29 Dec 2000 14:17:30 -0500
-Received: from office.mandrakesoft.com ([195.68.114.34]:47603 "HELO
-	touba.mandrakesoft.com") by vger.kernel.org with SMTP
-	id <S129930AbQL2TRU>; Fri, 29 Dec 2000 14:17:20 -0500
-To: Sourav Sen <sourav@csa.iisc.ernet.in>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: How to write patches
-In-Reply-To: <Pine.SOL.3.96.1001229234454.12681A-100000@kohinoor.csa.iisc.ernet.in>
-From: Daouda LO <daouda@mandrakesoft.com>
-Date: 29 Dec 2000 19:48:41 +0000
-In-Reply-To: Sourav Sen's message of "Fri, 29 Dec 2000 23:52:05 +0530 (IST)"
-Message-ID: <m2wvcjc8km.fsf@touba.mandrakesoft.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+	id <S132031AbQL2TSu>; Fri, 29 Dec 2000 14:18:50 -0500
+Received: from gear.torque.net ([204.138.244.1]:23306 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S132024AbQL2TSh>;
+	Fri, 29 Dec 2000 14:18:37 -0500
+Message-ID: <3A4CDBBD.B613C101@torque.net>
+Date: Fri, 29 Dec 2000 13:45:17 -0500
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test13-pre4 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: georgek@netwrx1.com
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: SCSI Problems since upgrade from 2.2.16
+In-Reply-To: <p3ap4ts0e58mr95csmeo8sgr0gc0p63n7t@4ax.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sourav Sen <sourav@csa.iisc.ernet.in> writes:
+"George R. Kasica" wrote:
+> 
+> Hello:
+> 
+> I'm running an HP DAT 4mm Autochanger here and since going to 2.2.17
+> and 2.2.18 I'm seeing failures when it attempts to unload the tape and
+> load a new one while backing up using BRU PE...utilizing the mt or mtx
+> commands as follows:
+> 
+> mt -f $DEV rewoffl 2>&1 >/dev/null
+> 
+> OR
+> 
+> /usr/local/bin/mtx -f /dev/sg1 eject 2>&1 >/dev/null
+> 
+> If I use the MTX command set to "manually" change the tapes all is
+> well....any thoughts on the cause or a fix...I don't think the
+> hardware is broken due to the fact it runs fine "manually" by doing
+> the mtx -f /dev/sg1 next commnand to load the next tape
+> 
+> Pertinent info below:
+> 
+> Information about installed SCSI devices
+> 
+> Attached devices:
+> Host: scsi0 Channel: 00 Id: 01 Lun: 00
+>   Vendor: SEAGATE  Model: ST32550N         Rev: 0021
+>   Type:   Direct-Access                    ANSI SCSI revision: 02
+> Host: scsi0 Channel: 00 Id: 03 Lun: 00
+>   Vendor: HP       Model: C1553A           Rev: NS01
+>   Type:   Sequential-Access                ANSI SCSI revision: 02
+> Host: scsi0 Channel: 00 Id: 03 Lun: 01
+>   Vendor: HP       Model: C1553A           Rev: NS01
+>   Type:   Medium Changer                   ANSI SCSI revision: 02
 
-> Hi,
-> 
-> This question may seem naive, but can anyone tell me if there is any
-> structured way of writing patches? 
-> 
-> I mean suppose I want to implement some
-> kernel mechanism, and I define my data structures etc. and made most of
-> the code as loadable  module to start with, but still I am having to
-> change some parts of the kernel code at the development time, and I
-> want to make that change using patches, so that I do not have to browse
-> thru the files to change the code as I debug. 
-> 
-> Is there any structured way of doing this?
+While I am not familiar with mtx and the process you
+are having problems with, 'man 1 mtx' contains the 
+following:
+       The first argument, given following -f, is the SCSI
+       generic device corresponding to your media changer.
 
-have a look at:
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0011.2/0151.html
+On the basis of the /proc/scsi/scsi output you have shown,
+the mtx commands should read "mtx -f /dev/sg2 ..." 
+(not /dev/sg1) as you have noted at the top.
+
+Given those 2 sg devices are closely coupled (just
+differing by the lun) mtx probably can sort this out.
+
+Doug Gilbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

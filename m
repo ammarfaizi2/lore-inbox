@@ -1,81 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264896AbUGBSb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264894AbUGBSg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264896AbUGBSb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 14:31:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264895AbUGBSaq
+	id S264894AbUGBSg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 14:36:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264886AbUGBSg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 14:30:46 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:24292 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264890AbUGBSaP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 14:30:15 -0400
-Date: Fri, 2 Jul 2004 20:30:04 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: mcalinux@acc.umu.se, tao@acc.umu.se, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com, linux-net@vger.kernel.org,
-       James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
-Subject: Re: [2.6 patch] more MCA_LEGACY dependencies
-Message-ID: <20040702183004.GJ28324@fs.tum.de>
-References: <20040702002459.GI28324@fs.tum.de> <20040702130719.GC13384@lorien.prodam>
-Mime-Version: 1.0
+	Fri, 2 Jul 2004 14:36:29 -0400
+Received: from web40001.mail.yahoo.com ([66.218.78.19]:29009 "HELO
+	web40001.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264894AbUGBSgY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 14:36:24 -0400
+Message-ID: <20040702183623.74495.qmail@web40001.mail.yahoo.com>
+Date: Fri, 2 Jul 2004 11:36:23 -0700 (PDT)
+From: Song Wang <wsonguci@yahoo.com>
+Subject: kbuild support to build one module with multiple separate components?
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040702130719.GC13384@lorien.prodam>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 02, 2004 at 10:07:19AM -0300, Luiz Fernando N. Capitulino wrote:
->...
-> |  static int __init smctr_chk_mca(struct net_device *dev)
-> |  {
-> | -#ifdef CONFIG_MCA
-> | +#ifdef CONFIG_MCA_LEGACY
-> |  	struct net_local *tp = netdev_priv(dev);
-> |  	int current_slot;
-> |  	__u8 r1, r2, r3, r4, r5;
-> | @@ -626,7 +626,7 @@
-> |  	return (0);
-> |  #else
-> |  	return (-1);
-> | -#endif /* CONFIG_MCA */
-> | +#endif /* CONFIG_MCA_LEGACY */
-> |  }
-> 
->  what about doing things like that for #ifdef/#endif inside
-> functions? (not compiled):
->...
-> +#ifdef CONFIG_MCA_LEGACY
->  static int __init smctr_chk_mca(struct net_device *dev)
->  {
-> -#ifdef CONFIG_MCA
->  	struct net_local *tp = netdev_priv(dev);
->  	int current_slot;
->  	__u8 r1, r2, r3, r4, r5;
->...
-> --- a/drivers/net/tokenring/smctr.h	2003-10-08 16:24:14.000000000 -0300
-> +++ a~/drivers/net/tokenring/smctr.h	2004-07-02 09:56:56.000000000 -0300
-> @@ -9,6 +9,11 @@
->  
->  #ifdef __KERNEL__
->  
-> +/* when !CONFIG_MCA_LEGACY */
-> +#ifndef CONFIG_MCA_LEGACY
-> +static inline smctr_chk_mca(struct net_device *dev) { return (-1); }
-> +#endif
-> +
->...
+Hi, Folks
 
-What's the advantage of your approach?
-All it seems to do is to make the code less readable.
+I'm puzzled by the kbuild system in 2.6 kernel.
+I want to write a kernel module, which consists of
+several components. The module is produced by
+linking these components. These components are located
+in separate subdirectories (for example A, B,C). 
+Each component is generated also by linking 
+multiple files. (For example, a_1.c, a_2.c for
+building A.o, b_1.c, b_2.c for building B.o, then A.o
+and B.o
+should be linked to produce mymodule.o) 
 
-cu
-Adrian
+I know if I put all the files in a single directory
+The makefile of the module looks like
 
--- 
+obj-$(CONFIG_MYMODULE) += mymodule.o
+mymodule-objs := a_1.o a_2.o b_1.o b_2.o c_1.o c_2.o
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+It should work. But it is really messy, especially
+there are a lot of files or each component requires
+different EXTRA_CFLAGS. However, if I write
+separate Makefiles for each component in their own
+subdirectory, the Makefile of component A looks like
 
+obj-y := A.o (or obj-$(CONFIG_MYMODULE) +=  A.o)
+A-objs := a_1.o a_2.o
+
+This is wrong, because kbuild will treat A as
+independent module. All I want is to treat
+A as component of the only module mymodule.o. It
+should be linked to mymodule.o
+
+Any idea on how to write a kbuild Makefile to
+support such kind of single module produced
+by linking multiple components and each component
+is located in separate directory? Thanks.
+
+-Song
+
+
+
+
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - 50x more storage than other providers!
+http://promotions.yahoo.com/new_mail

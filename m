@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262490AbVAJUoA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262529AbVAJUpB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262490AbVAJUoA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 15:44:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbVAJUk4
+	id S262529AbVAJUpB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 15:45:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262520AbVAJUo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 15:40:56 -0500
-Received: from mail.tyan.com ([66.122.195.4]:52750 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S262532AbVAJUgu (ORCPT
+	Mon, 10 Jan 2005 15:44:57 -0500
+Received: from waste.org ([216.27.176.166]:22200 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262529AbVAJUoX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 15:36:50 -0500
-Message-ID: <3174569B9743D511922F00A0C9431423072913A8@TYANWEB>
-From: YhLu <YhLu@tyan.com>
-To: Andi Kleen <ak@muc.de>
-Cc: "'Mikael Pettersson'" <mikpe@csd.uu.se>, jamesclv@us.ibm.com,
-       Matt_Domsch@dell.com, discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       suresh.b.siddha@intel.com
-Subject: RE: 256 apic id for amd64
-Date: Mon, 10 Jan 2005 12:48:19 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Mon, 10 Jan 2005 15:44:23 -0500
+Date: Mon, 10 Jan 2005 12:43:06 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Frank van Maarseveen <frankvm@frankvm.com>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, Anton Blanchard <anton@samba.org>,
+       Andrew Morton <akpm@osdl.org>, Linas Vepstas <linas@austin.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+Subject: Re: [PATCH] kernel/printk.c  lockless access
+Message-ID: <20050110204306.GE2995@waste.org>
+References: <20050106195812.GL22274@austin.ibm.com> <20050106161241.11a8d07c.akpm@osdl.org> <20050107002648.GD14239@krispykreme.ozlabs.ibm.com> <41DDD6FA.2050403@osdl.org> <1105062162.24896.311.camel@localhost.localdomain> <20050109104425.GA9524@janus> <1105278075.12028.29.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1105278075.12028.29.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not lifting bsp to 0x10, it fails on TIMER too.
+On Sun, Jan 09, 2005 at 11:00:48PM +0000, Alan Cox wrote:
+> On Sul, 2005-01-09 at 10:44, Frank van Maarseveen wrote:
+> > What about UDP (or just eth) broadcasting the oops and catching it
+> > on another system? That would be useful if one has a lot of systems
+> > (I have about 40) and makes it possible to immediately alert someone
+> > without the need for ping games.
+> 
+> netdump and kgdb both can do this. The 2.6.10-tiny1 has some nice kgdb
+> patches that include using the polling network debug interfaces.
 
-YH
+Netconsole can sends oopses over UDP right now in mainline (since
+2.6.3 or so?). And my kgdb over ethernet bits have been in -mm for
+quite some time as well. 
 
-Inode-cache hash table entries: 131072 (order: 8, 1048576 bytes)
-Memory: 1019432k/1048576k available (3006k kernel code, 0k reserved, 1317k
-data, 548k init)
-LYH calibrating 0 jiffies = 4294667566, now=2500693458
-LYH calibrating 1 jiffies = 4294667571, now=2511802784
-LYH calibrating 3 jiffies = 4294667601, now=2579969051
-4341.76 BogoMIPS (lpj=2170880)
-Mount-cache hash table entries: 256 (order: 0, 4096 bytes)
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-CPU 0(2) -> Node 0
-CPU: Physical Processor ID: 0
-Using local APIC NMI watchdog using perfctr0
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-CPU 0(2) -> Node 0
-CPU: Physical Processor ID: 0
-CPU0:  stepping 00
-per-CPU timeslice cutoff: 1023.91 usecs.
-task migration cache decay timeout: 2 msecs.
-Booting processor 1/1 rip 6000 rsp ffff810002217f58
-Initializing CPU#1
-LYH calibrating 0 jiffies = 4294667672, now=2736795282
-LYH calibrating 1 jiffies = 4294667672, now=2736800180
-Calibrating delay loop... <7>Calibrating delay loop... ----------- [cut here
-] --------- [please bite here ] ---------
-Kernel BUG at timer:416
-invalid operand: 0000 [1] SMP 
-CPU 1 
-Modules linked in:
-Pid: 0, comm: swapper Not tainted 2.6.10-bk13
-RIP: 0010:[<ffffffff8013958d>] <ffffffff8013958d>{cascade+45}
-RSP: 0018:ffff81000221fed8  EFLAGS: 00010007
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff810001e15820
-RBP: ffff810001e16838 R08: 00000000fffffff2 R09: 0000000000000009
-R10: 00000000ffffffff R11: 0000000000000000 R12: fff
+(Though testing of -tiny is still appreciated of course.)
+
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265173AbTFUMUa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 08:20:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265176AbTFUMUa
+	id S265072AbTFUMZT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 08:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265176AbTFUMZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 08:20:30 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:25104 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S265173AbTFUMU0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 08:20:26 -0400
-Date: Sat, 21 Jun 2003 14:34:16 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: hps@intermeta.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Message-Id: <20030621143416.31978fc2.skraw@ithnet.com>
-In-Reply-To: <bd11vh$5t5$1@tangens.hometree.net>
-References: <063301c32c47$ddc792d0$3f00a8c0@witbe>
-	<20030620174600.681cdf47.skraw@ithnet.com>
-	<bd11vh$5t5$1@tangens.hometree.net>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 21 Jun 2003 08:25:19 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:20935
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S265072AbTFUMZR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 08:25:17 -0400
+Subject: Re: patch for common networking error messages
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: girouard@us.ibm.com, stekloff@us.ibm.com, janiceg@us.ibm.com,
+       jgarzik@pobox.com, kenistonj@us.ibm.com, lkessler@us.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com, niv@us.ibm.com
+In-Reply-To: <20030616.155533.63022973.davem@redhat.com>
+References: <OFC2446DB8.6D4DA3ED-ON85256D47.007C79EE@us.ibm.com>
+	 <20030616.155533.63022973.davem@redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1056199013.25974.27.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 21 Jun 2003 13:36:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Jun 2003 07:37:21 +0000 (UTC)
-"Henning P. Schmiedehausen" <hps@intermeta.de> wrote:
-
-> Stephan von Krawczynski <skraw@ithnet.com> writes:
+On Llu, 2003-06-16 at 23:55, David S. Miller wrote:
+> Let me know when you're back on planet earth ok?
 > 
-> >There are "operating systems" whos' live cycle is set to 3 years by the
-> >manufacturer. How does a long-term strategy for a company doing application
-> 
-> Hm. Speaking of support: Most programs for Windows 95/98 still run on
-> my WinXP desktop. Those binaries for RedHat Linux 5.1 don't even link
-> on RHL9.
-> 
-> 	Regards
-> 		Henning
+> Standardizing strings is an absolutely FRUITLESS exercise.
 
-Well Henning, question is: did you jump from W95/98 to XP? You should have
-followed the product flow according to the vendor:
-
-W95->W98->NT3->NT4->W2K->XP
-
-Have you tried your apps on NT3/NT4? If they didn't work back _then_ you
-probably have exchanged them back then - which was the original intention of
-the whole story.
-As you may remember the licenses were just adjusted to _prevent_ people from
-upgrading "multi-hop", why do you think they did that?
-
-Regards,
-Stephan
+Standardising strings is a real help for end users, but its not the way
+to approach logging issues I agree.
 

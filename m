@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264715AbUEOTlw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263227AbUEOTu0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264715AbUEOTlw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 15:41:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264716AbUEOTlw
+	id S263227AbUEOTu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 15:50:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264717AbUEOTu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 15:41:52 -0400
-Received: from mail.tmr.com ([216.238.38.203]:20118 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S264715AbUEOTlv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 15:41:51 -0400
-Message-ID: <40A67424.7010408@tmr.com>
-Date: Sat, 15 May 2004 15:48:52 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: arjanv@redhat.com
-CC: Andrew Morton <akpm@osdl.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	Sat, 15 May 2004 15:50:26 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:38412 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263227AbUEOTuZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 15:50:25 -0400
+Date: Sat, 15 May 2004 20:50:22 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>, torvalds@osdl.org,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
-References: <Pine.LNX.3.96.1040512115750.23213A-100000@gatekeeper.tmr.com> <1084378819.10949.0.camel@laptop.fenrus.com>
-In-Reply-To: <1084378819.10949.0.camel@laptop.fenrus.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] slabify iocontext + request_queue
+Message-ID: <20040515205022.A4788@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jens Axboe <axboe@suse.de>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <20040515190735.A4189@infradead.org> <20040515173004.GA962@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040515173004.GA962@suse.de>; from axboe@suse.de on Sat, May 15, 2004 at 07:30:04PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
->>>"4KSTACKS" already is present in the module version string.
->>>
->>>And Fedora is shipping now with 4k stacks, so presumably any disasters
->>>are relatively uncommon...
->>
->>Fedora and kernel.org have a lot of unshared bugs and features,
->>unfortunately. I take that information as an encouraging proof of concept,
->>not a waranty that the kernel.org code will behave in a similar way.
+On Sat, May 15, 2004 at 07:30:04PM +0200, Jens Axboe wrote:
+> > While I agree on the io_context part, slabifying request_queue is a space
+> > waste on most machines out there.  The averange desktop has less than a
+> > handfull of these, and even for smaller servers it doesn't exactly look
+> > like a gain.
 > 
-> 
-> Hey! That's slander of title! :-)
-> Seriously the difference between the Fedora Core 2 kernel and the
-> matching kernel.org kernel aren't THAT big. The 4g/4g split patch being
-> the biggest delta.
-> 
-I was thinking about the one you charge for... I wouldn't use FCn for 
-production on a bet. I was thinking of my RHEL AS3.0 vs. kernel.org, 
-which are kernels stable enough for commercial use.
+> See the thread last week on queue congestion threshold calculations,
+> there were some numbers in there.
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Maybe my math is completely off, but with slab you'd need a page at least,
+the kmem_cache_t and maybe a kmem_bufctl_t
+
+So for the usual two or three queue desktops we went from 1024 or 1536
+to 4096 + N.
+
+Cutoff point is at aproximately 9 queues which I think most machines running
+linux won't reach.
+
+Anyway, not that this is really important, I think we just need to question
+all this silent bloating a little..
+

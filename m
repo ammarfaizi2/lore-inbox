@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263772AbUHDMjS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264919AbUHDMlu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263772AbUHDMjS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 08:39:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUHDMjS
+	id S264919AbUHDMlu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 08:41:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbUHDMlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 08:39:18 -0400
-Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:33509 "EHLO
-	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
-	id S263772AbUHDMjB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 08:39:01 -0400
-Date: Wed, 4 Aug 2004 14:37:23 +0200
-From: Guido Guenther <agx@sigxcpu.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Giuliano Pochini <pochini@shiny.it>, kumar.gala@freescale.com,
-       tnt@246tNt.com, linuxppc-dev@lists.linuxppc.org,
-       linux-kernel@vger.kernel.org, olh@suse.de, akpm@osdl.org
-Subject: Re: [PATCH][PPC32] Makefile cleanups and gcc-3.4+binutils-2.14 c
-Message-ID: <20040804123722.GA5587@bogon.ms20.nix>
-References: <20040728220733.GA16468@smtp.west.cox.net> <XFMail.20040729100549.pochini@shiny.it> <20040729144347.GE16468@smtp.west.cox.net> <20040730205901.4d4181f4.pochini@shiny.it> <20040730190731.GQ16468@smtp.west.cox.net> <20040730224828.0f06e37a.pochini@shiny.it> <20040730210318.GS16468@smtp.west.cox.net> <20040804104157.GB3554@bogon.ms20.nix>
+	Wed, 4 Aug 2004 08:41:49 -0400
+Received: from users.linvision.com ([62.58.92.114]:22464 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S262356AbUHDMko (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 08:40:44 -0400
+Date: Wed, 4 Aug 2004 14:40:42 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Jan De Luyck <lkml@kcore.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.8-rc3
+Message-ID: <20040804124042.GA25969@harddisk-recovery.com>
+References: <Pine.LNX.4.58.0408031505470.24588@ppc970.osdl.org> <200408041407.39871.lkml@kcore.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qDbXVdCdHGoSgWSk"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040804104157.GB3554@bogon.ms20.nix>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <200408041407.39871.lkml@kcore.org>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Aug 04, 2004 at 02:07:20PM +0200, Jan De Luyck wrote:
+> On Wednesday 04 August 2004 00:09, Linus Torvalds wrote:
+> > It would be good if people only sent serious stuff for a while, and we can
+> > do a real 2.6.8, ok?
+> 
+> Works like a charm, only one comment:
+> 
+> Mounting my vfat partitions gave me this error:
+> 
+> FAT: codepage or iocharset option didn't specified
+>      File name can not access proper (mounted as read-only)
+> 
+> which was easily fixed by supplying a iocharset= mount option. But according 
+> to the man page of mount:
+> 
+>        iocharset=value
+>               Character set to use for converting between 8 bit characters and
+>               16 bit Unicode characters. The default is iso8859-1.  Long file-
+>               names are stored on disk in Unicode format.
+> 
+> the default is iso8859-1. Has this default gone haywire somewhere?
 
---qDbXVdCdHGoSgWSk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes, it's in the hidden in the ChangeLog. You can find it if you know
+iocharset is the same as nls:
 
-On Wed, Aug 04, 2004 at 12:41:57PM +0200, Guido Guenther wrote:
-> On Fri, Jul 30, 2004 at 02:03:18PM -0700, Tom Rini wrote:
-> > On Fri, Jul 30, 2004 at 10:48:28PM +0200, Giuliano Pochini wrote:
-> > > gcc 3.3.3 + binutils 2.15 fails quite soon here:
-[..snip..]=20
-> > Can you try with the following?
-> Doesn't apply against 2.6.8-rc3. For what it's worth, I've attached a ver=
-sion that does.
-Forget about that one, wrong tree.
- -- Guido
+  Hirofumi Ogawa:
+    o FAT: kill nls default
 
---qDbXVdCdHGoSgWSk
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Erik
 
-iD8DBQFBENiCn88szT8+ZCYRAlqeAJ0ZB5dTZWzJgnMEikzveMKfpOvweQCeJ+p0
-mugHXrJDbCDvVtk78AQcdfw=
-=17zk
------END PGP SIGNATURE-----
-
---qDbXVdCdHGoSgWSk--
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

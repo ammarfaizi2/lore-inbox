@@ -1,44 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262047AbVCIRDU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262063AbVCIRHQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262047AbVCIRDU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 12:03:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbVCIRDU
+	id S262063AbVCIRHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 12:07:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbVCIRHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 12:03:20 -0500
-Received: from rproxy.gmail.com ([64.233.170.202]:34794 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262047AbVCIRDP (ORCPT
+	Wed, 9 Mar 2005 12:07:16 -0500
+Received: from fire.osdl.org ([65.172.181.4]:23174 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262063AbVCIRHK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 12:03:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=pMyVSOsWKpqhSVT/PjWPlO9g3pLpOrQk3QHO882Hnzjq5Wl1/wJ+OOxUb5YyspKwlCa+FGmIa612T3ij8DJPEJffr80zON5rPH/jtEUdDFvunMrpZIf3qTOrkDd+EdclWUAbedBRhgCOuXgFu42vK1Me6TSskGcayAIfy+NwSXg=
-Message-ID: <9e47339105030909031486744f@mail.gmail.com>
-Date: Wed, 9 Mar 2005 12:03:11 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: current linus bk, error mounting root
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Mar 2005 12:07:10 -0500
+Date: Wed, 9 Mar 2005 09:09:02 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] remove dead cyrix/centaur mtrr init code
+In-Reply-To: <1110387326.28860.199.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0503090908260.2530@ppc970.osdl.org>
+References: <200503081937.j28Jb4Vd020597@hera.kernel.org>
+ <1110387326.28860.199.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Something in the last 24hrs in linus bk broke my ability to mount root:
 
-Creating root device
-Mounting root filesystem
-mount: error 6 mounting ext3
-mount: error 2 mounting none
-Switching to new root
-Switchroot: mount failed 22
-umount /initrd/dev failed: 2
 
-If I back off a day everything works again. 
+On Wed, 9 Mar 2005, Alan Cox wrote:
+> 
+> This patch was discussed previously and declared incorrect.
 
-Root is on Intel ICH5 SATA drive.
+Well, it was also declared as a "don't care" by Dave, I think, by virtue 
+of nobody having ever complained.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+		Linus

@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285020AbRLQGGT>; Mon, 17 Dec 2001 01:06:19 -0500
+	id <S285030AbRLQGIT>; Mon, 17 Dec 2001 01:08:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285023AbRLQGGJ>; Mon, 17 Dec 2001 01:06:09 -0500
-Received: from mail.linpro.no ([213.203.57.2]:46342 "HELO linpro.no")
-	by vger.kernel.org with SMTP id <S285020AbRLQGGB>;
-	Mon, 17 Dec 2001 01:06:01 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Compilation of 2.5.1-pre11 fails w/LVM as module
-In-Reply-To: <33364.62.211.145.13.1008513364.squirrel@gtsmail.gts.it>
-From: Thorkild Stray <thorkild@linpro.no>
-Date: 17 Dec 2001 07:05:58 +0100
-In-Reply-To: <33364.62.211.145.13.1008513364.squirrel@gtsmail.gts.it>
-Message-ID: <nnd71efkjd.fsf@false.linpro.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S285025AbRLQGIJ>; Mon, 17 Dec 2001 01:08:09 -0500
+Received: from f141.law7.hotmail.com ([216.33.237.141]:41224 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S285024AbRLQGH6>;
+	Mon, 17 Dec 2001 01:07:58 -0500
+X-Originating-IP: [216.117.88.41]
+From: "Edward Killips" <etkillips@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Netfilter Oops Solved
+Date: Mon, 17 Dec 2001 01:07:52 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F141o1ujjSkZSvx5bd600005006@hotmail.com>
+X-OriginalArrivalTime: 17 Dec 2001 06:07:53.0081 (UTC) FILETIME=[29C71E90:01C186C1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<s.rivoir@gts.it> writes:
+I found the problem in the netfilter code. In the file ipt_TOS.c the 
+following code is wrong;
+if(!nskb)
+     return NF_DROP;
+*pskb = nskb;            <---this should be down 1 line
+kfree_skb(*pksb);        <-- pointer is freed here
+iph = (*pksb)->nh.iph;   <-- freed pointer is used here.
 
-> As stated in the subject, this is 'make modules' output:
-> 
-> make[2]: Entering directory `/us2/usr/src/linux/drivers/md'
-> gcc -D__KERNEL__ -I/us2/usr/src/linux/include -Wall -Wstrict-prototypes
-> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing-fno-common -pipe -mpreferred-stack-boundary=2 -march=i686
-> -malign-functions=4  -DMODULE   -c -o lvm.o lvm.clvm.c: In function `lvm_user_bmap':
-> lvm.c:1046: request for member `bv_len' in something not a structure or union
-> make[2]: *** [lvm.o] Error 1
-> make[2]: Leaving directory `/us2/usr/src/linux/drivers/md'
-> make[1]: *** [_modsubdir_md] Error 2
-> make[1]: Leaving directory `/us2/usr/src/linux/drivers'
-> make: *** [_mod_drivers] Error 2
-> Sorry if already issued by someone else :)
+The following patch fixes the problem.
 
-This can be fixed (so that is compiles) by just changing line 1046 from:
-
-bio.bi_io_vec.bv_len = lvm_get_blksize(bio.bi_dev);
-
-to
-
-bio.bi_io_vec->bv_len = lvm_get_blksize(bio.bi_dev);
-
-This is due to changes in the I/O layer. You used to only have one
-bio_vec struct in the bio struct, but now it has changed to a linked
-list.
-
-Warning: This makes it compile, but it does not necessarily make it
-work, but I might. :) Since the rest of LVM hasn't been changed to
-use the new linked-list-possibility, it shouldn't make a difference.
+--- ipt_TOS.c.orig	Mon Dec 17 00:33:50 2001
++++ ipt_TOS.c	Mon Dec 17 00:34:18 2001
+@@ -27,8 +27,8 @@
+			struct sk_buff *nskb = skb_copy(*pskb, GFP_ATOMIC);
+			if (!nskb)
+				return NF_DROP;
+-			*pskb = nskb;
+			kfree_skb(*pskb);
++			*pskb = nskb;
+			iph = (*pskb)->nh.iph;
+		}
 
 
--- 
-Thorkild Stray, Linpro AS                              <thorkild@linpro.no>
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp.
+

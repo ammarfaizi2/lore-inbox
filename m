@@ -1,80 +1,140 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265507AbRF1Dg6>; Wed, 27 Jun 2001 23:36:58 -0400
+	id <S265503AbRF1Dkr>; Wed, 27 Jun 2001 23:40:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265505AbRF1Dgs>; Wed, 27 Jun 2001 23:36:48 -0400
-Received: from secure.hostnoc.net ([66.96.192.200]:25865 "EHLO
-	secure.hostnoc.net") by vger.kernel.org with ESMTP
-	id <S265503AbRF1Dgb>; Wed, 27 Jun 2001 23:36:31 -0400
-Date: Wed, 27 Jun 2001 23:35:41 -0400
-From: "J. Nick Koston" <nick@burst.net>
-To: John Cavan <johnc@damncats.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Asus CUV4X-DLS
-Message-ID: <20010627233541.A32271@burst.net>
-In-Reply-To: <20010627215304.D28795@burst.net> <3B3AA1DE.E4419FA8@damncats.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B3AA1DE.E4419FA8@damncats.org>; from johnc@damncats.org on Wed, Jun 27, 2001 at 11:17:50PM -0400
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - secure.hostnoc.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [1003 1004] / [1003 1004]
-X-AntiAbuse: Sender Address Domain - secure.hostnoc.net
+	id <S265505AbRF1Dkh>; Wed, 27 Jun 2001 23:40:37 -0400
+Received: from mail.aslab.com ([205.219.89.194]:16144 "EHLO mail.aslab.com")
+	by vger.kernel.org with ESMTP id <S265503AbRF1DkR>;
+	Wed, 27 Jun 2001 23:40:17 -0400
+Date: Wed, 27 Jun 2001 20:39:45 -0700 (PDT)
+From: Andre Hedrick <andre@aslab.com>
+To: Andries.Brouwer@cwi.nl
+cc: alan@lxorguk.ukuu.org.uk, Gunther.Mayer@t-online.de,
+        dhinds@zen.stanford.edu, linux-kernel@vger.kernel.org
+Subject: Re: Patch(2.4.5): Fix PCMCIA ATA/IDE freeze (w/ PCI add-in cards)
+In-Reply-To: <UTC200106280105.DAA331227.aeb@vlet.cwi.nl>
+Message-ID: <Pine.LNX.4.04.10106271959510.25404-200000@mail.aslab.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1212088808-1292345401-993699585=:25404"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+---1212088808-1292345401-993699585=:25404
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Thanks for the tips, however it doesn't help :-(
 
-Anyways in case anyone is curious the i/o problem still happens
-with an aic7xxx card put in and the onboard scsi disabled.
+On Thu, 28 Jun 2001 Andries.Brouwer@cwi.nl wrote:
 
-[snip]=20
-> "J. Nick Koston" wrote:
-> >=20
-> > There seems to be a major problem with this board and 2.4.x kernels.
-> > I consistantly get SCSI Input/Output errors on multiple drives that I
-> > know are good when running a SMP kernel.  These errors do no happen
-> > with a UP kernel.  This is happening on multiple systems and with
-> > multiple know good scsi drives of all speeds and sizes.
->=20
-> Make sure you have the latest BIOS upgrade and set the MPS revision in
-> the BIOS to 1.1 rather than 1.4. This cured a similar issue for me and
-> USB on the CUV4X-D motherboard, but as your board is different, your
-> mileage may vary.
+>     From: Andre Hedrick <andre@aslab.com>
+> 
+>     You know yourself first and all the screwed up ATAPI products that are
+>     still using SFF-8020 that has been obsoleted before I start maintaining
+>     the subsystem three plus years ago. 
+> 
+> Hi Andre -
+> 
+> Why precisely is complying to SFF-8020 broken?
+> That was the standard. The standard that Microsoft required.
 
-Already set at 1.1
->=20
-> Also, try passing "noapic" to the kernel on boot if the problem still
-> persists. The downside is that all interrupts will be handled by a
-> single CPU. There is a definite problem with VIA chipsets.
->=20
-Tried this as well (mentioned in my original email)
+You have stated it clearly it is past tense.
 
-> John
+> Other people made a different standard, and claimed that theirs
+> was better or more official or whatever, but reality is that
+> the products were not manufactured following this so-called
+> better standard.
 
---=20
+Ignoring "junk hardware" is not practical it will bite you everyday all
+day long.........Best example is VIA.
 
---jRHKVT23PllUwdXP
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+> You are a good disciple of Hale, but it is no use ignoring the
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+If one is going to learn the rules it is best to have learned from on of
+the "Fathers of ATA", and given that I have been crowned "Hale Jr." I take
+this a compliment.  The reality is that I am not anywhere in the same
+class of understanding as Hale Landis, but getting there.
 
-iD8DBQE7OqYMT5huNxcQLWARAophAKCDUQmxrEfygazQmLD1xE3YNNCxGwCeMD43
-h6PXcM/sgJKhvuE5P1kqH4Y=
-=By1P
------END PGP SIGNATURE-----
+> fact that a very large number of devices was made following SFF-8020.
+> These devices are not necessarily screwed, they tend to work fine,
+> although both ATA and ATAPI devices have their quirks.
 
---jRHKVT23PllUwdXP--
+If they all did the same thing (regardless of class) it would be a
+different issue.  Basic things like asking for N amounts of data and
+getting back N+M > N the buffer allocated.  Or worse is the under
+data-run.  Other issues are DRQ, failure to hold/set busy-bit.
+
+The ATAPI people do not even follow the rules in the defunct guide.
+
+> SFF-8020, later INF-8020, became part of ATA/ATAPI-4 (1998).
+> The T13 people that merged SFF-8020 and produced ATA/ATAPI-4
+> changed a few details about how a master is supposed to react
+> when a nonexistent slave is selected. Nobody really noticed,
+
+That point is only important during POST and execution of drive
+diagnostics command and Linux does not call that command.
+
+> and ATA/ATAPI-5 still had the same requirements. But then long
+> discussions about this difference caused ATA/ATAPI-6 to go back
+> to the original SFF-8020 requirements. Do you disagree with this
+> description of history? If you agree then it is not SFF-8020
+> but ATA/ATAPI-4 and ATA/ATAPI-5 that today must be considered broken
+> in this respect. I am referring to Section 9.16.1 of these standards.
+> 
+> Maybe there are other things in SFF-8020 that you consider broken?
+
+See above, regardless of the brokeness whe have to mucky with it.
+So I move to develop to a standard that I have influence and direction
+control, then deal with the exceptions.
+
+ATA-X created the "packet-command" and "data-phase-handlers" based on the
+zero-bit in the error_feature task-register.
+
+Lastly it does not exist anymore, a real problem for manufacturers
+building product on a document that does not exist.  Worse is that there
+are companies making hardware based on SFF-8020 v2.5!
+
+Cheers,
+
+Andre Hedrick
+ASL Kernel Development
+Linux ATA Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
+
+
+---1212088808-1292345401-993699585=:25404
+Content-Type: TEXT/plain; name="inf-8020.txt"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.04.10106272039450.25404@mail.aslab.com>
+Content-Description: 
+Content-Disposition: attachment; filename="inf-8020.txt"
+
+RXhwaXJlZCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICBTRkYtODAyMGkgUmV2IDIuNiANDQoNDQoNDQpT
+RkYgQ29tbWl0dGVlIGRvY3VtZW50YXRpb24gbWF5IGJlIHB1cmNoYXNlZCAo
+c2VlIHA0KS4NDQpTRkYgQ29tbWl0dGVlIGRvY3VtZW50cyBhcmUgYXZhaWxh
+YmxlIGJ5IEZheEFjY2VzcyBhdCA0MDgtNzQxLTE2MDANDQoNDQoNDQoNDQoN
+DQoNDQoNDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFNGRiBD
+b21taXR0ZWUNDQoNDQogICAgICAgICAgICAgICAgICAgICAgICAgIFNGRi04
+MDIwaSBTcGVjaWZpY2F0aW9uIGZvciANDQoNDQogICAgICAgICAgICAgICAg
+ICAgICAgQVRBIFBhY2tldCBJbnRlcmZhY2UgZm9yIENELVJPTSANDQoNDQog
+ICAgICAgICAgICAgICAgICAgICAgICAgIFJldiAyLjYgICBKYW51YXJ5IDIy
+LCAxOTk2DQ0KDQ0KDQ0KDQ0KU2VjcmV0YXJpYXQ6ICBTRkYgQ29tbWl0dGVl
+DQ0KDQ0KDQ0KQWJzdHJhY3Q6ICBJTkYtODAyMGkgZGVmaW5lcyBkZWZpbmVz
+IGEgUGFja2V0IEludGVyZmFjZSBmb3IgdXNlIHdpdGggQ0QtUk9NIA0NCmRy
+aXZlcyB0aGF0IHVzZSB0aGUgQVRBIChBVCBBdHRhY2htZW50KSBpbnRlcmZh
+Y2UuDQ0KDQ0KVGhlIG1lbWJlcnMgdm90ZWQgaW4gU2VwdGVtYmVyIDE5OTkg
+dGhhdCB0aGlzIHNwZWNpZmljYXRpb24gRXhwaXJlLiANDQoNDQpTRkYtODAy
+MCBoYXMgYmVlbiBpbmNvcnBvcmF0ZWQgaW50byB0d28gbmF0aW9uYWwgc3Rh
+bmRhcmRzLCBTQ1NJIE1NQyAoTXVsdGkgDQ0KTWVkaWEgQ29tbWFuZHMpIGFu
+ZCBBVEEvQVRBUEkgKEFUIEF0dGFjaG1lbnQpLiANDQoNDQpGb3IgY3VycmVu
+dCBpbmZvcm1hdGlvbiwgc2VlOg0NCg0NCiAtIHd3dy50MTAub3JnIGZvciB0
+aGUgbGF0ZXN0IHJldmlzaW9uIG9mIFNDU0kgTU1DLXggDQ0KIC0gd3d3LnQx
+My5vcmcgZm9yIHRoZSBsYXRlc3QgcmV2aXNpb24gb2YgQVRBL0FUQVBJLXgN
+DQoNDQo=
+---1212088808-1292345401-993699585=:25404--

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264067AbTFBVfa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 17:35:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264069AbTFBVfa
+	id S264186AbTFBVq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 17:46:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264188AbTFBVq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 17:35:30 -0400
-Received: from pat.uio.no ([129.240.130.16]:13227 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S264067AbTFBVf3 (ORCPT
+	Mon, 2 Jun 2003 17:46:59 -0400
+Received: from pat.uio.no ([129.240.130.16]:41391 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S264186AbTFBVq6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 17:35:29 -0400
+	Mon, 2 Jun 2003 17:46:58 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16091.50722.851659.821544@charged.uio.no>
-Date: Mon, 2 Jun 2003 23:48:18 +0200
+Message-ID: <16091.51200.292233.374385@charged.uio.no>
+Date: Mon, 2 Jun 2003 23:56:16 +0200
 To: Ion Badulescu <ionut@badula.org>
 Cc: "Vivek Goyal" <vivek.goyal@wipro.com>, <indou.takao@jp.fujitsu.com>,
        <ezk@cs.sunysb.edu>, <viro@math.psu.edu>, <davem@redhat.com>,
@@ -32,19 +32,13 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 >>>>> " " == Ion Badulescu <ionut@badula.org> writes:
 
-    >> 1. Make nfs_symlink_caching dynamically tunable using /proc and
-    >> sysctl interface.
+     > Replacing a couple of time_after() calls with time_after_eq()
+     > calls fixes the issue, at least for hlfsd.
 
-     > No. Do it on a per-mount basis, like the other OS's do.
-
-As I said to Vivek in a private mail, it would be very nice to see
-if this could be done by replacing hlfsd with namespace groups.
-
-Al Viro has already done all the VFS layer work, which should be ready
-and working in existing 2.4.20 and 2.5.x kernels. What is missing is
-userland support for doing a CLONE_NEWNS, and then mounting the user's
-home directory, mailspool,.... in the appropriate locations at login
-time.
+BTW: the above does not suffice to eliminate all races. Two processes
+owned by different users may still end up waiting on the same call to
+nfs_symlink_filler() no matter how often you choose to update the
+metadata.
 
 Cheers,
-  Trond
+ Trond

@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268928AbTBZUiA>; Wed, 26 Feb 2003 15:38:00 -0500
+	id <S268929AbTBZUik>; Wed, 26 Feb 2003 15:38:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268929AbTBZUiA>; Wed, 26 Feb 2003 15:38:00 -0500
-Received: from ool-4351594a.dyn.optonline.net ([67.81.89.74]:19464 "EHLO
-	badula.org") by vger.kernel.org with ESMTP id <S268928AbTBZUh7>;
-	Wed, 26 Feb 2003 15:37:59 -0500
-Date: Wed, 26 Feb 2003 15:47:38 -0500
-Message-Id: <200302262047.h1QKlcPt015577@buggy.badula.org>
-From: Ion Badulescu <ionut@badula.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, mingo@redhat.com,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: [BUG] 2.5.63: ESR killed my box!
-In-Reply-To: <20030226072327.7936B2C04B@lists.samba.org>
-User-Agent: tin/1.5.12-20020427 ("Sugar") (UNIX) (Linux/2.4.20 (i586))
+	id <S268930AbTBZUii>; Wed, 26 Feb 2003 15:38:38 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:164 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S268929AbTBZUif>;
+	Wed, 26 Feb 2003 15:38:35 -0500
+Message-Id: <200302262047.h1QKlm0P001784@eeyore.valparaiso.cl>
+To: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
+cc: jt@hpl.hp.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Invalid compilation without -fno-strict-aliasing 
+In-Reply-To: Your message of "26 Feb 2003 17:04:05 BST."
+             <873cmbghai.fsf@student.uni-tuebingen.de> 
+Date: Wed, 26 Feb 2003 17:47:48 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Feb 2003 18:14:42 +1100, Rusty Russell <rusty@rustcorp.com.au> wrote:
-> In message <9530000.1046238665@[10.10.2.4]> you write:
->> > SMP box, compiled for UP with CONFIG_LOCAL_APIC=y freezes on boot with
->> > last lines:
->> > 
->> >     POSIX conformance testing by UNIFIX
->> >     masked ExtINT on CPU#0
->> >     ESR value before enabling vector: 00000008
->> >     [ Freeze here ]
-
-I suspect the ESR is a red herring. The problem is that the kernel 
-assumes that the boot CPU is always CPU#0, and it also misprograms the 
-boot CPU's APIC.
-
-What kind of SMP box is it (Intel/AMD)?
-
->> I put an esr_disable flag in there a while back ... does that workaround it?
+Falk Hueffner <falk.hueffner@student.uni-tuebingen.de> said:
+> Horst von Brand <vonbrand@inf.utfsm.cl> writes:
+> > Jean Tourrilhes <jt@bougret.hpl.hp.com> said:
+> > > 	if((stream + event_len) < ends) {
+> > > 		iwe->len = event_len;
+> > > 		memcpy(stream, (char *) iwe, event_len);
+> > > 		stream += event_len;
+> > > 	}
+> > > 	return stream;
+> > > }
+> > 
+> > The compiler is free to assume char *stream and struct iw_event *iwe
+> > point to separate areas of memory, due to strict aliasing.
 > 
-> Yes.  Hmm.  Wonder if that helps my SMP wierness, too.
+> The relevant paragraph of the C99 standard is:
+> 
+> An object shall have its stored value accessed only by an lvalue
+> expression that has one of the following types:
+[...]
+> -- a character type.
 
-Does this patch (from Mikael) help? It fixed my problem on a dual AMD
-box running a UP + local APIC kernel.
+(char *) gives you a (pointer to) a character type.
 
-Ion
+> I can't really spot any lvalue here that might violate this rule.  It
+> would be nice if somebody could report a bug with a testcase.
 
+stream and (char *) iwe
 -- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
---------------------------
-
---- linux-2.4.21-pre4/arch/i386/kernel/apic.c.~1~	2003-02-23 15:55:31.000000000 +0100
-+++ linux-2.4.21-pre4/arch/i386/kernel/apic.c	2003-02-23 16:03:50.000000000 +0100
-@@ -649,7 +649,7 @@
- 	}
- 	set_bit(X86_FEATURE_APIC, &boot_cpu_data.x86_capability);
- 	mp_lapic_addr = APIC_DEFAULT_PHYS_BASE;
--	boot_cpu_physical_apicid = 0;
-+	boot_cpu_physical_apicid = -1U;
- 	if (nmi_watchdog != NMI_NONE)
- 		nmi_watchdog = NMI_LOCAL_APIC;
- 
-@@ -1169,8 +1169,8 @@
- 
- 	connect_bsp_APIC();
- 
--	phys_cpu_present_map = 1;
--	apic_write_around(APIC_ID, boot_cpu_physical_apicid);
-+	BUG_ON(boot_cpu_physical_apicid != GET_APIC_ID(apic_read(APIC_ID)));
-+	phys_cpu_present_map = 1 << boot_cpu_physical_apicid;
- 
- 	apic_pm_init2();
- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

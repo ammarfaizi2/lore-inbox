@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262822AbTHZSuy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 14:50:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262843AbTHZSuy
+	id S262880AbTHZSvj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 14:51:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbTHZSvj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 14:50:54 -0400
-Received: from pirx.hexapodia.org ([208.42.114.113]:33801 "EHLO
-	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S262822AbTHZSuw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 14:50:52 -0400
-Date: Tue, 26 Aug 2003 13:50:51 -0500
-From: Andy Isaacson <adi@hexapodia.org>
-To: max@vortex.physik.uni-konstanz.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4 shocking (HT) benchmarking (wrong logic./phys. HT CPU distinction?)
-Message-ID: <20030826135051.A16285@hexapodia.org>
-References: <200308261552.44541.max@vortex.physik.uni-konstanz.de>
+	Tue, 26 Aug 2003 14:51:39 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:10322 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S262880AbTHZSvg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 14:51:36 -0400
+Subject: Re: [2.4.22-rc1] ext3/jbd assertion failure transaction.c:1164
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Pascal Schmidt <der.eremit@email.de>
+Cc: "Marcelo W. Tosatti" <marcelo@conectiva.com.br>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0308261811240.1021-100000@neptune.local>
+References: <Pine.LNX.4.44.0308261811240.1021-100000@neptune.local>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1061923890.17230.30.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200308261552.44541.max@vortex.physik.uni-konstanz.de>; from max@vortex.physik.uni-konstanz.de on Tue, Aug 26, 2003 at 03:52:44PM +0200
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 26 Aug 2003 19:51:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 26, 2003, max@vortex.physik.uni-konstanz.de wrote:
-> in our fine physics group we recently bought a DUAL XEON P4 2666MHz, 2GB, with
-> hyper-threading support and I had the honour of making the thing work. In the 
-> process I also did some benchmarking using two different kernels (stock 
-> SuSE-8.2-Pro 2.4.20-64GB-SMP, and the latest and greatest vanilla 
-> 2.6.0-test4). I benchmarked 
-> 
-> [2] running time of a multi-threaded numerical simulation making extensive use
-> of FFTs, using the fftw.org library.
+Hi,
 
-One thing to watch out for, with fftw:  I believe it will benchmark
-various kernels, and decide which one to use, at run-time.  If the
-scheduler fools it into thinking that a particular kernel is going to
-perform better, it might do the wrong thing.
+On Tue, 2003-08-26 at 17:15, Pascal Schmidt wrote:
 
-Does fftw have a switch to write a debug log?
+> Sigh. I spoke too soon. Turns out I have two different versions of
+> fsx.c around. The one that caused the BUG before still does, but
+> it's a different one now:
 
-("kernel" in this context means "the small section of code used to solve
-the fft", not "the OS code running in privileged mode".)
+OK, could you send me both of your versions so that I can try them
+here?  I've got an uptodate fsx around myself, but not necessarily the
+same version as you, and evidently the precise version matters here.
 
--andy
+Thanks,
+ Stephen
+

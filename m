@@ -1,104 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261996AbUCDWsy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 17:48:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbUCDWsy
+	id S261991AbUCDWta (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 17:49:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbUCDWta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 17:48:54 -0500
-Received: from fed1mtao02.cox.net ([68.6.19.243]:57525 "EHLO
-	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S261996AbUCDWsv
+	Thu, 4 Mar 2004 17:49:30 -0500
+Received: from fed1mtao01.cox.net ([68.6.19.244]:31432 "EHLO
+	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S261991AbUCDWtW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 17:48:51 -0500
-Date: Thu, 4 Mar 2004 15:48:49 -0700
+	Thu, 4 Mar 2004 17:49:22 -0500
+Date: Thu, 4 Mar 2004 15:49:21 -0700
 From: Tom Rini <trini@kernel.crashing.org>
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-Cc: George Anzinger <george@mvista.com>, Pavel Machek <pavel@ucw.cz>,
+To: George Anzinger <george@mvista.com>
+Cc: "Amit S. Kale" <amitkale@emsyssoft.com>, Pavel Machek <pavel@ucw.cz>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>,
        kgdb-bugreport@lists.sourceforge.net
 Subject: Re: [Kgdb-bugreport] [PATCH] Kill kgdb_serial
-Message-ID: <20040304224849.GH26065@smtp.west.cox.net>
-References: <20040302213901.GF20227@smtp.west.cox.net> <20040303160409.GT20227@smtp.west.cox.net> <40467999.8000106@mvista.com> <200403041031.00316.amitkale@emsyssoft.com>
+Message-ID: <20040304224921.GI26065@smtp.west.cox.net>
+References: <20040302213901.GF20227@smtp.west.cox.net> <20040302230018.GL20227@smtp.west.cox.net> <40451CCA.4070907@mvista.com> <200403031113.02822.amitkale@emsyssoft.com> <20040303151628.GQ20227@smtp.west.cox.net> <4046780D.7020700@mvista.com> <20040304151705.GB26065@smtp.west.cox.net> <4047AB20.1080703@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200403041031.00316.amitkale@emsyssoft.com>
+In-Reply-To: <4047AB20.1080703@mvista.com>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 04, 2004 at 10:31:00AM +0530, Amit S. Kale wrote:
-> On Thursday 04 Mar 2004 6:04 am, George Anzinger wrote:
-> > Tom Rini wrote:
-> > > On Wed, Mar 03, 2004 at 04:51:06PM +0100, Pavel Machek wrote:
-> > >>Hi!
-> > >>
-> > >>>>>More precisely:
-> > >>>>>http://lkml.org/lkml/2004/2/11/224
-> > >>>>
-> > >>>>Well, that just says Andrew does not care too much. I think that
-> > >>>>having both serial and ethernet support *is* good idea after all... I
-> > >>>>have few machines here, some of them do not have serial, and some of
-> > >>>>them do not have supported ethernet. It would be nice to use same
-> > >>>>kernel on all of them. Also distribution wants to have "debugging
-> > >>>>kernel", but does _not_ want to have 10 of them.
-> > >>>
-> > >>>But unless I'm missing something, supporting eth or 8250 at all times
-> > >>>doesn't work right now anyhow, as eth if available will always take
-> > >>> over.
-> > >>
-> > >>Well, that can be fixed. [Probably if kgdbeth= is not passed, ethernet
-> > >>interface should not take over. So user selects which one should be
-> > >>used by either passing kgdbeth or kgdb8250. That means that 8250
-> > >>should not be initialized until user passes kgdb8250=... not sure how
-> > >>you'll like that].
-> > >
-> > > At this point, I'm going to give up on killing kgdb_serial, and pass
-> > > along some comments from David Woodhouse on IRC as well (I was talking
-> > > about this issue, and the init/main.c change):
-> > > (Tartarus == me, dwmw2 == David Woodhouse)
-> > >
-> > > <Tartarus> dwmw2, the problem is how do you deal with all of the
-> > > possibilities of i/o (8250, kgdboe, or other serial) and do you allow
-> > > for passing 'gdb' on the command line to result in kgdb not being dropped
-> > > into?  You can always break in later on of course
-> > > <dwmw2> parse command line early for 'gdb=' argument specifying which
-> > > i/o device to use. init kgdb core early. init each i/o device as early
-> > > as possible for that i/o device. Start the selected i/o device as soon
-> > > as it becomes available.
-> > > <dwmw2> just like console could, if we looked for console= a little bit
-> > > earlier. (forget all the earlyconsole shite, it's not necessary)
-> > > <dwmw2> Tartarrus, do the __early_setup() thing to replace __setup() for
-> > > selected args. We can use that for console= too.
-> > > <dwmw2> since 'console=' on the command line _already_ remembers its
-> > > arguments, and starts to use the offending device as soon as it gets
-> > > registered with register_console().
-> > > <Tartarus> dwmw2, __early_setup() ?
-> > > <dwmw2> See __setup("gdb=", gdb_setup_func);
-> > > <dwmw2> Replace with __early_setup(...)
-> > > <Tartarus> where is __early_setup ?
-> > > <dwmw2> before we normally parse the command line
-> > > <dwmw2> in my head
-> > >
-> > > So perhaps someone can take these ideas and fix both problems... :)
-> > > (I've got some other stuff I need to work on today).
+On Thu, Mar 04, 2004 at 02:18:08PM -0800, George Anzinger wrote:
+> Tom Rini wrote:
+> >On Wed, Mar 03, 2004 at 04:27:57PM -0800, George Anzinger wrote:
 > >
-> > Well, __early_setup could mean the fist setup call and if so that would be
-> > what we do in -mm.  It is done by putting the code in the first module ld
-> > sees, not nice, but it works.
+> >>Tom Rini wrote:
+> >>
+> >>>But that's not what you get with kgdb_serial.  You get the possibility
+> >>>of serial from point A to B and you will have eth from point B onward,
+> >>>if compiled in.  With an arch serial driver you get the possibility of
+> >>>serial (or arch serial or whatever) from point A to B and eth from point
+> >>>B onward, if compiled in.
+> >>
+> >>I don't think we want to switch.  Rather we want to say something like: 
+> >>If no eth (or other input) options are on the command line then its is 
+> >>serial. If eth (or other input) is there, that is what we use.
+> >>
+> >>This does leave open what happens when "eth" is given and we hit a 
+> >>breakpoint prior to looking at the command line, but now this just fails 
+> >>so we would be hard put to do worse.
+> >
+> >
+> >This doesn't fail right now, or rather it shouldn't.  We would call
+> >kgdb_arch_init() which would set it to 8250 (or arch serial) and go.  If
+> >8250||arch serial is compiled in.
 > 
-> I would prefer something that modifies start_kernel itself, rather than 
-> depending on ld. It will split start_kernel command line parsing into early 
-> parse and late parse, but that's the price we have to pay to do special 
-> parsing of kgdb arguments.
+> But, if I understand this right, now you can have either eth or serial.  If 
+> you have eth and hit a breakpoint prior to its int, you are dead.
 
-There's two things here, that it's important not to loose sight of.
-First, it's not just kgdb that could stand to parse things earlier on
-(console, as dwmw2 points out).  Second, unless we're going to throw in
-the initalizations of the i/o drivers manually, we're already depend on
-ld to do things right.
+Ah yes, as a side effect of me being a bit too quick with my
+kernel/Kconfig.kgdb changes, yes.  Good catch :)
 
-Besides, this is probably going to be the cleanest way to get things
-working like we want them to, not how they work now :)
+> >>>I think you missed the point.  The problem isn't with providing weak
+> >>>functions, the problem is trying to set the function pointer.  PPC
+> >>>becomes quite clean since the next step is to kill off
+> >>>PPC_SIMPLE_SERIAL and just have kgdb_read/write_debug_char in the
+> >>>relevant serial drivers.
+> >>
+> >>No, you just set the default at configure time.  It is just done in such 
+> >>away as to allow it to be overridden.
+> >
+> >
+> >Which means you have to either c&p this into kgdb_arch_init for every
+> >arch that provides it's own, or (and I've been thinking that this isn't
+> >necessarily a bad idea) standardize on names for the arch serial driver,
+> >and in kernel/kgdb.c::kgdb_entry() do:
+> >#ifdef CONFIG_KGDB_8250
+> >  extern ... kgdb8250_serial;
+> >  kgdb_serial = &kgdb8250_serial;
+> >#elif CONFIG_KGDB_ARCH_SERIAL
+> >  extern ... kgdbarch_serial;
+> >  kgdb_serial = &kgdbarch_serial;
+> >#elif CONFIG_KGDB_ETH
+> >  extern ... kgdboe_serial;
+> >  kgdb_serial = &kgdboe_serial;
+> >#endif
+> 
+> I would rather standardize on the name of the INIT block.  How about 
+> something like:
+
+I would rather not have to duplicate the above code (or, any code) for
+every arch. :)
+
+> #include <linux/kdgb_io.h>
+> :
+> :
+> struc kgdb_io_table kgdb_io_table[]=KGDB_IO_FUNCTIONS;
+> 
+> then in linux/kgdb_io.h we have:
+> 
+> #include <asm/kgdb_io.h>
+> 
+> struc kgdb_io_table {
+> 	char (*kgdb_read_char);
+>     	void  (*kgdb_write_char);
+>         :
+> 	:
+> }
+> 
+> And in asm/kgdb_io.h we define:
+> extern char my_read_char(void);
+> :
+> #define KGDB_IO_FUNCTIONS {{my_read_char, my_write_char,...},\
+>                             {eth_read_char,...}}
+
+But eth_read_char, etc aren't, don't need to be, and shouldn't be global
+functions.
+
+> So it is completely up to the arch asm/kgdb_io.h to define the names and 
+> even how many.  We then assume that the first one is the default.  An arch 
+> that wants to mess with different things can do it all in this file, 
+> including having several diffent serial drivers all with the same entry 
+> points, different default as set at configure time and so on.
+
+I think this is backwards.  Stop thinking in terms of 8250, eth and arch
+serial, but instead io1, io2 and io3 (and io4, and io5, ...).  I don't
+see what's wrong with what dwmw2 suggested that I passed along.
 
 -- 
 Tom Rini

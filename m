@@ -1,67 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270292AbUJUFwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270614AbUJUFyP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270292AbUJUFwa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 01:52:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270586AbUJUFtK
+	id S270614AbUJUFyP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 01:54:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270437AbUJUFwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 01:49:10 -0400
-Received: from relay01.uchicago.edu ([128.135.12.136]:18593 "EHLO
-	relay01.uchicago.edu") by vger.kernel.org with ESMTP
-	id S269996AbUJUFsr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 01:48:47 -0400
-Date: Thu, 21 Oct 2004 00:48:44 -0500
-From: Ryan Reich <ryanr@uchicago.edu>
-To: linux-kernel@vger.kernel.org
-Subject: OOPS on 2.6.9 while compiling, very reproducible
-Message-ID: <20041021054844.GA3335@ryanr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Thu, 21 Oct 2004 01:52:40 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:31458 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S270621AbUJUFux (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 01:50:53 -0400
+Message-ID: <41774E20.8000309@nortelnetworks.com>
+Date: Wed, 20 Oct 2004 23:50:24 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: Michael Clark <michael@metaparadigm.com>, linux-kernel@vger.kernel.org
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+References: <20041016062512.GA17971@mark.mielke.cc> <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com> <20041017133537.GL7468@marowsky-bree.de> <cl6lfq$jlg$1@terminus.zytor.com> <4176DF84.4050401@nortelnetworks.com> <4176E001.1080104@zytor.com> <41772674.50403@metaparadigm.com> <417736C0.8040102@zytor.com> <417743EF.90604@nortelnetworks.com> <417744FD.1000008@zytor.com>
+In-Reply-To: <417744FD.1000008@zytor.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey all,
+H. Peter Anvin wrote:
+>> H. Peter Anvin wrote:
+>>
+>>> The whole point is that it doesn't break the *documented* interface.
 
-I get the following OOPS when compiling stuff.  The machine freezes solid if
-I get this while compiling 2.6.9 itself (as I was when it first happened),
-and on top of that the messsages and the call trace run off the screen, but I
-only get this small one when I compile something lesser.
+> I'm talking about returning -1, EIO.
 
-Oct 21 00:43:38 (none) kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000018
-Oct 21 00:43:38 (none) kernel:  printing eip:
-Oct 21 00:43:38 (none) kernel: c01ad955
-Oct 21 00:43:38 (none) kernel: *pde = 00000000
-Oct 21 00:43:38 (none) kernel: Oops: 0000 [#1]
-Oct 21 00:43:38 (none) kernel: PREEMPT
-Oct 21 00:43:38 (none) kernel: Modules linked in: ipt_ULOG ipt_multiport ipt_state ip_conntrack iptable_filter ip_tables it87 eeprom i2c_sensor i2c_isa i2c_nforce2 eth1394 usblp snd_cmipci snd_pcm snd_page_alloc snd_opl3_lib snd_timer snd_hwdep snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore ohci1394 ieee1394 forcedeth ehci_hcd ohci_hcd usbcore nvidia_agp agpgart
-Oct 21 00:43:38 (none) kernel: CPU:    0
-Oct 21 00:43:38 (none) kernel: EIP: 0060:[prepare_for_delete_or_cut+37/2064]    Not tainted VLI
-Oct 21 00:43:38 (none) kernel: EFLAGS: 00010282   (2.6.9)
-Oct 21 00:43:38 (none) kernel: EIP is at prepare_for_delete_or_cut+0x25/0x810
-Oct 21 00:43:38 (none) kernel: eax: 00000000   ebx: 00000000   ecx: e9af8e48 edx: 00000000
-Oct 21 00:43:38 (none) kernel: esi: 00000001   edi: 00000000   ebp: 00000000 esp: e9af8b80
-Oct 21 00:43:38 (none) kernel: ds: 007b   es: 007b   ss: 0068
-Oct 21 00:43:38 (none) kernel: Process cc1 (pid: 3331, threadinfo=e9af8000 task=ef461560)
-Oct 21 00:43:38 (none) kernel: Stack: 00000001 00000318 0000ffff e9094758 00000318 00001000 effa5800 0003e8da
-Oct 21 00:43:38 (none) kernel:        0003f186 00001000 20000000 00000001 00000004 eececcec effa5800 0003e8da
-Oct 21 00:43:38 (none) kernel:        0003f186 00000001 20000000 0318ffff 00010bd0 e90947a4 e9af8ec8 00000000
-Oct 21 00:43:38 (none) kernel: Call Trace:
-Oct 21 00:43:38 (none) kernel:  [reiserfs_cut_from_item+207/1488] reiserfs_cut_from_item+0xcf/0x5d0
-Oct 21 00:43:38 (none) kernel:  [reiserfs_do_truncate+827/1488] reiserfs_do_truncate+0x33b/0x5d0
-Oct 21 00:43:38 (none) kernel:  [reiserfs_truncate_file+237/576] reiserfs_truncate_file+0xed/0x240
-Oct 21 00:43:38 (none) kernel:  [reiserfs_file_release+1306/1312] reiserfs_file_release+0x51a/0x520
-Oct 21 00:43:38 (none) kernel:  [do_mmap_pgoff+1199/1904] do_mmap_pgoff+0x4af/0x770
-Oct 21 00:43:38 (none) kernel:  [reiserfs_file_write+0/2016] reiserfs_file_write+0x0/0x7e0
-Oct 21 00:43:38 (none) kernel:  [__fput+286/368] __fput+0x11e/0x170
-Oct 21 00:43:38 (none) kernel:  [filp_close+82/160] filp_close+0x52/0xa0
-Oct 21 00:43:38 (none) kernel:  [sys_close+88/176] sys_close+0x58/0xb0
-Oct 21 00:43:38 (none) kernel:  [sysenter_past_esp+82/113] sysenter_past_esp+0x52/0x71
-Oct 21 00:43:38 (none) kernel: Code: c4 08 c3 8d 76 00 55 57 56 53 83 ec 5c 8b 44 24 74 8b 54 24 78 8b 80 8c 00 00 00 89 d1 89 44 24 38 8b 02 8b 54 c2 08 8b 44 c1 0c <8b> 52 18 8d 04 40 8d 74 c2 18 66 83 7e 16 00 75 43 8b 4e 0c 31
 
-Clearly, I use reiserfs.  I also have Gentoo's fbsplash patched in, but
-nothing else.
+Ah.  By "it", I thought you meant the current performance optimizations, not the 
+EIO.  My apologies.
 
--- 
-Ryan Reich
-ryanr@uchicago.edu
+I think returning EIO is suboptimal, as it is not an expected error value for 
+recvmsg().  (It's not listed in the man pages for recvmsg() or ip.)  It would 
+certainly work for new apps, but probably not for many existing binaries.
+
+On the other hand, if you simply do the checksum verification at select() time 
+for blocking sockets, then the existing binaries get exactly the behaviour they 
+expect.
+
+Chris

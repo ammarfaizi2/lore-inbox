@@ -1,65 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267732AbUHEOLG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267735AbUHEOPM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267732AbUHEOLG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 10:11:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267688AbUHEOHh
+	id S267735AbUHEOPM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 10:15:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267677AbUHEOOc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 10:07:37 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:36337 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S267732AbUHEODL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 10:03:11 -0400
-Message-ID: <41123DDD.5040607@nortelnetworks.com>
-Date: Thu, 05 Aug 2004 10:02:05 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Thu, 5 Aug 2004 10:14:32 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:63712 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267726AbUHEOKZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 10:10:25 -0400
+Date: Thu, 5 Aug 2004 12:42:00 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: Ulrich Drepper <drepper@redhat.com>
-CC: Andrew Morton <akpm@osdl.org>, inaky.perez-gonzalez@intel.com,
+Cc: Andrew Morton <akpm@osdl.org>, inaky.perez-gonzalez@intel.com,
        linux-kernel@vger.kernel.org, robustmutexes@lists.osdl.org,
-       rusty@rustcorp.com.au, mingo@elte.hu, jamie@shareable.org
+       rusty@rustcorp.com.au, jamie@shareable.org
 Subject: Re: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1
-References: <F989B1573A3A644BAB3920FBECA4D25A6EC06D@orsmsx407>	<20040804232123.3906dab6.akpm@osdl.org>	<4111DC8C.7050504@redhat.com> <20040805001737.78afb0d6.akpm@osdl.org> <4111E3B5.1070608@redhat.com>
+Message-ID: <20040805104200.GB20171@elte.hu>
+References: <F989B1573A3A644BAB3920FBECA4D25A6EC06D@orsmsx407> <20040804232123.3906dab6.akpm@osdl.org> <4111DC8C.7050504@redhat.com> <20040805001737.78afb0d6.akpm@osdl.org> <4111E3B5.1070608@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <4111E3B5.1070608@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
+
+* Ulrich Drepper <drepper@redhat.com> wrote:
+
 > Andrew Morton wrote:
 > 
-> 
->>How large is the slowdown, and on what workloads?
-> 
+> > How large is the slowdown, and on what workloads?
 > 
 > The fast path for all locking primitives etc in nptl today is entirely
 > at userlevel.  Normally just a single atomic operation with a dozen
 > other instructions.  With the fusyn stuff each and every locking
 > operation needs a system call to register/unregister the thread as it
-> locks/unlocks mutex/rwlocks/etc.  Go figure how well this works.  We are
-> talking about making the fast path of the locking primitives
-> two/three/four orders of magnitude more expensive.  And this for
-> absolutely no benefit for 99.999% of all the code which uses threads.
+> locks/unlocks mutex/rwlocks/etc. [...]
 
-Just a small clarification.  (Rusty already touched on this briefly, but I think 
-he made a mistake.)
+actually, the way i understand the patch it is not that bad: normally
+(in non-KCO mode) the fastpath locks/unlocks (uncontended locks) are
+userspace-only. Non-KCO mode still gives all the priority guarantees. 
+(There's also KCO mode for guaranteed-unlock-on-thread-death and for
+broken architectures - but it doesnt have any real advantage other than
+the slowdown.)
 
-If the arch has atomic compare-and-exchange, then the non-contended case is 
-entirely userspace and no syscall is needed.  I don't think that the cmpxchg 
-need be 64-bit.  From the OLS 2004 talk:
+there's overhead in the wakeup handling and in the registration need for
+non-KCO locks, but once things are up and running it should be quite
+comparable to current futex costs - it's pure userspace.
 
-int vfulock_lock (&vfulock, flags, pid, &timeout) {
-	unsigned old = VFULOCK_UNLOCKED;
-	if (cmpxchg(vfulock,old,pid) != old) return 0;
-	return SYSCALL(ufulock_lock,3,vfulock,flags,to);
-}
+so i think what would be nice is an extension of sys_futex() to
+incorporate the fusyn primitives, and then a nice glibc patch to
+introduce a robust mode for all the sync objects.
 
-That looks like a 32-bit cmpxchg to me.
+and if fusyn.c is fast enough then we could even try to do normal
+futexes via fusyn.c - but not doing the registration/unregistration
+(hence losing the priority guarantee, but still sharing much of the
+codepath). This would be the most robust internal design i believe.
 
-Also, Inaky reported general operation about 10% slower than NPTL, but said that 
-he wanted to fix that if possible.
-
-Chris
+	Ingo

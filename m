@@ -1,59 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261761AbTHYNa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 09:30:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbTHYNa3
+	id S261512AbTHYNZa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 09:25:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbTHYNZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 09:30:29 -0400
-Received: from h80ad249a.async.vt.edu ([128.173.36.154]:14464 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261761AbTHYNaW (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 09:30:22 -0400
-Message-Id: <200308251330.h7PDUEIH008153@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Cpufreq for opteron 
-In-Reply-To: Your message of "Mon, 25 Aug 2003 10:46:16 +0200."
-             <20030825084616.GC403@elf.ucw.cz> 
-From: Valdis.Kletnieks@vt.edu
-References: <99F2150714F93F448942F9A9F112634C080EF006@txexmtae.amd.com>
-            <20030825084616.GC403@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1236961208P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 25 Aug 2003 09:30:14 -0400
+	Mon, 25 Aug 2003 09:25:30 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:20928
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S261512AbTHYNZ2 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 09:25:28 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns?=
+	=?iso-8859-1?q?=20Rullg=E5rd?=),
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]O18.1int
+Date: Mon, 25 Aug 2003 23:32:25 +1000
+User-Agent: KMail/1.5.3
+References: <200308231555.24530.kernel@kolivas.org> <200308252228.37937.kernel@kolivas.org> <yw1x7k51c37e.fsf@users.sourceforge.net>
+In-Reply-To: <yw1x7k51c37e.fsf@users.sourceforge.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200308252332.25110.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1236961208P
-Content-Type: text/plain
+On Mon, 25 Aug 2003 22:49, Måns Rullgård wrote:
+> Con Kolivas <kernel@kolivas.org> writes:
+> >> >> >> Vanilla test1 has the spin effect.  Test2 doesn't.  I haven't
+> >> >> >> tried vanilla test3 or test4.  As I've said, the O16.2-O16.3 patch
+> >> >> >> introduced the problem.  With that patch reversed, everything is
+> >> >> >> fine.  What problem does that patch fix?
+> >> >> >
+> >> >> > It's a generic fix for priority inversion but it induces badness in
+> >> >> > smp, and latency in task preemption on up so it's not suitable.
+> >> >>
+> >> >> Now I'm confused.  If that patch is bad, then why is it in O18?
+> >> >
+> >> > No, the 16.2 patch is bad. 16.3 backed it out.
+> >>
+> >> OK, but it somehow made XEmacs behave badly.
+> >
+> > Well it was a generic fix in 16.2 that helped XEmacs as I said. O15
+> > also had a generic fix (child not preempting it's parent) but that
+> > too was covering up the real issue, but it wasnt as drastic as 16.2.
+>
+> Of the kernels I've tested, only test1 vanilla and O16.3 and later
+> show the problem.  Btw, is it related to the XEmacs regexp search
+> problem, or is that a different one?
 
-On Mon, 25 Aug 2003 10:46:16 +0200, Pavel Machek said:
+Same thing. Both examples of priority inversion. In your case a parent child 
+interaction which was worked around in O15. That interaction seems the more 
+common case.
 
-> Okay, but hopefully machines being sold in retail will have bug-free
-> BIOSes?
+Con
 
-Hopefully, yes.  The Easter Bunny will be bringing bug-free BIOSes along
-with the easter eggs next spring.. ;)
-
-Does anybody have a reliable back-channel to the BIOS team involved here, to
-make sure that they're aware of the bugs we're hitting?  We've had too many
-other platforms we've had to hack around BIOS bugs that existed mostly because
-"It boots with That Popular OS".
-
-
---==_Exmh_-1236961208P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/Sg9lcC3lWbTT17ARAl9QAKD9wMDAYteDDbCS5pfEPGT7PRYg0wCfQHm6
-PGt6V+JFx/CZJFRz5QCRhVo=
-=MTsB
------END PGP SIGNATURE-----
-
---==_Exmh_-1236961208P--

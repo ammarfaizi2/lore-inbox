@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263551AbUDBCGG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 21:06:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263553AbUDBCGG
+	id S263204AbUDBCJq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 21:09:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263553AbUDBCJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 21:06:06 -0500
-Received: from fw.osdl.org ([65.172.181.6]:40096 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263551AbUDBCFx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 21:05:53 -0500
-Date: Thu, 1 Apr 2004 18:08:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: hugh@veritas.com, vrajesh@umich.edu, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap
- complexity fix
-Message-Id: <20040401180802.219ece99.akpm@osdl.org>
-In-Reply-To: <20040402020022.GN18585@dualathlon.random>
-References: <20040402001535.GG18585@dualathlon.random>
-	<Pine.LNX.4.44.0404020145490.2423-100000@localhost.localdomain>
-	<20040402011627.GK18585@dualathlon.random>
-	<20040401173649.22f734cd.akpm@osdl.org>
-	<20040402020022.GN18585@dualathlon.random>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 1 Apr 2004 21:09:46 -0500
+Received: from host199.200-117-131.telecom.net.ar ([200.117.131.199]:13783
+	"EHLO smtp.bensa.ar") by vger.kernel.org with ESMTP id S263204AbUDBCJl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 21:09:41 -0500
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+To: Joshua Kwan <joshk@triplehelix.org>
+Subject: Re: 2.6.5-rc3-mm4
+Date: Thu, 1 Apr 2004 23:09:38 -0300
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <20040401020512.0db54102.akpm@osdl.org> <200404011112.21212.norberto+linux-kernel@bensa.ath.cx> <pan.2004.04.02.01.35.32.434379@triplehelix.org>
+In-Reply-To: <pan.2004.04.02.01.35.32.434379@triplehelix.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200404012309.38950.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
+Joshua Kwan wrote:
+> > 	LC_ALL= sudo make
 >
-> I now fixed up the whole compound thing, it made no sense to keep
-> compound off with HUGETLBSF=N, that's a generic setup for all order > 0
-> not just for hugetlbfs, so it has to be enabled always or never, or it's
-> just asking for troubles.
+> This is not right. 
 
-It was a modest optimisation for non-hugetlb architectures and configs. 
-Having it optional has caused no problem in a year.
+I know it isn't right. I was always weak on Makefiles :-/
 
-Was there some reason why you _required_ that it be permanently enabled?
+It was a workaround to compile it ASAP without the need to modify any file.
 
+Regards,
+Norberto

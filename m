@@ -1,75 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbUKSORn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbUKSOUC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbUKSORn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 09:17:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbUKSORm
+	id S261417AbUKSOUC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 09:20:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbUKSOSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 09:17:42 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:16132 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S261428AbUKSOPN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 09:15:13 -0500
-Message-ID: <419DF22E.5080102@conectiva.com.br>
-Date: Fri, 19 Nov 2004 11:16:30 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Organization: Conectiva S.A.
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Fri, 19 Nov 2004 09:18:14 -0500
+Received: from zhabb.mics.msu.su ([158.250.28.142]:51645 "EHLO
+	zhabb.mics.msu.su") by vger.kernel.org with ESMTP id S261430AbUKSORc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 09:17:32 -0500
+X-SMScore: 0
+X-SMRecipient: linux-kernel@vger.kernel.org
+From: Peter Volkov Alexandrovich <pvolkov@mics.msu.su>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6 and route nat. Who know what is going on?
+Date: Fri, 19 Nov 2004 17:20:13 +0300
+User-Agent: KMail/1.7.1
+Organization: GPI RAN
 MIME-Version: 1.0
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Cc: Chris Wright <chrisw@osdl.org>,
-       Ross Kendall Axe <ross.axe@blueyonder.co.uk>,
-       James Morris <jmorris@redhat.com>, netdev@oss.sgi.com,
-       Stephen Smalley <sds@epoch.ncsc.mil>,
-       lkml <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] linux 2.9.10-rc1: Fix oops in unix_dgram_sendmsg when
- using SELinux and SOCK_SEQPACKET
-References: <Xine.LNX.4.44.0411180257300.3144-100000@thoron.boston.redhat.com> <Xine.LNX.4.44.0411180305060.3192-100000@thoron.boston.redhat.com> <20041118084449.Z14339@build.pdx.osdl.net> <419D6746.2020603@blueyonder.co.uk> <20041118231943.B14339@build.pdx.osdl.net> <419DEF98.9040303@conectiva.com.br>
-In-Reply-To: <419DEF98.9040303@conectiva.com.br>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411191720.13423.pvolkov@mics.msu.su>
+X-OriginalArrivalTime: 19 Nov 2004 14:20:06.0703 (UTC) FILETIME=[DE5D33F0:01C4CE42]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
+The problem I have is route nat.
 
-Arnaldo Carvalho de Melo wrote:
-> 
-> 
-> Chris Wright wrote:
-> 
->> * Ross Kendall Axe (ross.axe@blueyonder.co.uk) wrote:
->>
->>> Taking this idea further, couldn't we split unix_dgram_sendmsg into 2 
->>> functions, do_unix_dgram_sendmsg and do_unix_connectionless_sendmsg 
->>> (and similarly for unix_stream_sendmsg), then all we'd need is:
->>>
->>> <pseudocode>
->>> static int do_unix_dgram_sendmsg(...);
->>> static int do_unix_stream_sendmsg(...);
->>> static int do_unix_connectionless_sendmsg(...);
->>> static int do_unix_connectional_sendmsg(...);
->>
->>
->>
->> We could probably break it down to better functions and helpers, but I'm
->> not sure that's quite the breakdown.  That looks to me like an indirect
->> way to pass a flag which is already encoded in the ops and sk_type.
->> At anyrate, for 2.6.10 the changes should be small and obvious.
->> Better refactoring should be left for 2.6.11.
-> 
-> 
-> Hey, go ahead, do the split and please, please use sk->sk_prot, that is
-> the way to do the proper split and will allow us to nuke several
-> pointers in struct sock (sk_slab, sk_owner for now) :-)
-> 
-> I have a friend doing this for X.25, will submit his patches as soon
-> as we do some more testing and 2.6.10 is out.
+Short question: Must "route nat", mentioned in ip-cref documentation coming 
+with iproute2 package, work with 2.6.9 kernel?
 
-Ah, this is the way the inet transport protos have been working for
-years, and I've been factoring out the struct proto_ops methods from
-TCP into the networking core, look at net/core/stream.c and the
-sock_common_ prefixed functions in net/core/sock.c.
+Long question and description of the problem:
+There is an appendix C in ip-cref by Alexey Kuznetsov called "Route NAT 
+Status". I've followed this configuration with 2.4.2x kernel and everything 
+works. But now I'm forced to move to 2.6.9 kernel due to new SATA controller 
+in my server. And problem is that it is not working. When I issue:
 
-- Arnaldo
+# ip route nat <inet_ip_address> via <local_ip_address>
+
+I the answer is: RTNETLINK answers: invalid argument
+
+So seems like some option is not enabled in my kernel. Well actually I have 
+all options and suboptions enabled in my kernel configuration under "TCP/IP 
+networking" -> "IP: advanced router".
+
+I've tried 2.6.8.1 kernel. And found out that there exist option "IP: fast 
+network address translation" under "IP: advanced router" that is absent in 
+2.6.9. When I enable this option the kernel seems to accept my command. My 
+router starts to answer arp requests for <inet_ip_addres>, as it should. But 
+no route DNAT seems to occur. If I add some LOG rule to FORWARD iptables chain 
+I can see packets to <inet_ip_address> being forwarded but not DNATed as it 
+should.
+
+Who supports this route nat code in the kernel? Are they going to support this 
+cool feature or it's deprecated and I should look for other solution? How 
+can this be done???
+
+I've tried to google and I've even tried to find an answer in sources, but 
+with no success also. I've asked about this about in LARTC mailing list, where 
+Anwara suggested me to ask for help on this list.
+
+If this is the wrong place to ask my question or anybody knows the right place 
+for this question, please tell me.
+
+Thank you very much in advance,
+-- 
+
+______________________________________
+
+Volkov Peter, <pvolkov@mics.msu.su>
+Moscow State University, Phys. Dep.
+______________________________________
+
+NO ePATENTS, eSIGN now on:
+http://petition.eurolinux.org
+and maybe this helps...
+
+Linux 2.4.26-gentoo-r9 i686
+Mobile Intel(R) Celeron(R) CPU 1.60GHz

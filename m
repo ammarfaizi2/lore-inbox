@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbUEFHYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbUEFHnH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261802AbUEFHYU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 03:24:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbUEFHYU
+	id S261263AbUEFHnH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 03:43:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbUEFHnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 03:24:20 -0400
-Received: from pop-3.dnv.wideopenwest.com ([64.233.207.8]:43957 "EHLO
-	pop-3.dnv.wideopenwest.com") by vger.kernel.org with ESMTP
-	id S261802AbUEFHYT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 03:24:19 -0400
-Date: Thu, 6 May 2004 03:04:00 -0400
-From: Eric Blade <eblade@blackmagik.dynup.net>
-To: linux-kernel@vger.kernel.org, pmarques@grupopie.com
-Subject: Re: Linux-kernel-daily-digest digest, Vol 3 #122 - 255 msgs
-Message-Id: <20040506030400.21b470c8@debian>
-In-Reply-To: <20040505110000.19914.85659.Mailman@lists.us.dell.com>
-References: <20040505110000.19914.85659.Mailman@lists.us.dell.com>
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Thu, 6 May 2004 03:43:07 -0400
+Received: from colin2.muc.de ([193.149.48.15]:8204 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261263AbUEFHnE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 03:43:04 -0400
+Date: 6 May 2004 09:43:02 +0200
+Date: Thu, 6 May 2004 09:43:02 +0200
+From: Andi Kleen <ak@muc.de>
+To: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Cc: Andrew Morton <akpm@zip.com.au>, Andi Kleen <ak@muc.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc3-mm2 does not build on AMD64 + essential patch is missing
+Message-ID: <20040506074302.GA47323@colin2.muc.de>
+References: <200405052210.18074.rjwysocki@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Bogosity: No, tests=bogofilter
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200405052210.18074.rjwysocki@sisk.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Message: 81
-> Date: Tue, 04 May 2004 19:53:07 +0100
-> From: Paulo Marques <pmarques@grupopie.com>
-> Organization: GrupoPIE
-> To: Bill Catlan <wcatlan@yahoo.com>
-> Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-> Subject: Re: Possible to delay boot process to boot from USB subsystem?
+On Wed, May 05, 2004 at 10:13:52PM +0200, R. J. Wysocki wrote:
+> Hi,
 > 
-> This is a completely different error from "VFS: Cannot open root device" or 
-> "unable to mount root".
+> The 2.6.6-rc3-mm2 kernel does not buld on AMD64 w/ NUMA, it appears.  Here's 
+> what the gcc says:
 > 
-> Are you sure you have a "/sbin" directory with an *executable* "init" file on 
-> the usb harddrive?
+>   CC      init/version.o
+>   LD      init/built-in.o
+>   LD      .tmp_vmlinux1
+> arch/x86_64/ia32/built-in.o(.text+0xa164): In function `ia32_setup_arg_pages':
+> : undefined reference to `mpol_set_vma_default'
+> kernel/built-in.o(.text+0x9ba0): In function `do_exit':
+> : undefined reference to `mpol_free'
+> make: *** [.tmp_vmlinux1] Error 1
 > 
-> Does your init file depend on libraries that you do not have under "/lib"? (you 
-> can check with "ldd init")
-> 
-> If your init is a script, does it specify a complete path to the interpreter, 
-> and do you have an *executable* interpreter there? Does the interpreter require 
-> libraries or is it static?
-> 
+> (attached is the .config).  Also, IMHO, the patch:
 
+Just revert the broken small-numa-api-fixups.patch patch,
+which never seems to have been compile tested on anything.
 
-*inserts a little notation here that this is one of the reasons why linux can some times be the biggest pain in the arse in the world.. error messages that tell you there's something wrong with Thing A, but it's really something wrong with Thing C or Thing D...*
+> 
+> --- include/asm-x86_64/processor.h.orig	2004-05-05 21:35:55.890656408 +0200
+> +++ include/asm-x86_64/processor.h	2004-05-05 21:41:15.930003032 +0200
+> @@ -20,6 +20,8 @@
+>  #include <asm/mmsegment.h>
+>  #include <linux/personality.h>
+>  
+> +#define ARCH_MIN_TASKALIGN 16
+> +
+>  #define TF_MASK		0x00000100
+>  #define IF_MASK		0x00000200
+>  #define IOPL_MASK	0x00003000
+> 
+> should be applied to it, so that it does not crash at init.
 
+AFAIK Andrew fixed this in a different way.
+
+-Andi

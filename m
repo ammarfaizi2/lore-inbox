@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVACGe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbVACGpK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbVACGe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 01:34:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbVACGe6
+	id S261400AbVACGpK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 01:45:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbVACGpJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 01:34:58 -0500
-Received: from web50609.mail.yahoo.com ([206.190.38.248]:29338 "HELO
-	web50609.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261396AbVACGe5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 01:34:57 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=RI/j/FeZA1XRmqtMkIK7D2gyarK76mVsudAuUCjsfR8lmt51O1qNU9OARve+WjnFN1ltNTA2QvSwqrxgl3kisDkrL8f0NxAtHcELrT3esi1cUK+nIlnltxZl5EKy/93FGotofatKaGQZx+A+5ZuRRDldvOE9vqQWoXpDUrdJJWw=  ;
-Message-ID: <20050103063457.2092.qmail@web50609.mail.yahoo.com>
-Date: Sun, 2 Jan 2005 22:34:57 -0800 (PST)
-From: Jeba Anandhan A <jeba_career@yahoo.com>
-Subject: iperf Problem
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 3 Jan 2005 01:45:09 -0500
+Received: from chop.phpwebhosting.com ([66.132.134.9]:39375 "HELO
+	chop.phpwebhosting.com") by vger.kernel.org with SMTP
+	id S261400AbVACGpD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 01:45:03 -0500
+Subject: RE: Kernel 2.6.10 Can't Open Initial Console on FC3
+From: Colin Charles <byte@aeon.com.my>
+To: Development discussions related to Fedora Core 
+	<fedora-devel-list@redhat.com>
+Cc: jwendel10@comcast.net, mikeserv@bmts.com, zaitcev@redhat.com,
+       Fedora List <fedora-list@redhat.com>,
+       Linux Newbie <linux-newbie@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3k77vr$fs05t3@mxip08a.cluster1.charter.net>
+References: <3k77vr$fs05t3@mxip08a.cluster1.charter.net>
+Content-Type: text/plain
+Organization: ArenaTechniques.com / ByteBot.Net
+Date: Mon, 03 Jan 2005 11:09:28 +0800
+Message-Id: <1104721768.32006.180.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi to all,
-actually i have one windows and linux machine.i
-started UDP server in linux by using iperf [ iperf -S
--Bsomeaddress] and started windows client using
-iperf[iperf -c].after sending some junks of UDP
-packets ,the client process closed its execution.but
-UDP Server[Linux ],the process is not finished.still
-its running.so i am unable to get log of how many UDP
-Packets are received.
+On Sat, 2005-01-01 at 10:05 -0600, Joseph D. Wagner wrote:
+> They tell me there's a way to make it work without initrd, but it's
+> ugly, messy, and not recommended:
+> 
+> http://fedora.redhat.com/docs/udev/
+> 
+> I haven't yet tested to see if it works with initrd and without
+> support for hotplug devices, but from the documentation I've read my
+> money is on no.
 
+It does work. For quite a while on the PPC tree, we ended up doing some
+manual MAKEDEVs to make it work. IIRC, booting with selinux=0 might have
+been required as well
 
-		
-__________________________________ 
-Do you Yahoo!? 
-Send a seasonal email greeting and help others. Do good. 
-http://celebrity.mail.yahoo.com
+(this was in the pre-FC-3 rawhide days)
+-- 
+Colin Charles, byte@aeon.com.my
+http://www.bytebot.net/
+"First they ignore you, then they laugh at you, then they fight you, 
+then you win." -- Mohandas Gandhi
+

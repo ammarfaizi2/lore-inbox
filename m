@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263147AbUKTSpy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263148AbUKTSsR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263147AbUKTSpy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 13:45:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263148AbUKTSpy
+	id S263148AbUKTSsR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 13:48:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263149AbUKTSsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 13:45:54 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9227 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263147AbUKTSpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 13:45:05 -0500
-Date: Sat, 20 Nov 2004 18:45:01 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PCI fixes for 2.6.9
-Message-ID: <20041120184500.A28206@flint.arm.linux.org.uk>
-Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <10982257353682@kroah.com> <10982257352301@kroah.com> <20041020091045.D1047@flint.arm.linux.org.uk> <20041022234508.GA28380@kroah.com>
+	Sat, 20 Nov 2004 13:48:16 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:35211 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S263148AbUKTSsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 13:48:13 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.29-0
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+In-Reply-To: <20041120191403.GA16262@elte.hu>
+References: <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu>
+	 <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu>
+	 <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu>
+	 <20041118164612.GA17040@elte.hu> <1100920963.1424.1.camel@krustophenia.net>
+	 <20041120125536.GC8091@elte.hu> <1100971141.6879.18.camel@krustophenia.net>
+	 <20041120191403.GA16262@elte.hu>
+Content-Type: text/plain
+Date: Sat, 20 Nov 2004 13:35:44 -0500
+Message-Id: <1100975745.6879.35.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041022234508.GA28380@kroah.com>; from greg@kroah.com on Fri, Oct 22, 2004 at 04:45:08PM -0700
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 22, 2004 at 04:45:08PM -0700, Greg KH wrote:
-> On Wed, Oct 20, 2004 at 09:10:45AM +0100, Russell King wrote:
-> > On Tue, Oct 19, 2004 at 03:42:15PM -0700, Greg KH wrote:
-> > > ChangeSet 1.1997.37.29, 2004/10/06 12:50:32-07:00, kaneshige.kenji@jp.fujitsu.com
-> > > 
-> > > [PATCH] PCI: warn of missing pci_disable_device()
-> > > 
-> > > As mentioned in Documentaion/pci.txt, pci device driver should call
-> > > pci_disable_device() when it decides to stop using the device. But
-> > > there are some drivers that don't use pci_disable_device() so far.
-> > 
-> > No.  This is wrong.  There are some classes of devices, notably
-> > PCMCIA Cardbus drivers where buggy BIOS means this should _NOT_
-> > be done.
-> 
-> But what happens if you reload that driver and try to enable the device?
-> Does that "just work" somehow on this kind of hardware?
+On Sat, 2004-11-20 at 20:14 +0100, Ingo Molnar wrote:
+> i only tried the !PREEMPT version though - does that one work for you? 
 
-Why wouldn't it work?  Surely there are no side effects to trying to enable
-an already enabled device - if there are, then wouldn't x86 have problems
-where PCI devices were enabled before control was passed to the kernel?
+Not sure, will test.  My goal was to see if I could get the stability
+and low latency of T3 (this is low enough latency for me!) with the new
+versions.
 
-> > There are BIOSen out there which refuse to suspend/resume if the
-> > Cardbus bridge is disabled.
-> > 
-> > It's not that the driver is buggy.  It's that the driver has far
-> > more information than the PCI layer could ever have.
-> 
-> Ugh, I hate broken hardware.  I'll revert this in my next round of pci
-> changes (sometime next week.)
+> Also, please send me the .config that produces the failing kernel.
 
-It's got nothing to do with hardware.  It's BIOS.
+Sent (off-list).
 
-Also, upon re-reading the bug report, the problem was putting the Cardbus
-bridge into D3 state, not calling pci_disable_device() for it.  However,
-if pci_disable_device() puts the bridge into D3, then we'll hit the same
-issue.
+Lee
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core

@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVCIIkX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbVCII4r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbVCIIkX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 03:40:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbVCIIkX
+	id S261640AbVCII4r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 03:56:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbVCII4r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 03:40:23 -0500
-Received: from mail.kroah.org ([69.55.234.183]:47541 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261657AbVCIIkD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 03:40:03 -0500
-Date: Wed, 9 Mar 2005 00:39:53 -0800
-From: Greg KH <greg@kroah.com>
+	Wed, 9 Mar 2005 03:56:47 -0500
+Received: from web60605.mail.yahoo.com ([216.109.118.243]:9875 "HELO
+	web60605.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261640AbVCII4q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 03:56:46 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=5yXIsKTfpgzogKXQa2mn9ocRKubgFRltABFT+GgPwYwuUVkIrxZysnTh9neAcmLbc4+jb+Aa+5kGUbxydg+99hIUuSAHIbJ8EEPXUh0jCL6Foo26jg/6GCYoR+mUrbL5SejYl/KR+WtgeUTQrMX4wOJfGEen2GIxnnPL0sV7SPA=  ;
+Message-ID: <20050309085645.46998.qmail@web60605.mail.yahoo.com>
+Date: Wed, 9 Mar 2005 00:56:45 -0800 (PST)
+From: selvakumar nagendran <kernelselva@yahoo.com>
+Subject: problem in adding a new element to task_struct
 To: linux-kernel@vger.kernel.org
-Cc: chrisw@osdl.org, torvalds@osdl.org, akpm@osdl.org
-Subject: Re: Linux 2.6.11.2
-Message-ID: <20050309083953.GB20461@kroah.com>
-References: <20050309083923.GA20461@kroah.com>
-Mime-Version: 1.0
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050309083923.GA20461@kroah.com>
-User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+     I want to add a linked list member(list_head) to
+the task_struct data structure in kernel 2.4.28 for my
+personal work. When I added them without initializing
+them in INIT_TASK, no problem occurred. But when I
+initialized the linked list member using
+LIST_INIT_HEAD the kernel stops in POSIX
+initialization phase and it never proceeds after that.
+What should I take into account when adding my member
+to the task_struct? What could be the problem?
 
-diff -Nru a/Makefile b/Makefile
---- a/Makefile	2005-03-09 00:13:29 -08:00
-+++ b/Makefile	2005-03-09 00:13:29 -08:00
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 6
- SUBLEVEL = 11
--EXTRAVERSION = .1
-+EXTRAVERSION = .2
- NAME=Woozy Numbat
- 
- # *DOCUMENTATION*
-diff -Nru a/fs/eventpoll.c b/fs/eventpoll.c
---- a/fs/eventpoll.c	2005-03-09 00:13:29 -08:00
-+++ b/fs/eventpoll.c	2005-03-09 00:13:29 -08:00
-@@ -619,6 +619,7 @@
- 	return error;
- }
- 
-+#define MAX_EVENTS (INT_MAX / sizeof(struct epoll_event))
- 
- /*
-  * Implement the event wait interface for the eventpoll file. It is the kernel
-@@ -635,7 +636,7 @@
- 		     current, epfd, events, maxevents, timeout));
- 
- 	/* The maximum number of event must be greater than zero */
--	if (maxevents <= 0)
-+	if (maxevents <= 0 || maxevents > MAX_EVENTS)
- 		return -EINVAL;
- 
- 	/* Verify that the area passed by the user is writeable */
+Regards & thanks in advance,
+selva
+
+
+	
+		
+__________________________________ 
+Celebrate Yahoo!'s 10th Birthday! 
+Yahoo! Netrospective: 100 Moments of the Web 
+http://birthday.yahoo.com/netrospective/

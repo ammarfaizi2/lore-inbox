@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265106AbUFAQH2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265100AbUFAQJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265106AbUFAQH2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 12:07:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265095AbUFAQDq
+	id S265100AbUFAQJL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 12:09:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265107AbUFAQIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 12:03:46 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:50564 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S265037AbUFAQDd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 12:03:33 -0400
-Date: Tue, 1 Jun 2004 18:03:30 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Alexander Gran <alex@zodiac.dnsalias.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Enable suspend/resuming of e1000
-Message-ID: <20040601160330.GC1899@atrey.karlin.mff.cuni.cz>
-References: <200405281404.10538@zodiac.zodiac.dnsalias.org> <200406011541.26425@zodiac.zodiac.dnsalias.org> <20040601135017.GB10040@elf.ucw.cz> <200406011554.48333@zodiac.zodiac.dnsalias.org>
+	Tue, 1 Jun 2004 12:08:37 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:42716 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265100AbUFAQHW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 12:07:22 -0400
+Date: Tue, 1 Jun 2004 18:07:15 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Linus Torvalds <torvalds@osdl.org>, Matt Mackall <mpm@selenic.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.7-rc2: .bss.page_aligned warning with gcc 2.95
+Message-ID: <20040601160714.GD25681@fs.tum.de>
+References: <Pine.LNX.4.58.0405292349110.1632@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200406011554.48333@zodiac.zodiac.dnsalias.org>
+In-Reply-To: <Pine.LNX.4.58.0405292349110.1632@ppc970.osdl.org>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, May 29, 2004 at 11:52:50PM -0700, Linus Torvalds wrote:
+>...
+> Summary of changes from v2.6.7-rc1 to v2.6.7-rc2
+> ============================================
+>...
+> Matt Mackall:
+>   o i386: put irq stacks in .bss.page_aligned section
+>...
 
-> > What happens if you unload/reload module around suspend?
-> 
-> doesn't work. This was my first attempt. Seems that the pci_save_state, 
-> pci_disable device is really needed.
-> 
-> > You may want to free_irq in suspend routine and request it back in
-> > resume.
-> 
-> I also thought about that, however I tried to let e1000_suspend call 
-> e1000_down everytime, as that calls e1000_irq_disable and free_irq. Than call 
-> e1000_up in resume, as that does  request_irq e1000_irq_enable. 
-> This does not work, though. Still no irqs
+This patch causess the following compile warning when using gcc 2.95
+(observed in 2.6.7-rc2-mm1):
 
-Try hooking it to timer interrupt and see if network then works at
-least somehow.
-								Pavel
+<--  snip  -->
+
+...
+  CC      arch/i386/kernel/irq.o
+{standard input}: Assembler messages:
+{standard input}:3612: Warning: setting incorrect section type for .bss.page_aligned
+...
+
+<--  snip  -->
+
+cu
+Adrian
+
 -- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

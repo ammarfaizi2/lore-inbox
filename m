@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129464AbQLGOQp>; Thu, 7 Dec 2000 09:16:45 -0500
+	id <S129524AbQLGOTy>; Thu, 7 Dec 2000 09:19:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129524AbQLGOQf>; Thu, 7 Dec 2000 09:16:35 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:8459 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129464AbQLGOQ2>; Thu, 7 Dec 2000 09:16:28 -0500
-Subject: Re: fatfs BUG() in test12-pre5
-To: dwmw2@infradead.org (David Woodhouse)
-Date: Thu, 7 Dec 2000 13:47:56 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0012061949330.1043-100000@imladris.demon.co.uk> from "David Woodhouse" at Dec 06, 2000 07:51:25 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129413AbQLGOTo>; Thu, 7 Dec 2000 09:19:44 -0500
+Received: from [62.172.234.2] ([62.172.234.2]:15337 "EHLO penguin.homenet")
+	by vger.kernel.org with ESMTP id <S130177AbQLGOTe>;
+	Thu, 7 Dec 2000 09:19:34 -0500
+Date: Thu, 7 Dec 2000 13:48:38 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Linus Torvalds <torvalds@transmeta.com>, Andries Brouwer <aeb@veritas.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: [patch-2.4.0-test12-pre6] truncate(2) permissions
+In-Reply-To: <Pine.GSO.4.21.0012070709400.20144-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0012071344000.970-100000@penguin.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1441Ow-0002Rc-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This code in fs/fat/file.c::fat_get_block() is getting triggered when I
-> run wine:
-> 
->         if (iblock<<9 != MSDOS_I(inode)->mmu_private) {
->                 BUG();
->                 return -EIO;
->         }
+On Thu, 7 Dec 2000, Alexander Viro wrote:
+> So correct solution may very well be to change the return value of
+> permission(9). FWIW, MAY_TRUNCATE might be a good idea - notice that
+> knfsd already has something like that. It makes sense for directories,
+> BTW - having may_delete() drop the IS_APPEND() test and pass MAY_TRUNCATE
+> to permission() instead.
 
-[I'd suggest you don't run the FAT file system code in 2.4test* unless you are
- doing it read only or have the patches applied that fix truncate, otherwise
- you will turn your msdos fs to gloop right now]
+Alexander,
 
+The above sounds like an excellent idea (MAY_TRUNCATE specifically!) but
+please understand that I simply wanted to minimize the amount of
+fundamental code changes. Yes, it would be much cleaner to have a MAY_XXX
+which groups little specific tests together for every scenario, e.g. for
+truncate().
+
+So, I wasn't suggesting BS as the "best thing for all times" but merely as
+the "best thing at the moment without changing too much and yet not
+leaving dead code in there and not adding too much new code".
+
+Regards,
+Tigran
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

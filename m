@@ -1,75 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264103AbUFPQJj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264085AbUFPQMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264103AbUFPQJj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 12:09:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbUFPQJg
+	id S264085AbUFPQMn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 12:12:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263984AbUFPQMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 12:09:36 -0400
-Received: from fire.osdl.org ([65.172.181.4]:40626 "EHLO fire-2.osdl.org")
-	by vger.kernel.org with ESMTP id S264103AbUFPQJC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 12:09:02 -0400
-Subject: Re: Linux 2.6.7 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
-Content-Type: text/plain
-Message-Id: <1087402141.28212.0.camel@cherrypit.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 16 Jun 2004 09:09:01 -0700
+	Wed, 16 Jun 2004 12:12:43 -0400
+Received: from smtp.infonegocio.com ([213.4.129.150]:8338 "EHLO
+	telesmtp4.mail.isp") by vger.kernel.org with ESMTP id S264085AbUFPQLX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 12:11:23 -0400
+Message-ID: <40D07123.1040701@telefonica.net>
+Date: Wed, 16 Jun 2004 18:11:15 +0200
+From: Miguelanxo Otero Salgueiro <miguelanxo@telefonica.net>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.7: ehci_hcd prevents system from suspending properly
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.6 Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
+I've just compiled 2.6.7 and found that having ehci_hcd loaded (I've 
+compiled it as a module) prevents system from suspending properly. I've 
+got this dmesg messages:
 
-Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
-             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
------------  -----------  -------- -------- -------- -------- ---------
-2.6.7          0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    102w/0e
-2.6.7-rc3      0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    104w/0e
-2.6.7-rc2      0w/0e       0w/0e   110w/ 0e   5w/0e   2w/0e    106w/0e
-2.6.7-rc1      0w/0e       0w/0e   111w/ 0e   6w/0e   2w/0e    107w/0e
-2.6.6          0w/0e       0w/0e   123w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.6-rc3      0w/0e       0w/0e   124w/ 0e   7w/0e   5w/0e    121w/0e
-2.6.6-rc2      0w/0e       0w/0e   122w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.6-rc1      0w/0e       0w/0e   125w/ 0e   7w/0e   4w/0e    123w/0e
-2.6.5          0w/0e       0w/0e   134w/ 0e   8w/0e   4w/0e    132w/0e
-2.6.5-rc3      0w/0e       0w/0e   135w/ 0e   8w/0e   4w/0e    132w/0e
-2.6.5-rc2      0w/0e       0w/0e   135w/ 0e   8w/0e   3w/0e    132w/0e
-2.6.5-rc1      0w/0e       0w/0e   138w/ 0e   8w/0e   3w/0e    135w/0e
-2.6.4          1w/0e       0w/0e   145w/ 0e   7w/0e   3w/0e    142w/0e
-2.6.4-rc2      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
-2.6.4-rc1      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
-2.6.3          1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
-2.6.3-rc4      1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
-2.6.3-rc3      1w/0e       0w/0e   145w/ 7e   9w/0e   3w/0e    148w/0e
-2.6.3-rc2      1w/0e       0w/0e   141w/ 0e   9w/0e   3w/0e    144w/0e
-2.6.3-rc1      1w/0e       0w/0e   145w/ 0e   9w/0e   3w/0e    177w/0e
-2.6.2          1w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
-2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
-2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
-2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
+PM: Preparing system for suspend
+Stopping tasks: 
+=======================================================================|
+PCI: Setting latency timer of device 0000:00:1d.7 to 64
+Could not suspend device 0000:00:1d.7: error -5
+PCI: Setting latency timer of device 0000:00:1f.5 to 64
+PCI: Setting latency timer of device 0000:00:1f.6 to 64
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
-Daily compiles (ia32): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
-Daily compiles (ia64): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
-Latest changes in Linus' bitkeeper tree:
-   http://linux.bkbits.net:8080/linux-2.5
+looks like device 0000:00:1d.7 can't be suspended. From lspci I get this:
 
-John
+0000:00:1d.7 USB Controller: Intel Corp. 82801DB (ICH4) USB2 EHCI 
+Controller (rev 03)
 
+If I remove the module (modprobe -r ehci_hcd) the system suspends properly:
 
+PM: Preparing system for suspend
+Stopping tasks: 
+========================================================================|
+PCI: Setting latency timer of device 0000:00:1d.0 to 64
+PCI: Setting latency timer of device 0000:00:1d.0 to 64
+PCI: Setting latency timer of device 0000:00:1d.7 to 64
+PCI: Setting latency timer of device 0000:00:1f.5 to 64
+PCI: Setting latency timer of device 0000:00:1f.6 to 64
+PM: Entering state.
+
+2.6.6 does suspend properly, as does 2.6.5 and 2.4.26. This
+2.6.7 compilation is just a make oldconfig from the 2.6.6 settings I 
+have, nothing more, nothing less.
+
+My system: Toshiba A10
+
+root@nemo:/home/miguel# cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Mobile Intel(R) Celeron(R) CPU 2.40GHz
+stepping        : 9
+cpu MHz         : 2394.737
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca 
+cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
+bogomips        : 4751.36
 

@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271333AbRHUCin>; Mon, 20 Aug 2001 22:38:43 -0400
+	id <S271370AbRHUDBS>; Mon, 20 Aug 2001 23:01:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271339AbRHUCie>; Mon, 20 Aug 2001 22:38:34 -0400
-Received: from noc242.toshiba-eng.co.jp ([210.254.22.242]:40614 "EHLO
-	noc4.toshiba-eng.co.jp") by vger.kernel.org with ESMTP
-	id <S271333AbRHUCiU>; Mon, 20 Aug 2001 22:38:20 -0400
-Date: Tue, 21 Aug 2001 11:38:22 +0900
-From: Masaru Kawashima <masaru@scji.toshiba-eng.co.jp>
-To: Alan Cox <laughing@shared-source.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.8-ac8
-Message-Id: <20010821113822.15c85f02.masaru@scji.toshiba-eng.co.jp>
-In-Reply-To: <20010821014543.A27295@lightning.swansea.linux.org.uk>
-In-Reply-To: <20010821014543.A27295@lightning.swansea.linux.org.uk>
-Organization: Open Software Sec.
-X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	id <S271381AbRHUDBJ>; Mon, 20 Aug 2001 23:01:09 -0400
+Received: from willow.commerce.uk.net ([213.219.35.202]:5654 "EHLO
+	willow.commerce.uk.net") by vger.kernel.org with ESMTP
+	id <S271370AbRHUDAu>; Mon, 20 Aug 2001 23:00:50 -0400
+Date: Tue, 21 Aug 2001 03:58:47 +0100 (BST)
+From: Corin Hartland-Swann <cdhs@commerce.uk.net>
+To: linux-kernel@vger.kernel.org
+Subject: sync hanging
+Message-ID: <Pine.LNX.4.21.0108210353520.11035-100000@willow.commerce.uk.net>
+Organization: Commerce Internet Ltd
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Aug 2001 01:45:43 +0100
-Alan Cox <Alan Cox <laughing@shared-source.org>> wrote:
 
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
+Hi there,
 
-You've changed the directory to
-   ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.4/2.4.8/
+I'm using kernel 2.4.8-ac2 on a Dual PIII-1000 with 4096M RAM, and a
+reiserfs filesystem on a RAID-1 mirror of two 76GB UDMA disks, and I'm
+experiencing a strange problem after the machine has been running for a
+while.
 
---
-Masaru Kawashima <masaru@scji.toshiba-eng.co.jp>
+Every now and again, running sync(1) (i.e. the program) seems to hang and
+end up in state D (uninterruptible sleep). There is no way to kill it
+(even with SIGKILL but I assume that this is typical for state D
+processes.
+
+Does anyone have any idea what may be causing this? I have searched the
+archives and couldn't find anything similar.
+
+Thanks,
+
+Corin
+
+PS: Please CC any replies to me.
+
+/------------------------+-------------------------------------\
+| Corin Hartland-Swann   |    Tel: +44 (0) 20 7491 2000        |
+| Commerce Internet Ltd  |    Fax: +44 (0) 20 7491 2010        |
+| 22 Cavendish Buildings | Mobile: +44 (0) 79 5854 0027        | 
+| Gilbert Street         |                                     |
+| Mayfair                |    Web: http://www.commerce.uk.net/ |
+| London W1K 5HJ         | E-Mail: cdhs@commerce.uk.net        |
+\------------------------+-------------------------------------/
+
+

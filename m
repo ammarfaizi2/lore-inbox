@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbVANUt2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262121AbVANUwU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbVANUt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 15:49:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbVANUt2
+	id S262121AbVANUwU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 15:52:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbVANUwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 15:49:28 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:33412 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262119AbVANUtS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 15:49:18 -0500
-Date: Fri, 14 Jan 2005 21:49:57 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       LTT-Dev <ltt-dev@shafik.org>
-Subject: Re: [PATCH 4/8 ] ltt for 2.6.10 : fs/ events
-Message-ID: <20050114204957.GB8385@mars.ravnborg.org>
-Mail-Followup-To: Karim Yaghmour <karim@opersys.com>,
-	Andrew Morton <akpm@osdl.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	LTT-Dev <ltt-dev@shafik.org>
-References: <41E76288.2080004@opersys.com>
+	Fri, 14 Jan 2005 15:52:11 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:21146 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262121AbVANUuZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 15:50:25 -0500
+Subject: DRM changes in 2.6.11-rc1.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1105735923.16972.11.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41E76288.2080004@opersys.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Sat, 15 Jan 2005 07:52:03 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Karim.
+Hi all.
 
->  void __wait_on_buffer(struct buffer_head * bh)
->  {
-> +	ltt_ev_file_system(LTT_EV_FILE_SYSTEM_BUF_WAIT_START, 0, 0, NULL);
+Just wanted to express thanks to the DRI/DRM guys. I can now suspend and
+resume my i865 chipset/Radeon video card with DRM enabled without any
+problems at all.
 
-Pleae use the subsystem name in both function name and constant - like:
-> +	ltt_ev_fs(LTT_EV_FS_BUF_WAIT_START, 0, 0, NULL);
+Great work guys!
 
-This is commonly practice.
+Nigel
+-- 
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
 
-Comment is relevant for:
-file_system	=>	fs
-network		=>	net
-memory		=>	mm
+Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
 
-	Sam

@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315232AbSEFWZm>; Mon, 6 May 2002 18:25:42 -0400
+	id <S315231AbSEFWZa>; Mon, 6 May 2002 18:25:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315233AbSEFWZl>; Mon, 6 May 2002 18:25:41 -0400
-Received: from jalon.able.es ([212.97.163.2]:5067 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S315232AbSEFWZk>;
-	Mon, 6 May 2002 18:25:40 -0400
-Date: Tue, 7 May 2002 00:25:32 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Plan for e100-e1000 in mainline
-Message-ID: <20020506222532.GA3019@werewolf.able.es>
-In-Reply-To: <20020501010828.GA1753@werewolf.able.es> <3CCF796C.5090401@mandrakesoft.com> <20020506111950.A1956@kushida.apsleyroad.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.5
+	id <S315233AbSEFWZ3>; Mon, 6 May 2002 18:25:29 -0400
+Received: from pl174.dhcp.adsl.tpnet.pl ([217.98.31.174]:4736 "EHLO
+	bzzzt.slackware.pl") by vger.kernel.org with ESMTP
+	id <S315231AbSEFWZ2>; Mon, 6 May 2002 18:25:28 -0400
+Date: Tue, 7 May 2002 00:27:17 +0200 (CEST)
+From: Pawel Kot <pkot@linuxnews.pl>
+X-X-Sender: <pkot@bzzzt.slackware.pl>
+To: <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
+        <linux-ntfs-dev@lists.sourceforge.net>
+Subject: [ANN] NTFS 2.0.6a for Linux 2.4.18
+Message-ID: <Pine.LNX.4.33.0205070025140.19921-100000@bzzzt.slackware.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-On 2002.05.06 Jamie Lokier wrote:
->Jeff Garzik wrote:
->> You can easily copy drivers/net/e100[0] into a 2.4.x kernel, it likely 
->> compiles without modification.
->
->It does, except that you need to
->  #define cpu_relax() rep_nop()
->or something very similar.
->
+With much help from Anton, I backported the NTFS-TNG driver to 2.4.x Linux
+kernel series. If you are afraid of running 2.5.x kernel, but you would
+like to get all benefits of the new NTFS driver use this one.
 
-It is already defined in processor.h (2.4.19-pre8). They build fine for me.
+It should have all features the driver for 2.5.x has -- only 2.5.x series
+specific code was removed/altered.
 
+The driver itself really looks to be stable, it survived all the run
+tests, but if you have any problems running it, please, contact me or
+Anton.
+
+You can download the patch for the vanilla 2.4.18 from:
+http://prdownloads.sourceforge.net/linux-ntfs/linux-2.4.18-ntfs-2.0.6a.patch
+http://prdownloads.sourceforge.net/linux-ntfs/linux-2.4.18-ntfs-2.0.6a.patch.gz
+http://prdownloads.sourceforge.net/linux-ntfs/linux-2.4.18-ntfs-2.0.6a.patch.bz2
+
+I plan also to sync the patch with the 2.4.19pre releases but it may take
+some time.
+
+pkot
 -- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre8-jam1 #1 SMP dom may 5 23:46:04 CEST 2002 i686
+Pawel Kot <pkot@linuxnews.pl>
+http://www.gnokii.org/ :: http://www.slackware.pl/
+http://kt.linuxnews.pl/ -- Kernel Traffic po polsku
+

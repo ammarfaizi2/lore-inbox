@@ -1,63 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269844AbRHDJXP>; Sat, 4 Aug 2001 05:23:15 -0400
+	id <S269842AbRHDJwb>; Sat, 4 Aug 2001 05:52:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269842AbRHDJW4>; Sat, 4 Aug 2001 05:22:56 -0400
-Received: from d122251.upc-d.chello.nl ([213.46.122.251]:5901 "EHLO
-	arnhem.blackstar.nl") by vger.kernel.org with ESMTP
-	id <S269841AbRHDJWu>; Sat, 4 Aug 2001 05:22:50 -0400
-From: bvermeul@devel.blackstar.nl
-Date: Sat, 4 Aug 2001 11:25:30 +0200 (CEST)
-To: Jussi Laako <jlaako@pp.htv.fi>
-cc: Russell King <rmk@arm.linux.org.uk>, Per Jessen <per.jessen@enidan.com>,
-        <linux-kernel@vger.kernel.org>, <linux-laptop@vger.kernel.org>
-Subject: Re: PCMCIA control I82365 stops working with 2.4.4
-In-Reply-To: <3B6B2DC4.B13B4B1@pp.htv.fi>
-Message-ID: <Pine.LNX.4.33.0108041122520.15321-100000@devel.blackstar.nl>
+	id <S269845AbRHDJwV>; Sat, 4 Aug 2001 05:52:21 -0400
+Received: from [193.14.164.225] ([193.14.164.225]:17171 "EHLO wlug.westbo.se")
+	by vger.kernel.org with ESMTP id <S269842AbRHDJwL>;
+	Sat, 4 Aug 2001 05:52:11 -0400
+Date: Sat, 4 Aug 2001 11:30:50 +0200 (CEST)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Stefan Burkei <stefan@burkei.de>
+cc: "'@Linux Kernel Miller, David S.'" <davem@redhat.com>,
+        "'@Linux Kernel Ostrowski, Michal'" <mostrows@us.ibm.com>,
+        "'@Linux Kernel Mailingliste'" <linux-kernel@vger.kernel.org>
+Subject: Re: oops in skbuff.c
+In-Reply-To: <000001c11c64$f3bc5d40$3100000a@sb>
+Message-ID: <Pine.LNX.4.30.0108041128410.785-100000@wlug.westbo.se>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Aug 2001, Jussi Laako wrote:
+Hi Stefan.
 
-> bvermeul@devel.blackstar.nl wrote:
-> >
-> > Try going to your bios and setting the PCMCIA adapter to Cardbus/16bit
-> > instead of Auto. The Toshiba Topic chipsets are buggy, change their PCI
+Marc Boucher of netfilter fame posted this patch
+to various lists two days ago.
+
+http://marc.theaimsgroup.com/?l=linux-netdev&m=99660200431340&w=2
+
+According to people on the netfilter-lists this patch fixes the problems
+they have been having with netfilter and pppoe.
+
+But there might be an even newer patch in the netfilter CVS patch-o-matic,
+please check that out. You have cvs instructions on the netfilter page:
+
+http://netfilter.samba.org
+http://netfilter.gnumonks.org
+
+then run 'make patch-o-matic' in the netfilter/userspace directory
+
+/Martin
+
+
+
+On Fri, 3 Aug 2001, Stefan Burkei wrote:
+
+> Hi,
 >
-> Dunno how to change those. The machine had just windows based setup program.
-
-Press Esc when the laptop boots. It'll tell you you did something stupid,
-and please press F1 to enter setup.
-
-> > identifiers with different bios settings, and are just a plain pain in
-> > the ass to get working. Then use the yenta driver (preferrably in
-> > kernel), and I think you will find it works now. :)
+> I'm using Kernel 2.4.7 (i think with the actual
+> pppoe-patches 0.6.8) and it still oopses on the
+> same place - in the routine skb_drop_fraglist.
 >
-> I wonder why it stopped working, because it was working just fine until
-> lately. I don't care if it's CardBus or old ISA-based PCMCIA because it
-> makes no difference as long as it works. I've been using it for years with
-> Linux and FreeBSD.
-
-Dunno why it stopped working.
-
-> > Bas Vermeulen, who has had some bad experiences with Toshiba laptops. And
-> > it's impossible to get specs for em too.
+> My Linux-Box acts as a NAT-Router to the Internet
+> for my Win98-Clients with a german DSL-Connection
+> using pppoe with pppd 2.4.1.
+> With pppd 2.4.0 the result is the same.
 >
-> Btw. is there any completely working laptop? I've got lot of problems with
-> Dell and IBM laptops. I've really started to hate all this mobile stuff that
-> never works...
-
-My Dell Inspiron 8000 (Ati video chipset) works flawlessly for me. Got
-everything working like it should.
-
-Bas Vermeulen
+> The problem appears with Kernel 2.4.4 and
+> is always reproducable since then.
+> I start on my Win98-Box the Gnutella-Client
+> BearShare and don't have to wait longer
+> than 10 sec. until the machine crashes.
+>
+> I figured out, that the kernel attempts to free
+> a fraglist in the routine skb_drop_fraglist with
+> an invalid pointer to it.
+> During one pppd-session this "pointer" has
+> always the same (i think) false value. The
+> high word is always zero and the low word doesn't
+> change during one online session of pppd.
+> The low word will have a new value on the next
+> dialup of pppd. Again - this value stays in place
+> until the pppd hangs up.
+>
+> I use a short code fragment to check this invalid
+> pointer and, if detected, jumps over the kfree-routine.
+> This isn't a really patch, because the real error wasn't
+> corrected - but the kernel remains stable since then.
+>
+> This here is my skb_drop_fraglist-routine:
+>
+> static void skb_drop_fraglist(struct sk_buff *skb)
+> {
+>         struct sk_buff *list = skb_shinfo(skb)->frag_list;
+>
+>         skb_shinfo(skb)->frag_list = NULL;
+>
+>         if ((unsigned long)list & 0xffff0000) {
+>             do {
+>                     struct sk_buff *this = list;
+>                     list = list->next;
+>                     kfree_skb(this);
+>             } while (list);
+>         } else
+>             printk(KERN_WARNING "Warning: skb_drop_fraglist() \
+> 	    invalid pointer detected: %08lx.\n", (unsigned long)list);
+> }
+>
+>
+> I hope I can give you two a hint on your bug-hunting.
+>
+> ciao - stebu
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
 -- 
-"God, root, what is difference?"
-	-- Pitr, User Friendly
-
-"God is more forgiving."
-	-- Dave Aronson
+Linux hackers are funny people: They count the time in patchlevels.
 

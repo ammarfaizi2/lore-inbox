@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269146AbUIBWYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269139AbUIBW2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269146AbUIBWYb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 18:24:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269189AbUIBWRa
+	id S269139AbUIBW2J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 18:28:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269152AbUIBW1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 18:17:30 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:46061 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269121AbUIBWNI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 18:13:08 -0400
-Date: Fri, 3 Sep 2004 00:14:02 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>, Mark_H_Johnson@raytheon.com,
-       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R0
-Message-ID: <20040902221402.GA29434@elte.hu>
-References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu> <20040902111003.GA4256@elte.hu> <20040902215728.GA28571@elte.hu> <1094162812.1347.54.camel@krustophenia.net>
+	Thu, 2 Sep 2004 18:27:33 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:4320 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S269139AbUIBW0v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 18:26:51 -0400
+Date: Fri, 3 Sep 2004 00:26:50 +0200
+From: Frank van Maarseveen <frankvm@xs4all.nl>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Frank van Maarseveen <frankvm@xs4all.nl>,
+       Dave Kleikamp <shaggy@austin.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       Hans Reiser <reiser@namesys.com>, Christoph Hellwig <hch@lst.de>,
+       fsdevel <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4)
+Message-ID: <20040902222650.GA5523@janus>
+References: <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain> <20040902203854.GA4801@janus> <1094160994.31499.19.camel@shaggy.austin.ibm.com> <20040902214806.GA5272@janus> <20040902220027.GD23987@parcelfarce.linux.theplanet.co.uk> <20040902220242.GA5414@janus> <20040902220640.GE23987@parcelfarce.linux.theplanet.co.uk> <20040902221133.GB5414@janus> <20040902221722.GF23987@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1094162812.1347.54.camel@krustophenia.net>
+In-Reply-To: <20040902221722.GF23987@parcelfarce.linux.theplanet.co.uk>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Lee Revell <rlrevell@joe-job.com> wrote:
-
-> > i've given up on the netdev_backlog_granularity approach, and as a
-> > replacement i've modified specific network drivers to return at a safe
-> > point if softirq preemption is requested.
+On Thu, Sep 02, 2004 at 11:17:22PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
 > 
-> Makes sense, netdev_max_backlog never made a difference on my system
-> (via-rhine driver).
+> What knowledge does the kernel have about fs type that could deal with the
+> contents of given device?  Details, please.
 
-via-rhine does RX processing from the hardirq handler, this codepath is
-harder to break up. The NAPI ->poll functions used by e100 and 8193too
-are much easier to break up because RX throttling and re-trying is a
-basic property of NAPI.
+Try a "make tags;grep SUPER_MAGIC tags".
+Or is it there for a different purpose?
 
-	Ingo
+-- 
+Frank

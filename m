@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262304AbTJIRRK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 13:17:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbTJIRRK
+	id S262288AbTJIRPz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 13:15:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262291AbTJIRPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 13:17:10 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38800 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262304AbTJIRRF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 13:17:05 -0400
-Message-ID: <3F859802.4060607@pobox.com>
-Date: Thu, 09 Oct 2003 13:16:50 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Thu, 9 Oct 2003 13:15:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:22286 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262288AbTJIRPy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 13:15:54 -0400
+Date: Thu, 9 Oct 2003 13:15:44 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Tom Zanussi <zanussi@us.ibm.com>
+cc: linux-kernel@vger.kernel.org, <karim@opersys.com>, <bob@watson.ibm.com>
+Subject: Re: [PATCH][RFC] relayfs (1/4) (Documentation)
+In-Reply-To: <16261.32253.607756.900278@gargle.gargle.HOWL>
+Message-ID: <Pine.LNX.4.44.0310091311440.14415-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Manfred Spraul <manfred@colorfullife.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] disable_irq()/enable_irq() semantics and ide-probe.c
-References: <3F858885.1070202@colorfullife.com> <3F858EF8.5080105@pobox.com>	 <1065718629.663.3.camel@gaston>  <3F8594CD.1030504@pobox.com> <1065719227.663.6.camel@gaston>
-In-Reply-To: <1065719227.663.6.camel@gaston>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
-> On Thu, 2003-10-09 at 19:03, Jeff Garzik wrote:
-> 
-> 
->>Easily solved with a synchronize_irq()  ;-)
-> 
-> 
-> No. synchronize_irq will do nothing to an irq that is
-> still somewhere in the HW path from the device to the core,
-> and even in the core it may be queued for some cycles before
-> actually delivered.
+On Thu, 9 Oct 2003, Tom Zanussi wrote:
+
+> Nothing, if they meet your needs.  One thing you can do with relayfs
+> files is mmap() them.  That combined with the kernel-side API,
+> designed to make writing data into buffers and transferring it as
+> large blocks to user-space efficient and flexible, allows for
+> high-speed, high-volume applications which I'm not sure Netlink was
+> designed for.
+
+It should be possible to make Netlink sockets mmapable (like the packet 
+socket).
+
+> relayfs can also be used in 'packet' mode, using read(2) to read data
+> as it becomes available, so it can be used for low-speed, low-volume
+> applications as well.  Also, some people might find the file-based
+> approach more natural to deal with.  Personal preference, I suppose.
+
+There is already a netlink device.
 
 
-hmmm, ok :)
-
-Well my main objection is disable_irq+free_irq+enable_irq.  Seems to me 
-we'll wind up coding around that.  Maybe a free_and_enable_irq is 
-appropriate to avoid such a situation?  Oh well, just thinking out loud...
-
-	Jeff
-
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
 

@@ -1,56 +1,132 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311270AbSCWUsd>; Sat, 23 Mar 2002 15:48:33 -0500
+	id <S311269AbSCWUnL>; Sat, 23 Mar 2002 15:43:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311271AbSCWUsN>; Sat, 23 Mar 2002 15:48:13 -0500
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:37114 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S311270AbSCWUsI>; Sat, 23 Mar 2002 15:48:08 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Martin Blais <blais@iro.umontreal.ca>
-To: Pavel Machek <pavel@suse.cz>, Martin Blais <blais@discreet.com>
-Subject: Re: xxdiff as a visual diff tool (shameless plug)
-Date: Sat, 23 Mar 2002 15:46:46 -0500
-X-Mailer: KMail [version 1.3.1]
+	id <S311270AbSCWUnC>; Sat, 23 Mar 2002 15:43:02 -0500
+Received: from [216.167.37.170] ([216.167.37.170]:9481 "EHLO cob427.dn.net")
+	by vger.kernel.org with ESMTP id <S311269AbSCWUmv>;
+	Sat, 23 Mar 2002 15:42:51 -0500
+Date: Sun, 24 Mar 2002 02:05:16 +0530
+From: "Sapan J . Bhatia" <lists@corewars.org>
+To: jsimmons@transvirtual.com
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020321061423.HIXG2746.tomts17-srv.bellnexxia.net@there> <200203221829.NAA22671161@cuba.discreet.qc.ca> <20020322214413.GG16382@atrey.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020323204804.ZOIW905.tomts8-srv.bellnexxia.net@there>
+Subject: [PATCH] POLL_OUT for tty drivers
+Message-ID: <20020324020516.A3777@corewars.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="YZ5djTAD1cGYuMQK"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux corewars 2.4.18
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Friday 22 March 2002 16:44, Pavel Machek wrote:
-> Hi!
-> > that seems more like a patch problem/improvement request. i wouldn't do
-> > the patch myself... however, with the rejected hunks problem, i wonder if
-> > it is at all possible to avoid implementing patch functionality in the
-> > diffing tool itself.
->
-> Question is how to do it in patch. Even one *long line* can be too
-> much, and then your horizontal highlight would come very handy.
+--YZ5djTAD1cGYuMQK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-actually, thinking more about it, having to use patch is not really a problem 
-for the BK use case discussed on this list, as BK most likely can provide the 
-file on the main branch and the common ancestor between the developer's 
-branch and the main branch. one then just needs to spawn a 3-way xxdiff on 
-those three files (with automatic selection of non-conflictual hunks). 
-that's what i do with Clearcase, where all the file versions are available 
-directly in the filesystem. CVS however, requires that i first fetch the file 
-to a temporary copy and there is no way to figure out the common ancestor 
-where the last update to the main branch occured (unless you hack it into a 
-tag or something).
+Hello,
 
-my point is, if you're using scm, you don't need to use patches at all, so 
-there is no real need for a tool to help "wiggle patches in", in that 
-context.
------BEGIN PGP SIGNATURE-----
-Comment: For info see http://www.gnupg.org
+While fixing a flow control bug that truncated output to a terminal in
+User Mode Linux, I noticed that the tty drivers only send POLL_IN on new
+data being available but not POLL_OUT when the device is ready for new
+data. This is quite important for processes that use ASYNC IO, since if
+they're using POLLIN already, it doesn't make sense to employ an alternative
+method for POLLOUT
 
-iEYEARECAAYFAjyc6coACgkQq2PmC9F3Xx3LMACeJbrnBgPsFxSGuXlL8PdCdlmm
-z2wAn2qNiFC6sgpz4yQZKMGV1DzIeayx
-=rB+O
------END PGP SIGNATURE-----
+This patch fixes the bug in the line discipline and the pty driver.
+
+Also, there's another minor bug in n_tty.c where write_chan returns
+on a (retvalue < 0) unconditionally. This is a problem, since the type of
+IO (BLOCKING / NON_BLOCKING) is stored in the tty, and if the console driver
+returns a -EAGAIN (eg. in UML on getting an EAGAIN from the host kernel),
+write_chan returns even in the case of a blocking write, which is wrong
+since the process doesn't expect it.
+
+Regards,
+Sapan
+
+--YZ5djTAD1cGYuMQK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="tty_bugs.diff"
+
+--- /tmp/work/linux/drivers/char/pty.c	Fri Dec 21 23:11:54 2001
++++ /usr/src/linux-2.4.18/drivers/char/pty.c	Thu Mar 21 20:26:01 2002
+@@ -5,6 +5,10 @@
+  *
+  *  Added support for a Unix98-style ptmx device.
+  *    -- C. Scott Ananian <cananian@alumni.princeton.edu>, 14-Jan-1998
++ *  Added TTY_DO_WRITE_WAKEUP to enable n_tty to send POLL_OUT to
++ *      waiting writers -- Sapan Bhatia <sapan@corewars.org>
++ *
++ *
+  */
+ 
+ #include <linux/config.h>
+@@ -331,6 +335,8 @@
+ 	clear_bit(TTY_OTHER_CLOSED, &tty->link->flags);
+ 	wake_up_interruptible(&pty->open_wait);
+ 	set_bit(TTY_THROTTLED, &tty->flags);
++	set_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
++
+ 	/*  Register a slave for the master  */
+ 	if (tty->driver.major == PTY_MASTER_MAJOR)
+ 		tty_register_devfs(&tty->link->driver,
+--- /tmp/work/linux/drivers/char/n_tty.c	Fri Apr  6 23:12:55 2001
++++ /usr/src/linux-2.4.18/drivers/char/n_tty.c	Thu Mar 21 07:22:44 2002
+@@ -23,6 +23,13 @@
+  * 2000/01/20   Fixed SMP locking on put_tty_queue using bits of 
+  *		the patch by Andrew J. Kroll <ag784@freenet.buffalo.edu>
+  *		who actually finally proved there really was a race.
++ *
++ * 2002/03/18   Implemented n_tty_wakeup to send SIGIO POLL_OUTs to
++ *		waiting writing processes-Sapan Bhatia <sapan@corewars.org>
++ *
++ * 2002/03/19   Fixed write_chan to stay put if console driver returns
++ *              EAGAIN and not return since it returns an EAGAIN in a 
++ *		non-blocking operation-Sapan Bhatia <sapan@corewars.org>
+  */
+ 
+ #include <linux/types.h>
+@@ -711,6 +718,22 @@
+ 	return 0;
+ }
+ 
++/*
++ * Required for the ptys, serial driver etc. since processes
++ * that attach themselves to the master and rely on ASYNC
++ * IO must be woken up
++ */
++
++static void n_tty_write_wakeup(struct tty_struct *tty)
++{
++	if (tty->fasync)
++	{
++ 		set_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
++		kill_fasync(&tty->fasync, SIGIO, POLL_OUT);
++	}
++	return;
++}
++
+ static void n_tty_receive_buf(struct tty_struct *tty, const unsigned char *cp,
+ 			      char *fp, int count)
+ {
+@@ -1156,7 +1179,7 @@
+ 		if (O_OPOST(tty) && !(test_bit(TTY_HW_COOK_OUT, &tty->flags))) {
+ 			while (nr > 0) {
+ 				ssize_t num = opost_block(tty, b, nr);
+-				if (num < 0) {
++				if (num < 0 && num != -EAGAIN) {
+ 					retval = num;
+ 					goto break_out;
+ 				}
+@@ -1236,6 +1259,6 @@
+ 	normal_poll,		/* poll */
+ 	n_tty_receive_buf,	/* receive_buf */
+ 	n_tty_receive_room,	/* receive_room */
+-	0			/* write_wakeup */
++	n_tty_write_wakeup	/* write_wakeup */
+ };
+ 
+
+--YZ5djTAD1cGYuMQK--

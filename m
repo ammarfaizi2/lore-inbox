@@ -1,55 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261921AbTIMRRg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 13:17:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbTIMRRg
+	id S261443AbTIMRE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 13:04:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbTIMRE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 13:17:36 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:13211 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261921AbTIMRRe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 13:17:34 -0400
-Subject: Re: People, not GPL  [was: Re: Driver Model]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1063444117.7962.19.camel@rousalka.dyndns.org>
-References: <1063444117.7962.19.camel@rousalka.dyndns.org>
+	Sat, 13 Sep 2003 13:04:28 -0400
+Received: from lightning.hereintown.net ([141.157.132.3]:54449 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id S261443AbTIMRE0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 13:04:26 -0400
+Subject: Re: Oops when finishing raidreconf on 2.6.0-test5
+From: Chris Meadors <clubneon@hereintown.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063473375.8702.12.camel@dhcp23.swansea.linux.org.uk>
+Message-Id: <1063472663.29049.6.camel@clubneon.clubneon.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
-Date: Sat, 13 Sep 2003 18:16:16 +0100
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Sat, 13 Sep 2003 13:04:23 -0400
+Content-Transfer-Encoding: 7bit
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19yDow-0004F6-D6*hejstOYKpd.*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2003-09-13 at 10:08, Nicolas Mailhot wrote:
-> At some point Linus decreeted linking closed modules was ok with him
-> (note this was done without consulting anyone, so others contributors
-> could have objected - they did choose to release stuff under the gpl
-> after all - but this being Linus they let it pass)
+Okay, it took some time, but here is what I've tested, all on
+2.6.0-test5 now:
 
-Other contributors objected at the time. Furthermore there is merging of
-third party GPL code from bodies like the FSF who also object and didnt
-submit their code themselves. 
+First, by mistake, raidreconf on a started array, gets all the way
+through, but when it discovers at the end that md0 already has disks, it
+exits gracefully, no oops.
 
-> will be sued (people that link to symbols not GPL-ONLY could be sued too
-> but everyone seems to have agreed to let it pass). Removing the software
+Second, raidreconf still triggers the oops in -test5 when expanding a 4
+disk RAID5 to 5 disks.
 
-No. Sorry its neccessary to keep correcting people here but I have no
-intention of allowing anyone creating a derivative work to claim
-estoppel when they get their arses kicked some years on. Their sole
-defence is that the work is not derivative. In some cases I can believe
-that could be a valid claim.
+Third, mkraid completes without any trouble when building a new 4 disk
+array.
 
-As to _GPL. Its primarily a way of ensuring people who mix binary code
-in with their kernel in unsupportable ways are made aware of it, and so
-we can all use filter rules to discard their bugs.
+Last, even in a kernel built without preempt support (I don't know why I
+thought that was the problem initially, I must have misread something),
+raidreconf still oops the machine when attempting to write the new
+superblocks.
 
-Some vendors do support certain third party binary modules in some
-specific enterprise configurations, others don't. In the community case
-the general rule is we don't.
+The here is some of the the output from the oops, copied by hand, as it
+hangs the machine solid, and I don't have anything else to capture it
+with:
 
-Alan
+EIP is at blk_read_rq_sectors+0x50/0xd0
+
+Process md0_raid5
+
+Stack trace:
+
+__end_that_request_first+0x127/0x230
+scsi_end_request+0x3f/0xf0
+scsi_io_completion+0x1bb/0x470
+sym_xpt_done+0x3b/0x50
+sd_rw_intr+0x5a/0x1d0
+scsi_finish_command+0x76/0xc0
+run_timer_softirq+0x10a/0x1b0
+scsi_softirq+0x99/0xa0
+do_IRQ+0xfe/0x130
+common_interupt+0x18/0x20
+xor_p5_mmx_5+0x6b/0x180
+xor_block+0x5b/0xc0
+compute_parity+0x15d/0x340
+default_wake_function+0x0/0x30
+handle_stripe+0x95f/0xcc0
+__wake_up_common+0x31/0x60
+raid5d+07d/0x140
+default_wake_function+0x0/0x30
+md_thread+0x0/0x190
+kernel_thread_helper+0x5/0x10
+
+
+If you need anything else, I can reproduce this at will.  It just takes
+about 30 minutes to reconf to 5 9GB drives.
+
+-- 
+Chris
 

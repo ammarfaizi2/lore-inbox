@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267392AbTAGPBz>; Tue, 7 Jan 2003 10:01:55 -0500
+	id <S267397AbTAGPEq>; Tue, 7 Jan 2003 10:04:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267397AbTAGPBz>; Tue, 7 Jan 2003 10:01:55 -0500
-Received: from mail.hometree.net ([212.34.181.120]:19926 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S267392AbTAGPBy>; Tue, 7 Jan 2003 10:01:54 -0500
+	id <S267398AbTAGPEq>; Tue, 7 Jan 2003 10:04:46 -0500
+Received: from dsl-64-129-133-253.telocity.com ([64.129.133.253]:43908 "EHLO
+	cfowler.outpostsentinel.com") by vger.kernel.org with ESMTP
+	id <S267397AbTAGPEq>; Tue, 7 Jan 2003 10:04:46 -0500
+Subject: Extending PCI
+From: cfowler <cfowler@outpostsentinel.com>
 To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Date: Tue, 7 Jan 2003 15:10:33 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <aveql9$23h$1@forge.intermeta.de>
-References: <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org> <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc> <E18UIZS-0006Cr-00@fencepost.gnu.org> <20030103040612.GA10651@work.bitmover.com> <20030104220651.GA30907@merlin.emma.line.org> <20030104222330.GA1386@work.bitmover.com> <E18VFaz-0008S0-00@fencepost.gnu.org> <20030105221345.GA31840@mark.mielke.cc> <E18Vao9-0002JZ-00@fencepost.gnu.org> <20030106173949.GA1712@gnuppy.monkey.org> <E18Vtxz-0002cB-00@fencepost.gnu.org>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1041952233 27615 212.34.181.4 (7 Jan 2003 15:10:33 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 7 Jan 2003 15:10:33 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 07 Jan 2003 10:15:58 -0500
+Message-Id: <1041952559.32055.8.camel@cfowler.outpostsentinel.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Stallman <rms@gnu.org> writes:
+Hello,
 
->I don't know why the BSD systems did not become as popular; perhaps
->it's because they became available some years later.
+I have created a PCI extension adapter that extends a PCI port by 6
+inches.  I'm using this to place a Comtrol Rocket PCI card in a 1U case.
+The Rocketport driver in the kernel can see the card and detect the
+number of ports on an external expansion box but I'm not getting data in
+and out the ports.  All this works fine without the extension.  My
+question is there a way in the driver or another part of the linux
+kernel to change timings that will solve this problem?
 
-We have a finnish poster boy and a more cuddly mascot.
+Thanks,
+Chris
 
-	SCNR
-		Henning
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

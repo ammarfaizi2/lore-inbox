@@ -1,73 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265752AbSKYWWl>; Mon, 25 Nov 2002 17:22:41 -0500
+	id <S265727AbSKYWWI>; Mon, 25 Nov 2002 17:22:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265754AbSKYWWl>; Mon, 25 Nov 2002 17:22:41 -0500
-Received: from 205-158-62-68.outblaze.com ([205.158.62.68]:48901 "HELO
-	spf0.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S265752AbSKYWWj>; Mon, 25 Nov 2002 17:22:39 -0500
-Message-ID: <20021125222949.5336.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S265752AbSKYWWH>; Mon, 25 Nov 2002 17:22:07 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:51920 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265727AbSKYWWG>;
+	Mon, 25 Nov 2002 17:22:06 -0500
+Date: Mon, 25 Nov 2002 16:23:03 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: <Matt_Domsch@Dell.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: convert edd to use kobjects and sysfs.
+In-Reply-To: <20BF5713E14D5B48AA289F72BD372D680211A7E4@AUSXMPC122.aus.amer.dell.com>
+Message-ID: <Pine.LNX.4.33.0211251618460.898-100000@localhost.localdomain>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: akpm@digeo.com, linux-kernel@vger.kernel.org
-Date: Tue, 26 Nov 2002 06:29:49 +0800
-Subject: oops at boot with 2.5.49-mm1
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws5-1.us4.outblaze.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew/all
-I'm not able to boot kernel 2.5.49-mm1
 
-[...]
-Uniform CD-ROM driver Revision: 3.12
-mice: PS/2 mouse device common for all mice
-input: PC Speaker
-input: PS/2 Synaptics TouchPad on isa0060/serio1
-serio: i8042 AUX port at 0x60,0x64 irq 12
-input: AT Set 2 keyboard on isa0060/serio0
-serio: i8042 KBD port at 0x60,0x64 irq 1
-Advanced Linux Sound Architecture Driver Version 0.9.0rc5 (Sun Nov 10 19:48:18 2002 UTC).
-request_module[snd-card-0]: not ready
-request_module[snd-card-1]: not ready
-request_module[snd-card-2]: not ready
-request_module[snd-card-3]: not ready
-request_module[snd-card-4]: not ready
-request_module[snd-card-5]: not ready
-request_module[snd-card-6]: not ready
-request_module[snd-card-7]: not ready
-no UART detected at 0xffff
-Motu MidiTimePiece on parallel port irq: 7 ioport: 0x378
-specify port
-PCI: Found IRQ 5 for device 00:0d.0
-< More or less the system oops here >
-< More or less the system oops here >
-< More or less the system oops here >
-< More or less the system oops here >
-ALSA device list:
-  #0: Dummy 1
-  #1: Virtual MIDI Card 1
-  #2: 
-  #3: ESS Maestro3 PCI at 0x1800, irq 5
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP: routing cache hash table of 2048 buckets, 16Kbytes
-TCP: Hash tables configured (established 16384 bind 32768)
+On Fri, 22 Nov 2002 Matt_Domsch@Dell.com wrote:
 
-The machine oops and I can see the following sentence:
-DEBUG: sleeping function called from illegal context at include/linux/rwsem.h:43
+> > ChangeSet 1.855.4.11, 2002/10/31 12:37:07-08:00, mochel@osdl.org
+> > 	convert edd to use kobjects and sysfs.
+> 
+> Pat, thanks for converting the EDD code to sysfs.  Is struct attribute going
+> to grow some form of existence test, something like I had done before?
 
-Does it help?
+Crap. I saw your email from three weeks ago, and I think I even started 
+replying to it. But, it must have got lost.. I'm really sorry about that. 
 
-Paolo
+> > -static int
+> > -edd_populate_dir(struct edd_device *edev)
+> > -{
+> > -	struct edd_attribute *attr;
+> > -	int i;
+> > -	int error = 0;
+> > -
+> > -	for (i = 0; (attr=def_attrs[i]); i++) {
+> > -		if (!attr->test || (attr->test && !attr->test(edev))) {
+> > -			if ((error = edd_create_file(edev, attr))) {
+> > -				break;
+> > -			}
+> > -		}
+> > -	}
+> 
+> This allows attributes to be on default_attrs[] but depending on presence of
+> existence test (no test means true) and test result, not all attributes for
+> all similar objects get files created.  This cleanly handles cases where not
+> all attributes are implemented or valid for all objects of a given type, and
+> keeps the object's directory free of extraneous invalid files.
+> 
+> There are two other alternatives I see:
+> 1) Put all attributes on default_attrs, have them be created by
+> kobject_register(), then immediately delete those which fail existence -
+> calls to sysfs_remove_file().
+> 2) Put only those attributes we know always exist on default_attrs, and
+> separately register those others who pass their existence - which would
+> duplicate the populate_dir() code from lib/kobject.c essentially - calls to
+> sysfs_create_file().
+> 
+> Both of these violate the kobject abstraction.  I'd prefer to see an
+> attribute existence test used in populate_dir().
 
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with POP3/IMAP access for only US$19.95/yr
+I overlooked this part of your code, and will fix it. IMO, the proper
+thing to do is Option #2 - only put those attributes we know exist in the
+default_attrs[] array - and add the conditional attributes later. Though 
+it does duplicate code, I'd rather favor the common case where default 
+attributes really are default attributes, and don't need an existence 
+test. 
 
-Powered by Outblaze
+	-pat
+
+

@@ -1,76 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266500AbUFUWvN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266505AbUFUWw3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266500AbUFUWvN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 18:51:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266505AbUFUWvN
+	id S266505AbUFUWw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 18:52:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266506AbUFUWw3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 18:51:13 -0400
-Received: from mail8.fw-bc.sony.com ([160.33.98.75]:31185 "EHLO
-	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
-	id S266500AbUFUWuz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 18:50:55 -0400
-Message-ID: <40D7662A.2030006@am.sony.com>
-Date: Mon, 21 Jun 2004 15:50:18 -0700
-From: Geoff Levand <geoffrey.levand@am.sony.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mark Gross <mgross@linux.jf.intel.com>
-CC: ganzinger@mvista.com, George Anzinger <george@mvista.com>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       high-res-timers-discourse@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] high-res-timers patches for 2.6.6
-References: <40C7BE29.9010600@am.sony.com> <20040611062256.GB13100@devserv.devel.redhat.com> <40CA3342.9020105@mvista.com> <200406140828.08924.mgross@linux.intel.com>
-In-Reply-To: <200406140828.08924.mgross@linux.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Jun 2004 18:52:29 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:10052 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S266505AbUFUWvg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 18:51:36 -0400
+Date: Tue, 22 Jun 2004 01:03:21 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: Sam Ravnborg <sam@ravnborg.org>,
+       Martin Schlemmer <azarah@nosferatu.za.org>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/2] kbuild updates
+Message-ID: <20040621230321.GI2903@mars.ravnborg.org>
+Mail-Followup-To: Andreas Gruenbacher <agruen@suse.de>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	Martin Schlemmer <azarah@nosferatu.za.org>,
+	Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+References: <20040620211905.GA10189@mars.ravnborg.org> <200406210151.43325.agruen@suse.de> <20040621223108.GC2903@mars.ravnborg.org> <200406220050.09791.agruen@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406220050.09791.agruen@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Gross wrote:
-> On Friday 11 June 2004 15:33, George Anzinger wrote:
+On Tue, Jun 22, 2004 at 12:50:09AM +0200, Andreas Gruenbacher wrote:
+> On Tuesday 22 June 2004 00:31, Sam Ravnborg wrote:
+> > But Martin has a point here.
 > 
->>I have been thinking of a major rewrite which would leave this code alone,
->>but would introduce an additional list and, of course, overhead for
->>high-res timers. This will take some time and be sub optimal, so I wonder
->>if it is needed.
+> Yes.
 > 
+> > Other modules uses the grep method - which will fail when the kernel
+> > is build with separate output and source directories.
 > 
-> What would your goal for the major rewrite be?
-> Redesign the implementation?
-> Clean up / re-factor the current design?
-> Add features?
+> Is there anything fundamentally wrong with invoking the test script from 
+> within the module makefile, when really necessary? This doesn't work very 
+> well if you need the test results outside of the module build.
 > 
-> I've been wondering lately if a significant restructuring of the 
-> implementation could be done.  Something bottom's up that enabled changing / 
-> using different time bases without rebooting and coexisted nicely with HPET.
-> 
-> Something along the lines of;
-> * abstracting the time base's, calibration and computation of the next 
-> interrupt time into a polymorphic interface along with the implementation of 
-> a few of your time bases (ACPI, TSC) as a stand allown patch.
-> * implement yet another polymorphic interface for the interrupt source used by 
-> the patch, along with a few interrupt sources (PIT, APIC, HPET <-- new )
-> * Implement a simple RTC-like charactor driver using the above for testing and 
-> integration.  
-> * Finally a patch to integrate the first 3 with the POSIX timers code.
-> 
-> What do you think?
-> 
-> 
-> --mgross
-> 
+> 	----- Makefile -----
+> 	test_result := $(shell ...)
+> 	ifneq ($(test_result),)
+> 	EXTRA_CFLAGS := -DSOMETHING
+> 	endif
+> 	...
+> 	-------- 8< --------
 
-Mark,
+I like keeping the kbuild makefile clean as such - but otherwise not.
+One has to secure that right CFLAGS etc is used though.
 
-Generally I agree with your ideas on what needs fixing up, but I'm 
-concerned that the run-time binding of this kind of design would have 
-too much overhead for time-critical code paths.  Do you think it is 
-useful to have run-time selection of the time base and interrupt source? 
-   In my work we have a known fixed hardware configuration that has 
-limited timers, so I don't really see a need for runtime configuration 
-there.
+Also when make -j N is used one has to be very carefully with prerequisites - as always.
 
--Geoff
-
+	Sam

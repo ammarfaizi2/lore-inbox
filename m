@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319204AbSHGTCE>; Wed, 7 Aug 2002 15:02:04 -0400
+	id <S319200AbSHGTBN>; Wed, 7 Aug 2002 15:01:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319205AbSHGTCE>; Wed, 7 Aug 2002 15:02:04 -0400
-Received: from ausadmmsps306.aus.amer.dell.com ([143.166.224.101]:1032 "HELO
-	AUSADMMSPS306.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id <S319204AbSHGTCC>; Wed, 7 Aug 2002 15:02:02 -0400
-X-Server-Uuid: c21c953d-96eb-4242-880f-19bdb46bc876
-Message-ID: <20BF5713E14D5B48AA289F72BD372D6821CAC5@AUSXMPC122.aus.amer.dell.com>
-From: Matt_Domsch@Dell.com
-To: landley@trommello.org
-cc: austin@digitalroadkill.net, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: RE: [2.6] The List, pass #2
-Date: Wed, 7 Aug 2002 12:11:44 -0500
+	id <S319201AbSHGTBM>; Wed, 7 Aug 2002 15:01:12 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:8935 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S319200AbSHGTBL>;
+	Wed, 7 Aug 2002 15:01:11 -0400
+Date: Wed, 7 Aug 2002 15:01:00 -0400 (EDT)
+From: "Scott Murray" <scottm@somanetworks.com>
+X-X-Sender: <scottm@rancor.yyz.somanetworks.com>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: PCI hotplug resource reservation 
+In-Reply-To: <22223.1028728103@redhat.com>
+Message-ID: <Pine.LNX.4.33.0208071214230.21045-100000@rancor.yyz.somanetworks.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-X-WSS-ID: 114F8B5B83597-01-01
-Content-Type: text/plain; 
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2) Dell gave people refunds on the few itanium machines they 
-> actually managed to sell.
-> There would appear to be a distinct trend here, but you know 
-> rumors... :)
+On Wed, 7 Aug 2002, David Woodhouse wrote:
 
-In this case, rumors are completely untrue. :-)  Standard Operating
-Procedure is to give refunds for systems returned within 30 days if the
-customer chooses to do that.  We didn't do anything akin to a recall.  In
-fact, we're still selling 4P Itanium servers (PowerEdge 7150).
+>
+> scottm@somanetworks.com said:
+> >  However, it's entirely possible that you will be allocated resource
+> > ranges that are intermingled with the ranges that are behind other
+> > bridges or devices.  There's no sane way to program the hotplug
+> > bridge's BARs in such a situation.
+>
+> Why? Can't you just forward transactions for the whole of the range,
+> including some addresses which are actually behind other bridges?
 
-Thanks,
-Matt
+My copy of "PCI System Architecture, 4th Edition", say on the top of
+page 379:
 
---
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
+  On power-up, the system must be automatically configured so that each
+  device's IO and memory functions occupy mutually-exclusive address
+  ranges.
+
+There's no detail on what happens if you violate this, however.  Digging
+out the "PCI Local Bus Specification, Revision 2.2", section 3.2.2 (page
+27) says:
+
+  When a transaction is initiated on the interface, each potential target
+  compares the address with its Base Address register(s) to determine if
+  it is the target of the current transaction.  If it is the target, the
+  device asserts DEVSEL# to claim the access. For more details about
+  DEVSEL# generation, refer to Section 3.6.1.
+
+May take on that, as well as a quick read of section 3.6.1, is that
+multiple targets claiming an address results in undefined behaviour,
+since no mechanisms for handling that are defined in the spec.
+
+Scott
+
+
+-- 
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com
+
 

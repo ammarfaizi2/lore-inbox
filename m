@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272718AbRIPTeD>; Sun, 16 Sep 2001 15:34:03 -0400
+	id <S272712AbRIPTin>; Sun, 16 Sep 2001 15:38:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272721AbRIPTdx>; Sun, 16 Sep 2001 15:33:53 -0400
-Received: from [194.213.32.137] ([194.213.32.137]:21508 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S272712AbRIPTds>;
-	Sun, 16 Sep 2001 15:33:48 -0400
-Message-ID: <20010916213353.E216@bug.ucw.cz>
-Date: Sun, 16 Sep 2001 21:33:53 +0200
-From: Pavel Machek <pavel@suse.cz>
+	id <S272717AbRIPTie>; Sun, 16 Sep 2001 15:38:34 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42757 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S272712AbRIPTiZ>; Sun, 16 Sep 2001 15:38:25 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: ext2fs corruption again
-In-Reply-To: <3BA3156C.9050704@korseby.net> <20010915144236.V26627@khan.acc.umu.se> <20010916001943.A984@bug.ucw.cz> <20010915175100.D1541@turbolinux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20010915175100.D1541@turbolinux.com>; from Andreas Dilger on Sat, Sep 15, 2001 at 05:51:00PM -0600
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: broken VM in 2.4.10-pre9
+Date: Sun, 16 Sep 2001 19:37:31 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9o2v1r$85g$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33L2.0109160031500.7740-100000@flashdance> <9o1dev$23l$1@penguin.transmeta.com> <1000722338.14005.0.camel@x153.internalnet>
+X-Trace: palladium.transmeta.com 1000669100 4710 127.0.0.1 (16 Sep 2001 19:38:20 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 16 Sep 2001 19:38:20 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+In article <1000722338.14005.0.camel@x153.internalnet>,
+Tonu Samuel  <tonu@please.do.not.remove.this.spam.ee> wrote:
+>
+>Problem still exists and persists. Not long time ago man from Yahoo
+>described well case when change from 2.2.19 to 2.4.x caused performance
+>problems. On 2.2.19 everything ran fine. They have MySQL running+did
+>backups from disk. After upgrade to 2.4.x MySQL performance felt down on
+>backup time. They investigated stuff and found that MySQL daemon gets
+>swapped out in the middle of usage to make room for buffers.
 
-> > Install crc loop device, and if disk does silent errors, you'll know.
-> 
-> Where do you store the CRCs?  It appears that they are written to another
-> block device.  Also, how do you initialize the CRC table for an existing
-> filesystem?
+Note that if you're using a raw device backup strategy (ie "e2dump" or
+similar), that is expected: 2.4.x up until about 2.4.7 gave _much_ too
+much preference to the buffer cache. 
 
-You just read the device in special mode. That forces it to recompute
-crc-s.
+That should actually have been fixed in 2.4.8. We used to mark buffer
+pages much too active.
 
-> What would make this considerably more useful is to be able to write the
-> CRCs into a regular file, as it would be a bit of a pain to have a partition
-> for each CRC loop device to store the CRCs in.
+> In summary:
+>this made both sql and backup double slow. Even increasing memory from
+>1G->2G didn't helped. Finally they disabled swap at all and problem
+>lost.
 
-By -o loop, you can turn regular file into blockdevice ;-).
+You just hid the problem - by disabling swap the buffer cache couldn't
+grow without bounds any more, and the proper buffer cache shrinking
+couldn't happen.
 
-> Otherwise, it looks very useful, and could be handy in tracking down
-> reports like this where it is unclear where the data corruption is.
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+Try 2.4.8 or later.
+
+>If you do not want to change it back as it was in 2.2.x then would be
+>good if this is tunable somehow. 
+
+Tuning for bugs?
+
+What do you want to happen? You want to have an interface like
+
+	echo 0 > /proc/bugs/mm
+
+that makes mm bugs go away?
+
+		Linus

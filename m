@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262553AbTJGSdA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 14:33:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262647AbTJGSdA
+	id S262672AbTJGSZn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 14:25:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbTJGSZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 14:33:00 -0400
-Received: from userel174.dsl.pipex.com ([62.188.199.174]:24456 "EHLO
-	einstein31.homenet") by vger.kernel.org with ESMTP id S262553AbTJGSc7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 14:32:59 -0400
-Date: Tue, 7 Oct 2003 19:31:11 +0100 (BST)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-X-X-Sender: tigran@einstein31.homenet
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Mark Hahn <hahn@physics.mcmaster.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: [PATCH] [2.4.XX] Silicon Image/CMD Medley Software RAID
-In-Reply-To: <22655142.1065544690402.JavaMail.www@wwinf3005>
-Message-ID: <Pine.LNX.4.44.0310071928190.554-100000@einstein31.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 7 Oct 2003 14:25:43 -0400
+Received: from mail.kroah.org ([65.200.24.183]:61571 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262672AbTJGSZi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 14:25:38 -0400
+Date: Tue, 7 Oct 2003 11:08:52 -0700
+From: Greg KH <greg@kroah.com>
+To: Juan Carlos Castro y Castro <jcastro@vialink.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel doesn't see USB ADSL modem - pegasus?
+Message-ID: <20031007180851.GH1956@kroah.com>
+References: <3F7F7A9E.1060204@vialink.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F7F7A9E.1060204@vialink.com.br>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Oct 2003 tigran@aivazian.fsnet.co.uk wrote:
-
-> > 
-> > drivers/ide/pci/siimage.c
-> > Did you forget to compile it? :-)
-> > 
+On Sat, Oct 04, 2003 at 10:57:50PM -0300, Juan Carlos Castro y Castro wrote:
+> Well, it didn't work -- I inserted the following line in pegasus.h:
 > 
-> Yes, you are right! :)
+> PEGASUS_DEV( "SpeedStream", VENDOR_SIEMENS, 0xe240,
+> DEFAULT_GPIO_RESET | PEGASUS_II )
 > 
-> Thank you! If I am silent that means I went home, compiled the driver
-> and my card now works fine at 20M/s. Otherwise I will let you (and everyone)
-> know.
+> Because that's what appeared in /proc/bus/usb/devices. But now, modprobe 
+> pegasus hangs (the process, not the machine). Also, any attemp to access 
+> /proc/bus/usb hangs the process. Kudzu hangs too. Now I reached the 
+> limits of my knowledge. :(
 
-Just to confirm:
+Sorry, this device is probably not supported by that driver :(
 
-a) the reason I didn't notice siimage native driver is because I was using 
-2.4.20 and it's not there.
+Can you return it and get something else?
 
-b) with 2.4.22 it works! And I get 54M/s on one drive and 38M/s on 
-another, which is a lot faster than my onboard IDE controller.
+Good luck,
 
-Now, let's hope that ide-scsi subsystem (and thus my DVD writer) still 
-work with 2.4.22. I heard some problems about ide-scsi on 2.4.22...
-
-Kind regards
-Tigran
-
+greg k-h

@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266898AbSLDQlN>; Wed, 4 Dec 2002 11:41:13 -0500
+	id <S266975AbSLDQqS>; Wed, 4 Dec 2002 11:46:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266918AbSLDQlN>; Wed, 4 Dec 2002 11:41:13 -0500
-Received: from pop.gmx.de ([213.165.64.20]:13179 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S266898AbSLDQlL>;
-	Wed, 4 Dec 2002 11:41:11 -0500
-Message-Id: <5.1.1.6.2.20021204165742.00c6a180@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Wed, 04 Dec 2002 17:44:12 +0100
-To: root@chaos.analogic.com, Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: Reserving physical memory at boot time
-Cc: Duncan Sands <baldrick@wanadoo.fr>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.95.1021204082313.23777A-100000@chaos.analogic.c
- om>
-References: <1038952684.11426.106.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S266976AbSLDQqS>; Wed, 4 Dec 2002 11:46:18 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46350 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266975AbSLDQqR>; Wed, 4 Dec 2002 11:46:17 -0500
+Date: Wed, 4 Dec 2002 08:54:47 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+cc: LKML <linux-kernel@vger.kernel.org>, <anton@samba.org>,
+       "David S. Miller" <davem@redhat.com>, <ak@muc.de>, <davidm@hpl.hp.com>,
+       <schwidefsky@de.ibm.com>, <ralf@gnu.org>, <willy@debian.org>
+Subject: Re: [PATCH] compatibility syscall layer (lets try again)
+In-Reply-To: <20021204180224.406d143c.sfr@canb.auug.org.au>
+Message-ID: <Pine.LNX.4.44.0212040843160.1960-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 08:25 AM 12/4/2002 -0500, Richard B. Johnson wrote:
->On 3 Dec 2002, Alan Cox wrote:
->
-> > On Tue, 2002-12-03 at 21:11, Richard B. Johnson wrote:
-> > > If you need a certain page reserved at boot-time you are out-of-luck.
-> >
-> > Wrong - you can specify the precise memory map of a box as well as use
-> > mem= to set the top of used memory. Its a painful way of marking a page
-> > and it only works for a page the kernel isnt loaded into.
-> >
->
->If you are refering to the "reserve=" kernel parameter, I don't
->think it works for memory addresses that are inside existing RAM.
->I guess if you used the "mem=" parameter to keep the kernel from
->using that RAM, the combination might work, but I have never
->tried it.
 
-reserve= is for IO ports (kernel/resource.c). I think Alan was referring to 
-mem=exactmap.
+On Wed, 4 Dec 2002, Stephen Rothwell wrote:
+> 
+> To use this,an architecture must create asm/compat.h and provide typedefs
+> for (currently) compat_time_t, compat_suseconds_t, struct compat_timespec.
 
-If Duncan didn't have the pesky requirement that his module work in an 
-unmodified kernel, it would be easy to use __alloc_bootmem() to reserve an 
-address range and expose via /proc.  But alas...
+Ok, this looks fine to me. At this point my only issues are purely
+cosmetic, namely that "suseconds" thing made me go "wtf?". I have _never_
+actually seen it used, it's one of those stupid typedefs that have no
+point to them.
 
-         -Mike
+Since the only use of "suseconds" is in the "compat_timeval" definition,
+and since you already have a "compat_timespec", my reaction is to ask why
+we don't just make "compat_timeval" be the arch-supplied typedef, and drop
+that strange "suseconds" thing entirely?
 
+That avoids a very awkward name, _and_ it looks more natural to pair
+compat_timeval and compat_timespec anyway.
+
+(Yeah, I know we use suseconds_t in the "real" timeval declaration, and I 
+think that's strange too.)
+
+I'll do that change by hand, and apply this to get the ball rolling, ok?
+
+			Linus
 

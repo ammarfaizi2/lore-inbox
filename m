@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265866AbUBBXXn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 18:23:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265876AbUBBXXn
+	id S261506AbUBBXhl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 18:37:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUBBXhl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 18:23:43 -0500
-Received: from mail.kroah.org ([65.200.24.183]:5333 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265866AbUBBXXm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 18:23:42 -0500
-Date: Mon, 2 Feb 2004 15:11:06 -0800
-From: Greg KH <greg@kroah.com>
-To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] udev 015 release
-Message-ID: <20040202231106.GB1494@kroah.com>
-References: <20040126215036.GA6906@kroah.com> <401ED872.40609@gmx.de>
+	Mon, 2 Feb 2004 18:37:41 -0500
+Received: from www1.proofpoint.com ([207.111.236.2]:28402 "EHLO
+	mail.us.proofpoint.com") by vger.kernel.org with ESMTP
+	id S261506AbUBBXhj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 18:37:39 -0500
+Subject: broken maxcpus in 2.4.24
+From: Dan Christian <dac@proofpoint.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1075765034.17943.79.camel@reactor.us.proofpoint.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <401ED872.40609@gmx.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Mon, 02 Feb 2004 15:37:14 -0800
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-Spam-Score: mlxscore=0 adultscore=50 adjust=0 score=0 rule=notspam version=2.0.0-04012200 mlxdetails="spam=0.00152511832388382,adult=0.5,sa=0"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 03, 2004 at 12:08:34AM +0100, Prakash K. Cheemplavam wrote:
-> Hi,
-> 
-> I wonder why your framebuffer patch didn't make it into mm-kernel? Was 
-> something wrong about it? I applied it and then bootsplash doesn't 
-> complain about missing /dev/fb0...
+I compiled a vanilla 2.4.24 for a 2 processor Xeon.  
 
-I didn't ask for it to go into the -mm kernel :)
+I set CONFIG_NR_CPUS to 4 (2 CPUs x 2 hyperthreads each).
 
-I thought the framebuffer update was going to make it into there, but I
-guess it never did.  I guess I can dig it out of my tree and send it to
-Andrew in a few days.
+When I boot the kernel, /proc/cpuinfo only shows 2 cpus (0-1) and
+performance is bad.
 
-thanks,
+I reconfigure CONFIG_NR_CPUS back to 32.  Now it shows 4 cpus (0-3) and
+performance is normal.
 
-greg k-h
+Is this a bug or am misunderstanding how to set this configuration
+variable?
+
+-Dan Christian
+
+

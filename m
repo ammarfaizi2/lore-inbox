@@ -1,49 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268827AbTGOQOn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 12:14:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268836AbTGOQOh
+	id S268893AbTGOQPr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 12:15:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268822AbTGOQOz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 12:14:37 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:27570 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S268827AbTGOQN0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 12:13:26 -0400
-Date: Tue, 15 Jul 2003 18:27:58 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Kent Borg <kentborg@borg.org>
-Cc: Jamie Lokier <jamie@shareable.org>, Pavel Machek <pavel@suse.cz>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Nigel Cunningham <ncunningham@clear.net.nz>,
-       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Thoughts wanted on merging Software Suspend enhancements
-Message-ID: <20030715162758.GD10399@elf.ucw.cz>
-References: <1057963547.3207.22.camel@laptop-linux> <20030712140057.GC284@elf.ucw.cz> <200307121734.29941.dtor_core@ameritech.net> <20030712225143.GA1508@elf.ucw.cz> <20030713133517.GD19132@mail.jlokier.co.uk> <20030715122336.B12505@borg.org>
+	Tue, 15 Jul 2003 12:14:55 -0400
+Received: from sea2-f43.sea2.hotmail.com ([207.68.165.43]:4625 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S268730AbTGOQNU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 12:13:20 -0400
+X-Originating-IP: [143.182.124.2]
+X-Originating-Email: [dagriego@hotmail.com]
+From: "David griego" <dagriego@hotmail.com>
+To: davem@redhat.com, jros@xiran.com
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       netdev@oss.sgi.com, alan@storlinksemi.com
+Subject: Re: TCP IP Offloading Interface
+Date: Tue, 15 Jul 2003 09:28:10 -0700
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030715122336.B12505@borg.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; format=flowed
+Message-ID: <Sea2-F43cOV1EetVoMD0001d71a@hotmail.com>
+X-OriginalArrivalTime: 15 Jul 2003 16:28:10.0676 (UTC) FILETIME=[14B7AF40:01C34AEE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Ok I've taken a look at your scheme and I have a few questions.
 
-> > I'd be inclined to initiate suspend-to-disk when the laptop's lid is
-> > closed
-> 
-> Please don't suspend my notebook when the lid is closed.  I frequently
-> want it running when closed.  It is OK to turn off the backlight when
-> closed (which my Vaio does), but don't show down my CPU or network
-> just because I am not typing or looking at the screen.
+>From: "David S. Miller" <davem@redhat.com>
+>You also ignore the points others have made that the systems HAVE
+>SCALED to evolving networks technologies as they have become faster
+>and faster.
+>
+This is not true in the embedded space.  As I keep pointing out  typical 
+embedded processors don't have as many free cycles as server computers.
+>
+>
+>My RX receive page accumulation scheme handles all of the
+>receive side problems with touching the data and getting
+>into the filesystem and then the device.  With my scheme
+>you can receive the data, go direct to the device, and the
+>cpu never touches one byte.
+>
+RDDP tries to get around needing a large amount of RAM on the NIC to collect 
+all of this data before writing it to the OS memory.  Also, this store and 
+forward architecture you recommend adds latency in collecting all of this 
+data before moving it to the OS.  Finally, I recall some resistance to page 
+flipping which could also lead to walking page tables.  More latency.  After 
+some extremely large amount of time your receive data has made it to your 
+application.  Do you have a suggestion on how we could get around all of 
+this store and forward without RDDP?  Just avoiding the CPU copy is not the 
+only issue.
+>
+>I actually welcome Microsoft falling into this rathole of a
+>technology.  Let them have to support that crap and have to field bug
+>reports on it, having to wonder who created the packets.  And let them
+>deal with the negative effects TOE has on connection rates and things
+>like that.
+>
+Would it be shame if they found away around this "problem" you see and are 
+successful and Linux failed because you felt the community is not able 
+overcome these though obstacles?
+>
+>Linux will be competitive, especially if people develop the scheme I
+>have described several times into the hardware.  There are vendors
+>doing this, will you choose to be different and ignore this?
+Your ideas are good, but they leave in this store and forward issue that I 
+mentioned.  A good alternative would be one that kept things simple as you 
+suggested, but didn't introduce all of this latency.
 
-Of course, this *needs* to be configurable (== handled by
-userland). If you are using external keyboard/mouse you do not want
-your notebook open. I hate HP for putting powerswitch so that you have
-to open notebook to turn it on/off...
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+_________________________________________________________________
+The new MSN 8: smart spam protection and 2 months FREE*  
+http://join.msn.com/?page=features/junkmail
+

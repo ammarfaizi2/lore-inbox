@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282317AbRKXBAO>; Fri, 23 Nov 2001 20:00:14 -0500
+	id <S282315AbRKXBBe>; Fri, 23 Nov 2001 20:01:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282316AbRKXBAE>; Fri, 23 Nov 2001 20:00:04 -0500
-Received: from netsrvr.ami.com.au ([203.55.31.38]:34575 "EHLO
-	netsrvr.ami.com.au") by vger.kernel.org with ESMTP
-	id <S282315AbRKXA7u>; Fri, 23 Nov 2001 19:59:50 -0500
-From: ISP Client <summer@os2.ami.com.au>
-Date: Sat, 24 Nov 2001 08:59:37 +0800 (WST)
-X-X-Sender: <summer@numbat.os2.ami.com.au>
-To: <linux-kernel@vger.kernel.org>
-Subject: EXTRAVERSION =-greased-turkey
-Message-ID: <Pine.LNX.4.33.0111240858040.9212-100000@numbat.os2.ami.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282316AbRKXBB1>; Fri, 23 Nov 2001 20:01:27 -0500
+Received: from [195.188.53.98] ([195.188.53.98]:42511 "EHLO blueyonder.co.uk")
+	by vger.kernel.org with ESMTP id <S282315AbRKXBBK>;
+	Fri, 23 Nov 2001 20:01:10 -0500
+Date: Sat, 24 Nov 2001 01:03:13 +0000
+From: Ian Molton <imolton@clara.net>
+To: linux-kernel@vger.kernel.org
+Subject: DecStation 4000 info wanted
+Message-Id: <20011124010313.53fda57f.imolton@clara.net>
+Reply-To: spyro@armlinux.org
+Organization: The dragon roost
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Very funny.
+Hi there...
 
-Now, can we return to leaving that for the user/vendor in future releases?
+Im wondering... does anyone have information on the care and feeding of
+Decstation4000s ?
 
-Please?
+I have a DecStation 4000 (mips based, IIRC), which I would LOVE to run
+Linux on.
 
--- 
-Cheers
-John Summerfield
+It has no internal OS AFAICT, although it has a SCSI HDD, and some sort of
+bootloader.
 
-Microsoft's most solid OS: http://www.geocities.com/rcwoolley/
+It used to boot over a network.
 
-Note: mail delivered to me is deemed to be intended for me, for my disposition.
-
-
+what do I need to do to make it boot linux?

@@ -1,95 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265211AbTLKRzc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 12:55:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265213AbTLKRzc
+	id S265213AbTLKR53 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 12:57:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265214AbTLKR53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 12:55:32 -0500
-Received: from scrye.com ([216.17.180.1]:57534 "EHLO mail.scrye.com")
-	by vger.kernel.org with ESMTP id S265211AbTLKRzF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 12:55:05 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 11 Dec 2003 12:57:29 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:41859 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265213AbTLKR4v (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 12:56:51 -0500
+Message-Id: <200312111756.hBBHulKh013471@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Robin Rosenberg <roro.l@dewire.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause? 
+In-Reply-To: Your message of "Thu, 11 Dec 2003 18:44:03 +0100."
+             <200312111844.03839.roro.l@dewire.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <00af01c3bf41$2db12770$d43147ab@amer.cisco.com> <3FD7081D.31093.61FCFA36@localhost> <20031210221800.GM6896@work.bitmover.com>
+            <200312111844.03839.roro.l@dewire.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1540854285P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Date: Thu, 11 Dec 2003 10:53:39 -0700
-From: Kevin Fenzi <kevin@tummy.com>
-To: Mark Haverkamp <markh@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux aacraid devel <linux-aacraid-devel@dell.com>
-Subject: Re: aacraid and large memory problem (2.6.0-test11)
-In-Reply-To: <1070493945.25617.9.camel@markh1.pdx.osdl.net>
-References: <20031202193520.74481F7CC8@voldemort.scrye.com>
-	<1070396482.16903.11.camel@markh1.pdx.osdl.net>
-	<20031203205141.EB67EF7C86@voldemort.scrye.com>
-	<1070488662.21904.6.camel@markh1.pdx.osdl.net>
-	<20031203222840.6A4E6F7C86@voldemort.scrye.com>
-	<1070493945.25617.9.camel@markh1.pdx.osdl.net>
-X-Mailer: VM 7.17 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
-Message-Id: <20031211175342.1D94DF7C86@voldemort.scrye.com>
+Date: Thu, 11 Dec 2003 12:56:47 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+--==_Exmh_1540854285P
+Content-Type: text/plain; charset=us-ascii
 
->>>>> "Mark" == Mark Haverkamp <markh@osdl.org> writes:
+On Thu, 11 Dec 2003 18:44:03 +0100, Robin Rosenberg said:
 
-Mark> On Wed, 2003-12-03 at 14:28, Kevin Fenzi wrote:
->> -----BEGIN PGP SIGNED MESSAGE----- Hash: SHA1
->> 
->> >>>>> "Mark" == Mark Haverkamp <markh@osdl.org> writes:
->> 
-Mark> I set up my machine to boot on the aacraid disk and it booted OK
-Mark> for me.  Maybe its a problem with a particular model?
->>
-Mark> lspci on mine says:
->>
-Mark> 02:04.0 RAID bus controller: Digital Equipment Corporation
-Mark> DECchip 21554 (rev 01) Subsystem: Adaptec Adaptec 5400S
->> This one says:
->> 
->> 05:01.0 RAID bus controller: Adaptec AAC-RAID (rev 01) Subsystem:
->> Adaptec AAC-RAID Flags: bus master, fast Back2Back, 66Mhz, slow
->> devsel, latency 64, IRQ 96 Memory at f8000000 (32-bit,
->> prefetchable) [size=64M] Expansion ROM at <unassigned> [disabled]
->> [size=64K] Capabilities: [80] Power Management version 2
->> 
->> It's a 2200S controller. bios version 6008
->> 
-Mark> Could you try this patch?  I took the code from the adaptec
-Mark> version of the driver.  It fiddles with the dma mask on the
-Mark> 2200S controller among others.
+> If EXPORT_GPL is changed as a means of protecting the copyright, i..e. provide
+> source code access. then doesn't this "mechanism" fall under the infamous DMCA, 
+> i.e. you're not allowed to even think about circumventing it...
 
-Sorry it took me so long to try it. ;) 
+17 USC 1201 (a)(1)(A) says:
 
-Just applied to a 2.6.0-test11 kernel and rebooted and it worked!
-Boot came up fine and it sees all 8GB of memory. 
+"No person shall circumvent a technological measure that effectively controls
+access to a work protected under this title. The prohibition contained in the
+preceding sentence shall take effect at the end of the 2-year period beginning
+on the date of the enactment of this chapter."
 
-free
-             total       used       free     shared    buffers     cached
-Mem:       8290996     712380    7578616          0      20956     569352
-- -/+ buffers/cache:     122072    8168924
-Swap:      8385920          0    8385920
+OK, so Adobe managed to make the case that rot-13 was an "effective control".
+Given that the GPL specifically allows you to change the source and thus bypass
+the EXPORT_GPL, I doubt you can make the case for "effective".
 
-Red Hat/Adaptec aacraid driver (1.1.2 Dec 10 2003)
-AAC0: kernel 4.0.4 build 6008
-AAC0: monitor 4.0.4 build 6008
-AAC0: bios 4.0.0 build 6008
-AAC0: serial b7e06ffafaf001
-AAC0: 64 Bit PAE enabled
-scsi0 : aacraid
+Of course, IANAL, just a sysadmin who can read.  If the definition of "effective"
+is likely to matter to you, get legal advice from a qualified expert.
 
-This looks like a good patch here. 
 
-Mark> Mark.
+--==_Exmh_1540854285P
+Content-Type: application/pgp-signature
 
-kevin
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE/2K8l3imCezTjY0ERAr0aAJkBLLGSLT5f4XygLR7uTwvQ6bQWSwCeIpUQ
-GNFgepA9aOlk0MMUGDNHGmY=
-=wOp5
+iD8DBQE/2K/fcC3lWbTT17ARAutjAKDhjp4F/+JR5l7eFeoJwrCcgkEq8ACgnCwj
+y9TNgoOcW1Fcju0BQ/2QQ/8=
+=lYCf
 -----END PGP SIGNATURE-----
+
+--==_Exmh_1540854285P--

@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266577AbTGFAdn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 20:33:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266578AbTGFAdn
+	id S266578AbTGFAlw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 20:41:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266579AbTGFAlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 20:33:43 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:18853 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266577AbTGFAdm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 20:33:42 -0400
-Date: Sat, 5 Jul 2003 17:49:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: paterley <paterley@DrunkenCodePoets.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.74-mm2
-Message-Id: <20030705174915.09173756.akpm@osdl.org>
-In-Reply-To: <20030705200133.3aa1da18.paterley@DrunkenCodePoets.com>
-References: <20030705132528.542ac65e.akpm@osdl.org>
-	<20030705175830.4ccfead8.paterley@DrunkenCodePoets.com>
-	<20030705182359.269b404d.paterley@DrunkenCodePoets.com>
-	<20030705160445.2ab1e0ec.akpm@osdl.org>
-	<20030705200133.3aa1da18.paterley@DrunkenCodePoets.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Jul 2003 20:41:52 -0400
+Received: from smtp2.mandic.com.br ([200.225.83.11]:61059 "EHLO
+	mandic-05.mandic.com.br") by vger.kernel.org with ESMTP
+	id S266578AbTGFAlv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 20:41:51 -0400
+Message-ID: <3831.200.154.192.236.1057452982.squirrel@www.mandic.com.br>
+Date: Sat, 5 Jul 2003 21:56:22 -0300 (BRT)
+Subject: ELKS - 80188 Newbie
+From: "=?iso-8859-1?Q?S=E9rgio_Duarte_e_Silva?=" <sduartes@mandic.com.br>
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+X-MSMail-Priority: Normal
+X-Mailer: mandic:mail (version 1.2.7)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-paterley <paterley@DrunkenCodePoets.com> wrote:
->
-> same oops, at the same point with smbfs compiled in.  
+Hi all,
 
-And what happens if you disable smbfs altogether?
+I would like to run Linux on an embedded 80188 Tern board (www.tern.com). Is there
+anyone here that already made this? Is there any easy tutorial or boot code already made
+for this processor?
+Thank you very much indeed.
+
+Regards
+
+Sérgio
+
+

@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265365AbSJXJcf>; Thu, 24 Oct 2002 05:32:35 -0400
+	id <S265366AbSJXJl1>; Thu, 24 Oct 2002 05:41:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265366AbSJXJcf>; Thu, 24 Oct 2002 05:32:35 -0400
-Received: from mail.hometree.net ([212.34.181.120]:1987 "EHLO
+	id <S265369AbSJXJl1>; Thu, 24 Oct 2002 05:41:27 -0400
+Received: from mail.hometree.net ([212.34.181.120]:38595 "EHLO
 	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S265365AbSJXJce>; Thu, 24 Oct 2002 05:32:34 -0400
+	id <S265366AbSJXJl0>; Thu, 24 Oct 2002 05:41:26 -0400
 To: linux-kernel@vger.kernel.org
 Path: forge.intermeta.de!not-for-mail
 From: "Henning P. Schmiedehausen" <hps@intermeta.de>
 Newsgroups: hometree.linux.kernel
 Subject: Re: One for the Security Guru's
-Date: Thu, 24 Oct 2002 09:38:46 +0000 (UTC)
+Date: Thu, 24 Oct 2002 09:47:38 +0000 (UTC)
 Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <ap8f36$8ge$1@forge.intermeta.de>
-References: <Pine.LNX.3.95.1021023105535.13301A-100000@chaos.analogic.com> <Pine.LNX.4.44.0210231346500.26808-100000@innerfire.net>
+Message-ID: <ap8fjq$8ia$1@forge.intermeta.de>
+References: <20021023130251.GF25422@rdlg.net> <1035411315.5377.8.camel@god.stev.org>
 Reply-To: hps@intermeta.de
 NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1035452326 14906 212.34.181.4 (24 Oct 2002 09:38:46 GMT)
+X-Trace: tangens.hometree.net 1035452858 15272 212.34.181.4 (24 Oct 2002 09:47:38 GMT)
 X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Thu, 24 Oct 2002 09:38:46 +0000 (UTC)
+NNTP-Posting-Date: Thu, 24 Oct 2002 09:47:38 +0000 (UTC)
 X-Copyright: (C) 1996-2002 Henning Schmiedehausen
 X-No-Archive: yes
 X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerhard Mack <gmack@innerfire.net> writes:
+James Stevenson <james@stev.org> writes:
 
->Actually at the place that just went bankrupt on me I had a Security
->consultant complain that 2 of my servers were outside the firewall.  He
->recommended that I get a firewall just for those 2 servers but backed off
->when I pointed out that I would need to open all of the same ports that
->are open on the server anyways so the vulnerability isn't any less with
->the firewall.
+>can read / write disks. Thus you could recompile your own kernel
 
-So you should've bought a more expensive firewall that offers protocol
-based forwarding instead of being a simple packet filter.
+Don't put a compiler on the box.
 
-packet filter != firewall. That's the main lie behind most of the
-"Linux based" firewalls.
+The point is not, to make it impossible to root your box. The point 
+is, to make it a) hard(er) and b) time intensive. 
 
-Get the real thing. Checkpoint. PIX. But that's a little
-more expensive than "xxx firewall based on Linux".
+a) keeps out the kiddies with the r00t hAx0r kits 
+b) gives a security aware staff (or an IDS or a security watcher) 
+   a reaction window.
 
-Actually, there _are_ security consultants, that know what they're
-talking about. Unfortunately they're drowned out most of the time by
-the drone of so called "self-certified Linux experts" which believe,
-everything can be handled by using the only tool they know.
+One of the most sucking decisions of mainstream distributions is that
+they offer to install a development kit on server installs. It seems
+that people working @ linux vendors either have no clue or simply
+don't understand the needs of their customers.
 
->Never trust Security Consultants.
+Sheesh, some even install a full desktop with "[gnome|kde]-games" on a
+server. What is this? Microsoft Windows <insert your poison here>" ?
 
-BS. Invest money in real consultants that know their trade. They
-simply might not be the cheapest and they might tell you solutions
-that hurt (e.g. training your staff) but of course there are lots of
-people that know what they're talking about.
-
-	Ciao
+	Regards
 		Henning
 
 -- 

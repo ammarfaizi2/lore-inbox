@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293317AbSCKWDC>; Mon, 11 Mar 2002 17:03:02 -0500
+	id <S293482AbSCKWGc>; Mon, 11 Mar 2002 17:06:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293362AbSCKWCx>; Mon, 11 Mar 2002 17:02:53 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:49149 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S293317AbSCKWCq>;
-	Mon, 11 Mar 2002 17:02:46 -0500
-Date: Mon, 11 Mar 2002 14:02:44 -0800
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.5.6] New wireless driver API part 2
-Message-ID: <20020311140244.A10810@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <20020311115523.A10682@bougret.hpl.hp.com> <3C8D2693.9000801@mandrakesoft.com>
+	id <S293362AbSCKWGY>; Mon, 11 Mar 2002 17:06:24 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:35104 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S293482AbSCKWGP>; Mon, 11 Mar 2002 17:06:15 -0500
+Date: Mon, 11 Mar 2002 23:07:29 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre2aa2
+Message-ID: <20020311230729.I10413@dualathlon.random>
+In-Reply-To: <20020311082031.B10413@dualathlon.random> <E16kRp6-0000rR-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C8D2693.9000801@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Mar 11, 2002 at 04:50:11PM -0500
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+In-Reply-To: <E16kRp6-0000rR-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 11, 2002 at 04:50:11PM -0500, Jeff Garzik wrote:
-> Jean Tourrilhes wrote:
+On Mon, Mar 11, 2002 at 03:34:52PM +0000, Alan Cox wrote:
+> > Only in 2.4.19pre2aa2: 00_amd-viper-7441-guessed-1
+> > 
+> > 	Let amd74xx recognize the 7441 amd chipset, it works and I needed it
+> > 	mainly to set ->highmem = 1 and to skip the bounce buffers on my
+> > 	desktop.  (Tried also mode 5 and it failed, so I #undef __CAN_MODE_5
+> > 	back)
 > 
-> Overall looks good.  My only minor objection would be that this function 
-> should return an error value.  Clearly the kmalloc can fail, at least.
-> 
->     Jeff
+> The correct AMD 7441 fixes are in the IDE patch and have been for a few
+> months. They were supplied by AMD and work a treat. I don't believe there is
+> any reason they require the new IDE infrastructure. They are howeve 32bit
+> still so the 64bit IDE will be nice
 
-	Thanks for the quick review (as usual), very much appreciated.
+thanks for the info. I will merge the IDE patch then (with the
+additional modification to enable high-IO, that is why I looked into
+it). btw, while making that change, I was also wondering that it would
+be simpler to enable the highio in the common ide-dma part, rather than
+in the chipsets tunings, the highio is completly unrelated to the fact
+we compile amd7xxx or viaxxx into the kernel or not. but I didn't made
+that change because the amd7xxx driver was working fine for me and also
+because of possibly broken chipsets with the 31th bit of the bus address
+disconnected, just to stay on the very safe side and not to trigger
+hardware (not software) bugs.
 
-	Now, for the return value...
-	I've debated this precise point. Here is the comment that I
-wrote in the code you just quoted :
-		/* Note : we don't return an error to the driver, because
-		 * the driver would not know what to do about it. It can't
-		 * return an error to the user, because the event is not
-		 * initiated by a user request.
-		 * The best the driver could do is to log an error message.
-		 * We will do it ourselves instead...
-		 */
-	The failure to deliver an event to the user is not critical,
-and I don't really see what the driver code would do with a return
-code. In fact, event delivery to user space is not reliable (netlink
-may drop it in case its queues are full - this is more likely than
-kmalloc failure), and my code only check a few of those failure
-conditions, so the driver has no way to know if the message reached
-its intended destination.
-	In fact, I eliminated the return code *on purpose*, to prevent
-driver writer to do stupid things (like shutting down the driver) or
-adding additional log message (waste at this point).
-	Convincing enough ?
-
-	Have fun...
-
-	Jean
+Andrea

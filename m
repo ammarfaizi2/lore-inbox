@@ -1,31 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261438AbSJMGhW>; Sun, 13 Oct 2002 02:37:22 -0400
+	id <S261440AbSJMGzi>; Sun, 13 Oct 2002 02:55:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261439AbSJMGhW>; Sun, 13 Oct 2002 02:37:22 -0400
-Received: from dp.samba.org ([66.70.73.150]:21652 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261438AbSJMGhV>;
-	Sun, 13 Oct 2002 02:37:21 -0400
-Date: Sun, 13 Oct 2002 16:42:25 +1000
-From: Anton Blanchard <anton@samba.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: rth@twiddle.net, wli@holomorphy.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [lart] /bin/ps output
-Message-ID: <20021013064225.GA22645@krispykreme>
-References: <20021012040959.GE7050@krispykreme> <20021011.235329.116353173.davem@redhat.com> <20021012131501.C25740@twiddle.net> <20021012.232744.10131509.davem@redhat.com>
+	id <S261441AbSJMGzi>; Sun, 13 Oct 2002 02:55:38 -0400
+Received: from rwcrmhc52.attbi.com ([216.148.227.88]:35053 "EHLO
+	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
+	id <S261440AbSJMGzh>; Sun, 13 Oct 2002 02:55:37 -0400
+Subject: A list of vender name to vender ID mappings --
+	http://caff.openbeer.it/wireless/mac_list.txt
+From: Miles Lane <miles.lane@attbi.com>
+To: linux-kernel@vger.kernel.org, linux-hotplug@lists.sourceforge.net
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 13 Oct 2002 00:01:18 -0700
+Message-Id: <1034492478.1395.4.camel@jellybean>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021012.232744.10131509.davem@redhat.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This list appears to contain vender/ID mapping information
+that could be helpful when we are identifying hotplugged
+devices.
 
-> Good idea, well on SMP it can be marked throw-away (ie. __init_data).
+http://caff.openbeer.it/wireless/mac_list.txt
 
-We could also only create per cpu data areas when cpu_possible() is
-true, instead of NR_CPUS worth. That might be a little dangerous however.
+It correctly identified "00D0F5 == Orange Micro, Inc."
+for my Orange Micro iBOT Fireware Webcam.  I cannot
+vouch for the other entries.
 
-Anton
+	Miles
+

@@ -1,44 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280586AbRK1UFJ>; Wed, 28 Nov 2001 15:05:09 -0500
+	id <S280583AbRK1UOt>; Wed, 28 Nov 2001 15:14:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280600AbRK1UFE>; Wed, 28 Nov 2001 15:05:04 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:30709 "EHLO
-	phobos.mvista.com") by vger.kernel.org with ESMTP
-	id <S280586AbRK1UEl>; Wed, 28 Nov 2001 15:04:41 -0500
-Message-ID: <3C0542F3.5A9F0EAA@mvista.com>
-Date: Wed, 28 Nov 2001 12:02:59 -0800
-From: Jeremy Puhlman <jpuhlman@mvista.com>
-Organization: MontaVista Software
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i686)
-X-Accept-Language: en
+	id <S280593AbRK1UOa>; Wed, 28 Nov 2001 15:14:30 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:56836 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S280583AbRK1UOS>; Wed, 28 Nov 2001 15:14:18 -0500
+Date: Wed, 28 Nov 2001 16:57:03 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Mike Fedyk <mfedyk@matchmail.com>, Ahmed Masud <masud@googgun.com>,
+        "'lkml'" <linux-kernel@vger.kernel.org>
+Subject: Re: Unresponiveness of 2.4.16
+In-Reply-To: <Pine.LNX.4.21.0111281604390.15571-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0111281656520.15571-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Google Test and 2.4.16
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok yesterday got the google tests running...The machine I ran it on
-was a standard (Old) white box...Athlon k6-450 with 128 MB of
-Ram....Using 256 MB of swap....The google test tries to use an
-adjustable 1/2 terra byte Block size...This is unrealistic for an
-embedded system or my system for that matter..So in trying to tune the
-test to the system it seems they would not run unless the block size
-was less then 60 MB...Not sure what the deal was...I tried turning on
-memory-overcommit but no dice...
 
-So basically I ran the test once through and every thing went fine...The
 
-test didn't seem to really stress the system very much...
+On Wed, 28 Nov 2001, Marcelo Tosatti wrote:
 
-So I ran the same program 4 times, concurrently...The system did not
-seem to lose any responsiveness....This did stress the vm system since
-each of the processes were grabbing 60 megs...
+> 
+> 
+> On Tue, 27 Nov 2001, Andrew Morton wrote:
+> 
+> > Mike Fedyk wrote:
+> > > 
+> > > >   I'll send you a patch which makes the VM less inclined to page things
+> > > >   out in the presence of heavy writes, and which decreases read
+> > > >   latencies.
+> > > >
+> > > Is this patch posted anywhere?
+> > 
+> > I sent it yesterday, in this thread.  Here it is again.
+> > 
+> > Description:
+> > 
+> > - Account for locked as well as dirty buffers when deciding
+> >   to throttle writers.
+> 
+> Just one thing: If we have lots of locked buffers due to reads we are
+> going to may unecessarily block writes, and thats not any good.
+> 
+> But well, I prefer to fix interactivity than to care about that one kind
+> of workload, so I'm ok with it.
+> 
+> > - Tweak VM to make it work the inactive list harder, before starting
+> >   to evict pages or swap.
+> 
+> I would like to see he interactivity problems get fixed on block layer
+> side first: Its not a VM issue initially. Actually, the thing is that if
+> you tweak VM this way you're going to break some workloads.
+> 
+> > - Change the elevator so that once a request's latency has
+> >   expired, we can still perform merges in front of that
+> >   request.  But we no longer will insert new requests in
+> >   front of that request.  
+> 
+> Sounds fine... I've received quite many success reports already, right ? 
 
-I did find that once the 4 processes finished their runs. I ran one
-more just for fun...Then the system locked up...
+Err...
 
-Jeremy
+s/I/you/ 
 

@@ -1,54 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285318AbRLSPV4>; Wed, 19 Dec 2001 10:21:56 -0500
+	id <S285317AbRLSPQY>; Wed, 19 Dec 2001 10:16:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285323AbRLSPVq>; Wed, 19 Dec 2001 10:21:46 -0500
-Received: from smtp02.fields.gol.com ([203.216.5.132]:32019 "EHLO
-	smtp02.fields.gol.com") by vger.kernel.org with ESMTP
-	id <S285322AbRLSPVl>; Wed, 19 Dec 2001 10:21:41 -0500
-Date: Thu, 20 Dec 2001 00:21:17 +0900
-From: Masaru Kawashima <masaruk@gol.com>
-To: Oleg Drokin <green@namesys.com>
-Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com, chris@suse.de
-Subject: Re: [reiserfs-list] reiserfs remount problem (Re: Linux 2.4.17-rc2)
-Message-Id: <20011220002117.6b660fa0.masaruk@gol.com>
-In-Reply-To: <20011219180100.A28971@namesys.com>
-In-Reply-To: <Pine.LNX.4.21.0112181824020.4821-100000@freak.distro.conectiva>
-	<20011219230812.049c2c5c.masaruk@gol.com>
-	<20011219172644.A28692@namesys.com>
-	<20011219235203.322a02e3.masaruk@gol.com>
-	<20011219180100.A28971@namesys.com>
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: "3UD?v?v'zSkYncgSd/w8_XIZeI<6UVWiR|O`MK|4r<R13hW),-w;.4EGFl]M=i9H/_&}\1 sKHvNj7@@1vM\{'-2s{Os@$kL9Tv_XHO2:2/DJSC5c\k:|=g{~sn(jc~EDth4,/}3.O0g8X/\5bhi2 ^{gjQFxH`RH{?z"Gqh5Kt^n%/v],ZNO"zO~Re
-X-Operating-System: Kondara MNU/Linux 2.0
+	id <S285320AbRLSPQF>; Wed, 19 Dec 2001 10:16:05 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:19049 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S285323AbRLSPQB>; Wed, 19 Dec 2001 10:16:01 -0500
+Date: Wed, 19 Dec 2001 16:16:10 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.17rc2aa1
+Message-ID: <20011219161610.I1395@athlon.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Abuse-Complaints: abuse@gol.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This should fix the last loop deadlocks under VM pressure, if not please
+let me know.
 
-> >   # cat /proc/fs/reiserfs/*/version
-> >   new format      with checks off
-> Hm. You said you are running 2.4.17-rc2, this is output from older kernel.
-> Or do you mean it is only 2.4.17-rc2 that cannot remount root read-write?
+I didn't fixed the ia64 compilation troubles, but it should be very easy
+to fix if anybody needs.
 
-Yes, the cat output was from 2.4.16.  Kernels before -rc1 can remount
-this root partition without errors.
+URL:
 
-> Ok, I still want the metadata from this partition (read man on debugreiserfsck on -p option),
-> and tell me you reiserfsutils version.
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.17rc2aa1.bz2
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.17rc2aa1/
 
-Ok, I'll try that tomorrow.
-(In Japan, it's midnight.  I want to go to sleep now.)
+Only in 2.4.17rc1aa1: 00_loop-deadlock-1
 
-> Also were there any reiserfs specific error messages prior to the oops?
+	Merged in mainline.
 
-There was no error message from reiserfs.
+Only in 2.4.17rc2aa1: 00_pgt-cache-leak-1
 
-Thank you.
+	Avoid potentially leaking pagetables into the per-cpu queues.
 
--- 
-Masaru Kawashima <masaruk@gol.com>
+Only in 2.4.17rc2aa1: 00_x86-fast-pte-1
+
+	Reenable the pagetable per-cpu queues on x86 that I found to be
+	disabled during 2.4.17pre.
+
+Only in 2.4.17rc1aa1: 10_vm-20
+Only in 2.4.17rc2aa1: 10_vm-21
+
+	Drop some leftover and rediffed.
+
+Only in 2.4.17rc1aa1: 60_tux-2.4.16-final-D5.bz2
+Only in 2.4.17rc2aa1: 60_tux-2.4.16-final-D6.bz2
+
+	Latest update from Ingo at www.redhat.com/~mingo/ .
+
+Only in 2.4.17rc2aa1: 70_loop-deadlock-2
+
+	Previous fix cured balance_dirty(), this one will cure
+	the memory balancing, to avoid reentrant I/O in the loop
+	thread.
+
+Andrea

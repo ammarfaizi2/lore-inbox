@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290747AbSBLP5V>; Tue, 12 Feb 2002 10:57:21 -0500
+	id <S287373AbSBLP7v>; Tue, 12 Feb 2002 10:59:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291038AbSBLP5M>; Tue, 12 Feb 2002 10:57:12 -0500
-Received: from boink.boinklabs.com ([162.33.131.250]:22288 "EHLO
-	boink.boinklabs.com") by vger.kernel.org with ESMTP
-	id <S290747AbSBLP47>; Tue, 12 Feb 2002 10:56:59 -0500
-Date: Tue, 12 Feb 2002 10:56:58 -0500
-From: Charlie Wilkinson <cwilkins@boinklabs.com>
-To: linux-kernel@vger.kernel.org
-Subject: Hard lock-ups on RH7.2 install - Via Chipset?
-Message-ID: <20020212105658.D11655@boink.boinklabs.com>
+	id <S287287AbSBLP7m>; Tue, 12 Feb 2002 10:59:42 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15121 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S291693AbSBLP7b>; Tue, 12 Feb 2002 10:59:31 -0500
+Date: Tue, 12 Feb 2002 15:59:22 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pci_pool reap?
+Message-ID: <20020212155922.F31425@flint.arm.linux.org.uk>
+In-Reply-To: <20020211.184412.35663889.davem@redhat.com> <1013528224.2240.245.camel@bitch> <20020212154816.E31425@flint.arm.linux.org.uk> <20020212.075051.14974554.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-X-Home-Sweet-Home: RedHat 6.0 / Linux 2.2.12 on an AMD K6-225
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020212.075051.14974554.davem@redhat.com>; from davem@redhat.com on Tue, Feb 12, 2002 at 07:50:51AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings fellow bit jockeys,
-This has been driving me nuts for over a week now.  All discussion
-found and solutions tried so far have proven fruitless.  If someone
-could point me at a fix or offer any insights, I would be most thrilled.
-I've read about some Athlon/Via related problems, so I'm hoping it fits
-in with that somehow.
+On Tue, Feb 12, 2002 at 07:50:51AM -0800, David S. Miller wrote:
+> The conclusion we came to is that there is no reason you can't do the
+> remapping from interrupts on ARM and propagate the GFP_ATOMIC
+> properly as well.  Right?
+> 
+> Or is this another "I'm not going to make the change until it
+> is required of me" situation?  If so I'll just make it so :-)
 
-The box is a AMD 1.3GHz Athlon with a "bcm Advanced Research" BC133KT-100
-motherboard (Via KT133/VT8363/686B), two Promise Ultra100Tx2 cards, and
-an IBM 75gb drive on each IDE channel (four drives in all).  The graphics
-card is an Nvidia TNT2 AGP, but I'm thinking that doesn't matter too
-much as the problem occurs just fine in character mode with no activity
-on the screen.  I've yanked out network cards, disabled unused ports,
-picked conservative BIOS settings, but to no avail.
+Well, seeing as I'm currently on 2.5.2 still, waiting for various changes
+to stabilise, its still not really high on my priority list.  Things
+that are high on it is to move forward RSN and put in place all the
+changes for ARM that are needed between 2.5.3-pre1 and 2.5.4.  There's
+several bits that need to be looked at, and some of the changes that
+have happened in 2.5.2-rmk clash with some of the changes in these
+patches, c'est la vie.
 
-The problem first occurred when I tried to do a RH7.2 install.  I set
-each drive up identically, creating a software RAID5 container across all
-four drives.  The box consistently freezes solid either while creating
-the ext3 filesystem on RAID5, or in the early phases of the .rpm march.
-(Note that means concurrent load on all four drives...)
+Also high is to do something about the growing mountain of patches in
+my patch system that need to be processed.
 
-Numerous things tried...  Finally booted into rescue mode (starting with
-the latest RH7.2 updated boot image, FWIW) and tried running concurrent
-dd's out to the drives in various combinations, as in:
+So, I hope you can see that any changes you put into current Linus
+kernels won't change the situation for a while because I'm too overloaded
+with other stuff and stuck back at 2.5.2 currently.
 
-(dd if=/dev/zero of=/dev/hde2 &) ; (dd if=/dev/zero of=/dev/hdg2 &) ; etc...
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-What I found was that writing out to any two drives was fine.  Writing to
-all four will consistently lock up the machine after about 5-10 seconds.
-So it seems load related.  (No, I didn't try three drives.)
-
-Any clues?  Any fixes?  Pretty please?  :)
-
--cw-

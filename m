@@ -1,69 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317960AbSGaVfy>; Wed, 31 Jul 2002 17:35:54 -0400
+	id <S318466AbSGaVjO>; Wed, 31 Jul 2002 17:39:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317971AbSGaVfy>; Wed, 31 Jul 2002 17:35:54 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:15424 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S317960AbSGaVfw>; Wed, 31 Jul 2002 17:35:52 -0400
-Date: Wed, 31 Jul 2002 23:40:22 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19rc3aa4
-Message-ID: <20020731214022.GK11020@dualathlon.random>
-References: <20020730060218.GB1181@dualathlon.random> <20020731170802.R10270@redhat.com>
-Mime-Version: 1.0
+	id <S318510AbSGaVjN>; Wed, 31 Jul 2002 17:39:13 -0400
+Received: from mg03.austin.ibm.com ([192.35.232.20]:22235 "EHLO
+	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S318397AbSGaVjK>; Wed, 31 Jul 2002 17:39:10 -0400
+Message-ID: <3D4858D4.4EB31CD@us.ibm.com>
+Date: Wed, 31 Jul 2002 16:38:28 -0500
+From: Jon Grimm <jgrimm2@us.ibm.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.5.29 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: linux-net@vger.kernel.org
+Subject: [ANNOUNCE] new lksctp release lksctp-2_5_29-0_5_0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020731170802.R10270@redhat.com>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 31, 2002 at 05:08:02PM -0400, Benjamin LaHaise wrote:
-> On Tue, Jul 30, 2002 at 08:02:18AM +0200, Andrea Arcangeli wrote:
-> > 	Merged async-io from Benjamin LaHaise after purifying it from the
-> > 	/proc/libredhat.so mess that made it not binary compatible with 2.5.
-> > 
-> > 	While merging I did a number of cleanups and fixes, to mention a few of
-> > 	them I fixed a shell root exploit in map_user_kvect by using
-> > 	get_user_pages (that honours VM_MAYWRITE), it avoids corruption of
-> > 	KM_IRQ0 by doing spin_lock_irq in aio_read_evt, and a number of other
-> > 	minor not security and not stability related changes.  Left out the
-> > 	networking async-io, it can be merged trivially at a later stage (if
-> > 	needed :).
-> 
-> Care to explain the problem and provide a separate patch for all the 
-> people who aren't using your tree of patches?  If there's a problem 
+Linux Kernel SCTP Release lksctp-2_5_29-0_5_0 is now available 
+for download.  
 
-I'm sorry but I'm too busy with another thing at the moment to extract
-patches, (I should have time after 13 August). In the meantime you can
-see the most important changes by diffing memory.c and aio.c yourself.
-The VM_MAYWRITE sec fix is the get_user_pages change in the core of
-map_user_kiovec, that should be very visible, the other one was just a
-missing _irq around a spinlock to protect KM_IRQ0 from irq races, that
-should be very visible too by diffing aio.c against aio.c.  The other
-changes should be mostly cosmetical or related to the purification from
-the dyanmic syscall (ah, and I dropped the nosense _GPL,
-EXPORT_SYMBOL_GPL doesn't make sense as said in one of my last emails of
-such thread, I've no idea why it's not been nucked from modutils and 2.5
-yet, as said either the ksyms linkage is a GPL barrier or it isn't,
-there is no such intermediate thing as a EXPORT_SYMBOL_GPL non GPL
-barrier).
 
-_GPL doesn't make any sense for a very simple reason: anybody can write
-a regular EXPORT_SYMBOL function that just calls your _GPL exported
-function once inside the kernel to bypass the _GPL tag. And if you claim
-that the wrapper is illegal then all non GPL modules are illegal in the
-first place, so making the _GPL tag again a nosense.
+The lksctp project was created to develop a Linux kernel implementation 
+of the SCTP transport protocol.  
 
-> as you claim, then it likely affects map_user_kiobuf too.
 
-kiobuf side in been fixed in mainline some time ago, it only affects
-the map_user_kiovec in your patch as far I can tell, but it would be
-nice if you could double check, thanks.
+For more information, as well as, source tarballs and patches, please 
+visit: 
+     
+        http://www.sourceforge.net/projects/lksctp/ 
 
-Andrea
+The linux-2.5.29 based patch can be downloaded directly from:
+
+
+http://prdownloads.sourceforge.net/lksctp/lksctp-2_5_29-0_5_0.patch?download
+
+
+Best Regards, 
+Jon Grimm 
+
+
+The most recent CHANGES are as follows:
+
+lksctp-2_5_29-0_5_0:
+Patch 588249 misc. user header file fixes (jgrimm)
+
+lksctp-2_5_29-0_4_99:
+Patch 582166 sctp_peeloff() support. (samudrala)
+Bug   583874 sendmsg/init with bad buf. has leak (jgrimm)
+Patch 581963 Handle select/poll syscalls (daisyc)
+Bug   583798 Need GFP_ATOMIC when BH disabled (samudrala)
+Bug   585351 MSG_UNORDERED not set on fragmented chunks (samudrala)
+Patch 585474 Remove old DEFAULT_STREAM sock opt (jgrimm)
+Bug   585653 Fix V6INADDR_ANY to choose a saddr (jgrimm)
+Bug   585929 more leaks in sendmsg() on error cases. (samudrala)
+Patch 574420 overlapping init/restart  (dajiang, jgrimm)
+Bug   581992 zero probe shouldn't error association (samudrala)
+Patch 587986 move to Linux 2.5.29 (samudrala)
+
+lksctp-2_5_24-0_4_12:
+Patch 569943 graceful shutdown of an individual association. (samudrala)
+Patch 572054 move to linux kernel 2.5.24. (samudrala)
+Bug   574069 bugs in fragmentation & reassembly. (samudrala)
+Patch 579301 check for No User Data error and testcase (jgrimm)
+Bug   574071 less strict rwnd check at rcvr (samudrala)
+Patch 579525 SCTP_AUTOCLOSE socket option. (samudrala)
+Patch 575712 modify sctp_darn tool to use select (daisyc)
+NA           misc.: cleanup jiffies decl., update docs. (jgrimm) 
+Patch 581745 getsockname needs sk->sport (jgrimm)
+Patch 582273 handle DATA while in SHUTDOWN-SENT (jgrimm)
+Bug   581997 sctp_wait_for_sndbuf fault (jgrimm)
+Patch 573958 Overlapping Init testcases (dajiang)
+Patch 582905 misc: remove md5 files. update cause code values (jgrimm)

@@ -1,47 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132981AbRANSvS>; Sun, 14 Jan 2001 13:51:18 -0500
+	id <S133025AbRANSxs>; Sun, 14 Jan 2001 13:53:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133020AbRANSvI>; Sun, 14 Jan 2001 13:51:08 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:3600 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S132981AbRANSuz>;
-	Sun, 14 Jan 2001 13:50:55 -0500
-Date: Sun, 14 Jan 2001 19:50:12 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: jamal <hadi@cyberus.ca>
-Cc: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
-Subject: Re: Is sendfile all that sexy?
-In-Reply-To: <Pine.GSO.4.30.0101141237020.12354-100000@shell.cyberus.ca>
-Message-ID: <Pine.LNX.4.30.0101141945520.3103-100000@e2>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S133020AbRANSxi>; Sun, 14 Jan 2001 13:53:38 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:51064
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S133000AbRANSxa>; Sun, 14 Jan 2001 13:53:30 -0500
+Date: Sun, 14 Jan 2001 19:53:23 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: Roman.Hodek@informatik.uni-erlangen.de
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] make drivers/scsi/atari_scsi.c check request_irq (240p3)
+Message-ID: <20010114195323.B602@jaquet.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-On Sun, 14 Jan 2001, jamal wrote:
+The following patch makes drivers/scsi/atari_scsi.c check request_irq's
+return code. It applies cleanly against 240p3 and ac9.
 
-> regular ttcp, no ZC and no sendfile. [...]
-> Throughput: ~99MB/sec (for those obsessed with Mbps ~810Mbps)
-> CPU abuse: server side 87% client side 22% [...]
+Comments?
 
-> sendfile server.
-> - throughput: 86MB/sec
-> - CPU: server 100%, client 17%
 
-i believe what you are seeing here is the overhead of the pagecache. When
-using sendmsg() only, you do not read() the file every time, right? Is
-ttcp using multiple threads? In that case if the sendfile() is using the
-*same* file all the time, creating SMP locking overhead.
+--- linux-ac9/drivers/scsi/atari_scsi.c~	Tue Nov 28 02:57:34 2000
++++ linux-ac9/drivers/scsi/atari_scsi.c	Sun Jan 14 19:28:00 2001
+@@ -690,19 +690,27 @@
+ 		/* This int is actually "pseudo-slow", i.e. it acts like a slow
+ 		 * interrupt after having cleared the pending flag for the DMA
+ 		 * interrupt. */
+-		request_irq(IRQ_TT_MFP_SCSI, scsi_tt_intr, IRQ_TYPE_SLOW,
+-		            "SCSI NCR5380", scsi_tt_intr);
++		if (!request_irq(IRQ_TT_MFP_SCSI, scsi_tt_intr, IRQ_TYPE_SLOW,
++				 "SCSI NCR5380", scsi_tt_intr)) {
++			printk(KERN_ERR "atari_scsi_detect: cannot allocate irq %d, aborting",IRQ_TT_MFP_SCSI);
++			atari_stram_free(atari_dma_buffer);
++			atari_dma_buffer = 0;
++			return 0;
++		}
+ 		tt_mfp.active_edge |= 0x80;		/* SCSI int on L->H */
+ #ifdef REAL_DMA
+ 		tt_scsi_dma.dma_ctrl = 0;
+ 		atari_dma_residual = 0;
+-#endif /* REAL_DMA */
+-#ifdef REAL_DMA
+ #ifdef CONFIG_TT_DMA_EMUL
+ 		if (MACH_IS_HADES) {
+-			request_irq(IRQ_AUTO_2, hades_dma_emulator,
+-				    IRQ_TYPE_PRIO, "Hades DMA emulator",
+-				    hades_dma_emulator);
++			if (!request_irq(IRQ_AUTO_2, hades_dma_emulator,
++					 IRQ_TYPE_PRIO, "Hades DMA emulator",
++					 hades_dma_emulator)) {
++				printk(KERN_ERR "atari_scsi_detect: cannot allocate irq %d, aborting (MACH_IS_HADES)",IRQ_AUTO_2);
++				atari_stram_free(atari_dma_buffer);
++				atari_dma_buffer = 0;
++				return 0;
++			}
+ 		}
+ #endif
+ 		if (MACH_IS_MEDUSA || MACH_IS_HADES) {
+@@ -719,9 +727,8 @@
+ 			 * the rest data bug is fixed, this can be lowered to 1.
+ 			 */
+ 			atari_read_overruns = 4;
+-		}
+-#endif
+-		
++		}		
++#endif /*REAL_DMA*/
+ 	}
+ 	else { /* ! IS_A_TT */
+ 		
 
-if this is the case, what result do you get if you use a separate,
-isolated file per process? (And i bet that with DaveM's pagecache
-scalability patch the situation would also get much better - the global
-pagecache_lock hurts.)
+-- 
+        Rasmus(rasmus@jaquet.dk)
 
-	Ingo
-
+Are they taking DDT?
+                -- Vice President Dan Quayle asking doctors at a Manhattan
+                   AIDS clinic about their treatments of choice, 4/30/92
+                   (reported in Esquire, 8/92, and NY Post early May 92)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

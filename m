@@ -1,82 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318086AbSHDPlw>; Sun, 4 Aug 2002 11:41:52 -0400
+	id <S318123AbSHDPmW>; Sun, 4 Aug 2002 11:42:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318123AbSHDPlw>; Sun, 4 Aug 2002 11:41:52 -0400
-Received: from dclient80-218-19-128.hispeed.ch ([80.218.19.128]:33476 "HELO
-	lombi.mine.nu") by vger.kernel.org with SMTP id <S318086AbSHDPls>;
-	Sun, 4 Aug 2002 11:41:48 -0400
-Mime-Version: 1.0
-Message-Id: <p04320405b972f12b6e5c@[192.168.3.11]>
-Date: Sun, 4 Aug 2002 17:45:20 +0200
-To: Werner Almesberger <werner.almesberger@epfl.ch>,
-       Hans Lermen <lermen@fgan.de>, linux-kernel@vger.kernel.org
-From: Christian Jaeger <christian.jaeger@sl.ethz.ch>
-Subject: Wrong special-caseing with initrd
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S318124AbSHDPmW>; Sun, 4 Aug 2002 11:42:22 -0400
+Received: from dsl-213-023-061-042.arcor-ip.net ([213.23.61.42]:272 "EHLO
+	spot.local") by vger.kernel.org with ESMTP id <S318123AbSHDPmT>;
+	Sun, 4 Aug 2002 11:42:19 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Feiler <kiza@gmxpro.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19, USB_HID only works compiled in, not as module
+Date: Sun, 4 Aug 2002 17:46:56 +0200
+User-Agent: KMail/1.4.1
+References: <fa.egf7e0v.kk5a2@ifi.uio.no> <60bc.3d4d4347.5dd06@trespassersw.daria.co.uk>
+In-Reply-To: <60bc.3d4d4347.5dd06@trespassersw.daria.co.uk>
+X-PGP-KeyID: 0x561D4FD2
+X-PGP-Key: http://www.lionking.org/~kiza/pgpkey.shtml
+X-Species: Snow Leopard
+X-Operating-System: Linux i686
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200208041746.56274.kiza@gmxpro.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Werner and Hans, dear kernel list readers
+On Sunday 04 August 2002 17:07, Jonathan Hudson wrote:
+>
+> Not so. USB Mouse works just fine here on 2.4.19.
+>
+> $ lsmod
+> ....
+> mousedev                4352   1
+> hid                    14112   0 (unused)
+> input                   3328   0 [mousedev hid]
+> ....
+>
+> CONFIG_INPUT=m
+> # CONFIG_INPUT_KEYBDEV is not set
+> CONFIG_INPUT_MOUSEDEV=m
+> CONFIG_INPUT_MOUSEDEV_SCREEN_X=1280
+> CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1024
+>
+> CONFIG_USB_HID=m
+> CONFIG_USB_HIDINPUT=y
+> # CONFIG_USB_HIDDEV is not set
+>
+> 'cat /dev/input/mice' (a cat and mouse game?) gives output as well.
+>
+> So there appears to be no generic 2.4.19 problem.
 
-This problem seems to be known for a long time, but has not been 
-solved or mentioned in the documentation bundled with the kernel. In 
-short, please either solve the problem in the code or update 
-Documentation/initrd.txt. This will save others some time trying to 
-figure out why initrd doesn't work as expected.
+Hm, seems so. The relevant options I used are:
 
-In detail:
+CONFIG_INPUT=y
+# CONFIG_INPUT_KEYBDEV is not set
+CONFIG_INPUT_MOUSEDEV=m
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_JOYDEV=y
+CONFIG_INPUT_EVDEV=m
 
-A 2.4.18 kernel built with these config settings:
-   CONFIG_BLK_DEV_RAM=y
-   CONFIG_BLK_DEV_INITRD=y
-   CONFIG_DEVFS_FS=y
-   CONFIG_DEVFS_MOUNT=y
-and booted with this commandline (through the isolinux bootloader):
-   linux root=/dev/rd/0 init=/linuxrc initrd=initrd rw
-will call /linuxrc as *pid 8* (in my configuration, it might be 
-another pid != 1). If linuxrc quits, the kernel will continue with 
-the old-style change_root mechanism and then exec init (again 
-/linuxrc) correctly as pid 1. But when doing pivot_root and exec'ing 
-init from linuxrc instead of returning, init will still have pid 8.
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_UHCI=y
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
 
-Running init as a pid != 1 results in some problems (maybe more):
-- init will not run at all unless given the --init option
-- init will not be protected from signals, i.e. kill -9 8 will give a 
-kernel panic
-- pid 1 is the kernel thread named "swapper" which according to the 
-userspace tools eats all cpu. Rik told me in IRC that this is the 
-idle task (which is normally hidden?) so that's probably only an 
-aesthetic problem.
+I don't know if it's a config problem. First I suspected CONFIG_USB_HIDINPUT 
+could be the problem because it's new in 2.4.19. But as I see it works for 
+you, so there shouldn't be a problem.
 
-There are two workarounds as mentioned in a discussion more than a year ago:
-
-a) http://www.geocrawler.com/mail/msg.php3?msg_id=5898546&list=35
-    which means using  root=/dev/ram0  even with devfs enabled.
-    It seems that the device string is special cased somewhere and
-    only /dev/ram0 [in combination with init=/linuxrc] will trigger
-    the correct behaviour of exec'ing linuxrc as pid 1. (It seems that
-    by default init/main.c exec's linuxrc in a kernel thread with pid !=1
-    to save pid 1 for later executing the real init.)
-
-b) http://www.geocrawler.com/mail/msg.php3?msg_id=5898635&list=35
-    This workaround (mostly?) does it's job too, but seems silly:
-    prepare_namespace() will still exec the hardcoded "/linuxrc" path
-    in a kernel thread, which will fail right away since there's no
-    such file. The kernel then continues the old-style change_root
-    mechanism, which tries to umount the ramdisk again (which fails
-    because of error 16 (Device or resource busy), not sure why), then
-    tries to mount the root volume (still the ramdisk) again and goes
-    on to exec init (which has been set to "/linux" in the above mail)
-    as pid 1.
-
-If nothing else then the section "Boot command-line options" in 
-Documentation/initrd.txt should probably be changed to not claim that 
-'root=/dev/rd/0   (with devfs)' will work and instead say that one 
-should always use /dev/ram0. I realize that initramfs seems to be 
-going to replace initrd in the future, but I think that's no excuse 
-not to fix the current kernel/docs :)
-
-Thanks,
-Christian.
+-- 
+Oliver Feiler  <kiza@(gmx(pro).net|lionking.org|claws-and-paws.com)>
+http://www.lionking.org/~kiza/  <--   homepage
+PGP-key ID 0x561D4FD2    --> /pgpkey.shtml
+http://www.lionking.org/~kiza/journal/
 

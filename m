@@ -1,153 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135846AbRDYM0a>; Wed, 25 Apr 2001 08:26:30 -0400
+	id <S135849AbRDYM2u>; Wed, 25 Apr 2001 08:28:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135849AbRDYM0P>; Wed, 25 Apr 2001 08:26:15 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:5124 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S135846AbRDYMYj>;
-	Wed, 25 Apr 2001 08:24:39 -0400
-Message-ID: <20010423104509.A2198@bug.ucw.cz>
-Date: Mon, 23 Apr 2001 10:45:09 +0200
+	id <S135851AbRDYM2m>; Wed, 25 Apr 2001 08:28:42 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:6660 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S135849AbRDYM20>;
+	Wed, 25 Apr 2001 08:28:26 -0400
+Message-ID: <20010424120649.A23347@bug.ucw.cz>
+Date: Tue, 24 Apr 2001 12:06:49 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: acpi@phobos.fachschaften.tu-muenchen.de, andrew.grover@intel.com,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Lid support for ACPI
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        John Fremlin <chief@bandits.org>
+Cc: Pavel Machek <pavel@suse.cz>,
+        "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Let init know user wants to shutdown
+In-Reply-To: <E14pgBe-0003gg-00@the-village.bc.nu> <m2k84jkm1j.fsf@boreas.yi.org.> <20010420190128.A905@bug.ucw.cz> <m2snj3xhod.fsf@bandits.org> <20010424021756.A931@pcep-jamie.cern.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
+In-Reply-To: <20010424021756.A931@pcep-jamie.cern.ch>; from Jamie Lokier on Tue, Apr 24, 2001 at 02:17:56AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-Here's lid support for ACPI, please apply.
+> > > > I'm wondering if that veto business is really needed. Why not reject
+> > > > *all* APM rejectable events, and then let the userspace event handler
+> > > > send the system to sleep or turn it off? Anybody au fait with the APM
+> > > > spec?
+> > > 
+> > > My thinkpad actually started blinking with some LED when you pressed
+> > > the button. LED went off when you rejected or when sleep was
+> > > completed.
+> > 
+> > Does the led start blinking when the system sends an apm suspend? In
+> > that case I don't think you'd notice the brief period between the
+> > REJECT and the following suspend from userspace ;-)
+> 
+> Are you sure? A suspend takes about 5-10 seconds on my laptop.
 
+Ouch? Really?
+
+What  I do is killall apmd, then apm -s and it is more or less
+instant. [Are you using suspend-to-disk? AFAICS my toshiba can not do
+suspend to disk, that's why I'm interested].
+
+> (It was noticably faster with  2.3 kernels, btw. Now it spends a second
+> or two apparently not noticing the APM event (though the BIOS is making
+> the speaker beep ), then syncing the disk, then maybe another pause, then
+> maybe some more disk activity, then finally shutting down. 2.3 started
+> t he disk activity immediately and didn't pause. Perhaps 2.4.3 mm
+> problems?)
+
+Take a look what apmd does. I'm killing it before apm -s.
 								Pavel
---- clean/drivers/acpi/power.c	Wed Jan 31 16:14:33 2001
-+++ linux/drivers/acpi/power.c	Sun Apr 22 23:02:25 2001
-@@ -30,11 +30,11 @@
- int acpi_cmbatt_init(void);
- int acpi_cmbatt_terminate(void);
- 
--/* ACPI-specific defines */
--#define ACPI_AC_ADAPTER_HID	"ACPI0003"
--
- static int ac_count = 0;
-+static int lid_count = 0;
- static ACPI_HANDLE ac_handle = 0;
-+static ACPI_HANDLE lid_handle = 0;
-+
- 
- /*
-  * We found a device with the correct HID
-@@ -60,11 +60,28 @@
- 	}
- 
- 	printk(KERN_INFO "AC Adapter: found\n");
--
- 	ac_handle = handle;
--
- 	ac_count++;
-+	return AE_OK;
-+}
- 
-+static ACPI_STATUS
-+acpi_found_lid(ACPI_HANDLE handle, u32 level, void *ctx, void **value)
-+{
-+	ACPI_DEVICE_INFO	info;
-+
-+	if (lid_count > 0) {
-+		printk(KERN_ERR "Lid: more than one!\n");
-+		return (AE_OK);
-+	}
-+
-+	if (!(info.valid & ACPI_VALID_STA)) {
-+		printk(KERN_ERR "Lid: _STA invalid\n");
-+	}
-+
-+	printk(KERN_INFO "Lid: found\n");
-+	lid_handle = handle;
-+	lid_count++;
- 	return AE_OK;
- }
- 
-@@ -101,23 +118,54 @@
- 	return len;
- }
- 
-+static int
-+proc_read_lid_status(char *page, char **start, off_t off,
-+		     int count, int *eof, void *data)
-+{
-+	ACPI_OBJECT obj;
-+	ACPI_BUFFER buf;
-+
-+	char *p = page;
-+	int len;
-+
-+	buf.length = sizeof(obj);
-+	buf.pointer = &obj;
-+	if (!ACPI_SUCCESS(acpi_evaluate_object(lid_handle, "_LID", NULL, &buf))
-+		|| obj.type != ACPI_TYPE_INTEGER) {
-+		p += sprintf(p, "Could not read lid status\n");
-+		goto end;
-+	}
-+
-+	if (obj.integer.value)
-+		p += sprintf(p, "open\n");
-+	else
-+		p += sprintf(p, "closed\n");
-+
-+end:
-+	len = (p - page);
-+	if (len <= off+count) *eof = 1;
-+	*start = page + off;
-+	len -= off;
-+	if (len>count) len = count;
-+	if (len<0) len = 0;
-+	return len;
-+}
-+
- int
- acpi_power_init(void)
- {
--	acpi_get_devices(ACPI_AC_ADAPTER_HID, 
--			acpi_found_ac_adapter,
--			NULL,
--			NULL);
-+	acpi_get_devices("ACPI0003", acpi_found_ac_adapter, NULL, NULL);
-+	acpi_get_devices("PNP0C0D", acpi_found_lid, NULL, NULL);
- 
- 	if (!proc_mkdir("power", NULL))
--		return 0;
-+		return -EBUSY;
- 
--	if (ac_handle) {
--		create_proc_read_entry("power/ac", 0, NULL,
--			proc_read_ac_adapter_status, NULL);
--	}
-+	if (ac_handle)
-+		create_proc_read_entry("power/ac", 0, NULL, proc_read_ac_adapter_status, NULL);
-+	if (lid_handle)
-+		create_proc_read_entry("power/lid", 0, NULL, proc_read_lid_status, NULL);
- 
- 	acpi_cmbatt_init();
- 
- 	return 0;
- }
-@@ -127,9 +176,8 @@
- {
- 	acpi_cmbatt_terminate();
- 
--	if (ac_handle) {
--		remove_proc_entry("power/ac", NULL);
--	}
-+	if (ac_handle) remove_proc_entry("power/ac", NULL);
-+	if (lid_handle) remove_proc_entry("power/lid", NULL);
- 
- 	remove_proc_entry("power", NULL);
- 
-
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

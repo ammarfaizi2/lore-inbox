@@ -1,100 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbVCQMey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbVCQMfT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbVCQMey (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 07:34:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVCQMey
+	id S261961AbVCQMfT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 07:35:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbVCQMfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 07:34:54 -0500
-Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:31665 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261300AbVCQMeu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 07:34:50 -0500
-MIME-Version: 1.0
-To: torvalds@osdl.org
-Subject: bktools::shortlog update
-CC: matthias.andree@gmx.de, samel@mail.cz, linux-kernel@vger.kernel.org
-From: Matthias Andree <matthias.andree@gmx.de>
-Content-ID: <Thu,_17_Mar_2005_12_34_45_+0000_0@merlin.emma.line.org>
-Content-type: text/plain; charset=iso-8859-1
-Content-Description: An object packed by metasend
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20050317123445.751E278BFD@merlin.emma.line.org>
-Date: Thu, 17 Mar 2005 13:34:45 +0100 (CET)
+	Thu, 17 Mar 2005 07:35:19 -0500
+Received: from port-212-202-144-146.static.qsc.de ([212.202.144.146]:44981
+	"EHLO mail.hennerich.de") by vger.kernel.org with ESMTP
+	id S261961AbVCQMfG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 07:35:06 -0500
+Date: Thu, 17 Mar 2005 13:30:26 +0100
+From: Tobias Hennerich <Tobias@Hennerich.de>
+To: Alexander Nyberg <alexn@dsv.su.se>
+Cc: Timo Hennerich <Timo@Hennerich.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Vladimir Saveliev <vs@namesys.com>
+Subject: Re: Strange memory leak in 2.6.x
+Message-ID: <20050317133026.A4515@bart.hennerich.de>
+References: <20050308173811.0cd767c3.akpm@osdl.org> <20050309102740.D3382@bart.hennerich.de> <20050311183207.A22397@bart.hennerich.de> <1110565420.2501.12.camel@boxen> <20050312133241.A11469@bart.hennerich.de> <1110640085.2376.22.camel@boxen> <20050312214216.A24046@bart.hennerich.de> <1110661479.3360.11.camel@boxen> <026101c52891$2a618410$0404010a@hennerich.de> <1110812292.2492.21.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <1110812292.2492.21.camel@localhost.localdomain>; from alexn@dsv.su.se on Mon, Mar 14, 2005 at 03:58:12PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linus,
+Hello,
 
-you can either use "bk receive" to patch with this mail,
-or you can
-Pull from: bk://krusty.dt.e-technik.uni-dortmund.de/BK-kernel-tools
-or in cases of dire need, you can apply the patch below.
+On Mon, Mar 14, 2005 at 03:58:12PM +0100, Alexander Nyberg wrote:
+> > for one of the last results of /proc/page_owner. It seems to be
+> > obvious that the memory-leak seems to be the first entry:
+> > 
+> >     $ less page_owner_sorted_20050314_0740.bz2
+> >     881397 times:
+> >     Page allocated via order 0
+> >     [0xc013962b] find_or_create_page+91
+> >     [0xf8aa9955] reiserfs_prepare_file_region_for_write+613
+> >     [0xf8aaa606] reiserfs_file_write+1366
+> >     [0xc015765c] vfs_write+172
+> >     [0xc015776c] sys_write+60
+> >     [0xc0103879] sysenter_past_esp+82
+> 
+> [resolved addresses => names]
+> > 
+> > The sorted table of /proc/kallsyms looks like this:
+> > 
+> >     f8aa96f0 t reiserfs_prepare_file_region_for_write       [reiserfs]
+> >     f8aaa0b0 t reiserfs_file_write  [reiserfs]
+> > 
+> > So I guess that we have a problem with the reiser filesystem??
+> > We are using reiserfs 3.6...
+> 
+> [added Vladimir Saveliev to CC]
+> 
+> The only thing that stands out is big page cache. However, looking at
+> the previous OOM output it shows that it is zone normal that is
+> completely out of memory and that highmem zone has lots of free memory.
+> 
+> Let's see if the big sharks know what is going on...
 
-BK parent: http://bktools.bkbits.net/bktools
+Hm, it seems like the big sharks are hunting other fishes at the moment...
 
-Patch description:
-ChangeSet@1.292, 2005-03-17 13:11:15+01:00, samel@mail.cz
-  shortlog: add 4 new addresses
+I looked at the code myself - reiserfs_prepare_file_region_for_write
+has more then 250 lines of code. I don't want to critize anyone, but
+this function is a bit too long to be easily debugged.
 
-Matthias
+Because we suspect the problem in reiserfs and we still have to reboot
+the machine every other day, we will switch to ext3 now.
 
-------------------------------------------------------------------------
+I will report if the problem disappears this way.
 
-##### DIFFSTAT #####
- shortlog |    4 ++++
- 1 files changed, 4 insertions(+)
+Best regards	Tobias
 
-##### GNUPATCH #####
---- 1.257/shortlog	2005-03-14 20:52:29 +01:00
-+++ 1.258/shortlog	2005-03-17 13:10:58 +01:00
-@@ -297,6 +297,7 @@
- 'andre.breiler:null-mx.org' => 'André Breiler',
- 'andre.landwehr:gmx.net' => 'Andre Landwehr',
- 'andre:linux-ide.org' => 'Andre Hedrick',
-+'andre:tomt.net' => 'Andre Tomt',
- 'andrea:cpushare.com' => 'Andrea Arcangeli',
- 'andrea:novell.com' => 'Andrea Arcangeli',
- 'andrea:suse.de' => 'Andrea Arcangeli',
-@@ -1173,6 +1174,7 @@
- 'jack_hammer:adaptec.com' => 'Jack Hammer',
- 'jackson:realtek.com.tw' => 'Ian Jackson',
- 'jacmet:sunsite.dk' => 'Peter Korsgaard',
-+'jacques_basson:myrealbox.com' => 'Jacques Basson',
- 'jaharkes:cs.cmu.edu' => 'Jan Harkes',
- 'jakob.kemi:telia.com' => 'Jakob Kemi',
- 'jakub:redhat.com' => 'Jakub Jelínek',
-@@ -2240,6 +2242,7 @@
- 'rene.herman:nl.rmk.(none)' => 'Rene Herman',
- 'rene.rebe:gmx.net' => 'Rene Rebe',
- 'rene.scharfe:lsrfire.ath.cx' => 'Rene Scharfe',
-+'rene:exactcode.de' => 'Rene Rebe',
- 'rgcrettol:datacomm.ch' => 'Roger Crettol',
- 'rgooch:atnf.csiro.au' => 'Richard Gooch',
- 'rgooch:ras.ucalgary.ca' => 'Richard Gooch',
-@@ -2435,6 +2438,7 @@
- 'shbader:de.ibm.com' => 'Stefan Bader',
- 'sheilds:msrl.com' => 'Michael Shields', # typo
- 'shemminger:osdl.org' => 'Stephen Hemminger',
-+'shenkel:gmail.com' => 'Sven Henkel',
- 'shep:alum.mit.edu' => 'Tim Shepard',
- 'shields:msrl.com' => 'Michael Shields',
- 'shingchuang:via.com.tw' => 'Shing Chuang',
-
-
-
-##### BKPATCH #####
-
-## Wrapped with gzip_b64 ##
-H4sIAGV5OUICA7WUUW+bMBDHn+NPcVIf8tBBbIMDWEqVpp3WtJNWpevz5JhryAq4w06aTnz4
-QVBSJeoetnXgB+743/G/+0mcwPRS9pyp1ipP7fgJy8VqWfquUqUt0Clfm6K+yFS5wDt0NaeU
-NzfjAR2KpObJUIgaOQqhQ6bmURyh5uQE7i1Wslco57Klsr4q0wqxyV8Z62RvUWz8tA1nxjTh
-wK4sDh6xKjEfTG6a43WB54zJLWmEt8rpDNZYWdljfrDPuJcnlL3Zx0/3n89nhIxGsPcKoxF5
-57mO5hl3cxy2ETRgIUtE06kehkOekEtgPk84UDGgwYBFwALJmGTilDJJKVhVYD4u1DL39U84
-ZeBRMoF3tn5BNNjMVC43CwkqTSGEEp/bpwqtRUtuYBhELCa3rysk3h9ehFBFydmr+cwUeOR8
-56IzLlhMo7D5bh2wKBH1AybqQUc0URRTNU8Pt3NQ3G46YpxREdeMhZxt+e8UB/j/2cbv0B/7
-2ZLnST0MhOAdeREfkqdSxG+TD/8b+bd5d0v7Al71vGmPt2ng7yb6C/ZTniTASH+7IulM4fwS
-XR9GZ9A/b3Pwtcn1P5ApY5Fold+V/rFC+22urDWlLF4qVPncbNpBu7rrTgGTraKt5TzkbW2F
-JUrcKO20SbGB0RXMmjTMcI5bbRhErdZmWD5iLhfdrnfN79ZYwtX2VaPe/1R0hvrRropRzBWG
-WsfkF7RXK4UmBQAA
-
+-- 
+T+T Hennerich GmbH --- Zettachring 12a --- 70567 Stuttgart
+Fon:+49(711)720714-0  Fax:+49(711)720714-44  Vanity:+49(700)HENNERICH
+UNIX - Linux - Java - C  Entwicklung/Beratung/Betreuung/Schulung
+http://www.hennerich.de/

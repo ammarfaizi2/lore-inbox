@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266296AbTBPK71>; Sun, 16 Feb 2003 05:59:27 -0500
+	id <S266308AbTBPLDW>; Sun, 16 Feb 2003 06:03:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266308AbTBPK71>; Sun, 16 Feb 2003 05:59:27 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:11524 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S266296AbTBPK70>;
-	Sun, 16 Feb 2003 05:59:26 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200302161108.h1GB8t8m000317@darkstar.example.net>
-Subject: Re: openbkweb-0.0
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Sun, 16 Feb 2003 11:08:55 +0000 (GMT)
-Cc: lm@bitmover.com, arashi@yomerashi.yi.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1045372937.6051.1.camel@irongate.swansea.linux.org.uk> from "Alan Cox" at Feb 16, 2003 05:22:18 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S266310AbTBPLDW>; Sun, 16 Feb 2003 06:03:22 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:10500 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S266308AbTBPLDV>;
+	Sun, 16 Feb 2003 06:03:21 -0500
+Date: Sat, 15 Feb 2003 21:44:36 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>,
+       davyd@zdlcomputing.com
+Subject: Toshiba keyboard bug: point people to the patch
+Message-ID: <20030215204436.GA8589@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Why can't we have a mailing list that sends out a diff for each
-> > > update?
-> > 
-> > You can, just get Linus to add a trigger to his tree to do so.
-> 
-> He did, the list exists 8)
+Hi!
 
-I thought so:
+Too many people mail me, and one of them was kind enough to put the
+patch on the web. It would be nice to have this in both 2.4.X and
+2.5.X [patch against 2.5.61].
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=104534718212591&w=2
+								Pavel
 
-I just wanted to confirm that bk-commit-head is actually:
+--- clean/arch/i386/kernel/dmi_scan.c	2003-02-11 17:40:33.000000000 +0100
++++ linux/arch/i386/kernel/dmi_scan.c	2003-02-15 21:22:10.000000000 +0100
+@@ -455,7 +455,7 @@
+ 
+ static __init int broken_toshiba_keyboard(struct dmi_blacklist *d)
+ {
+-	printk(KERN_WARNING "Toshiba with broken keyboard detected. If your keyboard sometimes generates 3 keypresses instead of one, contact pavel@ucw.cz\n");
++	printk(KERN_WARNING "Toshiba with broken keyboard detected. If your keyboard sometimes generates 3 keypresses instead of one, see http://davyd.ucc.asn.au/projects/toshiba/README\n");
+ 	return 0;
+ }
+ 
 
-1. Complete
-2. Realtime
-
-If so, anybody can track Linus' tree, in real time, without using
-BitKeeper.
-
-Therefore, mailing lists for every single Linux-related BK repository
-would allow anybody to track all of the trees in real time, without
-using BK.
-
-Unless bandwidth is a problem, (possible for dial-up users), I don't
-see why we can't do that.  How many people subscribed to this list are
-still on dial-up?
-
-Larry needn't even pay for the outbound bandwidth for the mailing
-list, except to forward it to somebody who is willing to send it out.
-
-John.
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

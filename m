@@ -1,39 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272516AbRIFTX4>; Thu, 6 Sep 2001 15:23:56 -0400
+	id <S272519AbRIFT2R>; Thu, 6 Sep 2001 15:28:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272517AbRIFTXh>; Thu, 6 Sep 2001 15:23:37 -0400
-Received: from oe33.law9.hotmail.com ([64.4.8.90]:55815 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S272516AbRIFTXa>;
-	Thu, 6 Sep 2001 15:23:30 -0400
-X-Originating-IP: [65.92.116.80]
-From: "Camiel Vanderhoeven" <camiel_toronto@hotmail.com>
-To: "'Thomas Foerster'" <puckwork@madz.net>, <linux-kernel@vger.kernel.org>
-Subject: RE: Linux 2.4.9-ac6
-Date: Thu, 6 Sep 2001 15:23:50 -0400
-Message-ID: <013601c13709$755c4860$0100a8c0@kiosks.hospitaladmission.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <20010905144317Z272191-760+9716@vger.kernel.org>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2526.0000
-X-OriginalArrivalTime: 06 Sep 2001 19:23:45.0838 (UTC) FILETIME=[728114E0:01C13709]
+	id <S272521AbRIFT2H>; Thu, 6 Sep 2001 15:28:07 -0400
+Received: from hugin.diku.dk ([130.225.96.144]:25358 "HELO hugin.diku.dk")
+	by vger.kernel.org with SMTP id <S272519AbRIFT16>;
+	Thu, 6 Sep 2001 15:27:58 -0400
+Date: 6 Sep 2001 19:28:15 -0000
+Message-ID: <20010906192815.28608.qmail@ntyr.diku.dk>
+From: Morten Welinder <terra@diku.dk>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Type checking MIN with standard interface
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Foerster wrote:
- 
-> What's about : linuxupdate.linux.org
 
-And how about Linux Product Activation? Whenever you change you
-hardware, you have to make a phonecall to Alan ("This is your Linux
-Product Activation representative, how may I help you?"), read a
-combination of 50 characters from the screen, and key in the 50
-characters he reads back to you ;-)
+All the silent-cast properties of integer types do not apply to
+pointers.  Therefore...
 
-Camiel.
+-----------------------------------------------------------------------------
+
+cub:~> gcc -O2 -Wall min.c
+min.c: In function `main':
+min.c:19: warning: comparison of distinct pointer types lacks a cast
+
+
+cub:~> gcc -O2 -Wall kernel-source.c 2>&1 | \
+        grep "comparison of distinct pointer types lacks a cast" | \
+        find-and-shoot-programmer
+
+:-)
+
+Morten
+
+
+-----------------------------------------------------------------------------
+
+#include <stdio.h>
+
+#define MIN(x,y)                                \
+  ({ const typeof(x) _x = x;                    \
+     const typeof(y) _y = y;                    \
+                                                \
+     (void) (&_x == &_y);                       \
+                                                \
+     _x < _y ? _x : _y;                         \
+  })
+
+int
+main ()
+{
+  /* Good: */
+  printf ("%d\n", MIN((signed)1, (signed)1));
+
+  /* Bad: */
+  printf ("%d\n", MIN((signed)1, (unsigned)1));
+
+  return 0;
+}
+
+-----------------------------------------------------------------------------

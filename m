@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263486AbUA0W7R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 17:59:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbUA0W7R
+	id S265369AbUA0X2E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 18:28:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265555AbUA0X2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 17:59:17 -0500
-Received: from [62.97.69.192] ([62.97.69.192]:31872 "EHLO
-	sacarino.pirispons.net") by vger.kernel.org with ESMTP
-	id S263486AbUA0W7P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 17:59:15 -0500
-Date: Tue, 27 Jan 2004 23:59:09 +0100
-From: Kiko Piris <kernel@pirispons.net>
-To: Xan <DXpublica@telefonica.net>
-Cc: Zack Winkles <winkie@linuxfromscratch.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.1] fbdev console: can't load vga=791 and yes vga=ask!
-Message-ID: <20040127225909.GA5271@sacarino.pirispons.net>
-Mail-Followup-To: Xan <DXpublica@telefonica.net>,
-	Zack Winkles <winkie@linuxfromscratch.org>,
-	linux-kernel@vger.kernel.org
-References: <200401270153.12568.DXpublica@telefonica.net> <200401271324.33883.DXpublica@telefonica.net> <20040127131922.GA20659@pirispons.net> <200401271859.03309.DXpublica@telefonica.net>
+	Tue, 27 Jan 2004 18:28:04 -0500
+Received: from wilma.widomaker.com ([204.17.220.5]:60685 "EHLO
+	wilma.widomaker.com") by vger.kernel.org with ESMTP id S265369AbUA0X2B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 18:28:01 -0500
+Date: Tue, 27 Jan 2004 17:49:47 -0500
+From: Charles Shannon Hendrix <shannon@widomaker.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Nvidia drivers and 2.6.x kernel
+Message-ID: <20040127224946.GC23758@widomaker.com>
+References: <200401221004.06645.chakkerz@optusnet.com.au> <200401230942.13888.chakkerz@optusnet.com.au> <401052C6.7040500@ihateaol.co.uk> <200401261024.28998.chakkerz@optusnet.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200401271859.03309.DXpublica@telefonica.net>
-User-Agent: Mutt
+In-Reply-To: <200401261024.28998.chakkerz@optusnet.com.au>
+X-Message-Flag: Microsoft Loves You!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27/01/2004 at 18:59, Xan wrote:
+Mon, 26 Jan 2004 @ 10:24 +1100, Christian Unger said:
 
-> I did _not_ booted fine. I tried if with vga=795 it booted fine as you and the 
-> same result as 791 obtained: black screen until X window appears. When I 
-> switch to pty, black screen or color (and deformed) puzzle of X window 
-> contain.
+> So ... i'm out of ideas ... i don't get why it ain't doing for me what it is 
+> doing for everyone else. I am wondering IF something screwed up when i 
+> upgraded Slackware 9.1 from 9.0 ... and in the interest of testing that 
+> theory might do a rm -f / later and start from scratch. I haven't decided if 
+> 2.6 is worth that much yet though. 
 
-In 2.6.1 I could use framebuffer through vesafb just with that parameter
-(vga=795, ie. 1280x10224 16M).
+nVidia has released drivers supporting kernel 2.6 on their website.
 
-In 2.6.2-rc* it does not work for me, just blank screen if I try to use
-vesafb.
+They run nicely for me.
 
-Zack Winkles pointed me that I could try passing
-video=vesafb:ywrap,pmipal,mtrr,vga=795 to get vesafb working.
+Hmmm... why do people say "they" when talking about a "driver"?
 
-Thanks for it. Right now I'm on travel and I can not try it, I will be
-able to do so on thursday.
-
-> It's rare thing: I could promise that I compiled 2.6.0 with the same 
-> configuration and it worked.
-
-I did not try 2.6.0 with that radeon 9200 (I didn't have it then).
-vesafb stopped working for me in 2.6.2-rc1.
-
-> Can you explain me what means 791, 795, ... and what number belongs to 
-> 1024x768 and 16 colors, and if 800x600 and 256?...
-
-You can see it in Documentation/fb/vesafb.txt (that file has the numbers
-in hexadecimal, and kernel wants the boot parameter in decimal, just
-convert it).
-
-Althoug, I would prefer to use radeonfb instead of vesafb (radeonfb
-turns off my monitor and vesafb does not).
-
-Anyone with a Radeon 9200 does use radeonfb ? If yes, any special boot
-parameter?
 
 -- 
-Kiko
+shannon "AT" widomaker.com -- ["An Irishman is never drunk as long as he
+can hold onto one blade of grass and not fall off the face of the earth."]

@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264485AbRFIUi0>; Sat, 9 Jun 2001 16:38:26 -0400
+	id <S264487AbRFIUeO>; Sat, 9 Jun 2001 16:34:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264486AbRFIUiP>; Sat, 9 Jun 2001 16:38:15 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:46096 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264485AbRFIUhz>; Sat, 9 Jun 2001 16:37:55 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [CHECKER] a couple potential deadlocks in 2.4.5-ac8
-Date: 9 Jun 2001 13:37:35 -0700
-Organization: A poorly-installed InterNetNews site
-Message-ID: <9fu1ef$psh$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.21.0106091148380.26187-100000@penguin.transmeta.com> <19317.992115181@redhat.com>
+	id <S264486AbRFIUeE>; Sat, 9 Jun 2001 16:34:04 -0400
+Received: from [32.97.182.102] ([32.97.182.102]:63458 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264485AbRFIUd5>;
+	Sat, 9 Jun 2001 16:33:57 -0400
+Importance: Normal
+Subject: Re: Please test: workaround to help swapoff behaviour
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Mike Galbraith <mikeg@wen-online.de>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Derek Glidden <dglidden@illusionary.com>,
+        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+        Stephen Tweedie <sct@redhat.com>
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF2FF3269C.90D4688C-ON85256A66.006DEAFA@pok.ibm.com>
+From: "Bulent Abali" <abali@us.ibm.com>
+Date: Sat, 9 Jun 2001 16:32:29 -0400
+X-MIMETrack: Serialize by Router on D01ML233/01/M/IBM(Build V508_06042001 |June 4, 2001) at
+ 06/09/2001 04:31:32 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <19317.992115181@redhat.com>,
-David Woodhouse  <dwmw2@infradead.org> wrote:
+
+
+
+>Bulent,
 >
->Obtaining a read lock twice can deadlock too, can't it?
+>Could you please check if 2.4.6-pre2+the schedule patch has better
+>swapoff behaviour for you?
 
-If it does (with spinlocks), then that's an implementation bug (which
-might well be there).  We depend on the read-lock being recursive in a
-lot of places, notably the fact that we don't disable interrupts while
-holding read-locks if we know that the interrupt routines only take a
-read-lock. 
+Marcelo,
 
->	A		B
->	read_lock()
->			write_lock()
->			...sleeps...
->	read_lock()
->	...sleeps...
->
->Or do we not make new readers sleep if there's a writer waiting?
+It works as expected.  Doesn't lockup the box however swapoff keeps burning
+the CPU cycles.  It took 4 1/2 minutes to swapoff about 256MB of swap
+content.  Shutdown took just as long.  I was hoping that shutdown would
+kill the swapoff process but it doesn't.  It just hangs there.  Shutdown
+is the common case.  Therefore, swapoff needs to be optimized for
+shutdowns.
+You could imagine users frustration waiting for a shutdown when there are
+gigabytes in the swap.
 
-The writer-waiter should not be spinning with the write lock held.
+So to summarize, schedule patch is better than nothing but falls far short.
+I would put it in 2.4.6.  Read on.
 
-Note that the blocking versions are different, and I explicitly meant
-only the read-spinlocks, not read-semaphores. For the semaphores I think
-your schenario is indeed correct.
+----------
 
-		Linus
+The problem is with the try_to_unuse() algorithm which is very inefficient.
+I searched the linux-mm archives and Tweedie was on to this. This is what
+he wrote:  "it is much cheaper to find a swap entry for a given page than
+to find the swap cache page for a given swap entry." And he posted a
+patch http://mail.nl.linux.org/linux-mm/2001-03/msg00224.html
+His patch is in the Redhat 7.1 kernel 2.4.2-2 and not in 2.4.5.
+
+But in any case I believe the patch will not work as expected.
+It seems to me that he is calling the function check_orphaned_swap(page)
+in the wrong place.  He is calling the function while scanning the
+active_list in refill_inactive_scan().  The problem with that is if you
+wait
+60 seconds or longer the orphaned swap pages will move from active
+to inactive lists. Therefore the function will miss the orphans in inactive
+lists.  Any comments?
+
+
+

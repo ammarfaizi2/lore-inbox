@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261188AbRELGG0>; Sat, 12 May 2001 02:06:26 -0400
+	id <S261193AbRELGqA>; Sat, 12 May 2001 02:46:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261189AbRELGGQ>; Sat, 12 May 2001 02:06:16 -0400
-Received: from www.wen-online.de ([212.223.88.39]:3334 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S261188AbRELGGD>;
-	Sat, 12 May 2001 02:06:03 -0400
-Date: Sat, 12 May 2001 08:05:42 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Vincent Stemen <linuxkernel@AdvancedResearch.org>,
-        Jacky Liu <jq419@my-deja.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.4 kernel freeze for unknown reason
-In-Reply-To: <E14yHw8-0001V8-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0105120709570.479-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261194AbRELGpu>; Sat, 12 May 2001 02:45:50 -0400
+Received: from mail.zmailer.org ([194.252.70.162]:61447 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S261193AbRELGpn>;
+	Sat, 12 May 2001 02:45:43 -0400
+Date: Sat, 12 May 2001 09:45:38 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: testing new vger
+Message-ID: <20010512094538.N5947@mea-ext.zmailer.org>
+In-Reply-To: <15100.53072.165091.885356@pizda.ninka.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15100.53072.165091.885356@pizda.ninka.net>; from davem@redhat.com on Fri, May 11, 2001 at 10:51:12PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 May 2001, Alan Cox wrote:
+On Fri, May 11, 2001 at 10:51:12PM -0700, David S. Miller wrote:
+> Ignore this post please, thanks.
 
-> > I have been monitoring the memory usage constantly with the gnome
-> > memory usage meter and noticed that as swap grows it is never freed
-> > back up.  I can kill off most of the large applications, such as
+  In my general "ignore this please" interpretation as
+  "help! I need help!" --  New VGER seems to work mostly,
+  but I forgot to change one directory permission, and
+  everybody who have emailed Majordomo for something have
+  gotten some strange error message + the majordomo action..
 
-I've seen this mentioned a few times now and am curious enough to ask.
+  All it means is that our Majordomo incoming request log
+  is now incomplete for few hours worth of requests.
+  Not a big deal.
 
-> The swap handling in 2.4 is somewhat hosed at the moment.
->
-> > If I turn swap off all together or turn it off and back on
-> > periodically to clear the swap before it gets full, I do not seem to
-> > experience the lockups.
+  Now I am heading off the network for next 36 or so hours.
+  Good luck, safe riding.
 
-Why do I not see this behavior with a heavy swap throughput test load?
-It seems decidedly odd to me that swapspace should remain allocated on
-other folks lightly loaded boxen given that my heavily loaded box does
-release swapspace quite regularly.  What am I missing?
+> Later,
+> David S. Miller
+> davem@redhat.com
 
-	-Mike
-
+/Matti Aarnio

@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132690AbRDUPgR>; Sat, 21 Apr 2001 11:36:17 -0400
+	id <S132698AbRDUPiH>; Sat, 21 Apr 2001 11:38:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132697AbRDUPgH>; Sat, 21 Apr 2001 11:36:07 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:27658 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S132690AbRDUPgC>;
-	Sat, 21 Apr 2001 11:36:02 -0400
-Date: Sat, 21 Apr 2001 12:31:32 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: gis88530 <gis88530@cis.nctu.edu.tw>
+	id <S132697AbRDUPh5>; Sat, 21 Apr 2001 11:37:57 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:65035 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132698AbRDUPhv>; Sat, 21 Apr 2001 11:37:51 -0400
+Subject: Re: Inspiron 8000 does not resume after suspend
+To: woodst@cs.tu-berlin.de (Daniel Dorau)
+Date: Sat, 21 Apr 2001 16:39:15 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: I can't find out the answer
-In-Reply-To: <005201c0ca44$755203f0$ae58718c@cis.nctu.edu.tw>
-Message-ID: <Pine.LNX.4.21.0104211230250.1685-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+In-Reply-To: <20010421145133.A419@woodstock.home.xxx> from "Daniel Dorau" at Apr 21, 2001 02:51:33 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14qzTh-0003rZ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Apr 2001, gis88530 wrote:
+> With an older BIOS version that I upgraded because of a newer
+> ATI BIOS needed, it woke up execpt some PCI bridge(?) that I 
+> could re-activate with a setpci-script that I found in a
+> linux-kernel archive. So I think the problem is the same as
+> before.
+> Is there any way to fix that? I would really like to use
+> PM on my notebook.
 
-> I want to calculate the total memory usage of kernel.
-> I wonder that we just need to add these(*1) in slabinfo or 
-> we need to add each line(*1 and *2) in slabinfo. Thanks.
-> AND
-> I know the size of size-512 is 512 bytes, but I want to know
-> the size of tcp_tw_bucket, tcp_open_request, etc.
-> How can I find out this answer? Thanks a lot.
+It depends what is not being reactivatdd. You could try building a kernel
+with serial console and debugging out of a serial port. I played with the 8000
+a bit when fixing up stuff in RH7.1 and gave up.
 
-
-> size-4096              8     12
-
-1) you want to use only the values from the second column
-
-2) the sizes of the structures you want to know are somewhere
-   in the kernel header files, grep should be able to find them
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+Alan
 

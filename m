@@ -1,26 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264701AbUFLJfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264697AbUFLKBo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264701AbUFLJfL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 05:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264697AbUFLJfL
+	id S264697AbUFLKBo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 06:01:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbUFLKBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 05:35:11 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:19141 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S264695AbUFLJfI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 05:35:08 -0400
-From: somi_yu@hotmail.com
-To: samba@vger.kernel.org
-Date: Sat, 12 Jun 2004 09:34:01 GMT
+	Sat, 12 Jun 2004 06:01:44 -0400
+Received: from zulo.virutass.net ([62.151.20.186]:45504 "EHLO
+	mx.larebelion.net") by vger.kernel.org with ESMTP id S264697AbUFLKBn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 06:01:43 -0400
+From: Manuel Arostegui Ramirez <manuel@todo-linux.com>
+To: linux-kernel@vger.kernel.org
+Subject: new kernel bug
+Date: Sat, 12 Jun 2004 11:59:28 +0200
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-Subject: Libanesen in Berlin #Id:2930#
-Importance: Normal
-X-Priority: 3 (Normal)
-Message-ID: <4a7924ed54e615.e3edb.qmail@hotmail.com>
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+Message-Id: <200406121159.28406.manuel@todo-linux.com>
+X-Virus: by Larebelion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Habe eben im Fernsehen einen Bericht gesehen, in dem klar hervorging, dass libenesiche und kurdische Moslems in Berlin die Drogenszene und teilweise sogar das Rotlicht-Milieu beherrschen. Der Clou an der Geschichte ist jedoch, dass die Libanesen, die in kriminelle Aktivitaeten verwickelt und Millionen scheffeln, ebenfalls vor dem Sozialamt erscheinen um ihre Sozialhilfe einzufordern. In einigen Szenen im Berliner Sozialamt, konnte man vor lauter Kopftuecher nicht einmal mehr die Waende sehen!Wenn man da bedenkt, dass die Gruenen sich im Moment gegen ein strengeres Immigrations-und Asylgesetz querlegen, kann man nur noch mit Hoffnungslosigkeit und Kopfschuetteln reagieren. Interessant an dem Bericht war ebenfalls, dass Justiz und Politik bisher nicht mit der gebotenen Staerke gegen solche Umtriebe vorgegangen ist, aus Angst man koennte ihnen Auslaenderfeindlichkeit und Rechtslastigkeit vorwerfen! Die Auswirkungen von soviel Dummheit und falscher Toleranz werden wir noch alle !
- bitter bereuen muessen!
+Somebody know a patch to solved this new bug?
+http://reviewed.homelinux.org/news/2004-06-11_kernel_crash/index.html.en
+Affected versions:
+    * Linux 2.6.x
+          o Linux 2.6.7-rc2
+          o Linux 2.6.6 (all versions)
+          o Linux 2.6.6 SMP (verified by riven)
+          o Linux 2.6.5-gentoo (verified by RatiX)
+          o Linux 2.6.5-mm6 - (verified by Mariux) 
+    * Linux 2.4.2x
+          o Linux 2.4.26 vanilla
+          o Linux 2.4.26-rc1 vanilla
+          o Linux 2.4.26-gentoo-r1
+          o Linux 2.4.22 
+
+Cheers
+
+-- 
+Manuel Arostegui Ramirez #Linux Registered User 200896
+

@@ -1,62 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265809AbTL3Pl1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 10:41:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265810AbTL3Pl1
+	id S265812AbTL3Pw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 10:52:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265815AbTL3Pw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 10:41:27 -0500
-Received: from NPRI54MAI01.NPT.NUWC.NAVY.MIL ([164.223.1.100]:41228 "EHLO
-	npri54mai01.npt.nuwc.navy.mil") by vger.kernel.org with ESMTP
-	id S265809AbTL3PlZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 10:41:25 -0500
-Date: Tue, 30 Dec 2003 10:41:12 -0500
-From: Pacheco Jason NPRI <PachecoJ@Npt.NUWC.Navy.Mil>
-Subject: RE: 2.7 (future kernel) wish
-To: " (linux-kernel@vger.kernel.org)" <linux-kernel@vger.kernel.org>
-Message-id: <3BEEE23D31CAD2118D920008C75D8946059FF5AB@NPRI54EXC21.NPT.NUWC.NAVY.MIL>
-MIME-version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-type: text/plain
+	Tue, 30 Dec 2003 10:52:57 -0500
+Received: from smtp1.libero.it ([193.70.192.51]:39904 "EHLO smtp1.libero.it")
+	by vger.kernel.org with ESMTP id S265812AbTL3Pw4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 10:52:56 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16369.40927.110483.701341@gargle.gargle.HOWL>
+Date: Tue, 30 Dec 2003 16:55:11 +0100
+To: Duncan Sands <baldrick@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: speedtouch for 2.6.0
+In-Reply-To: <200312300911.02044.baldrick@free.fr>
+References: <16366.61517.501828.389749@gargle.gargle.HOWL>
+	<200312291804.40544.baldrick@free.fr>
+	<16368.52302.736757.403219@gargle.gargle.HOWL>
+	<200312300911.02044.baldrick@free.fr>
+X-Mailer: VM 7.03 under Emacs 21.2.1
+From: "Guldo K" <guldo@tiscali.it>
+Reply-to: "Guldo K" <guldo@tiscali.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>When you insert a device like a USB stick Windows puts a 
-> >>little icon next to the clock in the system tray that you're 
-> >>supposed to use to stop the device before pulling it, effectively 
-> >>it unmounts and stops (or atleast releases the device from) 
-> >>the driver so the device can be 'safely' removed.
-> > 
-> > 
-> > This is useful, and something I think we need on the Linux 
-> desktop (stay
-> > tuned).
-> > 
-> 
-> I agree, that's one of the reasons I posted at all. Little 
-> things like 
-> this can make a big difference, even though I've seen a lot 
-> of users not 
-> notice the little icon and have to be told about it.
-> 
-> Maybe when the icon appears have a tool-tip that pops up and says 
-> something like "your USB device is ready for user at /mnt/usb, click 
-> here when you're done" or something like that to make it more 
-> noticable 
-> that they shouldn't just yank it.
-> 
-> But I seem to be getting OT for this list...
+Duncan Sands writes:
+ > You are compiling against 2.6 kernel headers.
+ > (Most people have 2.4 kernel headers in
+ > /usr/include/linux, even if they are running a
+ > 2.6 kernel).  You will need to update the
+ > firmware_loader directory.  Do the following:
+ > 
+ >         cvs -d:pserver:anonymous@cvs.speedtouch.sourceforge.net:/cvsroot/speedtouch login
+ > 
+ > (just hit return if asked for a password).
 
-Has anyone tried SuSE 9.0 (I believe the feature also exists in 8.2)?
-It has a program called suseplugger that monitors hotswappable devices.
-When I stick my USB key in it automatically detects and mounts the device
-and presents an icon in KDE. It is very smooth and elegant, even more so
-than in windows which pops up a bunch of "New Hardware Found" dialogs
-each time you plug it into a different USB port for the first time. Also,
-I unplugged the device a few times without unmounting it and there were
-no complaints. In fact, I plugged it in again and was able to access the
-files without having to remount it, Linux thought it was mounted the whole
-time.
+It looks like this needs a connection... it couldn't find the server.
+Of course, I'm offline when doing this. :-(
 
-But I agree, OT, this is an interface issue.
+This is getting too frustrating...
+Maybe I'd better get an ethernet modem, shouldn't I?
 
--- P.S. Sorry Jim Crilly, set the To field wrong, my B
+Anyway, thank you very much for your answers and your patience.
+
+Happy 2004! :-)
+
+*Guldo*
+
+ > Then do
+ > 
+ >         cvs -z 9 -d:pserver:anonymous@cvs.speedtouch.sourceforge.net:/cvsroot/speedtouch co speedtouch
+ > 
+ > This creates a directory called speedtouch.  Replace the contents of the
+ > firmware_loader directory with the contents of this new speedtouch
+ > directory.  Now rebuild: in the top level of the speedbundle do
+ > 
+ >         make clean
+ >         make
+ > (become root)
+ >         make install
+ > 
+

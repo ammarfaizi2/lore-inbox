@@ -1,74 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267470AbSLLUom>; Thu, 12 Dec 2002 15:44:42 -0500
+	id <S267496AbSLLUte>; Thu, 12 Dec 2002 15:49:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267481AbSLLUom>; Thu, 12 Dec 2002 15:44:42 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:48393 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S267470AbSLLUol>;
-	Thu, 12 Dec 2002 15:44:41 -0500
-Date: Thu, 12 Dec 2002 21:52:06 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Sam Ravnborg <sam@ravnborg.org>, John Bradford <john@grabjohn.com>,
-       perex@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.51 breaks ALSA AWE32
-Message-ID: <20021212205206.GA11836@mars.ravnborg.org>
-Mail-Followup-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	Sam Ravnborg <sam@ravnborg.org>, John Bradford <john@grabjohn.com>,
-	perex@suse.cz, linux-kernel@vger.kernel.org
-References: <20021212195258.GA12691@mars.ravnborg.org> <Pine.LNX.4.44.0212121421320.17517-100000@chaos.physics.uiowa.edu>
+	id <S267498AbSLLUte>; Thu, 12 Dec 2002 15:49:34 -0500
+Received: from smtp08.iddeo.es ([62.81.186.18]:59349 "EHLO smtp08.retemail.es")
+	by vger.kernel.org with ESMTP id <S267496AbSLLUtd>;
+	Thu, 12 Dec 2002 15:49:33 -0500
+Date: Thu, 12 Dec 2002 21:56:55 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: Terje Eggestad <terje.eggestad@scali.com>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: Intel P6 vs P7 system call performance
+Message-ID: <20021212205655.GA1658@werewolf.able.es>
+References: <1039610907.25187.190.camel@pc-16.office.scali.no> <3DF78911.5090107@zytor.com> <1039686176.25186.195.camel@pc-16.office.scali.no> <20021212203646.GA14228@mark.mielke.cc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0212121421320.17517-100000@chaos.physics.uiowa.edu>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20021212203646.GA14228@mark.mielke.cc>; from mark@mark.mielke.cc on Thu, Dec 12, 2002 at 21:36:46 +0100
+X-Mailer: Balsa 1.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On tor, dec 12, 2002 at 02:26:26 -0600, Kai Germaschewski wrote:
-> > Kai, any ideas how to do this in a better way?
-> 
-> The minimal fix I can think of would be
 
-Looks good - thanks.
+On 2002.12.12 Mark Mielke wrote:
+>On Thu, Dec 12, 2002 at 10:42:56AM +0100, Terje Eggestad wrote:
+>> On ons, 2002-12-11 at 19:50, H. Peter Anvin wrote:
+>> > Terje Eggestad wrote:
+>> > > PS:  rdtsc on P4 is also painfully slow!!!
+>> > Now that's just braindead...
+>> It takes about 11 cycles on athlon, 34 on PII, and a whooping 84 on P4.
+>> For a simple op like that, even 11 is a lot... Really makes you wonder.
+>
+>Some of this discussion is a little bit unfair. My understanding of what
+>Intel has done with the P4, is create an architecture that allows for
+>higher clock rates. Sure the P4 might take 84, vs PII 34, but how many
+>PII 2.4 Ghz machines have you ever seen on the market?
+>
+>Certainly, some of their decisions seem to be a little odd on the surface.
+>
+>That doesn't mean the situation is black and white.
+>
 
-One detail when looking at the patch:
+No. The situation is just black. Each day Intel processors are a bigger
+pile of crap and less intelligent, but MHz compensate for the average
+office user. Think of what could a P4 do if the same effort put on
+Hz was put on getting cheap a cache of 4Mb or 8Mb like MIPSes have. Or
+closer, 1Mb like G4s.
+If syscalls take 300% time but processor is also 300% faster 'nobody
+notices'. 
 
-> ===== sound/synth/emux/Makefile 1.4 vs edited =====
-> --- 1.4/sound/synth/emux/Makefile	Tue Jun 18 04:16:20 2002
-> +++ edited/sound/synth/emux/Makefile	Thu Dec 12 14:20:08 2002
-> @@ -5,16 +5,11 @@
->  
->  export-objs  := emux.o
->  
-> -snd-emux-synth-objs := emux.o emux_synth.o emux_seq.o emux_nrpn.o \
-> -		       emux_effect.o emux_proc.o soundfont.o
-> -ifeq ($(CONFIG_SND_SEQUENCER_OSS),y)
-> -  snd-emux-synth-objs += emux_oss.o
-> -endif
-> +snd-emux-synth-y := emux.o emux_synth.o emux_seq.o emux_nrpn.o \
-> +		    emux_effect.o emux_proc.o soundfont.o
-> +snd-emux-synth-$(CONFIG_SND_SEQUENCER_OSS) += emux_oss.o
-
-snd-emux-synth-objs := $(snd-emux-synth-y)
-
->  
-> -# Toplevel Module Dependency
-> -ifeq ($(subst m,y,$(CONFIG_SND_SEQUENCER)),y)
-> -  obj-$(CONFIG_SND_SBAWE) += snd-emux-synth.o
-> -  obj-$(CONFIG_SND_EMU10K1) += snd-emux-synth.o
-> -endif
-> +obj-$(CONFIG_SND_SBAWE) += snd-emux-synth.o
-> +obj-$(CONFIG_SND_EMU10K1) += snd-emux-synth.o
->  
->  include $(TOPDIR)/Rules.make
-> 
-> However, synth/Makefile still has the ugly ifdef in there, which wouldn't
-> be necessary if we entered synth/ just when CONFIG_SND_SEQUENCER is set.
-> It looks like more generic routines are in synth/ (util-mem), though,
-> which IMO shouldn't be there, but rather in some lib/ or whatever dir. So
-> there's the opportunity for further cleanup, but I'll leave that to the
-> ALSA people. Anybody care for testing the second patch above?
-> 
-> --Kai
-> 
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.20-jam1 (gcc 3.2 (Mandrake Linux 9.1 3.2-4mdk))

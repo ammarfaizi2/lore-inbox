@@ -1,63 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266002AbUAVOl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 09:41:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266019AbUAVOl4
+	id S266346AbUAVVVx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 16:21:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266364AbUAVVVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 09:41:56 -0500
-Received: from vsmtp3.tin.it ([212.216.176.223]:7678 "EHLO vsmtp3.tin.it")
-	by vger.kernel.org with ESMTP id S266002AbUAVOlz (ORCPT
+	Thu, 22 Jan 2004 16:21:53 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:24786 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266346AbUAVVVv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 09:41:55 -0500
-Message-ID: <01e301c3e0f5$dda58f10$6d29e282@babayaro>
-From: "Gianluca Bosco" <nextstepn@katamail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [leadership/opensource] invitation to online survey
-Date: Thu, 22 Jan 2004 15:41:17 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Thu, 22 Jan 2004 16:21:51 -0500
+Subject: Re: 2.6.1 "clock preempt"?
+From: john stultz <johnstul@us.ibm.com>
+To: timothy parkinson <t@timothyparkinson.com>
+Cc: hauan@cmu.edu, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040122200044.GA593@h00a0cca1a6cf.ne.client2.attbi.com>
+References: <1074630968.19174.49.camel@steinar.cheme.cmu.edu>
+	 <1074633977.16374.67.camel@cog.beaverton.ibm.com>
+	 <1074697593.5650.26.camel@steinar.cheme.cmu.edu>
+	 <1074709166.16374.73.camel@cog.beaverton.ibm.com>
+	 <20040122193704.GA552@h00a0cca1a6cf.ne.client2.attbi.com>
+	 <1074800554.21658.68.camel@cog.beaverton.ibm.com>
+	 <20040122195026.GA579@h00a0cca1a6cf.ne.client2.attbi.com>
+	 <1074801242.21658.71.camel@cog.beaverton.ibm.com>
+	 <20040122200044.GA593@h00a0cca1a6cf.ne.client2.attbi.com>
+Content-Type: text/plain
+Message-Id: <1074806504.21658.76.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 22 Jan 2004 13:21:45 -0800
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+On Thu, 2004-01-22 at 12:00, timothy parkinson wrote:
+> su -c "/usr/sbin/hdparm /dev/hda"
+> Password:
+> 
+> /dev/hda:
+>  multcount    = 16 (on)
+>  IO_support   =  1 (32-bit)
+>  unmaskirq    =  0 (off)
+>  using_dma    =  0 (off)
+>  keepsettings =  0 (off)
+>  readonly     =  0 (off)
+>  readahead    = 256 (on)
+>  geometry     = 65535/16/63, sectors = 156301488, start = 0
+> 
+> but...
+> 
+> su -c "/usr/sbin/hdparm -d1 /dev/hda"
+> Password:
+> 
+> /dev/hda:
+>  setting using_dma to 1 (on)
+>  HDIO_SET_DMA failed: Operation not permitted
+>  using_dma    =  0 (off)
+> 
+> it's an 80gig western digital from about 2-3 years ago.
 
-      I have just put online a survey addressing the topic "good
-leadership in the open-source environment". Basically, my objective is to
-identify the personal conceptions of good leadership that reside in
-the minds of the contributors, in terms of leaders' _behaviors_ and
-_characteristics_.
+Its likely you need to enable support in the kernel for your IDE
+controller, or your DMA on your controller isn't supported. 
 
-What is a good open-source project leader, from the contributor's point of
-view? To what extent, those personal believes are shared among developers?
-Can the contributor's national cultural belonging and level of experience in
-contributing to open-source projects explain such differences in their idea
-of what a good leader is?
-
-I would really appreciate your participation to the survey! Contribution
-(completely anonymous) consists in rating a list of statements that may be
-used to describe the behaviors of an open-source leader. It will take around
-ten minutes - there aren't any "time-consuming" open ended questions;)
-
-Following, the link to the survey:
-
-http://freeonlinesurveys.com/rendersurvey.asp?id=49776
-
-If you are interested, I will not miss to email you a link to the
-final report, when ready ;) (approx, a couple of months from now)
-
-Thank you in advance, and don't hesitate to contact me if you have
-any questions or comments :)
-
-Gianluca Bosco
-g.bosco@GETRIDOFTHISinwind.it
-Denmark Technical University
-Department of manufacturing engineering and management
-
-
+thanks
+-john
 

@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbVCGWLP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVCGVZi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbVCGWLP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 17:11:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbVCGWF5
+	id S261359AbVCGVZi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 16:25:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVCGVYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 17:05:57 -0500
-Received: from HELIOUS.MIT.EDU ([18.248.3.87]:32683 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S261341AbVCGV2Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 16:28:25 -0500
-Date: Mon, 7 Mar 2005 16:26:14 -0500
-To: Matthias Urlichs <smurf@smurf.noris.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel hangs on PCI config register access ???
-Message-ID: <20050307212613.GF16456@neo.rr.com>
-Mail-Followup-To: amb@neo.rr.com,
-	Matthias Urlichs <smurf@smurf.noris.de>, linux-kernel@vger.kernel.org
-References: <pan.2005.02.18.07.49.57.620452@smurf.noris.de>
+	Mon, 7 Mar 2005 16:24:38 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56728 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261755AbVCGU21 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 15:28:27 -0500
+Date: Sun, 6 Mar 2005 17:51:14 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: dahinds@users.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.4.30-pre2] fix undefined behaviour in cistpl.c
+Message-ID: <20050306205114.GA2543@logos.cnet>
+References: <200503051517.j25FHI2U001419@harpo.it.uu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <pan.2005.02.18.07.49.57.620452@smurf.noris.de>
-User-Agent: Mutt/1.5.6+20040907i
-From: amb@neo.rr.com (Adam Belay)
+In-Reply-To: <200503051517.j25FHI2U001419@harpo.it.uu.se>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 18, 2005 at 08:49:58AM +0100, Matthias Urlichs wrote:
-> Hi,
+On Sat, Mar 05, 2005 at 04:17:18PM +0100, Mikael Pettersson wrote:
+> Compiling drivers/pcmcia/cistpl.c with gcc-4.0 generates this warning:
 > 
-> we have a bunch of systems which semi-reproducibly (chance of 1:1000) hang
-> when a PCMCIA card is removed from its PCI->PCMCIA interface via "cardctl
-> eject". Right *here*, in fact:
+> cistpl.c: In function 'read_cis_mem':
+> cistpl.c:143: warning: 'sys' is used uninitialized in this function
 > 
-> static int pci_conf1_read (int seg, int bus, int devfn, int reg, int
-> len, + u32 *value) {
->     [...]
->     case 2:
->         debug("you see me \n");
->         *value = inw(0xCFC + (reg & 2));
->         debug("but you don't get here \n");
->         break;
->     [...]
-> 
-> Does anybody have *any* idea what could possibly be the cause of this?
-> Using pci=bios still hangs; pci=conf2 doesn't work.
-> 
-> FWIW, the call sequence is:
-> 
-> shutdown_socket
-> yenta_sock_init
-> yenta_clear_maps
-> yenta_set_socket
-> pci_bus_read_config_word
-> pci_conf1_read
-> 
-> The systems in question are wildly different (VIA vs. Intel CPUs, standard
-> mainboard vs. PCI backplane, Ricoh vs. ENE cardbus bridges), so I'm
-> inclined to rule out hardware problems. The NMI monitor doesn't trigger
-> (yes I tested it), kgdb is unresponsive -- the system hangs hard at that
-> point, as far as I can determine.
-> 
-> Kernel: tested with various 2.6.1? plus -rc* and/or -mm*, no change.
+> Note 'is' not 'may be'. And there is indeed a control flow path in
+> which 'sys' is updated with '+=' even though it has no initial value.
+> Luckily 'sys' is reassigned later before being used, making this
+> assignment redundant, so the fix is to simply remove it.
 
-Is this still an issue with recent kernels?
+Indeed - applied, thanks Mikael.
 
-Where in the PCI configuration space is it reading?  In other words, could you
-show me the line that calls pci_bus_read_config_word.
-
-Thanks,
-Adam
+> This problem is not present in the 2.6 kernel.
+> 
+> Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
+> 
+> --- linux-2.4.30-pre2/drivers/pcmcia/cistpl.c.~1~	2004-02-18 15:16:23.000000000 +0100
+> +++ linux-2.4.30-pre2/drivers/pcmcia/cistpl.c	2005-03-05 15:51:37.000000000 +0100
+> @@ -140,7 +140,6 @@ int read_cis_mem(socket_info_t *s, int a
+>      } else {
+>  	u_int inc = 1;
+>  	if (attr) { mem->flags |= MAP_ATTRIB; inc++; addr *= 2; }
+> -	sys += (addr & (s->cap.map_size-1));
+>  	mem->card_start = addr & ~(s->cap.map_size-1);
+>  	while (len) {
+>  	    set_cis_map(s, mem);

@@ -1,114 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131009AbRAPUXs>; Tue, 16 Jan 2001 15:23:48 -0500
+	id <S132572AbRAPU0I>; Tue, 16 Jan 2001 15:26:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131229AbRAPUXi>; Tue, 16 Jan 2001 15:23:38 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:40323 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S131009AbRAPUX0>; Tue, 16 Jan 2001 15:23:26 -0500
-Date: Tue, 16 Jan 2001 15:23:19 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Update on RTS/CTS serial problem with 2.4.0
-Message-ID: <Pine.LNX.3.95.1010116152144.23250A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132597AbRAPUZ6>; Tue, 16 Jan 2001 15:25:58 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:57351 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S132572AbRAPUZq>; Tue, 16 Jan 2001 15:25:46 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Does reiserfs really meet the "Linux-2.4.x patch submission policy"?
+Date: 16 Jan 2001 12:25:33 -0800
+Organization: Transmeta Corporation
+Message-ID: <942ant$160$1@penguin.transmeta.com>
+In-Reply-To: <937neu$p95$1@penguin.transmeta.com> <20010116205558.A1171@sm.luth.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20010116205558.A1171@sm.luth.se>,
+=?us-ascii?Q?Andr=E9?= Dahlqvist  <anedah-9@sm.luth.se> wrote:
+>
+>Don't get me wrong, I am personally really excited that reiserfs was
+>included. I just thought that you basically wanted 2.4.1 to be "boring".
 
-I previously reported a problem trying to disable hardware flow-control
-of serial ports in the Linux kernel 2.4.0. This problem did not
-exist in Linux version 2.2.18.
+Reiserfs inclusion in 2.4.1 was basically the plan for the very
+beginning: it was so widely known that it was even reported in the
+press, so I didn't even bother to point out reiserfs as a 2.4.1 patch. 
 
-This problem occurs when the initial console has been redirected out
-to a serial port as is the case with one of our embedded systems.
+That said, I wanted to leave the window open for any showstopper bugs,
+and have a pure "bug-fixes only" 2.4.1 if needed. I'm actually fairly
+happy that there haven't been any really serious reports so far.
 
-It appears that the device must be closed, i.e., nobody using the
-terminal, before the CTS/RTS disabling takes affect. A work around
-(that works) is to set the terminal, close it, then open and set
-it again. This is basically what `setserial` does to an otherwise
-unused terminal. It seems as though this should not be necessary.
+Inclusion of reiserfs is not going to add any bugs for the non-reiserfs
+case (apart from a stupid merge issue, and now I've watched all the
+non-reiserfs diffs with a microscope), so in that sense it's safe.
+Peopel who would have used reiserfs anyway would have gotten more
+problem reports, so..
 
-Here is a snippet of code that works.
+If I were you, I'd worry more about the blk-patches from Jens, but
+they've been around for a long time, and Alan also put them in his tree. 
+Which makes them as safe as any patch we've seen.  So I took the
+approach that "we'll obviously have to put this _somewhere_ in 2.4.x". 
+But that is, at least to me, a potentially bigger worry than reiserfs. 
 
-/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
-/*
- *  We may have failed to open an initial console. Therefore, we do the
- *  terminal stuff over from scratch.
- */
-    memset(&mem->st, 0x00, sizeof(struct termios));
-    mem->st.c_cc[VINTR]    = (char) 'C' - 64;
-    mem->st.c_cc[VQUIT]    = (char) '\\'- 64;
-    mem->st.c_cc[VERASE]   = (char) '?' + 64;
-    mem->st.c_cc[VKILL]    = (char) 'U' - 64;
-    mem->st.c_cc[VEOF]     = (char) 'D' - 64;
-    mem->st.c_cc[VTIME]    = (char)  0;
-    mem->st.c_cc[VMIN]     = (char)  1;
-    mem->st.c_cc[VSWTC]    = (char) '@' - 64;
-    mem->st.c_cc[VSTART]   = (char) 'Q' - 64;
-    mem->st.c_cc[VSTOP]    = (char) 'S' - 64;
-    mem->st.c_cc[VSUSP]    = (char) 'Z' - 64;
-    mem->st.c_cc[VEOL]     = (char) '@' - 64;
-    mem->st.c_cc[VREPRINT] = (char) 'R' - 64;
-    mem->st.c_cc[VDISCARD] = (char) 'O' - 64;
-    mem->st.c_cc[VWERASE]  = (char) 'W' - 64;
-    mem->st.c_cc[VLNEXT]   = (char) 'V' - 64;
-    mem->st.c_cc[VEOL2]    = (char) '@' - 64;
-    mem->st.c_oflag = OPOST|ONLCR;
-    mem->st.c_iflag = ICRNL|IXON;
-    mem->st.c_lflag = ISIG|ICANON|ECHO|ECHOE|ECHOK|ECHOCTL|ECHOKE|IEXTEN;
-    mem->st.c_cflag = B9600|CS8|CREAD|HUPCL|CLOCAL;
-/*
- *  Because of a bug in the Linux 2.4.0 terminal driver, we have to do
- *  this twice to get the flow-control turned off.
- */
-    for(i=0; i< 2; i++)
-    {
-        (void)close(STDIN_FILENO);
-        (void)close(STDOUT_FILENO);
-        (void)close(STDERR_FILENO);
-        if((fd = open(stdcmd, O_RDWR|O_NDELAY, 0)) < 0)
-            fd = open(Altcons, O_RDWR|O_NDELAY);
-        if((flags = fcntl(fd, F_GETFL, 0)) != -1)
-        {
-            flags &= ~O_NDELAY;
-            (void)fcntl(fd, F_SETFL, flags);
-        }
-        if(!!fd)
-        {
-            (void)dup2(fd, STDIN_FILENO);
-            (void)dup2(fd, STDOUT_FILENO);
-            (void)dup2(fd, STDERR_FILENO);
-            if(fd > 2) (void)close(fd);
-        }
-        else                         /* fd is STDIN_FILENO  */
-        {
-            (void)dup(fd);           /* Make STDOUT_FILENO  */
-            (void)dup(fd);           /* Make STDERR_FILENO  */
-        }
-        if(tcflush(STDIN_FILENO, TCIFLUSH) < 0)
-            ERRORS(Tcflush);
-        if(tcsetattr(STDIN_FILENO, TCSANOW, &mem->st) < 0)
-            ERRORS(Tcsetattr);
-    }
+(Actually I'm not so much worried that the blk patches themselves would
+have bugs, as worried about them showing bugs in block drivers by being
+better at merging requests.  Those kinds of bugs we'll have to figure
+out during 2.4.x anyway though, but it's a case of a latent bug maybe
+showing up more easily under higher load generated by the blk fixes).
 
-I can't see anything that I have done wrong that would otherwise
-prevent this from working the first time through.
-
-Comments?
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

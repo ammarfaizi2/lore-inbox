@@ -1,152 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262934AbVCQB0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262939AbVCQB1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262934AbVCQB0O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 20:26:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262951AbVCQB0O
+	id S262939AbVCQB1r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 20:27:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262940AbVCQB1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 20:26:14 -0500
-Received: from v-1635.easyco.net ([69.26.169.185]:18692 "EHLO
-	mail.intworks.biz") by vger.kernel.org with ESMTP id S262934AbVCQBYF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 20:24:05 -0500
-Date: Wed, 16 Mar 2005 17:24:02 -0800
-From: jayalk@intworks.biz
-Message-Id: <200503170124.j2H1O2Ar024405@intworks.biz>
-To: gregkh@suse.de
-Subject: [PATCH 2.6.11.2 1/1] PCI Allow OutOfRange PIRQ table address
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+	Wed, 16 Mar 2005 20:27:47 -0500
+Received: from ns1.g-housing.de ([62.75.136.201]:24740 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S262939AbVCQB1b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 20:27:31 -0500
+Message-ID: <4238DD01.9060500@g-house.de>
+Date: Thu, 17 Mar 2005 02:27:29 +0100
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050212)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>
+Subject: Re: oom with 2.6.11
+References: <422DC2F1.7020802@g-house.de> <2cd57c9005031102595dfe78e6@mail.gmail.com> <4231B4E9.3080005@g-house.de> <42332F9C.7090703@g-house.de>
+In-Reply-To: <42332F9C.7090703@g-house.de>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg, PCI folk,
+hello again,
 
-I updated this to change pirq_table_addr to a long, and to add a warning
-msg if the PIRQ table wasn't found at the specified address, as per thread
-with Matthew Wilcox. Let me know if it's okay. Thanks.
+unfortunately i've hit OOM again, this time with "#define DEBUG" enabled
+in mm/oom_kill.c:
 
-In our hardware situation, the BIOS is unable to store or generate it's PIRQ
-table in the F0000h-100000h standard range. This patch adds a pci kernel
-parameter, pirqaddr to allow the bootloader (or BIOS based loader) to inform
-the kernel where the PIRQ table got stored. A beneficial side-effect is that,
-if one's BIOS uses a static address each time for it's PIRQ table, then
-pirqaddr can be used to avoid the $pirq search through that address block each
-time at boot for normal PIRQ BIOSes.
+http://nerdbynature.de/bits/sheep/2.6.11/oom/oom_2.6.11.3.txt
 
-Signed-off-by:	Jaya Kumar	<jayalk@intworks.biz>
+by "Mar 16 18:32" pppd died again and OOM kicked in 30min later.
+(there are a *lot* messages of a shell script named "check-route.sh". it's
+a little script which runs every minute or so to check if my default route
+is still ok and if ping to the outside world are possible. definitely not
+a memory hog, but noisy)
 
-diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/common.c linux-2.6.11.2/arch/i386/pci/common.c
---- linux-2.6.11.2-vanilla/arch/i386/pci/common.c	2005-03-10 16:31:25.000000000 +0800
-+++ linux-2.6.11.2/arch/i386/pci/common.c	2005-03-11 20:35:41.000000000 +0800
-@@ -25,6 +25,7 @@ unsigned int pci_probe = PCI_PROBE_BIOS 
- 
- int pci_routeirq;
- int pcibios_last_bus = -1;
-+unsigned long pirq_table_addr = 0;
- struct pci_bus *pci_root_bus = NULL;
- struct pci_raw_ops *raw_pci_ops;
- 
-@@ -188,6 +189,9 @@ char * __devinit  pcibios_setup(char *st
- 	} else if (!strcmp(str, "biosirq")) {
- 		pci_probe |= PCI_BIOS_IRQ_SCAN;
- 		return NULL;
-+	} else if (!strncmp(str, "pirqaddr=", 9)) {
-+		pirq_table_addr = simple_strtol(str+9, NULL, 0);
-+		return NULL;
- 	}
- #endif
- #ifdef CONFIG_PCI_DIRECT
-diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/irq.c linux-2.6.11.2/arch/i386/pci/irq.c
---- linux-2.6.11.2-vanilla/arch/i386/pci/irq.c	2005-03-10 16:31:25.000000000 +0800
-+++ linux-2.6.11.2/arch/i386/pci/irq.c	2005-03-11 20:40:28.000000000 +0800
-@@ -58,6 +58,35 @@ struct irq_router_handler {
- int (*pcibios_enable_irq)(struct pci_dev *dev) = NULL;
- 
- /*
-+ *  Check passed address for the PCI IRQ Routing Table signature 
-+ *  and perform checksum verification.
-+ */
-+
-+static inline struct irq_routing_table * __init pirq_check_routing_table(u8 *addr)
-+{
-+	struct irq_routing_table *rt;
-+	int i;
-+	u8 sum;
-+
-+	rt = (struct irq_routing_table *) addr;
-+	if (rt->signature != PIRQ_SIGNATURE ||
-+	    rt->version != PIRQ_VERSION ||
-+	    rt->size % 16 ||
-+	    rt->size < sizeof(struct irq_routing_table))
-+		return NULL;
-+	sum = 0;
-+	for(i=0; i<rt->size; i++)
-+		sum += addr[i];
-+	if (!sum) {
-+		DBG("PCI: Interrupt Routing Table found at 0x%p\n", rt);
-+		return rt;
-+	}
-+	return NULL;
-+}
-+
-+
-+
-+/*
-  *  Search 0xf0000 -- 0xfffff for the PCI IRQ Routing Table.
-  */
- 
-@@ -65,21 +94,17 @@ static struct irq_routing_table * __init
- {
- 	u8 *addr;
- 	struct irq_routing_table *rt;
--	int i;
--	u8 sum;
- 
-+	if (pirq_table_addr) {
-+		rt = pirq_check_routing_table((u8 *) __va(pirq_table_addr));
-+		if (rt) {
-+			return rt;
-+		}
-+		printk(KERN_WARNING "PCI: PIRQ table NOT found at pirqaddr\n"); 
-+	}
- 	for(addr = (u8 *) __va(0xf0000); addr < (u8 *) __va(0x100000); addr += 16) {
--		rt = (struct irq_routing_table *) addr;
--		if (rt->signature != PIRQ_SIGNATURE ||
--		    rt->version != PIRQ_VERSION ||
--		    rt->size % 16 ||
--		    rt->size < sizeof(struct irq_routing_table))
--			continue;
--		sum = 0;
--		for(i=0; i<rt->size; i++)
--			sum += addr[i];
--		if (!sum) {
--			DBG("PCI: Interrupt Routing Table found at 0x%p\n", rt);
-+		rt = pirq_check_routing_table(addr);
-+		if (rt) {
- 			return rt;
- 		}
- 	}
-diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/pci.h linux-2.6.11.2/arch/i386/pci/pci.h
---- linux-2.6.11.2-vanilla/arch/i386/pci/pci.h	2005-03-10 16:31:25.000000000 +0800
-+++ linux-2.6.11.2/arch/i386/pci/pci.h	2005-03-11 20:35:55.000000000 +0800
-@@ -27,6 +27,7 @@
- #define PCI_ASSIGN_ALL_BUSSES	0x4000
- 
- extern unsigned int pci_probe;
-+extern unsigned long pirq_table_addr;
- 
- /* pci-i386.c */
- 
-diff -uprN -X dontdiff linux-2.6.11.2-vanilla/Documentation/kernel-parameters.txt linux-2.6.11.2/Documentation/kernel-parameters.txt
---- linux-2.6.11.2-vanilla/Documentation/kernel-parameters.txt	2005-03-10 16:31:44.000000000 +0800
-+++ linux-2.6.11.2/Documentation/kernel-parameters.txt	2005-03-10 16:45:48.000000000 +0800
-@@ -967,6 +967,10 @@ running once the system is up.
- 		irqmask=0xMMMM		[IA-32] Set a bit mask of IRQs allowed to be assigned
- 					automatically to PCI devices. You can make the kernel
- 					exclude IRQs of your ISA cards this way.
-+		pirqaddr=0xAAAAA	[IA-32] Specify the physical address
-+					of the PIRQ table (normally generated
-+					by the BIOS) if it is outside the .  
-+					F0000h-100000h range.
- 		lastbus=N		[IA-32] Scan all buses till bus #N. Can be useful
- 					if the kernel is unable to find your secondary buses
- 					and you want to tell it explicitly which ones they are.
+since tracking the "most memory consuming applications" did not reveal any
+hints [1], i have monitored /proc/slabinfo and /proc/meminfo this time:
+
+http://nerdbynature.de/bits/sheep/2.6.11/oom/daily_stats-2.6.11.3.gz
+
+as stated before, i was suspecting pppd to be the bad guy here, and yes: i
+downgraded pppd to an earlier version and pppd (and the system) survived 2
+terminations of my dial-up ISP. yesterday i've upgraded back again to
+current pppd (debian/unstable) and the OOM problem returned. yes, i'll bug
+the debian people now (hello!), but grepping for "ppp" in
+daily_stats-2.6.11.3.gz gives no hits. so "pppd" does not get *any* points
+from mm/oom_kill.c and thus no attempts are made to kill it (it is always
+only kill'able with "-9"). furthermore, i thought /proc/slabinfo coud give
+me some hints about *where* all the memory went in. scrolling down this
+file to the bottom, where "SwapFree" shows "0 kB" i don't see any alarming
+numbers in the "slabinfo" right above "meminfo".
+
+could someone give me a hint, please?
+
+thanks,
+Christian.
+
+[1] http://lkml.org/lkml/2005/3/12/88
+
+more info for this recent OOM issue:
+http://nerdbynature.de/bits/sheep/2.6.11/oom/dmesg.2.6.11.3
+http://nerdbynature.de/bits/sheep/2.6.11/oom/lsmod_2.6.11.3
+http://nerdbynature.de/bits/sheep/2.6.11/oom/config-2.6.11.3.gz
+-- 
+BOFH excuse #62:
+
+need to wrap system in aluminum foil to fix problem

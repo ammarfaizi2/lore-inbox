@@ -1,53 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262548AbVBXXAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262545AbVBXXDh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262548AbVBXXAw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 18:00:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbVBXXAw
+	id S262545AbVBXXDh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 18:03:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbVBXXCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 18:00:52 -0500
-Received: from fire.osdl.org ([65.172.181.4]:41631 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262526AbVBXXAq (ORCPT
+	Thu, 24 Feb 2005 18:02:47 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:61396 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262547AbVBXXCc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 18:00:46 -0500
-Date: Thu, 24 Feb 2005 15:00:26 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Chad N. Tindel" <chad@tindel.net>
-Cc: helge.hafting@aitel.hist.no, linux-kernel@vger.kernel.org
-Subject: Re: Xterm Hangs - Possible scheduler defect?
-Message-Id: <20050224150026.69b1862f.akpm@osdl.org>
-In-Reply-To: <20050224173356.GA11593@calma.pair.com>
-References: <20050223230639.GA33795@calma.pair.com>
-	<20050223183634.31869fa6.akpm@osdl.org>
-	<20050224052630.GA99960@calma.pair.com>
-	<421DD5CC.5060106@aitel.hist.no>
-	<20050224173356.GA11593@calma.pair.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 24 Feb 2005 18:02:32 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Adam Belay <abelay@novell.com>
+Subject: Re: [RFC] PCI bridge driver rewrite
+Date: Thu, 24 Feb 2005 15:02:14 -0800
+User-Agent: KMail/1.7.2
+Cc: Jon Smirl <jonsmirl@gmail.com>, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+References: <1109226122.28403.44.camel@localhost.localdomain> <9e473391050223224532239c9d@mail.gmail.com> <1109228638.28403.71.camel@localhost.localdomain>
+In-Reply-To: <1109228638.28403.71.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502241502.15163.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Chad N. Tindel" <chad@tindel.net> wrote:
+On Wednesday, February 23, 2005 11:03 pm, Adam Belay wrote:
+> Yeah, actually I've been thinking about this issue a lot.  I think it
+> would make a lot of sense to export this sort of thing under the
+> "pci_bus" class in sysfs.  The ISA enable bit should probably also be
+> exported.  Furthermore, we should be verifying the BIOS's configuration
+> of VGA and ISA.  I'll try to integrate this in my future releases.  I
+> appreciate the code.
 >
->  I would make the following assertion for any kernel:
-> 
->  No single userspace thread of execution running on an SMP system should be 
->  able to hose a box by going CPU-bound, bug in the software or no bug.
+> I also have a number of resource management plans for the VGA enable bit
+> that I'll get into in my next set of patches.
 
-But if we were to enforce that policy, realtime policy would become less
-useful.  You havn't even acknowledged that such a tradeoff exists, let
-alone demonstrated that we're on the wrong side of it.
+Keep in mind that the interface above is probably specific to PCI to PCI 
+bridges since there's a spec for that.  Host to PCI bridges may implement 
+their own methods for VGA routing and legacy port access.
 
-Here's a quicky which will convert all your kernel threads to SCHED_RR,
-priority 99.  Please test.
+> > Jesse can comment on the specific support needed for multiple legacy IO
+> > spaces.
+>
+> That would be great.  Most of my experience has been with only a couple
+> legacy IO port ranges passing through the bridge.
 
-#!/bin/sh
+Well, I'll give you one, somewhat perverse, example.  On SGI sn2 machines, 
+each host<->pci bridge (either xio<->pci or numalink<->pci) has two pci 
+busses and some additional host bus ports.  The bridges are capable of 
+generating low address bus cycles on both busses simultaneously, so we can do 
+ISA memory access and legacy port I/O on every bus in the system at the same 
+time.
 
-PIDS=$(ps axo pid,command | grep ' \[.*\]$' | sed -e 's/ \[.*\]$//')
+The main host chipset has no notion of VGA or legacy routing though, so doing 
+a port access to say 0x3c8 is ambiguous--we need a bus to target (though the 
+platform code could provide a 'default' bus for such accesses to go to, this 
+may be what VGA or legacy routing means for us under your scheme).  Likewise, 
+accessing ISA memory space like 0xa0000 needs a bus to target.
 
-for i in $PIDS
-do
-	chrt -r 99 -9 $i
-done
+It would be nice if this sort of thing was taken into account in your new 
+model, so that for example we could have the vgacon driver talking to 
+multiple different VGA cards at the same time.
 
+Thanks,
+Jesse

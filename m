@@ -1,35 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263405AbRFTXCb>; Wed, 20 Jun 2001 19:02:31 -0400
+	id <S264670AbRFTXFb>; Wed, 20 Jun 2001 19:05:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263160AbRFTXCL>; Wed, 20 Jun 2001 19:02:11 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:43020 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263686AbRFTXCE>; Wed, 20 Jun 2001 19:02:04 -0400
-Subject: Re: Unknown PCI Net Device
-To: adilger@turbolinux.com (Andreas Dilger)
-Date: Thu, 21 Jun 2001 00:00:17 +0100 (BST)
-Cc: ingram@symsys.com (Greg Ingram), linux-kernel@vger.kernel.org,
-        jgarzik@mandrakesoft.com (Jeff Garzik)
-In-Reply-To: <200106202253.f5KMrX2X029668@webber.adilger.int> from "Andreas Dilger" at Jun 20, 2001 04:53:33 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263686AbRFTXFV>; Wed, 20 Jun 2001 19:05:21 -0400
+Received: from c266492-a.lakwod1.co.home.com ([24.1.8.253]:16651 "EHLO
+	benatar.snurgle.org") by vger.kernel.org with ESMTP
+	id <S263160AbRFTXFH>; Wed, 20 Jun 2001 19:05:07 -0400
+Date: Wed, 20 Jun 2001 19:04:55 -0400 (EDT)
+From: William T Wilson <fluffy@snurgle.org>
+To: Larry McVoy <lm@bitmover.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: The latest Microsoft FUD.  This time from BillG, himself.
+In-Reply-To: <20010620153345.I3089@work.bitmover.com>
+Message-ID: <Pine.LNX.4.21.0106201903320.2366-100000@benatar.snurgle.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15CqxN-0000IY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 00:0b.0 Ethernet controller: MYSON Technology Inc: Unknown device 0803
-> > 	Subsystem: MYSON Technology Inc: Unknown device 0803
-> > 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-> 
-> Add the PCI vendor ID and device ID (0803) to drivers/net/8139too.c, in
-> the rtl8139_pci_tbl[] and board_info[] and if it works, send a patch to
-> Jeff (CC'd).
+On Wed, 20 Jun 2001, Larry McVoy wrote:
 
-The myson is a beastie of its own not afaik a rtl8139 chip. 2.4.x has a
-driver for it (fealnx)
+> For the last 10 years, Unix has gotten the OS right and the apps wrong
+> and Microsoft has gotten the apps right and the OS wrong.  Seems like
+> there is potential for a win-win.
 
+I've been hoping for this ever since the rumors of "Microsoft
+Linux" started popping up.  The thing is that it'll probably never happen
+because Microsoft wouldn't be able to stand having any portion of the
+system out of their control.
+
+We have VMWare, I doubt you'll ever do any better than that...
 

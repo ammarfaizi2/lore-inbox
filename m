@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263084AbUDEDiC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 23:38:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbUDEDiC
+	id S263091AbUDEEmt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 00:42:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263097AbUDEEmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 23:38:02 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:35476 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263084AbUDEDh7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 23:37:59 -0400
-Date: Mon, 5 Apr 2004 14:39:55 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-aio@kvack.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: AIO patches reworked against radix-tree-writeback changes
-Message-ID: <20040405090955.GB3402@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20040402192937.GA4900@in.ibm.com> <20040402153148.A3767@infradead.org>
+	Mon, 5 Apr 2004 00:42:49 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:33668
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263091AbUDEEmr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 00:42:47 -0400
+Date: Mon, 5 Apr 2004 06:42:50 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+Cc: akpm@osdl.org, hugh@veritas.com, mbligh@aracnet.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
+Message-ID: <20040405044250.GB2234@dualathlon.random>
+References: <Pine.LNX.4.44.0403150527400.28579-100000@localhost.localdomain> <Pine.GSO.4.58.0403211634350.10248@azure.engin.umich.edu> <20040325225919.GL20019@dualathlon.random> <Pine.GSO.4.58.0403252258170.4298@azure.engin.umich.edu> <Pine.LNX.4.58.0404042311380.19523@red.engin.umich.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040402153148.A3767@infradead.org>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.58.0404042311380.19523@red.engin.umich.edu>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 02, 2004 at 03:31:48PM +0100, Christoph Hellwig wrote:
-> On Sat, Apr 03, 2004 at 12:59:37AM +0530, Suparna Bhattacharya wrote:
-> > I just uploaded an update to the AIO patchset against the
-> > -mm tree (2.6.5-rc3-mm4):
-> > www.kernel.org/pub/linux/kernel/people/suparna/aio/265rc3mm4
+On Sun, Apr 04, 2004 at 11:14:25PM -0400, Rajesh Venkatasubramanian wrote:
 > 
-> Why is 4g4g-aio-hang-fix.patch still only in your patchkit?  Despite the
-> name it's not specific to the 4G/4G patch for x86 but nessecary for all
-> architectures that have a kernel mapping unrelated to the user one (
-> sparc64 and s390 come to mind).
+> This patch fixes a couple of mask overflow bugs in the prio_tree
+> search code. These bugs trigger in some very rare corner cases.
+> The patch also removes a couple of BUG_ONs from the fast paths.
+> 
+> Now the code is well-tested. I have tested all __vma_prio_tree_*
+> functions in the user-space with as many as 10 million vmas and
+> all prio_tree functions work fine.
 
-I guess it must be because aio_kick_handler() isn't actually used in 
-the mainline tree as yet, but is used by the retry-based AIO patches 
-(Similarly so for some of the use_mm fixes that are part of 
-aio-retry.patch).
+This is a great news.
 
-Regards
-Suparna
+> 
+> This patch is against 2.6.5-aa2. It will apply on top of Hugh's
+> patches also.
 
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
+I'm releasing an update for this.
 
+> If you like to test the prio_tree code further in the user-space,
+> the programs in the following link may help you.
+> 
+> http://www-personal.engin.umich.edu/~vrajesh/linux/prio_tree/user_space/
+
+thanks for this great work.

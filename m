@@ -1,74 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130431AbQKTBXK>; Sun, 19 Nov 2000 20:23:10 -0500
+	id <S129404AbQKTBhN>; Sun, 19 Nov 2000 20:37:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129805AbQKTBXB>; Sun, 19 Nov 2000 20:23:01 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:4870 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S129626AbQKTBWp>; Sun, 19 Nov 2000 20:22:45 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Jasper Spaans <jasper@spaans.ds9a.nl>,
-        Linus Torvalds <torvalds@transmeta.com>
-Date: Mon, 20 Nov 2000 11:49:03 +1100 (EST)
+	id <S129532AbQKTBhD>; Sun, 19 Nov 2000 20:37:03 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22308 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129404AbQKTBgo>; Sun, 19 Nov 2000 20:36:44 -0500
+Subject: Re: 2.4.0-test11-pre7: isapnp hang
+To: hpa@zytor.com (H. Peter Anvin)
+Date: Mon, 20 Nov 2000 01:06:47 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <8v9rf6$54k$1@cesium.transmeta.com> from "H. Peter Anvin" at Nov 19, 2000 04:32:38 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14872.29951.707116.16506@notabene.cse.unsw.edu.au>
-Cc: George Garvey <tmwg-linuxknl@inxservices.com>,
-        linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
-        MOLNAR Ingo <mingo@chiara.elte.hu>
-Subject: [PATCH] Re: What is 2.4.0-test10: md1 has overlapping physical units with md2!
-In-Reply-To: message from Jasper Spaans on Sunday November 19
-In-Reply-To: <20001119033943.C935@inxservices.com>
-	<20001119140809.A21693@spaans.ds9a.nl>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Message-Id: <E13xfQ1-0003CR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Linus, Ingo:
-
- the attached patch, modifies a warning message in md.c which seems to
- often cause confusion - the following email includes one example
- there-of (there have been others over the months).
-
- Hopefully the new text is clearer.
-
- (patch against 2.4.0-test11-pre7)
-
-NeilBrown
-
-
-On Sunday November 19, jasper@spaans.ds9a.nl wrote:
-> On Sun, Nov 19, 2000 at 03:39:43AM -0800, George Garvey wrote:
-> > Is this something to be concerned about? It sounds like a disaster waiting
-> > to happen from the message. This is on 2 systems (with similar disk setups
-> > [same other than size]).
+> Try reserving ports 0x300-0x31f on the kernel command line
+> ("reserve=0x300,0x20").
 > 
-> > Nov 18 16:31:02 mwg kernel: md: serializing resync, md1 has overlapping physical units with md2!  
-> 
-> Nope, nothing to worry about -- it's just a bad choice of wording ;)
-> 
-> What it means is that some partititions in md1 and md2 are on the same disk,
-> and that the md-code will not do the reconstruction of these arrays in
-> parallel [of course, for performance reasons].
-> 
+> I'm surprised isapnp uses a port in such a commonly used range,
+> though.
 
+It seems to be a combination of two bugs. The one I posted a patch for and
+something odd that is taking port 0x279 before the pnp probe is run, which
+suggests a link order issue. Although in truth _nobody_ should be claing
+that anyway
 
---- ./drivers/md/md.c	2000/11/20 00:33:08	1.2
-+++ ./drivers/md/md.c	2000/11/20 00:44:19	1.3
-@@ -3279,7 +3279,7 @@
- 		if (mddev2 == mddev)
- 			continue;
- 		if (mddev2->curr_resync && match_mddev_units(mddev,mddev2)) {
--			printk(KERN_INFO "md: serializing resync, md%d has overlapping physical units with md%d!\n", mdidx(mddev), mdidx(mddev2));
-+			printk(KERN_INFO "md: serializing resync, md%d has shares one or more physical units with md%d!\n", mdidx(mddev), mdidx(mddev2));
- 			serialize = 1;
- 			break;
- 		}
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

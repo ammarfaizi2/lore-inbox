@@ -1,81 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268431AbUKAPBx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268529AbUKAPCi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268431AbUKAPBx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 10:01:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266972AbUKAOo1
+	id S268529AbUKAPCi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 10:02:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266016AbUKAOn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 09:44:27 -0500
-Received: from mxfep01.bredband.com ([195.54.107.70]:59838 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S266032AbUKAO0r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 09:26:47 -0500
-Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
-From: Ian Kumlien <pomac@vapor.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-OovqFGDkeyJJfisRgUm+"
-Date: Mon, 01 Nov 2004 15:26:43 +0100
-Message-Id: <1099319203.17719.76.camel@debian>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Mon, 1 Nov 2004 09:43:59 -0500
+Received: from dfw-gate1.raytheon.com ([199.46.199.230]:49579 "EHLO
+	dfw-gate1.raytheon.com") by vger.kernel.org with ESMTP
+	id S265339AbUKAOdw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 09:33:52 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Florian Schmidt <mista.tapas@gmx.net>, Lee Revell <rlrevell@joe-job.com>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
+From: Mark_H_Johnson@raytheon.com
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+Date: Mon, 1 Nov 2004 08:32:38 -0600
+Message-ID: <OF7D48BC89.318047B1-ON86256F3F.004FE424-86256F3F.004FE4A1@raytheon.com>
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 11/01/2004 08:32:41 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>I've uploaded -V0.6.5 to the usual place:
+>
+>  http://redhat.com/~mingo/realtime-preempt/
 
---=-OovqFGDkeyJJfisRgUm+
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hmm. I was in the middle of a V0.6.4 build when I saw this message.
+I let it run but the build stopped with the following error:
 
-Hi,=20
+  CC [M]  drivers/scsi/qla2xxx/qla_os.o
+  CC [M]  drivers/usb/media/stv680.o
+drivers/scsi/qla2xxx/qla_os.c: In function `qla2x00_do_dpc':
+drivers/scsi/qla2xxx/qla_os.c:3193: warning: implicit declaration of
+function `DECLARE_MUTEX_LOCKED'
+drivers/scsi/qla2xxx/qla_os.c:3193: error: `sem' undeclared (first use in
+this function)
+drivers/scsi/qla2xxx/qla_os.c:3193: error: (Each undeclared identifier is
+reported only once
+drivers/scsi/qla2xxx/qla_os.c:3193: error: for each function it appears
+in.)
+drivers/scsi/qla2xxx/qla_os.c:3194: warning: ISO C90 forbids mixed
+declarations and code
 
-First, why use a .a file to specify code bloat? I don't see why you want
-the object files... ie:
-ar tv /usr/lib/libxml2.a
-rw-rw-r-- 0/0  76336 Oct 29 04:34 2004 SAX.o
-rw-rw-r-- 0/0  83156 Oct 29 04:34 2004 entities.o
-rw-rw-r-- 0/0  90704 Oct 29 04:34 2004 encoding.o
-rw-rw-r-- 0/0  84272 Oct 29 04:34 2004 error.o
-rw-rw-r-- 0/0  90620 Oct 29 04:34 2004 parserInternals.o
-...
-
-It can gladly sit there for all i care esp since it's installed by the
--dev package.
--rw-r--r--  1 root root 4312792 Oct 29 04:34 /usr/lib/libxml2.a
-
-But when a app wants to load it you'll load a much smaller portion which
-is: 987632 bytes.
-
-As for X, check this out:
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 2886 root      15   0  416m 152m 283m S  1.7 15.1 309:31.75 XFree86
-
-And yes, that might look bad, but consider agp memory, memory on the
-card etc etc, then thats the figures we'd get. (and perhaps i should
-actually shut down some apps as well =3D))
-
-Btw, the most annoyingly large .a file i have ever found was libc.a in a
-version of mdk, it included the whole libc build directory, post build,
-weighing something along the lines of 24 mb.
-
-Oh, and, you can never get rid of X, who will want something less
-flexible when they have had something like this. You'll get back to the
-same complexity sooner or later. I have to say that i much prefer
-freedesktop's approach.
-
-I'm not subbed so, you know what to do.
---=20
-Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
-
---=-OovqFGDkeyJJfisRgUm+
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBhkej7F3Euyc51N8RAvSmAJ451v+daDKyQ+/92FWyHcZOwWfr+wCgju5f
-t7TsL9ZtVgAgYDW0IezxsLU=
-=IEdy
------END PGP SIGNATURE-----
-
---=-OovqFGDkeyJJfisRgUm+--
+Based on my quick review of the updated patch, I don't see a fix for this
+so I'll remove it from .config (and step up to V0.6.5) but if you get a
+chance to fix this, please do.
+  --Mark
 

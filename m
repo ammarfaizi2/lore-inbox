@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293028AbSCOSPs>; Fri, 15 Mar 2002 13:15:48 -0500
+	id <S293035AbSCOSQs>; Fri, 15 Mar 2002 13:16:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293035AbSCOSPi>; Fri, 15 Mar 2002 13:15:38 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:3198 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S293028AbSCOSPZ>; Fri, 15 Mar 2002 13:15:25 -0500
-Date: Fri, 15 Mar 2002 13:15:23 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: schwidefsky@de.ibm.com
-Cc: linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>
-Subject: 2.4.19-pre3 s390 memorandum
-Message-ID: <20020315131523.A24597@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S293041AbSCOSQk>; Fri, 15 Mar 2002 13:16:40 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45317 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293035AbSCOSQa>;
+	Fri, 15 Mar 2002 13:16:30 -0500
+Message-ID: <3C923A6A.2030905@mandrakesoft.com>
+Date: Fri, 15 Mar 2002 13:16:10 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4 and BitKeeper
+In-Reply-To: <3C90E994.2030702@candelatech.com> <3C90E994.2030702@candelatech.com> <2865.1016190641@redhat.com> <20020315080408.D11940@work.bitmover.com> <a6tcnf$shg$1@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin,
+Linus Torvalds wrote:
 
-thanks for taking action and sending updates for 2.4.19-pre3.
-I am happy to report that it generally works, and with the
-partition code it recognises ECKD volumes.
+>Right now simple things like command-line completion and
+>
+>	find . -name '*.[chS]' | xargs grep xxxx
+>
+>do not work, because they either don't find files or they find the wrong
+>ones (the internal bitkeeper files etc). 
+>
 
-I would very much prefer if you sent future updates in plain
-diff -u to linux-kernel too. I appreciate tarballs that you
-sent to me, but this is not quite what would prevent broken
-kernels in the future [it helps Red Hat to ship working kernels,
-but it does not help Marcelo]. As it was with 2.4.18, Marcelo
-has no choice but to accept all code that belongs to your
-authority and to fail every else, producing inconsistency.
-Posting to linux-kernel beforehand is supposed to start a
-discussion that may guide Marcelo to accept changes to generic code.
-I will send the example with the partition code immediately.
 
-Greetings,
--- Pete
+I always check out my trees with "bk -r co -q" precisely because of 
+command-line completion.  Anything that saves my poor hands from further 
+pain is a good thing... :)  And similar to your example, I switched from 
+my preferred method of search, grep -r, to /usr/bin/find, just so I 
+would (and had to) add "grep -v SCCS" in the middle of the xargs pipe.
+
+    Jeff
+
+
+
+

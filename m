@@ -1,86 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264246AbUFGJEV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUFGJM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264246AbUFGJEV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 05:04:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbUFGJEV
+	id S262418AbUFGJM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 05:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264352AbUFGJM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 05:04:21 -0400
-Received: from mail014.syd.optusnet.com.au ([211.29.132.160]:10441 "EHLO
-	mail014.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S264246AbUFGJES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 05:04:18 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: bert hubert <ahu@ds9a.nl>
-Subject: Re: BUG in ht-aware scheduler/nice in 2.6.7-rc2 on dual xeon
-Date: Mon, 7 Jun 2004 19:03:57 +1000
-User-Agent: KMail/1.6.1
+	Mon, 7 Jun 2004 05:12:27 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:17033 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S262418AbUFGJM0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 05:12:26 -0400
+Date: Mon, 7 Jun 2004 10:12:06 +0100
+From: Dave Jones <davej@redhat.com>
+To: Timothy Webster <timothyw@outblaze.com>
 Cc: linux-kernel@vger.kernel.org
-References: <20040607085625.GA11276@outpost.ds9a.nl>
-In-Reply-To: <20040607085625.GA11276@outpost.ds9a.nl>
-MIME-Version: 1.0
+Subject: Re: Porting cpqhealth to v2.6
+Message-ID: <20040607091206.GA3040@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Timothy Webster <timothyw@outblaze.com>,
+	linux-kernel@vger.kernel.org
+References: <20040607083809.14677.qmail@team.outblaze.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406071903.57648.kernel@kolivas.org>
+In-Reply-To: <20040607083809.14677.qmail@team.outblaze.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jun 2004 18:56, bert hubert wrote:
-> Con, Ingo, List,
->
-> I'm overjoyed with decent ht-aware scheduling in 2.6.7-rc2 and it does
-> mostly the right thing. However, the 'nice' work by Con shows some slight
-> problems.
->
-> Please find attached program 'eat-time.cc'. Make sure not to compile it
-> with -O which might confuse things as this program basically does nothing.
->
-> Run it without arguments to determine the speed of 1 cpu, it outputs a
-> number (megaloops/second). Then start it with that number as a parameter:
->
-> Sample:
->
-> $ ./eat-time
-> 592
-> $ ./eat-time 592
-> 99%
-> 99%
-> 100%
-> etc
->
-> Now starting four of these at the same time gives the desired result:
->
-> $ ./eat-time 592 & ./eat-time 592 & ./eat-time 592 & ./eat-time 592
-> 50%
-> 50%
-> 50%
-> 50%
-> etc
->
-> This however:
->
-> $ ./eat-time 592 & ./eat-time 592 &
-> 100%
-> 99%
-> In another xterm:
-> $ nice -n +19 ./eat-time 592 & nice -n +19 ./eat-time 592
-> 5%
-> 5%
-> 5%
->
-> Fails sometimes, with all processes getting 50%. The above 'screenshot' is
-> from the working and expected situation, which happens most of the time.
->
-> When it goes wrong, top shows me that Cpu0 and Cpu1 are 100% user, while
-> Cpu2 and Cpu3 are both 100% nice.  The niced processes show up in top as
-> PRiority 39, the unniced ones (NI = 0) as PR 25.
+On Mon, Jun 07, 2004 at 04:38:09PM +0800, Timothy Webster wrote:
 
-This is just because the scheduler balancing is not aware of nice and when two 
-same niceness tasks are on the same physical core they get equal shares. The 
-ht-aware nice only works at keeping different nice values on the same 
-physical core fair. There is no more that can be done using the current ht 
-aware mechanism; a far more complicated balancing algorithm that takes nice 
-into account would be required.
+ > The driver source is available from 
+ > ftp.compaq.com/pub/products/servers/supportsoftware/linux/ 
+ > hpasm-7.1.0-xx.xxx.i386.rpm 
 
-Con
+This isn't driver source, but a binary object + wrapper.
+You could port the wrapper, but who knows if it'll work or not..
+
+		Dave
+

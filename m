@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129101AbRA3Hpv>; Tue, 30 Jan 2001 02:45:51 -0500
+	id <S129101AbRA3I0G>; Tue, 30 Jan 2001 03:26:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129143AbRA3Hpl>; Tue, 30 Jan 2001 02:45:41 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:58496 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129101AbRA3Hp0>;
-	Tue, 30 Jan 2001 02:45:26 -0500
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14966.28886.760292.833334@pizda.ninka.net>
-Date: Mon, 29 Jan 2001 23:44:22 -0800 (PST)
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: hotmail can't deal with ECN
-In-Reply-To: <955qsg$a5d$1@cesium.transmeta.com>
-In-Reply-To: <3A7575FF.378197A8@ngforever.de>
-	<Pine.LNX.4.21.0101300219100.1322-100000@fd0man.accesstoledo.com>
-	<955qsg$a5d$1@cesium.transmeta.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+	id <S129360AbRA3IZ5>; Tue, 30 Jan 2001 03:25:57 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:52964 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129172AbRA3IZu>;
+	Tue, 30 Jan 2001 03:25:50 -0500
+To: Rasmus Andersen <rasmus@jaquet.dk>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: [PATCH] guard mm->rss with page_table_lock (241p11) 
+In-Reply-To: Message from Rasmus Andersen <rasmus@jaquet.dk> 
+   of "Mon, 29 Jan 2001 22:43:11 +0100." <20010129224311.H603@jaquet.dk> 
+Date: Tue, 30 Jan 2001 08:18:56 +0000
+Message-ID: <13240.980842736@warthog.cambridge.redhat.com>
+From: David Howells <dhowells@cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>...
+> +	spin_lock(&mm->page_table_lock);
+>  	mm->rss++;
+> +	spin_unlock(&mm->page_table_lock);
+>...
 
-H. Peter Anvin writes:
- > He's keeping in mind who owns Hotmail.  However, I think that's unfair
- > to the Hotmail guys; all the ones I have ever spoken with have been
- > very professional and genuinely concerned with standards compliance.
+Would it not be better to use some sort of atomic add/subtract/clear operation
+rather than a spinlock? (Which would also give you fewer atomic memory access
+cycles).
 
-Yes, I also think this has nothing to do with who owns
-Hotmail.  Please, let's keep this element out of the
-dialogue until we have a reason to be suspicious.
-
-Later,
-David S. Miller
-davem@redhat.com
+David
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271827AbTG2OMm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 10:12:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271833AbTG2OMm
+	id S271721AbTG2OHD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 10:07:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271807AbTG2OHD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 10:12:42 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:8721 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S271827AbTG2OK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 10:10:58 -0400
-Message-ID: <3F2682EF.2040702@techsource.com>
-Date: Tue, 29 Jul 2003 10:21:35 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Tue, 29 Jul 2003 10:07:03 -0400
+Received: from pat.uio.no ([129.240.130.16]:59275 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S271721AbTG2OG6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 10:06:58 -0400
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: Balram Adlakha <b_adlakha@softhome.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1 NFS file transfer
+References: <20030728225947.GA1694@localhost.localdomain>
+	<20030729072440.A12426@animx.eu.org>
+	<20030729130400.GA4052@localhost.localdomain>
+	<20030729094428.B12763@animx.eu.org>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 29 Jul 2003 16:06:46 +0200
+In-Reply-To: <20030729094428.B12763@animx.eu.org>
+Message-ID: <shsfzkpxw95.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] O10int for interactivity
-References: <200307280112.16043.kernel@kolivas.org> <200307281808.h6SI8C5k004439@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Wakko Warner <wakko@animx.eu.org> writes:
 
+     > On a side note, I wish I could export / to whoever and
+     > everything seen on the localsystem under / is exported just
+     > like the userspace daemon.
 
-Valdis.Kletnieks@vt.edu wrote:
+Your homework assignment for tomorrow:
 
-> I'm guessing that the anticipatory scheduler is the culprit here.  Soon as I figure
-> out the incantations to use the deadline scheduler, I'll report back....
-> 
+    'man 5 exports'
 
-It would be unfortunate if AS and the interactivity scheduler were to 
-conflict.  Is there a way we can have them talk to each other and have 
-AS boost some I/O requests for tasks which are marked as interactive?
+In particular read up on 'nohide'
 
-It would sacrifice some throughput for the sake of interactivity, which 
-is what the interactivity patches do anyhow.  This is a reasonable 
-compromise.
-
+Cheers,
+  Trond

@@ -1,59 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265119AbUD3PMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265228AbUD3PXI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265119AbUD3PMc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 11:12:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265218AbUD3PMc
+	id S265228AbUD3PXI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 11:23:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265229AbUD3PXI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 11:12:32 -0400
-Received: from userel174.dsl.pipex.com ([62.188.199.174]:48774 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id S265119AbUD3PMb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 11:12:31 -0400
-Date: Fri, 30 Apr 2004 16:06:33 +0100 (BST)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-X-X-Sender: tigran@einstein.homenet
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Marc Boucher <marc@linuxant.com>, Sean Estabrooks <seanlkml@rogers.com>,
-       <koke@sindominio.net>, <rusty@rustcorp.com.au>,
-       <linux-kernel@vger.kernel.org>, <riel@redhat.com>,
-       <david@gibson.dropbear.id.au>, <torvalds@osdl.org>,
-       <miller@techsource.com>, <paul@wagland.net>
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-In-Reply-To: <40920881.6070300@pobox.com>
-Message-ID: <Pine.LNX.4.44.0404301557230.4027-100000@einstein.homenet>
+	Fri, 30 Apr 2004 11:23:08 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:11733 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265228AbUD3PXG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 11:23:06 -0400
+Date: Fri, 30 Apr 2004 11:22:49 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Christoph Hellwig <hch@infradead.org>
+cc: Erik Jacobson <erikj@subway.americas.sgi.com>, Paul Jackson <pj@sgi.com>,
+       <chrisw@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Process Aggregates (PAGG) support for the 2.6 kernel
+In-Reply-To: <20040430140611.A11636@infradead.org>
+Message-ID: <Pine.LNX.4.44.0404301122200.6976-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Apr 2004, Jeff Garzik wrote:
-> DriverLoader significantly lowers that cost, while not providing an open 
-> source solution at all.
+On Fri, 30 Apr 2004, Christoph Hellwig wrote:
 
-Ah, I see.... that makes a HUGE difference. Now I understand what the fuss
-is all about. So, that is why everyone jumped on Marc Boucher's throat
-trying to annihilate, humiliate, frighten by unsubstantiated allegations
-and generally grind him into tiny specks of dust, at the same time falsely
-pretending that all the fuss was only about that silly '\0' byte they 
-left in their license string (I wish they knew better not to do that --- 
-there are millions of ways to achieve what they want).
+> Again, pagg doesn't even play in that league.  It's really just a tiny
+> meachnism to allow a kernel module keep per-process data.  Policies like
+> process-groups can be implemented on top of that.
 
-Why didn't someone say that from the beginning, that what he (Marc 
-Boucher's company) is doing was to lower the cost of avoiding to support 
-the native Linux drivers and that is certainly damaging to us, though we 
-can't really do anything about it because it is fair and perfectly legal. 
-In fact, the only thing we can do is to make their life harder (i.e. 
-by being unfair) and reduce the number of GPL-exported symbols to almost 
-nothing.
+So basically you're arguing that PAGG is better because it
+doesn't do what's needed ? ;)
 
-Imho, it is best when people honestly state what the goal and the reasons 
-of debate are, instead of unacceptable and unfair techniques such as lying 
-about GPL directory content etc.
-
-I think you (Jeff) have pointed out the key thing and it explained 
-everything very nicely (at least to me, it did). Thank you. I always found 
-your emails informative and to the point :)
-
-Kind regards
-Tigran
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

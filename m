@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263172AbUDOSz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 14:55:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbUDOSz0
+	id S262026AbUDOTIY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 15:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUDOTIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 14:55:26 -0400
-Received: from hauptpostamt.charite.de ([193.175.66.220]:58269 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id S263172AbUDOSyT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 14:54:19 -0400
-Date: Thu, 15 Apr 2004 20:54:14 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: "R. J. Wysocki" <rjwysocki@sisk.pl>, Grzegorz Kulewski <kangur@polcom.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5: keyboard lockup on a Toshiba laptop
-Message-ID: <20040415185414.GF18971@charite.de>
-Mail-Followup-To: Vojtech Pavlik <vojtech@suse.cz>,
-	"R. J. Wysocki" <rjwysocki@sisk.pl>,
-	Grzegorz Kulewski <kangur@polcom.net>, linux-kernel@vger.kernel.org
-References: <200404071222.21397.rjwysocki@sisk.pl> <Pine.LNX.4.58.0404071227430.10871@alpha.polcom.net> <200404071321.01520.rjwysocki@sisk.pl> <20040407113004.GA2574@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040407113004.GA2574@ucw.cz>
-User-Agent: Mutt/1.5.6i
+	Thu, 15 Apr 2004 15:08:24 -0400
+Received: from 1-2-2-1a.has.sth.bostream.se ([82.182.130.86]:24012 "EHLO
+	K-7.stesmi.com") by vger.kernel.org with ESMTP id S262316AbUDOTHn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 15:07:43 -0400
+Message-ID: <407EDD23.3080009@stesmi.com>
+Date: Thu, 15 Apr 2004 21:06:11 +0200
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7b) Gecko/20040316
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SATA support merge in 2.4.27
+References: <20040415171755.GC3218@logos.cnet>
+In-Reply-To: <20040415171755.GC3218@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Vojtech Pavlik <vojtech@suse.cz>:
+Marcelo Tosatti wrote:
 
-> > Look, I've been using different variants of the 2.6.x kernels on this very 
-> > machine/distro since early 2.6.0-test and I hadn't seen _anything_ like this 
-> > before 2.6.5-rc2 (then I saw something like this first).  I _really_ don't 
-> > think it's a distribution-related issue.
+> Hi, 
 > 
-> Maybe you could enable debugging in i8042.c, and look at the log around
-> the unexpected reconnect of the keyboard.
+> Jeff Garzik sent me a SATA update to be merged in 2.4.x. 
+> 
+> A lot of new boxes are shipping with SATA-only disks, and its pretty bad
+> to not have a "stable" series without such industry-standard support.
+> 
+> This is the last feature to be merged on 2.4.x, and only because its quite 
+> necessary.
+> 
+> Any oppositions?
 
-How? Enlighten us...
+There are alternative ways* to get sata support for some chips but I
+believe it's the right choice to do the 'full' route so I believe it's
+the right choice. 2.4 will still be used for quite a while, especially
+until "everybody" trusts 2.6, same way that happened with 2.2 and 2.4 ..
 
--- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-916
-IT-Zentrum Standort Campus Mitte                          AIM.  ralfpostfix
+* siimage.c, add sata8237 entry to via driver, etc...
+
+// Stefan

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261175AbTEHFRr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 01:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbTEHFRr
+	id S261198AbTEHHOi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 03:14:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbTEHHOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 01:17:47 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:9153 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S261175AbTEHFRq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 01:17:46 -0400
-From: Andrew Baumann <andrewb@cse.unsw.edu.au>
+	Thu, 8 May 2003 03:14:38 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:36367 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S261198AbTEHHOh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 03:14:37 -0400
+Date: Thu, 8 May 2003 09:30:11 +0200
 To: linux-kernel@vger.kernel.org
-Date: Thu, 8 May 2003 15:30:08 +1000
-Subject: status of Centrino wireless support
-User-Agent: KMail/1.5
-X-Operating-System: Mungi-1.3
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       "David S. Miller" <davem@redhat.com>, linux-mm@kvack.org,
+       akpm@digeo.com
+Subject: Re: 2.5.69-mm2 Kernel panic, possibly network related
+Message-ID: <20030508073011.GA378@hh.idb.hist.no>
+References: <3EB8E4CC.8010409@aitel.hist.no> <20030507.025626.10317747.davem@redhat.com> <20030507144100.GD8978@holomorphy.com> <20030507.064010.42794250.davem@redhat.com> <20030507215430.GA1109@hh.idb.hist.no> <20030508013854.GW8931@holomorphy.com> <20030508065440.GA1890@hh.idb.hist.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305081530.08818.andrewb@cse.unsw.edu.au>
+In-Reply-To: <20030508065440.GA1890@hh.idb.hist.no>
+User-Agent: Mutt/1.5.3i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, May 08, 2003 at 08:54:40AM +0200, Helge Hafting wrote:
+> On Wed, May 07, 2003 at 06:38:54PM -0700, William Lee Irwin III wrote:
+> [...] 
+> > Can you try one kernel with the netfilter cset backed out, and another
+> > with the re-slabification patch backed out? (But not with both backed
+> > out simultaneously).
+> 
+> I'm compiling without reslabify now.
+The 2.5.69-mm2 kernel without reslabify died in the same way.
+10 minutes of nethack and I got the same oops.
+I'm not sure about netfilter, so I'll simply try a kernel
+with the filter deselected.
 
-does anyone know anything more than "Intel have a driver internally, depending 
-who you ask, and might release it at at unspecified time, if they feel like 
-it" about the Centrino wireless adapter (Intel PRO/Wireless 2100 LAN MiniPCI 
-Adapter).
-
-I've heard several interesting rumours along those lines, but nothing more. 
-Just wondering if anyone knows about or is working on support for this 
-device.
-
-thanks in advance,
-Andrew
-
--- 
-Your flux capacitor has gone bad.
+Helge Hafting

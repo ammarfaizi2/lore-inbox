@@ -1,61 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261870AbVCIPM7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVCIP0U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261870AbVCIPM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 10:12:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbVCIPM7
+	id S261605AbVCIP0U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 10:26:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVCIP0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 10:12:59 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:65423 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261882AbVCIPMq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 10:12:46 -0500
-Subject: Re: [RFC] ext3/jbd race: releasing in-use journal_heads
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Jan Kara <jack@suse.cz>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20050309132838.GJ6145@atrey.karlin.mff.cuni.cz>
-References: <1109966084.5309.3.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050304160451.4c33919c.akpm@osdl.org>
-	 <1110213656.15117.193.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050307123118.3a946bc8.akpm@osdl.org>
-	 <1110229687.15117.612.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1110286417.1941.40.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050308151258.GD23403@atrey.karlin.mff.cuni.cz>
-	 <1110373818.1932.31.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050309132838.GJ6145@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1110381147.1932.38.camel@sisko.sctweedie.blueyonder.co.uk>
+	Wed, 9 Mar 2005 10:26:20 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:275 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261605AbVCIP0J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 10:26:09 -0500
+Date: Wed, 9 Mar 2005 15:26:05 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       linux-parport@lists.infradead.org, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] Hotplug parallel ports
+Message-ID: <20050309152605.E25398@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	linux-parport@lists.infradead.org, Andrew Morton <akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Wed, 09 Mar 2005 15:12:27 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This patch is against 2.6.11.
 
-On Wed, 2005-03-09 at 13:28, Jan Kara wrote:
+----
 
->   Hmm. I see for example a place at jbd/commit.c, line 287 (which you
-> did not change in your patch) which does this and doesn't seem to be
-> protected against journal_unmap_buffer() (but maybe I miss something).
-> Not that I'd find that race probable but in theory...
+The Mobility docking station provides a PCI-based parallel port.  Since
+the docking station connects via Cardbus, such devices are removable.
+Therefore, track which parallel ports are registered to each PCI device,
+and remove them when the PCI device is removed.
 
-Indeed; I can't see why that wouldn't trigger (at least without the
-existing, low-risk journal_unmap_buffer() patch.)
+Signed-off-by: Russell King <rmk@arm.linux.org.uk>
 
-Andrew, I think we just go with that simple patch for now --- it catches
-the cases we actually see in testing.  And rather than mess with
-temporary states where b_transaction goes NULL, I think the *correct*
-long-term fix is to hide those states using locking rather than by list
-tricks.  Merging the bh_journal_head and bh_state locks really seems
-like the safe solution here, as the latter seems to be held nearly
-everywhere where we need protection against journal_put_journal_head()
-(and where it's not held --- as it wasn't in journal_unmap_buffer() ---
-it's a bug.)
+diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x '*.orig' -x '*.rej' -r orig/drivers/parport/parport_pc.c linux/drivers/parport/parport_pc.c
+--- orig/drivers/parport/parport_pc.c	Wed Mar  2 14:40:15 2005
++++ linux/drivers/parport/parport_pc.c	Wed Mar  2 10:53:38 2005
+@@ -2907,10 +2907,16 @@ static struct pci_device_id parport_pc_p
+ };
+ MODULE_DEVICE_TABLE(pci,parport_pc_pci_tbl);
+ 
++struct pci_parport_data {
++	int num;
++	struct parport *ports[2];
++};
++
+ static int parport_pc_pci_probe (struct pci_dev *dev,
+ 					   const struct pci_device_id *id)
+ {
+ 	int err, count, n, i = id->driver_data;
++	struct pci_parport_data *data;
+ 
+ 	if (i < last_sio)
+ 		/* This is an onboard Super-IO and has already been probed */
+@@ -2922,9 +2928,15 @@ static int parport_pc_pci_probe (struct 
+ 	if ((err = pci_enable_device (dev)) != 0)
+ 		return err;
+ 
++	data = kmalloc(sizeof(struct pci_parport_data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
+ 	if (cards[i].preinit_hook &&
+-	    cards[i].preinit_hook (dev, PARPORT_IRQ_NONE, PARPORT_DMA_NONE))
++	    cards[i].preinit_hook (dev, PARPORT_IRQ_NONE, PARPORT_DMA_NONE)) {
++		kfree(data);
+ 		return -ENODEV;
++	}
+ 
+ 	for (n = 0; n < cards[i].numports; n++) {
+ 		int lo = cards[i].addr[n].lo;
+@@ -2943,21 +2955,46 @@ static int parport_pc_pci_probe (struct 
+ 			"I/O at %#lx(%#lx)\n",
+ 			parport_pc_pci_tbl[i + last_sio].vendor,
+ 			parport_pc_pci_tbl[i + last_sio].device, io_lo, io_hi);
+-		if (parport_pc_probe_port (io_lo, io_hi, PARPORT_IRQ_NONE,
+-					   PARPORT_DMA_NONE, dev))
++		data->ports[count] =
++			parport_pc_probe_port (io_lo, io_hi, PARPORT_IRQ_NONE,
++					       PARPORT_DMA_NONE, dev);
++		if (data->ports[count])
+ 			count++;
+ 	}
+ 
++	data->num = count;
++
+ 	if (cards[i].postinit_hook)
+ 		cards[i].postinit_hook (dev, count == 0);
+ 
+-	return count == 0 ? -ENODEV : 0;
++	if (count) {
++		pci_set_drvdata(dev, data);
++		return 0;
++	}
++
++	kfree(data);
++
++	return -ENODEV;
++}
++
++static void __devexit parport_pc_pci_remove(struct pci_dev *dev)
++{
++	struct pci_parport_data *data = pci_get_drvdata(dev);
++	int i;
++
++	pci_set_drvdata(dev, NULL);
++
++	for (i = data->num - 1; i >= 0; i--)
++		parport_pc_unregister_port(data->ports[i]);
++
++	kfree(data);
+ }
+ 
+ static struct pci_driver parport_pc_pci_driver = {
+ 	.name		= "parport_pc",
+ 	.id_table	= parport_pc_pci_tbl,
+ 	.probe		= parport_pc_pci_probe,
++	.remove		= __devexit_p(parport_pc_pci_remove),
+ };
+ 
+ static int __init parport_pc_init_superio (int autoirq, int autodma)
 
---Stephen
 
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

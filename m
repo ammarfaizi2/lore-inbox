@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbUEDXzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbUEEABr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbUEDXzz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 19:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbUEDXzz
+	id S261752AbUEEABr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 20:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbUEEABr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 19:55:55 -0400
-Received: from fw.osdl.org ([65.172.181.6]:24728 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261706AbUEDXzy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 19:55:54 -0400
-Date: Tue, 4 May 2004 16:58:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: <yiding_wang@agilent.com>
+	Tue, 4 May 2004 20:01:47 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:3535 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S261752AbUEEABq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 20:01:46 -0400
+Date: Wed, 5 May 2004 01:01:05 +0100
+From: Dave Jones <davej@redhat.com>
+To: Michal Semler <cijoml@volny.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2 scsi host reset success but all device are offlined
-Message-Id: <20040504165825.7b5aa810.akpm@osdl.org>
-In-Reply-To: <0A78D025ACD7C24F84BD52449D8505A15A8131@wcosmb01.cos.agilent.com>
-References: <0A78D025ACD7C24F84BD52449D8505A15A8131@wcosmb01.cos.agilent.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Subject: Re: Marcello: cpufreq in 2.4.27???
+Message-ID: <20040505000105.GA29963@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Michal Semler <cijoml@volny.cz>, linux-kernel@vger.kernel.org
+References: <200405042148.36999.cijoml@volny.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200405042148.36999.cijoml@volny.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<yiding_wang@agilent.com> wrote:
->
-> I am running 2.6.2 linux on i386. During the error injection test,
-> eh_device_reset, eh_bus_reset and eh_host_reset were called by scsi_error.c
-> in sequence.  For each reset, HBA driver returned SUCCESS (0x2002, I
-> specially traced the host reset case).
+On Tue, May 04, 2004 at 09:48:36PM +0200, Michal Semler wrote:
 
-2.6.2 is ancient.  Please:
+ > is it possible to include cpufreq into 2.4.27? We have new acpi, SATA, XFS 
+ > included, so why not include cpufreq?
 
-- test a current kernel
+I'd bet largely because the upstream cpufreq maintainers
+don't have time to maintain a 2.4 branch of it too.
 
-- ensure that linux-scsi@vger.kernel.org is copied on reports
+Bruno Ducrot has been doing occasional backports, but it's a lot
+of work, and if it got merged in 2.4, it'd likely only increase
+the amount of work necessary.
 
-- make the test tools available to other scsi developers
+		Dave
 
-- Hit ENTER after the 70th column when typing emails ;)
-
-Thanks.

@@ -1,55 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbVAMI4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbVAMI62@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261311AbVAMI4i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 03:56:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbVAMI4i
+	id S261321AbVAMI62 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 03:58:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbVAMI61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 03:56:38 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:18835 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261311AbVAMI4g (ORCPT
+	Thu, 13 Jan 2005 03:58:27 -0500
+Received: from fw.osdl.org ([65.172.181.6]:44433 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261322AbVAMI5y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 03:56:36 -0500
-Date: Thu, 13 Jan 2005 09:56:33 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Paul A. Sumner" <paul@zanfx.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: High write latency, iowait, slow writes 2.6.9
-Message-ID: <20050113085633.GE2815@suse.de>
-References: <41E4BB99.90908@zanfx.com> <cs44ai$oet$1@news.cistron.nl> <41E61C68.10801@zanfx.com>
+	Thu, 13 Jan 2005 03:57:54 -0500
+Date: Thu, 13 Jan 2005 00:57:30 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com,
+       rusty@rustcorp.com.au, dipankar@in.ibm.com
+Subject: Re: [patch] mm: Reimplementation of dynamic percpu memory allocator
+Message-Id: <20050113005730.0e10b2d9.akpm@osdl.org>
+In-Reply-To: <20050113083412.GA7567@impedimenta.in.ibm.com>
+References: <20050113083412.GA7567@impedimenta.in.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41E61C68.10801@zanfx.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 12 2005, Paul A. Sumner wrote:
-> Thanks... I've tried the as, deadline and cfq schedulers. Deadline is
-> giving me the best results. I've also tried tweaking the stuff in
-> /sys/block/sda/queue/iosched/.
-> 
-> For lack of a better way of describing it, it seems like something is
-> thrashing.
+Ravikiran G Thirumalai <kiran@in.ibm.com> wrote:
+>
+> ...
+> The following patch re-implements the linux dynamic percpu memory allocator
 
-I you have time, I would like you to try current BK with this patch:
+Heavens, it's complex.
 
-http://www.kernel.org/pub/linux/kernel/people/axboe/patches/v2.6/2.6.11-rc1/cfq-time-slices-20.gz
+> 1. Percpu memory dereference is faster 
+> 	- One less memory reference compared to existing simple alloc_percpu
+> 	- As fast as with static percpu areas, one mem ref less actually.
+> 2. Better memory usage
+> 	- Doesn't need a NR_CPUS pointer array for each allocation
+> 	- Interlaces objects making better utilization of memory/cachelines
+> 	- Userspace tests show 98% utilization with random sized allocations
+> 	  after repeated random frees
+> 3. Provides truly node local allocation
+> 	- The percpu memory with existing alloc_percpu does node local
+> 	  allocation, but the NR_CPUS place holder is not node local. This
+> 	  problem doesn't exist with the new implementation.
 
-You should enable CONFIG_IOPRIO_WRITE, it is in the io scheduler config
-section, if you do a make oldconfig it should pop up for you. Boot with
-elevator=cfq to select cfq.
+But it does consume vmalloc space and will incur additional TLB reload
+costs.
 
-A simple profile of the bad period would also be nice, along with
-vmstat 1 info from that period. If you boot with profile=2, do:
+> +static void *
+> +valloc_percpu(void)
+> +{
+> +	int i,j = 0;
+> +	unsigned int nr_pages;
+> +	struct vm_struct *area, tmp;
+> +	struct page **tmppage;
+> +	struct page *pages[BLOCK_MANAGEMENT_PAGES];
 
-# readprofile -r
-# run bad workload
-# readprofile | sort -nr +2 > result_file
+How much stackspace is this guy using on 512-way?
 
-And send that along with the logged vmstat 1 from that same period.
+> +	unsigned int cpu_pages = PCPU_BLKSIZE >> PAGE_SHIFT;
+> +	struct pcpu_block *blkp = NULL;
+> +
+> +	BUG_ON(!IS_ALIGNED(PCPU_BLKSIZE, PAGE_SIZE));
+> +	BUG_ON(!PCPU_BLKSIZE);
+> +	nr_pages = PCPUPAGES_PER_BLOCK + BLOCK_MANAGEMENT_PAGES;	
+> +
+> +	/* Alloc Managent block pages */
+> +	for ( i = 0; i < BLOCK_MANAGEMENT_PAGES; i++) {
+> +		pages[i] = alloc_pages(GFP_KERNEL, 0);
 
-Oh, and lastly, remember to CC people on lkml when you respond, thanks.
+Can use __GFP_ZERO here.
 
--- 
-Jens Axboe
+> +		if (!pages[i]) {
+> +			while ( --i >= 0 ) 
+> +				__free_pages(pages[i], 0);
+> +			return NULL;
+> +		}
+> +		/* Zero the alloced page */
+> +		clear_page(page_address(pages[i]));
 
+And so can remove this.
+
+Cannot highmem pages be used here?
+
+> +	for ( i = 0; i < BLOCK_MANAGEMENT_PAGES; i++)
+
+Patch has a fair amount of whitespace oddities.
+
+> +	/* Alloc node local pages for all cpus possible */
+> +	for (i = 0; i < NR_CPUS; i++) {
+> +		if (cpu_possible(i)) {
+
+Isn't this equivalent to for_each_cpu()?
+
+> +	/* Map pages for each cpu by splitting vm_struct for each cpu */
+> +	for (i = 0; i < NR_CPUS; i++) {
+> +		if (cpu_possible(i)) {
+
+etc.
+
+> +/* Sort obj_map array in ascending order -- simple bubble sort */
+> +static void
+> +sort_obj_map(struct obj_map_elmt map[], int nr)
+
+That'll be unpopular ;)  Why not extract qsort from XFS?
+
+Why cannot the code simply call vmalloc rather than copying its internals?
+
+Have you considered trying a simple __alloc_pages, fall back to vmalloc if
+that fails, or if the requested size is more than eight pages, or something
+of that sort?

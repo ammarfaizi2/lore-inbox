@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269582AbUICDSV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269495AbUICDOd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269582AbUICDSV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 23:18:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269056AbUICDSS
+	id S269495AbUICDOd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 23:14:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269483AbUICDNc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 23:18:18 -0400
-Received: from tomts10.bellnexxia.net ([209.226.175.54]:50327 "EHLO
-	tomts10-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S269581AbUICDRd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 23:17:33 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R0
-From: Eric St-Laurent <ericstl34@sympatico.ca>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>, Mark_H_Johnson@raytheon.com,
-       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
-In-Reply-To: <1094171082.19760.7.camel@krustophenia.net>
-References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com>
-	 <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu>
-	 <20040902111003.GA4256@elte.hu> <20040902215728.GA28571@elte.hu>
-	 <1094162812.1347.54.camel@krustophenia.net>
-	 <20040902221402.GA29434@elte.hu>
-	 <1094171082.19760.7.camel@krustophenia.net>
-Content-Type: text/plain
-Message-Id: <1094181447.4815.6.camel@orbiter>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 02 Sep 2004 23:17:27 -0400
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Sep 2004 23:13:32 -0400
+Received: from [218.25.35.199] ([218.25.35.199]:47634 "HELO vesselalliance.com")
+	by vger.kernel.org with SMTP id S269076AbUICDC7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 23:02:59 -0400
+To: <linux-kernel@vger.kernel.org>
+From: "Daniel" <hornet21barry@hotmail.com>
+Date: Fri, 03 Sep 2004 03:01:21 GMT
+Message-Id: <1094180481-4348@excite.com>
+Subject: Buy Pain Medications, Anonymously!
+Content-Type: text/plain;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Judging from these graphs, all of the latency issues are solved, at
-> least on my UP hardware, and the latencies seem to be getting very close
-> to the limits of what the hardware can do:
-> 
-> http://krustophenia.net/testresults.php?dataset=2.6.9-rc1-Q6#/var/www/2.6.9-rc1-Q6/jack-test-1
-> 
-> The worst case latency is only 160 usecs, and the vast majority fall
-> into the pattern from 0 to 120 usecs.  All of the spikes above 120 are
-> almost certainly caused by netdev_max_backlog.  However these are not
-> long enough to cause any problems with my workload; the lowest practical
-> latency for audio work is around 0.66 ms (32 frames at 48khz). 
+Save up to 80% on popular meds!
 
-Lee,
+*** GREAT SPECIALS ***
 
-A few weeks ago you wrote that "the worst latency I was able to trigger
-was 46 usecs", now it's 160 usecs.
+Check it out: http://www.hjigoeoi.com/_85924943b9db73ac62baa654773c6a8e/4
 
-Ingo has done much work on his patches since then.
+- No doctor visits or hassles
+- Quick delivery to your front door
 
-Why the worst latency is higher now? I presume that the latency
-measurements technique are more accurate and the 46 usecs was
-inaccurate?
+Visit us here: http://www.hjigoeoi.com/_85924943b9db73ac62baa654773c6a8e/4
 
-Ref: http://uwsg.indiana.edu/hypermail/linux/kernel/0407.3/0994.html
 
-Best regards,
+On medication long term?  
+Buy bulk through us and LITERALLY SAVE THOUSANDS!
 
-Eric St-Laurent
 
+
+wanker firstnesbitt naomi marcus
+cutie metallicabutch cardinal jeff graphic sally angels 
+sweety blondie nugget 
+sugar lawdougie tina sherry
+jan jeanette pedro 
+lamer riverpaula pisces miki
+
+nugget prestontango whitney poiuyt horizon timber groovy 
 

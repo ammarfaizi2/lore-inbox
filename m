@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273414AbRINPQo>; Fri, 14 Sep 2001 11:16:44 -0400
+	id <S273310AbRINPbr>; Fri, 14 Sep 2001 11:31:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273416AbRINPQd>; Fri, 14 Sep 2001 11:16:33 -0400
-Received: from gateway2.ensim.com ([65.164.64.250]:10761 "EHLO
-	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
-	id <S273414AbRINPQ1>; Fri, 14 Sep 2001 11:16:27 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0
-From: Paul Menage <pmenage@ensim.com>
-To: Jan Kara <jack@ucw.cz>
-cc: Paul Menage <pmenage@ensim.com>, alan@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.2.20: Avoid buffer overrun in quota warning 
-In-Reply-To: Your message of "Fri, 14 Sep 2001 10:46:57 +0200."
-             <20010914104657.E31478@atrey.karlin.mff.cuni.cz> 
+	id <S273326AbRINPbh>; Fri, 14 Sep 2001 11:31:37 -0400
+Received: from danielle.hinet.hr ([195.29.254.157]:3968 "EHLO
+	danielle.hinet.hr") by vger.kernel.org with ESMTP
+	id <S273310AbRINPbe>; Fri, 14 Sep 2001 11:31:34 -0400
+Date: Fri, 14 Sep 2001 17:31:49 +0200
+From: Mario Mikocevic <mozgy@hinet.hr>
+To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: v2410p8 and v2410p9 are no go
+Message-ID: <20010914173149.A857@danielle.hinet.hr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 14 Sep 2001 08:15:12 -0700
-Message-Id: <E15hugS-0006C4-00@pmenage-dt.ensim.com>
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Actually that delayed printing of quota messages isn't even in regular
->2.4 - it's just in ac-patches. Regular 2.4 has just print_warning()
->function which works rather the same way as printing in 2.2.
+Hi,
 
-Regular 2.4 prints bdevname(dquot->dq_sb->s_dev) rather than 
-dquot->dq_mnt->mnt_dirname, so is rather less likely to have the same
-sprintf() overrun problems.
+> What IDE chipset are you using.  Also do you have ACPI enabled and if so
+> does it work if you dont compile that in ?
 
-Paul
+Nope, disabled ACPI and still no go, still 'uknown partition table' ..
 
+I'll try locating which patch makes trouble ..
+
+-- 
+Mario Mikoèeviæ (Mozgy)
+mozgy at hinet dot hr
+My favourite FUBAR ...

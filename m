@@ -1,32 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268104AbTBMVuY>; Thu, 13 Feb 2003 16:50:24 -0500
+	id <S268105AbTBMVxO>; Thu, 13 Feb 2003 16:53:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268111AbTBMVuY>; Thu, 13 Feb 2003 16:50:24 -0500
-Received: from itaqui.terra.com.br ([200.176.3.19]:19109 "EHLO
-	itaqui.terra.com.br") by vger.kernel.org with ESMTP
-	id <S268104AbTBMVuX>; Thu, 13 Feb 2003 16:50:23 -0500
-From: Rodrigo Martins <rodrigof@2xr.com.br>
-Organization: 2xr
-To: linux-kernel@vger.kernel.org
-Subject: Tcp/IP
-Date: Wed, 12 Feb 2003 20:00:17 -0200
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200302122000.17438.rodrigof@2xr.com.br>
+	id <S268109AbTBMVxO>; Thu, 13 Feb 2003 16:53:14 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:31360 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S268105AbTBMVxN>; Thu, 13 Feb 2003 16:53:13 -0500
+Subject: Re: 2.5.60 cheerleading...
+From: Paul Larson <plars@linuxtestproject.org>
+To: John Bradford <john@grabjohn.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, davej@codemonkey.org.uk, edesio@ieee.org,
+       lkml <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>, edesio@task.com.br
+In-Reply-To: <200302132154.h1DLs3ar012874@darkstar.example.net>
+References: <200302132154.h1DLs3ar012874@darkstar.example.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-i3zfpuWn7n0TRcpdABi7"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 13 Feb 2003 15:57:56 -0600
+Message-Id: <1045173477.28494.66.camel@plars>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-have any patch of tcp/ip low-latency, or a patch of low-latency for realtek 
-8139??
--- 
-Rodrigo Martins Vieira Fonseca
-rodrigof@2xr.com.br - www.2xr.com.br
-Belo Horizonte - MG / Brasil
-mobile +55(031)99465958
-work   +55(031)32829909
+
+--=-i3zfpuWn7n0TRcpdABi7
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, 2003-02-13 at 15:54, John Bradford wrote:
+> Likewise with kernel releases - fewer, larger releases work fine and
+> mean less effort for developers, unless something breaks, in which
+> case there is a lot to go through to locate the problem, and people
+> who can't boot the broken kernel have to wait longer to test other
+> things that were newly merged in that release.
+This was exactly what I was getting at.  I suspect that there are a good
+number of people that try to boot a 2.5 kernel for testing, run into
+immediate problems, and shelve the idea of 2.5 testing for a couple of
+months because of an immediate appearance that 2.5 is too unstable to
+test.  I've seen frequent griping that not enough testing happens, the
+idea is to get it to a point where more people can test it _without_
+adding a huge delay or making a huge gap between releases.
+
+On Thu, 2003-02-13 at 15:38, Jeff Garzik wrote:
+> Outside suggestions to "improve" Linus's workflow usually fall upon deaf
+> ears...
+Since Linus hasn't chimed in yet, I'm guessing that's exactly what
+happened.  I'm not trying to improve his workflow, but rather the
+workflow of anyone who might be interested in getting more involved in
+2.5 testing.
+
+-Paul Larson
+
+--=-i3zfpuWn7n0TRcpdABi7
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEABECAAYFAj5MFOQACgkQbkpggQiFDqeVKACfUOwUhtPY+IMvYOMD86sn/KU4
+jKQAniJ2r7n0eWYzUicvDS7HyD3i/tTw
+=JLfA
+-----END PGP SIGNATURE-----
+
+--=-i3zfpuWn7n0TRcpdABi7--
 

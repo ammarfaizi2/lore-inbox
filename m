@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271741AbRH3JUB>; Thu, 30 Aug 2001 05:20:01 -0400
+	id <S269796AbRH3JTl>; Thu, 30 Aug 2001 05:19:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271819AbRH3JTw>; Thu, 30 Aug 2001 05:19:52 -0400
-Received: from gnu.in-berlin.de ([192.109.42.4]:25860 "EHLO gnu.in-berlin.de")
-	by vger.kernel.org with ESMTP id <S271741AbRH3JTp>;
-	Thu, 30 Aug 2001 05:19:45 -0400
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: kraxel
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: ioctl conflicts
-Date: 30 Aug 2001 08:16:22 GMT
-Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
-Message-ID: <slrn9ortim.352.kraxel@bytesex.org>
-In-Reply-To: <20010828145304Z.haba@pdc.kth.se> <3B8DEF9D.26F7544D@cisco.com>
-NNTP-Posting-Host: localhost
-X-Trace: bytesex.org 999159382 3235 127.0.0.1 (30 Aug 2001 08:16:22 GMT)
-User-Agent: slrn/0.9.7.0 (Linux)
+	id <S271741AbRH3JTb>; Thu, 30 Aug 2001 05:19:31 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:56569 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S269796AbRH3JTU>; Thu, 30 Aug 2001 05:19:20 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Thu, 30 Aug 2001 03:19:18 -0600
+To: Terje Eggestad <terje.eggestad@scali.no>
+Cc: Elan Feingold <efeingold@mn.rr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Multithreaded core dumps (CLONE_THREAD and elf)
+Message-ID: <20010830031918.H541@turbolinux.com>
+Mail-Followup-To: Terje Eggestad <terje.eggestad@scali.no>,
+	Elan Feingold <efeingold@mn.rr.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <000c01c13113$91d7c060$0400000a@gorilla> <999159394.23678.285.camel@pc-16.office.scali.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <999159394.23678.285.camel@pc-16.office.scali.no>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manik Raina wrote:
->  I was grep-ing on a 2.4 source tree when i found the
->  following :
->  
->  ./include/linux/videodev.h:#define VIDIOCGCAP          
->  _IOR('v',1,struct video_capability)
->  ./include/linux/ext2_fs.h:#define  EXT2_IOC_GETVERSION  _IOR('v',1,
->  long)   
+On Aug 30, 2001  10:16 +0200, Terje Eggestad wrote:
+> THere is a CLONE_THREAD flag to clone() that sets up a linked list thru
+> all the procs (shared VM or not) that in 2.4.3 that I currently run
+> don't seem to be ready for general use, managed to get this:
+> te       31504 31504  0 10:03 pts/0    00:00:00 [clone2 <defunct>]
+> te       31505 31504  0 10:03 pts/0    00:00:00 [clone2 <defunct>]
+> 
+> Where a zombie is waiting for the parent to receive it's SIGCHLD, but
+> it's its own parent. Kinda cute, guess Its time to reboot....
 
-The size of the argument has a different size, so they end up with
-different magic numbers because of that.
+I'm pretty sure Linus had a patch for this in 2.4.7 or so, which
+reparented the thread to init, so it would be reaped on exit.
 
-  Gerd
-
+Cheers, Andreas
 -- 
-Damn lot people confuse usability and eye-candy.
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+

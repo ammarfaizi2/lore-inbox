@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312124AbSCVWTp>; Fri, 22 Mar 2002 17:19:45 -0500
+	id <S312872AbSCVWXZ>; Fri, 22 Mar 2002 17:23:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312868AbSCVWTf>; Fri, 22 Mar 2002 17:19:35 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:47885 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S312124AbSCVWTS>; Fri, 22 Mar 2002 17:19:18 -0500
-Date: Fri, 22 Mar 2002 18:13:48 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Don't offer CONFIG_INDYDOG on non-ip22 machines
-In-Reply-To: <Pine.NEB.4.44.0203211258110.2125-100000@mimas.fachschaften.tu-muenchen.de>
-Message-ID: <Pine.LNX.4.21.0203221813370.10951-100000@freak.distro.conectiva>
+	id <S312874AbSCVWXQ>; Fri, 22 Mar 2002 17:23:16 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:40068 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S312872AbSCVWXF>; Fri, 22 Mar 2002 17:23:05 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 22 Mar 2002 14:28:04 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Hubertus Franke <frankeh@watson.ibm.com>
+cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, <davej@suse.de>,
+        <marcelo@cnectiva.com.br>, Rajan Ravindran <rajancr@us.ibm.com>,
+        <linux-kernel@vger.kernel.org>, <lse-tech@lists.sourceforge.net>
+Subject: Re: [PATCH] get_pid() performance fix
+In-Reply-To: <20020322221318.5F6083FE06@smtp.linux.ibm.com>
+Message-ID: <Pine.LNX.4.44.0203221425550.1434-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 22 Mar 2002, Hubertus Franke wrote:
+
+> I implemented an alternative version of getpid, that for large thread counts
+> ( > 220000), provides "significantly" better performance as shown in attached
+      ^^^^^^
+You've a very nice system Hubertus because it's about 1.8Gb only for the
+stack :-)
 
 
-On Thu, 21 Mar 2002, Adrian Bunk wrote:
 
-> After reading Documentation/kbuild/config-language.txt it seems that this
-> should work in theory...
-> 
-> The following patch fixes it so that it works for me:
-> 
-> --- drivers/char/Config.in.old	Thu Mar 21 12:48:57 2002
-> +++ drivers/char/Config.in	Thu Mar 21 13:01:21 2002
-> @@ -201,7 +201,9 @@
->     tristate '  SBC-60XX Watchdog Timer' CONFIG_60XX_WDT
->     tristate '  W83877F (EMACS) Watchdog Timer' CONFIG_W83877F_WDT
->     tristate '  ZF MachZ Watchdog' CONFIG_MACHZ_WDT
-> -   dep_tristate '  Indy/I2 Hardware Watchdog' CONFIG_INDYDOG $CONFIG_SGI_IP22
-> +   if [ "$CONFIG_SGI_IP22" = "y" ]; then
-> +      tristate '  Indy/I2 Hardware Watchdog' CONFIG_INDYDOG
-> +   fi
->  fi
->  endmenu
-> 
+- Davide
 
-Applied...
 

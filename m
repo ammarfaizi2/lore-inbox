@@ -1,68 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261796AbTILSos (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 14:44:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTILSnS
+	id S261845AbTILSx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 14:53:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbTILSxD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 14:43:18 -0400
-Received: from fep02-svc.mail.telepac.pt ([194.65.5.201]:34696 "EHLO
-	fep02-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
-	id S261861AbTILSl7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 14:41:59 -0400
-Message-ID: <3F6213AF.1010609@vgertech.com>
-Date: Fri, 12 Sep 2003 19:42:55 +0100
-From: Nuno Silva <nuno.silva@vgertech.com>
-Organization: VGER, LDA
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
-X-Accept-Language: en-us, pt
+	Fri, 12 Sep 2003 14:53:03 -0400
+Received: from pat.uio.no ([129.240.130.16]:64747 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261811AbTILSvh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 14:51:37 -0400
+To: Marco Bertoncin - Sun Microsystems UK - Platform OS
+	 Development Engineer <Marco.Bertoncin@Sun.COM>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: NFS/MOUNT/sunrpc problem?
+References: <200309121743.h8CHhB114413@brk-mail1.uk.sun.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 12 Sep 2003 14:51:28 -0400
+In-Reply-To: <200309121743.h8CHhB114413@brk-mail1.uk.sun.com>
+Message-ID: <shsk78dj0wf.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
 MIME-Version: 1.0
-To: Misha Nasledov <misha@nasledov.com>
-CC: Aaron Lehmann <aaronl@vitelus.com>, linux-kernel@vger.kernel.org
-Subject: Re: bttv bug
-References: <20030910064158.GA19930@nasledov.com> <20030910074123.GH18280@vitelus.com> <3F5F99AD.6080502@vgertech.com> <20030912023814.GA5274@nasledov.com>
-In-Reply-To: <20030912023814.GA5274@nasledov.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>>>>> " " == Marco Bertoncin <- Sun Microsystems UK - Platform OS Development Engineer <Marco.Bertoncin@Sun.COM>> writes:
 
-Misha Nasledov wrote:
+     > This is a MOUNT req, not NFS, so we are using userland rpc?
 
-[..snip..]
+Correct. Unless you are doing NFSroot (which was what I thought you
+might be using)...
+For ordinary NFSv2 and NFSv3 mounts, the 'mount' program talks
+directly to the server, then passes the resulting filehandle down to
+the kernel.
 
-> 
-> So am I pretty much on my own with this problem? Does anyone use a Bt878 card
-> with an nvidia card under 2.6? It's strange that it used to work just fine,
-
-
-I have these:
-# lspci|grep Brook
-00:09.0 Multimedia video controller: Brooktree Corporation Bt878 Video 
-Capture (rev 11)
-00:09.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture 
-(rev 11)
-
-And this card (hauppagge wintv) works fine with 2.4 but doesn't work (at 
-least for long...) in vanilla 2.6.0-test1 -> test3. I'll try a newer 
-kernel shortly :-)
-
-I also have a nvidia card but I don't have any nvidia drivers installed.
-
-One more note: in my setup I must use "NoMTRR":
-
-Section "Screen"
-         Identifier      "Default Screen"
-         Device          "nVidia Corporation [NV15]"
-         Monitor         "Generic Monitor"
-
-         Option          "NoMTRR"
-... etc...
-
-Or I'll get screen corruption sooner or later.
-
-
-Good luck,
-Nuno Silva
-
+Cheers,
+  Trond

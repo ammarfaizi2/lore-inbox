@@ -1,97 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261861AbRE0MAt>; Sun, 27 May 2001 08:00:49 -0400
+	id <S261894AbRE0MD3>; Sun, 27 May 2001 08:03:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261894AbRE0MAj>; Sun, 27 May 2001 08:00:39 -0400
-Received: from tes4.tesnetwork.cz ([194.213.206.4]:26124 "EHLO
-	server.tesnetwork.cz") by vger.kernel.org with ESMTP
-	id <S261861AbRE0MA3>; Sun, 27 May 2001 08:00:29 -0400
-Message-ID: <3B111566.6070507@centrum.cz>
-Date: Sun, 27 May 2001 13:55:34 -0100
-From: Jan Sembera <sembera@centrum.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5 i686; en-US; rv:0.9) Gecko/20010507
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][2.4.5] buz.c compile errors
-Content-Type: multipart/mixed;
- boundary="------------030800010305050409010201"
+	id <S261913AbRE0MDU>; Sun, 27 May 2001 08:03:20 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:52744 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S261894AbRE0MDN>; Sun, 27 May 2001 08:03:13 -0400
+Date: Sun, 27 May 2001 14:02:49 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Peter Klotz <peter.klotz@aon.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem compiling kernel 2.4.5 with gcc 2.96
+Message-ID: <20010527140249.F22468@arthur.ubicom.tudelft.nl>
+In-Reply-To: <01052713530300.01775@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01052713530300.01775@localhost.localdomain>; from peter.klotz@aon.at on Sun, May 27, 2001 at 01:53:03PM +0200
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030800010305050409010201
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sun, May 27, 2001 at 01:53:03PM +0200, Peter Klotz wrote:
+> When creating the modules (make modules) for my 2.4.5 kernel the compilation 
+> aborts with the following error messages. The problem seems to be related 
+> with Video for Linux and the Iomega Buz Driver.
 
-Hi,
-
-I have written a patch for buz.c for 2.4.5, it should be solution, but i 
-don't know it really works, I don't have such hardware available.
-
-Jan Sembera
+buz.c is broken, you need 2.4.5-ac1 for it.
 
 
---------------030800010305050409010201
-Content-Type: text/plain;
- name="patch1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch1"
+Erik
 
---- linux/drivers/media/video/buz.c.orig	Sat May 26 23:56:26 2001
-+++ linux/drivers/media/video/buz.c	Sun May 27 00:02:09 2001
-@@ -146,7 +146,7 @@
- 
- static int default_input;	/* 0=Composite (default), 1=S-VHS */
- static int default_norm;	/* 0=PAL (default), 1=NTSC */
--
-+static int video_nr = -1;
- MODULE_PARM(vidmem, "i");
- MODULE_PARM(triton, "i");
- MODULE_PARM(natoma, "i");
-@@ -154,6 +154,7 @@
- MODULE_PARM(v4l_bufsize, "i");
- MODULE_PARM(default_input, "i");
- MODULE_PARM(default_norm, "i");
-+MODULE_PARM(video_nr, "i");
- 
- /* Anybody who uses more than four? */
- #define BUZ_MAX 4
-@@ -3212,7 +3213,7 @@
- 	 */
- 	memcpy(&zr->video_dev, &zoran_template, sizeof(zoran_template));
- 	sprintf(zr->video_dev.name, "zoran%u", zr->id);
--	if (video_register_device(&zr->video_dev, VFL_TYPE_GRABBER) < 0) {
-+	if (video_register_device(&zr->video_dev, VFL_TYPE_GRABBER, video_nr) < 0) {
- 		i2c_unregister_bus(&zr->i2c);
- 		kfree((void *) zr->stat_com);
- 		return -1;
-
-
---------------030800010305050409010201
-Content-Type: text/plain;
- name="patch2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch2"
-
---- linux/drivers/media/video/buz.h.orig	Sat May 26 23:56:30 2001
-+++ linux/drivers/media/video/buz.h	Sun May 27 00:01:58 2001
-@@ -36,6 +36,12 @@
- 
- #define XAWTV_HACK
- 
-+/* I'm not sure if this is correct value or not, I cannot test it, because
-+   I don't have this piece of hardware and is only value I was able to 
-+   get (from 2.2.19). */
-+
-+#define KMALLOC_MAXSIZE (512*1024)
-+
- #ifdef XAWTV_HACK
- #define   BUZ_MAX_WIDTH   768	/* never display more than 768 pixels */
- #else
-
-
---------------030800010305050409010201--
-
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

@@ -1,57 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262644AbUK0D3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261218AbUK0DcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262644AbUK0D3l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 22:29:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262394AbUK0D2t
+	id S261218AbUK0DcT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 22:32:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262377AbUKZTch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 22:28:49 -0500
-Received: from mail.kroah.org ([69.55.234.183]:59315 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262851AbUK0DY5 (ORCPT
+	Fri, 26 Nov 2004 14:32:37 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:33218 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262428AbUKZTYX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 22:24:57 -0500
-Date: Fri, 26 Nov 2004 19:24:03 -0800
-From: Greg KH <greg@kroah.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
-       torvalds@osdl.org, hch@infradead.org, aoliva@redhat.com,
-       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-Message-ID: <20041127032403.GB10536@kroah.com>
-References: <19865.1101395592@redhat.com> <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk> <1101406661.8191.9390.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101406661.8191.9390.camel@hades.cambridge.redhat.com>
-User-Agent: Mutt/1.5.6i
+	Fri, 26 Nov 2004 14:24:23 -0500
+Date: Thu, 25 Nov 2004 11:13:47 -0600 (CST)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
+In-Reply-To: <Pine.LNX.4.58.0411242122130.2173@gradall.private.brainfood.com>
+Message-ID: <Pine.LNX.4.58.0411251113180.2173@gradall.private.brainfood.com>
+References: <OF73D7316A.42DF9BE5-ON86256F54.0057B6DC@raytheon.com>
+ <Pine.LNX.4.58.0411222237130.2287@gradall.private.brainfood.com>
+ <20041123115201.GA26714@elte.hu> <Pine.LNX.4.58.0411231206240.2146@gradall.private.brainfood.com>
+ <20041124040604.GA13340@elte.hu> <Pine.LNX.4.58.0411240258460.2242@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411242122130.2173@gradall.private.brainfood.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 25, 2004 at 06:17:42PM +0000, David Woodhouse wrote:
-> On Thu, 2004-11-25 at 16:54 +0000, Matthew Wilcox wrote:
-> > >      (d) stdint types should be used where possible.
-> > > 
-> > > 		[include/user-i386/termios.h]
-> > > 		struct winsize {
-> > > 			uint16_t ws_row;
-> > > 			uint16_t ws_col;
-> > > 			uint16_t ws_xpixel;
-> > > 			uint16_t ws_ypixel;
-> > > 		};
-> > 
-> > I really hate stdint.  Can't we use __u16 instead?
-> 
-> We're trying to clean all this crap up. I think we'd need a better
-> justification than 'I hate stdint' to use anything other than the
-> standard types which the language provides.
+On Wed, 24 Nov 2004, Adam Heath wrote:
 
-The justification is that it doesn't properly describe the variable size
-(think userspace 32 bit variable vs. kernelspace 32 bit variable.)  We
-need to stick with the proper __u32 type variables for data that crosses
-the userspace/kernelspace boundry.
+> On Wed, 24 Nov 2004, Adam Heath wrote:
+>
+> > The symptoms still occur with 30-9.  I'll be trying rc2-mm2 over the holiday.
+>
+> Been running rc2-mm3 all day.  No issues yet.
 
-See Linus's posts about this topic on lkml in the past for more details
-about this.
-
-thanks,
-
-greg k-h
+Been almost a day now.  Still no odd pause issues.

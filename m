@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289018AbSAZDtz>; Fri, 25 Jan 2002 22:49:55 -0500
+	id <S289016AbSAZEEs>; Fri, 25 Jan 2002 23:04:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290519AbSAZDtk>; Fri, 25 Jan 2002 22:49:40 -0500
-Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:43650 "EHLO
+	id <S289012AbSAZEEi>; Fri, 25 Jan 2002 23:04:38 -0500
+Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:48514 "EHLO
 	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S289012AbSAZDtg>; Fri, 25 Jan 2002 22:49:36 -0500
-Date: Sat, 26 Jan 2002 03:45:59 +0000
+	id <S289016AbSAZEEZ>; Fri, 25 Jan 2002 23:04:25 -0500
+Date: Sat, 26 Jan 2002 04:00:05 +0000
 From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Dan Maas <dmaas@dcine.com>
-Cc: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] ACPI mentioned on lwn.net/kernel
-Message-ID: <20020126034559.G5730@kushida.apsleyroad.org>
-In-Reply-To: <fa.juevf8v.1u7ubb8@ifi.uio.no> <fa.h3u09pv.1v2k3bm@ifi.uio.no> <037801c1a60e$d897e230$1d01a8c0@allyourbase>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] syscall latency improvement #1
+Message-ID: <20020126040005.H5730@kushida.apsleyroad.org>
+In-Reply-To: <18993.1011984842@warthog.cambridge.redhat.com> <Pine.LNX.4.33.0201251626490.2042-100000@penguin.transmeta.com> <3C51FF0C.D3B1E2F7@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <037801c1a60e$d897e230$1d01a8c0@allyourbase>; from dmaas@dcine.com on Fri, Jan 25, 2002 at 09:12:03PM -0500
+In-Reply-To: <3C51FF0C.D3B1E2F7@zip.com.au>; from akpm@zip.com.au on Fri, Jan 25, 2002 at 04:57:48PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Maas wrote:
-> This may be true for environments where people mostly run a handful of
-> monolithic applications (*ahem* windows) but look at typical Linuxy things
-> like:
+Andrew Morton wrote:
+> > NOTE! There are potentially other ways to do all of this, _without_ losing
+> > atomicity. For example, you can move the "flags" value into the slot saved
+> > for the CS segment (which, modulo vm86, will always be at a constant
+> > offset on the stack), and make CS=0 be the work flag. That will cause the
+> > CPU to trap atomically at the "iret".
 > 
-> make (compiler, assembler, linker processes...)
-> forking servers (Apache 1.x...)
-> *./configure scripts* (a big one!!!)
-> etc...
-> 
-> Startup cost is likely to be a big factor here...
+> Ingo's low-latency patch put markers around the critical code section,
+> and inspected the return EIP on the way back out of the interrupt.
+> If it falls inside the racy region, do special stuff.
 
-Btw, a little story about startup times and Linux.
+Latency tests showed that fixed the problem as well as the cli.  It's
+just _much_ uglier to read, is all.
 
-I once wrote a Perl script that needed to know the current directory.
-It did:
+Although it saves the cli from syscalls and interrupts, it adds back a
+small cost to interrupts.  Fortunately, syscall latency is far more
+important than interrupt latency.
 
-   use POSIX 'getcwd'
-   getcwd(...)
-
-After a few months, I was annoyed by the slowness of this script
-(compared with other scripts) and decided to try speeding it up.  It
-turns out that the above two lines took about 0.25 of a second, and that
-was the dominant running time of the script.
-
-I replaced getcwd() with `/bin/pwd`.  Lo!  It took about 0.0075 second.
-
-Says very good things about Linux' fork, exec and mmap times, and about
-Glibc's dynamic loading time, I think.
+If we're going to micro-optimise the system calls, then markers are
+definitely the way to fix the return path race IMHO.
 
 -- Jamie

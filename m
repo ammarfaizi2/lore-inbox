@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262577AbTFKPml (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 11:42:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262578AbTFKPml
+	id S262494AbTFKPrb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 11:47:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbTFKPrb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 11:42:41 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:31207 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S262577AbTFKPmk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 11:42:40 -0400
-Date: Wed, 11 Jun 2003 16:56:14 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Alex Deucher <agd5f@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Via KT400 and AGP 8x Support
-Message-ID: <20030611155614.GA5234@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Alex Deucher <agd5f@yahoo.com>, linux-kernel@vger.kernel.org
-References: <20030611150655.17201.qmail@web11301.mail.yahoo.com>
+	Wed, 11 Jun 2003 11:47:31 -0400
+Received: from griffon.mipsys.com ([217.167.51.129]:49115 "EHLO gaston")
+	by vger.kernel.org with ESMTP id S262494AbTFKPrb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 11:47:31 -0400
+Subject: Re: pci_domain_nr vs. /sys/devices
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Matthew Wilcox <willy@debian.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>
+In-Reply-To: <20030611164040.E16643@flint.arm.linux.org.uk>
+References: <1055341842.754.3.camel@gaston>
+	 <20030611144801.GZ28581@parcelfarce.linux.theplanet.co.uk>
+	 <20030611164040.E16643@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1055347252.612.4.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030611150655.17201.qmail@web11301.mail.yahoo.com>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 11 Jun 2003 18:00:52 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 11, 2003 at 08:06:55AM -0700, Alex Deucher wrote:
- > Actually I believe the new ati 9200 cards support agp 8x and they work
- > with the current DRI r200 driver.
+On Wed, 2003-06-11 at 17:40, Russell King wrote:
 
-Excellent. It may be worthwhile anyone who buys one of these
-actually letting ATI know the reason for doing so was the
-fact that it's the only AGP x8 card supported by _fully_ open drivers.
+> See pci_alloc_primary_bus_parented() in drivers/pci/probe.c.  The '0'
+> is the bus number passed in.  So, the names include the pci bus numbers
+> of the root buses.
 
-		Dave
+This is the right solution imho, yes. Adding more indirection with
+pci-domain isn't useful.
+
+Now, we should also fix pci_setup_device to make this naming
+generic to the entire kernel don't you think ? This won't
+affect /proc/bus/pci as it doesn't use the slot_name field
+in pci_dev, but at least it will make naming consistent.
+
+(That also mean increasing slot_name size in pci.h)
+
+Ben.
 

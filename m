@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbTDKStO (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 14:49:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbTDKStO (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 14:49:14 -0400
-Received: from Mail1.KONTENT.De ([81.88.34.36]:27113 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261464AbTDKStN (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 14:49:13 -0400
-From: Oliver Neukum <oliver@neukum.org>
-Reply-To: oliver@neukum.name
-To: John Bradford <john@grabjohn.com>, greg@kroah.com (Greg KH)
-Subject: Re: [ANNOUNCE] udev 0.1 release
-Date: Fri, 11 Apr 2003 21:00:54 +0200
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net,
-       message-bus-list@redhat.com, dsteklof@us.ibm.com (Daniel Stekloff)
-References: <200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk> <200304112030.25344.oliver@neukum.org>
-In-Reply-To: <200304112030.25344.oliver@neukum.org>
+	id S261380AbTDKSrX (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 14:47:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbTDKSrX (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 14:47:23 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:22270 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S261380AbTDKSrV (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 14:47:21 -0400
+Date: Fri, 11 Apr 2003 14:59:00 -0400 (EDT)
+From: Rik van Riel <riel@surriel.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] bugfix nfs kmap_atomic (fwd)
+Message-ID: <Pine.LNX.4.44.0304111458410.26007-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304112100.54360.oliver@neukum.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 11. April 2003 20:30 schrieb Oliver Neukum:
-> Am Freitag, 11. April 2003 19:46 schrieb John Bradford:
-> > > > - Performance. What happens if you plug in 4000 disks at once?
-> > >
-> > > You crash your power supply :)
-> >
-> > [Puzzle]
-> >
-> > Say the power supply had five 5.25" drive power connecters, how many 1
-> > into 3 power cable splitters would you need to connect all 4000 disks?
->
-> About 2000.
-> 5 + 15 + 45 + 135 + 405 +1215 and a few more.
+Oops, wrong address at first ;)
 
-Or to be more exact. To 1215 connectors you can connect 3645
-drives. 4000-3645 = 355 drives need 178 further splitters.
+---------- Forwarded message ----------
+Date: Fri, 11 Apr 2003 14:44:28 -0400 (EDT)
+From: Rik van Riel <riel@surriel.com>
+Subject: [PATCH] bugfix nfs kmap_atomic
 
-	Regards
-		Oliver
+
+There's a serious bug in the handling of the pointer returned
+by kmap_atomic() in nfs/dir.c.   The pointer (part of desc) is
+passed into find_dirent_name and from there into dir_decode,
+which modifies the pointer.
+
+That means you end up passing a wrong address to kunmap_atomic().
+The patch below fixes it by remembering the address that kmap_atomic()
+told us.
+
+Please apply. Thank you,
+
+Rik
+
+===== fs/nfs/dir.c 1.53 vs edited =====
+--- 1.53/fs/nfs/dir.c	Mon Apr  7 18:22:57 2003
++++ edited/fs/nfs/dir.c	Fri Apr 11 14:40:39 2003
+@@ -714,6 +714,7 @@
+ 	struct nfs_server *server;
+ 	struct nfs_entry entry;
+ 	struct page *page;
++	void * kaddr;
+ 	unsigned long timestamp = NFS_MTIME_UPDATE(dir);
+ 	int res;
+ 
+@@ -736,9 +737,9 @@
+ 
+ 		res = -EIO;
+ 		if (PageUptodate(page)) {
+-			desc.ptr = kmap_atomic(page, KM_USER0);
++			kaddr = desc.ptr = kmap_atomic(page, KM_USER0);
+ 			res = find_dirent_name(&desc, page, dentry);
+-			kunmap_atomic(desc.ptr, KM_USER0);
++			kunmap_atomic(kaddr, KM_USER0);
+ 		}
+ 		page_cache_release(page);
+ 
+
 

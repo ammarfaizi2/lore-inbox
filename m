@@ -1,176 +1,209 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbVACWRg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbVACWRh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261915AbVACWRg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 17:17:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVACWQm
+	id S261909AbVACWRh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 17:17:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbVACWQB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 17:16:42 -0500
-Received: from holomorphy.com ([207.189.100.168]:65438 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261912AbVACWNR (ORCPT
+	Mon, 3 Jan 2005 17:16:01 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:42934 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261925AbVACWJh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 17:13:17 -0500
-Date: Mon, 3 Jan 2005 14:09:37 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Adrian Bunk <bunk@stusta.de>, William Lee Irwin III <wli@debian.org>,
-       Bill Davidsen <davidsen@tmr.com>, Andries Brouwer <aebr@win.tue.nl>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Message-ID: <20050103220937.GT29332@holomorphy.com>
-References: <20050102221534.GG4183@stusta.de> <41D87A64.1070207@tmr.com> <20050103003011.GP29332@holomorphy.com> <20050103004551.GK4183@stusta.de> <20050103011935.GQ29332@holomorphy.com> <20050103053304.GA7048@alpha.home.local> <20050103123325.GV29332@holomorphy.com> <20050103213845.GA18010@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050103213845.GA18010@alpha.home.local>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Mon, 3 Jan 2005 17:09:37 -0500
+Date: Mon, 3 Jan 2005 22:29:22 +0100 (CET)
+From: Manfred Spraul <manfred@colorfullife.com>
+X-X-Sender: manfred@dbl.q-ag.de
+To: akpm@osdl.org
+cc: torvalds@osdl.org, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] periodically scan redzone entries and slab control structures
+Message-ID: <Pine.LNX.4.44.0501032223360.1865-100000@dbl.q-ag.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 03, 2005 at 04:33:25AM -0800, William Lee Irwin III wrote:
->> This is bizarre. iptables was made the de facto standard in 2.4.x and
->> the alternatives have issues with functionality. The 2.0/2.2 firewalling
->> interfaces are probably ready to go regardless. You do realize this is
->> what you're referring to?
->> 2 major releases is long enough.
+The redzone words are only checked during alloc and free - thus objects
+that are never/rarely freed are not checked at all.
 
-On Mon, Jan 03, 2005 at 10:38:45PM +0100, Willy Tarreau wrote:
-> if it's long enough, ipfwadm should not have entered 2.6 at all. It's
-> not because you don't see any use to that particular feature that you
-> can guarantee that it is not used at all. At least, a large public
-> call to get in touch with the potentially unique user of this feature
-> would be a start, but generally we should not remove a feature from a
-> stable kernel. What will go next ? minix, because someone will decide
-> that there have been many better filesystems for a long time, so
-> that's long enough ? Revert modules to modutils because someone
-> will think it's simpler for everyone to use a single toolset ? I have
-> no problem removing numerous feature between major releases, even
-> breaking APIs, but I really hate it when something which is called
-> "stable" constantly changes.
+The attached patch adds a periodic scan over all objects and checks for
+wrong redzone data or corrupted bufctl lists.
 
-Unfortunately you're never going to find a rock to build your house
-on. there is no rock, there is only shifting sand.
+Most changes are under #ifdef DEBUG, the only exception is a trivial
+correction for the initial timeout calculation: divide the cachep address
+by L1_CACHE_BYTES before the mod - the low order bits are always 0.
+
+Signed-Off-By: Manfred Spraul <manfred@colorfullife.com>
+
+// $Header$
+// Kernel Version:
+//  VERSION = 2
+//  PATCHLEVEL = 6
+//  SUBLEVEL = 10
+//  EXTRAVERSION =
+--- 2.6/mm/slab.c	2004-12-29 15:35:54.000000000 +0100
++++ build-2.6/mm/slab.c	2005-01-03 21:15:55.318889423 +0100
+@@ -170,7 +170,7 @@
+  */
+
+ #define BUFCTL_END	(((kmem_bufctl_t)(~0U))-0)
+-#define BUFCTL_FREE	(((kmem_bufctl_t)(~0U))-1)
++#define BUFCTL_ALLOC	(((kmem_bufctl_t)(~0U))-1)
+ #define	SLAB_LIMIT	(((kmem_bufctl_t)(~0U))-2)
+
+ /* Max number of objs-per-slab for caches which use off-slab slabs.
+@@ -336,6 +336,7 @@
+ #if DEBUG
+ 	int			dbghead;
+ 	int			reallen;
++	unsigned long		redzonetest;
+ #endif
+ };
+
+@@ -351,6 +352,7 @@
+  */
+ #define REAPTIMEOUT_CPUC	(2*HZ)
+ #define REAPTIMEOUT_LIST3	(4*HZ)
++#define REDZONETIMEOUT		(300*HZ)
+
+ #if STATS
+ #define	STATS_INC_ACTIVE(x)	((x)->num_active++)
+@@ -1417,7 +1419,11 @@
+ 	}
+
+ 	cachep->lists.next_reap = jiffies + REAPTIMEOUT_LIST3 +
+-					((unsigned long)cachep)%REAPTIMEOUT_LIST3;
++					((unsigned long)cachep/L1_CACHE_BYTES)%REAPTIMEOUT_LIST3;
++#if DEBUG
++	cachep->redzonetest = jiffies + REDZONETIMEOUT +
++					((unsigned long)cachep/L1_CACHE_BYTES)%REDZONETIMEOUT;
++#endif
+
+ 	/* Need the semaphore to access the chain. */
+ 	down(&cache_chain_sem);
+@@ -2014,7 +2020,7 @@
+ 			slabp->inuse++;
+ 			next = slab_bufctl(slabp)[slabp->free];
+ #if DEBUG
+-			slab_bufctl(slabp)[slabp->free] = BUFCTL_FREE;
++			slab_bufctl(slabp)[slabp->free] = BUFCTL_ALLOC;
+ #endif
+ 		       	slabp->free = next;
+ 		}
+@@ -2152,7 +2158,7 @@
+ 		objnr = (objp - slabp->s_mem) / cachep->objsize;
+ 		check_slabp(cachep, slabp);
+ #if DEBUG
+-		if (slab_bufctl(slabp)[objnr] != BUFCTL_FREE) {
++		if (slab_bufctl(slabp)[objnr] != BUFCTL_ALLOC) {
+ 			printk(KERN_ERR "slab: double free detected in cache '%s', objp %p.\n",
+ 						cachep->name, objp);
+ 			BUG();
+@@ -2380,7 +2386,7 @@
+ 	slabp->inuse++;
+ 	next = slab_bufctl(slabp)[slabp->free];
+ #if DEBUG
+-	slab_bufctl(slabp)[slabp->free] = BUFCTL_FREE;
++	slab_bufctl(slabp)[slabp->free] = BUFCTL_ALLOC;
+ #endif
+ 	slabp->free = next;
+ 	check_slabp(cachep, slabp);
+@@ -2586,6 +2592,86 @@
+
+ EXPORT_SYMBOL(kmem_cache_size);
+
++#if DEBUG
++static void check_slabuse(kmem_cache_t *cachep, struct slab *slabp)
++{
++	int i;
++
++	if (!(cachep->flags & SLAB_RED_ZONE))
++		return;	/* no redzone data to check */
++
++	for (i=0;i<cachep->num;i++) {
++		void *objp = slabp->s_mem + cachep->objsize * i;
++		unsigned long red1, red2;
++
++		red1 = *dbg_redzone1(cachep, objp);
++		red2 = *dbg_redzone2(cachep, objp);
++
++		/* simplest case: marked as inactive */
++		if (red1 == RED_INACTIVE && red2 == RED_INACTIVE)
++			continue;
++
++		/* tricky case: if the bufctl value is BUFCTL_ALLOC, then
++		 * the object is either allocated or somewhere in a cpu
++		 * cache. The cpu caches are lockless and there might be
++		 * a concurrent alloc/free call, thus we must accept random
++		 * combinations of RED_ACTIVE and _INACTIVE
++		 */
++		if (slab_bufctl(slabp)[i] == BUFCTL_ALLOC &&
++				(red1 == RED_INACTIVE || red1 == RED_ACTIVE) &&
++				(red2 == RED_INACTIVE || red2 == RED_ACTIVE))
++			continue;
++
++		printk(KERN_ERR "slab %s: redzone mismatch in slabp %p, objp %p, bufctl 0x%x\n",
++				cachep->name, slabp, objp, slab_bufctl(slabp)[i]);
++		print_objinfo(cachep, objp, 2);
++	}
++}
++
++/*
++ * Perform a self test on all slabs from a cache
++ */
++static void check_redzone(kmem_cache_t *cachep)
++{
++	struct list_head *q;
++	struct slab *slabp;
++
++	check_spinlock_acquired(cachep);
++
++	list_for_each(q,&cachep->lists.slabs_full) {
++		slabp = list_entry(q, struct slab, list);
++
++		if (slabp->inuse != cachep->num) {
++			printk(KERN_INFO "slab %s: wrong slabp found in full slab chain at %p (%d/%d).\n",
++					cachep->name, slabp, slabp->inuse, cachep->num);
++		}
++		check_slabp(cachep, slabp);
++		check_slabuse(cachep, slabp);
++	}
++	list_for_each(q,&cachep->lists.slabs_partial) {
++		slabp = list_entry(q, struct slab, list);
++
++		if (slabp->inuse == cachep->num || slabp->inuse == 0) {
++			printk(KERN_INFO "slab %s: wrong slab found in partial chain at %p (%d/%d).\n",
++					cachep->name, slabp, slabp->inuse, cachep->num);
++		}
++		check_slabp(cachep, slabp);
++		check_slabuse(cachep, slabp);
++	}
++	list_for_each(q,&cachep->lists.slabs_free) {
++		slabp = list_entry(q, struct slab, list);
++
++		if (slabp->inuse != 0) {
++			printk(KERN_INFO "slab %s: wrong slab found in free chain at %p (%d/%d).\n",
++					cachep->name, slabp, slabp->inuse, cachep->num);
++		}
++		check_slabp(cachep, slabp);
++		check_slabuse(cachep, slabp);
++	}
++}
++
++#endif
++
+ struct ccupdate_struct {
+ 	kmem_cache_t *cachep;
+ 	struct array_cache *new[NR_CPUS];
+@@ -2769,6 +2855,12 @@
+
+ 		drain_array_locked(searchp, ac_data(searchp), 0);
+
++#if DEBUG
++		if(time_before(searchp->redzonetest, jiffies)) {
++			searchp->redzonetest = jiffies + REDZONETIMEOUT;
++			check_redzone(searchp);
++		}
++#endif
+ 		if(time_after(searchp->lists.next_reap, jiffies))
+ 			goto next_unlock;
 
 
-On Mon, Jan 03, 2005 at 04:33:25AM -0800, William Lee Irwin III wrote:
->> Who do you think is actually banging out the code on this mailing list?
-
-On Mon, Jan 03, 2005 at 10:38:45PM +0100, Willy Tarreau wrote:
-> Frankly, sometimes I'm really wondering. We see lots of very clever
-> ideas, and sometimes people come up with concepts which can break
-> existing apps, and simply justify by "this should not have been done
-> in the first time." (eg: unexport syscall_table). But I'm certain
-> that all these mistakes are caused by those too long development
-> cycles. Some developpers get bored by things that irritate them, and
-> prefer to fix the stable tree to stop what they believe is an error,
-> instead of waiting for the next release to fix it there.
-
-These things are harder and colder than "boredom" and the like can
-influence. What you are dredging up does not actually exist.
-
-
-On Mon, Jan 03, 2005 at 04:33:25AM -0800, William Lee Irwin III wrote:
->> Anyway, features aren't really allowed to break backward compatibility;
->> we've effectively got 10-year lifetimes for userspace-visible interfaces.
->> If this isn't good enough, well, tough.
-
-On Mon, Jan 03, 2005 at 10:38:45PM +0100, Willy Tarreau wrote:
-> All in all, I agree with you. The small differences lie in /proc files or
-> oops syntax, etc... But even old syscalls are still supported and that's fine.
-> I appreciate it when I read the packet(7) man page to find that even the
-> interface from linux 2.0 is still supported.
-
-Despite your appreciation the net effect is actually  irrelevance or
-less.
-
-
-On Mon, Jan 03, 2005 at 10:38:45PM +0100, Willy Tarreau wrote:
-> The problem is that nowadays, the userspace-visible code is not only in
-> userspace anymore, but also involves modules interfaces sometimes because
-> some commercial apps rely on modules (firewalls, virtual machines, etc...),
-> and their userspace is nuts without those modules, so in a certain way,
-> breaking some kernel internals within a stable release does break some apps.
-
-On Sun, Jan 02, 2005 at 05:19:35PM -0800, William Lee Irwin III wrote:
->> Either this is some kind of sick joke or you've never heard of SLES9.
-
-On Mon, Jan 03, 2005 at 10:38:45PM +0100, Willy Tarreau wrote:
-> the later :-)
-
-SLES9 is a 2.6.x-based distro release from SuSE. It is in widespread
-use by customers and customers are migrating to it en masse on account
-of its 2.6.x basis due to 2.6.x'  superior performance and stability
-characteristics. No "glowing praise" is necessary. This story tells itself.
-
-
-On Sun, Jan 02, 2005 at 05:19:35PM -0800, William Lee Irwin III wrote:
-> (...) 
->> You have ignored my entire argument in favor of reiterating your own.
->> One more time, since this apparently needs to be repeated in a
->> condensed and/or simplified form.
-
-On Sun, Jan 02, 2005 at 05:19:35PM -0800, William Lee Irwin III wrote:
->> (1) the "stable" kernels are actually buggier because no one's looking
-
-On Mon, Jan 03, 2005 at 10:38:45PM +0100, Willy Tarreau wrote:
-> I don't agree with you. "known" bugs become features of this particular
-> release and people learn how to play with them. The MM beahaviour when one
-> single user can crash the whole machine just accidentely playing with malloc()
-> would be called a bug on any other decent OS. For us it's a feature we have
-> been used to live with.
-
-Patterns of userspace usage that take down boxen are not "features" and
-are never going to be considered valid aspects of "stable" releases.
-
-
-On Mon, Jan 03, 2005 at 10:38:45PM +0100, Willy Tarreau wrote:
-> It's possible that 2.6 has fewer of those known bugs, but it still has many
-> yet-to-discover bugs (the first ones being all those 'my machine does not
-> boot anymore' reported here and caused by those too long release cycles).
-
-Ockham. QED.
-
-
-On Mon, Jan 03, 2005 at 04:33:25AM -0800, William Lee Irwin III wrote:
->> (2) the creation of those feature patches for stable kernels has
->> 	detracted from the efforts needed to get them actually into
->> 	the kernel, and they're not going to exist for long
-
-On Mon, Jan 03, 2005 at 10:38:45PM +0100, Willy Tarreau wrote:
-> I agree with you on the first part, but not on the second one, because
-> as a stable kernel implies it, it will still be possible to apply
-> current patches to new releases with very few efforts. Indeed, I have
-> already sent rediffed > patches to different maintainers because they
-> were easy to do. For a while now, on 2.4, you can easily apply
-> jiffies64, epoll, netdev-random, preempt, lowlat, bme, squashfs, tux,
-> etc... The list is long and demonstrantes what stable code looks like.
-> "stable" does not mean it will not crash, but it means "it will not
-> change much", eventhough this tends to imply the former.
-
-
-Now the everrever-changing definition of "stable" comes into play.
-If you can't handle the baseline changing, freeze on a specific release.
-
-
-On Mon, Jan 03, 2005 at 04:33:25AM -0800, William Lee Irwin III wrote:
->> People are already using it to run the databases their paychecks rely on.
-
-On Mon, Jan 03, 2005 at 10:38:45PM +0100, Willy Tarreau wrote:
-> I feel they're brave. I know several other people who went back,
-> either because they didn't feel comfortable with upgrades these size,
-> which sometimes did not boot because of random patches, or simply
-> because of the scheduler which didn't let them type normally in an
-> SSH session on a CPU-bound system, or even a proxy which performance
-> dropped by a factor of 5 between 2.4 and 2.6. I know they don't
-> report it, but they are not developpers. They see that 2.6 is not
-> ready yet, and turn back to stable 2.4.
-
-They are not brave. They are the most cowardly people in existence.
-They don't dare go on using 2.4.x because it can't handle the load,
-because it can't hadle the bigger and newer machines, and because it
-just doesn't work for them. It's not like they moved frivolously;
-they're more terrified of migrating than even the most horrible bugs.
-
-
--- wli

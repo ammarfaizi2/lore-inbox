@@ -1,110 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266958AbTBSUOX>; Wed, 19 Feb 2003 15:14:23 -0500
+	id <S266991AbTBSUWj>; Wed, 19 Feb 2003 15:22:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266991AbTBSUOX>; Wed, 19 Feb 2003 15:14:23 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:16614 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S266958AbTBSUOV>; Wed, 19 Feb 2003 15:14:21 -0500
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Subject: Re: [PATCH][2.5] flush_tlb_all is not preempt safe.
-Date: Wed, 19 Feb 2003 21:23:50 +0100
-User-Agent: KMail/1.5
-Cc: Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.50.0302140600050.3518-100000@montezuma.mastecende.com>
-In-Reply-To: <Pine.LNX.4.50.0302140600050.3518-100000@montezuma.mastecende.com>
+	id <S267188AbTBSUWj>; Wed, 19 Feb 2003 15:22:39 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:36874 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S266991AbTBSUWj>; Wed, 19 Feb 2003 15:22:39 -0500
+Date: Wed, 19 Feb 2003 21:31:58 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: "David S. Miller" <davem@redhat.com>
+cc: rusty@rustcorp.com.au, <maxk@qualcomm.com>, <kuznet@ms2.inr.ac.ru>,
+       <jt@bougret.hpl.hp.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family 
+In-Reply-To: <20030218.230402.113318233.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0302191525000.32518-100000@serv>
+References: <5.1.0.14.2.20030218101309.048d4288@mail1.qualcomm.com>
+ <20030219035559.7527A2C079@lists.samba.org> <20030218.230402.113318233.davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-03=_df+U+wysbH1VBZ5";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200302192123.57431.schlicht@uni-mannheim.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---Boundary-03=_df+U+wysbH1VBZ5
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_Wf+U+tTfnWH3ZAL"
-Content-Transfer-Encoding: 7bit
-Content-Description: signed data
-Content-Disposition: inline
-
---Boundary-01=_Wf+U+tTfnWH3ZAL
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: body text
-Content-Disposition: inline
-
 Hi,
 
-I've created a patch based on yours to solve the flush_tlb_all preempt-issu=
-e=20
-for x86_64 and the i386/mach-voyager subarchitecture. I'm not sure if the=20
-ia64 architecture would need to be patched, too...?
+On Tue, 18 Feb 2003, David S. Miller wrote:
 
-Wouldn't it even have been possible to solve this problem just by swapping =
-the=20
-two original lines?
+>    Firstly, the owner field should probably be in struct proto_ops not
+>    struct socket, where the function pointers are.
+> 
+> I think this is one of Alexey's main problems with the
+> patch.
 
-Best regards
-  Thomas Schlichter
---Boundary-01=_Wf+U+tTfnWH3ZAL
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="flush_tlb_all_preempt.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline; filename="flush_tlb_all_preempt.patch"
+BTW the access to sockets_in_use is not preempt safe. Although the data 
+has only statistic value, it might be worth to fix this. The easiest 
+solution might be to move socket allocation and the create call outside 
+the net_family lock. The read lock should at least get a preempt enable/ 
+disable (brlock might be another possibilty) and within this lock we can 
+safely modify sockets_in_use and do something like net_family_get()/ 
+net_family_put() similiar to get_fs_type().
 
-=2D-- linux-2.5.62/arch/i386/mach-voyager/voyager_smp.c.orig	Wed Feb 19 16:=
-43:22 2003
-+++ linux-2.5.62/arch/i386/mach-voyager/voyager_smp.c	Wed Feb 19 16:43:57 2=
-003
-@@ -1230,9 +1230,11 @@
- void
- flush_tlb_all(void)
- {
-+	preempt_disable();
- 	smp_call_function (flush_tlb_all_function, 0, 1, 1);
-=20
- 	do_flush_tlb_all_local();
-+	preempt_enable();
- }
-=20
- /* used to set up the trampoline for other CPUs when the memory manager
-=2D-- linux-2.5.62/arch/x86_64/kernel/smp.c.orig	Wed Feb 19 21:08:20 2003
-+++ linux-2.5.62/arch/x86_64/kernel/smp.c	Wed Feb 19 21:09:40 2003
-@@ -344,9 +344,11 @@
-=20
- void flush_tlb_all(void)
- {
-+	preempt_disable();
- 	smp_call_function (flush_tlb_all_ipi,0,1,1);
-=20
- 	do_flush_tlb_all_local();
-+	preempt_enable();
- }
-=20
- void smp_kdb_stop(void)
+bye, Roman
 
---Boundary-01=_Wf+U+tTfnWH3ZAL--
-
---Boundary-03=_df+U+wysbH1VBZ5
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+U+fdYAiN+WRIZzQRAkPCAJ9+NKwFZ+Iprbx4DvkcN3LteGea4QCgwUyl
-SMNQmhWOYjvoMXrynTr59PE=
-=N9cT
------END PGP SIGNATURE-----
-
---Boundary-03=_df+U+wysbH1VBZ5--
 

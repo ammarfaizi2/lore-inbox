@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266864AbRHOVcH>; Wed, 15 Aug 2001 17:32:07 -0400
+	id <S266417AbRHOVl5>; Wed, 15 Aug 2001 17:41:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266710AbRHOVb5>; Wed, 15 Aug 2001 17:31:57 -0400
-Received: from dryline-fw.yyz.somanetworks.com ([216.126.67.45]:7488 "EHLO
-	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
-	id <S266864AbRHOVbo>; Wed, 15 Aug 2001 17:31:44 -0400
-Subject: Re: Dell I8000, 2.4.8-ac5 and APM
-From: Georg Nikodym <georgn@somanetworks.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <29219.997909757@redhat.com>
-In-Reply-To: <997905442.2135.6.camel@keller> 
-	<997901702.2129.16.camel@keller>   <29219.997909757@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 15 Aug 2001 17:31:55 -0400
-Message-Id: <997911115.7088.4.camel@keller>
-Mime-Version: 1.0
+	id <S266464AbRHOVlr>; Wed, 15 Aug 2001 17:41:47 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:38587 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S266417AbRHOVlj>; Wed, 15 Aug 2001 17:41:39 -0400
+Date: Wed, 15 Aug 2001 14:41:15 -0700 (PDT)
+From: Sridhar Samudrala <samudrala@us.ibm.com>
+To: Manfred Bartz <mbartz@optushome.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: connect() does not return ETIMEDOUT
+Message-ID: <Pine.LNX.4.21.0108151123510.4809-100000@w-sridhar2.des.sequent.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Aug 2001 22:09:17 +0100, David Woodhouse wrote:
+linux has 2 queues associated with a listening socket to maintain incoming 
+connections before they are accepted.  The first one is syntable which holds 
+the partial connections (SYN received and SYN-ACK sent). This is a hash table 
+and the maximum length is limited by /proc/sys/net/ipv4/tcp_syn_max_backlog.
+The second one is called accept queue which hold the complete connections (3 
+way handshake is complete). The length of this queue is limited by the backlog value specfied with listen(). It is actually backlog+1.
 
-> Apart from the hang on applying or removing power, were you also having 
-> this problem with APM suspend?
+When the accept queue is full, new incoming SYNs are accepted in a burst of 
+2 at a time. These are put in the SYN table expecting that the accept queue
+will open up by the time we receive the ACK. If the accept queue doesn't get
+open up, the ACK is simply dropped and SYN-ACK is sent again after a certain
+timeout period. 
 
-To be honest, I don't really use suspend/resume so I can't answer.  I
-did, however, get it working for myself while at OLS (under 2.4.6-ext3).
-The trick there was remove my PCMCIA (3c59x) network card and keep it in
-my knapsack for the duration of the conference.
+In your example, 6 connections succeed immediately.
+But only 4 enter ESTABLISHED state.
+2 are accepted by the server. 2 remain in the accept queue (backlog+1).
+2 of them are added to the SYN table. 
 
-> Strangely, APM suspend was working after a suspend-to-disk. It only failed 
-> after a clean boot.
+Thanks
+Sridhar
 
-Curious, indeed.
+
+> Questions:
+
+> Once the backlog is exhausted, shouldn't the server side 
+> TCP stop sending SYNs and either be quiet or perhaps send 
+> an appropriate ICMP response?
+
+> Why does the server side keep sending SYNs after the connection
+> handshake was apparently completed?
+
+> -- 
+> Manfred
 

@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266163AbUHAULa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266166AbUHAUUL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266163AbUHAULa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 16:11:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUHAULa
+	id S266166AbUHAUUL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 16:20:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266173AbUHAUUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 16:11:30 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:154 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266163AbUHAUL0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 16:11:26 -0400
-Date: Sun, 1 Aug 2004 16:10:42 -0400
-From: Alan Cox <alan@redhat.com>
-To: Ian Hastie <ianh@iahastie.clara.net>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       Alan Cox <alan@redhat.com>
-Subject: Re: PATCH: Add support for IT8212 IDE controllers
-Message-ID: <20040801201042.GC20007@devserv.devel.redhat.com>
-References: <20040731232227.GA28455@devserv.devel.redhat.com> <200408012022.42516.ianh@iahastie.local.net>
+	Sun, 1 Aug 2004 16:20:11 -0400
+Received: from ctb-mesg6.saix.net ([196.25.240.78]:35218 "EHLO
+	ctb-mesg6.saix.net") by vger.kernel.org with ESMTP id S266166AbUHAUUF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Aug 2004 16:20:05 -0400
+Subject: Re: 2.6.8-rc2-np1
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <4104DC13.3050201@yahoo.com.au>
+References: <4104DC13.3050201@yahoo.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Ca8wNybWayxUnEc0eJL/"
+Message-Id: <1091391786.9815.2.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408012022.42516.ianh@iahastie.local.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 01 Aug 2004 22:23:06 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 01, 2004 at 08:22:28PM +0100, Ian Hastie wrote:
->         ide2: BM-DMA at 0xec00-0xec07, BIOS settings: hde:pio, hdf:pio
->     it8212: controller in RAID mode.
-> 
-> That doesn't.  I have no RAID sets defined in the IT8212 card BIOS.  BTW, the 
 
-The controller runs in RAID mode on the "smart" cards even without raid 
-definitions being used - its still doing the hardware assist.
+--=-Ca8wNybWayxUnEc0eJL/
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
->         ide3: BM-DMA at 0xec08-0xec0f, BIOS settings: hdg:pio, hdh:pio
->     hde: Maxtor 6Y120P0, ATA DISK drive
->     it8212: selected 50MHz clock.
-> 
-> Nor does this as it really should be using the 66MHz clock setting.
+On Mon, 2004-07-26 at 12:25, Nick Piggin wrote:
 
-Currently it always picks 50MHz, thats a feature I'm still working on 
-adding intelligence to
+Hi,
 
->     ide2 at 0xb000-0xb007,0xa802 on irq 17
->     hde: max request size: 128KiB
->     hde: recal_intr: status=0x51 { DriveReady SeekComplete Error }
->     hde: recal_intr: error=0x04 { DriveStatusError }
-> 
-> Any idea what could be causing this?  My hacked driver doesn't get this in 
-> 2.6.7, but then it could be a 2.6.8 problem.
+> http://www.kerneltrap.org/~npiggin/2.6.8-rc2-np1/
+>=20
+> There is also a patch against 2.6.8-rc1-mm1. The naming scheme is a bit
+> confused at the moment :(
+>=20
 
-It was sent a command it didnt know.
+Any chance of doing a patch against -bk11 ?  I did try to do this
+myself (can forward if you like - its against -bk11 with the domain
+patches from -mm1), but the lru_pages changes is a bit sticky (for
+me at least), and I am not sure if its Ok ...
 
-The UDMA33 speed behaviour looks to me like cable detect got the wrong
-answer. The reference driver doesn't actually do host side cable detect
-so it may be that its in the docs but doesn't actually work or isnt wired
-on the boards. Can you see what the ata66 function is doing ?
+
+Thanks,
+
+--=20
+Martin Schlemmer
+
+--=-Ca8wNybWayxUnEc0eJL/
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBDVEqqburzKaJYLYRAqK8AJ9fFM1SI/0cQQd23m6sQT9OS/k43gCePQWe
+uUm+8BfdhNqRGsLdJqdYUUM=
+=4vub
+-----END PGP SIGNATURE-----
+
+--=-Ca8wNybWayxUnEc0eJL/--
 

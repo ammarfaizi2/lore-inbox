@@ -1,78 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbUK1Wku@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbUK1WkM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261359AbUK1Wku (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 17:40:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbUK1Wku
+	id S261318AbUK1WkM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 17:40:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbUK1WkL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 17:40:50 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:33295 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261359AbUK1Wj0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 17:39:26 -0500
-Date: Sun, 28 Nov 2004 23:39:19 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove bouncing email address of Thomas Hood
-Message-ID: <20041128223919.GF4390@stusta.de>
+	Sun, 28 Nov 2004 17:40:11 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:31670 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261318AbUK1Wid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 17:38:33 -0500
+Subject: Re: Suspend 2 merge
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hugang@soulinfo.com, Andrew Morton <akpm@zip.com.au>
+In-Reply-To: <20041126123847.GD1028@elf.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <20041124132839.GA13145@infradead.org>
+	 <1101329104.3425.40.camel@desktop.cunninghams>
+	 <20041125192016.GA1302@elf.ucw.cz>
+	 <1101422088.27250.93.camel@desktop.cunninghams>
+	 <20041125232200.GG2711@elf.ucw.cz>
+	 <1101426416.27250.147.camel@desktop.cunninghams>
+	 <20041126003944.GR2711@elf.ucw.cz>
+	 <1101455756.4343.106.camel@desktop.cunninghams>
+	 <20041126123847.GD1028@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1101680972.4343.300.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Mon, 29 Nov 2004 09:35:03 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below removes the bouncing email address of Thomas Hood (I 
-haven't found any more recent email address).
+Hi.
 
+On Fri, 2004-11-26 at 23:38, Pavel Machek wrote:
+> My machine suspends in 7 seconds, and that's swsusp1. According to
+> your numbers, suspend2 should suspend it in 1 second and LZE
+> compressed should be .5 second.
 
-diffstat output:
- arch/i386/kernel/apm.c     |    4 ++--
- drivers/pnp/pnpbios/core.c |    2 +-
- drivers/pnp/pnpbios/proc.c |    2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+Seven seconds? How much memory is in use when you start, and how much is
+actually written to disk? If you're starting with 1GB of RAM in use,
+I'll sit up and listen, but I suspect you're talking about something
+closer to 20MB and init S :>
 
+These discussions are getting really unreasonable. "I don't want that
+feature, therefore it shouldn't be merged" isn't a valid argument.
+Neither is "Well, I can suspend in seven seconds with hardly any memory
+in use." If you just don't want suspend2 in the kernel, come out and say
+it. But please, stop giving me lame arguments (more below deleted rather
+than replied to).
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
---- linux-2.6.10-rc2-mm3-full/drivers/pnp/pnpbios/core.c.old	2004-11-28 23:33:19.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-full/drivers/pnp/pnpbios/core.c	2004-11-28 23:33:29.000000000 +0100
-@@ -12,7 +12,7 @@
-  * Minor reorganizations by David Hinds <dahinds@users.sourceforge.net>
-  * Further modifications (C) 2001, 2002 by:
-  *   Alan Cox <alan@redhat.com>
-- *   Thomas Hood <jdthood@mail.com>
-+ *   Thomas Hood
-  *   Brian Gerst <bgerst@didntduck.org>
-  *
-  * Ported to the PnP Layer and several additional improvements (C) 2002
---- linux-2.6.10-rc2-mm3-full/drivers/pnp/pnpbios/proc.c.old	2004-11-28 23:33:38.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-full/drivers/pnp/pnpbios/proc.c	2004-11-28 23:33:44.000000000 +0100
-@@ -2,7 +2,7 @@
-  * /proc/bus/pnp interface for Plug and Play devices
-  *
-  * Written by David Hinds, dahinds@users.sourceforge.net
-- * Modified by Thomas Hood, jdthood@mail.com
-+ * Modified by Thomas Hood
-  *
-  * The .../devices and .../<node> and .../boot/<node> files are
-  * utilized by the lspnp and setpnp utilities, supplied with the
---- linux-2.6.10-rc2-mm3-full/arch/i386/kernel/apm.c.old	2004-11-28 23:33:52.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-full/arch/i386/kernel/apm.c	2004-11-28 23:34:07.000000000 +0100
-@@ -166,14 +166,14 @@
-  *         If an APM idle fails log it and idle sensibly
-  *   1.15: Don't queue events to clients who open the device O_WRONLY.
-  *         Don't expect replies from clients who open the device O_RDONLY.
-- *         (Idea from Thomas Hood <jdthood@mail.com>)
-+ *         (Idea from Thomas Hood)
-  *         Minor waitqueue cleanups. (John Fremlin <chief@bandits.org>)
-  *   1.16: Fix idle calling. (Andreas Steinmetz <ast@domdv.de> et al.)
-  *         Notify listeners of standby or suspend events before notifying
-  *         drivers. Return EBUSY to ioctl() if suspend is rejected.
-  *         (Russell King <rmk@arm.linux.org.uk> and Thomas Hood)
-  *         Ignore first resume after we generate our own resume event
-- *         after a suspend (Thomas Hood <jdthood@mail.com>)
-+ *         after a suspend (Thomas Hood)
-  *         Daemonize now gets rid of our controlling terminal (sfr).
-  *         CONFIG_APM_CPU_IDLE now just affects the default value of
-  *         idle_threshold (sfr).
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
 

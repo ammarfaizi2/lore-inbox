@@ -1,29 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264353AbTCYXZg>; Tue, 25 Mar 2003 18:25:36 -0500
+	id <S264397AbTCYX3I>; Tue, 25 Mar 2003 18:29:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264373AbTCYXZg>; Tue, 25 Mar 2003 18:25:36 -0500
-Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:62101 "EHLO
-	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
-	id <S264353AbTCYXZf>; Tue, 25 Mar 2003 18:25:35 -0500
-Date: Tue, 25 Mar 2003 15:36:40 -0800 (PST)
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Reply-To: whitney@math.berkeley.edu
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [BUG] 2.5.65 kills dosemu, 2.5.64 is OK
-Message-ID: <Pine.LNX.4.44.0303251531480.18554-100000@mf1.private>
+	id <S264399AbTCYX3I>; Tue, 25 Mar 2003 18:29:08 -0500
+Received: from rivmkt61.wintek.com ([206.230.0.61]:21998 "EHLO dust")
+	by vger.kernel.org with ESMTP id <S264397AbTCYX3H>;
+	Tue, 25 Mar 2003 18:29:07 -0500
+Date: Tue, 25 Mar 2003 18:42:34 -0500 (EST)
+From: Alex Goddard <agoddard@purdue.edu>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 502] New: Broken cursor when using neofb
+In-Reply-To: <1352210000.1048622262@flay>
+Message-ID: <Pine.LNX.4.53.0303251839270.4457@dust>
+References: <1352210000.1048622262@flay>
+X-GPG-PUBLIC_KEY: N/a
+X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Tue, 25 Mar 2003, Martin J. Bligh wrote:
 
->From time to time I run an old DOS game under dosemu under X.  In 2.5.64,
-everything works fine.  In 2.5.65, after about a minute, the display locks
-up.  Alt-Sysrq stills works OK.  Before I start a binary search on the -bk
-snapshots between 2.5.64 and 2.5.65, does anyone have a suggestion for the
-culprit or a better debugging method?
+> http://bugme.osdl.org/show_bug.cgi?id=502
+> 
+>            Summary: Broken cursor when using neofb
+>     Kernel Version: 2.5.66
+>             Status: NEW
+>           Severity: normal
+>              Owner: jsimmons@infradead.org
+>          Submitter: jochen@jochen.org
+> 
+> 
+> Distribution: Debian sarge
+> Hardware Environment: IBM Thinkpad 600
+> 
+> Problem Description:
+> 
+> I use neofb, the boot messages are:
+> Mar 25 20:04:58 gswi1164 kernel: neofb: mapped io at c680d000
+> Mar 25 20:04:58 gswi1164 kernel: Autodetected internal display
+> Mar 25 20:04:58 gswi1164 kernel: Panel is a 1024x768 color TFT display
+> Mar 25 20:04:58 gswi1164 kernel: neofb: mapped framebuffer at c6a0e000
+> Mar 25 20:04:58 gswi1164 kernel: neofb v0.4.1: 2048kB VRAM, using 1024x768, 48.361kHz, 60Hz
+> Mar 25 20:04:58 gswi1164 kernel: fb0: MagicGraph 128XD frame buffer device
+> Mar 25 20:04:58 gswi1164 kernel: Console: switching to colour frame buffer device 128x48
+> 
+> On a vc the line cursor looks like
+> ****** ** ********
+> instead of
+> ****************** (the normally continous line is broken).
+> Emacs uses a block cursor that is broken similar, the block
+> is broken by two vertical bars.
 
-Thanks, Wayne
+The VESA fbcon does exactly this as well.
 
+I can grab my boot messages if they would help.
+
+-- 
+Alex Goddard
+agoddard@purdue.edu

@@ -1,141 +1,181 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261289AbRFATE3>; Fri, 1 Jun 2001 15:04:29 -0400
+	id <S261342AbRFATQt>; Fri, 1 Jun 2001 15:16:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261297AbRFATEU>; Fri, 1 Jun 2001 15:04:20 -0400
-Received: from smtp9.xs4all.nl ([194.109.127.135]:59362 "EHLO smtp9.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S261289AbRFATEP>;
-	Fri, 1 Jun 2001 15:04:15 -0400
-From: thunder7@xs4all.nl
-Date: Fri, 1 Jun 2001 21:03:46 +0200
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com
-Subject: Re: interrupt problem with MPS 1.4 / not with MPS 1.1 ?
-Message-ID: <20010601210346.A1069@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-In-Reply-To: <3B16A7E3.1BD600F3@colorfullife.com> <20010531222708.A8295@middle.of.nowhere> <3B16AD5D.DEDB8523@colorfullife.com> <20010601071414.A871@middle.of.nowhere> <3B17D0C1.5FC21CFB@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <3B17D0C1.5FC21CFB@colorfullife.com>; from manfred@colorfullife.com on Fri, Jun 01, 2001 at 07:28:33PM +0200
+	id <S261357AbRFATQj>; Fri, 1 Jun 2001 15:16:39 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:54071 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261342AbRFATQa>; Fri, 1 Jun 2001 15:16:30 -0400
+Date: Fri, 1 Jun 2001 15:16:15 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200106011916.f51JGF616750@devserv.devel.redhat.com>
+To: kaos@ocs.com.au, Matt Chapman <matthewc@cse.unsw.edu.au>
+Cc: Dag Brattli <dag@brattli.net>, linux-kernel@vger.kernel.org,
+        linux-irda@pasta.cs.uit.no
+Subject: Re: [PATCH] for Linux IRDA initialisation bug 2.4.5
+In-Reply-To: <mailman.991404121.32135.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.991404121.32135.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 01, 2001 at 07:28:33PM +0200, Manfred Spraul wrote:
-> thunder7@xs4all.nl wrote:
-> > 
-> > :setpci -s 00:07.2 INTERRUPT_LINE=15
-> > :lspci -vx -s 00:07.2
-> > 00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16) (prog-if 00 [UHCI])
-> >         Subsystem: Unknown device 0925:1234
-> >         Flags: bus master, medium devsel, latency 32, IRQ 19
-> >         I/O ports at a000 [size=32]
-> >         Capabilities: [80] Power Management version 2
-> > 30: 00 00 00 00 80 00 00 00 00 00 00 00 15 04 00 
-> > :setpci -s 00:07.2 INTERRUPT_LINE=19
-> > :lspci -vx -s 00:07.2
-> > 00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16) (prog-if 00 [UHCI])
-> >         Subsystem: Unknown device 0925:1234
-> >         Flags: bus master, medium devsel, latency 32, IRQ 19
-> >         I/O ports at a000 [size=32]
-> >         Capabilities: [80] Power Management version 2
-> > 30: 00 00 00 00 80 00 00 00 00 00 00 00 19 04 00 00
-> > 
-> > So that is correct. I'll attach all the information from the MPS 1.4
-> > reboot, in which 00:07.2 happily points at 05, while everything else
-> > thinks it's at 19.....
-> >
+> >I've found that if you compile IRDA into the kernel, irda_proto_init
+> >gets called twice - once at do_initcalls time, and once explicitly
+> >in do_basic_setup - eventually resulting in a hang (as
+> >register_netdevice_notifier gets called twice with the same struct,
+> >and it's list becomes circular).
 > 
-> Could you compile uhci as a module, set the configuration to MPS1.4 and
-> find out with which interrupt line setting it works.
-> I'd try both
+> The suggested patch has one non-obvious side effect which somebody in
+> irda needs to verify is OK.  Previously irda_proto_init() and
+> irda_device_init() were called after every other driver had
+> initialized.  Now irda_proto_init() is called based on the object order
+> in the top level Makefile, so irda is initialized before i2c,
+> telephony, acpi and mddev.  Is this a valid initialization order?  If
+> not, move
 > 
-> setpci -s 00:07.2 INTERRUPT_LINE=13
-no change, still this in /var/log/messages:
-
-Jun  1 20:57:48 middle kernel: uhci.c: USB Universal Host Controller Interface driver
-Jun  1 20:57:48 middle kernel: hub.c: USB new device connect on bus1/1, assigned device number 2
-Jun  1 20:57:51 middle kernel: usb_control/bulk_msg: timeout
-Jun  1 20:57:51 middle kernel: usb.c: USB device not accepting new address=2 (error=-110)
-Jun  1 20:57:51 middle kernel: hub.c: USB new device connect on bus1/1, assigned device number 3
-Jun  1 20:57:54 middle kernel: usb_control/bulk_msg: timeout
-Jun  1 20:57:54 middle kernel: usb.c: USB device not accepting new address=3 (error=-110)
-
-> setpci -s 00:07.2 INTERRUPT_LINE=3
-> [even if 13 works, please try 03 as well. 13 is hexadecimal==19]
-
-Bingo!!
-
-Jun  1 20:59:34 middle kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
-Jun  1 20:59:34 middle kernel: Attached scsi removable disk sda at scsi3, channel 0, id 0, lun 0
-Jun  1 20:59:34 middle kernel: sda : READ CAPACITY failed.
-Jun  1 20:59:34 middle kernel: sda : status = 1, message = 00, host = 0, driver = 08 
-Jun  1 20:59:34 middle kernel: sda : extended sense code = 2 
-Jun  1 20:59:34 middle kernel: sda : block size assumed to be 512 bytes, disk size 1GB.  
-Jun  1 20:59:34 middle kernel:  sda: I/O error: dev 08:00, sector 0
-Jun  1 20:59:34 middle kernel:  unable to read partition table
-Jun  1 20:59:34 middle kernel: WARNING: USB Mass Storage data integrity not assured
-Jun  1 20:59:34 middle kernel: USB Mass Storage device found at 2
-
+>   DRIVERS-$(CONFIG_IRDA) += drivers/net/irda/irda.o
 > 
-> The via ac97 sound driver contains an irq fixup for this problem. Either
-> a similar fixup is necessary in the uhci driver, or the fixup from the
-> ac97 driver could be moved to the pci-quirks and applied to all devices
-> in the southbridge.
-> 
-Just to be sure, the lspci -vvvxxx reading of 07.2 after this setpci -s
-00:07.2 INTERRUPT_LINE=3 with MPS=1.4 in the bios:
+> to the end of the drivers list and document why it needs to be there.
 
-00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16) (prog-if 00 [UHCI])
-	Subsystem: Unknown device 0925:1234
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32, cache line size 08
-	Interrupt: pin D routed to IRQ 19
-	Region 4: I/O ports at a000 [size=32]
-	Capabilities: [80] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-00: 06 11 38 30 07 00 10 02 16 00 03 0c 08 20 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 01 a0 00 00 00 00 00 00 00 00 00 00 25 09 34 12
-30: 00 00 00 00 80 00 00 00 00 00 00 00 03 04 00 00
-40: 00 10 03 00 02 00 32 e0 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 01 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 20 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Keith, you mistake Matt's fix for an "obvious" fix that turns
+old style inits into new ones. Matt's fix does not change
+initialization order and certainly cannot be corrected by
+moving object files about.
 
-/proc/interrupts:
+I tried to change the thing to new style init and it did not
+quite work. The original problem was fixed but now the system
+hangs when it tries to initialize IP loopback. Perhaps irda0
+gets in the way.
 
-           CPU0       CPU1       
-  0:      22004      24207    IO-APIC-edge  timer
-  1:       2073       2617    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  8:          2          0    IO-APIC-edge  rtc
- 14:        240        241    IO-APIC-edge  ide0
- 16:    5342007    5342450   IO-APIC-level  sym53c8xx
- 17:         23         21   IO-APIC-level  sym53c8xx, sym53c8xx
- 18:       6448       6349   IO-APIC-level  ide2, ide3, DE500-AA (eth0)
- 19:         42         42   IO-APIC-level  usb-uhci, usb-uhci
-NMI:          0          0 
-LOC:      46131      46128 
-ERR:          0
-MIS:          0
+The suggestion about the link order is very relevant for the
+attached patch. I need Dag to pick it where I left it.
 
-Good luck,
-Jurriaan
--- 
-BOFH excuse #317:
+-- Pete
 
-Internet exceeded Luser level, please wait until a luser
-logs off before attempting to log back on.
-GNU/Linux 2.4.5-ac6 SMP/ReiserFS 2x1402 bogomips load av: 0.49 0.12 0.04
+diff -ur -X dontdiff linux-2.4.5/net/irda/ircomm/ircomm_core.c linux-2.4.5-tr5/net/irda/ircomm/ircomm_core.c
+--- linux-2.4.5/net/irda/ircomm/ircomm_core.c	Fri Mar  2 11:12:12 2001
++++ linux-2.4.5-tr5/net/irda/ircomm/ircomm_core.c	Fri May 25 23:26:12 2001@@ -76,8 +76,7 @@
+ 	return 0;
+ }
+ 
+-#ifdef MODULE
+-void ircomm_cleanup(void)
++void __exit ircomm_cleanup(void)
+ {
+ 	IRDA_DEBUG(2, __FUNCTION__ "()\n");
+ 
+@@ -87,7 +86,6 @@
+ 	remove_proc_entry("ircomm", proc_irda);
+ #endif /* CONFIG_PROC_FS */
+ }
+-#endif /* MODULE */
+ 
+ /*
+  * Function ircomm_open (client_notify)
+@@ -511,18 +509,8 @@
+ }
+ #endif /* CONFIG_PROC_FS */
+ 
+-#ifdef MODULE
+ MODULE_AUTHOR("Dag Brattli <dag@brattli.net>");
+ MODULE_DESCRIPTION("IrCOMM protocol");
+ 
+-int init_module(void) 
+-{
+-	return ircomm_init();
+-}
+-	
+-void cleanup_module(void)
+-{
+-	ircomm_cleanup();
+-}
+-#endif /* MODULE */
+-
++module_init(ircomm_init);
++module_exit(ircomm_cleanup);
+diff -ur -X dontdiff linux-2.4.5/net/irda/ircomm/ircomm_tty.c linux-2.4.5-tr5/net/irda/ircomm/ircomm_tty.c
+--- linux-2.4.5/net/irda/ircomm/ircomm_tty.c	Fri Mar  2 11:12:12 2001
++++ linux-2.4.5-tr5/net/irda/ircomm/ircomm_tty.c	Fri May 25 23:27:11 2001@@ -89,7 +89,7 @@
+  *    Init IrCOMM TTY layer/driver
+  *
+  */
+-int __init ircomm_tty_init(void)
++static int __init ircomm_tty_init(void)
+ {	
+ 	ircomm_tty = hashbin_new(HB_LOCAL); 
+ 	if (ircomm_tty == NULL) {
+@@ -142,8 +142,7 @@
+ 	return 0;
+ }
+ 
+-#ifdef MODULE
+-static void __ircomm_tty_cleanup(struct ircomm_tty_cb *self)
++static void __exit __ircomm_tty_cleanup(struct ircomm_tty_cb *self)
+ {
+ 	IRDA_DEBUG(0, __FUNCTION__ "()\n");
+ 
+@@ -162,7 +161,7 @@
+  *    Remove IrCOMM TTY layer/driver
+  *
+  */
+-void ircomm_tty_cleanup(void)
++static void __exit ircomm_tty_cleanup(void)
+ {
+ 	int ret;
+ 
+@@ -176,7 +175,6 @@
+ 
+ 	hashbin_delete(ircomm_tty, (FREE_FUNC) __ircomm_tty_cleanup);
+ }
+-#endif /* MODULE */
+ 
+ /*
+  * Function ircomm_startup (self)
+@@ -1359,22 +1357,8 @@
+ }
+ #endif /* CONFIG_PROC_FS */
+ 
+-#ifdef MODULE
+ MODULE_AUTHOR("Dag Brattli <dagb@cs.uit.no>");
+ MODULE_DESCRIPTION("IrCOMM serial TTY driver");
+ 
+-int init_module(void) 
+-{
+-	return ircomm_tty_init();
+-}
+-
+-void cleanup_module(void)
+-{
+-	ircomm_tty_cleanup();
+-}
+-
+-#endif /* MODULE */
+-
+-
+-
+-
++module_init(ircomm_tty_init);
++module_exit(ircomm_tty_cleanup);
+diff -ur -X dontdiff linux-2.4.5/net/irda/irsyms.c linux-2.4.5-tr5/net/irda/irsyms.c
+--- linux-2.4.5/net/irda/irsyms.c	Sun Nov 12 20:43:11 2000
++++ linux-2.4.5-tr5/net/irda/irsyms.c	Fri May 25 23:28:47 2001
+@@ -61,8 +61,6 @@
+ extern int irlan_init(void);
+ extern int irlan_client_init(void);
+ extern int irlan_server_init(void);
+-extern int ircomm_init(void);
+-extern int ircomm_tty_init(void);
+ extern int irlpt_client_init(void);
+ extern int irlpt_server_init(void);
+ 
+@@ -203,10 +201,6 @@
+ 	 */
+ #ifdef CONFIG_IRLAN
+ 	irlan_init();
+-#endif
+-#ifdef CONFIG_IRCOMM
+-	ircomm_init();
+-	ircomm_tty_init();
+ #endif
+ 
+ #ifdef CONFIG_IRDA_COMPRESSION
+

@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131526AbRCUQdE>; Wed, 21 Mar 2001 11:33:04 -0500
+	id <S131632AbRCUQhz>; Wed, 21 Mar 2001 11:37:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131626AbRCUQcy>; Wed, 21 Mar 2001 11:32:54 -0500
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:29472 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S131526AbRCUQcr>; Wed, 21 Mar 2001 11:32:47 -0500
-Date: Wed, 21 Mar 2001 11:32:05 -0500 (EST)
-From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-To: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: SMP on assym. x86
-In-Reply-To: <20010321165541.H3514@garloff.casa-etp.nl>
-Message-ID: <Pine.LNX.4.10.10103211122500.10337-100000@coffee.psychology.mcmaster.ca>
+	id <S131633AbRCUQhp>; Wed, 21 Mar 2001 11:37:45 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34320 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131632AbRCUQhd>; Wed, 21 Mar 2001 11:37:33 -0500
+Subject: Re: make: *** [vmlinux] Error 1
+To: khc@intrepid.pm.waw.pl (Krzysztof Halasa)
+Date: Wed, 21 Mar 2001 16:33:51 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m3hf0yn42w.fsf@intrepid.pm.waw.pl> from "Krzysztof Halasa" at Mar 12, 2001 09:07:51 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14flYX-0000tT-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> recently upgrading one of my two CPUs, I found kernel-2.4.2 to be unable to
-> handle the situation with 2 different CPUs (AMP = Assymmetric
-> multiprocessing ;-) correctly.
+> > If you are using pgcc, try getting a real less-buggy compiler, like egcs1.1.2
+> > or gcc-2.95 (even 2.96 willl work).
+> 
+> ... not always. I've had problems with gcc "2.96" from RH-7.0
+> - the compiler was generating obviously incorrect code in some cases
+> (and it wasn't .c code fault but a compiler problem).
 
-"correctly".  Intel doesn't support this (mis)configuration:
-especially with different steppings, not to mention models.
-
-Alan has, or is working on, a workaround to handle differing 
-multipliers by turning off the use of RDTSC.  this is the right approach 
-to take in the kernel: disable features not shared by both processors, 
-so correctly-configured machines are not penalized. 
-and the kernel should LOUDLY WARN ABOUT this stuff on boot.
-
-regards, mark hahn.
+2.96-69 is needed
+2.96-74 for DAC960 (packing assumptions changed in gcc cvs)
 

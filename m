@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264938AbTFLScP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 14:32:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264943AbTFLScO
+	id S264943AbTFLSjo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 14:39:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264944AbTFLSjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 14:32:14 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:43389 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S264938AbTFLSbj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 14:31:39 -0400
-Date: Thu, 12 Jun 2003 14:45:22 -0400
-From: Bill Nottingham <notting@redhat.com>
-To: Anders Karlsson <anders@trudheim.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Pentium M (Centrino) cpufreq device driver (please test me)
-Message-ID: <20030612144521.A19228@devserv.devel.redhat.com>
-Mail-Followup-To: Anders Karlsson <anders@trudheim.com>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <1055371846.4071.52.camel@localhost.localdomain> <1055406614.2551.6.camel@tor.trudheim.com>
+	Thu, 12 Jun 2003 14:39:44 -0400
+Received: from werbeagentur-aufwind.com ([217.160.128.76]:38584 "EHLO
+	mail.werbeagentur-aufwind.com") by vger.kernel.org with ESMTP
+	id S264943AbTFLSjn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 14:39:43 -0400
+Subject: Re: ext[23]/lilo/2.5.{68,69,70} -- blkdev_put() problem?
+From: Christophe Saout <christophe@saout.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Andy Pfiffer <andyp@osdl.org>, adam@yggdrasil.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030612111005.389e065b.akpm@digeo.com>
+References: <1052507057.15923.31.camel@andyp.pdx.osdl.net>
+	 <1052510656.6334.8.camel@chtephan.cs.pocnet.net>
+	 <1052513725.15923.45.camel@andyp.pdx.osdl.net>
+	 <1055369326.1158.252.camel@andyp.pdx.osdl.net>
+	 <1055373692.16483.8.camel@chtephan.cs.pocnet.net>
+	 <1055377253.1222.8.camel@andyp.pdx.osdl.net>
+	 <20030611172958.5e4d3500.akpm@digeo.com>
+	 <1055438856.1202.6.camel@andyp.pdx.osdl.net>
+	 <20030612105347.6ea644b7.akpm@digeo.com>
+	 <1055441028.1202.11.camel@andyp.pdx.osdl.net>
+	 <20030612111005.389e065b.akpm@digeo.com>
+Content-Type: text/plain
+Message-Id: <1055443998.549.0.camel@chtephan.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1055406614.2551.6.camel@tor.trudheim.com>; from anders@trudheim.com on Thu, Jun 12, 2003 at 09:30:14AM +0100
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 12 Jun 2003 20:53:18 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anders Karlsson (anders@trudheim.com) said: 
-> On Wed, 2003-06-11 at 23:50, Jeremy Fitzhardinge wrote:
-> > This is the latest version of my Enhanced SpeedStep driver for cpufreq. 
-> > It supports current Pentium M CPUs.
-> 
-> Can this be rebased against 2.4.21 and be included in 2.4.22-pre please?
-> :-)
+Am Don, 2003-06-12 um 20.10 schrieb Andrew Morton:
 
-http://people.redhat.com/notting/cpufreq-centrino.patch
+> Also, what about this shot in the dark?
 
-Rebased against something vaguely 2.4.21-pre-ish.
+> -	wbc.nr_to_write = ps.nr_dirty + ps.nr_unstable +
+> +	wbc.nr_to_write = ps.nr_dirty + ps.nr_unstable + 1024 +
 
-Bill
+Nope, still 4k dirty left after lilo.
+
+-- 
+Christophe Saout <christophe@saout.de>
+

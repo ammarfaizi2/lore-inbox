@@ -1,30 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319293AbSIEXCq>; Thu, 5 Sep 2002 19:02:46 -0400
+	id <S319273AbSIEW7p>; Thu, 5 Sep 2002 18:59:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319296AbSIEXCA>; Thu, 5 Sep 2002 19:02:00 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:8719 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S319293AbSIEXBv>; Thu, 5 Sep 2002 19:01:51 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200209052306.g85N6KR24300@devserv.devel.redhat.com>
-Subject: Re: Linux 2.4.20-pre5-ac3
-To: tadavis@lbl.gov (Thomas Davis)
-Date: Thu, 5 Sep 2002 19:06:20 -0400 (EDT)
-Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <3D77E1C2.560B6646@lbl.gov> from "Thomas Davis" at Sep 05, 2002 03:59:14 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S319276AbSIEW7p>; Thu, 5 Sep 2002 18:59:45 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:62098 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S319273AbSIEW7m>;
+	Thu, 5 Sep 2002 18:59:42 -0400
+Date: Fri, 6 Sep 2002 01:08:51 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Daniel Jacobowitz <dan@debian.org>
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] ptrace-fix-2.5.33-A1
+In-Reply-To: <20020905230250.GC14295@nevyn.them.org>
+Message-ID: <Pine.LNX.4.44.0209060108410.21120-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Sep  5 12:11:21 localhost cardmgr[854]: executing: './ide start hde'
-> > > Sep  5 12:11:21 localhost kernel: hde: bad special flag: 0x03
 
-Ok I can duplicate this but on remove not on insert and it seems to 
-depend on the card the Fujitsu rebadged 340Mb drive does seem to hang my
-thinkpad on remove
+On Thu, 5 Sep 2002, Daniel Jacobowitz wrote:
 
-Andre - did the PCMCIA drive and irq masking stuff ever get fully resolved ?
+> OK.  I think that the !list_empty (ptrace_children) isn't really enough
+> - since there can be things on our children list that we will not wait
+> for - should we be iterating over it making the same checks we do above?
+
+yes, i think so.
+
+	Ingo
+

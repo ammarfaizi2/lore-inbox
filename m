@@ -1,129 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262196AbVBVDNf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262197AbVBVDTy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262196AbVBVDNf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 22:13:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbVBVDNf
+	id S262197AbVBVDTy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 22:19:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbVBVDTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 22:13:35 -0500
-Received: from gate.crashing.org ([63.228.1.57]:27093 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262196AbVBVDN3 (ORCPT
+	Mon, 21 Feb 2005 22:19:54 -0500
+Received: from rproxy.gmail.com ([64.233.170.205]:53285 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262197AbVBVDTv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 22:13:29 -0500
-Subject: POSTing of video cards (WAS: Solo Xgl..)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Dave Airlie <airlied@gmail.com>, Dave Airlie <airlied@linux.ie>,
-       dri-devel@lists.sourceforge.net, xorg@lists.freedesktop.org,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <9e4733910502211717116a4df3@mail.gmail.com>
-References: <Pine.LNX.4.58.0502201049480.18753@skynet>
-	 <4218BAF0.3010603@tungstengraphics.com>
-	 <21d7e997050220150030ea5a68@mail.gmail.com>
-	 <9e4733910502201542afb35f7@mail.gmail.com> <1108973275.5326.8.camel@gaston>
-	 <9e47339105022111082b2023c2@mail.gmail.com>
-	 <1109019855.5327.28.camel@gaston>
-	 <9e4733910502211717116a4df3@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 22 Feb 2005 14:12:48 +1100
-Message-Id: <1109041968.5412.63.camel@gaston>
+	Mon, 21 Feb 2005 22:19:51 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=OofwtkF9B6GB3OQlguJ6exOW8xYWQ11VVeGiGBOUWvXQ8/cXGgYwjg8sumuspBG1zW2GnT0QzVZHtSohUcfbfzqZsihowGMvHZIIBYRG5hjYS8e4XxP3xiHuUlRUhAFZEwyU0EGq8UYcKP7AXRf4ZFkoKMAu/X5w14bVjo0Dcjk=
+Message-ID: <93ca306705022119195db84f6e@mail.gmail.com>
+Date: Mon, 21 Feb 2005 21:19:50 -0600
+From: Alex Adriaanse <alex.adriaanse@gmail.com>
+Reply-To: Alex Adriaanse <alex.adriaanse@gmail.com>
+To: Alasdair G Kergon <agk@redhat.com>, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com, dm-devel@redhat.com
+Subject: Re: Odd data corruption problem with LVM/ReiserFS
+In-Reply-To: <20050221151852.GE14097@agk.surrey.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <93ca3067050220212518d94666@mail.gmail.com>
+	 <20050221151852.GE14097@agk.surrey.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I found out some interesting things tonight.  I removed my /var and
+/home snapshots, and all the corruption, with the exception of files I
+had changed while /var and /home were in their corrupted state, had
+disappeared!
 
-> Ben, since I'm not getting any help on LKML maybe you can answer this.
-> Secondary cards needs reset. After looking at a bunch of fbdev drivers
-> their code assumes the card has been reset when their probe() function
-> runs. So this means that we have to run the VBIOS reset before probe
-> is called.
+I overwrote several files on /var that were corrupt with clean copies
+from my backups, and verified that they were OK.  I then created a new
+/var snapshot, mounted it, only to find out that the files on that
+snapshot were still corrupt, but the files under the real /var were
+still in good shape.  I umounted, lvremoved, lvcreated, and mounted
+the /var snapshot, and saw the same results.  Even after removing the
+snapshot, rebooting, and recreating the snapshot I saw the same thing
+(real /var had correct file, snapshot /var had corrupt file).
 
-I'm putting back LKML on CC since I intended to reply to your post there
-once I got a bit of time.
+Do you think my volume group has simply become corrupt and will need
+to be recreated, or do you guys think this is a bug in dm-snapshot? 
+If so, please let me know what I can do to help you guys debug this.
 
-No, we can't really do that _before_ probe is called. It's the
-responsibility of the driver to do what it needs at probe time or later.
-Some drivers need that reset (and not that many in fact), some don't.
+Thanks,
 
-We may provide a "helper" to use from the probe() for that purpose, to
-make things easier.
+Alex
 
-Wether the reset code is kernel based or userland based, I would avoid
-have it run synchronously anyway. If a driver detects that it's card
-hasn't been properly initialized by the firmware (and the driver should
-be able to detect that), I suggest it's probe routine calls the
-appropriate helper, providing it with ways to get to the ROM (in some
-case, the same helper will be needed for resume from sleep, and the ROM
-may not be the PCI BAR one, but the memory shadow, though that will not
-always work afaik).
 
-Look at the firmware download helper, that's very similar. I want an
-asynchronous interface though (that is you get a callback when the reset
-is complete or timed out) rather than synchronous since it's wrong to
-synchronously rely on userland beeing available (power management,
-pre-root mount, etc...)
-
-> So where can I hook up the call to run the VBIOS up in the kernel? You
-> can't trigger it on module load since the module may support multiple
-> identical adapters. One adapter may already have the module loaded and
-> then a second shows up via hotplug. In this case the module won't get
-> loaded again and the second card doesn't get reset.
->
-> If using a user space reset program what do you do if the user space
-> program is missing or does not complete running? Somehow you have to
-> stop the probe function from being called.
-
-That's ok. We deal with that in the firmware loader code already. Just
-timeout or check for errors from call_usermodehelper. You basically run
-the user program and wait for it to write a "reply" via sysfs. In fact,
-the existing firmware loading facility could be re-used.
- 
-> Another case, you have a card and load the module for it, this causes
-> reset. Now unload the module and load it again. This probably should
-> not reset the card a second time. You also have to make sure you don't
-> reset the primary card.
-
-It's up to each driver to detect wether it's card need to be POSTed or
-not. Anything else would mean infinite breakage.
-
-> One solution is to track in pci_dev if the card has been reset. This
-> preserves the state across module load/unload. I'm then tempted to put
-> an in-kernel emu86 (I have a 40K one) into the pci driver. PCI would
-> use this to reset the card before calling probe(). If the VBIOS/emu86
-> has an error it simply wouldn't call the probe function. Doing this
-> in-kernel makes everything synchronous but GregKH would probably have
-> some choice words about the emulator in the PCI driver.
-
-No, again, it's up to the driver to decide wether it needs to POST or
-not (I prefer that to "reset"). I have no preference for the emulator to
-be in-kernel or userland. I suppose it's easier in userland, just
-re-using the existing infrastructure for firmware loading.
-
-> I am leaning toward putting this into the PCI driver. At boot the PCI
-> driver would reset any cards it finds. The PCI driver also implements
-> hotplug so now I have a place to do reset before calling probe in this
-> case. Doing it in-kernel fixes the synchronization problem. Right now
-> there is no way to suspend calling the probe function while we wait
-> for a hotplug event to finish.
+On Mon, 21 Feb 2005 15:18:52 +0000, Alasdair G Kergon <agk@redhat.com> wrote:
+> On Sun, Feb 20, 2005 at 11:25:37PM -0600, Alex Adriaanse wrote:
+> > This morning was the first time my backup script took
+> > a snapshot since upgrading to 2.6.10-ac12 (yesterday I had taken a few
+> > snapshots myself for testing purposes, this seemed to work fine).
 > 
-> I have all of the pieces needed to build this. I just can't figure out
-> where to hook it into the kernel. Worst case is that I have to go
-> modify 75 framebuffer drivers to explicitly support reset.
-
-No. You don't. A lot of them simply don't care. Just adapt radeonfb, and
-maybe the others ATIs and rivafb, period. If somebody want to adapt to
-your facility, it's up to that person to adapt the framebuffer of their
-dream. You provide infrastructure that _adds_ a functionality not
-previously present. You don't need to implement it in all drivers
-yourself, just do it in a few that matter, and let people who want the
-feature catch up as long as "old" drivers don't _lose_ functionality. 
-
-Also, a lot of those FB's are embedded things, or ppc/pmac things,
-etc... and they simply don't fit into your scheme anyway (and mostly
-don't have the problem in the first place).
-
-Cheers,
-Ben.
-
-
+> a) Activating a snapshot requires a lot of memory;
+> 
+> b) If a snapshot can't get the memory it needs you have to back it
+> out manually (using dmsetup - some combination of resume, remove &
+> possibly reload) to avoid locking up the volume - what you have to do
+> depends how far it got before it failed;
+> 
+> c) You should be OK once a snapshot is active and its origin has
+> successfully had a block written to it.
+> 
+> Work is underway to address the various problems with snapshot activation
+> - we think we understand them all - but until the fixes have worked their
+> way through, unless you've enough memory in the machine it's best to avoid
+> them.
+> 
+> Suggestions:
+>   Only do one snapshot+backup at once;
+>   Make sure logging in as root and using dmsetup does not depend on access
+>   to anything in /var or /home (similar to the case of hard NFS mounts with
+>   the server down) so you can still log in;
+> 
+> BTW Also never snapshot the root filesystem unless you've mounted it noatime
+> or disabled hotplug etc. - e.g. the machine can lock up attempting to
+> update the atime on /sbin/hotplug while writes to the filesystem are blocked
+> 
+> Alasdair
+> --
+> agk@redhat.com
+>

@@ -1,75 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129764AbRCGAkn>; Tue, 6 Mar 2001 19:40:43 -0500
+	id <S129737AbRCGAiY>; Tue, 6 Mar 2001 19:38:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129771AbRCGAkd>; Tue, 6 Mar 2001 19:40:33 -0500
-Received: from mail.valinux.com ([198.186.202.175]:32261 "EHLO
-	mail.valinux.com") by vger.kernel.org with ESMTP id <S129764AbRCGAk0>;
-	Tue, 6 Mar 2001 19:40:26 -0500
-Date: Tue, 6 Mar 2001 16:40:00 -0800
-To: Ying Chen <yingchenb@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: your mail
-Message-ID: <20010306164000.A28219@valinux.com>
-In-Reply-To: <F41oVQAiEGKROptzzpY000014a6@hotmail.com>
+	id <S129759AbRCGAiN>; Tue, 6 Mar 2001 19:38:13 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:56589 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129737AbRCGAiD>;
+	Tue, 6 Mar 2001 19:38:03 -0500
+Date: Wed, 7 Mar 2001 01:37:29 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Tigran Aivazian <tigran@veritas.com>, Alexander Viro <viro@math.psu.edu>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Hashing and directories
+Message-ID: <20010307013729.A7184@pcep-jamie.cern.ch>
+In-Reply-To: <Pine.GSO.4.21.0103011547200.11577-100000@weyl.math.psu.edu> <Pine.LNX.4.21.0103012103140.754-100000@penguin.homenet> <20010302095608.G15061@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <F41oVQAiEGKROptzzpY000014a6@hotmail.com>; from yingchenb@hotmail.com on Tue, Mar 06, 2001 at 03:55:55PM -0800
-From: Don Dugger <n0ano@valinux.com>
+In-Reply-To: <20010302095608.G15061@atrey.karlin.mff.cuni.cz>; from pavel@suse.cz on Fri, Mar 02, 2001 at 09:56:08AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ying-
+Pavel Machek wrote:
+> > the space allowed for arguments is not a userland issue, it is a kernel
+> > limit defined by MAX_ARG_PAGES in binfmts.h, so one could tweak it if one
+> > wanted to without breaking any userland.
+> 
+> Which is exactly what I done on my system. 2MB for command line is
+> very nice.
 
-I'm a little confused here.  It's very hard to compare a UP application
-vs. the same app. converted to use threads.  Unless the app. is
-structured such that multiple threads can run at the same time then
-no, you won't see any improvement by going to SMP, in fact a true
-single threaded app. will frequently slow down when run on an SMP
-kernel.
+Mine too (until recently).  A proper patch to remove the limit, and copy
+the args into swappable memory as they go (to avoid DoS) would be nicer,
+but a quick change to MAX_ARG_PAGES seemed so much easier :-)
 
-Have you watched a CPU meter while your benchmark runs?  Even something
-basic like `top' should give you a feel for whether or not your
-using all of the CPU's.
+In my case, it was a Makefile generating the huge command lines.  There
+were about 20000 source files and 80000 target files, and the occasional
+long line "update the archive with these changed files: ..." ;-)
 
+Splitting the file name list seemed so much more difficult.  You can't
+even do "echo $(FILES) | xargs", as the "echo" command line is too long!
 
-On Tue, Mar 06, 2001 at 03:55:55PM -0800, Ying Chen wrote:
-> Hi,
-> 
-> I have two questions on Linux pthread related issues. Would anyone be able 
-> to help?
-> 
-> ...
->
-> 2. We ran multi-threaded application using Linux pthread library on 2-way 
-> SMP and UP intel platforms (with both 2.2 and 2.4 kernels). We see 
-> significant increase in context switching when moving from UP to SMP, and 
-> high CPU usage with no performance gain in turns of actual work being done 
-> when moving to SMP, despite the fact the benchmark we are running is 
-> CPU-bound. The kernel profiler indicates that the a lot of kernel CPU ticks 
-> went to scheduling and signaling overheads. Has anyone seen something like 
-> this before with pthread applications running on SMP platforms? Any 
-> suggestions or pointers on this subject?
-> 
-> Thanks a lot!
-> 
-> Ying
-> 
-> 
-> 
-> _________________________________________________________________
-> Get your FREE download of MSN Explorer at http://explorer.msn.com
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Don Dugger
-"Censeo Toto nos in Kansa esse decisse." - D. Gale
-n0ano@valinux.com
-Ph: 303/938-9838
+-- Jamie

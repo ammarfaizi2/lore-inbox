@@ -1,172 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129231AbQKAWHu>; Wed, 1 Nov 2000 17:07:50 -0500
+	id <S131377AbQKAWHv>; Wed, 1 Nov 2000 17:07:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131377AbQKAWHl>; Wed, 1 Nov 2000 17:07:41 -0500
-Received: from smtp3.xs4all.nl ([194.109.127.132]:20741 "EHLO smtp3.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S129231AbQKAWHf>;
-	Wed, 1 Nov 2000 17:07:35 -0500
-Message-ID: <3A009557.135DF15E@xs4all.nl>
-Date: Wed, 01 Nov 2000 23:12:39 +0100
-From: Pieter van Prooijen <pprooi@xs4all.nl>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test6 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S131444AbQKAWHl>; Wed, 1 Nov 2000 17:07:41 -0500
+Received: from 041imtd118.chartermi.net ([24.247.41.118]:62458 "EHLO
+	oof.netnation.com") by vger.kernel.org with ESMTP
+	id <S131377AbQKAWHh>; Wed, 1 Nov 2000 17:07:37 -0500
+Date: Wed, 1 Nov 2000 17:07:35 -0500
+From: Simon Kirby <sim@stormix.com>
 To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: 2.4.0-test10 locks up during kernel compiles on Toshiba CDT
- 	1640
+Subject: 2.2.17 toasting cache?
+Message-ID: <20001101170735.A25627@stormix.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 	
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hmm... This seems to be happening every 20 minutes or so on a mail server
+here.  This box handles about 25-35 POP3 logins per second and has 1 GB
+of RAM (compiled with the kernel at 1GB currently, oops). I have
+2.2.18pre15+VM_global on there ready to go, but we haven't rebooted it to
+that yet.
 
-Hi,
+The box runs cucipop and exim and has some staff logins etc., but it
+doesn't look like any processes are eating up the memory and dumping it
+for a number of different reasons.
 
-During kernel compilation (or other heavy use of the machine), the
-machine
-locks up. No oops, no alt-sysreq, only a hardware reset is
-possible. 
+This will probably word wrap for lots of people...sorry.  "vmstat 1":
 
-Machine is a Toshiba CDT 1640 laptop: 475 MHz K6-II+, 128KB cache, 64 MB
-ram, Aladdin V chipset, 6 GB Fujitsu hd.
+   procs                      memory    swap          io     system         cpu      
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id      
+26 13  1   1260   5216 125304 695560   0   0   183    51  829  1473  62  38   0
+18 27  1   1260   2172 125304 696940   0   0   313    56  910  1545  77  22   0
+23 36  1   1260   2312 124692 693468   0   0   411    76  970  2362  76  24   0  
+27 53  2   1260 654044  34656 132704   0   0  1773  1652 3881 15430  43  31  26  
+(no reponse for at least 30 seconds here)
+ 8 43 20  39528 857256  19660  17056 388 38332   985 10906 5160 32640   1  65  34
+ 0 51 17  39704 856308  19688  18408 560 352   408    88  586   818   4   7  89  
+ 0 47 16  39564 854304  19748  21128 420   0   753     0  898  5054   6   9  85
+ 0 45 16  39144 851136  19808  24640 376   0   914     0 1158 12984   7  10  84
 
-Observations:
+As you can see, it decided to throw out around 700 MB of cache.  I've
+been watching top and "vmstat 1" for a while now trying to find out what
+does it, but no process ever seems to be eating up memory or anything
+when it happens -- it seems to just free all the memory and then the box
+just goes very slowly as the RAID array is saturated while it reads back
+in all of the mailboxes as people login (417 blocked cucipop processes at
+one point... ouch :)).
 
-The standard RedHat kernel (2.2.16) and Windows work fine, so it doesn't
-seem to be a hardware problem.
+It doesn't look like anything is slowly eating up the memory (and cache)
+and then exiting, because if it were, there would be many more blocked
+cucipop processes trying to read back in the mail.  It also doesn't look
+like something is quickly eating it up and exiting in a single second,
+because I can't even do that if I try with an optimized malloc()-and-dirty
+program.
 
-When the machine locks up, the little fan begins running immediately,
-which means the processor is getting very hot (doing what ?)
+It also looks weird that it kicks out some stuff to swap _after_ all of
+the memory becomes free.
 
-I've tried various settings of the IDE driver (disabling dma etc.) 
-thinking it might be an ide problem, but this didn't make a difference.
+This is a dual PIII 700 MHz box, the 2.2.17 kernel has no funky patches
+other than one to raise the maximum number of simultaneous
+processes/threads (as you can probably guess).  Hmm...it'd be interesting
+to try 2.4 on there. ;)
 
-"make bzImage" reliably locks up the machine after a few minutes, but
-not
-at same the point in the compilation.
+Any ideas?
 
-I don't know if the problem is related, but the audio driver for the
-cs4281
-sometimes "stutters" during playback. 
+Simon-
 
-Let me know if I need to supply more information, apply patches etc.
-
-Many thanks,
-
-Pieter van Prooijen.
-
-
-Environment: (slightly hacked RedHat 7.0, but 6.2 had the same problems)
-
-kernel modules         2.3.14
-Gnu C                  2.91.66 ("kgcc" from RedHat 7.0)
-Binutils               2.10.0.18
-Linux C Library        2.1.92
-Dynamic linker         ldd (GNU libc) 2.1.92
-cardmgr                3.1.19
-
-Loaded modules:
-
-cs4281                 25608   0 (unused)
-soundcore               3876   3 [cs4281]
-3c589_cs                8040   1
-ds                      6732   2 [3c589_cs]
-// i82365 is really a symlink to yenta_socket, to keep the 2.2 pcmcia
-// config happy.
-i82365                  9996   4
-pcmcia_core            41248   0 [3c589_cs ds i82365]
-mousedev                3956   1
-hid                    11872   0 (unused)
-input                   3360   0 [mousedev hid]
-usb-ohci               16468   0 (unused)
-usbcore                47616   1 [hid usb-ohci]
-
-PCI Devices:
-
-00:00.0 Host bridge: Acer Laboratories Inc. [ALi] M1541 (rev 04)
-	Subsystem: Acer Laboratories Inc. [ALi] ALI M1541 Aladdin V/V+ AGP
-System Controller
-	Flags: bus master, slow devsel, latency 32
-	Memory at e0000000 (32-bit, non-prefetchable) [size=64M]
-	Capabilities: [b0] AGP version 1.0
-
-00:01.0 PCI bridge: Acer Laboratories Inc. [ALi] M5243 (rev 04) (prog-if
-00 [Normal decode])
-	Flags: bus master, slow devsel, latency 32
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
-	I/O behind bridge: 0000e000-0000efff
-	Memory behind bridge: fd000000-fecfffff
-
-00:04.0 CardBus bridge: Texas Instruments PCI1420
-	Subsystem: Toshiba America Info Systems: Unknown device ff00
-	Flags: bus master, medium devsel, latency 168, IRQ 11
-	Memory at 68000000 (32-bit, non-prefetchable) [size=4K]
-	Bus: primary=00, secondary=02, subordinate=02, sec-latency=176
-	Memory window 0: 10000000-103ff000 (prefetchable)
-	Memory window 1: 10400000-107ff000
-	I/O window 0: 00001000-000010ff
-	I/O window 1: 00001400-000014ff
-	16-bit legacy interface ports at 0001
-
-00:04.1 CardBus bridge: Texas Instruments PCI1420
-	Subsystem: Toshiba America Info Systems: Unknown device ff00
-	Flags: bus master, medium devsel, latency 168, IRQ 11
-	Memory at 68001000 (32-bit, non-prefetchable) [size=4K]
-	Bus: primary=00, secondary=06, subordinate=06, sec-latency=176
-	Memory window 0: 10800000-10bff000 (prefetchable)
-	Memory window 1: 10c00000-10fff000
-	I/O window 0: 00001800-000018ff
-	I/O window 1: 00001c00-00001cff
-	16-bit legacy interface ports at 0001
-
-00:07.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge
-[Aladdin IV] (rev 0a)
-	Subsystem: Toshiba America Info Systems: Unknown device ff00
-	Flags: bus master, medium devsel, latency 0
-
-00:08.0 Multimedia audio controller: Cirrus Logic Crystal CS4281 PCI
-Audio (rev 01)
-	Subsystem: Toshiba America Info Systems: Unknown device ff00
-	Flags: bus master, medium devsel, latency 64, IRQ 11
-	Memory at feddf000 (32-bit, non-prefetchable) [size=4K]
-	Memory at fedf0000 (32-bit, non-prefetchable) [size=64K]
-	Capabilities: [40] Power Management version 2
-
-00:0f.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev 20)
-(prog-if fa)
-	Subsystem: Acer Laboratories Inc. [ALi] M5229 IDE
-	Flags: bus master, medium devsel, latency 32
-	I/O ports at fcf0 [size=16]
-
-00:10.0 Communication controller: Rockwell International: Unknown device
-2013 (rev 01)
-	Subsystem: Toshiba America Info Systems: Unknown device ff00
-	Flags: medium devsel, IRQ 10
-	Memory at fede0000 (32-bit, non-prefetchable) [size=64K]
-	I/O ports at fce8 [size=8]
-	Capabilities: [40] Power Management version 2
-
-00:11.0 Bridge: Acer Laboratories Inc. [ALi] M7101 PMU (rev 09)
-	Subsystem: Toshiba America Info Systems: Unknown device ff00
-	Flags: medium devsel
-
-00:13.0 USB Controller: Acer Laboratories Inc. [ALi] M5237 USB (rev 03)
-(prog-if 10 [OHCI])
-	Flags: bus master, medium devsel, latency 64, IRQ 9
-	Memory at fedde000 (32-bit, non-prefetchable) [size=4K]
-
-01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage LT Pro
-AGP-133 (rev dc) (prog-if 00 [VGA])
-	Subsystem: Toshiba America Info Systems: Unknown device ff00
-	Flags: bus master, stepping, medium devsel, latency 66, IRQ 11
-	Memory at fd000000 (32-bit, non-prefetchable) [size=16M]
-	I/O ports at e800 [size=256]
-	Memory at fecff000 (32-bit, non-prefetchable) [size=4K]
-	Expansion ROM at <unassigned> [disabled] [size=128K]
-	Capabilities: [50] AGP version 1.0
-	Capabilities: [5c] Power Management version 1
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

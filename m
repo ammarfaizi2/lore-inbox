@@ -1,35 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262897AbUCRTm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 14:42:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262898AbUCRTm5
+	id S262898AbUCRTnr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 14:43:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbUCRTnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 14:42:57 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:49797
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262897AbUCRTmz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 14:42:55 -0500
-Date: Thu, 18 Mar 2004 20:43:45 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, mjy@geizhals.at,
-       linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_PREEMPT and server workloads
-Message-ID: <20040318194345.GD2022@dualathlon.random>
-References: <40591EC1.1060204@geizhals.at> <20040318060358.GC29530@dualathlon.random> <s5hlllycgz3.wl@alsa2.suse.de> <20040318110159.321754d8.akpm@osdl.org> <s5hd67ac6r8.wl@alsa2.suse.de> <20040318111807.7fa62340.akpm@osdl.org> <s5had2ec68e.wl@alsa2.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <s5had2ec68e.wl@alsa2.suse.de>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Thu, 18 Mar 2004 14:43:47 -0500
+Received: from ida.rowland.org ([192.131.102.52]:31492 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S262898AbUCRTn0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 14:43:26 -0500
+Date: Thu, 18 Mar 2004 14:43:23 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Andrew Morton <akpm@osdl.org>
+cc: Kernel development list <linux-kernel@vger.kernel.org>
+Subject: PATCH: (as230) Work around compiler error in proc_misc.c
+Message-ID: <Pine.LNX.4.44L0.0403181434100.3530-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 18, 2004 at 08:20:17PM +0100, Takashi Iwai wrote:
-> also, the total buffer underrun/overrun problem doesn't happen *so*
-> often (except for the heavy i/o load, etc).
+Andrew:
 
-you mean because the disk has not enough bandwidth to read the file,
-right? (not scheduler related)
+A change you recently applied to fs/proc/proc_misc.c included a comment
+about splitting a seq_printf into two pieces to work around a bug in
+gcc-2.95.3.  Unfortunately gcc-2.96 still chokes on the statements.  The
+patch below makes it work better, albeit at the cost of generating a
+little more code.
+
+Please apply if you think this is correct.
+
+Alan Stern
+
+
+===== fs/proc/proc_misc.c 1.56 vs edited =====
+--- 1.56/fs/proc/proc_misc.c	Mon Mar 15 16:48:00 2004
++++ edited/fs/proc/proc_misc.c	Thu Mar 18 14:26:25 2004
+@@ -391,24 +391,24 @@
+ 		(unsigned long long)jiffies_64_to_clock_t(irq),
+ 		(unsigned long long)jiffies_64_to_clock_t(softirq));
+ 	for_each_cpu(i) {
+-		/* two separate calls here to work around gcc-2.95.3 ICE */
+-		seq_printf(p, "cpu%d %llu %llu %llu ",
++
++		/* Copy values here to work around gcc-2.95.3, gcc-2.96 */
++		user = kstat_cpu(i).cpustat.user;
++		nice = kstat_cpu(i).cpustat.nice;
++		system = kstat_cpu(i).cpustat.system;
++		idle = kstat_cpu(i).cpustat.idle;
++		iowait = kstat_cpu(i).cpustat.iowait;
++		irq = kstat_cpu(i).cpustat.irq;
++		softirq = kstat_cpu(i).cpustat.softirq;
++		seq_printf(p, "cpu%d %llu %llu %llu %llu %llu %llu %llu\n",
+ 			i,
+-			(unsigned long long)
+-			  jiffies_64_to_clock_t(kstat_cpu(i).cpustat.user),
+-			(unsigned long long)
+-			  jiffies_64_to_clock_t(kstat_cpu(i).cpustat.nice),
+-			(unsigned long long)
+-			  jiffies_64_to_clock_t(kstat_cpu(i).cpustat.system));
+-		seq_printf(p, "%llu %llu %llu %llu\n",
+-			(unsigned long long)
+-			  jiffies_64_to_clock_t(kstat_cpu(i).cpustat.idle),
+-			(unsigned long long)
+-			  jiffies_64_to_clock_t(kstat_cpu(i).cpustat.iowait),
+-			(unsigned long long)
+-			  jiffies_64_to_clock_t(kstat_cpu(i).cpustat.irq),
+-			(unsigned long long)
+-			  jiffies_64_to_clock_t(kstat_cpu(i).cpustat.softirq));
++			(unsigned long long)jiffies_64_to_clock_t(user),
++			(unsigned long long)jiffies_64_to_clock_t(nice),
++			(unsigned long long)jiffies_64_to_clock_t(system),
++			(unsigned long long)jiffies_64_to_clock_t(idle),
++			(unsigned long long)jiffies_64_to_clock_t(iowait),
++			(unsigned long long)jiffies_64_to_clock_t(irq),
++			(unsigned long long)jiffies_64_to_clock_t(softirq));
+ 	}
+ 	seq_printf(p, "intr %llu", (unsigned long long)sum);
+ 
+

@@ -1,60 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261812AbTILT6i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 15:58:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbTILT6i
+	id S261871AbTILUNc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 16:13:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTILUNc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 15:58:38 -0400
-Received: from fw.osdl.org ([65.172.181.6]:33451 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261812AbTILT6h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 15:58:37 -0400
-Date: Fri, 12 Sep 2003 12:40:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mitchell Blank Jr <mitch@sfgoth.com>
-Cc: mpm@selenic.com, linux-kernel@vger.kernel.org, mc@cs.stanford.edu
-Subject: Re: [PATCH 2/3] netpoll: netconsole
-Message-Id: <20030912124027.76306077.akpm@osdl.org>
-In-Reply-To: <20030912053335.GJ41254@gaz.sfgoth.com>
-References: <20030910074256.GD4489@waste.org.suse.lists.linux.kernel>
-	<p73znhdhxkx.fsf@oldwotan.suse.de>
-	<20030910082435.GG4489@waste.org>
-	<20030910082908.GE29485@wotan.suse.de>
-	<20030910090121.GH4489@waste.org>
-	<20030910160002.GB84652@gaz.sfgoth.com>
-	<20030912053335.GJ41254@gaz.sfgoth.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 12 Sep 2003 16:13:32 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15005 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261871AbTILUNS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 16:13:18 -0400
+Date: Fri, 12 Sep 2003 21:13:16 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] file locking memory leak
+Message-ID: <20030912201316.GD21596@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mitchell Blank Jr <mitch@sfgoth.com> wrote:
->
-> Mitchell Blank Jr wrote:
-> > The netconsole problem is only if the net driver calls printk() with
-> > its spinlock held (but when not called from netconsole).  Then printk()
-> > won't know that it's unsafe to re-enter the network driver.
-> 
-> BTW, this isn't neccesarily a netconsole-only thing.  For instance, has
-> anyone ever audited all of the serial and lp drivers to make sure that
-> nothing they call can call printk() while holding a lock?  This sounds
-> fairly serious - we could have any number of simple error cases that would
-> cause a deadlock with the right "console=" setting.
-> 
-> It'd be interesting if we could do something like:
->   1. For every function that appears as a "struct console -> write()" call,
->      follow every possible code path and make a list of every lock that they
->      can try to acquire exclusively.
->   2. Then scan the entire code base see if we ever call can printk() while
->      holding that same lock.
 
-If a driver calls printk() while in ->write(), printk will fail to acquire
-the console_sem.  The printk output will be buffered in log_buf[].  When
-->write() releases console_sem it will then display the buffered text.
+This patch fixes a memory leak in the file locking code.  Each attempt
+to unlock a file would result in the leak of a file lock.  Many thanks
+to Martin Josefsson for providing the testcase which enabled me to figure
+out the problem.
 
-So the deadlocks to which you refer can only happen when the console driver
-calls printk while holding driver locks, in a code path where console_sem
-is not held.
+Index: fs/locks.c
+===================================================================
+RCS file: /var/cvs/linux-2.6/fs/locks.c,v
+retrieving revision 1.1
+diff -u -p -r1.1 locks.c
+--- fs/locks.c	29 Jul 2003 17:01:37 -0000	1.1
++++ fs/locks.c	12 Sep 2003 19:07:38 -0000
+@@ -221,7 +221,7 @@ void locks_copy_lock(struct file_lock *n
+ static inline int flock_translate_cmd(int cmd) {
+ 	if (cmd & LOCK_MAND)
+ 		return cmd & (LOCK_MAND | LOCK_RW);
+-	switch (cmd &~ LOCK_NB) {
++	switch (cmd) {
+ 	case LOCK_SH:
+ 		return F_RDLCK;
+ 	case LOCK_EX:
+@@ -233,8 +233,8 @@ static inline int flock_translate_cmd(in
+ }
+ 
+ /* Fill in a file_lock structure with an appropriate FLOCK lock. */
+-static int flock_make_lock(struct file *filp,
+-		struct file_lock **lock, unsigned int cmd)
++static int flock_make_lock(struct file *filp, struct file_lock **lock,
++		unsigned int cmd)
+ {
+ 	struct file_lock *fl;
+ 	int type = flock_translate_cmd(cmd);
+@@ -247,7 +247,7 @@ static int flock_make_lock(struct file *
+ 
+ 	fl->fl_file = filp;
+ 	fl->fl_pid = current->tgid;
+-	fl->fl_flags = (cmd & LOCK_NB) ? FL_FLOCK : FL_FLOCK | FL_SLEEP;
++	fl->fl_flags = FL_FLOCK;
+ 	fl->fl_type = type;
+ 	fl->fl_end = OFFSET_MAX;
+ 	
+@@ -1298,6 +1298,7 @@ asmlinkage long sys_flock(unsigned int f
+ {
+ 	struct file *filp;
+ 	struct file_lock *lock;
++	int can_sleep, unlock;
+ 	int error;
+ 
+ 	error = -EBADF;
+@@ -1305,12 +1306,18 @@ asmlinkage long sys_flock(unsigned int f
+ 	if (!filp)
+ 		goto out;
+ 
+-	if ((cmd != LOCK_UN) && !(cmd & LOCK_MAND) && !(filp->f_mode & 3))
++	can_sleep = !(cmd & LOCK_NB);
++	cmd &= ~LOCK_NB;
++	unlock = (cmd == LOCK_UN);
++
++	if (!unlock && !(cmd & LOCK_MAND) && !(filp->f_mode & 3))
+ 		goto out_putf;
+ 
+ 	error = flock_make_lock(filp, &lock, cmd);
+ 	if (error)
+ 		goto out_putf;
++	if (can_sleep)
++		lock->fl_flags |= FL_SLEEP;
+ 
+ 	error = security_file_lock(filp, cmd);
+ 	if (error)
+@@ -1318,7 +1325,7 @@ asmlinkage long sys_flock(unsigned int f
+ 
+ 	for (;;) {
+ 		error = flock_lock_file(filp, lock);
+-		if ((error != -EAGAIN) || (cmd & LOCK_NB))
++		if ((error != -EAGAIN) || !can_sleep)
+ 			break;
+ 		error = wait_event_interruptible(lock->fl_wait, !lock->fl_next);
+ 		if (!error)
+@@ -1329,7 +1336,7 @@ asmlinkage long sys_flock(unsigned int f
+ 	}
+ 
+  out_free:
+-	if (error) {
++	if (unlock || error) {
+ 		locks_free_lock(lock);
+ 	}
+ 
 
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

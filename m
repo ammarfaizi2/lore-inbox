@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283717AbRLED2t>; Tue, 4 Dec 2001 22:28:49 -0500
+	id <S283720AbRLEDcJ>; Tue, 4 Dec 2001 22:32:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283720AbRLED2j>; Tue, 4 Dec 2001 22:28:39 -0500
-Received: from odin.allegientsystems.com ([208.251.178.227]:26753 "EHLO
-	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
-	id <S283717AbRLED23>; Tue, 4 Dec 2001 22:28:29 -0500
-Message-ID: <3C0D9456.6090106@optonline.net>
-Date: Tue, 04 Dec 2001 22:28:22 -0500
-From: Nathan Bryant <nbryant@optonline.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S283723AbRLEDb7>; Tue, 4 Dec 2001 22:31:59 -0500
+Received: from mail2.alphalink.com.au ([202.161.124.58]:9754 "EHLO
+	mail2.alphalink.com.au") by vger.kernel.org with ESMTP
+	id <S283720AbRLEDbk>; Tue, 4 Dec 2001 22:31:40 -0500
+Message-ID: <3C0D86C9.312E726A@alphalink.com.au>
+Date: Wed, 05 Dec 2001 13:30:33 +1100
+From: Greg Banks <gnb@alphalink.com.au>
+Organization: Corpus Canem Pty Ltd
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Doug Ledford <dledford@redhat.com>
-CC: Mario Mikocevic <mozgy@hinet.hr>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i810 audio patch
-In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net> <3C0D223E.3020904@redhat.com> <3C0D350F.9010408@optonline.net> <3C0D3CF7.6030805@redhat.com> <3C0D4E62.4010904@optonline.net> <3C0D52F1.5020800@optonline.net> <3C0D5796.6080202@redhat.com> <3C0D5CB6.1080600@optonline.net> <3C0D5FC7.3040408@redhat.com> <3C0D77D9.70205@optonline.net> <3C0D8B00.2040603@optonline.net> <3C0D8F02.8010408@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Tom Rini <trini@kernel.crashing.org>
+CC: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net,
+        torvalds@transmeta.com
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+In-Reply-To: <E16BJ3x-0001qq-00@DervishD.viadomus.com> <20011204182236.GM17651@cpe-24-221-152-185.az.sprintbbd.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Ledford wrote:
+[Cc: list trimmed]
 
-> Two questions:
->
-> 1) This is a timeout on close.  Does it work up until then? 
+Tom Rini wrote:
+> 
+> [...  The spec for CML2 is
+> out there, and there's even a CML2-in-C project.  If you don't want to
+> use Python, go help (I believe Greg Banks is who ESR mentioned is in
+> charge of it) that project out [...]
 
-no - no audible output. (quake doesn't use SNDCTL_DSP_SYNC anywhere 
-either so it would have to be on close)
+  In charge of it?  I *am* it.  At least, I was it; I haven't done much
+on it for a few months.  I got bogged down trying to reproduce Eric's symbol
+freezing semantics with my undoable data structure, and then other things
+came up.  Besides the whole Python issue seemed to have died down.
 
->
->
-> 2) Does the attached patch (against the 0.08 driver) help?
+  The latest (unreleased) code has GTK and curses GUIs (the curses GUI reuses
+the CML1 dialog code so it looks very much like CML1 "make menuconfig"), but
+is several months behind tracking CML2 language changes.
 
-No - timeout printk still occurs
+  If people are interested in contributing, I'd be happy to put the project
+on sourceforge.  But judging by the download counter for the last release at
 
+http://www.alphalink.com.au/~gnb/gcml2/
+
+nobody really cares ;-)  It seems my main contribution has been to provide
+Eric with incentive to clarify his language spec and speed up his parser.
+
+Greg.
+-- 
+the price of civilisation today is a courageous willingness to prevail,
+with force, if necessary, against whatever vicious and uncomprehending
+enemies try to strike it down.	   - Roger Sandall, The Age, 28Sep2001.

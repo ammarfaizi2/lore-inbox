@@ -1,65 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261178AbTEAIuv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 04:50:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbTEAIuv
+	id S261176AbTEAItQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 04:49:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbTEAItP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 04:50:51 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:38784 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261178AbTEAIut
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 04:50:49 -0400
-Date: Thu, 1 May 2003 10:03:09 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: David Schwartz <davids@webmaster.com>
-Cc: Robert White <rwhite@casabyte.com>, linux-kernel@vger.kernel.org
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-Message-ID: <20030501090309.GA17578@mail.jlokier.co.uk>
-References: <PEEPIDHAKMCGHDBJLHKGOEHMCJAA.rwhite@casabyte.com> <MDEHLPKNGKAHNMBLJOLKGEBECKAA.davids@webmaster.com>
+	Thu, 1 May 2003 04:49:15 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:36584 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261176AbTEAItP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 04:49:15 -0400
+Date: Thu, 1 May 2003 11:01:31 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@digeo.com>, David Woodhouse <dwmw2@redhat.com>
+Cc: Grzegorz Jaskiewicz <gj@pointblue.com.pl>, linux-kernel@vger.kernel.org,
+       greg@kroah.com, rddunlap@osdl.org
+Subject: Re: 2.5.68-bk10 blkmtd.c:219: warning: implicit declaration offunction `alloc_kiovec'
+Message-ID: <20030501090131.GQ14959@fs.tum.de>
+References: <1051745126.5274.22.camel@flat41> <1051747119.5315.28.camel@flat41> <20030430171047.2f22ed70.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGEBECKAA.davids@webmaster.com>
+In-Reply-To: <20030430171047.2f22ed70.akpm@digeo.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Schwartz wrote:
-> 	All of these right conflicts are resolved by property rights. Yes, you can
-> keep and bear arms on your property, but you can't let a bullet fly onto the
-> circle K. Yes, you can smoke in your house or someplace under your control,
-> but I can designate my house smoke free if I want to.
+On Wed, Apr 30, 2003 at 05:10:47PM -0700, Andrew Morton wrote:
+> Grzegorz Jaskiewicz <gj@pointblue.com.pl> wrote:
+> >
+> >   struct kiobuf *iobuf;
+> > 	^^^^^^^
+> >   unsigned long *blocks;
+> > 
+> > Fast fgrep in kernel sources gives me no answer about this structure declaration.
+> > 
+> 
+> blkmtd died when kiobufs were removed.  The maintainer said "oh well, OK, I
+> need to rewrite it anyway" but that obviously has not yet happened.
 
-Free market capitalism _appears_ to tend towards a structure where the
-bulk of property becomes owned by a few owners, and the majority of
-owners own very little property.
+There's a new blkmtd in the MTD CVS.
 
-So it's appropriate for rights to be distributed like that too?
+David:
+What are your current plans regarding merging the MTD CVS into 2.5?
 
-For example, suppose you own _all_ the land I can travel to.  Then my
-right to not be shot by you is not protected at all.  I do not think
-that is an appropriate resolution of rights.
+cu
+Adrian
 
-> 	The author's right to profit from his creation is about as absolute a
-> property right as you can imagine.
+[1] http://www.linux-mtd.infradead.org/
 
-For some kinds of profit, I agree.  For other kinds of profit (read:
-coercion over others), I disagree.
+-- 
 
-And if there are two authors who independently create something
-similar?  The rights do not resolve so long as both authors demand
-that the other does not profit.  The only resolution is when both
-authors view cooperation as a satisfactory kind of profit.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-I truly do not believe I have that "absolute property right", much as
-I would like it.  If I write a program or create a new kind of
-technical device, I would like to profit from that.  But I do not
-think I would be allowed to, as I would be pursued into oblivion by
-more powerful entities than I.
-
-But then, I truly believe it is conceptually impossible to create
-something which has no connection with what has come before.  So I
-would not claim it as absolutely mine anyway, unless I had an agenda
-to fulfull...
-
--- Jamie

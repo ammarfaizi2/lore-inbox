@@ -1,54 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262384AbUCWJPX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 04:15:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbUCWJPX
+	id S262398AbUCWJZX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 04:25:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbUCWJZW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 04:15:23 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:24207 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262384AbUCWJPU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 04:15:20 -0500
-Date: Tue, 23 Mar 2004 14:44:27 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, andrea@suse.de, mjy@geizhals.at,
-       linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_PREEMPT and server workloads
-Message-ID: <20040323091427.GB3676@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <40591EC1.1060204@geizhals.at> <20040318060358.GC29530@dualathlon.random> <s5hlllycgz3.wl@alsa2.suse.de> <20040318110159.321754d8.akpm@osdl.org> <s5hbrmuc6ed.wl@alsa2.suse.de> <20040318221006.74246648.akpm@osdl.org> <s5hznadb03r.wl@alsa2.suse.de>
+	Tue, 23 Mar 2004 04:25:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:64468 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262398AbUCWJZS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 04:25:18 -0500
+Date: Tue, 23 Mar 2004 01:25:14 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Daniel McNeil <daniel@osdl.org>
+Cc: mason@suse.com, linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Subject: Re: 2.6.5-rc1-mm2 and direct_read_under and wb
+Message-Id: <20040323012514.7670f622.akpm@osdl.org>
+In-Reply-To: <1080003067.6930.78.camel@ibm-c.pdx.osdl.net>
+References: <20040314172809.31bd72f7.akpm@osdl.org>
+	<20040317123324.46411197.akpm@osdl.org>
+	<1079563568.4185.1947.camel@watt.suse.com>
+	<20040317150909.7fd121bd.akpm@osdl.org>
+	<1079566076.4186.1959.camel@watt.suse.com>
+	<20040317155111.49d09a87.akpm@osdl.org>
+	<1079568387.4186.1964.camel@watt.suse.com>
+	<20040317161338.28b21c35.akpm@osdl.org>
+	<1079569870.4186.1967.camel@watt.suse.com>
+	<20040317163332.0385d665.akpm@osdl.org>
+	<1079572511.6930.5.camel@ibm-c.pdx.osdl.net>
+	<1079632431.6930.30.camel@ibm-c.pdx.osdl.net>
+	<1079635678.4185.2100.camel@watt.suse.com>
+	<1079637004.6930.42.camel@ibm-c.pdx.osdl.net>
+	<1079714990.6930.49.camel@ibm-c.pdx.osdl.net>
+	<1079715901.6930.52.camel@ibm-c.pdx.osdl.net>
+	<1079879799.11062.348.camel@watt.suse.com>
+	<1079979016.6930.62.camel@ibm-c.pdx.osdl.net>
+	<1079980512.11058.524.camel@watt.suse.com>
+	<1079981473.6930.71.camel@ibm-c.pdx.osdl.net>
+	<20040322151312.6b629736.akpm@osdl.org>
+	<1080003067.6930.78.camel@ibm-c.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <s5hznadb03r.wl@alsa2.suse.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 19, 2004 at 11:30:16AM +0100, Takashi Iwai wrote:
-> > The unavoidable worst case is in the RCU callbacks for dcache shrinkage -
-> > I've seen 25 millisecond holdoffs on the above machine during filesystem
-> > stresstests when RCU is freeing a huge number of dentries in softirq
-> > context.
-> 
-> hmm, this wasn't also evaluated in my tests.
-> it's worthy to try.  thanks for the info.
+Daniel McNeil <daniel@osdl.org> wrote:
+>
+> The test has been running over 5 hours now without seeing uninitialized
+>  data.  I'll let it run overnight, but it looks like the small 
+>  __block_write_full_page patch fixes the problem.
 
-Please do. This would be a very interesting data point.
+OK, thanks.  It does cause gargantuan amounts of CPU consumption as
+expected.  The below version fixes that up.  I'm not 100% happy with it,
+but it seems OK on the profiles.
 
-> 
-> > This if Hard To Fix.  Dipankar spent quite some time looking into it and
-> > had patches, but I lost track of where they're at.
-> 
-> couldn't this tasklet be replaced with workqueue or such?
 
-Close. I am using per-cpu kernel threads to hand over the rcu callbacks
-if there are too many of them. It depends on CONFIG_PREEMPT on better
-latency from there onwards.
+diff -puN fs/buffer.c~block_write_full_page-redirty fs/buffer.c
+--- 25/fs/buffer.c~block_write_full_page-redirty	2004-03-23 01:06:59.281253176 -0800
++++ 25-akpm/fs/buffer.c	2004-03-23 01:09:11.313181272 -0800
+@@ -1810,14 +1810,18 @@ static int __block_write_full_page(struc
+ 		get_bh(bh);
+ 		if (!buffer_mapped(bh))
+ 			continue;
+-		if (wbc->sync_mode != WB_SYNC_NONE) {
++		/*
++		 * If it's a fully non-blocking write attempt and we cannot
++		 * lock the buffer then redirty the page.  Note that this can
++		 * potentially cause a busy-wait loop from pdflush and kswapd
++		 * activity, but those code paths have their own higher-level
++		 * throttling.
++		 */
++		if (wbc->sync_mode != WB_SYNC_NONE || !wbc->nonblocking) {
+ 			lock_buffer(bh);
+-		} else {
+-			if (test_set_buffer_locked(bh)) {
+-				if (buffer_dirty(bh))
+-					__set_page_dirty_nobuffers(page);
+-				continue;
+-			}
++		} else if (test_set_buffer_locked(bh)) {
++			__set_page_dirty_nobuffers(page);
++			continue;
+ 		}
+ 		if (test_clear_buffer_dirty(bh)) {
+ 			if (!buffer_uptodate(bh))
 
-I can use a workqueue, but I needed the flexibility experiment with
-the kernel thread for now.
+_
 
-Thanks
-Dipankar

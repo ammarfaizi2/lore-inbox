@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267090AbSKMBen>; Tue, 12 Nov 2002 20:34:43 -0500
+	id <S267089AbSKMBed>; Tue, 12 Nov 2002 20:34:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267094AbSKMBen>; Tue, 12 Nov 2002 20:34:43 -0500
-Received: from smtp07.iddeo.es ([62.81.186.17]:51691 "EHLO smtp07.retemail.es")
-	by vger.kernel.org with ESMTP id <S267090AbSKMBel>;
-	Tue, 12 Nov 2002 20:34:41 -0500
-Date: Wed, 13 Nov 2002 02:41:20 +0100
-From: =?iso-8859-1?Q?J=2EA=2E_Magall=F3n?= <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCHSET] Linux 2.4.20-rc1-jam2
-Message-ID: <20021113014120.GC1806@werewolf.able.es>
+	id <S267090AbSKMBed>; Tue, 12 Nov 2002 20:34:33 -0500
+Received: from mail3.noris.net ([62.128.1.28]:48778 "EHLO mail3.noris.net")
+	by vger.kernel.org with ESMTP id <S267089AbSKMBec>;
+	Tue, 12 Nov 2002 20:34:32 -0500
+From: "Matthias Urlichs" <smurf@noris.de>
+Date: Wed, 13 Nov 2002 02:41:18 +0100
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH 2.4: scsi and BLK_STATS
+Message-ID: <20021113024118.M18881@noris.de>
+References: <20021112172821.GA14195@play.smurf.noris.de> <20021113001530.A323@infradead.org> <20021113023059.K18881@noris.de> <20021113013717.A3008@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.3
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021113013717.A3008@infradead.org>; from hch@infradead.org on Wed, Nov 13, 2002 at 01:37:17AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all...
+Hi,
 
-Just to public a new relase ;).
+Christoph Hellwig:
+> > anyway, please disregard my patch and add
+> > 
+> > #include <linux/genhd.h>
+> > 
+> > in scsi/scsi_lib.c.  :-/
+> 
+> It already gets genhd.h through blk.h -> blkdev.h.. :)
 
-Changes/updates/new things:
-
-- update to official rc1-aa1
-- reverted the pte_fast changes in -aa. It cured my hangs on X logoff with
-  nvidia driver. Perhaps some bug when gart releases pages ??
-- add the force_inline patch from Denis Vlasenko, with some additions for
-  __copy_[to,from]_user
-- kmsgdump-0.4.4 by  Willy Tarreau: dump oopsen to floppy/console...
-- proconfig-0.9.5 by Peter T. Breuer: store .config in /proc/config
-- bttv updates and missing files
-- bproc 3.2.2
-
-More info on
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.20-rc1-jam2/README.txt
-
-Get it at 
-
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.20-rc1-jam2/
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.20-rc1-jam2.tar.gz
-
-Enjoy !!
+... then why did I get that undefined symbol in scsi_mod.o, I wonder ??
 
 -- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.20-rc1-jam2 (gcc 3.2 (Mandrake Linux 9.1 3.2-3mdk))
+Matthias Urlichs     |     noris network AG     |     http://smurf.noris.de/

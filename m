@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbULUF6T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbULUGAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbULUF6T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 00:58:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbULUF6T
+	id S261299AbULUGAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 01:00:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbULUGAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 00:58:19 -0500
-Received: from tanthi.teneoris.com ([164.164.94.19]:16099 "EHLO
-	tanthi.teneoris.com") by vger.kernel.org with ESMTP id S261291AbULUF6Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 00:58:16 -0500
-Subject: linuxrc in 2.6.7
-From: Amol <amol@teneoris.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1103608125.2711.212.camel@amol.teneoris.com>
+	Tue, 21 Dec 2004 01:00:09 -0500
+Received: from mail15.syd.optusnet.com.au ([211.29.132.196]:62357 "EHLO
+	mail15.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261299AbULUF74 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 00:59:56 -0500
+References: <20041221024347.3004.qmail@web52606.mail.yahoo.com>
+Message-ID: <cone.1103608791.326982.28853.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: jesse <jessezx@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Gurus, a silly question for preemptive behavior
+Date: Tue, 21 Dec 2004 16:59:51 +1100
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 21 Dec 2004 11:18:45 +0530
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
- I am using 2.6.7 in my embedded linux box. I start with RAMDISK as a
-rootfilesystem and finally want to move the rootfile system to RAMFS (I
-cannot use initramfs for some reasons). 
+jesse writes:
 
-I used following linuxrc script. I see kernel calling do_linuxrc
-function but none of the commands in the linuxrc are getting executed. 
+>  
+> As i know, in linux, user space application is
+> preemptive at any time. however, linux kernel is NOT
+> preemptive, that means, even some event is finished,
+> Linux kernel scheduler itself still can't have
+> opportunity to interrupt the current user application
+> and switch it out. it is called scheduler latency.
 
-What I am missing ??
+The kernel is preemptible if you enable the preempt option in the 
+configuration. There are some code paths that are not preemptible despite 
+this, but they are gradually being improved over time.
 
-linuxrc
---------
+> normally , the latency is about 88us in mean , maximum
+> : 200ms. Thus, the short latency shouldn't impact user
+> applications too much and is not a problem. It is an
+> issue in those embedded voice processing systems by
+> introducing jitters, thus smart people came up with
+> two kernel schedule patch: preemptive patch and low
+> latency patch. 
 
-!/bin/busybox sh
+You're thinking about the 2.4 kernel. 2.6 is effectively both of those 
+patches inclusive.
 
+> my system: 
+> [root@sa-c2-7 proc]# uname  -a 
+> Linux sa-c2-7 2.4.21-15.ELsmp #1 SMP Thu Apr 22
+> 00:18:24 EDT 2004 i686 i686 i386 GNU/Linux 
 
-busybox mount -t ramfs ramfs /mnt
-busybox cp -a bin dev etc lib sbin usr var mnt
-cd /mnt
-busybox mkdir proc initrd
-busybox pivot_root . initrd
-busybox mount /proc /proc -t proc
-busybox --install -s
+If you want lower latency on a 2.4 kernel you need further patches. You are 
+most likely to benefit from a move to a 2.6 kernel and enabling preempt.
 
-
-echo 0x100 >/proc/sys/kernel/real-root-dev
-
-
+Cheers,
+Con
 

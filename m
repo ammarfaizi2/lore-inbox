@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVBOXTF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261944AbVBOXU4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbVBOXTF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 18:19:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVBOXTF
+	id S261944AbVBOXU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 18:20:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbVBOXU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 18:19:05 -0500
-Received: from mail.tyan.com ([66.122.195.4]:61970 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S261943AbVBOXSm (ORCPT
+	Tue, 15 Feb 2005 18:20:56 -0500
+Received: from gaz.sfgoth.com ([69.36.241.230]:22976 "EHLO gaz.sfgoth.com")
+	by vger.kernel.org with ESMTP id S261944AbVBOXUJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 18:18:42 -0500
-Message-ID: <3174569B9743D511922F00A0C943142308085872@TYANWEB>
-From: YhLu <YhLu@tyan.com>
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: X86_64 kernel support MAX memory.
-Date: Tue, 15 Feb 2005 15:32:14 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Tue, 15 Feb 2005 18:20:09 -0500
+Date: Tue, 15 Feb 2005 15:29:39 -0800
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Alexey Dobriyan <adobriyan@mail.ru>, Andrew Morton <akpm@osdl.org>,
+       Andreas Dilger <adilger@clusterfs.com>,
+       ext3 users list <ext3-users@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ext3: Fix sparse -Wbitwise warnings.
+Message-ID: <20050215232939.GD16892@gaz.sfgoth.com>
+References: <200502151246.06598.adobriyan@mail.ru> <1108476729.3363.9.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1108476729.3363.9.camel@sisko.sctweedie.blueyonder.co.uk>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Tue, 15 Feb 2005 15:29:40 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks.
+Stephen C. Tweedie wrote:
+> If we want to fix this, let's fix the macros: for example, convert
+> EXT3_HAS_COMPAT_FEATURE to be
+> 
+> 	( le32_to_cpu(EXT3_SB(sb)->s_es->s_feature_compat) & (mask) )
 
-I will test 64G on node 4-7 only or 64G on node 0-3.
+Of course that's less efficient though since "mask" is probably constant..
+so now the endian conversion changed from compile-time to run-time.
 
-YH
+Would something like
 
-> -----Original Message-----
-> From: Andi Kleen [mailto:ak@muc.de] 
-> Sent: Tuesday, February 15, 2005 2:55 PM
-> To: YhLu
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: X86_64 kernel support MAX memory.
-> 
-> On Tue, Feb 15, 2005 at 02:57:14PM -0800, YhLu wrote:
-> > It passed the memtest86+ 3.1a
-> 
-> Are you sure it even tests the full 128GB? Traditionally PAE 
-> only supports 64GB. 
-> 
-> > 
-> > No oops dump, it just restart the system.
-> 
-> At what point exactly? You probably have a serial console. 
-> What are the last lines.
-> 
-> That could well be an ECC error. You can see if mcelog logs 
-> something after reboot (kernel should preserve machine check events) 
-> 
-> Or you could switch around the DIMMs of the CPUs for testing.
-> 
-> -Andi
-> 
+ 	( ( EXT3_SB(sb)->s_es->s_feature_compat & cpu_to_le32(mask) ) != 0)
+
+be enough to satisfy sparse?
+
+-Mitch

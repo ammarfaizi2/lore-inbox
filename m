@@ -1,119 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbTERDe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 23:34:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbTERDe4
+	id S261936AbTERDkc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 23:40:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTERDkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 23:34:56 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:19212
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S261939AbTERDey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 23:34:54 -0400
-Date: Sat, 17 May 2003 20:39:56 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-Subject: Part II Re: LAD Rocks Linux w/ Hot Taurus Quad SATA, in the pipes!
-In-Reply-To: <Pine.LNX.4.10.10305162220590.23972-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.10.10305172030410.23972-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	Sat, 17 May 2003 23:40:32 -0400
+Received: from almesberger.net ([63.105.73.239]:33541 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S261936AbTERDkb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 May 2003 23:40:31 -0400
+Date: Sun, 18 May 2003 00:53:07 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
+Cc: pavel@ucw.cz
+Subject: Re: What exactly does "supports Linux" mean?
+Message-ID: <20030518005307.B1475@almesberger.net>
+References: <20030514021210.GD30766@pegasys.ws> <BKEGKPICNAKILKJKMHCAMEONCPAA.Riley@Williams.Name> <yw1xhe7xo1f6.fsf@zaphod.guide> <20030517160509.GA283@elf.ucw.cz> <20030518013926.GA16286@pegasys.ws>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030518013926.GA16286@pegasys.ws>; from jw@pegasys.ws on Sat, May 17, 2003 at 06:39:26PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+jw schultz wrote:
+> Perhaps you'd be willing to help Aunt Tillie do this.  Your
+> definition of "includes driver sources" will appeal to such a
+> small market segment it isn't worth the ink on the box.
 
-LKML:
+I think Pavel's idea is brilliant. "Includes driver sources"
+captures exactly the essence of dependable support for Linux.
 
-More work to get drives 3 and 4 attached..
+Aunt Tillie will eventually learn that this strange sentence means
+that, even if the thing doesn't work when she attaches it to her
+PC, her nephew will be able to make it work for her.
 
-Two drives in a raid 0, chunking size was poor choice :-/
-I forgot to select my optimized profiles.
+And in a few years, when she buys a new PC with a new distribution,
+there will probably already be a driver included.
 
-No size specified, using 1278 MB
-Size is MB, BlkSz is Bytes, Read, Write, and Seeks are MB/sec
+What else could she ask for ?
 
-         File   Block  Num  Seq Read    Rand Read   Seq Write  Rand Write
-  Dir    Size   Size   Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
-------- ------ ------- --- ----------- ----------- ----------- -----------
-   .     1278   4096    1  84.73 24.3% 0.970 0.93% 74.13 27.3% 1.886 0.84%
-   .     1278   4096    2  69.77 20.2% 1.094 0.63% 55.11 24.2% 1.847 0.88%
-   .     1278   4096    4  63.91 18.5% 1.172 0.67% 50.16 22.9% 1.830 0.93%
-   .     1278   4096    8  60.37 17.6% 1.257 0.66% 45.23 21.0% 1.847 0.94%
+- Werner
 
-File './Bonnie.1391', size: 1073741824, volumes: 1
-Writing with putc()...  done:  27377 kB/s  99.9 %CPU
-Rewriting...            done:  36260 kB/s  14.1 %CPU
-Writing intelligently...done: 118083 kB/s  33.0 %CPU
-Reading with getc()...  done:  25089 kB/s  88.1 %CPU
-Reading intelligently...done: 150287 kB/s  24.7 %CPU
-
-File './Bonnie.1559', size: 2097152000, volumes: 1
-Writing with putc()...  done:  26633 kB/s  98.3 %CPU
-Rewriting...            done:  35017 kB/s  13.7 %CPU
-Writing intelligently...done:  91531 kB/s  26.6 %CPU
-Reading with getc()...  done:  25501 kB/s  90.8 %CPU
-Reading intelligently...done: 102142 kB/s  20.3 %CPU
-
-Well I need to add the third and fourth, but about to hit the limits of
-the PCI bus for 33/32 so will back of for now and tweak some more.
-
-Expect cards soon!  There's hotter and faster stuff coming down the pipes!
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-PS Get the Alpine rush, Seagate Alpine!
-
-On Fri, 16 May 2003, Andre Hedrick wrote:
-
-> 
-> Silicon Image and Seagate "ROMP" the bus and overhead is small.
-> 
-> No size specified, using 1278 MB
-> Size is MB, BlkSz is Bytes, Read, Write, and Seeks are MB/sec
-> 
->          File   Block  Num  Seq Read    Rand Read   Seq Write  Rand Write
->   Dir    Size   Size   Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
-> ------- ------ ------- --- ----------- ----------- ----------- -----------
->    .     1278   4096    1  77.41 16.5% 0.930 0.77% 40.92 13.6% 0.852 0.21%
->    .     1278   4096    2  67.76 14.9% 0.933 0.50% 38.43 13.1% 0.852 0.27%
->    .     1278   4096    4  63.22 13.8% 0.938 0.42% 37.05 12.5% 0.857 0.31%
->    .     1278   4096    8  59.11 13.2% 0.963 0.46% 36.01 12.1% 0.862 0.30%
-> 
-> File './Bonnie.3990', size: 1073741824, volumes: 1
-> Writing with putc()...  done:  15337 kB/s  99.5 %CPU
-> Rewriting...            done:  21097 kB/s   6.9 %CPU
-> Writing intelligently...done:  63036 kB/s  14.9 %CPU
-> Reading with getc()...  done:  11821 kB/s  85.2 %CPU
-> Reading intelligently...done: 106472 kB/s  11.8 %CPU
-> Seeker 1...Seeker 2...Seeker 3...start 'em...done...done...done...
->               ---Sequential Output (nosync)--- ---Sequential Input-- --Rnd Seek-
->               -Per Char- --Block--- -Rewrite-- -Per Char- --Block--- --04k (03)-
-> Machine    MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU /sec %CPU
->        1*1024 15337 99.5 63036 14.9 21097  6.9 11821 85.2 106472 11.8 286.9  1.1
-> 
-> SiI3114 Serial ATA: IDE controller at PCI slot 00:04.0
-> SiI3114 Serial ATA: chipset revision 1
-> SiI3114 Serial ATA: not 100% native mode: will probe irqs later
->     ide3: BM-DMA at 0x1440-0x1447, BIOS settings: hdg:pio, hdh:pio
->     ide4: BM-DMA at 0x1448-0x144f, BIOS settings: hdi:pio, hdj:pio
-> hdg: ST3120026AS, ATA DISK drive
-> blk: queue c031aae4, I/O limit 4095Mb (mask 0xffffffff)
-> hdi: ST3120026AS, ATA DISK drive
-> blk: queue c031af30, I/O limit 4095Mb (mask 0xffffffff)
-> ide3 at 0x1480-0x1487,0x1476 on irq 10
-> ide4 at 0x1478-0x147f,0x1472 on irq 10
-> 
-> This is a quad channel card and is running in compatibility mode!
-> 
-> Andre Hedrick
-> LAD Storage Consulting Group
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

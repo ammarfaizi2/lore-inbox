@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271304AbRHTPZj>; Mon, 20 Aug 2001 11:25:39 -0400
+	id <S271306AbRHTP1t>; Mon, 20 Aug 2001 11:27:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271297AbRHTPZ3>; Mon, 20 Aug 2001 11:25:29 -0400
-Received: from [216.151.155.121] ([216.151.155.121]:48134 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S271304AbRHTPZX>; Mon, 20 Aug 2001 11:25:23 -0400
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: /dev/random in 2.4.6
-In-Reply-To: <Pine.LNX.4.30.0108200903580.4612-100000@waste.org>
-	<2251207905.998322034@[10.132.112.53]>
-	<3B8124C4.7A4275B9@nortelnetworks.com>
-From: Doug McNaught <doug@wireboard.com>
-Date: 20 Aug 2001 11:25:29 -0400
-In-Reply-To: Chris Friesen's message of "Mon, 20 Aug 2001 10:55:00 -0400"
-Message-ID: <m3k7zylpna.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S271297AbRHTP1j>; Mon, 20 Aug 2001 11:27:39 -0400
+Received: from mx3.port.ru ([194.67.57.13]:7431 "EHLO mx3.port.ru")
+	by vger.kernel.org with ESMTP id <S271307AbRHTP1c>;
+	Mon, 20 Aug 2001 11:27:32 -0400
+From: "Samium Gromoff" <_deepfire@mail.ru>
+To: justin@bouncybouncy.net
+Cc: green@linuxhacker.ru, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.8/2.4.8-ac7 sound crashes
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [195.34.27.171]
+Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E15YqxW-000I3h-00@f3.mail.ru>
+Date: Mon, 20 Aug 2001 19:27:22 +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen <cfriesen@nortelnetworks.com> writes:
+> > >   Can you publish decoded oops?
+> > >   And can you try 2.4.9 first to check it exhibits >same behaviour?
+> >
+> >     1. quite impossible due to the fact of exceedingly
+> > high rate at which this trace is running:
+> >   30 rows/second approx, and the impossibility to
+> >   switch consoles/use gpm for cut/paste...
+> Try pressing the scroll lock key.
 
-> Why don't we also switch to a cryptographically secure algorithm for
-> /dev/urandom? 
+_maybe_ i can, but i think the value of the infinite
+call trace can be argued, besides it will be quite hard
+to realise... :)
+i say maybe, because when this shit happens, alt+sysrq
+combo doesnt seem to work, so it hardly can be that
+scrolllock works. as i said console switching is dead
+too, so i doubt other console-controlling keys will do.
 
-It IS cryptographically secure.  Have you ever read the manpage?
+-------
+cheers,
 
--Doug
--- 
-Free Dmitry Sklyarov! 
-http://www.freesklyarov.org/ 
-
-We will return to our regularly scheduled signature shortly.
+   Samium Gromoff

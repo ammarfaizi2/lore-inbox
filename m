@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272174AbRHWK0Z>; Thu, 23 Aug 2001 06:26:25 -0400
+	id <S272192AbRHWKcr>; Thu, 23 Aug 2001 06:32:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272192AbRHWK0P>; Thu, 23 Aug 2001 06:26:15 -0400
-Received: from mail.cogenit.fr ([195.68.53.173]:52366 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S272174AbRHWK0D>;
-	Thu, 23 Aug 2001 06:26:03 -0400
-Date: Thu, 23 Aug 2001 12:26:02 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jeff Busch <jbusch@half.com>, linux-kernel@vger.kernel.org
-Subject: Re: [problem] RH 2.4.7-2 kernel slows to a crawl under heavy i/o
-Message-ID: <20010823122602.A14147@se1.cogenit.fr>
-In-Reply-To: <NEBBJGKHGENBAPAMDILGIEFGGOAA.jbusch@half.com> <E15ZgEU-0002QS-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15ZgEU-0002QS-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Aug 22, 2001 at 11:12:18PM +0100
-X-Organisation: Marie's fan club - I
+	id <S272229AbRHWKch>; Thu, 23 Aug 2001 06:32:37 -0400
+Received: from mailrelay.inpharmatica.co.uk ([193.115.214.5]:32526 "EHLO
+	gallions-reach.inpharmatica.co.uk") by vger.kernel.org with ESMTP
+	id <S272192AbRHWKcS>; Thu, 23 Aug 2001 06:32:18 -0400
+Message-ID: <3B84DB4A.5050707@purplet.demon.co.uk>
+Date: Thu, 23 Aug 2001 11:30:34 +0100
+From: Mike Jagdis <jaggy@purplet.demon.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en, fr, de
+MIME-Version: 1.0
+To: David Schwartz <davids@webmaster.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: select() says closed socket readable
+In-Reply-To: <NOEJJDACGOHCKNCOGFOMAECLDGAA.davids@webmaster.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> :
-> > The same setup on RH 6.2 with 2.4.3-ac3 works fine.  Please let me know what
-> > information may be useful to debugging this problem (no oops yet), and other
-> > kernels to try; I'm looking at 2.4.8-ac9 right now.
-> 
-> I'd be interested to know how 2.4.8-ac9 fares. It has the saner parts of
-> the VM work from the Linus tree and other stuff from Rik, Marcelo and co.
+David Schwartz wrote:
 
-I have added the data of 2.4.8-ac7 build for 2.4.8-ac{8,9} at
-http://www.cogenit.fr/linux/bench/. The graphs are under 2.4.8-acXX/img.
-The successive runs on a same session are now bounded on the graphs.
-The occasionaly high levels of irq and cs on ac9 says nothing good about
-interactivity.
+[assumptions deleted]
 
--- 
-Ueimor
+> 	Of course, this isn't so much of a benefit that it's worth violating a
+> standard like POSIX. But it could be considered enough of a benefit that
+> it's worth not being compatable outside the bounds of such a standard.
+
+Let's think about the _facts_ for a second. In the case where select on
+an unconnected socket succeeds (because a read would not block) a
+process that does this would not sleep in select. If the select does
+not succeed (because the socket is not ready to read) then the process
+sleeps.
+
+In the first case the process either eats CPU time or gets an error
+when it reads the socket. But does it handle the error? Does it even
+do the read - why should it read the unconnected socket at all?
+
+In the second case the process either hangs or behaves as expected.
+It may even recover gracefully if the socket is subsequently connected.
+
+Case 1 leads to spin-or-die and case 2 leads to block-and-work.
+
+Case 1 assumes that selecting for read on an unconnected socket is
+an error. Case 2 doesn't - an unconnected socket is simply never
+"ready to read".
+
+Other systems use the "ready to read" interpretation. The Single
+UNIX Spec states "ready to read". The Linux man page uses "ready
+to read" but adds a parenthetical "read will not block" to allow
+EOF. Linux itself implements "will not block".
+
+I can find nothing that even suggests that selecting on an unconnected
+socket is an error.
+
+Linux is wrong. Patch follows.
+
+				Mike
+

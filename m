@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274631AbRJEXnK>; Fri, 5 Oct 2001 19:43:10 -0400
+	id <S274611AbRJEXlk>; Fri, 5 Oct 2001 19:41:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274617AbRJEXnA>; Fri, 5 Oct 2001 19:43:00 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:2249 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S274596AbRJEXmm> convert rfc822-to-8bit; Fri, 5 Oct 2001 19:42:42 -0400
-From: David Schwartz <davids@webmaster.com>
-To: <alex@pennace.org>, Neil Brown <neilb@cse.unsw.edu.au>
-CC: Bernd Eckenfels <ecki@lina.inka.de>, <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.51 (988) - Registered Version
-Date: Fri, 5 Oct 2001 16:43:09 -0700
-In-Reply-To: <20011005193049.A6981@buick.pennace.org>
-Subject: Re: Desperately missing a working "pselect()" or similar...
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <20011005234310.AAA24657@shell.webmaster.com@whenever>
+	id <S274596AbRJEXlb>; Fri, 5 Oct 2001 19:41:31 -0400
+Received: from uucp.cistron.nl ([195.64.68.38]:14609 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S274586AbRJEXlT>;
+	Fri, 5 Oct 2001 19:41:19 -0400
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: [POT] Which journalised filesystem ?
+Date: Fri, 5 Oct 2001 23:41:43 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <9plgfn$6kq$2@ncc1701.cistron.net>
+In-Reply-To: <m1669uyuqy.fsf@frodo.biederman.org> <E15pbX5-0007do-00@calista.inka.de>
+X-Trace: ncc1701.cistron.net 1002325303 6810 195.64.65.67 (5 Oct 2001 23:41:43 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <E15pbX5-0007do-00@calista.inka.de>,
+Bernd Eckenfels  <ecki@lina.inka.de> wrote:
+>In article <m1669uyuqy.fsf@frodo.biederman.org> you wrote:
+>> Definentily.  We want a write-barrier however we can get it.
+>
+>Does that mean we can or we can't? Is there a flush write cache operation in
+>ATA? I asume there is one in SCSI?
 
+Well hdparm has a -W option with which you can turn on/off the
+write cache. If that works (and it appears it does) you should be
+able to turn write cache off, write *one* block so that the
+cache gets flushed and turn it back on. I'm not sure how to
+test this, though.
 
->> A technique I used in a similar situation once went something like:  
-
->> tv.tv_sec=bignum;
->> tv.tv_usec = 0;
->> enable_signals();
->> select(nfds, &readfds,&writefds,0,&tv);
-
->> and have the signal handlers set tv.tv_sec to 0. (tv is a global
->>variable).
-
->I've thought about that, but I haven't been able to find any guarantee that
->there will be no user space futzing around with &tv, like a library wrapper
->that copies tv to another spot in memory and invokes the syscall with that
->address.
-
-	This will commonly happen if, for example, the user-side timeval structure 
-contains seconds and microseconds and the kernel-side structure contains 
-seconds and nanoseconds. The signal might occur after the library has 
-performed the structure conversion.
-
-	DS
-
+Mike.
+-- 
+Move sig.
 

@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261684AbREOWwI>; Tue, 15 May 2001 18:52:08 -0400
+	id <S261682AbREOWu3>; Tue, 15 May 2001 18:50:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261685AbREOWv6>; Tue, 15 May 2001 18:51:58 -0400
-Received: from [206.14.214.140] ([206.14.214.140]:8456 "EHLO
+	id <S261683AbREOWuS>; Tue, 15 May 2001 18:50:18 -0400
+Received: from [206.14.214.140] ([206.14.214.140]:4872 "EHLO
 	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S261684AbREOWvo>; Tue, 15 May 2001 18:51:44 -0400
-Date: Tue, 15 May 2001 15:51:10 -0700 (PDT)
+	id <S261682AbREOWuE>; Tue, 15 May 2001 18:50:04 -0400
+Date: Tue, 15 May 2001 15:49:31 -0700 (PDT)
 From: James Simmons <jsimmons@transvirtual.com>
 To: Chip Salzenberg <chip@valinux.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
         Neil Brown <neilb@cse.unsw.edu.au>,
         Jeff Garzik <jgarzik@mandrakesoft.com>,
         "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        viro@math.psu.edu
 Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <20010515145934.L3098@valinux.com>
-Message-ID: <Pine.LNX.4.10.10105151549580.22038-100000@www.transvirtual.com>
+In-Reply-To: <20010515144020.H3098@valinux.com>
+Message-ID: <Pine.LNX.4.10.10105151546210.22038-100000@www.transvirtual.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > Graphics cards are the same way. Especially high end ones. They have pipes
-> > as well. For low end cards you can think of them as single pipeline cards
-> > with one pipe.
+> According to Alan Cox:
+> > Given a file handle 'X' how do I find out what ioctl groups I should
+> > apply to it.
 > 
-> It still frosts my shorts that DRM (e.g. /dev/dri/card0) doesn't use
-> write().  It's a natural way to feed pipelines.  But no, it's a raft
-> of ioctl() calls.  *sigh*
+> Wouldn't it be better just to *try* ioctls and see which ones work and
+> which ones don't?
 
-I never liked this either. ioctl calls are slooooooooooooooooooooooooooow.
+You can do this with the tty layer. Just open /dev/tty and try tioclinux. 
+On my serial console it fails and when I run the exact same program works
+on my VT. It is the only way to see if these ioctl calls work. No other
+way to see if your on a serial console or a VT. 
 

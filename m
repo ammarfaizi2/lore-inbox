@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275685AbRIZXGc>; Wed, 26 Sep 2001 19:06:32 -0400
+	id <S275687AbRIZXGw>; Wed, 26 Sep 2001 19:06:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275687AbRIZXGW>; Wed, 26 Sep 2001 19:06:22 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:26884 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S275685AbRIZXGJ>;
-	Wed, 26 Sep 2001 19:06:09 -0400
-Message-ID: <XFMail.20010927010603.ast@domdv.de>
-X-Mailer: XFMail 1.4.6-3 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <20010926155522.C4828@furble>
-Date: Thu, 27 Sep 2001 01:06:03 +0200 (CEST)
-Organization: D.O.M. Datenverarbeitung GmbH
-From: Andreas Steinmetz <ast@domdv.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] Allow net devices to contribute to /dev/random
+	id <S275690AbRIZXGn>; Wed, 26 Sep 2001 19:06:43 -0400
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:12204 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S275687AbRIZXGd>; Wed, 26 Sep 2001 19:06:33 -0400
+Message-Id: <5.1.0.14.2.20010927000000.00a8c7f0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 27 Sep 2001 00:08:11 +0100
+To: "Michel A. S. Pereira KIDMumU|ResolveBucha" 
+	<michelcultivo@uol.com.br>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Vmware patch to run on 2.4.10
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3BB21A1B.4010008@uol.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In any case the following must be true for this to cause problems:
->    a) The network must be the primary source of entropy (this
->       will be common in the case where the patch is useful)
->    b) BadGuy must monitor from time 0 (boot of system) to get
->       useful information
->    c) BadGuy must have information about what network card the system
->       has, or _very_ good statistical information about delay to
->       interrupt & timing in general.
->    d) BadGuy must have information about how long the processing for
->       the interrupt handler takes, as the randomness addition is done
->       _after_ all processing. This also causes interesting problems
->       for prediction if more than one event is handled at once.
->    e) BadGuy must have access to information of network traffic on
->       all the networks that are attached to the computer.
-> 
-> Now none of this guarantees security (but then again, very little will
-> _guarantee_ security.
-> 
-> I may have missed some stuff here... (caveat emptor)
-> 
+At 19:10 26/09/01, Michel A. S. Pereira KIDMumU|ResolveBucha wrote:
+>         Hi, I don't remember who sent me a patch to run vmware on kernel 
+> 2.4.9.
+>'Someone' that sent, do you've patched another version?
 
-To be constructive: why not make this HMAC-SHA1? The key for HMAC can be fed
-through a sysctl interface. This would mean that BadGuy would need knowledge of
-the key and thus the key generation method, too, especially if the key is
-replaced at varying times and independent of network traffic.
+Perhaps it was me, don't remember. I sent out mine to quite a few people 
+who asked me... I installed 2.4.10 + vmware 3 beta and it worked out of the 
+box (compilation gave some warnings with gcc-2.96/Redhat version but it 
+worked fine).
+
+I can only suggest you to do the same as someone else already pointed out...
+
+Regards,
+
+         Anton
 
 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

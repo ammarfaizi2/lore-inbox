@@ -1,28 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261744AbRE2UJc>; Tue, 29 May 2001 16:09:32 -0400
+	id <S261759AbRE2UON>; Tue, 29 May 2001 16:14:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261700AbRE2UJW>; Tue, 29 May 2001 16:09:22 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:55052 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261744AbRE2UJK>; Tue, 29 May 2001 16:09:10 -0400
-Subject: Re: share memory between kernel and user space
-To: fxian@fxian.jukie.net (Feng Xian)
-Date: Tue, 29 May 2001 21:06:57 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0105291601160.28063-100000@tiger> from "Feng Xian" at May 29, 2001 04:04:43 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261791AbRE2UOF>; Tue, 29 May 2001 16:14:05 -0400
+Received: from cibs23.sns.it ([192.167.206.162]:13061 "EHLO cibs23.sns.it")
+	by vger.kernel.org with ESMTP id <S261759AbRE2UNy>;
+	Tue, 29 May 2001 16:13:54 -0400
+Date: Tue, 29 May 2001 22:13:57 +0200 (CEST)
+From: Roberto Zunino <zunino@cibslogin.sns.it>
+To: linux-kernel@vger.kernel.org
+Subject: Transparent proxy support in linux 2.4 ?
+Message-ID: <Pine.LNX.4.10.10105291447180.14595-100000@cibs10.sns.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E154plZ-0004p3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there any way to share a piece of memory which is allocated in kernel
-> space with a user space program? (don't use copy_to_user etc.)
 
-mmap.
+How can I simulate the linux 2.2.x transparent proxy support in linux 2.4?
 
-Take a look at drivers/sound where a lot of drivers do this
+Using linux 2.2 on my router I can bind() a socket to an address X and
+then connect() to another host Y. Y would see an incoming connection from
+X and reply accordingly: if the replies towards X pass through my router
+they are rerouted towards the local socket and all works smoothly.
+
+This is a (IMO) tricky hack to fake requests from host X: it is used for
+example by nat-enabled IDENT servers that forward the incoming requests
+towards the right host on the internal network. Normally the IDENT server
+on these hosts wouldn't answer queries from hosts != X and therefore the
+router has to fake the connection from X.
+
+Linux 2.4 doesn't have this behaviour. Setting ip_nonlocal_bind doesn't
+help. Maybe it could be done with some SNAT and libiptc & friends,...
+
+Maybe there is a simpler way. Does anyone know one?
+
+TIA,
+Zun.
+

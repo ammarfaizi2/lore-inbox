@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284997AbRLQEKI>; Sun, 16 Dec 2001 23:10:08 -0500
+	id <S285017AbRLQEPt>; Sun, 16 Dec 2001 23:15:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284998AbRLQEJ7>; Sun, 16 Dec 2001 23:09:59 -0500
-Received: from web14508.mail.yahoo.com ([216.136.224.71]:64007 "HELO
-	web14508.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S284997AbRLQEJq>; Sun, 16 Dec 2001 23:09:46 -0500
-Message-ID: <20011217040945.40501.qmail@web14508.mail.yahoo.com>
-Date: Sun, 16 Dec 2001 20:09:45 -0800 (PST)
-From: wEi LoOn <weiloon_2000@yahoo.com>
-Subject: Asking help on kernel panic vfs 03:01
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S285013AbRLQEP3>; Sun, 16 Dec 2001 23:15:29 -0500
+Received: from dsl-64-193-154-205.telocity.com ([64.193.154.205]:33540 "EHLO
+	fs6.int.nikki.com") by vger.kernel.org with ESMTP
+	id <S285007AbRLQEPV>; Sun, 16 Dec 2001 23:15:21 -0500
+Message-Id: <sc1d2b03.001@fs6.int.nikki.com>
+X-Mailer: Novell GroupWise Internet Agent 6.0.1
+Date: Sun, 16 Dec 2001 23:14:32 -0500
+From: "Jason Rivard" <jrivard@nikki.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Is /dev/shm needed?
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, man, sorry for disturbing. I am newbie and I have
-a problem as you discuss in forum. I am using
-Redhat 7.0, and it can not boot and
-give me KERNEL PANIC VFS : UNABLE TO MOUNT ROOT FS ON
-03:01
+I delete all files in /tmp on reboot +
+I delete all of <user>'s files in /tmp if <user> has no running
+processes when <user> logs out.
 
-Further more, I can detect my harddisk but can not c
-those partitions.
+>>> "H. Peter Anvin" <hpa@zytor.com> 12/16/01 09:26PM >>>
+Followup to:  <E16Fl8j-0000nA-00@phalynx>
+By author:    Ryan Cumming <bodnar42@phalynx.dhs.org>
+In newsgroup: linux.dev.kernel
+>
+> On December 16, 2001 15:47, Adam Schrotenboer wrote:
+> > I may be wrong about /tmp as well, but I have come to think that it
+is data
+> > that ought be discarded after logout, and have sometimes considered
+writing
+> > a script for it in the login/logout scripts.
+> 
+> System daemons can legally use /tmp, and they may not apprechiate
+having 
+> their files removed from underneath them everytime someone telnets
+in. ;)
+> 
 
-On, top of that I have my very important data inside.
-Just wonder could you give me some tips for that. Many
-thanks,
-much appreciate it if you
-can help. Take care, have a nice day~!
+Not to mention when you kill a secondary session.  It's bogus.
+However, discarding /tmp on *REBOOT* is legitimate.
 
-Regards,
-Allan
-
-
-__________________________________________________
-Do You Yahoo!?
-Check out Yahoo! Shopping and Yahoo! Auctions for all of
-your unique holiday gifts! Buy at http://shopping.yahoo.com
-or bid at http://auctions.yahoo.com
+	 -hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org 
+More majordomo info at  http://vger.kernel.org/majordomo-info.html 
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbULXKMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbULXLBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261385AbULXKMz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Dec 2004 05:12:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbULXKMz
+	id S261388AbULXLBd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Dec 2004 06:01:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbULXLBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Dec 2004 05:12:55 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:48227 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261385AbULXKMt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Dec 2004 05:12:49 -0500
-Date: Fri, 24 Dec 2004 11:07:13 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: noop insert
-Message-ID: <20041224100711.GA2100@suse.de>
-References: <41CAEBD4.8030609@watson.ibm.com>
+	Fri, 24 Dec 2004 06:01:33 -0500
+Received: from viefep13-int.chello.at ([213.46.255.15]:65077 "EHLO
+	viefep13-int.chello.at") by vger.kernel.org with ESMTP
+	id S261388AbULXLBc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Dec 2004 06:01:32 -0500
+Subject: Re: USB storage (pendrive) problems
+From: Attila BODY <compi@freemail.hu>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20041221131534.411e3553@lembas.zaitcev.lan>
+References: <1103579679.23963.14.camel@localhost>
+	 <200412202325.20064.andrew@walrond.org> <41C75E8B.1020200@osdl.org>
+	 <mailman.1103615580.2095.linux-kernel2news@redhat.com>
+	 <20041221131534.411e3553@lembas.zaitcev.lan>
+Content-Type: text/plain
+Date: Fri, 24 Dec 2004 12:23:04 +0100
+Message-Id: <1103887384.10838.1.camel@thunder>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41CAEBD4.8030609@watson.ibm.com>
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 23 2004, Shailabh Nagar wrote:
-> In noop-iosched.c (2.6.10-rc2),
-> 
-> void elevator_noop_add_request(request_queue_t *q, struct request *rq,
-> 			       int where)
-> {
-> 	struct list_head *insert = q->queue_head.prev;
-> 
-> 	if (where == ELEVATOR_INSERT_FRONT)
-> 		insert = &q->queue_head;
-> 
-> 	list_add_tail(&rq->queuelist, &q->queue_head);
-> <snip>
-> 
-> shouldn't the insertion happen at insert instead of q->queue_head ?
+Hi,
 
-Yeah, it looks broken. This is easier to read and correct :-)
+On Tue, 2004-12-21 at 13:15 -0800, Pete Zaitcev wrote:
 
-===== drivers/block/noop-iosched.c 1.4 vs edited =====
---- 1.4/drivers/block/noop-iosched.c	2004-10-19 11:40:17 +02:00
-+++ edited/drivers/block/noop-iosched.c	2004-12-24 11:06:18 +01:00
-@@ -59,12 +59,10 @@
- void elevator_noop_add_request(request_queue_t *q, struct request *rq,
- 			       int where)
- {
--	struct list_head *insert = q->queue_head.prev;
--
- 	if (where == ELEVATOR_INSERT_FRONT)
--		insert = &q->queue_head;
--
--	list_add_tail(&rq->queuelist, &q->queue_head);
-+		list_add(&rq->queuelist, &q->queue_head);
-+	else
-+		list_add_tail(&rq->queuelist, &q->queue_head);
- 
- 	/*
- 	 * new merges must not precede this barrier
+> Thanks for the note. Unfortunately, 2.6.9 apparently has problems with
+> its virtual memory and write throttling, so I'm sure a few people suffering
+> from it will jump on this thread. It's essential to split root causes.
+> Your case may be different from the original poster's, who apparently
+> had the same deal with both ub and usb-storage. First things first, did
+> you try to set CONFIG_BLK_DEV_UB to off? What happens if you do?
 
-Signed-off-by: Jens Axboe <axboe@suse.de>
+It works then, so the problem seems to be with the ub driver, but it is
+still a question why the 1.1 device seems to wprk better with it.
 
--- 
-Jens Axboe
+brgds,
+
+compi
+
 

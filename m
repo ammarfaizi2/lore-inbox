@@ -1,45 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267817AbTBSCdC>; Tue, 18 Feb 2003 21:33:02 -0500
+	id <S267918AbTBSCed>; Tue, 18 Feb 2003 21:34:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267849AbTBSCdC>; Tue, 18 Feb 2003 21:33:02 -0500
-Received: from pcp01871097pcs.derbrn01.mi.comcast.net ([68.42.47.36]:46855
-	"EHLO uncompiled.com") by vger.kernel.org with ESMTP
-	id <S267817AbTBSCdB>; Tue, 18 Feb 2003 21:33:01 -0500
-Subject: Re: Functionality Question
-From: "Matthew J. Fanto" <mattjf@uncompiled.com>
-To: "Shon W. Harris" <sickboy@inconnu.isu.edu>
-Cc: linux Kernel Development Mailing List 
-	<linux-kernel@vger.kernel.org>,
-       torvalds@transmeta.com
-In-Reply-To: <Pine.LNX.4.53.0302181845360.12512@inconnu.isu.edu>
-References: <Pine.LNX.4.53.0302181845360.12512@inconnu.isu.edu>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1045622670.1276.4.camel@chandler>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 18 Feb 2003 21:44:30 -0500
-Content-Transfer-Encoding: 7bit
+	id <S267935AbTBSCed>; Tue, 18 Feb 2003 21:34:33 -0500
+Received: from ns.cinet.co.jp ([61.197.228.218]:47886 "EHLO multi.cinet.co.jp")
+	by vger.kernel.org with ESMTP id <S267918AbTBSCe3>;
+	Tue, 18 Feb 2003 21:34:29 -0500
+Message-ID: <E6D19EE98F00AB4DB465A44FCF3FA46903A339@ns.cinet.co.jp>
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: "'Christoph Hellwig '" <hch@infradead.org>
+Cc: "'Linux Kernel Mailing List '" <linux-kernel@vger.kernel.org>,
+       "'Alan Cox '" <alan@lxorguk.ukuu.org.uk>
+Subject: RE: [PATCHSET] PC-9800 subarch. support for 2.5.61 (2/26) APM
+Date: Wed, 19 Feb 2003 11:44:24 +0900
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-2022-jp"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-02-18 at 20:51, Shon W. Harris wrote:
-> And the same goes for NTFS and Linux Partitions, why cant you have write
-> able access to a NTFS partition? I have had it explained to me in the ways
-> "it is not stable" or "Not secure"
+-----Original Message-----
+From: Christoph Hellwig
+To: Osamu Tomita
+Cc: Linux Kernel Mailing List; Alan Cox
+Sent: 2003/02/18 19:37
+Subject: Re: [PATCHSET] PC-9800 subarch. support for 2.5.61 (2/26) APM
+
+> On Mon, Feb 17, 2003 at 10:49:55PM +0900, Osamu Tomita wrote:
+>> +#include "io_ports.h"
 > 
-> Can someone explain this better to me.
+> Isn't this introduced in a later patch?  Please make sure your patchkit
+> never breaks the compile of the existing subarches when applied in order.
+
+Of course, I never want impact on other architecture.
+io_ports.h is in 'core patch (8/26)'.
+
+>> 
+>>  		"pushl %%edi\n\t"
+>>  		"pushl %%ebp\n\t"
+>> +#ifdef CONFIG_X86_PC9800
+>> +		"pushfl\n\t"
+>> +#endif
+>>  		"lcall *%%cs:apm_bios_entry\n\t"
+>>  		"setc %%al\n\t"
+>>  		"popl %%ebp\n\t"
+>> @@ -682,6 +687,9 @@
+>>  		__asm__ __volatile__(APM_DO_ZERO_SEGS
+>>  			"pushl %%edi\n\t"
+>>  			"pushl %%ebp\n\t"
+>> +#ifdef CONFIG_X86_PC9800
+>> +			"pushfl\n\t"
+>> +#endif
 > 
+> Maybe add a
+> 
+> #ifdef CONFIG_X86_PC9800
+> #define COND_PUSHFL	"pushfl\n\t"
+> #else
+> #define COND_PUSHFL	"pushfl\n\t"
+> #endif
+> 
+> to the top of this file and then use it?
+> 
+I think "#ifndef"s are clear and readable rather than macro definition
+at this situation. 
 
-The reason you cannot write to an NTFS partition is we just haven't had time
-to write the code. All the NTFS developers (including myself) are very busy.
-Once we get some free time, we will be working hard on it. We understand most
-of the NTFS filesystem, so thats not the problem. It's just a lack of free 
-time.
+> +#ifndef CONFIG_X86_PC9800
+> 
+> Once again please always use #ifdef instead of #ifndef where possible.
+I see.
 
-Regards,
-Matthew J. Fanto <mattjf@uncompiled.com>
-Linux-NTFS Project
-http://linux-ntfs.sourceforge.net
-
+Thanks,
+Osamu Tomita

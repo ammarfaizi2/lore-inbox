@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267346AbSLEQwa>; Thu, 5 Dec 2002 11:52:30 -0500
+	id <S267357AbSLEQ5E>; Thu, 5 Dec 2002 11:57:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267345AbSLEQwa>; Thu, 5 Dec 2002 11:52:30 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:38674 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267346AbSLEQwa>; Thu, 5 Dec 2002 11:52:30 -0500
-Date: Thu, 5 Dec 2002 17:00:02 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-Subject: Re: [PATCH] LSM changes for 2.5.50
-Message-ID: <20021205170002.A30875@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-	linux-security-module@wirex.com
-References: <20021205163152.GA2865@kroah.com> <20021205163234.GB2865@kroah.com> <20021205163300.GC2865@kroah.com> <20021205163339.GD2865@kroah.com> <20021205163406.GE2865@kroah.com> <20021205163541.GF2865@kroah.com>
+	id <S267352AbSLEQ4n>; Thu, 5 Dec 2002 11:56:43 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:54479 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267354AbSLEQ43>;
+	Thu, 5 Dec 2002 11:56:29 -0500
+Date: Thu, 5 Dec 2002 17:01:26 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Andrew Walrond <andrew@walrond.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel panic (sched.c) in 2.4.20
+Message-ID: <20021205170126.GA8913@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
+References: <3DEF84D6.2030809@walrond.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021205163541.GF2865@kroah.com>; from greg@kroah.com on Thu, Dec 05, 2002 at 08:35:42AM -0800
+In-Reply-To: <3DEF84D6.2030809@walrond.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 05, 2002 at 08:35:42AM -0800, Greg KH wrote:
-> ChangeSet 1.797.142.4, 2002/12/04 16:56:51-06:00, greg@kroah.com
-> 
-> LSM: add the example rootplug module
+On Thu, Dec 05, 2002 at 04:54:46PM +0000, Andrew Walrond wrote:
+ > Happened twice today after upgrading from 2.4.19 yesterday, which worked 
+ > just fine for months. Might this be know about, or should I investigate 
+ > further?
 
-I don't think that's the kind of module that should be merged..
+run the oops through ksymoops and post it here.
 
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

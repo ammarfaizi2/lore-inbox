@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262385AbSJJVu2>; Thu, 10 Oct 2002 17:50:28 -0400
+	id <S262279AbSJJVyu>; Thu, 10 Oct 2002 17:54:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262472AbSJJVu1>; Thu, 10 Oct 2002 17:50:27 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:35758 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262417AbSJJVty>; Thu, 10 Oct 2002 17:49:54 -0400
-Subject: Re: Xbox Linux Kernel Patches Questions
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Michael Steil <mist@c64.org>
-Cc: Alan Cox <alan@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Xbox-linux-devel@lists.sourceforge.net
-In-Reply-To: <333B8114-DC98-11D6-B7BF-003065E1FB16@c64.org>
-References: <333B8114-DC98-11D6-B7BF-003065E1FB16@c64.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 10 Oct 2002 23:06:35 +0100
-Message-Id: <1034287595.6462.30.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262379AbSJJVyt>; Thu, 10 Oct 2002 17:54:49 -0400
+Received: from ns.suse.de ([213.95.15.193]:44551 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S262279AbSJJVys>;
+	Thu, 10 Oct 2002 17:54:48 -0400
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: "Steven French" <sfrench@us.ibm.com>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, jra@samba.org
+Subject: Re: [BK PATCH] CIFS filesystem for Linux 2.5
+References: <OFFB04937F.1EAC8996-ON87256C4E.006DA4CF@boulder.ibm.com.suse.lists.linux.kernel> <17092.1034284232@passion.cambridge.redhat.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 11 Oct 2002 00:00:32 +0200
+In-Reply-To: David Woodhouse's message of "10 Oct 2002 23:17:56 +0200"
+Message-ID: <p73it0aosxr.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-10 at 22:35, Michael Steil wrote:
-> > Can you tell the xbox by the subsystem id on the root bridges ?
+David Woodhouse <dwmw2@infradead.org> writes:
+
+> sfrench@us.ibm.com said:
+> >  fs/cifs/md4.c                      |  209 +++
+> >  fs/cifs/md5.c                      |  363 +++++
+> >  fs/cifs/md5.h                      |   38 
 > 
-> Yes, these are unique.
+> Unless these are somehow CIFS-specific, they should live in linux/lib/
 
-> Where would we put out Xbox detection code? If it detects the Xbox as 
-> described above, CONFIG_XBOX_SUPPORT will depend on CONFIG_PCI.
+This would have the disadvantage that they would need to be always compiled into the
+kernel, even though it may not need it. And we already have code bloat problems,
+no need to make it worse.
 
-Which seems fair enough. ISA bus X-box systems are suprisingly rare
+Making them modular also isn't good. Each module takes a 4k page at least, so you
+would waste a lot of memory because they're smaller than 4k.
+
+As long as they are not used by anything else it's probably best to keep it 
+where they are.
 
 
+-Andi

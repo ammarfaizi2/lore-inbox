@@ -1,107 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262423AbTDAMAs>; Tue, 1 Apr 2003 07:00:48 -0500
+	id <S262426AbTDAMFd>; Tue, 1 Apr 2003 07:05:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262426AbTDAMAs>; Tue, 1 Apr 2003 07:00:48 -0500
-Received: from f91.pav2.hotmail.com ([64.4.37.91]:14859 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S262423AbTDAMAq>;
-	Tue, 1 Apr 2003 07:00:46 -0500
-X-Originating-IP: [129.219.25.77]
-X-Originating-Email: [bhushan_vadulas@hotmail.com]
-From: "shesha bhushan" <bhushan_vadulas@hotmail.com>
-To: matti.aarnio@zmailer.org
-Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Subject: Re: Deactivating TCP checksumming
-Date: Tue, 01 Apr 2003 12:12:04 +0000
+	id <S262432AbTDAMFd>; Tue, 1 Apr 2003 07:05:33 -0500
+Received: from proxy.povodiodry.cz ([62.77.115.11]:11935 "HELO pc11.op.pod.cz")
+	by vger.kernel.org with SMTP id <S262426AbTDAMFb>;
+	Tue, 1 Apr 2003 07:05:31 -0500
+From: "Vitezslav Samel" <samel@mail.cz>
+Date: Tue, 1 Apr 2003 14:16:53 +0200
+To: Alan Cox <alan@redhat.com>, Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [IDE SiI680] throughput drop to 1/4
+Message-ID: <20030401121653.GA1313@pc11.op.pod.cz>
+Mail-Followup-To: Alan Cox <alan@redhat.com>,
+	Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
+References: <20030324072910.GA16596@pc11.op.pod.cz> <Pine.LNX.4.10.10303240943070.8000-100000@master.linux-ide.org> <20030324072910.GA16596@pc11.op.pod.cz> <200303241213.h2OCD6u21467@devserv.devel.redhat.com> <20030325070605.GA26860@pc11.op.pod.cz> <20030326065650.GA10282@pc11.op.pod.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F91mkXMUIhAumscmKC00000f517@hotmail.com>
-X-OriginalArrivalTime: 01 Apr 2003 12:12:04.0665 (UTC) FILETIME=[E87CBA90:01C2F847]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030326065650.GA10282@pc11.op.pod.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get that. I can talk with the driver vendor. But to gain the usefulness of 
-caculation of CSUM in HW we need to disable the software CSUM calculation in 
-TCP layer in the kernel. Am I correct? I am trying to find that and I ma 
-stuck there. How to disble the software TCP CSUM calculation? and later I 
-can talk with driver vendor to enable it in hardware. I wanted help from 
-linux gurus in disabling TCP csum calculation in the kernel.
+On Wed, Mar 26, 2003 at 07:56:50AM +0100, Vitezslav Samel wrote:
+> On Tue, Mar 25, 2003 at 08:06:05AM +0100, Vitezslav Samel wrote:
+> > On Mon, Mar 24, 2003 at 07:13:06AM -0500, Alan Cox wrote:
+> > > >   Recently I tried to figure out in 2.5.65, why throughput on my disk which
+> > > > hangs on Silicon Image 680 dropped to 1/4 compared to 2.4.21-pre5, but didn't
+> > > > found anything useful. Are there any known issues with this driver?
+> > > 
+> > > The same code in both cases. Its quite likely the problem is higher up in
+> > > the block or filesystem layer. It might also be a general IDE layer bug
+> > > 
+> > > What does performance look like on your other disk between
+> > > 2.4.21pre/2.5.65 ?
+> > 
+> >   Will test it as I come back home (it's on my home machine). But I think this
+> > performance drop is only on the SiI680 interface.
+> 
+>   Tested today: on the other disk on integrated interface (piix) is throughput
+> exactly the same on both kernels.
 
-Thanking You
-Shesha
+  I put my eyes on /etc/rc.d/* and found hdparm doing some magic; then I tried
+to fiddle with its params and came to this: the problem lied in fs readahead
+(hdparm -a xxx). Tried various numbers:
 
+ fs readahead	throughput in 2.5.66	throughput in 2.4.21-pre6
+-----------------------------------------------------------------
+  0		11.94 MB/sec		40.00 MB/sec
+  8		12.01 MB/sec            38.79 MB/sec
+ 16		12.04 MB/sec            40.25 MB/sec
+ 24		15.22 MB/sec            39.51 MB/sec
+ 32		15.17 MB/sec            40.00 MB/sec
+ 40		15.20 MB/sec            39.02 MB/sec
+ 48		15.26 MB/sec            40.00 MB/sec
+ 56		17.60 MB/sec            40.25 MB/sec
+ 64		16.03 MB/sec            40.00 MB/sec
+ 64		15.95 MB/sec            40.25 MB/sec
+ 72		17.32 MB/sec            40.00 MB/sec
+ 80		18.34 MB/sec            40.25 MB/sec
+ 88		18.72 MB/sec            40.25 MB/sec
+ 96		16.04 MB/sec            39.26 MB/sec
+104		16.68 MB/sec            40.25 MB/sec
+112		18.25 MB/sec            39.02 MB/sec
+120		18.42 MB/sec            40.00 MB/sec
+128		19.17 MB/sec            39.26 MB/sec
+136		26.67 MB/sec            40.00 MB/sec
+144		39.31 MB/sec            39.51 MB/sec
+152		39.58 MB/sec            39.75 MB/sec
+160		39.68 MB/sec            40.25 MB/sec
+168		39.98 MB/sec            40.25 MB/sec
+176		39.85 MB/sec            40.51 MB/sec
+184		40.18 MB/sec            40.00 MB/sec
 
+  So I disabled setting fs readahead (the default values are O.K.). Seems
+like setting fs readahead doesn't make any change on 2.4 kernels.
 
-
-
-
->From: Matti Aarnio <matti.aarnio@zmailer.org>
->To: shesha bhushan <bhushan_vadulas@hotmail.com>
->Subject: Re: Deactivating TCP checksumming
->Date: Tue, 1 Apr 2003 15:00:08 +0300
->
->On Tue, Apr 01, 2003 at 11:22:50AM +0000, shesha bhushan wrote:
-> > Ok I will. Is there any other material which I can reffer?
-> > I am using Intel pro1000 GBE
-> >
-> > Thank you very much for providing me the below information.
->
->You will need to talk with the driver author then.
->In 2.4.20 kernels (at least RedHat version) there is directory
->   drivers/net/e1000/
->in which the driver code resides.
->
->The  e1000_main.c  has:
->
->         if(adapter->hw.mac_type >= e1000_82543) {
->                 netdev->features = NETIF_F_SG |
->                                    NETIF_F_HW_CSUM |
->                                    NETIF_F_HW_VLAN_TX |
->                                    NETIF_F_HW_VLAN_RX |
->                                    NETIF_F_HW_VLAN_FILTER;
->         } else {
->                 netdev->features = NETIF_F_SG;
->         }
->
->
->   ... so, if your card isn't with that chip, then perhaps that is
->the reason for not doing checksums in HW ?
->
->Existence of that kind of test is telling to me, that "E1000" name
->is used to refer to a series of cards with varying properties.
->(Like there are a whole family of cards driven by  3c59x driver,
->  and even larger one referred as "tulip".)
->
->/Matti Aarnio
->
-> > >From: Matti Aarnio <matti.aarnio@zmailer.org>
-> > >To: shesha bhushan <bhushan_vadulas@hotmail.com>
-> > >CC: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-> > >Subject: Re: Deactivating TCP checksumming
-> > >Date: Tue, 1 Apr 2003 13:58:21 +0300
-> > >
-> > >On Tue, Apr 01, 2003 at 09:47:30AM +0000, shesha bhushan wrote:
-> > >> Hello all,
-> > >>  I am trying to de-activate the TCP checksumming and allow hardware 
->(GBE
-> > >to
-> > >> compute it for me). But can any one let me know how to do it.
-> > >
-> > >GBE ?  Likely device feature flags are wrong -- See examples
-> > >from   drivers/net/sunhme.c,  acenic.c,  tg3.c  for various ways
-> > >to use  NETIF_F_*_CSUM  feature flags.
-> > >
-> > >For (some of) explanations:  include/linux/netdevice.h
-> > >(for NETIF_F_* flags)
-> > >
-> > >> All suggestion are highly apperciated.
-> > >>
-> > >> Thanking You
-> > >> Shesha
-> > >
-> > >/Matti Aarnio
-
-
-_________________________________________________________________
-
-
+	Cheers,
+		Vita

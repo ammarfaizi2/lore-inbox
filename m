@@ -1,68 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266971AbTA0Jl6>; Mon, 27 Jan 2003 04:41:58 -0500
+	id <S267033AbTA0JjM>; Mon, 27 Jan 2003 04:39:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266998AbTA0Jl6>; Mon, 27 Jan 2003 04:41:58 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:30479 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S266971AbTA0Jl4>; Mon, 27 Jan 2003 04:41:56 -0500
-Message-ID: <3E35012D.69A90F93@aitel.hist.no>
-Date: Mon, 27 Jan 2003 10:51:41 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.5.59 i686)
-X-Accept-Language: no, en, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.59-mm6
-References: <20030126231015.6ad982e4.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S266971AbTA0JjM>; Mon, 27 Jan 2003 04:39:12 -0500
+Received: from elin.scali.no ([62.70.89.10]:45061 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S266712AbTA0JjK>;
+	Mon, 27 Jan 2003 04:39:10 -0500
+Subject: Re: debate on 700 threads vs asynchronous code
+From: Terje Eggestad <terje.eggestad@scali.com>
+To: Lee Chin <leechin@mail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-newbie@vger.kernel.org
+In-Reply-To: <20030123231913.26663.qmail@mail.com>
+References: <20030123231913.26663.qmail@mail.com>
+Content-Type: text/plain
+Organization: Scali AS
+Message-Id: <1043660902.21075.11.camel@pc-16.office.scali.no>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 27 Jan 2003 10:48:22 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Apart from the argument already given on other replies, you should
+keep in mind that you probably need to give priority to doing receive.
+THat include your clients, but if you don't you run into the risk of
+significantly limiting your bandwidth since the send queues around your
+system fill up. 
+
+Try doing that with threads. 
+
+
+Actually I would recommend the approach c)
+
+c)  Write an asynchronous system with only 2 or three threads where I
+manage the connections and keep the state of each connection in a data
+structure.  
+
+
+On fre, 2003-01-24 at 00:19, Lee Chin wrote:
+> Hi
+> I am discussing with a few people on different approaches to solving a scale problem I am having, and have gotten vastly different views
 > 
->   Which _looks_ like a request queueing problem, but Andres says it goes
->   away when devfs is disabled in config.  So I've dropped the smalldevfs
->   patch for now - would be appreciated if devfs users could retest this
->   patch, with CONFIG_DEVFS=y.
+> In a nutshell, as far as this debate is concerned, I can say I am writing a web server.
+> 
+> Now, to cater to 700 clients, I can
+> a) launch 700 threads that each block on I/O to disk and to the client (in reading and writing on the socket)
+> 
+> OR
+> 
+> b) Write an asycnhrounous system with only 2 or three threads where I manage the connections and stack (via setcontext swapcontext etc), which is progromatically a little harder
+> 
+> Which way will yeild me better performance, considerng both approaches are implemented optimally?
+> 
+> Thanks
+> Lee
+-- 
+_________________________________________________________________________
 
-mm6 works where mm5 failed. You are probably right suspecting devfs,
-I have devfs enabled although I don't actually use it.  No problems
-with RAID1 either.
+Terje Eggestad                  mailto:terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
 
-I enabled hangcheck timer, and gets this now and then:
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
+N-0619 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
 
-Warning! Detected 2106 micro-second gap between interrupts.
-  Compensating for 1 lost ticks.
-Call Trace:
- [<c010a6ad>] handle_IRQ_event+0x29/0x4c
- [<c010a881>] do_IRQ+0xbd/0x138
- [<c0106cc0>] default_idle+0x0/0x28
- [<c0106cc0>] default_idle+0x0/0x28
- [<c01093e0>] common_interrupt+0x18/0x20
- [<c0106cc0>] default_idle+0x0/0x28
- [<c0106cc0>] default_idle+0x0/0x28
- [<c0106ce3>] default_idle+0x23/0x28
- [<c0106d63>] cpu_idle+0x37/0x48
- [<c0105000>] rest_init+0x0/0x50
- [<c010504d>] rest_init+0x4d/0x50
-
-Warning! Detected 2043 micro-second gap between interrupts.
-  Compensating for 1 lost ticks.
-Call Trace:
- [<c010a6ad>] handle_IRQ_event+0x29/0x4c
- [<c010a881>] do_IRQ+0xbd/0x138
- [<c0106cc0>] default_idle+0x0/0x28
- [<c0106cc0>] default_idle+0x0/0x28
- [<c01093e0>] common_interrupt+0x18/0x20
- [<c0106cc0>] default_idle+0x0/0x28
- [<c0106cc0>] default_idle+0x0/0x28
- [<c0106ce3>] default_idle+0x23/0x28
- [<c0106d63>] cpu_idle+0x37/0x48
- [<c0105000>] rest_init+0x0/0x50
- [<c010504d>] rest_init+0x4d/0x50
-
-
-Helge Hafting

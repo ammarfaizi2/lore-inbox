@@ -1,54 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263645AbTKUAvc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 19:51:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbTKUAvc
+	id S264119AbTKUBC0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 20:02:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264126AbTKUBC0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 19:51:32 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:46562 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263645AbTKUAvb
+	Thu, 20 Nov 2003 20:02:26 -0500
+Received: from draal.physics.wisc.edu ([128.104.222.75]:13502 "EHLO
+	moya.mcelrath.org") by vger.kernel.org with ESMTP id S264119AbTKUBCY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 19:51:31 -0500
-Subject: Re: Upgrading Kernel kills X ...
-From: john stultz <johnstul@us.ibm.com>
-To: Brian McGrew <brian@visionpro.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <F8E34394F337C74EA249580DEE7C240C111C28@chicken.machinevisionproducts.com>
-References: <F8E34394F337C74EA249580DEE7C240C111C28@chicken.machinevisionproducts.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1069375582.23569.260.camel@cog.beaverton.ibm.com>
+	Thu, 20 Nov 2003 20:02:24 -0500
+Date: Thu, 20 Nov 2003 17:01:55 -0800
+From: Bob McElrath <bob+linux-kernel@mcelrath.org>
+To: jt@hpl.hp.com
+Cc: "Mudama, Eric" <eric_mudama@maxtor.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Announce: ndiswrapper
+Message-ID: <20031121010155.GB10026@mcelrath.org>
+Mail-Followup-To: jt@hpl.hp.com, "Mudama, Eric" <eric_mudama@maxtor.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <785F348679A4D5119A0C009027DE33C105CDB514@mcoexc04.mlm.maxtor.com> <20031121000031.GA17869@bougret.hpl.hp.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 20 Nov 2003 16:46:23 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6sX45UoQRIJXqkqR"
+Content-Disposition: inline
+In-Reply-To: <20031121000031.GA17869@bougret.hpl.hp.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-11-20 at 10:25, Brian McGrew wrote:
-> I have here a very weird situation which I'm hoping that someone can help me
-> resolve.  I'm running RedHat 9.0 on a Dell Poweredge 1600 server.  Now the
-> stock install of RedHat 9.0 gives me the 2.4.20-8(smp) kernels accordingly.
-> Now if I run RedHat's up2date and pull a new kernel from there, I'm fine.  
-> 
-> Where I run into problems, is two fold and this is where it gets confusing.
-> I have tried manually upgrading my kernel in a couple different ways.  The
-> first is that our company develops software for Linux (RedHat 7.3) and
-> therefor, we have a custom kernel package that we install as an RPM.  Works
-> great on RedHat 7.3 with this Dell PE1600.  The second method is installing
-> kernel source and building it myself (2.4-20 as well as 2.6.0-test9).  If I
-> build and install a kernel myself or add our typical rpm kernel, my X server
-> is toast.  Someone told me to double check that I have framebuffer support
-> turned on, so I did and that did not resolve the problem.
 
-I've not found the cause of this, but I've seen a similar issue w/ RHEL
-3.0. It seems to have to do w/ glibc being compiled to use some feature
-(futexes?) which is not available in self-compiled kernels. I found
-replacing the i686 compiled glibc w/ the i386 compiled package solved
-the issue for me.  Your mileage may vary. 
+--6sX45UoQRIJXqkqR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'd be interested to hear the real cause. 
+Jean Tourrilhes [jt@bougret.hpl.hp.com] wrote:
+>=20
+> 	My point is : why buy this laptop if it's not 100%
+> supported ? They are plenty of other laptops...
 
-thanks
--john
+There are not plenty.  By the time you limit yourself to:
+    1) No nvidia
+    2) Supported wireless
+    3) Non-winmodem
+    4) OSS driver for sound=20
+    5) Not paying for windoze
+you're left with a fairly small set of laptops and vendors, and I
+haven't even started considering the hardware I *do* want yet.
+(processor, HDD, RAM, screen, etc)
 
+For the record I maintain a list of linux and no-OS laptop vendors:
+    http://mcelrath.org/laptops.html
+and there aren't that many.  Go through there product lines and start
+cutting out winmodems, broadcam wireless and nvidia, and there is very
+little left.
+
+The problem is consumers don't build laptops, companies do.  I can build
+my desktop component-by-component.  (Rally now for open, interchangable
+laptop hardware!)
+
+Cheers,
+Bob McElrath [Univ. of California at Davis, Department of Physics]
+
+--6sX45UoQRIJXqkqR
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/vWQDjwioWRGe9K0RAutpAKCt+OiDdon4NAAXI1JnAGvjhlQfsACg1J9G
+psLCl0Q1IPcOwnEH70x63IU=
+=sd7m
+-----END PGP SIGNATURE-----
+
+--6sX45UoQRIJXqkqR--

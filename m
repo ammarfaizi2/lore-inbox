@@ -1,70 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270825AbRIRMxm>; Tue, 18 Sep 2001 08:53:42 -0400
+	id <S271005AbRIRNAo>; Tue, 18 Sep 2001 09:00:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270847AbRIRMxd>; Tue, 18 Sep 2001 08:53:33 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:26243 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S270825AbRIRMxW>; Tue, 18 Sep 2001 08:53:22 -0400
-Date: Tue, 18 Sep 2001 08:53:27 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: David Chow <davidchow@rcn.com.hk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: EFAULT from file read.
-In-Reply-To: <3BA710EF.FC38A28B@rcn.com.hk>
-Message-ID: <Pine.LNX.3.95.1010918083824.20907A-100000@chaos.analogic.com>
+	id <S270847AbRIRNAd>; Tue, 18 Sep 2001 09:00:33 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35333 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271005AbRIRNAT>; Tue, 18 Sep 2001 09:00:19 -0400
+Subject: Re: Module-loading problem with 4MB of ram
+To: pasik@iki.fi (=?ISO-8859-1?Q?Pasi_K=E4rkk=E4inen?=)
+Date: Tue, 18 Sep 2001 14:05:00 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0109181217330.4235-100000@edu.joroinen.fi> from "=?ISO-8859-1?Q?Pasi_K=E4rkk=E4inen?=" at Sep 18, 2001 12:22:48 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15jKYe-0000sT-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Sep 2001, David Chow wrote:
+> ptr =3D dmalloc(size, GFP_ATOMIC);
+> is there any way to reserve some memory for the driver-module?
 
-> Dear all,
-> 
-> I am having trouble in reading a file in the kernel space using the
-> file->f_op->read call, everything is ok. I start off file->f_pos = 0 . I
-> also did a mntget to the super block before I call
-> "file=dentry_open(.....)" . I intend to open the file in read only mode.
-> What can be wrong? I have also check the inode->i_size is large enough
-> for me to just read 8 bytes from the file. I keep having EFAULT error
-> from the read call... also before calling mntget, also did a dget to the
-> dentry. Any help is welcomed. Thanks.
-> 
-> regards,
-> 
-> David Chow
-> -
-
-Are you attempting file access in the kernel from a kernel-thread,
-or have you just decided to perform file access from some random
-kernel code?
-
-File I/O requires a process context. Your file descriptor means
-nothing unless associated with the process that opened the file.
-The kernel, itself, is not a process. It functions in the process
-context of the caller. Also file I/O sleeps and pages. You need to
-understand this before you attempt to access files from within the
-kernel.
-
-Normally, you don't access files from within the kernel. If you
-need file data for a driver for instance, you write an appropriate
-ioctl() function in your driver so a user-mode task can send the
-data to the driver. Your startup script inserts the module, then
-executes a program which initializes the module with the appropriate
-file data and initialization commands, all sent from user mode.
-Once the driver is initialized, the user-mode "starter" exits,
-freeing resources which would otherwise be trapped forever in your
-driver.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+Since its very unlikely the firmware is DMA transfered into the card (check
+that obviously) I suspect using vmalloc/vfree instead of kmalloc/kfree will
+do the trick

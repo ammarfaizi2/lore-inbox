@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262107AbUKJTck@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262108AbUKJTdb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262107AbUKJTck (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 14:32:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbUKJTck
+	id S262108AbUKJTdb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 14:33:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbUKJTda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 14:32:40 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:59606 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262107AbUKJTcb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 14:32:31 -0500
-Date: Wed, 10 Nov 2004 13:32:29 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Jonathan Corbet <corbet@lwn.net>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>
-Subject: Re: [RFC] [PATCH] [2/6] LSM Stacking: Add stacker LSM
-Message-ID: <20041110193229.GA3480@IBM-BWN8ZTBWA01.austin.ibm.com>
-References: <1099609681.2096.16.camel@serge.austin.ibm.com> <20041110174358.32392.qmail@lwn.net>
+	Wed, 10 Nov 2004 14:33:30 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:420 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262108AbUKJTdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 14:33:10 -0500
+Message-Id: <200411101932.iAAJWaYF020344@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, davids@webmaster.com,
+       cfriesen@nortelnetworks.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +code 
+In-Reply-To: Your message of "Wed, 10 Nov 2004 18:14:43 GMT."
+             <1100110480.20555.4.camel@localhost.localdomain> 
+From: Valdis.Kletnieks@vt.edu
+References: <MDEHLPKNGKAHNMBLJOLKAELDPKAA.davids@webmaster.com> <1100041582.16689.0.camel@localhost.localdomain> <Pine.GSO.4.61.0411101024270.17015@waterleaf.sonytel.be>
+            <1100110480.20555.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041110174358.32392.qmail@lwn.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="==_Exmh_1688444104P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 10 Nov 2004 14:32:36 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Unless I've missed it, you never check num_stacked_modules against
-> CONFIG_NUM_LSMS.  If somebody loads too many modules, they risk
-> overflowing all of those void * security arrays you've added to so many
-> kernel data structures, and thus corrupting those structures.  That, in
-> technical terms, would be a bummer.
-> 
-> In stacker_unregister(), you do:
-> 
-> > +	num_stacked_modules--;
-> 
-> What happens if you unload anything other than the last module, then
-> load something else?  When you return num_stacked_modules-1 to the new
-> module, you'll point it to a slot in those security arrays which is
-> already used by another module.  The result seems unlikely to improve
-> security.
-> 
-> Unless I'm simply confused?  It's happened before...
+--==_Exmh_1688444104P
+Content-Type: text/plain; charset=us-ascii
 
-No, you're not.  While I sent out all the patches to make the first
-patch useful, the stacker patch was the same one I've been using with
-several other approaches to sharing the void * security arrays.  If
-the first patch turned out to be acceptable, the stacker patch would
-have been tweaked quite a bit.  As Chris Wright pointed out, the list
-of stacked modules would no longer need to be a linked list, and so
-the semaphore guarding that list could be dropped.  And of course
-your points are valid.
+On Wed, 10 Nov 2004 18:14:43 GMT, Alan Cox said:
 
-I am working on a new implementation, which I will send first to the
-lsm list and lsm and selinux maintainers.  Lmbench numbers from this
-morning show that with this approach, a kernel with selinux +
-capabilities shows no performance degradation.
+> 3. "If you distribute the source then I won't supply you updates"
 
-thanks,
--serge
+Intellectually interesting, but somewhat moot, as at least one person has
+quoted Sveasoft's *actual* requirement as:
+
+"If you distribute the *non-GPL* pieces of our pre-release, then we won't
+supply you updates".
+
+which is *totally* another kettle of fish (and they're totally in their rights to
+do so, *as long as the non-GPL parts are really non-GPL*).  I've leave others to
+argue about the commingling of GPL and non-GPL and whether their drivers are
+NVidia-ish (where the closed parts are quite arguably *not* derivative works,
+and there's a GPL'ed shim), and therefore more-or-less tolerated, or if their
+"non-GPL" code is actually derivative of some GPL kernel code (and thus a big
+no-no)....
+
+
+
+
+--==_Exmh_1688444104P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBkmzUcC3lWbTT17ARAgOyAJ4uAlsoqZbSnuOauZxyhKk+PMHfCwCgzlLV
+aWMm6kb2c41QrGVb+eEVDmg=
+=2XPk
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1688444104P--

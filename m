@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVASDYl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVASDf6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261553AbVASDYl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 22:24:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbVASDYl
+	id S261552AbVASDf6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 22:35:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbVASDf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 22:24:41 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:58092 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261544AbVASDYg convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 22:24:36 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 18 Jan 2005 22:35:58 -0500
+Received: from terminus.zytor.com ([209.128.68.124]:53937 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261552AbVASDfy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 22:35:54 -0500
+Message-ID: <41EDD584.8080307@zytor.com>
+Date: Tue, 18 Jan 2005 19:35:32 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [Lmbench-users] Re: pipe performance regression on ia64
-Date: Wed, 19 Jan 2005 11:24:20 +0800
-Message-ID: <894E37DECA393E4D9374E0ACBBE74270013E8A01@pdsmsx402.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Lmbench-users] Re: pipe performance regression on ia64
-Thread-Index: AcT91CXe4jWQ4F2WT2i/sKf2doQANwAAc32w
-From: "Zou, Nanhai" <nanhai.zou@intel.com>
-To: "Larry McVoy" <lm@bitmover.com>, "Linus Torvalds" <torvalds@osdl.org>
-Cc: <davidm@hpl.hp.com>, <carl.staelin@hp.com>,
-       "Luck, Tony" <tony.luck@intel.com>, <lmbench-users@bitmover.com>,
-       <linux-ia64@vger.kernel.org>,
-       "Kernel Mailing List" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 19 Jan 2005 03:24:20.0569 (UTC) FILETIME=[5D705C90:01C4FDD6]
+To: Matt Mackall <mpm@selenic.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kbuild: Implicit dependence on the C compiler
+References: <cshbd7$nff$1@terminus.zytor.com> <20050117220052.GB18293@mars.ravnborg.org> <41EC363D.1090106@zytor.com> <20050118190513.GA16120@mars.ravnborg.org> <csjoef$gkt$1@terminus.zytor.com> <20050119012612.GD3867@waste.org>
+In-Reply-To: <20050119012612.GD3867@waste.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: linux-ia64-owner@vger.kernel.org
-> [mailto:linux-ia64-owner@vger.kernel.org] On Behalf Of Larry McVoy
-> Sent: Wednesday, January 19, 2005 11:05 AM
-> To: Linus Torvalds
-> Cc: davidm@hpl.hp.com; carl.staelin@hp.com; Luck, Tony;
-> lmbench-users@bitmover.com; linux-ia64@vger.kernel.org; Kernel Mailing
-List
-> Subject: Re: [Lmbench-users] Re: pipe performance regression on ia64
+Matt Mackall wrote:
+>>
+>>I would argue that "name of gcc has changed" is possibly a condition
+>>that does more harm than good.  It is just as frequently used to have
+>>wrappers, like distcc, as it is to have different versions.
 > 
-> I'm very unthrilled with the idea of adding stuff to the release
-benchmark
-> which is OS specific.  That said, there is nothing to say that you
-can't
-> grab the benchmark and tweak your own test case in there to prove or
-> disprove your theory.
+> Disagree. I switch compilers all the time and kbuild does the right
+> thing for me.
+> 
+> I do occassionally feel your 'make install' pain and some sort of
+> 'make __install' might be called for.
 > 
 
-Maybe lmbench could add a feature that bw_pipe will fork CPU number of
-children to measure the average throughput. 
+As I said, I don't mind the default being there, it's certainly 
+consistent with the default being safe.  However, not being able to 
+override it is bad.
 
-This will give a much reasonable result when running bw_pipe on a SMP
-Box, at least for Linux.
-
-Zou Nan hai
+	-hpa

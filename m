@@ -1,58 +1,79 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314938AbSD2JA1>; Mon, 29 Apr 2002 05:00:27 -0400
+	id <S314941AbSD2JDx>; Mon, 29 Apr 2002 05:03:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314940AbSD2JA0>; Mon, 29 Apr 2002 05:00:26 -0400
-Received: from xsmtp.ethz.ch ([129.132.97.6]:18474 "EHLO xfe3.d.ethz.ch")
-	by vger.kernel.org with ESMTP id <S314938AbSD2JAZ>;
-	Mon, 29 Apr 2002 05:00:25 -0400
-Message-ID: <3CCD0B66.4040107@debian.org>
-Date: Mon, 29 Apr 2002 10:59:18 +0200
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
-X-Accept-Language: en-us, en
+	id <S314954AbSD2JDw>; Mon, 29 Apr 2002 05:03:52 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:25101 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S314941AbSD2JDv>; Mon, 29 Apr 2002 05:03:51 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
-To: arjan@fenrus.demon.nl
-CC: Matthew M <matthew.macleod@btinternet.com>, linux-kernel@vger.kernel.org
-Subject: Re: Microcode update driver
-In-Reply-To: <fa.fn3ukrv.1ghovg0@ifi.uio.no> <fa.hho4jnv.11lkl19@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 Apr 2002 09:00:25.0181 (UTC) FILETIME=[4D0CF8D0:01C1EF5C]
+Message-ID: <15565.3189.919319.155049@laputa.namesys.com>
+Date: Mon, 29 Apr 2002 13:03:49 +0400
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Anton Altaparmakov <aia21@cantab.net>
+Cc: Jan Harkes <jaharkes@cs.cmu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [prepatch] address_space-based writeback
+In-Reply-To: <5.1.0.14.2.20020427191820.04003500@pop.cus.cam.ac.uk>
+X-Mailer: VM 7.03 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
+X-NSA-Fodder: Monica Lewinsky Craig Livingstone Ft. Bragg Honduras
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Anton Altaparmakov writes:
+ > At 16:53 27/04/02, Jan Harkes wrote:
+ > >On Fri, Apr 12, 2002 at 08:57:17AM +0100, Anton Altaparmakov wrote:
+ > > > Yet, this really begs the question of defining the concept of a file. I am
+ > > > quite happy with files being the io entity in ntfs. It is just that each
+ > > > file in ntfs can contain loads of different data holding attributes which
+ > > > are all worth placing in address spaces. Granted, a dummy inode could be
+ > > > setup for each of those which just means a lot of wasted ram but ntfs is
+ > > > not that important so I have to take the penalty there. But if I also need
+ > > > unique inode numbers in those dummy inodes then the overhead is becoming
+ > > > very, very high...
+ > >
+ > >You could have all additional IO streams use the same inode number and
+ > >use iget4. Several inodes can have the same i_ino and the additional
+ > >argument would be a stream identifier that selects the correct 'IO
+ > >identity'.
+ > 
+ > Great idea! I quickly looked into the implementation details and using 
+ > iget4/read_inode2 perfectly reconciles my ideas of using an address space 
+ > mapping for each ntfs attribute with the kernels requirement of using 
+ > inodes as the i/o entity by allowing a clean and unique mapping between 
+ > multiple inodes with the same inode numbers and their attributes and 
+ > address spaces.
+ > 
 
+Please note that ->read_inode2() is reiserfs-specific hack. Adding more
+users for it would make it permanent. The only reason for ->read_inode2
+existence was that iget() was called by code external to the
+file-system, knfsd used to do this, now it can call ->fh_to_dentry() in
+stead. As iget() is never called outside of file-ssytem, you can set
+ntfs->read_inode to no-op and write your own function ntfs_iget(...) to
+be called from ntfs_lookup() and ntfs_fill_super().
 
-arjan@fenrus.demon.nl wrote:
+ntfs_iget() calls iget() (->read_inode is no-op, hence iget doesn't
+access disk) and, if new inode were allocated, reads data from the disk
+and initializes inode, etc.
 
-> In article <m171Yag-000Ga6C@Wasteland> you wrote:
-> 
->>On Saturday 27 April 2002 7:57 pm, Roy Sigurd Karlsbakk wrote:
->>
->>>Sorry if this is a FAQ, but where's the microcode.dat supposed to be
->>>placed? I can't find any information about that in the doc.
->>>
->>/usr/share/misc/microcode.dat
->>
-> 
-> hum doesn't the FHS specify that /usr/share shouldn't contain arch
-> specific files ? microcode.dat I can't really call arch neutral....
+I guess coda_iget() is example of this.
 
+ > I need to work out exactly how to do it but I will definitely go that way. 
+ > That will make everything nice and clean and get rid of the existing 
+ > kludges of passing around other types of objects instead of struct file * 
+ > to my various readpage functions. Also I will be able to have fewer 
+ > readpage functions... (-:
+ > 
+ > Thanks for the suggestion!
+ > 
+ > Best regards,
+ > 
+ > Anton
+ > 
 
-Right! But is not a configuration file (in /etc/, like the original sources
-and RH). So it should be in /usr/lib (or in /usr/include, it is really a C/C++
-file, but now we don't use it as a C file).
-
-Anyway, I will no change the location [1]. The file is a nearly a C file, so
-no problems with other archs. I see it as the man pages of lilo, and other
-arch specific program. They are in /usr/share, readable by all arch,
-but not so usefull on other arch.
-
-	giacomo
-
-PS: Do you maintain the RH kernel-utils ?
-
-
-[1] until I find a good new location in FHS
-
+Nikita.

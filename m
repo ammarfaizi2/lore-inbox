@@ -1,56 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265469AbTAEXqJ>; Sun, 5 Jan 2003 18:46:09 -0500
+	id <S264983AbTAEXyU>; Sun, 5 Jan 2003 18:54:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265470AbTAEXqJ>; Sun, 5 Jan 2003 18:46:09 -0500
-Received: from smtp07.iddeo.es ([62.81.186.17]:50833 "EHLO smtp07.retemail.es")
-	by vger.kernel.org with ESMTP id <S265469AbTAEXqI>;
-	Sun, 5 Jan 2003 18:46:08 -0500
-Date: Mon, 6 Jan 2003 00:54:41 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Nuno Monteiro <nuno@itsari.org>
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: Re: updated CDROMREADAUDIO DMA patch
-Message-ID: <20030105235441.GA2462@werewolf.able.es>
-References: <20030105230752.GA936@hobbes.itsari.int>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S265470AbTAEXyT>; Sun, 5 Jan 2003 18:54:19 -0500
+Received: from ns.indranet.co.nz ([210.54.239.210]:26852 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id <S264983AbTAEXyT>; Sun, 5 Jan 2003 18:54:19 -0500
+Date: Mon, 06 Jan 2003 13:01:41 +1300
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: "Trever L. Adams" <tadams-lists@myrealbox.com>,
+       Andre Hedrick <andre@linux-ide.org>
+cc: "Adam J. Richter" <adam@yggdrasil.com>, lm@bitmover.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, paul@clubi.ie
+Subject: Re: Honest does not pay here ...
+Message-ID: <2209530000.1041811301@localhost.localdomain>
+In-Reply-To: <1041805731.1052.4.camel@aurora.localdomain>
+References: <Pine.LNX.4.10.10301051223130.421-100000@master.linux-ide.org>
+ <1041805731.1052.4.camel@aurora.localdomain>
+X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20030105230752.GA936@hobbes.itsari.int>; from nuno@itsari.org on Mon, Jan 06, 2003 at 00:07:52 +0100
-X-Mailer: Balsa 2.0.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2003.01.06 Nuno Monteiro wrote:
-> [First of all, excuse me for breaking the thread, I had already deleted 
-> your original mail when I ran into this. Sorry for the inconvenience :)]
-> 
-> On January 4th 2003 Andrew Morton wrote:
-> > A refresh and retest of this patch, against 2.4.21-pre2.  It would
-> > be helpful if a few (or a lot of) people could test this, and report
-> > on the result.   Otherwise it'll never get anywhere...
-> 
-> Ok, I tested it earlier on today and I ran into an oops & kernel panic. I 
-> can read audio cd's just fine (using xmms, gtcd, whatever) for hours, but 
-> whenever I try to rip anything using cdparanoia, it goes down south.
-> 
-> This is 2.4.21-pre2aa2 with some reiserfs fixes Hans posted on lkml a 
-> while ago, mind you, and not vanilla 2.4.21-pre2. The patch applied 
-> cleanly, though -- not even with offset. Its a run-of-the-mill 48x cdrom 
-> (dont even know the brand), connected as slave on the primary IDE 
-> channel, which is a PIIX4. Let me know if you need any other info!
-> 
 
-Just a me-too, but with the old version. If I try to rip anything with
-grip (using cdda2wav as backend), the box just locks. No SysRq.
-Curious: one other PIIX4.
+--On Sunday, January 05, 2003 17:28:52 -0500 "Trever L. Adams" 
+<tadams-lists@myrealbox.com> wrote:
 
-Still have to try with this new version.
+>
+> I am ardent supporter of the GPL.  I do have some problems with what
+> some people are doing (particularly Nvidia, namely because I believe if
+> I pay for hardware, I pay for the right to use it and to have the specs
+> on how to use it... i.e. they don't release programming info).  However,
+> Linus has allowed for binary only modules.
 
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.21-pre2-jam2 (gcc 3.2.1 (Mandrake Linux 9.1 3.2.1-2mdk))
+>
+> Trever
+
+I've had some discussion with an ex-NVidia guy who was there while they 
+were doing the driver release.
+
+They wanted to dual GPL/BSD license the kernel part in the first place, 
+then they realised they had a problem.  They don't own the copyright on all 
+that code themselves, nor do they have the right to redistribute specs for 
+all of the hardware without NDA, because it consists in part of purchased 
+'IP blocks' (as hardware people call libraries).  So in the end they've 
+opened up as far as they were allowed by preexisting constraints.
+
+Remember, the hardware was not constructed with an open source driver in 
+mind.  It's fairly easy to build hardware which can have open source 
+drivers (you choose your IP block vendors carefully), but NVidia did not do 
+that in the first place, and now they are stuck.
+
+So your belief about hardware is just plain false, unfortunately.  You're 
+free not to buy their hardware, but I don't think you are being fair to dis 
+them when they appear to have gotten the point of open source but been 
+stymied by other vendors.  NVidia do try hard to give you the right to use 
+their stuff with Linux, but there is only so far they can go.
+
+I expect if Linux makes them enough money, they might buy the rights they 
+don't have, and release the driver in full.  But don't expect that to 
+happen soon, because if you think proprietary software licenses can be 
+expensive, you haven't seen hardware.
+
+Andrew

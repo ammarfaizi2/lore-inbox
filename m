@@ -1,89 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264108AbTLOUTB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 15:19:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264110AbTLOUTB
+	id S264129AbTLOUVS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 15:21:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264134AbTLOUVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 15:19:01 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2176 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S264108AbTLOUS5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 15:18:57 -0500
-Date: Mon, 15 Dec 2003 20:24:19 GMT
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200312152024.hBFKOJIK000359@81-2-122-30.bradfords.org.uk>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.53.0312150938540.9281@chaos>
-References: <16345.51504.583427.499297@l.a>
- <yw1xd6auyvac.fsf@kth.se>
- <Pine.LNX.4.53.0312121000150.10423@chaos>
- <200312121928.hBCJSLBs000384@81-2-122-30.bradfords.org.uk>
- <Pine.LNX.4.53.0312121435570.1356@chaos>
- <200312131040.hBDAeisM000455@81-2-122-30.bradfords.org.uk>
- <Pine.LNX.4.53.0312150938540.9281@chaos>
-Subject: Re: PROBLEM: floppy motor spins when floppy module not installed
+	Mon, 15 Dec 2003 15:21:18 -0500
+Received: from admin.wolfpaw.net ([204.209.44.9]:28650 "HELO admin.wolfpaw.net")
+	by vger.kernel.org with SMTP id S264129AbTLOUVK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 15:21:10 -0500
+From: "Wolfpaw - Dale Corse" <admin@wolfpaw.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel Bug in Journal.c
+Date: Mon, 15 Dec 2003 13:30:51 -0700
+Message-ID: <AJENJFOLCLAHHIIGCCHNEEAJMIAA.admin@wolfpaw.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Yes, and I recall we agreed to disagree where the FDC stop must
-> > > be put, but we both agreed that it must be stopped. I still contend
-> > > that since the Linux startup code takes control away from the BIOS,
-> > > it's that codes responsibility to turn OFF things that the BIOS
-> > > might have left ON.
-> >
-> > Well, on a practical level, yes, I agree with you, it is the easiest
-> > way to solve the problem.
-> >
-> > On a technical level, I still think that the BIOS configuration is
-> > broken if it leaves the floppy motor on, on a system running a kernel
-> > without the floppy code compiled in.
-> 
-> Hmmm. The BIOS doesn't know that you have a kernel without any
-> floppy code.
+Greetings,
 
-No, but the user does, and if the machine in question boots fast
-enough that interrupts are disabled less than two seconds after the
-last BIOS floppy access, they should currently avoid configuring the
-BIOS in such a way that it accesses floppy drive if there is not going
-to be any code to turn it off, which currently means having floppy
-support compiled in, (or as a module).
+ We are getting this error using 2.4.23 on reiserfs, with the
+reiser quota patches, and grsecurity patches. I have no idea
+what it is :(
 
-> The BIOS also doesn't know that its timer queue
-> is going to be destroyed by the data (code) that it's properly
-> reading from some disk. All it knows is that every time the
-> floppy is accessed, the motor must be turn ON before access
-> and must be turned OFF two seconds after the last access. Since
-> it doesn't know when the last access will be (it doesn't know the
-> future), it resets a timer-variable upon every access. The timer-
-> queue bumps the variable and if it gets to zero, turns OFF the
-> FDC motor.
-> 
-> The BIOS code is properly doing its job. When control is
-> taken away from the BIOS, the code that took control
+kernel BUG at journal.c:869!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c02401c7>]    Not tainted
+EFLAGS: 00010246
+eax: 00000000   ebx: 0161e62c   ecx: df41c540   edx: de195480
+esi: de195480   edi: 0161e62c   ebp: dfe27000   esp: c15bddfc
+ds: 0018   es: 0018   ss: 0018
+Process kupdated (pid: 6, stackpage=c15bd000)
+Stack: c0353330 c01d60a2 c010cb80 de195280 de195280 00000012 dfe27000
+c023fc62
+       dfe27000 00000000 00000000 00000004 dfe27000 0161e62c 00000002
+c0244723
+       dfe27000 de195480 00000001 de195298 de195480 00000004 00000002
+00000000
+Call Trace:    [<c01d60a2>] [<c023fc62>] [<c0244723>] [<c02450f6>]
+[<c02d40b3>]
+  [<c02438db>] [<c019dd36>] [<c024444a>] [<c0230caf>] [<c01da2db>]
+[<c01d974c>]
+  [<c01d9a9e>] [<c019dd36>] [<c019f626>] [<c01d9990>] [<c019d9ae>]
+[<c01d9990>]
 
-The code that took control is the bootloader, which may never load a
-Linux kernel.  Imagine a theoretical future bootloader which disabled
-interrupts, thereby stopping the two second floppy motor timeout, and
-offered things such as a serial console, monitor, or other diagnostic
-features.
+Code: 0f 0b 65 03 99 29 35 c0 eb e4 8b 85 f8 00 00 00 3b 58 20 0f
 
-> must
-> tie up any loose-ends that the BIOS wasn't able to finish.
+It also causes kupdated to go defunct, and we lose the ability to use
+sync,
+or unmount a filesystem. (Reboot must be done with the reset switch
+:()
 
-Possibly, but I still consider the BIOS configuration broken if there
-are infact any loose-ends to tie up.
+If anyone has any ideas, please drop me a line. I am not subscribed,
+so
+please CC responses to admin@wolfpaw.net
 
-> It's not the job of the boot-loader because it didn't alter
-> the BIOS in any way. It used the BIOS to put the kernel in
-> it's correct place. Then it gives control to the kernel
-> code. It's that kernel code that takes control away from
-> the BIOS. It's the responsibility of that kernel code
-> to handle the consequences of doing that.
+Thanks in advance for your time,
+Dale.
 
-At the end of the day, though, I agree that it's the best way to fix
-it, but we shouldn't convince ourselves that it's particularly
-elegant.
+The offending block of code is:
 
-John.
+static int flush_commit_list(struct super_block *s, struct
+reiserfs_journal_list *jl, int flushall) {
+  int i, count ;
+  int bn ;
+  int retry_count = 0 ;
+  int orig_commit_left = 0 ;
+  struct buffer_head *tbh = NULL ;
+  unsigned long trans_id = jl->j_trans_id;
+
+  reiserfs_check_lock_depth("flush_commit_list") ;
+
+  if (atomic_read(&jl->j_older_commits_done)) {
+    if (!list_empty(&jl->j_ordered_bh_list))
+        BUG();
+    if (!list_empty(&jl->j_tail_bh_list))
+        BUG();
+    return 0 ;
+  }
+
+  /* before we can put our commit blocks on disk, we have to make sure
+everyone older than
+  ** us is on disk too
+  */
+  if (jl->j_len <= 0) {
+-->  BUG();
+    return 0 ;
+  }
+  if (trans_id == SB_JOURNAL(s)->j_trans_id)
+      BUG();
+
+  get_journal_list(jl);
+
+  /* write any buffers that must hit disk before the commit is done */
+  write_ordered_buffers(&jl->j_ordered_bh_list, &jl->j_wait_bh_list);
+
+  if (flushall) {
+    if (flush_older_commits(s, jl) == 1) {
+        /* list disappeared during flush_older_commits.  return */
+        goto put_jl;
+    }
+  }
+
+--------------------------------
+Dale Corse
+System Administrator
+Wolfpaw Services Inc.
+http://www.wolfpaw.net
+(780) 474-4095
+

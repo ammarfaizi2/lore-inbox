@@ -1,54 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262052AbTJDOOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 10:14:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbTJDOOQ
+	id S262063AbTJDOWl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 10:22:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbTJDOWk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 10:14:16 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:39940 "HELO
-	127.0.0.1") by vger.kernel.org with SMTP id S262052AbTJDOOP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 10:14:15 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: insecure <insecure@mail.od.ua>
-Reply-To: insecure@mail.od.ua
-To: Andi Kleen <ak@suse.de>, <bvds@bvds.geneva.edu>
-Subject: Re: segfault error on x86_64
-Date: Sat, 4 Oct 2003 17:13:55 +0300
-X-Mailer: KMail [version 1.4]
-Cc: linux-kernel@vger.kernel.org
-References: <20031002215345.A1D33E24D6@bvds.geneva.edu.suse.lists.linux.kernel> <p73y8w2yboa.fsf@oldwotan.suse.de>
-In-Reply-To: <p73y8w2yboa.fsf@oldwotan.suse.de>
+	Sat, 4 Oct 2003 10:22:40 -0400
+Received: from smtprelay02.ispgateway.de ([62.67.200.157]:16518 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S262061AbTJDOWj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 10:22:39 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Russell King <rmk@arm.linux.org.uk>
+Subject: Re: mlockall and mmap of IO devices don't mix
+Date: Sat, 4 Oct 2003 16:19:49 +0200
+User-Agent: KMail/1.5.4
+Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
+       Joe Korty <joe.korty@ccur.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+References: <CFYv.787.23@gated-at.bofh.it> <200310041202.08742.ioe-lkml@rameria.de> <20031004111336.C18928@flint.arm.linux.org.uk>
+In-Reply-To: <20031004111336.C18928@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200310041713.55050.insecure@mail.od.ua>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310041619.49392.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 03 October 2003 11:20, Andi Kleen wrote:
-> <bvds@bvds.geneva.edu> writes:
-> > I have kernel 2.4.22 compiled with gcc 3.3 running on a
-> > dual AMD Opteron (in 64 bit mode).
-> > There is an error message that occurs about twice a day at random times:
-> >
-> > Sep 30 23:45:00 gideon kernel: bumps[12960]: segfault at 0000002a95611000
-> > rip 0000000000402150 rsp 0000007fbffff1a8 error 6 Oct  1 10:26:57 gideon
-> > kernel: bumps[13510]: segfault at 0000002a95611000 rip 0000000000402150
-> > rsp 0000007fbffff1a8 error 6
-> >
-> > As far as I can tell, there is no other effect than this message.
-> > (the system keeps running OK).
-> >
-> > What is "bumps" ?
+Hi there,
+
+CC'ed linux-mm and Andrew Morton for expertise.
+
+On Saturday 04 October 2003 12:13, Russell King wrote:
+> It has to be correct.  We do the following in a hell of a lot of places:
 >
-> Some random program on your system. The x86-64 kernel logs all unhandled
-> segfaults by default. It is unlikely to be a kernel problem.
+> 	pfn = pte_pfn(pte);
+> 	if (pfn_valid(pfn)) {
+> 		struct page *page = pfn_to_page(pfn);
+> 		/* do something with page */
+> 	}
+>
+> basically this type of thing happens in any of the PTE manipulation
+> functions (eg, copy_page_range, zap_pte_range, etc.)
 
-Whoa. Do you mean it can be told to not do this?
-This is very good, because it can now be generalized to all arches
-without people objecting 'its legitimate to use unhandled SEGVs,
-I do not want this logged' - they can turn it off in /proc.
+These functions are called always with pages, where we know, that this
+is RAM, AFICS. Since sometimes other things are encoded in the PTE, whe
+check this via pfn_valid().
 
-Of course some folks will object anyway ;););)
--- 
-vda
+If I'm wrong about this the gurus from LINUX-MM should complain loudly.
+
+> If pfn_valid is returning false positives, and you happen to mmap() an
+> area which gives false positives from a user space application, your
+> kernel will either oops or will corrupt RAM when that application exits.
+>
+> I believe the comment in mmzone.h therefore is an opinion, and indicates
+> a concern for performance rather than correctness and stability.
+
+I hope you are wrong about this, but I'm not totally sure. So I included
+the linux-mm mailing list and Andrew Morton for expert advice.
+
+Regards
+
+Ingo Oeser
+
+

@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316159AbSENXix>; Tue, 14 May 2002 19:38:53 -0400
+	id <S316161AbSENXuR>; Tue, 14 May 2002 19:50:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316160AbSENXiw>; Tue, 14 May 2002 19:38:52 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38924 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S316159AbSENXiv>; Tue, 14 May 2002 19:38:51 -0400
-Subject: Re: InfiniBand BOF @ LSM - topics of interest
-To: Tony.P.Lee@nokia.com
-Date: Wed, 15 May 2002 00:58:14 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk, lmb@suse.de, woody@co.intel.com,
-        linux-kernel@vger.kernel.org, zaitcev@redhat.com
-In-Reply-To: <4D7B558499107545BB45044C63822DDE3A206D@mvebe001.NOE.Nokia.com> from "Tony.P.Lee@nokia.com" at May 14, 2002 01:19:13 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S316163AbSENXuQ>; Tue, 14 May 2002 19:50:16 -0400
+Received: from [65.219.148.17] ([65.219.148.17]:25736 "EHLO
+	azog.l337hosting.com") by vger.kernel.org with ESMTP
+	id <S316161AbSENXuQ> convert rfc822-to-8bit; Tue, 14 May 2002 19:50:16 -0400
+Subject: ip addr add
+Date: Tue, 14 May 2002 16:50:15 -0700
+Message-ID: <FFAF1479E6949F4DAE87D09E1292D0376A62@azog.l337hosting.com>
+X-MS-Has-Attach: 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E177mBK-0000gT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain;
+	charset="us-ascii"
+X-MS-TNEF-Correlator: 
+Content-Transfer-Encoding: 8BIT
+Thread-Topic: ip addr add
+Thread-Index: AcH7oSZ0PFchVxY6TOmU0a/cL0A0bQ==
+From: "Jason A. Ramsey" <jason@l337hosting.com>
+content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I like to see user application such as VNC, SAMBA build directly
-> on top of IB API.  I have couple of IB cards that can 
-> send 10k 32KBytes message (320MB of data) every ~1 second over 
-> 1x link with only <7% CPU usage (single CPU xeon 700MHz).  
-> I was very impressed.  
-> 
-> Go thru the socket layer API would just slow thing down.
+I'm working with a RH7.3 box that has iproute2 installed. I am trying to
+configure a slew of virtual interfaces on the server to accommodate
+ip-based virtual hosting with Apache. I was led to believe that it was
+possible to provision a group of addresses with a single command that
+would cause the host to listen on all those addresses. I would like to
+configure addresses 172.20.0.128-172.20.0.254 on the box without having
+to manually specify every address. Is this possible? Thanks.
 
-Thats an assumption that is actually historically not a very good one to
-make. There are fundamental things that most of the "no network layer"
-people tend to forget
+--
 
-1.	Van Jacobson saturated 10Mbit ethernet with a Sun 3/50
-2.	SGI saturated HIPPI with MIPS processors that are at best comparable
-	to the lowest end wince PDAs
-3.	Having no network layer in almost every case is tied to the belief
-	that bandwidth is infinite and you need to congestion control
+[jR]
 
-In a network congestion based collapse is spectacularly bad. Some of the
-internet old hands can probably tell you the horror stories of the period
-the whole internet backbone basically did that until they got their research
-right. Nagle's tinygram congestion avoidance work took Ford's network usage
-down by I believe the paper quoted 90%.
+there are no mistakes; only
+happy accidents -- bob ross
 
-The socket API is very efficient. TCP is extremely efficient in the service
-it provides. IB can support large messages, which massively ups the throughput.
-
-Let me ask you a much more important question 
-
-Can you send achieve 90% efficiency on a 90% utilized fabric with multiple
-nodes and multiple hops ? If you can't then you are not talking about a 
-network you are talking about a benchmark.
-
-Alan
 

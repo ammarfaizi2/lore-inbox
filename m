@@ -1,85 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264990AbTFCMtw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 08:49:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264991AbTFCMtw
+	id S264986AbTFCMwC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 08:52:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264992AbTFCMwB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 08:49:52 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:62682 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264990AbTFCMtt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 08:49:49 -0400
-Date: Tue, 3 Jun 2003 15:03:08 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Margit Schubert-While <margitsw@t-online.de>,
-       lksctp-developers@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: SCTP config 2.5.70(-bk)
-Message-ID: <20030603130308.GC27168@fs.tum.de>
-References: <5.1.0.14.2.20030602094232.00aeda18@pop.t-online.de>
+	Tue, 3 Jun 2003 08:52:01 -0400
+Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:36516 "EHLO
+	gagarin.0x63.nu") by vger.kernel.org with ESMTP id S264986AbTFCMv7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 08:51:59 -0400
+Date: Tue, 3 Jun 2003 15:05:16 +0200
+To: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org,
+       Sam Ravnborg <sam@ravnborg.org>, mikpe@csd.uu.se,
+       torvalds@transmeta.com
+Subject: Re: [PATCH] Support for mach-xbox (updated)
+Message-ID: <20030603130515.GC22531@h55p111.delphi.afb.lu.se>
+References: <20030603091113.GD13285@h55p111.delphi.afb.lu.se> <20030603125940.GC13838@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5.1.0.14.2.20030602094232.00aeda18@pop.t-online.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030603125940.GC13838@suse.de>
+User-Agent: Mutt/1.5.4i
+From: Anders Gustafsson <andersg@0x63.nu>
+X-Scanner: exiscan *19NBTY-0006eR-00*SRzbOL7c4kQ*0x63.nu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 02, 2003 at 09:53:04AM +0200, Margit Schubert-While wrote:
+On Tue, Jun 03, 2003 at 01:59:40PM +0100, Dave Jones wrote:
+> Last 4 lines all use spaces instead of tabs.
 
-> CONFIG_IPV6_SCTP__   is always being set to "y" even though
-> not selected (CONFIG_IPV6 not set)
+darn.
 
-First, this doesn't do any harm since CONFIG_IPV6_SCTP__ alone doensn't 
-result in anything getting compiled.
+>  >  targets		:= vmlinux vmlinux.bin vmlinux.bin.gz head.o misc.o piggy.o
+>  > +ifeq ($(CONFIG_X86_XBOX),y)
+>  > +#XXX Compiling with optimization makes 1.1-xboxen 
+>  > +#    crash while decompressing the kernel
+>  > +CFLAGS_misc.o   := -O0
+>  > +endif
+> 
+> curious. does it matter which version of gcc you used ?
 
-But besides, it seems a bit broken.
+Yes, only works with gcc3+
 
->From net/sctp/Kconfig:
+> this sounds like a band-aid for something else that needs fixing.
 
-<--  snip  -->
-
-...
-
-config IPV6_SCTP__
-        tristate
-        default y if IPV6=n
-        default IPV6 if IPV6
-
-config IP_SCTP
-        tristate "The SCTP Protocol (EXPERIMENTAL)"
-        depends on IPV6_SCTP__
-...
-
-<--  snip  -->
-
-
-Semantically equivalent is the following for IPV6_SCTP__:
-
-config IPV6_SCTP__
-        tristate
-        default y if IPV6=n || IPV6=y
-	default m if IPV6=m
-
-
-If it was intended to disallow a static IP_SCTP with a modular IPV6 it 
-doesn't work: It's perfectly allowed to set IPV6=n and IP_SCTP=y and 
-later compile and install a modular IPV6 for the same kernel.
-
-
-Could someone from the SCTP developers comment on the intentions behind 
-IPV6_SCTP__ ?
-
-
-> Margit
-
-cu
-Adrian
+It sort of is (hence the XXX in the comment). But it's only when paging is
+off. As soon as kernel is running everything is rock solid. It's probably
+related to changed memoryaccess patterns.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/

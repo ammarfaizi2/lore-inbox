@@ -1,63 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbUHGMMX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUHGMSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbUHGMMX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 08:12:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUHGMMX
+	id S261724AbUHGMSP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 08:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUHGMSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 08:12:23 -0400
-Received: from [80.190.193.18] ([80.190.193.18]:9930 "EHLO mx.vsadmin.de")
-	by vger.kernel.org with ESMTP id S261763AbUHGMMT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 08:12:19 -0400
-From: Stefan Meyknecht <sm0407@nurfuerspam.de>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] cdrom: MO-drive open write fix (trivial)
-Date: Sat, 7 Aug 2004 14:12:17 +0200
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200408061833.30751.sm0407@nurfuerspam.de> <20040806220654.5e857bed.akpm@osdl.org> <20040807083835.GA24860@suse.de>
-In-Reply-To: <20040807083835.GA24860@suse.de>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408071412.17411.sm0407@nurfuerspam.de>
+	Sat, 7 Aug 2004 08:18:15 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:985 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S261724AbUHGMSJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 08:18:09 -0400
+Date: Sat, 7 Aug 2004 14:17:30 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200408071217.i77CHUKm006973@burner.fokus.fraunhofer.de>
+To: mj@ucw.cz, schilling@fokus.fraunhofer.de
+Cc: James.Bottomley@steeleye.com, axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
-> drive. If you could look into why that isn't set for your mo device
-> and send a patch for that, it would be much better.
 
-Assuming mo devices can do random writing, how about this patch:
+>From: Martin Mares <mj@ucw.cz>
 
---- linux/drivers/cdrom/cdrom.c.orig	2004-08-07 14:02:28.958908544 +0200
-+++ linux/drivers/cdrom/cdrom.c	2004-08-07 13:58:29.306167698 +0200
-@@ -833,8 +833,11 @@ static int cdrom_open_write(struct cdrom
- 	if (!cdrom_is_mrw(cdi, &mrw_write))
- 		mrw = 1;
- 
--	(void) cdrom_is_random_writable(cdi, &ram_write);
--
-+	if (CDROM_CAN(CDC_MO_DRIVE))
-+		ram_write = 1;
-+	else
-+		(void) cdrom_is_random_writable(cdi, &ram_write);
-+	
- 	if (mrw)
- 		cdi->mask &= ~CDC_MRW;
- 	else
-@@ -855,7 +858,7 @@ static int cdrom_open_write(struct cdrom
- 	else if (CDROM_CAN(CDC_DVD_RAM))
- 		ret = cdrom_dvdram_open_write(cdi);
-  	else if (CDROM_CAN(CDC_RAM) &&
-- 		 !CDROM_CAN(CDC_CD_R|CDC_CD_RW|CDC_DVD|CDC_DVD_R|CDC_MRW))
-+ 		 !CDROM_CAN(CDC_CD_R|CDC_CD_RW|CDC_DVD|CDC_DVD_R|CDC_MRW|CDC_MO_DRIVE))
-  		ret = cdrom_ram_open_write(cdi);
- 	else if (CDROM_CAN(CDC_MO_DRIVE))
- 		ret = mo_open_write(cdi);
+>> It seems that you are not really interested to understand how it works :-(
+
+>I am interested, but I life is too short to read the full docs of all existing
+>OS's. Can you give me at least a pointer to the relevant section?
+
+I already did! ---> "man path_to_inst"
+
+>> If you behave this way, I tend to believe that you have a precasted opinion 
+>> that you are not willing to change.
+
+>I think that most people around there tend to believe exactly the same about you :-)
+>But let's change that.
+
+I _am_ always open to new experiences but the problem with most if not all
+of the people in LKML is that they only know things about Linux while I know 
+many different operating systems.
+
+>Most of all, I would like to know (I see I'm repeating myself, but I still
+>haven't seen an answer to that) what's so special about the SCSI-like devices,
+>that they would have to be addressed in a completely different way from the
+>other UNIX devices. For the classical SCSI, you might argue that addressing
+>by the physical topology is more realistic, but for ATAPI or USB disks,
+>the SCSI triplets have nothing to do with the physical topology.
+
+I did introduce Generic SCSI in August 1986. The interface used by libscg today 
+is exactly the same interface as it has been used in August 1986.
+
+The problem with Linux is that the "interfaces" constantly change.
+Let us talk again in October 2018 (then the /dev/hd* Interface on Linux
+would have the same age as my libscg has now) and check what happened to this
+interface. If the interface did not change and is still binary compatible, you 
+_may_ be right. However this is most improbable.
+
+>From the > 20 platforms that libscg provides abstractions from, _most_
+platforms do not allow the "UNIX" /dev/something method to work with
+Generic SCSI:
+
+-	DOS
+
+-	Win9x
+
+-	WinNT
+
+-	VMS
+
+-	MacOS X
+
+-	AmigaOS
+
+-	Apollo DomainOS
+
+-	BeOS (uses CAM)
+
+-	FreeBSD (uses CAM)
+
+-	Next Step (Generic SCSI only works only with a special /dev/sg%d)
+
+-	OS/2
+
+-	OSF-1 / True-64 (uses CAM)
+
+-	QNX (uses CAM)
+
+-	SunOS-4.x
+
+-	Linux (all older versions)
+
+-	SCO OpenServer
+
+-	SCO UnixWare
+
+These are the platforms where /dev/something could work:
+
+-	Linux-2.6 
+
+-	AIX
+
+-	BSD-OS
+
+-	OpenBSD
+
+-	HP-UX
+
+-	SGI IRIX
+
+-	Solaris (newer versions only)
+
+As you see, the vast majority does not allow the adressing method the
+people on LKML seem to prefer recently.
+
+Jörg
 
 -- 
-Stefan Meyknecht
-stefan at meyknecht dot org
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

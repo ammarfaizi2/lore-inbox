@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287872AbSBIA3d>; Fri, 8 Feb 2002 19:29:33 -0500
+	id <S291900AbSBIA3k>; Fri, 8 Feb 2002 19:29:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291894AbSBIA2G>; Fri, 8 Feb 2002 19:28:06 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30992 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S291900AbSBIA0x>; Fri, 8 Feb 2002 19:26:53 -0500
-Date: Fri, 8 Feb 2002 16:25:25 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: <linux-kernel@vger.kernel.org>, <linux-aio@kvack.org>
-Subject: Re: patch: aio + bio for raw io
-In-Reply-To: <20020208190117.A12959@redhat.com>
-Message-ID: <Pine.LNX.4.33.0202081611490.11791-100000@penguin.transmeta.com>
+	id <S291894AbSBIA3g>; Fri, 8 Feb 2002 19:29:36 -0500
+Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:6916
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S291900AbSBIA3J>; Fri, 8 Feb 2002 19:29:09 -0500
+Date: Fri, 8 Feb 2002 19:30:17 -0500 (EST)
+From: Shawn Starr <spstarr@sh0n.net>
+To: linux-kernel@vger.kernel.org
+cc: akpm@zip.com.au, <riel@surriel.com>
+Subject: 2.4.18-pre9+2.4.18-pre7-ac3 + XFS + rmap12d - elvtune/vmstat info 
+Message-ID: <Pine.LNX.4.40.0202081925590.431-100000@coredump.sh0n.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 8 Feb 2002, Benjamin LaHaise wrote:
->
-> Yup.  What we need is an interface for getting the max size of an io --
+<riel> ShawnXFS: that's some _very_ interesting info
+<riel> ShawnXFS: could you mail that to linux-kernel, me and akpm@zip.com.au ? ;)
 
-No. There is no such thing.
+from free:
 
-There is no "max size". There are various different limits, and "size" is
-usually the last one on the list. The limitations are things like "I can
-have at most N consecutive segments" or "crossing a 64kB border is fine,
-but implies a new segment" or "a single segment is limited to X bytes, and
-the _sum_ of all segments are limited to Y bytes" or..
+<ShawnXFS>              total       used       free     shared    buffers     cached
+<ShawnXFS> Mem:         61996      61188        808          0          0      36888
+<ShawnXFS> -/+ buffers/cache:      24300      37696
+<ShawnXFS> Swap:       182276      47068     135208
 
-And it can depend on the _address_ of the thing you're writing. If the
-address is above a bounce limit, the bouncing code ends up having to copy
-it to accessible memory, so you can have a device that can do a 4MB
-request in one go if it's directly accessible, but if it is not in the low
-XXX bits, then it gets split into chunks and copied down, at which point
-you may only be able to do N chunks at a time.
+(after mozilla was closed).
 
-And no, I didn't make any of these examples up.
+>From elvtune:
 
-A "max size" does not work. It needs to be a lot more complex than that.
-For block devices, you need the whole "struct request_queue" to describe
-the default cases, and even then there are function pointers to let
-individual drivers limits of their own _outside_ those cases.
+elvtune /dev/hdb
 
-So it basically needs to be a "grow_bio()" function that does the choice,
-not a size limitation.
+/dev/hdb elevator ID            1
+        read_latency:           8192
+        write_latency:          16384
+        max_bomb_segments:      6
 
-(And then most devices will just use one of a few standard "grow()"
-functions, of course - you need the flexibility, but at the same time
-there is a lot of common cases).
+elvtune /dev/hda
 
-		Linus
+/dev/hda elevator ID            0
+        read_latency:           8192
+        write_latency:          16384
+        max_bomb_segments:      256 <-- was originally 6 but changed to 256.
+
+   procs                      memory    swap          io     system
+cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us
+sy  id
+ 1  0  0  37152   1296      0  38388  42  91   136    97  191   192  29
+3  68
+
+(currently) with system doing nothing much.
 

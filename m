@@ -1,120 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262762AbVA1Wdv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262800AbVA1WeV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262762AbVA1Wdv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 17:33:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbVA1Wdv
+	id S262800AbVA1WeV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 17:34:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbVA1WeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 17:33:51 -0500
-Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:7658 "EHLO
-	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
-	id S262762AbVA1Wdg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 17:33:36 -0500
-Date: Fri, 28 Jan 2005 17:31:42 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: [RFC] shared subtrees
-In-reply-to: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-id: <41FABD4E.6050701@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk>
+	Fri, 28 Jan 2005 17:34:21 -0500
+Received: from smtpout.mac.com ([17.250.248.97]:65229 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S262800AbVA1WeK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 17:34:10 -0500
+In-Reply-To: <20050128212334.GA6576@turing.une.edu.au>
+References: <20050128212334.GA6576@turing.une.edu.au>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <B5832974-717C-11D9-B1C1-0003934F6348@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Mark Rustad <mrustad@mac.com>
+Subject: Re: panic in raid1_end_write_request
+Date: Fri, 28 Jan 2005 16:34:01 -0600
+To: Norman Gaywood <norm@turing.une.edu.au>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Norman,
 
-Al Viro wrote:
+I used to get these running SuSE SLES 9 and also with a variety of 
+kernel.org kernels. The crash was triggered by a media error on a 
+RAID1. A patch that I got from SuSE fixed it for me. The patch is below 
+your message excerpt.
 
-> OK, here comes the first draft of proposed semantics for subtree
-> sharing.  What we want is being able to propagate events between
-> the parts of mount trees.  Below is a description of what I think
-> might be a workable semantics; it does *NOT* describe the data
-> structures I would consider final and there are considerable
-> areas where we still need to figure out the right behaviour.
-> 
+On Jan 28, 2005, at 3:23 PM, Norman Gaywood wrote:
 
-Okay, I'm not convinced that shared subtrees as proposed will work well
-with autofs.
+> I have a Dell PE2650, Dual Xeon, 1G memory and several software raid1
+> partitions, ext3. Main duties include NFS, DHCP and samba. A Fedora
+> kernel 2.6.10-1.747_FC3smp which includes 2.6.10-ac10.
+>
+> This system panics frequently, between several hours to several days. 
+> It
+> does not seem to be related to load. Hardware and memory tests indicate
+> a good system.
+>
+> Panic messages are similar to:
+>
+> Unable to handle kernel NULL pointer dereference at virtual address 
+> 00000038
+>  printing eip:
+> f882940f
+> *pde = 379c9001
+> Oops: 0000 [#1]
 
-The idea discussed off-line was this:
+<snip>
 
-When you install an autofs mountpoint, on say /home, a daemon is started
-to service the requests.  As far as the admin is concerned, an fs is
-mounted in the current namespace, call it namespaceA.  The daemon
-actually runs in it's one private namespace: call it namespaceB.
-namespaceB receives a new autofs filesystem: call it autofsB.  autofsB
-is in it's own p-node.  namespaceA gets an autofsA on /home as well, and
-autofsA is 'owned' by autofsB's p-node.
+Here is the patch:
 
-So:
+--- linux-2.6.5/fs/bio.c~	2004-11-24 12:42:10.532343678 +0100
++++ linux-2.6.5/fs/bio.c	2004-11-24 12:46:49.308021403 +0100
+@@ -98,12 +98,7 @@
 
-autofsB -> autofsB
-and
-autofsB -> autofsA
+  	BIO_BUG_ON(pool_idx >= BIOVEC_NR_POOLS);
 
-Effectively, namespaceA has a private instance of autofsB in its tree.
+-	/*
+-	 * cloned bio doesn't own the veclist
+-	 */
+-	if (!bio_flagged(bio, BIO_CLONED))
+-		mempool_free(bio->bi_io_vec, bp->pool);
+-
++	mempool_free(bio->bi_io_vec, bp->pool);
+  	mempool_free(bio, bio_pool);
+  }
 
-The problem is this:
+@@ -212,7 +207,9 @@
+   */
+  inline void __bio_clone(struct bio *bio, struct bio *bio_src)
+  {
+-	bio->bi_io_vec = bio_src->bi_io_vec;
++	request_queue_t *q = bdev_get_queue(bio_src->bi_bdev);
++
++	memcpy(bio->bi_io_vec, bio_src->bi_io_vec, bio_src->bi_max_vecs * 
+sizeof(struct bio_vec));
 
-Assume /home/mikew is accessed in namespaceA.  The daemon running in
-namespaceB gets the event, and mounts an nfs vfsmount on autofsB.  This
-event is propagated back to autofsA.
+  	bio->bi_sector = bio_src->bi_sector;
+  	bio->bi_bdev = bio_src->bi_bdev;
+@@ -224,21 +221,9 @@
+  	 * for the clone
+  	 */
+  	bio->bi_vcnt = bio_src->bi_vcnt;
+-	bio->bi_idx = bio_src->bi_idx;
+-	if (bio_flagged(bio, BIO_SEG_VALID)) {
+-		bio->bi_phys_segments = bio_src->bi_phys_segments;
+-		bio->bi_hw_segments = bio_src->bi_hw_segments;
+-		bio->bi_flags |= (1 << BIO_SEG_VALID);
+-	}
+  	bio->bi_size = bio_src->bi_size;
+-
+-	/*
+-	 * cloned bio does not own the bio_vec, so users cannot fiddle with
+-	 * it. clear bi_max_vecs and clear the BIO_POOL_BITS to make this
+-	 * apparent
+-	 */
+-	bio->bi_max_vecs = 0;
+-	bio->bi_flags &= (BIO_POOL_MASK - 1);
++	bio_phys_segments(q, bio);
++	bio_hw_segments(q, bio);
+  }
 
-(Problem 1: how do you block access to /home/mikew in namespaceA?)
+  /**
+@@ -250,7 +235,7 @@
+   */
+  struct bio *bio_clone(struct bio *bio, int gfp_mask)
+  {
+-	struct bio *b = bio_alloc(gfp_mask, 0);
++	struct bio *b = bio_alloc(gfp_mask, bio->bi_max_vecs);
 
-Next, a CLONE_NS is done in namespaceA, creating namespaceA'.  the
-homedir on /home/mikew is also copied.
+  	if (b)
+  		__bio_clone(b, bio);
 
-Now, in namespaceA', what happens when a user umount's /home/mikew?  We
-haven't yet determined how to handle umount event propagation, but it
-appears likely that it will be *a hard thing to do*.
+-- 
+Mark Rustad, MRustad@mac.com
 
-Assuming the nfs umount succeeds, /home/mikew is accessed again in
-namespaceA'.
-
-(Problem 2: The daemon in namespaceB will see the event, but it already
-has something mounted on it's version of /home/mikew.  How does it
-'send' a mountpoint to namespaceB.)
-
-- -----------
-
-Shared subtrees may help in some adminstrative situations, but don't
-look like the right solution for autofs.
-
-Autofs will work with namespaces if the following functionality is added
-to the kernel:  The ability to perform mount(2) operations on a
-directory fd.
-
-This has been discussed before and quickly vetoed, citing that it is a
-security risk.  I still fail to understand how allowing a mount to
-happen cross-namespace given a dirfd target is any worse than what is
-already possible given a dirfd.  If you don't want someone to play with
-your namespace, don't give them a dirfd.
-
-Thoughts?
-
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB+r1OdQs4kOxk3/MRAmSpAJ96ix25fjze6o7viCq2DCET9J/AlQCfYlC1
-CoLKusJXjL+fYxgwggOCW+w=
-=8bTv
------END PGP SIGNATURE-----

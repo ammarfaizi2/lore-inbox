@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267217AbUBMVcK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 16:32:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267227AbUBMVcD
+	id S267227AbUBMVfd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 16:35:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267228AbUBMVf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 16:32:03 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:53430 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S267217AbUBMVbf (ORCPT
+	Fri, 13 Feb 2004 16:35:26 -0500
+Received: from [66.35.79.110] ([66.35.79.110]:28835 "EHLO www.hockin.org")
+	by vger.kernel.org with ESMTP id S267227AbUBMVey (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 16:31:35 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Fri, 13 Feb 2004 16:34:54 -0500
+Date: Fri, 13 Feb 2004 13:34:45 -0800
+From: Tim Hockin <thockin@hockin.org>
+To: RANDAZZO@ddc-web.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: FW: spinlocks dont work
+Message-ID: <20040213213445.GA23759@hockin.org>
+References: <89760D3F308BD41183B000508BAFAC4104B16F74@DDCNYNTD>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16429.16944.521739.223708@napali.hpl.hp.com>
-Date: Fri, 13 Feb 2004 13:31:28 -0800
-To: Herbert Poetzl <herbert@13thfloor.at>
-Cc: linux-kernel@vger.kernel.org, linux-gcc@vger.kernel.org
-Subject: Re: Kernel Cross Compiling
-In-Reply-To: <20040213205743.GA30245@MAIL.13thfloor.at>
-References: <20040213205743.GA30245@MAIL.13thfloor.at>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <89760D3F308BD41183B000508BAFAC4104B16F74@DDCNYNTD>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 13 Feb 2004 21:57:43 +0100, Herbert Poetzl <herbert@13thfloor.at> said:
+On Fri, Feb 13, 2004 at 04:12:08PM -0500, RANDAZZO@ddc-web.com wrote:
+> On a uniprocessor system, with config_smp NOT Defined...
+> 
+> Note the following example:
+> 
+> driver 'A' calls spin_lock_irqsave and gets through (but does not call
+> ..unlock).
+> driver 'B' calls spin_lock_irqsave and gets through???
+> 
+> How can B get through if A did not unlock yet?
 
-  Herbert> I got all headers fixed, except for the ia64, which still
-  Herbert> doesn't work
+Because actual mutexing is a no-op without CONFIG_SMP.  What you have is a BUG.
+Don't do that.
 
-Something sounds wrong here. You shouldn't have to patch headers.
 
-A recipe for building ia32->ia64 cross-toolchain on Debian can be
-found here:
-
- http://www.gelato.unsw.edu.au/IA64wiki/CrossCompilation
-
-	--david

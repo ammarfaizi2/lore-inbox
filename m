@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269136AbUICDEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269135AbUICDEb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269136AbUICDEa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 23:04:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269135AbUICDDv
+	id S269135AbUICDEb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 23:04:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269119AbUICDDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 23:03:51 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54180 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269244AbUIBWGl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 18:06:41 -0400
-Date: Thu, 2 Sep 2004 23:06:40 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Frank van Maarseveen <frankvm@xs4all.nl>
-Cc: Dave Kleikamp <shaggy@austin.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       Hans Reiser <reiser@namesys.com>, Christoph Hellwig <hch@lst.de>,
-       fsdevel <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4)
-Message-ID: <20040902220640.GE23987@parcelfarce.linux.theplanet.co.uk>
-References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain> <20040902203854.GA4801@janus> <1094160994.31499.19.camel@shaggy.austin.ibm.com> <20040902214806.GA5272@janus> <20040902220027.GD23987@parcelfarce.linux.theplanet.co.uk> <20040902220242.GA5414@janus>
+	Thu, 2 Sep 2004 23:03:46 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:50571 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S269252AbUIBWGx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 18:06:53 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R0
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Mark_H_Johnson@raytheon.com,
+       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
+In-Reply-To: <20040902215728.GA28571@elte.hu>
+References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com>
+	 <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu>
+	 <20040902111003.GA4256@elte.hu>  <20040902215728.GA28571@elte.hu>
+Content-Type: text/plain
+Message-Id: <1094162812.1347.54.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040902220242.GA5414@janus>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 02 Sep 2004 18:06:53 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 03, 2004 at 12:02:42AM +0200, Frank van Maarseveen wrote:
-> On Thu, Sep 02, 2004 at 11:00:27PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> > 
-> > The hell it is.
-> > 
-> > a) kernel has *NO* *FUCKING* *KNOWLEDGE* of fs type contained on a device.
+On Thu, 2004-09-02 at 17:57, Ingo Molnar wrote:
+> i've released the -R0 patch:
 > 
-> excuse me, but how does the kernel mount the root fs?
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-R0
+>  
+> ontop of:
+> 
+>   http://redhat.com/~mingo/voluntary-preempt/diff-bk-040828-2.6.8.1.bz2
+> 
+> i've given up on the netdev_backlog_granularity approach, and as a
+> replacement i've modified specific network drivers to return at a safe
+> point if softirq preemption is requested.
 
-By trying all fs types it has registered in a more or less random (OK, defined
-by order of fs type registration, which is kinda-sorta deterministic at
-boot time) order.  With no flags, unless you pass them explicitly in kernel
-command line.  Fs types list can also be set explicitly in the command line.
+Makes sense, netdev_max_backlog never made a difference on my system
+(via-rhine driver).
 
-Next question?
+If you read that Microsoft paper I posted a link to earlier, they
+describe all of the main categories of latencies we have dealt with. 
+They give special mention to network driver DPCs/softirqs.
+
+The worst offender was a driver that used a DPC/softirq to reset the
+card if there was no traffic in 10 seconds, to work around a hardware
+lockup bug in some versions.  Since the reset path was never designed to
+be fast this caused problems.  They also mention a similar problem to
+the one that still exists with the via-rhine driver (fixed in -mm) where
+it uses a DPC to poll for link status.
+
+Lee
+
+
+

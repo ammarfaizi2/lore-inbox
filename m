@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbTENTcc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 15:32:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbTENTcc
+	id S261210AbTENTjh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 15:39:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbTENTjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 15:32:32 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:13748
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S261179AbTENTcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 15:32:31 -0400
-Message-ID: <3EC29CB2.4030707@redhat.com>
-Date: Wed, 14 May 2003 12:44:50 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030513
-X-Accept-Language: en-us, en
+	Wed, 14 May 2003 15:39:37 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:18194 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id S261210AbTENTjf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 15:39:35 -0400
+Date: Wed, 14 May 2003 21:51:56 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Miles Bader <miles@gnu.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new kconfig goodies
+In-Reply-To: <20030513211749.GA340@gnu.org>
+Message-ID: <Pine.LNX.4.44.0305142014500.5042-100000@serv>
+References: <Pine.LNX.4.44.0305111838300.14274-100000@serv>
+ <buou1bz7h9a.fsf@mcspd15.ucom.lsi.nec.co.jp> <Pine.LNX.4.44.0305131710280.5042-100000@serv>
+ <20030513211749.GA340@gnu.org>
 MIME-Version: 1.0
-To: Dave Jones <davej@codemonkey.org.uk>
-CC: Christopher Hoover <ch@murgatroid.com>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: [PATCH] 2.5.68 FUTEX support should be optional
-References: <20030513213157.A1063@heavens.murgatroid.com> <20030514071446.A2647@infradead.org> <20030514005213.A3325@heavens.murgatroid.com> <3EC296CE.9050704@redhat.com> <20030514193221.GA28385@suse.de>
-In-Reply-To: <20030514193221.GA28385@suse.de>
-X-Enigmail-Version: 0.75.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-Dave Jones wrote:
+On Tue, 13 May 2003, Miles Bader wrote:
 
-> That seems to imply that the current glibc makes futexes mandatory,
-> which surely isn't the case or we'd not be able to run with 2.4 and earlier
-> kernels.
+> BTW, the name `enable' seems to be a misnomer -- `enable' implies that it
+> forces the depends to be y, but not that it also forces the _value_.
+> 
+> Why not have two:
+> 
+>   enable FOO	- forces the `depends' value of FOO to y
+> 		  but it will still prompt
+>   force FOO	- forces both the `depends' and value of FOO to y
+> 		  prompting for FOO is turned off
 
-Current == current development.  LinuxThreads is not developed anymore
-and with nptl futexes are mandatory.
+I don't really like "force", it's IMO a bit too strong and too unspecific 
+(although enable is here only a bit better). The first I'd rather call 
+"visible", but I don't see a need for this and I wouldn't immediately know 
+how to support this, a config entry can have multiple prompts and every 
+prompt has its own dependencies, so which one should I enable? It would 
+probably be easier to enable/force the dependencies so the prompt becomes 
+visible.
 
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+But I'm open to suggestions for a better name, "select" might be a good 
+alternative. Other ideas? Opinions?
 
-iD8DBQE+wpyy2ijCOnn/RHQRAv88AJ4mZDNFyre2J6Pku7jkE2JSvV4aBgCgufYG
-70N4RNLFQzDNIk3id3UHJUk=
-=LqUF
------END PGP SIGNATURE-----
+bye, Roman
 

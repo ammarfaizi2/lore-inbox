@@ -1,128 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316770AbSFUTlL>; Fri, 21 Jun 2002 15:41:11 -0400
+	id <S316774AbSFUT6V>; Fri, 21 Jun 2002 15:58:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316773AbSFUTlK>; Fri, 21 Jun 2002 15:41:10 -0400
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:8404 "EHLO
-	pimout3-int.prodigy.net") by vger.kernel.org with ESMTP
-	id <S316770AbSFUTlJ>; Fri, 21 Jun 2002 15:41:09 -0400
-Message-Id: <200206211941.g5LJfAI154858@pimout3-int.prodigy.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: zaimi@pegasus.rutgers.edu, linux-kernel@vger.kernel.org
-Subject: Re: kernel upgrade on the fly
-Date: Fri, 21 Jun 2002 09:42:44 -0400
-X-Mailer: KMail [version 1.3.1]
-References: <Pine.GSO.4.44.0206201600470.9816-100000@pegasus.rutgers.edu>
-In-Reply-To: <Pine.GSO.4.44.0206201600470.9816-100000@pegasus.rutgers.edu>
+	id <S316776AbSFUT6U>; Fri, 21 Jun 2002 15:58:20 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51980 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316774AbSFUT6T>;
+	Fri, 21 Jun 2002 15:58:19 -0400
+Message-ID: <3D138502.6A855C75@zip.com.au>
+Date: Fri, 21 Jun 2002 12:56:50 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: mgross <mgross@unix-os.sc.intel.com>
+CC: "Griffiths, Richard A" <richard.a.griffiths@intel.com>,
+       "'Jens Axboe'" <axboe@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lse-tech@lists.sourceforge.net
+Subject: Re: ext3 performance bottleneck as the number of spindles gets large
+References: <01BDB7EEF8D4D3119D95009027AE99951B0E63EA@fmsmsx33.fm.intel.com> <3D12DCB4.872269F6@zip.com.au> <3D13747A.3030804@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 20 June 2002 04:19 pm, zaimi@pegasus.rutgers.edu wrote:
-> Thanks for the responses especially Rob. I was trying to find previous
-> threads about this and could not find them. Agreed, swsusp is a step
-> further to that goal; the way that memory is saved though may not make it
-> necessarily easier, at least in the current state of swsusp.
+mgross wrote:
+> 
+> ...
+> >And please tell us some more details regarding the performance bottleneck.
+> >I assume that you mean that the IO rate per disk slows as more
+> >disks are added to an adapter?  Or does the total throughput through
+> >the adapter fall as more disks are added?
+> >
+> No, the IO block write throughput for the system goes down as drives are
+> added under this work load.  We measure the system throughput not the
+> per drive throughput, but one could infer the per drive throughput by
+> dividing.
+> 
+> Running bonnie++ on with 300MB files doing 8Kb sequential writes we get
+> the following system wide throughput as a function of the number of
+> drives attached and by number of addapters.
+> 
+> One addapter
+> 1 drive per addapter    127,702KB/Sec
+> 2 drives per addapter  93,283 KB/Sec
+> 6 drives per addapter   85,626 KB/Sec
 
-Several people have mentioned process migration in clusters.  Jessee Pollard 
-says he expects to see checkpointing of arbitrary user processes working this 
-fall, and then Nick LeRoy replied to him about the condor project, which 
-apparently does something similar in user space...
+127 megabytes/sec to a single disk?  Either that's a very
+fast disk, or you're using very small bytes :)
 
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0206.2/1017.html
+> 2 addapters
+> 1 drive per addapter    92,095 KB/Sec
+> 2 drives per addapter  110,956 KB/Sec
+> 6 drives per addapter   106,883 KB/Sec
+> 
+> 4 addapters
+> 1 drive per addapter    121,125 KB/Sec
+> 2 drives per addapter   117,575 KB/Sec
+> 6 drives per addapter   116,570 KB/Sec
+> 
 
-http://www.cs.wisc.edu/condor/
+Possibly what is happening here is that a significant amount
+of dirty data is being left in memory and is escaping the
+measurement period.   When you run the test against more disks,
+the *total* amount of dirty memory is increased, so the kernel
+is forced to perform more writeback within the measurement period.
 
-You might also want to look at the crash dump code (and the multithreaded 
-crash dump patch floating around in the 2.5 to-do list) as another starting 
-point, since A) it's flushing user info for a single process into a file in a 
-well-known format, B) such a file can already be loaded back in and at least 
-somewhat resumed by the Gnu Debugger (gdb).
+So with two filesystems, you're actually performing more I/O.
 
-> As you were mentioning, the processes information needs
-> to be summarised and saved in such a way that the new kernel can pick up
-> and construct its own queues of processes independent on the differences
-> between the kernels being swapped.
+You need to either ensure that all I/O is occurring *within the
+measurement interval*, or make the test write so much data (wrt
+main memory size) that any leftover unwritten stuff is insignificant.
 
-Which isn't impossible, I remember migrating WWIV message base files from 
-version to version a dozen years ago.  Good old brute force did the job: 
-new->field=old->field;  There's almost certainly a more elegant way to do it, 
-but brute force has the advantage that we know it could be made to work...
+bonnie++ is too complex for this work.  Suggest you use
+http://www.zip.com.au/~akpm/linux/write-and-fsync.c
+which will just write and fsync a file.  Time how long that
+takes.  Or you could experiment with bonnie++'s fsync option.
 
-As for maintaining a "convert 2.4.36->2.4.37" executable goes, (to be 
-released with each kernel version,) the fact there's a patch file to take the 
-kernel's source from version to version should help a LOT with figuring out 
-what structures got touched and what exactly needs to be converted.  Still 
-needs a human maintainer, though.  It's also bound to lag the kernel releases 
-a bit, but that's not such a bad thing...
+My suggestion is to work with this workload:
 
-> Well, this does touch the idea of having migrating processes from one
-> machine to others in a network. In fact, I dont understand why is it so
-> hard to reparent a process. If it can be reparented within a machine, then
-> it can migrate to other machines as well, no?
+for i in /mnt/1 /mnt/2 /mnt/3 /mnt/4 ...
+do
+	write-and-fsync $i/foo 4000 &
+done
 
-A process can touch zillions of arbitrary resources, which may not BE there 
-on the other machine.  If you have an mmap into 
-"/usr/thingy/rutabega/arbitrary/database/filename.fred" and on the remote 
-machine fred is there, the contents are identical, but the directory 
-"arbitrary" is owned by the wrong user so you don't have permission to 
-descend into it (or the /etc/passwd file gives the same username a different 
-pid/assigns that pid to a different username...)
+which will write a 4 gig file to each disk.  This will defeat
+any caching effects and is just a way simpler workload, which
+will allow you to test one thing in isolation.
 
-Or how about fifos: are they all there on the resume?  Fifos are kind of 
-brain damaged so it's hard to re-use them, so "create, two connects, delete" 
-is a pretty common strategy.  The program has the initial setup and 
-negotiation code, but not And can the processes at each end be restored, in 
-pairs, such that they still communicate with each other properly?  What about 
-a process talking to a one-to-many server like X11 or apache or some such?  
-Freezing the server to go with your client is kind of overkill, eh?  Gotta 
-draw a line somewhere if you're going to cut out a running process and stick 
-it in an envelope...
 
-The easy answer is have the restore fail easily and verbosely, and have 
-attempt 0.1 only able to freeze and restore a fairly small subset of 
-processes (like the distributed.net client and equivalents that sit in their 
-corner twiddling their thumbs really fast), and then add on as you need more. 
- The wonderful world of shared library version skew is not something 
-checkpointing code should really HAVE to deal with, just fail if the 
-environment isn't pretty darn spotless and hand these problems over to the 
-"migration" utility.
+So anyway.  All this possibly explains the "negative scalability"
+in the single-adapter case.  For four adapters with one disk on
+each, 120 megs/sec seems reasonable, assuming the sustained
+write bandwidth of a single disk is 30 megs/sec.
 
-If you're restoring back on top of the same set of mounted filesystems, and 
-you're only doing so once (freeze processes, reboot to new kernel, thaw 
-processes, discard checkpoint files), your problem gets much simpler.  Still, 
-did your reboot wipe out stuff in /tmp that running processes need?  (Hey, if 
-it's on shmfs and you didn't save it...)
+For four adapters, six disks on each you should be doing better.
+Something does appear to be wrong there.
 
-Also, restoring one of these frozen processes has a certain amount of 
-security implications, doesn't it?  All well and good to say "well the 
-process's file belongs to user 'barbie', and the saved uid matches, so load 
-it back in", except that what if it was originally an suid executable so it 
-could bind to some resource and then drop privelidges?  How do you know some 
-user trying to attack the system didn't edit a frozen process file?  You 
-pretty much have to cryptographically sign the files to allow non-root users 
-to load them back in (public key cryptography, not md5sum.  Gotta be a secret 
-key or a user, with your source code, could replicate the process of creating 
-one of these suckers with arbitrary contents in userspace...)
-
-Again, less of a problem in a "trusted" environment, but this is unix we're 
-talking about, and unless you're makng an embedded system to put in a toaster 
-it will probably be attached to the internet.  And another easy answer is 
-"don't do that then", or "only allow root to restore the suckers" (that last 
-one probably has to be the case anyway, make an suid executable to verify the 
-save files via a gpg signature if you REALLY want users to be able to do 
-this, I.E. shove this problem into user space... :)
-
-> Rob, I am going to the Newark campus FYI, and have interests in some AI
-> stuff.
-> Thanks again,
-
-I'm just trying to give you some idea how much work you're in for.  Then 
-again, Linus is on record as saying that if he knew how much work the kernel 
-would turn out to be, he probably never would have started it... :)
-
-> Adi
-
-Rob
+-

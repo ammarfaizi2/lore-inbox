@@ -1,136 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbUGBLGb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262927AbUGBLGc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbUGBLGb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 07:06:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbUGBLEr
+	id S262927AbUGBLGc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 07:06:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbUGBLEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 07:04:47 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:50135 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261763AbUGBLBT (ORCPT
+	Fri, 2 Jul 2004 07:04:25 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:31442 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262114AbUGBKy2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 07:01:19 -0400
-Date: Fri, 2 Jul 2004 13:02:09 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, "E. Gryaznova" <grev@namesys.com>,
-       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: [patch] flexible-mmap-update.patch, 2.6.7-mm5
-Message-ID: <20040702110209.GA30813@elte.hu>
-References: <20040630114157.59258adf.akpm@osdl.org> <Pine.LNX.4.44.0406302049500.21421-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="azLHFNyN32YCQGCU"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0406302049500.21421-100000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 2 Jul 2004 06:54:28 -0400
+Date: Fri, 2 Jul 2004 03:53:42 -0700 (PDT)
+From: Paul Jackson <pj@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: Christoph Hellwig <hch@infradead.org>, Jack Steiner <steiner@sgi.com>,
+       Jesse Barnes <jbarnes@sgi.com>, Paul Jackson <pj@sgi.com>,
+       Dan Higgins <djh@sgi.com>, Matthew Dobson <colpatch@us.ibm.com>,
+       Andi Kleen <ak@suse.de>, Sylvain <sylvain.jeaugey@bull.net>,
+       Simon <Simon.Derr@bull.net>, Dimitri Sivanich <sivanich@sgi.com>
+Message-Id: <20040702105345.15684.90623.21358@sam.engr.sgi.com>
+In-Reply-To: <20040702105147.15684.22242.27912@sam.engr.sgi.com>
+References: <20040702105147.15684.22242.27912@sam.engr.sgi.com>
+Subject: [patch 8/8] cpusets v4 - One more hook, for /proc/<pid>/cpuset.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Add cpuset links to /proc, from each task to its cpuset.
 
---azLHFNyN32YCQGCU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-* Hugh Dickins <hugh@veritas.com> wrote:
-
-> I think it's wrong to interpret a large or rlim_infinite stack rlimit
-> as an inviolable request to reserve that much for the stack: it makes
-> much less VM available than bottom up, not what was intended.  Perhaps
-> top down should go bottom up (instead of belly up) when it fails - but
-> I'd probably better leave that to Ingo.
-
-Agreed. the attached flexible-mmap-update.patch (against 2.6.7-mm5)
-implements the following changes:
-
-- fall back to the bottom-up layout if the stack can grow unlimited
-  (if the stack ulimit has been set to RLIM_INFINITY)
-
-- try the bottom-up allocator if the top-down allocator fails - this can
-  utilize the hole between the true bottom of the stack and its ulimit,
-  as a last-resort effort.
-
-i've tested a number of failure scenarios with various ulimits and mmap
-sizes, and we now successfully allocate a VM area in all cases i tested.
-
-	Ingo
-
---azLHFNyN32YCQGCU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="flexible-mmap-update.patch"
-
-
-- fall back to the bottom-up layout if the stack can grow unlimited
-  (if the stack ulimit has been set to RLIM_INFINITY)
-
-- try the bottom-up allocator if the top-down allocator fails - this can
-  utilize the hole between the true bottom of the stack and its ulimit,
-  as a last-resort effort.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
---- linux/arch/i386/mm/mmap.c.orig	
-+++ linux/arch/i386/mm/mmap.c	
-@@ -55,9 +55,10 @@ void arch_pick_mmap_layout(struct mm_str
- {
- 	/*
- 	 * Fall back to the standard layout if the personality
--	 * bit is set:
-+	 * bit is set, or if the expected stack growth is unlimited:
- 	 */
--	if (current->personality & ADDR_COMPAT_LAYOUT) {
-+	if ((current->personality & ADDR_COMPAT_LAYOUT) ||
-+			current->rlim[RLIMIT_STACK].rlim_cur == RLIM_INFINITY) {
- 		mm->mmap_base = TASK_UNMAPPED_BASE;
- 		mm->get_unmapped_area = arch_get_unmapped_area;
- 		mm->unmap_area = arch_unmap_area;
---- linux/mm/mmap.c.orig	
-+++ linux/mm/mmap.c	
-@@ -1074,13 +1074,13 @@ void arch_unmap_area(struct vm_area_stru
-  * stack's low limit (the base):
-  */
- unsigned long
--arch_get_unmapped_area_topdown(struct file *filp, unsigned long addr,
--			  unsigned long len, unsigned long pgoff,
--			  unsigned long flags)
-+arch_get_unmapped_area_topdown(struct file *filp, const unsigned long addr0,
-+			  const unsigned long len, const unsigned long pgoff,
-+			  const unsigned long flags)
- {
- 	struct vm_area_struct *vma, *prev_vma;
- 	struct mm_struct *mm = current->mm;
--	unsigned long base = mm->mmap_base;
-+	unsigned long base = mm->mmap_base, addr = addr0;
- 	int first_time = 1;
+Index: 2.6.7-mm5/fs/proc/base.c
+===================================================================
+--- 2.6.7-mm5.orig/fs/proc/base.c	2004-07-01 19:30:10.000000000 -0700
++++ 2.6.7-mm5/fs/proc/base.c	2004-07-01 19:30:24.000000000 -0700
+@@ -32,6 +32,7 @@
+ #include <linux/mount.h>
+ #include <linux/security.h>
+ #include <linux/ptrace.h>
++#include <linux/cpuset.h>
  
- 	/* requested length too big for entire address space */
-@@ -1142,7 +1142,20 @@ fail:
- 		first_time = 0;
- 		goto try_again;
- 	}
--	return -ENOMEM;
-+	/*
-+	 * A failed mmap() very likely causes application failure,
-+	 * so fall back to the bottom-up function here. This scenario
-+	 * can happen with large stack limits and large mmap()
-+	 * allocations.
-+	 */
-+	mm->free_area_cache = TASK_UNMAPPED_BASE;
-+	addr = arch_get_unmapped_area(filp, addr0, len, pgoff, flags);
-+	/*
-+	 * Restore the topdown base:
-+	 */
-+	mm->free_area_cache = base;
+ /*
+  * For hysterical raisins we keep the same inumbers as in the old procfs.
+@@ -60,6 +61,9 @@ enum pid_directory_inos {
+ 	PROC_TGID_MAPS,
+ 	PROC_TGID_MOUNTS,
+ 	PROC_TGID_WCHAN,
++#ifdef CONFIG_CPUSETS
++	PROC_TGID_CPUSET,
++#endif
+ #ifdef CONFIG_SECURITY
+ 	PROC_TGID_ATTR,
+ 	PROC_TGID_ATTR_CURRENT,
+@@ -83,6 +87,9 @@ enum pid_directory_inos {
+ 	PROC_TID_MAPS,
+ 	PROC_TID_MOUNTS,
+ 	PROC_TID_WCHAN,
++#ifdef CONFIG_CPUSETS
++	PROC_TID_CPUSET,
++#endif
+ #ifdef CONFIG_SECURITY
+ 	PROC_TID_ATTR,
+ 	PROC_TID_ATTR_CURRENT,
+@@ -123,6 +130,9 @@ static struct pid_entry tgid_base_stuff[
+ #ifdef CONFIG_KALLSYMS
+ 	E(PROC_TGID_WCHAN,     "wchan",   S_IFREG|S_IRUGO),
+ #endif
++#ifdef CONFIG_CPUSETS
++	E(PROC_TGID_CPUSET,    "cpuset", S_IFREG|S_IRUGO),
++#endif
+ 	{0,0,NULL,0}
+ };
+ static struct pid_entry tid_base_stuff[] = {
+@@ -145,6 +155,9 @@ static struct pid_entry tid_base_stuff[]
+ #ifdef CONFIG_KALLSYMS
+ 	E(PROC_TID_WCHAN,      "wchan",   S_IFREG|S_IRUGO),
+ #endif
++#ifdef CONFIG_CPUSETS
++	E(PROC_TID_CPUSET,     "cpuset", S_IFREG|S_IRUGO),
++#endif
+ 	{0,0,NULL,0}
+ };
+ 
+@@ -767,6 +780,14 @@ static struct inode_operations proc_pid_
+ 	.follow_link	= proc_pid_follow_link
+ };
+ 
 +
-+	return addr;
++#ifdef CONFIG_CPUSETS
++static int proc_pid_cpuset(struct task_struct *task, char *buffer)
++{
++	return proc_pid_cspath(task, buffer, PAGE_SIZE);
++}
++#endif /* CONFIG_CPUSETS */
++
+ static int pid_alive(struct task_struct *p)
+ {
+ 	BUG_ON(p->pids[PIDTYPE_PID].pidptr != &p->pids[PIDTYPE_PID].pid);
+@@ -1375,6 +1396,13 @@ static struct dentry *proc_pident_lookup
+ 			ei->op.proc_read = proc_pid_wchan;
+ 			break;
+ #endif
++#ifdef CONFIG_CPUSETS
++		case PROC_TID_CPUSET:
++		case PROC_TGID_CPUSET:
++			inode->i_fop = &proc_info_file_operations;
++			ei->op.proc_read = proc_pid_cpuset;
++			break;
++#endif
+ 		default:
+ 			printk("procfs: impossible type (%d)",p->type);
+ 			iput(inode);
+Index: 2.6.7-mm5/fs/proc/root.c
+===================================================================
+--- 2.6.7-mm5.orig/fs/proc/root.c	2004-07-01 19:30:10.000000000 -0700
++++ 2.6.7-mm5/fs/proc/root.c	2004-07-01 19:30:24.000000000 -0700
+@@ -75,6 +75,9 @@ void __init proc_root_init(void)
+ 	proc_device_tree_init();
+ #endif
+ 	proc_bus = proc_mkdir("bus", 0);
++#ifdef CONFIG_CPUSETS
++	proc_mkdir("cpusets", 0);
++#endif
  }
  
- void arch_unmap_area_topdown(struct vm_area_struct *area)
+ static struct dentry *proc_root_lookup(struct inode * dir, struct dentry * dentry, struct nameidata *nd)
 
---azLHFNyN32YCQGCU--
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

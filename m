@@ -1,174 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267119AbSKMHF0>; Wed, 13 Nov 2002 02:05:26 -0500
+	id <S267121AbSKMHLm>; Wed, 13 Nov 2002 02:11:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267121AbSKMHFZ>; Wed, 13 Nov 2002 02:05:25 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:3217 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267119AbSKMHFX>;
-	Wed, 13 Nov 2002 02:05:23 -0500
-Date: Tue, 12 Nov 2002 23:06:44 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Ray Lee <ray-lk@madrabbit.org>
-cc: <hps@intermeta.de>, <schwab@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: sscanf("-1", "%d", &i) fails, returns 0
-In-Reply-To: <1037046334.22906.117.camel@orca>
-Message-ID: <Pine.LNX.4.33L2.0211122241490.29595-100000@dragon.pdx.osdl.net>
+	id <S267123AbSKMHLm>; Wed, 13 Nov 2002 02:11:42 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:13843 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S267121AbSKMHLl>; Wed, 13 Nov 2002 02:11:41 -0500
+Message-Id: <200211130713.gAD7DBp13069@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: "J.A. Magall?n" <jamagallon@able.es>, linux-kernel@vger.kernel.org
+Subject: Re: Some functions are not inlined by gcc 3.2, resulting code is ugly
+Date: Wed, 13 Nov 2002 10:04:32 -0200
+X-Mailer: KMail [version 1.3.2]
+References: <200211031125.gA3BP4p27812@Port.imtp.ilyichevsk.odessa.ua> <200211031322.gA3DMTp28125@Port.imtp.ilyichevsk.odessa.ua> <20021113001059.GA31147@werewolf.able.es>
+In-Reply-To: <20021113001059.GA31147@werewolf.able.es>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11 Nov 2002, Ray Lee wrote:
+On 12 November 2002 22:10, J.A. Magall?n wrote:
+> (sorry to answer to not-final-version mail, but didn't keep the last
+> one. This also applies, anyway...)
+>
+> On 2002.11.03 Denis Vlasenko wrote:
+> > On 3 November 2002 14:17, Denis Vlasenko wrote:
+> > > It seems gcc started to de-inline large functions.
+>
+> [...]
+>
+> > diff -urN linux-2.5.45.orig/include/linux/compiler.h
+> > linux-2.5.45fix/include/linux/compiler.h ---
+> > linux-2.5.45.orig/include/linux/compiler.h	Wed Oct 30 22:43:05 2002
+> > +++ linux-2.5.45fix/include/linux/compiler.h	Sun Nov  3 15:19:20
+> > 2002 @@ -20,3 +20,11 @@
+> >      __asm__ ("" : "=g"(__ptr) : "0"(ptr));		\
+> >      (typeof(ptr)) (__ptr + (off)); })
+> >  #endif /* __LINUX_COMPILER_H */
+> > +
+> > +/* GCC 3 (and probably earlier, I'm not sure) can be told to
+> > always inline +   a function. */
+> > +#if __GNUC__ < 3
+> > +#define force_inline inline
+> > +#else
+> > +#define force_inline inline __attribute__ ((always_inline))
+> > +#endif
+>
+> This should go before the #endif /* __LINUX_COMPILER_H */, isn't it ?
 
-| I probably didn't state it very clearly, but that was what I was getting
-| at. It's the same value after a cast. As Andreas points out though, it
-| may not be bit-for-bit identical on machines that don't use two's
-| complement. That's why the conversion code cares about the format
-| specifiers, it seems.
-|
-| > Now what does it mean to "convert the value to an unsigned and return
-| > that."  This is the same as above, isn't it?
-|
-| Explicitly, in the scan conversion you'd do a:
-|
-|   unsigned int *u = (unsigned int *) va_arg(args,long long *);
-|   *u = (unsigned int) converted_value;
-|
-| ...from wherever you get converted_value from (simple_strtoul? I haven't
-| looked at that routine). (The cast here is implied if left off, I'm just
-| being explicit.)
-|
-| > I.e., on the scanf() side, there is no conversion needed; just store the
-| > value.
-|
-| Almost true, as Andreas pointed out. You have to be careful that the
-| target you're storing to has the correctly declared type inside the
-| conversion routine.
-
-See if this is close...
-
-For 'h' (short), 'l' (long), 'L' (long long), and default
-('d' and 'i'), signed input is allowed, even for octal or hex
-(as well as decimal), so scan/convert signed values.
-Then if the destination type is not signed (!is_sign),
-store the value in an unsigned <length> var so that
-conversion can be done as needed.
-
-Here are a few sample conversions:
-
-scanning input string:{-42}:
-  %o level = 037777777736 = 0xffffffde
-  %x level = -66 = 0xffffffbe
-  %i level = -42 = 0xffffffd6
-scanning input string:{-100}:
-  %o level = 037777777700 = 0xffffffc0
-  %x level = -256 = 0xffffff00
-  %i level = -100 = 0xffffff9c
-scanning input string:{-10}:
-  %o level = 037777777770 = 0xfffffff8
-  %x level = -16 = 0xfffffff0
-  %i level = -10 = 0xfffffff6
-
-I think that this patch (to 2.5.47) gets the kernel close
-to the same semantics as C's sscanf() function, which is
-usually a good thing.  What say you?
-
--- 
-~Randy
-  "I read part of it all the way through." -- Samuel Goldwyn
-
-
-
-
---- ./lib/vsprintf.c%scan	Sun Nov 10 19:28:30 2002
-+++ ./lib/vsprintf.c	Tue Nov 12 20:51:23 2002
-@@ -640,7 +640,7 @@
- 			str++;
-
- 		digit = *str;
--		if (is_sign && digit == '-')
-+		if (digit == '-')
- 			digit = *(str + 1);
-
- 		if (!digit
-@@ -652,46 +652,50 @@
-
- 		switch(qualifier) {
- 		case 'h':
--			if (is_sign) {
--				short *s = (short *) va_arg(args,short *);
--				*s = (short) simple_strtol(str,&next,base);
--			} else {
--				unsigned short *s = (unsigned short *) va_arg(args, unsigned short *);
--				*s = (unsigned short) simple_strtoul(str, &next, base);
-+		{
-+			short *s = (short *) va_arg(args, short *);
-+			*s = (short) simple_strtol(str, &next, base);
-+			if (!is_sign) {
-+				unsigned short *us = s;
-+				*us = (unsigned short) *s;
- 			}
-+		}
- 			break;
- 		case 'l':
--			if (is_sign) {
--				long *l = (long *) va_arg(args,long *);
--				*l = simple_strtol(str,&next,base);
--			} else {
--				unsigned long *l = (unsigned long*) va_arg(args,unsigned long*);
--				*l = simple_strtoul(str,&next,base);
-+		{
-+			long *l = (long *) va_arg(args, long *);
-+			*l = simple_strtol(str, &next, base);
-+			if (!is_sign) {
-+				unsigned long *ul = l;
-+				*ul = (unsigned long) *l;
- 			}
-+		}
- 			break;
- 		case 'L':
--			if (is_sign) {
--				long long *l = (long long*) va_arg(args,long long *);
--				*l = simple_strtoll(str,&next,base);
--			} else {
--				unsigned long long *l = (unsigned long long*) va_arg(args,unsigned long long*);
--				*l = simple_strtoull(str,&next,base);
-+		{
-+			long long *l = (long long *) va_arg(args, long long *);
-+			*l = simple_strtoll(str, &next, base);
-+			if (!is_sign) {
-+				unsigned long long *ul = l;
-+				*ul = (unsigned long long) *l;
- 			}
-+		}
- 			break;
- 		case 'Z':
- 		{
--			size_t *s = (size_t*) va_arg(args,size_t*);
--			*s = (size_t) simple_strtoul(str,&next,base);
-+			size_t *s = (size_t *) va_arg(args, size_t *);
-+			*s = (size_t) simple_strtoul(str, &next, base);
- 		}
--		break;
-+			break;
- 		default:
--			if (is_sign) {
--				int *i = (int *) va_arg(args, int*);
--				*i = (int) simple_strtol(str,&next,base);
--			} else {
--				unsigned int *i = (unsigned int*) va_arg(args, unsigned int*);
--				*i = (unsigned int) simple_strtoul(str,&next,base);
-+		{
-+			int *i = (int *) va_arg(args, int *);
-+			*i = (int) simple_strtol(str, &next, base);
-+			if (!is_sign) {
-+				unsigned int *ui = i;
-+				*ui = (unsigned int) *i;
- 			}
-+		}
- 			break;
- 		}
- 		num++;
-
+Oh... You are right...
+--
+vda

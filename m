@@ -1,70 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270113AbRHGHFY>; Tue, 7 Aug 2001 03:05:24 -0400
+	id <S270111AbRHGHFo>; Tue, 7 Aug 2001 03:05:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270112AbRHGHFO>; Tue, 7 Aug 2001 03:05:14 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:54033 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S270111AbRHGHFI>;
-	Tue, 7 Aug 2001 03:05:08 -0400
-Date: Tue, 7 Aug 2001 08:04:58 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.CX>
-X-X-Sender: <rhw@infradead.org>
-To: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How does "alias ethX drivername" in modules.conf work?
-In-Reply-To: <200108062346.BAA09011@kufel.dom>
-Message-ID: <Pine.LNX.4.33.0108070757460.11974-100000@infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270112AbRHGHFf>; Tue, 7 Aug 2001 03:05:35 -0400
+Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:15309 "EHLO
+	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S270111AbRHGHFZ>;
+	Tue, 7 Aug 2001 03:05:25 -0400
+Message-Id: <200108070705.f7775xl27094@www.2ka.mipt.ru>
+Date: Tue, 7 Aug 2001 11:08:38 +0400
+From: Evgeny Polyakov <johnpol@2ka.mipt.ru>
+To: Ryan Mack <rmack@mackman.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Encrypted Swap
+In-Reply-To: <Pine.LNX.4.33.0108062338130.5491-100000@mackman.net>
+In-Reply-To: <200108070624.f776Ofl21096@www.2ka.mipt.ru>
+	<Pine.LNX.4.33.0108062338130.5491-100000@mackman.net>
+Reply-To: johnpol@2ka.mipt.ru
+X-Mailer: stuphead ver. 0.5.3 (Wiskas) (GTK+ 1.2.7; Linux 2.4.7-ac7; i686)
+Organization: MIPT
+Mime-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrzej.
+Hello.
 
-First, what's with the crazy addresses for Linux-Kernel mailing list
-and the various correspondants?
+On Mon, 6 Aug 2001 23:45:33 -0700 (PDT)
+Ryan Mack <rmack@mackman.net> wrote:
 
- >>>> One of my systems has SIX ethernet cards, these being three ISA
- >>>> and two PCI NE2000 clones and a DEC Tulip. Here's the relevant
- >>>> section of modules.conf on the system in question:
+>> Hmmm, let us suppose, that i copy your crypted partition per bit to my
+>> disk.
+>> After it I will disassemble your decrypt programm and will find a key....
+>>
+>> In any case, if anyone have crypted data, he MUST decrypt them.
+>> And for it he MUST have some key.
+>> If this is a software key, it MUST NOT be encrypted( it's obviously,
+>> becouse in other case, what will decrypt this key?) and anyone, who have
+>> PHYSICAL access to the machine, can get this key.
+>> Am I wrong?
 
- >>>>  Q> alias eth0 ne
- >>>>  Q> options eth0 io=0x340
- >>>>  Q> alias eth1 ne
- >>>>  Q> options eth1 io=0x320
- >>>>  Q> alias eth2 ne
- >>>>  Q> options eth2 io=0x2c0
- >>>>  Q> alias eth3 ne2k-pci
- >>>>  Q> alias eth4 ne2k-pci
- >>>>  Q> alias eth5 tulip
+RM> I think the point you are missing is that encrypted swap only needs to be
+RM> accessible for one power cycle.  Thus the computer can generate a key at
+No, computer can not do this.
+This will do some program,and this program is not crypted.
+Yes?
+We disassemle this program, get algorithm and regenerate a key in evil machine?
+Am i wrong?
 
- >> However, if the cards are controlled by different drivers, you can
- >> influence the order they are detected in by your choice of entries in
- >> modules.conf - in the example above, the ISA cards are always eth0,
- >                                                         ^^^^^^
+P.S. off-topic What algorithm do you want to use to regenerate a key for once crypted data?
+I don't know anyone, or i can't understand your point of view.
 
- >> eth1 and eth2, the NE2k-pci cards are always eth3 and eth4, and the
- >> tulip card is always eth5, simply because that's what the said file
- >> says.
+RM> -Ryan
 
- > Not always. You are wrong here, I'm afraid:
-
- > Lets assume that eth0-eth3 are not initialized at boot time and
- > your init scripts attempt to initialize eth4 ...
-
-Then I get an entry for eth4 in the `ifconfig` output, with NO entries
-for `eth0` through `eth3`, exactly as expected.
-
-Note that the `ifconfig` command refers to the interfaces by name, and
-it's the settings in modules.conf that decide what type of interface
-that name refers to. That mapping can't be changed by any interface
-configuration or initialisation command, and the names used are those
-as given.
-
- > To avoid such problems one probably should add a lot of
- > pre-install parameters in modules.conf.
-
-What problems?
-
-Best wishes from Riley.
-
+---
+WBR. //s0mbre

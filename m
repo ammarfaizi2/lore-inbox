@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286998AbRL1Tjb>; Fri, 28 Dec 2001 14:39:31 -0500
+	id <S286992AbRL1Thl>; Fri, 28 Dec 2001 14:37:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286993AbRL1TjV>; Fri, 28 Dec 2001 14:39:21 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:57105 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S286995AbRL1TjI>; Fri, 28 Dec 2001 14:39:08 -0500
-Date: Fri, 28 Dec 2001 17:38:46 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: <rhw@MemAlpha.cx>, Andreas Dilger <adilger@turbolabs.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] unchecked request_region's in drivers/net
-In-Reply-To: <E16K23q-0001OG-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33L.0112281738140.12225-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S286993AbRL1Thb>; Fri, 28 Dec 2001 14:37:31 -0500
+Received: from fep04.swip.net ([130.244.199.132]:29917 "EHLO
+	fep04-svc.swip.net") by vger.kernel.org with ESMTP
+	id <S286992AbRL1ThV>; Fri, 28 Dec 2001 14:37:21 -0500
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>
+Subject: Re: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+In-Reply-To: <20011228115956.E2973@suse.de>
+	<Pine.LNX.4.33L.0112281028070.24031-100000@imladris.surriel.com>
+	<20011228133350.B834@suse.de>
+From: Peter Osterlund <peter.osterlund@mailbox.swipnet.se>
+Date: 28 Dec 2001 20:30:58 +0100
+In-Reply-To: <20011228133350.B834@suse.de>
+Message-ID: <m2666rta4t.fsf@pengo.localdomain>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Dec 2001, Alan Cox wrote:
+Jens Axboe <axboe@suse.de> writes:
 
-> > currently is, but add a PATCHES-TO file in each subdirectory that
-> > states how to handle patches relating to that directory, and have
-> > these files follow a strict format, possibly...
+> On Fri, Dec 28 2001, Rik van Riel wrote:
+> > On Fri, 28 Dec 2001, Jens Axboe wrote:
+> > >
+> > > Tried reading the source?
+> >
+> > As usual, without documentation you only know what the code
+> > does, not what it's supposed to do or why it does it.
 >
-> Add the patches to to the maintainers as another field. If the patches
-> go to someone who isnt claiming to be a maintainer something is wrong
+> please look at the source before making such comments -- it's quite
+> adequately commented.
 
-We'll have to educate viro, then.  I bet he won't like it
-if VFS patches don't get send to him, but he's not listed
-as a maintainer ...
+I agree, but I have one specific question though. What are the
+bi_end_io() functions supposed to return? The return value doesn't
+ever seem to be used (yet?), so reading the source code can not answer
+that question.
 
-Rik
 -- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

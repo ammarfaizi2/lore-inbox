@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262845AbTDBILb>; Wed, 2 Apr 2003 03:11:31 -0500
+	id <S262948AbTDBITy>; Wed, 2 Apr 2003 03:19:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262948AbTDBILb>; Wed, 2 Apr 2003 03:11:31 -0500
-Received: from [12.47.58.55] ([12.47.58.55]:33954 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id <S262845AbTDBILa>;
-	Wed, 2 Apr 2003 03:11:30 -0500
-Date: Wed, 2 Apr 2003 00:23:17 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: j-nomura@ce.jp.nec.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18: lru_list_lock contention in write_unlocked_buffers()
-Message-Id: <20030402002317.5bb07d11.akpm@digeo.com>
-In-Reply-To: <20030402.165044.576024545.nomura@hpc.bs1.fc.nec.co.jp>
-References: <20030402.165044.576024545.nomura@hpc.bs1.fc.nec.co.jp>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S262949AbTDBITy>; Wed, 2 Apr 2003 03:19:54 -0500
+Received: from rth.ninka.net ([216.101.162.244]:25063 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S262948AbTDBITx>;
+	Wed, 2 Apr 2003 03:19:53 -0500
+Subject: Re: 2.4.21-pre6 and usb-uhci
+From: "David S. Miller" <davem@redhat.com>
+To: Ben Collins <bcollins@debian.org>
+Cc: Miek Gieben <miekg@atoom.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030402045439.GW28258@phunnypharm.org>
+References: <20030401093646.GA11420@atoom.net>
+	 <20030402045439.GW28258@phunnypharm.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Apr 2003 08:22:49.0277 (UTC) FILETIME=[0C0CD6D0:01C2F8F1]
+Organization: 
+Message-Id: <1049272268.21215.0.camel@rth.ninka.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 02 Apr 2003 00:31:08 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-j-nomura@ce.jp.nec.com wrote:
->
-> Hello,
+
+On Tue, 2003-04-01 at 20:54, Ben Collins wrote:
+> On Tue, Apr 01, 2003 at 11:36:46AM +0200, Miek Gieben wrote:
+> > Hello,
+> > 
+> > [ i'm not subscribed, so please cc me on any follow ups]
+> > 
+> > with kernel 2.4.21-pre6 my usb mouse stopped working (actually all usb stuff
+> > stopped working). It's a logitech optical mouse which worked perfectly under
+> > -pre5. I'm using the usb-uhci module.  I get no failures are anything of that
 > 
-> when I run mkfs while doing other large file I/O in parallel,
-> the system response becomes terribly bad on 2.4.18 kernel.
-> (probably on other 2.4 kernels also)
-> 
-> I found there are hard contention on lru_list_lock, which is mostly held
-> by write_unlocked_buffers().
-> It happens only on large memory machine because lru_list can grow very long
-> and write_some_buffers() scans the long list from head on each call.
-> 
-> Lowlatency patch in aa tree did not help this situation.
-> 
-> The patch below is hasty workaround for it.
-> Any comments, or suggestions to better fix?
-> 
+> I get the same problem. This includes a Logitech keyboard, two joysticks
+> and a Linksys WUSB11 wlan adapter. None of them show up.
 
-I don't think there's a sane fix for this in the 2.4 context.
+drivers/usb/Makefile is borked, it doesn't link in the USB
+host controller drivers when you enable them statically
+into the kernel.
 
-What you can do is to convert fsync_dev() to sync _all_ devices and not just
-the one which is being closed.
-
-It will take longer, but it converts the O(n*n) search into O(n).
-
-diff -puN fs/buffer.c~a fs/buffer.c
---- 24/fs/buffer.c~a	2003-04-02 00:21:39.000000000 -0800
-+++ 24-akpm/fs/buffer.c	2003-04-02 00:21:51.000000000 -0800
-@@ -343,6 +343,7 @@ int fsync_no_super(kdev_t dev)
- 
- int fsync_dev(kdev_t dev)
- {
-+	dev = NODEV;
- 	sync_buffers(dev, 0);
- 
- 	lock_kernel();
-
-_
-
+-- 
+David S. Miller <davem@redhat.com>

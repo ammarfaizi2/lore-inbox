@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132847AbRDIVKm>; Mon, 9 Apr 2001 17:10:42 -0400
+	id <S132850AbRDIVLw>; Mon, 9 Apr 2001 17:11:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132850AbRDIVKc>; Mon, 9 Apr 2001 17:10:32 -0400
-Received: from isis.telemach.net ([213.143.65.10]:23815 "HELO
-	isis.telemach.net") by vger.kernel.org with SMTP id <S132847AbRDIVKY>;
-	Mon, 9 Apr 2001 17:10:24 -0400
-Message-ID: <3AD2253E.2DA0895A@telemach.net>
-Date: Mon, 09 Apr 2001 23:10:22 +0200
-From: Jure Pecar <pegasus@telemach.net>
-Organization: Select Technology
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S132851AbRDIVLo>; Mon, 9 Apr 2001 17:11:44 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:40719 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S132850AbRDIVL3>; Mon, 9 Apr 2001 17:11:29 -0400
+Message-Id: <200104092111.f39LBPs17548@aslan.scsiguy.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx and 2.4.3 failures
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
+cc: torvalds@transmeta.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        dledford@redhat.com
+Subject: Version 6.1.11 of the aic7xxx driver availalbe 
+Date: Mon, 09 Apr 2001 15:11:25 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can add a "me too" to this thread.
+As always, the latest version of this driver is availalbe here:
 
-I began playing with 2.4 releases (again) at 2.4.2-ac23 and i can't
-manage to boot it properly, even the 2.4.3-ac2. I have an adaptec 2940U
-(aic7860 as driver tells me) and both drivers, old and new, dont work
-properly. Either i get request_module[scsi_hostadapter]: Root fs not
-mounted, and then what seems to be a random oops a couple of seconds
-later in the beginning of the init scripts, or, root fs doesnt get
-remounted rw, which is followed soon by some oopsen. I reported one back
-then (
-http://boudicca.tux.org/hypermail/linux-kernel/2001week13/0077.html ).
+http://people.FreeBSD.org/~gibbs/linux/
 
-Looks weird ... have there been any changes around aic driver recently?
-I can try to write down some more oopsen if anyone is interested ... 
+This site now includes installation instructions, feature set,
+etc.  The page is under construction - comments welcome.
 
-On the other side, 2.2.19 with new aic driver 6.1.10 is working just
-nice ... 
+For the impatient:
 
+CHANGELOG:
+    http://people.FreeBSD.org/~gibbs/linux/CHANGELOG
 
--- 
+2.4.3-patch:
+    http://people.FreeBSD.org/~gibbs/linux/linux-aic7xxx-6.1.11-2.4.3.patch.gz
 
+2.2.19-patch:
+    http://people.FreeBSD.org/~gibbs/linux/linux-aic7xxx-6.1.11-2.2.19.patch.gz
 
-Jure Pecar
+--
+Justin

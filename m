@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264388AbUGFUpO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264501AbUGFUsd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264388AbUGFUpO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 16:45:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264569AbUGFUos
+	id S264501AbUGFUsd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 16:48:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264540AbUGFUsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 16:44:48 -0400
-Received: from 64-3-142-15.dia.xo.com ([64.3.142.15]:29701 "EHLO
-	tsimail.tsearch.com") by vger.kernel.org with ESMTP id S264388AbUGFUnD
+	Tue, 6 Jul 2004 16:48:22 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:37773 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264501AbUGFUrH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 16:43:03 -0400
-Message-ID: <828E111C7AEF60468FAA5FBC696DD80F67DF37@64-3-142-15.dia.xo.com>
-From: Tim Berti <tim@tsearch.com>
-Cc: netdev@oss.sgi.com, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: RE: [PATCH] fix tcp_default_win_scale.
-Date: Tue, 6 Jul 2004 13:35:56 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-To: unlisted-recipients:; (no To-header on input)
+	Tue, 6 Jul 2004 16:47:07 -0400
+Date: Tue, 6 Jul 2004 11:18:50 -0500
+From: linas@austin.ibm.com
+To: Paul Mackerras <paulus@samba.org>
+Cc: linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6 PPC64 EEH unbalanced dev_get/put calls
+Message-ID: <20040706111850.A21634@forte.austin.ibm.com>
+References: <20040702134539.W21634@forte.austin.ibm.com> <16614.16478.9599.463185@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <16614.16478.9599.463185@cargo.ozlabs.ibm.com>; from paulus@samba.org on Sat, Jul 03, 2004 at 03:13:02PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How do i get off this list?
-
-Tim Berti 
-Senior Recruiter 
-TECHNOLOGY SEARCH INTERNATIONAL 
-1737 North First Street, Suite 600 
-San Jose, CA. 95112 
-http://www.tsearch.com 
-Email: tim@tsearch.com 
-Phone: 408-437-9500 Ext. 303 
-
-
-
------Original Message-----
-From: Stephen Hemminger [mailto:shemminger@osdl.org]
-Sent: Tuesday, July 06, 2004 1:37 PM
-To: David S. Miller
-Cc: jamie@shareable.org; netdev@oss.sgi.com; linux-net@vger.kernel.org;
-linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix tcp_default_win_scale.
-
-
-On Tue, 6 Jul 2004 13:28:22 -0700
-"David S. Miller" <davem@redhat.com> wrote:
-
-> On Tue, 6 Jul 2004 13:05:49 -0700
-> Stephen Hemminger <shemminger@osdl.org> wrote:
+On Sat, Jul 03, 2004 at 03:13:02PM +1000, Paul Mackerras wrote:
+> Linas,
 > 
-> > On Tue, 6 Jul 2004 20:40:34 +0100
-> > Jamie Lokier <jamie@shareable.org> wrote:
-> > 
-> > > Are you saying there are broken firewalls which strip TCP options in
-> > > one direction only?
-> > 
-> > It appears so.
+> > This patch fixes some unbalanaced usage of pci_dev_get()/pci_dev_put() calls
+> > in the eeh code.  The old code had too many calls to dev_put, which could
+> > cause memory structs to be freed prematurely, possibly leading to bad
+> > bad pointer derefs in certain cases.
 > 
-> Ok, this is a possibility.  And why it breaks is that if the ACK
-> for the SYN+ACK comes back, the SYN+ACK sender can only assume
-> that the window scale was accepted.
-> 
-> Stephen, do you have a trace showing exactly this?
+> When I apply this I end up with one pci_dev_get() call in
+> __pci_addr_cache_insert_device and no pci_dev_put() calls.  That can't
+> be right, surely?  If it is it needs a big fat comment explaining why.
 
-No, I don't have a br0ken firewall here.  I can get out fine.
-When I setup with same kernel as packages.gentoo.org, it works fine as well.
+
+No, that's right. The device is gotten for the length of time that 
+it is in the cache, and is put when it is removed from the cache.
+In this way, the device is not free()'ed as long as the cache holds 
+a reference to it.
+
+I can add a comment, but it seemed 'obvious' from the description of the
+cache that it would be holding a reference to the device for an indefinite 
+period of time.
+
+The patch was really to fix the result of a misunderstanding of what 
+the poorly-named routine "pci_get_device()" does:  yes, it does a get(), 
+but it also does a put(), which one wouldn't guess from the name :(
+
+A better name for this might be "pci_next_device()" or 
+"pci_obtain_device()" or something like that ...
+
+
+> > Cross-ref LTC bug 9283
+> Confused - that's the bug about not using ibm,fw-phb-id.
+
+Oops.
+
+--linas
+

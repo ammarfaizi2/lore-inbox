@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVCYAwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbVCYAyv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261314AbVCYAwK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 19:52:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbVCYAwF
+	id S261333AbVCYAyv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 19:54:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbVCYAwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 19:52:05 -0500
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:62160 "EHLO
-	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261333AbVCYAj5 convert rfc822-to-8bit (ORCPT
+	Thu, 24 Mar 2005 19:52:47 -0500
+Received: from ns1.s2io.com ([142.46.200.198]:9609 "EHLO ns1.s2io.com")
+	by vger.kernel.org with ESMTP id S261335AbVCYAqH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 19:39:57 -0500
-Date: Fri, 25 Mar 2005 01:45:03 +0100 (CET)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Bodo Eggert <7eggert@gmx.de>
-Cc: Michael Tokarev <mjt@tls.msk.ru>, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>, Vojtech Pavlik <vojtech@suse.cz>,
-       video4linux-list@redhat.com
-Subject: Re: [PATCH 2.6.11.2][2/2] printk with anti-cluttering-feature
-In-Reply-To: <Pine.LNX.4.58.0503210922080.2810@be1.lrz>
-Message-ID: <Pine.LNX.4.58.0503250139110.4442@be1.lrz>
-References: <Pine.LNX.4.58.0503200528520.2804@be1.lrz> <423D6353.5010603@tls.msk.ru>
- <Pine.LNX.4.58.0503201425080.2886@be1.lrz> <Pine.LNX.4.58.0503202151360.2869@be1.lrz>
- <Pine.LNX.4.58.0503202235380.3051@be1.lrz> <Pine.LNX.4.58.0503210922080.2810@be1.lrz>
+	Thu, 24 Mar 2005 19:46:07 -0500
+From: "Ravinandan Arakali" <ravinandan.arakali@neterion.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Leonid. Grossman \(E-mail\)" <leonid.grossman@neterion.com>
+Subject: Problem applying latest 2.6 kernel prepatch(2.6.12-rc1)
+Date: Thu, 24 Mar 2005 16:45:58 -0800
+Message-ID: <004001c530d4$034e99d0$3a10100a@pc.s2io.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Importance: Normal
+X-Spam-Score: -100
+X-Spam-Outlook-Score: ()
+X-Spam-Features: USER_IN_WHITELIST
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Mar 2005, Bodo Eggert wrote:
-> On Sun, 20 Mar 2005, Bodo Eggert wrote:
+Hi,
+I am trying to submit patches to our driver in the kernel. Since I need a
+copy of latest kernel
+for this, I installed the latest stable version(2.6.5.11). When I apply the
+latest prepatch (2.6.12-rc1)
+on top of this, I have the following problems:
+1. On application of the prepatch, it reports errors. It looks like some of
+the changes that the
+    prepatch is trying to apply are already present in 2.6.5.11.
+2. If I ignore these errors and complete the patching, the kernel
+compilation fails.
 
-I just sent an alternative fix kot atkbd.c, which clashes with the 
-previous version of this patch. This leaves un with one place where 
-printk_nospam is used. Just in case you still think it's usefull, here is 
-the modified patch.
+Has anybody else seen this problem or am I missing something ?
 
-BTW: If you're bugged by other kernel messages, I can add them, too.
+Thanks,
+Ravi
 
-> The new kernels have tuner.c fixed differently, removed that part.
-> 
-> > Update some functions to use printk_nospam
-
-> > Signed-Off-By: Bodo Eggert <7eggert@gmx.de>
-> > 
-> > diff -purNXdontdiff linux-2.6.11/drivers/block/scsi_ioctl.c linux-2.6.11.new/drivers/block/scsi_ioctl.c
-> > --- linux-2.6.11/drivers/block/scsi_ioctl.c	2005-03-03 15:41:28.000000000 +0100
-> > +++ linux-2.6.11.new/drivers/block/scsi_ioctl.c	2005-03-20 14:56:55.000000000 +0100
-> > @@ -547,7 +547,7 @@ int scsi_cmd_ioctl(struct file *file, st
-> >  		 * old junk scsi send command ioctl
-> >  		 */
-> >  		case SCSI_IOCTL_SEND_COMMAND:
-> > -			printk(KERN_WARNING "program %s is using a deprecated SCSI ioctl, please convert it to SG_IO\n", current->comm);
-> > +			printk_nospam(2296159591, KERN_WARNING "program %s is using a deprecated SCSI ioctl, please convert it to SG_IO\n", current->comm);
-> >  			err = -EINVAL;
-> >  			if (!arg)
-> >  				break;
--- 
-Funny quotes:
-38. Last night I played a blank tape at full blast. The mime next door went
-    nuts.
-Friﬂ, Spammer: h9ygOoywhhiagv@subvalue.com customerservice@weretoblamefor.com

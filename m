@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312601AbSE1Fd3>; Tue, 28 May 2002 01:33:29 -0400
+	id <S312619AbSE1Fj1>; Tue, 28 May 2002 01:39:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312619AbSE1Fd2>; Tue, 28 May 2002 01:33:28 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:41346 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S312601AbSE1Fd2>;
-	Tue, 28 May 2002 01:33:28 -0400
-Date: Tue, 28 May 2002 07:33:03 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp: fix compilation for other architectures
-Message-ID: <20020528073303.K9911@khan.acc.umu.se>
-In-Reply-To: <20020527172156.GA3907@elf.ucw.cz>
+	id <S312681AbSE1Fj0>; Tue, 28 May 2002 01:39:26 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:65155 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id <S312619AbSE1Fj0>;
+	Tue, 28 May 2002 01:39:26 -0400
+From: Andreas Hartmann <andihartmann@freenet.de>
+X-Newsgroups: fa.linux.kernel
+Subject: Re: Memory management in Kernel 2.4.x
+Date: Tue, 28 May 2002 07:42:11 +0200
+Organization: Privat
+Message-ID: <acv5bj$m6$1@ID-44327.news.dfncis.de>
+In-Reply-To: <fa.n12rl6v.9644rg@ifi.uio.no> <fa.jd9c9pv.190gl8n@ifi.uio.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7Bit
+X-Trace: susi.maya.org 1022564531 710 192.168.1.3 (28 May 2002 05:42:11 GMT)
+X-Complaints-To: abuse@fu-berlin.de
+User-Agent: KNode/0.7.1
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 27, 2002 at 07:21:56PM +0200, Pavel Machek wrote:
-> Hi!
+H. Peter Anvin wrote:
+
+> Followup to:  <1022513156.1126.289.camel@irongate.swansea.linux.org.uk>
+> By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
+> In newsgroup: linux.dev.kernel
+>> 
+>> On a -ac kernel with mode 2 or 3 set for overcommit you have to run out
+>> of kernel resources to hang the box. It won't go OOM because it can't.
+>> That wouldn't be a VM bug but a leak or poor handling of kernel
+>> allocations somewhere. Sadly the changes needed to do that (beancounter
+>> patch) were things Linus never accepted for 2.4
+>> 
 > 
-> Currently, on machine where suspend is not yet supported, compilation
-> fails even in case user did not actually requested suspend. This
-> "fixes" it -- compilation only fails when suspend is needed and not
-> supported. Please apply,
-> 								Pavel
-> 
-> --- clean/include/asm-i386/suspend.h	Sun May 26 19:32:03 2002
-> +++ linux-swsusp/include/asm-i386/suspend.h	Mon May 27 19:11:25 2002
-> @@ -1,13 +1,8 @@
-> -#ifndef __ASM_I386_SUSPEND_H
-> -#define __ASM_I386_SUSPEND_H
-> -#endif
+> Well, if you can't fork a new process because that would push you into
+> overcommit, then you usually can't actually do anything useful on the
+> machine.
 
-You probably want to move the #endif to the end of the file instead of
-removing it; having #ifndef/#define/#endif-traps for all header-files is
-good practice.
+>From my experience with mode 2:
+
+you can't do _anything_, if the overcommitment range has been reached. Even 
+running programms are crashing if they want to have some more memory. So, 
+new processes cannot be started and old processes cannot run and are 
+crashing as far as they want to have more memory. At last, there will be 
+only one user-process on the machine running - the bad programm, eating up 
+all the memory.
 
 
-/David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+Regards,
+Andreas Hartmann

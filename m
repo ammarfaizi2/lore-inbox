@@ -1,30 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268371AbRGZRZc>; Thu, 26 Jul 2001 13:25:32 -0400
+	id <S268546AbRGZRlg>; Thu, 26 Jul 2001 13:41:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268275AbRGZRZV>; Thu, 26 Jul 2001 13:25:21 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32783 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S267750AbRGZRZJ>; Thu, 26 Jul 2001 13:25:09 -0400
-Subject: Re: Weird ext2fs immortal directory bug (all-in-one)
-To: wingc@engin.umich.edu (Christopher Allen Wing)
-Date: Thu, 26 Jul 2001 18:25:47 +0100 (BST)
-Cc: sentry21@cdslash.net, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0107261312450.6405-100000@bayarea.engin.umich.edu> from "Christopher Allen Wing" at Jul 26, 2001 01:21:01 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S268559AbRGZRl0>; Thu, 26 Jul 2001 13:41:26 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:60835 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S268462AbRGZRlU>; Thu, 26 Jul 2001 13:41:20 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Paul Larson <plars@austin.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: RE: Linux 2.4.7-ac1
+Date: Thu, 26 Jul 2001 12:42:10 +0000
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15PotP-0004AG-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <01072612421000.21482@plars.austin.ibm.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> I am assuming that the problem here was that fsck restored a lost inode to
-> lost+found, but the inode had been corrupted and had the immutable bit
-> set.
+I was running the Linux Test Project's latest testsuite against 2.4.7-ac1 and 
+noticed one test failed that did not fail in 2.4.7 and 2.4.6-ac5.  The 
+pth_str02 test (simple test that tries to create 1000 threads) could only 
+make it up to 980 threads on my machine.  Saw this change in fork.c with 
+2.4.7-ac1:
 
-Which would actually be an fsck bug, since such an inode isnt legal and cant
-be fixed by normal means
- 
+-       max_threads = mempages / (THREAD_SIZE/PAGE_SIZE) / 2;
++       max_threads = mempages / (THREAD_SIZE/PAGE_SIZE) / 16;
+
+Any reason why this was done?  I think the max I was ever able to hit before 
+was somewhere around 1018 or so, so it's not that big of a drop.  I was just 
+wondering why it was being further limited since I didn't see anything in the 
+changelog about it.
+
+Thanks,
+Paul Larson

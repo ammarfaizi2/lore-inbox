@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263619AbTDTPza (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 11:55:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263620AbTDTPza
+	id S263620AbTDTP7X (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 11:59:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263621AbTDTP7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 11:55:30 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:60942 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S263619AbTDTPz3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 11:55:29 -0400
-Date: Sun, 20 Apr 2003 18:07:20 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Jos Hulzink <josh@stack.nl>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
-Message-Id: <20030420180720.099b4c34.skraw@ithnet.com>
-In-Reply-To: <200304192313.53955.josh@stack.nl>
-References: <20030419180421.0f59e75b.skraw@ithnet.com>
-	<1050766175.3694.4.camel@dhcp22.swansea.linux.org.uk>
-	<200304192313.53955.josh@stack.nl>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 20 Apr 2003 11:59:23 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:31236 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263620AbTDTP7W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 11:59:22 -0400
+Date: Sun, 20 Apr 2003 18:13:06 +0200
+To: Andrei Ivanov <andrei.ivanov@ines.ro>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: oops in 2.5.68-mm1
+Message-ID: <20030420161306.GA16656@hh.idb.hist.no>
+References: <Pine.LNX.4.50L0.0304201843300.1931-200000@webdev.ines.ro> <Pine.LNX.4.50L0.0304201850130.1931-100000@webdev.ines.ro>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50L0.0304201850130.1931-100000@webdev.ines.ro>
+User-Agent: Mutt/1.5.3i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Apr 2003 23:13:53 +0200
-Jos Hulzink <josh@stack.nl> wrote:
-
-> [...]
-> Fault tolerance in a filesystem layer means in practical terms that you are 
-> guessing what a filesystem should look like, for the disk doesn't answer that
+On Sun, Apr 20, 2003 at 06:58:33PM +0300, Andrei Ivanov wrote:
+[...]
+> -r--------    1 root     root        48281 Apr 11 21:05 Cats & Dogs (RO).txt
+> -r--------    1 root     root     730341376 Apr 11 21:04 Cats And Dogs.avi
 > 
-> question anymore. IMHO you don't want that to be done automagically, for it 
-> might go right sometimes, but also might trash everything on RW filesystems.
+> I typed less Cats<tab>, and then &<tab>, and here it was stuck, and the 
+> kernel oopsed. If I type less Cats<tab>, and then \&<tab>, it works, but 
+> without the \ in front of the &, the shell gets stuck in D state.
 
-Let me clarify again: I don't want fancy stuff inside the filesystem that
-magically knows something about right-or-wrong. The only _very small_
-enhancement I would like to see is: driver tells fs there is an error while
-writing a certain block => fs tries writing the same data onto another block.
-That's it, no magic, no RAID stuff. Very simple.
+Typing 
+<any command> &<TAB>
+gives the shell and the fs some work to do.  The "&" ends one
+command and starts a new one (similiar to ";") so typing
+nothing more after "&" and pressing <TAB> makes the shell search the entire
+path and consider all the commands available.
+(Press tab some more times and see the list, 2078 possibilities
+in my case. :-)  This sort of thing can easily
+take some time (in D state) if your PATH includes network drives.
 
-> Fault tolerance OK, but the fs layer should only detect errors reported by
-> the lower level drivers and handle them gracefully (which is something that
-> might need impovement a little for some fs drivers), or else trust the data
-> it gets. 
-
-You are completely right, I don't want any more: nice management of an error a
-low-level driver reports to the fs. Only I would like to see as an fs-answer to
-this: ok, let's try another part of the media. Currently it just sinks like
-titanic.
-
-Regards,
-Stephan
+Helge Hafting

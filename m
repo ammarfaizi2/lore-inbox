@@ -1,113 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131863AbQLRP61>; Mon, 18 Dec 2000 10:58:27 -0500
+	id <S129391AbQLRQGI>; Mon, 18 Dec 2000 11:06:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131891AbQLRP6R>; Mon, 18 Dec 2000 10:58:17 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:60663 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S131863AbQLRP6C>; Mon, 18 Dec 2000 10:58:02 -0500
-Message-ID: <3A3E2E0D.648B04E0@uow.edu.au>
-Date: Tue, 19 Dec 2000 02:32:29 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
+	id <S129610AbQLRQF7>; Mon, 18 Dec 2000 11:05:59 -0500
+Received: from [62.172.234.2] ([62.172.234.2]:32652 "EHLO penguin.homenet")
+	by vger.kernel.org with ESMTP id <S129391AbQLRQFy>;
+	Mon, 18 Dec 2000 11:05:54 -0500
+Date: Mon, 18 Dec 2000 15:36:22 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Peter Samuelson <peter@cadcamlab.org>
+cc: Andries.Brouwer@cwi.nl, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch-2.4.0-test13-pre3] rootfs boot param. support
+In-Reply-To: <20001218092219.H3199@cadcamlab.org>
+Message-ID: <Pine.LNX.4.21.0012181530100.830-100000@penguin.homenet>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: "shuu@wondernetworkresources.com" <shuu@wondernetworkresources.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] 8139too.c
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ok, the version below doesn't look too bad, except a couple things, see
+below:
 
-- Clear current->blocked in the kernel thread.  We shouldn't
-  be inheriting this from the process which opens the interface.
+On Mon, 18 Dec 2000, Peter Samuelson wrote:
+> -__setup("rootfs=", rootfs_setup);
+> +__setup("rootfstype=", rootfs_setup);
 
-- Fixed a few printk warnings which are coming out
-  when RTL8139_DEBUG is defined.
+this is wrong. If the parameter is "rootfstype" then the function is
+rootfstype_setup(). Too long. No, "rootfs" was a good idea to beging with
+(ask any kernel hacker who wrote UW7 BCP support -- they knew what they
+were calling their variables :)
 
-- Killed the undefined and unused module parm `debug' (finally!)
+>  {
+> -	struct file_system_type * fs_type;
+> +	struct file_system_type * fs_type = NULL;
 
-- Fixed a potential buffer overrun when setting current->comm[].
+this is not needed. Why did you put it there? 
 
-  Currently, if the user renames "eth0" to "my-nifty-realtek-nic"
-  with SIOCSIFNAME and then tries to open it, the kernel thread
-  will scrog its own task_struct.
+> +	if (*rootfstype) {
+> +		fs_type = get_fs_type(rootfstype);
+> +		if (fs_type) {
+> +  			sb = read_super(ROOT_DEV,bdev,fs_type,root_mountflags,NULL,1);
+> +			if (sb)
+> +				goto mount_it;
+> +		}
+> +		/* do NOT try all filesystems - user explicitly wanted this one */
+> +		goto fail;
+> ...
+> +fail:
+>  	panic("VFS: Unable to mount root fs on %s", kdevname(ROOT_DEV));
 
-  The kernel thread is now simply called "[eth0]".
+we should also print out the filesystem type, so instead of having a fail
+label I would put the panic() inside the code above.
+
+I will redo the patch with your and Andries' comments in place and re-send
+to Linus. Namely, the useful things, imho, from your suggestions are:
+
+a) the space allocated for it should be 32 bytes and not 128
+
+b) we should check if user passed any value and only then activate the
+code
+
+c) default value "" is ok (ok, fine, the extra line of code to check for
+it is not too bad).
+
+d) but the variable should still be called "rootfs" and not
+"rootfstype". rootfstype is too long, too confusing and not
+obvious. Whilst "rootfs" immediately tells you "it's the name of the
+filesystem in the namespace defined by file_system_type->name"
+
+Oh, btw you changed one place from 128 to 32 but forgot another -- never
+mind :)
+
+Regards,
+Tigran
 
 
-I think it would be better to use boring old waitqueues for this
-stuff, rather than signals....
-
-
-
-
---- linux-2.4.0-test13-pre3/drivers/net/8139too.c	Tue Dec 12 19:24:18 2000
-+++ linux-akpm/drivers/net/8139too.c	Tue Dec 19 02:15:23 2000
-@@ -74,6 +74,9 @@
- 		
- 		Tobias Ringström - Rx interrupt status checking suggestion
- 
-+		Andrew Morton - (v0.9.13): clear blocked signals, avoid
-+		buffer overrun setting current->comm.
-+
- 	Submitting bug reports:
- 
- 		"rtl8139-diag -mmmaaavvveefN" output
-@@ -147,7 +150,7 @@
- #include <asm/io.h>
- 
- 
--#define RTL8139_VERSION "0.9.12"
-+#define RTL8139_VERSION "0.9.13"
- #define MODNAME "8139too"
- #define RTL8139_DRIVER_NAME   MODNAME " Fast Ethernet driver " RTL8139_VERSION
- #define PFX MODNAME ": "
-@@ -536,7 +539,6 @@
- MODULE_DESCRIPTION ("RealTek RTL-8139 Fast Ethernet driver");
- MODULE_PARM (multicast_filter_limit, "i");
- MODULE_PARM (max_interrupt_work, "i");
--MODULE_PARM (debug, "i");
- MODULE_PARM (media, "1-" __MODULE_STRING(8) "i");
- 
- static int read_eeprom (void *ioaddr, int location, int addr_len);
-@@ -1461,7 +1463,7 @@
- 	DPRINTK ("%s: Media selection tick, Link partner %4.4x.\n",
- 		 dev->name, RTL_R16 (NWayLPAR));
- 	DPRINTK ("%s:  Other registers are IntMask %4.4x IntStatus %4.4x"
--		 " RxStatus %4.4x.\n", dev->name,
-+		 " RxStatus %4.4lx.\n", dev->name,
- 		 RTL_R16 (IntrMask),
- 		 RTL_R16 (IntrStatus),
- 		 RTL_R32 (RxEarlyStatus));
-@@ -1478,7 +1480,13 @@
- 	unsigned long timeout;
- 
- 	daemonize ();
--	sprintf (current->comm, "k8139d-%s", dev->name);
-+	spin_lock_irq(&current->sigmask_lock);
-+	sigemptyset(&current->blocked);
-+	recalc_sigpending(current);
-+	spin_unlock_irq(&current->sigmask_lock);
-+
-+	strncpy (current->comm, dev->name, sizeof(current->comm) - 1);
-+	current->comm[sizeof(current->comm) - 1] = '\0';
- 
- 	while (1) {
- 		timeout = next_tick;
-@@ -2136,7 +2144,7 @@
- 
- 	DPRINTK ("ENTER\n");
- 
--	DPRINTK ("%s:   rtl8139_set_rx_mode(%4.4x) done -- Rx config %8.8x.\n",
-+	DPRINTK ("%s:   rtl8139_set_rx_mode(%4.4x) done -- Rx config %8.8lx.\n",
- 			dev->name, dev->flags, RTL_R32 (RxConfig));
- 
- 	/* Note: do not reorder, GCC is clever about common statements. */
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

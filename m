@@ -1,159 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVAGTgF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261571AbVAGTjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261561AbVAGTgF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 14:36:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVAGTgD
+	id S261571AbVAGTjb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 14:39:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVAGThG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 14:36:03 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:7319 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261564AbVAGTdY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 14:33:24 -0500
-Date: Fri, 7 Jan 2005 11:33:22 -0800
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: kj <kernel-janitors@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Cc: chas@cmf.nrl.navy.mil, linux-atm-general@lists.sourceforge.net
-Subject: [UPDATE PATCH] atm/ambassador: use msleep() instead of schedule_timeout()
-Message-ID: <20050107193322.GA2924@us.ibm.com>
-References: <20041225004846.GA19373@nd47.coderock.org>
+	Fri, 7 Jan 2005 14:37:06 -0500
+Received: from king.bitgnome.net ([66.207.162.30]:12227 "EHLO
+	king.bitgnome.net") by vger.kernel.org with ESMTP id S261556AbVAGTaG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 14:30:06 -0500
+Date: Fri, 7 Jan 2005 13:29:34 -0600
+From: Mark Nipper <nipsy@bitgnome.net>
+To: linux-kernel@vger.kernel.org
+Subject: lost patch for fs/reiserfs/fix_node.c
+Message-ID: <20050107192934.GA42646@king.bitgnome.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="ikeVEW9yuYc//A+q"
 Content-Disposition: inline
-In-Reply-To: <20041225004846.GA19373@nd47.coderock.org>
-X-Operating-System: Linux 2.6.10 (i686)
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 25, 2004 at 01:48:46AM +0100, Domen Puncer wrote:
-> Hi.
-> 
-> Santa brought another present :-)
-> 
-> I'll start mailing new patches these days, and after external trees get
-> merged, I'll be bugging you with the old ones.
 
-<snip>
+--ikeVEW9yuYc//A+q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> all patches:
-> ------------
+	Any reason the attached patch from Oleg Drokin never made
+it even in 2.6.10 now?  I see the supposedly harmless errors this
+patch is meant to correct and it seems like an oversight it never
+made it into the tree.
 
-<snip>
+-- 
+Mark Nipper                                                e-contacts:
+4475 Carter Creek Parkway                           nipsy@bitgnome.net
+Apartment 724                               http://nipsy.bitgnome.net/
+Bryan, Texas, 77802-4481           AIM/Yahoo: texasnipsy ICQ: 66971617
+(979)575-3193                                      MSN: nipsy@tamu.edu
 
-> msleep-drivers_atm_ambassador.patch
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1
+GG/IT d- s++:+ a- C++$ UBL++++$ P--->+++ L+++$ !E---
+W++(--) N+ o K++ w(---) O++ M V(--) PS+++(+) PE(--)
+Y+ PGP t+ 5 X R tv b+++@ DI+(++) D+ G e h r++ y+(**)
+------END GEEK CODE BLOCK------
 
-Please consider updating to the following patch.
+---begin random quote of the moment---
+He hoped and prayed that there wasn't an afterlife. Then he
+realized there was a contradiction involved here and merely
+hoped that there wasn't an afterlife.
+ -- Douglas Adams
+----end random quote of the moment----
 
-Description: Multiple schedule_timeout() related fixes. Generally uses msleep()
-to guarantee the task delays as expected. In one place, this allowed for the
-deletion of a variable. In a few places, I reverted back to using
-TASK_INTERRUPTIBLE, because the code makes little sense otherwise. In these
-places, the units of the timeout variable has been changed from jiffies to
-msecs. As far as I can see, this driver is still not fixed, as there is no
-response to the signal which may have interrupted the sleep. But this patch
-at least brings it closer.
+--ikeVEW9yuYc//A+q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="indirect_item.patch"
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+--- linux-2.6.10/fs/reiserfs/fix_node.c.orig	2004-12-24 15:34:30.000000000 -0600
++++ linux-2.6.10/fs/reiserfs/fix_node.c	2005-01-07 13:20:43.000000000 -0600
+@@ -510,9 +510,10 @@
+ 	// s2bytes
+ 	snum012[4] = op_unit_num (&vn->vn_vi[split_item_num]) - snum012[4] - bytes_to_r - bytes_to_l - bytes_to_S1new;
+ 
+-	if (vn->vn_vi[split_item_num].vi_index != TYPE_DIRENTRY)
++	if (vn->vn_vi[split_item_num].vi_index != TYPE_DIRENTRY &&
++	    vn->vn_vi[split_item_num].vi_index != TYPE_INDIRECT)
+ 	    reiserfs_warning (tb->tb_sb, "vs-8115: get_num_ver: not "
+-			      "directory item");
++			      "directory or indirect item");
+     }
+ 
+     /* now we know S2bytes, calculate S1bytes */
 
---- 2.6.10-v/drivers/atm/ambassador.c	2004-12-24 13:33:59.000000000 -0800
-+++ 2.6.10/drivers/atm/ambassador.c	2005-01-04 14:57:49.000000000 -0800
-@@ -574,7 +574,6 @@ static int command_do (amb_dev * dev, co
-   amb_cq * cq = &dev->cq;
-   volatile amb_cq_ptrs * ptrs = &cq->ptrs;
-   command * my_slot;
--  unsigned long timeout;
-   
-   PRINTD (DBG_FLOW|DBG_CMD, "command_do %p", dev);
-   
-@@ -599,20 +598,14 @@ static int command_do (amb_dev * dev, co
-     // mail the command
-     wr_mem (dev, offsetof(amb_mem, mb.adapter.cmd_address), virt_to_bus (ptrs->in));
-     
--    // prepare to wait for cq->pending milliseconds
--    // effectively one centisecond on i386
--    timeout = (cq->pending*HZ+999)/1000;
--    
-     if (cq->pending > cq->high)
-       cq->high = cq->pending;
-     spin_unlock (&cq->lock);
-     
--    while (timeout) {
--      // go to sleep
--      // PRINTD (DBG_CMD, "wait: sleeping %lu for command", timeout);
--      set_current_state(TASK_UNINTERRUPTIBLE);
--      timeout = schedule_timeout (timeout);
--    }
-+    // these comments were in a while-loop before, msleep removes the loop
-+    // go to sleep
-+    // PRINTD (DBG_CMD, "wait: sleeping %lu for command", timeout);
-+    msleep(cq->pending);
-     
-     // wait for my slot to be reached (all waiters are here or above, until...)
-     while (ptrs->out != my_slot) {
-@@ -1799,12 +1792,11 @@ static int __init do_loader_command (vol
-   // dump_loader_block (lb);
-   wr_mem (dev, offsetof(amb_mem, doorbell), virt_to_bus (lb) & ~onegigmask);
-   
--  timeout = command_timeouts[cmd] * HZ/100;
-+  timeout = command_timeouts[cmd] * 10;
-   
-   while (!lb->result || lb->result == cpu_to_be32 (COMMAND_IN_PROGRESS))
-     if (timeout) {
--      set_current_state(TASK_UNINTERRUPTIBLE);
--      timeout = schedule_timeout (timeout);
-+      timeout = msleep_interruptible(timeout);
-     } else {
-       PRINTD (DBG_LOAD|DBG_ERR, "command %d timed out", cmd);
-       dump_registers (dev);
-@@ -1814,10 +1806,10 @@ static int __init do_loader_command (vol
-   
-   if (cmd == adapter_start) {
-     // wait for start command to acknowledge...
--    timeout = HZ/10;
-+    timeout = 100;
-     while (rd_plain (dev, offsetof(amb_mem, doorbell)))
-       if (timeout) {
--	timeout = schedule_timeout (timeout);
-+	timeout = msleep_interruptible(timeout);
-       } else {
- 	PRINTD (DBG_LOAD|DBG_ERR, "start command did not clear doorbell, res=%08x",
- 		be32_to_cpu (lb->result));
-@@ -1932,17 +1924,12 @@ static int amb_reset (amb_dev * dev, int
-   if (diags) { 
-     unsigned long timeout;
-     // 4.2 second wait
--    timeout = HZ*42/10;
--    while (timeout) {
--      set_current_state(TASK_UNINTERRUPTIBLE);
--      timeout = schedule_timeout (timeout);
--    }
-+    msleep(4200);
-     // half second time-out
--    timeout = HZ/2;
-+    timeout = 500;
-     while (!rd_plain (dev, offsetof(amb_mem, mb.loader.ready)))
-       if (timeout) {
--        set_current_state(TASK_UNINTERRUPTIBLE);
--	timeout = schedule_timeout (timeout);
-+        timeout = msleep_interruptible(timeout);
-       } else {
- 	PRINTD (DBG_LOAD|DBG_ERR, "reset timed out");
- 	return -ETIMEDOUT;
-@@ -2056,14 +2043,12 @@ static int __init amb_talk (amb_dev * de
-   wr_mem (dev, offsetof(amb_mem, doorbell), virt_to_bus (&a));
-   
-   // 2.2 second wait (must not touch doorbell during 2 second DMA test)
--  timeout = HZ*22/10;
--  while (timeout)
--    timeout = schedule_timeout (timeout);
-+  msleep(2200);
-   // give the adapter another half second?
--  timeout = HZ/2;
-+  timeout = 500;
-   while (rd_plain (dev, offsetof(amb_mem, doorbell)))
-     if (timeout) {
--      timeout = schedule_timeout (timeout);
-+      timeout = msleep_interruptible(timeout);
-     } else {
-       PRINTD (DBG_INIT|DBG_ERR, "adapter init timed out");
-       return -ETIMEDOUT;
+--ikeVEW9yuYc//A+q--

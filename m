@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262270AbULMTnw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262334AbULMUXM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262270AbULMTnw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 14:43:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbULMTji
+	id S262334AbULMUXM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 15:23:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbULMUS7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 14:39:38 -0500
-Received: from ms-smtp-05.texas.rr.com ([24.93.47.44]:52390 "EHLO
-	ms-smtp-05-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S261314AbULMSlR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 13:41:17 -0500
-Message-ID: <41BDE2CF.9060402@austin.rr.com>
-Date: Mon, 13 Dec 2004 12:43:27 -0600
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Steve French <smfrench@austin.rr.com>
-CC: cliff white <cliffw@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: cifs large write performance improvements to Samba
-References: <41BDC9CD.60504@austin.rr.com> <20041213092057.5bf773fb.cliffw@osdl.org> <41BDE0B4.6020003@austin.rr.com>
-In-Reply-To: <41BDE0B4.6020003@austin.rr.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Dec 2004 15:18:59 -0500
+Received: from gprs215-194.eurotel.cz ([160.218.215.194]:43392 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261334AbULMUQT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 15:16:19 -0500
+Date: Mon, 13 Dec 2004 21:15:23 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: fix naming in swsusp
+Message-ID: <20041213201523.GA4613@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cliff white wrote:
+Hi!
 
->
->> On Mon, 13 Dec 2004 10:56:45 -0600
->> Steve French <smfrench@austin.rr.com> wrote:
->>
->> If only someone could roll all of the key fs tests into a set of 
->> scripts which could generate one regularly updated set of test status 
->> chart ... one for each of XFS, JFS, ext3, Reiser3, CIFS (against 
->> various servers, Samba version etc), NFSv2, NFSv3, NFSv4 (against 
->> various servers), AFS but that would be a lot of work (not to run) 
->> but the first time writing/setup of the scripts to launch the tests 
->> in the right order since some failures may be expected (at least for 
->> the network filesystems) due to hard to implement features (missing 
->> fcntls, dnotify, get/setlease, differences in byte range lock 
->> semantics, lack of flock etc.) and also since the most sensible NFS, 
->> AFS and CIFS tests would involve more than one client (to test 
->> caching/oplock/token management semantics better) but no such fs 
->> tests AFAIK exist for Linux.
->>
->>
->>
->> We ( OSDL ) would be very interested in this sort of testing. We have 
->> some fs tests
->> wrappered currently
->> cliffw
->> OSDL
->>
->>
->
-The other thing I forgot to mention ... we used to have a concept of 
-"performance regression testing" (to make sure that we had not gotten a 
-lot slower on the latest rc) - not just runs on every release candidate 
-of a few complex benchmark tests (like SpecWeb or Netbench or some 
-enterprise Java perf test) but the idea was to run on every rc an fs 
-microbenchmark (more like iozone) to ensure that we did not have some 
-small functional problem in an fs or mm subsystem was causing big, 
-noticeable degradation in performance (large read or small read or large 
-write or small write, random or sequential etc.). I have not seen anyone 
-doing that on Linux in an automated fashion (e.g running iozone 
-automated every time a new 2.6.x.rc on a half a dozen of the fs - simply 
-to verify that things had not gotten drastically worse on a particular 
-fs due to a bug or sideffect of a global VFS change).
+At few points we still reference to swsusp as "pmdisk"... it might
+confuse someone not knowing full history. Please apply,
+								Pavel
 
+--- clean/kernel/power/swsusp.c	2004-10-19 14:16:29.000000000 +0200
++++ linux/kernel/power/swsusp.c	2004-12-12 21:14:03.000000000 +0100
+@@ -1202,7 +1190,7 @@
+ }
+ 
+ /**
+- *	pmdisk_read - Read saved image from swap.
++ *	swsusp_read - Read saved image from swap.
+  */
+ 
+ int __init swsusp_read(void)
+@@ -1226,6 +1214,6 @@
+ 	if (!error)
+ 		pr_debug("Reading resume file was successful\n");
+ 	else
+-		pr_debug("pmdisk: Error %d resuming\n", error);
++		pr_debug("swsusp: Error %d resuming\n", error);
+ 	return error;
+ }
+
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

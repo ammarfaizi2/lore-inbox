@@ -1,72 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263764AbTKJOXO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 09:23:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263767AbTKJOXN
+	id S263675AbTKJOWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 09:22:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263718AbTKJOWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 09:23:13 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:4573 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263764AbTKJOXI (ORCPT
+	Mon, 10 Nov 2003 09:22:25 -0500
+Received: from nevyn.them.org ([66.93.172.17]:2966 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S263675AbTKJOWY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 09:23:08 -0500
-Date: Mon, 10 Nov 2003 15:23:02 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
-Subject: Re: [PATCH] cfq-prio #2
-Message-ID: <20031110142302.GF32637@suse.de>
-References: <20031110140052.GC32637@suse.de> <3FAF9DAE.3070307@cyberone.com.au>
+	Mon, 10 Nov 2003 09:22:24 -0500
+Date: Mon, 10 Nov 2003 09:22:22 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: OT: why no file copy() libc/syscall ??
+Message-ID: <20031110142222.GA21220@nevyn.them.org>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <QiyV.1k3.15@gated-at.bofh.it> <3FAF7FC8.8050503@softhome.net> <03111007291500.08768@tabby>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FAF9DAE.3070307@cyberone.com.au>
+In-Reply-To: <03111007291500.08768@tabby>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 11 2003, Nick Piggin wrote:
-> 
-> 
-> Jens Axboe wrote:
-> 
-> >Hi,
-> >
-> >
-> 
-> Hi Jens
-> 
-> >@@ -1553,6 +1559,10 @@
-> >	struct io_context *ioc = get_io_context(gfp_mask);
-> >
-> >	spin_lock_irq(q->queue_lock);
-> >+
-> >+	if (!elv_may_queue(q, rw))
-> >+		goto out_lock;
-> >+
-> >	if (rl->count[rw]+1 >= q->nr_requests) {
-> >		/*
-> >		 * The queue will fill after this allocation, so set it as
-> >@@ -1566,15 +1576,12 @@
-> >		}
-> >	}
-> >
-> >-	if (blk_queue_full(q, rw)
-> >-			&& !ioc_batching(ioc) && !elv_may_queue(q, rw)) {
-> >
-> 
-> I know I hijacked elv_may_queue from you... any chance we could seperate
-> these so our schedulers can live in peace? ;)
+On Mon, Nov 10, 2003 at 07:29:15AM -0600, Jesse Pollard wrote:
+> Now back to the copy.. You don't have to use a read/write loop- mmap
+> is faster. And this is the other reason for not doing it in Kernel mode.
 
-IOW, you completely broke it! I'm just changing it back to the
-original. When was this done, btw? Just discovered it when updating the
-patch. Pretty annoying...
-
-> Maybe my version should be called elv_force_queue?
-
-I just hate to see more of these, really. The original idea for
-may_queue was just that, may this process queue io or not. We can make
-it return something else, though, to indicate whether the process must
-be able to queue. Is it really needed?
+Actually, last I checked, read/write was actually faster.  Linus
+explained why a month or two ago.
 
 -- 
-Jens Axboe
-
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVAHJaC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261953AbVAHJaA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261836AbVAHJaC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 04:30:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbVAHJVr
+	id S261953AbVAHJaA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 04:30:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbVAHJXD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 04:21:47 -0500
-Received: from mail.kroah.org ([69.55.234.183]:33669 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261836AbVAHFsJ convert rfc822-to-8bit
+	Sat, 8 Jan 2005 04:23:03 -0500
+Received: from mail.kroah.org ([69.55.234.183]:32901 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261832AbVAHFsI convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 00:48:09 -0500
+	Sat, 8 Jan 2005 00:48:08 -0500
 Subject: Re: [PATCH] USB and Driver Core patches for 2.6.10
-In-Reply-To: <11051632662317@kroah.com>
+In-Reply-To: <1105163264997@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 7 Jan 2005 21:47:46 -0800
-Message-Id: <11051632662253@kroah.com>
+Date: Fri, 7 Jan 2005 21:47:44 -0800
+Message-Id: <11051632643519@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
@@ -22,42 +22,71 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.446.27, 2004/12/15 16:38:01-08:00, david-b@pacbell.net
+ChangeSet 1.1938.446.10, 2004/12/15 15:12:10-08:00, phil@ipom.com
 
-[PATCH] USB: better messages for "no-IRQ" cases (15/15)
+[PATCH] USB Storage: Remove old XLATE-only entries from unusual_devs.h
 
-This changes the usbcore message about HCD IRQ problems so it makes
-sense on systems without ACPI or an APIC.  It also updates the comments;
-the issue doesn't appiear only with PCI, and with the recent enumeration
-changes it doesn't happen just with set_address either.
+This patch removes all entries from unusual_devs.h that appear to have
+only been there for the MODE_XLATE flag which was removed in my previous
+patch.
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+
+Signed-off-by: Phil Dibowitz <phil@ipom.com>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/usb/core/hcd.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/usb/storage/unusual_devs.h |   26 --------------------------
+ 1 files changed, 26 deletions(-)
 
 
-diff -Nru a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
---- a/drivers/usb/core/hcd.c	2005-01-07 15:47:52 -08:00
-+++ b/drivers/usb/core/hcd.c	2005-01-07 15:47:52 -08:00
-@@ -1251,13 +1251,14 @@
- 		goto done;
- 	}
+diff -Nru a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
+--- a/drivers/usb/storage/unusual_devs.h	2005-01-07 15:50:16 -08:00
++++ b/drivers/usb/storage/unusual_devs.h	2005-01-07 15:50:16 -08:00
+@@ -739,15 +739,6 @@
+ 		US_FL_BULK32),
  
--	/* PCI IRQ setup can easily be broken so that USB controllers
-+	/* IRQ setup can easily be broken so that USB controllers
- 	 * never get completion IRQs ... maybe even the ones we need to
--	 * finish unlinking the initial failed usb_set_address().
-+	 * finish unlinking the initial failed usb_set_address()
-+	 * or device descriptor fetch.
- 	 */
- 	if (!hcd->saw_irq && hcd->self.root_hub != urb->dev) {
- 		dev_warn (hcd->self.controller, "Unlink after no-IRQ?  "
--			"Different ACPI or APIC settings may help."
-+			"Controller is probably using the wrong IRQ."
- 			"\n");
- 		hcd->saw_irq = 1;
- 	}
+ 
+-/* Aiptek PocketCAM 3Mega
+- * Nicolas DUPEUX <nicolas@dupeux.net> 
+- */
+-UNUSUAL_DEV(  0x08ca, 0x2011, 0x0000, 0x9999,
+-		"AIPTEK",
+-		"PocketCAM 3Mega",
+-		US_SC_DEVICE, US_PR_DEVICE, NULL,
+-		0 ),
+-
+ /* Entry needed for flags. Moreover, all devices with this ID use
+  * bulk-only transport, but _some_ falsely report Control/Bulk instead.
+  * One example is "Trumpion Digital Research MYMP3".
+@@ -773,12 +764,6 @@
+ 		US_SC_DEVICE, US_PR_DEVICE, NULL,
+ 		US_FL_FIX_CAPACITY ),
+ 
+-UNUSUAL_DEV(  0x097a, 0x0001, 0x0000, 0x0001,
+-		"Minds@Work",
+-		"Digital Wallet",
+- 		US_SC_DEVICE, US_PR_DEVICE, NULL,
+-		0 ),
+-
+ /* This Pentax still camera is not conformant
+  * to the USB storage specification: -
+  * - It does not like the INQUIRY command. So we must handle this command
+@@ -881,17 +866,6 @@
+ 		"Desknote",
+ 		"UCR-61S2B",
+ 		US_SC_DEVICE, US_PR_DEVICE, usb_stor_ucr61s2b_init,
+-		0 ),
+-
+-/* Reported by Dan Pilone <pilone@slac.com>
+- * The device needs the flags only.
+- * Also reported by Brian Hall <brihall@pcisys.net>, again for flags.
+- * I also suspect this device may have a broken serial number.
+- */
+-UNUSUAL_DEV(  0x1065, 0x2136, 0x0000, 0x9999,
+-		"CCYU TECHNOLOGY",
+-		"EasyDisk Portable Device",
+-		US_SC_DEVICE, US_PR_DEVICE, NULL,
+ 		0 ),
+ 
+ /* Reported by Kotrla Vitezslav <kotrla@ceb.cz> */
 

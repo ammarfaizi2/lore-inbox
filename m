@@ -1,71 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262069AbUKVLUU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262051AbUKVKt5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbUKVLUU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 06:20:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbUKVLSC
+	id S262051AbUKVKt5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 05:49:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbUKVKln
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 06:18:02 -0500
-Received: from holomorphy.com ([207.189.100.168]:49559 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262086AbUKVLRS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 06:17:18 -0500
-Date: Mon, 22 Nov 2004 03:17:09 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [bugfix] fix do_wp_page_mk_pte_writable() in 2.6.10-rc2-mm3
-Message-ID: <20041122111709.GD2714@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Mon, 22 Nov 2004 05:41:43 -0500
+Received: from smtp1.netcabo.pt ([212.113.174.28]:8499 "EHLO
+	exch01smtp11.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S262027AbUKVKim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 05:38:42 -0500
+Message-ID: <56781.195.245.190.93.1101119801.squirrel@195.245.190.93>
+In-Reply-To: <20041122094602.GA6817@elte.hu>
+References: <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu>
+    <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu>
+    <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu>
+    <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu>
+    <20041122005411.GA19363@elte.hu>
+    <20041122020741.5d69f8bf@mango.fruits.de>
+    <20041122094602.GA6817@elte.hu>
+Date: Mon, 22 Nov 2004 10:36:41 -0000 (WET)
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: "Florian Schmidt" <mista.tapas@gmx.net>, linux-kernel@vger.kernel.org,
+       "Lee Revell" <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, "Bill Huey" <bhuey@lnxw.com>,
+       "Adam Heath" <doogie@debian.org>,
+       "Thomas Gleixner" <tglx@linutronix.de>,
+       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
+       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
+       "Karsten Wiese" <annabellesgarden@yahoo.de>,
+       "Gunther Persoons" <gunther_persoons@spymac.com>, emann@mrv.com,
+       "Shane Shrybman" <shrybman@aei.ca>, "Amit Shah" <amit.shah@codito.com>,
+       "Esben Nielsen" <simlo@phys.au.dk>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 22 Nov 2004 10:38:40.0905 (UTC) FILETIME=[6EA68F90:01C4D07F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 21, 2004 at 10:39:29PM -0800, Andrew Morton wrote:
-> 4level-core-patch.patch
->   4level core patch
+Ingo Molnar wrote:
+>
+> * Florian Schmidt wrote:
+>
+>>
+>> > i have released the -V0.7.30-2 Real-Time Preemption patch, which can
+>> > be downloaded from the usual place:
+>>
+>> > the biggest change in this release are fixes for priority-inheritance
+>> > bugs uncovered by Esben Nielsen pi_test suite. These bugs could
+>> > explain some of the jackd-under-load latencies reported.
+>>
+>> It seems these large load related xruns are gone :) At least i wasn't
+>> able to trigger any during my uptime of 52 min. Will report if i ever
+>> see any of those again.
+>
+> great. I now suspect that some of the xrun problems Rui was observing on
+> -RT kernel could be (positively) affected by these fixes too.
+>
 
-vma->vm_ops->page_mkwrite() is supposed to be able to sleep, but this
-function doesn't unmap the pte across the call and worse yet, reuses
-the pte across a drop and reacquisition of ->page_table_lock.
+Just made some test-runs with RT-V0.7.30-2, with my jackd-R + 8*fluidsynth
+benchmark on my laptop (P4/UP), and the results don't seem to be eligible
+to the hall of fame, at least when compared with RT-0.7.7 as the ones I
+last posted here a few weeks ago.
+
+I hate to say this, but the XRUN rate has increased since RT-0.7.7, and
+the maximum scheduling delay reported by jackd has also degraded to 1000
+usecs (was around 600 usecs).
+
+Please note that this is not unique to latest RT-V0.7.30-2, but also
+applies to each one of the previous iterations I've been testing, only not
+reported until now. Again, all test conditions were kept the same
+(hardware, jackd, alsa), only the kernel has changed (obviously).
 
 
-Index: mm3-2.6.10-rc2/mm/memory.c
-===================================================================
---- mm3-2.6.10-rc2.orig/mm/memory.c	2004-11-22 02:54:12.815541779 -0800
-+++ mm3-2.6.10-rc2/mm/memory.c	2004-11-22 02:57:22.095766811 -0800
-@@ -1268,6 +1268,7 @@
- static inline int do_wp_page_mk_pte_writable(struct mm_struct *mm,
- 					     struct vm_area_struct *vma,
- 					     unsigned long address,
-+					     pmd_t *pmd,
- 					     pte_t *page_table,
- 					     struct page *old_page,
- 					     pte_t pte)
-@@ -1279,6 +1280,7 @@
- 	if (vma->vm_ops && vma->vm_ops->page_mkwrite) {
- 		/* Notify the page owner without the lock held so they can
- 		 * sleep if they want to */
-+		pte_unmap(page_table);
- 		spin_unlock(&mm->page_table_lock);
- 
- 		if (vma->vm_ops->page_mkwrite(vma, old_page) < 0)
-@@ -1291,6 +1293,7 @@
- 		 * return, as we can count on the MMU to tell us if they didn't
- 		 * also make it writable
- 		 */
-+		page_table = pte_offset_map(pmd, address);
- 		if (!pte_same(*page_table, pte))
- 			goto minor_fault;
- 	}
-@@ -1352,7 +1355,7 @@
- 		unlock_page(old_page);
- 		if (reuse)
- 			/* We can just make the PTE writable */
--			return do_wp_page_mk_pte_writable(mm, vma, address,
-+			return do_wp_page_mk_pte_writable(mm, vma, address, pmd,
- 							  page_table, old_page,
- 							  pte);
- 	}
+OTOH, there's another thing: I don't seem to be able to build an initrd
+image under the latest RT kernels. Something related to the loopback
+device. When trying to run mkinitrd it stalls, somewhere under this
+process:
+
+  mount -t ext2 /root/tmp/initrd.img /root/tmp/initrd.mnt -o loop
+
+This happens on my laptop (P4/UP, Mandrake 10.1c) but not on my desktop
+(P4/SMT, SUSE 9.2pro). Speaking of which, the lockups experienced while
+unloading the ALSA modules seems to be over, at least as far as I could
+try with RT-V0.7.29-4 (probably not enough yet).
+
+Bye now.
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
+

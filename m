@@ -1,98 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262363AbULOPiq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262368AbULOPok@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262363AbULOPiq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 10:38:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbULOPiq
+	id S262368AbULOPok (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 10:44:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbULOPok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 10:38:46 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:61413 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262363AbULOPil (ORCPT
+	Wed, 15 Dec 2004 10:44:40 -0500
+Received: from fw.osdl.org ([65.172.181.6]:3795 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262368AbULOPoh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 10:38:41 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <2149.1103124772@redhat.com> 
-References: <2149.1103124772@redhat.com> 
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix nommu MAP_SHARED handling 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.3
-Date: Wed, 15 Dec 2004 15:38:36 +0000
-Message-ID: <2272.1103125116@redhat.com>
-To: unlisted-recipients:; (no To-header on input)
+	Wed, 15 Dec 2004 10:44:37 -0500
+Date: Wed, 15 Dec 2004 07:44:18 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Lee Revell <rlrevell@joe-job.com>, Andrea Arcangeli <andrea@suse.de>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       George Anzinger <george@mvista.com>, dipankar@in.ibm.com,
+       ganzinger@mvista.com, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
+Subject: Re: [patch, 2.6.10-rc3] safe_hlt() & NMIs
+In-Reply-To: <20041215085257.GA12545@elte.hu>
+Message-ID: <Pine.LNX.4.58.0412150740050.3279@ppc970.osdl.org>
+References: <41BB25B2.90303@mvista.com> <Pine.LNX.4.61.0412111947280.7847@montezuma.fsmlabs.com>
+ <41BC0854.4010503@colorfullife.com> <20041212093714.GL16322@dualathlon.random>
+ <41BC1BF9.70701@colorfullife.com> <20041212121546.GM16322@dualathlon.random>
+ <1103060437.14699.27.camel@krustophenia.net> <20041214222307.GB22043@elte.hu>
+ <20041214224706.GA26853@elte.hu> <Pine.LNX.4.58.0412141501250.3279@ppc970.osdl.org>
+ <20041215085257.GA12545@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The attached patch includes prio-tree support and adds cross-referencing of
-VMAs with address spaces back in, as is done under normal MMU Linux.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-warthog>diffstat nommu-prio-2610rc3.diff 
- Makefile |    4 ++--
- nommu.c  |   22 ++++++++++++++++++----
- 2 files changed, 20 insertions(+), 6 deletions(-)
+On Wed, 15 Dec 2004, Ingo Molnar wrote:
+> 
+> i ran the stresstest overnight with the 10 KHz NMI, and not a single
+> time did the new branch trigger, out of hundreds of millions of IRQs and
+> NMIs. I think this suggests that the race doesnt exist in current CPUs.
 
-diff -uNrp linux-2.6.10-rc3-mm1-nommu-rb/mm/Makefile linux-2.6.10-rc3-mm1-nommu-prio/mm/Makefile
---- linux-2.6.10-rc3-mm1-nommu-rb/mm/Makefile	2004-12-13 17:34:22.000000000 +0000
-+++ linux-2.6.10-rc3-mm1-nommu-prio/mm/Makefile	2004-12-15 13:38:04.000000000 +0000
-@@ -5,12 +5,12 @@
- mmu-y			:= nommu.o
- mmu-$(CONFIG_MMU)	:= fremap.o highmem.o madvise.o memory.o mincore.o \
- 			   mlock.o mmap.o mprotect.o mremap.o msync.o rmap.o \
--			   vmalloc.o prio_tree.o
-+			   vmalloc.o
- 
- obj-y			:= bootmem.o filemap.o mempool.o oom_kill.o fadvise.o \
- 			   page_alloc.o page-writeback.o pdflush.o \
- 			   readahead.o slab.o swap.o truncate.o vmscan.o \
--			   $(mmu-y)
-+			   prio_tree.o $(mmu-y)
- 
- obj-$(CONFIG_SWAP)	+= page_io.o swap_state.o swapfile.o thrash.o
- obj-$(CONFIG_HUGETLBFS)	+= hugetlb.o
-diff -uNrp linux-2.6.10-rc3-mm1-nommu-rb/mm/nommu.c linux-2.6.10-rc3-mm1-nommu-prio/mm/nommu.c
---- linux-2.6.10-rc3-mm1-nommu-rb/mm/nommu.c	2004-12-15 14:32:07.000000000 +0000
-+++ linux-2.6.10-rc3-mm1-nommu-prio/mm/nommu.c	2004-12-15 13:38:04.000000000 +0000
-@@ -48,10 +48,6 @@ DECLARE_RWSEM(nommu_vma_sem);
- struct vm_operations_struct generic_file_vm_ops = {
- };
- 
--void __init prio_tree_init(void)
--{
--}
--
- /*
-  * Handle all mappings that got truncated by a "truncate()"
-  * system call.
-@@ -319,6 +315,15 @@ static void add_nommu_vma(struct vm_area
- 	struct rb_node **p = &nommu_vma_tree.rb_node;
- 	struct rb_node *parent = NULL;
- 
-+	/* add the VMA to the mapping */
-+	if (vma->vm_file) {
-+		mapping = vma->vm_file->f_mapping;
-+
-+		flush_dcache_mmap_lock(mapping);
-+		vma_prio_tree_insert(vma, &mapping->i_mmap);
-+		flush_dcache_mmap_unlock(mapping);
-+	}
-+
- 	/* add the VMA to the master list */
- 	while (*p) {
- 		parent = *p;
-@@ -353,6 +358,15 @@ static void delete_nommu_vma(struct vm_a
- {
- 	struct address_space *mapping;
- 
-+	/* remove the VMA from the mapping */
-+	if (vma->vm_file) {
-+		mapping = vma->vm_file->f_mapping;
-+
-+		flush_dcache_mmap_lock(mapping);
-+		vma_prio_tree_remove(vma, &mapping->i_mmap);
-+		flush_dcache_mmap_unlock(mapping);
-+	}
-+
- 	/* remove from the master list */
- 	rb_erase(&vma->vm_rb, &nommu_vma_tree);
- }
+That may well be true, but I'm not convinced your test is meaningful or 
+shows anything.
+
+The thing is, either the CPU is busy, or it's idle. If it's busy, you'll
+never see this. And if it's idle, it will always be _in_ the "halt"  
+instruction.
+
+The only way to see the case is in the borderline cases, and if/when there
+are multiple different interrupts (first non-NMI interrupt takes it out of
+the hlt, and then the NMI happens to catch the sti). And quite frankly, I
+don't see how you would stress-test it. A 1kHz timer interrupt with a
+10kHz NMI interrupt is still very infrequent interrupts...
+
+		Linus

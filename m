@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262707AbREaQYf>; Thu, 31 May 2001 12:24:35 -0400
+	id <S263034AbREaQYP>; Thu, 31 May 2001 12:24:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263021AbREaQY0>; Thu, 31 May 2001 12:24:26 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:16646 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S262707AbREaQYL>; Thu, 31 May 2001 12:24:11 -0400
-Date: Thu, 31 May 2001 12:24:44 -0400 (EDT)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: <proski@vesta.nine.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] for Matrox FB config help
-Message-ID: <Pine.LNX.4.33.0105311219030.20239-100000@vesta.nine.com>
+	id <S263021AbREaQYG>; Thu, 31 May 2001 12:24:06 -0400
+Received: from cr803443-a.flfrd1.on.wave.home.com ([24.156.64.178]:56759 "EHLO
+	fxian.jukie.net") by vger.kernel.org with ESMTP id <S262707AbREaQXw>;
+	Thu, 31 May 2001 12:23:52 -0400
+Date: Thu, 31 May 2001 12:23:12 -0400 (EDT)
+From: Feng Xian <fxian@fxian.jukie.net>
+X-X-Sender: <fxian@tiger>
+To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: APIC problem or 3com 3c590 driver problem in smp kernel 2.4.x
+In-Reply-To: <Pine.LNX.4.10.10105311110240.759-100000@coffee.psychology.mcmaster.ca>
+Message-ID: <Pine.LNX.4.33.0105311217310.785-100000@tiger>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-This patch moves the sentence about multihead support where it belongs,
-i.e. to CONFIG_FB_MATROX_MULTIHEAD, and removes it where it's meaningless,
-i.e. from CONFIG_FB_MATROX_MAVEN and CONFIG_FB_MATROX_G450.
+I am not sure if it's a VIA-based board. It's Dell's SMP board with Intel
+820 chipset on it.
 
-The patch is against 2.4.5-ac5.
 
-____________________________
---- linux.orig/Documentation/Configure.help
-+++ linux/Documentation/Configure.help
-@@ -3503,9 +3503,6 @@
-   too. You can use only some font widths, as the driver uses generic
-   painting procedures (the secondary head does not use acceleration
-   engine).
--
--  There is no need for enabling 'Matrox multihead support' if you have
--  only one Matrox card in the box.
+-[00]-+-00.0  Intel Corporation 82820 820 (Camino) Chipset Host Bridge
+(MCH)
+      +-01.0-[01]----00.0  nVidia Corporation Vanta [NV6]
+      +-1e.0-[02-03]--+-0a.0-[03]----00.0  Chrysalis-ITS: c0de
+      |               \-0c.0  3Com Corporation 3c905C-TX [Fast Etherlink]
+      +-1f.0  Intel Corporation 82801AA ISA Bridge (LPC)
+      +-1f.1  Intel Corporation 82801AA IDE
+      +-1f.2  Intel Corporation 82801AA USB
+      +-1f.3  Intel Corporation 82801AA SMBus
+      \-1f.5  Intel Corporation 82801AA AC'97 Audio
 
- Matrox G450 second head support
- CONFIG_FB_MATROX_G450
-@@ -3528,9 +3525,6 @@
-   painting procedures (the secondary head does not use acceleration
-   engine).
+Alex
 
--  There is no need for enabling 'Matrox multihead support' if you have
--  only one Matrox card in the box.
--
- Matrox unified driver multihead support
- CONFIG_FB_MATROX_MULTIHEAD
-   Say Y here if you have more than one (supported) Matrox device in
-@@ -3545,6 +3539,9 @@
-   with insmod, supplying the parameter "dev=N" where N is 0, 1, etc.
-   for the different Matrox devices. This method is slightly faster but
-   uses 40 KB of kernel memory per Matrox card.
-+
-+  There is no need for enabling 'Matrox multihead support' if you have
-+  only one Matrox card in the box.
+On Thu, 31 May 2001, Mark Hahn wrote:
 
- MDA text console (dual-headed)
- CONFIG_MDA_CONSOLE
-____________________________
+> > I have one pci device in my dell optiplex gx300 dual pIII box. when this
+>
+> is that a VIA-based board?  if so, there are known problems
+> with VIA SMP irq routing.
+>
 
 -- 
-Regards,
-Pavel Roskin
+        Feng Xian
+   _o)     .~.      (o_
+   /\\     /V\      //\
+  _\_V    // \\     V_/_
+         /(   )\
+          ^^-^^
+           ALEX
 

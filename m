@@ -1,65 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261898AbUCIMcT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 07:32:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbUCIMcT
+	id S261902AbUCIMsZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 07:48:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbUCIMsZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 07:32:19 -0500
-Received: from holomorphy.com ([207.189.100.168]:50952 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261898AbUCIMcR (ORCPT
+	Tue, 9 Mar 2004 07:48:25 -0500
+Received: from cable209a180.usuarios.retecal.es ([212.183.209.180]:10624 "EHLO
+	debian") by vger.kernel.org with ESMTP id S261902AbUCIMsV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 07:32:17 -0500
-Date: Tue, 9 Mar 2004 04:32:06 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, andrea@suse.de, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [lockup] Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
-Message-ID: <20040309123206.GN655@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-	andrea@suse.de, torvalds@osdl.org, linux-kernel@vger.kernel.org
-References: <20040308202433.GA12612@dualathlon.random> <20040309105226.GA2863@elte.hu> <20040309110233.GA3819@elte.hu> <20040309030907.71a53a7c.akpm@osdl.org> <20040309114924.GA4581@elte.hu>
+	Tue, 9 Mar 2004 07:48:21 -0500
+Subject: [BUG][2.6.4-rc2-mm1] kernel BUG at fs/proc/generic.c:664!
+From: =?ISO-8859-1?Q?Ram=F3n?= Rey Vicente <ramon.rey@hispalinux.es>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Yv9Zman43oibetAwpJhc"
+Organization: Hispalinux - http://www.hispalinux.es
+Message-Id: <1078836492.23461.7.camel@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040309114924.GA4581@elte.hu>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 09 Mar 2004 13:48:13 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrew Morton <akpm@osdl.org> wrote:
->> Do these tests actually make any forward progress at all, or is it
->> some bug which has sent the kernel into a loop?
 
-On Tue, Mar 09, 2004 at 12:49:24PM +0100, Ingo Molnar wrote:
-> i think they make a forward progress so it's more of a DoS - but a very
-> effective one, especially considering that i didnt even try hard ...
-> what worries me is that there are apps that generate such vma patterns
-> (for various reasons).
-> I do believe that scanning ->i_mmap & ->i_mmap_shared is fundamentally
-> flawed.
-
-Whatever's going on, this looks like objrmap will turn into a quagmire.
-I was vaguely holding out for anobjrmap to come in and get rid of the
-dependency of the pte_chain -based ptov resolution on struct page. So,
-any ideas on how to kick pte_chains of the habit of shoving information
-in pagetable nodes' struct pages or am I (worst case) stuck eating
-grossly oversized pagetable nodes and horrific internal fragmentation
-(<= 20% pagetable utilization with 4K already) no matter what?
-
-I guess I could allocate an array of the things pte_chains want in
-struct pages and attach it to ->private at allocation-time, but that's
-even worse wrt. cache and space footprint than the current state of
-affairs, worse still on 32-bit, and scales poorly to small PAGE_MMUCOUNT.
-I guess ->lru and ->list may handle it up to 4, but that smells bad.
-
-My second guess is that with PAGE_MMUCOUNT >= 2 and only using one
-pte_chain entry per PAGE_MMUCOUNT aligned and contiguous ptes, it's
-still a net space win to just put information directly beside the
-(potentially physical) pte pointers in the pte_chains.
-
-Do either of these sound desirable? Any other ideas?
+--=-Yv9Zman43oibetAwpJhc
+Content-Type: multipart/mixed; boundary="=-FTwGO7nkFa719yd4bVe+"
 
 
--- wli
+--=-FTwGO7nkFa719yd4bVe+
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+Hi.
+
+I get this with latest -mm kernel.
+--=20
+Ram=C3=B3n Rey Vicente       <ramon dot rey at hispalinux dot es>
+        jabber ID       <rreylinux at jabber dot org>
+GPG public key ID 	0xBEBD71D5 -> http://pgp.escomposlinux.org/
+
+--=-FTwGO7nkFa719yd4bVe+
+Content-Disposition: inline; filename=syslog
+Content-Type: text/plain; name=syslog; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+TWFyICA5IDAyOjQzOjA1IGRlYmlhbiBrZXJuZWw6IGtlcm5lbCBCVUcgYXQgZnMvcHJvYy9nZW5l
+cmljLmM6NjY0IQ0KTWFyICA5IDAyOjQzOjA1IGRlYmlhbiBrZXJuZWw6IGludmFsaWQgb3BlcmFu
+ZDogMDAwMCBbIzFdDQpNYXIgIDkgMDI6NDM6MDUgZGViaWFuIGtlcm5lbDogUFJFRU1QVCANCk1h
+ciAgOSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiBDUFU6ICAgIDANCk1hciAgOSAwMjo0MzowNSBk
+ZWJpYW4ga2VybmVsOiBFSVA6ICAgIDAwNjA6W3JlbW92ZV9wcm9jX2VudHJ5KzIxNi8yODhdICAg
+IE5vdCB0YWludGVkIFZMSQ0KTWFyICA5IDAyOjQzOjA1IGRlYmlhbiBrZXJuZWw6IEVGTEFHUzog
+MDAwMTAyODINCk1hciAgOSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiBFSVAgaXMgYXQgcmVtb3Zl
+X3Byb2NfZW50cnkrMHhkOC8weDEyMA0KTWFyICA5IDAyOjQzOjA1IGRlYmlhbiBrZXJuZWw6IGVh
+eDogY2VlZmMxMjAgICBlYng6IGNmMzEyMzkwICAgZWN4OiBjZmEwNzQ2MCAgIGVkeDogY2ZmZjBh
+MDANCk1hciAgOSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiBlc2k6IDAwMDAwMDA1ICAgZWRpOiBj
+ZjJjMGE0MCAgIGVicDogY2Y1NjhjMDAgICBlc3A6IGNmNmFmZTk4DQpNYXIgIDkgMDI6NDM6MDUg
+ZGViaWFuIGtlcm5lbDogZHM6IDAwN2IgICBlczogMDA3YiAgIHNzOiAwMDY4DQpNYXIgIDkgMDI6
+NDM6MDUgZGViaWFuIGtlcm5lbDogUHJvY2VzcyBtb2Rwcm9iZSAocGlkOiA2MjExLCB0aHJlYWRp
+bmZvPWNmNmFlMDAwIHRhc2s9Y2Y5YTJjMjApDQpNYXIgIDkgMDI6NDM6MDUgZGViaWFuIGtlcm5l
+bDogU3RhY2s6IGNmMmMwYTg4IGQwOGU5NjEwIGNmMmMwYWEwIDAwMDAwMDAwIGQwOGRmOGVjIGNm
+MmMwYTg4IGNmMzEyMzYwIGNmNTY4YzAwIA0KTWFyICA5IDAyOjQzOjA1IGRlYmlhbiBrZXJuZWw6
+ICAgICAgICBjZjU2OGMwMCBkMDhkZjQyNiBjZjJjMGFhMCBjZjU2OGMwMCBkMDhkZGQ1OCBjZjU2
+OGMwMCBjZWVmYzE4MCBjZWRlMTMwMCANCk1hciAgOSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiAg
+ICAgICAgY2VkZDViNDAgYzAxNjA4N2EgY2ZmZjdhNDQgY2VkZDViNDAgY2VmODc1ZTAgY2VmODc1
+ZTAgYzAxNWVhN2EgYzEyZWNjNDQgDQpNYXIgIDkgMDI6NDM6MDUgZGViaWFuIGtlcm5lbDogQ2Fs
+bCBUcmFjZToNCk1hciAgOSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiAgW19fY3JjX25mX3VucmVn
+aXN0ZXJfaG9vaysxNjQwNzkvMTIxMjk5Nl0gc25kX2luZm9fdW5yZWdpc3RlcisweDJjLzB4NjAg
+W3NuZF0NCk1hciAgOSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiAgW19fY3JjX25mX3VucmVnaXN0
+ZXJfaG9vaysxNjI4NTcvMTIxMjk5Nl0gc25kX2luZm9fY2FyZF9mcmVlKzB4MjYvMHg2MCBbc25k
+XQ0KTWFyICA5IDAyOjQzOjA1IGRlYmlhbiBrZXJuZWw6ICBbX19jcmNfbmZfdW5yZWdpc3Rlcl9o
+b29rKzE1NzAxOS8xMjEyOTk2XSBzbmRfY2FyZF9mcmVlKzB4ZDgvMHgyMjAgW3NuZF0NCk1hciAg
+OSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiAgW2Rlc3Ryb3lfaW5vZGUrNTgvNjRdIGRlc3Ryb3lf
+aW5vZGUrMHgzYS8weDQwDQpNYXIgIDkgMDI6NDM6MDUgZGViaWFuIGtlcm5lbDogIFtkcHV0KzI2
+LzYwOF0gZHB1dCsweDFhLzB4MjYwDQpNYXIgIDkgMDI6NDM6MDUgZGViaWFuIGtlcm5lbDogIFtf
+X2NyY19uZl91bnJlZ2lzdGVyX2hvb2srMzUxOTg3LzEyMTI5OTZdIHNuZF9hdWRpb3BjaV9yZW1v
+dmUrMHgxMC8weDQwIFtzbmRfZW5zMTM3MV0NCk1hciAgOSAwMjo0MzowNSBkZWJpYW4ga2VybmVs
+OiAgW3BjaV9kZXZpY2VfcmVtb3ZlKzQ2LzY0XSBwY2lfZGV2aWNlX3JlbW92ZSsweDJlLzB4NDAN
+Ck1hciAgOSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiAgW2RldmljZV9yZWxlYXNlX2RyaXZlcis3
+NC85Nl0gZGV2aWNlX3JlbGVhc2VfZHJpdmVyKzB4NGEvMHg2MA0KTWFyICA5IDAyOjQzOjA1IGRl
+YmlhbiBrZXJuZWw6ICBbZHJpdmVyX2RldGFjaCsyNy82NF0gZHJpdmVyX2RldGFjaCsweDFiLzB4
+NDANCk1hciAgOSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiAgW2J1c19yZW1vdmVfZHJpdmVyKzQx
+Lzk2XSBidXNfcmVtb3ZlX2RyaXZlcisweDI5LzB4NjANCk1hciAgOSAwMjo0MzowNSBkZWJpYW4g
+a2VybmVsOiAgW2RyaXZlcl91bnJlZ2lzdGVyKzExLzI3XSBkcml2ZXJfdW5yZWdpc3RlcisweGIv
+MHgxYg0KTWFyICA5IDAyOjQzOjA1IGRlYmlhbiBrZXJuZWw6ICBbcGNpX3VucmVnaXN0ZXJfZHJp
+dmVyKzE0LzMyXSBwY2lfdW5yZWdpc3Rlcl9kcml2ZXIrMHhlLzB4MjANCk1hciAgOSAwMjo0Mzow
+NSBkZWJpYW4ga2VybmVsOiAgW19fY3JjX25mX3VucmVnaXN0ZXJfaG9vayszNTIwNDUvMTIxMjk5
+Nl0gYWxzYV9jYXJkX2VuczEzN3hfZXhpdCsweGEvMHhjIFtzbmRfZW5zMTM3MV0NCk1hciAgOSAw
+Mjo0MzowNSBkZWJpYW4ga2VybmVsOiAgW3N5c19kZWxldGVfbW9kdWxlKzI2Ni8zMjBdIHN5c19k
+ZWxldGVfbW9kdWxlKzB4MTBhLzB4MTQwDQpNYXIgIDkgMDI6NDM6MDUgZGViaWFuIGtlcm5lbDog
+IFtkb19tdW5tYXArMjQ4LzMyMF0gZG9fbXVubWFwKzB4ZjgvMHgxNDANCk1hciAgOSAwMjo0Mzow
+NSBkZWJpYW4ga2VybmVsOiAgW3N5c19tdW5tYXArNDkvOTZdIHN5c19tdW5tYXArMHgzMS8weDYw
+DQpNYXIgIDkgMDI6NDM6MDUgZGViaWFuIGtlcm5lbDogIFtzeXNjYWxsX2NhbGwrNy8xMV0gc3lz
+Y2FsbF9jYWxsKzB4Ny8weGINCk1hciAgOSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiANCk1hciAg
+OSAwMjo0MzowNSBkZWJpYW4ga2VybmVsOiBDb2RlOiBmZiA1OCBlYiBhMyA4YiA0NyA0MCBjNyA0
+NyA0NCAwMSAwMCAwMCAwMA0KNTAgZmYgNzcgMDQgOGIgNDQgMjQgMjAgZmYgNzAgMDQgNjggMDAg
+YzAgMjQgYzAgZTggNzAgMjMgZmEgZmYgODMgYzQgMTAgZTkgN2MNCmZmIGZmIGZmIDwwZj4gMGIg
+OTggMDIgM2EgYTUgMjQgYzAgZWIgYmYgOGIgNDQgMjQgMTggNjYgZmYgNDggMGEgZWIgOTIgODkg
+DQo=
+
+--=-FTwGO7nkFa719yd4bVe+--
+
+--=-Yv9Zman43oibetAwpJhc
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBATb0LRGk68b69cdURAimMAJ48xS8BDPowqwT4T5LHbYZdIQ/fwACfeWxy
+N0xggLg25FQorMomeIhwF0o=
+=t7uC
+-----END PGP SIGNATURE-----
+
+--=-Yv9Zman43oibetAwpJhc--

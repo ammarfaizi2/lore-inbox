@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286317AbRLJRR5>; Mon, 10 Dec 2001 12:17:57 -0500
+	id <S286321AbRLJRSR>; Mon, 10 Dec 2001 12:18:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286316AbRLJRRo>; Mon, 10 Dec 2001 12:17:44 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45321 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S286325AbRLJRQz>; Mon, 10 Dec 2001 12:16:55 -0500
-Date: Mon, 10 Dec 2001 09:10:24 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: GOTO Masanori <gotom@debian.org>
-cc: <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
-        <andrea@suse.de>
-Subject: Re: [PATCH] direct IO breaks root filesystem
-In-Reply-To: <w53d71n1c6g.wl@megaela.fe.dis.titech.ac.jp>
-Message-ID: <Pine.LNX.4.33.0112100908440.14166-100000@penguin.transmeta.com>
+	id <S286316AbRLJRSB>; Mon, 10 Dec 2001 12:18:01 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:31663 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S286221AbRLJRRo>; Mon, 10 Dec 2001 12:17:44 -0500
+Date: Mon, 10 Dec 2001 09:16:53 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: volodya@mindspring.com, Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: mm question
+Message-ID: <2953465770.1007975813@mbligh.des.sequent.com>
+In-Reply-To: <2953042101.1007975389@mbligh.des.sequent.com>
+X-Mailer: Mulberry/2.0.8 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>> > I was hoping for something more elegant, but I am not adverse to writing
+>>> > my own get_free_page_from_range().
+>>> 
+>>> Thats not a trivial task.
+>> 
+>> Better than giving up.. Unfortunately looking around in
+>> linux/Documentation and drivers did not yield much in terms of
+>> explanation. I know I can use mem_map_reserve to reserve a page but I
+>> don't know how to get page struct from a physical address nor which lock
+>> to use when messing with this.
+> 
+> If you don't have any ISA DMA going on in the system, you might consider
+> bastardising the ZONE_DMA page range by moving the boundary up to
+> 64Mb, then fixing the allocator not to fail back ZONE_NORMAL et al 
+> allocations to ZONE_DMA. Thus what was originally ZONE_DMA becomes 
+> a sort of ZONE_NO_DMA. Not in the slightest bit pretty, but it might be easier 
+> to implement. Depends if you ever want it to get back into the main tree,
+> I guess ;-)
 
-On Mon, 10 Dec 2001, GOTO Masanori wrote:
-> >
-> > "generic_direct_IO()" should just get the device from "bh->b_dev (which is
-> > filled in correctly by "get_block()".
->
-> Oh, that's right, the patch becomes more simple (and works well).
-> Is this patch OK?
+Of course, if you just did that, you'd never use the ZONE_DMA memory, so
+that's pretty pointless ;-) You need to create an alloc call with an *option* 
+to force alloc out of ZONE_NORMAL, not make no fallback the default. 
 
-This looks fine to me. At some point we _may_ end up with filesystems that
-understand about multiple devices, so it's possible in theory that
-"get_block()" might return different devices for different blocks, but
-that does not happen currently, and I'm not really sure it ever will.
-
-Marcelo, I do believe this should go into 2.4.x too..
-
-		Linus
+M.
 

@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVBGU5w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbVBGVAa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261268AbVBGU5w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 15:57:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbVBGU5w
+	id S261272AbVBGVAa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 16:00:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVBGVA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 15:57:52 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:30458 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261268AbVBGU5s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 15:57:48 -0500
-Subject: Re: [PATCH] [SERIAL] add TP560 data/fax/modem support
-From: Bjorn Helgaas <bjorn-helgaas@comcast.net>
-Reply-To: bjorn.helgaas@hp.com
-To: linux-os@analogic.com
-Cc: rmk+serial@arm.linux.org.uk, linux-serial@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0502071508130.24378@chaos.analogic.com>
-References: <1107805182.8074.35.camel@piglet>
-	 <Pine.LNX.4.61.0502071508130.24378@chaos.analogic.com>
-Content-Type: text/plain
-Date: Mon, 07 Feb 2005 13:57:35 -0700
-Message-Id: <1107809856.8074.50.camel@piglet>
+	Mon, 7 Feb 2005 16:00:29 -0500
+Received: from gprs215-44.eurotel.cz ([160.218.215.44]:50841 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261272AbVBGVAT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 16:00:19 -0500
+Date: Mon, 7 Feb 2005 21:59:58 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [RFC] Reliable video POSTing on resume (was: Re: [ACPI] Samsung P35, S3, black screen (radeon))
+Message-ID: <20050207205958.GE8347@elf.ucw.cz>
+References: <4202A972.1070003@gmx.net> <20050203225410.GB1110@elf.ucw.cz> <1107474198.5727.9.camel@desktop.cunninghams> <4202DF7B.2000506@gmx.net> <1107485504.5727.35.camel@desktop.cunninghams> <9e4733910502032318460f2c0c@mail.gmail.com> <20050204074454.GB1086@elf.ucw.cz> <9e473391050204093837bc50d3@mail.gmail.com> <20050205093550.GC1158@elf.ucw.cz> <m1lla0187m.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1lla0187m.fsf@ebiederm.dsl.xmission.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-02-07 at 15:12 -0500, linux-os wrote:
-> I thought somebody promised to add a pci_route_irq(dev) or some
-> such so that the device didn't have to be enabled before
-> the IRQ was correct.
->
-> I first reported this bad IRQ problem back in December of 2004.
-> Has the new function been added?
+Hi!
 
-That's a completely different problem.  The point here is that
-the serial driver currently doesn't do anything with the TP560
-(no pci_enable_device(), no pci_route_irq(), no nothing).  Then
-when setserial comes along and force-feeds the driver with the
-IO and IRQ info, there's nothing at that point that does anything
-to enable the device or route its interrupt either.
+> > > > We already try to do that, but it hangs on 70% of machines. See
+> > > > Documentation/power/video.txt.
+> > > 
+> > > We know that all of these ROMs are run at power on so they have to
+> > > work. This implies that there must be something wrong with the
+> > > environment the ROM are being run in. Video ROMs make calls into the
+> > > INT vectors of the system BIOS. If these haven't been set up yet
+> > > running the VBIOS is sure to hang.  Has someone with ROM source and
+> > > the appropriate debugging tools tried to debug one of these hangs?
+> > > Alternatively code could be added to wakeup.S to try and set these up
+> > > or dump the ones that are there and see if they are sane.
+> > 
+> > Rumors say that notebooks no longer have video bios at C000h:0; rumors
+> > say that video BIOS on notebooks is simply integrated into main system
+> > BIOS. I personaly do not know if rumors are true, but PCs are ugly
+> > machines....
+> 
+> The state of current hardware has already been mentioned but let
+> me clarify.  This is not a laptop problem anytime you have onboard
+> video you are unlikely to have a separate video ROM.  This includes
+> many recent server boards as well as laptops.  When the board boots
+> up there will be a video option ROM shadowed into the usually location
+> at C000h:0 but what becomes of it afterwards is a good question.
+> 
+> For server boards most commonly this seems to be a flavor of the ATI
+> Rage XL chip.  It is a low end part that I doubt getting documentation
+> for will be very hard.   And according to
+> Documentation/power/video.txt this is one of the cases that actually
+> works.
 
-I did raise the idea of adding a pci_route_irq() interface, but
-to be honest, I was never convinced of its general usefulness.
-I haven't heard of any driver in the tree that requires it,
-so it's not clear that it would be accepted even if I (or you)
-wrote it.
+I do not see Rage XL mentioned in video.txt; can you give me details
+and/or suggest a patch?
 
-I think you mentioned a specific PCI interface chip that was
-susceptible to the problem; is there a public reference that
-would help explicate the situation?
+> What is happening in those POST routines of a video card is typically
+> the code to initialize the memory controller on the video card.  Plus
+> a little bit of code to set the video mode.  If I read the
+> documentation correctly in a S3 power state only the RAM is preserved.
+> So it does look like the video post is needed.
 
+On some machines, video state is preserved over S3... Some BIOSes are
+good enough to POST video for you...
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

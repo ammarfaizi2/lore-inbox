@@ -1,89 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312144AbSCRAGZ>; Sun, 17 Mar 2002 19:06:25 -0500
+	id <S312151AbSCRAMp>; Sun, 17 Mar 2002 19:12:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312149AbSCRAGH>; Sun, 17 Mar 2002 19:06:07 -0500
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:62506 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S312144AbSCRAFp>; Sun, 17 Mar 2002 19:05:45 -0500
-Date: Mon, 18 Mar 2002 01:05:38 +0100
-From: Kurt Garloff <garloff@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: Linux SCSI list <linux-scsi@vger.kernel.org>,
-        Marion Steiner <msteiner@rbg.informatik.tu-darmstadt.de>
-Subject: Re: SCSI-Problem with AM53C974
-Message-ID: <20020318010538.B14900@gum01m.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	linux-kernel@vger.kernel.org,
-	Linux SCSI list <linux-scsi@vger.kernel.org>,
-	Marion Steiner <msteiner@rbg.informatik.tu-darmstadt.de>
-In-Reply-To: <200203171439.g2HEdwX00738@orion.steiner.local> <20020317225838.GA11721@merlin.emma.line.org>
+	id <S312149AbSCRAMg>; Sun, 17 Mar 2002 19:12:36 -0500
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:7083 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S312148AbSCRAM1>;
+	Sun, 17 Mar 2002 19:12:27 -0500
+Message-Id: <5.1.0.14.2.20020318000057.051d30e0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 18 Mar 2002 00:12:38 +0000
+To: "Ken Hirsch" <kenhirsch@myself.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: fadvise syscall?
+Cc: <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
+In-Reply-To: <00c101c1cdf1$1c031120$0100a8c0@DELLXP1>
+In-Reply-To: <3C945635.4050101@mandrakesoft.com>
+ <5.1.0.14.2.20020317170621.00abd980@pop.cus.cam.ac.uk>
+ <5.1.0.14.2.20020317190303.03289ec0@pop.cus.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QTprm0S8XgL7H0Dt"
-Content-Disposition: inline
-In-Reply-To: <20020317225838.GA11721@merlin.emma.line.org>
-User-Agent: Mutt/1.3.22.1i
-X-Operating-System: Linux 2.4.16-schedJ2 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 20:19 17/03/02, Ken Hirsch wrote:
+>Anton Altaparmakov writes:
+> > Last time I heard serious databases use their own memmory
+> > management/caching in combination with O_DIRECT, i.e. they bypass the
+> > kernel's buffering system completely. Hence I would deem them irrelevant
+>to
+> > the problem at hand...
+> >
+> > If a database were not to use O_DIRECT I would think it would be using
+>mmap
+> > so it would have madvise already... but I am not a database expert so take
+> > this with a pinch of salt...
+>
+>I don't think that either MySQL or PostgreSQL use O_DIRECT; I just grepped
+>the source and didn't find it.  They can't use mmap() because it uses up too
+>much process address space.
 
---QTprm0S8XgL7H0Dt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+<flame bait>So you consider these two to be serious databases?</flame bait> 
+(-; [1]
 
-On Sun, Mar 17, 2002 at 11:58:38PM +0100, Matthias Andree wrote:
-> On Sun, 17 Mar 2002, Marion Steiner wrote:
->=20
-> > There is a problem with the AM53C974 Scsi-driver (Revision 0.5,=20
-> > kernel 2.4.x) and the DawiControl DC-2974.
-> >=20
-> > Mar 17 14:13:01 orion kernel: scsi : aborting command due to timeout : =
-pid
-> > 123, scsi1, channel 0, id 0, lun 0 Inquiry 00 0
-> > Mar 17 14:13:03 orion kernel: SCSI host 1 abort (pid 123) timed out -
-> > resetting
-> > Mar 17 14:13:03 orion kernel: SCSI bus is being reset for host 1 channe=
-l 0.
->=20
-> Command timeouts rather look like bus termination problem, plug loose or
-> something like that. Does the problem still occur with all cables
-> unplugged from the DC-2974? Does the problem occur with the DC-2974 in
-> a different computer?
+>It's true that commercial databases mostly do their own scheduling and
+>caching, and if they are the only thing running on your system and you tune
+>them right, that works.  But it's not necessarily a good thing.  If there
+>are other processes on your system, there would be a benefit if the DBMS
+>could inform the operating system of its intentions.
+>
+>A posix_fadvise() call would be a start, but you could potentially go beyond
+>that.
 
-As far as I could see there were TWO driver loaded trying to drive the same
-piece of hardware at the same time. You can really expect trouble if this
-happens and you can't take any conclusions about hardware problems.
+Ok, so basically we want both fadvise() and open(2) semantics, with the 
+open(2) being a superset of the fadvise() capabilities (some things no 
+longer make sense to be specified once the file is open). They can of 
+course both be calling the same common helpers inside the kernel...
 
-The problem is of course with the drivers: They should not allow to be
-loaded both for the same device.
-IMHO, The AM53C974 driver should register the ioports and fail
-initialization if it can't grab them, so the conflict would be solved. I'll
-investigate what the most proper solution to avoid such things is and come
-up with a patch.
+fadvise() would probably only be used by databases while open(2) would be 
+used by the rest of the world. (-;
 
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE Linux AG, Nuernberg, DE                            SCSI, Security
+Best regards,
 
---QTprm0S8XgL7H0Dt
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Anton
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+[1] Sorry about the flame bait, couldn't resist...  I know they are both 
+very respectable databases and they are free software which is great.
 
-iD8DBQE8lS9QxmLh6hyYd04RAueZAJ9JuQVpvPhyrAJOnYD25JwMY5KEQQCeK1hy
-2D2K7lqFFxpMgH+Sduv99D0=
-=8gKD
------END PGP SIGNATURE-----
 
---QTprm0S8XgL7H0Dt--
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

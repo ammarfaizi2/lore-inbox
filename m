@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263980AbRFMPJY>; Wed, 13 Jun 2001 11:09:24 -0400
+	id <S263981AbRFMPKF>; Wed, 13 Jun 2001 11:10:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263981AbRFMPJO>; Wed, 13 Jun 2001 11:09:14 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:31872 "HELO
-	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S263980AbRFMPJD>; Wed, 13 Jun 2001 11:09:03 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@webofficenow.com>
-Reply-To: landley@webofficenow.com
-To: Luigi Genoni <kernel@Expansa.sns.it>, Ben Greear <greearb@candelatech.com>
-Subject: Re: Hour long timeout to ssh/telnet/ftp to down host?
-Date: Wed, 13 Jun 2001 06:07:49 -0400
-X-Mailer: KMail [version 1.2]
-Cc: <landley@webofficenow.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0106131138390.22415-100000@Expansa.sns.it>
-In-Reply-To: <Pine.LNX.4.33.0106131138390.22415-100000@Expansa.sns.it>
-MIME-Version: 1.0
-Message-Id: <01061306074902.00703@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+	id <S263983AbRFMPJy>; Wed, 13 Jun 2001 11:09:54 -0400
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:5983 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S263981AbRFMPJs>; Wed, 13 Jun 2001 11:09:48 -0400
+Date: Wed, 13 Jun 2001 10:09:44 -0500
+From: Nathan Straz <nstraz@sgi.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5 data corruption
+Message-ID: <20010613100944.A4584@sgi.com>
+Mail-Followup-To: Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200106122017.f5CKHnf24565@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200106122017.f5CKHnf24565@work.bitmover.com>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 June 2001 05:40, Luigi Genoni wrote:
-> On Tue, 12 Jun 2001, Ben Greear wrote:
+On Tue, Jun 12, 2001 at 01:17:49PM -0700, Larry McVoy wrote:
+> Folks, I believe I have a reproducible test case which corrupts data in
+> 2.4.5.
 
-> > You can tune things by setting the tcp-timeout probably..I don't
-> > know exactly where to set this..
->
-> /proc/sys/net/ipv4/tcp_fin_timeout
->
-> default is 60.
+Why don't you send the test case to the list?  I would love to try it
+out and it would be a good addition to LTP.
 
-Never got that far.  My problem was actually tcp_syn_retries. Remember, I was 
-talking to a host that was unplugged.  (I wasn't even getting "host 
-unreachable" messages, the packets were just disappearing.)  The default 
-timeout in that case is rediculous do to the exponentially increasing delays 
-between retries.  10 retries wound up being something like 20 minutes.
-
-I set it to 5 and everything works beautifully now.  ssh (which retries the 
-connection 4 times, and used to take over an hour to time out) now takes just 
-over 3 minutes, which I can live with.
-
-Rob
+-- 
+Nate Straz                                              nstraz@sgi.com
+sgi, inc                                           http://www.sgi.com/
+Linux Test Project                                  http://ltp.sf.net/

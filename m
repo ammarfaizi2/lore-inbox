@@ -1,40 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317405AbSGVOYp>; Mon, 22 Jul 2002 10:24:45 -0400
+	id <S317421AbSGVOZW>; Mon, 22 Jul 2002 10:25:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317421AbSGVOYp>; Mon, 22 Jul 2002 10:24:45 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28435 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317405AbSGVOYo>; Mon, 22 Jul 2002 10:24:44 -0400
-Date: Mon, 22 Jul 2002 15:27:50 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: martin@dalecki.de, Christoph Hellwig <hch@lst.de>,
-       Linus Torvalds <torvalds@transmeta.com>, Robert Love <rml@tech9.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] cli()/sti() cleanup, 2.5.27-A2
-Message-ID: <20020722152750.G2838@flint.arm.linux.org.uk>
-References: <3D3C0F49.4070707@evision.ag> <Pine.LNX.4.44.0207221602560.9963-100000@localhost.localdomain>
+	id <S317432AbSGVOZR>; Mon, 22 Jul 2002 10:25:17 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:50988 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S317421AbSGVOZQ>; Mon, 22 Jul 2002 10:25:16 -0400
+Date: Mon, 22 Jul 2002 16:28:22 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: Karol Olechowskii <karol_olechowski@acn.waw.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Athlon XP 1800+ segemntation fault
+Message-ID: <20020722142822.GG32278@nbkurt.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Karol Olechowskii <karol_olechowski@acn.waw.pl>,
+	linux-kernel@vger.kernel.org
+References: <20020722133259.A1226@acc69-67.acn.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TmwHKJoIRFM7Mu/A"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0207221602560.9963-100000@localhost.localdomain>; from mingo@elte.hu on Mon, Jul 22, 2002 at 04:05:00PM +0200
+In-Reply-To: <20020722133259.A1226@acc69-67.acn.pl>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.16-schedJ2 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 22, 2002 at 04:05:00PM +0200, Ingo Molnar wrote:
-> there are some more IRQ subsystem cleanups for which i have patches: such
-> as the removal of the pt_regs parameter from the irq handler function,
-> it's unused in 99% of the drivers - and the remaining 1% can get at it via
-> other means.
 
-If "other means" means knowing that its located in a certain place on the
-stack, that's actually bogus.  Any user space task started via exec from
-a kernel thread has extra junk on the kernel stack.  Been there already.
-;(
+--TmwHKJoIRFM7Mu/A
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+On Mon, Jul 22, 2002 at 01:32:59PM +0000, Karol Olechowskii wrote:
+> Hello=20
+>=20
+> Few days ago I've bought new processor Athlon XP 1800+ to my computer
+> (MSI K7D Master with 256 MB PC2100 DDR).Before that I've got Athlon Thund=
+erBird
+> 900 processor and everything had been working well till I change to the n=
+ew one.
+> Now for every few minutes I've got segmetation fault or immediate system =
+reboot.
+> Could anyone tell me what's goin' on?
 
+Is your Power Supply strong enough? Cooling OK?
+
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE Linux AG, Nuernberg, DE                            SCSI, Security
+
+--TmwHKJoIRFM7Mu/A
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9PBaGxmLh6hyYd04RAhvRAJ9zdyt1WqCY0/J4YwScH+M0MZqdcgCeM53b
+OpffteCy+2rPg63be/EdsBA=
+=1OLo
+-----END PGP SIGNATURE-----
+
+--TmwHKJoIRFM7Mu/A--

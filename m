@@ -1,65 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbVA1GCJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261486AbVA1Gjc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261472AbVA1GCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 01:02:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbVA1GCJ
+	id S261486AbVA1Gjc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 01:39:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVA1Gjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 01:02:09 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:65248 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261472AbVA1GB6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 01:01:58 -0500
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@osdl.org>, pwil3058@bigpond.net.au, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch, 2.6.10-rc2] sched: fix ->nr_uninterruptible handling
- bugs
-References: <20041116113209.GA1890@elte.hu> <419A7D09.4080001@bigpond.net.au>
-	<20041116232827.GA842@elte.hu>
-	<Pine.LNX.4.58.0411161509190.2222@ppc970.osdl.org>
-	<20050127165330.6f388054.pj@sgi.com> <20050128042815.GA29751@elte.hu>
-From: Andi Kleen <ak@muc.de>
-Date: Fri, 28 Jan 2005 07:01:56 +0100
-In-Reply-To: <20050128042815.GA29751@elte.hu> (Ingo Molnar's message of
- "Fri, 28 Jan 2005 05:28:15 +0100")
-Message-ID: <m14qh23xd7.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 28 Jan 2005 01:39:32 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:10191 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261486AbVA1Gj3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 01:39:29 -0500
+Date: Fri, 28 Jan 2005 07:38:57 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: "Jack O'Quin" <joq@io.com>, Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+Message-ID: <20050128063857.GA32658@elte.hu>
+References: <87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu> <20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu> <87sm4opxto.fsf@sulphur.joq.us> <20050126070404.GA27280@elte.hu> <87fz0neshg.fsf@sulphur.joq.us> <1106782165.5158.15.camel@npiggin-nld.site> <874qh3bo1u.fsf@sulphur.joq.us> <1106796360.5158.39.camel@npiggin-nld.site>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1106796360.5158.39.camel@npiggin-nld.site>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> writes:
->
-> interestingly, the x86 spinlock implementation uses a LOCK-ed
-> instruction only on acquire - it uses a simple atomic write (and
-> implicit barrier assumption) on the way out:
->
->  #define spin_unlock_string \
->          "movb $1,%0" \
->                  :"=m" (lock->slock) : : "memory"
->
-> no LOCK prefix. Due to this spinlocks can sometimes be _cheaper_ than
-> doing the same via atomic inc/dec.
 
-Unfortunately kernels are often compiled for PPro and on those
-an LOCK prefix is used anyways to work around some bugs in early 
-steppings. This makes spinlocks considerably slower (there are some
-lock intensive not even so micro benchmarks that show the difference clearly)
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-It uses then
+> But the important elements are lost. The standard provides a
+> deterministic scheduling order, and a deterministic scheduling latency
+> (of course this doesn't mean a great deal for Linux, but I think we're
+> good enough for a lot of soft-rt applications now).
+> 
+> >  [1] http://www.opengroup.org/onlinepubs/007908799/xsh/realtime.html
 
-#define spin_unlock_string \
-        "xchgb %b0, %1" \
-                :"=q" (oldval), "=m" (lock->lock) \
-                :"0" (oldval) : "memory"
+no, the patch does not break POSIX. POSIX compliance means that there is
+an environment that meets POSIX. Any default install of Linux 'breaks'
+POSIX in a dozen ways, you have to take a number of steps to get a
+strict, pristine POSIX environment. The only thing that changes is that
+now you have to add "set RT_CPU ulimit to 0 or 100" to that (long) list
+of things.
 
-
-which has an implicit LOCK and is equally slow.
-
-I looked some time ago at patching it at runtime using alternative(),
-but it would have bloated the patch tables a lot. Another way would
-be a CONFIG_PPRO_BUT_UP_ON_BUGGY_ONES, but it is hard to find the exact
-steppings with the problems.
-
--Andi
+	Ingo

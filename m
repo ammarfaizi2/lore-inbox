@@ -1,87 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132301AbRARUiZ>; Thu, 18 Jan 2001 15:38:25 -0500
+	id <S135356AbRARUoP>; Thu, 18 Jan 2001 15:44:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135270AbRARUiR>; Thu, 18 Jan 2001 15:38:17 -0500
-Received: from argo.starforce.com ([216.158.56.82]:52951 "EHLO
-	argo.starforce.com") by vger.kernel.org with ESMTP
-	id <S132301AbRARUiE>; Thu, 18 Jan 2001 15:38:04 -0500
-Date: Thu, 18 Jan 2001 15:36:57 -0500 (EST)
-From: Derek Wildstar <dwild@starforce.com>
-To: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: (2.4.0->2.4.1-pre8) config problem with PCMCIA causing link
- error
-In-Reply-To: <Pine.LNX.4.10.10101181131020.7942-100000@chaos.thphy.uni-duesseldorf.de>
-Message-ID: <Pine.LNX.4.31.0101181149350.30790-100000@argo.starforce.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135447AbRARUoG>; Thu, 18 Jan 2001 15:44:06 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:28510 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S135270AbRARUn5>; Thu, 18 Jan 2001 15:43:57 -0500
+Date: Thu, 18 Jan 2001 21:44:32 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: kuznet@ms2.inr.ac.ru
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+Message-ID: <20010118214432.F28276@athlon.random>
+In-Reply-To: <20010118203802.D28276@athlon.random> <200101181959.WAA08376@ms2.inr.ac.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200101181959.WAA08376@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Thu, Jan 18, 2001 at 10:59:11PM +0300
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jan 2001, Kai Germaschewski wrote:
+On Thu, Jan 18, 2001 at 10:59:11PM +0300, kuznet@ms2.inr.ac.ru wrote:
+> Hello!
+> 
+> > I'm all for TCP_CORK but it has the disavantage of two syscalls for doing the
+> 
+> MSG_MORE was invented to allow to collapse this to 0 of syscalls. 8)
 
-> This looks more like a counterexample to what you're saying. Also, I don't
-> see how it could happen that CONFIG_PCMCIA_NETCARD=y without
-> CONFIG_NET_PCMCIA=y, from looking at the drivers/net/pcmcia/Config.in.
-> (It may be still possible somehow because there is CONFIG_NET_PCMCIA=y in
-> defconfig).
+Yes, I know.
 
-> Your patch is wrong. It removes the config variable CONFIG_NET_PCMCIA,
-> which is referenced in drivers/net/Makefile:
->
-> 	subdir-$(CONFIG_NET_PCMCIA) += pcmcia
->
-> So the pcmcia net drivers will never be built.
+> > A new ioctl on the socket should be able to do that (and ioctl looks ligther
+> > than a setsockopt, ok ignoring actually the VFS is grabbing the big lock
+> > until we relase it in sock_ioctl, ugly, but I feel good ignoring this fact as
+> > it will gets fixed eventually and this is userspace API that will stay longer).
+> 
+> setsockopt() exists, which does not have the flaw. (SOL_SOCKET, TCP_DOPUSH)
+> or something like this. Actually, I would convert TCP_CORK to set of flags
 
-Blah had been working too long yesterday, you're right i got the lines
-switched, and therefore screwed up the patch.
+That is ok for me after all, as said I thought ioctl was conceptually the
+right place but setsockopt TCP_PUSH or TCP_DOPUSH are certainly fine too in
+practice.
 
-> I still don't see what's going wrong with the current code, but it can be
-> simplified with the following patch. Does that work for you?
+> (1 is reserved for current corking), but I feel this operation is more generic
+> and should be moved to SOL_SOCKET level.
 
-Now it looks like the error was in my .config file.  I failed to do "make
-mrproper" after applying the pre8 patch, and ended up with a screwed up
-.config.  I just tested after "make mrproper" and it worked without
-modifications, after backing out the patch i submitted.  Sorry for the
-confusion.
+Agreed. (btw everything != 0 is reseved for current corking as far as the code
+is concerned ;)
 
--dwild
+> BTW I see no reasons not to move BKL down for ioctl().
 
-> diff -ur linux-2.4.1-pre8/Makefile linux-2.4.1-pre8.work/Makefile
-> --- linux-2.4.1-pre8/Makefile	Thu Jan 18 11:21:38 2001
-> +++ linux-2.4.1-pre8.work/Makefile	Thu Jan 18 11:23:27 2001
-> @@ -155,7 +155,7 @@
->  DRIVERS-$(CONFIG_PCI) += drivers/pci/driver.o
->  DRIVERS-$(CONFIG_MTD) += drivers/mtd/mtdlink.o
->  DRIVERS-$(CONFIG_PCMCIA) += drivers/pcmcia/pcmcia.o
-> -DRIVERS-$(CONFIG_PCMCIA_NETCARD) += drivers/net/pcmcia/pcmcia_net.o
-> +DRIVERS-$(CONFIG_NET_PCMCIA) += drivers/net/pcmcia/pcmcia_net.o
->  DRIVERS-$(CONFIG_PCMCIA_CHRDEV) += drivers/char/pcmcia/pcmcia_char.o
->  DRIVERS-$(CONFIG_DIO) += drivers/dio/dio.a
->  DRIVERS-$(CONFIG_SBUS) += drivers/sbus/sbus_all.o
-> diff -ur linux-2.4.1-pre8/drivers/net/pcmcia/Config.in linux-2.4.1-pre8.work/drivers/net/pcmcia/Config.in
-> --- linux-2.4.1-pre8/drivers/net/pcmcia/Config.in	Sun Nov 12 03:56:58 2000
-> +++ linux-2.4.1-pre8.work/drivers/net/pcmcia/Config.in	Thu Jan 18 11:23:33 2001
-> @@ -32,13 +32,4 @@
->     fi
->  fi
->
-> -if [ "$CONFIG_PCMCIA_3C589" = "y" -o "$CONFIG_PCMCIA_3C574" = "y" -o \
-> -     "$CONFIG_PCMCIA_FMVJ18X" = "y" -o "$CONFIG_PCMCIA_PCNET" = "y" -o \
-> -     "$CONFIG_PCMCIA_NMCLAN" = "y" -o "$CONFIG_PCMCIA_SMC91C92" = "y" -o \
-> -     "$CONFIG_PCMCIA_XIRC2PS" = "y" -o "$CONFIG_PCMCIA_RAYCS" = "y" -o \
-> -     "$CONFIG_PCMCIA_NETWAVE" = "y" -o "$CONFIG_PCMCIA_WAVELAN" = "y" -o \
-> -     "$CONFIG_PCMCIA_XIRTULIP" = "y" ]; then
-> -   define_bool CONFIG_PCMCIA_NETCARD y
-> -fi
-> -
->  endmenu
->
->
+No theorical reason indeed. But pratically moving the BKL down into the
+callback means a big patch due the zillon of device drivers out there in and
+out the tree and it may end to hurting somebody who is upgrading from 2.4.0 to
+2.4.1 and using a driver out of the tree. I believe it's one of the things that
+should be done in an unstable branch for those kind of pratical reasons
+(however I'm not the one who will complain if that happens during 2.4.x but I'm
+not either the one who suggests that because I couldn't complain the
+complains ;).
 
-
-
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

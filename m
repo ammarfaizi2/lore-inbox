@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265709AbTL3KFt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 05:05:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265710AbTL3KFs
+	id S265710AbTL3KHf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 05:07:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265716AbTL3KHe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 05:05:48 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55463 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265709AbTL3KFr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 05:05:47 -0500
-Date: Tue, 30 Dec 2003 02:05:37 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andreas Dilger <adilger@clusterfs.com>
-cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       manfred@colorfullife.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] optimize ia32 memmove
-In-Reply-To: <20031230011156.N6209@schatzie.adilger.int>
-Message-ID: <Pine.LNX.4.58.0312300202520.2065@home.osdl.org>
-References: <200312300713.hBU7DGC4024213@hera.kernel.org> <3FF129F9.7080703@pobox.com>
- <20031229235158.755e026c.akpm@osdl.org> <3FF12FC7.5030202@pobox.com>
- <20031230011156.N6209@schatzie.adilger.int>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 30 Dec 2003 05:07:34 -0500
+Received: from gprs178-245.eurotel.cz ([160.218.178.245]:35714 "EHLO
+	midnight.ucw.cz") by vger.kernel.org with ESMTP id S265710AbTL3KHY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 05:07:24 -0500
+Date: Tue, 30 Dec 2003 11:07:45 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Rob Landley <rob@landley.net>
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: Spurious double-clicks in 2.6.0
+Message-ID: <20031230100745.GA951@ucw.cz>
+References: <200312292354.15084.rob@landley.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200312292354.15084.rob@landley.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 30 Dec 2003, Andreas Dilger wrote:
+On Mon, Dec 29, 2003 at 11:54:14PM -0600, Rob Landley wrote:
+> I recently had the opportunity to compare 2.6 and 2.4 on my thinkpad, and 
+> although most things are greatly improved in 2.6, one thing stands out.
 > 
-> The non-overlapping cases are probably very common and worth optimizing for:
+> When I click on things in 2.6, about 1% of the time it double-clicks instead.  
+> (Clicking on a titlebar to raise the window causes it to roll up instead, 
+> clicking on a scrollbar causes it to page down twice instead of once, etc.  
+> I'm always afraid that pulling up the top left window menu (to move it to 
+> another desktop, make it always on top, etc) will kill the window instead...)
+> 
+> This just doesn't happen under 2.4: I used the default kernel of Fedora Core 1 
+> for several days after a recent reinstall before putting 2.6 back on the box.  
+> But the input core doesn't seem to have this detail yet.
+> 
+> In 2.4 there seems to be some minimum time required between clicks to count as 
+> a double-click, which nicely filters out this kind of suprious electrical 
+> contact bounce thing.  (This makes sense: a human being simply CAN'T click 
+> twice within 1/20th of a second.  The mouse driver should drop a second click 
+> that comes faster than that: it's keybounce from the previous click.)
 
-No, almost all non-overlapping users already just use "memcpy()". 
+Reconfigure X only to use one mouse source (either /dev/psaux or
+/dev/input/mice, not both). Since in 2.6 the mouse inputs are already
+mixed in the kernel for these two devices, X then gets all the data
+twice, resulting in random doubleclicks.
 
-So most of the kernel uses of "memmove()" are likely overlapping - and 
-just optimizing the non-overlap case probably doesn't help a lot.
-
-That's why you optimize the overlapping case in one direction. We really 
-should do the other case right too.
-
-		Linus
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

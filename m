@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262661AbVAEXUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262653AbVAEXUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262661AbVAEXUO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 18:20:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbVAEXUN
+	id S262653AbVAEXUr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 18:20:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbVAEXUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 18:20:13 -0500
-Received: from fw.osdl.org ([65.172.181.6]:12524 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262656AbVAEXSb (ORCPT
+	Wed, 5 Jan 2005 18:20:42 -0500
+Received: from fw.osdl.org ([65.172.181.6]:11500 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262653AbVAEXS1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 18:18:31 -0500
-Date: Wed, 5 Jan 2005 15:18:19 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Willem Riede <osst@riede.org>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 1/3] osst upgrade to 0.99.3
-Message-Id: <20050105151819.1a4981ae.akpm@osdl.org>
-In-Reply-To: <1104627552l.3427l.2l@serve.riede.org>
-References: <1104627552l.3427l.2l@serve.riede.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 5 Jan 2005 18:18:27 -0500
+Date: Wed, 5 Jan 2005 15:17:42 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@redhat.com>,
+       Chris Wright <chrisw@osdl.org>
+Subject: Re: [PATCH] [resend] split bprm_apply_creds into two functions
+Message-ID: <20050105151742.D2357@build.pdx.osdl.net>
+References: <20050104183043.GA3592@IBM-BWN8ZTBWA01.austin.ibm.com> <20050104135210.X2357@build.pdx.osdl.net> <20050105144329.GA3304@IBM-BWN8ZTBWA01.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050105144329.GA3304@IBM-BWN8ZTBWA01.austin.ibm.com>; from serue@us.ibm.com on Wed, Jan 05, 2005 at 08:43:29AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willem Riede <osst@riede.org> wrote:
->
-> In a series of three mails, I'll present changes I'd like to see 
->  made to the osst driver in the linux-2.6.11 pre-series.
+* Serge E. Hallyn (serue@us.ibm.com) wrote:
+> Hi,
+> 
+> attached is a version against 2.6.10-bk8.
+> 
+> Serge Hallyn <serue@us.ibm.com> wrote:
+> 
+> > The following patch splits bprm_apply_creds into two functions,
+> > bprm_apply_creds and bprm_post_apply_creds.  The latter is called
+> > after the task_lock has been dropped.  Without this patch, SELinux
+> > must drop the task_lock and re-acquire it during apply_creds, making
+> > the 'unsafe' flag meaningless to any later security modules.  Please
+> > apply.
+> 
+> thanks,
+> -serge
+> 
+> Signed-off-by: Serge Hallyn <hallyn@cs.wm.edu>
 
-All three patches were hopelessly mangled by your email client:
+Let me try this again...
 
-70 out of 70 hunks FAILED -- saving rejects to file drivers/scsi/osst.c.rej
-osst-style-changes does not apply
+Signed-off-by: Chris Wright <chrisw@osdl.org>
 
-Please sort out your email client and send the patches to yourself to test
-that they still apply.
-
-When resending please ensure that the patch headers are in `-p1' form:
-
---- osst-patches/osst.h	2005-01-01 19:15:32.700230984 -0500
-+++ /home/wriede/SfOsstCVS/Driver26/osst.h	2005-01-01 16:13:35.000000000 -0500
-
-Things like the above will not apply to anyone's tree without jumping
-through hoops.
-
-Also, please don't send multiple patches under the same Subject:.
-
-See http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt, thanks.
+sorry for the extra noise,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

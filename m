@@ -1,81 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290070AbSBOQ3V>; Fri, 15 Feb 2002 11:29:21 -0500
+	id <S290084AbSBOQfd>; Fri, 15 Feb 2002 11:35:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290012AbSBOQ3E>; Fri, 15 Feb 2002 11:29:04 -0500
-Received: from 216-42-72-167.ppp.netsville.net ([216.42.72.167]:40879 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S290056AbSBOQ26>; Fri, 15 Feb 2002 11:28:58 -0500
-Date: Fri, 15 Feb 2002 11:28:35 -0500
-From: Chris Mason <mason@suse.com>
-To: James Bottomley <James.Bottomley@steeleye.com>, Jens Axboe <axboe@suse.de>
-cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] queue barrier support 
-Message-ID: <3998280000.1013790514@tiny>
-In-Reply-To: <200202151515.g1FFFw801733@localhost.localdomain>
-In-Reply-To: <200202151515.g1FFFw801733@localhost.localdomain>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
-MIME-Version: 1.0
+	id <S290081AbSBOQfV>; Fri, 15 Feb 2002 11:35:21 -0500
+Received: from dspnet.claranet.fr ([212.43.196.92]:21512 "HELO
+	dspnet.fr.eu.org") by vger.kernel.org with SMTP id <S290012AbSBOQfF>;
+	Fri, 15 Feb 2002 11:35:05 -0500
+Date: Fri, 15 Feb 2002 17:35:04 +0100
+From: Jean-Luc Leger <reiga@dspnet.fr.eu.org>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: CML2-2.3.0 is available
+Message-ID: <20020215173504.B85139@dspnet.fr.eu.org>
+In-Reply-To: <20020214193329.A23463@thyrsus.com> <20020215042631.A23535@zalem.nrockv01.md.comcast.net> <20020215090624.B3047@thyrsus.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020215090624.B3047@thyrsus.com>; from esr@thyrsus.com on Fri, Feb 15, 2002 at 09:06:24AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Feb 15, 2002 at 09:06:24AM -0500, Eric S. Raymond wrote:
+> Symbol type is inferred from use in a menu.
 
-On Friday, February 15, 2002 10:15:58 AM -0500 James Bottomley <James.Bottomley@steeleye.com> wrote:
+what about those "legend" symbols that were in menus list but with
+no menu declaration ?
 
-> mason@suse.com said:
->> I was wondering about this, we would need to change the error handler
->> to  fail all the requests after the barrier.  I was hoping the driver
->> did this for us ;-) 
-> 
-> Unfortunately, this is going to involve deep hackery inside the error handler. 
->  The current initial premise is that it can simply retry the failing command 
-> by issuing an ABORT to the tag and resending it (which can cause a tag to move 
-> past your barrier).  In an error situation, it really wouldn't be wise to try 
-> to abort lots of potentially running tags to preserve the barrier ordering 
-> (because of the overload placed on a known failing component), so I think the 
-> error handler has to abandon the concept of aborting commands and move 
-> straight to device reset.  We then carefully resend the commands in FIFO order.
-> 
+ex:
+menu usb        # USB? support
+        USB_DEBUG
+        usb_options_legend
+        USB_DEVICEFS USB_BANDWIDTH USB_LONG_TIMEOUT
+        usb_controllers_legend
+        h:USB_UHCI? h:USB_UHCI_ALT? h:USB_OHCI?
+...
 
-Ok, I'll try to narrow the barrier usage a bit, I'm waiting on the
-barrier write once it is sent, so I'm not worried about anything done
-after the ordered tag.
+I see no difference in use for usb_options_legend and USB_DEBUG.
 
-write X log blocks   (simple tag)
-write 1 commit block (ordered tag)
-wait on all of them.
-
-All I care about is knowing that all of the log blocks hit the disk
-before the commit.  So, if one of the log blocks aborts, I want it
-to abort the commit too.  Is this a little easier to implement?
-
-> Additionally, you must handle the case that a device is reset by something 
-> else (in error handler terms, the cc_ua [check condition/unit attention]).  
-> Here also, the tags would have to be sent back down in FIFO order as soon as 
-> the condition is detected.
-> 
-> mason@suse.com said:
->> Yes, this could get sticky.  Does anyone know if other OSes have
->> already done this? 
-> 
-> Other OSs (well the ones I've heard about: Solaris and HP-UX) try to avoid 
-> ordered tags, mainly because of the performance impact they have---the drive 
-> tag service algorithms become inefficient in the presence of ordered tags 
-> since they're usually optimised for all simple tags.
-
-I do see that on my drives ;-)  The main reason I think its worth trying
-is because the commit block is directly adjacent to the last log block,
-so I'm hoping the drive can optimize the commit (even though it is ordered)
-better when the OS sends it directly after the last log block.
-
-While I've got linux-scsi cc'd, I'll reask a question from yesterday.
-Do the targets with write back caches usually ignore the order tag, 
-doing the write in the most efficient way possible instead?
-
--chris
-
+	JL
 
 

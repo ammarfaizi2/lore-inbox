@@ -1,92 +1,60 @@
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S261367AbTCYBob>; Mon, 24 Mar 2003 20:44:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S261364AbTCYBoH>; Mon, 24 Mar 2003 20:44:07 -0500
-Received: from [200.71.196.122] ([200.71.196.122]:19932 "EHLO rp") by vger.kernel.org with ESMTP id <S261326AbTCYBnZ> convert rfc822-to-8bit; Mon, 24 Mar 2003 20:43:25 -0500
-Message-ID: <410-22003322523625680@rp>
-X-Priority: 1
-X-MSMail-Priority: High
-From: "eventos@asexmanet.com" <eventos@asexmanet.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: DESAYUNO CONFERENCIA - SR. HERNAN BUCHI B.
-Date: Mon, 24 Mar 2003 22:36:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S263391AbTC2F7F>; Sat, 29 Mar 2003 00:59:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S263389AbTC2F7F>; Sat, 29 Mar 2003 00:59:05 -0500
+Received: from [212.216.22.67] ([212.216.22.67]:55027 "HELO vger.kernel.org") by vger.kernel.org with SMTP id <S263386AbTC2F7C>; Sat, 29 Mar 2003 00:59:02 -0500
+From: "WEBMASTER." <links@hotmail.com>
+Subject: O MELHOR DA INTERNET.
+Content-Transfer-Encoding: Quoted-Printable
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Message-Id: <20030329055902Z263386-25575+39075@vger.kernel.org>
+To: unlisted-recipients:; (no To-header on input)
+Date: Sat, 29 Mar 2003 00:59:02 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Return-Path: <linux-kernel-owner+ralf=40linux-mips.org@vger.kernel.org>
 X-Envelope-To: </home/ralf/ralf> (uid 501)
 Original-Recipient: rfc822;ralf@linux-mips.org
 
-ATT :
-linux-kernel@vger.kernel.org
+VOCE PROCURA ALGUM LINK PARA SITES DE SEXO E ENTRETENIMENTO ??? 
+AQUI VOCE ENCONTRA TUDO QUE PRECISA ...ACESSE E CONFIRA... A MAIOR E MELHOR SELEÇÃO DE LINKS ERÓTICOS PARA VOCÊ ... TOTALMENTE GRATUITOS !!!
 
-DESAYUNO CONFERENCIA - SR. HERNAN BUCHI B.
-"Proyecciones Económicas en un Mundo Incierto"
+GUIA DE SITES DA WEB...
+OS MELHORES LINKS EM UM SÓ SITE !!!
+www.guiadesites2003.kit.net
 
-DIA	:  MARTES 1 DE ABRIL DE 2003
-HORA	:  8:30 HRS  A  10:30 HRS  (DESAYUNO)
-LUGAR	:  HOTEL SHERATON, SALON SAN CRISTOBAL
-	   AV. SANTA MARIA  1742, PROVIDENCIA
 
-EXPONE : SR. HERNAN BUCHI B.
-         ECONOMISTA
-         INSTITUTO LIBERTAD Y DESARROLLO
+SEXO SAGRADO
+UMA COLETÂNIA DAS MAIS CURIOSAS FORMAS DE SEXO E SEUS TABUS...
+ACESSO GRATUITO !!!
+http://sexosagrado.tripod.com.br
 
-MODERA : SR. ROBERTO FANTUZZI H.
-         PRESIDENTE ASEXMA CHILE
 
-ADHESIONES : SOCIO 1 	$ 0 (CUOTAS AL DIA)
-	   : SOCIO 2 	$ 6.000
-	   : NO SOCIOS	$ 30.000
-             INCLUYE ESTACIONAMIENTO
+CURIOSIDADES SEXUAIS...
+VOCE ESTÁ CONVIDADO A CONHECER AS MAIS ESTRANHAS FORMAS DE SEXO AO REDOR DO MUNDO.
+www.curiosidadesexuais.hpg.com.br
 
-ADJUNTAR CUPON DE DEPOSITOS CTA. CTE.: BCO. BCI 18303161  ASEXMA A.G
-SOLO INGRESAN LAS PERSONAS QUE  HAN CONFIRMADO CON CUPON ADJUNTO.
 
-AUSPICIAN:
-BANCO CREDITO E INVERSIONES
 
-COAUSPICIAN:
-MUTUAL DE SEGURIDAD DE C.CH.C.
-188 TELEFONICA MUNDO.
-REVISTA CAPITAL
-EL DIARIO
-CENTRO INTERMEDIO DE CAPACITACION CORCIN
-ANDUEZA CORREDORES DE SEGUROS
-DANZAS S.A.
-CHILNET 
-SKANDIA CORREDORES DE BOLSA
-ERNST & YOUNG LTDA.
+SEGREDOS SEXUAIS...
+TUDO O QUE VOCE PRECISA SABER SOBRE SEXO,PARA SE DAR BEM...
+www.segredossexuais.ubbi.com.br
 
-COMPLETAR ESTE CUPON Y ENVIAR CUPON VIA EMAIL : eventos@asexmanet.com, o via fax : 2036730
 
-CUPON DE INSCRIPCION EVENTO
-Desayuno Conferencia: DESAYUNO CONFERENCIA - SR. HERNAN BUCHI B.
+CLUBE DA ORGIA
+VENHA FAZER PARTE DO MAIS NIVO CLUBE VIRTUAL PARA ENCONTROS.
+www.clubedaorgia.kit.net
 
-Ejecutivo       :...
-Cargo           :...
-Empresa (sa)    :...
-Rut Empresa     :...
-Dirección       :...
-Comuna          :...
-Ciudad          :...
-Teléfono        :...
-Fax             :...
-Email           :...
-Pagina Web      :...
-N° trabajadores :...
-Rubro o Giró    :...
 
-SOCIO DE ASEXMA   :   SI (     )       NO (     )
 
-Informaciones
-ASEXMA CHILE A.G.
-Fracisco Hormazabal - fhormazabal@aexmachile.cl
-Fono : 203 6699
-Fax : 203 6730
+PROIBÍDO PARA MENORES DE 18 ANOS.
+Esta mensagem é enviada com a complacência da nova legislação sobre
+correio eletrônico, Seção 301, Parágrafo (a) (2) (c) Decreto S.1618,
+Título Terceiro aprovado pelo "105 Congresso Base das Normativas
+Internacionais sobre o SPAM". Este E-mail não poderá ser considerado
+SPAM quando inclua uma forma de ser removido. Para remover
+futuros correios, simplesmente responda este colocando a palavra 
+remover no assunto.
 
-Para anular inscripciones: Notificar por escrito antes de 48 horas del inicio del Evento.  De lo contrario, se considerará que la persona asiste y se tramitará el cobro correspondiente.
-===========================================================================
-Nota :
-Para ser removido Reenviar este mismo email, a : remover@capacitachile.com
+
+removerlinks@pop.com.br
+
 

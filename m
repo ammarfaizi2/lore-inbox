@@ -1,104 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266752AbUAWXPh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 18:15:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266755AbUAWXPh
+	id S266634AbUAWXUY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 18:20:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266755AbUAWXUY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 18:15:37 -0500
-Received: from smtp-out3.blueyonder.co.uk ([195.188.213.6]:15968 "EHLO
-	smtp-out3.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S266752AbUAWXPZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 18:15:25 -0500
-Message-ID: <4011AB0B.4030906@blueyonder.co.uk>
-Date: Fri, 23 Jan 2004 23:15:23 +0000
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040118
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
+	Fri, 23 Jan 2004 18:20:24 -0500
+Received: from main.gmane.org ([80.91.224.249]:7349 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266634AbUAWXUM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 18:20:12 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.2-rc1-mm2 kernel oops
+From: Axel Boldt <axelboldt@yahoo.com>
+Subject: PROBLEM: APM resume after suspend broken, 2.6.2-rc1
+Date: Fri, 23 Jan 2004 23:40:59 +0100
+Message-ID: <4011A2FB.60307@yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Jan 2004 23:15:45.0496 (UTC) FILETIME=[D43D1580:01C3E206]
+X-Complaints-To: usenet@sea.gmane.org
+Cc: sfr@canb.auug.org.au
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
+X-Accept-Language: en-us, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get this on bootup, Athlon XP2200+
-=====================================
-Linux version 2.6.2-rc1-mm2 (root@barrabas) (gcc version 3.3.1 (SuSE 
-Linux)) #8 Fri Jan 23 22:26:32 GMT 2004
-BIOS-provided physical RAM map:
-  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
-  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
-  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
-  BIOS-e820: 0000000000100000 - 000000001fffc000 (usable)
-  BIOS-e820: 000000001fffc000 - 000000001ffff000 (ACPI data)
-  BIOS-e820: 000000001ffff000 - 0000000020000000 (ACPI NVS)
-  BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
-  BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
-  BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
-511MB LOWMEM available.
-zapping low mappings.
-On node 0 totalpages: 131068
-   DMA zone: 4096 pages, LIFO batch:1
-   Normal zone: 126972 pages, LIFO batch:16
-   HighMem zone: 0 pages, LIFO batch:1
-DMI 2.3 present.
-ACPI: RSDP (v000 ASUS                                      ) @ 0x000f5c10
-ACPI: RSDT (v001 ASUS   A7V333   0x42302e31 MSFT 0x31313031) @ 0x1fffc000
-ACPI: FADT (v001 ASUS   A7V333   0x42302e31 MSFT 0x31313031) @ 0x1fffc0b2
-ACPI: BOOT (v001 ASUS   A7V333   0x42302e31 MSFT 0x31313031) @ 0x1fffc030
-ACPI: MADT (v001 ASUS   A7V333   0x42302e31 MSFT 0x31313031) @ 0x1fffc058
-ACPI: DSDT (v001   ASUS A7V333   0x00001000 MSFT 0x0100000b) @ 0x00000000
-ACPI: PM-Timer IO Port: 0xe408
-Built 1 zonelists
-current: c039a100
-current->thread_info: c040a000
-Initializing CPU#0
-Kernel command line: root=/dev/hda1 vga=normal desktop splash=silent 
-init 3 console=ttyS1
-PID hash table entries: 2048 (order 11: 16384 bytes)
-Detected 1802.998 MHz processor.
-Using pmtmr for high-res timesource
-Console: colour VGA+ 80x25
-Memory: 514344k/524272k available (2268k kernel code, 9180k reserved, 
-837k data, 168k init, 0k highmem)
-Checking if this processor honours the WP bit even in supervisor mode... 
-<1>Unable to handle kernel paging request at virtual address fffb
-c000
-  printing eip:
-c0416106
-*pde = 0007d067
-*pte = 00101025
-Oops: 0003 [#1]
-PREEMPT DEBUG_PAGEALLOC
-CPU:    0
-EIP:    0060:[<c0416106>]    Not tainted VLI
-EFLAGS: 00010206
-EIP is at test_wp_bit+0x36/0x90
-eax: 00000001   ebx: 000000a8   ecx: 00101025   edx: 0007d000
-esi: 00000345   edi: 000008dc   ebp: 00000009   esp: c040bf88
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 0, threadinfo=c040a000 task=c039a100)
-Stack: 00000042 00101000 00000025 c04163a4 c0348120 0007d928 0007fff0 
-000008dc
-        000023dc 00000345 000000a8 00000000 004fff60 1fffc000 c1000000 
-0001fffc
-        000008f7 00000000 00099800 c0107000 0008e000 c040c468 c03437d7 
-c043a104
-Call Trace:
-  [<c04163a4>] mem_init+0x244/0x260
-  [<c0107000>] run_init_process+0x0/0x30
-  [<c040c468>] start_kernel+0xe8/0x380
-  [<c040c0f0>] unknown_bootoption+0x0/0x170
+Hi,
 
-Code: 81 49 d0 ff c7 44 24 08 25 00 00 00 c7 44 24 04 00 10 10 00 c7 04 
-24 42 00 00 00 e8 c5 dc cf ff b8 01 00 00 00 8a 15 00 c0 fb ff <88
- > 15 00 c0 fb ff 31 c0 c7 04 24 42 00 00 00 c7 44 24 04 00 00
-  <0>Kernel panic: Attempted to kill the idle task!
-In idle task - not syncing
-Regards
-Sid.
--- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-Linux Only Shop.
+I'm running Linux 2.6.2-rc1 with APM support compiled in, on a Dell
+Inspiron 5000 laptop. Under Windows, APM suspend/resume works fine,
+but under Linux the machine doesn't resume properly.
+
+ > apm -v
+APM BIOS 1.2 (kernel driver 1.16ac)
+On-line, battery status high: 100% (3:20:00)
+ > apm -V
+apm version 3.2.1
+
+apmd is running and standby mode (apm -S) works flawlessly.
+
+Suspending the machine ro RAM (apm -s) first gives the following 
+messages in syslog's kern.log:
+
+hdc: start_power_step(step: 0)
+hdc: completing PM request, suspend
+hda: start_power_step(step: 0)
+hda: start_power_step(step: 1)
+hda: complete_power_step(step: 1, stat: 50, err: 0)
+hda: completing PM request, suspend
+
+Then the screen blanks and the hard drive stops spinning.
+Upon resume, I always get the messages
+
+MCE: The hardware reports a non fatal, correctable incident occurred on 
+CPU 0.
+Bank 1: e200000000000175
+
+then the screen comes back and I can type text into the
+virtual console. Most of the time, as soon as I issue a command that
+uses the hard drive (e.g. ls), the shell will hang. I can switch to
+another virtual console, but again, any command that accesses the drive 
+hangs.
+Ctrl-Alt-Delete or shutdown -s fail to reboot the machine. Syncing and
+unmounting with SysRq don't work, but rebooting with SysRq-B works.
+The SysRq-P call trace contains the functions cpu_idle and
+start_kernel.
+
+SOMETIMES, the machine will resume properly, giving the messages below:
+
+MCE: The hardware reports a non fatal, correctable incident occurred on 
+CPU 0.
+Bank 1: e200000000000175
+PCI: Found IRQ 5 for device 0000:00:08.0
+PCI: Sharing IRQ 5 with 0000:00:07.2
+drivers/usb/host/uhci-hcd.c: 1060: host system error, PCI problems?
+drivers/usb/host/uhci-hcd.c: 1060: host controller halted. very bad
+spurious 8259A interrupt: IRQ7.
+hda: Wakeup request inited, waiting for !BSY...
+hda: start_power_step(step: 1000)
+hda: completing PM request, resume
+hdc: Wakeup request inited, waiting for !BSY...
+hdc: start_power_step(step: 1000)
+hdc: completing PM request, resume
+
+(The spurious 8259A interrupt doesn't always show up.)
+
+There's a combined NIC/modem card in the PCMCIA slot, hda is the IDE
+hard drive, hdc is the dvd drive. Everything uses PCI.
+
+Linux 2.6.1 shows the exact same behavior.
+
+The contents of dmesg, .config used for kernel compilation, and 
+/proc/pci can be found at http://math-www.uni-paderborn.de/~axel/apm_bug.txt
+
+Thanks,
+   Axel
+

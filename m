@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264253AbTKTDSW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 22:18:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264254AbTKTDSV
+	id S264252AbTKTDeZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 22:34:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264254AbTKTDeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 22:18:21 -0500
-Received: from CPE-138-130-214-20.qld.bigpond.net.au ([138.130.214.20]:11224
-	"EHLO mx.jeeves.bpa.nu") by vger.kernel.org with ESMTP
-	id S264253AbTKTDSU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 22:18:20 -0500
-From: Ben Hoskings <ben@jeeves.bpa.nu>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: transmeta cpu code question
-Date: Thu, 20 Nov 2003 13:18:17 +1000
-User-Agent: KMail/1.5.4
-References: <20031120020218.GJ3748@schottelius.org> <20031120025315.GR11983@phunnypharm.org>
-In-Reply-To: <20031120025315.GR11983@phunnypharm.org>
-MIME-Version: 1.0
+	Wed, 19 Nov 2003 22:34:25 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:58251 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S264252AbTKTDeX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Nov 2003 22:34:23 -0500
+Date: Wed, 19 Nov 2003 19:34:22 -0800
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Pontus Fuchs <pof@users.sourceforge.net>
+Subject: Re: Announce: ndiswrapper
+Message-ID: <20031120033422.GA8674@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20031120031137.GA8465@bougret.hpl.hp.com> <3FBC3483.4060706@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200311201318.17705.ben@jeeves.bpa.nu>
+In-Reply-To: <3FBC3483.4060706@pobox.com>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-EDIT: Oops, meant to reply-all. Apologies Ben.
+On Wed, Nov 19, 2003 at 10:26:59PM -0500, Jeff Garzik wrote:
+> Jean Tourrilhes wrote:
+> >Jeff Garzik wrote :
+> >>Then help us reverse engineer the driver :)
+> 
+> >
+> >	Even better :
+> >		1) go to the Wireless LAN Howto
+> >		2) find a card are supported under Linux that suit your needs
+> >		3) buy this card
+> >	I don't see the point of giving our money to vendors that
+> >don't care about us when there are vendors making a real effort toward
+> >us.
+> 
+> 
+> Unfortunately that leaves users without support for any recent wireless 
+> hardware.
 
-On Thu, 20 Nov 2003 12:53 pm, Ben Collins wrote:
-> You are a bit confused. The cpu_rev is a 4 byte value, each byte is a
-> decimal of the revision.
->
-> And (0 & 1) makes 1, not 0. That's an AND, not an OR.
+	Excuse me ? Have you looked at the Howto lately ? There is
+only Broadcom and Intel which are not supported, which leaves plenty
+of choice (including many 802.11g and 802.11a cards).
 
-I'm willing to put some safe money on (0 & 1) equalling 0.
+>  It gets more and more difficult to even find Linux-supported 
+> wireless at Fry's and other retail locations...
 
-It has to, for your explanation below to work. :)
+	If you are careful, you can even buy at Fry's. I bought
+recently some Microsoft cards ;-)
 
->
-> Think about it this way. If cpu_rev == 0x01040801, then this would
-> produce:
->
-> (0x01040801 >> 24 & 0xff) -> (0x01 & 0xff) ->     0x01
->
-> (0x01040801 >> 16 & 0xff) -> (0x0104 & 0xff) ->   0x04
->
-> (0x01040801 >> 8  & 0xff) -> (0x010408 & 0xff) -> 0x08
->
-> (0x01040801 & 0xff)                            -> 0x01
+> 	Jeff
 
--- 
-Ben
-
+	Jean

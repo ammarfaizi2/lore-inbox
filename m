@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266170AbUGTSzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266194AbUGTSvv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266170AbUGTSzc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 14:55:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266185AbUGTSwK
+	id S266194AbUGTSvv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 14:51:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUGTStX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 14:52:10 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:63928 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S266183AbUGTSsa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 14:48:30 -0400
-Date: Tue, 20 Jul 2004 20:48:24 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Shesha Sreenivasamurthy <shesha@inostor.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'kernelnewbies@nl.linux.org'" <kernelnewbies@nl.linux.org>
-Subject: Re: O_DIRECT
-Message-ID: <20040720184824.GA30090@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Shesha Sreenivasamurthy <shesha@inostor.com>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-	"'kernelnewbies@nl.linux.org'" <kernelnewbies@nl.linux.org>
-References: <40FD561D.1010404@inostor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40FD561D.1010404@inostor.com>
-User-Agent: Mutt/1.3.28i
+	Tue, 20 Jul 2004 14:49:23 -0400
+Received: from amsfep19-int.chello.nl ([213.46.243.20]:45102 "EHLO
+	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
+	id S266141AbUGTSoi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 14:44:38 -0400
+Date: Tue, 20 Jul 2004 20:38:08 +0200
+Message-Id: <200407201838.i6KIc8A2015424@anakin.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 471] m68k hardirq.h
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 20, 2004 at 10:27:57AM -0700, Shesha Sreenivasamurthy wrote:
-> I am having trouble with O_DIRECT. Trying to read or write from a block 
-> device partition.
-> 
-> 1. Can O_DIRECT be used on a plain block device partition say 
-> "/dev/sda11" without having a filesystem on it.
+M68k: Add missing #include <linux/config.h>
 
-As fas as I know, yes, but be aware that O_DIRECT requires page aligned
-addresses! (an integral of 4096 on most systems).
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-> 2. If no file system is created then what should be the softblock size. 
-> I am using the IOCTL "BLKBSZGET". Is this correct?
+--- linux-2.6.8-rc2/include/asm-m68k/hardirq.h	2004-04-28 10:58:58.000000000 +0200
++++ linux-m68k-2.6.8-rc2/include/asm-m68k/hardirq.h	2004-07-10 21:06:55.000000000 +0200
+@@ -1,6 +1,7 @@
+ #ifndef __M68K_HARDIRQ_H
+ #define __M68K_HARDIRQ_H
+ 
++#include <linux/config.h>
+ #include <linux/threads.h>
+ #include <linux/cache.h>
+ 
 
-No idea what you mean - but see above about the aligned addresses.
+Gr{oetje,eeting}s,
 
-> 3. Can we use SEEK_END with O_DIRECT on a partition without filesystem.
+						Geert
 
-I see no reason why not. Good luck!
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

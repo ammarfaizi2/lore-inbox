@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132632AbRADUZv>; Thu, 4 Jan 2001 15:25:51 -0500
+	id <S132616AbRADU0L>; Thu, 4 Jan 2001 15:26:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132616AbRADUZm>; Thu, 4 Jan 2001 15:25:42 -0500
-Received: from mail.valinux.com ([198.186.202.175]:62735 "EHLO
-	mail.valinux.com") by vger.kernel.org with ESMTP id <S133110AbRADUZX>;
-	Thu, 4 Jan 2001 15:25:23 -0500
-Message-ID: <3A54EABA.EB3FBF7C@valinux.com>
-Date: Thu, 04 Jan 2001 14:27:22 -0700
-From: Keith Whitwell <keithw@valinux.com>
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.2.12-20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rik Faith <faith@valinux.com>
-CC: DRI Development <dri-devel@lists.sourceforge.net>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Dri-devel] DRM patch for Linux 2.4.0-prerelease
-In-Reply-To: <14932.51363.118932.987520@light.alephnull.com>
+	id <S133010AbRADUZn>; Thu, 4 Jan 2001 15:25:43 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:46601 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S132632AbRADUZY>;
+	Thu, 4 Jan 2001 15:25:24 -0500
+Date: Thu, 4 Jan 2001 20:23:30 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alexander Viro <aviro@redhat.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>, "Marco d'Itri" <md@Linux.IT>,
+        Jeff Lightfoot <jeffml@pobox.com>, Dan Aloni <karrde@callisto.yi.org>,
+        Anton Blanchard <anton@linuxcare.com.au>
+Subject: Re: test13-pre6
+Message-ID: <20010104202330.J1290@redhat.com>
+In-Reply-To: <Pine.LNX.4.10.10012291609470.1123-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.10.10012291609470.1123-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Dec 29, 2000 at 04:25:43PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik,
+Hi,
 
-It looks like this patch goes further than syncing with xfree 4.0.2, but syncs
-with the dri trunk instead.  There has been a version bump in the mga drm
-module on the dri trunk to add a 'blit' ioctl.  XFree 4.0.2 will barf on this.
+On Fri, Dec 29, 2000 at 04:25:43PM -0800, Linus Torvalds wrote:
+> 
+> Stephen: mind trying your fsync/etc tests on this one, to verify that the
+> inode dirty stuff is all done right?
 
-As a broader question:  All our version checking (in client drivers and DDX
-drivers) check
+Back from the Scottish Hogmanay celebrations now. :)  I've run my
+normal tests on this (based mainly on timing tests which show up
+exactly how much is being written to disk for 1000 iterations of
+various fsync/fdatasync/O_SYNC and overwrite/append combinations) and
+2.4.0-prerelease seems to be doing the Right Thing.
 
-	found major == expected major
-	found minor == expected minor 
-	found patch >= expected patch
+My standard tests for this don't cover msync --- do you want me to
+give that a try too?
 
-and if they don't receive this, they refuse to play.
-
-As I understood it, the major number is bumped on backwards-incompatible
-changes, the minor number on backwards-compatible changes and the patch on all
-other changes, though in practise never.
-
-Thus, wouldn't the appropriate test be:
-
-	found major == expected major
-	found minor >= expected minor
-	(no test on patch)
-
-This seems to match the semantics of the 3 numbers better?
-
-Keith
+--Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261575AbSJQRPO>; Thu, 17 Oct 2002 13:15:14 -0400
+	id <S261761AbSJQRX1>; Thu, 17 Oct 2002 13:23:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261629AbSJQRPN>; Thu, 17 Oct 2002 13:15:13 -0400
-Received: from ns.suse.de ([213.95.15.193]:46098 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S261575AbSJQROo>;
-	Thu, 17 Oct 2002 13:14:44 -0400
-Date: Thu, 17 Oct 2002 19:20:41 +0200
-From: Dave Jones <davej@suse.de>
-To: Hiroshi Miura <miura@da-cha.org>
-Cc: hpa@zytor.com, linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: Re: NatSemi Geode improvement
-Message-ID: <20021017192041.B17285@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Hiroshi Miura <miura@da-cha.org>, hpa@zytor.com,
-	linux-kernel@vger.kernel.org, alan@redhat.com
-References: <20021017171217.4749211782A@triton2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20021017171217.4749211782A@triton2>; from miura@da-cha.org on Fri, Oct 18, 2002 at 02:12:17AM +0900
+	id <S261753AbSJQRVu>; Thu, 17 Oct 2002 13:21:50 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60944 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261747AbSJQRSp>; Thu, 17 Oct 2002 13:18:45 -0400
+Date: Thu, 17 Oct 2002 10:26:41 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Christoph Hellwig <hch@infradead.org>, Crispin Cowan <crispin@wirex.com>,
+       Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] make LSM register functions GPLonly exports
+In-Reply-To: <Pine.LNX.3.95.1021017130633.6772A-200000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.44.0210171025490.7066-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 18, 2002 at 02:12:17AM +0900, Hiroshi Miura wrote:
 
- > NatSemi Geode has a several feature to speed up,
- > but reset defalut value is set to slow side.
- > 
- > I make a patch to speed up Geode about 20-40%!!
- > the benchmark result is downloadable from http://www.da-cha.org/geode/geode_graph.sxc.
- > that is openoffice format.
- > 
- > I use this patch with 2.4.18, 2.4.19 in 4 month, I think it is stable enough.
+On Thu, 17 Oct 2002, Richard B. Johnson wrote:
+> 
+> This, by example, shows that "GPL Only" is unenforceable.  I suggest
+> that all the "GPL only" zealots try something new (like more good code),
+> rather than attempting to prevent honest workers from using code
+> they helped develop.
 
-Previously these tweaks were done in userspace with the set6x86 utility.
-Is there any reason that these need to be done in the kernel apart from
-convenience ?
+You misunderstand what GPLONLY is all about.
 
-        Dave
+It's not a change to the license. It's a click-through (ie you have to 
+actually do something specific to make "insmod" even load your license).
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+		Linus
+

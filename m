@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280134AbRJaKpz>; Wed, 31 Oct 2001 05:45:55 -0500
+	id <S280136AbRJaKsp>; Wed, 31 Oct 2001 05:48:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280140AbRJaKpp>; Wed, 31 Oct 2001 05:45:45 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38925 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280134AbRJaKpe>; Wed, 31 Oct 2001 05:45:34 -0500
-Subject: Re: ECS k7s5a motherboard doesnt work
-To: warp@mercury.d2dc.net (Zephaniah E\. Hull)
-Date: Wed, 31 Oct 2001 10:52:10 +0000 (GMT)
-Cc: Crazed_Cowboy@stones.com (Justin Mierta),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), hahn@physics.mcmaster.ca,
-        lung@theuw.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20011031033018.A1917@babylon.d2dc.net> from "Zephaniah E\. Hull" at Oct 31, 2001 03:30:18 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S280142AbRJaKsf>; Wed, 31 Oct 2001 05:48:35 -0500
+Received: from mta13-acc.tin.it ([212.216.176.44]:26283 "EHLO fep13-svc.tin.it")
+	by vger.kernel.org with ESMTP id <S280136AbRJaKs2>;
+	Wed, 31 Oct 2001 05:48:28 -0500
+Message-ID: <3BDFD716.1D4D9393@revicon.com>
+Date: Wed, 31 Oct 2001 11:48:54 +0100
+From: Lars Knudsen <gandalf@revicon.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: becker@scyld.com, linux-kernel@vger.kernel.org,
+        Alan Cox <laughing@shared-source.org>
+Subject: fealnx build problems with latest linux kernels
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15ysyg-0003Gw-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The only problems I have seen with this board are that I can't find
-> drivers for the sound (no big loss), lmsensors does not seem to be able
+I encountered a problem when trying to build the fealnx driver
+with the latest linux kernels 2.4.10-2.4.13, vanilla as well as
+2.4.13-ac2 and 2.4.13-ac5. The problem is present only when
+the kernel is configured without support for hot-pluggable
+devices.
 
-[ALSA has one I believe]
+The problem seems to be a swapped __devinitdata and =. 
+The following patch fixes the problem.
 
-> to properly read the sensors (annoying), repeated 'VFS: Disk change
-> detected on device ide1(22,0)' messages (my cdrom drive, getting a
-> little annoying), and, thats about it.
+\Gandalf
 
-rpm -e magicdev
+--- fealnx.c    Wed Oct 31 11:03:01 2001
++++ fealnx.c-orig       Wed Oct 31 11:01:07 2001
+@@ -1815,7 +1815,7 @@
+        return 0;
+ }
+
+-static struct pci_device_id fealnx_pci_tbl[] __devinitdata = {
++static struct pci_device_id fealnx_pci_tbl[] = __devinitdata {
+        {0x1516, 0x0800, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
+        {0x1516, 0x0803, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
+        {0x1516, 0x0891, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 2},

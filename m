@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAOTG7>; Mon, 15 Jan 2001 14:06:59 -0500
+	id <S129627AbRAOTOB>; Mon, 15 Jan 2001 14:14:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129627AbRAOTGu>; Mon, 15 Jan 2001 14:06:50 -0500
-Received: from stud4.tuwien.ac.at ([193.170.75.21]:64519 "EHLO
-	stud4.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id <S129431AbRAOTGi>; Mon, 15 Jan 2001 14:06:38 -0500
-Date: Mon, 15 Jan 2001 20:06:35 +0100 (MET)
-From: Robert Reither <e8925573@student.tuwien.ac.at>
-To: linux-kernel@vger.kernel.org
-Subject: Problems with bigblock support of fat
-Message-ID: <Pine.HPX.4.10.10101152002410.23822-100000@stud4.tuwien.ac.at>
+	id <S129953AbRAOTNu>; Mon, 15 Jan 2001 14:13:50 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:4365 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129627AbRAOTNp>; Mon, 15 Jan 2001 14:13:45 -0500
+Date: Mon, 15 Jan 2001 11:11:59 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Robert Kaiser <rob@sysgo.de>
+cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+        mo6 <sjoos@pandora.be>, Brian Gerst <bgerst@didntduck.org>,
+        Miles Lane <miles@megapathdsl.net>,
+        Paul Gortmaker <p_gortmaker@yahoo.com>,
+        "Tom G. Christensen" <tom.christensen@get2net.dk>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [SOLVED + PATCH] Re: Anybody got 2.4.0 running on a 386 ?
+In-Reply-To: <01011520014201.12336@rob>
+Message-ID: <Pine.LNX.4.10.10101151108430.6247-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I encounted really bad problems with 2048 Bytes/sec MO-Drive.
-I'm using an Olympus PowerMO 640.
-230MB Media works fine, but if i try to use 640(2048B/S) medias i'm really
-in troubles. Looks quite the same as the problems i've reported for the
-2.1.x kernels some time ago. (2.2.17/18 works fine 4 me).
 
-OK, what i did :
+On Mon, 15 Jan 2001, Robert Kaiser wrote:
+> 
+> I finally found the reason why 386es have trouble booting the 2.4.0 kernel:
 
-Using kernel 2.4.0 on an Athlon TB 750 with 128 MB
-MO was formated with FAT32.
+Good job.
 
-i mounted the mo drive ...
+> Pentiums are only lucky to not crash because they have a bigger TLB than 386s.
 
-i try to read a file from it (used : 'pico /mo/file.txt') ...
-And got a nice crash : Segmentation Fault
+Actually, with the 4M pages, it's not a question of luck any more - they
+just don't _have_ this bug, because on a machine with 4M pages the
+"cpu_has_pse" case handles this all and the buggy code is never actually
+entered.
 
-OK, was easy to find this bug, fs/fat/cvf.c has a bug in bigblock_cvf struct
-the field with the read function was a NULL.
-I changed this to generic_file_read (like with default blocksize), and
-tested it. First seemed to work fine, but :
+Which explains why you'd only see this on a 386 (and I suspect your TLB
+size explanation is what saved some i486-class machines, although later
+i486 machines will have PSE as well).
 
-I could read/write a file now, but the written data was not compatible
-with DOS Systems (Tested under DOS6.22, WIN98SE) !
+	Thanks,
 
-If i write a file to an empty MO-Disk, the start-cluster is 2 in the 
-table. But the real data was written to (and also read from)
-cluster 33 by linux !
-
-I already posted this report to the maintainer of the fat-fs(Gordon Chaffee)
- a month ago, but i did not get a response yet. 
-(tested it with kernel -test8 and -test9)
-
-
-############################################################################
-Robert Reither                8925573 E754 (ja wirklich schon !!)
-TU-Vienna
-AUSTRIA
-############################################################################
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

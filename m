@@ -1,81 +1,133 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130673AbRAPGyl>; Tue, 16 Jan 2001 01:54:41 -0500
+	id <S130882AbRAPG4V>; Tue, 16 Jan 2001 01:56:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130882AbRAPGyc>; Tue, 16 Jan 2001 01:54:32 -0500
-Received: from xiomara.msg.com.mx ([200.33.54.2]:35848 "HELO
-	xiomara.msg.com.mx") by vger.kernel.org with SMTP
-	id <S130673AbRAPGyT>; Tue, 16 Jan 2001 01:54:19 -0500
-Date: Tue, 16 Jan 2001 00:53:47 -0600 (EST)
-From: Salvador Ortiz Garcia <sog@msg.com.mx>
-To: linux-kernel@vger.kernel.org
-cc: alan@lxorguk.ukuu.org.uk
-Subject: 2.4.0 - lseek on /proc broken? [with patch]
-Message-ID: <Pine.LNX.4.10.10101160024480.20764-100000@xiomara.msg.com.mx>
+	id <S131476AbRAPG4L>; Tue, 16 Jan 2001 01:56:11 -0500
+Received: from 209.102.21.2 ([209.102.21.2]:62480 "EHLO dragnet.seagull.net")
+	by vger.kernel.org with ESMTP id <S130882AbRAPG4A>;
+	Tue, 16 Jan 2001 01:56:00 -0500
+Message-ID: <3A63C013.38EF1542@goingware.com>
+Date: Tue, 16 Jan 2001 03:29:23 +0000
+From: "Michael D. Crawford" <crawford@goingware.com>
+Organization: GoingWare Inc. - Expert Software Development and Consulting
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.0-ac4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: ncorbic@sangoma.com
+Subject: Doc bug?  Is Sangoma S514 PCI WAN card supported?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Under 2.4.0-ac4 I find lots of mentions of the Sangoma S514 PCI Multiprotocol
+Wide Area Networking card in
 
-Hi:
+drivers/net/wan/sdla*
 
-After diging around for some problems (shutdown/unmount related) I found
-that some processes where hidden from ps, pidoff, ls /proc, etc.
+But in Documentation/Configure.help under CONFIG_VENDOR_SANGOMA I only see
+mention of the S502E(A), S503 and S508.  These same cards are listed in
+documentation/networking/framerelay.txt but not S514.
 
-A strace reveled that:
+I can't find the 502 or 503 cards on http://www.sangoma.com so maybe they're
+obsolete and while the 508 looks like a pretty good card, it's an ISA card and
+I'd much rather use the 514 which is PCI.  The PCI card is $579 and the ISA card
+is $529 so you don't have to pay much extra to get a card that's going to be
+better for your box's well-being.
 
-open("/proc", O_RDONLY|O_NONBLOCK|O_DIRECTORY) = 7
-fstat(7, {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
-fcntl(7, F_SETFD, FD_CLOEXEC)           = 0
-getdents(7, /* 58 entries */, 984)      = 980
-lseek(7, 265, SEEK_SET)                 = -1 EINVAL (Invalid argument)
+I'm moving to the first house I've ever owned in my life (so I'll get to drill
+holes in the walls) and the only affordable high-speed internet option there
+which allows the subscriber to run their own servers and have multiple static IP
+addresses is frame relay.
 
-So I change proc_root_operations to use proc_file_lseek and the problems
-vanished.
+(You can also do synchronous PPP, HDLC and X.25 with these cards).
 
-Comments?
+An advantage of using a WAN card over a dedicated router is:
 
-Salvador Ortiz.
-please CCs to me.
+- it's cheaper
 
- 
-=========== cut ===========
-diff -u linux/fs/proc/generic.c linux-2.4.0-ac7/fs/proc/generic.c
---- linux/fs/proc/generic.c	Mon Dec 11 15:45:42 2000
-+++ linux-2.4.0-msg/fs/proc/generic.c	Tue Jan 16 00:05:24 2001
-@@ -22,7 +22,7 @@
- 			      size_t nbytes, loff_t *ppos);
- static ssize_t proc_file_write(struct file * file, const char * buffer,
- 			       size_t count, loff_t *ppos);
--static loff_t proc_file_lseek(struct file *, loff_t, int);
-+loff_t proc_file_lseek(struct file *, loff_t, int);
- 
- int proc_match(int len, const char *name,struct proc_dir_entry * de)
- {
-@@ -137,7 +137,7 @@
- }
- 
- 
--static loff_t
-+loff_t
- proc_file_lseek(struct file * file, loff_t offset, int orig)
- {
-     switch (orig) {
-diff -u linux/fs/proc/root.c linux-2.4.0-ac7/fs/proc/root.c
---- linux/fs/proc/root.c	Thu Nov 23 11:07:36 2000
-+++ linux-2.4.0-msg/fs/proc/root.c	Tue Jan 16 00:05:27 2001
-@@ -81,7 +81,9 @@
-  * <pid> directories. Thus we don't use the generic
-  * directory handling functions for that..
-  */
-+extern loff_t proc_file_lseek(struct file *, loff_t, int);
- static struct file_operations proc_root_operations = {
-+	llseek:		 proc_file_lseek,
- 	read:		 generic_read_dir,
- 	readdir:	 proc_root_readdir,
- };
+- you get the source code
 
+- you can combine the function of the router with other things like webservers
+and firewalls (I was going to run a separate FRAD and firewall - $$$)  You can
+probably get dedicated routers with firewalls built in but you don't then have
+the option of source code or, likely, timely notification from your vendors
+about security holes.
+
+- the WAN router is running on a box with lots of memory, hard disk, XWindows,
+etc.  Routers often run some kind of Unix as their OS but have very limited
+resources for loading them up with fun diagnostic tools.
+
+- you get to learn lots of interesting acronyms and enthrall your friends and
+relatives with your knowledge of wide area networking protocols
+
+- cool diagnostics by indicating link status, send and receive by lighting up
+your keyboard LED's.
+
+These folks at Sangoma seem like they're some pretty cool froods to be providing
+specs and drivers for their cards which they appear to have kept supported over
+an extended period of time so we should support their efforts by letting Linux
+users know all the options for the hardware that helpful vendors such as these
+sell.
+
+My first thought, quite unfairly, was that Sangoma was only releasing the specs
+for the older ISA cards and keeping the PCI specs a secret.  
+
+The following two passages from the WANPIPE user manual 
+(ftp://ftp.sangoma.com/documents/wanpipe.pdf) have me pretty convinced this is a
+vendor worth looking into:
+
+> Make sure your "other end" is set up correctly.  Many third party routers
+> default to proprietary, non standard protocols, while WANPIPE adheres strictly
+> to Internet or IETF standards of encapsulation.
+
+well that's pretty reasonable and what I'd expect but check this out:
+
+> You will find these utilities will turn you into a WAN guru.  
+> You will always know more about the WAN connection than either the
+> network provider or the third party at the other end.
+
+Reminds me of the days when I used to call up Sun support and talk their
+technicians through the process of giving me tech support.  Not to mention
+dealing with a typical ISP's tech support ("ifconfig? which version of Windows
+are you running, anyway?")
+
+Lotsa good linux WAN stuff at ftp://ftp.sangoma.com/linux
+
+Clueless about frame relay?  I was before this evening spent a-googling.  These
+two pages are helpful places to start:
+
+The Frame Relay Forum
+http://www.frforum.com
+
+They have an intro book you can read online as HTML or download as PDF.
+
+IBM Frame Relay Guide
+http://www.raleigh.ibm.com/cgi-bin/bookmgr/BOOKS/EZ305800/CCONTENTS
+
+Pretty dry but quite informative.
+
+the abovementioned wanpipe.pdf file has some pretty helpful introductory info it
+too.  There's also a document called WanpipeForLinux.pdf which is helpful.  It's
+available actually in both PDF and text format at
+
+ftp://ftp.sangoma.com/linux/current_wanpipe/doc/
+
+Now I just hope there's enough physical wires running into my house to _get_
+frame relay.  May have to send the telephone man on top of a pole to drop me a
+line.  How many wires into your building are required for frame relay to work? 
+Can't seem to find _that_ anywhere, and this house isn't exactly in a place
+where the telco would have thought to plan for lots of extra capacity.
+
+Mike
+-- 
+Michael D. Crawford
+GoingWare Inc. - Expert Software Development and Consulting
+http://www.goingware.com/
+crawford@goingware.com
+
+   Tilting at Windmills for a Better Tomorrow.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

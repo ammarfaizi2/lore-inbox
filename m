@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290660AbSAYMhj>; Fri, 25 Jan 2002 07:37:39 -0500
+	id <S290666AbSAYMlJ>; Fri, 25 Jan 2002 07:41:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290664AbSAYMha>; Fri, 25 Jan 2002 07:37:30 -0500
-Received: from pilot05.cl.msu.edu ([35.9.5.25]:58063 "EHLO pilot05.cl.msu.edu")
-	by vger.kernel.org with ESMTP id <S290660AbSAYMh1>;
-	Fri, 25 Jan 2002 07:37:27 -0500
-Message-Id: <200201251237.g0PCbOR17328@pilot05.cl.msu.edu>
+	id <S290664AbSAYMk7>; Fri, 25 Jan 2002 07:40:59 -0500
+Received: from skunk.directfb.org ([212.84.236.169]:9963 "EHLO
+	skunk.convergence.de") by vger.kernel.org with ESMTP
+	id <S290662AbSAYMkp>; Fri, 25 Jan 2002 07:40:45 -0500
+Date: Fri, 25 Jan 2002 13:40:05 +0100
+From: Denis Oliver Kropp <dok@directfb.org>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Machine Check Exception ?
-To: skraw@ithnet.com (Stephan von Krawczynski)
-Date: Fri, 25 Jan 2002 07:37:24 -0500 (EST)
-From: "Marcel Kunath" <kunathma@pilot.msu.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020125114718.7af47375.skraw@ithnet.com> from "Stephan von Krawczynski" at Jan 25, 2002 11:47:18 am
-X-Mailer: ELM [version 2.4 PL25]
-Content-Type: text/plain
+Message-ID: <20020125124005.GB15174@skunk.convergence.de>
+Reply-To: Denis Oliver Kropp <dok@directfb.org>
+In-Reply-To: <20020125114718.7af47375.skraw@ithnet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020125114718.7af47375.skraw@ithnet.com>
+User-Agent: Mutt/1.3.26i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Whats the mobo? What do you mean the box is dead? Dead or deadly stalled on
-boot?
-
-mk
-
-> > Hello,
->
+Quoting Stephan von Krawczynski (skraw@ithnet.com):
+> Hello,
+> 
 > I get the following message under 2.2.19:
->
+> 
 > Message from syslogd@diehard at Thu Jan 24 14:44:49 2002 ...
 > diehard kernel: CPU 0: Machine Check Exception: 0000000000000004
->
-> and the box is dead.
-> Can anybody please enlighten me what this means or what a possible
-> problem behind might be?
->
-> Thank you in advance
-> Stephan
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
 
+Hi,
+
+I had the same error sometimes, during heavy load (compiling).
+I replaced a memory module by another and it didn't crash anymore,
+until now at least ;)
+
+-- 
+Best regards,
+  Denis Oliver Kropp
+
+.------------------------------------------.
+| DirectFB - Hardware accelerated graphics |
+| http://www.directfb.org/                 |
+"------------------------------------------"
+
+           convergence integrated media GmbH

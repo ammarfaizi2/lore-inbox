@@ -1,36 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262684AbRE0B0P>; Sat, 26 May 2001 21:26:15 -0400
+	id <S262687AbRE0B2p>; Sat, 26 May 2001 21:28:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262687AbRE0B0F>; Sat, 26 May 2001 21:26:05 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:56324 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S262684AbRE0BZu>;
-	Sat, 26 May 2001 21:25:50 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: jpcpt@earthlink.net
-cc: linux-kernel@vger.kernel.org
-Subject: Re: FWD: [RHSA-2000:108-02] Updated modutils fixing local root 
-In-Reply-To: Your message of "Sat, 27 May 2001 21:11:25."
-             <27200125529513.Amiga@SMTP.earthlink.net> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 27 May 2001 11:25:45 +1000
-Message-ID: <21470.990926745@ocs3.ocs-net>
+	id <S262689AbRE0B2f>; Sat, 26 May 2001 21:28:35 -0400
+Received: from server1.cosmoslink.net ([208.179.167.101]:44839 "EHLO
+	server1.cosmoslink.net") by vger.kernel.org with ESMTP
+	id <S262687AbRE0B2b>; Sat, 26 May 2001 21:28:31 -0400
+Message-ID: <01c701c0e64c$4ff78b60$52a6b3d0@Toshiba>
+From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+To: "Greg Banks" <gnb@alphalink.com.au>
+Cc: <esr@thyrsus.com>, "CML2" <linux-kernel@vger.kernel.org>,
+        <kbuild-devel@lists.sourceforge.net>
+In-Reply-To: <20010525012200.A5259@thyrsus.com> <3B0F3268.A671BC7A@pocketpenguins.com> <002401c0e5aa$0049a000$47a6b3d0@Toshiba> <3B0F8042.90DD5C5D@pocketpenguins.com> <005801c0e614$b49a0120$44a6b3d0@Toshiba> <3B105492.5300778F@pocketpenguins.com> <018001c0e649$8111c380$52a6b3d0@Toshiba> <3B105882.4551E232@alphalink.com.au>
+Subject: Re: [kbuild-devel] Configure.help entries wanted
+Date: Sat, 26 May 2001 18:28:17 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 May 2001 21:11:25, 
-jpcpt@earthlink.net (Joseph S Price) wrote:
->                   Red Hat, Inc. Security Advisory
->Synopsis:          Updated modutils fixing local root security bug available
->Advisory ID:       RHSA-2000:108-02
->Issue date:        2000-11-16
->Updated on:        2000-11-16
->Product:           Red Hat Linux
->Keywords:          modutils root exploit security
+Dear Greg,
 
-What is the point of sending a 6 month old security report to
-linux-kernel?  That exploit was fixed a couple of days after it was
-reported.
+>
+>   Modems are tricky, because they're frequently WinModems which
+> have a whole lot of well-known issues.  Other features depend on
+> the speed at which they can be reverse engineered, as most
+> WinCE manufacturers don't co-operate.  I'd be surprised if any
+> WindowsCE machine's hardware was fully supported by LinuxSH yet,
+> but I don't have a full list anywhere (sorry).  I'd guess the HP
+> Jornada 600 series are probably best supported.
+>
+
+yes , this is what i am looking for :)
+
+Can we use "HP Jornada 600 series" inspite of "WindowsCE machine" ?
+
+BTW, in Jornada 600 series only Keyboard and LCD is working and some CPU
+related stuff  which we can found in Hitachi Manuals , thats it .
+
+But linux-arm is supporting full iPAQ hardware .
+
+Thank you,
+
+Best Regards,
+
+Jaswinder.
+--
+These are my opinions not 3Di.
+
 

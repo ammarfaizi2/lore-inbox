@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278502AbRJPC1j>; Mon, 15 Oct 2001 22:27:39 -0400
+	id <S278504AbRJPCgd>; Mon, 15 Oct 2001 22:36:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278504AbRJPC13>; Mon, 15 Oct 2001 22:27:29 -0400
-Received: from patan.Sun.COM ([192.18.98.43]:21657 "EHLO patan.sun.com")
-	by vger.kernel.org with ESMTP id <S278502AbRJPC1P>;
-	Mon, 15 Oct 2001 22:27:15 -0400
-Message-ID: <3BCB9A65.7A2BDABF@sun.com>
-Date: Mon, 15 Oct 2001 19:24:37 -0700
-From: Tim Hockin <thockin@sun.com>
-Organization: Sun Microsystems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
+	id <S278507AbRJPCgX>; Mon, 15 Oct 2001 22:36:23 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13828 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S278504AbRJPCgI>; Mon, 15 Oct 2001 22:36:08 -0400
+Date: Mon, 15 Oct 2001 19:36:02 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Keith Owens <kaos@ocs.com.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 2.4.13-pre3 arm/i386/mips/mips64/s390/s390x/sh die()
+ deadlock
+In-Reply-To: <18579.1003198988@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.33.0110151934060.4179-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, alan@redhat.com,
-        torvalds@transmeta.com
-Subject: Re: [PATCH] fix NFS root in 2.4.12
-In-Reply-To: <Pine.GSO.4.21.0110152207520.11608-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
 
-> Had you actually tried to compile that? do_kern_mount() is defined as
-> 
-> struct vfsmount *do_kern_mount(char *type, int flags, char *name, void *data)
-> 
-> Where did you find 5th argument?
+On Tue, 16 Oct 2001, Keith Owens wrote:
+>
+> Any die() routine that uses die_lock to avoid multiple cpu reentrancy
+> will deadlock on recursive die() errors.
 
-DOH!  In the XFS patch, apparently :)  This should have been sent to the
-XFS people, if at all.
+Well, I have to say that I personally have always considered the "die"
+lock to not be about multiple CPU re-entrancy, but _exactly_ to stop
+infinite oops reports if an oops itself oopses.
 
-My bad.
+I much prefer a dead machine with a partially visible oops over a oops
+where the original oops has scrolled away due to recursive faults.
 
-Tim
--- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Cobalt Server Appliances
-thockin@sun.com
+Quite frankly, I consider the ia64 case to be a ia64 bug, nothing more.
+
+		Linus
+

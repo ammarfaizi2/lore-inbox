@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264002AbTDWLl2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 07:41:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264005AbTDWLl2
+	id S264005AbTDWLqN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 07:46:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264006AbTDWLqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 07:41:28 -0400
-Received: from users.linvision.com ([62.58.92.114]:2969 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id S264002AbTDWLl2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 07:41:28 -0400
-Date: Wed, 23 Apr 2003 13:53:26 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Nir Livni <nir_l3@netvision.net.il>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: FileSystem Filter Driver
-Message-ID: <20030423135326.A7131@bitwizard.nl>
-References: <000501c30983$1ffb8950$ade1db3e@pinguin>
+	Wed, 23 Apr 2003 07:46:13 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:59829 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S264005AbTDWLqM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 07:46:12 -0400
+Date: Wed, 23 Apr 2003 13:58:09 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Timothy Miller <miller@techsource.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Can one build 2.5.68 with allyesconfig?
+Message-ID: <20030423115809.GA14483@wohnheim.fh-wedel.de>
+References: <3EA5AABF.4090303@techsource.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <000501c30983$1ffb8950$ade1db3e@pinguin>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3EA5AABF.4090303@techsource.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 23, 2003 at 12:28:33PM +0200, Nir Livni wrote:
-> Hi all,
-> I am looking for information about writing a FileSystem Filter Driver on RH.
-> Any documentation or source code samples whould be appreciated.
+On Tue, 22 April 2003 16:49:03 -0400, Timothy Miller wrote:
+> 
+> Is anyone else able to build 2.5.68 with allyesconfig?
 
-Check out one of the latest Linux Journals. I think they just
-published an article about this!
+No, of course not. But I can give you a .config that comes very close
+on i386. Resulting vmlinux is 28MB, so this shouldn't boot.
 
-			Roger. 
+It was created for 2.5.67 with allyesconfig and manual weedout, then
+updated to 2.5.68.
+
+Jörn
 
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* The Worlds Ecosystem is a stable system. Stable systems may experience *
-* excursions from the stable situation. We are currently in such an      * 
-* excursion: The stable situation does not include humans. ***************
+Geld macht nicht glücklich.
+Glück macht nicht satt.

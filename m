@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262121AbTJASv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 14:51:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbTJASv2
+	id S262120AbTJASib (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 14:38:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbTJASia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 14:51:28 -0400
-Received: from [62.67.222.139] ([62.67.222.139]:52381 "EHLO mail.ku-gbr.de")
-	by vger.kernel.org with ESMTP id S262121AbTJASv2 (ORCPT
+	Wed, 1 Oct 2003 14:38:30 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:44561 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S262120AbTJAShB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 14:51:28 -0400
-Date: Wed, 1 Oct 2003 20:50:33 +0200
-From: Konstantin Kletschke <konsti@ludenkalle.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Date/UnixTime of SysRq state dump
-Message-ID: <20031001185033.GA5006%konsti@ludenkalle.de>
-Reply-To: Konstantin Kletschke <konsti@ludenkalle.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20031001182859.GA4081%konsti@ludenkalle.de>
+	Wed, 1 Oct 2003 14:37:01 -0400
+Date: Wed, 1 Oct 2003 20:36:48 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Rob Landley <rob@landley.net>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Keyboard dead on bootup on -test6.
+Message-ID: <20031001183648.GB1686@win.tue.nl>
+References: <200309301632.01498.rob@landley.net> <20031001005214.GC1520@win.tue.nl> <200309302021.56614.rob@landley.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031001182859.GA4081%konsti@ludenkalle.de>
-Organization: Kletschke & Uhlig GbR
-User-Agent: Mutt/1.5.4i-ja.1
+In-Reply-To: <200309302021.56614.rob@landley.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Err, what I wanted also to point out, can the freeze time decoded out of
-the state dump (Was smoking a cig outside when it happened)?
+On Tue, Sep 30, 2003 at 08:21:56PM -0500, Rob Landley wrote:
 
-Konsti
+> > > Sep 30 16:17:31 localhost kernel: atkbd.c: Unknown key pressed (raw set
+> > > 0, code 0xfc, data 0xfc, on isa0060/serio1).
 
+> > I suppose this is the kernel trying to set LEDs on the mouse,
+> > and the mouse complains.
 
--- 
-2.6.0-test6-mm1
-Konstantin Kletschke <konsti@ludenkalle.de>, <konsti@ku-gbr.de>
-GPG KeyID EF62FCEF
-Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
-keulator.homelinux.org up 1:46, 17 users
+> There are no LED's anywhere near it.  So I'm not surprised it complains.
+> But why does that kill my keyboard?
+
+I can conjecture, but reading the facts is easier if you have a debug log
+(#define DEBUG in i8042.c).
+
+[In case you already sent one, point at the URL - I've seen so many recently
+I lost track who reported what.]
+

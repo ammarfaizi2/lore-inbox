@@ -1,95 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313096AbSC1Hc2>; Thu, 28 Mar 2002 02:32:28 -0500
+	id <S312841AbSC1H26>; Thu, 28 Mar 2002 02:28:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313093AbSC1HcT>; Thu, 28 Mar 2002 02:32:19 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7433 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313096AbSC1HcE>;
-	Thu, 28 Mar 2002 02:32:04 -0500
-Message-ID: <3CA2C68E.5B8C4176@zip.com.au>
-Date: Wed, 27 Mar 2002 23:30:22 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: [patch] ext2_fill_super breakage
-Content-Type: text/plain; charset=us-ascii
+	id <S313093AbSC1H2t>; Thu, 28 Mar 2002 02:28:49 -0500
+Received: from zero.tech9.net ([209.61.188.187]:24850 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S312841AbSC1H2l>;
+	Thu, 28 Mar 2002 02:28:41 -0500
+Subject: Re: Scheduler priorities
+From: Robert Love <rml@tech9.net>
+To: Wessel Dankers <wsl@fruit.eu.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020328070855.GB514@fruit.eu.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 28 Mar 2002 02:29:34 -0500
+Message-Id: <1017300610.17515.229.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.5.7 there is a thinko in the allocation and initialisation
-of the fs-private superblock for ext2.  It's passing the wrong type
-to the sizeof operator (which of course gives the wrong size)
-when allocating and clearing the memory. 
+On Thu, 2002-03-28 at 02:08, Wessel Dankers wrote:
 
-Lesson for the day: this is one of the reasons why this idiom:
+> Well evidently it should be root-only, just like SCHED_RR and SCHED_FIFO.
+> If the priority inversion issues are worked out this restriction could be
+> removed. I remember discussing this problem with Rik van Riel.
+> The kernel-preempt patch seems to be able to detect when a process holds a
+> lock; perhaps the process scheduler can temporarily revert to SCHED_NORMAL
+> when this is the case? Preferably with a large nice value.
 
-	some_type *p;
+The preempt-kernel patch does keep track of the lock count, but it does
+not include semaphores and those are what we need to worry about.
 
-	p = malloc(sizeof(*p));
-	...
-	memset(p, 0, sizeof(*p));
+I also don't think it is enough that SCHED_IDLE only be settable by
+root.  Regardless of what permissions it takes to set the scheduling
+class, a "SCHED_IDLE" task should never be capable of harming an RT
+task.
 
-is preferable to
+One solution I have come across is checking whether the task is
+returning to kernel or user mode and acting appropriately.  As needed,
+the task can be scheduled as SCHED_NORMAL.  This situation could even be
+special-cased like ptrace and not impact normal scheduling.  Perhaps
+this is what Ingo had in mind ... I hope he is still interested and
+presents some code.
 
-	some_type *p;
+I know all this because I tried to implement SCHED_IDLE about a year
+ago.  There were arguments against every approach, and SCHED_IDLE will
+never be accepted until they are all satisfied.  If we want it, it needs
+to be done right.
 
-	p = malloc(sizeof(some_type));
-	...
-	memset(p, 0, sizeof(some_type));
+	Robert Love
 
-I checked the other filesystems.  They're OK (but idiomatically
-impure).  I've added a couple of defensive memsets where
-they were missing.
-
-
---- 2.5.7/fs/autofs/inode.c~fill-super	Wed Mar 27 23:14:20 2002
-+++ 2.5.7-akpm/fs/autofs/inode.c	Wed Mar 27 23:14:54 2002
-@@ -119,9 +119,10 @@ int autofs_fill_super(struct super_block
- 	struct autofs_sb_info *sbi;
- 	int minproto, maxproto;
- 
--	sbi = (struct autofs_sb_info *) kmalloc(sizeof(struct autofs_sb_info), GFP_KERNEL);
-+	sbi = kmalloc(sizeof(*sbi), GFP_KERNEL);
- 	if ( !sbi )
- 		goto fail_unlock;
-+	memset(sbi, 0, sizeof(*sbi));
- 	DPRINTK(("autofs: starting up, sbi = %p\n",sbi));
- 
- 	s->u.generic_sbp = sbi;
---- 2.5.7/fs/devpts/inode.c~fill-super	Wed Mar 27 23:16:05 2002
-+++ 2.5.7-akpm/fs/devpts/inode.c	Wed Mar 27 23:16:33 2002
-@@ -123,9 +123,10 @@ static int devpts_fill_super(struct supe
- 	struct inode * inode;
- 	struct devpts_sb_info *sbi;
- 
--	sbi = (struct devpts_sb_info *) kmalloc(sizeof(struct devpts_sb_info), GFP_KERNEL);
-+	sbi = kmalloc(sizeof(*sbi), GFP_KERNEL);
- 	if ( !sbi )
- 		goto fail;
-+	memset(sbi, 0, sizeof(*sbi));
- 
- 	sbi->magic  = DEVPTS_SBI_MAGIC;
- 	sbi->max_ptys = unix98_max_ptys;
---- 2.5.7/fs/ext2/super.c~fill-super	Wed Mar 27 23:16:57 2002
-+++ 2.5.7-akpm/fs/ext2/super.c	Wed Mar 27 23:17:25 2002
-@@ -465,11 +465,11 @@ static int ext2_fill_super(struct super_
- 	int db_count;
- 	int i, j;
- 
--	sbi = kmalloc(sizeof(struct ext2_super_block), GFP_KERNEL);
-+	sbi = kmalloc(sizeof(*sbi), GFP_KERNEL);
- 	if (!sbi)
- 		return -ENOMEM;
- 	sb->u.generic_sbp = sbi;
--	memset(sbi, 0, sizeof(struct ext2_super_block));
-+	memset(sbi, 0, sizeof(*sbi));
- 
- 	/*
- 	 * See what the current blocksize for the device is, and
-
-
--

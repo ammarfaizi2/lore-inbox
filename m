@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129429AbQLDSBu>; Mon, 4 Dec 2000 13:01:50 -0500
+	id <S129231AbQLDSW7>; Mon, 4 Dec 2000 13:22:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129465AbQLDSBk>; Mon, 4 Dec 2000 13:01:40 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:29191
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129429AbQLDSBX>; Mon, 4 Dec 2000 13:01:23 -0500
-Date: Mon, 4 Dec 2000 09:30:20 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Guennadi Liakhovetski <gvlyakh@mail.ru>
-cc: linux-kernel@vger.kernel.org, Mike Dresser <mdresser@windsormachine.com>
-Subject: Re: Re[2]: DMA !NOT ONLY! for triton again...
-In-Reply-To: <E142zJP-000Mbh-00@f3.mail.ru>
-Message-ID: <Pine.LNX.4.10.10012040927490.13699-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S129314AbQLDSWt>; Mon, 4 Dec 2000 13:22:49 -0500
+Received: from fromage.dsndata.com ([198.183.6.16]:1284 "EHLO
+	fromage.dsndata.com") by vger.kernel.org with ESMTP
+	id <S129231AbQLDSWf>; Mon, 4 Dec 2000 13:22:35 -0500
+Date: Mon, 4 Dec 2000 11:52:36 -0600
+From: Jeff Epler <jepler@dsndata.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Path: for oom_kill.c
+Message-ID: <20001204115236.B974@dsndata.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20001204162712Z129770-439+868@vger.kernel.org> <Pine.LNX.4.21.0012041456100.29258-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.21.0012041456100.29258-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Mon, Dec 04, 2000 at 02:57:34PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Guennadi,
-
-I have watched this and even if UDMA is not supported cleanly by the
-drive, the classic ATA-2 Multi-wrod DMA should be.  There was a time in
-the past where WDC had some problems, but they have fixed most if not all
-with "modern" drives.  I will be at WDC in two weeks, and I can raise the
-issues with them.  Please spell them out completely.
-
-Regards,
-
-On Mon, 4 Dec 2000, Guennadi Liakhovetski wrote:
-
-> Well, yes, I thought they could not have known:-)) I'm absolutely stuck. If disk is fine, chipset is fine and supported by the kernel, then BIOS doesn't (or shouldn't) make a difference... Then WHAT ON THE EARTH??? Mike, have you been able to recall what BIOS option turned DMA on? Shall I write to Andre Hedrick directly? Or is there a mailing-list smth. like linux-ide?
+On Mon, Dec 04, 2000 at 02:57:34PM -0200, Rik van Riel wrote:
+> On Sat, 2 Dec 2000, hugang wrote:
 > 
-> > Now, the question is, can we trust a hard drive manufacturer
-> > support tech to know what they're talking about, with evidence to
-> > the contrary? :)
+> > Hello all:
+> > 	
+> > old    ---->     points = p->mm->total_vm;
+> >        
+> > change to --->   points = p->pid;
 > 
-> Thanks
-> Guennadi
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+> Ummm, what exactly do you want to achieve with this?
 
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
+I suspect that hugang whishes to kill the newest process.  However,
+this will not work after PID wrap.
 
+Jeff
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262955AbUKRUtY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262987AbUKRXxl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262955AbUKRUtY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 15:49:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262948AbUKRUtH
+	id S262987AbUKRXxl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 18:53:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbUKRXwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 15:49:07 -0500
-Received: from gold.pobox.com ([208.210.124.73]:61378 "EHLO gold.pobox.com")
-	by vger.kernel.org with ESMTP id S262906AbUKRUsw (ORCPT
+	Thu, 18 Nov 2004 18:52:21 -0500
+Received: from gate.ebshome.net ([64.81.67.12]:30865 "EHLO gate.ebshome.net")
+	by vger.kernel.org with ESMTP id S263004AbUKRXqa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 15:48:52 -0500
-Date: Thu, 18 Nov 2004 12:48:41 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: "O.Sezer" <sezeroz@ttnet.net.tr>
-Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
-Subject: Re: Linux 2.4.28-rc4
-Message-ID: <20041118204841.GA11682@ip68-4-98-123.oc.oc.cox.net>
-References: <419B1813.80002@ttnet.net.tr>
+	Thu, 18 Nov 2004 18:46:30 -0500
+Date: Thu, 18 Nov 2004 15:46:29 -0800
+From: Eugene Surovegin <ebs@ebshome.net>
+To: Greg KH <greg@kroah.com>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] a very tiny /sbin/hotplug
+Message-ID: <20041118234629.GA3046@gate.ebshome.net>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	linux-hotplug-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+References: <20041118231406.GA11239@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <419B1813.80002@ttnet.net.tr>
+In-Reply-To: <20041118231406.GA11239@kroah.com>
+X-ICQ-UIN: 1193073
+X-Operating-System: Linux i686
+X-PGP-Key: http://www.ebshome.net/pubkey.asc
 User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 17, 2004 at 11:21:23AM +0200, O.Sezer wrote:
-> >Jakub Jelínek:
-> >  o binfmt_elf: handle p_filesz == 0 on PT_INTERP section
-> 
-> Another FYI: There were two successive binfmt_elf 2.6-backports posted
-> by Barry Nathan here;  "ELF fixes for executables with huge BSS":
-> 
-> http://marc.theaimsgroup.com/?t=109850369800001&r=1&w=2
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=109850420711579&w=2
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=109850420729735&w=2
-> 
-> but it may be too late for 2.4.28.
+On Thu, Nov 18, 2004 at 03:14:06PM -0800, Greg Kroah-Hartman wrote:
+> So, a number of people have complained over the past few years about the
+> fact that /sbin/hotplug was a shell script.  Funny enough, it's the
+> people on the huge boxes, with huge number of devices that are
+> complaining, not the embedded people with limited resources (ironic,
+> isn't it...)
 
-Marcelo and I discussed this via private e-mail; it's in the queue for
-2.4.29-pre. I think in the end we both agreed that it's too late in the
-2.4.28 cycle to include these patches.
+This is probably because embedded people don't use hotplug at all :).
+On dozen different PPC and MIPS boxes I worked on, we never needed 
+this feature.
 
--Barry K. Nathan <barryn@pobox.com>
-
+--
+Eugene

@@ -1,73 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269531AbUJGAzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269589AbUJGBIw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269531AbUJGAzU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 20:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269495AbUJGAzT
+	id S269589AbUJGBIw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 21:08:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269591AbUJGBIw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 20:55:19 -0400
-Received: from ozlabs.org ([203.10.76.45]:60335 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S269531AbUJGAyr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 20:54:47 -0400
-Date: Thu, 7 Oct 2004 10:52:25 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
-       linuxppc64-dev@ozlabsorg, linux-kernel@vger.kernel.org
-Subject: [PPC64] Kconfig cleanups
-Message-ID: <20041007005225.GB25012@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Andrew Morton <akpm@osdl.org>, Paul Mackerras <paulus@samba.org>,
-	Anton Blanchard <anton@samba.org>, linuxppc64-dev@ozlabsorg,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 6 Oct 2004 21:08:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4331 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269589AbUJGBIv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 21:08:51 -0400
+Message-ID: <41649715.4040100@pobox.com>
+Date: Wed, 06 Oct 2004 21:08:37 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+CC: Andrew Morton <akpm@osdl.org>, mingo@redhat.com, nickpiggin@yahoo.com.au,
+       kenneth.w.chen@intel.com,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       judith@osdl.org
+Subject: Re: new dev model (was Re: Default cache_hot_time value back to 10ms)
+References: <200410060042.i960gn631637@unix-os.sc.intel.com> <20041005205511.7746625f.akpm@osdl.org> <416374D5.50200@yahoo.com.au> <20041005215116.3b0bd028.akpm@osdl.org> <41637BD5.7090001@yahoo.com.au> <20041005220954.0602fba8.akpm@osdl.org> <416380D7.9020306@yahoo.com.au> <20041005223307.375597ee.akpm@osdl.org> <41638E61.9000004@pobox.com> <20041005233958.522972a9.akpm@osdl.org> <41644A3D.4050100@pobox.com> <41644BF1.7030904@pobox.com> <41644E6B.5070607@pobox.com> <Pine.GSO.4.61.0410062231290.738@waterleaf.sonytel.be>
+In-Reply-To: <Pine.GSO.4.61.0410062231290.738@waterleaf.sonytel.be>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, please apply:
+Geert Uytterhoeven wrote:
+> P.S. I only track `real' (-pre and -rc) releases. I don't have the manpower
+>      (what's in a word) to track daily snapshots (I do `read' bk-commits). If
+>      m68k stuff gets broken in -rc, usually it means it won't get fixed before
+>      2 full releases later.  Anyway, things shouldn't become broken in -rc,
+>      IMHO that's what we (should) have -pre for...
 
-Now that the PPC64 code supports more platforms than just pSeries and
-iSeries, some p/i specific Kconfig options need to be updated
-accordingly.
 
-Signed-off-by: David Gibson <dwg@au1.ibm.com>
+I agree completely, but -pre is apparently a dirty word (dirty suffix?:))
 
-Index: working-2.6/arch/ppc64/Kconfig
-===================================================================
---- working-2.6.orig/arch/ppc64/Kconfig	2004-09-28 10:22:13.000000000 +1000
-+++ working-2.6/arch/ppc64/Kconfig	2004-10-07 10:26:53.466075056 +1000
-@@ -215,7 +215,7 @@
- 
- config PPC_RTAS
- 	bool "Proc interface to RTAS"
--	depends on !PPC_ISERIES
-+	depends on PPC_PSERIES
- 
- config RTAS_FLASH
- 	tristate "Firmware flash interface"
-@@ -227,6 +227,7 @@
- 
- config LPARCFG
- 	tristate "LPAR Configuration Data"
-+	depends on PPC_PSERIES || PPC_ISERIES
- 	help
- 	Provide system capacity information via human readable
- 	<key word>=<value> pairs through a /proc/ppc64/lparcfg interface.
-@@ -273,7 +274,7 @@
- 
- config HOTPLUG_CPU
- 	bool "Support for hot-pluggable CPUs"
--	depends on SMP && HOTPLUG && EXPERIMENTAL
-+	depends on SMP && HOTPLUG && EXPERIMENTAL && PPC_PSERIES
- 	---help---
- 	  Say Y here to be able to turn CPUs off and on.
- 
+	Jeff
 
--- 
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+

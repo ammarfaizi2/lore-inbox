@@ -1,34 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261876AbTCYKHh>; Tue, 25 Mar 2003 05:07:37 -0500
+	id <S261883AbTCYKVe>; Tue, 25 Mar 2003 05:21:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261883AbTCYKHh>; Tue, 25 Mar 2003 05:07:37 -0500
-Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:19413 "EHLO
-	exchange.Pronto.TV") by vger.kernel.org with ESMTP
-	id <S261876AbTCYKHg> convert rfc822-to-8bit; Tue, 25 Mar 2003 05:07:36 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: O_DIRECT for ext3?
-Date: Tue, 25 Mar 2003 11:18:37 +0100
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200303251118.37597.roy@karlsbakk.net>
-X-OriginalArrivalTime: 25 Mar 2003 10:20:21.0265 (UTC) FILETIME=[240ED010:01C2F2B8]
+	id <S261885AbTCYKVe>; Tue, 25 Mar 2003 05:21:34 -0500
+Received: from ethlife-b.ethz.ch ([129.132.202.8]:30155 "HELO
+	ethlife-b.ethz.ch") by vger.kernel.org with SMTP id <S261883AbTCYKVd>;
+	Tue, 25 Mar 2003 05:21:33 -0500
+Mime-Version: 1.0
+Message-Id: <p04320436baa5df6de6f0@[192.168.3.11]>
+In-Reply-To: <20030323171955Z263126-25575+35740@vger.kernel.org>
+References: <20030323171955Z263126-25575+35740@vger.kernel.org>
+Date: Tue, 25 Mar 2003 11:32:26 +0100
+To: linux-kernel@vger.kernel.org
+From: Christian Jaeger <christian.jaeger@ethlife.ethz.ch>
+Subject: Re: Need help for pci driver on powerpc
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+Thanks for your help, Benjamin and Alan.
 
-any chance to get O_DIRECT support for ext3 into 2.4.21?
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
+It works now, the reason it didn't when I first used inb/outb was 
+simply that I used the wrong I/O region :o}
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+Source available for those who are interested at
+http://pflanze.mine.nu/~chris/linux/sensor/
 
+Cheers
+Christian.

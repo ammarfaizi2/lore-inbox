@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbTKXWzd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 17:55:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbTKXWzd
+	id S261614AbTKXXB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 18:01:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbTKXXAL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 17:55:33 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:10763
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S261473AbTKXWza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 17:55:30 -0500
-Date: Mon, 24 Nov 2003 14:55:27 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: OOps! was: 2.6.0-test9-mm5
-Message-ID: <20031124225527.GB1343@mis-mike-wstn.matchmail.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20031121121116.61db0160.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031121121116.61db0160.akpm@osdl.org>
-User-Agent: Mutt/1.5.4i
+	Mon, 24 Nov 2003 18:00:11 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:60677 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261602AbTKXW7x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 17:59:53 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: [RFC] generalise scheduling classes
+Date: 24 Nov 2003 22:48:57 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bpu1sp$vil$1@gatekeeper.tmr.com>
+References: <20031117021511.GA5682@averell> <1010800000.1069532100@[10.10.2.4]> <3FC01817.3090705@cyberone.com.au> <3FC0A0C2.90800@cyberone.com.au>
+X-Trace: gatekeeper.tmr.com 1069714137 32341 192.168.12.62 (24 Nov 2003 22:48:57 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting an oops on boot, right after serial is initialised.
+In article <3FC0A0C2.90800@cyberone.com.au>,
+Nick Piggin  <piggin@cyberone.com.au> wrote:
 
-Two things it says:
-BAD EIP!
-Trying to kill init!
+| We still don't have an HT aware scheduler, which is unfortunate because
+| weird stuff like that looks like it will only become more common in future.
 
-Yes, I'm using preempt.  I'll try without, and see if that "fixes" the
-problem, and try some other versions, since the last 2.6 booted on this
-machine is 2.6.0-test6-mm4.
+The idea is hardly new, in the late 60's GE (still a mainframe vendor at
+that time) was looking at two execution units on a single memory path.
+They decided it would have problems with memory bandwidth, what else is
+new?
 
-Mike
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

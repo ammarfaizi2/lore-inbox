@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129187AbQKIJff>; Thu, 9 Nov 2000 04:35:35 -0500
+	id <S129076AbQKIJf5>; Thu, 9 Nov 2000 04:35:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129076AbQKIJfY>; Thu, 9 Nov 2000 04:35:24 -0500
-Received: from fs1.dekanat.physik.uni-tuebingen.de ([134.2.216.20]:5391 "EHLO
-	fs1.dekanat.physik.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id <S129033AbQKIJfW>; Thu, 9 Nov 2000 04:35:22 -0500
-Date: Thu, 9 Nov 2000 10:34:59 +0100 (CET)
-From: Richard Guenther <richard.guenther@student.uni-tuebingen.de>
-To: James Simmons <jsimmons@suse.com>
-cc: Richard Guenther <richard.guenther@student.uni-tuebingen.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, tytso@mit.edu,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Broken colors on console with 2.4.0-textXX
-In-Reply-To: <Pine.LNX.4.21.0011081017320.2704-100000@euclid.oak.suse.com>
-Message-ID: <Pine.LNX.4.21.0011091033220.17375-100000@fs1.dekanat.physik.uni-tuebingen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129661AbQKIJff>; Thu, 9 Nov 2000 04:35:35 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:56079 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S129033AbQKIJf0>;
+	Thu, 9 Nov 2000 04:35:26 -0500
+Date: Thu, 9 Nov 2000 10:35:11 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: rd - deadlock removal
+Message-ID: <20001109103511.G467@suse.de>
+In-Reply-To: <14857.60161.343937.977948@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <14857.60161.343937.977948@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Thu, Nov 09, 2000 at 11:08:33AM +1100
+X-OS: Linux 2.4.0-test11 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Nov 2000, James Simmons wrote:
+On Thu, Nov 09 2000, Neil Brown wrote:
+[snip]
+>                                     DEADLOCK
 
-> 
-> > Sure - but this was always the case. And using 2.2 with the same
-> > (or more) stress the Xserver is still able to set the video hardware
-> > back to vga text mode. I just want to know whats the difference
-> > between 2.2 and 2.4 that causes failure in 2.4.
-> 
-> I don't think it is the console system. I bet if you stress 2.2 even more
-> you will get the same results.
+>  I have two patches which address this problem.
+>  The first is simple and simply drops ui_request_lock before calling
+>  getblk.  This may be the appropriate one to use given the code
+>  freeze.
 
-Ok, obviously I'm not happy with this - I'll try to stress 2.2, but
-it never happened there. With 2.4 its nearly _always_ the case (on
-32Megs ram you get into swapping very fast with X and gnome) - so, to
-repeat, I'm not happy with the current 2.4 situation.
+rd still needs to hold the lock when calling end_request, since
+that may end up fiddling with the queue list.
 
-Richard.
+>  The second is more elegant in that it side steps the problem by
+>  giving rd.c a make_request function instead of using the default
+>  _make_request.   This means that io_request_lock is simply never
+>  claimed my rd.
 
---
-Richard Guenther <richard.guenther@student.uni-tuebingen.de>
-WWW: http://www.anatom.uni-tuebingen.de/~richi/
-The GLAME Project: http://www.glame.de/
+And this solution is much better, even given the freeze I think that
+is the way to go.
 
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

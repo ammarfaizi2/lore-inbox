@@ -1,74 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264412AbUEXS7p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264355AbUEXTC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264412AbUEXS7p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 14:59:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264424AbUEXS7o
+	id S264355AbUEXTC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 15:02:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264424AbUEXTC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 14:59:44 -0400
-Received: from sandershosting.com ([69.26.136.138]:7594 "HELO
-	sandershosting.com") by vger.kernel.org with SMTP id S264412AbUEXS7k convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 14:59:40 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: David Sanders <linux@sandersweb.net>
-Reply-To: David Sanders <linux@sandersweb.net>
-Organization: SandersWeb.net
-Message-Id: <200405241457.18407@sandersweb.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] isapnp sb16 virtual pc
-Date: Mon, 24 May 2004 14:59:45 -0400
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	Mon, 24 May 2004 15:02:59 -0400
+Received: from outmx007.isp.belgacom.be ([195.238.3.234]:8665 "EHLO
+	outmx007.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S264355AbUEXTC4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 15:02:56 -0400
+Subject: [PATCH 2.6.7-rc1] ext2 debugger broken
+From: FabF <fabian.frederick@skynet.be>
+To: linus@osdl.org
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-cSt93GRzMviaJuBGz6Lf"
+Message-Id: <1085423455.5746.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 24 May 2004 20:30:55 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch adds support for the emulated Soundblaster 16 in Virtual PC 2004.
-Thanks,
--- 
-David Sanders
-linux@sandersweb.net
 
+--=-cSt93GRzMviaJuBGz6Lf
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
---- sound/isa/sb/sb16.c-orig	Sun May  9 22:33:13 2004
-+++ sound/isa/sb/sb16.c	Mon May 24 14:24:24 2004
-@@ -247,6 +247,8 @@ static struct pnp_card_device_id snd_sb1
- 	{ .id = "CTLXXXX" , .devs = { { "CTL0044" }, { "CTL0023" } } },
- 	{ .id = "CTLXXXX" , .devs = { { "CTL0045" }, { "CTL0022" } } },
- #endif /* SNDRV_SBAWE */
-+	/* Sound Blaster 16 PnP (Virtual PC 2004)*/
-+	{ .id = "tBA03b0", .devs = { { "PNPb003" } } },
- 	{ .id = "", }
- };
- 
+Linus,
 
---- sound/oss/sb_card.c-orig	Sun May  9 22:32:52 2004
-+++ sound/oss/sb_card.c	Mon May 24 14:23:47 2004
-@@ -181,6 +181,13 @@ static void sb_dev2cfg(struct pnp_dev *d
- 		scc->mpucnf.io_base = pnp_port_start(dev,1);
- 		return;
+	This fixes ext2 debugger.It seems percpu_counter_read stamp moved
+lately.
+
+Regards,
+FabF
+
+--=-cSt93GRzMviaJuBGz6Lf
+Content-Disposition: attachment; filename=ext2dbg1.diff
+Content-Type: text/x-patch; name=ext2dbg1.diff; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+diff -Naur orig/fs/ext2/ialloc.c edited/fs/ext2/ialloc.c
+--- orig/fs/ext2/ialloc.c	2004-05-10 04:32:37.000000000 +0200
++++ edited/fs/ext2/ialloc.c	2004-05-24 20:09:33.000000000 +0200
+@@ -663,7 +663,7 @@
  	}
-+	if(!strncmp("tBA",scc->card_id,3)) {
-+		scc->conf.io_base   = pnp_port_start(dev,0);
-+		scc->conf.irq       = pnp_irq(dev,0);
-+		scc->conf.dma       = pnp_dma(dev,0);
-+		scc->conf.dma2      = pnp_dma(dev,1);
-+		return;
-+	}
- 	if(!strncmp("ESS",scc->card_id,3)) {
- 		scc->conf.io_base   = pnp_port_start(dev,0);
- 		scc->conf.irq       = pnp_irq(dev,0);
+ 	brelse(bitmap_bh);
+ 	printk("ext2_count_free_inodes: stored = %lu, computed = %lu, %lu\n",
+-		percpu_counter_read(EXT2_SB(sb)->s_freeinodes_counter),
++		percpu_counter_read(&EXT2_SB(sb)->s_freeinodes_counter),
+ 		desc_count, bitmap_count);
+ 	unlock_super(sb);
+ 	return desc_count;
+@@ -724,7 +724,7 @@
+ 		bitmap_count += x;
+ 	}
+ 	brelse(bitmap_bh);
+-	if (percpu_counter_read(EXT2_SB(sb)->s_freeinodes_counter) !=
++	if (percpu_counter_read(&EXT2_SB(sb)->s_freeinodes_counter) !=
+ 				bitmap_count)
+ 		ext2_error(sb, "ext2_check_inodes_bitmap",
+ 			    "Wrong free inodes count in super block, "
 
-
---- sound/oss/sb_card.h-orig	Sun May  9 22:32:37 2004
-+++ sound/oss/sb_card.h	Mon May 24 14:31:15 2004
-@@ -140,6 +140,8 @@ static struct pnp_card_device_id sb_pnp_
- 	{.id = "RTL3000", .driver_data = 0, .devs = { {.id="@@@2001"},
- 						     {.id="@X@2001"},
- 						     {.id="@H@0001"}, } },
-+	/* Sound Blaster 16 (Virtual PC 2004) */
-+	{.id = "tBA03b0", .driver_data = 0, .devs = { {.id="PNPb003"}, } },
- 	/* -end- */
- 	{.id = "", }
- };
+--=-cSt93GRzMviaJuBGz6Lf--
 

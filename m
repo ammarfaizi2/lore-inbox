@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262201AbTBQBr1>; Sun, 16 Feb 2003 20:47:27 -0500
+	id <S263291AbTBQBzI>; Sun, 16 Feb 2003 20:55:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263291AbTBQBr0>; Sun, 16 Feb 2003 20:47:26 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:36537 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S262201AbTBQBr0>; Sun, 16 Feb 2003 20:47:26 -0500
-Date: Sun, 16 Feb 2003 19:57:04 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Brian Gerst <bgerst@didntduck.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Move __this_module to xxx.mod.c
-In-Reply-To: <3E50016B.1080908@quark.didntduck.org>
-Message-ID: <Pine.LNX.4.44.0302161946220.5217-100000@chaos.physics.uiowa.edu>
+	id <S263491AbTBQBzH>; Sun, 16 Feb 2003 20:55:07 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:64018 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S263291AbTBQBzH>; Sun, 16 Feb 2003 20:55:07 -0500
+Date: Sun, 16 Feb 2003 20:59:54 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Thomas Schlichter <schlicht@uni-mannheim.de>
+cc: Dave Jones <davej@codemonkey.org.uk>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.60-mm2
+In-Reply-To: <200302141110.49348.schlicht@uni-mannheim.de>
+Message-ID: <Pine.LNX.3.96.1030216205709.29049B-101000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/SIGNED; PROTOCOL="application/pgp-signature"; MICALG=pgp-sha1; BOUNDARY="Boundary-02=_pCMT+DYGeShQy4x"; CHARSET=iso-8859-1
+Content-ID: <Pine.LNX.3.96.1030216205709.29049C@gatekeeper.tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Feb 2003, Brian Gerst wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> This patch moves the module structure to the generated .mod.c file, 
-> instead of compiling it into each object and relying on the linker to 
-> include it only once.
+--Boundary-02=_pCMT+DYGeShQy4x
+Content-Type: TEXT/PLAIN; CHARSET=iso-8859-1
+Content-ID: <Pine.LNX.3.96.1030216205709.29049D@gatekeeper.tmr.com>
+Content-Description: signed data
 
-Yeah, it's something I though about doing, but I was not sure. I think 
-it's up to Rusty to comment ;)
-
-It will need an associated change to module_init_tools.
-
-Another comment:
-
-diff -urN linux-2.5.61-bk1/scripts/modpost.c linux/scripts/modpost.c
---- linux-2.5.61-bk1/scripts/modpost.c	2003-02-16 10:06:35.000000000 -0500
-+++ linux/scripts/modpost.c	2003-02-16 14:10:19.000000000 -0500
-@@ -287,6 +287,10 @@
- 		/* undefined symbol */
- 		if (ELF_ST_BIND(sym->st_info) != STB_GLOBAL)
- 			break;
-+
-+		/* ignore __this_module */
-+		if (!strcmp(symname, "__this_module"))
-+			break;
- 		
- 		s = alloc_symbol(symname);
- 		/* add to list */
-
-Is that necessary? __this_module shouldn't be unresolved, so this case 
-should never be hit AFAICS.
-
---Kai
+On Fri, 14 Feb 2003, Thomas Schlichter wrote:
 
 
+> I've got NFS problems with 2.5.5x - 60-bk3, too, but here I can workaround 
+> them by simply pinging the NFS-server every second... Funny, but it works!
+> Perhaps this can help finding the real bug?!
+
+I was looking for network issues when I started timing pings, and didn't
+see any. I thought it was bad timing, link not raining when you have a
+coat, but maybe I was curing it.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+
+--Boundary-02=_pCMT+DYGeShQy4x
+Content-Type: APPLICATION/PGP-SIGNATURE
+Content-ID: <Pine.LNX.3.96.1030216205709.29049E@gatekeeper.tmr.com>
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+TMCpYAiN+WRIZzQRAkV8AJwKY8v7t1jvBMFbyNXaFt1c5QzKbQCdFcXB
+/KQsXPQPTki+B5HzH3QsQZc=
+=PNko
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_pCMT+DYGeShQy4x--

@@ -1,89 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289367AbSAOCyA>; Mon, 14 Jan 2002 21:54:00 -0500
+	id <S289371AbSAOC7K>; Mon, 14 Jan 2002 21:59:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289370AbSAOCxu>; Mon, 14 Jan 2002 21:53:50 -0500
-Received: from florin.dsl.visi.com ([209.98.146.184]:64593 "HELO
-	beaver.iucha.org") by vger.kernel.org with SMTP id <S289367AbSAOCxq>;
-	Mon, 14 Jan 2002 21:53:46 -0500
-Date: Mon, 14 Jan 2002 20:53:38 -0600
-To: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.4.18-pre3-ac2 performance regression(?) vs. 2.4.17
-Message-ID: <20020115025337.GC1226@iucha.net>
-Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="32u276st3Jlj2kUU"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-From: florin@iucha.net (Florin Iucha)
+	id <S289370AbSAOC7A>; Mon, 14 Jan 2002 21:59:00 -0500
+Received: from science.horizon.com ([192.35.100.1]:49974 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP
+	id <S289376AbSAOC6p>; Mon, 14 Jan 2002 21:58:45 -0500
+Date: 15 Jan 2002 02:58:40 -0000
+Message-ID: <20020115025840.11509.qmail@science.horizon.com>
+From: peter@horizon.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: Hardwired drivers are going away?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I don't mind how people do it, but there are currently two significant
+penalties associated with modules on x86.  I think other architectures
+have analogues.
 
---32u276st3Jlj2kUU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+1) The main kernel is contiguous in physical memory and is mapped with
+   large (4 MB) pages.  This reduces pressure on the TLB.  Modules are
+   loaded in vmalloc memory, which uses small pages, and therefore
+   competes for TLB space.  This is a performance penalty, especially
+   as most current machines have undersized TLBs already.  (A 64-entry
+   TLB with 4K pages maps 256K at a time.  On-chip L2 caches are this
+   large or larger.  Thus, as a crude approximation, every L2 miss also
+   causes a TLB miss.)
 
-Rik, Alan,
+   Also, vmalloc space is limited, and contributes to the "why isn't
+   the kernel seeing all of my 1 GB?" question.
 
-I have downloaded 2.4.18-pre3-ac2 out of curiosity for the VM and IDE
-performance.
+2) Space for module code is allocated in page units.  Thus, each module
+   wastes an average of 2K.  If I'm going to have dozens of modules
+   loaded, small machines are going to notice.
 
-As a "benchmark" I ran hdparm -Tt /dev/hda. The results were surprising:
 
-2.4.17
+On a related subject, I'd like a kernel image to consist of a series
+of concatenated "chunks".  The first one is the kernel proper, and then
+come various modules and initrd image(s).  (There may be an "EOF" chunk,
+or just the absence of a magic number.)
 
-/dev/hda:
- Timing buffer-cache reads:   128 MB in  0.86 seconds =3D148.84 MB/sec
- Timing buffered disk reads:  64 MB in  3.95 seconds =3D 16.20 MB/sec
+All the boot loader has to do is copy the image into contiguous memory
+and jump to it.  The start of the image (ideally, it'd be PIC) then
+relocates itself to wherever it wants and starts assembling the pieces.
 
- Timing buffer-cache reads:   128 MB in  0.90 seconds =3D142.22 MB/sec
- Timing buffered disk reads:  64 MB in  4.05 seconds =3D 15.80 MB/sec
+Whether this is done by a sort of linker before the kernel boots, or
+if the chunks are all ramdisk components and form a userland that the
+kernel boots to which assemble the rest of the kernel is not particularly
+important.  I just want the unnecessary bits to get thrown away once
+we've booted.  (Kernel bloat should NOT be designed in.)
 
- Timing buffer-cache reads:   128 MB in  0.88 seconds =3D145.45 MB/sec
- Timing buffered disk reads:  64 MB in  4.00 seconds =3D 16.00 MB/sec
-
-2.4.18-pre3-ac2
-
-/dev/hda:
- Timing buffer-cache reads:   128 MB in  0.99 seconds =3D129.29 MB/sec
- Timing buffered disk reads:  64 MB in  3.90 seconds =3D 16.41 MB/sec
-
- Timing buffer-cache reads:   128 MB in  0.93 seconds =3D137.63 MB/sec
- Timing buffered disk reads:  64 MB in  4.03 seconds =3D 15.88 MB/sec
-
- Timing buffer-cache reads:   128 MB in  0.92 seconds =3D139.13 MB/sec
- Timing buffered disk reads:  64 MB in  3.90 seconds =3D 16.41 MB/sec
-
-So while I see a slight (un)expected improvement in IDE performance, I
-also see a degradation in memory? performance.
-
-The box is a PIII/700MHz laptop with 256 Mb RAM. hdparm is version 4.5
-
-Cheers,
-florin
-
---=20
-
-"If it's not broken, let's fix it till it is."
-
-41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
-
---32u276st3Jlj2kUU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8Q5mxNLPgdTuQ3+QRAoNzAJ9Konb60zotaSRlPqbznMq+LNQZ3wCfdxWJ
-S3cBEZ6va04HfA+I6x13xXE=
-=SmVz
------END PGP SIGNATURE-----
-
---32u276st3Jlj2kUU--
+That would make assembling a custom boot image simple enough for a fancy
+boot loader (or fancy tftp server) to do.

@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319433AbSIGArw>; Fri, 6 Sep 2002 20:47:52 -0400
+	id <S319434AbSIGA6E>; Fri, 6 Sep 2002 20:58:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319434AbSIGArw>; Fri, 6 Sep 2002 20:47:52 -0400
-Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:18357 "EHLO
-	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S319433AbSIGArv>; Fri, 6 Sep 2002 20:47:51 -0400
-Date: Fri, 6 Sep 2002 21:52:19 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Disabled kernel.org accounts
-In-Reply-To: <3D79463D.4050100@zytor.com>
-Message-ID: <Pine.LNX.4.44L.0209062136091.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S319435AbSIGA6E>; Fri, 6 Sep 2002 20:58:04 -0400
+Received: from epithumia.math.uh.edu ([129.7.128.2]:3303 "EHLO
+	epithumia.math.uh.edu") by vger.kernel.org with ESMTP
+	id <S319434AbSIGA6E>; Fri, 6 Sep 2002 20:58:04 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: ide drive dying?
+References: <0d2bf5139200692DTVMAIL9@smtp.cwctv.net>
+	<1031346090.10612.90.camel@irongate.swansea.linux.org.uk>
+From: Jason L Tibbitts III <tibbs@math.uh.edu>
+Date: 06 Sep 2002 20:02:43 -0500
+In-Reply-To: Alan Cox's message of "06 Sep 2002 22:01:29 +0100"
+Message-ID: <ufaadmuzk5o.fsf@epithumia.math.uh.edu>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Sep 2002, H. Peter Anvin wrote:
+>>>>> "AC" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> >>Please note that The Kernel Dot Org Organization do not endorse or
-> >>support spam in any shape, way or form,
-> >
-> > ... but you would, if you were a paying customer of the ISP.
->
-> We are living on donated bandwidth, which is hard enough to get.  I have
-> complained to our sponsor in the hope that they will complain to the
-> ISP, but you can imagine how well that goes over.  I can't do much.
+AC> Thats up to the owner. There are lots of uses for such drives -
+AC> /tmp, swap, in a raid array, etc
 
-Agreed, you're in a nasty position.  Basically your only hopes are
-that (1) Level3 stops actively protecting spammers and kicks them
-from their network  or (2) your sponsor moves to an ISP that isn't
-spam friendly  or (3) another sponsor pops up out of the blue.
+Be careful of these even in a RAID array; they will go bad silently.
+I had one array (software RAID5, 8 75GXP drives on a 3w6800 in JBOD
+mode, one hot spare) that was going fine until one drive died hard,
+wouldn't spin up, etc.  I replaced it, but during the RAID resync
+three other drives were found to have errors.  The array was trash,
+but luckily all drives were dead just at the tail end, so I could copy
+the data out during the RAID resync.  Some of the failed drives had
+the updated firmware.
 
-Until then I wouldn't worry about it and maybe send out the mail
-via vger ?
+3ware has background integrity scans now; I don't know if software
+RAID has any equivalent besides an occasional 'dd', but even that's a
+good idea.
 
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
-
+ - J<

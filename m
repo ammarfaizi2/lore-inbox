@@ -1,90 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268281AbTGTUdE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 16:33:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268290AbTGTUdE
+	id S268290AbTGTUiL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 16:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268294AbTGTUiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 16:33:04 -0400
-Received: from 82-41-215-154.cable.ubr12.edin.blueyonder.co.uk ([82.41.215.154]:41414
-	"EHLO savagelandz.cjb.net") by vger.kernel.org with ESMTP
-	id S268281AbTGTUdA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 16:33:00 -0400
-From: iain@savagelandz.cjb.net
-Reply-To: iain@savagelandz.cjb.net
-To: linux-kernel@vger.kernel.org
-Subject: Lockups with stv680 driver and kernel-2.6.0-test1
-Date: Sun, 20 Jul 2003 21:47:59 +0100
-User-Agent: KMail/1.5.2
-Cc: iain@savagelandz.cjb.net
+	Sun, 20 Jul 2003 16:38:10 -0400
+Received: from fed1mtao04.cox.net ([68.6.19.241]:49069 "EHLO
+	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S268290AbTGTUiI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 16:38:08 -0400
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: junkio@cox.net, Vojtech Pavlik <vojtech@suse.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.6.0-test1 JAP_86 disappeared from atkbd.c
+References: <7vy8yudcec.fsf@assigned-by-dhcp.cox.net>
+	<20030719181205.A3543@pclin040.win.tue.nl>
+From: junkio@cox.net
+Date: Sun, 20 Jul 2003 13:53:08 -0700
+In-Reply-To: <20030719181205.A3543@pclin040.win.tue.nl> (Andries Brouwer's
+ message of "Sat, 19 Jul 2003 18:12:05 +0200")
+Message-ID: <7vhe5grkcr.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307202147.59744.iain@savagelandz.cjb.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>>>> "AB" == Andries Brouwer <aebr@win.tue.nl> writes:
 
-I've recently bought a small cheap webcam (thought it would be fun). Anyway it 
-appears to use the stv680 driver in linux. The camera works, but only for 
-about 30secs then the usb controller seems to lock up as I loose the picture 
-(it freezes) and I also loose the use of my mouse (usb mouse). A short while 
-after this the machine generally grounds to a halt if I dont quit X to a 
-console and reboot.
+AB> Ha - really long ago I wrote that..
 
-I have this problem in the 2.4 series of kernel to only the lockup occurs 
-after about 5 secs. I did read somwhere that there are problems with the 2.4 
-kernel, the mentioned driver and the KT133 chipset from Via. I have a KT266 
-based motherboard which I believe is similar just a bit faster ;). Anyway I 
-thought I should post here in the hopes that someone might have a solution.
+AB> Yes, for 2.5 things are much more involved, but I suppose that
+AB> all will be well if you add the line
 
-Cheers
+AB> keycode 183 = backslash bar
 
-iain
+AB> to your keymap.
 
-p.s I have tried to include the relevent stuff below, is there anything else 
-you guys need?
+Thanks, it really was a long ago.  With the above included in
+drivers/char/defkeymap.map and regenerating defkeymap.c_shipped
+with loadkeys (kbd-1.08 recompiled with include/linux/keyboard.h
+that comes with 2.6 kernel), things started work again.
 
-part of dmesg
-drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface driver 
-v2.1
-uhci-hcd 0000:00:11.2: VIA Technologies, In USB
-uhci-hcd 0000:00:11.2: irq 5, io base 0000a800
-uhci-hcd 0000:00:11.2: new USB bus registered, assigned bus number 1
-hub 1-0:0: USB hub found
-hub 1-0:0: 2 ports detected
-uhci-hcd 0000:00:11.4: VIA Technologies, In USB (#2)
-uhci-hcd 0000:00:11.4: irq 5, io base 0000b000
-uhci-hcd 0000:00:11.4: new USB bus registered, assigned bus number 2
-hub 2-0:0: USB hub found
-hub 2-0:0: 2 ports detected
-Linux video capture interface: v1.00
-registering 1-0290
-hub 2-0:0: debounce: port 1: delay 100ms stable 4 status 0x101
-hub 2-0:0: new USB device on port 1, assigned address 2
-hub 2-0:0: debounce: port 2: delay 100ms stable 4 status 0x301
-hub 2-0:0: new USB device on port 2, assigned address 3
-input: USB HID v1.10 Mouse [Microsoft Microsoft 5-Button Mouse with 
-IntelliEye(TM)] on usb-0000:00:11.4-2
-drivers/usb/core/usb.c: registered new driver hid
-drivers/usb/input/hid-core.c: v2.0:USB HID core driver
+Is there a reason not to include the above "keycode 183" line in
+the shipped source (both defkeymap.map and defkeymap.c_shipped)?
 
-drivers/usb/media/stv680.c: [stv680_probe:1466] STV(i): STV0680 camera found.
-drivers/usb/media/stv680.c: [stv680_probe:1497] STV(i): registered new video 
-device: video0
-drivers/usb/core/usb.c: registered new driver stv680
-drivers/usb/media/stv680.c: [usb_stv680_init:1573] STV(i): usb camera driver 
-version v0.25 registering
-drivers/usb/media/stv680.c: STV0680 USB Camera Driver v0.25
-
-lsusb
-Bus 002 Device 003: ID 045e:0047 Microsoft Corp.
-Bus 002 Device 002: ID 0553:0202 STMicroelectronics Imaging Division (VLSI 
-Vision) Aiptek PenCam 1
-Bus 002 Device 001: ID 0000:0000
-Bus 001 Device 001: ID 0000:0000
-
-
+The 2.6 kernel without it can be seem as a feature degradation
+from 2.4 for 86/106 keyboard users, and I would like to know if
+there is a case where having that line hurts.  Is "keycode 183"
+generated for completely different characters on other national
+keyboards, and having that line is a feature degradation for
+users of such keyboards?  I have access to only 101, 86, and 106
+keyboards so I cannot test this myself.  Or maybe there are
+other reasons to leave the default keymap as minimal as it
+currently is in 2.6 tree?
 

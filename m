@@ -1,75 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264033AbTIILek (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 07:34:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264034AbTIILek
+	id S264021AbTIILio (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 07:38:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264031AbTIILin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 07:34:40 -0400
-Received: from kde.informatik.uni-kl.de ([131.246.103.200]:24726 "EHLO
-	dot.kde.org") by vger.kernel.org with ESMTP id S264033AbTIILei
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 07:34:38 -0400
-Date: Tue, 9 Sep 2003 13:19:13 +0200 (CEST)
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-X-X-Sender: bero@dot.kde.org
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: [PATCH 2.6.0-test5-mm1] Fix build with debug disabled
-Message-ID: <Pine.LNX.4.56.0309091317320.9188@dot.kde.org>
-X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
-X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="658386544-1685210824-1063106353=:9188"
+	Tue, 9 Sep 2003 07:38:43 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:58562 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264021AbTIILim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 07:38:42 -0400
+Date: Tue, 9 Sep 2003 13:38:31 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [2.6 patch] fix nfs4xdr.c compile warning
+Message-ID: <20030909113831.GN14800@fs.tum.de>
+References: <Pine.LNX.4.44.0309081319380.1666-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0309081319380.1666-100000@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Mon, Sep 08, 2003 at 01:32:05PM -0700, Linus Torvalds wrote:
+>...
+> Summary of changes from v2.6.0-test4 to v2.6.0-test5
+> ============================================
+>...
+> Neil Brown:
+>...
+>   o fix in NFSv4 server for bad sequence id errors
+>...
 
---658386544-1685210824-1063106353=:9188
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+This produces the following compile warning:
 
-2.6.0-test5-mm1 mm/slab.c defines dbg_redzone1 and friends in #if DEBUG, 
-but uses them unconditionally.
+<--  snip  -->
 
-Patch attached.
+...
+  CC      fs/nfsd/nfs4xdr.o
+fs/nfsd/nfs4xdr.c: In function `nfsd4_encode_open':
+fs/nfsd/nfs4xdr.c:1773: warning: `return' with a value, in function returning void
+...
+
+<--  snip  -->
+
+
+The following patch tries to fix it:
+
+--- linux-2.6.0-test5-mm1/fs/nfsd/nfs4xdr.c.old	2003-09-09 13:34:36.000000000 +0200
++++ linux-2.6.0-test5-mm1/fs/nfsd/nfs4xdr.c	2003-09-09 13:36:03.000000000 +0200
+@@ -1709,7 +1709,7 @@
+ }
+ 
+ 
+-static void
++static int
+ nfsd4_encode_open(struct nfsd4_compoundres *resp, int nfserr, struct nfsd4_open *open)
+ {
+ 	ENCODE_HEAD;
+
+
+
+BTW:
+Shouldn't the return values of nfsd4_encode_open{,_confirm,_downgrade} 
+be checked in the switch in nfsd4_encode_operation?
+
+cu
+Adrian
 
 -- 
-Ark Linux - Linux for the masses
-http://www.arklinux.org/
 
-Redistribution and processing of this message is subject to
-http://www.arklinux.org/terms.php
---658386544-1685210824-1063106353=:9188
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="2.6.0-test5-mm1-compile.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.56.0309091319130.9188@dot.kde.org>
-Content-Description: Fix compile
-Content-Disposition: attachment; filename="2.6.0-test5-mm1-compile.patch"
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-LS0tIGxpbnV4LTIuNi4wLXRlc3Q1L21tL3NsYWIuYy5hcmsJMjAwMy0wOS0w
-OSAxMzozMjowOC4wMDAwMDAwMDAgKzAyMDANCisrKyBsaW51eC0yLjYuMC10
-ZXN0NS9tbS9zbGFiLmMJMjAwMy0wOS0wOSAxMzozMzozMC4wMDAwMDAwMDAg
-KzAyMDANCkBAIC05NDgsNiArOTQ4LDcgQEANCiAJCQljaGVja19wb2lzb25f
-b2JqKGNhY2hlcCwgb2JqcCk7DQogI2VuZGlmDQogCQl9DQorI2lmIERFQlVH
-DQogCQlpZiAoY2FjaGVwLT5mbGFncyAmIFNMQUJfUkVEX1pPTkUpIHsNCiAJ
-CQlpZiAoKmRiZ19yZWR6b25lMShjYWNoZXAsIG9ianApICE9IFJFRF9JTkFD
-VElWRSkNCiAJCQkJc2xhYl9lcnJvcihjYWNoZXAsICJzdGFydCBvZiBhIGZy
-ZWVkIG9iamVjdCAiDQpAQCAtOTU2LDYgKzk1Nyw3IEBADQogCQkJCXNsYWJf
-ZXJyb3IoY2FjaGVwLCAiZW5kIG9mIGEgZnJlZWQgb2JqZWN0ICINCiAJCQkJ
-CQkJIndhcyBvdmVyd3JpdHRlbiIpOw0KIAkJfQ0KKyNlbmRpZg0KIAkJaWYg
-KGNhY2hlcC0+ZHRvciAmJiAhKGNhY2hlcC0+ZmxhZ3MgJiBTTEFCX1BPSVNP
-TikpDQogCQkJKGNhY2hlcC0+ZHRvcikob2JqcCtvYmpfZGJnaGVhZChjYWNo
-ZXApLCBjYWNoZXAsIDApOw0KIAl9DQpAQCAtMjc5NCwxMSArMjc5NiwxMyBA
-QA0KIAkJfSBlbHNlIHsNCiAJCQlrZXJuZWxfbWFwX3BhZ2VzKHZpcnRfdG9f
-cGFnZShvYmpwKSwgYy0+b2Jqc2l6ZS9QQUdFX1NJWkUsIDEpOw0KIA0KKyNp
-ZiBERUJVRw0KIAkJCWlmIChjLT5mbGFncyAmIFNMQUJfUkVEX1pPTkUpDQog
-CQkJCXByaW50aygicmVkem9uZTogMHglbHgvMHglbHguXG4iLCAqZGJnX3Jl
-ZHpvbmUxKGMsIG9ianApLCAqZGJnX3JlZHpvbmUyKGMsIG9ianApKTsNCiAN
-CiAJCQlpZiAoYy0+ZmxhZ3MgJiBTTEFCX1NUT1JFX1VTRVIpDQogCQkJCXBy
-aW50aygiTGFzdCB1c2VyOiAlcC5cbiIsICpkYmdfdXNlcndvcmQoYywgb2Jq
-cCkpOw0KKyNlbmRpZg0KIAkJfQ0KIAkJc3Bpbl91bmxvY2tfaXJxcmVzdG9y
-ZSgmYy0+c3BpbmxvY2ssIGZsYWdzKTsNCiANCg==
-
---658386544-1685210824-1063106353=:9188--

@@ -1,65 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262425AbTCEUU4>; Wed, 5 Mar 2003 15:20:56 -0500
+	id <S262394AbTCEUkD>; Wed, 5 Mar 2003 15:40:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262452AbTCEUU4>; Wed, 5 Mar 2003 15:20:56 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:27530 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S262425AbTCEUUz>;
-	Wed, 5 Mar 2003 15:20:55 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: James Simmons <jsimmons@infradead.org>
-Date: Wed, 5 Mar 2003 21:31:05 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [Linux-fbdev-devel] Re: FBdev updates.
-Cc: Antonino Daplas <adaplas@pol.net>, linux-kernel@vger.kernel.org,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-X-mailer: Pegasus Mail v3.50
-Message-ID: <11EC6AF51A4E@vcnet.vc.cvut.cz>
+	id <S262449AbTCEUkD>; Wed, 5 Mar 2003 15:40:03 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:6663 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S262394AbTCEUkC>; Wed, 5 Mar 2003 15:40:02 -0500
+Date: Wed, 5 Mar 2003 21:50:32 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Nigel Cunningham <ncunningham@clear.net.nz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: SWSUSP Discontiguous pagedir patch
+Message-ID: <20030305205032.GD2958@atrey.karlin.mff.cuni.cz>
+References: <20030303123029.GC20929@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.33.0303041434220.1438-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0303041434220.1438-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  5 Mar 03 at 20:22, James Simmons wrote:
->  
-> >   And one (or two...) generic questions: why is not pseudo_palette
-> > u32* pseudo_palette, or even directly u32 pseudo_palette[17] ?
+Hi!
+
+> > > > --- linux-2.5.63/arch/i386/kernel/suspend.c	2003-02-20 08:25:26.000000000 +1300
+> > > > +++ linux-2.5.63-01/arch/i386/kernel/suspend.c	2003-02-20 08:27:36.000000000 +1300
+> > > 
+> > > Thank you for putting this back in C, it's much appreciated. 
+> > 
+> > Actually, it can not be put back in C. Manipulating stack pointer from
+> > gcc inline assembly is just undefined. Its back in C so we can edit
+> > it, but it needs to get back to assembly before merging with Linus.
 > 
-> pseudo_palette was originally designed to be a pointer to some kind of 
-> data for color register programming. For example many PPC graphics cards 
-> have a color register region. Now you could have that point to 
-> pseudo_palette.  Note pseudo_palette is only visiable in fbmem.c for the 
-> logo drawing code. Personally I liek to see that hidden.
+> Noted. I'll convert it back. 
 
-cfbfillrect? cfbimageblit? Both use pseudo_palette, and both convert
-it to u32*.
- 
-> > And why we do not fill this pseudo_palette with
-> > i * 0x01010101U for 8bpp pseudocolor and i * 0x11111111U for 4bpp
-> > pseudocolor? This allowed me to remove couple of switches and tests
-> > from acceleration fastpaths (and from cfb_imageblit and cfb_fillrect,
-> > but I did not changed these two in my benchmarks below).
+Okay.
+
+> > > This is better done as 
+> > > 
+> > > 	for (loop = 0; loop < nr_copy_pagse; loop++) {
+> > > 		memcpy((char *)pagedir_nosave[loop].orig_address,
+> > > 		       (char *)pagedir_nosave[loop].address,
+> > > 		       PAGE_SIZE);
+> > > 		__flush_tlb();
+> > > 	}
+> > 
+> > Hehe, try it.
+> > 
+> > You may not do function call at this point, because you are
+> > overwriting your stack. See mails with Andi Kleen. This *needs* to be
+> > in assembly. 
 > 
-> ??? Does your accel engine require these kinds of values?
+> memcpy() is inlined, at least on x86, and it seems to work fine for me
+> here. Besides, even if memcpy is not safe, you could at least copy 4 bytes
+> at a time. ;)
 
-Yes. It is 32bit engine, and so it wants 32bit value. And even if 
-not, code doing
-
-if (p->fix.visual == FB_VISUAL_TRUECOLOR ||
-    p->fix.visual == FB_VISUAL_DIRECTCOLOR)
-      fg = p->pseudo_palette[rect->color];
-else
-      fg = rect->color;
-
-is horrible. Two conditional jumps on each rectangle. If you'll do
-always lookup through pseudo_palette, not only that you get rid of
-these jumps, you can also remove calls to pixel_to_pat32 (and accompanying
-tables & lookups), as you do this expansion at set_var time,
-instead of at blit/clear time.
-                                            Best regards,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
-
+Well, this whole needs to be in assembly, anyway. I decided it is not
+perfomance critical, and copied it byte-by-byte. That can be
+changed...
+									Pavel
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

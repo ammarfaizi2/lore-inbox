@@ -1,38 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272757AbTHPL3c (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 07:29:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272827AbTHPL3c
+	id S272844AbTHPLlM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 07:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272851AbTHPLlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 07:29:32 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:10507 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S272757AbTHPL3b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 07:29:31 -0400
-Date: Sat, 16 Aug 2003 12:29:28 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Behdad Esfahbod <behdad@bamdad.org>, linux-kernel@vger.kernel.org
-Subject: Re: devfs oops on module missing
-Message-ID: <20030816122928.A30271@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Behdad Esfahbod <behdad@bamdad.org>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0308161011570.30273-100000@gilas.bamdad.org> <3F3E139E.2020300@pobox.com>
+	Sat, 16 Aug 2003 07:41:12 -0400
+Received: from verein.lst.de ([212.34.189.10]:63376 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S272844AbTHPLlI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 07:41:08 -0400
+Date: Sat, 16 Aug 2003 13:41:02 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] mark devfs obsolete
+Message-ID: <20030816114102.GA6026@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3F3E139E.2020300@pobox.com>; from jgarzik@pobox.com on Sat, Aug 16, 2003 at 07:21:02AM -0400
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -3 () PATCH_UNIFIED_DIFF,USER_AGENT_MUTT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 16, 2003 at 07:21:02AM -0400, Jeff Garzik wrote:
-> hmm, isn't it time we deprecated devfs?
+The person listed as maintainer hasn't touched it for alomost a year
+and after that only some odd fixes and my interface fixes went it.
 
-Well, it is long overdue, but what's the relation to this oops?
-Even if we deprecate devfs now we'll have to keep it around for
-two stable series or so until all users switch away.
+With udev we also have a proper replacement.
 
-But fortunately I think this bug is already fixed in current BK.
 
+--- 1.166/MAINTAINERS	Thu Aug 14 21:17:45 2003
++++ edited/MAINTAINERS	Sat Aug 16 11:56:20 2003
+@@ -558,10 +558,7 @@
+ S:	Maintained
+ 
+ DEVICE FILESYSTEM
+-P:	Richard Gooch
+-M:	rgooch@atnf.csiro.au
+-L:	linux-kernel@vger.kernel.org
+-S:	Maintained
++S:	Obsolete
+ 
+ DIGI INTL. EPCA DRIVER
+ P:	Digi International, Inc
+--- 1.28/fs/Kconfig	Thu Aug 14 02:20:32 2003
++++ edited/fs/Kconfig	Sat Aug 16 12:03:57 2003
+@@ -762,7 +762,7 @@
+ 	  programs depend on this, so everyone should say Y here.
+ 
+ config DEVFS_FS
+-	bool "/dev file system support (EXPERIMENTAL)"
++	bool "/dev file system support (OBSOLETE)"
+ 	depends on EXPERIMENTAL
+ 	help
+ 	  This is support for devfs, a virtual file system (like /proc) which
+@@ -780,6 +780,13 @@
+ 	  Note that devfs no longer manages /dev/pts!  If you are using UNIX98
+ 	  ptys, you will also need to enable (and mount) the /dev/pts
+ 	  filesystem (CONFIG_DEVPTS_FS).
++
++	  Note that devfs has been obsoleted by udev,
++	  <http://http://www.kernel.org/pub/linux/utils/kernel/hotplug/>.
++	  It has been striped down to a bare minimum and is only provided for
++	  legacy installations that use it's naming scheme which is
++	  unfortunately different from the names normal Linux installations
++	  use.
+ 
+ 	  If unsure, say N.
+ 

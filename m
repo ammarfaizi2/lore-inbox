@@ -1,26 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267034AbSKSSH0>; Tue, 19 Nov 2002 13:07:26 -0500
+	id <S267036AbSKSSHL>; Tue, 19 Nov 2002 13:07:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267039AbSKSSH0>; Tue, 19 Nov 2002 13:07:26 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:58023 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S267034AbSKSSHZ>;
-	Tue, 19 Nov 2002 13:07:25 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
+	id <S267034AbSKSSHL>; Tue, 19 Nov 2002 13:07:11 -0500
+Received: from x101-201-249-dhcp.reshalls.umn.edu ([128.101.201.249]:2944 "EHLO
+	arashi.yi.org") by vger.kernel.org with ESMTP id <S267036AbSKSSHK>;
+	Tue, 19 Nov 2002 13:07:10 -0500
+Date: Tue, 19 Nov 2002 12:15:21 -0600
+From: Matt Reppert <arashi@arashi.yi.org>
 To: Jeff Garzik <jgarzik@pobox.com>
-Date: Tue, 19 Nov 2002 19:14:07 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
 Subject: Re: [PATCH] mii module broken under new scheme
-Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au, arashi@arashi.yi.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <7FA0E2B042A@vcnet.vc.cvut.cz>
+Message-Id: <20021119121521.3789388a.arashi@arashi.yi.org>
+In-Reply-To: <3DDA7A30.4010403@pobox.com>
+References: <20021119115041.11ece7dc.arashi@arashi.yi.org>
+	<3DDA7A30.4010403@pobox.com>
+Organization: Yomerashi
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-message-flag: : This mail sent from host minerva, please respond.
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 Nov 02 at 12:51, Jeff Garzik wrote:
+On Tue, 19 Nov 2002 12:51:44 -0500
+Jeff Garzik <jgarzik@pobox.com> wrote:
+
 > Matt Reppert wrote:
 > 
 > > drivers/net/mii.c doesn't export module init/cleanup functions. That 
@@ -34,18 +40,15 @@ On 19 Nov 02 at 12:51, Jeff Garzik wrote:
 > 
 > That's a bug in the new module loader.
 
-Rusty told me that it is intentional. Add
+Not so sure I agree ... recompiled the kernel with debugging output in
+module.c and when I try to insert mii.o without above patch it complains
+"Module has no name!" and returns -ENOEXEC from the syscall. I think
+naming mii.o would be a good idea. This may not be the best way to do
+it, but it works. (Granted, I'm not terribly familiar with all the
+modules code changes yet, but ... ) Having anonymous output in lsmod
+would be somewhat confusing :) ("Well, whatever it is, 8139too needs
+it, don't touch it!")
 
-no_module_init;
+Just noticed above patch is -p0. Whoops.
 
-at the end of module. He even sent patch which fixes dozen of such
-modules (15 I had on my system...) to Linus, but it get somehow lost.
-
-Only question is whether we want to have it this way or no. And if
-yes, whether we do not want to move no_module_init from linux/init.h to 
-linux/module.h: all of affected modules were already including
-module.h to get MODULE_LICENSE() & other, but almost none of them
-included init.h.
-                                        Petr Vandrovec
-                                        vandrove@vc.cvut.cz
-                                        
+Matt

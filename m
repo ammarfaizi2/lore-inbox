@@ -1,116 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264696AbTFLKKB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 06:10:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264722AbTFLKJr
+	id S264723AbTFLKQ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 06:16:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264766AbTFLKQ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 06:09:47 -0400
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:1474 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S264696AbTFLKI6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 06:08:58 -0400
-Message-Id: <5.1.0.14.2.20030612120959.00aec370@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 12 Jun 2003 12:22:33 +0200
+	Thu, 12 Jun 2003 06:16:29 -0400
+Received: from [213.24.247.63] ([213.24.247.63]:52158 "EHLO
+	mail.techsupp.relex.ru") by vger.kernel.org with ESMTP
+	id S264723AbTFLKQ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 06:16:29 -0400
+From: Yaroslav Rastrigin <yarick@relex.ru>
+Organization: RELEX Inc.
 To: linux-kernel@vger.kernel.org
-From: margitsw@t-online.de (Margit Schubert-While)
-Subject: Re: [PATCH] More i2c driver changes for 2.5.70
-Cc: Greg KH <greg@kroah.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="=====================_12601760==_"
-X-Seen: false
-X-ID: XVI40gZSZeHjFvK8qmLAXRcLO-dUtyAyBBk2jGUYyVnFlkAw14DgYV@t-dialin.net
+Subject: CPUFreq (SpeedStep) support for Intel PIII (Coppermine) and PIIX4 ?
+Date: Thu, 12 Jun 2003 14:30:01 +0400
+User-Agent: KMail/1.5.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306121430.01664.yarick@relex.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=====================_12601760==_
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Hi everybody ?
 
-OK Here's the patch which :
-1) Fixes the race conditions
-2) Correctly reports the temps :-)
-3) Removes a bit of gunk in the defines which I forgot
-
-Margit
---=====================_12601760==_
-Content-Type: application/octet-stream; name="lm85patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="lm85patch"
-
-ZGlmZiAtTmF1ciBsaW51eC0yLjUuNzAvZHJpdmVycy9pMmMvY2hpcHMvbG04NS5jIGxpbnV4LTIu
-NS43MG13L2RyaXZlcnMvaTJjL2NoaXBzL2xtODUuYwotLS0gbGludXgtMi41LjcwL2RyaXZlcnMv
-aTJjL2NoaXBzL2xtODUuYwkyMDAzLTA2LTEyIDEwOjM3OjQ1LjAwMDAwMDAwMCArMDIwMAorKysg
-bGludXgtMi41LjcwbXcvZHJpdmVycy9pMmMvY2hpcHMvbG04NS5jCTIwMDMtMDYtMTIgMTE6Mzg6
-MTYuMDAwMDAwMDAwICswMjAwCkBAIC0xNDgsMjAgKzE0OCwxNyBAQAogI2RlZmluZSBTQ0FMRSh2
-YWwsZnJvbSx0bykJCSgoKHZhbCkqKHRvKSArICgoZnJvbSkvMikpLyhmcm9tKSkKICNkZWZpbmUg
-SU5TX1RPX1JFRyhuLHZhbCkJCShTRU5TT1JTX0xJTUlUKFNDQUxFKHZhbCxsbTg1X3NjYWxpbmdb
-bl0sMTkyKSwwLDI1NSkpCiAjZGVmaW5lIElOU0VYVF9GUk9NX1JFRyhuLHZhbCxleHQpCShTQ0FM
-RSgodmFsKSo0ICsgKGV4dCksMTkyKjQsbG04NV9zY2FsaW5nW25dKSkKLS8qCiAjZGVmaW5lIElO
-U19GUk9NX1JFRyhuLHZhbCkJCShJTlNFWFRfRlJPTV9SRUcobix2YWwsMCkpCi0qLwotI2RlZmlu
-ZSBJTlNfRlJPTV9SRUcobix2YWwpCQkoICggKHZhbCo0KmxtODVfc2NhbGluZ1tuXSkgKyAoMTky
-KjQvMikgKSAvICgxOTIqNCkgKQogCiAvKiBGQU4gc3BlZWQgaXMgbWVhc3VyZWQgdXNpbmcgOTBr
-SHogY2xvY2sgKi8KICNkZWZpbmUgRkFOX1RPX1JFRyh2YWwpCQkoU0VOU09SU19MSU1JVCggKHZh
-bCk8PTA/MDogNTQwMDAwMC8odmFsKSwwLDY1NTM0KSkKICNkZWZpbmUgRkFOX0ZST01fUkVHKHZh
-bCkJKCh2YWwpPT0wPy0xOih2YWwpPT0weGZmZmY/MDo1NDAwMDAwLyh2YWwpKQogCi0vKiBUZW1w
-ZXJhdHVyZSBpcyByZXBvcnRlZCBpbiAuMDEgZGVnQyBpbmNyZW1lbnRzICovCi0jZGVmaW5lIFRF
-TVBfVE9fUkVHKHZhbCkJCShTRU5TT1JTX0xJTUlUKCgodmFsKSs1MCkvMTAwLC0xMjcsMTI3KSkK
-LSNkZWZpbmUgVEVNUEVYVF9GUk9NX1JFRyh2YWwsZXh0KQkoKHZhbCkqMTAwICsgKGV4dCkqMjUp
-CisvKiBUZW1wZXJhdHVyZSBpcyByZXBvcnRlZCBpbiAuMDAxIGRlZ0MgaW5jcmVtZW50cyAqLwor
-I2RlZmluZSBURU1QX1RPX1JFRyh2YWwpCQkoU0VOU09SU19MSU1JVCgoKHZhbCkrNTAwKS8xMDAw
-LC0xMjcsMTI3KSkKKyNkZWZpbmUgVEVNUEVYVF9GUk9NX1JFRyh2YWwsZXh0KQkoKHZhbCkqMTAw
-MCArIChleHQpKjI1MCkKICNkZWZpbmUgVEVNUF9GUk9NX1JFRyh2YWwpCQkoVEVNUEVYVF9GUk9N
-X1JFRyh2YWwsMCkpCi0jZGVmaW5lIEVYVFRFTVBfVE9fUkVHKHZhbCkJCShTRU5TT1JTX0xJTUlU
-KCh2YWwpLzI1LC0xMjcsMTI3KSkKKyNkZWZpbmUgRVhUVEVNUF9UT19SRUcodmFsKQkJKFNFTlNP
-UlNfTElNSVQoKHZhbCkvMjUwLC0xMjcsMTI3KSkKIAogI2RlZmluZSBQV01fVE9fUkVHKHZhbCkJ
-CQkoU0VOU09SU19MSU1JVCh2YWwsMCwyNTUpKQogI2RlZmluZSBQV01fRlJPTV9SRUcodmFsKQkJ
-KHZhbCkKQEAgLTQzNywxMCArNDM0LDEzIEBACiB7CiAJc3RydWN0IGkyY19jbGllbnQgKmNsaWVu
-dCA9IHRvX2kyY19jbGllbnQoZGV2KTsKIAlzdHJ1Y3QgbG04NV9kYXRhICpkYXRhID0gaTJjX2dl
-dF9jbGllbnRkYXRhKGNsaWVudCk7CisJaW50CXZhbDsKIAotCWludCB2YWwgPSBzaW1wbGVfc3Ry
-dG9sKGJ1ZiwgTlVMTCwgMTApOworCWRvd24oJmRhdGEtPnVwZGF0ZV9sb2NrKTsKKwl2YWwgPSBz
-aW1wbGVfc3RydG9sKGJ1ZiwgTlVMTCwgMTApOwogCWRhdGEtPmZhbl9taW5bbnJdID0gRkFOX1RP
-X1JFRyh2YWwpOwogCWxtODVfd3JpdGVfdmFsdWUoY2xpZW50LCBMTTg1X1JFR19GQU5fTUlOKG5y
-KSwgZGF0YS0+ZmFuX21pbltucl0pOworCXVwKCZkYXRhLT51cGRhdGVfbG9jayk7CiAJcmV0dXJu
-IGNvdW50OwogfQogCkBAIC01MjgsMTAgKzUyOCwxMyBAQAogewogCXN0cnVjdCBpMmNfY2xpZW50
-ICpjbGllbnQgPSB0b19pMmNfY2xpZW50KGRldik7CiAJc3RydWN0IGxtODVfZGF0YSAqZGF0YSA9
-IGkyY19nZXRfY2xpZW50ZGF0YShjbGllbnQpOworCWludAl2YWw7CiAKLQlpbnQgdmFsID0gc2lt
-cGxlX3N0cnRvbChidWYsIE5VTEwsIDEwKTsKKwlkb3duKCZkYXRhLT51cGRhdGVfbG9jayk7CisJ
-dmFsID0gc2ltcGxlX3N0cnRvbChidWYsIE5VTEwsIDEwKTsKIAlkYXRhLT5wd21bbnJdID0gUFdN
-X1RPX1JFRyh2YWwpOwogCWxtODVfd3JpdGVfdmFsdWUoY2xpZW50LCBMTTg1X1JFR19QV00obnIp
-LCBkYXRhLT5wd21bbnJdKTsKKwl1cCgmZGF0YS0+dXBkYXRlX2xvY2spOwogCXJldHVybiBjb3Vu
-dDsKIH0KIHN0YXRpYyBzc2l6ZV90IHNob3dfcHdtX2VuYWJsZShzdHJ1Y3QgZGV2aWNlICpkZXYs
-IGNoYXIgKmJ1ZiwgaW50IG5yKQpAQCAtNTkwLDEwICs1OTMsMTMgQEAKIHsKIAlzdHJ1Y3QgaTJj
-X2NsaWVudCAqY2xpZW50ID0gdG9faTJjX2NsaWVudChkZXYpOwogCXN0cnVjdCBsbTg1X2RhdGEg
-KmRhdGEgPSBpMmNfZ2V0X2NsaWVudGRhdGEoY2xpZW50KTsKKwlpbnQJdmFsOwogCi0JaW50IHZh
-bCA9IHNpbXBsZV9zdHJ0b2woYnVmLCBOVUxMLCAxMCk7CisJZG93bigmZGF0YS0+dXBkYXRlX2xv
-Y2spOworCXZhbCA9IHNpbXBsZV9zdHJ0b2woYnVmLCBOVUxMLCAxMCk7CiAJZGF0YS0+aW5fbWlu
-W25yXSA9IElOU19UT19SRUcobnIsIHZhbCk7CiAJbG04NV93cml0ZV92YWx1ZShjbGllbnQsIExN
-ODVfUkVHX0lOX01JTihuciksIGRhdGEtPmluX21pbltucl0pOworCXVwKCZkYXRhLT51cGRhdGVf
-bG9jayk7CiAJcmV0dXJuIGNvdW50OwogfQogc3RhdGljIHNzaXplX3Qgc2hvd19pbl9tYXgoc3Ry
-dWN0IGRldmljZSAqZGV2LCBjaGFyICpidWYsIGludCBucikKQEAgLTYwOSwxMCArNjE1LDEzIEBA
-CiB7CiAJc3RydWN0IGkyY19jbGllbnQgKmNsaWVudCA9IHRvX2kyY19jbGllbnQoZGV2KTsKIAlz
-dHJ1Y3QgbG04NV9kYXRhICpkYXRhID0gaTJjX2dldF9jbGllbnRkYXRhKGNsaWVudCk7CisJaW50
-CXZhbDsKIAotCWludCB2YWwgPSBzaW1wbGVfc3RydG9sKGJ1ZiwgTlVMTCwgMTApOworCWRvd24o
-JmRhdGEtPnVwZGF0ZV9sb2NrKTsKKwl2YWwgPSBzaW1wbGVfc3RydG9sKGJ1ZiwgTlVMTCwgMTAp
-OwogCWRhdGEtPmluX21heFtucl0gPSBJTlNfVE9fUkVHKG5yLCB2YWwpOwogCWxtODVfd3JpdGVf
-dmFsdWUoY2xpZW50LCBMTTg1X1JFR19JTl9NQVgobnIpLCBkYXRhLT5pbl9tYXhbbnJdKTsKKwl1
-cCgmZGF0YS0+dXBkYXRlX2xvY2spOwogCXJldHVybiBjb3VudDsKIH0KICNkZWZpbmUgc2hvd19p
-bl9yZWcob2Zmc2V0KQkJCQkJCVwKQEAgLTY3MywxMCArNjgyLDEzIEBACiB7CiAJc3RydWN0IGky
-Y19jbGllbnQgKmNsaWVudCA9IHRvX2kyY19jbGllbnQoZGV2KTsKIAlzdHJ1Y3QgbG04NV9kYXRh
-ICpkYXRhID0gaTJjX2dldF9jbGllbnRkYXRhKGNsaWVudCk7CisJaW50CXZhbDsKIAotCWludCB2
-YWwgPSBzaW1wbGVfc3RydG9sKGJ1ZiwgTlVMTCwgMTApOworCWRvd24oJmRhdGEtPnVwZGF0ZV9s
-b2NrKTsKKwl2YWwgPSBzaW1wbGVfc3RydG9sKGJ1ZiwgTlVMTCwgMTApOwogCWRhdGEtPnRlbXBf
-bWluW25yXSA9IFRFTVBfVE9fUkVHKHZhbCk7CiAJbG04NV93cml0ZV92YWx1ZShjbGllbnQsIExN
-ODVfUkVHX1RFTVBfTUlOKG5yKSwgZGF0YS0+dGVtcF9taW5bbnJdKTsKKwl1cCgmZGF0YS0+dXBk
-YXRlX2xvY2spOwogCXJldHVybiBjb3VudDsKIH0KIHN0YXRpYyBzc2l6ZV90IHNob3dfdGVtcF9t
-YXgoc3RydWN0IGRldmljZSAqZGV2LCBjaGFyICpidWYsIGludCBucikKQEAgLTY5MiwxMCArNzA0
-LDEzIEBACiB7CiAJc3RydWN0IGkyY19jbGllbnQgKmNsaWVudCA9IHRvX2kyY19jbGllbnQoZGV2
-KTsKIAlzdHJ1Y3QgbG04NV9kYXRhICpkYXRhID0gaTJjX2dldF9jbGllbnRkYXRhKGNsaWVudCk7
-CisJaW50CXZhbDsKIAotCWludCB2YWwgPSBzaW1wbGVfc3RydG9sKGJ1ZiwgTlVMTCwgMTApOwor
-CWRvd24oJmRhdGEtPnVwZGF0ZV9sb2NrKTsKKwl2YWwgPSBzaW1wbGVfc3RydG9sKGJ1ZiwgTlVM
-TCwgMTApOwogCWRhdGEtPnRlbXBfbWF4W25yXSA9IFRFTVBfVE9fUkVHKHZhbCk7CiAJbG04NV93
-cml0ZV92YWx1ZShjbGllbnQsIExNODVfUkVHX1RFTVBfTUFYKG5yKSwgZGF0YS0+dGVtcF9tYXhb
-bnJdKTsKKwl1cCgmZGF0YS0+dXBkYXRlX2xvY2spOwogCXJldHVybiBjb3VudDsKIH0KICNkZWZp
-bmUgc2hvd190ZW1wX3JlZyhvZmZzZXQpCQkJCQkJXAo=
---=====================_12601760==_--
+Is there any plans to support aforementioned combination ? I've seen remarks 
+in driver sources about unavailability of (sufficient) documentation for this 
+chipset - does it means SpeedStep for IBM T20/21 series of laptops will not 
+be available ? Or, maybe, some progress is already underway ? How could I 
+help ? 
+-- 
+With all the best, yarick at relex dot ru.
 

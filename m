@@ -1,79 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbUANPKV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 10:10:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbUANPKV
+	id S261262AbUANPWP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 10:22:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266322AbUANPWP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 10:10:21 -0500
-Received: from natsmtp00.rzone.de ([81.169.145.165]:5579 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S261563AbUANPKQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 10:10:16 -0500
-Date: Wed, 14 Jan 2004 16:08:06 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.de>
-To: paul.devriendt@amd.com
-Cc: pavel@ucw.cz, davej@redhat.com, mark.langsdorf@amd.com,
-       cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
+	Wed, 14 Jan 2004 10:22:15 -0500
+Received: from delerium.codemonkey.org.uk ([81.187.208.145]:58752 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S261262AbUANPWO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 10:22:14 -0500
+Date: Wed, 14 Jan 2004 15:21:53 +0000
+From: Dave Jones <davej@redhat.com>
+To: paul.devriendt@amd.com, pavel@ucw.cz, cpufreq@www.linux.org.uk,
+       linux-kernel@vger.kernel.org
 Subject: Re: Cleanups for powernow-k8
-Message-ID: <20040114150806.GA5137@dominikbrodowski.de>
-Mail-Followup-To: paul.devriendt@amd.com, pavel@ucw.cz,
-	davej@redhat.com, mark.langsdorf@amd.com, cpufreq@www.linux.org.uk,
+Message-ID: <20040114152152.GB5496@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, paul.devriendt@amd.com,
+	pavel@ucw.cz, cpufreq@www.linux.org.uk,
 	linux-kernel@vger.kernel.org
-References: <99F2150714F93F448942F9A9F112634C080EF3A4@txexmtae.amd.com>
+References: <99F2150714F93F448942F9A9F112634C080EF392@txexmtae.amd.com> <20040113230605.GM14674@redhat.com> <20040114101041.GB16737@dominikbrodowski.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ReaqsoxgOBHFXBhH"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <99F2150714F93F448942F9A9F112634C080EF3A4@txexmtae.amd.com>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20040114101041.GB16737@dominikbrodowski.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 14, 2004 at 11:10:41AM +0100, Dominik Brodowski wrote:
+ > On Tue, Jan 13, 2004 at 11:06:05PM +0000, Dave Jones wrote:
+ > > Part of the justification for cpufreq (at least on x86) was an alternative
+ > > for when ACPI just doesn't work, or for when folks either don't want to,
+ > > or can't run ACPI (through various other AML bugs for eg).
+ > 
+ > Except that the ACPI P-States implementation also uses the cpufreq
+ > infrastructure.
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sure, but that came later.. 
 
-On Wed, Jan 14, 2004 at 08:49:18AM -0600, paul.devriendt@amd.com wrote:
-> Absolutely. I am planning on using them also in the new ACPI based driver,
-> along with your acpi-perflib.
+		Dave
 
-Excellent.
-
-> What is your progress on getting acpi-perflib merged into the kernel so t=
-hat
-> an additional patch is not needed ?
-
-Unfortunately, it seems to be too invasive in the form it was proposed at
-first. However, I'm currently in the process of getting the same
-infrastructure[*] in place by doing small, logical, incremental changes to
-drivers/acpi/processor.c. The first three patches are submitted to Len Brown
-[1][2][3]; I haven't received a reply from him about these patches yet.
-
-What helps in developing this is that I finally own a notebook
-which supports ACPI P-States....
-
-	Dominik
-
-[*] or almost the same infrastructure. The first two core patches assure=20
-that
-_PPC and passive cooling work.
-
-[1] http://marc.theaimsgroup.com/?l=3Dacpi4linux&m=3D107398569012495&w=3D2
-[2] http://marc.theaimsgroup.com/?l=3Dacpi4linux&m=3D107398568612489&w=3D2
-[3] http://marc.theaimsgroup.com/?l=3Dacpi4linux&m=3D107407671712989&w=3D2
-
---ReaqsoxgOBHFXBhH
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFABVtWZ8MDCHJbN8YRAkM/AJ47tbig09FYxsmGPJeGoZNaZP0zCACfUH6l
-kSr94kLj65/nm9+YA3dIzDY=
-=4Wls
------END PGP SIGNATURE-----
-
---ReaqsoxgOBHFXBhH--

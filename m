@@ -1,37 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137188AbREKR0e>; Fri, 11 May 2001 13:26:34 -0400
+	id <S137182AbREKRjf>; Fri, 11 May 2001 13:39:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137190AbREKR0Q>; Fri, 11 May 2001 13:26:16 -0400
-Received: from B12ef.pppool.de ([213.7.18.239]:29957 "EHLO susi.maya.org")
-	by vger.kernel.org with ESMTP id <S137188AbREKRZ7>;
-	Fri, 11 May 2001 13:25:59 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Andreas Hartmann <andihartmann@freenet.de>
-Organization: Privat
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.4ac4] Kernel crash while unmounting CD: cause and solution
-Date: Fri, 11 May 2001 19:24:54 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01051022310100.00484@athlon>
-In-Reply-To: <01051022310100.00484@athlon>
-MIME-Version: 1.0
-Message-Id: <01051119245402.00434@athlon>
-Content-Transfer-Encoding: 7BIT
+	id <S137189AbREKRj0>; Fri, 11 May 2001 13:39:26 -0400
+Received: from [213.77.236.124] ([213.77.236.124]:3712 "HELO
+	marek.almaran.home") by vger.kernel.org with SMTP
+	id <S137182AbREKRjJ>; Fri, 11 May 2001 13:39:09 -0400
+Date: Fri, 11 May 2001 19:36:05 +0200
+From: =?iso-8859-2?Q?Marek_P=EAtlicki?= <marpet@buy.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.4-ac7
+Message-ID: <20010511193605.A1160@marek.almaran.home>
+In-Reply-To: <E14yDLv-0000v7-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14yDLv-0000v7-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, May 11, 2001 at 03:59:16PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo all,
+On Friday, May, 2001-05-11 at 15:59:16, Alan Cox wrote:
+> 
+>  	     ftp://ftp.linux.org.uk/pub/linux/alan/2.4-ac/
+> 
+> 		 Intermediate diffs are available from
+> 			http://www.bzimage.org
+> 
+> **
+> ** Please note change of ftp site. ftp.kernel.org switched to using ECN and
+> ** it seems NTL's cablemodem folks have problem firewalls between their
+> ** Inktomi cache and the world. The -ac patches and future 2.2.20pre will be 
+> ** distributed from ftp.linux.org.uk until further notice.
+> **
+> 
+> 2.4.4-ac7
 
-> [1.] One line summary of the problem:
->
-> Kernel panic when trying to unmount a ide-scsi cdrom.
+is the EXTRAVERSION set properly in Makefile? I use the http://www.bzimage.org
+intermediate diff (chosen ~40K to ~2M) from ac6 nd I still have
+2.4.4-ac6 login prompt (and Makefile says: EXTRAVERSION = -ac6).
 
-The problem was a not properly working cd-rw-device. I cleaned the optical 
-lens - and the cd-rw-device is working like at the beginning of its days. 
-With the same CD's which it doesn't want to burn and which causes the crash 
-before!
+The other thing I noticed is:
+
+ depmod
+depmod: *** Unresolved symbols in /lib/modules/2.4.4-ac6/kernel/fs/nfs/nfs.o
+
+ modprobe nfs
+/lib/modules/2.4.4-ac6/kernel/fs/nfs/nfs.o: unresolved symbol filemap_fdatawait_Rd4250148
+/lib/modules/2.4.4-ac6/kernel/fs/nfs/nfs.o: unresolved symbol filemap_fdatasync_Rf18ce7a1
+/lib/modules/2.4.4-ac6/kernel/fs/nfs/nfs.o: insmod /lib/modules/2.4.4-ac6/kernel/fs/nfs/nfs.o failed
+/lib/modules/2.4.4-ac6/kernel/fs/nfs/nfs.o: insmod nfs failed
+
+I don't use it, must've checked it in by mistake. Nevertheless I report
+:-)
 
 
-Regards,
-Andreas Hartmann
+regards and bye
+
+-- 
+Marek Pêtlicki <marpet@buy.pl>
+

@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273364AbRINLoN>; Fri, 14 Sep 2001 07:44:13 -0400
+	id <S273366AbRINLny>; Fri, 14 Sep 2001 07:43:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273365AbRINLoE>; Fri, 14 Sep 2001 07:44:04 -0400
-Received: from danielle.hinet.hr ([195.29.254.157]:1665 "EHLO
-	danielle.hinet.hr") by vger.kernel.org with ESMTP
-	id <S273364AbRINLny>; Fri, 14 Sep 2001 07:43:54 -0400
-Date: Fri, 14 Sep 2001 13:44:15 +0200
-From: Mario Mikocevic <mozgy@hinet.hr>
-To: linux-kernel@vger.kernel.org
-Subject: v2410p8 and v2410p9 are no go
-Message-ID: <20010914134415.A802@danielle.hinet.hr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
+	id <S273365AbRINLnn>; Fri, 14 Sep 2001 07:43:43 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:51442 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S273364AbRINLna>; Fri, 14 Sep 2001 07:43:30 -0400
+Date: Fri, 14 Sep 2001 12:45:18 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10pre VM changes: Potential race condition on swap code
+In-Reply-To: <Pine.LNX.4.21.0109131901240.4163-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0109141229190.1372-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 13 Sep 2001, Marcelo Tosatti wrote:
+> > > 
+> > > CPU0			CPU1			CPU2
+> > > do_swap_page()		try_to_swap_out()	swapin_readahead()
+.....
+> > > BOOM.
+> > > 
+> > > Now, if we get additional references at valid_swaphandles() the above race
+> > > is NOT possible: we're guaranteed that any get_swap_page() will not find
+> > 
+> > Err I mean _will_ find the swap map entry used and not use it, then.
+> > 
+> > > the swap map entry used. See?
 
-kernels 2.4.10-pre8 and 2.4.10-pre9 are NoGo for me,
-last kernel I tried and it still runs succesfully is 2.4.10-pre4.
+Yes, I see it now: had trouble with the line wrap!
 
-dmesg difference is ->
+Sure, that's one of the scenarios we were talking about, and getting
+additional references in valid_swaphandles will stop that particular
+race.
 
-- hda: [PTBL] [5171/240/63] hda1 hda2 hda3 hda4 < hda5 hda6 hda7 >
-- hdd: [PTBL] [787/128/63] hdd1
-+ hda: no partitions found
-+ hdd: no partitions found
+It won't stop the race with "bare" read_swap_cache_async (which can
+happen with swapoff, or with vm_swap_full deletion if multithreaded),
+and won't stop the race when valid_swaphandles->swap_duplicate comes
+all between try_to_swap_out's get_swap_page and add_to_swap_cache.
 
+The first of those is significantly less likely than swapin_readahead
+instance.  The second requires interrupt at the wrong moment: can
+certainly happen, but again less likely.
 
-it's P4@1.4 w/ 256MiB RAM (HP Vectra).
+Adding back reference bumping in valid_swaphandles would reduce the
+likelihood of malign read_swap_cache_async/try_to_swap_out races,
+but please don't imagine it's the final fix.
 
-Any further required info is available on requests.
+Hugh
 
--- 
-Mario Mikoèeviæ (Mozgy)
-mozgy at hinet dot hr
-My favourite FUBAR ...

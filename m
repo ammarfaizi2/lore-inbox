@@ -1,48 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbVCIAEG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262240AbVCIAPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbVCIAEG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 19:04:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbVCIAAp
+	id S262240AbVCIAPX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 19:15:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVCIAOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 19:00:45 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:36019 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S262388AbVCHX6p (ORCPT
+	Tue, 8 Mar 2005 19:14:21 -0500
+Received: from nevyn.them.org ([66.93.172.17]:65433 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S262240AbVCIANF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 18:58:45 -0500
-Date: Tue, 8 Mar 2005 23:58:37 +0000 (GMT)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: greg@kroah.com, chrisw@osdl.org
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] drm missing memset can crash X server...
-Message-ID: <Pine.LNX.4.58.0503082356460.17157@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 8 Mar 2005 19:13:05 -0500
+Date: Tue, 8 Mar 2005 19:12:55 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Roland McGrath <roland@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Cagney <cagney@redhat.com>
+Subject: Re: More trouble with i386 EFLAGS and ptrace
+Message-ID: <20050309001254.GA1496@nevyn.them.org>
+Mail-Followup-To: Roland McGrath <roland@redhat.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Cagney <cagney@redhat.com>
+References: <20050307044920.GA25093@nevyn.them.org> <200503072129.j27LTCnl030702@magilla.sf.frob.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503072129.j27LTCnl030702@magilla.sf.frob.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 07, 2005 at 01:29:12PM -0800, Roland McGrath wrote:
+> > Is this semantically different from the patch I posted, i.e. is there
+> > any case which one of them covers and not the other?
+> 
+> Yes, the second case that I described when I said there were two cases!
+> (Sheesh.)
 
-Egbert Eich reported a bug 2673 on bugs.freedesktop.org and tracked it
-down to a missing memset in the setversion ioctl, this causes X server
-crashes so I would like to see the fix in a 2.6.11.x tree if possible..
+Calm down, there were already two cases.  I reread your message and
+couldn't pick out the answer, or I wouldn't have asked.
 
-Regards,
-Dave.
+>  To repeat, when the process was doing PTRACE_SINGLESTEP and then
+> stops on some other signal rather than because of the single-step trap
+> (e.g. single-stepping an instruction that faults), ptrace will show TF set
+> in its registers.  With my patch, it will show TF clear.
+
+I can reproduce this problem with the patch that Linus committed, so
+you should probably update your patch for a current snapshot and nag
+him about it.
+
+> > That is an inability to set breakpoints in the vsyscall page.  Andrew
+> > told me (last May, wow) that he thought this worked in Fedora, but I
+> > haven't seen any signs of the code.  It would certainly be a Good Thing
+> > if it is possible!
+> 
+> Fedora kernels use a normal mapping (with randomized location) for the
+> page, rather than the fixed high address in the vanilla kernel.  The
+> FIXADDR_USER_START area is globally mapped in a special way not using
+> normal vma data structures, and is permanently read-only in all tasks.  
+> COW via ptrace works normally for Fedora's flavor, but no writing is ever
+> possible to the fixmap page.
+
+Blech.  I assume that there is no way to map a normal VMA over top of
+the fixed page, for a particular process?  This makes debugging the
+vsyscall DSO a real pain.
 
 -- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-Linux kernel - DRI, VAX / pam_smb / ILUG
-
-diff -Nru a/drivers/char/drm/drm_ioctl.c b/drivers/char/drm/drm_ioctl.c
---- a/drivers/char/drm/drm_ioctl.c	2005-03-09 10:53:42 +11:00
-+++ b/drivers/char/drm/drm_ioctl.c	2005-03-09 10:53:43 +11:00
-@@ -326,6 +326,8 @@
-
- 	DRM_COPY_FROM_USER_IOCTL(sv, argp, sizeof(sv));
-
-+	memset(&version, 0, sizeof(version));
-+
- 	dev->driver->version(&version);
- 	retv.drm_di_major = DRM_IF_MAJOR;
- 	retv.drm_di_minor = DRM_IF_MINOR;
+Daniel Jacobowitz
+CodeSourcery, LLC

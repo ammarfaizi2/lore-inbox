@@ -1,79 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272109AbRIJW4g>; Mon, 10 Sep 2001 18:56:36 -0400
+	id <S272119AbRIJXGI>; Mon, 10 Sep 2001 19:06:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272094AbRIJW40>; Mon, 10 Sep 2001 18:56:26 -0400
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:37407 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S272101AbRIJW4L>; Mon, 10 Sep 2001 18:56:11 -0400
-To: kaz@ashi.footprints.net
-CC: wg@malloc.de, brianmc1@us.ibm.com, libc-alpha@sources.redhat.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0109100931190.20444-100000@ashi.FootPrints.net>
-	(message from Kaz Kylheku on Mon, 10 Sep 2001 09:42:08 -0700 (PDT))
-Subject: Re: SMP-ix86-threads-fork: Linux 2.4.x kernel problem identified
- [phantom read()]
-From: Wolfram Gloger <wg@malloc.de>
-X-URL: http://www.malloc.de/
-In-Reply-To: <Pine.LNX.4.33.0109100931190.20444-100000@ashi.FootPrints.net>
-Message-Id: <E15gZyh-00074n-00@mrvdom04.kundenserver.de>
-Date: Tue, 11 Sep 2001 00:56:31 +0200
+	id <S272116AbRIJXF7>; Mon, 10 Sep 2001 19:05:59 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:20740 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S272108AbRIJXFl>;
+	Mon, 10 Sep 2001 19:05:41 -0400
+Message-ID: <XFMail.20010911010531.ast@domdv.de>
+X-Mailer: XFMail 1.4.6-3 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <200109102242.f8AMgpY21341@aslan.scsiguy.com>
+Date: Tue, 11 Sep 2001 01:05:31 +0200 (CEST)
+Organization: D.O.M. Datenverarbeitung GmbH
+From: Andreas Steinmetz <ast@domdv.de>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Subject: Re: AIC + RAID1 error? (was: Re: aic7xxx errors)
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        <SPATZ1@t-online.de (Frank Schneider)>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> 
+> The new driver registers a "reboot notifier" with the system.  If MD
+> continues to perform I/O after the aic7xxx driver's notification routine
+> is called, the result is undefined.  The aic7xxx driver has already
+> shutdown the hardware.  Perhaps I should use a different event to indicate
+> it is safe for me to clean up the hardware?
+> 
 
-> So it's perfectly possible to observe the behavior you are seeing
-> if __libc_read() returns -1. Because then sz_read will acquire the
-> value -1, and the guard expresssion sz_read < sizeof(request) will yield
-> zero, terminating the loop.
+Gotcha!
 
-Argh!  That indeed seems to be the case, _no_ apparent kernel problem
-is involved, sorry for the false alarm.  read() 'just' returns -1 with
-errno becoming EINTR.  One should never code up a loop like that in
-the last minute (I only found the effect yesterday)..
+Actually the problem seems to be the raid code and the scsi code do register
+reboot notifiers with the same priority (0, see below).
 
-> Could you recode the test patch to eliminate these suspicions and re-test?
+include/linux/notifier.h:
+ 
+struct notifier_block
+{
+        int (*notifier_call)(struct notifier_block *self, unsigned long, void
+*);
+        struct notifier_block *next;
+        int priority;
+};
+ 
+drivers/md/md.c:
+ 
+struct notifier_block md_notifier = {
+        md_notify_reboot,
+        NULL,
+        0
+};
+ 
+drivers/scsi/aic7xxx/aic7xxx_linux.c:
+ 
+static struct notifier_block ahc_linux_notifier = {
+        ahc_linux_halt, NULL, 0
+};
 
-The analysis was nevertheless correct, LinuxThreads gets out of synch
-with disastrous effects.  I was puzzled how read() could return -1,
-however it may make sense with a __pthread_sig_cancel pending in the
-manager thread due to a child exiting (?).  But then, why wasn't this
-possibility discovered before?
+When registering the notifiers it depends on who's registering first at the
+same priority level.
 
-Below is a corrected patch for glibc-2.2.4.  I've run fork-malloc with
-this for a couple of hours.
+kernel/sys.c:
+ 
+int notifier_chain_register(struct notifier_block **list, struct notifier_block
+*n)
+{
+        write_lock(&notifier_lock);
+        while(*list)
+        {
+                if(n->priority > (*list)->priority)
+                        break;
+                list= &((*list)->next);
+        }
+        n->next = *list;
+        *list=n;
+        write_unlock(&notifier_lock);
+        return 0;
+}
 
-Thanks,
-Wolfram.
+The notifier chin is then processed sequentially.
 
-2001-09-11  Wolfram Gloger  <wg@malloc.de>
+kernel/sys.c:
 
-	* manager.c (__pthread_manager): When reading from pipe. account
-	for possible error return from read().
+int notifier_call_chain(struct notifier_block **n, unsigned long val, void *v)
+{
+        int ret=NOTIFY_DONE;
+        struct notifier_block *nb = *n;
+ 
+        while(nb)
+        {
+                ret=nb->notifier_call(nb,val,v);
+                if(ret&NOTIFY_STOP_MASK)
+                {
+                        return ret;
+                }
+                nb=nb->next;
+        }
+        return ret;
+}
 
---- linuxthreads/manager.c.orig	Mon Jul 23 19:54:13 2001
-+++ linuxthreads/manager.c	Tue Sep 11 00:47:48 2001
-@@ -150,8 +150,19 @@
-     }
-     /* Read and execute request */
-     if (n == 1 && (ufd.revents & POLLIN)) {
--      n = __libc_read(reqfd, (char *)&request, sizeof(request));
--      ASSERT(n == sizeof(request));
-+      int sz_read = 0;
-+
-+      while (sz_read < sizeof(request)) {
-+	n = __libc_read(reqfd, (char *)&request + sz_read,
-+			sizeof(request) - sz_read);
-+	if (n < 0) {
-+#ifdef DEBUG
-+	  char d[64];
-+	  sprintf(d, "*** read err %d\n", errno);
-+#endif
-+	} else
-+	  sz_read += n;
-+      }
-       switch(request.req_kind) {
-       case REQ_CREATE:
-         request.req_thread->p_retcode =
+So what's actually required is to set the raid notifier to a higher priority
+than the scsi notifier to assert that raid is stopped before scsi.
+Unfortunately I can't test this right now as I'm doing work@home and I do need
+physical access to the systems (reset button) if it doesn't work out.
 
+Could you please straighten the priority issue out with the raid maintainer?
+
+
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH

@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132395AbRDCRgO>; Tue, 3 Apr 2001 13:36:14 -0400
+	id <S132389AbRDCRrA>; Tue, 3 Apr 2001 13:47:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132392AbRDCRfy>; Tue, 3 Apr 2001 13:35:54 -0400
-Received: from platan.vc.cvut.cz ([147.32.240.81]:30982 "EHLO
+	id <S132392AbRDCRqt>; Tue, 3 Apr 2001 13:46:49 -0400
+Received: from platan.vc.cvut.cz ([147.32.240.81]:44806 "EHLO
 	platan.vc.cvut.cz") by vger.kernel.org with ESMTP
-	id <S132389AbRDCRfv>; Tue, 3 Apr 2001 13:35:51 -0400
-Message-ID: <3ACA09C0.C0D26BDF@vc.cvut.cz>
-Date: Tue, 03 Apr 2001 10:34:56 -0700
+	id <S132389AbRDCRqd>; Tue, 3 Apr 2001 13:46:33 -0400
+Message-ID: <3ACA0C40.3F25E5A5@vc.cvut.cz>
+Date: Tue, 03 Apr 2001 10:45:36 -0700
 From: Petr Vandrovec <vandrove@vc.cvut.cz>
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac28-4g i686)
 X-Accept-Language: cz, cs, en
 MIME-Version: 1.0
-To: James Simmons <jsimmons@linux-fbdev.org>
-CC: thunder7@xs4all.nl,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] Re: [lkml]Re: [lkml]Re: Matrox G400 Dualhead
-In-Reply-To: <Pine.LNX.4.31.0104022013260.3867-100000@linux.local>
+To: Elmer Joandi <elmer@linking.ee>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.3 SMP: nfs stale handle, fb dualhead hardlock, G400/450 
+ misnaming
+In-Reply-To: <Pine.LNX.4.21.0104031152270.21867-100000@ns.linking.ee>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons wrote:
-> >A very neat trick. X can now be ended correctly. Unfortunately, any
-> >scrolling on any VT afterwards gives me a corrupted screen - parts of
-> >the screen from other VT's are inserted below, or over the cursor
-> >position, and at 'half-line' intervals. In typing this email, I've seen
-> >it 5 times already.
-> >I'm willing to test anything - but the corruption is alway gone after I
-> >switch VT's. So getting a screendump is not easy.
-> 
-> I never have seen this problem before. Petr do you know what it could be?
+Elmer Joandi wrote:
 
-If you are still running X with enabled DRI, then it is known problem.
-When
-DRI is enabled in X, mga driver randomly reprograms some Matrox
-acceleration
-registers (color depth, screen width, byte ordering) - so you must use
-same depth and resolution in both X and on console if you are using DRI.
-I believe that it is problem which thunder7 sees. I never got reported
-that
-matroxfb just decided itself in the middle of screen to do something
-else,
-it was always tracked to X running on (invisible) background, but still
-playing with accelerator.
-								Petr
+> 2. Hard lockup:
+>         G450, I set con2fb, switch consoles some times and there it comes.
+>         swithc between X and single console is OK.
 
-P.S.: You can try 'fbset -accel false', but fixing X is better.
-Unfortunately,
-nobody cares...
+Did you boot with 'video=scrollback:0' ? You must ;-)
+ 
+> 3. seems that I have G450 and linux shows it as G400.
+>         bash-2.04$ /sbin/lspci:
+>         01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 82)
+>         /proc/pci:
+>          VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 130).
+
+rev < 128 => G400, rev >= 128 => G450. Ask Matrox why they did so stupid
+thing.
+ 
+>         G400 drivers also work, but matroxset aint switching second head
+>         to monitor output, neither does anything else. It remains blank.
+
+Secondary output on G400 is in monitor mode by default. Are you sure
+that you
+insmodded all needed modules to kernel? i2c-matrox, matroxfb_maven,
+matroxfb_crtc2, ...
+If you do not know which ones, just build everything into kernel - and
+do not forget
+about i2c bit-banging as documented in documentation...
+								Petr Vandrovec
+								vandrove@vc.cvut.cz

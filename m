@@ -1,100 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130705AbQJ1Dvl>; Fri, 27 Oct 2000 23:51:41 -0400
+	id <S129728AbQJ1Edt>; Sat, 28 Oct 2000 00:33:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130821AbQJ1Dvb>; Fri, 27 Oct 2000 23:51:31 -0400
-Received: from [216.161.55.93] ([216.161.55.93]:2553 "EHLO blue.int.wirex.com")
-	by vger.kernel.org with ESMTP id <S130705AbQJ1DvU>;
-	Fri, 27 Oct 2000 23:51:20 -0400
-Date: Fri, 27 Oct 2000 20:57:03 -0700
-From: Greg KH <greg@wirex.com>
-To: Keith Owens <kaos@ocs.com.au>, "Dunlap, Randy" <randy.dunlap@intel.com>
-Cc: "'Hunt Kent'" <kenthunt@yahoo.com>,
-        "'lmcclef@lmc.ericsson.se'" <lmcclef@lmc.ericsson.se>,
-        "'f5ibh@db0bm.ampr.org'" <f5ibh@db0bm.ampr.org>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: test[9-10] USB depmod unresolved symbols
-Message-ID: <20001027205703.A17904@wirex.com>
-Mail-Followup-To: Greg KH <greg@wirex.com>, Keith Owens <kaos@ocs.com.au>,
-	"Dunlap, Randy" <randy.dunlap@intel.com>,
-	'Hunt Kent' <kenthunt@yahoo.com>,
-	"'lmcclef@lmc.ericsson.se'" <lmcclef@lmc.ericsson.se>,
-	"'f5ibh@db0bm.ampr.org'" <f5ibh@db0bm.ampr.org>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDB99@orsmsx31.jf.intel.com> <4565.972696579@ocs3.ocs-net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <4565.972696579@ocs3.ocs-net>; from kaos@ocs.com.au on Sat, Oct 28, 2000 at 12:29:39PM +1100
-X-Operating-System: Linux 2.2.17-immunix (i686)
+	id <S129915AbQJ1Edk>; Sat, 28 Oct 2000 00:33:40 -0400
+Received: from vpop1-135.pacificnet.net ([209.204.32.135]:2820 "EHLO
+	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with ESMTP
+	id <S129728AbQJ1Ed1>; Sat, 28 Oct 2000 00:33:27 -0400
+From: "Barry K. Nathan" <barryn@cx518206-b.irvn1.occa.home.com>
+Message-Id: <200010280432.VAA01337@cx518206-b.irvn1.occa.home.com>
+Subject: IA-32 (was Re: [PATCH] cpu detection fixes for test10-pre4)
+To: hpa@transmeta.com (H. Peter Anvin)
+Date: Fri, 27 Oct 2000 21:32:48 -0700 (PDT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        vonbrand@inf.utfsm.cl (Horst von Brand), linux-kernel@vger.kernel.org
+Reply-To: barryn@pobox.com
+In-Reply-To: <39F9F01B.518C5EC1@transmeta.com> from "H. Peter Anvin" at Oct 27, 2000 02:14:03 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+H. Peter Anvin wrote:
 
---J/dobhs11T7y2rNN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Alan Cox wrote:
 
-Thanks Keith for that detailed description of what is going wrong, I
-would have never figured that out.
+[snip]
 
-On Sat, Oct 28, 2000 at 12:29:39PM +1100, Keith Owens wrote:
->=20
-> I will add LINK_FIRST and LINK_LAST to kbuild this weekend and
-> reinstate the missing lines in drivers/usb/Makefile.  What I need from
-> the USB group is a documented (i.e. *why* is this order required)
-> definition of what needs to be linked first into usbdrv.o, and somebody
-> we can query if there are problems in the future.  It will probably be
-> as simple as
+> > ia32 is an intel trademark. Using it for non intel products is probably an
+> > actionable matter ..
+> > 
+> 
+> Yet another reason to ignore it.
 
-Yeah, a valid reason for LINK_FIRST and LINK_LAST!
+Speaking of using it for non-Intel products, this is a line from
+Documentation/Changes in Linux 2.4.0-test10-pre6:
 
-I'll try my hand at the wording. Randy, does this look acceptable:
+Linux on IA-32 has recently switched from using as86 to using gas for
 
-# usb.o contains __init usb_init which must be executed before all
-# other usb __init routines, the remaining usb __init routines can be
-# executed in any order.  Execution order of __init routines depends
-# on link order so usb.o must be linked first.  Otherwise, the
-# individual drivers will be initialized before the hub driver is,
-# causing the hub driver initialization sequence to needlessly probe
-# every USB driver with the root hub device.  This causes a lot of
-# unnecessary system log messages, a lot of user confusion, and has
-# been known to cause a incorrectly programmed USB device driver to
-# grab the root hub device improperly.
-#     Greg Kroah-Hartman, 27 Oct 2000
+Should we change that to x86 or something?
 
-LINK_FIRST :=3D usb.o
-
-> but you know better than I what the required order will be and why.
-> Are there any other link order problems in USB?
-
-That's the only known link problem for the USB drivers.
-
-Thanks,
-
-greg k-h
-
---=20
-greg@(kroah|wirex).com
-http://immunix.org/~greg
-
---J/dobhs11T7y2rNN
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.3 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE5+k6PAl5ylTeuKpURAqhnAKCIMUgqe3tpnSDF06sbQyExNQ8dkQCeOCp1
-TcitL/p6855crcbmPLDvwP8=
-=KM1u
------END PGP SIGNATURE-----
-
---J/dobhs11T7y2rNN--
+-Barry K. Nathan <barryn@pobox.com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

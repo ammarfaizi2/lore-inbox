@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264542AbRGGBJD>; Fri, 6 Jul 2001 21:09:03 -0400
+	id <S264541AbRGGBFx>; Fri, 6 Jul 2001 21:05:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264624AbRGGBIy>; Fri, 6 Jul 2001 21:08:54 -0400
-Received: from mail.mesatop.com ([208.164.122.9]:9488 "EHLO thor.mesatop.com")
-	by vger.kernel.org with ESMTP id <S264542AbRGGBIi>;
-	Fri, 6 Jul 2001 21:08:38 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: Tom Diehl <tdiehl@pil.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.6-ac1 will not build, 2.4.6 ok
-Date: Fri, 6 Jul 2001 19:00:51 -0600
-X-Mailer: KMail [version 1.2]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0107061825280.13734-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.33.0107061825280.13734-100000@localhost.localdomain>
-MIME-Version: 1.0
-Message-Id: <01070619005100.01166@localhost.localdomain>
-Content-Transfer-Encoding: 8bit
+	id <S264542AbRGGBFn>; Fri, 6 Jul 2001 21:05:43 -0400
+Received: from trantor.dso.org.sg ([192.190.204.1]:5040 "EHLO
+	trantor.dso.org.sg") by vger.kernel.org with ESMTP
+	id <S264541AbRGGBFf>; Fri, 6 Jul 2001 21:05:35 -0400
+Date: Sat, 7 Jul 2001 09:10:46 -0800
+From: Richard Chan <cshihpin@dso.org.sg>
+To: linux-kernel@vger.kernel.org
+Cc: arjanv@redhat.com
+Subject: Athlon oops traced to CONFIG_MK7 code in arch/i386/lib/mmx.c
+Message-ID: <20010707091046.A2355@cshihpin.dso.org.sg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 July 2001 16:35, Tom Diehl wrote:
-> Hi all,
-> This is my first bug report so please go easy on me if I screw it up.
-> The kernel 2.4.6-ac1
-> The build machine AMD k6-2-350 with 128Megs of memory
-> I get the following errors when I try to build ac1. It builds ok when
-> just building 2.4.6 with the same config file run through make old_config,
-> so I guess this is some kind of problem with ac1.
+Athlon oops saga continues - I consistently get Athlon kernels oopsing
+during the boot up process either in rc.sysinit or loading of usb modules
+(this is a RedHat system 7.1). These kernels can boot to a shell init=/bin/sh
+but once I try to do stuff like inserting modules they oops left, right, and centre.
 
-I posted a patch for this a few hours after 2.4.6-ac1 became available, but
-there have been problems with lkml archive servers in the interim, so here
-is my patch again.  If you look in drivers/parport/parport_pc.c, you'll see that
-the new code is bracketed by:
-
-#if defined (CONFIG_PNPBIOS) || defined (CONFIG_PNPBIOS_MODULE)
-	new stuff for 2.4.6-ac1
-#endif
-
-Steven
+System: Athlon 1.2GHz VIA KT 133A
+Kernel: 2.4.5 and -ac, 2.4.6 and -ac
+Compiler: gcc 2.96-RH/3.00/3.01 binutils 2.10.90/2.11.2/2.11.90
 
 
---- linux-2.4.6-ac1/drivers/parport/parport_pc.c.original       Wed Jul  4 15:22:28 2001
-+++ linux/drivers/parport/parport_pc.c  Wed Jul  4 15:26:03 2001
-@@ -2828,12 +2828,14 @@
-        detect_and_report_smsc ();
- #endif
- 
-+#if defined (CONFIG_PNPBIOS) || defined (CONFIG_PNPBIOS_MODULE)
-        dev=NULL;
-        while ((dev=pnpbios_find_device("PNP0400",dev)))
-                count+=init_pnp040x(dev);
-        dev=NULL;
-         while ((dev=pnpbios_find_device("PNP0401",dev)))
-                 count+=init_pnp040x(dev);
-+#endif
- 
-        /* Onboard SuperIO chipsets that show themselves on the PCI bus. */
-        count += parport_pc_init_superio (autoirq, autodma);
+I have narrowed a(the?) problem down to the CONFIG_MK7 specific code in arch/i386/lib/mmx.c.
+If I disable CONFIG_MK7 in that one file with the rest of the kernel untouched and
+compiled with CONFIG_MK7 and -march=athlon then my kernel boots sucessfully and manages
+to get into multi-user mode. With a few minutes of testing and X everything works fine.
+
+I'm interested if there is an explanation of the MK7 specific code in mmx.c and
+whether that could really be the source of the problem. I would like to get
+to the bottom of this.
+
+FWIW - the RedHat 7.1 stock 2.4.2 athlon kernel boots successfully without oopsen.
+
+Thanks!
+
+Richard Chan <cshihpin@dso.org.sg>

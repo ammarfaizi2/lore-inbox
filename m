@@ -1,101 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbVAGV50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVAGVtO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261647AbVAGV50 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 16:57:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVAGV4U
+	id S261651AbVAGVtO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 16:49:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbVAGVsB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 16:56:20 -0500
-Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:59622 "EHLO
-	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id S261647AbVAGVyH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 16:54:07 -0500
-Date: Fri, 7 Jan 2005 16:54:00 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: Bryan Fulton <bryan@coverity.com>, linux-kernel@vger.kernel.org,
-       jaharkes@cs.cmu.edu
-Subject: [PATCH 2.6.10-mm2] fs/coda Re: [Coverity] Untrusted user data in kernel
-Message-ID: <20050107215400.GB14630@delft.aura.cs.cmu.edu>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Bryan Fulton <bryan@coverity.com>, linux-kernel@vger.kernel.org,
-	jaharkes@cs.cmu.edu
-References: <1103247211.3071.74.camel@localhost.localdomain> <20050105120423.GA13662@logos.cnet>
+	Fri, 7 Jan 2005 16:48:01 -0500
+Received: from pastinakel.tue.nl ([131.155.2.7]:29446 "EHLO pastinakel.tue.nl")
+	by vger.kernel.org with ESMTP id S261647AbVAGVqN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 16:46:13 -0500
+Date: Fri, 7 Jan 2005 22:45:48 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Thayne Harbaugh <tharbaugh@lnxi.com>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: MS_NOUSER and rootfs
+Message-ID: <20050107214548.GB6052@pclin040.win.tue.nl>
+References: <1105024095.15293.74.camel@tubarao> <200501071932.35184.vda@port.imtp.ilyichevsk.odessa.ua> <1105131212.18437.15.camel@tubarao>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050105120423.GA13662@logos.cnet>
-User-Agent: Mutt/1.5.6+20040907i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+In-Reply-To: <1105131212.18437.15.camel@tubarao>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: : 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 07, 2005 at 01:53:32PM -0700, Thayne Harbaugh wrote:
+> On Fri, 2005-01-07 at 19:32 +0200, Denis Vlasenko wrote:
+> > On Thursday 06 January 2005 17:08, Thayne Harbaugh wrote:
+> > > What is the purpose of the MS_NOUSER flag serve and why is it set on
+> > > rootfs?
 
-This patch adds bounds checks for tainted scalars
-(reported by Brian Fulton and Ted Unangst, Coverity Inc.).
+Some random docs say
 
-Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
+The <tt>FS_NOMOUNT</tt> flag says that this filesystem must never
+be mounted from userland, but is used only kernel-internally.
+This flag was introduced in 2.3.99-pre7 and disappeared in Linux 2.5.22.
+This was used, for example, for pipefs, the implementation of Unix pipes
+using a kernel-internal filesystem (see <tt>fs/pipe.c</tt>).
+Even though the flag has disappeared, the concept remains,
+and is now represented by the MS_NOUSER flag.
 
-Index: linux-2.6.10-mm2/include/linux/coda.h
-===================================================================
---- linux-2.6.10-mm2.orig/include/linux/coda.h	2005-01-07 16:36:03.000000000 -0500
-+++ linux-2.6.10-mm2/include/linux/coda.h	2005-01-07 16:42:20.000000000 -0500
-@@ -761,8 +761,8 @@
- struct ViceIoctl {
-         void __user *in;        /* Data to be transferred in */
-         void __user *out;       /* Data to be transferred out */
--        short in_size;          /* Size of input buffer <= 2K */
--        short out_size;         /* Maximum size of output buffer, <= 2K */
-+        u_short in_size;        /* Size of input buffer <= 2K */
-+        u_short out_size;       /* Maximum size of output buffer, <= 2K */
- };
- 
- struct PioctlData {
-Index: linux-2.6.10-mm2/fs/coda/upcall.c
-===================================================================
---- linux-2.6.10-mm2.orig/fs/coda/upcall.c	2005-01-07 16:36:03.000000000 -0500
-+++ linux-2.6.10-mm2/fs/coda/upcall.c	2005-01-07 16:53:03.074276720 -0500
-@@ -555,6 +555,11 @@
- 		goto exit;
-         }
- 
-+        if (data->vi.out_size > VC_MAXDATASIZE) {
-+		error = -EINVAL;
-+		goto exit;
-+	}
-+
-         inp->coda_ioctl.VFid = *fid;
-     
-         /* the cmd field was mutated by increasing its size field to
-@@ -583,19 +588,26 @@
- 		       error, coda_f2s(fid));
- 		goto exit; 
- 	}
-+
-+	if (outsize < (long)outp->coda_ioctl.data + outp->coda_ioctl.len) {
-+		error = -EINVAL;
-+		goto exit;
-+	}
-         
- 	/* Copy out the OUT buffer. */
-         if (outp->coda_ioctl.len > data->vi.out_size) {
- 		error = -EINVAL;
--        } else {
--		if (copy_to_user(data->vi.out, 
--				 (char *)outp + (long)outp->coda_ioctl.data, 
--				 data->vi.out_size)) {
--			error = -EFAULT;
--			goto exit;
--		}
-+		goto exit;
-         }
- 
-+	/* Copy out the OUT buffer. */
-+	if (copy_to_user(data->vi.out, 
-+			 (char *)outp + (long)outp->coda_ioctl.data, 
-+			 outp->coda_ioctl.len)) {
-+		error = -EFAULT;
-+		goto exit;
-+	}
-+
-  exit:
- 	CODA_FREE(inp, insize);
- 	return error;
+> There isn't a description as to what the intention is for MS_NOUSER and
+> why it should be applied to rootfs.  I'm looking for some education as
+> to what it does so I can work out the details as to why it's used in
+> graft_tree(), rootfs_get_sb() and shmem.c.

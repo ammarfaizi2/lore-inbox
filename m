@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262811AbUBZQ3F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 11:29:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262817AbUBZQZ4
+	id S262818AbUBZQ33 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 11:29:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262806AbUBZQ3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 11:25:56 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:25607 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262811AbUBZQY4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 11:24:56 -0500
-Date: Thu, 26 Feb 2004 17:16:37 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [BUG][2.4] /proc/kcore is a random generator ?
-Message-ID: <20040226161637.GA4201@alpha.home.local>
-References: <200402181337.i1IDbsXU010467@hera.kernel.org>
+	Thu, 26 Feb 2004 11:29:14 -0500
+Received: from ram.rentec.com ([192.5.35.66]:43453 "EHLO ram.rentec.com")
+	by vger.kernel.org with ESMTP id S262826AbUBZQ06 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 11:26:58 -0500
+From: Brian Childs <brian@rentec.com>
+Date: Thu, 26 Feb 2004 11:26:54 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Multicast broken on x86_64 (Patch Included)
+Message-ID: <20040226162652.GG1760@rentec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200402181337.i1IDbsXU010467@hera.kernel.org>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+csum-partial.c in 2.4.25 and 2.6.3 has a bug that causes it to compute
+the checksum incorrectly.
 
-I'm encountering a rather strange behaviour here with 2.4.25 on a P4 HT,
-even when I boot it with "nosmp" :
-  - du /proc/kcore says '525255' (I have 512 MB RAM)
-  - if I do it again many several times, sometimes it says '0'
-  - after a moment (or several tests, I don't know), it stabilizes to some
-    value (either 0 or 525255).
-  - then, just starting vmstat, or logging into the system is enough to
-    make it switch to the other value.
+As a result, multicast doesn't work.  It looks as though iptables is
+also affected.
 
-At first, I had the feeling that it displayed '0' when I have an even number
-of processes, and 525255 when I have an odd number, but it's not even the case.
-Once it doesn't move by itself, a few fork/exec are enough to switch the value.
+Anyway, here's a simple patch.
 
-If I boot in HT mode, sometimes I can reliably make it display 0 and 525255
-alternatively, just as if the pid parity or CPU number was involved in the
-result.
+Brian
 
-Update: same results with 2.4.26-pre1. du from coreutils 4.5.4 and 5.0.
-
-This is amazing. Did anyone notice this ? A friend just told me that plain
-2.4.22 on his notebook does the same !
-
-Regards,
-Willy
+diff -ruN linux-2.4.25-orig/arch/x86_64/lib/csum-partial.c linux-2.4.25/arch/x86_64/lib/csum-partial.c
+--- linux-2.4.25-orig/arch/x86_64/lib/csum-partial.c	2003-06-13 10:51:32.000000000 -0400
++++ linux-2.4.25/arch/x86_64/lib/csum-partial.c	2004-02-26 11:20:17.000000000 -0500
+@@ -141,6 +141,6 @@
+  */
+ unsigned short ip_compute_csum(unsigned char * buff, int len)
+ {
+-	return ~csum_partial(buff,len,0); 
++	return csum_fold(csum_partial(buff,len,0));
+ }
+ 
 

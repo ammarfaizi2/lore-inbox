@@ -1,80 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269043AbRHBTbh>; Thu, 2 Aug 2001 15:31:37 -0400
+	id <S269057AbRHBTer>; Thu, 2 Aug 2001 15:34:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268816AbRHBTb1>; Thu, 2 Aug 2001 15:31:27 -0400
-Received: from netcore.fi ([193.94.160.1]:13577 "EHLO netcore.fi")
-	by vger.kernel.org with ESMTP id <S268688AbRHBTbQ>;
-	Thu, 2 Aug 2001 15:31:16 -0400
-Date: Thu, 2 Aug 2001 22:31:00 +0300 (EEST)
-From: Pekka Savola <pekkas@netcore.fi>
-To: <kuznet@ms2.inr.ac.ru>
-cc: <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>,
-        Dave Miller <davem@redhat.com>
-Subject: Re: missing icmp errors for udp packets
-In-Reply-To: <Pine.LNX.4.33.0107301552230.10196-100000@netcore.fi>
-Message-ID: <Pine.LNX.4.33.0108022225490.5167-100000@netcore.fi>
+	id <S269068AbRHBTeh>; Thu, 2 Aug 2001 15:34:37 -0400
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:32269 "HELO
+	clueserver.org") by vger.kernel.org with SMTP id <S269057AbRHBTeZ>;
+	Thu, 2 Aug 2001 15:34:25 -0400
+Date: Thu, 2 Aug 2001 13:48:29 -0700 (PDT)
+From: Alan Olsen <alan@clueserver.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Keith Owens <kaos@ocs.com.au>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PCMCIA IDE_CS in 2.4.7
+In-Reply-To: <E15SMji-000182-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10108021345340.393-100000@clueserver.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Jul 2001, Pekka Savola wrote:
+On Thu, 2 Aug 2001, Alan Cox wrote:
 
-> On Sun, 29 Jul 2001 kuznet@ms2.inr.ac.ru wrote:
->
-> > Hello!
-> >
-> > > So in conclusion:
-> > >
-> > > with net.ipv4.icmp_echoreply_rate=0:
-> >
-> > Congratulations! That's why I do not see this, forgot to ping before. :-)
-> >
-> > The patch is enclosed.
->
-> Alexey, there is a tiny problem with your patch.
->
-> If you reboot the computer, the _first_ ping/scan attempt will not return
-> icmp dest unreachable.  All of the rest do.  If the network was quiet
-> enough, I guess there might be some circumstances where this could be
-> applicable again..
+> > > Gunther posted this patch ages ago which seems to solve the problem
+> > 
+> > I will try that. Any reason it did not make it to 2.4.7?
+> 
+> Andre didnt like it for obscure ATA technical reasons. If it works then
+> personally I think its a candidate to go in anyway
 
-As this happening is rather rare, would there be resistance for adding
-this as an intermediate fix, to be replaced later with a bigger overhaul
-if that is to be decided?
+Well, it gets rid of the hanging behaviour.  There is a bit of
+sluggishness, but it is because it is trying to setup ide2 and failing.
 
-For 99.9% of cases, this works rather well and the 0.1% is the same as
-before (== acceptable).  Returning ICMP unreachables after being pinged is
-IMO rather important.
+Aug  2 11:28:38 summanulla kernel: hde: IBM-DADA-26480, ATA DISK drive
+Aug  2 11:28:38 summanulla kernel: hde: IBM-DADA-26480, ATA DISK drive
+Aug  2 11:28:38 summanulla kernel: ide2: Disabled unable to get IRQ 5.
+Aug  2 11:28:38 summanulla kernel: ide2: Disabled unable to get IRQ 5.
+Aug  2 11:28:40 summanulla kernel: hde: ERROR, PORTS ALREADY IN USE
+Aug  2 11:28:40 summanulla kernel: hde: ERROR, PORTS ALREADY IN USE
+Aug  2 11:28:42 summanulla kernel: ide2: ports already in use, skipping
+probe
+Aug  2 11:28:42 summanulla kernel: ide2: ports already in use, skipping
+probe
+Aug  2 11:28:53 summanulla last message repeated 7 times
+Aug  2 11:28:53 summanulla kernel: ide_cs: ide_register() at 0x110 &
+0x11e, irq 5 failed
+Aug  2 11:28:53 summanulla last message repeated 7 times
+Aug  2 11:28:53 summanulla kernel: ide_cs: ide_register() at 0x110 &
+0x11e, irq 5 failed
+Aug  2 11:28:53 summanulla kernel: Trying to free nonexistent resource
+<00000110-0000011f>
+Aug  2 11:28:53 summanulla kernel: Trying to free nonexistent resource
+<00000110-0000011f>
+Aug  2 11:28:54 summanulla cardmgr[1023]: get dev info on socket 1 failed:
+Resource temporarily unavailable
+Aug  2 11:29:51 summanulla cardmgr[1023]: shutting down socket 1
+Aug  2 11:29:51 summanulla cardmgr[1023]: executing: 'modprobe -r ide-cs'
 
+I need to look at where ide2 is trying to be set later.  (I have a LUG
+meeting to get ready for.)
 
-> > --- ../dust/vger3-010728/linux/net/ipv4/icmp.c	Thu Jun 14 22:49:44 2001
-> > +++ linux/net/ipv4/icmp.c	Sun Jul 29 19:52:55 2001
-> > @@ -240,12 +240,15 @@
-> >  int xrlim_allow(struct dst_entry *dst, int timeout)
-> >  {
-> >  	unsigned long now;
-> > +	static int burst;
-> >
-> >  	now = jiffies;
-> >  	dst->rate_tokens += now - dst->rate_last;
-> >  	dst->rate_last = now;
-> > -	if (dst->rate_tokens > XRLIM_BURST_FACTOR*timeout)
-> > -		dst->rate_tokens = XRLIM_BURST_FACTOR*timeout;
-> > +	if (burst < XRLIM_BURST_FACTOR*timeout)
-> > +		burst = XRLIM_BURST_FACTOR*timeout;
-> > +	if (dst->rate_tokens > burst)
-> > +		dst->rate_tokens = burst;
-> >  	if (dst->rate_tokens >= timeout) {
-> >  		dst->rate_tokens -= timeout;
-> >  		return 1;
-> >
->
->
-
--- 
-Pekka Savola                 "Tell me of difficulties surmounted,
-Netcore Oy                   not those you stumble over and fall"
-Systems. Networks. Security.  -- Robert Jordan: A Crown of Swords
+alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
+Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
+ "All power is derived from the barrel of a gnu." - Mao Tse Stallman
 

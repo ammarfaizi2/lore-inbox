@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262491AbVC2H1Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262500AbVC2H1X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262491AbVC2H1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 02:27:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262488AbVC2H0I
+	id S262500AbVC2H1X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 02:27:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbVC2H0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 02:26:08 -0500
-Received: from atlmail.prod.rxgsys.com ([64.74.124.160]:32954 "EHLO
+	Tue, 29 Mar 2005 02:26:21 -0500
+Received: from atlmail.prod.rxgsys.com ([64.74.124.160]:38330 "EHLO
 	bastet.signetmail.com") by vger.kernel.org with ESMTP
-	id S262491AbVC2HKQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 02:10:16 -0500
-Date: Tue, 29 Mar 2005 02:10:02 -0500
+	id S262500AbVC2HMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 02:12:25 -0500
+Date: Tue, 29 Mar 2005 02:12:10 -0500
 From: Jeff Garzik <jgarzik@pobox.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, netdev@oss.sgi.com
 Subject: Re: [PATCH] s390: claw network device driver
-Message-ID: <20050329071002.GA16204@havoc.gtf.org>
+Message-ID: <20050329071210.GA16409@havoc.gtf.org>
 References: <200503290533.j2T5XEYT028850@hera.kernel.org> <4248FBFD.5000809@pobox.com> <20050328230830.5e90396f.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -44,7 +44,8 @@ On Mon, Mar 28, 2005 at 11:08:30PM -0800, Andrew Morton wrote:
 > Was cc'ed to linux-net last Thursday, but it looks like the messages was
 > too large and the vger server munched it.
 
-As mentioned in the email, you want netdev, not linux-net...
+This also brings up a larger question... why was a completely unreviewed
+net driver merged?
 
 	Jeff
 

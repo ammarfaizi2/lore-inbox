@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbTEKIXh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 04:23:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbTEKIXh
+	id S261161AbTEKIYe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 04:24:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbTEKIYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 04:23:37 -0400
-Received: from zero.aec.at ([193.170.194.10]:25093 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S261169AbTEKIXg (ORCPT
+	Sun, 11 May 2003 04:24:34 -0400
+Received: from zero.aec.at ([193.170.194.10]:26629 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S261161AbTEKIYc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 04:23:36 -0400
-Date: Sun, 11 May 2003 10:36:02 +0200
+	Sun, 11 May 2003 04:24:32 -0400
+Date: Sun, 11 May 2003 10:37:08 +0200
 From: Andi Kleen <ak@muc.de>
-To: William Lee Irwin III <wli@holomorphy.com>, Andi Kleen <ak@muc.de>,
-       akpm@digeo.com, linux-kernel@vger.kernel.org
+To: Andrew Morton <akpm@digeo.com>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Use correct page protection for put_dirty_page
-Message-ID: <20030511083602.GA31932@averell>
-References: <20030511080841.GA31266@averell> <20030511083035.GI8978@holomorphy.com>
+Message-ID: <20030511083708.GB31932@averell>
+References: <20030511080841.GA31266@averell> <20030511013226.25e690bf.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030511083035.GI8978@holomorphy.com>
+In-Reply-To: <20030511013226.25e690bf.akpm@digeo.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 11, 2003 at 10:30:35AM +0200, William Lee Irwin III wrote:
-> We know which vma is involved at the callsite and what we just set its
-> vma->vm_page_prot to; I suggest this patch instead.
+On Sun, May 11, 2003 at 10:32:26AM +0200, Andrew Morton wrote:
+> Andi Kleen <ak@muc.de> wrote:
+> >
+> > put_page_dirty must use the page protection of the stack VMA, not hardcoded
+> >  PAGE_COPY. They can be different e.g. when the stack is set non executable
+> >  via VM_STACK_FLAGS.
+> 
+> OK.  It seems a bit inefficient to go looking up the vma immediately after
+> having created it.
+> 
+> How about we simply pass the desired protection in to put_dirty_page()?
 
-No that won't work. On x86-64 VM_STACK_FLAGS looks at the current
-thread state if it's an 32bit or 64bit process, and that's not decided
-at that point yet.
+Fine by me.
 
 -Andi

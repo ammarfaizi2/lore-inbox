@@ -1,81 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264352AbUFCOUZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264358AbUFCOSY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264352AbUFCOUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 10:20:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbUFCOUY
+	id S264358AbUFCOSY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 10:18:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbUFCOSV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 10:20:24 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:60362 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S264352AbUFCOUJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 10:20:09 -0400
-Date: Thu, 3 Jun 2004 16:19:22 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Christoph Hellwig <hch@infradead.org>,
-       "Peter J. Braam" <braam@clusterfs.com>, linux-kernel@vger.kernel.org,
-       axboe@suse.de, kevcorry@us.ibm.com, arjanv@redhat.com,
-       iro@parcelfarce.linux.theplanet.co.uk, trond.myklebust@fys.uio.no,
-       anton@samba.org, lustre-devel@clusterfs.com
-Subject: Re: [PATCH/RFC] Lustre VFS patch, version 2
-Message-ID: <20040603141922.GI4423@marowsky-bree.de>
-References: <20040602231554.ADC7B3100AE@moraine.clusterfs.com> <20040603135952.GB16378@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040603135952.GB16378@infradead.org>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+	Thu, 3 Jun 2004 10:18:21 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:28801 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S264358AbUFCOSE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 10:18:04 -0400
+Message-ID: <40BF3329.9040700@tmr.com>
+Date: Thu, 03 Jun 2004 10:18:17 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: linux-kernel@vger.kernel.org
+Subject: Re: why swap at all? 
+References: Your message of "Wed, 02 Jun 2004 07:38:41 +0200."             <1086154721.2275.2.camel@localhost.localdomain> <200406021759.i52Hx00N022255@turing-police.cc.vt.edu>
+In-Reply-To: <200406021759.i52Hx00N022255@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-06-03T14:59:52,
-   Christoph Hellwig <hch@infradead.org> said:
+Valdis.Kletnieks@vt.edu wrote:
+> On Wed, 02 Jun 2004 07:38:41 +0200, FabF said:
+> 
+> 
+>>>Yes but: your wm is so  often used/activated it will not get swaped  out. 
+>>>But if your mouse passes over mozilla and tries to focus it, then you will
+>>>feel the pain of a swapped-out x program.
+>>>
+>>
+>>Exactly !
+>>Does autoregulated VM swap. patch could help here ?
+> 
+> 
+> Con's auto-adjusting swappiness patch did in fact help that quite a bit,
+> especially for the case of heavy file I/O causing process images to be swapped
+> out.  I need to do some comparisons of that to Nick's MM work...
 
-> > Well, how close are we now to this being acceptable?
-> As already mentioned above they're completely uninteresting without
-> actually getting the user in tree _and_ maintained there (unlike e.g.
-> intermezzo or coda that are creeping along).  I think based on those
-> patch we should be able to properly integrate intermezzo once 2.7 opens.
-
-This is something I've got to disagree with.
-
-First, Inter-mezzo is reasonably dead, from what I can see. As is Coda.
-You'll notice that the developers behind them have sort-of moved on to
-Lustre ;-)
-
-The hooks (once cleaned up, no disagreement here, the technical feedback
-so far has been very valuable and continues to be) are useful and in
-effect needed not just for Lustre, but in principle for all cluster
-filesystems, such as (Open)GFS and others, even potentially NFS4 et al.
-
-The logic that _all_ modules and functionality need to be "in the tree"
-right from the start for hooks to be useful is flawed, I'm afraid. Pure
-horror that a proprietary cluster file system might also profit from it
-is not, exactly, a sound technical argument. (I can assure you I don't
-care at all for the proprietary cluster-fs.)
-
-Lustre alone would be, roughly, ~10MB more sources, just in the kernel.
-I don't think you want to merge that right now, as desireable as it is
-on the other hand to be able to use it with a mainstream kernel. I think
-this is why kbuild allows external modules to be build; with that logic
-it would follow that this should be disabled too.
-
-There certainly is an interest in merging these (cleaned up) extensions
-and allowing powerful cluster filesystems to exist on Linux.
-
-Another example of this is the cache invalidation hook which we went
-through a few weeks ago too. Back then you complained about not having
-an Open Source user (because it was requested by IBM GPFS), and so
-GFS/OpenGFS chimed in - now it is the lack of an _in-tree_ Open Source
-user...
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+I haven't had a chance to try Con's stuff, the Nick patch is working 
+VERY well for me, small memory and slow system, lots of memory pressure. 
+Hopefully you can report a comparison.
 
 -- 
-High Availability & Clustering	      \ ever tried. ever failed. no matter.
-SUSE Labs			      | try again. fail again. fail better.
-Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
-
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

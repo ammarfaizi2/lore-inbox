@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288952AbSA2M77>; Tue, 29 Jan 2002 07:59:59 -0500
+	id <S289193AbSA2NCj>; Tue, 29 Jan 2002 08:02:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288845AbSA2M7t>; Tue, 29 Jan 2002 07:59:49 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:8139 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S288810AbSA2M7g>;
-	Tue, 29 Jan 2002 07:59:36 -0500
-Date: Tue, 29 Jan 2002 15:57:02 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Oliver Xymoron <oxymoron@waste.org>
-Cc: Martin Josefsson <gandalf@wlug.westbo.se>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] [sched] yield speedup, 2.5.3-pre5
-In-Reply-To: <Pine.LNX.4.44.0201281833450.18405-100000@waste.org>
-Message-ID: <Pine.LNX.4.33.0201291556320.7176-100000@localhost.localdomain>
+	id <S288958AbSA2NCa>; Tue, 29 Jan 2002 08:02:30 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:58642 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288810AbSA2NCV>; Tue, 29 Jan 2002 08:02:21 -0500
+Subject: Re: A modest proposal -- We need a patch penguin
+To: mingo@elte.hu
+Date: Tue, 29 Jan 2002 13:14:43 +0000 (GMT)
+Cc: dalecki@evision-ventures.com (Martin Dalecki),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org,
+        axboe@suse.de (Jens Axboe)
+In-Reply-To: <Pine.LNX.4.33.0201291527310.5560-100000@localhost.localdomain> from "Ingo Molnar" at Jan 29, 2002 03:33:34 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16VY5z-0003sn-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> rapidly. Sometimes keeping broken code around as an incentive to fix it
+> *for real* is better than trying to massage the broken code somewhat.
+> 
+> a patch penguin doesnt solve this particular problem, by definition he
+> just wont fix the block IO code.
 
-On Mon, 28 Jan 2002, Oliver Xymoron wrote:
+Ingo, you should have a look at my mailbox and the people sick of trying to
+get Linus to take 3 liners to fix NODEV type stuff and being ignored so that
+2.5.* still doesn't even compile or boot for many people.
 
-> > > > -	spin_unlock_irq(&rq->lock);
-> > > > +	spin_unlock(&rq->lock);
-
-> > normally yes, but in this case it's an optimization: schedule() will
-> > disable interrupts within a few cycles, so there is no point in enabling
-> > irqs for a short amount of time.
-
-> Needs a comment.
-
-agreed, John Levon suggested this too. I've added a comment to my tree,
-should show up in the next patches.
-
-	Ingo
-
+Dave in doing the patch hoovering at least ensures these are picked up. You
+think if this carries on anyone will be running Linus tree in 9 months ?

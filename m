@@ -1,48 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129408AbQLLR7P>; Tue, 12 Dec 2000 12:59:15 -0500
+	id <S129255AbQLLR7o>; Tue, 12 Dec 2000 12:59:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129345AbQLLR6y>; Tue, 12 Dec 2000 12:58:54 -0500
-Received: from mail2.aracnet.com ([216.99.193.35]:31249 "EHLO
-	mail2.aracnet.com") by vger.kernel.org with ESMTP
-	id <S129255AbQLLR6s>; Tue, 12 Dec 2000 12:58:48 -0500
-Date: Tue, 12 Dec 2000 09:35:34 -0800
-From: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] PROBLEM: USB (MS Intellimouse specifically) does not work with SMP Linux 2.2.18.
-Message-ID: <20001212093534.M3046@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-X-Operating-System: Linux 2.2.14-5.0 (i686)
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+	id <S130312AbQLLR7g>; Tue, 12 Dec 2000 12:59:36 -0500
+Received: from ferret.phonewave.net ([208.138.51.183]:49676 "EHLO
+	tarot.mentasm.org") by vger.kernel.org with ESMTP
+	id <S129345AbQLLR7V>; Tue, 12 Dec 2000 12:59:21 -0500
+Date: Tue, 12 Dec 2000 09:28:38 -0800 (PST)
+From: ferret@phonewave.net
+To: "Mohammad A. Haque" <mhaque@haque.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test12 not liking high disk i/o
+In-Reply-To: <Pine.LNX.4.30.0012120636480.1053-100000@viper.haque.net>
+Message-ID: <Pine.LNX.3.96.1001212092439.12332A-100000@tarot.mentasm.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 12, 2000 at 02:07:59PM -0000, Laramie Leavitt wrote:
-> [1.] One line summary of the problem:
-> USB (MS Intellimouse specifically) does not work with SMP kernel 2.2.18.
+
+Can you tell us what controller chipset you have (output of lspci should
+be fine) and if your hard drive has DMA or uDMA enabled?
+
+There have been a few other reports of oopsen and fs corruption during
+periods of high interrupt activity. Mine seems to occur whenever I
+saturate my local network with traffic to/from the machine, but it is fine
+if I turn DMA off (using hdparm -d0 /dev/hda)
+
+
+On Tue, 12 Dec 2000, Mohammad A. Haque wrote:
+
+> Hey guys,
 > 
-> [2.] Full description of the problem/report:
-> When trying to install a Microsoft Intellimouse Explorer (USB)
-> to a SMP kernel, I get the following error multiple times:
+> Any one else experiencing problems when they do lots of disk activity
+> in test12?
 > 
-> usb.c: USB device not accepting new address (error=-110)
+> I was able to grab the tail end of an oops. Probably not too usefull.
+> 
+> Code: 89 42 04 89 10 b8 01 00 00 00 07 43 04 00 00 00 00 c7 03 00
+> Aiee, killing interrupt handler
+> Kernel panic: Attempted to kill the idle task!
+> In interrupt handler - not syncing.
+> 
+> If I Alt+SysRq+s I get more oops (only tails again) and if I do it
+> enough times it hits a BUG and reboots immediately.
+> -- 
+> 
+> =====================================================================
+> Mohammad A. Haque                              http://www.haque.net/
+>                                                mhaque@haque.net
+> 
+>   "Alcohol and calculus don't mix.             Project Lead
+>    Don't drink and derive." --Unknown          http://wm.themes.org/
+>                                                batmanppc@themes.org
+> =====================================================================
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 
-What's your BIOS setting for MSR?
-
-And how about the contents of /proc/interrupts?
-
-This is a case of when the usb code isn't getting the hardware interrupt
-delivered properly.
-
-thanks,
-
-greg k-h
-
--- 
-greg@(kroah|wirex).com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

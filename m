@@ -1,72 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312449AbSDJOcT>; Wed, 10 Apr 2002 10:32:19 -0400
+	id <S312464AbSDJOjG>; Wed, 10 Apr 2002 10:39:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313182AbSDJOcR>; Wed, 10 Apr 2002 10:32:17 -0400
-Received: from [62.245.135.174] ([62.245.135.174]:51110 "EHLO mail.teraport.de")
-	by vger.kernel.org with ESMTP id <S313176AbSDJOcM>;
-	Wed, 10 Apr 2002 10:32:12 -0400
-Message-ID: <3CB44CE5.1EEAB8B5@TeraPort.de>
-Date: Wed, 10 Apr 2002 16:32:05 +0200
-From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Reply-To: m.knoblauch@TeraPort.de
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre5-ac3 i686)
-X-Accept-Language: en, de
+	id <S313175AbSDJOjF>; Wed, 10 Apr 2002 10:39:05 -0400
+Received: from coltrane.siteprotect.com ([64.26.16.13]:46009 "EHLO
+	coltrane.siteprotect.com") by vger.kernel.org with ESMTP
+	id <S312464AbSDJOjF>; Wed, 10 Apr 2002 10:39:05 -0400
+From: "Rob Hall" <rob@compuplusonline.com>
+To: "Greg KH" <greg@kroah.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: 2.5.7,8-pre2 and USB
+Date: Wed, 10 Apr 2002 10:47:50 -0400
+Message-ID: <BBENIHKKLAMLHIECFJEPIEADCBAA.rob@compuplusonline.com>
 MIME-Version: 1.0
-To: jjasen1@umbc.edu
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Tyan S2462 reboot problems
-X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 04/10/2002 04:32:04 PM,
-	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 04/10/2002 04:32:11 PM,
-	Serialize complete at 04/10/2002 04:32:11 PM
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+In-Reply-To: <BBENIHKKLAMLHIECFJEPGEPOCAAA.rob@compuplusonline.com>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Re: Tyan S2462 reboot problems
-> 
-> From: John Jasen (jjasen1@umbc.edu)
-> Date: Tue Apr 09 2002 - 15:20:17 EST
-> 
-> 
-> > No, I doubt this has anything to do with Linux. I have a S2460 (which his
-> > corrected post says he has), which does not power down under linux, and
 
- No correction from me :-) For me it is still s2462 (aka Thuder K7).
+	Sorry guys,
+	I was late getting home last night. I got my system backup and running to a
+degree, and I'll send off my .config when I get home tonight after class.
 
-> > *never* warm boots cleanly. It does power down under windows, so I assume
-> > ACPI powerdown works and APM does not. I have gone under the assumption that
-> > a BIOS upgrade will fix this, but that involves putting a floppy into the box,
-> > so I haven't done it yet. The warm boot problems consist of either a hang
-> > after POST (but before bootloader, OS irrelevent), or really bad video
+Thanks
+--
+Rob Hall
 
- That sounds like it.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Rob Hall
+Sent: Tuesday, April 09, 2002 5:59 PM
+To: Greg KH
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: 2.5.7,8-pre2 and USB
 
-> > corruption. I don't know if it boot with the video corruption, I've never let
-> > it try.
-> 
-> I did update to the new BIOS for the 246x (I can never keep them straight
-> either), and that did help some with the halt and reboot problems I was
-> having.
-> 
-John,
 
- do you recall from which to which version of the BIOS your upgrade
-went? The upgrade procedure for the s2462 implies a W98 boot floppy
-(never ever seen one of those :-) and it also strongly reccommends
-flashing the CMOS memory. As this involves playing with jumpers on the
-MB and I have 9 of them screwed into a rack, I hesitate to go that
-path.... As I wrote the MBs are at 2.09 and the newest version from Tyan
-is 2.10, with a not very interesting list of fixes/enhancements.
+Yes, it also happened if I just compiled USB core support in. I would try it
+again, but I broke my system upgrading glibc over the weekend(don't ask, I'm
+just going to build LFS). I think I have my .config saved, I'll send it when
+I get home this evening. When I had core and HC support built into the
+kernel, I also had full HID, usb-serial for handspring visors, usb mass
+storage, and joystick support. The same configuration has worked flawlessly
+on 2.4.x.
 
-Martin
--- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
+Thanks!
+--
+Rob Hall
+
+-----Original Message-----
+From: Greg KH [mailto:greg@kroah.com]
+Sent: Tuesday, April 09, 2002 5:40 PM
+To: Rob Hall
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.7,8-pre2 and USB
+
+
+On Tue, Apr 09, 2002 at 05:44:17PM -0400, Rob Hall wrote:
+> I've tried both the OHCI and the OHCI-HCD drivers... But it's not getting
+> that far... the core is what's locking the system up. I probably should
+have
+> been more specific on that. If I load the USB core as a module after init
+> fires off, then USB works fine... if I compile it into the kernel, the USB
+> core locks the machine down right after detecting my PnP BIOS. It doesn't
+> get far enough to put anything into the system log.
+
+Ah, ok.  Haven't heard of this problem before.  The USB core doesn't
+touch any hardware, but only initializes a few things, and adds a filesystem
+to the kernel if you've selected it as a option.
+
+Does it also happen if you only build the USB core into the kernel, yet
+leave the host controllers and other drivers as modules?
+
+Have you selected any USB drivers to be compiled into the kernel?
+
+Can you send me your .config?
+
+thanks,
+
+greg k-h
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+

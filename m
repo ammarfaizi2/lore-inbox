@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264619AbSJ3IZK>; Wed, 30 Oct 2002 03:25:10 -0500
+	id <S264621AbSJ3Icv>; Wed, 30 Oct 2002 03:32:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264621AbSJ3IZK>; Wed, 30 Oct 2002 03:25:10 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:55822 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S264619AbSJ3IZJ>; Wed, 30 Oct 2002 03:25:09 -0500
-Message-ID: <3DBF98A7.8060906@namesys.com>
-Date: Wed, 30 Oct 2002 11:30:31 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
-       Oleg Drokin <green@namesys.com>, Nikita Danilov <Nikita@Namesys.COM>
-Subject: We need help benchmarking and debugging reiser4
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264622AbSJ3Icv>; Wed, 30 Oct 2002 03:32:51 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30227 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264621AbSJ3Icv>; Wed, 30 Oct 2002 03:32:51 -0500
+Date: Wed, 30 Oct 2002 08:37:51 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Dave Cinege <dcinege@psychosis.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, landley@trommello.org,
+       linux-kernel@vger.kernel.org, reiser@namesys.com,
+       alan@lxorguk.ukuu.org.uk, davem@redhat.com, boissiere@adiglobal.com
+Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge candidate list.
+Message-ID: <20021030083751.A25178@flint.arm.linux.org.uk>
+Mail-Followup-To: Dave Cinege <dcinege@psychosis.com>,
+	Jeff Garzik <jgarzik@pobox.com>, landley@trommello.org,
+	linux-kernel@vger.kernel.org, reiser@namesys.com,
+	alan@lxorguk.ukuu.org.uk, davem@redhat.com, boissiere@adiglobal.com
+References: <200210272017.56147.landley@trommello.org> <200210300229.44865.dcinege@psychosis.com> <3DBF8CD5.1030306@pobox.com> <200210300322.17933.dcinege@psychosis.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200210300322.17933.dcinege@psychosis.com>; from dcinege@psychosis.com on Wed, Oct 30, 2002 at 03:22:17AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can some of you help us by doing such things as replicating our 
-benchmarks, and helping us debug it as we enter the last stretch before 
-Halloween?
+On Wed, Oct 30, 2002 at 03:22:17AM -0500, Dave Cinege wrote:
+> Do you have any serious sysadmin, clustering, or emebedded system
+> IMPLEMENTATION experience?
 
-Nikita and Oleg will describe the details of what to do to replicate the 
-benchmarks, please be sure to use reiser4 readdir order for writes to 
-reiser4 (that means don't use tarballs made from ext2 (Remember that 
-writes determine subsequent read performance.)), and to use the latest 
-hard drives and fast processors with udma 5 turned on.  We are quite 
-sensitive to transfer speed since we do a good job of avoiding seeks.  
-We are sensitive to readdir order because we sort directory entries 
-(which is necessary for having efficient large directory lookups).   In 
-reiser4.1 we will ship a repacker, and then it won't matter what order 
-you do writes in so long as the repacker gets a chance to run at night.  
+Please don't get personal, or you'll end up in peoples kill files. 
+
+ARM is basically embedded today, and I support initramfs.  I don't
+believe your "embedded system" argument holds any water.  Yes, it
+is a different way of doing things, but it can (and does here)
+support initrd images.
 
 -- 
-Hans
-
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

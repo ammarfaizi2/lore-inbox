@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269889AbRHGAt3>; Mon, 6 Aug 2001 20:49:29 -0400
+	id <S269836AbRHGA7U>; Mon, 6 Aug 2001 20:59:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269701AbRHGAtU>; Mon, 6 Aug 2001 20:49:20 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:15625 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S269836AbRHGAtI>; Mon, 6 Aug 2001 20:49:08 -0400
-Date: Mon, 6 Aug 2001 20:19:56 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Rik van Riel <riel@conectiva.com.br>
-Subject: [PATCH] total_free_shortage() using zone_free_shortage()
-Message-ID: <Pine.LNX.4.21.0108062015430.11216-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270019AbRHGA7K>; Mon, 6 Aug 2001 20:59:10 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:65114 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S269836AbRHGA66>;
+	Mon, 6 Aug 2001 20:58:58 -0400
+Message-ID: <20010807025913.A13266@win.tue.nl>
+Date: Tue, 7 Aug 2001 02:59:13 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: "C. Linus Hicks" <lhicks@nc.rr.com>, <Remy.Card@linux.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: mkfs wrote to wrong partition
+In-Reply-To: <006a01c11dce$b4338bb0$0a0a0a0a@k-6_iii-400.mindspring.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <006a01c11dce$b4338bb0$0a0a0a0a@k-6_iii-400.mindspring.com>; from C. Linus Hicks on Sun, Aug 05, 2001 at 12:50:16PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Aug 05, 2001 at 12:50:16PM -0400, C. Linus Hicks wrote:
 
-Linus, 
+> The point of the following exercise was to move from a single CPU 400Mhz
+> system to a dual 600Mhz and from an IDE disk to SCSI. I already had Redhat
+> 7.1 with a 2.4.6 kernel running on the dual 600 and was replacing it with
+> the system from the 400Mhz IDE system. All operations were performed on the
+> dual 600.
+> 
+> While running the system booted with root=/dev/sda2 I made partitions on
+> /dev/sdb just like on /dev/sda, then copied all files over. I modified the
+> lilo.conf in /etc on /dev/sda2 to have boot=/dev/sdb and set the
+> root=/dev/sdb2 for each image. I ran lilo then booted the system.
+> 
+> The system looked like I expected it to: mount showed /dev/sdb2 mounted as
+> the root filesystem.
 
-The following patch changes total_free_shortage() to use
-zone_free_shortage() to calculate the sum of perzone free shortages.
+Note that this does not mean a thing:
+If /etc/mtab is a link to /proc/mounts (bad idea) then the root fs is
+usually just called /dev/root. Otherwise, mount will guess at the
+appropriate name for the root filesystem by taking the one in /etc/fstab.
 
-This way we isolate the calculation variables in zone_free_shortage(). 
+So, when mount showed /dev/sdb2 as root, this meant that you had
+changed the root entry in /etc/fstab.
 
-Against 2.4.8-pre4. Please apply. 
-
-
-diff -Nur linux.orig/mm/vmscan.c linux/mm/vmscan.c
---- linux.orig/mm/vmscan.c	Mon Aug  6 21:29:11 2001
-+++ linux/mm/vmscan.c	Mon Aug  6 21:37:53 2001
-@@ -807,12 +807,8 @@
- 		int i;
- 		for(i = 0; i < MAX_NR_ZONES; i++) {
- 			zone_t *zone = pgdat->node_zones+ i;
--			if (zone->size && (zone->inactive_clean_pages +
--					zone->free_pages < zone->pages_min)) {
--				sum += zone->pages_min;
--				sum -= zone->free_pages;
--				sum -= zone->inactive_clean_pages;
--			}
-+
-+			sum += zone_free_shortage(zone);
- 		}
- 		pgdat = pgdat->node_next;
- 	} while (pgdat);
-
-
+Probably you forgot to run lilo and booted the old kernel.

@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265417AbRF0Vcy>; Wed, 27 Jun 2001 17:32:54 -0400
+	id <S265407AbRF0Vj0>; Wed, 27 Jun 2001 17:39:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265421AbRF0Vck>; Wed, 27 Jun 2001 17:32:40 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:56072 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S265418AbRF0Vcb>;
-	Wed, 27 Jun 2001 17:32:31 -0400
-Message-ID: <3B3A50DE.C8A6C419@linux-m68k.org>
-Date: Wed, 27 Jun 2001 23:32:14 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-CC: Jonathan Lundell <jlundell@pobox.com>,
-        Mike Galbraith <mikeg@wen-online.de>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
-        Paul.Russell@rustcorp.com.au
-Subject: Re: [PATCH] proc_file_read() (Was: Re: proc_file_read() question)
-In-Reply-To: <Pine.LNX.4.30.0106271919520.16282-100000@biker.pdb.fsc.net>
+	id <S265418AbRF0VjR>; Wed, 27 Jun 2001 17:39:17 -0400
+Received: from gateway.sequent.com ([192.148.1.10]:1008 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S265407AbRF0Vi7>; Wed, 27 Jun 2001 17:38:59 -0400
+Date: Wed, 27 Jun 2001 14:38:45 -0700
+From: Mike Kravetz <mkravetz@sequent.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Scott Long <scott@swiftview.com>, linux-kernel@vger.kernel.org
+Subject: Re: wake_up vs. wake_up_sync
+Message-ID: <20010627143845.D1135@w-mikek2.des.beaverton.ibm.com>
+In-Reply-To: <3B3A4E8B.E4301909@colorfullife.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B3A4E8B.E4301909@colorfullife.com>; from manfred@colorfullife.com on Wed, Jun 27, 2001 at 11:22:19PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Jun 27, 2001 at 11:22:19PM +0200, Manfred Spraul wrote:
+> > Why would you want to prevent
+> > reschedule_idle()?
+> > 
+> If one process runs, wakes up another process and _knows_ that it's
+> going to sleep immediately after the wake_up it doesn't need the
+> reschedule_idle: the current cpu will be idle soon, the scheduler
+> doesn't need to find another cpu for the woken up thread.
 
-Martin Wilck wrote:
+I'm curious.  How does the caller of wake_up_sync know that the
+current cpu will soon be idle.  Does it assume that there are no
+other tasks on the runqueue waiting for a CPU?  If there are other
+tasks on the runqueue, isn't it possible that another task has a
+higher goodness value than the task being awakened.  In such a case,
+isn't is possible that the awakened task could sit on the runqueue
+(waiting for a CPU) while tasks with a lower goodness value are
+allowed to run?
 
-> Hum - is there no simple way to determine whether a pointer is
-> a valid pointer to something returned by __get_free_pages ()? You are
-> right, S390 in particular seems to allow arbitrary addresses starting from
-> 0.
-
-M68k does so too, although the first page is never used and usually
-unmapped to catch NULL pointers.
-
-bye, Roman
+-- 
+Mike Kravetz                                 mkravetz@sequent.com
+IBM Linux Technology Center

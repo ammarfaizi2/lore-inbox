@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262633AbTDAQPA>; Tue, 1 Apr 2003 11:15:00 -0500
+	id <S262642AbTDAQTb>; Tue, 1 Apr 2003 11:19:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262635AbTDAQPA>; Tue, 1 Apr 2003 11:15:00 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:32389 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S262633AbTDAQO5>; Tue, 1 Apr 2003 11:14:57 -0500
-Date: Tue, 1 Apr 2003 17:26:15 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5][RFT] sfence wmb for K7,P3,VIAC3-2(?)
-Message-ID: <20030401162615.GA1131@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>, Andi Kleen <ak@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.50.0304010242250.8773-100000@montezuma.mastecende.com> <Pine.LNX.4.50.0304010320220.8773-100000@montezuma.mastecende.com> <1049191863.30759.3.camel@averell> <20030401112800.GA23027@suse.de> <1049197774.31041.15.camel@averell> <Pine.LNX.4.50.0304011105540.8773-100000@montezuma.mastecende.com>
-Mime-Version: 1.0
+	id <S262651AbTDAQRh>; Tue, 1 Apr 2003 11:17:37 -0500
+Received: from smtpde01.sap-ag.de ([155.56.68.140]:38881 "EHLO
+	smtpde01.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S262642AbTDAQQy>; Tue, 1 Apr 2003 11:16:54 -0500
+From: Christoph Rohland <cr@sap.com>
+To: tomlins@cam.org
+Cc: CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
+Organisation: Development SAP J2EE Engine
+Date: Tue, 01 Apr 2003 18:27:47 +0200
+In-Reply-To: <20030401133833.6C71DF3D@oscar.casa.dyndns.org> (Ed Tomlinson's
+ message of "Tue, 01 Apr 2003 08:38:32 -0500")
+Message-ID: <ovk7eekwsc.fsf@sap.com>
+User-Agent: Gnus/5.090016 (Oort Gnus v0.16) XEmacs/21.4 (Native Windows TTY
+ Support (Windows), cygwin32)
+References: <fa.eagpkml.m3elbd@ifi.uio.no>
+	<20030401133833.6C71DF3D@oscar.casa.dyndns.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0304011105540.8773-100000@montezuma.mastecende.com>
-User-Agent: Mutt/1.5.4i
+X-SAP: out
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 01, 2003 at 11:07:21AM -0500, Zwane Mwaikambo wrote:
+Hi Ed,
 
- > > Yes, you're correct. It was SSE1, not SSE2.
- > > The problem Zwane encountered is that early Athlons don't support SSE1,
- > > only XP+ do
- > 
- > hmm wouldn't they illegal op? Some tested this on an Athlon 600.
+On Tue, 01 Apr 2003, Ed Tomlinson wrote:
+> What does tmpfs have to do with ram size?  Its swappable.  This
+> _might_ be useful for ramfs but for tmpfs, IMHO, its not a good
+> idea.
 
-I'm not 100% sure on this, but I *think* 3dnow had an sfence which was
-opcode compatable with SSE's instruction.
- 
-		Dave
+I agree and I think if you add this option it should adjust to a
+percentage of (ram + swap). With this it would be a really nice
+improvement.
+I even had patches for this but to do it efficently you would need to
+add some hooks to swapon and swapoff.
+
+Greetings
+		Christoph
+
+

@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262801AbUBZTnW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 14:43:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262832AbUBZTnW
+	id S262832AbUBZTqm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 14:46:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbUBZTqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 14:43:22 -0500
-Received: from eleanor.physics.ucsb.edu ([128.111.8.116]:37044 "EHLO
-	eleanor.physics.ucsb.edu") by vger.kernel.org with ESMTP
-	id S262801AbUBZTkB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 14:40:01 -0500
-Date: Thu, 26 Feb 2004 11:41:24 -0800 (PST)
-From: David Whysong <dwhysong@physics.ucsb.edu>
-To: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
-Subject: Re: [resend] ioapic+shared interrupt+concurrent access=ide lockup
-Message-ID: <Pine.LNX.4.33.0402261137390.23839-100000@eleanor.physics.ucsb.edu>
+	Thu, 26 Feb 2004 14:46:42 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:14209 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262832AbUBZTn1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 14:43:27 -0500
+Date: Thu, 26 Feb 2004 14:46:00 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Timothy Miller <miller@techsource.com>
+cc: Chris Wedgwood <cw@f00f.org>, "Nakajima, Jun" <jun.nakajima@intel.com>,
+       richard.brunner@amd.com, linux-kernel@vger.kernel.org
+Subject: Re: Intel vs AMD64
+In-Reply-To: <403E481E.7060609@techsource.com>
+Message-ID: <Pine.LNX.4.53.0402261442420.4239@chaos>
+References: <7F740D512C7C1046AB53446D37200173EA28A5@scsmsx402.sc.intel.com>
+ <20040226133959.GA19254@dingdong.cryptoapps.com> <Pine.LNX.4.53.0402260913300.32691@chaos>
+ <403E481E.7060609@techsource.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Steinmetz wrote:
-> The ide subsystem locks up on a dual Opteron system when io-apic is
-> enabled and there are concurrent accesses to both ide channels of a pci
-> ide controller card.
-[...]
+On Thu, 26 Feb 2004, Timothy Miller wrote:
 
-I'll confirm this, I had the same problem with a Promise 20269 controller,
-Tyan S2885 motherboard, dual Opteron 240.
+>
+>
+> Richard B. Johnson wrote:
+>
+> > Whether or not the CPU traps this invalid instruction is moot. No
+> > compiler would emit junk like this and anybody horsing around with
+> > an assembler deserves whatever they get, although you shouldn't
+> > be able to smoke the CPU on a multi-user multitasking system because
+> > it can be used as a DOS attack.
+>
+>
+> If this is junk that's invalid, why was it mentioned in the first place?
+>
 
--- 
-David Whysong                                       dwhysong@physics.ucsb.edu
-Astrophysics graduate student         University of California, Santa Barbara
-My public PGP keys are on my web page - http://www.physics.ucsb.edu/~dwhysong
-DSS PGP Key 0x903F5BD6  :  FE78 91FE 4508 106F 7C88  1706 B792 6995 903F 5BD6
-D-H PGP key 0x5DAB0F91  :  BC33 0F36 FCCD E72C 441F  663A 72ED 7FB7 5DAB 0F91
+Because there are hobbiest that look for undocumented op-codes, see
+	http://www.x86.org
+
+They find some interesting things and then they wonder if what
+they've found will work with other vendor's CPUs.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

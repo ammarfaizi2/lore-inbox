@@ -1,95 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262373AbSKCTbF>; Sun, 3 Nov 2002 14:31:05 -0500
+	id <S262387AbSKCTb6>; Sun, 3 Nov 2002 14:31:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262374AbSKCTbF>; Sun, 3 Nov 2002 14:31:05 -0500
-Received: from pasky.ji.cz ([62.44.12.54]:49909 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id <S262373AbSKCTbD>;
-	Sun, 3 Nov 2002 14:31:03 -0500
-Date: Sun, 3 Nov 2002 20:37:34 +0100
-From: Petr Baudis <pasky@ucw.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Jos Hulzink <josh@stack.nl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Petition against kernel configuration options madness...
-Message-ID: <20021103193734.GC2516@pasky.ji.cz>
-Mail-Followup-To: Vojtech Pavlik <vojtech@suse.cz>,
-	Jeff Garzik <jgarzik@pobox.com>, Jos Hulzink <josh@stack.nl>,
-	linux-kernel@vger.kernel.org
-References: <200211031809.45079.josh@stack.nl> <3DC56270.8040305@pobox.com> <20021103200704.A8377@ucw.cz>
+	id <S262392AbSKCTb6>; Sun, 3 Nov 2002 14:31:58 -0500
+Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:41695 "EHLO
+	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S262387AbSKCTbu>; Sun, 3 Nov 2002 14:31:50 -0500
+Date: Sun, 3 Nov 2002 14:38:22 -0500
+From: Matt Zimmerman <mdz@debian.org>
+To: Aaron Lehmann <aaronl@vitelus.com>
+Cc: team@security.debian.org, nethack@packages.debian.org,
+       Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Nethack setgid screwup
+Message-ID: <20021103193822.GT31490@mizar.alcor.net>
+Mail-Followup-To: Aaron Lehmann <aaronl@vitelus.com>,
+	team@security.debian.org, nethack@packages.debian.org,
+	Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+References: <20021103050042.GA25215@vitelus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021103200704.A8377@ucw.cz>
+In-Reply-To: <20021103050042.GA25215@vitelus.com>
 User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Sun, Nov 03, 2002 at 08:07:05PM CET, I got a letter,
-where Vojtech Pavlik <vojtech@suse.cz> told me, that...
-> On Sun, Nov 03, 2002 at 12:52:48PM -0500, Jeff Garzik wrote:
-> > Jos Hulzink wrote:
-> > 
-> > >It took me about an hour to find out why my keyboard didn't work in 2.5.45. 
-> > >Well... after all it seemed that I need to enable 4 ! options inside the 
-> > >input configuration, just to get my default, nothing special PS/2 keyboard up 
-> > >and running. Oh, and I didn't even have my not so fancy boring default PS/2 
-> > >mouse configured then. Guys, being able to configure everything is nice, but 
-> > >with the 2.5 kernel, things are definitely getting out of control IMHO.
-> > >  
-> > >
-> > 
-> > This is potentially becoming a FAQ...  I ran into this too, as did 
-> > several people in the office.  People who compile custom kernels seem to 
-> > run into this when they first jump into 2.5.x.  AT Keyboard support is 
-> > definitely buried :/
-> > 
-> > Unfortunately I don't have any concrete suggestions for Vojtech (input 
-> > subsystem maintainer), just a request that it becomes easier and more 
-> > obvious how to configure the keyboard and mouse that is found on > 90% 
-> > of all Linux users computers [IMO]...
+On Sat, Nov 02, 2002 at 09:00:42PM -0800, Aaron Lehmann wrote:
+
+> ----- Forwarded message from Alexander Viro <viro@math.psu.edu> -----
+> On Sat, 2 Nov 2002, Linus Torvalds wrote:
 > 
-> Too bad you don't have any suggestions. I completely agree this should
-> be simplified, while I wouldn't be happy to lose the possibility of not
-> compiling AT keyboard support in.
+> > But I like Al's idea of mount binds even more, although it requires maybe
+> > a bit more administration.
+> 
+> OK, will do - will be fun to take a break from drivers/* and devfs excrements
+> I'm digging in...
+> 
+> BTW, here's a fresh demonstration (found half an hour ago) that capabilities
+> do *not* permit more lax attitude when writing stuff with elevated priveleges:
+> 	* /usr/lib/games/nethack/recover is run at the boot time (as root)
+> to recover crashed games.
+> 	* Debian nethack 3.4.0-3.1 has it installed root.games and it
+> is group-writable - cretinism in debian/rules, upstream is not guilty
+> in that (BTW, so is /usr/lib/games/nethack/recover-helper).
+> 	* ergo, any exploitable hole in sgid-games binary (rogue, for
+> instance) is trivially elevated to root exploit.
 
-Well, why can't it be enabled by default? Other options are as well, and it's
-IMHO sane to enable keyboard and mice support by default. It should clear up
-the initial confusion as well.
+mizar:[/tmp] dpkg -l nethack
+Desired=Unknown/Install/Remove/Purge/Hold
+| Status=Not/Installed/Config-files/Unpacked/Failed-config/Half-installed
+|/ Err?=(none)/Hold/Reinst-required/X=both-problems (Status,Err: uppercase=bad)
+||/ Name           Version        Description
++++-==============-==============-============================================
+ii  nethack        3.4.0-3.1      Overhead dungeon-crawler game (dummy package
+mizar:[/tmp] ls -l /usr/lib/games/nethack/recover*
+-rwxrwsr-x    1 root     games        6088 2002-07-06 17:54 /usr/lib/games/nethack/recover
+-rwxrwxr-x    1 root     root          283 2002-07-06 17:54 /usr/lib/games/nethack/recover-helper
+mizar:[/tmp] grep recover /etc/init.d/nethack
+# Nethack save-file recovery script for Debian
+    test -x /usr/lib/games/nethack/recover-helper || exit 0
+      # Refuse to recover root's nethack files.
+        echo "Ignoring root's Nethack unrecovered save file."
+        # script running as the user which recovers everything
+        su "$owner" -c /usr/lib/games/nethack/recover-helper 
 
-I think that these options should be enabled by default:
+The script has worked this way since at least version 3.3.0-7, which is
+found in Debian 2.2 (potato).  Is there some other situation you found where
+recover would be run as root, other than when explicitly started by root?
 
-[Userland interfaces]
-	Mouse interface
-		Legacy /dev/psaux (?)
-			(I suggest to make this non-default in 2.7, but maybe
-			 we want shorter transition period?)
-
-[Input I/O drivers]
-	Serial i/o support
-		i8042
-		Serial port line discipline
-
-[Input device drivers]
-	Keyboards
-		AT keyboard support
-	Mice
-		Serial mouse (?)
-			(..or maybe not, this is really not so common as PS/2
-			 lately)
-		PS/2 mouse
-
-I think that those are absolute minimum and if anyone will want to have any of
-these explicitly off, he's more likely to know where to turn it off, rather
-than vice versa.
+This is still a serious bug, of course, and allows gid games to be exploited
+to gain the privileges of a user with a recoverable saved game, but not root
+(at least not trivially).
 
 -- 
- 
-				Petr "Pasky" Baudis
-.
-This host is a black hole at HTTP wavelengths. GETs go in, and nothing
-comes out, not even Hawking radiation.
-                -- Graaagh the Mighty on rec.games.roguelike.angband
-.
-Public PGP key && geekcode && homepage: http://pasky.ji.cz/~pasky/
+ - mdz

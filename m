@@ -1,34 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280824AbRKTVTN>; Tue, 20 Nov 2001 16:19:13 -0500
+	id <S280867AbRKTVTN>; Tue, 20 Nov 2001 16:19:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280932AbRKTVSx>; Tue, 20 Nov 2001 16:18:53 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:45977 "EHLO
-	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S280911AbRKTVSu>; Tue, 20 Nov 2001 16:18:50 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: "ChristianK."@t-online.de (Christian Koenig)
-To: linux-kernel@vger.kernel.org
-Subject: Again Multiboot-Standard for Linux ?
-Date: Tue, 20 Nov 2001 22:19:15 +0100
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-ID: <166IHg-1mi6pEC@fwd00.sul.t-online.com>
+	id <S280911AbRKTVSy>; Tue, 20 Nov 2001 16:18:54 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:32759
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S280867AbRKTVSq>; Tue, 20 Nov 2001 16:18:46 -0500
+Date: Tue, 20 Nov 2001 13:18:39 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Steffen Persvold <sp@scali.no>
+Cc: Christopher Friesen <cfriesen@nortelnetworks.com>, root@chaos.analogic.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Swap
+Message-ID: <20011120131839.B4210@mikef-linux.matchmail.com>
+Mail-Followup-To: Steffen Persvold <sp@scali.no>,
+	Christopher Friesen <cfriesen@nortelnetworks.com>,
+	root@chaos.analogic.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.95.1011120111730.7650A-100000@chaos.analogic.com> <3BFA8F87.9FB4C13E@nortelnetworks.com> <3BFAC5A1.81474E74@scali.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BFAC5A1.81474E74@scali.no>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Nov 20, 2001 at 10:05:37PM +0100, Steffen Persvold wrote:
+> Christopher Friesen wrote:
+> > 
+> > "Richard B. Johnson" wrote:
+> > >
+> > > On Tue, 20 Nov 2001, Wolfgang Rohdewald wrote:
+> > >
+> > > > On Tuesday 20 November 2001 15:51, J.A. Magallon wrote:
+> > > > > When a page is deleted for one executable (because we can re-read it from
+> > > > > on-disk binary), it is discarded, not paged out.
+> > > >
+> > > > What happens if the on-disk binary has changed since loading the program?
+> > > > -
+> > >
+> > > It can't. That's the reason for `install` and other methods of changing
+> > > execututable files (mv exe-file exe-file.old ; cp newfile exe-file).
+> > > The currently open, and possibly mapped file can be re-named, but it
+> > > can't be overwritten.
+> > 
+> > Actually, with NFS (and probably others) it can.  Suppose I change the file on
+> > the server, and it's swapped out on a client that has it mounted.  When it swaps
+> > back in, it can get the new information.
+> > 
+> 
+> This sounds really dangerous... What about shared libraries ??
+> 
 
-Is anyone still working on making the Linux Kernel Multiboot compliant ?
+IIRC (if wrong flame...)
 
-I wan't to load my modules from grub(pxegrub) without the need to compile in 
-ramdisk / initrd / romfs... (System memory is very low (4MB-6MB)).
+When you delete an open file, the entry is removed from the directory, but
+not unlinked until the file is closed.  This is a standard UNIX semantic.
 
-I have found some Postings in the Mailing list archive, but they aren't quit 
-clear what has happend to this idear.
+Now, if you have a set of processes with shared memory, and one closes, and
+another is created to replace, the new process will get the new libraries,
+or even new version of the process.  This could/will bring down the entire
+set of processes.
 
-Mfg. Christian König.
-PS: Sorry for my poor English.
+Apps like samba come to mind...
 
+Mike

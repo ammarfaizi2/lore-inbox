@@ -1,99 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274666AbRJJEDi>; Wed, 10 Oct 2001 00:03:38 -0400
+	id <S274653AbRJJEF6>; Wed, 10 Oct 2001 00:05:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274653AbRJJED2>; Wed, 10 Oct 2001 00:03:28 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:55840 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S274634AbRJJEDP>; Wed, 10 Oct 2001 00:03:15 -0400
-Date: Wed, 10 Oct 2001 06:03:34 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Robert Love <rml@ufl.edu>
-Cc: safemode <safemode@speakeasy.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10-ac10-preempt lmbench output.
-Message-ID: <20011010060334.G726@athlon.random>
-In-Reply-To: <20011010003636Z271005-760+23005@vger.kernel.org> <20011010031803.F8384@athlon.random> <20011010020935.50DEF1E756@Cantor.suse.de> <20011010043003.C726@athlon.random> <1002681480.1044.67.camel@phantasy> <20011010050630.E726@athlon.random> <1002684288.862.123.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1002684288.862.123.camel@phantasy>; from rml@ufl.edu on Tue, Oct 09, 2001 at 11:24:36PM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S274667AbRJJEFv>; Wed, 10 Oct 2001 00:05:51 -0400
+Received: from mailout5-0.nyroc.rr.com ([24.92.226.122]:397 "EHLO
+	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S274653AbRJJEFg>; Wed, 10 Oct 2001 00:05:36 -0400
+Message-ID: <07d601c15140$f07c2870$1a01a8c0@allyourbase>
+From: "Dan Maas" <dmaas@dcine.com>
+To: "Bryan Mayland" <bmayland@leoninedev.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <fa.efssf0v.146031s@ifi.uio.no>
+Subject: Re: [PATCH] again: Re: Athlon kernel crash (i686 works)
+Date: Wed, 10 Oct 2001 00:06:29 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 09, 2001 at 11:24:36PM -0400, Robert Love wrote:
-> On Tue, 2001-10-09 at 23:06, Andrea Arcangeli wrote:
-> > [...]
-> > I think the issue you raise is that dbench gets a 10msec more of cpu
-> > time and xmms starts running 10msec later than expected (because of the
-> > scheduler latency peak worst case of 10msec).
-> > 
-> > But that doesn't matter. The scheduler isn't perfect anyways. The
-> > resolution of the scheduler is 10msec too, so you can easily lose 10msec
-> > anywhere else no matter of whatever scheduler latency of 10msec. [...]
-> 
-> I agree with generally everything you say.
-> 
-> I think, however,  you are making two assumptions:
-> 
-> (a) xmms has a very large leeway in the timing of its execution
+> I've run several LMbench tests against both 686-optimized
+> and Athlon-optimized kernels.  The results waver across multiple
+> tests, one kernel winning some tests one time and losing the next,
+> but the values are all close.
 
-Yes.
+The benefits of the kernel Athlon optimizations are higher memory bandwidth
+for bulk copies/clears and less cache pollution. But LMbench isn't going to
+show any difference, because its tests use generic x86 mem*() functions, not
+Athlon-optimized SSE memory routines like in the Athlon kernel.
 
-> (b) the maximum time a process sits in kernel space is 10ms.
+*Local* Communication bandwidths in MB/s - bigger is better
+Host                OS  Pipe AF    TCP  File   Mmap  Bcopy  Bcopy  Mem   Mem
+                             UNIX      reread reread (libc) (hand) read
+write
+--------- ------------- ---- ---- ---- ------ ------ ------ ------ ---- ----
+-
+Athlon-1  Linux 2.4.10- 847. 685. 311.  332.4  501.3  176.2  206.2 471.
+342.5
+Athlon-2  Linux 2.4.10- 882. 586. 187.  331.6  510.2  177.6  207.1 484.
+343.5
+i686-1    Linux 2.4.10- 863. 586. 299.  320.0  510.2  176.3  206.6 472.
+342.6
+i686-2    Linux 2.4.10- 874. 318. 199.  319.6  520.2  177.7  206.8 486.
+343.5
 
-Actually a task can sit in the kernel for its whole life and still
-provide usec scheduler latencies (ksoftirqd)
+It should be obvious that LMbench uses sub-optimal memory routines, since
+the numbers for "Bcopy" and "Mem read/write" bandwidth are so much lower
+than pipe and AF UNIX bandwidths! (the pipe/UNIX tests are basically
+equivalent to Bcopy, plus extra user<->kernel transitions and context
+switches).
 
-> While I agree (a) is true, it may not be so in all scenerios. 
+The only cases where I'd expect the Athlon kernel to do better on LMbench
+are essentially kernel memcpy() benchmarks - pipe and AF UNIX bandwidths.
+I'm not sure if the kernel pipe and UNIX socket code actually uses
+Athlon-optimized routines; in any case the small buffer sizes (eg 4KB for
+pipes) could be hiding any performance gain.
 
-Correct, of course if you run xmms on a 16mhz CPU it will dropout no
-matter of the size of the dma buffer. And you're right the slower the
-CPU is the strictier the scheduler latency requirements to avoid the
-dropouts are.  If the CPU is very slow as soon as xmms gets runnable it
-may not have enough time to decode the next mp3 data before the DMA ring
-drys out.
+Regards,
+Dan
 
-So yes I'm assuming doing playback on any recent cpu where xmms just
-hurts because it generates high frequency reschedule that in turns means
-tlb flushing on x86 (not because of the real cpu load). And mostly
-because of its "moving" GUI, not even because of the sound backend :). 
 
-> Furthermore, the specified leeway does not exist for all timing-critical
-> tasks.  Not all of these tasks are specialized real-time applications,
-> either.
-> 
-> Most importantly, however, the maximum latency of the system is not
-> 10ms.  Even _with_ preemption, we have observed greater latencies (due
-> to long held locks).
 
-I was reading a very detailed latency analyse done on the 2.4.10 SuSE
-kernel by Takashi and it showed 10msec peaks of worst case latency.
-
-The stress during the latency measurement were x11perf (but ok, that's
-mostly userspace), /proc with top, disk write, disk read and disk copy.
-
-But of course in -aa as said there's just the most important part of the
-low latency patch included, so without -aa I know for sure that the
-scheduler latency can run up to several seconds with lots of ram in the
-system (this is why I included only those scheduler points even in 2.2
-for the multigigabyte machines, where the lack of rescheduling in
-read/write could become a patological case visible with eyes while
-typing in the shell).
-
-And of course if you only apply the preempt patch and you don't add the
-explicit points in the cpu hogs under locks, you'll cover only
-copy-user lock less and semaphore parts, but not the other bits like the
-ones in the memory management that are also covered since 2.4.1[01] and
-in recent 2.2.
-
-> This is why I believe the a preemptible kernel benefits more than just
-> real-time signal processing.
-
-Provided that read/write gets fixed like in either Andrew's patch,
-Ingo's patch or -aa, I believe it cannot make any visible difference for
-mp3 playback in any recent machine. Feel free to experiment yourself
-with 2.4.11aa1.
-
-Andrea

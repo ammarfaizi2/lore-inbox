@@ -1,48 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264215AbRF1TeK>; Thu, 28 Jun 2001 15:34:10 -0400
+	id <S264071AbRF1TmA>; Thu, 28 Jun 2001 15:42:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264103AbRF1Tdu>; Thu, 28 Jun 2001 15:33:50 -0400
-Received: from ns.guardiandigital.com ([209.11.107.5]:62990 "HELO
-	juggernaut.dmz.guardiandigital.com") by vger.kernel.org with SMTP
-	id <S264039AbRF1Tdt>; Thu, 28 Jun 2001 15:33:49 -0400
-Date: Thu, 28 Jun 2001 15:33:47 -0400 (EDT)
-From: "Ryan W. Maple" <ryan@guardiandigital.com>
-To: james bond <difda@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BIG PROBLEM
-In-Reply-To: <E15Fh8J-0007Sz-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10106281532110.10868-100000@mastermind.inside.guardiandigital.com>
-X-Base: ALL YOUR BASE ARE BELONG TO US. (http://www.scene.org/redhound/AYB.swf)
+	id <S264080AbRF1Tlv>; Thu, 28 Jun 2001 15:41:51 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:30981 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S264071AbRF1Tlh>;
+	Thu, 28 Jun 2001 15:41:37 -0400
+To: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
+Cc: "'David S. Miller'" <davem@redhat.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit m achi ne
+In-Reply-To: <FEEBE78C8360D411ACFD00D0B7477971880AD5@xsj02.sjs.agilent.com>
+From: Jes Sorensen <jes@sunsite.dk>
+Date: 28 Jun 2001 21:41:22 +0200
+In-Reply-To: "MEHTA,HIREN's message of "Thu, 28 Jun 2001 10:20:46 -0600"
+Message-ID: <d33d8kbdel.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Hiren" == MEHTA,HIREN (A-SanJose,ex1) <hiren_mehta@agilent.com> writes:
 
-On Thu, 28 Jun 2001, Alan Cox wrote:
+Hiren> Then why do we have 64-bit dma_addr_t on ia64 ?  -hiren
 
-> > i've  compiled the kernel 2.4.4 , once i finish and boot the first time on 
-> > 2.4.4 everything goses ok ,
-> > only too problemes
-> > 1st-  klogd takes 100%  CPU time
-> 
-> Old old versions of klogd had bugs where they would do that. If there is
-> a continuous problem it may also do so - does 'dmesg' show anything ?
+Because on ia64 you will get back a 64 bit pointer if you use
+pci_set_dma_mask() to set a 64 bit mask before calling the pci
+functions in question.
 
-I don't think it's limited to "old old" versions.  Version 1.3 would hit
-100% CPU (DoS-style) when it received NULL bytes IIRC.
-
-  http://lists.jammed.com/owl-users/2001/05/0000.html
-
->From what I remember, this happened with some of the 3com ethernet drivers
-(the NULL bytes).  Maybe this is his problem wrt klogd...
-
-Ryan
-
- +-- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --+
-   Ryan W. Maple          "I dunno, I dream in Perl sometimes..."  -LW
-   Guardian Digital, Inc.                     ryan@guardiandigital.com
- +-- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --+
-
-
+Jes

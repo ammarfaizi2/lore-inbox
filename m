@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316963AbSFKJMD>; Tue, 11 Jun 2002 05:12:03 -0400
+	id <S316969AbSFKJP0>; Tue, 11 Jun 2002 05:15:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316964AbSFKJMB>; Tue, 11 Jun 2002 05:12:01 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:49494 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S316963AbSFKJLV>; Tue, 11 Jun 2002 05:11:21 -0400
-Date: Tue, 11 Jun 2002 10:10:28 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18 no timestamp update on modified mmapped files
-In-Reply-To: <3D05A6A1.328B7FDE@zip.com.au>
-Message-ID: <Pine.LNX.4.21.0206111006300.1028-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316970AbSFKJPZ>; Tue, 11 Jun 2002 05:15:25 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:48067 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316969AbSFKJPX>;
+	Tue, 11 Jun 2002 05:15:23 -0400
+Date: Tue, 11 Jun 2002 02:10:43 -0700 (PDT)
+Message-Id: <20020611.021043.04190747.davem@redhat.com>
+To: rusty@rustcorp.com.au
+Cc: akpm@zip.com.au, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        k-suganuma@mvj.biglobe.ne.jp
+Subject: Re: [PATCH] 2.5.21 Nonlinear CPU support 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <E17Hheq-0007r7-00@wagner.rustcorp.com.au>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Jun 2002, Andrew Morton wrote:
-> 
-> I think it's too late to fix this in 2.4.  If we did, a person
-> could develop and test an application on 2.4.21, ship it, then
-> find that it fails on millions of 2.4.17 machines.
+   From: Rusty Russell <rusty@rustcorp.com.au>
+   Date: Tue, 11 Jun 2002 19:09:44 +1000
 
-Oh, please reconsider that!  Doesn't loss of modification time
-approach data loss?  Surely we'll continue to fix any data loss
-issues in 2.4, and be grateful if you fixed this mmap modtime loss.
+   In message <3D05A9E8.FF0DA223@zip.com.au> you write:
+   > and slowdown:
+   
+   ARGH!  STOP IT!  I realize it's 'leet to be continually worrying about
+   possible microoptimizations, but I challenge you to *measure* the
+   slowdown between:
 
-Hugh
+Regardless, his space arguments still hold.
 
+I don't like having everyone eat the overhead that hotplugging cpus
+seem to entail.
+
+And remember, it's the anal "every microoptimization at all costs"
+people that keep the kernel sane and from running out of control bloat
+wise.  Yes, I realize it's a pain in the ass because you might have to
+use your brain from time to time to reimplement things to make the
+cycle counters happy, but such is life.

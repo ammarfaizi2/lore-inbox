@@ -1,92 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263531AbTHWCxB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 22:53:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263418AbTHWCxB
+	id S261245AbTHWCrD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 22:47:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbTHWCrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 22:53:01 -0400
-Received: from ns.aratech.co.kr ([61.34.11.200]:32640 "EHLO ns.aratech.co.kr")
-	by vger.kernel.org with ESMTP id S264186AbTHWCw4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 22:52:56 -0400
-Date: Sat, 23 Aug 2003 11:54:48 +0900
-From: TeJun Huh <tejun@aratech.co.kr>
+	Fri, 22 Aug 2003 22:47:03 -0400
+Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:35697 "HELO
+	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261245AbTHWCrA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 22:47:00 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: linux-kernel@vger.kernel.org
-Subject: Race condition in 2.4 tasklet handling
-Message-ID: <20030823025448.GA32547@atj.dyndns.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="tKW2IUtsqtDRztdT"
+Subject: 2.6: Synaptics TouchPad and GPM (GPM patches)
+Date: Fri, 22 Aug 2003 21:46:56 -0500
+User-Agent: KMail/1.5.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Message-Id: <200308222146.56381.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---tKW2IUtsqtDRztdT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Apologies for the semi-offtopic message but ever since support for 
+Synaptics' absolute mode went in many people complained that it 
+broke GPM. 
 
- It's a similar to race condition spotted in i386 interrupt code.  The
-race exists between tasklet_[hi_]action() and tasklet_disable().
-Again, memory-ordered synchronization is used between
-tasklet_struct.count and tasklet_struct.state.
+I did some work on extending evdev support in GPM, the new protocol
+implementation supports following subtypes:
 
- tasklet_disable() is find because there's an smp_mb() at the end of
-tasklet_disable_nosync(); however, in tasklet_action(), there is no
-mb() between tasklet_trylock(t) and atomic_read(&t->count).  This
-won't cause any trouble on architectures which orders memory accesses
-around atomic operations such (including x86), but on architectures
-which don't, a tasklet can be executing on another cpu on return from
-tasklet_disable().
+1. relative device - standard relative device like generic PS/2 mouse
+   reporting via /dev/input/eventX
+2. absolute device - touch screens and tablets.
+3. touchpad - device reporting absolute coordinates and pressure via
+   /dev/input/event, GPM recognizes normal and corner tapping.
+4. synaptics - same as touchpad but also supports multi-finger taps
+   (expects MSC_GESTURE messages from the kernel).
 
- Adding smp_mb__after_test_and_set_bit() at the end of
-tasklet_trylock() should remedy the situation.  As
-smp_mb__{before|after}_test_and_set_bit() don't exist yet, I'm
-attaching a patch which adds smp_mb__after_clear_bit().  The patch is
-against 2.4.21.
-
-P.S. Please comment on the addition of
-smp_mb__{before|after}_test_and_set_bit().
-
-P.P.S. One thing I don't really understand is the uses of smp_mb() at
-the end of tasklet_disable() and smp_mb__before_atomic_dec() inside
-tasklet_enable().  Can anybody tell me what those are for?
-
---
-tejun
-
---tKW2IUtsqtDRztdT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="patch.taskletrace"
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: linux
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.3     -> 1.4    
-#	include/linux/interrupt.h	1.1     -> 1.2    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/08/23	tj@atj.dyndns.org	1.4
-# - tasklet race fix.
-# --------------------------------------------
-#
-diff -Nru a/include/linux/interrupt.h b/include/linux/interrupt.h
---- a/include/linux/interrupt.h	Sat Aug 23 11:52:03 2003
-+++ b/include/linux/interrupt.h	Sat Aug 23 11:52:03 2003
-@@ -134,7 +134,10 @@
- #ifdef CONFIG_SMP
- static inline int tasklet_trylock(struct tasklet_struct *t)
- {
--	return !test_and_set_bit(TASKLET_STATE_RUN, &(t)->state);
-+	int ret;
-+	ret = !test_and_set_bit(TASKLET_STATE_RUN, &(t)->state);
-+	smp_mb__after_clear_bit();
-+	return ret;
- }
+Kernel has to support EV_SYNC for touchpad and synaptics support, 
+relative and absolute modes can be used with 2.4 kernels by specifying
+nosync option.
  
- static inline void tasklet_unlock(struct tasklet_struct *t)
+You will find the patches at:
+http://www.geocities.com/dt_or/gpm/patches/
 
---tKW2IUtsqtDRztdT--
+RPMs (binary and source) built on RH8 are at:
+http://www.geocities.com/dt_or/gpm/RPMS/
+
+The README is at:
+http://www.geocities.com/dt_or/gpm/gpm.html
+
+The patches work pretty well for me and I hope they will work for others too.
+Because of limited hardware I could not test evdev with touchscreen or a 
+tablet.
+
+Dmitry.

@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313113AbSHNKGp>; Wed, 14 Aug 2002 06:06:45 -0400
+	id <S315374AbSHNKaH>; Wed, 14 Aug 2002 06:30:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315374AbSHNKGp>; Wed, 14 Aug 2002 06:06:45 -0400
-Received: from skynet.stack.nl ([131.155.140.225]:55311 "EHLO skynet.stack.nl")
-	by vger.kernel.org with ESMTP id <S313113AbSHNKGo>;
-	Wed, 14 Aug 2002 06:06:44 -0400
-Date: Wed, 14 Aug 2002 12:10:34 +0200 (CEST)
-From: Jos Hulzink <josh@stack.nl>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Matt Dobson <colpatch@us.ibm.com>
-Subject: Re: [PATCH] NUMA-Q disable irqbalance
-In-Reply-To: <Pine.LNX.4.44.0208131320280.1260-100000@home.transmeta.com>
-Message-ID: <20020814115944.Q22573-100000@toad.stack.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316339AbSHNKaH>; Wed, 14 Aug 2002 06:30:07 -0400
+Received: from pa147.antoniuk.sdi.tpnet.pl ([213.25.59.147]:14069 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S315374AbSHNKaG>; Wed, 14 Aug 2002 06:30:06 -0400
+Date: Wed, 14 Aug 2002 12:35:44 +0200
+From: Jacek =?iso-8859-2?Q?Pop=B3awski?= <jpopl@interia.pl>
+To: linux-kernel@vger.kernel.org
+Subject: can't use 2.4 on my 486 server
+Message-ID: <20020814103544.GA1018@darkwood.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Aug 2002, Linus Torvalds wrote:
+I use 2.4 kernel for a long time on my workstations, but can't use it on old
+486 server with 16MB RAM. 2.2 works there without problems (for a long time).
+But few hours after running 2.4.19 server is unreachable. When I connect
+monitor/keyboard and start it again I see fsck starting then:
 
-> There are tons of reasons to run the same kernel on a multitude of
-> machines, even ignoring the issue of things like installers etc.
->
-> We had this CONFIG_xxxx disease when it came to SSE, we had it when it
-> came to TSC, etc. And in every case it ended up being bad, simply because
-> it's not the right interface for _users_.
+Unable to handle kernel paging request at virtual address db9910c0
 
-True, but the nice thing about the linux kernel is that every little
-detail can be modified as you like. I think it is very important to answer
-the question what skills a person that wants to compile a kernel needs. If
-you want to lower the threshold, this sure is an config option that
-shouldn't be there.
+(...)
 
-Maybe the config system should provide an expert-mode to tweak stuff like
-this, and enable / disable the irq balancing by default according to the
-processor type selected.
+Kernel panic: aiee, killing interrupt handler.
 
-Jos
+I've tried 2.4.18 and earlier versions before. Always same problem. There is
+fsck 1.22 and glibc-2.2.3 there - standard Slackware 8.0 distribution which
+works on other computers.
 
+What should I check? What should i try to change there? What more info can I
+give you (is it important to rewrite full kernel message with all registers?) ?
+
+jp@darkstar:~$ cat /proc/cpuinfo 
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 4
+model           : 3
+model name      : 486 DX/2
+stepping        : 5
+fdiv_bug        : no
+hlt_bug         : no
+sep_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme
+bogomips        : 33.28
+
+-- 
+http://decopter.sf.net - free unrealistic helicopter simulator

@@ -1,38 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293314AbSCOVcY>; Fri, 15 Mar 2002 16:32:24 -0500
+	id <S293306AbSCOVdD>; Fri, 15 Mar 2002 16:33:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293306AbSCOVcP>; Fri, 15 Mar 2002 16:32:15 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:32723 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S293314AbSCOVb6>; Fri, 15 Mar 2002 16:31:58 -0500
-Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7D01@orsmsx111.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, reality@delusion.de
-Cc: linux-kernel@vger.kernel.org, "Grover, Andrew" <andrew.grover@intel.com>
-Subject: RE: [OOPS] Kernel powerdown
-Date: Fri, 15 Mar 2002 13:30:56 -0800
+	id <S293317AbSCOVcy>; Fri, 15 Mar 2002 16:32:54 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64016 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S293306AbSCOVcp>; Fri, 15 Mar 2002 16:32:45 -0500
+Subject: Re: [OOPS] Kernel powerdown
+To: andrew.grover@intel.com (Grover, Andrew)
+Date: Fri, 15 Mar 2002 21:48:32 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk ('Alan Cox'), reality@delusion.de,
+        linux-kernel@vger.kernel.org, andrew.grover@intel.com (Grover Andrew)
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7D01@orsmsx111.jf.intel.com> from "Grover, Andrew" at Mar 15, 2002 01:30:56 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16lzYv-0004ko-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-> > flushing ide devices: hda hdb hde 
-> > Power down.
-> > NMI Watchdog detected LOCKUP on CPU0
-> Looks like the ACPI code is simply forgetting to turn off the 
-> NMI watchdog
+> sure the NMI watchdog shouldn't be an issue :) but IIRC we are masking
+> interrupts and doing some delays before turning off, so the NMI watchdog
+> might not be liking that? APM doesn't turn off the NMI afaik so why should
+> ACPI have to?
 
-Does the machine power off successfully using ACPI when the NMI watchdog is
-not enabled?
+Its entirely possible that APM has the same bug but isnt seeing it because
+it tends to drop into oblivion before the timer goes off
 
-Theoretically we should be turning the machine off, after which I'm pretty
-sure the NMI watchdog shouldn't be an issue :) but IIRC we are masking
-interrupts and doing some delays before turning off, so the NMI watchdog
-might not be liking that? APM doesn't turn off the NMI afaik so why should
-ACPI have to?
-
--- Andy

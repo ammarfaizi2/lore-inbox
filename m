@@ -1,135 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbUDZOVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261998AbUDZOUP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262170AbUDZOVk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 10:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbUDZOVk
+	id S261998AbUDZOUP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 10:20:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbUDZOUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 10:21:40 -0400
-Received: from h001061b078fa.ne.client2.attbi.com ([24.91.86.110]:8580 "EHLO
-	linuxfarms.com") by vger.kernel.org with ESMTP id S262170AbUDZOV1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 10:21:27 -0400
-Date: Mon, 26 Apr 2004 10:22:51 -0400 (EDT)
-From: Arthur Perry <kernel@linuxfarms.com>
-X-X-Sender: kernel@tiamat.perryconsulting.net
-To: Seve Ho <sho@mailprove.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: mkinitrd error
-In-Reply-To: <408CDBF1.90301@mailprove.com>
-Message-ID: <Pine.LNX.4.58.0404261005210.8600@tiamat.perryconsulting.net>
-References: <408CDBF1.90301@mailprove.com>
+	Mon, 26 Apr 2004 10:20:15 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:9609 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S261998AbUDZOT6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 10:19:58 -0400
+Date: Mon, 26 Apr 2004 07:19:50 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: claus.rosenberger@rocnet.de
+Subject: [Bug 2594] New: kernel BUG at	drivers/block/ll_rw_blk.c:2467! with ext3 and 3ware 
+Message-ID: <710700000.1082989190@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Steve,
+http://bugme.osdl.org/show_bug.cgi?id=2594
 
-You probably want to communicate this back to RedHat. (I assume you are
-using RedHat)..
-I have seen the same thing, but honestly did not take it too seriously.
-I figured someone else would report it to them ;)
-
-The mkinitrd script is located at /sbin/mkinitrd.
-It creates a fixed-size ramdisk at 4000 kbytes if i386, and 8000 kbytes
-for "all" other architectures (or more accurately, other architectures
-that would see this specific script) .. That would be ia64.
-For a quick fix, you can change this value to something larger like 12000.
-This should fit what you need.
-Just change line 45 from "IMAGESIZE=8000" to "IMAGESIZE=12000".
-You now can re-run it and it should complete without errors.
-
-Then you will need to modify your elilo.conf file, passing the new
-ramdisk size to the kernel command line.
-This has to be done because the new ramdisk size is larger than the
-default value which the kernel expects.
-
-Simply find your active kernel paragraph in the
-/boot/efi/efi/redhat/elilo.conf file, and make sure your append line
-reads,
-append="root=LABEL=/ ramdisk_size=12000"
-
-Off the top of my head, I think this is all you need to do.
-
-FYI, correct me if I am wrong everyone, but this really should go to a
-RedHat support mail group. Not the kernel development one.
-It was just a free ticket and I am just having my morning coffee ;)
-
-Arthur Perry
-Lead Linux Developer / Linux Systems Architect
-Validation, CSU Celestica
-Sair/Linux Gnu Certified Professional, 2000
-Project Manager, Linuxfarms
-http://www.linuxfarms.com
+           Summary: kernel BUG at drivers/block/ll_rw_blk.c:2467! with ext3
+                    and 3ware
+    Kernel Version: 2.6.5
+            Status: NEW
+          Severity: normal
+             Owner: axboe@suse.de
+         Submitter: claus.rosenberger@rocnet.de
 
 
+Distribution: kernel BUG at drivers/block/ll_rw_blk.c:2467!
+Hardware Environment: AMD Athlon XP, Nvidia NForce2 Chipset, 3ware ATA Raid
+Controller
+Software Environment: Debian Sarge with Kernel 2.6.5
+Problem Description: the server stops working after this error appears, no
+reboot is possible, only hardware reset, but the server doesn't freeze. i don't
+use software-raid. i use hardware ide-raid with a 3ware 7006-2 and an ext3
+filesystem.
 
-On Mon, 26 Apr 2004, Seve Ho wrote:
+Steps to reproduce: until now i didn't find a way to reproduce this error.
 
-> Hi,
->
-> I am trying to recompile kernel on Itanium2 Redhat box.( This is my
-> first time to do it and actually I am new to Linux )
-> After recompilation, I tried to create initial ramdisk with mkinitrd.
-> However, it failed with following error messages...
-> Does anyone have idea about what is jdb? And how can i make the ramdisk
-> successfully?
->
-> Any help  or hints will be greatly appreciated.( I am not on the list,
-> could you kindly cc your answer or suggestion to sho@mailprove.com ? )
->
->
-> Seve
->
->
-> [root@SDV900 root]# mkinitrd -v initrd-2.4.18-e.31custom20040426.img
-> 2.4.18-e.31custom20040426
-> Using modules:  ./kernel/drivers/scsi/scsi_mod.o
-> ./kernel/drivers/scsi/sd_mod.o
-> ./kernel/drivers/scsi/sym53c8xx_2/sym53c8xx_2.o ./kernel/fs/jbd/jbd.o
-> ./kernel/fs/ext3/ext3.o
-> Using loopback device /dev/loop0
-> /sbin/nash -> /tmp/initrd.naSZEa/bin/nash
-> /sbin/insmod.static -> /tmp/initrd.naSZEa/bin/insmod
-> `/lib/modules/2.4.18-e.31custom20040426/./kernel/drivers/scsi/scsi_mod.o'
-> -> `/tmp/initrd.naSZEa/lib/scsi_mod.o'
-> `/lib/modules/2.4.18-e.31custom20040426/./kernel/drivers/scsi/sd_mod.o'
-> -> `/tmp/initrd.naSZEa/lib/sd_mod.o'
-> `/lib/modules/2.4.18-e.31custom20040426/./kernel/drivers/scsi/sym53c8xx_2/sym53c8xx_2.o'
-> -> `/tmp/initrd.naSZEa/lib/sym53c8xx_2.o'
-> `/lib/modules/2.4.18-e.31custom20040426/./kernel/fs/jbd/jbd.o' ->
-> `/tmp/initrd.naSZEa/lib/jbd.o'
-> `/lib/modules/2.4.18-e.31custom20040426/./kernel/fs/ext3/ext3.o' ->
-> `/tmp/initrd.naSZEa/lib/ext3.o'
-> Loading module scsi_mod
-> Loading module sd_mod
-> Loading module sym53c8xx_2
-> Loading module jbd
-> Loading module ext3
-> *tar: ./lib/jbd.o: Wrote only 0 of 10240 bytes
-> tar: Skipping to next header
-> tar: Error exit delayed from previous errors*
->
-> --
-> Seve Ho
-> Programmer
->
-> Tel   (852) 3105 2920
-> Fax   (852) 3105 2926
-> Email Seve.Ho@MailProve.com
->
->
-> Mail Prove Ltd.
-> 806, Cyberport 1
-> 100 Cyberport Rd.
-> Pokfulam, H. K.
->
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+
+detail kernel message:
+
+Apr 26 08:42:16 deathstar kernel: ------------[ cut here ]------------
+Apr 26 08:42:16 deathstar kernel: kernel BUG at drivers/block/ll_rw_blk.c:2467!
+Apr 26 08:42:16 deathstar kernel: invalid operand: 0000 [#1]
+Apr 26 08:42:16 deathstar kernel: PREEMPT 
+Apr 26 08:42:16 deathstar kernel: CPU:    0
+Apr 26 08:42:16 deathstar kernel: EIP:    0060:[submit_bio+97/112]    Not tainte
+d
+Apr 26 08:42:16 deathstar kernel: EFLAGS: 00010246   (2.6.5-RoCNet-TS) 
+Apr 26 08:42:16 deathstar kernel: EIP is at submit_bio+0x61/0x70
+Apr 26 08:42:16 deathstar kernel: eax: 00000000   ebx: 00000000   ecx: 00000001 
+  edx: c0f4ccc0
+Apr 26 08:42:16 deathstar kernel: esi: 0000002e   edi: 00000001   ebp: 00000040 
+  esp: d020bc0c
+Apr 26 08:42:16 deathstar kernel: ds: 007b   es: 007b   ss: 0068
+Apr 26 08:42:16 deathstar kernel: Process dpkg (pid: 4612, threadinfo=d020a000 t
+ask=d039b980)
+Apr 26 08:42:16 deathstar kernel: Stack: d5421db0 d5421db0 c014e9f0 00000001 c0f
+4ccc0 d020a000 d020bc98 d020bca0 
+Apr 26 08:42:16 deathstar kernel:        d020bc98 c0196365 00000001 00000040 d02
+0bca0 d5421f00 d020bc9c 00000001 
+Apr 26 08:42:16 deathstar kernel:        c0196455 f7d24c80 d020bca0 d020bc98 000
+1d6d1 c0333540 f6772db0 00000000 
+Apr 26 08:42:16 deathstar kernel: Call Trace:
+Apr 26 08:42:16 deathstar kernel:  [ll_rw_block+96/128] ll_rw_block+0x60/0x80
+Apr 26 08:42:16 deathstar kernel:  [__flush_batch+53/112] __flush_batch+0x35/0x7
+0
+Apr 26 08:42:16 deathstar kernel:  [__flush_buffer+181/352] __flush_buffer+0xb5/
+0x160
+Apr 26 08:42:16 deathstar kernel:  [log_do_checkpoint+167/432] log_do_checkpoint
++0xa7/0x1b0
+Apr 26 08:42:16 deathstar kernel:  [__log_wait_for_space+143/192] __log_wait_for
+_space+0x8f/0xc0
+Apr 26 08:42:16 deathstar kernel:  [start_this_handle+248/960] start_this_handle
++0xf8/0x3c0
+Apr 26 08:42:16 deathstar kernel:  [autoremove_wake_function+0/80] autoremove_wa
+ke_function+0x0/0x50
+Apr 26 08:42:16 deathstar kernel:  [autoremove_wake_function+0/80] autoremove_wa
+ke_function+0x0/0x50
+Apr 26 08:42:16 deathstar kernel:  [journal_start+169/208] journal_start+0xa9/0x
+d0
+Apr 26 08:42:16 deathstar kernel:  [journal_get_write_access+67/96] journal_get_
+write_access+0x43/0x60
+Apr 26 08:42:16 deathstar kernel:  [ext3_rename+43/1423] ext3_rename+0x2b/0x58f
+Apr 26 08:42:16 deathstar kernel:  [vfs_rename_other+161/224] vfs_rename_other+0
+xa1/0xe0
+Apr 26 08:42:16 deathstar kernel:  [vfs_rename+391/1040] vfs_rename+0x187/0x410
+Apr 26 08:42:16 deathstar kernel:  [sys_rename+496/544] sys_rename+0x1f0/0x220
+Apr 26 08:42:16 deathstar kernel:  [__fput+187/288] __fput+0xbb/0x120
+Apr 26 08:42:16 deathstar kernel:  [sys_close+97/160] sys_close+0x61/0xa0
+Apr 26 08:42:16 deathstar kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Apr 26 08:42:16 deathstar kernel: 
+Apr 26 08:42:16 deathstar kernel: Code: 0f 0b a3 09 55 3e 28 c0 eb b0 90 8d 74 2
+6 00 53 8b 5c 24 08
+
+

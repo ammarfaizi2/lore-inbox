@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291906AbSBAS36>; Fri, 1 Feb 2002 13:29:58 -0500
+	id <S291901AbSBASaS>; Fri, 1 Feb 2002 13:30:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291905AbSBAS3s>; Fri, 1 Feb 2002 13:29:48 -0500
-Received: from mrelay1.cc.umr.edu ([131.151.1.120]:32144 "EHLO smtp.umr.edu")
-	by vger.kernel.org with ESMTP id <S291901AbSBAS3c> convert rfc822-to-8bit;
-	Fri, 1 Feb 2002 13:29:32 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: Artificially starving a process for CPU/Disk/etc?
-Date: Fri, 1 Feb 2002 12:29:32 -0600
-Message-ID: <A69C6C0DB9068F40AC122C194F9DBEF0AEBD@umr-mail1.umr.edu>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Artificially starving a process for CPU/Disk/etc?
-Thread-Index: AcGrTmjaHR0wPxXCEda/IgBQVgAgFQ==
-From: "Neulinger, Nathan" <nneul@umr.edu>
-To: <linux-kernel@vger.kernel.org>
+	id <S291905AbSBASaI>; Fri, 1 Feb 2002 13:30:08 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:33700 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S291901AbSBAS3z>;
+	Fri, 1 Feb 2002 13:29:55 -0500
+Date: Fri, 1 Feb 2002 13:29:53 -0500
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Momchil Velikov <velco@fadata.bg>,
+        Anton Blanchard <anton@samba.org>, Andrea Arcangeli <andrea@suse.de>,
+        Rik van Riel <riel@conectiva.com.br>, John Stoffel <stoffel@casc.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+Message-ID: <20020201132953.A27508@havoc.gtf.org>
+In-Reply-To: <Pine.LNX.4.33.0202011125030.5026-100000@localhost.localdomain> <Pine.LNX.4.33.0202010903060.2634-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0202010903060.2634-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Feb 01, 2002 at 09:06:37AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a situation where I want to simulate a server process getting starved for cpu/paging to death/etc. I realize I could renice the process(s) and then create artificial loading on the machine, but is there any way to do this more effectively?
+On Fri, Feb 01, 2002 at 09:06:37AM -0800, Linus Torvalds wrote:
+> Even databases often use multiple files, and quite frankly, a database
+> that doesn't use mmap and doesn't try very hard to not cause extra system
+> calls is going to be bad performance-wise _regardless_ of any page cache
+> locking.
 
-I.e. is there some hack I could use to tell a particular set of processes that they get like 0.05% of the cpu time, even during idle?
+I've always thought that read(2) and write(2) would in the end wind up
+faster than mmap(2)...  Tests in my rewritten cp/rm/mv type utilities
+seem to bear this out.
 
-The idea is to simulate a server that has gone south, but still be able to do monitoring/debug/analysis on that server to see what happens. During this happening in a real situation, you'd be unable to monitor on the box, cause it would be close to dead.
+Is mmap(2) only preferred for large files/databases?
 
--- Nathan
+	Jeff
 
-------------------------------------------------------------
-Nathan Neulinger                       EMail:  nneul@umr.edu
-University of Missouri - Rolla         Phone: (573) 341-4841
-Computing Services                       Fax: (573) 341-4216
+
+

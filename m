@@ -1,74 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265302AbUFBEWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265146AbUFBE50@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265302AbUFBEWo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 00:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbUFBEWo
+	id S265146AbUFBE50 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 00:57:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265280AbUFBE5Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 00:22:44 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:37613 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S265302AbUFBEWm (ORCPT
+	Wed, 2 Jun 2004 00:57:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:5034 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265146AbUFBE5Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 00:22:42 -0400
-Date: Wed, 2 Jun 2004 05:22:40 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: linux-mtd@lists.infradead.org
+	Wed, 2 Jun 2004 00:57:24 -0400
+Date: Tue, 1 Jun 2004 21:56:10 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch] MTD: add st50fw040 to jedec probe
-Message-ID: <Pine.LNX.4.58.0406020454090.16424@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [PATCH] Fix loop device cache handling
+Message-Id: <20040601215610.7ebcc0d9.davem@redhat.com>
+In-Reply-To: <20040601180336.C31301@flint.arm.linux.org.uk>
+References: <20040601180336.C31301@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 1 Jun 2004 18:03:36 +0100
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
-Hi,
-	This is a patch vs 2.6.6 to add the ST50FW040, which is an ICH2
-compatible firmware hub flash, datasheet at:
+> The effect of this is that we pull the loop device page into cache
+> to exhasibate the problem, since newly allocated pages are _not_
+> guaranteed to be completely clean of cache lines in their kernel
+> space mapping.
+> 
+> Note that other drivers need to be audited to ensure that any CPU
+> writes to page cache pages have a flush_dcache_page() call.
+> 
+> This patch adds the necessary missing flush:
 
-http://www.st.com/stonline/books/ascii/docs/7273.htm
-
-From: Dave Airlie <airlied@linux.ie>
-
-Dave.
-
-p.s.
-Dave Woodhouse, is there any plans to merge up your MTD tree to the kernel
-soon? this is a fairly harmless change that would be useful for me in the
-mainline, but I don't wish to step on any toes :-)
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
-
---- /storage/2.6/linux-2.6.4/drivers/mtd/chips/jedec_probe.c	2004-03-15 14:15:30.000000000 +1100
-+++ linux-2.6.6/drivers/mtd/chips/jedec_probe.c	2004-06-22 20:02:18.708945560 +1000
-@@ -109,6 +109,7 @@
- #define M29W160DT	0x22C4
- #define M29W160DB	0x2249
- #define M29W040B	0x00E3
-+#define M50FW040        0x002C
-
- /* SST */
- #define SST29EE512	0x005d
-@@ -1234,6 +1235,19 @@
- 		.regions	= {
- 			ERASEINFO(0x10000,8),
- 		}
-+        }, {
-+		.mfr_id		= MANUFACTURER_ST,
-+		.dev_id		= M50FW040,
-+		.name		= "ST M50FW040",
-+		.uaddr		= {
-+			[0] = MTD_UADDR_UNNECESSARY,    /* x8 */
-+		},
-+		.DevSize	= SIZE_512KiB,
-+		.CmdSet		= P_ID_INTEL_EXT,
-+		.NumEraseRegions= 1,
-+		.regions	= {
-+			ERASEINFO(0x10000,8),
-+		}
- 	}, {
- 		.mfr_id		= MANUFACTURER_TOSHIBA,
- 		.dev_id		= TC58FVT160,
+I %100 agree with this patch.

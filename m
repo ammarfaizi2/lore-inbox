@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262218AbSI0PP7>; Fri, 27 Sep 2002 11:15:59 -0400
+	id <S262519AbSI0PWG>; Fri, 27 Sep 2002 11:22:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262302AbSI0PP6>; Fri, 27 Sep 2002 11:15:58 -0400
-Received: from sproxy.gmx.de ([213.165.64.20]:45098 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S262218AbSI0PP5>;
-	Fri, 27 Sep 2002 11:15:57 -0400
-Date: Fri, 27 Sep 2002 18:20:33 +0300
-From: Dan Aloni <da-x@gmx.net>
-To: Shaya Potter <spotter@cs.columbia.edu>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: using memset in a module
-Message-ID: <20020927152033.GA4710@callisto.yi.org>
-References: <Pine.LNX.4.33L2.0209261550410.32681-100000@dragon.pdx.osdl.net> <1033081345.3371.35.camel@zaphod>
-Mime-Version: 1.0
+	id <S262520AbSI0PWG>; Fri, 27 Sep 2002 11:22:06 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:36346 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S262519AbSI0PWF>;
+	Fri, 27 Sep 2002 11:22:05 -0400
+Message-ID: <3D9478C1.11CBC335@mvista.com>
+Date: Fri, 27 Sep 2002 08:26:57 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave McCracken <dmccr@us.ibm.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       high-res-timers-discourse@lists.sourceforge.net
+Subject: Re: [PATCH] High-res-timers part 1 (core)
+References: <3D93A363.ACA56815@mvista.com> <3D93C093.464B158C@digeo.com>
+	 <3D93CB59.85C315A0@mvista.com> <34760000.1033138331@baldur.austin.ibm.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1033081345.3371.35.camel@zaphod>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 26, 2002 at 07:02:26PM -0400, Shaya Potter wrote:
-> On Thu, 2002-09-26 at 18:51, Randy.Dunlap wrote:
-> > On 26 Sep 2002, Shaya Potter wrote:
-> > 
-> > | I have a problem using memset in a module.
-> > |
-[snio]
-> > What gcc options are you using?
-> > You need -O2 at least.
-> >           ^ upper-case letter O
+Dave McCracken wrote:
 > 
+> --On Thursday, September 26, 2002 20:07:05 -0700 george anzinger
+> <george@mvista.com> wrote:
 > 
-> yes, using it.
+> > A much bigger issue is that only two parts of the 4 seem to
+> > have made it to the list.  Is there a size restriction some
+> > where?
 > 
-> gcc -Wall -DMODULE -DMODVERSIONS -D__KERNEL__ -DLINUX -DEXPORT_SYMTAB
-> -I/usr/src/linux/include/ -I`pwd`/../migration
-> -I`pwd`/..//virtualization -O2 -fomit-frame-pointer -pipe
-> -fno-strength-reduce -malign-loops=2 -malign-jumps=2 -malign-functions=2
-> -o fs1.o -c virtualizers/fs1.c
-
-Try adding -nostdinc. Prehaps memset is picked up as 'extern' somehow.
-If that doesn't work, compile with -E instead of -c and grep the
-preprocessing output for memset, that may give a clue.
-
+> Yes, lkml discards all mail over 100k.  I spent a week awhile back
+> discovering this the hard way.
+> 
+Well that explains part 4, but part 3 is smaller than part 2
+and it is lost.  I have sent it several times...  IT is
+checking.
 -- 
-Dan Aloni
-da-x@gmx.net
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

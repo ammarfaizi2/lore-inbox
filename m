@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262744AbREVThT>; Tue, 22 May 2001 15:37:19 -0400
+	id <S262761AbREVTxn>; Tue, 22 May 2001 15:53:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262747AbREVThJ>; Tue, 22 May 2001 15:37:09 -0400
-Received: from waste.org ([209.173.204.2]:31748 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S262744AbREVThF>;
-	Tue, 22 May 2001 15:37:05 -0400
-Date: Tue, 22 May 2001 14:38:27 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Guest section DW <dwguest@win.tue.nl>
-cc: Anton Altaparmakov <aia21@cam.ac.uk>, Alexander Viro <viro@math.psu.edu>,
-        linux-kernel <linux-kernel@vger.kernel.org>
+	id <S262762AbREVTxd>; Tue, 22 May 2001 15:53:33 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:7328 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S262761AbREVTxW>;
+	Tue, 22 May 2001 15:53:22 -0400
+Date: Tue, 22 May 2001 21:52:45 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200105221952.VAA78718.aeb@vlet.cwi.nl>
+To: torvalds@transmeta.com, viro@math.psu.edu
 Subject: Re: [PATCH] struct char_device
-In-Reply-To: <20010522212238.A11203@win.tue.nl>
-Message-ID: <Pine.LNX.4.30.0105221427320.19818-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 May 2001, Guest section DW wrote:
+Alexander Viro writes:
 
-> On Tue, May 22, 2001 at 11:08:16AM -0500, Oliver Xymoron wrote:
->
-> > > >+       struct list_head        hash;
->
-> > > Why not name consistently with the struct block_device?
-> > >          struct list_head        cd_hash;
->
-> > Because foo_ is a throwback to the days when C compilers had a single
-> > namespace for all structure elements, not a readability aid. If you need
-> > foo_ to know what type of structure you're futzing with, you need to name
-> > your variables better.
->
-> One often has to go through all occurrences of a variable or
-> field of a struct. That is much easier with cd_hash and cd_dev
-> than with hash and dev.
->
-> No, it is a good habit, these prefixes, even though it is no longer
-> necessary because of the C compiler.
+> patch below adds the missing half of kdev_t -
+> for block devices we already have a unique pointer
+> and that adds a similar animal for character devices.
 
-A better habit is encapsulating your data structures well enough that the
-entire kernel doesn't feel the need to go digging through them. The fact
-that you have to change many widely-scattered instances of something
-points to bad modularity. Supporting that practice with verbose naming is
-not doing yourself a favor in the long run.
+Very good.
+(Of course I did precisely the same, but am a bit slower in
+submitting things during a stable series or code freeze.)
 
-If you must, use accessor functions instead. At best you'll be able to
-make sweeping semantic changes in one spot. At worst, you'll be able to
-grep for it.
+One remark, repeating what I wrote on some web page:
+-----
+A struct block_device provides the connection between a device number
+and a struct block_device_operations. 
+...
+Clearly, we also want to associate a struct char_device_operations
+to a character device number. When we do this, all bdev code will
+have to be duplicated for cdev, so there seems no point in having
+bdev code - kdev, for both bdev and cdev, seems more elegant. 
+-----
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+And a second remark: don't forget that presently the point where
+bdev is introduced is not quite right. We must only introduce it
+when we really have a device, not when there only is a device
+number (like on a mknod call).
 
-
+Andries

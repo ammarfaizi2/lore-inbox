@@ -1,92 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbTDKSx3 (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 14:53:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbTDKSx3 (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 14:53:29 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:60912 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261334AbTDKSx1 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 14:53:27 -0400
-Date: Fri, 11 Apr 2003 12:07:17 -0700
-From: Greg KH <greg@kroah.com>
-To: "Kevin P. Fleming" <kpfleming@cox.net>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       message-bus-list@redhat.com
+	id S261454AbTDKS6A (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 14:58:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbTDKS6A (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 14:58:00 -0400
+Received: from windsormachine.com ([206.48.122.28]:39184 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id S261454AbTDKS57 (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 14:57:59 -0400
+Date: Fri, 11 Apr 2003 15:09:35 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: John Bradford <john@grabjohn.com>
+cc: <linux-kernel@vger.kernel.org>,
+       <linux-hotplug-devel@lists.sourceforge.net>,
+       <message-bus-list@redhat.com>
 Subject: Re: [ANNOUNCE] udev 0.1 release
-Message-ID: <20030411190717.GH1821@kroah.com>
-References: <20030411172011.GA1821@kroah.com> <200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk> <20030411182313.GG25862@wind.cocodriloo.com> <3E970A00.2050204@cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E970A00.2050204@cox.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.4.33.0304111418320.14943-100000@router.windsormachine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 11, 2003 at 11:31:28AM -0700, Kevin P. Fleming wrote:
-> 
-> OK, this is all fun and games, but this is a valid point. All it takes for 
-> the driver for a Fibre Channel host adapter to load, and enumerate the 
-> devices it can see. In a matter of seconds many hundreds or thousands of 
-> disk devices could be registered with the kernel.
+On Fri, 11 Apr 2003, John Bradford wrote:
 
-Sure, the kernel can handle spawning hundreds or thousands of tasks all
-at once, it's not a problem.
+> [Puzzle]
+>
+> Say the power supply had five 5.25" drive power connecters, how many 1
+> into 3 power cable splitters would you need to connect all 4000 disks?
 
-> This is definitely an issue that will need to be addressed, and I think 
-> Oliver's suggestion of using a pipe (i'm going to say it: like devfs did 
-> :-) to forward the events to /sbin/hotplug in a FIFO fashion makes some 
-> sense.
+never seen a 3 into 1, but we'll play along.
 
-I agree too.  Having /sbin/hotplug send events to a pipe where a daemon
-can get them from makes a lot of sense.  It will handle most of the
-synchronization and spawning a zillion tasks problems.
+every 3 in 1 connector you use, triples your connections, go two
+levels deep, it's 3 * 3 = 9, pretty obvious.
 
-> I have also been considering this issue from another angle; I am 
-> working on userspace partition discovery, which will be driven by 
-> /sbin/hotplug (and udev, probably). I have concerns that the following 
-> scenario will cause problems, if not extreme problems:
-> 
-> - kernel driver finds an IDE drive, registers it and the hotplug event 
-> happens
-> - udev gets called and gives it device node /dev/discs/disc0 (or whatever)
-> - /sbin/hotplug calls userspace partition discovery, which opens the device 
-> and scans for partitions
-> - if any partitions are found, they are registered with the kernel using 
-> device-mapper ioctls
-> - because these new "mapped sections" of the drive are _also_ usable block 
-> devices in their own right, they generate hotplug events
-> - because these hotplug events are for new block devices, userspace 
-> partition discovery will get called _again_ to handle them (it may not find 
-> anything (the normal case), but this model will support nearly infinite 
-> levels of partitioning on any block device supported by the kernel)
-> 
-> What happens if these secondary hotplug events occur while /sbin/hotplug 
-> has not yet finished processing the first one? Ignoring locking/race issues 
-> for the moment, I'm concerned about memory consumption as many layers of 
-> hotplug/udev/kpartx/etc. are running processing these events.
+I'm just going to use one connector off the power supply for now.
 
-Yes, this can quickly get recursive up to a point.  There will never be
-an infinite number of partitions, so we will eventually quiet down.
+3 ^ 7 = 2187
 
-> Of course, another possibility I'll look into this weekend is to actually 
-> have kpartx run as a daemon and receive messages over D-BUS, instead of 
-> being invoked directly by /sbin/hotplug. This would mean it could serialize 
-> the events itself and reduce some of the load (if D-BUS supports message 
-> queueing, which I believe it does).
+So we'll use another two off the PS and not go as deep
 
-Problem is I don't think we can use D-BUS messages during early boot,
-before init is called, so we still have to be able to handle startup
-issues.  But hopefully the D-BUS code can be small enough to possibly be
-used in this manner, I haven't checked that out yet.
+2 * (3 ^ 6) = 1458
 
-> Actually, here's another thought: have the kernel continue to call 
-> /sbin/hotplug for every event, just as it does now. However, /sbin/hotplug 
-> would do _nothing_ but translate that into D-BUS messages and post them. 
-> udev, kpartx, etc. would all just be D-BUS clients that would respond to 
-> their messages as they are received.
+2187 + 1458 = 3645
 
-That's another possibility too.  This is getting interesting :)
+Need another 4000 - 3645 = 355
 
-thanks,
+3 ^ 5 = 243.
 
-greg k-h
+Need another 355 - 243 = 112
+
+Use another connector
+
+3 ^ 4 = 81
+
+Need another 112 - 81 = 31.  So close but out of first level connectors.
+
+So I put a 3 way splitter on one of those.
+
+3 ^ 3 = 27.  argh!
+
+Need another 31+1(had to use up a connector) - 27 = 5.
+So I put another 3 way splitter. 5 + 1 = 6.
+
+3 ^ 1 = 3.  Need another three.  Take one off, pass it around, and we're
+almost done.  Add another 3 way splitter, we've got two connectors left
+over, and everything is plugged in.  Turn on the ps.  Boom, done.
+
+Now, to count up the total.
+
+level 1 = 1	    = 1
+level 2 = 1 + 3	    =  4
+Level 3 = 4 + 9     = 13
+Level 4 = 13 + 27   = 40
+Level 5 = 40 + 81   = 121
+Level 6 = 121 + 243 = 324
+Level 7 = 324 + 729 = 1053
+
+So anyways, I used one level 7, two level 6's, one level 5, one level 4,
+one level 1, one level 3, one level 1, another level 1 and finally another
+level 1
+
+total of 1053 + 324 + 324 + 121 + 40 + 1 + 13 + 1 + 1 + 1
+
+I come up with 1879.
+
+If i'm too high, that's to account for the fact you broke some connectors
+at some point, so you used the spares.
+
+If i'm too low, that's to account for the fact that out of 4000 drives, a
+few are going to be DOA and you couldn't hook them up anyways.
+
+Someone PLEASE tell me the simpler way to do this.
+
+Mike
+

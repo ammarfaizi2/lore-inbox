@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315472AbSHTHbS>; Tue, 20 Aug 2002 03:31:18 -0400
+	id <S316408AbSHTHnv>; Tue, 20 Aug 2002 03:43:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315762AbSHTHbS>; Tue, 20 Aug 2002 03:31:18 -0400
-Received: from 212.68.254.82.brutele.be ([212.68.254.82]:17166 "EHLO debian")
-	by vger.kernel.org with ESMTP id <S315472AbSHTHbR>;
-	Tue, 20 Aug 2002 03:31:17 -0400
-Date: Tue, 20 Aug 2002 09:35:23 +0200
-From: Stephane Wirtel <stephane.wirtel@belgacom.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre4
-Message-ID: <20020820073523.GA18679@debian>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0208191944210.10105-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208191944210.10105-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: GNU/Linux
-X-LUG: Linux Users Group Mons ( Linux-Mons )
-X-URL: http://www.linux-mons.be
+	id <S316582AbSHTHnv>; Tue, 20 Aug 2002 03:43:51 -0400
+Received: from zork.zork.net ([66.92.188.166]:11426 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id <S316408AbSHTHnu>;
+	Tue, 20 Aug 2002 03:43:50 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: IDE?
+References: <Pine.LNX.4.44.0208191728180.3234-100000@hawkeye.luckynet.adm>
+From: Sean Neakums <sneakums@zork.net>
+Organization: The Emadonics Institute
+X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
+X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
+X-Message-Flag: Message text advisory: ULTERIOR MOTIVES, HYPERLINK PATENT
+ INFRINGEMENT
+X-Mailer: Norman
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Tue, 20 Aug 2002 08:47:55 +0100
+In-Reply-To: <Pine.LNX.4.44.0208191728180.3234-100000@hawkeye.luckynet.adm> (Thunder
+ from the hill's message of "Mon, 19 Aug 2002 17:29:40 -0600 (MDT)")
+Message-ID: <6uznvirmxg.fsf@zork.zork.net>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.2
+ (i386-debian-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-compil and boot : ok
-i'm testing this kernel, and i don't have any problem with it
+commence  Thunder from the hill quotation:
 
-my compiler is the new gcc-3.2
+> Hi,
+>
+> On Fri, 16 Aug 2002, Linus Torvalds wrote:
+>>  - phase 2: IDE-TNG.
+>
+> Couldn't we give it another name? Such as LUI - Linux Unified IDE? 
+> Whatever? TNG is too much mainstream and sounds just too clumsy...
 
-
+Call it IDE-DS9, then.
 
 -- 
-Stephane Wirtel <stephane.wirtel@belgacom.net>
-Web : www.linux-mons.be	 "Linux Is Not UniX !!!"
+ /                          |
+[|] Sean Neakums            |  Questions are a burden to others;
+[|] <sneakums@zork.net>     |      answers a prison for oneself.
+ \                          |

@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131227AbRCGXuk>; Wed, 7 Mar 2001 18:50:40 -0500
+	id <S131228AbRCHANu>; Wed, 7 Mar 2001 19:13:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131234AbRCGXua>; Wed, 7 Mar 2001 18:50:30 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25353 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131227AbRCGXuN>; Wed, 7 Mar 2001 18:50:13 -0500
-Subject: Re: Linux 2.4.2ac12 and ac13 breaks usb-visor
-To: edebill@swbell.net (Erik DeBill)
-Date: Wed, 7 Mar 2001 23:52:42 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), greg@kroah.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20010307172056.A8647@austin.rr.com> from "Erik DeBill" at Mar 07, 2001 05:20:56 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S131235AbRCHANl>; Wed, 7 Mar 2001 19:13:41 -0500
+Received: from mail-f0.jaist.ac.jp ([150.65.7.20]:2688 "EHLO
+	mailspool.jaist.ac.jp") by vger.kernel.org with ESMTP
+	id <S131228AbRCHANh>; Wed, 7 Mar 2001 19:13:37 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Can't compile 2.4.2-ac14
+X-Mailer: Mew version 1.94.2 on XEmacs 21.1 (Channel Islands)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14anjZ-0001wC-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <20010308091307Z.amatsus@jaist.ac.jp>
+Date: Thu, 08 Mar 2001 09:13:07 +0900
+From: MATSUSHIMA Akihiro <amatsus@jaist.ac.jp>
+X-Dispatcher: imput version 20000228(IM140)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On ac12 and 13 if the visor driver is compiled into the kernel it wil=
-> l
-> work poorly for a time (very slow sync, jpilot/pilot-link complains o=
+Hello,
+I receive the following error with make bzImage:
 
-Does 2.4.2ac11 work - I ask this as ac12 has some visro changes
+i386_ksyms.c:170: `do_BUG' undeclared here (not in a function)
+i386_ksyms.c:170: initializer element is not constant
+i386_ksyms.c:170: (near initialization for `__ksymtab_do_BUG.value')
+make[1]: *** [i386_ksyms.o] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.4.2-ac14/arch/i386/kernel'
+make: *** [_dir_arch/i386/kernel] Error 2
 
+
+Regards,
+	Akihiro

@@ -1,44 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132318AbRDYU45>; Wed, 25 Apr 2001 16:56:57 -0400
+	id <S132057AbRDYU4r>; Wed, 25 Apr 2001 16:56:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132434AbRDYU4s>; Wed, 25 Apr 2001 16:56:48 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:8294 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S132318AbRDYU4i>; Wed, 25 Apr 2001 16:56:38 -0400
-Date: Wed, 25 Apr 2001 22:56:21 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "D . W . Howells" <dhowells@astarte.free-online.co.uk>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, dhowells@redhat.com
-Subject: Re: [PATCH] rw_semaphores, optimisations try #4
-Message-ID: <20010425225621.B13531@athlon.random>
-In-Reply-To: <01042521063800.02040@orion.ddi.co.uk>
-Mime-Version: 1.0
+	id <S132399AbRDYU4h>; Wed, 25 Apr 2001 16:56:37 -0400
+Received: from mercury.ultramaster.com ([208.222.81.163]:47245 "EHLO
+	mercury.ultramaster.com") by vger.kernel.org with ESMTP
+	id <S132057AbRDYU4X>; Wed, 25 Apr 2001 16:56:23 -0400
+Message-ID: <3AE739F3.EA8AB340@dm.ultramaster.com>
+Date: Wed, 25 Apr 2001 16:56:19 -0400
+From: David Mansfield <lkml@dm.ultramaster.com>
+Organization: Ultramaster Group LLC
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.4-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: kapish@ureach.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: nfs performance at high loads
+In-Reply-To: <200104251905.PAA05417@www20.ureach.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01042521063800.02040@orion.ddi.co.uk>; from dhowells@astarte.free-online.co.uk on Wed, Apr 25, 2001 at 09:06:38PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 25, 2001 at 09:06:38PM +0100, D . W . Howells wrote:
-> This patch (made against linux-2.4.4-pre6 + rwsem-opt3) somewhat improves 
-> performance on the i386 XADD optimised implementation:
+Kapish K wrote:
+> 
+> Hello,
+>         I had sent in a note on nfs performance issues some time back,
+> and Mark Hemment had been kind enough to point out to the
+> zerocopy networking patch. Well, we tried with it, and it does
+> seem to have some improvement, but it seems to have screwed up
+> nfs performance a bit, because we see a LOT of rpc failures for
+> all kinds of calls, starting from lookup, to read and writes.
+> Could this possibly be triggered by this patch ( picked up from
+> davem's site for 2.4.0 ).
+>         On the other hand, we do plan to migrate to 2.4.2. Can somebody
+> update me or provide pointers to info. as to whether we can
+> expect some of these problems have been resolved in 2.4.2? We
+> should soon be testing on 2.4.2
+> Thanks
+> 
 
-It seems more similar to my code btw (you finally killed the useless
-chmxchg ;).
+While I'm not an expert hacker or anything, I can tell you for sure,
+that even 2.4.2 is full of really system crippling bugs.  You need to
+track the current kernels.  All of the 2.4.x series should be
+compatible, in other words, you should upgrade as soon as possible to
+the latest stable kernel.  Currently, that's 2.4.3 (not 2.4.2).  And
+even 2.4.3 has many known bugs that are capable of 1) destroying
+performance and 2) destroying filesystems.  
 
-I only had a short low at your attached patch, but the results are quite
-suspect to my eyes beacuse we should still be equally fast in the fast
-path and I should still beat you on the write fast path because I do a
-much faster subl; js while you do movl -1; xadd ; js, while according to
-your results you beat me on both. Do you have an explanation or you
-don't know the reason either? I will re-benchmark the whole thing
-shortly. But before re-benchmark if you have time could you fix the
-benchmark to use the variable pointer and send me a new tarball?  For
-your code it probably doesn't matter because you dereference the pointer
-by hand anyways, but it matters for mine and we want to benchmark real
-world fast path of course.
+At the very least, you should upgrade to 2.4.3, but better yet would be
+to upgrade to the 2.4.4 when it comes out (soon?), or even the 2.4.4-pre
+patch since it has the zero copy networking patch already included, as
+well as fixes for bugs that could corrupt your filesystems.  The zero
+copy patch as it existed for 2.4.0 was also buggy in itself, so that
+would explain some of your extended problems.
 
-Andrea
+Really, 2.4.0 is a 'horrible' kernel to be running, as it is missing an
+enormous amount of performance fixes, and bug fixes.
+
+David
+
+-- 
+David Mansfield                                           (718) 963-2020
+david@ultramaster.com
+Ultramaster Group, LLC                               www.ultramaster.com

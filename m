@@ -1,58 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbUL2Bkt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbUL2Bu1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261278AbUL2Bkt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 20:40:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261279AbUL2Bkt
+	id S261275AbUL2Bu1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 20:50:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbUL2Bu1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 20:40:49 -0500
-Received: from mail.dif.dk ([193.138.115.101]:41921 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261278AbUL2Bkn (ORCPT
+	Tue, 28 Dec 2004 20:50:27 -0500
+Received: from mail.dif.dk ([193.138.115.101]:5058 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261275AbUL2BuS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 20:40:43 -0500
-Date: Wed, 29 Dec 2004 02:51:46 +0100 (CET)
+	Tue, 28 Dec 2004 20:50:18 -0500
+Date: Wed, 29 Dec 2004 03:01:20 +0100 (CET)
 From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: [patch] missing printk loglevel and tiny tiny whitespace change in
- binfmt_elf()
-Message-ID: <Pine.LNX.4.61.0412290248170.3528@dragon.hygekrogen.localhost>
+To: Networking Team <netdev@oss.sgi.com>
+Cc: linux-net <linux-net@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Patch: add loglevel to printk's in net/ipv4/route.c
+Message-ID: <Pine.LNX.4.61.0412290256000.3528@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Patch adds a mising printk loglevel (I think KERN_WARNING is appropriate 
-here) in fs/binfmt_elf.c, and while I was there I made some tiny tiny tiny 
-adjustments to whitespacing in the neighborhood.
+Small patch below adds loglevels to a few printk's in net/ipv4/route.c
+
 
 Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-diff -up linux-2.6.10-orig/fs/binfmt_elf.c linux-2.6.10/fs/binfmt_elf.c
---- linux-2.6.10-orig/fs/binfmt_elf.c	2004-12-24 22:34:33.000000000 +0100
-+++ linux-2.6.10/fs/binfmt_elf.c	2004-12-29 02:46:39.000000000 +0100
-@@ -1556,17 +1556,17 @@ static int elf_core_dump(long signr, str
- 	ELF_CORE_WRITE_EXTRA_DATA;
- #endif
- 
--	if ((off_t) file->f_pos != offset) {
-+	if ((off_t)file->f_pos != offset) {
- 		/* Sanity check */
--		printk("elf_core_dump: file->f_pos (%ld) != offset (%ld)\n",
--		       (off_t) file->f_pos, offset);
-+		printk(KERN_WARNING "elf_core_dump: file->f_pos (%ld) != offset (%ld)\n",
-+		       (off_t)file->f_pos, offset);
+diff -up linux-2.6.10-orig/net/ipv4/route.c linux-2.6.10/net/ipv4/route.c
+--- linux-2.6.10-orig/net/ipv4/route.c	2004-12-24 22:35:40.000000000 +0100
++++ linux-2.6.10/net/ipv4/route.c	2004-12-29 02:55:03.000000000 +0100
+@@ -889,8 +889,8 @@ restart:
+ 		printk(KERN_DEBUG "rt_cache @%02x: %u.%u.%u.%u", hash,
+ 		       NIPQUAD(rt->rt_dst));
+ 		for (trt = rt->u.rt_next; trt; trt = trt->u.rt_next)
+-			printk(" . %u.%u.%u.%u", NIPQUAD(trt->rt_dst));
+-		printk("\n");
++			printk(KERN_DEBUG " . %u.%u.%u.%u", NIPQUAD(trt->rt_dst));
++		printk(KERN_DEBUG "\n");
  	}
- 
- end_coredump:
- 	set_fs(fs);
- 
- cleanup:
--	while(!list_empty(&thread_list)) {
-+	while (!list_empty(&thread_list)) {
- 		struct list_head *tmp = thread_list.next;
- 		list_del(tmp);
- 		kfree(list_entry(tmp, struct elf_thread_status, list));
+ #endif
+ 	rt_hash_table[hash].chain = rt;
+@@ -1802,11 +1802,11 @@ martian_source:
+ 			unsigned char *p = skb->mac.raw;
+ 			printk(KERN_WARNING "ll header: ");
+ 			for (i = 0; i < dev->hard_header_len; i++, p++) {
+-				printk("%02x", *p);
++				printk(KERN_WARNING "%02x", *p);
+ 				if (i < (dev->hard_header_len - 1))
+ 					printk(":");
+ 			}
+-			printk("\n");
++			printk(KERN_WARNING "\n");
+ 		}
+ 	}
+ #endif
 
 
 

@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262621AbTDLAIu (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 20:08:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262622AbTDLAIu (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 20:08:50 -0400
-Received: from inet-mail2.oracle.com ([148.87.2.202]:15256 "EHLO
-	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
-	id S262621AbTDLAIt (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 20:08:49 -0400
-Date: Fri, 11 Apr 2003 17:19:13 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Greg KH <greg@kroah.com>
-Cc: "Kevin P. Fleming" <kpfleming@cox.net>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       message-bus-list@redhat.com
+	id S261867AbTDLAKP (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 20:10:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbTDLAKP (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 20:10:15 -0400
+Received: from uucp.cistron.nl ([62.216.30.38]:43019 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S261867AbTDLAKN (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 20:10:13 -0400
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
 Subject: Re: [ANNOUNCE] udev 0.1 release
-Message-ID: <20030412001913.GG4917@ca-server1.us.oracle.com>
-References: <20030411172011.GA1821@kroah.com> <200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk> <20030411182313.GG25862@wind.cocodriloo.com> <3E970A00.2050204@cox.net> <20030411192827.GC31739@ca-server1.us.oracle.com> <20030411195843.GO1821@kroah.com> <20030411232507.GC4917@ca-server1.us.oracle.com> <20030411233719.GD4539@kroah.com>
+Date: Sat, 12 Apr 2003 00:21:53 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <b77m71$7bs$1@news.cistron.nl>
+References: <20030411172011.GA1821@kroah.com> <20030411190717.GH1821@kroah.com> <b77jmr$31d$1@news.cistron.nl> <20030412000829.GL4539@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030411233719.GD4539@kroah.com>
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1050106913 7548 62.216.29.200 (12 Apr 2003 00:21:53 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 11, 2003 at 04:37:19PM -0700, Greg KH wrote:
-> > if [ -f /etc/redhat-release ]
-> > then
-> >     DISKPREFIX="/dev/disk"
-> 
-> But all the distros will do that for you :)
+In article <20030412000829.GL4539@kroah.com>,
+Greg KH  <greg@kroah.com> wrote:
+>On Fri, Apr 11, 2003 at 11:39:07PM +0000, Miquel van Smoorenburg wrote:
+>> Why not serialize /sbin/hotplug at the kernel level. Queue hotplug
+>> events and only allow one /sbin/hotplug to run at the same time.
+>
+>We don't want the kernel to stop based on a user program.
 
-	Oh no they won't.  They're just going to fix their own scripts
-to accept their own scheme.  Never mind my own.  I want my own scheme,
-the distro scripts break.  I want a script running out of shared NFS?
-I lose.
+It would not stop if you queued the events.
 
-> Then try to convince LSB to add a device naming document to their spec.
-> That's the only way this is going to happen...
+What is the difference between queueing events to be read from
+a pipe or socket or queueing them for a kernel thread that empties
+the queue by executing /sbin/hotplug for each entry in the queue.
 
-	LSB isn't even followed now.  What we need is a naming czar.  As
-you point out, Good Luck.
-	Linux devices are going to stop sucking from one perspective and
-start sucking from another.  Yay.
+The pipe/socket solution is probably better anyway, I was just
+wondering why /sbin/hotplug wasn't serialized from the start.
+ 
+Mike.
 
-Joel
-
--- 
-
-"Can any of you seriously say the Bill of Rights could get through
- Congress today?  It wouldn't even get out of committee."
-	- F. Lee Bailey
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127

@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281263AbRKLFsd>; Mon, 12 Nov 2001 00:48:33 -0500
+	id <S281264AbRKLF6f>; Mon, 12 Nov 2001 00:58:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281264AbRKLFsX>; Mon, 12 Nov 2001 00:48:23 -0500
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:2608 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S281263AbRKLFsT>; Mon, 12 Nov 2001 00:48:19 -0500
-Date: Mon, 12 Nov 2001 00:47:19 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-        Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: [PATCH] save sound mixer state over suspend
-Message-ID: <20011112004719.A6091@devserv.devel.redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0111112107530.1518-100000@vaio>
-Mime-Version: 1.0
+	id <S281266AbRKLF6Z>; Mon, 12 Nov 2001 00:58:25 -0500
+Received: from ccs.covici.com ([209.249.181.196]:25472 "EHLO ccs.covici.com")
+	by vger.kernel.org with ESMTP id <S281264AbRKLF6G>;
+	Mon, 12 Nov 2001 00:58:06 -0500
+To: linux-kernel@vger.kernel.org
+Subject: what does no pin a mean?
+From: John Covici <covici@ccs.covici.com>
+Date: 12 Nov 2001 00:58:02 -0500
+Message-ID: <m3itcg8r9x.fsf@ccs.covici.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0111112107530.1518-100000@vaio>; from kai@tp1.ruhr-uni-bochum.de on Sun, Nov 11, 2001 at 09:42:27PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Sun, 11 Nov 2001 21:42:27 +0100 (CET)
-> From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-> To: <linux-kernel@vger.kernel.org>
-> cc: Linus Torvalds <torvalds@transmeta.com>, Pete Zaitcev <zaitcev@redhat.com>
+I am using 2.4.14 kernel and a Shuttle ak31a motherboard.
 
-> The appended patch introduces two new functions to the ac97_codec 
-> handling: ac97_save_state() and ac97_restore_state().
-> These functions save/restore the mixer state over suspend. (So after 
-> resume the volume is the same it was before)
+I am wondering what the log excerpt below means and what should I do
+about it?
 
-The patch itself looks ok, but I am wondering what is
-the difference between your ac97_restore_state and ac97_reset.
-I think you may be reinventing the wheel here.
+Thanks.
 
-I cannot test the patch because my suspend/resume cycle
-retains mixer levels without it (2.2.14 stock, PCG-Z505JE),
-so I would not see any difference.
+Nov 11 21:55:15 ccs kernel: Uniform Multi-Platform E-IDE driver Revision: 6.31
+Nov 11 21:55:15 ccs kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+Nov 11 21:55:15 ccs kernel: VP_IDE: IDE controller on PCI bus 00 dev 89
+Nov 11 21:55:16 ccs kernel: PCI: No IRQ known for interrupt pin A of device 00:11.1. Please try using pci=biosirq.
+Nov 11 21:55:16 ccs kernel: VP_IDE: chipset revision 6
+Nov 11 21:55:16 ccs kernel: VP_IDE: not 100%% native mode: will probe irqs later
+Nov 11 21:55:16 ccs kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+Nov 11 21:55:16 ccs kernel: VP_IDE: VIA vt8233 (rev 00) IDE UDMA100 controller on pci00:11.1
 
--- Pete
+-- 
+         John Covici
+         covici@ccs.covici.com

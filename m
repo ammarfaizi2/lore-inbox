@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266327AbUFURKq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266328AbUFURLQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266327AbUFURKq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 13:10:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266328AbUFURKq
+	id S266328AbUFURLQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 13:11:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266329AbUFURLQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 13:10:46 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:25737 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S266327AbUFURKo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 13:10:44 -0400
-Subject: Re: inode_unused list corruption in 2.4.26 - spin_lock problem?
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Chris Caputo <ccaputo@alt.net>, linux-kernel@vger.kernel.org,
-       David Woodhouse <dwmw2@infradead.org>, riel@redhat.com
-In-Reply-To: <20040621004535.GA8071@logos.cnet>
-References: <Pine.LNX.4.44.0406181730370.1847-100000@nacho.alt.net>
-	 <20040620001529.GA4326@logos.cnet>
-	 <1087702435.5361.64.camel@lade.trondhjem.org>
-	 <20040621004535.GA8071@logos.cnet>
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 21 Jun 2004 13:11:16 -0400
+Received: from hqemgate00.nvidia.com ([216.228.112.144]:23057 "EHLO
+	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
+	id S266328AbUFURLM convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 13:11:12 -0400
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Message-Id: <1087837820.3926.57.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 21 Jun 2004 13:10:21 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: RE: [PATCH] new device support for forcedeth.c second try
+Date: Mon, 21 Jun 2004 10:10:40 -0700
+Message-ID: <C064BF1617D93B4B83714E38C4653A6E0BD11BCF@mail-sc-10.nvidia.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] new device support for forcedeth.c second try
+Thread-Index: AcRWGSjkD1Z3gfdiTKqpUTBKWDfDbgBl9OJA
+From: "Brian Lazara" <blazara@nvidia.com>
+To: "Manfred Spraul" <manfred@colorfullife.com>,
+       "Carl-Daniel Hailfinger" <c-d.hailfinger.kernel.2004@gmx.net>
+Cc: "Christoph Hellwig" <hch@infradead.org>,
+       "Andrew de Quincey" <adq@lidskialf.net>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På su , 20/06/2004 klokka 20:45, skreiv Marcelo Tosatti:
-> Lets see if I get this right, while we drop the lock in iput to call 
-> write_inode_now() an iget happens, possibly from write_inode_now itself 
-> (sync_one->__iget) causing the inode->i_list to be added to to inode_in_use. 
-> But then the call returns, locks inode_lock, decreases inodes_stat.nr_unused--
-> and deletes the inode from the inode_in_use and adds to inode_unused. 
+> -----Original Message-----
+> From: Manfred Spraul [mailto:manfred@colorfullife.com] 
+> Sent: Saturday, June 19, 2004 9:19 AM
 > 
-> AFAICS its an inode with i_count==1 in the unused list, which does not
-> mean "list corruption", right? Am I missing something here?
+> Carl-Daniel Hailfinger wrote:
+> 
+> >Hi,
+> >
+> >Brian, thank you very much for contributing to forcedeth.
+> >
+> I agree, thanks a lot.
+> 
 
-Yes. Please don't forget that the inode is still hashed and is not yet
-marked as FREEING: find_inode() can grab it on behalf of some other
-process as soon as we drop that spinlock inside iput(). Then we have the
-calls to clear_inode() + destroy_inode() just a few lines further down.
-;-)
+I wasn't the actual contributor, but did help with some of the testing.
+We will do some testing on the updates your currently making. At first
+glance they look very sensible.
 
-If the above scenario ever does occur, it will cause random Oopses for
-third party processes. Since we do not see this too often, my guess is
-that the write_inode_now() path must be very rarely (or never?) called.
+We certainly appreciate your work developing forcedeth and will help
+maintain forcedeth in the future. Maybe you will be able to remove the
+"not endorsed by NVIDIA" in the header. :)
 
-> If you are indeed right all 2.4.x versions contain this bug.
-
-...and all 2.6.x versions...
-
-I'm not saying this is the same problem that Chris is seeing, but I am
-failing to see how iput() is safe as it stands right now. Please
-enlighten me if I'm missing something.
-
-Cheers,
-  Trond
+Regards,
+Brian

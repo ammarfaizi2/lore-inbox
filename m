@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbUBTNQL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 08:16:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbUBTNNK
+	id S261198AbUBTNQK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 08:16:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbUBTNNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 08:13:10 -0500
-Received: from amsfep14-int.chello.nl ([213.46.243.22]:46631 "EHLO
+	Fri, 20 Feb 2004 08:13:24 -0500
+Received: from amsfep14-int.chello.nl ([213.46.243.22]:31570 "EHLO
 	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261216AbUBTMwt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 07:52:49 -0500
-Date: Fri, 20 Feb 2004 13:46:44 +0100
-Message-Id: <200402201246.i1KCkiAN004241@callisto.of.borg>
+	id S261198AbUBTMwp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 07:52:45 -0500
+Date: Fri, 20 Feb 2004 13:46:42 +0100
+Message-Id: <200402201246.i1KCkg5a004229@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 402] arch/m68k/mm/Makefile cleanup
+Subject: [PATCH 400] Amifb modedb bug
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clean up arch/m68k/mm/Makefile logic
+Amifb: Fix bugs in the video mode database:
+  - ntsc-lace lacks the yres value
+  - a2024-15 is 15 Hz, not 10
 
---- linux-2.6.3/arch/m68k/mm/Makefile	2004-01-25 16:59:57.000000000 +0100
-+++ linux-m68k-2.6.3/arch/m68k/mm/Makefile	2004-01-25 17:20:45.000000000 +0100
-@@ -4,8 +4,5 @@
- 
- obj-y		:= cache.o init.o fault.o hwtest.o
- 
--ifndef CONFIG_SUN3
--obj-y		+= kmap.o memory.o motorola.o
--else
--obj-y		+= sun3kmap.o sun3mmu.o
--endif
-+obj-$(CONFIG_MMU_MOTOROLA)	+= kmap.o memory.o motorola.o
-+obj-$(CONFIG_MMU_SUN3)		+= sun3kmap.o sun3mmu.o
+--- linux-2.6.3/drivers/video/amifb.c	2003-05-27 19:03:30.000000000 +0200
++++ linux-m68k-2.6.3/drivers/video/amifb.c	2004-02-02 15:38:21.000000000 +0100
+@@ -832,7 +832,7 @@
+ 	FB_SYNC_BROADCAST, FB_VMODE_NONINTERLACED | FB_VMODE_YWRAP
+     }, {
+ 	/* 640x400, 15 kHz, 60 Hz interlaced (NTSC) */
+-	"ntsc-lace", 60, 640, TAG_HIRES, 106, 86, 88, 33, 76, 4,
++	"ntsc-lace", 60, 640, 400, TAG_HIRES, 106, 86, 88, 33, 76, 4,
+ 	FB_SYNC_BROADCAST, FB_VMODE_INTERLACED | FB_VMODE_YWRAP
+     }, {
+ 	/* 640x256, 15 kHz, 50 Hz (PAL) */
+@@ -927,7 +927,7 @@
+ 	0, FB_VMODE_NONINTERLACED | FB_VMODE_YWRAP
+     }, {
+ 	/* 1024x800, 15 Hz */
+-	"a2024-15", 10, 1024, 800, TAG_HIRES, 0, 0, 0, 0, 0, 0,
++	"a2024-15", 15, 1024, 800, TAG_HIRES, 0, 0, 0, 0, 0, 0,
+ 	0, FB_VMODE_NONINTERLACED | FB_VMODE_YWRAP
+     }
+ #endif
 
 Gr{oetje,eeting}s,
 

@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263001AbUGRHW1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262906AbUGRHeS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263001AbUGRHW1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 03:22:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUGRHW1
+	id S262906AbUGRHeS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 03:34:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUGRHeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 03:22:27 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:48812 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S263001AbUGRHW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 03:22:26 -0400
-Message-ID: <40FA2535.4040207@namesys.com>
-Date: Sun, 18 Jul 2004 00:22:29 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Sun, 18 Jul 2004 03:34:18 -0400
+Received: from moutng.kundenserver.de ([212.227.126.191]:42983 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262906AbUGRHeR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 03:34:17 -0400
+From: Christian Borntraeger <linux-kernel@borntraeger.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] was: [RFC] removal of sync in panic
+Date: Sun, 18 Jul 2004 09:34:12 +0200
+User-Agent: KMail/1.6.2
+Cc: Tim Wright <timw@splhi.com>, Andrew Morton <akpm@osdl.org>, lmb@suse.de
+References: <200407141745.47107.linux-kernel@borntraeger.net> <200407150658.54925.linux-kernel@borntraeger.net> <1090090902.14032.15.camel@kryten.internal.splhi.com>
+In-Reply-To: <1090090902.14032.15.camel@kryten.internal.splhi.com>
 MIME-Version: 1.0
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-CC: Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
-       jmerkey@comcast.net, Pete Harlan <harlan@artselect.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Ext3 File System "Too many files" with snort
-References: <070920041920.2370.40EEEFFD000B341B000009422200763704970A059D0A0306@comcast.net> <40EF797E.6060601@namesys.com> <20040710083347.GC6386@redhat.com> <40F02963.5040500@namesys.com> <20040710174432.GA18719@infradead.org> <40F02E05.8090401@namesys.com> <4d8e3fd304071203204c51f6c4@mail.gmail.com>
-In-Reply-To: <4d8e3fd304071203204c51f6c4@mail.gmail.com>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407180934.12418.linux-kernel@borntraeger.net>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paolo Ciarrocchi wrote:
+Tim Wright wrote:
+> Yes, I've seen this multiple times.
+> I also agree that it seems a sensible patch. I have one dumb question.
+> Given that we're panicing and we know things are "bad", is there any
+> reason not to call smp_send_stop() as early as possible, rather than as
+> the last thing which we currently do? As you say, the other cpus are
+> happily continuing, potentially destroying data, and it seems that
+> stopping this as quickly as possible would be desirable.
 
->
-> I don't unserstand why
->the linux kernel release process can't be supported by a suite of test
->that has to be passed before being released a new -rc or final
->version.
->
->It seems there are now the all the tools we need but we are note using
->them to manage the releases.
->
->I'm referring to LTP, compile stats and regression test from OSDL.
->
->
->Ciao,
->               Paolo
->
->  
->
-I agree with you wholeheartedly, and Namesys does in fact run FS related 
-regression tests before sending its changes in. I wish others would do 
-the same for their changes.
+That suggestion was my number 2 is my first mail :-)
+
+On the other hand, if we remove the sync stuff,  smp_send_stop is called 
+quite early. Only a printf is called before smp_send_stop().  

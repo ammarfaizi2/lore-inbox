@@ -1,101 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261305AbTDQKoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 06:44:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbTDQKoQ
+	id S261306AbTDQKxi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 06:53:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbTDQKxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 06:44:16 -0400
-Received: from mx03.cyberus.ca ([216.191.240.24]:18181 "EHLO mx03.cyberus.ca")
-	by vger.kernel.org with ESMTP id S261305AbTDQKoO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 06:44:14 -0400
-Date: Thu, 17 Apr 2003 06:55:19 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Catalin BOIE <util@deuroconsult.ro>
-cc: Manfred Spraul <manfred@colorfullife.com>,
-       Tomas Szepe <szepe@pinerecords.com>, "" <linux-kernel@vger.kernel.org>,
-       "" <netdev@oss.sgi.com>, "" <kuznet@ms2.inr.ac.ru>
-Subject: Re: [PATCH] qdisc oops fix
-In-Reply-To: <Pine.LNX.4.53.0304170844410.23586@hosting.rdsbv.ro>
-Message-ID: <20030417065352.S6710@shell.cyberus.ca>
-References: <20030415084706.O1131@shell.cyberus.ca>
- <Pine.LNX.4.53.0304160838001.25861@hosting.rdsbv.ro> <20030416072952.E4013@shell.cyberus.ca>
- <3E9D755A.8060601@colorfullife.com> <20030416142802.E5912@shell.cyberus.ca>
- <Pine.LNX.4.53.0304170844410.23586@hosting.rdsbv.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Apr 2003 06:53:38 -0400
+Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:2283 "HELO
+	cocodriloo.com") by vger.kernel.org with SMTP id S261306AbTDQKxg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 06:53:36 -0400
+Date: Thu, 17 Apr 2003 13:17:14 +0200
+From: Antonio Vargas <wind@cocodriloo.com>
+To: Dave Mehler <dmehler26@woh.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: problems booting 2.5 kernel, rh9
+Message-ID: <20030417111714.GA16335@wind.cocodriloo.com>
+References: <000501c3048d$a3e41700$0200a8c0@satellite>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <000501c3048d$a3e41700$0200a8c0@satellite>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 16, 2003 at 11:01:27PM -0400, Dave Mehler wrote:
+> Hello,
+>     Compiled/installed a 2.5 kernel on my rh9 box, everything went alright.
+> When i try to boot it this is what i get, any ideas? I don't see an error,
+> very weird. I've installed the new modutils rpm and the procpsutils as well.
+> Thanks.
+> Dave.
+> 
+> 
+> Press any key to continue.
+> Press any key to continue.
+> Press any key to continue.
+> Press any key to continue.
+> Press any key to continue.
+> Press any key to continue.
+> Press any key to continue.
+> Press any key to continue.
+> Press any key to continue.
+> Press any key to continue.
+> 
+>     GRUB  version 0.93  (639K lower / 261040K upper memory)
+> 
+>  +-------------------------------------------------------------------------+
+>       Use the ^ and v keys to select which entry is highlighted.
+>       Press enter to boot the selected OS, 'e' to edit the
+>       commands before booting, 'a' to modify the kernel arguments
+>   Booting 'Red Hat Linux (2.5.67)'
+> 
+> root (hd0,0)
+>  Filesystem type is ext2fs, partition type 0x83
+> kernel /boot/vmlinuz-2.5.67 ro root=LABEL=/1 console=ttyS0
+>    [Linux-bzImage, setup=0x1400, size=0xe1aaf]
+> initrd /boot/initrd-2.5.67.img
+>    [Linux-initrd @ 0xffc7000, 0x14ffb bytes]
 
+Dave, since your ISP is blocking my mail, I reply on lkml...
 
-Ok, I stand corrected. Tomas is right- same problem. You had htb loaded
-as a module, the other person had it compiled in ;->
-Get yourself upgraded ;->
+I booted fine the 2.5 kernel by tagging it for netboot and
+then placing it on my tftp directory. I never use harddisk
+bootloaders, so if you can not make it work with grub,
+I would get ahead and make it boot from floppy. Yes, it
+takes a minute to load a kernel, but it works and is simple.
 
-cheers,
-jamal
+I use syslinux for that, it's fairly simple and you can
+enter kernel options directly at the boot prompt.
 
-On Thu, 17 Apr 2003, Catalin BOIE wrote:
+Also, since it's a dos 8.3-formatted floppy, you can upgrade
+your kernel by simply replacing the kernel file.
 
-> > Catalin, Can you what kernel that is?
->
-> 2.4.20pre10 works ok but 2.4.20 crash.
-> With traffic -> no crash with 2.4.20. Without traffic, on other machine,
-> no crash.
->
->
-> > > It's triggered, because someone does something like
-> > >     spin_lock_bh(&my_lock);
-> > >     p = kmalloc(,GFP_KERNEL);
-> > >
-> > > I don't like the proposed fix: usually code that calls
-> > > kmalloc(,GFP_KERNEL) assumes that it runs at process space, e.g. uses
-> > > semaphores, or non-bh spinlocks, etc.
-> > > slab just happens to contain a test that complains about illegal calls.
-> >
-> > ok. Nice.
-> >
-> > >
-> > > >>Trace; c0127e0f <kmalloc+eb/110>
-> > > >>Trace; c01d3cac <qdisc_create_dflt+20/bc>
-> > > >>Trace; d081ecc7 <END_OF_CODE+1054ff0f/????>
-> > > >>Trace; c01d5265 <tc_ctl_tclass+1cd/214>
-> > > >>Trace; d0820600 <END_OF_CODE+10551848/????>
-> > > >>Trace; c01d27e4 <rtnetlink_rcv+298/3bc>
-> > > >>Trace; c01d0605 <__neigh_event_send+89/1b4>
-> > > >>Trace; c01d7cd4 <netlink_data_ready+1c/60>
-> > > >>Trace; c01d7730 <netlink_unicast+230/278>
-> > > >>Trace; c01d7b73 <netlink_sendmsg+1fb/20c>
-> > > >>Trace; c01c79d5 <sock_sendmsg+69/88>
-> > > >>Trace; c01c8b48 <sys_sendmsg+18c/1e8>
-> > > >>Trace; c0120010 <map_user_kiobuf+8/f8>
-> > > >>
-> > > >>
-> > > >>
-> > > >>
-> > > I don't understand the backtrace. Were any modules loaded? Perhaps
-> > > 0xd081ecc7 is a module.
-> > >
-> >
-> > Probably a module. Again Catalin, run no modules.
-> It's a production machine. I cannot test this. We plan to replace the
-> machine, so I can test then.
->
-> > > I'd add a
-> > >     if(in_interrupt()) show_stack(NULL);
-> > > into qdisc_create_dflt(), and try to reproduce the bug without modules.
-> > >
-> >
-> > Catalin - again instead of your fix can you please add this call?
-> See above. I cannot test now. I'm very sorry!
->
-> > cheers,
-> > jamal
-> >
->
-> ---
-> Catalin(ux) BOIE
-> catab@deuroconsult.ro
->
->
+If you need a dos-formatted empty disk, I can post one to my
+homepage for you to download.
+
+Greets, Antonio.
+
+ps. I'm having problems with running "make menuconfig" on rh9
+    under vanilla 2.5.66, the gnome-terminal hangs easily...
+    any ideas? (Yes, I'll try xterm or rxvt just in case).

@@ -1,76 +1,408 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319055AbSHMSGV>; Tue, 13 Aug 2002 14:06:21 -0400
+	id <S319120AbSHMSdV>; Tue, 13 Aug 2002 14:33:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319056AbSHMSGU>; Tue, 13 Aug 2002 14:06:20 -0400
-Received: from pimout5-ext.prodigy.net ([207.115.63.98]:10147 "EHLO
-	pimout5-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S319055AbSHMSGA>; Tue, 13 Aug 2002 14:06:00 -0400
-Message-Id: <200208131809.g7DI9pf181876@pimout5-ext.prodigy.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Daniel Phillips <phillips@arcor.de>
-Subject: Re: large page patch (fwd) (fwd)
-Date: Tue, 13 Aug 2002 09:09:44 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0208111555130.1233-100000@home.transmeta.com> <200208131351.g7DDpuf261384@pimout5-ext.prodigy.net> <E17eeow-0001y9-00@starship>
-In-Reply-To: <E17eeow-0001y9-00@starship>
+	id <S319121AbSHMSdV>; Tue, 13 Aug 2002 14:33:21 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:58887 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S319120AbSHMSdO>;
+	Tue, 13 Aug 2002 14:33:14 -0400
+Date: Tue, 13 Aug 2002 11:32:39 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: <torvalds@transmeta.com>
+cc: <akpm@zip.com.au>, <davem@redhat.com>, <davej@suse.de>,
+       <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Network Options and Network Devices together
+Message-ID: <Pine.LNX.4.33L2.0208131128070.5175-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 August 2002 12:47 pm, Daniel Phillips wrote:
-> On Tuesday 13 August 2002 10:51, Rob Landley wrote:
-> > On Sunday 11 August 2002 07:44 pm, Daniel Phillips wrote:
-> > So you would object to microsoft granting rights to its patents saying
-> > "you can use this patent in software that runs on windows, but use it on
-> > any other platform and we'll sue you", but you don't mind going the other
-> > way?
->
-> You missed the point.  I was talking about using copyright against patents,
-> and specifically in the case where patents are held by people who also want
-> to use the copyrighted code.  The intention is to help keep our friends
-> honest.
 
-Does the little company that recently got a patent on JPEG actually used open 
-source code in-house?  They might be a windows-only shop.  I don't know.
+[oh, who to send this to?]
 
-> Dealing with Microsoft, or anyone else whose only motivation is to
-> obstruct, is an entirely separate issue.
+This patch to 2.5.31 pushes "Networking options" and
+"Network device support" together for all architectures
+that have them.
 
-Oddly enough, Microsoft isn't a major threat here.  They don't seem to want 
-to lob the first nuke any more than anybody else here.  They have too much to 
-lose.  If they unleashed their patent portfolio upon the Linux community, 
-there are enough big players with their own patent portfolios and a vested 
-interest in Linux to respond in kind.  (Microsoft is happy to rattled their 
-saber about the unenforceability of the GPL, and threaten to use patents to 
-stop it, but you'll notice they haven't DONE it yet.  Threats are cheap, in 
-the legal world.  As far as I can tell, at least 90% of any legal maneuvering 
-is posturing and seeing if the other guy blinks.  It's mostly a game of 
-chicken, you never know WHAT a judge or jury will actually say, when it comes 
-down to it.)
+They shouldn't be split apart by Telephony, I2O,
+Fusion, etc.
 
-They can't go after the big players with patents anyway, they've already got 
-cross-licensing agreements with most of them (which is the point of patent 
-portfolios in the first place).  So it's only the small players they could 
-really go up against, and they simply don't see those as their real 
-competition except as allies to big players like IBM, HPaq, Dell...
+Please apply to the next 2.5.3x kernel if it's OK
+with DaveM, DaveJ, Andrew, Jeff, et al.
 
-And if they're going after the small fry, having already been convicted in 
-court of being an abusive monopoly, they open themselves to a class-action 
-suit by ambulance chasers working on retainer against the prospect of tapping 
-Microsoft's deep pockets in a judgement or settlement.  (Sort of like suing 
-the tobacco industry: it's not easy but lawyers still sign on because there's 
-so much MONEY to be gained if they win...)  An explicit patent infringement 
-suit does NOT give plausible deniability of the "you can't prove we didn't 
-win simply because we were better in the marketplace" kind.  (You can't prove 
-the tooth fairy doesn't exist, either.  Hard to prove a negative.)
+Thanks,
+~Randy
 
-Other than FUD, the more likely pragmatic problem is some small fry with no 
-stake in anything who thinks he can get rich quick by being really slimy.  
-Anybody remember the origin of the Linux trademark?  THAT is the most 
-annoying problem patents pose, being nibbled to death by ants...
+PS:  It doesn't qualify as trivial by Rusty's latest definitions.
 
-Rob
+-- 
+
+
+--- linux-2.5.31/arch/alpha/config.in.net	Sat Aug 10 18:41:23 2002
++++ linux-2.5.31/arch/alpha/config.in	Tue Aug 13 09:46:46 2002
+@@ -283,10 +283,6 @@
+
+ source drivers/md/Config.in
+
+-if [ "$CONFIG_NET" = "y" ]; then
+-  source net/Config.in
+-fi
+-
+ mainmenu_option next_comment
+ comment 'ATA/ATAPI/MFM/RLL support'
+
+@@ -314,6 +310,8 @@
+ fi
+
+ if [ "$CONFIG_NET" = "y" ]; then
++  source net/Config.in
++
+   mainmenu_option next_comment
+   comment 'Network device support'
+
+--- linux-2.5.31/arch/ppc/config.in.net	Sat Aug 10 18:41:16 2002
++++ linux-2.5.31/arch/ppc/config.in	Tue Aug 13 10:44:18 2002
+@@ -419,10 +419,6 @@
+ source drivers/block/Config.in
+ source drivers/md/Config.in
+
+-if [ "$CONFIG_NET" = "y" ]; then
+-   source net/Config.in
+-fi
+-
+ mainmenu_option next_comment
+ comment 'ATA/IDE/MFM/RLL support'
+
+@@ -449,6 +445,8 @@
+ source drivers/message/i2o/Config.in
+
+ if [ "$CONFIG_NET" = "y" ]; then
++   source net/Config.in
++
+    mainmenu_option next_comment
+    comment 'Network device support'
+
+--- linux-2.5.31/arch/i386/config.in.net	Sat Aug 10 18:41:25 2002
++++ linux-2.5.31/arch/i386/config.in	Tue Aug 13 10:01:37 2002
+@@ -332,12 +332,6 @@
+
+ source drivers/md/Config.in
+
+-if [ "$CONFIG_NET" = "y" ]; then
+-   source net/Config.in
+-fi
+-
+-source drivers/telephony/Config.in
+-
+ source drivers/message/fusion/Config.in
+
+ source drivers/ieee1394/Config.in
+@@ -345,6 +339,8 @@
+ source drivers/message/i2o/Config.in
+
+ if [ "$CONFIG_NET" = "y" ]; then
++   source net/Config.in
++
+    mainmenu_option next_comment
+    comment 'Network device support'
+
+@@ -363,6 +359,8 @@
+ source net/irda/Config.in
+
+ source drivers/isdn/Config.in
++
++source drivers/telephony/Config.in
+
+ #
+ # input before char - char/joystick depends on it. As does USB.
+--- linux-2.5.31/arch/sparc/config.in.net	Sat Aug 10 18:41:19 2002
++++ linux-2.5.31/arch/sparc/config.in	Tue Aug 13 10:46:59 2002
+@@ -87,10 +87,6 @@
+
+ endmenu
+
+-if [ "$CONFIG_NET" = "y" ]; then
+-   source net/Config.in
+-fi
+-
+ # Don't frighten a common SBus user
+ if [ "$CONFIG_PCI" = "y" ]; then
+
+@@ -158,6 +154,8 @@
+ source drivers/fc4/Config.in
+
+ if [ "$CONFIG_NET" = "y" ]; then
++   source net/Config.in
++
+    mainmenu_option next_comment
+    comment 'Network device support'
+
+--- linux-2.5.31/arch/sparc64/config.in.net	Sat Aug 10 18:41:25 2002
++++ linux-2.5.31/arch/sparc64/config.in	Tue Aug 13 10:45:57 2002
+@@ -95,10 +95,6 @@
+
+ endmenu
+
+-if [ "$CONFIG_NET" = "y" ]; then
+-   source net/Config.in
+-fi
+-
+ mainmenu_option next_comment
+ comment 'ATA/ATAPI/MFM/RLL device support'
+
+@@ -207,6 +203,8 @@
+ source drivers/ieee1394/Config.in
+
+ if [ "$CONFIG_NET" = "y" ]; then
++   source net/Config.in
++
+    mainmenu_option next_comment
+    comment 'Network device support'
+
+--- linux-2.5.31/arch/m68k/config.in.net	Sat Aug 10 18:41:46 2002
++++ linux-2.5.31/arch/m68k/config.in	Tue Aug 13 10:33:49 2002
+@@ -152,10 +152,6 @@
+
+ source drivers/md/Config.in
+
+-if [ "$CONFIG_NET" = "y" ]; then
+-   source net/Config.in
+-fi
+-
+ if [ "$CONFIG_MAC" = "y" ]; then
+    source drivers/input/Config.in
+ fi
+@@ -271,6 +267,7 @@
+ endmenu
+
+ if [ "$CONFIG_NET" = "y" ]; then
++   source net/Config.in
+
+    mainmenu_option next_comment
+    comment 'Network device support'
+--- linux-2.5.31/arch/cris/config.in.net	Sat Aug 10 18:41:36 2002
++++ linux-2.5.31/arch/cris/config.in	Tue Aug 13 10:01:05 2002
+@@ -135,12 +135,6 @@
+
+ source drivers/md/Config.in
+
+-if [ "$CONFIG_NET" = "y" ]; then
+-  source net/Config.in
+-fi
+-
+-source drivers/telephony/Config.in
+-
+ mainmenu_option next_comment
+ comment 'ATA/IDE/MFM/RLL support'
+
+@@ -168,6 +162,8 @@
+ source drivers/message/i2o/Config.in
+
+ if [ "$CONFIG_NET" = "y" ]; then
++  source net/Config.in
++
+   mainmenu_option next_comment
+   comment 'Network device support'
+
+@@ -186,6 +182,8 @@
+ source net/irda/Config.in
+
+ source drivers/isdn/Config.in
++
++source drivers/telephony/Config.in
+
+ mainmenu_option next_comment
+ comment 'Old CD-ROM drivers (not SCSI, not IDE)'
+--- linux-2.5.31/arch/mips/config.in.net	Sat Aug 10 18:41:42 2002
++++ linux-2.5.31/arch/mips/config.in	Tue Aug 13 10:39:25 2002
+@@ -334,12 +334,6 @@
+
+ source drivers/md/Config.in
+
+-if [ "$CONFIG_NET" = "y" ]; then
+-   source net/Config.in
+-fi
+-
+-source drivers/telephony/Config.in
+-
+ if [ "$CONFIG_SGI_IP22" != "y" -a \
+      "$CONFIG_DECSTATION" != "y" ]; then
+
+@@ -372,6 +366,8 @@
+ fi
+
+ if [ "$CONFIG_NET" = "y" ]; then
++   source net/Config.in
++
+    mainmenu_option next_comment
+    comment 'Network device support'
+
+@@ -390,6 +386,8 @@
+ source net/irda/Config.in
+
+ source drivers/isdn/Config.in
++
++source drivers/telephony/Config.in
+
+ mainmenu_option next_comment
+ comment 'Old CD-ROM drivers (not SCSI, not IDE)'
+--- linux-2.5.31/arch/ia64/config.in.net	Sat Aug 10 18:42:09 2002
++++ linux-2.5.31/arch/ia64/config.in	Tue Aug 13 10:25:11 2002
+@@ -118,10 +118,6 @@
+
+ endmenu
+
+-if [ "$CONFIG_NET" = "y" ]; then
+-  source net/Config.in
+-fi
+-
+ if [ "$CONFIG_IA64_HP_SIM" = "n" ]; then
+
+ source drivers/mtd/Config.in
+@@ -166,6 +162,10 @@
+   source drivers/scsi/Config.in
+ fi
+ endmenu
++
++if [ "$CONFIG_NET" = "y" ]; then
++  source net/Config.in
++fi
+
+ if [ "$CONFIG_IA64_HP_SIM" = "n" ]; then
+
+--- linux-2.5.31/arch/ppc64/config.in.net	Sat Aug 10 18:41:21 2002
++++ linux-2.5.31/arch/ppc64/config.in	Tue Aug 13 10:43:48 2002
+@@ -87,10 +87,6 @@
+ source drivers/block/Config.in
+ source drivers/md/Config.in
+
+-if [ "$CONFIG_NET" = "y" ]; then
+-   source net/Config.in
+-fi
+-
+ mainmenu_option next_comment
+ comment 'ATA/ATAPI/MFM/RLL support'
+
+@@ -118,6 +114,8 @@
+ source drivers/message/i2o/Config.in
+
+ if [ "$CONFIG_NET" = "y" ]; then
++   source net/Config.in
++
+    mainmenu_option next_comment
+    comment 'Network device support'
+
+--- linux-2.5.31/arch/x86_64/config.in.net	Sat Aug 10 18:41:24 2002
++++ linux-2.5.31/arch/x86_64/config.in	Tue Aug 13 10:47:31 2002
+@@ -119,12 +119,6 @@
+
+ source drivers/md/Config.in
+
+-if [ "$CONFIG_NET" = "y" ]; then
+-   source net/Config.in
+-fi
+-
+-source drivers/telephony/Config.in
+-
+ mainmenu_option next_comment
+ comment 'ATA/ATAPI/MFM/RLL support'
+
+@@ -155,6 +149,8 @@
+ #source drivers/message/i2o/Config.in
+
+ if [ "$CONFIG_NET" = "y" ]; then
++   source net/Config.in
++
+    mainmenu_option next_comment
+    comment 'Network device support'
+
+@@ -174,6 +170,8 @@
+ source net/irda/Config.in
+
+ source drivers/isdn/Config.in
++
++source drivers/telephony/Config.in
+
+ # no support for non IDE/SCSI cdroms as they were all ISA only
+
+--- linux-2.5.31/arch/mips64/config.in.net	Sat Aug 10 18:41:21 2002
++++ linux-2.5.31/arch/mips64/config.in	Tue Aug 13 10:34:46 2002
+@@ -132,12 +132,6 @@
+
+ source drivers/md/Config.in
+
+-if [ "$CONFIG_NET" = "y" ]; then
+-   source net/Config.in
+-fi
+-
+-source drivers/telephony/Config.in
+-
+ mainmenu_option next_comment
+ comment 'ATA/ATAPI/MFM/RLL support'
+
+@@ -163,6 +157,8 @@
+ #source drivers/message/i2o/Config.in
+
+ if [ "$CONFIG_NET" = "y" ]; then
++   source net/Config.in
++
+    mainmenu_option next_comment
+    comment 'Network device support'
+
+@@ -181,6 +177,8 @@
+ source net/irda/Config.in
+
+ source drivers/isdn/Config.in
++
++source drivers/telephony/Config.in
+
+ mainmenu_option next_comment
+ comment 'Old CD-ROM drivers (not SCSI, not IDE)'
+--- linux-2.5.31/arch/sh/config.in.net	Sat Aug 10 18:41:30 2002
++++ linux-2.5.31/arch/sh/config.in	Tue Aug 13 10:45:16 2002
+@@ -207,10 +207,6 @@
+
+ source drivers/md/Config.in
+
+-if [ "$CONFIG_NET" = "y" ]; then
+-   source net/Config.in
+-fi
+-
+ mainmenu_option next_comment
+ comment 'ATA/ATAPI/MFM/RLL support'
+
+@@ -236,6 +232,8 @@
+ source drivers/ieee1394/Config.in
+
+ if [ "$CONFIG_NET" = "y" ]; then
++   source net/Config.in
++
+    mainmenu_option next_comment
+    comment 'Network device support'
+
+--- linux-2.5.31/arch/parisc/config.in.net	Sat Aug 10 18:42:09 2002
++++ linux-2.5.31/arch/parisc/config.in	Tue Aug 13 10:39:46 2002
+@@ -99,10 +99,6 @@
+
+ source drivers/block/Config.in
+
+-if [ "$CONFIG_NET" = "y" ]; then
+-  source net/Config.in
+-fi
+-
+ mainmenu_option next_comment
+ comment 'SCSI support'
+
+@@ -149,6 +145,8 @@
+ endmenu
+
+ if [ "$CONFIG_NET" = "y" ]; then
++  source net/Config.in
++
+   mainmenu_option next_comment
+   comment 'Network device support'
+
+-- 
+

@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262360AbUKDTMC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbUKDTPo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262360AbUKDTMC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 14:12:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbUKDTJA
+	id S262337AbUKDTPo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 14:15:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbUKDTPo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 14:09:00 -0500
-Received: from fire.osdl.org ([65.172.181.4]:37769 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S262360AbUKDTIE (ORCPT
+	Thu, 4 Nov 2004 14:15:44 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:28909 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S262337AbUKDTPM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 14:08:04 -0500
-Message-ID: <418A7B71.1070307@osdl.org>
-Date: Thu, 04 Nov 2004 10:56:49 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: yiding_wang@agilent.com
-CC: linux-kernel@vger.kernel.org, Yidng_wang@agilent.com
-Subject: Re: QM_MODULES not implemented in 2.6.9
-References: <08A354A3A9CCA24F9EE9BE13600CFBC50F3AE3@wcosmb07.cos.agilent.com>
-In-Reply-To: <08A354A3A9CCA24F9EE9BE13600CFBC50F3AE3@wcosmb07.cos.agilent.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Nov 2004 14:15:12 -0500
+Date: Thu, 4 Nov 2004 20:15:30 +0100
+From: Stelian Pop <stelian@popies.net>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] kfifo_alloc buffer
+Message-ID: <20041104191530.GA3996@deep-space-9.dsnet>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+References: <20041104170632.GX3618@admingilde.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041104170632.GX3618@admingilde.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yiding_wang@agilent.com wrote:
-> I noticed that this issue was there before but thought it was being taken care of since my Linux-2.6.2 kernel did not complain. Now I loaded Linux-2.6.9 and this QM_MODULES Function not implemented error pops up whenever I run module related command.
+On Thu, Nov 04, 2004 at 06:06:32PM +0100, Martin Waitz wrote:
+
+> hi :)
 > 
-> If I need update module patch, could someone tell which module patch I should apply? If something else is wrong, please advice. The kernel is configured to support module.
+> kfifo_alloc tries to round up the buffer size to the next power of two.
+> But it accidently uses the original size when calling kfifo_init,
+> which will BUG.
 
-You need to use module-init-tools that are made for 2.6.x kernels.
-They can be found here:
-http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
-and are often already part of most current Linux distros.
+Good catch, thanks.
 
+Linus, please apply.
+
+Stelian.
 -- 
-~Randy
+Stelian Pop <stelian@popies.net>

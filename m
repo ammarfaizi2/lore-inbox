@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136832AbREITDl>; Wed, 9 May 2001 15:03:41 -0400
+	id <S136833AbREITGk>; Wed, 9 May 2001 15:06:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136830AbREITDa>; Wed, 9 May 2001 15:03:30 -0400
-Received: from [63.95.87.168] ([63.95.87.168]:16645 "HELO xi.linuxpower.cx")
-	by vger.kernel.org with SMTP id <S136826AbREITDP>;
-	Wed, 9 May 2001 15:03:15 -0400
-Date: Wed, 9 May 2001 15:03:13 -0400
-From: Gregory Maxwell <greg@linuxpower.cx>
-To: God <atm@sdk.ca>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.rutgers.edu
-Subject: Re: ECN: Volunteers needed
-Message-ID: <20010509150313.C13226@xi.linuxpower.cx>
-In-Reply-To: <20010509102509.B13226@xi.linuxpower.cx> <Pine.LNX.4.21.0105091301070.23642-100000@scotch.homeip.net>
-Mime-Version: 1.0
+	id <S136828AbREITGU>; Wed, 9 May 2001 15:06:20 -0400
+Received: from ns-inetext.inet.com ([199.171.211.140]:38327 "EHLO
+	ns-inetext.inet.com") by vger.kernel.org with ESMTP
+	id <S136830AbREITGR>; Wed, 9 May 2001 15:06:17 -0400
+Message-ID: <3AF99522.C3DC59B@inet.com>
+Date: Wed, 09 May 2001 14:06:10 -0500
+From: Eli Carter <eli.carter@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.5-15 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: george anzinger <george@mvista.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: standard queue implementation?
+In-Reply-To: <3AF96062.19528A86@inet.com> <3AF98697.44437FEB@mvista.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.8i
-In-Reply-To: <Pine.LNX.4.21.0105091301070.23642-100000@scotch.homeip.net>; from atm@sdk.ca on Wed, May 09, 2001 at 01:08:31PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 09, 2001 at 01:08:31PM -0400, God wrote:
-> On Wed, 9 May 2001, Gregory Maxwell wrote:
+george anzinger wrote:
 > 
-> > 2) They certainly are.  Every once in a while they go through a period of
-> >    silently dropping all email coming from hosts that don't have PTRs.
-> >    This would be no worse.
+> Eli Carter wrote:
+> >
+> > All,
+> >
+> > I did a quick look in include/linux for a standard implementation of an
+> > array-based circular queue, but I didn't see one.
+> >
+> > I was thinking something that could be declared, allocated, and then
+> > used with an addq and a removeq.  A deallocator would also be good.
+> >
+> > Is there such a beast in the kernel?  If not, it seems that having
+> > something like this would reduce the potential for bugs.
+> >
+> > Thoughts?
+> >
+> Are you possibly looking for include/linux/list.h ?
 > 
-> ACK .... Which do you mean? :
-> 
-> -Hosts that don't have valid PTRs (which would be no PTR at all -- Not
-> deliverable, but not because AOL said so)
-> 
-> -Hosts that don't have valid PTRs, but DO have at least one valid MX
-> (Forward and reverse)
-> 
-> -Same as above, but said hosts MX's forward and/or reverse don't match
-> 
-> etc etc ....   I ask this simply because I DO know of users who have
-> complained their E-Mail to/from an AOL customer, didn't get there.  I've
-> always assumed .. well ... AOL user .. no comment :)
+> Routines to build and manager doubly linked circular lists.
 
-AFIK, mail which contains Path with host names which don't pass a two-way
-check (forward, reverse the forward) AOL drops. Not always though, MX
-records are irrelevantly.
+I've seen that, but no.  I want a queue of pointers, and the queue
+can/should be of fixed length.  (I don't want to deal with
+allocating/deallocating nodes for this... I just need something simple.)
+
+For now, I'll just write my own, but I may try submitting it as a
+"kernel library" type thing later on.
+
+Thanks,
+
+Eli
+-----------------------.   No wonder we didn't get this right first time
+Eli Carter             |      through. It's not really all that horribly 
+eli.carter(at)inet.com `- complicated, but the _details_ kill you. Linus

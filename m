@@ -1,130 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292229AbSCMDLA>; Tue, 12 Mar 2002 22:11:00 -0500
+	id <S292270AbSCMECW>; Tue, 12 Mar 2002 23:02:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292231AbSCMDKv>; Tue, 12 Mar 2002 22:10:51 -0500
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:9358 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S292229AbSCMDKk>; Tue, 12 Mar 2002 22:10:40 -0500
-Message-ID: <3C8EC318.50408@didntduck.org>
-Date: Tue, 12 Mar 2002 22:10:16 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>,
-        Alexander Viro <viro@math.psu.edu>
-Subject: [PATCH] struct super_block cleanup - efs
-Content-Type: multipart/mixed;
- boundary="------------080800070903030307010602"
+	id <S292289AbSCMECN>; Tue, 12 Mar 2002 23:02:13 -0500
+Received: from [202.135.142.196] ([202.135.142.196]:53772 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S292270AbSCMECE>; Tue, 12 Mar 2002 23:02:04 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: frankeh@watson.ibm.com, Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores) 
+In-Reply-To: Your message of "Tue, 12 Mar 2002 09:56:42 CDT."
+             <20020312145542.2C8613FE06@smtp.linux.ibm.com> 
+Date: Wed, 13 Mar 2002 15:02:10 +1100
+Message-Id: <E16kzxq-0004HJ-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080800070903030307010602
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In message <20020312145542.2C8613FE06@smtp.linux.ibm.com> you write:
+> > If we basically export "add_to_waitqueue", "del_from_waitqueue",
+> > "wait_for_waitqueue" and "wakeup_waitqueue" syscalls, we have a more
+> > powerful interface: the kernel need not touch userspace addresses at
+> > all (no kmap/kunmap, no worried about spinlocks vs. rwlocks).
+> 
+> Rusty, aren't you now going back to the design that I implemented after Ben's
+> comments. 
 
-Seperates efs_sb_info from struct super_block.
+> From the get-go, I never touched the user address in the kernel, as
+> I thought it would require detailed knowledge of the user level
+> locking strategy.
 
--- 
+Yes, as with my initial patch (like you, I had a semaphore in the
+kernel).  However, with two separate syscalls, you don't need to
+allocate anything in the kernel, and still know nothing about the
+userspace locking.
 
-						Brian Gerst
+> Could you explain, why you need add_to_waitqueue and wait_for_waitqueue as 
+> separate calls ? Is it for resolving a race conditions ?
 
---------------080800070903030307010602
-Content-Type: text/plain;
- name="sb-efs-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sb-efs-1"
+Yep.  Exactly analogous to the kernel idiom (add to queue, check, sleep).
+(Except the "waker dequeues us" microoptimization).
 
-diff -urN linux-2.5.7-pre1/fs/efs/super.c linux/fs/efs/super.c
---- linux-2.5.7-pre1/fs/efs/super.c	Tue Mar 12 17:35:10 2002
-+++ linux/fs/efs/super.c	Tue Mar 12 22:03:48 2002
-@@ -70,10 +70,17 @@
- 		printk(KERN_INFO "efs_inode_cache: not all structures were freed\n");
- }
- 
-+void efs_put_super(struct super_block *s)
-+{
-+	kfree(s->u.generic_sbp);
-+	s->u.generic_sbp = NULL;
-+}
-+
- static struct super_operations efs_superblock_operations = {
- 	alloc_inode:	efs_alloc_inode,
- 	destroy_inode:	efs_destroy_inode,
- 	read_inode:	efs_read_inode,
-+	put_super:	efs_put_super,
- 	statfs:		efs_statfs,
- };
- 
-@@ -205,7 +212,11 @@
- 	struct efs_sb_info *sb;
- 	struct buffer_head *bh;
- 
-- 	sb = SUPER_INFO(s);
-+ 	sb = kmalloc(sizeof(struct efs_sb_info), GFP_KERNEL);
-+	if (!sb)
-+		return -ENOMEM;
-+	s->u.generic_sbp = sb;
-+	memset(sb, 0, sizeof(struct efs_sb_info));
-  
- 	s->s_magic		= EFS_SUPER_MAGIC;
- 	sb_set_blocksize(s, EFS_BLOCKSIZE);
-@@ -263,6 +274,8 @@
- 
- out_no_fs_ul:
- out_no_fs:
-+	s->u.generic_sbp = NULL;
-+	kfree(sb);
- 	return -EINVAL;
- }
- 
-diff -urN linux-2.5.7-pre1/include/linux/efs_fs.h linux/include/linux/efs_fs.h
---- linux-2.5.7-pre1/include/linux/efs_fs.h	Thu Mar  7 21:18:27 2002
-+++ linux/include/linux/efs_fs.h	Tue Mar 12 22:06:27 2002
-@@ -29,6 +29,7 @@
- 
- #include <linux/fs.h>
- #include <linux/efs_fs_i.h>
-+#include <linux/efs_fs_sb.h>
- #include <linux/efs_dir.h>
- 
- #ifndef MIN
-@@ -42,7 +43,11 @@
- {
- 	return list_entry(inode, struct efs_inode_info, vfs_inode);
- }
--#define SUPER_INFO(s)				&((s)->u.efs_sb)
-+
-+static inline struct efs_sb_info *SUPER_INFO(struct super_block *sb)
-+{
-+	return sb->u.generic_sbp;
-+}
- 
- extern struct inode_operations efs_dir_inode_operations;
- extern struct file_operations efs_dir_operations;
-diff -urN linux-2.5.7-pre1/include/linux/fs.h linux/include/linux/fs.h
---- linux-2.5.7-pre1/include/linux/fs.h	Tue Mar 12 20:22:02 2002
-+++ linux/include/linux/fs.h	Tue Mar 12 22:06:23 2002
-@@ -658,7 +658,6 @@
- #include <linux/sysv_fs_sb.h>
- #include <linux/affs_fs_sb.h>
- #include <linux/ufs_fs_sb.h>
--#include <linux/efs_fs_sb.h>
- #include <linux/romfs_fs_sb.h>
- #include <linux/smb_fs_sb.h>
- #include <linux/hfs_fs_sb.h>
-@@ -714,7 +713,6 @@
- 		struct sysv_sb_info	sysv_sb;
- 		struct affs_sb_info	affs_sb;
- 		struct ufs_sb_info	ufs_sb;
--		struct efs_sb_info	efs_sb;
- 		struct shmem_sb_info	shmem_sb;
- 		struct romfs_sb_info	romfs_sb;
- 		struct smb_sb_info	smbfs_sb;
+> One comment with respect to multiple wait queues and rwsems:
+> Again it will allow you to do reader-pref and/or writer-pref, but not 
+> something like FIFO, i.e. wake up a writer if first waiter or wake up all 
+> readers if first ..... and so on.
+> I don't know whether the latter is terrible important ...
 
---------------080800070903030307010602--
+(Aside: I'm still reluctant to implement strict FIFO locks until
+someone shows a starvation case in the current locks).
 
+I thought about this a little.  If we add a flags arg to the
+sys_uwaitq_wake() and make sys_uwaitq_wait() return the flags used by
+the waker, and sys_uwaitq_wake return 1 if it woke someone...
+
+	#define UWAITQ_PASSING 1
+    up:
+	ret = sys_uwaitq_wake(cookie, UWAITQ_PASSING);
+	if (ret < 0) return -1;
+	/* No waiters actually waiting? */
+	if (ret == 0) {
+		lock->counter = 1;
+		sys_uwaitq_wake(cookie, 0);
+	}
+
+    down:
+	sys_uwaitq_queue(cookie);
+	if (atomic dec counter to 0) {
+		sys_uwaitq_queue(0); /* unqueue */
+		return 0;
+	}
+	ret = sys_uwaitq_wait(cookie);
+	if (ret < 0)
+		return -1;
+	if (ret == UWAITQ_PASSING)
+		return 0;
+	goto down; /* spin again */
+
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

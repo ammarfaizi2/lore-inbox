@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267242AbSLRMxT>; Wed, 18 Dec 2002 07:53:19 -0500
+	id <S267257AbSLRNHr>; Wed, 18 Dec 2002 08:07:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267247AbSLRMxS>; Wed, 18 Dec 2002 07:53:18 -0500
-Received: from users.linvision.com ([62.58.92.114]:37775 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S267242AbSLRMxR>; Wed, 18 Dec 2002 07:53:17 -0500
-Date: Wed, 18 Dec 2002 14:00:59 +0100
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+	id <S267263AbSLRNHr>; Wed, 18 Dec 2002 08:07:47 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:42379 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S267257AbSLRNHr>; Wed, 18 Dec 2002 08:07:47 -0500
+Date: Wed, 18 Dec 2002 08:17:17 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "H. Peter Anvin" <hpa@transmeta.com>, Ulrich Drepper <drepper@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+cc: Ulrich Drepper <drepper@redhat.com>,
        Matti Aarnio <matti.aarnio@zmailer.org>,
        Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       hpa@transmeta.com
 Subject: Re: Intel P6 vs P7 system call performance
-Message-ID: <20021218140059.B15645@bitwizard.nl>
-References: <3DFF7951.6020309@transmeta.com> <Pine.LNX.4.44.0212171132530.1095-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0212171132530.1095-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+In-Reply-To: <Pine.LNX.4.44.0212171716020.1362-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.3.95.1021218081345.29893A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 17, 2002 at 11:37:04AM -0800, Linus Torvalds wrote:
-> How much do you think gettimeofday() really matters on a desktop? Sure, X
-> apps do gettimeofday() calls, but they do a whole lot more of _other_
-> calls, and gettimeofday() is really far far down in the noise for them.
-> The people who really call for gettimeofday() as a performance thing seem
-> to be database people who want it as a timestamp. But those are the same
-> people who also want NUMA machines which don't necessarily have
-> synchronized clocks.
+On Tue, 17 Dec 2002, Linus Torvalds wrote:
 
-Once the kernel provides the right infrastructure, doing it may become
-so easy that it can be tried and implemented and benchmarked with so
-little effort that it would simply stick.
+> 
+> On Tue, 17 Dec 2002, Linus Torvalds wrote:
+> >
+> > How about this diff? It does both the 6-parameter thing _and_ the
+> > AT_SYSINFO addition.
+> 
+> The 6-parameter thing is broken. It's clever, but playing games with %ebp
+> is not going to work with restarting of the system call - we need to
+> restart with the proper %ebp.
+> 
+> I pushed out the AT_SYSINFO stuff, but we're back to the "needs to use
+> 'int $0x80' for system calls that take 6 arguments" drawing board.
+> 
+> The only sane way I see to fix the %ebp problem is to actually expand the
+> kernel "struct ptregs" to have separate "ebp" and "arg6" fields (so that
+> we can re-start with the right ebp, and have arg6 as the right argument on
+> the stack). That would work but is not really worth it.
+> 
+> 		Linus
+> 
 
-			Roger. 
+How about for the new interface, a one-parameter arg, i.e., a pointer
+to a descriptor (structure)?? For the typical one-argument call, i.e.,
+getpid(), it's just one de-reference. The pointer register can be
+EAX on Intel, a register normally available in a 'C' call.
 
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* The Worlds Ecosystem is a stable system. Stable systems may experience *
-* excursions from the stable situation. We are currently in such an      * 
-* excursion: The stable situation does not include humans. ***************
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+
+

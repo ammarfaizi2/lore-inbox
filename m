@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316672AbSGLRAz>; Fri, 12 Jul 2002 13:00:55 -0400
+	id <S316675AbSGLREY>; Fri, 12 Jul 2002 13:04:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316673AbSGLRAy>; Fri, 12 Jul 2002 13:00:54 -0400
-Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:16069
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S316672AbSGLRAx>; Fri, 12 Jul 2002 13:00:53 -0400
-Date: Fri, 12 Jul 2002 13:03:19 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: Kirk Reiser <kirk@braille.uwo.ca>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Advice saught on math functions
-In-Reply-To: <x7d6tsewoe.fsf@speech.braille.uwo.ca>
-Message-ID: <Pine.LNX.4.44.0207121253120.25178-100000@xanadu.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316678AbSGLREX>; Fri, 12 Jul 2002 13:04:23 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:4340 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S316675AbSGLREX>; Fri, 12 Jul 2002 13:04:23 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Fri, 12 Jul 2002 11:05:32 -0600
+To: Dax Kelson <dax@gurulabs.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+Message-ID: <20020712170532.GI8738@clusterfs.com>
+Mail-Followup-To: Dax Kelson <dax@gurulabs.com>,
+	linux-kernel@vger.kernel.org
+References: <1026490866.5316.41.camel@thud>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1026490866.5316.41.camel@thud>
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Jul 2002, Kirk Reiser wrote:
-
-> Nicolas Pitre <nico@cam.org> writes:
+On Jul 12, 2002  10:21 -0600, Dax Kelson wrote:
+> ext3 data=ordered
+> ext3 data=writeback
+> reiserfs
+> reiserfs notail
 > 
-> > Of course!  The maintenance cost of a kernel space solution is simply too
-> > high for the single benefit of actually having speech output while the
-> > kernel is in the process of booting.  And yet with an initial ramdisk
-> > (initrd) containing all the user space daemon for speech I'm pretty sure we
-> > can have the kernel reach the init process (or the /linuxrc process for that
-> > matter) without failing in 99.9% of the cases.  This gives you virtually the
-> > same result as a kernel space solution.
+> http://www.gurulabs.com/ext3-reiserfs.html
 > 
-> I don't understand this statement.  Why would the maintanance cost of
-> providing speech output be any higher than serial or video or disk
-> filing or anything else for that matter?
+> Any suggestions or comments appreciated.
 
-Kernel speech support maintenance is not hier than serial or disk, it's just
-hier than necessary.  Better do it in user space when you get the same
-functionalities.
+Did you try data=journal mode on ext3?  For real-life workloads sync-IO
+workloads like mail (e.g.  not benchmarks where the system is 100% busy)
+you can have considerable performance benefits from doing the sync IO
+directly to the journal instead of partly to the journal and partly to
+the rest of the filesystem.
 
-That's also exactly what x window is doing i.e. providing video output from
-user space.
+The reason why "real life" is important here is because the data=journal
+mode writes all the files to disk twice - once to the journal and again
+to the filesystem, so you must have some "slack" in your disk bandwidth
+in order to benefit from this increased throughput on the part of the
+mail transport.
 
-That's just much, so much easier to maintain user space solutions when it's
-possible to do so.  You then have the freedom to use whatever facility and
-libraries available to user space as you wish.
-
-
-Nicolas
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 

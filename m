@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283507AbRLDVGA>; Tue, 4 Dec 2001 16:06:00 -0500
+	id <S281555AbRLDVGA>; Tue, 4 Dec 2001 16:06:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281555AbRLDVFq>; Tue, 4 Dec 2001 16:05:46 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37138 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S281202AbRLDVF0>; Tue, 4 Dec 2001 16:05:26 -0500
-Date: Tue, 4 Dec 2001 21:03:38 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: David Woodhouse <dwmw2@infradead.org>, Christoph Rohland <cr@sap.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Maciej Zenczykowski <maze@druid.if.uj.edu.pl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [OT] Wrapping memory.
-Message-ID: <20011204210338.C19783@flint.arm.linux.org.uk>
-In-Reply-To: <m3r8qcagt7.fsf@linux.local> <E16AIZ8-0008Re-00@the-village.bc.nu> <12969.1007315617@redhat.com> <m3r8qcagt7.fsf@linux.local> <25163.1007370678@redhat.com> <20011204104047.A18147@flint.arm.linux.org.uk> <20011204163950.B28839@kushida.jlokier.co.uk>
+	id <S281410AbRLDVFo>; Tue, 4 Dec 2001 16:05:44 -0500
+Received: from [206.98.161.198] ([206.98.161.198]:9231 "EHLO
+	bart.learningpatterns.com") by vger.kernel.org with ESMTP
+	id <S281180AbRLDVFV>; Tue, 4 Dec 2001 16:05:21 -0500
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+From: Edward Muller <emuller@learningpatterns.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16BM38-0003K1-00@the-village.bc.nu>
+In-Reply-To: <E16BM38-0003K1-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 04 Dec 2001 16:03:17 -0500
+Message-Id: <1007499797.4520.11.camel@akira.learningpatterns.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011204163950.B28839@kushida.jlokier.co.uk>; from lk@tantalophile.demon.co.uk on Tue, Dec 04, 2001 at 04:39:50PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 04, 2001 at 04:39:50PM +0000, Jamie Lokier wrote:
-> Unfortunately, the update_mmu_cache makes aliasing work properly while
-> ruining performence, so then it's better to not to use the mapping trick
-> at all in that case.  To check for this, I have to call gettimeofday()
-> between pairs of accesses, to check whether they are slow.  I don't know
-> for sure if this works because I don't have an ARM to try it on.
+On Tue, 2001-12-04 at 15:20, Alan Cox wrote:
+> > > So anyone perfectly happy with an older distro that didn't
+> > > ship python2-and-whatever-else gets screwed when they want to
+> > > build a newer kernel. Nice.
+> > 
+> > That's been the case all along, sans python2. Newer kernels need newer
+> > tools. That's always been the case.
+> 
+> Not during stable releases. In fact we've jumped through hoops several times
+> to try and keep egcs built kernels working
 
-Why not create a program and email it to someone with an ARM machine?
+Agreed. I spoke a little too broadly. But newer 'trees' (2.0 to 2.2 to
+2.4 to 2.5) has always (IIRC) needed newer tools.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+-- 
+-------------------------------
+Edward Muller
+Director of IS
+
+973-715-0230 (cell)
+212-487-9064 x115 (NYC)
+
+http://www.learningpatterns.com
+-------------------------------
 

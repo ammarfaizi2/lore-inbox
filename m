@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261895AbTC0Q7T>; Thu, 27 Mar 2003 11:59:19 -0500
+	id <S263314AbTC0RU7>; Thu, 27 Mar 2003 12:20:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261944AbTC0Q7T>; Thu, 27 Mar 2003 11:59:19 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:49285
-	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261895AbTC0Q7R>; Thu, 27 Mar 2003 11:59:17 -0500
-Date: Thu, 27 Mar 2003 18:16:46 GMT
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200303271816.h2RIGkgj019646@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: DRIVERNAME SUPPRESSED DUE TO KERNEL.ORG FILTER BUGS
+	id <S263323AbTC0RUx>; Thu, 27 Mar 2003 12:20:53 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:5871 "EHLO
+	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
+	id <S263314AbTC0RUf>; Thu, 27 Mar 2003 12:20:35 -0500
+Date: Thu, 27 Mar 2003 17:33:43 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@digeo.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: wonderffffffffull ac filemap patch
+Message-ID: <Pine.LNX.4.44.0303271656270.2483-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a comment that the irq_nosync stuff needs revisiting
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.66-bk3/drivers/ide/ide-iops.c linux-2.5.66-ac1/drivers/ide/ide-iops.c
---- linux-2.5.66-bk3/drivers/ide/ide-iops.c	2003-03-27 17:13:18.000000000 +0000
-+++ linux-2.5.66-ac1/drivers/ide/ide-iops.c	2003-03-26 20:05:24.000000000 +0000
-@@ -903,6 +903,14 @@
-          * Select the drive, and issue the SETFEATURES command
-          */
- 	disable_irq_nosync(hwif->irq);
-+	
-+	/*
-+	 *	FIXME: we race against the running IRQ here if
-+	 *	this is called from non IRQ context. If we use
-+	 *	disable_irq() we hang on the error path. Work
-+	 *	is needed.
-+	 */
-+	 
- 	udelay(1);
- 	SELECT_DRIVE(drive);
- 	SELECT_MASK(drive, 0);
+Here's a patch I've stolen from 2.4-ac, which is clearly correct so
+far as it goes.  I keep wanting to get this integrated into 2.4 and
+2.5, then bring shmem.c into line (in 2.5 use generic_write_checks).
+
+But each time I approach it, I get stuck on trying to understand the
+code it's a good patch to.  I understand that there's a problem with
+loff_t twice as wide as rlim, and that we need to trim count down near
+the limit.  But I don't understand why 0xFFFFFFFFULL and (u32) rather
+than RLIM_INFINITY and (unsigned long): are we really trying to
+cripple 64-bit arches here?
+
+Hugh
+
+--- 2.5.66-mm1/mm/filemap.c	Wed Mar 26 11:50:36 2003
++++ linux/mm/filemap.c	Thu Mar 27 16:53:46 2003
+@@ -1509,7 +1509,10 @@
+ 				send_sig(SIGXFSZ, current, 0);
+ 				return -EFBIG;
+ 			}
+-			if (*pos > 0xFFFFFFFFULL || *count > limit-(u32)*pos) {
++			/* Fix this up when we got to rlimit64 */
++			if (*pos > 0xFFFFFFFFULL)
++				*count = 0;
++			else if (*count > limit - (u32)*pos) {
+ 				/* send_sig(SIGXFSZ, current, 0); */
+ 				*count = limit - (u32)*pos;
+ 			}
+

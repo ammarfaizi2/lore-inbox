@@ -1,75 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263062AbUFJVZ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263085AbUFJV1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbUFJVZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 17:25:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263089AbUFJVZ2
+	id S263085AbUFJV1i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 17:27:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbUFJV1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 17:25:28 -0400
-Received: from gprs214-205.eurotel.cz ([160.218.214.205]:53889 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263062AbUFJVZ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 17:25:26 -0400
-Date: Thu, 10 Jun 2004 23:24:48 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: mochel@digitalimplant.org, linux-kernel@vger.kernel.org, akpm@zip.com.au
-Subject: Re: Fix memory leak in swsusp
-Message-ID: <20040610212448.GD6634@elf.ucw.cz>
-References: <20040609130451.GA23107@elf.ucw.cz> <E1BYN8O-0008Vg-00@gondolin.me.apana.org.au> <20040610105629.GA367@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040610105629.GA367@gondor.apana.org.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 10 Jun 2004 17:27:37 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:20864 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263085AbUFJV1d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 17:27:33 -0400
+Date: Thu, 10 Jun 2004 17:26:59 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: alan <alan@clueserver.org>
+cc: Tobias Hirning <Tobias.Hirning@gmx.de>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Insults in the kernel-sources
+In-Reply-To: <Pine.LNX.4.44.0406101316480.16923-100000@www.fnordora.org>
+Message-ID: <Pine.LNX.4.53.0406101726060.27475@chaos>
+References: <Pine.LNX.4.44.0406101316480.16923-100000@www.fnordora.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 10 Jun 2004, alan wrote:
 
-> > @@ -803,32 +804,31 @@
-> >  		return 0;
-> >  	}
-> >  
-> > +	err = -ENOMEM;
-> >  	while ((m = (void *) __get_free_pages(GFP_ATOMIC, pagedir_order))) {
-> >  		memset(m, 0, PAGE_SIZE);
-> 
-> BTW, what does this memset do?
+> On Thu, 10 Jun 2004, Richard B. Johnson wrote:
+>
+> > On Thu, 10 Jun 2004, Tobias Hirning wrote:
+> >
+> > > Hi people,
+> > > have you ever tried a
+> > > grep "insult" -i -r ./*
+> > >  in the sourcetree of the kernel?
+> > > (insult must be replaced by an insult)
+> > > Haven't?
+> > > So do and think about, because the you can find to much of insults in
+> > > the sources.
+> > > Tobias
+> > > -
+> >
+> > Insult???  Do you mean "bad words???" Who defines what words are
+> > "good" or what words are "bad"?
+> >
+> > Or maybe you just learned how to use `grep` and you want to
+> > dazzle us all??
+>
+> Isn't this a distraction that comes up about once a year?  Someone
+> bitching about the comments in the kernel source...
+>
+> Turns out the Microsoft code has just as much profanity, if not more, than
+> the Linux kernel source.  (Of course, they have more to swear about...)
+>
+> I am more concerned about how Linus is going to keep working now that he
+> is moving to someplace with good beer.
+>
 
-Here's incremental fix, it compiles but not tested.
+And it's closer to the devil's den.
 
-BTW I have problems getting mail to you:
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-This is the Postfix program at host atrey.karlin.mff.cuni.cz.
-
-I'm sorry to have to inform you that the message returned
-below could not be delivered to one or more destinations.
-
-For further assistance, please send mail to <postmaster>
-
-If you do so, please include this problem report. You can
-delete your own text from the message returned below.
-
-                        The Postfix program
-
-<herbert@gondor.apana.org.au>: host arnor.apana.org.au[203.14.152.115]said:
-    550 mail from 195.113.31.123 rejected: administrative prohibition
-
-									Pavel
-
---- tmp/linux/kernel/power/swsusp.c	2004-06-10 23:16:05.000000000 +0200
-+++ linux/kernel/power/swsusp.c	2004-06-10 23:09:07.000000000 +0200
-@@ -962,7 +962,7 @@
- 	}
- 
- 	while ((m = (void *) __get_free_pages(GFP_ATOMIC, pagedir_order))) {
--		memset(m, 0, PAGE_SIZE);
-+		memset(m, 0, PAGE_SIZE << pagedir_order);
- 		if (!does_collide_order(old_pagedir, (unsigned long)m, pagedir_order))
- 			break;
- 		eaten_memory = m;
-
--- 
-People were complaining that M$ turns users into beta-testers...
 

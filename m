@@ -1,77 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129410AbQKGR73>; Tue, 7 Nov 2000 12:59:29 -0500
+	id <S129111AbQKGSOm>; Tue, 7 Nov 2000 13:14:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129307AbQKGR7Q>; Tue, 7 Nov 2000 12:59:16 -0500
-Received: from topaz.3com.com ([192.156.136.158]:49103 "EHLO topaz.3com.com")
-	by vger.kernel.org with ESMTP id <S129408AbQKGR7B>;
-	Tue, 7 Nov 2000 12:59:01 -0500
-X-Lotus-FromDomain: 3COM
-From: Steven_Snyder@3com.com
-To: linux-kernel@vger.kernel.org
-Message-ID: <88256990.0062E87E.00@hqoutbound.ops.3com.com>
-Date: Tue, 7 Nov 2000 11:58:48 -0600
-Subject: Linux v2.2.17: IDE disk error on Compact Flash device
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S129116AbQKGSOc>; Tue, 7 Nov 2000 13:14:32 -0500
+Received: from 64.124.41.10.napster.com ([64.124.41.10]:26374 "EHLO
+	foobar.napster.com") by vger.kernel.org with ESMTP
+	id <S129111AbQKGSOU>; Tue, 7 Nov 2000 13:14:20 -0500
+Message-ID: <3A08465A.1AF23D68@napster.com>
+Date: Tue, 07 Nov 2000 10:13:46 -0800
+From: Jordan Mendelson <jordy@napster.com>
+Organization: Napster, Inc.
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+        kuznet@ms2.inr.ac.ru
+Subject: Re: Poor TCP Performance 2.4.0-10 <-> Win98 SE PPP
+In-Reply-To: <3A07662F.39D711AE@napster.com> <200011070428.UAA01710@pizda.ninka.net> <3A079127.47B2B14C@napster.com> <200011070533.VAA02179@pizda.ninka.net> <3A079D83.2B46A8FD@napster.com> <200011070603.WAA02292@pizda.ninka.net> <3A07A4B0.A7E9D62@napster.com> <200011070656.WAA02435@pizda.ninka.net> <3A07AC45.DCC961FF@napster.com> <20001107104251.B5081@gruyere.muc.suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen wrote:
+> 
+> On Mon, Nov 06, 2000 at 11:16:21PM -0800, Jordan Mendelson wrote:
+> > > It is clear though, that something is messing with or corrupting the
+> > > packets.  One thing you might try is turning off TCP header
+> > > compression for the PPP link, does this make a difference?
+> >
+> > Actually, there has been several reports that turning header compression
+> > does help.
+> 
+> What does help ? Turning it on or turning it off ?
+
+We had a good number of reports that turning PPP header compression off
+helped. The windows 98 connection I was testing with it did have header
+compression turned on. Unfortunatly, I can't just ask the entire windows
+world to turn off header compression in order to use our software. :)
+
+I believe we've reverted all of our machines to 2.2, so testing this any
+further is going to be a problem.
 
 
-Hello.
-
-When attempting to boot Linux kernel v2.2.17 from a Compact Flash (CF) device I
-am getting the errors shown below.  This CF device is in a PCMCIA form factor
-and is the Master device on the secondary IDE controller
-
-Before we get to the errors, though, a little background.  I can reproduce this
-boot error on 2 different systems, and have seen the same error messages
-(non-booting) on a 3rd system.  For both boot systems the CF device is the only
-IDE device and is the Master on the secondary IDE controller (/dev/hdc).  For
-the non-booting system the device is in a PCMCIA slot (/dev/hde).
-
-This is what I see at boot time:
-
-ide1 at 0x170-0x177,0x376 on irq 15
-hdc: SanDisk SDCFB-128, 122MB /w1kB Cache, CHS=980/8/32
-Partition check:
- hdc: hdc1 hdc2
- hdc: hdc1 hdc2
-hdc: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-hdc: drive_cmd: error=0x04 { DriveStatusError }
- hdc: hdc1 hdc2
- hdc: hdc1 hdc2
-[MS-DOS FS Rel. 12 FAT 16 check=n,conv=b,uid=0,umask=022,bmap]
-[me=0x1,cs=0x1240,#f=191,fs=34616,fl=1699280,ds=327153000,de=1536,data=327153120,se=185,ts=1015022771,ls=20487,rc=0,fc=4294967295]
-Transaction block size = 512
-UMSDOS: msdos_read_super failed mount aborted
- hdc: hdc1 hdc2
-[MS-DOS FS Rel. 12 FAT 16 check=n,conv=b,uid=0,umask=022,bmap]
-[me=0x1,cs=0x1240,#f=191,fs=34616,fl=1699280,ds=327153000,de=1536,data=327153120,se=185,ts=1015022771,ls=20487,rc=0,fc=4294967295]
-Transaction block size = 512
-Kernel panic: VFS: Unable to mount root fs on 16:00
-
-That's it.  I've listed the (U)MSDOS complaints for completeness, but as I get
-the same drive_cmd messages when simply inserting the device in a PCMCIA slot
-(that is, before attempting to mount any filesystem), I don't think that it is a
-factor.
-
-This is definately an OS issue.  I've booted many OSes (DOS, Win95, VxWorks,
-LynxOS) from this same configuration (CF = IDE1/Master as the sole IDE device)
-and have seen no complaints like the ones shown above.
-
-So... what can I do to work around this problem?  Thank you.
-
-
-
-
-PLANET PROJECT will connect millions of people worldwide through the combined
-technology of 3Com and the Internet. Find out more and register now at
-http://www.planetproject.com
-
-
+Jordan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288481AbSAHWDg>; Tue, 8 Jan 2002 17:03:36 -0500
+	id <S288485AbSAHWGh>; Tue, 8 Jan 2002 17:06:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288473AbSAHWDR>; Tue, 8 Jan 2002 17:03:17 -0500
-Received: from codepoet.org ([166.70.14.212]:22537 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S288486AbSAHWCZ>;
-	Tue, 8 Jan 2002 17:02:25 -0500
-Date: Tue, 8 Jan 2002 15:02:25 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Louis Garcia <louisg00@bellsouth.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18-pre2
-Message-ID: <20020108220225.GA342@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Louis Garcia <louisg00@bellsouth.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <1010460206.8690.0.camel@tiger>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1010460206.8690.0.camel@tiger>
-User-Agent: Mutt/1.3.24i
-X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	id <S288484AbSAHWGb>; Tue, 8 Jan 2002 17:06:31 -0500
+Received: from mailf.telia.com ([194.22.194.25]:8665 "EHLO mailf.telia.com")
+	by vger.kernel.org with ESMTP id <S288485AbSAHWGW>;
+	Tue, 8 Jan 2002 17:06:22 -0500
+Message-Id: <200201082203.g08M3dj19629@mailf.telia.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@zip.com.au (Andrew Morton)
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Tue, 8 Jan 2002 23:00:59 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: phillips@bonn-fries.net (Daniel Phillips),
+        anton@samba.org (Anton Blanchard), andrea@suse.de (Andrea Arcangeli),
+        kernel@Expansa.sns.it (Luigi Genoni),
+        Dieter.Nuetzel@hamburg.de (Dieter N?tzel),
+        marcelo@conectiva.com.br (Marcelo Tosatti),
+        riel@conectiva.com.br (Rik van Riel),
+        linux-kernel@vger.kernel.org (Linux Kernel List),
+        rml@tech9.net (Robert Love)
+In-Reply-To: <E16O2d3-0007VF-00@the-village.bc.nu>
+In-Reply-To: <E16O2d3-0007VF-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Jan 07, 2002 at 10:23:25PM -0500, Louis Garcia wrote:
-> The radeonfb is still broken from the update in pre1. I have attached
-> the missing parts of that update. This is from Ani Joshi himself.
+On Tuesdayen den 8 January 2002 21.13, Alan Cox wrote:
+> > low-latency kernel".  Now, IF we can come to this decision, then
+> > internal preemption is the way to do it.  But it affects ALL kernel
+>
+> The pre-empt patches just make things much much harder to debug. They
+> remove some of the predictability and the normal call chain following
+> goes out of the window because you end up seeing crashes in a thread with
+> no idea what ran the microsecond before
+>
+> Some of that happens now but this makes it vastly worse.
+>
+> The low latency patches don't change the basic predictability and
+> debuggability but allow you to hit a 1mS pre-empt target for the general
+> case.
+>
 
-Also looks like drivers/video/radeonfb.c needs to be fixed
-to cope with newer binutils....
+Yes, it does make things much much harder to debug - but:
+* If you get a problem on a preemtive UP kernel, it is likely to be a problem
+  on a SMP too - and those are hard to debug aswell. But the positive aspect
+  is that you get more people that can do the debugging... :-)
+  (One CPU gets delayed with handling a IRQ the other runs into the critical
+   section)
+* It is optional at compile time.
+   And could even be made run time optional / CPU ! Just set a too big value
+   on the counter and it will never reschedule...
 
-+#ifdef MODULE
-        remove:         radeonfb_pci_unregister,
-+#endif
+/RogerL
 
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+-- 
+Roger Larsson
+Skellefteå
+Sweden

@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265945AbSKFSbQ>; Wed, 6 Nov 2002 13:31:16 -0500
+	id <S265885AbSKFSTd>; Wed, 6 Nov 2002 13:19:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265953AbSKFSbQ>; Wed, 6 Nov 2002 13:31:16 -0500
-Received: from f156.law11.hotmail.com ([64.4.17.156]:16904 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S265945AbSKFSbN>;
-	Wed, 6 Nov 2002 13:31:13 -0500
-X-Originating-IP: [144.92.164.196]
-From: "Tom Reinhart" <rhino_tom@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BK][PATCH] Reiser4, will double Linux FS performance, pleaseapply
-Date: Wed, 06 Nov 2002 10:37:46 -0800
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F156TOqVPo2HJS3F7il00005647@hotmail.com>
-X-OriginalArrivalTime: 06 Nov 2002 18:37:47.0093 (UTC) FILETIME=[9A238050:01C285C3]
+	id <S265886AbSKFSTd>; Wed, 6 Nov 2002 13:19:33 -0500
+Received: from [64.76.155.18] ([64.76.155.18]:5768 "EHLO alumno.inacap.cl")
+	by vger.kernel.org with ESMTP id <S265885AbSKFSTc>;
+	Wed, 6 Nov 2002 13:19:32 -0500
+Date: Wed, 6 Nov 2002 15:25:58 -0300 (CLST)
+From: Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>
+To: bert hubert <ahu@ds9a.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: I'm still getting oops when loading eth modules (e100,
+ eepro100 and tulip)
+In-Reply-To: <20021106181645.GA4600@outpost.ds9a.nl>
+Message-ID: <Pine.LNX.4.44.0211061524050.12033-100000@alumno.inacap.cl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would think the default should be a lot more conservative than that, 
-probably closer to 30 seconds.  Much better to default to safety, and allow 
-knowledgable users to tradeoff for performance if they can live with the 
-risks.
+On Wed, 6 Nov 2002, bert hubert wrote:
 
-Tom
+> On Wed, Nov 06, 2002 at 02:59:02PM -0300, Robinson Maureira Castillo wrote:
+> > Hi all,
+> > I'm still getting this oops, I've setup a page with all information, it's 
+> > located at <http://alumno.inacap.cl/~rmaureira/kernel/oops/>
+> 
+> Are you very very sure that you are using the same compiler to compile the
+> kernel and the modules? With the same settings? It is not guaranteed to work
+> otherwise.
+> 
+> Did you compile the kernel and the modules yourself?
+> 
+> Regards,
+> 
+> bert
+> 
+> 
 
+Completely sure, I'm using gcc 3.2 (rh 8.0 version) in ws01, and 2.96 (rh 
+7.2 version) in elekid. I proceed like this:
 
->>There is also a longer PhD thesis by her. 10 minutes is about as much
->>work as I personally am willing to lose and try to remember. Avoiding
->>75% of writes instead of 20% is a substantial performance gain worth
->>paying a cost for. Unfortunately it is not easy to say if it is worth
->>that much cost, but I suspect it is. An approach we are exploring is
->>for blocks to reach disk earlier than that if the device is not
->>congested, on the grounds that if not much IO is occuring, then
->performance is not important.
->
->Assuming your 10 minutes are just a default and tunable by sysctl I
->hardly can see any problems at all. Paranoid people can set it to
->make any tradeoff between performance and speed they'd like including
->setting it to 0, no?
+bk clone/pull/co 
+make defconfig
+make menuconfig
+make modules modules_install install
+reboot
 
-
-
-
-_________________________________________________________________
-Add photos to your e-mail with MSN 8. Get 2 months FREE*. 
-http://join.msn.com/?page=features/featuredemail
+-- 
+Robinson Maureira Castillo
+Asesor DAI
+INACAP
 

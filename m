@@ -1,30 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280614AbRKBJFp>; Fri, 2 Nov 2001 04:05:45 -0500
+	id <S280617AbRKBJMG>; Fri, 2 Nov 2001 04:12:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280615AbRKBJF2>; Fri, 2 Nov 2001 04:05:28 -0500
-Received: from mx4.port.ru ([194.67.57.14]:62472 "EHLO smtp4.port.ru")
-	by vger.kernel.org with ESMTP id <S280614AbRKBJFP>;
-	Fri, 2 Nov 2001 04:05:15 -0500
-From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200111020907.fA2972m18260@vegae.deep.net>
-Subject: Re: OOM /proc logging
-To: andrea@suse.de
-Date: Fri, 2 Nov 2001 12:06:58 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org, riel@surriel.com
-In-Reply-To: <no.id> from "root" at Nov 02, 2001 12:02:07 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S280619AbRKBJL6>; Fri, 2 Nov 2001 04:11:58 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:18048 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S280617AbRKBJLs>;
+	Fri, 2 Nov 2001 04:11:48 -0500
+Date: Fri, 2 Nov 2001 04:11:42 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
+In-Reply-To: <20011102124252.1032e9b2.rusty@rustcorp.com.au>
+Message-ID: <Pine.GSO.4.21.0111020359540.12621-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    5 minutes later my original message one folk wrote on IRC a phrase which
-  took me down for some minutes due to -ETOOMUCHLAUGHTER, and i was unable to
-  resist an urgent need to post it here cause it was so on-topic:
 
-<wli> The penguin hath spoken, now we must clean the guano from the ice.
 
-cheers, Samium Gromoff
+On Fri, 2 Nov 2001, Rusty Russell wrote:
+
+> On Thu, 01 Nov 2001 05:42:36 -0500
+> Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
+> 
+> > Is this designed to replace sysctl?
+> 
+> Well, I'd suggest replacing *all* the non-process stuff in /proc.  Yes.
+
+Aha.  Like, say it, /proc/kcore.  Or /proc/mounts, yodda, yodda.
+
+	Noble idea, but there is a little problem: random massive userland
+breakage.  E.g. changing /proc/mounts is going to hit getmntent(3), etc.
+
+	If you are willing to audit all userland code - you are welcome.
+But keep in mind that standard policy is to keep obsolete API for at least
+one stable branch with warnings and remove it in the next one.  So we are
+talking about 2.8 here.  BTW, I'm less than sure that your variant is free
+of rmmod races, but that's a separate story...
 

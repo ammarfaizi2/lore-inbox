@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129346AbRB1XDz>; Wed, 28 Feb 2001 18:03:55 -0500
+	id <S129319AbRB1XFT>; Wed, 28 Feb 2001 18:05:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129344AbRB1XDq>; Wed, 28 Feb 2001 18:03:46 -0500
-Received: from mail.buylink.com ([63.203.87.2]:8200 "EHLO mail.buylink.com")
-	by vger.kernel.org with ESMTP id <S129324AbRB1XDb>;
-	Wed, 28 Feb 2001 18:03:31 -0500
-Message-Id: <5.0.2.1.0.20010228140411.02475e38@ns1.kenjim.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Wed, 28 Feb 2001 15:02:19 -0800
+	id <S129355AbRB1XFG>; Wed, 28 Feb 2001 18:05:06 -0500
+Received: from gateway.sequent.com ([192.148.1.10]:29330 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S129319AbRB1XEy>; Wed, 28 Feb 2001 18:04:54 -0500
+Date: Wed, 28 Feb 2001 15:04:44 -0800
+From: "Martin J. Bligh" <mbligh@mail.com>
+Reply-To: "Martin J. Bligh" <mbligh@mail.com>
 To: linux-kernel@vger.kernel.org
-From: james@game-hunter.com
-Subject: STL2 onboard Adaptec controller problems with Kernel 2.4.2
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Subject: Re: Confused by local APIC addressing in setup_IO_APIC_irqs()
+Message-ID: <4120141070.983372684@W-MBLIG.svc.sequent.com>
+In-Reply-To: <4104841651.983357385@W-MBLIG.svc.sequent.com>
+X-Mailer: Mulberry/2.0.1 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+> But cpu_online map seems to be a 32 bit bitmask of which
+> CPUs are online .... are we stuffing this directly into an 8-bit
+> logical desitination register?
+>
+> Ironically, if I'm understanding this right, it kind of works anyway
+> for most systems - the low nibble of the logical ID is a bitmask
+> anyway, so it works normally for up to 4 way. For 8 way or more,
+> the high nibble will be set to 1111, which is the broadcast cluster ID,
+> so it'll direct interrupts anywhere .... but I can't believe that was
+> intentional ;-) For a start, a 7 way system would send to some
+> non-existant cluster ID ....
 
-I recently tried to upgrade to the 2.4.2 kernel from the 2.2.x kernels on a 
-STL2 motherboard and it appears the kernel can not detect the onboard SCSI 
-controller.  I have even tried the patches from 
-http://people.freebsd.org/~gibbs/linux/ to bring the aic module up to 6.1.4 
-with still no luck.  Has anyone gotten this to work?
+Damn ... sorry - figured this out. The way Linux is doing it will work
+up to 8 CPUs. I'd forgotten that earlier on in my changes I'd switched
+the CPUs local APICs from FLAT logical addressing mode to
+CLUSTERED logical addressing mode. I need to switch the IO APIC code
+to match ...
 
-I get the following error during booting when I compile the aic7xxx as a 
-module.  I have also tried compiling it into the kernel with no luck.
+Thanks,
 
-Loading aic7xxx module
-/lib/aic7xxx.o: init_module: No such device
-Hint: insmod errors can be caused by incorrect module parameters, including 
-invalid IO or IRQ parameters
-ERROR: insmod exited abnormally
-kmod: failed to exec /sbin/modprob -s -k block-major-8, errno=2
-VFS: Cannot open root device "802" or 08:02
-Please append a correct "root=" boot option
-Kernel panic: VFS: Unable to mount root fs on 08:02
-
-The system is configured as follows
-
-Intel STL2 motherboard.
-2x1GHz PIII
-512MB Ram
-IDE CDROM drive
-Segate ST318451LW 18.2GB ULTRA160 HD
-Redhat 7.0 with all updates
-updated modutils to the latest version.
-Full Reiser FS
-
-
-Any ideas anyone?
---James
+Martin.
 

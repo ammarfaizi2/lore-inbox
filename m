@@ -1,51 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272528AbRH3W0R>; Thu, 30 Aug 2001 18:26:17 -0400
+	id <S272531AbRH3Wa1>; Thu, 30 Aug 2001 18:30:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272531AbRH3W0I>; Thu, 30 Aug 2001 18:26:08 -0400
-Received: from egghead.curl.com ([216.230.83.4]:19716 "HELO egghead.curl.com")
-	by vger.kernel.org with SMTP id <S272528AbRH3W0A>;
-	Thu, 30 Aug 2001 18:26:00 -0400
-From: "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <Pine.LNX.4.33.0108292018380.1062-100000@penguin.transmeta.com> <20010830165447Z16272-32385+540@humbolt.nl.linux.org> <m266b51c5c.fsf@barnowl.demon.co.uk>
-Date: 30 Aug 2001 18:26:18 -0400
-In-Reply-To: <mit.lcs.mail.linux-kernel/m266b51c5c.fsf@barnowl.demon.co.uk>
-Message-ID: <s5glmk16v79.fsf@egghead.curl.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S272532AbRH3WaS>; Thu, 30 Aug 2001 18:30:18 -0400
+Received: from smtp.polymtl.ca ([132.207.4.11]:32774 "EHLO smtp.polymtl.ca")
+	by vger.kernel.org with ESMTP id <S272531AbRH3WaN>;
+	Thu, 30 Aug 2001 18:30:13 -0400
+Date: Thu, 30 Aug 2001 18:30:27 -0400 (EDT)
+From: Tester <tester@videotron.ca>
+X-X-Sender: <tester@TesterServ.TesterNet>
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Bizzare crashes on IBM Thinkpad A22e
+In-Reply-To: <20010830195041.N1146@arthur.ubicom.tudelft.nl>
+Message-ID: <Pine.LNX.4.31.0108301824340.30696-100000@TesterServ.TesterNet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Graham Murray <graham@barnowl.demon.co.uk> writes:
+Hi,
 
-> Daniel Phillips <phillips@bonn-fries.net> writes:
-> 
-> > More than anything, it shows that education is needed, not macro patch-ups.
-> > We have exactly the same issues with < and >, should we introduce 
-> > three-argument macros to replace them?
-> 
-> Would it not have been much more "obvious" if the rules for
-> unsigned/signed integer comparisons (irrespective of the widths
-> involved) were
-> 
-> 1) If the signed element is negative then it is always less than the
->    unsigned element.
-> 
-> 2) If the unsigned element is greater than then maximum positive value
->    expressible by the signed one then it is always greater.
-> 
-> 3) Only if both values are positive and within the range of the
->    smaller element are the actual values compared. 
+Its a 256 megs machine.. Celeron 800..
+I tried using mem=255M or mem=200M and it did not change anything and
+still crashed. The celeron A22e seems to have the same bios as the A21e...
 
-With infinite-precision arithmetic, yes; of course min() should just
-return the smaller value.
+Btw, I received it as part of a ThinkPad University program (laptop at
+school) from IBM with the old mandrake installed. And they IS guy of the
+university told us that they didnt install the latest released because IBM
+had not approved it... IBM probably already knows of the problem... So a
+message to IBM and IBMers: Why dont you fix your known bugs?
 
-But what would the C type of "min" be for comparing, say, signed and
-unsigned longs?  The range of possible results does not fit in any
-integral type.  (Repeat the question for signed/unsigned "long long"
-if "long long" is your answer.)
+Also it works correctly in w2k, but win2k uses ACPI and not APM (and it
+has a IBM pm driver...)
 
- - Pat
+Tester
+tester@videotron.ca
+
+On Thu, 30 Aug 2001, Erik Mouw wrote:
+
+> On Thu, Aug 30, 2001 at 11:46:19AM -0400, Tester wrote:
+> > I've just received an IBM Thinkpad A22e. Using kernel 2.4.2-2 (redhat 7.1
+> > version) or the stock 2.4.4 or 2.4.9 (they all exhibit the same problem).
+>
+> Uh-oh, another broken Thinkpad BIOS.
+>
+> > When I use any of the APM functions or any of the thinkpad keys (volume
+> > keys and Fn-Fx keys.. for suspend and even display brightness), the whole
+> > system freezes without any other indication. This is using a kernel with
+> > APM compiled it, but without any other option. If I compile in ACPI
+> > instead of APM, it freezes even before the kernel is done booting. But, it
+> > worked perfectly well with the 2.2.19-2 kernel form Mandrake 7.2
+>
+> Hmm, linux-2.2.19pre4 got the "thinkpad E820 edx overwriting" for a
+> Thinkpad 600X from Marc Joosen. The same fix also went into
+> 2.4.0-test13-pre6, so that can't be the problem.
+>
+> > Everything else seems to work fine... can anyone help?
+>
+> Could you try to boot with "mem=one MB less than the machine actually
+> has" and see if that fixes the problem? So "mem=127M" for a 128MB
+> machine. If that fixes the problem, I think there is a bug in the e820
+> BIOS memory map and you should ask IBM to fix their BIOS.
+>
+>
+> Erik
+>
+> --
+> J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+> of Electrical Engineering, Faculty of Information Technology and Systems,
+> Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+> Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+> WWW: http://www-ict.its.tudelft.nl/~erik/
+>
+

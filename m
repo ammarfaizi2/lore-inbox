@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286473AbRL0St6>; Thu, 27 Dec 2001 13:49:58 -0500
+	id <S284950AbRL0Sv2>; Thu, 27 Dec 2001 13:51:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286468AbRL0Sts>; Thu, 27 Dec 2001 13:49:48 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:47634 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S284950AbRL0Sth>; Thu, 27 Dec 2001 13:49:37 -0500
-Date: Thu, 27 Dec 2001 18:49:29 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rik van Riel <riel@conectiva.com.br>,
-        Dana Lacoste <dana.lacoste@peregrine.com>,
-        "'Eyal Sohya'" <linuz_kernel_q@hotmail.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: The direction linux is taking
-Message-ID: <20011227184928.D19618@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.33L.0112271353370.12225-100000@duckman.distro.conectiva> <E16JdTa-0005zm-00@the-village.bc.nu> <20011227165752.A19618@flint.arm.linux.org.uk> <200112271738.fBRHcSd30844@vindaloo.ras.ucalgary.ca>
+	id <S286472AbRL0SvT>; Thu, 27 Dec 2001 13:51:19 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:31504 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S284950AbRL0SvI>;
+	Thu, 27 Dec 2001 13:51:08 -0500
+Date: Thu, 27 Dec 2001 19:51:01 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: "James Stevenson" <mistral@stev.org>
+Cc: jlladono@pie.xtec.es, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x kernels, big ide disks and old bios
+Message-Id: <20011227195101.5bf120f9.skraw@ithnet.com>
+In-Reply-To: <000701c18ed8$73f2b2d0$0801a8c0@Stev.org>
+In-Reply-To: <3C285B40.91A83EC7@jep.dhis.org>
+	<001a01c18d77$a9e92ca0$0801a8c0@Stev.org>
+	<20011226173307.34e25fe6.skraw@ithnet.com>
+	<000701c18ed8$73f2b2d0$0801a8c0@Stev.org>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200112271738.fBRHcSd30844@vindaloo.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Thu, Dec 27, 2001 at 10:38:28AM -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 27, 2001 at 10:38:28AM -0700, Richard Gooch wrote:
-> So you just do what Linus does: delete those questions without
-> replying.
+On Thu, 27 Dec 2001 13:14:43 -0000
+"James Stevenson" <mistral@stev.org> wrote:
 
-See Erik Mouw's reply for enlightenment.  But yes, some patches do sit
-in the patch system without explaination for some time, until I find
-the incentive or interest to do something with them.
+> > I tried this one some time ago, and had to find out, that I was not able
+> to
+> > write to the upper cylinders of the disk. You can check this out _before_
+> using
+> > the drive via dd from /dev/zero to your /dev/drive and look at the
+> results.
+> 
+> it seems to work fine for me.
+> could it be possible that the chipset that you are using does not support
+> disks bigger than 32GB ?
 
-(Side note: it would be interesting to find out how many people believe
-that those 17 patches sitting in my incoming queue should be applied to
-a 2.4 stable kernel tree:
+I don't know. I tried once with
 
-  http://www.arm.linux.org.uk/developer/patches/?action=section&section=0
+00:01.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0)
 
-Anything above and including 837/1 are 2.5 material anyway.)
+and it did not work. I could definitely not write beyond the 32 GB border. I
+replaced the mobo then.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Regards,
+Stephan
 

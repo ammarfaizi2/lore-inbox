@@ -1,84 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270000AbTGZVGo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 17:06:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270013AbTGZVGn
+	id S269913AbTGZVMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 17:12:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269711AbTGZVMZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 17:06:43 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:19145 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S270000AbTGZVG1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 17:06:27 -0400
-Date: Sat, 26 Jul 2003 23:21:28 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Jeff Sipek <jeffpc@optonline.net>, Linus Torvalds <torvalds@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [TRIVIAL] use ext2/ext3 consistently in Kconfig
-Message-ID: <20030726212128.GB16798@louise.pinerecords.com>
-References: <20030726195722.GB16160@louise.pinerecords.com> <200307261621.55553.jeffpc@optonline.net> <6ud6fx118p.fsf@zork.zork.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6ud6fx118p.fsf@zork.zork.net>
-User-Agent: Mutt/1.4.1i
+	Sat, 26 Jul 2003 17:12:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:27017 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269919AbTGZVMY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 17:12:24 -0400
+Date: Sat, 26 Jul 2003 14:31:57 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Pavel Machek <pavel@ucw.cz>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp updates
+In-Reply-To: <20030726211310.GG266@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0307261422080.23977-100000@cherise>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [sneakums@zork.net]
-> 
-> Jeff Sipek <jeffpc@optonline.net> writes:
-> 
-> > On Saturday 26 July 2003 15:57, Tomas Szepe wrote:
-> > <snip>
-> >> @@ -89,7 +89,7 @@
-> >>         tristate "Ext3 journalling file system support"
-> >>         help
-> >>           This is the journaling version of the Second extended file system
-> >> -         (often called ext3), the de facto standard Linux file system
-> >> +         (often called ext2), the de facto standard Linux file system
-> >
-> > The journaling version is ext3, not ext2...
-> 
-> But the *second* extended file system is indeed often called ext2.
 
-Oh well, I guess I should have rephrased this wonderful little
-stylistics exhibit in the first place.
+> Okay, I killed few trivial hunks, will submit them through trivial
+> patch monkey. Are you happy now, patrick?
 
-diff -urN a/fs/Kconfig b/fs/Kconfig
---- a/fs/Kconfig	2003-06-14 23:07:12.000000000 +0200
-+++ b/fs/Kconfig	2003-07-26 23:18:35.000000000 +0200
-@@ -5,7 +5,7 @@
- menu "File systems"
- 
- config EXT2_FS
--	tristate "Second extended fs support"
-+	tristate "Ext2 fs support"
- 	help
- 	  This is the de facto standard Linux file system (method to organize
- 	  files on a storage device) for hard disks.
-@@ -86,11 +86,12 @@
- 	  extended attributes for file security labels, say N.
- 
- config EXT3_FS
--	tristate "Ext3 journalling file system support"
-+	tristate "Ext3 journaling file system support"
- 	help
--	  This is the journaling version of the Second extended file system
--	  (often called ext3), the de facto standard Linux file system
--	  (method to organize files on a storage device) for hard disks.
-+	  Ext3 is a jornaling version of the Second extended fs
-+	  (or just ext2fs), the de facto standard Linux filesystem
-+	  (method to organize files on a storage device) for block
-+	  devices such as hard disk partitions.
- 
- 	  The journaling code included in this driver means you do not have
- 	  to run e2fsck (file system checker) on your file systems after a
-@@ -200,7 +201,7 @@
- 	default m if EXT2_FS=m || EXT3_FS=m
- 
- config REISERFS_FS
--	tristate "Reiserfs support"
-+	tristate "Reiserfs support (for v3.5 & v3.6 filesystems)"
- 	help
- 	  Stores not just filenames but the files themselves in a balanced
- 	  tree.  Uses journaling.
+Why do you insist on abusing the trivial patch monkey? Why can't you send 
+them directly to the maintainers? For instance, you add/remove printk()s 
+and comments that other people may or may not want in there. 
+
+But no, this doesn't make me happy because you insist on munging multiple 
+patches together that have little to do with each other, besides the fact 
+they touch the same file. Like I said in private email, it really helps to 
+track down a problem if each patch and subsequent changeset is as small 
+and localized as possible. 
+
+And, that's a real problem with swsusp. It's a huge mess right now. I'd 
+like to see it work well and reliably for 2.6, and have the source code be 
+in a state where people can look at it without running away screaming. 
+Convoluted updates are not going to help the situation. 
+
+
+	-pat
+

@@ -1,106 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263772AbUD0FYV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263775AbUD0FXv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263772AbUD0FYV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 01:24:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263766AbUD0FYV
+	id S263775AbUD0FXv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 01:23:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263766AbUD0FXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 01:24:21 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:52096 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S263776AbUD0FXK
+	Tue, 27 Apr 2004 01:23:51 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:60288 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S263777AbUD0FXL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 01:23:10 -0400
-Subject: Re: 2.6.6-rc{1,2} bad VM/NFS interaction in case of dirty page
-	writeback
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andrew Morton <akpm@osdl.org>
-Cc: sgoel01@yahoo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20040426205928.58d76dbc.akpm@osdl.org>
-References: <20040427011237.33342.qmail@web12824.mail.yahoo.com>
-	 <20040426191512.69485c42.akpm@osdl.org>
-	 <1083035471.3710.65.camel@lade.trondhjem.org>
-	 <20040426205928.58d76dbc.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1083043386.3710.201.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 27 Apr 2004 01:23:06 -0400
+	Tue, 27 Apr 2004 01:23:11 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Clemens Schwaighofer <cs@tequila.co.jp>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Date: Mon, 26 Apr 2004 22:23:06 -0700 (PDT)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: 2.6.6-rc2-mm2 + Adaptec I2O
+In-Reply-To: <408DE95F.5010201@tequila.co.jp>
+Message-ID: <Pine.LNX.4.58.0404262221490.17702@dlang.diginsite.com>
+References: <408DE95F.5010201@tequila.co.jp>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-04-26 at 23:59, Andrew Morton wrote:
-> Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+I received a patch that works with 2.6.x x<=4 but it breaks with 2.6.5 so
+for now I am sticking with 2.6.4 and hopeing that I don't have to swap out
+all these raid controllers.
 
-> No, it's purely used by tmpfs when we discover the page was under mlock or
-> we've run out of swapspace.
+David Lang
 
-No: either it is a bona-fide interface, in which case it belongs in the
-mm/vfs, or it is a private interface, in which case it doesn't.
-I can see no reason to be playing games purely for the case of tmpfs,
-but if indeed there is, then it needs a *lot* more comments in the code
-than is currently the case: something along the lines of "don't ever use
-this unless you are tmpfs"...
 
-> Yes, single-page writepage off the LRU is inefficient and we want
-> writepages() to do most of the work.  For most workloads, this is the case.
-> It's only the whacky mmap-based test which should encounter significant
-> amounts of vmscan.c writepage activity.  If you're seeing much traffic via
-> that route I'd be interested in knowing what the workload is.
+On Tue, 27 Apr 2004, Clemens Schwaighofer wrote:
 
-Err... Anything that currently ends up calling writepage() and returning
-WRITEPAGE_ACTIVATE. This is a problem that you believe you are seeing
-the effects of, right? 
-Currently, we use this on virtually anything that trigggers writepage()
-with the wbc->for_reclaim flag set.
+> Date: Tue, 27 Apr 2004 14:02:23 +0900
+> From: Clemens Schwaighofer <cs@tequila.co.jp>
+> To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+> Subject: 2.6.6-rc2-mm2 + Adaptec I2O
+>
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> Hi,
+>
+> oldies but goldies ...
+>
+> Some old game, same stuff again. Linux-2.6.6-rc2 + mm2 and the adaptec
+> i2o is still not compiling. There is a patch swirring around the
+> internet for 2.6.5 where the kernel compiles (thought i couldn't reboot
+> the box yet, so no "real" expierence).
+>
+> What is the status? Will there be ever a 2.6.x kernel with a working i2o
+> driver? Do I have to blackmail Adaptec ;) ?
+>
+> lg, clemens
+> - --
+> Clemens Schwaighofer - IT Engineer & System Administration
+> ==========================================================
+> TEQUILA\Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+> Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+> http://www.tequila.co.jp
+> ==========================================================
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.2.4 (GNU/Linux)
+>
+> iD8DBQFAjelejBz/yQjBxz8RAickAJ9WpfJvZ/kH0tLPqXP3zSSUlwH4ZwCfZUMw
+> usTbWV0xDVrMvZVay7Hq+GQ=
+> =vVqS
+> -----END PGP SIGNATURE-----
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-> > The idea is mainly to prevent tasks from scheduling new writes if we are
-> > in the situation of wanting to reclaim or otherwise flush out dirty
-> > pages. IOW: I am assuming that the writepages() method is usually called
-> > only when we are low on memory and/or if pdflush() was triggered.
-> 
-> writepages() is called by pdflush when the dirty memory exceeds
-> dirty_background_ratio and it is called by the write(2) caller when dirty
-> memory exceeds dirty_ratio.
-> 
-> balance_dirty_pages() will throttle the write(2) caller when we hit
-> dirty_ratio.  balance_dirty_pages() attempts to prevent amount of dirty
-> memory from exceeding dirty_ratio by blocking the write(2) caller.
-
-...but if the pdflush() process hangs, due to an unavailable server or
-something like that, how do we prevent other processes from hanging too?
-AFAICS the backing-dev->state is the only way to ensure that alternate
-pdflush processes try to free memory through other means first.
-
-> \In the various places where the VM/VFS decides "gee, we need to wait for
-> some write I/O to terminate" it will call blk_congestion_wait() (the
-> function is seriously misnamed nowadays).  blk_congestion_wait() will wait
-> for a certain number of milliseconds, but that wait will terminate earlier
-> if the block layer completes some write requests.  So if writes are being
-> retired quickly, the sleeps are shorter.
-
-We're not using the block layer.
-
-> What we've never had, and which I expected we'd need a year ago was a
-> connection between network filesytems and blk_congestion_wait().  At
-> present, if someone calls blk_congestion_wait(HZ/20) when the only write
-> I/O in flight is NFS, they will sleep for 50 milliseconds no matter what's
-> going on.  What we should do is to deliver a wakeup from within NFS to the
-> blk_congestion_wait() sleepers when write I/O has completed.  
-
-So exactly *how* do we define the concept "write I/O has completed"
-here?
-
-AFAICS that has to be entirely defined by the MM layer since it alone
-can declare that writepages() (plus whatever was racing with
-writepages() at the time) has satisfied its request for reclaiming
-memory.
-I certainly don't want the wretched thing to be scheduling yet more
-writes while I'm still busy completing the last batch. If I happen to be
-on a slow network, that can cause me to enter a vicious circle where I
-keep scheduling more and more I/O simply because my write speed does not
-match the bandwidth expectations of the MM.
-This is why I want to be throttling *all* those processes that would
-otherwise be triggering yet more writepages() calls.
-
-Cheers,
-  Trond
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

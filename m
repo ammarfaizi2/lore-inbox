@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317620AbSGXWbT>; Wed, 24 Jul 2002 18:31:19 -0400
+	id <S317606AbSGXWfW>; Wed, 24 Jul 2002 18:35:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317627AbSGXWbT>; Wed, 24 Jul 2002 18:31:19 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12292 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317620AbSGXWbS>; Wed, 24 Jul 2002 18:31:18 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: CMIPCI
-Date: Wed, 24 Jul 2002 22:34:14 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <ahna16$akn$1@penguin.transmeta.com>
-References: <20020724220223.GA761@the-penguin.otak.com>
-X-Trace: palladium.transmeta.com 1027550041 16267 127.0.0.1 (24 Jul 2002 22:34:01 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 24 Jul 2002 22:34:01 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S317611AbSGXWfW>; Wed, 24 Jul 2002 18:35:22 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:62206 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S317606AbSGXWfV>; Wed, 24 Jul 2002 18:35:21 -0400
+Date: Wed, 24 Jul 2002 18:37:28 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200207242237.g6OMbSO10262@devserv.devel.redhat.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Safety of IRQ during i/o
+In-Reply-To: <mailman.1027541521.16533.linux-kernel2news@redhat.com>
+References: <mailman.1027541521.16533.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20020724220223.GA761@the-penguin.otak.com>,
-Lawrence Walton  <lawrence@the-penguin.otak.com> wrote:
->Looks like CMIPCI does not compile right now.
+>[...]
+> I would think that this would be safe when using DMA, and likely to be
+> safe for PIO and more recent chipsets, but I wouldn't want to actually
+> tell anyone that.
 
-For "'synchronize_irq()' used without args", you only need to add the
-irq number as the argument, and it should work. Please test to verify,
-and send in a patch..
+A little story from OLS. I have a 486/75 laptop, which can only
+do PIO. It always was losing characters evern on 9600 baud on its
+serial port, and I thought it was simply broken for five years.
+A guy who did a security talk showed me that doing hdparm -u
+fixes the problem. Apparently, the lappy has a non-buffering UART.
 
-		Linus
+So, it seems that hdparm -u is a very useful thing for obsotele
+boxes. If you do DMA, you probably do not care.
+
+-- Pete

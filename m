@@ -1,40 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130552AbRCLS2P>; Mon, 12 Mar 2001 13:28:15 -0500
+	id <S130570AbRCLSnP>; Mon, 12 Mar 2001 13:43:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130544AbRCLS2G>; Mon, 12 Mar 2001 13:28:06 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:28836 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S130523AbRCLS1q>;
-	Mon, 12 Mar 2001 13:27:46 -0500
-Date: Mon, 12 Mar 2001 13:27:19 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: system call for process information?
-In-Reply-To: <Pine.LNX.4.21.0103121658360.30542-100000@erdos.shef.ac.uk>
-Message-ID: <Pine.GSO.4.21.0103121324280.25792-100000@weyl.math.psu.edu>
+	id <S130581AbRCLSnG>; Mon, 12 Mar 2001 13:43:06 -0500
+Received: from colorfullife.com ([216.156.138.34]:11012 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S130570AbRCLSmy>;
+	Mon, 12 Mar 2001 13:42:54 -0500
+Message-ID: <001601c0ab24$37a50d70$5517fea9@local>
+From: "Manfred Spraul" <manfred@colorfullife.com>
+To: <kuznet@ms2.inr.ac.ru>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <200103121812.VAA09627@ms2.inr.ac.ru>
+Subject: Re: Feedback for fastselect and one-copy-pipe
+Date: Mon, 12 Mar 2001 19:42:18 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: <kuznet@ms2.inr.ac.ru>
+> Hello!
+>
+> > * davem's patch breaks apps that assume that write(,PIPE_BUF) after
+> > poll(POLLOUT) never blocks, even for blocking pipes.
+>
+> Pardon, but PIPE_BUF <= PAGE_SIZE yet, so that fears have no reasons.
+>
 
+The difference is the =
 
-On Mon, 12 Mar 2001, Guennadi Liakhovetski wrote:
+> <<<<< davem's patch
+> +       if (count >= PAGE_SIZE &&
+>                       ^^
+> +           !(filp->f_flags & O_NONBLOCK)) {
+> <<<<<<< my patch
+> +  if (count > PIPE_BUF && chars == PIPE_SIZE &&
+                     ^
+> +      (!(filp->f_flags & O_NONBLOCK))) {
+> <<<<<<<
 
-> Hello
-> 
-> I asked this question on kernel-newbies - no reply, hope to be luckier
-> here:-)
-> 
-> I need to collect some info on processes. One way is to read /proc
-> tree. But isn't there a system call (ioctl) for this? And what are those
+davem used >=, I used >. All other differences between our patches are
+code cleanups.
 
-Occam's Razor.  Why invent new syscall when read() works?
+Just try this on i386: (PIPE_BUF is defined to 4096 on i386 - I really
+don't understand why, but now it's too late to reverse it back to 512)
 
-> task[], task_struct, etc. about?
+<<<<
+char buf[PIPE_BUF];
+void main()
+{
+    int pipes[2];
+    pipe(pipes);
+    write(pipes[1],buf,sizeof(buf));
+}
+<<<<<<<
 
-What branch? (2.0, 2.2, 2.4?)
-							Cheers,
-								Al
+It returns immediately on all unix platforms I tested, including all
+linux versions, except with davem's patch.
+It's not guaranteed in sus or posix, but I'm reluctant to change it.
+
+--
+    Manfred
+
 

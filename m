@@ -1,71 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbULIQ40@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbULIQ7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261549AbULIQ40 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 11:56:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbULIQzh
+	id S261562AbULIQ7i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 11:59:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbULIQ7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 11:55:37 -0500
-Received: from Mail.MNSU.EDU ([134.29.1.12]:59372 "EHLO mail.mnsu.edu")
-	by vger.kernel.org with ESMTP id S261551AbULIQxq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 11:53:46 -0500
-Message-ID: <41B88319.9070207@mnsu.edu>
-Date: Thu, 09 Dec 2004 10:53:45 -0600
-From: "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a5) Gecko/20041121
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Robin Holt <holt@sgi.com>
-CC: Limin Gu <limin@dbear.engr.sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] jobfs - new virtual filesystem for job kernel/user
- interface
-References: <200412082203.iB8M3Lk22375@dbear.engr.sgi.com> <20041209140504.GD5187@lnx-holt.americas.sgi.com>
-In-Reply-To: <20041209140504.GD5187@lnx-holt.americas.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Dec 2004 11:59:38 -0500
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:63712 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S261555AbULIQ4v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 11:56:51 -0500
+Date: Thu, 9 Dec 2004 17:48:33 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [Patch] fix ext2/ext3 memory leak
+Message-ID: <20041209164833.GA5547@osiris.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="HlL+5n6rz5pIUxbD"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd have to second Robin's sentiments.  IMHO there should be a very 
-strong reason to have this type of information in a new filesystem as 
-this type of proliferation is counterproductive.
 
--- 
-jeffrey hundstad
+--HlL+5n6rz5pIUxbD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Robin Holt wrote:
+Hi,
 
->On Wed, Dec 08, 2004 at 02:03:21PM -0800, Limin Gu wrote:
->  
->
->>Hello,
->>
->>I am looking for your comments on the attached draft, it is the job patch 
->>for 2.6.9. I have posted job patch for older kernel before, but in this patch
->>I have replaced the /proc/job binary ioctl calls with a new small virtual 
->>filesystem (jobfs).
->>
->>Job uses the hook provided by PAGG (Process Aggregates). A job is a group
->>related processes all descended from a point of entry process and identified
->>by a unique job identifier (jid). You can find the general information
->>about PAGG and Job at http://oss.sgi.com/projects/pagg/
->>
->>I will very much appreciate your comments, suggestions and criticisms
->>on this new filesystem design and implementation as the job kernel/user
->>communication interface. The patch is still a draft.
->>
->>Thank you!
->>    
->>
->
->I maintain my position that this belongs in /proc.
->
->Why not have a structure something like:
->
->/proc/<pid>/job -> ../jobs/<jid>
->/proc/jobs/<jid>/<pid> -> ../../<pid>
->
->What other information is really necessary from userland?
->
->  
->
+the patch below fixes an ext2/ext3 memory leak: the *_fill_super
+functions allocate percpu data structures but don't free them in
+*_put_super.
+
+Thanks,
+Heiko
+
+--HlL+5n6rz5pIUxbD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="00_ext3.diff"
+
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+
+diffstat:
+ fs/ext2/super.c |    3 +++
+ fs/ext3/super.c |    3 +++
+ 2 files changed, 6 insertions(+)
+
+diff -urN linux-2.6/fs/ext2/super.c linux-2.6-patched/fs/ext2/super.c
+--- linux-2.6/fs/ext2/super.c	2004-12-09 17:41:49.000000000 +0100
++++ linux-2.6-patched/fs/ext2/super.c	2004-12-09 17:42:01.000000000 +0100
+@@ -122,6 +122,9 @@
+ 			brelse (sbi->s_group_desc[i]);
+ 	kfree(sbi->s_group_desc);
+ 	kfree(sbi->s_debts);
++	percpu_counter_destroy(&sbi->s_freeblocks_counter);
++	percpu_counter_destroy(&sbi->s_freeinodes_counter);
++	percpu_counter_destroy(&sbi->s_dirs_counter);
+ 	brelse (sbi->s_sbh);
+ 	sb->s_fs_info = NULL;
+ 	kfree(sbi);
+diff -urN linux-2.6/fs/ext3/super.c linux-2.6-patched/fs/ext3/super.c
+--- linux-2.6/fs/ext3/super.c	2004-12-09 17:41:49.000000000 +0100
++++ linux-2.6-patched/fs/ext3/super.c	2004-12-09 17:42:01.000000000 +0100
+@@ -400,6 +400,9 @@
+ 	for (i = 0; i < sbi->s_gdb_count; i++)
+ 		brelse(sbi->s_group_desc[i]);
+ 	kfree(sbi->s_group_desc);
++	percpu_counter_destroy(&sbi->s_freeblocks_counter);
++	percpu_counter_destroy(&sbi->s_freeinodes_counter);
++	percpu_counter_destroy(&sbi->s_dirs_counter);
+ 	brelse(sbi->s_sbh);
+ #ifdef CONFIG_QUOTA
+ 	for (i = 0; i < MAXQUOTAS; i++) {
+
+--HlL+5n6rz5pIUxbD--

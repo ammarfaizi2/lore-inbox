@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261850AbTIPMSv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 08:18:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261853AbTIPMSv
+	id S261871AbTIPMiV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 08:38:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTIPMiV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 08:18:51 -0400
-Received: from ns.suse.de ([195.135.220.2]:59114 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261850AbTIPMSu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 08:18:50 -0400
-Date: Tue, 16 Sep 2003 14:18:48 +0200
-From: Olaf Hering <olh@suse.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: =?utf-8?Q?Dani=C3=ABl?= Mantione <daniel@deadlock.et.tudelft.nl>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       "David S. Miller" <davem@redhat.com>, mroos@linux.ee,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: atyfb still broken on 2.4.23-pre4 (on sparc64)
-Message-ID: <20030916121848.GA9897@suse.de>
-References: <Pine.LNX.4.44.0309152320130.24675-100000@deadlock.et.tudelft.nl> <1063663632.585.61.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1063663632.585.61.camel@gaston>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+	Tue, 16 Sep 2003 08:38:21 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:23168 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S261871AbTIPMiT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 08:38:19 -0400
+Date: Tue, 16 Sep 2003 14:34:55 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: [2.6 patch] better i386 CPU selection
+In-Reply-To: <20030912190728.GN27368@fs.tum.de>
+Message-ID: <Pine.GSO.3.96.1030916143015.9516A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Tue, Sep 16, Benjamin Herrenschmidt wrote:
+On Fri, 12 Sep 2003, Adrian Bunk wrote:
 
- 
-> There are a few PPC machines for which atyfb is "critical":
+> What about the original 386?
 
->  - Beige G3 (older XL iirc)
+ The i386 is irrelevant -- it didn't have an on-chip APIC and it didn't
+directly support an external one.  At the time the APIC was manufactured,
+i386 systems were inefficient enough not to justify designing glue logic
+for the APIC.
 
-this one works, but they use different chips.
+> Then I can simply change it in my patch to
+> 
+> config X86_GOOD_APIC
+>         bool
+> 	depends on !CPU_586TSC
+> 	default y
 
-atyfb: using auxiliary register aperture
-atyfb: 3D RAGE (GT) [0x4754 rev 0x9a] 2M SGRAM, 14.31818 MHz XTAL, 200 MHz PLL, 67 Mhz MCLK, 67 Mhz XCLK
-atyfb: monitor sense=737, mode 5
-Console: switching to colour frame buffer device 80x30
-fb0: ATY Mach64 frame buffer device on PCI
-MacOS display is /pci/ATY,mach64_3DU
-
+ It's a good estimate, although Pentium systems support an external APIC
+which is always good.  If the on-chip APIC is used, a system suffers from
+the erratum as mentioned previously, if an external one is used, a system
+is good.
 
 -- 
-USB is for mice, FireWire is for men!
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
-sUse lINUX ag, nÜRNBERG

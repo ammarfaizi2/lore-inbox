@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267317AbTGHNuj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 09:50:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267318AbTGHNuj
+	id S263011AbTGHNtH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 09:49:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267307AbTGHNtH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 09:50:39 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:56747
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S267317AbTGHNuh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 09:50:37 -0400
-Subject: Re: Linux and IBM : "unauthorized" mini-PCI : Cisco mpi350 _way_
-	sub-optimal
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: emperor@EmperorLinux.com
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       EmperorLinux Research <research@EmperorLinux.com>,
-       "Theodore Ts'o" <tytso@mit.edu>
-In-Reply-To: <200307071412.00625.durey@EmperorLinux.com>
-References: <1054658974.2382.4279.camel@tori> <20030610233519.GA2054@think>
-	 <200307071412.00625.durey@EmperorLinux.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1057672948.4358.20.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 8 Jul 2003 09:49:07 -0400
+Received: from ns2.uk.superh.com ([193.128.105.170]:436 "EHLO
+	ns2.uk.superh.com") by vger.kernel.org with ESMTP id S263011AbTGHNtF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 09:49:05 -0400
+Date: Tue, 8 Jul 2003 15:03:10 +0100
+From: Richard Curnow <Richard.Curnow@superh.com>
+To: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.22-pre4 won't link without CONFIG_QUOTA
+Message-ID: <20030708140310.GD5725@malvern.uk.w2k.superh.com>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030708092128.GB5725@malvern.uk.w2k.superh.com> <20030708122640.B17446@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 08 Jul 2003 15:02:31 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030708122640.B17446@infradead.org>
+User-Agent: Mutt/1.4i
+X-OS: Linux 2.4.19 i686
+X-OriginalArrivalTime: 08 Jul 2003 14:03:43.0311 (UTC) FILETIME=[BDAC7DF0:01C34559]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-07-07 at 19:12, Lincoln D. Durey wrote:
-> Ted,
+* Christoph Hellwig <hch@infradead.org> [2003-07-08]:
+> On Tue, Jul 08, 2003 at 10:21:28AM +0100, Richard Curnow wrote:
+> > Hi Christoph,
+> > 
+> > I'm building without quota support.  I get the following error at link
+> > time:
 > 
-> This is an amazingly sub-optimal solution, and will make running Linux on the 
-> T40/X31 prohibitively difficult for most linux users.  Do you want everyone 
-> to use Linux?  Then tell IBM to let them use wifi cards that are easy to use, 
-> and support standard (and open) APIs.
+> This is the patch I sent to marcelo a few minutes ago:
 
-You don't have to buy IBM products. Dunno what local prices are like but
-over here Comaq^WHP's come in at about two per thinkpad on price and do
-work once you have all the ACPI stuff set up
+Thanks, looks good, I'll pick this up when we 'bk pull' next time.  As a
+workaround I've been compiling today with quota support turned on :-)
 
-
+-- 
+Richard \\\ SuperH Core+Debug Architect /// .. At home ..
+  P.    /// richard.curnow@superh.com  ///  rc@rc0.org.uk
+Curnow  \\\ http://www.superh.com/    ///  www.rc0.org.uk

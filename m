@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272500AbTGZOmh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 10:42:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272495AbTGZOe2
+	id S272521AbTGZOoc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 10:44:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272551AbTGZOmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 10:34:28 -0400
-Received: from amsfep15-int.chello.nl ([213.46.243.28]:52770 "EHLO
+	Sat, 26 Jul 2003 10:42:54 -0400
+Received: from amsfep15-int.chello.nl ([213.46.243.28]:3418 "EHLO
 	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S272504AbTGZOcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 10:32:32 -0400
-Date: Sat, 26 Jul 2003 16:51:38 +0200
-Message-Id: <200307261451.h6QEpcR1002292@callisto.of.borg>
+	id S272521AbTGZOhs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 10:37:48 -0400
+Date: Sat, 26 Jul 2003 16:52:00 +0200
+Message-Id: <200307261452.h6QEq08C002490@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@transmeta.com>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] Mac/m68k sonic updates
+Subject: [PATCH] m68k dma-mapping
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mac/m68k sonic: Kill warning and remainings of 2.2-style flow control
+M68k: Fix SCSI breakage introduced in 2.5.74 by not including
+<asm-generic/dma-mapping.h>, unless PCI is available.
 
---- linux-2.6.x/drivers/net/macsonic.c	Mon Aug  5 12:48:53 2002
-+++ linux-m68k-2.6.x/drivers/net/macsonic.c	Fri Jun  6 12:22:46 2003
-@@ -142,7 +142,7 @@
- 
- int __init macsonic_init(struct net_device* dev)
- {
--	struct sonic_local* lp;
-+	struct sonic_local* lp = NULL;
- 	int i;
- 
- 	/* Allocate the entire chunk of memory for the descriptors.
---- linux-2.6.x/drivers/net/sonic.c	Fri Mar  1 11:05:29 2002
-+++ linux-m68k-2.6.x/drivers/net/sonic.c	Mon Sep 16 14:41:46 2002
-@@ -113,15 +113,6 @@
- 	if (sonic_debug > 2)
- 		printk("sonic_send_packet: skb=%p, dev=%p\n", skb, dev);
- 
--	/* 
--	 * Block a timer-based transmit from overlapping.  This could better be
--	 * done with atomic_swap(1, dev->tbusy), but set_bit() works as well.
--	 */
--	if (test_and_set_bit(0, (void *) &dev->tbusy) != 0) {
--		printk("%s: Transmitter access conflict.\n", dev->name);
--		return 1;
--	}
--
- 	/*
- 	 * Map the packet data into the logical DMA address space
- 	 */
+--- linux-2.6.x/include/asm-m68k/dma-mapping.h	Tue Dec 24 10:08:58 2002
++++ linux-m68k-2.6.x/include/asm-m68k/dma-mapping.h	Tue Jul 22 19:07:38 2003
+@@ -1 +1,10 @@
++#ifndef _M68K_DMA_MAPPING_H
++#define _M68K_DMA_MAPPING_H
++
++#include <linux/config.h>
++
++#ifdef CONFIG_PCI
+ #include <asm-generic/dma-mapping.h>
++#endif
++
++#endif  /* _M68K_DMA_MAPPING_H */
 
 Gr{oetje,eeting}s,
 

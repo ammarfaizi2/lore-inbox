@@ -1,64 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbTIEGbr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 02:31:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbTIEGbr
+	id S262691AbTIEGei (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 02:34:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262697AbTIEGei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 02:31:47 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:44997 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261702AbTIEGbo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 02:31:44 -0400
-Date: Fri, 5 Sep 2003 08:31:39 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.4.23-pre3: bttv-cards.c doesn't compile with CONFIG_FW_LOADER
-Message-ID: <20030905063139.GL1374@fs.tum.de>
-References: <Pine.LNX.4.44.0309031851310.30503-100000@logos.cnet>
+	Fri, 5 Sep 2003 02:34:38 -0400
+Received: from lmail.actcom.co.il ([192.114.47.13]:22226 "EHLO
+	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S262691AbTIEGeg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 02:34:36 -0400
+Date: Fri, 5 Sep 2003 09:34:22 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Stop mprotect() changing MAP_SHARED and other cleanup
+Message-ID: <20030905063422.GA1145@actcom.co.il>
+References: <20030904193454.GA31590@mail.jlokier.co.uk> <20030904201851.GK13947@actcom.co.il> <20030904220435.GI31590@mail.jlokier.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ZGiS0Q5IWpPtfppv"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309031851310.30503-100000@logos.cnet>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030904220435.GI31590@mail.jlokier.co.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Gerd,
 
-I got the following compile error in 2.4.23-pre3 with CONFIG_FW_LOADER 
-enabled:
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-<--  snip  -->
+On Thu, Sep 04, 2003 at 11:04:35PM +0100, Jamie Lokier wrote:
+> Muli Ben-Yehuda wrote:
+> > > +/* Optimisation macro. */
+> > > +#define _calc_vm_trans(x,bit1,bit2) \
+> > > +  ((bit1) <=3D (bit2) ? ((x) & (bit1)) * ((bit2) / (bit1)) \
+> > > +   : ((x) & (bit1)) / ((bit1) / (bit2))
+> >=20
+> > Why is this necessary? the original version of the macro was much
+> > simpler. If this isn't just for shaving a couple of optimization,
 
-...
-gcc-2.95 -D__KERNEL__ 
--I/home/bunk/linux/kernel-2.4/linux-2.4.23-pre3-full/inclu
-de -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc -iwithprefix 
-include -DKBUILD_BASENAME=bttv_cards  -c -o bttv-cards.o bttv-cards.c
-bttv-cards.c: In function `pvr_boot':
-bttv-cards.c:2552: structure has no member named `dev'
-bttv-cards.c:2555: warning: implicit declaration of function `request_firmware'
-bttv-cards.c:2559: `rc' undeclared (first use in this function)
-bttv-cards.c:2559: (Each undeclared identifier is reported only once
-bttv-cards.c:2559: for each function it appears in.)
-bttv-cards.c:2561: dereferencing pointer to incomplete type
-bttv-cards.c:2561: dereferencing pointer to incomplete type
-bttv-cards.c:2562: warning: implicit declaration of function `release_firmware'
-make[4]: *** [bttv-cards.o] Error 1
-make[4]: Leaving directory 
-`/home/bunk/linux/kernel-2.4/linux-2.4.23-pre3-full/drivers/media/video'
+I meant "shaving a couple of instructions", of course.=20
 
-<--  snip  -->
+> > please document it. If it is, I urge you to reconsider ;-)=20
+>=20
+> When the bits don't match, mine reduces to a mask-and-shift.  The
+> original reduces to a mask-and-conditional, which is usually slower.
 
-cu
-Adrian
+Ok. Your version is also incomprehensible (to me, at least) without
+working it out using a pen and paper, whereas the original is clear
+and concise. Are the saved CPU cycles worth the wasted programmer
+cycles in this case? I doubt it.
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org
 
--- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--ZGiS0Q5IWpPtfppv
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/WC5tKRs727/VN8sRAhALAJ4qlxzgvUiNfoEvYscQuqcHaDwdAACaAjxr
+QWczTq++TxYiHSWtIbOnm9A=
+=o7u+
+-----END PGP SIGNATURE-----
+
+--ZGiS0Q5IWpPtfppv--

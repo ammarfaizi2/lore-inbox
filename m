@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268288AbTAMUMZ>; Mon, 13 Jan 2003 15:12:25 -0500
+	id <S268261AbTAMUJj>; Mon, 13 Jan 2003 15:09:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268301AbTAMUMZ>; Mon, 13 Jan 2003 15:12:25 -0500
-Received: from bitmover.com ([192.132.92.2]:7086 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S268288AbTAMULr>;
-	Mon, 13 Jan 2003 15:11:47 -0500
-Date: Mon, 13 Jan 2003 12:20:34 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.5.57
-Message-ID: <20030113202034.GF16181@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0301131039050.13791-100000@penguin.transmeta.com> <20030113185958.GA17866@caphernaum.rivenstone.net>
+	id <S268267AbTAMUJj>; Mon, 13 Jan 2003 15:09:39 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:8091
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268261AbTAMUJi>; Mon, 13 Jan 2003 15:09:38 -0500
+Subject: Re: Linux 2.4.21-pre3-ac4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ross Biro <rossb@google.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Cox <alan@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E231444.6060209@google.com>
+References: <200301121807.h0CI7Qp04542@devserv.devel.redhat.com>
+	 <1042399796.525.215.camel@zion.wanadoo.fr>
+	 <1042403235.16288.14.camel@irongate.swansea.linux.org.uk>
+	 <1042401074.525.219.camel@zion.wanadoo.fr>  <3E230A4D.6020706@google.com>
+	 <1042484609.30837.31.camel@zion.wanadoo.fr> <3E23114E.8070400@google.com>
+	 <3E231444.6060209@google.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1042491950.20038.0.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030113185958.GA17866@caphernaum.rivenstone.net>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 13 Jan 2003 21:05:51 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     bkbits.net isn't working for me or I could have at least provided
-> a link to the changeset.
+On Mon, 2003-01-13 at 19:32, Ross Biro wrote:
+> One thing we could do to solve this entire problem is wait for the 
+> interrupt to finish before sending the command to the drive in the first 
+> place.  Basically in ide_do_request we just have to change
 
-We've upgrade to patch a security hole, we're sorting out some permissions
-problems.   Should have it fixed in an hour or so.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+
+>     if (!masked_irq) {
+>          disable_irq_sync(hwif->irq);
+>     }
+
+You cannot disable an IRQ synchronously holding a spin lock taken by an
+IRQ handler
+

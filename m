@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267233AbTAKOUE>; Sat, 11 Jan 2003 09:20:04 -0500
+	id <S267232AbTAKOgS>; Sat, 11 Jan 2003 09:36:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267235AbTAKOUE>; Sat, 11 Jan 2003 09:20:04 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:12804 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267233AbTAKOUA>; Sat, 11 Jan 2003 09:20:00 -0500
-Date: Sat, 11 Jan 2003 14:28:40 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andi Kleen <ak@muc.de>
-Cc: Christoph Hellwig <hch@infradead.org>, jgarzik@pobox.com, mantel@suse.de,
-       Natalie.Protasevich@UNISYS.com, linux-kernel@vger.kernel.org
+	id <S267235AbTAKOgS>; Sat, 11 Jan 2003 09:36:18 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:32920 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267232AbTAKOgS>; Sat, 11 Jan 2003 09:36:18 -0500
+Date: Sat, 11 Jan 2003 15:44:13 +0100
+From: Andi Kleen <ak@muc.de>
+To: Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@muc.de>,
+       jgarzik@pobox.com, mantel@suse.de, Natalie.Protasevich@UNISYS.com,
+       linux-kernel@vger.kernel.org
 Subject: Re: UnitedLinux violating GPL?
-Message-ID: <20030111142839.A29018@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andi Kleen <ak@muc.de>, jgarzik@pobox.com, mantel@suse.de,
-	Natalie.Protasevich@UNISYS.com, linux-kernel@vger.kernel.org
-References: <20030109224013$6e5e@gated-at.bofh.it> <20030111110011$3252@gated-at.bofh.it> <m3n0m729bb.fsf@averell.firstfloor.org>
+Message-ID: <20030111144413.GA20364@averell>
+References: <20030109224013$6e5e@gated-at.bofh.it> <20030111110011$3252@gated-at.bofh.it> <m3n0m729bb.fsf@averell.firstfloor.org> <20030111142839.A29018@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <m3n0m729bb.fsf@averell.firstfloor.org>; from ak@muc.de on Sat, Jan 11, 2003 at 12:51:52PM +0100
+In-Reply-To: <20030111142839.A29018@infradead.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 11, 2003 at 12:51:52PM +0100, Andi Kleen wrote:
-> openssl is only compiled as a module in released kernels, so it is similar to
-> the PPP BSD compression module.
-
-It compiles parts of openssl which explicitly have a license that conflicts
-with the GPL when CONFIG_PPP=y.  The bsd_comp stuff was only compilable as
-module.
-
-> In the current version the copyright note in es7000.[ch] reads:
+On Sat, Jan 11, 2003 at 03:28:40PM +0100, Christoph Hellwig wrote:
+> On Sat, Jan 11, 2003 at 12:51:52PM +0100, Andi Kleen wrote:
+> > openssl is only compiled as a module in released kernels, so it is similar to
+> > the PPP BSD compression module.
 > 
->  * Copyright (c) 2002 Unisys Corporation.  All Rights Reserved.
->  *
->  * This program is free software; you can redistribute it and/or modify it
->  * under the terms of version 2 of the GNU General Public License as
->  * published by the Free Software Foundation.
->  *
->  * This program is distributed in the hope that it would be useful, but
->  * WITHOUT ANY WARRANTY; without even the implied warranty of
->  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
->  *
->  * Further, this software is distributed without any warranty that it is
->  * free of the rightful claim of any third person regarding infringement
+> It compiles parts of openssl which explicitly have a license that conflicts
+> with the GPL when CONFIG_PPP=y.  The bsd_comp stuff was only compilable as
+> module.
 
+I guess you meant CONFIG_CIPHER_TWOFISH, not CONFIG_PPP. 
 
->  * or the like.  Any license provided herein, whether implied or
->  * otherwise, applies only to this software file.  Patent licenses, if
->  * any, provided herein do not apply to combinations of this program with
->  * other software, or any other product whatsoever.
+Yes it can be compiled in, but UnitedLinux does not do so - the kernel
+rpm compiles it as a module.
 
-I don't think this clause is GPL-compliant.  But I'm not a lawyer, so..
-
-
+-Andi

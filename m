@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272698AbRHaOIj>; Fri, 31 Aug 2001 10:08:39 -0400
+	id <S272696AbRHaOMj>; Fri, 31 Aug 2001 10:12:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272696AbRHaOI3>; Fri, 31 Aug 2001 10:08:29 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30473 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272698AbRHaOIS>; Fri, 31 Aug 2001 10:08:18 -0400
-Subject: Re: [UPDATE] 2.4.10-pre2 PCI64, API changes README
-To: kraxel@bytesex.org (Gerd Knorr)
-Date: Fri, 31 Aug 2001 15:12:05 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <slrn9ouep3.4d6.kraxel@bytesex.org> from "Gerd Knorr" at Aug 31, 2001 07:22:11 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S272700AbRHaOMa>; Fri, 31 Aug 2001 10:12:30 -0400
+Received: from relay1.zonnet.nl ([62.58.50.37]:31192 "EHLO relay1.zonnet.nl")
+	by vger.kernel.org with ESMTP id <S272696AbRHaOMN>;
+	Fri, 31 Aug 2001 10:12:13 -0400
+Message-ID: <3B8F9B48.80F513AA@linux-m68k.org>
+Date: Fri, 31 Aug 2001 16:12:24 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: ptb@it.uc3m.es
+CC: "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <200108311329.PAA12559@nbd.it.uc3m.es>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15cp1h-0003HE-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What addresses are in dev->resource?  Physical?  Bus address?  Are they
-> unique?
+Hi,
 
-Basically its an arbitary cookie suitable only for passing to ioremap. In
-practice its likely to be a bus address but not always since it may be a
-combined ident (controller id<<lots|offset) or even a pointer to a struct
-private to the platform
+"Peter T. Breuer" wrote:
 
-Currently I think everyone mainstrem except the pa-risc has either a bus
-address or physical address in the registers. For pa the I/O port map used
-to be (and might still be) a controller/offset pair.
+> As I said, nobody has been too precise about the bugs to me either!
 
-Alan
+So let's be precise first! Please?
+I've asked Linus about examples, so far I've seen only buggy
+implementations of min() or an example, where min() shouldn't be used in
+first place. Maybe I missed something, then I'm deeply sorry for this,
+but all I want to know is, what are we fixing here?
+
+> Stanford checker? Is that a programmable C type checker? If so, lemmee
+> at it. Have you a URL, btw?
+
+http://verify.stanford.edu/SVC/
+You should search the archive to look for some good examples, how it can
+help.
+
+bye, Roman

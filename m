@@ -1,52 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277544AbRJVFUf>; Mon, 22 Oct 2001 01:20:35 -0400
+	id <S277541AbRJVFXf>; Mon, 22 Oct 2001 01:23:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277541AbRJVFUZ>; Mon, 22 Oct 2001 01:20:25 -0400
-Received: from ns1.uklinux.net ([212.1.130.11]:15366 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S277652AbRJVFUK>;
-	Mon, 22 Oct 2001 01:20:10 -0400
+	id <S277551AbRJVFXZ>; Mon, 22 Oct 2001 01:23:25 -0400
+Received: from ns1.uklinux.net ([212.1.130.11]:30726 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S277541AbRJVFXF>;
+	Mon, 22 Oct 2001 01:23:05 -0400
 Envelope-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Message-Id: <a05100300b7f95baa5d5a@[192.168.239.101]>
-In-Reply-To: <5.0.2.1.2.20011021150919.00a57a60@mail.jetstream.net>
-In-Reply-To: <20011021220346.D19390@vega.digitel2002.hu>
- <5.0.2.1.2.20011021150919.00a57a60@mail.jetstream.net>
-Date: Mon, 22 Oct 2001 06:17:33 +0100
-To: Leo Spalteholz <bspalteh@jetstream.net>, linux-kernel@vger.kernel.org
+Message-Id: <a05100301b7f95ccaa13e@[192.168.239.101]>
+In-Reply-To: <20011022045925Z277532-17408+3211@vger.kernel.org>
+In-Reply-To: <20011022045925Z277532-17408+3211@vger.kernel.org>
+Date: Mon, 22 Oct 2001 06:22:28 +0100
+To: safemode <safemode@speakeasy.net>, linux-kernel@vger.kernel.org
 From: Jonathan Morton <chromi@cyberspace.org>
-Subject: RE: The new X-Kernel !
+Subject: Re: 2.4.12-ac3 + e2defrag
 Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 3:14 pm -0700 21/10/2001, Leo Spalteholz wrote:
->>This side thread is funny, everyone here is thinking too much like a
->>developer :)
->>
->>Normal users really don't need to see the startup message spam on boot,
->>unless there is an error (at which point it should be able to present
->>the error to the user).  Any kind of of progress indicator' s really
->>more for feedback that the boot is proceeding ok.  The fact the boot
->>sequence isn't even interactive should also be a big hint that it isn't
->>really necessary (except for kernel and driver developers).
+>OK, i ran e2defrag -p 16384 on a disk thinking, hey, 128MB of buffer isn't
+>anything to me since i have 770MB of ram and 128MB of swap.   Well, according
+>to top this is e2defrag a quarter of the way running through my 20GB fs. 
+>   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+>12023 root      16   0  125M  76M  9304 R    22.8 10.1   5:50 e2defrag
 >
+>That seems right.  Yet this is the /proc/meminfo reading
+>         total:    used:    free:  shared: buffers:  cached:
+>Mem:  790016000 783785984  6230016     4096 632762368 20373504
+>Swap: 133885952 101707776 32178176
+>MemTotal:       771500 kB
+>MemFree:          6084 kB
+>MemShared:           4 kB
+>Buffers:        617932 kB
+>Cached:           6176 kB
+>SwapCached:      13720 kB
+>Active:         330800 kB
+>Inact_dirty:    307032 kB
+>Inact_clean:         0 kB
+>Inact_target:   157272 kB
+>HighTotal:           0 kB
+>HighFree:            0 kB
+>LowTotal:       771500 kB
+>LowFree:          6084 kB
+>SwapTotal:      130748 kB
+>SwapFree:        31424 kB
 >
->I agree that for the normal user, plain messages are useless..   I 
->remember something in Mandrake (7.0?), what they did is print a 
->green [OK]  after every message and a red [ERROR] when something 
->failed..  This was great for a quick visual check..   As soon as you 
->see something red scroll past you know there's something wrong and 
->you can check it later..
->So this should really be left up to the distros..
+>So where does this 500+MB of buffer come from?  It grinded the system to a
+>swapcrazy like state even though it wasn't swapping like crazy.  From the way
+>it was acting i was getting scared that it might oom out and kill e2defrag
+>even though top seemed to show that the program was only using about 125M.
+>The question is, why did the kernel decide 610MB of buffers was necessary ?
 
-That's been in there since at least Red Hat 6.0, and has spread to 
-all the derivatives, including mkLinux, Mandrake, Yellow Dog et al. 
-I agree, it's a great system, even though it only works once the 
-System V scripts start going.  If the kernel could do something like 
-that (maybe with a "pretty" argument via LILO, and a compile-time 
-option), it'd make the boot sequence a little less forbidding to 
-(l)users.
+The 128Mb of "buffers" is within e2defrag itself.  The kernel, seeing 
+a HUGE amount of disk activity, allocates as much RAM as possible to 
+aid the cause - this also means it evicts unused applications to 
+swap.  This is *perfectly normal*.  Your machine is not pageing 
+heavily, so overall it's a win.  Once you start using those apps 
+again, they'll come straight back into memory where and when you want 
+them.
+
+Come to that, this is the first time I've heard of e2defrag.  I'm 
+gonna take a look.  :)
 
 -- 
 --------------------------------------------------------------

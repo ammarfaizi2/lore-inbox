@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130199AbRBMFiB>; Tue, 13 Feb 2001 00:38:01 -0500
+	id <S130267AbRBMFnd>; Tue, 13 Feb 2001 00:43:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130267AbRBMFhv>; Tue, 13 Feb 2001 00:37:51 -0500
-Received: from cherry.napri.sk ([194.1.128.4]:36114 "HELO cherry.napri.sk")
-	by vger.kernel.org with SMTP id <S130199AbRBMFhg>;
-	Tue, 13 Feb 2001 00:37:36 -0500
-Date: Mon, 12 Feb 2001 18:18:00 +0100
-From: Peter Kundrat <kundrat@kundrat.sk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Animated framebuffer logo for 2.4.1
-Message-ID: <20010212181800.A27031@napri.sk>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3A83B6B0.8261F3CF@idb.hist.no> <3A83C4A1.5090903@megapathdsl.net> <20010211234718.K3748@bug.ucw.cz>
-Mime-Version: 1.0
+	id <S130380AbRBMFnO>; Tue, 13 Feb 2001 00:43:14 -0500
+Received: from out-mx1.crosswinds.net ([209.208.163.38]:61268 "HELO
+	out-mx1.crosswinds.net") by vger.kernel.org with SMTP
+	id <S130267AbRBMFnK>; Tue, 13 Feb 2001 00:43:10 -0500
+Message-ID: <3A88C882.BD78A854@crosswinds.net>
+Date: Tue, 13 Feb 2001 00:39:14 -0500
+From: Michael Trausch <fd0man@crosswinds.net>
+X-Mailer: Mozilla 4.73 [en] (Win95; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: rose@wytech.de, linux-kernel@vger.kernel.org
+Subject: Re: Software Mestizo Manifesto
+In-Reply-To: <E14SKV1-0007DJ-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.0i
-In-Reply-To: <20010211234718.K3748@bug.ucw.cz>; from pavel@suse.cz on Sun, Feb 11, 2001 at 11:47:18PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 11, 2001 at 11:47:18PM +0100, Pavel Machek wrote:
-> > Right.  Add the option.  Default to "spew mode",
-> > but make it easy for distributions to show people
-> > a non-threatening boot process.  
-> 
-> Wrong.
-> > 
-> > Since, as Christophe mentions, the boot messages would
-> > still be accessible via CTRL-ALT-F2, I don't see what 
-> > the problem is with at least making this an option.
-> 
-> If your system crashes hard, you have only graphical logo to stare
-> at. Any warning messages are hidden. Not good.
 
-One good compromise would be a small scrolling window with a few last kernel messages.
-Another option would be to turn it off for next boot (assuming it is reproducible), 
-either by setting bootparam or pressing alt-f2 early enough.
 
-		pkx
--- 
-Peter Kundrat
-peter@kundrat.sk
+Alan Cox wrote:
+> 
+> > > It seems that people are using open source software to do idiotic
+> > > things. Many open source references were made in the article, I should
+> > > see if the article is online at all to maybe be able to use it as a
+> > > reference.
+> >
+> > You probably mean that one:
+> > http://www.usatoday.com/life/cyber/tech/2001-02-05-binladen.htm
+> 
+> It has to be said that if Im blowing up planes full of people then I'm probably
+> not concerned about software licensing issues or a visit from the BSA.
+> 
+> Alan
+
+ROFL... This is true.  However, I've got to wonder how many people
+actually like Bin Laden are out there.  And seeing as though they can't
+seem to catch him, he must be doing a pretty damn good job at working on
+the software issue.  We'll see how long it takes for the Government to
+finally decide to violate the Freedom of Speech and require Master Keys.
+
+And I'd hope that the Linux community doesn't bend over and succumb to
+that, becuase thinking logically here, if the M-Key fell in the wrong
+hands it could be used without court orders.  That's the whole thing
+that the Government apparently doesn't realize.
+
+Anywayz, we'll see what happens.  I'm off of the list currently so that
+I can work on my own software project for now, but I'll probably be back
+on within a matter of months, we'll see how bored I get if I get free
+time from my software project :-P.
+
+	- Mike
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

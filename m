@@ -1,37 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268731AbTCCT1B>; Mon, 3 Mar 2003 14:27:01 -0500
+	id <S268736AbTCCT2g>; Mon, 3 Mar 2003 14:28:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268732AbTCCT1B>; Mon, 3 Mar 2003 14:27:01 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:8467 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S268731AbTCCT07>; Mon, 3 Mar 2003 14:26:59 -0500
-Date: Mon, 3 Mar 2003 20:37:24 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: John Bradford <john@grabjohn.com>
-Cc: root@chaos.analogic.com, alan@lxorguk.ukuu.org.uk, hch@infradead.org,
-       pavel@janik.cz, pavel@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Message-ID: <20030303193724.GA19556@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.3.95.1030303091452.22417B-100000@chaos> <200303031508.h23F8FEI000787@81-2-122-30.bradfords.org.uk>
+	id <S268735AbTCCT2g>; Mon, 3 Mar 2003 14:28:36 -0500
+Received: from 2etnv5.cm.chello.no ([80.111.51.24]:15746 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S268732AbTCCT2O>; Mon, 3 Mar 2003 14:28:14 -0500
+Subject: Re: anyone ever done multicast AF_UNIX sockets?
+From: Terje Eggestad <terje.eggestad@scali.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: cfriesen@nortelnetworks.com, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, linux-net@vger.kernel.org
+In-Reply-To: <20030303.105646.02089773.davem@redhat.com>
+References: <3E6399F1.10303@nortelnetworks.com>
+	<20030303.095641.87696857.davem@redhat.com>
+	<3E63A8CB.2090307@nortelnetworks.com> 
+	<20030303.105646.02089773.davem@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Mar 2003 20:42:12 +0100
+Message-Id: <1046720532.28127.213.camel@eggis1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200303031508.h23F8FEI000787@81-2-122-30.bradfords.org.uk>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 2003-03-03 at 19:56, David S. Miller wrote:
+       From: Chris Friesen <cfriesen@nortelnetworks.com>
+       Date: Mon, 03 Mar 2003 14:11:07 -0500
+       
+       I haven't done UDP bandwidth testing--I need to check how lmbench
+       did it for the unix socket and do the same for UDP.  Local TCP was
+       far slower than unix sockets though.
+    
+    That result is system specific and depends upon how the data and
+    datastructures hit the cpu cachelines in the kernel.
+    
+    TCP bandwidth is slightly faster than AF_UNIX bandwidth on my
+    sparc64 boxes for example.
 
-> It's only if you want to use several version control systems in
-> parallel that it might be an issue, but if a single, free, version
-> control system is in use, I don't see why that would be necessary.
+I've seen that their are the same on linux.I tried to to do AF_UNIX
+instead of AF_INET internally to boost perf, but to no avail. Makes you
+suspect that the loopback device actually create an AF_UNIX connection
+under the hood ;-)
 
-But you *will* be using bitkeeper along with something else, because
-linus is not going to switch unless that something else is well
-tested, creating chicken-egg problem.
 
 -- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+_________________________________________________________________________
+
+Terje Eggestad                  mailto:terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
+
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
+N-0619 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
+

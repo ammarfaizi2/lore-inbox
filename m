@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261301AbTDOMIj (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 08:08:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbTDOMIj 
+	id S261288AbTDOMLc (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 08:11:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbTDOMLc 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 08:08:39 -0400
-Received: from bv-n-3b5d.adsl.wanadoo.nl ([212.129.187.93]:24324 "HELO
-	legolas.dynup.net") by vger.kernel.org with SMTP id S261301AbTDOMIi 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 08:08:38 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rudmer van Dijk <rudmer@legolas.dynup.net>
-Reply-To: rudmer@legolas.dynup.net
-Message-Id: <200304151416.35797@gandalf>
-To: Petr Cisar <petr.cisar@gtsgroup.cz>, Petr Cisar <pc@cuculus.switch.gts.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kernels since 2.5.60 upto 2.5.67 freeze when X server terminates
-Date: Tue, 15 Apr 2003 14:20:12 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <20030415133608.A1447@cuculus.switch.gts.cz>
-In-Reply-To: <20030415133608.A1447@cuculus.switch.gts.cz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	Tue, 15 Apr 2003 08:11:32 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:21438
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S261288AbTDOMLb (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 08:11:31 -0400
+Subject: Re: Problem: 2.4.20, 2.5.66 have different IDE channel order
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200304142054_MC3-1-3463-6D74@compuserve.com>
+References: <200304142054_MC3-1-3463-6D74@compuserve.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1050405826.27744.29.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 15 Apr 2003 12:23:47 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 April 2003 13:36, Petr Cisar wrote:
-> Hello
+On Maw, 2003-04-15 at 01:51, Chuck Ebbert wrote:
+>     PIIX3, HPT370, PDC20268
 > 
-> Since 2.5.60, I have been experiencing problems with a complete system 
-freeze or random oopses when the X-server terminates. It is happening on both 
-machines I am using whose hardware configuration differs slightly, however 
-both of them are equipped with ATI video cards (ATI Rage 128 and ATI Radeon 
-8500), and both of them run the same version of X-server. That's about all 
-they have in common.
+>   Obviously reversing order isn't going to help here.
 > 
-> The version of X-server I am using is:
-> XFree86 Version 4.3.0
-> Release Date: 27 February 2003
+>   I edited the Makefile to change the link order but that didn't help.
 
-seen it to (~60% of the time)
-my X is quite old:
-XFree86 Version 4.2.0 / X Window System
-(protocol Version 11, revision 0, vendor release 6600)
-Release Date: 18 January 2002
+For compiled in IDE the order is defined by the order on the PCI
+bus scan, not by the IDE layer
 
-thought that it was a problem of X and didn't have time to update it 
-(although I played with a lot of -mm kernels since 2.5.64).
+(See ide/setup-pci.c:ide_scan_pcibus)
 
-	Rudmer

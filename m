@@ -1,68 +1,134 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265043AbRFZRLa>; Tue, 26 Jun 2001 13:11:30 -0400
+	id <S265038AbRFZRKl>; Tue, 26 Jun 2001 13:10:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265044AbRFZRLL>; Tue, 26 Jun 2001 13:11:11 -0400
-Received: from energy.pdb.sbs.de ([192.109.2.19]:59909 "EHLO energy.pdb.sbs.de")
-	by vger.kernel.org with ESMTP id <S265043AbRFZRLB>;
-	Tue, 26 Jun 2001 13:11:01 -0400
-Date: Tue, 26 Jun 2001 19:14:05 +0200 (CEST)
-From: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-To: Mike Galbraith <mikeg@wen-online.de>
-cc: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
-        <Paul.Russell@rustcorp.com.au>
-Subject: [PATCH] proc_file_read() (Was: Re: proc_file_read() question)
-In-Reply-To: <Pine.LNX.4.33.0106260834400.737-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.30.0106261906240.13052-100000@biker.pdb.fsc.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265043AbRFZRKb>; Tue, 26 Jun 2001 13:10:31 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:3089 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265038AbRFZRKR>;
+	Tue, 26 Jun 2001 13:10:17 -0400
+Date: Tue, 26 Jun 2001 10:07:34 -0700
+From: Greg KH <greg@kroah.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>,
+        suganuma <suganuma@hpc.bs1.fc.nec.co.jp>,
+        Anton Blanchard <antonb@au.ibm.com>,
+        Jason McMullan <jmcmullan@linuxcare.com>
+Subject: Re: [ANNOUNCE] HotPlug CPU patch against 2.4.5
+Message-ID: <20010626100734.A20758@kroah.com>
+In-Reply-To: <m15BG8K-001UIwC@mozart>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="0OAP2g/MAC+5xKAE"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m15BG8K-001UIwC@mozart>; from rusty@rustcorp.com.au on Sat, Jun 16, 2001 at 11:29:00PM +1000
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-> Shhh ;-)  Last time that hack was mentioned, someone wanted to _remove_
-> it.  It's a very nice little hack to have around, and IKD uses it.
+--0OAP2g/MAC+5xKAE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I am not saying it should be removed. But IMO it is a legitimate (if
-not the originally intended) use of "start" to serve as a pointer to
-a memory area allocated in the proc_read () function. This use is broken
-with this hack in its current form, because reading from such a file
-will fail depending on the (random) order of the page and start pointers.
+On Sat, Jun 16, 2001 at 11:29:00PM +1000, Rusty Russell wrote:
+> Hi all,
+> 
+> 	http://sourceforge.net/projects/lhcs/
+> 
+> 	Version 0.3 (untested) of the HotPlug CPU Patch is out, with
+> ia64 and x86 support.
 
-If I understand the "hack" right, legitimate offsets generated for it
-are always between 0 and PAGE_SIZE. Therefore the patch below would
-not break it, while overcoming the abovementioned problem, because
-legitimate page pointers will never be < PAGE_SIZE.
+Here's a patch to the patch that adds /sbin/hotplug support (sorry, I
+couldn't resist...)
 
-Please correct me if I'm wrong.
+It also fixes a '}' problem in fs/proc/proc_misc.c
 
-Cheers,
-Martin
+thanks,
 
--- 
-Martin Wilck     <Martin.Wilck@fujitsu-siemens.com>
-FSC EP PS DS1, Paderborn      Tel. +49 5251 8 15113
+greg k-h
 
+--0OAP2g/MAC+5xKAE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="cpu-hotplug-2.4.5.patch"
 
---- linux-2.4.5/fs/proc/generic.c	Mon Jun 25 13:46:26 2001
-+++ 2.4.5mw/fs/proc/generic.c	Tue Jun 26 20:42:22 2001
-@@ -104,14 +104,14 @@
-  		 * return the bytes, and set `start' to the desired offset
-  		 * as an unsigned int. - Paul.Russell@rustcorp.com.au
- 		 */
-- 		n -= copy_to_user(buf, start < page ? page : start, n);
-+ 		n -= copy_to_user(buf, (unsigned long) start < PAGE_SIZE ? page : start, n);
- 		if (n == 0) {
- 			if (retval == 0)
- 				retval = -EFAULT;
- 			break;
- 		}
+diff -Naur -X /home/greg/linux/dontdiff linux-2.4.5-hotplug/fs/proc/proc_misc.c linux-2.4.5-hotplug-greg/fs/proc/proc_misc.c
+--- linux-2.4.5-hotplug/fs/proc/proc_misc.c	Tue Jun 26 09:23:00 2001
++++ linux-2.4.5-hotplug-greg/fs/proc/proc_misc.c	Tue Jun 26 09:43:57 2001
+@@ -295,6 +295,7 @@
+ 			jif - (  kstat.per_cpu_user[i] \
+ 			           + kstat.per_cpu_nice[i] \
+ 			           + kstat.per_cpu_system[i]));
++	}
+ 	len += sprintf(page + len,
+ 		"page %u %u\n"
+                 "swap %u %u\n"
+diff -Naur -X /home/greg/linux/dontdiff linux-2.4.5-hotplug/kernel/cpu.c linux-2.4.5-hotplug-greg/kernel/cpu.c
+--- linux-2.4.5-hotplug/kernel/cpu.c	Tue Jun 26 09:23:00 2001
++++ linux-2.4.5-hotplug-greg/kernel/cpu.c	Tue Jun 26 10:00:45 2001
+@@ -8,6 +8,7 @@
+ #include <linux/notifier.h>
+ #include <linux/sched.h>
+ #include <linux/sched.h>
++#include <linux/kmod.h>		/* for hotplug_path */
+ #include <asm/semaphore.h>
+ #include <asm/uaccess.h>
+ 
+@@ -17,6 +18,38 @@
+ 
+ static struct notifier_block *cpu_chain = NULL;
+ 
++#ifdef CONFIG_HOTPLUG
++/* Notify userspace when a cpu event occurs,
++ * by running '/sbin/hotplug cpu' with certain
++ * environment variables set.
++ */
++static int cpu_run_sbin_hotplug(unsigned int cpu, char *action)
++{
++	char *argv[3], *envp[5], cpu_str[12], action_str[32];
++	int i;
++
++	sprintf(cpu_str, "CPU=%d", cpu);
++	sprintf(action_str, "ACTION=%s", action);
++
++	i = 0;
++	argv[i++] = hotplug_path;
++	argv[i++] = "cpu";
++	argv[i] = 0;
++
++	i = 0;
++	/* minimal command environment */
++	envp [i++] = "HOME=/";
++	envp [i++] = "PATH=/sbin:/bin:/usr/sbin:/usr/bin";
++	envp [i++] = cpu_str;
++	envp [i++] = action_str;
++	envp [i] = 0;
++
++	return call_usermodehelper(argv [0], argv, envp);
++}
++#else
++#define cpu_run_sbin_hotplug(cpu, action) ({ 0; })
++#endif
++
+ /* Should really be in a header somewhere. */
+ asmlinkage long sys_sched_get_priority_max(int policy);
+ 
+@@ -120,6 +153,8 @@
+ 	/* Die, CPU, die! */
+ 	__cpu_die(cpu);
+ 
++	cpu_run_sbin_hotplug(cpu, "remove");
++
+  out:
+ 	up(&cpucontrol);
+ 	return ret;
+@@ -145,6 +180,8 @@
+ 	/* Friendly to make sure everyone knows it's up before we
+ 	   return */
+ 	__synchronize_kernel();
++
++	cpu_run_sbin_hotplug(cpu, "add");
+ 
+  out:
+ 	up(&cpucontrol);
 
--		*ppos += start < page ? (long)start : n; /* Move down the file */
-+		*ppos += (unsigned long) start < PAGE_SIZE ? (unsigned long) start : n; /* Move down the file */
- 		nbytes -= n;
- 		buf += n;
- 		retval += n;
-
+--0OAP2g/MAC+5xKAE--

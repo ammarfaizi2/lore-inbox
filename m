@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276089AbRI1OtI>; Fri, 28 Sep 2001 10:49:08 -0400
+	id <S276087AbRI1Ov2>; Fri, 28 Sep 2001 10:51:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276088AbRI1Oss>; Fri, 28 Sep 2001 10:48:48 -0400
-Received: from mailgate5.cinetic.de ([217.72.192.165]:8364 "EHLO
-	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
-	id <S276087AbRI1Osi>; Fri, 28 Sep 2001 10:48:38 -0400
-Date: Fri, 28 Sep 2001 16:48:57 +0200
-Message-Id: <200109281448.f8SEmvh08284@mailgate5.cinetic.de>
-MIME-Version: 1.0
-Organization: http://freemail.web.de/
-From: "Joachim Weller" <JoachimWeller@web.de>
-To: "ChristophHellwig" <hch@ns.caldera.de>,
-        "Joachim Weller" <joachim_weller@hsgmed.com>
-Cc: axboe@suse.de, JoachimWeller@web.de, linux-kernel@vger.kernel.org
-Subject: Re: Re: BUG: cat /proc/partitions endless loop
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S276088AbRI1OvT>; Fri, 28 Sep 2001 10:51:19 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:48654 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S276087AbRI1OvC>;
+	Fri, 28 Sep 2001 10:51:02 -0400
+Date: Fri, 28 Sep 2001 16:51:23 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Thomas Hood <jdthood@mail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PnP BIOS + 2.4.9-ac16 = no boot
+Message-ID: <20010928165122.L21524@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+In-Reply-To: <3BB48A34.E392B7BC@mail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3BB48A34.E392B7BC@mail.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@ns.caldera.de> schrieb am 28.09.01:
-> In article <200109281315.f8SDFpA01669@bmdipc2c.germany.agilent.com> you wrote:
-> >  I traced the problem down to drivers/block/genhd.c, 
-> > where the function get_partition_list() outer loop does not 
-> > terminate due to the last element in the structured list starting 
-> > with gendisk_head is not initialized to NULL, by whatever reason.
-> > My fix does not cure the pointered endless loop, but prevents
-> > from looping when stepping thru the pointered list.
+On Fri, Sep 28, 2001 at 10:33:24AM -0400, Thomas Hood wrote:
+
+> Hi Stelian.
 > 
-> I think the fix could be simpler.  What about:
-[...] 
+> Try this patch.  It is a modification of the latest
+> pnpbios driver patch to 2.4.9-ac16 which includes
+> hacks to work on a Vaio laptop.  If this works then
+> I'll clean it up a bit and submit to Alan.
 
-> + for (gp = gendisk_head; gp != gendisk_head; gp = gp->next) {
+It works, kind of.
 
-This will break your for loop immedeately, because the loop criteria
-is already violated by the initialization !
+The only remaining problem is that the DMI scan routines are
+called _after_ the PnP BIOS scan, so the is_sony_vaio_laptop
+variable will be always evaluated to 0 in your patch (causing
+the same hang again).
 
-But I tried another solution:
-  for (gp = gendisk_head; gp && (gp->next != gendisk_head); gp = gp->next) {
+After manually changing is_sony_vaio_laptop to 1 the
+patched kernel boots ok, entries in /proc/bus/pnp are present
+(not sure how to test if their contents are corect though).
 
-with no success - the cat /proc/partition only printed the heading line.
-This proofed to me, that the pointered list is created the wrong way,
-in other words, gendisk_head->next is a pointer to itself.
-It looks to me, that the "next" field in 
-/*static*/ struct gendisk *gendisk_head;
-is not initialized (by the compiler ?) correctly to NULL. 
-
-
-
-
->     if (gp->part[n].nr_sects == 0)
->      continue;
-> 
->  
-
-
-_______________________________________________________________________
-1.000.000 DM gewinnen - kostenlos tippen - http://millionenklick.web.de
-IhrName@web.de, 8MB Speicher, Verschluesselung - http://freemail.web.de
-
-
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

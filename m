@@ -1,40 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265783AbUANBFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 20:05:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265667AbUANBFQ
+	id S265653AbUANBDM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 20:03:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265657AbUANBDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 20:05:16 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55245 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265783AbUANBFH (ORCPT
+	Tue, 13 Jan 2004 20:03:11 -0500
+Received: from fw.osdl.org ([65.172.181.6]:30411 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265653AbUANBDG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 20:05:07 -0500
-Date: Tue, 13 Jan 2004 17:05:05 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: john moser <bluefoxicy@linux.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Capabilities help
-Message-ID: <20040113170505.C30560@osdlab.pdx.osdl.net>
-References: <20040113235407.EA4D7393B@sitemail.everyone.net>
+	Tue, 13 Jan 2004 20:03:06 -0500
+Date: Tue, 13 Jan 2004 16:59:51 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: drees@greenhydrant.com
+Subject: Re: modprobe failed: digest_null
+Message-Id: <20040113165951.4f74278a.rddunlap@osdl.org>
+In-Reply-To: <20040113160131.79520358.rddunlap@osdl.org>
+References: <20040113215355.GA3882@piper.madduck.net>
+	<20040113143053.1c44b97d.rddunlap@osdl.org>
+	<20040113223739.GA6268@piper.madduck.net>
+	<20040113144141.1d695c3d.rddunlap@osdl.org>
+	<20040113225047.GA6891@piper.madduck.net>
+	<20040113150319.1e309dcb.rddunlap@osdl.org>
+	<3156.208.48.139.163.1074037125.squirrel@www.greenhydrant.com>
+	<20040113160131.79520358.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040113235407.EA4D7393B@sitemail.everyone.net>; from bluefoxicy@linux.net on Tue, Jan 13, 2004 at 03:54:07PM -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* john moser (bluefoxicy@linux.net) wrote:
-> I know this is working, because I checked my code over, plus the double
-> chroot / fails.  I can still load modules, change the system time,
-> and administrate the network.
+On Tue, 13 Jan 2004 16:01:31 -0800 "Randy.Dunlap" <rddunlap@osdl.org> wrote:
 
-First are you sure you dropped those particular bits?  Assuming you are,
-what's your .config look like (esp. CONFIG_SECURITY_*)?  Can you show me
-that your process is dropping a capability (say from /proc/<pid>/status),
-and that the capability is still enabled?
+| On Tue, 13 Jan 2004 15:38:45 -0800 (PST) "David Rees" <drees@greenhydrant.com> wrote:
+| 
+| | On Tue, January 13, 2004 at 3:03 pm, Randy.Dunlap wrote:
+| | >
+| | > OK, maybe someone else has an answer then.
+| | >
+| | > The message:
+| | > kernel: request_module: failed /sbin/modprobe -- digest_null. error = 256
+| | > is from modutils and not from module-init-tools according to my
+| | > source files.
+| | 
+| | I'm getting similar messages from dmesg after upgrading to 2.6.1, too:
+| | 
+| | request_module: failed /sbin/modprobe -- n. error = 256
+| | 
+| | [drees@summit drees]$ /sbin/modprobe -V
+| | module-init-tools version 3.0-pre5
+| | [drees@summit drees]$
+| | 
+| | Running on Fedora Core 1 compiled with gcc 3.3.2.  Didn't see these with
+| | 2.6.0.
+| 
+| Yes, I see a couple of similar messages:
+| 
+| request_module: failed /sbin/modprobe -- parport_lowlevel. error = -16
+| request_module: failed /sbin/modprobe -- fb0. error = 256
+| 
+| ...?
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+I don't think that it's related to IPsec since I'm not using that.
+
+I'm looking at the changes in kernel/kmod.c for 2.6.1 to see if they
+could cause it.
+
+--
+~Randy
+MOTD:  Always include version info.

@@ -1,73 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265551AbVBDUEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265048AbVBDUER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265551AbVBDUEU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 15:04:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266696AbVBDUDx
+	id S265048AbVBDUER (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 15:04:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbVBDT4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 15:03:53 -0500
-Received: from mout0.freenet.de ([194.97.50.131]:54496 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S264624AbVBDT7T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 14:59:19 -0500
-Date: Fri, 4 Feb 2005 20:59:17 +0100
-From: Michelle Konzack <linux4michelle@freenet.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: error
-Message-ID: <20050204195917.GG16853@freenet.de>
-References: <50183880-76D9-11D9-86BD-000A9575BDF8@gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1vw/k0TsQsDDqt71"
-Content-Disposition: inline
-In-Reply-To: <50183880-76D9-11D9-86BD-000A9575BDF8@gmail.com>
-X-Message-Flag: Improper configuration of Outlook is a breeding ground for viruses. Please take care your Client is configured correctly. Greetings Michelle.
-X-Disclaimer-DE: Eine weitere Verwendung oder die Veroeffentlichung dieser Mail oder dieser Mailadresse ist nur mit der Einwilligung des Autors gestattet.
-Organisation: Michelle's Selbstgebrautes
-X-Operating-System: Linux samba3.private 2.4.27-1-386
-X-Uptime: 20:58:13 up 5 days,  4:34,  5 users,  load average: 0.17, 0.32, 0.50
-X-Homepage: http://www.debian.tamay-dogan.homelinux.net/
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 4 Feb 2005 14:56:06 -0500
+Received: from 67.107.199.112.ptr.us.xo.net ([67.107.199.112]:37360 "EHLO
+	hathawaymix.org") by vger.kernel.org with ESMTP id S266437AbVBDTy2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 14:54:28 -0500
+Message-ID: <4203D4C1.1080007@hathawaymix.org>
+Date: Fri, 04 Feb 2005 13:02:09 -0700
+From: Shane Hathaway <shane@hathawaymix.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041228
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hans-Peter Jansen <hpj@urpla.net>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Configure MTU via kernel DHCP
+References: <200502022148.00045.shane@hathawaymix.org> <200502041755.41288.hpj@urpla.net>
+In-Reply-To: <200502041755.41288.hpj@urpla.net>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hans-Peter Jansen wrote:
+> On Thursday 03 February 2005 05:47, Shane Hathaway wrote:
+> 
+>>The attached patch enhances the kernel's DHCP client support (in
+>>net/ipv4/ipconfig.c) to set the interface MTU if provided by the
+>>DHCP server. Without this patch, it's difficult to netboot on a
+>>network that uses jumbo frames.  The patch is based on 2.6.10, but
+>>I'll update it to the latest testing kernel if that would expedite
+>>its inclusion in the kernel.
+> 
+> 
+> Well, I've been there before, and asked for exact the same back in 
+> June 2003, but had much less luck, nobody of kernel fame even 
+> responded:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=105624464918574&w=4
 
---1vw/k0TsQsDDqt71
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I wish I had found your patch before I went to the trouble of writing my 
+own!  Yours is just as good as mine.
 
-Am 2005-02-04 16:19:30, schrieb avperrotta@gmail.com:
-> Hi, I encountered the following error trying to select the option:=20
-> Ethernet (1000 Mbit) --->
-> in my Linux Kernel v2.4.18 Configuration
-                      ^^^^^^
-        What about using a newer kernel like 2.4.[27-29]
+> For what is worth it, I ported my patch to current 2.6, which raised 
+> some comments compared to yours:
+> 
+>  - Is it really necessary to protect the dev_set_mtu call, since it is
+>    just setting up the device?
 
-> What do I do ?
+Without rtnl_shlock(), something complains about RTNL not being locked. 
+I don't know much beyond that.
 
-> Andre Perrotta
-> Sao Paulo - Brasil
+>  - I prefer to call dev_set_mtu only, if a change mtu request is
+>    sent.. 
 
-Greetings
-Michelle
+Yes, I can see that.  Either way is fine by me.
 
---=20
-Linux-User #280138 with the Linux Counter, http://counter.li.org/=20
-Michelle Konzack   Apt. 917                  ICQ #328449886
-                   50, rue de Soultz         MSM LinuxMichi
-0033/3/88452356    67100 Strasbourg/France   IRC #Debian (irc.icq.com)
+>  - Are you sure, you got the endianess right? 
 
---1vw/k0TsQsDDqt71
-Content-Type: application/pgp-signature; name="signature.pgp"
-Content-Description: Digital signature
-Content-Disposition: inline
+On the MTU parameter?  Yes, it's network byte order, big-endian.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+> Here's the "cost": ipconfig.o without my patch on x86:
+> 
+>   3 .init.data    0000005a  00000000  00000000  00000220  2**2
+>                   CONTENTS, ALLOC, LOAD, RELOC, DATA
+>   4 .rodata.str1.1 000001a2  00000000  00000000  0000027a  2**0
+>                   CONTENTS, ALLOC, LOAD, READONLY, DATA
+>   5 .rodata.str1.4 000003ad  00000000  00000000  0000041c  2**2
+>                   CONTENTS, ALLOC, LOAD, READONLY, DATA
+>   6 .init.text    00001a45  00000000  00000000  000007d0  2**4
+>                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+> 
+> With patch:
+> 
+>   3 .init.data    0000005e  00000000  00000000  00000220  2**2
+>                   CONTENTS, ALLOC, LOAD, RELOC, DATA
+>   4 .rodata.str1.1 000001ab  00000000  00000000  0000027e  2**0
+>                   CONTENTS, ALLOC, LOAD, READONLY, DATA
+>   5 .rodata.str1.4 000003e5  00000000  00000000  0000042c  2**2
+>                   CONTENTS, ALLOC, LOAD, READONLY, DATA
+>   6 .init.text    00001ab5  00000000  00000000  00000820  2**4
+>                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+> 
+> Difference: 181 Bytes (padding ignored)
+> 
+> The whole module takes about 9K, compared to dhcp in initrd, which 
+> takes a few hundred K! Hmm.
 
-iD8DBQFCA9QVC0FPBMSS+BIRAphkAJ0TEiDDCx4ljIRQ+Qi+/+70RiF0fACcDO5/
-9IgWGCK+HcRrfsJGOsq37aM=
-=MBfU
------END PGP SIGNATURE-----
+It's probably better to compare your patch with its apparent successor, 
+however.  The tiny DHCP client in the klibc package already supports 
+setting the MTU.
 
---1vw/k0TsQsDDqt71--
+> May the linux gods indulge on this topic one day or remove the 
+> ipconfig module completely.
+
+A friend of mine just had the misfortune of running into the exact same 
+problem, but then he had the fortune of finding your patch.  So at least 
+the curse has a temporary remedy. :-)  The long-term solution is klibc, 
+I hope.  klibc in initramfs could ease a lot of pain.
+
+Shane

@@ -1,58 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264876AbTF0V7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 17:59:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264873AbTF0V7P
+	id S264870AbTF0WCU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 18:02:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264873AbTF0WCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 17:59:15 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:24491 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264870AbTF0V7K
+	Fri, 27 Jun 2003 18:02:19 -0400
+Received: from cable98.usuarios.retecal.es ([212.22.32.98]:11492 "EHLO
+	hell.lnx.es") by vger.kernel.org with ESMTP id S264870AbTF0WCD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 17:59:10 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 27 Jun 2003 15:11:53 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: "David S. Miller" <davem@redhat.com>
-cc: mbligh@aracnet.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: networking bugs and bugme.osdl.org
-In-Reply-To: <20030627.150248.08328103.davem@redhat.com>
-Message-ID: <Pine.LNX.4.55.0306271509540.4457@bigblue.dev.mcafeelabs.com>
-References: <Pine.LNX.4.55.0306270749020.4137@bigblue.dev.mcafeelabs.com>
- <20030627.143738.41641928.davem@redhat.com>
- <Pine.LNX.4.55.0306271454490.4457@bigblue.dev.mcafeelabs.com>
- <20030627.150248.08328103.davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 27 Jun 2003 18:02:03 -0400
+Date: Sat, 28 Jun 2003 00:16:06 +0200
+From: Manuel Estrada Sainz <ranty-bulk@ranty.pantax.net>
+To: Pavel Roskin <proski@gnu.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Jeff Garzik <jgarzik@pobox.com>,
+       orinoco-devel@lists.sourceforge.net, jt@hpl.hp.com
+Subject: Re: [Orinoco-devel] orinoco_usb Request For Comments
+Message-ID: <20030627221605.GB1783@ranty.pantax.net>
+Reply-To: ranty@debian.org
+References: <20030626205811.GA25783@ranty.pantax.net> <Pine.LNX.4.56.0306261734230.3732@marabou.research.att.com> <20030626225002.GA4703@ranty.pantax.net> <Pine.LNX.4.56.0306271736190.12316@marabou.research.att.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.56.0306271736190.12316@marabou.research.att.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Jun 2003, David S. Miller wrote:
+On Fri, Jun 27, 2003 at 05:49:59PM -0400, Pavel Roskin wrote:
+> On Fri, 27 Jun 2003, Manuel Estrada Sainz wrote:
+> 
+> >  Actually, orinoco-exp could be used as a test bed for monitor mode,
+> >  scanning, hermesap, ... and merge it back to the standard orinoco as it
+> >  probes to work right. For now it should be a test bed for USB support :)
+> [snip]
+> > > If you are going to create a separate driver, you should rename the
+> > > module.  I wouldn't bother with separate modules.  Just link hermes,
+> > > orinoco and orinoco_usb to one driver, say orinoco-usb.
+> >
+> >  No, I want to stay as similar to standard orinoco as possible to make
+> >  merging easier.
+> 
+> OK, I understand you are suggesting to fork an experimental branch.  Then
+> I suggest that we stop this discussion in LKML and return to orinoco-devel
+> to discuss the situation.
+> 
+> There is nothing wrong with the fork if all other ways to keep the code
+> together have been exhausted.  But since this wasn't discussed in the
+> orinoco-devel mailing list, I think it's too early to fork.
+> 
+> One thing we haven't considered is restructuring the code to separate
+> common and different parts of the USB and the non-USB drivers.
+> 
+> The firmware issue has been solved in the 2.5 kernels, so it shouldn't
+> prevent David from including your code.
 
->    From: Davide Libenzi <davidel@xmailserver.org>
->    Date: Fri, 27 Jun 2003 15:02:00 -0700 (PDT)
->
->    David, your method is the dream of every software developer.
->
-> It is not a dream, it works perfectly fine and has done so
-> for 5+ years of Linux maintainence.
->
-> To make these things scale you MUST push the work out to other people,
-> you absolutely cannot centralize.  And here we're pushing it out to
-> the bug reporters, just like we push the work of patch maintainence to
-> the patch submitters.
->
-> If they don't care about the bug and won't retransmit when their
-> stuff isn't being looked at, their bug isn't worth being looked
-> at.
+ Monday the latest I'll start a thread in orinoco-devel, unless you do
+ it first :) 
 
-David, I'm not willing to waste both precious time arguing on this but I
-will leave you question to think about. Is a bug report more useful for
-the user of a "system" or for the "system" itself ?
+ Regards
 
+ 	Manuel
 
-
-- Davide
-
+-- 
+--- Manuel Estrada Sainz <ranty@debian.org>
+                         <ranty@bigfoot.com>
+			 <ranty@users.sourceforge.net>
+------------------------ <manuel.estrada@hispalinux.es> -------------------
+Let us have the serenity to accept the things we cannot change, courage to
+change the things we can, and wisdom to know the difference.

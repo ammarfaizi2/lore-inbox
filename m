@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276989AbRJKWHj>; Thu, 11 Oct 2001 18:07:39 -0400
+	id <S276987AbRJKWHj>; Thu, 11 Oct 2001 18:07:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276977AbRJKWHc>; Thu, 11 Oct 2001 18:07:32 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:21243 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S276989AbRJKWHS>; Thu, 11 Oct 2001 18:07:18 -0400
-Date: Thu, 11 Oct 2001 18:07:46 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: sergio@bruder.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fwd: usb-uhci broken in 2.4.10-ac11?
-Message-ID: <20011011180746.A30928@devserv.devel.redhat.com>
-In-Reply-To: <200110112156.f9BLuhG29509@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200110112156.f9BLuhG29509@devserv.devel.redhat.com>; from zaitcev@redhat.com on Thu, Oct 11, 2001 at 05:56:43PM -0400
+	id <S276989AbRJKWHe>; Thu, 11 Oct 2001 18:07:34 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:14340 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S276987AbRJKWHV>;
+	Thu, 11 Oct 2001 18:07:21 -0400
+Date: Fri, 12 Oct 2001 00:05:59 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: <jkp@riker.nailed.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Which kernel (Linus or ac)?
+In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org>
+Message-ID: <Pine.LNX.4.33.0110120005260.384-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: sergio@bruder.net
-> Date: Thu, 11 Oct 2001 16:36:47 -0300
-> To: linux-kernel <linux-kernel@vger.kernel.org>
+did you try 2.4.12?
 
-> I have a USB printer that was working fine with 2.4.10-ac7.
+On Thu, 11 Oct 2001 jkp@riker.nailed.org wrote:
 
-> Just switched to 2.4.10-ac11 and now I get the following at usb-uhci's
-> modprobe:
+> I'm presently running 2.4.8 on a machine. The VM on this is not terribly
+> good (swaps a lot with seemlingly plenty of physical memory).
+> I'm considering going to an -ac kernel, but I need recent iptables. Is the
+> iptables code up to date in -ac?
+> Also, which -ac do people recommend? I've beent trying to follow lkm, but
+> I'm somewhat confused at this point.
+>
+> The box:
+>
+> P200MMX 64MB
+>
+> It's used as a firewall and a ssh login/through server for external connections.
+>
+> Thx.
+>
+> --Jens
+> --
+> ----------------------------------
+> Jens Petersohn       x33128
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Can you do narrowing for us, please?
-Also, make sure you are on -ac11 and not -ac12, because I see no
-USB changes between -ac7 and -ac11, but -ac12 introduces a bunch.
-
--- Pete

@@ -1,47 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279981AbRKRSUT>; Sun, 18 Nov 2001 13:20:19 -0500
+	id <S280012AbRKRShq>; Sun, 18 Nov 2001 13:37:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279987AbRKRSUJ>; Sun, 18 Nov 2001 13:20:09 -0500
-Received: from [208.129.208.52] ([208.129.208.52]:29192 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S279981AbRKRSUB>;
-	Sun, 18 Nov 2001 13:20:01 -0500
-Date: Sun, 18 Nov 2001 10:29:21 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: David Sanchez <dsanchez@veloxia.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Possible bug; latest kernels with LinuxThreads
-In-Reply-To: <5.1.0.14.2.20011118051259.03b1ea08@pop.veloxia.com>
-Message-ID: <Pine.LNX.4.40.0111181028380.7268-100000@blue1.dev.mcafeelabs.com>
+	id <S280015AbRKRShg>; Sun, 18 Nov 2001 13:37:36 -0500
+Received: from mx2out.umbc.edu ([130.85.253.52]:43976 "EHLO mx2out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S280012AbRKRSh0>;
+	Sun, 18 Nov 2001 13:37:26 -0500
+Date: Sun, 18 Nov 2001 13:37:22 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: Anders Peter Fugmann <afu@fugmann.dhs.org>
+cc: John Jasen <jjasen@realityfailure.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: SiS630 chipsets && linux 2.4.x kernel == snails pace?
+In-Reply-To: <3BF7F792.8010403@fugmann.dhs.org>
+Message-ID: <Pine.SGI.4.31L.02.0111181333410.12354143-100000@irix2.gl.umbc.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Nov 2001, David Sanchez wrote:
+On Sun, 18 Nov 2001, Anders Peter Fugmann wrote:
 
-> At 19:11 17/11/2001 -0800, you wrote:
-> >On Sun, 18 Nov 2001, David Sanchez wrote:
-> >
-> > > Class is correctly allocated with "new", and also remember that the daemon
-> > > runs without any problem and in a production environment with kernel 2.4.9
-> > > and lowers.
-> >
-> >Try a "p self" from frame #0
+> Hi again.
 >
-> Seems OK...
+> One thing i cannot see is "unmaskirq" setting.
+> So I would really like to see the output of a plain
+> hdparm /dev/hda.
+
+[root@labrat5 /root]# /sbin/hdparm /dev/hda // 2.4.12
+
+/dev/hda:
+ multcount    = 16 (on)
+ I/O support  =  3 (32-bit w/sync)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 2491/255/63, sectors = 40021632, start = 0
+
+tried it with and without 32bit I/O support, and with/without unmaskirq.
+
+[root@labrat6 linux]# /sbin/hdparm /dev/hda // RH 2.2.19-6.2.1
+
+/dev/hda:
+ multcount    =  0 (off)
+ I/O support  =  0 (default 16-bit)
+ unmaskirq    =  0 (off)
+ using_dma    =  0 (off)
+ keepsettings =  0 (off)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 2491/255/63, sectors = 40021632, start = 0
+
+> As far as I can see the 2.4.X kernel gives much better throughput,
+> but 4-5 hours for compiling the kernel is way too long on a 700Mhz
+> celeron. Please try to do a
+> $ make dep clean && time make bzImage -j 3
+> on both 2.2.19 and 2.4.X kernel and send the time information.
 >
-> [...]
-> #7  0x805683b in MCVXLocaldApp::StartTimer (this=0x8090260) at chsld.cc:812
-> #8  0x8056cf0 in gTimerThread () at chsld.cc:106
-> #9  0x40051b85 in pthread_start_thread (arg=0xbf7ffe40) at manager.c:241
+> The line
+> "PCI: No IRQ known for interrupt pin A of device 00:00.1. Please try
+> using pci=biosirq." in the dmesg output is strange. Have you tried to do
+> what is says?
 
-Try a disassemble from frame #0 to get the exact machine instruction where
-it crashes.
+yep. No effect on performance or error message.
 
+Can't check the BIOS immediately, as the nearest offending beast is 20km
+away.
 
+I should have the results of make dep clean && time make bzImage -j 3 in
+... a few hours. :(
 
-- Davide
-
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
 

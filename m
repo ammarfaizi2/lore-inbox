@@ -1,58 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267523AbUHYOST@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267553AbUHYOUa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267523AbUHYOST (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 10:18:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267553AbUHYOST
+	id S267553AbUHYOUa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 10:20:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267576AbUHYOUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 10:18:19 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33736 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267523AbUHYOSS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 10:18:18 -0400
-Message-ID: <412C9F89.7000901@pobox.com>
-Date: Wed, 25 Aug 2004 10:17:45 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+	Wed, 25 Aug 2004 10:20:30 -0400
+Received: from smtp07.web.de ([217.72.192.225]:12525 "EHLO smtp07.web.de")
+	by vger.kernel.org with ESMTP id S267553AbUHYOUU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 10:20:20 -0400
+Message-ID: <412CA001.70502@web.de>
+Date: Wed, 25 Aug 2004 16:19:45 +0200
+From: Artyom Tarasenko <alt-x@web.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040421
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Michal Ludvig <mludvig@suse.cz>
-CC: Michael Halcrow <mahalcro@us.ibm.com>,
-       CryptoAPI List <cryptoapi@lists.logix.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] /dev/crypto for Linux
-References: <412BB517.4040204@suse.cz> <20040824215351.GA9272@halcrow.us> <412C41BC.8020607@suse.cz>
-In-Reply-To: <412C41BC.8020607@suse.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org, andre@linux-ide.org
+Subject: [patch] getting back udma3 on BX chipset for 2.4.27
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> What is it good for?
-> One can build really light-weigth programs with crypto support that
-> don't need any external libraries (e.g. OpenSSL) or built-in algorithms.
-> Easier testing of new CryptoAPI ciphers (later also hashes and maybe
-> asymmetric ciphers as well).
-> Once, maybe, userspace access to crypto accelerators through kernel
-> drivers.
+some time between 2.4.18 and 2.4.22 the support of udma3 (aka UDMA-44) 
+was lost. Here is a trivial patch to get it back (if someone is 
+interested I can make it cleaner). Having IBM-DTLA-307030 and SAMSUNG 
+SV1604N drives I got significant advantage of using udma3 (23M/s vs 30M/s).
 
+Regards,
+Artyom Tarasenko.
 
-Let's see...
+--- drivers/ide/ide-lib.orig.c  Wed Aug 25 14:47:42 2004
++++ drivers/ide/ide-lib.c       Wed Aug 25 14:59:29 2004
+@@ -107,6 +107,10 @@
+                        if ((id->dma_ultra & 0x0008) &&
+                            (id->dma_ultra & hwif->ultra_mask))
+                                { speed = XFER_UDMA_3; break; }
++                case 0x05:
++                        if ((id->dma_ultra & 0x0008) &&
++                            (id->dma_ultra & hwif->ultra_mask))
++                                { speed = XFER_UDMA_3; break; }
+                case 0x01:
+                        if ((id->dma_ultra & 0x0004) &&
+                            (id->dma_ultra & hwif->ultra_mask))
+@@ -161,13 +165,13 @@
+ #ifdef CONFIG_BLK_DEV_IDEDMA
+        static u8 speed_max[] = {
+                XFER_MW_DMA_2, XFER_UDMA_2, XFER_UDMA_4,
+-               XFER_UDMA_5, XFER_UDMA_6
++               XFER_UDMA_5, XFER_UDMA_6,XFER_UDMA_3
+        };
+ 
+ //     printk("%s: mode 0x%02x, speed 0x%02x\n", __FUNCTION__, mode, 
+speed);
+ 
+        /* So that we remember to update this if new modes appear */
+-       if (mode > 4)
++       if (mode > 5)
+                BUG();
+        return min(speed, speed_max[mode]);
+ #else /* !CONFIG_BLK_DEV_IDEDMA */
 
-1) This increases context switches over a solution that links with 
-libcrypto and libssl.
-
-2) "build really lightweight programs with crypto support" implies that 
-you think it's a benefit to use the kernel as your crypto lib.  Shared libs
-
-3) Your proposal actually avoids existing, working hardware crypto 
-support such as Broadcom's hwcrypto driver which is fully supported by 
-openssh.
-
-4) "open it and use ioctls to transfer data" is typically a bad idea. 
-ioctl(2) is a historical Unix mistake, to be avoided where possible. 
-read(2)/write(2) are to be used to transfer data.
-
-	Jeff
-
-
+--- drivers/ide/pci/piix.orig.c Sun Aug  8 01:26:04 2004
++++ drivers/ide/pci/piix.c      Wed Aug 25 16:15:49 2004
+@@ -301,8 +301,11 @@
+                case PCI_DEVICE_ID_INTEL_82372FB_1:
+                        mode = 2;
+                        break;
+-               /* UDMA 33 capable */
++               /* UDMA 44 capable */
+                case PCI_DEVICE_ID_INTEL_82371AB:
++                       mode = 5;
++                       break;
++               /* UDMA 33 capable */
+                case PCI_DEVICE_ID_INTEL_82443MX_1:
+                case PCI_DEVICE_ID_INTEL_82451NX:
+                case PCI_DEVICE_ID_INTEL_82801AB_1:
 

@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261861AbSLUAnx>; Fri, 20 Dec 2002 19:43:53 -0500
+	id <S261376AbSLUAng>; Fri, 20 Dec 2002 19:43:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261868AbSLUAnx>; Fri, 20 Dec 2002 19:43:53 -0500
-Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:57101
-	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
-	id <S261799AbSLUAnu>; Fri, 20 Dec 2002 19:43:50 -0500
-Message-ID: <3E03BB0D.5070605@rackable.com>
-Date: Fri, 20 Dec 2002 16:51:25 -0800
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S261418AbSLUAng>; Fri, 20 Dec 2002 19:43:36 -0500
+Received: from H162.C233.tor.velocet.net ([216.138.233.162]:31461 "HELO
+	stark.dyndns.tv") by vger.kernel.org with SMTP id <S261376AbSLUAne>;
+	Fri, 20 Dec 2002 19:43:34 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Problem with read blocking for a long time on /dev/scd1
+From: Gregory Stark <gsstark@mit.edu>
+Date: 20 Dec 2002 19:51:38 -0500
+Message-ID: <874r98b3dx.fsf@stark.dyndns.tv>
 MIME-Version: 1.0
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>, marcelo@conectiva.com.br
-CC: Janet Morgan <janetmor@us.ibm.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] aic7xxx bouncing over 4G
-References: <200212210012.gBL0Cng21338@eng2.beaverton.ibm.com> <176730000.1040430221@aslan.btc.adaptec.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Dec 2002 00:51:45.0819 (UTC) FILETIME=[22D65EB0:01C2A88B]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin T. Gibbs wrote:
 
->>I have an Adaptec AIC-7897 Ultra2 SCSI adapter on a system with 8G
->>of physical memory.  The adapter is using bounce buffers when DMA'ing
->>to memory >4G because of a bug in the aic7xxx driver. 
->>    
->>
->
->This has been fixed in both the aic7xxx and aic79xx drivers for some
->time.  The problem is that these later revisions have not been integrated
->into the mainline trees.
->
->  
->
-  Marcelo, what is required get the aic79xx driver, and the aic7xxx 
-updates into 2.4.21?  A number of linux distros are already using it. 
- It would really help people using board with the U320.  
+I'm having a problem with ogle that seems to be being caused by the scsi or
+ide-scsi driver. The video playback freezes for a second or randomly,
+sometimes every few seconds, sometimes not for several minutes. Every such
+glitch is correlated perfectly with a read syscall reading on /dev/scd1
+blocking for an inordinate amount of time.
 
-    I've been using both drivers for some time with no issues.  Or maybe 
-you'd prefer Alan put it in his tree 1st?
+Most read syscalls from ogle seem to take between 30us to 100ms depending on
+the size of the read. In fact plotting the time taken reported by strace -T vs
+the size of the read in gnuplot produces a nice obvious linear correlation.
 
--- 
-There is no such thing as obsolete hardware.
-Merely hardware that other people don't want.
-(The Second Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
+However occasionally there are outlier samples where the read call blocks for
+between 150ms up to 1s or more. I've seen it block for about 10s once.
 
+I've tried this on a machine that was essentially in single-user mode. The
+only processes running were X, ogle, an xterm, and not much else. I'll include
+my normal lsmod output below but the problem still occurred when playing with
+hardly any modules loaded.
 
+There's an FAQ about ogle glitching like this when something tries to probe
+the cd drive, but nothing like that is running. And the glitches aren't
+periodic like that FAQ describes.
+
+The problem is definitely that the kernel simply doesn't schedule the process
+calling read for over a second. 
+
+There are no dmesg messages or other indication of problems in the ide-scsi or scsi
+drivers.
+
+Where would I start to track down what is preventing the kernel from
+scheduling this process? It's presumably some problem in the ide or ide-scsi
+driver, but I'm not sure where to start.
+
+[I'm having trouble sending messages to the list, my ISPs mail server didn't
+seem to deliver it the first time. My apologies if it finally makes it through
+and this is a duplicate]
+
+--
+greg
 

@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264496AbTK0NeN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 08:34:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264519AbTK0NeN
+	id S264520AbTK0Nm5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 08:42:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264524AbTK0Nm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 08:34:13 -0500
-Received: from oort.uva.nl ([146.50.97.204]:22356 "EHLO oort.uva.nl")
-	by vger.kernel.org with ESMTP id S264496AbTK0NeL convert rfc822-to-8bit
-	(ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 08:34:11 -0500
-X-MIMEOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Bug in tun driver with devfs
-Date: Thu, 27 Nov 2003 14:34:10 +0100
-Message-ID: <05AB1317EF6EED4DBF540147C451596B4B7C66@oort.uva.nl>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Bug in tun driver with devfs
-Thread-Index: AcO06yMlTx4xJOh0RBaNOP6uI0rFHQ==
-From: "Hoogervorst, J.W." <J.W.Hoogervorst@uva.nl>
-To: <Linux-kernel@vger.kernel.org>
+	Thu, 27 Nov 2003 08:42:57 -0500
+Received: from fiberbit.xs4all.nl ([213.84.224.214]:41869 "EHLO
+	fiberbit.xs4all.nl") by vger.kernel.org with ESMTP id S264520AbTK0Nm4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 08:42:56 -0500
+Date: Thu, 27 Nov 2003 14:42:45 +0100
+From: Marco Roeland <marco.roeland@xs4all.nl>
+To: Simon <simon@highlyillogical.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.0-test10] cpufreq: 2G P4M won't go above 1.2G - cpuinfo_max_freq too low
+Message-ID: <20031127134245.GA9404@localhost>
+References: <200311271139.07260.simon@highlyillogical.org> <20031127121801.GB9098@localhost> <200311271323.37123.simon@highlyillogical.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <200311271323.37123.simon@highlyillogical.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, list!
+At Thursday November 27th 2003 Simon wrote:
 
-I found a bug with the tun device: when it auto-registers with devfs,
-the softlink is set to "misc/net/tun", but the softlink itself is in
-/dev/net, so this link points to /dev/net/misc/... which, ofcourse,
-does not exist. This then results in a dead link.
+> Is there anything I can do about this apart from go back to 2.4 (I've grown to 
+> like CONFIG_PREEMPT too much for that!) or run with the battery in all the 
+> time? - I've a string of past laptops where the batteries only last 5 minutes 
+> because of running with battery + ac power all the time, so I've been in the 
+> habit of always removing it these days... - I've never had a problem running 
+> it at max speed with 2.4.
+ 
+Well running without battery might cause problems, why disable a fine
+UPC when it's there. ;-)
 
-Can anyone think of a clean fix for this?
-(I haven't done any serious programming for some time and thus can
-only think of some VERY dirty fixes atm)
+> Seems that this is a fault of a better implementation of something... But 
+> "better" to me shouldn't take away choice of cpu speed from the user? ;)
 
-Regards,
-Jeroen
+One last straw you might try, is building all the different cpufreq
+drivers as modules, and trying if modprobeing one of them might work.
+They seem to all behave slightly differently with respect to what they
+assume to be true from the ACPI reported values, and what they try on
+their own.
+-- 
+Marco Roeland

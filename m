@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311530AbSDIUx7>; Tue, 9 Apr 2002 16:53:59 -0400
+	id <S311587AbSDIUy4>; Tue, 9 Apr 2002 16:54:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311575AbSDIUx6>; Tue, 9 Apr 2002 16:53:58 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:29200 "EHLO
+	id <S311577AbSDIUy4>; Tue, 9 Apr 2002 16:54:56 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:32272 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S311530AbSDIUxH>; Tue, 9 Apr 2002 16:53:07 -0400
-Date: Tue, 9 Apr 2002 22:53:09 +0200
+	id <S311575AbSDIUyW>; Tue, 9 Apr 2002 16:54:22 -0400
+Date: Tue, 9 Apr 2002 22:54:24 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Paul P Komkoff Jr <i@stingr.net>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19pre5-ac3
-Message-ID: <20020409205309.GC4322@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200204051945.g35JjnX23183@devserv.devel.redhat.com> <20020408214612.GR961@matchmail.com> <20020408013801.B329@toy.ucw.cz> <20020409204019.GD523@stingr.net>
+To: m.knoblauch@TeraPort.de
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [swsusp fixes] Re: Linux 2.4.19pre5-ac3
+Message-ID: <20020409205424.GD4322@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <3CB1B89D.13DDF456@TeraPort.de> <20020408215908.GI31172@atrey.karlin.mff.cuni.cz> <3CB29AE3.E3447952@TeraPort.de> <20020409105440.GB14695@atrey.karlin.mff.cuni.cz> <3CB2D8E6.F0513802@TeraPort.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,51 +22,27 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > > Linux 2.4.19pre5-ac3
-> > > > o	Software suspend initial patch 		(Pavel Machek, Gabor Kuti,..)
-> > > > 	| Don't enable this idly. Its here to get exposure and so
-> > > > 	| people can bring the rest of the code up to meet its needs as
-> > > > 	| well as fix it.
-> > > > 	| Read the docs first!
-> > > 
-> > > Didn't enable software suspend, but I do use ACPI...
+> > >  My question was: can I have a system without active swap and still use
+> > > swsusp? Creating a swap/suspend partition of appropriate size is not a
+> > > problem. I just do not want to "swapon" it.
 > > 
-> > Looks like we need some #ifdefs in acpi... I'll fix that.
+> > You need to swapon it. If you do not want to keep it swapped on,
+> > there's no problem in
+> > 
+> > swapon /dev/swap
+> > echo 4 > /proc/acpi/sleep
+> > sleep 10
+> > swapoff /dev/swap
+> > 
 > 
-> 10 minutes ago emailed to alan with following:
+>  thanks. That is what I wanted to know. That basically means that I will
+> have to boot with a active swap device in order to get the resume
+> functionality - correct? And then I would do a "swapoff" late in the
+> boot process (maybe before starting the graphical crap :-).
 
-S4 is not supported in current ACPI, so you should better make it
-printk("s4 not supported") and do nothing instead of entering ACPI-S4
-and powering system down when user wants "only" suspend. 
-
-> diff -Nru a/drivers/acpi/ospm/system/sm_osl.c b/drivers/acpi/ospm/system/sm_osl.c
-> --- a/drivers/acpi/ospm/system/sm_osl.c	Wed Apr 10 00:03:00 2002
-> +++ b/drivers/acpi/ospm/system/sm_osl.c	Wed Apr 10 00:03:00 2002
-> @@ -140,10 +140,14 @@
->  	if (system->states[value] != TRUE)
->  		return -EINVAL;
->  	
-> +#ifdef CONFIG_SOFTWARE_SUSPEND
->  	if (value != ACPI_S4)
-> +#endif
->  		sm_osl_suspend(value);
-> +#ifdef CONFIG_SOFTWARE_SUSPEND
->  	else
->  		software_suspend();
-> +#endif
->  	
->  	return (count);
->  }
-
-Kill first ifdef and replace second one with something like
-
-	else
-#ifdef CONFIG_....
-		software_suspend();
-#else
-		printk("You need .... for S4.");
-#endif
-							Pavel
+You do not need swapon during boot. swsusp no longer works like that
+(it used to, but not now). swapon just before suspend is okay.
+								Pavel
 -- 
 Casualities in World Trade Center: ~3k dead inside the building,
 cryptography in U.S.A. and free speech in Czech Republic.

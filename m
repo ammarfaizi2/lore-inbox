@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264443AbUEDP0c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264444AbUEDPd3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264443AbUEDP0c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 11:26:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264442AbUEDP0c
+	id S264444AbUEDPd3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 11:33:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264448AbUEDPd3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 11:26:32 -0400
-Received: from digitalimplant.org ([64.62.235.95]:41093 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S264441AbUEDP02
+	Tue, 4 May 2004 11:33:29 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:55937 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S264444AbUEDPd2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 11:26:28 -0400
-Date: Tue, 4 May 2004 08:26:21 -0700 (PDT)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Todd Poynor <tpoynor@mvista.com>
-cc: linux-hotplug-devel@lists.sourceforge.net,
-       "" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Hotplug for device power state changes
-In-Reply-To: <20040429202654.GA9971@dhcp193.mvista.com>
-Message-ID: <Pine.LNX.4.50.0405040819490.3562-100000@monsoon.he.net>
-References: <20040429202654.GA9971@dhcp193.mvista.com>
+	Tue, 4 May 2004 11:33:28 -0400
+Date: Tue, 4 May 2004 16:33:11 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Pavel Machek <pavel@suse.cz>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6 and diskless swap (nbd? nfs?)
+In-Reply-To: <20040503135856.GF1188@openzaurus.ucw.cz>
+Message-ID: <Pine.LNX.4.58.0405041629410.1979@fogarty.jakma.org>
+References: <Pine.LNX.4.58.0405030037490.22749@fogarty.jakma.org>
+ <20040503135856.GF1188@openzaurus.ucw.cz>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 3 May 2004, Pavel Machek wrote:
 
-> A patch to call a hotplug device-power agent when the power state of a
-> device is modified at runtime (that is, individually via sysfs or by a
-> driver call, not as part of a system suspend/resume).  Allows a power
-> management application to be informed of changes in device power needs.
-> This can be useful on platforms with dependencies between system
-> clock/voltage settings and operation of certain devices (such as
-> PXA27x), or, for example, on a cell phone where voiceband or network
-> devices going inactive signals an opportunity to lower platform power
-> levels to conserve battery life.
+> There's no way to make swapping over network work.
 
-Why? If the device is powered down at runtime via sysfs, then the app that
-did that already exists in userspace, like the ones you're trying to
-notify via /sbin/hotplug. It would be much simpler for the first app to
-generate e.g. a d-bus message to notify other apps, rather than creating
-this conduit through the kernel.
+Ok, fair enough.
+ 
+> nbd patches never worked 100% reliably.
 
-Besides, if one process has a device open, then the driver should refuse
-any requests to power it down.
+:(
+ 
+> You'd have to write "nbd over netpoll".
 
-And, for the case where a communication device loses signal, you should
-treat it similarly to a network device, which notifies userspace of a lost
-link, which then has the option of powering down the device and notifying
-other processes.
+Ok. :( So, diskless means no swap.
 
+> 				Pavel
 
-	Pat
+thanks for the answer.
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+	warning: do not ever send email to spam@dishone.st
+Fortune:
+"Absolutely nothing should be concluded from these figures except that
+no conclusion can be drawn from them."
+(By Joseph L. Brothers, Linux/PowerPC Project)

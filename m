@@ -1,29 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262564AbREVEZ7>; Tue, 22 May 2001 00:25:59 -0400
+	id <S262563AbREVEYt>; Tue, 22 May 2001 00:24:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262565AbREVEZt>; Tue, 22 May 2001 00:25:49 -0400
-Received: from [203.145.134.67] ([203.145.134.67]:56327 "EHLO
-	skyccu.skytechsolutions.co.in") by vger.kernel.org with ESMTP
-	id <S262564AbREVEZo>; Tue, 22 May 2001 00:25:44 -0400
-Subject: Re: 
-To: Anita Sinha <anita.sinha@dcmtech.co.in>
-Cc: linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.2c (Intl) 2 February 2000
-Message-ID: <OFAE8942A0.A9FFD0FA-ON65256A54.00182CBD@skytechsolutions.co.in>
-From: "Rajiv Majumdar" <RajivM@skytechsolutions.co.in>
-Date: Tue, 22 May 2001 09:55:00 +0530
-X-MIMETrack: Serialize by Router on Skyccu/CCU/IN/SkyTECH(Release 5.0.2c (Intl)|2
- February 2000) at 05/22/2001 09:55:07 AM
+	id <S262564AbREVEYj>; Tue, 22 May 2001 00:24:39 -0400
+Received: from h24-69-31-7.gv.shawcable.net ([24.69.31.7]:63502 "HELO
+	bodnar42.dhs.org") by vger.kernel.org with SMTP id <S262563AbREVEYc>;
+	Tue, 22 May 2001 00:24:32 -0400
+Content-Type: Multipart/Mixed;
+  charset="iso-8859-1";
+  boundary="------------Boundary-00=_KWYPIP7EUG9D5S1232HA"
+From: Me <bodnar42@bodnar42.dhs.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] include/linux/coda.h
+Date: Mon, 21 May 2001 21:24:20 -0700
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Message-Id: <01052121242000.31459@bodnar42.dhs.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-send a mail to majordomo@vger.kernel.org with 'help' in the body of the
-mail
+--------------Boundary-00=_KWYPIP7EUG9D5S1232HA
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-cheers
-rajiv
+ Coda.h assumes that __KERNEL__ can only be defined if __linux__ is, which is 
+painfully false. This allows the kernel compile to get farther on my token 
+FreeBSD box.
 
+-Ryan
+--------------Boundary-00=_KWYPIP7EUG9D5S1232HA
+Content-Type: text/x-c;
+  charset="iso-8859-1";
+  name="crosscompile.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="crosscompile.diff"
+
+LS0tIGxpbnV4L2luY2x1ZGUvbGludXgvY29kYS5oCVdlZCBBcHIgMjUgMTY6MTg6NTQgMjAwMQor
+KysgbGludXgvaW5jbHVkZS9saW51eC9jb2RhLmgJTW9uIE1heSAyMSAyMToxOToyMSAyMDAxCkBA
+IC0xMDAsNiArMTAwLDEwIEBACiAKICNpZiBkZWZpbmVkKF9fbGludXhfXykKICNkZWZpbmUgY2Rl
+dl90IHVfcXVhZF90CisjZWxzZQorI2RlZmluZSBjZGV2X3QgZGV2X3QKKyNlbmRpZgorCiAjaWZu
+ZGVmIF9fS0VSTkVMX18KICNpZiAhZGVmaW5lZChfVVFVQURfVF8pICYmICghZGVmaW5lZChfX0dM
+SUJDX18pIHx8IF9fR0xJQkNfXyA8IDIpCiAjZGVmaW5lIF9VUVVBRF9UXyAxCkBAIC0xMDgsOSAr
+MTEyLDYgQEAKICNlbHNlIC8qX19LRVJORUxfXyAqLwogdHlwZWRlZiB1bnNpZ25lZCBsb25nIGxv
+bmcgdV9xdWFkX3Q7CiAjZW5kaWYgLyogX19LRVJORUxfXyAqLwotI2Vsc2UKLSNkZWZpbmUgY2Rl
+dl90IGRldl90Ci0jZW5kaWYKIAogI2lmZGVmIF9fQ1lHV0lOMzJfXwogc3RydWN0IHRpbWVzcGVj
+IHsK
+
+--------------Boundary-00=_KWYPIP7EUG9D5S1232HA--

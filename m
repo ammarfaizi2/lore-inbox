@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269396AbUINMXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269412AbUINM13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269396AbUINMXI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 08:23:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269337AbUINMVn
+	id S269412AbUINM13 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 08:27:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269406AbUINMZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 08:21:43 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:11453 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269361AbUINMVX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 08:21:23 -0400
-Subject: Re: [patch] sched, tty: fix scheduling latencies in tty_io.c
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20040914120016.GA5422@elte.hu>
-References: <20040914095731.GA24622@elte.hu>
-	 <20040914100652.GB24622@elte.hu> <20040914101904.GD24622@elte.hu>
-	 <20040914102517.GE24622@elte.hu> <20040914104449.GA30790@elte.hu>
-	 <20040914105048.GA31238@elte.hu> <20040914105904.GB31370@elte.hu>
-	 <20040914110237.GC31370@elte.hu> <20040914110611.GA32077@elte.hu>
-	 <1095159217.16572.29.camel@localhost.localdomain>
-	 <20040914120016.GA5422@elte.hu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1095160687.16572.34.camel@localhost.localdomain>
+	Tue, 14 Sep 2004 08:25:26 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:47565 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S269362AbUINMXU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 08:23:20 -0400
+Date: Tue, 14 Sep 2004 14:21:45 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "C.Y.M." <syphir@syphir.sytes.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Changes to ide-probe.c in 2.6.9-rc2 causing improper detection
+Message-ID: <20040914122144.GT2336@suse.de>
+References: <20040914060628.GC2336@suse.de> <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA9mKu6AlYok2efOpJ3sb3O+KAAAAQAAAA6P8AlyGHikORXOqFZ6fdPAEAAAAA@syphir.sytes.net> <20040914070649.GI2336@suse.de> <20040914071555.GJ2336@suse.de> <1095156542.16570.7.camel@localhost.localdomain> <20040914111207.GR2336@suse.de> <1095158149.16520.24.camel@localhost.localdomain> <20040914114341.GS2336@suse.de> <1095160759.16572.36.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 14 Sep 2004 12:18:08 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1095160759.16572.36.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-09-14 at 13:00, Ingo Molnar wrote:
-> > Would it not be better to fix the tty layer locking rather than
-> > introduces new random memory corruptors ?
+On Tue, Sep 14 2004, Alan Cox wrote:
+> On Maw, 2004-09-14 at 12:43, Jens Axboe wrote:
+> > > I've nothing against a well documented "actually I have a cache" option
+> > > with appropriate warnings (and of course possibly a whitelist if we can
+> > > get vendors to help). But one that like hdparm does bother to note when
+> > > you may be playing with fire.
+> > 
+> > You should be able to turn on support from user space, if you so wish,
+> > if you know that the drive works.
 > 
-> sure ... any volunteers?
+> No argument there at all. A whitelist would be nice also.
 
-Not that I've seen. I'm fixing some locking but not stuff that depends
-on lock_kernel(). In the meantime therefore it seems inappropriate to
-add random corruptors and bugs to the kernel in pursuit of low latency
-other than as private "add this but beware" patches.
+Definitely. I have the first entry candidate right here ;-)
 
-The tty I/O patches should not be applied until the tty layer doesn't
-rely on the lock_kernel locking. So if people want the low latency stuff
-covering the tty code I suggest that rather than making other peoples
-machines crash more, they volunteer. The console driver might be a good
-starting point.
+-- 
+Jens Axboe
 
-Alan

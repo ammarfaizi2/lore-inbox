@@ -1,44 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271677AbRHQP5v>; Fri, 17 Aug 2001 11:57:51 -0400
+	id <S271679AbRHQPyW>; Fri, 17 Aug 2001 11:54:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271678AbRHQP5l>; Fri, 17 Aug 2001 11:57:41 -0400
-Received: from mail.internet-factory.de ([195.122.142.5]:27790 "EHLO
-	mail.internet-factory.de") by vger.kernel.org with ESMTP
-	id <S271681AbRHQP5c>; Fri, 17 Aug 2001 11:57:32 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Holger Lubitz <h.lubitz@internet-factory.de>
-Newsgroups: lists.linux.kernel
-Subject: Re: Encrypted Swap
-Date: Fri, 17 Aug 2001 17:57:45 +0200
-Organization: Internet Factory AG
-Message-ID: <3B7D3EF9.4CEABF2C@internet-factory.de>
-In-Reply-To: <3B7D2F3C.A4687E25@internet-factory.de> <Pine.LNX.3.95.1010817111201.863A-100000@chaos.analogic.com>
-NNTP-Posting-Host: bastille.internet-factory.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S271678AbRHQPyM>; Fri, 17 Aug 2001 11:54:12 -0400
+Received: from mail.fbab.net ([212.75.83.8]:2826 "HELO mail.fbab.net")
+	by vger.kernel.org with SMTP id <S271677AbRHQPyF>;
+	Fri, 17 Aug 2001 11:54:05 -0400
+X-Qmail-Scanner-Mail-From: mag@fbab.net via mail.fbab.net
+X-Qmail-Scanner-Rcpt-To: szaka@f-secure.com viro@math.psu.edu linux-kernel@vger.kernel.org
+X-Qmail-Scanner: 0.94 (No viruses found. Processed in 8.84138 secs)
+Message-ID: <015f01c12735$24d7d8c0$020a0a0a@totalmef>
+From: "Magnus Naeslund\(f\)" <mag@fbab.net>
+To: "Szabolcs Szakacsits" <szaka@f-secure.com>
+Cc: "Alexander Viro" <viro@math.psu.edu>,
+        "linux-kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0108162009260.2660-100000@fs131-224.f-secure.com>
+Subject: Re: 2.4.8 Resource leaks + limits
+Date: Fri, 17 Aug 2001 17:56:14 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Trace: darkstar.internet-factory.de 998063865 4449 195.122.142.158 (17 Aug 2001 15:57:45 GMT)
-X-Complaints-To: usenet@internet-factory.de
-NNTP-Posting-Date: 17 Aug 2001 15:57:45 GMT
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac3 i686)
-X-Accept-Language: en
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+x-mimeole: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" proclaimed:
+From: "Szabolcs Szakacsits" <szaka@f-secure.com>
+>
+> On Wed, 15 Aug 2001, Magnus Naeslund(f) wrote:
+>
+> > The problem is that i can shh in as root, but not as any other user (
+not
+> > via login or su or either ).
+>
+> Are you using < 0.73 PAM without the change_uid pam_limit option? You
+> set in /etc/security/limits.conf:
+> *               soft    nproc           40
+>
+> the '*' valid for users but not for root, the relevant parts of
+> a default login/pam works like:
+>
+> <running as root>
+> setrlimit()
+> fork()
+> setuid(user_uid)
+>
+> So if you have at least 40 root processes running already for whatever
+> reason then the result is what you see.
+>
 
-> Errrm no. All BIOS that anybody would use write all memory found when
-> initializing the SDRAM controller. They need to because nothing,
-> refresh, precharge, (or if you've got it, parity/crc) will work
-> until every cell is exercised. A "warm-boot" is different. However,
-> if you hit the reset or the power switch, nothing in RAM survives.
+Well root is unlimited, and i have _no_ processes running as the user i'm
+trying to log on as.
+This must be a bug then.
+I even tried adduser <newuser>, but i couldn't log in as that either.
 
-Then this may have changed with SDRAM. However, back in my Amiga days it
-was pretty common to just reset the machine and rip whatever was left in
-the memory (DRAM). If memory serves me right, some people put in reset
-protection (by pointing the reset vector to some code that cleared the
-memory), which could be fooled by hardware reset or power cycling.
+> The livelocks what I mentioned is indeed different and fixed in 2.4.9 (I
+> guess the 'kswapd thought shortage for highmem zone when its size is
+> actually 0' issue what Linus said in the 'kswapd using all cpu for long
+> periods' thread). Sorry for the confusion, hope the above fixes your
+> problem.
+>
 
-Holger
+I never had any lockups.
+
+Magnus
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+ Programmer/Networker [|] Magnus Naeslund
+ PGP Key: http://www.genline.nu/mag_pgp.txt
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+
+

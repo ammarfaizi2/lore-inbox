@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132682AbRD1JsX>; Sat, 28 Apr 2001 05:48:23 -0400
+	id <S132760AbRD1KL3>; Sat, 28 Apr 2001 06:11:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132718AbRD1JsN>; Sat, 28 Apr 2001 05:48:13 -0400
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:18955 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S132682AbRD1JsF>; Sat, 28 Apr 2001 05:48:05 -0400
-Message-ID: <006901c0cfc8$982452a0$0a01a8c0@spamtastic.demon.co.uk>
-From: "Lee Mitchell" <lee@spamtastic.demon.co.uk>
-To: "Linux Kernel development list" <linux-kernel@vger.kernel.org>
-Subject: 2.4.4 Sound corruption
-Date: Sat, 28 Apr 2001 10:50:01 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2014.211
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2014.211
+	id <S132797AbRD1KLT>; Sat, 28 Apr 2001 06:11:19 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:47369 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S132760AbRD1KLL>;
+	Sat, 28 Apr 2001 06:11:11 -0400
+Date: Sat, 28 Apr 2001 12:05:14 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Vojtech Pavlik <vojtech@suse.cz>,
+        Alexander Viro <viro@math.psu.edu>, Andrea Arcangeli <andrea@suse.de>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+Message-ID: <20010428120514.C517@suse.de>
+In-Reply-To: <Pine.LNX.4.21.0104270951270.2067-100000@penguin.transmeta.com> <200104280455.f3S4tQ8336512@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200104280455.f3S4tQ8336512@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Sat, Apr 28, 2001 at 12:55:26AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem..
-Playing mp3's under 2.4.4 (SMP) results in bursts of noise overlayed on top
-of actual music being played.
-Works fine running 2.4.3 (SMP)
+On Sat, Apr 28 2001, Albert D. Cahalan wrote:
+> Linus Torvalds writes:
+> 
+> > The buffer cache is "virtual" in the sense that /dev/hda is a
+> > completely separate name-space from /dev/hda1, even if there
+> > is some physical overlap.
+> 
+> So the aliasing problems and elevator algorithm confusion remain?
 
-System Information :-
+At least for the I/O scheduler confusion, requests to partitions will
+remap the buffer location and this problem disappears nicely. It's not a
+big issue, really.
 
-Motherboard  Gigabyte GA-6BXD
-CPU(s)   2 x 400 MHz PII
-RAM   128MB
-Soundcard  Creative AWE64-Gold
-Network Card  3Com 3c905-B
-SCSI Card  Adaptec 2940
-Graphics Card  Matrox G200 Millenium AGP
-Video Captute  Hauppauge WinTV Go (bttv)
-USB Devices  Phillips PCA646WC Webcam
+> Is this ever likely to change, and what is with the 1 kB assumptions?
+> (Hmmm, cruft left over from the 1 kB Minix filesystem blocks?)
 
-Kernel 2.4.4 (SMP)
-Debian 2.2
-gcc version 2.95.2 20000220 (Debian GNU/Linux)
+What 1kB assumption?
 
-
-
-Lee Mitchell
-www.spamtastic.demon.co.uk
-lee@spamtastic.demon.co.uk
+-- 
+Jens Axboe
 

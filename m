@@ -1,21 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315457AbSFJTVh>; Mon, 10 Jun 2002 15:21:37 -0400
+	id <S315856AbSFJT13>; Mon, 10 Jun 2002 15:27:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315461AbSFJTVg>; Mon, 10 Jun 2002 15:21:36 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:51151
+	id <S315862AbSFJT12>; Mon, 10 Jun 2002 15:27:28 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:57039
 	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S315457AbSFJTVg>; Mon, 10 Jun 2002 15:21:36 -0400
-Date: Mon, 10 Jun 2002 12:19:59 -0700
+	id <S315856AbSFJT12>; Mon, 10 Jun 2002 15:27:28 -0400
+Date: Mon, 10 Jun 2002 12:26:54 -0700
 From: Tom Rini <trini@kernel.crashing.org>
-To: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
-Cc: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.21 kill warnings 4/19
-Message-ID: <20020610191959.GJ14252@opus.bloom.county>
-In-Reply-To: <5.1.0.14.2.20020610114308.09306358@mail1.qualcomm.com> <Pine.GSO.4.05.10206102055280.17299-100000@mausmaki.cosy.sbg.ac.at>
+To: Roland Dreier <roland@topspin.com>
+Cc: Oliver Neukum <oliver@neukum.name>, linux-kernel@vger.kernel.org
+Subject: Re: PCI DMA to small buffers on cache-incoherent arch
+Message-ID: <20020610192654.GK14252@opus.bloom.county>
+In-Reply-To: <52d6v19r9n.fsf@topspin.com> <523cvv9laj.fsf@topspin.com> <20020610170309.GC14252@opus.bloom.county> <200206101922.26985.oliver@neukum.name> <20020610172909.GE14252@opus.bloom.county> <52ptyz7y88.fsf@topspin.com> <20020610191434.GI14252@opus.bloom.county> <52fzzv7xdj.fsf@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,17 +20,25 @@ User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 10, 2002 at 08:57:02PM +0200, Thomas 'Dent' Mirlacher wrote:
-> On Mon, 10 Jun 2002, Maksim (Max) Krasnyanskiy wrote:
+On Mon, Jun 10, 2002 at 12:21:44PM -0700, Roland Dreier wrote:
+> >>>>> "Tom" == Tom Rini <trini@kernel.crashing.org> writes:
 > 
-> > Hi Martin,
-> > 
-> > How about replacing __FUNCTION__ with __func__ ?
-> > GCC 3.x warns that __FUNCTION__ is obsolete and will be removed.
+>     Tom> SMP_CACHE_BYTES is non-sensical on 4xx (and 8xx) since they
+>     Tom> don't do SMP..
 > 
-> is __func__ already supported for gcc 2.96?
+> True but <asm/cache.h> defines it anyway...
 
-Well it works with 2.95.3, which is the important part...
+Right, to L1_CACHE_BYTES even. :)  So we should probably use that
+directly.
+
+> of course it would be no
+> problem to use L1_CACHE_BYTES and in fact that probably makes sense
+> because we're talking about PPC-only macros (other arches would have
+> their own definition).
+
+Well, ARM (whom we (PPC)) borrowed some ideas from will set it to
+L1_CACHE_BYTES too, from the sound of rmk.  So it might even be
+consistent among the non coherent processors. :)
 
 -- 
 Tom Rini (TR1265)

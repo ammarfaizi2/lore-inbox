@@ -1,107 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264934AbUFXS57@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264734AbUFXTCS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264934AbUFXS57 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 14:57:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264728AbUFXS42
+	id S264734AbUFXTCS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 15:02:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264771AbUFXTAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 14:56:28 -0400
-Received: from holomorphy.com ([207.189.100.168]:50827 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264726AbUFXSvR (ORCPT
+	Thu, 24 Jun 2004 15:00:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:58836 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264734AbUFXS6a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 14:51:17 -0400
-Date: Thu, 24 Jun 2004 11:50:55 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Takashi Iwai <tiwai@suse.de>,
-       Andi Kleen <ak@suse.de>, ak@muc.de, tripperda@nvidia.com,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: 32-bit dma allocations on 64-bit platforms
-Message-ID: <20040624185055.GL21066@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrea Arcangeli <andrea@suse.de>,
-	Nick Piggin <nickpiggin@yahoo.com.au>, Takashi Iwai <tiwai@suse.de>,
-	Andi Kleen <ak@suse.de>, ak@muc.de, tripperda@nvidia.com,
-	discuss@x86-64.org, linux-kernel@vger.kernel.org
-References: <s5hy8mdgfzj.wl@alsa2.suse.de> <20040624152946.GK30687@dualathlon.random> <40DAF7DF.9020501@yahoo.com.au> <20040624165200.GM30687@dualathlon.random> <20040624165629.GG21066@holomorphy.com> <20040624173236.GP30687@dualathlon.random> <20040624173827.GH21066@holomorphy.com> <20040624180256.GR30687@dualathlon.random> <20040624181311.GJ21066@holomorphy.com> <20040624182737.GT30687@dualathlon.random>
+	Thu, 24 Jun 2004 14:58:30 -0400
+Date: Thu, 24 Jun 2004 11:57:04 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Limin Gu <limin@dbear.engr.sgi.com>
+Cc: Erik Jacobson <erikj@subway.americas.sgi.com>,
+       linux-kernel@vger.kernel.org, jlan@engr.sgi.com, limin@engr.sgi.com,
+       pwil3058@bigpond.net.au
+Subject: Re: [PATCH] Process Aggregates (PAGG) for 2.6.7
+Message-ID: <20040624115704.O22989@build.pdx.osdl.net>
+References: <Pine.SGI.4.53.0406241239400.340142@subway.americas.sgi.com> <200406241832.i5OIWeq03303@dbear.engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040624182737.GT30687@dualathlon.random>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200406241832.i5OIWeq03303@dbear.engr.sgi.com>; from limin@dbear.engr.sgi.com on Thu, Jun 24, 2004 at 11:32:40AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 24, 2004 at 08:27:37PM +0200, Andrea Arcangeli wrote:
-> yes and "the stricter fallback criterion" is precisely called
-> lower_zone_reserve_ratio and it's included in the 2.4 mainline kernel
-> and this "stricter fallback criterion" doesn't exist in 2.6 yet.
-> I do apply it to non-pinned pages too because wasting tons of cpu in
-> memcopies for migration is a bad idea compared to reseving 900M of
-> absolutely critical lowmem ram on a 64G box. So I find the
-> pinned/unpinned parameter worthless and I apply "the stricter fallback
-> criterion" to all allocations in the same way, which is a lot simpler,
-> doesn't require substantial vm changes to allow migration of ptes,
-> anonymous and mlocked memory w/o passing through some swapcache and
-> without clearng ptes and most important I believe it's a lot more
-> efficient than migrating with bulk memcopies. Even on a big x86-64
-> dealing with the migration complexity is worthless, reserving the full
-> 16M of dma zone makes a lot more sense.
+* Limin Gu (limin@dbear.engr.sgi.com) wrote:
+> Job has not received much feedback from the community yet, we welcome
+> any comments/suggestions/criticism for you.
 
-Not sure what's going on here. I suppose I had different expectations,
-e.g. not attempting to relocate kernel allocations, but rather failing
-them outright after the threshold is exceeded. No matter, it just saves
-me the trouble of implementing it. I understood the migration to be a
-method of last resort, not preferred to admission control.
+I recall seeing a bunch of syscall looking pieces in job that seemed odd
+to be stuck behind a module.
 
+Ah, yes...
 
-On Thu, Jun 24, 2004 at 08:27:37PM +0200, Andrea Arcangeli wrote:
-> The lower_zone_reserve_ratio algorithm scales back to the size of the
-> zones automatically autotuned at boot time and the balance-setting are in
-> functions of the imbalances found at boot time. That's the fundamental
-> difference with the sysctl that is fixed, for all zones, and it has no
-> clue on the size of the zones etc...
+> +/* Function prototypes */
+> +static int job_sys_create(struct job_create *);
+> +static int job_sys_getjid(struct job_getjid *);
+> +static int job_sys_waitjid(struct job_waitjid *);
+> +static int job_sys_killjid(struct job_killjid *);
+> +static int job_sys_getjidcnt(struct job_jidcnt *);
+> +static int job_sys_getjidlst(struct job_jidlst *);
+> +static int job_sys_getpidcnt(struct job_pidcnt *);
+> +static int job_sys_getpidlst(struct job_pidlst *);
+> +static int job_sys_getuser(struct job_user *);
+> +static int job_sys_getprimepid(struct job_primepid *);
+> +static int job_sys_sethid(struct job_sethid *);
+> +static int job_sys_detachjid(struct job_detachjid *);
+> +static int job_sys_detachpid(struct job_detachpid *);
+> +static int job_attach(struct task_struct *, struct pagg *, void *);
+> +static void job_detach(struct task_struct *, struct pagg *);
+> +static struct job_entry *job_getjob(u64 jid);
+> +static int job_syscall(unsigned int, unsigned long);
+> +
+> +u64 job_getjid(struct task_struct *);
+> +
+> +int job_ioctl(struct inode *, struct file *, unsigned int, unsigned long);
+[snip]
+> +/*
+> + * job_syscall
+> + *
+> + * Function to handle job syscall requests.
+> + *
+> + * Returns 0 on success and -(ERRNO VALUE) upon failure.
+> + */
+> +int
+> +job_syscall(unsigned int request, unsigned long data)
 
-I wasn't involved with this, so unfortunately I don't have an explanation
-of why these semantics were considered useful.
+trivial...declared static above.
 
+> +{                 
+> +	int rc=0;
+> +
+> +	DBG_PRINTINIT("job_syscall");
+> +
+> +	DBG_PRINTENTRY();
+> +
+> +	switch (request) {
+> +		case JOB_CREATE:
+> +			rc = job_sys_create((struct job_create *)data);
+> +			break;
+> +		case JOB_ATTACH:
+> +		case JOB_DETACH:
+> +			/* RESERVED */
+> +			rc = -EBADRQC;
+> +			break;
+> +		case JOB_GETJID:
+> +			rc = job_sys_getjid((struct job_getjid *)data);
+> +			break;
+> +		case JOB_WAITJID:
+> +			rc = job_sys_waitjid((struct job_waitjid *)data);
+> +			break;
+> +		case JOB_KILLJID:
+> +			rc = job_sys_killjid((struct job_killjid *)data);
+> +			break;
+> +		case JOB_GETJIDCNT:
+> +			rc = job_sys_getjidcnt((struct job_jidcnt *)data);
+> +			break;
+> +		case JOB_GETJIDLST:
+> +			rc = job_sys_getjidlst((struct job_jidlst *)data);
+> +			break;
+> +		case JOB_GETPIDCNT:
+> +			rc = job_sys_getpidcnt((struct job_pidcnt *)data);
+> +			break;
+> +		case JOB_GETPIDLST:
+> +			rc = job_sys_getpidlst((struct job_pidlst *)data);
+> +			break;
+> +		case JOB_GETUSER:
+> +			rc = job_sys_getuser((struct job_user *)data);
+> +			break;
+> +		case JOB_GETPRIMEPID:
+> +			rc = job_sys_getprimepid((struct job_primepid *)data);
+> +			break;
+> +		case JOB_SETHID:
+> +			rc = job_sys_sethid((struct job_sethid *)data);
+> +			break;
+> +		case JOB_DETACHJID:
+> +			rc = job_sys_detachjid((struct job_detachjid *)data);
+> +			break;
+> +		case JOB_DETACHPID:
+> +			rc = job_sys_detachpid((struct job_detachpid *)data);
+> +			break;
+> +		case JOB_SETJLIMIT:
+> +		case JOB_GETJLIMIT:
+> +		case JOB_GETJUSAGE:
+> +		case JOB_FREE:
+> +		default:
+> +			rc = -EBADRQC;
+> +			break;
+> +	}
+> +
+> +	DBG_PRINTEXIT(rc);
+> +	return rc;
+> +}
+> +
+> +
+> +/*
+> + * job_ioctl
+> + *
+> + * Function to handle job ioctl call requests.
+> + *
+> + * Returns 0 on success and -(ERRNO VALUE) upon failure.
+> + */
+> +int
+> +job_ioctl(struct inode *inode, struct file *file, unsigned int request,
+> +	  unsigned long data)        
+> +{                 
+> +	return job_syscall(request, data);
+> +}
 
-On Thu, Jun 24, 2004 at 08:27:37PM +0200, Andrea Arcangeli wrote:
-> So in short with little ram installed it will be like mainline 2.6, with
-> tons of ram installed it will make an huge difference and it will
-> reserve up to _whole_ classzones to the users that cannot use the higher
-> zones, but 16M on a 16G box is nothing so nobody will notice any
-> regression anyways, only the befits will be noticeable in the otherwise
-> unsolvable corner cases (yeah, you could try to migrate ptes and other
-> stuff to solve them but that's incredibily inefficient compared to
-> throwing 16M or 800M at the problem on respectively 16G or 64G machines,
-> etc..).
-> the number aren't math exact with the 2.4 code, but you get an idea of
-> the order of magnitude.
+So, this is really ioctl.  This should be exposed in fs interface, or
+the primitives should be promoted to first class syscalls if others can
+use this.
 
-This sounds like you're handing back hard allocation failures to
-unpinned allocations when zone fallbacks are meant to be discouraged.
-Given this, I think I understand where some of the concerns about
-merging it came from, though I'd certainly rather have underutilized
-memory than workload failures.
-
-I suspect one concern about this is that it may cause premature
-workload failures. My own review of the code has determined this to
-be a minor concern. Rather, I believe it's better to fail the
-allocations earlier than to allow the workload to slowly accumulate
-pinned pages in lower zones, even at the cost of underutilizing lower
-zones. This belief may not be universal.
-
-
-On Thu, Jun 24, 2004 at 08:27:37PM +0200, Andrea Arcangeli wrote:
-> BTW, I think I'm not the only VM guy who agrees this algo is needed,
-> For istance I recall Rik once included the lower_zone_reserve_ratio
-> patch in one of his 2.4 patches too.
-
-One of the reasons I've not seen this in practice is that the stress
-tests I'm running aren't going on for extended periods of time, where
-fallback of pinned allocations to lower zones would be a progressively
-more noticeable problem as they accumulate.
-
-
-
--- wli
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

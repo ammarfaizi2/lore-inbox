@@ -1,63 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbVA3SCL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbVA3SEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbVA3SCL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 13:02:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVA3SCL
+	id S261753AbVA3SEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 13:04:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbVA3SEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 13:02:11 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:50447 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261752AbVA3SCB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 13:02:01 -0500
-Date: Sun, 30 Jan 2005 18:01:46 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Patrick McHardy <kaber@trash.net>
-Cc: "David S. Miller" <davem@davemloft.net>, Robert.Olsson@data.slu.se,
-       akpm@osdl.org, torvalds@osdl.org, alexn@dsv.su.se, kas@fi.muni.cz,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: Memory leak in 2.6.11-rc1?
-Message-ID: <20050130180146.E25000@flint.arm.linux.org.uk>
-Mail-Followup-To: Patrick McHardy <kaber@trash.net>,
-	"David S. Miller" <davem@davemloft.net>, Robert.Olsson@data.slu.se,
-	akpm@osdl.org, torvalds@osdl.org, alexn@dsv.su.se, kas@fi.muni.cz,
-	linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-References: <20050127004732.5d8e3f62.akpm@osdl.org> <16888.58622.376497.380197@robur.slu.se> <20050127164918.C3036@flint.arm.linux.org.uk> <20050127123326.2eafab35.davem@davemloft.net> <20050128001701.D22695@flint.arm.linux.org.uk> <20050127163444.1bfb673b.davem@davemloft.net> <20050128085858.B9486@flint.arm.linux.org.uk> <20050130132343.A25000@flint.arm.linux.org.uk> <41FD17FE.6050007@trash.net> <41FD18C5.6090108@trash.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <41FD18C5.6090108@trash.net>; from kaber@trash.net on Sun, Jan 30, 2005 at 06:26:29PM +0100
+	Sun, 30 Jan 2005 13:04:16 -0500
+Received: from quark.didntduck.org ([69.55.226.66]:10951 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP id S261753AbVA3SCU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 13:02:20 -0500
+Message-ID: <41FD2127.5090907@didntduck.org>
+Date: Sun, 30 Jan 2005 13:02:15 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla Thunderbird  (X11/20041216)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Takashi Iwai <tiwai@suse.de>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, ak@suse.de, perex@suse.cz
+Subject: Re: [PATCH 0/3] Conversion to compat_ioctl for ALSA drivers
+References: <s5hfz0ywve8.wl@alsa2.suse.de>
+In-Reply-To: <s5hfz0ywve8.wl@alsa2.suse.de>
+Content-Type: multipart/mixed;
+ boundary="------------080904070009070502090204"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 30, 2005 at 06:26:29PM +0100, Patrick McHardy wrote:
-> Patrick McHardy wrote:
+This is a multi-part message in MIME format.
+--------------080904070009070502090204
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Takashi Iwai wrote:
+> Hi,
 > 
-> > Russell King wrote:
-> >
-> >> I don't know if the code is using fragment lists in ip_fragment(), but
-> >> on reading the code a question comes to mind: if we have a list of
-> >> fragments, does each fragment skb have a valid (and refcounted) dst
-> >> pointer before ip_fragment() does it's job?  If yes, then isn't the
-> >> first ip_copy_metadata() in ip_fragment() going to overwrite this
-> >> pointer without dropping the refcount?
-> >>
-> > Nice spotting. If conntrack isn't loaded defragmentation happens after
-> > routing, so this is likely the cause.
+> the following three patches convert the 32bit ioctl layer of ALSA to
+> the new compat_ioctl (and unlocked_ioctl for native ioctls).
 > 
-> OTOH, if conntrack isn't loaded forwarded packet are never defragmented,
-> so frag_list should be empty. So probably false alarm, sorry.
+> The first patch covers the basic entries and control API.
+> The second patch is for PCM API.
+> The last one is for other APIs including OSS-emulation modules.
+> 
+> After these patches are applied, remove the whole subtree in
+> sound/core/ioctl32.  The files in this directory are no longer
+> necessary.
 
-I've just checked Phil's mails - both Phil and myself are using
-netfilter on the troublesome boxen.
+Fix 32-bit calls to snd_pcm_channel_info().
 
-Also, since FragCreates is zero, and this does mean that the frag_list
-is not empty in all cases so far where ip_fragment() has been called.
-(Reading the code, if frag_list was empty, we'd have to create some
-fragments, which increments the FragCreates statistic.)
+Signed-off-by: Brian Gerst <bgerst@didntduck.org>
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+--------------080904070009070502090204
+Content-Type: text/plain;
+ name="alsa-pcm-compat"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="alsa-pcm-compat"
+
+--- linux/sound/core/pcm_native.c.bak	2005-01-30 11:15:24.000000000 -0500
++++ linux/sound/core/pcm_native.c	2005-01-30 11:17:31.000000000 -0500
+@@ -602,17 +602,13 @@
+ 	return 0;
+ }
+ 
+-static int snd_pcm_channel_info(snd_pcm_substream_t * substream, snd_pcm_channel_info_t __user * _info)
++static int snd_pcm_channel_info(snd_pcm_substream_t * substream, snd_pcm_channel_info_t * info)
+ {
+-	snd_pcm_channel_info_t info;
+ 	snd_pcm_runtime_t *runtime;
+-	int res;
+ 	unsigned int channel;
+ 	
+ 	snd_assert(substream != NULL, return -ENXIO);
+-	if (copy_from_user(&info, _info, sizeof(info)))
+-		return -EFAULT;
+-	channel = info.channel;
++	channel = info->channel;
+ 	runtime = substream->runtime;
+ 	snd_pcm_stream_lock_irq(substream);
+ 	if (runtime->status->state == SNDRV_PCM_STATE_OPEN) {
+@@ -622,9 +618,19 @@
+ 	snd_pcm_stream_unlock_irq(substream);
+ 	if (channel >= runtime->channels)
+ 		return -EINVAL;
+-	memset(&info, 0, sizeof(info));
+-	info.channel = channel;
+-	res = substream->ops->ioctl(substream, SNDRV_PCM_IOCTL1_CHANNEL_INFO, &info);
++	memset(info, 0, sizeof(*info));
++	info->channel = channel;
++	return substream->ops->ioctl(substream, SNDRV_PCM_IOCTL1_CHANNEL_INFO, info);
++}
++
++static int snd_pcm_channel_info_user(snd_pcm_substream_t * substream, snd_pcm_channel_info_t __user * _info)
++{
++	snd_pcm_channel_info_t info;
++	int res;
++	
++	if (copy_from_user(&info, _info, sizeof(info)))
++		return -EFAULT;
++	res = snd_pcm_channel_info(substream, &info);
+ 	if (res < 0)
+ 		return res;
+ 	if (copy_to_user(_info, &info, sizeof(info)))
+@@ -2440,7 +2446,7 @@
+ 	case SNDRV_PCM_IOCTL_STATUS:
+ 		return snd_pcm_status_user(substream, arg);
+ 	case SNDRV_PCM_IOCTL_CHANNEL_INFO:
+-		return snd_pcm_channel_info(substream, arg);
++		return snd_pcm_channel_info_user(substream, arg);
+ 	case SNDRV_PCM_IOCTL_PREPARE:
+ 		return snd_pcm_prepare(substream);
+ 	case SNDRV_PCM_IOCTL_RESET:
+
+--------------080904070009070502090204--

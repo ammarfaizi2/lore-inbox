@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262869AbUJ1JxJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262874AbUJ1J4p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262869AbUJ1JxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 05:53:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbUJ1Jv2
+	id S262874AbUJ1J4p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 05:56:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbUJ1Jx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 05:51:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62392 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262868AbUJ1Jup (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 05:50:45 -0400
-Date: Thu, 28 Oct 2004 02:48:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Sorav Bansal <sbansal@stanford.edu>
-Cc: tacetan@yahoo.com, linux-kernel@vger.kernel.org
-Subject: Re: BUG REPORT: User/Kernel Pointer bug in sys_poll
-Message-Id: <20041028024839.6a1e1064.akpm@osdl.org>
-In-Reply-To: <Pine.GSO.4.44.0410272246240.7124-100000@elaine9.Stanford.EDU>
-References: <20041028052218.52478.qmail@web50207.mail.yahoo.com>
-	<Pine.GSO.4.44.0410272246240.7124-100000@elaine9.Stanford.EDU>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Oct 2004 05:53:27 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:64979 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262868AbUJ1JwE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 05:52:04 -0400
+Date: Thu, 28 Oct 2004 17:34:19 +0800 (CST)
+From: "Zhu, Yi" <yi.zhu@intel.com>
+X-X-Sender: chuyee@mazda.sh.intel.com
+Reply-To: "Zhu, Yi" <yi.zhu@intel.com>
+To: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix e100 suspend/resume w/ 2.6.10-rc1 and above (due to
+ pci_save_state change)
+Message-ID: <Pine.LNX.4.44.0410281706070.26113-100000@mazda.sh.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorav Bansal <sbansal@stanford.edu> wrote:
->
-> Older x86 architectures (386 and before) allow the kernel to write to any
->  user location regardless of the write-protect bits.
-> 
->  Hence, with this bug, a user program could write to the write-protected
->  region of its address space by calling the sys_poll system call and
->  setting the address and data values appropriately.
 
-Nope.  The only significant difference between copy_from_user() and
-__put_user() here is that copy_from_user() checks that the address is not
-in the 0xc0000000-0xffffffff range.  __put_user() skips that check.
+Hi,
 
-So
+Recent 2.6.10-rc1 merged the pci_save_state change. This prevents some
+drivers from working with suspend/resume. The reason is the
+pci_save_state() called in driver's ->suspend doesn't take effect any more,
+since pci bus ->suspend will override it. And the two states might be
+different in some drivers, i.e. e100. I don't know if there are other
+drivers also suffer from it.
 
-	if (copy_from_user(kaddr, addr, n))
-		fail();
-	__put_user(42, addr);
+Thanks,
+-yi
 
-is safe.  We know that the address is in the 0x00000000-0xbfffffff range by
-the time we call __put_user().  And if the page at *addr it not writeable
-the kernel will take a fault.
 
-So I see no hole.  But I wouldn't have coded it that way...
+Signed-off-by: Zhu Yi <yi.zhu@intel.com>
+
+--- /tmp/e100.c	2004-10-28 16:31:41.000000000 +0800
++++ drivers/net/e100.c	2004-10-28 16:33:14.000000000 +0800
+@@ -2309,9 +2309,7 @@ static int e100_suspend(struct pci_dev *
+ 
+-	pci_save_state(pdev);
+ 	pci_enable_wake(pdev, state, nic->flags & (wol_magic | e100_asf(nic)));
+-	pci_disable_device(pdev);
+ 	pci_set_power_state(pdev, state);
+ 
+ 	return 0;
+

@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129999AbQLTVdC>; Wed, 20 Dec 2000 16:33:02 -0500
+	id <S130507AbQLTVoh>; Wed, 20 Dec 2000 16:44:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130070AbQLTVcw>; Wed, 20 Dec 2000 16:32:52 -0500
-Received: from ja.ssi.bg ([193.68.177.189]:55300 "EHLO u.domain.uli")
-	by vger.kernel.org with ESMTP id <S129999AbQLTVck>;
-	Wed, 20 Dec 2000 16:32:40 -0500
-Date: Wed, 20 Dec 2000 23:00:55 +0000 (GMT)
-From: Julian Anastasov <ja@ssi.bg>
-To: Robert Högberg <robho956@student.liu.se>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Extreme IDE slowdown with 2.2.18
-Message-ID: <Pine.LNX.4.21.0012202246510.6151-100000@u>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S130524AbQLTVo0>; Wed, 20 Dec 2000 16:44:26 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:772 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S130507AbQLTVoJ>;
+	Wed, 20 Dec 2000 16:44:09 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Christian Gennerat <christian.gennerat@vz.cit.alcatel.fr>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Announce: modutils 2.3.23 is available 
+In-Reply-To: Your message of "Wed, 20 Dec 2000 10:31:12 BST."
+             <3A407C5F.C8BC2802@vz.cit.alcatel.fr> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 21 Dec 2000 08:13:36 +1100
+Message-ID: <2901.977346816@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-	Hello,
-
-On Wed, 20 Dec 2000, Robert HÃgberg wrote:
-
-> hda: QUANTUM FIREBALL ST6.4A, 6149MB w/81kB Cache, CHS=784/255/63
-> hdb: QUANTUM FIREBALL SE4.3A, 4110MB w/80kB Cache, CHS=524/255/63
-> hdc: IBM-DJNA-352030, 19470MB w/1966kB Cache, CHS=39560/16/63
+On Wed, 20 Dec 2000 10:31:12 +0100, 
+Christian Gennerat <christian.gennerat@vz.cit.alcatel.fr> wrote:
+>About Standard aliases:
+>> modprobe -c
+>...
+>alias ppp-compress-21 bsd_comp
+>...
 >
-> When I performed the tests I used similiar .17 and .18 kernels with a
-> minimum components included. No network, SCSI, sound and such things.
-> .config files can be supplied if needed.
->
-> Does anyone know what could be wrong? Have I forgot something? Is this a
-> known problem with the 2.2.18 kernel?
+>Why bsd_comp is the standard alias?
 
-	Yes, 2.2.18 is not friendly to all MVP3 users. The autodma
-detection was disabled for the all *VP3 users in drivers/block/ide-pci.c.
+You should also have
+alias ppp-compress-24 ppp_deflate
+alias ppp-compress-26 ppp_deflate
 
-	If you don't experience any problems with the DMA you can:
-
-1. Add append="ide0=dma ide1=dma" in lilo.conf
-
-2. Use ide patches:
-
-http://www.kernel.org/pub/linux/kernel/people/hedrick/ide-2.2.18/ide.2.2.18.1209.patch.bz2
-
-
-Regards
-
---
-Julian Anastasov <ja@ssi.bg>
+The number is the CPP option that was requested by pppd, which
+compression option is used is controlled by userspaqce, not the kernel.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

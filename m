@@ -1,105 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261299AbTH2O6G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 10:58:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbTH2O4e
+	id S261329AbTH2OzL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 10:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbTH2Oxp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 10:56:34 -0400
-Received: from amsfep15-int.chello.nl ([213.46.243.28]:52545 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261300AbTH2Ovw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 10:51:52 -0400
-Date: Fri, 29 Aug 2003 16:50:58 +0200
-Message-Id: <200308291450.h7TEow4Y005883@callisto.of.borg>
+	Fri, 29 Aug 2003 10:53:45 -0400
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:4665 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261294AbTH2Ovt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 10:51:49 -0400
+Date: Fri, 29 Aug 2003 16:50:57 +0200
+Message-Id: <200308291450.h7TEovIR005871@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Marcelo Tosatti <marcelo@conectiva.com.br>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] M68k mm cleanup
+Subject: [PATCH] M68k RTC updates
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k: Kill superfluous includes and obsolete commented-out code in mm code.
+M68k: Use genrtc on all m68k platforms
 
---- linux-2.4.23-pre1/arch/m68k/mm/memory.c	Mon Apr  7 13:10:05 2003
-+++ linux-m68k-2.4.23-pre1/arch/m68k/mm/memory.c	Tue Jul  1 21:29:03 2003
-@@ -19,76 +19,10 @@
- #include <asm/pgalloc.h>
- #include <asm/system.h>
- #include <asm/traps.h>
+--- linux-2.4.23-pre1/arch/m68k/atari/time.c	Wed May 29 10:12:36 2002
++++ linux-m68k-2.4.23-pre1/arch/m68k/atari/time.c	Mon Jun 30 15:15:40 2003
+@@ -16,7 +16,7 @@
+ #include <linux/init.h>
+ #include <linux/rtc.h>
+ 
+-#include <asm/rtc.h>
++#include <asm/atariints.h>
+ 
+ void __init
+ atari_sched_init(void (*timer_routine)(int, void *, struct pt_regs *))
+--- linux-2.4.23-pre1/arch/m68k/config.in	Mon Jul 21 16:52:40 2003
++++ linux-m68k-2.4.23-pre1/arch/m68k/config.in	Wed Jul  9 13:38:18 2003
+@@ -527,14 +513,10 @@
+    bool '  Disable watchdog shutdown on close' CONFIG_WATCHDOG_NOWAYOUT
+    bool '  Software Watchdog' CONFIG_SOFT_WATCHDOG
+ fi
+-if [ "$CONFIG_ATARI" = "y" ]; then
+-   bool 'Enhanced Real Time Clock Support' CONFIG_RTC
++if [ "$CONFIG_SUN3" = "y" ]; then
++   define_bool CONFIG_GEN_RTC y
+ else
+-   if [ "$CONFIG_SUN3" = "y" ]; then
+-      define_bool CONFIG_GEN_RTC y
+-   else
+-      tristate 'Generic /dev/rtc emulation' CONFIG_GEN_RTC      
+-   fi
++   tristate 'Generic /dev/rtc emulation' CONFIG_GEN_RTC      
+ fi
+ if [ "$CONFIG_GEN_RTC" != "n" ]; then
+    bool '   Extended RTC operation' CONFIG_GEN_RTC_X
+--- linux-2.4.23-pre1/include/asm-m68k/mc146818rtc.h	Wed Oct 17 12:41:21 2001
++++ linux-m68k-2.4.23-pre1/include/asm-m68k/mc146818rtc.h	Mon Jun 30 15:15:42 2003
+@@ -4,37 +4,12 @@
+ #ifndef _ASM_MC146818RTC_H
+ #define _ASM_MC146818RTC_H
+ 
+-#include <linux/config.h>
+-#include <asm/atarihw.h>
+-
+ #ifdef CONFIG_ATARI
+ /* RTC in Atari machines */
+ 
+ #include <asm/atarihw.h>
+-#include <asm/atariints.h>
 -#include <asm/io.h>
- #include <asm/machdep.h>
--#ifdef CONFIG_AMIGA
--#include <asm/amigahw.h>
--#endif
+-#define RTC_HAS_IRQ	(ATARIHW_PRESENT(TT_MFP))
+-#define RTC_IRQ 	IRQ_TT_MFP_RTC
+-#define RTC_IRQ_FLAGS	IRQ_TYPE_FAST
+-#define RTC_PORT(x)	(TT_RTC_BAS + 2*(x))
+-#define RTC_ALWAYS_BCD	0	/* TOS uses binary mode, Linux should be able
+-				 * to deal with both modes */
  
- struct pgtable_cache_struct quicklists;
+-#define RTC_CHECK_DRIVER_INIT() (MACH_IS_ATARI && ATARIHW_PRESENT(TT_CLK))
+-#define RTC_MACH_INIT()							\
+-    do {								\
+-	epoch = atari_rtc_year_offset + 1900;				\
+-	if (RTC_HAS_IRQ)						\
+-	    /* select RTC int on H->L edge */				\
+-	    tt_mfp.active_edge &= ~0x40;				\
+-    } while(0)
+-#define RTC_MACH_EXIT()
+-
+-/* On Atari, the year was stored with base 1970 in old TOS versions (before
+- * 3.06). Later, Atari recognized that this broke leap year recognition, and
+- * changed the base to 1968. Medusa and Hades always use the new version. */
+-#define RTC_CENTURY_SWITCH	-1	/* no century switch */
+-#define RTC_MINYEAR		epoch
++#define RTC_PORT(x)	(TT_RTC_BAS + 2*(x))
  
--void __bad_pte(pmd_t *pmd)
--{
--	printk("Bad pmd in pte_alloc: %08lx\n", pmd_val(*pmd));
--	pmd_set(pmd, BAD_PAGETABLE);
--}
--
--void __bad_pmd(pgd_t *pgd)
--{
--	printk("Bad pgd in pmd_alloc: %08lx\n", pgd_val(*pgd));
--	pgd_set(pgd, (pmd_t *)BAD_PAGETABLE);
--}
--
--#if 0
--pte_t *get_pte_slow(pmd_t *pmd, unsigned long offset)
--{
--	pte_t *pte;
--
--	pte = (pte_t *) __get_free_page(GFP_KERNEL);
--	if (pmd_none(*pmd)) {
--		if (pte) {
--			clear_page(pte);
--			__flush_page_to_ram((unsigned long)pte);
--			flush_tlb_kernel_page((unsigned long)pte);
--			nocache_page((unsigned long)pte);
--			pmd_set(pmd, pte);
--			return pte + offset;
--		}
--		pmd_set(pmd, BAD_PAGETABLE);
--		return NULL;
--	}
--	free_page((unsigned long)pte);
--	if (pmd_bad(*pmd)) {
--		__bad_pte(pmd);
--		return NULL;
--	}
--	return (pte_t *)__pmd_page(*pmd) + offset;
--}
--#endif
--
--#if 0
--pmd_t *get_pmd_slow(pgd_t *pgd, unsigned long offset)
--{
--	pmd_t *pmd;
--
--	pmd = get_pointer_table();
--	if (pgd_none(*pgd)) {
--		if (pmd) {
--			pgd_set(pgd, pmd);
--			return pmd + offset;
--		}
--		pgd_set(pgd, (pmd_t *)BAD_PAGETABLE);
--		return NULL;
--	}
--	free_pointer_table(pmd);
--	if (pgd_bad(*pgd)) {
--		__bad_pmd(pgd);
--		return NULL;
--	}
--	return (pmd_t *)__pgd_page(*pgd) + offset;
--}
--#endif
--
- /* ++andreas: {get,free}_pointer_table rewritten to use unused fields from
-    struct page instead of separately kmalloced struct.  Stolen from
-    arch/sparc/mm/srmmu.c ... */
+ #define CMOS_READ(addr) ({ \
+ atari_outb_p((addr),RTC_PORT(0)); \
 
 Gr{oetje,eeting}s,
 

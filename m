@@ -1,81 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265922AbSKBKjd>; Sat, 2 Nov 2002 05:39:33 -0500
+	id <S265928AbSKBKpB>; Sat, 2 Nov 2002 05:45:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265926AbSKBKjd>; Sat, 2 Nov 2002 05:39:33 -0500
-Received: from mta02ps.bigpond.com ([144.135.25.134]:48096 "EHLO
-	mta02ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S265922AbSKBKjc>; Sat, 2 Nov 2002 05:39:32 -0500
-From: Brad Hards <bhards@bigpond.net.au>
-To: "Matt D. Robinson" <yakker@aparity.com>
-Subject: Re: What's left over.
-Date: Sat, 2 Nov 2002 21:36:50 +1100
-User-Agent: KMail/1.4.5
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       <lkcd-general@lists.sourceforge.net>,
-       <lkcd-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44.0210311737020.23393-100000@nakedeye.aparity.com>
-In-Reply-To: <Pine.LNX.4.44.0210311737020.23393-100000@nakedeye.aparity.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200211022136.51039.bhards@bigpond.net.au>
+	id <S265927AbSKBKpA>; Sat, 2 Nov 2002 05:45:00 -0500
+Received: from sullivan.realtime.net ([205.238.132.76]:65293 "EHLO
+	sullivan.realtime.net") by vger.kernel.org with ESMTP
+	id <S265926AbSKBKo7>; Sat, 2 Nov 2002 05:44:59 -0500
+Date: Sat, 2 Nov 2002 04:51:29 -0600 (CST)
+Message-Id: <200211021051.gA2ApTZ17164@sullivan.realtime.net>
+From: <miltonm@bga.com> Milton Miller
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCHES] initramfs merge, part 1 of N
+In-Reply-To: <3DC38939.90001@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Fri, 1 Nov 2002 13:01, Matt D. Robinson wrote:
-<snip>
-> Uh ... have you read the patches?  Do you see how few the
-> changes are to non-dump code?  Do you know that most of those
-> changes only get triggered in a crash situation anyway?
-I applied the patches, and reported some issues.
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103520434201014&w=2
-I see no signs that any of them have been addressed, although I haven't tried 
-a really recent set.
-
-> Breakage occurs when people change code areas that are used
-> all the time, like VM, network, block layer, etc.
-Actually, this is the area that Linux is best at. If you break it, some poor 
-sod will hit the problem, and you'll know really soon.
-
-> Look at the patches and tell me where we are causing overhead
-> and and seriously potential breakage.  If you find problems,
-> then tell us, don't just comment on breakage scenarios.
-
-I'm a fairly typical user - I just have a couple of desktop machines and a 
-server/firewall. 
-
-I don't have 700 nodes in a cluster, and when my machines break, its normally 
-something I did. Sometimes the desktop locks up (say every second month, 
-unless I'm dicking with the kernel), but I reboot and everything is happy.
-
-LKCD doesn't really seem to do anything for me - it wouldn't really worry me 
-if it went in (since I don't have to maintain it - it isn't near any of my 
-code), but I'd really prefer that having the _CONFIG option set to N didn't 
-make the kernel any bigger, or change any code paths.
-
-Is this unreasonable?
-
-Brad
-
-BTW: I admit that I'd be pretty pissed if Linus said that my code was 
-"stupid", but life isn't reasonable or fair. Take a few days off LKCD, go for 
-a few walks, and worry about how to get it integrated after that.
+> Items For Discussion
+> 
+> #1 - shared kinit
+> 
+> "kinit" is _the_ early userspace binary -- but not necessarily the only
+> one. Peter Anvin and Russell King have several binaries in the klibc
+> tarball, gzip, ash, and several smaller utilities. Peter also put work
+> into making klibc a shared object -- that doesn't need an shlib loader.
+>  It's pretty nifty how he does it, IMO: klibc.so becomes an ELF
+> interpreter for any klibc-linked binaries. klibc-linked binaries are,
+> to the ELF system, static binaries, but they wind up sharing klibc.so
+> anyway due to this trick.
+> 
+> Anyway, there is a certain elegance in adding coding to kinit instead of
+> an explosion of binaries and shell scripts. The other side of that coin
+> is that with elegance you sacrifice some ease of making changes. I am
+> 60% certain we want a shared klibc and multiple binaries, but am willing
+> to be convinced in either direction. If you think about it, there _are_
+> several benefits to leaving kinit as the lone binary in the stock kernel
+> early userspace build, so the decision is not as cut-n-dry as it may
+> immediately seem. 
 
 
-- -- 
-http://linux.conf.au. 22-25Jan2003. Perth, Aust. I'm registered. Are you?
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+One idea I experimented some time ago with (and can revive after
+some sleep) is, rather than interpreting cpio in the kernel, objcopy
+a binary into a init and copy that into pagecache in a ramfs/libfs
+file system.   The population was all initfunctions, trying to make
+it disappear at runtime.  /dev/initrd was left for userspace to
+expand the rest of the loaders.  With libfs, the write code reinstated
+so standard directories, device nodes, console and initrd nodes
+can be created and opened in userspace, further shrinking the static
+linked-in code.
 
-iD8DBQE9w6rCW6pHgIdAuOMRAlI5AJ48ELVdExIeCr5C5HtDpU5+1ZnuBQCdEji0
-t4q2NjZQVGEumrz6b+CqEEs=
-=xtYY
------END PGP SIGNATURE-----
+This argues that this initial code is unshared and uncompressed
+(or rather, compressed like the rest of the kernel); for shared we
+would have to copy a couple of pieces this way.  It traded off a
+table of offset,length,mode,name with cpio headers and parsing.
 
+I had this running on 2.4.19-pre10 (around the time of the kernel
+summit, just before the fixed directory link counts went in) with
+busybox.  (I seperated the 2.4 compat vs 2.5 stuff at that time).
+
+Comments?
+
+milton

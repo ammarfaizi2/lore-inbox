@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315414AbSH0HyC>; Tue, 27 Aug 2002 03:54:02 -0400
+	id <S315374AbSH0Huf>; Tue, 27 Aug 2002 03:50:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315415AbSH0HyC>; Tue, 27 Aug 2002 03:54:02 -0400
-Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:65218 "EHLO
-	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S315414AbSH0HyB>; Tue, 27 Aug 2002 03:54:01 -0400
-Message-ID: <3D6B30E4.EE502613@wanadoo.fr>
-Date: Tue, 27 Aug 2002 09:57:24 +0200
-From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20-pre4 i586)
-X-Accept-Language: fr-FR, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20-pre4-ac2 does not compile
+	id <S315388AbSH0Huf>; Tue, 27 Aug 2002 03:50:35 -0400
+Received: from tapu.f00f.org ([66.60.186.129]:26539 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S315374AbSH0Huf>;
+	Tue, 27 Aug 2002 03:50:35 -0400
+Date: Tue, 27 Aug 2002 00:54:53 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: "Anders K. Pedersen" <akp@cohaesio.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: setsockopt() doubles SO_RCVBUF
+Message-ID: <20020827075453.GB6696@tapu.f00f.org>
+References: <3D6A2DB6.E7DE78DD@cohaesio.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3D6A2DB6.E7DE78DD@cohaesio.com>
+User-Agent: Mutt/1.4i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Mon, Aug 26, 2002 at 03:31:34PM +0200, Anders K. Pedersen wrote:
 
-ld -m elf_i386  -r -o idedriver.o ide-probe.o ide-geometry.o ide-iops.o
-ide-taskfile.o ide.o ide-lib.o ide-disk.o ide-dma.o ide-proc.o
-setup-pci.o pci/idedriver-pci.o legacy/idedriver-legacy.o
-ppc/idedriver-ppc.o arm/idedriver-arm.o raid/idedriver-raid.o
-ld: cannot open pci/idedriver-pci.o: No such file or directory
-make[4]: *** [idedriver.o] Erreur 1
-make[4]: Leaving directory `/usr/src/linux/drivers/ide'
-make[3]: *** [first_rule] Erreur 2
-make[3]: Leaving directory `/usr/src/linux/drivers/ide'
-make[2]: *** [_subdir_ide] Erreur 2
-make[2]: Leaving directory `/usr/src/linux/drivers'
-make[1]: *** [_dir_drivers] Erreur 2
-make[1]: Leaving directory `/usr/src/linux'
-make: *** [stamp-build] Erreur 2
+    Is it intentional, that val is doubled?
 
---------
-Regards
-	Jean-Luc
+Yes.
+
+
+  --cw

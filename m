@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264058AbUFFTR3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264048AbUFFTWd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264058AbUFFTR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 15:17:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbUFFTR3
+	id S264048AbUFFTWd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 15:22:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264067AbUFFTWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 15:17:29 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:28547 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264058AbUFFTR1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 15:17:27 -0400
-Subject: Re: [BUG] NFS no longer updates file modification times
-	appropriately
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: linux-kernel@vger.kernel.org, joe.korty@ccur.com
-In-Reply-To: <200406040525.40972.ioe-lkml@rameria.de>
-References: <20040603202846.GA28479@tsunami.ccur.com>
-	 <1086297112.3659.3.camel@lade.trondhjem.org>
-	 <200406040525.40972.ioe-lkml@rameria.de>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1086549445.5472.15.camel@lade.trondhjem.org>
+	Sun, 6 Jun 2004 15:22:32 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:40597 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S264048AbUFFTWb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 15:22:31 -0400
+Date: Sun, 6 Jun 2004 12:22:29 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Ameer Armaly <ameer@charter.net>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: linux crashing on amd athlons?
+Message-ID: <20040606192229.GA32127@taniwha.stupidest.org>
+References: <001701c44bf7$c8991f20$0200a8c0@laptop>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 06 Jun 2004 15:17:26 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <001701c44bf7$c8991f20$0200a8c0@laptop>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På to , 03/06/2004 klokka 23:25, skreiv Ingo Oeser:
-> On Thursday 03 June 2004 23:11, Trond Myklebust wrote:
-> > ...and no - we do not update timestamps on the client side when we cache
-> > the write, 'cos NFS does not provide any device for ensuring that clocks
-> > on client and server are synchronized.
-> 
-> Could you make this an option? The device ensuring this is the an admin
-> with a clue, who configures NTP or similiar in his network.
-> 
-> If unsure you could at least disable it by default.
+On Sun, Jun 06, 2004 at 02:55:06PM -0400, Ameer Armaly wrote:
 
-Why? It still won't be set to the same value as on the server.
+> While installing linux on an amd athlon, the kernel is oopsing and
+> shuting down the computer at random places within the install.
 
-Cheers,
-  Trond
+the oops says?
+
+> This is a custom built kernel off of kernel.org I built, which I
+> optimized for athlon then i386 afterwards, but with no luck.
+
+it works for a great very many people, more details are required
+
+
+  --cw

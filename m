@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290767AbSCGCZn>; Wed, 6 Mar 2002 21:25:43 -0500
+	id <S290796AbSCGC2X>; Wed, 6 Mar 2002 21:28:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290713AbSCGCZY>; Wed, 6 Mar 2002 21:25:24 -0500
-Received: from ns0.auctionwatch.com ([66.7.130.2]:65029 "EHLO
+	id <S290797AbSCGC2J>; Wed, 6 Mar 2002 21:28:09 -0500
+Received: from ns0.auctionwatch.com ([66.7.130.2]:27143 "EHLO
 	whitestar.auctionwatch.com") by vger.kernel.org with ESMTP
-	id <S290587AbSCGCZO>; Wed, 6 Mar 2002 21:25:14 -0500
-Date: Wed, 6 Mar 2002 18:25:07 -0800
+	id <S290796AbSCGC1z>; Wed, 6 Mar 2002 21:27:55 -0500
+Date: Wed, 6 Mar 2002 18:27:49 -0800
 From: Petro <petro@auctionwatch.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Probable Memory/VM issue.
-Message-ID: <20020307022507.GE32504@auctionwatch.com>
-In-Reply-To: <20020306054143.GN22934@auctionwatch.com> <E16ikLn-00004q-00@the-village.bc.nu>
+To: Michael Cheung <vividy@justware.co.jp>
+Cc: Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
+Subject: Re: mount -o remount,ro cause error "device is busy"
+Message-ID: <20020307022749.GF32504@auctionwatch.com>
+In-Reply-To: <20020306074908.GA342@matchmail.com> <20020306011519.C963@lynx.adilger.int> <20020306172418.C8A3.VIVIDY@justware.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E16ikLn-00004q-00@the-village.bc.nu>
+In-Reply-To: <20020306172418.C8A3.VIVIDY@justware.co.jp>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 06, 2002 at 10:57:35PM +0000, Alan Cox wrote:
-> > Bogus stack limit or frame pointer, fp=0xbfabf8c0, stack_bottom=0xbfc7fcb8, thread_stack=65536, aborting backtrace.
-> > Trying to get some variables.
-> > Some pointers may be invalid and cause the dump to abort...
-> > thd->query at (nil)  is invalid pointer
-> > thd->thread_id=20479119
-> Which says nothing alas - nothing about user or kernel space. If the system
-> had run out of memory and killed it you'd have seen "killed" and an OOM
-> entry logged
+On Wed, Mar 06, 2002 at 05:33:45PM +0900, Michael Cheung wrote:
+> hi,
+> 
+> maybe i am wrong, but I really can't find any other process runing.
+> 
+> my step is:
+> 1) "/" and "/usr" are busy
+> 2) shut down to single user mode
+> 3) "/" still busy
+> 4) "/usr" can be unmounted, but can't mount -o ro,remount /usr, show busy error.
+> 5) umount -a, after this, only /proc and / exist.
+> 6) mount -o ro,remount /, show busy error.
+> On Wed, 6 Mar 2002 01:15:19 -0700
+> Andreas Dilger <adilger@clusterfs.com> wrote:
+> > Clearly, some program is keeping "/usr" busy (which is keeping "/" busy)
+> > before the change to single user mode.  Just a bit of "lsof" needed to
+> > find such things.                                      ||||
+                                                           ^^^^
+    Best bet is to man lsof. 
 
-    It definately did not run out of memory--we monitor that pretty
-    close, and the memory usage was pretty constant for the 90+ hours
-    prior to the crash. 
-
+    lsof's your buddy. 
+    
 -- 
 Share and Enjoy. 

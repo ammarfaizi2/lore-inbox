@@ -1,94 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266009AbUHaBAg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266013AbUHaBHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266009AbUHaBAg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 21:00:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266034AbUHaBAg
+	id S266013AbUHaBHN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 21:07:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266034AbUHaBHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 21:00:36 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:18836 "EHLO slaphack.com")
-	by vger.kernel.org with ESMTP id S266009AbUHaBA3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 21:00:29 -0400
-Message-ID: <4133CDA6.4060105@slaphack.com>
-Date: Mon, 30 Aug 2004 20:00:22 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040813)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-References: <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org> <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk> <20040826001152.GB23423@mail.shareable.org> <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk> <20040826010049.GA24731@mail.shareable.org> <20040826100530.GA20805@taniwha.stupidest.org> <20040826110258.GC30449@mail.shareable.org> <20040827210638.GE709@openzaurus.ucw.cz>
-In-Reply-To: <20040827210638.GE709@openzaurus.ucw.cz>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 30 Aug 2004 21:07:13 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:31637 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S266013AbUHaBHL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 21:07:11 -0400
+Subject: Re: [RFC][PATCH] fix target_cpus() for summit subarch
+From: john stultz <johnstul@us.ibm.com>
+To: James <jamesclv@us.ibm.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>
+In-Reply-To: <200408301424.54418.jamesclv@us.ibm.com>
+References: <1093652688.14662.16.camel@cog.beaverton.ibm.com>
+	 <79750000.1093673866@[10.10.2.4]>
+	 <1093888987.14662.69.camel@cog.beaverton.ibm.com>
+	 <200408301424.54418.jamesclv@us.ibm.com>
+Content-Type: text/plain
+Message-Id: <1093914395.14662.127.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 30 Aug 2004 18:06:36 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 2004-08-30 at 14:24, James Cleverdon wrote:
+> I'm fine with changing the delivery mode to dest_LowestPrio.  However, 
+> someone changed the default destination mask that target_cpus() returns 
+> from XAPIC_DEST_CPUS_MASK (0F) to APIC_ALL_CPUS (FF).  The latter value 
+> is a bad idea.  I'm unaware of anyone's hardware that will correctly 
+> arbitrate dest_LowestPrio among all CPUs of all clusters.  (Please 
+> correct me if I'm wrong.)  By chance, FF mostly works on IBM Summit 
+> (EXA) chips, but we can't rely on that in the future.
 
-Pavel Machek wrote:
-[...]
-| uservfs does
-|
-| cd foo.deb#uar
-cd foo.deb/ar
-| vs.
-| cd foo.deb#udeb
-cd foo.deb/deb
+Ok, here is the corrected patch. Ran it through LTP for awhile and
+tested a few hotplug USB devices. 
 
-and why would you want that, instead of just:
-cd foo.deb	# for the ar
-dpkg -i foo.deb	# for the deb
+If there are no other comments, I'll submit this to Andrew later this
+week.
 
-|
-| and
-|
-| cd foo.tgz#utar
-cd foo.tgz
-| vs.
-| cat foo.tgz#ugz
-cat foo.tgz
+thanks
 
-Just want to extract the tar file?  Maybe something like
-cat foo.tgz/gunzip
-In which case (of course) foo.tgz/gunzip has exactly the same directory
-contents as foo.tgz
 
-Looks different, that's all.
+linux-2.6.9-rc1_summit-target-cpus-fix_A1
+-----------------------------------------
+diff -Nru a/include/asm-i386/mach-summit/mach_apic.h b/include/asm-i386/mach-summit/mach_apic.h
+--- a/include/asm-i386/mach-summit/mach_apic.h	2004-08-30 17:33:02 -07:00
++++ b/include/asm-i386/mach-summit/mach_apic.h	2004-08-30 17:33:02 -07:00
+@@ -19,11 +19,15 @@
+ 
+ static inline cpumask_t target_cpus(void)
+ {
+-	return CPU_MASK_ALL;
++	/* CPU_MASK_ALL (0xff) has undefined behaviour with
++	 * logical clustered apic interrupt routing.
++	 * Just start on cpu 0.  IRQ balancing will spread load 
++	 */
++	return cpumask_of_cpu(0);
+ } 
+ #define TARGET_CPUS	(target_cpus())
+ 
+-#define INT_DELIVERY_MODE (dest_Fixed)
++#define INT_DELIVERY_MODE (dest_LowestPrio)
+ #define INT_DEST_MODE 1     /* logical delivery broadcast to all procs */
+ 
+ static inline unsigned long check_apicid_used(physid_mask_t bitmap, int apicid)
 
-In fact, for just about any syntax anyone could suggest, I can't really
-see why you can't just replace all weird symbols with a slash and a
-symbol.  Instead of
-	foo.tgz#utar
-you have
-	foo.tgz/#/utar
-Only difference is, some things which used to require special tools can
-now be serviced by less than what's in busybox.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iQIVAwUBQTPNpngHNmZLgCUhAQJ0PA//RmPgHL4MgiQn7Li5b52DI/0p+Zp9JUs7
-OaA+k4wHeXEIdBProtBQ+3541noEg086bVriYRnajsA9xgd/P9ncE7ci/d9Kagdl
-8KmH4eWnCjNkL4x8GnDeR+EM5EfcgoSxR7ezO1KO9uMMcPFnCvmeB1yB5U+Fr9Q1
-HVPHfGsh+ZWU2CFJHoJx27Q07UK+bFvzGr4JkhLbRMbPeEROrkHJHp3wj/N2yXXb
-5icLgFa0g/b6wM8SuBAaO5xVM8jkmECI/P5Jo3n/d/CTUumb/BoKMIgbMurR61CG
-hrZ40mizpCMFAnLrgm9FIvjKtZUsigG+oM/2xTtku2Z2nSM16/ChKtJOAj6MoMGT
-xvWzLdTY6kEL30VDaHtcVvIyUFtUe5oYxEasnrcKseV7hJtccgjTYKB21PnWyZFz
-/KIdh8sBg6i1nuYOtHncL6agD1M2bg1vBYwbMvIRfa1YbAFUbW1A6hDTftxJIhLn
-Beso6d68SyfNMdQ8yWloR7sIufmbDut2fx1SHS3wPt2Z5W1e0XBexcpSqdD8KPns
-lvmC0ggPDuQzXjPCIsS17Uk5vrCtVEdrsCCaj62a8UE2d1mCqu4CyLwMYCFv3Sve
-SwZ36iOv4fzdvgjPOUg27tMwbpa/WiDAcZJ/31BfZfTDl4E9LbkQjWYT/YgsJuaQ
-wp3Hi/Cgh/4=
-=8YVp
------END PGP SIGNATURE-----

@@ -1,37 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315260AbSIHU74>; Sun, 8 Sep 2002 16:59:56 -0400
+	id <S314459AbSIHVUl>; Sun, 8 Sep 2002 17:20:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315265AbSIHU74>; Sun, 8 Sep 2002 16:59:56 -0400
-Received: from 62-190-216-72.pdu.pipex.net ([62.190.216.72]:42248 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S315260AbSIHU7z>; Sun, 8 Sep 2002 16:59:55 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209082112.g88LCFlI004404@darkstar.example.net>
+	id <S315265AbSIHVUl>; Sun, 8 Sep 2002 17:20:41 -0400
+Received: from smtp.comcast.net ([24.153.64.2]:55152 "EHLO smtp.comcast.net")
+	by vger.kernel.org with ESMTP id <S314459AbSIHVUk>;
+	Sun, 8 Sep 2002 17:20:40 -0400
+Date: Sun, 08 Sep 2002 17:21:02 -0400
+From: Adam Jaskiewicz <adamjaskie@yahoo.com>
 Subject: Re: Western Digital hard drive and DMA
-To: adamjaskie@yahoo.com
-Date: Sun, 8 Sep 2002 22:12:14 +0100 (BST)
+In-reply-to: <Pine.LNX.4.33.0209081714500.18967-100000@coffee.psychology.mcmaster.ca>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <02090816463707.00459@aragorn> from "Adam Jaskiewicz" at Sep 08, 2002 04:46:37 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Reply-to: adamjaskie@yahoo.com
+Message-id: <02090817210208.00459@aragorn>
+MIME-version: 1.0
+X-Mailer: KMail [version 1.2]
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+References: <Pine.LNX.4.33.0209081714500.18967-100000@coffee.psychology.mcmaster.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> OK, I have heard that other people have been having this problem for a while 
-> now, but I havent been able to find much about what causes it. I have a 
-> Western Digital hard drive in my computer (60GB, 5400 RPM) I can use it just 
-> fine with no DMA, but it runs much faster with DMA. However, when I use DMA, 
-> all my data is slowly corrupted, and I begin having to re-install packages 
-> all the time. After about a month, my system deteriorates to the point where 
-> I have to reinstall slackware. I have no idea why this is happening, but I 
-> know some people who have had the same experience under Linux with Western 
-> Digital hard drives, but not with other brands. I am assuming this is a 
-> problem with Western Digital's implimentation of DMA, but shouldnt it do 
-> something to prevent errors?
+> first, what controller is it plugged into, and which kernel are you
+> running, and what are the ide-related boot messages?
 
-What is the chipset of the interface it's on?
+Well, ATM its 2.4.17, but ive had the problem all through since 2.4.5, which 
+was the first kernel installed on this machine. The chipset is Intel 440BX. 
 
-John.
+These are the IDE boot messages:
+
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PIIX4: IDE controller on PCI bus 00 dev 39
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0x1420-0x1427, BIOS settings: hda:pio, hdb:DMA
+    ide1: BM-DMA at 0x1428-0x142f, BIOS settings: hdc:DMA, hdd:pio
+hda: WDC WD600AB-00BVA0, ATA DISK drive
+hdb: WDC AC313600D, ATA DISK drive
+hdc: TOSHIBA DVD-ROM SD-M1212, ATAPI CD/DVD-ROM drive
+hdd: PCRW804, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 117231408 sectors (60022 MB) w/2048KiB Cache, CHS=7297/255/63, UDMA(33)
+hdb: 26712000 sectors (13677 MB) w/1966KiB Cache, CHS=1662/255/63, UDMA(33)
+hdc: ATAPI 32X DVD-ROM drive, 256kB Cache, UDMA(33)
+
+hdd is running though ide-scsi, as it is a cd-rw. hda and hdb both have dma 
+turned off later in the boot process by hdparm. Could it be that I wasnt 
+using those 80 conductor cables, and was getting crosstalk? I guess i could 
+buy some to test that theory out...
+
+-- 
+Adam Jaskiewicz
+adamjaskie@yahoo.com
+http://middlearth.d2g.com:31415
+talk:  adam@middlearth.d2g.com
+--
+... But we've only fondled the surface of that subject.
+		-- Virginia Masters

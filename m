@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264938AbTAAAmO>; Tue, 31 Dec 2002 19:42:14 -0500
+	id <S264915AbTAABIy>; Tue, 31 Dec 2002 20:08:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264943AbTAAAmO>; Tue, 31 Dec 2002 19:42:14 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:15015 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S264938AbTAAAmN> convert rfc822-to-8bit; Tue, 31 Dec 2002 19:42:13 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Oops with 2.4.20 when accessing SVCDs
-Date: Wed, 1 Jan 2003 01:50:13 +0100
-User-Agent: KMail/1.4.3
-References: <3E11B976.3010306@iku-ag.de>
-In-Reply-To: <3E11B976.3010306@iku-ag.de>
-Organization: WOLK - Working Overloaded Linux Kernel
-Cc: Kurt Huwig <k.huwig@iku-ag.de>
+	id <S264943AbTAABIy>; Tue, 31 Dec 2002 20:08:54 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:48391 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S264915AbTAABIy>; Tue, 31 Dec 2002 20:08:54 -0500
+Date: Wed, 1 Jan 2003 01:17:16 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [BK fbdev updates]
+Message-ID: <Pine.LNX.4.44.0301010039430.5161-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301010150.13274.m.c.p@wolk-project.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 31 December 2002 16:36, Kurt Huwig wrote:
 
-Hi Kurt,
+Happy new year!!!
 
-> I got the attached oops when copying a file from a SVCD using cdfs-0.5c
-> I mounted a SVCD using
-> 	mount -t cdfs /dev/cdbrenner /cdbrenner
-> using the cdfs driver from
-> 	http://www.elis.rug.ac.be/~ronsse/cdfs/cdfs.html
+   To make several people happy I have more fbdev updates. More bug fixes 
+and more drivers ported to the new api. Things are starting to shape you.
+Just do a bk pull at 
 
-> Any help would be appreciated.
-Can you reproduce this w/o cdfs? I've heard alot of problems with cdfs is 
-oopsing and crashing with recent kernels so this might be a problem of cdfs, 
-not the kernel itself.
+bk://fbdev.bkbits.net:8080/fbdev-2.5
 
-> And a happy new year!
-thanks, dito :)
+The diff is at http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
 
-ciao, Marc
+
+
+

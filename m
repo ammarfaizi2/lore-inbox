@@ -1,60 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264984AbTBOUBo>; Sat, 15 Feb 2003 15:01:44 -0500
+	id <S264969AbTBOT5q>; Sat, 15 Feb 2003 14:57:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265008AbTBOUBo>; Sat, 15 Feb 2003 15:01:44 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46342 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264984AbTBOUBm>; Sat, 15 Feb 2003 15:01:42 -0500
-Date: Sat, 15 Feb 2003 12:08:10 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Synchronous signal delivery..
-In-Reply-To: <Pine.LNX.4.50.0302141751220.988-100000@blue1.dev.mcafeelabs.com>
-Message-ID: <Pine.LNX.4.44.0302151202020.11840-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264984AbTBOT5q>; Sat, 15 Feb 2003 14:57:46 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:6052 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S264969AbTBOT5p>;
+	Sat, 15 Feb 2003 14:57:45 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 15 Feb 2003 21:07:23 +0100 (MET)
+Message-Id: <UTC200302152007.h1FK7NC20192.aeb@smtp.cwi.nl>
+To: torvalds@transmeta.com
+Subject: [PATCH] remove BSD_PARTITION
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+There is no reason to have both BSD_PARTITION and FREEBSD_PARTITION
+denoting the same partition type.
 
-On Fri, 14 Feb 2003, Davide Libenzi wrote:
-> >
-> > Some of it can be pulled in. However, the way the dynamic inode allocation
-> > works, different kinds of inodes _have_ to have different superblocks,
-> > since that's the level where the inode allocation and caching works. So
-> > the fake inodes for a pipe, for example, are _not_ the same as the fake
-> > inodes for the sigfd's. So not all of it is shared.
-> 
-> Superblocks will be different, but their "fake" functionality can be
-> shared. A few parameters like file system name, file system magic number,
-> root name, ... will be able to do the trick :
-> 
-> fakefs_t fakefs_create(chat const *root, char const *name, unsigned long magic);
-> struct inode *fakefs_new_inode(fakefs_t fkfs);
-> void fakefs_close(fakefs_t fkfs);
-
-I'd love to see this. I agree that a fair amount of this should be
-shareable with the pipe and socket code, for example. But I would call it
-"virtual" instead of "fake", since there is nothing fake about the inode.  
-A pipe inode is one of the most fundamental and basic things in UNIX, it's
-not "fake" just because it doesn't live on a harddisk.
-
-In fact, one thing I noticed when doing the sigfd() code is that the pipe
-code doesn't take advantage of the new inode allocation layer as well as
-it could. It still uses multiple allocations, doing a _separate_
-allocation for the small "pipe_inode_info" instead of doing the embedding 
-trick.
-
-And that's obviously because the code was only minimally changed, because
-doing the FS setup with a super-block operation to get at a specialized
-allocator is more lines of code than people were willing to do when doing
-the conversion.
-
-(It's not _that_ many lines of code, but it could certainly be improved. 
-Almost everybody does the same thing at inode allocation and 
-de-allocation, it's just that the structure containers are different).
-
-		Linus
-
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/partitions/msdos.c b/fs/partitions/msdos.c
+--- a/fs/partitions/msdos.c	Fri Nov 22 22:40:49 2002
++++ b/fs/partitions/msdos.c	Thu Feb 13 18:15:06 2003
+@@ -377,7 +377,7 @@
+ 	void (*parse)(struct parsed_partitions *, struct block_device *,
+ 			u32, u32, int);
+ } subtypes[] = {
+-	{BSD_PARTITION, parse_freebsd},
++	{FREEBSD_PARTITION, parse_freebsd},
+ 	{NETBSD_PARTITION, parse_netbsd},
+ 	{OPENBSD_PARTITION, parse_openbsd},
+ 	{MINIX_PARTITION, parse_minix},
+diff -u --recursive --new-file -X /linux/dontdiff a/include/linux/genhd.h b/include/linux/genhd.h
+--- a/include/linux/genhd.h	Thu Jan  9 18:07:18 2003
++++ b/include/linux/genhd.h	Thu Feb 13 18:14:34 2003
+@@ -15,7 +15,7 @@
+ #include <linux/device.h>
+ 
+ enum {
+-/* These three have identical behaviour; use the second one if DOS fdisk gets
++/* These three have identical behaviour; use the second one if DOS FDISK gets
+    confused about extended/logical partitions starting past cylinder 1023. */
+ 	DOS_EXTENDED_PARTITION = 5,
+ 	LINUX_EXTENDED_PARTITION = 0x85,
+@@ -26,20 +26,17 @@
+ 
+ 	SOLARIS_X86_PARTITION =	LINUX_SWAP_PARTITION,
+ 
+-	DM6_PARTITION =	0x54,	/* has DDO: use xlated geom & offset */
+-	EZD_PARTITION =	0x55,	/* EZ-DRIVE */
+ 	DM6_AUX1PARTITION = 0x51,	/* no DDO:  use xlated geom */
+ 	DM6_AUX3PARTITION = 0x53,	/* no DDO:  use xlated geom */
++	DM6_PARTITION =	0x54,		/* has DDO: use xlated geom & offset */
++	EZD_PARTITION =	0x55,		/* EZ-DRIVE */
+ 
+-	FREEBSD_PARTITION = 0xa5,    /* FreeBSD Partition ID */
+-	OPENBSD_PARTITION = 0xa6,    /* OpenBSD Partition ID */
+-	NETBSD_PARTITION = 0xa9,   /* NetBSD Partition ID */
+-	BSDI_PARTITION = 0xb7,    /* BSDI Partition ID */
+-/* Ours is not to wonder why.. */
+-	BSD_PARTITION =	FREEBSD_PARTITION,
+-	MINIX_PARTITION = 0x81,  /* Minix Partition ID */
+-	UNIXWARE_PARTITION = 0x63,		/* Partition ID, same as */
+-						/* GNU_HURD and SCO Unix */
++	FREEBSD_PARTITION = 0xa5,	/* FreeBSD Partition ID */
++	OPENBSD_PARTITION = 0xa6,	/* OpenBSD Partition ID */
++	NETBSD_PARTITION = 0xa9,	/* NetBSD Partition ID */
++	BSDI_PARTITION = 0xb7,		/* BSDI Partition ID */
++	MINIX_PARTITION = 0x81,		/* Minix Partition ID */
++	UNIXWARE_PARTITION = 0x63,	/* Same as GNU_HURD and SCO Unix */
+ };
+ 
+ struct partition {

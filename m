@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265453AbTLHQ0W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 11:26:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265479AbTLHQ0W
+	id S265451AbTLHQWb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 11:22:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265456AbTLHQWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 11:26:22 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:1005 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S265453AbTLHQYV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 11:24:21 -0500
-Date: Mon, 08 Dec 2003 08:24:17 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: cdrecord hangs my computer
-Message-ID: <1201390000.1070900656@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.58.0312070812080.2057@home.osdl.org>
-References: <Law9-F31u8ohMschTC00001183f@hotmail.com><Pine.LNX.4.58.0312060011130.2092@home.osdl.org> <3FD1994C.10607@stinkfoot.org><20031206084032.A3438@animx.eu.org> <Pine.LNX.4.58.0312061044450.2092@home.osdl.org><20031206220227.GA19016@work.bitmover.com> <Pine.LNX.4.58.0312061429080.2092@home.osdl.org><20031207110122.GB13844@zombie.inka.de> <Pine.LNX.4.58.0312070812080.2057@home.osdl.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Mon, 8 Dec 2003 11:22:30 -0500
+Received: from holomorphy.com ([199.26.172.102]:50907 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265451AbTLHQWU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 11:22:20 -0500
+Date: Mon, 8 Dec 2003 08:22:14 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Per Buer <perbu@linpro.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4: mylex and > 2GB RAM
+Message-ID: <20031208162214.GW19856@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Per Buer <perbu@linpro.no>, linux-kernel@vger.kernel.org
+References: <1070897058.25490.56.camel@netstat.linpro.no> <20031208153641.GJ8039@holomorphy.com> <1070898870.25490.76.camel@netstat.linpro.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <1070898870.25490.76.camel@netstat.linpro.no>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In contrast, the old cdrecord interfaces are an UNBELIEVABLE PILE OF CRAP!
-> It's an interface that is based on some random hardware layout mechanism
-> that isn't even TRUE any more, and hasn't been true for a long time. It's
-> not helpful to the user, and it doesn't match how devices are accessed by
-> everything else on the system.
-> 
-> It's bad from a technical standpoint (anybody who names a generic device
-> with a flat namespace is just basically clueless), and it's bad from a
-> usability standpoint. It has _zero_ redeeming qualities.
+On Mon, 2003-12-08 at 16:36, William Lee Irwin III wrote:
+>> Could you send out a dmesg and a config file?
 
-I think the appropriate phrase is "user malevolent" software. Making
-the user interface fit some arcane technica rather than the user is
-rather tragic. Reality is quite complicated enough as it is, without
-deliberately setting out to make it more so.
+On Mon, Dec 08, 2003 at 04:54:31PM +0100, Per Buer wrote:
+> Sure.
+> We have tried two kernels on this server. A plain 2.4.18 (no patches)
+> and 2.4.22 with the RMAP VM (we thought this might be related to the VM)
+> and the brk()-fixes. No such luck. :(
 
-M.
+The most common issue of this kind is where the device has addressibility
+constraints that are automatically satisfied due to limited memory, but
+once that's exceeded, the kernel resorts to overly-strict allocation
+constraints because it has no other way of representing the constraint.
 
+Specifically, the areas to which allocations may be constrained are:
+
+ZONE_HIGHMEM:	no constraint
+ZONE_NORMAL:	<= 896MB
+ZONE_DMA:	<= 16MB
+
+If your memory ended at 2GB and the driver had 31-bit DMA, it may have
+decided to use unconstrained allocations. Then, when you added more RAM,
+it was forced to ask for <= 896MB, which made it copy to buffers that are
+actually below 896MB most of the time.
+
+However, what I can see in the driver is very inconsistent with this
+theory: it rather suggests it has 32-bit PCI and is otherwise not
+constrainted.
+
+So it's more likely that you have an unfriendly dma mask inherited from
+upper levels (e.g. default bounce_pfn values in scsi template bits) or
+bus' constraints (pci_set_dma_mask() etc. bits) than anything per-driver.
+
+
+-- wli

@@ -1,65 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271788AbRICT6t>; Mon, 3 Sep 2001 15:58:49 -0400
+	id <S271792AbRICUFT>; Mon, 3 Sep 2001 16:05:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271792AbRICT6k>; Mon, 3 Sep 2001 15:58:40 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:58554 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S271788AbRICT6f>; Mon, 3 Sep 2001 15:58:35 -0400
-Date: Mon, 3 Sep 2001 13:57:38 -0600
-Message-Id: <200109031957.f83Jvc927318@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Per Niva <pna@mendosus.org>
-Cc: <arjanv@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Added devfs support for i386 msr/cpuid driver
-In-Reply-To: <Pine.LNX.4.33.0108271621410.22199-100000@subcentral.mendosus.org>
-In-Reply-To: <200108271452.f7REqjT15752@vindaloo.ras.ucalgary.ca>
-	<Pine.LNX.4.33.0108271621410.22199-100000@subcentral.mendosus.org>
+	id <S271793AbRICUFK>; Mon, 3 Sep 2001 16:05:10 -0400
+Received: from alpha.netvision.net.il ([194.90.1.13]:43780 "EHLO
+	alpha.netvision.net.il") by vger.kernel.org with ESMTP
+	id <S271792AbRICUFC>; Mon, 3 Sep 2001 16:05:02 -0400
+Message-ID: <3B93E289.7F121DE9@netvision.net.il>
+Date: Mon, 03 Sep 2001 23:05:29 +0300
+From: Michael Ben-Gershon <mybg@netvision.net.il>
+Organization: My Office
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: en-GB, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: lpr to HP laserjet stalls
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Per Niva writes:
-> On Mon, 27 Aug 2001, Richard Gooch wrote:
-> > The reason it's wrong is because he put #ifdef's in there. The
-> > functions should just be called unconditionally. The #ifdef's are in
-> > the header.
-> 
-> I actually pondered a while on this, and settled on
-> the cut'n'paste-from-mtrr.c version. There is no error
-> check there, and I just overlooked it.
-> 
-> The defence for the #ifdefs is that I didn't see
-> register_chrdev() being aware of devfs, and I thought
-> we'd be better off just not calling register_chrdev()
-> at all if we have devfs.
+Using 'lpr' to print to an HPLaserJet 6P printer often hangs midway.
+This may happen both when the printer is used in its 'raw' mode and
+as a filter through ghostscript. It is apparent both when printing
+locally, and using Samba over the network. My own research seems
+to have narrowed the problem down to the kernel. kernel 2.2.x (up to
+2.2.19) was fine. I have had the problem with all 2.4.x kernels,
+from 2.4.6 to 2.4.9.
 
-No, even if CONFIG_DEVFS_FS=y, doesn't mean the user wants to
-mount/use devfs, so you shouldn't disable register_chrdev().
+I initially thought it was the new lpd supplied with RedHat linux 7.1,
+but although I initially thought that reverting to the old lpd had
+cured the problem, I now find it happening all the time.
 
-> It's not like I personally like #ifdefs, but it seemed
-> justified to my inexperienced eyes at that point. And
-> there's a #ifdef CONFIG_DEVFS_FS around the call in
-> mtrr.c too, and I thought it safe to do like what's
-> already in the official tree.
+It is intermittent, but very frequent. It is difficult to print more
+than about 10 sheets without it happening sometime.
 
-The #ifdef in mtrr.c is there for historical reasons (at one point,
-neither the mtrr or devfs patches were in the kernel, but I wanted
-mtrr to use devfs if available, hence the #ifdef). The #ifdef can be
-safely taken out (and should be).
+I have serached everywhere but not found any reports of such a problem,
+except for one other user who also mailed the RedHat bugzilla list as
+follows:
 
-> In microcode.c however, is the new-style without #ifdef
-> (or rather with the #ifdef in the headers instead)
-> and with error checking, but microcode_init() doesn't
-> use register_chrdev() anyway, even if devfs is not
-> supported.
-> 
-> Please enlighten me!
++------- Additional comments from lgt@dmu.ac.uk 2001-08-09 11:59:12 -------
+I have exactly this same problem with my HP LaserJet 1100 - random stalls in
+multi-page print jobs. The printer stops with the light on that normally
+indicates data is left in the buffer that hasn't been printed yet. The print
+queue eventually says it's stalled. Pressing the printer button to force out
+the
+page gives a page of truncated output, then a second page with what looks like
+some printer commands on it, starting with "@PJL SET RET=MEDIUM". After
+printing
+this duff page, the printer is idle but the print queue is still stalled.
+Re-starting lpd simply re-prints the same file again, starting from the
+beginning, which then fails at some other random point in the file.
 
-The microcode patch went in after devfs was in the kernel, IIRC, and
-thus could unconditionally reference devfs_register().
+I had no trouble whatsoever with RedHat 6.2 or 7.0 and this printer. Now,
+however, I can't reliably print anything other than a single page file - and
+even that fails sometimes if other files are in the queue.
 
-				Regards,
++--------------------------------------------------------------------------
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+It seems that his problem is similar, but maybe not exactly the same as mine,
+but looks as if is caused by the same fault.
+
+Any ideas?
+
+Michael Ben-Gershon
+mybg@netvision.net.il

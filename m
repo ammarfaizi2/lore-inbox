@@ -1,160 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262133AbUDTGHO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262063AbUDTGIq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262133AbUDTGHO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 02:07:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbUDTGHO
+	id S262063AbUDTGIq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 02:08:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUDTGIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 02:07:14 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:17631 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S262133AbUDTGG5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 02:06:57 -0400
-Date: Tue, 20 Apr 2004 15:07:33 +0900
-From: Fumihiro Tersawa <terasawa@pst.fujitsu.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       lhms-devel <lhms-devel@lists.sourceforge.net>
-Subject: [patch 2/2] memory hotplug prototype for ia64
-Message-Id: <20040420150539.0FC0.TERASAWA@pst.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.07.04 [ja]
+	Tue, 20 Apr 2004 02:08:45 -0400
+Received: from outmx003.isp.belgacom.be ([195.238.2.100]:20653 "EHLO
+	outmx003.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S262063AbUDTGI1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 02:08:27 -0400
+Subject: Re: [PATCH 2.6.6rc1-mm1] NFS sysctlized - readahead tunable
+From: FabianF <Fabian.Frederick@skynet.be>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1082419262.3360.24.camel@lade.trondhjem.org>
+References: <1082407753.18853.12.camel@bluerhyme.real3>
+	 <1082408907.3360.14.camel@lade.trondhjem.org>
+	 <1082410183.19241.12.camel@bluerhyme.real3>
+	 <1082419262.3360.24.camel@lade.trondhjem.org>
+Content-Type: multipart/mixed; boundary="=-TvjjXWpnmGoqYlkG9+u/"
+Message-Id: <1082441531.2104.2.camel@bluerhyme.real3>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 20 Apr 2004 08:12:11 +0200
+X-RAVMilter-Version: 8.4.3(snapshot 20030212) (outmx003.isp.belgacom.be)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a patch to emulate NUMA node to test the memory hotplug on
-ia64 non NUMA machines.
-As an example, it use the Dummy SRAT table(dummysrat.h) to emulate 
-2 Nodes for 1 Node machine of the following compositions:
-- 2CPUs
-- 8GB memory
 
-It is necessary to correct Dummy SRAT table according to your 
-machine's compositions(CPU number, Memory size).
+--=-TvjjXWpnmGoqYlkG9+u/
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-NOTICE:
-- APIC ID(in Processor Local APIC/SAPIC Affinity Structure)
-  It is necessary to make to match with lsapic_id of ACPI.
+On Tue, 2004-04-20 at 02:01, Trond Myklebust wrote:
+> On Mon, 2004-04-19 at 17:29, Fabian Frederick wrote:
+> > But hey ! "I'm an absolute beginner" :) Maybe you and Andrew can tell me
+> > what to do with this ugly patch ;) e.g. no sysctl.h -> include stuff in
+> > inode.c ...
+> 
+> Yes.
+This 'superbeast in time' patch against same patchset:
+	-Type fixes
+	-All in inode.c
 
-- Memory range(in Memory Affinity Structure)
-  It is necessary to establish to contain all the physical addresses 
-  of EFI memory map. 
+Regards,
+Fabian
+> 
 
+--=-TvjjXWpnmGoqYlkG9+u/
+Content-Disposition: attachment; filename=nfsctl2.diff
+Content-Type: text/x-patch; name=nfsctl2.diff; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 
-
-
-diff -duprN linux-2.6.5/drivers/acpi/dummysrat.h linux-2.6.5-dummysrat/drivers/acpi/dummysrat.h
---- linux-2.6.5/drivers/acpi/dummysrat.h	1970-01-01 09:00:00.000000000 +0900
-+++ linux-2.6.5-dummysrat/drivers/acpi/dummysrat.h	2004-04-20 12:00:55.647851364 +0900
-@@ -0,0 +1,39 @@
-+/*
-+ * Dummy SRAT table
+diff -Naur orig/fs/nfs/inode.c edited/fs/nfs/inode.c
+--- orig/fs/nfs/inode.c	2004-04-19 20:27:30.000000000 +0200
++++ edited/fs/nfs/inode.c	2004-04-20 08:05:48.000000000 +0200
+@@ -11,6 +11,10 @@
+  *  Change to nfs_read_super() to permit NFS mounts to multi-homed hosts.
+  *  J.S.Peatfield@damtp.cam.ac.uk
+  *
++ *  April 2004 : Fabian Frederick
++ *		 -Add sysctl
++ *		 -maxreadahead to sysctl
 + *
-+ * Copyright (C) 2004 Fumitake Abe <fabe@us.fujitsu.com>
-+ *
-+ */
-+unsigned char SratTable[] =
-+{
-+	0x53,0x52,0x41,0x54,0xf0,0x00,0x00,0x00,  /* 00000000  "SRAT...." */
-+	0x01,0x00,0x4f,0x45,0x4d,0x49,0x44,0x00,  /* 00000008  "..OEMID." */
-+	0x4f,0x45,0x4d,0x54,0x42,0x4c,0x00,0x00,  /* 00000010  "OEMTBL.." */
-+	0x00,0x00,0x00,0x00,0x61,0x73,0x6c,0x00,  /* 00000018  "....asl." */
-+	0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,  /* 00000020  "........" */
-+	0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,  /* 00000028  "........" */
-+	0x00,0x10,0x00,0xc2,0x01,0x00,0x00,0x00,  /* 00000030  "........" */
-+	0x18,0x00,0x00,0x00,0x00,0x00,0x00,0x00,  /* 00000038  "........" */
-+	0x00,0x10,0x01,0xc0,0x01,0x00,0x00,0x00,  /* 00000040  "........" */
-+	0x18,0x00,0x00,0x00,0x00,0x00,0x00,0x00,  /* 00000048  "........" */
-+	0x01,0x28,0x00,0x00,0x00,0x00,0x00,0x00,  /* 00000050  ".(......" */
-+	0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,  /* 00000058  "........" */
-+	0x00,0x00,0x00,0x80,0x00,0x00,0x00,0x00,  /* 00000060  "........" */
-+	0x01,0x00,0x00,0x00,0x01,0x00,0x00,0x00,  /* 00000068  "........" */
-+	0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,  /* 00000070  "........" */
-+	0x01,0x28,0x00,0x00,0x00,0x00,0x00,0x00,  /* 00000078  ".(......" */
-+	0x00,0x00,0x00,0x80,0x00,0x00,0x00,0x00,  /* 00000080  "........" */
-+	0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,  /* 00000088  "........" */
-+	0x01,0x00,0x00,0x00,0x01,0x00,0x00,0x00,  /* 00000090  "........" */
-+	0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,  /* 00000098  "........" */
-+	0x01,0x28,0x01,0x00,0x00,0x00,0x00,0x00,  /* 000000a0  ".(......" */
-+	0x00,0x00,0x00,0x80,0x01,0x00,0x00,0x00,  /* 000000a8  "........" */
-+	0x00,0x00,0x00,0x80,0x00,0x00,0x00,0x00,  /* 000000b0  "........" */
-+	0x01,0x00,0x00,0x00,0x01,0x00,0x00,0x00,  /* 000000b8  "........" */
-+	0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,  /* 000000c0  "........" */
-+	0x01,0x28,0x01,0x00,0x00,0x00,0x00,0x00,  /* 000000c8  ".(......" */
-+	0x00,0x00,0x00,0x00,0x02,0x00,0x00,0x00,  /* 000000d0  "........" */
-+	0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,  /* 000000d8  "........" */
-+	0x01,0x00,0x00,0x00,0x01,0x00,0x00,0x00,  /* 000000e0  "........" */
-+	0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,  /* 000000e8  "........" */
+  */
+ 
+ #include <linux/config.h>
+@@ -42,13 +46,52 @@
+ #define NFSDBG_FACILITY		NFSDBG_VFS
+ #define NFS_PARANOIA 1
+ 
+-/* Maximum number of readahead requests
+- * FIXME: this should really be a sysctl so that users may tune it to suit
+- *        their needs. People that do NFS over a slow network, might for
+- *        instance want to reduce it to something closer to 1 for improved
+- *        interactive response.
+- */
+-#define NFS_MAX_READAHEAD	(RPC_DEF_SLOT_TABLE - 1)
++#include <linux/sysctl.h>
++
++static unsigned int 		nfs_maxreadahead = RPC_DEF_SLOT_TABLE-1;
++
++static const unsigned int	nfs_maxreadahead_min = 0;
++static const unsigned int	nfs_maxreadahead_max = 256;
++
++#ifdef CONFIG_SYSCTL
++static struct ctl_table_header *nfs_sysctl_table;
++
++#define CTL_UNNUMBERED		-2
++
++static ctl_table nfs_sysctls[] = {
++        {
++                .ctl_name       = CTL_UNNUMBERED,
++                .procname       = "nfs_maxreadahead",
++                .data           = &nfs_maxreadahead,
++                .maxlen         = sizeof(int),
++                .mode           = 0644,
++                .proc_handler   = &proc_dointvec_minmax,
++                .extra1         = (unsigned int *) &nfs_maxreadahead_min,
++                .extra2         = (unsigned int *) &nfs_maxreadahead_max,
++        }
 +};
-diff -duprN linux-2.6.5/drivers/acpi/numa.c linux-2.6.5-dummysrat/drivers/acpi/numa.c
---- linux-2.6.5/drivers/acpi/numa.c	2004-04-04 12:37:40.000000000 +0900
-+++ linux-2.6.5-dummysrat/drivers/acpi/numa.c	2004-04-20 11:57:59.491603522 +0900
-@@ -48,6 +48,7 @@ acpi_table_print_srat_entry (
- 	if (!header)
- 		return;
++
++static ctl_table nfs_sysctl_dir[] = {
++        {
++                .ctl_name       = CTL_UNNUMBERED,
++                .procname       = "nfs",
++                .mode           = 0555,
++                .child          = nfs_sysctls,
++        },
++        { .ctl_name = 0 }
++};
++
++static ctl_table nfs_sysctl_root[] = {
++        {
++                .ctl_name       = CTL_FS,
++                .procname       = "fs",
++                .mode           = 0555,
++                .child          = nfs_sysctl_dir,
++        },
++        { .ctl_name = 0 }
++};
++
++#endif
  
-+#ifndef CONFIG_MEMHOTPLUG
- 	switch (header->type) {
- 
- 	case ACPI_SRAT_PROCESSOR_AFFINITY:
-@@ -77,6 +78,7 @@ acpi_table_print_srat_entry (
- 			header->type);
- 		break;
+ static void nfs_invalidate_inode(struct inode *);
+ static int nfs_update_inode(struct inode *, struct nfs_fattr *, unsigned long);
+@@ -326,7 +369,7 @@
+ 		server->acdirmin = server->acdirmax = 0;
+ 		sb->s_flags |= MS_SYNCHRONOUS;
  	}
+-	server->backing_dev_info.ra_pages = server->rpages * NFS_MAX_READAHEAD;
++	server->backing_dev_info.ra_pages = server->rpages * nfs_maxreadahead;
+ 
+ 	sb->s_maxbytes = fsinfo.maxfilesize;
+ 	if (sb->s_maxbytes > MAX_LFS_FILESIZE) 
+@@ -1814,6 +1857,11 @@
+ #ifdef CONFIG_PROC_FS
+ 	rpc_proc_register(&nfs_rpcstat);
+ #endif
++#ifdef CONFIG_SYSCTL
++	nfs_sysctl_table = register_sysctl_table(nfs_sysctl_root, 0);
++	if(!nfs_sysctl_table)
++		return -ENOMEM;
++#endif
+         err = register_filesystem(&nfs_fs_type);
+ 	if (err)
+ 		goto out;
+@@ -1844,6 +1892,9 @@
+ #endif
+ 	unregister_filesystem(&nfs_fs_type);
+ 	unregister_nfs4fs();
++#ifdef CONFIG_SYSCTL 
++	unregister_sysctl_table(nfs_sysctl_table);
 +#endif
  }
  
- 
-diff -duprN linux-2.6.5/drivers/acpi/tables.c linux-2.6.5-dummysrat/drivers/acpi/tables.c
---- linux-2.6.5/drivers/acpi/tables.c	2004-04-04 12:36:56.000000000 +0900
-+++ linux-2.6.5-dummysrat/drivers/acpi/tables.c	2004-04-20 11:57:59.492580085 +0900
-@@ -34,6 +34,9 @@
- #include <linux/errno.h>
- #include <linux/acpi.h>
- #include <linux/bootmem.h>
-+#ifdef CONFIG_MEMHOTPLUG
-+#include "dummysrat.h"
-+#endif
- 
- #define PREFIX			"ACPI: "
- 
-@@ -315,6 +318,14 @@ acpi_table_parse_madt_family (
- 	if (!handler)
- 		return -EINVAL;
- 
-+#ifdef CONFIG_MEMHOTPLUG
-+	if (id == ACPI_SRAT) {
-+		madt = (void *)SratTable;
-+		madt_end = (unsigned long)madt + sizeof(SratTable);
-+		goto do_parse;
-+	}
-+#endif
-+
- 	/* Locate the MADT (if exists). There should only be one. */
- 
- 	for (i = 0; i < sdt_count; i++) {
-@@ -338,6 +349,9 @@ acpi_table_parse_madt_family (
- 
- 	madt_end = (unsigned long) madt + sdt_entry[i].size;
- 
-+#ifdef CONFIG_MEMHOTPLUG
-+do_parse:
-+#endif
- 	/* Parse all entries looking for a match. */
- 
- 	entry = (acpi_table_entry_header *)
-@@ -383,6 +397,13 @@ acpi_table_parse (
- 	if (!handler)
- 		return -EINVAL;
- 
-+#ifdef CONFIG_MEMHOTPLUG
-+	if (id == ACPI_SRAT) {
-+		handler(ia64_tpa((unsigned long)SratTable), sizeof(SratTable));
-+		return 1;
-+	}
-+#endif
-+
- 	for (i = 0; i < sdt_count; i++) {
- 		if (sdt_entry[i].id != id)
- 			continue;
+ /* Not quite true; I just maintain it */
+
+--=-TvjjXWpnmGoqYlkG9+u/--
 

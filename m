@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132095AbQKWAL6>; Wed, 22 Nov 2000 19:11:58 -0500
+        id <S132265AbQKWATU>; Wed, 22 Nov 2000 19:19:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132265AbQKWALs>; Wed, 22 Nov 2000 19:11:48 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:47880 "EHLO
-        havoc.gtf.org") by vger.kernel.org with ESMTP id <S132095AbQKWALe>;
-        Wed, 22 Nov 2000 19:11:34 -0500
-Message-ID: <3A1C59A3.52AA42B3@mandrakesoft.com>
-Date: Wed, 22 Nov 2000 18:41:23 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jes Sorensen <jes@linuxcare.com>
-CC: Rogier Wolff <R.E.Wolff@bitwizard.nl>,
-        Mitchell Blank Jr <mitch@sfgoth.com>,
-        Patrick van de Lageweg <patrick@bitwizard.nl>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Rogier Wolff <wolff@bitwizard.nl>
-Subject: Re: [NEW DRIVER] firestream
-In-Reply-To: <200011222305.AAA30264@cave.bitwizard.nl> <d366lflgvl.fsf@lxplus015.cern.ch>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+        id <S132269AbQKWATK>; Wed, 22 Nov 2000 19:19:10 -0500
+Received: from chello212186054181.11.vie.surfer.at ([212.186.54.181]:12298
+        "EHLO pluto.i.zmi.at") by vger.kernel.org with ESMTP
+        id <S132265AbQKWASv>; Wed, 22 Nov 2000 19:18:51 -0500
+Message-Id: <sa1a9dcd.091@mail.frequentis.com>
+X-Mailer: KMail [version 1.1.99]
+Date: Thu, 23 Nov 2000 00:48:51 +0100
+From: Michael Zieger <m.zieger@zmi.at>
+To: linux-kernel@vger.kernel.org
+Subject: Wrong/old text in Documentation/cpqarray.txt
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-MIME-Autoconverted: from quoted-printable to 8bit by srv1.goelsen.net id QAA20716
+X-UIDL: 1475160331f00972fadf96221359eb33
+Organization: ZMI EDV http://www.zmi.at
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen wrote:
-> I think the most important issue is when doing header files to make
-> sure they go with the driver code and not in include/linux unless
-> there really is a reason to expose them to user space. No reason to
-> export register definitions for Ethernet cards down there.
+The documentation for this driver seems to be old in v2.4.0-test11-pre5:
 
-Agreed, that there are some headers that IMHO need to be moved out of
-include/linux because they aren't used in userspace, and they aren't
-public interfaces, nor shared across directories.
+--------------------
+You need to build a new kernel to use this device, even if you want to
+use a loadable module.  
 
--- 
-Jeff Garzik             |
-Building 1024           | The chief enemy of creativity is "good" sense
-MandrakeSoft            |          -- Picasso
+Apply the patch to a 2.2.x kernel:
+
+# cd linux
+# patch -p1 <smart2.patch
+---------------------
+
+Later, there is a section:
+-----------------
+Booting:
+--------
+You'll need to use a modified lilo if you want to boot from a disk 
+array.
+Its simply a version of lilo with some code added to tell it how to
+understand Compaq diskarray devices.
+-----------------
+
+Is this information still correct? Can't I boot from a Compaq disk 
+array with a recent lilo (V 21 from SuSE 7.0)? I would need that 
+feature soon and wonder where to get such a special lilo from.
+
+Thanks in advance, and answers please per private mail, as I am not 
+subscribed to this list.
+
+mike
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

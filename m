@@ -1,342 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbVAUOmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262378AbVAUOpD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262380AbVAUOmy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 09:42:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbVAUOmx
+	id S262378AbVAUOpD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 09:45:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbVAUOpD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 09:42:53 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:9435 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S262378AbVAUOmV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 09:42:21 -0500
-Message-ID: <41F114C0.7020809@tiscali.de>
-Date: Fri, 21 Jan 2005 15:42:08 +0100
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-CC: linux-kernel@vger.kernel.org, linux@brodo.de,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Zou, Nanhai" <nanhai.zou@intel.com>
-Subject: Re: [BUG?]: cpufreqency scaling - wrong frequency detected
-References: <88056F38E9E48644A0F562A38C64FB6003D1B38D@scsmsx403.amr.corp.intel.com>
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB6003D1B38D@scsmsx403.amr.corp.intel.com>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Jan 2005 09:45:03 -0500
+Received: from smtp-105-friday.noc.nerim.net ([62.4.17.105]:24583 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S262378AbVAUOo4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 09:44:56 -0500
+Date: Fri, 21 Jan 2005 15:44:44 +0100
+From: =?iso-8859-1?B?QXVy6WxpZW4gR8lS1E1F?= <ag@roxor.be>
+To: linux-kernel@vger.kernel.org
+Subject: ppp0 out of control
+Message-ID: <20050121144444.GA2100@roxor.be>
+Reply-To: =?iso-8859-1?B?QXVy6WxpZW4gR8lS1E1F?= <ag@roxor.be>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="X1bOJ3K7DJ5YkBrT"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pallipadi, Venkatesh wrote:
 
->Never mind about acpidmp. This seems to be a issue with
->p4-clockmod.c/speedstep-lib.c and the routine which gets the initial
->frequency. As a result all frequencies are getting multiplied by 8. Not
->sure what the exact bug is though. Dominik can give a better answer.
->Cpufreq debug messages will help.
->
->Thanks,
->Venki
->
->  
->
->>-----Original Message-----
->>From: Pallipadi, Venkatesh 
->>Sent: Thursday, January 20, 2005 12:56 PM
->>To: 'Matthias-Christian Ott'; linux-kernel@vger.kernel.org
->>Cc: linux@brodo.de; Nakajima, Jun; Zou, Nanhai
->>Subject: RE: [BUG?]: cpufreqency scaling - wrong frequency detected
->>
->>
->>Hi,
->>
->>Can you send the output of 'acpidmp' from this system to me? 
->>If acpidmp is not already installed, you should be able to 
->>grab it from here. 
->>http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/ 
->>
->>Thanks,
->>Venki
->>
->>    
->>
->>>-----Original Message-----
->>>From: Matthias-Christian Ott [mailto:matthias.christian@tiscali.de] 
->>>Sent: Thursday, January 20, 2005 12:13 PM
->>>To: Linux Kernel Mailing List
->>>Cc: linux@brodo.de; Nakajima, Jun; Pallipadi, Venkatesh; Zou, Nanhai
->>>Subject: [BUG?]: cpufreqency scaling - wrong frequency detected
->>>
->>>Hi!
->>>The Kernel cpufrequency scaling modul seems to have a bug, it 
->>>      
->>>
->>displays 
->>    
->>
->>>the frequency of 14,60 Ghz. I don't enabled debugging in the 
->>>config, but 
->>>I hope this information can help you. I don't know if it's 
->>>really a bug, 
->>>so I send it to the mailing list instead of reporting it to 
->>>the bugzilla 
->>>bugtracking system. if you need additional information, I'll 
->>>      
->>>
->>compile a 
->>    
->>
->>>Kernel with cpufreq debugging.
->>>
->>>Matthias-Christian Ott
->>>
->>>[fox@iceowl ~]$ cat /proc/version
->>>Linux version 2.6.11-rc1-bk7-ott (root@iceowl.ott.dyndns.info) 
->>>(gcc-Version 3.4.3) #1 SMP Thu Jan 20 16:18:06 CET 2005
->>>
->>>[root@iceowl ~]# dmesg
->>>ACPI: RSDP (v000 MSISYS                                ) @ 0x000f7550
->>>ACPI: RSDT (v001 MSISYS MSI ACPI 0x42302e31 AWRD 0x00000000) @ 
->>>0x17ff3000
->>>ACPI: FADT (v001 MSISYS MSI ACPI 0x42302e31 AWRD 0x00000000) @ 
->>>0x17ff3040
->>>ACPI: MADT (v001 MSISYS AWRDACPI 0x42302e31 AWRD 0x00000000) @ 
->>>0x17ff6c40
->>>ACPI: DSDT (v001 MSISYS AWRDACPI 0x00001000 MSFT 0x0100000c) @ 
->>>0x00000000
->>>ACPI: PM-Timer IO Port: 0x4008
->>>ACPI: Local APIC address 0xfee00000
->>>ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
->>>Processor #0 15:1 APIC version 20
->>>ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
->>>IOAPIC[0]: apic_id 2, version 32, address 0xfec00000, GSI 0-23
->>>ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 high level)
->>>ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
->>>ACPI: IRQ0 used by override.
->>>ACPI: IRQ2 used by override.
->>>ACPI: IRQ9 used by override.
->>>Enabling APIC mode:  Flat.  Using 1 I/O APICs
->>>Using ACPI (MADT) for SMP configuration information
->>>Built 1 zonelists
->>>Kernel command line: root=/dev/discs/disc0/part1 
->>>video=vesafb:ywrap,mtrr 
->>>vga=0x318 elevator=cfq ro mem=393152K
->>>[..]
->>>CPU: After generic identify, caps: 3febfbff 00000000 00000000 
->>>      
->>>
->>00000000 
->>    
->>
->>>00000000 00000000 00000000
->>>CPU: After vendor identify, caps: 3febfbff 00000000 00000000 00000000 
->>>00000000 00000000 00000000
->>>CPU: Trace cache: 12K uops, L1 D cache: 8K
->>>CPU: L2 cache: 256K
->>>CPU: Hyper-Threading is disabled
->>>CPU: After all inits, caps: 3febfbff 00000000 00000000 
->>>00000080 00000000 
->>>00000000 00000000
->>>Intel machine check architecture supported.
->>>Intel machine check reporting enabled on CPU#0.
->>>CPU0: Intel P4/Xeon Extended MCE MSRs (12) available
->>>CPU0: Thermal monitoring enabled
->>>Enabling fast FPU save and restore... done.
->>>Enabling unmasked SIMD FPU exception support... done.
->>>Checking 'hlt' instruction... OK.
->>>CPU0: Intel(R) Pentium(R) 4 CPU 1.80GHz stepping 02
->>>per-CPU timeslice cutoff: 731.50 usecs.
->>>[..]
->>>Total of 1 processors activated (3563.52 BogoMIPS).
->>>ENABLING IO-APIC IRQs
->>>..TIMER: vector=0x31 pin1=2 pin2=-1
->>>Brought up 1 CPUs
->>>CPU0 attaching sched-domain:
->>>domain 0: span 1
->>> groups: 1
->>> domain 1: span 1
->>>  groups: 1
->>>[..]
->>>ACPI: Subsystem revision 20041210
->>>   ACPI-1138: *** Error: Method execution failed [\STRC] (Node 
->>>d7fc3660), AE_AML_BUFFER_LIMIT
->>>   ACPI-1138: *** Error: Method execution failed [\_SB_.PCI0._INI] 
->>>(Node d7fc7420), AE_AML_BUFFER_LIMIT
->>>ACPI: Interpreter enabled
->>>ACPI: Using IOAPIC for interrupt routing
->>>ACPI: PCI Root Bridge [PCI0] (00:00)
->>>PCI: Probing PCI hardware (bus 00)
->>>PCI: Transparent bridge - 0000:00:1e.0
->>>ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
->>>ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.HUB0._PRT]
->>>ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
->>>ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 9 10 11 *12 14 15)
->>>ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
->>>ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
->>>ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
->>>ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
->>>ACPI: PCI Interrupt Link [LNK0] (IRQs 3 4 *5 6 7 9 10 11 12 14 15)
->>>ACPI: PCI Interrupt Link [LNK1] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
->>>[..]
->>>ACPI: Power Button (FF) [PWRF]
->>>ACPI: Sleep Button (CM) [SLPB]
->>>ACPI: Fan [FAN] (on)
->>>ACPI: CPU0 (power states: C1[C1] C2[C2])
->>>ACPI: Processor [CPU0] (supports 2 throttling states)
->>>ACPI: Thermal Zone [THRM] (22 C)
->>>[..]
->>>p4-clockmod: P4/Xeon(TM) CPU On-Demand Clock Modulation available
->>>[..]
->>>
->>>[root@iceowl ~]# cat /proc/cpuinfo
->>>processor       : 0
->>>vendor_id       : GenuineIntel
->>>cpu family      : 15
->>>model           : 1
->>>model name      : Intel(R) Pentium(R) 4 CPU 1.80GHz
->>>stepping        : 2
->>>cpu MHz         : 1800.257
->>>cache size      : 256 KB
->>>physical id     : 0
->>>siblings        : 1
->>>fdiv_bug        : no
->>>hlt_bug         : no
->>>f00f_bug        : no
->>>coma_bug        : no
->>>fpu             : yes
->>>fpu_exception   : yes
->>>cpuid level     : 2
->>>wp              : yes
->>>flags           : fpu vme de pse tsc msr pae mce cx8 apic sep 
->>>      
->>>
->>mtrr pge 
->>    
->>
->>>mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
->>>bogomips        : 3563.52
->>>
->>>[root@iceowl ~]# cat 
->>>/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq
->>>14600000
->>>
->>>[root@iceowl ~]# cat 
->>>/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies
->>>3650000 5475000 7300000 9125000 10950000 12775000 14600000
->>>
->>>[root@iceowl ~]# cat 
->>>/home/fox/builds/kernel/kernel-2.6.10-rc1-ott/config
->>>[..]
->>>CONFIG_X86_PC=y
->>>[..]
->>>CONFIG_MPENTIUM4=y
->>>[..]
->>>CONFIG_X86_GENERIC=y
->>>CONFIG_X86_CMPXCHG=y
->>>CONFIG_X86_XADD=y
->>>CONFIG_X86_L1_CACHE_SHIFT=7
->>>CONFIG_RWSEM_XCHGADD_ALGORITHM=y
->>>CONFIG_GENERIC_CALIBRATE_DELAY=y
->>>CONFIG_X86_WP_WORKS_OK=y
->>>CONFIG_X86_INVLPG=y
->>>CONFIG_X86_BSWAP=y
->>>CONFIG_X86_POPAD_OK=y
->>>CONFIG_X86_GOOD_APIC=y
->>>CONFIG_X86_INTEL_USERCOPY=y
->>>CONFIG_X86_USE_PPRO_CHECKSUM=y
->>>CONFIG_HPET_TIMER=y
->>>CONFIG_SMP=y
->>>CONFIG_NR_CPUS=4
->>>CONFIG_SCHED_SMT=y
->>>CONFIG_PREEMPT=y
->>>CONFIG_PREEMPT_BKL=y
->>>CONFIG_X86_LOCAL_APIC=y
->>>CONFIG_X86_IO_APIC=y
->>>CONFIG_X86_TSC=y
->>>CONFIG_X86_MCE=y
->>>CONFIG_X86_MCE_NONFATAL=m
->>>CONFIG_X86_MCE_P4THERMAL=y
->>>CONFIG_TOSHIBA=m
->>>CONFIG_I8K=m
->>>[..]
->>>CONFIG_PM=y
->>># CONFIG_PM_DEBUG is not set
->>>CONFIG_SOFTWARE_SUSPEND=y
->>>CONFIG_PM_STD_PARTITION=""
->>>[..]
->>>CONFIG_ACPI=y
->>>CONFIG_ACPI_BOOT=y
->>>CONFIG_ACPI_INTERPRETER=y
->>>CONFIG_ACPI_SLEEP=y
->>>CONFIG_ACPI_SLEEP_PROC_FS=y
->>>CONFIG_ACPI_AC=y
->>>CONFIG_ACPI_BATTERY=y
->>>CONFIG_ACPI_BUTTON=y
->>>CONFIG_ACPI_VIDEO=y
->>>CONFIG_ACPI_FAN=y
->>>CONFIG_ACPI_PROCESSOR=y
->>>CONFIG_ACPI_THERMAL=y
->>>CONFIG_ACPI_ASUS=m
->>>CONFIG_ACPI_IBM=m
->>>CONFIG_ACPI_TOSHIBA=m
->>>CONFIG_ACPI_BLACKLIST_YEAR=0
->>># CONFIG_ACPI_DEBUG is not set
->>>CONFIG_ACPI_BUS=y
->>>CONFIG_ACPI_EC=y
->>>CONFIG_ACPI_POWER=y
->>>CONFIG_ACPI_PCI=y
->>>CONFIG_ACPI_SYSTEM=y
->>>CONFIG_X86_PM_TIMER=y
->>># CONFIG_ACPI_CONTAINER is not set
->>>[..]
->>>CONFIG_CPU_FREQ=y
->>># CONFIG_CPU_FREQ_DEBUG is not set
->>>CONFIG_CPU_FREQ_STAT=m
->>>CONFIG_CPU_FREQ_STAT_DETAILS=y
->>># CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE is not set
->>>CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE=y
->>>CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
->>>CONFIG_CPU_FREQ_GOV_POWERSAVE=y
->>>CONFIG_CPU_FREQ_GOV_USERSPACE=y
->>>CONFIG_CPU_FREQ_GOV_ONDEMAND=y
->>>CONFIG_CPU_FREQ_TABLE=y
->>>[..]
->>>CONFIG_X86_ACPI_CPUFREQ=y
->>>CONFIG_X86_POWERNOW_K6=m
->>>CONFIG_X86_POWERNOW_K7=m
->>>CONFIG_X86_POWERNOW_K7_ACPI=y
->>>CONFIG_X86_POWERNOW_K8=m
->>>CONFIG_X86_POWERNOW_K8_ACPI=y
->>>CONFIG_X86_GX_SUSPMOD=m
->>>CONFIG_X86_SPEEDSTEP_CENTRINO=m
->>>CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI=y
->>>CONFIG_X86_SPEEDSTEP_CENTRINO_TABLE=y
->>>CONFIG_X86_SPEEDSTEP_ICH=m
->>>CONFIG_X86_SPEEDSTEP_SMI=m
->>>CONFIG_X86_P4_CLOCKMOD=y
->>>CONFIG_X86_CPUFREQ_NFORCE2=m
->>>CONFIG_X86_LONGRUN=m
->>>CONFIG_X86_LONGHAUL=m
->>>[..]
->>># CONFIG_X86_ACPI_CPUFREQ_PROC_INTF is not set
->>>CONFIG_X86_SPEEDSTEP_LIB=y
->>>CONFIG_X86_SPEEDSTEP_RELAXED_CAP_CHECK=y
->>>[..]
->>>
->>>
->>>
->>>      
->>>
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-Hi!
-Cpufreq (with enabled debugging (not CONFIG_DEBUG_KERNEL)) doesn't 
-display any additional messages. I'll compile it with CONFIG_DEBUG_KERNEL.
+--X1bOJ3K7DJ5YkBrT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 
-Matthias-Christian Ott
+Hi there,
+
+I am running 2.6.10 from kernel.org on Debian Sid ppc/x86, the same
+issue occurs with 2.6.9. Though, 2.6.8.1 and previous are fine.
+
+When my ISP connection via PPPoE (kernel side) goes down, reconnection
+does not occur, and the kernel displays continuous:
+
+kernel: unregister_netdevice: waiting for ppp0 to become free. Usage count = 1
+
+This is that on both machine: x86 and ppc.
+
+The only solution is a reboot, because pppd is not killable, and the
+kernel keeps on with this message.
+
+Does anyone have a solution? I am completely clueless. :( I thought
+about stalled sockets, but how can I destroy them?
+
+What is blocking ppp0?
+
+What system outputs do you need to solve this?
+
+Cheers.
+
+--X1bOJ3K7DJ5YkBrT
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFB8RVcI2xgxmW0sWIRAgqsAJ9l5uGjqr4ib6YkY9Veo9v4yh993gCgqy2U
+xkssdhLe0bn5cj1hbgIkIM8=
+=PiTb
+-----END PGP SIGNATURE-----
+
+--X1bOJ3K7DJ5YkBrT--

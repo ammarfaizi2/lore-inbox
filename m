@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319027AbSIJARp>; Mon, 9 Sep 2002 20:17:45 -0400
+	id <S319034AbSIJAQM>; Mon, 9 Sep 2002 20:16:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319029AbSIJARp>; Mon, 9 Sep 2002 20:17:45 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:15118
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S319027AbSIJARk>; Mon, 9 Sep 2002 20:17:40 -0400
-Subject: [patch] 2.4: updated preemptable kernel
-From: Robert Love <rml@tech9.net>
-To: linux-kernel@vger.kernel.org
-Cc: kpreempt-tech@lists.sourceforge.net
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 09 Sep 2002 20:22:30 -0400
-Message-Id: <1031617351.949.6.camel@phantasy>
+	id <S319035AbSIJAQM>; Mon, 9 Sep 2002 20:16:12 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:2260 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S319034AbSIJAQL>;
+	Mon, 9 Sep 2002 20:16:11 -0400
+Date: Mon, 9 Sep 2002 17:20:39 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Message-ID: <20020909172039.A19929@eng2.beaverton.ibm.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Updated fully preemptive kernel patches are available at:
+In 2.5.34, in order to build a module that calls daemonize(), I had to 
+export reparent_to_init:
 
-	2.4.19: http://www.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/v2.4/preempt-kernel-rml-2.4.19-2.patch
-	2.4.20-pre5: http://www.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/v2.4/preempt-kernel-rml-2.4.20-pre5-1.patch
-	2.4.20-pre5-ac4: http://www.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/v2.4/preempt-kernel-rml-2.4.20-pre5-ac4-1.patch
+--- 1.45/kernel/ksyms.c	Mon Sep  9 03:35:51 2002
++++ edited/kernel/ksyms.c	Mon Sep  9 16:52:29 2002
+@@ -521,6 +521,7 @@
+ EXPORT_SYMBOL(securebits);
+ EXPORT_SYMBOL(cap_bset);
+ EXPORT_SYMBOL(daemonize);
++EXPORT_SYMBOL(reparent_to_init);
+ EXPORT_SYMBOL(csum_partial); /* for networking and md */
+ EXPORT_SYMBOL(seq_escape);
+ EXPORT_SYMBOL(seq_printf);
 
-and your favorite mirrors.
-
-These releases contain some of the recent fixes from 2.5.  Note new
-design features of kernel preemption will most likely not be back-ported
-from 2.5; just fixes to the existing infrastructure.
-
-The above patches include fixes for the "preempting with interrupts
-disabled" bug as well as some other misc. issues.  Note they are not per
-se in sync with 2.5 or each other yet...
-
-Enjoy,
-
-	Robert Love
-
+-- Patrick Mansfield

@@ -1,41 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265180AbUEYWXY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265161AbUEYW05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265180AbUEYWXY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 18:23:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265140AbUEYWUy
+	id S265161AbUEYW05 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 18:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265243AbUEYWYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 18:20:54 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:32130 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S265158AbUEYWSo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 18:18:44 -0400
-Date: Wed, 26 May 2004 02:18:45 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrea Arcangeli <andrea@suse.de>, Matthew Wilcox <willy@debian.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Ben LaHaise <bcrl@kvack.org>,
-       linux-mm@kvack.org, Architectures Group <linux-arch@vger.kernel.org>
-Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
-Message-ID: <20040526021845.A1302@den.park.msu.ru>
-References: <1085373839.14969.42.camel@gaston> <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org> <20040525034326.GT29378@dualathlon.random> <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org> <20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org> <20040525212720.GG29378@dualathlon.random> <Pine.LNX.4.58.0405251440120.9951@ppc970.osdl.org> <20040525215500.GI29378@dualathlon.random> <Pine.LNX.4.58.0405251500250.9951@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.58.0405251500250.9951@ppc970.osdl.org>; from torvalds@osdl.org on Tue, May 25, 2004 at 03:01:55PM -0700
+	Tue, 25 May 2004 18:24:22 -0400
+Received: from v-2020.easyco.net ([63.209.183.37]:7872 "HELO v-2020.easyco.net")
+	by vger.kernel.org with SMTP id S265169AbUEYWV2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 18:21:28 -0400
+X-VScan: EasyCo VirusScan - clear - uvscan v4.1.60-4362 May 19 2004
+Message-ID: <40B3C816.6030802@easyco.com>
+Date: Tue, 25 May 2004 15:26:30 -0700
+From: Doug Dumitru <doug@easyco.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7b) Gecko/20040316
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+Subject: Re: Hard Hang with __alloc_pages: 0-order allocation failed (gfp=0x20/1)
+ - Not out of memory
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 25, 2004 at 03:01:55PM -0700, Linus Torvalds wrote:
-> A "not-present" fault is a totally different fault from a "protection 
-> fault". Only the not-present fault ends up walking the page tables, if I 
-> remember correctly.
+This is the original trap dump from a __page_alloc error
 
-Precisely. The architecture reference manual says:
-"Additionally, when the software changes any part (except the software
-field) of a *valid* PTE, it must also execute a tbi instruction."
+__alloc_pages: 0-order allocation failed (gfp=0x20/1)
 
-Ivan.
+This was the first error that took the machine down entirely (it should
+be noted that the machine was >100 LoadAvg soft-hang before this error).
+  This is with "echo 1 > /proc/sys/vm/vm_gfp_debug" and I ran it thru
+ksymoops to try to decode the addresses (I hope I did this right).
+
+ksymoops 2.4.4 on i686 2.4.25.  Options used
+      -V (default)
+      -k ksyms.5 (specified)
+      -l /proc/modules (default)
+      -o /lib/modules/2.4.26/ (specified)
+      -m /boot/System.map-2.4.26 (specified)
+
+Warning (expand_objects): object
+/lib/modules/2.4.26/kernel/drivers/md/lvm-mod.o for module lvm-mod
+has changed since load
+Warning (expand_objects): object
+/lib/modules/2.4.26/kernel/drivers/md/md.o for module md has
+changed since load
+cc68bad8 c0135289 00000000 011410ac 00000001 0000000c c03689dc 0000
+cbccb780 cbccb780 c02d23ba c7c5b838
+Call Trace:    [<c0135289>] [<c01352b0>] [<c0132214>] [<c02d23ba>]
+[<c01327f1>]
+   [<c029923f>] [<c01f0d3c>] [<c01f0c52>] [<c0121786>] [<c01219d9>]
+[<c01f05ec>]
+   [<c010a4de>] [<c010a6f4>] [<c0133ce6>] [<c0134152>] [<c01341fc>]
+[<c0134271>]
+   [<c0134dff>] [<c0135169>] [<c01352b0>] [<c014c203>] [<c02b765e>]
+[<c029634f>]
+   [<c014c467>] [<c014c8e9>] [<c010a72d>] [<c0108b63>]
+Warning (Oops_read): Code line not seen, dumping what data is available
+
+Trace; c0135289 <__alloc_pages+2d9/2f0>
+Trace; c01352b0 <__get_free_pages+10/20>
+Trace; c0132214 <kmem_cache_grow+c4/250>
+Trace; c02d23ba <arp_process+48a/4a0>
+Trace; c01327f1 <kmalloc+151/180>
+Trace; c029923f <alloc_skb+ef/1c0>
+Trace; c01f0d3c <e1000_alloc_rx_buffers+dc/110>
+Trace; c01f0c52 <e1000_clean_rx_irq+402/410>
+Trace; c0121786 <update_wall_time+16/50>
+Trace; c01219d9 <timer_bh+39/3f0>
+Trace; c01f05ec <e1000_intr+8c/e0>
+Trace; c010a4de <handle_IRQ_event+5e/90>
+Trace; c010a6f4 <do_IRQ+a4/f0>
+Trace; c0133ce6 <shrink_cache+a6/420>
+Trace; c0134152 <refill_inactive+f2/160>
+Trace; c01341fc <shrink_caches+3c/50>
+Trace; c0134271 <try_to_free_pages_zone+61/e0>
+Trace; c0134dff <balance_classzone+4f/200>
+Trace; c0135169 <__alloc_pages+1b9/2f0>
+Trace; c01352b0 <__get_free_pages+10/20>
+Trace; c014c203 <__pollwait+33/90>
+Trace; c02b765e <tcp_poll+2e/150>
+Trace; c029634f <sock_poll+1f/30>
+Trace; c014c467 <do_select+127/240>
+Trace; c014c8e9 <sys_select+339/480>
+Trace; c010a72d <do_IRQ+dd/f0>
+Trace; c0108b63 <system_call+33/38>
+
+
+If I am reading this correctly, the system was ...
+
+   in an interrupt
+   processing some TCP select(...) stuff
+   asking for a page
+   doing a zone rebalance
+   trying to shrink cache
+     and interrupted again
+     by the ethernet driver
+     which wanted to allocate an skb
+     which wanted a page
+
+Thus __alloc_pages appears to be called recursively, with the 2nd call
+during a rebalance in the
+first one and both calls non-interuptable (on interrupts).  Is this
+allowable?
+
+--------------------------------------------------------------------
+Doug Dumitru     800-470-2756     (610-237-2000)
+EasyCo LLC       doug@easyco.com  http://easyco.com
+--------------------------------------------------------------------
+
+
+

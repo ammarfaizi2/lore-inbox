@@ -1,51 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261690AbUDHLtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 07:49:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUDHLtY
+	id S261704AbUDHMKM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 08:10:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbUDHMKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 07:49:24 -0400
-Received: from uucp.cistron.nl ([62.216.30.38]:12164 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S261690AbUDHLtV (ORCPT
+	Thu, 8 Apr 2004 08:10:11 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:16086 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S261704AbUDHMKG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 07:49:21 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: setgid - its current use
-Date: Thu, 8 Apr 2004 11:49:20 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <c53e80$911$2@news.cistron.nl>
-References: <Pine.LNX.4.58.0404072140070.14350@d10systems.homelinux.com> <200404081041.25006.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.58.0404072304500.14350@d10systems.homelinux.com>
+	Thu, 8 Apr 2004 08:10:06 -0400
+Date: Thu, 08 Apr 2004 21:10:03 +0900 (JST)
+Message-Id: <20040408.211003.128419019.taka@valinux.co.jp>
+To: mbligh@aracnet.com, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net
+Cc: iwamoto@valinux.co.jp
+Subject: Re: [Lhms-devel] Re: [patch 0/3] memory hotplug prototype
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <20040408101904.D6ED4706C3@sv1.valinux.co.jp>
+References: <29700000.1081361575@flay>
+	<20040408091610.65C29706C3@sv1.valinux.co.jp>
+	<20040408101904.D6ED4706C3@sv1.valinux.co.jp>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1081424960 9249 62.216.29.200 (8 Apr 2004 11:49:20 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.58.0404072304500.14350@d10systems.homelinux.com>,
-Dhruv Gami  <gami@d10systems.com> wrote:
->On Thu, 8 Apr 2004, Denis Vlasenko wrote:
->
->> On Thursday 08 April 2004 04:46, Dhruv Gami wrote:
->> > I'd like to know the possibility of using setgid for users to switch their
->> > groups and work as a member of a particular group. Essentially, if i want
->> > one user, who belongs to groups X, Y and Z to create a file as a member of
->> > group Y while he's logged on as a member of group X, would it be possible
->> > through setgid() ?
->> 
->> it is possible through chmod
->
->but that would be an explicit way of doing it, right ? I'm looking for 
->doing this via some system calls or something transparent to the user. At 
->most I'd like to query the user for the group as which he wants to work. 
->Which would essentially be a question I ask at login or beginning of a 
->session.
+Hello,
 
-"man newgrp(1)".
+> > > > This is an updated version of memory hotplug prototype patch, which I
+> > > > have posted here several times.
+> > > 
+> > > I really, really suggest you take a look at Dave McCracken's work, which
+> > > he posted as "Basic nonlinear for x86" recently. It's going to be much
+> > > much easier to use this abstraction than creating 1000s of zones ...
+> > 
+> > Well, I think his patch is orthogonal to mine.  My ultimate target
+> > is IA64 and it will only support node-sized memory hotplugging.
+> > 
+> > If you need fine-grained memory resizing, that shouldn't be hard to
+> > do.  As others have pointed out, per section hotremovable is not as
+> > easy as per zone one, but we've done a similar thing for hugetlbfs
+> > support.  Look for PG_again in Takahashi's patch.
+> 
+> Err, s/PG_again/PG_booked/
+> Pages with PG_booked bit set are skipped in alloc_pages.
+> Alternatively, when such pages are freed, they can be linked to
+> another list than free_list to avoid being used again, but buddy
+> bits handling would be a bit tricky in this case.
 
-Mike.
+It might be possible but it's not easy to do.
 
+If page count equals 0, where do you think the page is?
+It might be in the buddy system or in the per-cpu-pages pools,
+or it might be a part of coumpound page, or it's just being
+allocated/freed. If it in the buddy system, which free_area of zones
+is it linked?  
+
+It's very hard to determin that where it is, so that
+I introduced PG_booked flag to avoid to re-use it.
+
+Is there any better way?
+
+
+Thank you,
+Hirokazu Takahashi.

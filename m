@@ -1,45 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315925AbSGGMoJ>; Sun, 7 Jul 2002 08:44:09 -0400
+	id <S315928AbSGGMzb>; Sun, 7 Jul 2002 08:55:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315928AbSGGMoI>; Sun, 7 Jul 2002 08:44:08 -0400
-Received: from cs137104.pp.htv.fi ([213.243.137.104]:44418 "EHLO
-	limbo.dnsalias.org") by vger.kernel.org with ESMTP
-	id <S315925AbSGGMoH>; Sun, 7 Jul 2002 08:44:07 -0400
-Date: Sun, 7 Jul 2002 15:46:41 +0300 (EEST)
-From: Timo Jantunen <jeti@iki.fi>
-To: Tomas Konir <moje@molly.vabo.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: IBM Desktar disk problem?
-In-Reply-To: <Pine.LNX.4.44L0.0207052306170.4516-100000@moje.ich.vabo.cz>
-Message-ID: <Pine.LNX.4.44.0207071543460.14326-100000@limbo.dnsalias.org>
+	id <S315929AbSGGMza>; Sun, 7 Jul 2002 08:55:30 -0400
+Received: from 213-97-137-182.uc.nombres.ttd.es ([213.97.137.182]:6928 "HELO
+	iceberg.activanet.net") by vger.kernel.org with SMTP
+	id <S315928AbSGGMz3>; Sun, 7 Jul 2002 08:55:29 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Admin <kernel@cideweb.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ittle problems with /dev/sr0 with 2.4.19-rc1
+Date: Sun, 7 Jul 2002 14:58:01 +0200
+User-Agent: KMail/1.4.2
+References: <3D2812F0.C3A4441D@sympatico.ca> <20020707101347.GA21065@codepoet.org>
+In-Reply-To: <20020707101347.GA21065@codepoet.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207071458.01519.kernel@cideweb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Jul 2002, Tomas Konir wrote:
+On Domingo 07 Julio 2002 12:13, Erik Andersen wrote:
+> On Sun Jul 07, 2002 at 06:07:44AM -0400, Christian Robert wrote:
+> > [root@X-home:/btemp] # md5sum /dev/sr0
+> > md5sum: /dev/sr0: Input/output error         <- oups, it failed
+> >
+> > [root@X-home:/btemp] # dd if=/dev/sr0 | md5sum
+> > dd: reading `/dev/sr0': Input/output error   <- failed here too
+> > 13440+0 records in
+> > 13440+0 records out
+> > 5ec08b6fa7bf09741d1310e5baa800de  -          <- but md5sum is OK
+>
+> Looks like a read ahead bug to me...  Out of curiousity,
+> did you use "-no-pad" with mkisofs?
+>
+>  -Erik
+Hi, I get same error with /dev/hdc, when I try the same on /dev/sr0, box 
+freeze, kernel 2.4.17-xfs
 
->> You should update your firmware regardless of using TCQ because the errors 
->> you experienced have nothing to do with TCQ but a lot to do with buggy 
->> firmware. See what I found written about the firmware update on this 
->> webpage (Phil Randal posted this URL earlier on in this thread):
->>          http://www.geocities.com/dtla_update/
-
-> I know this page, but firmware upgrade need windows and i have no windows
-
-There is a disk image for Linux, too, on the same page:
-http://www.geocities.com/dtla_update/dtlaupdt.tar.gz
-
-
-> 	MOJE
-
-
-// /
-....................................Timo Jantunen  ......................
-       ZZZ      (Used to represent :Kuunsäde 8 A 28: Email: jeti@iki.fi :
-the  sound of  a person  snoring.) :FIN-02210 Espoo: http://iki.fi/jeti :
-Webster's  Encyclopedic Unabridged :Finland        : GSM+358-40-5763131 :
-Dictionary of the English Language :...............:....................:
+Jul  7 14:29:24 iceberg kernel: hdc: command error: status=0x51 { DriveReady 
+SeekComplete Error }
+Jul  7 14:29:24 iceberg kernel: hdc: command error: error=0x50
+Jul  7 14:29:24 iceberg kernel: end_request: I/O error, dev 16:00 (hdc), 
+sector 1331600
+Jul  7 14:29:24 iceberg kernel: hdc: command error: status=0x51 { DriveReady 
+SeekComplete Error }
+Jul  7 14:29:24 iceberg kernel: hdc: command error: error=0x50
+Jul  7 14:29:24 iceberg kernel: end_request: I/O error, dev 16:00 (hdc), 
+sector 1331604
+Jul  7 14:29:24 iceberg kernel: hdc: command error: status=0x51 { DriveReady 
+SeekComplete Error }
+Jul  7 14:29:24 iceberg kernel: hdc: command error: error=0x50
+Jul  7 14:29:24 iceberg kernel: end_request: I/O error, dev 16:00 (hdc), 
+sector 1331608
+Jul  7 14:29:24 iceberg kernel: hdc: command error: status=0x51 { DriveReady 
+SeekComplete Error }
+Jul  7 14:29:24 iceberg kernel: hdc: command error: error=0x50
+Jul  7 14:29:24 iceberg kernel: end_request: I/O error, dev 16:00 (hdc), 
+sector 1331612
+Jul  7 14:29:28 iceberg kernel: hdc: command error: status=0x51 { DriveReady 
+SeekComplete Error }
+Jul  7 14:29:28 iceberg kernel: hdc: command error: error=0x50
+Jul  7 14:29:28 iceberg kernel: end_request: I/O error, dev 16:00 (hdc), 
+sector 1331616
+Jul  7 14:29:31 iceberg kernel: hdc: command error: status=0x51 { DriveReady 
+SeekComplete Error }
+Jul  7 14:29:31 iceberg kernel: hdc: command error: error=0x50
+Jul  7 14:29:31 iceberg kernel: end_request: I/O error, dev 16:00 (hdc), 
+sector 1331620
+Jul  7 14:29:31 iceberg kernel: hdc: command error: status=0x51 { DriveReady 
+SeekComplete Error }
+Jul  7 14:29:31 iceberg kernel: hdc: command error: error=0x50
+Jul  7 14:29:31 iceberg kernel: end_request: I/O error, dev 16:00 (hdc), 
+sector 1331624
+Jul  7 14:29:31 iceberg kernel: hdc: command error: status=0x51 { DriveReady 
+SeekComplete Error }
+Jul  7 14:29:31 iceberg kernel: hdc: command error: error=0x50
+Jul  7 14:29:31 iceberg kernel: end_request: I/O error, dev 16:00 (hdc), 
+sector 1331628
+Jul  7 14:29:32 iceberg kernel: hdc: command error: status=0x51 { DriveReady 
+SeekComplete Error }
+Jul  7 14:29:32 iceberg kernel: hdc: command error: error=0x50
+Jul  7 14:29:32 iceberg kernel: end_request: I/O error, dev 16:00 (hdc), 
+sector 1331632
+Jul  7 14:29:32 iceberg kernel: hdc: command error: status=0x51 { DriveReady 
+SeekComplete Error }
+Jul  7 14:29:32 iceberg kernel: hdc: command error: error=0x50
+Jul  7 14:29:32 iceberg kernel: end_request: I/O error, dev 16:00 (hdc), 
+sector 1331636
 

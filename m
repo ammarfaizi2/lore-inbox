@@ -1,60 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285216AbRL2SgJ>; Sat, 29 Dec 2001 13:36:09 -0500
+	id <S285210AbRL2Set>; Sat, 29 Dec 2001 13:34:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285213AbRL2Sf7>; Sat, 29 Dec 2001 13:35:59 -0500
-Received: from khazad-dum.debian.net ([200.196.10.6]:16512 "EHLO
-	khazad-dum.debian.net") by vger.kernel.org with ESMTP
-	id <S285203AbRL2Sfv>; Sat, 29 Dec 2001 13:35:51 -0500
-Date: Sat, 29 Dec 2001 16:35:45 -0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: Athlon instabilities and VIA. "PCI latency" patch for Linux (for KT266A chipset only)
-Message-ID: <20011229163545.A2197@khazad-dum>
-In-Reply-To: <200112291436.GAA20655@quantum.cicese.mx>
-Mime-Version: 1.0
+	id <S285186AbRL2Sei>; Sat, 29 Dec 2001 13:34:38 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12562 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S285193AbRL2Se1>; Sat, 29 Dec 2001 13:34:27 -0500
+Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
+To: harald.holzer@eunet.at (Harald Holzer)
+Date: Sat, 29 Dec 2001 18:45:08 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <1009649897.12942.2.camel@hh2.hhhome.at> from "Harald Holzer" at Dec 29, 2001 07:18:17 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: =?iso-8859-1?Q?=3C200112291436=2EGAA20655=40quantum=2Ecicese=2Emx=3E=3B_?=
- =?iso-8859-1?Q?from_mirsev=40cicese=2Emx_on_S=E1b=2C_Dez_29=2C_2001_at_0?=
- =?iso-8859-1?Q?6:36:19_-0800?=
-X-GPG-Fingerprint-1: 1024D/128D36EE 50AC 661A 7963 0BBA 8155  43D5 6EF7 F36B 128D 36EE
-X-GPG-Fingerprint-2: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
-From: hmh@rcm.org.br (Henrique de Moraes Holschuh)
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16KOTk-0005F3-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Dec 2001, Serguei Miridonov wrote:
-> program from H.Oda! (http://www.h-oda.com/). Finally I wrote a very
-> dirty hack which fixes some issues in Linux too. Now I can playback
-> video using both DXR3 and DC10plus card but in some conditions the
-> system still freezes. It happens when video is played back by DC10plus
-> in xawtv window. This makes me to think that problem is caused by
-> multiple PCI bus master transfers.
+> Are there some i686 SMP systems with more then 12 GB ram out there ?
 
-Hmm... this is bad. Just to make it clear, the lockup was there before your
-module, right?
+Very very few.
 
-BTW, disabling PCI Master Read Caching in BIOS appears to have decreased
-memory performance on my machine by a very small ammount (Asus A7V, KT133
-chipset, also affected by the low-performance PCI bug/misdesign in VIA
-chipsets).  Since your patch also does that, you may want to verify if that
-also happens in your machine and document it.
+> Is there a known problem with 2.4.x kernel and such systems ?
 
-One can use setpci(1) to fix the device latency to a high value in the buses
-that have IDE controllers, btw. This, along with options in the system BIOS
-may allow one to test much of the suggested patches in a non-KT266A VIA
-chipset.
+Several 8)
 
-> The distribution also includes KT266A registers descriptions from H.Oda!
-> and configuration dumps. These files are _not_ covered by GNU License.
+Hardware limits:
+	-	36bit addressing mode on x86 processors is slower
+	-	Many device drivers cant handle > 32bit DMA
+	-	The CPU can't efficiently map all that memory at once
 
-Could you please send me the KT133 description files, if you have them?  I
-might merge in a change to your patch that deals with KT133 (and KT133A if
-you include that info as well). I can only test KT133.
+Software:
+	-	The block I/O layer doesn't cleanly handle large systems
+	-	The page struct is too big which puts undo loads on the
+		memory that the CPU can map
+	-	We don't discard page tables when we can and should
+	-	We should probably switch to a larger virtual page size
+		on big machines.
 
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+The ones that actually bite hard are the block I/O layer and the page
+struct size. Making the block layer handle its part well is a 2.5 thing.
+
+> It looks like as the buffer_heads would fill the low memory up,
+> whether there is sufficient memory available or not, as long as
+> there is sufficient high memory for caching.
+
+That may well be happening. The Red Hat supplied 7.2 and 7.2 errata kernels
+were tested on 8Gb, I don't know what else larger.
+
+Because much of the memory cannot be used for kernel objects there is an
+imbalance in available resources and its very hard to balance them sanely.
+I'm not sure how many 8Gb+ machines Andrea has handy to tune the VM on
+either.
+
+Alan

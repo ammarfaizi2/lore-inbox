@@ -1,117 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268831AbUILTmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268832AbUILTsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268831AbUILTmi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 15:42:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268832AbUILTmi
+	id S268832AbUILTsw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 15:48:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268536AbUILTsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 15:42:38 -0400
-Received: from outbound01.telus.net ([199.185.220.220]:58831 "EHLO
-	priv-edtnes57.telusplanet.net") by vger.kernel.org with ESMTP
-	id S268831AbUILTmW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 15:42:22 -0400
-From: "Wolfpaw - Dale Corse" <admin@wolfpaw.net>
-To: <toon@hout.vanvergehaald.nl>
-Cc: <kaukasoi@elektroni.ee.tut.fi>, <linux-kernel@vger.kernel.org>,
-       <alan@lxorguk.ukuu.org.uk>
-Subject: RE: Linux 2.4.27 SECURITY BUG - TCP Local and REMOTE(verified) Denial of Service Attack
-Date: Sun, 12 Sep 2004 13:42:26 -0600
-Message-ID: <002c01c49900$a20df550$0200a8c0@wolf>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Importance: Normal
-In-Reply-To: <02bf01c498ff$b6512470$0300a8c0@s>
+	Sun, 12 Sep 2004 15:48:52 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:29708 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S268864AbUILTs3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 15:48:29 -0400
+Date: Sun, 12 Sep 2004 21:48:16 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Wolfpaw - Dale Corse <admin@wolfpaw.net>
+Cc: alan@lxorguk.ukuu.org.uk, peter@mysql.com, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local and REMOTE(verified)Denial of Service Attack
+Message-ID: <20040912194816.GB2780@alpha.home.local>
+References: <02b201c498f6$8bb92540$0300a8c0@s> <002501c498f8$0a4ebc20$0200a8c0@wolf>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <002501c498f8$0a4ebc20$0200a8c0@wolf>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey,
 
- I'm not Alan, just trying to save him some typing :) The 
-issue being referenced is that BGP4 as you know uses TCP 
-communication to check link status. If the TCP session is 
-severed in any way, BGP assumes the link down, and drops 
-the advertisements, or the table depending which side 
-(at least in Cisco's implementation).
+On Sun, Sep 12, 2004 at 12:40:56PM -0600, Wolfpaw - Dale Corse wrote:
+> It still seems prudent to me to have some kind of timeout (2 hours,
+> or something?) to have it expuldge the connection, because obviously,
+> it isn't going to voluntarily close.
 
-This basically leaves you dead in the water for a few
-seconds while the BGP session is re-established, and
-the advertisements are send out, and table rebuilt. It
-can also cause other routers on the net to see you as
-"flapping", and dampen your routes.. Which again leaves
-you dead in the water (at least from things behind them).
+Dale,
 
-This is accomplished by guessing the correct TCP Sequence
-number, and sending RST packets to drop the TCP connection.
+forgive me for insisting, but it would be criminal to do this. You think
+that it's sort of closed while it is not. Consider CLOSE_WAIT as ESTABLISHED.
+It is not because one end sends a FIN (shutdown(WRITE)) that the connection
+is about to end. The culprit really is the application. It is the application
+which trusts the other end too much. The system lets the application work as
+it expects it, and should never try to cut the grass below the application's
+feet.
 
-BGP does not actually check the layer 2 status of the
-connection to make sure the link is still UP before
-it assumes you have dropped. I believe this is the
-poor implementation he is referring to.
+You must understand how it is supposed to work, basically like this :
 
-MD5 encryption was added to the sessions between
-routers to make hijacking the stream more difficult
-(if not next to impossible)
+        A                                      B
 
-D.
+  shutdown(WRITE)
+  A enters FIN_WAIT1
+          ------- ACK + FIN  ---------->  select(in[fd],out[fd],) returns in[fd]
+                                          B enters CLOSE_WAIT
+          <------ ACK + data -----------  read(fd) returns 0
+                                          shutdown(SHUT_RD)
+                                          Then remove fd from read list.
+          <---- ACK + data -------------  select(NULL, out[fd],...)
+                  (...)                   write(fd, data)...
+          <---- ACK + data -------------  select(NULL, out[fd],...)
+          <---- ACK + FIN --------------  shutdown(SHUT_WRITE) or close(fd)
+ close(fd)
+          ------- ACK ----------------->
 
-> -----Original Message-----
-> From: Dale Corse [mailto:admin@wolfpaw.net] 
-> Sent: Sunday, September 12, 2004 1:36 PM
-> To: 'Dale'
-> Subject: FW: Linux 2.4.27 SECURITY BUG - TCP Local and 
-> REMOTE(verified) Denial of Service Attack
-> 
-> 
-> 
-> 
-> -----Original Message-----
-> From: Toon van der Pas [mailto:toon@hout.vanvergehaald.nl] 
-> Sent: Sunday, September 12, 2004 1:24 PM
-> To: Alan Cox
-> Cc: Wolfpaw - Dale Corse; kaukasoi@elektroni.ee.tut.fi; Linux 
-> Kernel Mailing List
-> Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local and 
-> REMOTE(verified) Denial of Service Attack
-> 
-> 
-> On Sun, Sep 12, 2004 at 06:04:53PM +0100, Alan Cox wrote:
-> > 
-> > This is not a TCP flaw, its a combination of poor design by certain
-> > vendors, poor BGP implementation and a lack of 
-> understanding of what 
-> > TCP does and does not do. See IPSec. TCP gets stuff from A to B in 
-> > order and knowing to a resonable degree what arrived. TCP does not 
-> > proide a security service.
-> > 
-> > (The core of this problem arises because certain people treat TCP
-> > connection down on the peering session as link down)
-> 
-> Alan, could you please elaborate on this last statement?
-> I don't understand what you mean, and am very interested.
-> 
-> Thanks,
-> Toon.
-> -- 
-> "Debugging is twice as hard as writing the code in the first 
-> place. Therefore, if you write the code as cleverly as 
-> possible, you are, by definition, not smart enough to debug 
-> it." - Brian W. Kernighan
-> 
-> --------------------------------------------------------------
-> --------------
-> -
-> This message has been scanned for Spam and Viruses by ClamAV 
-> and SpamAssassin
-> --------------------------------------------------------------
-> --------------
-> -
-> 
-> 
-> 
-> 
+If the system closed anything, on B side, since the select() does not check
+read events anymore, it would only be woken up for a write even, which could
+crash the application in a SIG_PIPE if the writer does not check the error
+condition on the socket before writing (like most applications do).
+
+So, let me insist, your proposal is not the right solution to this. The
+right solution is to carefully check every application and fix them, the
+same way you would fix them to handle time-outs on ESTABLISHED connections.
+
+> This bug also exists with Apache, the default config of SSH,
+> and anything controlled by inetd. This is the vast majority of
+> popular services on a regular internet server.. That is bad, no?
+
+You didn't wait long enough for each of them. I bet that if you wait up
+to 2 minutes, SSH will close, and if you wait 5 or 10 minutes, apache
+will close too. As to mysql, I have no idea, and inetd, we obviously both
+have a buggy version.
+
+I hope this clarifies a bit the situation,
+Willy
 

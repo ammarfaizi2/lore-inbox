@@ -1,92 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbULQQLa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261526AbULQQLn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbULQQLa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 11:11:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbULQQLa
+	id S261526AbULQQLn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 11:11:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbULQQLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 11:11:30 -0500
-Received: from ns1.digitalpath.net ([65.164.104.5]:46740 "HELO
-	mail.digitalpath.net") by vger.kernel.org with SMTP id S261445AbULQQLT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 11:11:19 -0500
-Date: Fri, 17 Dec 2004 08:11:18 -0800
-From: Ray Van Dolson <rayvd@digitalpath.net>
-To: Matt Domsch <Matt_Domsch@dell.com>, linux-kernel@vger.kernel.org
-Subject: Re: Unable to handle kernel NULL pointer dereference at virtual address 00000000
-Message-ID: <20041217161118.GA27919@digitalpath.net>
-Mail-Followup-To: Matt Domsch <Matt_Domsch@dell.com>,
-	linux-kernel@vger.kernel.org
-References: <20041215013228.GA3390@digitalpath.net> <20041215162943.GB31494@lists.us.dell.com> <20041215163651.GA7037@digitalpath.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041215163651.GA7037@digitalpath.net>
-User-Agent: Mutt/1.4.1i
+	Fri, 17 Dec 2004 11:11:43 -0500
+Received: from odin.allegientsystems.com ([208.251.178.227]:10410 "EHLO
+	apothis.allegientsystems.com") by vger.kernel.org with ESMTP
+	id S261526AbULQQLU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 11:11:20 -0500
+Message-ID: <41C3051D.6080709@optonline.net>
+Date: Fri, 17 Dec 2004 11:11:09 -0500
+From: Nathan Bryant <nbryant@optonline.net>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steven Newbury <s_j_newbury@yahoo.co.uk>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Adaptec driver suspend bug ahc_dv_0
+References: <20041217160345.95366.qmail@web25007.mail.ukl.yahoo.com>
+In-Reply-To: <20041217160345.95366.qmail@web25007.mail.ukl.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a follow-up on this.  Things seem to run better (no crashes yet after
-two days of runtime) after booting with nosmp noapic.
 
-Any issues with the MPPE or CryptoAPI code that might only be triggered
-when running in SMP mode?
+The driver has never supported suspend, unfortunately, but I have a 
+messy-but-mostly-correct patch for this that I can send you later.
 
-Ray
+Steven Newbury wrote:
 
-On Wed, Dec 15, 2004 at 08:36:51AM -0800, Ray Van Dolson wrote:
-> On Wed, Dec 15, 2004 at 10:29:43AM -0600, Matt Domsch wrote:
-> > These messages I have gotten for years. They're debugging messages,
-> > as a result of:
-> > register_netdevice( alloc_divert_blk( (sees it's not an ethernet device, )
-> > printk's the message )
-> >
-> > So I believe they're harmless.
-> This is what I was thinking too. I see plenty of these messages that do
-> not result in crashes.
+>(Using current bk linus kernel 20041216)
+>When attempting to use ACPI sleep states on this system, one of the Adaptec
+>driver kernel threads fails to stop:
 >
-> > > ksymoops output of problem:
-> > > Unable to handle kernel NULL pointer dereference
-> > > 00000000
-> > > *pde = 00000000
-> > > Oops: 0000 [#1]
-> > > CPU: 2
-> > > EIP: 0060:[<00000000>] Not tainted VLI
-> > > Using defaults from ksymoops -t elf32-i386 -a i386
-> > > EFLAGS: 00010286 (2.6.9)
-> > > eax: ed13b000 ebx: d1d0a000 ecx: c029e9de edx: f795ef40
-> > > esi: d1d0a000 edi: 00000000 ebp: e2f30080 esp: d2b0dea0
-> > > ds: 007b es: 007b ss: 0068
-> > > Stack: c02a205a ed13b000 00000000 c02a122c d1d0a000 13208a2e c040956f
-> > > d1d0a000 d1d0a00c e2f30080 00000000 c029cda9 d1d0a000 e2f30080 00000000
-> > > c01552cd e2f30080 00000010 00000004 00000004 c0166aa0 e2f30080 00000000
-> > > 00000000
-> > > Call Trace: [<c02a205a>] pty_chars_in_buffer+0x2c/0x49 [<c02a122c>]
-> > > normal_poll+0xed/0x150 [<c040956f>] schedule_timeout+0x75/0xbf
-> > > [<c029cda9>] tty_poll+0xa0/0xb0 [<c01552cd>] fget+0x49/0x5e [<c0166aa0>]
-> > > do_select+0x269/0x2c6 [<c0166691>] __pollwait+0x0/0xc7 [<c0166dd5>]
-> > > sys_select+0x2b3/0x4c6 [<c0105971>] sysenter_past_esp+0x52/0x71
-> > > Code: Bad EIP value.
-> > It looks like pty_chars_in_buffer() dereferenced a NULL function
-> > pointer, but I don't see how that can be, the one deference is tested
-> > for NULL before doing so.
-> >
-> > I can't rule out the ppp_mppe code, but I haven't seen this crash
-> > before myself. Does this happen on simlar systems that aren't running
-> > poptop?
-> >
-> > Thanks,
-> > Matt
-> Fortunately we use the DL140 server pretty widely here. None of the
-> non-poptop servers exhibit this problem. Every single one of them that has
-> been used as a Poptop server however does exhibit this issue. It seems to
-> happen more frequenly on the machines with a higher number of users
-> connected.
+>Dec 17 00:32:47 comet kernel:  stopping tasks failed (1 tasks remaining)
+>Dec 17 00:32:47 comet kernel: Restarting tasks...<6> Strange, ahc_dv_0 not stop
 >
-> I have switched one of the servers (the one with the highest load) to use
-> Jan Dubiec's MPPC/MPPE patches for ppp 2.4.3 and Kernel 2.6.9. We'll see
-> how that goes.
+>The ahc_dv_0 thread then spins using 100% CPU in System until the computer is
+>rebooted.
 >
-> Any information I can provide or something I can do on my end to better
-> trace this down?
+>lspci output:
 >
-> Ray
+>00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo PRO133x]
+>(rev 44)
+>00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x
+>AGP]
+>00:07.0 ISA bridge: VIA Technologies, Inc. VT82C596 ISA [Mobile South] (rev 12)
+>00:07.1 IDE interface: VIA Technologies, Inc.
+>VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+>00:07.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+>Controller (rev 08)
+>00:07.3 Host bridge: VIA Technologies, Inc. VT82C596 Power Management (rev 20)
+>00:08.0 SCSI storage controller: Adaptec AIC-7892A U160/m (rev 02)
+>00:09.0 Ethernet controller: Accton Technology Corporation EN-1216 Ethernet
+>Adapter (rev 11)
+>00:0b.0 Multimedia audio controller: ESS Technology ES1969 Solo-1 Audiodrive
+>(rev 01)
+>01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 04)
+>
+>
+>=====
+>Steve
+>
+>
+>	
+>	
+>		
+>___________________________________________________________ 
+>ALL-NEW Yahoo! Messenger - all new features - even more fun! http://uk.messenger.yahoo.com
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+

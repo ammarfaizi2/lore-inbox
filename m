@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129091AbQKHDg4>; Tue, 7 Nov 2000 22:36:56 -0500
+	id <S129116AbQKHDkS>; Tue, 7 Nov 2000 22:40:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129116AbQKHDgr>; Tue, 7 Nov 2000 22:36:47 -0500
-Received: from swan.prod.itd.earthlink.net ([207.217.120.123]:29874 "EHLO
-	swan.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S129091AbQKHDgl>; Tue, 7 Nov 2000 22:36:41 -0500
-To: Sean Middleditch <sean.middleditch@iname.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Panic - weird error
-In-Reply-To: <3A05A724.216E04F3@iname.com>
-From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
-Date: 07 Nov 2000 19:36:33 -0800
-In-Reply-To: <3A05A724.216E04F3@iname.com>
-Message-ID: <m3snp3jfsu.fsf@matrix.mandrakesoft.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S129414AbQKHDkI>; Tue, 7 Nov 2000 22:40:08 -0500
+Received: from [194.73.73.138] ([194.73.73.138]:1749 "EHLO ruthenium")
+	by vger.kernel.org with ESMTP id <S129116AbQKHDjx>;
+	Tue, 7 Nov 2000 22:39:53 -0500
+From: davej@suse.de
+Date: Wed, 8 Nov 2000 03:39:39 +0000 (GMT)
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+cc: David Lang <david.lang@digitalinsight.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Installing kernel 2.4
+In-Reply-To: <3A0899EC.BCF17E69@timpanogas.org>
+Message-ID: <Pine.LNX.4.21.0011080332330.8632-100000@neo.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sean Middleditch <sean.middleditch@iname.com> writes:
+On Tue, 7 Nov 2000, Jeff V. Merkey wrote:
 
-> I've installed the Linux-Mandrake 7.2 distro (which uses kernel version
-> 2.2.17) on a PIII system (Asus motherboard, Award Medallion v6.0 BIOS).
-> For some reason, neither LILO nor Grub were able to boot off of the
-> second hard-drive (where Linux is).  I've copied over the kernel, and a
-> few other LILO files to a Windows partition on the primary drive.  Now,
-> LILO can load the kernel, and the kernel begins to boot.
-> 
-> First, I noticed this during the IDE detection:
->   hdd [PTBL] [784/255/53] hdd1 < hdd5 hdd6 >
-> I've never seen the "[PTBL] [784/255/53]" part before on any Linux
-> system, so I was unsure if this was important.
+> > remember it's not just the start of the file that varies based on cachline
+> > size, it's the positioning of code and data thoughout the kernel image.
+> Understood.  I will go off and give some thought and study and respond
+> later after I have a proposal on the best way to do this.   In NetWare,
+> we had indirections in the code all over the place.  NT just make huge
+> and fat programs (NTKRNLOS.DLL is absolutely huge).
 
-have you enabled the optimization ? which add the autotune options
-and do some time weird thing.
+I'm glad you realise this.  The Netware method you mention above sounds
+over complicated for the desired end result, and the NT method just sounds
+like a gross hack.
+
+The current 'compile for the arch you intend to run on' is right now,
+the simplest, cleanest way to do this.
+
+If you manage to pull something off in MANOS or whatever other OS,
+to prove all this otherwise (without resorting to ugly hacks like the
+above), great for you, I (and I assume others) would like to hear
+about it.
+
+regards,
+
+Davej.
 
 -- 
-MandrakeSoft Inc                     http://www.chmouel.org
-                      --Chmouel
+| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
+| SuSE Labs
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

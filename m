@@ -1,38 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312938AbSF2O6O>; Sat, 29 Jun 2002 10:58:14 -0400
+	id <S312681AbSF2OxF>; Sat, 29 Jun 2002 10:53:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312962AbSF2O6N>; Sat, 29 Jun 2002 10:58:13 -0400
-Received: from satan.intac.net ([199.173.52.34]:12305 "EHLO source.intac.net")
-	by vger.kernel.org with ESMTP id <S312938AbSF2O6N>;
-	Sat, 29 Jun 2002 10:58:13 -0400
-Date: Sat, 29 Jun 2002 10:56:52 -0400 (EDT)
-From: <kernellist@source.intac.net>
+	id <S312973AbSF2OxE>; Sat, 29 Jun 2002 10:53:04 -0400
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:26872 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S312681AbSF2OxE>; Sat, 29 Jun 2002 10:53:04 -0400
 To: linux-kernel@vger.kernel.org
-Subject: kernel 2.4.7 (cant format with i=1024?)
-Message-ID: <Pine.LNX.4.21.0206291048370.4087-100000@source.intac.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+CC: Andrew Robert Mitchell <andrewm@cse.unsw.edu.au>,
+       Alfred Ganz <alfred-ganz@agci.com>
+Subject: Thinkpad 560 suspend/hibernate requires floppy 
+Date: Sat, 29 Jun 2002 15:55:24 +0100
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Message-Id: <E17OJdE-0000ne-00@coll.ra.phy.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey all,
-	I kickstart my boxes, and have run into something very odd with
-kernel 2.4.7: In my post install script, I unmount a partition and I
-reformat it so blocks and inodes are 1024(mkfs -b 1024 -i 1024
-$partition/). But, this does not work on kernel 2.4.7. Anyone know what's
-up? Ive been using kickstart since redhat 5.2 days and never have ran into
-this type of problem. 
+[Sending again since I sent it to the wrong linux-kernel addr before.]
 
-If I change the kernel to 2.4.18 then I can run mkfs -i 1024 ok, but then
-kickstart wont work (the kernel wont install for some reason) :/
+I almost always run into trouble suspending or hibernating my Thinkpad
+560.  On some boots, it works once only.  On others it works many
+times and then stops (it always stops working if I put in a Zoom modem
+card).  I've tried many different kernels, all with the same problem.
 
-Anyway, anyone know why I can set to 1024 inodes per group on 2.4.7?
+Now I follow a mix of advice that I got when I mentioned this problem
+before on linux-kernel, and I can now suspend/hibernate whenever I
+want.  Why does the procedure below fix the problem?  Let me know if
+there are diagnostics that I can run to help track down this problem.
 
-And if anyone might happen to know why you cant kickstart with a 2.4.18
-kernel.
+First, the advice:
 
-Thanks. I just woke up, so I apolgize if the above is not properly worded.
+>From Alfred Ganz --
 
+  In addition to the proper APM driver configuration, the critical
+  element is that the Floppy Disk drive MUST BE configured as a module!
 
+>From Andrew Mitchell --
 
+  attach the floppy disk drive
+  Remove any floppies from the floppy drive.
+  mount /mnt/floppy
+  (it gives an error)
+  bingo, you can now suspend!
+
+I have the floppy driver as a module.  I don't follow Andrew
+Mitchell's advice exactly (since I just dug it out), but instead
+insert a random DOS-formatted floppy into the drive and do "cat <
+/dev/fd0 > /dev/null" and interrupt it soon.  Then I'm golden.
+
+System: IBM Thinkpad 560, bios v1.11, kernel 2.4.18 (RH's 2.4.18-4
+kernel without the unneeded modules).
+
+Relevant .config lines:
+
+CONFIG_BLK_DEV_FD=m
+
+CONFIG_PM=y
+# CONFIG_ACPI is not set
+CONFIG_APM=y
+# CONFIG_APM_IGNORE_USER_SUSPEND is not set
+CONFIG_APM_DO_ENABLE=y
+CONFIG_APM_CPU_IDLE=y
+CONFIG_APM_DISPLAY_BLANK=y
+CONFIG_APM_RTC_IS_GMT=y
+# CONFIG_APM_ALLOW_INTS is not set
+# CONFIG_APM_REAL_MODE_POWER_OFF is not set
+
+-Sanjoy

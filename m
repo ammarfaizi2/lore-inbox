@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280508AbRJaVCB>; Wed, 31 Oct 2001 16:02:01 -0500
+	id <S279166AbRJaVDb>; Wed, 31 Oct 2001 16:03:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280507AbRJaVBv>; Wed, 31 Oct 2001 16:01:51 -0500
-Received: from shed.alex.org.uk ([195.224.53.219]:26263 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S280506AbRJaVBd>;
-	Wed, 31 Oct 2001 16:01:33 -0500
-Date: Wed, 31 Oct 2001 21:02:06 -0000
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        "Grover, Andrew" <andrew.grover@intel.com>,
-        linux-kernel@vger.kernel.org
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: RE: 2xQ: Is PM + ACPI but /no/ APM a valid configuration?
- Interru	pts enabled in APM set power state?
-Message-ID: <280989012.1004562126@[195.224.237.69]>
-In-Reply-To: <279742847.1004560880@[195.224.237.69]>
-In-Reply-To: <279742847.1004560880@[195.224.237.69]>
-X-Mailer: Mulberry/2.1.0 (Win32)
+	id <S280510AbRJaVDL>; Wed, 31 Oct 2001 16:03:11 -0500
+Received: from dsl-213-023-038-229.arcor-ip.net ([213.23.38.229]:46340 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S279228AbRJaVC6>;
+	Wed, 31 Oct 2001 16:02:58 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Google's mm problem - not reproduced on 2.4.13
+Date: Wed, 31 Oct 2001 22:04:18 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@suse.de>,
+        Ben Smith <ben@google.com>
+In-Reply-To: <Pine.LNX.4.33L.0110311848330.2963-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.33L.0110311848330.2963-100000@imladris.surriel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E15z2X4-0000wh-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> For the hard of understanding, such as myself, do you mean the
-> ACPI bus manager (CONFIG_ACPI_BUSMGR)? I had that unset, on
-> the basis of least change, but can try it, or did you mean
-> something else?
+On October 31, 2001 09:48 pm, Rik van Riel wrote:
+> On Wed, 31 Oct 2001, Daniel Phillips wrote:
+> > On October 31, 2001 07:06 pm, Daniel Phillips wrote:
+> > > I just tried your test program with 2.4.13, 2 Gig, and it ran without
+> > > problems.  Could you try that over there and see if you get the same result?
+> > > If it does run, the next move would be to check with 3.5 Gig.
+> >
+> > Ben reports that his test with 2 Gig memory runs fine, as it does for
+> > me, but that it locks up tight with 3.5 Gig, requiring power cycle.
+> > Since I only have 2 Gig here I can't reproduce that (yet).
+> 
+> Does it lock up if your low memory is reduced to 512 MB ?
 
-This was a stupid question derived from being up too many
-hours. Andrew obviously meant 'embedded controller', the config
-option for which depends on bus manager being selected
-too. Apols.
-
-Is selecting ACPI without these an invalid config? Or just
-on my laptop?
+Ben?
 
 --
-Alex Bligh
+Daniel

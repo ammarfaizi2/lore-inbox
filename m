@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319230AbSHNBKW>; Tue, 13 Aug 2002 21:10:22 -0400
+	id <S319234AbSHNBOs>; Tue, 13 Aug 2002 21:14:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319231AbSHNBKW>; Tue, 13 Aug 2002 21:10:22 -0400
-Received: from pat.uio.no ([129.240.130.16]:62660 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S319230AbSHNBKV>;
-	Tue, 13 Aug 2002 21:10:21 -0400
-To: Christian Reis <kiko@async.com.br>
-cc: eepro100@scyld.com, nfs@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [NFS] General network slowness on SIS 530 with eepro100
-References: <20020813212923.L2219@blackjesus.async.com.br>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 14 Aug 2002 03:13:55 +0200
-In-Reply-To: <20020813212923.L2219@blackjesus.async.com.br>
-Message-ID: <shs1y92p7ho.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	id <S319236AbSHNBOs>; Tue, 13 Aug 2002 21:14:48 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:40664 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S319234AbSHNBOs>;
+	Tue, 13 Aug 2002 21:14:48 -0400
+Message-ID: <3D59B022.BA63F063@alphalink.com.au>
+Date: Wed, 14 Aug 2002 11:19:30 +1000
+From: Greg Banks <gnb@alphalink.com.au>
+Organization: Corpus Canem Pty Ltd.
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.15-4mdkfb i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+CC: Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org,
+       kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: [patch] config language dep_* enhancements
+References: <Pine.LNX.4.44.0208131306040.6035-100000@chaos.physics.uiowa.edu>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Christian Reis <kiko@async.com.br> writes:
+Kai Germaschewski wrote:
+> 
+> > > So you agree a bit of spring cleaning wouldn't hurt, right? ;)
+> >
+> > Absolutely, and I have a catalogue of dust puppies to help that process ;-)
+> 
+> Okay. Let me first state that I do not really have the time to get
+> involved currently. ISDN4Linux and other pending kbuild stuff already
+> takes somewhat more than the remaining free time I have. But if you guys
+> want to get going with some step by step cleaning (w/o breaking too much),
+> I can try to help reviewing and submitting to Linus.
 
-     > Helle there,
+Great.
 
-     > I've been, for the past days, setting up a fairly big diskless
-     > network based on Linux. I've chosen to use 2.4.19 as the kernel
-     > because there were some hardware requirements, and for most of
-     > the newer boxes, it runs fine. However, for three of the older
-     > boxes, we have had some pretty odd performance and stability
-     > issues. This message is about the latest one, which is an ASUS
-     > P5S-B (has the infamous SIS 530 chipset) on an intel eepro100
-     > card. Details:
+> Basically, extend the "source" command to do a grep CONFIG_* in the file
+> to be read and set all found symbols to "n", if unset - only then do
+> the actual "source".
 
-Is all this NFS over UDP? If so, numbers should not really have
-changed in 2.4.19 ( - yes my patchset changes things, but stock 2.4.19
-should not be too different w.r.t 2.4.18)
+Ah, interesting idea.
 
-Are you able to determine where in the 2.4.19-pre series the
-performance dies?
+> Anyway, some more points:
+> 
+> o a) dep_bool '  Blah' CONFIG_FOO $CONFIG_BAR         vs.
+>   b) dep_bool '  Blah' CONFIG_FOO CONFIG_BAR
 
-Cheers,
-  Trond
+I assume you include in a) the change which gives all symbols an "n" default.
+Then b) is clearly the evolutionary approach and less likely to result in a
+partially broken config system come Halloween.
+
+Greg.
+-- 
+the price of civilisation today is a courageous willingness to prevail,
+with force, if necessary, against whatever vicious and uncomprehending
+enemies try to strike it down.     - Roger Sandall, The Age, 28Sep2001.

@@ -1,120 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262464AbUJ0QHD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262492AbUJ0QMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262464AbUJ0QHD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 12:07:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbUJ0QHC
+	id S262492AbUJ0QMq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 12:12:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262487AbUJ0QMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 12:07:02 -0400
-Received: from wrzx35.rz.uni-wuerzburg.de ([132.187.3.35]:50572 "EHLO
-	wrzx35.rz.uni-wuerzburg.de") by vger.kernel.org with ESMTP
-	id S262464AbUJ0QFt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 12:05:49 -0400
-Date: Wed, 27 Oct 2004 18:05:40 +0200 (CEST)
-From: Andreas Klein <Andreas.C.Klein@physik.uni-wuerzburg.de>
-X-X-Sender: asklein@pluto.physik.uni-wuerzburg.de
-To: Sergei Haller <Sergei.Haller@math.uni-giessen.de>
-Cc: Andi Kleen <ak@muc.de>, Andrew Walrond <andrew@walrond.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
-Subject: Re: solution Re: lost memory on a 4GB amd64
-In-Reply-To: <Pine.LNX.4.58.0410271718050.10573@fb07-2go.math.uni-giessen.de>
-Message-ID: <Pine.LNX.4.58.0410271751330.3903@pluto.physik.uni-wuerzburg.de>
-References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au>
- <200409241315.42740.andrew@walrond.org> <Pine.LNX.4.58.0410221053390.17491@fb07-2go.math.uni-giessen.de>
- <200410221026.22531.andrew@walrond.org> <20041022182446.GA77384@muc.de>
- <Pine.LNX.4.58.0410231220400.17491@fb07-2go.math.uni-giessen.de>
- <20041023164902.GB52982@muc.de> <Pine.LNX.4.58.0410241133400.17491@fb07-2go.math.uni-giessen.de>
- <Pine.LNX.4.58.0410271704050.3903@pluto.physik.uni-wuerzburg.de>
- <Pine.LNX.4.58.0410271718050.10573@fb07-2go.math.uni-giessen.de>
+	Wed, 27 Oct 2004 12:12:46 -0400
+Received: from h151_115.u.wavenet.pl ([217.79.151.115]:56998 "EHLO
+	alpha.polcom.net") by vger.kernel.org with ESMTP id S262497AbUJ0QLv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 12:11:51 -0400
+Date: Wed, 27 Oct 2004 18:11:43 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Tonnerre <tonnerre@thundrix.ch>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Erik Andersen <andersen@codepoet.org>, uclibc@uclibc.org
+Subject: [OT] Re: The naming wars continue...
+In-Reply-To: <20041027154828.GA21160@thundrix.ch>
+Message-ID: <Pine.LNX.4.60.0410271803470.614@alpha.polcom.net>
+References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org>
+ <20041026203137.GB10119@thundrix.ch> <417F2251.7010404@zytor.com>
+ <200410271133.25701.vda@port.imtp.ilyichevsk.odessa.ua> <20041027154828.GA21160@thundrix.ch>
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on domino1/uni-wuerzburg(Release 6.51HF561 | September
- 17, 2004) at 10/27/2004 18:05:40,
-	Serialize by Router on domino1/uni-wuerzburg(Release 6.51HF561 | September
- 17, 2004) at 10/27/2004 18:05:43,
-	Serialize complete at 10/27/2004 18:05:43
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 27 Oct 2004, Tonnerre wrote:
 
-Hello,
+> Salut,
+>
+> On Wed, Oct 27, 2004 at 11:33:25AM +0300, Denis Vlasenko wrote:
+>> Why there is any distinction between, say, gcc and X?
+>> KDE and Midnight Commander? etc... Why some of them go
+>> to /opt while others are spread across dozen of dirs?
+>
+> Well.
+>
+> FHS specifies that everything needed  to boot the system should got to
+> /bin  and /sbin. The  base system  (build system,  etc.) should  go to
+> /usr. The rest should be /opt/itspackagename.
+>
+> I'm not quite a FHS fan. I use libexec dirs, but I still have my build
+> system under /usr (and my home  under /usr/home), and the rest (X, KDE
+> et al) lives under /opt.
 
-On Wed, 27 Oct 2004, Sergei Haller wrote:
+Hi,
 
-> On Wed, 27 Oct 2004, Andreas Klein (AK) wrote:
-> 
-> Are you sure this is the same problem, that I have? You discovered
-> Problems with memtest86:
-> 
-> > Memtest sees 0-2GB mem usable and 4-6GB unusable (complains 
-> > about each memory address).
-> 
-> I didn't:
-> 
-> > memtest86 is happy with the memory.
+In Gentoo everything goes to /usr/bin or /usr/sbin except very basic 
+things that are instaled in /bin or /sbin and binary-only packages that 
+are instaled in /opt (very good idea).
 
-Memtest is happy with my memory too, if all 4 modules are installed in the 
-slots belonging to CPU1. If I install 2 modules for each CPU, memtest86 is 
-not happy anymore.
-
-> 
-> The next difference: 
-> You have the S2885 (thunder K8W) and S2875S (tiger K8W single processor) 
-> boards and I have a S2875 (tiger K8W double processor)
-
-The boards are nearly identical (on-board lan is different, and your 
-memory-slots are connected to one CPU).
-If all memory modules are installed for one CPU, I have your problems. 
-Additionaly there are some other problems that only occur, when the 
-modules are installed one pair for each CPU.
-
-Since I have a pre-producion board and bios which is running solid as a 
-rock, regardless if a SMP/no-SMP kernel is installed, I hope that they
-will fix all problems.
-
-> I summarize (again) my problems:
-> 
-> Independantly of the memory settings in the BIOS:
->  - non-SMP Kernel is stable
->  - memtest86 does not report any errors
-> 
-> If the memory (4GB) is set up in one block (0-4GB) in the BIOS, then
->  - SMP Kernel is stable 
-> 
-> If the memory (4GB) is set up in two blocks (eg. 0-3GB, 4-5GB) in the
-> BIOS, then
->  - SMP Kernel is stable _if_and_only_if_ NUMA is _disabled_.
-> 
-> 
-> BTW.: I won't be able to flash a new BIOS to our machine, since it is in 
-> production use and runs _rock_stable_ with _full_memory_ after we
-> _disabled_ NUMA support in the kernel. (see the two small programs posted 
-> by me and by Andi Kleen)
-> 
-> What I COULD do is running some tests if needed. (e.g. to check if the 
-> Board/BIOS is lying about its capabilities)
-> 
-> 
->         Sergei
-> -- 
-> --------------------------------------------------------------------  -?)
->          eMail:       Sergei.Haller@math.uni-giessen.de               /\\
-> -------------------------------------------------------------------- _\_V
-> Be careful of reading health books, you might die of a misprint.
->                 -- Mark Twain
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Yes, Linux (or UNIX) directory structure should be changed years ago but 
+nobody (except GOBO Linux I think) is going to do it. That will require 
+patching realy big amount of code and changing some standards. If somebody 
+has time for it feel free to contact me, and I will tell him (or her) what 
+should be changed to produce The New Directory Standard That Breaks 
+Everything But Is The Best And Most Sane In The World (TM)... :-)
 
 
--- Andreas Klein
-   asklein@cip.physik.uni-wuerzburg.de
-   root / webmaster @cip.physik.uni-wuerzburg.de
-   root / webmaster @www.physik.uni-wuerzburg.de
-_____________________________________
-|                                   | 
-|   Long live our gracious AMIGA!   |
-|___________________________________|
+Grzegorz Kulewski
 

@@ -1,68 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbUFKGPi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbUFKGRm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbUFKGPi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 02:15:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbUFKGPi
+	id S261913AbUFKGRm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 02:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbUFKGRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 02:15:38 -0400
-Received: from mail0.epfl.ch ([128.178.50.57]:2317 "HELO mail0.epfl.ch")
-	by vger.kernel.org with SMTP id S261907AbUFKGPg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 02:15:36 -0400
-Date: Fri, 11 Jun 2004 08:15:33 +0200
-From: Gregoire Favre <Gregoire.Favre@freesurf.ch>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.7-rc3 can't mount my USB memory Stick any more
-Message-ID: <20040611061533.GA2920@magma.epfl.ch>
+	Fri, 11 Jun 2004 02:17:42 -0400
+Received: from ee.oulu.fi ([130.231.61.23]:60588 "EHLO ee.oulu.fi")
+	by vger.kernel.org with ESMTP id S261913AbUFKGRh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 02:17:37 -0400
+Date: Fri, 11 Jun 2004 09:17:30 +0300
+From: Pekka Pietikainen <pp@ee.oulu.fi>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "David S. Miller" <davem@redhat.com>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Dealing with buggy hardware (was: b44 and 4g4g)
+Message-ID: <20040611061730.GA8081@ee.oulu.fi>
+References: <20040531202104.GA8301@ee.oulu.fi> <20040605200643.GA2210@ee.oulu.fi> <20040605131923.232f8950.davem@redhat.com> <20040609122905.GA12715@ee.oulu.fi> <20040610200504.GG4507@openzaurus.ucw.cz> <20040610203442.GA27762@ee.oulu.fi> <20040610211217.GA6634@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20040610211217.GA6634@elf.ucw.cz>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Jun 10, 2004 at 11:12:17PM +0200, Pavel Machek wrote:
+> Okay, this is probably other problem. When the bug hit, what are the symptoms?
+Total immediate crash without an oops. When the RX ring skbufs are allocated
+with GFP_DMA receives work, but any transmits from > 1GB cause a link
+down/link up (which is just about all of them). With GPF_DMA bounce
+buffers those start working too.
 
-till 2.6.7-rc2 I can access my USB memory Stick without problem, but not
-with 2.6.7-rc3... which gave strange partition on it :
-
-sk /dev/sdg: 520 MB, 520092160 bytes
-16 heads, 62 sectors/track, 1023 cylinders
-Units = cylinders of 992 * 512 = 507904 bytes
-
-   Device Boot      Start         End      Blocks   Id  System
-/dev/sdg1   ?      784412     1935127   570754815+  72  Unknown
-Partition 1 has different physical/logical beginnings (non-Linux?):
-     phys=(357, 116, 40) logical=(784411, 3, 11)
-Partition 1 has different physical/logical endings:
-     phys=(357, 32, 45) logical=(1935126, 8, 51)
-Partition 1 does not end on cylinder boundary.
-/dev/sdg2   ?      170050     2121692   968014120   65  Novell Netware 386
-Partition 2 has different physical/logical beginnings (non-Linux?):
-     phys=(288, 115, 43) logical=(170049, 14, 47)
-Partition 2 has different physical/logical endings:
-     phys=(367, 114, 50) logical=(2121691, 4, 42)
-Partition 2 does not end on cylinder boundary.
-/dev/sdg3   ?     1884962     3836603   968014096   79  Unknown
-Partition 3 has different physical/logical beginnings (non-Linux?):
-     phys=(366, 32, 33) logical=(1884961, 2, 30)
-Partition 3 has different physical/logical endings:
-     phys=(357, 32, 43) logical=(3836602, 7, 39)
-Partition 3 does not end on cylinder boundary.
-/dev/sdg4   ?           1     3666559  1818613248    d  Unknown
-Partition 4 has different physical/logical beginnings (non-Linux?):
-     phys=(372, 97, 50) logical=(0, 0, 1)
-Partition 4 has different physical/logical endings:
-     phys=(0, 10, 0) logical=(3666558, 15, 30)
-Partition 4 does not end on cylinder boundary.
-
-Partition table entries are not in disk order
-
-Any reason for that?
-
-Please CC to me as I only read the list through nntp ;-)
-
-	Grégoire
-__________________________________________________________________________
-http://algebra.epfl.ch/greg ICQ:16624071 mailto:Gregoire.Favre@freesurf.ch
+> > (Or the issue isn't fully understood yet, figuring out what breaks and what
+> > doesn't was basically just trial and error :-/ )
+> 
+> Can you try the driver from broadcom? bcom4400, or how is it
+> called. Its extremely ugly, but might get this kind of stuff right...
+Tried that, it breaks with 4:4 and >1GB in exactly the same way :-)

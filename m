@@ -1,87 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262140AbVCIH3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262149AbVCIHbv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262140AbVCIH3F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 02:29:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262151AbVCIH3E
+	id S262149AbVCIHbv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 02:31:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbVCIHbn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 02:29:04 -0500
-Received: from mail.kroah.org ([69.55.234.183]:63123 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262140AbVCIH2p (ORCPT
+	Wed, 9 Mar 2005 02:31:43 -0500
+Received: from gate.crashing.org ([63.228.1.57]:16058 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262100AbVCIHaB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 02:28:45 -0500
-Date: Tue, 8 Mar 2005 23:28:33 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Cc: Chris Wright <chrisw@osdl.org>, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: [RFC] -stable, how it's going to work.
-Message-ID: <20050309072833.GA18878@kroah.com>
+	Wed, 9 Mar 2005 02:30:01 -0500
+Subject: Re: PCMCIA product id strings -> hashes generation at compilation
+	time? [Was: Re: [patch 14/38] pcmcia: id_table for wavelan_cs]
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Greg KH <greg@kroah.com>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       jt@hpl.hp.com, linux-pcmcia@lists.infradead.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050309060004.GE17287@kroah.com>
+References: <20050308123426.249fa934.akpm@osdl.org>
+	 <20050227161308.GO7351@dominikbrodowski.de>
+	 <20050307225355.GB30371@bougret.hpl.hp.com>
+	 <20050307230102.GA29779@isilmar.linta.de>
+	 <20050307150957.0456dd75.akpm@osdl.org>
+	 <20050307232339.GA30057@isilmar.linta.de>
+	 <20050308191138.GA16169@isilmar.linta.de>
+	 <Pine.LNX.4.58.0503081438040.13251@ppc970.osdl.org>
+	 <20050308231636.GA20658@isilmar.linta.de>
+	 <1110347109.32524.56.camel@gaston>  <20050309060004.GE17287@kroah.com>
+Content-Type: text/plain
+Date: Wed, 09 Mar 2005 18:21:08 +1100
+Message-Id: <1110352868.32525.65.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So here's a first cut at how this 2.6 -stable release process is going
-to work that Chris and I have come up with.  Does anyone have any
-problems/issues/questions with this?
 
-thanks,
+> > > The difficulty is that extracting and evaluating them breaks the wonderful 
+> > > bus-independent MODNAME implementation for hotplug suggested by Roman Kagan
+> > > ( http://article.gmane.org/gmane.linux.hotplug.devel/7039 ), and that these
+> > > strings may contain spaces and other "strange" characters. The latter may be 
+> > > worked around, but the former cannot. /etc/hotplug/pcmcia.agent looks really
+> > > clean because of this MODNAME implementation:
+> > 
+> > Same goes with Open Firmware match strings that we are about to pass
+> > down to userspace as well. Hotplug will have to learn to deal with
+> > those.
+> 
+> Ok, any suggestions that don't involve hashes?
 
-greg k-h
+Not sure, I haven't looked at the details & issues involves (I just
+"spotted" the issue about space while quick-reading lkml). I suppose
+quotes around the strings are good enough, at least for OF, I yet have
+to see a "compatible", "name" or "type" property with quotes in it...
 
--------------------
+Ben.
 
-Everything you ever wanted to know about Linux 2.6 -stable releases.
-
-
-Rules on what kind of patches are accepted, and what ones are not, into
-the "-stable" tree:
- - It must be obviously correct and tested.
- - It can not bigger than 100 lines, with context.
- - It must fix only one thing.
- - It must fix a real bug that bothers people (not a, "This could be a
-   problem..." type thing.)
- - It must fix a problem that causes a build error (but not for things
-   marked CONFIG_BROKEN), an oops, a hang, data corruption, a real
-   security issue, or some "oh, that's not good" issue.  In short,
-   something critical.
- - No "theoretical race condition" issues, unless an explanation of how
-   the race can be exploited.
- - It can not contain any "trivial" fixes in it (spelling changes,
-   whitespace cleanups, etc.)
- - It must be accepted by the relevant subsystem maintainer.
- - It must follow Documentation/SubmittingPatches rules.
-
-Procedure for submitting patches to the -stable tree:
- - Send the patch, after verifying that it follows the above rules, to
-   stable@kernel.org.
- - The sender will receive an ack when the patch has been accepted into
-   the queue, or a nak if the patch is rejected.  This response might
-   take a few days, according to the developer's schedules.
- - If accepted, the patch will be added to the -stable queue, for review
-   by other developers.
- - Security patches should not be sent to this alias, but instead to the
-   documented security@kernel.org.  
-   
-Review cycle:
- - When the -stable maintainers decide for a review cycle, the patches
-   will be sent to the review committee, and the maintainer of the
-   affected area of the patch (unless the submitter is the maintainer of
-   the area) and CC: to the linux-kernel mailing list.
- - The review committee has 48 hours in which to ack or nak the patch.
- - If the patch is rejected by a member of the committee, or linux-kernel
-   members object to the patch by bringing up issues that the maintainer
-   and members did not realize, the patch will be dropped from the
-   queue.
- - At the end of the review cycle, the acked patches will be added to
-   the latest -stable release, and a new -stable release will happen.
- - Security patches will be accepted into the -stable tree directly from
-   the security kernel team, and not go through the normal review cycle.
-   Contact the kernel security team for more details on this procedure.
-
-Review committe:
- - This will be made up of a number of kernel developers who have
-   volunteered for this task, and a few that haven't.
 

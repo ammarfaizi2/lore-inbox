@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUJNUz6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266888AbUJNVEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264113AbUJNUz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 16:55:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267554AbUJNUyx
+	id S266888AbUJNVEu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 17:04:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267294AbUJNVDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 16:54:53 -0400
-Received: from phoenix.infradead.org ([81.187.226.98]:9990 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264113AbUJNUfq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 16:35:46 -0400
-Date: Thu, 14 Oct 2004 21:35:45 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: David Howells <dhowells@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [RESEND][PATCH 4/6] Add page becoming writable notification
-Message-ID: <20041014203545.GA13639@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, linux-fsdevel@vger.kernel.org
-References: <24449.1097780701@redhat.com>
+	Thu, 14 Oct 2004 17:03:20 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39690 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S267709AbUJNVCt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 17:02:49 -0400
+Date: Thu, 14 Oct 2004 22:02:43 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: __attribute__((unused))
+Message-ID: <20041014220243.B28649@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <24449.1097780701@redhat.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +
-> +	/* notification that a page is about to become writable */
-> +	int (*page_mkwrite)(struct page *page);
+Hi,
 
-This doesn't fit into address_space operations at all.  The vm_operation
-below is enough.
+I notice that module.h contains stuff like:
 
-> --- linux-2.6.9-rc1-mm2/mm/memory.c	2004-08-31 16:52:40.000000000 +0100
-> +++ linux-2.6.9-rc1-mm2-cachefs/mm/memory.c	2004-09-02 15:40:26.000000000 +0100
-> @@ -1030,6 +1030,54 @@ static inline void break_cow(struct vm_a
->  }
->  
->  /*
-> + * Make a PTE writeable for do_wp_page() on a shared-writable page
-> + */
-> +static inline int do_wp_page_mk_pte_writable(struct mm_struct *mm,
-> +					     struct vm_area_struct *vma,
-> +					     unsigned long address,
-> +					     pte_t *page_table,
-> +					     struct page *old_page,
-> +					     pte_t pte)
+#define MODULE_GENERIC_TABLE(gtype,name)                        \
+extern const struct gtype##_id __mod_##gtype##_table            \
+  __attribute__ ((unused, alias(__stringify(name))))
 
-This prototype shows pretty much that splitting it out doesn't make much sense.
-Why not add a goto reuse_page; where you call it currently and append it
-at the end of do_wp_page?
+and even:
 
+#define __MODULE_INFO(tag, name, info)                                    \
+static const char __module_cat(name,__LINE__)[]                           \
+  __attribute_used__                                                      \
+  __attribute__((section(".modinfo"),unused)) = __stringify(tag) "=" info
+
+My understanding is that we shouldn't be using __attribute__((unused))
+in either of these - can someone confirm.
+
+The second one looks fairly dodgy since we're telling a compiler that
+it's both used and unused.  That sounds a bit like a HHGTTG puzzle (you
+have tea and no tea.)
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

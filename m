@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263166AbTKETr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 14:47:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263173AbTKETr4
+	id S263172AbTKETsr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 14:48:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263170AbTKETsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 14:47:56 -0500
-Received: from main.gmane.org ([80.91.224.249]:21946 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263166AbTKETra (ORCPT
+	Wed, 5 Nov 2003 14:48:47 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:16538 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263172AbTKETsi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 14:47:30 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: Pseudo disk interface
-Date: Wed, 05 Nov 2003 20:47:27 +0100
-Message-ID: <yw1xvfpyvbqo.fsf@kth.se>
-References: <e9bdb4e9ef4a.e9ef4ae9bdb4@usc.edu>
+	Wed, 5 Nov 2003 14:48:38 -0500
+Date: Wed, 5 Nov 2003 11:41:31 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: jt@hpl.hp.com
+Cc: jt@bougret.hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6 IrDA] IrNET status event Oops
+Message-Id: <20031105114131.4433ec2f.davem@redhat.com>
+In-Reply-To: <20031105194042.GC24323@bougret.hpl.hp.com>
+References: <20031105194042.GC24323@bougret.hpl.hp.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:03j2oimunjFoNLPm6C09JJfulrQ=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-balaji raghavan <braghava@usc.edu> writes:
+On Wed, 5 Nov 2003 11:40:42 -0800
+Jean Tourrilhes <jt@bougret.hpl.hp.com> wrote:
 
->     Is there a some kind of __disk_abstraction__ existent in Linux? I
-> am trying to write a Cryptographic disk driver for linux. But AFAIK, I
+> ir2609_irnet_ppp_open_race-2.diff :
+> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> 	o [CRITICA] Prevent sending status event to dead/kfree sockets
+> 	o [CORRECT] Disable PPP access before deregistration
+> 		PPP deregistration might sleep -> race condition
 
-There already exists such a driver, at least in Linux 2.6.  It's part
-of (or at least related to) the loopback driver.
-
--- 
-Måns Rullgård
-mru@kth.se
-
+Applied, thanks.

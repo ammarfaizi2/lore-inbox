@@ -1,105 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261506AbSJMMGa>; Sun, 13 Oct 2002 08:06:30 -0400
+	id <S261504AbSJMMFQ>; Sun, 13 Oct 2002 08:05:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261505AbSJMMG3>; Sun, 13 Oct 2002 08:06:29 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:21137 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261506AbSJMMGH>;
-	Sun, 13 Oct 2002 08:06:07 -0400
-Message-ID: <3DA962D3.7080906@colorfullife.com>
-Date: Sun, 13 Oct 2002 14:10:59 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
-MIME-Version: 1.0
+	id <S261505AbSJMMFQ>; Sun, 13 Oct 2002 08:05:16 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:47884 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S261504AbSJMMFO>;
+	Sun, 13 Oct 2002 08:05:14 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
-Subject: [RFC] remove copy_segments, release_segments, forget_segments
-Content-Type: multipart/mixed;
- boundary="------------000405030008010900050807"
+Cc: linux-ia64@linuxia64.org
+Subject: Announce: ksymoops 2.4.7 is available
+Date: Sun, 13 Oct 2002 22:10:42 +1000
+Message-ID: <16842.1034511042@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000405030008010900050807
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-forget_segments and copy_segments are already dead, release_segments is
-used right now for i386 and x86_64 to release the ldt structures.
-But the code is asymmetric: creation in init_new_context(), destruction
-in release_segments().
+Content-Type: text/plain; charset=us-ascii
 
-What about the attached patch?
-i386 and x86_64 can use destroy_context, then the _segment functions can
-be removed entirely.
+ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/ksymoops/v2.4
 
---
-	Manfred
+ksymoops-2.4.7.tar.gz		Source tarball, includes RPM spec file
+ksymoops-2.4.7-1.src.rpm	As above, in SRPM format
+ksymoops-2.4.7-1.i386.rpm	Compiled with 2.96 20000731, glibc 2.2.2
+ksymoops-2.4.7-1.ia64.rpm	Compiled with gcc 2.96-ia64-20000731, glibc-2.2.3
+ksymoops-2.4.7-1.sparc.rpm	Compiled as 32 bit user space, it supports 64 bit kernels.
+patch-ksymoops-2.4.7.gz		Patch from ksymoops 2.4.6 to 2.4.7.
 
+Changelog extract
 
---------------000405030008010900050807
-Content-Type: text/plain;
- name="patch-remove_segments"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-remove_segments"
+	* Add BFD_PREFIX, DEF_TARGET, DEF_ARCH, CROSS options to Makefile to
+	  support building ksymoops for cross compilation and debugging.
+	  Greg Banks, modified by Keith Owens.
+	* Add cross compile documentation to INSTALL and man page.  Keith Owens.
+	* Add DEF_TARGET, DEF_ARCH to ksymoops.c to build ksymoops for cross
+	  compile.  Attempt to set the default value for the -e flag if build
+	  and cross environments have different endianess.  Greg Banks.
+	* Extends Oops_truncate_address() to deal with the ckseg0/ kseg0/xkphys
+	  physical address alias confusion on mips64 (addresses appear in the
+	  oops text as 0xffffffff8xxxxxxx, 0x8xxxxxxx, or 0xa80000000xxxxxxx,
+	  but are all the same physical address).  Greg Banks.
+	* Calls Oops_truncate_address() from Oops_trace_line() so that the call
+	  trace is subject to the address fix.  Greg Banks.
+	* Handle exported symbols in sbss sections.  Keith Owens.
+	* White space cleanup.
+	* Add IA64 MCA support.
 
-// $Header$
-// Kernel Version:
-//  VERSION = 2
-//  PATCHLEVEL = 5
-//  SUBLEVEL = 42
-//  EXTRAVERSION =
---- 2.5/arch/i386/kernel/ldt.c	Sun Oct 13 14:01:08 2002
-+++ build-2.5/arch/i386/kernel/ldt.c	Sun Oct 13 13:44:52 2002
-@@ -104,7 +104,7 @@
- /*
-  * No need to lock the MM as we are the last user
-  */
--void release_segments(struct mm_struct *mm)
-+void destroy_context(struct mm_struct *mm)
- {
- 	if (mm->context.size) {
- 		if (mm == current->active_mm)
---- 2.5/include/asm-i386/mmu_context.h	Sun Sep 22 06:24:57 2002
-+++ build-2.5/include/asm-i386/mmu_context.h	Sun Oct 13 13:42:50 2002
-@@ -8,10 +8,10 @@
- #include <asm/tlbflush.h>
- 
- /*
-- * possibly do the LDT unload here?
-+ * Used for LDT copy/destruction.
-  */
--#define destroy_context(mm)		do { } while(0)
- int init_new_context(struct task_struct *tsk, struct mm_struct *mm);
-+void destroy_context(struct mm_struct *mm);
- 
- #ifdef CONFIG_SMP
- 
---- 2.5/include/asm-i386/processor.h	Sun Oct 13 13:56:03 2002
-+++ build-2.5/include/asm-i386/processor.h	Sun Oct 13 13:44:02 2002
-@@ -437,9 +437,6 @@
-  */
- extern int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
- 
--/* Release all segment info associated with a VM */
--extern void release_segments(struct mm_struct * mm);
--
- extern unsigned long thread_saved_pc(struct task_struct *tsk);
- 
- unsigned long get_wchan(struct task_struct *p);
---- 2.5/mm/mmap.c	Sun Oct 13 13:56:04 2002
-+++ build-2.5/mm/mmap.c	Sun Oct 13 13:43:55 2002
-@@ -1278,8 +1278,6 @@
- 
- 	profile_exit_mmap(mm);
-  
--	release_segments(mm);
-- 
- 	spin_lock(&mm->page_table_lock);
- 
- 	flush_cache_mm(mm);
+The sbss support works best with modutils 2.4.21, but should work with
+older modutils.
 
---------------000405030008010900050807--
+The ia64 MCA support was written for an SGI NUMA machine, that is the
+only MCA sample output I have.  If other ia64 platforms have different
+MCA formats, send me a sample output so I can add it to ksymoops.
 
+Some people have reported problems building ksymoops, with unresolved
+references in libbfd (htab_create, htab_find_slot_with_hash).  Try
+http://www.cs.helsinki.fi/linux/linux-kernel/2002-13/0196.html first,
+if that does not work, contact the binutils maintainers.  This is not a
+ksymoops problem, ksymoops only uses libbfd.  Any unresolved references
+from libbfd are a binutils problem.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE9qWLAi4UHNye0ZOoRAtQCAKDwtQZpsRrl/dsyogu0lST++I7qFwCeMS6r
+1ShTKZZ31tdo/CVwq4+vWeo=
+=ecQM
+-----END PGP SIGNATURE-----
 

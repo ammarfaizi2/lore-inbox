@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280693AbRKJT6z>; Sat, 10 Nov 2001 14:58:55 -0500
+	id <S280695AbRKJT7q>; Sat, 10 Nov 2001 14:59:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280642AbRKJT6p>; Sat, 10 Nov 2001 14:58:45 -0500
-Received: from md.hub.gts.cz ([194.213.32.136]:52865 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S280689AbRKJT6m>;
-	Sat, 10 Nov 2001 14:58:42 -0500
-Date: Sat, 1 Jan 2000 00:13:12 +0000
+	id <S280694AbRKJT7g>; Sat, 10 Nov 2001 14:59:36 -0500
+Received: from md.hub.gts.cz ([194.213.32.136]:54145 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S280692AbRKJT7Y>;
+	Sat, 10 Nov 2001 14:59:24 -0500
+Date: Sat, 1 Jan 2000 00:31:48 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Tim Jansen <tim@tjansen.de>,
-        =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Message-ID: <20000101001311.A35@(none)>
-In-Reply-To: <20011107012009.B35@toy.ucw.cz> <Pine.LNX.4.33L.0111071913590.2963-100000@imladris.surriel.com>
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: Samium Gromoff <_deepfire@mail.ru>, Dominik Kubla <kubla@sciobyte.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Laptop harddisk spindown?
+Message-ID: <20000101003147.C35@(none)>
+In-Reply-To: <200111080502.fA852im17980@vegae.deep.net> <1005221273.13841.19.camel@nomade>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.33L.0111071913590.2963-100000@imladris.surriel.com>; from riel@conectiva.com.br on Wed, Nov 07, 2001 at 07:14:37PM -0200
+In-Reply-To: <1005221273.13841.19.camel@nomade>; from xavier.bestel@free.fr on Thu, Nov 08, 2001 at 01:07:52PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > > It eats CPU, it's error-prone, and all in all it's just "wrong".
-> > >
-> > > How much of your CPU time is spent parsing /proc files?
-> >
-> > 30% of 486 if you run top... That's way too much and top is unusable
-> > on slower machines.
-> > "Not fast enough for showing processes" sounds wery wrong.
+> > > > 	i have a disk access _every_ 5 sec, unregarding the system load, 
+> > > >     24x7x365, so i suppose while it doesnt hurts me, it hurts folks with power
+> > > >     bound boxes...
 > 
-> Is this time actually spent parsing ascii, or is it procfs
-> walking all the page tables of all processes ? ;)
+> That's a kernel daemon called kupdated. Under Linux buffers are flushed
+> every 5 seconds (I don't like this myself, it should be triggered by
+> something dependant on free mem, dirty buffers, disk access, etc. but
+> not time, this doesn't scale.
+> 
+> Under 2.2 you can try the noflushd package - perhaps it works on 2.4, I
+> haven't tried. It works more or less.
 
-About 1:1, probably. Readdir of /proc and open/read/parse/close is 
-pretty expensive.
+noflushd does work on 2.4
 								Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,

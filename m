@@ -1,267 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269130AbUJEOEG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269048AbUJEOKO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269130AbUJEOEG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 10:04:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269080AbUJEOCw
+	id S269048AbUJEOKO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 10:10:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269412AbUJEOKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 10:02:52 -0400
-Received: from mail.renesas.com ([202.234.163.13]:24535 "EHLO
-	mail03.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S269272AbUJEOBT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 10:01:19 -0400
-Date: Tue, 05 Oct 2004 23:00:54 +0900 (JST)
-Message-Id: <20041005.230054.241896216.takata.hirokazu@renesas.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
-Subject: [PATCH 2.6.9-rc3-mm2] [m32r] Remove arch/m32r/m32700ut/m32r-flash.c
-From: Hirokazu Takata <takata.hirokazu@renesas.com>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 5 Oct 2004 10:10:12 -0400
+Received: from relay.pair.com ([209.68.1.20]:58891 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S269048AbUJEOCd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 10:02:33 -0400
+X-pair-Authenticated: 24.126.73.164
+Message-ID: <41629C78.60203@kegel.com>
+Date: Tue, 05 Oct 2004 06:07:04 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en, de-de
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch rfc] towards supporting O_NONBLOCK on regular files
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please remove arch/m32r/m32700ut/m32r-flash.c.
-It is no longer used.
+Marcelo wrote:
+ > Curiosity: Is this defined in any UNIX standard?
 
-Thanks.
+No.  See
+http://www.opengroup.org/onlinepubs/009695399/functions/open.html
+which leaves it undefined.
 
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
+http://www.pasc.org/interps/unofficial/db/p1003.1/pasc-1003.1-71.html
+says implementations have to allow setting O_NONBLOCK even if they
+ignore it.
 
- arch/m32r/m32700ut/m32r-flash.c |  227 ----------------------------------------
- 1 files changed, 227 deletions(-)
+http://www.ussg.iu.edu/hypermail/linux/kernel/9911.3/0530.html
+claims other Unixes and NT implement it.
 
+There's a thread that discusses this in a bit of detail, and
+suggests that older Solaris might implement it:
+http://lists.freebsd.org/pipermail/freebsd-arch/2003-April/000132.html
+http://lists.freebsd.org/pipermail/freebsd-arch/2003-April/000134.html
 
-diff -ruNp a/arch/m32r/m32700ut/m32r-flash.c b/arch/m32r/m32700ut/m32r-flash.c
---- a/arch/m32r/m32700ut/m32r-flash.c	2004-10-01 11:14:54.000000000 +0900
-+++ b/arch/m32r/m32700ut/m32r-flash.c	1970-01-01 09:00:00.000000000 +0900
-@@ -1,227 +0,0 @@
--/*
-- * Flash memory access on M32R based devices
-- *
-- * Copyright (C) 2003	Takeo Takahashi
-- *
-- * This program is free software; you can redistribute it and/or
-- * modify it under the terms of the GNU General Public License
-- * as published by the Free Software Foundation; either version
-- * 2 of the License, or (at your option) any later version.
-- *
-- * $Id$
-- */
--
--#include <linux/config.h>
--#include <linux/module.h>
--#include <linux/types.h>
--#include <linux/ioport.h>
--#include <linux/kernel.h>
--
--#include <linux/mtd/mtd.h>
--#include <linux/mtd/map.h>
--#include <linux/mtd/partitions.h>
--
--#include <asm/m32r.h>
--#include <asm/io.h>
--
--#define WINDOW_ADDR (0xa0000000)	/* start of flash memory */
--
--static __u8 m32r_read8(struct map_info *map, unsigned long ofs)
--{
--	return readb(map->map_priv_1 + ofs);
--}
--
--static __u16 m32r_read16(struct map_info *map, unsigned long ofs)
--{
--	return readw(map->map_priv_1 + ofs);
--}
--
--static __u32 m32r_read32(struct map_info *map, unsigned long ofs)
--{
--	return readl(map->map_priv_1 + ofs);
--}
--
--static void m32r_copy_from(struct map_info *map, void *to, unsigned long from, ssize_t len)
--{
--	memcpy(to, (void *)(map->map_priv_1 + from), len);
--}
--
--static void m32r_write8(struct map_info *map, __u8 d, unsigned long adr)
--{
--	writeb(d, map->map_priv_1 + adr);
--}
--
--static void m32r_write16(struct map_info *map, __u16 d, unsigned long adr)
--{
--	writew(d, map->map_priv_1 + adr);
--}
--
--static void m32r_write32(struct map_info *map, __u32 d, unsigned long adr)
--{
--	writel(d, map->map_priv_1 + adr);
--}
--
--static void m32r_copy_to(struct map_info *map, unsigned long to, const void *from, ssize_t len)
--{
--	memcpy((void *)(map->map_priv_1 + to), from, len);
--}
--
--static struct map_info m32r_map = {
--	name:		"M32R flash",
--	read8:		m32r_read8,
--	read16:		m32r_read16,
--	read32:		m32r_read32,
--	copy_from:	m32r_copy_from,
--	write8:		m32r_write8,
--	write16:	m32r_write16,
--	write32:	m32r_write32,
--	copy_to:	m32r_copy_to,
--
--	map_priv_1:	WINDOW_ADDR,
--	map_priv_2:	-1,
--};
--
--#ifdef CONFIG_PLAT_M32700UT
--#define M32700UT_FLASH_SIZE		0x00400000
--static struct mtd_partition m32700ut_partitions[] = {
--	{
--		name:		"M32700UT boot firmware",
--		size:		0x30000,		/* 192KB */
--		offset:		0,
--		mask_flags:	MTD_WRITEABLE,  	/* force read-only */
--	}, {
--		name:		"M32700UT kernel",
--		size:		0xd0000,		/* 832KB */
--		offset:		MTDPART_OFS_APPEND,
--	}, {
--		name:		"M32700UT root",
--		size:		0x2f0000,		/* 3008KB */
--		offset:		MTDPART_OFS_APPEND,
--	}, {
--		name:		"M32700UT params",
--		size:		MTDPART_SIZ_FULL,	/* 64KB */
--		offset:		MTDPART_OFS_APPEND,
--	}
--};
--#endif
--
--extern int parse_redboot_partitions(struct mtd_info *master, struct mtd_partition **pparts);
--extern int parse_bootldr_partitions(struct mtd_info *master, struct mtd_partition **pparts);
--
--static struct mtd_partition *parsed_parts;
--static struct mtd_info *mymtd;
--
--int __init m32r_mtd_init(void)
--{
--	struct mtd_partition *parts;
--	int nb_parts = 0, ret;
--	int parsed_nr_parts = 0;
--	const char *part_type;
--	unsigned long base = -1UL;
--
--
--	/* Default flash buswidth */
--	m32r_map.buswidth = 2;
--
--	/*
--	 * Static partition definition selection
--	 */
--	part_type = "static";
--
--#ifdef CONFIG_PLAT_M32700UT
--	parts = m32700ut_partitions;
--	nb_parts = ARRAY_SIZE(m32700ut_partitions);
--	m32r_map.size = M32700UT_FLASH_SIZE;
--	m32r_map.buswidth = 2;
--#endif
--
--	/*
--	 * For simple flash devices, use ioremap to map the flash.
--	 */
--	if (base != (unsigned long)-1) {
--		if (!request_mem_region(base, m32r_map.size, "flash"))
--			return -EBUSY;
--		m32r_map.map_priv_2 = base;
--		m32r_map.map_priv_1 = (unsigned long)
--				ioremap(base, m32r_map.size);
--		ret = -ENOMEM;
--		if (!m32r_map.map_priv_1)
--			goto out_err;
--	}
--
--	/*
--	 * Now let's probe for the actual flash.  Do it here since
--	 * specific machine settings might have been set above.
--	 */
--	printk(KERN_NOTICE "M32R flash: probing %d-bit flash bus\n", m32r_map.buswidth*8);
--	mymtd = do_map_probe("m5drv", &m32r_map);
--	ret = -ENXIO;
--	if (!mymtd)
--		goto out_err;
--	mymtd->module = THIS_MODULE;
--
--	/*
--	 * Dynamic partition selection stuff (might override the static ones)
--	 */
--#ifdef CONFIG_MTD_REDBOOT_PARTS
--	if (parsed_nr_parts == 0) {
--		ret = parse_redboot_partitions(mymtd, &parsed_parts);
--
--		if (ret > 0) {
--			part_type = "RedBoot";
--			parsed_nr_parts = ret;
--		}
--	}
--#endif
--#ifdef CONFIG_MTD_BOOTLDR_PARTS
--	if (parsed_nr_parts == 0) {
--		ret = parse_bootldr_partitions(mymtd, &parsed_parts);
--		if (ret > 0) {
--			part_type = "Compaq bootldr";
--			parsed_nr_parts = ret;
--		}
--	}
--#endif
--
--	if (parsed_nr_parts > 0) {
--		parts = parsed_parts;
--		nb_parts = parsed_nr_parts;
--	}
--
--	if (nb_parts == 0) {
--		printk(KERN_NOTICE "M32R flash: no partition info available, registering whole flash at once\n");
--		add_mtd_device(mymtd);
--	} else {
--		printk(KERN_NOTICE "Using %s partition definition\n", part_type);
--		add_mtd_partitions(mymtd, parts, nb_parts);
--	}
--	return 0;
--
-- out_err:
--	if (m32r_map.map_priv_2 != -1) {
--		iounmap((void *)m32r_map.map_priv_1);
--		release_mem_region(m32r_map.map_priv_2, m32r_map.size);
--	}
--	return ret;
--}
--
--static void __exit m32r_mtd_cleanup(void)
--{
--	if (mymtd) {
--		del_mtd_partitions(mymtd);
--		map_destroy(mymtd);
--		if (parsed_parts)
--			kfree(parsed_parts);
--	}
--	if (m32r_map.map_priv_2 != -1) {
--		iounmap((void *)m32r_map.map_priv_1);
--		release_mem_region(m32r_map.map_priv_2, m32r_map.size);
--	}
--}
--
--module_init(m32r_mtd_init);
--module_exit(m32r_mtd_cleanup);
--
--MODULE_AUTHOR("Takeo Takahashi");
--MODULE_DESCRIPTION("M32R Flash map driver");
--MODULE_LICENSE("GPL");
+Googling for O_NONBLOCK disk seems to be good.  I'd google more
+but my baby is calling :-)
+- Dan
+-- 
+My technical stuff: http://kegel.com
+My politics: see http://www.misleader.org for examples of why I'm for regime change

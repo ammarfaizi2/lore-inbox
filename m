@@ -1,54 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262969AbSJGKee>; Mon, 7 Oct 2002 06:34:34 -0400
+	id <S262965AbSJGKaM>; Mon, 7 Oct 2002 06:30:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262970AbSJGKee>; Mon, 7 Oct 2002 06:34:34 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:13715 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S262969AbSJGKed>;
-	Mon, 7 Oct 2002 06:34:33 -0400
-Date: Mon, 7 Oct 2002 12:40:05 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200210071040.MAA18108@harpo.it.uu.se>
-To: jgarzik@pobox.com, zwane@linuxpower.ca
-Subject: Re: [PATCH][2.5][RFT] 3c509.c extra ethtool features
-Cc: linux-kernel@vger.kernel.org
+	id <S262967AbSJGKaM>; Mon, 7 Oct 2002 06:30:12 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:45207 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262965AbSJGKaL>;
+	Mon, 7 Oct 2002 06:30:11 -0400
+Date: Mon, 07 Oct 2002 03:29:00 -0700 (PDT)
+Message-Id: <20021007.032900.51704978.davem@redhat.com>
+To: rth@twiddle.net
+Cc: jakub@redhat.com, ak@muc.de, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use __attribute__((malloc)) for gcc 3.2
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021007030541.A3910@twiddle.net>
+References: <20020929152731.GA10631@averell>
+	<20020929160113.K5659@devserv.devel.redhat.com>
+	<20021007030541.A3910@twiddle.net>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Oct 2002 17:00:14 -0400 (EDT), Zwane Mwaikambo wrote:
->	If anyone has a 3c509 could they try;
->
->ethtool eth0
->ethtool -s eth0 port tp, bnc etc..
->ethtool eth0
->
->and see if all the returned stuff looks sane.
+   From: Richard Henderson <rth@twiddle.net>
+   Date: Mon, 7 Oct 2002 03:05:41 -0700
 
-3c509-TPO, ca 1994 vintage, ethtool eth0 output:
-
-Settings for eth0:
-	Supported ports: [ TP AUI ]
-	Supported link modes:   10baseT/Half 10baseT/Full 
-	Supports auto-negotiation: No
-	Advertised link modes:  Not reported
-	Advertised auto-negotiation: No
-	Speed: 10Mb/s
-	Duplex: Half
-	Port: Twisted Pair
-	PHYAD: 0
-	Transceiver: internal
-	Auto-negotiation: off
-	Current message level: 0x00000002 (2)
-	Link detected: yes
-
-So far so good (except it reports AUI although it has none).
-Unfortunately, this simple query killed the link, and I had to
-down/up eth0 to get it back.
-Next I tried ethtool -s to change some settings (port, speed,
-full duplex) and all returned errors. I kind of expected that.
-Next I tried to rlogin to this box from another: complete kernel hang :-(
-
-I may be able to test some more later this week, on a slightly newer
-3c509(B?) TP/AUI combo NIC.
-
-/Mikael
+   On Sun, Sep 29, 2002 at 04:01:13PM -0400, Jakub Jelinek wrote:
+   > Does this matter when the kernel is compiled with -fno-strict-aliasing?
+   
+   Yes.  The malloc attribute uses REG_NOALIAS, not alias sets.
+   
+Great, I'm all for Andi's patch in that case.

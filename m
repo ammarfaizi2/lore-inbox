@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289521AbSAVW6C>; Tue, 22 Jan 2002 17:58:02 -0500
+	id <S289537AbSAVXIe>; Tue, 22 Jan 2002 18:08:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289532AbSAVW5w>; Tue, 22 Jan 2002 17:57:52 -0500
-Received: from bs1.dnx.de ([213.252.143.130]:62370 "EHLO bs1.dnx.de")
-	by vger.kernel.org with ESMTP id <S289521AbSAVW5h>;
-	Tue, 22 Jan 2002 17:57:37 -0500
-Date: Tue, 22 Jan 2002 23:55:30 +0100 (CET)
-From: Robert Schwebel <robert@schwebel.de>
-X-X-Sender: <robert@callisto.local>
-Reply-To: <robert@schwebel.de>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: <linux-embedded@waste.org>
-Subject: New version of AMD Elan patch available
-In-Reply-To: <Pine.LNX.4.33.0112311900380.3056-100000@callisto.local>
-Message-ID: <Pine.LNX.4.33.0201222347301.893-100000@callisto.local>
+	id <S289536AbSAVXIY>; Tue, 22 Jan 2002 18:08:24 -0500
+Received: from CPE-203-51-24-110.nsw.bigpond.net.au ([203.51.24.110]:23800
+	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S289533AbSAVXIG>; Tue, 22 Jan 2002 18:08:06 -0500
+Message-ID: <3C4DF0CE.27676D6D@eyal.emu.id.au>
+Date: Wed, 23 Jan 2002 10:07:58 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre3-ac2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18-pre6 - unresolved symbols
+In-Reply-To: <Pine.LNX.4.21.0201221602360.2059-100000@freak.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Marcelo Tosatti wrote:
+> 
+> Well, I ended up including a wrong patch in pre5. Do not use it.
+> 
+> Here is pre6 to fix that mistake.
+> 
+> pre6:
 
-[please send comments per mail]
+FYI:
 
-today it's quick-release-time. There's another version of the AMD Elan
-patch available which adds Sven Geggus' driver for changing the CPU
-frequency. See the latest patch on
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.18-pre6/kernel/drivers/net/acenic.o
+depmod:         pci_unmap_addr_set
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.18-pre6/kernel/drivers/net/wan/comx.o
+depmod:         proc_get_inode
 
-  http://www.pengutronix.de/software/elan_en.html
+And I still needed to manually add
+	EXPORT_SYMBOL(waitfor_one_page);
+in kernel/ksyms.c
 
-Please note that this is a very first and experimental version of this
-driver. The API will most likely change to the cpufreq API from the ARM
-architecture (Dave, I'll have a look at it tomorrow).
-
-Robert
 --
- +--------------------------------------------------------+
- | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |
- | Pengutronix - Linux Solutions for Science and Industry |
- |   Braunschweiger Str. 79,  31134 Hildesheim, Germany   |
- |    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4    |
- +--------------------------------------------------------+
-
-
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

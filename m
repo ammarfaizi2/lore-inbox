@@ -1,98 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbTEUH7H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 03:59:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbTEUHzq
+	id S261706AbTEUH7E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 03:59:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbTEUH4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 03:55:46 -0400
+	Wed, 21 May 2003 03:56:00 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:37591 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261797AbTEUHnn (ORCPT
+	by vger.kernel.org with ESMTP id S261780AbTEUHn0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 03:43:43 -0400
-Date: Wed, 21 May 2003 10:52:42 +1000 (EST)
-From: Brett <generica@email.com>
-X-X-Sender: brett@bad-sports.com
-To: linux-kernel@vger.kernel.org
-Subject: ppp problems in 2.5.69-bk14
-Message-ID: <Pine.LNX.4.44.0305211051100.22168-100000@bad-sports.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 21 May 2003 03:43:26 -0400
+Date: Tue, 20 May 2003 19:07:32 -0700
+From: Greg KH <greg@kroah.com>
+To: Duncan Sands <baldrick@wanadoo.fr>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/14] USB speedtouch update
+Message-ID: <20030521020732.GA7939@kroah.com>
+References: <200305210049.24619.baldrick@wanadoo.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305210049.24619.baldrick@wanadoo.fr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 21, 2003 at 12:49:24AM +0200, Duncan Sands wrote:
+> The following patches are against Greg's 2.5 USB tree.
+> They contain a rewrite of the packet reception code and
+> many tweaks.
 
-Hey,
+I've applied all of these to my tree, but I didn't apply the following
+to Linus's tree because they just didn't apply.  I tried to fix up a few
+by hand, and got some of them to work, but eventually gave up on the
+rest.  So here's a list of the ones that didn't go into Linus's tree:
+	USB speedtouch: use optimally sized reconstruction buffers
+	USB speedtouch: send path micro optimizations
+	USB speedtouch: kfree_skb -> dev_kfree_skb
+	USB speedtouch: receive code rewrite
 
-I got this lovely mess when trying to run ppp under 2.5.69-bk14
+Also this one didn't go into Linus's tree, as it's already there:
+	USB speedtouch: remove MOD_XXX_USE_COUNT
 
-using devfs
-all ppp is modular
+So, any patches against Linus's latest bk tree to bring the above into
+sync would be appreciated.
 
 thanks,
 
-	/ Brett
-
-PPP generic driver version 2.4.2
-devfs_mk_cdev: could not append to parent for ppp
-failed to register PPP device (-17)
-Unable to handle kernel paging request at virtual address c38755c0
- printing eip:
-c0150743
-*pde = 01092067
-*pte = 00000000
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c0150743>]    Not tainted
-EFLAGS: 00010286
-EIP is at lookup_chrfops+0x83/0xd0
-eax: c38755c0   ebx: c129c600   ecx: c1e4c000   edx: 00000000
-esi: 00000000   edi: 00000000   ebp: 0000006c   esp: c1e4def0
-ds: 007b   es: 007b   ss: 0068
-Process pppd (pid: 402, threadinfo=c1e4c000 task=c145d380)
-Stack: c1e4c000 00000000 0000006c 00000000 c01507da 0000006c 00000000 c2048b20 
-       c2048b20 ffffffed c21adea0 c0150a42 0000006c 00000000 c2048b20 c21adea0 
-       ffffffed c107b220 c01986c9 c21adea0 c2048b20 c2048b20 c21adea0 c10c6084 
-Call Trace:
- [<c01507da>] get_chrfops+0x4a/0x70
- [<c0150a42>] chrdev_open+0x22/0xa0
- [<c01986c9>] devfs_open+0xd9/0x110
- [<c0147b8a>] dentry_open+0x1da/0x210
- [<c01479a0>] filp_open+0x50/0x60
- [<c0147e2b>] sys_open+0x3b/0x70
- [<c0108df7>] syscall_call+0x7/0xb
-
-Code: 8b 00 be 01 00 00 00 85 c0 74 24 8b 69 14 45 89 69 14 83 38 
- <6>note: pppd[402] exited with preempt_count 2
-bad: scheduling while atomic!
-Call Trace:
- [<c0114fc7>] schedule+0x3b7/0x3c0
- [<c0139ddd>] unmap_vmas+0x1ed/0x260
- [<c013de66>] exit_mmap+0x66/0x180
- [<c0116763>] mmput+0x53/0xa0
- [<c011a19a>] do_exit+0x10a/0x420
- [<c0109654>] die+0xc4/0xd0
- [<c0112d51>] do_page_fault+0x111/0x469
- [<c0125247>] queue_work+0x97/0xb0
- [<c012516e>] call_usermodehelper+0xbe/0xd0
- [<c0125060>] __call_usermodehelper+0x0/0x50
- [<c0112c40>] do_page_fault+0x0/0x469
- [<c010905d>] error_code+0x2d/0x40
- [<c0150743>] lookup_chrfops+0x83/0xd0
- [<c01507da>] get_chrfops+0x4a/0x70
- [<c0150a42>] chrdev_open+0x22/0xa0
- [<c01986c9>] devfs_open+0xd9/0x110
- [<c0147b8a>] dentry_open+0x1da/0x210
- [<c01479a0>] filp_open+0x50/0x60
- [<c0147e2b>] sys_open+0x3b/0x70
- [<c0108df7>] syscall_call+0x7/0xb
-
-PPP generic driver version 2.4.2
-failed to register PPP device (-16)
-ppp_async: Unknown symbol ppp_channel_index
-ppp_async: Unknown symbol ppp_register_channel
-ppp_async: Unknown symbol ppp_input
-ppp_async: Unknown symbol ppp_input_error
-ppp_async: Unknown symbol ppp_output_wakeup
-ppp_async: Unknown symbol ppp_unregister_channel
-ppp_async: Unknown symbol ppp_unit_number
-
+greg k-h

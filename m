@@ -1,118 +1,218 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267405AbTBIRqM>; Sun, 9 Feb 2003 12:46:12 -0500
+	id <S267406AbTBIRqU>; Sun, 9 Feb 2003 12:46:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267406AbTBIRqM>; Sun, 9 Feb 2003 12:46:12 -0500
-Received: from gate.perex.cz ([194.212.165.105]:61968 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S267405AbTBIRqK>;
-	Sun, 9 Feb 2003 12:46:10 -0500
-Date: Sun, 9 Feb 2003 18:55:46 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Adam Belay <ambx1@neo.rr.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [alsa, pnp] more on opl3sa2 (fwd)
-In-Reply-To: <20030205220132.GA10021@neo.rr.com>
-Message-ID: <Pine.LNX.4.44.0302091830260.1449-100000@pnote.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267408AbTBIRqU>; Sun, 9 Feb 2003 12:46:20 -0500
+Received: from home.linuxhacker.ru ([194.67.236.68]:17283 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id <S267406AbTBIRqN>;
+	Sun, 9 Feb 2003 12:46:13 -0500
+Date: Sun, 9 Feb 2003 20:53:49 +0300
+From: Oleg Drokin <green@linuxhacker.ru>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.21-pre4 comparison bugs (More of those)
+Message-ID: <20030209175349.GA20635@linuxhacker.ru>
+References: <20030208171838.GA2230@linuxhacker.ru> <1044752320.18908.18.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1044752320.18908.18.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Feb 2003, Adam Belay wrote:
+Hello!
 
-> On Mon, Feb 03, 2003 at 03:15:59PM +0100, Jaroslav Kysela wrote:
-> > On Thu, 30 Jan 2003, Adam Belay wrote:
-> > 
-> > > Hi Jaroslav,
-> > > 
-> > > How does this sound...
-> > > 
-> > > What if we make pnp card services match against all pnp cards and allow more
-> > > than one card driver to use the same card.  This can be accomplished if we detach
-> > > the card portion from the driver model and use driver_attach.  If you feel it is
-> > 
-> > The question is probably another. I know that your solution will work, but 
-> > do we need such hack against the driver model in our code? If you work 
-> > with cards as buses, it allows us the same model as PCI code.
-> > 
-> > > necessary, we could also add an optional card id to the pnp_device_id structure.
-> > > As for the pnpbios, I disagree with putting it under one card.  If the pnpbios
-> > > contains two opl3sa2 sound cards then only one will be matched and therefore it
-> > 
-> > It's not true. The driver model calls probe for all instances.
-> > 
-> > > is a bad idea to represent the pnpbios as a card.  When ACPI is introduced, both
-> > 
-> > Note that if we make card as bus, then this problem will disapear.
-> > The enumeration will be simple: devices on the one bus. And it's strong 
-> > advantage over current implementation when bus == protocol.
-> > 
-> > What do you think about this model:
-> > 
-> > bus (PnP BIOS) -> devices
-> > bus (ACPI) -> devices
-> > bus (ISA PnP) -> bus (cards) -> devices
-> > 
-> 
-> I think this model has potential but before we go that direction I'd like to hear
-> your reactions on another more simplistic model.  I'll express it with a
-> hypothetical code example.  This model completely drops individual card matching
-> and is compatible with both card users and non-card users.
-> 
-> 
-> static struct pnp_device_id snd_als100_pnpids[] = {
-> 	/* ALS100 - PRO16PNP */
-> 	{.card_id = "ALS0001" .id = "@@@0001", .driver_data = ALS100_AUDIO},
-> 	{.card_id = "ALS0001" .id = "@X@0001", .driver_data = ALS100_MPU},
-> 	{.card_id = "ALS0001" .id = "@H@0001", .driver_data = ALS100_OPL},
-> 	/* ALS110 - MF1000 - Digimate 3D Sound */
-> 	{.card_id = "ALS0110" .id = "@@@1001", .driver_data = ALS100_AUDIO},
-> 	{.card_id = "ALS0001" .id = "@X@1001", .driver_data = ALS100_MPU},
-> 	{.card_id = "ALS0001" .id = "@H@1001", .driver_data = ALS100_OPL},
-> ---> snip
-> };
-> 
-> 
-> static int __init snd_card_als100_probe(struct pnp_dev * dev, struct pnp_device_id * id)
-> {
-> ---> snip
-> 	snd_card_t *card;
-> ---> snip
-> 	card = snd_card_find(dev->card);	/* this function searches for previously
-> 						 registered sound cards and binds this
-> 						 device to it if it finds that it was a
-> 						 member of the same pnp_card */
-> 	if (!card) {
-> 		if ((card = snd_card_new(index[dev], id[dev], THIS_MODULE,
-> 			 sizeof(struct snd_card_als100))) == NULL)
-> 		return -ENOMEM;
-> 	}
-> 	switch (id->driver_data) {
-> 	case ALS100_AUDIO:
-> ---> snip
-> 	case ALS100_MPU:
-> ---> snip
-> 	case ALS100_OPL:
-> ---> snip
-> etc . . .
-> 
-> 
-> I'm interested in your opinions on this approach.
+On Sun, Feb 09, 2003 at 12:58:40AM +0000, Alan Cox wrote:
+> > -	if((autodma = ide_setup_pci_controller(dev, d, noisy, &tried_config)) < 0)
+> > +	if((int)(autodma = ide_setup_pci_controller(dev, d, noisy, &tried_config)) < 0)
+> >  		return index;
+> Well caught. I don't like your fix. I'd prefer to do the job properly
+> and either make it return a signed value or split error/value reporting
+> in these various cases.
+> I'll fix them for the next -ac
 
-I'm sure that this model will work, but it's a bit complicated to 
-allocate devices in this way. I'd prefer to probe / allocate devices in 
-one shot. Anyway, it's a step forward. I'm thinking about this scenario:
+Ok, here is some more for you ;)
+This time I changed the type of variable to signed type whenever
+I felt it was appropriate.
+When I was not sure (or unsigned type was in some commonly used
+structure), I still used a cast just to highlight a problem, so that someone
+more knowledgeable created better fix.
+See the patch.
+Mostly we do incorrect stuff on errors. Sigh, nobody likes errors ;)
 
-Pass id list "match all" (or we can have a match callback in the
-pnp_driver structure) and find/allocate multiple devices manually in
-probe.
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
-
-
+Bye,
+    Oleg 
+===== drivers/char/mwave/mwavedd.c 1.3 vs edited =====
+--- 1.3/drivers/char/mwave/mwavedd.c	Wed Feb 13 15:43:48 2002
++++ edited/drivers/char/mwave/mwavedd.c	Sun Feb  9 20:13:45 2003
+@@ -500,7 +500,7 @@
+ {
+ 	int i;
+ 	int retval = 0;
+-	unsigned int resultMiscRegister;
++	int resultMiscRegister;
+ 	pMWAVE_DEVICE_DATA pDrvData = &mwave_s_mdd;
+ 
+ 	memset(&mwave_s_mdd, 0, sizeof(MWAVE_DEVICE_DATA));
+===== drivers/isdn/hisax/st5481_usb.c 1.8 vs edited =====
+--- 1.8/drivers/isdn/hisax/st5481_usb.c	Mon Jan 27 23:49:41 2003
++++ edited/drivers/isdn/hisax/st5481_usb.c	Sun Feb  9 20:21:32 2003
+@@ -576,7 +576,7 @@
+ 	     pipd < pend; 
+ 	     pipd++) {
+ 		
+-		if (pipd->status < 0) {
++		if ((int)pipd->status < 0) {
+ 			return (pipd->status);
+ 		}
+ 	
+===== drivers/message/fusion/mptbase.c 1.7 vs edited =====
+--- 1.7/drivers/message/fusion/mptbase.c	Wed Nov 20 23:27:21 2002
++++ edited/drivers/message/fusion/mptbase.c	Sun Feb  9 20:25:57 2003
+@@ -1801,7 +1801,7 @@
+ {
+ 	if (this != NULL) {
+ 		int sz;
+-		u32 state;
++		int state;
+ 
+ 		/* Disable the FW */
+ 		state = mpt_GetIocState(this, 1);
+===== drivers/mtd/devices/slram.c 1.6 vs edited =====
+--- 1.6/drivers/mtd/devices/slram.c	Sat Jan 25 03:25:20 2003
++++ edited/drivers/mtd/devices/slram.c	Sun Feb  9 20:30:10 2003
+@@ -246,8 +246,8 @@
+ int parse_cmdline(char *devname, char *szstart, char *szlength)
+ {
+ 	char *buffer;
+-	unsigned long devstart;
+-	unsigned long devlength;
++	long devstart;
++	long devlength;
+ 	
+ 	if ((!devname) || (!szstart) || (!szlength)) {
+ 		unregister_devices();
+===== drivers/net/acenic.c 1.27 vs edited =====
+--- 1.27/drivers/net/acenic.c	Fri Sep 20 03:49:29 2002
++++ edited/drivers/net/acenic.c	Sun Feb  9 20:34:09 2003
+@@ -1157,8 +1157,8 @@
+ 	struct pci_dev *pdev;
+ 	unsigned long myjif;
+ 	u64 tmp_ptr;
+-	u32 tig_ver, mac1, mac2, tmp, pci_state;
+-	int board_idx, ecode = 0;
++	u32 tig_ver, mac1, mac2, pci_state;
++	int board_idx, ecode = 0, tmp;
+ 	short i;
+ 	unsigned char cache_size;
+ 
+===== drivers/net/wan/8253x/8253xini.c 1.1 vs edited =====
+--- 1.1/drivers/net/wan/8253x/8253xini.c	Thu Apr  4 23:05:10 2002
++++ edited/drivers/net/wan/8253x/8253xini.c	Sun Feb  9 20:31:37 2003
+@@ -2196,7 +2196,7 @@
+ 	SAB_BOARD *boardptr;
+ 	SAB_PORT *portptr;
+ 	struct net_device *dev;
+-	unsigned int result;
++	int result;
+ 	unsigned int namelength;
+ 	unsigned int portno;
+ 	int intr_val;
+===== drivers/net/wan/8253x/8253xtty.c 1.1 vs edited =====
+--- 1.1/drivers/net/wan/8253x/8253xtty.c	Thu Apr  4 23:05:10 2002
++++ edited/drivers/net/wan/8253x/8253xtty.c	Sun Feb  9 20:32:38 2003
+@@ -135,7 +135,7 @@
+ 	register unsigned int slopspace;
+ 	register int sendsize;
+ 	unsigned int totaltransmit;
+-	unsigned fifospace;
++	int  fifospace;
+ 	unsigned loadedcount;
+ 	struct tty_struct *tty = port->tty;
+ 	
+===== drivers/scsi/osst.c 1.10 vs edited =====
+--- 1.10/drivers/scsi/osst.c	Tue Feb  5 17:06:58 2002
++++ edited/drivers/scsi/osst.c	Sun Feb  9 20:38:01 2003
+@@ -4680,7 +4680,7 @@
+ 	 unsigned int cmd_in, unsigned long arg)
+ {
+ 	int i, cmd_nr, cmd_type, retval = 0;
+-	unsigned int blk;
++	int blk;
+ 	OS_Scsi_Tape *STp;
+ 	ST_mode *STm;
+ 	ST_partstat *STps;
+===== drivers/scsi/aacraid/aachba.c 1.3 vs edited =====
+--- 1.3/drivers/scsi/aacraid/aachba.c	Mon Jul 29 16:58:43 2002
++++ edited/drivers/scsi/aacraid/aachba.c	Sun Feb  9 20:35:01 2003
+@@ -233,7 +233,8 @@
+ int aac_get_containers(struct aac_dev *dev)
+ {
+ 	struct fsa_scsi_hba *fsa_dev_ptr;
+-	u32 index, status = 0;
++	u32 index;
++	int status = 0;
+ 	struct aac_query_mount *dinfo;
+ 	struct aac_mount *dresp;
+ 	struct fib * fibptr;
+===== drivers/usb/hcd/ehci-sched.c 1.7 vs edited =====
+--- 1.7/drivers/usb/hcd/ehci-sched.c	Fri Dec 20 10:33:27 2002
++++ edited/drivers/usb/hcd/ehci-sched.c	Sun Feb  9 20:49:44 2003
+@@ -549,7 +549,7 @@
+ 	u64		temp;
+ 	u32		buf1;
+ 	unsigned	i, epnum, maxp, multi;
+-	unsigned	length;
++	int	length;
+ 	int		is_input;
+ 
+ 	itd->hw_next = EHCI_LIST_END;
+===== fs/intermezzo/psdev.c 1.7 vs edited =====
+--- 1.7/fs/intermezzo/psdev.c	Fri Oct 11 02:24:51 2002
++++ edited/fs/intermezzo/psdev.c	Sun Feb  9 20:44:48 2003
+@@ -605,7 +605,7 @@
+             if (req->rq_flags & REQ_WRITE) {
+                     out = (struct izo_upcall_resp *)req->rq_data;
+                     /* here we map positive Lento errors to kernel errors */
+-                    if ( out->result < 0 ) {
++                    if ( (int)out->result < 0 ) {
+                             CERROR("Tell Peter: Lento returns negative error %d, for oc %d!\n",
+                                    out->result, out->opcode);
+                           out->result = EINVAL;
+===== fs/intermezzo/super.c 1.4 vs edited =====
+--- 1.4/fs/intermezzo/super.c	Fri Oct 11 02:24:51 2002
++++ edited/fs/intermezzo/super.c	Sun Feb  9 20:45:35 2003
+@@ -200,7 +200,7 @@
+         char *fileset = NULL;
+         char *channel = NULL;
+         int err; 
+-        unsigned int minor;
++        int minor;
+ 
+         ENTRY;
+ 
+===== net/decnet/af_decnet.c 1.12 vs edited =====
+--- 1.12/net/decnet/af_decnet.c	Tue Aug 13 00:43:21 2002
++++ edited/net/decnet/af_decnet.c	Sun Feb  9 20:47:24 2003
+@@ -1180,7 +1180,7 @@
+ 	struct sock *sk = sock->sk;
+ 	struct dn_scp *scp = DN_SK(sk);
+ 	int err = -EOPNOTSUPP;
+-	unsigned long amount = 0;
++	long amount = 0;
+ 	struct sk_buff *skb;
+ 	int val;
+ 
+===== net/ipv4/netfilter/ip_conntrack_irc.c 1.5 vs edited =====
+--- 1.5/net/ipv4/netfilter/ip_conntrack_irc.c	Thu Aug  8 18:49:17 2002
++++ edited/net/ipv4/netfilter/ip_conntrack_irc.c	Sun Feb  9 20:48:02 2003
+@@ -37,7 +37,7 @@
+ static int ports[MAX_PORTS];
+ static int ports_c = 0;
+ static int max_dcc_channels = 8;
+-static unsigned int dcc_timeout = 300;
++static int dcc_timeout = 300;
+ 
+ MODULE_AUTHOR("Harald Welte <laforge@gnumonks.org>");
+ MODULE_DESCRIPTION("IRC (DCC) connection tracking module");

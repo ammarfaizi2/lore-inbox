@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132521AbRA2QBs>; Mon, 29 Jan 2001 11:01:48 -0500
+	id <S132356AbRA2QEv>; Mon, 29 Jan 2001 11:04:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132774AbRA2QBi>; Mon, 29 Jan 2001 11:01:38 -0500
-Received: from dnvrdslgw14poolB96.dnvr.uswest.net ([63.228.85.96]:48730 "EHLO
-	q.dyndns.org") by vger.kernel.org with ESMTP id <S132521AbRA2QB1>;
-	Mon, 29 Jan 2001 11:01:27 -0500
-Date: Mon, 29 Jan 2001 09:01:32 -0700 (MST)
-From: Benson Chow <blc@q.dyndns.org>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: More on the VIA KT133 chipset misbehaving in Linux
-In-Reply-To: <3A75278F.B41B492B@bigfoot.com>
-Message-ID: <Pine.LNX.4.31.0101290856370.31743-100000@q.dyndns.org>
+	id <S132774AbRA2QEl>; Mon, 29 Jan 2001 11:04:41 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:62969 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S132356AbRA2QEj>; Mon, 29 Jan 2001 11:04:39 -0500
+Date: Mon, 29 Jan 2001 14:04:11 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Manfred <manfred@colorfullife.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] getting rid of tqueue_lock
+In-Reply-To: <3A758DEA.832F605D@colorfullife.com>
+Message-ID: <Pine.LNX.4.21.0101291403460.1321-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.21.0101291403462.1321@duckman.distro.conectiva>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Datapoint
+On Mon, 29 Jan 2001, Manfred wrote:
 
-I have a chaintech 7AIA KT133-based TB motherboard.  I use a USB mouse so
-I can't verify #1.  However it(2.4.0-release) autodetects all my memory
-and I don't see a big enough clock drift even with 100% cpu utilization
-(don't know about high disk utilization though)
+> I noticed that the tasks queues still rely on the global tqueue_lock
+> spinlock, instead of a per-taskqueue lock.
+> 
+> The patch is virtually transparent for task queue users: all users
+> except ieee1394 use DECLARE_TASK_QUEUE.
+> 
+> I admit that the tqueue_lock isn't that often used (numbers from
+> sgi's lockstat)
+> 
+> * 10000 users/min during 'find / -xdev -uid 4711' (1.2% of all spinlock
+> calls)
+> * 60000 users/min during 'dd if=/dev/hda of=/dev/null' (~1.1% of all
+> spinlock calls).
 
-Are you sure you don't have OS/2 mode or memory hole enabled in bios?  Not
-sure if it matters but it could...  Also USB mouse support, make sure it's
-disabled in BIOS?  Just guessing some things to look at.
+If there's no contention and nothing else changes, what is this
+task supposed to fix?
 
--bc
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-On Mon, 29 Jan 2001, Dylan Griffiths wrote:
-
-> Date: Mon, 29 Jan 2001 02:19:27 -0600
-> From: Dylan Griffiths <Dylan_G@bigfoot.com>
-> To: Linux kernel <linux-kernel@vger.kernel.org>
-> Subject: More on the VIA KT133 chipset misbehaving in Linux
->
-> The VIA KT133 chipset exhibits the following bugs under Linux 2.2.17 and
-> 2.4.0:
-> 1) PS/2 mouse cursor randomly jumps to upper right hand corner of screen and
-> locks for a bit
-> 2) Detects a maximum of 64mb of ram, unless worked around by the "mem="
-> switch
-> 3) The clock drifts slowly (more so under heavy load than light load),
-> leaking time.
->
-
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315758AbSETEtz>; Mon, 20 May 2002 00:49:55 -0400
+	id <S315754AbSETEyh>; Mon, 20 May 2002 00:54:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315780AbSETEtz>; Mon, 20 May 2002 00:49:55 -0400
-Received: from [202.135.142.196] ([202.135.142.196]:18183 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S315758AbSETEty>; Mon, 20 May 2002 00:49:54 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: AUDIT: copy_from_user is a deathtrap. 
-In-Reply-To: Your message of "Sun, 19 May 2002 19:54:32 MST."
-             <Pine.LNX.4.44.0205191951460.22433-100000@home.transmeta.com> 
-Date: Mon, 20 May 2002 14:53:18 +1000
-Message-Id: <E179fAd-0005vs-00@wagner.rustcorp.com.au>
+	id <S315762AbSETEyg>; Mon, 20 May 2002 00:54:36 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:65464 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S315754AbSETEyf>;
+	Mon, 20 May 2002 00:54:35 -0400
+Date: Sun, 19 May 2002 21:40:53 -0700 (PDT)
+Message-Id: <20020519.214053.19164382.davem@redhat.com>
+To: ppadala@cise.ufl.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: No PTRACE_READDATA for archs other than SPARC?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.GSO.4.05.10205192307500.26915-100000@rain.cise.ufl.edu>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0205191951460.22433-100000@home.transmeta.com> you wr
-ite:
-> 	ret = copy_from_user(xxx);
-> 	if (ret)
-> 		return ret;
-> 
-> which is apparently your suggestion.
+   From: Pradeep Padala <ppadala@cise.ufl.edu>
+   Date: Sun, 19 May 2002 23:08:36 -0400 (EDT)
 
-Not quite:
-	copy_from_user(xxx);
+      I was trying to understand ptrace code in kernel. It seems there's
+   no PTRACE_READDATA for architectures other than sparc and sparc64.
+   There's a function named ptrace_readdata() in kernel/ptrace.c but I
+   couldn't find a way to invoke it from user space. Is the feature
+   missing? or Is it intended?
 
-Is my suggestion.  No error return.
+Only Sparc implements this, that is correct.
 
-> So a lot of people didn't get it? Arnaldo seems to have fixed a lot of
-> them already
+If other platforms added PTRACE_READDATA support, they would
+also need to add some way to do a feature test for it's presence
+so that GDB and other debugging code could actually make use
+of it portably.
 
-Yeah, thanks to my kernel audit.  But I won't be auditing all 5,500
-every release (I promised Alan I'd do 2.4 though: I'm waiting for the
-next Marcelo kernel).
+      Another thing I noticed, the prototype for do_ptrace() in
+      arch/sparc/kernel/ptrace.c is
+   
+      asmlinkage void do_ptrace(struct pt_regs *regs)
+   
+      I thought it should be some thing like
+      asmlinkage int sys_ptrace(long request, long pid, long addr, long
+   data)
 
-> and maybe you who apparently care can add _documentation_,
-> but the fact is that there is no reason to make a less powerful interface.
-
-It's been documented in the kernel docs.  It's also in the device
-driver book.  And people still get it wrong because it's "special".
-
-Please please please, Linus: to me this is like the min & max macros:
-you didn't want a programmer trap in there, but everyone else
-disagreed.  If there's any sane way we can get rid of this trap (which
-has shown to cause real bugs), I would weigh it very carefully.
-
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+The return values are set directly in the user's pt_regs.

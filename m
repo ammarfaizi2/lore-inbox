@@ -1,47 +1,197 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135654AbREBRWO>; Wed, 2 May 2001 13:22:14 -0400
+	id <S135658AbREBRXO>; Wed, 2 May 2001 13:23:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135659AbREBRWF>; Wed, 2 May 2001 13:22:05 -0400
-Received: from [208.204.44.103] ([208.204.44.103]:37384 "EHLO
-	warpcore.provalue.net") by vger.kernel.org with ESMTP
-	id <S135654AbREBRVq> convert rfc822-to-8bit; Wed, 2 May 2001 13:21:46 -0400
-Date: Wed, 2 May 2001 11:22:40 -0500 (CDT)
-From: Collectively Unconscious <swarm@warpcore.provalue.net>
-To: =?iso-8859-1?Q?Samuli_K=E4rkk=E4inen?= <skarkkai@woods.iki.fi>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Wrong free inodes count in kernels 2.0 and 2.2
-In-Reply-To: <20010502194621.D22433@woods.iki.fi>
-Message-ID: <Pine.LNX.4.10.10105021115350.12683-100000@warpcore.provalue.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+	id <S135659AbREBRXH>; Wed, 2 May 2001 13:23:07 -0400
+Received: from [32.97.182.101] ([32.97.182.101]:19585 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S135658AbREBRWu>;
+	Wed, 2 May 2001 13:22:50 -0400
+Date: Wed, 2 May 2001 10:20:37 -0700
+From: Mike Anderson <mike.anderson@us.ibm.com>
+To: Doug Ledford <dledford@redhat.com>
+Cc: Eric.Ayers@intec-telecom-systems.com,
+        James Bottomley <James.Bottomley@steeleye.com>,
+        "Roets, Chris" <Chris.Roets@compaq.com>, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: Linux Cluster using shared scsi
+Message-ID: <20010502102037.A19349@us.ibm.com>
+Mail-Followup-To: Doug Ledford <dledford@redhat.com>,
+	Eric.Ayers@intec-telecom-systems.com,
+	James Bottomley <James.Bottomley@steeleye.com>,
+	"Roets, Chris" <Chris.Roets@compaq.com>,
+	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <200105011445.KAA01117@localhost.localdomain><3AEEDFFC.409D8271@redhat.com> <15086.60620.745722.345084@gargle.gargle.HOWL> <3AF025AE.511064F3@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3AF025AE.511064F3@redhat.com>; from dledford@redhat.com on Wed, May 02, 2001 at 11:20:14AM -0400
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Doug,
 
-On Wed, 2 May 2001, [iso-8859-1] Samuli Kärkkäinen wrote:
+A question on clarification.
 
-> I get repeatably both in 2.0 and 2.2 serieses of kernels the following kind
-> of errors:
+Is the configuration you are testing have both FC adapters going to the same
+port of the storage device (mutli-path) or to different ports of the storage 
+device (mulit-port)?
+
+The reason I ask is that I thought if you are using SCSI-2 reserves that the
+reserve was on a per initiator basis. How does one know which path has the
+reserve?
+
+On a side note. I thought the GFS project had up leveled there locking / fencing
+into a API called a locking harness to support different kinds of fencing
+methods. Any thoughts if this capability could be plugged into this service so
+that users could reduce recoding depending on which fencing support they
+selected.
+
+
+Thanks,
+
+-Mike
+
+Doug Ledford [dledford@redhat.com] wrote:
 > 
-> 2.2 kernels (several, including 2.2.18):
->   EXT2-fs error (device ide1(22,6)): ext2_check_inodes_bitmap: Wrong free inodes count in group 768, stored = 984, counted = 717
->   EXT2-fs error (device ide1(22,6)): ext2_check_inodes_bitmap: Wrong free inodes count in group 769, stored = 1005, counted = 717
->   EXT2-fs error (device ide1(22,6)): ext2_check_inodes_bitmap: Wrong free inodes count in group 777, stored = 998, counted = 901
->   [ many similar lines deleted ]
 > 
-> and sometimes with 2.2 kernel, soon after the errors above:
->   EXT2-fs error (device ide1(22,1)): ext2_new_inode: Free inodes count corrupted in group 414 
->   last message repeated 795 times
+> 
+> To:   Eric.Ayers@intec-telecom-systems.com
+> cc:   James Bottomley <James.Bottomley@steeleye.com>, "Roets, Chris"
+>       <Chris.Roets@compaq.com>, linux-kernel@vger.kernel.org,
+>       linux-scsi@vger.kernel.org
+> 
+> 
+> 
+> 
+> 
+> "Eric Z. Ayers" wrote:
+> >
+> > Doug Ledford writes:
+> > (James Bottomley commented about the need for SCSI reservation kernel
+> patches)
+> >  >
+> >  > I agree.  It's something that needs fixed in general, your software
+> needs it
+> >  > as well, and I've written (about 80% done at this point) some open
+> source
+> >  > software geared towards getting/holding reservations that also
+> requires the
+> >  > same kernel patches (plus one more to be fully functional, an ioctl to
+> allow a
+> >  > SCSI reservation to do a forced reboot of a machine).  I'll be
+> releasing that
+> >  > package in the short term (once I get back from my vacation anyway).
+> >  >
+> >
+> > Hello Doug,
+> >
+> > Does this package also tell the kernel to "re-establish" a
+> > reservation for all devices after a bus reset, or at least inform a
+> > user level program?  Finding out when there has been a bus reset has
+> > been a stumbling block for me.
+> 
+> It doesn't have to.  The kernel changes are minimal (basically James' SCSI
+> reset patch that he's been carrying around, the scsi reservation conflict
+> patch, and I need to write a third patch that makes the system optionally
+> reboot immediately on a reservation conflict and which is controlled by an
+> ioctl, but I haven't done that patch yet).  All of the rest is implemented
+> in
+> user space via the /dev/sg entries.  As such, it doesn't have any more
+> information about bus resets than you do.  However, because of the policy
+> enacted in the code, it doesn't need to.  Furthermore, because there are so
+> many ways to loose a reservation silently, it's foolhardy to try and keep
+> reservation consistency any way other than something similar to what I
+> outline
+> below.
+> 
+> The package is meant to be a sort of "scsi reservation" library.  The
+> application that uses the library is responsible for setting policy.  I
+> wrote
+> a small, simple application that actually does a decent job of implementing
+> policy on the system.  The policy it does implement is simple:
+> 
+> If told to get a reservation, then attempt to get it.  If the attempt is
+> blocked by an existing reservation and we aren't suppossed to reset the
+> drive,
+> then exit.  If it's blocked and we are suppossed to reset the drive, then
+> send
+> a device reset, then wait 5 seconds, then try to get the reservation.  If
+> we
+> again fail, then the other machine is still alive (as proven by the fact
+> that
+> it re-established its reservation after the reset) and we exit, else we now
+> have the reservation.
+> 
+> If told to forcefully get a reservation, then attempt to get it.  If the
+> attempt fails, then reset the device and try again immediately (no 5 second
+> wait), if it fails again, then exit.
+> 
+> If told to hold a reservation, then resend your reservation request once
+> every
+> 2 seconds (this actually has very minimal CPU/BUS usage and isn't as big a
+> deal as requesting a reservation every 2 seconds might sound).  The first
+> time
+> the reservation is refused, consider the reservation stolen by another
+> machine
+> and exit (or optionally, reboot).
+> 
+> The package is meant to lock against itself (in other words, a malicious
+> user
+> with write access to the /dev/sg entries could confuse this locking
+> mechanism,
+> but it will work cooperatively with other copies of itself running on other
+> machines), the requirements for the locking to be safe are as follows:
+> 
+> 1)  A machine is not allowed to mount or otherwise use a drive in any way
+> shape or form until it has successfully acquired a reservation.
+> 
+> 2)  Once a machine has a reservation, it is not allowed to ever take any
+> action to break another machines reservation, so that if the reservation is
+> stolen, this machine is required to "gracefully" step away from the drive
+> (rebooting is the best way to accomplish this since even the act of
+> unmounting
+> the drive will attempt to write to it).
+> 
+> 3)  The timeouts in the program must be honored (resend your reservation,
+> when
+> you hold it, every 2 seconds so that a passive attempt to steal the
+> reservation will see you are still alive within the 5 second timeout and
+> leave
+> you be, which is a sort of heartbeat in and of itself).
+> 
+> Anyway, as I said in my previous email, it's about 80% complete.  It
+> currently
+> is up and running on SCSI-2 LUN based reservations.  There is code to do
+> SCSI-2 and SCSI-3 extent based reservations but it hasn't been tested due
+> to
+> lack of devices that support extent based reservations (my test bed is a
+> multipath FC setup, so I'm doing all my testing on FC drives over two FC
+> controllers in the same machine).  I've still got to add the SCSI-3
+> Persistent
+> Reservation code to the library (again, I'm lacking test drives for this
+> scenario).  The library itself requires that the program treat all
+> reservations as extent/persistent reservations and it silently falls back
+> to
+> LUN reservations when neither of those two are available.  My simple
+> program
+> that goes with the application just makes extent reservations of the whole
+> disc, so it acts like a LUN reservation regardless, but there is
+> considerably
+> more flexibility in the library if a person wishes to program to it.
+> 
+> 
+> --
+> 
+>  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+>       Please check my web site for aic7xxx updates/answers before
+>                       e-mailing me about problems
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+> the body of a message to majordomo@vger.kernel.org
 
-We were getting this error on 4 of our arrays. We weren't able to track
-down the original error, but the continuing problem turned out to be that
-in "correcting" the errors fsck did not restore the drive to a stable
-state and it would eventually corrupt itself again. 
-
-If this is the same problem, force fsck until it no longer finds any
-errors on the drive.
-
-Jay
+-- 
+Michael Anderson
+mike.anderson@us.ibm.com
 

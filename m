@@ -1,59 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261803AbUCBX4h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 18:56:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbUCBX4g
+	id S261793AbUCBXyR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 18:54:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbUCBXyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 18:56:36 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:30393 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S261803AbUCBX42
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 18:56:28 -0500
-Date: Tue, 2 Mar 2004 15:56:26 -0800
-From: Andy Isaacson <adi@bitmover.com>
+	Tue, 2 Mar 2004 18:54:16 -0500
+Received: from adsl-186.flex.com ([206.126.1.185]:15488 "EHLO mail.imodulo.com")
+	by vger.kernel.org with ESMTP id S261793AbUCBXx4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 18:53:56 -0500
+Date: Tue, 2 Mar 2004 23:53:53 +0000
+From: Glen Nakamura <glen@imodulo.com>
 To: linux-kernel@vger.kernel.org
-Subject: bkbits hosting (was Re: [PATCH 0/9] New set of input patches)
-Message-ID: <20040302235626.GD12565@bitmover.com>
-References: <200402290153.08798.dtor_core@ameritech.net> <20040302130212.GA1963@ucw.cz> <200403021245.10915.dtor_core@ameritech.net>
+Cc: jmorris@redhat.com
+Subject: Mysterious string truncation in 2.4.25 kernel
+Message-ID: <20040302235353.GA4215@modulo.internal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200403021245.10915.dtor_core@ameritech.net>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 02, 2004 at 12:45:10PM -0500, Dmitry Torokhov wrote:
-> On Tuesday 02 March 2004 08:02 am, Vojtech Pavlik wrote:
-> > I like them very much. Do you have a bitkeeper tree anywhere where I
-> > could pull from, so that I don't have to apply these by hand?
->  
-> No, unfortunately I don't have an accessible tree... Hmm, what does it take
-> to get an account at kernel.bkbits.net?
+Aloha,
 
-I already sent private mail to Dmitry, but it occurs to me that other
-developers are probably in the same straits.
+I'm running a patched 2.4.25 kernel and I noticed truncated strings in
+various procfs files.  e.g.
 
-The easiest thing to do in this case is to host your patches at
-bkbits.net (hostme.bkbits.net, which is different than kernel.bkbits.net
--- kernel is a special case).  You don't have to change your workflow at
-all, after it's been set up; you end up just pushing to the bkbits
-repository when you've got changes to submit.
+# cat /proc/tty/drivers
+se                   /dev/cua/%d     5  64-127 serial:callout
+se                   /dev/tts/%d     4  64-127 se
+pty_slave            /dev/pts/%d   136   0-255 pty:slave
+pty_master           /dev/ptm      128   0-255 pty:master
+pty_slave            /dev/pty/s%d    3   0-255 pty:slave
+pty_master           /dev/pty/m%d    2   0-255 pty:master
+/dev/vc/0            /dev/vc/0       4       0 system:vtmaster
+/dev/ptmx            /dev/ptmx       5       2 system
+/dev/console         /dev/console    5       1 system:console
+/dev/tty             /dev/tty        5       0 system:/dev/tty
+unknown              /dev/vc/%d      4    1-63 console
 
-To set up a hosted project, just follow the directions under
-http://www.bitkeeper.com/Hosted.html (the table of contents is on the
-left).  You can clone Linus' tree to populate your tree initially, then
-push your csets from your workstation to hostme.
+Notice that "serial" is output as "se" in the top two lines.
+I was able to produce similar results on a vanilla 2.4.25 kernel by
+simply changing the length of a few strings in fs/proc/proc_tty.c.
+I believe the problem is caused by the following patch:
 
-If any kernel developers have difficulty doing this, drop me a line --
-I'm trying to make the process easy and error-free, and I appreciate any
-suggestions.
+ChangeSet@1.1290.1.16  2004-01-31 21:16:34-02:00  jmorris@redhat.com
 
-If any kernel developers are having BK workflow problems ("how do I
-merge my work with other developers'?  How do I keep up-to-date without
-generating hundreds of merge csets?") the first thing to do is to read
-the BK kernel howto, http://lwn.net/2002/0425/a/bk-thing.php3.  If your
-questions aren't answered there, send them to me or to the
-bitkeeper-users list.
+> [PATCH] Zero last byte of mount option page
+> 
+> Hi Al,
+> 
+> Here's a patch which zeroes the last byte of the mount option data copied
+> from userspace during mount(2).
+> 
+> For filesystems which parse mount options as strings (the majority), lack
+> of a zero terminator could cause the page to be overrun.  The source code
+> comments specify that the maximum size of the mount data is PAGE_SIZE-1,
+> so this patch will not affect any valid binary-formatted mount data.
 
--andy
+--- 1.24/fs/namespace.c	Tue Mar  2 15:50:11 2004
++++ 1.25/fs/namespace.c	Tue Mar  2 15:50:11 2004
+@@ -715,6 +715,9 @@
+ 	if (dev_name && !memchr(dev_name, 0, PAGE_SIZE))
+ 		return -EINVAL;
+ 
++	if (data_page)
++		((char *)data_page)[PAGE_SIZE - 1] = 0;
++
+ 	/* Separate the per-mountpoint flags */
+ 	if (flags & MS_NOSUID)
+ 		mnt_flags |= MNT_NOSUID;
+
+Could someone please comment on the correctness of the above patch
+especially regarding procfs?
+
+- glen

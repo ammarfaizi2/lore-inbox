@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266580AbRG1MRP>; Sat, 28 Jul 2001 08:17:15 -0400
+	id <S266583AbRG1Mf1>; Sat, 28 Jul 2001 08:35:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266582AbRG1MRE>; Sat, 28 Jul 2001 08:17:04 -0400
-Received: from [209.226.93.226] ([209.226.93.226]:59900 "EHLO
-	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S266580AbRG1MQu>; Sat, 28 Jul 2001 08:16:50 -0400
-Date: Sat, 28 Jul 2001 08:15:55 -0400
-Message-Id: <200107281215.f6SCFt716350@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: "Kevin P. Fleming" <kevin@labsysgrp.com>
-Cc: "Martin Wilck" <Martin.Wilck@fujitsu-siemens.com>,
-        "devfs mailing list" <devfs@oss.sgi.com>,
-        "Linux Kernel mailing list" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]: ide-floppy & devfs
-In-Reply-To: <000701c116f5$8268a820$6baaa8c0@kevin>
-In-Reply-To: <Pine.LNX.4.30.0107272127060.16993-100000@biker.pdb.fsc.net>
-	<000701c116f5$8268a820$6baaa8c0@kevin>
+	id <S266586AbRG1MfR>; Sat, 28 Jul 2001 08:35:17 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62993 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S266583AbRG1MfB>; Sat, 28 Jul 2001 08:35:01 -0400
+Subject: Re: 2.4.7-ac2: jffs2.o compile error
+To: fdavis@andrew.cmu.edu (Frank Davis)
+Date: Sat, 28 Jul 2001 13:36:22 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, fdavis112@juno.com
+In-Reply-To: <Pine.GSO.4.21L-021.0107280130230.22991-100000@unix13.andrew.cmu.edu> from "Frank Davis" at Jul 28, 2001 01:35:22 AM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15QTKQ-0007Xv-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Kevin P. Fleming writes:
-> Also note that I have already forwarded a patch to Richard to make
-> the devfs nodes that get created when grok_partitions runs get
-> removed when the media is removed and new media is validated
-> (i.e. the partition nodes will stay in sync with the cartridge in
-> the drive).
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.7-ac2/kernel/fs/jffs2/jffs2.o
+> depmod:  up_and_exit
+> 
+> up_and_exit is used in fs/jffs2/background.c 
 
-Are you saying that the two patch conflict? If not, can someone please
-verify that both together are safe? Or is your patch a superset?
+Yes. It needs changing to use complete_and_exit. 
 
-Either way, I can't really test these patches since I don't have
-removable media devices, so I'd prefer if someone else nurses this
-into Linus' tree (i.e. test it, call for testing and feed it to Linus
-until it goes in).
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Alan

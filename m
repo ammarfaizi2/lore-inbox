@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266170AbUHaBfO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266196AbUHaBvd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266170AbUHaBfO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 21:35:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266200AbUHaBfO
+	id S266196AbUHaBvd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 21:51:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266200AbUHaBvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 21:35:14 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:36019 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S266170AbUHaBfH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 21:35:07 -0400
-Subject: Re: [PATCH] Re: boot time, process start time, and NOW time
-From: john stultz <johnstul@us.ibm.com>
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-Cc: george anzinger <george@mvista.com>, Andrew Morton <akpm@osdl.org>,
-       Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>,
-       albert@users.sourceforge.net, hirofumi@mail.parknet.co.jp,
-       lkml <linux-kernel@vger.kernel.org>, voland@dmz.com.pl,
-       nicolas.george@ens.fr, david+powerix@blue-labs.org
-In-Reply-To: <Pine.LNX.4.53.0408310037280.5596@gockel.physik3.uni-rostock.de>
-References: <87smcf5zx7.fsf@devron.myhome.or.jp>
-	 <20040816124136.27646d14.akpm@osdl.org>
-	 <Pine.LNX.4.53.0408172207520.24814@gockel.physik3.uni-rostock.de>
-	 <412285A5.9080003@mvista.com>
-	 <1092782243.2429.254.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.53.0408180051540.25366@gockel.physik3.uni-rostock.de>
-	 <1092787863.2429.311.camel@cog.beaverton.ibm.com>
-	 <1092781172.2301.1654.camel@cube>
-	 <1092791363.2429.319.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.53.0408180927450.14935@gockel.physik3.uni-rostock.de>
-	 <20040819191537.GA24060@elektroni.ee.tut.fi>
-	 <20040826040436.360f05f7.akpm@osdl.org>
-	 <Pine.LNX.4.53.0408261311040.21236@gockel.physik3.uni-rostock.de>
-	 <Pine.LNX.4.53.0408310037280.5596@gockel.physik3.uni-rostock.de>
-Content-Type: text/plain
-Message-Id: <1093916047.14662.144.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 30 Aug 2004 18:34:07 -0700
+	Mon, 30 Aug 2004 21:51:33 -0400
+Received: from launch.server101.com ([216.218.196.178]:50571 "EHLO
+	mail-pop3-1.server101.com") by vger.kernel.org with ESMTP
+	id S266196AbUHaBvb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 21:51:31 -0400
+From: Tim Fairchild <tim@bcs4me.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: K3b and 2.6.9?
+Date: Tue, 31 Aug 2004 11:51:25 +1000
+User-Agent: KMail/1.6.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200408301047.06780.tim@bcs4me.com> <1093871277.30082.7.camel@localhost.localdomain>
+In-Reply-To: <1093871277.30082.7.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408311151.25854.tim@bcs4me.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-30 at 16:00, Tim Schmielau wrote:
-> George, please excuse my lack of understanding. What again where the
-> precise reasons to have an ntp-corrected uptime?
+On Monday 30 Aug 2004 23:07, Alan Cox wrote:
 
-Ah, here's the thread with the first mention of it that I could find.
+> Folks are working on getting the verify_command list refined, or you
+> can run the burner part of cd-burners setuid (as cdrecord supports -
+> although get the newest one since there was a security hole fixed a few
+> days ago in both cdrecord and star).
+>
+> > Without knowing a better way, I am currently using the same sort of quick
+> > patch as 2.6.8.1 to use k3b on 2.6.9-rc1-bk5 ie:
+>
+> Providing you don't mind any of your users erasing your drive firmware
+> and turning the drive into a brick its fine.
 
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0306.1/1471.html
+Thanks. Yes I realize that and understand why this is a good idea to have. But 
+most of the verify_command list seems fine and I find the following works, 
+but don't know if this is any 'safer' or not... This is the particular test 
+that makes the difference to k3b/cdrecord, but I don't know enough to work 
+out what it actually does... (this is with 2.6.9-rc1-bk6) 
 
-thanks
--john
+--- a/drivers/block/scsi_ioctl.c.original  2004-08-30 23:50:16.000000000 +1000
++++ b/drivers/block/scsi_ioctl.c  2004-08-31 08:37:56.000000000 +1000
+@@ -192,7 +192,7 @@
 
+        /* Write-safe commands just require a writable open.. */
+        if (type & CMD_WRITE_SAFE) {
+-               if (file->f_mode & FMODE_WRITE)
++/*              if (file->f_mode & FMODE_WRITE)      */
+                        return 0;
+        }

@@ -1,79 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292222AbSCHXCU>; Fri, 8 Mar 2002 18:02:20 -0500
+	id <S292270AbSCHXFK>; Fri, 8 Mar 2002 18:05:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292150AbSCHXCL>; Fri, 8 Mar 2002 18:02:11 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:41469 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S292237AbSCHXCA>; Fri, 8 Mar 2002 18:02:00 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hubertus Franke <frankeh@watson.ibm.com>
-Reply-To: frankeh@watson.ibm.com
-Organization: IBM Research
-To: george anzinger <george@mvista.com>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-Date: Fri, 8 Mar 2002 18:02:52 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0203081109390.2749-100000@penguin.transmeta.com> <3C89234B.F9F1BDD1@mvista.com>
-In-Reply-To: <3C89234B.F9F1BDD1@mvista.com>
+	id <S292249AbSCHXFB>; Fri, 8 Mar 2002 18:05:01 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:31695 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S292150AbSCHXEv>; Fri, 8 Mar 2002 18:04:51 -0500
+Importance: Normal
+Sensitivity: 
+Subject: Re: Antwort: Re: Kernel Hangs 2.4.16 on heay io Oracle and Tivolie TSM
+To: Chris Mason <mason@suse.com>
+Cc: Hans Reiser <reiser@namesys.com>, Oliver.Schersand@BASF-IT-Services.com,
+        Alessandro Suardi <alessandro.suardi@oracle.com>, use-oracle@suse.com,
+        suse-linux-e@suse.com, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.4  June 8, 2000
+Message-ID: <OF2B363593.5EB4BFD2-ON88256B76.007E7246@boulder.ibm.com>
+From: "James Washer" <washer@us.ibm.com>
+Date: Fri, 8 Mar 2002 15:07:07 -0800
+X-MIMETrack: Serialize by Router on D03NM038/03/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 03/08/2002 04:04:49 PM
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020308230156.D7AB23FE06@smtp.linux.ibm.com>
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 March 2002 03:47 pm, george anzinger wrote:
-> Linus Torvalds wrote:
-> > On Fri, 8 Mar 2002, Hubertus Franke wrote:
-> > > Could you also comment on the functionality that has been discussed.
-> >
-> > First off, I have to say that I really like the current patch by Rusty.
-> > The hashing approach is very clean, and it all seems quite good. As to
-> >
-> > specific points:
-> > > (I) the fairness issues that have been raised.
-> > >     do you support two wakeup mechanism: FUTEX_UP and FUTEX_UP_FAIR
-> > >     or you don't care about fairness and starvation
-> >
-> > I don't think fairness and starvation is that big of a deal for
-> > semaphores, usually being unfair in these things tends to just improve
-> > performance through better cache locality with no real downside. That
-> > said, I think the option should be open (which it does seem to be).
-> >
-> > For rwlocks, my personal preference is the fifo-fair-preference (unlike
-> > semaphore fairness, I have actually seen loads where read- vs
-> > write-preference really is unacceptable). This might be a point where we
-> > give users the choice.
-> >
-> > I do think we should make the lock bigger - I worry that atomic_t simply
-> > won't be enough for things like fair rwlocks, which might want a
-> > "cmpxchg8b" on x86.
-> >
-> > So I would suggest making the size (and thus alignment check) of locks at
-> > least 8 bytes (and preferably 16). That makes it slightly harder to put
-> > locks on the stack, but gcc does support stack alignment, even if the
-> > code sucks right now.
->
-> I think this is needed if we want to address the "task dies while
-> holding a lock" issue.  In this case we need to know who holds the lock.
->
-> -g
->
 
-Georg, while desirable its very tricky if possible at all.
+Chris,
 
-You need to stick your pid or so into the lock and do it 
-atomically. So let's assume we only stick with architectures that can do 
-cmpxchg-doubleword, still its not fool proof. 
-First, the app could still corrupt that count or pid field of the lock 
-In that case the whole logic get'ss crewed up.
-There is no guarantee that you ever know who holds the locks !!!
+I just took a look at what little information I have available on this
+situation.. Namely the 'block-o-oops' from many ps processes..
 
-Secondly, what guarantee do you have that your data is kosher ?
-I tend to agree with the masses, that hand waving might be the best
-first approximation 
+I'm not sure I agree with you that it is a race in proc code. There are
+several ps processes that oops'd over a period of 58 seconds. My guess is
+that there is (was)  a process out there that has a corrupt  p->sig (==
+0x00003296).  Hence, each time the user runs ps, the new ps trips over the
+same corrupt task.
 
--- 
--- Hubertus Franke  (frankeh@watson.ibm.com)
+What really confuses me is what any of this has to do with the original
+complaint about the system hanging.. Has that behaviour gone away?
+
+ - jim
+
+Chris Mason <mason@suse.com>@vger.kernel.org on 03/05/2002 09:06:43 AM
+
+Sent by:    linux-kernel-owner@vger.kernel.org
+
+
+To:    Hans Reiser <reiser@namesys.com>,
+       Oliver.Schersand@BASF-IT-Services.com
+cc:    Alessandro Suardi <alessandro.suardi@oracle.com>,
+       use-oracle@suse.com, suse-linux-e@suse.com,
+       linux-kernel@vger.kernel.org
+Subject:    Re: Antwort: Re: Kernel Hangs 2.4.16 on heay io Oracle and
+       Tivolie TSM
+
+
+
+
+
+On Monday, March 04, 2002 06:07:19 PM +0300 Hans Reiser
+<reiser@namesys.com> wrote:
+
+
+> Wasn't 2.4.16 the known unstable vm release of 2.4?  Why do you go to
+> such effort to stick with a bad kernel?  Go to 2.4.18.
+
+I'm not sure exactly which vm problems you mean, but He's running the
+suse 2.4.16, which is heavily patched. When your running big production
+databases, upgrading to the kernel of the week isn't an option.
+
+I think we've found the bug, it looks like a race in the proc code.
+
+Oliver, someone will contact you a little later with instructions on
+getting a kernel with the fix.  If you only see this oops during backups,
+make sure you aren't trying to backup /proc.
+
+-chris
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+

@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261311AbTD1V2t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 17:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbTD1V2t
+	id S261319AbTD1Vit (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 17:38:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbTD1Vis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 17:28:49 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:21517 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id S261311AbTD1V2s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 17:28:48 -0400
-Date: Mon, 28 Apr 2003 23:40:39 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Larry McVoy <lm@bitmover.com>
-cc: Chris Adams <cmadams@hiwaay.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-In-Reply-To: <20030428212404.GA29041@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0304282338500.12110-100000@serv>
-References: <fa.ivrgub8.1ci079c@ifi.uio.no> <20030427183553.GA955879@hiwaay.net>
- <20030427185037.GA23581@work.bitmover.com> <20030427220717.GA24991@willow.seitz.com>
- <20030427223255.GH23068@work.bitmover.com> <20030428200424.GA9252@citd.de>
- <20030428201816.GB23581@work.bitmover.com> <20030428202231.GA556185@hiwaay.net>
- <20030428212404.GA29041@work.bitmover.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 28 Apr 2003 17:38:48 -0400
+Received: from mallard.mail.pas.earthlink.net ([207.217.120.48]:57500 "EHLO
+	mallard.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S261319AbTD1Vis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 17:38:48 -0400
+Date: Mon, 28 Apr 2003 17:58:24 -0400
+To: piggin@cyberone.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARK] 2.5.68 and 2.5.68-mm2
+Message-ID: <20030428215824.GA20168@rushmore>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> A run with deadline on mm would be nice to see. 
 
-On Mon, 28 Apr 2003, Larry McVoy wrote:
+I've just kicked off elevator=deadline on 2.5.68-mm2.
 
-> > Please site a successful ruling to that effect.  In the two most
-> > well-known look-and-feel court cases, Apple lost their suit against
-> > Microsoft, and Lotus lost theirs (on appeal) against Borland.
-> 
-> It was written up on slashdot in the last year or so, I think it was
-> some GUI thing maybe with Adobe.  Poke around, if you can't find it
-> I'll go look.
+> Are you using TCQ by any chance? If so, what do the results look
+> like with TCQ off?
 
-That one involved patents:
-http://news.com.com/2100-1040-898061.html
+Any idea how to turn off TCQ with the qlogicisp driver?
 
-bye, Roman
+-- 
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
 

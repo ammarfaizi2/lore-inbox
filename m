@@ -1,87 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290719AbSARPRJ>; Fri, 18 Jan 2002 10:17:09 -0500
+	id <S290722AbSARPgL>; Fri, 18 Jan 2002 10:36:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290720AbSARPQ7>; Fri, 18 Jan 2002 10:16:59 -0500
-Received: from linux2.viasys.com ([194.100.28.129]:53263 "HELO mail.viasys.com")
-	by vger.kernel.org with SMTP id <S290719AbSARPQl>;
-	Fri, 18 Jan 2002 10:16:41 -0500
-Message-ID: <00c201c1a033$1cf46700$b71c64c2@viasys.com>
-From: "Jani Forssell" <jani.forssell@viasys.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <akpm@zip.com.au>,
-        =?iso-8859-1?Q?Fran=E7ois_Cami?= <stilgar2k@wanadoo.fr>,
-        <daniel.blueman@btinternet.com>, "Vojtech Pavlik" <vojtech@suse.cz>
-Subject: VIA KT133 & HPT 370 IDE disk corruption
-Date: Fri, 18 Jan 2002 17:16:33 +0200
+	id <S290723AbSARPf7>; Fri, 18 Jan 2002 10:35:59 -0500
+Received: from yinyang.hjsoft.com ([205.231.166.38]:53776 "EHLO
+	yinyang.hjsoft.com") by vger.kernel.org with ESMTP
+	id <S290722AbSARPfv>; Fri, 18 Jan 2002 10:35:51 -0500
+Date: Fri, 18 Jan 2002 10:55:49 -0500 (EST)
+From: "Mr. Shannon Aldinger" <god@yinyang.hjsoft.com>
+Reply-To: god@yinyang.hjsoft.com
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: vm philosophising
+In-Reply-To: <Pine.LNX.4.33L.0201180235210.32617-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.40.0201181040230.6104-100000@yinyang.hjsoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We first reported disk corruption with a VIA KT133A based board (Abit KT7A)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=100651892331843&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=100669782329815&w=2
+On Fri, 18 Jan 2002, Rik van Riel wrote:
 
-and then switched to a VIA KT133 board (Abit KT7) that showed the same
-symptoms. It finally seems to be working, so I'm going to try to summarise
-our
-experiences.
+> On Fri, 18 Jan 2002, Bosko Radivojevic wrote:
+>
+> > There is no way to make one good VM for all possible situations. But,
+> > you can tune/make one VM to work great on large DBMS (e.g.) and
+> > tune/make another one to work great on ordinary desktop systems
+>
+> This is an interesting assertion ... but up to date nobody has
+> been able to tell me what exactly should be different between
+> these two mythical VMs ;)
+>
+I can see two different "VMs". I say "VMs" because it could be the same
+code with different magic numbers to control its behavior.
 
-The test configuration is:
+>From a file & database point of view throughput is the most crictical
+aspect. Both disk and network throughput. Interactive response on such
+systems isn't as critical as most of the time it will sit there processing
+queries or sending files.
 
-VIA KT133
-kernels: stock 2.4.18pre2, 2.2.21pre2 and 2.2.20 (both with Hedrick
-IDE patch 05042001 )
-Two hdds and a cdrom attached to the onboard hpt 370 controller
-3com 905b-tx
-Matrox G200 AGP
+>From a desktop point of view interactive response is critical, however
+disk and network throughput also have to have a fine balance. Maybe the
+balance is three way here between interactive response, disk throughput
+and network throughput.
 
-In this configuration, we could force an oops
+Perhaps having a VM system that you select your main focus server vs
+desktop would be the way to go. Also the end-user should be able to adjust
+this balance. Say a person selected desktop, and is a graphic artist, they
+may not care as much about network thoroughput and rather push up
+interactive response and disk throughput at the expense of the network
+thoroughput.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=101052001508211&w=2
+Regards.
+PS: IANAVMP (I Am Not A VM Programmer)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-with all the kernels we tested on each boot by running:
+iEYEARECAAYFAjxIRZAACgkQwtU6L/A4vVDUTQCdG4Pg4hYGPvRXN9kBVfDyWBbD
+bnsAnigMlPA21izLJUhKjZcTeeaaK9IC
+=EKri
+-----END PGP SIGNATURE-----
 
-cat /dev/hde > null &
-cat /dev/hdg > null &
-ping -f -s 64000 otherMachine &
-
-It usually took about 15 seconds for the oops to trigger. We also verified
-that wgetting a file (instead of ping -f) on the local 100mbit network would
-trigger the oops.
-
-The peculiar thing is that with certain BIOS settings the disk read & write
-test didn't show errors, even when left running over the weekend. But when
-the ping -f was launched, it started immediately showing disk corruption
-(from
-4 to ~1000 bytes in 64 megabyte blocks). The data corruption most likely
-happened when both disks were read in parallel. We weren't able to trigger
-disk corruption with disks on VIA IDE (686A & 686B).
-
-It turned out that the main culprit was the NIC that was attached to PCI
-slot
-4. Moving it to slot 3 resolved the disk corruption as well as the oopses
-that
-occured. Other PCI slots to avoid for the NIC were 5 and 6. Slot 4 & 6
-shares
-an IRQ with the VIA USB controller, but I did try disabling it from the BIOS
-but it didn't help (lspci didn't show the device after it had been
-disabled).
-Slot 5 shares and IRQ with the Highpoint controller.
-
-Finally, we tested that it works with an  Adaptec 2940UW SCSI card in PCI
-slot
-1 and the NIC in PCI slot 3.
-
-More details on request. Does anyone have any idea what causes this?
-
-Jani Forssell
 

@@ -1,45 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317483AbSGEPk3>; Fri, 5 Jul 2002 11:40:29 -0400
+	id <S317494AbSGEPnl>; Fri, 5 Jul 2002 11:43:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317493AbSGEPk2>; Fri, 5 Jul 2002 11:40:28 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:13832 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S317483AbSGEPk0>; Fri, 5 Jul 2002 11:40:26 -0400
-Date: Fri, 5 Jul 2002 12:40:41 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Mauricio Pretto <pretto@interage.com.br>
-cc: Lista Kernel <linux-kernel@vger.kernel.org>, <hahn@physics.mcmaster.ca>,
-       <rudmer@legolas.dynup.net>
-Subject: Re: 2.5.24 - Swap Problem?
-In-Reply-To: <3D25A5BA.7030904@interage.com.br>
-Message-ID: <Pine.LNX.4.44L.0207051240170.8346-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S317495AbSGEPnk>; Fri, 5 Jul 2002 11:43:40 -0400
+Received: from ns1.yifansoft.com ([64.61.26.50]:26123 "HELO mail.yifansoft.com")
+	by vger.kernel.org with SMTP id <S317494AbSGEPni>;
+	Fri, 5 Jul 2002 11:43:38 -0400
+From: "Pablo Fischer" <exilion@yifan.net>
+To: "Gabriel Paubert" <paubert@iram.es>, <linux-kernel@vger.kernel.org>
+Subject: RE: StackPages errors (CALLTRACE)
+Date: Fri, 5 Jul 2002 10:47:50 -0600
+Message-ID: <IDEJJDGBFBNEKLNKFPAEIEAHCDAA.exilion@yifan.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <3D2565E1.9050708@iram.es>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Jul 2002, Mauricio Pretto wrote:
+>Because you are trying to execute a CMOV (0f 4x) instruction. The module
+>you are loading is compiled for PPro or higher.
 
-> I have done this and it steel keep 0 mbs of free Swap used
-> like this
->               total       used       free     shared    buffers     cached
-> Mem:        182808     178328       4480          0       7544      83744
-> -/+ buffers/cache:      87040      95768
-> Swap:       136512          0     136512
-> Its very strange my box almoust hangup
+1) Whats that? the CMMOV?..
+2) Could I fix it with the kernel?.. YES, how?. Please Im newbie and I would
+like to fix it.
+3) If the fix its in the kernel, at what menu is it?.
 
-Could you show us some output of 'vmstat 1' while your
-system is behaving badly ?
+Thanks.
 
-thank you,
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+Pablo Fischer wrote:
+> Hi..
+>
+> I have MDK 8.2 and I get this error with: MDK 8.2, RH 7.2, RH 7.3.. but
+> just with ONE COMPUTER, the other computers works fine.
+>
+> Ok.. I have a SpeedTouch, but to get it work I need to
+>
+> 1) modprobe the module
+> 2) Then.. call the speedmgmt (a binary)
+>
+> When I call the speedmgmt, I get:
+>
+>
+> Process speedmgmt (pid: 1748, stackpage=c1827000)
+> Stack: c0263a10 c1040000 c0263a4c 00000212 00000000 00000000 c4c10f60
+> c4d79c9e
+> c11e4e60 00000001 00000000 00000000 00000001 00000001 00000000 bffff752
+> c3430460 fffffdfd c398cde0 c0312ae0 c4d79f97 c3430460 bffff758 bffff758
+> Call Trace:
+>
+[af_packet:__insmod_af_packet_O/lib/modules/2.4.18-6mdk/kernel/net/pac+-1548
+448/96]
+[af_packet:__insmod_af_packet_O/lib/modules/2.4.18-6mdk/kernel/net/pac+-7049
+8/96]
+[af_packet:__insmod_af_packet_O/lib/modules/2.4.18-6mdk/kernel/net/pac+-6973
+7/96] [file_ioctl+340/368] [sys_ioctl+546/608]
+> Call Trace: [<c4c10f60>] [<c4d79c9e>] [<c4d79f97>] [<c01413b4>]
+> [<c01415f2>]
+> [system_call+51/64]
+> [<c0106f23>]
+> Code: 0f 44 c2 8b 57 04 0d 80 00 00 c0 89 42 18 8b 07 8b 57 04 8b
+>
+> Why I get that error?
 
-http://www.surriel.com/		http://distro.conectiva.com/
+Because you are trying to execute a CMOV (0f 4x) instruction. The module
+you are loading is compiled for PPro or higher.
+
+>
+> I have a Compaq (AMD K6 - 500mhz) and 64 of Memory.
+
+Hence no CMOV support (cat /proc/cpuinfo).
+
+	Gabriel.
+
+
 

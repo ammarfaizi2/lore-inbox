@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbUKPW7e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261881AbUKPXBk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbUKPW7e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 17:59:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbUKPW5d
+	id S261881AbUKPXBk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 18:01:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbUKPW7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 17:57:33 -0500
-Received: from mail.gmx.net ([213.165.64.20]:37301 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261873AbUKPWyo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 17:54:44 -0500
-X-Authenticated: #4399952
-Date: Tue, 16 Nov 2004 23:55:35 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "K.R. Foley" <kr@cybsft.com>, Mark_H_Johnson@raytheon.com,
-       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Stefan Schweizer <sschweizer@gmail.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.27-3
-Message-ID: <20041116235535.6867290d@mango.fruits.de>
-In-Reply-To: <20041116231145.GC31529@elte.hu>
-References: <OFE5FC77BB.DA8F1FAE-ON86256F4E.0058C5CF-86256F4E.0058C604@raytheon.com>
-	<20041116184315.GA5492@elte.hu>
-	<419A5A53.6050100@cybsft.com>
-	<20041116212401.GA16845@elte.hu>
-	<20041116222039.662f41ac@mango.fruits.de>
-	<20041116223243.43feddf4@mango.fruits.de>
-	<20041116224257.GB27550@elte.hu>
-	<20041116230443.452497b9@mango.fruits.de>
-	<20041116231145.GC31529@elte.hu>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Tue, 16 Nov 2004 17:59:50 -0500
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:43206 "EHLO
+	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id S261880AbUKPW5L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 17:57:11 -0500
+Date: Tue, 16 Nov 2004 17:56:58 -0500
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kai Makisara <Kai.Makisara@metla.fi>, Willem Riede <osst@riede.org>,
+       coda@cs.cmu.edu, Paul Mackerras <paulus@samba.org>
+Subject: Re: [patch 0/4] Cleanup file_count usage
+Message-ID: <20041116225658.GA1341@delft.aura.cs.cmu.edu>
+Mail-Followup-To: Ravikiran G Thirumalai <kiran@in.ibm.com>,
+	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+	Kai Makisara <Kai.Makisara@metla.fi>, Willem Riede <osst@riede.org>,
+	coda@cs.cmu.edu, Paul Mackerras <paulus@samba.org>
+References: <20041116135200.GA23257@impedimenta.in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041116135200.GA23257@impedimenta.in.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Nov 2004 00:11:45 +0100
-Ingo Molnar <mingo@elte.hu> wrote:
+On Tue, Nov 16, 2004 at 07:22:00PM +0530, Ravikiran G Thirumalai wrote:
+> What remains:
+> 1. Hack to return error code to user space at last close through file_count
+>    check at the driver's flush routine.  This hack is used in scsi/st.c,
+>    scsi/osst.c and coda/file.c to return error code through .flush() 
+>    (Although it is doubtful if applications check for error during close(2)).
+>    Kai has a patch to cleanup scsi/st.c.  I will make patches to move last 
+>    close code from .flush() to .release() in the coda filesystem if no one 
+>    objects to it.  Not sure if you can do anything on errors at close...
 
-> >     5 88010002 0.000ms (+0.000ms): wake_up_process (redirect_hardirq)
->          ^--- this one
-> 
-> it was zero before - indeed hard to notice optically :-|
+That won't work, in fops_release it is far too late to pass error codes
+back to the application that called close(2).
 
-nah, i just didn't know what to look for :)
+In fact Coda used to only have a CODA_CLOSE upcall in coda_release until
+users noticed that they never got an error return when the final write
+to the servers failed. The only solution was to split the store and
+release functionality of CODA_CLOSE so that we can perform the writeback
+to the servers during the fops_flush operation (CODA_SYNC) and release
+the last reference to the object during fops_release (CODA_RELEASE). If
+either of these upcalls fails we fall back on the old behaviour.
 
-> i've uploaded the -11 patch with a preliminary fix:
-> 
-> which turns off the FPU-based ops if PREEMPT_RT is specified. The speed
-> difference should be small but the latency difference is large ...
-> 
-> could you try -11, do you still see these large latencies?
+People who write application with Coda in mind actually do check for
+errors at close, it is the only time that we can actually generate any
+errors as individual writes are not visible to the cache manager.
 
-yes, this seems to fix it. no more extra jitter or large latencies on
-console switches. 
+Do you have a link to the original discussion, what problem are we
+trying to solve here?
 
-Now, on to trying to lock up the machine ;)
-
-Ah, btw: one thing i observed with my soundcard. I load the module at bootup
-and chrt its IRQ handler to prio 98 (a check with chrt shows this prio
-allright). Now it seems that the first time the soundcard is actually used
-the thread gets back its original prio (from dmesg):
-
-IRQ#3 thread RT prio: 42.
-
-Maybe the sounddriver (snd-cs46xx) i use never initializes its irq before
-the first time it gets used to play something. Well anyways, the workaround
-is to change its prio after the first time it is used and not directly after
-module loading..
-
-flo
+Jan

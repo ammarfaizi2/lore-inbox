@@ -1,70 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131157AbQK3UGK>; Thu, 30 Nov 2000 15:06:10 -0500
+        id <S131145AbQK3UGL>; Thu, 30 Nov 2000 15:06:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131070AbQK3UGA>; Thu, 30 Nov 2000 15:06:00 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:1723 "EHLO math.psu.edu")
-        by vger.kernel.org with ESMTP id <S131106AbQK3TiT>;
-        Thu, 30 Nov 2000 14:38:19 -0500
-Date: Thu, 30 Nov 2000 14:07:51 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Jonathan Hudson <jonathan@daria.co.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: corruption
-In-Reply-To: <b09.3a269edc.6bd12@trespassersw.daria.co.uk>
-Message-ID: <Pine.GSO.4.21.0011301400290.20801-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S131148AbQK3UGB>; Thu, 30 Nov 2000 15:06:01 -0500
+Received: from 4dyn129.com21.casema.net ([212.64.95.129]:38925 "HELO
+        home.ds9a.nl") by vger.kernel.org with SMTP id <S131149AbQK3Tvc>;
+        Thu, 30 Nov 2000 14:51:32 -0500
+Date: Thu, 30 Nov 2000 20:20:43 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: linux-kernel@vger.kernel.org
+Cc: aeb@cwi.nl
+Subject: SO_RCVTIMEO and SO_SNDTIMEO implemented? manpage says no, kernel yes?
+Message-ID: <20001130202042.A19106@home.ds9a.nl>
+Mail-Followup-To: linux-kernel@vger.kernel.org, aeb@cwi.nl
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+I was reading the works of Stevens, and saw the very neat SO_RCVTIMEO and
+SO_SNDTIMEO features mentioned. Socket.7 told me that these socket
+options aren't implemented:
 
-On Thu, 30 Nov 2000, Jonathan Hudson wrote:
+       SO_RCVTIMEO and SO_SNDTIMEO
+              Specify the sending  or  receiving  timeouts  until
+              reporting  an  error.  They are fixed to a protocol
+              specific setting in Linux and  cannot  be  read  or
+              written.  Their functionality can be emulated using
+              alarm(2) or setitimer(2).
 
-> 
-> In article <3A26625E.446AE3D@uow.edu.au>,
-> 	Andrew Morton <andrewm@uow.edu.au> writes:
-> AM> In thread "File corruption part deux", Lawrence Walton wrote:
-> >> 
-> >> my system has been acting slightly odd on all the pre 12 kernels
-> >> with the fs going read only with out any messages until now.
-> >> no opps or anything like that, but I did get this just now.
-> >> 
-> >> EXT2-fs error (device sd(8,2)): ext2_readdir:
-> >> bad entry in directory #458430: directory entry
-> >> across blocks - offset=152, inode=3393794200,
-> >> rec_len=12440, name_len=73
-> >>
-> AM> 
-> AM> 3393794200 == 0xca493098.  A kernel address. And 152 is 0x98,
-> AM> which is equal to N * 0x20 + 0x18. Read on...
-> AM> 
-> 
-> Don't know what these do for your analysis, observed on
-> 2.4.0test12pre2, compiling mozilla. 
-> 
->  EXT2-fs error (device ide0(3,11)):
->    ext2_readdir: bad entry in directory #409870: directory entry across blocks
->    - offset=88, inode=3284439128, rec_len=36952, name_len=196
+However, reading 2.4.0test10 net/core/sock.c appears to indicate that the
+kernel at least does some of the work. Does anybody know if these socket
+options work as they should under Linux, and if so, which versions?
 
-offset 0x58, data: 58 90 c4 c3 58 90 c4
+I might even whip up a better entry for the manpage if given enough data.
 
-Confirms. That's definitely an empty list_head at address 0xc3c49058 and -pre2
-has O_SYNC patches.
+Regards,
 
->  EXT2-fs error (device ide0(3,11)): 
->    ext2_add_entry: bad entry in directory #344273: rec_len % 4 != 0 - offset=0, 
->    inode=1769234798, rec_len=28271, name_len=85
+bert hubert
 
-data: 6e 61 74 69 6f 6e 55, i.e. "nationU"
-
-... and that one looks like a duplicated blocks effect, but there may be a lot
-of other reasons for that.
-
-> Recompiling it with 2.4.0test12pre3 last night did not cause any fs
-> problems, at least that I've noticed.
-
+-- 
+PowerDNS                     Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311575AbSDANrI>; Mon, 1 Apr 2002 08:47:08 -0500
+	id <S311650AbSDAOFo>; Mon, 1 Apr 2002 09:05:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311582AbSDANq7>; Mon, 1 Apr 2002 08:46:59 -0500
-Received: from new-coyote.egenera.com ([208.51.147.230]:38892 "HELO
-	coyote.egenera.com") by vger.kernel.org with SMTP
-	id <S311575AbSDANqr>; Mon, 1 Apr 2002 08:46:47 -0500
-Message-ID: <3CA86448.463C0532@egenera.com>
-Date: Mon, 01 Apr 2002 08:44:40 -0500
-From: "Philip R. Auld" <prauld@egenera.com>
-Organization: Egenera Inc.
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13 i686)
-X-Accept-Language: en
+	id <S311664AbSDAOFe>; Mon, 1 Apr 2002 09:05:34 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:49558 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S311650AbSDAOFR>;
+	Mon, 1 Apr 2002 09:05:17 -0500
+Date: Mon, 1 Apr 2002 16:03:59 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Dale Amon <amon@vnl.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux needs new leadership.
+In-Reply-To: <20020401101459.GB18766@vnl.com>
+Message-ID: <Pine.GSO.4.21.0204011602400.18846-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Keith Owens <kaos@ocs.com.au>, Jeremy Jackson <jerj@coplanar.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [QUESTION] which kernel debugger is "best"?
-In-Reply-To: Your message of "Fri, 29 Mar 2002 19:18:39 -0800."
-		             <3CA52E8F.C8D0E5F8@zip.com.au> <2178.1017459962@ocs3.intra.ocs.com.au> <3CA53DE5.668AC7AB@zip.com.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
+On Mon, 1 Apr 2002, Dale Amon wrote:
+> I nominated Edsger Wybe Dijkstra and feel this is the
+> best choice for a number of reasons:
 
-[other stuff cut]
+  [snip]
 
-> 
-> I would like to see kdb shipped in the mainline kernel, so that
-> we can get better diagnostic reports from users/testers.
-> 
+> 	* No one can pronounce his name properly, thus
+> 	  preventing the complacency that would come
+> 	  with a leader named "Smyth" or "Jones".
 
-Here, Here! That and crash dumps are important to providing 
-high quality support to enterprise customers.
+I can (and everyone who can pronounce mine can pronounce his ;-)
 
+Gr{oetje,eeting}s,
 
+						Geert
 
-Phil
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
-
--- 
-Philip R. Auld, Ph.D.                  Technical Staff 
-Egenera, Inc.                        pauld@egenera.com
-165 Forest St., Marlboro, MA 01752       (508)786-9444

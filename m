@@ -1,43 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129282AbRCBQAH>; Fri, 2 Mar 2001 11:00:07 -0500
+	id <S129289AbRCBQMb>; Fri, 2 Mar 2001 11:12:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129283AbRCBP75>; Fri, 2 Mar 2001 10:59:57 -0500
-Received: from [195.65.218.116] ([195.65.218.116]:23009 "EHLO
-	uxmailstest.stest.ch") by vger.kernel.org with ESMTP
-	id <S129282AbRCBP7q>; Fri, 2 Mar 2001 10:59:46 -0500
-Message-ID: <3A9FC309.22C6B3BA@pop.agri.ch>
-Date: Fri, 02 Mar 2001 16:58:08 +0100
-From: Andreas Tobler <toa@pop.agri.ch>
-Reply-To: toa@pop.agri.ch
-Organization: zero
-X-Mailer: Mozilla 4.75 (Macintosh; U; PPC)
-X-Accept-Language: en,pdf
+	id <S129290AbRCBQMV>; Fri, 2 Mar 2001 11:12:21 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:20728 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129289AbRCBQMQ>; Fri, 2 Mar 2001 11:12:16 -0500
+Date: Fri, 2 Mar 2001 13:12:02 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [patch][rfc][rft] vm throughput 2.4.2-ac4
+In-Reply-To: <97n299$f4l$1@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0103021307170.19620-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: Daniel.Stutz@astaro.de, linux-kernel@vger.kernel.org
-Subject: Re: PPP bug in 2.4.1-ac20 ?
-In-Reply-To: <20010301184528.B663@mukmin.astaro.de> <3A9FC1F0.B840B0F8@pop.agri.ch>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Andreas Tobler wrote:
-> 
-> Daniel Stutz wrote:
+On 1 Mar 2001, Linus Torvalds wrote:
+> In article <Pine.LNX.4.33.0103011747560.1961-100000@duckman.distro.conectiva>,
+> Rik van Riel  <riel@conectiva.com.br> wrote:
 > >
-> > pppd version is 2.3.11
-> >
-> > In all 2.4.1 versions pppd exits with something like:
-> >         ioctl(PPPIOFLAGS): invalid argument
-> >
-> > I don't know if this is fixed in a 2.4.2 version.
-> > I don't even know if this is not a pppd bug.
-> 
-> Update pppd to version 2.4.x e.g from ftp.linuxcare.com/pub/ppp
+> >I haven't tested it yet for a number of reasons. The most
+> >important one is that the FreeBSD people have been playing
+> >with this thing for a few years now and Matt Dillon has
+> >told me the result of their tests ;)
+>
+> Note that the Linux VM is certainly different enough that I
+> doubt the comparisons are all that valid. Especially actual
+> virtual memory mapping is basically from another planet
+> altogether, and heuristics that are appropriate for *BSD may not
+> really translate all that better.
 
-sorry, ftp.linuxcare.com.au/pub/ppp
+The main difference is that under Linux the size of the
+inactive list is dynamic, while under FreeBSD the system
+always tries to keep a (very) large inactive list around.
 
-Andreas
+I'm not sure if, or how, this would influence the percentage
+of dirty pages on the inactive list or how often we'd need to
+flush something to disk as opposed to reclaiming clean pages.
+
+> I'll take numbers over talk any day.  At least Mike had numbers,
+
+The only number I saw when reading over this thread was that
+Mike found that under one workload he tested the Linux kernel
+ended up doing IO anyway about 2/3rds of the time.
+
+This would also mean we'd be able to _avoid_ IO 1/3rd of the
+time ;)
+
+> In short, please don't argue against numbers.
+
+I'm not arguing against his numbers, all I want to know is
+if the patch has the same positive effect on other workloads
+as well...
+
+regards,
+
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

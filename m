@@ -1,45 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266009AbUHAPIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265978AbUHAPIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266009AbUHAPIy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 11:08:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266013AbUHAPIy
+	id S265978AbUHAPIs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 11:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266009AbUHAPIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 11:08:54 -0400
-Received: from holomorphy.com ([207.189.100.168]:53414 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266009AbUHAPIw (ORCPT
+	Sun, 1 Aug 2004 11:08:48 -0400
+Received: from quechua.inka.de ([193.197.184.2]:17577 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S265978AbUHAPIp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 11:08:52 -0400
-Date: Sun, 1 Aug 2004 08:05:37 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH][2.6] first/next_cpu returns values > NR_CPUS
-Message-ID: <20040801150537.GW2334@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>, Paul Jackson <pj@sgi.com>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <Pine.LNX.4.58.0407311347270.4094@montezuma.fsmlabs.com> <20040731232126.1901760b.pj@sgi.com> <Pine.LNX.4.58.0408010316590.4095@montezuma.fsmlabs.com> <20040801124053.GS2334@holomorphy.com> <Pine.LNX.4.58.0408011052090.4095@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408011052090.4095@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.5.6+20040523i
+	Sun, 1 Aug 2004 11:08:45 -0400
+From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Software RAID 5 and crashes
+Organization: Deban GNU/Linux Homesite
+In-Reply-To: <410CF7AA.2020604@baldauf.org>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.5-20040615 ("Gighay") (UNIX) (Linux/2.6.5 (i686))
+Message-Id: <E1BrHx5-0004sd-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Sun, 01 Aug 2004 17:08:43 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Aug 2004, William Lee Irwin III wrote:
->> Maybe the few callers that are sensitive to the precise return value
->> should use min_t(int, NR_CPUS, ...) instead of all callers taking the
->> branch on behalf of those few.
+In article <410CF7AA.2020604@baldauf.org> you wrote:
+> Unfortunately, it still does not make me satisfied, because: The 
 
-On Sun, Aug 01, 2004 at 10:54:03AM -0400, Zwane Mwaikambo wrote:
-> The problem is that next_cpu(0) will assign the incorrect value of '32'
-> to variable cpu so when you exit the loop, you'll have some silly number.
-> This really should be covered in the API, especially since that's what the
-> API states is the expected behaviour.
+IMHO the current Raid5 implementation can be better in terms of crash
+recovery, BUT one should not forget that RAID5 is simply pretty bad even if
+ideally coded with ordered write and transaction sequence numbers. Therefore
+it is perhaps better to spend more time on alternatives or at least in
+communicating the inherent problems of raid5 to the users which want more
+(like you seem to need?)
 
-I see. AFAICT this can also be dealt with by the caller and is far less
-common than total insensitivity to which value >= NR_CPUS is involved.
+>    * <>Example 0: s3,s2,s1 are written to disk, while s0 is not written
+>    * Example 1: s0,s1,s2 are written to disk, while s3 is not written
 
+One has to state clearly state that the failure to commit raid stripes in a
+crash result in guranteed data loss even when the data is written redundant.
+This is one of the raid5 problems, and it is even worse in a degregated
+scenario.
 
--- wli
+> If we now consider, that for each disk (as member of a RAID 5), there 
+> are parity stripes and there are data stripes. Doesn't it make sense to 
+> prefer data blocks over partiy blocks when writing, just to get more 
+> cases of "example 1" against "example 0" than without this preference?
+
+I guess it depends on what "prefer" mean? Do you think about write ordering
+with a performance impact or about some minor tweaking with possibly no use
+(ie. because sorting the requests will be reordered in the controller and
+device anyway)
+
+> One could even imagine to intensionally postpone the parity block 
+> writing for some time in favour of peak throughput.
+
+That would only help, if you defer the decision when the data is stable to
+that delayed time, which is for sure a performance killer.
+
+> The RAID 5 device 
+> looses its rendundancy for some bounded time at a bounded region of its 
+> space, but this may be acceptable for certain applications, I think.
+
+Well, I cant imagine applications which are sensitive to losing random file
+appends without a transaction protocol, but are not sensitive to degregaded
+redundancy?
+
+BTW: I dont think hardware raid5 of any vendor performs much better?
+
+Greetings
+Bernd
+-- 
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

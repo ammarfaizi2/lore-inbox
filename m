@@ -1,76 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263212AbREaUdD>; Thu, 31 May 2001 16:33:03 -0400
+	id <S263225AbREaUpZ>; Thu, 31 May 2001 16:45:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263209AbREaUcn>; Thu, 31 May 2001 16:32:43 -0400
-Received: from cs6625192-102.austin.rr.com ([66.25.192.102]:9992 "EHLO
-	mail1.cirrus.com") by vger.kernel.org with ESMTP id <S263221AbREaUcc>;
-	Thu, 31 May 2001 16:32:32 -0400
-Message-ID: <973C11FE0E3ED41183B200508BC7774C0124F2D7@csexchange.crystal.cirrus.com>
-From: "Woller, Thomas" <twoller@crystal.cirrus.com>
-To: "'Rik van Riel'" <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: RE: no sound with CS4281 card
-Date: Thu, 31 May 2001 15:33:19 -0500
+	id <S263219AbREaUpP>; Thu, 31 May 2001 16:45:15 -0400
+Received: from colorfullife.com ([216.156.138.34]:42247 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S263224AbREaUpL>;
+	Thu, 31 May 2001 16:45:11 -0400
+Message-ID: <3B16AD5D.DEDB8523@colorfullife.com>
+Date: Thu, 31 May 2001 22:45:17 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-ac2 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: thunder7@xs4all.nl
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [lkml]Re: [lkml]Re: interrupt problem with MPS 1.4 / not with MPS 
+ 1.1 ?
+In-Reply-To: <3B16A7E3.1BD600F3@colorfullife.com> <20010531222708.A8295@middle.of.nowhere>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'll send the latest driver that I have via separate email.  Toshiba refuses
-to supply equipment, and there are some design issues with Toshiba laptops.
-I recently sent a driver to another Toshiba owner and he had good luck with
-the latest driver. I have never seen any Toshiba laptop not generate sound
-with any cs4281 driver at any time ( :) ), but that certainly doesn't rule
-out the 2.4.5-ac2 not working on a Toshiba 1755.  I am pulling the 2.4.5-ac6
-source now and will try on a 4281 ref card.  
-mpg123 the only app not working?
-Thanks for the input
-tom
+thunder7@xs4all.nl wrote:
+> 
+> 00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16) (prog-if 00 [UHCI])
+>         Subsystem: Unknown device 0925:1234
+>         Flags: bus master, medium devsel, latency 32, IRQ 5
+>         I/O ports at a000 [size=32]
+>         Capabilities: [80] Power Management version 2
+> 30: 00 00 00 00 80 00 00 00 00 00 00 00 05 04 00 00
+> 
+> 0x3X is at 5, not at 3.
+>
+You still run with MPS 1.1.
+It should be 3 or 19 after you reboot with MPS 1.4.
 
- -----Original Message-----
-From: 	Rik van Riel [mailto:riel@conectiva.com.br] 
-Sent:	Thursday, May 31, 2001 1:15 PM
-To:	linux-kernel@vger.kernel.org
-Cc:	twoller@crystal.cirrus.com
-Subject:	no sound with CS4281 card
+Could you please try the following commands as root, but just before
+rebooting. It'll kill the USB controller.
 
-Hi,
+#setpci -s 00:07.2 INTERRUPT_LINE=15
+#lspci -vx -s 00:07.2
+<<< 0x3C should be 15
+#setpci -s 00:07.2 INTERRUPT_LINE=19
+#lspci -vx -s 00:07.2
+<<< 0x3C is now either 19 or 3
 
-my notebook (Toshiba 1755) comes with CS4281 built-in,
-with all 2.4 kernels I tried this sound card doesn't
-generate any sound, or interrupts for that matter.
-
-The driver detects the card fine, but doesn't seem to
-be able to do anything with it, on 2.4.5-ac2:
-
-==== /proc/pci ====
-  Bus  0, device   8, function  0:
-    Multimedia audio controller: Cirrus Logic Crystal CS4281 PCI Audio (rev
-1).
-      IRQ 5.
-      Master Capable.  Latency=64.  Min Gnt=4.Max Lat=24.
-      Non-prefetchable 32 bit memory at 0xfc010000 [0xfc010fff].
-      Non-prefetchable 32 bit memory at 0xfc000000 [0xfc00ffff].
-
-==== dmesg ====
-cs4281: version v1.13.32 time 15:54:07 May 29 2001
-PCI: Enabling device 00:08.0 (0000 -> 0002)
-PCI: Found IRQ 5 for device 00:08.0
-
-==== /proc/interrupts ====
-  5:          0          XT-PIC  Crystal CS4281
-
-(after trying to play music with mpg123 about 20 times)
-
-regards,
-
-Rik
 --
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+	Manfred

@@ -1,48 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261582AbUBURNJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 12:13:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbUBURNJ
+	id S261581AbUBURMU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 12:12:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbUBURMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 12:13:09 -0500
-Received: from fw.osdl.org ([65.172.181.6]:19153 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261582AbUBURND (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 12:13:03 -0500
-Date: Sat, 21 Feb 2004 09:18:14 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Pavel Machek <pavel@suse.cz>
-cc: Stephen Hemminger <shemminger@osdl.org>, ak@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel/microcode.c error from new 64bit code
-In-Reply-To: <20040221141608.GB310@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.58.0402210914530.3301@ppc970.osdl.org>
-References: <20040218145218.6bae77b5@dell_ss3.pdx.osdl.net>
- <Pine.LNX.4.58.0402181502260.18038@home.osdl.org> <20040221141608.GB310@elf.ucw.cz>
+	Sat, 21 Feb 2004 12:12:19 -0500
+Received: from 217-162-59-239.dclient.hispeed.ch ([217.162.59.239]:8196 "EHLO
+	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S261581AbUBURMS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Feb 2004 12:12:18 -0500
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+Reply-To: daniel.ritz@gmx.ch
+To: Silla Rizzoli <silla@netvalley.it>
+Subject: Re: 2.4.25 yenta problem and small fix/workaround
+Date: Sat, 21 Feb 2004 18:12:14 +0100
+User-Agent: KMail/1.5.2
+References: <200402202331.45218.daniel.ritz@gmx.ch> <200402211328.56826.silla@netvalley.it>
+In-Reply-To: <200402211328.56826.silla@netvalley.it>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402211812.14040.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 21 February 2004 13:28, Silla Rizzoli wrote:
+> > the CB_CDETECT1 and CB_CDETECT2 bits both should be 0 for the card being
+> > recognized correctly (and one of the voltage bits need to be set)
+> >
+> Nope, sorry, same behaviour. :(
+
+either voltage interrogation is still not redone or one of CB_CDETECT1,CB_CDETECT2
+is still set afterwards...
+
+could you apply the attached patch (on top of my previous patch) and send the
+output of dmesg?
+
+thanx
+-daniel
 
 
-On Sat, 21 Feb 2004, Pavel Machek wrote:
->
-> > +	wrmsr(MSR_IA32_UCODE_WRITE,
-> > +		(unsigned long) uci->mc->bits, 
-> > +		(unsigned long) uci->mc->bits >> 16 >> 16);
-> 				             ~~~~~~~~~~~~
-> 
-> I see what you are doing, but this is evil. At least comment /* ">> 32"
-> is undefined on i386 */ ?
+--- drivers/pcmcia/yenta.c~	2004-02-21 17:29:36.000000000 +0100
++++ drivers/pcmcia/yenta.c	2004-02-21 17:37:38.000000000 +0100
+@@ -132,6 +132,7 @@
+ {
+ 	unsigned int val;
+ 	u32 state = cb_readl(socket, CB_SOCKET_STATE);
++	printk(KERN_INFO "yenta_get_status: socket %p state %08x\n", socket, state);
+ 
+ 	val  = (state & CB_3VCARD) ? SS_3VCARD : 0;
+ 	val |= (state & CB_XVCARD) ? SS_XVCARD : 0;
+@@ -677,8 +678,9 @@
+ 
+ 	/* Redo card voltage interrogation */
+ 	state = cb_readl(socket, CB_SOCKET_STATE);
++	printk(KERN_INFO "yenta_config_init socket %p state %08x\n", socket, state);
+ 	if (!(state & (CB_5VCARD | CB_3VCARD | CB_XVCARD | CB_YVCARD)) ||
+-	    (state & (CB_CDETECT1 | CB_CDETECT2)))
++	    (state & (CB_CDETECT1 | CB_CDETECT2)) || (state & CB_NOTACARD))
+ 		cb_writel(socket, CB_SOCKET_FORCE, CB_CVSTEST);
+ }
+ 
 
-Sorry, but you're wrong.
 
-">> 32" is underfined PERIOD! It has nothing to do with x86, it's a C
-standards issue. It's undefined on any 32-bit architecture. (shifting by
-the wordsize or bigger is simply not a defined C operation).
-
-The above is not evil. The above is the standard way of doing this in C if 
-you know the word-size is 32-bits or bigger.
-
-		Linus

@@ -1,16 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132868AbRDEUGS>; Thu, 5 Apr 2001 16:06:18 -0400
+	id <S132886AbRDEUNJ>; Thu, 5 Apr 2001 16:13:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132886AbRDEUGJ>; Thu, 5 Apr 2001 16:06:09 -0400
-Received: from [216.84.120.7] ([216.84.120.7]:20740 "EHLO mail.wrldcom.com")
-	by vger.kernel.org with ESMTP id <S132868AbRDEUF6>;
-	Thu, 5 Apr 2001 16:05:58 -0400
-Message-ID: <50282217D047D411997400805FEAAA81B1AE12@mail.voicelink>
-From: Stephen Burns <sburns@wave3com.com>
-To: linux-kernel@vger.kernel.org
-Subject: Groups maximum
-Date: Thu, 5 Apr 2001 14:59:40 -0500 
+	id <S132978AbRDEUMt>; Thu, 5 Apr 2001 16:12:49 -0400
+Received: from jffdns01.or.intel.com ([134.134.248.3]:55563 "EHLO
+	ganymede.or.intel.com") by vger.kernel.org with ESMTP
+	id <S132886AbRDEUMm>; Thu, 5 Apr 2001 16:12:42 -0400
+Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE810@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Trever L. Adams'" <trever_Adams@bigfoot.com>,
+        linux Kernel <linux-kernel@vger.kernel.org>
+Cc: "Acpi-linux (E-mail)" <acpi@phobos.fachschaften.tu-muenchen.de>
+Subject: RE: 2.4.3 (and possibly 2.4.2) don't enter S5 (ACPI) on shutdown
+Date: Thu, 5 Apr 2001 13:11:47 -0700 
 MIME-Version: 1.0
 X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
@@ -18,17 +20,26 @@ Content-Type: text/plain;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey all,
+> From: Trever L. Adams [mailto:trever_Adams@bigfoot.com]
+> 2.4.3 no longer shuts down automatically with S5.
+> 
+> [2.] Full description of the problem/report:
+> 
+> 2.4.3 no longer shuts down automatically with S5.  I have an Athlon 
+> based system using the FIC-SD11 motherboard.  In 2.4.1 and possibly 
+> 2.4.2 the system used to shut down just fine.
 
-I have checked out the archives, and I found an old post regarding this.
-The solution in the post, however, did not work for me.  I am attempting to
-raise the maximum 32 group per user limit on my 2.4.2 kernel.  I patched
-both linux/include/linux/limits.h and the asm-i386/param.h, replacing the
-default "32" with "256."  My glibc is 2.1.2.  When I make clean, and
-recompile the kernel, it boots fine but I am still limited to 32 groups.  I
-don't need to do anything with glibc since it is of the 2.1 or greater
-category, correct?  Any ideas, hints, tricks?  Thanks a ton for your help,
-please CC me as I've not been approved yet as a member of this list.
+This is the most likely culprit. Trevor please let me know if this does it:
 
+--- linux/drivers/acpi/hardware/hwsleep.c.orig	Fri Feb  9 11:45:58 2001
++++ linux/drivers/acpi/hardware/hwsleep.c	Thu Apr  5 12:11:54 2001
+@@ -179,8 +179,6 @@
+ 
+ 	acpi_hw_register_write(ACPI_MTX_LOCK, PM1_a_CONTROL, PM1_acontrol);
+ 	acpi_hw_register_write(ACPI_MTX_LOCK, PM1_b_CONTROL, PM1_bcontrol);
+-	acpi_hw_register_write(ACPI_MTX_LOCK, PM1_CONTROL,
+-		(1 << acpi_hw_get_bit_shift (SLP_EN_MASK)));
+ 
+ 	enable();
 
 

@@ -1,65 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264844AbUEJQGb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264846AbUEJQKS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264844AbUEJQGb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 12:06:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264846AbUEJQGa
+	id S264846AbUEJQKS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 12:10:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264847AbUEJQKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 12:06:30 -0400
-Received: from ns0.eris.qinetiq.com ([128.98.1.1]:11411 "HELO
-	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
-	id S264844AbUEJQG0 convert rfc822-to-8bit (ORCPT
+	Mon, 10 May 2004 12:10:17 -0400
+Received: from nevyn.them.org ([66.93.172.17]:20613 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S264846AbUEJQKN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 12:06:26 -0400
-From: Mark Watts <m.watts@eris.qinetiq.com>
-Organization: QinetiQ
-To: Ricky Beam <jfbeam@bluetronic.net>
-Subject: Re: Inno3D DM-8301 SATA cards
-Date: Mon, 10 May 2004 17:03:07 +0100
-User-Agent: KMail/1.5.3
-Cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-References: <Pine.GSO.4.33.0405101155320.14297-100000@sweetums.bluetronic.net>
-In-Reply-To: <Pine.GSO.4.33.0405101155320.14297-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	Mon, 10 May 2004 12:10:13 -0400
+Date: Mon, 10 May 2004 12:10:08 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Fabiano Ramos <ramos_fabiano@yahoo.com.br>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ptrace in 2.6.5
+Message-ID: <20040510161008.GA11114@nevyn.them.org>
+Mail-Followup-To: Fabiano Ramos <ramos_fabiano@yahoo.com.br>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1084203979.1421.1.camel@slack.domain.invalid>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200405101703.07564.m.watts@eris.qinetiq.com>
+In-Reply-To: <1084203979.1421.1.camel@slack.domain.invalid>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, May 10, 2004 at 12:46:19PM -0300, Fabiano Ramos wrote:
+> Hi All.
+> 
+>      Is ptrace(), in singlestep mode, required to stop after a int 0x80?
+>     When tracing a sequence like
+> 
+> 	mov ...
+> 	int 0x80
+> 	mov ....
+> 
+>     ptrace would notify the tracer after the two movs, but not after the
+> int 0x80. I want to know if it is a bug or the expected behaviour.
 
+I think it's a bug.
 
-> On Mon, 10 May 2004, Mark Watts wrote:
-> >Do you happen to know if the above cards work in linux (libata)?
-> >- From the picture on the website, it looks like they use a Silicon Image
-> > chip, but I can't see which one.
->
-> Si3112... download the windows driver and it'll be obvious which chip is
-> being used.
->
-> --Ricky
-
-Bleh. If only I'd have thought of that :)
-
-Cheers,
-
-Mark.
-
-- -- 
-Mark Watts
-Senior Systems Engineer
-QinetiQ Trusted Information Management
-Trusted Solutions and Services group
-GPG Public Key ID: 455420ED
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAn6e7Bn4EFUVUIO0RAtRSAKDWgjjRdxqPwtOn5sGBjlkgUKa/BgCfTX+G
-4A/U66tO+93sxAybNjz8+SA=
-=/dv3
------END PGP SIGNATURE-----
-
+-- 
+Daniel Jacobowitz

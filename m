@@ -1,51 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262871AbSLFOPs>; Fri, 6 Dec 2002 09:15:48 -0500
+	id <S262859AbSLFOUR>; Fri, 6 Dec 2002 09:20:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262859AbSLFOPs>; Fri, 6 Dec 2002 09:15:48 -0500
-Received: from holomorphy.com ([66.224.33.161]:18063 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262871AbSLFOPr>;
-	Fri, 6 Dec 2002 09:15:47 -0500
-Date: Fri, 6 Dec 2002 06:23:02 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@digeo.com>,
-       Norman Gaywood <norm@turing.une.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: Maybe a VM bug in 2.4.18-18 from RH 8.0?
-Message-ID: <20021206142302.GC11023@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Arjan van de Ven <arjanv@redhat.com>,
-	Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@digeo.com>,
-	Norman Gaywood <norm@turing.une.edu.au>,
-	linux-kernel@vger.kernel.org
-References: <20021206111326.B7232@turing.une.edu.au> <3DEFF69F.481AB823@digeo.com> <20021206011733.GF1567@dualathlon.random> <3DEFFEAA.6B386051@digeo.com> <20021206014429.GI1567@dualathlon.random> <20021206021559.GK9882@holomorphy.com> <1039170975.1432.5.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1039170975.1432.5.camel@laptop.fenrus.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S262876AbSLFOUR>; Fri, 6 Dec 2002 09:20:17 -0500
+Received: from lucidpixels.com ([66.45.37.187]:1413 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id <S262859AbSLFOUP>;
+	Fri, 6 Dec 2002 09:20:15 -0500
+Message-ID: <3DF0B3E2.8060104@lucidpixels.com>
+Date: Fri, 06 Dec 2002 09:27:46 -0500
+From: jpiszcz <jpiszcz@lucidpixels.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
+CC: netfilter-devel@lists.netfilter.org,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [Fwd: Question with printk warnings in ip_conntrack with 2.4.20.]
+References: <Pine.LNX.4.33.0212061448500.2648-100000@blackhole.kfki.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, I wrote:
->> 64GB isn't getting any testing that I know of; I'd hold off until
->> someone's actually stood up and confessed to attempting to boot
->> Linux on such a beast. Or until I get some more RAM. =)
+Sure:
 
-On Fri, Dec 06, 2002 at 11:36:15AM +0100, Arjan van de Ven wrote:
-> United Linux at least has tested this according to
-> http://www.unitedlinux.com/en/press/pr111902.html
-> Hardware functionality is exploited through advanced features such as
-> large memory support for up to 64 GB of RAM
-> so I'm sure Andrea's VM deals with it gracefully
+http://installkernel.tripod.com/tcpdump.log.bz2
 
-I'm not convinced of grace even if I were to take it from this that it
-were directly tested, which seems doubtful given the nature of the page.
-This page sounds more like CONFIG_HIGHMEM64G is an option.
+Jozsef Kadlecsik wrote:
 
-And besides, the report is useless unless it's got actual technical
-content and descriptions reported by an kernel hacker.
+>On Thu, 5 Dec 2002, jpiszcz wrote:
+>
+>  
+>
+>>Stange?  I am just using vcheck (perl script) that goes out and checks
+>>out software for the latest versions.
+>>    
+>>
+>
+>If the script uses active mode FTP and when that is refused by the server
+>reverts back to passive mode, that is a natural explanation for such log
+>entries.
+>
+>Could you record by tcpdump at least one such FTP session?
+>
+>  
+>
+>>Will there possibly be a /proc or kernel config option for warnings such
+>>as these?
+>>    
+>>
+>
+>In my opinion a new directory tree /proc/sys/net/ipv4/netfilter is
+>required so that tuning options could be easily added to the system.
+>But that implies backward (in)compatibily issues...
+>
+>Regards,
+>Jozsef
+>-
+>E-mail  : kadlec@blackhole.kfki.hu, kadlec@sunserv.kfki.hu
+>PGP key : http://www.kfki.hu/~kadlec/pgp_public_key.txt
+>Address : KFKI Research Institute for Particle and Nuclear Physics
+>          H-1525 Budapest 114, POB. 49, Hungary
+>
+>
+>
+>  
+>
 
 
-Bill

@@ -1,56 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265376AbUFHWwj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265377AbUFHW5l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265376AbUFHWwj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 18:52:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265373AbUFHWwj
+	id S265377AbUFHW5l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 18:57:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265378AbUFHW5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 18:52:39 -0400
-Received: from fw.osdl.org ([65.172.181.6]:52188 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265377AbUFHWwf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 18:52:35 -0400
-Date: Tue, 8 Jun 2004 15:54:58 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: arjanv@redhat.com, joern@wohnheim.fh-wedel.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] stop page_state stack waste
-Message-Id: <20040608155458.11b4d5df.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0406082331470.2556-100000@localhost.localdomain>
-References: <20040608141106.3c7c3c10.akpm@osdl.org>
-	<Pine.LNX.4.44.0406082331470.2556-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 8 Jun 2004 18:57:41 -0400
+Received: from mailman2.ppco.com ([138.32.33.140]:20659 "EHLO
+	mailman2.ppco.com") by vger.kernel.org with ESMTP id S265377AbUFHW5d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 18:57:33 -0400
+From: Norman Weathers <norman.r.weathers@conocophillips.com>
+Reply-To: norman.r.weathers@conocophillips.com
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.26 SMP lockup problem
+Date: Tue, 8 Jun 2004 17:57:28 -0500
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200406081757.28770.norman.r.weathers@conocophillips.com>
+X-OriginalArrivalTime: 08 Jun 2004 22:57:30.0972 (UTC) FILETIME=[FA71B9C0:01C44DAB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
->
-> On Tue, 8 Jun 2004, Andrew Morton wrote:
-> > Hugh Dickins <hugh@veritas.com> wrote:
-> > >
-> > > Replace get_page_state (which memset most of full page_state to 0) by
-> > > get_main_page_state, which just sets the small structure needed.  This
-> > > helps 4k stacks not to overflow: cuts 224 bytes off try_to_free_pages
-> > > and wakeup_bdflush (and sync_inodes_sb) stack usages: wakeup_bdflush
-> > > doesn't do much, but is called by try_to_free_pages and mempool_alloc.
-> > 
-> > Yeah, I was looking at that.  I simply did:
-> > -} ____cacheline_aligned;
-> > +};
-> 
-> Well, that is a smaller patch; but you're still wasting 124 bytes of
-> stack in wakeup_bdflush below 124 bytes wasted in try_to_free_pages.
-> 
 
-yup, but that's better than 256+256, or 512+256 in -mm.
+Hello All.
 
-Your patch was kinda icky.  I think it would be better to remove those
-page_state variables altogether and use something along the lines of
+During an interesting round of kernel updates, I found a very interesting 
+problem.  I have several "hundred" nodes in a cluster that I am currently 
+updating from kernel 2.4.21 to 2.4.26.  These nodes are all running RedHat 
+7.3 (old, I know, but this is the OS that are software currently works on).  
+During this round of updates, I have updated about 150 PIII 800 MHz nodes, 
+all of which are currently being used and work just fine (1 GB Ram, e100 
+ethernet driver, IDE drives, fairly generic).  Also, I have a few PIII 1260 
+nodes (Tyan Motherboard, 2 GB Ram, e100 ethernet driver, again, fairly 
+generic) that have also been updated and run fine.  I have even started 
+testing fairly new P4 3060 IBM blades.  They also seem to work just fine.  
 
-unsigned long __read_page_state(unsigned offset);
-#define read_page_state(var) __read_page_state(offsetof(page_states, var))
+Now to the problem.  I have "several hundred" Tyan Thunder Motherboards (older 
+AMD 760MP chipset).  I have rebooted ~ 200 of these nodes with the new 2.4.26 
+kernel and about half of these nodes have suffered a hard lockup during 
+bootup.  The lockup is hard enough that I cannot even isuse sys request keys 
+over serial or at the local keyboard to cause them to reboot or output a 
+trace.  These nodes have 2 GB of ram, dual 3Com 100 Mb NICS, and IDE drives.  
+Again, fairly generic for a cluster.  I had a vanilal + trond patched 2.4.21 
+kernel running on these boxes just fine.  (The new 2.4.26 kernel also has the 
+trond patches for 2.4.26).  Has anyone seen this happen to them?
 
-I'll cook something up...
+Here is some info on the kernel config for the 2.4.26 kernel:
+
+#
+# Automatically generated by make menuconfig: don't edit
+#
+CONFIG_X86=y
+# CONFIG_SBUS is not set
+CONFIG_UID16=y
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+
+#
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+CONFIG_MPENTIUMIII=y
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MK8 is not set
+# CONFIG_MELAN is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MCYRIXIII is not set
+# CONFIG_MVIAC3_2 is not set
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_HAS_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_F00F_WORKS_OK=y
+CONFIG_X86_MCE=y
+# CONFIG_TOSHIBA is not set
+# CONFIG_I8K is not set
+CONFIG_MICROCODE=y
+# CONFIG_X86_MSR is not set
+# CONFIG_X86_CPUID is not set
+# CONFIG_EDD is not set
+# CONFIG_NOHIGHMEM is not set
+# CONFIG_HIGHMEM4G is not set
+CONFIG_HIGHMEM64G=y
+CONFIG_HIGHMEM=y
+CONFIG_X86_PAE=y
+CONFIG_HIGHIO=y
+# CONFIG_MATH_EMULATION is not set
+CONFIG_MTRR=y
+CONFIG_SMP=y
+CONFIG_NR_CPUS=32
+# CONFIG_X86_NUMA is not set
+# CONFIG_X86_TSC_DISABLE is not set
+CONFIG_X86_TSC=y
+CONFIG_HAVE_DEC_LOCK=y
+
+#
+# General setup
+#
+CONFIG_NET=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_ISA=y
+CONFIG_PCI_NAMES=y
+# CONFIG_EISA is not set
+# CONFIG_MCA is not set
+CONFIG_HOTPLUG=y
+---- Rest cut -------
+
+I have the noapic option passed on the lilo boot prompt line, otherwise we get 
+the APIC error after about a month or two in service.
+
+We tried to make the kernel somewhat generic because we want this kernel to 
+boot on the largest hardware base possible.  Is there something obvious that 
+I have missed (I have used these options on the 2.4.21 kernel that we used on 
+all of the nodes with the exception of the 64 GB memory.  
+
+Any help would be appreciated.  Any dumps that need to be made (or try to 
+make), great as I have about 200 nodes right now that are candidates for 
+testing.
+
+Please contact me at email listed below as I am not on the list.
+
+
+Email:  norman.r.weathers@conocophillips.com
+
+
+Thanks in advance.
+
+-- 
+
+Norman Weathers
+SIP Linux Cluster
+TCE UNIX
+ConocoPhillips
+Houston, TX
+
+Office:  LO2003
+Phone:   ETN  639-2727
+	 or (281) 293-2727

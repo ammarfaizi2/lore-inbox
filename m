@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316673AbSILRlG>; Thu, 12 Sep 2002 13:41:06 -0400
+	id <S316609AbSILRjo>; Thu, 12 Sep 2002 13:39:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316674AbSILRlG>; Thu, 12 Sep 2002 13:41:06 -0400
-Received: from 62-190-217-250.pdu.pipex.net ([62.190.217.250]:62220 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S316673AbSILRlE>; Thu, 12 Sep 2002 13:41:04 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209121753.g8CHrc51004038@darkstar.example.net>
+	id <S316615AbSILRjo>; Thu, 12 Sep 2002 13:39:44 -0400
+Received: from pD9E23F87.dip.t-dialin.net ([217.226.63.135]:15333 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316609AbSILRjn>; Thu, 12 Sep 2002 13:39:43 -0400
+Date: Thu, 12 Sep 2002 11:44:51 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Joe Kellner <jdk@kingsmeadefarm.com>
+cc: Thunder from the hill <thunder@lightweight.ods.org>,
+       <linux-kernel@vger.kernel.org>
 Subject: Re: XFS?
-To: linux-kernel@vger.kernel.org
-Date: Thu, 12 Sep 2002 18:53:37 +0100 (BST)
-In-Reply-To: <3D80CCEF.7070007@tmsusa.com> from "J Sloan" at Sep 12, 2002 10:20:47 AM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <1031851720.3d80cec864630@webmail>
+Message-ID: <Pine.LNX.4.44.0209121144210.10048-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > sure, if you can live with the fsck time on your 200 GB (or bigger) 
-> > > filesystem after the occasional crash.
-> > >
-> > But Linux doesn't crash...  :-)
-> >
-> Just pull the power cable out of your PC and see what happens.
+Hi,
 
-OK, hang on a minute...  Ah, here it is, right...  OK, this is what happens, ready...
+On Thu, 12 Sep 2002, Joe Kellner wrote:
+> Alot of hosting companies employ the "pull the plug" method of solving
+> problems. This isnt good on non journaling filesystems. (It's not good
+> period, but thats not going to change anytime soon).
 
-NO CARRIER
+I don't see where reiserfs isn't journaling.
+
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
+

@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAINrE>; Tue, 9 Jan 2001 08:47:04 -0500
+	id <S129763AbRAINsy>; Tue, 9 Jan 2001 08:48:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129562AbRAINqy>; Tue, 9 Jan 2001 08:46:54 -0500
-Received: from [63.95.87.168] ([63.95.87.168]:26889 "HELO xi.linuxpower.cx")
-	by vger.kernel.org with SMTP id <S129324AbRAINqm>;
-	Tue, 9 Jan 2001 08:46:42 -0500
-Date: Tue, 9 Jan 2001 08:46:40 -0500
-From: Gregory Maxwell <greg@linuxpower.cx>
+	id <S129734AbRAINso>; Tue, 9 Jan 2001 08:48:44 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:254 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S130032AbRAINs0>; Tue, 9 Jan 2001 08:48:26 -0500
+Date: Tue, 9 Jan 2001 10:00:38 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Steven N. Hirsch" <shirsch@adelphia.net>,
-        Helge Hafting <helgehaf@idb.hist.no>,
-        Nicolas Noble <Pixel@the-babel-tower.nobis.phear.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: kernel network problem ?
-Message-ID: <20010109084640.A29867@xi.linuxpower.cx>
-In-Reply-To: <Pine.LNX.4.21.0101090853250.27322-100000@pii.fast.net> <E14FytQ-0006cr-00@the-village.bc.nu>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] sscape.c: include missing restore_flags
+Message-ID: <20010109100037.H21057@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010108201103.E17087@conectiva.com.br> <20010108202533.F17087@conectiva.com.br> <20010108203002.H17087@conectiva.com.br> <20010109001443.A20786@conectiva.com.br> <20010109091808.G21057@conectiva.com.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.8i
-In-Reply-To: <E14FytQ-0006cr-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Jan 09, 2001 at 01:32:49PM +0000
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010109091808.G21057@conectiva.com.br>; from acme@conectiva.com.br on Tue, Jan 09, 2001 at 09:18:08AM -0200
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2001 at 01:32:49PM +0000, Alan Cox wrote:
-> > If I were packaging a Linux distribution, I'd be sure to have ECN disabled
-> > by default, FWIW.
-> 
-> Probably the case. However the more people who pester the faulty sites the
-> better. Did you ask the person how many reports he needed ....
-> 
-> I certainly intend to run ECN on my mailhost once I trust 2.4 a bit more.
-> 
-> Alan
+Alan,
 
-Is anyone maintaing an automated sweep of sites that I can complain to all
-at once (for each 2.4 ecn system I install of course) rather then finding
-them one at a time as my connections fail?
+	Please apply.
 
-:)
+- Arnaldo
+
+--- linux-2.4.0-ac4/drivers/sound/sscape.c	Mon Jan  8 20:39:30 2001
++++ linux-2.4.0-ac4.acme/drivers/sound/sscape.c	Tue Jan  9 09:16:39 2001
+@@ -16,6 +16,7 @@
+  * Christoph Hellwig	: adapted to module_init/module_exit
+  * Bartlomiej Zolnierkiewicz : added __init to attach_sscape()
+  * Chris Rankin		: Specify that this module owns the coprocessor
++ * Arnaldo C. de Melo	: added missing restore_flags in sscape_pnp_upload_file
+  */
+ 
+ #include <linux/init.h>
+@@ -969,7 +970,10 @@
+ 		memcpy(devc->raw_buf, dt, l); dt += l;
+ 		sscape_start_dma(devc->dma, devc->raw_buf_phys, l, 0x48);
+ 		sscape_pnp_start_dma ( devc, 0 );
+-		if (sscape_pnp_wait_dma ( devc, 0 ) == 0) return 0;
++		if (sscape_pnp_wait_dma ( devc, 0 ) == 0) {
++			restore_flags(flags);	    
++			return 0;
++		}
+ 	}
+ 	
+ 	restore_flags(flags);	    
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

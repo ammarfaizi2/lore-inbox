@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbUL0Rnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261938AbUL0R6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261937AbUL0Rnm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 12:43:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbUL0Rnl
+	id S261938AbUL0R6f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 12:58:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbUL0R6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 12:43:41 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:772 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261937AbUL0RnY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 12:43:24 -0500
-Date: Mon, 27 Dec 2004 18:43:19 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Cannot compile without sysctl (+semi-patch)
-Message-ID: <20041227174319.GC5345@stusta.de>
-References: <Pine.LNX.4.61.0412271803300.10322@yvahk01.tjqt.qr>
+	Mon, 27 Dec 2004 12:58:35 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:58011 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261938AbUL0R6d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 12:58:33 -0500
+Subject: Re: Linux 2.6.10-ac1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Andreas Steinmetz <ast@domdv.de>, Ross Biro <ross.biro@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <58cb370e04122707544be6d600@mail.gmail.com>
+References: <1104103881.16545.2.camel@localhost.localdomain>
+	 <58cb370e04122616577e1bd33@mail.gmail.com> <41CF649E.20409@domdv.de>
+	 <58cb370e041226174019e75e23@mail.gmail.com>
+	 <8783be660412270645717b89d1@mail.gmail.com>
+	 <58cb370e0412270738fbc045c@mail.gmail.com> <41D02EEC.4090000@domdv.de>
+	 <58cb370e04122707544be6d600@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1104166472.20952.55.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0412271803300.10322@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 27 Dec 2004 16:54:33 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 27, 2004 at 06:06:35PM +0100, Jan Engelhardt wrote:
+On Llu, 2004-12-27 at 15:54, Bartlomiej Zolnierkiewicz wrote:
+> Ah, so the problem only affects native PCI IRQs.
+> Is it possible that it is a buggy IDE host driver not a generic IDE problem?
 
-> Hi,
+More likely it is a core problem. I'm still stomping 400nS timing
+violations and you don't have all of those let alone the other locking
+stuff. Nor are we anywhere remotely near fixing them. Blaming the host
+driver at this point seems a bit early for any IDE bug.
 
-Hi Jan,
+There certainly are corner cases where APIC timing for PIII especially
+would radically change behaviour. We also exercise IRQ masking far
+harder than any other driver with IDE.
 
-> in trying to make the smallest possible kernel for an old pc's needs (read: 
-> 386sx) disabling sysctl support (CONFIG_SYSCTL) does not work, sys_setgroups 
-> and sys_setgroups16 still require it. (I get a linking error.)
-> It's not a blocker, but it would be nice if this got wrapped up in #ifdef or 
-> something :-) so that either sysctl is always on or sys_setgroups behaves a 
-> little different.
-> 
-> Preferably:
-> include/linux/limits.h:
-> #ifdef __KERNEL__
-> extern int ngroups_max;
-> # define NGROUPS_MAX ngroups_max
-> #else
-> # define NGROUPS_MAX __NGROUPS_MAX
-> #endif
-> 
-> to
->...
-
-you should also tell us which kernel version you observed this problem 
-in - neither the latest 2.4 nor the latest 2.6 kernels have a limits.h 
-like the one you describe...
-
-> Jan Engelhardt
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Alan
 

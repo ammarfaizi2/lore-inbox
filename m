@@ -1,84 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVCaLZe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbVCaL0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbVCaLZe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 06:25:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVCaLZe
+	id S261329AbVCaL0e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 06:26:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVCaL0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 06:25:34 -0500
-Received: from chilli.pcug.org.au ([203.10.76.44]:24535 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S261313AbVCaLZZ (ORCPT
+	Thu, 31 Mar 2005 06:26:34 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:6579 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261329AbVCaL0b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 06:25:25 -0500
-Date: Thu, 31 Mar 2005 21:25:16 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Andi Kleen <ak@suse.de>
-Cc: ak@suse.de, blaisorblade@yahoo.it, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/3] x86_64: remove duplicated sys_time64
-Message-Id: <20050331212516.64506156.sfr@canb.auug.org.au>
-In-Reply-To: <20050331111235.GL1623@wotan.suse.de>
-References: <20050330173216.426CFEFECF@zion>
-	<20050331103834.GC1623@wotan.suse.de>
-	<20050331211059.0ddc078c.sfr@canb.auug.org.au>
-	<20050331111235.GL1623@wotan.suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Thu, 31 Mar 2005 06:26:31 -0500
+Date: Thu, 31 Mar 2005 13:26:02 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: kus Kusche Klaus <kus@keba.com>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-25
+Message-ID: <20050331112602.GA27286@elte.hu>
+References: <AAD6DA242BC63C488511C611BD51F3673231CD@MAILIT.keba.co.at>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Thu__31_Mar_2005_21_25_16_+1000_ISH88l4Sh=HrLR1h"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <AAD6DA242BC63C488511C611BD51F3673231CD@MAILIT.keba.co.at>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Thu__31_Mar_2005_21_25_16_+1000_ISH88l4Sh=HrLR1h
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, 31 Mar 2005 13:12:35 +0200 Andi Kleen <ak@suse.de> wrote:
->
-> On Thu, Mar 31, 2005 at 09:10:59PM +1000, Stephen Rothwell wrote:
-> > On Thu, 31 Mar 2005 12:38:34 +0200 Andi Kleen <ak@suse.de> wrote:
-> > >
-> > > Nack. The generic sys_time still writes to int, not long.
-> > > That is why x86-64 has a private one. Please keep that.
-> >=20
-> > It writes to a time_t which is a __kernel_time_t which is a long on
-> > x86-64, isn't it?
->=20
-> At least in 2.6.10 it writes to int.
+* kus Kusche Klaus <kus@keba.com> wrote:
 
-I was looking at current bk where it looks like this:
+> > i have released the -V0.7.41-25 Real-Time Preemption patch, 
+> > which can be 
+> > downloaded from the usual place:
+> 
+> 1. Does not compile without RT_DEADLOCK_DETECT:
+> kernel/rt.c: In function `change_owner':
+> kernel/rt.c:556: error: structure has no member named `debug'
 
-asmlinkage long sys_time(time_t __user * tloc)
-{
-        time_t i;
-        struct timeval tv;
+ok - i fixed this in -42-01.
 
-        do_gettimeofday(&tv);
-        i =3D tv.tv_sec;
+> 2. My problem (see my LKML mails yesterday) is not yet solved: The 
+> latency tracer shows latencies of at most 40 microseconds, but my test 
+> program at rtprio 99 sometimes did not get any CPU for milliseconds...
 
-        if (tloc) {
-                if (put_user(i,tloc))
-                        i =3D -EFAULT;
-        }
-        return i;
-}
+(please Cc: me on PREEMPT_RT related mails - i might not notice lkml 
+mails.) I'll reply to your lkml mail in a separate thread.
 
-I have no idea when it changed.
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
---Signature=_Thu__31_Mar_2005_21_25_16_+1000_ISH88l4Sh=HrLR1h
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCS94h4CJfqux9a+8RAiASAKCAxyBIJ2CsX70EKQ025acQNwZDrwCgiZPR
-1B/fuz19rjU1HP41DXH6V+M=
-=8qe4
------END PGP SIGNATURE-----
-
---Signature=_Thu__31_Mar_2005_21_25_16_+1000_ISH88l4Sh=HrLR1h--
+	Ingo

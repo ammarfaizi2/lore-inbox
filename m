@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbULFBdO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbULFBdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261447AbULFBdO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 20:33:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbULFBdO
+	id S261449AbULFBdY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 20:33:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbULFBdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 20:33:14 -0500
-Received: from mgr2.xmission.com ([198.60.22.202]:5562 "EHLO mgr2.xmission.com")
-	by vger.kernel.org with ESMTP id S261447AbULFBdL (ORCPT
+	Sun, 5 Dec 2004 20:33:24 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:49249 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261449AbULFBdR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 20:33:11 -0500
-Message-ID: <41B3B6D7.2000000@xmission.com>
-Date: Sun, 05 Dec 2004 18:33:11 -0700
-From: maxer <maxer@xmission.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: sk98lin.ko Marvell ethernet gigabit lan fails in 2.6.9, 2.6.8 kernels
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 5 Dec 2004 20:33:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=cO5CyyyyogdoxxXKPmQVlVi66FwwtF5bi2bmZEpKoMQxnTFHYG1+LaTPHqNrH/tcmJW91Uggaa/v7NStSGPkazLAWe/Wdto03+58bbbmphc4FF+cJkHa19C8zNh/3RGWHfTNgxz6qBrXmxY3WaEi+l0l0ZUZnS+eEv6jnW8Z+1U=
+Message-ID: <3b2b32004120517312d1cfe6c@mail.gmail.com>
+Date: Sun, 5 Dec 2004 20:31:11 -0500
+From: Linh Dang <dang.linh@gmail.com>
+Reply-To: Linh Dang <dang.linh@gmail.com>
+To: Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCH][PPC32[NEWBIE] enhancement to virt_to_bus/bus_to_virt (try 2)
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <16819.31194.561882.514591@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 166.70.55.125
-X-SA-Exim-Mail-From: maxer@xmission.com
-X-SA-Exim-Version: 4.0 (built Sat, 24 Apr 2004 12:31:30 +0200)
-X-SA-Exim-Scanned: Yes (on mgr1.xmission.com)
+References: <3b2b32004120206497a471367@mail.gmail.com>
+	 <3b2b320041202082812ee4709@mail.gmail.com>
+	 <16815.31634.698591.747661@cargo.ozlabs.ibm.com>
+	 <3b2b32004120306463b016029@mail.gmail.com>
+	 <16819.31194.561882.514591@cargo.ozlabs.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SysKonnect Marvell Gigabit lan seems to have been lost in the kernel 
-shuffle from 2.6.6 or 2.6.7.
+On Mon, 6 Dec 2004 08:12:58 +1100, Paul Mackerras <paulus@samba.org> wrote:
+> Linh Dang writes:
+> 
+> > I wrote a DMA engine (to used by other drivers) that (would like to) accept
+> > all kind of buffers as input (vmalloced, dual-access shared RAM mapped
+> > by BATs, etc). The DMA engine has to decode the virtual address of the
+> > input buffer to (possibly multiple) physical  address(es). virt_to_phys()
+> > has the right name for the job except it only works for the kernel virtual
+> > addresses initially mapped at KERNELBASE
+> 
+> Have you read Documentation/DMA-API.txt?  It explains the official
+> kernel API for DMA, and drivers should use it in order to be portable
+> to more than just one architecture.
 
-Has the maintainer dropped the ball on this?
+Thanx for the pointer, I'll read that carefully
 
-The module has never gone through any name change:
-/lib/modules/2.6.9/kernel/drivers/net/sk98lin/sk98lin.ko
+> 
+> If you want to create a competing DMA API, you'll have to show us at
+> least one driver that really needs your new API.
+> 
 
-I have dowloaded the patch from SysKonnect
-http://www.syskonnect.com/syskonnect/support/driver/d0102_driver.html
+I think I'll implement the official DMA API for my card (the card uses the
+Marvell 64460 as bridge).
 
-There are instructions for patching the sk98in driver.
+> Also, please don't change the existing virt_to_*/*_to_virt functions.
+> Instead define your own functions (with different names) in the same
+> source file as your other new code.
 
-I have successfully patched updated the driver and currently have it 
-working in 2.6.9
+Thanx for the answers.
 
-Who is the kernel maintainer for this?  Why hasn't the patch listed 
-above and dated October 20, 2004 been incorporated?
-
-Thanks,
-
-RaXeT
+-- 
+Linh Dang

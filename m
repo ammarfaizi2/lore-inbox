@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129272AbQKOSlm>; Wed, 15 Nov 2000 13:41:42 -0500
+	id <S129069AbQKOSpC>; Wed, 15 Nov 2000 13:45:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130571AbQKOSlc>; Wed, 15 Nov 2000 13:41:32 -0500
-Received: from d06lmsgate-3.uk.ibm.com ([195.212.29.3]:51943 "EHLO
-	d06lmsgate-3.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S129272AbQKOSlO>; Wed, 15 Nov 2000 13:41:14 -0500
-From: richardj_moore@uk.ibm.com
-X-Lotus-FromDomain: IBMGB
-To: Aamir Dogar <u970001@giki.edu.pk>
-cc: linux-kernel@vger.kernel.org
-Message-ID: <80256998.0063DEAA.00@d06mta06.portsmouth.uk.ibm.com>
-Date: Wed, 15 Nov 2000 17:10:56 +0000
-Subject: Re: Newbie
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S130414AbQKOSow>; Wed, 15 Nov 2000 13:44:52 -0500
+Received: from smtp.alacritech.com ([209.10.208.82]:42245 "EHLO
+	smtp.alacritech.com") by vger.kernel.org with ESMTP
+	id <S130364AbQKOSok>; Wed, 15 Nov 2000 13:44:40 -0500
+Message-ID: <3A12D40B.5646C9CD@alacritech.com>
+Date: Wed, 15 Nov 2000 10:20:59 -0800
+From: "Matt D. Robinson" <yakker@alacritech.com>
+Organization: Alacritech, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: richardj_moore@uk.ibm.com
+CC: Andrea Arcangeli <andrea@suse.de>, Josue.Amaro@oracle.com,
+        linux-kernel@vger.kernel.org, yakker@alacritech.com
+Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
+In-Reply-To: <80256998.005AB3E4.00@d06mta06.portsmouth.uk.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+richardj_moore@uk.ibm.com wrote:
+> > Well, not necessarily so while lkcd is not get accepted into the standard
+> > kernel source. [..]
+> 
+> It won't until it uses a separate driver that doesn't depend on scsi or
+> ide layer.
 
+We're working on it ... can't quit my day job, you know ... :)
 
-Not even Intel can spell kernal [sic] - see 486 Programmer's reference -
-description of protection mechanism.
-
-BTW one of the enhancements to the Pentium was an improvement in the
-spelling of kernel. :-)
-
-
-Richard Moore -  RAS Project Lead - Linux Technology Centre (PISC).
-
-http://oss.software.ibm.com/developerworks/opensource/linux
-Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
-IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
-
-
+--Matt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

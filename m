@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265936AbUA1NJJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 08:09:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265939AbUA1NJJ
+	id S265916AbUA1NUG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 08:20:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265950AbUA1NUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 08:09:09 -0500
-Received: from dodge.jordet.nu ([217.13.8.142]:19156 "EHLO dodge.jordet.nu")
-	by vger.kernel.org with ESMTP id S265936AbUA1NJG (ORCPT
+	Wed, 28 Jan 2004 08:20:06 -0500
+Received: from cerberus.ucs.mun.ca ([134.153.232.162]:59656 "EHLO smtp.mun.ca")
+	by vger.kernel.org with ESMTP id S265916AbUA1NUD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 08:09:06 -0500
-Subject: Re: 2.6.2-rc2-mm1
-From: Stian Jordet <liste@jordet.nu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <20040127233402.6f5d3497.akpm@osdl.org>
-References: <20040127233402.6f5d3497.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1075295330.667.1.camel@chevrolet.hybel>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 28 Jan 2004 14:08:50 +0100
+	Wed, 28 Jan 2004 08:20:03 -0500
+From: Stephen Anthony <stephena@cs.mun.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Status of UDF write on DVD-R(W) and CD-R(W) disks?
+Date: Wed, 28 Jan 2004 09:50:01 -0330
+User-Agent: KMail/1.5.3
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401280950.01174.stephena@cs.mun.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ons, 28.01.2004 kl. 08.34 skrev Andrew Morton:
->   If anyone has any more external trees which need similar treatment,
->   please let me know.
+I'm wondering about the status of UDF write support on DVD and CD media.  
+Specifically, does anyone know when (or even if) it will be possible to 
+do incremental writes on DVD-R or CD-R media using UDF and standard 
+system tools (cp and the like)?  I'd like to treat a DVD-R like a small 
+disk, and do mount, cp ..., umount.  Basically have everything work like 
+a hard disk, except of course there would be no delete.
 
-Have to agree with those that wants the fbdev-tree. But I'd also like to
-have isdn updated (useless for now):
+Please CC me if you want to response personally (I'm not subscribed to the 
+list).
 
-ftp://ftp.isdn4linux.de/pub/isdn4linux/kernel/v2.6
-
-Best regards,
-Stian
+Thanks,
+Steve
 

@@ -1,34 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261751AbVCNT37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbVCNTbg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261751AbVCNT37 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 14:29:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVCNT36
+	id S261775AbVCNTbg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 14:31:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbVCNTbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 14:29:58 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:41365 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261751AbVCNT34 (ORCPT
+	Mon, 14 Mar 2005 14:31:35 -0500
+Received: from waste.org ([216.27.176.166]:32675 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261755AbVCNTab (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 14:29:56 -0500
-Date: Mon, 14 Mar 2005 14:29:43 -0500
-From: Alan Cox <alan@redhat.com>
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       Alan Cox <alan@redhat.com>, Linux kernel <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: [patch] x86: fix ESP corruption CPU bug (take 2)
-Message-ID: <20050314192943.GG18826@devserv.devel.redhat.com>
-References: <42348474.7040808@aknet.ru> <20050313201020.GB8231@elf.ucw.cz> <4234A8DD.9080305@aknet.ru> <Pine.LNX.4.58.0503131306450.2822@ppc970.osdl.org> <4234B96C.9080901@aknet.ru>
+	Mon, 14 Mar 2005 14:30:31 -0500
+Date: Mon, 14 Mar 2005 11:29:18 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>, Max Asbock <masbock@us.ibm.com>,
+       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A3)
+Message-ID: <20050314192918.GC32638@waste.org>
+References: <1110590655.30498.327.camel@cog.beaverton.ibm.com> <20050313004902.GD3163@waste.org> <1110825765.30498.370.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4234B96C.9080901@aknet.ru>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1110825765.30498.370.camel@cog.beaverton.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 14, 2005 at 01:06:36AM +0300, Stas Sergeev wrote:
-> Alan, can you please apply that to an -ac
-> tree?
+On Mon, Mar 14, 2005 at 10:42:45AM -0800, john stultz wrote:
+> 
+> > > +static inline cycle_t read_timesource(struct timesource_t* ts)
+> > > +{
+> > > +	switch (ts->type) {
+> > > +	case TIMESOURCE_MMIO_32:
+> > > +		return (cycle_t)readl(ts->mmio_ptr);
+> > > +	case TIMESOURCE_MMIO_64:
+> > > +		return (cycle_t)readq(ts->mmio_ptr);
+> > > +	case TIMESOURCE_CYCLES:
+> > > +		return (cycle_t)get_cycles();
+> > > +	default:/* case: TIMESOURCE_FUNCTION */
+> > > +		return ts->read_fnct();
+> > > +	}
+> > > +}
+> > 
+> > Wouldn't it be better to change read_fnct to take a timesource * and
+> > then change all the other guys to generic_timesource_<foo> helper
+> > functions? This does away with the switch and makes it trivial to add
+> > new generic sources. Change mmio_ptr to void *private.
+> 
+> Not sure if I totally understand this, but originally I just had a read
+> function, but to allow this framework to function w/ ia64 fsyscalls (and
+> likely other arches vsyscalls) we need to pass the raw mmio pointers.
+> Thus the timesource type and switch idea was taken from the time
+> interpolator code.
 
-Ask Andrew Morton as it belongs in the -mm tree
+Well for vsyscall, we can leave the mmio_ptr and type. But in-kernel,
+I think we'd rather always call read_fnct with generic helpers than hit this
+switch every time.
+
+> > > +	if (time_suspend_state != TIME_RUNNING) {
+> > > +		printk(KERN_INFO "timeofday_suspend_hook: ACK! called while we're suspended!");
+> > 
+> > Line length. Perhaps BUG_ON instead.
+> 
+> Eh, its not fatal to BUG_ON seems a bit harsh. I'll fix the line length
+> though. 
+
+Well there's a trade-off here. If it's something that should never
+happen and you only printk, you may never get a failure report
+(especially at KERN_INFO). It's good to be accomodating of external
+errors, but catching internal should-never-happen errors is important.
+
+> > Excellent question. 
+> 
+> Indeed.  Currently jiffies is used as both a interrupt counter and a
+> time unit, and I'm trying make it just the former. If I emulate it then
+> it stops functioning as a interrupt counter, and if I don't then I'll
+> probably break assumptions about jiffies being a time unit. So I'm not
+> sure which is the easiest path to go until all the users of jiffies are
+> audited for intent. 
+
+Post this as a separate thread. There are various thoughts floating
+around on this already.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

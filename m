@@ -1,81 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267479AbTAQKSD>; Fri, 17 Jan 2003 05:18:03 -0500
+	id <S267481AbTAQKdG>; Fri, 17 Jan 2003 05:33:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267480AbTAQKSC>; Fri, 17 Jan 2003 05:18:02 -0500
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:54471 "EHLO
-	crisis.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id <S267479AbTAQKSB>; Fri, 17 Jan 2003 05:18:01 -0500
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.59
-References: <Pine.LNX.4.44.0301161826430.8879-100000@penguin.transmeta.com>
-	<20030117095921.GW2333@fs.tum.de>
-Organization: Metropolis -- Nowhere
-X-Attribution: maz
-Reply-to: mzyngier@freesurf.fr
-From: Marc Zyngier <mzyngier@freesurf.fr>
-Date: 17 Jan 2003 11:23:28 +0100
-Message-ID: <wrpel7cxefz.fsf@hina.wild-wind.fr.eu.org>
-In-Reply-To: <20030117095921.GW2333@fs.tum.de>
+	id <S267482AbTAQKdF>; Fri, 17 Jan 2003 05:33:05 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:14832 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S267481AbTAQKdF>;
+	Fri, 17 Jan 2003 05:33:05 -0500
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15911.56825.330331.454711@harpo.it.uu.se>
+Date: Fri, 17 Jan 2003 11:42:01 +0100
+To: rusty@rustcorp.com.au
+Subject: 2.5.59 broke CONFIG_PACKET=m ?
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Adrian" == Adrian Bunk <bunk@fs.tum.de> writes:
+2.5.59 with CONFIG_PACKET=m oopes when af_packet.ko is insmodded:
 
-Adrian> On Thu, Jan 16, 2003 at 06:28:03PM -0800, Linus Torvalds wrote:
->> ...
->> o EISA sysfs updates to 3c509 and 3c59x drivers
->> ...
+Unable to handle kernel paging request at virtual address 2220c021
+ printing eip:
+c0124011
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0060:[<c0124011>]    Not tainted
+EFLAGS: 00010097
+EIP is at __find_symbol+0x3d/0x7c
+eax: c020f70e   ebx: 00000536   ecx: 00000000   edx: c028b600
+esi: 2220c021   edi: e8889558   ebp: e8889558   esp: e67c5ecc
+ds: 007b   es: 007b   ss: 0068
+Process insmod (pid: 482, threadinfo=e67c4000 task=e6c80ce0)
+Stack: e8888f34 e8889a40 00000038 e8883f50 c0124960 e8889558 e67c5ef4 00000001 
+       e8888f34 e8889374 e67c5f28 c0124b2a e8883f50 00000016 e8889374 e8889558 
+       e8889a40 e8883f50 0000000c 00000017 e8889a40 00000000 0000007c c01253a4 
+Call Trace:
+ [<c0124960>] resolve_symbol+0x20/0x4c
+ [<c0124b2a>] simplify_symbols+0x82/0xe4
+ [<c01253a4>] load_module+0x5c4/0x7ec
+ [<c012562b>] sys_init_module+0x5f/0x194
+ [<c0108887>] syscall_call+0x7/0xb
 
-Adrian> This change browke the compilation of 3c509 with CONFIG_PM:
-
-Can you try this patch (compiles, but otherwise untested) ?
-
-Thanks,
-
-        M.
-
-===== drivers/net/3c509.c 1.30 vs edited =====
---- 1.30/drivers/net/3c509.c	Wed Jan 15 11:07:35 2003
-+++ edited/drivers/net/3c509.c	Fri Jan 17 11:17:18 2003
-@@ -319,16 +319,6 @@
- 	dev->watchdog_timeo = TX_TIMEOUT;
- 	dev->do_ioctl = netdev_ioctl;
+Code: ac ae 75 08 84 c0 75 f8 31 c0 eb 04 19 c0 0c 01 85 c0 75 0e 
  
--#ifdef CONFIG_PM
--	/* register power management */
--	lp->pmdev = pm_register(PM_ISA_DEV, card_idx, el3_pm_callback);
--	if (lp->pmdev) {
--		struct pm_dev *p;
--		p = lp->pmdev;
--		p->data = (struct net_device *)dev;
--	}
--#endif
--
- 	return 0;
- }
- 
-@@ -597,6 +587,16 @@
- 	lp->pnpdev = idev;
- #endif
- 	lp->mca_slot = mca_slot;
-+
-+#ifdef CONFIG_PM
-+	/* register power management */
-+	lp->pmdev = pm_register(PM_ISA_DEV, card_idx, el3_pm_callback);
-+	if (lp->pmdev) {
-+		struct pm_dev *p;
-+		p = lp->pmdev;
-+		p->data = (struct net_device *)dev;
-+	}
-+#endif
- 
- 	return el3_common_init (dev);
- }
+The same oops also happended when the box tried to load some NFS server module.
 
--- 
-Places change, faces change. Life is so very strange.
+2.5.58 modular had no problems, and 2.5.59 monolithic also works.
+
+/Mikael

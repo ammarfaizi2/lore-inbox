@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319126AbSIJOAS>; Tue, 10 Sep 2002 10:00:18 -0400
+	id <S319127AbSIJOCm>; Tue, 10 Sep 2002 10:02:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319124AbSIJOAS>; Tue, 10 Sep 2002 10:00:18 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:15810 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S319123AbSIJOAR>; Tue, 10 Sep 2002 10:00:17 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Tue, 10 Sep 2002 15:47:08 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Kernel List <linux-kernel@vger.kernel.org>
-Subject: ignore pci devices?
-Message-ID: <20020910134708.GA7836@bytesex.org>
+	id <S319128AbSIJOCk>; Tue, 10 Sep 2002 10:02:40 -0400
+Received: from ns.suse.de ([213.95.15.193]:18950 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S319127AbSIJOCO>;
+	Tue, 10 Sep 2002 10:02:14 -0400
+Date: Tue, 10 Sep 2002 16:07:00 +0200
+From: Dave Jones <davej@suse.de>
+To: Hans Reiser <reiser@namesys.com>
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org, green@namesys.com
+Subject: Re: [BK] ReiserFS changesets for 2.4 (performs writes more than 4k at a time)
+Message-ID: <20020910160659.A15158@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Hans Reiser <reiser@namesys.com>, marcelo@conectiva.com.br,
+	linux-kernel@vger.kernel.org, green@namesys.com
+References: <3D7DF05E.7030903@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3D7DF05E.7030903@namesys.com>; from reiser@namesys.com on Tue, Sep 10, 2002 at 05:15:10PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+On Tue, Sep 10, 2002 at 05:15:10PM +0400, Hans Reiser wrote:
 
-I have a small problem:  Some vendor has built a PCI board which
-(ab-)uses the bt848/878 chip in creative ways to do some DMA.  It is
-*not* a video card, thus letting the bttv driver control the card isn't
-very useful and causes trouble.  The card has no PCI Subsystem ID, so I
-can't identify and blacklist it easily.  Thus I need some way to allow
-the users to tell bttv (or the kernel) to ignore that particular PCI
-card.
+ > It passes all of our testing, but it is the kind of code that is more 
+ > likely than most to have elusive lurking bugs.  It cannot be tested in 
+ > 2.5 first because 2.5 is too broken at this particular moment.
 
-Is there already something generic for this?  Some kernel parameter
-which makes pci_module_init() skip a given PCI device for example?
+What in particular holds you back from testing this in 2.5 ?
+This seems quite dubious for inclusion first in what it supposed
+to be the stable series.
 
-Another way to fix this I'm thinking about is to add a insmod option
-along the lines "ignore=<bus>,<slot>" to bttv.  Comments?  Better idea?
-
-  Gerd
+        Dave
 
 -- 
-You can't please everybody.  And usually if you _try_ to please
-everybody, the end result is one big mess.
-				-- Linus Torvalds, 2002-04-20
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

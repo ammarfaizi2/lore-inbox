@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279912AbRKNA4A>; Tue, 13 Nov 2001 19:56:00 -0500
+	id <S279904AbRKNA4k>; Tue, 13 Nov 2001 19:56:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279907AbRKNAzu>; Tue, 13 Nov 2001 19:55:50 -0500
-Received: from 24-168-215-96.he.cox.rr.com ([24.168.215.96]:27781 "EHLO
-	asd.ppp0.com") by vger.kernel.org with ESMTP id <S279904AbRKNAze>;
-	Tue, 13 Nov 2001 19:55:34 -0500
-Date: Tue, 13 Nov 2001 19:55:34 -0500
-Mime-Version: 1.0 (Apple Message framework v472)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Subject: IDE tape problems
-From: Anthony DeRobertis <asd@suespammers.org>
-To: Linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-Message-Id: <4F289B8D-D89A-11D5-9181-00039355CFA6@suespammers.org>
-X-Mailer: Apple Mail (2.472)
+	id <S279907AbRKNA4b>; Tue, 13 Nov 2001 19:56:31 -0500
+Received: from modem-1461.leopard.dialup.pol.co.uk ([217.135.149.181]:10514
+	"EHLO Mail.MemAlpha.cx") by vger.kernel.org with ESMTP
+	id <S279904AbRKNA4W>; Tue, 13 Nov 2001 19:56:22 -0500
+Posted-Date: Wed, 14 Nov 2001 00:45:20 GMT
+Date: Wed, 14 Nov 2001 00:45:19 +0000 (GMT)
+From: Riley Williams <rhw@MemAlpha.cx>
+Reply-To: Riley Williams <rhw@MemAlpha.cx>
+To: Rob Turk <r.turk@chello.nl>
+cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: scsi_scan.c: emulate windows behavior
+In-Reply-To: <9srtm6$8hf$1@ncc1701.cistron.net>
+Message-ID: <Pine.LNX.4.21.0111140042000.3058-100000@Consulate.UFP.CX>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an interesting issue with the ide-tape driver. It manages 
-to truncate anything read from tape[0]. From a very limited data 
-set, it appears that the longer the data on the tape, the more 
-blocks are truncated.
+Hi Rob.
 
-I've tried 2.4.6 and 2.4.14. Tape drive is a Seagate STT20000A, 
-MB is a KT7-RAID w/ 768MB mem and an Athlon 1200. Drive is slave 
-on the second channel (on the VIA controller, not the highpoint 
-one). Other device is a BCD E520C CD-ROM. The tape is a 10G TR-5 
-from Imation.
+> Getting more than 36 bytes should not be a problem for any device.
+> The root problem seems to be that 255 is an odd number. On
+> Wide-SCSI, a lot of devices have difficulty handling odd byte counts
+> as they have to use additional messaging to flag the residue in the
+> last 16-bit transfer. Also, the IDE-SCSI layer has trouble, as the
+> IDE spec doesn't allow odd byte transfers at all. I've experienced
+> issues with IDE devices that had to have their firmware patched just
+> to deal with the Linux odd-byte request.
 
-This setup does work with SCSI emulation, though the console 
-gets spammed with messages like:
-	st0: Error with sense data: Current st09:00: sense key Illegal Request
-	Additional sense indicates Invalid command operation code
+> Maybe a better change would be to use 64 or 128 byte requests. Your
+> thoughts?
 
-Amanda works with the SCSI setup; with the IDE setup, amlabel 
-fails. I've tried re-tensioning the tape; no help.
+Probably the best option would be to tweak this to 256 if that is
+available, or 252 if not - I seem to remember there's at least one
+SCSI drive that can't handle other than multiples of 4 bytes.
 
-I'm willing to try patches, incantations, etc.
-
-[0] I assume it is truncating on the read side, but it could 
-very well be doing it on the write side.
+Best wishes from Riley.
 

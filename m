@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263117AbTDFVuh (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 17:50:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263120AbTDFVuh (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 17:50:37 -0400
-Received: from marcie.netcarrier.net ([216.178.72.21]:5900 "HELO
-	marcie.netcarrier.net") by vger.kernel.org with SMTP
-	id S263117AbTDFVue (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 17:50:34 -0400
-Message-ID: <3E90A341.54C017A0@compuserve.com>
-Date: Sun, 06 Apr 2003 17:59:29 -0400
-From: Kevin Brosius <cobra@compuserve.com>
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.5.66 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dave Jones <davej@codemonkey.org.uk>
-CC: torvalds@transmeta.com, kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 bk undefined reference to ip_amanda_lock ?
-References: <3E8ED6C6.316264C6@compuserve.com> <20030406195706.GA18213@suse.de>
+	id S263130AbTDFV7B (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 17:59:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263131AbTDFV7B (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 17:59:01 -0400
+Received: from holomorphy.com ([66.224.33.161]:25244 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263130AbTDFV66 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 17:58:58 -0400
+Date: Sun, 6 Apr 2003 15:10:01 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Robert Love <rml@tech9.net>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Martin Bligh <mbligh@aracnet.com>
+Subject: Re: 2.5.65-preempt booting on 32way NUMAQ
+Message-ID: <20030406221001.GQ993@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Zwane Mwaikambo <zwane@linuxpower.ca>, Robert Love <rml@tech9.net>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Martin Bligh <mbligh@aracnet.com>
+References: <Pine.LNX.4.50.0304060625130.2268-100000@montezuma.mastecende.com> <20030406112340.GM993@holomorphy.com> <1049653846.753.156.camel@localhost> <20030406214631.GP993@holomorphy.com> <Pine.LNX.4.50.0304061749570.2268-100000@montezuma.mastecende.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0304061749570.2268-100000@montezuma.mastecende.com>
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> 
-> 
-> On Sat, Apr 05, 2003 at 08:14:46AM -0500, Kevin Brosius wrote:
->  > Anyone else seeing:
->  >
->  >         ld -m elf_i386  -T arch/i386/vmlinux.lds.s
->  > arch/i386/kernel/head.o arch/i386/kernel/init_task.o   init/built-in.o
->  > --start-group  usr/built-in.o  arch/i386/kernel/built-in.o
->  > arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o
->  > kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o
->  > security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a
->  > drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o
->  > net/built-in.o --end-group  -o .tmp_vmlinux1
->  > net/built-in.o: In function `help':
->  > net/built-in.o(.text+0x6a283): undefined reference to `ip_amanda_lock'
->  > net/built-in.o(.text+0x6a2ac): undefined reference to `ip_amanda_lock'
->  > net/built-in.o(.text+0x6a2c5): undefined reference to `ip_amanda_lock'
->  > net/built-in.o(.text+0x6a2da): undefined reference to `ip_amanda_lock'
->  > net/built-in.o(.text+0x6a2ec): undefined reference to `ip_amanda_lock'
->  > net/built-in.o(.text+0x6a334): more undefined references to
->  > `ip_amanda_lock' follow
->  > make: *** [.tmp_vmlinux1] Error 1
->  >
->  > in 2.5 bk current?  I've attached 'grep "=[y|m]" .config'
-> 
-> Looks like a cut-n-paste thinko.
-> 
->                 Dave
-> 
+On Sun, 6 Apr 2003, William Lee Irwin III wrote:
+>> I presumed the audit was perpetual and/or ongoing.
 
-Excellent, that fixes it.  Thank you.
+On Sun, Apr 06, 2003 at 05:50:36PM -0400, Zwane Mwaikambo wrote:
+> Martin says the NUMAQ per node stuff isn't preempt safe, might be worth 
+> looking there too.
 
--- 
-Kevin
+The only scary bit is numa_node_id() in __alloc_pages(); this is fine
+because it's speculative anyway.
+
+There isn't much usage of numa_node_id() in the i386 arch code.
+
+
+-- wli

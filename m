@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265844AbSLXVCp>; Tue, 24 Dec 2002 16:02:45 -0500
+	id <S265863AbSLXVNb>; Tue, 24 Dec 2002 16:13:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265857AbSLXVCp>; Tue, 24 Dec 2002 16:02:45 -0500
-Received: from users.linvision.com ([62.58.92.114]:47575 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S265844AbSLXVCo>; Tue, 24 Dec 2002 16:02:44 -0500
-Date: Tue, 24 Dec 2002 22:10:19 +0100
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>, lk@tantalophile.demon.co.uk,
-       Ingo Molnar <mingo@elte.hu>, drepper@redhat.com,
-       bart@etpmod.phys.tue.nl, davej@codemonkey.org.uk, hpa@transmeta.com,
-       terje.eggestad@scali.com, matti.aarnio@zmailer.org, hugh@veritas.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Intel P6 vs P7 system call performance
-Message-ID: <20021224221019.A20369@bitwizard.nl>
-References: <20021224090520.A19829@bitwizard.nl> <Pine.LNX.4.44.0212241049100.1230-100000@home.transmeta.com>
+	id <S265865AbSLXVNb>; Tue, 24 Dec 2002 16:13:31 -0500
+Received: from f178.law7.hotmail.com ([216.33.237.178]:37893 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S265863AbSLXVNa>;
+	Tue, 24 Dec 2002 16:13:30 -0500
+X-Originating-IP: [198.70.229.121]
+From: "Randy S." <hey_randy@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: nForce2 chipset and agpgart: unsupported bridge?
+Date: Tue, 24 Dec 2002 16:21:37 -0500
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0212241049100.1230-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+Content-Type: text/plain; format=flowed
+Message-ID: <F178vHerWJncooYw6zX00012563@hotmail.com>
+X-OriginalArrivalTime: 24 Dec 2002 21:21:38.0157 (UTC) FILETIME=[71BCD1D0:01C2AB92]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 24, 2002 at 10:51:11AM -0800, Linus Torvalds wrote:
-> 
-> Everything here fits in one cache-line, so clearly the cacheline issues
-> don't matter.
+Hi folks,
 
-I'm getting old. Larger cache lines, you're right. 
+  I recently acquired a motherboard with an NVidia nForce 2 chipset (more 
+specifically, its a Chaintech CT-7NJS). I have a Radeon 9700PRO video card 
+that I'm running in this machine.  I've got integrated networking, sound, 
+XFree86, etc. working, but am having trouble getting 3D acceleration to 
+work.
 
-			Roger. 
+   My kernel is 2.4.19.  Agpgart does not appear to be able to detect the 
+nForce 2 chipset's bridge. There is no vendor entry for nvidia at all, 
+actually -- otherwise I might have gotten by with agp_try_unsupported=1.
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* The Worlds Ecosystem is a stable system. Stable systems may experience *
-* excursions from the stable situation. We are currently in such an      * 
-* excursion: The stable situation does not include humans. ***************
+   Has anyone written nForce2 support for agp? Is so, where can I find the 
+source?   I found drivers for the nvidia IGP (which I don't have), but not 
+for agpgart itself at the nvidia site.  If I find the source, I believe I'll 
+have to merge it manually since the 3D driver for Radeon 9700 (fglrx) 
+includes a modified agpgart_be.c.
+
+    If this is not a new question, my apologies -- I couldn't find an answer 
+anywhere in the archives.
+
+   Please CC me directly on any reply, as I'm not currently subscribed.
+
+Thanks!
+   Randy Sharo
+   hey_randy@hotmail.com
+
+
+_________________________________________________________________
+MSN 8: advanced junk mail protection and 3 months FREE*. 
+http://join.msn.com/?page=features/junkmail&xAPID=42&PS=47575&PI=7324&DI=7474&SU= 
+http://www.hotmail.msn.com/cgi-bin/getmsg&HL=1216hotmailtaglines_advancedjmf_3mf
+

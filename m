@@ -1,79 +1,59 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S153926AbPGIKoB>; Fri, 9 Jul 1999 06:44:01 -0400
-Received: by vger.rutgers.edu id <S153931AbPGIKnR>; Fri, 9 Jul 1999 06:43:17 -0400
-Received: from [210.140.67.114] ([210.140.67.114]:1558 "EHLO soto.zerosoft.co.jp") by vger.rutgers.edu with ESMTP id <S153918AbPGIKlM>; Fri, 9 Jul 1999 06:41:12 -0400
-Date: Fri, 09 Jul 1999 19:41:24 +0900
-From: Masahiro Adegawa <adegawa@zerosoft.co.jp>
-To: linux-kernel@vger.rutgers.edu
-Subject: [PATCH] SGI's kdb version v0.4
-Message-Id: <3785D1D4130.9F7FADEGAWA@mail.zerosoft.co.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver 1.25.04
+Received: by vger.rutgers.edu via listexpand id <S153993AbPGIUpI>; Fri, 9 Jul 1999 16:45:08 -0400
+Received: by vger.rutgers.edu id <S153877AbPGIUox>; Fri, 9 Jul 1999 16:44:53 -0400
+Received: from sgi.SGI.COM ([192.48.153.1]:24622 "EHLO sgi.com") by vger.rutgers.edu with ESMTP id <S153900AbPGIUna>; Fri, 9 Jul 1999 16:43:30 -0400
+To: Robert Walsh <rjwalsh@durables.org>
+Cc: linux-kernel@vger.rutgers.edu
+Subject: Re: kernel profiling
+References: <7m3tm8$7lvnt@fido.engr.sgi.com>
+From: Dimitris Michailidis <dimitris@darkside.engr.sgi.com>
+Date: 09 Jul 1999 13:43:40 -0700
+In-Reply-To: Robert Walsh's message of "8 Jul 1999 21:26:48 -0700"
+Message-ID: <6yrwvw9y2o3.fsf@darkside.engr.sgi.com>
+X-Mailer: Gnus v5.5/XEmacs 20.4 - "Emerald"
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hello,
+Robert Walsh <rjwalsh@durables.org> writes:
 
-1. simple numeric address for `bp'
-2. `rd c' and 'rd d'
+> Other than /dev/profile, is there any mechanism available for
+> profiling the kernel?  For example, has anyone implemented a
+> __mcount() function to handle a kernel compiled with -pg, or is this
+> even possible?
+> 
+> We're currently profiling the kernel NFS daemon (the entire path from
+> network to disk) using SPECsfs and other benchmarking mechanisms, and
+> before I start working on a home-grown profiling mechanism I'd like to
+> make sure I'm not reinventing the wheel.
+> 
+> BTW: /proc/profile hasn't got enough granularity for our purposes and
+> doesn't provide info such as call-graph statistics.
 
-diff -u linux-2.2.9-ik/arch/i386/kdb/kdb_bp.c linux/arch/i386/kdb/kdb_bp.c
---- linux-2.2.9-ik/arch/i386/kdb/kdb_bp.c       Mon Jun 21 15:28:32 1999
-+++ linux/arch/i386/kdb/kdb_bp.c        Thu Jul  8 18:18:42 1999
-@@ -348,7 +348,7 @@
- #endif
+Back in May I posted a patch to enable kernel profiling using gprof, which
+should give you the call graph statistics you want.  The patch basically
+implements mcount() to collect statistics, adds a couple of files to /proc to 
+make the statistics available to the user land, and provides a command,
+kernprof, to generate gmon.out for consumption by gprof.  kernprof, in
+addition to preparing data for gprof, also does the job of readprofile, with
+a number of bugs of the latter fixed.
 
-        nextarg = 1;
--       diag = kdbgetaddrarg(argc, argv, &nextarg, &addr, &offset, &symname, regs);
-+       diag = kdbgetaddrarg(argc, argv, &nextarg, &addr, &offset, NULL, regs);
-        if (diag)
-                return diag;
+You can get the patch from
 
-diff -u linux-2.2.9-ik/arch/i386/kdb/kdbsupport.c linux/arch/i386/kdb/kdbsupport.c
---- linux-2.2.9-ik/arch/i386/kdb/kdbsupport.c   Mon Jun 21 15:28:32 1999
-+++ linux/arch/i386/kdb/kdbsupport.c    Fri Jul  9 11:26:02 1999
-@@ -730,8 +730,8 @@
-                           dr[0], dr[1], dr[2], dr[3]);
-                kdb_printf("dr6 = 0x%8.8x  dr7 = 0x%8.8x\n",
-                           dr[6], dr[7]);
-+               return 0;
-        }
--               break;
-        case 'c':
-        {
-                unsigned long cr[5];
-@@ -741,8 +741,8 @@
-                }
-                kdb_printf("cr0 = 0x%8.8x  cr1 = 0x%8.8x  cr2 = 0x%8.8x  cr3 = 0x%8.8x\ncr4 = 0x%8.8x\n",
-                           cr[0], cr[1], cr[2], cr[3], cr[4]);
-+               return 0;
-        }
--               break;
-        case 'm':
-                break;
-        case 'r':
+http://linuxwww.db.erau.edu/mail_archives/linux-kernel/May_99/2383.html
 
-/*********************************************************/
-(3.only Japanese 86/106 keyboards)
+or other archives.  Since there has been no response to this patch there has
+been no further development since the initial release, but it probably still
+applies cleanly against the 2.2.x kernels.
 
---- linux-2.2.9-kdb/arch/i386/kdb/kdb_io.c.org  Sat Jun  5 23:46:12 1999
-+++ linux-2.2.9-kdb/arch/i386/kdb/kdb_io.c      Sun Jun  6 10:46:16 1999
-@@ -183,6 +183,12 @@
-                if (scancode == 0xe0) {
-                        continue;
-                }
-+
-+               if (scancode == 0x73) {         /* see driver/char/pc_keyb.c */
-+                       scancode = 0x59;        /* for Japanese 86/106 keyboards */
-+               } else if (scancode == 0x7d) {
-+                       scancode = 0x7c;
-+               }
+As noted in the initial post, due to bugs in gcc/egcs that cause
+miscompilation of programs that use -pg and regparms, to use this patch you
+either need a hacked version of egcs or you need to disable the FASTCALLs in
+the kernel (the latter is done in the IKD patch).
 
-                if (!shift_lock && !shift_key) {
-                        keychar = plain_map[scancode];
+Let me know if you have any suggestions to improve the patch or need other
+assistance.
 
- -Masahiro Adegawa
+-- 
+Dimitris Michailidis                    dimitris@engr.sgi.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

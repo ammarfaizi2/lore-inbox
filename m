@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261464AbSJMIt0>; Sun, 13 Oct 2002 04:49:26 -0400
+	id <S261463AbSJMItV>; Sun, 13 Oct 2002 04:49:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261465AbSJMIt0>; Sun, 13 Oct 2002 04:49:26 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:25229 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261464AbSJMItZ>;
-	Sun, 13 Oct 2002 04:49:25 -0400
-Date: Sun, 13 Oct 2002 01:48:24 -0700 (PDT)
-Message-Id: <20021013.014824.35797032.davem@redhat.com>
-To: efault@gmx.de
-Cc: wagnerjd@prodigy.net, robm@fastmail.fm, hahn@physics.mcmaster.ca,
-       linux-kernel@vger.kernel.org, jhoward@fastmail.fm
+	id <S261464AbSJMItV>; Sun, 13 Oct 2002 04:49:21 -0400
+Received: from holomorphy.com ([66.224.33.161]:56968 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261463AbSJMItU>;
+	Sun, 13 Oct 2002 04:49:20 -0400
+Date: Sun, 13 Oct 2002 01:51:22 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Joseph D. Wagner" <wagnerjd@prodigy.net>
+Cc: "'David S. Miller'" <davem@redhat.com>, robm@fastmail.fm,
+       hahn@physics.mcmaster.ca, linux-kernel@vger.kernel.org,
+       jhoward@fastmail.fm
 Subject: Re: Strange load spikes on 2.4.19 kernel
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <5.1.0.14.2.20021013104231.00bbbf88@pop.gmx.net>
-References: <20021013.011344.58438240.davem@redhat.com>
-	<000f01c27294$438d5fa0$7443f4d1@joe>
-	<5.1.0.14.2.20021013104231.00bbbf88@pop.gmx.net>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Message-ID: <20021013085122.GA27878@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Joseph D. Wagner" <wagnerjd@prodigy.net>,
+	"'David S. Miller'" <davem@redhat.com>, robm@fastmail.fm,
+	hahn@physics.mcmaster.ca, linux-kernel@vger.kernel.org,
+	jhoward@fastmail.fm
+References: <20021013.011344.58438240.davem@redhat.com> <000f01c27294$438d5fa0$7443f4d1@joe>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <000f01c27294$438d5fa0$7443f4d1@joe>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Mike Galbraith <efault@gmx.de>
-   Date: Sun, 13 Oct 2002 10:48:21 +0200
-   
-   You seem to think "threaded" means there can be no critical sections.
+On Sun, Oct 13, 2002 at 03:40:51AM -0500, Joseph D. Wagner wrote:
+> Does anyone besides me notice that the more Dave and I argue the longer
+> and longer the list of extenuating circumstances gets in order for Dave
+> to continue to be right?
+> In this email, I'm not right if the data is on separate partitions.
+> Dave, do you realize how many people, despite advice to the contrary,
+> put everything on one honk'in / partition?  For all those people, I'm
 
-And as I mention in my other email, the allocation can be
-broken down into a single instruction's worth of critical section.
-Which is as good as his version of "threaded" could be.
+There are enough managers to put up with without asinine browbeating
+about a feature whose design is already done and implementation
+underway not being implemented, posted, and merged yet.
+
+If this is not happening fast enough for your tastes you should write
+the code yourself instead of hounding those actually doing it.
+
+I don't have time for this.
+
+*plonk*
+
+
+Bill

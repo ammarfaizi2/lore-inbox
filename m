@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262060AbUBWWem (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 17:34:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbUBWWem
+	id S262073AbUBWW2W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 17:28:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbUBWW2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 17:34:42 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:45224 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262060AbUBWWeh (ORCPT
+	Mon, 23 Feb 2004 17:28:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:923 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262076AbUBWW2N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 17:34:37 -0500
-Date: Mon, 23 Feb 2004 22:29:28 +0000
-From: Joe Thornber <thornber@redhat.com>
-To: Mike Christie <mikenc@us.ibm.com>
-Cc: Joe Thornber <thornber@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch 1/6] dm: endio method
-Message-ID: <20040223222928.GB14731@reti>
-References: <20040220153145.GN27549@reti> <20040220153403.GO27549@reti> <40372BCE.7090708@us.ibm.com> <20040223100512.GB943@reti> <403A79E0.6080609@us.ibm.com>
+	Mon, 23 Feb 2004 17:28:13 -0500
+Date: Mon, 23 Feb 2004 14:28:11 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Andrew Morton <akpm@osdl.org>, Willy Weisz <weisz@vcpc.univie.ac.at>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Fw: Client looses NFS handle (kernel 2.6.3)
+Message-ID: <20040223142811.I22989@build.pdx.osdl.net>
+References: <20040221214345.6533eb68.akpm@osdl.org> <1077444724.2944.10.camel@nidelv.trondhjem.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <403A79E0.6080609@us.ibm.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1077444724.2944.10.camel@nidelv.trondhjem.org>; from trond.myklebust@fys.uio.no on Sun, Feb 22, 2004 at 02:12:05AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 23, 2004 at 02:08:32PM -0800, Mike Christie wrote:
-> With this move if the path has to be activated first, will the daemon 
-> have to call some sort of ps_path_is_initialized() function before it 
-> calls generic_make_request?
+* Trond Myklebust (trond.myklebust@fys.uio.no) wrote:
+> The "Can't bind to reserved port" error message looks like the known
+> problem when you set CONFIG_SECURITY. It has been discussed several
+> times already on l-k.
+> 
+> Please either disable CONFIG_SECURITY (it's not as if *that* is going to
+> be a showstopper when migrating to 2.6.x from 2.4.x) or go to my website
+> and apply the advertised fix:
+> 
+> http://www.fys.uio.no/~trondmy/src/Linux-2.6.x/2.6.3/linux-2.6.3-08-reconnect.dif
 
-Yes, I am planning to add something like this.  Whether it needs to be
-per path, or we could get away per priority group is probably a
-question that you could answer better than me ?  Do we need a
-corresponding deactivate for some hardware ?
+Looks nice.  Will this go upstream, or is there still other issue?
 
-> tio's map_info so it could be set from the daemon, or mp may need to 
-> allocate its own io wrapper. It seems the latter may now be needed to 
-> give ps's a a map_info, becuase dm-mpath needs to store the path in the 
-> tio's map_info.
-
-I think the bio recording/reset is going to have to move inside the
-target.  It makes sense that the mpath target should be the only one
-that incurs this overhead.  So yes, there will have to be a wrapper
-which could be used to provide context for the ps.
-
-- Joe
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

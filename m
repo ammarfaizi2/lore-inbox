@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316512AbSE0C4W>; Sun, 26 May 2002 22:56:22 -0400
+	id <S316513AbSE0DiK>; Sun, 26 May 2002 23:38:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316514AbSE0C4V>; Sun, 26 May 2002 22:56:21 -0400
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:17851 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S316512AbSE0C4U>; Sun, 26 May 2002 22:56:20 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com, viro@math.psu.edu
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [PATCH] MAINTAINERS file addition: Al Viro
-Date: Mon, 27 May 2002 12:59:35 +1000
-Message-Id: <E17CAjP-0005eK-00@wagner.rustcorp.com.au>
+	id <S316514AbSE0DiJ>; Sun, 26 May 2002 23:38:09 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28433 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316513AbSE0DiJ>; Sun, 26 May 2002 23:38:09 -0400
+Date: Sun, 26 May 2002 20:38:26 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 5/18] mark swapout pages PageWriteback()
+In-Reply-To: <3CF197A8.A5DB850B@zip.com.au>
+Message-ID: <Pine.LNX.4.44.0205262035200.1746-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm sick of searching my mail archives to find that email addr.
 
-Rusty.
 
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.18/MAINTAINERS working-2.5.18-viro/MAINTAINERS
---- linux-2.5.18/MAINTAINERS	Sat May 25 14:34:34 2002
-+++ working-2.5.18-viro/MAINTAINERS	Mon May 27 12:57:42 2002
-@@ -574,6 +574,11 @@
- L:	linux-fsdevel@vger.kernel.org
- S:	Maintained
- 
-+FILESYSTEMS (VFS and infrastructure)
-+P:	Alexander Viro
-+M:	viro@math.psu.edu
-+S:	Maintained
-+
- FPU EMULATOR
- P:	Bill Metzenthen
- M:	billm@suburbia.net
+On Sun, 26 May 2002, Andrew Morton wrote:
+>
+> But I recall you saying that there was advantage in keeping swapout pages
+> locked so that aggressive memory users would throttle against their
+> own swapout.  What's the story there?
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+The advantage is not the lock itself, as much as having people who page in
+swap pages be delayed on them - which ends up slowing down processes that
+swap a lot.
+
+BUT: that could equally well be done by doing a "wait_on_writeback()" or
+similar, and it could also be a tunable thing (ie wait on writeback only
+when we actually need to slow them down). In particular, _not_ slowing
+them down does improve throughput, it just makes it really really nasty
+from an interactive standpoint under some loads.
+
+I don't know. I have this feeling that it would be good to try to share
+all the semantics between swap pages and shared file mappings, but at the
+same time I also have to admit to believing that swap _is_ special in some
+ways, so if we don't ever really unify them I won't be shedding any huge
+tears.
+
+		Linus
+

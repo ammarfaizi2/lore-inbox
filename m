@@ -1,28 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264409AbUDSN1w (ORCPT <rfc822;willy@w.ods.org>);
+	id S264408AbUDSN1w (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 19 Apr 2004 09:27:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264430AbUDSN0w
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264432AbUDSN0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 09:26:52 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11790 "EHLO
+	Mon, 19 Apr 2004 09:26:45 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:10766 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264408AbUDSNVK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 09:21:10 -0400
+	id S264409AbUDSNVD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 09:21:03 -0400
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Clean up asm/pgalloc.h include (H8300)
+To: Linux Kernel List <linux-kernel@vger.kernel.org>, dev-etrax@axis.com,
+       bjornw@axis.com
+Subject: Re: [PATCH] Clean up asm/pgalloc.h include (cris)
 In-Reply-To: <20040418232314.A2045@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Sun, Apr 18, 2004 at 11:23:14PM +0100
 References: <20040418231720.C12222@flint.arm.linux.org.uk> <20040418232314.A2045@flint.arm.linux.org.uk>
-Message-Id: <E1BFYhw-00055s-DN@dyn-67.arm.linux.org.uk>
-Date: Mon, 19 Apr 2004 14:21:08 +0100
+Message-Id: <E1BFYhn-00055p-Qr@dyn-67.arm.linux.org.uk>
+Date: Mon, 19 Apr 2004 14:20:59 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-*** H8300 doesn't seem to have a maintainer ***
-
 This patch cleans up needless includes of asm/pgalloc.h from the
-arch/h8300/ subtree.  This has not been compile tested, so
+arch/cris/ subtree.  This has not been compile tested, so
 needs the architecture maintainers (or willing volunteers) to
 test.
 
@@ -41,25 +40,14 @@ you need to include some other header file rather than pgalloc.h.
 Normally this is either asm/pgtable.h (unlikely), asm/cacheflush.h
 or asm/tlbflush.h.
 
-===== arch/h8300/kernel/h8300_ksyms.c 1.2 vs edited =====
---- 1.2/arch/h8300/kernel/h8300_ksyms.c	Wed Sep 24 07:15:36 2003
-+++ edited/arch/h8300/kernel/h8300_ksyms.c	Mon Apr 19 13:34:39 2004
-@@ -10,7 +10,6 @@
- #include <linux/config.h>
+===== arch/cris/mm/ioremap.c 1.5 vs edited =====
+--- 1.5/arch/cris/mm/ioremap.c	Thu Oct  2 08:11:59 2003
++++ edited/arch/cris/mm/ioremap.c	Mon Apr 19 13:33:59 2004
+@@ -11,7 +11,6 @@
  
- #include <asm/setup.h>
--#include <asm/pgalloc.h>
- #include <asm/irq.h>
+ #include <linux/vmalloc.h>
  #include <asm/io.h>
- #include <asm/semaphore.h>
-===== arch/h8300/mm/kmap.c 1.1 vs edited =====
---- 1.1/arch/h8300/mm/kmap.c	Mon Feb 17 00:01:58 2003
-+++ edited/arch/h8300/mm/kmap.c	Mon Apr 19 13:34:39 2004
-@@ -19,7 +19,6 @@
- #include <asm/setup.h>
- #include <asm/segment.h>
- #include <asm/page.h>
 -#include <asm/pgalloc.h>
- #include <asm/io.h>
- #include <asm/system.h>
+ #include <asm/cacheflush.h>
+ #include <asm/tlbflush.h>
  

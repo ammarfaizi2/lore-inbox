@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262640AbVA0Plx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262645AbVA0Pq6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262640AbVA0Plx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 10:41:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbVA0Plx
+	id S262645AbVA0Pq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 10:46:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262646AbVA0Pq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 10:41:53 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:30604 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262640AbVA0Plq
+	Thu, 27 Jan 2005 10:46:58 -0500
+Received: from relay1.tiscali.de ([62.26.116.129]:55184 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S262645AbVA0Pqx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 10:41:46 -0500
-Message-ID: <41F90C85.5090705@tmr.com>
-Date: Thu, 27 Jan 2005 10:45:09 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+	Thu, 27 Jan 2005 10:46:53 -0500
+Message-ID: <41F9290E.1050209@tiscali.de>
+Date: Thu, 27 Jan 2005 17:46:54 +0000
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Sytse Wielinga <s.b.wielinga@student.utwente.nl>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm1: fuse patch needs new libs
-References: <20050124021516.5d1ee686.akpm@osdl.org><20050124021516.5d1ee686.akpm@osdl.org> <20050125000339.GA610@speedy.student.utwente.nl>
-In-Reply-To: <20050125000339.GA610@speedy.student.utwente.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Chris Wedgwood <cw@f00f.org>
+CC: Steve Lord <lord@xfs.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Preempt & Xfs Question
+References: <41F91470.6040204@tiscali.de> <41F908C4.4080608@xfs.org> <20050127154017.GA12493@taniwha.stupidest.org>
+In-Reply-To: <20050127154017.GA12493@taniwha.stupidest.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sytse Wielinga wrote:
-> Hi Andrew,
-> 
-> On Mon, Jan 24, 2005 at 02:15:16AM -0800, Andrew Morton wrote:
-> 
->>fuse-transfer-readdir-data-through-device.patch
->>  fuse: transfer readdir data through device
-> 
-> It is great that this is fixed, don't remove it, but it does require the fuse
-> libs to be updated at the same time, or opening dirs for listings will break
-> like this:
-> 
-> open(".", O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_DIRECTORY) = -1 ENOSYS (Function
-> not implemented)
-> 
-> As I personally like for my ls to keep on working, and I assume others will,
-> too, I would appreciate it if you could add a warning to your announcements the
-> following one or two weeks or so, so that people can remove this patch if they
-> don't want to update their libs.
+Chris Wedgwood wrote:
 
-By any chance would this also break perl programs which readdir?
+>>BUG: using smp_processor_id() in preemptible [00000001] code:
+>>khelper/892
+>>    
+>>
+>
+>fixed in CVS, I guess it will hit mainline soon
+>
+>  
+>
+How did you fix it?
+
+Matthias-Christian Ott
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+http://unixforge.org/~matthias-christian-ott/
+

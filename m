@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263504AbTKFLvt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 06:51:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263510AbTKFLvt
+	id S263523AbTKFL6J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 06:58:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263524AbTKFL6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 06:51:49 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:44450 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id S263504AbTKFLvs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 06:51:48 -0500
-Date: Thu, 6 Nov 2003 22:51:01 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: agl@us.ibm.com, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [RFC] Smarter stack traces using the frame pointer
-Message-Id: <20031106225101.33e15a48.sfr@canb.auug.org.au>
-In-Reply-To: <119200000.1068062194@flay>
-References: <1067984031.544.23.camel@agtpad>
-	<20031105132138.59326dd4.sfr@canb.auug.org.au>
-	<119200000.1068062194@flay>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Thu, 6 Nov 2003 06:58:09 -0500
+Received: from ns.schottelius.org ([213.146.113.242]:28846 "HELO
+	ns.schottelius.org") by vger.kernel.org with SMTP id S263523AbTKFL6H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 06:58:07 -0500
+Date: Thu, 6 Nov 2003 12:58:13 +0100
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: gadio@netvision.net.il, linux-kernel@vger.kernel.org
+Subject: ide-scsi question: 2x
+Message-ID: <20031106115813.GF25124@schottelius.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux bruehe 2.6.0-test4
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 05 Nov 2003 11:56:34 -0800 "Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
-> What's the difference between the two patches, apart from the size?
-> Better error handling / functionality somehow? 
+Hello!
 
-I think mine handles more cases, but is much more of a hack ...
+1. why is printk used without KERN_* makro?
+   like '        printk("[ ");' (267), ide-scsi from 2.6.0test9, version 0.92
+   (there are more examples)
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+2. is the command line hdx=ide-scsi still necessary?
+   -> if not, we should update the help
+   Can't we pass the options via module parameters (if it is a module) ?
+   -> if yes, we should update the help
+   -> if no, is it possible to implement it?
+
+Nico

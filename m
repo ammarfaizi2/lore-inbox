@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261690AbTILODn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 10:03:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbTILODn
+	id S261637AbTILOQc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 10:16:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbTILOQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 10:03:43 -0400
-Received: from dsl092-073-159.bos1.dsl.speakeasy.net ([66.92.73.159]:22541
-	"EHLO yupa.krose.org") by vger.kernel.org with ESMTP
-	id S261690AbTILODm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 10:03:42 -0400
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NVIDIA proprietary driver problem
-References: <87u17if7eu.fsf@nausicaa.krose.org>
-	<Pine.LNX.4.51.0309121553500.14124@dns.toxicfilms.tv>
-X-Home-Page: http://www.krose.org/~krose/
-From: Kyle Rose <krose+linux-kernel@krose.org>
-Organization: krose.org
-Content-Type: text/plain; charset=US-ASCII
-Date: Fri, 12 Sep 2003 10:03:22 -0400
-In-Reply-To: <Pine.LNX.4.51.0309121553500.14124@dns.toxicfilms.tv> (Maciej
- Soltysiak's message of "Fri, 12 Sep 2003 15:54:55 +0200 (CEST)")
-Message-ID: <87r82mf6j9.fsf@nausicaa.krose.org>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) XEmacs/21.4 (Rational FORTRAN,
- i386-debian-linux)
+	Fri, 12 Sep 2003 10:16:31 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:20698 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S261637AbTILOQa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 10:16:30 -0400
+Date: Fri, 12 Sep 2003 16:16:20 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: James Bottomley <James.Bottomley@steeleye.com>
+cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] NCR53c406a.c warning
+In-Reply-To: <1063374111.1767.2.camel@mulgrave>
+Message-ID: <Pine.GSO.3.96.1030912161154.17936I-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej Soltysiak <solt@dns.toxicfilms.tv> writes:
+On 12 Sep 2003, James Bottomley wrote:
 
->> Sep 11 23:37:57 nausicaa kernel: 0: nvidia: Can't find an IRQ for your NVIDIA card!
->> Sep 11 23:37:57 nausicaa kernel: 0: nvidia: Please check your BIOS settings.
->> Sep 11 23:37:57 nausicaa kernel: 0: nvidia: [Plug & Play OS   ] should be set to NO
-> I wonder why pnp os should be off?
-> Linux does support pnp, and is a pnp os. Isn't it?
->
-> Have you tried disabling apic? Maybe it's an apic or irq routing bug?
+> > NCR53c406a: Apparently wait_intr() is unused, so remove it.
+> 
+> It is currently unused.  However, the reason is that we removed the scsi
+> command method that allows polled operation in a driver (this routine is
+> actually polling the interrupt port on the chip).
+> 
+> I'd like to wait a while to see if anyone still needs this mode when 2.6
+> gets a wider test audience.  If you wish, you can surround the routine
+> with #if 0 and a comment saying we can junk it later if it really is
+> unnecessary.
 
-SMP without APIC doesn't make sense, but I suppose I could try running
-a non-SMP kernel to see if the problem goes away.  Still, APIC is
-active in test4 and the driver works there.
+ I've encountered an ISA adapter using this chip in polled mode (no ISA
+IRQ line routed to the chip) quite recently.  But I can't say if the guy
+using it won't throw it away before final 2.6. ;-)
 
-> What motherboard is it?
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
-Tyan Tiger MP, dual Athlon MP 1800's.
-
-Cheers,
-Kyle

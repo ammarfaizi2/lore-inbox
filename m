@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315942AbSHFWUF>; Tue, 6 Aug 2002 18:20:05 -0400
+	id <S315988AbSHFWYP>; Tue, 6 Aug 2002 18:24:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315946AbSHFWUF>; Tue, 6 Aug 2002 18:20:05 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:6134 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S315942AbSHFWUE>; Tue, 6 Aug 2002 18:20:04 -0400
-Date: Tue, 6 Aug 2002 15:21:53 -0700
-From: Chris Wright <chris@wirex.com>
-To: linux-security-module@wirex.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] 2.5.30-lsm1
-Message-ID: <20020806152153.A29152@figure1.int.wirex.com>
-Mail-Followup-To: linux-security-module@wirex.com,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S316135AbSHFWYP>; Tue, 6 Aug 2002 18:24:15 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:59903 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S315988AbSHFWYO>;
+	Tue, 6 Aug 2002 18:24:14 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Wed, 7 Aug 2002 00:27:46 +0200 (MEST)
+Message-Id: <UTC200208062227.g76MRk407059.aeb@smtp.cwi.nl>
+To: linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: [bug, 2.5.29, IDE] partition table corruption?
+Cc: dalecki@evision.ag
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Linux Security Modules project provides a lightweight, general
-purpose framework for access control.  The LSM interface enables
-security policies to be developed as loadable kernel modules.
-See http://lsm.immunix.org for more information.
+Ingo Molnar writes:
 
-2.5.30-lsm1 patch released.  This is a rebase to 2.5.30 as well as the
-continuation of merging LSM with mainline.
+> using 2.5.29 (vanilla or BK-curr) i cannot use /sbin/lilo anymore
+> to update the partition table.
 
-Full lsm-2.5 patch (LSM + all modules) is available at:
-	http://lsm.immunix.org/patches/2.5/2.5.30/patch-2.5.30-lsm1.gz
+> if i do it then the partition table gets corrupted and the system
+> does not boot - it stops at 'LI'.
 
-The whole ChangeLog for this release is at:
-	http://lsm.immunix.org/patches/2.5/2.5.30/ChangeLog-2.5.30-lsm1
+The standard explanation is that LILO cannot find the second stage
+loader, like you say, and that happens because it looks in the wrong
+place. For example, because it stores CHS coordinates in the wrong
+geometry. (But it can also happen because something changed in the
+disk numbering.)
 
-The LSM 2.5 BK tree can be pulled from:
-        bk://lsm.bkbits.net/lsm-2.5
+"Corruption" of the partition table is to be expected only if you
+ask LILO to rewrite the (CHS part of) the partition table.
 
-2.5.30-lsm1
- - merge with 2.5.27					(Greg KH)
- - merge with 2.5.28-30					(me)
- - bk file merging to handle changes from mainline	(Greg KH)
- - removed BUS_ISA declaration				(Greg KH)
- - add settime hook					(Robb Romans)
- - SELinux: Bug fixes for the PSID mapping code.	(Stephen Smalley)
- - update initlialized to C99 sytle for cap and dummy	(Adam)
-   modules.
- - Fix memory leaks in IPC LSM hooking.			(Stephen Smalley)
- - Fix file_lock hooks.					(Matthew Wilcox)
- - update modules according to file_lock hook change	(me)
- - DTE: logic cleanups					(Serge Hallyn)
- - SELinux: cleanup sysctl table			(Chris Vance)
- - __FUNCTION__ cleanup					(Anton Blanchard)
- - remove __exit attribute from selinux_nf_ip_exit	(me)
+The funny thing is, I removed some stuff here in 2.5.30,
+so I would understand things immediately if you reported this
+about 2.5.30. But for 2.5.29 I do not immediately see why
+you would see any changes.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Did you in the meantime find out what was wrong?
+
+Are things OK in 2.5.28 and wrong in vanilla 2.5.29
+with the same version of LILO? (which version?)
+
+Do you use the linear or lba32 options? The fix-table option?
+
+What corruption do you see in the partition table?
+
+Do you use LVM?
+
+What happens under 2.5.30?
+
+Andries

@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbULGA52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261726AbULGBBS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbULGA52 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 19:57:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbULGA52
+	id S261726AbULGBBS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 20:01:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbULGBBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 19:57:28 -0500
-Received: from bgm-24-94-57-164.stny.rr.com ([24.94.57.164]:49374 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261725AbULGA5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 19:57:25 -0500
-Subject: Re: [RFC] dynamic syscalls revisited
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Michael Buesch <mbuesch@freenet.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200412070120.05996.mbuesch@freenet.de>
-References: <1101741118.25841.40.camel@localhost.localdomain>
-	 <20041205234605.GF2953@stusta.de>
-	 <1102349255.25841.189.camel@localhost.localdomain>
-	 <200412070120.05996.mbuesch@freenet.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Kihon Technologies
-Date: Mon, 06 Dec 2004 19:57:24 -0500
-Message-Id: <1102381044.25841.230.camel@localhost.localdomain>
+	Mon, 6 Dec 2004 20:01:18 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5574 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261726AbULGBBQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 20:01:16 -0500
+Date: Mon, 6 Dec 2004 16:41:18 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Alain Tesio <alain@onesite.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HIGHMEM=4G slows down ps2pdf with 2.4.28
+Message-ID: <20041206184118.GA2282@dmt.cyclades>
+References: <20041201232522.6e39c954@alain> <20041202190815.GA2843@dmt.cyclades> <20041203215819.15bab008@alain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041203215819.15bab008@alain>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-12-07 at 01:20 +0100, Michael Buesch wrote:
-> Wouldn't it be better to do a
-> cond_syscall(sys_dsyscall)
-> in kernel/sys_ni.c
+On Fri, Dec 03, 2004 at 09:58:19PM +0100, Alain Tesio wrote:
+> On Thu, 2 Dec 2004 17:08:15 -0200
+> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
 > 
+> > On Wed, Dec 01, 2004 at 11:25:22PM +0100, Alain Tesio wrote:
+> > > Hi,
+> > > 
+> > > With a 2.4.28 kernel, 1.5 Go RAM and nothing exotic, everything works fine
+> > > with CONFIG_HIGHMEM4G and CONFIG_HIGHMEM=y except that
+> > > ps2pdf is about 30 times slower 
+> 
+> > How does /proc/mtrr look like? 
+> > 
+> > Maybe some of your memory is configured as uncacheable.
+> 
+> reg00: base=0x00000000 (   0MB), size=1024MB: write-back, count=1
+> reg01: base=0x40000000 (1024MB), size= 256MB: write-back, count=1
+> reg02: base=0x50000000 (1280MB), size= 128MB: write-back, count=1
+> reg03: base=0x58000000 (1408MB), size=  64MB: write-back, count=1
+> reg04: base=0x5c000000 (1472MB), size=  32MB: write-back, count=1
+> reg05: base=0x5e000000 (1504MB), size=  16MB: write-back, count=1
+> 
+> I don't think that the hosting company played with the bios settings,
+> and I don't do anything special with memory.
 
-You learn something everyday!
+Alain,
 
-Thanks,
+All memory is correctly configured in MTRR it seems (all of it is write-back cacheable).
 
--- Steve
+Do you have CONFIG_HIGHIO=y ? That might help a lot. The kernel has to use 
+bounce buffers for IO otherwise.
 

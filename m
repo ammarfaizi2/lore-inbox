@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262155AbTELOrG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 10:47:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbTELOrG
+	id S262163AbTELPAZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 11:00:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbTELPAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 10:47:06 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:50949 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S262155AbTELOrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 10:47:05 -0400
-Date: Tue, 13 May 2003 00:59:19 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Frank Cusack <fcusack@fcusack.com>
-cc: linux-kernel@vger.kernel.org, <paulus@samba.org>
-Subject: Re: MPPE in kernel?
-In-Reply-To: <20030512045929.C29781@google.com>
-Message-ID: <Mutt.LNX.4.44.0305130038300.3377-100000@excalibur.intercode.com.au>
+	Mon, 12 May 2003 11:00:25 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:14825 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262163AbTELPAY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 11:00:24 -0400
+Message-ID: <3EBFB988.5090907@us.ibm.com>
+Date: Mon, 12 May 2003 08:11:04 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: 2.5.69-mjb1
+References: <9380000.1052624649@[10.10.2.4]> <20030512132939.GF19053@holomorphy.com> <21850000.1052743254@[10.10.2.4]> <20030512150309.GG19053@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 May 2003, Frank Cusack wrote:
-
-> What are the chances of getting MPPE (PPP encryption) into the 2.4.21
-> and/or 2.5.x kernels?
+William Lee Irwin III wrote:
+> On Mon, May 12, 2003 at 05:40:55AM -0700, Martin J. Bligh wrote:
 > 
-> For 2.4.21, sha1 and arcfour code needs to be added, so I don't have
-> too much hope :-) even though the code is trivial to integrate.
+>>Can I get some sort of vague explanation please? ;-)
 > 
-> For 2.5.x, just the arcfour code is needed (since sha1 is already there).
-> I've written a public domain implementation, which I'd be willing to
-> relicense under GPL (although I don't see the point), but in any case
-> the algorithm is easy and could be written by anyone.
+> How obvious does it have to be?
 
-One issue is that there is no support in the crypto API yet for stream 
-ciphers.
+More obvious than that :)
 
+> Those are trying to fish out the 2nd and 5th words from the top of the
+> stack. Magic numbers stopped working; symbolic constants save the day.
 
-- James
+I guess I'm not understanding _why_ they're guaranteed to be there.
+
 -- 
-James Morris
-<jmorris@intercode.com.au>
+Dave Hansen
+haveblue@us.ibm.com
 

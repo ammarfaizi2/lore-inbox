@@ -1,69 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129031AbRBHSgk>; Thu, 8 Feb 2001 13:36:40 -0500
+	id <S129033AbRBHSjU>; Thu, 8 Feb 2001 13:39:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129033AbRBHSgb>; Thu, 8 Feb 2001 13:36:31 -0500
-Received: from colorfullife.com ([216.156.138.34]:65292 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129031AbRBHSgM>;
-	Thu, 8 Feb 2001 13:36:12 -0500
-Message-ID: <3A82E732.4229045F@colorfullife.com>
-Date: Thu, 08 Feb 2001 19:36:34 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en, de
+	id <S129892AbRBHSjK>; Thu, 8 Feb 2001 13:39:10 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:15366 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129872AbRBHSjG>; Thu, 8 Feb 2001 13:39:06 -0500
+Date: Thu, 8 Feb 2001 10:38:47 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        "Stephen C. Tweedie" <sct@redhat.com>, Pavel Machek <pavel@suse.cz>,
+        Jens Axboe <axboe@suse.de>, Manfred Spraul <manfred@colorfullife.com>,
+        Ben LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Lord <lord@sgi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <Pine.LNX.4.21.0102081456030.2378-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.10.10102081030070.6741-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@fenrus.demon.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: sse for fast_clear_page()?
-In-Reply-To: <m14Qv0z-000OaDC@amadeus.home.nl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+
+
+On Thu, 8 Feb 2001, Rik van Riel wrote:
+
+> On Thu, 8 Feb 2001, Mikulas Patocka wrote:
 > 
-> In article <3A82D325.9068BC07@colorfullife.com> you wrote:
-> > fast_clear_page() uses mmx instructions for clearing a page, what about
-> > using sse instructions?
-> > sse instructions can store 128 bit in one instruction, mmx only 64 bit.
+> > > > You need aio_open.
+> > > Could you explain this? 
+> > 
+> > If the server is sending many small files, disk spends huge
+> > amount time walking directory tree and seeking to inodes. Maybe
+> > opening the file is even slower than reading it
 > 
-> the sse FP registers might be lossy.
-
-I thought that too, thus I only implemented memset(,0,) with sse.
-
-But then I found this document on Intel website:
-http://developer.intel.com/software/idap/media/pdf/copy.pdf
-
-Intel recommends using sse registers for generic memcopy - they can't be
-lossy.
-
-> On my athlon, the in-kernel mmx
-> functions are memory-bound (eg > 1 Gbyte/sec throughput)
->
-You are using an Athlon with SDRAM?
-
-A Pentium 4 has a 3.2 GB memory bus and I saw a benchmark that compared
-mmx and sse memmove, and sse was _much_ faster.
-
-I've implemented a user space sse copy_page, and:
-
-* mmx is the slowest version! (~12000 cpu ticks/page).
-* movsd is slightly faster (~11850 cpu ticks/page). Probably due to the
-special 'rep movsd' optimization in the Pentium III (cpu notices that
-ecx is large and switches to a cache line copy mode).
-* sse is the fastest version (~ 11500 cpu ticks/page)
-
-Everything with cold caches.
-
-> Userspace program for the athlon code:
+> Not if you have a big enough inode_cache and dentry_cache.
 > 
-> http://www.fenrus.demon.nl/athlon.c
->
-I'll check it.
+> OTOH ... if you have enough memory the whole async IO argument
+> is moot anyway because all your files will be in memory too.
 
---
-	Manfred
+Note that this _is_ an important point.
+
+You should never _ever_ think about pure IO speed as the most important
+thing. Even if you get absolutely perfect IO streaming off the fastest
+disk you can find, I will beat you every single time with a cached setup
+that doesn't need to do IO at all.
+
+90% of the VFS layer is all about caching, and trying to avoid IO. Of the
+rest, about 9% is about trying to avoid even calling down to the low-level
+filesystem, because it's faster if we can handle it at a high level
+without any need to even worry about issues like physical disk addresses.
+Even if those addresses are cached.
+
+The remaining 1% is about actually getting the IO done. At that point we
+end up throwing our hands in the air and saying "ok, this will be slow".
+
+So if you design your system for disk load, you are missing a big portion
+of the picture.
+
+There are cases where IO really matter. The most notable one being
+databases, certainly _not_ web or ftp servers. For web- or ftp-servers you
+buy more memory if you want high performance, and you tend to be limited
+by the network speed anyway (if you have multiple gigabit networks and
+network speed isn't an issue, then I can also tell you that buying a few
+gigabyte of RAM isn't an issue, because you are obviously working for
+something like the DoD and have very little regard for the cost of the
+thing ;)
+
+For databases (and for file servers that you want to be robust over a
+crash), IO throughput is an issue mainly because you need to put the damn
+requests in stable memory somewhere. Which tends to mean that _write_
+speed is what really matters, because the reads you can still try to cache
+as efficiently as humanly possible (and the issue of database design then
+turns into trying to find every single piece of locality you can, so that
+the read caching works as well as possible).
+
+Short and sweet: "aio_open()" is basically never supposed to be an issue.
+If it is, you've misdesigned something, or you're trying too damn hard to
+single-thread everything (and "hiding" the threading that _does_ happen by
+just calling it "AIO" instead - lying to yourself, in short).
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

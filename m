@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131407AbREHKgm>; Tue, 8 May 2001 06:36:42 -0400
+	id <S131626AbREHLxL>; Tue, 8 May 2001 07:53:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131480AbREHKgd>; Tue, 8 May 2001 06:36:33 -0400
-Received: from mail.inf.elte.hu ([157.181.161.6]:30094 "HELO mail.inf.elte.hu")
-	by vger.kernel.org with SMTP id <S131407AbREHKgX>;
-	Tue, 8 May 2001 06:36:23 -0400
-Date: Tue, 8 May 2001 12:36:18 +0200 (CEST)
-From: BERECZ Szabolcs <szabi@inf.elte.hu>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: page_launder() bug
-In-Reply-To: <15095.26644.491818.92403@pizda.ninka.net>
-Message-ID: <Pine.A41.4.31.0105081216350.76998-100000@pandora.inf.elte.hu>
+	id <S131644AbREHLxC>; Tue, 8 May 2001 07:53:02 -0400
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:23007 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S131626AbREHLws>; Tue, 8 May 2001 07:52:48 -0400
+Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B27218@hasmsx52.iil.intel.com>
+From: "Hen, Shmulik" <shmulik.hen@intel.com>
+To: "'LKML'" <linux-kernel@vger.kernel.org>,
+        "'LNML'" <linux-net@vger.kernel.org>,
+        "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>
+Subject: RE: ioctl call for network device
+Date: Tue, 8 May 2001 04:52:40 -0700 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 May 2001, David S. Miller wrote:
+> struct ifreq has a member called ifr_data. It is a pointer. You can
+> put a pointer to any of your data, including the most complex structure
+> you might envision, in that area. This allows you to pass anything
+> to and from your module. This pointer can be properly dereferenced
+> in kernel space but you should use copy_to/from_user and friends so a
+> user-space coding bug won't panic the kernel.
 
-> My patch is crap and can cause corruptions, there is not argument
-> about it now :-)
-is it the only bug in the swap handling?
-or why is this bug triggered so heavily if the swap is on a filesystem?
-I had oopses when I used a swapfile on a partition, but that was really
-rare. I even don't think it's becouse page_launder().
-so what's so different if the swap sits on a filesystem?
+How about a linked list ?
+Will the driver be able to follow the list where each node was dynamically
+allocated by the application ?
+Is there a size limit on the buffer ifr_data points to ? (AFAIK, Windows
+NDIS drivers limit to 1 page buffer =4096 bytes).
 
-Bye,
-Szabi
 
+	Thanks,
+
+	Shmulik Hen      
+	Linux Advanced Networking Services
+	Intel Network Communications Group
 

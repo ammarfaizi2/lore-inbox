@@ -1,85 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262353AbUCLR0o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 12:26:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUCLR0n
+	id S262373AbUCLR0U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 12:26:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbUCLR0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 12:26:43 -0500
-Received: from ns.cohaesio.net ([212.97.129.16]:46211 "EHLO ns.cohaesio.net")
-	by vger.kernel.org with ESMTP id S262353AbUCLRZ7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 12:25:59 -0500
-Subject: Re: 2.6.3 userspace freeze
-From: "Anders K. Pedersen" <akp@cohaesio.com>
-To: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-Cc: Jan Kara <jack@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <87ptbi5on5.fsf@goat.bogus.local>
-References: <222BE5975A4813449559163F8F8CF503458441@cohsrv1.cohaesio.com>
-	 <87ptbi5on5.fsf@goat.bogus.local>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Cohaesio A/S
-Message-Id: <1079112003.19710.10.camel@akp.cohaesio.com>
+	Fri, 12 Mar 2004 12:26:16 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:31248
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262373AbUCLRZT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 12:25:19 -0500
+Date: Fri, 12 Mar 2004 18:26:00 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: anon_vma RFC2
+Message-ID: <20040312172600.GC30940@dualathlon.random>
+References: <20040310080000.GA30940@dualathlon.random> <Pine.LNX.4.44.0403100759550.7125-100000@chimarrao.boston.redhat.com> <20040310135012.GM30940@dualathlon.random> <Pine.GSO.4.58.0403121149400.2624@sapphire.engin.umich.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 12 Mar 2004 18:20:03 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.58.0403121149400.2624@sapphire.engin.umich.edu>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, Mar 12, 2004 at 12:05:27PM -0500, Rajesh Venkatasubramanian wrote:
+> 
+> 
+> >> have a devastating effect on vma usage, yes) issue of vma merging, but
+> >> what about the (mandatory) vma splitting? ...[snip]
+> 
+> > you're right about vma_split, the way I implemented it is wrong,
+> > basically the as.vma/PageDirect idea is falling apart with vma_split.
+> 
+> Why do you have to fix up all page structs' PageDirect and as.vma
+> fields when a vma_split or vma_merge occurs.
+> 
+> Can't you do it lazily on the next page_referenced or page_add_rmap,
 
-On Fri, 2004-03-12 at 11:46, Olaf Dietsche wrote:
-> There are always many rotatelogs started. Maybe that's a hint for
-> further investigation.
+I cannot do it lazily unfortunately because the paging routine will
+start from the page, so if the page is not uptodate it will go to
+read into nirvana.
 
-The rotatelogs processes are used to write log data from Apache (by use
-of CustomLog/ErrorLog directives) to rotating files, so this is quite
-normal. I just made the following pstree, which is typical for this
-server:
+> etc. Anyway we can get to the anon_vma using as.vma->anon_vma.
+> 
+> I understand that currenly your code assumes that if PageDirect is
+> set, then there cannot be an anon_vma corresponding to the page.
 
-init-+-agent.be---agent.be
-     |-agetty
-     |-atd
-     |-bdflush
-     |-caspd---caspd---caspd---caspeng---caspeng---22*[caspeng]
-     |-crond
-     |-httpd-+-233*[httpd]
-     |       |-120*[rotatelogs]
-     |       `-3*[rotatelogspsoft]
-     |-keventd
-     |-khubd
-     |-4*[kjournald]
-     |-klogd
-     |-ksoftirqd_CPU0
-     |-ksoftirqd_CPU1
-     |-kswapd
-     |-kupdated
-     |-logger
-     |-master-+-2*[cleanup]
-     |        |-pickup
-     |        |-qmgr
-     |        |-4*[smtp]
-     |        `-trivial-rewrite
-     |-7*[mingetty]
-     |-named
-     |-ntpd
-     |-proftpd---16*[proftpd]
-     |-scsi_eh_0
-     |-soagent
-     |-sshd-+-sshd---script-runner.p
-     |      `-sshd---bash---pstree
-     |-syslogd
-     |-ulogd
-     `-watchdogd
+correct, though I will have to change that for the above problem ;(
 
--- 
-Med venlig hilsen - Best regards
-
-Anders K. Pedersen
-Network Engineer
------------------------------------------------- 
-Cohaesio A/S - Maglebjergvej 5D - DK-2800 Lyngby
-Phone: +45 45 880 888  - Fax: +45 45 880 777
-Mail: akp@cohaesio.com - http://www.cohaesio.com
-------------------------------------------------
+Well, another way is to just do the pagetable walk and fixup the
+page->as.vma to be a page->as.anon_vma during split/merge (actually
+merge is already taken care of by forbidding merging in the interesting
+cases, what I missed was the split, oh well ;). But preallocating the
+anon_vma is such a little cost that it should be a lot better than
+slowing down the split.

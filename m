@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129413AbRANLdj>; Sun, 14 Jan 2001 06:33:39 -0500
+	id <S129742AbRANLdu>; Sun, 14 Jan 2001 06:33:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129742AbRANLda>; Sun, 14 Jan 2001 06:33:30 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:29961 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129413AbRANLdM>;
-	Sun, 14 Jan 2001 06:33:12 -0500
-Date: Sun, 14 Jan 2001 12:33:10 +0100
-From: Andi Kleen <ak@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Andi Kleen <ak@suse.de>, Igmar Palsenberg <i.palsenberg@jdimedia.nl>,
-        Harald Welte <laforge@gnumonks.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 + iproute2
-Message-ID: <20010114123310.A23011@gruyere.muc.suse.de>
-In-Reply-To: <14945.26991.35849.95234@pizda.ninka.net> <Pine.LNX.4.30.0101141013080.16469-100000@jdi.jdimedia.nl> <14945.28354.209720.579437@pizda.ninka.net> <20010114115215.A22550@gruyere.muc.suse.de> <14945.34208.281500.226085@pizda.ninka.net>
-Mime-Version: 1.0
+	id <S130018AbRANLdj>; Sun, 14 Jan 2001 06:33:39 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:8091 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129741AbRANLd2>;
+	Sun, 14 Jan 2001 06:33:28 -0500
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <14945.34208.281500.226085@pizda.ninka.net>; from davem@redhat.com on Sun, Jan 14, 2001 at 02:55:28AM -0800
+Content-Transfer-Encoding: 7bit
+Message-ID: <14945.36440.59585.376942@pizda.ninka.net>
+Date: Sun, 14 Jan 2001 03:32:40 -0800 (PST)
+To: Petru Paler <ppetru@ppetru.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-pre3+zerocopy: weird messages
+In-Reply-To: <20010114132845.F1394@ppetru.net>
+In-Reply-To: <20010114121105.B1394@ppetru.net>
+	<14945.32886.671619.99921@pizda.ninka.net>
+	<20010114124549.D1394@ppetru.net>
+	<14945.34414.185794.396720@pizda.ninka.net>
+	<20010114132845.F1394@ppetru.net>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 14, 2001 at 02:55:28AM -0800, David S. Miller wrote:
-> 
-> Andi Kleen writes:
->  > In my opinion (rt)netlink would benefit a lot from introducing 5-10
->  > new errnos and possibly a new socket option to get a string/number
->  > with the exact error.
-> 
-> Introducing 5-10 new errnos just for rtnetlink is a big waste when we
-> already have socket extended errors which are perfect for this
-> purpose.
 
-Just makes the interface rather complicated for the user, but ok. 
+Petru Paler writes:
+ > > Oh, I think I know why this happens.  Can you add this patch, and next
+ > > time the UDP bad csum message appears, tell me if it says "UDP packet
+ > > with bad csum was fragmented." in the next line of your syslog
+ > > messages?  Thanks.
+ > 
+ > Sure, but I also need the actual patch :)
 
-How would you pass the extended errors? As strings or as to be defined 
-new numbers? I would prefer strings, because the number namespace could
-turn out to be as nasty to maintain as the current sysctl one. 
+Duh, here it is :-)
 
-
--Andi
+--- net/ipv4/udp.c.~1~	Thu Jan 11 10:20:40 2001
++++ net/ipv4/udp.c	Sun Jan 14 02:58:07 2001
+@@ -855,6 +855,8 @@
+ 		if (!udp_check(uh, ulen, saddr, daddr, skb->csum))
+ 			return 0;
+ 		NETDEBUG(printk(KERN_DEBUG "udp v4 hw csum failure.\n"));
++		if (skb_shinfo(skb)->frag_list != NULL)
++			printk(KERN_DEBUG "UDP packet with bad csum was fragmented.\n");
+ 		skb->ip_summed = CHECKSUM_NONE;
+ 	}
+ 	if (skb->ip_summed != CHECKSUM_UNNECESSARY)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

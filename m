@@ -1,251 +1,129 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129350AbRCBRbp>; Fri, 2 Mar 2001 12:31:45 -0500
+	id <S129351AbRCBRnI>; Fri, 2 Mar 2001 12:43:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129351AbRCBRbg>; Fri, 2 Mar 2001 12:31:36 -0500
-Received: from adsl-63-203-203-135.dsl.snfc21.pacbell.net ([63.203.203.135]:19080
-	"EHLO slipknot.mediabolic.com") by vger.kernel.org with ESMTP
-	id <S129350AbRCBRbY>; Fri, 2 Mar 2001 12:31:24 -0500
-Date: Fri, 2 Mar 2001 09:46:14 -0800 (PST)
-From: Keith Craigie <kcraigie@mediabolic.com>
+	id <S129354AbRCBRm6>; Fri, 2 Mar 2001 12:42:58 -0500
+Received: from [38.204.212.32] ([38.204.212.32]:22216 "HELO srv2.ecropolis.com")
+	by vger.kernel.org with SMTP id <S129351AbRCBRmt>;
+	Fri, 2 Mar 2001 12:42:49 -0500
+Date: Fri, 2 Mar 2001 12:42:48 -0500 (EST)
+From: Jeremy Hansen <jeremy@xxedgexx.com>
+X-X-Sender: <jeremy@srv2.ecropolis.com>
 To: <linux-kernel@vger.kernel.org>
-Subject: NetGear fa311 driver update
-Message-ID: <Pine.LNX.4.30.0103020937500.25459-100000@slipknot.mediabolic.com>
+Subject: scsi vs ide performance on fsync's
+Message-ID: <Pine.LNX.4.33L2.0103021241550.14586-200000@srv2.ecropolis.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/Mixed; BOUNDARY="-869916460-366262872-983550462=:8157"
+Content-ID: <Pine.LNX.4.33L2.0103021241551.14586@srv2.ecropolis.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Hi all,
-
-I brought NetGear's fa311 driver up to compile under 2.4.2.  I put the
-updated source here -
-
-http://millweed.com/projects/fa311/fa311.c
-
-Or you can apply the following patch to the source gotten from the
-NetGear support site
-(http://www.netgear-support.com/ts/downloads/fa31lx70.zip) -
-
---- /tmp/basdf/fa311.c	Fri Jan 19 14:20:50 2001
-+++ fa311.c	Thu Mar  1 18:12:57 2001
-@@ -174,23 +174,23 @@
-
- /* Device private data */
- struct fa311_priv {
--	struct device *         next;        /* Next fa311device */
-+    struct net_device *       next;    /* Next fa311device */
-     struct fa311_queue    tx_queue;    /* Transmit Descriptor Queue */
-     struct fa311_queue    rx_queue;    /* Receive Descriptor Queue */
--    struct enet_statistics  stats;       /* MIB data */
-+    struct net_device_stats  stats;    /* MIB data */
- };
-
--static struct device *    fa311_dev_list;        /* List of fa311devices */
-+static struct net_device *    fa311_dev_list;      /* List of fa311devices */
-
- /* Linux Network Driver interface routines */
--extern int fa311_probe (struct device *dev);
--static int fa311_open (struct device *dev);
--static int fa311_close (struct device *dev);
--static int fa311_start_xmit (struct sk_buff *skb, struct device *dev);
--static void fa311_set_multicast_list (struct device *dev);
--static int fa311_ioctl (struct device *dev, struct ifreq *rq, int cmd);
-+extern int fa311_probe (struct net_device *dev);
-+static int fa311_open (struct net_device *dev);
-+static int fa311_close (struct net_device *dev);
-+static int fa311_start_xmit (struct sk_buff *skb, struct net_device *dev);
-+static void fa311_set_multicast_list (struct net_device *dev);
-+static int fa311_ioctl (struct net_device *dev, struct ifreq *rq, int cmd);
- static void fa311_interrupt (int irq, void *dev_id, struct pt_regs *regs);
--static struct enet_statistics *fa311_get_stats (struct device *dev);
-+static struct net_device_stats *fa311_get_stats (struct net_device *dev);
-
- /* Support Functions */
- /*static u16 swap_16 (u16 us);*/
-@@ -206,11 +206,11 @@
- static status fa311_dev_reset (u32 iobase);
- static status fa311_queue_create (struct fa311_queue *q, int count, int qtype);
- static status fa311_queue_delete (struct fa311_queue *q);
--static virt_addr fa311_tx_desc_get (struct device *dev);
--static virt_addr fa311_rx_desc_get (struct device *dev);
--static status fa311_phy_setup (struct device *dev);
-+static virt_addr fa311_tx_desc_get (struct net_device *dev);
-+static virt_addr fa311_rx_desc_get (struct net_device *dev);
-+static status fa311_phy_setup (struct net_device *dev);
- static int fa311_crc (char * mc_addr);
--static void fa311_tx_skb_reclaim (struct device *dev, virt_addr desc_addr);
-+static void fa311_tx_skb_reclaim (struct net_device *dev, virt_addr desc_addr);
- static void  ReadEEWord(u16 iobase,u32 wordOffset,u16* pEeData);
+---869916460-366262872-983550462=:8157
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.33L2.0103021241552.14586@srv2.ecropolis.com>
 
 
-@@ -226,7 +226,7 @@
-  * registers each FA311 device found.
-  */
- int
--fa311_probe (struct device *dev)
-+fa311_probe (struct net_device *dev)
- {
-     int  dev_count;
-     u8   bus;
-@@ -353,7 +353,7 @@
+We're doing some mysql benchmarking.  For some reason it seems that ide
+drives are currently beating a scsi raid array and it seems to be related
+to fsync's.  Bonnie stats show the scsi array to blow away ide as
+expected, but mysql tests still have the idea beating on plain insert
+speeds.  Can anyone explain how this is possible, or perhaps explain how
+our testing may be flawed?
 
- /* fa311_open - open and initialize a device */
- static int
--fa311_open (struct device *dev)
-+fa311_open (struct net_device *dev)
- {
-     u32     iobase = dev->base_addr;
-     struct fa311_priv* priv   = dev->priv;
-@@ -448,7 +448,7 @@
+Here's the bonnie stats:
 
- /* fa311_close - close a device, and reclaim resources */
- static int
--fa311_close (struct device *dev)
-+fa311_close (struct net_device *dev)
- {
-     u32                     iobase = dev->base_addr;
-     struct fa311_priv* priv   = dev->priv;
-@@ -480,19 +480,19 @@
-  * CMDSTS, and signals the chip
-  */
- static int
--fa311_start_xmit (struct sk_buff *skb, struct device *dev)
-+fa311_start_xmit (struct sk_buff *skb, struct net_device *dev)
- {
-     u32        iobase = dev->base_addr;
- 	u32        cmdsts;
-     virt_addr  tx_desc;
--    struct enet_statistics *stats_p;
-+    struct net_device_stats *stats_p;
+IDE Drive:
 
-     if (skb->len > ETH_MAX_PKT_SIZE)
-         return ERROR;
+Version 1.00g       ------Sequential Output------ --Sequential Input- --Random-
+                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
+Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
+jeremy         300M  9026  94 17524  12  8173   9  7269  83 23678   7 102.9   0
+                    ------Sequential Create------ --------Random Create--------
+                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
+              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
+                 16   469  98  1476  98 16855  89   459  98  7132  99   688  25
 
- 	tx_desc = fa311_tx_desc_get(dev);
-     if (tx_desc == NULL) {
--        set_bit (0, &dev->tbusy);
-+        netif_stop_queue(dev);
-         DP_REG32_SET (DP_IMR, DP_IMR_TXOK | DP_IMR_TXIDLE);
-         tx_desc = fa311_tx_desc_get (dev);
-     }
-@@ -553,7 +553,7 @@
-  * size, and updates the BUFPTR and SKBPTR fields to the newly allocated SKB.
-  */
- static int
--fa311_start_receive (struct device *dev)
-+fa311_start_receive (struct net_device *dev)
- {
-     u32         cmdsts;
- 	int         len;
-@@ -562,7 +562,7 @@
-     struct sk_buff *cur_skb;
-     struct sk_buff *new_skb;
- 	struct sk_buff *rx_skb;
--    struct enet_statistics *stats_p;
-+        struct net_device_stats *stats_p;
 
-     stats_p = &((struct fa311_priv *)(dev->priv))->stats;
+SCSI Array:
 
-@@ -648,15 +648,15 @@
- }
+Version 1.00g       ------Sequential Output------ --Sequential Input- --Random-
+                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
+Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
+orville        300M  8433 100 134143  99 127982  99  8016 100 374457  99 1583.4   6
+                    ------Sequential Create------ --------Random Create--------
+                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
+              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
+                 16   503  13 +++++ +++   538  13   490  13 +++++ +++   428  11
 
- /* fa311_get_stats - get current device statistics */
--static struct enet_statistics *
--fa311_get_stats (struct device *dev)
-+static struct net_device_stats *
-+fa311_get_stats (struct net_device *dev)
- {
-     return &((struct fa311_priv *)(dev->priv))->stats;
- }
+So...obviously from bonnie stats, the scsi array blows away the ide...but
+using the attached c program, here's what we get for fsync stats using the
+little c program I've attached:
 
- /* fa311_set_multicast_list - sets multicast, & promiscuous mode */
- static void
--fa311_set_multicast_list (struct device *dev)
-+fa311_set_multicast_list (struct net_device *dev)
- {
-     u32      iobase = dev->base_addr;
-     u16   hash_table[32];
-@@ -738,7 +738,7 @@
+IDE Drive:
 
- /* fa311_interrupt - handle driver specific ioctls */
- static int
--fa311_ioctl (struct device *dev, struct ifreq *rq, int cmd)
-+fa311_ioctl (struct net_device *dev, struct ifreq *rq, int cmd)
- {
-     return -EOPNOTSUPP;
- }
-@@ -749,7 +749,7 @@
- static void
- fa311_interrupt (int irq, void *dev_id, struct pt_regs *regs)
- {
--    struct device * dev = dev_id;
-+    struct net_device * dev = dev_id;
-     u16  iobase = dev->base_addr;
-     u32  reg_isr;
-     u32  CurrentLinkStatus;
-@@ -784,8 +784,8 @@
+jeremy:~# time ./xlog file.out fsync
 
-     if (reg_isr & (DP_ISR_TXOK | DP_ISR_TXIDLE)) {
-         DP_REG32_CLR (DP_IMR, (DP_IMR_TXOK|DP_IMR_TXIDLE));
--        clear_bit (0, &dev->tbusy);
--        mark_bh (NET_BH);
-+        netif_start_queue(dev);
-+        netif_wake_queue(dev);
-     }
- }
+real    0m1.850s
+user    0m0.000s
+sys     0m0.220s
 
-@@ -979,7 +979,7 @@
-  * the owner, else returns NULL
-  */
- static virt_addr
--fa311_tx_desc_get (struct device *dev)
-+fa311_tx_desc_get (struct net_device *dev)
- {
-     struct fa311_queue *   q;
-     virt_addr                desc_addr = NULL;
-@@ -998,7 +998,7 @@
+SCSI Array:
 
- /* fa311_tx_skb_reclaim - reclaim SKBs in transmitted descriptors */
- static void
--fa311_tx_skb_reclaim (struct device *dev, virt_addr desc_addr)
-+fa311_tx_skb_reclaim (struct net_device *dev, virt_addr desc_addr)
- {
- 	struct sk_buff *       skb;
- 	struct fa311_queue * q;
-@@ -1020,7 +1020,7 @@
-  * the owner, else returns NULL
-  */
- static virt_addr
--fa311_rx_desc_get (struct device *dev)
-+fa311_rx_desc_get (struct net_device *dev)
- {
-     struct fa311_queue *   q;
-     virt_addr                desc_addr = NULL;
-@@ -1038,7 +1038,7 @@
+[root@orville mysql_data]# time /root/xlog file.out fsync
 
- /* fa311_phy_setup - reset and setup the PHY device */
- static status
--fa311_phy_setup (struct device *dev)
-+fa311_phy_setup (struct net_device *dev)
- {
-     u32  iobase = dev->base_addr;
-     u32  dp_cfg_val;
-@@ -1215,7 +1215,7 @@
- void
- cleanup_module (void)
- {
--    struct device *cur_dev;
-+    struct net_device *cur_dev;
+real    0m23.586s
+user    0m0.010s
+sys     0m0.110s
 
-     cur_dev=fa311_dev_list;
-     while (cur_dev) {
 
+I would appreciate any help understand what I'm seeing here and any
+suggestions on how to improve the performance.
+
+The SCSI adapter on the raid array is an Adaptec 39160, the raid
+controller is a CMD-7040.  Kernel 2.4.0 using XFS for the filesystem on
+the raid array, kernel 2.2.18 on ext2 on the IDE drive.  The filesystem is
+not the problem, as I get almost the exact same results running this on
+ext2 on the raid array.
+
+Thanks
+-jeremy
 
 -- 
-Keith Craigie
-R&D
-Mediabolic, Inc.
-415-346-2270 x115
+this is my sig.
 
+
+
+
+
+
+
+---869916460-366262872-983550462=:8157
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="xlog.c"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33L2.0103021127420.8157@srv2.ecropolis.com>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="xlog.c"
+
+I2luY2x1ZGUgPHN0ZGlvLmg+DQojaW5jbHVkZSA8c3RyaW5nLmg+DQojaW5j
+bHVkZSA8c3RkbGliLmg+DQojaW5jbHVkZSA8dW5pc3RkLmg+DQojaW5jbHVk
+ZSA8ZmNudGwuaD4NCg0Kc3RydWN0IEVudHJ5DQp7DQoJaW50IGNvdW50Ow0K
+CWNoYXIgc3RyaW5nWzUwXTsNCn07DQoNCg0KaW50IG1haW4oaW50IGFyZ2Ms
+IGNoYXIgKiphcmd2KQ0Kew0KCWludCBmZDsNCglzdHJ1Y3QgRW50cnkgKnRy
+YW5zOw0KCWludCB4Ow0KDQoJaWYoKGZkID0gY3JlYXQoYXJndlsxXSwgMDY2
+NikpID09IC0xKQ0KCXsNCgkJcHJpbnRmKCJDb3VsZCBub3Qgb3BlbiBmaWxl
+ICVzXG4iLCBhcmd2WzFdKTsNCgkJcmV0dXJuIDE7DQoJfQ0KCQ0KDQoJZm9y
+KHg9MDsgeCA8IDIwMDA7ICsreCkNCgl7DQoJCXRyYW5zID0gbWFsbG9jKHNp
+emVvZihzdHJ1Y3QgRW50cnkpKTsNCgkJdHJhbnMtPmNvdW50ID0geDsNCgkJ
+c3RyY3B5KHRyYW5zLT5zdHJpbmcsICJCbGFoIEJsYWggQmxhaCBCbGFoIEJs
+YWggQmxhaCBCbGFoIik7DQoNCgkJaWYoc3RyY21wKGFyZ3ZbMl0sImZzeW5j
+Iik9PSAwKQ0KCQl7DQoJCQl3cml0ZShmZCwgKGNoYXIgKil0cmFucywgc2l6
+ZW9mKHN0cnVjdCBFbnRyeSkpOw0KCQkJDQoJCQlpZihmZGF0YXN5bmMoZmQp
+ICE9IDApDQoJCQl7DQoJCQkJcGVycm9yKCJFcnJvciIpOw0KCQkJfQ0KDQoJ
+CX0NCgkJZWxzZQ0KCQl7DQoJCQl3cml0ZShmZCwgKGNoYXIgKil0cmFucywg
+c2l6ZW9mKHN0cnVjdCBFbnRyeSkpOw0KCQl9DQoJDQoJCWZyZWUodHJhbnMp
+Ow0KDQoJfQ0KCWNsb3NlKGZkKTsNCg0KfQ0K
+---869916460-366262872-983550462=:8157--

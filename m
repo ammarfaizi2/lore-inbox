@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132039AbRDPTzr>; Mon, 16 Apr 2001 15:55:47 -0400
+	id <S132044AbRDPUEv>; Mon, 16 Apr 2001 16:04:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132046AbRDPTz1>; Mon, 16 Apr 2001 15:55:27 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:3078 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S132039AbRDPTzU>;
-	Mon, 16 Apr 2001 15:55:20 -0400
-Date: Mon, 16 Apr 2001 16:55:15 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-lvm@sistina.com
-Subject: 2.4.3-ac{6,7} LVM hang
-Message-ID: <Pine.LNX.4.21.0104161653140.14442-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S132045AbRDPUEm>; Mon, 16 Apr 2001 16:04:42 -0400
+Received: from isis.its.uow.edu.au ([130.130.68.21]:56301 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S132044AbRDPUE0>; Mon, 16 Apr 2001 16:04:26 -0400
+Message-ID: <3ADB4F19.D5124F40@uow.edu.au>
+Date: Mon, 16 Apr 2001 12:59:21 -0700
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: John Fremlin <chief@bandits.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [new PATCH] Re: 8139too: defunct threads
+In-Reply-To: <Pine.LNX.4.33.0104150100210.13758-100000@dystopia.lab43.org>
+		<3AD99CE4.E1ED7090@colorfullife.com> <3ADB2522.6A0C579C@uow.edu.au>,
+		Andrew Morton's message of "Mon, 16 Apr 2001 10:00:18 -0700" <m2u23ows1j.fsf@boreas.yi.org.>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+John Fremlin wrote:
+> 
+> 
+> > So it seems that we must reparent the thread to init, and
+> > make sure that it delivers SIGCHLD to init when it exits.
+> 
+> Sounds good. Why isn't SIGCHLD a stronger default anyway.
 
-2.4.3-ac4 seems to work great on my test box (UP K6-2 with SCSI
-disk), but 2.4.3-ac6 and 2.4.3-ac7 hang pretty hard when I try
-to access any of the logical volumes on my test box.
+mm?   The caller gets to choose...
 
-The following changelog entry in Linus' changelog suggests me
-whom to bother:   ;)
- - Jens Axboe: LVM and loop fixes
+> [...]
+> 
+> > +     /* Set the exit signal to SIGCHLD so we signal init on exit */
+> > +     if (this_task->exit_signal ! 0) {
+> 
+> Tyop.
 
-regards,
+aargh.  Thanks.  So that's what `cvs commit' does :)
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+The patch is OK with this converted into `!='.  But I'll
+refresh and retest for tomorrow.  Still not very happy with
+this approach though...

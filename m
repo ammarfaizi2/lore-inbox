@@ -1,75 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265800AbUJRKfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266128AbUJRLDI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265800AbUJRKfh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 06:35:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266155AbUJRKfg
+	id S266128AbUJRLDI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 07:03:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266155AbUJRLDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 06:35:36 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:56735 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S265800AbUJRKfM (ORCPT
+	Mon, 18 Oct 2004 07:03:08 -0400
+Received: from gate.crashing.org ([63.228.1.57]:24713 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S266128AbUJRLDG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 06:35:12 -0400
-Date: Mon, 18 Oct 2004 12:36:33 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Daniele Pizzoni <auouo@tin.it>
-Cc: kernel-janitors <kernel-janitors@lists.osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/8] replacing/fixing printk with pr_debug/pr_info in arch/i386 - intro
-Message-ID: <20041018103633.GA6792@elte.hu>
-References: <1098031764.3023.45.camel@pdp11.tsho.org> <20041017161953.GA24810@elte.hu> <1098067288.2892.293.camel@pdp11.tsho.org>
+	Mon, 18 Oct 2004 07:03:06 -0400
+Subject: Re: [PATCH] allow kernel compile with native ppc64 compiler
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Olaf Hering <olh@suse.de>
+Cc: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041018075433.GA24927@suse.de>
+References: <20041017185557.GA9619@suse.de>
+	 <16754.59442.992185.715900@cargo.ozlabs.ibm.com>
+	 <20041018045603.GA8500@suse.de>
+	 <16755.23272.754150.209624@cargo.ozlabs.ibm.com>
+	 <20041018075433.GA24927@suse.de>
+Content-Type: text/plain
+Message-Id: <1098097106.30570.6.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098067288.2892.293.camel@pdp11.tsho.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 18 Oct 2004 20:58:27 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-10-18 at 17:54, Olaf Hering wrote:
 
-* Daniele Pizzoni <auouo@tin.it> wrote:
-
-> On dom, 2004-10-17 at 18:19, Ingo Molnar wrote: 
-> > [...]
-> > 
-> > 1) be careful, there is no inconsistency here. It's a printk that doesnt
-> > end in a "\n" in the first line.
 > 
-> You're right, my fault and a big one!
-> 
-> Anyway I'm going to ask some questions.
+> > Ben H suggested making the default BOOTCC be $(CC) -m32, which makes
+> > sense to me.
 
-> There's nothing wrong with Dprintk or dprintk. I simply found a
-> request to do so on the janitors TODO list. I found out that in
-> kernel.h there was really a pr_debug macro and I used it.
+How so ? The idea is to add -m32 to whatever compiler you are using for
+the rest of the kernel (assuming bi-arch) which is a lot more sane than
+using whatever _local_ compiler you are using _and_ assuming bi-arch...
 
-ok. 
+Of course, that would only be the "defaul", with the ability of explicitly
+passing CROSS32_COMPILE to make...
 
-> The rationale is that in the kernel there are lots of custom dprintk,
-> Dprintk, DPRINTK, etc that we need a bit of housekeeping, I think.
-> Anyway I didn't like pr_info either (why not a pr_notice...?) but I
-> used it: it was in kernel.h I assumed it was for good.
+Ben.
 
-ok - pr_debug() is ok i think for the APIC code. It pairs well with the
-other variants: pr_notice(), etc.
 
-> I need a bit of advice now: should I forget about printks' levels,
-> consistency and focus on other issues or with a bit of work these
-> patches may became worth of?
-
-i'd suggest to first do the Dprintk -> pr_debug replacement patch with
-as few output changes as possible. (output changes are unavoidable when
-converting a \n-less printout.) Then do any format cleanups in a
-separate patch.
-
-(some of your other comments about 'spurious' whitespaces need a
-double-check too, sometimes they are done for formatting reasons. So
-always take a look at the log output before changing it.)
-
-	Ingo

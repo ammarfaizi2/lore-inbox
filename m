@@ -1,90 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264539AbTGGW3b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 18:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264632AbTGGW3b
+	id S262227AbTGGWfW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 18:35:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262366AbTGGWfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 18:29:31 -0400
-Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:56743 "EHLO
-	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S264539AbTGGW33
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 18:29:29 -0400
-Date: Mon, 7 Jul 2003 23:44:01 +0100
-From: Hugo Mills <hugo-lkml@carfax.org.uk>
-To: Elmer <elmer@linking.ee>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-ac4 Adaptec 1210SA lost interrupt , Seagate 120G
-Message-ID: <20030707224401.GA17070@carfax.org.uk>
-Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
-	Elmer <elmer@linking.ee>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0307080017060.2847-100000@server.linking.sise>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
+	Mon, 7 Jul 2003 18:35:22 -0400
+Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:55449 "HELO
+	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262227AbTGGWfT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 18:35:19 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Peter Berg Larsen <pebl@math.ku.dk>
+Subject: Re: [PATCH] Synaptics: support for pass-through port (stick)
+Date: Mon, 7 Jul 2003 17:51:35 -0500
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+References: <Pine.LNX.4.40.0307072020380.3501-100000@shannon.math.ku.dk>
+In-Reply-To: <Pine.LNX.4.40.0307072020380.3501-100000@shannon.math.ku.dk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0307080017060.2847-100000@server.linking.sise>
-X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
-X-GPG-Key: 1C335860
-X-Parrot: It is no more. It has joined the choir invisible.
-User-Agent: Mutt/1.5.4i
+Message-Id: <200307071751.35221.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 07 July 2003 01:35 pm, Peter Berg Larsen wrote:
+>
+> A complete different problem that might be a problem is that even though
+> the master(pad) says it has passthough capabilities, there might not be
+> any guest attached. The bit only tells that it is capable of handling one.
+> I asked synaptics about this some time ago and they replyed that the only
+> way to find out is to send a byte and look for a returnbyte or a timeout.
 
---sdtB3X0nJg68CQEu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I think this won't be a problem - if there is no guest attached then, when
+we register pass-through serio port, psmouse_probe will run. The very first
+thing it to tries identify attached device and bails out if something
+goes wrong. In our case it should time out. This will leave us with a serio
+without input device attached - a perfectly valid scenario I think.
 
-On Tue, Jul 08, 2003 at 12:42:32AM +0300, Elmer wrote:
-> Tried them on every imaginable way:
-> 
-> 1. 2.4.21 + my own siimage slight patch, 2.4.21 + simage from ac4, 
-> 	pure 2.4.21-ac4
-> 2. apic, noapic, localapic
-> 3. uni,smp motherboards, 4 of them
-> 4. modules, compiled in, 
-> 5. all of options from cards bios
-> 
-> /proc/interrupts reports 0 interrupts for ide2,3 , whatever I do.
-> 
-> after bootup, after attacking ide-disk driver, there are lost interrupts.
-> it recognises disk as correct type, but no communication except:
-> 
-> 1. under XP it works (but there was no linux at that mb) 
-> 2. hdparm lets change few flags under linux, but no -X succeeds
-> 3. after waiting for minute those timeouts and booting up, then 
-> /proc/ide/ide2/hde/*  reports sensible correct information
-> 
-> I have the card for few more days, anything to try ?
+Dmitry
 
-   I've tried this card with all of the hdparm options that I could
-think of. I got no success either. However, Andre Hedrick claims[1] to
-have got the SiI3112 and 3114 working in his tree (a couple of weeks
-ago).  He's testing it[2] before release.
 
-   Hugo.
-
-[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=105622034606015&w=2
-
-[2] I believe that one of the tests is whether he's got paid for the
-work by the people who contracted him to do it, which is where I
-suspect the real delay is.
-
--- 
-=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
-  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
-                --- If it ain't broke,  hit it again. ---                
-
---sdtB3X0nJg68CQEu
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/CfexssJ7whwzWGARAoIFAKCmYyD9+J+LQM5IMyhtKecJkcBu6wCdEtvr
-J+J5LsA6V+qMa8zL8M6gGbI=
-=OcQK
------END PGP SIGNATURE-----
-
---sdtB3X0nJg68CQEu--

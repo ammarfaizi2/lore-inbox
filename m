@@ -1,48 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262897AbVA2KKe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262892AbVA2KKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262897AbVA2KKe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 05:10:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262894AbVA2KJt
+	id S262892AbVA2KKi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 05:10:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbVA2KKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 05:09:49 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:8709 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262892AbVA2KIa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 05:08:30 -0500
-Date: Sat, 29 Jan 2005 21:06:56 +1100
-To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
-Cc: wweissmann@gmx.at, linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       davem@davemloft.net, 282492@bugs.debian.org
-Subject: Re: multiple neighbour cache tables for AF_INET
-Message-ID: <20050129100656.GA13584@gondor.apana.org.au>
-References: <24939.1106917237@www31.gmx.net> <E1CueSz-0000lz-00@gondolin.me.apana.org.au> <20050129.074605.78506312.yoshfuji@linux-ipv6.org>
-Mime-Version: 1.0
+	Sat, 29 Jan 2005 05:10:11 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:49633 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S262890AbVA2KHQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 05:07:16 -0500
+Message-ID: <41FB6F4E.CE5B3FBB@tv-sign.ru>
+Date: Sat, 29 Jan 2005 14:11:10 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: Ram Pai <linuxram@us.ibm.com>, Steven Pratt <slpratt@austin.ibm.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 4/4] readahead: cleanup blockable_page_cache_readahead
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050129.074605.78506312.yoshfuji@linux-ipv6.org>
-User-Agent: Mutt/1.5.6+20040722i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 29, 2005 at 07:46:05AM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ wrote:
-> In article <E1CueSz-0000lz-00@gondolin.me.apana.org.au> (at Sat, 29 Jan 2005 09:19:49 +1100), Herbert Xu <herbert@gondor.apana.org.au> says:
-> 
-> > IMHO you need to give the user a way to specify which table they want
-> > to operate on.  If they don't specify one, then the current behaviour
-> > of choosing the first table found is reasonble.
-> 
-> We have dev. Isn't is sufficient?
+I think that do_page_cache_readahead() can be inlined
+in blockable_page_cache_readahead(), this makes the
+code a bit more readable in my opinion.
 
-It could be used for neigh_add/neigh_delete.  We'll need to add a way
-to query whether a given table is the right one for a device.
+Also makes check_ra_success() static inline.
 
-For dump it isn't the same.  However, perhaps it's not too important
-to query a specific table.
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+--- 2.6.11-rc2/mm/readahead.c~	2005-01-29 15:51:04.000000000 +0300
++++ 2.6.11-rc2/mm/readahead.c	2005-01-29 16:37:05.000000000 +0300
+@@ -348,8 +348,8 @@ int force_page_cache_readahead(struct ad
+  * readahead isn't helping.
+  *
+  */
+-int check_ra_success(struct file_ra_state *ra, unsigned long nr_to_read,
+-				 unsigned long actual)
++static inline int check_ra_success(struct file_ra_state *ra,
++			unsigned long nr_to_read, unsigned long actual)
+ {
+ 	if (actual == 0) {
+ 		ra->cache_hit += nr_to_read;
+@@ -394,15 +394,11 @@ blockable_page_cache_readahead(struct ad
+ {
+ 	int actual;
+ 
+-	if (block) {
+-		actual = __do_page_cache_readahead(mapping, filp,
+-						offset, nr_to_read);
+-	} else {
+-		actual = do_page_cache_readahead(mapping, filp,
+-						offset, nr_to_read);
+-		if (actual == -1)
+-			return 0;
+-	}
++	if (!block && bdi_read_congested(mapping->backing_dev_info))
++		return 0;
++
++	actual = __do_page_cache_readahead(mapping, filp, offset, nr_to_read);
++
+ 	return check_ra_success(ra, nr_to_read, actual);
+ }

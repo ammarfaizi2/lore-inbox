@@ -1,71 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262232AbTHYUB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 16:01:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262235AbTHYUB3
+	id S262198AbTHYUDm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 16:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbTHYUDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 16:01:29 -0400
-Received: from fw.osdl.org ([65.172.181.6]:29418 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262232AbTHYUBY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 16:01:24 -0400
-Date: Mon, 25 Aug 2003 12:45:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-xfs@oss.sgi.com
-Subject: Re: [BUG] 2.6.0-test4-mm1: NFS+XFS=data corruption
-Message-Id: <20030825124543.413187a5.akpm@osdl.org>
-In-Reply-To: <20030825193717.GC3562@ip68-4-255-84.oc.oc.cox.net>
-References: <20030824171318.4acf1182.akpm@osdl.org>
-	<20030825193717.GC3562@ip68-4-255-84.oc.oc.cox.net>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 25 Aug 2003 16:03:42 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32976 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262198AbTHYUDk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 16:03:40 -0400
+Date: Mon, 25 Aug 2003 21:03:32 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Samphan Raruenrom <samphan@nectec.or.th>
+Cc: Jens Axboe <axboe@image.dk>, linux-kernel@vger.kernel.org,
+       Linux TLE Team <rdi1@opentle.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] Add MOUNT_STATUS ioctl to cdrom device
+Message-ID: <20030825200332.GJ454@parcelfarce.linux.theplanet.co.uk>
+References: <3F4A53ED.60801@nectec.or.th>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F4A53ED.60801@nectec.or.th>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Barry K. Nathan" <barryn@pobox.com> wrote:
->
-> I'm really short on time right now, so this bug report might be vague,
-> but it's important enough for me to try:
+On Tue, Aug 26, 2003 at 01:22:37AM +0700, Samphan Raruenrom wrote:
+> Hi,
 > 
-> I have an NFS fileserver (running 2.6.0-test4-mm1) exporting stuff from
-> three filesystems: ReiserFS, ext3, and XFS. I'm seeing no problems with
-> my ReiserFS and ext3 filesystems. XFS is a different story.
+> This patch add a new ioctl MOUNT_STATUS to the 2.4 kernel's cdrom
+> device. It'll be used as an API to query the mount status of a
+> cdrom :-
 > 
-> My client machine is running 2.4.21bkn1 (my own kernel, not released to
-> the public; the differences from vanilla 2.4.21 are XFS and Win4Lin). 
-> 
-> If I use my client machine to sign RPM packages (rpm --addsign ...),
-> using rpm-4.2-16mdk, and the packages are on the XFS partition on the
-> NFS server, about half of the packages are truncated by a couple hundred
-> bytes afterwards (and GPG sig verification fails on those packages).
-> 
-> It's always the same packages that get truncated by the same amounts of
-> data. This is 100% reproducible. It doesn't matter whether I compile the
-> kernel with gcc 2.95.3 or 3.1.1. If I perform the operation on my non-XFS
-> filesystem the problem doesn't happen. If I run 2.6.0-test4-bk2 instead of
-> test4-mm1 on the NFS server, the problem goes away. (I have never run
-> any previous -mm kernels on this server.)
-> 
-> Hmmm... If I sign the packages on the NFS server itself, even with
-> test4-mm1 on the XFS partition, I can't reproduce the problem.
-> *However*, that's a different version of RPM (4.0.4).
-> 
-> Is this enough information to help find the cause of the bug? If not,
-> it might be several days (if I'm unlucky, maybe even a week or two)
-> before I have time to do anything more...
-> 
+> CDROM_MOUNT_STATUS
+> Return :-
+> 0 = not mount.
+> 1 = mounted, but not in-use. It is ok to umount.
+> 2 = busy. Umount will result in getting EBUSY.
+> <0 = error.
 
--mm kernels have O_DIRECT-for-NFS patches in them.  And some versions of
-RPM use O_DIRECT.  Whether O_DIRECT makes any difference at the server end
-I do not know, but it would be useful if you could repeat the test on stock
-2.6.0-test4.
+Huh?   And what, pray tell, makes cdrom special?  Not to mention
+the use of ioctl, the inherent raciness of the interface and the fact
+that yes,
+ 
+> This same functionality can be done in user-space,
 
-Alternatively, run
+... which should be the end of it.
 
-	export LD_ASSUME_KERNEL=2.2.5
+> +	case CDROM_MOUNT_STATUS: {
+> +		struct super_block *sb = get_super(dev);
+> +		if (sb == NULL) return -EINVAL;
+> +		down_read(&current->namespace->sem);
+> +		struct vfsmount *mnt = NULL;
+> +		struct list_head *p;
+> +		list_for_each(p, &current->namespace->list) {
+> +			struct vfsmount *m = list_entry(p, struct vfsmount, 
+> mnt_list);
+> +			if (sb == m->mnt_sb) {
+> +				mnt = m; break;
+> +			}
+> +		}
+> +		up_read(&current->namespace->sem);		
 
-before running RPM.  I think that should tell RPM to not try O_DIRECT.
+And what about other namespaces?
 
+> +		drop_super(sb);		
+> +		int mstat = 0; /* 0 not mounted, 1 umount ok, 2 umount EBUSY 
+> */
+> +		if (mnt) mstat = 1 + (atomic_read(&mnt->mnt_count) > 1);
+
+Or the possibility that
+	* mnt might've been freed by that point.
+	* we might have the damn thing mounted in several places, some
+busy, some not.
+	* cdrom had been used not by mount.
+	* cdrom had been mounted just as we had decided to tell that it's
+not busy.

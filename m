@@ -1,46 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269814AbUJVHCp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269504AbUJVHCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269814AbUJVHCp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 03:02:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269640AbUJVHBy
+	id S269504AbUJVHCq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 03:02:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267808AbUJVHBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 03:01:54 -0400
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:25216 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269814AbUJVGzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 02:55:03 -0400
-Message-ID: <4178AEC0.5050603@yahoo.com.au>
-Date: Fri, 22 Oct 2004 16:54:56 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Peter Zaitsev <peter@mysql.com>
-CC: linux-kernel@vger.kernel.org, andrea@novell.com, alexeyk@mysql.com,
-       markw@osdl.org
-Subject: Re: IO performance problems with 2.6.9
-References: <1098426220.5482.235.camel@sphere.site>
-In-Reply-To: <1098426220.5482.235.camel@sphere.site>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 22 Oct 2004 03:01:45 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:10148
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S269504AbUJVGxb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 02:53:31 -0400
+Subject: Re: [PATCH] Completion API extension
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <200410212118.32981.dtor_core@ameritech.net>
+References: <1098289871.12223.1603.camel@thomas>
+	 <200410212118.32981.dtor_core@ameritech.net>
+Content-Type: text/plain
+Organization: linutronix
+Message-Id: <1098427528.8955.45.camel@thomas>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 22 Oct 2004 08:45:29 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Zaitsev wrote:
+On Fri, 2004-10-22 at 04:18, Dmitry Torokhov wrote:
 
-> 4) Unrelated but still unfortunate.  2.6.9 kernel seems to behave weird
-> if swap is disabled.  I was running with 8G of memory allocating 6G for
-> MySQL buffers  which left about 1.5G for kernel, 1G of which was used
-> for file cache.   During IO intensive run, using buffered IO I got
-> "kswapd" running like a crazy taking 90% of CPU time on one of CPUs. 
-> What for is it running if there is no swap files enabled ? 
+Hi,
+
+it's resubmitted in a correct version already.
+
+Thanks,
+
+tglx
+
+
+> Hi,
+> 
+> On Wednesday 20 October 2004 11:31 am, Thomas Gleixner wrote:
+> > +unsigned long fastcall __sched
+> > +wait_for_completion_interruptible_timeout(struct completion *x,
+> > +                                         unsigned long timeout)
+> > +{
+> > +       might_sleep();
+> > +
+> > +       spin_lock_irq(&x->wait.lock);
+> > +       if (!x->done) {
+> > +               DECLARE_WAITQUEUE(wait, current);
+> > +
+> > +               wait.flags |= WQ_FLAG_EXCLUSIVE;
+> > +               __add_wait_queue_tail(&x->wait, &wait);
+> > +               do {
+> > +                       if (signal_pending(current)) {
+> > +                               timeout = -ERESTARTSYS;
+> > +                               goto out;
+> > +                       }
+> > +                       __set_current_state(TASK_INTERRUPTIBLE);
+> > +                       spin_unlock_irq(&x->wait.lock);
+> > +                       schedule();
+> 
+> 			^^^^^^^^^^^^^^^^^^
+> 
+> schedule_timeout perhaps?
 > 
 
-Can you boot with profile=2, and get a profile of about 30 seconds
-while kswapd is going crazy please?
-
-Also capture /proc/vmstat before and after that interaval.
-
-Can you also capture a the output of vmstat 1 while this is happening
-
-Thanks

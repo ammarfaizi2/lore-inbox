@@ -1,73 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265909AbUGMVpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266469AbUGMVsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265909AbUGMVpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 17:45:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266132AbUGMVpY
+	id S266469AbUGMVsG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 17:48:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266342AbUGMVrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 17:45:24 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:64977 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S265909AbUGMVpR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 17:45:17 -0400
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel
-	Preemption Patch
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: andrea@suse.de, linux-audio-dev@music.columbia.edu,
-       linux-kernel@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-In-Reply-To: <20040713142923.568fa35e.akpm@osdl.org>
-References: <20040712163141.31ef1ad6.akpm@osdl.org>
-	 <200407130001.i6D01pkJ003489@localhost.localdomain>
-	 <20040712170844.6bd01712.akpm@osdl.org>
-	 <20040713162539.GD974@dualathlon.random>
-	 <1089744137.20381.49.camel@mindpipe>
-	 <20040713142923.568fa35e.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1089755130.22175.21.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 13 Jul 2004 17:45:30 -0400
+	Tue, 13 Jul 2004 17:47:32 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:23300 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S266469AbUGMVqf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 17:46:35 -0400
+Message-ID: <40F45DEF.8060307@techsource.com>
+Date: Tue, 13 Jul 2004 18:10:55 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: John Richard Moser <nigelenki@comcast.net>
+CC: linux-kernel@vger.kernel.org,
+       linux-c-programming <linux-c-programming@vger.kernel.org>
+Subject: Re: Garbage Collection and Swap
+References: <40EF3BCD.7080808@comcast.net>
+In-Reply-To: <40EF3BCD.7080808@comcast.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-07-13 at 17:29, Andrew Morton wrote:
-> Lee Revell <rlrevell@joe-job.com> wrote:
-> >
-> > Would this explain these?  When running JACK with settings that need
-> > sub-millisecond latencies, I get them when I generate any load at all on
-> > the system (typing, switching windows, etc).  I also get lots of these
-> > if I run JACK from an X terminal, but very few if I run it from a text
-> > console, even if X is running in the background.
-> > 
-> > Jul 13 14:36:16 mindpipe kernel: ALSA /usr/src/alsa-cvs-1.0.5/alsa-driver/alsa-kernel/core/pcm_lib.c:199: Unexpected hw_pointer value [1] (stream = 0, delta: -25, max jitter = 32): wrong interrupt acknowledge?
+
+
+John Richard Moser wrote:
+
 > 
-> I'm wondering what this message actually means.  "Unexpected hw_pointer
-> value"?
+> THE GARBAGE COLLECTOR WANDERS AROUND IN THE ENTIRE HEAP, AND IN SOME
+> CASES IN OTHER PARTS OF RAM, LOOKING FOR WHAT LOOKS LIKE POINTERS TO
+> YOUR ALLOCATED DATA.
 > 
-> Does this actually indicate an underrun, or is the debug code screwy?
 
-Not sure.  Here is what Takashi had to say about it:
+Whose GC does this?
 
-"The message appears when an unexpected DMA pointer is read in the
-interrupt handler.  Either the handling of irq was delayed more than
-the buffer size, an irq is issued at the wrong timing, or the DMA
-pointer reigster is somehow screwed up.
+I get the impression that the Java VM, for instance, knows what 
+variables are pointers (well, references) and only considers those.  It 
+also knows every object that has even been allocated.  It scans over 
+every pointer it knows about (the "mark" phase), and then it scans over 
+every dynamically allocated memory block (the "sweep" phase) and removes 
+all that have no references.
 
-Since you're using quite small buffer, I guess the former case."
+There is anecdotal evidence that this approach sometimes can improve 
+performance over "manual" freeing because freeing can be done in bulk.
 
-My response:
+Java GC works very well, and it's a huge improvement over the "manual" 
+method, because it almost completely eliminates memory leaks (if you 
+really want a memory leak, you can find a way to make it happen).
 
-"I thought this was what an XRUN was, when the handling of the irq is
-delayed more than the buffer size.  Sometimes these messages are
-associated with XRUNs, sometimes not."
+Now, if you're talking about trying to apply GC to C code, it's an 
+entirely different matter.  C wasn't designed with GC in mind.  The very 
+fact that you can do MATH on pointers in C makes reliable GC nearly 
+impossible, although any reasonable attempt would certainly be better 
+than your assumption that something would "go scanning through memory 
+looking for things that look like pointers."  That would be horribly 
+stupid.  Better would be to have the compiler emit code that registers 
+pointers with something that keeps track of them, but that's still a 
+huge can of worms when you consider someone malloc'ing N bytes, storing 
+a (void *), and then later assigning that value to a struct pointer.
 
-Haven't heard back yet. 
-
-Is it possible that I am simply pushing my hardware past its limits? 
-Keep in mind this is a 600Mhz C3 processor.
-
-Lee
-
-
+No, I don't think GC in C is feasible.
 

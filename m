@@ -1,35 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268183AbUHTPpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267307AbUHTPup@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268183AbUHTPpo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 11:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268224AbUHTPpo
+	id S267307AbUHTPup (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 11:50:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268224AbUHTPup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 11:45:44 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:34244 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S268183AbUHTPow (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 11:44:52 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.8.1-mm3
-Date: Fri, 20 Aug 2004 11:44:49 -0400
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <20040820031919.413d0a95.akpm@osdl.org>
-In-Reply-To: <20040820031919.413d0a95.akpm@osdl.org>
+	Fri, 20 Aug 2004 11:50:45 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:15548 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S267307AbUHTPum (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 11:50:42 -0400
+Date: Fri, 20 Aug 2004 17:50:41 +0200 (DFT)
+From: Simon Derr <Simon.Derr@bull.net>
+X-X-Sender: derrs@isabelle.frec.bull.fr
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] CPU stuck in wake_up_forked_thread()
+Message-ID: <Pine.A41.4.53.0408201742100.20680@isabelle.frec.bull.fr>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408201144.49522.jbarnes@engr.sgi.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, August 20, 2004 6:19 am, Andrew Morton wrote:
-> - This is (very) lightly tested.  Mainly a resync with various parties.
 
-Woo-hoo!  This boots *without changes* on a 512p Altix!  Now to re-run the 
-profiles and try wli's new per-cpu profiling buffers.
+Hi,
 
-Jesse
+It seems (as of 2.6.8-rc3) that there is an issue in
+wake_up_forked_thread():
+
+from kernel/sched.c:
+
+        local_irq_save(flags);
+lock_again:
+        rq = cpu_rq(cpu);
+        double_rq_lock(this_rq, rq);
+
+        BUG_ON(p->state != TASK_RUNNING);
+
+        /*
+         * We did find_idlest_cpu() unlocked, so in theory
+         * the mask could have changed - just dont migrate
+         * in this case:
+         */
+        if (unlikely(!cpu_isset(cpu, p->cpus_allowed))) {
+                cpu = this_cpu;
+                double_rq_unlock(this_rq, rq);
+                goto lock_again;
+        }
+
+
+But what if 'this_cpu' is not set in p->cpus_allowed ?
+Then this CPU might loop here forever.
+
+I someone is interested I have an ugly test program that does trigger
+this.
+
+
+One possible solution could be:
+
+Signed-off-by: Simon Derr <Simon.Derr@bull.net>
+
+Index: kdb_268/kernel/sched.c
+===================================================================
+--- kdb_268.orig/kernel/sched.c	2004-08-20 16:44:53.033231213 +0200
++++ kdb_268/kernel/sched.c	2004-08-20 17:20:35.439454969 +0200
+@@ -1249,7 +1249,11 @@
+ 	 * in this case:
+ 	 */
+ 	if (unlikely(!cpu_isset(cpu, p->cpus_allowed))) {
+-		cpu = this_cpu;
++		if (cpu_isset(this_cpu, p->cpus_allowed))
++			cpu = this_cpu;
++		else
++			cpu = first_cpu(p->cpus_allowed);
++
+ 		double_rq_unlock(this_rq, rq);
+ 		goto lock_again;
+ 	}

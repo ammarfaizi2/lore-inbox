@@ -1,114 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263407AbUDGBPc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 21:15:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263411AbUDGBPc
+	id S263415AbUDGBex (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 21:34:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263419AbUDGBex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 21:15:32 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:12334 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263407AbUDGBP2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 21:15:28 -0400
-Date: Tue, 6 Apr 2004 18:14:28 -0700
-From: Paul Jackson <pj@sgi.com>
-To: linux-kernel@vger.kernel.org
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] bitop - fix test_and_change_bit comment
-Message-Id: <20040406181428.2d061035.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Apr 2004 21:34:53 -0400
+Received: from web40512.mail.yahoo.com ([66.218.78.129]:10637 "HELO
+	web40512.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263415AbUDGBev (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 21:34:51 -0400
+Message-ID: <20040407013450.84365.qmail@web40512.mail.yahoo.com>
+Date: Tue, 6 Apr 2004 18:34:50 -0700 (PDT)
+From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
+Subject: Re: kernel stack challenge 
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200404070102.i3712nDe002647@eeyore.valparaiso.cl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty, Andrew,
 
-Is there a place in the world for this patch?  I normally don't mess
-with comment fixes except as part of bigger stuff.  But someone could
-stub their little toe on this one.
+--- Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+> Sergiy Lozovsky <serge_lozovsky@yahoo.com> said:
+> 
+> Why do you think it has been 2 pages (8KiB) for as
+> long as I remember
+> (essentially forever in Linux), and it has taken a
+> _lot_ of work to shrink
+> it to 4KiB (- size of *current)?
 
-If you prefer, I'd be happy to bury this fix in with the cpumask
-and bitmap stuff I'm cooking up.
+I described the possible solution (virtual stack)
+which can easily take care of this problem for some
+subsystems, or am I wrong. If code doesn't allocate
+big buffers in stack my solution can make conversion
+of existing code possible without _lot_ of work. (I'm
+lazy - remember :-)
 
-I've read over the code in each case, built and ran a test case for
-i386 in particular, and studied the other uses and definitions of
-test_and_change_bit().  Everything I see recommends this change.
+What do you think about my solution? Despite some
+additional overhead, but I don't think that it is
+significant.
 
- * Fix test_and_change_bit() comment: returns old value, not new one.
+Serge.
 
-===================================================================
---- 2.6.5.orig/include/asm-cris/bitops.h	2004-04-06 17:30:54.000000000 -0700
-+++ 2.6.5/include/asm-cris/bitops.h	2004-04-06 17:31:37.000000000 -0700
-@@ -169,7 +169,7 @@
- 	return retval;
- }
- /**
-- * test_and_change_bit - Change a bit and return its new value
-+ * test_and_change_bit - Change a bit and return its old value
-  * @nr: Bit to change
-  * @addr: Address to count from
-  *
-===================================================================
---- 2.6.5.orig/include/asm-i386/bitops.h	2004-04-06 17:30:54.000000000 -0700
-+++ 2.6.5/include/asm-i386/bitops.h	2004-04-06 17:31:41.000000000 -0700
-@@ -212,7 +212,7 @@
- }
- 
- /**
-- * test_and_change_bit - Change a bit and return its new value
-+ * test_and_change_bit - Change a bit and return its old value
-  * @nr: Bit to change
-  * @addr: Address to count from
-  *
-===================================================================
---- 2.6.5.orig/include/asm-ia64/bitops.h	2004-04-06 17:30:55.000000000 -0700
-+++ 2.6.5/include/asm-ia64/bitops.h	2004-04-06 17:31:45.000000000 -0700
-@@ -236,7 +236,7 @@
- }
- 
- /**
-- * test_and_change_bit - Change a bit and return its new value
-+ * test_and_change_bit - Change a bit and return its old value
-  * @nr: Bit to set
-  * @addr: Address to count from
-  *
-===================================================================
---- 2.6.5.orig/include/asm-mips/bitops.h	2004-04-06 17:30:55.000000000 -0700
-+++ 2.6.5/include/asm-mips/bitops.h	2004-04-06 17:38:45.000000000 -0700
-@@ -296,7 +296,7 @@
- }
- 
- /*
-- * test_and_change_bit - Change a bit and return its new value
-+ * test_and_change_bit - Change a bit and return its old value
-  * @nr: Bit to change
-  * @addr: Address to count from
-  *
-@@ -567,7 +567,7 @@
- }
- 
- /*
-- * test_and_change_bit - Change a bit and return its new value
-+ * test_and_change_bit - Change a bit and return its old value
-  * @nr: Bit to change
-  * @addr: Address to count from
-  *
-===================================================================
---- 2.6.5.orig/include/asm-x86_64/bitops.h	2004-04-06 17:30:55.000000000 -0700
-+++ 2.6.5/include/asm-x86_64/bitops.h	2004-04-06 17:39:14.000000000 -0700
-@@ -204,7 +204,7 @@
- }
- 
- /**
-- * test_and_change_bit - Change a bit and return its new value
-+ * test_and_change_bit - Change a bit and return its old value
-  * @nr: Bit to change
-  * @addr: Address to count from
-  *
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+__________________________________
+Do you Yahoo!?
+Yahoo! Small Business $15K Web Design Giveaway 
+http://promotions.yahoo.com/design_giveaway/

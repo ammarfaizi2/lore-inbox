@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266535AbTA2Tkn>; Wed, 29 Jan 2003 14:40:43 -0500
+	id <S267191AbTA2Tq2>; Wed, 29 Jan 2003 14:46:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266944AbTA2Tkn>; Wed, 29 Jan 2003 14:40:43 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:11650 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S266535AbTA2Tkm>; Wed, 29 Jan 2003 14:40:42 -0500
-Message-Id: <200301291949.h0TJnW4K007895@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: Russell King <rmk@arm.linux.org.uk>
+	id <S267198AbTA2Tq1>; Wed, 29 Jan 2003 14:46:27 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:19901 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id <S267191AbTA2Tq0> convert rfc822-to-8bit;
+	Wed, 29 Jan 2003 14:46:26 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Balram Adlakha <b_adlakha@softhome.net>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Subject: Re: Bootscreen
+Date: Thu, 30 Jan 2003 01:22:17 +0530
+User-Agent: KMail/1.4.3
+References: <200301290318.20817.b_adlakha@softhome.net> <200301291448.h0TEmAs18379@Port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200301291448.h0TEmAs18379@Port.imtp.ilyichevsk.odessa.ua>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel.org frontpage 
-In-Reply-To: Your message of "Wed, 29 Jan 2003 19:37:50 GMT."
-             <20030129193750.D6261@flint.arm.linux.org.uk> 
-From: Valdis.Kletnieks@vt.edu
-References: <200301290947.h0T9lKa9000750@darkstar.example.net> <3E37A46B.4080907@zytor.com> <200301291509.h0TF9S4K003537@turing-police.cc.vt.edu> <3E3819CB.2090409@zytor.com> <3E381F47.8060200@nortelnetworks.com> <200301291855.h0TItM4K007010@turing-police.cc.vt.edu>
-            <20030129193750.D6261@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1530471676P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 29 Jan 2003 14:49:32 -0500
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301300122.17843.b_adlakha@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1530471676P
-Content-Type: text/plain; charset=us-ascii
+On Wednesday 29 January 2003 20:16, you wrote:
 
-On Wed, 29 Jan 2003 19:37:50 GMT, Russell King said:
+> Yeah, dude, let's dumb down our users... don't allow them
+> to become curious and start learning.
+>
+> Grown up, mature people are scared when they see letters
+> and numbers on the screen? On what planet am I?
+>
+> And if someone *is* scared and totally non-curious, well...
+> do you want to have such a user? /me not.
 
-> I believe a script signs the files on ftp.kernel.org, which means the
-> private key is on the master machine, probably without a pass phrase.
-> That means that if the master server is compromised, its highly likely
-> that a rogue file will have a correct signature.
+yes they do get scared!!!
+Alright I guess they are not mature...
+So 95% of all people are not mature...
 
-OK.. I missed that part, and thought somebody was doing a check-and-balance
-before files went out.
+So linux is only for the remaining 5%?
 
-> The only way to be completely sure is for Linus to gpg-sign the patches
-> himself at source with a known gpg key using a secure pass phrase before
-
-Now there's a thought.. ;)
-
-
---==_Exmh_1530471676P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+ODBMcC3lWbTT17ARAuZ7AKCdGYUrHtMoP0ZwPOiBPYhXcf1XcACg+oTI
-7OTwJIhbDvcbpFI0PQJhuwE=
-=0uzb
------END PGP SIGNATURE-----
-
---==_Exmh_1530471676P--

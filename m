@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281255AbRKMAPS>; Mon, 12 Nov 2001 19:15:18 -0500
+	id <S281252AbRKMASi>; Mon, 12 Nov 2001 19:18:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281252AbRKMAPI>; Mon, 12 Nov 2001 19:15:08 -0500
-Received: from ns.caldera.de ([212.34.180.1]:19938 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S281248AbRKMAOy>;
-	Mon, 12 Nov 2001 19:14:54 -0500
-Date: Tue, 13 Nov 2001 01:14:40 +0100
-Message-Id: <200111130014.fAD0Eel15650@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: jamagallon@able.es ("J . A . Magallon")
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Linux 2.4.15-pre4 - merge with Alan
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <20011113004846.G1531@werewolf.able.es>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S281265AbRKMAS2>; Mon, 12 Nov 2001 19:18:28 -0500
+Received: from mail213.mail.bellsouth.net ([205.152.58.153]:11410 "EHLO
+	imf13bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S281252AbRKMASL>; Mon, 12 Nov 2001 19:18:11 -0500
+Message-ID: <3BF066AE.C33EF2B0@mandrakesoft.com>
+Date: Mon, 12 Nov 2001 19:17:50 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@ns.caldera.de>
+CC: Matt_Domsch@Dell.com, linux-kernel@vger.kernel.org
+Subject: Re: [CFT][PATCH] crc32 cleanups
+In-Reply-To: <200111122347.fACNl2I13494@ns.caldera.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011113004846.G1531@werewolf.able.es> you wrote:
->
-> This is an update-cleanup of the i2c code to the current CVS. In short,
-> it adds version info printing and some CONFIG_ cleanups (there were
-> CONFIG_ vars defined in Config.in that had been renamed inside the code).
-> Please consider for next pre of 2.4.15.
+Christoph Hellwig wrote:
+> 
+> In article <71714C04806CD5119352009027289217022C3F15@ausxmrr502.us.dell.com> you wrote:
+> > More crc32 cleanups.  I think this is pretty close to being finished, and
+> > would appreciate people taking a look at the drivers they use regularly.
+> > I've built all the drivers I can on x86, and have hand-verified the rest.
+> >
+> > Changes since last time:
+> > * remove all the request_module() calls I added last time.  If a driver
+> > needs crc32.o and it's a module, modprobe pulls it in automatically.
+> > * Create {fs,drivers/net,drivers/usb}/Makefile.lib.  In each, list modules
+> > as obj-$(CONFIG_FOO) += crc32.o.  In lib/Makefile, include each
+> > Makefile.lib.  This allows drivers to update the list local to themselves
+> > and not have to patch lib/Makefile.  This should satisfy Keith Owens'
+> > concern in this regard.
+> > * Added a whole new set of drivers, those based on 8390.o, to the list.
+> 
+> Do you really need that complicated conditional compilation?
+> IMHO it's a much better idea to always compile the crc routines in,
+> maybe a way to disable it explicitly could be added, though I'm
+> not sure about that one.
 
-Could you please think before doing a merge next time?
-The patch backs out local changes like ite support:
+Feeping creaturism.  Sure we could compile it in unconditionally... 
+embedded people will grab matt's patch which allows conditional
+compilation and use that instead, as will people who aren't using
+crc32-related features.
 
-> -obj-$(CONFIG_I2C_ELEKTOR)	+= i2c-elektor.o
-> -obj-$(CONFIG_ITE_I2C_ALGO)	+= i2c-algo-ite.o
-> -obj-$(CONFIG_ITE_I2C_ADAP)	+= i2c-adap-ite.o
-> +obj-$(CONFIG_I2C_PCFISA)	+= i2c-elektor.o
->  obj-$(CONFIG_I2C_PROC)		+= i2c-proc.o
-
-	Christoph
+The list of modules including crc32.o is definitely ugly but its just
+more kernel bloat for those who don't need it.
 
 -- 
-Of course it doesn't work. We've performed a software upgrade.
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+

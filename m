@@ -1,37 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282042AbRLFScL>; Thu, 6 Dec 2001 13:32:11 -0500
+	id <S282491AbRLFSeV>; Thu, 6 Dec 2001 13:34:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282481AbRLFSby>; Thu, 6 Dec 2001 13:31:54 -0500
-Received: from h152-148-10-6.outland.lucent.com ([152.148.10.6]:46001 "EHLO
-	alpo.casc.com") by vger.kernel.org with ESMTP id <S282042AbRLFSbp>;
-	Thu, 6 Dec 2001 13:31:45 -0500
-From: John Stoffel <stoffel@casc.com>
-MIME-Version: 1.0
+	id <S282495AbRLFSeJ>; Thu, 6 Dec 2001 13:34:09 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:56978 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S282489AbRLFSc4>; Thu, 6 Dec 2001 13:32:56 -0500
+Date: Thu, 6 Dec 2001 11:37:34 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: lm@bitmover.com, davidel@xmailserver.org, rusty@rustcorp.com.au,
+        Martin.Bligh@us.ibm.com, riel@conectiva.com.br, lars.spam@nocrew.org,
+        alan@lxorguk.ukuu.org.uk, hps@intermeta.de,
+        linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
+Subject: Re: SMP/cc Cluster description
+Message-ID: <20011206113734.A22810@vger.timpanogas.org>
+In-Reply-To: <Pine.LNX.4.40.0112051915440.1644-100000@blue1.dev.mcafeelabs.com> <20011205.235617.23011309.davem@redhat.com> <20011206000216.B18034@work.bitmover.com> <20011206.000932.95504991.davem@redhat.com> <20011206112731.C22534@vger.timpanogas.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15375.47450.229337.322610@gargle.gargle.HOWL>
-Date: Thu, 6 Dec 2001 13:30:50 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: stoffel@casc.com (John Stoffel), riel@conectiva.com.br (Rik van Riel),
-        landley@trommello.org (Rob Landley), esr@thyrsus.com (Eric S. Raymond),
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-In-Reply-To: <E16C2HM-0002JR-00@the-village.bc.nu>
-In-Reply-To: <15375.41990.439405.8024@gargle.gargle.HOWL>
-	<E16C2HM-0002JR-00@the-village.bc.nu>
-X-Mailer: VM 6.95 under Emacs 20.6.1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011206112731.C22534@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Thu, Dec 06, 2001 at 11:27:31AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Thu, Dec 06, 2001 at 11:27:31AM -0700, Jeff V. Merkey wrote:
 
->> So has anyone had time to test the Python version 1.5 based CML2 that
->> was posted?  Would that make it more acceptable?
+And also, if you download the SCI drivers in my area, and order
+some SCI adapters from Dolphin in Albquerque, NM, you can set up 
+a ccNUMA system with standard PCs.  Dolphin has 66Mhz versions (and
+a 133Mhz coming in the future) that run at almost a gigabyte per 
+second node-2-node over a parallel fabric.  The cross-sectional
+SCI fabric bandwidth scales at (O)(2N) as you add nodes.  
 
-Alan> For 2.5 its a great leap forward. 
+If you want to play around with ccNUMA with Standard PCs, these 
+cards are relatively inepxensive, and allow you to setup some 
+powerful cc/SMP systems with explicit coherence.  The full 
+ccNUMA boxes from DG are expensive, however.  That way, instead
+of everyone talking about it, you guys could get some cool 
+hardware and experiment with some of your rather forward 
+looking and interesting ideas.
 
-That was my thought when I saw the patch to make CML2 work with Python
-1.5 in Kernel 2.5. 
+:-)
 
-John
+Jeff
+
+
+
+> 
+> 
+> Guys,
+> 
+> I am the maintaner of SCI, the ccNUMA technology standard.  I know
+> alot about this stuff, and have been involved with SCI since 
+> 1994.  I work with it every day and the Dolphin guys on some huge 
+> supercomputer accounts, like Los Alamos and Sandia Labs in NM.  
+> I will tell you this from what I know.
+> 
+> A shared everything approach is a programmers dream come true,
+> but you can forget getting reasonable fault tolerance with it.  The 
+> shared memory zealots want everyone to believe ccNUMA is better 
+> than sex, but it does not scale when compared to Shared-Nothing
+> programming models.  There's also a lot of tough issues for dealing 
+> with failed nodes, and how you recover when peoples memory is 
+> all over the place across a nuch of machines.  
+> 
+> SCI scales better in ccNUMA and all NUMA technoogies scale very 
+> well when they are used with "Explicit Coherence" instead of 
+> "Implicit Coherence" which is what you get with SMP systems.  
+> Years of research by Dr. Justin Rattner at Intel's High 
+> performance labs demonstrated that shared nothing models scaled
+> into the thousands of nodes, while all these shared everything
+> "Super SMP" approaches hit the wall at 64 processors generally.
+> 
+> SCI is the fastest shared nothing interface out there, and it also
+> can do ccNUMA.  Sequent, Sun, DG and a host of other NUMA providers
+> use Dolphin's SCI technology and have for years.   ccNUMA is useful 
+> for applications that still assume a shared nothing approach but that
+> use the ccNUMA and NUMA capabilities for better optimization.
+> 
+> Forget trying to recreate the COMA architecture of Kendall-Square.  
+> The name was truly descriptive of what happened in this architecture
+> when a node fails -- goes into a "COMA".  This whole discussion I have
+> lived through before and you will find that ccNUMA is virtually 
+> unimplementable on most general purpose OSs.  And yes, there are 
+> a lot of products and software out there, but when you look under 
+> the cover (like ServerNet) you discover their coherence models 
+> for the most part relay on push/pull explicit coherence models.
+> 
+> My 2 cents.
+> 
+> Jeff 
+> 
+> 
+> 
+> On Thu, Dec 06, 2001 at 12:09:32AM -0800, David S. Miller wrote:
+> >    From: Larry McVoy <lm@bitmover.com>
+> >    Date: Thu, 6 Dec 2001 00:02:16 -0800
+> >    
+> >    Err, Dave, that's *exactly* the point of the ccCluster stuff.  You get
+> >    all that seperation for every data structure for free.  Think about
+> >    it a bit.  Aren't you going to feel a little bit stupid if you do all
+> >    this work, one object at a time, and someone can come along and do the
+> >    whole OS in one swoop?  Yeah, I'm spouting crap, it isn't that easy,
+> >    but it is much easier than the route you are taking.  
+> > 
+> > How does ccClusters avoid the file system namespace locking issues?
+> > How do all the OS nodes see a consistent FS tree?
+> > 
+> > All the talk is about the "magic filesystem, thread it as much as you
+> > want" and I'm telling you that is the fundamental problem, the
+> > filesystem name space locking.
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/

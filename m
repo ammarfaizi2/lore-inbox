@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265096AbTA1Nif>; Tue, 28 Jan 2003 08:38:35 -0500
+	id <S265098AbTA1Nls>; Tue, 28 Jan 2003 08:41:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265306AbTA1Nif>; Tue, 28 Jan 2003 08:38:35 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:45952
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id <S265096AbTA1Nid>; Tue, 28 Jan 2003 08:38:33 -0500
-Subject: Re: Bootscreen
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Wichert Akkerman <wichert@wiggy.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030128130953.GW4868@wiggy.net>
-References: <Pine.LNX.4.44.0301281113480.20283-100000@schubert.rdns.com>
-	 <200301281144.h0SBi0ld000233@darkstar.example.net>
-	 <20030128114840.GV4868@wiggy.net>
-	 <1043758528.8100.35.camel@dhcp22.swansea.linux.org.uk>
-	 <20030128130953.GW4868@wiggy.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1043761632.1316.67.camel@dhcp22.swansea.linux.org.uk>
+	id <S265306AbTA1Nls>; Tue, 28 Jan 2003 08:41:48 -0500
+Received: from verein.lst.de ([212.34.181.86]:23567 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S265098AbTA1Nls>;
+	Tue, 28 Jan 2003 08:41:48 -0500
+Date: Tue, 28 Jan 2003 14:50:54 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Oleg Drokin <green@namesys.com>, linux-kernel@vger.kernel.org
+Subject: Re: ext2 FS corruption with 2.5.59.
+Message-ID: <20030128145054.A7217@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	Andrew Morton <akpm@digeo.com>, Oleg Drokin <green@namesys.com>,
+	linux-kernel@vger.kernel.org
+References: <20030123153832.A860@namesys.com> <20030124023213.63d93156.akpm@digeo.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 28 Jan 2003 13:47:13 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030124023213.63d93156.akpm@digeo.com>; from akpm@digeo.com on Fri, Jan 24, 2003 at 02:32:13AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-01-28 at 13:09, Wichert Akkerman wrote:
-> It takes a while before the kernel starts init though, especially if you
-> have things like SCSI controllers to initialise. If you do not use fb
-> you can have your bootloader setup a pretty bootscreen, but if you need
-> fb I don't see how you can prevent the textscreen with kernel messages.
+On Fri, Jan 24, 2003 at 02:32:13AM -0800, Andrew Morton wrote:
+> But it isn't.  It's on inode_in_use.  It (and its pages) never get written
+> out and the data gets thrown away on unmount.  Christoph has hit the same
+> thing.  I bet he was running fsstress too.  Sorry about that.
 
-I'd not really pondered people who compile many drivers into their kernel
-instead of into the initrd. I guess a few people still do that.
-
-As to the messages, if you are in graphical mode then you are right, the
-messages could be supressed and sent via user space but not directly. I
-guess the other way then is to use a custom font, set the configuration to
-not leave gaps between characters and draw a boot graphical view in that
-font ?
+Yes, I was hitting the bug in XFS's testcase 013 which is based on
+fsstress.
 

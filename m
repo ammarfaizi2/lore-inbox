@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267845AbTBVIAn>; Sat, 22 Feb 2003 03:00:43 -0500
+	id <S267844AbTBVIFk>; Sat, 22 Feb 2003 03:05:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267844AbTBVIAm>; Sat, 22 Feb 2003 03:00:42 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:35247 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267845AbTBVIAl>; Sat, 22 Feb 2003 03:00:41 -0500
-Date: Sat, 22 Feb 2003 00:10:46 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Strange performance change 59 -> 61/62
-Message-ID: <25510000.1045901445@[10.10.2.4]>
-In-Reply-To: <20030222000410.11a46e03.akpm@digeo.com>
-References: <32720000.1045671824@[10.10.2.4]><20030219101957.05088aa1.akpm@digeo.com><17280000.1045811967@[10.10.2.4]><17930000.1045812486@[10.10.2.4]><20030220234522.185f3f6c.akpm@digeo.com><11870000.1045848448@[10.10.2.4]><20030221122024.040055a0.akpm@digeo.com><22560000.1045899976@[10.10.2.4]> <20030222000410.11a46e03.akpm@digeo.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id <S267846AbTBVIFk>; Sat, 22 Feb 2003 03:05:40 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:20747 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S267844AbTBVIFj>; Sat, 22 Feb 2003 03:05:39 -0500
+Date: Sat, 22 Feb 2003 09:15:29 +0100
+From: Jurriaan <thunder7@xs4all.nl>
+To: paul raj <jpdomnic@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel
+Message-ID: <20030222081529.GB4117@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+References: <20030222071528.92821.qmail@web20704.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20030222071528.92821.qmail@web20704.mail.yahoo.com>
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> OK.  We used to only run mark_inode_dirty() for atime updates just when it
-> had actually changed.  ie: once per second.  But for reasons which remain
-> obscure that was taken out.
+From: paul raj <jpdomnic@yahoo.com>
+Date: Fri, Feb 21, 2003 at 11:15:28PM -0800
+> sir
 > 
-> This probably explains your ext3 woes.  Poor old ext3 has to do a ton of work
-> in ext3_mark_inode_dirty(), yet on 99% of the calls, nothing has even
-> changed.  Which is why I suggested that you retest ext3 with noatime.
+>    
+>     In which kernel verison is support for POSIX IPC
+> (message queue, Shared memory, and semaphore) in
+> linux.
+> 
+> 
+>    I want to install kernle-2.4.19. i followed all the
+> steps in READEME file. But in booting time, it display
+> the following error. How to rectify the error. please
+> give the steps for how to install new kernel.
+> (specifically you mention lilo ).
+> 
+There is no 'following error' in your message. If you need help
+installing linux, perhaps you can find a local users-group, or a
+newsgroup in your own language?
 
-Shall do - tommorow ;-)
- 
-> I shall fix it up.
-
-Sounds great - thank you,
-
-M.
-
+HTH,
+Jurriaan
+-- 
+An ill wind comes arising
+Across the cities of the plain
+There's no swimming in the heavy water
+No singing in the acid rain
+   Rush - Distant Early Warning
+GNU/Linux 2.5.62 SMP/ReiserFS 2x2793 bogomips load av: 0.68 0.41 0.31

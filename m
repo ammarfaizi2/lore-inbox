@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268324AbTGIN4E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 09:56:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268325AbTGIN4E
+	id S268304AbTGIN4i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 09:56:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268260AbTGIN4h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 09:56:04 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64527 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S268324AbTGIN4B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 09:56:01 -0400
-Date: Wed, 9 Jul 2003 15:10:32 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: James Simmons <jsimmons@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] fbdev and power management
-Message-ID: <20030709151032.A22612@flint.arm.linux.org.uk>
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	James Simmons <jsimmons@infradead.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44.0307090024170.32323-100000@phoenix.infradead.org> <1057750557.514.22.camel@gaston>
+	Wed, 9 Jul 2003 09:56:37 -0400
+Received: from angband.namesys.com ([212.16.7.85]:31399 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S268270AbTGIN4d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 09:56:33 -0400
+Date: Wed, 9 Jul 2003 18:11:11 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: mason@suse.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-pre3 and reiserfs boot problem
+Message-ID: <20030709141111.GK18307@namesys.com>
+References: <20030706183453.74fbfaf2.skraw@ithnet.com> <1057515223.20904.1315.camel@tiny.suse.com> <20030709140138.141c3536.skraw@ithnet.com> <1057757764.26768.170.camel@tiny.suse.com> <20030709134837.GJ18307@namesys.com> <20030709155803.2d1569a8.skraw@ithnet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1057750557.514.22.camel@gaston>; from benh@kernel.crashing.org on Wed, Jul 09, 2003 at 01:35:58PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <20030709155803.2d1569a8.skraw@ithnet.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 09, 2003 at 01:35:58PM +0200, Benjamin Herrenschmidt wrote:
-> Note: The Power Management isn't well implemented in 2.5 yet. The
-> infrastructure is mostly there, but the driver side semantics are
-> still wrong. Patrick Mochel has a new implementation that is much
-> better, but he didn't merge it upstream yet. I expect this will
-> happen around Kernel Summit / OLS.
+Hello!
 
-I'm slightly concerned by this.  There are a growing amount of drivers
-in 2.5 which are being made to work with the existing power management
-system.  This "new" system seems to have been hanging around for about
-4 months now with no visible further work, presumably so that a paper
-can be presented before its release.
+On Wed, Jul 09, 2003 at 03:58:03PM +0200, Stephan von Krawczynski wrote:
+> > > Step one is to figure out if the problem is reiserfs or 3ware.  Instead
+> > > of mounting the filesystem, run debugreiserfs -d /dev/xxxx > /dev/null
+> > > and see if you still hang.
+> > > This will read the FS metadata and should generate enough io to trigger
+> > > the hang if it is a 3ware problem.
+> Ok, I tried this. debugreiserfs runs without any problems. Disks show quite an
+> activity, the whole thing lasts 1-2 minutes.
+> mount afterwards shows the same hang.
 
-My concern is that there has been:
-- 4 months of non-exposure of this work
-- 4 months of making the current system work
-- and putting it in will require a fair number of drivers to be 
-  re-worked.
+Hm.
 
-Apart from driver re-work and that the core interfaces are supposed to
-be stable, what are the technical arguments against merging it, say,
-today?
+> > Or if this one suceeds, then may be reiserfsck --check /dev/xxxx to get
+> > journal replayed. This is in case access pattern matters.
+> I can try that, too. What do you expect to see?
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Well, it will either hang or not, I think.
+It it won't hang, this will complicate matters.
+Then next step would be probably to try and mount the partition from usermodelinux if you are able
+to conduct such a test.
+I am still pretty skeptical about the possibility that recent reiserfs changes broke stuff.
 
+Bye,
+    Oleg

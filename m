@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264666AbSIWBUr>; Sun, 22 Sep 2002 21:20:47 -0400
+	id <S264467AbSIWBZi>; Sun, 22 Sep 2002 21:25:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264674AbSIWBUr>; Sun, 22 Sep 2002 21:20:47 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:6161 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S264666AbSIWBUr>; Sun, 22 Sep 2002 21:20:47 -0400
-Date: Mon, 23 Sep 2002 02:25:57 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.38-mm1
-Message-ID: <20020923012557.GA69900@compsoc.man.ac.uk>
-References: <3D8D5F2A.BC057FC4@digeo.com> <20020923004036.GA13921@www.kroptech.com> <3D8E6647.8B02E613@digeo.com>
+	id <S264674AbSIWBZi>; Sun, 22 Sep 2002 21:25:38 -0400
+Received: from mailout6-1.nyroc.rr.com ([24.92.226.177]:3728 "EHLO
+	mailout6-0.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S264467AbSIWBZh>; Sun, 22 Sep 2002 21:25:37 -0400
+Subject: BIOS or kernel APM bug?
+From: James D Strandboge <jstrand1@rochester.rr.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 22 Sep 2002 21:31:02 -0400
+Message-Id: <1032744662.6912.69.camel@sirius.strandboge.cxm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D8E6647.8B02E613@digeo.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 22, 2002 at 05:54:31PM -0700, Andrew Morton wrote:
+I recently purchased a usb webcam and found that polling /proc/apm
+causes the webcam in xawtv to skip.  I can so this either by doing 'cat
+/proc/apm' or using the gnome battstat-applet.  Disabling the
+battstat-applet and not touching /proc/apm lets xawtv work fine.
 
-> It found a bug.  Someone is calling kmem_cache_create() in an
-> atomic region.
+Polling /proc/apm also causes clock drift.
 
-And kmem_cache_alloc() has jumped to the top of the profile (checked
-with readprofile) in 2.3.38-linus.
+I have a Dell Inspiron 8200 laptop (1.6Ghz Pentium 4).  Using kernel
+2.4.18 with rmap12h and preempt-kernel patch.
 
-Didn't bother looking why ...
+Jamie Strandboge
 
-regards
-john
 
 -- 
-"Say what you mean or you won't mean a thing to me."
-        - Embrace
+Email:        jstrand1@rochester.rr.com
+GPG/PGP ID:   26384A3A
+Fingerprint:  D9FF DF4A 2D46 A353 A289  E8F5 AA75 DCBE 2638 4A3A
+

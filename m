@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265706AbSJXWyN>; Thu, 24 Oct 2002 18:54:13 -0400
+	id <S265707AbSJXXLB>; Thu, 24 Oct 2002 19:11:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265705AbSJXWyN>; Thu, 24 Oct 2002 18:54:13 -0400
-Received: from [63.204.6.12] ([63.204.6.12]:21915 "EHLO mail.somanetworks.com")
-	by vger.kernel.org with ESMTP id <S265697AbSJXWyM>;
-	Thu, 24 Oct 2002 18:54:12 -0400
-Date: Thu, 24 Oct 2002 19:00:23 -0400 (EDT)
-From: "Scott Murray" <scottm@somanetworks.com>
-X-X-Sender: <scottm@rancor.yyz.somanetworks.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: Steven Dake <sdake@mvista.com>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       <linux-scsi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [RFC] Advanced TCA SCSI Disk Hotswap
-In-Reply-To: <Pine.LNX.4.33L2.0210241350230.20950-100000@dragon.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.33.0210241839490.10937-100000@rancor.yyz.somanetworks.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265708AbSJXXLB>; Thu, 24 Oct 2002 19:11:01 -0400
+Received: from sv1.valinux.co.jp ([202.221.173.100]:29444 "HELO
+	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S265707AbSJXXLA>;
+	Thu, 24 Oct 2002 19:11:00 -0400
+Date: Fri, 25 Oct 2002 08:09:44 +0900 (JST)
+Message-Id: <20021025.080944.74754725.taka@valinux.co.jp>
+To: manfred@colorfullife.com
+Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com
+Subject: Re: [CFT] faster athlon/duron memory copy implementation
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <3DB82ABF.8030706@colorfullife.com>
+References: <3DB82ABF.8030706@colorfullife.com>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Oct 2002, Randy.Dunlap wrote:
+Hello,
 
-> Preface question:  does cPCI support surprise removal (in the
-> PICMG specs, not in some implementation)?  I know that PCI hotplug
-> doesn't support surprise removal, only "coordinated" removal.
+> AMD recommends to perform memory copies with backward read operations 
+> instead of prefetch.
+> 
+> http://208.15.46.63/events/gdc2002.htm
+> 
+> Attached is a test app that compares several memory copy implementations.
+> Could you run it and report the results to me, together with cpu, 
+> chipset and memory type?
+> 
+> Please run 2 or 3 times.
 
-No, according to PICMG 2.1 R2.0, suprise removal is "non-compliant".
-
-> So the question that has to be answered IMO is:  do we want to
-> support surprise removal for something like manufacturing test,
-> which doesn't abide by the coordinated removal protocol?
->
-> or:  Do we have to support surprise removal, only because it can't
-> be prevented?  I expect that this is the case, but I still don't
-> see or understand the 20 ms time requirement.
-
-I've not implemented it yet, but I'm pretty sure I can detect surprise
-extractions in my cPCI driver.  The only thing holding me back at the
-moment is that there's no clear way to report this status change via
-pcihpfs without doing something a bit funky like reporting "-1" in the
-"adapter" node.
-
-Scott
-
-
--- 
-Scott Murray
-SOMA Networks, Inc.
-Toronto, Ontario
-e-mail: scottm@somanetworks.com
-
+Your test dosen't use cache memory on CPU for the both of src and dst.
+We should also try it with a smaller buffer.

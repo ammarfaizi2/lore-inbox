@@ -1,39 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317567AbSFRTOX>; Tue, 18 Jun 2002 15:14:23 -0400
+	id <S317566AbSFRTTG>; Tue, 18 Jun 2002 15:19:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317566AbSFRTNa>; Tue, 18 Jun 2002 15:13:30 -0400
-Received: from sabre.velocet.net ([216.138.209.205]:22796 "HELO
-	sabre.velocet.net") by vger.kernel.org with SMTP id <S317563AbSFRTMi>;
-	Tue, 18 Jun 2002 15:12:38 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-       Jeff Garzik <garzik@havoc.gtf.org>,
-       Roman Zippel <zippel@linux-m68k.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Remove Bitkeeper documentation from Linux tree
-References: <Pine.LNX.4.33.0204200942480.11450-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0204200942480.11450-100000@penguin.transmeta.com>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 18 Jun 2002 15:12:31 -0400
-Message-ID: <87k7owpfj4.fsf@stark.2y.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S317568AbSFRTRc>; Tue, 18 Jun 2002 15:17:32 -0400
+Received: from mrelay1.cc.umr.edu ([131.151.1.120]:431 "EHLO smtp.umr.edu")
+	by vger.kernel.org with ESMTP id <S317566AbSFRTRU> convert rfc822-to-8bit;
+	Tue, 18 Jun 2002 15:17:20 -0400
+x-mimeole: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Behavior of exec wrt euid/ruid on 2.2 vs. 2.4 kernels
+Date: Tue, 18 Jun 2002 14:17:21 -0500
+Message-ID: <5958610EC585FA42B1CC3D20E216BE70190D13@umr-mail6.umr.edu>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Behavior of exec wrt euid/ruid on 2.2 vs. 2.4 kernels
+Thread-Index: AcIW/DUUXcuVHoCZEda/OwBQVgAgFQAAHtSw
+From: "Neulinger, Nathan" <nneul@umr.edu>
+To: <Linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Never mind... it was pointed out that this is a change in behavior of
+more recent versions of bash, not the exec call. 
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+-- Nathan
 
-> Quite frankly, I don't _want_ people using Linux for ideological reasons.  
-> I think ideology sucks. This world would be a much better place if people
-> had less ideology, and a whole lot more "I do this because it's FUN and
-> because others might find it useful, not because I got religion".
-
-Some might call that an ideology itself...
+------------------------------------------------------------
+Nathan Neulinger                       EMail:  nneul@umr.edu
+University of Missouri - Rolla         Phone: (573) 341-4841
+Computing Services                       Fax: (573) 341-4216
 
 
--- 
-greg
-
+> -----Original Message-----
+> From: Neulinger, Nathan 
+> Sent: Tuesday, June 18, 2002 2:13 PM
+> To: 'Linux-kernel@vger.kernel.org'
+> Subject: Behavior of exec wrt euid/ruid on 2.2 vs. 2.4 kernels
+> 
+> 
+> I just noticed this today when I upgraded an older machine 
+> from 2.2.x to 2.4.18 that the behavior of exec changed with 
+> respect to how it handles euid!=ruid.
+> 
+> Basically, on 2.4:
+> 	setuid bin, execute it, ruid!=euid, exec another tool, 
+> now euid is set to ruid
+> 
+> on 2.2 the execced binary retains the ruid!=euid.
+> 
+> I can see how this might have been done intentionally for 
+> security, however, it does mean that it is impossible for a 
+> execced tool to know the real uid that is running it if 
+> executed from a setuid wrapper, or to run a helper tool 
+> (aklog) from a ruid!=euid process. 
+> 
+> Was this change in behavior intentional?
+> 
+> I never noticed it on any of our other 2.4.x systems, cause 
+> exec()'s within setuid bin's without 
+> setresuid(geteuid(),geteuid(),geteuid()) are pretty rare in 
+> our tools, most of them just have a single bin that does 
+> whatever it needs to do. 
+> 
+> -- Nathan
+> 
+> ------------------------------------------------------------
+> Nathan Neulinger                       EMail:  nneul@umr.edu
+> University of Missouri - Rolla         Phone: (573) 341-4841
+> Computing Services                       Fax: (573) 341-4216
+> 

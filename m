@@ -1,69 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266455AbUBFEHh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 23:07:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266463AbUBFEHh
+	id S266457AbUBFEPg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 23:15:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266461AbUBFEPg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 23:07:37 -0500
-Received: from relay04.roc.ny.frontiernet.net ([66.133.131.37]:5600 "EHLO
-	relay04.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S266455AbUBFEHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 23:07:35 -0500
-Message-ID: <4021C152.3080501@xfs.org>
-Date: Wed, 04 Feb 2004 22:06:42 -0600
-From: Steve Lord <lord@xfs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: ak@suse.de, linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
-Subject: Re: Limit hash table size
-References: <B05667366EE6204181EABE9C1B1C0EB5802441@scsmsx401.sc.intel.com.suse.lists.linux.kernel> <20040205155813.726041bd.akpm@osdl.org.suse.lists.linux.kernel> <p73isilkm4x.fsf@verdi.suse.de> <4021AC9F.4090408@xfs.org> <20040205191240.13638135.akpm@osdl.org>
-In-Reply-To: <20040205191240.13638135.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 5 Feb 2004 23:15:36 -0500
+Received: from fw.osdl.org ([65.172.181.6]:28647 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266457AbUBFEPc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 23:15:32 -0500
+Date: Thu, 5 Feb 2004 20:13:09 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: jw schultz <jw@pegasys.ws>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.2] Documentation/SubmittingPatches
+Message-Id: <20040205201309.4dac8b8c.rddunlap@osdl.org>
+In-Reply-To: <20040206034509.GI21479@pegasys.ws>
+References: <20040205072303.BCF79FA5F1@mrhankey.megahappy.net>
+	<20040206034509.GI21479@pegasys.ws>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Steve Lord <lord@xfs.org> wrote:
-> 
->> I have seen some dire cases with the dcache, SGI had some boxes with
->> millions of files out there, and every night a cron job would come
->> along and suck them all into memory. Resources got tight at some point,
->> and as more inodes and dentries were being read in, the try to free
->> pages path was continually getting called. There was always something
->> in filesystem cache which could get freed, and the inodes and dentries
->> kept getting more and more of the memory.
-> 
-> 
-> There are a number of variables here.  Certainly, the old
-> inodes-pinned-by-highmem pagecache will cause this to happen - badly.  2.6
-> is pretty aggressive at killing off those inodes.
-> 
-> What kernel was it?
-> 
-> Was it a highmem box?  If so, was the filesystem in question placing
-> directory pagecache in highmem?  If so, that was really bad on older 2.4:
-> the directory pagecache in highmem pins down all directory inodes.
-> 
+On Thu, 5 Feb 2004 19:45:09 -0800 jw schultz <jw@pegasys.ws> wrote:
 
-This is where my memory gets a little hazy, its been a few months.
-This would have been a 2.4 kernel (probably around 2.4.21)
-on an Altix, the filesystem was XFS. So no highmem, but definitely
-not your standard kernel.
+| On Wed, Feb 04, 2004 at 11:23:03PM -0800, Bryan Whitehead wrote:
+| > 
+| > I've been trying to get my feet wet by submitting trivial patchs to various maintainers and the responses have been, "your not submiting you patches correctly". It seems most developers/maintainers want a diff done like this:
+| > 
+| > cd /source-tree
+| > diff -u linux-2.6.2/FileToPatch.orig linux-2.6.2/FileToPatch
+| > 
+| > instead of the "SubmitingPatches" document way:
+| > cd /source-tree/linux-2.6.2
+| > diff -u FileToPatch.orig FileToPatch
+| > 
+| > It would be _great_ if the Documentation was more accurate to the taste of developers/maintainers...
+| > 
+| > If the SubmittingPatches document is correct, then just toss this patch out because this won't be submitted right... ;)
+| > 
+| > --- linux-2.6.2/Documentation/SubmittingPatches.orig    2004-02-04 22:57:55.818563016 -0800
+| > +++ linux-2.6.2/Documentation/SubmittingPatches 2004-02-04 23:01:28.799185040 -0800
+| > @@ -33,13 +33,15 @@
+| >                                                                                                                                     
+| >  To create a patch for a single file, it is often sufficient to do:
+| >                                                                                                                                     
+| > -       SRCTREE= /devel/linux-2.4
+| > +       SRCTREE= /devel/
+| > +       SRCDIR= linux-2.4
+| >         MYFILE=  drivers/net/mydriver.c
+| >                                                                                                                                     
+| > -       cd $SRCTREE
+| > +       cd $SRCTREE/$SRCDIR
+| >         cp $MYFILE $MYFILE.orig
+| >         vi $MYFILE      # make your change
+| > -       diff -u $MYFILE.orig $MYFILE > /tmp/patch
+| > +       cd $SRCTREE
+| > +       diff -u $SRCDIR/$MYFILE.orig $SRCDIR/$MYFILE > /tmp/patch
+| >                                                                                                                                     
+| 
+| For what it may be worth I find patches a lot more useful
+| for review purposes if the -p (for --show-c-function) option
+| is also used.
 
-I never had time to dig into it too much, but I always thought that
-on machines with large amounts of memory it was too easy for the
-inode and dcache pools to get very large at the expense of the
-regular memory zones. While there were pages available, the dcache
-and inode zones could just keep on growing. If you run a big
-enough find you get lots of memory into the dcache zone and
-have a hard time getting it out again.
+and which was recently added to SubmittingPatches .
 
-And it was try_to_free_pages I was referring to.
+But this should all get cleaned up...
 
-It does look like 2.6 does better, but I don't have quite the
-amount of memory on my laptop....
-
-Steve
+--
+~Randy

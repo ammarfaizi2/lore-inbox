@@ -1,45 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291343AbSBGV4H>; Thu, 7 Feb 2002 16:56:07 -0500
+	id <S291359AbSBGV65>; Thu, 7 Feb 2002 16:58:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291347AbSBGVzs>; Thu, 7 Feb 2002 16:55:48 -0500
-Received: from 1Cust15.tnt15.sfo3.da.uu.net ([67.218.75.15]:4365 "EHLO
-	morrowfield.home") by vger.kernel.org with ESMTP id <S291346AbSBGVzb>;
-	Thu, 7 Feb 2002 16:55:31 -0500
-Date: Thu, 7 Feb 2002 17:02:46 -0800 (PST)
-Message-Id: <200202080102.RAA09003@morrowfield.home>
-From: Tom Lord <lord@regexps.com>
-To: phillips@bonn-fries.net
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <E16Yw0S-000163-00@starship.berlin> (message from Daniel Phillips
-	on Thu, 7 Feb 2002 22:23:00 +0100)
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-In-Reply-To: <Pine.LNX.4.44.0202052328470.32146-100000@ash.penguinppc.org> <20020207165035.GA28384@ravel.coda.cs.cmu.edu> <200202072306.PAA08272@morrowfield.home> <E16Yw0S-000163-00@starship.berlin>
+	id <S291346AbSBGV6s>; Thu, 7 Feb 2002 16:58:48 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23562 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291359AbSBGV6Z>; Thu, 7 Feb 2002 16:58:25 -0500
+Subject: Re: [PATCH] Fix floppy io ports reservation
+To: dwguest@win.tue.nl (Guest section DW)
+Date: Thu, 7 Feb 2002 21:54:39 +0000 (GMT)
+Cc: aia21@cus.cam.ac.uk (Anton Altaparmakov), linux-kernel@vger.kernel.org
+In-Reply-To: <20020207202452.GA1527@win.tue.nl> from "Guest section DW" at Feb 07, 2002 09:24:52 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16YwV5-0001ax-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > I asked a friend to check and on his Windows 2000 system the port
+> > reservation was 0x3f2-0x3f5 + 0x3f7, i.e. it just excludes ports
+> > 0x3f0-0x3f1, which are NOT used anywhere in the driver anyway.
+> 
+> ports 0x3f0 and 0x3f1 are used on certain PS/2 systems
+> and on some very old AT clones
 
-
-Noted.  Yours would seem to be the more popular opinion.  I don't feel
-strongly against changing it.
-
--t
-
-
-
-   On February 8, 2002 12:06 am, Tom Lord wrote:
-   > The name has curly braces so that it sorts reasonably (i.e. away from
-   > ordinary source files).  It is not a dot file so that you can
-   > recognize at a glance when you are looking at the root of a project
-   > tree.
-
-   I'd pass on that to get rid of the extra 'noise'.  If for some reason I'm not 
-   sure - and I consider that unlikely to ever occur - I can always ls .* or 
-   find -name ".*arch*" if I'm really confused.
-
-   I like my directories to look clean, *especially* the source root.
-
-   -- 
-   Daniel
-
-
+The driver must only reserve those ports on machines which needed them and
+when it needs them (which it never actually does). The ports are used for
+other superio related things on newer machines

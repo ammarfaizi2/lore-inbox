@@ -1,117 +1,110 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317013AbSFANJp>; Sat, 1 Jun 2002 09:09:45 -0400
+	id <S317014AbSFANJ6>; Sat, 1 Jun 2002 09:09:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317014AbSFANJo>; Sat, 1 Jun 2002 09:09:44 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:48522 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S317013AbSFANJn>; Sat, 1 Jun 2002 09:09:43 -0400
-Date: Sat, 1 Jun 2002 15:06:16 +0200
-From: Dominik Brodowski <devel@brodo.de>
-To: Gerald Britton <gbritton@alum.mit.edu>
-Cc: davej@suse.de, linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: [PATCH] Re: Linux 2.4.19pre9-ac3
-Message-ID: <20020601150616.A1908@brodo.de>
-In-Reply-To: <20020531215144.A4358@light-brigade.mit.edu> <20020531014935.D9282@suse.de> <10830.1022935054@www2.gmx.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zx4FCpZtqtKETZ7O"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
+	id <S317015AbSFANJ5>; Sat, 1 Jun 2002 09:09:57 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:43143 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S317014AbSFANJy>;
+	Sat, 1 Jun 2002 09:09:54 -0400
+Message-ID: <3CF8C84A.2080101@athlon.maya.org>
+Date: Sat, 01 Jun 2002 15:12:42 +0200
+From: Andreas Hartmann <andihartmann@freenet.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020523
+X-Accept-Language: de, en-us, en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Memory management in Kernel 2.4.x
+In-Reply-To: <fa.iklie8v.5k2hbj@ifi.uio.no> <fa.na0lviv.e2a93a@ifi.uio.no> <actahk$6bp$1@ID-44327.news.dfncis.de> <3CF23893.207@loewe-komp.de> <20020531211951.GZ1172@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Andrea,
 
---zx4FCpZtqtKETZ7O
-Content-Type: multipart/mixed; boundary="ew6BAiZeqk4r7MaW"
-Content-Disposition: inline
+ >> Andreas Hartmann wrote:
+ > Andrea Arcangeli wrote:
+
+[...]
+
+ >> can you reproduce with 2.4.19pre9aa2? I expect at least the deadlock
+ >> (if it's a deadlock and not a livelock) should go away.
+ >>
+ >> Also I read in another email that somebody grown the per-socket
+ >> buffer
+ >> to hundred mbytes, if you do that on a 32bit arch with highmem you'll
+ >> run into troubles, too much ZONE_NORMAL ram will be constantly pinned
+ >> for the tcp pipeline and the machine can enter livelocks.
+
+ > I tested it and the error-situation occured again (thanks to rsync
+ > :-)).
+
+ > How did the kernel react?
+ > Well, I waited some seconds until all the memory was in use (256 MB
+ > RAM
+ > and 128 MB swap). I have to say, nearly all the memory, because there
+ > was allways some MB's free in RAM. So I was able to login via ssh as
+ > root. As I wanted to do something, the machine didn't react. Until
+ > this
+ > point, the machine seemed to work fine - xosview through ssh showed
+ > the
+ > activity very well. But then it crashed, because it couldn't open
+ > /proc/stat:
+ >	Can not open file : /proc/stat
+ > Some seconds later, the machine was working normal again. What
+ > happened?
+ >  /var/log/messages says:
+
+[...]
+
+ > I would like to know, if the killing of rsync was pure chance or if it
+ > was systematically. I will try it again :-).
+
+I did now two more tests. The kernel reacted nearly as described above. 
+The malicious process was killed but one time unfortunately xosview, 
+too. I always tried to open a new ssh session, wich always worked. Even 
+  innd was able to server some news-postings :-).
+
+If the kernel always only would kill the malicious process, it would be 
+really great and probably the solution of a really big problem of 
+2.4.-kernels!
+
+1. try
+Jun  1 14:40:58 susi PAM_unix[2650]: (sshd) session closed for user root
+Jun  1 14:42:08 susi sshd[2660]: Accepted publickey for root from 
+192.168.1.3 port 32987 ssh2
+Jun  1 14:42:20 susi PAM_unix[2660]: (sshd) session opened for user root 
+by (uid=0)
+Jun  1 14:44:36 susi kernel: __alloc_pages: 0-order allocation failed 
+(gfp=0x1d2/0)
+Jun  1 14:44:36 susi kernel: VM: killing process rsync
 
 
---ew6BAiZeqk4r7MaW
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+2. try
+Jun  1 14:49:00 susi PAM_unix[2804]: (sshd) session closed for user root
+Jun  1 14:50:21 susi sshd[2813]: Accepted publickey for andreas from 
+192.168.1.3 port 32991 ssh2
+Jun  1 14:50:27 susi PAM_unix[2813]: (sshd) session opened for user 
+andreas by (uid=0)
+Jun  1 14:51:37 susi kernel: __alloc_pages: 0-order allocation failed 
+(gfp=0x1f0/0)
+Jun  1 14:51:46 susi last message repeated 2 times
+Jun  1 14:51:50 susi kernel: __alloc_pages: 0-order allocation failed 
+(gfp=0x1d2/0)
+Jun  1 14:51:50 susi kernel: VM: killing process xosview
+Jun  1 14:52:03 susi kernel: __alloc_pages: 0-order allocation failed 
+(gfp=0x1d2/0)
+Jun  1 14:52:03 susi kernel: VM: killing process rsync
 
-Thanks for the bug report, appended patch should correct it - a PIII
-Coppermine workaround was also called on PIII-M Tulatins.
 
-Dominik
+The problems of resync always occure if the rsync-process on the other 
+side is stoped with CTRL-C e.g. At this moment, the ssh-connection to 
+the host susi is closed, which rsync obviously can't handle correctly.
+That's why it's very easy for me to reproduce the situation and how the 
+kernel is acting.
 
-On Sat, Jun 01, 2002 at 02:37:34PM +0200, Gerald Britton wrote:
-> cpufreq: currently at high speed setting - 598 MHz
-> CPU clock: 598.500 MHz (731.500-598.500 MHz)
->=20
-> cpu family	: 6
-> model		: 11
-> model name	: Intel(R) Pentium(R) III Mobile CPU      1133MHz
-> stepping	: 1
 
---ew6BAiZeqk4r7MaW
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: attachment; filename="correct_multiplier_detection.speedstep.diff"
-Content-Transfer-Encoding: quoted-printable
+Regards,
+Andreas Hartmann
 
---- /usr/src/linux-24-ac/arch/i386/kernel/speedstep.c	Sat Jun  1 14:58:09 2=
-002
-+++ cpufreq/CVS-24/cpufreq/linux/arch/i386/kernel/speedstep.c	Sat Jun  1 14=
-:56:25 2002
-@@ -1,5 +1,5 @@
- /*
-- *  $Id: speedstep.c,v 1.7.2.2 2002/05/28 18:33:13 db Exp $
-+ *  $Id: speedstep.c,v 1.7.2.3 2002/06/01 12:56:25 db Exp $
-  *
-  *	(C) 2001  Dave Jones, Arjan van de ven.
-  *	(C) 2002  Dominik Brodowski <devel@brodo.de>
-@@ -14,7 +14,7 @@
-  *
-  *  BIG FAT DISCLAIMER: Work in progress code. Possibly *dangerous*
-  *
-- *	Version $Id: speedstep.c,v 1.7.2.2 2002/05/28 18:33:13 db Exp $
-+ *	Version $Id: speedstep.c,v 1.7.2.3 2002/06/01 12:56:25 db Exp $
-  */
-=20
-=20
-@@ -353,10 +353,12 @@
- 	rdmsr(MSR_IA32_EBL_CR_POWERON, msr_lo, msr_hi);
-=20
- 	/* decode value */
--	if (c->x86_mask !=3D 0x01) /* different on early PIII */
--		msr_lo &=3D 0x0bc00000;
--	else
-+	if ((c->x86_model =3D=3D 0x08) && (c->x86_mask =3D=3D 0x01))=20
-+                /* different on early Coppermine PIII */
- 		msr_lo &=3D 0x03c00000;
-+	else
-+		msr_lo &=3D 0x0bc00000;
-+
- 	msr_lo >>=3D 22;
- 	while (msr_lo !=3D msr_decode_mult[i].bitmap) {
- 		if (msr_decode_mult[i].bitmap =3D=3D 0xff)
-@@ -500,7 +502,7 @@
- 	int             result;
- 	unsigned int    speed;
-=20
--	printk(KERN_INFO "cpufreq: Intel(R) SpeedStep(TM) support $Revision: 1.7.=
-2.2 $\n");
-+	printk(KERN_INFO "cpufreq: Intel(R) SpeedStep(TM) support $Revision: 1.7.=
-2.3 $\n");
-=20
- 	/* detect processor */
- 	speedstep_processor =3D speedstep_detect_processor();
-
---ew6BAiZeqk4r7MaW--
-
---zx4FCpZtqtKETZ7O
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Weitere Infos: siehe http://www.gnupg.org
-
-iD8DBQE8+MbCZ8MDCHJbN8YRAoZEAKCLKk+GY6Bd3acw3WM4+2QQOFMohQCfea7Y
-ZkcDXH9WYhUkw89f5PC029k=
-=noXA
------END PGP SIGNATURE-----
-
---zx4FCpZtqtKETZ7O--

@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261733AbSJZAbs>; Fri, 25 Oct 2002 20:31:48 -0400
+	id <S261725AbSJZA1g>; Fri, 25 Oct 2002 20:27:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261742AbSJZAbs>; Fri, 25 Oct 2002 20:31:48 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:21778
+	id <S261732AbSJZA1g>; Fri, 25 Oct 2002 20:27:36 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:12050
 	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S261733AbSJZAbs>; Fri, 25 Oct 2002 20:31:48 -0400
+	with ESMTP id <S261725AbSJZA1f>; Fri, 25 Oct 2002 20:27:35 -0400
 Subject: Re: [PATCH] hyper-threading information in /proc/cpuinfo
 From: Robert Love <rml@tech9.net>
-To: "David D. Hagood" <wowbagger@sktc.net>
-Cc: Jeff Garzik <jgarzik@pobox.com>, "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Daniel Phillips <phillips@arcor.de>,
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "'Dave Jones'" <davej@codemonkey.org.uk>,
        "'akpm@digeo.com'" <akpm@digeo.com>,
        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
        "'chrisl@vmware.com'" <chrisl@vmware.com>,
        "'Martin J. Bligh'" <mbligh@aracnet.com>
-In-Reply-To: <3DB9D789.4020101@sktc.net>
-References: <F2DBA543B89AD51184B600508B68D4000ECE7086@fmsmsx103.fm.intel.com>	<3DB9CC5D.
-	 7000600@pobox.com>  <3DB9D1FE.5010607@sktc.net>
-	<1035588310.734.4165.camel@phantasy>  <3DB9D789.4020101@sktc.net>
+In-Reply-To: <3DB9DED0.5050809@pobox.com>
+References: <F2DBA543B89AD51184B600508B68D4000EA1718C@fmsmsx103.fm.intel.com>
+	<1035581420.734.3873.camel@phantasy> <20021026000137.GA19673@suse.de>
+	<3DB9DC1D.3000807@pobox.com> <20021026001250.GA19948@suse.de> 
+	<3DB9DED0.5050809@pobox.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 25 Oct 2002 20:37:57 -0400
-Message-Id: <1035592677.734.4377.camel@phantasy>
+Date: 25 Oct 2002 20:33:55 -0400
+Message-Id: <1035592436.735.4361.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-10-25 at 19:45, David D. Hagood wrote:
+On Fri, 2002-10-25 at 20:16, Jeff Garzik wrote:
 
-> I would assert that, at least in the case of the P4, there IS a "major 
-> core", as the 2 subcores share L1 and bus controller access, as well as 
-> several other parts of the chip.
-> 
-> I beleive this is to some extent the case in the Power4 modules - that 
-> each module contains resources shared by the execution units. However, I 
-> might be full of it, and since there are plenty of @ibm.com's here I 
-> expect to be corrected shortly....
 
-You are entirely right :)
+> That said, on IRC my preference was to create smp_num_siblings[] and 
+> store the info per-cpu.  But right now that's only for software 
+> engineering masturbation :) since it would store the same value N times 
+> on current CPUs.
 
-But argument for siblings vs. subcore is that in the context of the
-processors displayed in /proc/cpuinfo known of them are "subscores" of
-the other (and thus none of them are the "main core").
+I agree with Jeff here - mostly because subverting the format is no
+good, either.
 
-Some are just "siblings" in the same parent process package.  So given a
-dual Xeon machine, you have 4 virtual processors, which are broken into
-two sets of two siblings.  Those two sets are each part of the same
-package.
+In the future, or perhaps on other architectures, smp_num_siblings could
+be per-processor.  So now we can extend this in the future and not break
+the /proc interface.
+
+Its just a by-product of the P4 that smp_num_siblings is global on
+arch-i386.
 
 	Robert Love
+
 

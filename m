@@ -1,57 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263811AbTEGPHl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 11:07:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263858AbTEGPHl
+	id S263879AbTEGPJy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 11:09:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263886AbTEGPJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 11:07:41 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:60050 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S263811AbTEGPHh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 11:07:37 -0400
-Date: Wed, 7 May 2003 17:18:11 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Using GPL'd Linux drivers with non-GPL, binary-only kernel
-Message-ID: <20030507151811.GC412@elf.ucw.cz>
-References: <20030506164252.GA5125@mail.jlokier.co.uk> <20030506204305.GA5546@elf.ucw.cz> <20030506221819.GC6284@mail.jlokier.co.uk> <1052256672.1983.174.camel@dhcp22.swansea.linux.org.uk> <20030506224824.GE6284@mail.jlokier.co.uk> <1052310058.3061.11.camel@dhcp22.swansea.linux.org.uk> <20030507142619.GA16023@mail.jlokier.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030507142619.GA16023@mail.jlokier.co.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Wed, 7 May 2003 11:09:54 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:12276 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S263879AbTEGPJP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 11:09:15 -0400
+Message-ID: <3EB92464.3050306@mvista.com>
+Date: Wed, 07 May 2003 08:21:08 -0700
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       chandra.smurthy@wipro.com
+Subject: Re: [BUG] problem with timer_create(2) for SIGEV_NONE ??
+References: <E935C89216CC5D4AB77D89B253ADED2A92257F@blr-m2-msg.wipro.com>
+In-Reply-To: <E935C89216CC5D4AB77D89B253ADED2A92257F@blr-m2-msg.wipro.com>
+Content-Type: multipart/mixed;
+ boundary="------------080100050306030000020906"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > I'd get to define "the OS" so that is not a problem :) You could
-> > 
-> > The GPL is smarter than that
-> > "However, as a special exception, the source code distributed need not
-> > include anything that is normally distributed (in either source or
-> > binary form) with the major components (compiler, kernel, and so on) of
-> > the operating system on which the executable runs, unless that component
-> > itself accompanies the executable."
-> 
-> I am talking about replacing the kernel (and compiler as it
-> happens)... those _are_ the major components of the operating system
-> which fall under that exception.  So, if we were splitting hairs over
-> the wording, it would come down to whether the other major components
-> "accompany the executable", where the executable is the GPL module.
-> 
-> This is further complicated because those GPL modules need not be
-> distributed in binary form anyway, they could be compiled at run time
-> from source, so there is no executable to speak of.  More corner case
-> fun :)
+This is a multi-part message in MIME format.
+--------------080100050306030000020906
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-If you are compiling them from source, and interface between the
-module and the kernel is well defined (== "userspace") I guess you are
-okay.
-								Pavel
+Attached is a fix.
+
+Change log:
+
+Fix the sig_notify filtering code for the timer_create system call to 
+properly check for the signal number being small enought, but only if 
+SIG_NONE is not specified.
+
+Eliminate useless test of sig_notify.
+
+george
+
+
+Aniruddha M Marathe wrote:
+> George,
+> 
+>  timer_create(2) fails in the case where sigev_notify parameter of
+> sigevent structure is SIGEV_NONE. I believe this should not happen.
+> 
+    ~snip~
+
+>  
+> Line 377:
+> SIGEV_NONE & ~(SIGEV_SIGNAL | SIGEV_THREAD_ID)
+> = 001 & ~(000 | 100)
+> = 001 & ~(100)
+> = 001 & 011
+> = 001
+> therefore the if condition is true
+> therefore the function returns NULL from line 378.
+>  
+> Now in sys_timer_create() at line number 462
+> Process = NULL
+>  
+> Now at line 489
+> if (!process) becomes TRUE
+> and function returns with EINVAL
+> 
+> Is my analysis right? If so can you comment on this behaviour?
+> 
+Looks like a bug :(  I feel a patch coming on...
+
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+
+
+
+--------------080100050306030000020906
+Content-Type: text/plain;
+ name="hrtimers-fix-signone-2.5.69-1.0.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="hrtimers-fix-signone-2.5.69-1.0.patch"
+
+--- linux-2.5.69-org/kernel/posix-timers.c	2003-05-05 15:34:09.000000000 -0700
++++ linux/kernel/posix-timers.c	2003-05-06 00:24:21.000000000 -0700
+@@ -357,13 +357,10 @@
+ 			rtn->tgid != current->tgid))
+ 		return NULL;
+ 
+-	if ((event->sigev_notify & SIGEV_SIGNAL & MIPS_SIGEV) &&
++	if ((event->sigev_notify & ~SIGEV_NONE & MIPS_SIGEV) &&
+ 			((unsigned) (event->sigev_signo > SIGRTMAX)))
+ 		return NULL;
+ 
+-	if (event->sigev_notify & ~(SIGEV_SIGNAL | SIGEV_THREAD_ID))
+-		return NULL;
+-
+ 	return rtn;
+ }
+ 
+
+
+
+--------------080100050306030000020906--
+

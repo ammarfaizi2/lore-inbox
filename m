@@ -1,74 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262721AbUCMA2z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 19:28:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262773AbUCMA2z
+	id S262909AbUCMAsl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 19:48:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262911AbUCMAsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 19:28:55 -0500
-Received: from gate.crashing.org ([63.228.1.57]:52952 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262721AbUCMA2u (ORCPT
+	Fri, 12 Mar 2004 19:48:41 -0500
+Received: from thunk.org ([140.239.227.29]:5007 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S262909AbUCMAsj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 19:28:50 -0500
-Subject: Re: 2.6.4 - powerbook 15" - usb oops+backtrace
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Soeren Sonnenburg <kernel@nn7.de>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1079097936.1837.102.camel@localhost>
-References: <1079097936.1837.102.camel@localhost>
-Content-Type: text/plain
-Message-Id: <1079137438.1960.47.camel@gaston>
+	Fri, 12 Mar 2004 19:48:39 -0500
+Date: Fri, 12 Mar 2004 19:47:56 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@zip.com.au>, torvalds@transmeta.com,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Dealing with swsusp vs. pmdisk
+Message-ID: <20040313004756.GB5115@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@zip.com.au>,
+	torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
+References: <20040312224645.GA326@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 13 Mar 2004 11:23:59 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040312224645.GA326@elf.ucw.cz>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-03-13 at 00:25, Soeren Sonnenburg wrote:
-> Hi!
+On Fri, Mar 12, 2004 at 11:46:45PM +0100, Pavel Machek wrote:
+> I don't really like having two implementations of same code in
+> kernel. There are two ways to deal with it:
 > 
-> I got this oops when inserting mouse/keyboard (both usb).
+> * remove pmdisk from kernel
+>   + its easy
 > 
-> usb 1-1: new low speed USB device using address 4
-> input: USB HID v1.00 Mouse [Cypress Sem USB Mouse] on usb-0001:01:18.0-1
-> Oops: kernel access of bad area, sig: 11 [#1]
-> NIP: 5A5A5A58 LR: C026D8B0 SP: ED6B1E10 REGS: ed6b1d60 TRAP: 0401    Not
+> * remove swsusp from kernel, rename pmdisk to swsusp, fix all bugs
+>   that were fixed in swsusp but not in pmdisk 
+>   + people seem to like pmdisk code more
+>   - will need some testing in -mm series
+> 
+> Which one do you prefer? I can do both...
 
-NIP is the program counter, something tried to jump into nowhereland,
-find out who by looking at who "owns" C026D8B0 in System.map
+2.6 is allegedly the stable kernel series, so if swsusp is the more
+stable code base at this point, my vote would be to keep swsusp and
+remove pmdisk from the kernel.  If someone wants to maintain a
+separate BK-tree that contains pmdisk renamed to swsusp and fix all
+the bugs, that's great.  On the other hand, there are a group of
+people of are busy doing something very similar with swsusp2, and that
+effort seems to have a fair number of people working on the patch and
+testing it.  
 
-> tainted
-> MSR: 40009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
-> TASK = edb87320[1332] 'pbbuttonsd' Last syscall: 5 
-> GPR00: 5A5A5A5A ED6B1E10 EDB87320 C1991894 E2DB789C 00000000 E7909300
-> ED6B1DC0 
-> GPR08: 00000000 00000000 C03DA5A0 00000005 84000428 
-> Call trace:
->  [c02704ac] evdev_open+0x64/0x104
->  [c026e814] input_open_file+0x98/0x1cc
->  [c00675a8] chrdev_open+0xe0/0x16c
->  [c005c0b4] dentry_open+0x15c/0x230
->  [c005bf54] filp_open+0x64/0x68
->  [c005c43c] sys_open+0x68/0xa0
->  [c0005d3c] ret_from_syscall+0x0/0x44
-> usb 2-1: new low speed USB device using address 4
-> input: USB HID v1.00 Keyboard [PTC HID PS/2 Keyboard - PS/2 Mouse] on
-> usb-0001:01:19.0-1
-> input: USB HID v1.00 Mouse [PTC HID PS/2 Keyboard - PS/2 Mouse] on
-> usb-0001:01:19.0-1
-> 
-> Thanks for any suggestions...
-> 
-> I can probably give more infos as xmon is compiled in the kernel here.
-> 
-> Thanks in advance,
-> Soeren.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
+So if we can somehow go from *three* idependent software suspend
+implementations implementations to something less than three, and
+increase the testing and effort devoting to remaining software suspend
+code bases, this would be a good thing.
 
+Pavel, what do you think of the swsusp2 patch, BTW?  My biggest
+complaint about it is that since it's maintained outside of the
+kernel, it's constantly behind about 0.75 revisions behind the latest
+2.6 release.  The feature set of swsusp2, if they can ever get it
+completely bugfree(tm) is certainly impressive.
+
+						- Ted

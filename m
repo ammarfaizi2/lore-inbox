@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261509AbTIWXJV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 19:09:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbTIWXJV
+	id S263438AbTIWXKv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 19:10:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263447AbTIWXKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 19:09:21 -0400
-Received: from [208.158.5.221] ([208.158.5.221]:12175 "EHLO dalive.com")
-	by vger.kernel.org with ESMTP id S261509AbTIWXJU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 19:09:20 -0400
-Message-ID: <3F70D21A.4010109@flashmail.com>
-Date: Tue, 23 Sep 2003 19:07:06 -0400
-From: DALive Editor <dalive@flashmail.com>
-Reply-To: dalive@flashmail.com
-Organization: Live Corp =?ISO-8859-1?Q?=A9?=
-User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 23 Sep 2003 19:10:51 -0400
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:24337 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id S263438AbTIWXKs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 19:10:48 -0400
+From: Matt Gibson <gothick@gothick.org.uk>
+Organization: The Wardrobe Happy Cow Emporium
 To: linux-kernel@vger.kernel.org
-Subject: Possible Kernel 2.4.22 Bug - Please advise
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: File access error fixed with mount -o remount ?
+Date: Wed, 24 Sep 2003 00:09:59 +0100
+User-Agent: KMail/1.5.3
+References: <3F70CEA3.70905@jpl.nasa.gov>
+In-Reply-To: <3F70CEA3.70905@jpl.nasa.gov>
+X-Pointless-MIME-Header: yes
+X-Archive: encrypt
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309240009.59450.gothick@gothick.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Objective:
+On Tuesday 23 Sep 2003 23:52, Bryan Whitehead wrote:
+> I have run across a problem with files that seem to become randomly
+> "broken" but after a "mount -o remount" the files start working normally
+> again.
 
-To successfully complete my first kernel compilation, thereby upgrading 
-my Kernel to the 2.4.22.
+I've had a vaguely similar problem with 2.6.0-test5: recently I've been 
+compiling KDE over a period of a few days.  The first couple of days I was 
+running test4, and everything was fine.  Then I upgraded to test5, and three 
+times now I've had particular executables become unusable.  For example, 
+yesterday, egrep just stopped working.  This stopped the KDE build, and 
+testing it by hand, I found that running "egrep" gave me the error "text 
+file busy."  I couldn't find any way of making it work again except a 
+reboot.
 
+Today it was "sed" that stopped being runnable with the same error message.  
+I didn't try a remount (at the moment, my system is one big / partition.  
+Yeah, I know...)  Again, sed didn't become runnable again until I rebooted.
 
-Problem:
+Has anyone else seen this weirdness?  It's vanilla 2.6.0-test5, with 
+reiserfs.
 
-After having sorted through literally dozens of problems, most related 
-to my ignorance on the topic, I finally got a booting kernel image. Yet, 
-with my new kernel, the boot sequence always fails to determine ip 
-information, yet this always work with my old, and only working, kernel 
-(except when there are problems with the ISP).
+M
 
-
-Host Setup:
-
--Red Hat 9.0 Distro
--Grub as boot loader
--2 NIC's (different)
-
-
-Please advise
-Thank you.
-
-
+-- 
+"It's the small gaps between the rain that count,
+ and learning how to live amongst them."
+	      -- Jeff Noon

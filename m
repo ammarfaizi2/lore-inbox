@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316795AbSHJKsj>; Sat, 10 Aug 2002 06:48:39 -0400
+	id <S316845AbSHJKzr>; Sat, 10 Aug 2002 06:55:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316821AbSHJKsj>; Sat, 10 Aug 2002 06:48:39 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26377 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316795AbSHJKsi>; Sat, 10 Aug 2002 06:48:38 -0400
-Message-ID: <3D54F050.6050300@zytor.com>
-Date: Sat, 10 Aug 2002 03:52:00 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020703
-X-Accept-Language: en-us, en, sv
+	id <S316853AbSHJKzr>; Sat, 10 Aug 2002 06:55:47 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:41992 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S316845AbSHJKzq>; Sat, 10 Aug 2002 06:55:46 -0400
+Date: Sat, 10 Aug 2002 12:59:17 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Unix-domain sockets - abstract addresses 
+In-Reply-To: <9131.1028945953@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.LNX.4.44.0208101247170.8911-100000@serv>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-Subject: Re: klibc development release
-References: <aivdi8$r2i$1@cesium.transmeta.com> <200208090934.g799YVZe116824@d12relay01.de.ibm.com> <200208091754.g79HsJkN058572@d06relay02.portsmouth.uk.ibm.com> <3D541018.4050004@zytor.com> <15700.4689.876752.886309@napali.hpl.hp.com> <3D541478.40808@zytor.com> <20020809222736.GJ32427@mea-ext.zmailer.org> <20020810114003.A5459@infradead.org> <3D54EF69.5060709@zytor.com> <20020810115100.A5857@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Sat, Aug 10, 2002 at 03:48:09AM -0700, H. Peter Anvin wrote:
-> 
->>Sure, but that still means the *current* ABI is consistent between 
->>platforms.
-> 
-> yes, that's why I like the way they do it.  It doesn't really impose any
-> overhead and is much, much cleaner.
+Hi,
 
-100% in agreement.
+On Sat, 10 Aug 2002, Keith Owens wrote:
 
-	-hpa
+> Adding a constant prefix to every label and string will increase the
+> size of the kernel.  I would much rather find a way for cpp to strip
+> quotes from a #define, then -DKBUILD_OBJECT=\"unix\" has no problems.
+> But I don't know any cpp construct to convert KBUILD_OBJECT ("unix") to
+> bare 'unix' without the quotes.  Undefining conflicting names is tacky
+> but it has the least (zero) impact on the kernel size.
+
+I think prepending an underscore would also be an acceptable solution. The
+size increase is minimal and it's easy to remove from the stringified
+name.
+
+bye, Roman
 

@@ -1,36 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264374AbUBRLIz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 06:08:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbUBRLIz
+	id S264363AbUBRKyp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 05:54:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264364AbUBRKyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 06:08:55 -0500
-Received: from main.gmane.org ([80.91.224.249]:17364 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264374AbUBRLIy (ORCPT
+	Wed, 18 Feb 2004 05:54:45 -0500
+Received: from fw.osdl.org ([65.172.181.6]:11203 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264363AbUBRKyn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 06:08:54 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andreas Happe <andreashappe@gmx.net>
-Subject: Re: Linux 2.6.3-rc4
-Date: Wed, 18 Feb 2004 11:18:31 +0100
-Message-ID: <slrnc36evn.1tq.andreashappe@flatline.ath.cx>
-References: <Pine.LNX.4.58.0402161945540.30742@home.osdl.org> <403263EE.9010609@emergence.uk.net>
-Reply-To: Andreas Happe <andreashappe@gmx.net>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 62.47.73.173
-User-Agent: slrn/0.9.8.0 (Linux)
+	Wed, 18 Feb 2004 05:54:43 -0500
+Date: Wed, 18 Feb 2004 02:55:49 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3-mm1
+Message-Id: <20040218025549.4e7c56a1.akpm@osdl.org>
+In-Reply-To: <p73wu6k653f.fsf@verdi.suse.de>
+References: <20040217232130.61667965.akpm@osdl.org.suse.lists.linux.kernel>
+	<p73wu6k653f.fsf@verdi.suse.de>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-02-17, Jonathan Brown <jbrown@emergence.uk.net> wrote:
-> There are still two problems with the radeonfb on my IBM X31:
+Andi Kleen <ak@suse.de> wrote:
 >
-> 1) The screen is garbled when the fb kicks in at boot - its not 
-> converting the text from the VGA console correctly. I have a photo of 
-> this here: http://emergence.uk.net/radeonfb_corruption.jpeg
+> Andrew Morton <akpm@osdl.org> writes:
+> 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3/2.6.3-mm1/
+> > 
+> > - Added the dm-crypt driver: a crypto layer for device-mapper.
+> > 
+> >   People need to test and use this please.  There is documentation at
+> >   http://www.saout.de/misc/dm-crypt/.
+> > 
+> >   We should get this tested and merged up.  We can then remove the nasty
+> >   bio remapping code from the loop driver.  This will remove the current
+> >   ordering guarantees which the loop driver provides for journalled
+> >   filesystems.  ie: ext3 on cryptoloop will no longer be crash-proof.
+> > 
+> >   After that we should remove cryptoloop altogether.
+> > 
+> >   It's a bit late but cyptoloop hasn't been there for long anyway and it
+> >   doesn't even work right with highmem systems (that part is fixed in -mm).
+> 
+> Is it guaranteed that this thing will be disk format compatible to cryptoloop? 
+> (mainly in IVs and crypto algorithms)
 
-got the same problem with the old radeonfb since the 2.5 series.
+Allegedly.  Of course, doing this will simply retain crypto-loop's security
+weaknesses.
 
-	--Andreas
+> While 2.3 and 2.4 have broken the on disk format of crypto loop several
+> times (each time to a new "improved and ultimately perfect format")
+> I don't think that's acceptable for a mature OS anymore.
+
+Well I guess people are free to do that sort of thing with out-of-kernel
+patches.
+
+One question which needs to be adressed is whether dm-crypt adequately
+addresses crypto-loop's security weaknesses, and if so, how one should set
+it up to do so.
 

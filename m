@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275680AbRJYReR>; Thu, 25 Oct 2001 13:34:17 -0400
+	id <S275818AbRJYRf5>; Thu, 25 Oct 2001 13:35:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275818AbRJYRd6>; Thu, 25 Oct 2001 13:33:58 -0400
-Received: from 31.ppp1-3.ski.worldonline.dk ([212.54.90.31]:9089 "EHLO
-	milhouse.home.kernel.dk") by vger.kernel.org with ESMTP
-	id <S275778AbRJYRdp>; Thu, 25 Oct 2001 13:33:45 -0400
-Date: Thu, 25 Oct 2001 19:33:43 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Zlatko Calusic <zlatko.calusic@iskon.hr>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>, linux-mm@kvack.org,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: xmm2 - monitor Linux MM active/inactive lists graphically
-Message-ID: <20011025193343.K4795@suse.de>
-In-Reply-To: <dnvgh351i1.fsf@magla.zg.iskon.hr> <Pine.LNX.4.31.0110250920270.2184-100000@cesium.transmeta.com>
-Mime-Version: 1.0
+	id <S275778AbRJYRfr>; Thu, 25 Oct 2001 13:35:47 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:53775 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S275861AbRJYRff>; Thu, 25 Oct 2001 13:35:35 -0400
+Message-ID: <3BD84C76.9A7DE8CA@zip.com.au>
+Date: Thu, 25 Oct 2001 10:31:34 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.12-ac6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Radivoje Todorovic <radivojet@jaspur.com>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [NETWORK MODULE PERFORMANCE]: How to measure it?
+In-Reply-To: <BOEOJGNGENIJJMAOLHHCEEIKCEAA.radivojet@jaspur.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.31.0110250920270.2184-100000@cesium.transmeta.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 25 2001, Linus Torvalds wrote:
+Radivoje Todorovic wrote:
 > 
-> On 25 Oct 2001, Zlatko Calusic wrote:
-> >
-> > Yes, I definitely have DMA turned ON. All parameters are OK. :)
+> Hello,
 > 
-> I suspect it may just be that "queue_nr_requests"/"batch_count" is
-> different in -ac: what happens if you tweak them to the same values?
+> I am confronted with somewhat hard problem. Say one develops Network Module
+> X, i.e. using Netfilter hooks. X will (simply) mangle the packets and then
+> forward them or do whatever. How can I measure the performance of X module?
+> I am not sure exactly what I am asking but say, I have a Linux router with X
+> module running and I need to get information what is the CPU usage under
+> heavy traffic with, and without X module. Actually it would be nice to see
+> the latency per-packet that X introduces and how it changes if the volume of
+> traffic increases.
 > 
-> (See drivers/block/ll_rw_block.c)
-> 
-> I think -ac made the queues a bit deeper the regular kernel does 128
-> requests and a batch-count of 16, I _think_ -ac does something like "2
-> requests per megabyte" and batch_count=32, so if you have 512MB you should
-> try with
-> 
-> 	queue_nr_requests = 1024
-> 	batch_count = 32
 
-Right, -ac keeps the elevator flow control and proper queue sizes.
+The most precise tool known to mankind is cyclesoak :)
+It's at http://www.uow.edu.au/~andrewm/linux/#zc and there's
+a README in the tarball.
 
--- 
-Jens Axboe
+cyclesoak measures subtractively - rather than measuring the
+load of your software, it measures how much other system
+load slows it down.  For networking it gives results which
+are repeatable down to about 0.2% of system capacity.  So
+you should run a known workload both with and without your
+netfilter code and record the difference in cyclesoak output.
 
+Currently it tries to lump memory bandwidth load and CPU cycle
+load into a single metric, which doesn't work very well - these
+things are orthogonal and should be reported separately.  That's
+on my TTD list.
+
+-

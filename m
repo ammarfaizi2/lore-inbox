@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVCRDPo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVCRDfP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261444AbVCRDPo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 22:15:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbVCRDPo
+	id S261445AbVCRDfP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 22:35:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbVCRDfO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 22:15:44 -0500
-Received: from gate.crashing.org ([63.228.1.57]:61897 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261444AbVCRDPl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 22:15:41 -0500
-Subject: Re: [PATCH] Prezeroing V8
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Nish Aravamudan <nish.aravamudan@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0503171505260.10205@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0503171340480.9678@schroedinger.engr.sgi.com>
-	 <29495f1d05031714596de3b335@mail.gmail.com>
-	 <Pine.LNX.4.58.0503171505260.10205@schroedinger.engr.sgi.com>
+	Thu, 17 Mar 2005 22:35:14 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:3777 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261445AbVCRDfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 22:35:11 -0500
+Subject: Re: Error messages with ACPI
+From: Len Brown <len.brown@intel.com>
+To: Mina Nozar <nozarm@triumf.ca>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <33065.24.85.238.99.1110046181.squirrel@24.85.238.99>
+References: <33065.24.85.238.99.1110046181.squirrel@24.85.238.99>
 Content-Type: text/plain
-Date: Fri, 18 Mar 2005 14:14:53 +1100
-Message-Id: <1111115694.3835.85.camel@gaston>
+Organization: 
+Message-Id: <1111116901.9332.141.camel@d845pe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 17 Mar 2005 22:35:02 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-17 at 15:06 -0800, Christoph Lameter wrote:
+On Sat, 2005-03-05 at 13:09, Mina Nozar wrote:
 
-> I want to sleep 30 seconds because the system load is unlikely to change
-> frequently.
+> kernel:  ACPI-1133: *** Error: Method execution failed
+> [\_SB_.BAT0._BST]
+> (Node dfe043c0), AE_AML_NO_RETURN_VALUE
 
-Ugh ? That sounds like a magic number coming right from your hat or from
-your test scenario ...
+Please try the latest mm tree and report if these go away.
 
-Ben.
+
+thanks,
+-Len
+
 

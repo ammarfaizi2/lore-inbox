@@ -1,40 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270226AbRHMOaM>; Mon, 13 Aug 2001 10:30:12 -0400
+	id <S270224AbRHMOcV>; Mon, 13 Aug 2001 10:32:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270225AbRHMOaC>; Mon, 13 Aug 2001 10:30:02 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:17419 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S270224AbRHMO3o>;
-	Mon, 13 Aug 2001 10:29:44 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Etienne Lorrain <etienne_lorrain@yahoo.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Gujin graphical bootloader 0.4 
-In-Reply-To: Your message of "Mon, 13 Aug 2001 14:05:05 +0200."
-             <20010813120505.97748.qmail@web11808.mail.yahoo.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 14 Aug 2001 00:29:50 +1000
-Message-ID: <15667.997712990@ocs3.ocs-net>
+	id <S270225AbRHMOcL>; Mon, 13 Aug 2001 10:32:11 -0400
+Received: from twinlark.arctic.org ([204.107.140.52]:50956 "HELO
+	twinlark.arctic.org") by vger.kernel.org with SMTP
+	id <S270224AbRHMOcB>; Mon, 13 Aug 2001 10:32:01 -0400
+Date: Mon, 13 Aug 2001 07:32:13 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: David Ford <david@blue-labs.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: VM nuisance
+In-Reply-To: <Pine.LNX.4.33L.0108102347050.3530-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.33.0108130716321.20672-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Aug 2001 14:05:05 +0200 (CEST), 
-Etienne Lorrain <etienne_lorrain@yahoo.fr> wrote:
-> A good solution would be to have the kernel being two (or three) GZIP
-> files concatenated, the first would be the real-mode code to setup
-> the structure only, the second would be the protected-mode code of the
-> kernel (and the third the initrd). The first part would be a position
-> independant function getting some parameters (address/max size of the
-> structure to fill in) and returning information like microprocessor
-> minimum requirement, video mode supported (number of BPP, or text only),
-> address the kernel has been linked (to load a kernel at 16 Mb), ...
+On Fri, 10 Aug 2001, Rik van Riel wrote:
 
-Before you go too far, there is already an standard for boot loading,
-EFI (Extensible Firmware Interface).  Originally from Intel but it is
-open.  http://developer.intel.com/technology/efi.  IA64 uses this and
-nothing but this, it already loads kernels in ELF format.  There is no
-point in inventing yet another boot interface, unless you cannot do
-what you want in EFI.
+> I haven't got the faintest idea how to come up with an OOM
+> killer which does the right thing for everybody.
+
+maybe the concept is flawed?  not saying that it is flawed necessarily,
+but i've often wondered why linux vm issues never seem to be solved in the
+years i've been reading linux-kernel.
+
+if i understand the OOM killer correctly it's intended to make some sort
+of intelligent choice as to which application to shoot when the system is
+out of memory.
+
+honestly, if applications can't stomach being shot then the bug is in the
+application, not in the kernel.  vi can handle being shot because it does
+the right thing:  it checkpoints state periodically.  it's a simple model
+which any sane application could follow, and many do actually follow.
+
+getting shot for OOM or getting shot because of power failure, or 2-bit
+RAM failure, or backhoe fade, or ... what's really the difference?
+
+so why not just use the most simple OOM around:  shoot the first app which
+can't get its page.  app writers won't like it, and users won't like it
+until the app writers fix their bugs, but then nobody likes the current
+situation, so what's the difference?
+
+maybe kernel support for making checkpointing easier would be a good way
+to advance the science?  there certainly are tools which exist that do
+part of the problem already -- except for sockets and pipes and such
+interprocess elements it's pretty trivial to checkpoint.  interprocess
+elements probably require some extra kernel support.  network elements are
+where it really becomes challenging.
+
+i would happily give up 10 to 20% system resources for checkpoint overhead
+if it meant that i'd be that much closer to a crashproof system.  after a
+year the performance deficit would be made up by hardware improvements.
+
+i know it's a big pill to swallow, but i've been impressed time and time
+again by the will of linux kernel hackers to just say "this is how it will
+be, because it is the only known way to perfection, deal."
+
+-dean
 

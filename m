@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbUKTCLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262743AbUKTCLQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261712AbUKTCLR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 21:11:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262812AbUKTCFz
+	id S262743AbUKTCLQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 21:11:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbUKTCFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 21:05:55 -0500
-Received: from holomorphy.com ([207.189.100.168]:28544 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262823AbUKTCEJ (ORCPT
+	Fri, 19 Nov 2004 21:05:18 -0500
+Received: from holomorphy.com ([207.189.100.168]:25728 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261525AbUKTCDX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 21:04:09 -0500
-Date: Fri, 19 Nov 2004 18:04:01 -0800
+	Fri, 19 Nov 2004 21:03:23 -0500
+Date: Fri, 19 Nov 2004 18:03:06 -0800
 From: William Lee Irwin III <wli@holomorphy.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: torvalds@osdl.org, akpm@osdl.org,
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Christoph Lameter <clameter@sgi.com>, akpm@osdl.org,
        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
        Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
        linux-mm@kvack.org, linux-ia64@vger.kernel.org,
        linux-kernel@vger.kernel.org
 Subject: Re: page fault scalability patch V11 [0/7]: overview
-Message-ID: <20041120020401.GC2714@holomorphy.com>
-References: <Pine.LNX.4.44.0411061527440.3567-100000@localhost.localdomain> <Pine.LNX.4.58.0411181126440.30385@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0411181715280.834@schroedinger.engr.sgi.com> <419D581F.2080302@yahoo.com.au> <Pine.LNX.4.58.0411181835540.1421@schroedinger.engr.sgi.com> <419D5E09.20805@yahoo.com.au> <Pine.LNX.4.58.0411181921001.1674@schroedinger.engr.sgi.com> <1100848068.25520.49.camel@gaston> <Pine.LNX.4.58.0411190704330.5145@schroedinger.engr.sgi.com>
+Message-ID: <20041120020306.GA2714@holomorphy.com>
+References: <Pine.LNX.4.44.0411061527440.3567-100000@localhost.localdomain> <Pine.LNX.4.58.0411181126440.30385@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0411181715280.834@schroedinger.engr.sgi.com> <419D581F.2080302@yahoo.com.au> <Pine.LNX.4.58.0411181835540.1421@schroedinger.engr.sgi.com> <419D5E09.20805@yahoo.com.au> <Pine.LNX.4.58.0411181921001.1674@schroedinger.engr.sgi.com> <1100848068.25520.49.camel@gaston> <Pine.LNX.4.58.0411190704330.5145@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0411191155180.2222@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0411190704330.5145@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.58.0411191155180.2222@ppc970.osdl.org>
 Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 19, 2004 at 11:42:39AM -0800, Christoph Lameter wrote:
-> A. make_rss_atomic. The earlier releases contained that patch but
-> then another variable (such as anon_rss) was introduced that would
->    have required additional atomic operations. Atomic rss operations
->    are also causing slowdowns on machines with a high number of cpus
->    due to memory contention.
-> B. remove_rss. Replace rss with a periodic scan over the vm to
->    determine rss and additional numbers. This was also discussed on
->    linux-mm and linux-ia64. The scans while displaying /proc data
->    were undesirable.
+On Fri, Nov 19, 2004 at 11:59:03AM -0800, Linus Torvalds wrote:
+> You could also make "rss" be a _signed_ integer per-thread.
+> When unmapping a page, you decrement one of the threads that shares the mm 
+> (doesn't matter which - which is why the per-thread rss may go negative), 
+> and when mapping a page you increment it.
+> Then, anybody who actually wants a global rss can just iterate over
+> threads and add it all up. If you do it under the mmap_sem, it's stable,
+> and if you do it outside the mmap_sem it's imprecise but stable in the
+> long term (ie errors never _accumulate_, like the non-atomic case will 
+> do).
+> Does anybody care enough? Maybe, maybe not. It certainly sounds a hell of 
+> a lot better than the periodic scan.
 
-Split counters easily resolve the issues with both these approaches
-(and apparently your co-workers are suggesting it too, and have
-performance results backing it).
+Unprivileged triggers for full-tasklist scans are NMI oops material.
 
 
 -- wli

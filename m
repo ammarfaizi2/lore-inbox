@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285986AbRLTDid>; Wed, 19 Dec 2001 22:38:33 -0500
+	id <S286005AbRLTDjz>; Wed, 19 Dec 2001 22:39:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285992AbRLTDiO>; Wed, 19 Dec 2001 22:38:14 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39692 "EHLO
+	id <S286004AbRLTDjo>; Wed, 19 Dec 2001 22:39:44 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42764 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S285986AbRLTDiF>; Wed, 19 Dec 2001 22:38:05 -0500
+	id <S285994AbRLTDjf>; Wed, 19 Dec 2001 22:39:35 -0500
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] PCI updates - 32-bit IO support
-Date: 19 Dec 2001 19:37:46 -0800
+Subject: Re: gcc 3.0.2/kernel details (-O issue)
+Date: 19 Dec 2001 19:39:25 -0800
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9vrmea$mef$1@cesium.transmeta.com>
-In-Reply-To: <20011218235024.N13126@flint.arm.linux.org.uk>
+Message-ID: <9vrmhd$mf9$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.10.10112192037490.3265-100000@luxik.cdi.cz> <1008792213.806.36.camel@phantasy> <20011220001006.GA18071@arthur.ubicom.tudelft.nl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -21,37 +21,23 @@ Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20011218235024.N13126@flint.arm.linux.org.uk>
-By author:    Russell King <rmk@flint.arm.linux.org.uk>
+Followup to:  <20011220001006.GA18071@arthur.ubicom.tudelft.nl>
+By author:    Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
 In newsgroup: linux.dev.kernel
->
-> I have here a system which requires 32-bit IO addressing on its PCI
-> busses.  Currently, Linux zeros the upper IO base/limit registers on
-> all PCI bridges, which prevents addresses being forwarded on this
-> system.
 > 
-> The following patch the upper IO base/limit registers to be set
-> appropriately by the PCI layer.
+> It doesn't change syntax, but anything lower than -O1 simply doesn't
+> inline functions with an "inline" attribute. The result is that the
+> inline functions in header files won't get inlined and the compiler
+> will complain about missing functions at link time (or module insert
+> time).
 > 
-> This patch is being sent for review, and is targetted solely at 2.5.
+> I'm actually surprised that 2.2 can be compiled with -O, AFAIK
+> linux-2.2 also has a lot of inline functions in headers. I know from
+> experience that -Os works for 2.4 kernels on ARM, I haven't tested it
+> with 2.2 or x86.
 > 
-> diff -ur orig/drivers/pci/setup-bus.c linux/drivers/pci/setup-bus.c
-> --- orig/drivers/pci/setup-bus.c	Sun Oct 14 20:53:14 2001
-> +++ linux/drivers/pci/setup-bus.c	Tue Dec 18 23:20:13 2001
-> @@ -148,7 +181,10 @@
->  	pci_write_config_dword(bridge, PCI_IO_BASE, l);
->  
->  	/* Clear upper 16 bits of I/O base/limit. */
-> -	pci_write_config_dword(bridge, PCI_IO_BASE_UPPER16, 0);
-> +	pci_write_config_word(bridge, PCI_IO_BASE_UPPER16,
-> +			ranges.io_start >> 16);
-> +	pci_write_config_word(bridge, PCI_IO_LIMIT_UPPER16,
-> +			ranges.io_end >> 16);
->  
 
-You probably need to verify that 32-bit support is available (both on
-the bridge and the peripherals), but if they are, there's no reason
-not to use it on non-x86 architectures...
+-O is -O1.  If you turn on the optimizer at all you get inlining.
 
 	-hpa
 -- 

@@ -1,76 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271111AbTGPUyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 16:54:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271112AbTGPUyI
+	id S271114AbTGPU5f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 16:57:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271123AbTGPU5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 16:54:08 -0400
-Received: from mail.kroah.org ([65.200.24.183]:48350 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S271111AbTGPUyB (ORCPT
+	Wed, 16 Jul 2003 16:57:34 -0400
+Received: from aneto.able.es ([212.97.163.22]:42238 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S271114AbTGPUz0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 16:54:01 -0400
-Date: Wed, 16 Jul 2003 14:08:00 -0700
-From: Greg KH <greg@kroah.com>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: Kernel List <linux-kernel@vger.kernel.org>,
-       video4linux list <video4linux-list@redhat.com>
-Subject: Re: [RFC/PATCH] sysfs'ify video4linux
-Message-ID: <20030716210800.GE2279@kroah.com>
-References: <20030715143119.GB14133@bytesex.org> <20030715212714.GB5458@kroah.com> <20030716084448.GC27600@bytesex.org> <20030716161924.GA7406@kroah.com> <20030716202018.GC26510@bytesex.org>
+	Wed, 16 Jul 2003 16:55:26 -0400
+Date: Wed, 16 Jul 2003 23:10:15 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Gregoire Favre <greg@magma.unil.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 260-t1(ac1) don't boot on my Mandrake Cooker (2573 does)
+Message-ID: <20030716211015.GA7263@werewolf.able.es>
+References: <20030716195502.GD7158@magma.unil.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <20030716202018.GC26510@bytesex.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20030716195502.GD7158@magma.unil.ch>; from greg@magma.unil.ch on Wed, Jul 16, 2003 at 21:55:02 +0200
+X-Mailer: Balsa 2.0.12
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 10:20:18PM +0200, Gerd Knorr wrote:
-> > It looks like the video drivers include a "struct video_device"
-> > structure within their own structures, right?
+
+On 07.16, Gregoire Favre wrote:
+> Hello,
 > 
-> Yes, it is allocated/freed by the driver, most seem to simply include
-> one ore more "struct video_device" somewhere in the per-device struct.
-
-So you CAN NOT just blindly put a kobject (meaning a class_device)
-structure inside of there.
-
-> > That will have to be changed to a pointer to that structure in order
-> > for the lifetime rules to work properly.
+> I can't boot with either 2.6.0-test1, neither with 2.6.0-test1-ac1, it
+> ends like this:
 > 
-> Hmm.  I doubt it will be that simple.  struct video_device has a priv
-> field which can be used by the drivers to hook in some driver-private
-> data.  That may point into nowhere if struct video_device has a longer
-> live time due to some kobject still being referenced.  Wouldn't be a
-> issue for videodev.o itself, but might become a problem for drivers
-> which want add private properties and rely on video_device->priv
-> for finding the per-device data.  Problem isn't solved but justed
-> moved to the next corner ...
-
-No, just have the video drivers have a release callback to do the
-freeing.  It's pretty simple, look at usb_host_release() in
-drivers/usb/core/hcd.c.  That's exactly what that is for.  Hm, I
-shouldn't have to check for bus->release() there, as release is now
-required...
-
-> Maybe let video_unregister sleep on a semaphore which gets woken up
-> by the release function?  That should make sure the sysfs objects are
-> not referenced any more if video_unregister() returns.  I use a similar
-> method in some places when shutting down kernel threads, to make sure it
-> is really stopped before rmmod frees the memory.
-
-Ick, no.  Try doing what I did for usb hosts, it's much simpler.
-
-> > Look at the dev file in /sys/class/tty/*, or in /sys/block/hd* or in
-> > /sys/class/usb/*, and so on...
+> NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+> found reiserfs format "3.6" with standard journal
+> Reiserfs journal params: device sdb2, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
+> reiserfs: checking transaction log (sdb2) for (sdb2)
+> Using r5 hash to sort names
+> VFS: Mounted root (reiserfs filesystem).
+> Mounted devfs on /dev
+> Freeing unused kernel memory: 148k freed
+> INIT: version 2.85 booting
+> INIT: Kernel panic: Attempted to kill init!
+> cannot execute "/etc/rc.d/rc.sysinit"
 > 
-> I've found the code in drivers/block/genhd.c in the meantime :)
+> I don't know what the problem is, as the same configuration works
+> juste perfectly with 2.5.73???
+> 
 
-genhd.c uses "raw" kobjects.  It might be easier to look at a
-class_device example like the above mentioned usb_host one.
+gcc --version ?
+Did you build 2.5.73 with the same compiler ?
 
-If you have any other questions/problems, feel free to ask.
-
-thanks,
-
-greg k-h
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.22-pre5-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-0.2mdk))

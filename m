@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263945AbTJ1Mhg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 07:37:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263955AbTJ1Mhg
+	id S263956AbTJ1Mmi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 07:42:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263959AbTJ1Mmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 07:37:36 -0500
-Received: from enigma.barak.net.il ([212.150.48.99]:23747 "EHLO
-	enigma.barak.net.il") by vger.kernel.org with ESMTP id S263945AbTJ1Mhf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 07:37:35 -0500
-From: "Amir Hermelin" <amir@montilio.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: how do file-mapped (mmapped) pages become dirty?
-Date: Tue, 28 Oct 2003 14:35:55 +0200
-Organization: Montilio
-Message-ID: <006901c39d50$0b1313d0$2501a8c0@CARTMAN>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Tue, 28 Oct 2003 07:42:38 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:15316 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id S263956AbTJ1Mmh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 07:42:37 -0500
+Date: Tue, 28 Oct 2003 23:39:49 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Pavel Machek <pavel@suse.cz>
+Cc: pavel@suse.cz, felipe_alfaro@linuxmail.org, mochel@osdl.org,
+       george@mvista.com, johnstul@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [pm] fix time after suspend-to-*
+Message-Id: <20031028233949.770059b0.sfr@canb.auug.org.au>
+In-Reply-To: <20031028122907.GA1940@elf.ucw.cz>
+References: <Pine.LNX.4.44.0310271535160.13116-100000@cherise>
+	<1067329994.861.3.camel@teapot.felipe-alfaro.com>
+	<20031028093233.GA1253@elf.ucw.cz>
+	<20031028224101.3220e0a6.sfr@canb.auug.org.au>
+	<20031028122907.GA1940@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-When a process mmaps a file, how does the kernel know the memory has been
-written to (and hence the page is dirty)? Is this done by setting the
-protected flag, and when the memory is first written to it's set to dirty?
-What function is responsible for this setting? And when will the page be
-written back to disk (i.e. where's the flusher located)?
+On Tue, 28 Oct 2003 13:29:07 +0100 Pavel Machek <pavel@suse.cz> wrote:
+>
+> Is adding signal really that easy? I thought there's limited number of
+> them...
 
-Thanks for any help,
-Amir.
+64.  However, we would need to coordinate with the libc folks ...
+and it may not be actually possible if people are using hard coded
+signals at the start of the real time range ...
 
+So probably much more pain than its worth.
 
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

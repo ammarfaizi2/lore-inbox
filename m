@@ -1,45 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265934AbTGKUCY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 16:02:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265325AbTGKUAZ
+	id S265045AbTGKUMC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 16:12:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264851AbTGKUL2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 16:00:25 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:4562 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266276AbTGKTvu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 15:51:50 -0400
-From: Andrew Theurer <habanero@us.ibm.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 2.5 'what to expect'
-Date: Fri, 11 Jul 2003 15:06:22 -0500
-User-Agent: KMail/1.5
-Cc: Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030711140219.GB16433@suse.de> <200307111437.12648.habanero@us.ibm.com> <20030711195418.GA30449@gtf.org>
-In-Reply-To: <20030711195418.GA30449@gtf.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 11 Jul 2003 16:11:28 -0400
+Received: from CPE-65-29-18-15.mn.rr.com ([65.29.18.15]:24508 "EHLO
+	www.enodev.com") by vger.kernel.org with ESMTP id S264679AbTGKUKM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 16:10:12 -0400
+Subject: Re:  Very HIGH File & VM system latencies and system stop
+	responding while extracting big tar  archive file.
+From: Shawn <core@enodev.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
+       rathamahata@php4.ru,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030711183950.GB976@matchmail.com>
+References: <3F0E8A22.6020700@cyberone.com.au>
+	 <20030711034510.30065dc2.akpm@osdl.org>
+	 <20030711183950.GB976@matchmail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307111506.22152.habanero@us.ibm.com>
+Message-Id: <1057955087.12674.9.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 11 Jul 2003 15:24:47 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 11 July 2003 14:54, Jeff Garzik wrote:
-> On Fri, Jul 11, 2003 at 02:37:12PM -0500, Andrew Theurer wrote:
-> > On Friday 11 July 2003 09:02, Dave Jones wrote:
-> > > Process scheduler improvements.
-> > > ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> > > - Scheduler is now Hyperthreading SMP aware and will disperse processes
-> > >   over physically different CPUs, instead of just over logical CPUs.
-> >
-> > I'm pretty sure this is not in 2.5 (unless it's in bk after 2.5.75)
->
-> Wrong, grep for sibling.
+On Fri, 2003-07-11 at 13:39, Mike Fedyk wrote:
+> > No, this will be the reiserfs bug.
+> 
+> Is this in 2.5.75, or -mm?
+You really should read the patch header... It tells you everything you
+need to know.
 
-I don't see sibling mentioned anywhere in the context of load balance, only in 
-smpboot.c.  Where exactly do you see any HT awareness in load balance?
-
--Andrew Theurer
+> > --- 25/fs/reiserfs/tail_conversion.c~reiserfs-dirty-memory-fix	2003-07-10 22:22:54.000000000 -0700
+> > +++ 25-akpm/fs/reiserfs/tail_conversion.c	2003-07-10 22:22:54.000000000 -0700
+> > @@ -191,7 +191,7 @@ unmap_buffers(struct page *page, loff_t 
+> >  	bh = next ;
+> >        } while (bh != head) ;
+> >        if ( PAGE_SIZE == bh->b_size ) {
+> > -	ClearPageDirty(page);
+> > +	clear_page_dirty(page);
+> >        }
+> >      }
+> >    } 
+> > 
+> > _
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

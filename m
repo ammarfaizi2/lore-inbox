@@ -1,95 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268182AbUJMB1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268229AbUJMB2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268182AbUJMB1O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 21:27:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268206AbUJMB1O
+	id S268229AbUJMB2x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 21:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268206AbUJMB2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 21:27:14 -0400
-Received: from mail12.syd.optusnet.com.au ([211.29.132.193]:48101 "EHLO
-	mail12.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S268182AbUJMB1G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 21:27:06 -0400
-References: <1097542651.2666.7860.camel@cube> <cone.1097626558.804486.12364.502@pc.kolivas.org> <1097630263.2674.9508.camel@cube>
-Message-ID: <cone.1097630806.503792.12364.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: Con Kolivas <kernel@kolivas.org>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       ankitjain1580@yahoo.com, mingo@elte.hu, rml@tech9.net
-Subject: Re: Difference in priority
-Date: Wed, 13 Oct 2004 11:26:46 +1000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Oct 2004 21:28:53 -0400
+Received: from mail.renesas.com ([202.234.163.13]:45487 "EHLO
+	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S268229AbUJMB2f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 21:28:35 -0400
+Date: Wed, 13 Oct 2004 10:28:15 +0900 (JST)
+Message-Id: <20041013.102815.135501550.takata.hirokazu@renesas.com>
+To: jgarzik@pobox.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, ""@renesas.com
+From: takata.hirokazu@renesas.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan writes:
+Paul Mundt <paul.mundt@nokia.com>, Nicolas Pitre <nico@cam.org>,
+ takata@linux-m32r.org
+Subject: Re: [PATCH 2.6.9-rc4-mm1] [m32r] Fix smc91x driver for m32r
+From: Hirokazu Takata <takata.hirokazu@renesas.com>
+In-Reply-To: <416BFD79.1010306@pobox.com>
+References: <20041012.195043.137811384.takata.hirokazu@renesas.com>
+	<416BFD79.1010306@pobox.com>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> On Tue, 2004-10-12 at 20:15, Con Kolivas wrote:
->> Albert Cahalan writes:
->> 
->> > Con Kolivas writes:
->> >> Ankit Jain wrote:
->> > 
->> >>> if somebody knows the difference b/w /PRI of both
->> >>> these commands because both give different results
->> >>>
->> >>> ps -Al
->> >>> & top
->> >>>
->> >>> as per priority rule we can set priority upto 0-99
->> >>> but top never shows this high priority
->> >>
->> >> Priority values 0-99 are real time ones and 100-139 are normal 
->> >> scheduling ones. RT scheduling does not change dynamic priority while 
->> >> running wheras normal scheduling does (between 100-139). top shows the 
->> >> value of the current dynamic priority in the PRI column as the current 
->> >> dynamic priority-100. If you have a real time task in top it shows as a 
->> >> -ve value. ps -Al seems to show the current dynamic priority+60.
->> > 
->> > What would you like to see? There are numerous
->> > competing ideas of reality. There's also the matter
->> > of history and standards. I'd gladly "fix" ps, if
->> > people could agree on what "fix" would mean.
->> > 
->> > Various desirable but conflicting traits include:
->> > 
->> > a. for normal idle processes, PRI matches NI
->> > b. for RT processes, PRI matches RT priority
->> > c. for RT processes, PRI is negative of RT priority
->> > d. PRI is the unmodified value seen in /proc
->> > e. PRI is never negative
->> > f. low PRI is low priority (SysV "pri" keyword)
->> > g. low PRI is high priority (UNIX "PRI", SysV "opri")
->> > h. PRI matches some kernel-internal value
->> > i. PRI is in the range -99 to 999 (not too wide)
->> 
->> I can't say I've ever felt strongly about it. Wish I knew what was the best 
->> way. If we change the range of RT priority range by increasing it from 100 
->> to say 1000 then any arbitrary value to subtract will be wrong. How about 
->> just leaving the absolute dynamic priority value? Then we don't have any 
->> negative values confusing it, it isn't affected by increasing the range of 
->> RT priorities, and better priority values still are lower in value.
+Hello,
+
+Sorry, I've changed my mind, according to the thread of 
+"[PATCH] net: fix smc91x build for sh/ppc" (Oct 12, 2004).
+I prefer that set_irq_type() is snipped by CONFIG_ARM, too.
+
+Please throw away this patch and retrieve the previous 
+m32r-trivial-fix-of-smc91xh.patch again, 
+if the above patch "[PATCH] net: fix smc91x build for sh/ppc" is applied.
+
+Thank you.
+
+From: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH 2.6.9-rc4-mm1] [m32r] Fix smc91x driver for m32r
+Date: Tue, 12 Oct 2004 11:51:21 -0400
+> Hirokazu Takata wrote:
+> > Just fix compile error of drivers/net/smc91x.c for m32r.
+> > 
+> > It seems the previous patch (m32r-trivial-fix-of-smc91xh.patch) is too old. 
+> > So I will send a new patch.
+> > 
+> > Please drop the previous patch
+> > ( $ patch -R1 -p1 <m32r-trivial-fix-of-smc91xh.patch )
+> > and apply the new one.
+> > 
+> > 	* drivers/net/smc91x.h:
+> > 	- Add set_irq_type() macro to ignore it for m32r.
+> > 	- Fix RPC_LSA_DEFAULT and RPC_LSB_DEFAULT for an M3T-M32700UT board.
+> > 
+> > Thanks.
+> > 
+> > Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
 > 
-> That's not convincing enough to overcome inertia.
+> Seems OK to me, I'll put it into my netdev queue.
 > 
-> I can't see why the RT priority range would be increased.
-> It's overkill already, especially since Linux doesn't have
-> priority inheritance. Since POSIX requires 32 levels, that
-> is the right number. Actually using more than one level
-> (remember: NO priority inheritance) might not be wise.
-> If we stuck to 32 levels, RT and non-RT could both fit
-> within a 2-digit positive number. Also, there'd be fewer
-> bits for the scheduler to examine.
+> For net driver patches, please always CC
+> * netdev@oss.sgi.com, and
+> * jgarzik@pobox.com
+> 
+> 	Jeff
 
-As I said; I don't feel strongly. There was an option to change the range of 
-real time priorities in 2.4 which is why I mention it. Let others speak 
-cause I care not what you do as long as we understand it. I'm not changing 
-the scheduler to suit userspace tools.
-
-Cheers,
-Con
+-- Takata

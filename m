@@ -1,54 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261915AbTD2Dyy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 23:54:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbTD2Dyx
+	id S261938AbTD2EBY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 00:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTD2EBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 23:54:53 -0400
-Received: from [66.62.77.7] ([66.62.77.7]:44772 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id S261915AbTD2Dyw (ORCPT
+	Tue, 29 Apr 2003 00:01:24 -0400
+Received: from granite.he.net ([216.218.226.66]:14352 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S261938AbTD2EBW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 23:54:52 -0400
-Date: Mon, 28 Apr 2003 22:07:09 -0600 (MDT)
-From: Dax Kelson <dax@gurulabs.com>
-X-X-Sender: dkelson@mooru.gurulabs.com
-To: Larry McVoy <lm@bitmover.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Matthias Schniedermeyer <ms@citd.de>,
-       Ross Vandegrift <ross@willow.seitz.com>,
-       Chris Adams <cmadams@hiwaay.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-In-Reply-To: <20030429000904.GA9653@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0304282144200.22872-100000@mooru.gurulabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 29 Apr 2003 00:01:22 -0400
+Date: Mon, 28 Apr 2003 21:15:35 -0700
+From: Greg KH <greg@kroah.com>
+To: maxk@qualcomm.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [Bluetooth] HCI USB driver update. Support for SCO over HCI USB.
+Message-ID: <20030429041535.GA2093@kroah.com>
+References: <200304290317.h3T3HOdA027579@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200304290317.h3T3HOdA027579@hera.kernel.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 24, 2003 at 09:03:28PM +0000, Linux Kernel Mailing List wrote:
+> ChangeSet 1.971.22.2, 2003/03/24 13:03:28-08:00, maxk@qualcomm.com
+> 
+> 	[Bluetooth] HCI USB driver update. Support for SCO over HCI USB.
+> 	URB and buffer managment rewrite.
 
-Your complaint/observation about cloning/re-implementation is recognized.  
+Max, you need to be very careful with this:
 
-The counter claims are:
+> -static void hci_usb_interrupt(struct urb *urb, struct pt_regs *regs);
+> +struct _urb *_urb_alloc(int isoc, int gfp)
+> +{
+> +	struct _urb *_urb = kmalloc(sizeof(struct _urb) +
+> +				sizeof(struct usb_iso_packet_descriptor) * isoc, gfp);
+> +	if (_urb) {
+> +		memset(_urb, 0, sizeof(*_urb));
+> +		_urb->urb.count = (atomic_t)ATOMIC_INIT(1);
+> +		spin_lock_init(&_urb->urb.lock);
+> +	}
+> +	return _urb;
+> +}
 
-1. Unless patents are involved, it is perfectly LEGAL.
-2. Virtually nothing is original to begin with.
-3. The practice is hardly unique to Open Source developers.
+You aren't calling usb_alloc_urb() and:
 
-Your statement about being part of the community AND a business owner is
-recognized. Yes, this gives you insight that a pure hobbies Open Source
-developer might not have.  Are you the only one? No. Does this mean
-everyone should accept everything you say without analysis? No.
+> +struct _urb *_urb_dequeue(struct _urb_queue *q)
+> +{
+> +	struct _urb *_urb = NULL;
+> +        unsigned long flags;
+> +        spin_lock_irqsave(&q->lock, flags);
+> +	{
+> +		struct list_head *head = &q->head;
+> +		struct list_head *next = head->next;
+> +		if (next != head) {
+> +			_urb = list_entry(next, struct _urb, list);
+> +			list_del(next); _urb->queue = NULL;
+> +		}
+> +	}
+> +	spin_unlock_irqrestore(&q->lock, flags);
+> +	return _urb;
+> +}
 
-Moving back to the statements *you made* that started this whole thread.
-                                                                       
-What exactly are you trying to say about an Open Source relation to
-software theft (warezing), Audio/Video theft, high asian piracy rates and
-DRM? These are all things you brought up, but I couldn't recognize any
-coherent statement here.
+You aren't calling usb_free_urb() as you are embedding a struct urb
+within your struct _urb structure.  Any reason you can't use a struct
+urb * instead and call the usb core's functions to create and return a
+urb?
 
-Further, you also stated, "The open source community, in my opinion, is
-certainly a contributing factor in the emergence of the DMCA and DRM
-efforts." Please explain.
+Otherwise any changes to the internal urb structures, and the
+usb_alloc_urb() and usb_free_urb() functions will have to be mirrored
+here in your functions, and I know I will forget to do that :)
 
-Dax
+Other than that, it's nice to see Bluetooth SCO support for Linux, very
+nice job.
 
+thaks,
+
+greg k-h

@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264386AbUFPSCD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264373AbUFPSCE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264386AbUFPSCD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 14:02:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbUFPR7l
+	id S264373AbUFPSCE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 14:02:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbUFPR7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 13:59:41 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:33185 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S264368AbUFPR6L (ORCPT
+	Wed, 16 Jun 2004 13:59:44 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:951 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264371AbUFPR6v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 13:58:11 -0400
-Date: Wed, 16 Jun 2004 19:57:30 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: jolt@tuxbox.org, akpm@osdl.org, B.Zolnierkiewicz@elka.pw.edu.pl,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [STACK] reduce >3k call path in ide
-Message-ID: <20040616175730.GA15365@wohnheim.fh-wedel.de>
-References: <20040609122921.GG21168@wohnheim.fh-wedel.de> <20040615163445.6b886383.rddunlap@osdl.org> <200406160911.11985.jolt@tuxbox.org> <20040616094737.GA2548@wohnheim.fh-wedel.de> <40D01928.1080309@tuxbox.org> <20040616100008.GB2548@wohnheim.fh-wedel.de> <20040616103741.042f8029.rddunlap@osdl.org>
+	Wed, 16 Jun 2004 13:58:51 -0400
+Date: Wed, 16 Jun 2004 10:52:31 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: markh@osdl.org, James.Bottomley@steeleye.com, linux-scsi@vger.kernel.org,
+       mark_salyzyn@adaptec.com, linux-arch@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] aacraid 32/64 ioctl support (update)
+Message-Id: <20040616105231.74bb78c9.davem@redhat.com>
+In-Reply-To: <20040616175325.GA16751@infradead.org>
+References: <1087401137.13488.61.camel@markh1.pdx.osdl.net>
+	<20040616160107.GA14144@infradead.org>
+	<20040616160232.GB14144@infradead.org>
+	<1087405920.13488.82.camel@markh1.pdx.osdl.net>
+	<20040616171924.GA15925@infradead.org>
+	<1087408316.13488.93.camel@markh1.pdx.osdl.net>
+	<20040616175325.GA16751@infradead.org>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040616103741.042f8029.rddunlap@osdl.org>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 June 2004 10:37:41 -0700, Randy.Dunlap wrote:
+On Wed, 16 Jun 2004 18:53:25 +0100
+Christoph Hellwig <hch@infradead.org> wrote:
+
+> > I just noticed this.  Can we use memset on a user pointer?  If not, what
+> > would be the best way to handle this?
 > 
-> Thanks for the helpful comments.  Here's a corrected patch.
+> 
+> Good question.  Maybe the architecture-folks know an answer?
 
-Looks, as if it still leaks memory:
+Use clear_user()
 
->  
->      link->state &= ~DEV_CONFIG_PENDING;
-
-about here.
-
->      return;
-> -    
-> +
->  cs_failed:
->      cs_error(link->handle, last_fn, last_ret);
->  failed:
->      ide_release(link);
->      link->state &= ~DEV_CONFIG_PENDING;
-> +    return;
->  
-> +    /* memory allocation errors */
-> +err_kfree:
-> +    kfree(cfginfo);
-> +    kfree(def_cte);
-> +    kfree(tbuf);
-> +    printk(KERN_NOTICE "ide-cs: ide_config failed memory allocation\n");
-> +    goto failed;
->  } /* ide_config */
->  
->  /*======================================================================
-
-Jörn
-
--- 
-Schrödinger's cat is <BLINK>not</BLINK> dead.
--- Illiad

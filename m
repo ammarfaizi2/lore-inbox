@@ -1,44 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131497AbRDFLqF>; Fri, 6 Apr 2001 07:46:05 -0400
+	id <S131498AbRDFLrG>; Fri, 6 Apr 2001 07:47:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131498AbRDFLp4>; Fri, 6 Apr 2001 07:45:56 -0400
-Received: from escape.com ([198.6.71.10]:31441 "HELO escape.com")
-	by vger.kernel.org with SMTP id <S131497AbRDFLpq>;
-	Fri, 6 Apr 2001 07:45:46 -0400
-Date: Fri, 06 Apr 2001 11:46:55 UTC
-From: "Robert A. Morris" <ramorris@dilithium.net>
-Reply-To: ramorris@dilithium.net
-Subject: Re: 2.2.19 + ide 2.2.19 03252001 patch problem
-To: linux-kernel@vger.kernel.org
-Message-ID: <TradeClient.0.9.0.Linux-2.2.18.01040604465542.1473@ryoko.unguez.net>
-Organization: Massachusetts Institute of Technology
-X-Mailer: TradeClient 0.9.0 [en_US] Linux 2.2.18
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-Importance: Normal
-X-Accept-Language: en_US
-Sensitivity: Public-Document
+	id <S131502AbRDFLqq>; Fri, 6 Apr 2001 07:46:46 -0400
+Received: from frege-d-math-north-g-west.math.ethz.ch ([129.132.145.3]:32185
+	"EHLO frege.math.ethz.ch") by vger.kernel.org with ESMTP
+	id <S131498AbRDFLqe>; Fri, 6 Apr 2001 07:46:34 -0400
+Message-ID: <3ACDAC73.4110C6E4@math.ethz.ch>
+Date: Fri, 06 Apr 2001 13:45:55 +0200
+From: Giacomo Catenazzi <cate@math.ethz.ch>
+Reply-To: cate@debian.org
+X-Mailer: Mozilla 4.7C-SGI [en] (X11; I; IRIX 6.5 IP22)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+To: ankry@green.mif.pg.gda.pl
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Arch specific/multiple Configure.help files?
+In-Reply-To: <200104061035.MAA13189@sunrise.pg.gda.pl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->This is a problem the old via-code did "82C686A" fine but knew nothing
->about "82C686B" and the new code does not do well with "82C686A" but
-good
->with "82C686B".
+Andrzej Krzysztofowicz wrote:
+> 
+> "Giacomo Catenazzi wrote:"
+> > Johan Adolfsson wrote:
+> > >
+> > > Having the help close to the config sounds like a good idea
+> > > from a maintenance point of view.
+> >
+> > But in 2.5.x the config.in are centralized, thus also
+> > Configure.help sould be centralized.
+> > And in this case I think that a big file hurts nobody.
+> 
+> What about common config options (like CONFIG_PCI, CONFIG_BINFMT_ELF,
+> CONFIG_SMP, CONFIG_SERIAL), which have Configure.help entries wtitten in
+> PC-centric style?
+> 
+> What is info about ISA/EISA bus for sparc users for? Why no info about SBUS
+> there?
+> What is COM3 for Amiga user?
+> How can alpha user compile kernel for Pentium?
+> What is the difference between ELF and A.OUT for architectures that do not
+> support a.out at all?
+> 
+> IMO some, even very standard, options may need different explanations for
+> different architectures.
+> 
+> Maybe some kind of architecture-specyfic #include in Configure.help entries?
 
-I'd be glad to test any patches....In the meantime, is 
-there an older patch that will work + apply relatively cleanly to 
-2.2.19?
 
->Why are we mixing drives this class?
+Two possibilities: With std configuration language change:
+: bool 'std IPC support' CONFIG_IPC
+into
+: bool 'arch specific IPC help' CONFIG_IPC_STRANGE_ARCH
+: define_bool CONFIG_IPC CONFIG_IPC_STRANGE_ARCH
 
-On the same cable?  I seem to get better data rates (according 
-to testing with hdparm) if the newer drives are the masters.  It only
-amounts to a few tenths of a MB/sec, though, so I suppose the
-old drive could be the secondary master on the cable with the 
-DVD-ROM.  Would this help?
+This is "clean" and is allowed by CML1 (and in CML2 with a
+similar change).
 
-Thanks for your help!
+Or we can use the method of Johan.
+But if we move some option in i386/Configure.help, users of
+other arch
+instead of being little confused, their will see no help ->
+worse!
+
+Maybe before to make changes, all developers should read the
+documentation
+and update/change it in a non i386 centric view.
+
+BTW some other arch will use i386 devices, thus or we
+duplicate (and
+that one of the copy will be old) some entry of we must make
+configure.help
+i386 centric (and provide other help for other arch). But
+SPARC and SPARC64
+will use some configuration (different to i386), thus we
+should duplicate
+half configuration in SPARC.. ?
+
+	giacomo

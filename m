@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312938AbSEIOGg>; Thu, 9 May 2002 10:06:36 -0400
+	id <S313114AbSEIOLI>; Thu, 9 May 2002 10:11:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312987AbSEIOGf>; Thu, 9 May 2002 10:06:35 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:14283 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S312938AbSEIOGf>;
-	Thu, 9 May 2002 10:06:35 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 9 May 2002 16:06:32 +0200 (MEST)
-Message-Id: <UTC200205091406.g49E6W018636.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, hch@infradead.org
-Subject: Re: [PATCH] hdreg.h
-Cc: dalecki@evision-ventures.com, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
+	id <S313113AbSEIOLH>; Thu, 9 May 2002 10:11:07 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:20671 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S313070AbSEIOLG>;
+	Thu, 9 May 2002 10:11:06 -0400
+Date: Thu, 9 May 2002 16:11:00 +0200 (CEST)
+From: Roy Sigurd Karlsbakk <roy@mail.pronto.tv>
+To: <linux-raid@vger.kernel.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: >12 drives in a RAID?
+Message-ID: <Pine.LNX.4.33.0205091610170.8430-100000@mail.pronto.tv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    On Thu, May 09, 2002 at 03:48:32PM +0200, Andries.Brouwer@cwi.nl wrote:
-    > No, fdisk, cfdisk, sfdisk do not use HDIO_GETGEO_BIG.
-    > And indeed, the ioctl is completely meaningless.
+hi
 
-    In many current distributions (e.g. from Red Hat, Mandrake and Caldera)
-    they do.
+How can I use more than 12 drives in a RAID config? I need it!!!
 
-Yes, distributions are known to introduce buggy patches.
+Please cc: to me as I'm not on the list(s)
 
-Moreover, distributions are known to copy each others bugs.
-Sometimes I tell one distribution that a patch is buggy,
-and they revert their patch, but some months later they
-have it again, copied from some other distribution.
-Even bad "segmentation fault" bugs are copied.
+roy
 
-But for 2.5 this is not important. Distributions have time
-to fix stuff before 2.6.
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
 
-Andries
+Computers are like air conditioners.
+They stop working when you open Windows.
+

@@ -1,89 +1,214 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262252AbULRAWd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262257AbULRA0i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262252AbULRAWd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 19:22:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbULRAWd
+	id S262257AbULRA0i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 19:26:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbULRA0i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 19:22:33 -0500
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:13242 "EHLO slaphack.com")
-	by vger.kernel.org with ESMTP id S262252AbULRAUf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 19:20:35 -0500
-Message-ID: <41C377CF.2040506@slaphack.com>
-Date: Fri, 17 Dec 2004 18:20:31 -0600
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040924)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>, reiserfs-list@namesys.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: file as a directory
-References: <200411301631.iAUGVT8h007823@laptop11.inf.utfsm.cl>	 <41ACA7C9.1070001@namesys.com>	 <1103043518.21728.159.camel@pear.st-and.ac.uk>	 <41BF21BC.1020809@namesys.com>	 <1103059622.2999.17.camel@grape.st-and.ac.uk>	 <41BFC1C5.1070302@slaphack.com>	 <1103102854.30601.12.camel@pear.st-and.ac.uk>	 <41C0CF3B.1030705@slaphack.com>  <41C1D870.2020407@namesys.com> <1103223664.2336.335.camel@pear.st-and.ac.uk> <41C320EB.1050400@namesys.com>
-In-Reply-To: <41C320EB.1050400@namesys.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Dec 2004 19:26:38 -0500
+Received: from out002pub.verizon.net ([206.46.170.141]:61584 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP id S262257AbULRAZl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 19:25:41 -0500
+From: James Nelson <james4765@verizon.net>
+To: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, James Nelson <james4765@verizon.net>
+Message-Id: <20041218002600.19176.34205.85406@localhost.localdomain>
+Subject: [PATCH] generic_serial: replace cli()/sti() with spin_lock_irqsave()/spin_unlock_irqrestore()
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [209.158.220.243] at Fri, 17 Dec 2004 18:25:38 -0600
+Date: Fri, 17 Dec 2004 18:25:39 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This is an attempt to make the generic_serial driver SMP-correct.
 
-Hans Reiser wrote:
-| Peter Foldiak wrote:
-|
-|> On Thu, 2004-12-16 at 18:48, Hans Reiser wrote:
-|>
-|>
-|>> David Masover wrote:
-|>>
-|>>
-|>>> Speaking of which, how much speed is lost by starting up a process?
-|>>>
-|>>> The idea of caching is that running
-|>>>
-|>>> cat *; cat *; cat *; cat *; cat *
-|>>>
-|>>> is probably slower than
-|>>>
-|>>> cat * > baz; cat baz; cat baz; cat baz; cat baz; cat baz
-|>>>
-|>>
-|>> Only for small files where the per file overhead of a read is
-|>> significant.
-|>>
-|>
-|>
-|> But if the glued "file" is a stream (or pipe?) you can't do everything
-|> with it (e.g. seek() ) that you could do with a proper file, right?
-|>
-|>
-| It does not need to be a pipe-like file.  Seek can be implemented for a
-| composite (glued) file.
+This is used in both the sx and rio drivers.
 
-Composite plugins are likely fairly simple (cat *) so they shouldn't be
-required to implement seek on their own.  In OO terms, they should
-"inherit" a more global facility, which would be based on cached pipes.
+Compile tested.
 
-But definitely for files that are likely to be large, but still seekable
-(zipfiles), you want the plugin to provide its own seek support.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Signed-off-by: James Nelson <james4765@gmail.com>
 
-iQIVAwUBQcN3zXgHNmZLgCUhAQKF1w/7B51wfpaIVi6ap+TVsZ+t3FLPTqyOF24W
-lnqSUnM50zlJixQMKLzmZSOUGC/EsDZIVqShAUhniKAp8cvYNCE0HjqZl1b8S0HV
-MggehXJJwSfl3/RHCbRXo1URXzSodGLyCsdEhi88viyhilj7+9uJRhxmOx1cO7uS
-p/yS3LgpxEEjhDiu09MXnAHuXGTdKB9hQl63HxPwa72uM3Q5M7zCl0p+X+rH9xIj
-HgdZMbmoCiA6QmRJzLBq/s0xRo385bfeTHMCwB3aIyYNFeTvJDoZP6IEbi9Ee0DH
-Ns9rwJo+B2FPbHKHlmFxZkLVwmnQqr9WemYYybUGNOVdIamn87Ah6/ObvAmM+dQw
-dnRF2YVPM9gNv0LSOS3nteNr6ldYzEZWGi24ScPpFrJpZAMBVNarX0zE4+S2Dc75
-a733Z2pkOhHUvRPoDVXvUTKC5863cuWH7lgvTfT5eAANG/AANphi2vyFfgT5KWKt
-gF+SnRkLiDSfjcqgts036vfpIziz/aM9dZxzgE+j8IjuGNchl/6q1OVt7+WOJOrq
-grfOgVB26pFgYFD7ZjJSiZKHGRDJZXrUo4VnUoG43Dy4JZVlG4qpivMO50Ep0GD2
-cVFw1/MKP0beAA1S1R5Fh0mLo0jNHlsxSD6XoKjUuL/xjnLpyN/AdmIhQq0mMujY
-vYBBaDHYkYc=
-=RMFf
------END PGP SIGNATURE-----
+diff -urN --exclude='*~' linux-2.6.10-rc3-mm1-original/drivers/char/generic_serial.c linux-2.6.10-rc3-mm1/drivers/char/generic_serial.c
+--- linux-2.6.10-rc3-mm1-original/drivers/char/generic_serial.c	2004-12-16 19:16:55.000000000 -0500
++++ linux-2.6.10-rc3-mm1/drivers/char/generic_serial.c	2004-12-17 19:13:01.458849723 -0500
+@@ -32,6 +32,8 @@
+ 
+ #define DEBUG 
+ 
++static spinlock_t driver_lock = SPIN_LOCK_UNLOCKED;
++
+ static char *                  tmp_buf; 
+ static DECLARE_MUTEX(tmp_buf_sem);
+ 
+@@ -52,8 +54,8 @@
+ #define RELEASEIT up (&port->port_write_sem);
+ #else
+ #define DECL      unsigned long flags;
+-#define LOCKIT    save_flags (flags);cli ()
+-#define RELEASEIT restore_flags (flags)
++#define LOCKIT    spin_lock_irqsave(&driver_lock, flags)
++#define RELEASEIT spin_unlock_irqrestore(&driver_lock, flags)
+ #endif
+ 
+ #define RS_EVENT_WRITE_WAKEUP	1
+@@ -208,9 +210,8 @@
+ 	if (!port || !port->xmit_buf || !tmp_buf)
+ 		return -EIO;
+ 
+-	save_flags(flags);
++	spin_lock_irqsave(&driver_lock, flags);
+ 	while (1) {
+-		cli();
+ 		c = count;
+ 
+ 		/* This is safe because we "OWN" the "head". Noone else can 
+@@ -227,18 +228,17 @@
+ 
+ 		/* Can't copy more? break out! */
+ 		if (c <= 0) {
+-			restore_flags(flags);
+ 			break;
+ 		}
+ 		memcpy(port->xmit_buf + port->xmit_head, buf, c);
+ 		port->xmit_head = ((port->xmit_head + c) &
+ 		                   (SERIAL_XMIT_SIZE-1));
+ 		port->xmit_cnt += c;
+-		restore_flags(flags);
+ 		buf += c;
+ 		count -= c;
+ 		total += c;
+ 	}
++	spin_unlock_irqrestore(&driver_lock, flags);
+ 
+ 	if (port->xmit_cnt && 
+ 	    !tty->stopped && 
+@@ -380,9 +380,9 @@
+ 	if (!port) return;
+ 
+ 	/* XXX Would the write semaphore do? */
+-	save_flags(flags); cli();
++	spin_lock_irqsave(&driver_lock, flags);
+ 	port->xmit_cnt = port->xmit_head = port->xmit_tail = 0;
+-	restore_flags(flags);
++	spin_unlock_irqrestore(&driver_lock, flags);
+ 
+ 	wake_up_interruptible(&tty->write_wait);
+ 	tty_wakeup(tty);
+@@ -468,8 +468,7 @@
+ 	if (!(port->flags & ASYNC_INITIALIZED))
+ 		return;
+ 
+-	save_flags (flags);
+-	cli ();
++	spin_lock_irqsave(&driver_lock, flags);
+ 
+ 	if (port->xmit_buf) {
+ 		free_page((unsigned long) port->xmit_buf);
+@@ -482,7 +481,7 @@
+ 	port->rd->shutdown_port (port);
+ 
+ 	port->flags &= ~ASYNC_INITIALIZED;
+-	restore_flags (flags);
++	spin_unlock_irqrestore(&driver_lock, flags);
+ 
+ 	func_exit();
+ }
+@@ -570,10 +569,10 @@
+ 	add_wait_queue(&port->open_wait, &wait);
+ 
+ 	gs_dprintk (GS_DEBUG_BTR, "after add waitq.\n"); 
+-	cli();
++	spin_lock_irq(&driver_lock);
+ 	if (!tty_hung_up_p(filp))
+ 		port->count--;
+-	sti();
++	spin_unlock_irq(&driver_lock);
+ 	port->blocked_open++;
+ 	while (1) {
+ 		CD = port->rd->get_CD (port);
+@@ -633,13 +632,12 @@
+ 		port->tty = tty;
+ 	}
+ 
+-	save_flags(flags); cli();
++	spin_lock_irqsave(&driver_lock, flags);
+ 
+ 	if (tty_hung_up_p(filp)) {
+-		restore_flags(flags);
+ 		port->rd->hungup (port);
+ 		func_exit ();
+-		return;
++		goto gs_close_exit;
+ 	}
+ 
+ 	if ((tty->count == 1) && (port->count != 1)) {
+@@ -653,9 +651,8 @@
+ 	}
+ 	if (port->count) {
+ 		gs_dprintk(GS_DEBUG_CLOSE, "gs_close: count: %d\n", port->count);
+-		restore_flags(flags);
+ 		func_exit ();
+-		return;
++		goto gs_close_exit;
+ 	}
+ 	port->flags |= ASYNC_CLOSING;
+ 
+@@ -702,7 +699,8 @@
+ 	port->flags &= ~(ASYNC_NORMAL_ACTIVE|ASYNC_CLOSING | ASYNC_INITIALIZED);
+ 	wake_up_interruptible(&port->close_wait);
+ 
+-	restore_flags(flags);
++gs_close_exit:
++	spin_unlock_irqrestore(&driver_lock, flags);
+ 	func_exit ();
+ }
+ 
+@@ -836,16 +834,15 @@
+ 	unsigned long flags;
+ 	unsigned long page;
+ 
+-	save_flags (flags);
+ 	if (!tmp_buf) {
+ 		page = get_zeroed_page(GFP_KERNEL);
+ 
+-		cli (); /* Don't expect this to make a difference. */ 
++		spin_lock_irqsave(&driver_lock, flags); /* Don't expect this to make a difference. */ 
+ 		if (tmp_buf)
+ 			free_page(page);
+ 		else
+ 			tmp_buf = (unsigned char *) page;
+-		restore_flags (flags);
++		spin_unlock_irqrestore(&driver_lock, flags);
+ 
+ 		if (!tmp_buf) {
+ 			return -ENOMEM;
+@@ -862,18 +859,18 @@
+ 		tmp = get_zeroed_page(GFP_KERNEL);
+ 
+ 		/* Spinlock? */
+-		cli ();
++		spin_lock_irqsave(&driver_lock, flags);
+ 		if (port->xmit_buf) 
+ 			free_page (tmp);
+ 		else
+ 			port->xmit_buf = (unsigned char *) tmp;
+-		restore_flags (flags);
++		spin_unlock_irqrestore(&driver_lock, flags);
+ 
+ 		if (!port->xmit_buf)
+ 			return -ENOMEM;
+ 	}
+ 
+-	cli();
++	spin_lock_irqsave(&driver_lock, flags);
+ 
+ 	if (port->tty) 
+ 		clear_bit(TTY_IO_ERROR, &port->tty->flags);
+@@ -885,7 +882,7 @@
+ 	port->flags |= ASYNC_INITIALIZED;
+ 	port->flags &= ~GS_TX_INTEN;
+ 
+-	restore_flags(flags);
++	spin_unlock_irqrestore(&driver_lock, flags);
+ 	return 0;
+ }
+ 

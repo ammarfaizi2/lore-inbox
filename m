@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283783AbRLWTS1>; Sun, 23 Dec 2001 14:18:27 -0500
+	id <S283916AbRLWTZ3>; Sun, 23 Dec 2001 14:25:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284010AbRLWTSR>; Sun, 23 Dec 2001 14:18:17 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:31493 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S283916AbRLWTSF>; Sun, 23 Dec 2001 14:18:05 -0500
-Message-ID: <3C262DDC.1040103@zytor.com>
-Date: Sun, 23 Dec 2001 11:17:48 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: "T. A." <tkhoadfdsaf@hotmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: tar vs cpio (was: Booting a modular kernel through a multiple streams file)
-In-Reply-To: <Pine.GSO.4.21.0112222109050.21702-100000@weyl.math.psu.edu> <3C25A06D.7030408@zytor.com> <OE15yZcIaeZ2FTVPuxT00007b64@hotmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S284010AbRLWTZT>; Sun, 23 Dec 2001 14:25:19 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:28074
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S283916AbRLWTZI>; Sun, 23 Dec 2001 14:25:08 -0500
+Date: Sun, 23 Dec 2001 14:11:19 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Rob Landley <landley@trommello.org>
+Cc: David Garfield <garfield@irving.iisd.sra.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Configure.help editorial policy
+Message-ID: <20011223141119.A21710@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Rob Landley <landley@trommello.org>,
+	David Garfield <garfield@irving.iisd.sra.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011220143247.A19377@thyrsus.com> <20011222081345.ETGO12125.femail34.sdc1.sfba.home.com@there> <20011222045805.A24575@thyrsus.com> <20011223174227.NCJM25224.femail12.sdc1.sfba.home.com@there>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011223174227.NCJM25224.femail12.sdc1.sfba.home.com@there>; from landley@trommello.org on Sun, Dec 23, 2001 at 04:40:26AM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-T. A. wrote:
+Rob Landley <landley@trommello.org>:
+> Is the help file even currently accurate with this extra distinction made?  
 
->     What about considering one of the simpler filesystems or archive formats
-> instead?  How much "Unix"-ism is required to be retained in the archive?
-> (permissions, device files, etc?)
-> 
+Not completely, but that's because in some cases I don't know whether decimal
+or binary multiples are involved.  Where that is the case I have left the
+ambiguous terminology in place.
 
+> And you've already implied you want to change the symbol set for 
+> CONFIG_NINO_4MB and such.  How deeply into the kernel will these changes go?
 
-They're MUCH MUCH MUCH MUCH MUCH worse.  Don't even think abou it.
+I don't know yet.  I can only clean up the bits for which I am maintainer.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-
->     As for the bigendianness... Is it really relevant since each kernel is
-> tied to its own platform?  And if it is may it be better to use the native
-> format of the 98% or so of the Linux machines out there which are
-> littleendian (performance and ease of general access on the majority of host
-> machines comes to mind).
-
-
-This was discussed recently... doing a nonportable format is begging for 
-problems.  The only reason I'm suggesting bigendian is that conversion 
-to bigendian macros are more widely available in the form of the 
-standard hton macros.
-
-	-hpa
-
-
-
-
-
+The spirit of resistance to government is so valuable on certain occasions, 
+that I wish it always to be kept alive.  It will often be exercised when 
+wrong, but better so than not to be exercised at all. I like a little 
+rebellion now and then.	-- Thomas Jefferson, letter to Abigail Adams, 1787

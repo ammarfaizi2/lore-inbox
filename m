@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262491AbUCCPuM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 10:50:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbUCCPuM
+	id S262496AbUCCPvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 10:51:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbUCCPvQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 10:50:12 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:12695 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S262491AbUCCPuI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 10:50:08 -0500
-Date: Wed, 03 Mar 2004 07:46:32 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel@vger.kernel.org, hugh@veritas.com, wli@holomorphy.com,
-       dmccr@us.ibm.com
-Subject: Re: 230-objrmap fixes for 2.6.3-mjb2
-Message-ID: <7440000.1078328791@[10.10.2.4]>
-In-Reply-To: <20040303025820.2cf6078a.akpm@osdl.org>
-References: <20040303070933.GB4922@dualathlon.random> <20040303025820.2cf6078a.akpm@osdl.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 3 Mar 2004 10:51:16 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:17353 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262496AbUCCPvH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 10:51:07 -0500
+Date: Wed, 3 Mar 2004 16:51:06 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: George Anzinger <george@mvista.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kgdb-bugreport@lists.sourceforge.net,
+       "Amit S. Kale" <amitkale@emsyssoft.com>
+Subject: Re: [Kgdb-bugreport] [PATCH] Kill kgdb_serial
+Message-ID: <20040303155106.GB12769@atrey.karlin.mff.cuni.cz>
+References: <20040302213901.GF20227@smtp.west.cox.net> <40450468.2090700@mvista.com> <20040302221106.GH20227@smtp.west.cox.net> <20040302223143.GE1225@elf.ucw.cz> <20040302230018.GL20227@smtp.west.cox.net> <20040302233512.GJ1225@elf.ucw.cz> <20040303152226.GS20227@smtp.west.cox.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20040303152226.GS20227@smtp.west.cox.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Andrew Morton <akpm@osdl.org> wrote (on Wednesday, March 03, 2004 02:58:20 -0800):
+Hi!
 
-> Andrea Arcangeli <andrea@suse.de> wrote:
->> 
->> --- sles-objrmap/mm/rmap.c.~1~	2004-03-03 06:45:38.995594456 +0100
->>  +++ sles-objrmap/mm/rmap.c	2004-03-03 07:01:39.200621104 +0100
->>  @@ -470,7 +470,7 @@ try_to_unmap_obj_one(struct vm_area_stru
->>   	if (!pte)
->>   		goto out;
->>   
->>  -	if (vma->vm_flags & VM_LOCKED) {
->>  +	if (vma->vm_flags & (VM_LOCKED|VM_RESERVED)) {
->>   		ret =  SWAP_FAIL;
->>   		goto out_unmap;
+> > > More precisely:
+> > > http://lkml.org/lkml/2004/2/11/224
+> > 
+> > Well, that just says Andrew does not care too much. I think that
+> > having both serial and ethernet support *is* good idea after all... I
+> > have few machines here, some of them do not have serial, and some of
+> > them do not have supported ethernet. It would be nice to use same
+> > kernel on all of them. Also distribution wants to have "debugging
+> > kernel", but does _not_ want to have 10 of them.
 > 
-> I keep on wanting to put that in there too.  But pages in a VM_RESERVED vma
-> should not find their way onto the LRU.  Maybe we should be checking for
-> that in do_no_page().
+> But unless I'm missing something, supporting eth or 8250 at all times
+> doesn't work right now anyhow, as eth if available will always take over.
 
-There was talk at one point of moving the "unswappable" state down into 
-the struct page. Is that still realistic? It would seem rather more
-efficient, but I forget what problem we ran into with it.
+Well, that can be fixed. [Probably if kgdbeth= is not passed, ethernet
+interface should not take over. So user selects which one should be
+used by either passing kgdbeth or kgdb8250. That means that 8250
+should not be initialized until user passes kgdb8250=... not sure how
+you'll like that].
+								Pavel
 
-M.
-
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

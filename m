@@ -1,40 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270479AbTHNQTf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 12:19:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270810AbTHNQTf
+	id S272481AbTHNQJN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 12:09:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272566AbTHNQIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 12:19:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:59083 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270479AbTHNQTc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 12:19:32 -0400
-Date: Thu, 14 Aug 2003 09:19:17 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Make modules work in Linus' tree on ARM
-In-Reply-To: <20030814130810.A332@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0308140917350.8148-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 14 Aug 2003 12:08:16 -0400
+Received: from cores-barnutiu.rdstm.ro ([213.157.174.174]:4623 "EHLO
+	ibox.cores.ro") by vger.kernel.org with ESMTP id S272468AbTHNQGq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 12:06:46 -0400
+Subject: 
+From: Ovidiu Negrut <ovidiu_negrut@electronic.cores.ro>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1060877303.838.2.camel@mrx>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 Aug 2003 19:08:23 +0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 14 Aug 2003, Russell King wrote:
-> 
-> After reviewing the /proc/kcore and kclist issues, I've decided that I'm
-> no longer prepared to even _think_ about supporting /proc/kcore on ARM -
-
-I suspect we should just remove it altogether.
-
-Does anybody actually _use_ /proc/kcore? It was one of those "cool 
-feature" things, but I certainly haven't ever used it myself except for 
-testing, and it's historically often been broken after various kernel 
-infrastructure updates, and people haven't complained..
-
-Comments?
-
-		Linus
+unsubscribe linux-kernel
 

@@ -1,64 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264733AbSLMPAv>; Fri, 13 Dec 2002 10:00:51 -0500
+	id <S264842AbSLMPEQ>; Fri, 13 Dec 2002 10:04:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264739AbSLMPAv>; Fri, 13 Dec 2002 10:00:51 -0500
-Received: from kiruna.synopsys.com ([204.176.20.18]:21638 "HELO
-	kiruna.synopsys.com") by vger.kernel.org with SMTP
-	id <S264733AbSLMPAu>; Fri, 13 Dec 2002 10:00:50 -0500
-Date: Fri, 13 Dec 2002 16:08:27 +0100
-From: Alex Riesen <alexander.riesen@synopsys.COM>
-To: Burton Windle <bwindle@fint.org>
-Cc: linux-kernel@vger.kernel.org, Matthew Wilcox <willy@debian.org>,
-       mdew@orcon.net.nz
-Subject: Re: oops: 2.5.51 lock_get_status
-Message-ID: <20021213150827.GA31448@riesen-pc.gr05.synopsys.com>
-Reply-To: alexander.riesen@synopsys.COM
-References: <20021213143115.GA30170@riesen-pc.gr05.synopsys.com> <Pine.LNX.4.43.0212130942110.31117-100000@morpheus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.43.0212130942110.31117-100000@morpheus>
-User-Agent: Mutt/1.4i
-Organization: Synopsys, Inc.
+	id <S264848AbSLMPEQ>; Fri, 13 Dec 2002 10:04:16 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:21149 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S264842AbSLMPEP> convert rfc822-to-8bit; Fri, 13 Dec 2002 10:04:15 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Symlink indirection
+Date: Fri, 13 Dec 2002 16:11:25 +0100
+User-Agent: KMail/1.4.3
+References: <3DF9F780.1070300@walrond.org>
+In-Reply-To: <3DF9F780.1070300@walrond.org>
+Organization: WOLK - Working Overloaded Linux Kernel
+Cc: Andrew Walrond <andrew@walrond.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212131611.04355.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Burton Windle, Fri, Dec 13, 2002 15:42:20 +0100:
-> This might also be of interest...
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=103825968004879&w=2
-> 
+On Friday 13 December 2002 16:06, Andrew Walrond wrote:
 
-hmm... This:
+Hi Andrew,
 
-| note, do not use NFS when using this patch.  really; i mean it.  somehow
-| i managed to corrupt thread_info.cpu causing _udelay_ to oops.
+> Is the number of allowed levels of symlink indirection (if that is the
+> right phrase; I mean symlink -> symlink -> ... -> file) dependant on the
+> kernel, or libc ? Where is it defined, and can it be changed?
 
-doesn't look very encouraging.
+fs/namei.c
 
-Maybe there is already some news about it?
-I volunteer to test anything :)
-as being hit by the bug.
+ if (current->link_count >= 5)
 
--alex
+change to a higher value.
 
-> On Fri, 13 Dec 2002, Alex Riesen wrote:
-> 
-> > Burton Windle, Fri, Dec 13, 2002 15:08:45 +0100:
-> > > http://bugzilla.kernel.org/show_bug.cgi?id=16
-> > >
-> >
-> > Oh, thanks. Still fogetting about the new thing to look before.
-> >
-> > > On Fri, 13 Dec 2002, Alex Riesen wrote:
-> > >
-> > > > 2.5.51+bk as of 12 Dec 23:00 CET.
-> > > >
-> > > > tried to strace(4.4) the d4x with follow-fork mode.
-> > > > d4x is a multi-threaded app using posix advisory locks.
-> > > > (http://www.krasu.ru/soft/chuchelo/)
-> > > >
-> > > > The thing calls fcntl, which fails as if the file were locked:
-> > > >
-> >
+So, the answer is: Kernel :)
+
+ciao, Marc

@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263020AbRFGTgz>; Thu, 7 Jun 2001 15:36:55 -0400
+	id <S263062AbRFGTvv>; Thu, 7 Jun 2001 15:51:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263022AbRFGTgp>; Thu, 7 Jun 2001 15:36:45 -0400
-Received: from cpe-66-1-218-52.fl.sprintbbd.net ([66.1.218.52]:15123 "EHLO
-	mail.compro.net") by vger.kernel.org with ESMTP id <S263020AbRFGTgf>;
-	Thu, 7 Jun 2001 15:36:35 -0400
-Message-ID: <3B1FD845.DBA54814@compro.net>
-Date: Thu, 07 Jun 2001 15:38:45 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+	id <S263058AbRFGTvm>; Thu, 7 Jun 2001 15:51:42 -0400
+Received: from atlrel2.hp.com ([156.153.255.202]:50637 "HELO atlrel2.hp.com")
+	by vger.kernel.org with SMTP id <S263038AbRFGTvg>;
+	Thu, 7 Jun 2001 15:51:36 -0400
+Message-ID: <3B1FDB64.1AB850CF@fc.hp.com>
+Date: Thu, 07 Jun 2001 13:52:04 -0600
+From: Khalid Aziz <khalid@fc.hp.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.5 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Tim Hockin <thockin@sun.com>
-CC: Khalid Aziz <khalid@fc.hp.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: pset patch??
-In-Reply-To: <3B1F7130.94357A3C@compro.net> <3B1FB07D.C6C03EF0@fc.hp.com> <3B1FB7AA.E50C9C53@sun.com>
+To: Nico Schottelius <nicos@pcsystems.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: scsi disk defect or kernel driver defect ?
+In-Reply-To: <3B1FAA63.130E556A@pcsystems.de> <3B1FD67D.8DFDAE58@pcsystems.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Hockin wrote:
+Nico Schottelius wrote:
 > 
-> Khalid Aziz wrote:
-> >
-> > Try
-> > <http://resourcemanagement.unixsolutions.hp.com/WaRM/schedpolicy.html>.
-> > It may do what you want.
+> Hi all!
 > 
-> > > I see references to this site http://isunix.it.ilstu.edu/~thockin/pset/.
+> The problem is solved, if I disconnect the hp streamer
+> from the bus. I wonder why there is a problem.
+> The aic7880 has two busses:
 > 
-> try http://www.hockin.org/~thockin/pset
+> ultra/ ultrawide.
 > 
-> unfortunately, not ported to 2.4.x yet - should be easy, and is a more
-> complete implementation of sysmp() than the others..
+> The ibm hard disk is connected to the uw port and is terminated.
+> No other uw device is attached.
 > 
-> --
-Thank you Tim. I beleive that was what I was looking for.
+> The hp streamer is also lonely on the ultra bus. I have
+> no documentation for that device, so I don't know
+> whether it is terminated nor if it is using parity.
+> 
+> Btw, can somebody explain what the parity bit does to me ?
+> 
+> Or does anybody have a hp c1536 streamer and can help me ?
 
-Regards
-mark
+Based upon the lspci output you posted earlier, aic7880 has a single
+SCSI bus. So you must mean two internal connectors. Both of your devices
+(HD and Tape) do show up on the same bus during scan. Since you have
+connected devices to both connectors on the card, you must terminate
+both devices. Sounds like you HD might be terminated. You need to
+terminate tape drive as well. I do not have a C1536 handy, but if you
+look at the back of the drive you should see 10 pins aligned
+horizontally. They should all be labelled on the back panel and most
+likely are (from left to right) - TP, 2, 1, 0, NC. TP is the pair of
+Term Power Enable pins. Place a jumper over the leftmost two pins to
+enable termination on the drive and try again.
+
+-- 
+Khalid
+
+====================================================================
+Khalid Aziz                             Linux Development Laboratory
+(970)898-9214                                        Hewlett-Packard
+khalid@fc.hp.com                                    Fort Collins, CO
+
+Disclaimer: I do not speak for HP. These are my personal opinions.

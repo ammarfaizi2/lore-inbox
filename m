@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266222AbUGJMGH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266221AbUGJMFR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266222AbUGJMGH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 08:06:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266224AbUGJMGH
+	id S266221AbUGJMFR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 08:05:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266222AbUGJMFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 08:06:07 -0400
-Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:19075 "HELO
-	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266223AbUGJMFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 08:05:54 -0400
-Message-ID: <40EFDB97.70109@yahoo.com.au>
-Date: Sat, 10 Jul 2004 22:05:43 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Con Kolivas <kernel@kolivas.org>, Peter Williams <pwil3058@bigpond.net.au>,
-       Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Likelihood of rt_tasks
-References: <40EE6CC2.8070001@kolivas.org> <40EF2FF2.6000001@bigpond.net.au> <40EF354F.9090903@kolivas.org> <20040710111528.GA22265@elte.hu>
-In-Reply-To: <20040710111528.GA22265@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Jul 2004 08:05:16 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:59336 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266221AbUGJMFG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 08:05:06 -0400
+Date: Sat, 10 Jul 2004 14:05:00 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Manjunath <manjunath.n@ap.sony.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Regarding Kernel 2.6.5
+Message-ID: <20040710120500.GJ28324@fs.tum.de>
+References: <1089087274.5155.35.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1089087274.5155.35.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+On Tue, Jul 06, 2004 at 09:44:34AM +0530, Manjunath wrote:
 
-> the unlikely() check in rt_task() was mainly done because there was a
-> steady stream of microoptimizations that added unlikely() to rt_task().
-> So now we do in everywhere and have removed the unlikely()/likely()
-> branches from sched.c. It doesnt really matter in real-world terms, but
-> it will make the common case code (non-RT) a tiny bit more compact. And
-> i challenge anyone to be able to even measure the difference to an RT
-> task.
+> hi,
+
+Hi Manju,
+
+> I tried to build Kernel 2.6.5 on Fedora Core 1.
+> make modules_install gives me this error
 > 
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.6.5-gcov/kernel/net/irda/irnet/irnet.ko
+> depmod:         irttp_open_tsap
+> depmod:         iriap_getvaluebyclass_request
+> depmod:         irda_notify_init
+> make: *** [_modinst_post] Error 1
+> 
+> On Fedora Core 1.
 
-Also, the scenario where it may possibly make a tiny positive
-contribution (something *very* scheduler bound) would be using
-non-RT tasks I'd say.
+if you are able to reproduce this with an unmodified ftp.kernel.org 
+kernel (preferzble 2.6.7) please send your .config .
+
+If not, please report this issue to RedHat.
+
+> Regards
+> Manju
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

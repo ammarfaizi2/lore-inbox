@@ -1,270 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314079AbSDZQ0q>; Fri, 26 Apr 2002 12:26:46 -0400
+	id <S314081AbSDZQdI>; Fri, 26 Apr 2002 12:33:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314080AbSDZQ0p>; Fri, 26 Apr 2002 12:26:45 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:21495 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S314079AbSDZQ0n>;
-	Fri, 26 Apr 2002 12:26:43 -0400
-Message-ID: <3CC97F64.1D9575F9@mvista.com>
-Date: Fri, 26 Apr 2002 09:25:08 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Nicolas Bonnefon <nicolas.bonnefon@fr.thalesgroup.com>
-CC: Eldor =?EUC-KR?B?Uvhkc2V0aA==?= (ETO) 
-	<Eldor.Rodseth@eto.ericsson.se>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: SCHED_FIFO and SCHED_RR in 2.4.7-10custom kernel
-In-Reply-To: <F9CC1B4C20A0D411A99E00508BDFA6A203D8AB00@enoasnt101.eto.ericsson.se> <3CC58155000078A8@bgxplex3.bgx.airsys.thomson-csf.com> (added by
-		    postmaster@bgxplex3.bgx.airsys.thomson-csf.com)
-Content-Type: multipart/mixed;
- boundary="------------6F20C710C36C0FCF51E09704"
+	id <S314082AbSDZQdI>; Fri, 26 Apr 2002 12:33:08 -0400
+Received: from sproxy.gmx.net ([213.165.64.20]:45751 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S314081AbSDZQdH>;
+	Fri, 26 Apr 2002 12:33:07 -0400
+Date: Fri, 26 Apr 2002 18:31:26 +0200
+From: Sebastian Droege <sebastian.droege@gmx.de>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, Release 2.2 is available
+Message-Id: <20020426183126.3f4a4696.sebastian.droege@gmx.de>
+In-Reply-To: <10571.1019796148@kao2.melbourne.sgi.com>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.0+WRbBY(hkud(1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-This is a multi-part message in MIME format.
---------------6F20C710C36C0FCF51E09704
-Content-Type: text/plain; charset=us-ascii
+--=.0+WRbBY(hkud(1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-Yes, I agree that X may be in the way.  It is also possible, if you are
-logging in via telnet or some other remote service that the I/O service
-tasks don't have the needed priority.
+Hi,
+you've changed CONFIG_ZLIB_INFLATE and CONFIG_ZLIB_DEFLATE in the Makefile.in's
+here's a patch (tested and works for me) ;)
 
-My solution for X is to bump its priority too.
+Bye
 
-Attached, find rt, a program to allow you to change the priority of any
-task, and getrt a simple reporting program to get the priority of any
-task.
+--- linux-2.5.10/lib/zlib_inflate/Makefile.in~       Fri Apr 26 18:28:10 2002
++++ linux-2.5.10/lib/zlib_inflate/Makefile.in        Fri Apr 26 18:22:55 2002
+@@ -15,4 +15,4 @@
+ 
+ expsyms(inflate_syms.o)
+ objlink(zlib_inflate.o infblock.o infcodes.o inffast.o inflate.o inftrees.o infutil.o inflate_syms.o)
+-select(CONFIG_ZLIB_DEFLATE zlib_inflate.o)
++select(CONFIG_ZLIB_INFLATE zlib_inflate.o)
 
-By the way, if you have a relatively secure system, and you want to use
-telnet, you can set the priority of inetd.  This way all the I/O
-services and the resulting session are boosted in priority.  You must do
-this ahead of time, after your task goes into a loop, its too late to
-boost anything, but once you do this, you should be able to telnet into
-the machine even if your task is "lost" in some loop.
+--- linux-2.5.10/lib/zlib_deflate/Makefile.in~       Fri Apr 26 18:28:25 2002
++++ linux-2.5.10/lib/zlib_deflate/Makefile.in        Fri Apr 26 18:22:46 2002
+@@ -8,4 +8,4 @@
+ 
+ expsyms(deflate_syms.o)
+ objlink(zlib_deflate.o deflate.o deftree.o deflate_syms.o)
+-select(CONFIG_ZLIB_INFLATE zlib_deflate.o)
++select(CONFIG_ZLIB_DEFLATE zlib_deflate.o)
+--=.0+WRbBY(hkud(1
+Content-Type: application/pgp-signature
 
--g
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
 
-Nicolas Bonnefon wrote:
-> 
-> > My application uses the possibility to change scheduling mechanism. When
-> > changing from SCHED_OTHER to SCHED_FIFO or SCHED_RR, my application causes
-> > the whole Linux PC to "hang". Prior to launching my own application, I
-> > launch a "superbash" application with higher priority than my own
-> > application. But I am not able to switch to the window where this
-> > "superbash" application is running to kill my own application. The PC
-> > simply does not respond to any input from the keyboard.
-> 
-> Have you tried without running X ?
-> A SCHED_FIFO or SCHED_RR task has ALWAYS priority over any SCHED_OTHER
-> task, so if your application sits in an infinite loop without blocking, the
-> window manager cannot preempt it and you simply cannot switch x-term.
-> I think you should carefully debug your app in SCHED_OTHER mode first, and
-> then switch to some real-time policy.
-> 
-> >
-> > I have used this mechanism before, and I am quite confident that this
-> > worked under kernel 2.4.2. Are you aware of anything that could explain
-> > this behaviour?
-> 
-> It would be surprising, but if you were sure of that, it would deserve some
-> deeper investigations !
-> 
-> Regards
-> --
-> Nicolas Bonnefon
-> Radar Development/Digital Processing Engineer
-> Thales Air Defence - 7-9 rue des Mathurins
-> 92223 Bagneux - France
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+iD8DBQE8yYDje9FFpVVDScsRAi2hAJ9xsz7UpD11pOMpr+3TnN0so266mwCfXOLK
+uCQEnmWvnKl3vbzDBzNaa84=
+=x2RL
+-----END PGP SIGNATURE-----
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
---------------6F20C710C36C0FCF51E09704
-Content-Type: text/plain; charset=us-ascii;
- name="getrt.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="getrt.c"
-
-#include <sched.h>
-#include <stdlib.h>
-
-main(int args,char* argc[])
-{
-        struct sched_param p;
-        pid_t pid;
-
-        int policy;
-        int prio,max_prio,max_rt_prio;
-        char * cpolicy;
-
-        if (args < 2) {
-                pid = 0;
-        }else{
-                pid = atoi(argc[1]);
-        }
-        policy = sched_getscheduler(pid);
-        sched_getparam(pid,&p);
-        prio = p.sched_priority;
-        max_prio = sched_get_priority_max(policy);
-        max_rt_prio = sched_get_priority_max(SCHED_FIFO);
-
-        switch(policy){
-        case SCHED_OTHER:
-                cpolicy = "SCHED_OTHER";
-                break;
-        case SCHED_RR:
-                cpolicy = "SCHED_RR";
-                break;
-        case SCHED_FIFO:
-                cpolicy = "SCHED_FIFO";
-                break;
-        default:
-                perror("sched_getscheduler");
-                exit(1);
-        }
-                
-        if (policy == SCHED_OTHER){
-                printf("%s at priority %d (MAX_PRIO(%s) = %d, MAX_PRIO(SCHED_FIFO) = %d)\n",
-                       cpolicy,      prio,       cpolicy,max_prio,               max_rt_prio);
-        }else{
-                printf("%s at priority %d (MAX_PRIO(%s) = %d)\n",
-                       cpolicy,       prio,      cpolicy, max_prio);
-        }
-        exit(0);
-}
-
---------------6F20C710C36C0FCF51E09704
-Content-Type: text/plain; charset=us-ascii;
- name="rt.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="rt.c"
-
-
-
-/*
-   rt - a utility to set the realtime priority and scheduling policy
-*/
-
-/* includes */
-#include <stdio.h>
-#include <stdlib.h>
-#include <sched.h>
-#include <unistd.h>
-#define _GNU_LIBRARY__
-#include <getopt.h>
-
-/* defines */
-
-#define RUNSTRING "usage:  rt [-f] [-v] prio [--] runstring  \n \
- or:   rt [-f] [-v] -p PID prio\\ \n\n \
-where: prio specifies the realtime priority  \n \
-       -f set scheduling policy to SCHED_FIFO \n \
-       -v turns on verbose mode. \n \
-       -p PID specifies an existing process to modify \n \
-       runstring is a process and parameters \n \
-       (use '--' if runstring contains options). \n"
-
-#define POLICY(x)  x ? x-1 ? "SCHED_RR" : "SCHED_FIFO" : "SCHED_OTHER"
-
-/* prototypes */
-void print_usage(char *[]);
-
-/* globals */
-int verbose=0;  /* 0=none, !0=verbose */
-
-
-main(int argc, char *argv[])
-{
-        struct sched_param prio_struct;
-        int policy = -1;
-        int pid = 0;
-        int pidopt = 0;
-        int optprobs = 0; /* problems parsing? */
-        
-        int  c;         /* generic single character */
-
-        /* "standard" option parsing... */
-        while ( (c=getopt(argc, argv, "+fp:v?")) != EOF)
-        {
-        switch (c) {
-                case 'f':       /* set FIFO mode */
-                        policy = SCHED_FIFO;
-                        break;
-                case 'p':       /* read PID */  
-                        sscanf(optarg,"%d",&pid); 
-                        pidopt=1;
-                        break;
-                case 'v':
-                        verbose=1;      /* verbosity */
-                        break;
-                case '?':       /* help? */
-                        printf("%s",RUNSTRING);
-                        exit(0);
-                default:        /* something went wrong */
-                        optprobs=1;     /* we'll deal with this problem later */
-                        break;
-                }
-        }
-
-        if (optprobs) {
-                fprintf(stderr,RUNSTRING);
-                exit(1);
-        }
-
-
-        if((argc - optind) < 2-pidopt) {
-                print_usage(argv);
-        }
-
-        sscanf(argv[optind], "%d", &(prio_struct.sched_priority));
-
-        /* sanity checking... */
-        if ( (prio_struct.sched_priority != 0) && (policy < 0 ) ) {
-                policy=SCHED_RR;
-                if (verbose)
-                  printf("Defaulting sched policy to %s.\n", POLICY(policy));
-        }
-
-        if ( (prio_struct.sched_priority == 0 ) && (policy != SCHED_OTHER) ) {
-                policy=SCHED_OTHER;
-                fprintf(stderr,"Priority of %d implies sched policy of %s.\n",
-                        prio_struct.sched_priority,  POLICY(policy)); 
-        }
-
-
-        policy = (prio_struct.sched_priority)? policy : SCHED_OTHER;
-        if( sched_setscheduler(pid,policy,&prio_struct)){
-                perror("Priority out of range");
-                print_usage(argv);
-        }
-        if ( pid ) exit(0);
-        argv+=optind;   /* adjust argv to point to the runstring */
-        argv++;
-        execvp(argv[0],argv);
-        perror("exec failed..");
-}
-
-void print_usage(char * who[])
-{
-        printf("%s",RUNSTRING);
-        exit (1);
-}
-
-
---------------6F20C710C36C0FCF51E09704--
+--=.0+WRbBY(hkud(1--
 

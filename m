@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132224AbQL1WHg>; Thu, 28 Dec 2000 17:07:36 -0500
+	id <S132062AbQL1WMg>; Thu, 28 Dec 2000 17:12:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132220AbQL1WH0>; Thu, 28 Dec 2000 17:07:26 -0500
-Received: from wpk-smtp-relay2.cwci.net ([195.44.63.19]:53787 "EHLO
-	wpk-smtp-relay.cwci.net") by vger.kernel.org with ESMTP
-	id <S131955AbQL1WHV>; Thu, 28 Dec 2000 17:07:21 -0500
-Date: Thu, 28 Dec 2000 21:36:07 +0000 (UTC)
-From: Mo McKinlay <mmckinlay@gnu.org>
-X-X-Sender: <mckinlay@kyle.altai.org>
-To: Ari Heitner <aheitner@andrew.cmu.edu>
-cc: Chris Wedgwood <cw@f00f.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: innd mmap bug in 2.4.0-test12
-In-Reply-To: <Pine.SOL.3.96L.1001228000150.3482A-100000@unix13.andrew.cmu.edu>
-Message-ID: <Pine.LNX.4.31.0012282135270.1333-100000@kyle.altai.org>
+	id <S131955AbQL1WM0>; Thu, 28 Dec 2000 17:12:26 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:23546 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S131950AbQL1WMJ>; Thu, 28 Dec 2000 17:12:09 -0500
+Date: Thu, 28 Dec 2000 19:41:14 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: [PATCH] 8139too fix
+Message-ID: <Pine.LNX.4.21.0012281939540.1403-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
+
+with the fix below, newer versions of modutils won't
+complain about the (missing) symbol debug...
+
+Could you please apply this for the next pre-patch?
+
+thanks,
+
+Rik
+--
+Hollywood goes for world dumbination,
+	Trailer at 11.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 
-  > does anyone other than me think that the pm code is *way* too agressive about
-  > spinning down the hard drive? my 256mb laptop (2.2.16) will only spin down the
-  > disk for about 30 seconds before it decides it's got something else it feels
-  > like writing out, and spins back up. Spinnup has got to be more wasteful than
-  > just leaving the drive spinning...
 
-Yup, I find this - especially if I hang around in X for a while.
-
-- -- 
-"""""  "" " " " " " " "  "  """   "   "     " " "" "       "
-  "" "    ""  """ ""  "  "  "      "  "" "       """  """ "
-""   ""   """ " " """ "  "   "    "     """    " ""  "       ""
-"" """" "  "  "    "        " "       """"     " "   """" "  ""
-        "   "  "    ""  " "   "  ""   """"     " "   """" "  ""
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Made with pgp4pine
-
-iD8DBQE6S7JJRcGgB3aidfkRAhpkAJ9UYVhD+sRqADqUMm2i+UgbuYS8kACgzG4E
-WhqPEhm6XHixqHpUOFQ4els=
-=yQKY
------END PGP SIGNATURE-----
+--- ./drivers/net/8139too.c.wrong	Thu Dec 28 19:39:18 2000
++++ ./drivers/net/8139too.c	Thu Dec 28 19:39:26 2000
+@@ -536,7 +536,6 @@
+ MODULE_DESCRIPTION ("RealTek RTL-8139 Fast Ethernet driver");
+ MODULE_PARM (multicast_filter_limit, "i");
+ MODULE_PARM (max_interrupt_work, "i");
+-MODULE_PARM (debug, "i");
+ MODULE_PARM (media, "1-" __MODULE_STRING(8) "i");
+ 
+ static int read_eeprom (void *ioaddr, int location, int addr_len);
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

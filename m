@@ -1,87 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317605AbSGOTKb>; Mon, 15 Jul 2002 15:10:31 -0400
+	id <S317606AbSGOTLO>; Mon, 15 Jul 2002 15:11:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317606AbSGOTKa>; Mon, 15 Jul 2002 15:10:30 -0400
-Received: from lockupnat.curl.com ([216.230.83.254]:760 "EHLO egghead.curl.com")
-	by vger.kernel.org with ESMTP id <S317605AbSGOTK3>;
-	Mon, 15 Jul 2002 15:10:29 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-References: <20020712162306$aa7d@traf.lcs.mit.edu> <s5gsn2lt3ro.fsf@egghead.curl.com> <20020715173337$acad@traf.lcs.mit.edu>
-From: "Patrick J. LoPresti" <patl@curl.com>
-Date: 15 Jul 2002 15:13:24 -0400
-In-Reply-To: <mit.lcs.mail.linux-kernel/20020715173337$acad@traf.lcs.mit.edu>
-Message-ID: <s5gsn2kst2j.fsf@egghead.curl.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S317610AbSGOTLN>; Mon, 15 Jul 2002 15:11:13 -0400
+Received: from mg01.austin.ibm.com ([192.35.232.18]:18082 "EHLO
+	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S317606AbSGOTLG>; Mon, 15 Jul 2002 15:11:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <corryk@us.ibm.com>
+Organization: IBM
+To: linux-lvm@sistina.com, Joe Thornber <joe@fib011235813.fsnet.co.uk>,
+       Andrew Theurer <habanero@us.ibm.com>
+Subject: Re: [linux-lvm] Re: [Announce] device-mapper beta3 (fast snapshots)
+Date: Mon, 15 Jul 2002 13:56:54 -0500
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+References: <3D2F6464.60908@us.ibm.com> <20020715124035.GA4609@fib011235813.fsnet.co.uk>
+In-Reply-To: <20020715124035.GA4609@fib011235813.fsnet.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <02071513565400.06209@boiler>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason <mason@suse.com> writes:
-
-> > One other thing.  I think this statement is misleading:
-> > 
-> >     IF your server is stable and not prone to crashing, and/or you
-> >     have the write cache on your hard drives battery backed, you
-> >     should strongly consider using the writeback journaling mode of
-> >     Ext3 versus ordered.
-> > 
-> > This makes it sound like data=writeback is somehow unsafe when
-> > machines crash.  I do not think this is true.  If your application
-> > (e.g., Postfix) is written correctly (which it is), so it calls
-> > fsync() when it is supposed to, then data=writeback is *exactly* as
-> > safe as any other journalling mode.  
-> 
-> Almost.  data=writeback makes it possible for the old contents of a
-> block to end up in a newly grown file.
-
-Only if the application is already broken.
-
-> There are a few ways this can screw you up:
-> 
-> 1) that newly grown file is someone's inbox, and the old contents of the
-> new block include someone else's private message.
+On Monday 15 July 2002 07:40, Joe Thornber wrote:
+> On Fri, Jul 12, 2002 at 06:21:08PM -0500, Andrew Theurer wrote:
+> > Thanks for the results.  I tried the same thing, but with the latest
+> > release (beta 4) and I am not observing the same behavior.
 >
-> 2) That newly grown file is a control file for the application, and the
-> application expects it to contain valid data within (think sendmail).  
+> I've just read through the evms 1.1-pre4 code.
+>
+> You (or Kevin Corry rather) have obviously looked at the
+> device-mapper snapshot code and tried to reimplement it.  I think it
+> might have been better if you'd actually used the relevent files from
+> device-mapper such as the kcopyd daemon.
 
-In a correctly-written application, neither of these things can
-happen.  (See my earlier message today on fsync() and MTAs.)  To get a
-file onto disk reliably, the application must 1) flush the data, and
-then 2) flush a "validity" indicator.  This could be a sequence like:
+Actually, I've never looked at the snapshotting code in LVM2.
 
-  create temp file
-  flush data to temp file
-  rename temp file
-  flush rename operation
+We are both writing code with very similar end-goals, and there are only so 
+many ways to perform I/O from within the block layer, so it wouldn't be 
+unheard of that our designs might share some similarities.
 
-In this sequence, the file's existence under a particular name is the
-indicator of its validity.
+> Also I have serious concerns about the correctness of your
+> implementation, for example:
+>
+> i) It is possible for the exception table to be updated *before* the
+>    copy on write of the data actually occurs.  This means that briefly
+>    the on disk state of the snapshot is inconsistent.  Users of EVMS
+>    that experience a machine failure will therefor have no option but to
+>    delete all snapshots.
+>
+> ii) The exception table is only written out every
+>     (EVMS_VSECTOR_SIZE/sizeof(u_int64_t)) exceptions.  Surely I've misread
+>     the code here ?  This would mean I could have a machine that
+>     triggers 1 fewer exceptions than this, then does nothing to this
+>     volume, at no point would the exception table get written to disk?
+>     Or do you periodically flush the exception table as well ?
+>     Again if the machine crashed the snapshot would be useless.
 
-If you skip either of these flush operations, you are not behaving
-reliably.  Skipping the first flush means the validity indicator might
-hit the disk before the data; so after a crash, you might see invalid
-data in an allegedly valid file.  Skipping the second flush means you
-do not know that the validity indicator has been set, so you cannot
-report success to whoever is waiting for this "reliable write" to
-happen.
+In the current design, there are two cases when the COW table is written to 
+disk. Either when current COW sector is full, or on a clean system shutdown. 
+All snapshots will thus be persistent across a clean shutdown or reboot. 
+Currently, an async snapshot will be disabled if the system crashes. This 
+wasn't a big secret. In the latest HOWTO, the section on snapshotting 
+explains this, and in the EVMS gui, there is a note attached to the "async" 
+option saying this as well.
 
-It is possible to make an application which relies on data=ordered
-semantics; for example, skipping the "flush data to temp file" step
-above.  But such an application would be broken for every version of
-Unix *except* Linux in data=ordered mode.  I would call that an
-incorrect application.
+We designed async snapshots in EVMS for maximum performance. Allowing for the 
+one above condition provides for a significant performance increase. Writing 
+the COW table only when it's full prevents a lot of unnecessary disk head 
+seeking. Also, allowing out-of-order I/Os means that the write request to the 
+original that triggered the copy can be released much sooner - as soon as the 
+chunk is read from the original, and in parallel with the write to the 
+snapshot.
 
-> Nope, battery backed caches don't make data=writeback more or less safe
-> (with respect to the data anyway).  They do make data=ordered and
-> data=journal more safe.
+We've discussed adding a mode to async snapshots that will provide 
+persistency across system crashes (at a slight performance penalty of 
+course). But, there's been a lot going on here lately, so I haven't had a 
+chance to get it all coded up. But, the synchronous option is still available 
+for those who are scared about system crashes. Personally, I'm not that 
+scared. I'd have a hard time remembering the last time one of my production 
+machines crashed unexpectedly.
 
-A theorist would say that "more safe" is a sloppy concept.  Either an
-operation is safe or it is not.  As I said in my last message,
-data=ordered (and data=journal) can reduce the risk for poorly written
-apps.  But they cannot eliminate that risk, and for a correctly
-written app, data=writeback is 100% as safe.
+> iii) EVMS is writing the exception table data to the cow device
+>      asynchronously, you *cannot* do this without risking deadlocks with
+>      the VM system.
 
- - Pat
+I don't see how this is the case. From the VM's viewpoint, writing the COW 
+table is basically no different than copying the chunks from the original to 
+the snapshot. We've never experienced any VM deadlocks in the testing we've 
+done. If you provide us with some more details about the deadlock you are 
+describing, we'll give it some more thought.
+
+-Kevin

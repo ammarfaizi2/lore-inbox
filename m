@@ -1,67 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbVAECk4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262212AbVAECnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262213AbVAECk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 21:40:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262212AbVAECk4
+	id S262212AbVAECnE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 21:43:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbVAECnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 21:40:56 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:43708 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262213AbVAECks (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 21:40:48 -0500
-Subject: Re: [BUG] mm_struct leak on cpu hotplug (s390/ppc64)
-From: Nathan Lynch <nathanl@austin.ibm.com>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: rusty@rustcorp.com.au, paulus@au1.ibm.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20050104131101.GA3560@osiris.boeblingen.de.ibm.com>
-References: <20050104131101.GA3560@osiris.boeblingen.de.ibm.com>
-Content-Type: text/plain
-Date: Tue, 04 Jan 2005 20:41:17 -0600
-Message-Id: <1104892877.8954.27.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.1.2 
+	Tue, 4 Jan 2005 21:43:04 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12187 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262212AbVAECmr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 21:42:47 -0500
+Message-ID: <41DB5417.8020608@pobox.com>
+Date: Tue, 04 Jan 2005 21:42:31 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Eric Mudama <edmudama@gmail.com>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Albert Lee <albertcc@tw.ibm.com>, IDE Linux <linux-ide@vger.kernel.org>,
+       Doug Maxey <dwm@maxeymade.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: libata PATA support - work items?
+References: <006301c4ee5c$49e6a230$95714109@tw.ibm.com>	 <311601c9050101111929aef5ba@mail.gmail.com>  <41DB299C.3030405@pobox.com> <1104886199.17176.115.camel@localhost.localdomain>
+In-Reply-To: <1104886199.17176.115.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-04 at 14:11 +0100, Heiko Carstens wrote:
-> Hi,
-> 
-> there is an mm_struct memory leak when using cpu hotplug. Appearently
-> start_secondary in smp.c initializes active_mm of the cpu's idle task
-> and increases init_mm's mm_count. But on cpu_die the idle task's
-> active_mm doesn't get dropped and therefore on the next cpu_up event
-> (->start_secondary) it gets overwritten and the result is a forgotten
-> reference count to whatever mm_struct was active when the cpu
-> was taken down previously.
-> 
-> The patch below should fix this for s390 (at least it works fine for
-> me), but I'm not sure if it's ok to call mmdrop from __cpu_die.
-> 
-> Also this very same leak exists for ppc64 as well.
-> 
-> Any opinions?
+Alan Cox wrote:
+> That means
+> - Hotplug (controller and disk)
 
-Wouldn't it be better to fix this in generic code instead of duplicating
-it in each architecture?  It looks like the same thing would occur on
-ia64 also.
+mostly either there, or easy to add
 
-What about something like this?  Tested on ppc64.
+> - CHS
+
+nod
 
 
-Index: 2.6.10/kernel/sched.c
-===================================================================
---- 2.6.10.orig/kernel/sched.c	2004-12-24 21:35:24.000000000 +0000
-+++ 2.6.10/kernel/sched.c	2005-01-05 01:48:47.520250232 +0000
-@@ -4088,6 +4088,9 @@
- 		migrate_nr_uninterruptible(rq);
- 		BUG_ON(rq->nr_running != 0);
- 
-+		/* Must manually drop reference to avoid leaking mm_structs. */
-+		mmdrop(rq->idle->active_mm);
-+
- 		/* No need to migrate the tasks: it was best-effort if
- 		 * they didn't do lock_cpu_hotplug().  Just wake up
- 		 * the requestors. */
+> - "Not quite generic" IDE DMA (eg CS5520)
+> - VDMA (eg CS5520)
 
+existing hooks can handle these
+
+
+> - IORDY timers (not handled well in drivers/ide but needed)
+
+I think I know what this is.
+
+
+> - Funky Maxtor "LBA48.. maybe" oddments
+
+details?
+
+
+> - Missing slave detection
+
+Not missing, master/slave has been working for ages.  Needed for 
+combined mode, where a SATA device can appear as a slave.
+
+
+> - Controller errata hooks (modes, drives, timings, "dont touch during an
+> I/O" etc)
+
+Controller hooks for most situations already exist, for the most part. 
+Device hooks are what is lacking.
+
+
+> - Drive nIEN bugs
+
+ditto above ("device hooks are lacking")
+
+
+> - No nIEN cases
+
+already handled in at least one case (AHCI)
+
+
+> - Drives that don't do some DMA/modes right
+
+easily doable with existing hooks
+
+
+> - Crazy shit "Don't DMA from the page below 640K" (not handled by
+> drivers/ide but an AMD errata
+> 	fixed by using a PS/2 mouse)
+
+heh, interesting
+
+
+> - Serialize (RZ1000, CMD640, some 469, etc)
+
+non-trivial but doable (and planned-for)
+
+
+> - Bandwidth arbiter (not in drivers/ide but needed)
+
+interesting
+
+
+> - Non PCI shared IRQ mess 8(
+
+details?
+
+Thanks,
+
+	Jeff
 

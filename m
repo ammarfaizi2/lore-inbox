@@ -1,48 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265930AbUHFNUh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268133AbUHFNWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265930AbUHFNUh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 09:20:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268134AbUHFNUg
+	id S268133AbUHFNWp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 09:22:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268135AbUHFNWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 09:20:36 -0400
-Received: from colin2.muc.de ([193.149.48.15]:36624 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S265930AbUHFNU1 convert rfc822-to-8bit
+	Fri, 6 Aug 2004 09:22:45 -0400
+Received: from ihemail2.lucent.com ([192.11.222.163]:5553 "EHLO
+	ihemail2.lucent.com") by vger.kernel.org with ESMTP id S268133AbUHFNWm convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 09:20:27 -0400
-Date: 6 Aug 2004 15:20:25 +0200
-Date: Fri, 6 Aug 2004 15:20:25 +0200
-From: Andi Kleen <ak@muc.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: yoshfuji@linux-ipv6.org, jgarzik@pobox.com, axboe@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: block layer sg, bsg
-Message-ID: <20040806132025.GA28248@muc.de>
-References: <20040804232116.GA30152@muc.de> <20040804.165113.06226042.yoshfuji@linux-ipv6.org> <20040805114917.GC31944@muc.de> <20040805.204637.107575718.yoshfuji@linux-ipv6.org> <20040805211949.11fa33b7.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Fri, 6 Aug 2004 09:22:42 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20040805211949.11fa33b7.davem@redhat.com>
-User-Agent: Mutt/1.4.1i
+Message-ID: <16659.34332.463798.592565@gargle.gargle.HOWL>
+Date: Fri, 6 Aug 2004 09:22:36 -0400
+From: "John Stoffel" <stoffel@lucent.com>
+To: =?ISO-8859-1?Q?=20M=E5ns=5FRullg=E5rd?= <mru@kth.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Firewire hard drives
+In-Reply-To: <yw1xu0vhfhkc.fsf@kth.se>
+References: <200408051612.36445.caleb_gibbs@sbcglobal.net>
+	<16658.38447.591862.21787@gargle.gargle.HOWL>
+	<yw1xu0vhfhkc.fsf@kth.se>
+X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05, 2004 at 09:19:49PM -0700, David S. Miller wrote:
-> On Thu, 05 Aug 2004 20:46:37 -0700 (PDT)
-> YOSHIFUJI Hideaki / $B5HF#1QL@(B <yoshfuji@linux-ipv6.org> wrote:
-> 
-> > I'd suggest changing XFRM_MSG_xxx things to 64bit-aware structures,
-> > whose layouts do not change between 64bit mode and 32bit mode.
-> > Of course, they will come with backward compatibility stuff.
-> > If you don't mind this, I'd like to take care of this.
-> 
-> I think other tasks have much higher priority, especially
-> when a workaround exists for this problem, namely building
-> the native 64-bit version of the tool.
+>>>>> "Måns" == Måns Rullgård <mru@kth.se> writes:
 
-As long as it runs on sparc64 it's not critical I guess :|
+Måns> Try giving the sbp2 module the option serialize_io=1.  It helped get
+Måns> my firewire case running.
 
-People who can easily build 64bit programs normally don't 
-need any 32bit userland.
-
--Andi
+Thanks for the hint.  I'll try that and see how it goes.
+Unfortunately, it's at home on USB currently... :] 

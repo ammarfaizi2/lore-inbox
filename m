@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbVC1XBF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262105AbVC1XDO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262104AbVC1XBF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 18:01:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbVC1XBF
+	id S262105AbVC1XDO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 18:03:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVC1XDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 18:01:05 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31716 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262104AbVC1XA7 (ORCPT
+	Mon, 28 Mar 2005 18:03:13 -0500
+Received: from mail.kroah.org ([69.55.234.183]:3774 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262105AbVC1XB0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 18:00:59 -0500
-Date: Tue, 29 Mar 2005 01:00:09 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: dtor_core@ameritech.net
-Cc: Stefan Seyfried <seife@suse.de>, Andy Isaacson <adi@hexapodia.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
-Message-ID: <20050328230008.GA1761@elf.ucw.cz>
-References: <20050324181059.GA18490@hexapodia.org> <4243252D.6090206@suse.de> <20050324235439.GA27902@hexapodia.org> <4243D854.2010506@suse.de> <20050325101344.GA1297@elf.ucw.cz> <d120d500050325061963fb13db@mail.gmail.com> <20050325142414.GF23602@elf.ucw.cz> <d120d50005032506526f6b9304@mail.gmail.com> <20050325154237.GB3738@elf.ucw.cz> <d120d5000503250804176343f9@mail.gmail.com>
+	Mon, 28 Mar 2005 18:01:26 -0500
+Date: Mon, 28 Mar 2005 14:58:18 -0800
+From: Greg KH <gregkh@suse.de>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: gregkh@suse.de, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, mj@ucw.cz, openib-general@openib.org
+Subject: Re: [PATCH] disable MSI for AMD-8131
+Message-ID: <20050328225818.GA4919@kroah.com>
+References: <20050306202845.GE8486@mellanox.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d120d5000503250804176343f9@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050306202845.GE8486@mellanox.co.il>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > Btw, I dont think that doing selective resume (as opposed to selective
-> > > suspend and Nigel's partial device trees) would be so much
-> > > complicated. You'd always resume sysdevs and then, when iterating over
-> > > "normal" devices, just skip ones not in resume path. It can all be
-> > > contained in driver core I believe (sorry but no patch, for now at
-> > > least).
-> > 
-> > :-) I think we can simply make device freeze/unfreeze fast enough.
-> > [We do not need to do full suspend/resume; freeze is enough].
+On Sun, Mar 06, 2005 at 10:28:45PM +0200, Michael S. Tsirkin wrote:
+> Greg, Martin,
 > 
-> It is not suspend/freeze here that gets us but resume and with resume
-> the driver (at least for now) does not have any idea if it is
-> "unfreeze" or "full-resume". I mean I could have serio just ignore
-> "unfreeze" requests (as I doubt anyone would ever try to suspend over
-> PS/2 port ;) ) but I think it should be really handled by the core.
+> The AMD-8131 I/O APIC (device id 1022:7450/7451) does not support message
+> signalled interrupts. Thus, if a device driver attempts to enable msi,
+> it will suceed, but interrupts are not actually delivered to the cpu.
+> The Nforce chipsets do not seem to have this limitation.
+> AMD confirmed that MSI mode is unsupported with this APIC.
+> 
+> The following patch adds a flag to pci quirks to detect this and disable msi.
+> 
+> Please let me know what do you think.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@mellano.co.il>
 
-Please just always do full-resume... for now. Patches that enable you
-to detect "unfreeze" are not in, yet. If something fails, just printk
-with big enough severity and continue, as you don't have method of
-signaling error, anyway.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Looks good, applied, thanks.
+
+greg k-h

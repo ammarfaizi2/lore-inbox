@@ -1,225 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265256AbUAESz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 13:55:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265295AbUAESz3
+	id S265278AbUAESzd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 13:55:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265295AbUAESzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 13:55:29 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:15797 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265256AbUAESzH
+	Mon, 5 Jan 2004 13:55:33 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:30016 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S265278AbUAESzT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 13:55:07 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 5 Jan 2004 10:54:22 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
+	Mon, 5 Jan 2004 13:55:19 -0500
+Date: Mon, 5 Jan 2004 20:55:06 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Manfred Spraul <manfred@colorfullife.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [patch/revised] wake_up_info() ...
-Message-ID: <Pine.LNX.4.44.0401051048330.17134-100000@bigblue.dev.mdolabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Petr Vandrovec <vandrove@vc.cvut.cz>
+Subject: Re: 2.6.0 under vmware ?
+Message-ID: <20040105185506.GF11115091@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Petr Vandrovec <vandrove@vc.cvut.cz>
+References: <1073297203.12550.30.camel@bip.parateam.prv> <20040105142032.GE11115091@niksula.cs.hut.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040105142032.GE11115091@niksula.cs.hut.fi>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 05, 2004 at 04:20:32PM +0200, you [Ville Herva] wrote:
+>
+> There is one regression, though: 2.2.x and 2.4.x can see /dev/fd0 and
+> /dev/fd1 under vmware. 2.6.1rc1 only find /dev/fd0. Does anyone else see
+> this?
 
-Since Manfred and Linus preferred a simpler approach, now the info is 
-passed only to the wake up callback, w/out any storage. This works right 
-away for callback'd driven wake ups like, for example, epoll. A task that 
-wants a std wake up *and* wants to fetch wake up info, needs to initialize 
-the wait structure with its own callback function, copy the info during 
-the callback call, and wake itself up from inside the callback.
-Comments?
+Turns out the second floppy drive was disabled from the bios.
 
+Oddly, 2.2 and 2.4 don't care.
 
-
-- Davide
-
+If I turn the second drive on from the bios, 2.6 finds it, too.
 
 
+-- v --
 
---- linux-2.5/fs/eventpoll.c._orig	2004-01-05 10:43:55.079273352 -0800
-+++ linux-2.5/fs/eventpoll.c	2004-01-05 10:44:39.027592192 -0800
-@@ -306,7 +306,8 @@
- static void ep_unregister_pollwait(struct eventpoll *ep, struct epitem *epi);
- static int ep_unlink(struct eventpoll *ep, struct epitem *epi);
- static int ep_remove(struct eventpoll *ep, struct epitem *epi);
--static int ep_poll_callback(wait_queue_t *wait, unsigned mode, int sync);
-+static int ep_poll_callback(wait_queue_t *wait, unsigned mode, int sync,
-+			    unsigned long info);
- static int ep_eventpoll_close(struct inode *inode, struct file *file);
- static unsigned int ep_eventpoll_poll(struct file *file, poll_table *wait);
- static int ep_collect_ready_items(struct eventpoll *ep,
-@@ -1293,7 +1294,8 @@
-  * machanism. It is called by the stored file descriptors when they
-  * have events to report.
-  */
--static int ep_poll_callback(wait_queue_t *wait, unsigned mode, int sync)
-+static int ep_poll_callback(wait_queue_t *wait, unsigned mode, int sync,
-+			    unsigned long info)
- {
- 	int pwake = 0;
- 	unsigned long flags;
---- linux-2.5/include/linux/wait.h._orig	2004-01-05 09:22:33.802340240 -0800
-+++ linux-2.5/include/linux/wait.h	2004-01-05 10:35:00.030613112 -0800
-@@ -17,8 +17,10 @@
- #include <asm/system.h>
- 
- typedef struct __wait_queue wait_queue_t;
--typedef int (*wait_queue_func_t)(wait_queue_t *wait, unsigned mode, int sync);
--extern int default_wake_function(wait_queue_t *wait, unsigned mode, int sync);
-+typedef int (*wait_queue_func_t)(wait_queue_t *wait, unsigned mode, int sync,
-+				 unsigned long info);
-+extern int default_wake_function(wait_queue_t *wait, unsigned mode, int sync,
-+				 unsigned long info);
- 
- struct __wait_queue {
- 	unsigned int flags;
-@@ -107,6 +109,7 @@
- extern void FASTCALL(__wake_up(wait_queue_head_t *q, unsigned int mode, int nr));
- extern void FASTCALL(__wake_up_locked(wait_queue_head_t *q, unsigned int mode));
- extern void FASTCALL(__wake_up_sync(wait_queue_head_t *q, unsigned int mode, int nr));
-+extern void FASTCALL(__wake_up_info(wait_queue_head_t *q, unsigned int mode, int nr, unsigned long info));
- 
- #define wake_up(x)			__wake_up((x),TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 1)
- #define wake_up_nr(x, nr)		__wake_up((x),TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, nr)
-@@ -117,6 +120,8 @@
- #define wake_up_interruptible_all(x)	__wake_up((x),TASK_INTERRUPTIBLE, 0)
- #define	wake_up_locked(x)		__wake_up_locked((x), TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE)
- #define wake_up_interruptible_sync(x)   __wake_up_sync((x),TASK_INTERRUPTIBLE, 1)
-+#define wake_up_info(x, i)		__wake_up_info((x),TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 1, (i))
-+#define wake_up_all_info(x, i)		__wake_up_info((x),TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 0, (i))
- 
- #define __wait_event(wq, condition) 					\
- do {									\
-@@ -240,7 +245,8 @@
- void FASTCALL(prepare_to_wait_exclusive(wait_queue_head_t *q,
- 				wait_queue_t *wait, int state));
- void FASTCALL(finish_wait(wait_queue_head_t *q, wait_queue_t *wait));
--int autoremove_wake_function(wait_queue_t *wait, unsigned mode, int sync);
-+int autoremove_wake_function(wait_queue_t *wait, unsigned mode, int sync,
-+			     unsigned long info);
- 
- #define DEFINE_WAIT(name)						\
- 	wait_queue_t name = {						\
---- linux-2.5/kernel/sched.c._orig	2004-01-05 09:22:34.609217576 -0800
-+++ linux-2.5/kernel/sched.c	2004-01-05 10:26:56.606104808 -0800
-@@ -1632,7 +1632,8 @@
- EXPORT_SYMBOL(preempt_schedule);
- #endif /* CONFIG_PREEMPT */
- 
--int default_wake_function(wait_queue_t *curr, unsigned mode, int sync)
-+int default_wake_function(wait_queue_t *curr, unsigned mode, int sync,
-+			  unsigned long info)
- {
- 	task_t *p = curr->task;
- 	return try_to_wake_up(p, mode, sync);
-@@ -1649,7 +1650,8 @@
-  * started to run but is not in state TASK_RUNNING.  try_to_wake_up() returns
-  * zero in this (rare) case, and we handle it by continuing to scan the queue.
-  */
--static void __wake_up_common(wait_queue_head_t *q, unsigned int mode, int nr_exclusive, int sync)
-+static void __wake_up_common(wait_queue_head_t *q, unsigned int mode,
-+			     int nr_exclusive, int sync, unsigned long info)
- {
- 	struct list_head *tmp, *next;
- 
-@@ -1658,7 +1660,7 @@
- 		unsigned flags;
- 		curr = list_entry(tmp, wait_queue_t, task_list);
- 		flags = curr->flags;
--		if (curr->func(curr, mode, sync) &&
-+		if (curr->func(curr, mode, sync, info) &&
- 		    (flags & WQ_FLAG_EXCLUSIVE) &&
- 		    !--nr_exclusive)
- 			break;
-@@ -1676,7 +1678,7 @@
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&q->lock, flags);
--	__wake_up_common(q, mode, nr_exclusive, 0);
-+	__wake_up_common(q, mode, nr_exclusive, 0, 0);
- 	spin_unlock_irqrestore(&q->lock, flags);
- }
- 
-@@ -1687,7 +1689,7 @@
-  */
- void __wake_up_locked(wait_queue_head_t *q, unsigned int mode)
- {
--	__wake_up_common(q, mode, 1, 0);
-+	__wake_up_common(q, mode, 1, 0, 0);
- }
- 
- /**
-@@ -1712,21 +1714,41 @@
- 
- 	spin_lock_irqsave(&q->lock, flags);
- 	if (likely(nr_exclusive))
--		__wake_up_common(q, mode, nr_exclusive, 1);
-+		__wake_up_common(q, mode, nr_exclusive, 1, 0);
- 	else
--		__wake_up_common(q, mode, nr_exclusive, 0);
-+		__wake_up_common(q, mode, nr_exclusive, 0, 0);
- 	spin_unlock_irqrestore(&q->lock, flags);
- }
- 
- EXPORT_SYMBOL_GPL(__wake_up_sync);	/* For internal use only */
- 
-+/**
-+ * __wake_up_info - wake up threads blocked on a waitqueue by passing an information token.
-+ * @q: the waitqueue
-+ * @mode: which threads
-+ * @nr_exclusive: how many wake-one or wake-many threads to wake up
-+ * @info: information token passed to waiters
-+ */
-+void __wake_up_info(wait_queue_head_t *q, unsigned int mode, int nr_exclusive,
-+		    unsigned long info)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&q->lock, flags);
-+	__wake_up_common(q, mode, nr_exclusive, 0, info);
-+	spin_unlock_irqrestore(&q->lock, flags);
-+}
-+
-+EXPORT_SYMBOL(__wake_up_info);
-+
- void complete(struct completion *x)
- {
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&x->wait.lock, flags);
- 	x->done++;
--	__wake_up_common(&x->wait, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 1, 0);
-+	__wake_up_common(&x->wait, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE,
-+			 1, 0, 0);
- 	spin_unlock_irqrestore(&x->wait.lock, flags);
- }
- 
-@@ -1738,7 +1760,8 @@
- 
- 	spin_lock_irqsave(&x->wait.lock, flags);
- 	x->done += UINT_MAX/2;
--	__wake_up_common(&x->wait, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 0, 0);
-+	__wake_up_common(&x->wait, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE,
-+			 0, 0, 0);
- 	spin_unlock_irqrestore(&x->wait.lock, flags);
- }
- 
---- linux-2.5/kernel/fork.c._orig	2004-01-05 10:27:49.078127848 -0800
-+++ linux-2.5/kernel/fork.c	2004-01-05 10:36:11.912685376 -0800
-@@ -194,9 +194,10 @@
- 
- EXPORT_SYMBOL(finish_wait);
- 
--int autoremove_wake_function(wait_queue_t *wait, unsigned mode, int sync)
-+int autoremove_wake_function(wait_queue_t *wait, unsigned mode, int sync,
-+			     unsigned long info)
- {
--	int ret = default_wake_function(wait, mode, sync);
-+	int ret = default_wake_function(wait, mode, sync, info);
- 
- 	if (ret)
- 		list_del_init(&wait->task_list);
-
+v@iki.fi

@@ -1,62 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262957AbUKRU5b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262909AbUKRUzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262957AbUKRU5b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 15:57:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbUKRU4H
+	id S262909AbUKRUzq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 15:55:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbUKRUwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 15:56:07 -0500
-Received: from amsfep20-int.chello.nl ([213.46.243.18]:12879 "EHLO
-	amsfep20-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262957AbUKRUtk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 15:49:40 -0500
-Date: Thu, 18 Nov 2004 21:49:27 +0100
-Message-Id: <200411182049.iAIKnRYj007063@anakin.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Greg Ungerer <gerg@snapgear.com>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 522] M68k: Add 3 missing syscalls
+	Thu, 18 Nov 2004 15:52:39 -0500
+Received: from neopsis.com ([213.239.204.14]:17024 "EHLO
+	matterhorn.neopsis.com") by vger.kernel.org with ESMTP
+	id S262910AbUKRUwP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 15:52:15 -0500
+Message-ID: <419D0B77.6090301@dbservice.com>
+Date: Thu, 18 Nov 2004 21:52:07 +0100
+From: Tomas Carnecky <tom@dbservice.com>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel thoughts of a Linux user
+References: <200411181859.27722.gjwucherpfennig@gmx.net> <419CFF73.3010407@dbservice.com> <Pine.LNX.4.53.0411182146060.29376@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.53.0411182146060.29376@yvahk01.tjqt.qr>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Neopsis-MailScanner-Information: Please contact the ISP for more information
+X-Neopsis-MailScanner: Found to be clean
+X-MailScanner-From: tom@dbservice.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k: Add 3 missing syscalls (up to 2.6.10-rc1)
+Jan Engelhardt wrote:
+>>Places like internet-cafes could profit, they usually have many same
+>>computers side by side, each with the same configuration, but on many no
+>>one is working, they just run and consume energy.
+> 
+> 
+> So they could make themselves a favor and run something like seti@home.
+> 
 
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+I didn't want to point to the unused CPU cycles, but to the wasted money 
+spent to buy the hardware.
 
---- linux-2.6.10-rc1/arch/m68k/kernel/entry.S	2004-10-24 22:21:53.000000000 +0200
-+++ linux-m68k-2.6.10-rc1/arch/m68k/kernel/entry.S	2004-10-30 13:43:12.000000000 +0200
-@@ -706,4 +706,7 @@ sys_call_table:
- 	.long sys_mq_getsetattr
- 	.long sys_waitid
- 	.long sys_ni_syscall	/* for sys_vserver */
-+	.long sys_add_key
-+	.long sys_request_key	/* 280 */
-+	.long sys_keyctl
- 
---- linux-2.6.10-rc1/include/asm-m68k/unistd.h	2004-10-24 22:21:53.000000000 +0200
-+++ linux-m68k-2.6.10-rc1/include/asm-m68k/unistd.h	2004-10-30 13:43:35.000000000 +0200
-@@ -281,8 +281,11 @@
- #define __NR_mq_getsetattr	276
- #define __NR_waitid		277
- #define __NR_vserver		278
-+#define __NR_add_key		279
-+#define __NR_request_key	280
-+#define __NR_keyctl		281
- 
--#define NR_syscalls		279
-+#define NR_syscalls		282
- 
- /* user-visible error numbers are in the range -1 - -124: see
-    <asm-m68k/errno.h> */
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+tom

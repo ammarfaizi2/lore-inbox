@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315265AbSESVsf>; Sun, 19 May 2002 17:48:35 -0400
+	id <S315260AbSESVpu>; Sun, 19 May 2002 17:45:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315278AbSESVse>; Sun, 19 May 2002 17:48:34 -0400
-Received: from panda.sul.com.br ([200.219.150.4]:12554 "EHLO ns.sul.com.br")
-	by vger.kernel.org with ESMTP id <S315265AbSESVsd>;
-	Sun, 19 May 2002 17:48:33 -0400
-Date: Sun, 19 May 2002 09:48:18 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, kernel-janitor-discuss@lists.sourceforge.net
-Subject: Re: AUDIT of 2.5.15 copy_to/from_user
-Message-ID: <20020519124818.GA5481@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-	kernel-janitor-discuss@lists.sourceforge.net
-In-Reply-To: <E179IA6-0002eQ-00@wagner.rustcorp.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Url: http://advogato.org/person/acme
+	id <S315265AbSESVpt>; Sun, 19 May 2002 17:45:49 -0400
+Received: from grande.dcc.unicamp.br ([143.106.7.8]:41093 "EHLO
+	grande.dcc.unicamp.br") by vger.kernel.org with ESMTP
+	id <S315260AbSESVpt>; Sun, 19 May 2002 17:45:49 -0400
+Date: Sun, 19 May 2002 18:45:40 -0300 (EST)
+From: ULISSES FURQUIM FREIRE DA SILVA <ra993482@ic.unicamp.br>
+To: Lionel Bouton <Lionel.Bouton@inet6.fr>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Hardware, IDE or ext3 problem?
+In-Reply-To: <20020519221117.A17385@bouton.inet6-interne.fr>
+Message-ID: <Pine.GSO.4.10.10205191810420.17205-100000@tigre.dcc.unicamp.br>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sun, May 19, 2002 at 02:18:53PM +1000, Rusty Russell escreveu:
-> The following uses seem to be incorrect: copy_from_user and
-> copy_to_user return the number of bytes NOT copied on failure, not
-> -EFAULT.
-> 
-> You can CC: fixups to trivial at rustcorp.com.au.
-> 
-> (I didn't look for cases where the Torvalds/McVoy philosophy says we
-> should be returning a partial result on EFAULT: that's more complex).
-> 
-> Thanks,
-> Rusty.
-> ================
-> Some cases are endemic: whole subsystems or drivers where the author
-> obviously thought copy_from_user follows the kernel conventions:
 
-> sound/pci/*.c
+> If you had reliable UDMA before and not now, e-mail me the details of your
+> last known working kernel/kernel config.
 
-Heads up: I'm fixing now the sound/pci ones...
+	Hmm.. my last kernel was a 2.2.17 and I remember of seeing
+'*udma2' in the output of `hdparm -i`.. but I don't have the kernel config
+file. :-( Does this mean I had UDMA??
 
-- Arnaldo
+> I was not expecting this. Isn't `hdparm -i` supposed to check the current dma
+> mode with an asterisk? It evens checks the last used dma mode (at least
+> here) when dma is turned off. Guess I shouldn't have `rm -rf`ed the hdparm
+> source...
+
+	I thought the current dma mode was checked with an asterisk too..
+	`hdparm -i /dev/hdb` output shows:
+	
+	[...]
+	DMA modes: sdma0 sdma1 sdma2 mdma0 mdma1 *mdma2
+	AdvancedPM=no
+
+	I'm confused.. Should I change my cables? Is there any risk to use
+my drive?
+
+-- Ulisses
+

@@ -1,59 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286876AbRLWM0T>; Sun, 23 Dec 2001 07:26:19 -0500
+	id <S281504AbRLWM3j>; Sun, 23 Dec 2001 07:29:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281504AbRLWM0C>; Sun, 23 Dec 2001 07:26:02 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:19973 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S286877AbRLWMZl>;
-	Sun, 23 Dec 2001 07:25:41 -0500
-Message-ID: <XFMail.20011223131241.ast@domdv.de>
-X-Mailer: XFMail 1.5.1 on Linux
-X-Priority: 3 (Normal)
+	id <S286877AbRLWM33>; Sun, 23 Dec 2001 07:29:29 -0500
+Received: from ns.caldera.de ([212.34.180.1]:26078 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S281504AbRLWM3J>;
+	Sun, 23 Dec 2001 07:29:09 -0500
+Date: Sun, 23 Dec 2001 13:28:24 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] DRM 4.0 support for kernel 2.4.17
+Message-ID: <20011223132824.A23866@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011222203602.A15825@caldera.de> <17474.1009064916@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <1009077742.1677.0.camel@thanatos>
-Date: Sun, 23 Dec 2001 13:12:41 +0100 (CET)
-Organization: D.O.M. Datenverarbeitung GmbH
-From: Andreas Steinmetz <ast@domdv.de>
-To: Thomas Hood <jdthood@mail.com>
-Subject: Re: APM driver patch summary
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
-        Russell King <rmk@arm.linux.org.uk>,
-        Andrej <Andrej.Borsenkow@mow.siemens.ru>, linux-kernel@vger.kernel.org
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <17474.1009064916@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Sun, Dec 23, 2001 at 10:48:36AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fine with me,
-as I always compile APM into the kernel I just didn't see it (mental note to
-self: always try module build before submitting).
-I'll get the combined patch and test it.
+On Sun, Dec 23, 2001 at 10:48:36AM +1100, Keith Owens wrote:
+> Only if the new version cleans up the horrible drm 4.0 Makefile.
 
-On 23-Dec-2001 Thomas Hood wrote:
-> On Sat, 2001-12-22 at 09:44, Andreas Steinmetz wrote:
->> 1. There is now a module parameter apm-idle-threshold which
->> allows to override the compiled in idle percentage threshold
->> above which BIOS idle calls are done.
-> 
-> Andrej, your patch doesn't work when compiled as a module
-> because of a name mismatch.
-> 
-> I went in and cleaned the patch up a bit.  Now there is only
-> one extra parameter, called "idle_threshold", which you can
-> set to 100 if you want to disable use of APM BIOS idling.
-> 
-> I have combined this tweaked idle patch with the
-> notification patch and made it available here:
->    http://panopticon.csustan.edu/thood/apm.html
-> Patch is against 2.4.17.
-> 
-> I hope lots of people will test it.  It's working fine for me.
-> 
-> --
-> Thomas Hood
-> 
-> 
-> 
+I am more than happy to do so.  In fact I already did in 2.4.0-test times
+and got flamed by the drm crew..
 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+	Christoph
+
+-- 
+Of course it doesn't work. We've performed a software upgrade.

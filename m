@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267401AbTGRQ3l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 12:29:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268548AbTGRQ3f
+	id S263201AbTGRQTT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 12:19:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271856AbTGRQSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 12:29:35 -0400
-Received: from mirapoint2.brutele.be ([212.68.203.246]:43067 "EHLO
-	mirapoint2.brutele.be") by vger.kernel.org with ESMTP
-	id S267401AbTGRQ26 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 12:28:58 -0400
-Date: Fri, 18 Jul 2003 18:43:56 +0200
-From: Stephane Wirtel <stephane.wirtel@belgacom.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ide-scsi in 2.6.0 ?
-Message-ID: <20030718164356.GC3328@gentoo>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030718162156.GA2946@gentoo>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <20030718162156.GA2946@gentoo>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux gentoo 2.6.0-test1-ac2
-X-LUG: Linux Users Group Mons ( Linux-Mons )
-X-URL: http://www.linux-mons.be
+	Fri, 18 Jul 2003 12:18:20 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:3083 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S271869AbTGRQRm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 12:17:42 -0400
+Date: Fri, 18 Jul 2003 12:25:09 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.0-test1-ac2
+In-Reply-To: <20030716233359.GE7263@werewolf.able.es>
+Message-ID: <Pine.LNX.3.96.1030717184137.17023C-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sorry, it's my fault.
+On Thu, 17 Jul 2003, J.A. Magallon wrote:
 
-hdc=ide-scsi  or hdc=scsi
+> 
+> On 07.16, Alan Cox wrote:
+> > On Mer, 2003-07-16 at 21:13, Michael Kristensen wrote:
+> > > Apropos emu10k1. Why is OSS deprecated? I have tried a little to get
+> > > ALSA working, but it doesn't seem to work. Hint?
+> > 
+> > ALSA has a lot more functionality than OSS and the API is better in many
+> > ways. The ALSA drivers dont have so much use and exposure so they will
+> > need time to shake down, but it should be worth it in the end.
+> > 
+> 
+> What I do not understand is why alsa has not gone into 2.4.
+> This will smooth transition to 2.6. Same as i2c. People starts using
+> alsa, then they switch to 2.6 and everything works.
 
+I would assume that it's time to stop backporting stuff to 2.4, leave it
+stable and let the new cacpabilities entice people to move to 2.6.
+
+I've had enough learning experiences with ALSA to convince me that both
+the code and the documentation have a few rough edges. I'd love to just be
+able to use sound hardware instead of fighting every system trying get the
+options right, find and download the right tools and software versions,
+recompile this and that... 
 
 -- 
-Stephane Wirtel <stephane.wirtel@belgacom.net>
-GPG ID : 1024D/C9C16DA7 | 5331 0B5B 21F0 0363 EACD  B73E 3D11 E5BC C9C1 6DA7
-
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132974AbRDEU5S>; Thu, 5 Apr 2001 16:57:18 -0400
+	id <S132977AbRDEU66>; Thu, 5 Apr 2001 16:58:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132547AbRDEU5I>; Thu, 5 Apr 2001 16:57:08 -0400
-Received: from Xenon.Stanford.EDU ([171.64.66.201]:47563 "EHLO
-	Xenon.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S132974AbRDEU4y>; Thu, 5 Apr 2001 16:56:54 -0400
-Date: Thu, 5 Apr 2001 13:56:08 -0700
-From: Andy Chou <acc@CS.Stanford.EDU>
-To: Andy Chou <acc@CS.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org, mc@CS.Stanford.EDU
-Subject: Re: [CHECKER] 15 potential pointer dereference errors in 2.4.3
-Message-ID: <20010405135608.A748@Xenon.Stanford.EDU>
-Reply-To: acc@CS.Stanford.EDU
-In-Reply-To: <20010405015251.A20904@Xenon.Stanford.EDU>
-Mime-Version: 1.0
+	id <S132763AbRDEU6s>; Thu, 5 Apr 2001 16:58:48 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:52109 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S132547AbRDEU6f>;
+	Thu, 5 Apr 2001 16:58:35 -0400
+Message-ID: <3ACCDC4F.242711DD@mandrakesoft.com>
+Date: Thu, 05 Apr 2001 16:57:51 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Stephen Burns <sburns@wave3com.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Groups maximum
+In-Reply-To: <50282217D047D411997400805FEAAA81B1AE12@mail.voicelink>
 Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.1.1i
-In-Reply-To: <20010405015251.A20904@Xenon.Stanford.EDU>; from acc@CS.Stanford.EDU on Thu, Apr 05, 2001 at 01:52:51AM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's one more potential bug for 2.4.3.
+Stephen Burns wrote:
+> 
+> Hey all,
+> 
+> I have checked out the archives, and I found an old post regarding this.
+> The solution in the post, however, did not work for me.  I am attempting to
+> raise the maximum 32 group per user limit on my 2.4.2 kernel.  I patched
+> both linux/include/linux/limits.h and the asm-i386/param.h, replacing the
+> default "32" with "256."  My glibc is 2.1.2.  When I make clean, and
+> recompile the kernel, it boots fine but I am still limited to 32 groups.  I
+> don't need to do anything with glibc since it is of the 2.1 or greater
+> category, correct?  Any ideas, hints, tricks?  Thanks a ton for your help,
+> please CC me as I've not been approved yet as a member of this list.
 
--Andy
+You gotta change the task struct...
 
-[BUG]
-/u2/acc/oses/linux/2.4.3/drivers/isdn/hysdn/hysdn_net.c:309:hysdn_net_create: ERROR:NULL:302:309: Using
-NULL ptr "dev" illegally! set by 'kmalloc_Rsmp_93d4cfe6':302
-
-Start --->
-	if ((dev = kmalloc(sizeof(struct net_local), GFP_KERNEL)) ==
-NULL) {
-		printk(KERN_WARNING "HYSDN: unable to allocate mem\n");
-		if (card->debug_flags & LOG_NET_INIT)
-			return (-ENOMEM);
-	}
-	memset(dev, 0, sizeof(struct net_local));	/* clean the structure
-*/
-
-Error --->
-	spin_lock_init(&((struct net_local *) dev)->lock);
-
+-- 
+Jeff Garzik       | Sam: "Mind if I drive?"
+Building 1024     | Max: "Not if you don't mind me clawing at the dash
+MandrakeSoft      |       and shrieking like a cheerleader."

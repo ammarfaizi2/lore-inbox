@@ -1,177 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314409AbSEIV7p>; Thu, 9 May 2002 17:59:45 -0400
+	id <S314411AbSEIWGR>; Thu, 9 May 2002 18:06:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314411AbSEIV7o>; Thu, 9 May 2002 17:59:44 -0400
-Received: from web10402.mail.yahoo.com ([216.136.130.94]:37682 "HELO
-	web10402.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S314409AbSEIV7m>; Thu, 9 May 2002 17:59:42 -0400
-Message-ID: <20020509215942.29322.qmail@web10402.mail.yahoo.com>
-Date: Fri, 10 May 2002 07:59:42 +1000 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: OOPS 2.4.19-pre7-ac4 (Was: strange things in kernel 2.4.19-pre7-ac4 + preempt patch)
-To: kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1020509103433.7914D-100000@gatekeeper.tmr.com>
+	id <S314413AbSEIWGQ>; Thu, 9 May 2002 18:06:16 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:14095 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S314411AbSEIWGQ>; Thu, 9 May 2002 18:06:16 -0400
+Message-ID: <3CDAF2D4.C7F20249@linux-m68k.org>
+Date: Fri, 10 May 2002 00:06:12 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-1719365989-1020981582=:27869"
-Content-Transfer-Encoding: 8bit
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Andrea Arcangeli <andrea@suse.de>,
+        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+In-Reply-To: <Pine.LNX.4.21.0205062053050.32715-100000@serv> <E175Tp9-0003ny-00@starship> <3CD9B098.14E394D3@linux-m68k.org> <E175qT7-00087g-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-1719365989-1020981582=:27869
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-
-
 Hi,
 
-I did another try, after exiting X by Ctrl + Alt +
-Backspace or whatever I use to exit X,  still not see
-the console; I press Alt + F1 and the console appeared
-as normal. No X process in running (run pstree )  ;
-now I try to run X again and can X can not run, it
-says : No init screen found, and something about it
-can not initilize dri  (yes I compiled dri built into
-the kenel, not as module). After that I got the vc ;
-still run other command as normal. When I run
-dmesg|less   I found an OOPS which I sent as an
-attachment below.
+Daniel Phillips wrote:
 
-If anything I can do to debug, pls let me know.
+> Where you ignore the distinction between logical and physical, it costs you
+> execution time, as where you wrote  page = virt_to_page(phys_to_virt((i <<
+> PAGE_SHIFT) + bdata->node_boot_start)) where formerly we just had page++.
+> This in generic code too.  Unless you have an #ifdef CONFIG_SOMETHING there I
+> recommend this code *not* be merged because it penalizes the common case for
+> the sake of your arch.  And it's unnecessary even for your arch, as I've
+> demonstrated.
 
+1. My patch only modifies init code, I don't think it's really a problem
+if it's slightly slower.
+2. Above can now be written as "page = pfn_to_page(i +
+(bdata->node_boot_start >> PAGE_SHIFT))". Nice, isn't it? :)
 
+> > > You do have a config option, it's CONFIG_SINGLE_MEMORY_CHUNK.
+> >
+> > That was our cheap answer to avoid the loops.
+> 
+> My cheap answer is to turn the option off.  So why don't I need a config
+> option again?
 
+You know, what that option does?
 
-=====
-Steve Kieu
+> > I don't need that, because I create a contiguous _virtual_ address
+> > space.
+> 
+> Again, we're arguing about what?  So do I.  The relationship between virtual
+> and logical, for me, is just logical = virtual - PAGE_OFFSET, a meme you'll
+> find in many places in the kernel source already, often obscured by the
+> impression that physical addresses are really being manipulated when in fact
+> nothing of the kind is going on - the simple truth is, the arithmetic gets
+> easier then you work zero-based instead of PAGE_OFFSET based.
 
-http://messenger.yahoo.com.au - Yahoo! Messenger
-- A great way to communicate long-distance for FREE!
---0-1719365989-1020981582=:27869
-Content-Type: application/octet-stream; name="oop.log"
-Content-Transfer-Encoding: base64
-Content-Description: oop.log
-Content-Disposition: attachment; filename="oop.log"
+Why do you want to introduce another abstraction? If the logical address
+is basically the same as the virtual address, just use the virtual
+address. What difference should that offset make? Could you show me
+please one single example?
 
-TGludXggdmVyc2lvbiAyLjQuMTktcHJlNy1hYzQgKHNrQExpbnV4KSAoZ2Nj
-IHZlcnNpb24gMi45NiAyMDAwMDczMSAoTWFuZHJha2UgTGludXggOC4xIDIu
-OTYtMC42Mm1kaykpICMxIFdlZCBNYXkgOCAxMjoyMzowMyBOWlNUIDIwMDIK
-QklPUy1wcm92aWRlZCBwaHlzaWNhbCBSQU0gbWFwOgogQklPUy1lODIwOiAw
-MDAwMDAwMDAwMDAwMDAwIC0gMDAwMDAwMDAwMDA5ZmMwMCAodXNhYmxlKQog
-QklPUy1lODIwOiAwMDAwMDAwMDAwMDlmYzAwIC0gMDAwMDAwMDAwMDBhMDAw
-MCAocmVzZXJ2ZWQpCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwZjAwMDAgLSAw
-MDAwMDAwMDAwMTAwMDAwIChyZXNlcnZlZCkKIEJJT1MtZTgyMDogMDAwMDAw
-MDAwMDEwMDAwMCAtIDAwMDAwMDAwMDdmMDAwMDAgKHVzYWJsZSkKIEJJT1Mt
-ZTgyMDogMDAwMDAwMDBmZmIwMDAwMCAtIDAwMDAwMDAxMDAwMDAwMDAgKHJl
-c2VydmVkKQoxMjdNQiBMT1dNRU0gYXZhaWxhYmxlLgpPbiBub2RlIDAgdG90
-YWxwYWdlczogMzI1MTIKem9uZSgwKTogNDA5NiBwYWdlcy4Kem9uZSgxKTog
-Mjg0MTYgcGFnZXMuCnpvbmUoMik6IDAgcGFnZXMuCktlcm5lbCBjb21tYW5k
-IGxpbmU6IGF1dG8gQk9PVF9JTUFHRT0yNDE5cHJlN2FjNCBybyByb290PTMw
-MyBxdWlldApMb2NhbCBBUElDIGRpc2FibGVkIGJ5IEJJT1MgLS0gcmVlbmFi
-bGluZy4KRm91bmQgYW5kIGVuYWJsZWQgbG9jYWwgQVBJQyEKSW5pdGlhbGl6
-aW5nIENQVSMwCkRldGVjdGVkIDQwMC45MTcgTUh6IHByb2Nlc3Nvci4KQ29u
-c29sZTogY29sb3VyIFZHQSsgODB4MjUKQ2FsaWJyYXRpbmcgZGVsYXkgbG9v
-cC4uLiA3OTkuNTMgQm9nb01JUFMKTWVtb3J5OiAxMjY0NjBrLzEzMDA0OGsg
-YXZhaWxhYmxlICg5NzhrIGtlcm5lbCBjb2RlLCAzMjAwayByZXNlcnZlZCwg
-MjQwayBkYXRhLCA5NmsgaW5pdCwgMGsgaGlnaG1lbSkKRGVudHJ5IGNhY2hl
-IGhhc2ggdGFibGUgZW50cmllczogMTYzODQgKG9yZGVyOiA1LCAxMzEwNzIg
-Ynl0ZXMpCklub2RlIGNhY2hlIGhhc2ggdGFibGUgZW50cmllczogODE5MiAo
-b3JkZXI6IDQsIDY1NTM2IGJ5dGVzKQpNb3VudCBjYWNoZSBoYXNoIHRhYmxl
-IGVudHJpZXM6IDIwNDggKG9yZGVyOiAyLCAxNjM4NCBieXRlcykKQnVmZmVy
-IGNhY2hlIGhhc2ggdGFibGUgZW50cmllczogNDA5NiAob3JkZXI6IDIsIDE2
-Mzg0IGJ5dGVzKQpQYWdlLWNhY2hlIGhhc2ggdGFibGUgZW50cmllczogMzI3
-NjggKG9yZGVyOiA1LCAxMzEwNzIgYnl0ZXMpCkNQVTogQmVmb3JlIHZlbmRv
-ciBpbml0LCBjYXBzOiAwMTgzZmJmZiAwMDAwMDAwMCAwMDAwMDAwMCwgdmVu
-ZG9yID0gMApDUFU6IEwxIEkgY2FjaGU6IDE2SywgTDEgRCBjYWNoZTogMTZL
-CkNQVTogTDIgY2FjaGU6IDEyOEsKQ1BVOiBBZnRlciB2ZW5kb3IgaW5pdCwg
-Y2FwczogMDE4M2ZiZmYgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAKSW50
-ZWwgbWFjaGluZSBjaGVjayBhcmNoaXRlY3R1cmUgc3VwcG9ydGVkLgpJbnRl
-bCBtYWNoaW5lIGNoZWNrIHJlcG9ydGluZyBlbmFibGVkIG9uIENQVSMwLgpD
-UFU6ICAgICBBZnRlciBnZW5lcmljLCBjYXBzOiAwMTgzZmJmZiAwMDAwMDAw
-MCAwMDAwMDAwMCAwMDAwMDAwMApDUFU6ICAgICAgICAgICAgIENvbW1vbiBj
-YXBzOiAwMTgzZmJmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMApDUFU6
-IEludGVsIENlbGVyb24gKE1lbmRvY2lubykgc3RlcHBpbmcgMDUKRW5hYmxp
-bmcgZmFzdCBGUFUgc2F2ZSBhbmQgcmVzdG9yZS4uLiBkb25lLgpDaGVja2lu
-ZyAnaGx0JyBpbnN0cnVjdGlvbi4uLiBPSy4KUE9TSVggY29uZm9ybWFuY2Ug
-dGVzdGluZyBieSBVTklGSVgKZW5hYmxlZCBFeHRJTlQgb24gQ1BVIzAKRVNS
-IHZhbHVlIGJlZm9yZSBlbmFibGluZyB2ZWN0b3I6IDAwMDAwMDAwCkVTUiB2
-YWx1ZSBhZnRlciBlbmFibGluZyB2ZWN0b3I6IDAwMDAwMDAwClVzaW5nIGxv
-Y2FsIEFQSUMgdGltZXIgaW50ZXJydXB0cy4KY2FsaWJyYXRpbmcgQVBJQyB0
-aW1lciAuLi4KLi4uLi4gQ1BVIGNsb2NrIHNwZWVkIGlzIDQwMC45MTc2IE1I
-ei4KLi4uLi4gaG9zdCBidXMgY2xvY2sgc3BlZWQgaXMgNjYuODE5NSBNSHou
-CmNwdTogMCwgY2xvY2tzOiA2NjgxOTUsIHNsaWNlOiAzMzQwOTcKQ1BVMDxU
-MDo2NjgxOTIsVDE6MzM0MDgwLEQ6MTUsUzozMzQwOTcsQzo2NjgxOTU+Cm10
-cnI6IHYxLjQwICgyMDAxMDMyNykgUmljaGFyZCBHb29jaCAocmdvb2NoQGF0
-bmYuY3Npcm8uYXUpCm10cnI6IGRldGVjdGVkIG10cnIgdHlwZTogSW50ZWwK
-UENJOiBQQ0kgQklPUyByZXZpc2lvbiAyLjEwIGVudHJ5IGF0IDB4ZmIzMDAs
-IGxhc3QgYnVzPTEKUENJOiBVc2luZyBjb25maWd1cmF0aW9uIHR5cGUgMQpQ
-Q0k6IFByb2JpbmcgUENJIGhhcmR3YXJlClVua25vd24gYnJpZGdlIHJlc291
-cmNlIDI6IGFzc3VtaW5nIHRyYW5zcGFyZW50ClBDSTogVXNpbmcgSVJRIHJv
-dXRlciBQSUlYIFs4MDg2LzI0MjBdIGF0IDAwOjFmLjAKTGludXggTkVUNC4w
-IGZvciBMaW51eCAyLjQKQmFzZWQgdXBvbiBTd2Fuc2VhIFVuaXZlcnNpdHkg
-Q29tcHV0ZXIgU29jaWV0eSBORVQzLjAzOQpJbml0aWFsaXppbmcgUlQgbmV0
-bGluayBzb2NrZXQKYXBtOiBCSU9TIHZlcnNpb24gMS4yIEZsYWdzIDB4MDcg
-KERyaXZlciB2ZXJzaW9uIDEuMTYpClN0YXJ0aW5nIGtzd2FwZApwdHk6IDI1
-NiBVbml4OTggcHR5cyBjb25maWd1cmVkClNlcmlhbCBkcml2ZXIgdmVyc2lv
-biA1LjA1YyAoMjAwMS0wNy0wOCkgd2l0aCBNQU5ZX1BPUlRTIFNIQVJFX0lS
-USBTRVJJQUxfUENJIGVuYWJsZWQKdHR5UzAwIGF0IDB4MDNmOCAoaXJxID0g
-NCkgaXMgYSAxNjU1MEEKdHR5UzAxIGF0IDB4MDJmOCAoaXJxID0gMykgaXMg
-YSAxNjU1MEEKYmxvY2s6IDI0MCBzbG90cyBwZXIgcXVldWUsIGJhdGNoPTYw
-ClVuaWZvcm0gTXVsdGktUGxhdGZvcm0gRS1JREUgZHJpdmVyIFJldmlzaW9u
-OiA2LjMxCmlkZTogQXNzdW1pbmcgMzNNSHogc3lzdGVtIGJ1cyBzcGVlZCBm
-b3IgUElPIG1vZGVzOyBvdmVycmlkZSB3aXRoIGlkZWJ1cz14eApQSUlYNDog
-SURFIGNvbnRyb2xsZXIgb24gUENJIGJ1cyAwMCBkZXYgZjkKUElJWDQ6IGNo
-aXBzZXQgcmV2aXNpb24gMQpQSUlYNDogbm90IDEwMCUgbmF0aXZlIG1vZGU6
-IHdpbGwgcHJvYmUgaXJxcyBsYXRlcgogICAgaWRlMDogQk0tRE1BIGF0IDB4
-ZjAwMC0weGYwMDcsIEJJT1Mgc2V0dGluZ3M6IGhkYTpETUEsIGhkYjpETUEK
-ICAgIGlkZTE6IEJNLURNQSBhdCAweGYwMDgtMHhmMDBmLCBCSU9TIHNldHRp
-bmdzOiBoZGM6cGlvLCBoZGQ6cGlvCmhkYTogRlVKSVRTVSBNUEYzMTAyQVQs
-IEFUQSBESVNLIGRyaXZlCmhkYjogSURFL0FUQVBJIENELVJPTSA1MlhTLCBB
-VEFQSSBDRC9EVkQtUk9NIGRyaXZlCmlkZTAgYXQgMHgxZjAtMHgxZjcsMHgz
-ZjYgb24gaXJxIDE0CmhkYTogMjAwMTU4NTYgc2VjdG9ycyAoMTAyNDggTUIp
-IHcvNTEyS2lCIENhY2hlLCBDSFM9MTI0NS8yNTUvNjMsIFVETUEoMzMpCmhk
-YjogQVRBUEkgMTFYIENELVJPTSBkcml2ZSwgMTI4a0IgQ2FjaGUsIFVETUEo
-MzMpClVuaWZvcm0gQ0QtUk9NIGRyaXZlciBSZXZpc2lvbjogMy4xMgpQYXJ0
-aXRpb24gY2hlY2s6CiBoZGE6IGhkYTEgaGRhMiBoZGEzIGhkYTQKUFBQIGdl
-bmVyaWMgZHJpdmVyIHZlcnNpb24gMi40LjIKTGludXggYWdwZ2FydCBpbnRl
-cmZhY2UgdjAuOTkgKGMpIEplZmYgSGFydG1hbm4KYWdwZ2FydDogTWF4aW11
-bSBtYWluIG1lbW9yeSB0byB1c2UgZm9yIGFncCBtZW1vcnk6IDk0TQphZ3Bn
-YXJ0OiBEZXRlY3RlZCBhbiBJbnRlbCBpODEwIENoaXBzZXQuCmFncGdhcnQ6
-IEFHUCBhcGVydHVyZSBpcyA2NE0gQCAweGQ4MDAwMDAwCltkcm1dIEFHUCAw
-Ljk5IG9uIEludGVsIGk4MTAgQCAweGQ4MDAwMDAwIDY0TUIKW2RybV0gSW5p
-dGlhbGl6ZWQgaTgxMCAxLjEuMCAyMDAwMDkyOCBvbiBtaW5vciA2MwpORVQ0
-OiBMaW51eCBUQ1AvSVAgMS4wIGZvciBORVQ0LjAKSVAgUHJvdG9jb2xzOiBJ
-Q01QLCBVRFAsIFRDUApJUDogcm91dGluZyBjYWNoZSBoYXNoIHRhYmxlIG9m
-IDUxMiBidWNrZXRzLCA0S2J5dGVzClRDUDogSGFzaCB0YWJsZXMgY29uZmln
-dXJlZCAoZXN0YWJsaXNoZWQgODE5MiBiaW5kIDgxOTIpCk5FVDQ6IFVuaXgg
-ZG9tYWluIHNvY2tldHMgMS4wL1NNUCBmb3IgTGludXggTkVUNC4wLgpWRlM6
-IE1vdW50ZWQgcm9vdCAoZXh0MiBmaWxlc3lzdGVtKSByZWFkb25seS4KRnJl
-ZWluZyB1bnVzZWQga2VybmVsIG1lbW9yeTogOTZrIGZyZWVkCkFkZGluZyBT
-d2FwOiA3MjI1Nmsgc3dhcC1zcGFjZSAocHJpb3JpdHkgLTEpCkFkZGluZyBT
-d2FwOiA3MzcyMGsgc3dhcC1zcGFjZSAocHJpb3JpdHkgLTIpCm10cnI6IGJh
-c2UoMHhkODAwMDAwMCkgaXMgbm90IGFsaWduZWQgb24gYSBzaXplKDB4MTJj
-MDAwKSBib3VuZGFyeQpQQ0k6IEZvdW5kIElSUSA1IGZvciBkZXZpY2UgMDA6
-MWYuNQpQQ0k6IFNldHRpbmcgbGF0ZW5jeSB0aW1lciBvZiBkZXZpY2UgMDA6
-MWYuNSB0byA2NAppbnRlbDh4MDogY2xvY2tpbmcgdG8gNDgwMDAKVW5hYmxl
-IHRvIGhhbmRsZSBrZXJuZWwgcGFnaW5nIHJlcXVlc3QgYXQgdmlydHVhbCBh
-ZGRyZXNzIDAxMDAwMDFiCiBwcmludGluZyBlaXA6CmMwMTJiM2MyCipwZGUg
-PSAwMDAwMDAwMApPb3BzOiAwMDAwCkNQVTogICAgMApFSVA6ICAgIDAwMTA6
-WzxjMDEyYjNjMj5dICAgIE5vdCB0YWludGVkCkVGTEFHUzogMDAwMTMyNDYK
-ZWF4OiAwMTAwMDAwMCAgIGVieDogYzE2ZTcwMDAgICBlY3g6IGMxMDRhNmY4
-ICAgZWR4OiAwMDAwMDAwMAplc2k6IGMxMDRhNmY4ICAgZWRpOiBjMDI3NTI4
-MCAgIGVicDogMDAwMDAwMDAgICBlc3A6IGMyOGY5ZWU0CmRzOiAwMDE4ICAg
-ZXM6IDAwMTggICBzczogMDAxOApQcm9jZXNzIFggKHBpZDogMTAyLCBzdGFj
-a3BhZ2U9YzI4ZjkwMDApClN0YWNrOiBjMTZlNzAwMCBjMTA0YTZmOCBjMDE4
-YmZiMCBjMTA0YTZmOCBjM2MyODdjMCBjM2MyOTgwMCBjMDE4YzAwZiBjMDI3
-NTI4MCAKICAgICAgIGMxNmU3MDAwIDAwMDAwMDAwIGJmZmZmOTY4IGMyOGY5
-ZjU4IGMwMThjNGVjIGMwMjc1MjgwIGMwMjc1MjgwIDAwMDAwMDAyIAogICAg
-ICAgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAw
-MDAgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAgCkNhbGwgVHJhY2U6IFs8
-YzAxOGJmYjA+XSBbPGMwMThjMDBmPl0gWzxjMDE4YzRlYz5dIFs8YzAxOGJh
-NTQ+XSBbPGMwMTQ5MWY3Pl0gCiAgIFs8YzAxMDg5OGI+XSAKCkNvZGU6IDBm
-IGI2IDUwIDFiIDhiIDFjIDk1IDA0IGE0IDI1IGMwIDg5IGMyIDY5IGQyIGIx
-IDc5IDM3IDllIDhiIAogPDM+WFsxMDJdIGV4aXRlZCB3aXRoIHByZWVtcHRf
-Y291bnQgMQo=
+> So now that we know we're both doing the same thing, could we please stop
+> doing the catholics vs the protestants thing and maybe cooperate?
 
---0-1719365989-1020981582=:27869--
+I'm an atheist. >:-)
+
+bye, Roman

@@ -1,34 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262266AbVCOFOv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262258AbVCOFOO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262266AbVCOFOv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 00:14:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbVCOFOl
+	id S262258AbVCOFOO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 00:14:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbVCOFOM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 00:14:41 -0500
-Received: from fire.osdl.org ([65.172.181.4]:40380 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262261AbVCOFOg (ORCPT
+	Tue, 15 Mar 2005 00:14:12 -0500
+Received: from ns1.lanforge.com ([66.165.47.210]:25005 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S262261AbVCOFKa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 00:14:36 -0500
-Date: Mon, 14 Mar 2005 21:14:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: moreau francis <francis_moreau2000@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [TTY] overrun notify issue during 5 minutes after booting
-Message-Id: <20050314211421.77652d4a.akpm@osdl.org>
-In-Reply-To: <20050314141754.8178.qmail@web25108.mail.ukl.yahoo.com>
-References: <20050314141754.8178.qmail@web25108.mail.ukl.yahoo.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 15 Mar 2005 00:10:30 -0500
+Message-ID: <42366E44.1070409@candelatech.com>
+Date: Mon, 14 Mar 2005 21:10:28 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Donald Duckie <schipperke2000@yahoo.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: MAC address instead of IP
+References: <20050315050204.37107.qmail@web53608.mail.yahoo.com>
+In-Reply-To: <20050315050204.37107.qmail@web53608.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-moreau francis <francis_moreau2000@yahoo.fr> wrote:
->
-> By the way, is it safe in "n_tty_receive_overrun" to
->  call
->  "printk" ? because the former can be called from IT
->  context...
+Donald Duckie wrote:
+> Hi!
+> 
+> I am looking for some sample codes which uses MAC
+> address instead of TCP-IP for data transmission. Any
+> suggestions are highly appreciated.
 
-yup.  printk() is safe from all contexts except NMI.
+Check out the 'man 7 socket' man page and read up on
+raw packet sockets.  You can format a packet down to
+the ethernet header and send it directly to the
+interface transmit queue...
+
+And all this safely from user-space.
+
+Ben
+
+
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
+

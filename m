@@ -1,69 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261762AbUKIXT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261765AbUKIXVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261762AbUKIXT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 18:19:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbUKIXTm
+	id S261765AbUKIXVu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 18:21:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbUKIXVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 18:19:42 -0500
-Received: from rproxy.gmail.com ([64.233.170.192]:34392 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261764AbUKIXTK (ORCPT
+	Tue, 9 Nov 2004 18:21:50 -0500
+Received: from main.gmane.org ([80.91.229.2]:45707 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261765AbUKIXVU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 18:19:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=WKNrLr/2t1pxHdDllLSnRUaWOdFPKD5AN0Gdv/28Hc90xAKc8gTbZamGEaVwb8GRIBzqI6fmvDmXiw1FsM0QCJd8xxPT7swbU27eAkUCiE5yVYBswwhXEwG6oVFRBxmvkDtMsunNprAezpMgooCo4WLHdk3xJ7FBKhP8l8UdirA=
-Message-ID: <d120d50004110915196517dd37@mail.gmail.com>
-Date: Tue, 9 Nov 2004 18:19:05 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Greg KH <greg@kroah.com>
-Subject: Re: /sys/devices/system/timer registered twice
-Cc: Kay Sievers <kay.sievers@vrfy.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20041109225245.GB7618@kroah.com>
+	Tue, 9 Nov 2004 18:21:20 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Luke Maurer <maurerl@carleton.edu>
+Subject: Re: 2.6.10-mm1, =?utf-8?b?Y2xhc3Nfc2ltcGxlXyo=?= and GPL addition
+Date: Tue, 9 Nov 2004 23:12:52 +0000 (UTC)
+Message-ID: <loom.20041110T001059-92@post.gmane.org>
+References: <20041027135052.GE32199@gamma.logic.tuwien.ac.at> <200410272012.44361.dtor_core@ameritech.net> <20041029205505.GB30638@kroah.com> <200410301644.33997.cova@ferrara.linux.it> <20041101223153.GB17341@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-References: <20041109193043.GA8767@vrfy.org> <20041109225245.GB7618@kroah.com>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 137.22.1.134 (Mozilla/5.0 (Macintosh; U; PPC Mac OS X; en) AppleWebKit/125.5.5 (KHTML, like Gecko) Safari/125.11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Nov 2004 14:52:45 -0800, Greg KH <greg@kroah.com> wrote:
-> 
-> 
-> On Tue, Nov 09, 2004 at 08:30:43PM +0100, Kay Sievers wrote:
-> > Hi,
-> > I got this on a Centrino box with the latest bk:
-> >
-> >   [kay@pim linux.kay]$ ls -l /sys/devices/system/
-> >   total 0
-> >   drwxr-xr-x  7 root root 0 Nov  8 15:12 .
-> >   drwxr-xr-x  5 root root 0 Nov  8 15:12 ..
-> >   drwxr-xr-x  3 root root 0 Nov  8 15:12 cpu
-> >   drwxr-xr-x  3 root root 0 Nov  8 15:12 i8259
-> >   drwxr-xr-x  2 root root 0 Nov  8 15:12 ioapic
-> >   drwxr-xr-x  3 root root 0 Nov  8 15:12 irqrouter
-> >   ?---------  ? ?    ?    ?            ? timer
-> >
-> >
-> > It is caused by registering two devices with the name "timer" from:
-> >
-> >   arch/i386/kernel/time.c
-> >   arch/i386/kernel/timers/timer_pit.c
-> >
-> > If I change one of the names, I get two correct looking sysfs entries.
-> >
-> > Greg, shouldn't the driver core prevent the corruption of the first
-> > device if another one tries to register with the same name?
-> 
-> Hm, this looks like an issue for Dmitry, as there shouldn't be too
-> sysdev_class structures with the same name, right?
-> 
+> I have been recently advised that I should not change these symbols, and
+> so I will not.
 
-I agree, but I think you got the wrong man here ;) You need to talk to
-Venkatesh.
+How come the change still hasn't been reversed as of 2.6.10-rc1-mm3?
 
-http://linux.bkbits.net:8080/linux-2.5/cset@41810e4aGZ0E5bn_hMb4JgIY5u90zA?nav=index.html|src/.|src/arch|src/arch/i386|src/arch/i386/kernel|related/arch/i386/kernel/time.c
+Luke Maurer
+maurerl@carleton.edu
 
--- 
-Dmitry

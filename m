@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278700AbRJ1WMu>; Sun, 28 Oct 2001 17:12:50 -0500
+	id <S278709AbRJ1WOa>; Sun, 28 Oct 2001 17:14:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278702AbRJ1WMk>; Sun, 28 Oct 2001 17:12:40 -0500
-Received: from [63.231.122.81] ([63.231.122.81]:24378 "EHLO lynx.adilger.int")
-	by vger.kernel.org with ESMTP id <S278701AbRJ1WMd>;
-	Sun, 28 Oct 2001 17:12:33 -0500
-Date: Sun, 28 Oct 2001 01:36:42 -0700
+	id <S278703AbRJ1WOX>; Sun, 28 Oct 2001 17:14:23 -0500
+Received: from [63.231.122.81] ([63.231.122.81]:25146 "EHLO lynx.adilger.int")
+	by vger.kernel.org with ESMTP id <S278707AbRJ1WNZ>;
+	Sun, 28 Oct 2001 17:13:25 -0500
+Date: Sun, 28 Oct 2001 00:10:19 -0600
 From: Andreas Dilger <adilger@turbolabs.com>
 To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] minor UFS cleanup
-Message-ID: <20011028013642.D4229@lynx.no>
-Mail-Followup-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, lvm-devel@sistina.com
+Subject: [PATCH] more lvm merging
+Message-ID: <20011028001019.A4229@lynx.no>
+Mail-Followup-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+	lvm-devel@sistina.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,96 +24,102 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Linus,
-a minor cleanup of the UFS code, originally inspired by the Stanford checker.
-They found that "dir" was being checked for non-NULLness after it was being
-dereferenced.
+this patch is a further merge of LVM CVS into the main kernel.  It again
+is a simple code-reorg (moving a big chunk of code into a helper function
+and does not impact actual operations).  This should also already be in
+Alan's LVM codebase.
 
-I also added a local variable for rlen, because SWAB16 cannot be removed
-at compile time for either little- or big-endian systems.
-
-The second hunk is again from the Stanford checker, avoiding NULL dereference.
+Also, (I don't want to send a huge patch to do this) renaming the file
+drivers/md/lvm-snap.h to drivers/md/lvm-internal.h (and fix the #includes
+in drivers/md/lvm.c and drivers/md/lvm-snap.c) would be a big help in
+getting the kernel up-to-date with LVM CVS.
 
 Cheers, Andreas
-=============================================================================
-diff -ru linux.orig/fs/ufs/dir.c linux/fs/ufs/dir.c
---- linux.orig/fs/ufs/dir.c	Thu Oct 25 03:05:12 2001
-+++ linux/fs/ufs/dir.c	Thu Oct 25 02:55:49 2001
-@@ -290,34 +290,32 @@
- 	struct ufs_dir_entry * de, struct buffer_head * bh, 
- 	unsigned long offset)
+===========================================================================
+--- linux.orig/drivers/md/lvm.c	Thu Oct 25 03:04:38 2001
++++ linux/drivers/md/lvm.c	Sat Oct 27 14:26:43 2001
+@@ -998,40 +1014,11 @@
+ 		break;
+ 
+ 	case LV_SNAPSHOT_USE_RATE:
+-		if (!(lv_ptr->lv_access & LV_SNAPSHOT)) return -EPERM;
+-		{
+-			lv_snapshot_use_rate_req_t	lv_snapshot_use_rate_req;
+-
+-			if (copy_from_user(&lv_snapshot_use_rate_req, arg,
+-					   sizeof(lv_snapshot_use_rate_req_t)))
+-				return -EFAULT;
+-			if (lv_snapshot_use_rate_req.rate < 0 ||
+-			    lv_snapshot_use_rate_req.rate  > 100) return -EFAULT;
+-
+-			switch (lv_snapshot_use_rate_req.block)
+-			{
+-			case 0:
+-				lv_ptr->lv_snapshot_use_rate = lv_snapshot_use_rate_req.rate;
+-				if (lv_ptr->lv_remap_ptr * 100 / lv_ptr->lv_remap_end < lv_ptr->lv_snapshot_use_rate)
+-					interruptible_sleep_on (&lv_ptr->lv_snapshot_wait);
+-				break;
+-
+-			case O_NONBLOCK:
+-				break;
+-
+-			default:
+-				return -EFAULT;
+-			}
+-			lv_snapshot_use_rate_req.rate = lv_ptr->lv_remap_ptr * 100 / lv_ptr->lv_remap_end;
+-			if (copy_to_user(arg, &lv_snapshot_use_rate_req,
+-					 sizeof(lv_snapshot_use_rate_req_t)))
+-				return -EFAULT;
+-		}
+-		break;
++		return lvm_get_snapshot_use_rate(lv_ptr, arg);
+ 
+ 	default:
+ 		printk(KERN_WARNING
+-		       "%s -- lvm_blk_ioctl: unknown command %d\n",
++		       "%s -- lvm_blk_ioctl: unknown command 0x%x\n",
+ 		       lvm_name, command);
+ 		return -EINVAL;
+ 	}
+@@ -1063,6 +1047,38 @@
+ 	return 0;
+ } /* lvm_blk_close() */
+ 
++static int lvm_get_snapshot_use_rate(lv_t *lv, void *arg)
++{
++	lv_snapshot_use_rate_req_t lv_rate_req;
++
++	if (!(lv->lv_access & LV_SNAPSHOT))
++		return -EPERM;
++
++	if (copy_from_user(&lv_rate_req, arg, sizeof(lv_rate_req)))
++		return -EFAULT;
++
++	if (lv_rate_req.rate < 0 || lv_rate_req.rate > 100)
++		return -EINVAL;
++
++	switch (lv_rate_req.block) {
++	case 0:
++		lv->lv_snapshot_use_rate = lv_rate_req.rate;
++		if (lv->lv_remap_ptr * 100 / lv->lv_remap_end <
++		    lv->lv_snapshot_use_rate)
++			interruptible_sleep_on(&lv->lv_snapshot_wait);
++		break;
++
++	case O_NONBLOCK:
++		break;
++
++	default:
++		return -EINVAL;
++	}
++	lv_rate_req.rate = lv->lv_remap_ptr * 100 / lv->lv_remap_end;
++
++	return copy_to_user(arg, &lv_rate_req,
++			    sizeof(lv_rate_req)) ? -EFAULT : 0;
++}
+ 
+ static int lvm_user_bmap(struct inode *inode, struct lv_bmap *user_result)
  {
--	struct super_block * sb;
--	const char * error_msg;
--	unsigned flags, swab;
--	
--	sb = dir->i_sb;
--	flags = sb->u.ufs_sb.s_flags;
--	swab = sb->u.ufs_sb.s_swab;
--	error_msg = NULL;
--			
--	if (SWAB16(de->d_reclen) < UFS_DIR_REC_LEN(1))
-+	struct super_block *sb = dir->i_sb;
-+	const char *error_msg = NULL;
-+	unsigned flags = sb->u.ufs_sb.s_flags;
-+	unsigned swab = sb->u.ufs_sb.s_swab;
-+	int rlen = SWAB16(de->d_reclen);
-+
-+	if (rlen < UFS_DIR_REC_LEN(1))
- 		error_msg = "reclen is smaller than minimal";
--	else if (SWAB16(de->d_reclen) % 4 != 0)
-+	else if (rlen % 4 != 0)
- 		error_msg = "reclen % 4 != 0";
--	else if (SWAB16(de->d_reclen) < UFS_DIR_REC_LEN(ufs_get_de_namlen(de)))
-+	else if (rlen < UFS_DIR_REC_LEN(ufs_get_de_namlen(de)))
- 		error_msg = "reclen is too small for namlen";
--	else if (dir && ((char *) de - bh->b_data) + SWAB16(de->d_reclen) >
--		 dir->i_sb->s_blocksize)
-+	else if (((char *) de - bh->b_data) + rlen > dir->i_sb->s_blocksize)
- 		error_msg = "directory entry across blocks";
--	else if (dir && SWAB32(de->d_ino) > (sb->u.ufs_sb.s_uspi->s_ipg * sb->u.ufs_sb.s_uspi->s_ncg))
-+	else if (SWAB32(de->d_ino) > (sb->u.ufs_sb.s_uspi->s_ipg *
-+				      sb->u.ufs_sb.s_uspi->s_ncg))
- 		error_msg = "inode out of bounds";
- 
- 	if (error_msg != NULL)
--		ufs_error (sb, function, "bad entry in directory #%lu, size %Lu: %s - "
-+		ufs_error (sb, function,
-+			   "bad entry in directory #%lu, size %Lu: %s - "
- 			    "offset=%lu, inode=%lu, reclen=%d, namlen=%d",
- 			    dir->i_ino, dir->i_size, error_msg, offset,
- 			    (unsigned long) SWAB32(de->d_ino),
--			    SWAB16(de->d_reclen), ufs_get_de_namlen(de));
--	
-+			    rlen, ufs_get_de_namlen(de));
-+
- 	return (error_msg == NULL ? 1 : 0);
- }
- 
-diff -ru linux.orig/fs/ufs/super.c linux/fs/ufs/super.c
---- linux.orig/fs/ufs/super.c	Tue May 29 13:13:21 2001
-+++ linux/fs/ufs/super.c	Tue May 29 20:14:02 2001
-@@ -265,6 +265,10 @@
- 			*value++ = 0;
- 		if (!strcmp (this_char, "ufstype")) {
- 			ufs_clear_opt (*mount_options, UFSTYPE);
-+			if (!value) {
-+				printk ("UFS-fs: ufstype option needs value\n");
-+				return 0;
-+			}
- 			if (!strcmp (value, "old"))
- 				ufs_set_opt (*mount_options, UFSTYPE_OLD);
- 			else if (!strcmp (value, "sun"))
-@@ -288,6 +292,10 @@
- 		}
- 		else if (!strcmp (this_char, "onerror")) {
- 			ufs_clear_opt (*mount_options, ONERROR);
-+			if (!value) {
-+				printk ("UFS-fs: onerror option needs value\n");
-+				return 0;
-+			}
- 			if (!strcmp (value, "panic"))
- 				ufs_set_opt (*mount_options, ONERROR_PANIC);
- 			else if (!strcmp (value, "lock"))
 --
 Andreas Dilger
 http://sourceforge.net/projects/ext2resize/

@@ -1,82 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261877AbTIGM0H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 08:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbTIGM0H
+	id S261170AbTIGMm6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 08:42:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbTIGMm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 08:26:07 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:7001 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id S261877AbTIGM0D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 08:26:03 -0400
-Date: Sun, 7 Sep 2003 13:27:36 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Ingo Molnar <mingo@redhat.com>
-cc: Jamie Lokier <jamie@shareable.org>, Rusty Russell <rusty@rustcorp.com.au>,
-       Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 2] Little fixes to previous futex patch
-In-Reply-To: <Pine.LNX.4.44.0309070322310.17404-100000@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.44.0309071248510.3022-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Sun, 7 Sep 2003 08:42:58 -0400
+Received: from amalthea.dnx.de ([193.108.181.146]:60817 "EHLO amalthea.dnx.de")
+	by vger.kernel.org with ESMTP id S261170AbTIGMmy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 08:42:54 -0400
+Date: Sun, 7 Sep 2003 14:42:51 +0200
+From: Robert Schwebel <robert@schwebel.de>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: RFC: [2.6 patch] better i386 CPU selection
+Message-ID: <20030907124251.GC5460@pengutronix.de>
+References: <20030907112813.GQ14436@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030907112813.GQ14436@fs.tum.de>
+User-Agent: Mutt/1.4i
+X-Spam-Score: -5.0 (----)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19vysJ-0000Dp-00*AwY57J4R/uI*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Sep 2003, Ingo Molnar wrote:
-> 
-> btw., regarding this fix:
-> 
->   ChangeSet@1.1179.2.5, 2003-09-06 12:28:20-07:00, hugh@veritas.com
->     [PATCH] Fix futex hashing bugs
-> 
-> why dont we do this:
-> 
->                         } else {
->                                 /* Make sure to stop if key1 == key2 */
-> 				if (head1 == head2)
-> 					break;
->                                 list_add_tail(i, head2);
->                                 this->key = key2;
->                                 if (ret - nr_wake >= nr_requeue)
->                                         break;
->                         }
-> 
-> instead of the current:
-> 
->                         } else {
->                                 list_add_tail(i, head2);
->                                 this->key = key2;
->                                 if (ret - nr_wake >= nr_requeue)
->                                         break;
->                                 /* Make sure to stop if key1 == key2 */
->                                 if (head1 == head2 && head1 != next)
->                                         head1 = i;
->                         }
-> 
-> what's the point in requeueing once, and then exiting the loop by changing
-> the loop exit condition variable? You are trying to avoid the lockup but
-> the first one ought to be the most straightforward way to do it.
+On Sun, Sep 07, 2003 at 01:28:13PM +0200, Adrian Bunk wrote:
+> The patch below tries to implement a better i386 CPU selection.
 
-I think you're reading it as a "list_for_each(i, head1)" loop,
-whereas it is and must be a "list_for_each_safe(i, next, head1)" loop.
+Did you look at how rmk does CPU selection in the ARM tree? He has
+developed a very sophisticated scheme as there are lots of completely
+different cpu implementations, using a few cores. It might be an idea to
+make the schemes more uniform than they are now. 
 
-So it won't (in general) terminate after this one requeueing (as
-list_for_each would, finding i->next == head1): termination depends on
-next (already set) and head1, so I repoint head1 to the first requeued.
+> There are two different needs:
+> 1. the installation kernel of a distribution should support all CPUs 
+>    this distribution supports (perhaps starting with the 386)
 
-So it should terminate after one pass down the list, when it reaches the
-first requeued, and can then return the appropriate "ret" count to user.
+Ack. 
 
-You may perhaps know that the ret count is not important, but I don't
-know that, so wanted to get it right.  (At the time, I also wanted to
-have the list sorted exactly as intended, but now I can't see that the
-relative positions of different keys could matter at all.)
+> 2. a sysadmin might e.g. want a kernel that support both a Pentium-III
+>    and a Pentium 4, but doesn't need to support a 386
 
-It may be bad practice to use a familiar macro like list_for_each_safe,
-yet play with its controlling variables within the loop.  I just felt
-safer that way than expanding it, or adding extraneous variables.
+Ack. 
 
-Hugh
+3. Embedded forlks might want to make a kernel which has support for
+exactly the used processor and nothing more. 
 
+> Changes:
+[...]
+> - AMD Elan is a different subarch, you can't configure a kernel that 
+>   runs on both the AMD Elan and other i386 CPUs
+
+Ack. Same with for example Geode. And the subarchs might have different
+implementations, like Elan SC400, Elan SC410, Elan SC520. 
+
+> - @Robert:
+>   there were no Elan CFLAGS in arch/i386/Makefile???
+
+That seems to have evolved since I last touched the Elan stuff. The
+Elans are more or less 486 cores with some edges, so adding -march=i486
+should be ok. 
+
+> - which CPUs exactly need X86_ALIGNMENT_16?
+
+I've just copied that from 486. 
+
+> A 2.6.0-test4-mm5 kernel with this patch applied compiled and bootet on
+> my PC.
+
+I could do some tests on an Elan board, but not earlier than end of next
+week as I'm out of office for some days...
+
+Robert
+-- 
+ Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
+     Hornemannstraﬂe 12,  31137 Hildesheim, Germany
+    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4

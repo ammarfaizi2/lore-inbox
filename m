@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261651AbTDOPLU (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 11:11:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbTDOPLU 
+	id S261649AbTDOPbY (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 11:31:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbTDOPbY 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 11:11:20 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:5567
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261651AbTDOPLT convert rfc822-to-8bit 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 11:11:19 -0400
+	Tue, 15 Apr 2003 11:31:24 -0400
+Received: from c-97a870d5.037-69-73746f23.cust.bredbandsbolaget.se ([213.112.168.151]:64897
+	"EHLO zaphod.guide") by vger.kernel.org with ESMTP id S261649AbTDOPbX 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 11:31:23 -0400
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Writing modules for 2.5
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <yw1xbrz87x59.fsf@zaphod.guide>
 References: <yw1x7k9w9flm.fsf@zaphod.guide.suse.lists.linux.kernel>
-	 <p73adesxane.fsf@oldwotan.suse.de> <yw1xllyc7yoz.fsf@zaphod.guide>
-	 <1050406513.27745.32.camel@dhcp22.swansea.linux.org.uk>
-	 <yw1xbrz87x59.fsf@zaphod.guide>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Organization: 
-Message-Id: <1050416693.27745.44.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 15 Apr 2003 15:24:53 +0100
+	<p73adesxane.fsf@oldwotan.suse.de> <yw1xllyc7yoz.fsf@zaphod.guide>
+	<1050406513.27745.32.camel@dhcp22.swansea.linux.org.uk>
+	<yw1xbrz87x59.fsf@zaphod.guide>
+	<20030415135758.C32468@flint.arm.linux.org.uk>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 15 Apr 2003 17:42:07 +0200
+In-Reply-To: <20030415135758.C32468@flint.arm.linux.org.uk>
+Message-ID: <yw1x7k9v938w.fsf@zaphod.guide>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-04-15 at 13:39, MÃ¥ns RullgÃ¥rd wrote:
-> My situation is like this: I am converting a char device driver to
-> work with linux 2.5.  In the open and close functions there are
-> MOD_INC/DEC_USECOUNT calls.  The question is what they should be
-> replaced with.  Will it be handled correctly without them?
+Russell King <rmk@arm.linux.org.uk> writes:
 
-Remove the MOD_INC/DEC counts in the open/close path and add
-owner: THIS_MODULE in the file ops, and all is happy.
+> > My situation is like this: I am converting a char device driver to
+> > work with linux 2.5.  In the open and close functions there are
+> > MOD_INC/DEC_USECOUNT calls.  The question is what they should be
+> > replaced with.  Will it be handled correctly without them?
+> 
+> If it's a character device driver using the struct file_operations,
+> set the owner field as Alan mentioned, and remove the
+> MOD_{INC,DEC}_USE_COUNT macros from the open/close methods.  This
+> allows chrdev_open() (in fs/char_dev.c) to increment your module use
+> count automatically.
 
+Does this work in 2.4 also, or is the owner field used for something
+else there?
+
+-- 
+Måns Rullgård
+mru@users.sf.net

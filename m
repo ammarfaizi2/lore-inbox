@@ -1,79 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265214AbRF0CnB>; Tue, 26 Jun 2001 22:43:01 -0400
+	id <S265220AbRF0DdV>; Tue, 26 Jun 2001 23:33:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265218AbRF0Cmv>; Tue, 26 Jun 2001 22:42:51 -0400
-Received: from burdell.cc.gatech.edu ([130.207.3.207]:51212 "EHLO
-	burdell.cc.gatech.edu") by vger.kernel.org with ESMTP
-	id <S265214AbRF0Cmk>; Tue, 26 Jun 2001 22:42:40 -0400
-Date: Tue, 26 Jun 2001 22:42:37 -0400 (EDT)
-From: David T Eger <eger@cc.gatech.edu>
-To: linux-kernel@vger.kernel.org
-cc: eger@cc.gatech.edu
-Subject: PCI Power Management / Interrupt Context
-Message-ID: <Pine.SOL.4.21.0106262208240.3824-100000@oscar.cc.gatech.edu>
+	id <S265230AbRF0DdL>; Tue, 26 Jun 2001 23:33:11 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:9992 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S265220AbRF0DdC>;
+	Tue, 26 Jun 2001 23:33:02 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200106270332.f5R3WxU277042@saturn.cs.uml.edu>
+Subject: Re: [PATCH] User chroot
+To: hpa@zytor.com (H. Peter Anvin)
+Date: Tue, 26 Jun 2001 23:32:59 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9hb6rq$49j$1@cesium.transmeta.com> from "H. Peter Anvin" at Jun 26, 2001 04:46:02 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+H. Peter Anvin writes:
+> [somebody]
 
-So I'm writing some code for a PCI card that is a framebuffer device, and
-happily filling in the functions for the probe() and remove() functions
-when I read documentation (Documentation/pci.txt) which mentions that
-remove() can be called from interrupt context.
+>> Have you ever wondered why normal users are not allowed to chroot?
+>>
+>> I have. The reasons I can figure out are:
+>>
+>> * Changing root makes it trivial to trick suid/sgid binaries to do
+>>   nasty things.
+>>
+>> * If root calls chroot and changes uid, he expects that the process
+>>   can not escape to the old root by calling chroot again.
+>>
+>> If we only allow user chroots for processes that have never been
+>> chrooted before, and if the suid/sgid bits won't have any effect under
+>> the new root, it should be perfectly safe to allow any user to chroot.
+>
+> Safe, perhaps, but also completely useless: there is no way the user
+> can set up a functional environment inside the chroot.  In other
+> words, it's all pain, no gain.
 
-Now in order to properly tear down some things in the system, there are
-some standard unregister() interfaces.  For instance,
-unregister_framebuffer() and unregister_netdev().  After which, drivers
-believe all is safe and go on about releasing ioremap()'d regions and
-such.
+Normal users can use an environment provided for them.
 
-One of the first things that unregister_netdev() does is to down() the
-rtnl semaphore.  *cough* *cough*  This is a blocking operation, I believe,
-which, umm - you can't do that from an interrupt, correct?
+While trying to figure out why the "heyu" program would not
+work on a Red Hat box, I did just this. As root I set up all
+the device files needed, along Debian libraries and the heyu
+executable itself. It was annoying that I couldn't try out
+my chroot environment as a regular user.
 
-Reading code in my sister frame buffer devices, I see that
-unregister_framebuffer() can fail.  I can easily see a nice happy console
-or user app diddling away on the framebuffer writing to the memory on the
-device, and then poof! someone yanks the card, processor takes an
-interrupt, and then... and then?  what to do? 
-
-In fact, here's an interesting snippet from cyber2000fb.c:
-
-static void __devexit cyberpro_remove(struct pci_dev *dev)
-{
-	struct cfb_info *cfb = (struct cfb_info *)dev->driver_data;
-
-	if (cfb) {
-	/*
-	* If unregister_framebuffer fails, then
-	* we will be leaving hooks that could cause
-	* oopsen laying around.
-	*/
-	if (unregister_framebuffer(&cfb->fb))
-		printk(KERN_WARNING "%s: danger Will Robinson, "
-			"danger danger!  Oopsen imminent!\n",
-	cfb->fb.fix.id);
-	cyberpro_unmap_smem(cfb);
-	cyberpro_unmap_mmio(cfb);
-	cyberpro_free_fb_info(cfb);
-
-	/*
-	* Ensure that the driver data is no longer
-	* valid.
-	*/
-	dev->driver_data = NULL;
-	if (cfb == int_cfb_info)
-	int_cfb_info = NULL;
-	}
-}
-
-So, umm, is there a consensus on what to do if someone currently expects
-to be writing to memory that doesn't exist any more?  Leave the mappings
-there?  Take them out and laugh as our users' machine suddenly oopses to a
-halt? Pray? Laugh? Cry?
-					
--David Thomas Eger (eger@cc.gatech.edu)
+Creating the device files isn't a big deal. It wouldn't be
+hard to write a setuid app to make the few needed devices.
+If we had per-user limits, "mount --bind /dev/zero /foo/zero"
+could be allowed. One way or another, devices can be provided.
 
 

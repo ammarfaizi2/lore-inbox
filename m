@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261615AbUCVJDF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 04:03:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbUCVJDF
+	id S261806AbUCVJGF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 04:06:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbUCVJGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 04:03:05 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:21411 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261615AbUCVJDB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 04:03:01 -0500
-Date: Mon, 22 Mar 2004 10:02:59 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: Robert_Hentosh@Dell.com, fleury@cs.auc.dk, linux-kernel@vger.kernel.org
-Subject: RE: spurious 8259A interrupt
-In-Reply-To: <Pine.LNX.4.44.0403192258350.3619-100000@poirot.grange>
-Message-ID: <Pine.LNX.4.55.0403221000530.6539@jurand.ds.pg.gda.pl>
-References: <Pine.LNX.4.44.0403192258350.3619-100000@poirot.grange>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 22 Mar 2004 04:06:04 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:44480 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261806AbUCVJFx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 04:05:53 -0500
+Subject: Re: "Enhanced" MD code avaible for review
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Scott Long <scott_long@adaptec.com>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Jeff Garzik <jgarzik@pobox.com>, "Justin T. Gibbs" <gibbs@scsiguy.com>,
+       linux-raid@vger.kernel.org, "Gibbs, Justin" <justin_gibbs@adaptec.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <405E287E.3080706@adaptec.com>
+References: <459805408.1079547261@aslan.scsiguy.com>
+	 <4058A481.3020505@pobox.com> <4058C089.9060603@adaptec.com>
+	 <200403172245.31842.bzolnier@elka.pw.edu.pl> <4058EBEC.8070309@adaptec.com>
+	 <1079788027.5225.4.camel@laptop.fenrus.com>  <405E287E.3080706@adaptec.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-tvaD8nUU38SJNEehb8hz"
+Organization: Red Hat, Inc.
+Message-Id: <1079946343.5296.5.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 22 Mar 2004 10:05:44 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Mar 2004, Guennadi Liakhovetski wrote:
 
-> >  The best way to deal with spurious interrupts is to ack the interrupt at
-> > the device ASAP in the handler, especially if you know that the response
-> > is slow.
-> 
-> I am getting those from the lAPIC timer interrupt (on a VIA KM133 Duron
-> system). And the APIC timer interrupt IS acked (almost) immediately. So, I
-> have a choice: no NMI watchdog or that uncomfortably increasing ERR:
-> counter. Kernel 2.6.3.
+--=-tvaD8nUU38SJNEehb8hz
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
- Do you really get "spurious 8259A interrupt" messages for the local APIC 
-timer???  They don't ever leave the unit bound to the processor -- it has 
-to be something else.  What is your contents of /proc/interrupts?
+On Mon, 2004-03-22 at 00:42, Scott Long wrote:
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+> Well, code speaks louder than words, as this group loves to say.  I=20
+> eagerly await your code.  Barring that, I eagerly await a technical
+> argument, rather than an emotional "you're wrong because I'm right"
+> argument.
+
+I think that all the arguments for using DM are techinical arguments not
+emotional ones. oh well.. you're free to write your code I'm free to not
+use it in my kernels ;)
+
+--=-tvaD8nUU38SJNEehb8hz
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAXqxnxULwo51rQBIRAsjOAJ9vsqFK8NTP7V2qqqho2JzY6fM/7ACbBlYh
+JffOv1Up7bhL82XkNr70EAM=
+=O/GZ
+-----END PGP SIGNATURE-----
+
+--=-tvaD8nUU38SJNEehb8hz--
+

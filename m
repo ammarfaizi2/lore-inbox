@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282511AbSAPXKX>; Wed, 16 Jan 2002 18:10:23 -0500
+	id <S286161AbSAPXTD>; Wed, 16 Jan 2002 18:19:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286161AbSAPXKN>; Wed, 16 Jan 2002 18:10:13 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:44562 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S282511AbSAPXKA>;
-	Wed, 16 Jan 2002 18:10:00 -0500
-Date: Wed, 16 Jan 2002 15:06:21 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE][PATCH] New fs to control access to system resources
-Message-ID: <20020116230620.GE3410@kroah.com>
-In-Reply-To: <87k7uj61tk.fsf@tigram.bogus.local> <20020116195105.C18039@devcon.net>
+	id <S286184AbSAPXSn>; Wed, 16 Jan 2002 18:18:43 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:65153
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S286161AbSAPXSe>; Wed, 16 Jan 2002 18:18:34 -0500
+Date: Wed, 16 Jan 2002 18:01:12 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Ross Vandegrift <ross@willow.seitz.com>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2-2.1.4 is available
+Message-ID: <20020116180112.C16592@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Ross Vandegrift <ross@willow.seitz.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20020116145605.A10792@thyrsus.com> <20020116175014.A21277@willow.seitz.com> <20020116174340.A16302@thyrsus.com> <20020116180042.A21447@willow.seitz.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020116195105.C18039@devcon.net>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 19 Dec 2001 20:02:44 -0800
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020116180042.A21447@willow.seitz.com>; from ross@willow.seitz.com on Wed, Jan 16, 2002 at 06:00:42PM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 16, 2002 at 07:51:06PM +0100, Andreas Ferber wrote:
-> On Tue, Jan 15, 2002 at 05:01:11PM +0100, Olaf Dietsche wrote:
+Ross Vandegrift <ross@willow.seitz.com>:
+> On Wed, Jan 16, 2002 at 05:43:40PM -0500, Eric S. Raymond wrote:
+> > Ross Vandegrift <ross@willow.seitz.com>:
+> > > On Wed, Jan 16, 2002 at 02:56:05PM -0500, Eric S. Raymond wrote:
+> > > I've verified that the lockup I reported earlier still happens with 2.1.4.
 > > 
-> > this is a new file system to control access to system resources.
-> > Currently it controls access to inet_bind() with ports < 1024 only.
+> > Keystroke sequence to reproduce, please?
 > 
-> Just some minor notes from reading the source and docs:
-> 
-> - It somewhat collides with the Linux Security Module project
->   (http://lsm.immunix.org/).
+> <ENTER>
 
-I don't see this conflicting with what the lsm patch does (with the
-minor exception of removing the capable() call.)  How do you see a
-conflict here?
+On what screen?  With the tool invoked how?
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-This patch looks nice, I like it.
-
-Yet another reason why we should have a bunch of the ramfs functions
-exported for the rest of the kernel to use :)
-
-thanks,
-
-greg k-h
+No matter how one approaches the figures, one is forced to the rather
+startling conclusion that the use of firearms in crime was very much
+less when there were no controls of any sort and when anyone,
+convicted criminal or lunatic, could buy any type of firearm without
+restriction.  Half a century of strict controls on pistols has ended,
+perversely, with a far greater use of this weapon in crime than ever
+before.
+        -- Colin Greenwood, in the study "Firearms Control", 1972

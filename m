@@ -1,102 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266958AbSKSP6o>; Tue, 19 Nov 2002 10:58:44 -0500
+	id <S266735AbSKSQCe>; Tue, 19 Nov 2002 11:02:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266917AbSKSP6o>; Tue, 19 Nov 2002 10:58:44 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:14065 "EHLO
-	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S266763AbSKSP6l>; Tue, 19 Nov 2002 10:58:41 -0500
-Date: Tue, 19 Nov 2002 11:06:22 -0500
-From: Doug Ledford <dledford@redhat.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Alexander Viro <viro@math.psu.edu>,
-       Linux Scsi Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Why /dev/sdc1 doesn't show up...
-Message-ID: <20021119160622.GA8738@redhat.com>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	Alexander Viro <viro@math.psu.edu>,
-	Linux Scsi Mailing List <linux-scsi@vger.kernel.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@transmeta.com>
-References: <20021119055636.94C182C088@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021119055636.94C182C088@lists.samba.org>
-User-Agent: Mutt/1.4i
+	id <S266797AbSKSQCe>; Tue, 19 Nov 2002 11:02:34 -0500
+Received: from graze.net ([65.207.24.2]:40080 "EHLO graze.net")
+	by vger.kernel.org with ESMTP id <S266735AbSKSQCd>;
+	Tue, 19 Nov 2002 11:02:33 -0500
+Date: Tue, 19 Nov 2002 11:09:33 -0500 (EST)
+From: "Brian C. Huffman" <sheep@graze.net>
+To: linux-kernel@vger.kernel.org
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Peter Kundrat <kundrat@kundrat.sk>
+Subject: Re: i810 audio (AD1981A)
+In-Reply-To: <1037189332.1846.2.camel@oveja.graze.net>
+Message-ID: <Pine.LNX.4.44.0211191100170.17056-100000@graze.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 19, 2002 at 04:52:25PM +1100, Rusty Russell wrote:
-> > right).  Or you can run a notifier on "enlivening" a module: I'd hoped
-> > to avoid that.
-> 
-> Actually, after some thought, this seems to clearly be the Right
-> Thing, because it solves another existing race.  Consider a module
-> which does:
-> 
-> 	if (!register_foo(&my_foo))
-> 		goto cleanup;
-> 	if (!create_proc_entry(&my_entry))
-> 		goto cleanup_foo;
+Ok - so I have got this figured out a little more.  The Intel 845 board 
+uses the AD1981A (AC97 compatible) BUT they attach the headphone out (of 
+the codec) to the lineout on the motherboard...apparently b/c there's a 
+headphone amp in the chip and this way you can just plug the headphones 
+into the back of the computer.  :-(  Now looking at the latest drivers 
+from OSS and ALSA, this looks to be common, however the register setup for 
+the AD1981A is different from the others: AD1980, and AD1886...  
+Therefore, the patches in ALSA to disable the headphone out don't work.  
 
-There is *NO* module that does this right now and can be considered even 
-close to working.  The rule always has been "register yourself when you 
-are ready for use".  You're trying to add this new "You can fail after 
-registering yourself" semantic for brain dead coders that can't write an 
-init function to save thier ass.  My position is that in doing so, you 
-fuck all of us that do write a reasonable init sequence and handle our 
-error conditions.  Plus, since this is a changes in semantics, you have 
-possibly 50 or 100 modules that rely on the old behaviour, and maybe a few 
-that are broken in regards to registration ordering.  I think you are 
-trying to fix the wrong group of modules here.
+If I can't find a way to write to the registers to make this work 
+properly, I'd be happy just swapping what the mixer thinks the 
+registers are for Main Volume w/ Headphone out.  Unfortunately, I tried 
+this (with the kernel OSS) in linux/drivers/sound/ac97.h:
 
-So, to me, the answer is clear.  The rule is hard and fast, you don't hand 
-out your function pointers to other modules or the core kernel until you 
-are ready for them to be used.  Don't muck with the module loader to solve 
-the problem, fix the maybe 4 or 5 modules that might violate this rule.
+#define  AC97_RESET              0x0000      //
+// #define  AC97_MASTER_VOL_STEREO  0x0002      // Line Out
+#define  AC97_MASTER_VOL_STEREO  0x0004      // Line Out
+//#define  AC97_HEADPHONE_VOL      0x0004      //
+#define  AC97_HEADPHONE_VOL      0x0002      //
 
-> If register_foo() calls /sbin/hotplug, the module can still fail to
-> load and /sbin/hotplug is called for something that doesn't exist.
+This still doesn't work, though!?  Can anyone direct me to what I might be 
+doing wrong?
 
-Which is just totally fucking stupid on the part of any module author that 
-would do things in that order.  You're trying to write a module loader 
-that makes it safe for a module author to be a total moron.  Don't.  Let 
-the morons go code somewhere else.  For the kernel, make them follow a few 
-sensible rules instead of enforcing moron proof crap on everyone else.
+Thanks in advance!
+Brian
 
-> With the new module loader, you can also have /sbin/hotplug try to
-> access the module before it's gone live, which will fail to prevent
-> the "using before we know module won't fail init" race.
+> On Tue, 2002-11-12 at 19:43, Alan Cox wrote:
 > 
-> Now, if you run /sbin/hotplug out of a notifier which is fired when
-> the module actually goes live, this problem vanishes.  It also means
-> we can block module unload until /sbin/hotplug is run.
+> > The kernel knows which AC'97 chip is attached so it could be given a
+> > table to specify chips where "volume" should either not be presented or
+> > should be remapped. Do you know what AC97 chip is on your board (Linux
+> > will print the info in the i810 load, windows and the manual probably
+> > claim that you have that as your sound chip (typically "Analog
+> > something" or "Crystal something").
+> > 
 > 
-> The part that makes this feel like the Right Thing is that adding to
-> init/main.c:
 > 
-> 	/* THIS_MODULE == NULL */
-> 	notifier_call_chain(&module_notifiers, MODULE_LIVE, NULL);
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> means that /sbin/hotplug is called for everything which was registered
-> at boot.  (We may not want to do this, but in general the symmetry
-> seems really nice).
-> 
-> [ Note: the logic for /sbin/hotplug applies to any similar "publicity"
->   function which promises that something now exists. ]
-> 
-> Al, thoughts?
 
-I actually like the idea of having an automatic go live function that we 
-can trigger, but I still don't think that justifies blocking a module from 
-entering itself during init.
-
--- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  

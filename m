@@ -1,70 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbVC1EVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbVC1EXa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261690AbVC1EVz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 23:21:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbVC1EVz
+	id S261692AbVC1EXa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 23:23:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVC1EXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 23:21:55 -0500
-Received: from smtp815.mail.sc5.yahoo.com ([66.163.170.1]:41118 "HELO
-	smtp815.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261690AbVC1EVx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 23:21:53 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Mauro Mozzarelli <mauro@ezplanet.net>
-Subject: Re: imps2 mouse driver and bug 2082
-Date: Sun, 27 Mar 2005 23:21:49 -0500
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <1111966642.5789.7.camel@helios.ezplanet.org>
-In-Reply-To: <1111966642.5789.7.camel@helios.ezplanet.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Mar 2005 23:23:30 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:14600 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261692AbVC1EXU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 23:23:20 -0500
+Date: Mon, 28 Mar 2005 06:20:01 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: David Dyck <david.dyck@fluke.com>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Subject: Re: upgrading modutils may have fixed: unresolved symbols still in 2.4.30-rc2 (usbserial needs symbol tty_ldisc_ref and tty_ldisc_deref which are EXPORT_SYMBOL_GPL)
+Message-ID: <20050328042001.GR30052@alpha.home.local>
+References: <Pine.LNX.4.62.0503261052050.1495@dd.tc.fluke.com> <20050326191306.GE3237@stusta.de> <Pine.LNX.4.62.0503261158220.206@dd.tc.fluke.com> <Pine.LNX.4.62.0503261512380.228@dd.tc.fluke.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503272321.49899.dtor_core@ameritech.net>
+In-Reply-To: <Pine.LNX.4.62.0503261512380.228@dd.tc.fluke.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Mar 26, 2005 at 04:31:59PM -0800, David Dyck wrote:
+> >dd:linux# insmod usbserial
+> >Using /lib/modules/2.4.30-rc2/kernel/drivers/usb/serial/usbserial.o
+> >...: unresolved symbol tty_ldisc_ref
+> >...: unresolved symbol tty_ldisc_deref
+> 
+> I tried again with 2.4.30-rc3, but this time I changed my .config
+> file to disable 2 other modules that I didn't need, and wasn't loading.
+> 
+> < CONFIG_USB_UHCI_ALT=m
+> < CONFIG_USB_STV680=m
+> 
+> and build rc3.  It seems to work, so either my earlier
+> rc2 test with make clean wasn't clean-enough, or CONFIG_USB_UHCI_ALT
+> interferes - testing with CONFIG_USB_UHCI_ALT as a module (not loaded)
+> also works, so since interdiff didn't seem to highlite any difference 
+> between rc2 and rc3, I'll suspect that my test make clean didn't
+> clean things up good enough, and the entire problem was as
+> Adrian Bunk suggest (upgrade modutils, thanks Adrian)
 
-On Sunday 27 March 2005 18:37, Mauro Mozzarelli wrote:
-> The mouse driver, re-developed for kernel 2.6, ever since the earliest
-> 2.6 release lost the ability to reset a broken link with an IMPS2 mouse
-> (this happens when disconnecting the mouse plug either physically or
-> through a "non imps2" KVM switch). The result is that the mouse can no
-> longer be controlled, with the only solution being a RE-BOOT!
->
+I believe it's because of genksyms during the build process, I had the
+exact same problem a few weeks ago on a machine with old modutils. So
+you should have cleaned everything and rebuilt from scratch after
+installing your new modutils. BTW, the required modutils in
+Documentation/Changes is still marked as 2.4.10, I hope it is still
+enough.
 
-You can re-initialize mouse with the following command (while mouse is
-connected):
+Regards,
+Willy
 
-        echo -n "reconnect" > /sys/bus/serio/devices/serioX/drvctl
-
-where serioX is serio port your mouse is connected to. You can find out
-which one by examining the driver link:
-
-for i in /sys/bus/serio/devices/*; do echo $i: `cat $i/driver/description`; done
-
-You could map this command to a key - given the fact that in pre-2.6 era
-one had to switch from X to text console and back to restore the mouse
-having a command mapped to a hot-key should be an acceptable workaround
-while we searching for a better solution. 
-
-> This issue has been filed as bug 2082
-> (http://bugme.osdl.org/show_bug.cgi?id=2082) . A fix was posted for
-> 2.6.8, but this patch never made its way into the kernel main stream.
-> "Vojtech", author of the 2.6 mouse driver, keeps modifying his code
-> version after version, therefore breaking compatibility with the posted
-> patch. I adapted the patch for 2.6.9 and 2.6.10 (there are now three
-> versions for 2.6.8, 2.6.9 and 2.6.10). Kernel 2.6.11(.6) was released
-> recently, still with the same bug, and would require further adaptation
-> of the posted patch.
->
-
-When I wrote the patch I thought it would be ok but now I do not think
-that the patch is acceptable - it still allows "junk" data into the
-kernel and we should find a way to avoid it.
- 
--- 
-Dmitry 

@@ -1,68 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268718AbUH3Rvq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268746AbUH3Rvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268718AbUH3Rvq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 13:51:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268719AbUH3Rt0
+	id S268746AbUH3Rvl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 13:51:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268718AbUH3RtD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 13:49:26 -0400
-Received: from alpha.Xerox.COM ([13.1.64.93]:46985 "HELO alpha.xerox.com")
-	by vger.kernel.org with SMTP id S268681AbUH3RrP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 13:47:15 -0400
-Date: Mon, 30 Aug 2004 10:43:58 PDT
-From: Paul Stewart <stewart@parc.com>
-Subject: Re: silent semantic changes with reiser4
-To: Paul Jackson <pj@sgi.com>
-Cc: Hans Reiser <reiser@namesys.com>, riel@redhat.com, ninja@slaphack.com,
-       torvalds@osdl.org, diegocg@teleline.es, jamie@shareable.org,
-       christophe@saout.de, vda@port.imtp.ilyichevsk.odessa.ua,
-       christer@weinigel.se, spam@tnonline.net, akpm@osdl.org,
-       wichert@wiggy.net, jra@samba.org, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-References: <Pine.LNX.4.44.0408271043090.10272-100000@chimarrao.boston.redhat.com>
-	<412F7D63.4000109@namesys.com> <20040827230857.69340aec.pj@sgi.com>
-In-Reply-To: <20040827230857.69340aec.pj@sgi.com> (from pj@sgi.com on Fri,
-	Aug 27, 2004 at 23:08:57 -0700)
-X-Mailer: Balsa 2.1.2
-Message-Id: <1093887838l.11947l.1l@orlando>
+	Mon, 30 Aug 2004 13:49:03 -0400
+Received: from pop.gmx.de ([213.165.64.20]:21705 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268697AbUH3RrU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 13:47:20 -0400
+X-Authenticated: #4512188
+Message-ID: <41336824.1040206@gmx.de>
+Date: Mon, 30 Aug 2004 19:47:16 +0200
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040815)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	DelSp=Yes	Format=Flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+To: "John W. Linville" <linville@tuxdriver.com>
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [patch] libata: add ioctls to support SMART
+References: <200408301531.i7UFVBg29089@ra.tuxdriver.com>
+In-Reply-To: <200408301531.i7UFVBg29089@ra.tuxdriver.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004.08.27 23:08, Paul Jackson wrote:
-> Hans wrote:
-> > We create filename/pseudos/backup, and that tells the archiver what  
-> > to do.....
-> 
-> Instead of exposing the old semantics under a new interface, why not
-> expose the new semantics under a new interface.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Here's another take on the same theme.  To see attrs on files, one can  
-either use a newly developed application which can use special new  
-syscalls/flags on syscalls a Paul Jackson recommends.  However from an  
-old shell or application one can also open the attribute node on
-/home/myself/foo.txt by checking out /attr/home/myself/foo.txt/, which  
-points to the "as directory" node on the filesystem that foo.txt points  
-to.
+John W. Linville wrote:
+| Support for HDIO_DRIVE_CMD and HDIO_DRIVE_TASK in libata.  Useful for
+| supporting SMART w/ unmodified smartctl and smartd userland binaries.
+|
+| Not happy w/ loop after failed ata_qc_new_init(), but needed because
+smartctl
+| and smartd did not retry after failure.  Likely need an option to wait for
+| available qc?  Also not sure all the error return codes are correct...
 
-The strange part of this idea is that the /attr filesystem wouldn't be  
-conventionally browsable.  An opendir() on any path would return the  
-attributes, not the subdirectory contents, even if the target was a  
-conventional directory.  File based operations (open(), unlink(), etc)  
-would operate on the "as directory" node of the dirname() of the file  
-argument.  The /attr filesystem would be completely virtual, honoring  
-the permissions, crossing filesystems, and inheriting the root  
-directory of the calling process.
+Hi,
 
-Just a thought from a Linux fs layman -- certainly one of the Reiser  
-unwashed masses.
+I just tried to give it a go with libata from 2.6.9-rc1. I had to fix
+one rejects but the patching seemed to go fine beside that. Nevertheless
+after a boot with patched libata I get:
 
---
-Paul
+smartctl -a /dev/sda
+smartctl version 5.30 Copyright (C) 2002-4 Bruce Allen
+Home page is http://smartmontools.sourceforge.net/
+
+Device: ATA      SAMSUNG SP1614N  Version: TM10
+Serial number: 0735J1FW702444
+Device type: disk
+Local Time is: Mon Aug 30 19:44:23 2004 CEST
+Device does not support SMART
+
+Device does not support Error Counter logging
+
+[GLTSD (Global Logging Target Save Disable) set. Enable Save with '-S on']
+Device does not support Self Test logging
 
 
+I am pretty sure my drive supports SMART. I hope that I understood your
+post correctly that with this patch it should work.
+
+Cheers,
+
+Prakash
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBM2gkxU2n/+9+t5gRAh1ZAJ0T1/zurwQZg7ddQx4X2aS5x8UMIgCg0hra
+3D+Bhyp5MKpLVGdh7WIdPYA=
+=Axdm
+-----END PGP SIGNATURE-----

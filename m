@@ -1,71 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129595AbRCHUKI>; Thu, 8 Mar 2001 15:10:08 -0500
+	id <S129613AbRCHUPi>; Thu, 8 Mar 2001 15:15:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129569AbRCHUJu>; Thu, 8 Mar 2001 15:09:50 -0500
-Received: from patan.Sun.COM ([192.18.98.43]:40957 "EHLO patan.sun.com")
-	by vger.kernel.org with ESMTP id <S129567AbRCHUJk>;
-	Thu, 8 Mar 2001 15:09:40 -0500
-Message-ID: <3AA7BDEE.3D39BACF@sun.com>
-Date: Thu, 08 Mar 2001 12:14:22 -0500
-From: ludovic <ludovic.fernandez@sun.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en
+	id <S129623AbRCHUP2>; Thu, 8 Mar 2001 15:15:28 -0500
+Received: from waste.org ([209.173.204.2]:2388 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S129613AbRCHUPR>;
+	Thu, 8 Mar 2001 15:15:17 -0500
+Date: Thu, 8 Mar 2001 14:13:55 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Andrew Morton <andrewm@uow.edu.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] documentation for mm.h
+In-Reply-To: <Pine.LNX.4.33.0103071931400.1409-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.30.0103081400450.30996-100000@waste.org>
 MIME-Version: 1.0
-To: Zdenek Kabelac <kabi@informatics.muni.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: NOISE: [Fwd: Re: static scheduling - SCHED_IDLE?]
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is noise guys, skip it....
+On Wed, 7 Mar 2001, Rik van Riel wrote:
+
+> I've taken today to write some documentation for
+> include/linux/mm.h, as used in 2.4.x
+
+Mostly good.
+
+> +	pgprot_t vm_page_prot;		/* Access permissions of this VMA. */
+
+But a lot of the comments are trivial = deadweight. Comments are best used
+for the bits that are magical without them, which should be few.
+
+> +	struct page *next_hash;		/* Next page sharing our hash bucket in
+> +					   the pagecache hash table. */
+
+Multiline comments at the end of the line are hard to maintain and highly
+susceptible to tab damage.
+
+> +	atomic_t count;			/* Usage count, see below. */
+> +	unsigned long flags;		/* atomic flags, some possibly
+> +					   updated asynchronously */
+
+I'm sure there's a good reason why the flags aren't atomic_t but this
+comment would make me suspect a bug. Comments that don't agree with code
+are worse than no comments.
+
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
 
-I will have appreciate that you apology to me, not to Alan.
-
-For you concern, I love black humor, I do make nonsense most
-of the time (but I hope to learn from my mistakes) and yes
-I work for SUN.
-
-Regarding the 2.5 kernel being available, I don't honestly
-know but I will suggest you stay with 2.4 for a while, you
-still have some stuff to learn.
-
-Ludo.
-
-
-
--------- Original Message --------
-Subject: Re: static scheduling - SCHED_IDLE?
-Date: Thu, 8 Mar 2001 13:26:50 +0100
-From: Zdenek Kabelac <kabi@informatics.muni.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Zdenek Kabelac <kabi@i.am>, ludovic <ludovic.fernandez@sun.com>
-In-Reply-To: <3AA76A53.CEC1B234@i.am>
-<E14azTH-0002sI-00@the-village.bc.nu>
-
-On Thu, Mar 08, 2001 at 12:24:41PM +0000, Alan Cox wrote:
-> > > locking problem you mention but the idea of background low priority
-> > > threads that run when the machine is really idle is also not this
-> > > simple.
-> > 
-> > You seem to have a sence for black humor right :) ?
-> > As this is purely a complete nonsence 
-> > - you were talking about M$Win3.11 right ?
-> > (are you really the employ of Sun ??)
-> 
-> We are not currently pre-empting in kernel space (SMP effectively does most of
-> this). Its a 2.5 change being discussed. Since the kernel is a controlled
-> environment its not a big deal, and userspace is all pre-empted.
-
-Oh I've missed the context that it was just about kernel space - oops 
-sorry
-
-Anyway where is the wishlist for 2.5 publically available ?
-
--- 
-             There are three types of people in the world:
-               those who can count, and those who can't.
-  Zdenek Kabelac  http://i.am/kabi/ kabi@i.am {debian.org; fi.muni.cz}

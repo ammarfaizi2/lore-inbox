@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313769AbSDPQyS>; Tue, 16 Apr 2002 12:54:18 -0400
+	id <S313714AbSDPRAq>; Tue, 16 Apr 2002 13:00:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313770AbSDPQyR>; Tue, 16 Apr 2002 12:54:17 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:16399 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S313769AbSDPQyR>;
-	Tue, 16 Apr 2002 12:54:17 -0400
-Date: Tue, 16 Apr 2002 08:53:35 -0700
-From: Greg KH <greg@kroah.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-        sailer@ife.ee.ethz.ch, bhards@bigpond.net.au, torvalds@transmeta.com
-Subject: Re: [PATCH] USB set-bit takes a long tweaks
-Message-ID: <20020416155334.GD27287@kroah.com>
-In-Reply-To: <E16xP4X-0005OC-00@wagner.rustcorp.com.au>
+	id <S313770AbSDPRAp>; Tue, 16 Apr 2002 13:00:45 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:19103 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S313714AbSDPRAp>;
+	Tue, 16 Apr 2002 13:00:45 -0400
+Date: Tue, 16 Apr 2002 19:00:14 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>,
+        David Lang <david.lang@digitalinsight.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.8 IDE 36
+Message-ID: <20020416190014.A1711@ucw.cz>
+In-Reply-To: <20020416172434.A1180@ucw.cz> <Pine.LNX.4.33.0204160844090.1167-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Tue, 19 Mar 2002 13:17:16 -0800
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 16, 2002 at 07:16:01PM +1000, Rusty Russell wrote:
-> This removes gratuitous & operators in front of USB's
-> dev->bus->devmap.devicemap and state->unitbitmap, for bitops.
+On Tue, Apr 16, 2002 at 08:46:31AM -0700, Linus Torvalds wrote:
 > 
-> This just makes it so it doesn't warn when set_bit et. al take a
-> long...
+> On Tue, 16 Apr 2002, Vojtech Pavlik wrote:
+> > 
+> > Note that the above commands are no help in case of plugging TIVO
+> > drive into a PC. While they assure that all ext2 filesystems are LE on
+> > the media and all sun disklabels are BE on the media, still if you plug
+> > in a BE ext2 into the system (or a BE PC partition table), the kernel
+> > won't understand them.
 > 
-> No object code changes,
+> Please use a the network block device, and teach the ndb deamon to just 
+> byteswap each word.
+> 
+> Problem solved, WITHOUT keeping bugs in the IDE driver.
 
-Thanks, I've applied this to my trees, and will include it in the next
-round of changesets to Linus.
+Yeah, that's a pretty cool idea.
 
+> Oh, and performance improved at the same time.
+> 
+> What are you guys thinging about? There are two rules here:
+>  - optimize for the common case
+>  - keep the code clean.
 
-greg k-h
+There is also this one:
+
+   - don't remove existing features if you don't have an usable
+     replacement or users will hate you.
+
+> Both of them say that Martin is 100% right.
+
+Now that you've come up with the NBD idea, I have to agree.
+
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,90 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315372AbSFTSMP>; Thu, 20 Jun 2002 14:12:15 -0400
+	id <S315410AbSFTSSE>; Thu, 20 Jun 2002 14:18:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315374AbSFTSMO>; Thu, 20 Jun 2002 14:12:14 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:23814 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S315372AbSFTSMM>; Thu, 20 Jun 2002 14:12:12 -0400
-Date: Thu, 20 Jun 2002 11:11:44 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-cc: dhd@debian.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-       Ani Joshi <ajoshi@shell.unixbox.com>
-Subject: [UPDATES] fbdev ports and fixes
-Message-ID: <Pine.LNX.4.44.0206201105200.16635-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315411AbSFTSSE>; Thu, 20 Jun 2002 14:18:04 -0400
+Received: from holomorphy.com ([66.224.33.161]:47807 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S315410AbSFTSSC>;
+	Thu, 20 Jun 2002 14:18:02 -0400
+Date: Thu, 20 Jun 2002 11:17:29 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] scheduler bits from 2.5.23-dj1
+Message-ID: <20020620181729.GY22961@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>, Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	Linus Torvalds <torvalds@transmeta.com>
+References: <20020620172059.GW22961@holomorphy.com> <Pine.LNX.4.44.0206201929310.9805-100000@e2>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0206201929310.9805-100000@e2>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 20, 2002 at 07:31:18PM +0200, Ingo Molnar wrote:
+> looks good to me - what do you think about my other pidhash suggestion:
 
-Hi!
-
-  I managed to port over the RIVA framebuffer driver to the new api as
-well as the Macintosh one. The RIVA driver has been tested on my system.
-I also placed in BK the newest Voodoo1 driver. Another big change from
-Franz Sirl and approved by BenH is the removal of the VC_IOCTL stuff on
-the PPC platform. Please test these patches before I submit them.
-
-Thank you.
-
-Here is a diffstat of the changes:
-
- drivers/video/riva/accel.c                     |  427 -------
- fbdev-2.5/arch/i386/boot/video.S               |    4
- fbdev-2.5/drivers/char/vt.c                    |   66 -
- fbdev-2.5/drivers/video/Config.help            |   17
- fbdev-2.5/drivers/video/Config.in              |   68 -
- fbdev-2.5/drivers/video/Makefile               |    4
- fbdev-2.5/drivers/video/S3triofb.c             |   19
- fbdev-2.5/drivers/video/aty/atyfb_base.c       |   28
- fbdev-2.5/drivers/video/aty128fb.c             |   33
- fbdev-2.5/drivers/video/chipsfb.c              |   29
- fbdev-2.5/drivers/video/controlfb.c            |   21
- fbdev-2.5/drivers/video/fbcon-mac.c            |  483 --------
- fbdev-2.5/drivers/video/imsttfb.c              |   56
- fbdev-2.5/drivers/video/macfb.c                |  463 ++-----
- fbdev-2.5/drivers/video/macmodes.c             |  171 --
- fbdev-2.5/drivers/video/matrox/matroxfb_base.c |   27
- fbdev-2.5/drivers/video/matrox/matroxfb_base.h |    6
- fbdev-2.5/drivers/video/modedb.c               |    4
- fbdev-2.5/drivers/video/neofb.c                |    7
- fbdev-2.5/drivers/video/offb.c                 |   26
- fbdev-2.5/drivers/video/platinumfb.c           |   26
- fbdev-2.5/drivers/video/riva/Makefile          |    2
- fbdev-2.5/drivers/video/riva/fbdev.c           | 1500 +++++++++----------------
- fbdev-2.5/drivers/video/riva/riva_hw.c         |   38
- fbdev-2.5/drivers/video/riva/riva_hw.h         |    2
- fbdev-2.5/drivers/video/riva/riva_tbl.h        |  203 +--
- fbdev-2.5/drivers/video/riva/rivafb.h          |   60 -
- fbdev-2.5/drivers/video/sstfb.c                |  958 +++++++++------
- fbdev-2.5/drivers/video/sstfb.h                |   73 -
- fbdev-2.5/drivers/video/tdfxfb.c               |   55
- fbdev-2.5/drivers/video/valkyriefb.c           |   26
- fbdev-2.5/drivers/video/vesafb.c               |    8
- fbdev-2.5/include/asm-ppc/vc_ioctl.h           |   46
- fbdev-2.5/include/asm-ppc64/vc_ioctl.h         |   50
- fbdev-2.5/include/linux/pci_ids.h              |    1
- fbdev-2.5/include/linux/tty.h                  |    3
- 36 files changed, 1516 insertions(+), 3494 deletions(-)
-
-The URL to grab the diff is
-
-http://www.transvirtual.com/~jsimmons/fbdev.diff.gz
-
-and the BK link is
-
-http://fbdev.bkbits.net:8080/fbdev-2.5
-
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'\_   _/`\
- \___)=(___/
+An excellent idea. I didn't go all the way and make the pidhash entirely
+private to fork.c but taking find_task_by_pid() out-of-line is implemented
+in the following, built atop the prior patch. I can also privatize the
+pidhash entirely if that's wanted.
 
 
+Cheers,
+Bill
+
+diff -urN linux-2.5.23-virgin/include/linux/sched.h linux-2.5.23-wli/include/linux/sched.h
+--- linux-2.5.23-virgin/include/linux/sched.h	Thu Jun 20 10:53:42 2002
++++ linux-2.5.23-wli/include/linux/sched.h	Thu Jun 20 10:55:18 2002
+@@ -459,19 +459,7 @@
+ 	list_del(&p->pidhash_list);
+ }
+ 
+-static inline task_t *find_task_by_pid(int pid)
+-{
+-	list_t *p, *pid_list = &pidhash[pid_hashfn(pid)];
+-
+-	list_for_each(p, pid_list) {
+-		task_t *t = list_entry(p, task_t, pidhash_list);
+-
+-		if(t->pid == pid)
+-			return t;
+-	}
+-
+-	return NULL;
+-}
++extern task_t *find_task_by_pid(int pid);
+ 
+ /* per-UID process charging. */
+ extern struct user_struct * alloc_uid(uid_t);
+diff -urN linux-2.5.23-virgin/kernel/fork.c linux-2.5.23-wli/kernel/fork.c
+--- linux-2.5.23-virgin/kernel/fork.c	Thu Jun 20 10:53:42 2002
++++ linux-2.5.23-wli/kernel/fork.c	Thu Jun 20 10:55:55 2002
+@@ -69,6 +69,21 @@
+ 		INIT_LIST_HEAD(&pidhash[i]);
+ }
+ 
++task_t *find_task_by_pid(int pid)
++{
++	list_t *p, *pid_list = &pidhash[pid_hashfn(pid)];
++
++	list_for_each(p, pid_list) {
++		task_t *t = list_entry(p, task_t, pidhash_list);
++
++		if(t->pid == pid)
++			return t;
++	}
++
++	return NULL;
++}
++EXPORT_SYMBOL(find_task_by_pid);
++
+ rwlock_t tasklist_lock __cacheline_aligned = RW_LOCK_UNLOCKED;  /* outer */
+ 
+ void add_wait_queue(wait_queue_head_t *q, wait_queue_t * wait)

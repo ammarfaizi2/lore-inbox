@@ -1,53 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262131AbTLDQKB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 11:10:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbTLDQKB
+	id S262738AbTLDQPT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 11:15:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbTLDQPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 11:10:01 -0500
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:55557 "EHLO
-	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
-	id S262131AbTLDQJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 11:09:58 -0500
-Message-ID: <3FCF5BB8.50500@lougher.demon.co.uk>
-Date: Thu, 04 Dec 2003 16:07:20 +0000
-From: Phillip Lougher <phillip@lougher.demon.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.2.1) Gecko/20030228
-X-Accept-Language: en-us, en
+	Thu, 4 Dec 2003 11:15:18 -0500
+Received: from ahriman.bucharest.roedu.net ([141.85.128.71]:42369 "EHLO
+	ahriman.bucharest.roedu.net") by vger.kernel.org with ESMTP
+	id S262694AbTLDQN6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 11:13:58 -0500
+Date: Thu, 4 Dec 2003 18:14:06 +0200 (EET)
+From: Mihai RUSU <dizzy@roedu.net>
+X-X-Sender: dizzy@ahriman.bucharest.roedu.net
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+cc: acpi-devel@lists.sourceforge.net,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] enhanced psxface.c error handling
+In-Reply-To: <1070553752.14488.4.camel@glass.felipe-alfaro.com>
+Message-ID: <Pine.LNX.4.56L0.0312041813010.8695@ahriman.bucharest.roedu.net>
+References: <1070553752.14488.4.camel@glass.felipe-alfaro.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>,
-       =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-CC: Kallol Biswas <kbiswas@neoscale.com>, linux-kernel@vger.kernel.org,
-       "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
-Subject: Re: partially encrypted filesystem
-References: <1070485676.4855.16.camel@nucleon> <20031203214443.GA23693@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0312031600460.2055@home.osdl.org> <20031204141725.GC7890@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0312040712270.2055@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0312040712270.2055@home.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Hi
+
+I think you missed the order on this one
+
+@@ -142,14 +143,15 @@
+        walk_state = acpi_ds_create_walk_state (obj_desc->method.owning_id,
+                           NULL, NULL, NULL);
+        if (!walk_state) {
+- -               return_ACPI_STATUS (AE_NO_MEMORY);
++               goto acpi_psx_parse_unref;
++               status = AE_NO_MEMORY;
+        }
+
+:)
+
+On Thu, 4 Dec 2003, Felipe Alfaro Solana wrote:
+
+> Hi!
 > 
->
-> Encryption does have a few extra problems, simply because of the intent.
-> In a compressed filesystem it is ok to say "this information tends to be
-> small and hard to compress, so let's not" (for example, metadata). While
-> in an encrypted filesystem you shouldn't skip the "hard" pieces..
-
-Squashfs is I think the only Linux filesystem that does compress the 
-metadata.  I did this more as a technical challenge, but the extra 
-compression is sometimes worthwhile, especially with filesystems with 
-lots of small files.  Normally, however, it probably isn't worth the effort.
-
-Phillip
-
+> This patch tries to fix the situation where an error could cause
+> acpi_psx_execute() to exit without releasing held references to the
+> elements of param[].
 > 
-> (Encrypted filesystems also have the key management issues, further
-> complicating the thing, but that complication tends to be at a higher
-> level).
+> Thanks!
 > 
-> 		Linus
 
+- -- 
+Mihai RUSU                                    Email: dizzy@roedu.net
+GPG : http://dizzy.roedu.net/dizzy-gpg.txt    WWW: http://dizzy.roedu.net
+                       "Linux is obsolete" -- AST
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-
+iD8DBQE/z11QPZzOzrZY/1QRAriPAJ9tJ9A+l1VVCkvxVp5xKcl29+vnBwCguemq
+B4+AFaGmaYPah7YgNObfbk4=
+=6Nay
+-----END PGP SIGNATURE-----

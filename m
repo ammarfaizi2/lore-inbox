@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277203AbRJ3SJ4>; Tue, 30 Oct 2001 13:09:56 -0500
+	id <S277152AbRJ3SK4>; Tue, 30 Oct 2001 13:10:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277152AbRJ3SJq>; Tue, 30 Oct 2001 13:09:46 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:6153 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S277317AbRJ3SJ2>; Tue, 30 Oct 2001 13:09:28 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
+	id <S277253AbRJ3SKt>; Tue, 30 Oct 2001 13:10:49 -0500
+Received: from lambik.cc.kuleuven.ac.be ([134.58.10.1]:15881 "EHLO
+	lambik.cc.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id <S277317AbRJ3SKl>; Tue, 30 Oct 2001 13:10:41 -0500
+Message-Id: <200110301811.TAA17870@lambik.cc.kuleuven.ac.be>
+Content-Type: text/plain; charset=US-ASCII
+From: Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>
+To: linux-kernel@vger.kernel.org
+Subject: Re: need help interpreting 'free' output.
+Date: Tue, 30 Oct 2001 19:11:08 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.21.0110301557560.1229-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.21.0110301557560.1229-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15326.60536.561925.749776@beta.reiserfs.com>
-Date: Tue, 30 Oct 2001 21:07:52 +0300
-To: "P.Agenbag" <internet@psimation.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.13 kernel and ext3???
-In-Reply-To: <3BDEE870.1060104@psimation.com>
-In-Reply-To: <3BDEE870.1060104@psimation.com>
-X-Mailer: VM 6.89 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-P.Agenbag writes:
- > Hi
- > I just installed RedHat 7.2 with the 2.4.7 kernel. Low and behold, when 
- > I tried to install the latest kernels, I see that there are many options 
- > in the RedHat 2.4.7 kernel that are not even in the 2.4.13 kernel! How 
- > does this work? Also, I see many (EXPERIMENTAL) greyd-out areas in the 
- > kernel as well as other greyd out areas which are not experimental, yet 
- > won't allow me to select it ( reiserfs for example ) .
- > How can I get reiserfs to compile into the kernel, and to satsify my 
- > curiosity, how do you enable the experimental options?
 
-Turn on first option "Prompt for development and/or incomplete
-code/drivers" in the first configuration sub-menu "Code maturity level
-options".
+Op dinsdag 30 oktober 2001 17:07, schreef Hugh Dickins:
+> I'm fairly sure /proc/slabinfo will show large inode_cache and large
+> dentry_cache: which is natural after updatedb, nothing wrong with that.
 
-Read namesys.com/faq.html
+indeed.
 
- > 
- > Does it mean that if there is a fairly large difference between the 
- > RedHat 2.4.7 and the stock one from kernel.org, that they are not really 
- > the same? ie, does anyone foresee any future problems with redhat adding 
- > all these extra features to their kernel and people who would like to 
- > upgrade to a newer version ( for one, I selected ext3 during install, 
- > yet, now trying to install 2.4.13, I must revert back to ext2...)
- > 
- > Thanks
+before updatedb:
 
-Nikita.
+inode_cache        10594  10605    512 1515 1515    1
+dentry_cache       18239  18240    128  608  608    1
 
- > 
- > 
+after:
+
+inode_cache       220883 220913    512 31558 31559    1
+dentry_cache      229471 229500    128 7650 7650    1
+
+but i guess this comes a bit late :)
+
+greetings,
+frank

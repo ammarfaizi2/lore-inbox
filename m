@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266186AbUJOBOQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267657AbUJOBT7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266186AbUJOBOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 21:14:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267818AbUJOBOQ
+	id S267657AbUJOBT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 21:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267935AbUJOBT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 21:14:16 -0400
-Received: from opersys.com ([64.40.108.71]:8207 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S266186AbUJOBOP (ORCPT
+	Thu, 14 Oct 2004 21:19:59 -0400
+Received: from cantor.suse.de ([195.135.220.2]:42661 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267657AbUJOBT4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 21:14:15 -0400
-Message-ID: <416F2643.9000001@opersys.com>
-Date: Thu, 14 Oct 2004 21:22:11 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Roland Dreier <roland@topspin.com>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Thomas Zanussi <trz@us.ibm.com>, Robert Wisniewski <bob@watson.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U0
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>	<20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu>	<20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>	<20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>	<416F0071.3040304@opersys.com> <20041014234603.GA22964@elte.hu>	<416F14B4.8070002@opersys.com> <52u0swddpk.fsf@topspin.com>
-In-Reply-To: <52u0swddpk.fsf@topspin.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Oct 2004 21:19:56 -0400
+Date: Fri, 15 Oct 2004 03:18:38 +0200
+From: Andi Kleen <ak@suse.de>
+To: Adam Heath <doogie@debian.org>
+Cc: Andi Kleen <ak@suse.de>, "Martin K. Petersen" <mkp@wildopensource.com>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, akpm@osdl.org,
+       tony.luck@intel.com
+Subject: Re: [PATCH] General purpose zeroed page slab
+Message-ID: <20041015011838.GC9753@wotan.suse.de>
+References: <yq1oej5s0po.fsf@wilson.mkp.net> <20041014180427.GA7973@wotan.suse.de> <Pine.LNX.4.58.0410141836270.1221@gradall.private.brainfood.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0410141836270.1221@gradall.private.brainfood.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 14, 2004 at 06:36:47PM -0500, Adam Heath wrote:
+> On Thu, 14 Oct 2004, Andi Kleen wrote:
+> 
+> > Also that's pretty dumb. How about keeping track how much of the
+> > page got non zeroed (e.g. by using a few free words in struct page
+> > for a coarse grained dirty bitmap)
+> >
+> > Then you could memset on free only the parts that got actually
+> > changed, and never waste cache lines for anything else.
+> 
+> That will fail when a struct is placed in the page, and only the beginning and
+> end of the struct was changed.
 
-Roland Dreier wrote:
-> Not sure if I really understand the context where Ingo would use this,
-> but this lockless scheme doesn't seem to be safe for realtime; the
-> retry can potentially happen an arbitrary number of times.
+Hmm? I think you're misunderstanding me. The dirty bitmap would cover 
+all areas that are potentially not zero. If someone changes a byte
+without setting the bitmap they're buggy. 
 
-In theory. In practice it doesn't often happen twice and very rarely
-more than that.
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
-
+-Andi
+> 

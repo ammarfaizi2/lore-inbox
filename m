@@ -1,53 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289084AbSBMXGt>; Wed, 13 Feb 2002 18:06:49 -0500
+	id <S289062AbSBMXGJ>; Wed, 13 Feb 2002 18:06:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289089AbSBMXGd>; Wed, 13 Feb 2002 18:06:33 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:10761 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S289084AbSBMXGR>;
-	Wed, 13 Feb 2002 18:06:17 -0500
-Date: Wed, 13 Feb 2002 21:05:54 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Allan Sandfeld <linux@sneulv.dk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18-rc1
-In-Reply-To: <E16b8HV-0001JS-00@Princess>
-Message-ID: <Pine.LNX.4.33L.0202132104290.12554-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289084AbSBMXGA>; Wed, 13 Feb 2002 18:06:00 -0500
+Received: from iggy.triode.net.au ([203.63.235.1]:28857 "EHLO
+	iggy.triode.net.au") by vger.kernel.org with ESMTP
+	id <S289062AbSBMXFz>; Wed, 13 Feb 2002 18:05:55 -0500
+Date: Thu, 14 Feb 2002 10:05:11 +1100
+From: Linux Kernel Mailing List <kernel@iggy.triode.net.au>
+To: bob@dwcs.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x ALI IDE strangeness
+Message-ID: <20020214100511.A11641@iggy.triode.net.au>
+In-Reply-To: <Pine.LNX.4.40.0202131655290.3878-100000@dwcs.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.40.0202131655290.3878-100000@dwcs.net>; from bob@dwcs.net on Wed, Feb 13, 2002 at 05:32:35PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Feb 2002, Allan Sandfeld wrote:
-> On Wednesday 13 February 2002 20:33, Marcelo Tosatti wrote:
-> > So here it goes.
-> >
-> > rc1:
-> <snip>
-> > - Merge some -ac bugfixes			(Alan Cox)
->
-> Here's a crazy idea. Why not branch off the new pre-tree when
-> commiting a rc-kernel?
+Bob,
 
-Since I sit next to marcelo in the office I guess I could
-answer this question.
+I'm also experiencing strange hangs with DMA on and ALI15x3.
+I'm using an ASUS A7A266 motherboard.
 
-The reason not to do this is because maintaining a kernel
-is a horrible amount of work already and marcelo is pretty
-overloaded with all the patches everybody send him.
+Make sure that the BIOS setting of "PNP OS" is off
 
-OTOH, if _you_ volunteer to keep an -ac like kernel yourself
-so small fixes can be sent to marcelo in batches...
+I can turn DMA on using hdparm, however my system freezes up
+if I try some heavy work like a kernel compile.
 
-cheers,
+I'm sure there is a kernel bug here, I'm trying to find
+a kernel developer who is interested in investigating it.
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
+Regards.  Paul
 
-http://www.surriel.com/		http://distro.conectiva.com/
 
+
+On Wed, Feb 13, 2002 at 05:32:35PM -0500, bob@dwcs.net wrote:
+> When using any 2.4.x kernel, including the very latest one, with my
+> Fujitsu Lifebook P which uses the ALI  M5229 IDE controller it acts much
+> different than when using any 2.2.x  kernels that I have tried.  When
+> using the latest 2.2 kernels and not including specific support for the
+> ALI controller the kernel detects the controller and lets me use DMA.
+> When compiling in ALI IDE support in either 2.2 or 2.4 kernels the system
+> hangs when the controller is detected.
+> That isn't really much of a problem in the 2.2 kernels because I can just
+> use the generic IDE support.  In the 2.4 kernel series though, I can't
+> enable DMA.  When booting with a 2.4 kernel I get this:
+> 
+> Uniform Multi-Platform E-IDE driver Revision: 6.31
+> ide: Assuming 33MHz system bus speed for PIO modes; override with
+> idebus=xx
+> ALI15X3: IDE controller on PCI bus 00 dev 78
+> PCI: No IRQ known for interrupt pin A of device 00:0f.0. Please try using
+> pci=biosirq.
+> ALI15X3: chipset revision 195
+> ALI15X3: not 100% native mode: will probe irqs later
+> ALI15X3: simplex device:  DMA disabled
+> ide0: ALI15X3 Bus-Master DMA disabled (BIOS)
+> ALI15X3: simplex device:  DMA disabled
+> ide1: ALI15X3 Bus-Master DMA disabled (BIOS)
+> 
+> Then hdparm absolutely will not let me enable DMA giving me this error:
+> 
+> /dev/hda:
+>  setting using_dma to 1 (on)
+>  HDIO_SET_DMA failed: Operation not permitted
+>  using_dma    =  0 (off)
+> 
+> 
+> Changing the PNP OS value in the BIOS to either Yes or No does absolutely
+> nothing and using "pci=biosirq" just makes the part that says "Please try
+> using pci=biosirq." go away.
+> 
+> However, on accident I discovered if I boot with a 2.2 kernel, reset the
+> computer instead of powering off, then boot with a 2.4 kernel it will let
+> me enable DMA.
+> 
+> Is there anything I could try to make DMA work with the 2.4 series?
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

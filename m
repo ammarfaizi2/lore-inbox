@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261850AbTICKuV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 06:50:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbTICKuV
+	id S261863AbTICLDH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 07:03:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbTICLDH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 06:50:21 -0400
-Received: from pa186.opole.sdi.tpnet.pl ([213.76.204.186]:62212 "EHLO
-	deimos.one.pl") by vger.kernel.org with ESMTP id S261850AbTICKuT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 06:50:19 -0400
-From: Damian =?iso-8859-2?q?Ko=B3kowski?= <deimos@deimos.one.pl>
-To: Christian Guggenberger 
-	<Christian.Guggenberger@physik.uni-regensburg.de>,
-       dth@ncc1701.cistron.net, rl@hellgate.ch, arjanv@redhat.com
-Subject: Re: 2.6.0-test4(-mmX) via-rhine ethernet onboard C3 mini-itx doesn't work
-Date: Wed, 3 Sep 2003 12:50:15 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <20030903113737.A3655@pc9391.uni-regensburg.de> <20030903114611.C3655@pc9391.uni-regensburg.de>
-In-Reply-To: <20030903114611.C3655@pc9391.uni-regensburg.de>
+	Wed, 3 Sep 2003 07:03:07 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:9899 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261863AbTICLDF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 07:03:05 -0400
+Date: Wed, 3 Sep 2003 13:02:32 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: "Brown, Len" <len.brown@intel.com>
+cc: Giuliano Pochini <pochini@shiny.it>, Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: RE: Scaling noise
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FCEB@hdsmsx402.hd.intel.com>
+Message-ID: <Pine.GSO.4.21.0309031301380.6985-100000@waterleaf.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200309031250.16071@uran.deimos.one.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia ¶ro 3. wrze¶nia 2003 11:46, Christian Guggenberger napisa³:
+On Wed, 3 Sep 2003, Brown, Len wrote:
+> > Latency is not bandwidth.
+> 
+> Bingo.
+> 
+> The way to address memory latency is by increasing bandwidth and
+> increasing parallelism to use it -- thus amortizing the latency.  HT is
+> one of many ways to do this.  If systems are to grow faster at a rate
+> better than memory speeds, then plan on more parallelism, not less.
 
-> This one got IO-APIC + ACPI working for the first time in a year on my EPOX
-> 8k5a3+.
+More parallelism usually means more data to process, hence more bandwidth is
+needed => back to where we started.
 
-Wolk 4.8s + NEWIDE is working fine APIC, IO-APIC and ACPI too on my 
-via_kt-400.
+Gr{oetje,eeting}s,
 
--- 
-# Damian *dEiMoS* Ko³kowski # http://deimos.one.pl/ #
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

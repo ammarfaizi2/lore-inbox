@@ -1,96 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbVBLRrN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVBLRv6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261173AbVBLRrN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 12:47:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVBLRrN
+	id S261174AbVBLRv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 12:51:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVBLRv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 12:47:13 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:27275 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261173AbVBLRrC (ORCPT
+	Sat, 12 Feb 2005 12:51:58 -0500
+Received: from mx.freeshell.org ([192.94.73.21]:29426 "EHLO sdf.lonestar.org")
+	by vger.kernel.org with ESMTP id S261174AbVBLRvz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 12:47:02 -0500
-Message-ID: <420E4139.1050907@watson.ibm.com>
-Date: Sat, 12 Feb 2005 12:47:37 -0500
-From: Shailabh Nagar <nagar@watson.ibm.com>
-Reply-To: nagar@watson.ibm.com
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
+	Sat, 12 Feb 2005 12:51:55 -0500
+Date: Sat, 12 Feb 2005 17:50:47 +0000 (UTC)
+From: Roey Katz <roey@sdf.lonestar.org>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
+In-Reply-To: <200501122242.51686.dtor_core@ameritech.net>
+Message-ID: <Pine.NEB.4.61.0502121749290.25663@sdf.lonestar.org>
+References: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org>
+ <200501110239.33260.dtor_core@ameritech.net> <Pine.NEB.4.61.0501130315500.11711@sdf.lonestar.org>
+ <200501122242.51686.dtor_core@ameritech.net>
 MIME-Version: 1.0
-To: Peter Williams <pwil3058@bigpond.net.au>
-CC: ckrm-tech <ckrm-tech@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ckrm-e17
-References: <41F92A48.2010100@watson.ibm.com> <420D98A3.3060508@bigpond.net.au>
-In-Reply-To: <420D98A3.3060508@bigpond.net.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Shailabh Nagar wrote:
-> 
-> 
-> At line 3887 of cpu.ckrm-e17.v10.patch you add the line:
-> 
->         set_task_cpu(p,this_cpu);
-> 
-> to the middle of the function wake_up_new_task() resulting in the 
-> following code:
-> 
->     } else {
->         this_rq = cpu_rq(this_cpu);
-> 
->         /*
->          * Not the local CPU - must adjust timestamp. This should
->          * get optimised away in the !CONFIG_SMP case.
->          */
->         p->sdu.ingosched.timestamp = (p->sdu.ingosched.timestamp - 
-> this_rq->timestamp_last_tick)
->                     + rq->timestamp_last_tick;
->         set_task_cpu(p,this_cpu);
->         __activate_task(p, rq);
->         if (TASK_PREEMPTS_CURR(p, rq))
->             resched_task(rq->curr);
-> 
->         schedstat_inc(rq, wunt_moved);
->         /*
->          * Parent and child are on different CPUs, now get the
->          * parent runqueue to update the parent's 
-> ->sdu.ingosched.sleep_avg:
->          */
->         task_rq_unlock(rq, &flags);
->         this_rq = task_rq_lock(current, &flags);
->     }
-> 
-> where "rq" has been set by the return value of "task_rq_lock(p, 
-> &flags)", and the test "(cpu == this_cpu)" has failed with "cpu" set to 
-> "task_cpu(p)".  The result of this when the CKRM CPU code is not 
-> configured into the build is that "p" will be queued on a runqueue that 
-> is not in agreement with "p->thread_info->cpu" which in turn will lead 
-> to future use of "task_rq_lock()" locking the wrong run queue and 
-> eventually triggering some form of race condition.
-> 
-> If CKRM CPU is configured into the build the results are less drastic as 
-> they only result in "nr_running" being incremented for the wrong run 
-> queue.  However, even this will have adverse scheduling effects as it 
-> will probably confuse the load balancing code.  Another potentially 
-> confusing thing with this code (when CKRM CPU is configured in) is that 
-> __activate_task() does NOT queue "p" on "rq" but on the queue found by 
-> the call "get_task_lrq(p)".
-> 
-> The recommended fix for this problem would be to withdraw the:
-> 
->         set_task_cpu(p,this_cpu);
-> 
-> Peter
+Hello again Dmitry,
 
-Thanks for finding that out. Will confirm and fix in the next release.
+is there anything new about this issue? any fixes in the kernel?
+If you want, I can continue doing the test/debug cycle as before.
 
-> PS I reported this to the ckrm-tech list 5 days ago but it was ignored.
+Roey
 
-Other project priorities prevented us from responding sooner. There's no 
-call to jump to conclusions.
 
--- Shailabh
+On Wed, 12 Jan 2005, Dmitry Torokhov wrote:
 
+> Date: Wed, 12 Jan 2005 22:42:51 -0500
+> From: Dmitry Torokhov <dtor_core@ameritech.net>
+> To: linux-kernel@vger.kernel.org
+> Cc: Roey Katz <roey@sdf.lonestar.org>
+> Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
+> 
+> On Wednesday 12 January 2005 10:19 pm, Roey Katz wrote:
+>> Dmitry,
+>>
+>> I have placed the results of the patched 2.6.9-rc2-bk2 kernel at the
+>> following address:
+>>
+>>    http://roey.freeshell.org/mystuff/kernel/*-20050112
+>>
+>> As expected, the system was unresponsive to keyboard input.
+>
+> And what if you do not compile PS/2 mouse support in? Is keyboard still
+> dead?
+>
+>> Regarding your mouse question:
+>> How do I test the mouse if they keyboard does not work (is there some
+>> way to output the contents of /dev/psaux on startup? I'm not sure anymore
+>> what file the mouse data appears in, too)
+>>
+>
+> Install GPM and try moving your mouse after booting into runlevel 3 -
+> if cursor moves mouse works.
+>
+> -- 
+> Dmitry
+>

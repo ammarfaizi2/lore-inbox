@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130658AbQLKWff>; Mon, 11 Dec 2000 17:35:35 -0500
+	id <S131097AbQLKWgz>; Mon, 11 Dec 2000 17:36:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131010AbQLKWfZ>; Mon, 11 Dec 2000 17:35:25 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:2186 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S130658AbQLKWfN>;
-	Mon, 11 Dec 2000 17:35:13 -0500
-Date: Mon, 11 Dec 2000 13:48:34 -0800
-Message-Id: <200012112148.NAA24830@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: groudier@club-internet.fr
-CC: mj@suse.cz, lk@tantalophile.demon.co.uk, davej@suse.de,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10012112116250.2023-100000@linux.local> (message
-	from Gérard Roudier on Mon, 11 Dec 2000 21:49:52 +0100 (CET))
-Subject: Re: pdev_enable_device no longer used ?
-In-Reply-To: <Pine.LNX.4.10.10012112116250.2023-100000@linux.local>
+	id <S131095AbQLKWgp>; Mon, 11 Dec 2000 17:36:45 -0500
+Received: from mail11.verio.de ([213.198.0.60]:37954 "HELO mail11.verio.de")
+	by vger.kernel.org with SMTP id <S131010AbQLKWgm>;
+	Mon, 11 Dec 2000 17:36:42 -0500
+From: Michael Meding <Michael@Meding.net>
+Reply-To: Michael@Meding.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx version status for 2.4.0test ? -- ignore last post
+Date: Tue, 12 Dec 2000 00:01:26 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="US-ASCII"
+In-Reply-To: <00121123403208.00322@Hal>
+In-Reply-To: <00121123403208.00322@Hal>
+MIME-Version: 1.0
+Message-Id: <0012120001260B.00322@Hal>
+Content-Transfer-Encoding: 8bit
+X-Loop-Detect: 1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Mon, 11 Dec 2000 21:49:52 +0100 (CET)
-   From: Gérard Roudier <groudier@club-internet.fr>
+Hi all,
 
-   If now, the PCI stuff is claimed to be cleaned up, then _all_ the
-   hacks have to be removed definitely.  As a result, the driver will
-   not work anymore on Sparc64, neither on PPC and I am not sure it
-   will still work on Alpha, in my opinion.
+sorry, next time I should at least do sanity checks on my own email.
 
-Actually Gerard, in your current 2.4.x NCR53c8xx and SYM53c8XX drivers
-only real ifdefs for sparc64 are printf format strings for PCI interrupt
-numbers :-)
+Of course 5.2.1 as in latest-test is newer than 5.1.something.
 
-Really, in 2.4.x sparc64 requires PCI config space hackery no longer.
+Just did a quick look in the source and on Dougs site and mixed the version 
+numbers up. Stupid me!
 
-Later,
-David S. Miller
-davem@redhat.com
+Greetings,
+
+Michael Meding
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,36 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262523AbVCPF1R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262527AbVCPFbf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262523AbVCPF1R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 00:27:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbVCPF1R
+	id S262527AbVCPFbf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 00:31:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbVCPFbe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 00:27:17 -0500
-Received: from 209-204-138-32.dsl.static.sonic.net ([209.204.138.32]:46348
-	"EHLO graphe.net") by vger.kernel.org with ESMTP id S262523AbVCPF1M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 00:27:12 -0500
-Date: Tue, 15 Mar 2005 21:27:11 -0800 (PST)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@server.graphe.net
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Replace zone padding with a definition in cache.h
-In-Reply-To: <20050315212337.5484f2a0.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0503152126380.6196@server.graphe.net>
-References: <Pine.LNX.4.58.0503152010190.5134@server.graphe.net>
- <20050315202331.008ec856.akpm@osdl.org> <Pine.LNX.4.58.0503152103580.6087@server.graphe.net>
- <20050315212337.5484f2a0.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+	Wed, 16 Mar 2005 00:31:34 -0500
+Received: from fire.osdl.org ([65.172.181.4]:62666 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262527AbVCPFb1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 00:31:27 -0500
+Date: Tue, 15 Mar 2005 21:31:10 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11 USB broken on VIA computer (not just ACPI)
+Message-Id: <20050315213110.75ad9fd5.akpm@osdl.org>
+In-Reply-To: <4237C40C.6090903@sbcglobal.net>
+References: <4237A5C1.5030709@sbcglobal.net>
+	<20050315203914.223771b2.akpm@osdl.org>
+	<4237C40C.6090903@sbcglobal.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Mar 2005, Andrew Morton wrote:
-
-> > If the struct is named then there may be
-> > conflicts if its used repeatedly.
+"Robert W. Fuller" <orangemagicbus@sbcglobal.net> wrote:
 >
-> Hence the "hack" which you just deleted ;)
+>  I never actually saw it work until I added the noapic option to the 
+>  2.6.11.2 boot.  Now I can usually my USB mouse!  Of course the downside 
+>  to specifying noapic is only one CPU is servicing interrupts on my SMP 
+>  system.
 
-Ok, Master, I see the light....
+Oh, OK.  I was just wondering whether this was an actual regression.  I
+guess as it's an old machine and you have a workaround, we have other
+things to be working on.
+
+It would be nice to fix though.
+
+>  It certainly doesn't work under 2.4.28, but I haven't tried specifying 
+>  noapic to that kernel.  Would that be useful information?
+
+Probably not.

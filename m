@@ -1,76 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262241AbTIMWbp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 18:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbTIMWbp
+	id S262224AbTIMWYx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 18:24:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbTIMWYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 18:31:45 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:61595 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S262243AbTIMWaj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 18:30:39 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Pascal Schmidt" <der.eremit@email.de>,
-       "Andre Hedrick" <andre@linux-ide.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: People, not GPL  [was: Re: Driver Model]
-Date: Sat, 13 Sep 2003 15:30:35 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKMEGJGIAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <1063490941.9402.14.camel@dhcp23.swansea.linux.org.uk>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+	Sat, 13 Sep 2003 18:24:53 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:57851 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262224AbTIMWYv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 18:24:51 -0400
+Date: Sun, 14 Sep 2003 00:24:43 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: linux-kernel@vger.kernel.org
+Subject: [0/4] [2.6 patch] better i386 CPU selection
+Message-ID: <20030913222443.GN27368@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The patch is now splitted into the following four patches:
+
+[1/4]
+- changed the i386 CPU selection from a choice to single options for
+  every cpu
+- renamed the M* variables to CPU_*, this is needed to ask the users
+  upgrading from older kernels instead of silently changing the
+  semantics
+- X86_GOOD_APIC -> X86_BAD_APIC
+- AMD Elan is a different subarch, you can't configure a kernel that
+  runs on both the AMD Elan and other i386 CPUs
+- added optimizing CFLAGS for the AMD Elan
+- gcc 2.95 supports -march=k6 (no need for check_gcc)
+- help text changes/updates
+
+[2/4]
+move "struct movsl_mask movsl_mask" to usercopy.c 
+(CONFIG_X86_INTEL_USERCOPY is used on non-Intel CPUs)
+
+[3/4]
+- made arch/i386/kernel/cpu/Makefile CPU specific
+
+[4/4]
+- made arch/i386/kernel/cpu/mtrr/Makefile CPU specific
+
+Dependencies between these patches:
+- patch 3 requires 1+2
+- patch 4 requires 1
+
+The main part is patch 1.
+
+Patch 2 fixes a small issue that only shows up with patch 3.
+
+Patches 3+4 add some space optimizations by omitting unneeded code. They 
+are _not_ required, the main part is patch 1.
 
 
-> On Sad, 2003-09-13 at 22:19, David Schwartz wrote:
-
-> > > If people put GPL_ONLY symbol exports in their code, that's their call
-> > > to make, is it not? It's their code and they're free to say
-> > > "well, this
-> > > is my code, and if you use this symbol, I consider your stuff to be a
-> > > derived work". Once again it's up to the lawyers to decide whether
-> > > this has legal value or not.
-
-> > 	If it has legal value, then it's an additional restriction.
-
-> If it has legal value in showing the work is derivative thats not an
-> additional restriction.
-
-	If the work would not have been restricted without it and is restricted
-with it and you can't remove it, it's an additional restriction. If not,
-what would an additional restriction be?
-
-> Its merely showing the intent of the author.
-
-	The intent of the author has no bearing on whether or not a work is
-derived.
-
-> If
-> someone creates a work and its found to be derivative and they didnt
-> make it GPL compatible they get sued, thats also not an additional
-> restriction its what the GPL says anyway.
-
-	Show me where the GPL says you have to GPL derived works that you don't
-distribute. That restriction is found nowhere in the GPL and if you
-attempted to impose such a restriction, it would be an additional one.
-
-> That is the whole point of EXPORT_SYMBOL_GPL, it doesn't enforce
-> anything and Linus was absolutely specific it should not do the
-> enforcing. Its a hint and a support filter.
-
-	If it doesn't enforce anything and isn't a license restriction, then it's
-perfectly legal and kosher to remove it.
-
-	DS
+TODO:
+- which CPUs exactly need X86_ALIGNMENT_16?
+- change include/asm-i386/module.h to use some kind of bitmask
 
 
+cu
+Adrian

@@ -1,67 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317176AbSHZBz1>; Sun, 25 Aug 2002 21:55:27 -0400
+	id <S317782AbSHZCAN>; Sun, 25 Aug 2002 22:00:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317778AbSHZBz1>; Sun, 25 Aug 2002 21:55:27 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:54745 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317176AbSHZBz0> convert rfc822-to-8bit;
-	Sun, 25 Aug 2002 21:55:26 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: James Cleverdon <jamesclv@us.ibm.com>
-Reply-To: jamesclv@us.ibm.com
-Organization: IBM xSeries Linux Solutions
-To: "Grover, Andrew" <andrew.grover@intel.com>, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] 2.5.31 Summit NUMA patch with dynamic IRQ balancing
-Date: Sun, 25 Aug 2002 18:59:29 -0700
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org
-References: <EDC461A30AC4D511ADE10002A5072CAD0236DDD3@orsmsx119.jf.intel.com>
-In-Reply-To: <EDC461A30AC4D511ADE10002A5072CAD0236DDD3@orsmsx119.jf.intel.com>
+	id <S317793AbSHZCAN>; Sun, 25 Aug 2002 22:00:13 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26898 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317782AbSHZCAM>;
+	Sun, 25 Aug 2002 22:00:12 -0400
+Message-ID: <3D698F4E.93A3DDA2@zip.com.au>
+Date: Sun, 25 Aug 2002 19:15:42 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200208251859.29185.jamesclv@us.ibm.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+CC: Steven Cole <elenstev@mesatop.com>, lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: MM patches against 2.5.31
+References: <1030031958.14756.479.camel@spc9.esa.lanl.gov> <2631076918.1030007179@[10.10.2.3]>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 23 August 2002 05:29 pm, Grover, Andrew wrote:
-> > From: James Cleverdon [mailto:jamesclv@us.ibm.com]
-> >
-> > > This should be moved to acpi.h
-> >
-> > Will be, once I'm sure this is the right way to go.  As
-> > mentioned earlier, I'm
-> > having ACPI problems that seem to imply ACPI isn't building
-> > the full IRQ
-> > table.  In 2.4 we could let MPS do this.  Maybe 2.5 will need
-> > to revert to
-> > that behavior.
->
-> What happens when you use the FULL ACPI support? I suspect that you really
-> do want the interpreter, in order to evaluate _PRTs properly.
->
-> ISTR that the reason you are thinking that ACPI only is programming some of
-> the ioapic entries is because whatever is printing them is looking at the
-> mp_irqs array. Which is MPS specific. So ACPI doesn't bother filling it all
-> in. :)
->
-> Is that a bug? Should ACPI fill it in completely, or maybe not at all?
-> Don't know. But it is strictly unnecessary.
->
-> Regards -- Andy
+"Martin J. Bligh" wrote:
+> 
+> > kjournald: page allocation failure. order:0, mode:0x0
+> 
+> I've seen this before, but am curious how we ever passed
+> a gfpmask (aka mode) of 0 to __alloc_pages? Can't see anywhere
+> that does this?
 
-Bingo!  With full ACPI turned on, the system does indeed boot.  The extra I/O 
-APIC entries are being programmed from the PRT.
+Could be anywhere, really.  A network interrupt doing GFP_ATOMIC
+while kjournald is executing.  A radix-tree node allocation 
+on the add-to-swap path perhaps.  (The swapout failure messages
+aren't supposed to come out, but mempool_alloc() stomps on the
+caller's setting of PF_NOWARN.)
 
-(Call chain is:  pci_acpi_init --> acpi_pci_irq_init --> mp_parse_prt --> 
-io_apic_set_pci_routing)
+Or:
 
-So, given that quite a number of our customers would like to run with 
-hyperthreading turned on, but do not want full ACPI, what is the right thing 
-to do in the HT-only case?  Add extra code to process the PRT?  Fall back on 
-MPS's IRQ records?  Something else entirely?
-
--- 
-James Cleverdon
-IBM xSeries Linux Solutions
-{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
-
+mnm:/usr/src/25> grep -r GFP_ATOMIC drivers/scsi/*.c | wc -l
+     89

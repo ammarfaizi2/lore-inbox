@@ -1,69 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267520AbTAGS7k>; Tue, 7 Jan 2003 13:59:40 -0500
+	id <S267494AbTAGSrh>; Tue, 7 Jan 2003 13:47:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267517AbTAGS7k>; Tue, 7 Jan 2003 13:59:40 -0500
-Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:49636 "EHLO
-	lucifer.gotontheinter.net") by vger.kernel.org with ESMTP
-	id <S267520AbTAGS7j>; Tue, 7 Jan 2003 13:59:39 -0500
-Subject: Re: Why is Nvidia given GPL'd code to use in non-freedrivers?
-From: Disconnect <lkml@sigkill.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <E18Vyhp-0007S3-00@fencepost.gnu.org>
-References: <1041725489.1770.36.camel@sbarn.net>
-	<E18VNtv-000065-00@fencepost.gnu.org> <3E19517B.3030805@walrond.org>
-	<E18VeCE-0006XW-00@fencepost.gnu.org> <3E1A16A5.8070903@walrond.org> 
-	<E18Vyhp-0007S3-00@fencepost.gnu.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 07 Jan 2003 14:08:18 -0500
-Message-Id: <1041966498.15859.18.camel@sparky>
+	id <S267495AbTAGSrg>; Tue, 7 Jan 2003 13:47:36 -0500
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:50420 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id <S267494AbTAGSre>; Tue, 7 Jan 2003 13:47:34 -0500
+Date: Tue, 7 Jan 2003 11:55:44 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Max Valdez <maxvaldez@yahoo.com>, Jan Hudec <bulb@ucw.cz>,
+       kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Undelete files on ext3 ??
+Message-ID: <20030107115544.W31555@schatzie.adilger.int>
+Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
+	Max Valdez <maxvaldez@yahoo.com>, Jan Hudec <bulb@ucw.cz>,
+	kernel <linux-kernel@vger.kernel.org>
+References: <1041961118.13635.10.camel@garaged.fis.unam.mx> <Pine.LNX.3.95.1030107131613.3523A-100000@chaos.analogic.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.3.95.1030107131613.3523A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Tue, Jan 07, 2003 at 01:17:35PM -0500
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-01-07 at 13:44, Richard Stallman wrote:
->     So If I spend $X developing my game and then sell it closed with the 
->     stated intention of opening the source as soon as it has recouped a 
->     reasonable return on my investment, this would get your official seal of 
->     approval?
-> 
-> Not quite.  We can't count on this to result in free software.
-> 
-> 2. There's no time limit.  "As soon as it has recouped a reasonable
-> return" could mean years from now, or never.  As a result, even if you
-> specify a specific free software license that you will use, we still
-> can't count on this to make the package free software in any
-> reasonable time.
+On Jan 07, 2003  13:17 -0500, Richard B. Johnson wrote:
+> Therefore, it's time for somebody to put a 'dumpster` in all the Linux
+> file-systems.  Somebody should then modify `rm` and the kernel unlink
+> to `mv' files to the dumpster directory on the file-system, instead of
+> really deleting them. Then, just like the Redmond stuff, a separate
+> program can be used to clear out the "dumpster" or `mv` them back.
 
-So if he specifies a specific future license (eg GPL, just to simplify
-things) and indicates what 'reasonable return' is (eg "a sale of 8,000
-licenses" or some such) that would be ok......
+This is very FAQ.  Please see the l-k archives for any year to find
+lengthy discussions about this.
 
-> If these two points were suitably changed, this becomes a plan that I
-> might recommend to you if you were otherwise going to keep the
-> software non-free and there were no better possibility.  However, I
-> could not recommend actually using the software while it is non-free.
-
-....but you'd recommend that people not have the freedom to make their
-own price/value decisions AND (added bonus) actively work to PREVENT it
-ever becoming GPL'd.
-
-User: "This [game/driver/database/...] is exactly what I need, and its
-only $50!  Its worth way more than that to me, this rules."
-RMS: "Sorry, you're not allowed to buy that.  Just wait until it becomes
-free, then its all yours."
-User: "Um.. ok. I need it pretty soon, and $50 is a great deal; it would
-cost me at least $2k and time I don't have to recreate it from scratch. 
-When will it be free so I can use it?"
-RMS: "Well... when a bunch of people piss me off and go buy it."
-....
-
-Heh. Hehehehe.  So we're back to the "software developers are evil and
-should all starve to death" stance.  Nifty.  Thank [insert diety here]
-that you are working so hard to destroy your reputation; I'd hate to see
-the number of people following your edicts actually increasing..
-
-
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266263AbUGJPIR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266284AbUGJPMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266263AbUGJPIR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 11:08:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266281AbUGJPIR
+	id S266284AbUGJPMx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 11:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266289AbUGJPMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 11:08:17 -0400
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:39411 "EHLO
-	mail.kroptech.com") by vger.kernel.org with ESMTP id S266263AbUGJPIQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 11:08:16 -0400
-Date: Sat, 10 Jul 2004 11:42:12 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Todd Poynor <tpoynor@mvista.com>
-Cc: Tim Bird <tim.bird@am.sony.com>,
-       linux kernel <linux-kernel@vger.kernel.org>,
-       CE Linux Developers List <celinux-dev@tree.celinuxforum.org>
-Subject: Re: [PATCH] preset loops_per_jiffy for faster booting
-Message-ID: <20040710114212.B29889@mail.kroptech.com>
-References: <40EEF10F.1030404@am.sony.com> <20040709193528.A23508@mail.kroptech.com> <40EF3637.4090105@am.sony.com> <20040709220142.B29198@mail.kroptech.com> <40EF4E16.8000709@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <40EF4E16.8000709@mvista.com>; from tpoynor@mvista.com on Fri, Jul 09, 2004 at 07:01:58PM -0700
+	Sat, 10 Jul 2004 11:12:53 -0400
+Received: from mail014.syd.optusnet.com.au ([211.29.132.160]:2542 "EHLO
+	mail014.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S266284AbUGJPMv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 11:12:51 -0400
+Message-ID: <40F0075C.2070607@kolivas.org>
+Date: Sun, 11 Jul 2004 01:12:28 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
+References: <20040709182638.GA11310@elte.hu> <20040709195105.GA4807@infradead.org> <20040710124814.GA27345@elte.hu>
+In-Reply-To: <20040710124814.GA27345@elte.hu>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig716F2272FD1B1949B88F87A1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 09, 2004 at 07:01:58PM -0700, Todd Poynor wrote:
-> Adam Kropelin wrote:
-> 
-> > +	if (preset_lpj) {
-> > +		loops_per_jiffy = preset_lpj;
-> > +		printk("Calibrating delay loop (skipped)... ");
-> 
-> Suggest a "\n" at the end of that.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig716F2272FD1B1949B88F87A1
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Indeed. I propogated that bug from the original patch. I'll fix it.
+I've conducted some of the old fashioned Benno's latency test on this 
+patch in various sysctl configurations. This was done on top of a 
+different tree but everything else was kept static. I have to preface 
+these results by saying I don't really get the 50ms size latencies 
+normally but I'm usually unable to get better than 3ms so I wasn't sure 
+what to expect.
 
-> Maybe add the precomputed value to 
-> help bring incorrect presets to someone's attention, something like:
-> 
-> +		printk("BogoMIPS preset to %lu.%02lu\n",
-> +			loops_per_jiffy/(500000/HZ),
-> +			(loops_per_jiffy/(5000/HZ)) % 100);
+Only the both preempt off showed any "outlying" results with one spike 
+of ~20ms but the rest of the time being ~3ms. Enabling both forms of 
+preempt seemed to help a little but nothing drastic, and never below 
+1ms. It was not universal that the latencies were better, but there was 
+a trend towards better latency. I suspect that those who are getting 
+huge latencies may see a bigger change with this patch than I did.
 
-Will do.
+http://ck.kolivas.org/latency/
 
->  > + If unsure, set this to 0. An incorrect value will cause delays in
->  > + the kernel to be incorrect.  Although unlikely, in the extreme case
->  > + this might damage your hardware.
-> 
-> I suppose it may result in unpredictable I/O errors, in case we want to 
-> warn against that.
+Con
 
-Easy enough to throw it in.
+--------------enig716F2272FD1B1949B88F87A1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-Another patch is forthcoming.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
---Adam
+iD8DBQFA8AdgZUg7+tp6mRURAoDbAJ4jShS/xYL4Zslpl9plqS2metWl9gCfSpDI
+HV5m8tq2mCXcDjacPdAwM+A=
+=xAsE
+-----END PGP SIGNATURE-----
 
+--------------enig716F2272FD1B1949B88F87A1--

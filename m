@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284346AbRLCIvo>; Mon, 3 Dec 2001 03:51:44 -0500
+	id <S284477AbRLCIvf>; Mon, 3 Dec 2001 03:51:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284422AbRLCIuO>; Mon, 3 Dec 2001 03:50:14 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:51647 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S284822AbRLCGhr>; Mon, 3 Dec 2001 01:37:47 -0500
-Date: Sun, 2 Dec 2001 23:36:16 -0700
-Message-Id: <200112030636.fB36aGA18070@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: [PATCH] devfs v199.1 available
+	id <S284481AbRLCIum>; Mon, 3 Dec 2001 03:50:42 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:29702 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S284813AbRLCG15>; Mon, 3 Dec 2001 01:27:57 -0500
+Date: Sun, 2 Dec 2001 22:38:40 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Larry McVoy <lm@bitmover.com>,
+        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+In-Reply-To: <Pine.LNX.4.40.0112021303070.7375-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.40.0112022236010.7375-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. Version 199.1 of my devfs patch is now available from:
-http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
-The devfs FAQ is also available here.
+On Sun, 2 Dec 2001, Davide Libenzi wrote:
 
-Patch directly available from:
-ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
+> That's exactly the Linus point: no long term preventive design.
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
+And now for the ones that don't speak Italish :
 
-This is against 2.4.17-pre2. Highlights of this release:
+s/preventive/prior/
 
-- Fixed bug in <devfsd_read>: was dereferencing freed pointer
 
-				Regards,
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+
+- Davide
+
+

@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262833AbVCJQzk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262901AbVCJRCV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262833AbVCJQzk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 11:55:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262749AbVCJQu5
+	id S262901AbVCJRCV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 12:02:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262875AbVCJQ4o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 11:50:57 -0500
-Received: from mail.kroah.org ([69.55.234.183]:32415 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262744AbVCJQtB (ORCPT
+	Thu, 10 Mar 2005 11:56:44 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:10193 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262787AbVCJQy4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 11:49:01 -0500
-Date: Thu, 10 Mar 2005 08:48:47 -0800
-From: Greg KH <greg@kroah.com>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: binary drivers and development
-Message-ID: <20050310164847.GA16430@kroah.com>
-References: <423075B7.5080004@comcast.net>
+	Thu, 10 Mar 2005 11:54:56 -0500
+Date: Thu, 10 Mar 2005 08:54:12 -0800
+From: mike kravetz <kravetz@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Paul Mackerras <paulus@samba.org>, anton@samba.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PPC64 NUMA memory fixup
+Message-ID: <20050310165412.GA6356@w-mikek2.ibm.com>
+References: <16942.30144.513313.26103@cargo.ozlabs.ibm.com> <20050310023613.23499386.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <423075B7.5080004@comcast.net>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <20050310023613.23499386.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 10, 2005 at 11:28:39AM -0500, John Richard Moser wrote:
-> I've been looking at the UDI project[1] and thinking about binary
-> drivers and the like, and wondering what most peoples' take on these are
-> and what impact that UDI support would have on the kernel's development.
+On Thu, Mar 10, 2005 at 02:36:13AM -0800, Andrew Morton wrote:
+> 
+> This patch causes the non-numa G5 to oops very early in boot in
+> smp_call_function().
+> 
 
-Please, the UDI stuff has been proven to be broken and wrong.  If you
-want to work on it, feel free to do so, just don't expect for anyone to
-accept the UDI layer into the kernel mainline.
+OK - Let me take a look.
 
-What's that phrase about people forgetting history are doomed...
-
-greg k-h
+-- 
+Mike

@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278742AbRJ0N2C>; Sat, 27 Oct 2001 09:28:02 -0400
+	id <S279817AbRJ0Nx0>; Sat, 27 Oct 2001 09:53:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278782AbRJ0N1u>; Sat, 27 Oct 2001 09:27:50 -0400
-Received: from smtp2.libero.it ([193.70.192.52]:14302 "EHLO smtp2.libero.it")
-	by vger.kernel.org with ESMTP id <S278742AbRJ0N1k>;
-	Sat, 27 Oct 2001 09:27:40 -0400
-Message-ID: <3BDAB344.CE25D5D@denise.shiny.it>
-Date: Sat, 27 Oct 2001 15:14:44 +0200
-From: Giuliano Pochini <pochini@denise.shiny.it>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.13-pre1 ppc)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: zlatko.calusic@iskon.hr
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>, linux-mm@kvack.org,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: xmm2 - monitor Linux MM active/inactive lists graphically
-In-Reply-To: <Pine.LNX.4.31.0110250920270.2184-100000@cesium.transmeta.com> <dnr8rqu30x.fsf@magla.zg.iskon.hr>
+	id <S279818AbRJ0NxP>; Sat, 27 Oct 2001 09:53:15 -0400
+Received: from theirongiant.weebeastie.net ([203.62.148.50]:29576 "EHLO
+	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
+	id <S279817AbRJ0Nw7>; Sat, 27 Oct 2001 09:52:59 -0400
+Date: Sat, 27 Oct 2001 14:06:14 +1000
+From: CaT <cat@zip.com.au>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kjournald and disk sleeping
+Message-ID: <20011027140614.A667@zip.com.au>
+In-Reply-To: <Pine.LNX.4.30.0110221415460.19985-100000@multivac.famaf.unc.edu.ar> <20011025161330.A38@toy.ucw.cz> <20011026192750.A670@zip.com.au> <20011026235447.A23218@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20011026235447.A23218@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.3.23i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> block: 1024 slots per queue, batch=341
+On Fri, Oct 26, 2001 at 11:54:47PM +0200, Pavel Machek wrote:
+> > > I'm working on suspend-to-disk, and suspend-to-ram is mostly working, also.
+> > > ...
+> > 
+> > Sweet.
+> > 
+> > What's not working with suspend-to-ram? Gateway, in their infinate
 > 
-> Wrote 600.00 MB in 71 seconds -> 8.39 MB/s (7.5 %CPU)
-> 
-> Still very spiky, and during the write disk is uncapable of doing any
-> reads. IOW, no serious application can be started before writing has
-> finished. Shouldn't we favour reads over writes? Or is it just that
-> the elevator is not doing its job right, so reads suffer?
->
->    procs                      memory    swap          io     system         cpu
->  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
->  0  1  1      0   3596    424 453416   0   0     0 40468  189   508   2   2  96
+> Patrick Mochel from transmeta. [Or you meant suspend-to-disk?]
 
-341*127K = ~40M.
+Actually, now that I think about it, both. :)
 
-Batch is too high. It doesn't explain why reads get delayed so much, anyway.
-
-Bye.
-
+-- 
+CaT        "As you can expect it's really affecting my sex life. I can't help
+           it. Each time my wife initiates sex, these ejaculating hippos keep
+           floating through my mind."
+                - Mohd. Binatang bin Goncang, Singapore Zoological Gardens

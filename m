@@ -1,27 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273565AbRJANhA>; Mon, 1 Oct 2001 09:37:00 -0400
+	id <S275061AbRJANlk>; Mon, 1 Oct 2001 09:41:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275061AbRJANgk>; Mon, 1 Oct 2001 09:36:40 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55820 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S273565AbRJANgb>; Mon, 1 Oct 2001 09:36:31 -0400
-Subject: Re: more goodies from 2.4.9-ac16 on
-To: linux4u@wanadoo.es (Pau Aliagas)
-Date: Mon, 1 Oct 2001 14:42:02 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (lkml), alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <Pine.LNX.4.33.0110011503170.1299-100000@pau.intranet.ct> from "Pau Aliagas" at Oct 01, 2001 03:06:13 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15o3Kc-0001KT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S275067AbRJANla>; Mon, 1 Oct 2001 09:41:30 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:42770 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S275061AbRJANlQ>;
+	Mon, 1 Oct 2001 09:41:16 -0400
+Date: Mon, 1 Oct 2001 15:41:36 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: jdthood@yahoo.co.uk
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PnPBIOS 2.4.9-ac1[56] Vaio fix
+Message-ID: <20011001154136.K5531@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+In-Reply-To: <20011001125401.9684B8BF@thanatos.toad.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20011001125401.9684B8BF@thanatos.toad.net>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Sorry to followup myself... I was too fast :( as the zombies are still
-> there. Many processes in Z state ([galeon-bin <defunct>]) til the parent
-> dies and only then all die.
+On Mon, Oct 01, 2001 at 08:54:01AM -0400, Thomas Hood wrote:
 
-That is correct behaviour. It means the parent is buggy
+> Stelian: Okay, thanks for testing it.
+> 
+> Stelian and others:  So the fix works using is_sony_vaio_laptop
+> to set the pnp_bios_dont_use_current_config flag. i
+
+As I said, the DMI scan routines are still *after* the PnP 
+driver initialization. I didn't really tested it, but I suspect
+is_sony_vaio_laptop to be 0 when your routines are called.
+
+Something else must have changed in your code to enable my Vaio to
+boot...
+
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131227AbQKGXhb>; Tue, 7 Nov 2000 18:37:31 -0500
+	id <S132973AbQKGXl4>; Tue, 7 Nov 2000 18:41:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131075AbQKGXhO>; Tue, 7 Nov 2000 18:37:14 -0500
-Received: from humbolt.geo.uu.nl ([131.211.28.48]:61457 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S131003AbQKGXhC>; Tue, 7 Nov 2000 18:37:02 -0500
-Date: Wed, 8 Nov 2000 00:36:41 +0100 (CET)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Su Hwan Hwang <coredumping@hotmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: How to study linux kernel?
-In-Reply-To: <F244xroC6POYFSrAuWi0000f22c@hotmail.com>
-Message-ID: <Pine.LNX.4.05.10011080036230.12418-100000@humbolt.nl.linux.org>
+	id <S132612AbQKGXk5>; Tue, 7 Nov 2000 18:40:57 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:16717 "EHLO
+	amsmta02-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S132228AbQKGXjs>; Tue, 7 Nov 2000 18:39:48 -0500
+Date: Wed, 8 Nov 2000 01:47:37 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: "J. Dow" <jdow@earthlink.net>
+cc: dank@alumni.caltech.edu, atmproj@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: malloc(1/0) ??
+In-Reply-To: <04c301c0488a$694d6360$0a25a8c0@wizardess.wiz>
+Message-ID: <Pine.LNX.4.21.0011080146480.32613-100000@server.serve.me.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Nov 2000, Su Hwan Hwang wrote:
 
-> I'm interested in linux-kernel but I'm beginner.
-> 
-> So I don't know how to study linux-kernel.
+> I'm not sure that is fully responsive, Dan. Why doesn't the
+> strcpy throw a hissyfit and coredump?
 
-http://kernelnewbies.org/
+Because he's a lucky guy and doesn't cross a page boundary. If the
+"ffff" thing is the entire Wind95 source code it will dump :-)
 
-Rik
---
-The Internet is not a network of computers. It is a network
-of people. That is its real strength.
+> {^_^}
 
-http://www.conectiva.com/		http://www.surriel.com/
+
+	Igmar
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

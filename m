@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268830AbTBZXIa>; Wed, 26 Feb 2003 18:08:30 -0500
+	id <S269136AbTBZXQv>; Wed, 26 Feb 2003 18:16:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268891AbTBZXIa>; Wed, 26 Feb 2003 18:08:30 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:55980 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S268830AbTBZXI3> convert rfc822-to-8bit; Wed, 26 Feb 2003 18:08:29 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: filesystem access slowing system to a crawl
-Date: Thu, 27 Feb 2003 00:17:57 +0100
-User-Agent: KMail/1.4.3
-Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
-References: <A1FE021ABD24D411BE2D0050DA450B925EEA6C@MERKUR> <200302191742.02275.m.c.p@wolk-project.de> <20030219174940.GJ14633@x30.suse.de>
-In-Reply-To: <20030219174940.GJ14633@x30.suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200302270017.36598.m.c.p@wolk-project.de>
+	id <S269137AbTBZXQv>; Wed, 26 Feb 2003 18:16:51 -0500
+Received: from almesberger.net ([63.105.73.239]:35589 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S269136AbTBZXQt>; Wed, 26 Feb 2003 18:16:49 -0500
+Date: Wed, 26 Feb 2003 20:26:47 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, kuznet@ms2.inr.ac.ru,
+       kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Is an alternative module interface needed/possible?
+Message-ID: <20030226202647.H2092@almesberger.net>
+References: <20030217221837.Q2092@almesberger.net> <20030218050349.44B092C04E@lists.samba.org> <20030218042042.R2092@almesberger.net> <Pine.LNX.4.44.0302181252570.1336-100000@serv> <20030218111215.T2092@almesberger.net> <20030218142257.A10210@almesberger.net> <Pine.LNX.4.44.0302191454520.1336-100000@serv> <20030219231710.Y2092@almesberger.net> <Pine.LNX.4.44.0302212202020.1336-100000@serv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0302212202020.1336-100000@serv>; from zippel@linux-m68k.org on Sun, Feb 23, 2003 at 05:02:29PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 19 February 2003 18:49, Andrea Arcangeli wrote:
+Roman Zippel wrote:
+> Anyway, this alone would be not reason enough to change the module 
+> interface, but another module interface would give us more flexibility and 
+> reduce the locking complexity.
 
-Hi Marcelo,
+Wait, wait ! :-) There's one step you've left out: what we actually
+expect the module interface to do. We have:
 
-apply this, please!
+ - what it currently does, or what it did in the past
+ - what users think it does
+ - what users want it to do
+ - what we think the users should want
+ - what we think is a comfortable compromise
 
-> On Wed, Feb 19, 2003 at 05:42:34PM +0100, Marc-Christian Petersen wrote:
-> > On Wednesday 05 February 2003 10:39, Andrew Morton wrote:
-> >
-> > Hi Andrew,
-> >
-> > > > Running just "find /" (or ls -R or tar on a large directory) locally
-> > > > slows the box down to absolute unresponsiveness - it takes minutes
-> > > > to just run ps and kill the find process. During that time, kupdated
-> > > > and kswapd gobble up all available CPU time.
-> > >
-> > > Could be that your "low memory" is filled up with inodes.  This would
-> > > only happen in these tests if you're using ext2, and there are a *lot*
-> > > of directories.
-> > > I've prepared a lineup of Andrea's VM patches at
-> > > It would be useful if you could apply 10_inode-highmem-2.patch and
-> > > report back.  It applies to 2.4.19 as well, and should work OK there.
-> >
-> > is there any reason why this (inode-highmem-2) has never been submitted
-> > for inclusion into mainline yet?
+With "users", I mean primarily the guy who invokes "rmmod", or such.
 
+Anyway, I'm afraid I can't offer much wisdom from experience for this
+part, for I'm not much of a module user myself. I'll have more to say
+on service interfaces, though.
 
-Marcelo please include this:
-http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.21pre4aa3/10_inode-highmem-2
-other fixes should be included too but they don't apply cleanly yet
-unfortunately, I (or somebody else) should rediff them against mainline.
-> Andrea
+Sorry for slowing down, but I'm currently quite busy absorbing all
+the cool stuff that's recently been happening with UML. (So, blame
+Jeff ;-))
 
+- Werner
 
-ciao, Marc
-
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

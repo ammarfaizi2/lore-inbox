@@ -1,56 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316940AbSEWQRZ>; Thu, 23 May 2002 12:17:25 -0400
+	id <S316943AbSEWQYB>; Thu, 23 May 2002 12:24:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316941AbSEWQRY>; Thu, 23 May 2002 12:17:24 -0400
-Received: from mail.gmx.de ([213.165.64.20]:1100 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S316940AbSEWQRX>;
-	Thu, 23 May 2002 12:17:23 -0400
-Date: Thu, 23 May 2002 18:17:10 +0200
-From: Sebastian Droege <sebastian.droege@gmx.de>
-To: torvalds@transmeta.com, perex@suse.cz
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.5.17-cset1.656-alsa] patch to compile latest alsa
-Message-Id: <20020523181710.555b45fd.sebastian.droege@gmx.de>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.p2ClnVErtYixKo"
+	id <S316944AbSEWQYA>; Thu, 23 May 2002 12:24:00 -0400
+Received: from web14204.mail.yahoo.com ([216.136.172.146]:35606 "HELO
+	web14204.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S316943AbSEWQX7>; Thu, 23 May 2002 12:23:59 -0400
+Message-ID: <20020523162359.62535.qmail@web14204.mail.yahoo.com>
+Date: Thu, 23 May 2002 09:23:59 -0700 (PDT)
+From: Erik McKee <camhanaich99@yahoo.com>
+Subject: 2.5.17 Module woes
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.p2ClnVErtYixKo
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Ok, this is just too wierd....
 
-Hi,
-this trivial patch let alsa compile (renamed file)
-I have no rme9652 based card but a ymfpci based, got a error because of missing rme9652/_rme9652.o and with this patch it compiles (for me)
+In logs the following....
+request_module[scsi_hostadaptor]: Root fs not mounted
+last message repeated 3 times
+modprobe: modprobe: Can't locate module eth1
+insmod: /lib/modules/2.4.18/kernel/net/ipv4/netfilter/iptable_nat.o: insmod
+iptable_nat failed
 
-Bye
+Ok, so why are these strange.  First of all, there is nothing remotely scsi in
+this box.  Also, eth1 driver is compiled into the kernel.  Masq was working
+fine, so the last message isn't important, except that it was trying to load a
+module from 2.4.18 on a 2.5 box?
 
-diff -Nur test/linux-2.5.17/sound/pci/Makefile linux-2.5.17/sound/pci/Makefile
---- test/linux-2.5.17/sound/pci/Makefile        Tue May 21 07:07:29 2002
-+++ linux-2.5.17/sound/pci/Makefile     Thu May 23 17:45:28 2002
-@@ -50,7 +50,7 @@
-           emu10k1/_emu10k1.o \
-           korg1212/_korg1212.o \
-           nm256/_nm256.o \
--          rme9652/_rme9652.o \
-+          rme9652/_rmeh.o \
-           trident/_trident.o \
-           ymfpci/_ymfpci.o
- endif
---=.p2ClnVErtYixKo
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE87RYKe9FFpVVDScsRAn3SAJ41l7rbC+Mq+ChDCBgPbaDzOY1IZgCcC15x
-lDLwxuQ0JFtnFhfUHVBxlS8=
-=yrBD
------END PGP SIGNATURE-----
-
---=.p2ClnVErtYixKo--
-
+__________________________________________________
+Do You Yahoo!?
+LAUNCH - Your Yahoo! Music Experience
+http://launch.yahoo.com

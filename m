@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313900AbSDQU1W>; Wed, 17 Apr 2002 16:27:22 -0400
+	id <S313902AbSDQU2a>; Wed, 17 Apr 2002 16:28:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313908AbSDQU1V>; Wed, 17 Apr 2002 16:27:21 -0400
-Received: from mail.mtroyal.ab.ca ([142.109.10.24]:37906 "EHLO
-	mail.mtroyal.ab.ca") by vger.kernel.org with ESMTP
-	id <S313900AbSDQU1U>; Wed, 17 Apr 2002 16:27:20 -0400
-Date: Wed, 17 Apr 2002 14:25:30 -0600 (MDT)
-From: James Bourne <jbourne@MtRoyal.AB.CA>
+	id <S313908AbSDQU23>; Wed, 17 Apr 2002 16:28:29 -0400
+Received: from ns.suse.de ([213.95.15.193]:1286 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S313902AbSDQU22>;
+	Wed, 17 Apr 2002 16:28:28 -0400
+Date: Wed, 17 Apr 2002 22:23:12 +0200
+From: Dave Jones <davej@suse.de>
+To: Robert Love <rml@tech9.net>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        James Bourne <jbourne@MtRoyal.AB.CA>, Ingo Molnar <mingo@elte.hu>,
+        linux-kernel@vger.kernel.org
 Subject: Re: Hyperthreading
-In-Reply-To: <1833210000.1019077852@flay>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Message-id: <Pine.LNX.4.44.0204171424540.21779-100000@skuld.mtroyal.ab.ca>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+Message-ID: <20020417222312.J29982@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Robert Love <rml@tech9.net>,
+	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+	James Bourne <jbourne@MtRoyal.AB.CA>, Ingo Molnar <mingo@elte.hu>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0204171358380.21779-100000@skuld.mtroyal.ab.ca> <1833210000.1019077852@flay> <1019074547.1670.98.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Apr 2002, Martin J. Bligh wrote:
+On Wed, Apr 17, 2002 at 04:15:42PM -0400, Robert Love wrote:
+ > > > Total of 4 processors activated (14299.95 BogoMIPS).
+ > Certainly not the mips*4 that bogomips is showing :)
+ > I guess that is a "bug" ?
 
-> > That has balanced the timer irqs.  I've also enabled hyper threading
-> > (append="acpismp=force").
-> > ...
-> > And, you've gotta like this line:
-> > Total of 4 processors activated (14299.95 BogoMIPS).
-> 
-> Before you get too excited about that, how much performance boost do 
-> you actually get by turning on Hyperthreading? ;-)
+Well, it justifies a comment in arch/i386/kernel/smpboot.c
 
-Well, that's something I'm working on finding out.
+1181     /*
+1182      * Allow the user to impress friends.
+1183      */
 
-But, you have to like the looks of it!
+8-)
 
-James
-
-> 
-> M.
-> 
+    Dave.
 
 -- 
-James Bourne, Supervisor Data Centre Operations
-Mount Royal College, Calgary, AB, CA
-www.mtroyal.ab.ca
-
-******************************************************************************
-This communication is intended for the use of the recipient to which it is
-addressed, and may contain confidential, personal, and or privileged
-information. Please contact the sender immediately if you are not the
-intended recipient of this communication, and do not copy, distribute, or
-take action relying on it. Any communication received in error, or
-subsequent reply, should be deleted or destroyed.
-******************************************************************************
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

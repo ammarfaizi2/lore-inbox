@@ -1,114 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129911AbQLTR1T>; Wed, 20 Dec 2000 12:27:19 -0500
+	id <S129776AbQLTRjK>; Wed, 20 Dec 2000 12:39:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129933AbQLTR1K>; Wed, 20 Dec 2000 12:27:10 -0500
-Received: from iris.kkt.bme.hu ([152.66.114.1]:15108 "HELO iris.kkt.bme.hu")
-	by vger.kernel.org with SMTP id <S129911AbQLTR07>;
-	Wed, 20 Dec 2000 12:26:59 -0500
-Date: Wed, 20 Dec 2000 17:56:31 +0100 (CET)
-From: PALFFY Daniel <dpalffy@kkt.bme.hu>
-To: linux-kernel@vger.kernel.org
-Subject: panic with squid's pinger
-Message-ID: <Pine.LNX.4.21.0012201735020.11725-100000@iris.kkt.bme.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129704AbQLTRjA>; Wed, 20 Dec 2000 12:39:00 -0500
+Received: from alcove.wittsend.com ([130.205.0.20]:32015 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S129485AbQLTRiq>; Wed, 20 Dec 2000 12:38:46 -0500
+Date: Wed, 20 Dec 2000 12:08:16 -0500
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+Cc: "Michael H. Warfield" <mhw@wittsend.com>, linux-kernel@vger.kernel.org
+Subject: Re: iptables: "stateful inspection?"
+Message-ID: <20001220120816.C10408@alcove.wittsend.com>
+Mail-Followup-To: Michael Rothwell <rothwell@holly-springs.nc.us>,
+	"Michael H. Warfield" <mhw@wittsend.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3A40DBC2.AEC6B3CA@holly-springs.nc.us> <20001220112502.A10406@alcove.wittsend.com> <3A40DE97.96228B5E@holly-springs.nc.us>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.2i
+In-Reply-To: <3A40DE97.96228B5E@holly-springs.nc.us>; from rothwell@holly-springs.nc.us on Wed, Dec 20, 2000 at 11:30:15AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 20, 2000 at 11:30:15AM -0500, Michael Rothwell wrote:
+> "Michael H. Warfield" wrote:
+> >         I think that's more than a little overstatement on your
+> > part.  It depends entirely on the application you intend to put
+> > it to.  
 
-Hi!
+> Fine. How do I make FTP work through it? How can I allow all outgoing
+> TCP connections without opening the network to inbound connections on
+> the ports of desired services?
 
-Reproducible panic when squid gets the first request. Always at the same
-place in the pinger process. test12, test13-pre3 fail, but test12 runs
-fine on another machine with nearly the same config (netcard and disk
-drivers differ, and the failing machine has devfs).
+	Passive mode ftp works great for me.  You can also tack spf on
+top of IPChains and get port mode working if that's really part of your
+requirements.  If you really want to get sexy, you can use the MASQ
+code to masquarade and handle the FTP for you.  Personally, I like
+the MASQ trick better than using spf and enabling PORT mode.
 
-Hardware: Compaq proliant dl360 with a quad starfire card, UP 
-(Serverworks chipset), cpqarray.
+	Policy routing helps out there as well where you want
+to masquarade some services and let others pass untampered.  (Actually
+you only REALLY need policy routing if you are also playing tricks
+with the routing when you masquarade.)  I use policy routing anyways,
+so I can route outbound ftp and http out a big fat unreliable broadband
+pipe while protecting my static addresses through my nice reliable
+ISDN channels.
 
+	Your second question doesn't even seem to make sense to me.
+Doesn't make sense as in either I don't understand your question or
+the answer is so obvious if I do.  You allow outbound "SYN" packets
+and block all (or only allow appropriate) inbound "SYN" packets (-y
+option on the ipchains rules).  Or did I misunderstand your question?
+In my case, inappropriate inbound SYN packets get portforwarded up to
+Abacus PortSentry on the firewall to deal with port scanners.
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000003c
-c01a20de
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c01a20de>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010246
-eax: 00000000   ebx: 00000000   ecx: c7b5e9e0   edx: c7b5e9e0
-esi: 00001fb1   edi: c7b09c00   ebp: 00001df0   esp: c6e4bc40
-ds: 0018   es: 0018   ss: 0018
-Process pinger (pid: 289, stackpage=c6e4b000)
-Stack: c7b5e9e0 00000000 00008b5e 0100007f 00000014 00000000 c01a2453 c7b5e9e0 
-       c7b09c00 c6e4e500 c7b09c00 c01a4db8 c6e4bd44 11e4bc84 00000000 c01c5770 
-       c7b09c00 c6e4bd34 c029d998 c01c5089 c7b09c00 c6e4bd34 c029d998 c01a4db8 
-Call Trace: [<c01a2453>] [<c01a4db8>] [<c01c5770>] [<c01c5089>] [<c01a4db8>] [<c0108dc8>] [<c01c44e0>] 
-       [<c01a4db8>] [<c018ea5c>] [<c01a4db8>] [<c01a4db8>] [<c018ec73>] [<c01a4db8>] [<c01a440b>] [<c01a4db8>] 
-       [<c01b82cc>] [<c01a450e>] [<c01b82cc>] [<c01b8725>] [<c01b82cc>] [<c018815b>] [<c0188db0>] [<c01b7aec>] 
-       [<c01bd5d6>] [<c01857d5>] [<c018641c>] [<c0128a37>] [<c0128a72>] [<c013a6da>] [<c013a9d8>] [<c018645a>] 
-       [<c0186bb1>] [<c0108d1f>] 
-Code: 8b 40 3c 89 41 3c 8b 47 5c c7 47 18 00 00 00 00 01 41 18 8b 
+	Yes, that setup still does allow people to do "FIN" scans and
+other stealthy scans, but with Abacus PortSentry running in front of
+everything and shutting down rogue sites that try to scan me that's
+not a real great threat.  The IDS behind the firewall also fires off
+if anyone tricky enough tries to stealth scan me WITHOUT an initial
+SYN half scan or full scan (which would cut them off).
 
->>EIP; c01a20de <ip_frag_queue+20a/254>   <=====
-Trace; c01a2453 <ip_defrag+b3/130>
-Trace; c01a4db8 <output_maybe_reroute+0/14>
-Trace; c01c5770 <ip_ct_gather_frags+1c/94>
-Trace; c01c5089 <ip_conntrack_in+39/2cc>
-Trace; c01a4db8 <output_maybe_reroute+0/14>
-Trace; c0108dc8 <ret_from_intr+0/20>
-Trace; c01c44e0 <ip_conntrack_local+54/58>
-Trace; c01a4db8 <output_maybe_reroute+0/14>
-Trace; c018ea5c <nf_iterate+30/84>
-Trace; c01a4db8 <output_maybe_reroute+0/14>
-Trace; c01a4db8 <output_maybe_reroute+0/14>
-Trace; c018ec73 <nf_hook_slow+3f/b0>
-Trace; c01a4db8 <output_maybe_reroute+0/14>
-Trace; c01a440b <ip_build_xmit_slow+3cf/484>
-Trace; c01a4db8 <output_maybe_reroute+0/14>
-Trace; c01b82cc <udp_getfrag+0/c4>
-Trace; c01a450e <ip_build_xmit+4e/318>
-Trace; c01b82cc <udp_getfrag+0/c4>
-Trace; c01b8725 <udp_sendmsg+351/3cc>
-Trace; c01b82cc <udp_getfrag+0/c4>
-Trace; c018815b <kfree_skbmem+23/6c>
-Trace; c0188db0 <skb_free_datagram+1c/20>
-Trace; c01b7aec <raw_recvmsg+114/12c>
-Trace; c01bd5d6 <inet_sendmsg+3a/40>
-Trace; c01857d5 <sock_sendmsg+69/88>
-Trace; c018641c <sys_sendto+d0/f0>
-Trace; c0128a37 <__free_pages+13/14>
-Trace; c0128a72 <free_pages+3a/3c>
-Trace; c013a6da <poll_freewait+3a/44>
-Trace; c013a9d8 <do_select+1c4/1dc>
-Trace; c018645a <sys_send+1e/24>
-Trace; c0186bb1 <sys_socketcall+115/1fc>
-Trace; c0108d1f <system_call+33/38>
-Code;  c01a20de <ip_frag_queue+20a/254>
-00000000 <_EIP>:
-Code;  c01a20de <ip_frag_queue+20a/254>   <=====
-   0:   8b 40 3c                  mov    0x3c(%eax),%eax   <=====
-Code;  c01a20e1 <ip_frag_queue+20d/254>
-   3:   89 41 3c                  mov    %eax,0x3c(%ecx)
-Code;  c01a20e4 <ip_frag_queue+210/254>
-   6:   8b 47 5c                  mov    0x5c(%edi),%eax
-Code;  c01a20e7 <ip_frag_queue+213/254>
-   9:   c7 47 18 00 00 00 00      movl   $0x0,0x18(%edi)
-Code;  c01a20ee <ip_frag_queue+21a/254>
-  10:   01 41 18                  add    %eax,0x18(%ecx)
-Code;  c01a20f1 <ip_frag_queue+21d/254>
-  13:   8b 00                     mov    (%eax),%eax
+	Snort, behind the firewall, deals with the next layer of ankle
+bitters that are just a little cut above the common riff raff that
+try to port scan me.  Snort makes for yet another good adjunct to
+both IPChains or NetFilter and PortSentry.  The combination is awesome
+for frontend filtering and detection.  Anyone getting through that
+without tripping an alarm is NOT an amateur and is worthy of my full,
+undivided, PERSONAL attention (and I have custom detectors and surprises
+for that level of "talent" as well).  :-)=)
 
-Kernel panic: Aiee, killing interrupt handler!
+	BTW...  Before anyone raises the customary remark about "What
+about denial of service attacks by spoofing Abacus PortSentry"...
+No one has documented an effective DoS attack against PortSentry
+in the field.  It's just too difficult to do and too easy to protect
+against.  My "evil twin" David LeBlanc (when he was still working with
+me at Internet Security Systems a couple of years ago) tried it against
+my PortSentry protected workstation.  He failed.  He knew everything
+I had on that system including the PortSentry configuration and never
+once managed to spoof so much as a single DoS attack that was effective.
+If he couldn't do it with his level of talent and his knowledge of my
+systems, it's going to take a world class talent who already knows my
+entire setup to make that happen.  At that point, I have bigger problems
+than worrying about PortSentry (and it's also a tip-off from PortSentry
+that I need to be worried).  It would take a lot of effort and a lot of
+incentive and a lot of access to make a real one happen.  If you have
+all three of those, there are easier DoS attacks than attacking
+PortSentry.  Lots of them that are LOTS easier.
 
-Does anyone know, what this can be? If any other information would be
-needed, please tell me! Thanks.
+> >         Yes it does.  It's clearly stated in all the documentation
+> > on netfilter and in it's design.  Read the fine manual (or web site)
+> > and you would have uncovered this (or been run over by it) for yourself.
 
---
-Dani
-			...and Linux for all.
+> >         http://netfilter.filewatcher.org/
 
+> Thanks.
 
+	No problem.
+
+> -M
+
+	Mike
+-- 
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

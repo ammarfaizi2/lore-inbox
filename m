@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317446AbSGXSFO>; Wed, 24 Jul 2002 14:05:14 -0400
+	id <S317454AbSGXSK7>; Wed, 24 Jul 2002 14:10:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317454AbSGXSFN>; Wed, 24 Jul 2002 14:05:13 -0400
-Received: from trained-monkey.org ([209.217.122.11]:44810 "EHLO
-	trained-monkey.org") by vger.kernel.org with ESMTP
-	id <S317446AbSGXSFN>; Wed, 24 Jul 2002 14:05:13 -0400
-To: kwijibo@zianet.com
-Cc: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
-Subject: Re: 3com 3c996b-t support?
-References: <Pine.LNX.4.33.0207241314550.30282-100000@coffee.psychology.mcmaster.ca> <3D3EE4B1.3000809@zianet.com> <m3adohja4s.fsf@trained-monkey.org> <3D3EED72.1080809@zianet.com>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 24 Jul 2002 14:08:25 -0400
-In-Reply-To: kwijibo@zianet.com's message of "Wed, 24 Jul 2002 12:09:54 -0600"
-Message-ID: <m37kjlj8x2.fsf@trained-monkey.org>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S317458AbSGXSK7>; Wed, 24 Jul 2002 14:10:59 -0400
+Received: from lehtori.cc.tut.fi ([130.230.10.20]:2565 "HELO lehtori.cc.tut.fi")
+	by vger.kernel.org with SMTP id <S317454AbSGXSK6>;
+	Wed, 24 Jul 2002 14:10:58 -0400
+Date: Wed, 24 Jul 2002 21:14:10 +0300 (EET DST)
+From: =?ISO-8859-1?Q?Lepp=E4nen_Raimo?= <waari@lehtori.cc.tut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Error and warnings linux-2.4.19-pre9
+Message-ID: <Pine.OSF.4.44.0207242112460.7900-100000@lehtori.cc.tut.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Steve" == kwijibo  <kwijibo@zianet.com> writes:
+Hello !!
+Help me next little problems linux-2.4.19-pre9:
+make dep:
+make[4]: Entering directory `/usr/src/linux/drivers/scsi'
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686  -nostdinc -I /usr/lib/gcc-lib/i386-redhat-linux/2.95.3/include -E -D__GENKSYMS__ scsi_syms.c
+| /sbin/genksyms  -k 2.4.19 > /usr/src/linux/include/linux/modules/scsi_syms.ver.tmp
+mv /usr/src/linux/include/linux/modules/scsi_syms.ver.tmp /usr/src/linux/include/linux/modules/scsi_syms.ver
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686  -nostdinc -I /usr/lib/gcc-lib/i386-redhat-linux/2.95.3/include -E -D__GENKSYMS__ 53c700.c
+| /sbin/genksyms  -k 2.4.19 > /usr/src/linux/include/linux/modules/53c700.ver.tmp
+In file included from 53c700.c:134:
+>>53c700.h:40: #error "Config.in must define either CONFIG_53C700_IO_MAPPED or CONFIG_53C700_MEM_MAPPED to use this scsi core."
+>>53c700.c:155: 53c700_d.h: No such file or directory
+mv /usr/src/linux/include/linux/modules/53c700.ver.tmp /usr/src/linux/include/linux/modules/53c700.ver
+">>" Error found many older kernel versions.
+How is my edit or repair this error ???
+------
+make bzlilo:
+>>dnotify.c: In function `__inode_dir_notify':
+>>dnotify.c:139: warning: label `out' defined but not used
+>>dmi_scan.c:196: warning: `disable_ide_dma' defined but not used
+">>" Why ??. How is my edit or repair source code in this warning ???
+------
+make modules:
+ppp_generic.c: In function `ppp_read':
+>>ppp_generic.c:381: warning: `ret' might be used uninitialized in this function
+>>aha1542.c:114: warning: `setup_str' defined but not used
+>>awe_wave.c:211: warning: `isapnp' defined but not used
+">>" Why ??. How is my edit or repair source code in this warning ???
 
-Steve> Jes Sorensen wrote:
+Thank You help.
 
->> driver which is probably the worst driver code we have seen in the
->> Linux community for the last 5 years. Sure you can run it, but
->> don't come back and complain when you run into trouble. You will be
->> a lot better off using the tg3 driver, or better yet, getting a NIC
->> thats less buggy.
+WAARI
 
-Steve> Is the NIC hardware buggy or is it just the bcm5700 drivers?
 
-The hardware is buggy. The bcm5700 drivers are written in such
-terrible C, you can in fact argue whether you'd call it C, that it's
-totally impossible to debug the code anyway. Who knows whats hidden in
-there.
 
-Jes

@@ -1,66 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262603AbUBRDIW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 22:08:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUBRDIW
+	id S261973AbUBRCsx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 21:48:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbUBRCsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 22:08:22 -0500
-Received: from hera.kernel.org ([63.209.29.2]:43144 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S262603AbUBRDIR (ORCPT
+	Tue, 17 Feb 2004 21:48:53 -0500
+Received: from hera.kernel.org ([63.209.29.2]:1928 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261973AbUBRCsv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 22:08:17 -0500
+	Tue, 17 Feb 2004 21:48:51 -0500
 To: linux-kernel@vger.kernel.org
 From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re: JFS default behavior)
-Date: Wed, 18 Feb 2004 03:07:48 +0000 (UTC)
+Subject: Unicode normalization (userspace issue, but what the heck)
+Date: Wed, 18 Feb 2004 02:48:26 +0000 (UTC)
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c0uku4$43t$1@terminus.zytor.com>
-References: <200402150107.26277.robin.rosenberg.lists@dewire.com> <20040217071448.GA8846@schmorp.de> <Pine.LNX.4.58.0402170739580.2154@home.osdl.org> <20040217163613.GA23499@mail.shareable.org>
+Message-ID: <c0ujpq$3r5$1@terminus.zytor.com>
+References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca> <200402150107.26277.robin.rosenberg.lists@dewire.com> <Pine.LNX.4.58.0402141827200.14025@home.osdl.org> <pan.2004.02.15.03.33.48.209951@smurf.noris.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 8bit
-X-Trace: terminus.zytor.com 1077073668 4222 63.209.29.3 (18 Feb 2004 03:07:48 GMT)
+X-Trace: terminus.zytor.com 1077072506 3942 63.209.29.3 (18 Feb 2004 02:48:26 GMT)
 X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Wed, 18 Feb 2004 03:07:48 +0000 (UTC)
+NNTP-Posting-Date: Wed, 18 Feb 2004 02:48:26 +0000 (UTC)
 X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20040217163613.GA23499@mail.shareable.org>
-By author:    Jamie Lokier <jamie@shareable.org>
+Followup to:  <pan.2004.02.15.03.33.48.209951@smurf.noris.de>
+By author:    Matthias Urlichs <smurf@smurf.noris.de>
 In newsgroup: linux.dev.kernel
->
-> Linus Torvalds wrote:
-> > Which flies in the face of "Be strict in what you generate, be liberal in 
-> > what you accept". A lot of the functions are _not_ willing to be liberal 
-> > in what they accept. Which sometimes just makes the problem worse, for no 
-> > good reason.
 > 
-> Unicode specifies that a program claiming to read UTF-8 _must_ reject
-> malformed UTF-8.
+> Not locale, but normalization problems and identical-glyph problems.
 > 
-> Ok, we can just ignore Unicode. :)
+> Which is actually worse, because you don't have filenames which look
+> like crap -- instead you have filenames which look perfectly sane, but
+> they still do not work. Example: is an á one character, or is it an a
+> followed by a composing ´?
 > 
-> But the reason they cite is security: when applications allow
-> malformed UTF-8 through, there's plenty of scope for security holes
-> due to multiple encodings of "/" and "." and "\0".
+> Mac OSX, just as an example, only uses decomposed filenames. I don't know
+> the current situation, but 10.2 has major problems when you try to access
+> files with composite characters in their name (across NFS for instance).
 > 
-> This is a real problem: plenty of those Windows worms that attack web
-> servers get in by using multiple-escaped funny characters and
-> malformed UTF-8 to get past security checks for ".." and such.
+> I wonder if Linux, i.e. Linus ;-) should decree one single standard
+> normalization. (I am NOT saying that enforcing this would be the kernel's
+> job!)
 > 
 
-Actually, the kernel is 100% compliant in that respect.
+I believe that for most applications, normalization form C should be
+used.
 
-The only byte sequences the kernel interpret:
-
-00
-2E
-2E 2E
-2F
-
-.. and it correctly rejects (in the sense that it doesn't alias) any
-other possible byte stream that could be interpreted as the same
-sequences by a na�vely incorrect UTF-8 encoder.
+However, I suspect there are some applications for which this would
+not apply.
 
 	-hpa

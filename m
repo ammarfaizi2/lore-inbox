@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261492AbSKRFv5>; Mon, 18 Nov 2002 00:51:57 -0500
+	id <S261518AbSKRGG3>; Mon, 18 Nov 2002 01:06:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261495AbSKRFv5>; Mon, 18 Nov 2002 00:51:57 -0500
-Received: from almesberger.net ([63.105.73.239]:58897 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S261492AbSKRFv5>; Mon, 18 Nov 2002 00:51:57 -0500
-Date: Mon, 18 Nov 2002 02:58:43 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Oliver Xymoron <oxymoron@waste.org>
-Cc: "David S. Miller" <davem@redhat.com>, mbligh@aracnet.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-Message-ID: <20021118025843.A17062@almesberger.net>
-References: <20021115.133004.65979948.davem@redhat.com> <467166910.1037370147@[10.10.2.3]> <20021117.113319.126503551.davem@redhat.com> <20021117233104.M1407@almesberger.net> <20021118044614.GB20171@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021118044614.GB20171@waste.org>; from oxymoron@waste.org on Sun, Nov 17, 2002 at 10:46:14PM -0600
+	id <S261523AbSKRGG3>; Mon, 18 Nov 2002 01:06:29 -0500
+Received: from rivmkt61.wintek.com ([206.230.0.61]:23168 "EHLO comcast.net")
+	by vger.kernel.org with ESMTP id <S261518AbSKRGG2>;
+	Mon, 18 Nov 2002 01:06:28 -0500
+Date: Mon, 18 Nov 2002 01:16:03 +0000 (UTC)
+From: Alex Goddard <agoddard@purdue.edu>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.48 Compilation Failure
+Message-ID: <Pine.LNX.4.44.0211180113460.22038-100000@dust.ebiz-gw.wintek.com>
+X-GPG-PUBLIC_KEY: N/a
+X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Xymoron wrote:
-> There's a good example extant where this isn't a problem: Wikipedia.
-> In their example, vandalism increases, but so does clean-up.
+During make bzImage:
 
-Oh, don't get me wrong - I'm not advocating iron-clad control with
-a big bureaucracy. I simply suspect that the clean-up might be
-a lot more work that the act of stupidity. (So, if Bugzilla
-doesn't already track actions by user, with some convenient batch
-undo function, this would be a feature request :-)
+gcc -Wp,-MD,fs/devfs/.base.o.d -D__KERNEL__ -Iinclude -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=athlon -Iarch/i386/mach-generic -nostdinc -iwithprefix include
+-DKBUILD_BASENAME=base -DKBUILD_MODNAME=devfs -DEXPORT_SYMTAB -c -o
+fs/devfs/base.o fs/devfs/base.c
+fs/devfs/base.c: In function `devfs_symlink':
+fs/devfs/base.c:3032: incompatible types in assignment
+fs/devfs/base.c:3033: incompatible types in assignment
+fs/devfs/base.c:3034: incompatible types in assignment
+fs/devfs/base.c: In function `devfs_mkdir':
+fs/devfs/base.c:3063: incompatible types in assignment
+fs/devfs/base.c:3064: incompatible types in assignment
+fs/devfs/base.c:3065: incompatible types in assignment
+fs/devfs/base.c: In function `devfs_mknod':
+fs/devfs/base.c:3132: incompatible types in assignment
+fs/devfs/base.c:3133: incompatible types in assignment
+fs/devfs/base.c:3134: incompatible types in assignment
+make[2]: *** [fs/devfs/base.o] Error 1
+make[1]: *** [fs/devfs] Error 2
+make: *** [fs] Error 2
 
-- Werner
+I'm unsure of exactly what other information would be needed by whomever 
+will go after this, but just say something and I'll send what you want.
 
 -- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Alex Goddard
+agoddard@purdue.edu
+

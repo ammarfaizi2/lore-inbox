@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbTHVL17 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 07:27:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263094AbTHVL17
+	id S263092AbTHVLY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 07:24:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263075AbTHVLY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 07:27:59 -0400
-Received: from wildsau.idv.uni.linz.at ([213.157.128.253]:59532 "EHLO
-	wildsau.idv.uni.linz.at") by vger.kernel.org with ESMTP
-	id S263100AbTHVKqm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 06:46:42 -0400
-From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
-Message-Id: <200308221044.h7MAicrR005239@wildsau.idv.uni.linz.at>
-Subject: Re: usb-storage: how to ruin your hardware(?)
-In-Reply-To: <1061449894.3029.1.camel@dhcp23.swansea.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Fri, 22 Aug 2003 12:44:38 +0200 (MET DST)
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL100 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 22 Aug 2003 07:24:57 -0400
+Received: from main.gmane.org ([80.91.224.249]:40172 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263092AbTHVKlB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 06:41:01 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: SCO's "proof"
+Date: Fri, 22 Aug 2003 12:35:05 +0200
+Message-ID: <yw1xsmnux9nq.fsf@users.sourceforge.net>
+References: <3F458064.4070409@unix-zone.org> <Pine.GSO.4.21.0308221032450.12543-100000@waterleaf.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:+VLrQF2mSXXYzNDRhj/TnI5925A=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Iau, 2003-08-21 at 02:34, H.Rosmanith (Kernel Mailing List) wrote:
-> > hi,
-> > 
-> > just today, I bought an "USB BAR", a 128MB flash disk. I managed to make
-> > the device unusable and only get scsi-errors from it.
-> 
-> Are you sure it didnt just fail. The report you give basically says
+Geert Uytterhoeven <geert@linux-m68k.org> writes:
 
-I don't know, probably.
+>>   What is the  language on  "System V" code  ?   ;-)
+>
+> English using a Greek font.
 
-> "after the first write the flash device failed entirely". That doen't 
+AFAIK, C source code doesn't contain any font information, not even in
+comments.
 
-no, I wrote several data to it, like partitioning it, writing /dev/zero
-to it and so on. I moved it from computer to computer to try booting from
-it, installed lilo on it and so on. After several hours of messing around
-with the device, it failed.
+-- 
+Måns Rullgård
+mru@users.sf.net
 
-Maybe it is just "forbidden" to partition it, since I know boldly ;)
-did mke2fs /dev/sda on the exchanged flashdev and installed lilo on
-it too. So far, no problems yet. Still can't boot from it, however 
-(is this an USB-HDD in bios or does the bios have to support some
-USB-MEMORY-STICK boot-option?)
-
-
-> seem an abnormal flash failure mode
-> 

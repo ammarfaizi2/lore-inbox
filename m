@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267208AbSKPCbJ>; Fri, 15 Nov 2002 21:31:09 -0500
+	id <S267210AbSKPC4H>; Fri, 15 Nov 2002 21:56:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267209AbSKPCbJ>; Fri, 15 Nov 2002 21:31:09 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:54192 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267208AbSKPCbI>; Fri, 15 Nov 2002 21:31:08 -0500
-Subject: Re: Dual athlon XP 1800 problems
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ken Witherow <ken@krwtech.com>
-Cc: David Crooke <dave@convio.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0211151210140.1153-100000@death>
-References: <Pine.LNX.4.44.0211151210140.1153-100000@death>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 16 Nov 2002 03:04:29 +0000
-Message-Id: <1037415869.21937.35.camel@irongate.swansea.linux.org.uk>
+	id <S267211AbSKPC4H>; Fri, 15 Nov 2002 21:56:07 -0500
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:43274 "EHLO
+	ns.higherplane.net") by vger.kernel.org with ESMTP
+	id <S267210AbSKPC4H>; Fri, 15 Nov 2002 21:56:07 -0500
+Date: Sat, 16 Nov 2002 14:01:07 +1100
+From: john slee <indigoid@higherplane.net>
+To: Patrick Finnegan <pat@purdueriots.com>
+Cc: Thomas Molina <tmolina@cox.net>, Andrew Morton <akpm@digeo.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Bugzilla bug tracking database for 2.5 now available.
+Message-ID: <20021116030106.GF17478@higherplane.net>
+References: <Pine.LNX.4.44.0211142132500.2229-100000@dad.molina> <Pine.LNX.4.44.0211142252590.13759-100000@ibm-ps850.purdueriots.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211142252590.13759-100000@ibm-ps850.purdueriots.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-11-15 at 17:26, Ken Witherow wrote:
-> 4) There are a couple bugs with the 760MP chipset and APICs. To see if
-> they're affecting you, add "mem=nopentium noapic" to your kernel
-> parameters (I can run fine without them).
+On Thu, Nov 14, 2002 at 10:58:09PM -0500, Patrick Finnegan wrote:
+> It'd be nice if people simply tried compiling a patched kernel (all
+> affected modules) before they submitted the patch, I'm betting you'd catch
+> a lot of typos.  Also, compiling _everything_, even as a module, at
+> least once before sumbitting the patch would probably help.
 
-mem=nopentium isnt related to any AMD760MP/MPX stuff. SOme boxes seem to
-need noapic, although a PS/2 mouse may cure that
+thats fine if there is an all-compiling kernel release out there.  right
+now 2.5-bk is far from it.  last i checked allmodconfig (a couple of
+days ago) there was major breakage all over llc, scsi, video, sound, ...
+which kinda masks any breakages you might have introduced.  these sort
+of things get fixed in time, but they are often replaced by new ones in
+other places
 
+j.
+
+-- 
+toyota power: http://indigoid.net/

@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317946AbSFSR1D>; Wed, 19 Jun 2002 13:27:03 -0400
+	id <S317947AbSFSRan>; Wed, 19 Jun 2002 13:30:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317947AbSFSR1C>; Wed, 19 Jun 2002 13:27:02 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24838 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317946AbSFSR1B>; Wed, 19 Jun 2002 13:27:01 -0400
-Date: Wed, 19 Jun 2002 10:27:15 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Cort Dougan <cort@fsmlabs.com>, Benjamin LaHaise <bcrl@redhat.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Robert Love <rml@tech9.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: latest linus-2.5 BK broken
-In-Reply-To: <m1hejztprs.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.44.0206191018510.2053-100000@home.transmeta.com>
+	id <S317948AbSFSRam>; Wed, 19 Jun 2002 13:30:42 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:7437 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317947AbSFSRal>; Wed, 19 Jun 2002 13:30:41 -0400
+Date: Wed, 19 Jun 2002 14:18:31 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Craig Kulesa <ckulesa@as.arizona.edu>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>
+Subject: Re: [PATCH] (2/2) reverse mappings for current 2.5.23 VM
+In-Reply-To: <E17Kipf-0000uu-00@starship>
+Message-ID: <Pine.LNX.4.44L.0206191417290.2598-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 19 Jun 2002, Daniel Phillips wrote:
 
+> > > 2.5.23-rmap (this patch -- "rmap-minimal"):
+> > > Total kernel swapouts during test = 24068 kB
+> > > Total kernel swapins during test  =  6480 kB
+> > > Elapsed time for test: 133 seconds
+> > >
+> > > 2.5.23-rmap13b (Rik's "rmap-13b complete") :
+> > > Total kernel swapouts during test = 40696 kB
+> > > Total kernel swapins during test  =   380 kB
+> > > Elapsed time for test: 133 seconds
 
-On 19 Jun 2002, Eric W. Biederman wrote:
->
-> 10-20 years or someone finds a good way to implement a single system
-> image on linux clusters.  They are already into the 1000s of nodes,
-> and dual processors per node category.  And as things continue they
-> might even grow bigger.
+> You might conclude from the above that the lru+rmap is superior to
+> aging+rmap: while they show the same wall-clock time, lru+rmap consumes
+> considerably less disk bandwidth.  Naturally, it would be premature to
+> conclude this from one trial on one load.
 
-Oh, clusters are a separate issue. I'm absolutely 100% conviced that you
-don't want to have a "single kernel" for a cluster, you want to run
-independent kernels with good communication infrastructure between them
-(ie global filesystem, and try to make the networking look uniform).
+On the contrary, aging+rmap shows a lot less swapins.
 
-Trying to have a single kernel for thousands of nodes is just crazy. Even
-if the system were ccNuma and _could_ do it in theory.
+The fact that it has more swapouts than needed means
+we need to fix one aspect of the thing (page_launder),
+it doesn't mean we should get rid of the whole thing.
 
-The NuMA work can probably take single-kernel to maybe 64+ nodes, before
-people just start turning stark raving mad. There's no way you'll have
-single-kernel for thousands of CPU's, and still stay sane and claim any
-reasonable performance under generic loads.
+kind regards,
 
-So don't confuse the issue with clusters like that. The "set_affinity()"
-call simply doesn't have anything to do with them. If you want to move
-processes between nodes on such a cluster, you'll probably need user-level
-help, the kernel is unlikely to do it for you.
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-			Linus
+http://www.surriel.com/		http://distro.conectiva.com/
 

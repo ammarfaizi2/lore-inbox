@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263452AbUJ2S1E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263383AbUJ2Scn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263452AbUJ2S1E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 14:27:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263382AbUJ2SXq
+	id S263383AbUJ2Scn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 14:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263457AbUJ2S3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 14:23:46 -0400
-Received: from ipcop.bitmover.com ([192.132.92.15]:11946 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S263471AbUJ2SVs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 14:21:48 -0400
-Date: Fri, 29 Oct 2004 11:21:26 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Ram?n Rey Vicente <ramon.rey@hispalinux.es>
-Cc: Larry McVoy <lm@bitmover.com>, Xavier Bestel <xavier.bestel@free.fr>,
-       James Bruce <bruce@andrew.cmu.edu>, Linus Torvalds <torvalds@osdl.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Andrea Arcangeli <andrea@novell.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BK kernel workflow
-Message-ID: <20041029182126.GC5318@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Ram?n Rey Vicente <ramon.rey@hispalinux.es>,
-	Larry McVoy <lm@bitmover.com>,
-	Xavier Bestel <xavier.bestel@free.fr>,
-	James Bruce <bruce@andrew.cmu.edu>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Andrea Arcangeli <andrea@novell.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org> <Pine.LNX.4.61.0410270223080.877@scrub.home> <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org> <4180B9E9.3070801@andrew.cmu.edu> <20041028135348.GA18099@work.bitmover.com> <1098972379.3109.24.camel@gonzales> <20041028151004.GA3934@work.bitmover.com> <41827B89.4070809@hispalinux.es> <20041029173642.GA5318@work.bitmover.com> <41828707.3050803@hispalinux.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 29 Oct 2004 14:29:23 -0400
+Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:32948 "HELO
+	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263448AbUJ2SY2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 14:24:28 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 2/4] Driver core: add driver_probe_device
+Date: Fri, 29 Oct 2004 13:24:21 -0500
+User-Agent: KMail/1.6.2
+Cc: LKML <linux-kernel@vger.kernel.org>, Patrick Mochel <mochel@osdl.org>
+References: <200410062354.18885.dtor_core@ameritech.net> <200410120131.38330.dtor_core@ameritech.net> <20041029163714.GB27902@kroah.com>
+In-Reply-To: <20041029163714.GB27902@kroah.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <41828707.3050803@hispalinux.es>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410291324.22084.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 08:08:07PM +0200, Ram?n Rey Vicente wrote:
-> Other issue in my country laws is: "in a contract, improper clauses have
-> no validity at all". In other words, you cannot forbid me contributing
-> to other SCM.
+On Friday 29 October 2004 11:37 am, Greg KH wrote:
+> On Tue, Oct 12, 2004 at 01:31:36AM -0500, Dmitry Torokhov wrote:
+> > #### AUTHOR dtor_core@ameritech.net
+> > #### COMMENT START
+> > ### Comments for ChangeSet
+> > Driver core: rename bus_match into driver_probe_device and export
+> >              it so subsystems can bind an individual device to a
+> >              specific driver without getting involved with driver
+> >              core internals.
+> 
+> Applied, thanks.
+> 
 
-And the legal case law which shows that is?
+Greg,
+
+What about "bind_mode" device and driver attributes? If you are not going
+to apply them then I need to rework driver_probe_device to not call 
+bus->match() function. The reason is that if bind_mode is not in the core
+then I need to check these attributes in serio's bus match function, but
+then I will not be able to use driver_probe_device to force binding when
+user requests it. And if I don't check bind_mode in serio_bus_match then
+I will have to do all driver/device mathing by hand which I wanted to
+avoid in the first place.
+
+Please let me know.
+
 -- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+Dmitry

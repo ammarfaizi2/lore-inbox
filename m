@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263082AbRE1QEh>; Mon, 28 May 2001 12:04:37 -0400
+	id <S263083AbRE1QG5>; Mon, 28 May 2001 12:06:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263083AbRE1QE1>; Mon, 28 May 2001 12:04:27 -0400
-Received: from mx-02.carambole.com ([213.180.68.10]:36622 "HELO
-	mx-02.carambole.com") by vger.kernel.org with SMTP
-	id <S263082AbRE1QEP>; Mon, 28 May 2001 12:04:15 -0400
-Message-ID: <3B12769F.CAC4ED8F@opensource.se>
-Date: Mon, 28 May 2001 18:02:39 +0200
-From: Magnus Damm <damm@opensource.se>
+	id <S263084AbRE1QGr>; Mon, 28 May 2001 12:06:47 -0400
+Received: from [200.192.207.230] ([200.192.207.230]:29700 "EHLO
+	olimpo.networx.com.br") by vger.kernel.org with ESMTP
+	id <S263083AbRE1QGc> convert rfc822-to-8bit; Mon, 28 May 2001 12:06:32 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Thiago Vinhas de Moraes <tvinhas@networx.com.br>
+Organization: Networx - A SuaCompanhia.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        tvinhas@networx.com.br (Thiago Vinhas de Moraes)
+Subject: Re: The difference between Linus's kernel and Alan Cox's kernel
+Date: Mon, 28 May 2001 12:50:42 -0300
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <E153QeK-0007Cs-00@the-village.bc.nu>
+In-Reply-To: <E153QeK-0007Cs-00@the-village.bc.nu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: incorrect help for NETLINK in 2.2.19
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01052812504202.01026@zeus.networx.com.br>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Em Sex 25 Mai 2001 20:05, Alan Cox escreveu:
+> > Why there are two different kernel trees? There is always the official
+> > release, provided by Torvalds, and then Alan provides a patch merging
+> > Linus's stuff, and adding (?) tons of bug fixes.
+>
+> Well it started by accident but it turns out good to have a tree that
+> changes are merged into, tested by those who need the fixes and reviewed by
+> third parties before they go to Linus.
+>
+> So the -ac tree is kind of a peer review, testing and distillation process
+> for patches.
 
-I think I've found some incorrect helptexts in 2.2.19:
+But will this happen forever? You (Alan) is currently the maintaner of the 
+2.2 tree. Won't you be going to assume the 2.4 tree, while the 2.5 series 
+development starts?
 
-I've compared the netlink config options for 2.2.19 with 2.4.5.
+BTW, Thanks for your answer.
 
-1. CONFIG_NETLINK - Enabling netlink
-
-   The help in 2.4.5 seems correct to me.
-   2.2.19 raves about nodes under /dev with major 36.  (BAD)
-
-
-2. CONFIG_RTNETLINK - Route messages over netlink.
-
-   2.4.5 seems good here too.
-   2.2.19 tells us to create a /dev/route node.        (BAD)
-
-
-3. CONFIG_NETLINK_DEV - Enable support for major 36 nodes.
-
-   2.4.5 says that this option enables major 36 nodes.
-   2.2.19 says nothing useful at all.                  (BAD)
-
-
-CONFIG_NETLINK_DEV enables major 36 char devices for both 2.2 
-and 2.4, right? 
-
-If that is true then I suggest that the 2.4.5-help for NETLINK
-is used for next 2.2-kernel.
-
-And - the help for CONFIG_RTNETLINK claims that data sent to the
-kernel is ignored. Is that really true?
-
-Tell me if you want a patch.
-
-Thanks /
-
-Magnus Damm
-
-
-http://opensource.se - open source in sweden
+Regards,
+-- 
+________________________________
+ Thiago Vinhas de Moraes
+ NetWorx - A SuaCompanhia.com

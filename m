@@ -1,72 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265176AbTLCU02 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 15:26:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265178AbTLCU02
+	id S261193AbTLCUvt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 15:51:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbTLCUvt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 15:26:28 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:20882 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S265176AbTLCU0Z (ORCPT
+	Wed, 3 Dec 2003 15:51:49 -0500
+Received: from scrye.com ([216.17.180.1]:63150 "EHLO mail.scrye.com")
+	by vger.kernel.org with ESMTP id S261193AbTLCUvq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 15:26:25 -0500
-Date: Wed, 3 Dec 2003 21:26:27 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Srivatsa Vaddagiri <vatsa@in.ibm.com>,
-       Raj <raju@mailandnews.com>, linux-kernel@vger.kernel.org,
-       lhcs-devel@lists.sourceforge.net
-Subject: Re: kernel BUG at kernel/exit.c:792!
-In-Reply-To: <3FCE453D.9080701@colorfullife.com>
-Message-ID: <Pine.LNX.4.58.0312032122420.6622@earth>
-References: <20031203153858.C14999@in.ibm.com> <3FCDCEA3.1020209@mailandnews.com>
- <20031203182319.D14999@in.ibm.com> <Pine.LNX.4.58.0312032059040.4438@earth>
- <Pine.LNX.4.58.0312031203430.7406@home.osdl.org> <3FCE453D.9080701@colorfullife.com>
+	Wed, 3 Dec 2003 15:51:46 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Date: Wed, 3 Dec 2003 13:51:40 -0700
+From: Kevin Fenzi <kevin@tummy.com>
+To: Mark Haverkamp <markh@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux aacraid devel <linux-aacraid-devel@dell.com>
+Subject: Re: aacraid and large memory problem (2.6.0-test11)
+In-Reply-To: <1070396482.16903.11.camel@markh1.pdx.osdl.net>
+References: <20031202193520.74481F7CC8@voldemort.scrye.com>
+	<1070396482.16903.11.camel@markh1.pdx.osdl.net>
+X-Mailer: VM 7.17 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
+Message-Id: <20031203205141.EB67EF7C86@voldemort.scrye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Wed, 3 Dec 2003, Manfred Spraul wrote:
+>>>>> "Mark" == Mark Haverkamp <markh@osdl.org> writes:
 
-> It's wrong, because next_thread() relies on
-> 
->     task->pids[PIDTYPE_TGID].pid_chain.next
-> 
-> That pointer is not valid after detach_pid(task, PIDTYPE_TGID), and
-> that's called within __unhash_process.  Thus next_thread() fails if it's
-> called on a dead task. Srivatsa's second patch is the right change: If
-> pid_alive() is wrong, then break from the loop without calling
-> next_thread().
+Mark> On Tue, 2003-12-02 at 11:35, Kevin Fenzi wrote:
+>> -----BEGIN PGP SIGNED MESSAGE----- Hash: SHA1
+>> 
+>> 
+>> Greetings,
+>> 
+>> Booting 2.6.0-test11 on a machine with 8GB memory and using the
+>> aacraid driver results in a hang on boot. Passing mem=2048M causes
+>> it to boot normally. 4GB also hangs. 2.6.0-test8 booted normally on
+>> this same hardware.
+>> 
+>> 8GB memory, dual xeon 3.06mhz with hyperthreading, RedHat 9 on it
+>> currently.
+>> 
+>> Happy to provide details on setup/software, etc.
+>> 
+>> Perhaps this patch in 2.6.0-test9 is the culprit?
+>> http://www.linuxhq.com/kernel/v2.6/0-test9/drivers/scsi/aacraid/comminit.c
 
-yes. And for thread groups this can only happen for the thread group
-leader if all 'child' threads have exited. So it can never happen that we
-somehow get to a 'middle' thread, walk the chain and get to a task that is
-invalid. The only possibility is that the starting point is stale itself -
-and the pid_alive() test checks that.
+Mark> This patch is what made aacraid work with over 4 gig of memory
+Mark> for me. I have an 8 proc system with 16gig of memory and without
+Mark> this patch I get data corruption in high memory.
 
-the thread group leader being 'zombie' does not mean it's unhashed. Thread
-group leaders are never detached threads, they have a parent that waits
-for them. So these zombies just hang around until the last thread goes
-away, and then the leader is released, unhashed from the PID space (and
-thus next_thread() stops being valid) and the parent is notified.
+Mark> I don't boot on the aacraid though.
 
-	Ingo
+Is there any way you can try booting from it and see if it's a boot
+issue for you as well?
 
---- linux/fs/proc/base.c.orig	
-+++ linux/fs/proc/base.c	
-@@ -1666,7 +1666,12 @@ static int get_tid_list(int index, unsig
- 
- 	index -= 2;
- 	read_lock(&tasklist_lock);
--	do {
-+	/*
-+	 * The starting point task (leader_task) might be an already
-+	 * unlinked task, which cannot be used to access the task-list
-+	 * via next_thread().
-+	 */
-+	if (pid_alive(task)) do {
- 		int tid = task->pid;
- 		if (!pid_alive(task))
- 			continue;
+I can try booting the one here from something else and see if it works
+with that. 
+
+kevin
+
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
+
+iD8DBQE/zkzd3imCezTjY0ERAtdRAJ9NIp56DWRFI6zxpbgyLtKQzkYcIACfYKil
+Z6XcmnrXQ9Qsiy24d7ac044=
+=a+PX
+-----END PGP SIGNATURE-----

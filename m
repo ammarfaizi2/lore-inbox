@@ -1,58 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271879AbTGRWOk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 18:14:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271844AbTGRWLf
+	id S271922AbTGRWTT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 18:19:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271880AbTGRWOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 18:11:35 -0400
-Received: from aneto.able.es ([212.97.163.22]:63935 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S271859AbTGRWKy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 18:10:54 -0400
-Date: Sat, 19 Jul 2003 00:25:48 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Svein Ove Aas <svein.ove@aas.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: BK is not heaven, sure [Was: Re: Bitkeeper]
-Message-ID: <20030718222548.GE3933@werewolf.able.es>
-References: <E19dbGS-00026T-9R@fencepost.gnu.org> <20030718210601.GA29771@wohnheim.fh-wedel.de> <200307190000.41301.svein.ove@aas.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <200307190000.41301.svein.ove@aas.no>; from svein.ove@aas.no on Sat, Jul 19, 2003 at 00:00:37 +0200
-X-Mailer: Balsa 2.0.12
+	Fri, 18 Jul 2003 18:14:50 -0400
+Received: from lvs00-fl.valueweb.net ([216.219.253.199]:28845 "EHLO
+	ams006.ftl.affinity.com") by vger.kernel.org with ESMTP
+	id S271878AbTGRWOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 18:14:37 -0400
+Message-ID: <3F1874B0.6030507@coyotegulch.com>
+Date: Fri, 18 Jul 2003 18:29:04 -0400
+From: Scott Robert Ladd <coyote@coyotegulch.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Trever L. Adams" <tadams-lists@myrealbox.com>
+CC: rms@gnu.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Bitkeeper
+References: <E19dbGS-00026T-9R@fencepost.gnu.org> <1058558982.2479.28.camel@aurora.localdomain>
+In-Reply-To: <1058558982.2479.28.camel@aurora.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 07.19, Svein Ove Aas wrote:
-[...]
+Trever L. Adams wrote
+> Stallman, believe it or not, you used to be someone I looked up to a
+> great deal.  I still think some of your ideas are great and I would love
+> to see the entire world as open source.  However, to encourage people to
+> do things that are known to antagonize others is crazy.  CVS is crap.  I
+> haven't used Bitkeeper but I have tried a lot of others, and they are
+> junk.  So, if Bitkeeper is as good as Linus et al think it is, then it
+> would be insane to do anything to ruin the relationship they have with
+> Bitkeeper.  Ideology is great, but it does have to be tempered and meted
+> out so that it can be implemented in a way that brings the most good to
+> everyone.  At this point, ticking off McVoy will likely do the opposite.
 > 
-> Summa summarum:
-> Having a Free CVS is good.
-> Having a useful BitKeeper is sometimes better.
-> Having a Free CVS with all the features of BK would be best.
-> 
+> McVoy, thank you for helping Linus, Cox, Miller et al scale better.  As
+> I have said before, I hope there is some way your software can become
+> more open, but I will leave that up to you and your team to figure out
+> when and how.
 
-Oh, please, stop thinking BitKeeper is the best thing since sliced bread !!!
-I have never used BK. I just use CVS as client. I have not looked at SVN.
-BK sure surpasses every other SCM tool.
-But please, stop thinking about BK clones, BK features, all BK.
+You are being far too rational for this discussion.
 
-As I read in some posts in this thread, people is doing useful work on
-a free SCM. Could you all put your efforts on generating a list of
-features/requirements you would like for a SCM system specialized for kernel
-development, and send them to the developers, instead of arguing about
-legal impact of reverse-engineering BK. And let the developers think about
-protocols, work flow, ways to do things, and so on. They can find a way
-not even similiar to the BK one, and even better...
+While I may have my disagreements with Larry at times, I appreciate his 
+patience in granting BitKeeper to the kernel developers.
 
-That way perhaps in one year you could suck data from BK and at least try
-a new system...
+RMS is a political idealist -- a good thing, in that such people help 
+bring about shifts in society. But like all idealists, he's become 
+trapped his dogma, fixated on finding battles to fight, even in other 
+people's realms.
 
 -- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.22-pre6-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-0.3mdk))
+Scott Robert Ladd
+Coyote Gulch Productions (http://www.coyotegulch.com)
+Software Invention for High-Performance Computing
+

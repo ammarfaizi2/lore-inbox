@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265257AbUD3U3n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263271AbUD3UhK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265257AbUD3U3n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 16:29:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265260AbUD3U3n
+	id S263271AbUD3UhK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 16:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265056AbUD3UhJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 16:29:43 -0400
-Received: from thunk.org ([140.239.227.29]:27101 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S265257AbUD3U3i (ORCPT
+	Fri, 30 Apr 2004 16:37:09 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:58508 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S263271AbUD3UhG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 16:29:38 -0400
-Date: Fri, 30 Apr 2004 16:29:15 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Christof <mail@pop2wap.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: some ext2-understanding problems (page cache etc.)
-Message-ID: <20040430202915.GB23131@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Christof <mail@pop2wap.net>, linux-kernel@vger.kernel.org
-References: <4091AA0F.8050700@pop2wap.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4091AA0F.8050700@pop2wap.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 30 Apr 2004 16:37:06 -0400
+Message-Id: <200404302037.i3UKb0Ar014233@eeyore.valparaiso.cl>
+To: Keith D Burgess Jr <kburgessjr@mailblocks.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license 
+In-Reply-To: Your message of "Fri, 30 Apr 2004 10:47:48 MST."
+             <kburgessjr-0xCluARlZpTw8H14dt1fTkTpb7aWgyA@mailblocks.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Fri, 30 Apr 2004 16:37:00 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 30, 2004 at 03:21:19AM +0200, Christof wrote:
-> Hello,
+Keith D Burgess Jr <kburgessjr@mailblocks.com> said:
+> A couple days ago when I stumbled onto this discussion, I was prompted 
+> to at least post an opinion from a user perspective. Having followed 
+> along since then, I am beginning to wonder why I am so interested in 
+> the Linux community in the first place. I have to admit, my chin is 
+> still on the floor having read some of the personal attacks directed 
+> towards Marc. Why, for some, has this become a personal issue and not a 
+> technical one? I think Marc summed it up best (a few times) by saying:
 > 
-> I'm not a kernel guru, but my task is to extract some ext2-code from the 
-> kernel into user space for a scientific project/experiment. I've 
-> "ported" a lot of code by now but now I am stuck.
-> I wanted to bypass the page cache and disk buffer and have all writes 
-> and reads directly in memory. I don't want to get into details, but 
-> imagine I have an image of an ext2-filesystem in memory and want to 
-> access it in user space but with the same interface as it would be in 
-> the kernel.
+> >> I repeat, the \0 is purely a technical workaround, done without any 
+> >> mischievous intent.
 
-You're probably better off using the the libext2fs library that is
-part of e2fsprogs, since it is already userspace code.  
+Exactly the same way a lockpick is a "purely technical workaround" for
+doors the owner "accidentally" locked...
 
-						- Ted
+> Can't we respect this as his explanation and move on so these efforts 
+> can be better directed towards improving the kernel?
+
+Very true.
+
+>                                                      Hell - Marc has 
+> alot of work to-do in order for driverloader to be compatible with 4K 
+> stacks ;)
+
+His efforts should better be directed at getting real (open source) support
+in place. But it is his calling in the end, I don't presume to decide what
+he should do with his time. As long as the relevant licenses (and hopefully
+also the wishes of the creators of the kernel) are respected.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

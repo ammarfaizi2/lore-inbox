@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129525AbQLRW41>; Mon, 18 Dec 2000 17:56:27 -0500
+	id <S130653AbQLRXEI>; Mon, 18 Dec 2000 18:04:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130791AbQLRW4J>; Mon, 18 Dec 2000 17:56:09 -0500
-Received: from [203.36.158.121] ([203.36.158.121]:52998 "HELO kabuki.eyep.net")
-	by vger.kernel.org with SMTP id <S129525AbQLRWzw>;
-	Mon, 18 Dec 2000 17:55:52 -0500
-To: Andreas Dilger <adilger@turbolinux.com>
-cc: "Theodore Y. Ts'o" <tytso@mit.edu>,
-        Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        David Schwartz <davids@webmaster.com>,
-        Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>,
-        linux-kernel@vger.kernel.org
-Subject: Re: /dev/random: really secure? 
-In-Reply-To: Your message of "Mon, 18 Dec 2000 15:15:54 MDT."
-             <200012182215.eBIMFsb14852@webber.adilger.net> 
-In-Reply-To: <200012182215.eBIMFsb14852@webber.adilger.net> 
-Date: Tue, 19 Dec 2000 20:27:44 +1100
-From: Daniel Stone <daniel@kabuki.eyep.net>
-Message-Id: <20001218225557Z129525-439+4788@vger.kernel.org>
+	id <S131071AbQLRXD7>; Mon, 18 Dec 2000 18:03:59 -0500
+Received: from [194.73.73.138] ([194.73.73.138]:14209 "EHLO ruthenium")
+	by vger.kernel.org with ESMTP id <S130653AbQLRXDl>;
+	Mon, 18 Dec 2000 18:03:41 -0500
+Date: Mon, 18 Dec 2000 22:32:50 +0000 (GMT)
+From: davej@suse.de
+To: Powertweak mailing list <powertweak-linux@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linuxperf@humbolt.nl.linux.org, linux-performance@lists.microstate.com
+Subject: [ANNOUNCE] Powertweak v0.99.0
+In-Reply-To: <20001214004212.A11827@heim1.tu-clausthal.de>
+Message-ID: <Pine.LNX.4.21.0012182226300.2391-100000@neo.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This would allow you to say "eth0 is my internal network and I'm not
-> trying to hack my own system, so use IP traffic on that interface to add
-> entropy to the pool, but not packets that are on port 6699/21/23 or reply
-> packets".  It would probably just be a matter of adding a new flag to a
-> filter rule to say "use packets that match this rule for entropy", and
-> then it is up to the user to determine what is safe to use.  The fact
-> that it is user configurable makes it even harder for a cracker to know
-> what affects the entropy pool.
 
-This isn't from the kernel, but works great in userspace:
+v0.99.0 of the system performance tuning tool "Powertweak" is released.
 
-iptables -n RANDOM
-iptables -A INPUT -i eth0 -j RANDOM
-iptables -A RANDOM -p tcp --dport 6699 -j <otherchain/rule>
-iptables -A RANDOM -p tcp --dport 21 -j <asabove>
-iptables -A RANDOM -p tcp --dport 32 -j <ditto,etc>
-iptables -A RANDOM -m state --state ! NEW -j <thisisgettingstupidnow>
-iptables -P RANDOM -j ULOG --ulog-nlgroup 32
+Available from http://powertweak.sourceforge.net
 
-This sends a message down netlink in ULOG format.
-ULOG is a userspace logging extension written by Harald Welte, but it's
-extensible like you wouldn't believe, so you could easily do some whacky
-stuff with it. Or just hook in to a Netfilter hook and do it all from kernel
-land.
-ULOG's homepage: http://www.gnumonks.org/gnumonks/projects/project_details?p_id=1
+ This release brought about a complete rewrite.
+ Some of the major changes since the last public release are...
 
-:) d
+ - Should now work on all architectures.
+   (Tested on ia32/Sparc/Alpha/PPC)
+ - By default, Powertweak now starts as a daemon that should be
+   run on bootup. (Old behaviour still possible with --no-daemon)
+   The GUI now communicates with the daemon instead of doing
+   the tweaking itself. 
+ - Backends are now completely modular plugin libraries.
+   This allowed for easier cross-platform usage, and a cleaner API.
+ - Profiles.
+   Tell Powertweak "This is a webserver" and have it auto-tune.
+ - Rewritten /proc/sys tuning backend.
+ - PCI backend now uses XML files to describe tweaks. 
+   Several chipsets added since 0.1.17 release.
+ - Addition of a disk elevator tuning backend.
+ - CPU register tuning is now possible, as long as you have the
+   cpuid/msr drivers in your kernel (2.2.18, or 2.4.0test)
+ - Working text mode user interface.
+
+
+regards,
+
+Davej.
+
+-- 
+| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
+| SuSE Labs
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

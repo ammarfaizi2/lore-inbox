@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266333AbUIMH5c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266316AbUIMIGZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266333AbUIMH5c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 03:57:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266364AbUIMH5b
+	id S266316AbUIMIGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 04:06:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266349AbUIMIGZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 03:57:31 -0400
-Received: from clusterfw.beelinegprs.com ([217.118.66.232]:53551 "EHLO
-	crimson.namesys.com") by vger.kernel.org with ESMTP id S266333AbUIMH5U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 03:57:20 -0400
-Date: Mon, 13 Sep 2004 11:49:22 +0400
-From: Alex Zarochentsev <zam@namesys.com>
-To: Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk
-Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: [PATCH] use S_ISDIR() in link_path_walk() to decide whether the last path component is a directory
-Message-ID: <20040913074921.GA2252@backtop.namesys.com>
+	Mon, 13 Sep 2004 04:06:25 -0400
+Received: from holomorphy.com ([207.189.100.168]:51337 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266316AbUIMIGX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 04:06:23 -0400
+Date: Mon, 13 Sep 2004 01:05:42 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Roel van der Made <roel@telegraafnet.nl>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, torvalds@osdl.org
+Subject: Re: [PATCH]: Re: kernel 2.6.9-rc1-mm4 oops
+Message-ID: <20040913080542.GX2660@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Kirill Korotaev <dev@sw.ru>,
+	Roel van der Made <roel@telegraafnet.nl>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+References: <20040912184804.GC19067@telegraafnet.nl> <4145550F.8030601@sw.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <4145550F.8030601@sw.ru>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Sep 13, 2004 at 12:06:39PM +0400, Kirill Korotaev wrote:
+> --- ./kernel/exit.c.nt	2004-09-13 11:18:26.000000000 +0400
+> +++ ./kernel/exit.c	2004-09-13 11:53:23.611075360 +0400
+> @@ -848,10 +848,7 @@ asmlinkage long sys_exit(int error_code)
+>  task_t fastcall *next_thread(const task_t *p)
+>  {
+>  #ifdef CONFIG_SMP
+> -	if (!p->sighand)
+> -		BUG();
+> -	if (!spin_is_locked(&p->sighand->siglock) &&
+> -				!rwlock_is_locked(&tasklist_lock))
+> +	if (!rwlock_is_locked(&tasklist_lock))
+>  		BUG();
+>  #endif
+>  	return pid_task(p->pids[PIDTYPE_TGID].pid_list.next, PIDTYPE_TGID);
 
-This patch does not allow open(name, O_DIRECTORY) to be successful for
-non-directories in reiser4.  It replaces ->i_op->lookup != NULL "is dir" check
-for the last path component by explicit S_ISDIR(->i_mode) check. 
+Hmm, BUG_ON() for whatever users (embedded?) that define BUG()/BUG_ON()
+checks to nops may be useful here since no side effects are expected
+from rwlock_is_locked().
 
-Regardless to reiser4, S_ISDIR() looks more clear there.
+FWIW I got this once while running initscripts(!) on a 4x logical x86-64
+on virgin 2.6.9-rc1-mm4 but couldn't reproduce it.
 
-Thanks in advance.
 
-===== fs/namei.c 1.104 vs edited =====
---- 1.104/fs/namei.c	Tue Aug 10 16:59:38 2004
-+++ edited/fs/namei.c	Sun Sep 12 11:00:18 2004
-@@ -816,7 +816,7 @@
- 			break;
- 		if (lookup_flags & LOOKUP_DIRECTORY) {
- 			err = -ENOTDIR; 
--			if (!inode->i_op || !inode->i_op->lookup)
-+			if (!S_ISDIR(inode->i_mode))
- 				break;
- 		}
- 		goto return_base;
+-- wli

@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVDDHi6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVDDHml@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbVDDHi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 03:38:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVDDHi6
+	id S261152AbVDDHml (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 03:42:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbVDDHml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 03:38:58 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:48601 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261151AbVDDHi4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 03:38:56 -0400
-Date: Mon, 4 Apr 2005 00:37:08 -0700
-From: Paul Jackson <pj@engr.sgi.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: nickpiggin@yahoo.com.au, kenneth.w.chen@intel.com, torvalds@osdl.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched: auto-tune migration costs [was: Re: Industry db
- benchmark result on recent 2.6 kernels]
-Message-Id: <20050404003708.4574f26b.pj@engr.sgi.com>
-In-Reply-To: <20050404064832.GA23312@elte.hu>
-References: <20050402215332.79ff56cc.pj@engr.sgi.com>
-	<20050403070415.GA18893@elte.hu>
-	<20050403043420.212290a8.pj@engr.sgi.com>
-	<20050403071227.666ac33d.pj@engr.sgi.com>
-	<20050403152413.GA26631@elte.hu>
-	<20050403160807.35381385.pj@engr.sgi.com>
-	<4250A195.5030306@yahoo.com.au>
-	<20050403205558.753f2b55.pj@engr.sgi.com>
-	<1112594184.5077.9.camel@npiggin-nld.site>
-	<20050403233816.71a6dd4b.pj@engr.sgi.com>
-	<20050404064832.GA23312@elte.hu>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 4 Apr 2005 03:42:41 -0400
+Received: from rproxy.gmail.com ([64.233.170.200]:41609 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261152AbVDDHmj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 03:42:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=BglCjFxq8pZLhQtvrT/yYFUQ4t1YG22840oQs4m9fIDFHEcoxuraz2xPsbe9Q1Qbku1GpzecdR9jH9MdlLcoxcLPXgy972q1uU/uxL+XDKEZR3P00Amo2+TqM+htSIZT0cyz7kZFR6v6aN2yy6XHwV4hRoski6/zMgpgyLEzro4=
+Message-ID: <59ab6ac105040400423fefd96a@mail.gmail.com>
+Date: Mon, 4 Apr 2005 09:42:39 +0200
+From: =?ISO-8859-1?Q?Jose_=C1ngel_De_Bustos_P=E9rez?= 
+	<jadebustos@gmail.com>
+Reply-To: =?ISO-8859-1?Q?Jose_=C1ngel_De_Bustos_P=E9rez?= 
+	  <jadebustos@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: A problem with kswapd
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo wrote:
-> the problem i mentioned earlier is that there is no other use
+Hi,
 
-Eh ... whatever.  The present seems straight forward enough, with a
-simple sched domain tree and your auto-tune migration cost calculation
-bolted directly on top of that.
+I have a problem with kswapd and I didn't find anything in the
+archives of the list (I hope not having missed someone).
 
-I'd better leave the futures to those more experienced than I.
+kswapd is using 100% of CPU in a suse sles8 with kernel 2.4.241. This
+machine has its FS under LVM and ResiserFS, except for /boot which is
+in ext2.
 
+Any idea? Thanks in advance.
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+____________________________________
+Best wishes, José Angel de Bustos Pérez
+
+jadebustos@linuxmail.org
+jadebustos@gmail.com
+
+Jabber ID jadebustos@jabber.org
+ICQ ID 200368358

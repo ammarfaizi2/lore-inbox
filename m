@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291320AbSBMDYi>; Tue, 12 Feb 2002 22:24:38 -0500
+	id <S291327AbSBMDp3>; Tue, 12 Feb 2002 22:45:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291321AbSBMDY1>; Tue, 12 Feb 2002 22:24:27 -0500
-Received: from holomorphy.com ([216.36.33.161]:18853 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S291320AbSBMDYQ>;
-	Tue, 12 Feb 2002 22:24:16 -0500
-Date: Tue, 12 Feb 2002 19:24:02 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Robert Jameson <rj@open-net.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: unresolved symbols ipt_owner.o with 2.4.18-pre9 with mjc patch
-Message-ID: <20020213032402.GC3588@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Robert Jameson <rj@open-net.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020212214016.7fa188c3.rj@open-net.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020212214016.7fa188c3.rj@open-net.org>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S291329AbSBMDpT>; Tue, 12 Feb 2002 22:45:19 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:28935 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S291327AbSBMDpK>; Tue, 12 Feb 2002 22:45:10 -0500
+Date: Tue, 12 Feb 2002 22:42:59 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rik van Riel <riel@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sys_sync livelock fix
+In-Reply-To: <3C69B5D7.CFF9E8EA@zip.com.au>
+Message-ID: <Pine.LNX.3.96.1020212223440.8017B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 12, 2002 at 09:40:16PM -0500, Robert Jameson wrote:
-> Is there a fix for the unresolved symbols with ipt_owner.o with
-> 2.4.18-pre9 + mjc's patch, i don't know if this is 2.4.18-pre9 specific or
-> if its a mjc error, either way, heres the error,
+On Tue, 12 Feb 2002, Andrew Morton wrote:
 
-Does this help?
+> Alan Cox wrote:
+> > 
+> > > I don't see why it should be different for applications
+> > > that write data after sync has started.
+> > 
+> > The guarantee about data written _before_ the sync started is also being
+> > broken unless I misread the code
+> 
+> That would be very broken.
+> 
+> The theory is: newly dirtied buffers are added at the "new"
+> end of the LRU.  write_some_buffers() starts at the "old"
+> end of the LRU.
+> 
+> So if write_unlock_buffers writes out the "oldest"
+> nr_buffers_type[BUF_DIRTY] buffers, then it knows
+> that it has written out everything which was dirty
+> at the time it was called.
+> 
+> Or did I miss something?
 
---- linux-virgin/kernel/fork.c  Tue Jan 29 18:28:26 2002
-+++ linux-wli/kernel/fork.c Tue Jan 29 22:42:27 2002
-@@ -36,6 +36,9 @@
- unsigned long pidhash_size;
- unsigned long pidhash_bits;
- list_t *pidhash;
-+EXPORT_SYMBOL(pidhash);
-+EXPORT_SYMBOL(pidhash_bits);
-+EXPORT_SYMBOL(pidhash_size);
- 
- rwlock_t tasklist_lock __cacheline_aligned = RW_LOCK_UNLOCKED;  /* outer */
- 
+Alan is right about the first version of the patch not getting all dirty
+buffers I haven't looked at the latest version but the change seems to be
+correct. Other than that I agree that "everything which was dirty at the
+time it was called" is exactly right, what the user expects and what the
+SuS says.
+
+However, after thinksing about the SuS, it says (paraphrase) "queued but
+not necessarily written." So if I read that right sync() is intended to be
+a non-blocking operation. We can do that, but there is one thing which
+must be added: with all the various patches which hack the elevator code,
+we need a flag which says "do not add anything more to this pass." That
+makes the SuS implementation of sync() possible, and makes the completion
+of the operation deterministic. When all the dirty blocks are written the
+operation is done.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

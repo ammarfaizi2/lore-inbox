@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272537AbRH3WmU>; Thu, 30 Aug 2001 18:42:20 -0400
+	id <S272538AbRH3Wru>; Thu, 30 Aug 2001 18:47:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272539AbRH3WmK>; Thu, 30 Aug 2001 18:42:10 -0400
-Received: from egghead.curl.com ([216.230.83.4]:21252 "HELO egghead.curl.com")
-	by vger.kernel.org with SMTP id <S272537AbRH3Wlw>;
-	Thu, 30 Aug 2001 18:41:52 -0400
-From: "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	id <S272539AbRH3Wrl>; Thu, 30 Aug 2001 18:47:41 -0400
+Received: from oboe.it.uc3m.es ([163.117.139.101]:36618 "EHLO oboe.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S272538AbRH3Wr3>;
+	Thu, 30 Aug 2001 18:47:29 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200108302247.f7UMl4f31365@oboe.it.uc3m.es>
 Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <Pine.LNX.4.33.0108300902570.7973-100000@penguin.transmeta.com> <200108301638.SAA04923@nbd.it.uc3m.es>
-Date: 30 Aug 2001 18:42:10 -0400
-In-Reply-To: <mit.lcs.mail.linux-kernel/200108301638.SAA04923@nbd.it.uc3m.es>
-Message-ID: <s5gheup6ugt.fsf@egghead.curl.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+In-Reply-To: <11888.999209611@redhat.com> from "David Woodhouse" at "Aug 30,
+ 2001 11:13:31 pm"
+To: "David Woodhouse" <dwmw2@infradead.org>
+Date: Fri, 31 Aug 2001 00:47:04 +0200 (MET DST)
+CC: ptb@it.uc3m.es, "Herbert Rosmanith" <herp@wildsau.idv-edu.uni-linz.ac.at>,
+        linux-kernel@vger.kernel.org, dhowells@cambridge.redhat.com
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Peter T. Breuer" <ptb@it.uc3m.es> writes:
-
-> "Linus Torvalds wrote:"
-> > What if the "int" happens to be negative?
+"A month of sundays ago David Woodhouse wrote:"
 > 
->    if sizeof(typeof(a)) != sizeof(typeof(b)) 
->        BUG() // sizes differ
->    const (typeof(a)) _a = ~(typeof(a))0   
->    const (typeof(b)) _b = ~(typeof(b))0   
->    if _a < 0 && _b > 0 || _a > 0 && b < 0
->        BUG() // one signed, the other unsigned
->    standard_max(a,b)
+> ptb@it.uc3m.es said:
+> >  You got me curious enough to try it.  It compiles and links fine with
+> > -O1 and higher under
+> 
+> >        gcc version 2.95.2 20000220 (Debian GNU/Linux)
+> >        gcc version 2.8.1
+> >        gcc version 2.7.2.3 
+> 
+> Oh well, then it _must_ be safe then - gcc has never changed unspecified 
+> behaviour on us before, has it?
 
-This is a MUCH nicer solution.  max() is a well-defined mathematical
-concept; it is simply the larger of its two arguments, period.  It is
-C's *promotion* rules that kill you, especially signed->unsigned
-promotion.  So just forbid them, at least when they implicit.
+Well, I understand what you mean, but if the linux kernel wants it
+and the C spec doesn't forbid it, then it'll either stay that way
+or an "official" way will be found of evoking the desired behaviour.
 
-You can argue about whether the "differing sizes" case should be a
-BUG(), since the output will still be mathematically correct.  It
-depends on how often it is useful to compare (say) unsigned chars
-against ints, and on whether the compiler warns about cases where you
-try to stuff the return value into a too-small container.  I bet that
-just forbidding signed->unsigned promotion would be enough.
+The kernel already relies on -O1 expanding outb().
 
-In general, types should work for the programmer, not the other way
-around.  Force people to "think hard" about their types when they are
-making a likely mistake, not *every* time they call max().
+> The gcc engineer who took one look at the __buggy_udelay cruft, raised his
+> eyebrows, swore and wandered off muttering must just have been having a bad
+> day or something.
 
-Littering all those calls with types is just gross.
+Actually, I was a bit more worried that 
 
- - Pat
+  const unsigned int i = 1;
+  if (i < 0)
+      foo();
+
+would generate warnings about the comparison always failing. But it
+doesn't, at least not with -Wall. It does generate a warning about
+implicitly declaring the function foo()! So I guess one has to add a
+decl for it just above the call.  But it doesn't emit code for the call
+itself, so the link is fine.
+
+OTOH I now can't get #__LINE__ to expand as I want it where I want it.
+
+Peter

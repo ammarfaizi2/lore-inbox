@@ -1,65 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262301AbVBVNRV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262296AbVBVNXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262301AbVBVNRV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 08:17:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbVBVNRU
+	id S262296AbVBVNXK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 08:23:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262302AbVBVNXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 08:17:20 -0500
-Received: from gateway.auto-gielda.pl ([80.55.218.218]:53264 "EHLO
-	eurotransfer-de.info") by vger.kernel.org with ESMTP
-	id S262300AbVBVNQ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 08:16:59 -0500
-Subject: Angebot
-From: "Euro-Transfer" <info@eurotransfer-de.info>
-Reply-To: info@eurotransfer-de.info
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset=iso-8859-1
+	Tue, 22 Feb 2005 08:23:10 -0500
+Received: from chilli.pcug.org.au ([203.10.76.44]:58348 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S262296AbVBVNXI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 08:23:08 -0500
+Date: Tue, 22 Feb 2005 23:27:00 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Meelis Roos <mroos@linux.ee>
+Message-Id: <20050222232700.0e53cdae.sfr@canb.auug.org.au>
+In-Reply-To: <Pine.SOC.4.61.0502221140040.6097@math.ut.ee>
+References: <Pine.SOC.4.61.0502221140040.6097@math.ut.ee>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: FastMailing
-Message-Id: <20050222113704.97BCD14023C@eurotransfer-de.info>
-Date: Tue, 22 Feb 2005 12:37:04 +0100 (CET)
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: 2.4 compile errors in 32-bit sys_revcmsg fixes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sehr geehrte Damen und Herren, 
+On Tue, 22 Feb 2005 11:48:31 +0200 (EET) Meelis Roos <mroos@linux.ee> wrote:
+>
+> Is a "||" missing, or something else?
 
-unser Sonderangebot ist an allen , die neue Klienten 
-gewinnen möchten, den Kundenkreis erweitern sowie 
-erfolgreiche Werbeaktionen durchführen wollen, gerichtet !!!
+Yes, that's all.  I have already sent a fix to Marcelo.  Sorry for the
+inconvenience.
 
-
-Wir bieten Ihnen Datenbanken mit E-Mail-Adressen nicht nur deutscher 
-sondern auch britischer, oesterreichischer und anderer Unternehmen an, 
-die Hunderttausende von Einträgen enthalten. 
-Die Datenbanken sind nach Branchen und Subbranchen gegliedert. 
-Der Versand von Angeboten per E-Mail ist eine der preisgünstigsten, 
-wirkungsvollsten und schnellsten Werbeformen, dank derer Sie neue 
-Käufer für Ihre Produkte und Dienstleistungen gewinnen können. 
-Die speziell für unsere Kunden erstellte Software -FastMailing 
-2.1.1 ermöglicht den Massenversand von Angeboten. 
-Dank dieser Versandmethode sind Sie imstande innerhalb von wenigen Stunden
-hunderttausende von Empfängern mit Ihrem Angebot bekanntmachen!
-Besuchen Sie unsere Webseite - http://www.eurotransfer.co.uk und überzeugen 
-Sie sich selbst.  Speziell für Sie haben wir attraktive Preispakete 
-vorbereitet. Unser Sonderangebot ist zeitlich begrenzt weil dauert nur bis zum 
-10.März!  Verpassen Sie es nicht! 
-
-Weitere Informationen erhalten Sie unter: kontakt@eurotransfer.co.uk
-
-http://www.eurotransfer.co.uk
-oder 
-http://www.eurotransfer-de.info
-
-
-Mit Erfolgswünschen verbleibt  
-Ihr EuroTransfer - Team 
-
-
-
-
-
-Falls Sie kein Interesse an Produkten der Firma EuroTransfer haben, und 
-möchten keine weitere Informationen über sie bekommen, klicken Sie nur 
-an unterstehenden Link: http://www.eurotransfer.co.uk/unsubscribe.php - wo Sie 
-Ihre E-mail Adresse aus unserem Datenbank löschen können.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

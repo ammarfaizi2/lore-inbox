@@ -1,93 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261947AbTIPPZf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 11:25:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTIPPZf
+	id S262055AbTIPPjM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 11:39:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbTIPPjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 11:25:35 -0400
-Received: from dyn-ctb-210-9-243-132.webone.com.au ([210.9.243.132]:37126 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S261947AbTIPPZZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 11:25:25 -0400
-Message-ID: <3F672B42.5090809@cyberone.com.au>
-Date: Wed, 17 Sep 2003 01:24:50 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Tue, 16 Sep 2003 11:39:12 -0400
+Received: from [206.47.255.59] ([206.47.255.59]:24333 "HELO
+	onestop-pr1ntshop.com") by vger.kernel.org with SMTP
+	id S262055AbTIPPjL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 11:39:11 -0400
+Message-ID: <360f7574e652$c00870ea$ff8c5a80@wcsdvfndant.hob>
+From: "inkff@onestop-pr1ntshop.com" <inkff@onestop-pr1ntshop.com>
+Reply-To: "inkff@onestop-pr1ntshop.com" <inkff@onestop-pr1ntshop.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 25 - 75 percent discounts on printer supplies. w
+Date: Tue, 16 Sep 2003 19:33:40 +0300
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: John Bradford <john@grabjohn.com>, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, zwane@linuxpower.ca
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-References: <Pine.LNX.3.96.1030916095944.26515D-100000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1030916095944.26515D-100000@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_09E2_0BDB94E0.1273449346"
+X-Priority: 3
+X-MSMail-Priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+------=_NextPart_000_09E2_0BDB94E0.1273449346
+Content-Type: text/plain;
+Content-Transfer-Encoding: quoted-printable
 
-Bill Davidsen wrote:
+66% off all printer supplies!
 
->On Mon, 15 Sep 2003, Nick Piggin wrote:
->
->
->>
->>John Bradford wrote:
->>
->
->>I guess more specialised users would be able to edit the cache line
->>size themselves. I wouldn't be adverse to a kconfig setting under the
->>embedded menu though.
->>
->
->Clearly something which might be useful for some embedded CPUs.
->
->
->>I can see an argument for cache line size but thats about it. I can't
->>think of my optimisations that should be done on one architecture but
->>not another.
->>
->
->Well, if you meant "any optimizations" there are lots, and they already
->have config entries. Ex: F.P. emulation, RZ1000 fixups, etc.
->
->
->>No I definitely agree. Except sometimes you'll have to check at runtime:
->>a kernel compiled for all cpus for example needs Andi's Athlon prefetch
->>scheme. You'd really want some good helpers to either do runtime check
->>or always, or never. Something like this optimises down OK if cpu and
->>archmask are constant.
->>
->>static inline void ifcpu(const int cpumask, void (*func)(void))
->>{
->>        if ((cpumask&archmask) && ((~cpumask)&archmask)) {
->>                if (cpumask&current_cpu)
->>                        func();
->>        } else if (cpumask&archmask) {
->>                func();
->>        }
->>}
->>
->>ifcpu(K7||K8, &prefetch_workaround);
->>
->>You then need to get kconfig to generate cpu and archmask nicely.
->>You obviously still need to ifdef your prefetch_workaround to get the
->>space saving.
->>
->
->True, there's no way to get a minimal kernel without at least some
->ifdef'iness, although if you defined the code as an inline function and
->used your code above... a matter of style, a few preprocessor lines in
->that much code aren't going to be confusing.
->
+Please see the stores,
+feel what
+others already have, quality ink
+cartridge
+at an amazining price
 
-I don't think ifdefing around functions is that bad for this sort of
-workaround code. You have to take the address of the function with my
-above code, so you can't use an inline one. I don't think the
-preprocessor can solve the problem either because it seems you'd need
-conditional compilation directives within a macro. I'm not a C expert
-though so someone might have a way to do it.
+I offer many
+models including,
+Lexmark, Canon Epson, and HP.
 
+ http://thebestpr1ntbarga1n.com/ylliw.html
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+If you choose to stop sending of  emails, http://incredi-offers.com/s20.html
+
+
+rsfdwy
+
+
+------=_NextPart_000_09E2_0BDB94E0.1273449346--
 

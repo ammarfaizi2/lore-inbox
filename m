@@ -1,87 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270165AbTGUPiO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 11:38:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270185AbTGUPiO
+	id S270160AbTGUPhx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 11:37:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270172AbTGUPhv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 11:38:14 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:5897 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S270165AbTGUPhq
+	Mon, 21 Jul 2003 11:37:51 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:3593 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S270160AbTGUPgn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 11:37:46 -0400
+	Mon, 21 Jul 2003 11:36:43 -0400
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] vfat dentry handling fix (3/11)
+Subject: [PATCH] fat_cluster_flush() fixes (2/11)
 From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Tue, 22 Jul 2003 00:52:39 +0900
-Message-ID: <87fzkzx4fs.fsf@devron.myhome.or.jp>
+Date: Tue, 22 Jul 2003 00:51:40 +0900
+Message-ID: <87k7abx4hf.fsf@devron.myhome.or.jp>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Intent of this fixes following case of vfat_revalidate().
-
-before:
-	# mount -t vfat /dev/hda6 /mnt -o shortname=winnt
-	# cd /mnt
-	# cat File.Txt			# make negative dentry
-	cat: File.Txt: No such file or directory
-	# touch file.txt		# match negative dentry
-	# ls
-	File.Txt
-
-after:
-	# mount -t vfat /dev/hda6 /mnt -o shortname=winnt
-	# cd /mnt
-	# cat File.Txt			# make negative dentry
-	cat: File.Txt: No such file or directory
-	# touch file.txt		# match negative dentry
-	# ls
-	file.txt
+This adds forgotten check of MS_RDONLY flag to fat_put_super(), and
+adds sanity check of ->free_clusters and ->prev_free to fat_cluster_flush().
 
 
- fs/vfat/namei.c |   17 ++++++++++++-----
- 1 files changed, 12 insertions(+), 5 deletions(-)
+ fs/fat/inode.c |    4 +++-
+ fs/fat/misc.c  |   15 ++++++++-------
+ 2 files changed, 11 insertions(+), 8 deletions(-)
 
-diff -puN fs/vfat/namei.c~fat_dentry-handling-fix fs/vfat/namei.c
---- linux-2.6.0-test1/fs/vfat/namei.c~fat_dentry-handling-fix	2003-07-21 02:48:14.000000000 +0900
-+++ linux-2.6.0-test1-hirofumi/fs/vfat/namei.c	2003-07-21 02:48:14.000000000 +0900
-@@ -23,6 +23,7 @@
- #include <linux/slab.h>
- #include <linux/smp_lock.h>
- #include <linux/buffer_head.h>
-+#include <linux/namei.h>
- 
- #define DEBUG_LEVEL 0
- #if (DEBUG_LEVEL >= 1)
-@@ -70,14 +71,20 @@ static struct dentry_operations vfat_den
- 
- static int vfat_revalidate(struct dentry *dentry, struct nameidata *nd)
+diff -puN fs/fat/inode.c~fat_clusters_flush-fix fs/fat/inode.c
+--- linux-2.6.0-test1/fs/fat/inode.c~fat_clusters_flush-fix	2003-07-21 02:48:11.000000000 +0900
++++ linux-2.6.0-test1-hirofumi/fs/fat/inode.c	2003-07-21 02:48:11.000000000 +0900
+@@ -159,7 +159,9 @@ void fat_put_super(struct super_block *s
  {
-+	int ret = 1;
- 	PRINTK1(("vfat_revalidate: %s\n", dentry->d_name.name));
- 	spin_lock(&dcache_lock);
--	if (dentry->d_time == dentry->d_parent->d_inode->i_version) {
--		spin_unlock(&dcache_lock);
--		return 1;
--	}
-+	if (nd && !(nd->flags & LOOKUP_CONTINUE) && (nd->flags & LOOKUP_CREATE))
-+		/*
-+		 * negative dentry is dropped, in order to make sure
-+		 * to use the name which a user desires if this is
-+		 * create path.
-+		 */
-+		ret = 0;
-+	else if (dentry->d_time != dentry->d_parent->d_inode->i_version)
-+		ret = 0;
- 	spin_unlock(&dcache_lock);
--	return 0;
-+	return ret;
- }
+ 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
  
- static inline unsigned char
+-	fat_clusters_flush(sb);
++	if (!(sb->s_flags & MS_RDONLY))
++		fat_clusters_flush(sb);
++
+ 	if (sbi->nls_disk) {
+ 		unload_nls(sbi->nls_disk);
+ 		sbi->nls_disk = NULL;
+diff -puN fs/fat/misc.c~fat_clusters_flush-fix fs/fat/misc.c
+--- linux-2.6.0-test1/fs/fat/misc.c~fat_clusters_flush-fix	2003-07-21 02:48:11.000000000 +0900
++++ linux-2.6.0-test1-hirofumi/fs/fat/misc.c	2003-07-21 02:48:11.000000000 +0900
+@@ -50,15 +50,14 @@ void unlock_fat(struct super_block *sb)
+ /* XXX: Need to write one per FSINFO block.  Currently only writes 1 */
+ void fat_clusters_flush(struct super_block *sb)
+ {
++	struct msdos_sb_info *sbi = MSDOS_SB(sb);
+ 	struct buffer_head *bh;
+ 	struct fat_boot_fsinfo *fsinfo;
+ 
+-	if (MSDOS_SB(sb)->fat_bits != 32)
+-		return;
+-	if (MSDOS_SB(sb)->free_clusters == -1)
++	if (sbi->fat_bits != 32)
+ 		return;
+ 
+-	bh = sb_bread(sb, MSDOS_SB(sb)->fsinfo_sector);
++	bh = sb_bread(sb, sbi->fsinfo_sector);
+ 	if (bh == NULL) {
+ 		printk(KERN_ERR "FAT bread failed in fat_clusters_flush\n");
+ 		return;
+@@ -71,10 +70,12 @@ void fat_clusters_flush(struct super_blo
+ 		       "     Found signature1 0x%08x signature2 0x%08x"
+ 		       " (sector = %lu)\n",
+ 		       CF_LE_L(fsinfo->signature1), CF_LE_L(fsinfo->signature2),
+-		       MSDOS_SB(sb)->fsinfo_sector);
++		       sbi->fsinfo_sector);
+ 	} else {
+-		fsinfo->free_clusters = CF_LE_L(MSDOS_SB(sb)->free_clusters);
+-		fsinfo->next_cluster = CF_LE_L(MSDOS_SB(sb)->prev_free);
++		if (sbi->free_clusters != -1)
++			fsinfo->free_clusters = CF_LE_L(sbi->free_clusters);
++		if (sbi->prev_free)
++			fsinfo->next_cluster = CF_LE_L(sbi->prev_free);
+ 		mark_buffer_dirty(bh);
+ 	}
+ 	brelse(bh);
 
 _
 

@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277530AbRJJXzQ>; Wed, 10 Oct 2001 19:55:16 -0400
+	id <S277546AbRJJX44>; Wed, 10 Oct 2001 19:56:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277546AbRJJXzF>; Wed, 10 Oct 2001 19:55:05 -0400
-Received: from [216.151.155.121] ([216.151.155.121]:6930 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S277530AbRJJXyy>; Wed, 10 Oct 2001 19:54:54 -0400
-To: Andreas Dilger <adilger@turbolabs.com>
-Cc: Lew Wolfgang <wolfgang@sweet-haven.com>, linux-kernel@vger.kernel.org
-Subject: Re: Dump corrupts ext2?
-In-Reply-To: <Pine.LNX.4.33.0110101558210.7049-100000@train.sweet-haven.com>
-	<m3elob3xao.fsf@belphigor.mcnaught.org>
-	<20011010173449.Q10443@turbolinux.com>
-From: Doug McNaught <doug@wireboard.com>
-Date: 10 Oct 2001 19:55:16 -0400
-In-Reply-To: Andreas Dilger's message of "Wed, 10 Oct 2001 17:34:49 -0600"
-Message-ID: <m33d4r3va3.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S277547AbRJJX4q>; Wed, 10 Oct 2001 19:56:46 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:27271 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S277546AbRJJX4h>;
+	Wed, 10 Oct 2001 19:56:37 -0400
+Date: Wed, 10 Oct 2001 16:56:59 -0700 (PDT)
+Message-Id: <20011010.165659.74564935.davem@redhat.com>
+To: chris@wirex.com
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.11 min() in tcp.c
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011010164430.B19995@figure1.int.wirex.com>
+In-Reply-To: <20011010164430.B19995@figure1.int.wirex.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger <adilger@turbolabs.com> writes:
+   From: Chris Wright <chris@wirex.com>
+   Date: Wed, 10 Oct 2001 16:44:30 -0700
 
-> On Oct 10, 2001  19:11 -0400, Doug McNaught wrote:
-> > I'm pretty sure this is because dump reads the block device directly
-> > (which is cached in the buffer cache), while the file data for cached
-> > files lives in the page cache, and the two caches are no longer
-> > coherent (as of 2.4).
-> 
-> In Linus kernels 2.4.11+ the block devices and filesystems all use the
-> page cache, so no more coherency issues.
+   tcp.c:855: warning: comparison of distinct pointer types lacks a cast
+   
+   the following patch, changes min() to min_t() to make size_t explicit.
 
-You're right, of course.  But for most of the lifetime of 2.4 the
-above was true...
+Applied, but with a cleanup, please never do this:
+   
+   -		min(
+   +		min_t (
 
-> Also, I don't think this ever had the potential to corrupt the filesystem,
-> but maybe make a slightly bad backup.
+"min_t" is not a C operator, therefore no reason to put a space
+between "min_t" and the openning parenthesis.  If you look around,
+this is the general coding style rule the Linux code follows:
 
-Right, might corrupt the dump, but shouldn't hurt the filesystem.  
+	if ()  /* <--- space here */
+	while () /* <--- and here */
+	foo_function() /* <--- but not here */
 
--Doug
--- 
-Let us cross over the river, and rest under the shade of the trees.
-   --T. J. Jackson, 1863
+For example.
+
+Franks a lot,
+David S. Miller
+davem@redhat.com

@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131205AbRDPQEC>; Mon, 16 Apr 2001 12:04:02 -0400
+	id <S131246AbRDPQFm>; Mon, 16 Apr 2001 12:05:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131233AbRDPQDw>; Mon, 16 Apr 2001 12:03:52 -0400
-Received: from nat-hdqt.valinux.com ([198.186.202.17]:18766 "EHLO
-	macallan.engr.valinux.com") by vger.kernel.org with ESMTP
-	id <S131205AbRDPQDm>; Mon, 16 Apr 2001 12:03:42 -0400
-From: Walt Drummond <drummond@engr.valinux.com>
+	id <S131233AbRDPQFd>; Mon, 16 Apr 2001 12:05:33 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:42763 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S131563AbRDPQFS>;
+	Mon, 16 Apr 2001 12:05:18 -0400
+Message-ID: <3ADB1837.A0AE3020@linux-m68k.org>
+Date: Mon, 16 Apr 2001 18:05:11 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: markh@compro.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: amiga affs support broken in 2.4.x kernels??
+In-Reply-To: <3AD59EB9.35F3A535@compro.net> <3AD9FEDD.2B636582@linux-m68k.org> <3ADAEA9B.D70DC130@compro.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15067.6084.459899.879345@macallan.engr.valinux.com>
-Date: Mon, 16 Apr 2001 09:03:16 -0700
-To: george anzinger <george@mvista.com>
-Cc: drummond@engr.valinux.com, Hubertus Franke <frankeh@us.ibm.com>,
-        mingo@elte.hu, Linux Kernel List <linux-kernel@vger.kernel.org>,
-        lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] Bug in sys_sched_yield
-In-Reply-To: <3AD5E676.CF1C1684@mvista.com>
-In-Reply-To: <OFC3243AAE.31877E4B-ON85256A2B.006AE9C3@pok.ibm.com>
-	<3AD5D311.5BFE39A6@mvista.com>
-	<15061.56474.247739.99673@macallan.engr.valinux.com>
-	<3AD5E676.CF1C1684@mvista.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
-Reply-To: drummond@engr.valinux.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-george anzinger writes:
-> All that is cool.  Still, most places we don't really address the
-> processor, so the logical cpu number is all we need.  Places like
-> sched_yield, for example, should be using this, not the actual number,
-> which IMO should only be used when, for some reason, we NEED the hard
-> address of the cpu.  I don't think this ever has to leak out to the
-> common kernel code, or am i missing something here.
+Hi,
 
-No your not, I was.  I completely misinterpreted your question.
-Sorry about that.
+Mark Hounschell wrote:
 
-Hubertus and Kanoj have provided the answer I should have given.
+> Thanks, I can now mount affs filesystems. However when I try to write
+> to it via "cp somefile /amiga/somefile" I get a segmentation fault. If
+> I then do a "df -h" it hangs the system very much like the mount command
+> did before I installed your tar-ball. Was write support expected from
+> it.
 
---Walt
+Yes, it should work.
+What sort of filesystem is it (ffs or ofs)? Did you check the dmesg
+output for an oops? Which kernel version did you use?
+
+> Are you the NEW maintainer of the affs stuff.
+
+Yes and as soon this problem is solved, I'm sending the changes to Linus
+and Alan.
+
+bye, Roman

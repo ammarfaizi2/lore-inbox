@@ -1,51 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132729AbRDDCMr>; Tue, 3 Apr 2001 22:12:47 -0400
+	id <S132742AbRDDDip>; Tue, 3 Apr 2001 23:38:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132730AbRDDCMh>; Tue, 3 Apr 2001 22:12:37 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:3503 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S132729AbRDDCM3>;
-	Tue, 3 Apr 2001 22:12:29 -0400
-Message-ID: <002b01c0bcac$9abeb480$0a00000a@berlin.mediaplexus.com>
-From: "Marcus Wegner" <marcus.wegner@mediaplexus.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: BTTV problems in 2.4.3
-Date: Wed, 4 Apr 2001 04:11:47 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6600
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+	id <S132745AbRDDDiY>; Tue, 3 Apr 2001 23:38:24 -0400
+Received: from ncc1701.cistron.net ([195.64.68.38]:53001 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S132742AbRDDDiP>; Tue, 3 Apr 2001 23:38:15 -0400
+From: dth@HoHo.nl (Danny ter Haar)
+Subject: Re: Linux 2.4.3-ac2
+Date: Wed, 4 Apr 2001 03:37:31 +0000 (UTC)
+Organization: Holland Hosting
+Message-ID: <9ae4tr$su9$1@voyager.cistron.net>
+In-Reply-To: <E14kbMB-0000r8-00@the-village.bc.nu> <3ACA615C.6010308@megapathdsl.net> <9ae3qj$pc9$1@voyager.cistron.net>
+X-Trace: voyager.cistron.net 986355451 29641 195.64.82.84 (4 Apr 2001 03:37:31 GMT)
+X-Complaints-To: abuse@cistron.nl
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urN linux-2.4.3/arch/i386/kernel/pci-pc.c
-linux/arch/i386/kernel/pci-pc.c
-  --- linux-2.4.3/arch/i386/kernel/pci-pc.c       Sat Mar 31 00:12:41 2001
-  +++ linux/arch/i386/kernel/pci-pc.c             Thu Mar 29 05:00:04 2001
-  @@ -1035,7 +1035,7 @@
-          { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_VIA,
-PCI_DEVICE_ID_VIA_82C686_4,     pci_fixup_via_acpi },
-          { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_VIA,
-PCI_DEVICE_ID_VIA_8363_0,       pci_fixup_vt8363 },
-          { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_VIA,
-PCI_DEVICE_ID_VIA_82C691,       pci_fixup_via691 },
-  -       { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_VIA,
-PCI_DEVICE_ID_VIA_82C598_1,     pci_fixup_via691_2 },
-  +//     { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_VIA,
-PCI_DEVICE_ID_VIA_82C598_1,     pci_fixup_via691_2 },
-          { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_INTEL,
-PCI_DEVICE_ID_INTEL_82371AB_3,  pci_fixup_piix4_acpi },
-          { 0 }
-   };
+In article <9ae3qj$pc9$1@voyager.cistron.net>,
+I wrote:
+>It's still done manually, and now with the 2.4.3 series we
+>have to adjust the scripts a bit.
 
+Scripts adjusted, time for some sleep ;-)
 
-  I had the same problem. This change solved it for me.
+Danny
 
-
-  Marcus
-
+-- 
+Holland Hosting
+www.hoho.nl      info@hoho.nl
 

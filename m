@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289564AbSBGOHl>; Thu, 7 Feb 2002 09:07:41 -0500
+	id <S290216AbSBGOWQ>; Thu, 7 Feb 2002 09:22:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289779AbSBGOHc>; Thu, 7 Feb 2002 09:07:32 -0500
-Received: from dsl-213-023-038-235.arcor-ip.net ([213.23.38.235]:32907 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289564AbSBGOHW>;
-	Thu, 7 Feb 2002 09:07:22 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>, zaitcev@redhat.com
-Subject: Re: The IBM order relaxation patch
-Date: Thu, 7 Feb 2002 15:12:10 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <OF5FF19417.595BC760-ONC1256B58.00762715@de.ibm.com>
-In-Reply-To: <OF5FF19417.595BC760-ONC1256B58.00762715@de.ibm.com>
+	id <S290181AbSBGOWG>; Thu, 7 Feb 2002 09:22:06 -0500
+Received: from mgw-x2.nokia.com ([131.228.20.22]:58807 "EHLO mgw-x2.nokia.com")
+	by vger.kernel.org with ESMTP id <S290020AbSBGOV4>;
+	Thu, 7 Feb 2002 09:21:56 -0500
+Message-ID: <3C628D6A.2050900@nokia.com>
+Date: Thu, 07 Feb 2002 16:21:30 +0200
+From: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011023
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16YpHW-0000aw-00@starship.berlin>
+Newsgroups: comp.os.linux.networking
+To: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
+CC: affix-devel@lists.sourceforge.net,
+        Affix support <affix-support@lists.sourceforge.net>,
+        Bluetooth-Drivers-for-Linux 
+	<Bluetooth-Drivers-for-Linux@research.nokia.com>,
+        NRC-WALLET DL <DL.NRC-WALLET@nokia.com>,
+        linux-net <linux-net@vger.kernel.org>, linux-kernel@vger.kernel.org
+Subject: New Affix Release: Affix-0_91 -> PAN support
+In-Reply-To: <3C500D09.4080206@nokia.com> <3C5AB093.5050405@nokia.com> <3C5E4991.6010707@nokia.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Feb 2002 14:21:53.0787 (UTC) FILETIME=[CA7EECB0:01C1AFE2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 6, 2002 10:50 pm, Ulrich Weigand wrote:
-> Pete Zaitcev wrote:
-> >It's a stupid question, but: why can we not simply
-> >wait until a desired unfragmented memory area is available,
-> >with a GPF flag? What they describe does not happen in an
-> >interrupt context, so we can sleep.
-> 
-> Because nobody even *tries* to free adjacent pages to build up
-> a free order-2 area.  You could wait really long ...
-> 
-> This looks hard to fix with the current mm layer.  Maybe Rik's
-> rmap method could help here, because with reverse mappings we
-> can at least try to free adjacent areas (because we then at least
-> *know* who's using the pages).
+Hi,
 
-Yes, that's one of leading reasons for wanting rmap.  (Number one and two 
-reasons are: allow forcible unmapping of multiply referenced pages for 
-swapout; get more reliable hardware ref bit readings.)
+Find new affix release Affix-0_91 on
+http://affix.sourceforge.net
 
-Note that even if we can do forcible freeing we still have to deal with the 
-issue of fragmentation due to pinned pages, e.g., slab cache, admittedly a 
-rarer problem.
+Version 0.91 [07.02.2002]
+- added /etc/modutuls/affix to automate modules load
+- RFCOMM moved to separated module
+- added PAN profile
+- modules names changes -->> check README (modify /etc/pcmcia/config)
+
+br, Dmitry
 
 -- 
-Daniel
+ Dmitry Kasatkin
+ Nokia Research Center / Helsinki
+ Mobile: +358 50 4836365
+ E-Mail: dmitry.kasatkin@nokia.com
+
+
+

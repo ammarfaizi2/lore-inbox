@@ -1,45 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135538AbRBERa7>; Mon, 5 Feb 2001 12:30:59 -0500
+	id <S130705AbRBERgT>; Mon, 5 Feb 2001 12:36:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135540AbRBERat>; Mon, 5 Feb 2001 12:30:49 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:9479
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S135538AbRBERac>; Mon, 5 Feb 2001 12:30:32 -0500
-Date: Mon, 5 Feb 2001 09:30:04 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Slowing down CDROM drives (was: Re: ATAPI CDRW which doesn't
- work)
-In-Reply-To: <20010205144043.H849@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.LNX.4.10.10102050928530.30462-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S135479AbRBERgK>; Mon, 5 Feb 2001 12:36:10 -0500
+Received: from h201.s254.netsol.com ([216.168.254.201]:4231 "EHLO
+	tesla.admin.cto.netsol.com") by vger.kernel.org with ESMTP
+	id <S135468AbRBERf6>; Mon, 5 Feb 2001 12:35:58 -0500
+Date: Mon, 5 Feb 2001 12:35:52 -0500
+From: Pete Toscano <pete@research.netsol.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.[01] and BogoMips
+Message-ID: <20010205123552.I1920@tesla.admin.cto.netsol.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <4.3.2.7.0.20010205133359.00aac3f0@192.168.0.18>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="37cJpJlYZwAfNbm5"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <4.3.2.7.0.20010205133359.00aac3f0@192.168.0.18>; from pat@isis.co.za on Mon, Feb 05, 2001 at 02:19:54PM +0200
+X-Uptime: 12:34pm  up 2 days, 21:47,  6 users,  load average: 0.01, 0.06, 0.07
+X-Married: 449 days, 16 hours, 49 minutes, and 36 seconds
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Feb 2001, Ingo Oeser wrote:
 
-> On Mon, Feb 05, 2001 at 01:34:24AM -0200, Rogerio Brito wrote:
-> > 	Well, this has nothing to do with the above, but is there any
-> > 	utility or /proc entry that lets me say to my CD drive that it
-> > 	should not work at full speed?
-> 
-> /proc/ide/hdX/settings ? The (current,init)_speed settings there?
-> 
-> Give it a try at least ;-)
+--37cJpJlYZwAfNbm5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-That is the ATA transfer rate between the device and the host only.
+hmmm, *remembers back to lwe*.... maybe linus would be able to say if
+there's been a change... i seem to recall he was surprised by this...
+=3D;]
 
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
+pete
 
+On Mon, 05 Feb 2001, Pat Verner wrote:
+
+> Has there been a change in the definition of "BogoMips"?
+
+--=20
+Pete Toscano         pete@research.netsol.com          703.948.3364
+GPG fingerprint: D8F5 A087 9A4C 56BB 8F78  B29C 1FF0 1BA7 9008 2736
+
+--37cJpJlYZwAfNbm5
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6fuR4H/Abp5AIJzYRAlAJAKCYVH4SJlAdgrkgz32aC+ro3ERW7gCeMYMP
+QiSsI9tdGg7SgN2UEya3Xgg=
+=vI7+
+-----END PGP SIGNATURE-----
+
+--37cJpJlYZwAfNbm5--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262958AbTJJP7O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 11:59:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbTJJP7N
+	id S262965AbTJJQHf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 12:07:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbTJJQEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 11:59:13 -0400
-Received: from [216.218.203.216] ([216.218.203.216]:10396 "EHLO
-	gemini.nocat.net") by vger.kernel.org with ESMTP id S262958AbTJJP7B
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 11:59:01 -0400
-Date: Fri, 10 Oct 2003 08:58:39 -0700
-Subject: Re: Linksys/Cisco GPL Violations
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v552)
-Cc: <linux-kernel@vger.kernel.org>, "David Woodhouse" <dwmw2@infradead.org>,
-       "David Turner" <novalis@fsf.org>, <andrew@mikl.as>, <lwn@lwn.net>,
-       <linux-bcom4301-priv@lists.sourceforge.net>
-To: "Florian Schirmer" <jolt@tuxbox.org>
-From: Rob Flickenger <rob@nocat.net>
-In-Reply-To: <01f301c38f2f$b1a7e0b0$9602010a@jingle>
-Message-Id: <9D1AE1A6-FB3A-11D7-B93C-000393843BC2@nocat.net>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.552)
+	Fri, 10 Oct 2003 12:04:51 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:58641 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262948AbTJJQEV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 12:04:21 -0400
+Date: Fri, 10 Oct 2003 17:04:02 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Thom Borton <borton@phys.ethz.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PCMCIA CD-ROM does not work
+Message-ID: <20031010170402.E4702@flint.arm.linux.org.uk>
+Mail-Followup-To: Thom Borton <borton@phys.ethz.ch>,
+	linux-kernel@vger.kernel.org
+References: <200310101652.53796.borton@phys.ethz.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200310101652.53796.borton@phys.ethz.ch>; from borton@phys.ethz.ch on Fri, Oct 10, 2003 at 04:52:50PM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fascinating.  Do you have a link for the code?
+On Fri, Oct 10, 2003 at 04:52:50PM +0200, Thom Borton wrote:
+> Oct 10 09:38:57 grisu kernel: Yenta: CardBus bridge found at 0000:00:0c.0 [104d:8082]
+> Oct 10 09:38:57 grisu kernel: Yenta: ISA IRQ list 00b8, PCI irq9
+> Oct 10 09:38:57 grisu kernel: Socket status: 30000086
+> Oct 10 09:38:58 grisu cardmgr[411]: watching 1 socket
+> Oct 10 09:38:58 grisu cardmgr[412]: starting, version is 3.2.5
+> Oct 10 09:39:15 grisu cardmgr[412]: socket 0: Ninja ATA
+> Oct 10 09:39:15 grisu kernel: cs: memory probe 0x0c0000-0x0fffff: excluding 0xc0000-0xcbfff 0xdc000-0xdffff 0xe8000-0xfffff
+> Oct 10 09:39:15 grisu cardmgr[412]: executing: 'modprobe ide-cs'
+> Oct 10 09:39:15 grisu kernel: ide-cs: RequestIRQ: Unsupported mode
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
---Rob
+You turned off CONFIG_ISA.
 
-On Friday, October 10, 2003, at 06:09  AM, Florian Schirmer wrote:
-
-> Hi,
->
-> good news. Broadcom/Linksys finally decided to provide all sources. I
-> haven't checked everything but it looks like everything is there. 
-> Don't know
-> if they did it by accident but they even donated more ... including the
-> bootloader, ethernet driver and lots of other non-gpl'ed stuff. 
-> Interesting
-> change of attitude. I'm sure one day i'll ask them for the source of 
-> the
-> (modified) toolchain which they distribute binary only inside this
-> package... but for now i'm happy :-)
->
-> Thanks for all the people that supported us. Thanks Broadcom/Linksys 
-> for
-> finally come to the conclusion that working together with the 
-> community is
-> much more effective than working against us. Thanks!
->
-> Regards,
->    Florian
->
->
->
-
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                      2.6 Serial core

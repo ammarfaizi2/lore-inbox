@@ -1,60 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269612AbUIRSdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269606AbUIRSnO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269612AbUIRSdo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 14:33:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269610AbUIRSdo
+	id S269606AbUIRSnO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 14:43:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269609AbUIRSnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 14:33:44 -0400
-Received: from gprs214-222.eurotel.cz ([160.218.214.222]:20356 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S269609AbUIRSdk (ORCPT
+	Sat, 18 Sep 2004 14:43:14 -0400
+Received: from rproxy.gmail.com ([64.233.170.196]:50243 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269606AbUIRSnL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 14:33:40 -0400
-Date: Sat, 18 Sep 2004 20:32:50 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Albert Cahalan <albert@users.sf.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       wli@holomorphy.com, cw@f00f.org, anton@samba.org
-Subject: Re: /proc/sys/kernel/pid_max issues
-Message-ID: <20040918183250.GA15198@elf.ucw.cz>
-References: <1095045628.1173.637.camel@cube> <20040913075743.GA15722@elte.hu> <1095083649.1174.1293.camel@cube> <20040914153214.GA15558@elte.hu>
+	Sat, 18 Sep 2004 14:43:11 -0400
+Message-ID: <9e47339104091811431fb44254@mail.gmail.com>
+Date: Sat, 18 Sep 2004 14:43:06 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: dri-devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Design for setting video modes, ownership of sysfs attributes
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040914153214.GA15558@elte.hu>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Original proposal.....
+At OLS we talked about a system like this for setting video modes:
 
-> > > > I'd much prefer LRU allocation. There are
-> > > > lots of system calls that take PID values.
-> > > > All such calls are hazardous. They're pretty
-> > > > much broken by design.
-> > > 
-> > > this is a pretty sweeping assertion. Would you
-> > > care to mention a few examples of such hazards?
-> > 
-> > kill(12345,9)
-> > setpriority(PRIO_PROCESS,12345,-20)
-> > sched_setscheduler(12345, SCHED_FIFO, &sp)
-> > 
-> > Prior to the call being handled, the process may
-> > die and be replaced. Some random innocent process,
-> > or a not-so-innocent one, will get acted upon by
-> > mistake. This is broken and dangerous.
-> 
-> easy to fix: SIGSTOP the task, check it's really
-> the one you want and then do the setpriority / 
-> setscheduler call and SIGCONT it. Any privileged
-> code that is about to spread some of its privileges
-> via asynchronous system-calls need to be careful.
+1) user owns graphics devices
+2) user sets mode with string (or similar) format using ioctl common to
+all drivers.
+3) driver is locked to prevent multiple mode sets
+4) common code takes this string and does a hotplug event with it.
+5) hotplug event runs root context in user space 
+6) mode is decoded and verified, this may involve a little process that
+maintains the DDC database and reads a file of legal modes. Other
+schemes are possible.
+7a) mode is set using VBIOS and vm86, signal driver mode is set
+7b) the register values needed to set the mode are passed into a root
+priv ioctl.
+8) driver is unlocked.
 
-What if OOM killer decides it wants that memory in between? Attacker
-could probably help it...
-								Pavel
+In this model all of the verification happens in user space. If you
+want to set modes other than the ones from DDC you have to add them to
+the config file. There is no need for DDC support and mode verification
+in the kernel.
+
+To give credit this is Alan Cox's design.
+
+---------------------------------------------------------------------------------
+
+I'm now starting to implement this design. Would it be better to set
+the mode via sysfs attributes? This would allow mode settting with
+something like: "echo 'my mode string' /sys/class/drm/card0/mode" A
+list of available modes could be in /sys/class/drm/card0/modes
+
+Can PAM change the ownership of a sysfs attribute/directory on login?
+For this to work logging in needs to assign you ownership of the
+attribute since you want to be able to change it but not anyone else.
+DRM may need to assign the ownership of multiple attributes, is this
+easy to do?
+
+How are errors going to be communicated in this scheme? I can cat the
+sysfs mode variable to get a status. Is there a good way to do this
+without polling?
+
+If the sysfs scheme doesn't work mode setting will need to be an IOCTL
+with a small program since PAM can change the ownership of the DRM
+device. The sysfs scheme has the major advantage of avoiding the need
+for the small program.
+
+If we go the sysfs route what is BSD going to do, will we have to
+build parallel implementations?
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Jon Smirl
+jonsmirl@gmail.com

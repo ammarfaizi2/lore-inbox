@@ -1,85 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132418AbRDNPlb>; Sat, 14 Apr 2001 11:41:31 -0400
+	id <S132439AbRDNPtW>; Sat, 14 Apr 2001 11:49:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132422AbRDNPlU>; Sat, 14 Apr 2001 11:41:20 -0400
-Received: from harrier.mail.pas.earthlink.net ([207.217.121.12]:750 "EHLO
-	harrier.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S132418AbRDNPlJ>; Sat, 14 Apr 2001 11:41:09 -0400
-Date: Sat, 14 Apr 2001 11:43:16 -0400 (EDT)
-From: Tim lawless <lawless@netdoor.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Athlon runtime problems
-In-Reply-To: <E14oRie-000556-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0104141140370.1157-100000@ebola.conservatory>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132462AbRDNPtM>; Sat, 14 Apr 2001 11:49:12 -0400
+Received: from p3EE224A7.dip.t-dialin.net ([62.226.36.167]:29701 "HELO
+	dragon.flyn.org") by vger.kernel.org with SMTP id <S132439AbRDNPsw>;
+	Sat, 14 Apr 2001 11:48:52 -0400
+Date: Thu, 12 Apr 2001 16:46:53 -0400
+From: "W. Michael Petullo" <mike@flyn.org>
+To: gniibe@mri.co.jp, linux-kernel@vger.kernel.org
+Subject: patch for PLIP and slow, interrupt-less computers
+Message-ID: <20010412164653.A10864@dragon.flyn.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux dragon.flyn.org 2.4.3-pre7 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Apr 2001, Alan Cox wrote:
+I have written a quick patch for the PLIP driver contained in the 2.4.3
+version of the Linux kernel.  This patch allows one to use PLIP with
+computers which have an interrupt-less parallel port and a slow processor.
+The stock PLIP driver constantly times out on my 80486-based laptop.
+This patch adds the ability to specify two key values, trigger_wait and
+nibble_wait, when loading the PLIP driver.
 
-> Can the folks who are seeing crashes running athlon optimised kernels all mail
-> me
->
-> -	CPU model/stepping
-Athlon Thunderbird 700mhz
+Using this patch and adding the following entry to the modules.conf file
+on the computers on either side of my PLIP link makes the connection
+work nicely:
 
-/proc/cpu:
+# Because my laptop is so slow.
+options plip                    trigger_wait=50000 nibble_wait=300000
 
-processor	: 0
-vendor_id	: AuthenticAMD
-cpu family	: 6
-model		: 4
-model name	: AMD Athlon(tm) Processor
-stepping	: 2
-cpu MHz		: 700.034
-cache size	: 256 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 1
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
-bogomips	: 1395.91
+Here is the patch:
 
-> -	Chipset
+================================================================================
 
-VIA KT133
+--- plip.c	Tue Feb 13 16:15:05 2001
++++ /tmp/linux/drivers/net/plip.c	Thu Apr 12 16:07:07 2001
+@@ -137,10 +137,10 @@
+ #define PLIP_DELAY_UNIT		   1
+ 
+ /* Connection time out = PLIP_TRIGGER_WAIT * PLIP_DELAY_UNIT usec */
+-#define PLIP_TRIGGER_WAIT	 500
++static unsigned long trigger_wait = 500;
+ 
+ /* Nibble time out = PLIP_NIBBLE_WAIT * PLIP_DELAY_UNIT usec */
+-#define PLIP_NIBBLE_WAIT        3000
++static unsigned long nibble_wait = 3000;
+ 
+ /* Bottom halves */
+ static void plip_kick_bh(struct net_device *dev);
+@@ -345,8 +345,8 @@
+ 	nl->port_owner = 0;
+ 
+ 	/* Initialize constants */
+-	nl->trigger	= PLIP_TRIGGER_WAIT;
+-	nl->nibble	= PLIP_NIBBLE_WAIT;
++	nl->trigger	= trigger_wait;
++	nl->nibble	= nibble_wait;
+ 
+ 	/* Initialize task queue structures */
+ 	INIT_LIST_HEAD(&nl->immediate.list);
+@@ -1297,6 +1297,8 @@
+ 
+ MODULE_PARM(parport, "1-" __MODULE_STRING(PLIP_MAX) "i");
+ MODULE_PARM(timid, "1i");
++MODULE_PARM(trigger_wait, "i");
++MODULE_PARM(nibble_wait, "i");
+ 
+ static struct net_device *dev_plip[PLIP_MAX] = { NULL, };
 
-> -	Amount of RAM
-
-256MB
-
-> -	/proc/mtrr output
-
-reg00: base=0x00000000 (   0MB), size= 256MB: write-back, count=1
-reg01: base=0xd4000000 (3392MB), size=  32MB: write-combining, count=2
-reg05: base=0xd0000000 (3328MB), size=  64MB: write-combining, count=3
-
-> -	compiler used
-
-kgcc under redhat:
-gcc driver version 2.95.3 19991030 (prerelease) executing gcc version
-egcs-2.91.66
-
->
-> Alan
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+================================================================================
+ 
 -- 
-There are a thousand hacking at the branches of evil to the one
-who is striking at the root.
-				--Henry D. Thoreau
+W. Michael Petullo
 
-
+:wq

@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263167AbRFTWW5>; Wed, 20 Jun 2001 18:22:57 -0400
+	id <S264660AbRFTW1H>; Wed, 20 Jun 2001 18:27:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264658AbRFTWWs>; Wed, 20 Jun 2001 18:22:48 -0400
-Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:55818 "HELO
-	clueserver.org") by vger.kernel.org with SMTP id <S263167AbRFTWWn>;
-	Wed, 20 Jun 2001 18:22:43 -0400
-Date: Wed, 20 Jun 2001 16:34:11 -0700 (PDT)
-From: Alan Olsen <alan@clueserver.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Miles Lane <miles@megapathdsl.net>, linux-kernel@vger.kernel.org
-Subject: Re: The latest Microsoft FUD.  This time from BillG, himself.
-In-Reply-To: <E15Cq9u-0000CX-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10106201629450.12664-100000@clueserver.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263469AbRFTW05>; Wed, 20 Jun 2001 18:26:57 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:30726 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S264656AbRFTW0m>; Wed, 20 Jun 2001 18:26:42 -0400
+Date: Thu, 21 Jun 2001 00:26:18 +0200
+From: Jan Kara <jack@suse.cz>
+To: "SATHISH.J" <sathish.j@tatainfotech.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: filldir() function
+Message-ID: <20010621002618.A6753@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.LNX.4.10.10106181324110.11158-100000@blrmail> <Pine.LNX.4.10.10106201509560.27257-100000@blrmail>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <Pine.LNX.4.10.10106201509560.27257-100000@blrmail>; from sathish.j@tatainfotech.com on Wed, Jun 20, 2001 at 03:11:56PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Jun 2001, Alan Cox wrote:
+  Hello,
 
-> > http://www.zdnet.com/zdnn/stories/news/0,4586,5092935,00.html > 
-> 
-> Of course the URL that goes with that is :
-> 	http://www.microsoft.com/windows2000/interix/features.asp
-> 
-> Yes., Microsoft ship GNU C (quite legally) as part of their offerings...
+> Please someone tell me what is the function of filldir() function. I
+> could not understand it from the code. Just give me an outline of what it
+> will do.
+  This function is used in foo_readdir() (ie. ext2_readdir()). Purpose
+of this function is to copy given data to buffer supplied by user.
 
-As well as:
-
-http://www.microsoft.com/presspass/press/2000/Apr00/WinUNIXPR.asp
-
-where they announce distributing ActiveState's Perl 5.6 as part of their
-toolset. (Which they funded the development of...)
-
-Seems they are willing to use Open Source if it suits their purposes...
-
-alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
-Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
- "All power is derived from the barrel of a gnu." - Mao Tse Stallman
-
+								Honza
+--
+Jan Kara <jack@suse.cz>
+SuSE Labs

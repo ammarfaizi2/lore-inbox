@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318287AbSG3NnR>; Tue, 30 Jul 2002 09:43:17 -0400
+	id <S318271AbSG3Nlh>; Tue, 30 Jul 2002 09:41:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318288AbSG3NnR>; Tue, 30 Jul 2002 09:43:17 -0400
-Received: from 4-249.ctame701-3.telepar.net.br ([200.193.150.249]:1525 "EHLO
-	matthew.cathedral.com") by vger.kernel.org with ESMTP
-	id <S318287AbSG3NnQ>; Tue, 30 Jul 2002 09:43:16 -0400
-Date: Tue, 30 Jul 2002 10:48:25 -0300
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] eepro 0.13a
-Message-ID: <20020730134825.GU16077@cathedrallabs.org>
-References: <20020730125601.GT16077@cathedrallabs.org.suse.lists.linux.kernel> <p73sn21s5ij.fsf@oldwotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p73sn21s5ij.fsf@oldwotan.suse.de>
-From: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
+	id <S318285AbSG3Nlg>; Tue, 30 Jul 2002 09:41:36 -0400
+Received: from ns.suse.de ([213.95.15.193]:15366 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S318271AbSG3Nlg>;
+	Tue, 30 Jul 2002 09:41:36 -0400
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au
+Subject: Re: [BK PATCH 2.5] Introduce 64-bit versions of PAGE_{CACHE_,}{MASK,ALIGN}
+References: <5.1.0.14.2.20020728193528.04336a80@pop.cus.cam.ac.uk.suse.lists.linux.kernel> <Pine.LNX.4.44.0207281622350.8208-100000@home.transmeta.com.suse.lists.linux.kernel> <3D448808.CF8D18BA@zip.com.au.suse.lists.linux.kernel> <20020729004942.GL1201@dualathlon.random.suse.lists.linux.kernel> <3D44A2DF.F751B564@zip.com.au.suse.lists.linux.kernel> <20020729205211.GB1201@dualathlon.random.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 30 Jul 2002 15:44:58 +0200
+In-Reply-To: Andrea Arcangeli's message of "29 Jul 2002 22:58:11 +0200"
+Message-ID: <p73ptx5s52d.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > @@ -633,37 +633,37 @@
-> >  
-> >  	i = inb(dev->base_addr + ID_REG);
-> >  	printk(KERN_DEBUG " id: %#x ",i);
-> > -	printk(KERN_DEBUG " io: %#x ", (unsigned)dev->base_addr);
-> > +	printk(" io: %#x ", (unsigned)dev->base_addr);
-> >  
-> >  	switch (lp->eepro) {
-> >  		case LAN595FX_10ISA:
-> > -			printk(KERN_INFO "%s: Intel EtherExpress 10 ISA\n at %#x,",
-> > +			printk("%s: Intel EtherExpress 10 ISA\n at %#x,",
-> >  					dev->name, (unsigned)dev->base_addr);
-> 
-> [more cases deleted]
-> 
-> This surely can't be right. Why are you dropping all the KERN_*s ?
-printk that doesn't start a new line had KERN_* removed because it prints in
-the middle of line KERN_* macros like
- id: 0xb4 <7> io: 0x340 <6>eth0: Intel EtherExpress Pro/10+ ISA
-i had the same reaction but Michael pointed this to me. i don't know exactly
-how this macro works, but you'll have the line printed out with the
-beggining using KERN_* macro. isn't that sufficient?
+Andrea Arcangeli <andrea@suse.de> writes:
 
--- 
-aris
+> > Then again, Andi says that sizeof(struct page) is a problem for
+> > x86-64.
+> 
+> not true.
+
+x86-64 has slightly below 100 bytes struct page
+
+Big struct page eats your cache like crazy for many operations.
+In addition it costs a considerable amount of memory.
+
+Of course it is not a showstopper because there is no resource to run 
+out of too quickly, but still needs attention as an important optimization
+(either smaller struct page or bigger softpage size)
+
+Of course longer term bigger softpage size is the best solution - that 
+would make the >16GB i386 people happy too and avoid overhead on big memory
+systems both 32bit and 64bit.. Unfortunately there are some
+problems with the ELF alignment and the mmap API with it, which may be
+no easy to solve.
+
+-Andi

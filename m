@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265355AbSJRVAr>; Fri, 18 Oct 2002 17:00:47 -0400
+	id <S265248AbSJRVMI>; Fri, 18 Oct 2002 17:12:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265359AbSJRVAr>; Fri, 18 Oct 2002 17:00:47 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:43280 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S265355AbSJRVAp>; Fri, 18 Oct 2002 17:00:45 -0400
-Date: Fri, 18 Oct 2002 23:07:22 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Zaurus support for usbnet.c
-Message-ID: <20021018210722.GA28896@atrey.karlin.mff.cuni.cz>
-References: <200210182050.WAA21271@bug.ucw.cz> <20021018210224.GB9777@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021018210224.GB9777@kroah.com>
-User-Agent: Mutt/1.3.28i
+	id <S265290AbSJRVMI>; Fri, 18 Oct 2002 17:12:08 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:8207 "EHLO
+	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP
+	id <S265248AbSJRVMI>; Fri, 18 Oct 2002 17:12:08 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: can chroot be made safe for non-root?
+Date: 18 Oct 2002 21:00:34 GMT
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <aopspi$alg$1@abraham.cs.berkeley.edu>
+References: <20021016015106.E30836@ma-northadams1b-3.bur.adelphia.net> <20021018190101.GE237@elf.ucw.cz> <aopq2p$9pm$2@abraham.cs.berkeley.edu> <1034975267.2259.81.camel@zaphod>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1034974834 10928 128.32.153.211 (18 Oct 2002 21:00:34 GMT)
+X-Complaints-To: news@abraham.cs.berkeley.edu
+NNTP-Posting-Date: 18 Oct 2002 21:00:34 GMT
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Shaya Potter  wrote:
+>the problem with chroot() is that they dont nest.
 
-> Doesn't the usbdnet.c driver support the Zaurus?
+That's *a* problem, but not (IMHO) the most significant problem.
+The biggest disadvantages with chroot() (as I see it) are:
+ * not useable unless you're root
+ * too coarse-grained
+ * only protects the filesystem, but not other resources (e.g., the network)
+ * not suitable for jailing root
 
-usbdnet.c I saw was for 2.4.19, and ate data from time to time. It was
-piece of junk.
+> If however, one could provide even a single level of nesting, such that
+> a chroot outside of a chroot sets the first level, and any other chroot
+> after that sets the inner level, then even root wouldn't be able to
+> break out of the chroot (presuming it didn't bring any fd's into the
+> chroot w/ it).  
 
-> And any reason for not posting this to David and the linux-usb-devel
-> mailing list?
+This is not quite right.  There are LOTS of other ways that root
+can break out of a chroot.
 
-I'll do that once I test it. [That should be in about 5 minutes.]
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+Actually, I suspect that nested chroot()s may not be needed very
+frequently, so I think a simpler approach may be simply to prevent
+a chrooted process from calling chroot() again: i.e., prevent nesting.

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263485AbTC2WVQ>; Sat, 29 Mar 2003 17:21:16 -0500
+	id <S263486AbTC2WWT>; Sat, 29 Mar 2003 17:22:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263486AbTC2WVQ>; Sat, 29 Mar 2003 17:21:16 -0500
-Received: from CPEdeadbeef0000-CM400026342639.cpe.net.cable.rogers.com ([24.114.185.204]:2052
+	id <S263487AbTC2WWS>; Sat, 29 Mar 2003 17:22:18 -0500
+Received: from CPEdeadbeef0000-CM400026342639.cpe.net.cable.rogers.com ([24.114.185.204]:2820
 	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S263485AbTC2WVN>; Sat, 29 Mar 2003 17:21:13 -0500
-Message-ID: <007201c2f643$2bb18090$030aa8c0@unknown>
+	id <S263486AbTC2WWM>; Sat, 29 Mar 2003 17:22:12 -0500
+Message-ID: <007601c2f643$4e222ee0$030aa8c0@unknown>
 From: "Shawn Starr" <spstarr@sh0n.net>
 To: "Andrew Morton" <akpm@digeo.com>
 Cc: <rml@tech9.net>, <linux-kernel@vger.kernel.org>
 References: <001c01c2f634$2e517da0$030aa8c0@unknown><1048972543.13757.3.camel@localhost><004201c2f63c$25d4aa00$030aa8c0@unknown> <20030329142835.40fa8eb9.akpm@digeo.com>
 Subject: Re: [OOPS][2.5.66bk3+] run_timer_softirq - IRQ Mishandlings
-Date: Sat, 29 Mar 2003 17:33:05 -0500
+Date: Sat, 29 Mar 2003 17:34:04 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -24,7 +24,10 @@ X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Applying this now.
+Perhaps adding this to the kernel as a config option might be handy for
+people looking for not freed timers?
+
+Shawn.
 
 ----- Original Message -----
 From: "Andrew Morton" <akpm@digeo.com>

@@ -1,73 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262356AbUDHTdM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 15:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbUDHTdM
+	id S262368AbUDHTjN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 15:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbUDHTjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 15:33:12 -0400
-Received: from Kiwi.CS.UCLA.EDU ([131.179.128.19]:3286 "EHLO kiwi.cs.ucla.edu")
-	by vger.kernel.org with ESMTP id S262356AbUDHTdG (ORCPT
+	Thu, 8 Apr 2004 15:39:13 -0400
+Received: from mail.cyclades.com ([64.186.161.6]:3250 "EHLO intra.cyclades.com")
+	by vger.kernel.org with ESMTP id S262368AbUDHTjM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 15:33:06 -0400
-To: Jim Meyering <jim@meyering.net>
-Cc: bug-coreutils@gnu.org, Andrew Morton <akpm@osdl.org>,
-       Bruce Allen <ballen@gravity.phys.uwm.edu>, linux-kernel@vger.kernel.org,
-       Andy Isaacson <adi@hexapodia.org>
-Subject: Re: dd PATCH: add conv=direct
-References: <Pine.GSO.4.21.0404071627530.9017-100000@dirac.phys.uwm.edu>
-	<87r7uzlzz7.fsf@penguin.cs.ucla.edu> <85k70qsp71.fsf@pi.meyering.net>
-From: Paul Eggert <eggert@CS.UCLA.EDU>
-Date: Thu, 08 Apr 2004 12:32:46 -0700
-In-Reply-To: <85k70qsp71.fsf@pi.meyering.net> (Jim Meyering's message of
- "Thu, 08 Apr 2004 13:07:30 +0200")
-Message-ID: <87vfkaw9i9.fsf@penguin.cs.ucla.edu>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 8 Apr 2004 15:39:12 -0400
+Date: Thu, 8 Apr 2004 16:11:09 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: linux-kernel@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: Re: Linux 2.4.26-rc2
+Message-ID: <20040408191109.GA15888@logos.cnet>
+References: <20040406004251.GA24918@logos.cnet> <16498.3704.252459.691039@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16498.3704.252459.691039@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.5.5.1i
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Meyering <jim@meyering.net> writes:
+On Tue, Apr 06, 2004 at 11:57:12AM +1000, Paul Mackerras wrote:
+> Marcelo,
+> 
+> Any chance of getting this patch in before 2.4.26 final?
+> 
+> This patch is needed for compiling 2.4 with recent versions of gcc,
+> such as the gcc 3.3.3 hammer branch or gcc 3.4.  The gcc developers
+> changed the name of the attribute that indicates that something is
+> actually needed, even though gcc can't see why, from "__unused__" to
+> "__used__".  This patch copes with that.
+> 
+> The patch is from Stephen Rothwell.  He discovered the problem on
+> ppc64, but in fact it would exist on any architecture.
 
-> 2004-04-08  Jim Meyering  <jim@meyering.net>
->
-> 	* src/dd.c (set_fd_flags): Don't OR in -1 when fcntl fails.
+Applied, 
 
-Doesn't that fix generate worse code in the usual case, since it
-causes two conditional branches instead of one?
-
-How about this further patch?  It relies on common subexpression
-elimination, but that's common these days.
-
-2004-04-08  Paul Eggert  <eggert@twinsun.com>
-
-	* src/dd.c (set_fd_flags): Don't test old_flags < 0 twice.
-
-Index: src/dd.c
-===================================================================
-RCS file: /home/meyering/coreutils/cu/src/dd.c,v
-retrieving revision 1.157
-diff -p -u -r1.157 dd.c
---- src/dd.c	8 Apr 2004 15:25:39 -0000	1.157
-+++ src/dd.c	8 Apr 2004 19:17:02 -0000
-@@ -1014,7 +1014,7 @@ copy_with_unblock (char const *buf, size
- }
- 
- /* Set the file descriptor flags for FD that correspond to the nonzero bits
--   in FLAGS.  The file's name is NAME.  */
-+   in ADD_FLAGS.  The file's name is NAME.  */
- 
- static void
- set_fd_flags (int fd, int add_flags, char const *name)
-@@ -1022,9 +1022,9 @@ set_fd_flags (int fd, int add_flags, cha
-   if (add_flags)
-     {
-       int old_flags = fcntl (fd, F_GETFL);
--      int new_flags = old_flags < 0 ? add_flags : (old_flags | add_flags);
-       if (old_flags < 0
--	  || (new_flags != old_flags && fcntl (fd, F_SETFL, new_flags) == -1))
-+	  || (old_flags != (old_flags | add_flags)
-+	      && fcntl (fd, F_SETFL, old_flags | add_flags) == -1))
- 	error (EXIT_FAILURE, errno, _("setting flags for %s"), quote (name));
-     }
- }
+thanks!

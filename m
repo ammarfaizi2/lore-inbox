@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262099AbUCLNdv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 08:33:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUCLNdv
+	id S262104AbUCLNkg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 08:40:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUCLNkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 08:33:51 -0500
-Received: from zero.aec.at ([193.170.194.10]:44806 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S262099AbUCLNdt (ORCPT
+	Fri, 12 Mar 2004 08:40:36 -0500
+Received: from holomorphy.com ([207.189.100.168]:35589 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262104AbUCLNkf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 08:33:49 -0500
-To: Joe Thornber <thornber@redhat.com>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: 2.6.4-mm1
-References: <1yygN-7Ut-65@gated-at.bofh.it> <1yQdz-1Uf-7@gated-at.bofh.it>
-	<1yRCI-3lE-19@gated-at.bofh.it> <1yTO6-5JU-25@gated-at.bofh.it>
-	<1yU7Z-624-11@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Fri, 19 Mar 2004 07:00:02 +0100
-In-Reply-To: <1yU7Z-624-11@gated-at.bofh.it> (Joe Thornber's message of
- "Fri, 12 Mar 2004 13:40:48 +0100")
-Message-ID: <m3fzc5tlzx.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 12 Mar 2004 08:40:35 -0500
+Date: Fri, 12 Mar 2004 05:40:24 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Rik van Riel <riel@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: anon_vma RFC2
+Message-ID: <20040312134024.GS655@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@redhat.com>,
+	Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>,
+	Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <20040311135608.GI30940@dualathlon.random> <Pine.LNX.4.44.0403112226581.21139-100000@chimarrao.boston.redhat.com> <20040312122127.GQ30940@dualathlon.random> <20040312124638.GR655@holomorphy.com> <20040312132436.GT30940@dualathlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040312132436.GT30940@dualathlon.random>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe Thornber <thornber@redhat.com> writes:
->
->> good candidate for next mm ?
->
-> Yep, I'll forward a patch to akpm now.
+On Fri, Mar 12, 2004 at 02:24:36PM +0100, Andrea Arcangeli wrote:
+> did you try specweb with apache? that's super heavy mremap as far as I
+> know (and it maybe using anon memory, and if not I certainly cannot
+> exclude other apps are using mremap on significant amounts of anymous
+> ram). To a point that the kmap_lock for the persistent kmaps I used
+> originally in mremap (at least it has never been racy) was a showstopper
+> bottleneck spending most of system time there (profiling was horrible in
+> the kmap_lock) and I had to fixup the 2.6 way with the per-cpu atomic
+> kmaps to avoid being an order of magnitude slower than in the small
+> boxes w/o highmem.
 
-Please don't do that. It will break all 64bit userland.
+No. I have never had access to systems set up for specweb.
 
--Andi
 
+-- wli

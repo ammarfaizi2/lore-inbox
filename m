@@ -1,150 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316965AbSFQT77>; Mon, 17 Jun 2002 15:59:59 -0400
+	id <S316962AbSFQT5f>; Mon, 17 Jun 2002 15:57:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316964AbSFQT76>; Mon, 17 Jun 2002 15:59:58 -0400
-Received: from virtmail.zianet.com ([216.234.192.37]:51404 "HELO zianet.com")
-	by vger.kernel.org with SMTP id <S316963AbSFQT74>;
-	Mon, 17 Jun 2002 15:59:56 -0400
-Message-ID: <3D0E4028.10900@zianet.com>
-Date: Mon, 17 Jun 2002 14:01:44 -0600
-From: kwijibo@zianet.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
+	id <S316982AbSFQT5e>; Mon, 17 Jun 2002 15:57:34 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:9988 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S316962AbSFQT5e>; Mon, 17 Jun 2002 15:57:34 -0400
+Date: Mon, 17 Jun 2002 12:57:19 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Felix Seeger <seeger@sitewaerts.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Can I have 1024x768 with my Intel I815 card ?
+In-Reply-To: <200206111410.57293.seeger@sitewaerts.de>
+Message-ID: <Pine.LNX.4.44.0206171256390.31825-100000@www.transvirtual.com>
 MIME-Version: 1.0
-To: "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
-CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: poor nfs server performance with 2.4.19-preX kernels vs. 2.4.17.
- 	 Due to XFS and VM?
-References: <F341E03C8ED6D311805E00902761278C0C35DF85@xfc04.fc.hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why not try another benchmark that you can post the
-results from?  Like Bonnie++, Postmark, Iozone, etc.
-These are the benchmarks I use for my NFS benchmarking.
 
-Steve
+Yes there is a i81X fbdev driver.
 
+http://www.sf.net/projects/i810fb
 
-HABBINGA,ERIK (HP-Loveland,ex1) wrote:
+   . ---
+   |o_o |
+   |:_/ |   Give Micro$oft the Bird!!!!
+  //   \ \  Use Linux!!!!
+ (|     | )
+ /'\_   _/`\
+ \___)=(___/
 
->Hi,
->   I'm working on improving NFS server performance.  I've been able to get
->satisfactory performance with the 2.4.17 kernel, NFSD BKL removal code, and
->3GB kernel address space patches.  However, when I try to migrate to the
->2.4.19-preX kernels, I get nothing but pain and suffering.  I'm not allowed
->to post SPEC numbers, so I'm showing percentages versus my highest
->performing test run.  I haven't had the opportunity to watch every test as
->it runs, but have seen the 2.4.19-preX kernel tests spend a lot of time in
->shrink_cache schedule() call right before the tests timeout.
->
->All of the tests were run on the following hardware:
->
->4 PIII Xeon processors
->6GB RAM
->SPEC SFS NFS test v3.0
->2 Gigabit network connections to SPEC clients
->many Fiber channel hard drives
->
->I tested the following kernels:
->
->2.4.17
->2.4.19-pre9
->2.4.19-pre10
->2.4.19-pre10aa2 (config'd to use 3GB kernel address space)
->
->I patch the kernel with a collection of the following patches:
->
->- nfsd_bkl_removal 022702:
->http://marc.theaimsgroup.com/?l=linux-nfs&m=101485118003322&w=2 (remove the
->BKL from the nfsd code, add TCP support to nfsd, clean up the RPC stack
->code)
->
->- nfsd_bkl_removal 020702:
->http://marc.theaimsgroup.com/?l=linux-nfs&m=100888008825015&w=2  (same
->intention as nfsd_bkl_removal 022702, but doesn't include the NFSD TCP code
->or RPC stack cleanup code)
->
->- 3GB kernel address space:
->http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.18pre7
->aa2/00_3.5G-address-space-4
->   http://www.linuxhq.com/kernel/v2.4/unofficial/patch200202/89.html (give
->the kernel 3GB of the virtual address space)
->
->- akpm_nuke_buffers:
->http://marc.theaimsgroup.com/?l=linux-kernel&m=102226904021069&w=2 (hunt
->down buffer_heads and kill them)
->
->- XFS taken from the XFS CVS tree
->(http://oss.sgi.com/cgi-bin/cvsweb.cgi/linux-2.4-xfs/) on Feb 7 2002, June 3
->2002, and June 11 2002.  2.4.19-pre10aa2 already includes XFS, but I don't
->know its vintage.
->
->The only modifications to any /proc tunables were to increase the UDP stack
->size (/proc/sys/net/core/rmem_[default|max]  to 512K
->
->
->And here are the results:
->
->2.4.17 nfsd_bkl_removal 022702, 3GB kernel address space, XFS 020702
->- baseline
->
->2.4.17 nfsd_bkl_removal 022702, XFS 020702
->- 50% of baseline
->
->2.4.19-pre9 nfsd_bkl_removal 022702, XFS 060302 
->- 0% of baseline, would not run
->
->2.4.19-pre10 xfs 020702
->- 45% of baseline, probably would have kept running, but I stopped the test
->after max throughput was reached so I could try another configuration
->
->2.4.19-pre10 xfs 061102
->- 20% of baseline before timeout, lots of processes stuck in shrink_cache
->schedule() call
->
->2.4.19-pre10 xfs 061102, akpm_nuke_buffers
->- 30% of baseline before timeout
->
->2.4.19-pre10 xfs 061102, nfsd_bkl_removal 020702, akpm_nuke_buffers
->- 10% of baseline before timeout
->
->2.4.19-pre10 xfs 061102, nfsd_bkl_removal 020702
->- 20% of baseline before timeout
->
->2.4.19-pre10aa2 (3GB kernel address space)
->- 10% of baseline before timeout
->
->2.4.19-pre10aa2 (3GB kernel address space), nfsd_bkl_removal 020702
->- wouldn't run
->
->Conclusions:
->- using the 3GB kernel address space substantially helps 2.4.17 nfsd
->performance
->- 2.4.19-pre10 with XFS from Feb 7, 2002 was the most stable of the
->2.4.19-preX runs
->
->I will be running 2.4.19-pre10 xfs 061102, 3GB kernel address space later
->today or tomorrow.
->
->I will try any patches, kernel CONFIG options, or  /proc values anyone might
->suggest to get the 2.4.19-preX kernel nfsd performance at or near the 2.4.17
->nfsd performance.
->
->Thanks,
->Erik
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
+On Tue, 11 Jun 2002, Felix Seeger wrote:
 
+> Hi
+>
+> I have this card in my notebook. Can I have this resolution on my Linux
+> console ?
+>
+> Maybe some special things...
+>
+> thanks
+> have fun
+> Felix
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
 

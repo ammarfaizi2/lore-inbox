@@ -1,112 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315276AbSEUR4P>; Tue, 21 May 2002 13:56:15 -0400
+	id <S315335AbSEUSEl>; Tue, 21 May 2002 14:04:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315334AbSEUR4O>; Tue, 21 May 2002 13:56:14 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:20740 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315276AbSEUR4N>; Tue, 21 May 2002 13:56:13 -0400
-Date: Tue, 21 May 2002 10:56:14 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.17 IDE 65
-In-Reply-To: <3CEA7740.7060204@evision-ventures.com>
-Message-ID: <Pine.LNX.4.44.0205211041460.2634-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315338AbSEUSEk>; Tue, 21 May 2002 14:04:40 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:54533 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S315335AbSEUSEj>;
+	Tue, 21 May 2002 14:04:39 -0400
+Date: Tue, 21 May 2002 11:03:44 -0700
+From: Greg KH <greg@kroah.com>
+To: Martin Devera <devik@cdi.cz>
+Cc: linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Oops report USB-OHCI
+Message-ID: <20020521180344.GE1295@kroah.com>
+In-Reply-To: <Pine.LNX.4.44.0205211644080.12674-200000@luxik.cdi.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Tue, 23 Apr 2002 15:02:47 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 21, 2002 at 04:48:35PM +0200, Martin Devera wrote:
+> The Oops from ksymoops is attached. There is one warning
+> but the System.map was correct (I tested twice).
+> The problem is repetable - I tested on 3 computers. It occured
+> with two types of phillips camera and with modem.
+> On UHCI it works, with OHCO - Opti chipset is fails.
+> Kernel 2.4.18, no patches. Tested on Pentium and PII computers.
+> There is
+> kernel BUG at usb-ohci.h:464!
+> always before Oops. It seems definitely to be bug in kernel.
+> Probably TD/ED memory is freed twice ..
 
+Does this problem also happen on 2.4.19-pre8?
 
-On Tue, 21 May 2002, Martin Dalecki wrote:
->
-> But please consider the following points:
->
-> 1. Layered devices.
+thanks,
 
-Sure. But to the upper layers they _do_ have a single hardsector-size.
-They look (by definition) like one device, and th eupper layers must not
-know that the physical devices underneath may end up having different
-sector sizes.
-
-Which is why a md queue must have a sector size that is at least as large
-as the largest sector size of any of the devices underneath it.
-
-> The only reason this isn't biting us here right now is the
-> simple fact that most disks just stick with the dreaded 512 byte sector
-> addressing, but there are people out there esp. from Maxtor
-> complaining about this...
-
-Absolutely not. Even if Maxtor were to do a 2kB-sector disk, that only
-means that the md layer would have to make a 2kB-sector md device.
-
-We have the support for all of this already, as many (most?) SCSI CD-ROM's
-are 2kB-only.
-
-> 2. Removable media like CD-ROM contain already somehow inherently
-> the property of needing to deal with different sector sizes.
-> There are for example 1024 and 2048 byte modes for CD-ROMs.
-
-Sure. We have allt he support for this, and the queue sector size can (and
-does) change when you change a removable media.
-
-I repeat: there is no design limitation in ll_rw_block().
-
-> 3. I would love it to handle multiple sector transfers just as
-> big hard-sector sizes :-)
-
-That's up to _you_, the driver.
-
-The driver can choose to consider 2 512-byte sectors to be equivalent to 1
-1024-byte sector. The _only_ thing the "hardsector size" means is that the
-driver _guarantees_ that it can handle any IO request of that size. It's
-really a promise upwards toward higher layers, not a limitation on the
-driver.
-
-> Linus - recycling the same request queue would simplify the
-> serialization issues by a significant amount.
-
-I don't see that at ALL.
-
-The ll_rw_blk code _explicitly_ has a spinlock pointer (instead of a plain
-spinlock) in the queue structure _exactly_ because the code knows (and
-expects) different devices to want to have common synchronization.
-
-Any other synchronization is totally up to the driver: a driver can, at
-any point, just stop doing requests and waiting until all of its requests
-are done, if it wants to find some "idle point".
-
-> We have already
-> a mechanism for passing the spin lock to use to the upper
-> layer (blk_init_queue()). It would be just natural if it was
-> acting as kind of a true semaphore for overall request serialization. But
-> currently it's just used to serialize the access to the corresponding
-> queue lists, which doesn't buy us *anything*,
-
-That's a load of baloney.
-
-If you want a semaphore in the driver, you just add one. There is
-absolutely _nothing_ in the upper layers that wants to have a semaphore,
-never has been, and never will be. It's a internal driver issue, and as
-such no such semaphore should ever be exposed to upper layers.
-
-The upper layers do not care, and CANNOT care. They put requests on the
-queue, and if the lower layer is serializing itself for some reason, the
-upper layer has no reason to know - except by the fact that the results
-don't come back, of course.
-
-What would the upper layers do with the semaphore? Nothing.
-
-> The other things which ll_rw_blk.c doesn't get right is the
-> fact that the current merge functions don't respect hard sector
-> sizes
-
-They aren't there to be respected by the ll_rw_blk layer - if some layer
-above it has created a request larger than the hard sector size, THAT is
-the problem, and there is nothing ll_rw_blk can do (except maybe BUG() on
-it, but I don't think we've ever really seen those kinds of bugs).
-
-		Linus
-
+greg k-h

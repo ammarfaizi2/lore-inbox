@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316975AbSEWSRF>; Thu, 23 May 2002 14:17:05 -0400
+	id <S316977AbSEWS2B>; Thu, 23 May 2002 14:28:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316978AbSEWSRE>; Thu, 23 May 2002 14:17:04 -0400
-Received: from maile.telia.com ([194.22.190.16]:27116 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S316975AbSEWSRD>;
-	Thu, 23 May 2002 14:17:03 -0400
-To: Greg KH <greg@kroah.com>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        Linux-usb-users@lists.sourceforge.net
-Subject: Re: What to do with all of the USB UHCI drivers in the kernel?
-In-Reply-To: <20020520223132.GC25541@kroah.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 23 May 2002 20:16:53 +0200
-Message-ID: <m23cwiivai.fsf@ppro.localdomain>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
+	id <S316978AbSEWS2A>; Thu, 23 May 2002 14:28:00 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:57862 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S316977AbSEWS2A>; Thu, 23 May 2002 14:28:00 -0400
+Date: Thu, 23 May 2002 19:27:57 +0100
+From: John Levon <movement@marcelothewonderpenguin.com>
+To: linux-kernel@vger.kernel.org
+Cc: rddunlap@osdl.org
+Subject: Re: [announce] 'kerneltop'
+Message-ID: <20020523182756.GB4161@compsoc.man.ac.uk>
+In-Reply-To: <Pine.LNX.4.33L2.0205231112260.4119-100000@dragon.pdx.osdl.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Bendik Singers - Afrotid
+X-Toppers: N/A
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> writes:
+On Thu, May 23, 2002 at 11:13:22AM -0700, Randy.Dunlap wrote:
 
->   Let me (and the linux-usb-devel list) know about any thoughts you have
->   pertaining to liking one of the drivers over the other one.  Speed
->   tests, size tests, code pretty tests, comment spelling tests,
->   documentation tests, you name it, I want to know about it.  If you
->   don't want your comments to be public, send them to me directly and I
->   will not let anyone else know what you said, but will use the info to
->   try to pick which one should stay.
+> BTW, does anyone know of another such program that
+> already exists (and that I missed somehow in my web search)?
 
-I did a simple test reading a bunch of files from a Freecom CDRW
-drive.
+Depends on your definition of "such program". For one, there is :
 
-usb-uhci-hcd           17840   0 (unused)
+http://sourceforge.net/projects/minilop/
 
-        pengo:/cdrw$ time wc petero/mp3/madonna/*
-        ...
-         188462 1091976 50386286 total
+There is at least one other (older I think) version of readprofile.c
+going about as well as my slightly modified version too...
 
-        real    1m24.930s
-        user    0m10.440s
-        sys     0m1.360s
+There is also a version that avoids a reboot via a module hack (see
+freshmeat), and the previously mentioned module-profiling readprofile
+version.
 
-uhci-hcd               24608   0 (unused)
+Also see these (incomplete) parts of my howto :
 
-        pengo:/cdrw$ time wc petero/mp3/madonna/*
-        ...
-         188462 1091976 50386286 total
+http://movementarian.org/kernelprofilers.html
+http://movementarian.org/bibliography.html
 
-        real    1m33.095s
-        user    0m12.670s
-        sys     0m11.870s
-
-So the usb-uhci-hcd driver is 27% smaller, gives a 10% higher transfer
-rate and produces less system load during the data transfers. (About
-70% idle time versus 50% idle time on my 233MHz MMX system.)
+regards
+john
 
 -- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+"This is playing, not work, therefore it's not a waste of time."
+	- Zath

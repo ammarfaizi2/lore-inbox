@@ -1,82 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264060AbTGAWLo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 18:11:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264061AbTGAWLo
+	id S264061AbTGAWXn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 18:23:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbTGAWXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 18:11:44 -0400
-Received: from enterprise.dogan.ch ([213.144.137.42]:20641 "EHLO
-	enterprise.dogan.ch") by vger.kernel.org with ESMTP id S264060AbTGAWLl
+	Tue, 1 Jul 2003 18:23:43 -0400
+Received: from reflection.aart.ch ([195.65.67.59]:58129 "EHLO
+	reflection.aart.ch") by vger.kernel.org with ESMTP id S264061AbTGAWXl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 18:11:41 -0400
-Date: Wed, 2 Jul 2003 00:25:58 +0200
-From: Attila Kinali <kinali@gmx.net>
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: cdrom blocksize reset bug with 2.4.x kernels
-Message-Id: <20030702002558.7faf6c88.kinali@gmx.net>
-Organization: NERV
-X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 1 Jul 2003 18:23:41 -0400
+Date: Wed, 2 Jul 2003 00:38:02 +0200
+To: linux-kernel@vger.kernel.org
+Subject: keyboard.c fix in 2.4.21 breaks my (buggy?) keyboard
+Message-ID: <20030701223800.GA13973@kreator.toc.aart.ch>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Wed__2_Jul_2003_00:25:58_+0200_08bb4dc8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: "Andreas U. Trottmann" <andreas.trottmann@werft22.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hello linux-kernel,
 
---Multipart_Wed__2_Jul_2003_00:25:58_+0200_08bb4dc8
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+patch-2.4.21 contains the following patch to keyboard.c:
 
-Hi,
+diff -urN linux-2.4.20/drivers/char/keyboard.c linux-2.4.21/drivers/char/keyboard.c
+--- linux-2.4.20/drivers/char/keyboard.c        2002-08-02 17:39:43.000000000 -0700
++++ linux-2.4.21/drivers/char/keyboard.c        2003-06-13 07:51:33.000000000 -0700
+@@ -213,7 +215,17 @@
+        }
+        kbd = kbd_table + fg_console;
+        if ((raw_mode = (kbd->kbdmode == VC_RAW))) {
+-               put_queue(scancode | up_flag);
++               /*
++                *      The following is a workaround for hardware
++                *      which sometimes send the key release event twice
++                */
++               unsigned char next_scancode = scancode|up_flag;
++               if (up_flag && next_scancode==prev_scancode) {
++                       /* unexpected 2nd release event */
++               } else {
++                       prev_scancode=next_scancode;
++                       put_queue(next_scancode);
++               }
+                /* we do not return yet, because we want to maintain
+                   the key_down array, so that we have the correct
+                   values when finishing RAW mode or when changing VT's */
 
-After some discussion on the mplayer-users mailinglist about
-that for some scsi drives it's impossible to read a data cd
-after reading a vcd/scvd until the next reboot.
-(see http://mplayerhq.hu/pipermail/mplayer-users/2002-December/025696.html)
 
-I found that there is a reset of the cdrom block size needed
-for those drives which doesnt restet it themselfs if a new
-cd is put in (looks like only a few scsi cdroms are affected)
+But apparently, there is not only hardware that sends the key release
+event twice, but also hardware that sends the key press event twice 
+in certain circumstances.
 
-Attached is a small patch for drivers/cdrom/cdrom.c that fixes=20
-this for the 2.4.20 kernel (and also for 2.4.21 as the code didn't
-change). It's reseting the blocksize when a cdrom is opened for
-the first time (meaning that a umount/mount cycle can reset
-the blocksize).
+I've got a keyboard ("Unikey model KWD-205"), which, for the left
+control key (and apparently only for this key) sends the key down
+event twice, followed by two key up events. For certain applications 
+using VC_RAW (most important XFree86), this means that the ctrl
+key gets "stuck" once it's been pressed.
 
-I run this code now for about half a year and didnt have any problems.
-But, as i didnt get any feadback from other people, i'm not sure if
-everything is correct.
 
-Greetings
-			Attila Kinali
+I don't know an "appropriate" fix to this problem. Obviously, the
+patch got inserted in 2.4.21 because it fixes broken keyboards
+owned by many people. As I didn't find any reports about my
+problem with google, it seems that keyboards like my one are
+quite rare. One possible solution would be to ignore any events
+where next_scancode==prev_scancode, regardless of up_flag - but
+this breaks autorepeat, which then would maybe need to be
+emulated.
 
---=20
-Emacs ist f=FCr mich kein Editor. F=FCr mich ist das genau das gleiche, als=
- wenn
-ich nach einem Fahrrad (f=FCr die Sonntagbr=F6tchen) frage und einen pangal=
-aktischen
-Raumkreuzer mit 10 km Gesamtl=E4nge bekomme. Ich wei=DF nicht, was ich dami=
-t soll.
-		-- Frank Klemm, de.comp.os.unix.discussion
+Another possible fix would be to only ignore multiple identical
+"up" events for non-modifier keys, but this would require
+keyboard.c to have a list of key symbols of keys like "control",
+"shift" etc.
 
---Multipart_Wed__2_Jul_2003_00:25:58_+0200_08bb4dc8
-Content-Type: application/octet-stream;
- name="cdrom-blocksize.patch"
-Content-Disposition: attachment;
- filename="cdrom-blocksize.patch"
-Content-Transfer-Encoding: base64
 
-LS0tIGNkcm9tLmMub3JpZwkyMDAzLTAxLTA1IDE1OjAyOjUzLjAwMDAwMDAwMCArMDEwMAorKysg
-Y2Ryb20uYwkyMDAzLTAxLTA1IDE1OjA1OjQ0LjAwMDAwMDAwMCArMDEwMApAQCAtNDc1LDcgKzQ3
-NSwxNSBAQAogCWVsc2UKIAkJcmV0ID0gb3Blbl9mb3JfZGF0YShjZGkpOwogCi0JaWYgKCFyZXQp
-IGNkaS0+dXNlX2NvdW50Kys7CisJaWYgKCFyZXQpCisJeworCQljZGktPnVzZV9jb3VudCsrOwor
-CQlpZihjZGktPnVzZV9jb3VudCA9PSAxKQorCQl7CisJCQkvKiByZXNldCBibG9ja3NpemUgaW4g
-Y2FzZSBpdCdzIHdyb25nICovCisJCQljZHJvbV9zd2l0Y2hfYmxvY2tzaXplKGNkaSxDRF9GUkFN
-RVNJWkUpOworCQl9CisJfQogCiAJY2RpbmZvKENEX09QRU4sICJVc2UgY291bnQgZm9yIFwiL2Rl
-di8lc1wiIG5vdyAlZFxuIiwgY2RpLT5uYW1lLCBjZGktPnVzZV9jb3VudCk7CiAJLyogRG8gdGhp
-cyBvbiBvcGVuLiAgRG9uJ3Qgd2FpdCBmb3IgbW91bnQsIGJlY2F1c2UgdGhleSBtaWdodAo=
+So, are there other people having the same problem? Is it worth
+to find a "good" fix for the linux kernel, or should I just
+remove this patch by hand every time I compile a new kernel,
+until my keyboard dies and I get a non-broken one? ;-)
 
---Multipart_Wed__2_Jul_2003_00:25:58_+0200_08bb4dc8--
+-- 
+Andreas Trottmann
+Ideen Werft22 GmbH
+Tel    +41 (0)56 210 91 37
+Fax    +41 (0)56 210 91 34
+Mobile +41 (0)79 229 88 55

@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265026AbSJPPBf>; Wed, 16 Oct 2002 11:01:35 -0400
+	id <S265023AbSJPPAs>; Wed, 16 Oct 2002 11:00:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265027AbSJPPBf>; Wed, 16 Oct 2002 11:01:35 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:36774 "EHLO
-	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
-	id <S265026AbSJPPBb>; Wed, 16 Oct 2002 11:01:31 -0400
-Date: Wed, 16 Oct 2002 16:08:17 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Dave McCracken <dmccr@us.ibm.com>
-cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH 2.5.42-mm3] Fix mremap for shared page tables
-In-Reply-To: <291360000.1034721127@baldur.austin.ibm.com>
-Message-ID: <Pine.LNX.4.44.0210161543170.1320-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S265027AbSJPPAs>; Wed, 16 Oct 2002 11:00:48 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:53488 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S265023AbSJPPAq>; Wed, 16 Oct 2002 11:00:46 -0400
+Date: Wed, 16 Oct 2002 11:06:42 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Janet Morgan <janetmor@us.ibm.com>
+Cc: Christoph Hellwig <hch@sgi.com>, akpm@digeo.com,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-aio@kvack.org
+Subject: Re: [RFC] iovec in ->aio_read/->aio_write
+Message-ID: <20021016110642.A9121@redhat.com>
+References: <20021015153427.A16156@redhat.com> <200210160651.g9G6pMm17385@eng4.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200210160651.g9G6pMm17385@eng4.beaverton.ibm.com>; from janetmor@us.ibm.com on Tue, Oct 15, 2002 at 11:51:21PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Oct 2002, Dave McCracken wrote:
-> 
-> Hugh Dickens was right.  mremap was broken wrt shared page tables.
-           i
+On Tue, Oct 15, 2002 at 11:51:21PM -0700, Janet Morgan wrote:
+> - two new opcodes (IOCB_CMD_PREADV and IOCB_CMD_PWRITEV)
+> - a field to the iocb for the user vector
+> - aio_readv/writev methods to the file_operations structure
+> - routine aio.c/io_readv_writev, which borrows heavily from do_readv_writev. 
 
-Sorry, Dave, I only mentioned mremap as one _example_.  You have
-changed the locking rules for ptes in page tables in two or three
-sources, but there's a number more which need to be updated too.
+A few comments about the interface to userland: don't add fields to the 
+iocb, that breaks the abi.  Also, the iovec should be pointed to by 
+iocb->aio_buf, with aio_nbytes containing the length of the iovec (that 
+avoids the need for an additional field).  The structure of the iovec 
+itself should probably match the iovec struct, but that means we'll need 
+different opcodes for the 32 bit and 64 bit variants.  Alternatively a 
+new iovec that is the same on both (like the iocb) could be defined, but 
+that would be inconvenient for userland.
 
-Please don't ask me to list which, it's a matter of looking at all
-the uses of ->page_table_lock and whether those places need to be
-changed to fit the new locking scheme - some of the uses are quite
-irrelevant, some may be obscure, some may be historic, some must
-be changed.
+Within the kernel, the loff_t *pos shouldn't be a pointer -- I'm trying to 
+get rid of extraneous pointers as that means an additional chunk of memory 
+has to be held over the entirety of the aio request.  Similarly, the iovec 
+passed into the operation itself can never be allocated on the stack.  This 
+probably works for direct io where the iovec gets translated into a scatter 
+gather list of pages, but wouldn't work for something like networking where 
+the iovec itself gets used to determine where in the user address space to 
+copy data (as this can occur after the submit operation has returned).
 
-I wouldn't mind if it was just broken wrt shared page tables,
-CONFIG_SHAREPTE is easily made experimental.  But the locking rules
-have (rightly) been changed in all cases, so -mm tree is now unsafe.
-A stopgap measure might be to hold on to page_table_lock for as
-long as before, then fix sources up piecemeal - but that approach
-would still leave CONFIG_SHAREPTE y broken for a while.
+Aside from those details, I guess if people really need vectored ios it's 
+okay.
 
-Let me say again, that I have _not_ actually observed any problem
-yet: we're talking about races and correctness, I don't mean to be
-alarmist.
-
-Hugh
-
+		-ben

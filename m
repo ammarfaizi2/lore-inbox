@@ -1,40 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268515AbUJMGP4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268470AbUJMGVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268515AbUJMGP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 02:15:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268496AbUJMGP4
+	id S268470AbUJMGVv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 02:21:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268483AbUJMGVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 02:15:56 -0400
-Received: from rproxy.gmail.com ([64.233.170.194]:49633 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268483AbUJMGPs (ORCPT
+	Wed, 13 Oct 2004 02:21:50 -0400
+Received: from fw.osdl.org ([65.172.181.6]:59090 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268470AbUJMGVs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 02:15:48 -0400
-Message-ID: <b2fa632f0410122315753f8886@mail.gmail.com>
-Date: Wed, 13 Oct 2004 11:45:43 +0530
-From: Raj <inguva@gmail.com>
-Reply-To: Raj <inguva@gmail.com>
-To: eshwar <eshwar@moschip.com>
-Subject: Re: Write USB Device Driver entry not called
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <005101c4b763$5e3cba60$41c8a8c0@Eshwar>
+	Wed, 13 Oct 2004 02:21:48 -0400
+Date: Tue, 12 Oct 2004 23:19:45 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nathan Scott <nathans@sgi.com>
+Cc: piggin@cyberone.com.au, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       linux-xfs@oss.sgi.com
+Subject: Re: Page cache write performance issue
+Message-Id: <20041012231945.2aff9a00.akpm@osdl.org>
+In-Reply-To: <20041013054452.GB1618@frodo>
+References: <20041013054452.GB1618@frodo>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <005101c4b763$5e3cba60$41c8a8c0@Eshwar>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
->   devfd = open("/dev/usb/dabusb10",O_APPEND | S_IRUSR| S_IWUSR );
+Nathan Scott <nathans@sgi.com> wrote:
+>
+>  So, any ideas what happened to 2.6.9?
 
-Did your open() succeed here ??? i guess S_IRUSR etc is used when you
-create a new file and not when you open a new one.
+Does reverting the below fix it up?
 
->   if ( write(devfd,send,512) < 0) {
->        printf ("write Failed\n");
->        return  -1;
->   }
+>   Whats the rationale for commencing writeout earlier in 2.6
+> (even when there's
+>  so much free memory available)?
 
-well , if open fails above, then....
+There wasn't much rationale behind that patch - that's why I dropped it the
+first three times ;)  I have no problem with making it four times.
 
--- Raj
+It could be that small values of unmapped_ratio are making background_ratio
+too small.
+
+
+--- a/mm/page-writeback.c	10 Aug 2004 04:16:17 -0000	1.43
++++ a/mm/page-writeback.c	13 Oct 2004 06:12:03 -0000
+@@ -153,9 +153,11 @@
+ 	if (dirty_ratio < 5)
+ 		dirty_ratio = 5;
+ 
+-	background_ratio = dirty_background_ratio;
+-	if (background_ratio >= dirty_ratio)
+-		background_ratio = dirty_ratio / 2;
++	/*
++	 * Keep the ratio between dirty_ratio and background_ratio roughly
++	 * what the sysctls are after dirty_ratio has been scaled (above).
++	 */
++	background_ratio = dirty_background_ratio * dirty_ratio/vm_dirty_ratio;
+ 
+ 	background = (background_ratio * total_pages) / 100;
+ 	dirty = (dirty_ratio * total_pages) / 100;
+

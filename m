@@ -1,81 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264637AbUD1EZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264641AbUD1Ek5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264637AbUD1EZU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 00:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264640AbUD1EZU
+	id S264641AbUD1Ek5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 00:40:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264643AbUD1Ek5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 00:25:20 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:45805 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S264637AbUD1EZN (ORCPT
+	Wed, 28 Apr 2004 00:40:57 -0400
+Received: from mail.tpgi.com.au ([203.12.160.61]:7609 "EHLO mail4.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S264641AbUD1Ekz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 00:25:13 -0400
-Message-Id: <200404280323.i3S3N19W024148@pincoya.inf.utfsm.cl>
-To: Marc Boucher <marc@linuxant.com>
-cc: David Gibson <david@gibson.dropbear.id.au>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license 
-In-Reply-To: Message from Marc Boucher <marc@linuxant.com> 
-   of "Tue, 27 Apr 2004 21:14:32 -0400." <677BC9FC-98B1-11D8-85DF-000A95BCAC26@linuxant.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Tue, 27 Apr 2004 23:23:01 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Wed, 28 Apr 2004 00:40:55 -0400
+Date: Wed, 28 Apr 2004 14:30:34 +1000
+From: "Nigel Cunningham" <ncunningham@linuxmail.org>
+To: Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org
+Subject: Re: What does tainting actually mean?
+Reply-To: ncunningham@linuxmail.org
+References: <opr65eq9ncshwjtr@laptop-linux.wpcb.org.au> <20040428042742.GA1177@middle.of.nowhere>
+Content-Type: text/plain; format=flowed; delsp=yes; charset=us-ascii
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-ID: <opr65f48sfshwjtr@laptop-linux.wpcb.org.au>
+In-Reply-To: <20040428042742.GA1177@middle.of.nowhere>
+User-Agent: Opera M2/7.50 (Linux, build 663)
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Boucher <marc@linuxant.com> said:
-> On Apr 27, 2004, at 8:25 PM, David Gibson wrote:
-> > On Tue, Apr 27, 2004 at 08:02:03PM -0400, Marc Boucher wrote:
-> >> Rusty, the workaround was done a while ago, back in the 2.5 days
-> >> when your new module code was still very much in flux. It was
-> >> necessary to have an effective short-term solution for the existing
-> >> installed base (2.4), since we could not continue to confuse
-> >> customers while waiting for the patch to propagate. In other cases,
-> >> we have gladly submitted patches when we encountered bugs and could
-> >> fix them. Had we known that the module fix was so simple, it would
-> >> of course have been submitted it to you in parallel.
+Hi.
 
-> > No, it wasn't *necessary*:  you made a choice that not confusing your
-> > customers was more important to you than not increasing the support
-> > burden on kernel developers by releasing a silently tainted module
-> > into the wild.
+On Wed, 28 Apr 2004 06:27:42 +0200, Jurriaan <thunder7@xs4all.nl> wrote:
+> From: Nigel Cunningham <ncunningham@linuxmail.org>
+> Date: Wed, Apr 28, 2004 at 02:00:35PM +1000
+>> Hi all.
+>>
+>> I'm probably going to regret this, but seeing the current discussion on
+>> binary modules makes me wonder:
+>>
+>> What does tainting actually mean?
+>>
+> It means you can never be sure the bug is _not_ in some binary module.
+> It may be unprobable, you may be able to find a bug in the kernel, but
+> you're never _sure_.
 
-> In an enterprise, customers always come first. Nonetheless, I don't
-> believe that this issue had a significant impact on kernel developers.
+Is that true? We can see where the oops occurs. If it's in the module,  
+nothing more needs to be said. If it's in the kernel itself, we can check  
+our source. We could check all the calls the module makes to open source  
+code and validate that the parameters are correct. We should be able to  
+say with authority 'the module is doing the wrong thing'. We might not be  
+able to say exactly what, but we could determine that it is the module.
 
-You have absolutely no right to place _any_ burden at all on kernel
-hackers. "I don't believe..." just doesn't cut it.
-
-[...]
-
-> Futile attempts to perform license checks generating redundant and
-> confusing errors, restricting access to kernel APIs for religious 
-> reasons,
-
-So? It is not _your_ call to decide under what conditions (if any) you are
-allowed to use said APIs. You did not comply with the conditions as stated.
-Nothing more to be said about it, you admitted so yourself.
-
-> and the general lack of stable APIs and pragmatic understanding for the
-> needs of third-party driver suppliers result in much greater everyday
-> inconveniences  to ordinary users and are more damaging to the 
-> acceptance
-
-Third-party driver suppliers are welcome to work _with_ the kernel
-community, who will in many cases happily fix their drivers as a matter of
-course when updating the kernel. As long as source is available, that
-is. If not, hackers don't want to spend time for _others_ to be able to
-reap benefits. Go read the GPL, and then think hard about why Linux hackers
-elected the GPL as the license for the kernel.
-
-> of linux than the theoretical inconvenience our workaround might have
-> caused to kernel developers.
-
-There is a very down-to-earth inconvenience called "license violation"
-here. You got a license to use the kernel API under certain conditions, you
-violated those.
+Nigel
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Nigel Cunningham
+C/- Westminster Presbyterian Church Belconnen
+61 Templeton Street, Cook, ACT 2614, Australia.
++61 (2) 6251 7727 (wk)

@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262805AbUAUKPd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 05:15:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265890AbUAUKPd
+	id S265896AbUAUKUI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 05:20:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265899AbUAUKUI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 05:15:33 -0500
-Received: from users.linvision.com ([62.58.92.114]:60115 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S262805AbUAUKPc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 05:15:32 -0500
-Date: Wed, 21 Jan 2004 11:15:30 +0100
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: keirwu pk <kwpk_55@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: newbie driver question
-Message-ID: <20040121101530.GF24745@bitwizard.nl>
-References: <BAY13-F43DRdNOUivlQ00007193@hotmail.com>
+	Wed, 21 Jan 2004 05:20:08 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:39568 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S265896AbUAUKUE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 05:20:04 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Wed, 21 Jan 2004 10:59:36 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] v4l-05 add infrared remote support
+Message-ID: <20040121095935.GA31624@bytesex.org>
+References: <20040120093054.GC18096@bytesex.org> <20040121043608.515032C090@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <BAY13-F43DRdNOUivlQ00007193@hotmail.com>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.com
+In-Reply-To: <20040121043608.515032C090@lists.samba.org>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 21, 2004 at 05:33:10AM +0000, keirwu pk wrote:
-> what is the best way to write scsi driver for a scsi device?.got latest 
-> kernel.
-> any examples, sources. what are typical library calls?.  sg-Howto would 
-> help?.
+> This provides simple forwards compat for 2.4.  It doesn't do arrays or
+> strings, but they can be added if required (this will cover the easy
+> 90%).
 
-The sg interface is all you need to write a driver for some kind of
-exotic scsi device. Everything is handled in userland, no need to do it
-in kernel. That's how scsi scanners and cd writers are handled.
-The scsi-generic howto tells you how to use it, it even has programming
-examples.
+At least the array stuff I'm using in my drivers, to handle the
+"multiple tv cards in one box" case, like this:
 
+  static unsigned int card[] = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
+  MODULE_PARM(card,"1-" __stringify(SAA7134_MAXBOARDS) "i");
+  MODULE_PARM_DESC(card,"card type");
 
-Erik
+So having that in 2.4 too would be nice.
 
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+I have also two more questions:  How can I specify default values != 0
+for insmod options using the new macros?  How specify help/description
+texts?  Using the MODULE_PARM_DESC() macro or is there something new too?
+
+  Gerd
+

@@ -1,142 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262455AbUBXUrh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 15:47:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbUBXUpc
+	id S262457AbUBXUz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 15:55:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262452AbUBXUz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 15:45:32 -0500
-Received: from smtpq2.home.nl ([213.51.128.197]:15579 "EHLO smtpq2.home.nl")
-	by vger.kernel.org with ESMTP id S262443AbUBXUoQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 15:44:16 -0500
-From: Gertjan van Wingerde <gwingerde@home.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Cisco vpnclient prevents proper shutdown starting with 2.6.2
-Date: Tue, 24 Feb 2004 21:41:40 +0100
-User-Agent: KMail/1.6
-Cc: ptoal@cisco.com, jhp@pobox.com
+	Tue, 24 Feb 2004 15:55:59 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:2433 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S262457AbUBXUz5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 15:55:57 -0500
+Date: Tue, 24 Feb 2004 15:55:47 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Chris Wedgwood <cw@f00f.org>, <piggin@cyberone.com.au>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] vm-fix-all_zones_ok (was Re: 2.6.3-mm3)
+In-Reply-To: <20040224012222.453e7db7.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44.0402241553550.21522-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402242141.40208.gwingerde@home.nl>
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Patrick, et al.
+On Tue, 24 Feb 2004, Andrew Morton wrote:
+> Chris Wedgwood <cw@f00f.org> wrote:
+> > On Tue, Feb 24, 2004 at 03:11:40PM +1100, Nick Piggin wrote:
+> > 
+> > > Out of interest, what is the worst you can make it do with
+> > > contrived cases?
+> > 
+> > 700MB slab used.
+> 
+> Sigh.  There is absolutely nothing wrong with having a large slab cache. 
+> And there is nothing necessarily right about having a small one.
 
-Even though this seems to work, the real problem seems to lie in the cisco_ipsec module itself.
-It looks like it is registering a netdevice notifier at ioctl time, which seems to deadlock in the lock
-that has been introduced in 2.6.2. Moving the registration to module initialisation time (with the
-proper checks in the event handler itself to only act when VPN is up) seems to resolve the
-issue.
+Could it be that the lower zone protection stuff simply means
+that Chris's system only ever allocates page cache and anonymous
+memory from his 600 MB highmem, leaving the 900 MB lowmem for
+the slab cache to roam freely ?
 
-Patch to Cisco vpnclient 4.0.3.B is below.
+I guess highmem allocations really should put some pressure on
+lowmem, even when there is enough lowmem free, because otherwise
+you end up effectively not using half of the memory on 1.5-2 GB
+systems for paging ...
 
-	MvG,
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 
-		Gertjan.
-
-diff -u --recursive vpnclient/interceptor.c vpnclient-new/interceptor.c
---- vpnclient/interceptor.c	2003-10-30 02:27:34.000000000 +0100
-+++ vpnclient-new/interceptor.c	2004-02-24 21:26:36.000000000 +0100
-@@ -364,11 +364,6 @@
-         error = VPNIFUP_FAILURE;
-         goto error_exit;
-     }
--    error = register_netdevice_notifier(&interceptor_notifier);
--    if (error)
--    {
--        goto error_exit;
--    }
- 
-     vpn_is_up = TRUE;
-     return error;
-@@ -388,8 +383,6 @@
- {
-     int i;
- 
--    unregister_netdevice_notifier(&interceptor_notifier);
--
-     cleanup_frag_queue();
-     /*restore IP packet handler */
-     if (original_ip_handler.pt != NULL)
-@@ -436,6 +429,9 @@
- {
-     struct net_device *dev = (struct net_device *) val;
- 
-+    if (!vpn_is_up)
-+	return 1;
-+
-     switch (event)
-     {
-     case NETDEV_REGISTER:
-@@ -853,6 +849,8 @@
-         CNICallbackTable = *PCNICallbackTable;
-         CniPluginDeviceCreated();
- 
-+        register_netdevice_notifier(&interceptor_notifier);
-+
-         if ((status = register_netdev(&interceptor_dev)) != 0)
-         {
-             printk(KERN_INFO "%s: error %d registering device \"%s\".\n",
-@@ -876,6 +874,9 @@
-     CniPluginUnload();
- 
-     unregister_netdev(&interceptor_dev);
-+
-+    unregister_netdevice_notifier(&interceptor_notifier);
-+
-     return;
- }
- 
-
-
->Hi Patrick,
->
->Just a data point..
->
->I reversed this patch on a system running 2.6.3-mm2, and vpnclient now
->works.
->
->/harley
->
->> Newsgroups: fa.linux.kernel
->> Subject: RE: Cisco vpnclient prevents proper shutdown starting with 2.6.2
->> From: Patrick Toal <ptoal@cisco.com>
->> To: linux-kernel@vger.kernel.org
->> Date: Mon, 23 Feb 2004 01:36:17 GMT
->> 
->> Sid Boyce wrote:
->> > I tried using this client with up to 2.6.1-mm5 and ended up with Dead
->> > processes for cvpnd and vpnclient, nothing else was affected, went
->> > back to 2.4.x kernel.
->> > Regards
->> > Sid
->> 
->> Sid, et al. 
->> 
->> First, before anyone starts deluging me with questions, you should know
->> that even though my details say Cisco, I am an SE in the field, _not_ a
->> developer.  Second, please reply to me off-list, as I do not subscribe
->> to the LK list.  
->> 
->> That being said, I think I've tracked this down to a recent change in
->> the net/core/dev.c file.  I reversed the patch to
->> register_netdevice_notifier below, and the vpnclient now works fine. 
->> This is called by the handle_vpnup routine in interceptor.c of the
->> vpnclient kernel module.
->> 
->> I am _not_ a kernel developer, nor do I spend the majority of my time
->> programming, so I haven't been able to figure out _why_ these changes
->> cause the module to freeze.  I'd be interested if anyone could tell me
->> the answer to that question. :-)
->> 
->> Regards,
->> Patrick
->> 
-
-<snip>

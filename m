@@ -1,76 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267158AbSLaF4j>; Tue, 31 Dec 2002 00:56:39 -0500
+	id <S267170AbSLaGAl>; Tue, 31 Dec 2002 01:00:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267159AbSLaF4j>; Tue, 31 Dec 2002 00:56:39 -0500
-Received: from bitmover.com ([192.132.92.2]:11191 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S267158AbSLaF4i>;
-	Tue, 31 Dec 2002 00:56:38 -0500
-Date: Mon, 30 Dec 2002 22:04:59 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Emiliano Gabrielli <emiliano.gabrielli@roma2.infn.it>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Indention - why spaces?
-Message-ID: <20021231060459.GA15558@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Pete Zaitcev <zaitcev@redhat.com>,
-	Emiliano Gabrielli <emiliano.gabrielli@roma2.infn.it>,
-	linux-kernel@vger.kernel.org
-References: <20021230122857.GG10971@wiggy.net> <200212301249.gBUCnXrV001099@darkstar.example.net> <20021230131725.GA16072@suse.de> <mailman.1041274740.23755.linux-kernel2news@redhat.com> <200212310528.gBV5Sbn29105@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	id <S267171AbSLaGAl>; Tue, 31 Dec 2002 01:00:41 -0500
+Received: from packet.digeo.com ([12.110.80.53]:29845 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267170AbSLaGAl>;
+	Tue, 31 Dec 2002 01:00:41 -0500
+Message-ID: <3E11347B.2C8195D1@digeo.com>
+Date: Mon, 30 Dec 2002 22:08:59 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Con Kolivas <conman@kolivas.net>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] vm swappiness with contest
+References: <200212271646.01487.conman@kolivas.net> <200212272100.44345.conman@kolivas.net> <200212281716.50535.conman@kolivas.net> <200212311658.53118.conman@kolivas.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200212310528.gBV5Sbn29105@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 31 Dec 2002 06:08:59.0792 (UTC) FILETIME=[1C19A900:01C2B093]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 31, 2002 at 12:28:37AM -0500, Pete Zaitcev wrote:
-> > IMHO and in my personal projects I use the following indenting rules:
-> > 
-> > 1) use TABs for _indentation_
-> > 2) use SPACEs for aligning
-> > 
-> > here is an exaple:
-> > 
-> ><tab><tab>if (cond) {
-> ><tab><tab><tab>dosometing;
-> ><tab><tab><tab>printf("This is foo: '%s', and this bar: '%d'",
-> ><tab><tab><tab>       foo, bar);
+Con Kolivas wrote:
 > 
-> BTW, this practice is codified in Solaris developer's guidelines.
-> They even have a perl script called "hdrchk" which is run before
-> commits and tells about violations. Actually, the Sun requirement
-> is to have exactly 4 spaces, but it sounds a little too anal to me.
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> On Saturday 28 Dec 2002 5:16 pm, Con Kolivas wrote:
+> > Is there something about the filesystem layer or elsewhere in the kernel
+> > that could decay or fragment over time that only a reboot can fix? This
+> > would seem to be a bad thing.
+> 
+> Ok Linus suggested I check slabinfo before and after.
+> 
+> I ran contest for a few days till I recreated the problem and it did recur. I
+> don't know how to interpret the information so I'll just dump it here:
+> 
 
-Indeed and the reasoning is that tabs are for indentation, 4 spaces are
-for continuation lines.
 
-	if (expr) {
-		statement;
-		statement;
-		if (really_long_expression && another_expression &&
-		    one_more) {
-		    	statement;
-		}
-	}
+Looks OK.  Could we see /proc/meminfo and /proc/vmstat?
 
-You can do slightly better than that if you do it like this:
-
-		if (really_long_expression &&
-		    another_expression && one_more) {
-		    	statement;
-		}
-I try and get people to put the longer part of the expression on the
-continuation line, your eyes will parse that better than the first way.
-
-By the way, this sort of thing is a big deal around here, I spend a 
-lot of time getting people to do it all the same way.  It's worth it.
-
-The bottom line is "can I fix bugs in your code quickly?".  Indentation
-is part of understanding the code.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+What filesystem are you using?  And what kernel?

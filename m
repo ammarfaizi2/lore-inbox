@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264066AbTGFWy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 18:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266748AbTGFWy2
+	id S266753AbTGFXIq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 19:08:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266759AbTGFXIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 18:54:28 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:7308 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S264066AbTGFWy1 (ORCPT
+	Sun, 6 Jul 2003 19:08:46 -0400
+Received: from pop.gmx.net ([213.165.64.20]:39125 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266753AbTGFXIo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 18:54:27 -0400
-Date: Mon, 7 Jul 2003 00:08:23 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Bernardo Innocenti <bernie@develer.com>
-Cc: Philippe Elie <phil.el@wanadoo.fr>, linux-kernel@vger.kernel.org,
-       Richard Henderson <rth@twiddle.net>
-Subject: Re: SPAM[RBL] Re: C99 types VS Linus types
-Message-ID: <20030706230823.GB6123@mail.jlokier.co.uk>
-References: <200307060703.58533.bernie@develer.com> <3F0814B1.1000401@wanadoo.fr> <200307061937.26519.bernie@develer.com>
+	Sun, 6 Jul 2003 19:08:44 -0400
+Date: Mon, 7 Jul 2003 01:23:15 +0200
+From: diemumiee@gmx.de
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ATI IGP Support and System Freeze when running hwclock
+Message-ID: <20030706232315.GA32461@durix.hallo.net>
+References: <20030706144114.GA23881@durix.hallo.net> <1057513936.1029.5.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200307061937.26519.bernie@develer.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1057513936.1029.5.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernardo Innocenti wrote:
-> On Sunday 06 July 2003 14:23, Philippe Elie wrote:
->  > alpha user space .h define uint64_t as unsigned long,
->  > include/asm-alpha/types.h defines it as unsigned long long.
+Hi, 
+the ATI host bridge of igp mainboards is still not supported yet. 
+Loading agpgart fails... 
+lspci : 
+00:00.0 Host bridge: ATI Technologies Inc: Unknown device cab0 (rev 13)
+00:01.0 PCI bridge: ATI Technologies Inc PCI Bridge [IGP 320M] (rev 01)
+00:02.0 USB Controller: ALi Corporation USB 1.1 Controller (rev 03)
+00:06.0 Multimedia audio controller: ALi Corporation M5451 PCI AC-Link Controller Audio Device (rev 02)
+00:07.0 ISA bridge: ALi Corporation M1533 PCI to ISA Bridge [Aladdin IV]
+00:08.0 Modem: ALi Corporation Intel 537 [M5457 AC-Link Modem]
+00:0a.0 CardBus bridge: O2 Micro, Inc. OZ6912 Cardbus Controller
+00:10.0 IDE interface: ALi Corporation M5229 IDE (rev c4)
+00:11.0 Bridge: ALi Corporation M7101 PMU
+00:12.0 Ethernet controller: National Semiconductor Corporation DP83815 (MacPhyter) Ethernet Controller
+01:05.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility U1
+	
+I installed 2.4.21-ac with acpi. Acpi works great, but the whole system
+freezes when i try to run "hwclock --adjust --localtime". The module
+rtc.o gets loaded before the call to hwclock. 
+
+Regards, 
+Andreas Pokorny
+
+On Sun, Jul 06, 2003 at 06:52:17PM +0100, Alan Cox wrote:
+> On Sul, 2003-07-06 at 15:41, diemumiee@gmx.de wrote:
+> > Hi, 
+> > Is there currently any work done at the ATI IGP 320 chipsets?
+> > Any kernel patches that I could test?
 > 
->  Why is that? Isn't uint64_t supposed to be _always_ a 64bit
-> unsigned integer? Either the kernel or the user space might
-> be doing the wrong thing...
-
-uint64_t is always a 64-bit type, and in the case given the compiler
-emits a warning but the code runs ok.
-
-The problem is that "64-bit long" and "64-bit long long" are different
-types with the same representation.  Which means they are mostly
-interchangeable, with occasional C weirdness.
-
--- Jamie
+> It should work nicely with a 2.4.21-ac kernel built with ACPI support,
+> or a 2.4.22pre kernel

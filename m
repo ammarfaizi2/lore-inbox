@@ -1,44 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263772AbREYPnI>; Fri, 25 May 2001 11:43:08 -0400
+	id <S263773AbREYPpi>; Fri, 25 May 2001 11:45:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263773AbREYPm6>; Fri, 25 May 2001 11:42:58 -0400
-Received: from voyager.powersurfr.com ([24.109.67.8]:43538 "EHLO
-	unity.starfire") by vger.kernel.org with ESMTP id <S263772AbREYPmv>;
-	Fri, 25 May 2001 11:42:51 -0400
-From: Maciek Nowacki <maciek@Voyager.powersurfr.com>
-Date: Fri, 25 May 2001 09:42:45 -0600
-To: Scott Murray <scott@spiteful.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Busy on BLKFLSBUF w/initrd
-Message-ID: <20010525094245.A858@wintermute.starfire>
-In-Reply-To: <20010524123943.A797@wintermute.starfire> <Pine.LNX.4.33.0105250040520.15501-100000@godzilla.spiteful.org>
-Mime-Version: 1.0
+	id <S263778AbREYPpS>; Fri, 25 May 2001 11:45:18 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18959 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263773AbREYPpI>; Fri, 25 May 2001 11:45:08 -0400
+Subject: Re: [PATCH] warning fixes for 2.4.5pre5
+To: richbaum@acm.org (Rich Baum)
+Date: Fri, 25 May 2001 16:42:10 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <873E21525C8@coral.indstate.edu> from "Rich Baum" at May 24, 2001 09:40:11 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <Pine.LNX.4.33.0105250040520.15501-100000@godzilla.spiteful.org>; from scott@spiteful.org on Fri, May 25, 2001 at 01:20:00AM -0400
+Content-Transfer-Encoding: 7bit
+Message-Id: <E153Jj8-0006gy-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 25, 2001 at 01:20:00AM -0400, Scott Murray wrote:
-> On Thu, 24 May 2001, Maciek Nowacki wrote:
-> 
-> > This method depends on the change_root() mechanism which I had assumed is
-> > becoming obsolete. It works, and there is no need to mess with
-> > /proc/sys/kernel/real_root_dev if the root is specified on the command line.
-> > Trying to use only pivot_root did not work as /dev/rd/0 could never be
-> > flushed (see previous messages in this thread).
-> 
-> I was having similiar problems a few months back.  I was also trying
-> to pivot_root out of an initial ramdisk and then unmount it.  I got it
-> working, but kept forgetting to post one of the fixes that I found
-> necessary to make it work when using auto-mounted devfs.
->
-> [patch to init/main.c]
+> statements and extra tokens at the end of #endifs.  The patch for 
+> linux/drivers/usb/pwc-uncompress.c adds includes to fix warnings where 
+> kmalloc(), kfree(), and  EXPORT_SYMBOL_NONVERS() implicity declared.
 
-Cool, that did it. change_root doesn't occur anymore and BLKFLSBUF clears
-things out of memory without any muckage. I will add this one to my patch
-directory. Thanks!
+The pwc-uncompress stuff wants ignoring and the -ac fixes picking up that
+also clean up the other bits. I'll send that to Linus shortly
 
-Maciek

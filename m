@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289064AbSAGArM>; Sun, 6 Jan 2002 19:47:12 -0500
+	id <S289065AbSAGAyc>; Sun, 6 Jan 2002 19:54:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289063AbSAGArC>; Sun, 6 Jan 2002 19:47:02 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:64523 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S289062AbSAGAqt>; Sun, 6 Jan 2002 19:46:49 -0500
-From: "M. Edward Borasky" <znmeb@aracnet.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Sun, 6 Jan 2002 16:47:05 -0800
-Message-ID: <HBEHIIBBKKNOBLMPKCBBGEHLEFAA.znmeb@aracnet.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <E16NJ7R-0006Iq-00@the-village.bc.nu>
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+	id <S289063AbSAGAyX>; Sun, 6 Jan 2002 19:54:23 -0500
+Received: from mta01bw.bigpond.com ([139.134.6.78]:58081 "EHLO
+	mta01bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S289062AbSAGAyL>; Sun, 6 Jan 2002 19:54:11 -0500
+Message-Id: <5.1.0.14.0.20020107114616.00b9f458@mail.bigpond.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 07 Jan 2002 11:53:58 +1100
+To: linux-kernel@vger.kernel.org
+From: Dylan Egan <crack_me@bigpond.com.au>
+Subject: 2.4.17 - hanging due to usb
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You're right ... no one does an *out-of-core* 2D FFT using VM. What I am
-saying is that a large page cache can turn an *in-core* 2D FFT -- a 4 GB
-case on an 8 GB machine, for example -- into an out-of-core one!
+Hi,
 
-One other data point: on my stock Red Hat 7.2 box with 512 MB of RAM, I ran
-a Perl script that builds a 512 MByte hash, a second Perl script which
-creates a 512 MByte disk file, and the check pass of FFTW concurrently. As I
-expected, the two Perl scripts competed for RAM and slowed down FFTW. What
-was even more interesting, though, was that the VM apparently functions
-correctly in this instance. All three of the processes were getting CPU
-cycles. And I never saw "kswapd" or "kupdated" take over the system.
+I am currently trying to install my usb-storage device to use with 2.4.17.
+I have my usb device connected and switched on so when i do insmod usb-uhci 
+or insmod uhci it automatically picks it up and goes to install it but a 
+few seconds after its done that, linux just freezes up and i can't do 
+anything except reboot via the reboot switch (keyboard does not work). My 
+usb is using a shared irq with onboard sound so i disabled sound in the 
+BIOS and retried, only to find it failed again. I dont have enough time to 
+check for any errors so i can't figure out the problem and when i check the 
+logs there seems to be nothing out of the ordinary.
 
-Although the page cache did get large at one point, once the hash builder
-got to about 400 MBytes in size, the "cached" piece shrunk to about 10
-MBytes and most of the RAM got allocated to the hash builder, as did
-appropriate amounts of swap. In short, the kernel in Red Hat 7.2 with under
-1 GByte of memory is behaving well under memory pressure. It looks like it's
-kernels beyond that one that have the problems, and also systems with more
-than 1 GByte. If I had the money, I'd stuff some more RAM in the machine and
-see if I could isolate this a little further. If anyone wants my Perl
-scripts, which are trivial, let me know.
---
-M. Edward Borasky
-znmeb@borasky-research.net
-http://www.borasky-research.net
+Regards,
+
+Dylan
 

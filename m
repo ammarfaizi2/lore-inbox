@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293718AbSB1XWr>; Thu, 28 Feb 2002 18:22:47 -0500
+	id <S293692AbSB1WlG>; Thu, 28 Feb 2002 17:41:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310196AbSB1XUY>; Thu, 28 Feb 2002 18:20:24 -0500
-Received: from fmfdns01.fm.intel.com ([132.233.247.10]:48093 "EHLO
-	calliope1.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S310185AbSB1XSA>; Thu, 28 Feb 2002 18:18:00 -0500
-Message-ID: <BD9B60A108C4D511AAA10002A50708F22C1452@orsmsx118.jf.intel.com>
-From: "Leech, Christopher" <christopher.leech@intel.com>
-To: "'David S. Miller'" <davem@redhat.com>,
-        "Leech, Christopher" <christopher.leech@intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: RE: hardware VLAN acceleration
-Date: Thu, 28 Feb 2002 15:17:54 -0800
+	id <S310183AbSB1Whh>; Thu, 28 Feb 2002 17:37:37 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:59666 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S310180AbSB1WeL>; Thu, 28 Feb 2002 17:34:11 -0500
+Date: Thu, 28 Feb 2002 17:32:08 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Robert Love <rml@tech9.net>, arjan@fenrus.demon.nl,
+        linux-kernel@vger.kernel.org
+Subject: Re: crypto (was Re: Congrats Marcelo,)
+In-Reply-To: <E16f8Q5-0002qs-00@starship.berlin>
+Message-ID: <Pine.LNX.3.96.1020228172604.2006F-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   
-> The group is still valid, groups are never destroyed by the VLAN layer
-> once they are created.
+On Mon, 25 Feb 2002, Daniel Phillips wrote:
 
-Unless the 802.1q code is built as a module.  It looks to me like if you
-unregistered the virtual interface and unload the 802.1q module, if another
-tagged packet is received tg3 will still call vlan_hwaccel_rx and deref
-tp->vlgrp which now points to who knows what.
+> /me thinks about the jolly fuss that would ensue if France censored Linux
 
-	Chris
+Given that France blocks Ebay and there are a lot more people using that,
+I don't think they would hesitate a moment. Don't get me started on this
+topic...
 
---
-Chris Leech <christopher.leech@intel.com>
-Network Software Engineer
-UNIX/Linux/Netware Development Group
-LAN Access Division, Intel
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

@@ -1,41 +1,24 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317393AbSFHK6Q>; Sat, 8 Jun 2002 06:58:16 -0400
+	id <S317401AbSFHLWo>; Sat, 8 Jun 2002 07:22:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317395AbSFHK6P>; Sat, 8 Jun 2002 06:58:15 -0400
-Received: from pD9E2320A.dip.t-dialin.net ([217.226.50.10]:48591 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317393AbSFHK6P>; Sat, 8 Jun 2002 06:58:15 -0400
-Date: Sat, 8 Jun 2002 04:58:01 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: reg@dwf.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: I2C stuff has undefined externals in 2.4.18
-In-Reply-To: <200206080057.g580vmJh001282@orion.dwf.com>
-Message-ID: <Pine.LNX.4.44.0206080457270.15675-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317402AbSFHLWn>; Sat, 8 Jun 2002 07:22:43 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:6788 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317401AbSFHLWm>;
+	Sat, 8 Jun 2002 07:22:42 -0400
+Date: Sat, 8 Jun 2002 16:51:47 +0530
+From: Ravikiran G Thirumalai <kiran@in.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: question: i/o port 0x61 on x86 archs
+Message-ID: <20020608165147.A16911@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I have a question regdg do_nmi routine in x86; what does location 0x61 
+from inb(0x61) do? Is it something very well known in intel archs? 
 
-On Fri, 7 Jun 2002 reg@dwf.com wrote:
-> The compile went ok, but the depmod after the install claimed that
-> 	i2c-hydra
-> 	i2c-i810
-> 	i2c-via
-> 	i2c-voodoo3
-> all had undefined externals.
-
-Which symbols? Could you send them in, please?
-
-Regards,
-Thunder
--- 
-ship is leaving right on time	|	Thunder from the hill at ngforever
-empty harbour, wave goodbye	|
-evacuation of the isle		|	free inhabitant not directly
-caveman's paintings drowning	|	belonging anywhere
-
+Kiran

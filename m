@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266046AbRGCXEM>; Tue, 3 Jul 2001 19:04:12 -0400
+	id <S266048AbRGCXJM>; Tue, 3 Jul 2001 19:09:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266048AbRGCXEC>; Tue, 3 Jul 2001 19:04:02 -0400
-Received: from [216.156.138.34] ([216.156.138.34]:36365 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S266046AbRGCXDw>;
-	Tue, 3 Jul 2001 19:03:52 -0400
-Message-ID: <3B424F39.C3E84913@colorfullife.com>
-Date: Wed, 04 Jul 2001 01:03:21 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6-pre7 i686)
-X-Accept-Language: en, de
+	id <S266051AbRGCXJC>; Tue, 3 Jul 2001 19:09:02 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:58066 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S266048AbRGCXIv>;
+	Tue, 3 Jul 2001 19:08:51 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdlab.org>, linux-kernel@vger.kernel.org
-Subject: Re: Sticky IO-APIC problem
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15170.20516.201818.401387@pizda.ninka.net>
+Date: Tue, 3 Jul 2001 16:07:16 -0700 (PDT)
+To: Guenter.Millahn@Informatik.TU-Cottbus.DE (Guenter Millahn)
+Cc: Aaron Lehmann <aaronl@vitelus.com>, linux-kernel@vger.kernel.org,
+        jakub@redhat.com
+Subject: Re: Linux speed on sun4c
+In-Reply-To: <20010703175922.A7970@pt.Informatik.TU-Cottbus.DE>
+In-Reply-To: <20010630220612.C14361@vitelus.com>
+	<15166.50418.583094.554723@pizda.ninka.net>
+	<20010703175922.A7970@pt.Informatik.TU-Cottbus.DE>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-> This shows that Linux mapped the APIC (part of the processor).
-> It says nothing about mapping any IO APICs (unless you deleted
-> that part :).
-> 
-Correct. Linux always enables the APIC, but it needs some bios tables
-for the IO APIC. And the IO APIC is not present on all uniprocessor
-motherboards.
+Guenter Millahn writes:
+ > David, can you publish your idea for a fix? Possibly anybody elese can make
+ > the patch?
 
-> So, how does one know if a (UP) system has an IO APIC and that
-> Linux can be configured to use the UP IO APIC code?...
+Currently under Linux when a constext is recycled because a new
+context is needed but all are in use, we basically toss all of
+the MMU segments that context owned.
 
-Figure out which ICH is used (lspci?), then check Intel's documentation.
+This is bogus because if the contexts are the limited resource
+not the MMU segments themselves, we take a lot of false MMU
+misses on each context switch for no reason.
 
-But even if an io apic is present, Linux can only use it if a MP table
-is present. Afaik ACPI tables are not yet supported on i386, but ia64
-already supports detecting the IO APIC's based on ACPI tables.
+The solution is to link the MMU segment software state structures
+into the mm_struct.  When an 'mm' reacquires a hw context, if any
+MMU segments remain on the mm's list, just pluck them back into
+the MMU.
 
---
-	Manfred
+Later,
+David S. Miller
+davem@redhat.com

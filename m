@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264795AbSK0UsR>; Wed, 27 Nov 2002 15:48:17 -0500
+	id <S264797AbSK0Us5>; Wed, 27 Nov 2002 15:48:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264797AbSK0UsR>; Wed, 27 Nov 2002 15:48:17 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:45455 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S264795AbSK0UsP>; Wed, 27 Nov 2002 15:48:15 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 27 Nov 2002 12:56:38 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Dan Kegel <dkegel@ixiacom.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: re: epoll patches queue status and glibc submission ...
-In-Reply-To: <3DE52FC7.1050405@ixiacom.com>
-Message-ID: <Pine.LNX.4.50.0211271255580.1827-100000@blue1.dev.mcafeelabs.com>
-References: <3DE52FC7.1050405@ixiacom.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264798AbSK0Us4>; Wed, 27 Nov 2002 15:48:56 -0500
+Received: from pc-62-31-66-70-ed.blueyonder.co.uk ([62.31.66.70]:21126 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S264797AbSK0Usx>; Wed, 27 Nov 2002 15:48:53 -0500
+Date: Wed, 27 Nov 2002 20:55:54 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+       Jeremy Fitzhardinge <jeremy@goop.org>,
+       Ext2 devel <ext2-devel@lists.sourceforge.net>,
+       NFS maillist <nfs@lists.sourceforge.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [Ext2-devel] Re: [NFS] htree+NFS (NFS client bug?)
+Message-ID: <20021127205554.J2948@redhat.com>
+References: <1038354285.1302.144.camel@sherkaner.pao.digeo.com> <shsptsrd761.fsf@charged.uio.no> <1038387522.31021.188.camel@ixodes.goop.org> <20021127150053.A2948@redhat.com> <15845.10815.450247.316196@charged.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <15845.10815.450247.316196@charged.uio.no>; from trond.myklebust@fys.uio.no on Wed, Nov 27, 2002 at 09:25:35PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Nov 2002, Dan Kegel wrote:
+Hi,
 
-> Hi Davide,
-> I just realized that 'edge triggered I/O readiness notification facility'
-> is too jargony.  A plain English wording of the man page title might be
->
-> epoll \- I/O readiness change notification facility
->
-> This is shorter and much clearer.  Apologies for having suggested
-> the earlier jargony text.
+On Wed, Nov 27, 2002 at 09:25:35PM +0100, Trond Myklebust wrote:
+> >>>>> " " == Stephen C Tweedie <sct@redhat.com> writes:
+>      > So I suspect that this is a root a client problem --- the
+>      > client has repeated a READDIR despite being told that the
+>      > previous reply was EOF
+ 
+> I disagree. As far as the client is concerned, it has just been asked
+> to read the entry that corresponds to that particular cookie.
 
-Ok, done. Any other crappyness at your sight ?
+No, it hasn't --- at least not unless there has been a seekdir in
+between.  If the client has already been told that we're at EOF, then
+it's wrong to go back to the server again for more data. 
 
+Having said that, the server is clearly in error in sending a
+duplicate cookie in the first place, and if it did so we'd never get
+into such a state.
 
+> If
+> glibc issued a new readdir request (which is what I suspect has
+> happened here), the NFS client has no idea what the previous reply
+> was
 
+Well, glibc will *always* issue another readdir, because the only way
+we can ever tell glibc that we're at EOF on the directory is when we
+eventually return 0 from getdents.  The question about client
+behaviour is, if we've already been told that the stream is at EOF,
+should the client simply discard that info and keep reading
+regardless, or should it cache the EOF status?
 
-- Davide
+> IOW: A cookie should *always* be unique. There are no exceptions to
+> this rule.
 
+Agreed.
+
+--Stephen

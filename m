@@ -1,35 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269100AbRHLLsv>; Sun, 12 Aug 2001 07:48:51 -0400
+	id <S269101AbRHLLul>; Sun, 12 Aug 2001 07:50:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269101AbRHLLsl>; Sun, 12 Aug 2001 07:48:41 -0400
-Received: from gannet.scg.man.ac.uk ([130.88.94.110]:58374 "EHLO
-	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
-	id <S269100AbRHLLsa>; Sun, 12 Aug 2001 07:48:30 -0400
-Date: Sun, 12 Aug 2001 12:48:40 +0100
-From: John Levon <moz@compsoc.man.ac.uk>
-To: linux-kernel@vger.kernel.org, sailer@ife.ee.ethz.ch
-Subject: Gameport & esssolo1 2.4.8
-Message-ID: <20010812124840.A26055@compsoc.man.ac.uk>
-Mime-Version: 1.0
+	id <S269104AbRHLLub>; Sun, 12 Aug 2001 07:50:31 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5133 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269101AbRHLLuS>; Sun, 12 Aug 2001 07:50:18 -0400
+Subject: Re: Performance 2.4.8 is worse than 2.4.x<8
+To: mikeg@wen-online.de (Mike Galbraith)
+Date: Sun, 12 Aug 2001 12:52:47 +0100 (BST)
+Cc: haiquy@yahoo.com (Steve Kieu), linux-kernel@vger.kernel.org (kernel)
+In-Reply-To: <Pine.LNX.4.33.0108120754020.593-100000@mikeg.weiden.de> from "Mike Galbraith" at Aug 12, 2001 09:00:54 AM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.19i
-X-Url: http://www.movement.uklinux.net/
-X-Record: 0898 Dave - Brack Dragon
-X-Toppers: N/A
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15VtnT-0005bM-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Here, disk write throughput seems to want some tweaking, and Bonnie
+> doing it's rewrite test triggers a very large and persistant inactive
+> shortage which shouldn't be there (imho).
 
-esssolo1 uses register_gameport_port() which requires support for it to
-be enabled. Shouldn't there be always-failing register/unregister so I don't have
-to compile in input support and joystick support ?
+This is one of the reasons I kept the 2.4.7 vm. The 2.4.8 vm is better
+than 2.4.8pre but not actually better than the older VM by feel or
+measurement on my test boxes
 
-thanks
-john
-
--- 
-"In the beginning the Universe was created. This has made a lot
-of people very angry and been widely regarded as a bad move."
-	- Douglas Adams
+Alan

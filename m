@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267005AbRGQULg>; Tue, 17 Jul 2001 16:11:36 -0400
+	id <S266999AbRGQUY7>; Tue, 17 Jul 2001 16:24:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267002AbRGQUL0>; Tue, 17 Jul 2001 16:11:26 -0400
-Received: from dragonfire3.delta.com ([205.174.22.22]:36707 "EHLO
-	satlmsghub03.delta-air.com") by vger.kernel.org with ESMTP
-	id <S267001AbRGQULO> convert rfc822-to-8bit; Tue, 17 Jul 2001 16:11:14 -0400
-Message-ID: <BDEE1F50C0C6D411BBB600204840D7B40124F17E@satlrccdmrus25.delta-air.com>
-From: "Dominick, David" <David.Dominick@delta.com>
-To: =?ISO-8859-1?Q?=27Christian_Borntr=E4ger=27?= 
-	<linux-kernel@borntraeger.net>,
-        linux-kernel@vger.kernel.org
-Subject: RE: sound?!?!!?
-Date: Tue, 17 Jul 2001 16:11:11 -0400
+	id <S267001AbRGQUYt>; Tue, 17 Jul 2001 16:24:49 -0400
+Received: from arleno1.dsl.sirius.com ([207.44.242.45]:37640 "EHLO
+	altair.dhs.org") by vger.kernel.org with ESMTP id <S266999AbRGQUYl>;
+	Tue, 17 Jul 2001 16:24:41 -0400
+Message-Id: <200107172024.NAA19545@altair.dhs.org>
+Content-Type: text/plain; charset=US-ASCII
+From: Charles Samuels <charles@kde.org>
+Organization: K Desktop Environment
+To: linux-kernel@vger.kernel.org
+Subject: Kernel Documentation
+Date: Tue, 17 Jul 2001 13:24:42 -0700
+X-Mailer: KMail [version 1.2.2]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-thanks, but yeah I tried both of those. I am trying to change the memory
-addresses for the card itself in the bios now.
 
------Original Message-----
-From: Christian Bornträger [mailto:linux-kernel@borntraeger.net]
-Sent: Tuesday, July 17, 2001 4:09 PM
-To: Dominick, David; linux-kernel@vger.kernel.org
-Subject: Re: sound?!?!!?
+I apologize for using the D-word, however, I've created some, so I think that 
+makes it acceptable.
 
+But first, I was having a little fun kernel-hacking the other day, and I had 
+noticed that every time I want information on function-X, I have to start 
+grepping like hell, and it's even worse when I don't know the name of the 
+function. What we needed was an API (KPI?) reference.
 
-> it is most likely a problem with me, but I have tried everything and I
-keep
-> getting the error that device not found or busy. I get this rather I use
+So I made one.  
 
-Possibly you already tried this, then ignore my ideas:
+<blink><marquee> http://derkarl.org/kerneldoc/ </marquee></blink>
+(It seems that 10% of europe can't get that domain: 207.44.242.45)
 
-First idea:
-It might be a stupid idea, as I don´t know your Toshiba but try to change
-the 
-PnP OS option in the BIOS. (from yes to no or from no to yes)
-If you don´t have success set it back, of course.
+Obviously, it's not complete, in fact, if it were any less complete, I could 
+call it the linux kernel :)
 
-Second idea:
-Have you activated ISA PnP in the Kernel?
-/proc/isapnp must exist and the sound module should be loaded after the 
-isaPnP support. 
-If /proc/isapnp exists, what is sndconfig doing?
+The _real_ reason I post this message is, of course, for help.  I'll be more 
+than happy to accept new xml documentation files (the bottom of each page 
+contains a link to the associated XML file, as an example).
 
-Good Luck.
+PS. I'm not on this mailing list (I'm on plenty, don't worry), so I'll be 
+following it on the archives.
+
+-Charles

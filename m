@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbUJYUKf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUJYUKf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261237AbUJYUKf (ORCPT <rfc822;willy@w.ods.org>);
+	id S261239AbUJYUKf (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 25 Oct 2004 16:10:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbUJYUJm
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbUJYUJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 16:09:42 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51936 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261308AbUJYUEX
+	Mon, 25 Oct 2004 16:09:54 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:48785 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261292AbUJYUEr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 16:04:23 -0400
-Message-ID: <417D5C31.8000806@pobox.com>
-Date: Mon, 25 Oct 2004 16:04:01 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+	Mon, 25 Oct 2004 16:04:47 -0400
+Message-ID: <417D5CEF.8080005@tmr.com>
+Date: Mon, 25 Oct 2004 16:07:11 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@novell.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Joe Perches <joe@perches.com>,
-       Larry McVoy <lm@work.bitmover.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
-Subject: Re: BK kernel workflow
-References: <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org> <20041023161253.GA17537@work.bitmover.com> <4d8e3fd304102403241e5a69a5@mail.gmail.com> <20041024144448.GA575@work.bitmover.com> <4d8e3fd304102409443c01c5da@mail.gmail.com> <20041024233214.GA9772@work.bitmover.com> <20041025114641.GU14325@dualathlon.random> <1098707342.7355.44.camel@localhost.localdomain> <20041025133951.GW14325@dualathlon.random> <Pine.LNX.4.58.0410250812300.3016@ppc970.osdl.org> <20041025154318.GA14325@dualathlon.random>
-In-Reply-To: <20041025154318.GA14325@dualathlon.random>
+To: Hans Reiser <reiser@namesys.com>
+CC: David Masover <ninja@slaphack.com>,
+       =?ISO-8859-1?Q?Markus_T=F6rnqvi?= =?ISO-8859-1?Q?st?= 
+	<mjt@nysv.org>,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: 2.6.9-mm1
+References: <417B1574.4090406@slaphack.com><417B1574.4090406@slaphack.com> <417B3A34.2060306@namesys.com>
+In-Reply-To: <417B3A34.2060306@namesys.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> On Mon, Oct 25, 2004 at 08:14:25AM -0700, Linus Torvalds wrote:
+Hans Reiser wrote:
+> David Masover wrote:
 > 
->>Your point is pointless. No such distributed revision control system 
->>exists. And without BK, the people who have worked on them wouldn't 
+>>
+>> Some people don't care about speed but need space.  I'd leave them in on
+>> general principle, even if no one wants them now.
 > 
 > 
-> arch exists and it's exactly as distributed as BK.
+> Software design is usually improved by identifying features that aren't 
+> worth much, and removing them from the interface and burying them where 
+> average users don't see them (or dumping them completely).  Interface 
+> clutter has a cost.
 
+We already have a section of odd things a user might want to do on a 
+small, embedded, or special use. That might be a good place to put it.
 
-It doesn't scale or merge as well as BK though.
-
-I've told Larry that, if both BK and <open source tool> were completely 
-equal in terms of function, I'd use the open source tool.  Neither arch 
-(scalability) nor subversion (scalability + stability) are there yet.
-
-	Jeff
-
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,41 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269150AbUINGSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269162AbUINGUI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269150AbUINGSM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 02:18:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269152AbUINGSM
+	id S269162AbUINGUI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 02:20:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269065AbUINGUI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 02:18:12 -0400
-Received: from holomorphy.com ([207.189.100.168]:22929 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269150AbUINGSK (ORCPT
+	Tue, 14 Sep 2004 02:20:08 -0400
+Received: from holomorphy.com ([207.189.100.168]:23697 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269063AbUINGSP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 02:18:10 -0400
-Date: Mon, 13 Sep 2004 23:18:07 -0700
+	Tue, 14 Sep 2004 02:18:15 -0400
+Date: Mon, 13 Sep 2004 23:18:00 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: akpm@osdl.org, raybry@sgi.com, jbarnes@engr.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [profile] amortize atomic hit count increments
-Message-ID: <20040914061807.GE9106@holomorphy.com>
-References: <20040913015003.5406abae.akpm@osdl.org> <20040914044748.GZ9106@holomorphy.com> <20040913220507.1a269816.davem@davemloft.net> <20040914053218.GB9106@holomorphy.com> <20040913224943.04761a15.davem@davemloft.net> <20040914061023.GC9106@holomorphy.com>
+To: Roger Luethi <rl@hellgate.ch>
+Cc: Albert Cahalan <albert@users.sf.net>, Andrew Morton OSDL <akpm@osdl.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Paul Jackson <pj@sgi.com>
+Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
+Message-ID: <20040914061800.GD9106@holomorphy.com>
+References: <20040908184028.GA10840@k3.hellgate.ch> <20040908184130.GA12691@k3.hellgate.ch> <20040909003529.GI3106@holomorphy.com> <20040909184300.GA28278@k3.hellgate.ch> <20040909184933.GG3106@holomorphy.com> <20040909191142.GA30151@k3.hellgate.ch> <1094941556.1173.12.camel@cube> <20040914055946.GA20929@k3.hellgate.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040914061023.GC9106@holomorphy.com>
+In-Reply-To: <20040914055946.GA20929@k3.hellgate.ch>
 Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 13, 2004 at 11:10:23PM -0700, William Lee Irwin III wrote:
-> Well, that would speed it up, but the catastrophe was avoided in the
-> older patches by just processing all the hits for one cpu at a time,
-> and the buffering methods above for your suggested accounting
-> structures likely work well enough the overhead of processing unused
-> portions of the bitmap can be ignored. I don't really want to go about
-> addressing performance issues besides effective or actual
-> nontermination for this code, and would rather leave highly efficient
-> methods to oprofile (in fact, some others believe that even bugfixes
-> for such issues should be ignored for kernel/profile.c, contrary to my
-> notion that it shouldn't crash systems regardless of their size).
+On Sat, 11 Sep 2004 18:25:56 -0400, Albert Cahalan wrote:
+>> No. First of all, I think they can be offered. Until proven
+>> otherwise, I'll assume that the !CONFIG_MMU case is buggy.
 
-s/portions of the bitmap/portions of the profile buffer/
+On Tue, Sep 14, 2004 at 07:59:46AM +0200, Roger Luethi wrote:
+> I agree with you that those specific fields should be offered for
+> !CONFIG_MMU. However, if for some reason they cannot carry a value
+> that fits the field description, they should not be offered at all. The
+> ambiguity of having 0 mean either "0" or "this field is not available"
+> is bad. Trying to read a specific field _can_ fail, and applications
+> had better handle that case (it's still trivial compared to having to
+> parse different /proc file layouts depending on the configuration).
+
+Apart from doing something it's supposed to for !CONFIG_MMU and using
+the internal kernel accounting I set up for the CONFIG_MMU=y case I'm
+not very concerned about this. I have a vague notion there should
+probably be some consistency with the /proc/ precedent but am not
+particularly tied to it. We should probably ask Greg Ungerer (the
+maintainer of the external MMU-less patches) about what he prefers
+since it's likely we can't anticipate all of the !CONFIG_MMU concerns.
+
+
+On Sat, 11 Sep 2004 18:25:56 -0400, Albert Cahalan wrote:
+>> mean that fewer apps can run on !CONFIG_MMU boxes. It's
+>> same problem as "All the world's a VAX". It's better that
+>> the apps work; an author working on a Pentium 4 Xeon is
+>> likely to write code that relies on the fields and might
+>> not really understand what "no MMU" is all about.
+
+On Tue, Sep 14, 2004 at 07:59:46AM +0200, Roger Luethi wrote:
+> The presumed wrong assumptions underlying broken tools of the future
+> are not a good base for designing a new interface. My interest is in
+> making it easy to write correct applications (or in fixing broken apps
+> that won't work, say, on !CONFIG_MMU systems).
+
+I don't really know what the approach to app compatibility used by
+userspace for !CONFIG_MMU is; I'll refer you to Greg Ungerer as my
+knowledge of the CONFIG_MMU usage models and/or whatever userspace
+is used in tandem with it outside the VM's internals is rather scant.
+
+
+-- wli

@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262227AbUCLPsp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 10:48:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbUCLPsp
+	id S262310AbUCLPwC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 10:52:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262302AbUCLPwB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 10:48:45 -0500
-Received: from ns.suse.de ([195.135.220.2]:8161 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262220AbUCLPsf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 10:48:35 -0500
+	Fri, 12 Mar 2004 10:52:01 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:55570 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262328AbUCLPvs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 10:51:48 -0500
+Date: Fri, 12 Mar 2004 15:51:45 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Chris Mason <mason@suse.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] lockfs patch for 2.6
-From: Chris Mason <mason@suse.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040312093146.A13678@infradead.org>
-References: <1078867885.25075.1458.camel@watt.suse.com>
-	 <20040312093146.A13678@infradead.org>
-Content-Type: text/plain
-Message-Id: <1079106653.4185.171.camel@watt.suse.com>
+Message-ID: <20040312155145.A16751@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
+References: <1078867885.25075.1458.camel@watt.suse.com> <20040312093146.A13678@infradead.org> <1079106653.4185.171.camel@watt.suse.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 12 Mar 2004 10:50:53 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1079106653.4185.171.camel@watt.suse.com>; from mason@suse.com on Fri, Mar 12, 2004 at 10:50:53AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-03-12 at 04:31, Christoph Hellwig wrote:
-
-> Can we please rename write_super_lockfs to a sane name?
+On Fri, Mar 12, 2004 at 10:50:53AM -0500, Chris Mason wrote:
+> Would you like this better:
 > 
-> freeze_fs/thaw_fs sounds like a good name.
-> 
-Sure.
+> device mapper code:
+> 	fsync_bdev(bdev);
+> 	s = freeze_fs(bdev);
+> 	< create snap shot >
+> 	thaw_fs(bdev, s);
 
-> This looks ugly.  What about returning the superblock from the freeze
-> routine so you can simply pass it into the thaw routine?
-> 
-I like it, will do.
+Hmm, I actually thought about moving the fsync_bdev into
+freeze_fs, but having it separate might more sense indeed.
 
-> 
-> This looks grossly misnamed again.  And why do you need to have
-> sync_super_locks splitted out?  Calling it on it's own doesn't make much
-> sense.
-> 
+> thaw_fs needs the bdev so it can up the bdev mount semaphore.
 
-Would you like this better:
-
-device mapper code:
-	fsync_bdev(bdev);
-	s = freeze_fs(bdev);
-	< create snap shot >
-	thaw_fs(bdev, s);
-
-thaw_fs needs the bdev so it can up the bdev mount semaphore.
-
--chris
-
+sb->s_bdev should do it aswell
 

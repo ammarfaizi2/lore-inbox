@@ -1,51 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVCaKQX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVCaKT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbVCaKQX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 05:16:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVCaKQX
+	id S261258AbVCaKT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 05:19:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVCaKT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 05:16:23 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:27297 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261254AbVCaKQF (ORCPT
+	Thu, 31 Mar 2005 05:19:56 -0500
+Received: from colin2.muc.de ([193.149.48.15]:29445 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261258AbVCaKTx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 05:16:05 -0500
-Date: Thu, 31 Mar 2005 02:15:12 -0800
-From: Paul Jackson <pj@engr.sgi.com>
-To: Philip Lawatsch <philip@lawatsch.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: AMD64 Machine hardlocks when using memset
-Message-Id: <20050331021512.3b6e85b1.pj@engr.sgi.com>
-In-Reply-To: <424BC4D5.90204@lawatsch.at>
-References: <3NTHD-8ih-1@gated-at.bofh.it>
-	<424B7ECD.6040905@shaw.ca>
-	<200503311025.56871.vda@ilport.com.ua>
-	<20050331001513.3c4321a7.pj@engr.sgi.com>
-	<424BC4D5.90204@lawatsch.at>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 31 Mar 2005 05:19:53 -0500
+Date: 31 Mar 2005 12:19:52 +0200
+Date: Thu, 31 Mar 2005 12:19:52 +0200
+From: Andi Kleen <ak@muc.de>
+To: Pau Aliagas <linuxnow@newtral.org>
+Cc: linux kernel <linux-kernel@vger.kernel.org>, binutils@sources.redhat.com
+Subject: Re: i386/x86_64 segment register issuses (Re: PATCH: Fix x86 segment register access)
+Message-ID: <20050331101952.GF24804@muc.de>
+References: <20050326020506.GA8068@lucon.org> <20050327222406.GA6435@lucon.org> <m14qev3h8l.fsf@muc.de> <Pine.LNX.4.58.0503291618520.6036@ppc970.osdl.org> <20050330015312.GA27309@lucon.org> <Pine.LNX.4.58.0503291815570.6036@ppc970.osdl.org> <20050330040017.GA29523@lucon.org> <Pine.LNX.4.58.0503300738430.6036@ppc970.osdl.org> <20050330210801.GA15384@lucon.org> <Pine.LNX.4.62.0503310015490.7060@pau.intranet.ct>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0503310015490.7060@pau.intranet.ct>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Your problem is almost certainly in the hardware area (cpu, bios,
-memory, power, northbridge, motherboard, cooling or thereabouts).
+> >That is what the assembler generates, and should have generated, for
+> >"movw %ds,(%eax)" since Nov. 4, 2004.
+> 
+> Could this be the reason for the reported slowdown in the last six months?
 
-> Imo memtest86 should not hang onless something screws up [its] memory area
+No.
 
-There is nothing else running when memtest runs.  You cannot assume
-that your hardware is operating like a sane digital computer when
-memtest hangs - the magic of zero's, one's and instruction set
-architectures is coming unglued and you are getting a glimpse of the
-ugliness that is usually hidden behind the curtain.
-
-Good luck fixing it.
-
-LKML is probably not the place to continue to analyze this, now that
-you've recreated it with memtest as well.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+-Andi

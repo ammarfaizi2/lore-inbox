@@ -1,69 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262540AbTKVRuk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Nov 2003 12:50:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbTKVRuk
+	id S262581AbTKVRzb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Nov 2003 12:55:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbTKVRzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Nov 2003 12:50:40 -0500
-Received: from thumbler.kulnet.kuleuven.ac.be ([134.58.240.45]:57250 "EHLO
-	thumbler.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id S262540AbTKVRui (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Nov 2003 12:50:38 -0500
-From: Frank Dekervel <kervel@drie.kotnet.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.0-test9-mm4 (does not boot)
-Date: Sat, 22 Nov 2003 18:50:36 +0100
-User-Agent: KMail/1.5.93
-Cc: linux-kernel@vger.kernel.org, Adam Belay <ambx1@neo.rr.com>
-References: <200311191749.28327.kervel@drie.kotnet.org> <200311201137.55553.kervel@drie.kotnet.org> <20031120072236.68327dca.akpm@osdl.org>
-In-Reply-To: <20031120072236.68327dca.akpm@osdl.org>
+	Sat, 22 Nov 2003 12:55:31 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:53203 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S262581AbTKVRz3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Nov 2003 12:55:29 -0500
+Date: Sat, 22 Nov 2003 15:31:49 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
+Subject: Re: modular IDE in 2.4.23
+In-Reply-To: <200311221746.03690.arekm@pld-linux.org>
+Message-ID: <Pine.LNX.4.44.0311221530480.1290-100000@logos.cnet>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Message-Id: <200311221850.36503.kervel@drie.kotnet.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello
-
-something similar:
-
-catting /proc/bus/pnp/devices makes my system oops, doing it twice makes my 
-system crash :p
-
-the oops looks very much like the oops (also bad EIP value, also no stack 
-trace) i get on boot with the first patch (below) applied. As i already 
-mailed, i need to revert that patch to make my system boot.
-
-this oops happens with all 3 patches below reverted, so i guess it'll happen 
-too with stock test9.
-
-would the -mm5 pnp-fix-4.patch be worth a try ? it seems related
-
-thanks,
-greetings,
-frank
 
 
-Op Thursday 20 November 2003 16:22, schreef Andrew Morton:
-> There are three pnpbios patches in -mm:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2
->.6.0-test9-mm4/broken-out/pnp-fix-1.patch
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2
->.6.0-test9-mm4/broken-out/pnp-fix-2.patch
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2
->.6.0-test9-mm4/broken-out/pnp-fix-3.patch
->
-> It would help if you could determine which (if any) of these are causing
-> the problem.  You can remove the patches with
->
->         cd /usr/src/linux
->         patch -p1 -R < ~/pnp-fix-3.patch
+On Sat, 22 Nov 2003, Arkadiusz Miskiewicz wrote:
 
--- 
-Frank Dekervel - frank.dekervel@student.kuleuven.ac.be
-Mechelsestraat 88
-3000 Leuven (Belgium)
+> Hi,
+> 
+> Modular IDE no longer works in 2.4.23 (I'm testing rc3). I'm getting
+> 
+> depmod: *** Unresolved symbols 
+> in /lib/modules/2.4.23-0.1/kernel/drivers/ide/ide-core.o
+> depmod:         init_cmd640_vlb
+> depmod:         ide_wait_hwif_ready
+> depmod:         ide_probe_for_drive
+> depmod:         ide_probe_reset
+> depmod:         ide_tune_drives
+> 
+> This is regression since in 2.4.21 and 2.4.22 modular IDE was working fine on 
+> my x86.
+> 
+> Is anyone working on fixing that regression?
+
+>From what I remember its not simple to fix.
+
+Alan?
+
+

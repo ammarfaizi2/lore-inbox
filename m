@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263557AbUEKTzV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263563AbUEKT5F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263557AbUEKTzV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 15:55:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbUEKTzV
+	id S263563AbUEKT5F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 15:57:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbUEKT5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 15:55:21 -0400
-Received: from mailgate1b.savvis.net ([216.91.182.6]:39329 "EHLO
-	mailgate1b.savvis.net") by vger.kernel.org with ESMTP
-	id S263557AbUEKTzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 15:55:17 -0400
-From: "Dan A. Dickey" <dan.dickey@savvis.net>
-Reply-To: dan.dickey@savvis.net
-Organization: WAM!NET a Division of SAVVIS, Inc.
-To: "David S. Miller" <davem@redhat.com>
-Subject: Re: Sock leak in net/ipv4/af_inet.c - 2.4.26
-Date: Tue, 11 May 2004 14:55:11 -0500
-User-Agent: KMail/1.6.2
-Cc: <m.c.p@kernel.linux-systeme.com>, <linux-kernel@vger.kernel.org>,
-       <kuznet@ms2.inr.ac.ru>
-References: <20040511115934.0c591667.davem@redhat.com>
-In-Reply-To: <20040511115934.0c591667.davem@redhat.com>
-MIME-Version: 1.0
+	Tue, 11 May 2004 15:57:04 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:47827 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S263563AbUEKT44 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 15:56:56 -0400
+Date: Tue, 11 May 2004 21:58:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Geoff Gustafson <geoff@linux.jf.intel.com>, linux-kernel@vger.kernel.org,
+       kenneth.w.chen@intel.com
+Subject: Re: [RFC] [PATCH] Performance of del_timer_sync
+Message-ID: <20040511195856.GA4958@elte.hu>
+References: <409FFF3B.3090506@linux.intel.com> <20040511004551.7c7af44d.akpm@osdl.org> <00c001c43786$f1805000$ff0da8c0@amr.corp.intel.com> <20040511121126.73f5fdeb.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405111455.11935.dan.dickey@savvis.net>
-X-ECS-MailScanner: No virus is found
+In-Reply-To: <20040511121126.73f5fdeb.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 May 2004 13:59, David S. Miller wrote:
-> The sk_free() should occur when the final sock_put() call brings the count
-> down to zero, then the socket destroy function is called and the eventual
-> sk_free() occurs there.
 
-Yes, I'm figuring this out.
-I think my earlier report of this problem was a bit premature.
-I'm refining my debug code and will let you know what I find.
-	-Dan
+* Andrew Morton <akpm@osdl.org> wrote:
 
--- 
-Dan A. Dickey
-dan.dickey@savvis.net
+> Ingo, why is this not sufficient?
+> 
+> @@ -331,6 +331,8 @@ int del_timer_sync(struct timer_list *ti
+>  
+>  del_again:
+>  	ret += del_timer(timer);
+> +	if (!ret)
+> +		return 0;
+>  
+>  	for_each_cpu(i) {
+>  		base = &per_cpu(tvec_bases, i);
+
+it's not sufficient because a timer might be running on another CPU even
+if it has not been deleted. We delete a timer prior running it (so that
+the timer fn can re-activate the timer). So del_timer_sync() has to
+synchronize independently of whether the timer was removed or not.
+
+	Ingo

@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262169AbSIZEWG>; Thu, 26 Sep 2002 00:22:06 -0400
+	id <S262178AbSIZE3O>; Thu, 26 Sep 2002 00:29:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262170AbSIZEWG>; Thu, 26 Sep 2002 00:22:06 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42000 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262169AbSIZEWG>;
-	Thu, 26 Sep 2002 00:22:06 -0400
-Message-ID: <3D928C8B.5020609@pobox.com>
-Date: Thu, 26 Sep 2002 00:26:51 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S262177AbSIZE3O>; Thu, 26 Sep 2002 00:29:14 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:54793 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262180AbSIZE2R>;
+	Thu, 26 Sep 2002 00:28:17 -0400
+Date: Wed, 25 Sep 2002 21:32:09 -0700
+From: Greg KH <greg@kroah.com>
 To: Andrew Morton <akpm@digeo.com>
-CC: Linus Torvalds <torvalds@transmeta.com>,
+Cc: Linus Torvalds <torvalds@transmeta.com>,
        lkml <linux-kernel@vger.kernel.org>
 Subject: Re: [patch 4/4] increase traffic on linux-kernel
+Message-ID: <20020926043208.GD1790@kroah.com>
 References: <3D928864.23666D93@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D928864.23666D93@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> --- 2.5.38/include/linux/kernel.h~might_sleep	Wed Sep 25 20:15:27 2002
-> +++ 2.5.38-akpm/include/linux/kernel.h	Wed Sep 25 20:15:27 2002
-> @@ -40,6 +40,13 @@
->  
->  struct completion;
->  
-> +#ifdef CONFIG_DEBUG_KERNEL
-> +void __might_sleep(char *file, int line);
-> +#define might_sleep() __might_sleep(__FILE__, __LINE__)
-> +#else
-> +#define might_sleep() do {} while(0)
-> +#endif
+On Wed, Sep 25, 2002 at 09:09:08PM -0700, Andrew Morton wrote:
+> 
+> Infrastructure to detect sleep-inside-spinlock bugs.  Really only
+> useful if compiled with CONFIG_PREEMPT=y.  It prints out a whiny
+> message and a stack backtrace if someone calls a function which might
+> sleep from within an atomic region.
 
+Why not make this it's own config option, dependent on CONFIG_PREEMPT?
 
-I disagree with this -- CONFIG_DEBUG_KERNEL should not enable any machinery.
+thanks,
 
-Magic Sysrq should be enable-able without affecting any other parts of 
-the kernel.
-
+greg k-h

@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263286AbTDNNgG (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 09:36:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263261AbTDNNej (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 09:34:39 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:46009
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263241AbTDNNed (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 09:34:33 -0400
-Subject: Re: [PATCH] M68k IDE updates
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: paulus@samba.org
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
+	id S263016AbTDNNc4 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 09:32:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263017AbTDNNc4 (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 09:32:56 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:46298 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id S263016AbTDNNcz (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 09:32:55 -0400
+Date: Mon, 14 Apr 2003 15:44:48 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@transmeta.com>,
        Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <16025.63003.968553.194791@nanango.paulus.ozlabs.org>
-References: <200304131306.h3DD6XQ3001331@callisto.of.borg>
-	 <1050243002.24186.7.camel@dhcp22.swansea.linux.org.uk>
-	 <16025.63003.968553.194791@nanango.paulus.ozlabs.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050324481.25351.63.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 Apr 2003 13:48:09 +0100
+Subject: Re: [PATCH] M68k IDE updates
+In-Reply-To: <1050322915.25353.38.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.GSO.4.21.0304141544130.28305-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-04-14 at 00:43, Paul Mackerras wrote:
-> Since __ide_mm_insw doesn't get told whether it is transferring normal
-> sector data or drive ID data, it can't necessarily do the right thing
-> in both situations.
+On 14 Apr 2003, Alan Cox wrote:
+> On Llu, 2003-04-14 at 09:39, Geert Uytterhoeven wrote:
+> > Indeed. Ataris and Q40/Q60s have byteswapped IDE busses, but they expect
+> > on-disk data to be that way, for compatibility with e.g. TOS.
+> 
+> That is a higher level problem. You need a byteswap mode for the loop device
+> it seems. Then you can read atari disks on any box..
 
-That may be the right change to make.
+You're talking about a different problem.
 
-> It's very possible that there are some PPC platforms for which IDE is
-> borken right now - I strongly suspect this would be the case for the
-> Tivo at least, and probably several other embedded PPC platforms.
+We want to read Atari disks on Ataris, too.
 
-For the older tivo that would be sad, for the newer tivo where they
-digitally sign the binary and don't provide the signatures -- too bad
-they are violating the license clarifications on the IDE code if they
-use it.
+Gr{oetje,eeting}s,
 
-Alan
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

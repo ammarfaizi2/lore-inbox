@@ -1,32 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135743AbRDXXH4>; Tue, 24 Apr 2001 19:07:56 -0400
+	id <S135621AbRDXXIG>; Tue, 24 Apr 2001 19:08:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135634AbRDXXHq>; Tue, 24 Apr 2001 19:07:46 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:33039 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135621AbRDXXHd>; Tue, 24 Apr 2001 19:07:33 -0400
-Subject: Re: Linux 2.4.3ac13
-To: ksi@cyberbills.com (Sergey Kubushin)
-Date: Wed, 25 Apr 2001 00:09:03 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.31ksi3.0104241559530.1039-100000@nomad.cyberbills.com> from "Sergey Kubushin" at Apr 24, 2001 04:00:23 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14sBvd-0003Au-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S135634AbRDXXH5>; Tue, 24 Apr 2001 19:07:57 -0400
+Received: from 64-42-29-14.atgi.net ([64.42.29.14]:11783 "HELO
+	mail.clouddancer.com") by vger.kernel.org with SMTP
+	id <S135621AbRDXXHs>; Tue, 24 Apr 2001 19:07:48 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: compile error 2.4.4pre6: inconsistent operand constraints in an
+In-Reply-To: <9c3pgm$u0$1@ns1.clouddancer.com>
+In-Reply-To: <Pine.LNX.4.21.0104241350230.8659-100000@neon.rayfun.org> <E14rpIA-0000iK-00@the-village.bc.nu> <9c3pgm$u0$1@ns1.clouddancer.com>
+Reply-To: klink@clouddancer.com
+Message-Id: <20010424230742.0C1906808@mail.clouddancer.com>
+Date: Tue, 24 Apr 2001 16:07:42 -0700 (PDT)
+From: klink@clouddancer.com (Colonel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> === Cut ===
-> [root@nomad /root]# depmod -ae
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.3ac13/kernel/drivers/net/aironet4500_card.o
-> depmod:         __bad_udelay
-> === Cut ===
 
-Yeah I need to change the __bad_udelay trick. The inline in inline case that
-triggers a bad_udelay link wrongly is annoying but apparently not something
-the gcc folks guarantee wont happen.
+In list.kernel, axel <axel@rayfun.org> wrote:
+>
+>How about correcting the needed gcc version in Documentation/Changes?
+
+
+Linux, with up to date documention??  In your dreams perhaps.
+
+
+>On Mon, 23 Apr 2001, Alan Cox wrote:
+>
+>> > after having had trouble with compilation due to old gcc version, i have
+>> > updated to gcc 3.0 and received the following error:
+>> 
+>> 2.4.4pre6 only builds with gcc 2.96. If you apply the __builtin_expect fixes
+>> it builds and runs fine with 2.95. Not tried egcs. The gcc 3.0 asm constraints
+>> one I've yet to see a fix for.
+
+
+BTW.  The above attitude was fostered by informing the Changes
+maintainer that the recommended NFS userspace server was on the
+exploits list (back in the 2.0 kernel days when knfs was new) and
+getting a "I don't use that, so what" response.
+
+...and the documentation continued to recommend an exploitable NFS
+server... in short: you must cross-check to be sure, at least in linux
+you have a few more options.
+
+

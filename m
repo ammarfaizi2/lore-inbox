@@ -1,46 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267154AbTAKIGP>; Sat, 11 Jan 2003 03:06:15 -0500
+	id <S267157AbTAKIMk>; Sat, 11 Jan 2003 03:12:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267157AbTAKIGP>; Sat, 11 Jan 2003 03:06:15 -0500
-Received: from waste.org ([209.173.204.2]:4770 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S267154AbTAKIGO>;
-	Sat, 11 Jan 2003 03:06:14 -0500
-Date: Sat, 11 Jan 2003 02:14:40 -0600
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Andre Hedrick <andre@pyxtechnologies.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+	id <S267160AbTAKIMk>; Sat, 11 Jan 2003 03:12:40 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:33810
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S267157AbTAKIMj>; Sat, 11 Jan 2003 03:12:39 -0500
+Date: Sat, 11 Jan 2003 00:19:16 -0800 (PST)
+From: Andre Hedrick <andre@pyxtechnologies.com>
+To: Oliver Xymoron <oxymoron@waste.org>
+cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
 Subject: Re: More on Linux and iSCSI [info, not flame :)]
-Message-ID: <20030111081440.GU14778@waste.org>
-References: <Pine.LNX.4.10.10301102139200.31168-100000@master.linux-ide.org> <Pine.LNX.4.10.10301102353000.31168-100000@master.linux-ide.org>
-Mime-Version: 1.0
+In-Reply-To: <20030111080448.GT14778@waste.org>
+Message-ID: <Pine.LNX.4.10.10301110015060.31168-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10301102353000.31168-100000@master.linux-ide.org>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 11, 2003 at 12:01:05AM -0800, Andre Hedrick wrote:
-> 
-> Oliver et al.
-> 
-> http://downloadfinder.intel.com/scripts-df/filter_results.asp?strOSs=19%2C24%2C39&strTypes=DRV%2CFRM%2CUTL&ProductID=844&OSFullName=&submit=Go%21
-> http://downloadfinder.intel.com/scripts-df/proc/T8Clearance.asp?url=/4461/eng/Zama2_1.0.8_Linux_42715.tgz&agr=N
-> 
-> This self extracting file contains the firmware and software for the 
-> upgrading to 0.8 iSCSI specification.
-> 
-> I own this product, and have to install RH 7.1 w/ 2.4.2 kernels to use and
-> test with it.
+On Sat, 11 Jan 2003, Oliver Xymoron wrote:
 
-Which means, like every other binary module, it's pretty much
-worthless. Though I'm guessing that's not the point you're trying to
-make.
+> On Fri, Jan 10, 2003 at 11:10:24PM -0800, Andre Hedrick wrote:
+> > On Fri, 10 Jan 2003, Oliver Xymoron wrote:
+> > 
+> > > On Fri, Jan 10, 2003 at 10:36:50PM -0500, Jeff Garzik wrote:
+> > > > 	http://sourceforge.net/projects/intel-iscsi
+> [..]
+> > > Don't know what the state of interop with other initiators is though.
+> > > 
+> > > I'll also point out that for many Linux<->Linux purposes, nbd is a workable
+> > > substitute. 
+> > 
+> > You are so correct in the Linux<->Linux model, but remember the other OS
+> > has the dominate market space. 
+> 
+> Really? Must admit I haven't been paying attention to FreeBSD lately.. ;)
 
-(For the record, there's not much value in iSCSI NICs, or TCP offload
-in general at the moment, except to avoid potential deadlock issues
-with trying to do network buffer allocation down in the block layer)
+Nah, it is Bill's and Scott's world.
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
+See Enterprise storage is the name of the game.
+Ripping the heart out of the Fibre Channel Market is the goal.
+The Democratization of Storage is my goal.
+
+Recall the humor of Penguin World Domination ?
+Well I am just paving the road for a place to Store it all !
+
+> > I have proof of interoperability. Better yet I have performance
+> > proof without the ability to control the benchmark environment.
+> 
+> I'm sure that's great, but until it's also DFSG compliant, it's
+> effectively vaporware in my book.
+
+Oh that is as good as the uptime envy!
+
+Thanks Google for the Cache and easy search!
+
+   Debian Social Contract
+... lists) for non-free software packages. The Debian Free Software Guidelines
+(DFSG). Free Redistribution. The license of a Debian component ...
+Description: License for Debian GNU/Linux.
+Category: Computers > Open Source > Licenses
+www.debian.org/social_contract.html - 16k - Jan. 9, 2003 - Cached - Similar pages
+
+> > IIRC that reference is set at version 6.
+> 
+> They're actually up to 18.
+
+That is nice to hear.
+
+   This project is Intel Lab's software reference implementation of
+   iSCSI. *SEE README FOR COMPATIBLE VERSIONING IN EACH RELEASE*
+     * Development Status: 3 - Alpha
+     * Intended Audience: Developers
+     * License: BSD License
+     * Natural Language: English
+     * Operating System: Linux
+     * Programming Language: C
+     * Topic: System
+
+That BSD only nicely keeps it out of Linux!
+
+Regards,
+
+Andre Hedrick, CTO & Founder 
+iSCSI Software Solutions Provider
+http://www.PyXTechnologies.com/
+
+
+

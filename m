@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265944AbUBPXtq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 18:49:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265955AbUBPXtp
+	id S265993AbUBPXpO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 18:45:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265999AbUBPXpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 18:49:45 -0500
-Received: from fw.osdl.org ([65.172.181.6]:63397 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265944AbUBPXtn (ORCPT
+	Mon, 16 Feb 2004 18:45:14 -0500
+Received: from mail.kroah.org ([65.200.24.183]:5080 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265993AbUBPXpK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 18:49:43 -0500
-Date: Mon, 16 Feb 2004 15:49:39 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: David Eger <eger@theboonies.us>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.3-rc3 radeonfb: Problems with new (and old) driver
-In-Reply-To: <1076974304.1046.102.camel@gaston>
-Message-ID: <Pine.LNX.4.58.0402161546460.30742@home.osdl.org>
-References: <Pine.LNX.4.50L0.0402160411260.2959-100000@rosencrantz.theboonies.us>
-  <1076904084.12300.189.camel@gaston>  <Pine.LNX.4.58.0402160947080.30742@home.osdl.org>
-  <1076968236.3648.42.camel@gaston>  <Pine.LNX.4.58.0402161410430.30742@home.osdl.org>
-  <1076969892.3649.66.camel@gaston>  <Pine.LNX.4.58.0402161420390.30742@home.osdl.org>
-  <1076972267.3649.81.camel@gaston>  <Pine.LNX.4.58.0402161503490.30742@home.osdl.org>
- <1076974304.1046.102.camel@gaston>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Feb 2004 18:45:10 -0500
+Date: Mon, 16 Feb 2004 15:36:56 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrei Mikhailovsky <andrei@arhont.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.2 khubd oops
+Message-ID: <20040216233656.GA23911@kroah.com>
+References: <4030CA24.1090106@arhont.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4030CA24.1090106@arhont.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Feb 16, 2004 at 01:48:20PM +0000, Andrei Mikhailovsky wrote:
+> If anyone interested, I have an oops everytime i use and disconnect a
+> scanner device
 
+That's one reason why this driver is now gone from the kernel tree.
+Please do not use it anymore, it is not needed.
 
-On Tue, 17 Feb 2004, Benjamin Herrenschmidt wrote:
-> > 
-> > So _logically_ the interface should be more of a "con_notify_change()"  
-> > one, with a bitmap of which states have changed (where "graphics vs text"
-> > is just one set of states - resultion is another, VC backing store is one,
-> > etc etc).
->
-> Ok, if it's ok to delay it to 2.6.4, i'd prefer going all the way trough
-> calling it properly and passing the proper "state" flags instead of
-> hacking more on broken blank/unblank semantics. It can stay in -mm for
-> a while if we want enough testing.
+thanks,
 
-Oh, there is no hurry with this. In fact, I'd rather take it slow than try 
-to make any big changes to something that _largely_ works but has problems 
-in some special cases.
-
-In fact, I'd be happiest if the first step would be to just rename the
-interface and change the argument infrastructure, but actually keep all
-the behaviour "obviously the same". Bugs and all, if it comes to that. So
-I'd rather take several small steps (and let people use it for a while in
-between) than try to do everything. And yes, 2.6.3 is not even a target.
-
-			Linus
+greg k-h

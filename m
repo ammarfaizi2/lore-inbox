@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVC2WfF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbVC2WkC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbVC2WfF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 17:35:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVC2Wdl
+	id S261624AbVC2WkC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 17:40:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbVC2Who
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 17:33:41 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:1774 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261588AbVC2Wb5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 17:31:57 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-10
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>
-In-Reply-To: <20050325145908.GA7146@elte.hu>
-References: <20050325145908.GA7146@elte.hu>
-Content-Type: text/plain
-Date: Tue, 29 Mar 2005 17:31:56 -0500
-Message-Id: <1112135516.5386.27.camel@mindpipe>
+	Tue, 29 Mar 2005 17:37:44 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11199 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261604AbVC2Wfi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 17:35:38 -0500
+Date: Wed, 30 Mar 2005 00:35:19 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: dtor_core@ameritech.net, Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Vojtech Pavlik <vojtech@suse.cz>, Stefan Seyfried <seife@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andy Isaacson <adi@hexapodia.org>
+Subject: Re: [linux-pm] Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
+Message-ID: <20050329223519.GI8125@elf.ucw.cz>
+References: <20050329181831.GB8125@elf.ucw.cz> <d120d50005032911114fd2ea32@mail.gmail.com> <20050329192339.GE8125@elf.ucw.cz> <d120d50005032912051fee6e91@mail.gmail.com> <20050329205225.GF8125@elf.ucw.cz> <d120d500050329130714e1daaf@mail.gmail.com> <20050329211239.GG8125@elf.ucw.cz> <d120d50005032913331be39802@mail.gmail.com> <20050329214408.GH8125@elf.ucw.cz> <1112135477.29392.16.camel@desktop.cunningham.myip.net.au>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1112135477.29392.16.camel@desktop.cunningham.myip.net.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-25 at 15:59 +0100, Ingo Molnar wrote:
-> i have released the -V0.7.41-10 Real-Time Preemption patch, which can be 
-> downloaded from the usual place:
+Hi!
+
+> > We currently freeze processes for suspend-to-ram, too. I guess that
+> > disable_usermodehelper is probably better and that in_suspend() should
+> > only be used for sanity checks... go with disable_usermodehelper and
+> > sorry for the noise.
 > 
->    http://redhat.com/~mingo/realtime-preempt/
-> 
+> Here's another possibility: Freeze the workqueue that
+> call_usermodehelper uses (remember that code I didn't push hard enough
+> to Andrew?), and let invocations of call_usermodehelper block in
+> TASK_UNINTERRUPTIBLE. In refrigerating processes, don't choke on
 
-Ingo,
-
--15 has a typo that prevents building with my config.
-
-Lee
-
---- include/linux/mm.h~	2005-03-29 17:28:57.000000000 -0500
-+++ include/linux/mm.h	2005-03-29 17:30:05.000000000 -0500
-@@ -845,7 +845,7 @@
- #else
-  static inline int check_no_locks_freed(const void *from, const void *to)
-  {
--	return 0
-+	return 0;
-  }
- #endif
- 
-
-
+There may be many devices in the system, and you are going to need
+quite a lot of RAM for all that... That's why they do not queue it
+during boot, IIRC. Disabling usermode helper seems right.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

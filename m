@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280190AbRKVRn5>; Thu, 22 Nov 2001 12:43:57 -0500
+	id <S280201AbRKVR63>; Thu, 22 Nov 2001 12:58:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280132AbRKVRns>; Thu, 22 Nov 2001 12:43:48 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:20496 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S280190AbRKVRng>; Thu, 22 Nov 2001 12:43:36 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Ryan Cumming <bodnar42@phalynx.dhs.org>
-Subject: Re: OOM killer in 2.4.15pre1 still not 100% ok
-Date: Thu, 22 Nov 2001 19:42:40 -0200
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01112217224700.01298@manta> <E166wVS-0004Vk-00@localhost>
-In-Reply-To: <E166wVS-0004Vk-00@localhost>
+	id <S280948AbRKVR6J>; Thu, 22 Nov 2001 12:58:09 -0500
+Received: from c0mailgw.prontomail.com ([216.163.180.10]:11482 "EHLO
+	c0mailgw09.prontomail.com") by vger.kernel.org with ESMTP
+	id <S280201AbRKVR6C>; Thu, 22 Nov 2001 12:58:02 -0500
+Message-ID: <3BFD3C6B.B23D0A97@starband.net>
+Date: Thu, 22 Nov 2001 12:56:59 -0500
+From: war <war@starband.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01112219424001.01298@manta>
-Content-Transfer-Encoding: 7BIT
+To: James A Sutherland <jas88@cam.ac.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Swap vs No Swap.
+In-Reply-To: <3BFC5A9B.915B77DF@starband.net> <E166rbB-0005LC-00@mauve.csi.cam.ac.uk> <3BFD2709.31A1A85E@starband.net> <E166xok-0000Nm-00@mauve.csi.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 November 2001 14:15, Ryan Cumming wrote:
-> On November 22, 2001 11:22, vda wrote:
-> > Today I saw OOM killer in action for the very fist time.
-> > Just want to inform that it still not 100% ok (IMHO):
-> >
-> > I reconfigured my text box for NFS root fs operation
-> > and turned off swap. The box has 128M RAM.
->
-> ...
->
-> > 5:01pm  up  1:08,  3 users,  load average: 0.18, 0.10, 0.06
-> > 61 processes: 58 sleeping, 2 running, 1 zombie, 0 stopped
-> > CPU states:  1.9% user, 15.6% system,  0.0% nice, 82.3% idle
-> > Mem:  126272K av, 123428K used,   2844K free,      0K shrd,     16K buff
-> >Swap:      0K av,      0K used,      0K free                 47748K cached
->
-> Er, with almost 3megs of free memory and -47megs- of cache, the problem
-> isn't with the OOM killer's selection, but the fact it was triggered with
-> nearly half the RAM still usable. Do you actually know the OOM killer was
-> triggered? Or did top just mysteriously exit?
+Thank you for understanding!
 
-I have no swap at all.
-There was a message "Out of Memory: killing process top" or something such
-on screen.
---
-vda
+James A Sutherland wrote:
+
+> On Thursday 22 November 2001 4:25 pm, war wrote:
+> > Why have SWAP if you don't need it - answer that.?
+>
+> Having it is supposed to improve performance. If you take two identical
+> machines, and enable swap on one but not the other, the first machine should
+> have better performance: it can cache the FS more effectively.
+>
+> Now, if you have INSANE amounts of RAM (i.e. enough to have everything
+> running in RAM *AND* every file you access cached) the swap will make no
+> difference at all. Under any other circumstances, it should make things
+> better.
+>
+> James.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

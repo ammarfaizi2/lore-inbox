@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131395AbRCNPCZ>; Wed, 14 Mar 2001 10:02:25 -0500
+	id <S131459AbRCNPJZ>; Wed, 14 Mar 2001 10:09:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131396AbRCNPCQ>; Wed, 14 Mar 2001 10:02:16 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:47767 "EHLO
-	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S131395AbRCNPCC>; Wed, 14 Mar 2001 10:02:02 -0500
-Message-Id: <l03130302b6d530a44df8@[192.168.239.101]>
-In-Reply-To: <3AAF7AD1.D24E526C@baretta.com>
-In-Reply-To: <Pine.LNX.4.33.0103070958110.1424-100000@mikeg.weiden.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Wed, 14 Mar 2001 14:30:14 +0000
-To: Alex Baretta <alex@baretta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: 5Mb missing...
+	id <S131458AbRCNPJP>; Wed, 14 Mar 2001 10:09:15 -0500
+Received: from oe58.law3.hotmail.com ([209.185.240.58]:35334 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S131414AbRCNPJB>;
+	Wed, 14 Mar 2001 10:09:01 -0500
+X-Originating-IP: [63.169.2.109]
+Reply-To: "William Scott Lockwood III" <scottlockwood@hotmail.com>
+From: "William Scott Lockwood III" <thatlinuxguy@hotmail.com>
+To: "jens" <psh1@telus.net>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <2lqtatgk6dtbok94na6a4ss86aenevkkoh@4ax.com>
+Subject: Re: Sound problems with Asus K7V board using the via82cxxx drivers (2.4.3-pre 3/4)
+Date: Wed, 14 Mar 2001 09:07:05 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Message-ID: <OE58s7nlT2NqFJ3sl3x000007a8@hotmail.com>
+X-OriginalArrivalTime: 14 Mar 2001 15:08:15.0695 (UTC) FILETIME=[9852E5F0:01C0AC98]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> If crashes are routine on this machine, I'd recommend that you take
->> a serious look at your ram. (or if you're overclocking, don't)
+I have the same problem with my K7VZA board.  I replaced the onboard sound
+with a real card for now.
+
+----- Original Message -----
+From: "jens" <psh1@telus.net>
+To: <linux-kernel@vger.kernel.org>
+Sent: Tuesday, March 13, 2001 10:02 PM
+Subject: Sound problems with Asus K7V board using the via82cxxx drivers
+(2.4.3-pre 3/4)
+
+
+> Hi there, I am not sure if this is a kernel problem or an operator
+> problem but for some reason or other my sound is no longer working.
+> More specifically when I run gmix it reports no mixers being found. I
+> verified that the via82cxxx driver is compiled in (it worked before)
+> and everything seems cosher. If anyone has a clue what would cause my
+> lack of sound, I would be grateful.
 >
->Crashes were routine, and I was not overclocking, so I took Mike's
->advice and bought a new 256MB DIMM. The computer hasn't crashed
->once since I installed it. Now, though, I have a curious though
->fairly irrelevant problem. My kernel apparently sees less RAM than
->I have.
-
-The kernel itself takes up some RAM, which is simply subtracted from the
-"total memory available" field in the memory summaries available to
-user-mode processes.  This is perfectly normal.
-
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
-
-The key to knowledge is not to rely on people to teach you it.
-
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
------END GEEK CODE BLOCK-----
-
-
+> Jens
+>

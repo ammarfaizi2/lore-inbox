@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266948AbTBLGZM>; Wed, 12 Feb 2003 01:25:12 -0500
+	id <S266936AbTBLGTQ>; Wed, 12 Feb 2003 01:19:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266944AbTBLGZM>; Wed, 12 Feb 2003 01:25:12 -0500
-Received: from firewall.francoudi.net.32.27.217.in-addr.arpa ([217.27.32.7]:50428
-	"EHLO news.linux.dom") by vger.kernel.org with ESMTP
-	id <S266948AbTBLGZL>; Wed, 12 Feb 2003 01:25:11 -0500
+	id <S266938AbTBLGTQ>; Wed, 12 Feb 2003 01:19:16 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:24076
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S266936AbTBLGTO>; Wed, 12 Feb 2003 01:19:14 -0500
+Subject: [patch] used but uninitialized variable in ac97_codec
+From: Robert Love <rml@tech9.net>
 To: linux-kernel@vger.kernel.org
-From: Leonid Mamtchenkov <f.l.linux-admin@news.francoudi.com>
-Subject: Re: start up script
-Date: Wed, 12 Feb 2003 06:35:19 +0000 (UTC)
-Organization: Thunderworx Ltd.
-Message-ID: <b2cpv7$49p$2@news.linux.dom>
-References: <200302111705.21190.unix@amigo.net.gt>
-X-Trace: news.linux.dom 1045031719 4409 10.5.10.99 (12 Feb 2003 06:35:19 GMT)
-X-Complaints-To: admins@news.francoudi.com
-User-Agent: tin/1.5.15-20021115 ("Spiders") (UNIX) (Linux/2.4.18-19.8.0 (i686))
-Reply-To: Leonid Mamtchenkov <leonid@francoudi.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1045031351.786.92.camel@phantasy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-1) 
+Date: 12 Feb 2003 01:29:11 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- Luis - <unix@amigo.net.gt> wrote:
-L> Hi all, i want to add a script to the start up in my Red Hat box, but i 
-L> already put the file in /etc/rc.d/init.d and make the symbolic link in 
-L> /etc/rc3.d/S55routetable.
-L> 
-L> But still doesn't work, if i run the script manually, it runs just fine, 
-L> but when i restart the server i doesn't run.  
+As far as I can tell, nothing initializes `err' prior to the
+snd_printk() that uses it.  It is used later on, however.
 
-You might want to try using chkconfig(8) instead of manually creating
-symlinks.
+So just do not print it out here.
 
-L> Basically the script is for adding some routes to my server.
+Patch is against 2.5.60.
 
-You can add static routes by editing /etc/sysconfig/static-routes.  The
-format of the file is 1 route definition per line.  Route definition
-looks like:
+	Robert Love
 
-eth0 net 10.5.10.0 netmask 255.255.255.0 gw 10.5.17.1
+ sound/pci/ac97/ac97_codec.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-HTH.
 
--- 
-Best regards,
-  Leonid Mamtchenkov, RHCE
-  System Administrator
-  Francoudi & Stephanou Ltd.
+diff -urN linux-2.5.60/sound/pci/ac97/ac97_codec.c linux/sound/pci/ac97/ac97_codec.c
+--- linux-2.5.60/sound/pci/ac97/ac97_codec.c	2003-02-10 13:38:19.000000000 -0500
++++ linux/sound/pci/ac97/ac97_codec.c	2003-02-12 00:46:51.000000000 -0500
+@@ -1887,7 +1887,7 @@
+ 		udelay(50);
+ 		if (ac97_reset_wait(ac97, HZ/2, 0) < 0 &&
+ 		    ac97_reset_wait(ac97, HZ/2, 1) < 0) {
+-			snd_printk("AC'97 %d:%d does not respond - RESET [REC_GAIN = 0x%x]\n", ac97->num, ac97->addr, err);
++			snd_printk("AC'97 %d:%d does not respond - RESET\n", ac97->num, ac97->addr);
+ 			snd_ac97_free(ac97);
+ 			return -ENXIO;
+ 		}
+
+
 

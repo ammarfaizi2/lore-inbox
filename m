@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268039AbUHKMZY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268041AbUHKM1S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268039AbUHKMZY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 08:25:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268041AbUHKMZX
+	id S268041AbUHKM1S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 08:27:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268042AbUHKM1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 08:25:23 -0400
-Received: from styx.suse.cz ([82.119.242.94]:65412 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S268039AbUHKMZU (ORCPT
+	Wed, 11 Aug 2004 08:27:18 -0400
+Received: from mx2.perftech.si ([195.246.0.30]:24585 "EHLO butn.net")
+	by vger.kernel.org with ESMTP id S268041AbUHKM1M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 08:25:20 -0400
-Date: Wed, 11 Aug 2004 14:27:11 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, "David N. Welton" <davidw@eidetix.com>,
-       Sascha Wilde <wilde@sha-bang.de>
-Subject: Re: 2.6 kernel won't reboot on AMD system - 8042 problem?
-Message-ID: <20040811122711.GA5759@ucw.cz>
-References: <4107E788.8030903@eidetix.com> <41122C82.3020304@eidetix.com> <200408110131.14114.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408110131.14114.dtor_core@ameritech.net>
-User-Agent: Mutt/1.4.1i
+	Wed, 11 Aug 2004 08:27:12 -0400
+Date: Wed, 11 Aug 2004 14:27:07 +0200
+From: "xerces8" <xerces8@butn.net>
+To: linux-kernel@vger.kernel.org, p.lavarre@ieee.org, dburg@nero.com
+Subject: Re: Can not read UDF CD
+Message-ID: <WorldClient-F200408111427.AA27073829@butn.net>
+X-Mailer: WorldClient 6.8.5
+X-Authenticated-Sender: xerces8@butn.net
+X-Spam-Processed: butn.net, Wed, 11 Aug 2004 14:27:08 +0200
+	(not processed: message from valid local sender)
+X-MDRemoteIP: 127.0.0.1
+X-Return-Path: xerces8@butn.net
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 11, 2004 at 01:31:13AM -0500, Dmitry Torokhov wrote:
-> On Thursday 05 August 2004 07:48 am, David N. Welton wrote:
-> > By putting a series of 'crashme/reboot' calls into the kernel, I 
-> > narrowed a possibl cause of it down to this bit of code in 
-> > drivers/input/serio.c:753
-> > 
-> > /*
-> >  * Write CTR back.
-> >  */
-> > 
-> > 	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
-> > 		printk(KERN_ERR "i8042.c: Can't write CTR while initializing i8042.\n");
-> > 		return -1;
-> > 	}
-> > 
-> > If I do the reboot instructions before this, it reboots fine. 
-> > Afterwards, and it just sits there, no reboot.
-> 
-> 
-> Hi,
-> 
-> Could you please try the patch below? I am interested in tests both with
-> and without keyboard/mouse. The main idea is to leave ports that have been
-> disabled by BIOS alone... The patch compiles but otherwise untested. Against
-> 2.6.7.
+Hi!
 
-Well, this has a problem - plugging a mouse later will never work, as
-the interface will be disabled by the BIOS if a mouse is not present at
-boot.
+I (D.Balazic, from another email account) created another CD and it has
+the same problem.
 
-> 
-> BTW, do you both have the same motherboard/chipset? Maybe a dmi entry is in
-> order...
-> 
-> Thanks!
-> 
+Nero version : 5.5.10.56
+OS : Windows 2003 Enterprise Edition
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Nero settings :
+
+ - FS : UDF
+ - UDF partition type : Physical
+   FS version : UDF 1.02
+
+I burned a small text file in the first session and then another text file
+in the second session ( did not finalize the CD ).
+
+It can not be mounted in linux. Using the mount option session=0 mounts
+the first session, but I can only list the files (well, one file), not
+access them. This time I used a slightly older kernel, the one from Fedora
+Core 2 ( 2.6.7-something IIRC ).
+
+So it seems the problem is reproducable both in Nero 5.5.x and 6.x
+
+Regards,
+David
+

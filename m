@@ -1,17 +1,19 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316657AbSEaTeo>; Fri, 31 May 2002 15:34:44 -0400
+	id <S316673AbSEaTla>; Fri, 31 May 2002 15:41:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316659AbSEaTen>; Fri, 31 May 2002 15:34:43 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:8804 "EHLO
+	id <S316739AbSEaTl3>; Fri, 31 May 2002 15:41:29 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:30820 "EHLO
 	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S316657AbSEaTen>; Fri, 31 May 2002 15:34:43 -0400
-Date: Fri, 31 May 2002 21:34:33 +0200
+	id <S316673AbSEaTl2>; Fri, 31 May 2002 15:41:28 -0400
+Date: Fri, 31 May 2002 21:41:25 +0200
 From: Andrea Arcangeli <andrea@suse.de>
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre9aa1
-Message-ID: <20020531193433.GA22476@dualathlon.random>
-In-Reply-To: <20020530010125.GA1383@dualathlon.random> <20020530013200.GB14918@holomorphy.com> <20020530014009.GC1383@dualathlon.random>
+To: Mike Kravetz <kravetz@us.ibm.com>
+Cc: Ian Collinson <icollinson@imerge.co.uk>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: realtime scheduling problems with 2.4 linux kernel >= 2.4.10
+Message-ID: <20020531194125.GK1172@dualathlon.random>
+In-Reply-To: <C0D45ABB3F45D5118BBC00508BC292DB09C992@imgserv04> <20020531112847.B1529@w-mikek2.des.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,50 +23,37 @@ X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 30, 2002 at 03:40:09AM +0200, Andrea Arcangeli wrote:
-> On Wed, May 29, 2002 at 06:32:00PM -0700, William Lee Irwin III wrote:
-> > On Thu, May 30, 2002 at 03:01:25AM +0200, Andrea Arcangeli wrote:
-> > > NOTE: this release is highly experimental, while it worked solid so far
-> > > it's not well tested yet, so please don't use in production
-> > > environments! (yet :)
-> > > The o1 scheduler integration will take a few weeks to settle and to
-> > > compile on all archs. I would suggest the big-iron folks to give this
-> > > kernel a spin, in particular for o1, shm-rmid fix, p4/pmd fix,
-> > > inode-leak fix. The only rejected feature is been the node-affine
-> > > allocations of per-cpu data structures in the numa-sched (matters only
-> > > for numa, but o1 is more sensible optimization for numa anyways).
-> > > Currently only x86 and alpha compiles and runs as expected. x86-64,
-> > > ia64, ppc, s390*, sparc64 doesn't compile yet. uml worst of all compiles
-> > > but it doesn't run correctly :), however it runs pretty well too, simply
-> > > it hangs sometime and you've to press a key in the terminal and then it
-> > > resumes as if nothing has happened.
+On Fri, May 31, 2002 at 11:28:47AM -0700, Mike Kravetz wrote:
+> On Thu, May 30, 2002 at 06:54:46PM +0100, Ian Collinson wrote:
 > > 
-> > I noticed what looked like missed wakeups in tty code in early 2.4.x
-> > ports of the O(1) scheduler, though I saw a somewhat different failure
-> > mode, that is, the terminal echo would remain one character behind
-> > forever (and if it happened again, more than one). I never got a real
-> > answer to this, unfortunately, as it appeared to go away after a certain
-> > revision of the scheduler. The failure mode you describe is slightly
-> > different, but perhaps related.
+> > 	We're having problems with realtime scheduling (SCHED_RR and
+> > SCHED_FIFO), on 2.4 kernels >= 2.4.10 (built for i386, no SMP).  We have an
+> > app that uses real-time scheduled threads. To aid debugging, in case of
+> > realtime threads spinning and locking the system, we always keep a bash
+> > running on a (text) console, at SCHED_RR, priority 99 (a higher priority
+> > than any threads in our app).  We test that this is a valid approach by
+> > running a lower priority realtime app, on another console, that sits in an
+> > infinite busy loop.  This has always worked, and we've been able to
+> > successfully use the high-priority bash to run gdb, and so on.  This is also
+> > what the man page for sched_setscheduler suggests, to avoid total system
+> > lock up.
 > 
-> interesting, a tty problem could explain it probably, but being it
-
-JFYI: the uml-hang gone away with 2.4.19pre9aa2, not sure why. I start to
-wonder that it happened because I didn't run a full 'make distclean'
-while I was updating it, maybe it was miscompiled.
-
-> reproducible only with uml it should be still some uml internal that
-> broke, not a generic bug, there are no changes to the tty code and it's
-> unlikely that only the tty code broke due a generic o1 bug and that
-> additionally it is reproducible only in uml.
+> <snip>
 > 
+> > 	Then I switch back to the first console, with its priority 99 bash.
+> > I am able to type away for 10 seconds, until the priority 50 process starts,
+> > at which point the shell locks up.   I can get the same effect on one
+> > console with:
 > > 
-> > And thanks for looking into shm, I understand that area is a bit
-> > painful to work around, but fixes are certainly needed there.
+> > 	> ( sleep 10; realtime -rr 50 eat_cpu ) & realtime -rr 99 bash
+> > 
+> > 	Previously, the high-priority shell would never lock up.  Now it
+> > does.
 > 
-> you're very welcome.
-> 
-> Andrea
+> This works fine for me on 2.4.17 with a SERIAL console.  Could this
+> be related to some differences (new features) in the VGA console?
+> I am totally ignorant of how the consoles work.
 
+I tried it under uml on 2.4.19pre9aa2 and it worked fine there too.
 
 Andrea

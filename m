@@ -1,112 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290422AbSAPLuh>; Wed, 16 Jan 2002 06:50:37 -0500
+	id <S290421AbSAPLtT>; Wed, 16 Jan 2002 06:49:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290425AbSAPLu2>; Wed, 16 Jan 2002 06:50:28 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:56333 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S290422AbSAPLuN>;
-	Wed, 16 Jan 2002 06:50:13 -0500
-Date: Wed, 16 Jan 2002 12:50:10 +0100 (CET)
+	id <S290422AbSAPLtH>; Wed, 16 Jan 2002 06:49:07 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:54797 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S290421AbSAPLsv>;
+	Wed, 16 Jan 2002 06:48:51 -0500
+Date: Wed, 16 Jan 2002 12:48:42 +0100 (CET)
 From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Dana Lacoste <dana.lacoste@peregrine.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 cc: Amit Gupta <amit.gupta@amd.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: arpd not working in 2.4.17 or 2.5.1
-In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2AA0@ottonexc1.ottawa.loran.com>
-Message-ID: <Pine.LNX.4.44.0201161249160.31902-100000@Expansa.sns.it>
+Subject: Re: arpd not working in 2.4.17 or 2.5.1
+In-Reply-To: <E16QZjK-00061Z-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0201161246490.31902-100000@Expansa.sns.it>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How are you managing /dev/arpd?
-It seems that the kernel is not behaving correctly with this device
 
 
-On Tue, 15 Jan 2002, Dana Lacoste wrote:
+On Tue, 15 Jan 2002, Alan Cox wrote:
 
-> I have a 2.4 compatible arpd running, but with our
-> company being bought by a big US software company
-> I'm having trouble convincing management to allow
-> the GPL release.  It's becoming very important so
-> I'm hopeful that I'll be successful shortly, but
-> until then I have to be quiet :)
+> > But arp>1024 is Very Important, else linux will never be able to talk to more
+> > than 1024 clients !
+> >
+> > Linux is my favourite and I wonder if this limit will kill linux for the race
+> > with Solaris/M$ server market. So pls save me :) and help neighour.c/network
+> > layer in new kernel.
 >
-> --
-> Dana Lacoste      - Linux Developer
-> Peregrine Systems - Ottawa, Canada
->
-> (Note that Peregrine acquired Loran, and jlayes@loran.com
-> is an email address of a former employee, so i'm kind of
-> the relevant person to talk to for arpd stuff, because that
-> other address won't work :)
->
-> > -----Original Message-----
-> > From: Luigi Genoni [mailto:kernel@Expansa.sns.it]
-> > Sent: January 15, 2002 10:03
-> > To: Amit Gupta
-> > Cc: linux-kernel@vger.kernel.org
-> > Subject: Re: arpd not working in 2.4.17 or 2.5.1
-> >
-> >
-> > Latest  kernel I saw working with arpd (user space daemon) I
-> > am manteining
-> > is 2.2.16, then from 2.4.4 (for 2.4 series), some changes were done to
-> > kernel so that the kernel does not talk correctly with the device
-> > /dev/arpd anymore.
-> > It is not the first time I write about this on lkml, but it
-> > seems none is
-> > interested in manteining the kernel space component for arpd support.
-> > I did some investigation, but the code for arpd support
-> > itself inside of
-> > the kernel seems to be ok, something else is wrong with neighour.c.
-> >
-> > So at less I can say the user space daemon works well on 2.2.16 I have
-> > around ;).
-> >
-> > Luigi
-> >
-> > On Mon, 14 Jan 2002, Amit Gupta wrote:
-> >
-> > >
-> > > Hi All,
-> > >
-> > > I am running 2.5.1 kernel on a 2 AMD processor system and
-> > have enable
-> > > routing messages, netlink and arpd support inside kernel as
-> > described in
-> > > arpd docs.
-> > >
-> > > Then after making 36 character devices, when I run arpd,
-> > it's starts up
-> > > but always keeps silent (strace) and the kernel also does
-> > not keep it's
-> > > 256 arp address limit.
-> > >
-> > > Pls help fix it, I need linux to be able to talk to more than 1024
-> > > clients.
-> > >
-> > > Thanks in Advance.
-> > >
-> > > Amit
-> > > amit.gupta@amd.com
-> > >
-> > >
-> > >
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe
-> > linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > >
-> >
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe
-> > linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
+> ARP applies for local links only. So you need a network you are actively
+> talking to 1024 different hosts directly on. Furthermore all the
+> config items should now be soft anyway. Want more, enable more.
+
+To have this kind of network is not impossible at all, I received mail
+from people at intel who are dealing with around 5000 arp (they say).
+In this situation with arpd there was no sensible performance loss, right
+now there is a big slowdown.
+
+
 

@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268215AbTALDwZ>; Sat, 11 Jan 2003 22:52:25 -0500
+	id <S268226AbTALD4u>; Sat, 11 Jan 2003 22:56:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268216AbTALDwZ>; Sat, 11 Jan 2003 22:52:25 -0500
-Received: from h80ad2641.async.vt.edu ([128.173.38.65]:21120 "EHLO
+	id <S268228AbTALD4t>; Sat, 11 Jan 2003 22:56:49 -0500
+Received: from h80ad2641.async.vt.edu ([128.173.38.65]:22912 "EHLO
 	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S268215AbTALDwY>; Sat, 11 Jan 2003 22:52:24 -0500
-Message-Id: <200301120400.h0C40xLE030281@turing-police.cc.vt.edu>
+	id <S268226AbTALD4s>; Sat, 11 Jan 2003 22:56:48 -0500
+Message-Id: <200301120405.h0C45OLE030336@turing-police.cc.vt.edu>
 X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: robw@optonline.net
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Nvidia and its choice to read the GPL "differently" 
-In-Reply-To: Your message of "Sat, 11 Jan 2003 18:23:23 EST."
-             <1042327403.1033.71.camel@RobsPC.RobertWilkens.com> 
+To: Tobias Ringstrom <tori@ringstrom.mine.nu>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ACPI power off requires swsusp (was: Re: Power off a SMP Box) 
+In-Reply-To: Your message of "Sat, 11 Jan 2003 13:10:47 +0100."
+             <Pine.LNX.4.44.0301111301430.12267-100000@boris.prodako.se> 
 From: Valdis.Kletnieks@vt.edu
-References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com> <1042250324.1278.18.camel@RobsPC.RobertWilkens.com> <20030111020738.GC9373@work.bitmover.com> <1042251202.1259.28.camel@RobsPC.RobertWilkens.com> <20030111021741.GF9373@work.bitmover.com> <1042252717.1259.51.camel@RobsPC.RobertWilkens.com> <20030111214437.GD9153@nbkurt.casa-etp.nl> <1042322012.1034.6.camel@RobsPC.RobertWilkens.com> <20030111222619.GG9153@nbkurt.casa-etp.nl>
-            <1042327403.1033.71.camel@RobsPC.RobertWilkens.com>
+References: <Pine.LNX.4.44.0301111301430.12267-100000@boris.prodako.se>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1005842802P";
+Content-Type: multipart/signed; boundary="==_Exmh_1017469036P";
 	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Date: Sat, 11 Jan 2003 23:00:59 -0500
+Date: Sat, 11 Jan 2003 23:05:24 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1005842802P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+--==_Exmh_1017469036P
+Content-Type: text/plain; charset=us-ascii
 
-On Sat, 11 Jan 2003 18:23:23 EST, Rob Wilkens said:
+On Sat, 11 Jan 2003 13:10:47 +0100, Tobias Ringstrom said:
 
-> As per buggy hardware, the software should _not_ have to support it. =
+> I just disovered that in 2.5.56 (at least), ACPI power-off needs
+> CONFIG_ACPI_SLEEP which depends on CONFIG_SOFTWARE_SUSPEND.  This means
+> that without selecting software suspend, your machine cannot power off
+> using ACPI.  Why is it so?
 
-> The software should report that the hardware has a bug and stop. =
+Well.. I submitted  the Kconfig patch that makes it so.  However, I only did
+that because there's code inside the ACPI_SLEEP that references a variable over
+in SOFTWARE_SUSPEND.
 
-> Otherwise, you wind up writing really bad code for other hardware at th=
-e
-> same time that you're trying to work with one particular piece of bad
-> hardware.
+A cleaner fix would probably be to move the variable someplace where it will
+exist even when SOFTWARE_SUSPEND isn't defined.
+-- 
+				Valdis Kletnieks
+				Computer Systems Senior Engineer
+				Virginia Tech
 
-Er? Rob? You got a prescription for them pharmaceuticals?
 
-
-
---==_Exmh_1005842802P
+--==_Exmh_1017469036P
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
 Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE+IOh6cC3lWbTT17ARAkTlAKDhmCrmvulswdkK4+xHolpRNtBuLwCdF9bS
-Zvnl24qAtJgwHe1qwAeXsX0=
-=Eme+
+iD8DBQE+IOmEcC3lWbTT17ARAmV9AJ9kT0X1DYunZOzNsDxqVI3Akc7JtgCgwHae
+RWNCs8F8T+POTkITtk9vdaI=
+=7GD3
 -----END PGP SIGNATURE-----
 
---==_Exmh_1005842802P--
+--==_Exmh_1017469036P--

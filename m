@@ -1,116 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264283AbTEGUHW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 16:07:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264284AbTEGUHW
+	id S264289AbTEGULP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 16:11:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264298AbTEGULO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 16:07:22 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:29880 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264283AbTEGUHT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 16:07:19 -0400
-Date: Wed, 7 May 2003 22:19:49 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5 ide 48-bit usage
-Message-ID: <20030507201949.GW823@suse.de>
-References: <20030507175033.GR823@suse.de> <Pine.SOL.4.30.0305072119530.27561-100000@mion.elka.pw.edu.pl>
-Mime-Version: 1.0
+	Wed, 7 May 2003 16:11:14 -0400
+Received: from webmail.hamiltonfunding.la ([12.162.17.40]:17458 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S264289AbTEGULM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 16:11:12 -0400
+To: root@chaos.analogic.com
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: top stack (l)users for 2.5.69
+References: <20030507132024.GB18177@wohnheim.fh-wedel.de>
+	<Pine.LNX.4.53.0305070933450.11740@chaos>
+	<20030507135657.GC18177@wohnheim.fh-wedel.de>
+	<Pine.LNX.4.53.0305071008080.11871@chaos>
+	<p05210601badeeb31916c@[207.213.214.37]>
+	<Pine.LNX.4.53.0305071323100.13049@chaos> <52k7d2pqwm.fsf@topspin.com>
+	<Pine.LNX.4.53.0305071424290.13499@chaos> <52bryeppb3.fsf@topspin.com>
+	<Pine.LNX.4.53.0305071523010.13724@chaos> <52n0hyo85x.fsf@topspin.com>
+	<Pine.LNX.4.53.0305071547060.13869@chaos>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 07 May 2003 13:23:43 -0700
+In-Reply-To: <Pine.LNX.4.53.0305071547060.13869@chaos>
+Message-ID: <52issmo69c.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0305072119530.27561-100000@mion.elka.pw.edu.pl>
+X-OriginalArrivalTime: 07 May 2003 20:23:46.0202 (UTC) FILETIME=[8FA507A0:01C314D6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 07 2003, Bartlomiej Zolnierkiewicz wrote:
-> 
-> On Wed, 7 May 2003, Jens Axboe wrote:
-> 
-> > On Wed, May 07 2003, Linus Torvalds wrote:
-> > >
-> > > On Wed, 7 May 2003, Jens Axboe wrote:
-> > > > >
-> > > > > And testing. In particular, you might want to test whether a device
-> > > > > properly supports 48-bit addressing, either from the kernel or from user
-> > > > > programs.
-> > > >
-> > > > For that, a forced 48-bit hwif->addressing inherited by drives will
-> > > > suffice. And I agree, we should have that.
-> > >
-> > > No no no.
-> > >
-> > > You definitely do NOT want to set "hwif->addressing" to 1 before you've
-> > > tested whether it even _works_.
-> >
-> > Well duh, of course not. Whether a given request is executed in 48-bit
-> > or not is a check that _includes_ drive capabilities too of course.
-> 
-> Yeah, we test drive capabilities properly in idedisk_setup(),
-> but Linus is right speaking about _hwif_ capabilities.
+    [ misinformation snipped ]
 
-That's a probe time item, even before drives are set up.
+OK, my real last word on the subject.
 
-> Jens you your patch sets hwif->rqsize to 65535 in setup-pci.c for all
-> PCI hwifs which is simply wrong as not all of them supports LBA48.
-> You should check for hwif->addressing and if true set rqsize to 65536
-> (not 65535) and not in IDE PCI code but in ide_init_queue() in ide-probe.c.
+When the kernel is running on behalf of a user process, there is more
+context than just the struct task_struct part of current.  There is a
+kernel stack, which must be per process since each process can have
+its own call chain of kernel functions.
 
-Yes you are right, that would be the best way of doing it. As it happens
-for that patch, it does not hurt or break anything. But it is certainly
-cleaner, I'll fix that up.
+By all means, see switch_to().  Look at what it does to ESP.
 
-> I also think that max request size should be printed for all drives,
-> not only 48-bit capable.
-
-Fine.
-
-> > > Imagine something like "hdparm" - other things are already in progress,
-> > > the system is up, and IDE commands are potentially executing concurrently.
-> > > What something like that wants to do is to send one request out to check
-> > > whether 48-bit addressing works, but it absolutely does NOT want to set
-> > > some interface-global flag that affects other commands.
-> >
-> > Then it just puts a taskfile request on the request queue and lets it
-> > reach the drive, nicely syncronized with the other requests. There's no
-> > need to toggle any special bits for that.
-> 
-> Yes, but patch subtly breakes taskfile :-).
-> 
-> Taskfile ioctl uses do_rw_taskfile() or flagged_taskfile().
-> Patch replaces drive->adrressing checks by task->addressing,
-> but ide_taskfile_ioctl() doesn't know about it so task->addressing
-> will be always equal 0.
-
-Uh yes, that is wrong!
-
-> You should add checking for 48-bit commands and setting task->addressing
-> to 1 if neccessary to ide_taskfile_ioctl().
-
-Right
-
-> Also changes for pdc202xx_old.c are wrong, we should check for
-> task->addressing not rq_lba48(rq) as taskfile requests also use this
-> codepath.
-
-Ok
-
-> Patch also misses updates for many uses of drive->addressing
-> (in ide.c, ide-io.c, icside.c, ide-tcq.c and even in ide-taskfile.c).
-
-Hmm bad grep, weird.
-
-> > > Only after it has verified that 48-bit addressing does work should it set
-> > > the global flag.
-> >
-> > Sounds fine.
-> 
-> Jens, I like the general idea of the patch, but it needs some more work.
-> Linus, please don't apply for now.
-
-Agree, I'll update the patch to suit your concerns tomorrow.
-
--- 
-Jens Axboe
-
+ - Roland

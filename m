@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264562AbUFJJ4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264206AbUFJJ7w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264562AbUFJJ4N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 05:56:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266013AbUFJJx3
+	id S264206AbUFJJ7w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 05:59:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265813AbUFJJ7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 05:53:29 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:45473 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S264562AbUFJJqN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 05:46:13 -0400
-Date: Thu, 10 Jun 2004 10:46:12 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
-Cc: dri-devel@lists.sourceforge.net,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: 2.6.7-rc3 drivers/char/drm/gamma_dma.c: several user/kernel
- pointer bugs
-In-Reply-To: <1086821620.32053.120.camel@dooby.cs.berkeley.edu>
-Message-ID: <Pine.LNX.4.58.0406101044130.12229@skynet>
-References: <1086821620.32053.120.camel@dooby.cs.berkeley.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 10 Jun 2004 05:59:52 -0400
+Received: from prosun.first.gmd.de ([194.95.168.2]:20169 "EHLO
+	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S264206AbUFJJ7t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 05:59:49 -0400
+Subject: Re: oops on checking for changes of usb input devices
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       linuxppc-dev@lists.linuxppc.org
+In-Reply-To: <200406100200.50146.dtor_core@ameritech.net>
+References: <1086847579.24322.34.camel@localhost>
+	 <200406100200.50146.dtor_core@ameritech.net>
+Content-Type: text/plain
+Message-Id: <1086861583.5204.6.camel@localhost>
+Mime-Version: 1.0
+Date: Thu, 10 Jun 2004 11:59:43 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2004-06-10 at 09:00, Dmitry Torokhov wrote:
+> On Thursday 10 June 2004 01:06 am, Soeren Sonnenburg wrote:
+> > 
+> > Hi!
+> > 
+> > When I attach a ps2 mouse and keyboard through a ps2->usb adapter and
+> > then do a rescan for changes in input devices I keep getting this oops.
+> > This is kernel 2.6.7-rc2 on powerbook G4. A way to trigger this is to
+> > reload/restart pbbuttonsd.
+> > 
+> > Any ideas ?
+> 
+> I think it has been fixed in -rc3.
 
-> gamma_dma_priority and gamma_dma_send_buffers both deref d->send_indices
-> and/or d->send_sizes.  When these functions are called from gamma_dma,
-> these pointers are user pointers and are thus not safe to deref.  This patch
-> copies over the pointers inside gamma_dma_priority and
-> gamma_dma_send_buffers.  Let me know if you have any questions or if I've
-> made a mistake.
 
-okay I've checked this into the drm bk tree and DRM CVS, I've no way to
-test it apart from visual inspection and it compiles, I've asked Linus to
-sync the drm tree again, I probably need to add some __user annotations in
-a few places..
+I can confirm this. I (de-)attached the ps2 keyboard + usb mouse a
+couple of times and triggered a pbbuttonsd rescan... no oops no nothing
+:)
 
-Dave.
+Great job!
 
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
+Soeren (happy)
 

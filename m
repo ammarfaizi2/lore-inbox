@@ -1,89 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268440AbUHQVFa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268436AbUHQVCH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268440AbUHQVFa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 17:05:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266741AbUHQVFB
+	id S268436AbUHQVCH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 17:02:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268442AbUHQVCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 17:05:01 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:19670 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S268440AbUHQVBG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 17:01:06 -0400
-Date: Tue, 17 Aug 2004 23:00:59 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jakub Bogusz <qboosh@pld-linux.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: 2.6.8.1 - unresolved xfrm symbols in ip6_tunnel
-Message-ID: <20040817210058.GU1387@fs.tum.de>
-References: <20040817203013.GA31993@satan.blackhosts>
+	Tue, 17 Aug 2004 17:02:06 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:17837 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268436AbUHQU7O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 16:59:14 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P0
+From: Lee Revell <rlrevell@joe-job.com>
+To: Roger Luethi <rl@hellgate.ch>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <20040817205255.GA32252@k3.hellgate.ch>
+References: <20040810132654.GA28915@elte.hu>
+	 <20040812235116.GA27838@elte.hu> <1092382825.3450.19.camel@mindpipe>
+	 <20040813104817.GI8135@elte.hu> <1092432929.3450.78.camel@mindpipe>
+	 <20040814072009.GA6535@elte.hu> <20040815115649.GA26259@elte.hu>
+	 <1092612264.867.9.camel@krustophenia.net>
+	 <20040816080745.GA18406@k3.hellgate.ch>
+	 <1092696835.13981.61.camel@krustophenia.net>
+	 <20040817205255.GA32252@k3.hellgate.ch>
+Content-Type: text/plain
+Message-Id: <1092776417.1297.4.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040817203013.GA31993@satan.blackhosts>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 17 Aug 2004 17:00:18 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 17, 2004 at 10:30:13PM +0200, Jakub Bogusz wrote:
-
-> I've just got:
+On Tue, 2004-08-17 at 16:52, Roger Luethi wrote:
+> On Mon, 16 Aug 2004 18:53:56 -0400, Lee Revell wrote:
+> > What do you think of Ingo's solution of trying to move the problematic
+> > call to mdio_read out of the spinlocked section?  It does seem that the
 > 
-> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.6.8.1; fi
-> WARNING: /lib/modules/2.6.8.1/kernel/net/ipv6/ip6_tunnel.ko needs unknown symbol xfrm6_tunnel_register
-> WARNING: /lib/modules/2.6.8.1/kernel/net/ipv6/ip6_tunnel.ko needs unknown symbol xfrm6_tunnel_deregister
+> Can't comment on that, I missed it. I am aware that locking in via-rhine
+> needs work, though, it's one of the things I haven't touched.
 > 
-> with
-> CONFIG_IPV6_TUNNEL=m
-> and no XFRM (it wasn't selected by IPV6_TUNNEL and it's not possible to
-> select it standalone - XFRM is selected only by some options which
-> I don't use).
+> > awfully long time.  In a live audio setting you would actually get lots
+> > of media events.
 > 
-> So I think that IPV6_TUNNEL should select or depend on XFRM...
-> or usage of the above symbols should depend on CONFIG_XFRM ||
-> CONFIG_XFRM_MODULE?
+> Don't trip over the network cables. Duh.
+> 
 
-Thanks for this report.
+You might want to intentionally plug or unplug them.  Live music != a
+server room.  Think laptop DJs.  It would be bad if plugging into the
+network caused a click in your sound output - this could be VERY loud
+depnding on the setting!
 
-It's a known bug.
+This will become more important once Linux has good
+audio/midi-over-ethernet support.  You might be playing sound out of
+your sound interface, and sending the same sound over the network as UDP
+packets for recording or additional processing.
 
-Below is the patch from -mm fixing this issue.
+Lee
 
-@Andrew:
-Can you push fw-new-linux-268-rc4-mm1-ipv6-in-ipv6-undefined-references 
-with the next updates to Linus?
-
-> Jakub Bogusz    http://cyber.cs.net.pl/~qboosh/
-
-cu
-Adrian
-
-
-<--  snip  -->
-
-
-From: Herbert Xu <herbert@gondor.apana.org.au>
-
-Fix bug #3200
-
-*** Warning: "xfrm6_tunnel_deregister" [net/ipv6/ip6_tunnel.ko] undefined!
-*** Warning: "xfrm6_tunnel_register" [net/ipv6/ip6_tunnel.ko] undefined!
-
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- 25-akpm/net/ipv6/Kconfig |    1 +
- 1 files changed, 1 insertion(+)
-
-diff -puN net/ipv6/Kconfig~fw-new-linux-268-rc4-mm1-ipv6-in-ipv6-undefined-references net/ipv6/Kconfig
---- 25/net/ipv6/Kconfig~fw-new-linux-268-rc4-mm1-ipv6-in-ipv6-undefined-references	2004-08-15 17:33:34.718683088 -0700
-+++ 25-akpm/net/ipv6/Kconfig	2004-08-15 17:33:34.721682632 -0700
-@@ -59,6 +59,7 @@ config INET6_IPCOMP
- config IPV6_TUNNEL
- 	tristate "IPv6: IPv6-in-IPv6 tunnel"
- 	depends on IPV6
-+	select XFRM
- 	---help---
- 	  Support for IPv6-in-IPv6 tunnels described in RFC 2473.
- 
-_

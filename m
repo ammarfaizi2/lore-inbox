@@ -1,155 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265777AbSJTFfI>; Sun, 20 Oct 2002 01:35:08 -0400
+	id <S265783AbSJTFqd>; Sun, 20 Oct 2002 01:46:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265780AbSJTFfI>; Sun, 20 Oct 2002 01:35:08 -0400
-Received: from h00e098094f32.ne.client2.attbi.com ([24.60.61.209]:32899 "EHLO
-	linux.local") by vger.kernel.org with ESMTP id <S265777AbSJTFfG>;
-	Sun, 20 Oct 2002 01:35:06 -0400
-Date: Sun, 20 Oct 2002 01:40:49 -0400
-Message-Id: <200210200540.g9K5enl08075@linux.local>
-From: Jim Houston <jim.houston@attbi.com>
-To: ak@suse.de, linux-kernel@vger.kernel.org, george@mvista.com
-Subject: Re: POSIX clocks & timers - more choices
-Reply-to: jim.houston@attbi.com
+	id <S265784AbSJTFqd>; Sun, 20 Oct 2002 01:46:33 -0400
+Received: from packet.digeo.com ([12.110.80.53]:52463 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265783AbSJTFqb>;
+	Sun, 20 Oct 2002 01:46:31 -0400
+Message-ID: <3DB2449D.C02B57F3@digeo.com>
+Date: Sat, 19 Oct 2002 22:52:29 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: acme@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ipv4: only produce one record in fib_seq_show
+References: <20021020050849.GD15254@conectiva.com.br> <20021019.221403.116117803.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Oct 2002 05:52:29.0635 (UTC) FILETIME=[E02DB130:01C277FC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"David S. Miller" wrote:
+> 
+> ..
+> kernel/timer.c's main data structures desperately want to be per-cpu
+> or allocated at boot time also.  It, as has been noted often on this
+> list, is actually more bloat than the ipv4 statistics stuff. :-)
 
-Hi Andi, George
+I have a bunch of patches under test which do that.
 
+The tricky bit is that at present, the per-cpu data for all 32
+CPUs is always allocated.  We had to change that to only allocate
+the secondary CPU's memory when the CPU is coming up.
 
-> > > +     if (p->ary[bit] && p->ary[bit]->bitmap == (typeof(p->bitmap))-1)
-> The typeof() cast looks weird. I had to think twice to make sense of it.
+This means that:
 
-I looked this again today.  When I wrote this I was trying to compare
-the effect of different ID_BITS value.  Normally I would use 
-(1 << ID_BITS)-1 to generate a mask but I think this breaks for 
-32 bits.  I completely forgot doing this.
+	for (i = 0; i < NR_CPUS; i++)
+		play_with(per_cpu(something, i));
 
-I have been working on solving the issue of locking around the 
-find_task_by_pid().  I'm attaching a first cut at a patch.  It is
-against George's version of the driver.  I'm closing the race
-between one thread creating a timer for another and that thread
-exiting.  It took a change to exit_itimers() so that I decide that
-the process is exiting even though it has not yet unlinked its self
-from the pid hash.  If the exiting process has already called
-exit_itimers() we need to fail the timer create.
+becomes a bug.  Because the per-cpu memory for not-possible
+CPUs is not allocated.  I created a `for_each_possible_cpu(i)'
+helper macro for that.
 
-This is a something like this should work patch.  I have been
-debugging an equivalent patch for my version and it still doesn't work
-yet.
+Another issue:
 
-Jim Houston - Concurrent Computer Corp.
+	/* this is basically for_each_possible_cpu() */
+	for (i = 0; i < NR_CPUS; i++) {
+		if (cpu_possible(i)) {
+			play_with(per_cpu(something, i));
+		}
+	}
 
-diff -urN x1.old/kernel/posix-timers.c x1.new/kernel/posix-timers.c
---- x1.old/kernel/posix-timers.c	Sat Oct 19 16:04:47 2002
-+++ x1.new/kernel/posix-timers.c	Sat Oct 19 17:05:38 2002
-@@ -535,7 +535,7 @@
- 	int error = 0;
- 	struct k_itimer *new_timer = NULL;
- 	int new_timer_id;
--	struct task_struct * process = current;
-+	struct task_struct * process = 0;
- 	sigevent_t event;
- 
- 	/* Right now, we only support CLOCK_REALTIME for timers. */
-@@ -547,13 +547,42 @@
- 
- 	spin_lock_init(&new_timer->it_lock);
- 	IF_ABS_TIME_ADJ(INIT_LIST_HEAD(&new_timer->abs_list));
-+	/*
-+	 * return the timer_id now.  The next step is hard to 
-+	 * back out.
-+	 */
-+	new_timer_id = new_timer->it_id;
-+	if (copy_to_user(created_timer_id, 
-+			 &new_timer_id, 
-+			 sizeof(new_timer_id))) {
-+		error = -EFAULT;
-+		goto out;
-+	}
- 	if (timer_event_spec) {
- 		if (copy_from_user(&event, timer_event_spec,
- 				   sizeof(event))) {
- 			error = -EFAULT;
- 			goto out;
- 		}
--		if ((process = good_sigevent(&event)) == NULL) {
-+		read_lock(&tasklist_lock);
-+		if ((process = good_sigevent(&event))) {
-+			/*
-+			 * We may be setting up this process for another
-+			 * thread.  It may be exitiing.  To catch this
-+			 * case the we clear posix_timers.next in 
-+			 * exit_itimers.
-+			 */
-+			spin_lock(&process->alloc_lock);
-+			if (!process->posix_timers.next) {
-+				list_add(&new_timer->list, &process->posix_timers);
-+				spin_unlock(&process->alloc_lock);
-+			} else {
-+				spin_unlock(&process->alloc_lock);
-+				process = 0;
-+			}
-+		}
-+		read_unlock(&tasklist_lock);
-+		if (!process) {
- 			error = -EINVAL;
- 			goto out;
- 		}
-@@ -565,6 +594,10 @@
- 		new_timer->it_sigev_notify = SIGEV_SIGNAL;
- 		new_timer->it_sigev_signo = SIGALRM;
- 		new_timer->it_sigev_value.sival_int = new_timer->it_id;
-+		process = current;
-+		spin_lock(&process->alloc_lock);
-+		list_add(&new_timer->list, &process->posix_timers);
-+		spin_unlock(&process->alloc_lock);
- 	}
- 
- 	new_timer->it_clock = which_clock;
-@@ -576,18 +609,6 @@
- 	new_timer->it_timer.function = posix_timer_fn;
- 	set_timer_inactive(new_timer);
- 
--	new_timer_id = new_timer->it_id;
--
--	if (copy_to_user(created_timer_id, 
--			 &new_timer_id, 
--			 sizeof(new_timer_id))) {
--		error = -EFAULT;
--		goto out;
--	}
--	spin_lock(&process->alloc_lock);
--	list_add(&new_timer->list, &process->posix_timers);
--
--	spin_unlock(&process->alloc_lock);
- 	/*
- 	 * Once we set the process, it can be found so do it last...
- 	 */
-@@ -600,6 +621,24 @@
- 	return error;
- }
- 
-+
-+inline void exit_itimers(struct task_struct *tsk)
-+{
-+	struct	k_itimer *tmr;
-+
-+	/* exit_itimers - can only be called once? */
-+	if (!tsk->posix_timers.next)
-+		BUG():
-+	spin_lock(&tsk->alloc_lock);
-+	while (tsk->posix_timers.next != &tsk->posix_timers){
-+		spin_unlock(&tsk->alloc_lock);
-+		 tmr = list_entry(tsk->posix_timers.next,struct k_itimer,list);
-+		itimer_delete(tmr);
-+		spin_lock(&tsk->alloc_lock);
-+	}
-+	tsk->posix_timers.next = 0;
-+	spin_unlock(&tsk->alloc_lock);
-+}
- 
- /* good_timespec
-  *
+the above code will fail if it is run before smp_init(), because
+smp_init() sets up cpu_callout_map() and the per-cpu memory.
+We (Dipanker and I) fixed up all the callers.
+
+The code works OK, on ia32.  But we think ia64 needs more work.
+
+That's 128k saved.  There's another 128k-odd in a huge hashtable
+in kernel/pid.c (even on uniprocessor) which needs a diet.  Also
+80k or so in runqueues.  The runqueues are set up before smp_init(),
+but I expect a cpu notifier and some reorg there will work.  Haven't
+done sched.c yet.
+
+I suspect we waste more memory than this in dynamically allocated
+hashtables and mempools though.

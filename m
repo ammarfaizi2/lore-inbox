@@ -1,38 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263317AbTDGIDb (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 04:03:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTDGIDb (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 04:03:31 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:42190 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S263317AbTDGID3 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 04:03:29 -0400
-X-Envelope-From: news@bytesex.org
+	id S263323AbTDGIG2 (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 04:06:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263322AbTDGIG2 (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 04:06:28 -0400
+Received: from dspnet.fr.eu.org ([62.73.5.179]:29191 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S263323AbTDGIG0 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 04:06:26 -0400
+Date: Mon, 7 Apr 2003 10:18:00 +0200
+From: Olivier Galibert <galibert@pobox.com>
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: does video for linux depend on I2C?
-Date: 07 Apr 2003 10:21:21 +0200
-Organization: SuSE Labs, Berlin
-Message-ID: <87he9ayaym.fsf@bytesex.org>
-References: <Pine.LNX.4.44.0304051436340.20539-100000@dell>
-NNTP-Posting-Host: localhost
+Subject: Re: [PATCH] new syscall: flink
+Message-ID: <20030407081800.GA48052@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.BSO.4.44.0304062250250.9407-100000@kwalitee.nolab.conman.org> <b6qruf$elf$1@cesium.transmeta.com> <b6r9cv$jof$1@news.cistron.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Trace: bytesex.org 1049703681 2192 127.0.0.1 (7 Apr 2003 08:21:21 GMT)
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+Content-Disposition: inline
+In-Reply-To: <b6r9cv$jof$1@news.cistron.nl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Robert P. J. Day" <rpjday@mindspring.com> writes:
+On Mon, Apr 07, 2003 at 07:29:35AM +0000, Miquel van Smoorenburg wrote:
+> Can't you just check those permissions, i.e. behave like link() ?
+> If you cant't access the path to the file, don't permit flink() ?
 
->  the help screen for I2C support claims that you need
-> I2C for video for linux support.  however, it's still
-> possible to not select I2C and yet select video for
-> linux.
+Which path ?  A file can have many paths to it, or to the other
+extreme none at all.
 
-v4l subsystem itself doesn't need i2c, but some drivers do.
-
-  Gerd
-
--- 
-Michael Moore for president!
+  OG.

@@ -1,66 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262090AbTFJLic (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 07:38:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262144AbTFJLic
+	id S262437AbTFJLlq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 07:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbTFJLlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 07:38:32 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:31976 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S262090AbTFJLib (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 07:38:31 -0400
-Message-ID: <3EE5C68B.2065BE35@Bull.Net>
-Date: Tue, 10 Jun 2003 13:52:43 +0200
-From: Eric Piel <Eric.Piel@Bull.Net>
-Organization: Bull S.A.
-X-Mailer: Mozilla 4.78 [en] (X11; U; AIX 4.3)
-X-Accept-Language: fr, en
+	Tue, 10 Jun 2003 07:41:46 -0400
+Received: from kempelen.iit.bme.hu ([152.66.241.120]:6876 "EHLO
+	kempelen.iit.bme.hu") by vger.kernel.org with ESMTP id S262316AbTFJLlm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 07:41:42 -0400
+Date: Tue, 10 Jun 2003 13:55:22 +0200 (MET DST)
+From: =?ISO-8859-2?Q?P=E1sztor_Szil=E1rd?= <silicon@inf.bme.hu>
+To: linux-kernel@vger.kernel.org
+cc: linux-net@vger.kernel.org, Adrian Bunk <bunk@fs.tum.de>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [2.5 patch] let COMX depend on PROC_FS
+In-Reply-To: <20030608175850.A9513@infradead.org>
+Message-ID: <Pine.GSO.4.00.10306101347450.1700-100000@kempelen.iit.bme.hu>
 MIME-Version: 1.0
-To: Riley Williams <Riley@Williams.Name>
-CC: george anzinger <george@mvista.com>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] More time clean up stuff.
-References: <BKEGKPICNAKILKJKMHCAEEEGEEAA.Riley@Williams.Name>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Riley Williams wrote:
+Christoph Hellwig:
+> > The proc_get_inode link problem only affects the modular build of 
+> > comx.c .
 > 
-> Hi George.
-> 
-> I'm ignoring the rest of this - it makes sense to me, but I'm
-> no expert in it. However, your last point is one I can comment
-> about as I've dealt with it professionally many times.
-> 
->  > clock_nanosleep is changed to round up to the next jiffie to
->  > cover starting between jiffies.
-> 
-> Isn't this a case of replacing one error with another, where
-> one of the two errors is unavoidable?
-> 
->  1. In the old case, the sleep will on average be half a jiffie
->     LESS than the requested period.
-> 
->  2. In the new case, the sleep will on average be half a jiffie
->     MORE than the requested period.
-> 
-> One or the other is unavoidable if a jiffie is the basic unit
-> of time resolution of the system. However, the error is totally
-> meaningless if we are asking to sleep for more than 15 jiffies.
+> But it's still broken :)  This just shows no one actually tested
+> it with actual hardware.
 
-The point is that the POSIX norm specifies the problem in a different
-way:
-"The suspension time may be longer than requested because the argument
-value is rounded up to an integer multiple of the sleep resolution or
-because of the scheduling of other activity by the system. But, except
-for the case of being interrupted by a signal, the suspension time shall
-not be less than the time specified by rqtp, as measured by the system
-clock CLOCK_REALTIME."
+I'm the current "maintainter" of the comx drivers (seriously lacked time up
+to now), so it's me to flame if you have some spare fuel. And forgive me for
+having forgot to update the maintainer line in comx.c (comx-* are fine). :)
 
-Basicaly, this means the user must be assured that the sleep() will
-ALWAYS return after the specified time. This patch corrects a bug wich
-could happen nearly 50% of the time you called sleep()!
+The drivers are used by some hundreds of cards today but we tell users to
+get the small kernelpatch from www.itc.hu and the patch, among other things,
+exports proc_get_inode. There was a process to integrate the patch into the
+mainstream kernel last year but, due to lack of time on my part, it was
+suspended. I hope to be able to pick the line up again and clean things up.
 
-Eric
+s.
+          ------------------------------------------------------------
+          |  Programmers don't die, they just GOSUB without RETURN.  |
+          ------------------------------------------------------------
+

@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287317AbSAGWax>; Mon, 7 Jan 2002 17:30:53 -0500
+	id <S287310AbSAGWcN>; Mon, 7 Jan 2002 17:32:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287313AbSAGWad>; Mon, 7 Jan 2002 17:30:33 -0500
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:64182 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S287297AbSAGWa0>; Mon, 7 Jan 2002 17:30:26 -0500
-Date: Mon, 07 Jan 2002 14:28:38 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: Hardware Inventory [was: Re: ISA slot detection on PCI systems?]
-To: Greg KH <greg@kroah.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, mochel@osdl.org
-Message-id: <17d401c197ca$a78e66c0$6800000a@brownell.org>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
-In-Reply-To: <20020107192903.GB8413@kroah.com>
- <17b801c197ba$febd13c0$6800000a@brownell.org> <20020107220348.GE9271@kroah.com>
+	id <S287297AbSAGWcD>; Mon, 7 Jan 2002 17:32:03 -0500
+Received: from peebles.phys.ualberta.ca ([129.128.7.18]:25472 "EHLO
+	peebles.phys.ualberta.ca") by vger.kernel.org with ESMTP
+	id <S287310AbSAGWcB>; Mon, 7 Jan 2002 17:32:01 -0500
+Message-ID: <3C3A21DF.434B8AA8@phys.ualberta.ca>
+Date: Mon, 07 Jan 2002 15:31:59 -0700
+From: Dmitri Pogosyan <pogosyan@phys.ualberta.ca>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.16-0.13 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: Two hdds on one channel - why so slow?
+In-Reply-To: <Pine.LNX.4.33.0201022010340.10236-100000@coffee.psychology.mcmaster.ca> <5.1.0.14.2.20020107031026.01c72940@whisper.qrpff.net> <20020107201938.GB1227@auctionwatch.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hopefully, integration of /sbin/hotplug during the boot process (using
-> dietHotplug) will reduce the number of things the "coldplug" issue will
-> have to handle.
+> On Mon, Jan 07, 2002 at 03:11:22AM -0500, Stevie O wrote:
+> > You're all DEAD WRONG.
+> > IDE and SCSI both suck!
+> > The way of the future is punch cards!
 
-Somewhat -- though it only handles the "load a module"
-subproblem.  When new devices need any more setup
-than that, "dietHotplug" isn't enough.
+I wonder what will survive time to serve as a record of our epoch for
+future historians.   Punch cards may have better chance than magnetica
+carrier.
+I can still read my programs on punch cards from early eighties (you know,
+program lines were printed on top of the card,  they just need some sorting
+to be operational :) ),  but were are all my floppies from later times ??
 
-- Dave
+So we still may be know in the future as the punch card civilization !  :)
 
+                    DMITRI
 

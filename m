@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263280AbSKTXJS>; Wed, 20 Nov 2002 18:09:18 -0500
+	id <S263281AbSKTXK1>; Wed, 20 Nov 2002 18:10:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263193AbSKTXJS>; Wed, 20 Nov 2002 18:09:18 -0500
-Received: from zeke.inet.com ([199.171.211.198]:23453 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S263137AbSKTXJQ>;
-	Wed, 20 Nov 2002 18:09:16 -0500
-Message-ID: <3DDC17BE.9060304@inet.com>
-Date: Wed, 20 Nov 2002 17:16:14 -0600
-From: Eli Carter <eli.carter@inet.com>
-Organization: Inet Technologies, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S263279AbSKTXK1>; Wed, 20 Nov 2002 18:10:27 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:65187 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S263193AbSKTXKX>; Wed, 20 Nov 2002 18:10:23 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+Date: Thu, 21 Nov 2002 10:17:21 +1100
 MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andre Hedrick <andre@linux-ide.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Cort Dougan <cort@fsmlabs.com>,
-       Xavier Bestel <xavier.bestel@free.fr>,
-       Mark Mielke <mark@mark.mielke.cc>, Rik van Riel <riel@conectiva.com.br>,
-       David McIlwraith <quack@bigpond.net.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: spinlocks, the GPL, and binary-only modules
-References: <Pine.LNX.4.10.10211201400570.3892-100000@master.linux-ide.org> <1037832180.3241.104.camel@irongate.swansea.linux.org.uk> <20021120143621.D30979@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15836.6145.203067.371300@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: RFC - new raid superblock layout for md driver
+In-Reply-To: message from Bill Rugolsky Jr. on Wednesday November 20
+References: <15835.2798.613940.614361@notabene.cse.unsw.edu.au>
+	<20021120085838.A9206@ti19>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-[snip]
-> I like:
+On Wednesday November 20, brugolsky@telemetry-investments.com wrote:
+> On Wed, Nov 20, 2002 at 03:09:18PM +1100, Neil Brown wrote:
+> >     u32  feature_map     /* bit map of extra features in superblock */
 > 
-> "When you're arguing with an idiot, two idiots are arguing"
+> Perhaps compat/incompat feature flags, like ext[23]?
+
+I thought about that, but am not sure that it makes sense as there is
+much less metadata in a raid array than there is in a filesystem.
+I think I am happier to have initial code require feature_map == 0 or
+it doesn't get loaded, and if it becomes an issue, get user-space to
+clear any 'compatible' flags before passing the device to an 'old'
+kernel.
+
 > 
-> Told to me by Victor Yodaiken (who suggested I tattoo it on the tops
-> of my hands and look down a lot while I'm flaming. Good idea, that.)
+> Also, journal information, such as a journal UUID?
 
-If that isn't in 'fortune', it should be. :)  (Hmm... even better, it 
-should be in /.'s fortune file... as its _only_ entry. ;) )
+As there is no current code, or serious project that I know of, to add
+journalling to md (I have thought about it, but it isn't a priority) I
+wouldn't like to pre-empt it at all by defining fields now.  I would
+rather that presense-of-a-journal be indicated by a bit in the feature map,
+and that would imply uuid was stored in one of the current 'pad'
+fields.  I think there is plenty of space.
 
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
+Thanks,
+NeilBrown
 
+
+> 
+> Regards,
+> 
+> 	Bill Rugolsky

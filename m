@@ -1,64 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262875AbVCDLP5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262872AbVCDLP4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262875AbVCDLP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 06:15:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262844AbVCDLL7
+	id S262872AbVCDLP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 06:15:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbVCDLNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 06:11:59 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:530 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262772AbVCDLF7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 06:05:59 -0500
-Date: Fri, 4 Mar 2005 12:05:56 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Mike Waychison <mike@waychison.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] unexport complete_all
-Message-ID: <20050304110556.GC3992@stusta.de>
-References: <422817C3.2010307@waychison.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 4 Mar 2005 06:13:21 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:58262 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262780AbVCDLHB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 06:07:01 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: swsusp: use non-contiguous memory on resume
+Date: Fri, 4 Mar 2005 12:09:03 +0100
+User-Agent: KMail/1.7.1
+Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
+       hugang@soulinfo.com
+References: <20050304095934.GA1731@elf.ucw.cz> <20050304102121.GG1345@elf.ucw.cz> <20050304025119.4b3f8aa6.akpm@osdl.org>
+In-Reply-To: <20050304025119.4b3f8aa6.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <422817C3.2010307@waychison.com>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200503041209.04002.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 03:09:39AM -0500, Mike Waychison wrote:
-> > I didn't find any possible modular usage in the kernel.
+On Friday, 4 of March 2005 11:51, Andrew Morton wrote:
+> Pavel Machek <pavel@suse.cz> wrote:
+> >
+> > Problem is that pagedir is allocated as order-8 allocation on resume
+> >  in -mmX (and linus). Unfortunately, order-8 allocation sometimes
+> >  fails, and for some people (Rafael, seife :-) it fails way too often.
 > > 
-> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> > 
-> > --- linux-2.6.11-rc5-mm1-full/kernel/sched.c.old	2005-03-04 01:04:28.000000000 +0100
-> > +++ linux-2.6.11-rc5-mm1-full/kernel/sched.c	2005-03-04 01:04:34.000000000 +0100
-> > @@ -3053,7 +3053,6 @@
-> >  			 0, 0, NULL);
-> >  	spin_unlock_irqrestore(&x->wait.lock, flags);
-> >  }
-> > -EXPORT_SYMBOL(complete_all);
-> >  
-> >  void fastcall __sched wait_for_completion(struct completion *x)
-> >  {
-> > -
+> >  Solution is to change format of pagedir from table to linklist,
+> >  avoiding high-order alocation. Unfortunately that means changes to
+> >  assembly, too, as assembly walks the pagedir.
 > 
-> This is a valid piece of API that is exported for future use.
->...
+> Ah.
+> 
+> >  (Or maybe Rafael is willing to create -mm version and submit it
+> >  himself?)
+> 
+> No, against -linus, please.  But the chunk in kernel/power/swsusp.c looks
+> like it came from a diff between -mm and -linus.  Or something.
 
-You exported this function nearly one year ago with the only comment 
-"Export complete_all for module use.".
+Well, the patch is against -mm, because there already is a different version
+of swsusp in -mm, which is needed for this patch to apply.
 
-Why did you add the export last year instead of simply adding it when it 
-will be required?
+Originally, the patch consisted of two parts, the first one being fairly independent
+on the second one, and the first part went into -mm before 2.6.11-rc4.
 
-> Mike Waychison
+Now, I think it's better if I make a consolidated patch against 2.6.11.  Would
+that be OK?
 
-cu
-Adrian
+Rafael
+
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

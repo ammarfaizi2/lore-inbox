@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbTLWPcH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 10:32:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbTLWPcG
+	id S261605AbTLWPit (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 10:38:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbTLWPis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 10:32:06 -0500
-Received: from peabody.ximian.com ([141.154.95.10]:57825 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261506AbTLWPcD
+	Tue, 23 Dec 2003 10:38:48 -0500
+Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:57473 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261605AbTLWPir
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 10:32:03 -0500
-Subject: Re: [PATCH] add sysfs mem device support  [2/4]
-From: Rob Love <rml@ximian.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
-In-Reply-To: <20031223131523.B6864@infradead.org>
-References: <20031223002126.GA4805@kroah.com>
-	 <20031223002439.GB4805@kroah.com> <20031223002609.GC4805@kroah.com>
-	 <20031223131523.B6864@infradead.org>
-Content-Type: text/plain
-Message-Id: <1072193516.3472.3.camel@fur>
+	Tue, 23 Dec 2003 10:38:47 -0500
+Subject: Re: Question on LFS in Redhat
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Dale Amon <amon@vnl.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20031223151042.GE9089@vnl.com>
+References: <20031223151042.GE9089@vnl.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yT6xnuAg4DKgnaZ7EKh/"
+Organization: Red Hat, Inc.
+Message-Id: <1072193917.5262.1.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Tue, 23 Dec 2003 10:31:56 -0500
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 23 Dec 2003 16:38:38 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-12-23 at 08:15, Christoph Hellwig wrote:
 
-> This is pointless.  The original point of sysfs and co was to present the
-> physical device tree, where these devices absolutely fit into.  Why are
-> you doing this at all?  Creating thse through udev doesn't make sense as
-> they need to be present anyway..
+--=-yT6xnuAg4DKgnaZ7EKh/
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Creating them via udev is the point.
+On Tue, 2003-12-23 at 16:10, Dale Amon wrote:
+> If there are any Redhat folk around... could you tell
+> me if you've included the LFS patches in your:
+>=20
+> 	2.4.16-9smp
 
-Remember, the ultimate goal is to have udev in initramfs during early
-boot, and all of these vital devices will be created.
+Red Hat never released a 2.4.16 kernel for production use.
 
-For udev to work as intended, all devices on the system must be
-represented in sysfs.
+However we also never released a 2.4 kernel with the large BLOCK patch.
+All 2.4 kernels we shipped can do files > 2 Gb of course.
 
-	Rob Love
+--=-yT6xnuAg4DKgnaZ7EKh/
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
+iD8DBQA/6GF9xULwo51rQBIRAkwsAJ48Z/z2dhuf7pbPynZPIumiKiTucQCfTGIM
+W7CK35MJRuSkqaPc9tR565s=
+=sdjz
+-----END PGP SIGNATURE-----
+
+--=-yT6xnuAg4DKgnaZ7EKh/--

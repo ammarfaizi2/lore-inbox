@@ -1,75 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268861AbRHBJg4>; Thu, 2 Aug 2001 05:36:56 -0400
+	id <S268862AbRHBJi4>; Thu, 2 Aug 2001 05:38:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268862AbRHBJgq>; Thu, 2 Aug 2001 05:36:46 -0400
-Received: from stargate.gnyrf.net ([194.165.254.115]:38787 "HELO
-	stargate.gnyrf.net") by vger.kernel.org with SMTP
-	id <S268861AbRHBJge>; Thu, 2 Aug 2001 05:36:34 -0400
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: resizing of raid5?
-Message-ID: <996752017.3b693a9176078@stargate.gnyrf.net>
-Date: Thu, 02 Aug 2001 13:33:37 +0200 (CEST)
-From: Roger Abrahamsson <hyperion@gnyrf.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <996657922.3b67cb02ba717@stargate.gnyrf.net> <15207.63232.611617.37794@notabene.cse.unsw.edu.au> <996685021.3b6834dd0829d@stargate.gnyrf.net> <15208.60042.84240.269386@notabene.cse.unsw.edu.au>
-In-Reply-To: <15208.60042.84240.269386@notabene.cse.unsw.edu.au>
+	id <S268864AbRHBJiq>; Thu, 2 Aug 2001 05:38:46 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:55048 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S268862AbRHBJik>; Thu, 2 Aug 2001 05:38:40 -0400
+Message-ID: <3B691F87.2182A1BA@loewe-komp.de>
+Date: Thu, 02 Aug 2001 11:38:15 +0200
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: LOEWE. Kompetenzzentrum Hannover
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.4-64GB-SMP i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.5
-X-Originating-IP: 212.32.163.13
+To: linux-kernel@vger.kernel.org
+CC: BERECZ Szabolcs <szabi@inf.elte.hu>
+Subject: Re: kswapd eats the cpu without swap
+In-Reply-To: <Pine.A41.4.31.0108020049360.61934-100000@pandora.inf.elte.hu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Neil Brown <neilb@cse.unsw.edu.au>:
+BERECZ Szabolcs wrote:
+> 
+> some notes again.
+> when kswapd was working, there was no hdd activity at all.
+> every interrup was handled after kswapd finished the 'work'.
+> after a reboot everything looks ok with the same modules, and
+> approximately the same load.
+> 
+> oh, I almost forgot, the swapfile is on a reiserfs partition.
+> 
+In a former message you wrote:
+"I have 160M of ram, and I don't use swap at all,"
 
-> 
-> Hmm.  Your backup strategy is ????
-> 
-> Yes, you could it.  It would probably be slower that writting to tape
-> and restoring, but if you don't have a tape......
-> 
-> You would find it very difficult to maintain safety in the event of
-> failure during the re-org process, but if you are willing to risk that
-> you could certainly write a fairly stright forward program to do it.
-> 
-> Suppose you are reconfiguring from a N drive array to an M drive
-> array, and both the old and the new array use a chunk size of C.
-> 
-> Then choose a number X such that the staging area that you have
-> (either RAM or some other drive) can contain (N-1)*(M-1)*C*X.
-> 
-> e.g. 64K chunks, 7 to 8 drives, 10 Gig disc space:
-> 
->  X = floor (10240/6/7/64) = 3
-> 
-> If you don't have enough space to stage N*M*C you can still do it but
-> it will be much more fiddly.
-> 
-> Then read X*N*M*C of the drive using the N drive layout into the
-> staging area.  Then write it back out using the M drive layout.
-> Repeat until done.
-> You don't need to worry about calculating parity when writing out as
-> you can get the raid5 module to do that automatically when you tell it
-> about the new array.
-> 
-> If you (or anyone else) would like to try writting code to do this, I
-> would be happy to review, comment, and test.  You could probably even
-> do it reasonably well in perl...
-> 
-> NeilBrown
-> -
+Then you meant: no single page was swapped out?
 
-Well, thats more or less how I had thought it. It would even be possible
-(if you hack the md/raid5 code) to do a rebuild in a running system. If you
-are really short on disk space, you only need to back up the first rows then.
-Say if you go from N to M (M>N) size array then you would only  have to worry
-about (N-1) / ((M-1)-(N-1)) rows before you would be having backup on disk in
-the old rows..
+I thought you was observing the same as me:
 
-Will look into this during the weekend a bit more and possibly begin to do some
-code also, too much work at the moment to have time to play with this now
-unfortunately. 
+when the system runs low on memory (on a 64MB setop box like device
+with _no_ swap partition/file), the harddisk gets very active and
+the system does not respond for 1-5 seconds.
+The VM (in mm/oom_kill.c) is killing the "memory hog" (simple program 
+that calls malloc() in a loop and touching the mem). I think the
+amount of "busyness" depends on the size of malloc chunks. If they
+are bigger the process gets killed faster.
 
-/Roger
+Until now, I don't understand what is happening. Several subsystems
+in the kernel compete for memory: dentry cache, buffer cache, VM
+that wants at least /proc/sys/vm/freepages free.
+Is demand loading involved? Does the VM quashes text pages when
+running low on memory? What about relocation then?
+
+Or simpler: what keeps the harddisk so busy?
+It is on 2.4.2 with a single ext2 "/" mounted with noatime,sync
+but the question is meant more general.
+
+Anybody?

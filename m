@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316993AbSFKKdE>; Tue, 11 Jun 2002 06:33:04 -0400
+	id <S316994AbSFKKfg>; Tue, 11 Jun 2002 06:35:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316994AbSFKKdD>; Tue, 11 Jun 2002 06:33:03 -0400
-Received: from th00.opsion.fr ([195.219.20.10]:36111 "HELO th00.opsion.fr")
-	by vger.kernel.org with SMTP id <S316993AbSFKKdC> convert rfc822-to-8bit;
-	Tue, 11 Jun 2002 06:33:02 -0400
-Send-By: 211.22.33.11 with Mozilla/4.7 [en] (X11; I; Linux 2.4.18 i586)
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: mke2fs (and mkreiserfs) core dumps
-From: <cnliou@eurosport.com>
-X-Priority: 3 (normal)
+	id <S316995AbSFKKff>; Tue, 11 Jun 2002 06:35:35 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:55725 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S316994AbSFKKfe>; Tue, 11 Jun 2002 06:35:34 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: "jeff millar" <wa1hco@adelphia.net>
+Date: Tue, 11 Jun 2002 20:36:05 +1000 (EST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: Tue, 11 Jun 2002 10:32:55 GMT
-Message-id: <200206111032.3758@th00.opsion.fr>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15621.53909.485050.238663@notabene.cse.unsw.edu.au>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Raid _still_ not compiling in v2.5.21
+In-Reply-To: message from jeff millar on Sunday June 9
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you! Andreas,
+On Sunday June 9, wa1hco@adelphia.net wrote:
+> This bug just keeps on bugging me...
+> 
+>     raid5.c: In function 'raid5_plug_device':
+>     raid5.c:1247: 'tq_disk' undeclared (first use in this function)
+> 
+> Some patches show up in a search of lkml but I figured such a simple fix
+> would make it into the Linus tree quickly.
+> 
+> Did I miss something?  What's the issue here?
+> 
 
-I do directly login at the console as root and
-e2fsprogs-1.27 is used. ulimit is not set.
+The issue?  
+  Time.  Priorities.  Coversations across time zones.  Public
+  holidays.
 
-CN
--------------
-<< You must log in directly at the console as root
-(no su or sudo), or disable any ulimit from being
-set.
+It'll get there.
 
-Alternately, if you get the very latest e2fsprogs
-(1.27) then it
-should also be able to work around this problem. >>
-
---------------------------------------------------------
-You too can have your own email address from Eurosport.
-http://www.eurosport.com
-
-
-
-
-
+NeilBrown

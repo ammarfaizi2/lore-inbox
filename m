@@ -1,64 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVCRAAn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVCRACh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261303AbVCRAAn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 19:00:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbVCRAAk
+	id S261292AbVCRACh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 19:02:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVCRACg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 19:00:40 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:41890 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261303AbVCRAA0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 19:00:26 -0500
-Date: Thu, 17 Mar 2005 16:00:24 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prezeroing V8
-In-Reply-To: <20050317155208.22b72984.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0503171554230.10205@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0503171340480.9678@schroedinger.engr.sgi.com>
- <20050317140831.414b73bb.akpm@osdl.org> <Pine.LNX.4.58.0503171423590.10008@schroedinger.engr.sgi.com>
- <20050317151151.47fd6e5f.akpm@osdl.org> <Pine.LNX.4.58.0503171518030.10205@schroedinger.engr.sgi.com>
- <20050317155208.22b72984.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Mar 2005 19:02:36 -0500
+Received: from cavan.codon.org.uk ([213.162.118.85]:16816 "EHLO
+	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S261292AbVCRACa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 19:02:30 -0500
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Nate Lawson <nate@root.org>
+Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <4239E9BA.7050105@root.org>
+References: <1110741241.8136.46.camel@tyrosine>  <423518E7.3030300@root.org>
+	 <1111072221.8136.171.camel@tyrosine>  <4239E9BA.7050105@root.org>
+Date: Fri, 18 Mar 2005 00:02:34 +0000
+Message-Id: <1111104154.8136.179.camel@tyrosine>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+X-SA-Exim-Connect-IP: 213.162.118.93
+X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
+Subject: Re: [ACPI] IDE failure on ACPI resume
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Mar 2005, Andrew Morton wrote:
+On Thu, 2005-03-17 at 12:34 -0800, Nate Lawson wrote:
 
-> Christoph Lameter <clameter@sgi.com> wrote:
-> >
-> > > And given that we have separate buddy structures for zeroed and not-zeroed
-> >  > pages, why is this tagging needed at all?
-> >
-> >  Because the buddy pointers may point to a page of the different kind. Then
-> >  a merge is not possible.
->
-> In that case I still don't understand, sorry.
->
-> If each zone has two buddy lists, one for zeroed and one for not-zeroed,
-> how can we ever get known-to-be-zeroed pages on the not-known-to-be-zeroed
-> list or vice versa?
+> Very interesting.  I was hoping to someday have _GTF et al implemented 
+> but the ATA knowledge required was above my head.  I also strongly 
+> suspected that the info published by _GTF would likely be invalid.  Does 
+> Windows actually use that method or just hardcoded ATA initialization?
 
-The buddy is calculated based on the position in the page struct array not
-based on the list.
-
-> >
-> >   #define __free_page(page) __free_pages((page), 0)
-> >   #define free_page(addr) free_pages((addr),0)
-> >
-> >  This is what you want right?
->
-> Well, it was more a question that a request.  If we do this, does it speed
-> anything up?
-
-It will be able to manage the quicklist effectively and you can avoid
-having to zero a page for pte/pmd/pud/pgds.
-
-The main benefit from prezeroing is gained for programs that do numerical
-calculations based on sparse matrices or other extremely large programs
-that typically also come with large sparse arrays. The optimization is
-typical for operating systems in that area (even M$ does that...).
+I believe that Windows does use the _GTF methods.
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org
 

@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263171AbTCYRdo>; Tue, 25 Mar 2003 12:33:44 -0500
+	id <S263128AbTCYRpd>; Tue, 25 Mar 2003 12:45:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263156AbTCYRbv>; Tue, 25 Mar 2003 12:31:51 -0500
-Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:55717 "EHLO
-	scaup.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S263125AbTCYRai>; Tue, 25 Mar 2003 12:30:38 -0500
-Date: Tue, 25 Mar 2003 10:32:11 -0800 (PST)
-From: James Simmons <jsimmons@infradead.org>
-X-X-Sender: <jsimmons@maxwell.earthlink.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [BK FBDEV] A few more updates.
-Message-ID: <Pine.LNX.4.33.0303251031180.4272-100000@maxwell.earthlink.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263143AbTCYRpd>; Tue, 25 Mar 2003 12:45:33 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:10770 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S263128AbTCYRpc>;
+	Tue, 25 Mar 2003 12:45:32 -0500
+Date: Tue, 25 Mar 2003 09:56:03 -0800
+From: Greg KH <greg@kroah.com>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: KML <linux-kernel@vger.kernel.org>
+Subject: Re: i2c driver changes for 2.5.66; adding w83781d support.
+Message-ID: <20030325175603.GG15823@kroah.com>
+References: <1048582394.4774.7.camel@workshop.saharact.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1048582394.4774.7.camel@workshop.saharact.lan>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 25, 2003 at 10:53:14AM +0200, Martin Schlemmer wrote:
+> Hi
+> 
+> I am interested in this, but I only have LKML at work.  Mind
+> sending me all the changes to 2.5.66 as one bulk patch?
 
-Linus, please do a
+They should be all in the patch-2.5.66-bk1 file on kernel.org right now.
 
-	bk pull http://fbdev.bkbits.net/fbdev-2.5
+> Also, I did some initial patch to get w83781d support in, but
+> it very rough.  I will try to get to doing it according to your
+> 'How to convert i2c adapter drivers into good kernel code' ...
+> Who do I sent it to if completed ?
 
-This will update the following files:
+I have a port of this driver in my kernel tree, if you really want to
+use it right now.  But I'd recommend waiting on converting the chip
+drivers until we get the sysfs interface conversion done, otherwise we
+will have to go back and modify all files again :)
 
- drivers/video/aty/aty128fb.c  |   16 +++++++---------
- drivers/video/console/fbcon.c |    4 ++--
- drivers/video/controlfb.c     |   18 +++---------------
- drivers/video/platinumfb.c    |   28 ++++++++--------------------
- drivers/video/radeonfb.c      |   10 ++++++++++
- drivers/video/softcursor.c    |    2 +-
- 6 files changed, 31 insertions(+), 47 deletions(-)
+See my other post about the eeprom.c driver for more info on the sysfs
+changes needed for i2c chip drivers, it isn't as simple.
 
-through these ChangeSets:
+But if you really want to do it, great.  Send it on to lkml, and
+probably the sensors list.  You can cc me if you want to.
 
-<jsimmons@maxwell.earthlink.net> (03/03/25 1.981)
-   [FBCON] Could be called outside of a process context. This fixes that.
+thanks,
 
-<jsimmons@maxwell.earthlink.net> (03/03/25 1.979)
-   [RAGE 128/CONTROL/PLATNIUM FBDEV] PPC updates.
-
-   [RADEON FBDEV] PLL fix for specific type of card.
-
-
+greg k-h

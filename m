@@ -1,37 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131747AbQKZXOR>; Sun, 26 Nov 2000 18:14:17 -0500
+        id <S132966AbQKZXRH>; Sun, 26 Nov 2000 18:17:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131530AbQKZXN5>; Sun, 26 Nov 2000 18:13:57 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:18948 "EHLO bug.ucw.cz")
-        by vger.kernel.org with ESMTP id <S130783AbQKZXNr>;
-        Sun, 26 Nov 2000 18:13:47 -0500
-Date: Fri, 24 Nov 2000 08:09:50 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Guest section DW <dwguest@win.tue.nl>
-Cc: Keith Owens <kaos@ocs.com.au>, "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: silly [< >]
-Message-ID: <20001124080950.C214@toy>
-In-Reply-To: <200011251026.eAPAQKG210983@saturn.cs.uml.edu> <6551.975150464@ocs3.ocs-net> <20001125192030.A7152@win.tue.nl>
-Mime-Version: 1.0
+        id <S131530AbQKZXQ5>; Sun, 26 Nov 2000 18:16:57 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:19034 "EHLO
+        the-village.bc.nu") by vger.kernel.org with ESMTP
+        id <S131338AbQKZXQn>; Sun, 26 Nov 2000 18:16:43 -0500
+Subject: Re: [PATCH] modutils 2.3.20 and beyond
+To: jmerkey@vger.timpanogas.org (Jeff V. Merkey)
+Date: Sun, 26 Nov 2000 22:46:35 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20001126163655.A1637@vger.timpanogas.org> from "Jeff V. Merkey" at Nov 26, 2000 04:36:55 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001125192030.A7152@win.tue.nl>; from dwguest@win.tue.nl on Sat, Nov 25, 2000 at 07:20:30PM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E140AZB-0002Qh-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> +		{"ignore-versions", 0, 0, 'i'},
 
-You complain that most important information is on begging of OOps. So what
-about moving most important info to the end? I.e. stack trace first, EIP next;
-or even print EIP twice. Than s to [<, ksymoops will not break ;-)
-								Pavel
-
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+I dont think we should encourage anyone to ignore symbol versions
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

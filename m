@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262688AbTCJBDE>; Sun, 9 Mar 2003 20:03:04 -0500
+	id <S262687AbTCJBa1>; Sun, 9 Mar 2003 20:30:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262687AbTCJBDE>; Sun, 9 Mar 2003 20:03:04 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:52072
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S262688AbTCJBDE>; Sun, 9 Mar 2003 20:03:04 -0500
-Date: Sun, 9 Mar 2003 20:11:13 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Robert Love <rml@tech9.net>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] small fixes in brlock.h
-In-Reply-To: <1047255023.680.16.camel@phantasy.awol.org>
-Message-ID: <Pine.LNX.4.50.0303091928430.1464-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0303091843250.1464-100000@montezuma.mastecende.com>
-  <1047254400.680.10.camel@phantasy.awol.org> 
- <Pine.LNX.4.50.0303091901370.1464-100000@montezuma.mastecende.com>
- <1047255023.680.16.camel@phantasy.awol.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262689AbTCJBa1>; Sun, 9 Mar 2003 20:30:27 -0500
+Received: from B503f.pppool.de ([213.7.80.63]:3010 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S262687AbTCJBa0>; Sun, 9 Mar 2003 20:30:26 -0500
+Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
+From: Daniel Egger <degger@fhm.edu>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <b4gnf1$n6f$1@cesium.transmeta.com>
+References: <Pine.LNX.4.44.0303072121180.5042-100000@serv>
+	 <1047209545.4102.3.camel@sonja> <m1adg4kbjn.fsf@frodo.biederman.org>
+	 <1047219550.4102.6.camel@sonja>  <b4gnf1$n6f$1@cesium.transmeta.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-7wub2bUtEEdPYdoulnB1"
+Organization: 
+Message-Id: <1047260440.14971.16.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 10 Mar 2003 02:40:40 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Mar 2003, Robert Love wrote:
 
-> Yep.  Any interrupt, actually.
-> 
-> Or the reschedule IPI on SMP systems.
-> 
-> Kernel preemption off an interrupt is actually the most common (and the
-> ideal) place to preempt since an interrupt is usually what wakes up a
-> task off I/O and sets need_resched.  So kernel preemption lets us
-> reschedule the higher priority task the moment the interrupt wakes it
-> up.  Of course, if a lock is held, we have to wait till we drop it.
+--=-7wub2bUtEEdPYdoulnB1
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Thanks for clearing that up, i'll probably need to relook at some of my 
-code to be sure.
+Am Mon, 2003-03-10 um 01.49 schrieb H. Peter Anvin:
 
-	Zwane
--- 
-function.linuxpower.ca
+> Try pxelinux... it doesn't need any kind of tagging.
+
+Unfortunately I couldn't get it to work when I tried last
+time and now I've too many machines running on the good ol'
+double hit tftp scheme to make a switch quite cumbersome.
+
+But you're right, I should definitely try it. I've two questions
+regarding it though:
+- Right now I've several machines having etherboot on flash, how
+  can I use pxelinux (or similar) with them? I don't want to have
+  two quite different ways to deal with.
+- Are there any kind of constraints which annoy me right now
+  with etherboot/mknbi like maximum kernel size < 1M?
+
+--=20
+Servus,
+       Daniel
+
+
+--=-7wub2bUtEEdPYdoulnB1
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+a+0Xchlzsq9KoIYRAv/iAJ0X2BSxGM+wcpcBp9Wyt/h/qgd18QCgiw6B
+HwyfcB7yehGKeZpj2ddSqh4=
+=2WHQ
+-----END PGP SIGNATURE-----
+
+--=-7wub2bUtEEdPYdoulnB1--
+

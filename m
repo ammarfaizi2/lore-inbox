@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132296AbQKKTyL>; Sat, 11 Nov 2000 14:54:11 -0500
+	id <S132295AbQKKUIg>; Sat, 11 Nov 2000 15:08:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132324AbQKKTyA>; Sat, 11 Nov 2000 14:54:00 -0500
-Received: from web1102.mail.yahoo.com ([128.11.23.122]:4112 "HELO
-	web1102.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S132296AbQKKTxq>; Sat, 11 Nov 2000 14:53:46 -0500
-Message-ID: <20001111195345.6818.qmail@web1102.mail.yahoo.com>
-Date: Sat, 11 Nov 2000 20:53:45 +0100 (CET)
-From: willy tarreau <wtarreau@yahoo.fr>
-Subject: Re: Tracing files that opens.
-To: mag@bahnhof.se
-Cc: linux-kernel@vger.kernel.org
+	id <S132324AbQKKUI1>; Sat, 11 Nov 2000 15:08:27 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:35080 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S132295AbQKKUIP>; Sat, 11 Nov 2000 15:08:15 -0500
+Message-ID: <3A0DA720.990C4927@transmeta.com>
+Date: Sat, 11 Nov 2000 12:08:00 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10-pre3 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Max Inux <maxinux@bigfoot.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: bzImage ~ 900K with i386 test11-pre2
+In-Reply-To: <Pine.LNX.4.30.0011110323020.10847-100000@shambat>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there a nice way to trap on file open() and
-stat() ? 
+Max Inux wrote:
+> 
+> >gzip, actually.  I can verify here "make bzImage" does the expected thing
+> >and it looks normal-sized to me.
+> 
+> I believe there is zImage (gzip) and bzImage (bzip2). (Or is it compress
+> vs gzip, but then why bzImage vs gzImage?)
+> 
 
-a few months ago, I helped a friend in writing a
-generic syscall wrapper because he needed exactly
-this.
-You should take a look at the section "overloader" on 
+b is "big".  They are both gzip compressed.  zImage has a size limit
+which bzImage doesn't.  zImage is pretty much obsolete.
 
-http://bdolez.free.fr/
+	-hpa
 
-Regards,
-willy
-
-
-___________________________________________________________
-Do You Yahoo!? -- Pour dialoguer en direct avec vos amis, 
-Yahoo! Messenger : http://fr.messenger.yahoo.com
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261641AbSJCRiD>; Thu, 3 Oct 2002 13:38:03 -0400
+	id <S261760AbSJCRLI>; Thu, 3 Oct 2002 13:11:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261642AbSJCRiD>; Thu, 3 Oct 2002 13:38:03 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:33492 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261641AbSJCRiC>;
-	Thu, 3 Oct 2002 13:38:02 -0400
-Date: Thu, 03 Oct 2002 10:36:17 -0700 (PDT)
-Message-Id: <20021003.103617.04446177.davem@redhat.com>
-To: yoshfuji@linux-ipv6.org
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       netfilter-devel@lists.netfilter.org, usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: Miscellaneous clean-ups
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021004.011315.05129566.yoshfuji@linux-ipv6.org>
-References: <20021004.011315.05129566.yoshfuji@linux-ipv6.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S261759AbSJCRLI>; Thu, 3 Oct 2002 13:11:08 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:47257 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261758AbSJCRLG>; Thu, 3 Oct 2002 13:11:06 -0400
+Date: Thu, 3 Oct 2002 10:17:38 -0700
+From: Mike Anderson <andmike@us.ibm.com>
+To: akpm@digeo.com, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       dougg@gear.torque.net
+Subject: Re: 2.4.39 "Sleeping function called from illegal context at slab.c:1374"
+Message-ID: <20021003171738.GA1106@beaverton.ibm.com>
+Mail-Followup-To: akpm@digeo.com, linux-scsi@vger.kernel.org,
+	linux-kernel@vger.kernel.org, dougg@gear.torque.net
+References: <3D99885B.533C320D@aitel.hist.no> <3D99EF62.3A3E6932@digeo.com> <20021001215907.GA8273@midgaard.us> <3D9A207A.14BFF440@digeo.com> <20021002162443.GA1317@beaverton.ibm.com> <20021002184437.GA17474@midgaard.us> <20021002212122.GF1317@beaverton.ibm.com> <20021002235349.GA20442@midgaard.us>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021002235349.GA20442@midgaard.us>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org>
-   Date: Fri, 04 Oct 2002 01:13:15 +0900 (JST)
+Andreas,
+	I noticed a problem with the scsi_error.c update the I made to
+	2.5.40. There is a typo in the the tur check on error handling.
+	I tested the patch yesterday and it is recovering better on
+	faults. 
 
-   @@ -1187,7 +1187,7 @@
-    	ASSERT_RTNL();
-    
-    	memset(&addr, 0, sizeof(struct in6_addr));
-   -	addr.s6_addr[15] = 1;
-   +	addr.s6_addr32[3] = __constant_htonl(0x00000001);
-    
-Do not use __constant_htonl() in runtime code, use htonl().
-Arnaldo de Melo told you this the other day for another one
-of your patches, so you must fix this kind of stuff up before
-I'll apply any of your patches which have this problem.
+	I do not know if it will fix your problem, but it might be worth
+	a try.
+	
+	I will send it to you in bit I am in the process of
+	rolling it and other patches that depend on it up.
 
-Only use __constant_htonl() for compile time initialization of data
-built into the kernel.
 
-Otherwise I like you patch, please fix it up so I may apply it.
+Andreas Boman [aboman@nerdfest.org] wrote:
+> * Mike Anderson (andmike@us.ibm.com) wrote:
+> > Andreas,
+> > 	Here is the updated patch.
+> > 
+> 
+> Yep, no more warnings on modprobe sg. Unfortenuately the box still hangs after 
+> modprobe ide-scsi:
+> 
+>  scsi1 : SCSI host adapter emulation for IDE ATAPI devices
+>  scsi_eh_offline_sdevs: Device set offline - notready or command retry failedafter error recovery: host1 channel 0 id 0 lun 0
+>    Vendor:           Model:                   Rev:     
+>    Type:   Direct-Access                      ANSI SCSI revision: 00
+>  hda: lost interrupt
+>  ide-scsi: CoD != 0 in idescsi_pc_intr
+>  hda: DMA disabled
+>  hda: ATAPI reset complete
+> 
+> 
+> andreas
+-andmike
+--
+Michael Anderson
+andmike@us.ibm.com
+

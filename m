@@ -1,64 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315956AbSEGTtc>; Tue, 7 May 2002 15:49:32 -0400
+	id <S315957AbSEGTvA>; Tue, 7 May 2002 15:51:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315957AbSEGTtb>; Tue, 7 May 2002 15:49:31 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:46074 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S315956AbSEGTtb>; Tue, 7 May 2002 15:49:31 -0400
-Date: Tue, 7 May 2002 21:44:41 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Dave Jones <davej@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.14-dj1: misc.o: undefined reference to `__io_virt_debug'
-In-Reply-To: <20020507205523.D12134@suse.de>
-Message-ID: <Pine.NEB.4.44.0205072137260.9347-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S315958AbSEGTu7>; Tue, 7 May 2002 15:50:59 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:20367 "EHLO segfault.osdl.org")
+	by vger.kernel.org with ESMTP id <S315957AbSEGTu6>;
+	Tue, 7 May 2002 15:50:58 -0400
+Date: Tue, 7 May 2002 12:47:32 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+To: Thunder from the hill <thunder@ngforever.de>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.14 IDE 56
+In-Reply-To: <Pine.LNX.4.44.0205071245370.4189-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.LNX.4.33.0205071238000.6307-100000@segfault.osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 May 2002, Dave Jones wrote:
 
-> On Tue, May 07, 2002 at 08:36:09PM +0200, Adrian Bunk wrote:
->
->  > misc.o: In function `puts':
->  > misc.o(.text+0x1c46): undefined reference to `__io_virt_debug'
->  > misc.o(.text+0x1c7c): undefined reference to `__io_virt_debug'
->  > misc.o(.text+0x1ca9): undefined reference to `__io_virt_debug'
->  > misc.o(.text+0x1cde): undefined reference to `__io_virt_debug'
->
-> Odd. Repeatable after a make distclean ?
+On Tue, 7 May 2002, Thunder from the hill wrote:
 
-Yes, it's repeatable with a clean kernel source.
+> Hi,
+> 
+> > > >	/driverfs/root/pci0/00:1f.4/usb_bus/000/
+> > /driverfs/class/ide/
+> > /driverfs/root/pci0/07.2/
+> > /driverfs/class/ide/0/
+> > /driverfs/class/ide/0/2
+> 
+> Why not fixing devfs for that? My root directory is messed up enough. We 
+> have dev, proc, tmp, ...
 
-> I always build my test kernels with CONFIG_DEBUG_IOVIRT=y, and I
-> haven't seen this happen.
+For one, I am of the camp that believes devfs is unfixable. 
 
-But you build without CONFIG_MULTIQUAD?
+For two, where driverfs is mounted is irrelevant: /driverfs, /sys, 
+/proc/bus are all valid places. 
 
-Compiling misc.c with -O0 gives a better error message:
+Besides, who cares what's in /? You have /home, which is all that really 
+matters, no? 
 
-<--  snip  -->
+> We might have /dev/driver or such, which doesn't make the root directory 
+> any fuller. (And also not to disturb the newbies any further. It's hard a 
+> lot to explain to a windows user why he can't remove /proc and /dev, and 
+> what this is supposed to be.)
 
-...
-ld -m elf_i386 -Ttext 0x100000 -e startup_32 -o bvmlinux head.o misc.o
-piggy.o
-misc.o: In function `outb_quad':
-misc.o(.text+0x289c): undefined reference to `__io_virt_debug'
-make[2]: *** [bvmlinux] Error 1
-make[2]: Leaving directory
-`/home/bunk/linux/kernel-2.5/linux-2.5.14-modular/arch/i386/boot/compressed'
+So don't give them root access. Or, explain to them that they're magic, 
+like the pagefile.sys file. :)
 
-<--  snip  -->
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+	-pat
 

@@ -1,69 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261501AbTDBEK6>; Tue, 1 Apr 2003 23:10:58 -0500
+	id <S261538AbTDBEdB>; Tue, 1 Apr 2003 23:33:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261508AbTDBEK6>; Tue, 1 Apr 2003 23:10:58 -0500
-Received: from modemcable226.131-200-24.mtl.mc.videotron.ca ([24.200.131.226]:10493
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S261501AbTDBEK5>; Tue, 1 Apr 2003 23:10:57 -0500
-Date: Tue, 1 Apr 2003 23:17:59 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Joe Korty <joe.korty@ccur.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5] smp_call_function needs mb()
-In-Reply-To: <Pine.LNX.4.50.0304011919300.8773-100000@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.50.0304012313000.8773-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0304010305510.8773-100000@montezuma.mastecende.com>
- <20030401220004.GB30989@tsunami.ccur.com>
- <Pine.LNX.4.50.0304011919300.8773-100000@montezuma.mastecende.com>
+	id <S261610AbTDBEdB>; Tue, 1 Apr 2003 23:33:01 -0500
+Received: from lrsehosting.com ([198.78.66.31]:20487 "EHLO www.geekizoid.com")
+	by vger.kernel.org with ESMTP id <S261538AbTDBEdA>;
+	Tue, 1 Apr 2003 23:33:00 -0500
+Date: Tue, 1 Apr 2003 20:44:24 -0800 (PST)
+From: William Scott Lockwood III <vlad@geekizoid.com>
+To: William Gates <twocentaolish@hotmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [Off Topic] Re: [ANNOUNCEMENT] Microsoft to GPL its source code
+In-Reply-To: <F145ffwGrke1UZY2uYY0001dbcb@hotmail.com>
+Message-ID: <20030401204344.P6986-100000@www.geekizoid.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Apr 2003, Zwane Mwaikambo wrote:
+This would have been more entertaining had you at least hacked the headers
+to make it look like it came from a @microsoft.com email address.  :-)
 
-> On Tue, 1 Apr 2003, Joe Korty wrote:
-> 
-> > This should be sent to Marcello as well.
-> > Joe
-> 
-> I'll try oops 2.4.20 and send.
+On Wed, 2 Apr 2003, William Gates wrote:
 
-2.4.21-pre5-ac3 Nothing happened.. mainly because the whole box was 
-completely useless during the whole test run. There was no real progress 
-during the entire run so i stoppped it. I'll send to Alan anyway
-
-305485 total                                      0.1583
-246390 default_idle                             3849.8438
- 11361 .text.lock.inode                          50.9462
-  9027 generic_file_write                         4.7411
-  1374 invalidate_bdev                            2.5257
-  1166 do_get_write_access                        0.7288
-  1116 journal_add_journal_head                   2.2500
-  1061 __make_request                             0.6197
-   913 shrink_cache                               0.5764
-   872 kmem_cache_reap                            0.5737
-   848 unlock_buffer                             10.6000
-   846 journal_dirty_metadata                     1.7625
-   796 .text.lock.sched                           1.5191
-   792 do_anonymous_page                          1.7679
-   755 kmem_cache_alloc                           1.1509
-   738 get_hash_table                             3.8438
-   688 .text.lock.buffer                          1.1486
-   630 rmqueue                                    0.7572
-   620 ext3_do_update_inode                       0.7045
-   613 __rdtsc_delay                             19.1562
-   588 do_wp_page                                 0.6682
-   574 write_some_buffers                         1.8882
-   560 journal_get_write_access                   5.8333
-   542 journal_unlock_journal_head                2.8229
-   524 journal_cancel_revoke                      2.5192
-   519 schedule                                   0.4569
-   502 try_to_free_buffers                        0.9508
-   460 __wake_up                                  2.6136
-   454 kmalloc                                    0.6168
-   399 ext3_new_block                             0.1651
-   379 .text.lock.ioctl                           9.0238
+>
+>
+>
+>
+> We have recently chosen to open up our source because it makes good business
+> sense for us at this time. Here are some of the reasons:
+>
+> The availability of the source code and the right to modify it is very
+> important. It enables us to tap into the unlimited programming resources
+> available to tune and improve our software products.
+>
+> The right to redistribute modifications and improvements to the code, and to
+> reuse other open source code, permits all the advantages due to the
+> modifiability of the software to be shared by large communities, communities
+> we learned that we need to embrace, under certain conditions.
+>
+> The point that differentiates open source software licences from our past
+> licenses is modifiability. In substance, the fact that redistribution rights
+> cannot be revoked, and that they are universal, is what attracts a
+> substantial crowd of developers to work around open source software
+> projects, and we welcome them.
+>
+> We have decided that we would like help to improve the quality of our
+> products, and to improve their functionality. Which, once more, will cause
+> more and more users give the product a try, and probably to use it
+> regularly.
+>
+> Now this is only a temporary GPL. We have slightly modified our licenses to
+> open the source for a limited time period. One the time period expires, all
+> rights to the code, as well as deriviatives, revert back to Microsoft.
+>
+> William Gates
+>
+> _________________________________________________________________
+> Tired of spam? Get advanced junk mail protection with MSN 8.
+> http://join.msn.com/?page=features/junkmail
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

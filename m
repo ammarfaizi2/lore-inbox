@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261273AbTC0Snp>; Thu, 27 Mar 2003 13:43:45 -0500
+	id <S261282AbTC0Sq3>; Thu, 27 Mar 2003 13:46:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261274AbTC0Snp>; Thu, 27 Mar 2003 13:43:45 -0500
-Received: from inet-mail2.oracle.com ([148.87.2.202]:21495 "EHLO
-	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
-	id <S261273AbTC0Sno>; Thu, 27 Mar 2003 13:43:44 -0500
-Date: Thu, 27 Mar 2003 10:52:08 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: WimMark I report for 2.5.66-mm1
-Message-ID: <20030327185208.GC32000@ca-server1.us.oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.4i
+	id <S261290AbTC0Sq3>; Thu, 27 Mar 2003 13:46:29 -0500
+Received: from a089148.adsl.hansenet.de ([213.191.89.148]:59271 "EHLO
+	ds666.starfleet") by vger.kernel.org with ESMTP id <S261282AbTC0Sq2>;
+	Thu, 27 Mar 2003 13:46:28 -0500
+Message-ID: <3E8349B6.7010603@portrix.net>
+Date: Thu, 27 Mar 2003 19:57:58 +0100
+From: Jan Dittmer <j.dittmer@portrix.net>
+Organization: portrix.net GmbH
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030305
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: KML <linux-kernel@vger.kernel.org>
+Subject: Re: lm sensors sysfs file structure
+References: <1048582394.4774.7.camel@workshop.saharact.lan> <20030325175603.GG15823@kroah.com> <1048705473.7569.10.camel@nosferatu.lan> <3E82024A.4000809@portrix.net> <20030326202622.GJ24689@kroah.com> <3E82292E.536D9196@paradyne.com> <20030326225234.GA27436@kroah.com> <3E83459A.3090803@portrix.net> <20030327185222.GI32667@kroah.com>
+In-Reply-To: <20030327185222.GI32667@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	There seem to have been some NFS issues during this run (other
-things are on NFS), so take the bad numbers with a grain of salt.  The
-best numbers for each run (1119.58 for AS and 1532.29 for DL) are
-consistent with earlier kernels, though on the low end.
+[ stripped some cc's ]
 
-WimMark I report for 2.5.66-mm1
+Greg KH wrote:
+> On Thu, Mar 27, 2003 at 07:40:26PM +0100, Jan Dittmer wrote:
+> 
+>>Btw, is it indended behaviour of sysfs, that after writing to a file, 
+>>the size is zero?
+> 
+> 
+> Hm, don't know about that, I haven't seen that before.  If you cat the
+> file after writing it, does the file size change?
+> 
+No it stays 0. Happens also with other files in sysfs.
 
-Runs (as):  1119.58 735.69 879.24
-Runs (deadline):  1221.11 1376.93 1532.29
+Jan
 
-	WimMark I is a rough benchmark we have been running
-here at Oracle against various kernels.  Each run tests an OLTP
-workload on the Oracle database with somewhat restrictive memory
-conditions.  This reduces in-memory buffering of data, allowing for
-more I/O.  The I/O is read and sync write, random and seek-laden.
-	The benchmark is called "WimMark I" because it has no
-official standing and is only a relative benchmark useful for comparing
-kernel changes.  The benchmark is normalized an arbitrary kernel, which
-scores 1000.0.  All other numbers are relative to this.
-	The machine in question is a 4 way 700 MHz Xeon machine with 2GB
-of RAM.  CONFIG_HIGHMEM4GB is selected.  The disk accessed for data is a
-10K RPM U2W SCSI of similar vintage.  The data files are living on an
-ext3 filesystem.  Unless mentioned, all runs are
-on this machine (variation in hardware would indeed change the
-benchmark).
-
--- 
-
-Life's Little Instruction Book #510
-
-	"Count your blessings."
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127

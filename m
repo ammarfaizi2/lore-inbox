@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265446AbSKOBP3>; Thu, 14 Nov 2002 20:15:29 -0500
+	id <S265532AbSKOBS0>; Thu, 14 Nov 2002 20:18:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265457AbSKOBP3>; Thu, 14 Nov 2002 20:15:29 -0500
-Received: from holomorphy.com ([66.224.33.161]:61643 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S265446AbSKOBP2>;
-	Thu, 14 Nov 2002 20:15:28 -0500
-Date: Thu, 14 Nov 2002 17:19:47 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Tim Hockin <thockin@sun.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH 1/2] Remove NGROUPS hardlimit (resend w/o qsort)
-Message-ID: <20021115011947.GP23425@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Tim Hockin <thockin@sun.com>, Pete Zaitcev <zaitcev@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <mailman.1037316781.6599.linux-kernel2news@redhat.com> <200211150006.gAF06JF01621@devserv.devel.redhat.com> <3DD43C65.80103@sun.com> <20021114193156.A2801@devserv.devel.redhat.com> <3DD443EC.2080504@sun.com>
-Mime-Version: 1.0
+	id <S265537AbSKOBSZ>; Thu, 14 Nov 2002 20:18:25 -0500
+Received: from packet.digeo.com ([12.110.80.53]:45802 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265532AbSKOBSY>;
+	Thu, 14 Nov 2002 20:18:24 -0500
+Message-ID: <3DD44CF4.6C28CF86@digeo.com>
+Date: Thu, 14 Nov 2002 17:25:08 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Christian Guggenberger 
+	<christian.guggenberger@physik.uni-regensburg.de>,
+       rl@hellgate.ch, linux-kernel@vger.kernel.org,
+       Mikael Pettersson <mikpe@csd.uu.se>, mingo@redhat.com
+Subject: Re: Yet another IO-APIC problem (was Re: via-rhine weirdness 
+ withviakt8235 Southbridge)
+References: <20021115002822.G6981@pc9391.uni-regensburg.de> <20021115011738.D17058@pc9391.uni-regensburg.de> <3DD445EF.9080002@pobox.com> <3DD4481F.72627800@digeo.com> <3DD44B4E.3030102@pobox.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DD443EC.2080504@sun.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Nov 2002 01:25:11.0685 (UTC) FILETIME=[D78E3B50:01C28C45]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 14, 2002 at 04:46:36PM -0800, Tim Hockin wrote:
-> Offer an alternative?  :)  Linked list costs us as much or MORE for 
-> ->next as the gid_t.  kmalloc() doesn't work for previous reasoning.  I 
-> considered a list of gid arr[256] or similar.  A voice reminds me that 
-> it doesn't impact us noticably in real use.  Now, maybe other 
-> architectures will find a good reason to switch to kmalloc() list of 
-> smaller arrays, and the associated complextities or something else more 
-> clever.
+Jeff Garzik wrote:
+> 
+> Andrew Morton wrote:
+> 
+> > Jeff Garzik wrote:
+> >
+> > >...
+> > >IMO we should just take out UP IOAPIC support in the kernel, or put a
+> > >big fat warning in the kernel config _and_ at boot...
+> > >
+> >
+> >
+> > It would be nice to get it working, because oprofile needs it.
+> >
+> > (Well, oprofile can use the rtc, but then it doesn't profile
+> > ints-off code)
+> 
+> I don't see it happening, when uniprocessor mobo vendors (a) don't wire
+> it up, or (b) put buggy data in their MP tables...   :(
+> 
 
-Well, there are always B-trees; nice low arrival rates to the allocator
-owing to elements/node and O(lg(n)) searches with low constants due to
-big fat branching factors. Not my call though.
-
-
-Bill
+OK.  Actually, rtc-based profiling gives perfectly grand results for
+profiling userspace, and those people who want to profile their
+interrupt handlers presumably know where to buy a decent motherboard.

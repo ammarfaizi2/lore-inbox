@@ -1,56 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265159AbUD3RrW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265160AbUD3Rx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265159AbUD3RrW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 13:47:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265160AbUD3RrW
+	id S265160AbUD3Rx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 13:53:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265164AbUD3Rx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 13:47:22 -0400
-Received: from smtp3.mailblocks.com ([140.174.9.93]:55478 "HELO
-	smtp3.mailblocks.com") by vger.kernel.org with SMTP id S265159AbUD3RrR
+	Fri, 30 Apr 2004 13:53:56 -0400
+Received: from mtagate1.uk.ibm.com ([195.212.29.134]:52725 "EHLO
+	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP id S265160AbUD3Rxy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 13:47:17 -0400
-Date: Fri, 30 Apr 2004 10:47:48 -0700
-From: Keith D Burgess Jr <kburgessjr@mailblocks.com>
-Message-Id: <kburgessjr-0xCluARlZpTw8H14dt1fTkTpb7aWgyA@mailblocks.com>
-X-MB-Message-Source: WebUI
-X-MB-Message-Type: User
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Fri, 30 Apr 2004 13:53:54 -0400
+Message-ID: <40929297.2030903@watson.ibm.com>
+Date: Fri, 30 Apr 2004 13:53:27 -0400
+From: Shailabh <nagar@watson.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-X-Priority: 3
+To: Christoph Hellwig <hch@infradead.org>
+CC: Rik van Riel <riel@redhat.com>,
+       Erik Jacobson <erikj@subway.americas.sgi.com>,
+       Paul Jackson <pj@sgi.com>, chrisw@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Process Aggregates (PAGG) support for the 2.6 kernel
+References: <20040430071750.A8515@infradead.org> <Pine.LNX.4.44.0404300853230.6976-100000@chimarrao.boston.redhat.com> <20040430140611.A11636@infradead.org>
+In-Reply-To: <20040430140611.A11636@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A couple days ago when I stumbled onto this discussion, I was prompted 
-to at least post an opinion from a user perspective. Having followed 
-along since then, I am beginning to wonder why I am so interested in 
-the Linux community in the first place. I have to admit, my chin is 
-still on the floor having read some of the personal attacks directed 
-towards Marc. Why, for some, has this become a personal issue and not a 
-technical one? I think Marc summed it up best (a few times) by saying:
+Christoph Hellwig wrote:
+> On Fri, Apr 30, 2004 at 08:54:08AM -0400, Rik van Riel wrote:
+> 
+>>What was the last time you looked at the CKRM source?
+> 
+> 
+> the day before yesterday (the patch in SuSE's tree because there
+> doesn't seem to be any official patch on their website)
+> 
+> 
+>>Sure it's a bit bigger than PAGG, but that's also because
+>>it includes the functionality to change the group a process
+>>belongs to and other things that don't seem to be included
+>>in the PAGG patch.
+> 
+> 
+> Again, pagg doesn't even play in that league.  It's really just a tiny
+> meachnism to allow a kernel module keep per-process data.  
 
->> I repeat, the \0 is purely a technical workaround, done without any 
-mischievous intent.
-
-Can't we respect this as his explanation and move on so these efforts 
-can be better directed towards improving the kernel? Hell - Marc has 
-alot of work to-do in order for driverloader to be compatible with 4K 
-stacks ;)  (BTW I have no idea how you can support Fedora but it is 
-appreciated.) There seems to be a couple posters here that understand 
-why this workaround was done and agree that there needs to be a better 
-way than seeing repeated "tainted" messages. In my opinion, this is the 
-perspective that should have been taken from the start. Or at least 
-once the list realized the intent and received Marc's appologies.
-
-P.S. Thanks to those who offered your opinions in agreement with mine 
-via email but not on the list.
-
-Respectfully,
-Keith
+Speaking of per-process data, one of the classification engines of 
+CKRM called crbce, implemented as a module, allows per-process data to 
+be  sent to userland.  crbce in particular, exports data on the delays 
+   seen by processes in a) waiting for cpu time after being runnable 
+b) page fault service time c) io service time etc. (getting the data 
+requires another kernel patch)....so per-process data needs can be met 
+through CKRM, though that is not the intent or main objective of the 
+project.
 
 
-----------------------------------------------
-Mailblocks - A Better Way to Do Email
-http://about.mailblocks.com/info
+> Policies
+> like process-groups can be implemented ontop of that.
 
+This is true if one is only interested in data gathering or 
+coarse-grain control. One could monitor per-process stats and fiddle 
+with each process' rlimits (assuming all the ones needed are 
+available) and achieve coarse-grain group control.
+
+But if processes leave and join process groups  rapidly, you need the 
+schedulers and the core kernel to be aware of the groupings and 
+schedule resources accordingly.
+
+In CKRM, the premise is that the privileged user defines the way 
+processes get grouped and could do so in a way that leads to rapid 
+changes in group membership. So having group control/monitoring 
+policies implemented as an externally loaded module (not talking of 
+scheduler modifications as modules, which is a no-no)  is not a 
+palatable option.
+
+
+-- Shailabh

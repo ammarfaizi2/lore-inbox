@@ -1,64 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262488AbUBXVvP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 16:51:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262481AbUBXVvO
+	id S262487AbUBXVzw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 16:55:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbUBXVzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 16:51:14 -0500
-Received: from fep01-0.kolumbus.fi ([193.229.0.41]:31956 "EHLO
-	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S262487AbUBXVsf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 16:48:35 -0500
-Date: Tue, 24 Feb 2004 23:48:32 +0200 (EET)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
-To: Patrick Mansfield <patmans@us.ibm.com>
-cc: Greg KH <greg@kroah.com>, James Bottomley <James.Bottomley@steeleye.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] SCSI update for 2.6.3
-In-Reply-To: <20040224101512.A19617@beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.58.0402242028370.3713@kai.makisara.local>
-References: <Pine.LNX.4.58.0402240919490.1129@spektro.metla.fi>
- <20040224170412.GA31268@kroah.com> <1077642529.1804.170.camel@mulgrave>
- <20040224171629.GA31369@kroah.com> <20040224101512.A19617@beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 Feb 2004 16:55:52 -0500
+Received: from fed1mtao06.cox.net ([68.6.19.125]:23021 "EHLO
+	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S262487AbUBXVzt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 16:55:49 -0500
+Date: Tue, 24 Feb 2004 14:55:48 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "James H. Cloos Jr." <cloos@jhcloos.com>, linux-kernel@vger.kernel.org
+Subject: Re: make help ARCH=xx fun
+Message-ID: <20040224215548.GF1052@smtp.west.cox.net>
+References: <m3y8qwv78e.fsf@lugabout.jhcloos.org> <20040222095021.GB2266@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040222095021.GB2266@mars.ravnborg.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Feb 2004, Patrick Mansfield wrote:
+On Sun, Feb 22, 2004 at 10:50:21AM +0100, Sam Ravnborg wrote:
 
-...
-> Current 2.6 kernel default names are of the form: st[0-9]m[0-3][n]
-> 
-Actually more like  st[0-9]*m[0-9]*[n]
+> On Sat, Feb 21, 2004 at 09:26:41AM -0500, James H. Cloos Jr. wrote:
+> > I was looking at the arch-specific make options for various archs,
+> > and found this bit of fun:
+> > 
+> > :; make help ARCH=sh
+> > [elided]
+> > Architecture specific targets (sh):
+> >   zImage                  - Compressed kernel image (arch/sh/boot/zImage)
+> >   SCCS            - Build for arch/sh/configs/SCCS
+> >   defconfig-adx           - Build for adx
+> >   defconfig-cqreek        - Build for cqreek
+> >   defconfig-dreamcast     - Build for dreamcast
+> >   defconfig-hp680         - Build for hp680
+> >   defconfig-se7751        - Build for se7751
+> >   defconfig-snapgear      - Build for snapgear
+> >   defconfig-systemh       - Build for systemh
+> > [elided]
+> > 
+> > The defconfig options only show up after a bk get in arch/sh/configs/.
+> The sh people have decided to create the list based on the content of the directory.
+> Therefore you see the SCCS entry, and that's why you need to do a 'bk bet'.
+> In general you cannot expect the konfig and build system to work 100% if there is
+> random files missing in the tree. Those files bk can checkout automatically is
+> more by luck - and no effort has been put into making this a trustworthy way
+> to do it.
 
-> Current /dev naming is of the form: [n]st[0-9][alm]
-> 
-Depends on who's /dev you are looking at.
+Hmm.  Would something (untested) like the following be horribly
+wrong/bad?
 
-> Should the st kernel names be changed to map to current /dev names?
-> 
-I don't think we should go back to the old names. The intention with the 
-"new" names was to make them easier to parse and handle than the old ones. 
-The number of modes is not always four. Anyone can compile st with more or 
-less modes. Using a number for the mode is naturally extensible. The 
-characters at the end of the old names had interpretations that may not be 
-correct in all cases (a=alternate, l=low density, m=medium density).
+define archhelp
+        @echo '  zImage           - Compressed kernel image (arch/sh/boot/zImage)'
+	@if [ -d arch/$(ARCH)/configs/SCCS ]; then bk get -q arch/$(ARCH)/configs/;fi
+# Assume board_defconfig
+	for board in arch/$(ARCH)/configs/*defconfig; \
+        do \
+                 echo -n ' ' $$board | sed -e 's|arch/$(ARCH)/configs/||g' ; \
+                 echo -n '        - Build for ' ; \
+                 echo -e $$board | sed -e 's|.*_||g'; \
+        done
+endef
 
-n has been put at the end of the name because now the tape names are 
-grouped together in a listing. I know this is a weak justification ;-)
-
-> For udev, even with that we need differing pre and postfix values wrapped
-> around a peristent name.
-> 
-If I read udev correctly, it can now parse one number at the end of the 
-name. Something like st%md%n and nst%md%n could be used with eight rules 
-(where %m is the mode number and %n is the device number). Not very 
-convenient. Parsing the st names should really be able to extract at 
-least two fields. With an external program, anything can be done. Maybe 
-udev can some day do this internally.
+I kinda like the idea of documenting the various defconfig targets, in
+make help, so maybe even adding that to the normal help section iff
+arch/$(ARCH)/configs exists...  Thoughts?
 
 -- 
-Kai
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291423AbSBHFZQ>; Fri, 8 Feb 2002 00:25:16 -0500
+	id <S291421AbSBHFa4>; Fri, 8 Feb 2002 00:30:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291426AbSBHFZG>; Fri, 8 Feb 2002 00:25:06 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:21494 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S291423AbSBHFYx>;
-	Fri, 8 Feb 2002 00:24:53 -0500
-From: David Mosberger <davidm@hpl.hp.com>
-MIME-Version: 1.0
+	id <S291426AbSBHFar>; Fri, 8 Feb 2002 00:30:47 -0500
+Received: from altus.drgw.net ([209.234.73.40]:61956 "EHLO altus.drgw.net")
+	by vger.kernel.org with ESMTP id <S291421AbSBHFaa>;
+	Fri, 8 Feb 2002 00:30:30 -0500
+Date: Thu, 7 Feb 2002 23:28:58 -0600
+From: Troy Benjegerdes <hozer@drgw.net>
+To: Larry McVoy <lm@work.bitmover.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Stelian Pop <stelian.pop@fr.alcove.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+Message-ID: <20020207232858.M17426@altus.drgw.net>
+In-Reply-To: <20020207080714.GA10860@come.alcove-fr> <Pine.LNX.4.33.0202070833400.2269-100000@athlon.transmeta.com> <20020207092640.P27932@work.bitmover.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15459.24812.661946.433158@napali.hpl.hp.com>
-Date: Thu, 7 Feb 2002 21:23:56 -0800
-To: "David S. Miller" <davem@redhat.com>
-Cc: akpm@zip.com.au, zippel@linux-m68k.org, marcelo@conectiva.com.br,
-        manfred@colorfullife.com, andrea@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [patch] VM_IO fixes
-In-Reply-To: <20020207.211602.41628908.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0202071259510.5900-100000@serv>
-	<3C62E8D6.9FDAF382@zip.com.au>
-	<3C635C81.A7635551@zip.com.au>
-	<20020207.211602.41628908.davem@redhat.com>
-X-Mailer: VM 7.00 under Emacs 21.1.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020207092640.P27932@work.bitmover.com>; from lm@bitmover.com on Thu, Feb 07, 2002 at 09:26:40AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 07 Feb 2002 21:16:02 -0800 (PST), "David S. Miller" <davem@redhat.com> said:
+On Thu, Feb 07, 2002 at 09:26:40AM -0800, Larry McVoy wrote:
+> On Thu, Feb 07, 2002 at 08:36:20AM -0800, Linus Torvalds wrote:
+> > > What about people who send you occasionnal patches, and happen to
+> > > be using Bitkeeper too ?
+> > 
+> > For those people, "bk send -d torvalds@transmeta.com" is fine. It ends up
+> 
+> No!  This will send the entire repository.  Do a "bk help send", you probably
+> want "bk send -d -r+ torvalds@transmeta.com" to send the most recent cset.
 
-  DaveM>    From: Andrew Morton <akpm@zip.com.au> Date: Thu, 07 Feb
-  DaveM> 2002 21:05:05 -0800
+Larry, I think this means you should change the default behavior of 'bk 
+send' to ask the user what the hell they are smoking if they the patch to 
+be sent is larger than say, oh 200k.
 
-  DaveM>    Is anything missing?
+I got clobbered by this a couple of times trying to get someone to 'bk 
+send' me a patch.
 
-  DaveM> ia64 perfmon mappings
+I got burned enough times to just decide never to use it again.
 
-I forwarded your comment to Stephane, the ia64 perfmon maintainer.
+Either remove 'bk send' or at least warn us before we shoot off a foot.
 
-Thanks,
+Ideally, this should ask what changesets you want to send, and what 
+public tree to look at to see *what* makes sense to send.
 
-	--david
+-- 
+Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
+-----"If this message isn't misspelled, I didn't write it" -- Me -----
+"Why do musicians compose symphonies and poets write poems? They do it
+because life wouldn't have any meaning for them if they didn't. That's 
+why I draw cartoons. It's my life." -- Charles Schulz

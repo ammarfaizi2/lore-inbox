@@ -1,78 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131369AbRDBWKK>; Mon, 2 Apr 2001 18:10:10 -0400
+	id <S131376AbRDBWOk>; Mon, 2 Apr 2001 18:14:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131376AbRDBWKA>; Mon, 2 Apr 2001 18:10:00 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:35281 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S131369AbRDBWJr>;
-	Mon, 2 Apr 2001 18:09:47 -0400
-Message-ID: <3AC8F881.F20A19A6@mandrakesoft.com>
-Date: Mon, 02 Apr 2001 18:09:05 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-20mdksmp i686)
-X-Accept-Language: en
+	id <S131407AbRDBWOa>; Mon, 2 Apr 2001 18:14:30 -0400
+Received: from mail.inf.elte.hu ([157.181.161.6]:25559 "HELO mail.inf.elte.hu")
+	by vger.kernel.org with SMTP id <S131376AbRDBWO0>;
+	Mon, 2 Apr 2001 18:14:26 -0400
+Date: Tue, 3 Apr 2001 00:13:45 +0200 (CEST)
+From: BERECZ Szabolcs <szabi@inf.elte.hu>
+To: <linux-kernel@vger.kernel.org>
+Subject: [QUESTION] 2.4.x nice level
+Message-ID: <Pine.A41.4.31.0104030003510.79632-100000@pandora.inf.elte.hu>
 MIME-Version: 1.0
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: Oliver Xymoron <oxymoron@waste.org>, David Lang <dlang@diginsite.com>,
-   Manfred Spraul <manfred@colorfullife.com>,
-   "Albert D . Cahalan" <acahalan@cs.uml.edu>, lm@bitmover.com,
-   linux-kernel@vger.kernel.org
-Subject: Re: bug database braindump from the kernel summit
-In-Reply-To: <Pine.LNX.3.96.1010401181724.28121i-100000@mandrakesoft.mandrakesoft.com> <Pine.LNX.4.30.0104021436110.24812-100000@waste.org> <20010402234045.C17148@werewolf.able.es>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J . A . Magallon" wrote:
-> Could <installkernel> make part of the kernel scripts, or in one other
-> standard software package, like modutils, so its versions are controlled
+Hi!
 
-There is value in putting it into the Linux kernel source tree, in
-linux/scripts dir.  But most vendors can and should take this script as
-a sample, and customize it for their distro.  The Linux-Mandrake
-installkernel script definitely gets touched every so often, and
-decisions it makes, like updating lilo.conf or grub/menu.lst, or
-autodetecting the boot loader, are definitely not to be applied for all
-cases.
+I just noticed, that a process with nice level 19, gets some processor
+time, even if there is another process, which would use all of the
+processor time.
+for example, there is a setiathome running at nice level 19, and a
+bladeenc at nice level 0. setiathome uses 14 percent, and bladeenc uses 84
+percent of the processor. I think, setiathome should use max 2-3 percent.
+the 14 percent is way too much for me.
+or is there any other way to run a process only if nothing uses the
+processor?
+with kernel 2.2.16 it worked for me.
+now I use 2.4.2-ac20
 
-FWIW here is our /sbin/installkernel command line usage help text, to
-give a glimpse of what it does and can do:
-
-Usage: ${0##*/} -[lngarhcq] KERNEL_VERSION BOOTIMAGE MAPFILE
-
-  -l:  Add a lilo entry
-  -i:  Dont generate Initrd files           
-  -n:  Don't launch lilo.
-  -g:  Add a Grub entry.
-  -d:  Don't autodetect boot loader.
-  -a:  Autodetect boot loader.
-  -r:  Features for RPM post install.
-  -c:  Don't copy files.
-  -q:  Be quiet.
-  -h:  This help.
+Bye,
+Szabi
 
 
-> I think the best solution would be to make /boot the 'official' place for
-> kernels, the -X.Y.Z naming an standard, installkernel should save System.map
-> and .config.
-
-There will never be an official place to put this stuff, because that's
-a distro policy decision.  A quick search just now reveals no reference
-to /boot in the i386 Makefiles, and only a quick reference in the README
-file.
-
-> And you can add something like /proc/signature/map, /proc/signature/config,
-> etc to md5-check if a certain file fits running kernel.
-
-Additionally, everyone should remember: /proc is not a dumping ground :)
-
-Ad-hoc naming like this has created the procfs namespace ugliness we
-have now... let's not add to it unless we have to, and unless we have a
-good idea of proper naming.
-
--- 
-Jeff Garzik       | May you have warm words on a cold evening,
-Building 1024     | a full moon on a dark night,
-MandrakeSoft      | and a smooth road all the way to your door.

@@ -1,52 +1,172 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131996AbQKSA3j>; Sat, 18 Nov 2000 19:29:39 -0500
+	id <S132042AbQKSAek>; Sat, 18 Nov 2000 19:34:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132042AbQKSA3a>; Sat, 18 Nov 2000 19:29:30 -0500
-Received: from 3dyn88.com21.casema.net ([212.64.94.88]:42000 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S131996AbQKSA3S>;
-	Sat, 18 Nov 2000 19:29:18 -0500
-Date: Sun, 19 Nov 2000 01:53:00 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 sendfile() not doing as manpage promises?
-Message-ID: <20001119015259.A10773@home.ds9a.nl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20001119001558.B10579@home.ds9a.nl> <Pine.LNX.4.30.0011181513290.5897-100000@anime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre4i
-In-Reply-To: <Pine.LNX.4.30.0011181513290.5897-100000@anime.net>; from goemon@anime.net on Sat, Nov 18, 2000 at 03:15:28PM -0800
+	id <S132064AbQKSAea>; Sat, 18 Nov 2000 19:34:30 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:37878 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S132042AbQKSAeY>; Sat, 18 Nov 2000 19:34:24 -0500
+Date: Sat, 18 Nov 2000 22:04:02 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: [PATCH] blindingly stupid 2.2 VM bug
+Message-ID: <Pine.LNX.4.21.0011182201250.11745-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 18, 2000 at 03:15:28PM -0800, Dan Hollis wrote:
+Hi Alan,
 
-> > In that case, the wording of the manpage needs to be changed, as it
-> > implies that 'either or both' of the filedescriptors can be sockets.
-> 
-> Its quite clear.
-> 
-> DESCRIPTION
->        This  call copies data between file descriptor and another
->        file  descriptor  or  socket.   in_fd  should  be  a  file
->        descriptor   opened  for  reading.   out_fd  should  be  a
->        descriptor opened for writing or a connected socket.
-> 
-> in_fd must be a file, out_fd can be a file or socket.
+here's a fix for a blindingly stupid bug that's been in
+2.2 for ages (and which I've warned you about a few times
+in the last 6 months, and which I've even sent some patches
+for).
 
-My manpages must be outdated then, my manpage is from 1 Dec 1998. Thanks for
-the correction.
+This patch should make 2.2 VM a bit more stable and should
+also fix the complaints from people who's system gets
+flooded by "VM: do_try_to_free_pages failed for process XXX"
 
-Regards,
+It's against something suspiciously like 2.2.18-pre15, so
+chances are it'll apply cleanly.
 
-bert hubert
+regards,
+
+Rik
+--
+Hollywood goes for world dumbination,
+	Trailer at 11.
+
+http://www.conectiva.com/		http://www.surriel.com/
 
 
--- 
-PowerDNS                     Versatile DNS Services  
-Trilab                       The Technology People   
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+
+--- ../rpm/BUILD/linux/mm/vmscan.c	Sat Nov 18 21:56:50 2000
++++ linux/mm/vmscan.c	Sun Nov  5 19:36:23 2000
+@@ -17,7 +17,6 @@
+ #include <linux/smp_lock.h>
+ #include <linux/pagemap.h>
+ #include <linux/init.h>
+-#include <linux/bigmem.h>
+ 
+ #include <asm/pgtable.h>
+ 
+@@ -61,8 +60,7 @@
+ 
+ 	if (PageReserved(page_map)
+ 	    || PageLocked(page_map)
+-	    || ((gfp_mask & __GFP_DMA) && !PageDMA(page_map))
+-	    || (!(gfp_mask & __GFP_BIGMEM) && PageBIGMEM(page_map)))
++	    || ((gfp_mask & __GFP_DMA) && !PageDMA(page_map)))
+ 		return 0;
+ 
+ 	/*
+@@ -156,9 +154,6 @@
+ 	if (!entry)
+ 		return 0; /* No swap space left */
+ 		
+-	if (!(page_map = prepare_bigmem_swapout(page_map)))
+-		goto out_swap_free;
+-
+ 	vma->vm_mm->rss--;
+ 	tsk->nswap++;
+ 	set_pte(page_table, __pte(entry));
+@@ -170,14 +165,10 @@
+ 	set_bit(PG_locked, &page_map->flags);
+ 
+ 	/* OK, do a physical asynchronous write to swap.  */
+-	rw_swap_page(WRITE, entry, (char *) page_address(page_map), 0);
++	rw_swap_page(WRITE, entry, (char *) page, 0);
+ 
+ 	__free_page(page_map);
+ 	return 1;
+-
+- out_swap_free:
+-	swap_free(entry);
+-	return 0;
+ }
+ 
+ /*
+@@ -400,13 +391,14 @@
+ {
+ 	int priority;
+ 	int count = SWAP_CLUSTER_MAX;
++	int loopcount = count;
+ 
+ 	lock_kernel();
+ 
+ 	/* Always trim SLAB caches when memory gets low. */
+ 	kmem_cache_reap(gfp_mask);
+ 
+-	priority = 5;
++	priority = 6;
+ 	do {
+ 		while (shrink_mmap(priority, gfp_mask)) {
+ 			if (!--count)
+@@ -428,12 +420,21 @@
+ 		}
+ 
+ 		shrink_dcache_memory(priority, gfp_mask);
+-	} while (--priority > 0);
++
++		/* Only lower priority if we didn't make progress. */
++		if (count == loopcount) {
++			priority--;
++		}
++		loopcount = count;
++	} while (priority > 0);
+ done:
+ 	unlock_kernel();
+ 
+-	/* Return success if we freed a page. */
+-	return priority > 0;
++	/* Return success if we have enough free memory or we freed a page. */
++	if (nr_free_pages > freepages.low)
++		return 1;
++
++	return count < SWAP_CLUSTER_MAX;
+ }
+ 
+ /*
+@@ -505,22 +506,23 @@
+ 		 * the processes needing more memory will wake us
+ 		 * up on a more timely basis.
+ 		 */
+-		interruptible_sleep_on(&kswapd_wait);
++		interruptible_sleep_on_timeout(&kswapd_wait, HZ);
+ 
+-		/*
+-		 * In 2.2.x-bigmem kswapd is critical to provide GFP_ATOMIC
+-		 * allocations (not GFP_BIGMEM ones).
+-		 */
+-		while (nr_free_pages - nr_free_bigpages < freepages.high)
+-		{
+-			if (try_to_free_pages(GFP_KSWAPD))
++		if (nr_free_pages < freepages.low) {
++			while (nr_free_pages < freepages.high)
+ 			{
+-				if (tsk->need_resched)
+-					schedule();
+-				continue;
++				if (try_to_free_pages(GFP_KSWAPD))
++				{
++					if (tsk->need_resched)
++						schedule();
++					continue;
++				}
++				tsk->state = TASK_INTERRUPTIBLE;
++				schedule_timeout(10*HZ);
+ 			}
+-			tsk->state = TASK_INTERRUPTIBLE;
+-			schedule_timeout(10*HZ);
++		} else if (nr_free_pages < freepages.high) {
++			/* Background scanning. */
++			try_to_free_pages(GFP_KSWAPD);
+ 		}
+ 	}
+ }
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292594AbSCOO3M>; Fri, 15 Mar 2002 09:29:12 -0500
+	id <S292617AbSCOOaM>; Fri, 15 Mar 2002 09:30:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292555AbSCOO3D>; Fri, 15 Mar 2002 09:29:03 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:51723 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292589AbSCOO2s>; Fri, 15 Mar 2002 09:28:48 -0500
-Subject: Re: [PATCH-RFC] POSIX Event Logging, kernel 2.5.6 & 2.4.18y
-To: Tony.P.Lee@nokia.com
-Date: Fri, 15 Mar 2002 14:44:28 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, kessler@us.ibm.com, linux-kernel@vger.kernel.org
-In-Reply-To: <4D7B558499107545BB45044C63822DDE3A2037@mvebe001.NOE.Nokia.com> from "Tony.P.Lee@nokia.com" at Mar 14, 2002 06:14:23 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S292555AbSCOOaI>; Fri, 15 Mar 2002 09:30:08 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:27405 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S292589AbSCOO3H>; Fri, 15 Mar 2002 09:29:07 -0500
+Date: Fri, 15 Mar 2002 14:28:55 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4 and 2.5: remove Alt-Sysrq-L
+Message-ID: <20020315142854.E24984@flint.arm.linux.org.uk>
+In-Reply-To: <20020315131612.C24984@flint.arm.linux.org.uk> <30439.1016201464@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16lswW-0003oV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <30439.1016201464@redhat.com>; from dwmw2@infradead.org on Fri, Mar 15, 2002 at 02:11:04PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 1) If anyone is going to add this to the kernel, please make sure
-> printk_improve also log the TSC, current_process_id (if avail), etc. =20
-> Very useful for performance profiling and failure analysis.
+On Fri, Mar 15, 2002 at 02:11:04PM +0000, David Woodhouse wrote:
+> rmk@arm.linux.org.uk said:
+> >  The following patch removes Alt-Sysrq-L and its associated hack to
+> > kill of PID1, the init process.  This is a mis-feature.
+> 
+> This is not a mis-feature.
+> 
+> > If PID1 is killed, the kernel immediately enters an infinite loop in
+> > the depths of do_exit() with interrupts disabled, completely locking
+> > the machine.  Obviously you can only reach for the reset button or
+> > power switch after this, leaving you with dirty filesystems.
+> 
+> This is a mis-feature. Leaving you without even the facility to use SysRq 
+> any further is just insane.
 
-We always have a guess at the current pid (current->pid is always safe
-to talk about but in an IRQ its of questionable value. Since it tells you
-what was running when it blew up it does sometimes help with stack
-scribbes/overruns)
+Well, I've tried this approach, Linus rejected it.
 
-> 3) After that you need to get special BIOS so that we can log the=20
-> buffer to a section of memory that is preserved after reset.  =20
-> With this, you can easily postmortem diagnostic any problem that=20
-> crash the kernel/ISR/Driver.   This is much easily to do in=20
-> embedded projects as compare to PC, since we control the BIOS.
+If you'd like to take up this problem, be my guest.
 
-I've found that a lot of the 3dfx voodoo 4/5 boards are not cleared by
-the firmware on boot up. This allows you to hide about 24Mb of logs in
-the top of the card ram and recover it after a soft boot.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Alan

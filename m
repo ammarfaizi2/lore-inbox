@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275716AbSIUCJq>; Fri, 20 Sep 2002 22:09:46 -0400
+	id <S275815AbSIUCbw>; Fri, 20 Sep 2002 22:31:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275752AbSIUCJq>; Fri, 20 Sep 2002 22:09:46 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:43616 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S275716AbSIUCJp>; Fri, 20 Sep 2002 22:09:45 -0400
-Date: Fri, 20 Sep 2002 22:14:15 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200209210214.g8L2EFE18681@devserv.devel.redhat.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Linux Hardened Device Drivers Project
-In-Reply-To: <mailman.1032570840.22498.linux-kernel2news@redhat.com>
-References: <mailman.1032570840.22498.linux-kernel2news@redhat.com>
+	id <S275862AbSIUCbw>; Fri, 20 Sep 2002 22:31:52 -0400
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:46295 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
+	id <S275815AbSIUCbv>; Fri, 20 Sep 2002 22:31:51 -0400
+Date: Fri, 20 Sep 2002 19:36:54 -0700
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] Re: 2.5.26 hotplug failure
+To: Brad Hards <bhards@bigpond.net.au>
+Cc: Johannes Erdfelt <johannes@erdfelt.com>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Message-id: <3D8BDB46.9020508@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+References: <200207180950.42312.duncan.sands@wanadoo.fr>
+ <200209210922.41887.bhards@bigpond.net.au> <20020920193642.I1627@sventech.com>
+ <200209211025.59114.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Obvious this is a way for the telecom folks to get something for free that
-> really should be paid for by funding the project with CASH.  Or funding
-> (a) startup(s) related to generating such support.
+>>Personally, I've never used /proc/bus/usb/drivers. I've always just
+>>looked at lsmod.
+>>
+>>Why should this be any different?
+> 
+> Because lsmod only works for drivers that are modular. Real users mix built-in 
+> and modules.
 
-Andre, if I read you right, you are articulating the following
-idea: "Those guys collect drivers written by students and try
-to run them in production. Of course, it cannot work. If paid
-professionals wrote them, there would be no problem."
+Wasn't someone -- Rusty? -- working an update to the module framework
+so 2.5 would be able to show all kernel modules, not just dynamically
+linked ones?  And so something like their MODULE_NAME could be used
+in static tables as the driver name?  Some 2.4 usb drivers disagreed
+with themselves on that issue.  (Hotplug no longer has the table of
+exceptions it once had, it was error prone.  But that also means it's
+more uncertain about system state than is necessary.)
 
-If this is what you are saying here, it is very misguided.
-I had a chance to examine some of drivers written by paid
-professionals, and the picture was pretty bleak. Also, the
-problem of hardening is not unique to Linux or Open Source,
-I had runs with it before.
+I'd be more keen to see that issue solved than keep the 'drivers' file.
+The question that hotplug wants to answer, for example, is "is this
+driver in the kernel".  None of the 2.4 solutions for that were very
+trouble free.
 
-So, I do not think there's a budgetary issue here. I talked to
-the C-G Linux folks at OLS, and they do have funding. But I do
-not think the hardening is going to fly the way they push it,
-for two technical reasons.
+- Dave
 
- First, you cannot race crappy driver writers. As soon as you
-harden and qualify something, technology changes and brings
-a whole bunch of crappy drivers.
-
- Second, the resulting "hardened" system is no less fragile than
-it was before.
-
-If I was going the C-G Linux, I would abandon the "hardening"
-efforts as they are now, and shift in-house hackers to work on
-clusters and UML (including a cluster or UMLs).
-
-As far as giving goes, the C-G people expended a lot of effort
-on documentation of their wishes (again, judging by their OLS
-performance). And I mean *A F. LOT* of effort. If they
-coded as much as they wrote reports and reviews, we'd probably
-have something working by now.
-
--- Pete

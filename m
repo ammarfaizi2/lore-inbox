@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263553AbRFNSD5>; Thu, 14 Jun 2001 14:03:57 -0400
+	id <S263574AbRFNSE5>; Thu, 14 Jun 2001 14:04:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263574AbRFNSDr>; Thu, 14 Jun 2001 14:03:47 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:32820 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S263553AbRFNSDb>; Thu, 14 Jun 2001 14:03:31 -0400
-Date: Thu, 14 Jun 2001 20:03:28 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>,
-        linux-kernel@vger.kernel.org, Richard Henderson <rth@redhat.com>
-Subject: Re: unregistered changes to the user<->kernel API
-Message-ID: <20010614200328.A2115@athlon.random>
-In-Reply-To: <20010614191219.A30567@athlon.random> <3B28F376.1F528D5A@mandrakesoft.com> <20010614194419.A715@athlon.random> <3B28F9EC.D08D3D52@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3B28F9EC.D08D3D52@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Thu, Jun 14, 2001 at 01:52:44PM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S263584AbRFNSEw>; Thu, 14 Jun 2001 14:04:52 -0400
+Received: from dc-mx03.cluster0.hsacorp.net ([209.225.8.13]:54922 "EHLO
+	dc-mx03.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id <S263574AbRFNSE0>; Thu, 14 Jun 2001 14:04:26 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Cory Watson <gphat@cafes.net>
+To: David Monniaux <monniaux_nospam@arbouse.ens.fr>,
+        linux-kernel@vger.kernel.org
+Subject: Re: more on VIA 686B (trials)
+Date: Thu, 14 Jun 2001 13:11:13 -0500
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <20010614194402.A19960@picsou.chatons>
+In-Reply-To: <20010614194402.A19960@picsou.chatons>
+MIME-Version: 1.0
+Message-Id: <01061413111300.06452@achmed>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 14, 2001 at 01:52:44PM -0400, Jeff Garzik wrote:
-> You're missing the point -- it's a bad precedent.
-> 
-> How many kernel forks and patches exist out there on the net?
+On Thursday 14 June 2001 12:44 pm, David Monniaux wrote:
+> So we have two kinds of problems:
+> - *certain* 686B motherboards crash if used with an Athlon kernel
+>   (and it does not depend on the compiler options, rather on hand-made
+>   Athlon optimizations)
 
-How many of them are applied to 90% of kernels running out there? How
-many of them will get merged eventually? How many of them makes
-modifications to the kernel that are visible to userspace in any
-possibly configuration of the kernel?
+Abit KT7A, kernel oops right after boot... :(  Can be solved to turning off 
+'Enhance Chip Performance' in the BIOS, but then our chip performance is 
+un'Enhance'd, and we can't have that!  So back to the K6 kernel.
 
-> Tangent:  Why is this webserver-specific crap in kernel_stat anyway?  It
-> Even when merging Tux, I would hope Linus would not apply this
-> particular change.
-
-Indeed, I also said this in my first email :)
-
-Andrea
+-- 
+Cory 'G' Watson
+   Dad are you vicariously living through me in the hope that my
+accomplishments will validate your mediocre life and in some way compensate 
+for
+all the opportunities you botched ?	  -- Calvin

@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131363AbRAABg4>; Sun, 31 Dec 2000 20:36:56 -0500
+	id <S131345AbRAABig>; Sun, 31 Dec 2000 20:38:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131365AbRAABgq>; Sun, 31 Dec 2000 20:36:46 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:19986 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S131363AbRAABge>; Sun, 31 Dec 2000 20:36:34 -0500
-Date: Mon, 1 Jan 2001 02:06:05 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Kostas Nikoloudakis <kostas@corp124.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: system call fails with ENOMEM after long operation
-In-Reply-To: <3A4FBD2F.D80A7716@corp124.com>
-Message-ID: <Pine.LNX.3.96.1010101015330.22558B-100000@artax.karlin.mff.cuni.cz>
+	id <S131365AbRAABi0>; Sun, 31 Dec 2000 20:38:26 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:61199 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131345AbRAABiQ>; Sun, 31 Dec 2000 20:38:16 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Loopback device: limit?
+Date: 31 Dec 2000 17:07:22 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <92ol8a$tbv$1@cesium.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So why is the kernel having difficulty allocating memory for its
-> internal operations? We are suspecting memory fragmentation issues 
-> (at the application level which might have adverse sideefects for the
-> kernel). Is it something that we can do so that the kernel will be
-> able to allocate the needed memory for carrying out the system call?
+Hello,
 
-Try this patch.
+I don't know who maintains the loopback device these days, but if
+someone feels responsible, and would accept feature requests, I would
+really like to see a "limit" option in addition to "offset".  This
+would greatly simplify accessing partitioned disk images.
 
-Mikulas
+I could go ahead and try to do it, but if someone already knows the
+code, I thought I'd throw it out there.
 
---- linux/mm/page_alloc.c__	Thu Mar  9 15:12:31 2000
-+++ linux/mm/page_alloc.c	Tue Mar 21 09:50:12 2000
-@@ -237,6 +237,15 @@
- 	RMQUEUE_TYPE(order, 1);
- 	spin_unlock_irqrestore(&page_alloc_lock, flags);
- 
-+	if (!(current->flags & PF_MEMALLOC) && (gfp_mask & __GFP_WAIT)) {
-+		int freed;
-+		current->trashing_mem = 1;
-+		current->flags |= PF_MEMALLOC;
-+		freed = try_to_free_pages(gfp_mask);
-+		current->flags &= ~PF_MEMALLOC;
-+		if (freed) goto ok_to_allocate;
-+	}
-+
- nopage:
- 	return 0;
- }
-
-
+      -hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

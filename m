@@ -1,72 +1,234 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265392AbTFMNZM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 09:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265394AbTFMNZM
+	id S265390AbTFMNXq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 09:23:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265394AbTFMNXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 09:25:12 -0400
-Received: from cc-linux4.ethz.ch ([129.132.19.124]:34792 "HELO lombi.mine.nu")
-	by vger.kernel.org with SMTP id S265392AbTFMNZA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 09:25:00 -0400
-Mime-Version: 1.0
-Message-Id: <p04320407bb0f79fd523e@[192.168.3.11]>
-Date: Fri, 13 Jun 2003 15:38:44 +0200
-To: linux-kernel@vger.kernel.org
-From: Christian Jaeger <christian.jaeger@ethlife.ethz.ch>
-Subject: Lockups with loop'ed sparse files on reiserfs?
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	Fri, 13 Jun 2003 09:23:46 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:60804 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S265390AbTFMNXf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 09:23:35 -0400
+Date: Fri, 13 Jun 2003 09:39:17 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Peter Rusedski <peter_istanbul@yahoo.com>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: file operations in kernel module
+In-Reply-To: <20030613132911.74745.qmail@web20710.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.53.0306130936110.4248@chaos>
+References: <20030613132911.74745.qmail@web20710.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Fri, 13 Jun 2003, Peter Rusedski wrote:
 
-I've experienced 3 lockups in the last few days, all while using 
-sparse files. Could also be problems with UML, SKAS, raid5 over loop 
-device, or loop devices with vfat files, but it looks like the only 
-common thing is sparse files on reiserfs.
+> Greetings!
+>
+> I am writing a kernel module for which I need to
+> access a file from within the module. I have source of
+> the same using normal open, read and close operations
+> already written.
+>
+> My questions are
+> What is the best approach to do the same in kernel
+> module?
+> Are there any constraints on maximum memory a module
+> can use.
+>
+> Thanks in advance and apologies if I am at wrong
+> place.
+>
+> Have a nice time,
+>
+> Peter.
+>
 
-1.) kernel 2.4.20 from debian unstable (= kernel.org kernel with 
-quite a few security and other patches), additionally patched with 
-kernel-patch-skas 3-1 from debian. Started user-mode-linux using a 
-sparse file with an ext2 filesystem on it, using tap0 networking, did 
-apt-get upgrade inside this uml (which started to download (and 
-already unpack?) quite a bit of stuff), halfway through the whole 
-(host) system froze. Still responded to pings, but telnet $host 80 
-would not show any activity from running apache. Went to the server 
-room, I could change virtual terminals with Alt-<number>, but could 
-not log in. Reset.
 
-2.) same kernel:
-- created 6 sparse files of 650MB each, on reiserfs filesystems (some 
-of them on the same filesystem), and 2 files of 650MB on a vfat 
-filesystem.
-- Tied them to /dev/loop*,
-- mdadm /dev/md0 -C -l 5 -n 7 -x 1 /dev/loop*
-- then (while the array was building) mkreiser /dev/md0,
-- mount /dev/md0 /mnt/md0
-- cd /mnt/md0; netcat -l -p "$port" | multifeed '|' sh -c 'exec 
-md5sum >&2' '&' cat | gpg | lzop -d | tar xf -
-   (where multifeed is a C program by myself feeding the data to 
-multiple processes)
-   basically fetch data from tcp and untar it onto the filesystem.
-After about 500MB of data has been written onto /mnt/md0, the box 
-froze. Still responded to ping, but not to telnet $host 80. Could 
-switch vt's, type root and enter password, but didn't get a login.
+File I/O from inside the kernel, FAQ............
 
-3.) kernel 2.4.18 from kernel.org (the machine ran without any 
-problem (except for sporadically switching off dma on /dev/hda) with 
-this kernel for about a year):
-Did same thing as mentioned under 2.) (rm -rf /mnt/md0/* before 
-starting the write again). This time it happened already after 
-filling the md partition with about 200MB. And this time, while still 
-responding to pings and being able to switch vt's, it wouldn't react 
-to hitting the keys 'root'.
+As cited many times, the kernel is not a process. It is
+designed to perform functions on behalf of a calling process.
 
-I'd mainly like to know if all of what I did is supported or not.
+Because it is not a process, it does not have a context.
+A file descriptor without a context with which to associate
+the file descriptor is worthless. For instance, all processes
+are created with file descriptors, STDIN_FILENO, STDOUT_FILENO,
+and STDERR_FILENO (0, 1, and 2), which are associated with some
+I/O device. If these file-descriptor numbers were not associated
+with a process context, every task would do I/O from the same
+thing.
 
-The machine is a AMD Duron 1Ghz with 256MB RAM, 3 IDE harddisks (but 
-only hda and hdd involved in the above), 2 ethernet cards using 
-8139too.
+At any instant, the context of a process is represented by
+the object called "current". This, currently, is a pointer to
+a structure which contains the elements necessary to resume
+execution of the process when the kernel call returns. It also
+contains the member values which uniquely define the process and
+allow the kernel to perform tasks on behalf of the calling process.
 
-Christian.
+To perform file I/O within the kernel requires a process context.
+You can either steal one or you can create one. Stealing a process
+context has the great potential of corrupting the task from which
+you stole the context. This is because I/O would be performed into
+its address space and you will very well overwrite buffered data
+that that process is using.
+
+Creating a process context involves creating a kernel thread. This
+thread will function properly and can perform file I/O. However,
+you can never use any C runtime library functions in the kernel so
+you have to perform all primitive file I/O yourself. For instance,
+you call sys_open(), you can never use open() or fopen(), etc.
+
+Here is some module-code that starts up, then runs down a kernel-
+thread. This is snipped from a module that I wrote so it is
+incomplete, meant only as a template.
+
+
+#ifndef __KERNEL__
+#define __KERNEL__
+#endif
+
+#ifndef MODULE
+#define MODULE
+#endif
+
+#include <linux/module.h>
+#include <linux/slab.h>
+#include <linux/ioport.h>
+#include <linux/poll.h>
+#include <linux/sched.h>
+#include <linux/init.h>
+#include <asm/atomic.h>
+#include <asm/delay.h>
+#include <asm/io.h>
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+/*
+ *  This kernel thread runs forever as long as the module is installed.
+ */
+static int gpib_thread(void *unused)
+{
+    int doit;
+    unsigned long flags;
+    exit_files(current);
+    daemonize();
+    spin_lock_irq(&current->sigmask_lock);
+    sigemptyset(&current->blocked);
+    recalc_sigpending(current);
+    spin_unlock_irq(&current->sigmask_lock);
+    memcpy(current->comm, task_name, sizeof(task_name));
+    DEB(printk("gpib_thread\n"));
+    for(;;)
+    {
+        // Kernel thread code goes here.
+
+
+
+        if(!!signal_pending(current))
+#ifdef NEW_THREAD_EXIT
+            complete_and_exit(&info->quit, 0);
+#else
+            up_and_exit(&info->quit, 0);
+#endif
+    }
+}
+
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+/*
+ *   Initialize and register the module
+ */
+int __init init_module()
+{
+#ifdef NEW_THREAD_EXIT
+    init_completion(&info->quit);
+#else
+    init_MUTEX_LOCKED(&info->quit);
+#endif
+    info->pid = kernel_thread(gpib_thread, NULL, CLONE_FS | CLONE_FILES);
+}
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+/*
+ *   Release the module.
+ */
+void cleanup_module()
+{
+        if(!!(result = kill_proc(info->pid, SIGTERM, 1)))
+        {
+            printk(A_sig, info->dev);
+            return;
+        }
+#ifdef NEW_THREAD_EXIT
+        wait_for_completion(&info->quit);
+#else
+        down(&info->quit);
+#endif
+}
+
+Now, the only reason you would ever perform file I/O within the
+kernel is as an "intellectual exercise". There is absolutely no
+reason whatsoever to perform user-mode tasks within the kernel.
+
+The way Unix/Linux is designed will always favor performing I/O
+from user space. That's how it's supposed to be done with such
+an Operating System. If you are actually designing something
+that requires file I/O in the kernel, the design is defective.
+
+There is only one Operating System that I know of in which there
+was some performance to be gained by performing I/O from within
+the kernel. That was VAX/VMS. Any such I/O was performed within
+the context of the swapper process. The VAX/VMS kernel maintains
+its own context. There are disadvantages, for instance every
+interrupt generated a context-switch. There are advantages, the
+interrupted task did not necessarily get the CPU back immediately
+after an interrupt, etc.
+
+The Unix model shares kernel code between all tasks, but the tasks
+themselves get most of the CPU and are forced to give up the CPU
+only when waiting for I/O or in the case of a CPU-Hog, when a
+context switch is forced by a timer.
+
+If you need to read parameters from a file, when installing
+a kernel module, you simply do this in user-space at the time
+your user-space process installs the module. That's what ioctl()
+functions are for. Also, even if you continually need to do file
+I/O, you still do it from user-mode. Your kernel module just
+does the things that can't be done from user-mode code.
+
+If you need a user-mode response to an interrupt, it's easy.
+Your user-mode code sleeps in select() or poll(). The driver/module
+code does whatever is necessary to handle the immediate needs
+of the hardware, then executes wake_up_interruptible(). This
+wakes up your task and it processes the data received in the ISR.
+
+There is no advantage running user-mode tasks within the kernel
+because you have to do the same thing anyway. There is no way
+for an interrupt to attach() or callback() a task. No real-world
+Operating System uses interrupt "thunks", where some user gets
+the CPU directly from an interrupt. This cannot happen because,
+with no context-switch in an interrupt, there is no way to
+return to the interrupted task. It cannot switch to another
+task. If it did (by making some kernel changes), you would never
+be able to get back to the original interrupted task.
+
+Over and over again I have users state; "I MUST do file I/O in the
+kernel...". This has always been a result of an incomplete
+understanding of what the kernel is and what the kernel does. Some
+look at driver code and say; "It's just 'C' code. I can do this..."
+Then they code a module and triple-fault the kernel.
+
+The kernel is not a "high-performance" API where you can execute
+some code with a performance advantage. The kernel is common-code
+that can be executed by all tasks. That code is executed within
+the context of the calling process. This makes it fast. The kernel
+does file I/O through code that can't be modified by user tasks
+so it follows the rules necessary to maintain file-systems. The
+kernel, therefore, is a mechanism for maintaining the sanity of
+a system. The actual work is done by the process itself.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+

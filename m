@@ -1,58 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266250AbUHYWhw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266181AbUHYWkr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266250AbUHYWhw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 18:37:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266463AbUHYWcu
+	id S266181AbUHYWkr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 18:40:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266220AbUHYWi5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 18:32:50 -0400
-Received: from jade.spiritone.com ([216.99.193.136]:23466 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S266200AbUHYW3x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 18:29:53 -0400
-Date: Wed, 25 Aug 2004 15:29:38 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Con Kolivas <kernel@kolivas.org>, Nick Piggin <piggin@cyberone.com.au>
-cc: Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Performance of -mm2 and -mm4
-Message-ID: <7230000.1093472977@[10.10.2.4]>
-In-Reply-To: <cone.1093310997.326407.10766.502@pc.kolivas.org>
-References: <336080000.1093280286@[10.10.2.4]> <200408231431.25986.jbarnes@engr.sgi.com> <412A8EAD.3060907@cyberone.com.au> <cone.1093310997.326407.10766.502@pc.kolivas.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Aug 2004 18:38:57 -0400
+Received: from mail.kroah.org ([69.55.234.183]:58778 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266065AbUHYWff (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 18:35:35 -0400
+Date: Wed, 25 Aug 2004 15:35:04 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: [BK PATCH] Driver Core patches for 2.6.9-rc1
+Message-ID: <20040825223503.GA27072@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=unknown-8bit
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>> The -mm4 looks more like sched stuff to me (copy_to/from_user, etc),
->>>> but the -mm2 stuff looks like something else. Buggered if I know what.
->>>> -mm3 didn't compile cleanly, so I didn't bother, but I prob can if you
->>>> like.
->>>> 
->>> 
->>> If you suspect the scheduler, you could try bumping SD_NODES_PER_DOMAIN in 
->>> kernel/sched.c to a larger value (e.g. the number of nodes in your system).  
->>> That'll make the scheduler balance more aggressively across the whole system.
->>> 
->>> 
->> 
->> Try increasing /proc/sys/kernel/base_timeslice as well.
-> 
-> Or back out nicksched.patch
+Hi,
 
-Yeah, that mostly fixed it.
+Here are some driver core patches for 2.6.9-rc1.  They fix a few minor
+error paths, and shrink down the kref code enough to be able to use it
+in a kobject.  All of the driver patches have been in the patch few -mm
+releases.
 
-Kernbench: (make -j N vmlinux, where N = 16 x num_cpus)
-                              Elapsed      System        User         CPU
-                  2.6.8.1       44.82       97.19      574.55     1497.33
-              2.6.8.1-mm4       46.82      107.47      594.15     1497.33
-           2.6.8.1-mm4-nn       44.93       96.33      576.44     1496.33
+I've also put 4 minor I2C patches, and two PCI patches as they need to
+make it into the mainline tree soon.
 
-Kernbench: (make -j vmlinux, maximal tasks)
-                              Elapsed      System        User         CPU
-                  2.6.8.1       43.90       87.76      572.94     1505.67
-              2.6.8.1-mm4       45.87       97.60      595.23     1510.00
-           2.6.8.1-mm4-nn       44.53       90.71      575.68     1495.67
+Please pull from:
+	bk://kernel.bkbits.net/gregkh/linux/driver-2.6
+
+thanks,
+
+greg k-h
+
+p.s. I'll send these as patches in response to this email to lkml for
+those who want to see them.
+
+ CREDITS                            |    6 +
+ Documentation/driver-model/bus.txt |   78 ++++++----------------
+ Documentation/i2c/sysfs-interface  |    2 
+ MAINTAINERS                        |   30 ++++++++
+ drivers/base/class.c               |    9 +-
+ drivers/char/tty_io.c              |   44 +++++++++---
+ drivers/i2c/busses/i2c-keywest.c   |    2 
+ drivers/i2c/chips/asb100.c         |    4 -
+ drivers/i2c/chips/it87.c           |    4 -
+ drivers/i2c/chips/lm78.c           |    4 -
+ drivers/i2c/chips/lm85.c           |    4 -
+ drivers/i2c/chips/w83627hf.c       |    4 -
+ drivers/i2c/chips/w83781d.c        |    4 -
+ drivers/pci/pci-driver.c           |    7 -
+ drivers/pci/probe.c                |    6 +
+ drivers/pci/remove.c               |   20 +++--
+ drivers/scsi/sd.c                  |  117 +++++++++++++++++++--------------
+ drivers/scsi/sr.c                  |   14 +--
+ drivers/usb/core/config.c          |    7 +
+ drivers/usb/core/message.c         |    4 -
+ drivers/usb/core/urb.c             |    8 +-
+ drivers/usb/core/usb.h             |    1 
+ drivers/usb/host/ehci-mem.c        |    4 -
+ drivers/usb/serial/usb-serial.c    |  130 +++++++++++++++++--------------------
+ include/linux/device.h             |    1 
+ include/linux/kobject.h            |    5 +
+ include/linux/kref.h               |    9 --
+ include/linux/pci.h                |    2 
+ lib/Makefile                       |    7 -
+ lib/kobject.c                      |   57 ++++++++++------
+ lib/kref.c                         |   29 +++-----
+ 31 files changed, 346 insertions(+), 277 deletions(-)
+-----
+
+
+<thomas.koeller:baslerweb.com>:
+  o Driver Core: fix minor class reference counting issue on the error path
+
+Dmitry Torokhov:
+  o kobject: fix kobject_set_name comment
+
+François Romieu:
+  o pci-driver: function documentation fix
+
+Greg Kroah-Hartman:
+  o kobject: convert struct kobject use kref
+  o KREF: make kref_get() return void as it makes sense to do so
+  o KREF: fix up the current kref users for the changed api
+  o KREF: shrink the size of struct kref down to just a single atomic_t
+
+Jean Delvare:
+  o I2C: update kernel credits/maintainers
+  o I2C: rename in0_ref to cpu0_vid
+  o I2C: keywest class
+
+John Rose:
+  o PCI Hotplug: create pci_remove_bus()
+
+Jonathan Corbet:
+  o Remove struct bus_type->add()
+
+Olaf Hering:
+  o export legacy pty info via sysfs
+
+Robert Love:
+  o KOBJECT: add kobject_get_path
 

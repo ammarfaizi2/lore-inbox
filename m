@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVCWMk3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVCWMy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbVCWMk3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 07:40:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbVCWMk3
+	id S261163AbVCWMy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 07:54:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbVCWMy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 07:40:29 -0500
-Received: from mx04.cybersurf.com ([209.197.145.108]:17807 "EHLO
-	mx04.cybersurf.com") by vger.kernel.org with ESMTP id S261575AbVCWMkY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 07:40:24 -0500
-Subject: Re: memory leak in net/sched/ipt.c?
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Yichen Xie <yxie@cs.stanford.edu>, linux-kernel@vger.kernel.org,
+	Wed, 23 Mar 2005 07:54:58 -0500
+Received: from eth0-0.arisu.projectdream.org ([194.158.4.191]:40844 "EHLO
+	b.mx.projectdream.org") by vger.kernel.org with ESMTP
+	id S261163AbVCWMy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 07:54:57 -0500
+Date: Wed, 23 Mar 2005 13:55:16 +0100
+From: Thomas Graf <tgraf@suug.ch>
+To: jamal <hadi@cyberus.ca>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>,
+       Yichen Xie <yxie@cs.stanford.edu>, linux-kernel@vger.kernel.org,
        netdev@oss.sgi.com, "David S. Miller" <davem@davemloft.net>,
        kaber@trash.net
-In-Reply-To: <E1DE44X-0001QM-00@gondolin.me.apana.org.au>
-References: <E1DE44X-0001QM-00@gondolin.me.apana.org.au>
-Content-Type: text/plain
-Organization: jamalopolous
-Message-Id: <1111581618.1088.72.camel@jzny.localdomain>
+Subject: Re: memory leak in net/sched/ipt.c?
+Message-ID: <20050323125516.GP3086@postel.suug.ch>
+References: <E1DE44X-0001QM-00@gondolin.me.apana.org.au> <1111581618.1088.72.camel@jzny.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 23 Mar 2005 07:40:18 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1111581618.1088.72.camel@jzny.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-23 at 06:30, Herbert Xu wrote:
-> Yichen Xie <yxie@cs.stanford.edu> wrote:
-> > Is the memory block allocated on line 315 leaked every time tcp_ipt_dump 
-> > is called?
-> 
-> It seems to be.  This patch should free it.
-> 
-> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-> 
-> BTW, please report networking bugs to netdev@oss.sgi.com.
-> 
+* jamal <1111581618.1088.72.camel@jzny.localdomain> 2005-03-23 07:40
+> On Wed, 2005-03-23 at 06:30, Herbert Xu wrote:
+> > Yichen Xie <yxie@cs.stanford.edu> wrote:
+> > > Is the memory block allocated on line 315 leaked every time tcp_ipt_dump 
+> > > is called?
+> > 
+> > It seems to be.  This patch should free it.
+> > 
+> > Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-Thanks for pointing this out - I _know_ its in the kernel list FAQ.
-I was sitting beside R Gooch when he added "thou shalt post to netdev".
-And of course i am gonna bitch about it every time someone doesnt
-post to netdev;-> 
+> Just a small correction to patchlet:
+> The second kfree should check for existence of t.
 
-Just a small correction to patchlet:
-The second kfree should check for existence of t.
-
-cheers,
-jamal
-
-> Thanks,
-
+t is either valid or NULL so it's not a problem, unless you want
+to create janitor work of course. ;->

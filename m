@@ -1,66 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268703AbTCDAR7>; Mon, 3 Mar 2003 19:17:59 -0500
+	id <S268889AbTCDAXJ>; Mon, 3 Mar 2003 19:23:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268794AbTCDAR7>; Mon, 3 Mar 2003 19:17:59 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:15242 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S268703AbTCDAR6>; Mon, 3 Mar 2003 19:17:58 -0500
-Date: Mon, 3 Mar 2003 18:28:20 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: chas williams <chas@locutus.cmf.nrl.navy.mil>
-cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][ATM] make atm (and clip) modular + try_module_get()
-In-Reply-To: <200303032220.h23MKVGi028878@locutus.cmf.nrl.navy.mil>
-Message-ID: <Pine.LNX.4.44.0303031825240.16397-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268890AbTCDAXJ>; Mon, 3 Mar 2003 19:23:09 -0500
+Received: from smtp1.clear.net.nz ([203.97.33.27]:30095 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP
+	id <S268889AbTCDAXI>; Mon, 3 Mar 2003 19:23:08 -0500
+Date: Tue, 04 Mar 2003 13:36:41 +1300
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: [ACPI] Re: S4bios support for 2.5.63
+In-reply-to: <20030303233923.GA2234@k3.hellgate.ch>
+To: Roger Luethi <rl@hellgate.ch>
+Cc: Troels Haugboelle <troels_h@astro.ku.dk>, Pavel Machek <pavel@suse.cz>,
+       bert hubert <ahu@ds9a.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1046738201.3809.18.camel@laptop-linux.cunninghams>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <20030302202118.GA2201@outpost.ds9a.nl>
+ <20030303003940.GA13036@k3.hellgate.ch>
+ <1046657290.8668.33.camel@laptop-linux.cunninghams>
+ <20030303113153.GA18563@outpost.ds9a.nl>
+ <20030303122325.GA20929@atrey.karlin.mff.cuni.cz>
+ <20030303123551.GA19859@outpost.ds9a.nl>
+ <20030303124133.GH20929@atrey.karlin.mff.cuni.cz>
+ <1046700474.3782.197.camel@localhost> <20030303143006.GA1289@k3.hellgate.ch>
+ <1046729210.1850.8.camel@laptop-linux.cunninghams>
+ <20030303233923.GA2234@k3.hellgate.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Mar 2003, chas williams wrote:
+On Tue, 2003-03-04 at 12:39, Roger Luethi wrote:
+> On Tue, 04 Mar 2003 11:06:50 +1300, Nigel Cunningham wrote:
+> > You were hitting the BUG_ON before swsusp was even trying to write the
+> > image?!! That is interesting! Since count_and_copy is first called post
+> > driver suspend in the current version, perhaps they are somehow related.
+> > (This is before swsusp tries to write any of the image to disk).
+> 
+> Huh? After a glance at the code I agree that drivers_suspend happens before
+> count_and_copy_data_pages, but that means hitting the BUG_ON in
+> idedisk_suspend before the panic in count_and_copy_data_pages is what I'd
+> expect. How is that remarkable? ... My current kernel has HIGHMEM enabled,
+> but previous ones that failed the same way didn't.
 
-> Index: linux/net/atm/Makefile
-> ===================================================================
-> RCS file: /home/chas/CVSROOT/linux/net/atm/Makefile,v
-> retrieving revision 1.1.1.1
-> diff -u -r1.1.1.1 Makefile
-> --- linux/net/atm/Makefile	20 Feb 2003 13:46:30 -0000	1.1.1.1
-> +++ linux/net/atm/Makefile	3 Mar 2003 16:51:03 -0000
-> @@ -3,12 +3,15 @@
->  #
->  
->  mpoa-objs	:= mpc.o mpoa_caches.o mpoa_proc.o
-> +atm-objs	:= addr.o pvc.o signaling.o svc.o common.o atm_misc.o raw.o resources.o
->  
-> -obj-$(CONFIG_ATM) := addr.o pvc.o signaling.o svc.o common.o atm_misc.o raw.o resources.o
-> +obj-$(CONFIG_ATM) += atm.o
->  
-> -obj-$(CONFIG_ATM_CLIP) += clip.o ipcommon.o
-> -obj-$(CONFIG_NET_SCH_ATM) += ipcommon.o
-> -obj-$(CONFIG_PROC_FS) += proc.o
-> +obj-$(CONFIG_ATM_CLIP) += clip.o
-> +# obj-$(CONFIG_NET_SCH_ATM) += ipcommon.o
-> +ifeq ($(CONFIG_PROC_FS),y)
-> +atm-objs += proc.o
-> +endif
->  
->  obj-$(CONFIG_ATM_LANE) += lec.o
->  obj-$(CONFIG_ATM_MPOA) += mpoa.o
+I was surprised because I thought you were getting the BUG_ON during
+writing the image. Now I see that it's well beforehand.
 
+> Anyway, a few more tests showed that hdparm -u1 helps if I have lots of
+> memory used (say for fs caches). In two out of two tests, I saw Pavel's
+> request to send him 1 GB RAM via email.
 
-Not terribly important, but you can write this as:
+On this topic, would you be willing to test a 2.4 version that supported
+highmem? I haven't written support yet, but hope to do it shortly. (I
+don't have that much ram myself so you can send me 1GB if you prefer
+:>).
 
+> Suspending directly from a clean boot (after issuing the same hdparm -u1
+> commands for both disks) I hit the BUG_ON in idedisk_suspend (two out of
+> two tests, too).
 
-obj-$(CONFIG_ATM)	+= atm.o
+Hmmm.. strange.
 
-atm-y			+= addr.o pvc.o signaling.o svc.o ...
-atm-$(CONFIG_PROC_FS)	+= proc.o
+Regards,
 
-
-which looks a bit nicer ;)
-
---Kai
-
+Nigel
 

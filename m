@@ -1,116 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264973AbUEYRFz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264976AbUEYRIy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264973AbUEYRFz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 13:05:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264980AbUEYRFz
+	id S264976AbUEYRIy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 13:08:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264990AbUEYRIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 13:05:55 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31643 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264973AbUEYRF3 (ORCPT
+	Tue, 25 May 2004 13:08:30 -0400
+Received: from mail.kroah.org ([65.200.24.183]:16550 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264984AbUEYRGb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 13:05:29 -0400
-Date: Tue, 25 May 2004 10:05:26 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "J. Bruce Fields" <bfields@fieldses.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFD] Explicitly documenting patch submission
-In-Reply-To: <20040525164232.GD28169@fieldses.org>
-Message-ID: <Pine.LNX.4.58.0405250948530.9951@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org>
- <20040525164232.GD28169@fieldses.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 25 May 2004 13:06:31 -0400
+Date: Tue, 25 May 2004 10:05:28 -0700
+From: Greg KH <greg@kroah.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Matthew Wilcox <willy@debian.org>, Arjan van de Ven <arjanv@redhat.com>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [BK PATCH] PCI Express patches for 2.4.27-pre3
+Message-ID: <20040525170527.GA9495@kroah.com>
+References: <20040524210146.GA5532@kroah.com> <1085468008.2783.1.camel@laptop.fenrus.com> <20040525080006.GA1047@kroah.com> <20040525113231.GB29154@parcelfarce.linux.theplanet.co.uk> <20040525125452.GC3118@logos.cnet> <20040525144055.GA7252@kroah.com> <20040525165904.GF3385@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040525165904.GF3385@logos.cnet>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 25 May 2004, J. Bruce Fields wrote:
+On Tue, May 25, 2004 at 01:59:04PM -0300, Marcelo Tosatti wrote:
+> On Tue, May 25, 2004 at 07:40:56AM -0700, Greg KH wrote:
+> > On Tue, May 25, 2004 at 09:54:53AM -0300, Marcelo Tosatti wrote:
+> > > 
+> > > Hi kernel fellows,
+> > > 
+> > > On Tue, May 25, 2004 at 12:32:31PM +0100, Matthew Wilcox wrote:
+> > > > On Tue, May 25, 2004 at 01:00:06AM -0700, Greg KH wrote:
+> > > > > > how does this mesh with the "2.4 is now feature frozen"?
+> > > > > 
+> > > > > As the major chunk of ACPI support just got added to the tree, and the
+> > > > > only reason that went in was for this patch, I assumed that it was
+> > > > > acceptable.
+> > > 
+> > > major? the MMConfig support is minimal as I can see? 
+> > 
+> > It isn't that big of a patch, but it is make to core PCI code.
+> > 
+> > > > > Marcelo, feel free to tell me otherwise if you do not want
+> > > > > this in the 2.4 tree. 
+> > > 
+> > > Is this code necessary for PCI-Express devices/busses to work properly?
+> > 
+> > Not that I can tell, the main point is accessing the extended config
+> > space, and speeding up the access to the device to its natural speed.
+> > 
+> > > > I assume it was added because Len tries to keep ACPI in 2.4 and 2.6 as
+> > > > close to identical as possible.  It certainly doesn't hurt anyone to add
+> > > > the ACPI functionality without the MMConfig support.
+> > > 
+> > > I've humbly asked Len to stop doing big updates whenever possible on the 
+> > > v2.4 ACPI code, and do bugfixes only instead. Is that a pain in the ass for you, Len?    
+> > > 
+> > > I asked that because it is common to see new bugs introduced by an ACPI update, 
+> > > and you know that more than I do.
+> > 
+> > Yes, I know that quite well :)
+> > 
+> > So, because of this, you are saying that we should not apply these
+> > patches at this time? 
 > 
-> The patch-submission process can be more complicated than a simple path
-> up a heirarchy of maintainers--patches get bounced around a lot
-> sometimes.
+> Yeap, I would prefer not to apply them at this time. For one, Arjan told
+> me privately it can break XFree86 which accesses the PCI config space directly.
+> Right?
 
-Yes. And documenting the complex relationships obviously can't be sanely 
-done. The best we can do is a "it went through these people".
+Um, not that I know of.  2.6 has had this code for a while now with no
+reported problems.
 
-Perfect is the enemy of good. If we tried to be perfect, we'd never get 
-anything done.
+Arjan, is there something I need to know about?  :)
 
-> If you're trying to document who contributes "intellectual property" to
-> the kernel
+> > If so, that's fine with me, as now any distro that wants to add this to
+> > their 2.4 kernel can, as the patches are public.
+> 
+> Yeap. 
 
-No, that's not what it is either.  At least to me, equally important as 
-the actual author is how it got reviewed, and what path it took. Because 
-when problems happen (say a simple bug), I want the whole path to know.
+Ok, no problem, thanks for looking at it.
 
-Think of it this way (purely technical to avoid any emotional arguments):  
-we've hunted down a change that results in strange behaviour, and what we
-want to do is get the problem explained and resolved. Maybe the thing to 
-do is to just revert the whole change, but usually we just want to fix it, 
-and regardless of whether we want to undo it or fix it, what we want to do 
-is get the people who were involved with not just writing the code, but 
-approving it too to look at the issue.
-
-And the people who approved it literally _are_ as important as the people 
-who wrote it (forget any copyright issues), since (a) they need to know to 
-avoid the problem in the first place and (b) they usually know why the 
-code was added and what problems _they_ saw (or didn't see) when they 
-approved it.
-
-See? That's why to me, the set of people who have been involved in the
-whole patch "lifetime" is actually _more_ important than the original
-author. The original author is obviously special in some respects, but
-from a problem solving perspective he's not necessarily even the person to
-go to.
-
-> I gues I'm still a little vague as to exactly what sort of questions we
-> expect to be able to answer using this new documentation.
-
-See above. I explicitly picked a _technical_ reason for tracking who has
-been involved with a patch, but let's say that somebody raises concerns
-over any _other_ issues about the code - the fact is that the same logic 
-applies. The original author is a bit special, but the path it took is 
-still equally important.
-
-> A couple examples (which I think aren't too farfetched):
-> 	* Developer A submits a patch which is dropped by maintainer B.
-> 	  I later notice this and resubmit A's patch to B.  I don't
-> 	  change the patch at all, and the resubmission is my only
-> 	  contribution to the process.  Do I need to tag on my own
-> 	  "Signed-off-by" line?
-
-Yup. And part of it is simply credit: trust me when I say to you that
-"maintenance" of patches is a job that it at _least_ as important as
-writing them in most cases.
-
-That's not always true, of course - there are pieces of code that are just
-stunning works of art, and very important, and as programmers we like to 
-think of those really fundamental contributions. But in real life, it's 
-definitely the old case of "1% inspiration, 99% persiration", and we 
-should just accept that.
-
-For example, look at the kernel developers out there, and ask yourself who 
-stands out. There's a couple of great coders, but I think the people who 
-really stand out are people like Andrew, who mostly really "organize" and 
-act as managers. Right?
-
-So when you save a patch from oblivion by passing it on to the right 
-person, and get it submitted when it was originally dropped by some 
-reason, you're actually doing a fundamentally important job. Maybe it's 
-just one small piece of the puzzle, but hey, you'd only get one small line 
-in the changeset, so the credit (or blame ;) really is appropriate.
-
-> 	* I write a patch.  Developers X and Y suggest significant
-> 	  changes.  I make the changes before I submit them to maintainer
-> 	  Z.  Suppose the changes are significant enough that I no longer
-> 	  feel comfortable representing myself as the sole author of the
-> 	  patch.  Should I also be asking developer X  and Y to add their
-> 	  own "Signed-off-by" lines?
-
-That, my friend, is a matter of your own taste and conscience. My answer
-is that if you wrote it all, you clearly don't _need_ to. At the same
-time, I think that it's certainly in good taste to at least _ask_ them. 
-Wouldn't you agree?
-
-		Linus
+greg k-h

@@ -1,33 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318661AbSHAIHp>; Thu, 1 Aug 2002 04:07:45 -0400
+	id <S318641AbSHAIiP>; Thu, 1 Aug 2002 04:38:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318663AbSHAIHp>; Thu, 1 Aug 2002 04:07:45 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:36074 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S318661AbSHAIHo>;
-	Thu, 1 Aug 2002 04:07:44 -0400
-Date: Thu, 1 Aug 2002 10:10:46 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, ftpadmin@kernel.org,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.4.19-rc5
-Message-ID: <20020801081046.GB1096@suse.de>
-References: <Pine.LNX.4.44.0208010336330.1728-100000@freak.distro.conectiva> <21455.1028188535@kao2.melbourne.sgi.com>
+	id <S318663AbSHAIiO>; Thu, 1 Aug 2002 04:38:14 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:24238 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S318641AbSHAIiO>;
+	Thu, 1 Aug 2002 04:38:14 -0400
+Date: Thu, 1 Aug 2002 18:40:09 +1000
+To: linux-kernel@vger.kernel.org
+Subject: LKML Digest to HTML converter
+Message-ID: <20020801084009.GA5721@ellington>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <21455.1028188535@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.4i
+X-fortune: Good day for a change of scene. Repaper the bedroom wall. 
+From: Ian Wienand <ianw@ieee.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 01 2002, Keith Owens wrote:
-> patch-2.4.19-rc5.gz has been there for 25 minutes but the .bz2 file and
-> the signature have not been created yet.  Is there a problem with the
-> automatic conversion and signing code on master?
+Hello,
 
-that is slow, hwoever it's there now.
+This may be of interest to those of you who read this email in the
+digest version of this list.
 
--- 
-Jens Axboe
+My python script converts the digest version of this list into a HTML
+file that is a little more convenient to read.  It does things like
+build a linked contents section, link messages for easy scrolling,
+colour replies and highlight urls/emails.
 
+You can call it manually from mutt or put it in procmail.
+
+Available here :
+
+http://www.wienand.org/files/lkmld2html/lkmld2html.tar.gz
+
+(sample output can be seen at
+http://www.wienand.org/files/lkmld2html/sample.html)
+
+Regards,
+
+i
+-
+ianw@ieee.org
+http://www.wienand.org

@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263491AbUA3Lb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 06:31:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263600AbUA3Lb7
+	id S263513AbUA3Lsa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 06:48:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263592AbUA3Lsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 06:31:59 -0500
-Received: from 82-68-84-57.dsl.in-addr.zen.co.uk ([82.68.84.57]:57044 "EHLO
-	lenin.trudheim.com") by vger.kernel.org with ESMTP id S263491AbUA3Lb5
+	Fri, 30 Jan 2004 06:48:30 -0500
+Received: from gateway.set-software.de ([193.218.212.121]:30381 "EHLO
+	gateway.local.net") by vger.kernel.org with ESMTP id S263513AbUA3Ls3 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 06:31:57 -0500
-Subject: Bluetooth oddity
-From: Anders Karlsson <anders@trudheim.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ZTl9MMFOyJKhHasQ91YJ"
-Organization: Trudheim Technology Limited
-Message-Id: <1075462349.9698.4.camel@tor.trudheim.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 Rubber Turnip www.usr-local-bin.org 
-Date: Fri, 30 Jan 2004 11:32:30 +0000
+	Fri, 30 Jan 2004 06:48:29 -0500
+From: Michael Knigge <Michael.Knigge@set-software.de>
+Date: Fri, 30 Jan 2004 11:44:43 GMT
+Message-ID: <20040130.11444335@knigge.local.net>
+Subject: Re: Errors with USB Disk
+To: Markus Schaber <schabios@logi-track.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040130122324.7ac7ef34.schabios@logi-track.com>
+References: <20040130122324.7ac7ef34.schabios@logi-track.com>
+X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.1; Win32)
+X-Priority: 3 (Normal)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-ZTl9MMFOyJKhHasQ91YJ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> I'm trying to use an USB Disk (IDE Disk in external USB Case), but
+> strange file system errors occurend and tools as dosfsck reproducably
+> hang.
 
-Hi list,
+Try/Read this:
 
-Out of curiosity, has anyone else noticed something odd with Bluetooth
-in 2.6.x kernels? On my Thinkpad X31 I can switch it on/off with Fn+F5.
-Switching it on is no problem, but switching it off causes solid hang of
-the Thinkpad. Only SysRq+b works.
+http://www.mail-archive.com/linux-usb-devel@lists.sourceforge.net/msg
+18528.html
 
-It is not the whole world, but a little irritating. Also, I use
-Bluetooth to hot-sync my Tungsten T|3. Same problem occurs on the 4th -
-6th sync, solid hang of the Thinkpad. No debug output yet, if any
-Bluetooth developers are interested to have this fixed, I am game to
-help debug this.
 
-Regards,
+On my System, changing max_sectors to 128 doesn't help reliably. I'm 
+currently testing if 64/32/16/8 will work better.
 
---=20
-Anders Karlsson <anders@trudheim.com>
-Trudheim Technology Limited
 
---=-ZTl9MMFOyJKhHasQ91YJ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Bye
+  Michael
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQBAGkDNLYywqksgYBoRAmI1AKCj0/ezm2CScNvgi6Yx3/95OLP3bACfYQL5
-ZPRpYkKLpsyvUns90pzr1vc=
-=qfN4
------END PGP SIGNATURE-----
 
---=-ZTl9MMFOyJKhHasQ91YJ--

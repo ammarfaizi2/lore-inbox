@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270257AbRINUPe>; Fri, 14 Sep 2001 16:15:34 -0400
+	id <S269770AbRINUOy>; Fri, 14 Sep 2001 16:14:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270201AbRINUPP>; Fri, 14 Sep 2001 16:15:15 -0400
-Received: from [194.213.32.137] ([194.213.32.137]:2308 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S270178AbRINUOy>;
-	Fri, 14 Sep 2001 16:14:54 -0400
-Message-ID: <20010914221405.B5448@bug.ucw.cz>
-Date: Fri, 14 Sep 2001 22:14:05 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Peter J. Braam" <braam@clusterfilesystem.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCEMENT] InterMezzo 1.0.5.2
-In-Reply-To: <20010913133726.J1501@lustre.dyn.ca.clusterfilesystem.com>
-Mime-Version: 1.0
+	id <S270201AbRINUOo>; Fri, 14 Sep 2001 16:14:44 -0400
+Received: from mail.missioncriticallinux.com ([208.51.139.18]:14099 "EHLO
+	missioncriticallinux.com") by vger.kernel.org with ESMTP
+	id <S270178AbRINUOf>; Fri, 14 Sep 2001 16:14:35 -0400
+Message-ID: <3BA26542.21DC105A@MissionCriticalLinux.com>
+Date: Fri, 14 Sep 2001 13:14:58 -0700
+From: Bruce Blinn <blinn@MissionCriticalLinux.com>
+Organization: Mission Critical Linux
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.6-bcb i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Reading Windows CD on Linux 2.4.6
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20010913133726.J1501@lustre.dyn.ca.clusterfilesystem.com>; from Peter J. Braam on Thu, Sep 13, 2001 at 01:37:26PM -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello:
 
+I sent the following message to the kernel newbies mailing list, and it
+was suggested that I send it to the kernel mailing list.  I am not a
+subscriber of this mailing list, so I would appreciate any replies being
+sent to me directly.
 
-> DISCLAIMER:
-> 
-> Read the file COPYING in the distribution to see the conditions under
-> which this software is made available.  Please use this version at
+-----------------------
 
-Is it standart GPL or something else? (Just curious...)
-								Pavel
+I have found that after upgrading from 2.2.19 to 2.4.6, I can no longer
+read CD-ROMs that were created under Windows.  Since they work fine on
+2.2.19, I assume there is some configuration option that has changed,
+but I did not see anything that looked suspicious.
+
+I can mount the CD and list the files on it, but when I try to access
+one of the files on it, I get an IO error.
+
+When I created the disk on Windows, I selected the option to "Organize
+the disc so it can be read in most standard CD-ROM drives...".  On
+Linux, I selected the kernel options for ISO 9660 and the Joliet
+extensions.
+
+Does anyone have any ideas about what I am doing wrong?
+
+Thanks,
+Bruce
 -- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+Bruce Blinn                               408-615-9100
+Mission Critical Linux, Inc.              blinn@MissionCriticalLinux.com
+www.MissionCriticalLinux.com

@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262065AbSJNSbc>; Mon, 14 Oct 2002 14:31:32 -0400
+	id <S262049AbSJNS3Q>; Mon, 14 Oct 2002 14:29:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262069AbSJNSbb>; Mon, 14 Oct 2002 14:31:31 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:31706 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S262065AbSJNSb3>;
-	Mon, 14 Oct 2002 14:31:29 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Date: Mon, 14 Oct 2002 20:36:54 +0200
+	id <S262061AbSJNS3Q>; Mon, 14 Oct 2002 14:29:16 -0400
+Received: from homer.mpdft.gov.br ([200.184.102.212]:47365 "EHLO
+	flanders.mpdft.gov.br") by vger.kernel.org with ESMTP
+	id <S262049AbSJNS3P>; Mon, 14 Oct 2002 14:29:15 -0400
+Message-ID: <F993807AD0E4D511AF72009027B2268B0147DC1C@saoluis.mpdft>
+From: Robson Paniago de Miranda <Robsonm@mpdft.gov.br>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] [PATCH 0/5] ACL support for ext2/3 
+Date: Mon, 14 Oct 2002 16:34:56 -0200
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should n
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, eblade@blackmagik.dynup.net,
-       linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
-       ebiederm@xmission.com
-X-mailer: Pegasus Mail v3.50
-Message-ID: <49A685A38EF@vcnet.vc.cvut.cz>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 Oct 02 at 13:48, Richard B. Johnson wrote:
-> > > itself as random of other programs, not getting through the reboot
-> > > process half of the time, etc.
-> >
+I think Andreas Gruenbacher released version 0.8.51 solving a bug in 
+which a user could receive the "others" permission if the group 
+permissions are zero. There is still time to integrate these changes?
+
+Robson
+
+
+> The following patch set adds ACL support to the ext2/3 filesystem.  It
+> is a port of the 0.8.50 patches from Andreas Gruenbacher.  It requires
+> the Extended Attribute patches which I had sent earlier as a
+> pre-requisite, and represents the 2nd of 3 sets of patches from the
+> acl.bestbits.at code.  (The first set was the EA patches; this is the
+> second set of patches; and the third set of patches adds ACL support to
+> NFS, so that the NFS server respects the ACL set on the filesystem.)
 > 
-> A processor reset will get the processor onto the bus even if there is
-> an ongoing DMA operation. Since the first of many instructions are
-> fetched from ROM, it is quite likely that any DMA activity would have
-> stopped before the ROM is shadowed by the BIOS. I don't see "ongoing"
-> DMA as being a problem, which you can verify by forcing a reset in
-> the FDC code (easiest to do) while waiting for read DMA to complete.
-> FDC DMA is slow, so you can catch it 100% of the time.
-
-Not all DMA transfer finishes in finite time. When I have enabled
-picture feed to videoram on LML33 I have here in my dual AMD, nothing 
-is going to stop transfer: it will happilly feed data during soft
-reboot. Either computer will refuse to boot completely because of 
-videobios will not be able to initialize videoram (Hey, you have
-with no usable video memory, all write-verify cycles failed: returned
-data differ from written one. Please add some memory chips...),
-or you'll see garbage on screen until device's busmastering bit
-is disabled (when LML33 driver is loaded...).
-
-Only problem is when you are going to disable busmastering: like
-we have early printk console, we need its counterpart on shutdown,
-as PCI video drivers can be unloaded long before other drivers finish
-unloading (== poweroff does not work on my system for some time. 
-I assume that it oopses somewhere after matroxfb shutdown), and
-after shutting down PCI-AGP bridge no message can find its way to
-the screen, even with any early printk solution...
-                                            Best regards,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
+> Some of these patches in this set are shared in common with the XFS
+> filesystem, and are needed for ACL support in XFS as well.  These
+> patches are versus 2.5.40, and still reflect the original design
+> decision of allowing ext2 and ext3 ACL support to be available as
+> separate standalone modules.  (See the discussion of the EA patches
+> about whether or not this makes sense.)
+> 
+> Please comment/bleed on these patches.

@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbVB0Azz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVB0BDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261325AbVB0Azz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 19:55:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVB0Azs
+	id S261322AbVB0BDe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 20:03:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVB0BDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 19:55:48 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:6406 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261325AbVB0Azk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 19:55:40 -0500
-Date: Sun, 27 Feb 2005 01:55:36 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: James.Bottomley@SteelEye.com
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] SCSI NCR_D700.c: make some code static
-Message-ID: <20050227005536.GU3311@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 26 Feb 2005 20:03:34 -0500
+Received: from fire.osdl.org ([65.172.181.4]:36574 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261322AbVB0BDd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Feb 2005 20:03:33 -0500
+Date: Sat, 26 Feb 2005 17:04:21 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>
+cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] partitions/msdos.c
+In-Reply-To: <16929.6319.149849.305237@hertz.ikp.physik.tu-darmstadt.de>
+Message-ID: <Pine.LNX.4.58.0502261703140.25732@ppc970.osdl.org>
+References: <20050226213459.GA21137@apps.cwi.nl>
+ <16928.62091.346922.744462@hertz.ikp.physik.tu-darmstadt.de>
+ <Pine.LNX.4.58.0502261424430.25732@ppc970.osdl.org> <20050226225203.GA25217@apps.cwi.nl>
+ <Pine.LNX.4.58.0502261510030.25732@ppc970.osdl.org> <20050226234053.GA14236@apps.cwi.nl>
+ <Pine.LNX.4.58.0502261546380.25732@ppc970.osdl.org>
+ <16929.6319.149849.305237@hertz.ikp.physik.tu-darmstadt.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes some needlessly global code static.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.11-rc4-mm1-full/drivers/scsi/NCR_D700.c.old	2005-02-27 01:03:50.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/scsi/NCR_D700.c	2005-02-27 01:04:25.000000000 +0100
-@@ -106,7 +106,7 @@
- #include "53c700.h"
- #include "NCR_D700.h"
- 
--char *NCR_D700;			/* command line from insmod */
-+static char *NCR_D700;		/* command line from insmod */
- 
- MODULE_AUTHOR("James Bottomley");
- MODULE_DESCRIPTION("NCR Dual700 SCSI Driver");
-@@ -352,7 +352,7 @@
- 
- static short NCR_D700_id_table[] = { NCR_D700_MCA_ID, 0 };
- 
--struct mca_driver NCR_D700_driver = {
-+static struct mca_driver NCR_D700_driver = {
- 	.id_table = NCR_D700_id_table,
- 	.driver = {
- 		.name		= "NCR_D700",
+On Sun, 27 Feb 2005, Uwe Bonnes wrote:
+> 
+> on a Suse 9.2 System with Suse Hotplug, the phantom partition was somehow
+> recognized as Reiserfs, and then the Hotplug mechanism trying to mount the 
+> bogus partition as a Reiser Filesystem ended in an Oops...
 
+Heh. That oops would be interesting in itself, since it implies that 
+reiserfs is not doing very well on the sanity-checking front. 
+
+But yes, point taken.
+
+		Linus

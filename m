@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277317AbRJUXvH>; Sun, 21 Oct 2001 19:51:07 -0400
+	id <S277330AbRJVAJS>; Sun, 21 Oct 2001 20:09:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277320AbRJUXu4>; Sun, 21 Oct 2001 19:50:56 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:13641 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S277317AbRJUXuv>; Sun, 21 Oct 2001 19:50:51 -0400
-Date: Mon, 22 Oct 2001 01:51:10 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: khromy <khromy@lnuxlab.ath.cx>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.13pre5aa1
-Message-ID: <20011022015110.B8408@athlon.random>
-In-Reply-To: <20011021144144.A29415@lnuxlab.ath.cx>
+	id <S277333AbRJVAJI>; Sun, 21 Oct 2001 20:09:08 -0400
+Received: from imailg2.svr.pol.co.uk ([195.92.195.180]:17208 "EHLO
+	imailg2.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S277330AbRJVAI7>; Sun, 21 Oct 2001 20:08:59 -0400
+Date: Mon, 22 Oct 2001 01:09:51 +0100
+From: Adam Huffman <bloch@verdurin.com>
+To: linux-kernel@vger.kernel.org
+Subject: Problem with sd_mod in 2.4.12-ac4
+Message-ID: <20011022010951.A1027@bloch.verdurin.priv>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20011021144144.A29415@lnuxlab.ath.cx>; from khromy@lnuxlab.ath.cx on Sun, Oct 21, 2001 at 02:41:44PM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 21, 2001 at 02:41:44PM -0400, khromy wrote:
-> my normal load(which is gaim, xchat, gkrellm, opera, mozilla, mysql) but the
-> following made it better.
-> 
-> echo 6 > /proc/sys/vm/vm_scan_ratio
-> echo 2 > /proc/sys/vm/vm_mapped_ratio
-> echo 4 > /proc/sys/vm/vm_balance_ratio
+When I try to mount an ext2 partition on an external FireWire
+drive, normally sbp2 causes sd_mod to be loaded, and the mount works.
 
-agreed, pre5aa1 was swapping too much by default, so the above echos are
-recommended. btw, I did further developement in the weekend and it
-should be better now by default than pre5aa1 with the above sysctl
-settings.  I'll do more tests on bigger hardware in the next days (I was
-on the laptop).
+With this kernel, when I modprobe sbp2, sd_mod fails to load.  The error
+is:
 
-thanks for the feedback,
+unresolved symbol blk_ioctl
 
-Andrea
+This works in 2.4.13-pre5 and 2.4.10-ac11.
+
+Adam

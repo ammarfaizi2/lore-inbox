@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263861AbTEGPH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 11:07:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263869AbTEGPH6
+	id S264051AbTEGP0E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 11:26:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264052AbTEGP0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 11:07:58 -0400
-Received: from watch.techsource.com ([209.208.48.130]:177 "EHLO techsource.com")
-	by vger.kernel.org with ESMTP id S263861AbTEGPHr (ORCPT
+	Wed, 7 May 2003 11:26:04 -0400
+Received: from havoc.daloft.com ([64.213.145.173]:62367 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S264051AbTEGP0D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 11:07:47 -0400
-Message-ID: <3EB9250A.8030306@techsource.com>
-Date: Wed, 07 May 2003 11:23:54 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Torsten Landschoff <torsten@debian.org>,
-       J?rn Engel <joern@wohnheim.fh-wedel.de>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: top stack (l)users for 2.5.69
-References: <20030507132024.GB18177@wohnheim.fh-wedel.de> <Pine.LNX.4.53.0305070933450.11740@chaos> <20030507135657.GC18177@wohnheim.fh-wedel.de> <20030507143315.GA6879@stargate.galaxy> <20030507144736.GE8978@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 7 May 2003 11:26:03 -0400
+Date: Wed, 7 May 2003 11:38:38 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Dick Streefland <dick.streefland@altium.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The magical mystical changing ethernet interface order
+Message-ID: <20030507153838.GD3583@gtf.org>
+References: <20030507141458.B30005@flint.arm.linux.org.uk> <6632.3eb923bb.15701@altium.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6632.3eb923bb.15701@altium.nl>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-William Lee Irwin III wrote:
-
+On Wed, May 07, 2003 at 03:18:19PM -0000, Dick Streefland wrote:
+> Russell King <rmk@arm.linux.org.uk> wrote:
+> | Its rather annoying when your dhcpd starts on the wrong interface.
 > 
-> The kernel stack is (in Linux) unswappable memory that persists
-> throughout the lifetime of a thread. It's basically how many threads
-> you want to be able to cram into a system, and it matters a lot for
-> 32-bit.
-> 
-> 
+> You can avoid this by assigning new interface names with "nameif".
 
-The point that may or may not have been obvious is that more than one 
-kernel stack is hanging around.  One single 8k stack versus one single 
-4k stack is a trivial difference, even for most embedded systems.  But 
-this becomes a huge problem when you have numerous concurrent threads 
-hanging around, one of which can be swapped out.  That eats memory fast.
+We all know this :)
 
-Or am I getting it wrong?
+Nonetheless it's still a bug.
+
+	Jeff
+
 
 

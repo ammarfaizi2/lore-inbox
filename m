@@ -1,83 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129486AbQJ2RVs>; Sun, 29 Oct 2000 12:21:48 -0500
+	id <S130361AbQJ2RZs>; Sun, 29 Oct 2000 12:25:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129605AbQJ2RVh>; Sun, 29 Oct 2000 12:21:37 -0500
-Received: from neodymium.btinternet.com ([194.73.73.83]:46832 "EHLO
-	neodymium.btinternet.com") by vger.kernel.org with ESMTP
-	id <S129486AbQJ2RVb>; Sun, 29 Oct 2000 12:21:31 -0500
-From: davej@suse.de
-Date: Sun, 29 Oct 2000 17:21:22 +0000 (GMT)
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Oops in block_read_full_page() in test10-pre6
-Message-ID: <Pine.LNX.4.21.0010291718570.1707-100000@neo.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130399AbQJ2RZ2>; Sun, 29 Oct 2000 12:25:28 -0500
+Received: from mail.archerassoc.com ([12.14.185.5]:40720 "EHLO
+	digitalpassage.com") by vger.kernel.org with ESMTP
+	id <S130361AbQJ2RZV>; Sun, 29 Oct 2000 12:25:21 -0500
+Date: Sun, 29 Oct 2000 11:25:14 -0600
+To: David Weinehall <tao@acc.umu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at fs.c:567
+Message-ID: <20001029112514.A20492@intolerance.digitalpassage.com>
+In-Reply-To: <20001028184342.A1525@intolerance.digitalpassage.com> <20001029112758.B768@khan.acc.umu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001029112758.B768@khan.acc.umu.se>; from tao@acc.umu.se on Sun, Oct 29, 2000 at 11:27:58AM +0100
+From: Stephen Crowley <stephenc@digitalpassage.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Oct 29, 2000 at 11:27:58AM +0100, David Weinehall wrote:
+> On Sat, Oct 28, 2000 at 06:43:42PM -0500, Stephen Crowley wrote:
+> > kernel 2.4.0-test10-pre6, but this has been here as long as I can
+> > remember.
+> > 
+> > starting wine triggers the bug, C: points to /win2k which is an NTFS
+> > filesystem.
+>
+> Yep, there's a solution for this. Get yourself the complete
+> specifications for the Win2K NTFS, and implement it. The kernel NTFS
+> simply doesn't support the Win2K NTFS, and rather than risking anything,
+> it just OOPS:es. Not that I have any Win2K systems, but if I had, I'd
+> damn sure rather see the kernel OOPS than those filesystems trashed.
 
-Wierd thing about this oops is that it happened just
-as I ticked over between the daylight savings adjustment,
-and the system clock changed itself.
-
-Coincidence ? :)
-
-Unable to handle kernel NULL pointer dereference at virtual address
-00000010
-c012efaa
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c012efaa>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010282
-eax: 00000000   ebx: 00000000   ecx: c11c3474   edx: c11c3448
-esi: c11c3448   edi: c5bf75fc   ebp: 00000000   esp: c201bee4
-ds: 0018   es: 0018   ss: 0018
-Process bash (pid: 13794, stackpage=c201b000)
-Stack: 00000000 c11c3448 c5bf75fc 00000000 0000001a 00000000 c02d3540
-00000246
-       c0121c6e 00000000 c11c3448 c5bf75fc 00000000 c201bf1c 01234567
-c201a000
-       c11c3474 c11c3474 c014ae7e c11c3448 c014a7f8 c0122535 c468c860
-c11c3448
-Call Trace: [<c0121c6e>] [<c014ae7e>] [<c014a7f8>] [<c0122535>]
-[<c0122821>]
-[<c0122760>] [<c012cad5>]
-       [<c010a613>]
-Code: 8b 40 10 89 44 24 24 c7 44 24 18 00 00 00 00 8b 42 18 a8 01
-
->>EIP; c012efaa <block_read_full_page+e/1f4>   <=====
-Trace; c0121c6e <___wait_on_page+ca/d4>
-Trace; c014ae7e <ext2_readpage+e/14>
-Trace; c014a7f8 <ext2_get_block+0/480>
-Trace; c0122535 <do_generic_file_read+2ad/4d8>
-Trace; c0122821 <generic_file_read+59/74>
-Trace; c0122760 <file_read_actor+0/68>
-Trace; c012cad5 <sys_read+95/cc>
-Trace; c010a613 <system_call+33/40>
-Code;  c012efaa <block_read_full_page+e/1f4>
-00000000 <_EIP>:
-Code;  c012efaa <block_read_full_page+e/1f4>   <=====
-   0:   8b 40 10                  mov    0x10(%eax),%eax   <=====
-Code;  c012efad <block_read_full_page+11/1f4>
-   3:   89 44 24 24               mov    %eax,0x24(%esp,1)
-Code;  c012efb1 <block_read_full_page+15/1f4>
-   7:   c7 44 24 18 00 00 00      movl   $0x0,0x18(%esp,1)
-Code;  c012efb8 <block_read_full_page+1c/1f4>
-   e:   00 
-Code;  c012efb9 <block_read_full_page+1d/1f4>
-   f:   8b 42 18                  mov    0x18(%edx),%eax
-Code;  c012efbc <block_read_full_page+20/1f4>
-  12:   a8 01                     test   $0x1,%al
-
-
+I see.. but the FS is mounted read-only, so even if it didn't oops why would
+there be a risk of it getting trashed? I really wouldn't mind if it did got
+trashed.. thanks for the pointer though.
 
 -- 
-| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
-| SuSE Labs
-
+Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

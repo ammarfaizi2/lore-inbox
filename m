@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261914AbTCLTXP>; Wed, 12 Mar 2003 14:23:15 -0500
+	id <S261886AbTCLTV3>; Wed, 12 Mar 2003 14:21:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261921AbTCLTXP>; Wed, 12 Mar 2003 14:23:15 -0500
-Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:1161
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S261914AbTCLTWU>; Wed, 12 Mar 2003 14:22:20 -0500
-Date: Wed, 12 Mar 2003 14:32:57 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: Ben Collins <bcollins@debian.org>
-cc: Larry McVoy <lm@work.bitmover.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-In-Reply-To: <20030312183413.GH563@phunnypharm.org>
-Message-ID: <Pine.LNX.4.44.0303121426450.14172-100000@xanadu.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261898AbTCLTV2>; Wed, 12 Mar 2003 14:21:28 -0500
+Received: from mail.eskimo.com ([204.122.16.4]:65296 "EHLO mail.eskimo.com")
+	by vger.kernel.org with ESMTP id <S261886AbTCLTUy>;
+	Wed, 12 Mar 2003 14:20:54 -0500
+Date: Wed, 12 Mar 2003 11:25:39 -0800
+To: James Stevenson <james@stev.org>
+Cc: David Shirley <dave@cs.curtin.edu.au>,
+       "M. Soltysiak" <msoltysiak@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux BUG: Memory Leak
+Message-ID: <20030312192539.GA2285@eskimo.com>
+References: <F44Bre5NuYqYYDleNlx00025ecc@hotmail.com> <041f01c2e86a$872520d0$64070786@synack> <1047494337.2064.1.camel@god.stev.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1047494337.2064.1.camel@god.stev.org>
+User-Agent: Mutt/1.5.3i
+From: Elladan <elladan@eskimo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Mar 2003, Ben Collins wrote:
-
-> > 	CVS: 110,076 deltas over all files
-> > 	BK:  121,891 deltas over all files
+On Wed, Mar 12, 2003 at 06:38:57PM +0000, James Stevenson wrote:
+> On Wed, 2003-03-12 at 07:19, David Shirley wrote:
+> > Err for starters you should include kernel version and OS versions etc.
+> > 
+> > Also how do you expect any computer to work once it has run out of
+> > memory? Do you have swap partition? I suspect not, or a small one in
+> > any case!
+> > 
+> > Some of the applications you mention are notorios for memory leaks
+> > themselves. ie UT!
 > 
-> (I can recalculate this if you tell me how many of the BK ones are empty
->  merge pointers)
+> iirc UT will only run with openGL under X last time i looked about 3
+> months ago the only card that was fully supporting this was the nvidia
+> Geforce series with closed source drivers.
 > 
-> 90.31%
-> 
-> I wasn't far off by saying 90%. And don't tell me I can get all the
-> data, when in fact, I can't. 
+> Tainted kernel :/
 
-What the hell don't you understand in the fact that the remaining 10% is
-USELESS DATA WITH NO VALUE WHAT SO EVER ???
+Reportedly, the latest releastes of UT2k3 no longer require S3TC to run,
+and will thus work with some open source drivers.
 
-Oh of course you won't trust Larry and maybe he's trying to screw you with 
-that 10% by carefully crafting essential details in there so you'll end up 
-being forced into buying a BK license otherwise you won't be able to make 
-any sense of what happened in the source tree, or even make it compile!  
-Isn't it pure paranoia?
-
-Please, get a life.
-
-
-Nicolas
-
+-J

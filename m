@@ -1,40 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267990AbUHKIZp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267993AbUHKIlV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267990AbUHKIZp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 04:25:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267991AbUHKIZp
+	id S267993AbUHKIlV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 04:41:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267992AbUHKIlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 04:25:45 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:36820 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267990AbUHKIZo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 04:25:44 -0400
-Date: Wed, 11 Aug 2004 10:27:12 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O5
-Message-ID: <20040811082712.GB6528@elte.hu>
-References: <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu> <20040810132654.GA28915@elte.hu> <1092174959.5061.6.camel@mindpipe> <20040811073149.GA4312@elte.hu> <20040811074256.GA5298@elte.hu> <1092210765.1650.3.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1092210765.1650.3.camel@mindpipe>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 11 Aug 2004 04:41:21 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:6926 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S267993AbUHKIlS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 04:41:18 -0400
+Message-ID: <4119DC86.2050507@hist.no>
+Date: Wed, 11 Aug 2004 10:44:54 +0200
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Courtier-Dutton <James@superbug.demon.co.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] zero downtime upgrades to the kernel.
+References: <41195339.9080500@superbug.demon.co.uk>
+In-Reply-To: <41195339.9080500@superbug.demon.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+James Courtier-Dutton wrote:
 
-another thing: do you see the 10 msec latency every time you run
-mlockall-test, or does it only happen sporadically?
+> Has anyone investigated how one might be able to upgrade the linux 
+> kernel without rebooting?
+>
+> We could maybe start with just being able to upgrade kernel modules 
+> while the modules were still in use.
+>
+> E.g. There is a bug in the hard disc driver, and we have a fix, but 
+> don't want to reboot the machine.
+> Could we replace the hard disc driver while it was still being used, 
+> and keep mounted partitions?
 
-	Ingo
+You can only upgrade a module that isn't in use.  So, umount everything 
+using that
+driver (keeping linux running from some other drive (or ramdisk)) 
+replace module,
+reload module, remount filesystems.  This can be quite fast, but you do 
+have to
+umount (and stop all the processes running from those disks.)
+
+
+There are some trick you can use with disks:
+1. Have root on a initial ramdisk, and never remount to a real disk.  
+This way,
+    all disks can be umounted so any disk device driver can be 
+replaced.  You'll
+    tie up a fair amount of memory in that big initial ramdisk though.
+
+2. Consider using multipath and different scsi adapters using different 
+drivers.
+   Perhaps this will let you unload adapter drivers one at a time while you
+   reload the other one, and keeps disks & processes running troughout.
+
+3. Have two identical pc's sharing a set of scsi equipment.  When you 
+want to upgrade
+the base kernel on one, set your IP addressses so traffic goes to the other.
+This should work with protocols that allows server reboot, such as nfs.
+
+You simply won't get a linux kernel (or module) that can be replaced 
+while running,
+but redundant hardware may give some of the same benefits.
+
+Helge Hafting

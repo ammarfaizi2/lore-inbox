@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292851AbSCFBK1>; Tue, 5 Mar 2002 20:10:27 -0500
+	id <S292856AbSCFBMt>; Tue, 5 Mar 2002 20:12:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292854AbSCFBKQ>; Tue, 5 Mar 2002 20:10:16 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:62710 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S292851AbSCFBKH>;
-	Tue, 5 Mar 2002 20:10:07 -0500
-Date: Tue, 5 Mar 2002 17:08:21 -0800
-To: Pawel Kot <pkot@linuxnews.pl>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: irda-users@lists.sourceforge.net
-Subject: Re : SMC IrDA problem with 2.4.18
-Message-ID: <20020305170821.A1577@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	id <S292854AbSCFBMi>; Tue, 5 Mar 2002 20:12:38 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:36228 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S292856AbSCFBM0>;
+	Tue, 5 Mar 2002 20:12:26 -0500
+Date: Tue, 05 Mar 2002 17:09:09 -0800 (PST)
+Message-Id: <20020305.170909.78708394.davem@redhat.com>
+To: davidm@hpl.hp.com, davidm@napali.hpl.hp.com
+Cc: sp@scali.com, adam@yggdrasil.com, linux-kernel@vger.kernel.org
+Subject: Re: Does kmalloc always return address below 4GB?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <15492.62946.952197.632931@napali.hpl.hp.com>
+In-Reply-To: <3C84E785.1D102FF9@scali.com>
+	<20020305.074722.25911127.davem@redhat.com>
+	<15492.62946.952197.632931@napali.hpl.hp.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pawel Kot wrote :
-> Hi,
-> 
-> I'm a happy new user of the new Dell Latitude c610 for a couple of days.
-> The one of the remaining issues I try to deal with is irda device. I can't
-> get it to work under linux (kernel 2.4.18). It works under windows and
-> introduces as: SMS IrCC - Fast Infrared Port. So I tried it with smc
-> driver, but no success:
+   From: David Mosberger <davidm@napali.hpl.hp.com>
+   Date: Tue, 5 Mar 2002 08:44:18 -0800
 
-	Two prerequisite :
-	1) Please use IrDA mailing list, no need to bloat lkml
-	2) Read my IrDA web page, there is plenty of good advices there.
+   >>>>> On Tue, 05 Mar 2002 07:47:22 -0800 (PST), "David S. Miller" <davem@redhat.com> said:
+     DaveM> IA64 was broken, it now uses HIGHMEM.
+   
+   No it doesn't.  Perhaps you meant to say that the Red Hat version of
+   the ia64 linux kernel uses highmem?
 
-	Jean
+Oh I didn't know you didn't use those changes.
+Your version is still broken then.

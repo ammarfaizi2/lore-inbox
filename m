@@ -1,88 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273565AbRIZKXa>; Wed, 26 Sep 2001 06:23:30 -0400
+	id <S274234AbRIZKjA>; Wed, 26 Sep 2001 06:39:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273309AbRIZKXL>; Wed, 26 Sep 2001 06:23:11 -0400
-Received: from hacksaw.org ([216.41.5.170]:35989 "EHLO
-	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
-	id <S271911AbRIZKXA>; Wed, 26 Sep 2001 06:23:00 -0400
-Message-Id: <200109261023.f8QANQ901237@habitrail.home.fools-errant.com>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.3
-To: linux-kernel@vger.kernel.org
-Subject: stuck on TLB IPI wait (CPU#0)  ??? [2.2.19]
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 26 Sep 2001 06:23:26 -0400
-From: Hacksaw <hacksaw@hacksaw.org>
+	id <S274237AbRIZKiu>; Wed, 26 Sep 2001 06:38:50 -0400
+Received: from fe070.worldonline.dk ([212.54.64.208]:56334 "HELO
+	fe070.worldonline.dk") by vger.kernel.org with SMTP
+	id <S274234AbRIZKij>; Wed, 26 Sep 2001 06:38:39 -0400
+Message-ID: <3BB1AF00.3010201@eisenstein.dk>
+Date: Wed, 26 Sep 2001 12:33:36 +0200
+From: Jesper Juhl <juhl@eisenstein.dk>
+Organization: Eisenstein
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16 i586; en-US; m18) Gecko/20010131 Netscape6/6.01
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Peter Moscatt <pmoscatt@yahoo.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Attempting to kill the idle task ??
+In-Reply-To: <20010926102805.80450.qmail@web14702.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I ran scsi_info, which appeared to run just fine. Then the machine moved into 
-molasses mode.
+Peter Moscatt wrote:
 
-The last log entries I before the reboot was this:
+> I got the following error:
+> 
+> "nic: Attempting to kill the idle task!
+> In idle task - not stncing
+> <1> Unable to handle kernel NULL pointer dereference
+> at virtual address 00000000"
+> 
+> Then I get a screen full of numbers and end up with:
+> 
+> "nic: Aiee, killing interrupt handler!
+> In interrupt handler - not syncing"
+> 
+> 
+> What have I done/not done to have this problem ?
 
-Sep 26 04:59:23 habitrail kernel: IP_MASQ:reverse ICMP: failed checksum from 
-193.158.133.165!
-Sep 26 05:00:00 habitrail kernel: IP_MASQ:reverse ICMP: failed checksum from 
-195.252.130.145!
-Sep 26 05:28:55 habitrail kernel: IP_MASQ:reverse ICMP: failed checksum from 
-193.158.133.165!
-Sep 26 05:29:13 habitrail kernel: IP_MASQ:reverse ICMP: failed checksum from 
-193.158.133.165!
-Sep 26 05:43:51 habitrail sudo:  hacksaw : TTY=pts/0 ; PWD=/lib/modules/2.2.19 
-; USER=root ; COMMAND
-=/sbin/scsi_info /dev/sda 
-Sep 26 05:44:01 habitrail kernel: stuck on TLB IPI wait (CPU#0) 
-Sep 26 05:45:00 habitrail last message repeated 4 times
+I'm no expert on this, but it looks like a kernel Oops to me - You 
+should read /usr/src/linux/Documentation/oops-tracing.txt
 
-
-A bit of info about the machine:
-Sep 26 06:01:57 habitrail kernel: Linux version 2.2.19 
-(hacksaw@habitrail.home.fools-errant.com) (gc
-c version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #3 SMP Sat Jun 2 
-22:24:40 EDT 2001
-Sep 26 06:01:57 habitrail kernel: BIOS-provided physical RAM map: 
-Sep 26 06:01:57 habitrail kernel:  BIOS-e820: 0009f000 @ 00000000 (usable) 
-Sep 26 06:01:57 habitrail kernel:  BIOS-e820: 1ff00000 @ 00100000 (usable) 
-Sep 26 06:01:57 habitrail kernel: Intel MultiProcessor Specification v1.1 
-Sep 26 06:01:57 habitrail kernel:     Virtual Wire compatibility mode. 
-Sep 26 06:01:57 habitrail kernel: OEM ID: OEM00000 Product ID: PROD00000000 
-APIC at: 0xFEE00000
-Sep 26 06:01:57 habitrail kernel: Processor #0 Pentium(tm) Pro APIC version 17 
-Sep 26 06:01:57 habitrail kernel: Processor #1 Pentium(tm) Pro APIC version 17 
-Sep 26 06:01:57 habitrail kernel: I/O APIC #2 Version 17 at 0xFEC00000. 
-Sep 26 06:01:57 habitrail kernel: Processors: 2 
-Sep 26 06:01:57 habitrail kernel: mapped APIC to ffffe000 (fee00000) 
-Sep 26 06:01:57 habitrail kernel: mapped IOAPIC to ffffd000 (fec00000) 
-Sep 26 06:01:57 habitrail kernel: Detected 451029 kHz processor. 
-Sep 26 06:01:57 habitrail kernel: Console: colour VGA+ 132x60 
-Sep 26 06:01:57 habitrail kernel: Calibrating delay loop... 897.84 BogoMIPS 
-Sep 26 06:01:57 habitrail kernel: Memory: 516528k/524288k available (1640k 
-kernel code, 420k reserve
-d, 5616k data, 84k init) 
-
-It's a Soyo motherboard. It has a SCSI drive from which it boots, CD-ROM and 
-tape drive. It also has an IDE drive, which is used for backup, and extra 
-storage.
-
-At the time of the crash, I was reading mail.
-
-I've never had this happen before. My uptimes with this kernel have typically 
-run into weeks or months, and have always been broken because I was 
-reconfiguring the kernel.
-
-The IP_MASQ icmp checksum things are often in the logs; I could never find 
-anyone to explain what they were. As far as I know, they are not causing me 
-problems.
-
-Should I care about the TLB IPI thing? Should I not run scsi_info? (I'd run a 
-test, but it's a production machine, and I didn't want it down at all. I might 
-be able to test later if this is an unknown problem.
+The "screen full of numbers" you are refering to is a dump of the 
+various machine register states at the time of the crash and a backtrace 
+of the instructions that led up to the crash. You should copy it all 
+down and run it through the "ksymoops" tool to produce output that will 
+be usefull to the kernel developers, then post the ksymoops output.
 
 
--- 
-Digression is nine tenths of the lore
-http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
+Best regards,
+Jesper Juhl
+juhl@eisenstein.dk
 
 

@@ -1,75 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132504AbRAQT2K>; Wed, 17 Jan 2001 14:28:10 -0500
+	id <S135217AbRAQT2k>; Wed, 17 Jan 2001 14:28:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135217AbRAQT2B>; Wed, 17 Jan 2001 14:28:01 -0500
-Received: from twinlark.arctic.org ([204.107.140.52]:52486 "HELO
-	twinlark.arctic.org") by vger.kernel.org with SMTP
-	id <S132504AbRAQT1r>; Wed, 17 Jan 2001 14:27:47 -0500
-Date: Wed, 17 Jan 2001 11:27:40 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: "David L. Parsley" <parsley@linuxjedi.org>
-cc: Felix von Leitner <leitner@convergence.de>, <linux-kernel@vger.kernel.org>,
-        <mingo@elte.hu>
-Subject: Re: Is sendfile all that sexy?
-In-Reply-To: <3A646322.B76A1661@linuxjedi.org>
-Message-ID: <Pine.LNX.4.30.0101171118410.16292-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+	id <S135644AbRAQT2e>; Wed, 17 Jan 2001 14:28:34 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:48146 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135217AbRAQT2U>; Wed, 17 Jan 2001 14:28:20 -0500
+Date: Wed, 17 Jan 2001 11:27:52 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rick Jones <raj@cup.hp.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+In-Reply-To: <3A65E825.FFEB194@cup.hp.com>
+Message-ID: <Pine.LNX.4.10.10101171104560.9845-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Jan 2001, David L. Parsley wrote:
 
-> Felix von Leitner wrote:
-> > >   close (0);
-> > >   close (1);
-> > >   close (2);
-> > >   open ("/dev/console", O_RDWR);
-> > >   dup ();
-> > >   dup ();
-> >
-> > So it's not actually part of POSIX, it's just to get around fixing
-> > legacy code? ;-)
 
-it's part of POSIX.
-
-> This makes me wonder...
+Rick Jones <raj@cup.hp.com> wrote:
 >
-> If the kernel only kept a queue of the three smallest unused fd's, and
-> when the queue emptied handed out whatever it liked, how many things
-> would break?  I suspect this would cover a lot of bases...
+> : >Agreed -- the hard-coded Nagle algorithm makes no sense these days.
+> :
+> : The fact I dislike about the HP-UX implementation is that it is so
+> : _obviously_ stupid.
+> :
+> : And I have to say that I absolutely despise the BSD people.  They did
+> : sendfile() after both Linux and HP-UX had done it, and they must have
+> : known about both implementations.  And they chose the HP-UX braindamage,
+> : and even brag about the fact that they were stupid and didn't understand
+> : TCP_CORK (they don't say so in those exact words, of course - they just
+> : show that they were stupid and clueless by the things they brag about).
+> :
+> : Oh, well. Not everybody can be as goodlooking as me. It's a curse.
+> 
+> nor it would seem, as humble :)
 
-apache-1.3 relies on the open-lowest-numbered-free-fd behaviour... but
-only as a band-aid to work around other broken behaviours surrounding
-FD_SETSIZE.
+Yeah.. Humble is my middle name.
 
-when opening the log files, and listening sockets apache uses
-fcntl(F_DUPFD) to push them all higher than fd 15.  (see ap_slack)  some
-sites are configured in a way that there's thousands of log files or
-listening fds (both are bogus configs in my opinion, but hey, let the
-admin shoot themself).
+> Hello Linus, my name is Rick Jones. I am the person at Hewlett-Packard
+> who drafted the "so _obviously_ stupid" sendfile() interface of HP-UX.
+> Some of your critique (quoted above) found its way to my inbox and I
+> thought I would introduce myself to you to give you an opportunity to
+> expand a bit on your criticism. In return, if you like, I would be more
+> than happy to describe a bit of the history of sendfile() on HP-UX.
+> Perhaps (though I cannot say with any certainty) it will help explain
+> why HP-UX sendfile() is spec'd the way it is.
 
-this generally leaves a handful of low numbered fds available.  this
-pretty much protects apache from broken libraries compiled with small
-FD_SETSIZE, or which otherwise can't handle big fds.  libc used to be just
-such a library because it used select() in the DNS resolver code.  (a libc
-guru can tell you when this was fixed.)
+I do realize why sendfile() is specced like it is: if you don't want to
+change the networking layer, it's the obvious way to do it. You can take
+just generate an iovec internally in the kernel, and pass that on to an
+unmodified networking layer.
 
-it also ensures that the client fd will be low numbered, and lets us be
-lazy and just use select() rather than do all the config tests to figure
-out which OSs support poll().
+Hey, that's the way I'd do it too if I didn't have the ear of the
+networking people and could tell them that "Psst! THIS is the right way of
+doing this".
 
-it's all pretty gross... but then select() is pretty gross and it's
-essentially the bug that necessitated this.
+The fact that I understand _why_ it is done that way doesn't mean that I
+don't think it's a hack. It doesn't allow you to sendfile multiple files
+etc without having nagle boundaries, and the header/trailer stuff really
+isn't a generic solution.
 
-(solaris also has a stupid FILE * limitation that it can't use fds > 255
-in a FILE * ... which breaks even more libraries than fds >= FD_SETSIZE.)
+Sendfile() as done in HP-UX is a performance optimization. Fine. But it's
+not exactly pretty. It shouldn't be called "sendfile()", it's more of a
+called "send_a_file_and_these_headers_and_those_trailers()" system call.
 
--dean
+Also note how I said that it is the BSD people I _despise_. Not The HP-UX
+implementation. The HP-UX one is not pretty, but it works. But I hold open
+source people to higher standards. They are supposed to be the people who
+do programming because it's an art-form, not because it's their job. 
 
-
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

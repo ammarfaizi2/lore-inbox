@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266116AbSLIUCe>; Mon, 9 Dec 2002 15:02:34 -0500
+	id <S266078AbSLIUHR>; Mon, 9 Dec 2002 15:07:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266122AbSLIUCe>; Mon, 9 Dec 2002 15:02:34 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:20393 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S266116AbSLIUCd>;
-	Mon, 9 Dec 2002 15:02:33 -0500
-Date: Mon, 9 Dec 2002 21:13:47 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@digeo.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Christoph Hellwig <hch@sgi.com>,
-       Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] set_cpus_allowed() for 2.4
-In-Reply-To: <3DF3A3FA.D1571CCD@digeo.com>
-Message-ID: <Pine.LNX.4.44.0212092109270.6663-100000@localhost.localdomain>
+	id <S266095AbSLIUHR>; Mon, 9 Dec 2002 15:07:17 -0500
+Received: from 5-048.ctame701-1.telepar.net.br ([200.193.163.48]:34765 "EHLO
+	5-048.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S266078AbSLIUHQ>; Mon, 9 Dec 2002 15:07:16 -0500
+Date: Mon, 9 Dec 2002 18:14:44 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Peter Chubb <peter@chubb.wattle.id.au>
+cc: Rusty Trivial Russell <rusty@rustcorp.com.au>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       "" <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>
+Subject: Re: [TRIVIAL] Re: setrlimit incorrectly allows hard limits to exceed
+ soft limits
+In-Reply-To: <15860.61166.685927.298382@wombat.chubb.wattle.id.au>
+Message-ID: <Pine.LNX.4.50L.0212091814260.21756-100000@imladris.surriel.com>
+References: <15860.1070.521840.791396@wombat.chubb.wattle.id.au>
+ <Pine.LNX.4.50L.0212091026410.21756-100000@imladris.surriel.com>
+ <15860.61166.685927.298382@wombat.chubb.wattle.id.au>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 10 Dec 2002, Peter Chubb wrote:
 
-On Sun, 8 Dec 2002, Andrew Morton wrote:
+> You always have to set both,
 
-> Yes, thanks.  Will we also be seeing the "interactivity estimator" fixes
-> in 2.5?
+Duh, forgot about that.  Nevermind.
 
-yes, but i'd like to clarify one more thing - worst-case O(1)  
-interactivity indeed is indeed very jerky (eg. the fast window moving
-thing you noticed), but the normal behavior is much better than the old
-scheduler's. Just try compiling the kernel with make -j4 under stock 2.4
-and _everything_ in X will be jerky. With the O(1) scheduler things are
-just as smooth as on an idle system - as long as your application does not
-get rated CPU-intensive. [which happens too fast in the case you
-described.] So we do have something in 2.5 that is visibly better in a
-number of cases, and i want to preserve that - while fixing the
-corner-cases discussed here. I'm working on it.
-
-	Ingo
-
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

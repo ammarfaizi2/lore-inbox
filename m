@@ -1,85 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317286AbSGTBCI>; Fri, 19 Jul 2002 21:02:08 -0400
+	id <S317314AbSGTBFm>; Fri, 19 Jul 2002 21:05:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317299AbSGTBCH>; Fri, 19 Jul 2002 21:02:07 -0400
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:5551 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S317286AbSGTBCF>; Fri, 19 Jul 2002 21:02:05 -0400
-Message-ID: <3D38B485.8020503@namesys.com>
-Date: Sat, 20 Jul 2002 04:53:25 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Andreas Dilger <adilger@clusterfs.com>,
+	id <S317316AbSGTBFm>; Fri, 19 Jul 2002 21:05:42 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:20484 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317314AbSGTBFl>; Fri, 19 Jul 2002 21:05:41 -0400
+Date: Fri, 19 Jul 2002 22:08:27 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Hans Reiser <reiser@namesys.com>
+cc: Andreas Dilger <adilger@clusterfs.com>,
        Michael Hohnbaum <hohnbaum@us.ibm.com>,
        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
        Guillaume Boissiere <boissiere@adiglobal.com>,
-       linux-kernel@vger.kernel.org
+       <linux-kernel@vger.kernel.org>
 Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST]
-References: <Pine.LNX.4.44L.0207192144190.12241-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3D38B485.8020503@namesys.com>
+Message-ID: <Pine.LNX.4.44L.0207192207060.12241-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What I was advocating was a schedule of:
+On Sat, 20 Jul 2002, Hans Reiser wrote:
 
-1) feature submission deadline
+> What I was advocating was a schedule of:
+> 1) feature submission deadline
+> 2) period of working through feature backlog
+> 3) feature acceptance ending date
 
-2) period of working through feature backlog
+So, what feature are you trying to smuggle into the kernel
+but are afraid isn't ready on time and why do you think it
+couldn't be backported into 2.6 later, when 2.6 is stable ?
 
-3) feature acceptance ending date
+I can't really think of anything that couldn't be backported
+later on, by the time people start actually using 2.6, but
+maybe you've got something so fundamental it just has to be
+merged before the feature freeze ... ;)
 
-Most release management teams in the industry do things this way, 
-and.... I'd better say no more, those words will lose me the argument.;-)
+regards,
 
-I'll admit that in most companies the features to be merged backlog 
-period lasts for only a few days, and due to the difference in scale, it 
-would probably last a few weeks for Linux, but in my egocentrism I 
-really think that providing submitters with certainty as to what they 
-need to do to get a patch in is a good thing.
-
-I understand though that maybe the needs of the submitters aren't the 
-most important thing for Linux as a whole, and so others will 
-legitimately disagree.
-
-Hans
-
-Rik van Riel wrote:
-
->On Sat, 20 Jul 2002, Hans Reiser wrote:
->
->  
->
->>That could be dealt with by letting people resend feature containing
->>patches that were first submitted by Halloween (forward porting them as
->>things progress) until they get a rejection or Linus announces he has
->>taken all that he wants from the queue.
->>    
->>
->
->I hope the Halloween feature freeze really will be a feature
->freeze.  Nothing is more frustrating than having a "stable
->kernel" broken every second release by yet another feature.
->
->If we all restrain ourselves 2.6 will be stable soon and 2.7
->will be started shortly after. Backporting "essential" features
->from 2.7 into a _stable_ 2.6 will be so much easier than trying
->to stabilise a 2.6-pre that's full to the brim of not-yet-stable
->new features.
->
->regards,
->
->Rik
->  
->
-
-
+Rik
 -- 
-Hans
+Bravely reimplemented by the knights who say "NIH".
 
-
+http://www.surriel.com/		http://distro.conectiva.com/
 

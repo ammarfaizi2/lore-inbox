@@ -1,76 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277756AbRJZGUL>; Fri, 26 Oct 2001 02:20:11 -0400
+	id <S277797AbRJZGfD>; Fri, 26 Oct 2001 02:35:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277797AbRJZGUB>; Fri, 26 Oct 2001 02:20:01 -0400
-Received: from arabuusi.tky.hut.fi ([130.233.24.169]:30871 "HELO
-	arabuusi.tky.hut.fi") by vger.kernel.org with SMTP
-	id <S277756AbRJZGTq>; Fri, 26 Oct 2001 02:19:46 -0400
-To: linux-kernel@vger.kernel.org
-Subject: HPT366 problems continued
-Message-ID: <1004077903.3bd9034f7360f@mail.arabuusimiehet.com>
-Date: Fri, 26 Oct 2001 09:31:43 +0300 (EEST)
-From: Janne Liimatainen <jannel@iki.fi>
+	id <S277818AbRJZGey>; Fri, 26 Oct 2001 02:34:54 -0400
+Received: from astcc-166.astound.net ([24.219.123.215]:8964 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S277797AbRJZGej> convert rfc822-to-8bit; Fri, 26 Oct 2001 02:34:39 -0400
+Date: Thu, 25 Oct 2001 23:35:37 -0700 (PDT)
+From: Andre Hedrick <andre@aslab.com>
+To: dan <lung@theuw.net>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Repeatable File Corruption (ECS K7S5A w/SIS735)
+In-Reply-To: <Pine.LNX.4.33.0110260205260.5131-100000@narboza.theuw.net>
+Message-ID: <Pine.LNX.4.10.10110252331250.800-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.6
+Content-Type: text/plain; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
 
-I have a dual P2 with 82441FX Natoma chipset and I have problems with getting 
-DMA on with a HPT366 controller. Autodma etc is on and I have tried different 
-PCI slots. Kernel is 2.4.9. Ideas? Thanks!
+On Fri, 26 Oct 2001 lung@theuw.net wrote:
 
-This is what I get now:
+> 
+> I've received one report of someone using the same motherboard, but using
+> SCSI and having no issues.  I think after a little testing, this will
+> point directly at IDE.
+> 
+> I've made me test file available for more testing, but I think I can
+> dig up an old SCSI drive tomorrow to test this myself.
+> 
+> 
+> On Fri, 26 Oct 2001, Daniela Engert wrote:
+> 
+> > On Thu, 25 Oct 2001 22:21:47 -0400 (EDT), dan wrote:
+> >
+> > >  It is repeatable and verified on other boards of the same model.  This
+> > >just started happening when I upgraded the system.  The following is a
+> > >link to the ECS K7S5A board in question, the SIS735 chipset, and a
+> >
+> > >  hda: ST36421A, ATA DISK drive
+> > >  hdb: QUANTUM FIREBALLP LM10.2, ATA DISK drive
+> > >  hdc: IC35L060AVER07-0, ATA DISK drive
+> >
+> > >The problem only went away when I replaced the motherboard.  I also
+> > >haven't had any file corruption issues running Windows2000 on the same
+> > >hardware with the same files.  I moved all of the hardware in the original
+> > >system to a new motherboard (ASUS A7A266)  and the problem went away.
+> >
+> > >I have CC'd the IDE chipset maintainer because I can only assume it might
+> > >be related.
+> >
+> > It very likely is. The current Linux SiS IDE driver doesn't initialize
+> > the the EIDE controller in the SiS735 (and most likely all other
+> > ATA/100 capable members, too) correctly.
+> >
+> > The SiS735 IDE cycle timing registers have a layout that is different
+> > from the older predecessors!
+> >
+> > >From my experiences, drivers taking this not into account *do* actually
+> > work most of the time even if the timing of the layer 0 communication
+> > protocol is wrong, but fail mysteriously sometimes. Andre needs to
+> > update the SiS5513 code.
+> >
+> > Ciao,
+> >   Dani
+> >
+> > ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > Daniela Engert, systems engineer at MEDAV GmbH
+> > Gräfenberger Str. 34, 91080 Uttenreuth, Germany
+> > Phone ++49-9131-583-348, Fax ++49-9131-583-11
+> >
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> 
+> 
 
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz PCI bus speed for PIO modes; override with idebus=xx
-HPT366: IDE controller on PCI bus 00 dev 70
-HPT366: chipset revision 1
-HPT366: not 100% native mode: will probe irqs later
-HPT366: simplex device:  DMA disabled
-ide0: HPT366 Bus-Master DMA disabled (BIOS)
-HPT366: IDE controller on PCI bus 00 dev 71
-HPT366: chipset revision 1
-HPT366: not 100% native mode: will probe irqs later
-HPT366: simplex device:  DMA disabled
-ide1: HPT366 Bus-Master DMA disabled (BIOS)
-hda: Maxtor 4D080H4, ATA DISK drive
-hdc: Maxtor 4D080H4, ATA DISK drive
-ide0 at 0xf0d0-0xf0d7,0xf0de on irq 9
-ide1 at 0xf0c8-0xf0cf,0xf0da on irq 9
-hda: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63
-hdc: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63
 
-and
+Dan,
 
-00:0e.0 Unknown mass storage controller: HighPoint Technologies, Inc. 
-HPT366/370 UltraDMA 66/100 IDE Controller (rev 01)
-        Flags: bus master, medium devsel, latency 120, IRQ 9
-        I/O ports at f0d0 [size=8]
-        I/O ports at f0dc [size=4]
-        I/O ports at e800 [size=256]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
+If I give you a patch and a test tool kit, will you run destructive data
+tests?  If the low-level tool passes and the high-level fails we know it
+is not in the driver.  If the low-level fails then it is in the chipset
+setup code or the main loop.  If neither fail then it is random wrt the
+driver or the block layer above and time to get worried.
 
-00:0e.1 Unknown mass storage controller: HighPoint Technologies, Inc. 
-HPT366/370 UltraDMA 66/100 IDE Controller (rev 01)
-        Flags: bus master, medium devsel, latency 120, IRQ 9
-        I/O ports at f0c8 [size=8]
-        I/O ports at f0d8 [size=4]
-        I/O ports at e400 [size=256]
+Can you scratch a disk of content?
 
-and
+Regards,
 
-# /sbin/hdparm -d1 /dev/hda
+Andre Hedrick
+CTO ASL, Inc.
+Linux ATA Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Tel: (510) 857-0055 x103
+38875 Cherry Street                           Fax: (510) 857-0010
+Newark, CA 94560                              Web: www.aslab.com
 
-/dev/hda:
- setting using_dma to 1 (on)
- HDIO_SET_DMA failed: Operation not permitted
- using_dma    =  0 (off)
-
-
---
-  -Janne

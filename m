@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262422AbTIOCI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 22:08:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbTIOCI5
+	id S262410AbTIOCDm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 22:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262421AbTIOCDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 22:08:57 -0400
-Received: from dyn-ctb-210-9-246-130.webone.com.au ([210.9.246.130]:35332 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S262422AbTIOCIz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 22:08:55 -0400
-Message-ID: <3F651F23.8040207@cyberone.com.au>
-Date: Mon, 15 Sep 2003 12:08:35 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-CC: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-References: <m1vfrxlxol.fsf@ebiederm.dsl.xmission.com> <20030912195606.24e73086.ak@suse.de> <bk2um1$flp$1@gatekeeper.tmr.com> <Pine.LNX.4.53.0309142058120.5140@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.53.0309142058120.5140@montezuma.fsmlabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 14 Sep 2003 22:03:41 -0400
+Received: from srv1.mail.cv.net ([167.206.112.40]:7065 "EHLO srv1.mail.cv.net")
+	by vger.kernel.org with ESMTP id S262410AbTIOCDk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 22:03:40 -0400
+Date: Sun, 14 Sep 2003 22:03:37 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+Subject: ACPI without PCI doesn't compile in 2.6.0-test5-bk3
+X-X-Sender: proski@portland.hansa.lan
+To: linux-kernel@vger.kernel.org
+Message-id: <Pine.LNX.4.56.0309142154090.11432@portland.hansa.lan>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
+I'm trying to compile Linux 2.6.0-test5-bk3 for my 486 laptop.  The config
+file is here:
+http://www.red-bean.com/~proski/i486/dotconfig
 
-Zwane Mwaikambo wrote:
+I'm getting this error:
 
->On Sun, 14 Sep 2003, bill davidsen wrote:
->
->
->>We just got a start on making Linux smaller to encourage embedded use, I
->>don't see adding 300+ bytes of wasted code so people can run
->>misconfigured kernels.
->>
->>I rather have to patch this in for my Athlon kernels than have people
->>who aren't cutting corners trying to avoid building matching kernels
->>have to live with the overhead.
->>
->
->Overhead? Really you could save more memory by cleaning up a lot of 
->drivers. Andi already said it before, there are better places to be 
->looking at.
->
->Also 'patching' for Athlon kernels doesn't cut it for people who need to 
->distribute kernels which run on various hardware (such as distros). This 
->alone is benefit enough to justify this supposed 'bloat'.
->
+drivers/built-in.o(.init.text+0x913): In function `acpi_bus_init':
+: undefined reference to `eisa_set_level_irq'
+make: *** [.tmp_vmlinux1] Error 1
 
-Hi Zwane,
+Close examination shows that acpi_bus_init() from drivers/acpi/bus.c calls
+eisa_set_level_irq() if CONFIG_X86 is defined.  On the other hand,
+eisa_set_level_irq() is defined in arch/i386/pci/irq.c and requires
+CONFIG_PCI is addition to CONFIG_X86.
 
-I still don't mind Adrian's patch (at least the concept). Its true, the
-Athlon workaround is insignificant, but Adrian's patch allows the
-possibility of compiling things like it out. Its also clearer to me than
-the current scheme.
+It's trivial to remove eisa_set_level_irq() call is CONFIG_PCI is not
+defined, but I don't know if it's right.  I actually don't have APCI on
+that laptop (I enabled it by mistake), so I cannot test if it works.
 
-The only objections I have seen are from those who don't understand what
-it does or implmentation issues. It might be the case that it can't be
-done "nicely" without more support from kconfig and/or kbuild though.
-
-
+-- 
+Regards,
+Pavel Roskin

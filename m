@@ -1,123 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261451AbSJYUco>; Fri, 25 Oct 2002 16:32:44 -0400
+	id <S261599AbSJYUff>; Fri, 25 Oct 2002 16:35:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261571AbSJYUco>; Fri, 25 Oct 2002 16:32:44 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:63180 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S261451AbSJYUcm>;
-	Fri, 25 Oct 2002 16:32:42 -0400
-Message-ID: <F2DBA543B89AD51184B600508B68D4000EA1718C@fmsmsx103.fm.intel.com>
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "'Robert Love'" <rml@tech9.net>, "'Dave Jones'" <davej@codemonkey.org.uk>,
-       "'akpm@digeo.com'" <akpm@digeo.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'chrisl@vmware.com'" <chrisl@vmware.com>,
-       "'Martin J. Bligh'" <mbligh@aracnet.com>
-Subject: RE: [PATCH] How to get number of physical CPU in linux from user 
-	space?
-Date: Fri, 25 Oct 2002 13:38:55 -0700
+	id <S261601AbSJYUff>; Fri, 25 Oct 2002 16:35:35 -0400
+Received: from cpe-66-1-218-52.fl.sprintbbd.net ([66.1.218.52]:4875 "EHLO
+	daytona.compro.net") by vger.kernel.org with ESMTP
+	id <S261599AbSJYUfe>; Fri, 25 Oct 2002 16:35:34 -0400
+Message-ID: <3DB9AD6D.C96A5398@compro.net>
+Date: Fri, 25 Oct 2002 16:45:33 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-lcrs i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: root@chaos.analogic.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [OT]AMD/Intel interrupt latency (jitter) differences?
+References: <Pine.LNX.3.95.1021025155330.3856A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You might want to remove __initdata (in smpboot.c):
-int __initdata phys_proc_id[NR_CPUS];
+"Richard B. Johnson" wrote:
 
-Jun Nakajima
+> 
+> [SNIPPED....]
+> Please use the [Enter] key. Lines should have "\n" and not auto-wrap
+> in your mailer.
 
------Original Message-----
-From: Nakajima, Jun 
-Sent: Friday, October 25, 2002 12:49 PM
-To: Robert Love; Dave Jones; akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org; Nakajima, Jun; chrisl@vmware.com;
-Martin J. Bligh
-Subject: RE: [PATCH] How to get number of physical CPU in linux from
-user space?
+Sorry...
 
+> 
+> If you are measuring the interrupt latency jitter, you
+> must disconnect your Ethernet wire if you have a Bus Mastering
+> (read PCI) Ethernet board. You also have to make sure that
+> no other Bus Masters are able to run during the measurements.
+> 
+> This is because the Bus Masters will keep the CPU(s) off the bus
+> for variable lengths of time as they transfer variable lengths
+> of data. This gives you the jitter.
+> 
+> Even though  you may not have any connections to your machine,
+> M$ on LANs generate much broadcast traffic that your network
+> software has to read, then drop on the floor.
+> 
+> What this means, frankly, is that if interrupt latency is
+> in your specification, you can't use any Bus Mastering devices.
+> It's just that simple.
+> 
 
-One more request :-)
+That makes sense. But, both these Intel and AMD boxes have pretty much the same
+config as far as pci cards and pci busses. They both have 1 or 2 66mhz and a 33
+mhz bus. 
+The Intel box used right now is a Super-micro p4dc6+ and only has our 2 33mhz
+cards in it. It has on board UW-scsi-2 controller using a 66MHz bus where as the
+AMD has no controllers on the 66mhz bus. It is using the onboard IDE controller.
+The intel has built in network card that IS active when running the emulation
+and the AMD has a 3c905 card that is also active. Other than that they are the
+same. I thought all recent pci cards were bus mastering capable these days??
 
-Actually "processor" keyword was not good in "physical processor ID"
-(someone may be grepping it to find out the number of processors), and it
-was one of the reasons it was changed/fixed in the AC tree. 
-
-Since (H/W) threads (rather than "siblings") in a CPU is generic (i.e. not
-just an Intel thing), I would like to propose this ("physical id" is from
-AC). Alan also simplified "number of simblings" to  "siblings". 
-
-+#ifdef CONFIG_SMP
-+	if (cpu_has_ht) {
-+		seq_printf(m, "physical id\t: %d\n", phys_proc_id[n]);
-+		seq_printf(m, "threads\t\t: %d\n", smp_num_siblings);
-+	}
-+#endif
-
-Thanks,
-Jun
-
------Original Message-----
-From: Robert Love [mailto:rml@tech9.net]
-Sent: Friday, October 25, 2002 12:21 PM
-To: Dave Jones; akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org; Nakajima, Jun; chrisl@vmware.com;
-Martin J. Bligh
-Subject: Re: [PATCH] How to get number of physical CPU in linux from
-user space?
-
-
-On Fri, 2002-10-25 at 15:13, Dave Jones wrote:
-
-> Should this be wrapped in a if (cpu_has_ht(c)) { }  ?
-> Seems silly to be displaying HT information on non-HT CPUs.
-
-I am neutral, but is fine with me. It is just "cpu_has_ht", btw.
-
-Take two...
-
-This displays the physical processor id and number of siblings of each
-processor in /proc/cpuinfo.
-
-	Robert Love
-
- .proc.c.swp |binary
- proc.c      |    7 +++++++
- 2 files changed, 7 insertions(+)
-
-diff -urN linux-2.5.44/arch/i386/kernel/cpu/proc.c
-linux/arch/i386/kernel/cpu/proc.c
---- linux-2.5.44/arch/i386/kernel/cpu/proc.c	2002-10-19
-00:02:29.000000000 -0400
-+++ linux/arch/i386/kernel/cpu/proc.c	2002-10-25 15:18:03.000000000 -0400
-@@ -17,6 +17,7 @@
- 	 * applications want to get the raw CPUID data, they should access
- 	 * /dev/cpu/<cpu_nr>/cpuid instead.
- 	 */
-+	extern int phys_proc_id[NR_CPUS];
- 	static char *x86_cap_flags[] = {
- 		/* Intel-defined */
- 	        "fpu", "vme", "de", "pse", "tsc", "msr", "pae", "mce",
-@@ -74,6 +75,12 @@
- 	/* Cache size */
- 	if (c->x86_cache_size >= 0)
- 		seq_printf(m, "cache size\t: %d KB\n", c->x86_cache_size);
-+#ifdef CONFIG_SMP
-+	if (cpu_has_ht) {
-+		seq_printf(m, "physical processor ID\t: %d\n",
-phys_proc_id[n]);
-+		seq_printf(m, "number of siblings\t: %d\n",
-smp_num_siblings);
-+	}
-+#endif
- 	
- 	/* We use exception 16 if we have hardware math and we've either
-seen it or the CPU claims it is internal */
- 	fpu_exception = c->hard_math && (ignore_irq13 || cpu_has_fpu);
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Regards
+Mark

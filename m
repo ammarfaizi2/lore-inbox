@@ -1,44 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289106AbSAGDpY>; Sun, 6 Jan 2002 22:45:24 -0500
+	id <S289107AbSAGDyg>; Sun, 6 Jan 2002 22:54:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289107AbSAGDpF>; Sun, 6 Jan 2002 22:45:05 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:43534 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S289106AbSAGDpD>; Sun, 6 Jan 2002 22:45:03 -0500
-Date: Sun, 6 Jan 2002 19:49:09 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Richard Henderson <rth@twiddle.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
-In-Reply-To: <Pine.LNX.4.33.0201061930250.5900-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.40.0201061948390.1000-100000@blue1.dev.mcafeelabs.com>
+	id <S289109AbSAGDy0>; Sun, 6 Jan 2002 22:54:26 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:25618 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S289107AbSAGDyH>; Sun, 6 Jan 2002 22:54:07 -0500
+Message-ID: <3C391A96.63FDBA8@zip.com.au>
+Date: Sun, 06 Jan 2002 19:48:38 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Alexander Viro <viro@math.psu.edu>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] truncate fixes
+In-Reply-To: <3C36DEA9.AEA2A402@zip.com.au>,
+		<3C36DEA9.AEA2A402@zip.com.au>; from akpm@zip.com.au on Sat, Jan 05, 2002 at 03:08:25AM -0800 <20020107043236.J1561@athlon.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Jan 2002, Linus Torvalds wrote:
+Andrea Arcangeli wrote:
+> 
+> On Sat, Jan 05, 2002 at 03:08:25AM -0800, Andrew Morton wrote:
+> >       }
+> >       return 0;
+> >  out:
+> > +     bh = head;
+> > +     block_start = 0;
+> > +     do {
+> > +             if (buffer_new(bh) && !buffer_uptodate(bh)) {
+> > +                     memset(kaddr+block_start, 0, bh->b_size);
+> > +                     set_bit(BH_Uptodate, &bh->b_state);
+> > +                     mark_buffer_dirty(bh);
+> > +             }
+> > +             block_start += bh->b_size;
+> > +             bh = bh->b_this_page;
+> > +     } while (bh != head);
+> >       return err;
+> >  }
+> 
+> the above code will end marking uptodate (zeroed) buffers relative to
+> blocks that cannot be read from disk. So a read-retry won't hit the disk
+> and that's wrong.
+> 
+> I think that will be fixed by additionally also return -EIO in the
+> wait_on_buffer loop (instead of goto out), so we won't generate zeroed
+> uptodate cache in case of read failure.
+> 
 
->
-> On Sun, 6 Jan 2002, Davide Libenzi wrote:
-> >
-> > 32 bit words lookup can be easily done in few clock cycles in most cpus
-> > by using tuned assembly code.
->
-> I tried to time "bsfl", it showed up as one cycle more than "nothing" on
-> my PII.
->
-> It used to be something like 7+n cycles on a i386, if I remember
-> correctly. It's just not an issue any more - trying to use clever code to
-> avoid it is just silly.
+Right.  There's also the case where get_block() returns -EIO when,
+for example, it fails on reading an indirect block.  We end up
+writing zeroes into some of the blocks.  But I think that behaviour
+is correct.
 
-I think the issue was about architectures that does not have bsfl like ops
+(I think I'll add a buffer_mapped() test to this code as well.  It's
+a bit redundant because the fs shouldn't go setting BH_New and not
+BH_Mapped, but this code is _very_ rarely executed, and I haven't
+tested all filesystems...)
 
-
-
-- Davide
-
-
+@@ -1633,12 +1660,22 @@ static int __block_prepare_write(struct 
+         */
+        while(wait_bh > wait) {
+                wait_on_buffer(*--wait_bh);
+-               err = -EIO;
+                if (!buffer_uptodate(*wait_bh))
+-                       goto out;
++                       return -EIO;
+        }
+        return 0;
+ out:
++       bh = head;
++       block_start = 0;
++       do {
++               if (buffer_new(bh) && buffer_mapped(bh) && !buffer_uptodate(bh)) {
++                       memset(kaddr+block_start, 0, bh->b_size);
++                       set_bit(BH_Uptodate, &bh->b_state);
++                       mark_buffer_dirty(bh);
++               }
++               block_start += bh->b_size;
++               bh = bh->b_this_page;
++       } while (bh != head);
+        return err;
+ }
+ 
+I'll retest this, including the -EIO path.

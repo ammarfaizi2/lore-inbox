@@ -1,82 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312964AbSC2Ebf>; Thu, 28 Mar 2002 23:31:35 -0500
+	id <S313348AbSC2E6W>; Thu, 28 Mar 2002 23:58:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313347AbSC2Eb0>; Thu, 28 Mar 2002 23:31:26 -0500
-Received: from mta01-svc.ntlworld.com ([62.253.162.41]:1430 "EHLO
-	mta01-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S312964AbSC2EbJ>; Thu, 28 Mar 2002 23:31:09 -0500
-Subject: Re: mkinitrd w/ 2.4.18
-From: NyQuist <nyquist@ntlworld.com>
-To: Kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-MGewNDVNkq3a75TDXPxj"
-X-Mailer: Ximian Evolution 1.0.3.99 
-Date: 29 Mar 2002 04:27:53 +0000
-Message-Id: <1017376074.2785.1.camel@stinky.pussy>
+	id <S313349AbSC2E6N>; Thu, 28 Mar 2002 23:58:13 -0500
+Received: from harddata.com ([216.123.194.198]:6917 "EHLO mail.harddata.com")
+	by vger.kernel.org with ESMTP id <S313348AbSC2E6C>;
+	Thu, 28 Mar 2002 23:58:02 -0500
+Date: Thu, 28 Mar 2002 21:57:44 -0700
+From: Michal Jaegermann <michal@harddata.com>
+To: brian@worldcontrol.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: tulip driver again
+Message-ID: <20020328215744.A25760@mail.harddata.com>
+In-Reply-To: <20020328174724.A24374@mail.harddata.com> <20020329024021.GA2887@top.worldcontrol.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 28, 2002 at 06:40:21PM -0800, brian@worldcontrol.com wrote:
+> On Thu, Mar 28, 2002 at 05:47:24PM -0700, Michal Jaegermann wrote:
+> > I know that this is boring and a number of my earlier reports was
+> > apparently ignored
+> 
+> There is a tulip specific discussion list, which may explain why you
+> get ignored on this forum.
 
---=-MGewNDVNkq3a75TDXPxj
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Well, in a due time I filed pretty detailed bug reports, with dumps
+of PCI space from older working and non-working drivers and what not,
+on sourceforge where presumably a development of this driver was going.
+This was ignored there as well.
 
-On Fri, 2002-03-29 at 03:01, Matthew Walburn wrote:
-> > I would appreciate if you hit enter about every 70 keystrokes.
->=20
-> Sorry about that didnt realize it wasn't wrapping.
->=20
-> > Also, describing a symptom rather than vague "i'm having problems"
-> > may help.
->=20
-> Specifically, i get the error message:
-> "all of your loopback devices are in use"
->=20
-you need to have loop.o insmodd'ed (insmod loop) to mkinitrd. If you're
-using rh's stock kernel, I *believe* this is included as a module. If
-you're running mkinitrd from your rebuilt kernel, check
-/lib/modules/2.4.18/kernel/drivers/net for loop.o (methinks).
-hth
-
-> I have the follow kernel options enabled, using Redhat's kernel
-> config as a guide:
->=20
-> CONFIG_BLK_DEV_LOOP=3Dm
-> CONFIG_BLK_DEV_NBD=3Dm
-> CONFIG_BLK_DEV_RAM=3Dy
-> CONFIG_BLK_DEV_RAM_SIZE=3D4096
-> CONFIG_BLK_DEV_INITRD=3Dy
->=20
-> Thanks for the help.
->=20
-> -Matt
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
-n
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
---=20
-NyQuist | Matthew Hall -- NyQuist at ntlworld dot com --
-http://NyQuist.port5.com
-Sig: Any sufficiently advanced technology is indistinguishable from a
-rigged demo.
-
-
---=-MGewNDVNkq3a75TDXPxj
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8o+1JHgHoS2SXebARAv1MAJ9hgfAmka+RQzskxMN2mEA0BfDvLQCgmqK5
-gkaWQOSaortWnB5B0bnZfMc=
-=6JQ7
------END PGP SIGNATURE-----
-
---=-MGewNDVNkq3a75TDXPxj--
-
+  Michal

@@ -1,55 +1,140 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274102AbRIXSEg>; Mon, 24 Sep 2001 14:04:36 -0400
+	id <S274112AbRIXSGq>; Mon, 24 Sep 2001 14:06:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274103AbRIXSE2>; Mon, 24 Sep 2001 14:04:28 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:46794 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S274104AbRIXSDP>; Mon, 24 Sep 2001 14:03:15 -0400
-Date: Mon, 24 Sep 2001 13:03:05 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
+	id <S274110AbRIXSGh>; Mon, 24 Sep 2001 14:06:37 -0400
+Received: from member.michigannet.com ([207.158.188.18]:50693 "EHLO
+	member.michigannet.com") by vger.kernel.org with ESMTP
+	id <S274112AbRIXSG2>; Mon, 24 Sep 2001 14:06:28 -0400
+Date: Mon, 24 Sep 2001 14:05:19 -0400
+From: Paul <set@pobox.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Binary only module overview
-Message-ID: <87110000.1001354585@baldur>
-In-Reply-To: <46458FB0D75@vcnet.vc.cvut.cz>
-In-Reply-To: <46458FB0D75@vcnet.vc.cvut.cz>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] Fix sscanf (more fixes)
+Message-ID: <20010924140519.A16708@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>, linux-kernel@vger.kernel.org,
+	alan@lxorguk.ukuu.org.uk
+In-Reply-To: <200109240354.WAA03909@ccure.karaya.com> <20010924031320.X16708@squish.home.loc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20010924031320.X16708@squish.home.loc>; from set@pobox.com on Mon, Sep 24, 2001 at 03:13:20AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Monday, September 24, 2001 19:52:13 +0000 Petr Vandrovec 
-<VANDROVE@vc.cvut.cz> wrote:
+	This patch includes my previous modifications and also
+corrects behaviour to match sscanf(3) as far as matching white
+space and avoiding a false match in some cases.
 
->> > Yes, but the modules are not binary-only.
->> > The sourcecode is in the package, although it is not GPL.
->>
->> I believe they only provide source for an interface layer that can be
->> compiled against a specific version of the kernel.  I think the core
->> drivers are binary only.
->
-> VMnet and VMppuser drivers are completely standalone and can work
-> without VMware. You can persuade VMmon module to load and execute
-> arbitrary code on kernel level - it just provides virtual machine
-> environment (switches CPU context), but as it even does not link to
-> anything else, I do not see any problem here. DRI drivers also allows
-> you to smash arbitrary piece of memory...
->
-> As for license on these modules - I was under impression that they are
-> under GPL, but I'll ask VMware for clarification.
+Paul
+set@pobox.com
 
-As a couple of people pointed out privately to me, I was mistaken.  VMware 
-does include the complete source to its drivers.
-
-A quick check of the file headers shows a VMware copyright with no mention 
-of GPL.  Granted, that's not definitive, but it's a data point.
-
-Dave McCracken
-
-=====================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
-
+--- 2.4.9-ac13-user/lib/vsprintf.c.old	Fri Sep 21 19:42:25 2001
++++ 2.4.9-ac13-user/lib/vsprintf.c	Mon Sep 24 13:52:05 2001
+@@ -18,6 +18,7 @@
+ #include <linux/types.h>
+ #include <linux/string.h>
+ #include <linux/ctype.h>
++#include <linux/kernel.h>
+ 
+ #include <asm/div64.h>
+ 
+@@ -515,36 +516,44 @@
+ 	int num = 0;
+ 	int qualifier;
+ 	int base;
+-	unsigned int field_width;
++	int field_width = -1;
+ 	int is_sign = 0;
+ 
+-	for (; *fmt; fmt++) {
++	while(*fmt && *str) {
+ 		/* skip any white space in format */
++		/* white space in format matchs any amount of
++		 * white space, including none, in the input.
++		 */
+ 		if (isspace(*fmt)) {
+-			continue;
++			while (isspace(*fmt))
++				++fmt;
++			while (isspace(*str))
++				++str;
+ 		}
+ 
+ 		/* anything that is not a conversion must match exactly */
+-		if (*fmt != '%') {
++		if (*fmt != '%' && *fmt) {
+ 			if (*fmt++ != *str++)
+-				return num;
++				break;
+ 			continue;
+ 		}
++
++		if (!*fmt)
++			break;
+ 		++fmt;
+ 		
+ 		/* skip this conversion.
+ 		 * advance both strings to next white space
+ 		 */
+ 		if (*fmt == '*') {
+-			while (!isspace(*fmt))
++			while (!isspace(*fmt) && *fmt)
+ 				fmt++;
+-			while(!isspace(*str))
++			while (!isspace(*str) && *str)
+ 				str++;
+ 			continue;
+ 		}
+ 
+ 		/* get field width */
+-		field_width = 0xffffffffUL;
+ 		if (isdigit(*fmt))
+ 			field_width = skip_atoi(&fmt);
+ 
+@@ -557,25 +566,32 @@
+ 		base = 10;
+ 		is_sign = 0;
+ 
+-		switch(*fmt) {
++		if (!*fmt || !*str)
++			break;
++
++		switch(*fmt++) {
+ 		case 'c':
+ 		{
+ 			char *s = (char *) va_arg(args,char*);
++			if (field_width == -1)
++				field_width = 1;
+ 			do {
+ 				*s++ = *str++;
+-			} while(field_width-- > 0);
++			} while(field_width-- > 0 && *str);
+ 			num++;
+ 		}
+ 		continue;
+ 		case 's':
+ 		{
+ 			char *s = (char *) va_arg(args, char *);
++			if(field_width == -1)
++				field_width = INT_MAX;
+ 			/* first, skip leading white space in buffer */
+ 			while (isspace(*str))
+ 				str++;
+ 
+ 			/* now copy until next white space */
+-			while (!isspace(*str) && field_width--) {
++			while (*str && !isspace(*str) && field_width--) {
+ 				*s++ = *str++;
+ 			}
+ 			*s = '\0';
+@@ -617,6 +633,9 @@
+ 		while (isspace(*str))
+ 			str++;
+ 
++		if (!*str || !isdigit(*str))
++			break;
++
+ 		switch(qualifier) {
+ 		case 'h':
+ 			if (is_sign) {

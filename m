@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268956AbTBSR5m>; Wed, 19 Feb 2003 12:57:42 -0500
+	id <S263366AbTBSSBP>; Wed, 19 Feb 2003 13:01:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263366AbTBSR5m>; Wed, 19 Feb 2003 12:57:42 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:64260 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S268956AbTBSR5k>; Wed, 19 Feb 2003 12:57:40 -0500
-Date: Wed, 19 Feb 2003 13:04:21 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Thomas Molina <tmolina@cox.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.5.62]: 2/3: Make SCSI low-level drivers also a seperate, complete selectable submenu
-In-Reply-To: <Pine.LNX.4.44.0302190332200.4923-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.3.96.1030219130140.10611E-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268959AbTBSSBP>; Wed, 19 Feb 2003 13:01:15 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:2567 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S263366AbTBSSBO>; Wed, 19 Feb 2003 13:01:14 -0500
+Subject: Re: [PATCH] add new DMA_ADDR_T_SIZE define
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Ion Badulescu <ionut@badula.org>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 19 Feb 2003 13:11:07 -0500
+Message-Id: <1045678275.2033.37.camel@mulgrave>
+Mime-Version: 1.0
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Feb 2003, Thomas Molina wrote:
 
-> On Wed, 19 Feb 2003, Bill Davidsen wrote:
 
-> > Have you checked/used them? I kind of wrote that off after a while, I
-> > don't need more coasters :-( At the time I deferred testing the score was
-> > CD: read okay burn failed, ide-floppy (ZIP in my case): ng, and tape: not
-> > even visible. That was back around 2.5.52 or so, since ide-scsi seems to
-> > work I haven't been motivated to care.
-> 
-> As I said, I've been using it successfully.  I've not tested ide-floppy 
-> since I don't have one, nor a tape.  I would rather not have to use 
-> ide-scsi if I can help it.  ide cd support is incompatible with ide-scsi 
-> cdrom support, so things are simpler if I can just cut out the scsi 
-> support entirely.
+> 3. use run-time checks all over the place, of the 
+> "sizeof(dma_addr_t)==sizeof(u64)" kind, which adds unnecessary
+> overhead to 
+> all platforms.
 
-Since I have SCSI devices I'd rather make the ATAPI devices look SCSI than
-have two sets of tools to do things. And two sets of drivers loaded, two
-sources of possible bugs, etc. That just seems simpler to me.
+Actually, these aren't technically run time checks.  Although the cpp
+can't be used for sizeof(), the compiler (at least gcc) does seem to
+have enough sense to optimise away if(..) branches it has enough
+information to know won't be taken at compile time.
 
-Thanks for the input.
+As long as this optimisation works, I think the if(sizeof(..)) checks
+are fine for this.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+James
+
+
 

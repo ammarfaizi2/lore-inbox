@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267508AbUIAUnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267841AbUIAUqv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267508AbUIAUnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 16:43:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267494AbUIAUnC
+	id S267841AbUIAUqv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 16:46:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267445AbUIAUoK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 16:43:02 -0400
-Received: from mail.shareable.org ([81.29.64.88]:9162 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S267508AbUIAUlj (ORCPT
+	Wed, 1 Sep 2004 16:44:10 -0400
+Received: from smtp20.libero.it ([193.70.192.147]:59382 "EHLO smtp20.libero.it")
+	by vger.kernel.org with ESMTP id S267599AbUIAUmu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 16:41:39 -0400
-Date: Wed, 1 Sep 2004 21:41:30 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Hans Reiser <reiser@namesys.com>
-Cc: "Alexander G. M. Smith" <agmsmith@rogers.com>,
-       Will Dyson <will_dyson@pobox.com>, akpm@osdl.org, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
-Subject: Re: Separating Indexing and Searching (was silent semantic changes with reiser4)
-Message-ID: <20040901204130.GH31934@mail.shareable.org>
-References: <584702172685-BeMail@cr593174-a> <41310364.8070302@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 1 Sep 2004 16:42:50 -0400
+From: Gaetano Sferra <gaesferr@libero.it>
+To: linux-kernel@vger.kernel.org
+Subject: EHCI errors in 2.6.8 (could be a patch mistake)
+Date: Wed, 1 Sep 2004 22:43:08 +0200
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <41310364.8070302@namesys.com>
-User-Agent: Mutt/1.4.1i
+X-PRIORITY: 2 (High)
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409012243.08245.gaesferr@libero.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
-> Symlinks also.  Symlinks with powerful queries in them would require a 
-> parser in the kernel.
+Hello to all,
+please, read carefully:
 
-No they wouldn't.  You can do symlinks with powerful queries in
-userspace _today_ (as well as directories which list queries).
+I've patched my fully working 2.6.7 kernel to the 2.6.8 and I got these errors 
+at boot time (no errors during patch and compilation using the same config of 
+the 2.6.7 kernel):
 
-Making queries be up to date in real-time is still a problem, but that
-has nothing to do with symlinks or directories, or where the parsers live.
+ehci_hcd 0000:00:1d.7: BIOS handoff failed (104, 1010001)
+ehci_hcd 0000:00:1d.7: can't reset
+ehci_hcd 0000:00:1d.7: init 0000:00:1d.7 fail, -95
+ehci_hcd: probe of 0000:00:1d.7 failed with error -95
 
-> Thanks for helping me to distill my incoherent reasons for the
-> parser being in the kernel.
+In this condition the hotplugging of USB devices doesn't work at all!
+The host controller is an Intel Corp. 82801DB (ICH4) USB2 EHCI and it fully 
+work with the 2.6.7. Looking into the patched and original code of the 
+ehci-hcd driver I've noticed that some changes has been maded but the only 
+one that can influence the BIOS handoff is the following:
 
-This is one occasion where you're mistaken :)
+kernel 2.6.7 - line 296: cap &= 1 << 24;
+kernel 2.6.8 - line 296: cap |= 1 << 24;
 
-There may be other reasons for parsing query strings in the kernel
-(though I'm not convinced there are any), but this isn't one.
+This may be a mistake, I don't know, but I've restored that line with the &=
+operator and all works again! If this was a typo mistake in the 2.6.8 patch
+check the 2.8.9-rc1 also, in the prepatch there is a work-around that force 
+the module to exit with code 0!
 
--- Jamie
+-- 
+Gaetano Sferra
+On Jabber: G[a]e@jabber.org

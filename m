@@ -1,58 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270383AbTHQR1u (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 13:27:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270444AbTHQR1u
+	id S270447AbTHQR2I (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 13:28:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270445AbTHQR2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 13:27:50 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:38918 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S270383AbTHQR1s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 13:27:48 -0400
-Subject: Re: [BUG] slab debug vs. L1 alignement
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Kai Makisara <Kai.Makisara@kolumbus.fi>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+	Sun, 17 Aug 2003 13:28:07 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:63117 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S270444AbTHQR2B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 13:28:01 -0400
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Carlos Velasco <carlosev@newipnet.com>
+Cc: Lamont Granquist <lamont@scriptkiddie.org>,
+       Bill Davidsen <davidsen@tmr.com>, "David S. Miller" <davem@redhat.com>,
+       bloemsaa@xs4all.nl, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       netdev@oss.sgi.com, linux-net@vger.kernel.org, layes@loran.com,
+       torvalds@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200308171827130739.00C3905F@192.168.128.16>
+References: <Pine.LNX.3.96.1030728222606.21100A-100000@gatekeeper.tmr.com>
+	 <20030728213933.F81299@coredump.scriptkiddie.org>
+	 <200308171509570955.003E4FEC@192.168.128.16>
+	 <200308171516090038.0043F977@192.168.128.16>
+	 <1061127715.21885.35.camel@dhcp23.swansea.linux.org.uk>
+	 <200308171555280781.0067FB36@192.168.128.16>
+	 <1061134091.21886.40.camel@dhcp23.swansea.linux.org.uk>
+	 <200308171759540391.00AA8CAB@192.168.128.16>
+	 <1061137577.21885.50.camel@dhcp23.swansea.linux.org.uk>
+	 <200308171827130739.00C3905F@192.168.128.16>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9.7x.1) 
-Date: 17 Aug 2003 12:27:41 -0500
-Message-Id: <1061141263.2139.33.camel@fuzzy>
+Message-Id: <1061141045.21885.74.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 17 Aug 2003 18:24:06 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Perhaps we should remind ourselves what the alignment rules actually are
-for kmalloc:
+On Sul, 2003-08-17 at 17:27, Carlos Velasco wrote:
+> Really, I don't know if you don't uderstand or you don't want to
+> understand...
+> 
+> There is _NOT_ any problem of duplicated IPs or so.
+> It's a Load Balancing scenary, similar to linuxvirtualserver and ARP
+> problem that rise _ONLY_ when using Linux as real server:
+> http://www.linuxvirtualserver.org/docs/arp.html
 
-1) No two kmalloc allocations may share cache lines (otherwise data
-corruption will result).
-2) kmalloc should be on a power of two alignment consistent with the
-widest processor data access requirements.
+Which says
 
-Now note that 1) is optional (but an efficiency speed up) for a coherent
-architecture.  It is an *absolute requirement* for a non-coherent
-architecture.
+| In the LVS/TUN and LVS/DR clusters, the Virtual IP (VIP) addresses are
+| shared by both the load balancer and real servers, because they all 
+| configure the VIP address on one of their interfaces.
 
-2) is essentially what's causing Ben the problems.  His driver appears
-to be insisting that DMA be a full PCI cache line width.  I can see
-arguments for making this a driver problem.
+Which is not legal IP, and is why you are having problems.
 
-However, as far as the redzoning issue goes, I think in order to avoid
-cache line interference, the redzone should be sized to be a cache line
-width, at least on non-coherent architectures.
+> If you send a packet through dev eth0 to dev lo IP address or other
+> interface, when Linux try to map the MAC address with the IP address of
+> the default gateway (or the gateway to reach the packet Source IP
+> address), it uses the lo IP address (or other dev) in the ARP Request.
 
-In theory, the above should solve everyone's problems.
+So stick the address on eth0 not on lo since its not a loopback but an eth0
+address, then use arpfilter so you don't arp for the invalid magic shared IP
+address, or NAT it, or it may work to do
 
-As far as I/O from user land goes (especially to tape), the users
-usually can work out the alignment constraints and act accordingly.  I'm
-agnostic as to whether we should fail (with an error indicating
-alignment problems) or rebuffer causing inefficiency in throughput in
-the misaligned case.
+         ip route add nexthop-addr src my-virtual-addr dev eth0 scope local onlink
+         ip route add default src my-virtual-addr via nexthop-addr dev eth0 scope global
 
-James
-
+if you have no other routes getting in the way, especially old style ifconfig ones
 
 

@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293680AbSCSXJL>; Tue, 19 Mar 2002 18:09:11 -0500
+	id <S293400AbSCSXLM>; Tue, 19 Mar 2002 18:11:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293400AbSCSXJB>; Tue, 19 Mar 2002 18:09:01 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27656 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S293251AbSCSXIs>; Tue, 19 Mar 2002 18:08:48 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: extending callbacks?
-Date: 19 Mar 2002 15:08:23 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a78gd7$jk$1@cesium.transmeta.com>
-In-Reply-To: <Pine.GSO.4.44.0203191111320.20995-100000@speedy>
+	id <S310295AbSCSXLE>; Tue, 19 Mar 2002 18:11:04 -0500
+Received: from ezri.xs4all.nl ([194.109.253.9]:37583 "HELO ezri.xs4all.nl")
+	by vger.kernel.org with SMTP id <S293400AbSCSXKu>;
+	Tue, 19 Mar 2002 18:10:50 -0500
+Date: Wed, 20 Mar 2002 00:10:48 +0100 (CET)
+From: Eric Lammerts <eric@lammerts.org>
+To: Mark <mark@bish.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: C-Media 8738 sound driver + A7M266-D problems.
+In-Reply-To: <Pine.LNX.4.43.0203182216260.32113-100000@bish.net>
+Message-ID: <Pine.LNX.4.44.0203192356110.3402-100000@ally.lammerts.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.GSO.4.44.0203191111320.20995-100000@speedy>
-By author:    Matthias Scheidegger <mscheid@iam.unibe.ch>
-In newsgroup: linux.dev.kernel
-> 
-> I've got the following problem: I want to register a callback in a kernel
-> structure, but I need to supply an additional argument to my own code. I.e. I
-> need a callback
-> 
-> int (*cb)(int u)
-> 
-> to really call
-> 
-> int (*real_cb)(int u, void* my_arg)
-> 
-> At the moment, I'm only focussing on the i386 architecture.
-> In user space, I'd do this by generating some machine code, which takes the
-> original args, pushes my_fixed_arg and calls real_cb (using mprotect to make
-> the generated code callable). That way I'd use a function
-> 
-> int (*)(int) create_callback(int (*real_cb)(int, void*), void *arg);
-> 
-> Is there a good way to do that in the kernel?
-> Not necessarily using self modifying code, I'll only use it if I must.
-> 
 
-In general, it's impossible.  On a lot of architectures, it happens to
-"just work" with the appropriate cast, but that's completely dependent
-on the ABI.
+On Mon, 18 Mar 2002, Mark wrote:
+> I have a dual AMD board that has the 8738 onboard.  I compile 2.4.18 and
+> pass it the '6 speaker' selection which should push the Rear speaker
+> signal out the Line In connector and the Center Speaker Out/ Sub-woofer
+> signal out the Mic In connector.  This does not happen.  I've tried this
+> as a module and passing the params on the command line as well as
+> compiling it directly into the kernel.  Am I missing something (very
+> likely) or is this a known situation that I just have to deal with?
 
-The extra arguemnt, of course, contains garbage.
+Are you sure your hardware supports 6-channel output? There are
+several version of the 8738 chip (with/without spdif, 4/6 channel).
+The chip should read something like "CMI8738/PCI-6CH".
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Furthermore, it requires some extra hardware (analog multiplexers, for
+example a 4053) to switch the connections. Maybe the manufacturer
+left that out (to save a few cents).
+
+Eric
+

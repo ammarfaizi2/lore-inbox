@@ -1,33 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316735AbSERBjc>; Fri, 17 May 2002 21:39:32 -0400
+	id <S316741AbSERBxH>; Fri, 17 May 2002 21:53:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316737AbSERBjb>; Fri, 17 May 2002 21:39:31 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:10513 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S316735AbSERBjb>;
-	Fri, 17 May 2002 21:39:31 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Nicolas Pitre <nico@cam.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3 
-In-Reply-To: Your message of "Fri, 17 May 2002 11:42:26 -0400."
-             <Pine.LNX.4.44.0205171137440.4117-100000@xanadu.home> 
-Mime-Version: 1.0
+	id <S316743AbSERBxG>; Fri, 17 May 2002 21:53:06 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:35481 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S316741AbSERBxF>; Fri, 17 May 2002 21:53:05 -0400
+To: jt@hpl.hp.com
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Question : Broadcast Inter Process Communication ?
+In-Reply-To: <20020517143052.A30047@bougret.hpl.hp.com>
+From: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
+Date: Sat, 18 May 2002 03:52:33 +0200
+Message-ID: <873cwqrzmm.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Common Lisp,
+ i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 18 May 2002 11:39:19 +1000
-Message-ID: <14700.1021685959@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 May 2002 11:42:26 -0400 (EDT), 
-Nicolas Pitre <nico@cam.org> wrote:
->Keith gets ignored.  He receives suggestions for alternative ways which he 
->ignores too.  I therefore intend to ignore his work as well.
+Hi Jean,
 
-I ignore stupid comments, yours falls into that category.  I have good
-reason for asking for Linus's OPINION before sending the patch.  Note I
-am not asking Linus to take the patch right now, I am asking for some
-guidance.  Unless you have something useful to contribute, I will
-continue to ignore you.
+Jean Tourrilhes <jt@bougret.hpl.hp.com> writes:
 
+> 	I was looking under Linux for a mechanism to distribute an
+> event from one process (a daemon) to a set of other processes (deamons
+> or applications). The number and indentity of those other processes
+> would not be known by the process generating the event, those
+> processes would register themselves dynamically to the stream of
+> event. And the event need to be delivered to all of them (not only the
+> first one).
+> 	In other words, it would look like a *broadcast* message
+> queue, where the sender process would create the queue and write
+> events to it, and the other bunch of processes would dynamically open
+> the queue and listen for events.
+
+[snip]
+
+> 	This "one sender - multiple reader" model seems common and
+> usefull enough that there must be a way to do that under Linux. I know
+> that it exist under Windows. Can somebody help me to find out how to
+> do it under Linux ?
+
+
+Maybe, you're looking for multicast. But you need a TCP/IP stack for
+this and I don't know, wether this is implemented in Linux.
+
+Regards, Olaf.

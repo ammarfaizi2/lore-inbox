@@ -1,105 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131166AbQJ1R46>; Sat, 28 Oct 2000 13:56:58 -0400
+	id <S131230AbQJ1So2>; Sat, 28 Oct 2000 14:44:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131188AbQJ1R4s>; Sat, 28 Oct 2000 13:56:48 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:23305 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S131166AbQJ1R4h>; Sat, 28 Oct 2000 13:56:37 -0400
-Date: Sat, 28 Oct 2000 20:02:44 +0000
-From: Heinz.Mauelshagen@t-online.de (Heinz J. Mauelshagen)
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: mhe@sistina.com, linux-kernel@vger.kernel.org
-Subject: Re: LVM snapshotting broken?
-Message-ID: <20001028200244.A19767@srv.t-online.de>
-Reply-To: Mauelshagen@sistina.com
-In-Reply-To: <20001027154409.A13469@athlon.random> <Pine.LNX.4.21.0010271152470.25174-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21.0010271152470.25174-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Fri, Oct 27, 2000 at 11:55:03AM -0200
+	id <S131232AbQJ1SoQ>; Sat, 28 Oct 2000 14:44:16 -0400
+Received: from burdell.cc.gatech.edu ([130.207.3.207]:54276 "EHLO
+	burdell.cc.gatech.edu") by vger.kernel.org with ESMTP
+	id <S131230AbQJ1SoG>; Sat, 28 Oct 2000 14:44:06 -0400
+Date: Sat, 28 Oct 2000 14:44:03 -0400 (EDT)
+From: David Eger <eger@cc.gatech.edu>
+To: linux-kernel@vger.kernel.org
+cc: eger@cc.gatech.edu
+Subject: signal handlers not linked properly in do_fork()?
+Message-ID: <Pine.LNX.4.21.0010281432490.18772-100000@su13.eastnet.gatech.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 27, 2000 at 11:55:03AM -0200, Rik van Riel wrote:
-> On Fri, 27 Oct 2000, Andrea Arcangeli wrote:
-> > On Fri, Oct 27, 2000 at 11:32:06AM -0200, Rik van Riel wrote:
-> > > Have you checked if the CONTENT of the snapshot is indeed
-> > > the right LV and not the other one?
-> > 
-> > laser:~ # mke2fs /dev/vg1/lv1 &>/dev/null
-> > laser:~ # mount /dev/vg1/lv1 /mnt
-> > laser:~ # >/mnt/ciao
-> > laser:~ # ls /mnt
-> > .  ..  ciao  lost+found
-> > laser:~ # umount /mnt
-> > laser:~ # lvcreate -s -n lv1-snap /dev/vg1/lv1 -L 400M
-> > lvcreate -- INFO: using default snapshot chunk size of 64 KB
-> > lvcreate -- doing automatic backup of "vg1"
-> > lvcreate -- logical volume "/dev/vg1/lv1-snap" successfully created
-> > 
-> > laser:~ # mount /dev/vg1/lv1 /mnt
-> > laser:~ # rm /mnt/ciao
-> > laser:~ # umount /mnt
-> > laser:~ # mount /dev/vg1/lv1-snap /mnt
-> > mount: block device /dev/vg1/lv1-snap is write-protected, mounting read-only
-> > laser:~ # ls /mnt/
-> > .  ..  ciao  lost+found
-> > laser:~ # 
-> 
-> OK, good. I guess that means that the lvmutils (even the
-> patched version in the RPM) are heavily broken ...
 
-As i mentioned before: i wasn't able to reproduce your problem on any of
-my systems. It work just fine with 0.8final and in 0.9 as weel.
+I've been looking at the code for do_fork() / copy_sighand() and am
+mystified by the following.  It seems that copy_sighand() only sets the
+new task's sig member if it is not CLONEd from the parent.  
 
-Did anybody else beside Rik face a problem with snapshots _not_ referring
-to the original logical volume they where created for?
+If the signal_struct is CLONEd from the parent, it increments the parent's
+signal_struct's reference count, but does not set the new task's sig
+member.  I see nowhere else in do_fork() where sig is set, either.  
+What gives?
 
-> 
-> Andrea, could you send me the patches you use to make your
-> LVM utilities work? Then we'll be able to put together at
-> least one working LVM utilities version ;)
-> 
-> Heinz, how about releasing a 0.8.1 version of the utilities
-> so that there is something WORKING out there? Not having
-> working LVM utilities available is an utter disgrace when
-> all the code to make it work is just available...
+-David Eger
 
-I don't have any complaints so far about similar snapshot malfunctions
-you mentioned, Rik.
-That said it is overemphasis to say, that the LVM utilities
-are not working.
-IMHO Andreas Dilger's LVM 0.8 backport to kernel 2.2 should be o.k. for
-most of the cases.
-
-I'ld like to have 0.9 to do the integtration of the available patches
-which will be released in november.
-
-> 
-> regards,
-> 
-> Rik
-> --
-> "What you're running that piece of shit Gnome?!?!"
->        -- Miguel de Icaza, UKUUG 2000
-> 
-> http://www.conectiva.com/		http://www.surriel.com/
-
--- 
-
-Regards,
-Heinz      -- The LVM guy --
-
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-Heinz Mauelshagen                                 Sistina Software Inc.
-Senior Consultant/Developer                       Bartningstr. 12
-                                                  64289 Darmstadt
-                                                  Germany
-Mauelshagen@Sistina.com                           +49 6151 7103 86
-                                                       FAX 7103 96
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

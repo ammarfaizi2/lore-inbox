@@ -1,79 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262854AbVBCP3i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262623AbVBCPgj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262854AbVBCP3i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 10:29:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262847AbVBCP3i
+	id S262623AbVBCPgj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 10:36:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263342AbVBCPfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 10:29:38 -0500
-Received: from rproxy.gmail.com ([64.233.170.205]:34428 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263795AbVBCP27 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 10:28:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=U1maC61ZRZLuvGU7MW8tjnDVn3jqLdfWIK7KgeZWLpKlvs5gEwA1OhrmE4olC1Qj2ZC7aRBuLzVT7l9Ncvn4tRgMe4m4WQGtO+jD1aeIKRjFflN89AlbOntsquvwTvRvRtfST3uDggADr/oFkFek5AIyZ/l2McWhA7bItSzPUvo=
-Message-ID: <d120d50005020307285a8e07cd@mail.gmail.com>
-Date: Thu, 3 Feb 2005 10:28:58 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Alexandre Oliva <aoliva@redhat.com>
-Subject: Re: Touchpad problems with 2.6.11-rc2
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Pete Zaitcev <zaitcev@redhat.com>,
-       Peter Osterlund <petero2@telia.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <orwttpad0e.fsf@livre.redhat.lsd.ic.unicamp.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050123190109.3d082021@localhost.localdomain>
-	 <m3acqr895h.fsf@telia.com>
-	 <20050201234148.4d5eac55@localhost.localdomain>
-	 <20050202102033.GA2420@ucw.cz>
-	 <20050202085628.49f809a0@localhost.localdomain>
-	 <20050202170727.GA2731@ucw.cz>
-	 <20050202095851.27321bcf@localhost.localdomain>
-	 <or4qgurqp5.fsf@livre.redhat.lsd.ic.unicamp.br>
-	 <20050203084900.GA2594@ucw.cz>
-	 <orwttpad0e.fsf@livre.redhat.lsd.ic.unicamp.br>
+	Thu, 3 Feb 2005 10:35:51 -0500
+Received: from alog0137.analogic.com ([208.224.220.152]:8576 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263086AbVBCPfN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 10:35:13 -0500
+Date: Thu, 3 Feb 2005 10:35:22 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Pankaj Agarwal <pankaj@toughguy.net>
+cc: linux-kernel@vger.kernel.org, Linux Net <linux-net@vger.kernel.org>
+Subject: Re: Query - Regarding strange behaviour.
+In-Reply-To: <001501c509ff$d4be02e0$8d00150a@dreammac>
+Message-ID: <Pine.LNX.4.61.0502031017430.9404@chaos.analogic.com>
+References: <001501c509ff$d4be02e0$8d00150a@dreammac>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 03 Feb 2005 07:22:40 -0800 (PST), Alexandre Oliva
-<aoliva@redhat.com> wrote:
-> On Feb  3, 2005, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> 
-> > On Thu, Feb 03, 2005 at 06:30:14AM -0200, Alexandre Oliva wrote:
-> >> On Feb  2, 2005, Pete Zaitcev <zaitcev@redhat.com> wrote:
-> >>
-> >> > On Wed, 2 Feb 2005 18:07:27 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> >>
-> >> >> With a Synaptics I suppose? You wouldn't like it with an ALPS.
-> >>
-> >> > No, it's a Dualpoint, and so ALPS.
-> >>
-> >> Err...  That doesn't follow.  My Dell Inspiron 8000 has a Synaptics
-> >> touchpad as part of the Dualpoint pointing devices.
-> 
-> > Dualpoint (tm) is a trademark of ALPS,
-> 
-> Interesting...  Dell DualPoint is the way the pointing devices are
-> described in that notebook's documentation, and I remember all the way
-> from back when I purchased the notebook: I really wanted the two
-> pointing devices.  If you search the web for Dell Inspiron 8000
-> DualPoint, you'll get a number of hits referring to `Dell's DualPoint
-> technology'.  I don't see them referred to as DualPoint(TM), but I
-> vaguely remember having seen something like that in Dell's web site
-> back then.
-> 
-> Maybe ALPS bought the trademark from Dell, or Dell hadn't actually
-> registered the trademark, or they somehow managed to get the
-> trademarks registered with a case difference (DualPoint vs Dualpoint)?
-> 
+On Thu, 3 Feb 2005, Pankaj Agarwal wrote:
 
-I am not sure but on this page ALPS states that they have trademark on
-DualPoint (TM):
+> Hi,
+>
+> In my system there's a strange behaviour.... its not allowing me to create 
+> any file in /usr/bin even as root. Its chmod is set to 755. Its even not 
+> allowing me to change the chmod value of /usr/bin. The strangest part which i 
+> felt is ...its shows the owner and group as root when i issue command "ls -ld 
+> /usr/bin" and not allowing root to create any file or directory under 
+> /usr/bin and not even allowing to change the chmod value. The error is access 
+> permission denied... I can change the chmod value of /usr and other 
+> directories under /usr/...but not of bin....
+>
+> I need your help/support. kindly let me know what all can i try to resolve 
+> this problem.
+>
+> Thanks and Regards,
+>
+> Pankaj Agarwal
 
-http://www3.alps.co.jp/cgi-bin/WebObjects/catalog.woa/wa/varietyList?language=english&country=com&top_mode=2003&productId=11&varietyId=3
+See if your file-system has gotten hurt. Boot with init=/bin/bash
+and execute `/sbin/fsck -f /` to force a check of the root file-system.
 
--- 
-Dmitry
+The next check is to see if you can fix the protections when
+you are the only one accessing the file-system:
+
+# mount -n -o remount /	# re-mount root r/w
+# cd /usr
+# chmod 755 bin
+# ls -la		# See if it worked
+# unmount /
+
+The next check is to replace the /usr/bin directory. Since `mv`
+and `mkdir` are in /bin, the following should work.
+
+# mount -n -o remount /  # re-mount root r/w
+# cd /usr
+# mv bin foo		# Rename 'strange' directory
+# mkdir bin		# Make a new one
+# cd foo		# Change to original
+# mv * ../bin		# Rename all contents to new
+# cd .. 
+# rmdir foo		# Remove bad directory
+# chmod 755 bin		# Fix protection
+# umount /
+
+After you have fixed things, you don't have to re-boot.
+Just execute:
+
+# exec /sbin/init auto
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

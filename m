@@ -1,93 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276424AbRJGQYl>; Sun, 7 Oct 2001 12:24:41 -0400
+	id <S276430AbRJGQ0L>; Sun, 7 Oct 2001 12:26:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276430AbRJGQYc>; Sun, 7 Oct 2001 12:24:32 -0400
-Received: from adsl-64-109-89-110.chicago.il.ameritech.net ([64.109.89.110]:27726
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S276408AbRJGQYU>; Sun, 7 Oct 2001 12:24:20 -0400
-Message-Id: <200110071623.f97GNmD01704@localhost.localdomain>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-cc: Jes Sorensen <jes@sunsite.dk>, paulus@samba.org,
-        "David S. Miller" <davem@redhat.com>,
-        James.Bottomley@HansenPartnership.com, linuxopinion@yahoo.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: how to get virtual address from dma address 
-In-Reply-To: Message from =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr> 
-   of "Sun, 07 Oct 2001 09:21:05 +0200." <20011007091404.X953-100000@gerard> 
+	id <S276408AbRJGQ0C>; Sun, 7 Oct 2001 12:26:02 -0400
+Received: from mail.physics.ox.ac.uk ([163.1.244.140]:63240 "EHLO
+	janus.physics.ox.ac.uk") by vger.kernel.org with ESMTP
+	id <S276430AbRJGQZ4>; Sun, 7 Oct 2001 12:25:56 -0400
+Date: Sun, 7 Oct 2001 17:26:17 +0100
+From: Tim Stadelmann <Tim.Stadelmann@physics.ox.ac.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dell Latitude C600 suspend problem
+Message-ID: <20011007172615.A550@univn10.univ.ox.ac.uk>
+In-Reply-To: <20011007115712.A4357@univn10.univ.ox.ac.uk> <E15qEdC-0005tB-00@the-village.bc.nu> <20011007170957.A536@univn10.univ.ox.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 07 Oct 2001 11:23:47 -0500
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
+Content-Disposition: inline
+In-Reply-To: <20011007170957.A536@univn10.univ.ox.ac.uk>
+User-Agent: Mutt/1.3.22i
+X-AVtransport: scanmails_remote
+X-AVwrapper: AMaViS (http://www.amavis.org/)
+X-AVscanner: Sophos sweep (http://www.sophos.com/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I would apply the bat to people that wants such a dma to virtual
-> general translation. This thing is obviously gross shit.
+On Sun, Oct 07, 2001 at 05:09:57PM +0100, Tim Stadelmann wrote:
 
-If you read back in the thread, you'll find the proposed API was per 
-pci_device and only when the device driver writer actually asked for it.  This 
-makes it potentially as efficient as the code in sym53c8xx in the worst case 
-and much more efficient in the best.
+> I've written a little patch (not included yet) that makes
+> pckbd_pm_resume behave well in connection with the current incarnation
+> of the power management code.  Suspend and resume work again without
+> problems.
+> 
+> Unfortunatly, now the actual tweeks done by the callback seem to
+> slightly confuse my keyboard driver...?  Will look into that soon.
 
-We have all agreed that just doing the mapping generally will be inefficient 
-for a particular class of hardware with no readable access to its page tables.
+Oh well... Can't reproduce the problem any more.  I probably
+accidentially hit a couple of keys while reaching for the power
+button.
 
-> I would also apply the bat to people that look into stuff of other
-> people and, instead of trying to actually understand the code, just
-> give a look and send inappropriate statements to the list. 
+In any case, here's the patch:
 
-The statement currently made to the list:
+--- linux/include/asm/keyboard.h.bak	Sun Oct  7 16:38:23 2001
++++ linux/include/asm/keyboard.h	Sun Oct  7 16:37:45 2001
+@@ -16,6 +16,7 @@
+ #include <linux/kernel.h>
+ #include <linux/ioport.h>
+ #include <linux/kd.h>
++#include <linux/pm.h>
+ #include <asm/io.h>
+ 
+ #define KEYBOARD_IRQ			1
+@@ -28,7 +29,7 @@
+ extern char pckbd_unexpected_up(unsigned char keycode);
+ extern void pckbd_leds(unsigned char leds);
+ extern void pckbd_init_hw(void);
+-extern void pckbd_pm_resume(void);
++extern int pckbd_pm_resume(struct pm_dev *, pm_request_t, void *);
+ extern unsigned char pckbd_sysrq_xlate[128];
+ 
+ #define kbd_setkeycode		pckbd_setkeycode
+--- linux/drivers/char/pc_keyb.c.bak	Sun Oct  7 17:18:45 2001
++++ linux/drivers/char/pc_keyb.c	Sun Oct  7 16:37:07 2001
+@@ -397,29 +397,32 @@
+ 	    return 0200;
+ }
+ 
+-void pckbd_pm_resume(void)
++int pckbd_pm_resume(struct pm_dev *dev, pm_request_t rqst, void *data) 
+ {
+ #if defined CONFIG_PSMOUSE
+        unsigned long flags;
+ 
+-       if (queue) {                    /* Aux port detected */
+-               if (aux_count == 0) {   /* Mouse not in use */ 
+-                       spin_lock_irqsave(&kbd_controller_lock, flags);
+-                       /*
+-                        * Dell Lat. C600 A06 enables mouse after resume.
+-                        * When user touches the pad, it posts IRQ 12
+-                        * (which we do not process), thus holding keyboard.
+-                        */
+-                       kbd_write_command(KBD_CCMD_MOUSE_DISABLE);
+-                       /* kbd_write_cmd(AUX_INTS_OFF); */ /* Config & lock */
+-                       kb_wait();
+-                       kbd_write_command(KBD_CCMD_WRITE_MODE);
+-                       kb_wait();
+-                       kbd_write_output(AUX_INTS_OFF);
+-                       spin_unlock_irqrestore(&kbd_controller_lock, flags);
+-               }
++       if (rqst == PM_RESUME) {
++               if (queue) {                    /* Aux port detected */
++                       if (aux_count == 0) {   /* Mouse not in use */ 
++                               spin_lock_irqsave(&kbd_controller_lock, flags);
++			       /*
++				* Dell Lat. C600 A06 enables mouse after resume.
++				* When user touches the pad, it posts IRQ 12
++				* (which we do not process), thus holding keyboard.
++				*/
++			       kbd_write_command(KBD_CCMD_MOUSE_DISABLE);
++			       /* kbd_write_cmd(AUX_INTS_OFF); */ /* Config & lock */
++			       kb_wait();
++			       kbd_write_command(KBD_CCMD_WRITE_MODE);
++			       kb_wait();
++			       kbd_write_output(AUX_INTS_OFF);
++			       spin_unlock_irqrestore(&kbd_controller_lock, flags);
++		       }
++	       }
+        }
+-#endif       
++#endif
++       return 0;
+ }
+ 
 
-> Worse still, every driver that needs this feature is doing it on its own, so
-> the code for doing this in usb-ohci is different from the code in the
-> sym53c8xx driver etc. 
+				Greetings,
 
-Is true: both drivers use hashes to do dma to virtual mapping.  They both have 
-their own code for doing it (I have looked).  We can disagree about whether 
-the code is subtle or complex, but you can't deny that these two drivers have 
-separate implementations of the same function.
+				Tim 
 
-> In my opinion, any bus_to_virt() thing hurts a lot. It only makes
-> sense if it refers to the virt_to_bus() mapping that was used to
-> generate the bus address and assumes the reverse function to be a
-> mapping. A general bus_to_virt() thing looks so ugly thing to me that
-> I donnot want to ever use such.
-
-Right, but we're not arguing over whether to do it generally.  The argument is 
-whether an API looking like this:
-
-pci_register_mapping(struct pci_dev *dev, void *virtualAddress, dma_addr_t 
-dmaAddress, size_t size);
-void *pci_dma_to_virtual(struct pci_dev *dev, dma_addr_t dmaAddress);
-dma_addr_t pci_virtual_to_dma(struct pci_dev *dev, void *virtualAddress);
-pci_unregister_mapping(struct pci_dev *dev, void *virtualAddress, dma_addr_t 
-dmaAddress, size_t size);
-
-should or should not be provided.
-
-For this API I claim that:
-
-1. I can do the worst case MMU hardware as efficiently as your driver (because 
-it would essentially be a hashed look up of registered mappings for your 
-single pci device instance alone, functionally identical to the code you use 
-today).
-
-2. on optimal hardware (like x86 where this can be done by bit flipping of the 
-address) I can do a whole lot better.
-
-I also claim the same is true for every driver which still needs to do this 
-type of mapping (which is a significant fraction of drivers for devices which 
-have an intelligent processor core and multiple outstanding jobs with a 
-non-predictable order of completion).
-
-Therefore, every driver that needs to do this today is using the least 
-efficient method.  Further, they're all coding their own least efficient 
-methods.
-
-If you can provide a reasoned counter argument to the above (preferably 
-stripped of the invective periphrasis) I'm listening.
-
-James Bottomley
 

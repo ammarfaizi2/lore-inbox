@@ -1,34 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135310AbRDWP3X>; Mon, 23 Apr 2001 11:29:23 -0400
+	id <S135354AbRDWPan>; Mon, 23 Apr 2001 11:30:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135353AbRDWP3D>; Mon, 23 Apr 2001 11:29:03 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48645 "EHLO
+	id <S135363AbRDWPae>; Mon, 23 Apr 2001 11:30:34 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:51717 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135310AbRDWP0A>; Mon, 23 Apr 2001 11:26:00 -0400
-Subject: Re: Can't compile 2.4.3 with agcc
-To: papadako@csd.uoc.gr (mythos)
-Date: Mon, 23 Apr 2001 16:27:44 +0100 (BST)
+	id <S135353AbRDWPaZ>; Mon, 23 Apr 2001 11:30:25 -0400
+Subject: Re: P4 problem with 2.4.3
+To: clarkmic@pobox.upenn.edu (Michael J Clark)
+Date: Mon, 23 Apr 2001 16:32:08 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.33.0104231611090.15682-100000@iridanos.csd.uch.gr> from "mythos" at Apr 23, 2001 04:13:47 PM
+In-Reply-To: <200104231340.f3NDeJu29169@pobox.upenn.edu> from "Michael J Clark" at Apr 23, 2001 09:40:19 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14riFe-0008Ev-00@the-village.bc.nu>
+Message-Id: <E14riJv-0008FV-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Using gcc version pgcc-2.95.3 19991024 (AthlonGCC-0.0.3ex3.1)
-> I can't compile 2.4.3.I get the follow message:
-> 
-> init/main.o: In function `check_fpu':
-> init/main.o(.text.init+0x65): undefined reference to
-> `__buggy_fxsr_alignment'
-> make: *** [vmlinux] Error 1
-> 
-> Can anyone help me?
+> dies at the line "cpu:0, clocks:0, slice:0".  It also says something about 
+> "wierd, boot kernel (CPU#0) not found in BIOS. "  There is also a message 
 
-Thats either a compiler bug or a funny triggering a compiler bug check
+This message is printed when the kernel finds it is running on a processor
+not listed in the MP table. Basically your machine seems to have broken MP
+tables. 
+
+What is happening is something like this
+
+	Kernel:		Find MP table
+			Ok We have CPUs 1 and 2
+			We have PCI
+			We have etc...
+
+	Kernel:		What CPU number are you
+	CPU:		Im CPU 0
+	Kernel:		but you dont exist..
+
+		** boom **
+
+Try booting with 'noapic' and also send a report to Ingo Molnar as he may want
+to double check the table is wrong not the kernel code. 
+
+2.2 doesn't use the APIC on non SMP boxes so won't notice the problem.
+
 

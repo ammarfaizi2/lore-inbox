@@ -1,67 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264670AbUDVUvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264671AbUDVUvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264670AbUDVUvc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 16:51:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264669AbUDVUvc
+	id S264671AbUDVUvl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 16:51:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264669AbUDVUvl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 16:51:32 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:4480 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264671AbUDVUua
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 16:50:30 -0400
-Date: Thu, 22 Apr 2004 16:50:20 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Al Niessner <Al.Niessner@jpl.nasa.gov>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: atomic_t and atomic_inc
-In-Reply-To: <1082660320.28900.193.camel@morte.jpl.nasa.gov>
-Message-ID: <Pine.LNX.4.53.0404221641120.940@chaos>
-References: <1082660320.28900.193.camel@morte.jpl.nasa.gov>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 22 Apr 2004 16:51:41 -0400
+Received: from legolas.restena.lu ([158.64.1.34]:48771 "EHLO smtp.restena.lu")
+	by vger.kernel.org with ESMTP id S264672AbUDVUuj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 16:50:39 -0400
+Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
+	for idle=C1halt, 2.6.5
+From: Craig Bradney <cbradney@zip.com.au>
+To: Len Brown <len.brown@intel.com>
+Cc: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>, ross@datscreative.com.au,
+       christian.kroener@tu-harburg.de, linux-kernel@vger.kernel.org,
+       "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+       Jamie Lokier <jamie@shareable.org>, Daniel Drake <dan@reactivated.net>,
+       Ian Kumlien <pomac@vapor.com>, Jesse Allen <the3dfxdude@hotmail.com>,
+       a.verweij@student.tudelft.nl, Allen Martin <AMartin@nvidia.com>
+In-Reply-To: <1082646181.16333.217.camel@dhcppc4>
+References: <200404131117.31306.ross@datscreative.com.au>
+	 <200404131703.09572.ross@datscreative.com.au>
+	 <1081893978.2251.653.camel@dhcppc4>
+	 <200404160110.37573.ross@datscreative.com.au>
+	 <1082060255.24425.180.camel@dhcppc4>
+	 <1082063090.4814.20.camel@amilo.bradney.info>
+	 <1082578957.16334.13.camel@dhcppc4>  <4086E76E.3010608@gmx.de>
+	 <1082587298.16336.138.camel@dhcppc4>
+	 <1082623508.10528.7.camel@amilo.bradney.info>
+	 <1082646181.16333.217.camel@dhcppc4>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5cytz3+apCtSeXiaJab2"
+Message-Id: <1082667033.6133.20.camel@amilo.bradney.info>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 22 Apr 2004 22:50:33 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Apr 2004, Al Niessner wrote:
 
->
-> First, I am not subscribed to this list so please reply to me directly
-> if you wish a timely response to any questions. In any case, I will lurk
-> in the archives for responses.
->
-> I am using atomic_t to count interrupts from some piece of hardware.
-> These interrupts come at a fairly high rate -- 10 KHz and higher. The
-> problem is, will I get increment problem at the limit of atomic_t or
-> will it wrap around without error? I read the docs (man pages, on-line
-> api docs, this list and other stuff) and none of them talk about the
-> behavior of atomic_t at the boundaries. Furthermore, am I guaranteed of
-> any boundary behavior across platforms?
->
-> Thank you in advance for any and all help.
+--=-5cytz3+apCtSeXiaJab2
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Type atomic_t is an integer that can be accessed in memory
-with an uninterruptible instruction. This limits the atomic_t
-type in 32-bit machines to 32-bits, in 64-bit machines to 64-bits,
-etc. It has nothing to do with wrap-around. If you increment
-0xffffffff it becomes 0 even it it's an atomic type.
+On Thu, 2004-04-22 at 17:03, Len Brown wrote:
+> On Thu, 2004-04-22 at 04:45, Craig Bradney wrote:
+>=20
+> > > Yes, you need to enable ACPI and IOAPIC.  The goal of this patch
+> > > is to address the XT-PIC timer issue in IOAPIC mode.
+> > >=20
+> > > Here's the latest (vs 2.6.5).
+> >=20
+> >=20
+> > Do we need any other patch? eg the idlec1halt patch? My Athlon still ha=
+s
+> > 2.6.3 on it.
+>=20
+> If you needed idlec1halt before, you still need it.
+> This patch just addresses the XT-PIC timer issue.
+>=20
+> >=20
+> > > I've got 1 Abit, 2 Asus, and 1 Shuttle DMI entry.  Let me know if the
+> > > product names (1st line of dmidecode entry) are correct,
+> > > these are not from DMI, but are supposed to be human-readable titles.
+> >=20
+> > + { ignore_timer_override, "Asus A7N8X v2", {=20
+> > > +			MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer INC."),
+> > > +			MATCH(DMI_BOARD_NAME, "A7N8X2.0"),
+> > > +			MATCH(DMI_BIOS_VERSION, "ASUS A7N8X2.0 Deluxe ACPI BIOS Rev 1007"=
+),
+> > > +			MATCH(DMI_BIOS_DATE, "10/06/2003") }},
+> >=20
+> > my dmidecode output also shows (in the first BIOS information section):
+> > Vendor: Phoenix Technologies, LTD
+> > although the Manufacturer is ASUSTek Computer INC. form the Base Board
+> > and System sections.
+>=20
+> Right, DMI has separate sections for System, Board, BIOS, and we're
+> using two pieces from the BOARD and two pieces from the BIOS sections.
+>=20
+> > Not really sure about the code. If it matches on all of above then it
+> > might not work. Ill try a new kernel later today and see the result.
+>=20
+> The workaround is triggered only if all the MATCH()'s above match.
+> If it doesn't trigger, then either I munged it on copy out of dmidecode
+> or you've got a different BIOS and we need a new dmidecode...
+>=20
+> > > I'm interested only in the latest BIOS -- if it is still broken.
+> > > The assumption is that if a fixed BIOS is available, the users
+> > > should upgrade.
+> > >=20
+> >=20
+> > Yes, I just checked yesterday and there was nothing new.
 
-In an ISR, the code won't be interrupted until you enable interrupts,
-which you shouldn't do anyway. This means that even non-atomic types
-are safe, even in SMP machines if the increment is after a spin-lock.
+[Have sent this email with attachments directly to Len, attachments are
+just /proc/interrupts and dmegs output. If someone is interested, please
+ask for them]
 
-So, you can use 'long long' types for interrupt counters and no
-information will be lost until you wrap 0xffffffffffffffff, which
-will take quite some time. The problem remains, however, in
-reading this value. You need to either read it under a spinlock
-or read several times until you get the same value twice in a row.
+Hi Len
 
-Spin-locks are easier.
+Please find attached /proc/interrupts and dmesg from 3 boots, 2 with new
+kernel.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
-            Note 96.31% of all statistics are fiction.
+263 : gentoo-dev-sources-r1 2.6.3 kernel with Ross Dickson's idleC1halt
+and IOAPIC patches.
 
+265: gentoo-dev-sources-r1 2.6.5 kernel with Ross Dickson's idleC1halt
+for 2.6.5 kernel only. Note in 265pi (/proc/interrupts):
+0:      54821          XT-PIC  timer
+
+265-lb: gentoo-dev-sources-r1 2.6.5 kernel with Ross Dickson's
+idleC1halt for 2.6.5 kernel and your patch for the interrupt.=20
+Note in 265pi-lb (/proc/interrupts):
+0:      51144    IO-APIC-edge  timer
+
+so.. looks good here. :) I was surprised to see this effect with no boot
+kernel option though. Having read the code I see you set the value to 1
+and therefore on. Seems fine to me.
+
+regards
+Craig
+
+--=-5cytz3+apCtSeXiaJab2
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAiDAZi+pIEYrr7mQRAmhGAKCGRhC9R9mLV05XCCdh+Gwbeb76KACeP+7C
+wHJu6LqcdX2vTNxeaA3s+M0=
+=wese
+-----END PGP SIGNATURE-----
+
+--=-5cytz3+apCtSeXiaJab2--
 

@@ -1,32 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317928AbSGKXEw>; Thu, 11 Jul 2002 19:04:52 -0400
+	id <S317931AbSGKXHc>; Thu, 11 Jul 2002 19:07:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317930AbSGKXEv>; Thu, 11 Jul 2002 19:04:51 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45582 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317928AbSGKXEu>; Thu, 11 Jul 2002 19:04:50 -0400
-Subject: Re: ATAPI + cdwriter problem
-To: mistral@stev.org (James Stevenson)
-Date: Fri, 12 Jul 2002 00:31:10 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-       linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <000d01c2292d$d46e70f0$0501a8c0@Stev.org> from "James Stevenson" at Jul 11, 2002 11:53:53 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S317932AbSGKXHb>; Thu, 11 Jul 2002 19:07:31 -0400
+Received: from d06lmsgate-5.uk.ibm.com ([195.212.29.5]:39047 "EHLO
+	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S317931AbSGKXHa>; Thu, 11 Jul 2002 19:07:30 -0400
+Subject: Re: [STATUS 2.5]  July 10, 2002
+To: Thunder from the hill <thunder@ngforever.de>
+Cc: Guillaume Boissiere <boissiere@adiglobal.com>,
+       <linux-kernel@vger.kernel.org>
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OFA6F8E704.E99D7EED-ON85256BF3.006924FD@portsmouth.uk.ibm.com>
+From: "Richard J Moore" <richardj_moore@uk.ibm.com>
+Date: Thu, 11 Jul 2002 15:21:23 -0400
+X-MIMETrack: Serialize by Router on D06ML023/06/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 12/07/2002 00:10:14
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17SnOw-0001pS-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > i also have now tried this under 2.4.19-rc1 which produces the same
-> > > problems.
-> >
-> > Apply the diff below then retry. Let people know if it fixes your atapi
-> > problem
-> 
-> no it doesnt
 
-Thanks - ok that one is an open question for Promise I guess
+> Nobody seemed to be interested in this toolkit. The (s|l)trace toolkit
+and
+> kdb seemed to be sufficient for the most developers. (I don't whine here
+> either.)
+
+That' ridiculous - there's quite a lot of interest in having a
+comprehensive system trace capability. The OLS RAS BoF confirmed that. This
+sort of capability is essential for system serviceability. Talk to any
+Service Engneer who has to deal with real-word non-recreatable problems,
+which are nevertheless of enormous impact to a customer.
+
+I would accept that LTT doesn't yet have all the desired features, but
+those are one the way and this demonstates a definite interest in LTT.
+Also, LTT is currently or about to be distributed in the Monta Vista's
+carrier grade offering, Lineo and TurboLinux's enterprise server offering.
+There's also a strong possibility that it will end up in United  Linux 1.0
+-  no interest? I don't think so.
+
+
+Richard J Moore  RAS Project Lead - IBM Linux Technology Centre
+
+

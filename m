@@ -1,103 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262322AbUKDSgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262358AbUKDSgj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262322AbUKDSgh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 13:36:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbUKDSfH
+	id S262358AbUKDSgj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 13:36:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbUKDSem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 13:35:07 -0500
-Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:11910 "HELO
-	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262322AbUKDSdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 13:33:11 -0500
-From: Blaisorblade <blaisorblade_spam@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net,
-       user-mode-linux-user@lists.sourceforge.net,
-       Jeff Dike <jdike@addtoit.com>,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-Subject: 2.6.9-bb1, 2.4.27-bs1, SKAS3/2.6-V7 released
-Date: Thu, 4 Nov 2004 19:32:31 +0100
-User-Agent: KMail/1.7.1
-Cc: LKML <linux-kernel@vger.kernel.org>, Erik@budgetdedicated.com,
-       "Peter" <peter@rimuhosting.com>,
-       "Christopher S. Aker" <caker@theshore.net>,
-       Matt Zimmerman <mdz@debian.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart10377242.nxt1Ootl8N";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Thu, 4 Nov 2004 13:34:42 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:38075 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262363AbUKDSaA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 13:30:00 -0500
+Subject: [patch] kobject_uevent: fix init ordering
+From: Robert Love <rml@novell.com>
+To: Greg KH <greg@kroah.com>
+Cc: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
+       davem@redhat.com, herbert@gondor.apana.org.au,
+       Kay Sievers <kay.sievers@vrfy.org>
+In-Reply-To: <20041104180550.GA16744@kroah.com>
+References: <20041104154317.GA1268@krispykreme.ozlabs.ibm.com>
+	 <20041104180550.GA16744@kroah.com>
+Content-Type: text/plain
+Date: Thu, 04 Nov 2004 13:27:31 -0500
+Message-Id: <1099592851.31022.145.camel@betsy.boston.ximian.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200411041932.39733.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart10377242.nxt1Ootl8N
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Greg!
 
-You can find all on http://www.user-mode-linux.org/~blaisorblade/.
+Looks like kobject_uevent_init is executed before netlink_proto_init and
+consequently always fails.  Not cool.
 
-The SKAS3/2.6-v7 was already released, but I probably forgot to announce it=
-=2E=20
-So I'm announcing it now.
+Attached patch switches the initialization over from core_initcall (init
+level 1) to postcore_initcall (init level 2).  Netlink's initialization
+is done in core_initcall, so this should fix the problem.  We should be
+fine waiting until postcore_initcall.
 
-Changes in SKAS:
-* echo 0 > /proc/sysemu on the guests works fine, finally!
+Also a couple white space changes mixed in, because I am anal.
 
-Changes in both 2.6.9 and 2.4.27:
-they run fine on 2.6.9 host kernels, without hanging at the exit.
+	Robert Love
 
-Changes in 2.6.9 only:
-included a large chunk of JDike tree (excluding all x86_64 related patches)=
-,=20
-and all the latest security patches from Bodo Stroesser; also it includes t=
-he=20
-=2DV7 skas patch in it.
 
-Actually, however, to do this I had to include big, invasive patches from J=
-eff=20
-Dike's tree. I've done it because it's needed and because Bodo Stroesser=20
-worked with the incrementals very fine.
+fix kobject_uevent init ordering
 
-Changes in 2.4.27 only:
+ lib/kobject_uevent.c |    8 +++-----
+ 1 files changed, 3 insertions(+), 5 deletions(-)
 
-It's based on a fork from the official 2.4.24-1; the patches I've included=
-=20
-come almost totally from there, but I dropped all the hostfs rewrite. I als=
-o=20
-included some incrementals, the one I thought safe.
+diff -urN linux-2.6.10-rc1/lib/kobject_uevent.c linux/lib/kobject_uevent.c
+--- linux-2.6.10-rc1/lib/kobject_uevent.c	2004-10-25 16:17:09.000000000 -0400
++++ linux/lib/kobject_uevent.c	2004-11-04 13:20:32.731836880 -0500
+@@ -54,7 +54,7 @@
+  * gfp_mask:
+  */
+ static int send_uevent(const char *signal, const char *obj, const void *buf,
+-			int buflen, int gfp_mask)
++		       int buflen, int gfp_mask)
+ {
+ 	struct sk_buff *skb;
+ 	char *pos;
+@@ -105,9 +105,8 @@
+ 		sprintf(attrpath, "%s/%s", path, attr->name);
+ 		rc = send_uevent(signal, attrpath, NULL, 0, gfp_mask);
+ 		kfree(attrpath);
+-	} else {
++	} else
+ 		rc = send_uevent(signal, path, NULL, 0, gfp_mask);
+-	}
+ 
+ exit:
+ 	kfree(path);
+@@ -133,7 +132,6 @@
+ {
+ 	return do_kobject_uevent(kobj, action, attr, GFP_ATOMIC);
+ }
+-
+ EXPORT_SYMBOL_GPL(kobject_uevent_atomic);
+ 
+ static int __init kobject_uevent_init(void)
+@@ -149,7 +147,7 @@
+ 	return 0;
+ }
+ 
+-core_initcall(kobject_uevent_init);
++postcore_initcall(kobject_uevent_init);
+ 
+ #else
+ static inline int send_uevent(const char *signal, const char *obj,
 
-Also, you can find on the page the instructions to avoid the "hwclock hang"=
- in=20
-TT mode. I found the faulty patch, but it needs a more worse bug, which=20
-affects everyone running in TT mode on a 2.6 host, so it's included. You ca=
-n=20
-revert the patch if you want, and if you have to run it on a 2.4 host. I se=
-nt=20
-a message about this about a week ago, but I got no answer.
 
-Distribution:
-* the patch are also in split-out form, both web-browsable and tarballed.
-* md5sums are available (to test with "md5sum -c *.md5").
-
-Any testing and report is welcome.
-
-Bye
-=2D-=20
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-
---nextPart10377242.nxt1Ootl8N
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBinXHqH9OHC+5NscRAqoSAJ4gt3A6zOHcIEHivBZyYhQDQAXJcwCeLHbF
-nPVU2hP4bwab24uVXxN4ft4=
-=MlWB
------END PGP SIGNATURE-----
-
---nextPart10377242.nxt1Ootl8N--

@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266537AbUBFWv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 17:51:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266864AbUBFWv6
+	id S265621AbUBFWpk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 17:45:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265662AbUBFWpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 17:51:58 -0500
-Received: from pcp05307510pcs.wanarb01.mi.comcast.net ([68.42.71.170]:44561
-	"HELO pcp05307510pcs.wanarb01.mi.comcast.net") by vger.kernel.org
-	with SMTP id S266537AbUBFWuV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 17:50:21 -0500
-Date: Fri, 06 Feb 2004 22:49:20 +0000
-From: basmith@pcp05307510pcs.wanarb01.mi.comcast.net
-Subject: HYIP Investment   klHmv
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <GD9GJD1HAAEDFL0H@vger.kernel.org>
-In-Reply-To: <GD9GJD1HAAEDFL0H@vger.kernel.org>
-Message-ID: <54IHKC1B85J9AC62@pcp05307510pcs.wanarb01.mi.comcast.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 6 Feb 2004 17:45:39 -0500
+Received: from uranium.btinternet.com ([194.73.73.89]:19954 "EHLO
+	uranium.btinternet.com") by vger.kernel.org with ESMTP
+	id S265621AbUBFWo5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 17:44:57 -0500
+Subject: Re: Kernel DRI support
+From: David Seery <djseery@btinternet.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20040206223205.GH2582@luna.mooo.com>
+References: <1076105201.27023.16.camel@localhost>
+	 <20040206223205.GH2582@luna.mooo.com>
+Content-Type: text/plain
+Message-Id: <1076107498.27023.22.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.5.2 
+Date: Fri, 06 Feb 2004 22:44:59 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear member ,
+On Sat, 2004-02-07 at 00:32 +0200, Micha Feigin wrote:
 
-We would like to introduce you our new project HYIPWEB.com It's a new HYIP rating site. 
-Its rating based on how much return we received from each investment program, how long program is online,
-minimum investment amount . We have invested 200$-500$ in many Investment programs and give you 
-oportunity to see how much return we got back from our investment in every investment program.
-Please visit HYIPWEB.com
+> Try the dri-devel mailing list, you'll probably have more luck with
+> this subject there.
+> Look at http://dri.sourceforge.net/cgi-bin/moin.cgi/
 
-If you are admin of investment program you can e-mail us your program and we will consider to invest
-in it and put it in our rating. You don't have to pay anything.
-Best Regards,
-HYIPWEB Team
-HYIPWEB.com
+Thanks.  I had considered this; it's always a little difficult to know
+the best venue for queries like this when you're not sure what the exact
+cause of the problem is.  I'll take this query there.
+
+Sorry about the unnecessary triple posting.  I'm using an unstable
+version of Evolution which did something strange.
+
+Cheers,
+
+David
 

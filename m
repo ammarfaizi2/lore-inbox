@@ -1,62 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266865AbSKOWwm>; Fri, 15 Nov 2002 17:52:42 -0500
+	id <S266886AbSKOWkt>; Fri, 15 Nov 2002 17:40:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266897AbSKOWwm>; Fri, 15 Nov 2002 17:52:42 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:22225 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S266865AbSKOWwk>; Fri, 15 Nov 2002 17:52:40 -0500
-Date: Fri, 15 Nov 2002 23:59:32 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S266888AbSKOWkt>; Fri, 15 Nov 2002 17:40:49 -0500
+Received: from [216.38.156.94] ([216.38.156.94]:5905 "EHLO mail.networkfab.com")
+	by vger.kernel.org with ESMTP id <S266886AbSKOWkr>;
+	Fri, 15 Nov 2002 17:40:47 -0500
 Subject: Re: lan based kgdb
-Message-ID: <20021115225932.GC1877@tahoe.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Andrew Morton <akpm@digeo.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3DD5591E.A3D0506D@efi.com> <334960000.1037397999@flay> <ar3op8$f20$1@penguin.transmeta.com> <20021115222430.GA1877@tahoe.alcove-fr> <3DD57A5F.87119CB4@digeo.com>
+From: Dmitri <dmitri@users.sourceforge.net>
+To: Stelian Pop <stelian.pop@fr.alcove.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021115222430.GA1877@tahoe.alcove-fr>
+References: <3DD5591E.A3D0506D@efi.com> <334960000.1037397999@flay>
+	<ar3op8$f20$1@penguin.transmeta.com> 
+	<20021115222430.GA1877@tahoe.alcove-fr>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-x78MtniSiMbt864hy/ls"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 15 Nov 2002 14:47:35 -0800
+Message-Id: <1037400456.1565.38.camel@usb.networkfab.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DD57A5F.87119CB4@digeo.com>
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 15, 2002 at 02:51:11PM -0800, Andrew Morton wrote:
 
-> > Using USB instead of the serial line or the network card would be
-> > the best IMHO, because:
-> 
-> Here is the kgdb stub's "send a byte" function:
-> 
-> static void
-> write_char(int chr)
-> {
->        while (!(inb(gdb_port + UART_LSR) & UART_LSR_THRE)) ;
-> 
->        outb(chr, gdb_port + UART_TX);
-> }
-> 
-> Need I say more?
+--=-x78MtniSiMbt864hy/ls
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I already know that, but this is not the point. The point is that
-more and more boxes have no serial (or paralel) ports. 
+On Fri, 2002-11-15 at 14:24, Stelian Pop wrote:
 
-But even on those boxes, sometimes I'd just love to be able to use
-kgdb. And I can't.
+> Using USB instead of the serial line or the network card would be
+> the best IMHO, because:
+>=20
+> 	* many machines have network cards, but all machines have USB
+> 	  (and it's gonna stay this way for some time)
+> 	 =20
+> 	* the USB stack seems simpler than the net stack +=20
+> 	  (eventualy) pcmcia + network card driver.
+>=20
+> Maybe the 'simpler' USB protocols (usbkbd and usbmouse) could be
+> used for this, I don't know...
 
-Ok, it will have to be at a higher level than the inb/outb serial
-transport implementation (with possible bad effects on what can
-and what cannot be debugged), but still, I feel there is a need
-for that.
+USB hardware and protocols are master-slave, meaning that you can not
+connect another computer to this one directly. What USB *device* would
+you want to see connected?
 
-USB (with USB-to-serial adapter), network, ieee1394 would be 
-acceptable replacements for me.
+Of course, a USB-Serial adapter would work, and you can connect any
+serial terminal, but then we are back to using serial ports; it's just
+you will need a different driver for that.
 
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+Dmitri
+
+
+--=-x78MtniSiMbt864hy/ls
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA91XmHiqqasvm69/IRAhi3AJ4jYhv/xHapX0Y7SlbB9aRiL6NaogCeNbj4
+CBEUpLkP+kKw39pRTl530o4=
+=pu7H
+-----END PGP SIGNATURE-----
+
+--=-x78MtniSiMbt864hy/ls--
+

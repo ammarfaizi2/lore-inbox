@@ -1,78 +1,132 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312294AbSDPKaA>; Tue, 16 Apr 2002 06:30:00 -0400
+	id <S312031AbSDPK1x>; Tue, 16 Apr 2002 06:27:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312316AbSDPK1z>; Tue, 16 Apr 2002 06:27:55 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:55825 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S312294AbSDPK1s>;
-	Tue, 16 Apr 2002 06:27:48 -0400
-Date: Tue, 16 Apr 2002 12:25:10 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Aaron Tiensivu <mojomofo@mojomofo.com>
+	id <S312316AbSDPK1w>; Tue, 16 Apr 2002 06:27:52 -0400
+Received: from support.kovair.com ([209.66.77.36]:13747 "EHLO tbdnetworks.com.")
+	by vger.kernel.org with ESMTP id <S312031AbSDPK1r>;
+	Tue, 16 Apr 2002 06:27:47 -0400
+Subject: Re: [PATCH] 2.5.8 IDE 36
+From: Norbert Kiesel <nkiesel@tbdnetworks.com>
+To: Martin Dalecki <dalecki@evision-ventures.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IDE TCQ #4
-Message-ID: <20020416102510.GI17043@suse.de>
-In-Reply-To: <20020415125606.GR12608@suse.de> <02db01c1e498$7180c170$58dc703f@bnscorp.com>
+In-Reply-To: <3CBBECCF.1050000@evision-ventures.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-OwLextlAwTr9bx/ti1Bb"
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 16 Apr 2002 03:20:10 -0700
+Message-Id: <1018952413.12635.42.camel@voyager>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="4bRzO86E/ozDv8r1"
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---4bRzO86E/ozDv8r1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-OwLextlAwTr9bx/ti1Bb
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 15 2002, Aaron Tiensivu wrote:
-> Simple question but hopefully it has a simple answer.. is there a command
-> you can issue or flag you can look for from the output of hdparm to tell if
-> your hard drive is capable of TCQ before installing the patch? I have a few
-> IBM drives that I'm sure have TCQ abilities but I don't trust them as far as
-> I can throw them (being Hungarian and cursed) but I'd like to give TCQ a
-> whirl on my WD 120GB drives that should work OK, if they support TCQ..
-> 
-> Sorry if it's already been asked.. :)
+I can for sure provide a patch, testing will take a bit longer because I
+currently only use 2.4.x. Give me 24h...
 
-Mark Hahn wrote this little script to detect support for TCQ, modified
-by me to not use the hdX symlinks.
+--nk
 
--- 
-Jens Axboe
+On Tue, 2002-04-16 at 02:20, Martin Dalecki wrote:
+> Norbert Kiesel wrote:
+> > On Tue, 2002-04-16 at 01:21, Martin Dalecki wrote:
+> >=20
+> >>Norbert Kiesel wrote:
+> >>
+> >>>Hi,
+> >>>
+> >>>while trying to understand recent kernel changes I stumbled over
+> >>>the following patch to
+> >>>=20
+> >>>diff -urN linux-2.5.8/drivers/ide/ide.c linux/drivers/ide/ide.c
+> >>>--- linux-2.5.8/drivers/ide/ide.c	Tue Apr 16 06:01:07 2002
+> >>>+++ linux/drivers/ide/ide.c	Tue Apr 16 05:38:37 2002
+> >>>
+> >>>...
+> >>> while (i > 0) {
+> >>>-		u32 buffer[16];
+> >>>-		unsigned int wcount =3D (i > 16) ? 16 : i;
+> >>>-		i -=3D wcount;
+> >>>-		ata_input_data (drive, buffer, wcount);
+> >>>+		u32 buffer[SECTOR_WORDS];
+> >>>+		unsigned int count =3D (i > 1) ? 1 : i;
+> >>>+
+> >>>+		ata_read(drive, buffer, count * SECTOR_WORDS);
+> >>>+		i -=3D count;
+> >>> 	}
+> >>> }
+> >>>...
+> >>>
+> >>>While the old code called ata_input_read() with [0:16] as last param,
+> >>>the new code calls the (renamed) ata_read() with either 0 or 16. Also,
+> >>>the new code loops "i" times while the old code looped "i/16+1" times.
+> >>>Was this intended or should the patch better read like:
+> >>>
+> >>>...
+> >>> while (i > 0) {
+> >>>-               u32 buffer[16];
+> >>>-               unsigned int wcount =3D (i > 16) ? 16 : i;
+> >>>-               i -=3D wcount;
+> >>>-               ata_input_data (drive, buffer, wcount);
+> >>>+               u32 buffer[SECTOR_WORDS];
+> >>>+               unsigned int count =3D max(i, SECTOR_WORDS);
+> >>>+
+> >>>+               ata_read(drive, buffer, count);
+> >>>+               i -=3D count;
+> >>>        }
+> >>> }
+> >>>...
+> >>>
+> >>>so long
+> >>
+> >>It's fine as it is I think. Please look up at the initialization of i.
+> >>I have just divded the SECTROT_WORDS (=3D=3D 16) factor out
+> >>of all the places above ata_read.
+> >>
+> >=20
+> >=20
+> > You are right (assuming SECTOR_WORDS =3D=3D 16. I was looking it up in
+> > 2.4.18 where SECTOR_WORDS is 512/4 =3D=3D 128).  However, the new code =
+looks
+> > overly complicated (at least for me, easily proven by my wrong first
+> > email :-), given that count is now always =3D=3D 1.  Would the followin=
+g not
+> > be nicer?
+> >=20
+> > 	int i;
+> >=20
+> > 	if (drive->type !=3D ATA_DISK)
+> > 		return;
+> >=20
+> > 	for (i =3D min(drive->mult_count, 1); i > 0; i--) {
+> > 		u32 buffer[SECTOR_WORDS];
+> >=20
+> > 		ata_read(drive, buffer, SECTOR_WORDS);
+> > 	}
+> >=20
+> > (This of course assumes that drive->mult_count is always non-negative)
+>=20
+> Yes this looks nicer. Would you mind to test it and drop me
+> a patch?
+>=20
+--=20
+Key fingerprint =3D 6C58 F18D 4747 3295 F2DB  15C1 3882 4302 F8B4 C11C
 
+--=-OwLextlAwTr9bx/ti1Bb
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
---4bRzO86E/ozDv8r1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=tcq_support
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-#!/usr/bin/perl
+iD8DBQA8u/raOIJDAvi0wRwRAj3lAJsEBVlda+JD2MEZi8CwcICAJ/Kz7ACglFHM
+GcrfnRP/8el6pMIkozogJg8=
+=eBaV
+-----END PGP SIGNATURE-----
 
-# bit 1 (TCQ) and 14 (word is valid) must be set to indicate tcq support
-$mask = (1 << 1) | (1 << 14);
+--=-OwLextlAwTr9bx/ti1Bb--
 
-# bit 15 must be cleared too
-$bits = $mask | (1 << 15);
-
-# mail me the results!
-$addr = "linux-tcq\@kernel.dk";
-
-foreach $i (</proc/ide/ide*>) {
-	foreach $d (<$i/hd*>) {
-		@words = split(/\s/,`cat $d/identify`);
-		$w83 = hex($words[83]);
-		if (!(($w83 & $bits) ^ $mask)) {
-			$model = `cat $d/model`;
-			push(@goodies, $model);
-			chomp($model);
-			print "$d ($model) supports TCQ\n";
-		}
-	}
-}
-
-if ($addr && $#goodies) {
-	open(M, "| mail -s TCQ-report $addr");
-	print M @goodies;
-	close(M);
-}
-
---4bRzO86E/ozDv8r1--

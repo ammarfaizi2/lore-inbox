@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267063AbRGJSZQ>; Tue, 10 Jul 2001 14:25:16 -0400
+	id <S267066AbRGJS10>; Tue, 10 Jul 2001 14:27:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267061AbRGJSZG>; Tue, 10 Jul 2001 14:25:06 -0400
-Received: from altair.alt.iph.ras.ru ([194.67.87.171]:4868 "EHLO
-	altair.office.altlinux.ru") by vger.kernel.org with ESMTP
-	id <S267052AbRGJSYz>; Tue, 10 Jul 2001 14:24:55 -0400
-Date: Tue, 10 Jul 2001 22:24:17 +0400
-From: Konstantin Volckov <goldhead@altlinux.ru>
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Edward Peng." <edward_peng@dlink.com.tw>
-Subject: PATCH for dl2k driver
-Message-Id: <20010710222417.26dedb99.goldhead@altlinux.ru>
-Organization: ALT Linux
-X-Mailer: Sylpheed version 0.4.99 (GTK+ 1.2.10; i586-alt-linux)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Tue__10_Jul_2001_22:24:17_+0400_081a1e38"
+	id <S267065AbRGJS1Q>; Tue, 10 Jul 2001 14:27:16 -0400
+Received: from smtp-server2.tampabay.rr.com ([65.32.1.39]:60372 "EHLO
+	smtp-server2.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id <S267066AbRGJS1C>; Tue, 10 Jul 2001 14:27:02 -0400
+Message-ID: <01cb01c1096d$e9052bc0$b6562341@cfl.rr.com>
+From: "Mike Black" <mblack@csihq.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: "Andreas Dilger" <adilger@turbolinux.com>,
+        "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>,
+        "Ext2 development mailing list" <ext2-devel@lists.sourceforge.net>
+In-Reply-To: <200107101752.f6AHqXUu022141@webber.adilger.int> <018101c1096a$17e2afc0$b6562341@cfl.rr.com> <20010710191719.B1493@redhat.com>
+Subject: Re: [Ext2-devel] Re: 2.4.6 and ext3-2.4-0.9.1-246
+Date: Tue, 10 Jul 2001 14:27:00 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+So it sounds like theres no advantage then to a swap partition vs file?
 
---Multipart_Tue__10_Jul_2001_22:24:17_+0400_081a1e38
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+----- Original Message -----
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: "Mike Black" <mblack@csihq.com>
+Cc: "Andreas Dilger" <adilger@turbolinux.com>; "linux-kernel@vger.kernel.or"
+<linux-kernel@vger.kernel.org>; "Ext2 development mailing list"
+<ext2-devel@lists.sourceforge.net>
+Sent: Tuesday, July 10, 2001 2:17 PM
+Subject: Re: [Ext2-devel] Re: 2.4.6 and ext3-2.4-0.9.1-246
 
-Hi!
 
-There is a mistake in dl2k.c network driver added in 2.4.6-ac2.
+> Hi,
+>
+> On Tue, Jul 10, 2001 at 01:59:40PM -0400, Mike Black wrote:
+> > Yep -- I said __files__ -- I'm less concerned about performance than
+> > reliability -- I don't think you can RAID1 a swap partition can you?
+>
+> You can on 2.4.  2.2 would let you do it but it was unsafe --- swap
+> could interact badly with raid reconstruction.  2.4 should be OK.
+>
+> > Also,
+> > having it in files allows me to easily add more swap as needed.
+> > As far as journalling mode I just used tune2fs to put a journal on with
+> > default parameters so I assume that's full journaling.
+>
+> The swap code bypasses filesystem writes: all it does is to ask the
+> filesystem where on disk the data resides, then it performs IO
+> straight to those disk blocks.  The data journaling mode doesn't
+> really matter there.
+>
+> Cheers,
+>  Stephen
 
-Without this patch gcc-2.95.3 produces a broken symbol __ucmpdi2, while
-gcc-2.96 works ok.
-
--- 
-Good luck,
-Konstantin
-
---Multipart_Tue__10_Jul_2001_22:24:17_+0400_081a1e38
-Content-Type: application/octet-stream;
- name="linux-2.4.6-ac2-dl2k.patch"
-Content-Disposition: attachment;
- filename="linux-2.4.6-ac2-dl2k.patch"
-Content-Transfer-Encoding: base64
-
-LS0tIGxpbnV4L2RyaXZlcnMvbmV0L2RsMmsuY19vbGQJVHVlIEp1bCAxMCAxOTowNTozMyAyMDAx
-CisrKyBsaW51eC9kcml2ZXJzL25ldC9kbDJrLmMJVHVlIEp1bCAxMCAyMjoxMToyMSAyMDAxCkBA
-IC01NTksNyArNTU5LDcgQEAKIAkJCX0KIAkJfQogCQkvKiBGcmVlIHVzZWQgdHggc2tidWZmcyAq
-LwotCQlmb3IgKDsgbnAtPmN1cl90eCAtIG5wLT5vbGRfdHggPiAwOyBucC0+b2xkX3R4KyspIHsK
-KwkJZm9yICg7IG5wLT5jdXJfdHggPiBucC0+b2xkX3R4OyBucC0+b2xkX3R4KyspIHsKIAkJCWlu
-dCBlbnRyeSA9IG5wLT5vbGRfdHggJSBUWF9SSU5HX1NJWkU7CiAJCQlpZiAoIShucC0+dHhfcmlu
-Z1tlbnRyeV0uc3RhdHVzICYgVEZERG9uZSkpCiAJCQkJYnJlYWs7CkBAIC03MTAsNyArNzEwLDcg
-QEAKIAl9CiAKIAkvKiBSZS1hbGxvY2F0ZSBza2J1ZmZzIHRvIGZpbGwgdGhlIGRlc2NyaXB0b3Ig
-cmluZyAqLwotCWZvciAoOyBucC0+Y3VyX3J4IC0gbnAtPm9sZF9yeCA+IDA7IG5wLT5vbGRfcngr
-KykgeworCWZvciAoOyBucC0+Y3VyX3J4ID4gbnAtPm9sZF9yeDsgbnAtPm9sZF9yeCsrKSB7CiAJ
-CXN0cnVjdCBza19idWZmICpza2I7CiAJCWVudHJ5ID0gbnAtPm9sZF9yeCAlIFJYX1JJTkdfU0la
-RTsKIAkJLyogRHJvcHBlZCBwYWNrZXRzIGRvbid0IG5lZWQgdG8gcmUtYWxsb2NhdGUgKi8K
-
---Multipart_Tue__10_Jul_2001_22:24:17_+0400_081a1e38--

@@ -1,125 +1,185 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267791AbTBEENc>; Tue, 4 Feb 2003 23:13:32 -0500
+	id <S267790AbTBEEOp>; Tue, 4 Feb 2003 23:14:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267787AbTBEEMq>; Tue, 4 Feb 2003 23:12:46 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:11790 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267788AbTBEEMI>;
-	Tue, 4 Feb 2003 23:12:08 -0500
-Date: Tue, 4 Feb 2003 20:17:29 -0800
+	id <S267793AbTBEENu>; Tue, 4 Feb 2003 23:13:50 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:12558 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267789AbTBEEM1>;
+	Tue, 4 Feb 2003 23:12:27 -0500
+Date: Tue, 4 Feb 2003 20:17:48 -0800
 From: Greg KH <greg@kroah.com>
 To: linux-security-module@wirex.com, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] LSM changes for 2.5.59
-Message-ID: <20030205041729.GF16823@kroah.com>
-References: <20030205041538.GA16823@kroah.com> <20030205041611.GB16823@kroah.com> <20030205041632.GC16823@kroah.com> <20030205041651.GD16823@kroah.com> <20030205041707.GE16823@kroah.com>
+Message-ID: <20030205041748.GG16823@kroah.com>
+References: <20030205041538.GA16823@kroah.com> <20030205041611.GB16823@kroah.com> <20030205041632.GC16823@kroah.com> <20030205041651.GD16823@kroah.com> <20030205041707.GE16823@kroah.com> <20030205041729.GF16823@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030205041707.GE16823@kroah.com>
+In-Reply-To: <20030205041729.GF16823@kroah.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.983, 2003/02/05 14:32:08+11:00, sds@epoch.ncsc.mil
+ChangeSet 1.984, 2003/02/05 14:37:12+11:00, sds@epoch.ncsc.mil
 
-[PATCH] LSM: Add LSM sysctl hook to 2.5.59
+[PATCH] LSM: Add LSM syslog hook to 2.5.59
 
-This patch adds a LSM sysctl hook for controlling access to
-sysctl variables to 2.5.59, split out from the lsm-2.5 BitKeeper tree.
-SELinux uses this hook to control such accesses in accordance with the
-security policy configuration.
+This patch adds the LSM security_syslog hook for controlling the
+syslog(2) interface relative to 2.5.59 plus the previously posted
+security_sysctl patch.  In response to earlier comments by Christoph,
+the existing capability check for syslog(2) is moved into the
+capability security module hook function, and a corresponding dummy
+security module hook function is defined that provides traditional
+superuser behavior.  The LSM hook is placed in do_syslog rather than
+sys_syslog so that it is called when either the system call interface
+or the /proc/kmsg interface is used.  SELinux uses this hook to
+control access to the kernel message ring and to the console log
+level.
 
 
 diff -Nru a/include/linux/security.h b/include/linux/security.h
---- a/include/linux/security.h	Wed Feb  5 14:58:19 2003
-+++ b/include/linux/security.h	Wed Feb  5 14:58:19 2003
-@@ -767,6 +767,12 @@
-  *	is NULL.
-  *	@file contains the file structure for the accounting file (may be NULL).
-  *	Return 0 if permission is granted.
-+ * @sysctl:
-+ *	Check permission before accessing the @table sysctl variable in the
-+ *	manner specified by @op.
-+ *	@table contains the ctl_table structure for the sysctl variable.
-+ *	@op contains the operation (001 = search, 002 = write, 004 = read).
-+ *	Return 0 if permission is granted.
-  * @capable:
-  *	Check whether the @tsk process has the @cap capability.
+--- a/include/linux/security.h	Wed Feb  5 14:58:15 2003
++++ b/include/linux/security.h	Wed Feb  5 14:58:15 2003
+@@ -47,6 +47,7 @@
+ extern int cap_task_post_setuid (uid_t old_ruid, uid_t old_euid, uid_t old_suid, int flags);
+ extern void cap_task_kmod_set_label (void);
+ extern void cap_task_reparent_to_init (struct task_struct *p);
++extern int cap_syslog (int type);
+ 
+ /*
+  * Values used in the task_security_ops calls
+@@ -778,6 +779,12 @@
   *	@tsk contains the task_struct for the process.
-@@ -798,6 +804,7 @@
- 			    kernel_cap_t * inheritable,
- 			    kernel_cap_t * permitted);
- 	int (*acct) (struct file * file);
-+	int (*sysctl) (ctl_table * table, int op);
+  *	@cap contains the capability <include/linux/capability.h>.
+  *	Return 0 if the capability is granted for @tsk.
++ * @syslog:
++ *	Check permission before accessing the kernel message ring or changing
++ *	logging to the console.
++ *	See the syslog(2) manual page for an explanation of the @type values.  
++ *	@type contains the type of action.
++ *	Return 0 if permission is granted.
+  *
+  * @register_security:
+  * 	allow module stacking.
+@@ -808,6 +815,7 @@
  	int (*capable) (struct task_struct * tsk, int cap);
  	int (*quotactl) (int cmds, int type, int id, struct super_block * sb);
  	int (*quota_on) (struct file * f);
-@@ -990,6 +997,11 @@
- 	return security_ops->acct (file);
++	int (*syslog) (int type);
+ 
+ 	int (*bprm_alloc_security) (struct linux_binprm * bprm);
+ 	void (*bprm_free_security) (struct linux_binprm * bprm);
+@@ -1013,6 +1021,11 @@
+ 	return security_ops->quota_on (file);
  }
  
-+static inline int security_sysctl(ctl_table * table, int op)
++static inline int security_syslog(int type)
 +{
-+	return security_ops->sysctl(table, op);
++	return security_ops->syslog(type);
 +}
 +
- static inline int security_quotactl (int cmds, int type, int id,
- 				     struct super_block *sb)
+ static inline int security_bprm_alloc (struct linux_binprm *bprm)
  {
-@@ -1595,6 +1607,11 @@
- }
- 
- static inline int security_acct (struct file *file)
-+{
-+	return 0;
-+}
-+
-+static inline int security_sysctl(ctl_table * table, int op)
+ 	return security_ops->bprm_alloc_security (bprm);
+@@ -1625,6 +1638,11 @@
+ static inline int security_quota_on (struct file * file)
  {
  	return 0;
++}
++
++static inline int security_syslog(int type)
++{
++	return cap_syslog(type);
  }
-diff -Nru a/kernel/sysctl.c b/kernel/sysctl.c
---- a/kernel/sysctl.c	Wed Feb  5 14:58:19 2003
-+++ b/kernel/sysctl.c	Wed Feb  5 14:58:19 2003
-@@ -33,6 +33,7 @@
- #include <linux/highuid.h>
- #include <linux/writeback.h>
- #include <linux/hugetlb.h>
+ 
+ static inline int security_bprm_alloc (struct linux_binprm *bprm)
+diff -Nru a/kernel/printk.c b/kernel/printk.c
+--- a/kernel/printk.c	Wed Feb  5 14:58:15 2003
++++ b/kernel/printk.c	Wed Feb  5 14:58:15 2003
+@@ -28,6 +28,7 @@
+ #include <linux/config.h>
+ #include <linux/delay.h>
+ #include <linux/smp.h>
 +#include <linux/security.h>
+ 
  #include <asm/uaccess.h>
  
- #ifdef CONFIG_ROOT_NFS
-@@ -432,6 +433,10 @@
+@@ -161,6 +162,10 @@
+ 	char c;
+ 	int error = 0;
  
- static inline int ctl_perm(ctl_table *table, int op)
- {
-+	int error;
-+	error = security_sysctl(table, op);
++	error = security_syslog(type);
 +	if (error)
 +		return error;
- 	return test_perm(table->mode, op);
++
+ 	switch (type) {
+ 	case 0:		/* Close log */
+ 		break;
+@@ -273,8 +278,6 @@
+ 
+ asmlinkage long sys_syslog(int type, char * buf, int len)
+ {
+-	if ((type != 3) && !capable(CAP_SYS_ADMIN))
+-		return -EPERM;
+ 	return do_syslog(type, buf, len);
  }
  
-diff -Nru a/security/dummy.c b/security/dummy.c
---- a/security/dummy.c	Wed Feb  5 14:58:19 2003
-+++ b/security/dummy.c	Wed Feb  5 14:58:19 2003
-@@ -75,6 +75,11 @@
- 	return -EPERM;
+diff -Nru a/security/capability.c b/security/capability.c
+--- a/security/capability.c	Wed Feb  5 14:58:15 2003
++++ b/security/capability.c	Wed Feb  5 14:58:15 2003
+@@ -262,6 +262,13 @@
+ 	return;
  }
  
-+static int dummy_sysctl (ctl_table * table, int op)
++int cap_syslog (int type)
 +{
++	if ((type != 3) && !capable(CAP_SYS_ADMIN))
++		return -EPERM;
 +	return 0;
 +}
 +
- static int dummy_quotactl (int cmds, int type, int id, struct super_block *sb)
+ EXPORT_SYMBOL(cap_capable);
+ EXPORT_SYMBOL(cap_ptrace);
+ EXPORT_SYMBOL(cap_capget);
+@@ -272,6 +279,7 @@
+ EXPORT_SYMBOL(cap_task_post_setuid);
+ EXPORT_SYMBOL(cap_task_kmod_set_label);
+ EXPORT_SYMBOL(cap_task_reparent_to_init);
++EXPORT_SYMBOL(cap_syslog);
+ 
+ #ifdef CONFIG_SECURITY
+ 
+@@ -289,6 +297,8 @@
+ 	.task_post_setuid =		cap_task_post_setuid,
+ 	.task_kmod_set_label =		cap_task_kmod_set_label,
+ 	.task_reparent_to_init =	cap_task_reparent_to_init,
++
++	.syslog =                       cap_syslog,
+ };
+ 
+ #if defined(CONFIG_SECURITY_CAPABILITIES_MODULE)
+diff -Nru a/security/dummy.c b/security/dummy.c
+--- a/security/dummy.c	Wed Feb  5 14:58:15 2003
++++ b/security/dummy.c	Wed Feb  5 14:58:15 2003
+@@ -90,6 +90,13 @@
+ 	return 0;
+ }
+ 
++static int dummy_syslog (int type)
++{
++	if ((type != 3) && current->euid)
++		return -EPERM;
++	return 0;
++}
++
+ static int dummy_bprm_alloc_security (struct linux_binprm *bprm)
  {
  	return 0;
-@@ -634,6 +639,7 @@
- 	set_to_dummy_if_null(ops, capable);
+@@ -640,6 +647,7 @@
  	set_to_dummy_if_null(ops, quotactl);
  	set_to_dummy_if_null(ops, quota_on);
-+	set_to_dummy_if_null(ops, sysctl);
+ 	set_to_dummy_if_null(ops, sysctl);
++	set_to_dummy_if_null(ops, syslog);
  	set_to_dummy_if_null(ops, bprm_alloc_security);
  	set_to_dummy_if_null(ops, bprm_free_security);
  	set_to_dummy_if_null(ops, bprm_compute_creds);

@@ -1,73 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265972AbUAQBNj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 20:13:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUAQBNj
+	id S265966AbUAQBX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 20:23:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265967AbUAQBX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 20:13:39 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:28399 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265972AbUAQBMu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 20:12:50 -0500
-Date: Sat, 17 Jan 2004 02:12:47 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jan Hubicka <jh@suse.cz>
-Cc: Andi Kleen <ak@muc.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add -Winline
-Message-ID: <20040117011246.GC12027@fs.tum.de>
-References: <20040114090743.GA1975@averell> <20040115124204.GY23383@fs.tum.de> <20040115125544.GL5018@kam.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040115125544.GL5018@kam.mff.cuni.cz>
-User-Agent: Mutt/1.4.1i
+	Fri, 16 Jan 2004 20:23:58 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:59638 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S265966AbUAQBX5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 20:23:57 -0500
+Message-ID: <40088E9D.1010908@mvista.com>
+Date: Fri, 16 Jan 2004 17:23:41 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+CC: Pavel Machek <pavel@suse.cz>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
+       Matt Mackall <mpm@selenic.com>, discuss@x86-64.org
+Subject: Re: KGDB 2.0.3 with fixes and development in ethernet interface
+References: <200401161759.59098.amitkale@emsyssoft.com> <20040116215144.GA208@elf.ucw.cz>
+In-Reply-To: <20040116215144.GA208@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 15, 2004 at 01:55:44PM +0100, Jan Hubicka wrote:
-> > On Wed, Jan 14, 2004 at 10:07:43AM +0100, Andi Kleen wrote:
-> > > 
-> > > Add -Winline by default. This makes the compiler warn when something
-> > > marked inline is not getting inlined. This is often because the 
-> > > 
-> > > It should only make a difference with gcc 3.4, because in earlier
-> > > compilers we use always_inline and not inlining with always_inline
-> > > is an error already.
-> > >...
-> > 
-> > Attached are all inlining warnings I get with this patch applied in
-> > 2.6.1-mm3 using gcc 3.3.3 20040110 (prerelease) (Debian).
-> > 
-> > I've gzip'ed it since it was > 100 kB.
-> > 
-> > A few warnings might be missing since I used a .config with 
-> > CONFIG_SMP=y.
+Pavel Machek wrote:
+> Hi!
 > 
-> Are you sure that you do use always_inline?  (ie can you look into one
-> of preprocessed file for declaration of some of failed functions?)
+> 
+>>KGDB 2.0.3 is available at 
+>>http://kgdb.sourceforge.net/kgdb-2/linux-2.6.1-kgdb-2.0.3.tar.bz2
+>>
+>>Ethernet interface still doesn't work. It responds to gdb for a couple of 
+>>packets and then panics. gdb log for ethernet interface is pasted below.
+>>
+>>It panics and enter kgdb_handle_exception recursively and silently. To see the 
+>>panic on screen make kgdb_handle_exception return immediately if 
+>>kgdb_connected is non-zero. 
+>>
+>>Panic trace is pasted below. It panics in skb_release_data. Looks like skb 
+>>handling will have to changed to be have kgdb specific buffers.
+> 
+> 
+> This seems to be needed (if I unselect CONFIG_KGDB_THREAD, I get
+> compile error on x86-64).
 
-Yes, e.g. in drivers/ieee1394/eth1394.c:
-
-<--  snip  -->
-
-...
-static __inline__ __attribute__((always_inline)) __attribute__((always_inline)) 
-void purge_partial_datagram(struct list_head *old)
-{
-...
-
-<--  snip  -->
-
-
-> Honza
-
-cu
-Adrian
+Amit, could you explain why this is an option?  It seems very useful and not 
+really too much code...
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

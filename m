@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbVBHXJx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVBHXWC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbVBHXJx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 18:09:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVBHXJx
+	id S261683AbVBHXWC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 18:22:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbVBHXWC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 18:09:53 -0500
-Received: from hera.kernel.org ([209.128.68.125]:55983 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261681AbVBHXJt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 18:09:49 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: [PATCH] Re: msdos/vfat defaults are annoying
-Date: Tue, 8 Feb 2005 23:09:31 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <cubgrb$39e$1@terminus.zytor.com>
-References: <4205AC37.3030301@comcast.net> <20050207004218.GA12541@ojjektum.uhulinux.hu> <20050207024800.GA18010@hobbes.itsari.int> <20050207084709.GA30680@ojjektum.uhulinux.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1107904171 3375 127.0.0.1 (8 Feb 2005 23:09:31 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Tue, 8 Feb 2005 23:09:31 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+	Tue, 8 Feb 2005 18:22:02 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:32456 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261683AbVBHXV7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 18:21:59 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [RFC][PATCH] swsusp: do not use higher order allocations on resume [update 2]
+Date: Wed, 9 Feb 2005 00:22:52 +0100
+User-Agent: KMail/1.7.1
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Hu Gang <hugang@soulinfo.com>
+References: <200501310019.39526.rjw@sisk.pl> <200502081929.19503.rjw@sisk.pl> <20050208224202.GD1347@elf.ucw.cz>
+In-Reply-To: <20050208224202.GD1347@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502090022.52629.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20050207084709.GA30680@ojjektum.uhulinux.hu>
-By author:    =?iso-8859-1?Q?Pozs=E1r_Bal=E1zs?= <pozsy@uhulinux.hu>
-In newsgroup: linux.dev.kernel
+On Tuesday, 8 of February 2005 23:42, Pavel Machek wrote:
+> Hi!
 > 
-> Granted, I could override the default order by using a /etc/filesystems 
-> file. But the kernel should have a much more sane default on its own, 
-> namely "try vfat before msdos".
+> > +static inline void eat_page(void *page) {
 > 
+> Please put { on new line.
 
-What it really means is that mount(8) should know this is a special
-case; presumably it already knows to try ext3 over ext2.
+Oh, I still tend to forget about this.  Corrected in the patch that is
+available on the web
+(http://www.sisk.pl/kernel/patches/2.6.11-rc3-mm1/swsusp-use-list-resume-v4.patch).
 
-	-hpa
 
+> Okay, as you can see, I could find very little wrong with this
+> patch. That hopefully means it is okay ;-). I should still check error
+> handling, but I guess I'll do it when it is applied because it is hard
+> to do on a diff. I guess it should go into -mm just after 2.6.11 is
+> released...
+
+That would be great!
+
+Greets,
+Rafael
+
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283268AbRL2PVk>; Sat, 29 Dec 2001 10:21:40 -0500
+	id <S283244AbRL2PPk>; Sat, 29 Dec 2001 10:15:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283588AbRL2PVa>; Sat, 29 Dec 2001 10:21:30 -0500
-Received: from moutng0.kundenserver.de ([212.227.126.170]:49141 "EHLO
-	moutng0.schlund.de") by vger.kernel.org with ESMTP
-	id <S283268AbRL2PVW>; Sat, 29 Dec 2001 10:21:22 -0500
-Date: Sat, 29 Dec 2001 16:16:55 +0100
-From: Heinz Diehl <hd@cavy.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.5.2-pre3] nfs build broken
-Message-ID: <20011229151655.GA6080@elfie.cavy.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S283268AbRL2PPV>; Sat, 29 Dec 2001 10:15:21 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:29517 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S283244AbRL2PPQ>; Sat, 29 Dec 2001 10:15:16 -0500
+Date: Sat, 29 Dec 2001 16:15:37 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andreas Hartmann <andihartmann@freenet.de>
+Cc: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20011229161537.F1356@athlon.random>
+In-Reply-To: <3C2CD326.100@athlon.maya.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.24-current-20011226i (Linux 2.4.17-spc i586)
-Organization: private site in Mannheim/Germany
-X-PGP-Key: To get my public-key, send mail with subject 'get pgpkey'
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3C2CD326.100@athlon.maya.org>; from andihartmann@freenet.de on Fri, Dec 28, 2001 at 09:16:38PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Building of NFS filesystem support somehow got broken in 2.5.2-pre3:
+On Fri, Dec 28, 2001 at 09:16:38PM +0100, Andreas Hartmann wrote:
+> Hello all,
+> 
+> Again, I did a rsync-operation as described in
+> "[2.4.17rc1] Swapping" MID <3C1F4014.2010705@athlon.maya.org>.
+> 
+> This time, the kernel had a swappartition which was about 200MB. As the 
+> swap-partition was fully used, the kernel killed all processes of knode.
+> Nearly 50% of RAM had been used for buffers at this moment. Why is there 
+> so much memory used for buffers?
+> 
+> I know I repeat it, but please:
+> 
+> 	Fix the VM-management in kernel 2.4.x. It's unusable. Believe
+> 	me! As comparison: kernel 2.2.19 didn't need nearly any swap for
+> 	the same operation!
+> 
+> Please consider that I'm using 512 MB of RAM. This should, or better: 
+> must be enough to do the rsync-operation nearly without any swapping - 
+> kernel 2.2.19 does it!
+> 
+> The performance of kernel 2.4.18pre1 is very poor, which is no surprise, 
+> because the machine swaps nearly nonstop.
 
-[....]
+please try to reproduce on 2.4.17rc2aa2, thanks.
 
-make[1]: Nothing to be done for modules_install'.
-make[1]: Leaving directory /usr/src/linux/arch/i386/lib'
-cd /lib/modules/2.5.2-pre3-xs2; \
-mkdir -p pcmcia; \
-find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.2-pre3-xs2;
-fi
-depmod: *** Unresolved symbols in 
-/lib/modules/2.5.2-pre3-xs2/kernel/fs/nfs/nfs.o
-depmod:         seq_escape
-depmod:         seq_printf
-elfie:/usr/src/linux #
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.17rc2aa2.bz2
 
--- 
-# Heinz Diehl, 68259 Mannheim, Germany
+Andrea

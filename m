@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262904AbTCKLv1>; Tue, 11 Mar 2003 06:51:27 -0500
+	id <S262907AbTCKMLi>; Tue, 11 Mar 2003 07:11:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262905AbTCKLv1>; Tue, 11 Mar 2003 06:51:27 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:17669 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S262904AbTCKLv0>; Tue, 11 Mar 2003 06:51:26 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200303111204.h2BC41U7003460@81-2-122-30.bradfords.org.uk>
-Subject: Re: [pointless] mrtg graphs of lkml available
-To: ahu@ds9a.nl (bert hubert)
-Date: Tue, 11 Mar 2003 12:04:01 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030311112624.GA23086@outpost.ds9a.nl> from "bert hubert" at Mar 11, 2003 12:26:24 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S262908AbTCKMLi>; Tue, 11 Mar 2003 07:11:38 -0500
+Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:33676 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S262907AbTCKMLh>; Tue, 11 Mar 2003 07:11:37 -0500
+Importance: Normal
+Sensitivity: 
+Subject: Re: [PATCH][COMPAT] compat_sys_fcntl{,64} 1/9 Generic part
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF690DDAD1.0533780B-ONC1256CE6.00437602@de.ibm.com>
+From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+Date: Tue, 11 Mar 2003 13:20:39 +0100
+X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 11/03/2003 13:21:57
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On http://mrtg.ds9a.nl I now plot lkml, so finally nagging questions like
-> "wow, I can't recall when it was this busy on lkml!" or "is it just me or is
-> the list somewhat quiet right now" can be answered.
-> 
-> It plots messages/hour and kilobytes/hour, times are in CET.
 
-It's excellent, but it really needs to include this indicator as well:
+> Did you notice the use of the address conversion macro? Maybe I missed
+> something myself, but I suppose this will fail on s390 if the msb of arg
+> is not cleared.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=104386070814746&w=2
+True. A(arg) removes the high order bit from arg. This can't be done
+in the system call wrapper because in general arg is a 32 bit parameter.
 
-John.
+blue skies,
+   Martin
+
+

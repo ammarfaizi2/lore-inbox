@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274766AbRJNHxP>; Sun, 14 Oct 2001 03:53:15 -0400
+	id <S274752AbRJNIJI>; Sun, 14 Oct 2001 04:09:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274752AbRJNHwz>; Sun, 14 Oct 2001 03:52:55 -0400
-Received: from cs181088.pp.htv.fi ([213.243.181.88]:9344 "EHLO
-	cs181088.pp.htv.fi") by vger.kernel.org with ESMTP
-	id <S274746AbRJNHwu>; Sun, 14 Oct 2001 03:52:50 -0400
-Message-ID: <3BC9446D.A47CE2C6@welho.com>
-Date: Sun, 14 Oct 2001 10:53:17 +0300
-From: Mika Liljeberg <Mika.Liljeberg@welho.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-ac10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: TCP acking too fast
-In-Reply-To: <3BC8DAF0.3D16A546@welho.com>
-		<20011013.234016.104032175.davem@redhat.com>
-		<3BC9393D.765A156@welho.com> <20011014.005041.39156727.davem@redhat.com>
+	id <S274789AbRJNII7>; Sun, 14 Oct 2001 04:08:59 -0400
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:33421 "EHLO ookhoi.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S274752AbRJNIIo>;
+	Sun, 14 Oct 2001 04:08:44 -0400
+Date: Sun, 14 Oct 2001 10:09:05 +0200
+From: Ookhoi <ookhoi@dds.nl>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Ed Tomlinson <tomlins@CAM.ORG>, linux-kernel@vger.kernel.org
+Subject: Re: mount hanging 2.4.12
+Message-ID: <20011014100905.D30428@humilis>
+Reply-To: ookhoi@dds.nl
+In-Reply-To: <20011014015115.E894D11718@oscar.casa.dyndns.org> <Pine.GSO.4.21.0110132201150.3903-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0110132201150.3903-100000@weyl.math.psu.edu>
+User-Agent: Mutt/1.3.19i
+X-Uptime: 12:53:32 up 5 days, 16:11,  9 users,  load average: 0.08, 0.02, 0.01
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
+> > >> He said in his original email that it was a USB SmartMedia reader,
+> > >> which reads the SmartMedia cards used with FujiFilm digital cameras
+> > >> (amongst others). The actual file system is determined by the cards
+> > >> themselves and can't be changed.
+> > 
+> > >Ahem.  Which fs driver is used when it's successfully mounted?
+> > 
+> > fat.  Would an strace help?
 > 
->    From: Mika Liljeberg <Mika.Liljeberg@welho.com>
->    Date: Sun, 14 Oct 2001 10:05:33 +0300
-> 
->    Looking at the dump, it seems that most arriving
->    segments have the PSH bit set.
-> 
-> I know you said what is running on the receiver, but do
-> you have any clue what is running on the sender?  It looks
-> _really_ broken.
-> 
-> The transfer looks like a bulk one but every segment (as you have
-> stated) has PSH set, which is completely stupid.
-> 
-> At least, I can guarentee you that the sender is not Linux.  Or,
-> if it is Linux, it is running a really broken implementation of
-> a web server. :-)
+> It might, but another thing I'd like to see is stack trace of hung mount.
 
-I've got a feeling you're going to rue saying that (see my other email).
-;-)
+I have the same with sony memorystick. Load usb/scsi/fat modules, mount,
+umount, mount again but it fails. I just unload and load all the
+relevant modules again and I can read the stick again. This is with
+2.4.6-ac2 for example.
 
-Regards,
-
-	MikaL
+	Ookhoi

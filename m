@@ -1,57 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262353AbVCVDpD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262247AbVCVD5K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262353AbVCVDpD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 22:45:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbVCVCYC
+	id S262247AbVCVD5K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 22:57:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbVCVDyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 21:24:02 -0500
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:37770 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262282AbVCVBeU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 20:34:20 -0500
-Message-Id: <20050322013454.968649000@abc>
-References: <20050322013427.919515000@abc>
-Date: Tue, 22 Mar 2005 02:23:38 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
+	Mon, 21 Mar 2005 22:54:46 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:737 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262351AbVCVDvc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 22:51:32 -0500
+Subject: ALSA bugs in list [was Re: 2.6.12-rc1-mm1]
+From: Lee Revell <rlrevell@joe-job.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Content-Disposition: inline; filename=dvb-frontends-mt352-comments.patch
-X-SA-Exim-Connect-IP: 217.231.55.169
-Subject: [DVB patch 05/48] mt352: Pinnacle 300i comments
-X-SA-Exim-Version: 4.2 (built Tue, 25 Jan 2005 19:36:50 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+       apatard@mandrakesoft.com
+In-Reply-To: <20050321124159.0fbf1bef.akpm@osdl.org>
+References: <20050321025159.1cabd62e.akpm@osdl.org>
+	 <20050321202022.B16069@flint.arm.linux.org.uk>
+	 <20050321124159.0fbf1bef.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 21 Mar 2005 22:51:30 -0500
+Message-Id: <1111463491.3058.15.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Comment preliminary Pinnacle 300i changes to the mt352 driver.
+On Mon, 2005-03-21 at 12:41 -0800, Andrew Morton wrote:
+> From: bugme-daemon@osdl.org
+> Subject: [Bug 4282] ALSA driver in Linux 2.6.11 causes a kernel panic when loading the EMU10K1 driver
+> 
 
-Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
+This one is a real mystery.  No one can reproduce it.
 
- mt352.c |    4 ++++
- 1 files changed, 4 insertions(+)
+> From: bugme-daemon@osdl.org
+> Subject: [Bugme-new] [Bug 4348] New: snd_emu10k1 oops'es with Audigy 2 and
+> 
 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/mt352.c
+This one is fixed in ALSA CVS.  Here is the patch.
+
+Lee
+
+Summary: fix oopses in emu10k1 mixer
+
+Signed-Off-By: Arnaud Patard <apatard@mandrakesoft.com>
+
+Index: emumixer.c
 ===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/frontends/mt352.c	2005-03-21 23:27:59.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/frontends/mt352.c	2005-03-22 00:14:46.000000000 +0100
-@@ -294,6 +294,8 @@ static int mt352_set_parameters(struct d
- 	state->config->pll_set(fe, param, buf+8);
- 
- #if 0 /* FIXME: should be catched elsewhere ... */
-+	/* this dubious code which helped on some cards does not work for
-+	 * the pinnacle 300i */
- 	/* Only send the tuning request if the tuner doesn't have the requested
- 	 * parameters already set.  Enhances tuning time and prevents stream
- 	 * breakup when retuning the same transponder. */
-@@ -435,6 +437,8 @@ static int mt352_read_status(struct dvb_
- {
- 	struct mt352_state* state = (struct mt352_state*) fe->demodulator_priv;
- #if 1
-+	/* the pinnacle 300i loses lock if the STATUS_x registers
-+	 * are polled too often... */
- 	int val;
- 
- 	if (0 != mt352_read_register(state, INTERRUPT_0)) {
+RCS file: /cvsroot/alsa/alsa-kernel/pci/emu10k1/emumixer.c,v
+retrieving revision 1.32
+diff -u -r1.32 emumixer.c
+--- emumixer.c	13 Mar 2005 12:17:09 -0000	1.32
++++ emumixer.c	16 Mar 2005 17:10:10 -0000
+@@ -482,9 +482,13 @@
+ 			change = 1;
+ 		}
+ 	}	
+-	if (change && mix->epcm->voices[ch])
+-		update_emu10k1_fxrt(emu, mix->epcm->voices[ch]->number,
+-				    &mix->send_routing[0][0]);
++
++	if (change && mix->epcm) {
++		if (mix->epcm->voices[ch]) {
++			update_emu10k1_fxrt(emu, mix->epcm->voices[ch]->number,
++					&mix->send_routing[0][0]);
++		}
++	}
+ 	spin_unlock_irqrestore(&emu->reg_lock, flags);
+ 	return change;
+ }
+@@ -544,9 +548,12 @@
+ 			change = 1;
+ 		}
+ 	}
+-	if (change && mix->epcm->voices[ch])
+-		update_emu10k1_send_volume(emu, mix->epcm->voices[ch]->number,
+-					   &mix->send_volume[0][0]);
++	if (change && mix->epcm) {
++		if (mix->epcm->voices[ch]) {
++			update_emu10k1_send_volume(emu, mix->epcm->voices[ch]->number,
++						   &mix->send_volume[0][0]);
++		}
++	}
+ 	spin_unlock_irqrestore(&emu->reg_lock, flags);
+ 	return change;
+ }
+@@ -600,8 +607,11 @@
+ 		mix->attn[0] = val;
+ 		change = 1;
+ 	}
+-	if (change && mix->epcm->voices[ch])
+-		snd_emu10k1_ptr_write(emu, VTFT_VOLUMETARGET, mix->epcm->voices[ch]->number, mix->attn[0]);
++	if (change && mix->epcm) {
++		if (mix->epcm->voices[ch]) {
++			snd_emu10k1_ptr_write(emu, VTFT_VOLUMETARGET, mix->epcm->voices[ch]->number, mix->attn[0]);
++		}
++	}
+ 	spin_unlock_irqrestore(&emu->reg_lock, flags);
+ 	return change;
+ }
 
---
+
+
 

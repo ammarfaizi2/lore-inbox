@@ -1,87 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262023AbSKTSq1>; Wed, 20 Nov 2002 13:46:27 -0500
+	id <S261416AbSKTSqX>; Wed, 20 Nov 2002 13:46:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262067AbSKTSq1>; Wed, 20 Nov 2002 13:46:27 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:50078 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S262023AbSKTSqY>; Wed, 20 Nov 2002 13:46:24 -0500
-Subject: Re: [NFS] Re: Non-blocking lock requests during the grace period ===> unlock
- during grace period?
-To: Mike Kupfer <kupfer@athyra.eng.sun.com>
-Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net,
-       trond.myklebust@fys.uio.no
-X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
-Message-ID: <OF20A29A8A.9BDEB891-ON87256C77.006712BE@us.ibm.com>
-From: Juan Gomez <juang@us.ibm.com>
-Date: Wed, 20 Nov 2002 10:52:20 -0800
-X-MIMETrack: Serialize by Router on D03NM694/03/M/IBM(Release 6.0 [IBM]|November 8, 2002) at
- 11/20/2002 11:53:25
+	id <S262023AbSKTSqX>; Wed, 20 Nov 2002 13:46:23 -0500
+Received: from robur.slu.se ([130.238.98.12]:23826 "EHLO robur.slu.se")
+	by vger.kernel.org with ESMTP id <S261416AbSKTSqV>;
+	Wed, 20 Nov 2002 13:46:21 -0500
+From: Robert Olsson <Robert.Olsson@data.slu.se>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15835.56316.564937.169193@robur.slu.se>
+Date: Wed, 20 Nov 2002 20:01:16 +0100
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, Robert.Olsson@data.slu.se
+Subject: e1000 fixes (NAPI)
+X-Mailer: VM 6.92 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
+Two fixes the NAPI branch of e1000.
 
 
-OK, fair enough. I think I will withdraw my request to 'fix' this. If
-Solaris and other falvors of Unix (i.e. Aix) behave this way I think it
-would not be good to change just Linux.
-The other minor change I proposed earlier was that we allow unlock
-operations during the grace period, and this will be useful in clustered
-NAS heads.
-What do you guys think about such a change?
+1) e1000_irq_disable was used to disable irqs which called synchronize_irq
+   which in turn caused a solid hang on SMP systems.
 
-The main goal here would be to prevent unlock operations from being
-unnecessarily delayed when a cluster node is taking over another node and
-is being set to the grace
-period.
+2) Interrupt acking patch previously sent by DaveM.
 
-Juan
+Cheers.
+						--ro
 
 
 
-|---------+---------------------------->
-|         |           Mike Kupfer      |
-|         |           <kupfer@athyra.en|
-|         |           g.sun.com>       |
-|         |                            |
-|         |           11/20/02 10:23 AM|
-|         |                            |
-|---------+---------------------------->
-  >-------------------------------------------------------------------------------------------------------------------------|
-  |                                                                                                                         |
-  |       To:       Juan Gomez/Almaden/IBM@IBMUS                                                                            |
-  |       cc:       linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net, trond.myklebust@fys.uio.no                     |
-  |       Subject:  Re: [NFS] Re: Non-blocking lock requests during the grace period                                        |
-  |                                                                                                                         |
-  |                                                                                                                         |
-  >-------------------------------------------------------------------------------------------------------------------------|
-
-
-
->>>>> "Juan" == Juan Gomez <juang@us.ibm.com> writes:
-
-    Juan> However, I feel it is odd to block a client for about one
-    Juan> minutre when it issues "non-blocking" lock requests.
-
-But if the server goes down, the call can end up blocking for
-significantly longer than one minute anyway.
-
-    Juan> I have seen that Solaris code does so but still feels odd
-    Juan> and it may conflict with what most programmers expect
-
-Perhaps, but there are other expectations to keep in mind.  In
-particular, when using NFS, the expectation (at least with hard
-mounts) is that when the server goes down, the application will simply
-wait until the server comes back.  Your change would conflict with
-that expectation.
-
-Mike Kupfer                                            mike.kupfer@sun.com
-Solaris File Sharing                                   Speaking for myself,
-not for Sun.
-
-
+--- linux/drivers/net/e1000.vanilla/e1000.h	2002-11-13 12:54:49.000000000 +0100
++++ linux/drivers/net/e1000/e1000.h	2002-11-20 15:00:14.000000000 +0100
+@@ -181,6 +181,10 @@
+ 	uint32_t tx_abs_int_delay;
+ 	int max_data_per_txd;
+ 
++#ifdef CONFIG_E1000_NAPI
++        uint32_t icr_pending;
++#endif
++
+ 	/* RX */
+ 	struct e1000_desc_ring rx_ring;
+ 	uint64_t hw_csum_err;
+--- linux/drivers/net/e1000.vanilla/e1000_main.c	2002-11-13 12:54:49.000000000 +0100
++++ linux/drivers/net/e1000/e1000_main.c	2002-11-20 17:37:55.000000000 +0100
+@@ -1896,15 +1896,29 @@
+ {
+ 	struct net_device *netdev = data;
+ 	struct e1000_adapter *adapter = netdev->priv;
++	uint32_t icr;
++	int i = E1000_MAX_INTR;
++
+ 	
+ #ifdef CONFIG_E1000_NAPI
+-	if (netif_rx_schedule_prep(netdev)) {
+-		e1000_irq_disable(adapter);
++	icr = E1000_READ_REG(&adapter->hw, ICR);
++	if (icr && netif_rx_schedule_prep(netdev)) {
++
++	        /* Disable interrupts */
++                atomic_inc(&adapter->irq_sem);
++                E1000_WRITE_REG(&adapter->hw, IMC, ~0);
++
++		/*      E1000_WRITE_FLUSH(&adapter->hw); 
++		 * E1000_READ below syncs it  --ro
++		 */
++
+ 		__netif_rx_schedule(netdev);
++ 
++		adapter->icr_pending = icr;
++		while (i-- && (icr = E1000_READ_REG(&adapter->hw, ICR)) != 0)
++		         adapter->icr_pending |= icr;
+ 	}
+ #else
+-	uint32_t icr;
+-	int i = E1000_MAX_INTR;
+ 
+ 	while(i && (icr = E1000_READ_REG(&adapter->hw, ICR))) {
+ 
+@@ -1930,7 +1944,15 @@
+ 	int i = E1000_MAX_INTR;
+ 	int hasReceived = 0;
+ 
+-	while(i && (icr = E1000_READ_REG(&adapter->hw, ICR))) {
++        while(i) {
++                if (adapter->icr_pending) {
++                        icr = adapter->icr_pending;
++                        adapter->icr_pending = 0;
++                } else
++                        icr = E1000_READ_REG(&adapter->hw, ICR);
++                if (!icr)
++                        break;
++
+ 		if (icr & E1000_ICR_RXT0)
+ 			hasReceived = 1;
+  
 

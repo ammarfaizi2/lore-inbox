@@ -1,73 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290573AbSBFObF>; Wed, 6 Feb 2002 09:31:05 -0500
+	id <S290574AbSBFOcZ>; Wed, 6 Feb 2002 09:32:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290574AbSBFOaz>; Wed, 6 Feb 2002 09:30:55 -0500
-Received: from ns1.intercarve.net ([216.254.127.221]:65193 "HELO
-	ceramicfrog.intercarve.net") by vger.kernel.org with SMTP
-	id <S290573AbSBFOap>; Wed, 6 Feb 2002 09:30:45 -0500
-Date: Wed, 6 Feb 2002 09:27:19 -0500 (EST)
-From: "Drew P. Vogel" <dvogel@intercarve.net>
-To: paule <paule@ilu.vu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Swap issue
-In-Reply-To: <20020206042922.GA89628@oenone.stormclouds.net>
-Message-ID: <Pine.LNX.4.33.0202060926570.27274-100000@northface.intercarve.net>
+	id <S290578AbSBFOcP>; Wed, 6 Feb 2002 09:32:15 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49160 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290574AbSBFOcF>; Wed, 6 Feb 2002 09:32:05 -0500
+Subject: Re: kernel: ldt allocation failed
+To: ak@suse.de (Andi Kleen)
+Date: Wed, 6 Feb 2002 14:39:48 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), ak@suse.de (Andi Kleen),
+        vda@port.imtp.ilyichevsk.odessa.ua (Denis Vlasenko),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020206150949.A10871@wotan.suse.de> from "Andi Kleen" at Feb 06, 2002 03:09:49 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16YTEi-0005KG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What is the output of 'swapon -s'?
+> Are you sure it does? LGDT with non zero argument shouldn't be that costly. 
+> The %fs switching adds some locked cycles for reloading the segment cache, 
+> but because Windows uses that I would it expect to be reasonably optimized 
+> on CPUs. 
 
---Drew Vogel
+Its measurable, even on an Athlon. 
 
-On Wed, 6 Feb 2002, paule wrote:
+> I actually tried to complain because on x86-64 it is more costly, but to
+> no avail. 
 
->Having just upgraded slackware8.0 (2.2 kernel)
->to using 2.5.2, (2.5.3 patch install failed looking for malloc.h)
->Im unable to use swap, despite it showing a success.
->
-># dd if=/dev/zero of=/swap/swapfile bs=1024 count=131072
->13107+0 records in
->13107+0 records out
-># mkswap -c /swap/swapfile
->Setting up swapspace version 1, size = 13414400 bytes
-># swapon /swap/swapfile
->swapon: /swap/swapfile: Success
-># cat /proc/meminfo
->MemTotal:        61720 kB
->MemFree:          1896 kB
->MemShared:           0 kB
->Buffers:          8300 kB
->Cached:          30712 kB
->SwapCached:          0 kB
->Active:          25316 kB
->Inactive:        19688 kB
->HighTotal:           0 kB
->HighFree:            0 kB
->LowTotal:        61720 kB
->LowFree:          1896 kB
->SwapTotal:           0 kB
->SwapFree:            0 kB
->
->I've tried various kernel configurations, and it just doesn't
->want to work.
->
->(It was however working under 2.2.x)
->
->Any ideas?
->
->TIA,
->--
->Paul Edwards
->paule@ilu.vu
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
+The more I see from glibc the more I realise that Linus is right - it needs
+replacing 
 

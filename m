@@ -1,45 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263212AbTETQVk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 12:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263455AbTETQVk
+	id S263455AbTETQZv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 12:25:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263521AbTETQZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 12:21:40 -0400
-Received: from sullivan.realtime.net ([205.238.132.76]:38148 "EHLO
-	sullivan.realtime.net") by vger.kernel.org with ESMTP
-	id S263212AbTETQVj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 12:21:39 -0400
-Date: Tue, 20 May 2003 11:34:09 -0500 (CDT)
-Message-Id: <200305201634.h4KGY9VJ049544@sullivan.realtime.net>
-From: Milton Miller <miltonm@bga.com>
-To: Alex Riesen <alexander.riesen@synopsys.COM>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.69+bk: oops in apmd after waking up from suspend mode
-In-Reply-To: <3ECA05FA.6090008@gmx.net>
+	Tue, 20 May 2003 12:25:51 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:36269 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id S263455AbTETQZt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 12:25:49 -0400
+Date: Tue, 20 May 2003 11:38:45 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: Brian Gerst <bgerst@didntduck.org>, Sam Ravnborg <sam@ravnborg.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Update fs Makefiles
+In-Reply-To: <Pine.LNX.4.44.0305201726200.12110-100000@serv>
+Message-ID: <Pine.LNX.4.44.0305201126450.24017-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shouldn't this just use active_mm?   Can somebody test?
+On Tue, 20 May 2003, Roman Zippel wrote:
 
-by the way, I saw this with a 486 kernel compiled by
-gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-110)
+> Has the new syntax any advantage, e.g. does it make sense to have adfs-m? 
+> Otherwise the -obj syntax looks IMO more readable and it directly says 
+> that this is a composite object.
 
-on a Toshiba 2105 (aka 2100 +- sw) 486DX2/50, although I am not
-at that computer presenlty to test.
+Let me quote from Brian's patch:
 
-milton
+diff -urN linux-2.5.69-bk/fs/ext3/Makefile linux/fs/ext3/Makefile
+--- linux-2.5.69-bk/fs/ext3/Makefile    2003-05-17 23:55:01.000000000 
+-0400
++++ linux/fs/ext3/Makefile      2003-05-18 15:59:09.000000000 -0400
+@@ -4,17 +4,9 @@
 
-===== arch/i386/kernel/suspend.c 1.15 vs edited =====
---- 1.15/arch/i386/kernel/suspend.c	Sat May 10 09:24:02 2003
-+++ edited/arch/i386/kernel/suspend.c	Tue May 20 11:26:18 2003
-@@ -114,7 +114,7 @@
-         cpu_gdt_table[cpu][GDT_ENTRY_TSS].b &= 0xfffffdff;
- 
- 	load_TR_desc();				/* This does ltr */
--	load_LDT(&current->mm->context);	/* This does lldt */
-+	load_LDT(&current->active_mm->context);	/* This does lldt */
- 
- 	/*
- 	 * Now maybe reload the debug registers
+ obj-$(CONFIG_EXT3_FS) += ext3.o
+
+-ext3-objs    := balloc.o bitmap.o dir.o file.o fsync.o ialloc.o 
+inode.o \
++ext3-y       := balloc.o bitmap.o dir.o file.o fsync.o ialloc.o 
+inode.o \
+                ioctl.o namei.o super.o symlink.o hash.o
+
+-ifeq ($(CONFIG_EXT3_FS_XATTR),y)
+-ext3-objs += xattr.o xattr_user.o xattr_trusted.o
+-endif
+-
+-ifeq ($(CONFIG_EXT3_FS_POSIX_ACL),y)
+-ext3-objs += acl.o
+-endif
+-
+-ifeq ($(CONFIG_EXT3_FS_SECURITY),y)
+-ext3-objs += xattr_security.o
+-endif
++ext3-$(CONFIG_EXT3_FS_XATTR) += xattr.o xattr_user.o xattr_trusted.o
++ext3-$(CONFIG_EXT3_FS_POSIX_ACL) += acl.o
++ext3-$(CONFIG_EXT3_FS_SECURITY) += xattr_security.o
+
+which I think clearly shows the benefits. I agree that "-objs" is more 
+intuitive than "-y", otoh it also has potential for confusion with 
+"obj-$(CONFIG_...)" (as kinda proven by your "-obj" quote above ;).
+
+Basically, I think having "-y" is essential for uses like the one above, 
+the only question is whether to switch everything to "-y" or use "-y" for 
+multipart modules with optional parts and "-objs" for multipart modules 
+with a static list of components. For my opinion on that, see earlier this 
+thread...
+
+--Kai
+
+
+

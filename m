@@ -1,62 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265667AbUABWeM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 17:34:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265673AbUABWeM
+	id S265665AbUABWdW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 17:33:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265667AbUABWdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 17:34:12 -0500
-Received: from null.rsn.bth.se ([194.47.142.3]:35509 "EHLO null.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S265667AbUABWeG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 17:34:06 -0500
-Subject: Re: Strange IDE performance change in 2.6.1-rc1 (again)
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Paolo Ornati <ornati@lycos.it>, Ed Sweetman <ed.sweetman@wmich.edu>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040102213228.GH1882@matchmail.com>
-References: <200401021658.41384.ornati@lycos.it>
-	 <3FF5B3AB.5020309@wmich.edu> <200401022200.22917.ornati@lycos.it>
-	 <20040102213228.GH1882@matchmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-omKw/uTNRg3ysf0VU9o6"
-Message-Id: <1073082842.824.5.camel@tux.rsn.bth.se>
+	Fri, 2 Jan 2004 17:33:22 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:13184 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S265665AbUABWc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 17:32:56 -0500
+Subject: Re: JFS resize=0 problem in 2.6.0
+From: Christophe Saout <christophe@saout.de>
+To: lkml@dhtns.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20031228153028.GB22247@faraday.dhtns.com>
+References: <20031228153028.GB22247@faraday.dhtns.com>
+Content-Type: text/plain
+Message-Id: <1073082782.28665.16.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 02 Jan 2004 23:34:03 +0100
+Date: Fri, 02 Jan 2004 23:33:03 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am So, den 28.12.2003 schrieb lkml@dhtns.com um 16:30:
 
---=-omKw/uTNRg3ysf0VU9o6
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Let me know if I'm missing the goal of the code here, but lines 261-273
+> of linux-2.6.0/fs/jfs/super.c are:
+> 
+> case Opt_resize:
+> {
+> 	char *resize = args[0].from;
+> 	if (!resize || !*resize) {    /* LINE 264 HERE */
+> 		*newLVSize = sb->s_bdev->bd_inode->i_size >>
+> 			sb->s_blocksize_bits;
+> 		if (*newLVSize == 0)
+> 			printk(KERN_ERR
+> 			"JFS: Cannot determine volume size\n");
+> 	} else
+> 		*newLVSize = simple_strtoull(resize, &resize, 0);
+> 	break;
+> }
+> 
+> It seems to me that line 264 is attempting to test for the mount 
+> paramater "resize=0", and when it comes across this, resize to the full
+> size of the volume.  However, this doesn't work.  I believe it should
+> test for the char '0'  (*resize=='0'), not against literal zero.  
 
-On Fri, 2004-01-02 at 22:32, Mike Fedyk wrote:
+literal zero is the end of the string.
 
-> Have there been any ide updates in 2.6.1-rc1?
+So the code checks for resize= and not resize=0.
 
-I see that a readahead patch was applied just before -rc1 was released.
+I think your fix is wrong because it would also recognize resize=0123
+because it only tests the first character.
 
-found it in bk-commits-head
+-           if (!resize || !*resize) {
++           if (!resize || !*resize || *resize=='0')
 
-Subject: [PATCH] readahead: multiple performance fixes
-Message-Id:  <200312310120.hBV1KLZN012971@hera.kernel.org>
+It should probably be
 
-Maybe Paolo can try backing it out.
++           if (!resize || !*resize || (*resize=='0' && !resize[1]))
 
---=20
-/Martin
+Or better: check the integer value that is returned by simple_strtoull.
 
---=-omKw/uTNRg3ysf0VU9o6
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+But did you test what resize= does?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQA/9fHaWm2vlfa207ERArwbAJ9C2ghHDf2z8RRAPreH/D7kOStz8wCgjQCk
-4Ntf2od71rOZVjgUe6UTtYw=
-=pvpl
------END PGP SIGNATURE-----
-
---=-omKw/uTNRg3ysf0VU9o6--

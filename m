@@ -1,75 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268898AbRHPVpY>; Thu, 16 Aug 2001 17:45:24 -0400
+	id <S268861AbRHPVvz>; Thu, 16 Aug 2001 17:51:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268900AbRHPVpO>; Thu, 16 Aug 2001 17:45:14 -0400
-Received: from archive.osdlab.org ([65.201.151.11]:56752 "EHLO fire.osdlab.org")
-	by vger.kernel.org with ESMTP id <S268898AbRHPVo5>;
-	Thu, 16 Aug 2001 17:44:57 -0400
-Message-ID: <3B7C3DC4.1DE74EF8@osdlab.org>
-Date: Thu, 16 Aug 2001 14:40:20 -0700
-From: "Randy.Dunlap" <rddunlap@osdlab.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
-X-Accept-Language: en
+	id <S268897AbRHPVvi>; Thu, 16 Aug 2001 17:51:38 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:34063 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S268861AbRHPVv2>; Thu, 16 Aug 2001 17:51:28 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: 2.4.8preX VM problems
+Date: Thu, 16 Aug 2001 23:57:49 +0200
+X-Mailer: KMail [version 1.3]
+Cc: Mike Black <mblack@csihq.com>, tridge@valinux.com,
+        marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+        riel@conectiva.com.br, Andrew Morton <andrewm@uow.edu.au>
+In-Reply-To: <Pine.LNX.4.21.0108010504160.9379-100000@freak.distro.conectiva> <01080120392200.00933@starship> <20010811120604.C35@toy.ucw.cz>
+In-Reply-To: <20010811120604.C35@toy.ucw.cz>
 MIME-Version: 1.0
-To: Sarada prasanna <csaradap@mihy.mot.com>
-CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: _IOR('t',90,int)
-In-Reply-To: <C1590740235CD211BA5600A0C9E1F6FF02602296@hydmail.mihy.mot.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010816215132Z16542-1231+1247@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sarada prasanna wrote:
+On August 11, 2001 02:06 pm, Pavel Machek wrote:
+> > > I have come to the opinion that kswapd needs to be a little smarter
+> > > -- if it doesn't find anything to swap shouldn't it go to sleep a
+> > > little longer before trying again?  That way it could gracefully
+> > > degrade itself when it's not making any progress.
+> > >
+> > > In my testing (on a dual 1Ghz/2G machine) the machine "locks up" for
+> > > long periods of time while kswapd runs around trying to do it's
+> > > thing. If I could disable kswapd I would just to test this.
+> > 
+> > Your wish is my command.  This patch provides a crude-but-effective 
+> > method of disabling kswapd, using:
+> > 
+> >   echo 1 >/proc/sys/kernel/disable_kswapd
+> > 
+> > I tested this with dbench and found it runs about half as fast, but 
+> > runs.  This is reassuring because kswapd is supposed to be doing 
+> > something useful.
 > 
-> Hi friends,
->           While reading a source code of pppd i came across a macro
-> declaration like
-> 
-> #define PPPIOCGFLAGS    _IOR('t', 90, int)      /* get configuration flags
-> */
-> 
-> I refered to the book called "Linux kernel internals by Beck and others" and
-> on
-> the page 219 (chap implementing a device driver) i found out the line
-> telling
-> 
-> _IOR(c,d,t)   for commands which write back to the user address space a
-> value of
->               the C type t
-> 
-> but still i am not being able to understand the macro declaration. Can
-> someone kindly tell me about the _IOW
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-A better reference would be "Linux Device Drivers", 2nd edition.
-See http://www.xml.com/ldd/chapter/book/ch05.html#t1 for info
-on I/O controls.  (search for /_IOR/ or /_IOW/ for example)
+> Why not just killall -STOP kswapd?
 
-In general, _IOR() and _IOW() take 3 parameters and make a
-number out of them.  That number is used in a driver's ioctl
-function to decide what the request is, its direction (in or out),
-its data type, and data size.
+Because I didn't think of it and I wanted some code for myself to do 
+real-time experimental tuning of the VM behaviour.
 
-For example, on x86, _IOR and _IOW make a 32-bit number, used as:
+> What is expected state of system without kswapd, BTW? Without kflushd, 
+> I give up guaranteed time to get data safely to disk [and its usefull
+> for spindown]. What happens without kswapd?
 
-  |dd|ssssssssssssss|tttttttt|nnnnnnnn|
-   |    \-size        \-type  \-number
-   \-direction
+Without kswapd you lose much of the system's 'clean-ahead' performance and it 
+ends up reacting to try_to_free_pages calls iniated through __alloc_pages 
+when processes run out of free pages.  This means lots more synchronous 
+waiting on page_launder and friends, but the system still runs.  It's a nice 
+way to check how well the system's attempt to anticipate demand is really 
+working.
 
-Size is limited to 14 bits; Direction is Read, Write, or None.
-Type is usually (meant to be) a constant for any one driver,
-such as 'T' for ttys, 'S' for SCSI, 'M' for MTRR driver,
-'A' for APM, 'a' for ATM, 0x93 for autofs, 'C' for CAPI,
-'B' for CCISS, 's' for cdk, 'c' for coda, 'd' for devfsd,
-0x89 for DECNET, 'f' and 'v' for ext2/3, 'F' for frame buffer,
-2 for floppy driver, 0x12 for block layer, 'H' for HID driver,
-
-Is there a registry of IOCTL magic numbers?  Yep, see
-linux/Documentation/ioctl-number.txt for more info and numbers.
-
-See linux/include/asm-i386/ioctl.h for macro specifics.
-
--- 
-~Randy
+--
+Daniel

@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261470AbTI3N3e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 09:29:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbTI3N3e
+	id S261443AbTI3NYv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 09:24:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbTI3NYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 09:29:34 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:56457 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S261470AbTI3N31 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 09:29:27 -0400
-Date: Tue, 30 Sep 2003 15:26:54 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200309301326.h8UDQsIM004454@burner.fokus.fraunhofer.de>
-To: axboe@suse.de, davem@redhat.com
-Cc: linux-kernel@vger.kernel.org, schilling@fokus.fraunhofer.de
-Subject: Re: Kernel includefile bug not fixed after a year :-(
+	Tue, 30 Sep 2003 09:24:51 -0400
+Received: from peabody.ximian.com ([141.154.95.10]:38279 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261589AbTI3NQZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 09:16:25 -0400
+Subject: make install problems
+From: Kevin Breit <mrproper@ximian.com>
+Reply-To: mrproper@ximian.com
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Ximian, Inc.
+Message-Id: <1064927778.1575.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 30 Sep 2003 09:16:19 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From davem@redhat.com  Tue Sep 30 14:28:23 2003
+Hey,
+	I setup a test6 kernel without module support.  I did a make install
+and got:
 
->On Tue, 30 Sep 2003 14:06:29 +0200
->Jens Axboe <axboe@suse.de> wrote:
+Kernel: arch/i386/boot/bzImage is ready
+sh /usr/src/linux-2.6.0-test6/arch/i386/boot/install.sh 2.6.0-test6
+arch/i386/boot/bzImage System.map ""
+/lib/modules/2.6.0-test6 is not a directory.
+mkinitrd failed
 
->> I asked you one simple question: when did the kernel/user interface
->> break, and how?
+How can I fix this?
 
->I'll answer for him, about 20 or 30 times during IPSEC development.
->It's still possible this could change even some more before 2.6.0
->final is released if a large enough bug in the IPSEC socket APIs are
->found in time.
+Thanks
 
-There is a simple rule of thumb:
+Kevin Breit
 
-If the kernel code is not even ready for testing: don't inlcude it
-in external releases.
-
-If it makes sense to test the code and it uses new interfaces then you
-need to make the interfaces available to potential users of the interface.
-If the interface is going to change then the user should be informed about the
-fact, but you yould need the kernel interface include files.
-
-glibc exports own interaces and for this reason needs to supply own include 
-files. I see no reason however that glibc should deal with include files that
-do not even affect glibc code. This is true for most ioctl()s,
-it is definitely true for the SCSI related ioctl()s.
-
-
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

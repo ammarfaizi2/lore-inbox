@@ -1,115 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129562AbQLCErV>; Sat, 2 Dec 2000 23:47:21 -0500
+	id <S130018AbQLCFUO>; Sun, 3 Dec 2000 00:20:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129667AbQLCErM>; Sat, 2 Dec 2000 23:47:12 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:50960 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129562AbQLCErA>; Sat, 2 Dec 2000 23:47:00 -0500
-Date: Sat, 2 Dec 2000 22:11:46 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: "Theodore Y. Ts'o" <tytso@MIT.EDU>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, pavel@suse.cz,
-        kernel@blackhole.compendium-tech.com, hps@tanstaafl.de,
-        linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-Subject: Re: Fasttrak100 questions...
-Message-ID: <20001202221146.A21761@vger.timpanogas.org>
-In-Reply-To: <20001202182126.A20944@vger.timpanogas.org> <200012030342.WAA17517@tsx-prime.MIT.EDU>
-Mime-Version: 1.0
+	id <S129823AbQLCFUE>; Sun, 3 Dec 2000 00:20:04 -0500
+Received: from mozart.stat.wisc.edu ([128.105.5.24]:43784 "EHLO
+	mozart.stat.wisc.edu") by vger.kernel.org with ESMTP
+	id <S129667AbQLCFTs>; Sun, 3 Dec 2000 00:19:48 -0500
+To: trond.myklebust@fys.uio.no
+cc: linux-kernel@vger.kernel.org
+Subject: negative NFS cookies: bad C library or bad kernel?
+From: buhr@stat.wisc.edu (Kevin Buhr)
+Date: 02 Dec 2000 22:49:16 -0600
+Message-ID: <vbaaeae2joz.fsf@mozart.stat.wisc.edu>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200012030342.WAA17517@tsx-prime.MIT.EDU>; from tytso@MIT.EDU on Sat, Dec 02, 2000 at 10:42:29PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 02, 2000 at 10:42:29PM -0500, Theodore Y. Ts'o wrote:
->    Date: Sat, 2 Dec 2000 18:21:26 -0700
->    From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-> 
->    Under this argument, it is argued that the engineer who had source 
->    code access "inevitably used" negative knowledge he gained from 
->    his study of the Linux sources.  Absent the vague descriptions of
->    what a "derivative work" is in the GPL, it could be argued that 
->    conversion of any knowledge contained in GPL code is a "derivative
->    work".  
-> 
-> That's bullshit.  Copyright law very clearly states that it protects the
-> fixation of an idea in a medium, and that copyright explicitly does not
-> protect the idea itself.  The concept of what is a derived work is very
+Trond:
 
-State Laws may be controlling if they involve contracts.  It has nothing 
-to do with Copyright Law, but with the terms of license for someone's
-code.  I've seen this crap applied.  I've even been on the receiving
-end of it, and been enjoined from working on PUBLIC GPL CODE for 
-18 months because of an AGREEMENT and not copyright laws.   
+Fiddling with the Crytographic File System the other day, I managed to
+tickle a mysterious bug.  When some directories grew large enough,
+suddenly a chunk of files would half "disappear".  "find" would list
+them fine, but "ls" and "echo *" wouldn't.
 
-> clearly understood, and there have been a lot of court cases to define
+After a bit of troubleshooting, I discovered that the CFS daemon
+(which presents itself to the system as an NFS daemon) was using
+small, big-endian cookies in its directory entries.  These became
+large positive and negative little-endian "d_off" values in the dirent
+structs.
 
-Under inevitability, the neural impules in your brain can be ruled 
-to be a derivative work.  Believe me, I am not arguing for the doctrine,
-but informing you of it's existence and the broad scope it has 
-in IP cases.  
+The C library (in glibc-2.1.3/sysdeps/unix/sysv/linux/getdents.c) does
+some fancy, double-buffering footwork in getdents(2) to try to guess
+how many bytes of kernel_dirents it needs to read into a temporary
+buffer to fill the user-supplied buffer with user dirents (which have
+an extra "d_type" field).  When its heuristic screws up, it does an
+lseek on the directory so the next getdents(2) will start with the
+right directory entry:
 
-> this precedent.  (My understanding is that in realm of music 7 notes in
-> sequence, if copied, is prima facie evidence that there is a derived
-> work.  Not 5 notes, and not 8 notes, but seven notes.  Gotta love those
-> lawyers at work.  Aren't you glad they settled that?)
-> 
->    Personally, I think the doctrine is one of the most evil fucking things
->    in existence, legal opponents call it "the doctrine of intellectual
->    slavery" because it has the affect under the law to be able to convert
->    simple NDA agreements into non-compete agreements, and I've seen it 
->    used this way.
-> 
-> That's a different matter.  If you use NDA and Trade secret law, then
-> yes, might be able to enslave programmers using such a law.  However
-> most courts have strict limits to how far they will take non-compete
-> arguments, and if an NDA turned into a non-compete, past a certain point
+      if ((char *) dp + new_reclen > buf + nbytes)
+        {
+          /* Our heuristic failed.  We read too many entries.  Reset
+             the stream.  `last_offset' contains the last known
+             position.  If it is zero this is the first record we are
+             reading.  In this case do a relative search.  */
+          if (last_offset == 0)
+            __lseek (fd, -retval, SEEK_CUR);
+          else
+            __lseek (fd, last_offset, SEEK_SET);
+          break;
+        }
 
-The legal limit is 18 months in most states.  This "I have a right to 
-make a living argument" only holds water if the other side refuses to
-post a bond.  If they post a large enough bond, a court WILL rule 
-in favor of inevitability if they make a good case for it.  (The 
-bond required to keep me from programming for 18 months cost Novell 
-$10,000,000.00.)
+In my case, for "ls" and "bash", the "last_offset" happened to be a
+negative little-endian cookie.  The kernel's "default_lseek" returned
+EINVAL, the error was ignored, and "ls" and "bash" were blissfully
+unaware that a bunch of directory entries had been read into the
+temporary buffer and forever lost.  Since "find" used a different
+buffer size, it happened to have a positive little-endian cookie for
+"last_offset" and didn't exhibit the problem.
 
-> they will say that a person has a right to earn a living.....
-> Fortunately most judges will apply some amount of common sense, even
+A fix was easy---after modifying CFS to convert its cookies to small,
+little-endian numbers, everything worked fine.
 
-US Judges are pontius pilate's all -- with hearts as black as the robes
-they wear.  They don't care about you, or your rights.  Remember, almost
-all judges are lawyers who are too old or to incompetent to practice law
-so they get themselves an appointment.  Most of them were crooked lawyers
-who went into politics (which is how a lawyer gets made into a judge, BTW,
-he goes into politics).
+However, who's to blame here?  It can't be CFS---any four-byte cookie
+should be valid, right?
 
-> despite their law school training.  In any case, the GPL doesn't involve
-> NDA's or Trade Secrets, so saying that this doctrine could be used to
+Is the kernel NFS client code to blame?  If it's going to be using
+cookies as offsets, shouldn't we have an nfs_lseek that special-cases
+directory lseeks (at least those using SEEK_SET) to take negative
+offsets, so utilities and libraries don't need to be bigfile-aware
+just to read directories?  And what in the world can we do about bogus
+code like the:
 
-It has to do with contract law, which is what the doctrine of 
-inevitability is all about.  Trade secrets have nothing to do 
-with it, it's a question of knowledge gained via access to 
-code through some form of agreement.  In employment 
-situations, it's a trade secret agreement, here in Linux, it's 
-a GPL agreement.
+            __lseek (fd, -retval, SEEK_CUR);
 
-> contaminate non-GPL code simply by having people look at GPL code is
-> bullshit.
+that appears above?  Shouldn't any non-SEEK_SET lseek on an NFS
+directory fail with an error?
 
-I argued that looking at Novell Public Code under their form of GPL
-would not contaminate -- a court ruled otherwise.  The court ruled 
-that under inevitability, public code on Novell's website and 
-slides presented at Brianshare, even though they were public, 
-had the affect of contaminating our internal projects under 
-this doctrine.  You don't want to kill all the lawyers, you want to 
-kill all the judges -- it was a judge that came up with this 
-inevitability doctrine in the first place....
+Any thoughts?
 
-:-)
+Thanks.
 
-Jeff
-
-
+Kevin <buhr@stat.wisc.edu>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262303AbUBXREl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 12:04:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbUBXREc
+	id S262306AbUBXRH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 12:07:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbUBXRHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 12:04:32 -0500
-Received: from mail.kroah.org ([65.200.24.183]:44431 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262306AbUBXREY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 12:04:24 -0500
-Date: Tue, 24 Feb 2004 09:04:13 -0800
-From: Greg KH <greg@kroah.com>
-To: Kai Makisara <Kai.Makisara@metla.fi>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Andrew Morton <akpm@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, kai.makisara@kolumbus.fi
-Subject: Re: [BK PATCH] SCSI update for 2.6.3
-Message-ID: <20040224170412.GA31268@kroah.com>
-References: <Pine.LNX.4.58.0402240919490.1129@spektro.metla.fi>
+	Tue, 24 Feb 2004 12:07:25 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:48648 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262306AbUBXRGb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 12:06:31 -0500
+Date: Tue, 24 Feb 2004 17:06:26 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "Steven J. Hill" <sjhill@realitydiluted.com>
+Cc: Jeremy Higdon <jeremy@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] 2.6.2, Partition support for SCSI CDROM...
+Message-ID: <20040224170626.A25066@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Steven J. Hill" <sjhill@realitydiluted.com>,
+	Jeremy Higdon <jeremy@sgi.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+References: <40396134.6030906@realitydiluted.com> <20040222190047.01f6f024.akpm@osdl.org> <40396E8F.4050307@realitydiluted.com> <20040224061130.GC503530@sgi.com> <403B8108.6080606@realitydiluted.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0402240919490.1129@spektro.metla.fi>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <403B8108.6080606@realitydiluted.com>; from sjhill@realitydiluted.com on Tue, Feb 24, 2004 at 11:51:20AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 24, 2004 at 09:30:01AM +0200, Kai Makisara wrote:
-> On Tue, 24 Feb 2004, Linus Torvalds wrote:
-> >On Mon, 23 Feb 2004, James Bottomley wrote:
-> >>
-> >> Kai Mäkisara:
-> >> o Sysfs class support for SCSI tapes
-> >
-> >Has this been checked for correctness, or will Al flame me to a crisp for
-> >accepting it? Pls verify..
+On Tue, Feb 24, 2004 at 11:51:20AM -0500, Steven J. Hill wrote:
+> Here is the second try at the patch.
 > 
-> It is using the class_simple interface Greg KH said can be used without
-> changes to driver's lifetime rules. If this is not true, then I have to
-> rework the patch. The code was posted to linux-scsi on Feb 5 but I would
-> not count on any serious review being done there.
+> -Steve
 
-Can you post it here so we can review it?
 
-And yes, using class_simple should relieve you of Al flamage :)
++static int partitions = 16;
 
-thanks,
+This is changes what sr1 is mapped to without specicying any option.
+The default _must_ be 0 partitions or existing setups will break.
 
-greg k-h
++MODULE_PARM(partitions, "i");
+
+please make this module_param so it works at boot-time aswell.
+
++MODULE_PARM_DESC(partitions, "number of SCSI CDROM partitions to support");
+ 
++	/* Check number of partitions specified. */
++	if (partitions < 0)
++		partitions = 0;
+
+now if you made the variable 'unsigned' you wouldn't have that problem..
+
+While you're at it please also cook up an ide-cd variant, having partitions
+only supported on scsi cdroms is more than confusing.

@@ -1,83 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263606AbUDMPot (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 11:44:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263600AbUDMPot
+	id S263600AbUDMPwh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 11:52:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263561AbUDMPwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 11:44:49 -0400
-Received: from p4.ensae.fr ([195.6.240.202]:57790 "EHLO pc809.ensae.fr")
-	by vger.kernel.org with ESMTP id S263606AbUDMPop convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 11:44:45 -0400
-From: Guillaume =?iso-8859-15?q?Lac=F4te?= <Guillaume@Lacote.name>
-Reply-To: Guillaume@Lacote.name
-Organization: Guillaume@Lacote.name
-To: linux-kernel@vger.kernel.org
-Subject: Using compression before encryption in device-mapper
-Date: Tue, 13 Apr 2004 17:44:40 +0200
-User-Agent: KMail/1.5.3
-Cc: Linux@glacote.com
+	Tue, 13 Apr 2004 11:52:37 -0400
+Received: from web41202.mail.yahoo.com ([66.218.93.35]:9582 "HELO
+	web41202.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263600AbUDMPwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 11:52:34 -0400
+Message-ID: <20040413155233.94186.qmail@web41202.mail.yahoo.com>
+Date: Tue, 13 Apr 2004 08:52:33 -0700 (PDT)
+From: Jin Suh <jinssuh@yahoo.com>
+Subject: [PATCH 2.4] fix IRQ routing on Acer TravelMate 360
+To: daniel.ritz@qmz.ch, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200404131744.40098.Guillaume@Lacote.name>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Daniel,
 
-I hope this is the right place to post this message; I tried to keep it small.
-Basically I really would like to implement compression at the dm level, 
-despite all of the problems. The reason for this is that reducing redundancy 
-through compression tremendously reduces the possibilities of success for an 
-attacker. I had implemented this idea in a java archiver ( 
-http://jsam.sourceforge.net ).
+Could you take a look at my pcmcia problems?
+I have a very similar problem enabling a pcmcia firewire card on my Gateway
+600YG2 laptop. I am using a Gateway 600YG2 laptop (Intel P4-M, PCMCIA TI
+PCI1520 controller)
+on 2.4.25. I have 3 different pcmcia firewire cards. When I insert module
+yenta_socket with any of those cards, I get "Yenta ISA IRQ mask 0x0a98, PCI irq
+0" and "PCI: No IRQ for interrupt pin A of device 03:00.0 please try using
+pci=biosirq". After this error, when I run the modprobe ieee1394 and ohci1394,
+I get "ohci1394: failed to allocate shared interrupt 10". The same pcmcia
+firewire cards work on old Gateway 9300, 9500 laptop and IBM T22 laptop. 
+BTW, my Netgear pcmcia 10/100mb ethernet card works on the Gateway 600YG2
+laptop. Also my USB pen drives are not working too. The bootparameter
+pci=biosirq doesn't seem to work. 
+It worked fine with 2.4.20 without any problems. Could someone help me to fix
+this problem on 2.4.25? I have buillt both of 2.4.20 and 2.4.25 without ACPI.
 
-Although I am not a good kernel hacker, I have spent some time reading 
-compressed-loop.c, loop-aes, dm-crypt.c, and various threads from lkml 
-including http://www.uwsg.iu.edu/hypermail/linux/kernel/0402.2/0035.html
-Thus I would appreciate if you could answer the following questions regarding 
-the implementation of a "dm-compress" dm personality. 
+Thanks,
+Jin
 
-0) Has this problem already been adressed, and if yes, where ?
+DMESG output
+-------------------------------------------------------------------------
+ACPI: RSDP (v000 PTLTD                                     ) @ 0x000f6620
+ACPI: RSDT (v001 GATEWA 602      0x20021104  LTP 0x00000000) @ 0x1fef8313
+ACPI: FADT (v001 GATEWA 602      0x20021104 PTL  0x0000001e) @ 0x1fefef64
+ACPI: BOOT (v001 GATEWA 602      0x20021104  LTP 0x00000001) @ 0x1fefefd8
+ACPI: DSDT (v001 GATEWA 602      0x20021104 MSFT 0x0100000e) @ 0x00000000
+Kernel command line: initrd=ramdisk.img root=/dev/ram0 bickrootfs=tmpfs vga=791
+BOOT_IMAGE=linux 
+No local APIC present or hardware disabled
+.........
+Linux Kernel Card Services 3.1.22
+  options:  [pci] [cardbus] [pm]
+PCI: Found IRQ 10 for device 02:02.0
+PCI: Sharing IRQ 10 with 00:1f.1
+PCI: Sharing IRQ 10 with 02:02.1
+PCI: Found IRQ 10 for device 02:02.1
+PCI: Sharing IRQ 10 with 00:1f.1
+PCI: Sharing IRQ 10 with 02:02.0
+Yenta ISA IRQ mask 0x0a98, PCI irq 0
+Socket status: 30000011
+Yenta ISA IRQ mask 0x0a98, PCI irq 0
+Socket status: 30000020
+cs: cb_alloc(bus 7): vendor 0x104c, device 0x8024
+PCI: Enabling device 07:00.0 (0000 -> 0002)
+PCI: No IRQ known for interrupt pin A of device 07:00.0. Please try using
+pci=biosirq.
+ohci1394: $Rev: 1045 $ Ben Collins <bcollins@debian.org>
+PCI: Found IRQ 10 for device 02:05.0
+PCI: Sharing IRQ 10 with 00:1f.3
+PCI: Sharing IRQ 10 with 00:1f.6
+ohci1394: Failed to allocate shared interrupt 10
+PCI: No IRQ known for interrupt pin A of device 07:00.0. Please try using
+pci=biosirq.
+ohci1394: Failed to allocate shared interrupt 0
+sbp2: $Rev: 1074 $ Ben Collins <bcollins@debian.org>
 
-1) Using dm: I want to be able to use compression both above dm (to compress 
-before encrypting a volume) and below it (to do a RAID on compressed 
-volumes). I assume there is no other way than to make compression be a dm 
-personality. Is this correct (or shall I use something more similar to a 
-compressed loop device) ?
+==============================================================
 
-2) Block I/O boundaries: compression does not preserve size. I plan to use a 
-mapping from real sectors to their compressed location (e.g. struct { 
-sector_t sector; size_t compressed_length }* mapping; ). I believe this 
-mapping can be stored on another dm target and bufferized dynamically. Is 
-this correct, or shall it remain in (non-swappable ?) memory ?
+hi marcelo
 
-3) Compressed sectors have varying sizes, while dm targets only deal with full 
-blocks. Thus every compressed request may need to be fragmented into several 
-block aligned requests. This might imply reading a full block before 
-partially filling it with new data. Is it an exceedingly difficult task ? 
-Will this kill performance ?
+the same thing as been included in 2.6.5-mm4. here's the 2.4 version.
 
-4) Block allocation on writes: this is the most difficult problem I believe. 
-When rewriting a sector, its new compressed length might not be the same as 
-before. This would require a whole sector allocation mechanism: magaging 
-lists of free space, optimizing dynamic allocation to reduce fragmentation, 
-etc. Is there another solution than to adapt algorithms used in for e.g. ext2 
-?
-
-5) As a workaround to 2,3,4 I plan to systematically allocate 2 sectors per 
-real sector (space efficiency is _not_ my aim, growing entropy per bit is) 
-and to use a trivial dynamic huffman compression algorithm. Is this solution 
-(which means having half less space than physically available) acceptable ?
-
-6) Shall this whole idea of compression be ruled out of dm and only be 
-implemented at the file-system level (e.g. as a plugin for ReiserFS4) ?
-
-I thank you very much in advance for your critics and advices.
-
-G. Lacôte.
+rgds
+-daniel
 
 
+---snip---
+
+acer travelmate 360 has a broken interrupt routing. there's an interrupt storm
+on irq 10 w/o this patch  as soon as yenta_socket is loaded. the problem
+has been seen on different machines (reported on l-k and on pcmcia-cs
+list). there's also an USB controller on the same interrupt line as the CB
+which also works fine after the patch. and routing via ACPI fails too.
+
+
+
+
+
+	
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Small Business $15K Web Design Giveaway 
+http://promotions.yahoo.com/design_giveaway/

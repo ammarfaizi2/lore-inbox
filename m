@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265217AbRFUUwC>; Thu, 21 Jun 2001 16:52:02 -0400
+	id <S265220AbRFUUyc>; Thu, 21 Jun 2001 16:54:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265216AbRFUUvw>; Thu, 21 Jun 2001 16:51:52 -0400
-Received: from m146-mp1-cvx1b.col.ntl.com ([213.104.72.146]:38528 "EHLO
-	[213.104.72.146]") by vger.kernel.org with ESMTP id <S265211AbRFUUvi>;
-	Thu, 21 Jun 2001 16:51:38 -0400
-To: David Flynn <Dave@keston.u-net.com>
-Cc: linux kernel mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [slightly OT] IDE problems ? or just a dead disk ?
-In-Reply-To: <00f501c0f74e$defac4e0$1901a8c0@node0.idium.eu.org>
-	<017601c0f75d$454c6e70$1901a8c0@node0.idium.eu.org>
-From: John Fremlin <vii@users.sourceforge.net>
-Date: 21 Jun 2001 21:51:27 +0100
-In-Reply-To: <017601c0f75d$454c6e70$1901a8c0@node0.idium.eu.org> ("David Flynn"'s message of "Sun, 17 Jun 2001 19:42:33 +0100")
-Message-ID: <m2d77x8skw.fsf@boreas.yi.org.>
+	id <S265219AbRFUUyW>; Thu, 21 Jun 2001 16:54:22 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:52235 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S265218AbRFUUyO>;
+	Thu, 21 Jun 2001 16:54:14 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200106212053.f5LKrv6469312@saturn.cs.uml.edu>
+Subject: Re: [RFC][PATCH] cutting up struct kernel_stat into cpu_stat
+To: zab@osdlab.org (Zach Brown)
+Date: Thu, 21 Jun 2001 16:53:57 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010621113107.A16934@osdlab.org> from "Zach Brown" at Jun 21, 2001 11:31:07 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David Flynn" <Dave@keston.u-net.com> writes:
+Zach Brown writes:
 
+> The attached patch-in-progress removes the per-cpu statistics from
+> struct kernel_stat and puts them in a cpu_stat structure, one per cpu,
+> cacheline padded.  The data is still coolated and presented through
+> /proc/stat, but another file /proc/cpustat is also added.  The locking
+> is as nonexistant as it was with kernel_stat, but who cares, they're
+> just fuzzy stats to be eyeballed by system tuners :).
 
-[...]
-> ive done the badblock test, and compiled a list of 2302 bad blocks on this
-> disk ... however, when running mke2fs -l badblocfile /dev/hdc1
-> 
-> i got this interesting errormessage for every one of the bad blocks :
-> 
-> Bad block 1006290 out of range; ignored.
+Hey! The lack of atomicity causes "top" to do one of 3 things
+for the idle time report, depending on the version:
 
-That is probably because badblocks was working with badblocks of a
-smaller size than that of the filesystem (i.e. probably 1024 bytes
-instead of 4096 bytes, solution in this case is to divide all bad
-block numbers by 4).
+1. negative numbers
+2. wrap-around (42000000.00% idle)
+3. truncate to zero (the numbers don't add up)
 
-Well that's what happened to me today (worryingly on my newish IBM
-DTLA hd).
-
--- 
-
-	http://ape.n3.net
+This is because top sees the idle time run backwards for a moment.

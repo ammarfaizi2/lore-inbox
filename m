@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262573AbVC2H2g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262575AbVC2Hdc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262573AbVC2H2g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 02:28:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262572AbVC2H22
+	id S262575AbVC2Hdc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 02:33:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbVC2H3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 02:28:28 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:38816 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262527AbVC2HQ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 02:16:26 -0500
-Subject: Re: [ubuntu-hardened] Re: Collecting NX information
-From: Arjan van de Ven <arjan@infradead.org>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: Brandon Hale <brandon@smarterits.com>, ubuntu-hardened@lists.ubuntu.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <4248828B.20708@comcast.net>
-References: <42484B13.4060408@comcast.net>
-	 <1112035059.6003.44.camel@laptopd505.fenrus.org>
-	 <4248520E.1070602@comcast.net>
-	 <1112036121.6003.46.camel@laptopd505.fenrus.org>
-	 <424857B0.4030302@comcast.net>
-	 <1112043246.10117.5.camel@localhost.localdomain>
-	 <4248828B.20708@comcast.net>
+	Tue, 29 Mar 2005 02:29:23 -0500
+Received: from smartmx-04.inode.at ([213.229.60.36]:29860 "EHLO
+	smartmx-04.inode.at") by vger.kernel.org with ESMTP id S262547AbVC2HUa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 02:20:30 -0500
+Subject: Re: INITRAMFS: junk in compressed archive
+From: Bernhard Schauer <linux-kernel-list@acousta.at>
+Reply-To: schauer@acousta.at
+To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <d24rad$378$1@terminus.zytor.com>
+References: <1111679972.5628.10.camel@FC3-bernhard-1.acousta.local>
+	 <1111762170.7238.3.camel@FC3-bernhard-1.acousta.local>
+	 <d24rad$378$1@terminus.zytor.com>
 Content-Type: text/plain
-Date: Tue, 29 Mar 2005 09:16:20 +0200
-Message-Id: <1112080581.6282.1.camel@laptopd505.fenrus.org>
+Date: Tue, 29 Mar 2005 08:20:51 +0200
+Message-Id: <1112077252.6427.21.camel@FC3-bernhard-1.acousta.local>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Kernel + compressed initramfs + uncompressed initramfs must fit in memory at
+> the same time.
 
-> 
-> You need to consider that in the end I'd need PT_GNU_STACK to do
-> everything PaX wants
+But that could not be the problem:
+ 
+          initramfs   packed:  6,4 MByte
+                    unpacked: 14,7 MByte
+          kernel    unpacked:  2,2 MByte
+         --------------------------------
+                              23,3 MByte
 
-why?
-Why not have independent flags for independent things?
-That way you have both cleanness of design and you don't break anything.
+128 MByte RAM on the PC (?) - the kernel tells that the RAM is
+available.
 
-> The point is
-> to not break anything, yet to still make things easier for those
-> projects and distributions like Hardened Ubuntu.
+An other interesting thing is that the "checking if image is
+initramfs... it isn't (junk in compressed archive)" message disappeared
+after using smaller initramfs (using the same method to compress
+the .cpio.gz file!). 
 
-to achieve that you need to get the toolchain to omit this stuff
-automatically somehow. 
+
+Maybe my boot procedure is a problem(?):
+I've to remote-boot DOS via RPL, load Novell Client for DOS, copy Linux
++ initramfs to ramdisk and call loadlin (version 1.6c) to start Linux.
+
+Could there something remain in memory? The size of memory available to
+the PC should still be enough to hold both systems and also the DOS -
+Ramdisk in memory. 
+
+
+Other Question: is (could) DOS-Ramdisk (be) available to Kernel? Maybe
+as MTD?
+
+regards
+
+Bernhard Schauer
 

@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261752AbSIXRoa>; Tue, 24 Sep 2002 13:44:30 -0400
+	id <S261754AbSIXS3i>; Tue, 24 Sep 2002 14:29:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261731AbSIXRni>; Tue, 24 Sep 2002 13:43:38 -0400
-Received: from packet.digeo.com ([12.110.80.53]:43434 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261752AbSIXRmX>;
-	Tue, 24 Sep 2002 13:42:23 -0400
-Message-ID: <3D90A532.4B95C06B@digeo.com>
-Date: Tue, 24 Sep 2002 10:47:30 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
+	id <S261758AbSIXS3i>; Tue, 24 Sep 2002 14:29:38 -0400
+Received: from gherkin.frus.com ([192.158.254.49]:11419 "HELO gherkin.frus.com")
+	by vger.kernel.org with SMTP id <S261754AbSIXS3h>;
+	Tue, 24 Sep 2002 14:29:37 -0400
+Message-Id: <m17tuWJ-0005khC@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob_Tracy)
+Subject: Re: UP IO-APIC
+In-Reply-To: <Pine.LNX.4.44.0209241359340.12397-100000@montezuma.mastecende.com>
+ "from Zwane Mwaikambo at Sep 24, 2002 02:04:33 pm"
+To: linux-kernel@vger.kernel.org
+Date: Tue, 24 Sep 2002 13:34:51 -0500 (CDT)
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.38-mm2 dbench $N times
-References: <20020924132031.GJ6070@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Sep 2002 17:47:30.0915 (UTC) FILETIME=[74980330:01C263F2]
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
+Zwane Mwaikambo wrote:
+> On Tue, 24 Sep 2002, Ricky Beam wrote:
 > 
-> Taken on 32x/32G NUMA-Q:
+> > It works in 2.4, but I've never seen it work in 2.5 -- but I've not compiled
+> > every 2.5.X.  Neither the local APIC or IO APIC work in non-SMP configurations
 > 
-> Throughput 67.3949 MB/sec (NB=84.2436 MB/sec  673.949 MBit/sec)  16 procs
-> dbench 16  11.72s user 122.21s system 422% cpu 31.733 total
-> 
+> I've been using it since inception with local APIC, UP-IOAPIC broke a 
+> couple of times only.
 
-Taken on 2x/0.8G el-scruffo PC:
+My Dell notebook has an APIC, but it has gotten disabled automatically
+at boot time ever since someone labeled my BIOS as broken :-).  FWIW,
+I don't disagree with the "broken" label.
 
-Throughput 135.02 MB/sec (NB=168.775 MB/sec  1350.2 MBit/sec)
-./dbench 16  12.11s user 16.29s system 181% cpu 15.646 total
-
-What's up with that?
+-- 
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------

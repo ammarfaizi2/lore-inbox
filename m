@@ -1,109 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287111AbRL3OnK>; Sun, 30 Dec 2001 09:43:10 -0500
+	id <S287312AbRL3OtU>; Sun, 30 Dec 2001 09:49:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287267AbRL3OnB>; Sun, 30 Dec 2001 09:43:01 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:59665 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S287111AbRL3Omm>; Sun, 30 Dec 2001 09:42:42 -0500
-Date: Sun, 30 Dec 2001 14:42:35 +0000
-From: Russell King <rmk@arm.linux.org.uk>
+	id <S287428AbRL3OtL>; Sun, 30 Dec 2001 09:49:11 -0500
+Received: from mail.gmx.de ([213.165.64.20]:25510 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S287312AbRL3OtE>;
+	Sun, 30 Dec 2001 09:49:04 -0500
+Message-ID: <3C2F2948.DB59646A@gmx.net>
+Date: Sun, 30 Dec 2001 15:48:40 +0100
+From: Mike <maneman@gmx.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix serial close hang
-Message-ID: <20011230144235.B9625@flint.arm.linux.org.uk>
-In-Reply-To: <20011230135249.A9625@flint.arm.linux.org.uk> <20011230141731.GA7314@elfie.cavy.de>
-Mime-Version: 1.0
+Subject: Oops: UMOUNTING in 2.4.17 / Ext2 Partitions destroyed (3x)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011230141731.GA7314@elfie.cavy.de>; from hd@cavy.de on Sun, Dec 30, 2001 at 03:17:31PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 30, 2001 at 03:17:31PM +0100, Heinz Diehl wrote:
-> serial.c:3131: state' undeclared (first use in this function)
+Hello,
 
-Whoops.  This should fix it.
+I recently had a horrendous experience while unmounting some partitions.
+Ironically exactly those I wanted to backup ASAP :-(
 
---- orig/include/linux/serialP.h	Sat Jul 21 10:47:15 2001
-+++ linux/include/linux/serialP.h	Sun Dec 30 13:09:27 2001
-@@ -70,7 +70,7 @@
- 	int			x_char;	/* xon/xoff character */
- 	int			close_delay;
- 	unsigned short		closing_wait;
--	unsigned short		closing_wait2;
-+	unsigned short		closing_wait2; /* obsolete */
- 	int			IER; 	/* Interrupt Enable Register */
- 	int			MCR; 	/* Modem control register */
- 	int			LCR; 	/* Line control register */
---- orig/drivers/char/serial.c	Sun Dec 30 13:37:23 2001
-+++ linux/drivers/char/serial.c	Sun Dec 30 13:49:27 2001
-@@ -3095,36 +3095,52 @@
- 
- 	sstate = rs_table + line;
- 	sstate->count++;
--	if (sstate->info) {
--		*ret_info = sstate->info;
--		return 0;
--	}
-+	info = sstate->info;
-+
-+	/*
-+	 * If the async_struct is already allocated, do the fastpath.
-+	 */
-+	if (info)
-+		goto out;
-+
- 	info = kmalloc(sizeof(struct async_struct), GFP_KERNEL);
- 	if (!info) {
- 		sstate->count--;
- 		return -ENOMEM;
- 	}
-+
- 	memset(info, 0, sizeof(struct async_struct));
- 	init_waitqueue_head(&info->open_wait);
- 	init_waitqueue_head(&info->close_wait);
- 	init_waitqueue_head(&info->delta_msr_wait);
- 	info->magic = SERIAL_MAGIC;
- 	info->port = sstate->port;
-+	info->hub6 = sstate->hub6;
- 	info->flags = sstate->flags;
--	info->io_type = sstate->io_type;
--	info->iomem_base = sstate->iomem_base;
--	info->iomem_reg_shift = sstate->iomem_reg_shift;
- 	info->xmit_fifo_size = sstate->xmit_fifo_size;
-+	info->state = sstate;
- 	info->line = line;
-+	info->iomem_base = sstate->iomem_base;
-+	info->iomem_reg_shift = sstate->iomem_reg_shift;
-+	info->io_type = sstate->io_type;
- 	info->tqueue.routine = do_softint;
- 	info->tqueue.data = info;
--	info->state = sstate;
-+
- 	if (sstate->info) {
- 		kfree(info);
--		*ret_info = sstate->info;
--		return 0;
-+		info = sstate->info;
-+	} else {
-+		sstate->info = info;
-+	}
-+
-+out:
-+	/*
-+	 * If this is the first open, copy over some timeouts.
-+	 */
-+	if (sstate->count == 1) {
-+		info->closing_wait = sstate->closing_wait;
- 	}
--	*ret_info = sstate->info = info;
-+	*ret_info = info;
- 	return 0;
- }
- 
+SITUATION:
+2 weeks ago I assembled a brand new Duron system. I connected my brand
+new UDMA/100 HDD on /dev/HDA and my old UDMA/33 one on /dev/HDB. Jumpers
+are correct. Cable is 80 ribbon. All the funky stuff in the BIOS has
+NEVER been enabled, so everything has been at default from assembly on.
+The only thing somewhat not-kosher was the fact that the SLAVE drive was
+mounted at the END of the ribbon cable (instead of in the middle) as a
+result of having installed this drive as an afterthought and not having
+the space. I still don't know how relevant this is.
+CONTENTS OF /dev/hdb:
+hdb3: old /home
+hdb5: old /
+hdb6: old /usr/local
+In the last week I've mounted and unmounted these a couple of times to
+copy stuff. I mounted /home the most, I mounted /home like twice and
+/usr/local never.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+WHAT HAPPENED:
+So yesterday I had /dev/hdb3 mounted...I try to umount it from /mnt and
+it oopses on me!? According to 'mount' it still mounted and there's no
+way to (u)mount it again. I thought "OK whatever" and try to mount
+/dev/hda5...OOPS again. Remebering what important university reports and
+stuff I had there I completely freak out and change /etc/fstab to e2fsck
+it at bootup and reboot the machine normally.
+Now the fun starts: at bootup it tells me that it can't find any
+superblocks on any of the THREE partitons anymore...they're all gone.
+No matter what I tried with e2fsck it couldn't do anything. 'sfdisk -V'
+reported everything OK and /dev/hda1 (vfat) still mounts and umounts
+correctly.
+
+At first I thought maybe the partitions were long overdue to be
+force-fscked but they'd been asymmetrically (u)mounted (every one a
+different amount of time).
+Rest assured I had NOT been doing any "weird" things, I had (u)mounted
+stuff just like I've been doing for nearly 2 years.
+This is all mind-boggling to me, so if anyone has any suggestions for me
+no matter how silly let me know! I want my data back!
+
+Please CC me as I'm not subscribed to LKML.
+Thanks in advance and thanks for a great kernel.
+-Mike Neman
 

@@ -1,14 +1,14 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314546AbSHRMPG>; Sun, 18 Aug 2002 08:15:06 -0400
+	id <S314529AbSHRMSL>; Sun, 18 Aug 2002 08:18:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314548AbSHRMPF>; Sun, 18 Aug 2002 08:15:05 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:31988 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314546AbSHRMPF>; Sun, 18 Aug 2002 08:15:05 -0400
+	id <S314548AbSHRMSL>; Sun, 18 Aug 2002 08:18:11 -0400
+Received: from adsl-161-92.barak.net.il ([62.90.161.92]:13069 "EHLO
+	hirame.qlusters.com") by vger.kernel.org with ESMTP
+	id <S314529AbSHRMSK>; Sun, 18 Aug 2002 08:18:10 -0400
 Subject: Re: Alloc and lock down large amounts of memory
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Gilad Ben-Yossef <gilad@benyossef.com>
+From: Gilad Ben-Yossef <gilad@benyossef.com>
+To: Gilad Ben-yossef <gilad@benyossef.com>
 Cc: Bhavana Nagendra <Bhavana.Nagendra@3dlabs.com>,
        linux-kernel@vger.kernel.org
 In-Reply-To: <1029672587.12504.88.camel@sake>
@@ -16,27 +16,43 @@ References: <23B25974812ED411B48200D0B774071701248520@exchusa03.intense3d.com>
 	<1029672587.12504.88.camel@sake>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 18 Aug 2002 13:18:17 +0100
-Message-Id: <1029673097.15859.19.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 18 Aug 2002 15:19:29 +0300
+Message-Id: <1029673169.12593.93.camel@sake>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-08-18 at 13:09, Gilad Ben-Yossef wrote:
-> >     Can 256M be allocated using vmalloc, if so is it swappable?
+On Sun, 2002-08-18 at 15:09, Gilad Ben-Yossef wrote:
+
+> > 4. When a process exits will it cause a close to occur on the device?
 > 
-> It can be alloacted via vmalloc and AFAIK it is not swappable by
-> default. This doesn't sound like a very good idea though.
+> Depends how you got the shared memeory. With mmap() it's yes (for
+> regular files at least), with shmget/shmat it's no by default. For mmap
+> of non regulat files (e.g. device files) anything the device file writer
+> had in mind is the answer.
+> 
+> man shmget, shmat, shmat and finally mmap will help you a lot.
 
-There isnt enough address space for vmalloc to grab 256Mb. If you want
-that much then you need to handle the fact its in page arrays not
-virtually linear yourself.
+When I first read the question I was still thinking in terms of shared
+memeory and thought you meant: 'will it destroy the shared memory
+segment?'. 
 
-> Yes. See /proc/kcore for a very obvious example. Also "Linux device
-> drivers second edition" has many good exmaple on the subject in the
-> chapter devoted to mmap.
+If the question was not related to shared memeory and you meant 'will it
+do the same as close() on the file' the answer is yes as well unless the
+device driver specifically chose to fail that for some reason (see the
+watchdog devices for an example and a reason).
 
-A better worked example for large volumes of memory might be
-drivers/media/video/bttv*.c. 
+Gilad.
+
+
+-- 
+Gilad Ben-Yossef <gilad@benyossef.com>
+Code mangler, senior coffee drinker and VP SIGSEGV
+Qlusters ltd.
+
+"You got an EMP device in the server room? That is so cool."
+      -- from a hackers-il thread on paranoia
+
+
 

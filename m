@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269856AbUJGXHr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269900AbUJGXHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269856AbUJGXHr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 19:07:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269916AbUJGXHJ
+	id S269900AbUJGXHs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 19:07:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269897AbUJGXGr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 19:07:09 -0400
-Received: from findaloan.ca ([66.11.177.6]:38624 "EHLO findaloan.ca")
-	by vger.kernel.org with ESMTP id S268232AbUJGXE3 (ORCPT
+	Thu, 7 Oct 2004 19:06:47 -0400
+Received: from fw.osdl.org ([65.172.181.6]:2515 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269891AbUJGXFK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 19:04:29 -0400
-Date: Thu, 7 Oct 2004 19:00:19 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: msipkema@sipkema-digital.com, cfriesen@nortelnetworks.com,
-       hzhong@cisco.com, jst1@email.com, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk, davem@redhat.com
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Message-ID: <20041007230019.GA31684@mark.mielke.cc>
-Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
-	msipkema@sipkema-digital.com, cfriesen@nortelnetworks.com,
-	hzhong@cisco.com, jst1@email.com, linux-kernel@vger.kernel.org,
-	alan@lxorguk.ukuu.org.uk, davem@redhat.com
-References: <00e501c4ac9a$556797d0$b83147ab@amer.cisco.com> <41658C03.6000503@nortelnetworks.com> <015f01c4acbe$cf70dae0$161b14ac@boromir> <4165B9DD.7010603@nortelnetworks.com> <20041007150035.6e9f0e09.davem@davemloft.net> <000901c4acc4$26404450$161b14ac@boromir> <20041007152400.17e8f475.davem@davemloft.net> <20041007224242.GA31430@mark.mielke.cc> <20041007154722.2a09c4ab.davem@davemloft.net>
+	Thu, 7 Oct 2004 19:05:10 -0400
+Date: Thu, 7 Oct 2004 16:08:58 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ian Campbell <icampbell@arcom.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, trivial@rustcorp.com.au,
+       Patrick Mochel <mochel@digitalimplant.org>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] trivial fix for warning in kernel/power/console.c
+Message-Id: <20041007160858.0708e968.akpm@osdl.org>
+In-Reply-To: <1097157857.5231.10.camel@icampbell-debian>
+References: <1097157857.5231.10.camel@icampbell-debian>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041007154722.2a09c4ab.davem@davemloft.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 07, 2004 at 03:47:22PM -0700, David S. Miller wrote:
-> On Thu, 7 Oct 2004 18:42:42 -0400
-> Mark Mielke <mark@mark.mielke.cc> wrote:
-> > Sure, it's nice to demand that people
-> > upgrade to a later version of Perl. Guess what? It isn't happening. It
-> > will be another year or two before we can guarantee people have Perl
-> > 5.006 on their system.
-> If those people are tepid about upgrading perl, I think it would
-> be even less likely that they would upgrade their kernels.
+Ian Campbell <icampbell@arcom.com> wrote:
+>
+> orig_fgconsole and orig_kmsg are only used in kernel/power/console.c if 
+> SUSPEND_CONSOLE is defined.
+> 
+> Signed-off-by: Ian Campbell <icampbell@arcom.com>
+> 
+> Index: 2.6-bk/kernel/power/console.c
+> ===================================================================
+> --- 2.6-bk.orig/kernel/power/console.c	2004-10-07 14:47:25.764724497 +0100
+> +++ 2.6-bk/kernel/power/console.c	2004-10-07 14:47:54.241016791 +0100
+> @@ -11,7 +11,9 @@
+>  
+>  static int new_loglevel = 10;
+>  static int orig_loglevel;
+> +#ifdef SUSPEND_CONSOLE
+>  static int orig_fgconsole, orig_kmsg;
+> +#endif
 
-Good practical point for the here and now. :-)
+Not only that, orig_kmsg is assigned to but never read from.
 
-The discussion, though, is more about what it should have been.
-The combined frustrations of many of us.
-
-To colour the discussion a bit, many of us have had these same
-frustrations with Sun, and HP on various issues.
-
-Just say "it's a bug, but one we have chosen not to fix for practical
-reasons." That would have kept me out of this discussion. Saying the
-behaviour is correct and that POSIX is wrong - that raises hairs -
-both the question kind, and the concern kind.
-
-Cheers,
-mark
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
 

@@ -1,56 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132521AbRCZSGD>; Mon, 26 Mar 2001 13:06:03 -0500
+	id <S132531AbRCZSLF>; Mon, 26 Mar 2001 13:11:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132526AbRCZSFy>; Mon, 26 Mar 2001 13:05:54 -0500
-Received: from [216.161.55.93] ([216.161.55.93]:9724 "EHLO blue.int.wirex.com")
-	by vger.kernel.org with ESMTP id <S132521AbRCZSFc>;
-	Mon, 26 Mar 2001 13:05:32 -0500
-Date: Mon, 26 Mar 2001 10:08:56 -0800
-From: Greg KH <greg@wirex.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.2.19 toshiba module fix
-Message-ID: <20010326100856.E18021@wirex.com>
-Mail-Followup-To: Greg KH <greg@wirex.com>, linux-kernel@vger.kernel.org
+	id <S132528AbRCZSKy>; Mon, 26 Mar 2001 13:10:54 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52740 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S132505AbRCZSKn>;
+	Mon, 26 Mar 2001 13:10:43 -0500
+Date: Mon, 26 Mar 2001 19:09:45 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: Andreas Dilger <adilger@turbolinux.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, LA Walsh <law@sgi.com>,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: 64-bit block sizes on 32-bit systems
+Message-ID: <20010326190945.I31126@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20010326181803.F31126@parcelfarce.linux.theplanet.co.uk> <200103261747.f2QHlEX19564@webber.adilger.int>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="nmemrqcdn5VTmUEE"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
+In-Reply-To: <200103261747.f2QHlEX19564@webber.adilger.int>; from adilger@turbolinux.com on Mon, Mar 26, 2001 at 10:47:13AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 26, 2001 at 10:47:13AM -0700, Andreas Dilger wrote:
+> What do you mean by problems 5 years down the road?  The real issue is that
+> this 32-bit block count limit affects composite devices like MD RAID and
+> LVM today, not just individual disks.  There have been several postings
+> I have seen with people having a problem _today_ with a 2TB limit on
+> devices.
 
---nmemrqcdn5VTmUEE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-The following patch enables the toshiba module to compile correctly on
-2.2.19.
-
-thanks,
-
-greg k-h
+people who can afford 2TB of disc can afford to buy a 64-bit processor.
 
 -- 
-greg@(kroah|wirex).com
-http://immunix.org/~greg
-
---nmemrqcdn5VTmUEE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="toshiba-2.2.19.patch"
-
-diff -Naur -X /home/greg/linux/dontdiff linux-2.2.19/drivers/char/toshiba.c linux-2.2.19-greg/drivers/char/toshiba.c
---- linux-2.2.19/drivers/char/toshiba.c	Sun Mar 25 09:45:19 2001
-+++ linux-2.2.19-greg/drivers/char/toshiba.c	Mon Mar 26 09:19:08 2001
-@@ -78,7 +78,7 @@
- #include<linux/proc_fs.h>
- #endif
- 
--#include"toshiba.h"
-+#include<linux/toshiba.h>
- 
- #define TOSH_MINOR_DEV 181
- 
-
---nmemrqcdn5VTmUEE--
+Revolutions do not require corporate support.

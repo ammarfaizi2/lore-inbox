@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129126AbRBQQiQ>; Sat, 17 Feb 2001 11:38:16 -0500
+	id <S129129AbRBQQ4B>; Sat, 17 Feb 2001 11:56:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129230AbRBQQiH>; Sat, 17 Feb 2001 11:38:07 -0500
-Received: from jalon.able.es ([212.97.163.2]:43482 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129126AbRBQQh7>;
-	Sat, 17 Feb 2001 11:37:59 -0500
-Date: Sat, 17 Feb 2001 17:37:51 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Paul Gortmaker <p_gortmaker@yahoo.com>
-Cc: linux-kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] a more efficient BUG() macro
-Message-ID: <20010217173751.A1012@werewolf.able.es>
-In-Reply-To: <3A8E3BA5.4B98E94E@yahoo.com>
+	id <S129183AbRBQQzv>; Sat, 17 Feb 2001 11:55:51 -0500
+Received: from se1.cogenit.fr ([195.68.53.173]:53264 "EHLO se1.cogenit.fr")
+	by vger.kernel.org with ESMTP id <S129129AbRBQQzn>;
+	Sat, 17 Feb 2001 11:55:43 -0500
+Date: Sat, 17 Feb 2001 17:54:48 +0100
+From: Francois Romieu <romieu@cogenit.fr>
+To: Dennis <dennis@etinc.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux stifles innovation...
+Message-ID: <20010217175448.A32170@se1.cogenit.fr>
+In-Reply-To: <5.0.0.25.0.20010216170349.01efc030@mail.etinc.com> <E14TtEx-0004Lr-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3A8E3BA5.4B98E94E@yahoo.com>; from p_gortmaker@yahoo.com on Sat, Feb 17, 2001 at 09:51:49 +0100
-X-Mailer: Balsa 1.1.1
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <E14TtEx-0004Lr-00@the-village.bc.nu>
+X-Organisation: Marie's fan club - I
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 02.17 Paul Gortmaker wrote:
-> I was poking around in a vmlinux the other day and was surprised at the 
-> amount of repetitive crap text that was in there.  For example, try:
+Alan Cox <alan@lxorguk.ukuu.org.uk> écrit :
+[...]
+> > For example, if there were six different companies that marketed ethernet 
+> > drivers for the eepro100, you'd have a choice of which one to buy..perhaps 
+> > with different "features" that were of value to you. Instead, you have 
+> > crappy GPL code that locks up under load, and its not worth spending 
 > 
-> strings vmlinux|grep $PWD|wc -c
+> Umm I find the driver very reliable. And actually I have choice of two
+> eepro100 drivers eepro100.c and e100.c so you cant even pick an example.
 > 
-> which gets some 70KB in my case - depends on strlen($PWD) obviously.  The 
-> culprit is BUG() in a static inline that is in a header file.  In this 
-> case cpp expands __FILE__ to the full path of the header file in question. 
-> (IIRC there is a __BASEFILE__ that would be a better choice than __FILE__)
-> 
+> Of course your keenness to let people write alternative free drivers for
+> your etinc pci card is extremely well known. Fortunately despite your best
+> efforts there is now a choice in 2.4
 
-Or better __FUNCTION__. Or even better __func__ that is gcc and ANSI99 C
-compatible.
+Some words from the Ural mountains...
+I wouldn't suggest to use my code in a production environment today (that's
+why it's labelled 'EXPERIMENTAL' :o) ):
+- I'm bad at handling Receive Data Overflow events. Here I suffer
+from the lack of ability to trigger it. Now that I'm sharing my flat
+with a (decent) traffic analyzer, I should be able to fix that.
+- there are issues with the upper layers (I must do some more test
+and document the whole). 
+- the current way to handle the 'DSCC4 sometime forgets events' failure is
+really gross and sub-optimal.
 
-Time to make a patch...
+I've found time to buy a brand new computer and it should *really* help for 
+these two points.
+
+So far, my driver hasn't the required reliability that one expects to 
+build a 4 ports router. Etinc's one may be better at this now*.
+Well, I'll fix it. No need to be a genius.
+
+Dennis, thanks to your closed source vision, I found an opportunity to 
+fill a gap. Now, some people are willing to make $$$ with me.
+
+
+*but it's not that difficult to find a way to crash it. A "Don't do that"
+section on Etincs site would nicely replace the "Mine is bigger than yours" 
+pages.
 
 -- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
-
-Linux werewolf 2.4.1-ac17 #1 SMP Sat Feb 17 01:47:56 CET 2001 i686
-
+Ueimor

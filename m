@@ -1,74 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263315AbTJQGoi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 02:44:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTJQGoi
+	id S263319AbTJQGsO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 02:48:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263320AbTJQGsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 02:44:38 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:61623 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263315AbTJQGog (ORCPT
+	Fri, 17 Oct 2003 02:48:14 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:42936 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263319AbTJQGsK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 02:44:36 -0400
-Date: Fri, 17 Oct 2003 08:44:31 +0200
+	Fri, 17 Oct 2003 02:48:10 -0400
+Date: Fri, 17 Oct 2003 08:48:08 +0200
 From: Jens Axboe <axboe@suse.de>
-To: Greg Stark <gsstark@mit.edu>
-Cc: "Mudama, Eric" <eric_mudama@Maxtor.com>,
+To: "Mudama, Eric" <eric_mudama@Maxtor.com>
+Cc: "'Greg Stark'" <gsstark@mit.edu>,
        Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] ide write barrier support
-Message-ID: <20031017064431.GW1128@suse.de>
-References: <785F348679A4D5119A0C009027DE33C105CDB2C5@mcoexc04.mlm.maxtor.com> <87ekxcap7a.fsf@stark.dyndns.tv>
+Message-ID: <20031017064808.GY1128@suse.de>
+References: <785F348679A4D5119A0C009027DE33C105CDB2D0@mcoexc04.mlm.maxtor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87ekxcap7a.fsf@stark.dyndns.tv>
+In-Reply-To: <785F348679A4D5119A0C009027DE33C105CDB2D0@mcoexc04.mlm.maxtor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 16 2003, Greg Stark wrote:
+On Thu, Oct 16 2003, Mudama, Eric wrote:
 > 
-> "Mudama, Eric" <eric_mudama@Maxtor.com> writes:
 > 
-> > It takes us multiple servo wedges to know that we think our write to the
-> > media went in the right place, therefore by definition if we didn't already
-> > have the next command's data, we've already missed our target location and
-> > have to wait a full revolution to put the new data on the media.  Since we
-> > can't report good status for the flush until after we're sure the data is
-> > down properly, we'll always blow a rev.
+> > -----Original Message-----
+> > From: Greg Stark
+> >
+> > Ideally postgres just needs to call some kind of fsync 
+> > syscall that guarantees
+> > it won't return until all buffers from the file that were 
+> > dirty prior to the
+> > sync were flushed and the disk was really synced. It's fine 
+> > for buffers that
+> > were dirtied later to get synced as well, as long as all the 
+> > old buffers are
+> > all synced.
 > 
-> Ok, on further thought. I think a write barrier isn't really what the database
-> needs. It seems to be stronger and more resource intensive than what it really
-> needs.
+> This checkpointing doesn't exist in ATA, only in SCSI I think.  You can get
+> similar behavior in ATA-7 capable drives (which I don't think are on the
+> market yet) by issuing FUA commands.  These will not return good status
+> until the data is on the media, and they can be intermingled with other
+> cached writes without destroying overall performance.
 > 
-> Postgres writes a transaction log. When the client issues a commit postgres
-> cannot return until it knows all the writes for the transaction log for that
-> transaction have completed.
+> If there was some way to define a file as FUA instead of normal, then you'd
+> know every write to it would be on the media if the status was good.
+> However, you may have committed your journal or whatever and have possibly
+> significantly stale data on the drive's cache in the user data area.
 > 
-> Currently it issues an fsync which is already a bit stronger than necessary.
-> But a write barrier sounds even stronger. It would block all other disk i/o
-> until the fsync completes. This is completely unnecessary, it would prevent
-> other transactions from proceeding at all until the commit finished.
-> 
-> Ideally postgres just needs to call some kind of fsync syscall that guarantees
-> it won't return until all buffers from the file that were dirty prior to the
-> sync were flushed and the disk was really synced. It's fine for buffers that
-> were dirtied later to get synced as well, as long as all the old buffers are
-> all synced.
+> As far as the actual file-system call mechanism to achive this, I have no
+> idea... I know very little about linux internals, I just try to answer
+> disk-related questions.
 
-I've been thinking about adding WRITESYNC to do exactly that, and keep
-WRITEBARRIER with its current functionality for journalled file
-systems. WRITESYNC would be exactly what you describe, it just wont
-imply any io scheduler ordering. So a post-flush would be enough to
-handle that case.
-
-The problem is that as far as I can see the best way to make fsync
-really work is to make the last write a barrier write. That
-automagically gets everything right for you - when the last block goes
-to disk, you know the previous ones have already. And when the last
-block completes, you know the whole lot is on platter. If you were just
-using WRITESYNC, you would have to WRITESYNC all blocks in that range
-instead of just WRITE WRITE WRITE ... WRITEBARRIER. So the barrier would
-still end up being cheaper, unless the fsync just flushes a single page
-in which case the WRITESYNC is enough.
+Yes that would be very nice, but unfortunately I think FUA in ATA got
+defined as not implying ordering (the FUA write would typically go
+straight to disk, ahead of any in-cache dirty data). Which makes it less
+useful, imo.
 
 -- 
 Jens Axboe

@@ -1,32 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262420AbSJaPUs>; Thu, 31 Oct 2002 10:20:48 -0500
+	id <S262447AbSJaPeN>; Thu, 31 Oct 2002 10:34:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262447AbSJaPUr>; Thu, 31 Oct 2002 10:20:47 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:44553 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262420AbSJaPUr>; Thu, 31 Oct 2002 10:20:47 -0500
-Date: Thu, 31 Oct 2002 15:27:10 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
-Subject: Re: Where's the documentation for Kconfig?
-Message-ID: <20021031152710.A8214@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
-References: <20021031134308.I27461@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0210311452531.13258-100000@serv>
+	id <S262604AbSJaPeM>; Thu, 31 Oct 2002 10:34:12 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:16231 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S262447AbSJaP0h>; Thu, 31 Oct 2002 10:26:37 -0500
+Subject: Re: [PATCH,RFC] faster kmalloc lookup
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3DBAEB64.1090109@colorfullife.com>
+References: <3DBAEB64.1090109@colorfullife.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-5Jp+sKlSDzneG+qpHV7Z"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 31 Oct 2002 10:35:16 +0100
+Message-Id: <1036056917.2872.0.camel@dhcp59-228.rdu.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0210311452531.13258-100000@serv>; from zippel@linux-m68k.org on Thu, Oct 31, 2002 at 03:43:26PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 31, 2002 at 03:43:26PM +0100, Roman Zippel wrote:
-> Here a small howto for CML1 users.
 
-Could you please update Documentation/kbuild/config-language.txt
-based on that?
+--=-5Jp+sKlSDzneG+qpHV7Z
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Sat, 2002-10-26 at 21:22, Manfred Spraul wrote:
+> kmalloc spends a large part of the total execution time trying to find=20
+> the cache for the passed in size.
+
+would it be possible for fixed size kmalloc's to have the compiler
+precalculate this ?
+
+
+
+--=-5Jp+sKlSDzneG+qpHV7Z
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9wPlUxULwo51rQBIRAvXFAJ94lPJK6Y6c72dg3+b8HLgIdF9VYQCfflfy
+iWRKK0cG1lK9G2LeW+ZkdzY=
+=fhqG
+-----END PGP SIGNATURE-----
+
+--=-5Jp+sKlSDzneG+qpHV7Z--
 

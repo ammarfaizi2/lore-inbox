@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbTE2FNb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 01:13:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbTE2FNb
+	id S261878AbTE2FVc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 01:21:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbTE2FVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 01:13:31 -0400
-Received: from ajax.cs.uga.edu ([128.192.251.3]:61854 "EHLO ajax.cs.uga.edu")
-	by vger.kernel.org with ESMTP id S261893AbTE2FNa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 01:13:30 -0400
-To: linux-kernel@vger.kernel.org
-Cc: Jim Houston <jim.houston@attbi.com>
-Subject: Re: signal queue resource - Posix timers
-From: Ed L Cashin <ecashin@uga.edu>
-Date: Thu, 29 May 2003 01:26:45 -0400
-In-Reply-To: <20030529014608.GX8978@holomorphy.com> (William Lee Irwin III's
- message of "Wed, 28 May 2003 18:46:08 -0700")
-Message-ID: <87y90q1fxm.fsf@cs.uga.edu>
-User-Agent: Gnus/5.090014 (Oort Gnus v0.14) Emacs/21.2
- (i386-debian-linux-gnu)
-References: <200305281856.h4SIuFZ02449@linux.local>
-	<20030529014608.GX8978@holomorphy.com>
+	Thu, 29 May 2003 01:21:32 -0400
+Received: from marstons.services.quay.plus.net ([212.159.14.223]:23501 "HELO
+	marstons.services.quay.plus.net") by vger.kernel.org with SMTP
+	id S261878AbTE2FVb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 01:21:31 -0400
+From: "Riley Williams" <Riley@Williams.Name>
+To: "Marc Wilson" <msw@cox.net>, "lkml" <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-rc6
+Date: Thu, 29 May 2003 06:34:48 +0100
+Message-ID: <BKEGKPICNAKILKJKMHCAIEANECAA.Riley@Williams.Name>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20030529052425.GA1566@moonkingdom.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> writes:
+Hi Marc.
 
-> On Wed, May 28, 2003 at 02:56:15PM -0400, Jim Houston wrote:
->> In the pre-allocated approach, the timer code would allocate a
->> sigqueue structure as part of the timer_create.  I would add new
->> send_sigqueue() and send_group_sigqueue() which would accept the
->> pointer to the pre-allocated sigqueue structure rather than a siginfo
->> pointer. There would also be changes to the code which dequeues the
->> siginfo structure to recognize these preallocated sigqueue structures.
->> In the case of Posix timers using a preallocated siqueue entry also
->> makes handling overruns easier.  If the timer code finds that its
->> sigqueue structure is still queued, it can simply increment the
->> overrun count.
->> The reservation approach would keep a pre-allocated pool of sigqueue
->> structures and a reservation count.  The timer_create would reserve
->> a sigqueue entry which would be place in the pool until it is needed.
->> I wonder if anyone else is interested in this problem.
->
-> Well, I've never run into it and it sounds really obscure, but I agree
-> in principle that it's better to return an explicit error to userspace
-> than to silently fail, at least when it's feasible (obviously the kernel
-> can be beaten to death with events faster than it can deliver them, so
-> it won't always be feasible).
+ > I just had mutt > freeze cold on me though for ~15 sec when
+ > it tried to open my debian-devel mbox (rather large file)
+ > while brag was beating on the drive.
+ >
+ > <whimper>
 
-Why couldn't this be a configurable per-user thing like RSS rlimits?
+I used to get the same effect when I asked pine to open the
+Linux-Kernel mailbox on my system. I long since cured that by
+having procmail split Linux-Kernel mail into multiple mailboxes,
+one for each calendar week.
 
--- 
---Ed L Cashin     PGP public key: http://noserose.net/e/pgp/
+The basic problem there is that any mail client needs to know
+just how many messages are in a particular folder to handle that
+folder, and the only way to do this is to count them all. That's
+what takes the time when one opens a large folder.
+
+Best wishes from Riley.
+---
+ * Nothing as pretty as a smile, nothing as ugly as a frown.
+
+---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.484 / Virus Database: 282 - Release Date: 27-May-2003
 

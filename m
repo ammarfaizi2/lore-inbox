@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266684AbRGQQRJ>; Tue, 17 Jul 2001 12:17:09 -0400
+	id <S266706AbRGQQUj>; Tue, 17 Jul 2001 12:20:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266668AbRGQQQ7>; Tue, 17 Jul 2001 12:16:59 -0400
-Received: from delta.Colorado.EDU ([128.138.139.9]:9743 "EHLO ibg.colorado.edu")
-	by vger.kernel.org with ESMTP id <S266656AbRGQQQx>;
-	Tue, 17 Jul 2001 12:16:53 -0400
-Message-Id: <200107171615.KAA254078@ibg.colorado.edu>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Too much memory causes crash when reading/writing to disk 
-In-Reply-To: Andrew Morton's message of Wed, 18 Jul 2001 00:00:54 +1000.
-In-Reply-To: <200107171322.HAA245907@ibg.colorado.edu> <3B544516.FF6643E8@uow.edu.au> 
-Organization: Institute for Behavioral Genetics
-              University of Colorado
-              Boulder, CO  80309-0447
-X-Phone: +1 303 492 2843
-X-FAX: +1 303 492 8063
-X-URL: http://ibgwww.Colorado.EDU/~lessem/
-X-Copyright: All original content is copyright 2001 Jeff Lessem.
-X-Copyright: Quoted and non-original content may be copyright the
-X-Copyright: original author or others.
-Date: Tue, 17 Jul 2001 10:15:42 -0600
-From: Jeff Lessem <Jeff.Lessem@Colorado.EDU>
+	id <S266691AbRGQQU3>; Tue, 17 Jul 2001 12:20:29 -0400
+Received: from oe20.law10.hotmail.com ([64.4.14.124]:3589 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S266706AbRGQQUR>;
+	Tue, 17 Jul 2001 12:20:17 -0400
+X-Originating-IP: [64.108.12.20]
+From: "William Scott Lockwood III" <Scottlockwood@hotmail.com>
+To: "Alan Shutko" <ats@acm.org>, "David Woodhouse" <dwmw2@infradead.org>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <OE17UirmJJgWha8vFnq000074b6@hotmail.com> <Pine.LNX.4.33.0107171532450.1817-100000@ketil.np> <7721.995383087@redhat.com> <OE207Offjcu1lObtvrw000044b6@hotmail.com> <87u20b36g5.fsf@wesley.springies.com>
+Subject: Re: [VERY OT] Re: 2.4.6-ac5 gives wrong cache info for Duron in /proc/cpuinfo
+Date: Tue, 17 Jul 2001 11:25:10 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;	charset="iso-8859-1"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Message-ID: <OE2098Bi89QtpfTYSl10000082b@hotmail.com>
+X-OriginalArrivalTime: 17 Jul 2001 16:20:16.0431 (UTC) FILETIME=[5D51A3F0:01C10EDC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id CAA26832
 
-In your message of: Wed, 18 Jul 2001 00:00:54 +1000, you write:
->> I made the patch against
->> 2.4.6, because 2.4.7-pre6 doesn't boot at all (I guess I should send
->> another message about that problem).
->
->If it's locking up just after printing out the `NET3' banner,
->don't bother - known problem with softirqs.  It'll be fixed
->in the next kernel.
+Well, it does sound stupid but hey - they have to call it something right?  I have always been a bit peeved that I get a 30 gig drive, take it home and plug it in only to find that it is actually much less than 30 gig.  :-)
 
-Yes, that is the problem.  I'll wait for a future release.
+----- Original Message ----- 
+From: "Alan Shutko" <ats@acm.org>
+To: "William Scott Lockwood III" <scottlockwood@hotmail.com>
+Cc: "David Woodhouse" <dwmw2@infradead.org>; <linux-kernel@vger.kernel.org>
+Sent: Tuesday, July 17, 2001 10:50 AM
+Subject: Re: [VERY OT] Re: 2.4.6-ac5 gives wrong cache info for Duron in /proc/cpuinfo
 
->> >Also (but separately) try enabling the NMI watchdog with
->> >the `nmi_watchdog=1' kernel boot parameter.
->> 
->> This worked, and I recreated the crash:
->
->Wouldn't have a clue.  It isn't spinning on a lock.
->It almost looks as if the timer interrupt isn't getting
->cleared, and the CPU is never leaving the interrupt.  But
->that would cause the timer interrupt count to increase like
->crazy and the NMI would never have kicked in.  Nice one.
->
->For interest's sake, could you please try booting with the
->`noapic' option, and also send another NMI watchdog trace?
 
-I tried that, but the Symbios SCSI controller freaks out with noapic.
-I can be more detailed if that would be useful.  I can also try a
-non-smp kernel and run the machine with 1 processor and 8GB, if you
-think that would be useful in solving the problem.
-
-I appreciate your help in this, as yes, the problem is indeed a nice
-one...
-
---
-Jeff Lessem.
+| "William Scott Lockwood III" <thatlinuxguy@hotmail.com> writes:
+| 
+| > Today, I learned that multiples of 1024 is actually Ki.
+| 
+| It's a reasonably new standard that hasn't caught on, because many
+| people think that "kibibyte" is stupid.
+| 
+| --
+| Alan Shutko <ats@acm.org> - In a variety of flavors!
+| Tempt me with a spoon!
+| 
+ı:.Ë›±Êâmçë¢kaŠÉb²ßìzwm…ébïîË›±Êâmébìÿ‘êçz_âØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Ş—ú+€Ê+zf£¢·hšˆ§~†­†Ûiÿÿïêÿ‘êçz_è®æj:+v‰¨ş)ß£ømšSåy«­æ¶…­†ÛiÿÿğÃí»è®å’i

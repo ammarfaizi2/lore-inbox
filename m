@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272818AbRIWUBY>; Sun, 23 Sep 2001 16:01:24 -0400
+	id <S272773AbRIWUBf>; Sun, 23 Sep 2001 16:01:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272817AbRIWUBP>; Sun, 23 Sep 2001 16:01:15 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30483 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272773AbRIWUBF>; Sun, 23 Sep 2001 16:01:05 -0400
-Subject: Re: [PATCH] tty canonical mode: nicer erase behaviour
-To: zefram@fysh.org
-Date: Sun, 23 Sep 2001 21:05:56 +0100 (BST)
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <E15kyyG-0000mq-00@dext.rous.org> from "zefram@fysh.org" at Sep 23, 2001 02:26:16 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S272817AbRIWUBY>; Sun, 23 Sep 2001 16:01:24 -0400
+Received: from hermes.toad.net ([162.33.130.251]:57813 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S272773AbRIWUBT>;
+	Sun, 23 Sep 2001 16:01:19 -0400
+Message-ID: <3BAE3F7A.25A717BE@yahoo.co.uk>
+Date: Sun, 23 Sep 2001 16:00:58 -0400
+From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac13 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Aironet driver version number?
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15lFVk-0000Ex-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> One of the long-standing problems preventing Unix from being a
-> user-friendly desktop OS is its handling of erase keys.  There are
+I have been looking into the drivers available for the
+Cisco Aironet 3[45]x cards and I have found several different
+versions.  The three that seem to be the most recent are 
+1) the "stock" Linux driver, from the kernel source tree
+2) the pcmcia-cs driver, available in the pcmcia-cs package at SourceForge
+3) the Cisco driver, available in the Linux driver tarball on the Cisco website
 
-Not a kernel space issue
+Drivers #2 and #3 have version numbers in them of 1.8 and 1.5.2, respectively.
+The stock Linux driver seems a bit more recent than the latter two, yet its
+version number is listed as 0.3.  Line 710 of drivers/net/wireless/airo.c:
 
-> often two such keys on a keyboard (Backspace and Delete), and which one
-> works depends very much on context -- many text editing programs will
-> only accept one of the erase-related characters (^H and ^?), and the
+> static const char version[] = "airo.c 0.3 (Ben Reed & Javier Achirica)";
 
-They do different things, they are different keys.
+Is this number inaccurate, or does it belong to a different numbering
+scheme?  Or am I wrong and this driver is actually very old?
 
-Erase character policy is precisely defined by posix. Fix problem apps. 
-Debian set a policy on this a long time back and have done wonders since
+I would ask the maintainer, but none is listed in linux/MAINTAINERS.
+Nevertheless I am bcc:ing the individuals whose e-mail addresses are
+given in the source files.
+
+--
+Thomas Hood

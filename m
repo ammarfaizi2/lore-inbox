@@ -1,141 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVAHPsT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVAHQAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbVAHPsT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 10:48:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVAHPsT
+	id S261198AbVAHQAi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 11:00:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVAHQAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 10:48:19 -0500
-Received: from mail.gmx.net ([213.165.64.20]:20411 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261195AbVAHPrm (ORCPT
+	Sat, 8 Jan 2005 11:00:38 -0500
+Received: from w240.dkm.cz ([62.24.88.240]:6154 "EHLO mail.spitalnik.net")
+	by vger.kernel.org with ESMTP id S261198AbVAHQAa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 10:47:42 -0500
-X-Authenticated: #13409387
-Message-ID: <41E07F55.8030803@gmx.net>
-Date: Sat, 08 Jan 2005 16:48:21 -0800
-From: Gunther Mayer <gunther.mayer@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Sat, 8 Jan 2005 11:00:30 -0500
+From: Jan Spitalnik <lkml@spitalnik.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: oops in fib_get_next()
+Date: Sat, 8 Jan 2005 17:00:24 +0100
+User-Agent: KMail/1.7.91
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH-2.6.10] ide-lib printk readability fix
-Content-Type: multipart/mixed;
- boundary="------------020005070803060102020306"
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501081700.24616.lkml@spitalnik.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020005070803060102020306
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi
 
-Hi,
-this improves logic and readability:
-- remove blank from: AbortedCommand (as other flags)
-- add blank and {} to error= line
-- clean up: remove 2 lines and extra printk
+I'm getting an oops in fib_get_next(). I've tried 2.6.10-rc2, 2.6.10 
+and 2.6.10-bk snapshot from today and they both exhibit this behviour. 
+The oops below is from 2.6.10-bk. I'm not sure what in gkrellmd triggers
+this oops. Usually it happens after 1-2 days of running of the system.
 
-before:
-  hdd: status error: status=0x7f { DriveReady DeviceFault SeekComplete 
-DataRequest CorrectedError Index Error }
-  hdd: status error: error=0x7fIllegalLengthIndication EndOfMedia 
-Aborted Command MediaChangeRequested LastFailedSense 0x07
+Thanks,
+		jan
 
+Jan  8 08:01:06 bratrk kernel: Unable to handle kernel paging request at virtual address 00100100
+Jan  8 08:01:06 bratrk kernel:  printing eip:
+Jan  8 08:01:06 bratrk kernel: c026b1cf
+Jan  8 08:01:06 bratrk kernel: *pde = 00000000
+Jan  8 08:01:06 bratrk kernel: Oops: 0000 [#1]
+Jan  8 08:01:06 bratrk kernel: Modules linked in: cls_fw sch_ingress ipt_length ipt_tos sch_sfq sch_htb ipt_CLASSIFY ipt_mark ipt_CONNMARK iptable_mangle ipt_MARK ipt_REJECT ipt_LOG ipt_limit ipt_mac iptable_filter dummy hostap_pci hostap e100 mii 3c59x ip_nat_irc ip_conntrack_irc ip_nat_ftp iptable_nat ip_tables ip_conntrack_ftp ip_conntrack
+Jan  8 08:01:06 bratrk kernel: CPU:    0
+Jan  8 08:01:06 bratrk kernel: EIP:    0060:[fib_get_next+31/304]    Not tainted VLI
+Jan  8 08:01:06 bratrk kernel: EFLAGS: 00010282   (2.6.10) 
+Jan  8 08:01:06 bratrk kernel: EIP is at fib_get_next+0x1f/0x130
+Jan  8 08:01:06 bratrk kernel: eax: c6f55360   ebx: 00100100   ecx: 00000001   edx: c75878e0
+Jan  8 08:01:06 bratrk kernel: esi: c6e18160   edi: c73d7fac   ebp: 00000400   esp: c73d7f1c
+Jan  8 08:01:06 bratrk kernel: ds: 007b   es: 007b   ss: 0068
+Jan  8 08:01:06 bratrk kernel: Process gkrellmd (pid: 2522, threadinfo=c73d6000 task=c776c020)
+Jan  8 08:01:06 bratrk kernel: Stack: 00000028 c6f55360 c73d7fac 00000400 c026b31d c6f55360 00000000 c016704e 
+Jan  8 08:01:06 bratrk kernel:        c6f55360 c73d7f54 c46a1810 00000000 c73d7f74 c01107b8 00000028 00000000 
+Jan  8 08:01:06 bratrk kernel:        00000000 c6ae0380 c73d7fac 00000400 c0149418 c6ae0380 b7e0f000 00000400 
+Jan  8 08:01:06 bratrk kernel: Call Trace:
+Jan  8 08:01:06 bratrk kernel:  [fib_seq_start+61/80] fib_seq_start+0x3d/0x50
+Jan  8 08:01:06 bratrk kernel:  [seq_read+174/672] seq_read+0xae/0x2a0
+Jan  8 08:01:06 bratrk kernel:  [recalc_task_prio+168/416] recalc_task_prio+0xa8/0x1a0
+Jan  8 08:01:06 bratrk kernel:  [vfs_read+200/368] vfs_read+0xc8/0x170
+Jan  8 08:01:06 bratrk kernel:  [sys_read+81/128] sys_read+0x51/0x80
+Jan  8 08:01:06 bratrk kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Jan  8 08:01:06 bratrk kernel: Code: 4e 0c 89 5e 10 eb 85 90 8d 74 26 00 55 57 56 53 8b 44 24 14 8b 70 2c 8b 5e 10 8b 56 0c 85 db 74 21 85 d2 0f 84 fe 00 00 00 8b 1b <8b> 03 8d 74 26 00 8d 42 08 39 c3 74 0a 89 5e 10 89 d8 5b 5e 5f 
+-- 
+Jan Spitalnik
+jan@spitalnik.net
 
-after:
-  hdd: status error: status=0x7f { DriveReady DeviceFault SeekComplete 
-DataRequest CorrectedError Index Error }
-  hdd: status error: error=0x7f { IllegalLengthIndication EndOfMedia 
-AbortedCommand MediaChangeRequested LastFailedSense=0x07 }
-
-Please apply.
--
-Gunther
-
---- linux-2.6.10/drivers/ide/ide-lib.c-orig     2004-12-24 
-13:35:39.000000000 -0800
-+++ linux-2.6.10/drivers/ide/ide-lib.c  2005-01-08 16:04:35.977731896 -0800
-@@ -462,8 +462,7 @@
- 
-        status.all = stat;
-        local_irq_set(flags);
--       printk("%s: %s: status=0x%02x", drive->name, msg, stat);
--       printk(" { ");
-+       printk("%s: %s: status=0x%02x { ", drive->name, msg, stat);
-        if (status.b.bsy)
-                printk("Busy ");
-        else {
-@@ -475,18 +474,17 @@
-                if (status.b.idx)       printk("Index ");
-                if (status.b.check)     printk("Error ");
-        }
--       printk("}");
--       printk("\n");
-+       printk("}\n");
-        if ((status.all & (status.b.bsy|status.b.check)) == 
-status.b.check) {
-                error.all = HWIF(drive)->INB(IDE_ERROR_REG);
--               printk("%s: %s: error=0x%02x", drive->name, msg, error.all);
-+               printk("%s: %s: error=0x%02x { ", drive->name, msg, 
-error.all);
-                if (error.b.ili)        printk("IllegalLengthIndication ");
-                if (error.b.eom)        printk("EndOfMedia ");
--               if (error.b.abrt)       printk("Aborted Command ");
-+               if (error.b.abrt)       printk("AbortedCommand ");
-                if (error.b.mcr)        printk("MediaChangeRequested ");
--               if (error.b.sense_key)  printk("LastFailedSense 0x%02x ",
-+               if (error.b.sense_key)  printk("LastFailedSense=0x%02x ",
-                                                error.b.sense_key);
--               printk("\n");
-+               printk("}\n");
-        }
-        local_irq_restore(flags);
-        return error.all;
-
-
---------------020005070803060102020306
-Content-Type: text/plain;
- name="gmdiff-lx2610-ide-lib-error-readability-fix"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="gmdiff-lx2610-ide-lib-error-readability-fix"
-
---- linux-2.6.10/drivers/ide/ide-lib.c-orig	2004-12-24 13:35:39.000000000 -0800
-+++ linux-2.6.10/drivers/ide/ide-lib.c	2005-01-08 16:04:35.977731896 -0800
-@@ -462,8 +462,7 @@
- 
- 	status.all = stat;
- 	local_irq_set(flags);
--	printk("%s: %s: status=0x%02x", drive->name, msg, stat);
--	printk(" { ");
-+	printk("%s: %s: status=0x%02x { ", drive->name, msg, stat);
- 	if (status.b.bsy)
- 		printk("Busy ");
- 	else {
-@@ -475,18 +474,17 @@
- 		if (status.b.idx)	printk("Index ");
- 		if (status.b.check)	printk("Error ");
- 	}
--	printk("}");
--	printk("\n");
-+	printk("}\n");
- 	if ((status.all & (status.b.bsy|status.b.check)) == status.b.check) {
- 		error.all = HWIF(drive)->INB(IDE_ERROR_REG);
--		printk("%s: %s: error=0x%02x", drive->name, msg, error.all);
-+		printk("%s: %s: error=0x%02x { ", drive->name, msg, error.all);
- 		if (error.b.ili)	printk("IllegalLengthIndication ");
- 		if (error.b.eom)	printk("EndOfMedia ");
--		if (error.b.abrt)	printk("Aborted Command ");
-+		if (error.b.abrt)	printk("AbortedCommand ");
- 		if (error.b.mcr)	printk("MediaChangeRequested ");
--		if (error.b.sense_key)	printk("LastFailedSense 0x%02x ",
-+		if (error.b.sense_key)	printk("LastFailedSense=0x%02x ",
- 						error.b.sense_key);
--		printk("\n");
-+		printk("}\n");
- 	}
- 	local_irq_restore(flags);
- 	return error.all;
-
---------------020005070803060102020306--
+Pain makes you beautiful.

@@ -1,81 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314954AbSDVXeO>; Mon, 22 Apr 2002 19:34:14 -0400
+	id <S314951AbSDVXhA>; Mon, 22 Apr 2002 19:37:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314953AbSDVXeN>; Mon, 22 Apr 2002 19:34:13 -0400
-Received: from dsl-213-023-039-131.arcor-ip.net ([213.23.39.131]:13729 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S314946AbSDVXeL>;
-	Mon, 22 Apr 2002 19:34:11 -0400
+	id <S314956AbSDVXg7>; Mon, 22 Apr 2002 19:36:59 -0400
+Received: from dyn-213-36-84-123.ppp.tiscali.fr ([213.36.84.123]:32262 "HELO
+	fjord.alezan.org") by vger.kernel.org with SMTP id <S314951AbSDVXg5>;
+	Mon, 22 Apr 2002 19:36:57 -0400
+Date: Tue, 23 Apr 2002 01:36:15 +0200
+From: Profeta Mickael <mike@alezan.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19-pre7, can not umount a partition
+Message-Id: <20020423013615.4afd8062.mike@alezan.org>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Doug Ledford <dledford@redhat.com>
-Subject: Re: [OFF TOPIC] BK license change
-Date: Mon, 22 Apr 2002 01:34:25 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Andreas Dilger <adilger@clusterfs.com>, Larry McVoy <lm@bitmover.com>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020421095715.A10525@work.bitmover.com> <E16zQCP-0001NN-00@starship> <20020422191247.H914@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16zQqg-0001Nk-00@starship>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 23 April 2002 01:12, Doug Ledford wrote:
-> On Mon, Apr 22, 2002 at 12:52:48AM +0200, Daniel Phillips wrote:
-> > Larry's proposing to turn BitKeeper into an automated GPL enforcement machine, 
-> > even poking it's nose into areas the GPL isn't concerned about.  This is a
-> > horribly broken reason for adding let more t&c's do the license.
-> 
-> You didn't read Larry's initial email very close.  He isn't trying to turn 
-> BK into a GPL enforcing machine, he's trying to turn BK into a BK License 
-> enforcing machine.
+Hi, 
 
-He said:
+	I am running linux on Athlon CPU with VIA  VT82C686 ide controller.
 
-> The real issue is that we know from past history that companies make 
-> changes to GPLed software and then delay access to those changes as
-> long as they can (the GPL allows for a "reasonable" amount of lag,
-> whatever that is).
-> 
-> The intent of the openlogging requirement was to allow people to work
-> out in the open on free software, at no charge.  The intent was never 
-> to allow people to work on free software without giving their changes 
-> back.
+	I try to upgrade to kernel-2.4.19-pre7 and I notice a trouble when I try
+to unmount a partition: I wrote a cron job to make a backup of my honme
+directory to a second harddrive using rsync. The data are on /dev/hda5and
+are backuped on /dev/hdc2	The /dev/hdc2 partition is mounted in the
+beginning of the script, and unmounted at the end of the rsync backup.	All my
+partition are in reiserfs, except / in ext2.
 
-It looks like GPL enforcement is the pretext for the changes.  Ah well, it's
-not my concern, he can make BitKeeper as intrusive as he likes, fortunately
-I am not going to be annoyed by that because I'm just taking a pass on the
-whole thing.  Thanks to the recent discussion, which opened my eyes.
+	With kernel 2.4.19-pre7 or -pre6 the system can not umount the /dev/hdc2
+partiton at the end of the script. The umount process hangs and the load
+of the computer reach 2.0 whereas nothing else running. I can not reboot
+properly (the system can not kill task and so does not reboot) If Itry
+Sysrq, it manages to remount ro all partition except /dev/hdc2
 
-I'm glad it's helping Linus to scale, much as Microsoft Office helps office
-workers to scale.  That's good I suppose.  I keep telling myself.
+	This does not happens in kernel 2.4.17-pre7.
 
-> Larry lets certain people (such as linux kernel 
-> hackers) use BK for free.  He does that specifically for contributors 
-> to open source projects.  Some people are, in essence, signing up to use 
-> the software as though they are working on open source projects but they 
-> are never actually open sourcing their work (or are intentionally 
-> obfuscating parts of it).
+	I have no Oops or message in the logs... But if I can do something to
+test further the problem do not hesitate to ask me more information.
 
-Wait.  I thought people were perfectly able to do whatever they wanted with
-BitKeeper, so long as they use the open logging.  I guess I was wrong about
-that.  This is getting more anal all the time.
+	I am running Debian sid with rsync version 2.5.6cvs  protocol version 26
+	reiserfssprogs  3.x.1b-1 (I checked /dev/hdc2 has no reiserfs
+inconsistency)	mount 2.11n-2
 
-> Since that violates the spirit of what Larry is 
-> trying to do by letting people use BK in a non-commercial manner, he is 
-> trying to find appropriate wording and possibly algorithms that can be put 
-> into BK to enforce the original spirit of the free use license that BK 
-> allows certain people.
+Please CC: as I am not subscribed to the list
 
-It's impossible not to read that as 'add more restrictions'.
-
-> So, he's not poking his nose into the GPL, he's 
-> trying to find a way to make sure that people who claim to be using BK on 
-> GPL projects (and free of charge as a result) are actually doing so.  
-> That's perfectly within his rights as owner of BK.
-
-Indeed.  Just one more reason to build a replacement I suppose.
-
+	Mickael
+	
 -- 
-Daniel
+-- 
+Unix IS user-friendly. It just chooses its friends carefully

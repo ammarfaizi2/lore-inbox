@@ -1,41 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268171AbTBNDlY>; Thu, 13 Feb 2003 22:41:24 -0500
+	id <S268173AbTBNDrT>; Thu, 13 Feb 2003 22:47:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268173AbTBNDlY>; Thu, 13 Feb 2003 22:41:24 -0500
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:65471 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S268171AbTBNDlX>; Thu, 13 Feb 2003 22:41:23 -0500
-Subject: Re: Synchronous signal delivery..
-From: Keith Adamson <keith.adamson@attbi.com>
-To: Keith Adamson <keith.adamson@attbi.com>
-Cc: Jamie Lokier <jamie@shareable.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1045192268.14703.20.camel@x1-6-00-d0-70-00-74-d1>
-References: <Pine.LNX.4.44.0302131120280.2076-100000@home.transmeta.com> 
-	<20030214024046.GA18214@bjl1.jlokier.co.uk> 
-	<1045192268.14703.20.camel@x1-6-00-d0-70-00-74-d1>
-Content-Type: text/plain
+	id <S268174AbTBNDrT>; Thu, 13 Feb 2003 22:47:19 -0500
+Received: from impact.colo.mv.net ([199.125.75.20]:21725 "EHLO
+	impact.colo.mv.net") by vger.kernel.org with ESMTP
+	id <S268173AbTBNDrS>; Thu, 13 Feb 2003 22:47:18 -0500
+Message-ID: <3E4C68F5.8070208@bogonomicon.net>
+Date: Thu, 13 Feb 2003 21:56:37 -0600
+From: Bryan Andersen <bryan@bogonomicon.net>
+Organization: Bogonomicon
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-pre4-ac4 make xconfig fails
+References: <3E4C6314.4070105@bellini.mit.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 13 Feb 2003 22:54:22 -0500
-Message-Id: <1045194862.14683.32.camel@x1-6-00-d0-70-00-74-d1>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-02-13 at 22:11, Keith Adamson wrote:
-> 
-> How about also including a connect()/bind() interface so that 
-> you can sort of have a "sockets for signals" type interface.  
-> This seems like a nice type of interface for synchronization.
-> And maybe use send()/recv() instead of read()/write().  Or am 
-> I on crack:)
-> 
+I also see this, Debian testing based system, but I usually menuconfig 
+myself.
 
-I guess what I'm trying to say is that if you want to generalize 
-a synchronous signal delivery interface I think the networking 
-interface is a better paradigm than the filesystem interface.
+Looks like a parameter was forgotten.  I see a number of dep_tristate 
+lines with three parameters and the one it is choking on has only two.
 
+dep_tristate '  ATI Radeon' CONFIG_DRM_RADEON     <<< chokes this line
+dep_tristate '  Intel I810' CONFIG_DRM_I810 $CONFIG_AGP
+
+
+ghugh Song wrote:
+> This is what I get on SuSE-8.1 box:
+> 
+> # make xconfig
+> rm -f include/asm
+> ( cd include ; ln -sf asm-i386 asm)
+> make -C scripts kconfig.tk
+> make[1]: Entering directory `/usr/src/linux-2.4.21-pre4-ac4/scripts'
+> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkparse.o 
+> tkparse.c
+> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkcond.o 
+> tkcond.c
+> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkgen.o 
+> tkgen.c
+> gcc -o tkparse tkparse.o tkcond.o tkgen.o
+> cat header.tk >> ./kconfig.tk
+> ./tkparse < ../arch/i386/config.in >> kconfig.tk
+> drivers/char/drm/Config.in: 11: can't handle 
+> dep_bool/dep_mbool/dep_tristate condition
+> make[1]: *** [kconfig.tk] Error 1
+> make[1]: Leaving directory `/usr/src/linux-2.4.21-pre4-ac4/scripts'
+> make: *** [xconfig] Error 2
+> 
+> 
+> 
+> Apparently, some people successfully went throught this procedure.
+> 
+> Best regards,
+> 
+> G. Hugh Song
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 

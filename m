@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264936AbTA2Fwi>; Wed, 29 Jan 2003 00:52:38 -0500
+	id <S264857AbTA2GAC>; Wed, 29 Jan 2003 01:00:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264878AbTA2Fwi>; Wed, 29 Jan 2003 00:52:38 -0500
-Received: from waste.org ([209.173.204.2]:62894 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S265037AbTA2Fwe>;
-	Wed, 29 Jan 2003 00:52:34 -0500
-Date: Wed, 29 Jan 2003 00:01:42 -0600
+	id <S264853AbTA2GAC>; Wed, 29 Jan 2003 01:00:02 -0500
+Received: from waste.org ([209.173.204.2]:13231 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S264857AbTA2F77>;
+	Wed, 29 Jan 2003 00:59:59 -0500
+Date: Wed, 29 Jan 2003 00:09:16 -0600
 From: Oliver Xymoron <oxymoron@waste.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Andrew Morton <akpm@digeo.com>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] Report write errors to applications (resend)
-Message-ID: <20030129060134.GZ3186@waste.org>
+Subject: [PATCH 2.5] Report write errors to applications
+Message-ID: <20030129060916.GA3186@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,95 +19,9 @@ User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo, this should apply cleanly to -pre4, please consider it for
-inclusion.
-
-As a couple other folks have noted, Linux currently fails to propagate
-write errors to userspace, quietly marking pages clean. Write IO
-errors are extremely uncommon for most systems, thanks to low-level
-sector remapping and the like. but with the increasing use of
-networked and hotpluggable storage, new scenarios for IO failure are
-appearing.
-
-I've been looking at this a bit and discussing it with Andrew and
-Linus and here's what I've come up with.
-
-Basic scenario:
-
-Process dirties page in pagecache via write, mapping, etc.
-Reader sees current data in pagecache
-Pagecache decides to push page to disk due to memory pressure
- page is locked, marked clean and submitted to block driver via IO layer
-  driver reports IO error and ripples failure back to pagecache
-   pagecache marks page not uptodate and unlocks page
-Process calls fsync which reports success
-Next reader sees page not uptodate and refetches old data from disk
-
-Discussion:
-
-First let's address readers seeing old data. Ideally we'd like for
-readers not to see the new data and then later see the old data again
-- this is likely to confuse applications. To accomplish this, we
-either have to not allow other apps to see it before it touches the
-disk (which is equivalent to turning off write caching) or we have to
-retry the write until we encounter a permanent error. Linus argues
-that retries are currently the driver's responsibility and not the
-pagecache's, so the error should be treated as permanent. Given that
-we're unwilling to turn off write caching, we are therefore forced to
-address the old data problem by coordination at the application layer.
-
-This leads us to the second problem: the write IO error isn't reported to
-the application layer in any form. The code is currently designed for
-handling of errors on read, where the failure of the page to be
-uptodate is caught synchronously. Further, the pagecache callback is
-not able to determine whether its dealing with a read or write
-failure, so we need to use different callbacks for read and write.
-
-Andrew points out that a related problem that can occur here is
-ENOSPC. Since most filesystems don't implement proper reservations,
-it's possible for a write() to return success while the delayed block
-allocation fails. This patch detects that case as well.
-
-Passing these error back to userspace turns out to be tricky. We'd like
-to report it on the next fsync/fdatasync/msync or close on a given
-filehandle. Unfortunately, by the time we've reached the pagecache,
-the filehandle is long forgotten and the best we can do without
-crippling the pagecache is report the error for the next sync on the
-given inode. This means that multiple writers to the same file might
-get their error reporting crossed, but apps doing that should probably
-be coordinating their activities anyway.
-
-The obvious places to track this error are in the inode, the mapping,
-or in the give page struct's bits. The page bits looked promising at
-first because they can be safely handled in interrupt context, but
-because pages are taken off the dirty list when they hit the IO layer,
-it would require a new list for errored pages or searching through the
-entire mapping on fsync, etc.
-
-That leaves us with recording the error in the inode/mapping and clearing it
-when we get a chance to report it. The mapping appears to be pinned in
-memory at the appropriate places, but we're unable to properly protect
-it from concurrent users with the inode semaphore from interrupt
-context. 
-
-Does this matter? Probably not. We already have no guarantee that I/O
-is completed when we call close() so we're not particularly concerned
-with losing the error in a race here. And for the sync variants, we're
-waiting for all I/O for the mapping to complete so we're protected
-from races there.
-
-Other loose ends:
-
-Linus suggested that errors could be reported on the next write(),
-similar to sockets. I think this would confuse a lot of applications
-into thinking the current write failed and not the previous and the
-few that would expect it would already be using sync.
-
-This problem doesn't affect writes via rawio or O_DIRECT, but it does
-affect metadata stored in the pagecache by filesystems, which are
-probably unprepared for dealing with write errors. So if you encounter
-IO errors on write, there's currently a fair chance that you'll end up
-with a corrupted filesystem. 
+Andrew, this is a forward-port of the 2.4 write error propagation
+patch I just posted, applies against -mm6. Lightly tested on 2.5, but
+should be straightforward.
 
 diff -urN -x '.patch*' -x '*.orig' orig/fs/buffer.c patched/fs/buffer.c
 --- orig/fs/buffer.c	2003-01-24 13:24:21.000000000 -0600
@@ -320,7 +234,6 @@ diff -urN -x '.patch*' -x '*.orig' orig/mm/vmscan.c patched/mm/vmscan.c
  				if (res == WRITEPAGE_ACTIVATE) {
  					ClearPageReclaim(page);
  					goto activate_locked;
-
 
 
 -- 

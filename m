@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264502AbTLGULF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 15:11:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264504AbTLGULF
+	id S264498AbTLGUT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 15:19:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264497AbTLGUT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 15:11:05 -0500
-Received: from quake.mweb.co.za ([196.2.45.76]:14018 "EHLO quake.mweb.co.za")
-	by vger.kernel.org with ESMTP id S264502AbTLGULB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 15:11:01 -0500
-Date: Sun, 7 Dec 2003 22:13:28 +0200
-From: Bongani Hlope <bonganilinux@mweb.co.za>
-To: Lee <weifeil@usc.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM:can't load module "ide-cd" automatically(2.6.0-test10)
-Message-Id: <20031207221328.4220ea00.bonganilinux@mweb.co.za>
-In-Reply-To: <009d01c3bcfa$e409a8b0$0300a8c0@tiger>
-References: <009d01c3bcfa$e409a8b0$0300a8c0@tiger>
-X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i586-mandrake-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Sun__7_Dec_2003_22_13_28_+0200_fAlgKszgfsgFxRVQ"
+	Sun, 7 Dec 2003 15:19:27 -0500
+Received: from cafe.hardrock.org ([142.179.182.80]:23682 "EHLO
+	cafe.hardrock.org") by vger.kernel.org with ESMTP id S264498AbTLGUT0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 15:19:26 -0500
+Date: Sun, 7 Dec 2003 13:19:22 -0700 (MST)
+From: James Bourne <jbourne@hardrock.org>
+To: David Rees <drees@greenhydrant.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23 hard lock, 100% reproducible.
+In-Reply-To: <3FD37DBD.5080404@greenhydrant.com>
+Message-ID: <Pine.LNX.4.51.0312071317420.4352@cafe.hardrock.org>
+References: <20031207023650.GA772@symonds.net> <87he0ds3sv.fsf@ceramic.fifi.org>
+ <02a901c3bc7b$69294ee0$7a01a8c0@gandalf> <20031207133201.A4744@netdirect.ca>
+ <Pine.LNX.4.51.0312071147070.3356@cafe.hardrock.org> <3FD37DBD.5080404@greenhydrant.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Sun__7_Dec_2003_22_13_28_+0200_fAlgKszgfsgFxRVQ
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+On Sun, 7 Dec 2003, David Rees wrote:
 
-On Sun, 07 Dec 2003 11:47:03 -0800
-Lee <weifeil@usc.edu> wrote:
-
-> 1. Under kernel 2.6.0-test10, I can't load module "ide-cd" automatically.
-> 2. Unlike under 2.4.x kernel, I must load "cdrom" and "ide-cd" module by
-> hand or use shell scripts to do it under 2.6.0-test10 kernel, although I
-> didn't change  .config file. If I want to mount my cdrom disk without
-> loading these modules, it always tells me that " mount:/dev/cdrom is not a
-> valid block device".
-> 3. Keyword: module, ide-cd
-
-8<
-
-> 7.6. SCSI information: No such file or directory as /proc/scsi
+> James Bourne wrote:
+> > This is included with the patch set I just posted, 2.4.22-uv3 available at 
+> > http://www.hardrock.org/current-updates/linux-2.4.22-uv3-updates.patch.
 > 
-> That's   all,
-> Thanks a lot!
-> Weifei
+> The correct link appears to be
+> http://www.hardrock.org/kernel/current-updates/linux-2.4.22-uv3-updates.patch
 
-Take a look at /etc/modprobe.preload
+Sorry, yes this is correct. 
 
---Signature=_Sun__7_Dec_2003_22_13_28_+0200_fAlgKszgfsgFxRVQ
-Content-Type: application/pgp-signature
+Regards
+James
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+> -Dave
 
-iD8DBQE/04n0+pvEqv8+FEMRAr2EAJwOXurl4rV12u80XlEARfh5QDnW+wCbB9OI
-ADZcQpFlGYlzLqTVN/aVnnI=
-=jNij
------END PGP SIGNATURE-----
-
---Signature=_Sun__7_Dec_2003_22_13_28_+0200_fAlgKszgfsgFxRVQ--
+-- 
+James Bourne                  | Email:            jbourne@hardrock.org          
+Unix Systems Administrator    | WWW:           http://www.hardrock.org
+Custom Unix Programming       | Linux:  The choice of a GNU generation
+----------------------------------------------------------------------
+ "All you need's an occasional kick in the philosophy." Frank Herbert  

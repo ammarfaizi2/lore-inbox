@@ -1,99 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267394AbUGNOaz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264774AbUGNOel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267394AbUGNOaz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 10:30:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267389AbUGNO3X
+	id S264774AbUGNOel (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 10:34:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267390AbUGNOdk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 10:29:23 -0400
-Received: from dns.gardena.net ([213.21.177.18]:29844 "HELO dns.gardena.net")
-	by vger.kernel.org with SMTP id S264774AbUGNOZt (ORCPT
+	Wed, 14 Jul 2004 10:33:40 -0400
+Received: from mail.kroah.org ([69.55.234.183]:14545 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267393AbUGNOcs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 10:25:49 -0400
-Message-ID: <40F50A72.6060601@gardena.net>
-Date: Wed, 14 Jul 2004 12:26:58 +0200
-From: Benno Senoner <sbenno@gardena.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040421
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "The Linux Audio Developers' Mailing List" 
-	<linux-audio-dev@music.columbia.edu>
-CC: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
-       andrea@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary	Kernel	Preemption
- Patch
-References: <20040712163141.31ef1ad6.akpm@osdl.org>	<200407130001.i6D01pkJ003489@localhost.localdomain>	<20040712170844.6bd01712.akpm@osdl.org>	<20040713162539.GD974@dualathlon.random>	<1089744137.20381.49.camel@mindpipe>	<20040713142923.568fa35e.akpm@osdl.org>	<1089755130.22175.21.camel@mindpipe> <s5hk6x79dk4.wl@alsa2.suse.de>
-In-Reply-To: <s5hk6x79dk4.wl@alsa2.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Jul 2004 10:32:48 -0400
+Date: Wed, 14 Jul 2004 07:26:14 -0700
+From: Greg KH <greg@kroah.com>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: Ravikiran G Thirumalai <kiran@in.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Refcounting of objects part of a lockfree collection
+Message-ID: <20040714142614.GA15742@kroah.com>
+References: <20040714045345.GA1220@obelix.in.ibm.com> <20040714070700.GA12579@kroah.com> <20040714082621.GA4291@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040714082621.GA4291@in.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai wrote:
+On Wed, Jul 14, 2004 at 01:56:22PM +0530, Dipankar Sarma wrote:
+> On Wed, Jul 14, 2004 at 12:07:00AM -0700, Greg KH wrote:
+> > On Wed, Jul 14, 2004 at 10:23:50AM +0530, Ravikiran G Thirumalai wrote:
+> > > 
+> > > The attatched patch provides infrastructure for refcounting of objects
+> > > in a rcu protected collection.
+> > 
+> > This is really close to the kref implementation.  Why not just use that
+> > instead?
+> 
+> Well, the kref has the same get/put race if used in a lock-free
+> look-up. When you do a kref_get() it is assumed that another
+> cpu will not see a 1-to-0 transition of the reference count.
 
->>Is it possible that I am simply pushing my hardware past its limits? 
->>Keep in mind this is a 600Mhz C3 processor.
->>    
->>
->
->I think yes.  32 frames / 44.1kHz = 0.725 ms.
->  
->
-I don't think so, I think it's because the Linux scheduler (and kernel 
-in general) since it's not a RTOS
-is pushed to the limits. (but as we see it can still be optimized).
+You mean kref_put(), right?
 
-For example I used the same VIA box with RTLinux to remote control servo 
-motors which need a PWM signal
-of the duration of 2msec and based on the location of the negative flank 
-(from high to low) the servo
-motor goes in a certain position.
-For example if the duration of the pulse is 2msec then setting the flank 
-at 0msec (at the beginning of the cycle)
-the servo goes to -45degrees , 1msec 0degrees , 2msec +45degrees.
+> If that indeed happens, ->release() will get invoked more
+> than once for that object which is bad.
 
-Jitter in the pulse can be detected when the servo is vibrating a bit 
-around the nominal position.
-Of course a very short lived spike cannot be detected by the servo 
-because of the motor's inertia
-but I tried to put the box under very high load especially video 
-playback (the VIA box uses a shared bus architecture
-holding the video data in the PC's RAM), HD load etc but the jitter is 
-very minimal, probably 30-40usec because the
-servos vibrate only about 1degree or so (only when the box is under very 
-high load).
+As kref_put() uses a atomic_t, how can that transistion happen twice?
 
-This just to say that the VIA box should easily be able to cope with 32 
-audio frames (0.6msec buffers) from a hardware
-point of view.
-Anyway "worst case" latencies (or better latencies under very high load) 
-of <0.5-1msec are completely adequate for
-real time multimedia because if you shorten your audio processing cycles 
-too much (eg 32 frames) then the setup
-overhead of DSP routines, and scheduling overhead becomes big and the 
-efficiency of
-the algorithms decrease quite a bit.
-imagine running jack with 10 client applications and 32 frames (0.6msec 
-periods) , this means that within 0.6msec you need
-to reschedule 10 times = 60 usec per client. I don't know how much the 
-actual rescheduling of a process takes (AFAIK around 1usec ?)
-but I guess the main problem is the constant invalidation of the cache 
-because those audio clients run for a really short time.
-Of course if you have only 1-2 clients running then the efficiency at 32 
-frames should still be good (but it will certainly provide 10-20% less
-perfromance than using 64 or 128 frames).
-Our goal should be rock solid operation at 64msec (around 1msec-1.5msec 
-processing periods).
-If you use 2-3 buffers then the kernel has still another 1.5-3msec of 
-headroom before an actual (audible) xrun occurs.
+What can happen is kref_get() and kref_put() can race if the last
+kref_put() happens at the same time that kref_get().  But that is solved
+by having the caller guarantee that this can not happen (see my 2004 OLS
+paper for more info about this.)
 
-cheers,
-Benno
-http://www.linuxsampler.org
+> Kiran's patch actually solves this fundamental lock-free ref-counting
+> problem.
 
+Hm, maybe I'm missing something, but I don't see how it does so, based
+on the implmentation of refcount_get() and refcount_put().  Sure, the
+*_rcu implementations are a bit different, but if that's the only
+difference with this code and kref, why not just add the rcu versions to
+the kref code?
 
->
->Takashi
->
->  
->
+> The other issue is that there are many refcounted data structures
+> like dentry, dst_entry, file etc. that do not use kref.
 
+At this time, sure.  But you could always change that :)
+(and yes, to do so, we can always shrink the size of struct kref if
+really needed...)
+
+> If everybody were to use kref, we could possibly apply Kiran's
+> lock-free extensions to kref itself and be done with it.
+
+Ok, sounds like a plan to me.  Having 2 refcount implementations in the
+kernel that work alike, yet a bit different, is not acceptable.  Please
+rework struct kref to do this.
+
+> Until then, we need the lock-free refcounting support from non-kref
+> refcounting objects.
+
+We've lived without it until now somehow :)
+
+thanks,
+
+greg k-h

@@ -1,79 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265501AbUAZFtF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 00:49:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265505AbUAZFtF
+	id S265505AbUAZFzV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 00:55:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265529AbUAZFzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 00:49:05 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:65428 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265501AbUAZFtB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 00:49:01 -0500
-Message-ID: <4014AA49.8050800@redhat.com>
-Date: Sun, 25 Jan 2004 19:48:57 -1000
-From: Warren Togami <wtogami@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031225 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Mon, 26 Jan 2004 00:55:21 -0500
+Received: from gizmo08bw.bigpond.com ([144.140.70.18]:63383 "HELO
+	gizmo08bw.bigpond.com") by vger.kernel.org with SMTP
+	id S265505AbUAZFzO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 00:55:14 -0500
+Mail-Copies-To: never
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: (as177) Add class_device_unregister_wait() and
+ platform_device_unregister_wait() to the driver model core
+Keywords: module
+References: <Pine.LNX.4.44L0.0401251224530.947-100000@ida.rowland.org>
+	<Pine.LNX.4.58.0401251054340.18932@home.osdl.org>
+	<microsoft-free.877jzfoc5h.fsf@eicq.dnsalias.org>
+	<20040125222242.A24443@mail.kroptech.com>
+	<microsoft-free.87hdyjs3h3.fsf@eicq.dnsalias.org>
+	<200401260521.i0Q5LRha021370@turing-police.cc.vt.edu>
+From: Steve Youngs <sryoungs@bigpond.net.au>
+X-Face: #/1'_-|5_1$xjR,mVKhpfMJcRh8"k}_a{EkIO:Ox<]@zl/Yr|H,qH#3jJi6Aw(Mg@"!+Z"C
+ N_S3!3jzW^FnPeumv4l#,E}J.+e%0q(U>#b-#`~>l^A!_j5AEgpU)>t+VYZ$:El7hLa1:%%L=3%B>n
+ K{^jU_{&
+Organization: Linux Users - Fanatics Dept.
+X-URL: <http://users.bigpond.net.au/sryoungs/>
+X-Request-PGP: <http://users.bigpond.net.au/sryoungs/pgp/sryoungs.asc>
+X-OpenPGP-Fingerprint: 1659 2093 19D5 C06E D320  3A20 1D27 DB4B A94B 3003
+X-Attribution: SY
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Date: Mon, 26 Jan 2004 15:55:06 +1000
+In-Reply-To: <200401260521.i0Q5LRha021370@turing-police.cc.vt.edu> (Valdis
+ Kletnieks's message of "Mon, 26 Jan 2004 00:21:27 -0500")
+Message-ID: <microsoft-free.87d697s18l.fsf@eicq.dnsalias.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.4 (Reasonable Discussion,
+ linux)
 MIME-Version: 1.0
-To: fedora-devel-list@redhat.com, linux-kernel@vger.kernel.org,
-       fabrice@bellet.info
-Subject: Trouble with Cisco Airo MPI350 and kernel-2.6.1+
-X-Enigmail-Version: 0.82.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-IBM Thinkpad T41
-Cisco Airo MPI350 802.11b Wireless
-PCIID: 0x14b9  0xa504
-Kernel: Fedora rawhide 2.6.1-1.57 (Based on 2.6.2-rc1)
+--=-=-=
 
-http://bellet.info/~bellet/laptop/t40.html#wireless
-http://bellet.info/~bellet/laptop/airo.c-2.6.1-mm2.diff
-airo.ko does not support this Airo device, but with the addition of this 
-patch it recognizes the device.
+* Valdis Kletnieks <Valdis.Kletnieks@vt.edu> writes:
 
-airo: MAC enabled eth1 0:2:8a:df:50:fc
-airo:  Finished probing for PCI adapters
+  > On Mon, 26 Jan 2004 15:06:48 +1000, Steve Youngs <sryoungs@bigpond.net.au>  said:
+  >> > A boolean is just a one-bit reference count. If the maximum number of
+  >> > simultaneous 'users' for a given module is one, then a boolean will work.
+  >> > If there is potential for more than one simultaneous user then you need
+  >> > more bits.
+  >> 
+  >> Why?  A module is either being used or it isn't, the number of uses
+  >> shouldn't even come into it.
 
-[root@ibmlaptop root]# iwconfig
-  	eth0      IEEE 802.11-DS  ESSID:"tsunami"
-	Mode:Managed  Frequency:2.442GHz  Access Point: FF:FF:FF:FF:FF:FF
-	Bit Rate:11Mb/s   Tx-Power=20 dBm   Sensitivity=0/0
-	Retry limit:16   RTS thr:off   Fragment thr:off
-	Encryption key:off
-	Power Management:off
-	Link Quality:176/0  Signal level:-105 dBm  Noise level:-100 dBm
-	Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
-	Tx excessive retries:0  Invalid misc:416   Missed beacon:0
-	<SNIP>
+  > OK. There's 2 users of the module.  The first one exits.  How does
+  > it (or anything else) know that it's NOT safe to just clear the
+  > in-use bit and clean it up?
 
-[root@ibmlaptop root]# iwconfig eth0 key 8208435e17
-airo: Max tries exceeded waiting for command
-PC4500_writerid: Write rid Error 65535
-PC4500_writerid: Cmd=0121
-airo:  WEP_PERM set ffff
+Because the 2nd user is still using the module so its in-use bit
+should still be set.  Remember that when the module was first loaded
+it registered a function with the kernel for testing whether the
+module is in use.
 
-[root@ibmlaptop root]# iwconfig
-<SNIP>
-eth0      IEEE 802.11-DS  ESSID:"tsunami"
-	Mode:Managed  Frequency:2.442GHz  Access Point: FF:FF:FF:FF:FF:FF
-	Bit Rate:11Mb/s   Tx-Power=20 dBm   Sensitivity=0/0
-	Retry limit:16   RTS thr:off   Fragment thr:off
-	Encryption key:****-****-**   Security mode:open
-	Power Management:off
-	Link Quality:176/0  Signal level:-105 dBm  Noise level:-100 dBm
-	Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
-	Tx excessive retries:0  Invalid misc:488   Missed beacon:0
+I must be overlooking something because I see the answer so clearly.
+Maybe if someone could give me a real world example of a situation
+where it'd be hard/impossible/unsafe to unload a module and I'll see
+if my ideas can be applied.
 
-I am guessing that the *'s rather than hex characters displayed are 
-because it is unable to read the key from the card.  The card itself 
-appears to be completely inoperative.  It was suggested to me to try 
-both "open" and "restricted" mode, both seem to not help the situation.
 
-Any suggestions?
 
-Warren Togami
-wtogami@redhat.com
+-- 
+|---<Steve Youngs>---------------<GnuPG KeyID: A94B3003>---|
+|              Ashes to ashes, dust to dust.               |
+|      The proof of the pudding, is under the crust.       |
+|------------------------------<sryoungs@bigpond.net.au>---|
+
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Eicq - The XEmacs ICQ Client <http://eicq.sf.net/>
+
+iEYEABECAAYFAkAUq7wACgkQHSfbS6lLMANqhACbBQG73p0s88uQVVbBNPt8JWxp
+k8wAoIEhv65WL3gX0MJgL0XiDVSBmq8y
+=mYI6
+-----END PGP SIGNATURE-----
+--=-=-=--

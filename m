@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267582AbTAQQYG>; Fri, 17 Jan 2003 11:24:06 -0500
+	id <S267577AbTAQQL4>; Fri, 17 Jan 2003 11:11:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267583AbTAQQYG>; Fri, 17 Jan 2003 11:24:06 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:18744 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S267582AbTAQQYF>; Fri, 17 Jan 2003 11:24:05 -0500
-To: John Bradford <john@grabjohn.com>
-Cc: jgarzik@pobox.com (Jeff Garzik), Herman@wirelessnetworksinc.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Open source hardware
-References: <200301162225.h0GMP0YI003249@darkstar.example.net>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 17 Jan 2003 09:32:43 -0700
-In-Reply-To: <200301162225.h0GMP0YI003249@darkstar.example.net>
-Message-ID: <m165sng2j8.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S267575AbTAQQLy>; Fri, 17 Jan 2003 11:11:54 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:23051 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S267560AbTAQQLd>;
+	Fri, 17 Jan 2003 11:11:33 -0500
+Date: Fri, 17 Jan 2003 17:19:09 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>, kai@tp1.ruhr-uni-bochum.de,
+       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.59 vmlinux.lds.S change broke modules
+Message-ID: <20030117161909.GA1040@mars.ravnborg.org>
+Mail-Followup-To: Mikael Pettersson <mikpe@csd.uu.se>,
+	kai@tp1.ruhr-uni-bochum.de, rusty@rustcorp.com.au,
+	linux-kernel@vger.kernel.org
+References: <15911.64825.624251.707026@harpo.it.uu.se> <20030117135638.A376@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030117135638.A376@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford <john@grabjohn.com> writes:
+On Fri, Jan 17, 2003 at 01:56:38PM +0000, Russell King wrote:
+> Well:
+> 
+>         __start___ksymtab = .;                                          \
+>         __ksymtab         : AT(ADDR(__ksymtab) - LOAD_OFFSET) {         \
+>                 *(__ksymtab)                                            \
+>         }                                                               \
+>         __stop___ksymtab = .;                                           \
+> 
+> breaks on some ARM binutils (from a couple of years ago.)  The most
+> reliable way we've found in with ARM binutils is to place the symbols
+> inside the section - this appears to work 100% every single time and
+> I've never had any reports of failure (whereas I did with the symbols
+> outside as above.)
 
-> Do you know of anybody who has actually made a prototype board from
-> any of these CPU designs?  Is my idea of running a lot of simple CPUs
-> together fundamentally flawed, or is it possible to overcome the
-> inefficiencies of SMP, if the CPUs are designed for it from the ground
-> up?
+quote from 'info ld'
+--------------
+the address of the output section will be set to the current value of
+the location counter aligned to the alignment requirements of the
+output section.  The alignment requirement of the output section is the
+strictest alignment of any input section contained within the output
+section.
+--------------
 
-The fundamental problem is not inefficiencies of SMP.  But rather
-there are some tasks that simply do not parallelize well.  Big
-supercomputer kinds of applications that require a lot of number
-crunching usually benefit from multiple cpus.  But small every day
-applications don't.  The only applications that scale perfectly with
-the number of cpus are the embarrassingly parallel ones, in which no
-communication is involved between the various subtasks.
+In other words, the value of __start___ksymtab may differ placed inside
+or outside {}, if . is not aligned according to the rules above.
+Was it binutils that faulted, or may ARM has been hit by this?
 
-This is not to say an elegant design might not get there, AMD is
-trying for that.  But simple brute force will certainly not get you
-there.
+Usually vmlinux.lds.S files has a lot of un-commented . = ALIGN(N);
+spread all over, that may have saved us several times in the past.
 
-Eric
+	Sam

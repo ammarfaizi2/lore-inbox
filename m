@@ -1,34 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262318AbSJEMw3>; Sat, 5 Oct 2002 08:52:29 -0400
+	id <S262323AbSJENE7>; Sat, 5 Oct 2002 09:04:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262321AbSJEMw3>; Sat, 5 Oct 2002 08:52:29 -0400
-Received: from transport.cksoft.de ([62.111.66.27]:28170 "EHLO
-	transport.cksoft.de") by vger.kernel.org with ESMTP
-	id <S262318AbSJEMw2>; Sat, 5 Oct 2002 08:52:28 -0400
-Date: Sat, 5 Oct 2002 12:57:48 +0000 (UTC)
-From: "Bjoern A. Zeeb" <bzeeb-lists@lists.zabbadoz.net>
-X-X-Sender: bz@e0-0.zab2.int.zabbadoz.net
-To: Kai Makisara <Kai.Makisara@kolumbus.fi>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: SCSI st tape wrong minor in 2.5.40 with devfs
-In-Reply-To: <Pine.LNX.4.44.0210051530430.5824-100000@kai.makisara.local>
-Message-ID: <Pine.BSF.4.44.0210051255410.39858-100000@e0-0.zab2.int.zabbadoz.net>
+	id <S262324AbSJENE7>; Sat, 5 Oct 2002 09:04:59 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:57867 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S262323AbSJENE6>; Sat, 5 Oct 2002 09:04:58 -0400
+Message-ID: <3D9EE4C9.4090604@namesys.com>
+Date: Sat, 05 Oct 2002 17:10:33 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: tom_gall@mac.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: New BK License Problem?
+References: <AD47B5CD-D7DB-11D6-A2D4-0003939E069A@mac.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Oct 2002, Kai Makisara wrote:
+tom_gall@mac.com wrote:
 
-> In the original location i did contain the device number but here it
-> contains 4 (from the latest loop). The fix seems to be to replace i by
-> dev_num but I have not yet tested it.
+> Greetings all,
+>
+> I noticed Larry recently changed the license on bk.  Once clause in 
+> particular struck me and I thought I'd better point it out for your 
+> reactions...
+>
+> Specifically from Section 3:
+>
+>        (d)  Notwithstanding any other terms in this License, this
+>             License is not available to You if  You  and/or  your
+>             employer  develop,  produce,  sell,  and/or  resell a
+>             product which contains substantially similar capabil-
+>             ities  of  the BitKeeper Software, or, in the reason-
+>             able opinion of BitMover, competes with the BitKeeper
+>             Software.
+>
+Seems like a pretty straightforward violation of the anti-trust laws, 
+and a conspiracy to restrain trade.  Hope Larry votes for Bush's 
+reelection, cause Bush judges will keep Larry safe from the law on this 
+for sure.
 
-Thought of s.th. like this but had no old version a hand ..
-I'll give it a look and if it seems ok, I'll give it a try and let you know ...
-
--- 
-Bjoern A. Zeeb				bzeeb at Zabbadoz dot NeT
-56 69 73 69 74				http://www.zabbadoz.net/
+Hans
 

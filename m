@@ -1,67 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265227AbUD3TRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265229AbUD3TUo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265227AbUD3TRc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 15:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265229AbUD3TRc
+	id S265229AbUD3TUo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 15:20:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265231AbUD3TUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 15:17:32 -0400
-Received: from mtagate1.uk.ibm.com ([195.212.29.134]:24488 "EHLO
-	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP id S265227AbUD3TRa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 15:17:30 -0400
-Message-ID: <4092A636.7050304@watson.ibm.com>
-Date: Fri, 30 Apr 2004 15:17:10 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Fri, 30 Apr 2004 15:20:43 -0400
+Received: from fw.osdl.org ([65.172.181.6]:31946 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265229AbUD3TUl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 15:20:41 -0400
+Date: Fri, 30 Apr 2004 12:19:03 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Hua Zhong <hzhong@cisco.com>
+cc: "'Bartlomiej Zolnierkiewicz'" <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "'Peter Williams'" <peterw@aurema.com>,
+       "'Marc Boucher'" <marc@linuxant.com>,
+       "'Sean Estabrooks'" <seanlkml@rogers.com>,
+       "'Paul Wagland'" <paul@wagland.net>, "'Rik van Riel'" <riel@redhat.com>,
+       "'Timothy Miller'" <miller@techsource.com>, koke@sindominio.net,
+       "'Rusty Russell'" <rusty@rustcorp.com.au>,
+       "'lkml - Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
+       "'David Gibson'" <david@gibson.dropbear.id.au>
+Subject: RE: [PATCH] Blacklist binary-only modules lying about their license
+In-Reply-To: <009701c42edf$25e47390$ca41cb3f@amer.cisco.com>
+Message-ID: <Pine.LNX.4.58.0404301212070.18014@ppc970.osdl.org>
+References: <009701c42edf$25e47390$ca41cb3f@amer.cisco.com>
 MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-CC: Christoph Hellwig <hch@infradead.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       ckrm-tech <ckrm-tech@lists.sourceforge.net>
-Subject: Re: [ckrm-tech] Re: [RFC] Revised CKRM release
-References: <Pine.LNX.4.44.0404301502550.6976-100000@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0404301502550.6976-100000@chimarrao.boston.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> On Fri, 30 Apr 2004, Christoph Hellwig wrote:
+
+
+On Fri, 30 Apr 2004, Hua Zhong wrote:
 > 
-> 
->>I'd hate to see this in the kernel unless there's a very strong need
->>for it and no way to solve it at a nicer layer of abstraction, e.g.
->>userland virtual machines ala uml/umlinux.
-> 
-> 
-> User Mode Linux could definitely be an option for implementing
-> resource management, provided that the overhead can be kept
-> low enough.
+> I have not heard so much WINING about WINE. I even see kernel developers add
+> more support in the kernel to support WINE. Why do people like to pick on
+> closed-source drivers being run by a wrapper? I see nothing wrong with that.
 
-....and provided the groups of processes that are sought to be 
-regulated as a unit are relatively static.
+What is so hard to understand about the problem with bugs?
 
+All software has bugs. Binary modules just mean that those bugs are
+ - FATAL to the system, including possibly being a huge security hole.
+ - impossible to debug
+ - impossible to fix
 
-> For these purposes, "low enough" could be as much as 30%
-> overhead, since that would still allow people to grow the
-> utilisation of their server from a typical 10-20% to as
-> much as 40-50%.
-> 
+In contrast, wine was _written_ to do this emulation, so by definition any
+"bugs" are in wine itself (although I suspect that wine people sometimes
+would prefer it if Office came with sources ;).
 
-In overhead, I presume you're including the overhead of running as 
-many uml instances as expected number of classes. Not just the 
-slowdown of applications because they're running under a uml instance 
-(instead of running native) ?
+> Linuxant did a wrong thing by working around the warning message, but I
+> don't think it's fair to accuse of their business because they allow binary
+> drivers run on Linux.
 
-I think UML is justified more from a fault-containment point of view 
-(where overheads are a lower priority) than from a performance 
-isolation viewpoint.
+Nobody has sued them over copyright infringement. What they are doing is 
+likely legal - APART from the fact that they lied about the license, which 
+is not only horribly immoral, it's also likely illegal under the DMCA.
 
-In any case, a 30% overhead would send a large batch of higher-end 
-server admins running to get a stick to beat you with :-)
+Note: to me, the immoral part is the big one. If you want to flaunt the
+DMCA and take the risk of the feds coming after you as a matter of civil
+disobedience, all the more power to you. Let's not be hypocritical and
+claim to like the DMCA.
 
+But let's not kid about this: adding that '\0' thing to try to make the
+kernel believe it was GPL'd code is not ethical, and there is no way to
+claim that it's needed, since the _only_ thing it suppresses are a few
+messages saying that the kernel is tainted as a result. Which it IS.
 
+So don't bother trying to stand up for Linuxant. What they did was WRONG,
+and there are no excuses for it. And I hope that they have it fixed
+already and we can hereby just forget about this discussion.
 
-
+		Linus

@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318272AbSHEAFD>; Sun, 4 Aug 2002 20:05:03 -0400
+	id <S317570AbSHEAa3>; Sun, 4 Aug 2002 20:30:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318287AbSHEAFD>; Sun, 4 Aug 2002 20:05:03 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:56231 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S318272AbSHEAFC>;
-	Sun, 4 Aug 2002 20:05:02 -0400
-From: Paul Mackerras <paulus@au1.ibm.com>
+	id <S318274AbSHEAa3>; Sun, 4 Aug 2002 20:30:29 -0400
+Received: from dsl-213-023-043-097.arcor-ip.net ([213.23.43.97]:41602 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317570AbSHEAa2>;
+	Sun, 4 Aug 2002 20:30:28 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: [PATCH] Rmap speedup
+Date: Mon, 5 Aug 2002 02:35:27 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <E17aiJv-0007cr-00@starship> <3D4DB9E4.E785184E@zip.com.au>
+In-Reply-To: <3D4DB9E4.E785184E@zip.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15693.49493.300424.746502@argo.ozlabs.ibm.com>
-Date: Mon, 5 Aug 2002 10:05:41 +1000 (EST)
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] 2.4.19 warnings cleanup
-In-Reply-To: <1028470583.14196.29.camel@irongate.swansea.linux.org.uk>
-References: <m3znw3k8qq.fsf@defiant.pm.waw.pl>
-	<1028470583.14196.29.camel@irongate.swansea.linux.org.uk>
-X-Mailer: VM 6.75 under Emacs 20.7.2
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17bVqJ-0000ca-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
+On Monday 05 August 2002 01:33, Andrew Morton wrote:
+> OK, I warmed the code up a bit and did some more measurement.
+> Your locking patch has improved things significantly.  And
+> we're now getting hurt by all the cache misses walking the
+> pte chains.
 
-> > --- linux/drivers/net/ppp_generic.c.orig	Sat Aug  3 17:13:58 2002
-> > +++ linux/drivers/net/ppp_generic.c	Sat Aug  3 19:11:54 2002
-> > @@ -378,7 +378,7 @@
-> >  {
-> >  	struct ppp_file *pf = file->private_data;
-> >  	DECLARE_WAITQUEUE(wait, current);
-> > -	ssize_t ret;
-> > +	ssize_t ret = 0; /* suppress compiler warning */
-> >  	struct sk_buff *skb = 0;
-> >  
-> >  	if (pf == 0)
+Well that's a relief.  I was beginning to believe that your 4 way has some 
+sort of built-in anti-optimization circuit.
+
+Are you still seeing no improvement on four way smp?
+
+> ...And it's all really in __page_remove_rmap, kmem_cache_alloc/free.
 > 
+> If we convert the pte_chain structure to
 > 
-> Please don't do this. I'm regularly having to fix drivers where people
-> hid bugs this way rather than working out if it was a real problem. If
-> it is genuinely a compiler corner case then let the gcc folks know and
-> comment it but leave the warning.
+> struct pte_chain {
+> 	struct pte_chain *next;
+> 	pte_t *ptes[L1_CACHE_BYTES - 4];
+> };
+> 
+> and take care to keep them compacted we shall reduce the overhead
+> of both __page_remove_rmap and the slab functions by up to 7, 15
+> or 31-fold, depending on the L1 size.  page_referenced() wins as well.
+> 
+> Plus we almost halve the memory consumption of the pte_chains
+> in the high sharing case.  And if we have to kmap these suckers
+> we reduce the frequency of that by 7x,15x,31x,etc.
+> 
+> I'll code it tomorrow.
 
-The code is in ppp_read actually OK; if you trace through the logic
-you can prove that ret is never actually used without being set first.
+Sounds good.  There is still some tuning to be done on the rmap lock 
+batching, to distribute the locks better and set anon page->indexes more 
+intelligently.  I expect this to be good for another percent or two, nothing 
+really exciting.
 
-Paul.
+-- 
+Daniel

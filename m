@@ -1,47 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264547AbUAaLsI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 06:48:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264557AbUAaLsH
+	id S264549AbUAaLqq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 06:46:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264557AbUAaLqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 06:48:07 -0500
-Received: from 10fwd.cistron-office.nl ([62.216.29.197]:61850 "EHLO
-	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
-	id S264547AbUAaLrp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 06:47:45 -0500
-Date: Sat, 31 Jan 2004 12:46:38 +0100
-From: Miquel van Smoorenburg <miquels@cistron.nl>
-To: nathans@sgi.com
-Cc: hch@infradead.org, miquels@cistron.nl, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2-rc2 nfsd+xfs spins in i_size_read()
-Message-ID: <20040131114638.GA29609@drinkel.cistron.nl>
-References: <bv8qr7$m2v$1@news.cistron.nl> <20040128222521.75a7d74f.akpm@osdl.org> <20040130202155.GM25833@drinkel.cistron.nl> <20040130221353.GO25833@drinkel.cistron.nl> <20040130143459.5eed31f0.akpm@osdl.org> <20040130225353.A26383@infradead.org> <20040130151316.40d70ed3.akpm@osdl.org> <20040131012507.GQ25833@drinkel.cistron.nl> <20040130173851.2cc5938f.akpm@osdl.org>
-Mime-Version: 1.0
+	Sat, 31 Jan 2004 06:46:46 -0500
+Received: from mylinuxtime.de ([217.160.170.124]:63641 "EHLO solar.linuxob.de")
+	by vger.kernel.org with ESMTP id S264549AbUAaLqm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jan 2004 06:46:42 -0500
+Message-ID: <32970.80.144.43.225.1075549599.squirrel@www.lugor.de>
+Date: Sat, 31 Jan 2004 12:46:39 +0100 (CET)
+Subject: silly noise with module acpi/processor
+From: "Christian Hesse" <mail@earthworm.de>
+To: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
+User-Agent: SquirrelMail/1.4.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
 Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20040130173851.2cc5938f.akpm@osdl.org> (from akpm@osdl.org on Sat, Jan 31, 2004 at 02:38:51 +0100)
-X-Mailer: Balsa 2.0.16
+X-Priority: 3
+Importance: Normal
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.16; AVE: 6.23.0.3; VDF: 6.23.0.53; host: mylinuxtime.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 31 Jan 2004 02:38:51, Andrew Morton wrote:
-> Miquel van Smoorenburg <miquels@cistron.nl> wrote:
-> > But the XFS problem appears to be vn_revalidate which calls i_size_write()
-> > without holding i_sem:
-> 
-> There's your bug.
+Hello!
 
-Okay. It seems that XFS uses its own locking with xfs_ilock() etc,
-so I am not sure if this should be fixed by using down(&inode->i_sem)
-or by using xfs_ilock().
+I'm using Linux (kernel 2.6.2-rc3) on my Samsung X10 (Pentium M 1.4 GHz,
+Centrino) notebook. If I boot the system without ac-adapter connected and
+then modprobe the module processor the notebook makes a really silly
+noise. The noise disappears with load (i.e.starting a program) but
+reappears as soon as the processor ist idle again. Plugging in the
+ac-adapter fixes the problem. Disconnecting the adapter is no problem.
+Scaling down cpu-frequency makes the noise quiete, but it still resists.
 
-Perhaps xfs_ilock() should also get the inode->i_sem semaphore
-in the XFS_ILOCK_EXCL case ?
+rmmod processor brings an oops:
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<e1cdf28f>]    Tainted: P
+EFLAGS: 00010296
+EIP is at 0xe1cdf28f
+eax: 00000000   ebx: 001bdf10   ecx: 00000008   edx: 00000000
+esi: d36f92f8   edi: 001bd989   ebp: d36f9200   esp: c04c5fc0
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 0, threadinfo=c04c4000 task=c043a6e0)
+Stack: 00099800 00000000 c04c4000 00099800 c0105000 0008e000 c0108a04
+00000816
+c04c6745 c043a6e0 00000000 c04e77e8 0000001b c04c6470 c04ef020 c010017e
+Call Trace:
+[<c0105000>] _stext+0x0/0x60
+[<c0108a04>] cpu_idle+0x34/0x40
+[<c04c6745>] start_kernel+0x185/0x1c0
+[<c04c6470>] unknown_bootoption+0x0/0x120
 
-Also, there are one or two more places that call i_size_write()
-that should be looked at I guess.
+Code:  Bad EIP value.
+<0>Kernel panic: Attempted to kill the idle task!
+In idle task - not syncing
 
-Ofcourse I'll test any patches you send me.
 
-Mike.
+Same behavior with 2.6.2-rc2 before the acpi update.
+
+With 2.6.2-rc2-mm1 the noise still resists if I plug in the ac-adapter.
+
+Let me know if you need additional information. Please cc me as I'm not
+subscribed to the list.
+
+-- 
+Christian Hesse

@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315358AbSGMTQ2>; Sat, 13 Jul 2002 15:16:28 -0400
+	id <S315337AbSGMTWo>; Sat, 13 Jul 2002 15:22:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315370AbSGMTQ1>; Sat, 13 Jul 2002 15:16:27 -0400
-Received: from h209-71-227-55.gtconnect.net ([209.71.227.55]:784 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S315358AbSGMTQ0>;
-	Sat, 13 Jul 2002 15:16:26 -0400
-Date: Sat, 13 Jul 2002 15:19:17 -0400 (EDT)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Bill Davidsen <davidsen@tmr.com>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG?] unwanted proxy arp in 2.4.19-pre10
-In-Reply-To: <1026584920.13885.29.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0207131517510.19986-100000@innerfire.net>
+	id <S315370AbSGMTWn>; Sat, 13 Jul 2002 15:22:43 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:33675 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S315337AbSGMTWm> convert rfc822-to-8bit;
+	Sat, 13 Jul 2002 15:22:42 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: HELP!!! RAID problem!
+Date: Sat, 13 Jul 2002 21:25:44 +0200
+User-Agent: KMail/1.4.1
+References: <200207132114.41697.roy@karlsbakk.net>
+In-Reply-To: <200207132114.41697.roy@karlsbakk.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207132125.44224.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Jul 2002, Alan Cox wrote:
-
-> On Sat, 2002-07-13 at 17:21, Bill Davidsen wrote:
-> > In the absense of the proxy_arp flag, I would not expect that reply,
-> > the IP is not on that NIC. Before I "fix" that, is this intended
-> > behaviour for some reason? Will I break something if I add check logic?
-> > Is there something in /proc/sys/net/ipv4 I missed which will avoid this
-> > response?
+On Saturday 13 July 2002 21:14, you wrote:
+> hi all
 >
-> Your suspicion and the reality don't match. The RFC's leave the
-> situation unclear and some OS's do either. Newer 2.4 has arpfilter which
-> can be used to control what actually occurs
+> How can I force RAID devices to get status non-failed? I have a so-called 4
+> out of 15 devices failed, and it failes to start.
+>
+> The true devices have _not_ failed!
 
-Can we at least have matching defaults for ipv4 and ipv6 ??  Having ipv6
-behave the opposite just isn't intuitive.
+That is - md[0123] are just fine, and as they generally are on the same drives 
+as md4, something _should_ be possible
 
-	Gerhard
+Thanks all
 
+roy
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
 
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
+Computers are like air conditioners.
+They stop working when you open Windows.
 

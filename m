@@ -1,40 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262583AbVAEVEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262586AbVAEVGI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262583AbVAEVEK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 16:04:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262586AbVAEVEJ
+	id S262586AbVAEVGI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 16:06:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbVAEVGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 16:04:09 -0500
-Received: from 6.143.111.62.revers.nsm.pl ([62.111.143.6]:3466 "HELO
-	ogrody.nsm.pl") by vger.kernel.org with SMTP id S262583AbVAEVEH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 16:04:07 -0500
-Date: Wed, 5 Jan 2005 22:09:29 +0100
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Open hardware wireless cards
-Message-ID: <20050105210929.GC10325@irc.pl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050105192447.GJ5159@ruslug.rutgers.edu> <20050105200526.GL5159@ruslug.rutgers.edu> <20050105201434.GB30311@csclub.uwaterloo.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 5 Jan 2005 16:06:07 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:24259 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S262586AbVAEVFq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 16:05:46 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Swsusp hanging the second time
+Date: Wed, 5 Jan 2005 22:04:34 +0100
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <200501041154.19030.oliver@neukum.org> <20050104110839.GF18777@elf.ucw.cz>
+In-Reply-To: <20050104110839.GF18777@elf.ucw.cz>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20050105201434.GB30311@csclub.uwaterloo.ca>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200501052204.34646.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 05, 2005 at 03:14:34PM -0500, Lennart Sorensen wrote:
-> > If we can't come up with our own project to work on open hardware we can
-> > also just see if its feasible to purchase hardware companies on the
-> > verge of going backrupt and buy them out and release the specs/etc (a la
-> > blender). Can someone do the math here? I'm lazy.
+Am Dienstag, 4. Januar 2005 12:08 schrieb Pavel Machek:
+> Hi!
 > 
-> Being open doesn't mean you aren't violating some stupid patent.
+> > there's a second, more serious problem with this laptop. It hangs the
+> > in the second swsusp cycle on suspension.
+> > As before 2.6.10, i386/UP/no highmem.
+> > On the screen I get the two messages "radeonfb resumed!" and
+> > "setting latency" superimposed and it hangs forever. This is a regression
+> > the previous user commented: "It worked under 2.6.6"
+> 
+> Unless it was on the same hardware/config, I'd not call it regression.
+> 
+> Anyway two suspends in the row seem to work here on 2.6.10+my
+> patches. I suspect you have problems with some more obscure driver.
+> 
+> Can you try going with minimal driver config to see if it is
+> reproducible? If it is broken even with minimal drivers, I'll try
+> harder to reproduce it here (but I believe it will just go away).
 
- Only in some countries. We can ignore those countries.
+The culprit seems to be EHCI, possibly together with UHCI only.
 
--- 
-Tomasz Torcz                 "God, root, what's the difference?"
-zdzichu@irc.-nie.spam-.pl         "God is more forgiving."
+0000:00:1d.0 USB Controller: Intel Corp. 82801DB USB (Hub #1) (rev 03) (prog-if 00 [UHCI])
+        Subsystem: Toshiba America Info Systems: Unknown device ff10
+        Flags: bus master, medium devsel, latency 0, IRQ 11
+        I/O ports at 1200 [size=32]
 
+0000:00:1d.1 USB Controller: Intel Corp. 82801DB USB (Hub #2) (rev 03) (prog-if 00 [UHCI])
+        Subsystem: Toshiba America Info Systems: Unknown device ff10
+        Flags: bus master, medium devsel, latency 0, IRQ 11
+        I/O ports at 1220 [size=32]
+
+0000:00:1d.2 USB Controller: Intel Corp. 82801DB USB (Hub #3) (rev 03) (prog-if 00 [UHCI])
+        Subsystem: Toshiba America Info Systems: Unknown device ff10
+        Flags: bus master, medium devsel, latency 0, IRQ 11
+        I/O ports at 1240 [size=32]
+
+0000:00:1d.7 USB Controller: Intel Corp. 82801DB USB2 (rev 03) (prog-if 20 [EHCI])
+        Subsystem: Toshiba America Info Systems: Unknown device ff10
+        Flags: bus master, medium devsel, latency 0
+        Memory at f4000000 (32-bit, non-prefetchable)
+        Capabilities: <available only to root>
+
+	Regards
+		Oliver

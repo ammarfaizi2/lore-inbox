@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281224AbRKEQvA>; Mon, 5 Nov 2001 11:51:00 -0500
+	id <S281240AbRKEQyK>; Mon, 5 Nov 2001 11:54:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281227AbRKEQuu>; Mon, 5 Nov 2001 11:50:50 -0500
-Received: from geos.coastside.net ([207.213.212.4]:13043 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S281224AbRKEQui>; Mon, 5 Nov 2001 11:50:38 -0500
+	id <S281239AbRKEQyE>; Mon, 5 Nov 2001 11:54:04 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:34084 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S281234AbRKEQxt>; Mon, 5 Nov 2001 11:53:49 -0500
+Date: Mon, 5 Nov 2001 17:53:37 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jeff Dike <jdike@karaya.com>
+Cc: Ryan Cumming <bodnar42@phalynx.dhs.org>, linux-kernel@vger.kernel.org
+Subject: Re: Special Kernel Modification
+Message-ID: <20011105175337.D18319@athlon.random>
+In-Reply-To: <E160aCK-0001Fs-00@localhost> <200111050552.AAA06451@ccure.karaya.com>
 Mime-Version: 1.0
-Message-Id: <p05100316b80c6f3df6f3@[207.213.214.37]>
-In-Reply-To: <20011105111239.3403b162.rusty@rustcorp.com.au>
-In-Reply-To: <E15zF9H-0000NL-00@wagner>
- <15zGYm-1gibkeC@fmrl05.sul.t-online.com>
- <20011102132014.41f2d90a.rusty@rustcorp.com.au>
- <20011104013951Z16981-4784+741@humbolt.nl.linux.org>
- <20011105111239.3403b162.rusty@rustcorp.com.au>
-Date: Mon, 5 Nov 2001 08:49:04 -0800
-To: Rusty Russell <rusty@rustcorp.com.au>,
-        Daniel Phillips <phillips@bonn-fries.net>
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
-Cc: tim@tjansen.de, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <200111050552.AAA06451@ccure.karaya.com>; from jdike@karaya.com on Mon, Nov 05, 2001 at 12:52:51AM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:12 AM +1100 11/5/01, Rusty Russell wrote:
->Firstly, do not perpetuate the myth of /proc being "human readable".  (Hint:
->what language do humans speak?)  It supposed to be "admin readable" and
->"machine readable".
+On Mon, Nov 05, 2001 at 12:52:51AM -0500, Jeff Dike wrote:
+> bodnar42@phalynx.dhs.org said:
+> > >  Mounting it synchronous will  disable caching in the VM.  
+> > Who told
+> > you that? Synchronous mounting turns off write buffering. Even with
+> > "-o sync" writes will still end up in the page cache, they'll just be
+> > commited immediately.
+> 
+> Ummm, how about O_DIRECT instead of O_SYNC (or maybe as well, my googling
+> hasn't been clear on whether O_DIRECT bypasses the cache on writes as well)?
 
-That's the key observation, seems to me. In our development, we've 
-adopted a standard of tagged values, where a single-value file is 
-tagged by its name, and multiple-value files have a tag:value per 
-line (where value might be an n-tuple).
+O_DIRECT is synchronous but only in terms of data, if you want the
+metadata to be synchronous as well you need to open with
+O_SYNC|O_DIRECT, and even in such case all the metadata reads will came
+from cache.
 
-The result is easy to parse for userland code that needs the values 
-and relatively easy (because ASCII and consistent) for admins to 
-read. A pretty-printer provides an interface for mere humans.
+For example if you only care about being able to reach the data after a
+crash (not about the inode info) in a file with all its logical blocks
+mapped to physical blcoks (no holes) and then you fsync, later you can
+as well avoid O_SYNC and you still don't risk to lose data after a crash
+because the block mappings never changes, if you grow/shrink the file
+you definitely need O_SYNC to be sure the O_DIRECT data is still there
+after a crash instead.
 
-I suppose one could add typing information as well, but it seems to 
-me that a reader of /proc/stuff is either completely ignorant of the 
-content (eg cat), and typing is irrelevant, or it knows what's there 
-(eg ps) and typing is redundant, as long as there are unambiguous 
-tags.
-
-I think of the tagged list of n-tuples as a kind of ASCII 
-representation of a simple struct. One could of course create a 
-general ASCII representation of a C struct, and no doubt it's been 
-done innumerable times, but I don't think that helps in this 
-application.
-
-Of course, one tagged value can be "version"....
--- 
-/Jonathan Lundell.
+Andrea

@@ -1,67 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261905AbUCDNxi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 08:53:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbUCDNwE
+	id S261903AbUCDNzY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 08:55:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbUCDNxy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 08:52:04 -0500
-Received: from pxy4allmi.all.mi.charter.com ([24.247.15.43]:15518 "EHLO
-	proxy4.gha.chartermi.net") by vger.kernel.org with ESMTP
-	id S261905AbUCDNve (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 08:51:34 -0500
-Message-ID: <40473461.80105@quark.didntduck.org>
-Date: Thu, 04 Mar 2004 08:51:29 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040116
-X-Accept-Language: en-us, en
+	Thu, 4 Mar 2004 08:53:54 -0500
+Received: from mail.jambit.de ([212.18.21.206]:38159 "EHLO mail.jambit.de")
+	by vger.kernel.org with ESMTP id S261903AbUCDNxZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 08:53:25 -0500
+Message-ID: <001b01c401f0$10d77130$c100a8c0@wakatipu>
+From: "Michael Kerrisk" <mtk-lists@jambit.de>
+To: <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <mjp@pilcrow.madison.wi.us>
+Subject: open(O_ASYNC) is (still) broken in 2.6.3
+Date: Thu, 4 Mar 2004 14:53:25 +0100
 MIME-Version: 1.0
-To: Meelis Roos <mroos@linux.ee>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3: PnPBIOS hangs with S875WP1 BIOS
-References: <Pine.GSO.4.44.0403040920480.2398-100000@math.ut.ee>
-In-Reply-To: <Pine.GSO.4.44.0403040920480.2398-100000@math.ut.ee>
-Content-Type: multipart/mixed;
- boundary="------------000607090600080107080108"
-X-Charter-MailScanner-Information: 
-X-Charter-MailScanner: 
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000607090600080107080108
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hello Andrew,
 
-Meelis Roos wrote:
-> I run a 2.6.3 kernel on Intel S875WP1 mainboard. When I enable PnPBIOS
-> in kernel config, the kernel gets general protection fault 0 just after
-> telling it found PnP BIOS. No backtrace. Disabling PnPBIOS in kernel
-> works around the problem.
-> 
+>From http://www.ussg.iu.edu/hypermail/linux/kernel/0111.1/1401.html and
+http://www.ussg.iu.edu/hypermail/linux/kernel/0111.1/1636.html , I see that
+this topic has been visited at least once before, but this behavior appears
+still to be present in Linux 2.6.3.
 
-Try this patch
+The O_ASYNC flag has no affect (in terms of signal generation) when
+specified in a call to open().  For example, if we make the following set of
+calls:
 
---
-				Brian Gerst
+    fd = open("/dev/tty2", O_RDONLY | O_ASYNC);
+    fcntl(fd, F_SETOWN, getpid());
 
---------------000607090600080107080108
-Content-Type: text/plain;
- name="pnpsegs-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pnpsegs-1"
+Then the call:
 
-diff -urN linux-bk/arch/i386/mm/extable.c linux/arch/i386/mm/extable.c
---- linux-bk/arch/i386/mm/extable.c	2004-02-15 00:41:41.000000000 -0500
-+++ linux/arch/i386/mm/extable.c	2004-03-04 08:42:12.169000128 -0500
-@@ -12,7 +12,7 @@
- 	const struct exception_table_entry *fixup;
- 
- #ifdef CONFIG_PNPBIOS
--	if (unlikely((regs->xcs | 8) == 0x88)) /* 0x80 or 0x88 */
-+	if (unlikely((regs->xcs & ~15) == (GDT_ENTRY_PNPBIOS_BASE << 3)))
- 	{
- 		extern u32 pnp_bios_fault_eip, pnp_bios_fault_esp;
- 		extern u32 pnp_bios_is_utter_crap;
+    flags = fcntl(fd, F_GETFL);
 
---------------000607090600080107080108--
+tells us that O_ASYNC is in 'flags', but no signal is delivered when input
+becomes available on the terminal.  (We see the same behaviour if opening a
+FIFO on 2.6.3.).  On the other hand, the following does result in the
+generation of SIGIO signals when input is available:
+
+    fd = open("/dev/tty2", O_RDONLY);
+    flags = fcntl(fd, F_GETFL);
+    fcntl(fd, F_SETFL, flags | O_ASYNC);
+    fcntl(fd, F_SETOWN, getpid());
+
+Furthermore, the following sequence also results in generation of SIGIO when
+input is available, but only after the final fcntl() call:
+
+    fd = open("/dev/tty2", O_RDONLY) | O_ASYNC;
+    fcntl(fd, F_SETOWN, getpid());
+    fcntl(fd, F_SETFL, 0);
+    fcntl(fd, F_SETFL, O_ASYNC);
+
+I assume the patch referred to at the second URL above fixes this problem,
+but I haven't tested it.  The question is, why is this still broken?
+
+Cheers,
+
+Michael
+

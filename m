@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272181AbRIJXfx>; Mon, 10 Sep 2001 19:35:53 -0400
+	id <S272192AbRIJXqO>; Mon, 10 Sep 2001 19:46:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272164AbRIJXfo>; Mon, 10 Sep 2001 19:35:44 -0400
-Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:20473 "HELO
-	devbox.kroptech.com") by vger.kernel.org with SMTP
-	id <S272181AbRIJXfa>; Mon, 10 Sep 2001 19:35:30 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Adam Kropelin <akropel1@rochester.rr.com>
-Reply-To: akropel1@rochester.rr.com
-Organization: KropTech
-To: hugh@veritas.com
-Subject: Re: scsi_io_completion oops on 2.4.10-pre5
-Date: Mon, 10 Sep 2001 19:35:49 -0400
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Message-Id: <01091019354900.05688@devbox>
-Content-Transfer-Encoding: 7BIT
+	id <S272188AbRIJXqF>; Mon, 10 Sep 2001 19:46:05 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:59666 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S272192AbRIJXpx>; Mon, 10 Sep 2001 19:45:53 -0400
+Message-Id: <200109102346.f8ANkAY23472@aslan.scsiguy.com>
+To: Andreas Steinmetz <ast@domdv.de>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        SPATZ1@t-online.de (Frank Schneider)
+Subject: Re: AIC + RAID1 error? (was: Re: aic7xxx errors) 
+In-Reply-To: Your message of "Tue, 11 Sep 2001 01:37:17 +0200."
+             <XFMail.20010911013717.ast@domdv.de> 
+Date: Mon, 10 Sep 2001 17:46:10 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickens wrote:
-> On Sun, 9 Sep 2001, Adam Kropelin wrote:
-> > The below oops is easily reproducable for me under 2.4.10-pre5.
-> > Unable to handle kernel paging request at virtual address 46454c22
-> > >>EIP; c020c444 <scsi_io_completion+88/370>   <=====
+>> MD (line 3475 of drivers/md/md.c) uses 0 too.  Change it to INT_MAX
+>> and MD will always get shutdown prior to any child devices it might
 >
-> Although there's nothing about this to link it with the page_alloc.c
-> BUGs, that's clearly corruption ("LEF), and the page_alloc.c BUGs
-> were caused by double use of a page: I wouldn't trust 2.4.10-pre5,
-> think you should try to reproduce on -pre6 or -pre7 instead.
+>I don't believe INT_MAX to be a good idea. What happens if anything else needs
+>to shutdown prior to md (think of tux, knfsd)?
 
-Sound advice, indeed. 2.4.10-pre7 handles everything I can throw
-at it. I guess I just picked a bad Linus kernel to start with...
+Your examples are processes (albeit in the kernel) which should have
+received a signal long before the notifier chain is called.
 
-Thanks for the pointer.
+>As a suggestion it would be a
+>good idea if someone with a broader overview would define some reboot
+>priorities in include/linux/notifier.h.
 
---Adam
+And expand the codes that are used for the notifier.  The current set
+of codes are not well defined and most drivers treat all of them the
+same.
+
+--
+Justin

@@ -1,81 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVAGJx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVAGKCu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbVAGJx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 04:53:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbVAGJx6
+	id S261338AbVAGKCu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 05:02:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVAGKCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 04:53:58 -0500
-Received: from smail4.alcatel.fr ([62.23.212.167]:62373 "EHLO
-	smail4.alcatel.fr") by vger.kernel.org with ESMTP id S261336AbVAGJxw
+	Fri, 7 Jan 2005 05:02:50 -0500
+Received: from miranda.se.axis.com ([193.13.178.2]:21473 "EHLO
+	miranda.se.axis.com") by vger.kernel.org with ESMTP id S261338AbVAGKCj convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 04:53:52 -0500
-Message-ID: <41DE5B99.1040602@linux-fr.org>
-Date: Fri, 07 Jan 2005 10:51:21 +0100
-From: Jean Delvare <khali@linux-fr.org>
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.8a5) Gecko/20041222
-X-Accept-Language: fr-fr, en, en-us
+	Fri, 7 Jan 2005 05:02:39 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: "J.A. Magallon" <jamagallon@able.es>
-CC: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>,
-       LM Sensors <sensors@stimpy.netroedge.com>
-Subject: Re: i2c: lost sensors with 2.6.10(-mm1)
-References: <1105058791l.5580l.0l@werewolf.able.es>
-In-Reply-To: <1105058791l.5580l.0l@werewolf.able.es>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Alcanet-MTA-scanned-and-authorized: yes
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH][3/4] let's kill verify_area - convert kernel/compat.c to access_ok()
+Date: Fri, 7 Jan 2005 11:02:15 +0100
+Message-ID: <50BF37ECE4954A4BA18C08D0C2CF88CB010400CA@exmail1.se.axis.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH][3/4] let's kill verify_area - convert kernel/compat.c to access_ok()
+Thread-Index: AcT0WXowBwoUM76tTXqVqFoBMqpfsQARSNkQ
+From: "Peter Kjellerstedt" <peter.kjellerstedt@axis.com>
+To: "Jesper Juhl" <juhl-lkml@dif.dk>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Cc: "Andrew Morton" <akpm@osdl.org>
+X-OriginalArrivalTime: 07 Jan 2005 10:02:15.0917 (UTC) FILETIME=[F74C59D0:01C4F49F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.A. Magallon wrote:
-
-> I have lost my sensors info with 2.6.10, in particular -mm1.
-> They work fine with 2.6.9-mm1 (current state of the box, booted on
-> 2.6.9 or 10, no other difference).
- > (...)
-> I have noticed different contents in /sys:
-> under 2.6.9:
-> /sys/devices/platform/i2c-1:
-> /sys/devices/platform/i2c-1/1-0290:
-> /sys/devices/platform/i2c-1/1-0290/power:
-> /sys/devices/platform/i2c-1/power:
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jesper Juhl
+> Sent: Friday, January 07, 2005 02:19
+> To: linux-kernel
+> Cc: Andrew Morton
+> Subject: [PATCH][3/4] let's kill verify_area - convert kernel/compat.c
+to access_ok()
 > 
-> under 2.6.10:
-> /sys/devices/platform/i2c-1:
-> /sys/devices/platform/i2c-1/power:
+> Here's a patch to convert verify_area to access_ok in kernel/compat.c
 > 
-> So some /sys nodes are missing !!!
-> (the isa bus)
+> diff -up linux-2.6.10-bk9-orig/kernel/compat.c 
+> linux-2.6.10-bk9/kernel/compat.c
+> --- linux-2.6.10-bk9-orig/kernel/compat.c	2005-01-06
+22:19:13.000000000 +0100
+> +++ linux-2.6.10-bk9/kernel/compat.c	2005-01-07 02:06:00.000000000
++0100
 
-This basically means that the i2c client was not registered.
+[snip]
 
-> Debug output from 2.6.10-mm1:
-> (...)
-> Jan  7 01:33:11 werewolf kernel: i2c-core: driver w83627hf registered.
-> Jan  7 01:33:11 werewolf kernel: i2c_adapter i2c-1: found normal isa entry for adapter 9191, addr 0290
+> @@ -612,7 +612,7 @@ long compat_get_bitmap(unsigned long *ma
+>  	/* align bitmap up to nearest compat_long_t boundary */
+>  	bitmap_size = ALIGN(bitmap_size, BITS_PER_COMPAT_LONG);
+>  
+> -	if (verify_area(VERIFY_READ, umask, bitmap_size / 8))
+> +	if (!access_ok(VERIFY_READ, umask, bitmap_size / 8) != 0)
 
-However, this suggests that the driver loaded properly and the base 
-address was correctly read from Super-I/O space. This would mean that 
-the problem happened later, in w83627hf_detect(). The most likely reason 
-for this would be if the region request failed (unfortunately we have no 
-message, not even debug, if this happens).
+Please do not use double negations (i.e., drop the '!= 0' test 
+again).
 
-> Some ideas ?
+>  		return -EFAULT;
+>  
+>  	nr_compat_longs = BITS_TO_COMPAT_LONGS(bitmap_size);
+> @@ -653,7 +653,7 @@ long compat_put_bitmap(compat_ulong_t __
+>  	/* align bitmap up to nearest compat_long_t boundary */
+>  	bitmap_size = ALIGN(bitmap_size, BITS_PER_COMPAT_LONG);
+>  
+> -	if (verify_area(VERIFY_WRITE, umask, bitmap_size / 8))
+> +	if (!access_ok(VERIFY_WRITE, umask, bitmap_size / 8) != 0)
+>  		return -EFAULT;
+>  
+>  	nr_compat_longs = BITS_TO_COMPAT_LONGS(bitmap_size);
 
-Three things to try, in order:
-
-1* Compare /proc/ioports in 2.6.9-mm1 and 2.6.10-mm1. I suspect that the 
-0x290-0x297 range is held by some device in 2.6.10-mm1.
-
-2* Try reverting this patch in 2.6.10-mm1:
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10/2.6.10-mm1/broken-out/bk-i2c.patch
-It does indeed include a change in the way the I/O region is requested. 
-It should not make any difference, but maybe we are missing something 
-and it actually does.
-
-3* Try a vanilla 2.6.10 kernel and report how it is going.
-
-Thanks,
--- 
-Jean Delvare
+//Peter

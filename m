@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262808AbSKYKJM>; Mon, 25 Nov 2002 05:09:12 -0500
+	id <S262806AbSKYKGV>; Mon, 25 Nov 2002 05:06:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262812AbSKYKJM>; Mon, 25 Nov 2002 05:09:12 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:13323 "EHLO
+	id <S262807AbSKYKGV>; Mon, 25 Nov 2002 05:06:21 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:9483 "EHLO
 	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S262808AbSKYKJL>; Mon, 25 Nov 2002 05:09:11 -0500
-Message-Id: <200211251009.gAPA9np09476@Port.imtp.ilyichevsk.odessa.ua>
+	id <S262806AbSKYKGU>; Mon, 25 Nov 2002 05:06:20 -0500
+Message-Id: <200211251004.gAPA4rp09456@Port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain; charset=US-ASCII
 From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
 Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: David Zaffiro <davzaffiro@netscape.net>, willy@w.ods.org
+To: Willy Tarreau <willy@w.ods.org>, David Zaffiro <davzaffiro@netscape.net>
 Subject: Re: Compiling x86 with and without frame pointer
-Date: Mon, 25 Nov 2002 13:00:27 -0200
+Date: Mon, 25 Nov 2002 12:55:30 -0200
 X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <19005.1037854033@kao2.melbourne.sgi.com> <20021121192045.GE3636@alpha.home.local> <3DE1E384.8000801@netscape.net>
-In-Reply-To: <3DE1E384.8000801@netscape.net>
+Cc: willy@w.ods.org, linux-kernel <linux-kernel@vger.kernel.org>
+References: <19005.1037854033@kao2.melbourne.sgi.com> <3DE1E384.8000801@netscape.net> <20021125085229.GA15592@alpha.home.local>
+In-Reply-To: <20021125085229.GA15592@alpha.home.local>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25 November 2002 06:47, David Zaffiro wrote:
-> I can understand why not omitting framepointers generates better
-> compressible code, since every function will start with:
-> 	push   %ebp
-> 	mov    %esp,%ebp
-> and end with:
-> 	leave
-> 	ret
+On 25 November 2002 06:52, Willy Tarreau wrote:
+> > Anyway it makes me wonder, whether kernelcompilation shouldn't be
+> > configurable between a "optimize for (compressed image) size" and a
+> > "optimize for speed" option... I'd go for speed... (and always
+> > omitting frame-pointers doesn't seem to as fast as omitting them
+> > only in leaf functions).
 >
-> But it's harder to find a reason why -fomit-frame-pointer is better
-> compressible that -momit-leaf-frame-pointer (but it's probably
-> related to a lot of mov's with stackpointer involved), especially
-> since "-momit-leaf-frame-pointer" makes a trade-off between both
-> other options: it omits framepointers for leaf functions (callees
-> that aren't callers as well) and it doesn't for branch-functions.
+> hehe :-)
+> I've put this in my kernels for about 2 years now. You can also
+> reduce the image size with -malign-jumps=0
+> -mpreferred-stack-boundary=2 and -mcpu=i386.
 
-Which does not sound quite right for me. FP should be omitted
-only if function contains less than half dozen stack references,
-otherwise not. It does not matter whether it is a leaf function or not.
-
-OTOH, AFAIK frame pointers make debugging easier, development kernels
-are better to be compiled with fp in every func.
+Hehe indeed ;)
 --
 vda

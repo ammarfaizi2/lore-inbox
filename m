@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317661AbSGUIXx>; Sun, 21 Jul 2002 04:23:53 -0400
+	id <S317663AbSGUI1v>; Sun, 21 Jul 2002 04:27:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317663AbSGUIXx>; Sun, 21 Jul 2002 04:23:53 -0400
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:13896 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S317661AbSGUIXw>; Sun, 21 Jul 2002 04:23:52 -0400
-Date: Sun, 21 Jul 2002 02:26:48 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Mike Galbraith <efault@gmx.de>
-cc: Thunder from the hill <thunder@ngforever.de>,
-       Tomas Szepe <szepe@pinerecords.com>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Give Bartlomiej a break!  (Re: Impressions of IDE 98?)
-In-Reply-To: <5.1.0.14.2.20020721094805.00b9e5c8@pop.gmx.net>
-Message-ID: <Pine.LNX.4.44.0207210222021.3309-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
+	id <S317664AbSGUI1v>; Sun, 21 Jul 2002 04:27:51 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:47541 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S317663AbSGUI1u> convert rfc822-to-8bit; Sun, 21 Jul 2002 04:27:50 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
+Date: Sun, 21 Jul 2002 10:33:59 +0200
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
+References: <OF918E6F71.637B1CBC-ON85256BFB.004CDDD0@pok.ibm.com.suse.lists.linux.kernel> <1027199147.16819.39.camel@irongate.swansea.linux.org.uk.suse.lists.linux.kernel> <p731y9xva8m.fsf@oldwotan.suse.de>
+In-Reply-To: <p731y9xva8m.fsf@oldwotan.suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207211033.59266.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Am Sonntag, 21. Juli 2002 08:57 schrieb Andi Kleen:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> > > o EVMS (Enterprise Volume Management System)      (EVMS team)
+> >
+> > or LVM2, which already appears to be scrubbed down and clean
+>
+> Is there any reason why not both can go in? As far as I know neither
+> of them needs much of core changes, they are more like independent
+> "drivers" of the generic block layer stacking interface. There are
+> already multiple drivers of this - LVM and the various MD personalities.
 
-On Sun, 21 Jul 2002, Mike Galbraith wrote:
-> Regarding constitutional monarchy, that's high-grade horse shit.  LT has
-                                                                    ^^
+The interfaces to filesystems for things like online resizing.
+If these are not compatible and stay compatible, you cause fs
+developers a lot of pain.
 
->From Jargon File (4.3.0, 30 APR 2001) [jargon]:
-
-  Linus /leen'us'/ or /lin'us'/, not /li:'nus/ Linus Torvalds, the author
-     of {Linux}. Nobody in the hacker culture has been as readily recognized
-     by first name alone since Ken (Thompson).
-
-So I think calling him LT is way, way wrong if you think he's worth the 
-comparison to ken.
-
-> always been the benevolent dictator [1] of his tree.
-
-That's nothing that's speaking against the monarchy. However, I think he's 
-still bound to do things that he just has to do, because otherwise he'd be 
-hung ;-)
-
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+	Regards
+		Oliver
 

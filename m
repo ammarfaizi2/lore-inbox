@@ -1,28 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316512AbSFUJZP>; Fri, 21 Jun 2002 05:25:15 -0400
+	id <S316519AbSFUJ2n>; Fri, 21 Jun 2002 05:28:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316519AbSFUJZP>; Fri, 21 Jun 2002 05:25:15 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:9948 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S316512AbSFUJZO>;
-	Fri, 21 Jun 2002 05:25:14 -0400
-Date: Fri, 21 Jun 2002 11:24:59 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: hda: error: DMA in progress..
-Message-ID: <20020621092459.GD27090@suse.de>
+	id <S316523AbSFUJ2m>; Fri, 21 Jun 2002 05:28:42 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:21952 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316519AbSFUJ2l>;
+	Fri, 21 Jun 2002 05:28:41 -0400
+Date: Fri, 21 Jun 2002 02:23:00 -0700 (PDT)
+Message-Id: <20020621.022300.104565234.davem@redhat.com>
+To: wa@almesberger.net
+Cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
+Subject: Re: [PATCH] include/net/dsfield.h warning (2.4,2.5)
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020621055618.B2295@almesberger.net>
+References: <20020621055618.B2295@almesberger.net>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin,
+   From: Werner Almesberger <wa@almesberger.net>
+   Date: Fri, 21 Jun 2002 05:56:18 -0300
 
-I gave 2.5.24 a spin, and it quickly dies with the error in subject,
-under moderate disk load. It's an IBM travel star on a PIIX4.
+   I tried this patch with 2.5.24, but it should be fine for any 2.4
+   or 2.5 kernel.
 
--- 
-Jens Axboe
-
+Applied, thanks.

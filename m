@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314723AbSD2BBn>; Sun, 28 Apr 2002 21:01:43 -0400
+	id <S314727AbSD2BQR>; Sun, 28 Apr 2002 21:16:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314726AbSD2BBm>; Sun, 28 Apr 2002 21:01:42 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:22185 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S314723AbSD2BBm>; Sun, 28 Apr 2002 21:01:42 -0400
-Date: Sun, 28 Apr 2002 19:01:05 -0600
-Message-Id: <200204290101.g3T115B32078@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: [PATCH] devfs v211 available
+	id <S314728AbSD2BQQ>; Sun, 28 Apr 2002 21:16:16 -0400
+Received: from web10401.mail.yahoo.com ([216.136.130.93]:27242 "HELO
+	web10401.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S314727AbSD2BQP>; Sun, 28 Apr 2002 21:16:15 -0400
+Message-ID: <20020429011613.31631.qmail@web10401.mail.yahoo.com>
+Date: Mon, 29 Apr 2002 11:16:13 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Odd floppy  behaviour in 2.4.19-pre7 (again)
+To: kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. Version 211 of my devfs patch is now available from:
-http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
-The devfs FAQ is also available here.
 
-Patch directly available from:
-ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.5/devfs-patch-current.gz
+Hi, it is me again
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.5/devfs-patch-current.gz
+The previous problem I posted is still with
+2.4.19-pre7. I guess it is not only me to build a boot
+- root disk but it seems that only me having such
+problem. (As I got no reply :-) ) For the current
+running kernel I built floppy as module and when 
+access the floppy drive here is the message from dmesg
 
-NOTE: kernel 2.5.1 and later require devfsd-v1.3.19 or later.
+inserting floppy driver for 2.4.19-pre7
+Floppy drive(s): fd0 is 1.44M
+FDC 0 is a post-1991 82077
+Only problem with boot disk as I described in my
+previous post
+Regards,
 
-This is against 2.5.10. Highlights of this release:
 
-- Do not put miscellaneous character devices in /dev/misc if they
-  specify their own directory (i.e. contain a '/' character)
+=====
+Steve Kieu
 
-- Copied macro for error messages from fs/devfs/base.c to
-  fs/devfs/util.c and made use of this macro
-
-- Removed 2.4.x compatibility code from fs/devfs/base.c
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+http://messenger.yahoo.com.au - Yahoo! Messenger
+- A great way to communicate long-distance for FREE!

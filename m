@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276331AbRJKNiP>; Thu, 11 Oct 2001 09:38:15 -0400
+	id <S276335AbRJKNnp>; Thu, 11 Oct 2001 09:43:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276330AbRJKNiG>; Thu, 11 Oct 2001 09:38:06 -0400
-Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:44941 "EHLO
-	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S276335AbRJKNh5>;
-	Thu, 11 Oct 2001 09:37:57 -0400
-Message-ID: <62869.212.247.172.29.1002807452.squirrel@webmail.stesmi.com>
-Date: Thu, 11 Oct 2001 15:37:32 +0200 (CEST)
-Subject: =?iso-8859-1?Q?Re:_Re:_[PATCH]_Re:_Lost_Partition?=
-From: "=?iso-8859-1?Q?Stefan_Smietanowski?=" <stesmi@stesmi.com>
-To: <viro@math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0110110927390.22698-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0110110927390.22698-100000@weyl.math.psu.edu>
-Cc: <v.sweeney@dexterus.com>, <linux-kernel@vger.kernel.org>
-Reply-To: stesmi@stesmi.com
-X-Mailer: SquirrelMail (version 1.2.0 [rc1])
+	id <S276339AbRJKNng>; Thu, 11 Oct 2001 09:43:36 -0400
+Received: from mail.spylog.com ([194.67.35.220]:44506 "HELO mail.spylog.com")
+	by vger.kernel.org with SMTP id <S276335AbRJKNn3>;
+	Thu, 11 Oct 2001 09:43:29 -0400
+Date: Thu, 11 Oct 2001 17:39:54 +0400
+From: "Oleg A. Yurlov" <kris@spylog.com>
+X-Mailer: The Bat! (v1.53d)
+Reply-To: "Oleg A. Yurlov" <kris@spylog.com>
+Organization: SpyLOG Ltd.
+X-Priority: 3 (Normal)
+Message-ID: <13522687985.20011011173954@spylog.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.11aa1 and AIC7XXX
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
->> Hi. Re partition problem.
->>
->>
->> > -	unsigned long first_sector, first_size, this_sector, this_size;
->> > +	unsigned long first_sector, this_sector, this_size;
->>
->> > +	this_size = first_size;
->>
->>
->> It seems that's sorta wrong, no?
->>
->> You just removed "first_size" and then you access it :)
->
-> Look carefully at the arguments list.  first_size had just become
-> explicitly passed to extended_partition().
+        Hi, folks,
 
-Yeah I see that now. Sorry, didn't look closely enough.
+        I see in log next messages:
 
-// Stefan
+Oct 10 20:35:31 samson kernel: (scsi0:A:2:0): Locking max tag count at 128
+Oct 10 21:06:31 samson kernel: (scsi1:A:0:0): Locking max tag count at 64                                                           
+Oct 11 05:33:09 samson kernel: (scsi0:A:3:0): Locking max tag count at 128       
 
+        Hardware   -  SMP 2 CPU, 1GB RAM, M/B Intel L440GX, 5 SCSI HDD, Software
+RAID5 (3 disks) and RAID1.
 
+        I found in dmesg:
+
+ *** Possibly defective BIOS detected (irqtable)
+ *** Many BIOSes matching this signature have incorrect IRQ routing tables.
+ *** If you see IRQ problems, in paticular SCSI resets and hangs at boot
+ *** contact your vendor and ask about updates.
+ *** Building an SMP kernel may evade the bug some of the time.
+Starting kswapd
+
+        It's  normal or not ? What I can do to fix problem with locking max tag
+count ?
+
+--
+Oleg A. Yurlov aka Kris Werewolf, SysAdmin      OAY100-RIPN
+mailto:kris@spylog.com                          +7 095 332-03-88
 

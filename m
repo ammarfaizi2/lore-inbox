@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318340AbSGYIEu>; Thu, 25 Jul 2002 04:04:50 -0400
+	id <S318358AbSGYIPX>; Thu, 25 Jul 2002 04:15:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318365AbSGYIEt>; Thu, 25 Jul 2002 04:04:49 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:32701 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S318340AbSGYIEs>;
-	Thu, 25 Jul 2002 04:04:48 -0400
-Message-ID: <3D3FB062.90204@evision.ag>
-Date: Thu, 25 Jul 2002 10:01:38 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
+	id <S318362AbSGYIPX>; Thu, 25 Jul 2002 04:15:23 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:29283 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S318358AbSGYIPW>; Thu, 25 Jul 2002 04:15:22 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200207250818.g6P8IFU22876@devserv.devel.redhat.com>
+Subject: Re: [PATCH] 2.5.28: VM strict overcommit
+To: akpm@zip.com.au (Andrew Morton)
+Date: Thu, 25 Jul 2002 04:18:14 -0400 (EDT)
+Cc: rml@tech9.net (Robert Love), torvalds@transmeta.com, riel@conectiva.com.br,
+       linux-kernel@vger.kernel.org, alan@redhat.com
+In-Reply-To: <3D3F6EBB.3B7817C5@zip.com.au> from "Andrew Morton" at Jul 24, 2002 08:21:31 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC/CFT] cmd640 irqlocking fixes
-References: <20020724225826.GF25038@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> I don't have one of these, and I'm not even sure what it is. But here's
-> a wild guess at a fix.
+> 		if (!vm_enough_memory((maxpos - inode->i_size) >> PAGE_SHIFT)) {
+> 			err = -ENOMEM;
+> 			goto out_nc;
+> 		}
+> 	}
 > 
-> 
-> Cheers,
-> Bill
-> ===== drivers/ide/cmd640.c 1.11 vs edited =====
-> --- 1.11/drivers/ide/cmd640.c	Wed May 22 04:21:11 2002
-> +++ edited/drivers/ide/cmd640.c	Wed Jul 24 18:51:54 2002
-> @@ -115,6 +115,12 @@
->  #include "ata-timing.h"
->  
->  /*
-> + * Is this remotely correct?
-> + */
+> tmpfs supports holes.  Looks to me like a small write which creates
+> a big hole will be severely over-accounted for?
 
-The proper fix (rating: 50% propability of beeing perfect and 99.99% 
-propability of working) is just to *remove* those georgeous IRQ
-"tooglers" *alltogether*. Scrap them... becouse I don't see how any
-of the encolosed commands could cause an IRQ...
+Intentionally. The base tree doesn't support page cache removal AS callbacks
+so cannot support the ideal behaviour. The other rounding bits for the
+tmpfs stuff are I think all fixed in 2.4 by Hugh's stuff, but fixing 2.5
+tmpfs is an ongoing seperate project.
 
+> vm_enough_memory() looks really slow.  I'll bench this a bit.
+
+On the benches I've run I can't see any difference whatever the
+accounting mode I am using. 
+
+> of memory is dirty" is junk.  It really wants to know more
+> information about the dynamic state of the system.  So tracking
+> all those datums on-the-fly would be handy.  One day.
+
+We need it three years ago not "one day"
+
+Alan

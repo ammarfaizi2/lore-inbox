@@ -1,41 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbULEDE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbULEDGY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbULEDE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 22:04:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbULEDE1
+	id S261240AbULEDGY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 22:06:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbULEDGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 22:04:27 -0500
-Received: from chiark.greenend.org.uk ([193.201.200.170]:63114 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id S261235AbULEDEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 22:04:24 -0500
-To: Mike Waychison <Michael.Waychison@Sun.COM>, linux-kernel@vger.kernel.org
-Subject: Re: wakeup_pmode_return jmp failing?
-In-Reply-To: <41B09C96.7090207@sun.com>
-References: <41B084B4.1050402@sun.com> <41B09D4B.3090906@tmr.com> <41B09D4B.3090906@tmr.com> <41B09C96.7090207@sun.com>
-Date: Sun, 5 Dec 2004 03:04:23 +0000
-Message-Id: <E1CamhD-0002nh-00@chiark.greenend.org.uk>
-From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+	Sat, 4 Dec 2004 22:06:23 -0500
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:52912 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S261240AbULEDFx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Dec 2004 22:05:53 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.10-rc3
+Date: Sat, 4 Dec 2004 19:03:55 -0800
+User-Agent: KMail/1.7.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412041903.55583.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Waychison <Michael.Waychison@Sun.COM> wrote:
+> From:       Martin Josefsson <gandalf () wlug ! westbo ! se>
+> Date:       2004-12-04 21:42:11
+> 
+> On Sat, 4 Dec 2004, Alex Romosan wrote:
+> 
+> > thank you. the laptop wakes up now but i get the following when it
+> > resumes (this is the output from dmesg):
+> >
+> > scheduling while atomic: sleepbtn.sh/0x00000001/3201
+> ...
+> That's an usb2.0 bug, the ehci driver sleeps when it can't sleep.
 
-> FWIW, my last attempts (months ago) at getting suspend to work with acpi
-> on 2.4 appeared to fail the same way.  That is, when I could get the
-> machine to boot properly with acpi enabled.
+Who changed it so that context was no longer allowed to sleep???
 
-ACPI suspend on 2.4 certainly won't work. There's no significant amount
-of support for device suspend/resume.
+That's a very recent change ... I've done a fair amount of testing
+in previous kernels and _never_ got that message on that path.
 
-> Well, I'm doing this with no X, no network, no usb.  Like I said, it
-> appears to suspend fine, but fails in the early wakeup code.
+Why was that changed?  Are you sure it's not just a bug higher up
+in the call stack?  Classically(*), both suspend() and resume()
+methods are called in contexts that can sleep, so that's a big
+change I'd expect to impact other drivers too.  In fact that'd
+explain a lot of other messages I saw reported on the list...
 
-It would be interesting if you have any luck in tracking this down. I'm
-having vaguely similar issues with another piece of hardware (S3 works
-fine on my Thinkpad), though it seems to reboot before any 16 bit code
-is run. http://bugzilla.kernel.org/show_bug.cgi?id=3691 is the bugzilla
-entry for that one.
+- Dave
 
--- 
-Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org
+(*) Since APM days if not before.

@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281042AbRKYUdP>; Sun, 25 Nov 2001 15:33:15 -0500
+	id <S281051AbRKYUiF>; Sun, 25 Nov 2001 15:38:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281046AbRKYUdF>; Sun, 25 Nov 2001 15:33:05 -0500
-Received: from f05s15.cac.psu.edu ([128.118.141.58]:51162 "EHLO
-	f05n15.cac.psu.edu") by vger.kernel.org with ESMTP
-	id <S281042AbRKYUcy>; Sun, 25 Nov 2001 15:32:54 -0500
-Subject: Re: /var corruption after 2.4.15 and 2.5.0 reboot
-From: Phil Sorber <aafes@psu.edu>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Niels Christiansen <nchr@us.ibm.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.40.0111251227110.7354-100000@blue1.dev.mcafeelabs.com>
-In-Reply-To: <Pine.LNX.4.40.0111251227110.7354-100000@blue1.dev.mcafeelabs.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-tTZC0Nc4YeJ4nnetXcmP"
-X-Mailer: Evolution/0.16 (Preview Release)
-Date: 25 Nov 2001 15:32:46 -0500
-Message-Id: <1006720366.4329.18.camel@praetorian>
-Mime-Version: 1.0
+	id <S281052AbRKYUh4>; Sun, 25 Nov 2001 15:37:56 -0500
+Received: from james.kalifornia.com ([208.179.59.2]:39213 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S281051AbRKYUhj>; Sun, 25 Nov 2001 15:37:39 -0500
+Message-ID: <3C015681.8080006@blue-labs.org>
+Date: Sun, 25 Nov 2001 15:37:21 -0500
+From: David Ford <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011120
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Josep Lladonosa i Capell <jep@jep.net.dhis.org>
+CC: Francois Romieu <romieu@cogenit.fr>, linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.4.16-pre1 not compiling without SMP
+In-Reply-To: <3C013407.7C639D34@jep.dhis.org> <20011125192156.A7274@se1.cogenit.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+After you have enabled SMP in a past configuration, to compile without 
+SMP, you must do a 'make distclean'.  It's a bug in the current config 
+stuff that hasn't ever been addressed.
 
---=-tTZC0Nc4YeJ4nnetXcmP
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+David
 
-On Sun, 2001-11-25 at 15:29, Davide Libenzi wrote:
->=20
-> Pls apply Al's patch or use Linus's -pre01
+Francois Romieu wrote:
 
-isn't it marcello's pre1 now?
+>Josep Lladonosa i Capell <jep@jep.net.dhis.org> :
+>[...]
+>
+>>just the subject :-)
+>>
+>
+>Compiled fine here. Check your tree/config and provide more info (.config,
+>compiler, message) if the problem persists. The file REPORTING-BUGS gives
+>some hints.
+>
 
---=20
-Phil Sorber
-AIM: PSUdaemon
-IRC: irc.openprojects.net #psulug PSUdaemon
-GnuPG: keyserver - pgp.mit.edu
-
---=-tTZC0Nc4YeJ4nnetXcmP
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8AVVuXm6Gwek+iaQRAvECAJ96+lN/noCYsSo/NC0N7PBRnVzqXQCdHShd
-j8OhBqzlQumx44IbrBf7Fps=
-=ZMSa
------END PGP SIGNATURE-----
-
---=-tTZC0Nc4YeJ4nnetXcmP--
 

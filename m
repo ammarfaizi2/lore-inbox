@@ -1,62 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262254AbVCIK0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262289AbVCIK27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262254AbVCIK0s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 05:26:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262275AbVCIK0s
+	id S262289AbVCIK27 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 05:28:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbVCIK2n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 05:26:48 -0500
-Received: from moritz.faps.uni-erlangen.de ([131.188.113.15]:38038 "EHLO
-	moritz.faps.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S262254AbVCIK0g convert rfc822-to-8bit (ORCPT
+	Wed, 9 Mar 2005 05:28:43 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:20456 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262276AbVCIK17 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 05:26:36 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Writing data > PAGESIZE into kernel with proc fs
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-Date: Wed, 9 Mar 2005 11:26:30 +0100
-Message-ID: <09766A6E64A068419B362367800D50C0B58A58@moritz.faps.uni-erlangen.de>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Writing data > PAGESIZE into kernel with proc fs
-thread-index: AcUkJQCZFx6M8AgqRHODvFS+2DhjngAbRAZ6
-From: "Weber Matthias" <weber@faps.uni-erlangen.de>
-To: "Jan Hudec" <bulb@ucw.cz>
-Cc: <kernelnewbies@nl.linux.org>, <linux-kernel@vger.kernel.org>
+	Wed, 9 Mar 2005 05:27:59 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20050308163759.2ff4be57.akpm@osdl.org> 
+References: <20050308163759.2ff4be57.akpm@osdl.org>  <20050307121416.78381632.akpm@osdl.org> <E1D8KPt-00058Y-00@dorka.pomaz.szeredi.hu> <E1D8K3T-00056q-00@dorka.pomaz.szeredi.hu> <20050307041047.59c24dec.akpm@osdl.org> <20050307034747.4c6e7277.akpm@osdl.org> <20050307033734.5cc75183.akpm@osdl.org> <20050303123448.462c56cd.akpm@osdl.org> <20050302135146.2248c7e5.akpm@osdl.org> <20050302090734.5a9895a3.akpm@osdl.org> <9420.1109778627@redhat.com> <31789.1109799287@redhat.com> <13767.1109857095@redhat.com> <9268.1110194624@redhat.com> <9741.1110195784@redhat.com> <9947.1110196314@redhat.com> <22447.1110204304@redhat.com> <24382.1110210081@redhat.com> <24862.1110211603@redhat.com> <E1D8Ksv-0005Br-00@dorka.pomaz.szeredi.hu> <21199.1110291151@redhat.com> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: miklos@szeredi.hu, torvalds@osdl.org, davidm@snapgear.com,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 1/2] BDI: Provide backing device capability information [try #3] 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
+Date: Wed, 09 Mar 2005 10:27:38 +0000
+Message-ID: <18569.1110364058@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 08, 2005 at 20:05:42 +0100, Weber Matthias wrote:
->> is there any chance to signal an EOF when writing data to kernel via proc fs? >> Actually if the length of data is N*PAGE_SIZE it seems not to be detectable. 
->> I followed up the "struct file" but haven't found anything that helped...
 
-> End-of-file is signified by closing the file. As usual.
+Andrew Morton <akpm@osdl.org> wrote:
 
-Having only this struct describing an proc entry, i have no idea on how to detect when the file is closed. For this i expect to register a callback function but where and how?
+> > The attached patch replaces backing_dev_info::memory_backed with
+> > capabilitied bitmap.
+> 
+> Looks sane to me, thanks.
+> 
+> I hope you got all the conversions correct - breakage in the writeback
+> dirty accounting manifests in subtle ways. I'll double-check it.
 
-struct proc_dir_entry {
-	unsigned int low_ino;
-	unsigned short namelen;
-	const char *name;
-	mode_t mode;
-	nlink_t nlink;
-	uid_t uid;
-	gid_t gid;
-	unsigned long size;
-	struct inode_operations * proc_iops;
-	struct file_operations * proc_fops;
-	get_info_t *get_info;
-	struct module *owner;
-	struct proc_dir_entry *next, *parent, *subdir;
-	void *data;
-	read_proc_t *read_proc;
-	write_proc_t *write_proc;
-	atomic_t count;		/* use count */
-	int deleted;		/* delete flag */
-};
+I think I got the logic as-was. This is quite easy to check just by looking at
+the patch. However, the as-was logic should possibly be changed to reflect the
+fact that the one control that there was has now been split into two.
 
-Thanks,
-Matthias
+David

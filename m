@@ -1,35 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282896AbRLDBwE>; Mon, 3 Dec 2001 20:52:04 -0500
+	id <S282080AbRLDBpy>; Mon, 3 Dec 2001 20:45:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282187AbRLDBuZ>; Mon, 3 Dec 2001 20:50:25 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:3456 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S282163AbRLDBtq>;
-	Mon, 3 Dec 2001 20:49:46 -0500
-Date: Mon, 03 Dec 2001 17:49:33 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
-Message-ID: <2379426132.1007401773@mbligh.des.sequent.com>
-In-Reply-To: <3C0A9BD7.47473324@zip.com.au>
-X-Mailer: Mulberry/2.0.8 (Win32)
+	id <S279261AbRLDAN0>; Mon, 3 Dec 2001 19:13:26 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:6665 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S282986AbRLCJVI>; Mon, 3 Dec 2001 04:21:08 -0500
+Message-ID: <3C0B43DC.7A8F582A@zip.com.au>
+Date: Mon, 03 Dec 2001 01:20:28 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: j-nomura@ce.jp.nec.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.16 kernel/printk.c (per processor initialization check)
+In-Reply-To: <20011203144615C.nomura@hpc.bs1.fc.nec.co.jp>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Really?  So then people should be designing for 128 CPU machines, right?
+j-nomura@ce.jp.nec.com wrote:
 > 
-> Linux only supports 99 CPUs.  At 100, "ksoftirqd_CPU100" overflows
-> task_struct.comm[].
+> Hello,
 > 
-> Just thought I'd sneak in that helpful observation.
+> I experienced system hang on my SMP machine and it turned out to be due to
+> console write before mmu initialization completes.
+> 
+> To be more specific, even if secondary processors are not in status enough
+> to do actual console I/O (e.g. mmu is not initialized), call_console_drivers()
+> tries to do it.
+> This leads to unpredictable result. For me, for example, it cause machine
+> check abort and hang up system.
+> 
+> Attached is a patch for it.
+> 
+> --- kernel/printk.c     2001/11/27 04:41:49     1.1.1.8
+> +++ kernel/printk.c     2001/12/03 05:25:26
+> @@ -491,20 +491,22 @@
+>   */
+>  void release_console_sem(void)
+>  {
+>         unsigned long flags;
+>         unsigned long _con_start, _log_end;
+>         unsigned long must_wake_klogd = 0;
+> 
+>         for ( ; ; ) {
+>                 spin_lock_irqsave(&logbuf_lock, flags);
+>                 must_wake_klogd |= log_start - log_end;
+> +               if (!(cpu_online_map & 1UL << smp_processor_id()))
+> +                       break;
+>                 if (con_start == log_end)
+>                         break;                  /* Nothing to print */
+>                 _con_start = con_start;
+>                 _log_end = log_end;
+>                 con_start = log_end;            /* Flush */
+>                 spin_unlock_irqrestore(&logbuf_lock, flags);
+>                 call_console_drivers(_con_start, _log_end);
+>         }
+>         console_may_schedule = 0;
+>         up(&console_sem);
+> 
 
-For machines that are 99bit architectures or more, maybe. For 32 bit machines,
-your limit is 32, for 64 bit, 64.
+Seems that there is some sort of ordering problem here - someone
+is calling printk before the MMU is initialised, but after some
+console drivers have been installed.
 
-M.
+I suspect the real fix is elsewhere, but I'm not sure where.
 
+Probably a clearer place to put this test would be within
+printk itself, immediately before the down_trylock.  Does that
+work?
+
+-

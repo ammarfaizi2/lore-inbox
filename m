@@ -1,33 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129170AbRBUXtA>; Wed, 21 Feb 2001 18:49:00 -0500
+	id <S129669AbRBUXuV>; Wed, 21 Feb 2001 18:50:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129669AbRBUXsu>; Wed, 21 Feb 2001 18:48:50 -0500
-Received: from blackhole.compendium-tech.com ([206.55.153.26]:1009 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S129170AbRBUXsd>; Wed, 21 Feb 2001 18:48:33 -0500
-Date: Wed, 21 Feb 2001 15:48:30 -0800 (PST)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux stifles innovation...
-In-Reply-To: <Pine.LNX.4.10.10102171227110.15363-100000@clueserver.org>
-Message-ID: <Pine.LNX.4.21.0102211547080.31651-100000@sol.compendium-tech.com>
+	id <S129381AbRBUXuM>; Wed, 21 Feb 2001 18:50:12 -0500
+Received: from foobar.napster.com ([64.124.41.10]:40207 "EHLO
+	foobar.napster.com") by vger.kernel.org with ESMTP
+	id <S129669AbRBUXtg>; Wed, 21 Feb 2001 18:49:36 -0500
+Message-ID: <3A9453F4.993A9A74@napster.com>
+Date: Wed, 21 Feb 2001 15:49:08 -0800
+From: Jordan Mendelson <jordy@napster.com>
+Organization: Napster, Inc.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "David S. Miller" <davem@redhat.com>
+CC: ookhoi@dds.nl, Vibol Hou <vibol@khmer.cc>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>, sim@stormix.com,
+        netdev@oss.sgi.com
+Subject: Re: 2.4 tcp very slow under certain circumstances (Re: netdev issues 
+ (3c905B))
+In-Reply-To: <HDEBKHLDKIDOBMHPKDDKMEGDEFAA.vibol@khmer.cc>
+		<20010221104723.C1714@humilis> <14995.40701.818777.181432@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Feb 2001, Alan Olsen wrote:
-> "You keep using that word. i don't think it means what you think it
-> means."
+"David S. Miller" wrote:
+> 
+> Ookhoi writes:
+>  > We have exactly the same problem but in our case it depends on the
+>  > following three conditions: 1, kernel 2.4 (2.2 is fine), 2, windows ip
+>  > header compression turned on, 3, a free internet access provider in
+>  > Holland called 'Wish' (which seemes to stand for 'I Wish I had a faster
+>  > connection').
+>  > If we remove one of the three conditions, the connection is oke. It is
+>  > only tcp which is affected.
+>  > A packet on its way from linux server to windows client seems to get
+>  > dropped once and retransmitted. This makes the connection _very_ slow.
+> 
+> :-( I hate these buggy systems.
+> 
+> Does this patch below fix the performance problem and are the windows
+> clients win2000 or win95?
 
- ...To quote Indigo Montoya, speaking to Vuzinni, from "The Princess
-Bride" :)
+Just a note however... this patch did fix the problem we were seeing
+with retransmits and Win95 compressed PPP and dialup over earthlink in
+the bay area.
 
-One hell of a story :)
+Now, if it didn't have the side effect of dropping packets left and
+right after ~4000 open connections (simultaneously), I could finally
+move our production system to 2.4.x.
 
- Kelsey Hudson                                           khudson@ctica.com 
- Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------     
 
+
+Jordan

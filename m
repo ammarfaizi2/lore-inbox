@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278218AbRJMATx>; Fri, 12 Oct 2001 20:19:53 -0400
+	id <S278209AbRJMA0y>; Fri, 12 Oct 2001 20:26:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278217AbRJMATc>; Fri, 12 Oct 2001 20:19:32 -0400
-Received: from tahallah.demon.co.uk ([158.152.175.193]:12272 "EHLO
-	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S278212AbRJMAT2>; Fri, 12 Oct 2001 20:19:28 -0400
-Date: Sat, 13 Oct 2001 01:14:40 +0100 (BST)
-From: Alex Buell <alex.buell@tahallah.demon.co.uk>
-X-X-Sender: <alex@tahallah.demon.co.uk>
-Reply-To: <alex.buell@tahallah.demon.co.uk>
-To: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] ieee1284_ops.c - definitely paper bag time for someone..
-Message-ID: <Pine.LNX.4.33.0110130113130.4284-100000@tahallah.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278215AbRJMA0p>; Fri, 12 Oct 2001 20:26:45 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:26101
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S278209AbRJMA0g>; Fri, 12 Oct 2001 20:26:36 -0400
+Date: Fri, 12 Oct 2001 17:27:02 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Updated preempt-kernel patches
+Message-ID: <20011012172702.A16500@mikef-linux.matchmail.com>
+Mail-Followup-To: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <1002917978.957.86.camel@phantasy> <1002925193.868.5.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1002925193.868.5.camel@phantasy>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- linux-2.4.12/drivers/parport/ieee1284_ops.orig      Sat Oct 13 01:12:14 2001
-+++ linux-2.4.12/drivers/parport/ieee1284_ops.c Sat Oct 13 01:11:26 2001
-@@ -362,7 +362,7 @@
-        } else {
-                DPRINTK (KERN_DEBUG "%s: ECP direction: failed to
-reverse\n",
-                         port->name);
--               port->ieee1284.phase = IEEE1284_PH_DIR_UNKNOWN;
-+               port->ieee1284.phase = IEEE1284_PH_ECP_DIR_UNKNOWN;
-        }
+On Fri, Oct 12, 2001 at 06:19:52PM -0400, Robert Love wrote:
+> On Fri, 2001-10-12 at 16:19, Robert Love wrote:
+> > - fix compile on SMP in some configurations (ac tree only)
+> 
+> Looks like I forgot to merge that one.  Fix follows below (its needed by
+> some ac-tree users who also compile SMP).
+>
 
-        return retval;
-@@ -394,7 +394,7 @@
-                DPRINTK (KERN_DEBUG
-                         "%s: ECP direction: failed to switch forward\n",
-                         port->name);
--               port->ieee1284.phase = IEEE1284_PH_DIR_UNKNOWN;
-+               port->ieee1284.phase = IEEE1284_PH_ECP_DIR_UNKNOWN;
-        }
+Again? ;)
 
-
-
--- 
-Top posters will be automatically killfiled.
-
-http://www.tahallah.demon.co.uk
+Any idea how it would work on any smp systems using the -ac tree?
 

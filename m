@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264551AbTEPSjI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 14:39:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264554AbTEPSjI
+	id S264554AbTEPSkY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 14:40:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264555AbTEPSkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 14:39:08 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:18959 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S264551AbTEPSjH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 14:39:07 -0400
-Date: Fri, 16 May 2003 20:48:28 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: chas williams <chas@locutus.cmf.nrl.navy.mil>
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] add reference counting to atm_dev
-Message-ID: <20030516204828.A4497@electric-eye.fr.zoreil.com>
-References: <200305161640.43804.baldrick@wanadoo.fr> <200305161539.h4GFdLGi018236@locutus.cmf.nrl.navy.mil>
+	Fri, 16 May 2003 14:40:24 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:8111 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S264554AbTEPSjq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 14:39:46 -0400
+Date: Fri, 16 May 2003 14:13:31 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: Andrew Morton <akpm@digeo.com>, rmk@arm.linux.org.uk,
+       LKML <linux-kernel@vger.kernel.org>, davej@suse.de
+Subject: Re: 2.5.69-mm5: pccard oops while booting: resolved
+Message-ID: <20030516181331.GP433@phunnypharm.org>
+References: <1052964213.586.3.camel@teapot.felipe-alfaro.com> <20030514191735.6fe0998c.akpm@digeo.com> <1052998601.726.1.camel@teapot.felipe-alfaro.com> <20030515130019.B30619@flint.arm.linux.org.uk> <1053004615.586.2.camel@teapot.felipe-alfaro.com> <20030515144439.A31491@flint.arm.linux.org.uk> <1053037915.569.2.camel@teapot.felipe-alfaro.com> <20030515160015.5dfea63f.akpm@digeo.com> <1053090184.653.0.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200305161539.h4GFdLGi018236@locutus.cmf.nrl.navy.mil>; from chas@locutus.cmf.nrl.navy.mil on Fri, May 16, 2003 at 11:39:21AM -0400
-X-Organisation: Marie's fan club - III
+In-Reply-To: <1053090184.653.0.camel@teapot.felipe-alfaro.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-chas williams <chas@locutus.cmf.nrl.navy.mil> :
-[...]
-> locking to proc in the 2.5 that should make proc safer (but not very
-> elegant--perhaps elegance with come with the seq conversion).
+> 1. Simply by changing KOBJ_NAME_LEN from 20 to 16 fixes the problem.
+> This leads me to think there are some parts of the kernel (a driver, to
+> be more exact) that are corrupting memory or doing something really
+> nasty that is affecting PCI ID's tables and pci_bus_match() function.
 
-Well...
+Are you sure you have a pristine source and everything is rebuilt
+against the new header? It'd be very easy for one object file to have the
+incorrect name len and cause this problem.
 
-[romieu@crap linux-2.5.69-1.1042.101.10-to-1.1083]$ grep goto changes/patches/atm-proc-seq* | wc -l
-     26
-
-Time to merge this jewel of code once again I guess.
-
---
-Ueimor
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

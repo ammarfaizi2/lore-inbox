@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269131AbTGJJ3V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 05:29:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269134AbTGJJ3V
+	id S269140AbTGJJpV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 05:45:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269143AbTGJJpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 05:29:21 -0400
-Received: from [213.171.53.133] ([213.171.53.133]:15108 "EHLO gulipin.miee.ru")
-	by vger.kernel.org with ESMTP id S269131AbTGJJ3S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 05:29:18 -0400
-Date: Thu, 10 Jul 2003 12:45:39 +0400
-From: Samium Gromoff <deepfire@ibe.miee.ru>
-To: akpm@osdl.org, mbligh@aracnet.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Bug 890] New: performance regression compared to 2.4.20 under
-Message-Id: <20030710124539.1d9dab9f.deepfire@ibe.miee.ru>
-X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 10 Jul 2003 05:45:20 -0400
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:25840 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S269140AbTGJJpS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 05:45:18 -0400
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.5.74-mm3 - apm_save_cpus() Macro still bombs out
+Date: Thu, 10 Jul 2003 11:59:49 +0200
+User-Agent: KMail/1.5.9
+Cc: Piet Delaney <piet@www.piet.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20030708223548.791247f5.akpm@osdl.org> <200307101142.37137.schlicht@uni-mannheim.de> <20030710094841.GU15452@holomorphy.com>
+In-Reply-To: <20030710094841.GU15452@holomorphy.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200307101159.51175.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
-> "Martin J. Bligh" <mbligh@aracnet.com> wrote:
-> >
-> > As can be seen, the differences are quite significant, about three seconds on
-> > average, which I believe may be related to the increased swapping time I have
-> > encountered.
+On Thursday 10 July 2003 11:48, William Lee Irwin III wrote:
+> On Thursday 10 July 2003 11:27, William Lee Irwin III wrote:
+> >> Could you try the following?
 >
-> The 2.4 VM's virtual scan has the effect of swapping out one process at a
-> time.  2.5's physical(ish) scan doesn't have that side-effect.
+> On Thu, Jul 10, 2003 at 11:42:35AM +0200, Thomas Schlichter wrote:
+> > OK, I tried it. For me it compiles!
+> > But the size of the resulting objectfile's text section is about 64bytes
+> > larger than with my patch. So it seems that gcc3.3 wasn't able to
+> > optimize away all the unneeded stuff...
+> > And I don't think my patch is that ugly, but hey, it's your decision...
 >
-> It means that in 2.4, the lucky processes can make decent progress.  In
-> 2.5, everyone makes equal progress and everyone thrashes everyone else to
-> bits.
+> 64B? Why do you care?
 
-	I have precisely the same problem on my p166-16M RAM.
-	Disk/controller are fast, and dma is on.
+It's not the 64B...
+I care about the unneeded but executed code!
+But I'm a hopeless perfectionist caring about such nits...
 
-	2.4 runs much much faster. Remote shell logins are more than twice as fast.
+And I don't know why everybody hates my patches... ;-(
 
-	Needless to say it runs 2.4 ;-)
-
--- 
-Cheers, Samium Gromoff
-
-regards, Samium Gromoff
+  Thomas

@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbULFLBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbULFLCU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbULFLBy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 06:01:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbULFLBy
+	id S261492AbULFLCU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 06:02:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbULFLB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 06:01:54 -0500
-Received: from mx02.cybersurf.com ([209.197.145.105]:26261 "EHLO
-	mx02.cybersurf.com") by vger.kernel.org with ESMTP id S261496AbULFLBX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 06:01:23 -0500
-Subject: Post Network dev questions to netdev Please WAS(Re: [patch 4/10]
-	s390: network driver.
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: Paul Jakma <paul@clubi.ie>
-Cc: Thomas Spatzier <thomas.spatzier@de.ibm.com>, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-In-Reply-To: <Pine.LNX.4.61.0412050605550.21671@hibernia.jakma.org>
-References: <OFAF17275D.316533A1-ONC1256F5C.0026AFAD-C1256F5C.002877C1@de.ibm.com>
-	 <Pine.LNX.4.61.0412050605550.21671@hibernia.jakma.org>
-Content-Type: text/plain
-Organization: jamalopolous
-Message-Id: <1102330877.1042.2187.camel@jzny.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 06 Dec 2004 06:01:18 -0500
+	Mon, 6 Dec 2004 06:01:58 -0500
+Received: from mail.suse.de ([195.135.220.2]:28861 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261492AbULFLBx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 06:01:53 -0500
+Message-ID: <41B42E21.9090003@suse.de>
+Date: Mon, 06 Dec 2004 11:02:09 +0100
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041104)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org, mjg59@srcf.ucam.org
+Subject: Re: [PATCH/RFC] Add support to resume swsusp from initrd
+References: <1102279686.9384.22.camel@tyrosine> <20041205211230.GC1012@elf.ucw.cz>
+In-Reply-To: <20041205211230.GC1012@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-12-05 at 01:25, Paul Jakma wrote:
+Pavel Machek wrote:
 
+>>echo -n "set 03:02" >/sys/power/resume
 > 
-> This has always been (AFAIK) the behaviour yes. We started getting 
-> reports of the new queuing behaviour with, iirc, a version of Intel's 
-> e100 driver for 2.4.2x, which was later changed back to the old 
-> behaviour. However now that the queue behaviour is apparently the 
-> mandated behaviour we really need to work out what to do about the 
-> sending-long-stale packets problem.
-> 
+> I'd prefer not to have this one. Is it actually usefull? Then resume
+> could be triggered by echo -n "03:02" > /sys/power/resume...
 
-I missed the beginings of this thread. Seems some patch was posted
-on lkml which started this discussion. I am pretty sure what the lkml
-FAQ says is to post on netdev. Ok, If you insist posting on lkml
-(because that the way to glory, good fortune and fame), then please have
-the courtesy to post to netdev.  
+This could be made into a useful interface:
 
-Now lets see if we can help. Followups only on netdev.
+echo "set 03:02" > /sys/power/resume
+sets the resume device _and_ verifies its signature etc, the basic
+sanity check done before resume. If this fails, we can go into some
+interactive setup etc.
+OTOH, the "resume 03:02" could also just fail if the image is invalid...
 
-cheers,
-jamal
-
-
+       Stefan
 

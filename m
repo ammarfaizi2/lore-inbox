@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271106AbTHQUWd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 16:22:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271091AbTHQUWd
+	id S270821AbTHQUZu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 16:25:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270863AbTHQUZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 16:22:33 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:30080 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S271106AbTHQUWc
+	Sun, 17 Aug 2003 16:25:50 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:30848 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S270821AbTHQUZt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 16:22:32 -0400
-Date: Sun, 17 Aug 2003 21:22:29 +0100
+	Sun, 17 Aug 2003 16:25:49 -0400
+Date: Sun, 17 Aug 2003 21:25:35 +0100
 From: Jamie Lokier <jamie@shareable.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jan Rychter <jan@rychter.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Requested FAQ addition - Mandrake and partial-i686 platforms
-Message-ID: <20030817202229.GB3543@mail.jlokier.co.uk>
-References: <3F38FE5B.1030102@yahoo.com> <1060705037.12532.49.camel@dhcp22.swansea.linux.org.uk> <864r0lwmov.fsf@trasno.mitica> <m2r83kce2h.fsf@tnuctip.rychter.com> <1061148472.23525.7.camel@dhcp23.swansea.linux.org.uk>
+To: michaelc <michaelc@turbolinux.com.cn>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: about PENTIUM4 cache line
+Message-ID: <20030817202534.GC3543@mail.jlokier.co.uk>
+References: <865464921.20010309170338@turbolinux.com.cn>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1061148472.23525.7.camel@dhcp23.swansea.linux.org.uk>
+In-Reply-To: <865464921.20010309170338@turbolinux.com.cn>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Sul, 2003-08-17 at 19:51, Jan Rychter wrote:
-> > Does anybody have the actual CPU revisions corresponding to these
-> > changes? There has been a lot of confusion over this.
-> 
-> Ezra -> 3dnow, no cmov  (500MHz->1Ghz)
-> Nemeiah -> sse, cmov (1Ghz-)
-> Anataur -> dunno yet, I'd assume sse
-> 
-> The chips report cmov only if they have full cmov instructions, so
-> a look at /proc/cpuinfo will tell you.
+michaelc wrote:
+>      I read the Intel IA-32 developer's manual recently, and I found
+>  the cache lines for L1 and L2 caches in Pentium4 are 64 bytes
+>  wide, but the thing make me confused is that the default value
+>  CONFIG_X86_L1_CACHE_SHIFT option in 2.4.x kernel is 7, why it's
+>  not 6?   Any expanation about this would be appreciated!
 
-So the register-only cmov on the Cyrix which you mentioned does not
-come with the cpuid cmov flag?
+I don't recall seeing an answer to this.
+Was there one?
 
+Cheers,
 -- Jamie
-

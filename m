@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263366AbTDSITS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 04:19:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263368AbTDSITS
+	id S263357AbTDSIkl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 04:40:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263368AbTDSIkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 04:19:18 -0400
-Received: from dp.samba.org ([66.70.73.150]:51684 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263366AbTDSITR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 04:19:17 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [TRIVIAL] kstrdup 
-In-reply-to: Your message of "Sat, 19 Apr 2003 00:48:36 -0400."
-             <3EA0D524.7010309@pobox.com> 
-Date: Sat, 19 Apr 2003 18:28:24 +1000
-Message-Id: <20030419083116.668DB2C003@lists.samba.org>
+	Sat, 19 Apr 2003 04:40:41 -0400
+Received: from [12.47.58.203] ([12.47.58.203]:55984 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263357AbTDSIkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 04:40:40 -0400
+Date: Sat, 19 Apr 2003 01:52:35 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bash-shared-mapping oops'es on 2.5.66-mm1
+Message-Id: <20030419015235.425cd86c.akpm@digeo.com>
+In-Reply-To: <m37k9qrjx2.fsf@tmi.comex.ru>
+References: <m37k9qrjx2.fsf@tmi.comex.ru>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Apr 2003 08:52:32.0203 (UTC) FILETIME=[03C781B0:01C30651]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3EA0D524.7010309@pobox.com> you write:
-> Since the kernel does its own string ops, the compiler does not have 
-> enough information to deduce that further optimization is possible.
-
-You're right, I was measuring without the kernel string ops.
-> > Case in point: gcc-3.2 on -O2 on Intel is one instruction longer for
-> > your version.
+Alex Tomas <bzzz@tmi.comex.ru> wrote:
+>
 > 
-> And?  It's still slower.
+> hi!
+> 
+> [root@proto db2]# /root/tools/bash-shared-mapping -n 5 -t 3 foo 300000000
+> 
+> on serial console:
+> 
+> ------------[ cut here ]------------
+> kernel BUG at mm/rmap.c:408!
 
-Who gives a flying fuck?  You're doing an allocation in there
-ferchissakes.  Choose the simplest option.  Jeff, if you have time to
-post on this, I think you need a hobby 8)
+	if (!PageAnon(page)) {
+		if (!page->mapping)
+			BUG();
+	
+Yes, we've had a few reports of that.  You'll need to revert objrmap*.patch
+if it's being a problem.
 
-char *__constant_kstrdup(const char *s, unsigned int size, int gfp)
-{
-	char *buf = kmalloc(size, gfp);
-	if (likely(buf))
-		memcpy(buf, s, size);
-	return buf;
-}
-
-char *__kstrdup(const char *s, int gfp)
-{
-	return __constant_kstrdup(s, strlen(s)+1, gfp);
-}
-
-#define kstrdup(str, gfp)						\
-	(__builtin_constant_p(str) && sizeof(str) != sizeof(char *) ?	\
-		__constant_kstrdup(str, sizeof(str), gfp)		\
-	: __kstrdup(str, gfp))
-
-Feature list:
-1) Optimizes the constant kstrdup case,
-2) Doesn't multi-evaluate args (except if constant string),
-3) Uses likely() to bias against the case of kmalloc failing.
-
-OK, so I guess I need a hobby, too..
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262151AbUKVQa1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262145AbUKVQa1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262151AbUKVQa1 (ORCPT <rfc822;willy@w.ods.org>);
+	id S262145AbUKVQa1 (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 22 Nov 2004 11:30:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbUKVQ3o
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbUKVQ3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 11:29:44 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:58895 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262135AbUKVPvK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 10:51:10 -0500
-Date: Mon, 22 Nov 2004 16:51:02 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] make W1_DS9490_BRIDGE available
-Message-ID: <20041122155102.GD19419@stusta.de>
+	Mon, 22 Nov 2004 11:29:42 -0500
+Received: from holomorphy.com ([207.189.100.168]:10906 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262152AbUKVPvN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 10:51:13 -0500
+Date: Mon, 22 Nov 2004 07:51:06 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Jan De Luyck <lkml@kcore.org>
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: [2.6.10-rc2] XFS filesystem corruption
+Message-ID: <20041122155106.GG2714@holomorphy.com>
+References: <200411221530.30325.lkml@kcore.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <200411221530.30325.lkml@kcore.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems noone noted that due to a typo, the W1_DS9490_BRIDGE option 
-didn't have any effect.
+On Mon, Nov 22, 2004 at 03:30:29PM +0100, Jan De Luyck wrote:
+> [resend with correct email address for LKML]
+> [Please CC all answers from linux-xfs to me, since I'm not subscribed on that list]
+> Yesterday I encountered an on-the-fly corruption of my /home filesystem. It worked perfectly one second, the next I hit these nice errors:
+> Nov 21 16:37:22 precious kernel: 0x0: 31 9e ce 63 cf ff 9c cf ff 31 61 63 ff ff ff ff 
+> Nov 21 16:37:23 precious kernel: Filesystem "hda5": XFS internal error xfs_da_do_buf(2) at line 2273 of file fs/xfs/xfs_da_btree.c.  Caller 0xc01fb908
+> Nov 21 16:37:23 precious kernel:  [xfs_da_do_buf+905/2160] xfs_da_do_buf+0x389/0x870
+
+I don't have any ideas at the moment, but please cc: me also. I'd like
+to watch for issues I do understand as this bug's nature is clarified.
 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc2-mm3-full/drivers/w1/Kconfig.old	2004-11-22 14:34:13.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-full/drivers/w1/Kconfig	2004-11-22 14:34:21.000000000 +0100
-@@ -30,7 +30,7 @@
- 	  This support is also available as a module.  If so, the module 
- 	  will be called ds9490r.ko.
- 
--config W1_DS9490R_BRIDGE
-+config W1_DS9490_BRIDGE
- 	tristate "DS9490R USB <-> W1 transport layer for 1-wire"
- 	depends on W1_DS9490
- 	help
-
+-- wli

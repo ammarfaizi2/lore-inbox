@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262196AbTJ3EqU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 23:46:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbTJ3EqU
+	id S262127AbTJ3ElL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 23:41:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbTJ3ElL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 23:46:20 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:14088 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262196AbTJ3EqT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 23:46:19 -0500
-Date: Wed, 29 Oct 2003 23:47:05 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-cc: paulus@samba.org, <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
-       <davem@redhat.com>
-Subject: Re: Bug somewhere in crypto or ipsec stuff
-In-Reply-To: <20031030.124124.26191552.yoshfuji@linux-ipv6.org>
-Message-ID: <Xine.LNX.4.44.0310292344530.23580-100000@thoron.boston.redhat.com>
+	Wed, 29 Oct 2003 23:41:11 -0500
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:38157 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262127AbTJ3ElJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 23:41:09 -0500
+Date: Thu, 30 Oct 2003 04:41:01 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Pavel Machek <pavel@ucw.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>, <geert@linux-m68k.org>,
+       <linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: Cursor problems still in test9
+In-Reply-To: <20031028094907.GA1319@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0310300436440.28721-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Oct 2003, YOSHIFUJI Hideaki / [iso-2022-jp] 吉藤英明 wrote:
 
-> In article <Xine.LNX.4.44.0310292221320.23405-100000@thoron.boston.redhat.com> (at Wed, 29 Oct 2003 22:22:50 -0500 (EST)), James Morris <jmorris@redhat.com> says:
+> Hi!
 > 
-> > On Thu, 30 Oct 2003, YOSHIFUJI Hideaki / [iso-2022-jp] 吉藤英明 wrote:
-> > 
-> > 
-> > > I would just disallow name == NULL,
-> > > well, what algorithm do you expect?
-> > 
-> > Good question.  It seems to me to be a bug in the calling code if it is 
-> > trying to look up nothing -- I'd rather not paper that over.
+> [And they get worse in fbcon-test patches I tried].
 > 
-> Do you mean that we need to fix the caller?
-
-Yes.
-
+> Try this on 2.4 (with vesafb).
 > 
-> Well, people may want to get just any algorithm.
-> In such case,
->  - crypto allows name == NULL, and return any algorithm
->    (for example, an algorithm that we see first.)
->  - caller may filter name == NULL case if it is ambiguous in their context.
+> echo -e "\33[10;5000]\33[11;50]\33[?18;0;136c\33[?102m"
+> 
+> ...then try it on 2.6, type foo in bash then delete it using
+> backspace; ghost cursors stay there. Run emacs and quit it (it sets
+> cursor to very visible). Boom, special cursor settings are gone.
 
-I think that could be dangerous, including if calling with null is a 
-bug, and they get an inappropriate algorithm.  An incorrect algorithm type 
-could also be returned (e.g. digest instead of a cipher).
+I experimented with the above. I tried it out on vgacon, fbcon 2.4.X and 
+fbcon 2.6.X. All give different results. What are suppose to see? 
+ 
+> And now, use gpm on text console to select some text. Hold down left
+> button, move mouse a bit. Sometimes cursor gets corrupted and stays
+> there.
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
+Will try.
 

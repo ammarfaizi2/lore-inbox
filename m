@@ -1,132 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262792AbTCQIb7>; Mon, 17 Mar 2003 03:31:59 -0500
+	id <S262656AbTCQIhM>; Mon, 17 Mar 2003 03:37:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262806AbTCQIb6>; Mon, 17 Mar 2003 03:31:58 -0500
-Received: from grunt1.ihug.co.nz ([203.109.254.41]:62092 "EHLO
-	grunt1.ihug.co.nz") by vger.kernel.org with ESMTP
-	id <S262792AbTCQIb4>; Mon, 17 Mar 2003 03:31:56 -0500
-Message-ID: <002d01c2ed11$6ba7a110$0b721cac@stacy>
-From: "dave" <davekern@ihug.co.nz>
-To: <linux-kernel@vger.kernel.org>
-Subject: error using unsigned long long not working in 2.4.x
-Date: Mon, 17 Mar 2003 21:44:16 -0800
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_002A_01C2ECCE.5BE026F0"
-X-Priority: 1
-X-MSMail-Priority: High
-X-Mailer: Microsoft Outlook Express 6.00.2720.3000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S262806AbTCQIhM>; Mon, 17 Mar 2003 03:37:12 -0500
+Received: from 237.oncolt.com ([213.86.99.237]:62164 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S262656AbTCQIhL>; Mon, 17 Mar 2003 03:37:11 -0500
+Subject: RE: [PATCH] Fix stack usage for amd_flash.c
+From: David Woodhouse <dwmw2@infradead.org>
+To: Jonas Holmberg <jonas.holmberg@axis.com>
+Cc: "'Joern Engel'" <joern@wohnheim.fh-wedel.de>,
+       linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <3C6BEE8B5E1BAC42905A93F13004E8AB01CAF576@mailse01.se.axis.com>
+References: <3C6BEE8B5E1BAC42905A93F13004E8AB01CAF576@mailse01.se.axis.com>
+Content-Type: text/plain; charset=UTF-8
+Organization: 
+Message-Id: <1047890876.28282.5.camel@passion.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4.dwmw2) 
+Date: 17 Mar 2003 08:47:56 +0000
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Mon, 2003-03-17 at 08:36, Jonas Holmberg wrote:
+> [ Jörn Engel wrote: ]
+> > On Fri, 14 March 2003 16:05:10 +0000, David Woodhouse wrote:
+> > > Also note that all but the CFI-based drivers are deprecated. We have
+> > > old-style probes which allow us to use the CFI back-end drivers with
+> > > non-CFI chips anyway.
+> > 
+> > Right. But since 2.[567] is going towards 4k kernel stack, those
+> > drivers should be fixed or revomed. If you don't remove it, I'll try
+> > to fix it. :)
+> 
+> We're still using the amd_flash-driver a lot because I haven't got time
+> to try out the jedec_probe since the toggle-bit stuff was added in the
+> CFI driver. 
 
-------=_NextPart_000_002A_01C2ECCE.5BE026F0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Yep, that's why I haven't actually _removed_ the other drivers; just
+marked them deprecated. I'm sort of planning to remove them in 2.7.
 
-hi i am writing a kernel 2.4.x driver and need to do maths on 64 bit ints
-(unsigned long long)
-bcause you can not use the FPU
-but when i insmod i get the error unresolved symbol __udivdi3 i need!! 64
-bit ints
+> I made some rough tests just before that, and jedec_probe +
+> CFI driver turned out to be much slower than amd_flash. But then the CFI
+> driver was modified... I'll try to get some time to test them again soon
+> and maybe even do something about it.
 
-i have included the code
+That'd be useful -- thanks. The CFI cmdset 0002 driver could do with a
+little more loving :) 
 
-thank you
+Btw, your mail landed in my spam folder and got bounced from the MTD
+list due to missing In-Reply-To: and References: headers. 
 
-
-------=_NextPart_000_002A_01C2ECCE.5BE026F0
-Content-Type: application/octet-stream;
-	name="lnvrm_nv05Pramdac.c"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="lnvrm_nv05Pramdac.c"
-
-#include <lnvrm.h>=0A=
-#include <lnvrm_exports.h>=0A=
-=0A=
-unsigned long nv05_pramdacPllCalc(struct _lnvrm_objNv01Device  *hw , =
-unsigned long long clock)=0A=
-{=0A=
-  unsigned long long refClock  =3D hw->refClock ;=0A=
-  unsigned long long vcoMax =3D 350000000 ;=0A=
-  unsigned long long vcoMin =3D         0 ;=0A=
-  unsigned long long nMax   =3D       255 ;=0A=
-  unsigned long long nMin   =3D         1 ;=0A=
-  unsigned long long mMax   =3D        14 ;=0A=
-  unsigned long long mMin   =3D         1 ;=0A=
-  unsigned long long pMax   =3D         4 ;=0A=
-  unsigned long long pMin   =3D         1 ;=0A=
-  unsigned long long f        ;=0A=
-  unsigned long long fDif     ;=0A=
-  unsigned long long fDifBest =3D ~0x00 ;=0A=
-  unsigned long long fBest    =3D 0 ;=0A=
-  unsigned long long nBest    =3D nMin ;=0A=
-  unsigned long long mBest    =3D mMax ;=0A=
-  unsigned long long pBest    =3D pMax ;=0A=
-  unsigned long long vco   ;=0A=
-  unsigned long long n     ;=0A=
-  unsigned long long m     ;=0A=
-  unsigned long long p     ;=0A=
-  =0A=
-  if(clock > vcoMax) clock =3D vco ;=0A=
-  =0A=
-  for(p =3D pMin ; p <=3D pMax ; p++) =0A=
-    {=0A=
-      vco =3D clock * (1 << p) ;=0A=
-      for(m =3D mMin ; m <=3D mMax ; m++)=0A=
-	{=0A=
-	  n =3D vco / (refClock / m) ;=0A=
-	  if((n >=3D nMin) & (n <=3D nMax))=0A=
-	    {=0A=
-	      f =3D refClock / m * n ;=0A=
-	      if(vco > f)=0A=
-		fDif =3D vco - f ;=0A=
-	      else=0A=
-		fDif =3D f   - vco ;=0A=
-	      if(fDif < fDifBest) { fDifBest =3D fDif ; fBest =3D f ; nBest =3D =
-n ; mBest =3D m ; pBest =3D p ; } =0A=
-	    }=0A=
-	}=0A=
-    }=0A=
-  printk("nv05_pramdacPllCalc: M:N:P %2.2LX:%2.2LX:%2.2LX f =3D %Ld Hz =
-out =3D %Ld Hz\n",=0A=
-	 mBest,=0A=
-	 nBest,=0A=
-	 pBest,=0A=
-	 clock,=0A=
-	 fBest / (1 << pBest));=0A=
-=0A=
-  return((pBest << 16) | (nBest << 8) | mBest) ;=0A=
-}=0A=
-=0A=
-void nv05_pramdacSetPllNv(struct _lnvrm_objNv01Device  *hw , unsigned =
-long long clock)=0A=
-{=0A=
-  unsigned long value ;=0A=
-  value =3D nv05_pramdacPllCalc(hw,clock) ;=0A=
-  nvr_regw(NV04_PRAMDAC_NVPLL_COEFF , value) ;=0A=
-}=0A=
-=0A=
-void nv05_pramdacSetPllMem(struct _lnvrm_objNv01Device  *hw , unsigned =
-long long clock)=0A=
-{=0A=
-  unsigned long value ;=0A=
-  value =3D nv05_pramdacPllCalc(hw,clock) ;=0A=
-  nvr_regw(NV04_PRAMDAC_MPLL_COEFF , value) ;=0A=
-}=0A=
-=0A=
-void nv05_pramdacSetPllPixel(struct _lnvrm_objNv01Device  *hw , unsigned =
-long long clock)=0A=
-{=0A=
-  unsigned long value ;=0A=
-  value =3D nv05_pramdacPllCalc(hw,clock) ;=0A=
-  nvr_regw(NV04_PRAMDAC_VPLL_COEFF , value) ;=0A=
-}=0A=
-
-------=_NextPart_000_002A_01C2ECCE.5BE026F0--
+-- 
+dwmw2
 

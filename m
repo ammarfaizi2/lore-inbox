@@ -1,100 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293557AbSCPAIV>; Fri, 15 Mar 2002 19:08:21 -0500
+	id <S293565AbSCPALk>; Fri, 15 Mar 2002 19:11:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293550AbSCPAHJ>; Fri, 15 Mar 2002 19:07:09 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:18356 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S293543AbSCPAGX>; Fri, 15 Mar 2002 19:06:23 -0500
-Message-Id: <200203160006.g2G06Jq09111@butler1.beaverton.ibm.com>
-Content-Type: text/plain; charset=US-ASCII
-From: James Cleverdon <jamesclv@us.ibm.com>
-Reply-To: jamesclv@us.ibm.com
-Organization: IBM xSeries Linux (NUMA)
-To: Greg KH <greg@kroah.com>, Gordon J Lee <gordonl@world.std.com>
-Subject: Re: IBM x360 2.2.x boot failure, 2.4.9 works fine
-Date: Fri, 15 Mar 2002 16:06:18 -0800
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C927F3E.7C7FB075@world.std.com> <20020315233441.GG5563@kroah.com>
-In-Reply-To: <20020315233441.GG5563@kroah.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S293556AbSCPALb>; Fri, 15 Mar 2002 19:11:31 -0500
+Received: from sydney1.au.ibm.com ([202.135.142.193]:58383 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S293591AbSCPAJs>; Fri, 15 Mar 2002 19:09:48 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Cc: Martin Wirth <martin.wirth@dlr.de>, linux-kernel@vger.kernel.org,
+        Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores) 
+In-Reply-To: Your message of "Fri, 15 Mar 2002 17:23:33 BST."
+             <3C922005.50608@loewe-komp.de> 
+Date: Sat, 16 Mar 2002 11:12:35 +1100
+Message-Id: <E16m1oK-0006oy-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 15 March 2002 03:34 pm, Greg KH wrote:
-> On Fri, Mar 15, 2002 at 06:09:50PM -0500, Gordon J Lee wrote:
-> > IBM has a brand new xSeries PC server called the x360.
-> > It has 1-4 Xeon MP's, DDR SDRAM, PCI-X backplane, IBM Summit chipset.
-> > Full specs are here:
-> >
-> > http://www.pc.ibm.com/us/eserver/xseries/x360.html
->
-> Eeek, these machines are now in the wild?  Didn't realize this :)
+In message <3C922005.50608@loewe-komp.de> you write:
+> Martin Wirth wrote:
+> > Rusty Russell wrote:
+> > 
+> >>
+> >> Discussions with Ulrich have reaffirmed my opinion that pthreads are
+> >> crap.  Hence I'm not all that tempted to warp the (nice, clean,
+> >> usable) futex code too far to meet pthreads' wierd needs.
+> >>
+> > Crap or not, there are tons of software based on pthreads and at least 
+> > the NGPT team says that Linus
+> > agreed to implement for necessary kernel-infrastructure for a full, fast 
+> > pthread implementation.
 
-They've officially been released for a while now.  (December? January?  
-Something like that.)
+Let me clarify my "pthreads are crap" statement.
 
-> > Has anyone tried running Linux on one of these ?
->
-> Yes.
->
-> > I have tried a few versions and found:
-> >
-> > 2.2.18    fails in boot
-> > 2.2.20    fails in boot
-> > 2.2.21rc2 fails in boot
->
-> Ouch :(
+I firmly believe that there is a place for clone & futex threaded
+programs, which is not met by pthreads for cleanliness and performance
+reasons, and that such programs will become increasingly important.
 
-Not surprising.  x360s have XAPICs in them and need reasonably up-to-date 
-APIC handling code.  Try 2.4.14 or higher.  That also includes Intel's 
-"hyperthreading" code, should you want to try that.  (Well, minus my 
-forthcoming patch to that.  It's in Alan's 2.4 tree.)
+Therefore I refuse to penalise such progressive programs so we can
+have standards compliance.  Hence my insistance on a clean, minimal,
+useful interface.
 
-Recent 2.4.x also properly detects and uses APICs without going through a PIC 
-phase.  This is important as many x360 IRQ sources do not run through a PIC, 
-and will fail any attempt to use PIC mode interrupts.
+> >> However, it's not too hard to implement condition variables using an
+> >> unavailable mutex, if we go for "full" semaphores: ie. not just
+> >> mutexes.  It requires a bit more of a stretch for kernel atomic ops...
+> >>
+> > A full semaphore is nice, but not a full replacement for a waitqueue (or 
+> > a pthread condition variable brr..).
+> > For the semaphore you always have to assure that the ups and downs are 
+> > balanced, what is not the case
+> > for the condition variable.
+> > 
+> 
+> also remember pthread_cond_broadcast - waking up _all_ waiting threads.
+> If the woken up threads check their condition and go to sleep again, is
+> up to them ( read: the standard mandates that _all_ get woken up)
+> 
+> pthread_cond_signal notifies _one_ thread - which one depends on implementati
+on
+> ( I would like to see a priority based decision )
 
-Also, I've got some patches that avoid a problem on SMP XAPIC boxes:  all the 
-external interrupts hit on CPU 0.
+The solution I was referring to before, using full semaphores, would
+look like so:
 
-I use a simple static round robin routine to bind the irqs roughly evenly 
-across all CPUs.  Ingo has a different patch that rotates the irqs randomly 
-to idle CPUs on every received interrupt.  This spreads the load much more 
-evenly, but has a bit more overhead and limits cache warmth for the handler 
-code/data.  If you're going to be beating on the x360 much, you'll probably 
-want to install one patch or the other.
+struct pthread_cond_t
+{
+	int num_waiting;
+	struct futex wait, ack;
+};
 
-> > 2.4.9     works fine!
->
-> Glad to see this.
->
-> > I know the hardware is in good shape because a 2.4.9 kernel works
-> > fine on this machine.  I have scoured the IBM site, linux-kernel,
-> > and Google for clues, but to no avail.
-> >
-> > The boot sequence failure under the 2.2.x versions that I tried is
-> > always the same, it fails to recognize the IDE and SCSI devices.  From
-> > the messages, the system appears to be deaf to interrupts and so it
-> > cannot recognize its devices.  Notable messages from the boot sequence
-> > that support this idea are:
+#define PTHREAD_COND_INITIALIZER { 0, { 0 }, { 0 } }
 
-See above; 2.2.x is not expected to work.
+int pthread_cond_signal(pthread_cond_t *cond)
+{
+	if (cond->num_waiters)
+		return futex_up(&cond->futex, 1);
+	return 0;
+}
 
-> I don't know if anyone ever tried a 2.2.x kernel on these boxes :)
-> Is there a reason you _really_ need a 2.2.x kernel for this machine?
->
-> You also might try a UP 2.2.x kernel on this box to see if the problem
-> is in the parsing of the APIC tables (as I think it is.)
->
-> thanks,
->
-> greg k-h
-> -
+int pthread_cond_broadcast(pthread_cond_t *cond)
+{
+	unsigned int waiters = cond->num_waiting;
 
--- 
-James Cleverdon, IBM xSeries Platform (NUMA), Beaverton
-jamesclv@us.ibm.com
+	if (waiters) {
+		futex_up(&cond->futex, waiters);
+		/* Wait for ack before returning. */
+		futex_down(&cond->ack);
+	}
+	return 0;
+}
 
+int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
+{
+	int ret;
+
+	/* Increment first so broadcaster knows we are waiting. */
+	atomic_inc(cond->num_waiting);
+	futex_up(&mutex, 1);
+	ret = futex_down(&cond);
+	if (atomic_dec_and_test(cond->num_waiting))
+		futex_up(&cond->ack);
+	futex_down(&mutex->futex);
+	return ret;
+}
+
+Hope that clarifies,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

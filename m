@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261967AbTKYFHr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 00:07:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbTKYFHr
+	id S261988AbTKYFSP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 00:18:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbTKYFSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 00:07:47 -0500
-Received: from fw.osdl.org ([65.172.181.6]:38309 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261967AbTKYFHq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 00:07:46 -0500
-Date: Mon, 24 Nov 2003 21:14:15 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC] Make balance_dirty_pages zone aware (1/2)
-Message-Id: <20031124211415.501ab952.akpm@osdl.org>
-In-Reply-To: <1070800000.1069736303@[10.10.2.4]>
-References: <3FBEB27D.5010007@us.ibm.com>
-	<20031123143627.1754a3f0.akpm@osdl.org>
-	<1034580000.1069688202@[10.10.2.4]>
-	<20031124100043.5416ed4c.akpm@osdl.org>
-	<39670000.1069719009@flay>
-	<20031124170506.4024bb30.akpm@osdl.org>
-	<1070800000.1069736303@[10.10.2.4]>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 25 Nov 2003 00:18:15 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:57103
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S261988AbTKYFSN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 00:18:13 -0500
+Date: Mon, 24 Nov 2003 21:18:10 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Kamal Kumar <kamal.k@sonata-software.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: deleting the content of the file
+Message-ID: <20031125051810.GB1331@mis-mike-wstn.matchmail.com>
+Mail-Followup-To: Kamal Kumar <kamal.k@sonata-software.com>,
+	linux-kernel@vger.kernel.org
+References: <33A3630DF4936D44BDDC234FBDD218236B0FD3@mail.sonata-software.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <33A3630DF4936D44BDDC234FBDD218236B0FD3@mail.sonata-software.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
-> "dd if=/dev/zero of=foo" would trigger it, I'd think. Watching the IO
->  rate, it should go wierd after ram is full (on a 3 or more node system, 
->  so there's < 40% of RAM for each node).
+On Tue, Nov 25, 2003 at 10:41:05AM +0530, Kamal Kumar wrote:
+> Hi All,
+> I want to delete the content of file through command promp.I do not want to
+> open the file.The size is more than 250MB.
+> If anybody could suggest me ,how to do it!
 
-We should just prod kswapd into cleansing the relevant zone(s) and go do
-allocation from the next one.
+Truncating it should do the trick.
 
-> Yeah, I know you're going to give me crap for not actually trying it 
-
-How much would you like?
-
-(Wanders off, wondering how to fix a problem which cannot be
-demonstrated).
+echo -n > file

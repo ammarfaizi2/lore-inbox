@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262535AbTCIQ1p>; Sun, 9 Mar 2003 11:27:45 -0500
+	id <S262537AbTCIQes>; Sun, 9 Mar 2003 11:34:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262536AbTCIQ1p>; Sun, 9 Mar 2003 11:27:45 -0500
-Received: from tag.witbe.net ([81.88.96.48]:52233 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id <S262535AbTCIQ1o>;
-	Sun, 9 Mar 2003 11:27:44 -0500
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Paul Rolland'" <rol@as2917.net>, "'lkml'" <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 2.5.64 ???] Immediate reboot at boot
-Date: Sun, 9 Mar 2003 17:38:22 +0100
-Message-ID: <00aa01c2e65a$4cac98a0$2101a8c0@witbe>
+	id <S262539AbTCIQes>; Sun, 9 Mar 2003 11:34:48 -0500
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:10513 "EHLO
+	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id <S262537AbTCIQeq>; Sun, 9 Mar 2003 11:34:46 -0500
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] EISA aic7770 broken
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+Reply-to: mzyngier@freesurf.fr
+From: Marc Zyngier <mzyngier@freesurf.fr>
+Date: 09 Mar 2003 17:43:38 +0100
+Message-ID: <wrp65qscwxx.fsf@hina.wild-wind.fr.eu.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-In-Reply-To: <008701c2e623$f7a3b4a0$2101a8c0@witbe>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmmmm.....
+--=-=-=
 
-Following a very good remark from Mark Hahn, this problem is directly
-related to the IO APIC on Uniprocessor option. Disabling it makes the
-system boot...
+Justin,
 
-Regards,
-Paul
+I'm having troubles getting an Adaptec AHA-2740 (EISA) running on
+2.5.64.
 
-> I've installed 2.5.64, and I've compiled it using the same 
-> set of options as I've in 2.5.63... (copy of .config from one 
-> tree to the other one, then make menuconfig, check it's OK, 
-> save, make bzImage)....
-> 
-> However, when booting 2.5.64, I've :
-> boot: test
-> Loading test...........................................
-> 
-> and then the server reboots...
-> 
-> Machine is brand new P4, so options are set accordingly...
-> 
+First thing is the initial request_region succeeds, but the driver
+thinks it failed... The enclosed patch fixes it.
 
+But the driver crashes badly while probing the card, somewhere in
+ahc_runq_tasklet.
+
+Any idea ?
+
+        M.
+
+
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: attachment; filename=aic7770_osm.patch
+
+===== drivers/scsi/aic7xxx/aic7770_osm.c 1.2 vs 1.3 =====
+--- 1.2/drivers/scsi/aic7xxx/aic7770_osm.c	Tue Dec 31 02:54:16 2002
++++ 1.3/drivers/scsi/aic7xxx/aic7770_osm.c	Sun Mar  9 17:23:13 2003
+@@ -66,7 +66,7 @@
+ 			continue;
+ 		request_region(eisaBase, AHC_EISA_IOSIZE, "aic7xxx");
+ #else
+-		if (request_region(eisaBase, AHC_EISA_IOSIZE, "aic7xxx") != 0)
++		if (!request_region(eisaBase, AHC_EISA_IOSIZE, "aic7xxx"))
+ 			continue;
+ #endif
+ 
+
+--=-=-=
+
+
+-- 
+Places change, faces change. Life is so very strange.
+
+--=-=-=--

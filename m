@@ -1,149 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263596AbUBHNHa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 08:07:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263600AbUBHNHa
+	id S263607AbUBHNfg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 08:35:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263618AbUBHNfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 08:07:30 -0500
-Received: from main.gmane.org ([80.91.224.249]:49292 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263596AbUBHNH0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 08:07:26 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: USB 2.0 mass storage problem
-Date: Sun, 08 Feb 2004 14:07:22 +0100
-Message-ID: <yw1xfzdlu3cl.fsf@kth.se>
-References: <yw1xr7x5u84v.fsf@kth.se> <200402081214.i18CEWe00689@mailgate01.ctimail.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ti200710a080-1862.bb.online.no
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:T4pMISFi0+MTnprAjlr+dEMEQwc=
+	Sun, 8 Feb 2004 08:35:34 -0500
+Received: from out-mta2.plasa.com ([202.134.0.79]:14075 "EHLO
+	out-mta2.plasa.com") by vger.kernel.org with ESMTP id S263607AbUBHNfR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 08:35:17 -0500
+Reply-To: "STANDARD CHARTERED BANK" <hdscb01@telkom.net>
+From: "STANDARD CHARTERED BANK" <hdscb@telkom.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: PINJAMAN TUNAI ( KTA )
+Date: Sun, 8 Feb 2004 20:30:59 +0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Message-Id: <S263607AbUBHNfR/20040208133518Z+1259@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
 
-"Francis, Chong Chan Fai" <francis.ccf@polyu.edu.hk> writes:
+STANDARD CHARTERED BANK
+PINJAMAN TUNAI (KTA)
+(PERSONAL LOAN)
 
->> This looks like the drive is using a buggy Genesys USB-to-IDE bridge.
->> Run lsusb and check.  There was a workaround kernel patch floating
->> around here about a month ago.
->
-> Thank you for your help, 
-> but could you please provide some more key words so that I can find those
-> messages? Thanks.
+Kepada YTH:
+Pimpinan,HRD,Finance,
+Accounting,Manager,
+Beserta seluruh staff karyawan
 
-It was one of the attached patches.  I don't remember which one.
+Kami STANDARD CHARTERED BANK memberikan PINJAMAN TUNAI KREDIT TANPA AGUNAN
+Pada karyawan,pengusaha dan profesional dengan ketentuan :
+*WNI
+*Usia 21-55 tahun
+*Bekerja dengan penghasilan tetap Rp 2,5 jt/bulan untuk perorangan atau pengajuan
+ bersama suami dan istri jumlah gaji keduanya min. Rp 2,5 jt/bulan
+*Masa kerja minimal 1 tahun
+*Bertempat tinggal Jakarta,Bogor,Tangerang,Depok,Bekasi
 
--- 
-Måns Rullgård
-mru@kth.se
+Dokumen yang diperlukan bagi karyawan :
+Photocopy KTP
+-Slip GAJI asli atau surat keterangan penghasilan
+-Foto copy Rekening tabungan transfer gaji 3 bulan terakhir ( kecuali slip carbonized )
+-Materai  Rp 6000,-
+
+Atau jika memiliki salah satu kartu kredit dengan limit minimal 5 juta dan membership min. 1 tahun :
+
+SCB,BNI,AMEX,HSBC,LIPPO,BII,BCA,BALI,ANZ,NIAGA,
+DANAMON,CITIBANK,MANDIRI,GE,PERMATA
+
+Hanya :
+-Foto copy KTP
+-Foto copy kartu kredit
+-Billing statement (tagihan ) 1 bulan terakhir
+( kecuali CITIBANK 3 bulan )
+
+ Nikmati keuntungan :
+1.Pinjaman Tanpa Agunan
+2.Jumlah kredit Rp 5-100 juta (maksimal 4x gaji)
+3.Biaya administrasi (provisi) Rp 99.000,-
+4.Jangka waktu pengembalian 1-3 tahun dan dapat dilunasi
+  sebelum waktunya dengan biaya 2% dari sisa utang
+5.Cicilan tetap
+6.Proses 8 hari kerja
+7.Transfer langsung kerekening pribadi
+8.Pembayaran dapat lewat ATM BCA,transfer bank
+   lain,cabang SCB di Indonesia
+
+Manfaat pinjaman:
+1.Untuk keperluan apa saja (multiguna)
+2.melunasi kartu kredit,biaya pendidikan,renovasi
+  rumah,biaya perkawinan
+3.membeli mobil, membeli barang elektronik, dll.
+
+Informasi lebih lanjut Telepon atau sms :
+HARRY DERMAWAN
+HP : 0818653529
+STANDARD CHARTERED BANK
+WISMA DHARMALA SAKTI  LT 10
+Jl jend.sudirman kav.32
+Jakarta selatan 10220
+
+JANGKA WAKTU DAN CICILAN
+
+JANGKA WAKTU  1 TAHUN  2 TAHUN    3 TAHUN
+
+Bunga/bulan               1,76%        1,74%          1,80%
+
+faktor rate   0,1009624866   0,0590474159   0.0458037942
+
+Cicilan per bulan = jumlah pinjaman x faktor rate
+
+ASUMSI CICILAN PER BULAN(DALAM RUPIAH)
+Jumlah pinjaman   1 tahun     2 tahun      3 tahun
+
+ 5.000.000          504.813       295.238       229.019
+ 6.000.000          605.775       354.285       274.823
+ 7.000.000          706.738       413.332       320.627
+ 8.000.000          807.700       472.380       366.430
+ 9.000.000          908.663       531.427       412.235
+10.000.000      1.009.625       590.475       458.038
+11.000.000      1.110.588       649.522       503.842
+12.000.000      1.211.550       708.569       549.546
+13.000.000      1.312.513       767.617       595.450
+14.000.000      1.413.476       826.664       641.254
+15.000.000      1.514.438       885.712       687.057
+20.000.000      2.019.250    1.180.949       916.076
+25.000.000      2.524.063    1.476.186    1.145.095
+30.000.000      3.028.875    1.771.423    1.374.114
+35.000.000      3.533.688    2.066.660    1.603.133
+40.000.000      4.038.500    2.361.897    1.832.152
+45.000.000      4.543.312    2.657.134    2.061.171
+50.000.000      5.048.125    2.952.371    2.290.190
+80.000.000      8.076.999    4.723.794    3.664.304
+100.000.000   10.096.249    5.904.742    4.580.380
+
+persyaratan untuk pengusaha :
+KTP,SIUP,AKTE PENDIRIAN PERUSAHAAN,REKENING BANK/KORAN
+
+MOHON DIPRINT DAN DIUMUMKAN KEPADA TEMAN/REKAN KERJA/PAPAN PENGUMUMAN
+or please forward this email to your friends
+STANDARD CHARTERED BANK
+
+http://scbkta.port5.com
 
 
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: attachment; filename=usb-storage.diff
 
-===== scsiglue.c 1.62 vs edited =====
---- 1.62/drivers/usb/storage/scsiglue.c Fri Nov 14 04:15:20 2003
-+++ edited/drivers/usb/storage/scsiglue.c	Tue Dec 16 10:56:12 2003
-@@ -219,6 +219,21 @@
- 	return result < 0 ? FAILED : SUCCESS;
- }
- 
-+/* Report a driver-initiated device reset to the SCSI layer.
-+ * Calling this for a SCSI-initiated reset is unnecessary but harmless. */
-+void usb_stor_report_device_reset(struct us_data *us)
-+{
-+	int i;
-+
-+	scsi_lock(us->host);
-+	scsi_report_device_reset(us->host, 0, 0);
-+	if (us->flags & US_FL_SCM_MULT_TARG) {
-+		for (i = 1; i < 8; ++i)
-+			scsi_report_device_reset(us->host, 0, i);
-+	}
-+	scsi_unlock(us->host);
-+}
-+
- /***********************************************************************
-  * /proc/scsi/ functions
-  ***********************************************************************/
-===== scsiglue.h 1.7 vs edited =====
---- 1.7/drivers/usb/storage/scsiglue.h	Mon Jul 28 14:29:04 2003
-+++ edited/drivers/usb/storage/scsiglue.h	Tue Dec 16 10:56:31 2003
-@@ -44,6 +44,9 @@
- #include <linux/blkdev.h>
- #include "scsi.h"
- #include "hosts.h"
-+#include "usb.h"
-+
-+extern void usb_stor_report_device_reset(struct us_data *us);
- 
- extern unsigned char usb_stor_sense_notready[18];
- extern unsigned char usb_stor_sense_invalidCDB[18];
-===== transport.c 1.113 vs edited =====
---- 1.113/drivers/usb/storage/transport.c	Fri Oct 24 11:05:36 2003
-+++ edited/drivers/usb/storage/transport.c	Tue Dec 16 11:41:27 2003
-@@ -929,6 +929,7 @@
- 	unsigned int residue;
- 	int result;
- 	int fake_sense = 0;
-+	unsigned int cswlen;
- 
- 	/* set up the command wrapper */
- 	bcb->Signature = cpu_to_le32(US_BULK_CB_SIGN);
-@@ -985,7 +986,17 @@
- 	/* get CSW for device status */
- 	US_DEBUGP("Attempting to get CSW...\n");
- 	result = usb_stor_bulk_transfer_buf(us, us->recv_bulk_pipe,
--				bcs, US_BULK_CS_WRAP_LEN, NULL);
-+				bcs, US_BULK_CS_WRAP_LEN, &cswlen);
-+
-+	/* Some broken devices add unnecessary zero-length packets to the
-+	 * end of their data transfers.	 Such packets show up as 0-length
-+	 * CSWs.  If we encounter such a thing, try to read the CSW again.
-+	 */
-+	if (result == USB_STOR_XFER_SHORT && cswlen == 0) {
-+		US_DEBUGP("Received 0-length CSW; retrying...\n");
-+		result = usb_stor_bulk_transfer_buf(us, us->recv_bulk_pipe,
-+				bcs, US_BULK_CS_WRAP_LEN, &cswlen);
-+	}
- 
- 	/* did the attempt to read the CSW fail? */
- 	if (result == USB_STOR_XFER_STALLED) {
-@@ -1066,6 +1077,9 @@
- {
- 	int result;
- 	int result2;
-+
-+	/* Let the SCSI layer know we are doing a reset */
-+	usb_stor_report_device_reset(us);
- 
- 	/* A 20-second timeout may seem rather long, but a LaCie
- 	 *  StudioDrive USB2 device takes 16+ seconds to get going
 
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: attachment; filename=usb-storage-csw.diff
-
---- 1.112/drivers/usb/storage/transport.c       Fri Sep 26 12:37:45 2003
-+++ edited/drivers/usb/storage/transport.c      Mon Dec  1 14:06:19 2003
-@@ -985,7 +985,7 @@
-				bcs, US_BULK_CS_WRAP_LEN, NULL);
- 
-	/* did the attempt to read the CSW fail? */
--	if (result == USB_STOR_XFER_STALLED) {
-+	if (result == USB_STOR_XFER_STALLED || result == USB_STOR_XFER_SHORT) {
- 
-		/* get the status again */
-		US_DEBUGP("Attempting to get CSW (2nd try)...\n");
-
---=-=-=--
 

@@ -1,33 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129144AbRBDP0f>; Sun, 4 Feb 2001 10:26:35 -0500
+	id <S131941AbRBDPdE>; Sun, 4 Feb 2001 10:33:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129191AbRBDP0Z>; Sun, 4 Feb 2001 10:26:25 -0500
-Received: from mercury.nildram.co.uk ([195.112.4.37]:9999 "EHLO
-	mercury.nildram.co.uk") by vger.kernel.org with ESMTP
-	id <S129144AbRBDP0Q>; Sun, 4 Feb 2001 10:26:16 -0500
-Message-ID: <3A7D748C.6080701@magenta-logic.com>
-Date: Sun, 04 Feb 2001 15:26:04 +0000
-From: Tony Hoyle <tmh@magenta-logic.com>
-Organization: Magenta Logic
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.1 i686; en-US; m18) Gecko/20010126
-X-Accept-Language: en
+	id <S131959AbRBDPcz>; Sun, 4 Feb 2001 10:32:55 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:37617 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S131941AbRBDPcl>; Sun, 4 Feb 2001 10:32:41 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, Mathias.Froehlich@gmx.net
+Subject: [patch] make tmpfs_statfs more user friendly
+From: Christoph Rohland <cr@sap.com>
+Message-ID: <m31ytemq7u.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ACPI broken in 2.4.1
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: 04 Feb 2001 16:37:26 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In my wifes' machine 2.4.1 (both vanilla and -ac2) enabling ACPI causes 
-the machine to run so slowly it's unusable.  On my machine it's OK. 
-2.4.0 worked fine, so something has changed between 2.4.0 and 2.4.1 that 
-broke it.  I couldn't find anything in dmesg that looked any different, 
-though.  However since that machine has never successfully booted with 
-ACPI on the kern.log hasn't been written so it's unlikely I'd find anything.
+Hi Alan,
 
-Tony
+The following patch make shmem_statfs report some sensible size
+estimates in the case that the user does not give a size limit.
+
+This should make it more error prone when used as /tmp
+
+Greetings
+                Christoph
+
+diff -uNr 2.4.1-tmpfs/mm/shmem.c 2.4.1-tmpfs-fstat/mm/shmem.c
+--- 2.4.1-tmpfs/mm/shmem.c	Sun Feb  4 16:08:57 2001
++++ 2.4.1-tmpfs-fstat/mm/shmem.c	Sun Feb  4 16:09:50 2001
+@@ -696,13 +696,20 @@
+ 	buf->f_type = TMPFS_MAGIC;
+ 	buf->f_bsize = PAGE_CACHE_SIZE;
+ 	spin_lock (&sb->u.shmem_sb.stat_lock);
+-	if (sb->u.shmem_sb.max_blocks != ULONG_MAX || 
+-	    sb->u.shmem_sb.max_inodes != ULONG_MAX) {
++	if (sb->u.shmem_sb.max_blocks == ULONG_MAX) {
++		/*
++		 * This is only a guestimate and not honoured.
++		 * We need it to make some programs happy which like to
++		 * test the free space of a file system.
++		 */
++		buf->f_bavail = buf->f_bfree = nr_free_pages() + nr_swap_pages + atomic_read(&buffermem_pages);
++		buf->f_blocks = buf->f_bfree + ULONG_MAX - sb->u.shmem_sb.free_blocks;
++	} else {
+ 		buf->f_blocks = sb->u.shmem_sb.max_blocks;
+ 		buf->f_bavail = buf->f_bfree = sb->u.shmem_sb.free_blocks;
+-		buf->f_files = sb->u.shmem_sb.max_inodes;
+-		buf->f_ffree = sb->u.shmem_sb.free_inodes;
+ 	}
++	buf->f_files = sb->u.shmem_sb.max_inodes;
++	buf->f_ffree = sb->u.shmem_sb.free_inodes;
+ 	spin_unlock (&sb->u.shmem_sb.stat_lock);
+ 	buf->f_namelen = 255;
+ 	return 0;
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

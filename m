@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265990AbUAKVQf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 16:16:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265992AbUAKVQf
+	id S265989AbUAKVas (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 16:30:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265996AbUAKVas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 16:16:35 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:21765 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S265990AbUAKVQe (ORCPT
+	Sun, 11 Jan 2004 16:30:48 -0500
+Received: from [193.6.138.45] ([193.6.138.45]:37826 "EHLO delfin.unideb.hu")
+	by vger.kernel.org with ESMTP id S265989AbUAKVaq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 16:16:34 -0500
-Date: Sun, 11 Jan 2004 22:16:27 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "Pablo E. Limon Garcia Viesca" <plimon@intercable.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: GIVEUP [bootup kernel panic 2.6.x] no root partition detected?
-Message-ID: <20040111211627.GA1990@win.tue.nl>
-References: <40005E9C.3030309@intercable.net> <4000D463.3040707@intercable.net> <20040111143338.GA1923@win.tue.nl> <4001B189.1010408@intercable.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4001B189.1010408@intercable.net>
-User-Agent: Mutt/1.3.25i
+	Sun, 11 Jan 2004 16:30:46 -0500
+Date: Sun, 11 Jan 2004 22:31:03 +0100 (CET)
+From: The NeverGone <never@delfin.klte.hu>
+X-X-Sender: never@localhost
+To: linux-kernel@vger.kernel.org
+Subject: Re: UML (user-mode-linux) kernel-2.6.x
+Message-ID: <Pine.LNX.4.58.0401112222030.1401@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 11, 2004 at 02:26:49PM -0600, Pablo E. Limon Garcia Viesca wrote:
+Hi...
 
-> >Aha. Boot, and give boot parameter "hda=remap63".
-> 
-> Im sorry, it didnt work...
 
-Nevertheless that was the right answer.
-(Or at least part of the right answer.)
+> Look at the second item called:
+> FAQ: "I'm tracing myself and I can't get out"
+> There is an associated patch which needs to be applied to the UML
+> *guest* when running on a 2.6 host.
 
-Since you provide precisely zero information,
-it is impossible to provide any further assistance.
+It's compliled into the Kernel, but it's still not works at all...
+
+
+> This patch:
+> http://sdw.st/src/uml/linux-2.6.1-skas3.patch
+
+
+This patch cant be used with the -mm2 patch
+
+Thx...:
+
+Kurucz "The NeverGone" Istvan :)
+
+==============================================================
+ --------- Csatlakozz:  http://arenaportal.hix.com/ ---------
+ ----- http://arenazo.cjb.net/ -- http://ironiq.hu/aDP/ -----
+ --- Kurucz "The NeverGone" Istvan:  never@delfin.klte.hu ---
+ -------------- http://delfin.klte.hu/~ki0029/ --------------
+==============================================================
 

@@ -1,74 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbVAJAsO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbVAJAxc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbVAJAsO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 19:48:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbVAJAsO
+	id S261839AbVAJAxc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 19:53:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbVAJAxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 19:48:14 -0500
-Received: from h151_115.u.wavenet.pl ([217.79.151.115]:9171 "EHLO
-	alpha.polcom.net") by vger.kernel.org with ESMTP id S261654AbVAJArw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 19:47:52 -0500
-Date: Mon, 10 Jan 2005 01:47:35 +0100 (CET)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Support for > 2GB swap partitions?
-In-Reply-To: <Pine.LNX.4.61.0501091933090.29064@p500>
-Message-ID: <Pine.LNX.4.60.0501100142070.27893@alpha.polcom.net>
-References: <Pine.LNX.4.61.0501091933090.29064@p500>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 9 Jan 2005 19:53:32 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:57488
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S261839AbVAJAx1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 19:53:27 -0500
+Subject: Re: [PATCH 2.6.10-mm2] Use the new preemption code [2/3]
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050110013508.1.patchmail@tglx>
+References: <20050110013508.1.patchmail@tglx>
+Content-Type: text/plain
+Date: Mon, 10 Jan 2005 01:53:26 +0100
+Message-Id: <1105318406.17853.2.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 (2.0.3-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Jan 2005, Justin Piszcz wrote:
+This patch adjusts the ARM entry code to use the fixed up
+preempt_schedule() handling in 2.6.10-mm2
 
-> I remember reading in the past that > 2GB swap partitions were supported in 
-> Linux as of recent util-linux packages with a 2.6 kernel or am I wrong?
->
-> # fdisk -l
->
-> Disk /dev/sda: 251.0 GB, 251000193024 bytes
-> 255 heads, 63 sectors/track, 30515 cylinders
-> Units = cylinders of 16065 * 512 = 8225280 bytes
->
->   Device Boot      Start         End      Blocks   Id  System
-> /dev/sda1   *           1          16      128488+  83  Linux
-> /dev/sda2              17         526     4096575   82  Linux swap
-> /dev/sda3             527       30515   240886642+  83  Linux
->
-> # top
-> top - 19:33:43 up  3:26,  1 user,  load average: 1.33, 2.63, 1.66
-> Tasks: 166 total,   1 running, 165 sleeping,   0 stopped,   0 zombie
-> Cpu(s):  9.1% us,  3.4% sy,  0.0% ni, 83.5% id,  1.8% wa,  0.1% hi,  2.2% si
-> Mem:   2075192k total,  2062540k used,    12652k free,       64k buffers
-> Swap:        0k total,        0k used,        0k free,  1608272k cached
->
->
-> Only recognizes 2GB of 4GB?
+Signed-off-by: Benedikt Spranger <bene@linutronix.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 
-No. It looks like you forgot to enable your swap at all! 2GB is your RAM. 
-Your swap is 0.
+---
+ entry-armv.S |    4 +---
+ 1 files changed, 1 insertion(+), 3 deletions(-)
+---
+Index: 2.6.10-mm1/arch/ppc/kernel/entry.S
+===================================================================
+--- 2.6.10-mm1/arch/ppc/kernel/entry.S	(revision 141)
++++ 2.6.10-mm1/arch/ppc/kernel/entry.S	(working copy)
+@@ -624,12 +624,12 @@
+ 	beq+	restore
+ 	andi.	r0,r3,MSR_EE	/* interrupts off? */
+ 	beq	restore		/* don't schedule if so */
+-1:	lis	r0,PREEMPT_ACTIVE@h
++1:	li	r0,1
+ 	stw	r0,TI_PREEMPT(r9)
+ 	ori	r10,r10,MSR_EE
+ 	SYNC
+ 	MTMSRD(r10)		/* hard-enable interrupts */
+-	bl	schedule
++	bl	entry_preempt_schedule
+ 	LOAD_MSR_KERNEL(r10,MSR_KERNEL)
+ 	SYNC
+ 	MTMSRD(r10)		/* disable interrupts */
 
-Try
-$ swapon /dev/sda2
-
-or
-
-$ swapon -a
-
-if your swap is listed in /etc/fstab
-
-(possibly with
-
-$ mkswap /dev/sda2
-
-before).
-
-I am using 4 GB swaps on many machines (x86 and x86_64) for long time 
-without any problems.
-
-
-Grzegorz Kulewski
 

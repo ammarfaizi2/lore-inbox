@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277306AbRJEERy>; Fri, 5 Oct 2001 00:17:54 -0400
+	id <S277310AbRJEEiG>; Fri, 5 Oct 2001 00:38:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277307AbRJEERn>; Fri, 5 Oct 2001 00:17:43 -0400
-Received: from femail26.sdc1.sfba.home.com ([24.254.60.16]:2992 "EHLO
-	femail26.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S277306AbRJEERf>; Fri, 5 Oct 2001 00:17:35 -0400
+	id <S277311AbRJEEh4>; Fri, 5 Oct 2001 00:37:56 -0400
+Received: from paloma13.e0k.nbg-hannover.de ([62.159.219.13]:38082 "HELO
+	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S277310AbRJEEhn>; Fri, 5 Oct 2001 00:37:43 -0400
 Content-Type: text/plain; charset=US-ASCII
-From: Adam Keys <adam.keys@engr.smu.edu>
-Reply-To: adam.keys@HOTARD.engr.smu.edu
-To: linux-kernel@vger.kernel.org
-Subject: Development Setups
-Date: Thu, 4 Oct 2001 23:20:06 -0500
-X-Mailer: KMail [version 1.3.2]
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Linux 2.4.11-pre4
+Date: Fri, 5 Oct 2001 06:38:11 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20011005041759.OPDP14306.femail26.sdc1.sfba.home.com@there>
+Message-Id: <20011005043751Z277310-761+15781@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As a budding kernel hacker looking to cut my teeth, I've become curious about 
-what types of setups people hack the kernel with.  I am very interested in 
-descriptions of the computers you hack the kernel with and their use patterns.
+Hello Linus,
 
-I was thinking of starting with a modern machine for developing/compiling on, 
-and then older machine(s) for testing.  This way I would not risk losing data 
-if I oops or somesuch.  Alternately, is there a common practice of using lilo 
-to create development and testing kernel command lines?  Is this a useful 
-thing to do or is it too much of brain drain to switch between hacking and 
-testing mindsets?
+the new and very cool Multiquad NUMA stuff break something...
 
-Instead of having separate machines,  there is the possibility of using the 
-Usermode port.  As I understand it this lags behind the -ac and linus kernels 
-so it would be hard to test things like the new VM's.  Usermode would not be 
-suitable for driver development either.  Again, thoughts on this mode of 
-development?
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.11-pre4-preempt/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O -fomit-frame-pointer 
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -mcpu=k6 
+-mpreferred-stack-boundary=2 -malign-functions=4 -fschedule-insns2 
+-fexpensive-optimizations     -c -o mpparse.o mpparse.c
+mpparse.c: In function `MP_processor_info':
+mpparse.c:195: `clustered_apic_mode' undeclared (first use in this function)
+mpparse.c:195: (Each undeclared identifier is reported only once
+mpparse.c:195: for each function it appears in.)
+mpparse.c: In function `smp_read_mpc':
+mpparse.c:386: `clustered_apic_mode' undeclared (first use in this function)
+make[1]: *** [mpparse.o] Error 1
+make[1]: Leaving directory 
+`/usr/src/linux-2.4.11-pre4-preempt/arch/i386/kernel'
+make: *** [_dir_arch/i386/kernel] Error 2
+269.520u 29.200s 5:45.26 86.5%  0+0k 0+0io 1007275pf+0w
 
-Which brings me to the final question.  Is there any reason to choose 
-architecture A over architecture B for any reason besides arch-specific 
-development in the kernel or for device drivers?
-
-AKK
-
--- 
-Adam K. Keys
-<adam.keys@HOTARD.engr.smu.edu> (Remove the HOTARD to email me)
+-Dieter

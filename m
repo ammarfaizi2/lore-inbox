@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269739AbRIDWfH>; Tue, 4 Sep 2001 18:35:07 -0400
+	id <S269726AbRIDWpC>; Tue, 4 Sep 2001 18:45:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269718AbRIDWe5>; Tue, 4 Sep 2001 18:34:57 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:7075 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S269693AbRIDWen>;
-	Tue, 4 Sep 2001 18:34:43 -0400
-Date: Wed, 5 Sep 2001 00:34:57 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200109042234.AAA28635@harpo.it.uu.se>
-To: zaitcev@redhat.com
-Subject: Re: idetape broke in 2.4.x-2.4.9-ac5 (write OK but not read) ide-scsi works in 2.4.4
-Cc: Floydsmith@aol.com, linux-kernel@vger.kernel.org,
-        linux-tape@vger.kernel.org
+	id <S269718AbRIDWow>; Tue, 4 Sep 2001 18:44:52 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:35295 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S269726AbRIDWok>; Tue, 4 Sep 2001 18:44:40 -0400
+Date: Tue, 4 Sep 2001 18:43:20 -0400 (EDT)
+From: Richard A Nelson <cowboy@debian.org>
+X-X-Sender: <cowboy@badlands.lexington.ibm.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: fsync(dir) redux
+Message-ID: <Pine.LNX.4.33.0109041839060.2267-100000@badlands.lexington.ibm.com>
+X-No-Markup: yes
+x-No-ProductLinks: yes
+x-No-Archive: yes
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Sep 2001 20:14:06 -0400, Pete Zaitcev wrote:
+Ok, I've got now got open(dir);fsync(dir);close(dir) after my
+rename,unlink, and link calls.
 
->> - block size: The 2.4 ide-tape driver only works reliably if you
->>   write data with the correct block size. If you don't write full
->>   blocks the last block of data may not be readable.
->
->I fixed that some time ago, it's in current -ac
->if not in Linus's tree.
+Now, I need to know when its needed, and when it isn't allowed!
+I seem to recall that newer Reiserfs wouldn't need it, is that true?
+and if so, at what level?.
 
-Sorry, but that's not correct. I just ran a test, and the bug is
-still there in 2.4.9-ac7. Maybe you're thinking of some other bug?
+How about xfs, jfs, etc ?
 
-ide-tape tells me it uses a 14*26KB buffer for my Seagate STT8000A.
-If I dd a 39KB (1.5 "buffer units") file with bs=1k to /dev/ht0 it tells
-me it wrote 39 blocks. If I then rewind and dd with bs=1k from /dev/ht0
-it only reads 26 blocks. The same happens in 2.2 + Hedrick's IDE patch.
+I also seem to recall discussion that some of this might wind up
+supported in VFS?
 
-2.2 vanilla reads 56 blocks, of which the first 39 are identical to
-what I initially wrote. The last 13 contain junk but that's not a big
-problem since I back up with tar which writes its own EOF mark.
+Lastly, I just received an error report from a user who is getting
+fsync(dir) errors on an NFS mounted directory ?!?!?
 
-/Mikael
+-- 
+Rick Nelson
+"...and scantily clad females, of course.  Who cares if it's below zero
+outside"
+(By Linus Torvalds)
+

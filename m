@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbTHXK1x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 06:27:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbTHXK1x
+	id S261625AbTHXKSm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 06:18:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263198AbTHXKSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 06:27:53 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:13004 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S262347AbTHXK1w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 06:27:52 -0400
-X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Sun, 24 Aug 2003 12:27:50 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: ken@kenmoffat.uklinux.net, lm@bitmover.com, aaronl@vitelus.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: *sigh* something is wrong with bkcvs again
-Message-Id: <20030824122750.08ecdc0c.skraw@ithnet.com>
-In-Reply-To: <20030824010100.GB25535@work.bitmover.com>
-References: <20030823012724.GC31894@vitelus.com>
-	<20030823191458.GA25535@work.bitmover.com>
-	<Pine.LNX.4.56.0308240110220.22919@ppg_penguin>
-	<20030824010100.GB25535@work.bitmover.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 24 Aug 2003 06:18:42 -0400
+Received: from [203.145.184.221] ([203.145.184.221]:38161 "EHLO naturesoft.net")
+	by vger.kernel.org with ESMTP id S261625AbTHXKRC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 06:17:02 -0400
+From: "Krishnakumar. R" <krishnakumar@naturesoft.net>
+Reply-To: krishnakumar@naturesoft.net
+Organization: Naturesoft
+To: trivial@rustcorp.com.au
+Subject: [PATCH - 2.6.0-tes4-bk1] removing the extra tokens warning (drivers/char/pcxx.c)
+Date: Sun, 24 Aug 2003 15:50:37 +0530
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308241550.37773.krishnakumar@naturesoft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Aug 2003 18:01:00 -0700
-Larry McVoy <lm@bitmover.com> wrote:
+Hi,
 
-> [ Larry describing another tough weekend ]
-> The bk2cvs gateway is a free service, it costs us money to provide it.
+This patch removes the warning:
 
-Just around nobody in the list is able to judge if _having_ a bk2cvs gateway
-(software) is a commercial win for your product or not. Therefore nobody can
-argue with you about the statement. This is fine for you, but bad for
-listeners. Effectively they leave the place with a feeling of being only
-grumblers and spongers.
-And since quite a lot of people are doing positive things regarding linux that
-are never ever rewarded - not even by a one-liner in some credits-file - you
-have to accept that they don't want and need that feeling and therefore simply
-dislike you - completely unrelated to your former, current or future _work_.
+drivers/char/pcxx.c:124:8: warning: extra tokens at end of #endif directive
 
-Regards,
-Stephan
+
+Regards
+KK
+
+============================================
+diffstat:
+pcxx.c |    2 +-
+1 files changed, 1 insertion(+), 1 deletion(-)
+============================================
+The following is the patch:
+
+--- linux-2.6.0-test4-bk1/drivers/char/pcxx.orig.c	2003-08-24 15:45:57.000000000 +0530
++++ linux-2.6.0-test4-bk1/drivers/char/pcxx.c	2003-08-24 15:46:09.000000000 +0530
+@@ -121,7 +121,7 @@
+ MODULE_PARM(altpin,      "1-4i");
+ MODULE_PARM(numports,    "1-4i");
+ 
+-#endif MODULE
++#endif /* MODULE */
+ 
+ static int numcards = 1;
+ static int nbdevs = 0;
+

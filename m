@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314420AbSEBNwN>; Thu, 2 May 2002 09:52:13 -0400
+	id <S314422AbSEBNyk>; Thu, 2 May 2002 09:54:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314439AbSEBNwM>; Thu, 2 May 2002 09:52:12 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:57100 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S314420AbSEBNwM>; Thu, 2 May 2002 09:52:12 -0400
-Message-ID: <3CD135D4.5060506@evision-ventures.com>
-Date: Thu, 02 May 2002 14:49:24 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
-In-Reply-To: <28926.1020342106@ocs3.intra.ocs.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S314439AbSEBNyj>; Thu, 2 May 2002 09:54:39 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:18678 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S314422AbSEBNyi>; Thu, 2 May 2002 09:54:38 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <3CD134B6.6090504@evision-ventures.com> 
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Dave Jones <davej@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.7 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 02 May 2002 14:54:24 +0100
+Message-ID: <14420.1020347664@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Keith Owens napisa?:
 
-> kbuild 2.5 deliberately does not support modversions, you can turn it
-> on but it does nothing.  The original implementation of modversions
-> does not fit with the way that people build kernels now (apply patches,
-> change configs, rebuild without make mrproper).  To do modversions
-> right needs a new version of modutils as well, there is no chance of
-> that work being started until kbuild 2.5 is in the kernel.
+dalecki@evision-ventures.com said:
+>  No I was consciuous: I just saw some macro preprocessing clashes. 
 
-How many years was it that I was telling that symbol versioning is
-a silly concept not solving any single problem and the implementation is to say
-the least ugly?
+But not conscious enough to bother to Cc the maintainer or explain the 
+clashes you saw?
+
+Do what you like; I'm ignoring 2.5 until Marcelo gets 2.4.19 out and I can
+send him the rest of the code I'm sitting on for 2.4.20-pre1; at which point
+I'll update everything in my tree to build against 2.5 and require magic in
+compatmac.h for the 2.4 build, and I'll look at what's changed then.
+
+--
+dwmw2
+
 

@@ -1,78 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135633AbRDSLqc>; Thu, 19 Apr 2001 07:46:32 -0400
+	id <S135631AbRDSLqM>; Thu, 19 Apr 2001 07:46:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135634AbRDSLqX>; Thu, 19 Apr 2001 07:46:23 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:63749 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S135633AbRDSLqO>;
-	Thu, 19 Apr 2001 07:46:14 -0400
-Date: Thu, 19 Apr 2001 13:46:01 +0200
-From: Jens Axboe <axboe@suse.de>
-To: stefan@jaschke-net.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with Toshiba SD-W2002 DVD-RAM drive (IDE)
-Message-ID: <20010419134601.P16822@suse.de>
-In-Reply-To: <01041714250400.01376@antares> <20010418123941.H492@suse.de> <20010418143953.D490@suse.de> <01041913393800.01240@antares>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="dDRMvlgZJXvWKvBx"
-Content-Disposition: inline
-In-Reply-To: <01041913393800.01240@antares>; from s-jaschke@t-online.de on Thu, Apr 19, 2001 at 01:39:38PM +0200
+	id <S135633AbRDSLqC>; Thu, 19 Apr 2001 07:46:02 -0400
+Received: from fjordland.nl.linux.org ([131.211.28.101]:60938 "EHLO
+	fjordland.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S135631AbRDSLpy>; Thu, 19 Apr 2001 07:45:54 -0400
+From: Daniel Phillips <phillips@nl.linux.org>
+To: riel@conectiva.com.br, viro@math.psu.edu
+Subject: Re: Ext2 Directory Index - Delete Performance
+Cc: adilger@turbolinux.com, ext2-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, phillips@nl.linux.org
+Message-Id: <20010419114416Z92314-11620+7@humbolt.nl.linux.org>
+Date: Thu, 19 Apr 2001 13:44:03 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---dDRMvlgZJXvWKvBx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Thu, Apr 19 2001, Stefan Jaschke wrote:
-> Hi Jens,
+> On Wed, 18 Apr 2001, Rik van Riel wrote:
+> > One thing we should do is make sure the buffer cache code sets
+> > the referenced bit on pages, so we don't recycle buffer cache
+> > pages early.
+> >
+> > This should leave more space for the buffercache and lead to us
+> > reclaiming the (now unused) space in the dentry cache instead...
 > 
-> I applied your patch to 2.4.4-pre4. It compiled fine, but crashed during
-> boot (just right after the IDE init) with
-> -------------------
-> Uniform CD-ROM driver Revision: 3.12
-> Unable to handle kernel NULL pointer dereference at virtual address 00000000
-> printing eip: ...
-> Oops: 0000
-> ...
-> -------------------
+> Sorry, but that's just plain wrong. We shouldn't keep inode table in
+> buffer-cache at all. And we should be more aggressive on icache -
+> dcache looks sane now (recent 2.4.4-pre), but icache holds unused
+> inodes for too long. And freeing them is very slow _and_ random -
+> recipe for kmem_cache fragmentation.
+>  
+> /me sits down to port inode-table-in-pagecache to 2.4.4-pre4...
 
-This should fix it.
+The Ext2 inode-table maps nicely to the page cache with the current
+page cache interface because it has uniform sized chunks that are accessed one
+at a time, and likewise for the group descriptor cache.
 
--- 
-Jens Axboe
+*But* the directory code in page cache with your current approach does not
+work out nicely with my directory index - it doesn't have page-sized chunks
+and access to them is overlapped.  This isn't an isolated problem, it's a
+problem we've managed to avoid dealing with so far because much of the file
+code we have does satisfy your two pre-conditions:
 
+  - Data groups naturally into pages
+  - Access to data items is strictly serial
 
---dDRMvlgZJXvWKvBx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=cd-get-entry-1
-
---- drivers/cdrom/cdrom.c~	Thu Apr 19 13:44:46 2001
-+++ drivers/cdrom/cdrom.c	Thu Apr 19 13:45:33 2001
-@@ -350,6 +350,12 @@
- {
- 	int i, nr, foo;
- 
-+	if (!cdrom_numbers) {
-+		int n_entries = CDROM_MAX_CDROMS / (sizeof(unsigned long) * 8);
-+		cdrom_numbers = kmalloc(n_entries * sizeof(unsigned long), GFP_KERNEL);
-+		memset(cdrom_numbers, 0, n_entries * sizeof(unsigned long));
-+	}
-+
- 	nr = 0;
- 	foo = -1;
- 	for (i = 0; i < CDROM_MAX_CDROMS / (sizeof(unsigned long) * 8); i++) {
-@@ -2696,10 +2702,6 @@
- 
- static int __init cdrom_init(void)
- {
--	int n_entries = CDROM_MAX_CDROMS / (sizeof(unsigned long) * 8);
--
--	cdrom_numbers = kmalloc(n_entries * sizeof(unsigned long), GFP_KERNEL);
--
- #ifdef CONFIG_SYSCTL
- 	cdrom_sysctl_register();
- #endif
-
---dDRMvlgZJXvWKvBx--
+We need a way of accessing the page cache that doesn't rely on either of
+those two assumptions.
+--
+Daniel

@@ -1,25 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267298AbUHPA4K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267306AbUHPBBm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267298AbUHPA4K (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 20:56:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267306AbUHPA4K
+	id S267306AbUHPBBm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 21:01:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267311AbUHPBBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 20:56:10 -0400
-Received: from smtp2.vsnl.net ([203.200.235.232]:33782 "EHLO smtp2.vsnl.net")
-	by vger.kernel.org with ESMTP id S267298AbUHPA4J (ORCPT
+	Sun, 15 Aug 2004 21:01:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:11460 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267306AbUHPBBl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 20:56:09 -0400
-Date: Mon, 16 Aug 2004 06:39:21 +0530
-From: "A. Mani" <a_mani_sc_gs@vsnl.net>
-Subject: (no subject)
-To: linux-kernel@vger.kernel.org
-Message-id: <41200941.3020400@vsnl.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+	Sun, 15 Aug 2004 21:01:41 -0400
+Date: Sun, 15 Aug 2004 17:59:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au, mochel@digitalimplant.org,
+       benh@kernel.crashing.org, david-b@pacbell.net
+Subject: Re: [patch] enums to clear suspend-state confusion
+Message-Id: <20040815175949.19d03e7f.akpm@osdl.org>
+In-Reply-To: <20040812120220.GA30816@elf.ucw.cz>
+References: <20040812120220.GA30816@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-unsubscribe linux-kernel
+Pavel Machek <pavel@ucw.cz> wrote:
+>
+> +enum pci_state {
+>  +	D0 = 0,
+>  +	D1 = 1,
+>  +	D2 = 2,
+
+These symbols are too generic.  They don't appear to currently clash with
+anything else, but they could.

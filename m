@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263114AbUCYQOe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 11:14:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263215AbUCYQOe
+	id S263232AbUCYQSe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 11:18:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263226AbUCYQSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 11:14:34 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10667 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263114AbUCYQOd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 11:14:33 -0500
-Message-ID: <40630559.3040105@pobox.com>
-Date: Thu, 25 Mar 2004 11:14:17 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+	Thu, 25 Mar 2004 11:18:33 -0500
+Received: from ny03.mtek.chalmers.se ([129.16.60.203]:65292 "HELO
+	ny03.mtek.chalmers.se") by vger.kernel.org with SMTP
+	id S263232AbUCYQS1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 11:18:27 -0500
+Message-ID: <406302A9.8030805@am.chalmers.se>
+Date: Thu, 25 Mar 2004 17:02:49 +0100
+From: Thomas Svedberg <thsv@am.chalmers.se>
+User-Agent: Mozilla Thunderbird 0.5+ (X11/20040309)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: mike.miller@hp.com
-CC: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: cciss updates [1 of 2]
-References: <20040325153631.GA4456@beardog.cca.cpqcorp.net>
-In-Reply-To: <20040325153631.GA4456@beardog.cca.cpqcorp.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: eric.valette@free.fr
+CC: akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.5-rc2-mm2 still does not boot but it progress : seems to
+ be console font related
+References: <406172C9.8000706@free.fr>
+In-Reply-To: <406172C9.8000706@free.fr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mikem@beardog.cca.cpqcorp.net wrote:
-> Please consider this change for inclusion in the 2.4 kernel.
+I have these hangs as well, just tried 2.6.5-rc2-mm3 and they are still 
+there.
+However setting video=radeonfb:off as boot parameter solves the problem, 
+if this can be of any help.
+More info on request.
+
+/Thomas
+
+Eric Valette wrote:
+> Andrew,
 > 
-> This change is required to support the new MSA30 storage enclosure.
-> If you do a SCSI inquiry to a SATA disk bad things happen. This patch prevents 
-> the inquiry from going to SATA disks.
+> I have compiled a completely clean, unpatched (I mean except of course 
+> rc2-mm2) and I can still not manage to finish booting. However, this 
+> time, I get a little bit further AND system seems to hang exactly at the 
+> same place each time (which was not the case with rc2-mm1). In fact I 
+> managed to have the same behavior after removing the initramfs patches 
+> from rc2-mm1 and fixing some other things using bk snapshots diffs (SCSI 
+> st driver).
 
+[snip]
+-- 
+/ Thomas
+.......................................................................
+  Thomas Svedberg
+  Department of Applied Mechanics
+  Chalmers University of Technology
 
-I 'ack' both of those patches, but am still curious:  wouldn't you want 
-to either (a) simulate an inquiry page via ATA's identify device or (b) 
-allow userspace to issue identify device?
-
-	Jeff
-
+  Address: SE-412 96 Göteborg, SWEDEN
+  E-mail : thsv@am.chalmers.se, thsv@bigfoot.com
+  Phone  : +46 31 772 1522
+  Fax    : +46 31 772 3827
+.......................................................................
 
 

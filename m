@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266682AbRGFMrm>; Fri, 6 Jul 2001 08:47:42 -0400
+	id <S266683AbRGFMwc>; Fri, 6 Jul 2001 08:52:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266681AbRGFMrc>; Fri, 6 Jul 2001 08:47:32 -0400
-Received: from k7g317-2.kam.afb.lu.se ([130.235.57.218]:64013 "EHLO
-	cheetah.psv.nu") by vger.kernel.org with ESMTP id <S266679AbRGFMrW>;
-	Fri, 6 Jul 2001 08:47:22 -0400
-Date: Fri, 6 Jul 2001 14:47:00 +0200 (CEST)
-From: Peter Svensson <petersv@psv.nu>
-To: "Gregory (Grisha) Trubetskoy" <grisha@ispol.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: reading/writing CMOS beyond 256 bytes?
-In-Reply-To: <Pine.BSF.4.32.0107060829460.47924-100000@localhost>
-Message-ID: <Pine.LNX.4.33.0107061446240.12127-100000@cheetah.psv.nu>
+	id <S266684AbRGFMwX>; Fri, 6 Jul 2001 08:52:23 -0400
+Received: from scan2.fhg.de ([153.96.1.37]:53673 "EHLO scan2.fhg.de")
+	by vger.kernel.org with ESMTP id <S266683AbRGFMwI>;
+	Fri, 6 Jul 2001 08:52:08 -0400
+Message-ID: <3B45B46E.B6D71DA0@N-Club.de>
+Date: Fri, 06 Jul 2001 14:51:58 +0200
+From: Juergen Wolf <JuWo@N-Club.de>
+Organization: AEMT Fraunhofer
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: Francois Romieu <romieu@cogenit.fr>, linux-kernel@vger.kernel.org
+Subject: Re: Problem with SMC Etherpower II + kernel newer 2.4.2
+In-Reply-To: <Pine.LNX.4.30.0107021014230.15054-100000@flash.datafoundation.com> <3B42DEC2.AAB1E65B@N-Club.de> <20010704145752.A29311@se1.cogenit.fr> <3B456D45.FBF10C1A@N-Club.de> <20010706134421.B20614@se1.cogenit.fr> <3B45AEBD.8D0599E3@N-Club.de> <3B45B04A.9A85ECA0@mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Jul 2001, Gregory (Grisha) Trubetskoy wrote:
-
-> I wrote a little brogram to read/write the CMOS settings to a file on an
-> Intel L440GX motherboard using the outb() to ports 0x70 and 0x71. The idea
-> is to save the BIOS settings I like and then be able to blast them from
-> within Linux without having to tinker with BIOS setup.
+Jeff Garzik wrote:
 >
-> Unfortunately, it seems that some settings are not in the 128 (or 256)
-> bytes accessible this way, so they must be stored elsewhere.
+> Does it work with this line?
+> 
+> outl(0x12, ioaddr + MIICfg);
+> 
 
-the L440GX has a lot of stuff attached to ipmi. Perhaps some of it is
-stored there? Just a thought.
+yes, works fine too
 
-Peter
---
-Peter Svensson      ! Pgp key available by finger, fingerprint:
-<petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
-------------------------------------------------------------------------
-Remember, Luke, your source will be with you... always...
-
-
+Regards,
+	Juergen

@@ -1,68 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266062AbUAFX7N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 18:59:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266069AbUAFX7N
+	id S266105AbUAGAG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 19:06:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266106AbUAGAG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 18:59:13 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:43281 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S266062AbUAFX7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 18:59:09 -0500
-Date: Tue, 6 Jan 2004 23:59:05 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: "Mario ''Jorge'' Di Nitto" <jorge78@inwind.it>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [Oops] 2.6.1-rc1-mm1 and Sisfb
-In-Reply-To: <200401060225.56953.jorge78@inwind.it>
-Message-ID: <Pine.LNX.4.44.0401062357360.22693-100000@phoenix.infradead.org>
+	Tue, 6 Jan 2004 19:06:59 -0500
+Received: from fw.osdl.org ([65.172.181.6]:35772 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266105AbUAGAG5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 19:06:57 -0500
+Date: Tue, 6 Jan 2004 16:06:42 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Andi Kleen <ak@colin2.muc.de>, Mika Penttil? <mika.penttila@kolumbus.fi>,
+       Andi Kleen <ak@muc.de>, David Hinds <dhinds@sonic.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PCI memory allocation bug with CONFIG_HIGHMEM
+In-Reply-To: <m1brpgn1c3.fsf@ebiederm.dsl.xmission.com>
+Message-ID: <Pine.LNX.4.58.0401061554010.9166@home.osdl.org>
+References: <1aJdi-7TH-25@gated-at.bofh.it> <m37k054uqu.fsf@averell.firstfloor.org>
+ <Pine.LNX.4.58.0401051937510.2653@home.osdl.org> <20040106040546.GA77287@colin2.muc.de>
+ <Pine.LNX.4.58.0401052100380.2653@home.osdl.org> <20040106081203.GA44540@colin2.muc.de>
+ <3FFA7BB9.1030803@kolumbus.fi> <20040106094442.GB44540@colin2.muc.de>
+ <Pine.LNX.4.58.0401060726450.2653@home.osdl.org> <20040106153706.GA63471@colin2.muc.de>
+ <m1brpgn1c3.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> I use XFree from debian experimental (4.3.0-0pre1v4) and now it appears more 
-> smooth than with 2.4.23-ck1! (thanks a lot!!!)
 
-Yeah!!!!!
-
-> At system startup I always choose video=sisfb:1024x768x256 to show linux logo 
-> but if I try to boot without it, all characters aren't displayed very well... 
-
-Ug. I will have to try that.
-
-> Glxgears shows me 250 Fps (exactly as 2.4), but when cpu (p4m 1.6 ghz) reachs 
-> 100%, ALT-TAB switching between apps is not fluid like with 2.4...  
-> Probably it's a scheduler issue...
-> However, it's a great job!!!
-> So, what about your patches in 2.6 mainline ?
-
-Very soon.
-
-> Ok ok ...  only another question... :)
-> Do you have some news about DRI for my SiS chipset? 
-
-That is strange. SiS has DRI support. In fact the driver in my tree 
-supports alot more SiS chipsets.
-
-
+On Tue, 6 Jan 2004, Eric W. Biederman wrote:
 > 
-> glxinfo shows me:
-> ------------------------------
-> D998:/home/io# glxinfo
-> name of display: :0.0
-> Xlib:  extension "XFree86-DRI" missing on display ":0.0".
-> display: :0  screen: 0
-> direct rendering: No
-> server glx vendor string: SGI
-> server glx version string: 1.2
-> server glx extensions:
-> ....
+> And mtd map drivers for rom chips run into the same problem except in
+> that case regions is almost always reserved by the BIOS.
 > 
-> TIA,
-> 					Jorge
-> PS: sorry for all lexical mistakes I made...
-> 
-> 
+> Which means it's just silly for the drivers to fail when request_mem_region
+> fails.
 
+Note: you're not supposed to need to do "request_mem_region()" for modern 
+drivers. You should only need to claim ownership of the resources, and the 
+PCI driver interfaces should do that automatically.
+
+What you should do for resources you know about is to just _create_ them. 
+Not necessarily request them (although that is one way of creating them), 
+but you can literally just tell the kernel that they are there. That will 
+already mean that anybody else that tries to allocate a resource will 
+avoid that area.
+
+So if you know the hardware is there, and it _tells_ you it's there
+(unlike, say, an ISA device), you can just call "request_mem_region()"  
+without ever even checking the error return (although you had better make
+sure that the name allocation is stable if you are a module - don't want
+to start oopsin in /proc if the module gets unloaded).
+
+The PCI layer already does all of that for the "standard" resources. It's 
+just that the generic code can't do it for nonstandard regions, so drivers 
+for chips that don't have just the regular BAR things should create their 
+own resource entries..
+
+		Linus

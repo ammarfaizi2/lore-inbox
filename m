@@ -1,154 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267669AbUIIVQh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266199AbUIIVFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267669AbUIIVQh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 17:16:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267189AbUIIVP5
+	id S266199AbUIIVFb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 17:05:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266169AbUIIVEp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 17:15:57 -0400
-Received: from open.hands.com ([195.224.53.39]:52700 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S267633AbUIIVOB (ORCPT
+	Thu, 9 Sep 2004 17:04:45 -0400
+Received: from fw.osdl.org ([65.172.181.6]:61655 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266903AbUIIVEE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 17:14:01 -0400
-Date: Thu, 9 Sep 2004 22:25:14 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Chris Wright <chrisw@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] update: _working_ code to add device+inode check to ipt_owner.c
-Message-ID: <20040909212514.GA10892@lkcl.net>
-References: <20040909162200.GB9456@lkcl.net> <20040909091931.K1973@build.pdx.osdl.net> <20040909181034.GF10046@lkcl.net> <20040909114846.V1924@build.pdx.osdl.net>
+	Thu, 9 Sep 2004 17:04:04 -0400
+Date: Thu, 9 Sep 2004 14:03:49 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Makan Pourzandi <Makan.Pourzandi@ericsson.com>
+Cc: "Serge E. Hallyn" <hallyn@CS.WM.EDU>, Chris Wright <chrisw@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       Axelle Apvrille <axelle.apvrille@trusted-logic.fr>, serue@us.ibm.com,
+       david.gordon@ericsson.com, gaspoucho@yahoo.com
+Subject: Re: [ANNOUNCE] Release Digsig 1.3.1: kernel module for run-time authentication of binaries
+Message-ID: <20040909140349.C1924@build.pdx.osdl.net>
+References: <41407CF6.2020808@ericsson.com> <20040909092457.L1973@build.pdx.osdl.net> <41409378.5060908@ericsson.com> <20040909105520.U1924@build.pdx.osdl.net> <20040909190511.GB28807@escher.cs.wm.edu> <4140BFCE.8010701@ericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040909114846.V1924@build.pdx.osdl.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <4140BFCE.8010701@ericsson.com>; from Makan.Pourzandi@ericsson.com on Thu, Sep 09, 2004 at 04:40:46PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 09, 2004 at 11:48:46AM -0700, Chris Wright wrote:
-
-> >  to say, but i am going to attempt to work out what you could
-> >  mean.  please bear with me.
+* Makan Pourzandi (Makan.Pourzandi@ericsson.com) wrote:
+> Serge E. Hallyn wrote:
+> > Quoting Chris Wright (chrisw@osdl.org):
+> >>AFAICT, this means anybody with read access to a file can block all
+> >>writes.  This doesn't sound great.
+> > 
+> > True.
 > 
-> Heh, ok ;-)
- 
- :) *mmm*
+> I want to narrow down the discussion, I believe that some people could 
+> get confused with the mention of "file" here. AFAICT, the above problem 
+> only concerns the shared libraries. Digsig applies only to binaries: in 
+> digsig_file_mmap() implementing the file_mmap LSM hook, if the file is 
+> not executable there is a return and no verification or any other 
+> blocking is done.
 
-> >  so we have, in the completely uncommented code ipt_owner.c, the
-> >  match() function.  it passes in a sk_buff which has some packet
-> >  header structs, a struct sock, which points to a file, which,
-> >  from the usage inside match() shows me that the sk_buff has a
-> >  uid and gid associated with its socket.
+No, it's the mmap PROT check that's the issue.
+
+> For executables, there is no meaning to load them on read mode, you 
+> should have execute permission. if you then load them for execution 
+> IMHO, it makes sense to block the writing on that file.
+
+Thing is, x86 makes no distinction btween r/x so, have you tried mmaping
+with read, then executing (I haven't)?  If it works, then you may find
+that there are dumb things out there that do that as well (which you
+wouldn't be able to protect, and become one attack vector).  You can make
+a file read-only (no exec bits), and still execute it with ld.so.  Same
+as bash can interpret readonly shell script files.  Now, ld.so _will_
+mmap PROT_EXEC, so it works for you.
+
+> For shared libraries, you're right. the problem exists, the shared 
+> libraries can be loaded being only readable (even though I remember 
+> reading in exec.c:sys_uselib() kernel 2.6.8.1 that the shared libraries 
+> must be both readable and executable due to "security reasons", but I'm 
+> not an expert and definitely readable is enough to load the shared 
+> library but I'll be happy to learn more about this.)
 > 
-> No, it's indirect through the file (socket(2) returns a descriptor which
-> is a handle to a struct file *).  The file can be shared.
- 
- struct file* - that'd explain why you have to go through
- some hoops, using fcheck_files().
-
-> >  the difference between --pid-owner (IPT_OWNER_PID) and the new patch is
-> >  that when a server forks(), i don't imagine that the mountpoint+inode
-> >  (new IPT_OWNER_DEV+IPT_OWNER_INO) is going to change!
+> > This could be fixed by adding a check at the top of dsi_file_mmap for
+> > file->f_dentry->d_inode->i_mode & MAY_EXEC.  Of course then shared
+> > libraries which are installed without execute permissions will cause
+> > apps to break.  On my quick test, I couldn't run xterm or vi  :)
+> > 
+> > Note that blocking writes requires that the file be a valid ELF file,
+> > as this is all that digsig mediates.  So I'm not sure which we worry
+> > about more - the fact that all shared libraries have to be installed
+> > with execute permissions (under the proposed solution), or that write
 > 
-> not really much different from comm match, right?  
-
- based code on match_comm.
-
-> other than it's a
-> better match on the process?  
-
- yes?
-
-> i assume you look for a match then stop.
-
- added match_inode() after match_comm().  cut/paste job (my favourite
- way of programming).
-
-> if the match is good, and the rule is allow...you have no idea who that
-> packet will be delievered to.  
-
- allow, allow...
-
-> it's queued to the socket, and if more
-> than one process is waiting on that socket, you don't know which one
-> will be woken up.
-
- well... okay, i must be missing something.
-
- what's the disconnect between the task_list and the sockets (sk_buff)
- that makes that [not knowing which one will be woken up] relevant?
-
- so it's a socket: let's take an example - and i'm assuming for now
- that things like passing file descriptors over unix-domain-sockets
- between processes just ... doesn't happen, okay? :)
-
- apache.
-
- an executable named apache creates a TCP socket and binds to port 80,
- and let's assume it's the prefork model, so it binds to port 80 and
- then starts sharing that [as you say, with refs] between all the
- apache processes.
-
- in this instance, all the processes are going to be named "apache",
- yes?
-
- they'll all have the same inode number.
-
- under these circumstances, i don't honestly think it makes
- any difference as to whether one process named apache is
- waiting on the socket and another process also named apache
- (fired up from the same inode) gets woken up.
-
- i mean, _yes_ it would be a problem if there really were two
- apaches run from different configuration files [that bound to
- different port numbers - i do this all the time and then run
- *another* apache web server in a DMZ to do proxy redirects]
-
- under these circumstances the best you could hope to do to get
- some sort of separation would be to copy the apache binary
- e.g. have an apache2-8000 and an apache2-80, and apply a
- different set of rules to match each separate binary.
-
- 
- _or_, is there something "odd" going on, that i've missed?
-
-> so with this level of inaccuaracy, it's hard to say
-> you are buying security...
-
- well with a default rule of "deny"...
-
- what have i missed?  i no unnerstand!
-
- in match_inode, it's an "and" rule, i.e. _only_ tasks with
- the right dev+inode, and then _only_ those tasks with sockets
- matching the right one get through...
-
- and you'd only use this in combination with other "match" rules which
- get "and"ed in - e.g. match dev+inode _and_ match port 80 _and_ match
- TCP before jumping to "ACCEPT"...
-
- so if anything, you could end up being _too_ specific and end up
- falling through to the default "DENY" rule.
-
- which is the whole idea.
- 
- or in the case of fireflier, falling through to the default "QUEUE"
- rule to trigger user intervention.
-
-
-> >  ... or, and this might be the crux of the matter: when
-> >  sockets are shared (e.g. via servers doing a fork(), is the
-> >  files_struct REALLY duplicated such that the comparison if
-> >  (fckeck_files(files, i) == file) check in match_sid(),
-> >  match_pid(), etc. will FAIL, or are the files_struct entries
-> >  shared between tasks - in particular are they shared between
-> >  tasks that have been fork()ed?
 > 
-> they are shared (i.e. another refcount on same structure).
- 
- *whew* that makes it a lot easier.
+> My 2 cents, a quick browsing on my machine (fedora core 1) shows that 
+> almost all my shared libraries are installed with both execution and 
+> read permissions.  IMHO, I don't believe then that this should be 
+> considered as a major issue.
 
- l.
+This has nothing to do with file permissions aside of read.  All you need
+is read permission, then you can mmap(PROT_EXEC) which will kick off the
+check, and do deny_write_access.  It's a freeform way to lock writers
+out of any readable file in the system.  This is why MAP_EXECUTABLE and
+MAP_DENYWRITE are masked off at syscall entry.
 
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

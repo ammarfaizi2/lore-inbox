@@ -1,70 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263239AbTGTIDf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 04:03:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263281AbTGTIDf
+	id S263319AbTGTIGi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 04:06:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbTGTIGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 04:03:35 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:23309 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S263239AbTGTIDd
+	Sun, 20 Jul 2003 04:06:38 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:25869 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S263319AbTGTIGQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 04:03:33 -0400
-Date: Sun, 20 Jul 2003 10:13:21 +0200
+	Sun, 20 Jul 2003 04:06:16 -0400
+Date: Sun, 20 Jul 2003 10:20:41 +0200
 From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>, Mark Cooke <mpc@star.sr.bham.ac.uk>
-Subject: Re: pre6 oddity (fwd)
-Message-ID: <20030720081321.GC643@alpha.home.local>
-References: <Pine.LNX.4.55L.0307191805200.11090@freak.distro.conectiva>
+To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: AMD Athlon MP Machine check exceptions
+Message-ID: <20030720082041.GD643@alpha.home.local>
+References: <20030719225935.GA628@gallifrey>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55L.0307191805200.11090@freak.distro.conectiva>
+In-Reply-To: <20030719225935.GA628@gallifrey>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+Hi !
 
-This was a procps bug. 2.0.11 I believe. There was something like a
-printf("%ull", prio) with prio=-1, which prints 2^64-1 (the high number seen
-here). Upgrading to 2.0.13 fixed the problem for me.
+You should feed it through Dave Jones' parsemce program. BTW, he already
+replied a few months ago to exactly the same report (search 940040000000017a
+on google, you have it already decoded :-))
 
 Cheers,
 Willy
 
-On Sat, Jul 19, 2003 at 06:07:42PM -0300, Marcelo Tosatti wrote:
+On Sat, Jul 19, 2003 at 11:59:35PM +0100, Dr. David Alan Gilbert wrote:
+> Hi,
+>   Is there any information on decoding AMD Athlon MP Machine
+> check exceptions?  I can't seem to find the appropriate AMD
+> document on their website - it would be nice to know
+> if this is RAM or cache or something else that gave it.
 > 
-> Bogus.
+> The error reported is:
 > 
-> ---------- Forwarded message ----------
-> Date: 19 Jul 2003 08:54:55 +0100
-> From: Mark Cooke <mpc@star.sr.bham.ac.uk>
-> To: Marcelo Tosatti <marcelo@conectiva.com.br>
-> Subject: pre6 oddity
+> Jul 19 21:07:37 gallifrey kernel: MCE: The hardware reports a non fatal,
+> correctable incident occurred on CPU 0.
+> Jul 19 21:07:37 gallifrey kernel: Bank 2: 940040000000017a
 > 
-> Hi Marcelo,
+> Thats from 2.5.75 on a dual Athlon MP on a Tyan 760MP motherboard.
 > 
-> On two of my machines running pre6, I am seeing top report very odd
-> priorities for two kernel tasks:
+> The machine has apparently been running fine for some time now - perhaps
+> this is heat related due to the unusually warm weather over here,
+> or perhaps it is the machine check polling picking
+> up something that has been going dodgy for a while.
 > 
->   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME CPU
-> COMMAND
-> 
->     8 root     18446744073709551615 -20     0    0     0 SW<   0.0
-> 0.0   0:00   0 mdrecoveryd
->    16 root     18446744073709551615 -20     0    0     0 SW<   0.0
-> 0.0   0:00   0 raid1d
-> 
-> 
-> Something related to the scheduling changes going on ?
-> 
-> (RedHat 9 base system)
-> 
-> Mark
-> 
-> -- 
-> Mark Cooke <mpc@star.sr.bham.ac.uk>
+> Dave
+>  -----Open up your eyes, open up your mind, open up your code -------   
+> / Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+> \ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
+>  \ _________________________|_____ http://www.treblig.org   |_______/
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

@@ -1,74 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261759AbSI2Tsb>; Sun, 29 Sep 2002 15:48:31 -0400
+	id <S261780AbSI2T4z>; Sun, 29 Sep 2002 15:56:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261761AbSI2TsO>; Sun, 29 Sep 2002 15:48:14 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:2321 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S261759AbSI2Tqk>; Sun, 29 Sep 2002 15:46:40 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove fat_search_long() in vfat_add_entry()
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Mon, 30 Sep 2002 04:52:00 +0900
-Message-ID: <87r8fck1zz.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S261786AbSI2T4y>; Sun, 29 Sep 2002 15:56:54 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:23698 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261780AbSI2T4p>; Sun, 29 Sep 2002 15:56:45 -0400
+Date: Sun, 29 Sep 2002 16:01:13 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Andi Kleen <ak@muc.de>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use __attribute__((malloc)) for gcc 3.2
+Message-ID: <20020929160113.K5659@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20020929152731.GA10631@averell>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020929152731.GA10631@averell>; from ak@muc.de on Sun, Sep 29, 2002 at 05:27:31PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Sep 29, 2002 at 05:27:31PM +0200, Andi Kleen wrote:
+> 
+> gcc 3.2 has an __attribute__((malloc)) function attribute. It tells gcc
+> that a function returns newly allocated memory and that the return pointer
+> cannot alias with any other pointer in the parent function. This often
+> allows gcc to generate better code because the optimizer doesn't need take
+> pointer aliasing in account.
 
-This patch removes the fat_search_long() in the vfat_add_entry(). This
-path is already checked by the vfs layer whether file/directory
-exists. So, we don't need the fat_search_long() in vfat_add_entry().
+Does this matter when the kernel is compiled with -fno-strict-aliasing?
 
-
-The following is the result of created the 1000 files,
-
-2.5.39
-root@devron (a)[1007]# time ../../create
-
-real    0m2.761s
-user    0m0.006s
-sys     0m2.752s
-root@devron (a)[1008]#
-
-2.5.39 + patch
-root@devron (a)[1007]# time ../../create
-
-real    0m1.601s
-user    0m0.008s
-sys     0m1.575s
-root@devron (a)[1008]#
-
-Please apply.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-
---- linux-2.5/fs/vfat/namei.c~	2002-09-29 16:44:00.000000000 +0900
-+++ linux-2.5/fs/vfat/namei.c	2002-09-29 17:36:08.000000000 +0900
-@@ -890,7 +890,6 @@ static int vfat_add_entry(struct inode *
- 	struct msdos_dir_entry *dummy_de;
- 	struct buffer_head *dummy_bh;
- 	int dummy_ino;
--	loff_t dummy;
- 
- 	dir_slots = (struct msdos_dir_slot *)
- 	       kmalloc(sizeof(struct msdos_dir_slot) * MSDOS_SLOTS, GFP_KERNEL);
-@@ -900,15 +899,6 @@ static int vfat_add_entry(struct inode *
- 	len = qname->len;
- 	while (len && qname->name[len-1] == '.')
- 		len--;
--	res = fat_search_long(dir, qname->name, len,
--			      (MSDOS_SB(sb)->options.name_check != 's')
--			      || !MSDOS_SB(sb)->options.posixfs,
--			      &dummy, &dummy);
--	if (res > 0) /* found */
--		res = -EEXIST;
--	if (res)
--		goto cleanup;
--
- 	res = vfat_build_slots(dir, qname->name, len,
- 			       dir_slots, &slots, is_dir);
- 	if (res < 0)
+	Jakub

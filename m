@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261358AbTCORZY>; Sat, 15 Mar 2003 12:25:24 -0500
+	id <S261480AbTCORlG>; Sat, 15 Mar 2003 12:41:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261359AbTCORZY>; Sat, 15 Mar 2003 12:25:24 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:16652 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S261358AbTCORZX>; Sat, 15 Mar 2003 12:25:23 -0500
-Message-ID: <3E736505.2000106@aitel.hist.no>
-Date: Sat, 15 Mar 2003 18:38:13 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.64-mm7 - dies on smp with raid
-References: <20030315011758.7098b006.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261481AbTCORlG>; Sat, 15 Mar 2003 12:41:06 -0500
+Received: from f52.law8.hotmail.com ([216.33.241.52]:27146 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S261480AbTCORlF>;
+	Sat, 15 Mar 2003 12:41:05 -0500
+X-Originating-IP: [67.86.246.131]
+From: "sean darcy" <seandarcy@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.64-bk9 --  vfat32  fails
+Date: Sat, 15 Mar 2003 12:51:50 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F52RDT6Z3LstPGtPrPr000001a9@hotmail.com>
+X-OriginalArrivalTime: 15 Mar 2003 17:51:50.0984 (UTC) FILETIME=[8EA86480:01C2EB1B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mm7 crashed where mm2 works.
-The machine is a dual celeron with two scsi disks with
-some raid-1 & raid-0 partitions.
+I'm getting this error on a large vfat partition:
 
-deadline or anicipatory scheduler does not make a difference.
-It dies anyway, attempting to kill init.
+lsattr /win/photo/scanner.test
+lsattr: Inappropriate ioctl for device While reading flags on 
+/win/photo/scanner.test/frame4-atTableSep02.psd
+lsattr: Inappropriate ioctl for device While reading flags on 
+/win/photo/scanner.test/frame2-atTableSep02.psd
 
-Here's what I managed to  write down before the 30 second reboot
-kicked in:
+I found this because I couldn't create a soft link (ln -s ) on the 
+partition. FWIW, ls -l does not show a problem.
 
-EIP is at md_wakeup_thread
+vfat is compiled in 2.5.64-bk9. The fstab is
 
-stack:
-do_md_run
-autorun_array
-autorun_devices
-autostart_arrays
-md_ioctl
-dentry_open
-kmem_cache_free
-blkdev_ioctl
-sys_ioctl
-init
-init
+/dev/hdb8               /win/photo              vfat    defaults        0 0
 
-This happened during the boot process. The kernel is compiled
-with gcc 2.95.4 from debian testing. The machine uses devfs
 
-Helge Hafting
+df shows:
+
+/dev/hdb8             32748528   3617488  29131040  12% /win/photo
+
+sfdisk shows:
+
+/dev/hdb8       1769+   5847    4079-  32764536    c  Win95 FAT32 (LBA)
+
+There's nothing in /var/log/messages.
+
+No problem with my other partitions - ext2 and ext3.
+
+sean
+
+_________________________________________________________________
+STOP MORE SPAM with the new MSN 8 and get 2 months FREE*  
+http://join.msn.com/?page=features/junkmail
 

@@ -1,52 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263382AbTC2EjY>; Fri, 28 Mar 2003 23:39:24 -0500
+	id <S263379AbTC2EiJ>; Fri, 28 Mar 2003 23:38:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263383AbTC2EjY>; Fri, 28 Mar 2003 23:39:24 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:32709 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S263382AbTC2EjX> convert rfc822-to-8bit; Fri, 28 Mar 2003 23:39:23 -0500
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780B7177A5@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'lkml (linux-kernel@vger.kernel.org)'" 
-	<linux-kernel@vger.kernel.org>,
-       "'Ingo Molnar (mingo@redhat.com)'" <mingo@redhat.com>
-Subject: migration_thread()'s priority too low?
-Date: Fri, 28 Mar 2003 20:50:32 -0800
+	id <S263380AbTC2EiJ>; Fri, 28 Mar 2003 23:38:09 -0500
+Received: from ns.suse.de ([213.95.15.193]:26895 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S263379AbTC2EiI>;
+	Fri, 28 Mar 2003 23:38:08 -0500
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NICs trading places ?
+References: <20030328221037.GB25846@suse.de.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 29 Mar 2003 05:47:17 +0100
+In-Reply-To: <20030328221037.GB25846@suse.de.suse.lists.linux.kernel>
+Message-ID: <p73isu2zsmi.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave Jones <davej@codemonkey.org.uk> writes:
 
-Hi all, Ingo
+> I just upgraded a box with 2 NICs in it to 2.5.66, and found
+> that what was eth0 in 2.4 is now eth1, and vice versa.
+> Is this phenomenon intentional ? documented ?
 
-I am having some trouble in the priority-inheritance wakeup code when
-using FIFO tasks - I was wondering: migration_thread() has the equivalent of
-a FIFO priority 0; thus, it will be left out by any FIFO task and migration
-won't work - I don't think this is causing the problem to my test cases, but
-I was curious anyway.
+Just assign mac addresses to names and run nameif early in boot.
 
-Setting it in 2.5.66's sched.c like this
-
-@@ -2436,7 +2435,7 @@
-  */
- static int migration_thread(void * data)
- {
--	struct sched_param param = { .sched_priority = MAX_RT_PRIO-1 };
-+	struct sched_param param = { .sched_priority = 0 };
- 	int cpu = (long) data;
- 	runqueue_t *rq;
- 	int ret;
-
-gives it max priority; it'd be interesting though to have an extra level so
-have FIFO 99 be 1 in the index and 0 still be free for system stuff.
-
-Of course I can be missing anything really clear. Is it intentionate that
-migration_thread() has FIFO 0?
-
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
+-Andi

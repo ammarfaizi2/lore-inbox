@@ -1,83 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262645AbUKBO0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262260AbUKBOaq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262645AbUKBO0H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 09:26:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbUKBOYK
+	id S262260AbUKBOaq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 09:30:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbUKBO3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 09:24:10 -0500
-Received: from penguin.cohaesio.net ([212.97.129.34]:16790 "EHLO
-	mail.cohaesio.net") by vger.kernel.org with ESMTP id S263516AbUKBOXE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 09:23:04 -0500
-From: Anders Saaby <as@cohaesio.com>
-Organization: Cohaesio A/S
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.9: NFS (+XFS) Problem - Clients getting Stale filehandles.
-Date: Tue, 2 Nov 2004 15:23:12 +0100
-User-Agent: KMail/1.7.1
+	Tue, 2 Nov 2004 09:29:46 -0500
+Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:24845 "EHLO
+	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
+	id S263008AbUKBO1Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 09:27:24 -0500
+Date: Tue, 2 Nov 2004 14:26:31 +0000 (GMT)
+From: Mark Fortescue <mark@mtfhpc.demon.co.uk>
+To: adaplas@pol.net
+cc: linux-fbdev-devel@lists.sourceforge.net, jsimmons@infradead.org,
+       geert@linux-m68k.org, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+       wli@holomorphy.com
+Subject: Re: [Linux-fbdev-devel] Help re Frame Buffer/Console Problems
+In-Reply-To: <200411020746.27871.adaplas@hotpop.com>
+Message-ID: <Pine.LNX.4.10.10411021416590.4390-100000@mtfhpc.demon.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411021523.12746.as@cohaesio.com>
-X-OriginalArrivalTime: 02 Nov 2004 14:22:59.0980 (UTC) FILETIME=[749F6CC0:01C4C0E7]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi List,
+Hi all,
 
-I'm having a rather vierd(!) NFS (+XFS) Problem. We have a disk-backup server 
-running an NFS server exporting an XFS filesystem to a number of clients 
-which use it for nightly backups.
+I have already hard wired the fg and bg colours. I have got to the point 
+where I am checking the cfbimgblt code where it converts the mono bit font
+image data to the 8bpp pseudo colour screen image data. It is looking
+like there may be a problem with sign extension at this level as the
+pixel value being used apears to be 255.
 
-These clients get a stale filehandle on the NFS mount after ~10 mins of 
-inactivity. Client and server are on the same LAN - no firewall.
+I have changed a char *pt to a u8 *pt to see if this helps.
 
-- Here's the vierd thing: To get these mounts working again, I simply have to 
-run a "ls /exported_dir" serverside. - then all NFS mounts work again (for 
-~10 mins). This behavior is always reproducable. - I have absolutely no clue 
-to what is causing this behavior.
+Regards
+	Mark Fortescue.
 
-Example:
+On Tue, 2 Nov 2004, Antonino A. Daplas wrote:
 
-- Serverside: /mnt/backup/ is exported
-- Serverside: "mkdir /mnt/backup/server_name"
-- Clientside: /mnt/backup/server_name is mounted.
-- Wait for ~10 mins without activity on the mount.
-- Clientside: "ls /mnt/backup/server_name" gives: "bash: cd: server_name: 
-Stale NFS file" handle
-- Serverside: "ls /mnt/backup/server_name"
-- Clientside: "ls /mnt/backup/server_name" returns ok.
+> On Tuesday 02 November 2004 01:32, Mark Fortescue wrote:
+> > Hi all,
+> >
+> > Thanks for the info Antonino. I see you spotted my typing error. Yes it is
+> > the 2.6.10-rc1-bk6 kernel. The oter error is the 2.2.8.1. It should be
+> > 2.6.8.1.
+> >
+> > The cgthree driver does not currently set up the all->info.var.red,
+> > all->info.var.green or all->info.var.blue structures. Putting a value of 8
+> > in the length field of these structures (correct for the cgthree) does get
+> > me my logo back but I am still getting black on black text. It makes it
+> > very difficult to read. It is begining to look like there is something
+> > werid going on with the colour pallet stuf for PSEUDO_COLOUR.
+> >
+> 
+> I doubt that the problem is at the driver layer since you were able to
+> see the logo. It's probably higher up.
+> 
+> Try this mod, hardwire the foreground color to 0x07.
+> 
+> Edit drivers/video/console/bitblit.c:bit_putcs() and change this line:
+> 
+> image.fg_color = fg;
+> image.bg_color = bg;
+> 
+> to
+> 
+> image.fg_color = 0x07070707;
+> image.bg_color = 0x0;
+> 
+> You can also try the reverse:
+> 
+> image.fg_color = 0x0;
+> image.bg_color = 0x07070707
+> 
+> If you get visible text, the problem is either in fbcon.c or vt.c.
+> 
+> Tony
+> 
+> 
 
-Any ideas anyone? - I will be happy to test and give more info!
-
-System info:
-
-Server kernel: Linux server_name 2.6.9 #1 SMP Thu Oct 21 01:13:17 CEST 2004 
-i686 unknown
-
-Client kernels are different 2.4 and 2.6 kernels.
-
-Client kernel log: "nfs_statfs: statfs error = 116" is repeated.
-Server kernel log has no NFS related entries.
-
-Tcpdump between server and client:
-client > server: 132 getattr [|nfs] (DF) (ttl 64, id 458, len 160)
-server > client reply ok 28 getattr ERROR: Stale NFS file handle (DF) (ttl 64, 
-id 17733, len 56)
-client > server: 136 access [|nfs] (DF) (ttl 64, id 459, len 164)
-server > client: reply ok 32 access ERROR: Stale NFS file handle attr: (DF) 
-(ttl 64, id 17734, len 60
-
-
--- 
-Med venlig hilsen - Best regards - Meilleures salutations
-
-Anders Saaby
-Systems Engineer
-------------------------------------------------
-Cohaesio A/S - Maglebjergvej 5D - DK-2800 Lyngby
-Phone: +45 45 880 888 - Fax: +45 45 880 777
-Mail: as@cohaesio.com - http://www.cohaesio.com
-------------------------------------------------

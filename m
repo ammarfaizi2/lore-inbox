@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263187AbTFPBCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 21:02:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbTFPBCZ
+	id S263185AbTFPA7q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 20:59:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263187AbTFPA7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 21:02:25 -0400
-Received: from vcgwp1.bit-drive.ne.jp ([211.9.32.211]:56476 "HELO
-	vcgwp1.bit-drive.ne.jp") by vger.kernel.org with SMTP
-	id S263187AbTFPBCY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 21:02:24 -0400
-To: mikpe@csd.uu.se
-Cc: linux-kernel@vger.kernel.org, perfctr-devel@lists.sourceforge.net
-Cc: hyoshiok@miraclelinux.com, hardmeter-users@lists.sourceforge.jp
-Subject: Re: [Perfctr-devel] perfctr-2.5.5 released
-In-Reply-To: <200306160044.h5G0i6Su026505@harpo.it.uu.se>
-References: <200306160044.h5G0i6Su026505@harpo.it.uu.se>
-X-Mailer: Mew version 1.94.2 on XEmacs 21.1 (Cuyahoga Valley)
+	Sun, 15 Jun 2003 20:59:46 -0400
+Received: from fe1.rdc-kc.rr.com ([24.94.163.48]:23308 "EHLO mail1.kc.rr.com")
+	by vger.kernel.org with ESMTP id S263185AbTFPA7p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 20:59:45 -0400
+Date: Sun, 15 Jun 2003 20:13:35 -0500
+From: Greg Norris <haphazard@kc.rr.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: lost interrupts with 2.4.21 and i875p chipset -- resolved (maybe)
+Message-ID: <20030616011335.GA1504@glitch.localdomain>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
+References: <20030603111519.GA23228@glitch.localdomain> <20030603234359.GA690@glitch.localdomain> <20030604002911.GA1379@glitch.localdomain>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20030616095803N.hyoshiok@miraclelinux.com>
-Date: Mon, 16 Jun 2003 09:58:03 +0900
-From: Hiro Yoshioka <hyoshiok@miraclelinux.com>
-X-Dispatcher: imput version 20000228(IM140)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030604002911.GA1379@glitch.localdomain>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 16 Jun 2003 09:18:46 +0900, Hiro Yoshioka wrote:
-> > I just download perfctr 2.5.5 and see the difference
-> > between 2.5.4 and 2.5.5 but I could not find code
-> > changes except the changelog and todo.
-> > 
-> > $ diff -u perfctr-2.5.4 perfctr-2.5.5
-> > diff -u perfctr-2.5.4/CHANGES perfctr-2.5.5/CHANGES
-> > --- perfctr-2.5.4/CHANGES       2003-06-01 21:32:45.000000000 +0900
-> > +++ perfctr-2.5.5/CHANGES       2003-06-16 07:11:23.000000000 +0900
-> 
-> Missing '-r' option to diff, so it only diffs the toplevel files.
-> Use diff -ruN to compare two directories recursively.
+On Tue, Jun 03, 2003 at 06:43:59PM -0500, Greg Norris wrote:
+> > Does this occur if you build the kernel without ACPI and without APIC
+> > support ?
+>
+> I just finished testing rc7, and sure enough the problem disappears
+> after disabling APIC.  Thanx!
 
-Thanks for your quick help.
+I built a SMP kernel earlier today (in order to enable hyperthreading),
+and discovered that the lost interrupt problem appears to have gone
+away.  In addition, dmesg no longer shows any "unexpected IO-APIC"
+messages.  The only configuration changes from the previous kernel are:
 
-I have made a patch for perfctr 2.5.5 of hardmeter which 
-is a memory profiling tool using Intel P4's PEBS (precise
-event based sampling) hardware monitoring facility.
+   CONFIG_SMP=y
+   CONFIG_ACPI=y
+   CONFIG_ACPI_BUSMGR=y
+   CONFIG_ACPI_CPU=y
 
-See the following patch.
-
-http://cvs.sourceforge.jp/cgi-bin/viewcvs.cgi/hardmeter/hardmeter/patch/perfctr-2.5.5.dif?rev=1.1&content-type=text/vnd.viewcvs-markup
-
-https://sourceforge.jp/projects/hardmeter/
-(some pages are written in Japanese)
-
-Regards,
-  Hiro
---
-Hiro Yoshioka/CTO, Miracle Linux
-mailto:hyoshiok@miraclelinux.com
-http://www.miraclelinux.com
+I guess that the next step is to disable hyperthreading in the BIOS,
+and see if the UP kernel still has problems.

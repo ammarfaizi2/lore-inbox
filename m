@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265422AbTGTKSd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 06:18:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265911AbTGTKSd
+	id S266114AbTGTKYH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 06:24:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266774AbTGTKYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 06:18:33 -0400
-Received: from ns.tasking.nl ([195.193.207.2]:53513 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id S265422AbTGTKSc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 06:18:32 -0400
-To: linux-kernel@vger.kernel.org
+	Sun, 20 Jul 2003 06:24:07 -0400
+Received: from [213.39.233.138] ([213.39.233.138]:9925 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S266114AbTGTKYF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 06:24:05 -0400
+Date: Sun, 20 Jul 2003 12:38:56 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: postmaster@lougher.demon.co.uk
+Cc: linux-kernel@vger.kernel.org, junkio@cox.net
+Subject: Re: [PATCH] Port SquashFS to 2.6
+Message-ID: <20030720103856.GC25468@wohnheim.fh-wedel.de>
+References: <20030720082217.GA25468@wohnheim.fh-wedel.de> <E19eBEo-0007h6-0Z@anchor-post-35.mail.demon.net>
 Mime-Version: 1.0
-X-Newsreader: knews 1.0b.1
-Reply-To: dick.streefland@xs4all.nl (Dick Streefland)
-Organization: none
-X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
-From: spam@streefland.xs4all.nl (Dick Streefland)
-Subject: 2.6.0-test1: autofs4 doesn't expire
-Content-Type: text/plain; charset=us-ascii
-NNTP-Posting-Host: 172.17.1.66
-Message-ID: <65b6.3f1a6fae.1d70b@altium.nl>
-Date: Sun, 20 Jul 2003 10:32:14 -0000
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <E19eBEo-0007h6-0Z@anchor-post-35.mail.demon.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.6.0-test1, the autofs4 automounter doesn't expire mounts anymore,
-both NFS and CDROM mounts. It did work in my previous kernel, 2.5.72.
-When I try to unmount manually, I get "device is busy", although
-"fuser -m" doesn't report anything. I've also searched /proc/*/fd/,
-but there are no open files below the mount points.
+On Sun, 20 July 2003 11:16:18 +0100, postmaster@lougher.demon.co.uk wrote:
+> joern@wohnheim.fh-wedel.de wrote:
+> > 
+> > As a rule of thumb, stay below 1k or you will get regular email from
+> > me. :)
+> 
+> I tend to allocate (small) buffers on the stack, when their size does not
+> seem to warrant either: a globally kmalloced buffer and consequent locking,
+> or a locally kmalloced buffer kfreed on exit from the function, which seems
+> wasteful. However, if 1K is the perceived wisdom on stack limits, then I will
+> alter the code.
 
-Is anybody else seeing this? Any ideas what could be the cause?
+At least you should think twice before going above.  Even with wli's
+stack reduction work applied, you still have close to 4k for kernel
+stack.  But measuring the stack consumption of all the possible call
+chains in the kernel is still a hard problem, so you will have a hard
+time proving that any one bigger stack allocation is fine.
+
+Jörn
 
 -- 
-Dick Streefland                    ////               De Bilt
-dick.streefland@xs4all.nl         (@ @)       The Netherlands
-------------------------------oOO--(_)--OOo------------------
-
+When people work hard for you for a pat on the back, you've got
+to give them that pat.
+-- Robert Heinlein

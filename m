@@ -1,113 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264602AbUANXWA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 18:22:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266351AbUANXRu
+	id S266293AbUANXgx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 18:36:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266349AbUANXfD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 18:17:50 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:55022 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S266329AbUANXQm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 18:16:42 -0500
-Message-ID: <4005A926.2000902@mvista.com>
-Date: Wed, 14 Jan 2004 12:40:06 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+	Wed, 14 Jan 2004 18:35:03 -0500
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:38162 "EHLO
+	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
+	id S266312AbUANXbO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 18:31:14 -0500
+Message-ID: <4005D141.7050408@superbug.demon.co.uk>
+Date: Wed, 14 Jan 2004 23:31:13 +0000
+From: James Courtier-Dutton <James@superbug.demon.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-CC: Matt Mackall <mpm@selenic.com>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: kgdb cleanups
-References: <20040109183826.GA795@elf.ucw.cz> <200401121923.27513.amitkale@emsyssoft.com> <40046115.5090700@mvista.com> <200401141850.25650.amitkale@emsyssoft.com>
-In-Reply-To: <200401141850.25650.amitkale@emsyssoft.com>
+To: andersen@codepoet.org
+CC: Greg Stark <gsstark@mit.edu>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: Serial ATA (SATA) for Linux status report
+References: <20031203204445.GA26987@gtf.org> <87hdyyxjgl.fsf@stark.xeocode.com> <20040114225653.GA32704@codepoet.org>
+In-Reply-To: <20040114225653.GA32704@codepoet.org>
+X-Enigmail-Version: 0.82.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amit S. Kale wrote:
-> On Wednesday 14 Jan 2004 2:50 am, George Anzinger wrote:
+Erik Andersen wrote:
+> On Wed Jan 14, 2004 at 05:18:34PM -0500, Greg Stark wrote:
 > 
->>Amit S. Kale wrote:
+>>Jeff Garzik <jgarzik@pobox.com> writes:
 >>
->>>Regarding pluggable iterfaces -
->>>The version I have lets a user to choose the interface by supplying
->>>appropriate command line. (e.g. kgdbwait kgdb8250=... or kgdbwait
->>>kgdbeth=...) It supports an arbitrary number of interfaces. The kgdb core
->>>itself is independent of an interface. All interfaces are defined by a
->>>structure described below. An interface registers itself with kgdb core
->>>by assigning this structure to pointer kgdb_serial.
+>>
+>>>Intel ICH5
 >>>
->>>struct kgdb_serial {
->>>	int chunksize;
+>>>Issue #2: Excessive interrupts are seen in some configurations.
 >>
->>Do we really need this?  The only place I saw it used it did not seem to
->>matter where the split occured and there was now endchunck/beginchunck
->>stuff.  I would MUCH rather see the interface code take care of this with
->>out mucking up the core code (as the eth code already does).  Did I miss
->>something here?
+>>I guess I'm seeing this problem. I'm trying to get my P4P800 motherboard with
+>>an ICH5 chipset working completely. So far I've been living without the cdrom
+>>or DVD players. I see lots of other posts on linux-kernel about the same
+>>problems:
 > 
 > 
-> Having an interface recognize a kgdb core record isn't a good design.
-> Having kgdb core record know interface limitations isn't good either.
+> I have the same deal.  My offer to send Jeff a P4P800 motherboard
+> to test with is still open....
 > 
-> If kgdb calls flush at end of a packet and an interface splits a packet 
-> whenever its length goes above its limit, that'll be the right way of doing 
-> it.
+>  -Erik
+> 
+> --
+> Erik B. Andersen             http://codepoet-consulting.com/
 
-I think this is what happens in the current eth code.
+I have a ABIT IC7-G motherboard with the ICH5 chipset.
+No reported problems with it. I would be happy to do some tests, just in 
+case I have not actually noticed the problems.
 
-> 
->>>	int (*read_char)(void);
->>>	void (*write_char)(int);
->>>	void (*flush)(void);
->>>	int (*hook)(void);
->>>	void (*begin_session)(void);
->>>	void (*end_session)(void);
->>>};
->>>
->>>Where chunksize is maximum chunksize an interface can handle.
->>>
->>>read_char and write_char are derived from getDebugChar and putDebugChar
->>>flush flushes written characters. Flush control is given to kgdb core so
->>>that it can ensure that #checksum doesn't split.
->>
->>Actually, I think it is needed so that gdb knows that the kgdb stub has
->>exited. This could, of course, be done with out the flush, but then the
->>write code would have to recognize an end of record (not hard with the
->>given protocol).  I don't think there is any requirement that a checksum
->>not be split.  My assumption here is that the logical record is reassembled
->>on the gdb end without concern about how many physical records are
->>involved.  Is this not true?
-> 
-> 
-> I guess yes. Splitting of #checksum may not matter.
-> 
-> 
->>>begin_session and end_session inform an interface about a gdb
->>>communication session. (Haven't decided about console packets to gdb yet)
->>
->>I assume you mean entry to the stub/ exit the stub as a "session".  This
->>eliminates the old hook, right?
-> 
-> 
-> Yes. begin_session and end_session mark entry and exit points into 
-> handle_exception. They are required to mark ethernet interface in trap mode.
-> 
-> What's old hook?
+hda=DVD-ROM
+hdb=DVD writer
+hdc=SATA Seagate Hard Disc 160 Gig.
+hdd=Empty.
 
-I think it was a function in eth that was called to mark the begin and end just 
-as begin_session and end_session do.  Might want to consider one function for 
-this, with a parameter.
+I do sometimes have problems during BIOS startup, with it not detecting 
+the SATA hard disc, but pressing the reset button a few times fixes that.
 
--g
-
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+Jan 14 01:01:17 new kernel: Uniform Multi-Platform E-IDE driver 
+revision: 7.00alpha2
+Jan 14 01:01:17 new kernel: ide: Assuming 33MHz system bus speed for PIO 
+modes; override with idebus=xx
+Jan 14 01:01:17 new kernel: ICH5-SATA: IDE controller at PCI slot 
+0000:00:1f.2
+Jan 14 01:01:17 new kernel: ICH5-SATA: chipset revision 2
+Jan 14 01:01:17 new kernel: ICH5-SATA: not 100%% native mode: will probe 
+irqs later
+Jan 14 01:01:17 new kernel:     ide0: BM-DMA at 0xf000-0xf007, BIOS 
+settings: hda:DMA, hdb:DMA
+Jan 14 01:01:17 new kernel:     ide1: BM-DMA at 0xf008-0xf00f, BIOS 
+settings: hdc:DMA, hdd:pio
+Jan 14 01:01:17 new kernel: hda: ATAPI DVD-ROM 16XMax, ATAPI CD/DVD-ROM 
+drive
+Jan 14 01:01:17 new kernel: hdb: OPTORITEDVD RW DD0203, ATAPI CD/DVD-ROM 
+drive
+Jan 14 01:01:17 new kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Jan 14 01:01:17 new kernel: hdc: ST3160023AS, ATA DISK drive
+Jan 14 01:01:17 new kernel: ide1 at 0x170-0x177,0x376 on irq 15
+Jan 14 01:01:17 new kernel: hdc: max request size: 1024KiB
+Jan 14 01:01:17 new kernel: hdc: 312581808 sectors (160041 MB) w/8192KiB 
+Cache, CHS=19457/255/63, UDMA(33)
+Jan 14 01:01:17 new kernel:  /dev/ide/host0/bus1/target0/lun0: p1 p2 < 
+p5 p6 p7 >
 

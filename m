@@ -1,91 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261888AbUB1RJZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 12:09:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbUB1RJZ
+	id S261891AbUB1RKh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 12:10:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbUB1RKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 12:09:25 -0500
-Received: from netrider.rowland.org ([192.131.102.5]:6672 "HELO
-	netrider.rowland.org") by vger.kernel.org with SMTP id S261888AbUB1RJE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 12:09:04 -0500
-Date: Sat, 28 Feb 2004 12:09:00 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Michael Frank <mhf@linuxmail.org>
-cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Question about (or bug in?) the kobject implementation
-In-Reply-To: <opr32kuku54evsfm@smtp.pacific.net.th>
-Message-ID: <Pine.LNX.4.44L0.0402281201260.15169-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 28 Feb 2004 12:10:37 -0500
+Received: from smtp06.wxs.nl ([195.121.6.58]:53995 "EHLO smtp06.wxs.nl")
+	by vger.kernel.org with ESMTP id S261891AbUB1RKF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 12:10:05 -0500
+Date: Sat, 28 Feb 2004 18:12:59 +0100
+From: Maurice van der Stee <stee@planet.nl>
+Subject: Re: 2.6.4-rc1 oops on HPFS filesystem file rename
+To: linux-kernel@vger.kernel.org
+Message-id: <20040228171259.GA587@maurice.stee.nl>
+MIME-version: 1.0
+X-Mailer: Balsa 2.0.16
+Content-type: text/plain; Format=Flowed; DelSp=Yes; charset=ISO-8859-15
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Feb 2004, Michael Frank wrote:
+Thanks, looks like it fixes my problem.
 
-> On Fri, 27 Feb 2004 23:02:34 -0500 (EST), Alan Stern <stern@rowland.harvard.edu> wrote:
-> >
-> > This really is a programming error.  It means that kobject_get() has been
-> > passed a possibly stale pointer.  Ipso facto, the call to kobject_put()
-> > that decremented the refcount to 0 was made too early, while there were
-> > still active pointers to the kobject floating around.
-> >
-> > It's impossible to prevent people from making programming errors or
-> > dereferencing stale pointers.  It doesn't matter _what_ code you put in
-> > kobject_get() -- it will crash when given a pointer to a kobject whose
-> > cleanup routine has already run and deallocated the storage.
-> >
-> > The best you can do is call people's attention to such errors and fail the
-> > operation gracefully whenever possible (i.e., when it doesn't generate an
-> > addressing error).  My personal choice would be to change kobject_get() as
-> > follows:
-> >
-> > struct kobject * kobject_get(struct kobject * kobj)
-> > {
-> > 	if (kobj) {
-> > 		if (atomic_read(&kobj->refcount) == 0) {
-> > 			WARN_ON(1);
-> > 			return NULL;
-> > 		}
-> > 		atomic_inc(&kobj->refcount);
-> > 	}
-> > 	return kobj;
-> > }
-> >
-> > I think that's about the best you can do.
+>>On Sat, Feb 28, 2004 at 12:04:03PM +0100, Maurice van der Stee wrote:
+>> When saving an edited file residing on a HPFS filesystem I get the
+>> following
+>> oops.
+>> Kernel is 2.6.4-rc1, compiled with gcc 3.3.2. After this any access
+>> to
+>> the
+>> filesystem hangs the session. Kernel 2.6.3 has the same behavior.
+>> Don't
+>> know
+>> about earlier ones.
+
+><stares at the code>
+><blinks>
+><wonders whereTF do we assign hpfs1_i and hpfs2_i if both inodes are
+non-NULL>
+><finds the patch in question>
+><stares at jgarzik>
+
+>Fix follows.  That, BTW, means that *nobody* had ever tried to use  
+> hpfs
+>r/w since 2.5.3-pre3.
+
+>diff -urN RC4-rc1/fs/hpfs/buffer.c RC4-rc1-current/fs/hpfs/buffer.c
+>--- RC4-rc1/fs/hpfs/buffer.c	Mon Oct  7 15:58:24 2002
+>+++ RC4-rc1-current/fs/hpfs/buffer.c	Sat Feb 28 06:33:29 2004
+>@@ -62,56 +62,28 @@
+< 
+> void hpfs_lock_2inodes(struct inode *i1, struct inode *i2)
+< {
+>-	struct hpfs_inode_info *hpfs_i1 = NULL, *hpfs_i2 = NULL;
+>-
+>-	if (!i1) {
+>-		if (i2) {
+>-			hpfs_i2 = hpfs_i(i2);
+>+	if (!i2 || i1 == i2) {
+>+		hpfs_lock_inode(i1);
+>+	} else if (!i1) {
+>+		hpfs_lock_inode(i2);
+>+	} else {
+>+		struct hpfs_inode_info *hpfs_i1 = hpfs_i(i1);
+>+		struct hpfs_inode_info *hpfs_i2 = hpfs_i(i2);
+>+		if (i1->i_ino < i2->i_ino) {
+>+			down(&hpfs_i1->i_sem);
+>+			down(&hpfs_i2->i_sem);
+>+		} else {
+> 			down(&hpfs_i2->i_sem);
+>-		}
+>-		return;
+>-	}
+>-	if (!i2) {
+>-		if (i1) {
+>-			hpfs_i1 = hpfs_i(i1);
+> 			down(&hpfs_i1->i_sem);
+> 		}
+>-		return;
+> 	}
+>-	if (i1->i_ino < i2->i_ino) {
+>-		down(&hpfs_i1->i_sem);
+>-		down(&hpfs_i2->i_sem);
+>-	} else if (i1->i_ino > i2->i_ino) {
+>-		down(&hpfs_i2->i_sem);
+>-		down(&hpfs_i1->i_sem);
+>-	} else down(&hpfs_i1->i_sem);
+> }
 > 
-> This is too ugly :-(
+> void hpfs_unlock_2inodes(struct inode *i1, struct inode *i2)
+> {
+>-	struct hpfs_inode_info *hpfs_i1 = NULL, *hpfs_i2 = NULL;
+>-
+>-	if (!i1) {
+>-		if (i2) {
+>-			hpfs_i2 = hpfs_i(i2);
+>-			up(&hpfs_i2->i_sem);
+>-		}
+>-		return;
+>-	}
+>-	if (!i2) {
+>-		if (i1) {
+>-			hpfs_i1 = hpfs_i(i1);
+>-			up(&hpfs_i1->i_sem);
+>-		}
+>-		return;
+>-	}
+>-	if (i1->i_ino < i2->i_ino) {
+>-		up(&hpfs_i2->i_sem);
+>-		up(&hpfs_i1->i_sem);
+>-	} else if (i1->i_ino > i2->i_ino) {
+>-		up(&hpfs_i1->i_sem);
+>-		up(&hpfs_i2->i_sem);
+>-	} else up(&hpfs_i1->i_sem);
+>+	/* order of up() doesn't matter here */
+>+	hpfs_unlock_inode(i1);
+>+	hpfs_unlock_inode(i2);
+> }
+ 
+> void hpfs_lock_3inodes(struct inode *i1, struct inode *i2, struct
+>inode *i3)
+>-
 
-It's cleaner than your proposal below.  It's not so different from the
-code that's there now.  And it does what that code _ought_ to do, namely, 
-return a NULL pointer when the kobject is no longer available.
-
-> > And what's the answer to A'?
-> 
-> The weakness is really in that the refcount is stored dynamically.
-> 
-> What about a new struct to hold the pointer to the kobj and it's refcount:
-> 
-> struct kobjectref {
-> 	struct kobject *kobj;
-> 	int refcount;
-> };
-> ...
-> 
-> struct kobjectref rkobj;
-
-Since kobjects are allocated dynamically, you will have to allocate 
-kobjectrefs dynamically as well.
-
-> Using refkobj eliminates all problems as the pointer to the refcount can't
-> be invalid.
-
-Only until you deallocate the kobjectref.  And when you do, you then face
-exactly the same set of problems: pointers to the kobjectref will become
-stale.  If you don't ever deallocate kobjectrefs then you have a memory
-leak.  So this proposal doesn't solve anything, it just adds an extra
-layer of indirection.
-
-Alan Stern
-
+-- 
+Maurice van der Stee
+stee@planet.nl

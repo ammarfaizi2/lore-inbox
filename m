@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266307AbUFVAKw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266532AbUFVAP6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266307AbUFVAKw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 20:10:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266532AbUFVAKw
+	id S266532AbUFVAP6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 20:15:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266533AbUFVAP6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 20:10:52 -0400
-Received: from fw.osdl.org ([65.172.181.6]:58498 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266307AbUFVAKv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 20:10:51 -0400
-Date: Mon, 21 Jun 2004 17:13:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Chris Mason <mason@suse.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: deadlocks caused by ext3/reiser dirty_inode calls during
- do_mmap_pgoff
-Message-Id: <20040621171337.44d1b636.akpm@osdl.org>
-In-Reply-To: <1087837153.1512.176.camel@watt.suse.com>
-References: <1087837153.1512.176.camel@watt.suse.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 21 Jun 2004 20:15:58 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:29435 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266532AbUFVAP5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 20:15:57 -0400
+Date: Tue, 22 Jun 2004 02:15:53 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Eric BEGOT <eric_begot@yahoo.fr>
+Cc: James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: 2.6.7-mm1
+Message-ID: <20040622001553.GI28607@fs.tum.de>
+References: <Xine.LNX.4.44.0406211024300.23695-100000@thoron.boston.redhat.com> <40D6F2F1.6010603@yahoo.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40D6F2F1.6010603@yahoo.fr>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason <mason@suse.com> wrote:
->
-> do_mmap_pgoff is called with a write lock on mmap_sem, and can trigger
-> calls to generic_file_mmap, which calls file_accessed to update the
-> atime on the file.
-> 
-> For reiserfs, this might start a transaction, which might have to wait
-> for the currently running transaction to finish.  It looks like ext3 may
-> do the same thing, but I'm not 100% sure on that.
-> 
-> If the currently running transaction happens to by running
-> copy_from_user, like we do during write calls, it might be trying to get
-> a hold of a read lock on the mmap sem while trying to hand page faults.
+On Mon, Jun 21, 2004 at 04:38:41PM +0200, Eric BEGOT wrote:
+>...
+> I'm on x86 and I use gcc version 3.3.4 (Debian). I forgot the ;config, 
+> sorry. I attach it here :
+>...
 
-heh, good luck writing a testcase.
+2.6.7-mm1 with your .config compiles for me on a Debian unstable.
 
-It's super-improbable because we fault the source page in by hand in
-generic_file_aio_write_nolock() via fault_in_pages_readable().  Of course,
-that prefaulting isn't 100% reliable either, because the VM can come in and
-steal the page (or at least unmap its pte) before we get to doing the copy.
+Could you try the compilation with a freshly unpackaged kernel tree?
 
-I think we can fix both problems by changing filemap_copy_from_user() and
-filemap_copy_from_user_iovec() to not fall back to kmap() - just fail the
-copy in some way if the atomic copy failed.  Then, in
-generic_file_aio_write_nolock(), do a zero-length ->commit_write(),
-put_page(), then go back and retry the whole thing, starting with
-fault_in_pages_readable().
+cu
+Adrian
 
+-- 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

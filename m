@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbUCLJQM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 04:16:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbUCLJQL
+	id S261210AbUCLJTd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 04:19:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbUCLJTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 04:16:11 -0500
-Received: from main.gmane.org ([80.91.224.249]:7576 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261405AbUCLJQJ (ORCPT
+	Fri, 12 Mar 2004 04:19:33 -0500
+Received: from [66.35.79.110] ([66.35.79.110]:12942 "EHLO www.hockin.org")
+	by vger.kernel.org with ESMTP id S261210AbUCLJTa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 04:16:09 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: SCSI/SG.H and the GPL?!
-Date: Fri, 12 Mar 2004 10:16:07 +0100
-Message-ID: <yw1xfzcemnmw.fsf@kth.se>
-References: <BAY7-F67UGYbhfBWF840005c76e@hotmail.com>
+	Fri, 12 Mar 2004 04:19:30 -0500
+Date: Fri, 12 Mar 2004 01:19:18 -0800
+From: Tim Hockin <thockin@hockin.org>
+To: Greg KH <greg@kroah.com>
+Cc: Eric Brower <ebrower@usa.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ethtool.h should use userspace-accessible types
+Message-ID: <20040312091918.GB10549@hockin.org>
+References: <40511868.4060109@usa.net> <20040312023551.GA25331@hockin.org> <20040312045756.GA30714@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:7VHO4RRQxOWq30i9K6FLRkMnHJM=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040312045756.GA30714@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Kasra Torabi" <kasratorabi@hotmail.com> writes:
+On Thu, Mar 11, 2004 at 08:57:56PM -0800, Greg KH wrote:
+> 	u8 means an unsigned 8 bit variable within the kernel.
+> 	__u8 means an unsigned 8 bit variable both within the kernel and
+> 	in userspace.  Use the __ forms when describing data structures
+> 	or variables that cross the userspace/kernelspace boundry in
+> 	order to get everything correct.
 
-> I'm writing a program including the scsi/sg.h headerfile.  I want to
-> release under GPL but my company policy may prevent me unless there is
-> no way around it-- does use of this file open my program to the GPL? 
+The only problem is that this is a RETARDED precedent. __foo means the 
+"internal" version of foo. Within the kernel __foo often means the version
+of foo without "the lock".
 
-Not the way most people see it.
+POSIX defines any type beginning with _ as part of the implementation.
+IMHO, no userspace app should *ever* need a type that starts with _ or __.
+It's just dumb.  If the width matters, define it as a width specific type.
+If it doesn't define it as an int/short/whatever.  The fact that it isn't
+obvious what is or is not kernel-only is an entirely separate issue.
 
--- 
-Måns Rullgård
-mru@kth.se
+> Becides, something like u8 is a zillion times saner than uint8_t, don't
+> you think?  :)
+
+As much as uint8_t is a pain in the ass to type, at least it is clear and
+obvious and standard, don't you think? :)
 

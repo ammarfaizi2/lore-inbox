@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265897AbUBBT7O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 14:59:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265869AbUBBT5j
+	id S265809AbUBBUWS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 15:22:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265777AbUBBUWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 14:57:39 -0500
-Received: from mailr-1.tiscali.it ([212.123.84.81]:12147 "EHLO
-	mailr-1.tiscali.it") by vger.kernel.org with ESMTP id S265843AbUBBT5F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 14:57:05 -0500
-X-BrightmailFiltered: true
-Date: Mon, 2 Feb 2004 20:57:04 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [Compile Regression in 2.4.25-pre8][PATCH 23/42]
-Message-ID: <20040202195704.GW6785@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-References: <20040130204956.GA21643@dreamland.darkstar.lan> <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan>
+	Mon, 2 Feb 2004 15:22:06 -0500
+Received: from mail.kroah.org ([65.200.24.183]:59372 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265935AbUBBUQH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 15:16:07 -0500
+Date: Mon, 2 Feb 2004 12:05:55 -0800
+From: Greg KH <greg@kroah.com>
+To: Dely Sy <dlsy@snoqualmie.dp.intel.com>
+Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net,
+       dely.l.sy@intel.com, tony.luck@intel.com
+Subject: Re: Patch to get cpqphp working with IOAPIC (2.6.0-test5)
+Message-ID: <20040202200555.GA32087@kroah.com>
+References: <200309161550.h8GFoO2X003176@snoqualmie.dp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040202180940.GA6367@dreamland.darkstar.lan>
-User-Agent: Mutt/1.4i
+In-Reply-To: <200309161550.h8GFoO2X003176@snoqualmie.dp.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 16, 2003 at 08:50:24AM -0700, Dely Sy wrote:
+> Hi,
+> 
+> Here is a patch for 2.6.0-test5 to get cpqphp working with IOAPIC. 
+> My earlier statement that a kernel patch is not needed for 2.6 is 
+> true only when ACPI is enabled.  A similar patch is needed in 
+> pcibios_enable_irq() for 2.4 kernel and I will send it out 
+> later.
+> 
+> The fix is in pirq_enable_irq().  This function is called indirectly
+> by pci_enable_device().  For device present during boot up, it should 
+> get the proper dev->irq for pcibios_fixup_irqs() has been called to 
+> get the dev->irq from MP table. If the value is still zero, then 
+> this is properly caused by "buggy MP table".  For hot-plug device, 
+> its dev->irq is 0 when the pci_enable_device() is called for it hasn't 
+> gone through the fixup.  Therefore, the code (similiar to the code 
+> in pcibios_fixup_irqs) is needed here.
 
-ircomm_param.c:202: warning: concatenation of string literals with __FUNCTION__ is deprecated
+Wow, very sorry for the long delay here.  I took the patch you sent me
+for the irq.c file in your previous big SHPC patch and added it to the
+rest of the cpqphp changes you made here, and applied it to my trees.
 
-Fix IRDA_DEBUG.
+thanks,
 
-diff -Nru -X dontdiff linux-2.4-vanilla/net/irda/ircomm/ircomm_param.c linux-2.4/net/irda/ircomm/ircomm_param.c
---- linux-2.4-vanilla/net/irda/ircomm/ircomm_param.c	Tue Nov 11 17:51:41 2003
-+++ linux-2.4/net/irda/ircomm/ircomm_param.c	Sat Jan 31 18:09:39 2004
-@@ -198,7 +198,7 @@
- 		IRDA_DEBUG(2, "%s(), No common service type to use!\n", __FUNCTION__);
- 		return -1;
- 	}
--	IRDA_DEBUG(0, __FUNCTION__ "%s(), services in common=%02x\n", __FUNCTION__,
-+	IRDA_DEBUG(0, "%s(), services in common=%02x\n", __FUNCTION__,
- 		   service_type);
- 
- 	/*
-
--- 
-Reply-To: kronos@kronoz.cjb.net
-Home: http://kronoz.cjb.net
-Windows /win'dohz/ n. : thirty-two  bit extension and graphical shell to
-a sixteen  bit patch to an  eight bit operating system  originally coded
-for a  four bit microprocessor  which was  written by a  two-bit company
-that can't stand a bit of competition.
+greg k-h

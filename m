@@ -1,39 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267619AbUH3OZR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267936AbUH3O0R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267619AbUH3OZR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 10:25:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267649AbUH3OZR
+	id S267936AbUH3O0R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 10:26:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268163AbUH3O0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 10:25:17 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:47489 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267619AbUH3OZG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 10:25:06 -0400
-Subject: Re: libata dev_config call order wrong.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Brad Campbell <brad@wasp.net.au>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4132EF78.9000200@wasp.net.au>
-References: <41320DAF.2060306@wasp.net.au> <41321288.4090403@pobox.com>
-	 <413216CC.5080100@wasp.net.au> <4132198B.8000504@pobox.com>
-	 <41321F7F.7050300@pobox.com>
-	 <1093805994.28289.4.camel@localhost.localdomain>
-	 <4132EF78.9000200@wasp.net.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1093872174.30146.15.camel@localhost.localdomain>
+	Mon, 30 Aug 2004 10:26:17 -0400
+Received: from 104.engsoc.carleton.ca ([134.117.69.104]:63908 "EHLO
+	certainkey.com") by vger.kernel.org with ESMTP id S267936AbUH3O0L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 10:26:11 -0400
+Date: Mon, 30 Aug 2004 09:24:53 -0400
+From: Jean-Luc Cooke <jlcooke@certainkey.com>
+To: linux-kernel@vger.kernel.org
+Subject: CryptoAPI: schedual while atomic
+Message-ID: <20040830132453.GG11307@certainkey.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 30 Aug 2004 14:22:55 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-08-30 at 10:12, Brad Campbell wrote:
-> Given that the SATA->PATA bridge boards support 80 pin detection, then bit 13 of word 93 must be 
-> high on any drive that supports lba48, and given the *current* sata spec states that word 93 must be 
-> zero, we should be able to use this detection method.
+While I was playing with using the CryptoAPI in /dev/random for my own
+purposes, I noticed that I was getting quite a few "schedual while atomic!"
+console messages.
 
-Word 53 is the important one and essentially tells you what else to
-believe later on in the configuration.
+Talking with Michal Ludvig, I seem to think that a "!is_atomic()" check
+inside crypto_yield() or passing a flag during crypto_alloc_tfm() would make
+a lot of sense.
 
+This may be more directed at James Morris, but here it goes:
+
+Can we have some logic to either check for or turn off crypto_yield()'s in
+crypto/internal.h's crypto_yield() ?
+
+Cheers,
+
+JLC

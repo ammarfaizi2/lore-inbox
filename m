@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270069AbRHMKbx>; Mon, 13 Aug 2001 06:31:53 -0400
+	id <S270067AbRHMKaD>; Mon, 13 Aug 2001 06:30:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270071AbRHMKbn>; Mon, 13 Aug 2001 06:31:43 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:46522 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S270069AbRHMKbc>;
-	Mon, 13 Aug 2001 06:31:32 -0400
-Date: Mon, 13 Aug 2001 12:31:23 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200108131031.MAA07481@harpo.it.uu.se>
-To: alan@lxorguk.ukuu.org.uk
-Subject: [PATCH] 2.4-ac fs/isofs/rock.c cleanup
-Cc: linux-kernel@vger.kernel.org
+	id <S270069AbRHMK3x>; Mon, 13 Aug 2001 06:29:53 -0400
+Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:8894
+	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
+	id <S270067AbRHMK3k>; Mon, 13 Aug 2001 06:29:40 -0400
+Date: Mon, 13 Aug 2001 03:29:53 -0700 (PDT)
+From: Justin Guyett <justin@soze.net>
+X-X-Sender: <tyme@kobayashi.soze.net>
+To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Are we going too fast?
+In-Reply-To: <20010813105059.B1071-100000@gerard>
+Message-ID: <Pine.LNX.4.33.0108130327460.27721-100000@kobayashi.soze.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
+On Mon, 13 Aug 2001, Gérard Roudier wrote:
 
-The -ac version of fs/isofs/rock.c contains a debugging printk
-which, alas, triggers far too often for some otherwise sane CDs.
-This spams the kernel log without delivering any useful information.
-The patch below kills the offending printk. Please apply.
+> You may want to elaborate on the ncr53c8xx problems (I maintain this
+> driver). More generally, you must not ignore the thousands of bugs in the
+> hardware you are using, but software developpers haven't access to all
+> errata descriptions since hardware vendors donnot like to make this
+> information freely available.
 
-(I was browsing the Windows install CD for my new HP CD-Writer
-under 2.4.8-ac1. The kernel log filled up with hundreds of
+I've got a quick unrelated question.
 
-	scanning for RockRidge behind XA attributes
+Why not change the name (or at least the description) of sym53c8xx to
+include the 53c1010 chips, which this driver seems to work on (and on a
+SMP box, no less)?
 
-lines. There was approximately one such line for each directory entry.)
 
-/Mikael
+justin
 
---- linux-2.4.8-ac2/fs/isofs/rock.c.~1~	Mon Aug 13 11:33:52 2001
-+++ linux-2.4.8-ac2/fs/isofs/rock.c	Mon Aug 13 11:58:23 2001
-@@ -454,7 +454,6 @@
-    if ((inode->i_sb->u.isofs_sb.s_rock_offset==-1)
-        &&(inode->i_sb->u.isofs_sb.s_rock==2))
-      {
--	printk(KERN_DEBUG"scanning for RockRidge behind XA attributes\n");
- 	result=parse_rock_ridge_inode_internal(de,inode,14);
-      };
-    return result;

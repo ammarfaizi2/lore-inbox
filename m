@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269212AbUIAAVS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUIAAYK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269212AbUIAAVS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 20:21:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269218AbUIAAKU
+	id S263117AbUIAAYK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 20:24:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269209AbUIAAJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 20:10:20 -0400
-Received: from relay01.kbs.net.au ([203.220.32.149]:31444 "EHLO
-	relay01.kbs.net.au") by vger.kernel.org with ESMTP id S269284AbUHaXoM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 19:44:12 -0400
-Subject: Re: [2.6 patch]  kill __always_inline
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Andrew Morton <akpm@osdl.org>
-Cc: bunk@fs.tum.de, ak@muc.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040831163914.4c7c543c.akpm@osdl.org>
-References: <20040831221348.GW3466@fs.tum.de>
-	 <20040831153649.7f8a1197.akpm@osdl.org> <20040831225244.GY3466@fs.tum.de>
-	 <1093993946.8943.33.camel@laptop.cunninghams>
-	 <20040831163914.4c7c543c.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1093995674.8943.38.camel@laptop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 01 Sep 2004 09:41:15 +1000
+	Tue, 31 Aug 2004 20:09:36 -0400
+Received: from frog.mt.lv ([159.148.172.197]:24740 "EHLO frog.mt.lv")
+	by vger.kernel.org with ESMTP id S269218AbUHaXo4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 19:44:56 -0400
+From: Dmitry Golubev <dmitry@mikrotik.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: [PATCH] embedding 2.6 or more findings on kernel size
+Date: Wed, 1 Sep 2004 02:41:20 +0300
+User-Agent: KMail/1.6.2
+References: <200408302307.35052.dmitry@mikrotik.com> <200408311710.01601.dmitry@mikrotik.com> <20040831202707.GQ3466@fs.tum.de>
+In-Reply-To: <20040831202707.GQ3466@fs.tum.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200409010241.20950.dmitry@mikrotik.com>
+X-mikrotik.com-Virus_kerajs: Not scanned.
+X-mikrotik.com-Virus_un_spam-kerajs: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+> Please don't include this.
 
-On Wed, 2004-09-01 at 09:39, Andrew Morton wrote:
-> IIRC, the compiler was generating out-of-line versions of functions in
-> every compilation unit whcih included the header file.  When we the
-> developers just wanted `inline' to mean `inline, dammit'.
-> 
-> If that broke swsusp in some manner then the relevant swsusp functions
-> should be marked always_inline, because they have some special needs.
+what a good start...
 
-Yes, that's exactly right. Suspend relies upon inline always inlining,
-and as I work around I added...
+> I'd prefer to switch i386 cpu selection to a different scheme which
+> gives you effectively these options for free without additional options.
 
-#undef inline
-#define inline __inline__ __attribute__(always_inline))
+I admit, I might have missed the latest version of your patch, but in what I 
+have seen, some functionality have been missing comparing to my patch                 
+(do you have a possibility to compile a kernel especially for NexGen, 
+Transmeta or UMC?), and it also changes user experience, which obviously 
+should not happen in the stable branch. However, it might be a good idea to 
+work on your patch for v 2.7.
 
-while this discussion was going on. I should switch this to
-always_inline now that it's merged.
+Anyway, if you would like, I can separate CPU support part of the patch from 
+the other parts...
 
-> > That is to say, doesn't the definition of always_inline vary
-> > with the compiler version?
-> 
-> If the compiler supports attribute((always_inline)) then the kernel build
-> system will use that.  If the compiler doesn't support
-> attribute((always_inline)) then we just emit `inline' from cpp and hope
-> that it works out.
-
-Thanks.
-
-Nigel
--- 
-Nigel Cunningham
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-Many today claim to be tolerant. But true tolerance can cope with others
-being intolerant.
-
+Dmitry

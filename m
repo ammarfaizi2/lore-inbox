@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262492AbVCaCbw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262494AbVCaCkV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262492AbVCaCbw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 21:31:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbVCaCbw
+	id S262494AbVCaCkV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 21:40:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbVCaCkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 21:31:52 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:61669 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262492AbVCaCbu (ORCPT
+	Wed, 30 Mar 2005 21:40:21 -0500
+Received: from fire.osdl.org ([65.172.181.4]:41689 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262494AbVCaCkR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 21:31:50 -0500
-Date: Thu, 31 Mar 2005 12:25:38 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: David Malone <dwmalone@maths.tcd.ie>, linux-xfs@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Directory link count wrapping on Linux/XFS/i386?
-Message-ID: <20050331022538.GH867@frodo>
-References: <200503302043.aa27223@salmon.maths.tcd.ie> <20050330200601.GG1753@schnapps.adilger.int> <20050331004258.GF867@frodo>
+	Wed, 30 Mar 2005 21:40:17 -0500
+Date: Wed, 30 Mar 2005 18:39:57 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: trond.myklebust@fys.uio.no, mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: NFS client latencies
+Message-Id: <20050330183957.2468dc21.akpm@osdl.org>
+In-Reply-To: <1112236017.26732.4.camel@mindpipe>
+References: <1112137487.5386.33.camel@mindpipe>
+	<1112138283.11346.2.camel@lade.trondhjem.org>
+	<1112192778.17365.2.camel@mindpipe>
+	<1112194256.10634.35.camel@lade.trondhjem.org>
+	<20050330115640.0bc38d01.akpm@osdl.org>
+	<1112217299.10771.3.camel@lade.trondhjem.org>
+	<1112236017.26732.4.camel@mindpipe>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050331004258.GF867@frodo>
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 31, 2005 at 10:42:58AM +1000, Nathan Scott wrote:
-> On Wed, Mar 30, 2005 at 01:06:01PM -0700, Andreas Dilger wrote:
-> > The correct fix, used for reiserfs (and a patch for ext3 also) is to
-> > set i_nlink = 1 in case the filesystem count has wrapped.  When nlink==1
-> > the fts/find code no longer optimizes subdirectory traversal and checks
-> > each entries filetype to see if it should recurse.
+Lee Revell <rlrevell@joe-job.com> wrote:
+>
+> > Yes. Together with the radix tree-based sorting of dirty requests,
+>  > that's pretty much what I've spent most of today doing. Lee, could you
+>  > see how the attached combined patch changes your latency numbers?
+>  > 
 > 
-> Ah, I see - the INC_DIR_INODE_NLINK/DEC_DIR_INODE_NLINK macros, right.
-> I'll look into that too, thanks.
+>  Different code path, and the latency is worse.  See the attached ~7ms
+>  trace.
 
-Hmm, since struct inode has an unsigned int as nlink, it'd
-seem doing this sort of thing is only useful for filesystems
-where the ondisk nlink is a 16 bit value (and ext2/3/reiserfs
-do seem to be in that category, afaict).
-
-So, Davids patch (and those one/two other cases) would seem
-to be enough to get this resolved.  There isn't much using
-nlink_t - looks like mainly the non-stat64 'stat' calls and
-one or two other (possibly accidental?) uses like we had in
-XFS.
-
-cheers.
-
--- 
-Nathan
+Is a bunch of gobbledygook.  Hows about you interpret it for us?

@@ -1,67 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbUKKBXq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262077AbUKKB1V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262162AbUKKBXq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 20:23:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbUKKBXq
+	id S262077AbUKKB1V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 20:27:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbUKKB1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 20:23:46 -0500
-Received: from mail-03.iinet.net.au ([203.59.3.35]:23005 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S262162AbUKKBXW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 20:23:22 -0500
-Message-ID: <4192BF01.1090509@cyberone.com.au>
-Date: Thu, 11 Nov 2004 12:23:13 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Wed, 10 Nov 2004 20:27:21 -0500
+Received: from fmr11.intel.com ([192.55.52.31]:677 "EHLO
+	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262077AbUKKB1Q convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 20:27:16 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Stefan Schmidt <zaphodb@zaphods.net>
-CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: 2.6.10-rc1-mm4 -1 EAGAIN after allocation failure was: Re: Kernel
- 2.6.9 Multiple Page Allocation Failures
-References: <20041109223558.GR1309@mail.muni.cz> <20041109144607.2950a41a.akpm@osdl.org> <20041109235201.GC20754@zaphods.net> <20041110012733.GD20754@zaphods.net> <20041109173920.08746dbd.akpm@osdl.org> <20041110020327.GE20754@zaphods.net> <419197EA.9090809@cyberone.com.au> <20041110102854.GI20754@zaphods.net> <20041110120624.GF28163@zaphods.net> <20041110085831.GB10740@logos.cnet> <20041110124810.GG28163@zaphods.net>
-In-Reply-To: <20041110124810.GG28163@zaphods.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] cpufreq_(ondemand|conservative) (round three)
+Date: Wed, 10 Nov 2004 17:27:07 -0800
+Message-ID: <88056F38E9E48644A0F562A38C64FB600351CB3F@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] cpufreq_(ondemand|conservative) (round three)
+Thread-Index: AcTGliPCALv37s1sRbOBn5TanQegdAA8uO/g
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Alexander Clouter" <alex@digriz.org.uk>, <linux-kernel@vger.kernel.org>,
+       <cpufreq@www.linux.org.uk>
+Cc: <linux@dominikbrodowski.de>
+X-OriginalArrivalTime: 11 Nov 2004 01:27:08.0949 (UTC) FILETIME=[8FC38C50:01C4C78D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Thanks for the patches. Here are some comments about _ondemand patches.
 
-Stefan Schmidt wrote:
+(1) 00_consistency patch
+I think it is OK to do this for sampling_rate. But, we may have some
+nasty races / corner conditions if we do this for up_threashold and
+down_threshold. The race I am thinking about is: we check the new
+down_value with old up_value and we may end up finally with
+down_threshold greater than up_threshold.
 
->On Wed, Nov 10, 2004 at 06:58:31AM -0200, Marcelo Tosatti wrote:
->
->>>>>Can you try the following patch, please? It is diffed against 2.6.10-rc1,
->>>>>
->>>I did. No apparent change with mm4 and vm.min_free_kbytes = 8192. I will try
->>>latest bk next.
->>>
->
->>>>I set it back to CONFIG_PACKET_MMAP=y and if the application does not freeze
->>>>for some hours at this load we can blame at least this issue (-1 EAGAIN) on
->>>>that parameter.
->>>>
->>>Nope, that didn't change anything, still getting EAGAIN, checked two times.
->>>
->>Its not clear to me - do you have Nick's watermark patch in? 
->>
->Yes i have vm.min_free_kbytes=8192 and Nick's patch in mm4. I'll try
->rc1-bk19 with his restore-atomic-buffer patch in a few minutes.
->
->
+(2) 01_ignore-nice
+The idea to have this is good. Somehow I am thinking of some corner
+cases here too.
+If the prev_cpu_idle_up and prev_cpu_idle_down have unconditionally
+include nice and total_ticks includes it conditionally, then we cannot
+do the proper subtract and compare of idle times. Am I missing anything
+here?
 
-You'll actually want to increase min_free_kbytes in order to have the same
-amount of memory free as 2.6.8 did.
+(3) 02_check-rate-and-break-out
+This looks good and ready to go. 
 
-Start by applying my patch and using the default min_free_kbytes. Then 
-increase
-it until the page allocation failures stop, and let us know what the end 
-result
-was.
+(4) 03_sys_freq_step
+Looks good. One minor issue. Policy->max can change at run time (when
+a/c power and battery power). So behaviour might change if you
+initialize freq_step once instead of checking 5% of max during each
+switching. But, doing it this way should be OK too, as 5% is not a
+strict number.
 
-BTW we should probably have a message in the page allocation failure path
-to tell people to try increasing /proc/sys/vm/min_free_kbytes...
-
+Thanks,
+Venki

@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131081AbRCJSCN>; Sat, 10 Mar 2001 13:02:13 -0500
+	id <S131046AbRCJS1m>; Sat, 10 Mar 2001 13:27:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131083AbRCJSCE>; Sat, 10 Mar 2001 13:02:04 -0500
-Received: from bretweir.total.net ([154.11.89.176]:34752 "HELO
-	smtp.interlog.com") by vger.kernel.org with SMTP id <S131081AbRCJSBx>;
-	Sat, 10 Mar 2001 13:01:53 -0500
-Message-ID: <3AAA6C3E.B8AD02E7@interlog.com>
-Date: Sat, 10 Mar 2001 13:02:38 -0500
-From: Douglas Gilbert <dgilbert@interlog.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S131097AbRCJS1c>; Sat, 10 Mar 2001 13:27:32 -0500
+Received: from ncc1701.cistron.net ([195.64.68.38]:63758 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S131046AbRCJS1P>; Sat, 10 Mar 2001 13:27:15 -0500
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: Kernel 2.4.1 on RHL 6.2
+Date: Sat, 10 Mar 2001 18:28:09 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <98drnp$qq0$1@ncc1701.cistron.net>
+In-Reply-To: <001401c0a970$ec3c9b00$1d9509ca@pentiumiii> <200103101754.f2AHsUL04580@mailout1-100bt.midsouth.rr.com>
+X-Trace: ncc1701.cistron.net 984248889 27456 195.64.65.67 (10 Mar 2001 18:28:09 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
 To: linux-kernel@vger.kernel.org
-CC: Harald Dunkel <harri@synopsys.COM>
-Subject: Re: aic7xxx of 2.4.2: 'cdrecord -scanbus' complains about DVD
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Harald Dunkel wrote:
-> When I run 'cdrecord -scanbus', then cdrecord complains about my
-> DVD:
-> 
-> # cdrecord -scanbus
-> Cdrecord 1.9 (i686-pc-linux-gnu) Copyright (C) 1995-2000 Jörg Schilling
-> Linux sg driver version: 3.1.17
-> Using libscg version 'schily-0.1'
-> scsibus0:
->         0,0,0     0) *
->         0,1,0     1) *
-> cdrecord: Warning: controller returns wrong size for CD capabilities page.
->         0,2,0     2) 'PIONEER ' 'DVD-ROM DVD-303 ' '1.09' Removable CD-ROM
->         0,3,0     3) *
->         0,4,0     4) 'PIONEER ' 'CD-ROM DR-U16S  ' '1.01' Removable CD-ROM
->         0,5,0     5) *
+In article <200103101754.f2AHsUL04580@mailout1-100bt.midsouth.rr.com>,
+Stephen "M." Williams  <rootusr@midsouth.rr.com> wrote:
+>Make sure you have the following symlinks in your /usr/include
+>directory, assuming you're on an x86 machine:
 >
-> Is this warning correct? Or is this a problem of cdrecord?
+>asm -> /usr/src/linux/include/asm-i386/
+>linux -> /usr/src/linux/include/linux/
 
-This is noise coming out of cdrecord and not a aic7xxx, sg
-or linux issue. I believe Joerg Schilling is pointing out 
-that the device in question is at variance with some standard 
-or convention. The subject has been raised on the cdwrite list.
+Note! You only have to have those symlinks on broken systems such
+as Redhat.
 
-Doug Gilbert
+Sane systems such as Debian have a copy of the kernel header files
+that the C library was compiled against in /usr/include/{linux,asm}
+instead of symlinks to the kernel source. Do not play the symlink
+trick on those systems.
+
+Before this turns into a flamewar: this has been discussed 20 or
+so times before, and both Linus and the glibc developers agree
+that you a distribution should do the latter. The headers you use
+to compile userland binaries should be the same as the C library
+was compiled against.
+
+If you need to compile a standalone module use -I/usr/src/linux/include
+
+Mike.
+-- 
+Go not unto the Usenet for advice, for you will be told both yea and nay (and
+quite a few things that just have nothing at all to do with the question).
+	-- seen in a .sig somewhere
+

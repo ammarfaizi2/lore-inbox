@@ -1,74 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263673AbTDTSnF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 14:43:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263674AbTDTSnF
+	id S263675AbTDTSwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 14:52:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263676AbTDTSwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 14:43:05 -0400
-Received: from zork.zork.net ([66.92.188.166]:60139 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S263673AbTDTSnC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 14:43:02 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: irq balancing; kernel vs. userspace
-From: Sean Neakums <sneakums@zork.net>
-X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
-X-Message-Flag: Message text advisory: PRURIENT SUBTEXT, ADULT
- LANGUAGE/SITUATIONS
-X-Mailer: Norman
-X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
-X-Alameda: WHY DOESN'T ANYONE KNOW ABOUT ALAMEDA?  IT'S RIGHT NEXT TO
- OAKLAND!!!
-Organization: The Emadonics Institute
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Sun, 20 Apr 2003 19:55:03 +0100
-In-Reply-To: <1050863476.1412.11.camel@laptop.fenrus.com> (Arjan van de
- Ven's message of "20 Apr 2003 20:31:16 +0200")
-Message-ID: <6ur87xkni0.fsf@zork.zork.net>
-User-Agent: Gnus/5.090019 (Oort Gnus v0.19) Emacs/21.2 (gnu/linux)
-References: <Pine.LNX.4.44.0304192002580.9909-100000@penguin.transmeta.com>
-	<6uwuhpl2u5.fsf@zork.zork.net>
-	<1050863476.1412.11.camel@laptop.fenrus.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 20 Apr 2003 14:52:25 -0400
+Received: from h80ad2676.async.vt.edu ([128.173.38.118]:55173 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263675AbTDTSwX (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 14:52:23 -0400
+Message-Id: <200304201904.h3KJ4IZJ015475@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Are linux-fs's drive-fault-tolerant by concept? 
+In-Reply-To: Your message of "Sun, 20 Apr 2003 12:51:54 +0200."
+             <20030420105154.GA16451@hh.idb.hist.no> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030419180421.0f59e75b.skraw@ithnet.com> <87lly6flrz.fsf@deneb.enyo.de> <20030419200712.3c48a791.skraw@ithnet.com> <20030419184120.GH669@gallifrey> <20030419205621.GA15577@hh.idb.hist.no> <200304192115.h3JLFVuL018983@turing-police.cc.vt.edu>
+            <20030420105154.GA16451@hh.idb.hist.no>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1133931394P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 20 Apr 2003 15:04:18 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjanv@redhat.com> writes:
+--==_Exmh_1133931394P
+Content-Type: text/plain; charset=us-ascii
 
-> On Sun, 2003-04-20 at 15:23, Sean Neakums wrote:
->> I thought I'd play with the userspace IRQ-balancer, but booting with
->> noirqbalance seems not to not balance.  Possibly I misunderstand how
->> this all fits together.
->
-> this looks like you haven't started the userspace daemon (yet)
+On Sun, 20 Apr 2003 12:51:54 +0200, Helge Hafting said:
 
-I just cranked it up, and now I see:
+> > These don't address the problem - if the drive won't go "ready" because
+> > of a blown server platter, your data won't get overwritten but it's still
+> > readable (a number of companies make good money at this).
+> > 
+> I see.  Your data is so special that you expect people to pay for
+> reconstruction hoping to find something that pays for all
+> that trouble and more.
 
-$ cat /proc/interrupts 
-           CPU0       CPU1       
-  0:    9627420   12189635    IO-APIC-edge  timer
-  1:       4165       4347    IO-APIC-edge  i8042
-  2:          0          0          XT-PIC  cascade
-  4:     282749     315988    IO-APIC-edge  serial
-  8:          2          1    IO-APIC-edge  rtc
-  9:          3          2   IO-APIC-level  eth1
- 10:      19270      20109   IO-APIC-level  via82cxxx, eth0
- 11:      34913      19457   IO-APIC-level  aic7xxx
- 12:       8777       8835    IO-APIC-edge  i8042
-NMI:          0          0 
-LOC:   21817495   21817494 
-ERR:          0
-MIS:          0
+No, I don't consider my data that special - I just say "screw it" and
+go looking for the backups.  However, my point is that it's not THAT
+hard to salvage data off drives - it's easy enough that companies are
+making a living doing it.
+
+The question is regarding sites that are paranoid about shipping out
+their data when such recovery is possible.
+
+> Why would it be hard to reach the inner surfaces - the disks
+> are not superconducting so the outer ones do not shield the
+> inner ones from a strong magnetic field.  You should be fine
+> as long as the field extend far enough to get the entire
+> drive.  A high-frequency device might have trouble,
+> but you don't need that - even a static field will do.
+
+I didn't say it was impossible - I said you had to use a degausser that
+was up to the task.  A degausser that is rated to bulk-erase tape media
+is probably *NOT* sufficiently strong to do a multi-platter disk.  Most
+tapes need 350 Oe or so to bulk, while disks are in the 1500 Oe range.
+
+And you need a really big-ass magnet to make a 1500 Oe field big enough to
+cover an entire disk (especially if it's an older disk of the 5.25 or
+even larger variety - older IBM mainframe disks were up to 14" platters).
+
+The Canadian government seems to agree - they recommend either getting the
+degaussing wand between the platters (page 10) or using a cavity degausser
+(page 12).  Note that they do *not* certify cavity degaussers for disk drives
+over 3 1/2" with a coercivity over 1100Oe.
+
+http://collection.nlc-bnc.ca/100/200/301/ cse-cst/cse_app-ef/itspl-02.pdf 
 
 
-I was confused at first because I was thinking of IRQ balancing as
-balancing IRQs *across* CPUs.  This kind of balancing seems to be
-about spreading IRQ *sources* across CPUs.  I guess it's good for
-caches and whatnot for IRQs to be consistently serviced by the same
-CPU.
 
-Anyway, it seems to be working.  Thanks!
+--==_Exmh_1133931394P
+Content-Type: application/pgp-signature
 
--- 
-Sean Neakums - <sneakums@zork.net>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+ou8xcC3lWbTT17ARAt2FAJ9LuNY5iN33MCg3LT5Srla1C87ZaACg6z2E
+efU1fB8ouZ5G/yGbokh1bAM=
+=34uA
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1133931394P--

@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266835AbUJWKWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266505AbUJWKXa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266835AbUJWKWK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 06:22:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266585AbUJWKWJ
+	id S266505AbUJWKXa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 06:23:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266473AbUJWKWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 06:22:09 -0400
-Received: from phoenix.infradead.org ([81.187.226.98]:36875 "EHLO
+	Sat, 23 Oct 2004 06:22:36 -0400
+Received: from phoenix.infradead.org ([81.187.226.98]:37387 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S266505AbUJWKVj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 06:21:39 -0400
-Date: Sat, 23 Oct 2004 11:21:31 +0100
+	id S266498AbUJWKWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 06:22:07 -0400
+Date: Sat, 23 Oct 2004 11:22:03 +0100
 From: Christoph Hellwig <hch@infradead.org>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: bkbits - "@" question
-Message-ID: <20041023102131.GA30449@infradead.org>
+To: "C.Y.M" <syphir@syphir.sytes.net>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Unknown symbol kill_proc_info in 2.6.10-rc1
+Message-ID: <20041023102203.GB30449@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jean Delvare <khali@linux-fr.org>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <2SmNe-6MO-1@gated-at.bofh.it> <2SqR0-10Q-9@gated-at.bofh.it> <20041023121452.1e82a758.khali@linux-fr.org>
+	"C.Y.M" <syphir@syphir.sytes.net>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <417A2292.9090008@syphir.sytes.net> <20041023095714.GD30137@infradead.org> <417A2CBF.9060805@syphir.sytes.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041023121452.1e82a758.khali@linux-fr.org>
+In-Reply-To: <417A2CBF.9060805@syphir.sytes.net>
 User-Agent: Mutt/1.4.1i
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 23, 2004 at 12:14:52PM +0200, Jean Delvare wrote:
-> > * Larry McVoy asked:
-> > The web pages on bkbits.net contain email addresses.  This is
-> > probably about a 4 year too late question but would it help reduce
-> > spam if we did something like  s/@/ (at) / for all those addresses?
+On Sat, Oct 23, 2004 at 03:04:47AM -0700, C.Y.M wrote:
+> Christoph Hellwig wrote:
+> >On Sat, Oct 23, 2004 at 02:21:22AM -0700, C.Y.M wrote:
 > >
-> > * Christoph Hellwig answered:
-> > No.
-> 
-> Why not, please?
+> >>After building 2.6.10-rc1, i was unable to load my "lufs" module due to 
+> >>an unknown symbol error (kill_proc_info).  When I examined the 
+> >>2.6.10-rc1 patch, I noticed that "EXPORT_SYMBOL(kill_proc_info);" was 
+> >>removed from signal.c.  With the following patch, I was able to resolve 
+> >>my problem, but I am not sure if this is the correct method.  Is there a 
+> >>reason why the kill_proc_info symbol is no longer exported?
+> >
+> >
+> >Because it's not an API you should be using.
+> >
+> >
+> Is there an alternative?
 
-Because spambots parse all this replacements anyway, and it makes cut & pasting
-mail addresses if you want to reply to a change much easier.
-
-p.s. please reply to me if you reply to my mails, thanks
+Maybe you could explain what you're actually trying to do at a higher
+level first.
 

@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129907AbRBGUOD>; Wed, 7 Feb 2001 15:14:03 -0500
+	id <S129581AbRBGURy>; Wed, 7 Feb 2001 15:17:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130575AbRBGUNy>; Wed, 7 Feb 2001 15:13:54 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:33546 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129907AbRBGUNp>;
-	Wed, 7 Feb 2001 15:13:45 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200102072013.XAA05418@ms2.inr.ac.ru>
-Subject: Re: Bug in tcp_time_to_recover
-To: juvvadi@netli.COM
-Date: Wed, 7 Feb 2001 23:13:29 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A81A204.3020002@netli.com> from "Ramana Juvvadi" at Feb 7, 1 10:45:01 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S129658AbRBGURn>; Wed, 7 Feb 2001 15:17:43 -0500
+Received: from server63.aitcom.net ([208.234.0.21]:37129 "EHLO bohemiaweb.com")
+	by vger.kernel.org with ESMTP id <S129581AbRBGURc>;
+	Wed, 7 Feb 2001 15:17:32 -0500
+Date: Wed, 7 Feb 2001 15:07:11 -0500
+From: jancouver2@hotmail.com
+Message-Id: <200102072007.PAA22838@bohemiaweb.com>
+To: jancouver4@hotmail.com
+Subject: eurotel
 MIME-Version: 1.0
+Content-Type: text/plain; charset=unknown-8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
->    /* Not-A-Trick#2 : Classic rule... */
->    if (tcp_fackets_out(tp) > tp->reordering)
->                       ^^^^^^^^^
->        return 1;
-...
-> Shouldn't it be a >= instead of > ?
+Ahoj Tome
 
-No. fackets_out is equivalent of Reno dupacks+1.
+To nebudes verit co jsem nasel,
 
-F.e. look at the most common case, where FACK is equivalent to Reno:
+myslim ze z tyhle stranky asi Eurotel
 
-| hole | sack1 | sack2 | sack3
+moc velkou radost nema.
 
-fackets_out = 4
-but
-dupacks = 3
+az to tam budes psat tak nezapomen ze na konci
 
-Alexey
+je cc   misto cz
+
+
+http://www.eurotel.cc
+
+
+Cau Mirek
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316682AbSFKDuP>; Mon, 10 Jun 2002 23:50:15 -0400
+	id <S316746AbSFKEEg>; Tue, 11 Jun 2002 00:04:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316739AbSFKDuP>; Mon, 10 Jun 2002 23:50:15 -0400
-Received: from darkwing.uoregon.edu ([128.223.142.13]:56518 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S316682AbSFKDuN>; Mon, 10 Jun 2002 23:50:13 -0400
-Date: Mon, 10 Jun 2002 20:46:21 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: BALBIR SINGH <balbir.singh@wipro.com>
-cc: "'Bill Davidsen'" <davidsen@tmr.com>,
-        "'Olivier Galibert'" <galibert@pobox.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: MTU discovery
-In-Reply-To: <039d01c210f8$83fa54b0$290806c0@wipro.com>
-Message-ID: <Pine.LNX.4.44.0206102045310.7028-100000@twin.uoregon.edu>
+	id <S316747AbSFKEEf>; Tue, 11 Jun 2002 00:04:35 -0400
+Received: from [209.237.59.50] ([209.237.59.50]:4202 "EHLO
+	zinfandel.topspincom.com") by vger.kernel.org with ESMTP
+	id <S316746AbSFKEEe>; Tue, 11 Jun 2002 00:04:34 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: wjhun@ayrnetworks.com, paulus@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: PCI DMA to small buffers on cache-incoherent arch
+In-Reply-To: <15619.9534.521209.93822@nanango.paulus.ozlabs.org>
+	<20020609.212705.00004924.davem@redhat.com>
+	<20020610110740.B30336@ayrnetworks.com>
+	<20020610.201033.66168406.davem@redhat.com>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 10 Jun 2002 21:04:30 -0700
+Message-ID: <52lm9m7969.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-does ieee 802.3z specify a standard? I don;t have a copy handy.
+>>>>> "David" == David S Miller <davem@redhat.com> writes:
 
-joelja
+    David> Wait a second, forget all of this cache alignment crap.  If
+    David> we can avoid drivers seeing it, we should by all means
+    David> necessary.
 
-On Tue, 11 Jun 2002, BALBIR SINGH wrote:
+    David> We should just tell people to use PCI pools and be done
+    David> with it.  That way all the complexity about buffer
+    David> alignment and all this other crapola lives strictly inside
+    David> of the PCI pool code.
 
-> Actually not, the Intel driver/card supports a size of
-> 
-> look into e1000_mac.h
-> 
-> #define MAX_JUMBO_FRAME_SIZE         0x3F00 (which is  16128).
-> 
-> The bottom line is 9000 is not the limit, it is
-> just the beginning of jumbo frame sizes.
-> 
-> Balbir
-> 
-> |-----Original Message-----
-> |From: linux-kernel-owner@vger.kernel.org 
-> |[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Joel Jaeggli
-> |Sent: Tuesday, June 11, 2002 3:32 AM
-> |To: Bill Davidsen
-> |Cc: Olivier Galibert; linux-kernel@vger.kernel.org
-> |Subject: Re: MTU discovery
-> |
-> |
-> |
-> |9000 is the limit on gigabit ethernet, other media type have different 
-> |maximum frame sizes (ie 4470 on fddi, 9216 on pos oc12 interfaces). 
-> |
-> 
-> 
+That's fine but there are drivers (USB, etc) doing
 
--- 
--------------------------------------------------------------------------- 
-Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
---    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
-  In Dr. Johnson's famous dictionary patriotism is defined as the last
-  resort of the scoundrel.  With all due respect to an enlightened but
-  inferior lexicographer I beg to submit that it is the first.
-	   	            -- Ambrose Bierce, "The Devil's Dictionary"
+	struct something {
+	        int field1;
+	        char dma_buffer[SMALLER_THAN_CACHE_LINE];
+	        int field2;
+	};
 
+	struct something *dev = kmalloc(sizeof *dev, GFP_KERNEL);
 
+Do they have to change to
+
+	struct something {
+	        int field1;
+	        char *dma_buffer;
+	        int field2;
+	};
+
+	struct something *dev = kmalloc(sizeof *dev, GFP_KERNEL);
+        dev->dma_buffer = kmalloc(SMALLER_THAN_CACHE_LINE, GFP_KERNEL);
+
+(This is always safe because as you said kmalloc can never return a
+slab that's not safe for DMA)  I don't see how PCI pools help here.
+
+Best,
+  Roland

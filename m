@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267442AbTAQJUj>; Fri, 17 Jan 2003 04:20:39 -0500
+	id <S267445AbTAQJSD>; Fri, 17 Jan 2003 04:18:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267446AbTAQJUj>; Fri, 17 Jan 2003 04:20:39 -0500
-Received: from ulima.unil.ch ([130.223.144.143]:65462 "EHLO ulima.unil.ch")
-	by vger.kernel.org with ESMTP id <S267442AbTAQJUi>;
-	Fri, 17 Jan 2003 04:20:38 -0500
-Date: Fri, 17 Jan 2003 10:29:36 +0100
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: atyfb don't build under 2.5.59
-Message-ID: <20030117092936.GA21797@ulima.unil.ch>
+	id <S267442AbTAQJSD>; Fri, 17 Jan 2003 04:18:03 -0500
+Received: from holomorphy.com ([66.224.33.161]:28821 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267445AbTAQJSC>;
+	Fri, 17 Jan 2003 04:18:02 -0500
+Date: Fri, 17 Jan 2003 01:26:53 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Srikrishnan Sundararajan <srikrishnan@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Kernel BUG(oops) does not occur after upgrading glibc
+Message-ID: <20030117092653.GS919@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Srikrishnan Sundararajan <srikrishnan@in.ibm.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <OF5B129FA7.EE286E9B-ON65256CB1.003172CC@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
+In-Reply-To: <OF5B129FA7.EE286E9B-ON65256CB1.003172CC@in.ibm.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, Jan 17, 2003 at 02:33:46PM +0530, Srikrishnan Sundararajan wrote:
+> I got the following oops message using my S/390 VM-type linux image with
+> 2GB of memory. (Kernel BUG at page_alloc.c:91!)
+> Using 2.4.19. I was running a test program which keeps on allocating memory
+> using malloc and assigns values  (with proper checking of return value of
+> malloc. ) While using brk( ) system call, I did not get any problems.
+> When I upgraded my glibc from version 2.2.5 to 2.3.1, the oops or Kernel
+> BUG no longer occurred. As it was a "Kernel BUG" in the first place, do we
+> still consider this as a BUG in the kernel or purely an error in glibc
+> which was fixed in the 2.3.1 version?
+> My inference is that using malloc which is part of the older glibc (2.2.5)
+> was corrupting a kernel data structure, which resulted in the oops during
+> swap_out.
+> Note: I was not able to reproduce this problem on intel. I do not have any
+> nVidia driver.
 
-I got:
+A BUG() is a BUG(); I suggest downgrading glibc, reproducing the
+problem, and submitting a bugreport.
 
-make -f scripts/Makefile.build obj=init
-  Generating include/linux/compile.h (updated)
-  gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=pentium3 -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=version -DKBUILD_MODNAME=version   -c -o init/version.o init/version.c
-   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o init/do_mounts.o init/initramfs.o init/vermagic.o
-  	ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  usr/built-in.o  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o .tmp_vmlinux1
-drivers/built-in.o(.text+0x798da): In function `atyfb_copyarea':
-: undefined reference to `cfb_copyarea'
-make: *** [.tmp_vmlinux1] Error 1
 
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+Thanks,
+Bill

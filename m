@@ -1,74 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268261AbTB1Vli>; Fri, 28 Feb 2003 16:41:38 -0500
+	id <S268198AbTB1VfP>; Fri, 28 Feb 2003 16:35:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268246AbTB1Vkb>; Fri, 28 Feb 2003 16:40:31 -0500
-Received: from kweetal.tue.nl ([131.155.2.7]:502 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S268239AbTB1VjX>;
-	Fri, 28 Feb 2003 16:39:23 -0500
-Date: Fri, 28 Feb 2003 22:49:37 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, cliffw@osdl.org,
-       Andrew Morton <akpm@zip.com.au>, Steven Pratt <slpratt@austin.ibm.com>,
-       John Levon <levon@movementarian.org>, Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH] documentation for basic guide to profiling
-Message-ID: <20030228214937.GA15540@win.tue.nl>
-References: <8550000.1046419962@[10.10.2.4]>
-Mime-Version: 1.0
+	id <S268191AbTB1VeP>; Fri, 28 Feb 2003 16:34:15 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:23295 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S268201AbTB1VdZ>; Fri, 28 Feb 2003 16:33:25 -0500
+Date: Fri, 28 Feb 2003 13:33:57 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Bill Irwin <wli@holomorphy.com>
+Subject: [PATCH] 3/7 Move pfn_to_nid inline
+Message-ID: <361330000.1046468037@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <8550000.1046419962@[10.10.2.4]>
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 28, 2003 at 12:12:42AM -0800, Martin J. Bligh wrote:
+Patch from William Lee Irwin
 
-> +Readprofile
-> +-----------
-> +get readprofile binary fixed for 2.5 / akpm's 2.5 patch from 
-> +ftp://ftp.kernel.org/pub/linux/people/mbligh/tools/readprofile/
-> +add "profile=2" to the kernel command line.
-> +
-> +clear		echo 2 > /proc/profile
+Inline and simplify pfn_to_nid - this is called heavily, it's a tiny
+function, and makes a noticable difference in system time for kernel 
+compiles (sorry, lost the data). Is only used on NUMA machines.
 
-As far as I can see, the 2 is meaningless here. This should just be
+Has been tested in my tree for over a month on UP, SMP, and NUMA and 
+compile tested against a variety of different configs.
 
-	echo > /proc/profile
+diff -urpN -X /home/fletch/.diff.exclude 011-mpc_apic_id/arch/i386/kernel/i386_ksyms.c 012-pfn_to_nid/arch/i386/kernel/i386_ksyms.c
+--- 011-mpc_apic_id/arch/i386/kernel/i386_ksyms.c	Tue Feb 25 23:03:43 2003
++++ 012-pfn_to_nid/arch/i386/kernel/i386_ksyms.c	Fri Feb 28 08:05:34 2003
+@@ -68,7 +68,6 @@ EXPORT_SYMBOL(EISA_bus);
+ EXPORT_SYMBOL(MCA_bus);
+ #ifdef CONFIG_DISCONTIGMEM
+ EXPORT_SYMBOL(node_data);
+-EXPORT_SYMBOL(pfn_to_nid);
+ #endif
+ #ifdef CONFIG_X86_NUMAQ
+ EXPORT_SYMBOL(xquad_portio);
+diff -urpN -X /home/fletch/.diff.exclude 011-mpc_apic_id/arch/i386/kernel/numaq.c 012-pfn_to_nid/arch/i386/kernel/numaq.c
+--- 011-mpc_apic_id/arch/i386/kernel/numaq.c	Sun Nov 17 20:29:51 2002
++++ 012-pfn_to_nid/arch/i386/kernel/numaq.c	Fri Feb 28 08:05:34 2003
+@@ -27,6 +27,7 @@
+ #include <linux/mm.h>
+ #include <linux/bootmem.h>
+ #include <linux/mmzone.h>
++#include <linux/module.h>
+ #include <asm/numaq.h>
+ 
+ /* These are needed before the pgdat's are created */
+@@ -82,19 +83,7 @@ static void __init smp_dump_qct(void)
+  * physnode_map[8- ] = -1;
+  */
+ int physnode_map[MAX_ELEMENTS] = { [0 ... (MAX_ELEMENTS - 1)] = -1};
+-
+-#define PFN_TO_ELEMENT(pfn) (pfn / PAGES_PER_ELEMENT)
+-#define PA_TO_ELEMENT(pa) (PFN_TO_ELEMENT(pa >> PAGE_SHIFT))
+-
+-int pfn_to_nid(unsigned long pfn)
+-{
+-	int nid = physnode_map[PFN_TO_ELEMENT(pfn)];
+-
+-	if (nid == -1)
+-		BUG(); /* address is not present */
+-
+-	return nid;
+-}
++EXPORT_SYMBOL(physnode_map);
+ 
+ /*
+  * for each node mark the regions
+diff -urpN -X /home/fletch/.diff.exclude 011-mpc_apic_id/include/asm-i386/numaq.h 012-pfn_to_nid/include/asm-i386/numaq.h
+--- 011-mpc_apic_id/include/asm-i386/numaq.h	Thu Jan  9 19:16:11 2003
++++ 012-pfn_to_nid/include/asm-i386/numaq.h	Fri Feb 28 08:05:34 2003
+@@ -36,10 +36,11 @@
+ #define MAX_ELEMENTS 256
+ #define PAGES_PER_ELEMENT (16777216/256)
+ 
++extern int physnode_map[];
++#define pfn_to_nid(pfn)	({ physnode_map[(pfn) / PAGES_PER_ELEMENT]; })
+ #define pfn_to_pgdat(pfn) NODE_DATA(pfn_to_nid(pfn))
+ #define PHYSADDR_TO_NID(pa) pfn_to_nid(pa >> PAGE_SHIFT)
+ #define MAX_NUMNODES		8
+-extern int pfn_to_nid(unsigned long);
+ extern void get_memcfg_numaq(void);
+ #define get_memcfg_numa() get_memcfg_numaq()
+ 
 
-(On SMP when writing sizeof(int) bytes, the value written
-is significant. But 1 or 2 is not sizeof(int).)
-
-Andries
-
------
-Fragment of some notes:
-
-<sect1>Profiling the kernel<p>
-There are several facilities to see where the kernel spends
-its resources. A simple one is the profiling function, that
-stores the current EIP (instruction pointer) at each clock tick.
-<p>
-Boot the kernel with command line option <tt>profile=2</tt>
-(or some other number instead of 2). This will cause
-a file <tt>/proc/profile</tt> to be created.
-The number given after <tt>profile=</tt> is the number of positions
-EIP is shifted right when profiling. So a large number gives a
-coarse profile.
-The counters are reset by writing to <tt>/proc/profile</tt>.
-The utility <tt>readprofile</tt> will output statistics for you.
-It does not sort - you have to invoke <tt>sort</tt> explicitly.
-But given a memory map it will translate addresses to kernel symbols.
-<p>
-See <tt>kernel/profile.c</tt> and <tt>fs/proc/proc_misc.c</tt>
-and <tt>readprofile(1)</tt>.
-<p>
-For example:
-<verb>
-# echo > /proc/profile
-...
-# readprofile -m System.map-2.5.59 | sort -nr | head -2
-510502 total                                      0.1534
-508548 default_idle                           10594.7500
-</verb>

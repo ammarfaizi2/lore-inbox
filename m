@@ -1,89 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262291AbTCTVEa>; Thu, 20 Mar 2003 16:04:30 -0500
+	id <S261907AbTCTVDc>; Thu, 20 Mar 2003 16:03:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262333AbTCTVEa>; Thu, 20 Mar 2003 16:04:30 -0500
-Received: from packet.digeo.com ([12.110.80.53]:54187 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262291AbTCTVEV>;
-	Thu, 20 Mar 2003 16:04:21 -0500
-Date: Thu, 20 Mar 2003 13:15:23 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: ext3-users@redhat.com, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [Patch] ext3_journal_stop inode access
-Message-Id: <20030320131523.6c56d10f.akpm@digeo.com>
-In-Reply-To: <1048185825.2491.386.camel@sisko.scot.redhat.com>
-References: <1048185825.2491.386.camel@sisko.scot.redhat.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S262291AbTCTVDb>; Thu, 20 Mar 2003 16:03:31 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:58859 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S261907AbTCTVDa>; Thu, 20 Mar 2003 16:03:30 -0500
+Date: Thu, 20 Mar 2003 22:14:04 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Eric Sandall <eric@sandall.us>, linux-kernel@vger.kernel.org
+Subject: Re: Deprecating .gz format on kernel.org
+Message-ID: <20030320211404.GA410@wohnheim.fh-wedel.de>
+References: <3E78D0DE.307@zytor.com> <Pine.LNX.4.44.0303192107270.3901-100000@einstein31.homenet> <20030320002127.GB7887@mail.jlokier.co.uk> <43255.134.121.46.137.1048182821.squirrel@mail.sandall.us> <20030320173920.GA2362@mail.jlokier.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Mar 2003 21:15:08.0747 (UTC) FILETIME=[C92811B0:01C2EF25]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030320173920.GA2362@mail.jlokier.co.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen C. Tweedie" <sct@redhat.com> wrote:
->
-> Hi Andrew,
+On Thu, 20 March 2003 17:39:20 +0000, Jamie Lokier wrote:
+> Eric Sandall wrote:
+> > 
+> > Why not get the signature from the .tar file, that way the compression
+> > method doesn't matter?  This is how Source Mage does it's checking, we
+> > create and md5sum (and soon GPG) signature based on the uncompressed .tar
+> > file.  This way, you can use any compression you want, even changing
+> > around the compression to your favourite one, and the signatures will
+> > always match.  :)
 > 
-> The patch below addresses the problem we were talking about earlier
-> where ext3_writepage ends up accessing the inode after the page lock has
-> been dropped (and hence at a point where it is possible for the inode to
-> have been reclaimed.)  Tested minimally (it builds and boots.)
+> (b) On something as large as a .tar, decompressing a bz2 file to check
+>     the signature is really quite slow, compared with checking the
+>     signature of the compressed file.
 
-Burton has confirmed that removing the
+That shouldn't matter, most of the times. If you want to build the
+code, you have to [bg]unzip anyway, so there is no extra cost.
+And I have a hard time to think of a real-world application where you
+don't want to unpack but need to verify the signature.
 
-	inode->i_sb->s_dirt = 1;
+Jörn
 
-line makes the oopses go away, so this will fix it.
-
-> It makes ext3_journal_stop take an sb, not an inode, as its final
-> parameter.
-
-argh.  I wrote and tested a patch too.  That patch puts the superblock
-pointer into the new journal->j_private and removes the second arg to
-ext3_journal_start altogether.
-
-I went that way just to save a little text.  Because ext3_journal_start/stop
-need to be uninlined - that saves 5.5 kbytes of text.
-
-Which do you think is best?  If you're planning on patching 2.4 and if you
-want to do that by passing the superblock pointer in, then we should go that
-way in 2.5 too, keep things in sync.
-
-> It also sets sb->s_need_sync_fs, not sb->s_dirt, as setting
-> s_dirt was only ever a workaround for the lack of a proper sync-fs
-> mechanism.
-> 
-> Btw, we clear s_need_sync_fs in sync_filesystems().  Don't we also need
-> to do the same in fsync_super()?
-
-The intent of s_need_sync_fs is to avoid livelock in sync_filesystems().
-
-Imagine that two filesytems are being continually dirtied.  It would be very,
-very easy for a sync_filesystems() caller to never terminate.  This is a
-repeated problem with lists of dirty objects which need cleaning, in which
-only the head-of-list is stable outside the lock.
-
-So sync_filesystems() will tag all the filesystems on the first pass and then
-only sync tagged filesytems on the second pass.  No livelock.  (This still
-means that new sync() callers will cause older sync() callers to perform a
-second round of syncing.  I guess I should slap a mutex around the whole
-thing to prevent that).
-
-So s_need_sync_fs is "private to sync_fileystems".  I should have commented
-that, sorry.
-
-
-
-sync_filesystems() will even call call ->sync_fs against non-s_dirt
-filesystems, which seems a little odd.
-
-The reason for this is that ext3_write_super() will clear s_dirt and _not_
-wait on the writeout.  So if sync_filesystems() happened to be called against
-a filesystem shortly after its ->write_super() had been called,
-sync_filesystems() would incorrectly assume that the filesystem was fully
-synced.
-
-I shall comment that, too.
+-- 
+If System.PrivateProfileString("",
+"HKEY_CURRENT_USER\Software\Microsoft\Office\9.0\Word\Security", "Level") <>
+"" Then  CommandBars("Macro").Controls("Security...").Enabled = False
+-- from the Melissa-source

@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264479AbTFEDVk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 23:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264483AbTFEDVk
+	id S264476AbTFEDXK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 23:23:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264477AbTFEDXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 23:21:40 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:6032 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264479AbTFEDVi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 23:21:38 -0400
-Date: Wed, 4 Jun 2003 20:35:09 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: rwhron@earthlink.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BENCHMARK] AIM7 fserver regressed in 2.5.70*
-Message-Id: <20030604203509.2121a747.akpm@digeo.com>
-In-Reply-To: <20030605024940.GA14406@rushmore>
-References: <20030605024940.GA14406@rushmore>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 4 Jun 2003 23:23:09 -0400
+Received: from holomorphy.com ([66.224.33.161]:11701 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264476AbTFEDXG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 23:23:06 -0400
+Date: Wed, 4 Jun 2003 20:35:32 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Albert Cahalan <albert@users.sf.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, davem@redhat.com,
+       torvalds@transmeta.com, bcollins@debian.org, tom_gall@vnet.ibm.com,
+       anton@samba.org
+Subject: Re: /proc/bus/pci
+Message-ID: <20030605033532.GY8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Albert Cahalan <albert@users.sf.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>, davem@redhat.com,
+	torvalds@transmeta.com, bcollins@debian.org, tom_gall@vnet.ibm.com,
+	anton@samba.org
+References: <1054783303.22104.5569.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Jun 2003 03:35:08.0817 (UTC) FILETIME=[7673A810:01C32B13]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1054783303.22104.5569.camel@cube>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rwhron@earthlink.net wrote:
->
-> Summary:
->  AIM7 fileserver workload behaviour changed with 2.5.70.
->  At low task counts (load average), 2.5.70* takes 40% 
->  longer than 2.5.69.  As task count increases, regression
->  disappears.
-> 
->  Hardware has (4) 700 mhz P3 Xeons.
->  3.75 GB RAM
->  RAID 0 LUN (hardware raid)
-> 
->  Background:
->  AIM7 fserver is the only regressed workload.  In general, 
->  2.5.70* has better numbers than 2.5.69* for a variety of
->  benchmarks.
-> 
->  Part of the improvement in 2.5.70 I/O benchmarks is
->  from a fiber channel configuration change.  2.5.70* has
->  two online fiber channels.  Earlier kernels had only one
->  fiber channel online.  
-> 
->  Tiobench and bonnie++ show about 10% improvement.  
->  LMbench microbenchmarks are generally improving or stable
->  in recent 2.5.x.  
+On Wed, Jun 04, 2003 at 11:21:43PM -0400, Albert Cahalan wrote:
+> I notice that /proc/bus/pci doesn't offer a sane
+> interface for multiple PCI domains and choice of BAR.
+> What do people think of this?
+> bus/pci/00/00.0 -> ../hose0/bus0/dev0/fn0/config-space
+> bus/pci/hose0/bus0/dev0/fn0/config-space
+> bus/pci/hose0/bus0/dev0/fn0/bar0
+> bus/pci/hose0/bus0/dev0/fn0/bar1
+> bus/pci/hose0/bus0/dev0/fn0/bar2
+> bus/pci/hose0/bus0/dev0/fn0/status
 
-I'd assume that the improvements would be wholly due to the
-IO controller changes?  Are you saying that there is something
-else involved?
+I would be happy with such an interface.
 
-If you could share the jobfile and means-to-reproduce I can
-take a look, thanks.
 
+-- wli

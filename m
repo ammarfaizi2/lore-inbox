@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269115AbRHIJ1C>; Thu, 9 Aug 2001 05:27:02 -0400
+	id <S269646AbRHIKXB>; Thu, 9 Aug 2001 06:23:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269532AbRHIJ0w>; Thu, 9 Aug 2001 05:26:52 -0400
-Received: from [193.120.224.170] ([193.120.224.170]:388 "EHLO florence.itg.ie")
-	by vger.kernel.org with ESMTP id <S269115AbRHIJ0m>;
-	Thu, 9 Aug 2001 05:26:42 -0400
-Date: Thu, 9 Aug 2001 10:26:48 +0100 (IST)
-From: Paul Jakma <paulj@alphyra.ie>
-To: Jens Axboe <axboe@suse.de>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Peter Osterlund <peter.osterlund@mailbox.swipnet.se>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: kupdated oops in 2.4.8-pre5
-In-Reply-To: <20010809103309.V4587@suse.de>
-Message-ID: <Pine.LNX.4.33.0108090956290.13822-100000@dunlop.itg.ie>
+	id <S269674AbRHIKWv>; Thu, 9 Aug 2001 06:22:51 -0400
+Received: from web13606.mail.yahoo.com ([216.136.175.117]:3589 "HELO
+	web13606.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S269646AbRHIKWc>; Thu, 9 Aug 2001 06:22:32 -0400
+Message-ID: <20010809102243.95913.qmail@web13606.mail.yahoo.com>
+Date: Thu, 9 Aug 2001 03:22:43 -0700 (PDT)
+From: Ivan Kalvatchev <iive@yahoo.com>
+Subject: DoS with tmpfs #dynamic
+To: kernelbug <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B722DE4.96DA5711@idb.hist.no>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Aug 2001, Jens Axboe wrote:
 
-> Double check your source, afaics it can't happen in pre7.
+--- Helge Hafting <helgehaf@idb.hist.no> wrote:
+> The problem with this is that tmpfs may be mounted
+> before
+> swap is initialized, so a little less than
+> swap+ram will become "a little less than just RAM"
+> anyway.
+> 
+> Or do you propose a dynamic limit, changing as swap
+> is added/removed?  This has problems if some swap is
+> removed, and suddenly tmpfs usage exceeds its quota.
+> 
+> Helge Hafting
 
-ah... sorry... you are right. the Oops would appear to be from -pre5.
-I've had so many lockups this morning i lost track which kernel i was
-running at what time.
+Yes I mean it. If tmpfs is fixed in any way the
+problem will raise. If it is dynamic we have 2
+possible ways:
+1. First we fill most of tmpfs. Then we start some
+program that needs a tones of ram. The program exit
+with error and System is stable.
+2. We use a lot of memory. The tmpfs decreases it's
+size dynamicly and then when trying to fill it up it
+return No space on device.
 
-however, there is a good chance that the fix has not worked, as the
-trigger for the oops in pre5 is still consistently causing my box to
-lockup with pre7 (but without oops).
+About swap removing. What gonna happen if ram and swap
+are full and someone tries to remove the swap. Data
+loss? 
+P.S.
+  Pleace don't forget that ramfs is vulnarable in the
+same way. It is rarely used but is DANGEROUS.
+Ivan Kalvachev
 
-The trigger is playing an mpeg movie with gtv, when i kill it.
-sometimes it happens after the first play of a movie, sometimes the
-2nd, 3rd. the box locks solid (with oops in pre5, without in
-pre7). sysrq doesn't work. host doesn't respond to pings.
-
-xine does not trigger the lockups. i've no idea what gtv does
-differently to xine.
-
-box is Compaq deskpro exd, i815 chipset, PIII 800, G200 graphics,
-XFree 4.1.0, glibc 2.2.3.
-
-anything you'd like to try?
-
---paulj
-
-
+__________________________________________________
+Do You Yahoo!?
+Make international calls for as low as $.04/minute with Yahoo! Messenger
+http://phonecard.yahoo.com/

@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317663AbSGUI1v>; Sun, 21 Jul 2002 04:27:51 -0400
+	id <S317664AbSGUIfo>; Sun, 21 Jul 2002 04:35:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317664AbSGUI1v>; Sun, 21 Jul 2002 04:27:51 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:47541 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S317663AbSGUI1u> convert rfc822-to-8bit; Sun, 21 Jul 2002 04:27:50 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <oliver@neukum.name>
-To: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
-Date: Sun, 21 Jul 2002 10:33:59 +0200
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org
-References: <OF918E6F71.637B1CBC-ON85256BFB.004CDDD0@pok.ibm.com.suse.lists.linux.kernel> <1027199147.16819.39.camel@irongate.swansea.linux.org.uk.suse.lists.linux.kernel> <p731y9xva8m.fsf@oldwotan.suse.de>
-In-Reply-To: <p731y9xva8m.fsf@oldwotan.suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207211033.59266.oliver@neukum.name>
+	id <S317666AbSGUIfo>; Sun, 21 Jul 2002 04:35:44 -0400
+Received: from pop.gmx.de ([213.165.64.20]:29129 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S317664AbSGUIfo>;
+	Sun, 21 Jul 2002 04:35:44 -0400
+Message-Id: <5.1.0.14.2.20020721102202.00b9b3d0@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 21 Jul 2002 10:36:20 +0200
+To: Tomas Szepe <szepe@pinerecords.com>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: Give Bartlomiej a break!  (Re: Impressions of IDE 98?)
+Cc: Thunder from the hill <thunder@ngforever.de>,
+       Andre Hedrick <andre@linux-ide.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020721082314.GE14352@louise.pinerecords.com>
+References: <5.1.0.14.2.20020721094805.00b9e5c8@pop.gmx.net>
+ <5.1.0.14.2.20020721085320.00b962b0@pop.gmx.net>
+ <5.1.0.14.2.20020721094805.00b9e5c8@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, 21. Juli 2002 08:57 schrieb Andi Kleen:
-> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-> > > o EVMS (Enterprise Volume Management System)      (EVMS team)
+At 10:23 AM 7/21/2002 +0200, Tomas Szepe wrote:
+> > >On Sun, 21 Jul 2002, Mike Galbraith wrote:
+> > >> Since I know spit about IDE/ATA/ATAPI/SCSI, I'll keep my mouth shut and
+> > >> leave judgement/"voting" to those who fully understand the technical
+> > >issues.
+> > >
+> > >You probably shouldn't. Technical decisions should be made by technicians,
+> > >but decisions about the technicians should be made by the human resources
+> > >dept., and since we claim to be a constitutional monarchy, we might try
+> > >out a democratic decision...
 > >
-> > or LVM2, which already appears to be scrubbed down and clean
+> > No, I'm absolutely sure I'm doing the right thing.
 >
-> Is there any reason why not both can go in? As far as I know neither
-> of them needs much of core changes, they are more like independent
-> "drivers" of the generic block layer stacking interface. There are
-> already multiple drivers of this - LVM and the various MD personalities.
+>Well you don't necessarily have to be an IDE guru to realize something's
+>wrong when you see a bloke constantly breaking the subsystem, practically
+>never fixing it up himself, disappearing for a month w/o saying a word
+>after having fried 2.5.25 completely and not really caring about what
+>others have to say about the code.
 
-The interfaces to filesystems for things like online resizing.
-If these are not compatible and stay compatible, you cause fs
-developers a lot of pain.
+No, you don't have to be a guru to notice that the rewrite is proving 
+difficult.
 
-	Regards
-		Oliver
+>And you've noticed the IDE 2.4 forward-port, right?
+
+Yes.  I also read Jens stated reasons for doing the port.. made perfect sense.
+
+         -Mike
 

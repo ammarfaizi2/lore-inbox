@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129467AbQKFRVE>; Mon, 6 Nov 2000 12:21:04 -0500
+	id <S129269AbQKFRVy>; Mon, 6 Nov 2000 12:21:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129666AbQKFRUy>; Mon, 6 Nov 2000 12:20:54 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25940 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129467AbQKFRUi>; Mon, 6 Nov 2000 12:20:38 -0500
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-To: dalecki@evision-ventures.com (Martin Dalecki)
-Date: Mon, 6 Nov 2000 17:19:29 +0000 (GMT)
-Cc: dwmw2@infradead.org (David Woodhouse),
-        jgarzik@mandrakesoft.com (Jeff Garzik), goemon@anime.net (Dan Hollis),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        oxymoron@waste.org (Oliver Xymoron), kaos@ocs.com.au (Keith Owens),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3A06CB18.570BB38A@evision-ventures.com> from "Martin Dalecki" at Nov 06, 2000 04:15:36 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129243AbQKFRVp>; Mon, 6 Nov 2000 12:21:45 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:22289 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S129758AbQKFRVg>; Mon, 6 Nov 2000 12:21:36 -0500
+Date: Mon, 6 Nov 2000 18:20:59 +0100
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Michael Vines <mjvines@undergrad.math.uwaterloo.ca>
+Cc: Catalin BOIE <util@deuroconsult.ro>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel hook for open
+Message-ID: <20001106182059.G12348@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20001106155702.F12348@arthur.ubicom.tudelft.nl> <Pine.LNX.4.10.10011061009490.9936-100000@barkingdogstudios.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13spve-0006Pt-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.10.10011061009490.9936-100000@barkingdogstudios.com>; from mjvines@undergrad.math.uwaterloo.ca on Mon, Nov 06, 2000 at 10:11:11AM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
+X-Loop: erik@arthur.ubicom.tudelft.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Persistent storage is the best way to do it though. It doesn't have to be
-> > persistent over reboots, just during the lifetime of the kernel.
+On Mon, Nov 06, 2000 at 10:11:11AM -0500, Michael Vines wrote:
+> On Mon, 6 Nov 2000, Erik Mouw wrote:
+> > Use LD_PRELOAD instead.
 > 
-> No! The best way to do it are just *persistently loaded* modules.
-> It's THAT simple!
+> You could also write a simple kernel module that replaces the open system
+> call.  See the Linux Kernel Module Programming Guide for details. 
+> http://www.linuxdoc.org/guides.html
+> 
+> specifically http://www.linuxdoc.org/LDP/lkmpg/node20.html
 
-So you want to split every sound driver into two or more modules ? 
+Why difficult when it can be done easy? To test the Y2K readiness of
+some programs (yeah, Y2K, remember?), I wrote a small library that
+overloaded the time() and gettimeofday() syscalls in about 100 lines of
+code. No kernel modules needed, no root privileges needed, just set the
+environment variable LD_PRELOAD and off you go.
 
-Alan
 
+Erik
+
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

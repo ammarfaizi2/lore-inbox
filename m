@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317345AbSFCKGI>; Mon, 3 Jun 2002 06:06:08 -0400
+	id <S315544AbSFCKL0>; Mon, 3 Jun 2002 06:11:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317347AbSFCKGH>; Mon, 3 Jun 2002 06:06:07 -0400
-Received: from adsl-203-134.38-151.net24.it ([151.38.134.203]:7931 "EHLO
-	morgana.systemy.it") by vger.kernel.org with ESMTP
-	id <S317345AbSFCKGH>; Mon, 3 Jun 2002 06:06:07 -0400
-Date: Mon, 3 Jun 2002 12:05:58 +0200
-From: Alessandro Rubini <rubini@gnu.org>
-To: andersen@codepoet.org, karim@opersys.com, linux-kernel@vger.kernel.org,
-        rpm@idealx.com
-Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
-Message-ID: <20020603120558.A29441@morgana.systemy.it>
-Mime-Version: 1.0
+	id <S317262AbSFCKLZ>; Mon, 3 Jun 2002 06:11:25 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:35848
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S315544AbSFCKLY>; Mon, 3 Jun 2002 06:11:24 -0400
+Date: Mon, 3 Jun 2002 03:10:10 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Kjartan Maraas <kmaraas@online.no>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Anthony Spinillo <tspinillo@linuxmail.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: INTEL 845G Chipset IDE Quandry
+In-Reply-To: <1023104966.26418.11.camel@sevilla.gnome.no>
+Message-ID: <Pine.LNX.4.10.10206030306470.14596-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Free Lance in Pavia, Italy.
-In-Reply-To: <20020603095202.GA16392@codepoet.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> It still looks to me like a real time operating system
-> (Adeos) running real time and non-real time tasks with a general
-> purpose operating system as one of the non-real time tasks...
+Kjartan,
 
-But the point is exactly that adeos is not a real-time operating
-system.  It is not an operating system at all.
+Please do not confuse them, they have a hard enough time reading.
+The docs state it can only do X, but lets overclock it and do X+1.
+Maybe the hardware is smart and knows which drivers are safe and sane.
 
-Besides, adeos is not a "circumvention device" to run RT-and-non-RT at
-the same time.  It's a nano-kernel meant to run several independent OS's
-at once, as well as kernel debuggers and a lot of other stuff. Did you
-notice Karim is the author and maintainer of the linux trace toolkit?
+Anthony, I sent you a mini-patch to add the 845G to the sane driver.
+It will work, as Kjartan has stated.  His system suffered the exact same
+events.
 
-> Could you summarize (for non-lawyers such as myself) how this
-> bypasses the claims in the patent?  
+Cheers,
 
-I'll quote the patent for you:
+Andre Hedrick
+LAD Storage Consulting Group
 
-   A process for [...]  providing a general purpose operating system as
-   one of the non-real time tasks; preempting the general purpose
-   operating system as needed for the real time tasks; and preventing the
-   general purpose operating system from blocking preemption of the
-   non-real time tasks.
 
-Nothing of this is in adeos. And nothing of this will be in the
-adeosized RTAI.
+On 3 Jun 2002, Kjartan Maraas wrote:
 
-/alessandro, living in a swpat-free country (with other problems, though :)
+> man, 2002-06-03 kl. 03:13 skrev Alan Cox:
+> > On Sun, 2002-06-02 at 22:30, Vojtech Pavlik wrote:
+> > > On Sun, Jun 02, 2002 at 09:36:35PM +0200, Martin Dalecki wrote:
+> 
+> [SNIP]
+> 
+> > > Note it works with 2.5 already. We have the device there.
+> > 
+> > If you look at why it fails it fails not because it isnt in the table
+> > but because the PCI device has not been allocated resources properly by
+> > the BIOS
+> > 
+> 
+> Back when I talked to Andre about this problem it sounded to me like he
+> said it was a genuine bug that was fixed in the ide-convert patches.
+> Maybe I'm confusing two issues here...
+

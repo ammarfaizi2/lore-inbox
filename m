@@ -1,64 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263428AbTFJQgM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 12:36:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263449AbTFJQgM
+	id S262298AbTFJQmw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 12:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263451AbTFJQmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 12:36:12 -0400
-Received: from rsys000a.roke.co.uk ([193.118.201.102]:20754 "HELO
-	rsys000a.roke.co.uk") by vger.kernel.org with SMTP id S263428AbTFJQgK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 12:36:10 -0400
-From: "ZCane, Ed (Test Purposes)" <zed.cane@roke.co.uk>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Message-ID: <00c701c32f70$4b13b050$d8c176c1@roke.co.uk>
-References: <20030610004512.6358fdfb.akpm@digeo.com>
-Subject: Problem with bootmem/mmap
-Date: Tue, 10 Jun 2003 17:49:43 +0100
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	Tue, 10 Jun 2003 12:42:52 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:2215 "EHLO
+	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
+	id S262298AbTFJQmu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 12:42:50 -0400
+Date: Tue, 10 Jun 2003 17:58:53 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@digeo.com>
+cc: Christoph Rohland <cr@sap.com>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] tmpfs 1/3 shmem_file_write EFAULT
+Message-ID: <Pine.LNX.4.44.0306101757150.2432-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+Here's the first of three small unrelated patches to mm/shmem.c.
+Based on 2.5.70-mm7.  Aggregate diffstat is:
 
-I'm allocating a large buffer at boot time (for later DMA purposes) using:
+ include/linux/shmem_fs.h |    2 -
+ mm/shmem.c               |   73 +++++++++++++++++++++++++++--------------------
+ 2 files changed, 43 insertions(+), 32 deletions(-)
 
-buf=alloc_bootmem_low_pages(1024*1024*500);
+tmpfs 1/3 shmem_file_write EFAULT
 
-If I printk here, from init/main.c, I get:
-buf=0xc1e14000
-__va(buf)=0x81e14000
-__pa(buf)=0x1e14000
+generic_file_aio_write_nolock (phew!) has recently been corrected for
+when partial writes hit -EFAULT: now bring shmem_file_write into line.
 
-Now, in user-space, I'm trying to get access to my buffer (as root), by
-doing the following:
-
-memfd=open("/dev/mem", O_RDWR);
-my_buf=mmap(0, 1024*1024*501, PROT_READ|PROT_WRITE,
-                        MAP_SHARED|MAP_FIXED, memfd, OFFSET);
-
-I've tried all those addresses above, as the OFFSET, but it either generates
-an illegal instruction,
-or a segfault. Bit of a beginner, but learning fast, and I'd be _really_
-greatful, if anyone could help me!
-
-Many thanks,
-Ed
-
-
-
-begin 666 RMRL-Disclaimer.txt
-M4F5G:7-T97)E9"!/9F9I8V4Z(%)O:V4@36%N;W(@4F5S96%R8V@@3'1D+"!3
-M:65M96YS($AO=7-E+"!/;&1B=7)Y+"!"<F%C:VYE;&PL( T*0F5R:W-H:7)E
-M+B!21S$R(#A&6@T*#0I4:&4@:6YF;W)M871I;VX@8V]N=&%I;F5D(&EN('1H
-M:7,@92UM86EL(&%N9"!A;GD@871T86-H;65N=',@:7,@8V]N9FED96YT:6%L
-M('1O(%)O:V4@#0T-"DUA;F]R(%)E<V5A<F-H($QT9"!A;F0@;75S="!N;W0@
-M8F4@<&%S<V5D('1O(&%N>2!T:&ER9"!P87)T>2!W:71H;W5T('!E<FUI<W-I
-M;VXN(%1H:7,@#0T-"F-O;6UU;FEC871I;VX@:7,@9F]R(&EN9F]R;6%T:6]N
-M(&]N;'D@86YD('-H86QL(&YO="!C<F5A=&4@;W(@8VAA;F=E(&%N>2!C;VYT
-;<F%C='5A;" -#0T*<F5L871I;VYS:&EP+@T*
-end
+--- 2.5.70-mm7/mm/shmem.c	Thu Jun  5 10:27:34 2003
++++ tmpfs1/mm/shmem.c	Fri Jun  6 19:20:21 2003
+@@ -1186,30 +1186,32 @@
+ 			left = __copy_from_user(kaddr + offset, buf, bytes);
+ 			kunmap(page);
+ 		}
++
++		written += bytes;
++		count -= bytes;
++		pos += bytes;
++		buf += bytes;
++		if (pos > inode->i_size)
++			inode->i_size = pos;
++
+ 		flush_dcache_page(page);
++		set_page_dirty(page);
++		if (!PageReferenced(page))
++			SetPageReferenced(page);
++		page_cache_release(page);
++
+ 		if (left) {
+-			page_cache_release(page);
++			pos -= left;
++			written -= left;
+ 			err = -EFAULT;
+ 			break;
+ 		}
+ 
+-		if (!PageReferenced(page))
+-			SetPageReferenced(page);
+-		set_page_dirty(page);
+-		page_cache_release(page);
+-
+ 		/*
+ 		 * Our dirty pages are not counted in nr_dirty,
+ 		 * and we do not attempt to balance dirty pages.
+ 		 */
+ 
+-		written += bytes;
+-		count -= bytes;
+-		pos += bytes;
+-		buf += bytes;
+-		if (pos > inode->i_size)
+-			inode->i_size = pos;
+-
+ 		cond_resched();
+ 	} while (count);
+ 
 

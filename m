@@ -1,67 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267472AbTAHQaz>; Wed, 8 Jan 2003 11:30:55 -0500
+	id <S267606AbTAHQhg>; Wed, 8 Jan 2003 11:37:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267519AbTAHQay>; Wed, 8 Jan 2003 11:30:54 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:60571 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
-	id <S267472AbTAHQax>; Wed, 8 Jan 2003 11:30:53 -0500
-Date: Wed, 8 Jan 2003 17:39:36 +0100 (CET)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: Wichert Akkerman <wichert@wiggy.net>
-Cc: netdev@oss.sgi.com, <linux-kernel@vger.kernel.org>
-Subject: Re: ipv6 stack seems to forget to send ACKs
-In-Reply-To: <20030108150201.GA30490@wiggy.net>
-Message-ID: <Pine.LNX.4.44.0301081718340.4542-100000@dns.toxicfilms.tv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267614AbTAHQhf>; Wed, 8 Jan 2003 11:37:35 -0500
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:31423 "EHLO
+	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S267606AbTAHQhe>; Wed, 8 Jan 2003 11:37:34 -0500
+Date: Wed, 8 Jan 2003 17:11:48 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Bjorn Helgaas <bjorn_helgaas@hp.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] AGP 4/7: add generic print of AGP version & mode
+Message-ID: <20030108171148.I628@nightmaster.csn.tu-chemnitz.de>
+References: <200301071338.17372.bjorn_helgaas@hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <200301071338.17372.bjorn_helgaas@hp.com>; from bjorn_helgaas@hp.com on Tue, Jan 07, 2003 at 01:38:17PM -0700
+X-Spam-Score: -3.3 (---)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18WJLK-0007Wo-00*kS.pvhICDqw*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Previously Wichert Akkerman wrote:
-> > traceroute to ipv6.lkml.org (2001:968:1::2) from
-> > 3ffe:8280:10:1d0:290:27ff:fe2d:968c, 30 hops max, 16 byte packets
-> >  1  thunder.wiggy.net (3ffe:8280:10:1d0:250:4ff:fe0b:dd79)  0.666 ms 0.22 ms  0.199 ms
-> >  2  xs4all-29.ipv6.xs4all.nl (3ffe:8280:0:2001::58)  27.568 ms  28.012 ms  30.177 ms
-> >  3  26.ge-0-2-0.xr1.pbw.xs4all.net (2001:888:0:3::1)  22.035 ms 19.528 ms  44.644 ms
-> >  4  0.ge-0-3-0.xr1.sara.xs4all.net (2001:888:2:1::1)  19.519 ms 19.002 ms  21.974 ms
-> >  5  fe-0-0-0.ams-core-01.network6.isp-services.nl (2001:7f8:1::a502:4875:1)  19.978 ms  30.278 ms  20.248 ms
-> >  6  2001:968::2 (2001:968::2)  24.246 ms  24.083 ms  22.918 ms
-> >  7  2001:968:1::2 (2001:968:1::2)  24.978 ms  23.866 ms  23.661 ms
-> >
-> > thunder.wiggy.net is my Linux router running 2.4.19-pre5-ac3-freeswan196
-> > currently. The second hop is a normal sit tunnel and all the other
-> > hops are native ipv6 using Cisco and Juniper routers as far as I know.
->
-> Slight correction to that: xs4all-29.ipv6.xs4all.nl is a FreeBSD-4.5
-> tunnel server. The toher xs4all.net hops are Junipers running JunOS 5.3
-> or 5.5.
-I had four contiguous listenings:
-3 mins
-10mins
-19mins
-13mins
+Hi Bjorn,
+hi lkml,
 
-When i increased the buffer in xmms i got better uninterrupted timings.
-And survived data gaps better.
+On Tue, Jan 07, 2003 at 01:38:17PM -0700, Bjorn Helgaas wrote:
+> diff -Nru a/drivers/char/agp/generic.c b/drivers/char/agp/generic.c
+> --- a/drivers/char/agp/generic.c	Tue Jan  7 12:52:25 2003
+> +++ b/drivers/char/agp/generic.c	Tue Jan  7 12:52:25 2003
+> @@ -314,15 +314,22 @@
+>  
+>  /* Generic Agp routines - Start */
+>  
+> -void agp_device_command(u32 command)
+> +void agp_device_command(u32 command, int agp_v3)
 
-I seem to be getting better results than you, i think that it is not an
-issue of ipv6 implementation but simply the case of time sensitive
-traffic fighting with other Internet traffic over tunnels through ipv4
-networks.
+Why not agp_version?
 
-I do not know how many tunnels are in my path, i know that hop distance to
-my tunnel is exactly 1 hop (ipv6 broker and ipv4 provider are the same)
+>  {
+>  	struct pci_dev *device;
+> +	int mode;
+> +
+> +	mode = command & 0x7;
+> +	if (agp_v3)
+> +		mode *= 4;
+>  
+>  	pci_for_each_dev(device) {
+>  		u8 agp = pci_find_capability(device, PCI_CAP_ID_AGP);
+>  		if (!agp)
+>  			continue;
+>  
+> +		printk(KERN_INFO PFX "Putting AGP V%d device at %s into %dx mode\n",
+> +				agp_v3 ? 3 : 2, device->slot_name, mode);
 
-If there is immense traffic at one of the routers (total traffic on an
-interface) stream packets can be simply dropped if there are no queuing
-disciplines that would take eg. flow control into account.
+Why not use agp_version directly here?
 
-What do you think?
+>  		pci_write_config_dword(device, agp + 8, command);
+>  	}
+>  }
 
-btw. what the hell is JunOs ?
+And always supply AGP_VERSION_1, AGP_VERSION_2, AGP_VERSION_3 and
+so or simply numbers to that command?
 
-Regards,
-Maciej Soltysiak
+This offers a lot of possibilities:
 
+   - Version checking (drivers can deny commands not suitable for
+     this interface, if this checking is enabled)
 
+   - Support for AGP_VERSION_4 can be implemented without
+     obfuscating the interface for older (non-compliant) drivers.
+
+   - One check less ;-)
+
+   - Cleaner Code
+
+Regards
+
+Ingo Oeser
+-- 
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

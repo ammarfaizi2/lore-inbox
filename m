@@ -1,77 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290503AbSAQWbo>; Thu, 17 Jan 2002 17:31:44 -0500
+	id <S290504AbSAQWdE>; Thu, 17 Jan 2002 17:33:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290504AbSAQWbg>; Thu, 17 Jan 2002 17:31:36 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:44172 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S290503AbSAQWb0>;
-	Thu, 17 Jan 2002 17:31:26 -0500
-Date: Thu, 17 Jan 2002 14:30:15 -0800 (PST)
-Message-Id: <20020117.143015.51703736.davem@redhat.com>
-To: balbir_soni@hotmail.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Suspected bug in getpeername and getsockname
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <F255p0VatC6ZUbPHiNK0001e34f@hotmail.com>
-In-Reply-To: <F255p0VatC6ZUbPHiNK0001e34f@hotmail.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S290506AbSAQWcz>; Thu, 17 Jan 2002 17:32:55 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:57607 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S290504AbSAQWcg>; Thu, 17 Jan 2002 17:32:36 -0500
+Date: Thu, 17 Jan 2002 23:32:32 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: newbie with a qlogic host bus adapter
+Message-ID: <20020117223232.GA26240@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C474B9C.560DF747@excelco.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <3C474B9C.560DF747@excelco.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Balbir Singh" <balbir_soni@hotmail.com>
-   Date: Thu, 17 Jan 2002 14:11:06 -0800
+On Thu, 17 Jan 2002, root wrote:
 
-   The reasons why I wanted to pass the address is length
-   is
-   
-   1. It gives more flexibility for any body implementing
-      the protocol specific code.
+> I have a Qlogic qla2200f host bus adapter for an optical SAN.  I am
+> running SuSE linux 7.1, I just downloaded kernel 2.4.17 sources and want
+> to compile a kernel.  But when I "make menuconfig" 
+> I go into scsi support, and into scs low level drivers, the qlogic
+> "qla2x00 QLC driver support" is not an option as it should be according
+> to the documentation for the qla2200.
+> how do i fix that?
+> 
+> also i tried to just compile the drivers to be modules, but i get the
+> error: /usr/src/linux-2.4/include/linux/modversions.h: No such file or
+> directory
+> 
+> where can I get this file?
 
-And you could do what with this flexibility that can't be taken care
-of at the top level?
+You can probably just do
+cd /usr/src
+ln -s linux-2.4.WHATEVERSUSE7.1HAS linux-2.4
 
-   2. We anyway copy the length in move_addr_to_user, we
-      might as well do it in the system call and pass the
-      length to the protocol.
+to "fix" the latter problem, or maybe you need to tweak the Makefile.
 
-Why?  What are you going to DO, read this: _DO_, with the
-value?
+As to the former problem, I cannot tell. Should your problem not be
+solved until Jan 27th, feel free to ask me in private mail.
 
-   3. We can finally copy only the length specified back
-      to the  user as we do currently.
-   
-We already do this in move_addr_to_user.  If we do it in
-one place, we don't have to duplicate (and thus risk bugs
-in) this logic in the various protocols.
+Oh, and while I'm at it: please do use a regular user account to read
+and send mail, root should not expose himself to the dangers of possible
+bugs in his mailer -- use yast or useradd to add a regular user for
+yourself, and use /etc/aliases or /etc/mail/aliases to forward root mail
+to that user.
 
-   But, consider a case where a user passes a negative value
-   in len.
+-- 
+Matthias Andree
 
-Now you are totally talking non-sense.  A negative len is
-an error (-EINVAL) and move_addr_to_user handles this case
-just fine.
-
-   I feel the error should be caught first hand, we should not have
-   spent the time and space calling the protocol specific code at all,
-   we should catch the error and return immediately.
- ...
-   Don't u feel they should be fixed.
-   
-If you want to move the "if (len < 0) return -EINVAL;" right before
-the ->getname() invocation, feel free.  However, this is code
-duplication and is error prone.
-
-But either way, this is not an argument at all to move the user len
-into the protocols.  YOU DONT NEED TO, and you never will, to
-accomplish any legitimate task.
-
-Again the question remains, why would you ever need the user len in
-the protocol handlers?  All I am hearing is a bunch of hot air so far
-with no real substance.
-
-Franks a lot,
-David S. Miller
-davem@redhat.com
+"They that can give up essential liberty to obtain a little temporary
+safety deserve neither liberty nor safety."         Benjamin Franklin

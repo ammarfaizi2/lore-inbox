@@ -1,32 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269081AbRHBS3m>; Thu, 2 Aug 2001 14:29:42 -0400
+	id <S268468AbRHBScm>; Thu, 2 Aug 2001 14:32:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269076AbRHBS3c>; Thu, 2 Aug 2001 14:29:32 -0400
-Received: from w146.z064001233.sjc-ca.dsl.cnc.net ([64.1.233.146]:52361 "EHLO
-	windmill.gghcwest.com") by vger.kernel.org with ESMTP
-	id <S269057AbRHBS30>; Thu, 2 Aug 2001 14:29:26 -0400
-Date: Thu, 2 Aug 2001 11:29:27 -0700 (PDT)
-From: "Jeffrey W. Baker" <jwbaker@acm.org>
-X-X-Sender: <jwb@heat.gghcwest.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Ongoing 2.4 VM suckage
-Message-ID: <Pine.LNX.4.33.0108021122400.21298-100000@heat.gghcwest.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266808AbRHBScW>; Thu, 2 Aug 2001 14:32:22 -0400
+Received: from f83.law7.hotmail.com ([216.33.237.83]:32528 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S268468AbRHBScU>;
+	Thu, 2 Aug 2001 14:32:20 -0400
+X-Originating-IP: [198.252.187.206]
+From: "daniel sheltraw" <l5gibson@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: filesystem problem
+Date: Thu, 02 Aug 2001 13:32:24 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F83srxPx83BcTbnoRiC000098a9@hotmail.com>
+X-OriginalArrivalTime: 02 Aug 2001 18:32:24.0520 (UTC) FILETIME=[79700480:01C11B81]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This just in: Linux 2.4 VM still useless.
+Hello kernel
 
-I have 2 GB main memory and 4GB swap on a 2-way intel machine running a
-variety of 2.4 kernels (we upgrade every time we have to reboot), and we
-have to power cycle the machine weekly because too much memory usage + too
-much disk I/O == thrash for hours.
+I am having a fsck problem and do not know how to solve it most
+effectively.  I am running 2.2.14 (Redhat 6.2). When booting I
+get the following message:
 
-Gosh, I guess it is silly to use all of the available RAM and I/O
-bandwidth on my machines.  My company will just go out of their way to
-do less work on smaller sets of data.
+Checking root filesystem /dev/hda5 contains a file system with errors,
+   check forced.
+/dev/hda5
+Unattached inode 198516
 
--jwb
+/dev/hda5: UNEXPECTED INCONSISTENCY; RUN fsck MANUALLY. (ie., without
+        -a or -p options)
+
+Can someone please tell me how to use fsck to fix this
+filesystem problem? Also if you know of a better place to
+post such questions (kernel development list hardly seems
+appropriate) would you please tell me where.
+
+
+
+Thanks,
+Daniel
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
 

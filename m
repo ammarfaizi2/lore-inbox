@@ -1,79 +1,157 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129584AbRAOLwQ>; Mon, 15 Jan 2001 06:52:16 -0500
+	id <S129413AbRAOLzq>; Mon, 15 Jan 2001 06:55:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131159AbRAOLwH>; Mon, 15 Jan 2001 06:52:07 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:28432 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S131042AbRAOLvx>;
-	Mon, 15 Jan 2001 06:51:53 -0500
-Date: Mon, 15 Jan 2001 12:51:23 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux RAID Mailing List <linux-raid@vger.kernel.org>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [patch] fixes for RAID1/RAID5 hot-add/hot-remove, 2.4.0-ac9
-Message-ID: <Pine.LNX.4.30.0101151248200.1398-200000@e2>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="655616-1901406066-979559483=:1398"
+	id <S129485AbRAOLzg>; Mon, 15 Jan 2001 06:55:36 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:27898 "EHLO
+	lappi.waldorf-gmbh.de") by vger.kernel.org with ESMTP
+	id <S129413AbRAOLz0>; Mon, 15 Jan 2001 06:55:26 -0500
+Date: Mon, 15 Jan 2001 09:54:32 -0200
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: linux-kernel@vger.kernel.org, linux-mm@frodo.biederman.org
+Subject: Re: Caches, page coloring, virtual indexed caches, and more
+Message-ID: <20010115095432.A14351@bacchus.dhis.org>
+In-Reply-To: <Pine.LNX.4.10.10101101100001.4457-100000@penguin.transmeta.com> <E14GR38-0000nM-00@the-village.bc.nu> <20010111005657.B2243@khan.acc.umu.se> <20010112035620.B1254@bacchus.dhis.org> <m17l40hhtd.fsf@frodo.biederman.org> <20010115005315.D1656@bacchus.dhis.org> <m1snmlfbrx.fsf_-_@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m1snmlfbrx.fsf_-_@frodo.biederman.org>; from ebiederm@xmission.com on Mon, Jan 15, 2001 at 01:41:06AM -0700
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Mon, Jan 15, 2001 at 01:41:06AM -0700, Eric W. Biederman wrote:
 
---655616-1901406066-979559483=:1398
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+(Cc list truncated since probably not so many people do care ...)
 
+> shared mmap.  This is the important one.  Since we have a logical
+> backing store this is easy to handle.  We just enforce that the
+> virtual address in a process that we mmap something to must match the
+> logical address to VIRT_INDEX_BITS.  The effect is the same as a
+> larger page size with virtually no overhead.
 
-- the attached patch (against -ac9) fixes a bug in the RAID1 and RAID4/5
-  code that made raidhotremove fail under certain (rare) circumstances.
-  Please apply.
+I'm told this is going to break software.  Bad since it's otherwise it'd
+be such a nice silver bullet solution.
 
-	Ingo
+> sysv shared memory is exactly the same as shared mmap.  Except instead
+> of a file offset you have an offset into the sysv segment.
 
---655616-1901406066-979559483=:1398
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="raidfix-2.4.0-ac9-A0"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0101151251230.1398@e2>
-Content-Description: 
-Content-Disposition: attachment; filename="raidfix-2.4.0-ac9-A0"
+No, it's simpler in the MIPS case.  The ABI guys were nice and did define
+that the virtual addresses have to be multiple of 256kbyte which is
+more than sufficient to kill the problem.
 
-LS0tIGxpbnV4L2RyaXZlcnMvbWQvcmFpZDEuYy5vcmlnCU1vbiBEZWMgMTEg
-MjI6MTk6MzUgMjAwMA0KKysrIGxpbnV4L2RyaXZlcnMvbWQvcmFpZDEuYwlN
-b24gSmFuIDE1IDE0OjQ1OjM1IDIwMDENCkBAIC04MzIsNiArODMyLDcgQEAN
-CiAJc3RydWN0IG1pcnJvcl9pbmZvICp0bXAsICpzZGlzaywgKmZkaXNrLCAq
-cmRpc2ssICphZGlzazsNCiAJbWRwX3N1cGVyX3QgKnNiID0gbWRkZXYtPnNi
-Ow0KIAltZHBfZGlza190ICpmYWlsZWRfZGVzYywgKnNwYXJlX2Rlc2MsICph
-ZGRlZF9kZXNjOw0KKwltZGtfcmRldl90ICpzcGFyZV9yZGV2LCAqZmFpbGVk
-X3JkZXY7DQogDQogCXByaW50X3JhaWQxX2NvbmYoY29uZik7DQogCW1kX3Nw
-aW5fbG9ja19pcnEoJmNvbmYtPmRldmljZV9sb2NrKTsNCkBAIC05ODksNiAr
-OTkwLDEwIEBADQogCQkvKg0KIAkJICogZG8gdGhlIHN3aXRjaCBmaW5hbGx5
-DQogCQkgKi8NCisJCXNwYXJlX3JkZXYgPSBmaW5kX3JkZXZfbnIobWRkZXYs
-IHNwYXJlX2Rlc2MtPm51bWJlcik7DQorCQlmYWlsZWRfcmRldiA9IGZpbmRf
-cmRldl9ucihtZGRldiwgZmFpbGVkX2Rlc2MtPm51bWJlcik7DQorCQl4Y2hn
-X3ZhbHVlcyhzcGFyZV9yZGV2LT5kZXNjX25yLCBmYWlsZWRfcmRldi0+ZGVz
-Y19ucik7DQorDQogCQl4Y2hnX3ZhbHVlcygqc3BhcmVfZGVzYywgKmZhaWxl
-ZF9kZXNjKTsNCiAJCXhjaGdfdmFsdWVzKCpmZGlzaywgKnNkaXNrKTsNCiAN
-Ci0tLSBsaW51eC9kcml2ZXJzL21kL3JhaWQ1LmMub3JpZwlNb24gSmFuIDE1
-IDE0OjQ1OjUwIDIwMDENCisrKyBsaW51eC9kcml2ZXJzL21kL3JhaWQ1LmMJ
-TW9uIEphbiAxNSAxNDo0NjowMSAyMDAxDQpAQCAtMTcwNyw2ICsxNzA3LDcg
-QEANCiAJc3RydWN0IGRpc2tfaW5mbyAqdG1wLCAqc2Rpc2ssICpmZGlzaywg
-KnJkaXNrLCAqYWRpc2s7DQogCW1kcF9zdXBlcl90ICpzYiA9IG1kZGV2LT5z
-YjsNCiAJbWRwX2Rpc2tfdCAqZmFpbGVkX2Rlc2MsICpzcGFyZV9kZXNjLCAq
-YWRkZWRfZGVzYzsNCisJbWRrX3JkZXZfdCAqc3BhcmVfcmRldiwgKmZhaWxl
-ZF9yZGV2Ow0KIA0KIAlwcmludF9yYWlkNV9jb25mKGNvbmYpOw0KIAltZF9z
-cGluX2xvY2tfaXJxKCZjb25mLT5kZXZpY2VfbG9jayk7DQpAQCAtMTg3OCw2
-ICsxODc5LDEwIEBADQogCQkvKg0KIAkJICogZG8gdGhlIHN3aXRjaCBmaW5h
-bGx5DQogCQkgKi8NCisJCXNwYXJlX3JkZXYgPSBmaW5kX3JkZXZfbnIobWRk
-ZXYsIHNwYXJlX2Rlc2MtPm51bWJlcik7DQorCQlmYWlsZWRfcmRldiA9IGZp
-bmRfcmRldl9ucihtZGRldiwgZmFpbGVkX2Rlc2MtPm51bWJlcik7DQorCQl4
-Y2hnX3ZhbHVlcyhzcGFyZV9yZGV2LT5kZXNjX25yLCBmYWlsZWRfcmRldi0+
-ZGVzY19ucik7DQorDQogCQl4Y2hnX3ZhbHVlcygqc3BhcmVfZGVzYywgKmZh
-aWxlZF9kZXNjKTsNCiAJCXhjaGdfdmFsdWVzKCpmZGlzaywgKnNkaXNrKTsN
-CiANCg==
---655616-1901406066-979559483=:1398--
+> mremap.  Linux specific but pretty much the same as mmap, but easier.
+> We just enforce that the virtual address of the source of mremap,
+> and the destination of mremap match on VIRT_INDEX_BITS.
+
+Correct and as mremap doesn't take any address argument we won't break
+any expecations on the properties of the returned address in mmap.
+
+> kmap is a little different.  using VIRT_INDEX_BITS is a little
+> subtle but should work.  Currently kmap is used only with the page
+> cache so we can take advantage of the page->index field.  From page->index 
+> we can compute the logical offset of the page and make certain the
+> page mapped with all VIRT_INDEX_BITS the same as a mmap alias.
+
+Yup.  It gets somewhat tricker due to the page cache being in in KSEG0,
+an memory area which is essentially like a 512mb page that is hardwired
+in the CPU.  It's preferable to stick with since it means we never take
+any TLB faults for pages in the page cache on MIPS.
+
+> kmap and the swap cache are a little different.  Since index holds
+> the location of a page on the swap file we'd have to make that index
+> be the same for VIRT_INDEX_BITS as well.
+
+> > That's a possible solution; I'm not clear how bad the overhead would be.
+> > Right now a virtual alias is a relativly rare event and we don't want the
+> > common case of no virtual alias to make pay a high price.  Or?
+> 
+> I guess the question is how big would these logical pages need to be?
+
+Depending of the CPU 8kb to 32kb; the hardware supports page sizes 4kb, 16kb,
+64kb ... 16mb.
+
+> Answer big enough to turn your virtually indexed cache into a
+> physically indexed cache.  Which means they would have to be cache
+> size.  
+
+For above mentioned CPU versions which have 8kb rsp. 16kb per primary cache
+we want 32kb as mentioned.
+
+> Increasing PAGE_SIZE a few bits shouldn't be bad but going up two
+> orders of magnitude would likely skewer your swapping, and memory
+> management performance.  You'd just have way to few pages.
+> 
+> But I have a better suggestion so see above.
+
+> O.k. this is scratched off my list of possible good ideas.  Duh.  This
+> fails for exactly the same reason as increasing as increasing page
+> size.  at 256K cache and 4K PAGE_SIZE you'd need 256/4 = 64 different
+> types of pages, fairly nasty.
+
+You say it; yet it seems like it could be part of a good solution.  Just
+forcefully allocating a single page by splitting a large page and before
+that even swapping until we can actually allocate a higher order page is
+bad.
+
+> Hmm.  This doesn't sound right.  And this sounds like a silly way to
+> use reverse mappings anyway, since you can do it up front in mmap and
+> their kin.  Which means you don't have to slow any of the page fault
+> logic up.
+
+Then how do you handle something like:
+
+  fd = open(TESTFILE, O_RDWR | O_CREAT, 664);
+  res = write(fd, one, 4096);
+  mmap(addr            , PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+  mmap(addr + PAGE_SIZE, PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+
+If both mappings are immediately created accessible you'll directly endup
+with aliases.  There is no choice, if the pagesize is only 4kb an R4x00
+will create aliases in the case.  Bad.
+
+> Hmm.  Correct.  If you have the page aliases appropriately colored across
+> address spaces you will always hit the same cache block, and since you
+> do virtual to physical before the tag compare a false hit won't hurt
+> either.
+
+As above example shows you may even get aliases in a single address space.
+
+> Well virtually indexed caches look like worth supporting in the kernel
+> since it is easy to do, and can be compiled out on architectures that
+> don't support it.
+
+At least for sparc it's already supported.  Right now I don't feel like
+looking into the 2.4 solution but checkout srmmu_vac_update_mmu_cache in
+the 2.2 kernel.
+
+> For keeping cache collisions down I think we probably do a decent job
+> already.  All we need to do is to continuously cycle through cache
+> aliases.
+>
+> For not ensuring too many cache collisions I think we probably do a
+> decent job already.
+
+Virtual aliases are the kind of harmful collision that must be avoid or
+data corruption will result.  We just happen to be lucky that there are
+only very few applications which will actually suffer from this problem.
+(Which is why we don't handle it correctly for all MIPSes ...)
+
+>                       Only the least significant bits are significant.
+> And virtual addresses matter not at all.  In the buddy system where we
+> walk backward linearly through memory it feels o.k.  Only profiling
+> would tell if we were helping of if we could even help with that.
+
+Other Unices have choosen this implementation; of course they probably
+already had the reverse mapping facilities present and didn't implement
+them just for this purpose.
+
+  Ralf
+
+--
+"Embrace, Enhance, Eliminate" - it worked for the pope, it'll work for Bill.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

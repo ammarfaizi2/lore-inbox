@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290826AbSAYXc3>; Fri, 25 Jan 2002 18:32:29 -0500
+	id <S288477AbSAYXuH>; Fri, 25 Jan 2002 18:50:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290829AbSAYXcT>; Fri, 25 Jan 2002 18:32:19 -0500
-Received: from smtp4.vol.cz ([195.250.128.43]:50184 "EHLO majordomo.vol.cz")
-	by vger.kernel.org with ESMTP id <S290826AbSAYXcJ>;
-	Fri, 25 Jan 2002 18:32:09 -0500
-Date: Thu, 24 Jan 2002 23:12:05 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Britt Park <britt@drscience.sciencething.org>,
-        Miklos.Szeredi@eth.ericsson.se
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: UVFS Yet another user space filesystem kit.
-Message-ID: <20020124221204.GA906@elf.ucw.cz>
-In-Reply-To: <B871843F.200D%britt@sciencething.org>
+	id <S288557AbSAYXtr>; Fri, 25 Jan 2002 18:49:47 -0500
+Received: from jalon.able.es ([212.97.163.2]:31887 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S288477AbSAYXtj>;
+	Fri, 25 Jan 2002 18:49:39 -0500
+Date: Sat, 26 Jan 2002 00:49:28 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Timothy Covell <timothy.covell@ashavan.org>,
+        Xavier Bestel <xavier.bestel@free.fr>, Robert Love <rml@tech9.net>,
+        Oliver Xymoron <oxymoron@waste.org>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: booleans and the kernel
+Message-ID: <20020126004928.A3780@werewolf.able.es>
+In-Reply-To: <200201250720.g0P7KeL09793@home.ashavan.org.> <Pine.GSO.4.21.0201250244070.23657-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <B871843F.200D%britt@sciencething.org>
-User-Agent: Mutt/1.3.25i
-X-Warning: Reading this can be dangerous to your mental health.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.GSO.4.21.0201250244070.23657-100000@weyl.math.psu.edu>; from viro@math.psu.edu on vie, ene 25, 2002 at 08:48:37 +0100
+X-Mailer: Balsa 1.3.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> I would like to announce the availability of version 0.1 of UVFS, yet
-> another user space filesystem kit.  UVFS provide an interface to almost all
-> kernel VFS methods in user space with acceptable overhead.  It comes with a
-> sample in memory filesystem as documentation.
-> 
-> As far as I can determine UVFS is quite robust but I would love to have some
-> independent confirmation of that.  I would also be delighted if someone more
-> familiar with the linux VFS than I, were to give the code a once-over.
-> 
-> The current version of UVFS only supports a single instance of a given
-> filesystem type.  That will be addressed in the next public release.
-> 
-> UVFS can be found at http://www.sciencething.org/geekthings/index.html .
+On 20020125 Alexander Viro wrote:
+>
+>Seriously, learn C.  The fact that you don't understand it is _your_
+>problem - l-k is not a place to teach you the langauge.
+>
 
-How do you solve deadlocks on writing?
+Please, stop with that thing of 'learn C'. C can have bad design points.
+It is not perfect. Deal with it, but do not make it a god.
 
-[Imagine so many dirty buffers are in memory that your
-filesystem-in-userspace-daemon was swapped out?]
+For this special case, what is so bad in halting people to write code
+like
 
-[Miklos, Cc-ed to you. You have that problem too. And it probably has
-same solution like those untrusted filesystems -- back it up by a file.]
-									Pavel
+a = b + (c>7);
 
+and write it like
+
+a = b + (c>7 ? 1 : 0);
+
+Let the compiler do its work.
 
 -- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.18-pre7-slb #3 SMP Thu Jan 24 02:54:46 CET 2002 i686

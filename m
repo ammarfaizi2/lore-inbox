@@ -1,116 +1,209 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbUDCOUp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 09:20:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbUDCOUp
+	id S261763AbUDCOcX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 09:32:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbUDCOcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 09:20:45 -0500
-Received: from mail.gmx.de ([213.165.64.20]:48852 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261745AbUDCOUl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 09:20:41 -0500
-X-Authenticated: #294883
-Message-ID: <406EC833.4080909@gmx.de>
-Date: Sat, 03 Apr 2004 16:20:35 +0200
-From: Hans-Georg Esser <h.g.esser@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040113
+	Sat, 3 Apr 2004 09:32:23 -0500
+Received: from pxy7allmi.all.mi.charter.com ([24.247.15.58]:41137 "EHLO
+	proxy7-grandhaven.chartermi.net") by vger.kernel.org with ESMTP
+	id S261763AbUDCOcH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 09:32:07 -0500
+Message-ID: <406ECAE7.1020407@quark.didntduck.org>
+Date: Sat, 03 Apr 2004 09:32:07 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040312
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20 and 2.4.21, Firewire, 160 GB Harddisk, 134 GB barrier
-X-Enigmail-Version: 0.83.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] more i386 head.S cleanups
+Content-Type: multipart/mixed;
+ boundary="------------090208040207050903020200"
+X-Charter-MailScanner-Information: 
+X-Charter-MailScanner: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This is a multi-part message in MIME format.
+--------------090208040207050903020200
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hello list,
+- Move empty_zero_page and swapper_pg_dir to BSS.  This requires that 
+BSS is cleared earlier, but reclaims over 3k that was lost due to page 
+alignment.
+- Move stack_start, ready, and int_msg, boot_gdt_descr, idt_descr, and 
+cpu_gdt_descr to .data.  They were interfering with disassembly while in 
+.text.
 
-I found an earlier thread ("KERNEL 2.6.3 and MAXTOR 160 GB", March 2004)
-dealing with a 137 GB barrier (that I guess meant: 137xxx MB) for a Maxtor
-160 GB drive in Kernel 2.6.x. I'd like to add my personal observation to
-that (for Kernel 2.4.20/21):
+--
+				Brian Gerst
 
-My drive (Western Digital WD1600BB-32DWA0) works well when directly
-connected to the IDE controller, but doesn't like using an external firewire
-connection ("Pyro 1394 Drive Kit" of Adstech.com). The firewire stuff
-worked well with an 80 GB disk, but with the 160 GB disk I'm only getting
-134 GB (or 137439 MB).
+--------------090208040207050903020200
+Content-Type: text/plain;
+ name="head-sections-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="head-sections-1"
 
-This may be related to the other post I mentioned, cause of the same
-"barrier" number. I haven't tried a newer kernel yet, this was with the
-standard kernel that came with the distro:
+diff -urN linux-bk/arch/i386/kernel/head.S linux/arch/i386/kernel/head.S
+--- linux-bk/arch/i386/kernel/head.S	2004-04-01 10:17:01.000000000 -0500
++++ linux/arch/i386/kernel/head.S	2004-04-03 09:08:28.053518856 -0500
+@@ -69,9 +69,22 @@
+ 	movl %eax,%gs
+ 
+ /*
++ * Clear BSS first so that there are no surprises...
++ * No need to cld as DF is already clear from cld above...
++ */
++	xorl %eax,%eax
++	movl $__bss_start - __PAGE_OFFSET,%edi
++	movl $__bss_stop - __PAGE_OFFSET,%ecx
++	subl %edi,%ecx
++	shrl $2,%ecx
++	rep ; stosl
++
++/*
+  * Initialize page tables.  This creates a PDE and a set of page
+  * tables, which are located immediately beyond _end.  The variable
+  * init_pg_tables_end is set up to point to the first "safe" location.
++ * Mappings are created both at virtual address 0 (identity mapping)
++ * and PAGE_OFFSET for up to _end+sizeof(page tables)+INIT_MAP_BEYOND_END.
+  *
+  * Warning: don't use %esi or the stack in this code.  However, %esp
+  * can be used as a GPR if you really need it...
+@@ -173,17 +186,6 @@
+ #endif /* CONFIG_SMP */
+ 
+ /*
+- * Clear BSS first so that there are no surprises...
+- * No need to cld as DF is already clear from cld above...
+- */
+-	xorl %eax,%eax
+-	movl $__bss_start,%edi
+-	movl $__bss_stop,%ecx
+-	subl %edi,%ecx
+-	shrl $2,%ecx
+-	rep ; stosl
+-
+-/*
+  * start system 32-bit setup. We need to re-do some of the things done
+  * in 16-bit mode for the "real" operations.
+  */
+@@ -304,8 +306,6 @@
+ 	jmp L6			# main should never return here, but
+ 				# just in case, we know what happens.
+ 
+-ready:	.byte 0
+-
+ /*
+  * We depend on ET to be correct. This checks for 287/387.
+  */
+@@ -353,13 +353,7 @@
+ 	jne rp_sidt
+ 	ret
+ 
+-ENTRY(stack_start)
+-	.long init_thread_union+THREAD_SIZE
+-	.long __BOOT_DS
+-
+ /* This is the default interrupt "handler" :-) */
+-int_msg:
+-	.asciz "Unknown interrupt or fault at EIP %p %p %p\n"
+ 	ALIGN
+ ignore_int:
+ 	cld
+@@ -386,6 +380,35 @@
+ 	iret
+ 
+ /*
++ * Real beginning of normal "text" segment
++ */
++ENTRY(stext)
++ENTRY(_stext)
++
++/*
++ * BSS section
++ */
++.section ".bss.page_aligned","w"
++ENTRY(swapper_pg_dir)
++	.fill 1024,4,0
++ENTRY(empty_zero_page)
++	.fill 4096,1,0
++
++/*
++ * This starts the data section.
++ */
++.data
++
++ENTRY(stack_start)
++	.long init_thread_union+THREAD_SIZE
++	.long __BOOT_DS
++
++ready:	.byte 0
++
++int_msg:
++	.asciz "Unknown interrupt or fault at EIP %p %p %p\n"
++
++/*
+  * The IDT and GDT 'descriptors' are a strange 48-bit object
+  * only used by the lidt and lgdt instructions. They are not
+  * like usual segment descriptors - they consist of a 16-bit
+@@ -417,39 +440,6 @@
+ 	.fill NR_CPUS-1,8,0		# space for the other GDT descriptors
+ 
+ /*
+- * swapper_pg_dir is the main page directory, address 0x00101000
+- *
+- * This is initialized to create an identity-mapping at 0 (for bootup
+- * purposes) and another mapping at virtual address PAGE_OFFSET.  The
+- * values put here should be all invalid (zero); the valid
+- * entries are created dynamically at boot time.
+- *
+- * The code creates enough page tables to map 0-_end, the page tables
+- * themselves, plus INIT_MAP_BEYOND_END bytes; see comment at beginning.
+- */
+-.org 0x1000
+-ENTRY(swapper_pg_dir)
+-	.fill 1024,4,0
+-
+-.org 0x2000
+-ENTRY(empty_zero_page)
+-	.fill 4096,1,0
+-
+-.org 0x3000
+-/*
+- * Real beginning of normal "text" segment
+- */
+-ENTRY(stext)
+-ENTRY(_stext)
+-
+-/*
+- * This starts the data section. Note that the above is all
+- * in the text section because it has alignment requirements
+- * that we cannot fulfill any other way.
+- */
+-.data
+-
+-/*
+  * The boot_gdt_table must mirror the equivalent in setup.S and is
+  * used only for booting.
+  */
+diff -urN linux-bk/arch/i386/kernel/vmlinux.lds.S linux/arch/i386/kernel/vmlinux.lds.S
+--- linux-bk/arch/i386/kernel/vmlinux.lds.S	2004-04-01 10:17:01.000000000 -0500
++++ linux/arch/i386/kernel/vmlinux.lds.S	2004-04-02 09:25:14.000000000 -0500
+@@ -105,7 +105,10 @@
+   /* freed after init ends here */
+ 	
+   __bss_start = .;		/* BSS */
+-  .bss : { *(.bss) }
++  .bss : {
++	*(.bss.page_aligned)
++	*(.bss)
++  }
+   . = ALIGN(4);
+   __bss_stop = .; 
+ 
 
-# uname -a
-Linux server 2.4.21-99-default #1 Wed Sep 24 13:30:51 UTC 2003 i686 i686 i386
-GNU/Linux
-# lspci -v
-03:08.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller
-(rev 46) (prog-if 10 [OHCI])
-~        Subsystem: VIA Technologies, Inc. IEEE 1394 Host Controller
-~        Flags: bus master, stepping, medium devsel, latency 32, IRQ 9
-~        Memory at e9000000 (32-bit, non-prefetchable) [size=2K]
-~        I/O ports at 9800 [size=128]
-~        Capabilities: [50] Power Management version 2
-
-Is this a known problem of the 2.4.x line and should I move to 2.6 to make
-it go away? (A test with a 2.4.20 kernel gave the same results, minus the
-"non-standard ROM format" stuff.)
-
-Following snippet shows what is being logged when connecting the external
-drive.
-
-Thanks,
-Hans-Georg
-
-
-<snip "/var/log/messages">
-Apr  3 13:19:46 server kernel: ieee1394: Node 0-00:1023 has non-standard ROM
-format (0 quads), cannot parse
-Apr  3 13:19:57 server kernel: ieee1394: Node added: ID:BUS[0-00:1023]
-GUID[0008b502000500c8]
-Apr  3 13:20:02 server kernel: sbp2: $Rev: 1018 $ Ben Collins <bcollins@debian.org>
-Apr  3 13:20:02 server kernel: scsi1 : SCSI emulation for IEEE-1394 SBP-2 Devices
-Apr  3 13:20:02 server kernel: blk: queue d137fa14, I/O limit 4095Mb (mask
-0xffffffff)
-Apr  3 13:20:03 server kernel: ieee1394: sbp2: Logged into SBP-2 device
-Apr  3 13:20:03 server kernel: ieee1394: sbp2: Node 0-00:1023: Max speed [S400]
-- - Max payload [2048]
-Apr  3 13:20:03 server insmod: Using
-/lib/modules/2.4.21-99-default/kernel/drivers/ieee1394/sbp2.o
-Apr  3 13:20:03 server insmod: Symbol version prefix ''
-Apr  3 13:20:03 server kernel: scsi singledevice 1 0 0 0
-Apr  3 13:20:03 server kernel:   Vendor: WDC WD16  Model: 00BB-32DWA0       Rev:
-Apr  3 13:20:03 server kernel:   Type:   Direct-Access                      ANSI
-SCSI revision: 06
-Apr  3 13:20:03 server kernel: blk: queue d137f414, I/O limit 4095Mb (mask
-0xffffffff)
-Apr  3 13:20:03 server kernel: Attached scsi disk sda at scsi1, channel 0, id 0,
-lun 0
-Apr  3 13:20:03 server kernel: SCSI device sda: 268435455 512-byte hdwr sectors
-(137439 MB)
-Apr  3 13:20:03 server kernel:  sda: sda1 sda2
-Apr  3 13:20:03 server kernel: scsi singledevice 1 0 1 0
-Apr  3 13:20:03 server kernel: scsi singledevice 1 0 2 0
-Apr  3 13:20:03 server kernel: scsi singledevice 1 0 3 0
-Apr  3 13:20:03 server kernel: scsi singledevice 1 0 4 0
-Apr  3 13:20:03 server kernel: scsi singledevice 1 0 5 0
-Apr  3 13:20:03 server kernel: scsi singledevice 1 0 6 0
-Apr  3 13:20:03 server kernel: scsi singledevice 1 0 7 0
-</snip>
-
-- --
-Hans-Georg Eßer  -  http://privat.hgesser.com  -  Tel. 089 99248380
-GPG Fingerprint: F319 10C0 76E2 DAAD DDFA  F017 4CAD BB99 A4A9 9E53
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFAbsgzTK27maSpnlMRAnD+AJ9muCgK3T/LIxoeZGL6V8a4L6/C6wCeOpEP
-WXsRyQEg+H+udDiOOT30atM=
-=SfzQ
------END PGP SIGNATURE-----
+--------------090208040207050903020200--

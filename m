@@ -1,64 +1,321 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267578AbTAXIIk>; Fri, 24 Jan 2003 03:08:40 -0500
+	id <S267598AbTAXI3N>; Fri, 24 Jan 2003 03:29:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267594AbTAXIIk>; Fri, 24 Jan 2003 03:08:40 -0500
-Received: from adedition.com ([216.209.85.42]:13075 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S267578AbTAXIIj>;
-	Fri, 24 Jan 2003 03:08:39 -0500
-Date: Fri, 24 Jan 2003 03:26:10 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Dan Kegel <dank@kegel.com>
-Cc: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
-Subject: Re: debate on 700 threads vs asynchronous code
-Message-ID: <20030124082610.GA12781@mark.mielke.cc>
-References: <Pine.LNX.4.44.0301232144470.8203-100000@coffee.psychology.mcmaster.ca> <3E30F79D.6050709@kegel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E30F79D.6050709@kegel.com>
-User-Agent: Mutt/1.4i
+	id <S267599AbTAXI3N>; Fri, 24 Jan 2003 03:29:13 -0500
+Received: from tml.hut.fi ([130.233.44.1]:34569 "EHLO tml-gw.tml.hut.fi")
+	by vger.kernel.org with ESMTP id <S267598AbTAXI3I>;
+	Fri, 24 Jan 2003 03:29:08 -0500
+Date: Fri, 24 Jan 2003 10:38:06 +0200 (EET)
+From: Ville Nuorvala <vnuorval@morphine.tml.hut.fi>
+To: linux-kernel@vger.kernel.org, <netdev@oss.sgi.com>
+cc: davem@redhat.com, <kuznet@ms2.inr.ac.ru>
+Subject: [PATCH] IPv6: fixes to proxy Neighbor discovery
+Message-ID: <Pine.GSO.4.44.0301231650330.8330-100000@morphine.tml.hut.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 24, 2003 at 12:21:49AM -0800, Dan Kegel wrote:
-> In any case, benchmarking's the only way to go.  No amount of talk will
-> substitute for a good real-life measurement.  That's what convinced
-> me that epoll was faster than sigio, and that sigio was
-> sometimes slower than select() !
+Hello!
 
-Also, anybody can write a poor implementation of each, so even
-benchmarks are suspect...
+This patch contains some fixes to proxy Neighbor Discovery.
 
-My personal favourite model currently is switched I/O, but prioritized
-threads per expected event frequency or event priority. For example,
-events that won't likely occur for some time, or have a low priority,
-can all be pushed to a low priority thread. Not only does this keep
-the operating system free to give the CPU's to higher priority
-threads, but the higher priority threads have fewer resources to
-manage, leading to more efficient operation. Also, event handling code
-that may take some time to complete should be moved to its own thread
-in a thread pool, allowing the dispatching to fully complete without
-needing to actually execute all of the (expensive) handlers.
+1) Source address fixed in neigbor advertisements:
 
-> And, for what it's worth, programmer productivity is sometimes
-> more important than all the above.  I happen to work
-> at a place where performance is worth a lot of extra effort,
-> but other shops prefer to throw hardware at the problem and
-> not worry about that last 10%.
+RFC 2461
+4.4.  Neighbor Advertisement Message Format
+"      Source Address
+                     An address assigned to the interface from which the
+                     advertisement is sent."
 
-Definately an argument for the one thread per connection model. :-)
+This also applies to proxy Neighbor Adverisements.
 
-mark
+2) Proxy protects against Duplicate Address Detection:
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+RFC 2461
+7.2.3. Receipt of Neighbor Solicitations
+"  A valid Neighbor Solicitation that does not meet any the following
+   requirements MUST be silently discarded:
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
+    - The Target Address is a "valid" unicast or anycast address
+      assigned to the receiving interface [ADDRCONF],
 
-                           http://mark.mielke.cc/
+    - The Target Address is a unicast address for which the node is
+      offering proxy service, or
+
+    - The Target Address is a "tentative" address on which Duplicate
+      Address Detection is being performed [ADDRCONF].
+
+   If the Target Address is tentative, the Neighbor Solicitation should
+   be processed as described in [ADDRCONF].  Otherwise, the following
+   description applies.  If the Source Address is not the unspecified
+   address and, on link layers that have addresses, the solicitation
+   includes a Source Link-Layer Address option, then the recipient
+   SHOULD create or update the Neighbor Cache entry for the IP Source
+   Address of the solicitation."
+   ....
+"  If the Source Address is the unspecified address the node MUST NOT
+   create or update the Neighbor Cache entry.
+
+   After any updates to the Neighbor Cache, the node sends a Neighbor
+   Advertisement response as described in the next section."
+
+This clearly means the proxy should protect the address against DAD.
+
+Below are patches against both the 2.4 and 2.5 bk trees.
+
+Thanks,
+Ville
+
+===== net/ipv6/ndisc.c 1.16 vs edited =====
+--- 1.16/net/ipv6/ndisc.c	Sat Dec 21 09:43:20 2002
++++ edited/net/ipv6/ndisc.c	Fri Jan 24 10:14:33 2003
+@@ -23,6 +23,7 @@
+  *						and moved to net/core.
+  *	Pekka Savola			:	RFC2461 validation
+  *	YOSHIFUJI Hideaki @USAGI	:	Verify ND options properly
++ *	Ville Nuorvala			:	RFC2461 fixes to proxy ND
+  */
+
+ /* Set to 3 to get tracing... */
+@@ -370,8 +371,9 @@
+  */
+
+ void ndisc_send_na(struct net_device *dev, struct neighbour *neigh,
+-		   struct in6_addr *daddr, struct in6_addr *solicited_addr,
+-		   int router, int solicited, int override, int inc_opt)
++		   struct in6_addr *daddr, struct in6_addr *saddr,
++		   struct in6_addr *solicited_addr, int router,
++		   int solicited, int override, int inc_opt)
+ {
+         struct sock *sk = ndisc_socket->sk;
+         struct nd_msg *msg;
+@@ -401,7 +403,7 @@
+ 		return;
+ 	}
+
+-	ip6_nd_hdr(sk, skb, dev, solicited_addr, daddr, IPPROTO_ICMPV6, len);
++	ip6_nd_hdr(sk, skb, dev, saddr, daddr, IPPROTO_ICMPV6, len);
+
+ 	msg = (struct nd_msg *) skb_put(skb, len);
+
+@@ -421,7 +423,7 @@
+ 		ndisc_fill_option(msg->opt, ND_OPT_TARGET_LL_ADDR, dev->dev_addr, dev->addr_len);
+
+ 	/* checksum */
+-	msg->icmph.icmp6_cksum = csum_ipv6_magic(solicited_addr, daddr, len,
++	msg->icmph.icmp6_cksum = csum_ipv6_magic(saddr, daddr, len,
+ 						 IPPROTO_ICMPV6,
+ 						 csum_partial((__u8 *) msg,
+ 							      len, 0));
+@@ -669,8 +671,8 @@
+ 			struct in6_addr maddr;
+
+ 			ipv6_addr_all_nodes(&maddr);
+-			ndisc_send_na(dev, NULL, &maddr, &ifp->addr,
+-				      ifp->idev->cnf.forwarding, 0,
++			ndisc_send_na(dev, NULL, &maddr, &ifp->addr,
++				      &ifp->addr, ifp->idev->cnf.forwarding, 0,
+ 				      ipv6_addr_type(&ifp->addr)&IPV6_ADDR_ANYCAST ? 0 : 1,
+ 				      1);
+ 			in6_ifa_put(ifp);
+@@ -693,7 +695,8 @@
+ 			neigh = neigh_event_ns(&nd_tbl, lladdr, saddr, dev);
+
+ 			if (neigh || !dev->hard_header) {
+-				ndisc_send_na(dev, neigh, saddr, &ifp->addr,
++				ndisc_send_na(dev, neigh, saddr,
++					      &ifp->addr, &ifp->addr,
+ 					      ifp->idev->cnf.forwarding, 1,
+ 					      ipv6_addr_type(&ifp->addr)&IPV6_ADDR_ANYCAST ? 0 : 1,
+ 					      1);
+@@ -707,7 +710,8 @@
+ 		int addr_type = ipv6_addr_type(saddr);
+
+ 		if (in6_dev && in6_dev->cnf.forwarding &&
+-		    (addr_type & IPV6_ADDR_UNICAST) &&
++		    (addr_type & IPV6_ADDR_UNICAST ||
++		     addr_type == IPV6_ADDR_ANY) &&
+ 		    pneigh_lookup(&nd_tbl, &msg->target, dev, 0)) {
+ 			int inc = ipv6_addr_type(daddr)&IPV6_ADDR_MULTICAST;
+
+@@ -715,17 +719,38 @@
+ 			    skb->pkt_type == PACKET_HOST ||
+ 			    inc == 0 ||
+ 			    in6_dev->nd_parms->proxy_delay == 0) {
++				struct in6_addr na_saddr;
++
+ 				if (inc)
+ 					nd_tbl.stats.rcv_probes_mcast++;
+ 				else
+ 					nd_tbl.stats.rcv_probes_ucast++;
+-
+-				neigh = neigh_event_ns(&nd_tbl, lladdr, saddr, dev);
+
+-				if (neigh) {
+-					ndisc_send_na(dev, neigh, saddr, &msg->target,
+-						      0, 1, 0, 1);
+-					neigh_release(neigh);
++				/*
++				 * RFC2461 4.4:
++				 * The souce address is always an address assigned to the interface,
++				 * this also applies to proxies
++				 */
++				if (ipv6_get_lladdr(dev, &na_saddr)) {
++					in6_dev_put(in6_dev);
++					return;
++				}
++				if (addr_type & IPV6_ADDR_UNICAST) {
++					neigh = neigh_event_ns(&nd_tbl, lladdr, saddr, dev);
++
++					if (neigh) {
++						ndisc_send_na(dev, neigh, saddr,
++							      &na_saddr, &msg->target,
++							      0, 1, 0, 1);
++						neigh_release(neigh);
++					}
++				} else {
++					/* the proxy should also protect against DAD */
++					struct in6_addr maddr;
++					ipv6_addr_all_nodes(&maddr);
++					ndisc_send_na(dev, NULL, &maddr,
++						      &na_saddr, &msg->target,
++						      0, 0, 0, 1);
+ 				}
+ 			} else {
+ 				struct sk_buff *n = skb_clone(skb, GFP_ATOMIC);
+
+===== net/ipv6/ndisc.c 1.21 vs edited =====
+--- 1.21/net/ipv6/ndisc.c	Sat Dec 21 09:14:32 2002
++++ edited/net/ipv6/ndisc.c	Fri Jan 24 10:17:18 2003
+@@ -23,6 +23,7 @@
+  *						and moved to net/core.
+  *	Pekka Savola			:	RFC2461 validation
+  *	YOSHIFUJI Hideaki @USAGI	:	Verify ND options properly
++ *	Ville Nuorvala			:	RFC2461 fixes to proxy ND
+  */
+
+ /* Set to 3 to get tracing... */
+@@ -375,8 +376,9 @@
+  */
+
+ static void ndisc_send_na(struct net_device *dev, struct neighbour *neigh,
+-		   struct in6_addr *daddr, struct in6_addr *solicited_addr,
+-		   int router, int solicited, int override, int inc_opt)
++			  struct in6_addr *daddr, struct in6_addr *saddr,
++			  struct in6_addr *solicited_addr, int router,
++			  int solicited, int override, int inc_opt)
+ {
+         struct sock *sk = ndisc_socket->sk;
+         struct nd_msg *msg;
+@@ -406,7 +408,7 @@
+ 		return;
+ 	}
+
+-	ip6_nd_hdr(sk, skb, dev, solicited_addr, daddr, IPPROTO_ICMPV6, len);
++	ip6_nd_hdr(sk, skb, dev, saddr, daddr, IPPROTO_ICMPV6, len);
+
+ 	msg = (struct nd_msg *) skb_put(skb, len);
+
+@@ -426,7 +428,7 @@
+ 		ndisc_fill_option(msg->opt, ND_OPT_TARGET_LL_ADDR, dev->dev_addr, dev->addr_len);
+
+ 	/* checksum */
+-	msg->icmph.icmp6_cksum = csum_ipv6_magic(solicited_addr, daddr, len,
++	msg->icmph.icmp6_cksum = csum_ipv6_magic(saddr, daddr, len,
+ 						 IPPROTO_ICMPV6,
+ 						 csum_partial((__u8 *) msg,
+ 							      len, 0));
+@@ -674,8 +676,8 @@
+ 			struct in6_addr maddr;
+
+ 			ipv6_addr_all_nodes(&maddr);
+-			ndisc_send_na(dev, NULL, &maddr, &ifp->addr,
+-				      ifp->idev->cnf.forwarding, 0,
++			ndisc_send_na(dev, NULL, &maddr, &ifp->addr,
++				      &ifp->addr, ifp->idev->cnf.forwarding, 0,
+ 				      ipv6_addr_type(&ifp->addr)&IPV6_ADDR_ANYCAST ? 0 : 1,
+ 				      1);
+ 			in6_ifa_put(ifp);
+@@ -698,7 +700,8 @@
+ 			neigh = neigh_event_ns(&nd_tbl, lladdr, saddr, dev);
+
+ 			if (neigh || !dev->hard_header) {
+-				ndisc_send_na(dev, neigh, saddr, &ifp->addr,
++				ndisc_send_na(dev, neigh, saddr,
++					      &ifp->addr, &ifp->addr,
+ 					      ifp->idev->cnf.forwarding, 1,
+ 					      ipv6_addr_type(&ifp->addr)&IPV6_ADDR_ANYCAST ? 0 : 1,
+ 					      1);
+@@ -712,7 +715,8 @@
+ 		int addr_type = ipv6_addr_type(saddr);
+
+ 		if (in6_dev && in6_dev->cnf.forwarding &&
+-		    (addr_type & IPV6_ADDR_UNICAST) &&
++		    (addr_type & IPV6_ADDR_UNICAST ||
++		     addr_type == IPV6_ADDR_ANY) &&
+ 		    pneigh_lookup(&nd_tbl, &msg->target, dev, 0)) {
+ 			int inc = ipv6_addr_type(daddr)&IPV6_ADDR_MULTICAST;
+
+@@ -720,17 +724,38 @@
+ 			    skb->pkt_type == PACKET_HOST ||
+ 			    inc == 0 ||
+ 			    in6_dev->nd_parms->proxy_delay == 0) {
++				struct in6_addr na_saddr;
++
+ 				if (inc)
+ 					nd_tbl.stats.rcv_probes_mcast++;
+ 				else
+ 					nd_tbl.stats.rcv_probes_ucast++;
+-
+-				neigh = neigh_event_ns(&nd_tbl, lladdr, saddr, dev);
+
+-				if (neigh) {
+-					ndisc_send_na(dev, neigh, saddr, &msg->target,
+-						      0, 1, 0, 1);
+-					neigh_release(neigh);
++				/*
++				 * RFC2461 4.4:
++				 * The souce address is always an address assigned to the interface,
++				 * this also applies to proxies
++				 */
++				if (ipv6_get_lladdr(dev, &na_saddr)) {
++					in6_dev_put(in6_dev);
++					return;
++				}
++				if (addr_type & IPV6_ADDR_UNICAST) {
++					neigh = neigh_event_ns(&nd_tbl, lladdr, saddr, dev);
++
++					if (neigh) {
++						ndisc_send_na(dev, neigh, saddr,
++							      &na_saddr, &msg->target,
++							      0, 1, 0, 1);
++						neigh_release(neigh);
++					}
++				} else {
++					/* the proxy should also protect against DAD */
++					struct in6_addr maddr;
++					ipv6_addr_all_nodes(&maddr);
++					ndisc_send_na(dev, NULL, &maddr,
++						      &na_saddr, &msg->target,
++						      0, 0, 0, 1);
+ 				}
+ 			} else {
+ 				struct sk_buff *n = skb_clone(skb, GFP_ATOMIC);
+--
+Ville Nuorvala
+Research Assistant, Institute of Digital Communications,
+Helsinki University of Technology
+email: vnuorval@tml.hut.fi, phone: +358 (0)9 451 5257
+
+
+
+
+
+
+
+
+
+
 

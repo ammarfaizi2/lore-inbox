@@ -1,121 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264368AbTEPHzw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 03:55:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264369AbTEPHzw
+	id S264364AbTEPHxd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 03:53:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264366AbTEPHxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 03:55:52 -0400
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:10955 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S264368AbTEPHzs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 03:55:48 -0400
-From: Eugene Weiss <eweiss@sbcglobal.net>
-Reply-To: eweiss@sbcglobal.net
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] submount: another removeable media handler
-Date: Fri, 16 May 2003 01:06:37 -0400
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 16 May 2003 03:53:33 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:29427 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264364AbTEPHxb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 03:53:31 -0400
+Date: Fri, 16 May 2003 10:06:19 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Warren Togami <warren@togami.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.59-bk10 compile failure
+Message-ID: <20030516080618.GO1346@fs.tum.de>
+References: <1053058876.15567.72.camel@laptop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305160106.37274.eweiss@sbcglobal.net>
+In-Reply-To: <1053058876.15567.72.camel@laptop>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Submount:  Yet another attempt at solving the removeable media problem.  
- 
-It has been tested only on 2.5.66 and 2.5.69 so far, but should work on many
-earlier 2.5.x kernels as well.  I would greatly appreciate feedback from
-anyone who would like to check it out.  It is available at
-http://sourceforge.net/projects/submount/ 
- 
-How it Works: 
- 
-It is composed of two parts: a kernel module and a userspace program.  
- 
-The kernel module, titled subfs, implements a dummy filesystem which is
-mounted on the desired mountpoint.  Before a process can access a directory,
-or any file bellow it, one of two filesystem methods must be called: open() or
-lookup().  When subfs gets a call to either of these functions, it calls the
-userspace part of submount, which then mounts the appropriate filesystem on
-top of the subfs mountpoint, forks off a daemon for unmounting, and exits.  If
-the mount was successful, subfs uses the signal handling system to restart the
-system call, which then is executed on the real filesystem.  Subfs then
-restarts the system calls of any other requests that arrived while the mount
-was taking place. 
- 
-The userspace portion of submount is titled /sbin/submountd.  It is a small
-program that does some minimal options processing, and then makes the mount()
-system call.  If the mount is successful, it forks off a new process which
-enters a one second loop checking whether the filesystem can be unmounted.   
- 
- 
-Advantages: 
- 
-Small, light, and fast.  The kernel module is about 11kB, the user program
-about 21kB. 
- 
-Requires no changes to the kernel code outside its own module. 
- 
-The kernel portion is very simple.  The feature set is implemented in
-userspace. 
- 
-All IO is handled through the real filesystem at its full speed.  When the IO
-is heaviest, submount imposes no performance penalty at all. 
+On Thu, May 15, 2003 at 06:21:16PM -1000, Warren Togami wrote:
+> Compilation fails here for 2.5.59-bk9 and bk10.  Last I tried was bk3
+> which compiled successfully.  Please let me know if you need any more
+> information, or my .config file.
+> 
+> (Please CC me if you reply, I am not subscribed to the list.  Thanks.)
+> 
+> Warren Togami
+> warren@togami.com
+> 
+> make -f scripts/Makefile.build obj=arch/i386/lib
+>   GEN     .version
+>   CHK     include/linux/compile.h
+>   UPD     include/linux/compile.h
+>   gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+> -pipe -mpreferred-stack-boundary=2 -march=athlon
+> -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc
+> -iwithprefix include    -DKBUILD_BASENAME=version
+> -DKBUILD_MODNAME=version -c -o init/.tmp_version.o init/version.c
+>    ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o
+> init/mounts.o init/initramfs.o
+>         ld -m elf_i386  -T arch/i386/vmlinux.lds.s
+> arch/i386/kernel/head.o arch/i386/kernel/init_task.o   init/built-in.o
+> --start-group  usr/built-in.o  arch/i386/kernel/built-in.o 
+> arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o 
+> kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o 
+> security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a 
+> drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o 
+> net/built-in.o --end-group -o .tmp_vmlinux1
+> arch/i386/kernel/built-in.o(.data+0x169a): In function
+> `do_suspend_lowlevel':
+> : undefined reference to `saved_context_esp'
+>...
 
-Flexible.  Another program can be substituted for submountd if the system in
-question has particular needs.  One could even use a shell script that calls
-the regular mount and umount utilities. 
- 
-No configuration needed, except fstab. 
- 
- 
-Problems: 
- 
-Not quite as fast as a permanently mounted filesystem, since the dentry cache
-is purged on unmounting.  Directories must be read again each time they are
-called after unmounting even though the disk hasn't changed. 
- 
-Errors are registered quietly.  If the user makes a typo in the mount command,
-or in the fstab file, it may be necessary to read the system log to discover
-it.  (Perhaps mount could be made to do some syntax checking when a subfs
-filesystem is mounted?) 
- 
-Programs which automatically mount a cdrom directory from fstab can mount a
-second subfs directory over the filesystem mounted by the first.  This could
-be checked for in subfs, but it would be better to do it in the mount utility. 
+Known bug, fix by mikpe@csd.uu.se below.
 
- 
-Installation and usage: 
- 
-The sources, both kernel and userspace, can be downloaded from
-http://sourceforge.net/projects/submount/ .  The userspace program is built in
-the usual way, and a makefile is provided for building the kernel module. 
- 
-To mount a drive under subfs, use the usual syntax, except put subfs in the
-filesystem type field, and add the option fs=<fstype> in the options list. 
- 
-for example	mount -t subfs /dev/scd0 /mnt/cdrom -o fs=iso9660,ro 
-or for fstab	/dev/scd0 /mnt/cdrom subfs fs=iso9660,ro 
- 
-I've copied the function to find the filesystem type by reading the superblock
-from mount, so fs=auto will work.  It can, however, cause a noticeable pause,
-particularly on floppies, so there is another method for using multiple
-filesystems.  If a keyword is used in the fs= option, submountd will attempt
-to mount filesystems from a list.  Currently there are two options: 
-fs=floppyfss attempts vfat and ext2, and fs=cdfss tries iso9660 and udf. 
-Submountd will strip the options "codepage", "iocharset" and "umask" from
-filesystems that don't take them, so these can be included in list mounts, or
-auto-detected mounts. 
- 
-These fstab lines should work: 
- 
-/dev/scd0 /mnt/cdrom subfs fs=cdfss,ro,iocharset=iso8859-1,umask=0 0 0 
-/dev/fd0 /mnt/floppy subfs fs=floppyfss,iocharset=iso8859-1,sync,umask=0 0 0 
- 
-Once this is done, just access the mountpoint directory as usual. 
- 
-Eugene Weiss <eweiss@NOSPAM.sbcglobal.net> 
+cu
+Adrian
 
+
+--- linux-2.5.69-bk9/arch/i386/kernel/suspend_asm.S.~1~	2003-05-15 11:07:04.000000000 +0200
++++ linux-2.5.69-bk9/arch/i386/kernel/suspend_asm.S	2003-05-15 11:09:29.000000000 +0200
+@@ -7,6 +7,12 @@
+ #include <asm/page.h>
+ 
+ 	.data
++	.align	4
++	.globl	saved_context_eax, saved_context_ebx
++	.globl	saved_context_ecx, saved_context_edx
++	.globl	saved_context_esp, saved_context_ebp
++	.globl	saved_context_esi, saved_context_edi
++	.globl	saved_context_eflags
+ saved_context_eax:
+ 	.long	0
+ saved_context_ebx:

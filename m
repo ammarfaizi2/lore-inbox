@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261702AbSJAPA0>; Tue, 1 Oct 2002 11:00:26 -0400
+	id <S261650AbSJAPEH>; Tue, 1 Oct 2002 11:04:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261703AbSJAPA0>; Tue, 1 Oct 2002 11:00:26 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:16624 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S261702AbSJAPA0>; Tue, 1 Oct 2002 11:00:26 -0400
-Date: Tue, 1 Oct 2002 17:05:46 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Alan Cox <alan@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre8-ac3
-In-Reply-To: <200209302029.g8UKTfG12427@devserv.devel.redhat.com>
-Message-ID: <Pine.NEB.4.44.0210011704410.10143-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S261651AbSJAPEH>; Tue, 1 Oct 2002 11:04:07 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:7569 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S261650AbSJAPEH>;
+	Tue, 1 Oct 2002 11:04:07 -0400
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Generic HDLC interface continued
+References: <m3y99nrtsu.fsf@defiant.pm.waw.pl>
+	<20020928202138.A17244@se1.cogenit.fr>
+	<m3smzsnbx9.fsf@defiant.pm.waw.pl>
+	<20020930225437.A19967@se1.cogenit.fr>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 01 Oct 2002 01:48:23 +0200
+In-Reply-To: <20020930225437.A19967@se1.cogenit.fr>
+Message-ID: <m3n0pzm43c.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Francois Romieu <romieu@cogenit.fr> writes:
 
-FYI:
+> > Not exactly. The caller always knows meaning of the returned value
+> > (or it reports error etc). The caller doesn't just know size of the value
+> > _in_advance_, as it isn't constant. Still, meaning of the variable portion
+> > of the data is defined by the constant part.
+> 
+> The caller doesn't know size in advance but he gets 'type' and 'size' at
+> the same time. Why shouldn't 'size' be deduced from 'type' ?
 
-hd.c still doesn't compile:
+The caller don't know the result size. It mallocs some space which is
+long enough for usual things. Now, we have new super protocol with 100 KB
+of config data, and the caller requests settings of that protocol.
 
+With "size" variable, the caller signals that there are 500 bytes for
+the result, and the kernel tells it that 100 KB are required, and that
+it's BTW the super protocol itself. The caller can allocate more space
+and try again, or just fail if it doesn't know the protocol.
 
-<--  snip  -->
+Without "size" variable, the kernel tries to copy 100 KB to random
+space, and we get results ranging from SEGV to mysterious behavior.
 
-...
-gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--pipe -mpreferred-stack-boundary=2 -march=k6  -I../ -nostdinc -iwithprefix include
--DKBUILD_BASENAME=hd  -c -o hd.o hd.c
-hd.c:78: conflicting types for `recal_intr'
-/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include/linux/ide.h:1478:
-previous declaration of `recal_intr'
-hd.c: In function `dump_status':
-hd.c:171: `QUEUE_EMPTY' undeclared (first use in this function)
-hd.c:171: (Each undeclared identifier is reported only once
-hd.c:171: for each function it appears in.)
-hd.c:171: `CURRENT' undeclared (first use in this function)
-hd.c:169: warning: `devc' might be used uninitialized in this function
-hd.c: In function `hd_out':
-hd.c:284: `DEVICE_INTR' undeclared (first use in this function)
-hd.c:284: `TIMEOUT_VALUE' undeclared (first use in this function)
-hd.c: In function `do_reset_hd':
-...
-make[4]: *** [hd.o] Error 1
-make[4]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.19-full/drivers/ide/legacy'
-
-<--  snip  -->
-
-cu
-Adrian
-
+Please note that there is no call which could return the protocol
+(or interface type) without copying the whole data - thus the caller
+(utility) is unable to skip unknown interfaces.
 -- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
+Krzysztof Halasa
+Network Administrator

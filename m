@@ -1,77 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278313AbRJVI2Z>; Mon, 22 Oct 2001 04:28:25 -0400
+	id <S278325AbRJVIaP>; Mon, 22 Oct 2001 04:30:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278281AbRJVI2P>; Mon, 22 Oct 2001 04:28:15 -0400
-Received: from pat.uio.no ([129.240.130.16]:2204 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S278275AbRJVI2A>;
-	Mon, 22 Oct 2001 04:28:00 -0400
-To: "H . J . Lu" <hjl@lucon.org>
-Cc: nfs@lists.sourceforge.net, linux kernel <linux-kernel@vger.kernel.org>,
-        alan@redhat.com
-Subject: Re: [NFS] Has anyone run the Connectathon Testsuite recently?
-In-Reply-To: <20011021232452.A2473@lucon.org>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 22 Oct 2001 10:28:18 +0200
-In-Reply-To: "H . J . Lu"'s message of "Sun, 21 Oct 2001 23:24:52 -0700"
-Message-ID: <shshess6pul.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S278275AbRJVIaG>; Mon, 22 Oct 2001 04:30:06 -0400
+Received: from mail.2d3d.co.za ([196.14.185.200]:7849 "HELO mail.2d3d.co.za")
+	by vger.kernel.org with SMTP id <S278325AbRJVI3r>;
+	Mon, 22 Oct 2001 04:29:47 -0400
+Date: Mon, 22 Oct 2001 10:34:11 +0200
+From: Abraham vd Merwe <abraham@2d3d.co.za>
+To: Tim Jansen <tim@tjansen.de>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: LPP (was: The new X-Kernel !)
+Message-ID: <20011022103411.A17996@crystal.2d3d.co.za>
+Mail-Followup-To: Abraham vd Merwe <abraham@2d3d.co.za>,
+	Tim Jansen <tim@tjansen.de>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011021220346.D19390@vega.digitel2002.hu> <15vQtM-22TOdsC@fmrl02.sul.t-online.com> <20011022022839.A8452@unthought.net> <15va3i-0cRXvcC@fmrl00.sul.t-online.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15va3i-0cRXvcC@fmrl00.sul.t-online.com>; from tim@tjansen.de on Mon, Oct 22, 2001 at 02:57:53 +0200
+Organization: 2d3D, Inc.
+X-Operating-System: Debian GNU/Linux crystal 2.4.2 i686
+X-GPG-Public-Key: http://oasis.blio.net/pgpkeys/keys/2d3d.gpg
+X-Uptime: 10:25am  up 9 days, 19:06,  7 users,  load average: 0.04, 0.05, 0.01
+X-Edited-With-Muttmode: muttmail.sl - 2001-06-06
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == hjl  <H> writes:
 
-     > I checked out kernel 2.4.9-6 from RedHat 7.1 updates. It failed
-     > the Connectathon Testsuite against the Linux and none-Linux
-     > server. I believe both NFS server and client are broken in
-     > 2.4.9-6. See
+--SUOF0GtieIMvvwua
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-     > http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=54868
+Hi Tim!
 
-     > Now the question is how bad the current Linus/AC kernels are?
+> > How would hiding that information make the system "easier to use" ?  =
+=20
+>=20
+> Because the majority of people (and especially those who haven't been rea=
+ched=20
+> by Linux yet) don't care for the messages. They are as interested in boot=
+=20
+> messages as you may be in reading debug information from your DVD player =
+or=20
+> car.=20
+>=20
+> Assuming you have a car with a display for the embedded computer, and you=
+=20
+> don't know anything about its software or hardware, you just want to driv=
+e.=20
+> Would you prefer to see lots of cryptic messages when you turn the key, o=
+r=20
+> just some simple picture with a progress bar showing you when the system =
+is=20
+> ready?
+> IMHO the bar is all you need. Everything else just distracts you from the=
+=20
+> only important thing.=20
+>=20
+> Showing unimportant information is like turning on debug messages that yo=
+u=20
+> don't need.
+
+Interesting you should mention this analogy. Incidently, I would've
+preferred that my car give me a detail analysis of what's wrong. In fact, it
+would've been such a cool feature that it would be reason enough to sell my
+car and by that one (I could save myself years of arguing with incompetent
+mechanics).
+
+I suspect most people on this list feel the same as me and also feel that
+kernel debugging messages is not only a feature, but essential!
+
+See the difference between the O/S in question and the one you might be
+confusing it with is that this O/S was (and still is) written and being
+maintained by technical people. These kind of people like to know what's
+going on. It also happens that the primary audience for these people's work
+is themselves (us) and NOT novices - that my friend, is a bonus, not the
+sole aim of the exercise.
 
 
-They are not affected. The RedHat kernel seems to have the (known) bug
-in which the grace period isn't reset. My fault for introducing it in
-the 2.4.9-ac series...
+--=20
 
-I haven't gotten round to syncing up the AC kernel to the full reclaim
-code that's in Linus' kernel, but Alan has already applied the
-following patch (as of 2.4.10-ac12).
+Regards
+ Abraham
 
-Cheers,
-  Trond
+You can't run away forever,
+But there's nothing wrong with getting a good head start.
+		-- Jim Steinman, "Rock and Roll Dreams Come Through"
 
---- linux-2.4.9-6/fs/lockd/svc.c.orig	Thu Oct 18 15:00:46 2001
-+++ linux-2.4.9-6/fs/lockd/svc.c	Mon Oct 22 10:25:21 2001
-@@ -122,6 +122,15 @@
- 			if (nlmsvc_ops) {
- 				nlmsvc_ops->detach();
- 				grace_period_expire = nlmsvc_grace_period + jiffies;
-+#ifdef RPC_DEBUG
-+				nlmsvc_grace_period = 10 * HZ;
-+#else
-+				if (nlm_grace_period)
-+					nlmsvc_grace_period = ((nlm_grace_period + nlm_timeout - 1)
-+								/ nlm_timeout) * nlm_timeout * HZ;
-+				else
-+					nlmsvc_grace_period = 5 * nlm_timeout * HZ;
-+#endif
- 			}
- 		}
- 
-@@ -133,8 +142,10 @@
- 		 */
- 		if (!grace_period_expire) {
- 			timeout = nlmsvc_retry_blocked();
--		} else if (time_before(grace_period_expire, jiffies))
-+		} else if (time_before(grace_period_expire, jiffies)) {
- 			grace_period_expire = 0;
-+			nlmsvc_grace_period = 0;
-+		}
- 
- 		/*
- 		 * Find a socket with data available and call its
+__________________________________________________________
+ Abraham vd Merwe - 2d3D, Inc.
 
+ Device Driver Development, Outsourcing, Embedded Systems
+
+  Cell: +27 82 565 4451         Snailmail:
+   Tel: +27 21 761 7549            Block C, Antree Park
+   Fax: +27 21 761 7648            Doncaster Road
+ Email: abraham@2d3d.co.za         Kenilworth, 7700
+  Http: http://www.2d3d.com        South Africa
+
+
+--SUOF0GtieIMvvwua
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE709oDzNXhP0RCUqMRAhltAJ4t6lEQjtTFp/sFnw7kyMAG/rZKzgCfaEsu
+7pV4VE/VI430Y+1pq/f+aNg=
+=KC5R
+-----END PGP SIGNATURE-----
+
+--SUOF0GtieIMvvwua--

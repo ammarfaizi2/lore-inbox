@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263887AbUDVJZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263888AbUDVJky@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263887AbUDVJZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 05:25:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263889AbUDVJZ0
+	id S263888AbUDVJky (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 05:40:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263889AbUDVJky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 05:25:26 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:1199 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S263887AbUDVJZV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 05:25:21 -0400
-Subject: Re: [PATCH] s390 (7/9): oprofile for s390.
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: akpm@osdl.org, hch@infradead.org, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
-Message-ID: <OF139039C9.0CD544AD-ONC1256E7E.00310DE4-C1256E7E.0033BA72@de.ibm.com>
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Thu, 22 Apr 2004 11:25:00 +0200
-X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.0.2CF2|July 23, 2003) at
- 22/04/2004 11:25:01
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Thu, 22 Apr 2004 05:40:54 -0400
+Received: from smtpout.mac.com ([17.250.248.46]:64218 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S263888AbUDVJkx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 05:40:53 -0400
+Message-ID: <2899705.1082626850875.JavaMail.pwaechtler@mac.com>
+Date: Thu, 22 Apr 2004 11:40:50 +0200
+From: Peter Waechtler <pwaechtler@mac.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] coredump - as root not only if euid switched
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
+On Thursday, April 22, 2004, at 10:55AM, Andrew Morton <akpm@osdl.org> wrote:
 
-
-
-
-> Could you also delete unrelated lines from arch/s390/oprofile/Makefile.
+>Peter Waechtler <pwaechtler@mac.com> wrote:
+>>
+>>  But I agree that sys_unlink should be the fast call and dumping core
+>>  is the exception :)
+>> 
+>>  would fastcall do_unlink() help? I guess the arg is then passed in a
+>>  register
 >
-> > +++ linux-2.6-s390/arch/s390/oprofile/Makefile           Wed Apr 21
-20:25:32 2004
-> > +oprofile-y                                              :=
-$(DRIVER_OBJS) init.o
-> > +#oprofile-$(CONFIG_X86_LOCAL_APIC)          += nmi_int.o
-op_model_athlon.o \
-> > +
-op_model_ppro.o op_model_p4.o
-> > +#oprofile-$(CONFIG_X86_IO_APIC)                         +=
-nmi_timer_int.o
+>I've never been able to measure any size or space benefit for fastcall, and
+>we do it via compiler options kernel-wide nowadays.
 >
-> The X86 stuff should go away.
+>The above will work fine.  You can probably just open-code it at the place
+>where you're unlinking the file.
+>
+>(why are you trying to unlink the old file anyway?)
+>
 
-Ok, just removed this from my patch. Anything else before I re-sent
-it to Andrew?
-
-blue skies,
-   Martin
+For security measure :O
+I tried on solaris: touch the core file as user, open it and wait, dump core
+as root -> nope, couldn't read the damn core - it was unlinked and created!
+So do I want.
+I will sent the new patch from home.
 

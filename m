@@ -1,42 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275784AbRJJNsI>; Wed, 10 Oct 2001 09:48:08 -0400
+	id <S275767AbRJJNr2>; Wed, 10 Oct 2001 09:47:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275789AbRJJNrw>; Wed, 10 Oct 2001 09:47:52 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:1808 "EHLO probity.mcc.ac.uk")
-	by vger.kernel.org with ESMTP id <S275778AbRJJNr3>;
-	Wed, 10 Oct 2001 09:47:29 -0400
-Date: Wed, 10 Oct 2001 14:47:57 +0100
-From: John Levon <moz@compsoc.man.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: packaging
-Message-ID: <20011010144756.A77572@compsoc.man.ac.uk>
-In-Reply-To: <20011010132548Z275734-760+23170@vger.kernel.org> <20011011153220.3c2d2dde.Dennis.Heuer@stud.uni-hannover.de>
-Mime-Version: 1.0
+	id <S275778AbRJJNrS>; Wed, 10 Oct 2001 09:47:18 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:58629 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S275767AbRJJNrL>; Wed, 10 Oct 2001 09:47:11 -0400
+Subject: Re: [2.4.10] README and Documentation/Changes inconsistent
+To: Florian.Weimer@RUS.Uni-Stuttgart.DE (Florian Weimer)
+Date: Wed, 10 Oct 2001 14:53:17 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <tgg08rty3r.fsf@mercury.rus.uni-stuttgart.de> from "Florian Weimer" at Oct 10, 2001 03:37:28 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011011153220.3c2d2dde.Dennis.Heuer@stud.uni-hannover.de>
-User-Agent: Mutt/1.3.19i
-X-Url: http://www.movement.uklinux.net/
-X-Record: Truant - Neither Work Nor Leisure
-X-Toppers: N/A
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15rJnR-0007tO-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 11, 2001 at 03:32:20PM +0200, Dennis.Heuer@stud.uni-hannover.de wrote:
+> These files state different C compiler requirements.  Which one is
+> correct?
 
-> I'm shure you discussed this several times but...
-> 
-> a 30MB download makes me think of splitting the package. There could be one
-> package with all experimental modules and one with very old and mainly unused
-> modules (like for old CD-ROMS). Don't you think?
-
-please read the FAQ (shown in EVERY lkml message) before posting. Traffic is high
-enough as it is.
-
-john
-
--- 
-"For every finger you point at the other guy, check who your other fingers
-point at."
-	- jd, technocrat.net
+gcc 2.95.[3,4] is probably the compiler of choice

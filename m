@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264391AbTKURsT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 12:48:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbTKURsT
+	id S264384AbTKURpj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 12:45:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264387AbTKURpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 12:48:19 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:16560 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S264391AbTKURsS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 12:48:18 -0500
-Date: Fri, 21 Nov 2003 09:48:16 -0800
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+	Fri, 21 Nov 2003 12:45:39 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:59663 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264384AbTKURph
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Nov 2003 12:45:37 -0500
+Date: Fri, 21 Nov 2003 12:08:28 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: jt@hpl.hp.com
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: Announce: ndiswrapper
-Message-ID: <20031121174816.GB25630@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20031120031137.GA8465@bougret.hpl.hp.com> <3FBC3483.4060706@pobox.com> <20031120033422.GA8674@bougret.hpl.hp.com> <20031121120534.GA20822@ucw.cz> <20031121172541.GB25453@bougret.hpl.hp.com> <3FBE4BC7.20605@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FBE4BC7.20605@pobox.com>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+In-Reply-To: <20031120234510.GA17685@bougret.hpl.hp.com>
+Message-ID: <Pine.LNX.3.96.1031121115420.15437A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 21, 2003 at 12:30:47PM -0500, Jeff Garzik wrote:
+On Thu, 20 Nov 2003, Jean Tourrilhes wrote:
+
+> On Thu, Nov 20, 2003 at 06:04:51PM -0500, Bill Davidsen wrote:
+> > On Wed, 19 Nov 2003, Jean Tourrilhes wrote:
+> > 
+> > > 	Even better :
+> > > 		1) go to the Wireless LAN Howto
+> > > 		2) find a card are supported under Linux that suit your needs
+> > > 		3) buy this card
+> > > 	I don't see the point of giving our money to vendors that
+> > > don't care about us when there are vendors making a real effort toward
+> > > us.
+> > 
+> > You left out the step of "remove or disable the existing hardware in the
+> > system." Not everyone has a choice unlimited by budget and politics.
 > 
-> Last I checked, none of these were 100% open source.  I am certain this 
-> is true for Atheros, but IIRC it's also the case for the other two?
+> 	Why did you buy a bogus card in the first place ? That's
+> wasting money.
 
-	Ha ! Now we are talking ;-) But this as well is fully
-specified in the Howto... Yes, all those cards have binary drivers
-made for Linux (which is much better than nothing).
+The most common reason is that someone else, like employer or university,
+specifies or even provides the hardware. After that comes system price, a
+system with a less-than-perfect device may be much cheaper than the
+perfect solution.  Many people have a low money to time ratio, and when
+affordable hardware becomes available it's only possible to use it. And in
+some cases the offending hardware may be unremovable, as in soldered on.
+Think laptop.
 
-> Anyway, WRT RealTek, they gave me (and others) docs.  If I can locate a 
-> card, I'll do a driver (or merge an existing one, if any).
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-	Another link from the Howto ;-)
-		http://www.linux-wlan.org/docs/wlan_adapters.html
-
->  RealTek's 
-> been pretty supportive of open source in the past, what with 
-> 8139too/8139cp/r8169 stuff.
-
-	That would be real cool ;-) Thanks for your work Jeff.
-
-> 	Jeff
-
-	Jean

@@ -1,98 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265033AbUGGPQl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265213AbUGGPRi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265033AbUGGPQl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 11:16:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265203AbUGGPQk
+	id S265213AbUGGPRi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 11:17:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265211AbUGGPRi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 11:16:40 -0400
-Received: from mail005.syd.optusnet.com.au ([211.29.132.54]:42204 "EHLO
-	mail005.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265033AbUGGPQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 11:16:28 -0400
-Message-ID: <40EC13C5.2000101@kolivas.org>
-Date: Thu, 08 Jul 2004 01:16:21 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck kernel mailing list <ck@vds.kolivas.org>
-Subject: 2.6.7-ck5
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigCA89A3BF748FFBA6111DC75F"
+	Wed, 7 Jul 2004 11:17:38 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:35723 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265213AbUGGPRa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 11:17:30 -0400
+Date: Wed, 7 Jul 2004 16:17:27 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Oleg Drokin <green@clusterfs.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       braam@clusterfs.com
+Subject: Re: [0/9] Lustre VFS patches for 2.6
+Message-ID: <20040707151727.GA21293@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Oleg Drokin <green@clusterfs.com>, linux-kernel@vger.kernel.org,
+	braam@clusterfs.com
+References: <20040707124732.GA25877@clusterfs.com> <20040707125636.GA18058@infradead.org> <20040707151404.GJ5619@linuxhacker.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040707151404.GJ5619@linuxhacker.ru>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigCA89A3BF748FFBA6111DC75F
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, Jul 07, 2004 at 06:14:04PM +0300, Oleg Drokin wrote:
+> Well, there is not all that much "dead" code introduced (I hope). Esp. if some
+> of the new intent code will be used by NFS, for example.
 
-Patchset update:
+So let's wait until NFS uses it.
 
-These are patches designed to improve system responsiveness with 
-specific emphasis on the desktop, but suitable/configurable to any 
-workload. Read details and FAQ on my web page.
+> And it is not all that dead too, there would be at least one off-tree user ;)
 
-http://kernel.kolivas.org
+Which is equal to dead for all practical purposes of kernel maintaince.
 
-
-Added:
-cfq bugfix
-- cfq-bad-allocation.fix
-security updates
-- 1100_ip_tables.patch
-- 1105_CAN-2004-0497.patch
-- 1110_proc.patch
-
-
-Updated:
-Staircase cpu scheduler:
-- from_2.6.7_to_staircase7.9
-Batch (idle) scheduling:
-- schedbatch2.2.diff
-Isochronous (soft real time) scheduling:
-- schediso2.2.diff
-Graphical boot:
-- bootsplash-3.1.4-sp3-2.6.7.diff
-
-
-All patches:
--from_2.6.7_to_staircase7.9
--schedrange.diff
--schedbatch2.2.diff
--schediso2.2.diff
--autoswap.diff
--vm_autoregulate2.diff
--supermount-ng204.diff
--defaultcfq.diff
--config_hz.diff
--bootsplash-3.1.4-sp3-2.6.7.diff
--cfq-bad-allocation.fix
--1100_ip_tables.patch
--1105_CAN-2004-0497.patch
--1110_proc.patch
--ck5version.diff
-
-
-Please feel free to send comments, queries, suggestions, patches.
-Con
-
---------------enigCA89A3BF748FFBA6111DC75F
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFA7BPFZUg7+tp6mRURAp6CAJwIxlxRxsdI3pY2sFkmW4/nZfGnuwCfW8of
-Mr+Y2D+xdfwU8+n7uox5zbE=
-=IPn/
------END PGP SIGNATURE-----
-
---------------enigCA89A3BF748FFBA6111DC75F--

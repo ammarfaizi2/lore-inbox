@@ -1,77 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271419AbRHXNeZ>; Fri, 24 Aug 2001 09:34:25 -0400
+	id <S271487AbRHXNhQ>; Fri, 24 Aug 2001 09:37:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271505AbRHXNeP>; Fri, 24 Aug 2001 09:34:15 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:65158 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S271419AbRHXNd6>; Fri, 24 Aug 2001 09:33:58 -0400
-Date: Fri, 24 Aug 2001 09:34:06 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Tim Walberg <twalberg@mindspring.com>,
-        "J. Imlay" <jimlay@u.washington.edu>, linux-kernel@vger.kernel.org
-Subject: Re: macro conflict 
-In-Reply-To: <14764.998658214@redhat.com>
-Message-ID: <Pine.LNX.3.95.1010824091538.32666A-100000@chaos.analogic.com>
+	id <S271505AbRHXNhG>; Fri, 24 Aug 2001 09:37:06 -0400
+Received: from ns1.biochem.mpg.de ([141.61.1.32]:12808 "HELO
+	ns1.biochem.mpg.de") by vger.kernel.org with SMTP
+	id <S271487AbRHXNg4>; Fri, 24 Aug 2001 09:36:56 -0400
+Message-ID: <3B865882.24D57941@biochem.mpg.de>
+Date: Fri, 24 Aug 2001 15:37:06 +0200
+From: Bernhard Busch <bbusch@biochem.mpg.de>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Poor Performance for ethernet bonding 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Aug 2001, David Woodhouse wrote:
-
-> 
-> twalberg@mindspring.com said:
-> > There has already been **much** discussion about this, but I think
-> > that the bottom line is that the new version is safer and more robust
-> > than the old version, and thus is not likely to be changed back. 
-> 
-> That's a completely separate issue. You can fix it while keeping sane 
-> semantics for min() and max().
-> 
-> #define real_min(x,y) ({ typeof((x)) _x = (x); typeof((y)) _y = (y); (_x>_y)?_y:_x; })
-> 
-> #define min(x,y) ({ if strcmp(STRINGIFY(typeof(x)), STRINGIFY(typeof(y))) BUG(); realmin(x,y) }) 
-> 
-> /me wonders if gcc would manage to optimise that.
-> --
-> dwmw2
-> 
-
-Looking through the code, min() is most always used to find some value
-that will not overflow some buffer, i.e.,
-
-    len = min(user_request_len, sizeof(buffer));
-
-The problem is that sizeof() returns an unsigned int (size_t), and the
-user request length may be an integer. Everything works fine until
-you get to lengths with the high bit set. Then, you are in trouble.
-
-In this case, you could have a 'min()' that does:
-
-#define min(a,b) (unsigned long)(a) < (unsigned long)(b) ? (a) : (b)
-
-... where the comparison (only) is made unsigned, and you keep the
-original values. This should work, perhaps in all the current uses.
-However, min() is not the mathematical min() anymore. That's fine,
-but it probably should not be called min() unless it is truly a min()
-function.
-
-So, I suggest that instead of using some macro in a header, if you
-need min() you make one in your code called MIN(). Problem solved.
-Your macro will do exactly what you want it to do. If It's broken,
-you get to fix it (or keep the pieces).
+Hi
 
 
-Cheers,
-Dick Johnson
+I have tried to use ethernet  network interfaces bonding to increase
+peformance.
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+Bonding is working fine, but the performance is rather poor.
+FTP between 2 machines ( kernel 2.4.4 and 4 port DLink 100Mbit ethernet
+card)
+results in a transfer rate of 3MB/s).
 
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
+Any Hints?
+
+
+here is my setup for the channel bonding
+
+insmod bonding
+insmod tulip
+ifconfig bond0 192.168.100.2 netmask 255.255.255.0 broadcast
+192.168.100.255
+ifconfig bond0 down
+./ifenslave  -v bond0 eth2 eth3 eth4 eth5
+ifconfig bond0 up
+route add -host 192.168.100.1 dev bond0
+
+
+Many thanks for every help
+
+Bernhard
+
+--
+Dr. Bernhard Busch
+Max-Planck-Institut für Biochemie
+Am Klopferspitz 18a
+D-82152 Martinsried
+Tel: +48(89)8578-2582
+Fax: +49(89)8578-2479
+Email bbusch@biochem.mpg.de
+
 
 

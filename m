@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263184AbTDRRrs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 13:47:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263186AbTDRRrs
+	id S263173AbTDRRxi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 13:53:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTDRRxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 13:47:48 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55564 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263184AbTDRRrl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 13:47:41 -0400
-Date: Fri, 18 Apr 2003 11:00:02 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Rusty Trivial Russell <rusty@rustcorp.com.au>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [TRIVIAL] kstrdup
-In-Reply-To: <3EA02E55.80103@pobox.com>
-Message-ID: <Pine.LNX.4.44.0304181055290.2950-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 18 Apr 2003 13:53:38 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:25057 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263173AbTDRRxh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 13:53:37 -0400
+Date: Fri, 18 Apr 2003 11:06:30 -0700
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@transmeta.com>, sfr@canb.auug.org.au,
+       rusty@rustcorp.com.au
+Cc: Andries.Brouwer@cwi.nl, akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] struct loop_info64
+Message-ID: <20030418180630.GA7247@kroah.com>
+References: <20030418165506.GA6834@kroah.com> <Pine.LNX.4.44.0304181050430.2950-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0304181050430.2950-100000@home.transmeta.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 18 Apr 2003, Jeff Garzik wrote:
-> Linus Torvalds wrote:
-> > On Fri, 18 Apr 2003, Jeff Garzik wrote:
-> > 
-> >>You should save the strlen result to a temp var, and then s/strcpy/memcpy/
-> > 
-> > No, you should just not do this. I don't see the point.
+On Fri, Apr 18, 2003 at 10:55:21AM -0700, Linus Torvalds wrote:
 > 
-> strcpy has a test for each byte of its contents, and memcpy doesn't.
-> Why search 's' for NULL twice?
+> But we really should have a __ptr64 type too. There's just no sane way to
+> tell gcc about it without requireing casts, which is inconvenient (which
+> means that right now it you just have to use __u64 for pointers if you
+> want to be able to share the structure across 32/64-bit architectures).
 
-No, my point is that kstrdup() _itself_ just shouldn't be done. I don't
-see it as being worthy of kernel support. Most of the kernel string data
-structures are NOT random zero-ended strings anyway: they are either
-strictly limited in some ways ("ends in '\0', but limited to PATH_MAX), or
-they are explicitly sized ("struct qstr").
+I think that's what Stephan and Rusty tried to do with the
+kernel_ulong_t typedef in include/linux/mod_devicetable.h.
 
-I don't much personally like C strings. Explicit lengths tend to have a
-lot of advantages, and while a lot of the standard C infrastructure is for 
-zero-ended strings, they do end up being even worse in the kernel than in 
-user space (think buffer overflows and limited allocations in general).
+Maybe that typedef could be changed into the __ptr64 type?  Stephan?
 
-			Linus
+thanks,
 
+greg k-h

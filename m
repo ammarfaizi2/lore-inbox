@@ -1,77 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265600AbSKAKE5>; Fri, 1 Nov 2002 05:04:57 -0500
+	id <S265672AbSKAKK1>; Fri, 1 Nov 2002 05:10:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265671AbSKAKE5>; Fri, 1 Nov 2002 05:04:57 -0500
-Received: from gate.perex.cz ([194.212.165.105]:10506 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S265600AbSKAKE4>;
-	Fri, 1 Nov 2002 05:04:56 -0500
-Date: Fri, 1 Nov 2002 11:10:47 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: <perex@pnote.perex-int.cz>
-To: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-cc: "kernel-janitor-discuss@lists.sourceforge.net" 
-	<kernel-janitor-discuss@lists.sourceforge.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: might_sleep() in copy_{from,to}_user and friends?
-In-Reply-To: <200211011302.05461.arnd@bergmann-dalldorf.de>
-Message-ID: <Pine.LNX.4.33.0211011108490.1147-100000@pnote.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265673AbSKAKK1>; Fri, 1 Nov 2002 05:10:27 -0500
+Received: from h-64-105-136-52.SNVACAID.covad.net ([64.105.136.52]:34472 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S265672AbSKAKKZ>; Fri, 1 Nov 2002 05:10:25 -0500
+Date: Fri, 1 Nov 2002 03:16:38 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: alan@redhat.com, slouken@cs.ucdavis.edu, kuznet@ms2.inr.ac.ru
+Cc: linux-kernel@vger.kernel.org
+Subject: Patch?: linux-2.5.45/net/ipv4/ dst.pmtu compilation fixes
+Message-ID: <20021101031638.A349@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="bg08WKrSYDhXBjb5"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Nov 2002, Arnd Bergmann wrote:
 
-> I have been looking for more places in 2.5 that can be marked 
-> might_sleep() and noticed that all the functions in asm/uaccess.h
-> are not marked although they sleep if the memory they access
-> has to be paged in.
-> 
-> After adding might_sleep() in ten places in asm-i386/uaccess.h
-> and arch/i386/lib/usercopy.c, I have been running this kernel
-> for about two weeks. So far, I have found only one place where
-> the kernel actually hits this and that one is trivially
-> fixable (maintainer cc'd, fix see below).
-> 
-> The question is if we can expect to find more bugs like
-> that if we have might_sleep() in uaccess.h or if the 
-> extra cycles and the work of changing ~100 places (for all
-> architectures) are just not worth it.
-> 
-> 	Arnd <><
-> 
-> ===== sound/core/pcm_native.c 1.17 vs edited =====
-> --- 1.17/sound/core/pcm_native.c	Sun Oct 13 21:19:17 2002
-> +++ edited/sound/core/pcm_native.c	Fri Nov  1 12:43:38 2002
-> @@ -2014,8 +2014,6 @@
->  			n = snd_pcm_playback_hw_avail(runtime);
->  		else
->  			n = snd_pcm_capture_avail(runtime);
-> -		if (put_user(n, res))
-> -			err = -EFAULT;
->  		break;
->  	case SNDRV_PCM_STATE_XRUN:
->  		err = -EPIPE;
-> @@ -2026,6 +2024,9 @@
->  		break;
->  	}
->  	spin_unlock_irq(&runtime->lock);
-> +	if (!ret)
-        ^^^^^^^^^
+--bg08WKrSYDhXBjb5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Shouldn't be here 'if (!err)' ? The fix is in our CVS. Thanks.
+	linux-2.5.45 appears to have replaced dst_entry.pmtu with
+dst_entry.metrics[RTAX_PMTU] and created a helper function
+dst_pmtu(struct dst_entry*), presumably to simplify future changes
+like this one.  Here are patches to places in three files that were
+apparently missed, preventing the files from compiling.  Now the
+files compile.  That is as much as I have tested.
 
-> +		if (put_user(n, res))
-> +			err = -EFAULT;
->  	return err;
->  }
+	I am not currently familiar with this code, so I could easily
+have misunderstood something in my patch.
 
-						Jaroslav
+	I would appreciate it if the appropriate maintainer(s) would
+examine this patch and forward it to Linus it seems OK.  If there is
+something else I should do, please let me know.
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project  http://www.alsa-project.org
-SuSE Linux    http://www.suse.com
+-- 
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
 
+--bg08WKrSYDhXBjb5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="pmtu.diff"
+
+--- linux-2.5.45/net/ipv4/ipmr.c	2002-10-30 16:42:55.000000000 -0800
++++ linux/net/ipv4/ipmr.c	2002-10-31 02:47:37.000000000 -0800
+@@ -1111,7 +1111,7 @@
+ {
+ 	struct dst_entry *dst = skb->dst;
+ 
+-	if (skb->len <= dst->pmtu)
++	if (skb->len <= dst_pmtu(dst))
+ 		return dst->output(skb);
+ 	else
+ 		return ip_fragment(skb, dst->output);
+@@ -1167,7 +1167,7 @@
+ 
+ 	dev = rt->u.dst.dev;
+ 
+-	if (skb->len+encap > rt->u.dst.pmtu && (ntohs(iph->frag_off) & IP_DF)) {
++	if (skb->len+encap > dst_pmtu(&rt->u.dst) && (ntohs(iph->frag_off) & IP_DF)) {
+ 		/* Do not fragment multicasts. Alas, IPv4 does not
+ 		   allow to send ICMP, so that packets will disappear
+ 		   to blackhole.
+--- linux-2.5.45/net/ipv4/ip_gre.c	2002-10-30 16:43:34.000000000 -0800
++++ linux/net/ipv4/ip_gre.c	2002-11-01 03:04:16.000000000 -0800
+@@ -523,11 +523,11 @@
+ 
+ 	/* change mtu on this route */
+ 	if (type == ICMP_DEST_UNREACH && code == ICMP_FRAG_NEEDED) {
+-		if (rel_info > skb2->dst->pmtu) {
++		if (rel_info > dst_pmtu(skb2->dst)) {
+ 			kfree_skb(skb2);
+ 			return;
+ 		}
+-		skb2->dst->pmtu = rel_info;
++		skb2->dst->metrics[RTAX_PMTU] = rel_info;
+ 		rel_info = htonl(rel_info);
+ 	} else if (type == ICMP_TIME_EXCEEDED) {
+ 		struct ip_tunnel *t = (struct ip_tunnel*)skb2->dev->priv;
+--- linux-2.5.45/net/ipv4/ipip.c	2002-10-30 16:43:48.000000000 -0800
++++ linux/net/ipv4/ipip.c	2002-11-01 03:03:45.000000000 -0800
+@@ -452,11 +452,11 @@
+ 
+ 	/* change mtu on this route */
+ 	if (type == ICMP_DEST_UNREACH && code == ICMP_FRAG_NEEDED) {
+-		if (rel_info > skb2->dst->pmtu) {
++		if (rel_info > dst_pmtu(skb2->dst)) {
+ 			kfree_skb(skb2);
+ 			return;
+ 		}
+-		skb2->dst->pmtu = rel_info;
++		skb2->dst->metrics[RTAX_PMTU] = rel_info;
+ 		rel_info = htonl(rel_info);
+ 	} else if (type == ICMP_TIME_EXCEEDED) {
+ 		struct ip_tunnel *t = (struct ip_tunnel*)skb2->dev->priv;
+
+--bg08WKrSYDhXBjb5--

@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263332AbREXB0z>; Wed, 23 May 2001 21:26:55 -0400
+	id <S263338AbREXBtC>; Wed, 23 May 2001 21:49:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263334AbREXB0p>; Wed, 23 May 2001 21:26:45 -0400
-Received: from web13404.mail.yahoo.com ([216.136.175.62]:54288 "HELO
-	web13404.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S263332AbREXB00>; Wed, 23 May 2001 21:26:26 -0400
-Message-ID: <20010524012625.46665.qmail@web13404.mail.yahoo.com>
-Date: Thu, 24 May 2001 03:26:25 +0200 (CEST)
-From: =?iso-8859-1?q?Cesar=20Da=20Silva?= <thunderlight1@yahoo.com>
-Reply-To: cesar.da.silva@cyberdude.com
-Subject: Update of Request for comments on: Linux vs. Solaris, AIX, HP-UX, IRIX, and Tru64 UNIX.
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S263339AbREXBsx>; Wed, 23 May 2001 21:48:53 -0400
+Received: from attila.bofh.it ([213.92.8.2]:22223 "HELO attila.bofh.it")
+	by vger.kernel.org with SMTP id <S263338AbREXBsr>;
+	Wed, 23 May 2001 21:48:47 -0400
+Date: Thu, 24 May 2001 03:48:24 +0200
+From: "Marco d'Itri" <md@Linux.IT>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Ext2, fsync() and MTA's?
+Message-ID: <20010524034824.C26674@wonderland.linux.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010521184758.B24682@redhat.com>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's a new update of the above thesis on the link:
+On May 21, "Stephen C. Tweedie" <sct@redhat.com> wrote:
 
-http://www.student.hig.se/~na98csa/linux/
+ >Just set chattr +S on the spool dir.  That's what the flag is for.
+ >The biggest problem with that is that it propagates to subdirectories
+ >and files --- would a version of the flag which applied only to
+ >directories be a help here?
+Yes, please. It's what is really needed by MTA (not only for spool, but
+for maildir delivery too).
 
-and a postscript file at:
-
-http://www.student.hig.se/~na98csa/linux/xjobb.ps
-
-I would appreciate help on filling in the empty spaces
-on Linux and IRIX. Do also please provide a reference
-to where the feature is mentioned (for example a
-HOWTO, FAQ, book, article, or url... because a thesis
-reuires it).
-
-Regards,
-Cesar da Silva
-
-_____________________________________________________
-Do You Yahoo!?
-Ditt_namn@yahoo.se - skaffa en gratis mailadress på http://mail.yahoo.se
+-- 
+ciao,
+Marco

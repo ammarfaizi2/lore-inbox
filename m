@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262611AbVCJNze@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262612AbVCJN5X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262611AbVCJNze (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 08:55:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262616AbVCJNze
+	id S262612AbVCJN5X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 08:57:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262616AbVCJNzn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 08:55:34 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:21933 "EHLO
+	Thu, 10 Mar 2005 08:55:43 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:22189 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262611AbVCJNzX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 08:55:23 -0500
-Date: Wed, 9 Mar 2005 20:11:03 +0100
+	id S262612AbVCJNzY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 08:55:24 -0500
+Date: Wed, 9 Mar 2005 20:32:13 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Michal Januszewski <spock@gentoo.org>
-Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: [announce 7/7] fbsplash - documentation
-Message-ID: <20050309191103.GA632@openzaurus.ucw.cz>
-References: <20050308021706.GH26249@spock.one.pl>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Alexander Nyberg <alexn@dsv.su.se>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: dm-crypt vs. cryptoloop reminder
+Message-ID: <20050309193212.GB632@openzaurus.ucw.cz>
+References: <1110058524.13821.17.camel@boxen> <20050305224415.GA8837@pclin040.win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050308021706.GH26249@spock.one.pl>
+In-Reply-To: <20050305224415.GA8837@pclin040.win.tue.nl>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> +The userspace helper
-> +--------------------
-> +
-> +The userspace splash helper (by default: /sbin/splash_helper) is called by the
-> +kernel whenever an important event occurs and the kernel needs some kind of
-> +job to be carried out. Important events include console switches and graphic
-> +mode switches (the kernel requests background images and configuration
-> +parameters for the current console). The splash helper must be accessible at 
-> +all times. If it's not, fbsplash will be switched off automatically.
+> > 2.6.3-mm1 'dm-crypt vs. cryptoloop' discussion was some time ago, it is
+> > time to bring this up again:
+> > http://kerneltrap.org/node/2433
+> 
+> Are you a troll?
+> 
+> This is not something to be quoted by anybody serious.
+> 
+> Andrew referred to "well-known weaknesses" in cryptoloop,
+> and when I inquired it turned out that what he referred to
+> were properties of cryptoloop and dm-crypt alike, so that
+> his remarks that started that discussion were misguided.
+> 
+> Of course people may prefer dm-crypt or cryptoloop or loop-aes,
+> just like people prefer ide-cd or ide-scsi.
+> 
+> I have not yet seen a valid reason to deprecate one of these three
+> very soon.
 
-Ugh, is not calling userspace when switching consoles deadlock-prone?
-What if that helper tries to do printf()?
+I'd say that "no-maintainer" + "maintained code can do the same" is enough, but...
+I thought that ide-scsi was deprecated, too?
 
 -- 
 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         

@@ -1,134 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262611AbVDAEXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262616AbVDAEiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262611AbVDAEXh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 23:23:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbVDAEXh
+	id S262616AbVDAEiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 23:38:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbVDAEiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 23:23:37 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:4852 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262611AbVDAEXZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 23:23:25 -0500
-Message-ID: <424CCCB5.3030200@mvista.com>
-Date: Thu, 31 Mar 2005 22:23:17 -0600
-From: Corey Minyard <cminyard@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040804
+	Thu, 31 Mar 2005 23:38:24 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:65394 "EHLO
+	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S262616AbVDAEiV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 23:38:21 -0500
+Date: Thu, 31 Mar 2005 22:37:44 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: AMD64 Machine hardlocks when using memset
+In-reply-to: <3O99L-40N-9@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <424CD018.5000005@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
 X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Subject: Re: sysfs for IPMI, for new mm kernels
-References: <424CB9DA.1040707@mvista.com> <200503312243.02139.dtor_core@ameritech.net>
-In-Reply-To: <200503312243.02139.dtor_core@ameritech.net>
-Content-Type: multipart/mixed;
- boundary="------------040009030206000903060008"
+References: <3NTHD-8ih-1@gated-at.bofh.it> <3O99L-40N-9@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stelian Pop wrote:
+> Just a thought: does deactivating cpufreq change anything ?
+> 
+> I haven't tested yet your program, but on my Asus K8NE-Deluxe very
+> strange things happen if cpufreq/powernow is activated *and* 
+> the cpu frequency is changed...
 
-This is a multi-part message in MIME format.
---------------040009030206000903060008
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Didn't change anything for me, I tried deactivating cpufreq, still 
+crashes when I run that test program.
 
-Dmitry Torokhov wrote:
+This is getting pretty ridiculous.. I've tried memory timings down to 
+the slowest possible, ran Memtest86 for 4 passes with no errors, and 
+it's been stable in Windows for a few months now. Still something is 
+blowing up in Linux with this test though..
 
->On Thursday 31 March 2005 22:02, Corey Minyard wrote:
->  
->
->>+       snprintf(name, sizeof(name), "ipmi%d", if_num);
->>+       class_device_create(ipmi_class, dev, NULL, name);
->>
->>    
->>
->
->class_device_create(ipmi_class, dev, NULL, "ipmi%d", if_num) ?
->
->  
->
-Yes, much better.  Let's try again...
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
--Corey
-
---------------040009030206000903060008
-Content-Type: text/x-patch;
- name="ipmi-sysfs.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ipmi-sysfs.diff"
-
-Add support for sysfs to the IPMI device interface.
-
-Signed-off-by: Corey Minyard <minyard@acm.org>
-
-Index: linux-2.6.12-rc1/drivers/char/ipmi/ipmi_devintf.c
-===================================================================
---- linux-2.6.12-rc1.orig/drivers/char/ipmi/ipmi_devintf.c
-+++ linux-2.6.12-rc1/drivers/char/ipmi/ipmi_devintf.c
-@@ -44,6 +44,7 @@
- #include <linux/ipmi.h>
- #include <asm/semaphore.h>
- #include <linux/init.h>
-+#include <linux/device.h>
- 
- #define IPMI_DEVINTF_VERSION "v33"
- 
-@@ -519,15 +520,21 @@
- 		 " interface.  Other values will set the major device number"
- 		 " to that value.");
- 
-+static struct class *ipmi_class;
-+
- static void ipmi_new_smi(int if_num)
- {
--	devfs_mk_cdev(MKDEV(ipmi_major, if_num),
--		      S_IFCHR | S_IRUSR | S_IWUSR,
-+	dev_t dev = MKDEV(ipmi_major, if_num);
-+
-+	devfs_mk_cdev(dev, S_IFCHR | S_IRUSR | S_IWUSR,
- 		      "ipmidev/%d", if_num);
-+
-+	class_device_create(ipmi_class, dev, NULL, "ipmi%d", if_num);
- }
- 
- static void ipmi_smi_gone(int if_num)
- {
-+	class_device_destroy(ipmi_class, MKDEV(ipmi_major, if_num));
- 	devfs_remove("ipmidev/%d", if_num);
- }
- 
-@@ -548,8 +555,15 @@
- 	printk(KERN_INFO "ipmi device interface version "
- 	       IPMI_DEVINTF_VERSION "\n");
- 
-+	ipmi_class = class_create(THIS_MODULE, "ipmi");
-+	if (IS_ERR(ipmi_class)) {
-+		printk(KERN_ERR "ipmi: can't register device class\n");
-+		return PTR_ERR(ipmi_class);
-+	}
-+
- 	rv = register_chrdev(ipmi_major, DEVICE_NAME, &ipmi_fops);
- 	if (rv < 0) {
-+		class_destroy(ipmi_class);
- 		printk(KERN_ERR "ipmi: can't get major %d\n", ipmi_major);
- 		return rv;
- 	}
-@@ -563,6 +577,7 @@
- 	rv = ipmi_smi_watcher_register(&smi_watcher);
- 	if (rv) {
- 		unregister_chrdev(ipmi_major, DEVICE_NAME);
-+		class_destroy(ipmi_class);
- 		printk(KERN_WARNING "ipmi: can't register smi watcher\n");
- 		return rv;
- 	}
-@@ -573,6 +588,7 @@
- 
- static __exit void cleanup_ipmi(void)
- {
-+	class_destroy(ipmi_class);
- 	ipmi_smi_watcher_unregister(&smi_watcher);
- 	devfs_remove(DEVICE_NAME);
- 	unregister_chrdev(ipmi_major, DEVICE_NAME);
-
---------------040009030206000903060008--

@@ -1,52 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270409AbTGMV1S (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 17:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270411AbTGMV1S
+	id S270405AbTGMVHY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 17:07:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270406AbTGMVHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 17:27:18 -0400
-Received: from netrider.rowland.org ([192.131.102.5]:12817 "HELO
-	netrider.rowland.org") by vger.kernel.org with SMTP id S270409AbTGMV1R
+	Sun, 13 Jul 2003 17:07:24 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:22151 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S270405AbTGMVHQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 17:27:17 -0400
-Date: Sun, 13 Jul 2003 17:42:03 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Style question: Should one check for NULL pointers? 
-In-Reply-To: <200307121840.h6CIeKIj004212@eeyore.valparaiso.cl>
-Message-ID: <Pine.LNX.4.44L0.0307131738230.8445-100000@netrider.rowland.org>
+	Sun, 13 Jul 2003 17:07:16 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 13 Jul 2003 14:14:33 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: David Schwartz <davids@webmaster.com>
+cc: Eric Varsanyi <e0206@foo21.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: [Patch][RFC] epoll and half closed TCP connections
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEEPEFAA.davids@webmaster.com>
+Message-ID: <Pine.LNX.4.55.0307131334380.15022@bigblue.dev.mcafeelabs.com>
+References: <MDEHLPKNGKAHNMBLJOLKIEEPEFAA.davids@webmaster.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Jul 2003, Horst von Brand wrote:
+On Sun, 13 Jul 2003, David Schwartz wrote:
 
-> Alan Stern <stern@rowland.harvard.edu> said:
-> 
-> [...]
-> 
-> > But if you look very far through the kernel sources you will see many 
-> > occurrences of code similar to this:
-> > 
-> > 	static void release(struct xxx *ptr)
-> > 	{
-> > 		if (!ptr)
-> > 			return;
-> > 	...
-> > 
-> > I can't see any reason for keeping something like that.
-> 
-> Just like free(3)
+> 	For most real-world loads, M is some fraction of N. The fraction
+> asymptotically approaches 1 as load increases because under load it takes
+> you longer to get back to polling, so a higher fraction of the descriptors
+> will be ready when you do.
+>
+> 	Even if you argue that most real-world loads consists of a few very busy
+> file descriptors and a lot of idle file descriptors, why would you think
+> that this ratio changes as the number of connections increase? Say a group
+> of two servers is handling a bunch of connections. Some of those connections
+> will be very active and some will be very idle. But surely the *percentage*
+> of active connections won't change just becase the connections are split
+> over the servers 50/50 rather than 10/90.
+>
+> 	If a particular protocol and usage sees 10 idle connections for every
+> active one, then N will be ten times M, and O(M) will be the same as O(N).
+> It's only if a higher percentage of connections are idle when there are more
+> connections (which seems an extreme rarity to me) that O(M) is better than
+> O(N).
 
-NO!  Not just like free().  The documentation for free() explicitly states 
-that NULL pointers are valid input and result in no action.  A 
-release()-type function, by contrast, is called back from core system code 
-that guarantees it will always pass a pointer to the currently-registered 
-owner of the corresponding resource.  If the owner were NULL, the 
-release() function wouldn't have been called in the first place.
+Apoligize, I abused of O(*) (hopefully noone of my math profs are on lkml :).
+Yes, N/M has little/none fluctuation in the N domain. So, using O(*)
+correctly, they both scale O(N). But, we can trivially say that if we call
+CP the cost of poll() in CPU cycles, and CE the cost of epoll :
 
-Alan Stern
+CP(N, M) = KP * N
+EP(N, M) = KE * M
+
+Where KP and KE are constant that depends on the code architecture of the
+two systems. If we fix KA (active coefficent ) :
+
+KA = M / N
+
+we can write the scalability coefficent like :
+
+         KP * N          KP
+KS = ------------- = ---------
+      KE * KA * N     KE * KA
+
+The scalability coefficent is clearly inv. proportional to KA. Let's look
+at what the poll code does :
+
+1) It has to allocate the kernel buffer for events
+
+2) It has to copy it from userspace
+
+3) It has to allocate wait queue buffer calling get_free_page (possibly
+	multiple times when we talk about decent fds numbers)
+
+4) It has to loop calling N times f_op->poll() that in turn will add into
+	the wait queue getting/releasing IRQ locks
+
+5) Loop another M loop to copy events to userspace
+
+6) Call kfree() for all blocks allocated
+
+7) Call poll_freewait() that will go with another N loop to unregister
+	poll waits, that in turn will do another N IRQ locks
+
+The epoll code does remember/cache things so that KE is largely lower that
+KP, and this together with a pretty low KA explain results about poll
+scalability against epoll.
+
+
+
+> 	Is there any actual evidence to suggest that epoll scales better than poll
+> for "real loads"? Tests with increasing numbers of idle file descriptors as
+> the active count stays constant are not real loads.
+
+Yes, of course. The time spent inside poll/select becomes a PITA when you
+start dealing with huge number of fds. And this is kernel time. This does
+not obviously mean that if epoll is 10 times faster than poll under load,
+and you switch your app on epoll, it'll be ten times faster. It means that
+the kernel time spent inside poll will be 1/10. And many of the operations
+done by poll require IRQ locks and this increase the time the kernel
+spend with disabled IRQs, that is never a good thing.
+
+
+
+- Davide
 

@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264086AbTEGPzG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 11:55:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264088AbTEGPzF
+	id S264087AbTEGPzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 11:55:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264088AbTEGPzI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 7 May 2003 11:55:08 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:48831 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264087AbTEGPzF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 7 May 2003 11:55:05 -0400
-Received: from mail.convergence.de ([212.84.236.4]:36500 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S264086AbTEGPzD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 11:55:03 -0400
-Date: Wed, 7 May 2003 18:07:14 +0200
-From: Denis Oliver Kropp <dok@directfb.org>
-To: jeff gerard <jeff-lk@gerard.st>
-Cc: dok@convergence.de, jsimmons@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] neofb: 1024x480 (picturebook) support
-Message-ID: <20030507160714.GD1576@directfb.org>
-Reply-To: Denis Oliver Kropp <dok@directfb.org>
-References: <20030502221116.GD29417@gage.org>
+Date: Wed, 7 May 2003 18:07:26 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: ioctl cleanups: enable sg_io and serial stuff to be shared
+Message-ID: <20030507160726.GM823@suse.de>
+References: <20030507104008$12ba@gated-at.bofh.it> <200305071518.25595.arnd@arndb.de> <20030507151613.GB412@elf.ucw.cz> <200305071746.15908.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030502221116.GD29417@gage.org>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <200305071746.15908.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting jeff gerard (jeff-lk@gerard.st):
-> hi,
+On Wed, May 07 2003, Arnd Bergmann wrote:
+> On Wednesday 07 May 2003 17:16, Pavel Machek wrote:
 > 
-> here's a small patch for the neomagic framebuffer driver, to add support
-> for the 1024x480 LCD found on early models of sony vaio picturebooks.
+> > > Has anyone solved the register_ioctl32_conversion() from module problem
+> > > yet? The patch will break if you build scsi as a module because you
+> > > never unregister the conversion helper on unload.
+> > > Even if you do the unregister from a module_exit() function, there
+> > > will still be a small race against running ioctl handlers. I suppose
+> > > we have to add an 'owner' field to struct ioctl_trans in order to
+> > > get it right.
+> >
+> > Its in drivers/block/scsi_ioctl.c. AFAICS, its always compiled in, so
+> > I'm not hitting that problem *yet*.
 > 
-> this is similar to the libretto 800x480 hack already included in the
-> driver. below is for 2.5.66+, here's links to it, as well as a version for
-> 2.4 which also backports the libretto support:
+> No, it has indeed been possible to build scsi as a module for a long
+> time and in that case, scsi_ioctl becomes part of that module. The same 
+> problem also exists for any user of register_ioctl32_conversion(), e.g.
+> ieee1394.
 
-Great thanks! I haven't had the time yet to back port the libretto support
-so I'm especially thankful for that! I hope James will forward the patch
-to the correct people for inclusion.
+drivers/block/scsi_ioctl.c is not part of the scsi layer, it provides
+generic SG_IO functionality for scsi-like block drivers.
 
 -- 
-Best regards,
-  Denis Oliver Kropp
+Jens Axboe
 
-.------------------------------------------.
-| DirectFB - Hardware accelerated graphics |
-| http://www.directfb.org/                 |
-"------------------------------------------"
-
-                            Convergence GmbH

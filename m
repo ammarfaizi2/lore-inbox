@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262306AbVBBRek@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262290AbVBBRig@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262306AbVBBRek (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 12:34:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbVBBRek
+	id S262290AbVBBRig (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 12:38:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbVBBRif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 12:34:40 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:26313 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262306AbVBBReg (ORCPT
+	Wed, 2 Feb 2005 12:38:35 -0500
+Received: from news.suse.de ([195.135.220.2]:41660 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262643AbVBBRhk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 12:34:36 -0500
-Date: Wed, 2 Feb 2005 17:34:33 +0000
-From: Alasdair G Kergon <agk@redhat.com>
-To: Kristina Clair <kclair@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: dm_snapshot experimental? potential repercussions?
-Message-ID: <20050202173433.GC14097@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Kristina Clair <kclair@gmail.com>, linux-kernel@vger.kernel.org
-References: <dff3752705020208024b5992@mail.gmail.com>
+	Wed, 2 Feb 2005 12:37:40 -0500
+Subject: Re: [RFC][PATCH 0/3] Access Control Lists for tmpfs and /dev/pts
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Chris Mason <mason@suse.de>
+In-Reply-To: <20050202165549.GA17924@infradead.org>
+References: <20050202161340.660712000@blunzn.suse.de>
+	 <20050202165549.GA17924@infradead.org>
+Content-Type: text/plain
+Organization: SUSE Labs
+Message-Id: <1107365842.5712.16.camel@winden.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <dff3752705020208024b5992@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 02 Feb 2005 18:37:23 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 02, 2005 at 11:02:49AM -0500, Kristina Clair wrote:
-> I have been told that dm_snapshot is still experimental in the 2.6.10
-> kernel, and I was advised not to have more than one snapshot created
-> at a time for the same logical volume.
- 
-Each snapshot is independent and keeps its own separate copy of 
-changes, so as you increase the number of parallel snapshots you
-quickly affect performance.  This has always been the case for
-LVM and device-mapper snapshots.  Daniel Phillips is working on a
-clustered snapshot implementation which at the same time addresses 
-this issue, allowing parallel snapshots to share their metadata.
+On Wed, 2005-02-02 at 17:55, Christoph Hellwig wrote:
+> On Wed, Feb 02, 2005 at 05:13:40PM +0100, Andreas Gruenbacher wrote:
+> > Here is a set of three patches which implement some general
+> > infrastructure and on top of that, acls for tmpfs and /dev/pts files.
+> 
+> Why would you want ACLs on /dev/pts?
 
-> Basically I am just wondering what the potential problems are with
-> dm_snapshot.  Is there anything particular that I should look out for?
+That's actually a good question. The patch allows to give several people
+access to the same terminal, which sometimes comes in handy with tools
+like screen (at least in its current version), and that's what the patch
+originally was meant for. I've just talked this over this with one of
+the maintainers though, and there are probably better ways than handling
+this at the file permission level, like passing open file descriptors
+between processes. So unless somebody comes up with a convincing
+application, that patch probably should stay out.
 
-There are numerous memory allocation issues with the current dm-snapshot 
-implementation: in simple terms, devices or your machine can lock up,
-and your system is especially vulnerable when snapshots are manipulated
-(create/activate) and when your system is under load.
-
-We think we understand the most important problems and are gradually 
-fixing them, but this is not a quick process because the changes have a 
-significant impact on the LVM2 and EVMS code bases (complex sequences of 
-ioctls have to change).
-
-Join the dm-devel mailing list if you want to monitor progress.
- 
-Alasdair
+Cheers,
 -- 
-agk@redhat.com
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX GMBH
+

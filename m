@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267245AbSLKR7q>; Wed, 11 Dec 2002 12:59:46 -0500
+	id <S267259AbSLKSKi>; Wed, 11 Dec 2002 13:10:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267247AbSLKR7q>; Wed, 11 Dec 2002 12:59:46 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:15233 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S267245AbSLKR7p>;
-	Wed, 11 Dec 2002 12:59:45 -0500
-Date: Wed, 11 Dec 2002 18:07:19 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
+	id <S267260AbSLKSKi>; Wed, 11 Dec 2002 13:10:38 -0500
+Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:29056 "EHLO
+	gagarin.0x63.nu") by vger.kernel.org with ESMTP id <S267259AbSLKSKh>;
+	Wed, 11 Dec 2002 13:10:37 -0500
+Date: Wed, 11 Dec 2002 19:18:04 +0100
+To: Dave Jones <davej@codemonkey.org.uk>
 Cc: Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: 2.5 Changes doc update.
-Message-ID: <20021211180719.GB10008@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20021211172559.GA8613@suse.de> <20021211175810.GC2612@gtf.org>
+Message-ID: <20021211181804.GA31103@gagarin>
+References: <20021211172559.GA8613@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021211175810.GC2612@gtf.org>
+In-Reply-To: <20021211172559.GA8613@suse.de>
 User-Agent: Mutt/1.4i
+From: Anders Gustafsson <andersg@0x63.nu>
+X-Scanner: exiscan *18MBQq-0001Ex-00*ZM5BCBg2N.A* (0x63.nu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 11, 2002 at 12:58:10PM -0500, Jeff Garzik wrote:
- > I think the coolest things (to me) of the new build system need to be
- > noted too,
- > 
- > - "make" is now the preferred target; it does <arch-zimage> and modules.
- > - "make -jN" is now the preferred parallel-make execution.  Do not
- >   bother to provide "MAKE=xxx".
+On Wed, Dec 11, 2002 at 05:25:59PM +0000, Dave Jones wrote:
+> Modules.
+> ~~~~~~~~
+> - The in-kernel module loader got reimplemented.
+> - You need replacement module utilities from
+>   http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
+> - A backwards compatable set of module utilities is available
+>   including v0.7 of the new-style utils in source RPM format from
+>   http://www.kernel.org/pub/linux/kernel/people/rusty/modules/modutils-2.4.21-5.src.rpm
 
-Yup. Added. Thanks.
-Something else that I've noticed (but not found documented) is that
-make dep seems to be automagickly done somewhen. An explicit make dep
-takes about a second, and doesn't seem to do much at all.
-
-Dave
+Could be worth noting that debian sid contains a "module-init-tools".
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/

@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261522AbRERUNf>; Fri, 18 May 2001 16:13:35 -0400
+	id <S261532AbRERURf>; Fri, 18 May 2001 16:17:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261531AbRERUNZ>; Fri, 18 May 2001 16:13:25 -0400
-Received: from www.topmail.de ([212.255.16.226]:60619 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S261450AbRERUNM>;
-	Fri, 18 May 2001 16:13:12 -0400
-From: mirabilos <eccesys@topmail.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: 00_rwsem-11, 2.4.4-ac11 and gcc-3(2001-05-14)
-Message-Id: <20010518200837.ED2FDA5AF76@www.topmail.de>
-Date: Fri, 18 May 2001 22:08:37 +0200 (MET DST)
+	id <S261534AbRERURZ>; Fri, 18 May 2001 16:17:25 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:49161 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S261532AbRERURU>; Fri, 18 May 2001 16:17:20 -0400
+Date: Fri, 18 May 2001 17:12:01 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: Mike Galbraith <mikeg@wen-online.de>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>
+Subject: Re: Linux 2.4.4-ac10
+In-Reply-To: <20010518205843.T806@nightmaster.csn.tu-chemnitz.de>
+Message-ID: <Pine.LNX.4.33.0105181710540.5251-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea,
-I applied rwsem-11 (a bit by hand) to -ac11 and tried to
-compile. By changing CFLAGS_sys.o to -O (instead of -O2)
-as I read earlier I nearly could compile, it only barfed
-when it came to assemble the xaddl procedure by itself:
+On Fri, 18 May 2001, Ingo Oeser wrote:
+> On Fri, May 18, 2001 at 03:23:03PM -0300, Rik van Riel wrote:
 
-static inline long rwsem_xchgadd(long value, long * count)
-{
-        __asm__ __volatile__(LOCK "xaddl %0,%1"
-                             : "+r" (value), "+m" (*count));
-        return value;
-}
+> > "such a tradeoff" ?
+> >
+> > While this sounds reasonable, I have to point out that
+> > up to now nobody has described exactly WHAT tradeoff
+> > they'd like to make tunable and why...
+>
+> Amount of pages reclaimed from swapout_mm() versus amount of
+> pages reclaimed from caches.
+>
+> A value that says: "use XX% of my main memory for RSS of
+> processes, even if I run heavy disk loadf now" would be nice.
+>
+> For general purpose machines, where I run several services but
+> also play games, this would allow both to survive.
+>
+> The external services would go slower. Who cares, if some CVS
+> updates or NFS services go slower, if I can play my favorite game
+> at full speed? ;-)
 
-changing from "inline" to "" yields a kernel which stops just
-before mounting root (sysrq still works, but nothing else).
-I now try again with GENERIC, and it actually is compiling...
-lets look whether it works.
-I hope a non-generic will solve the sound freeze :)
+Remember that the executable and data of that game reside
+in the filesystem cache. This "double counting" makes it
+quite a bit harder to actually implement what seems like
+a simple tradeoff.
 
--mirabilos
--- 
-by telnet
+regards,
+
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbTIZRHL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 13:07:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbTIZRHL
+	id S261489AbTIZRFJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 13:05:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261491AbTIZRFI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 13:07:11 -0400
-Received: from fw.osdl.org ([65.172.181.6]:4545 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261566AbTIZRHG (ORCPT
+	Fri, 26 Sep 2003 13:05:08 -0400
+Received: from zero.aec.at ([193.170.194.10]:26887 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S261489AbTIZRFD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 13:07:06 -0400
-Subject: slab corruption on AIO 2.6.0-test5-mm4
-From: Daniel McNeil <daniel@osdl.org>
-To: Andrew Morton <akpm@osdl.org>, Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1064596018.1950.10.camel@ibm-c.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 26 Sep 2003 10:06:59 -0700
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Sep 2003 13:05:03 -0400
+To: davidm@hpl.hp.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
+From: Andi Kleen <ak@muc.de>
+Date: Fri, 26 Sep 2003 19:04:30 +0200
+In-Reply-To: <A317.6GH.7@gated-at.bofh.it> (David Mosberger's message of
+ "Fri, 26 Sep 2003 17:50:09 +0200")
+Message-ID: <m37k3viiqp.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
+References: <A2yd.64p.31@gated-at.bofh.it> <A2yd.64p.29@gated-at.bofh.it>
+	<A317.6GH.7@gated-at.bofh.it>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While testing AIO on 2.6.0-test5-mm4 using ext3 file system,
-I hung my system.  Unfortunately, I did not have sysrq enabled.
-I rebooted with sysrq and debug enabled.   I hit this slab corruption
-message:
+David Mosberger <davidm@napali.hpl.hp.com> writes:
 
-Slab corruption: start=cc45df20, expend=cc45dfef, problemat=cc45df58
-Last user: [<c0193136>](__aio_put_req+0xa8/0x1b1)
-Data: ********************************************************00 00 01
-00 00 00
-Next: 71 F0 2C .36 31 19 C0 00 00 00 00 00 00 00 00 00 01 10 00 00 02 20
-00 00
-slab error in check_poison_obj(): cache `kiocb': object was modified
-after freegCall Trace:
- [<c014e1f9>] check_poison_obj+0x106/0x18f
- [<c0192c52>] __aio_get_req+0x27/0x180
- [<c0150439>] kmem_cache_alloc+0x192/0x1e4
- [<c0192c52>] __aio_get_req+0x27/0x180
- [<c01947cd>] io_submit_one+0xb7/0x2d3
- [<c0194ac6>] sys_io_submit+0xdd/0x143
- [<c03c40b3>] syscall_call+0x7/0xb
+> Why would that be?  Slower, yes, but very slow?
 
-I am still testing and will send more email when I get more info.
+It depends on your architecture I guess. On K8/x86-64 it isn't that big
+a deal (one cycle penalty for unaligned accesses), but if you take an
+exception for each unaligned read it will be incredible slow. 
 
-Daniel
+Of course the copy in the driver has the same problem, so it's not
+much better. 
 
+My point was basically that the header access are peanuts compared to
+the unaligned copy. It would be much better to optimize the copy than
+the header access. The proposal of just copying the header does not
+address this. And copying the packet in the driver has the same problem,
+so IMHO it's useless.
+
+The solution proposed by Ivan sounds much better. The basic problem
+is that the Ethernet header is not a multiple of 4 and that misaligns
+everything after it. Use one receive descriptor for the MAC header and 
+another for the rest (IP/TCP/payload) In the rest everything is aligned and 
+there are no problems with misaligned data types (ignoring exceptional cases 
+like broken timestamp options which can be handled slowly). Fixing the 
+stack to handle separate MAC headers should not be that much work, the 
+code is fairly limited. Drawback is that it requires bigger changes to the 
+network drivers and maybe some special case code for non standard MAC
+headers.
+
+-Andi

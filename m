@@ -1,71 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287287AbSBGXIy>; Thu, 7 Feb 2002 18:08:54 -0500
+	id <S288238AbSBGXTf>; Thu, 7 Feb 2002 18:19:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288985AbSBGXIo>; Thu, 7 Feb 2002 18:08:44 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:8293 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S287287AbSBGXIc>; Thu, 7 Feb 2002 18:08:32 -0500
-Date: Fri, 8 Feb 2002 00:09:42 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Hugh Dickins <hugh@veritas.com>, Rik van Riel <riel@conectiva.com.br>,
-        "David S. Miller" <davem@redhat.com>, bcrl@redhat.com,
-        Hugh Dickins <hugh@lrel.veritas.com>, marcelo@conectiva.com.br,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] __free_pages_ok oops
-Message-ID: <20020208000942.V1743@athlon.random>
-In-Reply-To: <Pine.LNX.4.33L.0202071120160.17850-100000@imladris.surriel.com> <Pine.LNX.4.21.0202071355450.1149-100000@localhost.localdomain>, <Pine.LNX.4.21.0202071355450.1149-100000@localhost.localdomain> <20020207215854.P1743@athlon.random> <3C62ED05.F4683103@zip.com.au>, <3C62ED05.F4683103@zip.com.au> <20020207231837.S1743@athlon.random> <3C630045.24E74301@zip.com.au>
+	id <S288985AbSBGXT0>; Thu, 7 Feb 2002 18:19:26 -0500
+Received: from dialin-145-254-134-221.arcor-ip.net ([145.254.134.221]:516 "EHLO
+	dale.home") by vger.kernel.org with ESMTP id <S288238AbSBGXTO>;
+	Thu, 7 Feb 2002 18:19:14 -0500
+Date: Fri, 8 Feb 2002 00:18:31 +0100
+From: Alex Riesen <fork0@users.sourceforge.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.18-pre8-K2: Kernel panic: CPU context corrupt
+Message-ID: <20020208001831.A200@steel>
+Reply-To: Alex Riesen <fork0@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3C630045.24E74301@zip.com.au>
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 07, 2002 at 02:31:33PM -0800, Andrew Morton wrote:
-> Andrea Arcangeli wrote:
-> > 
-> > > Good to hear.  But what about the weird corner-case in truncate_complete_page(),
-> > > where a mapped page is not successfully released, and is converted into
-> > > an anon buffercache page?  It seems that a combination of sendfile
-> > > and truncate could result in one of those pages being subject to
-> > > final release in BH context?
-> > 
-> > Such a page is not in the lru so it doesn't matter.
-> 
-> static void truncate_complete_page(struct page *page)
-> {
->         /* Leave it on the LRU if it gets converted into anonymous buffers */
->         if (!page->buffers || do_flushpage(page, 0))
->                 lru_cache_del(page);
-> 
-> If the page has buffers, and do_flushpage() fails, what happens?
-> 
-> > As said in the previous email, from another point of view, the only
-> > thing that can be still in the lru during __free_pages_ok is an
-> > anonymous page. truncate_complete_page cannot run on an anonymous page.
-> > Anonymous pages cannot be truncated.
-> 
-> truncate_complete_page() can, in rare circumstances, take a page
-> which was in both the pagecache and on LRU, and leave it purely
-> on LRU.  And because that page *used* to be in pagecache, it
-> could be undergoing sendfile.
-> 
-> Or I'm missing something.  Did something change?
+Frozen while compiling galeon (1.1.2, 778 files in ~50Mb),
+also had xmms playing something (alsa-0.5.12, Ensoniq AudioPCI ES1371),
+and some ssh (slow traffic, NIC Digital Equipment Corporation DECchip 21142/43).
+NFS traffic (kernel automounter). XFree86 4.2.0, usb devices (mouse, for example).
+Low static electricity.
 
-as said in the previous email that becomes a buffercache mapped in
-userspace, with refcount > 1 (unfreeable from the vm side), so the
-__free_page from irq will do nothing (it will only decrease the refcount
-of 1 unit, and then the page will be released by the vm). If the
-refcount was 1 instead, then it means the page wasn't in the lru in the
-first place and so the check won't trigger either.
+It looks really bad :(
+Ok, continue...
 
-Only truly anonymous pages (not ex pagecache, later become buffercache)
-can trigger such PageLRU check in __free_pages_ok.  Infact if it wasn't
-the case all the kernels before 2.4.1x would been broken.
+alt-sysrq-b booted, and sync seems also worked:
 
-Andrea
+Feb  7 23:45:31 steel kernel: CPU 0: Machine Check Exception: 0000000000000004
+Feb  7 23:45:31 steel kernel: Bank 4: b200000000040151
+Feb  7 23:45:31 steel kernel: Kernel panic: CPU context corrupt
+Feb  7 23:46:07 steel kernel:  <6>SysRq : Emergency Sync
+Feb  7 23:46:07 steel kernel: Syncing device 03:02 ... OK
+
+I've pressed sysrq-s many times, at the moments sound played a second,
+two or three times.
+
+No serial console output, sorry, thought the system went stable.
+
+Booted 2.5.4-pre1 before, recovered home reiserfs (--rebuild-tree)
+from the mess it left. Rebooted in 2.4.18-pre8-K2. Got the panic.
+
+-alex
+
+P.S. no nasty suspections about processor, please. No funds reserved
+for a new one :)
+
+PIII-700, ASUS CUV4X (VIA KT133), <512Mb
+
+ver_linux:
+
+Linux steel 2.4.18-pre8-K2 #2 Thu Feb 7 00:02:26 CET 2002 i686 unknown
+ 
+Gnu C                  2.95.3
+Gnu make               3.79.1
+binutils               2.11.2
+util-linux             2.11n
+mount                  2.11n
+modutils               2.4.12
+e2fsprogs              1.23
+reiserfsprogs          3.x.0j
+Linux C Library        2.2.4
+Dynamic linker (ldd)   2.2.4
+Procps                 2.0.7
+Console-tools          0.3.3
+Sh-utils               2.0
+Modules Loaded         nfs lockd sunrpc ide-cd cdrom snd-seq-midi snd-seq-midi-event snd-seq snd-card-ens1371 snd-ens1371 snd-pcm snd-timer snd-rawmidi snd-seq-device snd-ac97-codec snd-mixer snd soundcore autofs4 tulip mousedev usbmouse usb-uhci usbcore input reiserfs ext3 jbd nls_iso8859-1 nls_cp437 vfat fat
+
+

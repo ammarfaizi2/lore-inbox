@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265386AbTLHMs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 07:48:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265387AbTLHMs7
+	id S265388AbTLHNMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 08:12:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbTLHNMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 07:48:59 -0500
-Received: from customer-mpls-23.cpinternet.com ([209.240.253.23]:43333 "EHLO
-	customer-mpls-23.cpinternet.com") by vger.kernel.org with ESMTP
-	id S265386AbTLHMs5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 07:48:57 -0500
-Subject: Re: XFS merged in 2.4
-From: "Michael D. Harnois" <mharnois@cpinternet.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0312080916220.889-100000@logos.cnet>
-References: <Pine.LNX.4.44.0312080916220.889-100000@logos.cnet>
-Content-Type: text/plain
-Message-Id: <1070887696.16336.16.camel@mharnois.mdharnois.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 08 Dec 2003 06:48:16 -0600
+	Mon, 8 Dec 2003 08:12:09 -0500
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:62468 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S265388AbTLHNMG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 08:12:06 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Mikael Johansson <mpjohans@pcu.helsinki.fi>
+Subject: Re: RAID-0 read perf. decrease after 2.4.20
+Date: Mon, 8 Dec 2003 14:11:04 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-raid@vger.kernel.org, <linux-kernel@vger.kernel.org>,
+       <riel@redhat.com>, <knobi@knobisoft.de>, Jens Axboe <axboe@suse.de>,
+       <mason@suse.com>
+References: <Pine.LNX.4.44.0312080949520.889-100000@logos.cnet>
+In-Reply-To: <Pine.LNX.4.44.0312080949520.889-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312081411.04057.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems to have been incompletely merged in patch-2.4.23-bk6, where
-make dies with
+On Monday 08 December 2003 13:47, Marcelo Tosatti wrote:
 
-/usr/bin/make -C xfs fastdep
-make: *** xfs: No such file or directory.  Stop.
+Hi Marcelo,
 
-On Mon, 2003-12-08 at 05:22, Marcelo Tosatti wrote:
-> FYI
-> 
-> Christoph reviewed XFS patch which changed generic code, and it was
-> stripped down later to a set of changes which dont modify the code
-> behaviour (except for a few bugfixes which should have been included
-> separately anyway) and are pretty obvious.
-> 
-> So its that has been merged, along with fs/xfs/.
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
---
-Michael D. Harnois
+> 2.4.20-aa included rmap and some VM modifications most notably
+> "drop_behind()" logic which I believe should be the reason for the huge
+> read speedups. Can you please try it? Against 2.4.23.
 
-3L, UST School of Law
-              Minneapolis, Minnesota
-There can be no transforming of
-darkness into light and of apathy
-into movement without emotion. -
-Carl Jung
+-aa tree never had -rmap :)
+
+ciao, Marc
 

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265024AbUFVRxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264936AbUFVRxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265024AbUFVRxX (ORCPT <rfc822;willy@w.ods.org>);
+	id S264936AbUFVRxX (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 22 Jun 2004 13:53:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265095AbUFVRwf
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265093AbUFVRxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 13:52:35 -0400
-Received: from mail.kroah.org ([65.200.24.183]:54709 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265093AbUFVRnp convert rfc822-to-8bit
+	Tue, 22 Jun 2004 13:53:00 -0400
+Received: from mail.kroah.org ([65.200.24.183]:54197 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265091AbUFVRno convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 13:43:45 -0400
+	Tue, 22 Jun 2004 13:43:44 -0400
 X-Donotread: and you are reading this why?
 Subject: Re: [PATCH] Driver Core patches for 2.6.7
-In-Reply-To: <1087926110510@kroah.com>
+In-Reply-To: <10879261122864@kroah.com>
 X-Patch: quite boring stuff, it's just source code...
-Date: Tue, 22 Jun 2004 10:41:51 -0700
-Message-Id: <10879261111349@kroah.com>
+Date: Tue, 22 Jun 2004 10:41:53 -0700
+Message-Id: <10879261133613@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,82 +23,41 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1722.89.58, 2004/06/08 22:45:12-07:00, greg@kroah.com
+ChangeSet 1.1722.111.27, 2004/06/14 10:50:59-07:00, mhoffman@lightlink.com
 
-cpuid: fix hotplug cpu remove bug for class device.
+[PATCH] I2C: add alternate VCORE calculations for w83627thf and w83637hf
+
+Pick a VRM (for VID interpretation) based on the VRM & OVT config,
+if available.  Props to Jean Delvare <khali@linux-fr.org> for the
+idea & code fragment.
 
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- arch/i386/kernel/cpuid.c |   26 ++++++++++++--------------
- 1 files changed, 12 insertions(+), 14 deletions(-)
+ drivers/i2c/chips/w83627hf.c |    9 ++++++---
+ 1 files changed, 6 insertions(+), 3 deletions(-)
 
 
-diff -Nru a/arch/i386/kernel/cpuid.c b/arch/i386/kernel/cpuid.c
---- a/arch/i386/kernel/cpuid.c	Tue Jun 22 09:47:34 2004
-+++ b/arch/i386/kernel/cpuid.c	Tue Jun 22 09:47:34 2004
-@@ -158,35 +158,27 @@
- 	.open = cpuid_open,
- };
- 
--static void cpuid_class_simple_device_remove(void)
--{
--	int i = 0;
--	for_each_online_cpu(i)
--		class_simple_device_remove(MKDEV(CPUID_MAJOR, i));
--	return;
--}
--
- static int cpuid_class_simple_device_add(int i) 
- {
- 	int err = 0;
- 	struct class_device *class_err;
- 
- 	class_err = class_simple_device_add(cpuid_class, MKDEV(CPUID_MAJOR, i), NULL, "cpu%d",i);
--	if (IS_ERR(class_err)) {
-+	if (IS_ERR(class_err))
- 		err = PTR_ERR(class_err);
--	}
- 	return err;
- }
-+
- static int __devinit cpuid_class_cpu_callback(struct notifier_block *nfb, unsigned long action, void *hcpu)
- {
- 	unsigned int cpu = (unsigned long)hcpu;
- 
--	switch(action) {
-+	switch (action) {
- 	case CPU_ONLINE:
- 		cpuid_class_simple_device_add(cpu);
- 		break;
- 	case CPU_DEAD:
--		cpuid_class_simple_device_remove();
-+		class_simple_device_remove(MKDEV(CPUID_MAJOR, cpu));
- 		break;
+diff -Nru a/drivers/i2c/chips/w83627hf.c b/drivers/i2c/chips/w83627hf.c
+--- a/drivers/i2c/chips/w83627hf.c	Tue Jun 22 09:46:43 2004
++++ b/drivers/i2c/chips/w83627hf.c	Tue Jun 22 09:46:43 2004
+@@ -1275,12 +1275,15 @@
  	}
- 	return NOTIFY_OK;
-@@ -224,7 +216,10 @@
- 	goto out;
  
- out_class:
--	cpuid_class_simple_device_remove();
-+	i = 0;
-+	for_each_online_cpu(i) {
-+		class_simple_device_remove(MKDEV(CPUID_MAJOR, i));
+ 	/* Read VRM & OVT Config only once */
+-	if (w83627thf == data->type || w83637hf == data->type)
++	if (w83627thf == data->type || w83637hf == data->type) {
+ 		data->vrm_ovt = 
+ 			w83627hf_read_value(client, W83627THF_REG_VRM_OVT_CFG);
++		data->vrm = (data->vrm_ovt & 0x01) ? 90 : 82;
++	} else {
++		/* Convert VID to voltage based on default VRM */
++		data->vrm = DEFAULT_VRM;
 +	}
- 	class_simple_destroy(cpuid_class);
- out_chrdev:
- 	unregister_chrdev(CPUID_MAJOR, "cpu/cpuid");	
-@@ -234,7 +229,10 @@
  
- void __exit cpuid_exit(void)
- {
--	cpuid_class_simple_device_remove();
-+	int cpu = 0;
-+
-+	for_each_online_cpu(cpu)
-+		class_simple_device_remove(MKDEV(CPUID_MAJOR, cpu));
- 	class_simple_destroy(cpuid_class);
- 	unregister_chrdev(CPUID_MAJOR, "cpu/cpuid");
- 	unregister_cpu_notifier(&cpuid_class_cpu_notifier);
+-	/* Convert VID to voltage based on default VRM */
+-	data->vrm = DEFAULT_VRM;
+ 	if (type != w83697hf)
+ 		vid = vid_from_reg(vid, data->vrm);
+ 
 

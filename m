@@ -1,78 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267245AbTBDPY0>; Tue, 4 Feb 2003 10:24:26 -0500
+	id <S267275AbTBDPdF>; Tue, 4 Feb 2003 10:33:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267275AbTBDPY0>; Tue, 4 Feb 2003 10:24:26 -0500
-Received: from [205.205.44.10] ([205.205.44.10]:8206 "EHLO sembo111.teknor.com")
-	by vger.kernel.org with ESMTP id <S267245AbTBDPYZ> convert rfc822-to-8bit;
-	Tue, 4 Feb 2003 10:24:25 -0500
-Message-ID: <5009AD9521A8D41198EE00805F85F18F219C29@sembo111.teknor.com>
-From: "Isabelle, Francois" <Francois.Isabelle@ca.kontron.com>
-To: "Isabelle, Francois" <Francois.Isabelle@ca.kontron.com>,
-       high-res-timers-discourse@lists.sourceforge.net,
-       "'george@mvista.com'" <george@mvista.com>
+	id <S267277AbTBDPdF>; Tue, 4 Feb 2003 10:33:05 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:50618 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S267275AbTBDPdE>; Tue, 4 Feb 2003 10:33:04 -0500
+Date: Tue, 4 Feb 2003 16:42:31 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: support@stallion.oz.au
 Cc: linux-kernel@vger.kernel.org
-Subject: RE: High-Res-Timers: Unexpected "lock" during "Calibrating delay 
-	loop "
-Date: Tue, 4 Feb 2003 10:33:58 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Subject: [PATCH] fixed type in drivers/char/istallion.c (untested)
+Message-ID: <20030204154231.GA22154@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just wanted to add this: this seems to be reproducable on all 486 
+Hi!
 
-> -----Original Message-----
-> From: Isabelle, Francois [mailto:Francois.Isabelle@ca.kontron.com]
-> Sent: 4 février, 2003 09:04
-> To: high-res-timers-discourse@lists.sourceforge.net; 
-> 'george@mvista.com'
-> Cc: linux-kernel@vger.kernel.org
-> Subject: High-Res-Timers: Unexpected "lock" during "Calibrating delay
-> loop "
-> 
-> 
-> Hi,
-> 	we are having an unexpected problem with the HR patch( 
-> regardless of
-> the patch you sent which compiled just fine ). The board uses 
-> a 486DX cpu,
-> so there is no support for TSC nor ACPI, the only thing we 
-> have is the PIT. 
-> 
-> Without highres, the kernel boots properly, with highres 
-> enabled, the kernel
-> passes "time_init()" put it hangs in "calibrate_loop() , ( I 
-> though it hung
-> for real, but it get passed the loop after a while) " 
-> 
-> Seems like the tick is VERY SLOW..
-> 
-> The PIT has been tested on this board, and without HR, the 
-> kernel boots fine
-> ... if you have any hints, they would be welcome.
-> 
-> The keyboard detection routine timeouts so the system is 
-> quiet unuseable and
-> I can't get the calibration results yet.
-> 
-> 
-> Frank
-> 
-> 
-> 
-> 
-> 
-> -------------------------------------------------------
-> This SF.NET email is sponsored by:
-> SourceForge Enterprise Edition + IBM + LinuxWorld = Something 2 See!
-> http://www.vasoftware.com
-> to unsubscribe: 
-> http://lists.sourceforge.net/lists/listinfo/high-res-timers-discourse
-> High-res-timers-discourse mailing list
-> High-res-timers-discourse@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/high-res-timers-discourse
-> 
+The condition "(portp->brdnr < 0) && (portp->brdnr >= stli_nrbrds)" is
+very hard to fulfill. I guess, this is a simple typo.
+
+Jörn
+
+-- 
+Anything that can go wrong, will.
+-- Finagle's Law
+
+--- linux-2.4.21-pre3-ac4/drivers/char/istallion.c	Sat Aug  3 02:39:43 2002
++++ scratch/drivers/char/istallion.c	Tue Feb  4 16:09:19 2003
+@@ -1501,27 +1501,27 @@
+ static int stli_setport(stliport_t *portp)
+ {
+ 	stlibrd_t	*brdp;
+ 	asyport_t	aport;
+ 
+ #if DEBUG
+ 	printk("stli_setport(portp=%x)\n", (int) portp);
+ #endif
+ 
+ 	if (portp == (stliport_t *) NULL)
+ 		return(-ENODEV);
+ 	if (portp->tty == (struct tty_struct *) NULL)
+ 		return(-ENODEV);
+-	if ((portp->brdnr < 0) && (portp->brdnr >= stli_nrbrds))
++	if ((portp->brdnr < 0) || (portp->brdnr >= stli_nrbrds))
+ 		return(-ENODEV);
+ 	brdp = stli_brds[portp->brdnr];
+ 	if (brdp == (stlibrd_t *) NULL)
+ 		return(-ENODEV);
+ 
+ 	stli_mkasyport(portp, &aport, portp->tty->termios);
+ 	return(stli_cmdwait(brdp, portp, A_SETPORT, &aport, sizeof(asyport_t), 0));
+ }
+ 
+ /*****************************************************************************/
+ 
+ /*
+  *	Wait for a specified delay period, this is not a busy-loop. It will

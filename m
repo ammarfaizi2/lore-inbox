@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137150AbREKO5R>; Fri, 11 May 2001 10:57:17 -0400
+	id <S136938AbREKPMK>; Fri, 11 May 2001 11:12:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136938AbREKO5H>; Fri, 11 May 2001 10:57:07 -0400
-Received: from betty.magenta-netlogic.com ([193.37.229.181]:37899 "HELO
-	betty.magenta-netlogic.com") by vger.kernel.org with SMTP
-	id <S137150AbREKO4w>; Fri, 11 May 2001 10:56:52 -0400
-Message-ID: <3AFBFDB0.5080904@magenta-netlogic.com>
-Date: Fri, 11 May 2001 15:56:48 +0100
-From: Tony Hoyle <tmh@magenta-netlogic.com>
-Organization: Magenta Logic
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.8.1+) Gecko/20010423
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: reiserfs, xfs, ext2, ext3
-In-Reply-To: <01050910381407.26653@bugs> <20010510134453.A6816@emma1.emma.line.org> <3AFA9AD8.7080203@magenta-netlogic.com> <20010511013726.C31966@emma1.emma.line.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S137153AbREKPMA>; Fri, 11 May 2001 11:12:00 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:21840 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S136938AbREKPLs>; Fri, 11 May 2001 11:11:48 -0400
+Date: Fri, 11 May 2001 17:11:24 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Mauelshagen@sistina.com, linux-kernel@vger.kernel.org, mge@sistina.com
+Subject: Re: LVM 1.0 release decision
+Message-ID: <20010511171124.M30355@athlon.random>
+In-Reply-To: <20010511162745.B18341@sistina.com> <E14yDyI-0000yE-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E14yDyI-0000yE-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, May 11, 2001 at 03:32:46PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree wrote:
+On Fri, May 11, 2001 at 03:32:46PM +0100, Alan Cox wrote:
+> Please fix the binary incompatibility in the on disk format between the current
+> code and your new release _before_ you do that. The last patches I was sent
+> would have screwed every 64bit LVM user.
 
-> You're not getting data loss, but access denied, when hitting
-> incompatibilities, and it looks like it hits 2.2 hard while 2.4 is less
-> of a problem. Please search the reiserfs list archives for details.
-> vs-13048 is a good search term, I believe.
+I just switched to the >=beta4 lvm IOP for all 64bit archs. The previous
+one (the 2.4 mainline one) isn't feasible on the archs with 32bit
+userspace and 64bit kernel (it uses long). The IOP didn't changed btw,
+only the structures changed silenty.
 
-Data is lost:
+> A new format is fine but import old ones properly. And if you do a new format
 
-Root can't access the files.
-Reiserfsck can't repair the files.
-The files that are corrupted are unrelated to the ones exported over NFS 
-(which makes me wonder if it's the same bug).
+It's not a matter of the ondisk format, the on-disk format didn't
+changed of course, it's the ioctl format between userspace and kernel 
+that changed and the userspace only knows about 1 format. Once IOP
+changes (or IOP breaks silenty as in this case) you have to upgrade
+userspace with the current design.
 
-File corruption would begin a couple of hours after the volume was 
-formatted, and become catastrophic within a couple of days.
-
-Until the fix is merged I'm not going within 100 miles of reiserfs!
-
-Tony
-
--- 
-Where a calculator on the ENIAC is equpped with 18,000 vaccuum
-tubes and weighs 30 tons, computers in the future may have only
-1,000 vaccuum tubes and perhaps weigh 1 1\2 tons.
--- Popular Mechanics, March 1949
-
-tmh@magenta-netlogic.com
-
-
+Andrea

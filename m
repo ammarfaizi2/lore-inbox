@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130051AbRCDNdN>; Sun, 4 Mar 2001 08:33:13 -0500
+	id <S130050AbRCDNZd>; Sun, 4 Mar 2001 08:25:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130054AbRCDNdD>; Sun, 4 Mar 2001 08:33:03 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:60941 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130051AbRCDNcr>; Sun, 4 Mar 2001 08:32:47 -0500
-Subject: Re: LILO error with 2.4.3-pre1...
-To: sjhill@cotw.com
-Date: Sun, 4 Mar 2001 13:35:19 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3AA19820.6A33E871@cotw.com> from "Steven J. Hill" at Mar 03, 2001 07:19:28 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130051AbRCDNZY>; Sun, 4 Mar 2001 08:25:24 -0500
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:20336 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S130050AbRCDNZN>; Sun, 4 Mar 2001 08:25:13 -0500
+Message-ID: <001b01c0a4ae$6c236e60$3201a8c0@laptop>
+From: "Christian Hilgers" <webmaster@server-side.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: DVD Problem
+Date: Sun, 4 Mar 2001 14:24:19 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14ZYfS-0005De-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2014.211
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2014.211
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    LILO version 21.4-4, Copyright (C) 1992-1998 Werner Almesberger
->    'lba32' extensions Copyright (C) 1999,2000 John Coffman
-> 
->    Boot image: /boot/vmlinuz-2.4.3-pre1
->    Fatal: geo_comp_addr: Cylinder number is too big (1274 > 1023)
-> 
-> I have no idea why the 1023 limit is coming up considering 2.4.2 and
-> LILO were working just fine together and I have a newer BIOS that has
-> not problems detecting the driver properly. Go ahead, call me idiot :).
+Hi,
 
-You need to specify the lba32 option in your config
+I'm trying to use the 2.4.1 Kernel but I have some troubles with my
+ATAPI Matsushita UJDA510 DVD (Intel 82371AB/EP PCI Bus Master IDE
+Controler).
+It works perfekt with CD-Rom but when I try to read a ISO 9660 DVD I got
+an error.
+
+I can mount the DVD and I can list the complet content but I guess I
+can't access any File behind 650 MB.
+
+e.g.
+
+mount /cdrom
+$ cat /cdrom/blah/blah/INDEX
+cat: INDEX.german: Input/output error
+
+The kernel log
+Mar  3 18:45:06 laptop kernel: VFS: Disk change detected on device
+ide1(22,0)
+Mar  3 18:45:10 laptop kernel: ISO 9660 Extensions: RRIP_1991A
+Mar  3 18:46:05 laptop kernel: attempt to access beyond end of device
+Mar  3 18:46:05 laptop kernel: 16:00: rw=0, want=2855480, limit=1052700
+
+It also works well with a 2.2.14-SuSE Kernel.
+
+Any hints.
+
+Thanks
+Christian
 

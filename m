@@ -1,55 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266680AbUJTOmj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270737AbUJUPCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266680AbUJTOmj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 10:42:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267375AbUJTOjZ
+	id S270737AbUJUPCq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 11:02:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270728AbUJUPBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 10:39:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37325 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266680AbUJTOdx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 10:33:53 -0400
-Date: Wed, 20 Oct 2004 07:33:47 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Len Brown <len.brown@intel.com>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Versioning of tree
-In-Reply-To: <1098256951.26595.4296.camel@d845pe>
-Message-ID: <Pine.LNX.4.58.0410200728040.2317@ppc970.osdl.org>
-References: <1098254970.3223.6.camel@gaston> <1098256951.26595.4296.camel@d845pe>
+	Thu, 21 Oct 2004 11:01:37 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:60939 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S270747AbUJUO6r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 10:58:47 -0400
+Message-ID: <4177D163.2000503@techsource.com>
+Date: Thu, 21 Oct 2004 11:10:27 -0400
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+References: <4176E08B.2050706@techsource.com> <1098313825.12374.74.camel@localhost.localdomain>
+In-Reply-To: <1098313825.12374.74.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Wed, 20 Oct 2004, Len Brown wrote:
->
-> On Wed, 2004-10-20 at 02:49, Benjamin Herrenschmidt wrote:
-> > 
-> > After you tag a "release" tree in bk, could you bump the version
-> > number right away, with eventually some junk in EXTRAVERSION like
-> > "-devel" ?
+Alan Cox wrote:
+> On Mer, 2004-10-20 at 23:02, Timothy Miller wrote:
 > 
-> I'd find this to be really helpful too.  There has been this period
-> between, say, 2.6.9 and 2.6.10-whatever where my build/install scripts
-> scribble over my "reference" kernels.
+>>- The card "just works" with Linux because, maybe, the drivers would go 
+>>into main-line
+> 
+> 
+> That bit ought to "just work" 8)
 
-Personally, I much rather go the way we have gone, because I don't care
-about module versioning nearly as much as I care about bug-report
-versioning. And if I hear about a bug with 2.6.10-rc1, I want to know that
-it really is at _least_ 2.6.10-rc1, if you see what I mean..
+Well, if you're in favor of it, it will, but not every patch submitted 
+to Linus or Andrew ends up in the mainline kernel.  I'm a total unknown 
+here.  I don't expect special treatment.
 
-Now, personally, I'd actually like to know the exact top-of-tree
-changeset, so I've considered having something that saves that one away,
-but then we'd need to do something about non-BK users (make the nightly 
-snapshots squirrell it away somewhere too). That would solve both the 
-module versioning _and_ the bug-report issue.
+> 
+> 
+>>- The drivers are easy to work on, since you don't ever have to guess 
+>>about anything.
+>>- The drivers are easy to debug because
+>>     (a) we document everything, and
+>>     (b) we'll talk to you.
+> 
+> 
+> Some other vendors pretty much did this but the takeup isn't that vast
+> because writing 3D drivers is not trivial (we have docs for about 5
+> cards and no drivers, some are pretty old some are fairly passable
+> cards)
 
-So if somebody comes up with a build script that generates that kind of 
-extra-version automatically, I'm more receptive. But I don't want to muck 
-with the version manually in a way that I think is the wrong way around..
+I would do the basic 3D drivers.  I'm going to have to spend a good bit 
+of time learning all the math behind 3D graphics anyhow.  I mean, I 
+understand the basics, and I do just fine with linear algebra, but I 
+don't live in that zone right now, so I don't grok every detail.  In 
+order to design the chip, I'll have to go there, and as a result, I 
+should have little trouble doing the software portion.  After I'm done 
+with it, others can do whatever they want with it.
 
-		Linus
+Note:  It would be nice to release partial drivers early so others can 
+hack at them, but we cannot sell a product without a complete, working, 
+tested, driver suite for several platforms.  A beta period would be 
+nice, where developers can get prototype boards, but prototypes can be 
+very expensive to produce.
+
+> 
+>>and they STILL don't document the internals of the BIOS so that the card 
+>>can be ported to a non-x86 system.  Furthermore, since all these vendors
+> 
+> 
+> Talking to one very large motherboard video company they actually can't
+> because the analogue side is done by the board vendor as is things like
+> the RAM choice.
+
+Yes, that is definately an issue.  Fortunately, if you have both specs 
+for the RAM chips and the full register set for the GPU documented, then 
+getting it to work with any arbitrary RAM chip is trivial.
+
+Of course, generally speaking, since we're selling the boards, we'd 
+simply just publish numbers and a code snippet for configuring the 
+memory controller properly, so it's no big deal.
+
+We're not expecting the community to do software development for this 
+product, but we DO want them to be able to easily and freely address 
+bugs and compatibility issues.
+
+> 
+>>give me sufficient funding to produce an ASIC.  What this means is that 
+>>the design has to be small and simple and focus primarily on 2D 
+>>performance so that it can fit into an FPGA.
+> 
+> 
+> X actually needs very little functionality nowdays, although some of it
+> does not map well onto a generic 2D rendering card. Notably most 2D
+> engines lack alpha blend.
+
+Well, adding alpha blend to 2D isn't that hard.  But when you want, say, 
+oversampling AA, and then you start adding other features, then the 
+point in having a separate 2D pipeline diminishes.
+
+> 
+> Essentially if you can do alpha, bitblit, blit from main memory and
+> a couple of fills and colour-expands X is happy.
+
+How about text, stipple fills, tile fills, and lines?  :)
+
+Actually, if you do it right, only lines are a special case, and you can 
+even hide that.
+
+> 
+>>(1) Would the sales volumes of this product be enough to make it worth 
+>>producing (ie. profitable)?
+> 
+> 
+> I'm very dubious I must admit. 
+> 
+> 
+> I've actually always wondered what a hybrid video device would look like
+> for 3D. Doing the alpha blend and very basic operations only in the
+> hardware that are expensive in software - alpha and perhaps some of the
+> texture scaling, but walking textures in software, doing shaders in
+> software and so on.
+
+Well, if a specific set of needs can be identified, we could easily 
+enough develop a GPU which does only those things.
+
+
+Something to keep in mind:  The chip contains more than just a rendering 
+engine.  The VGA core, host interface (AGP/PCI), video controller, 
+memory controller, and other misc things all take up a fair amount of 
+space on their own.
+

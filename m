@@ -1,87 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265377AbUFOJDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265390AbUFOJGp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265377AbUFOJDe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 05:03:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265378AbUFOJDe
+	id S265390AbUFOJGp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 05:06:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265387AbUFOJGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 05:03:34 -0400
-Received: from web54101.mail.yahoo.com ([206.190.37.236]:13199 "HELO
-	web54101.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265377AbUFOJDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 05:03:30 -0400
-Message-ID: <20040615090330.81780.qmail@web54101.mail.yahoo.com>
-Date: Tue, 15 Jun 2004 02:03:30 -0700 (PDT)
-From: Kumar V <vhkumar95@yahoo.com>
-Subject: DMA-ACQ-HELP
-To: linux-kernel@vger.kernel.org
+	Tue, 15 Jun 2004 05:06:45 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:42455 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S265383AbUFOJGf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 05:06:35 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Steve French <smfltc@us.ibm.com>
+Subject: Re: upcalls from kernel code to user space daemons
+Date: Tue, 15 Jun 2004 11:06:23 +0200
+User-Agent: KMail/1.6.2
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>, linux-kernel@vger.kernel.org
+References: <1087236468.10367.27.camel@stevef95.austin.ibm.com> <200406142341.13340.oliver@neukum.org> <1087253679.10367.41.camel@stevef95.austin.ibm.com>
+In-Reply-To: <1087253679.10367.41.camel@stevef95.austin.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200406151106.31253.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
-I would like to acquire the data through DMA @1kbps
-contineously.
-I am not able to acquire the data correctly, I am
-missing the data.
-What would be the reason. From H/W side there is no
-problem.
-Here Idea is to divide 4k into 128 block of data i.e.
-4096/128=32 blocks and I would like to take previously
-acquired  
-block of data. After 4kb it should roll back to
-starting, like circular 
-Q.
-Here is the driver code for the same.
-Please help me what would be the problem.
-Thanks in advance.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Regards
-V. Kumar.
+Am Dienstag, 15. Juni 2004 00:54 schrieb Steve French:
+> On Mon, 2004-06-14 at 16:40, Oliver Neukum wrote:
+> > > > 1) getHostByName:  when the kernel cifs code detects a server crashes
+> > > > and fails reconnecting the socket and the kernel code wants to see if
+> > > > the hostname now has a new ip address.
+> > 
+> > Is that possible at all? It looks like that might deadlock in the page
+> > out code path.
+> > 
+> 
+> Yes - since an upcall (indirectly) to a different process while in write
+> could cause writepage to write out memory to a mount - which could hang
+> if on an already dead tcp session, this (reconnection - failover to new
+> ip address if the server ip address changes after failure) may be too
+> risky to do in the context of writepage, but there may be a way to keep
+> refusing to do writepage while in the midst of this harder form of mount
+> reconnection - which isn't likely to be any worse than not
+> reconnecting.  Fortunately, most tcp reconnection cases are much
+> simpler.
 
-*********************************
+Well, unless you want to mlock() all libraries connected with name
+resolution or code dns in kernel, you'll have to either fail the io, which
+is bad, or use a fallback that is local. I suggest that you write the block
+in question to a local disk (swap space?) and fire of a user space helper
+asynchronously. That helper then could reestablish the connection.
 
-At open entry
-dma_buff = __get_dma_pages(__GFP_DMA, 0); //
-1-page(4096 byte) 
-flags = claim_dma_lock ();
-disable_dma (dma_ch);
-clear_dma_ff (dma_ch);
-set_dma_mode (dma_ch, DMA_MODE_READ | DMA_AUTOINIT);
-set_dma_addr (dma_ch, virt_to_bus (dma_buff));
-set_dma_count (dma_ch,4096 );
-enable_dma (dma_ch);
-release_dma_lock (flags);
-*******************************
+	Regards
+		Oliver
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-At Read Entry
-flags = claim_dma_lock ();
-residue = get_dma_residue (dma_ch);
-
-// just to wait for at least 1k bytes to acquire
-if (( prev_cntr-residue) < 128 )
-{
-	prevcntr = residue ;
-	return 0 ;
-}
-prev_cntr = residue ;
-
-i = 4096 - residue;
-// Copying the acquired data to tmp buff of 128 bytes
-// mean time DMA can continue the data transfer 
-start = (int)(i / 128);
-start = start * 128;
-for (i = 0; i < 128; i++)
-	tbuff[i] = dma_buff[start + i];
-__copy_to_user ((unsigned char *) buf, (unsigned char
-*) tbuff,
-         sizeof (tbuff));
-*******************************
-
-
-
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail - You care about security. So do we.
-http://promotions.yahoo.com/new_mail
+iD8DBQFAzrwUbuJ1a+1Sn8oRAv2kAJ444nIrog/fnOPqlxTCAjAnaHtDUQCePe15
+cGBjATSxNNRhCHGplhV703o=
+=kjJe
+-----END PGP SIGNATURE-----

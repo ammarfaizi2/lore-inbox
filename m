@@ -1,97 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261989AbUCSRHN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 12:07:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbUCSRHN
+	id S262219AbUCSRFy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 12:05:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbUCSRFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 12:07:13 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:10127 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261989AbUCSRGo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 12:06:44 -0500
-Date: Fri, 19 Mar 2004 12:09:04 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: CDFS
-In-Reply-To: <Pine.LNX.4.44.0403191640460.3892-100000@einstein.homenet>
-Message-ID: <Pine.LNX.4.53.0403191200120.3752@chaos>
-References: <Pine.LNX.4.44.0403191640460.3892-100000@einstein.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 19 Mar 2004 12:05:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:51137 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262219AbUCSRFG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 12:05:06 -0500
+Subject: Re: 2.6.5-rc1-mm2 and direct_read_under
+From: Daniel McNeil <daniel@osdl.org>
+To: Chris Mason <mason@suse.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>
+In-Reply-To: <1079714990.6930.49.camel@ibm-c.pdx.osdl.net>
+References: <20040314172809.31bd72f7.akpm@osdl.org>
+	 <1079461971.23783.5.camel@ibm-c.pdx.osdl.net>
+	 <1079474312.4186.927.camel@watt.suse.com>
+	 <20040316152106.22053934.akpm@osdl.org>
+	 <20040316152843.667a623d.akpm@osdl.org>
+	 <20040316153900.1e845ba2.akpm@osdl.org>
+	 <1079485055.4181.1115.camel@watt.suse.com>
+	 <1079487710.3100.22.camel@ibm-c.pdx.osdl.net>
+	 <20040316180043.441e8150.akpm@osdl.org>
+	 <1079554288.4183.1938.camel@watt.suse.com>
+	 <20040317123324.46411197.akpm@osdl.org>
+	 <1079563568.4185.1947.camel@watt.suse.com>
+	 <20040317150909.7fd121bd.akpm@osdl.org>
+	 <1079566076.4186.1959.camel@watt.suse.com>
+	 <20040317155111.49d09a87.akpm@osdl.org>
+	 <1079568387.4186.1964.camel@watt.suse.com>
+	 <20040317161338.28b21c35.akpm@osdl.org>
+	 <1079569870.4186.1967.camel@watt.suse.com>
+	 <20040317163332.0385d665.akpm@osdl.org>
+	 <1079572511.6930.5.camel@ibm-c.pdx.osdl.net>
+	 <1079632431.6930.30.camel@ibm-c.pdx.osdl.net>
+	 <1079635678.4185.2100.camel@watt.suse.com>
+	 <1079637004.6930.42.camel@ibm-c.pdx.osdl.net>
+	 <1079714990.6930.49.camel@ibm-c.pdx.osdl.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1079715901.6930.52.camel@ibm-c.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 19 Mar 2004 09:05:01 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Mar 2004, Tigran Aivazian wrote:
+Can't type this morning -- 2.6.5-rc1-mm2 is what I ran on.
+                           =============
 
-> On Fri, 19 Mar 2004, Richard B. Johnson wrote:
->
-> > On Fri, 19 Mar 2004, Randy.Dunlap wrote:
-> >
-> > > On Fri, 19 Mar 2004 11:01:44 -0500 (EST) Richard B. Johnson wrote:
-> > >
-> > > |
-> > > | Just got a CD/ROM that 'works' on W$, but not Linux.
-> > > | W$ `properties` call it 'CDFS'. Is there any such Linux
-> > > | support?
-> > >
-> > > You did try to search for it, right?
-> > >
-> >
-> > Sure did and what I get was an explaination that, for
-> > Linux, the letters "CDFS" refer to something that "exports
-> > all the tracks and boot images of a CD as normal files".
-> >
-> > That's not what I want. I want to mount a CDFS file-system.
-> >
-> > Given that, maybe the explaination is bogus, but I
-> > need some CDFS file-system support so I can mount
-> > a Microsoft CDFS CD/ROM. If such support exists, I
-> > would think that I should be able to do:
-> >
-> > mount -t cdfs /dev/cdrom /mnt
->
-> Unless something has changed seriously in just a few years, the name CDFS
-> was always just a Microsoft synonym for the proper name iso9660. The Linux
-> name CDFS is the filesystem which Randy pointed you at, for mounting
-> multi-session CDs and accessing individual sessions as files (iso images).
->
-
-Mounting it as an iso9660 fs doesn't work.
-
-> So, if you have what Microsoft calls CDFS then it is simply iso9660 and if
-> it doesn't mount then either your CD is damaged (and you only get a false
-> "impression" of it working in Windows) or there is a bug in Linux iso9660
-> implementation. What are the error messages you get when you try to mount
-> it as an iso9660?
-
-
-Script started on Fri Mar 19 12:01:38 2004
-# umount /mnt
-# umount /mnt
-umount: /mnt: not mounted
-# umount -t iso9660 /dev/cdrom /mnt
-mount: wrong fs type, bad option, bad superblock on /dev/cdrom,
-       or too many mounted file systems
-# exit
-Script done on Fri Mar 19 12:04:49 2004
-
->
-> (You didn't forget to compile Joliet and RR extensions into your kernel,
-> did you?)
-
-Nope.
-
->
-> Kind regards
-> Tigran
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+Daniel
+On Fri, 2004-03-19 at 08:49, Daniel McNeil wrote:
+> I re-ran direct_read_under test (6 copies) on 2.6.4-rc1-mm2:
+> 
+> ext3 failed within 2 hours.
+> 
+> ext2 ran overnight without errors.
+> 
+> Daniel
+> 
+> On Thu, 2004-03-18 at 11:10, Daniel McNeil wrote:
+> > On Thu, 2004-03-18 at 10:47, Chris Mason wrote:
+> > > On Thu, 2004-03-18 at 12:53, Daniel McNeil wrote:
+> > > > I'm ran 2.6.4-mm2 plus the 2 wait_on_page_range() patches,
+> > > > the test_set_page_writeback() patch and clear_page_dirty_for_io patch
+> > > > overnight.
+> > > > 
+> > > > 6 copies of direct_read_under test on 8-cpu system on 1
+> > > > ext3 file system in 1 directory on a scsi disk.
+> > > > (http://developer.osdl.org/daniel/AIO/TESTS/direct_read_under.c)
+> > > > 
+> > > > 5 of the 6 tests saw uninitialized data within 2 hours.
+> > > > The sixth test ran overnight.
+> > > 
+> > > Do you still have the errors generated?  I wondering how big the range
+> > > of uninitialized data was.  When I was bug hunting yesterday, I saw
+> > > ranges from 64k to 32mb in size, which was why I decided writes weren't
+> > > getting to the disk at all.
+> > > 
+> > > It might be interesting to try with data=writeback, or on ext2.  Things
+> > > might be easier to track if we're not worried about ll_rw_block.
+> > > 
+> > > It might also be interesting to significantly lower the size of the
+> > > reads and writes done by direct_read_under, or anything else you can
+> > > think of to get the reproduce time down to something smaller than 2
+> > > hours...
+> > > 
+> > > It's probably a good idea to upgrade to 2.6.5-rc1-mm2, just so we're all
+> > > staring at the same code.
+> > > 
+> > > -chris
+> > > 
+> > 
+> > Chris,
+> > 
+> > Still have the data:
+> > 		 63 pages (258048 bytes)
+> > 		 90 pages (368640 bytes)
+> > 		139 pages (569344 bytes)
+> > 		 30 pages (122880 bytes)
+> > 		 87 pages (356352 bytes)
+> > 		
+> > 
+> > I'm rebooting to 2.6.5-rc1-mm2 and will re-run.  I have do have
+> > versions of direct_read_under that do smaller i/o and also
+> > 1 that does forks off and does 'sync' calls every few seconds.
+> > 
+> > I'll give ext2 and try as well.
+> > 
+> > Daniel
+> > 
+> > --
+> > To unsubscribe, send a message with 'unsubscribe linux-aio' in
+> > the body to majordomo@kvack.org.  For more info on Linux AIO,
+> > see: http://www.kvack.org/aio/
+> > Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
+> 
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-aio' in
+> the body to majordomo@kvack.org.  For more info on Linux AIO,
+> see: http://www.kvack.org/aio/
+> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
 

@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262963AbUE1NZA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262972AbUE1Ndj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262963AbUE1NZA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 09:25:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263000AbUE1NY7
+	id S262972AbUE1Ndj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 09:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262996AbUE1Ndj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 09:24:59 -0400
-Received: from ipcop.bitmover.com ([192.132.92.15]:38074 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S262963AbUE1NYn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 09:24:43 -0400
-Date: Fri, 28 May 2004 06:24:36 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: "Theodore Ts'o" <tytso@mit.edu>,
-       "La Monte H.P. Yarroll" <piggy@timesys.com>,
-       Andrew Morton <akpm@osdl.org>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFD] Explicitly documenting patch submission
-Message-ID: <20040528132436.GA11497@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Theodore Ts'o <tytso@mit.edu>,
-	"La Monte H.P. Yarroll" <piggy@timesys.com>,
-	Andrew Morton <akpm@osdl.org>, Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <20040527062002.GA20872@work.bitmover.com> <20040527010409.66e76397.akpm@osdl.org> <40B6591C.80901@timesys.com> <20040527214638.GA18349@thunk.org>
+	Fri, 28 May 2004 09:33:39 -0400
+Received: from main.gmane.org ([80.91.224.249]:32417 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262972AbUE1Ndi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 09:33:38 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: keyboard problem with 2.6.6
+Date: Fri, 28 May 2004 15:33:21 +0200
+Message-ID: <MPG.1b2111558bc2d299896a2@news.gmane.org>
+References: <20040525201616.GE6512@gucio> <xb7hdu3fwsj.fsf@savona.informatik.uni-freiburg.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040527214638.GA18349@thunk.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ppp-172-130.29-151.libero.it
+X-Newsreader: MicroPlanet Gravity v2.60
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ChangeSet@1.1743.1.52, 2004-05-25 08:43:49-07:00, akpm@osdl.org
->   [PATCH] minor sched.c cleanup
-> 
->   Signed-off-by: Christian Meder <chris@onestepahead.de>
->   Signed-off-by: Ingo Molnar <mingo@elte.hu>
-> 
->   The following obviously correct patch from Christian Meder simplifies the
->   DELTA() define.
-> 
-> Which do show the original author.  
+Sau Dan Lee wrote:
+> Yeah.   They   say  the  input  system  "unifies"   the  interface  to
+> keyboard/mouse  devices.   They're   also  proud  that  the  in-kernel
+> keyboard/mouse drivers  are supporting more and more  devices.  But at
+> the same  time, they're sacrificing  flexibility by moving  many codes
+> into kernel.   (GPM supports more  mouse types!)  The new  system also
+> breaks backward compatibility.
 
-Not in any useful way.  If I go look at the file history, which is what
-I'm going to do when tracking down a bug, all I see on the files included
-in this changeset is akpm@osdl.org.
+The new system has some ups and downs. The biggest "down", 
+which is that of RAW mode not being available anymore (it's 
+emulated!) could be circumvented by having both the RAW and 
+translated codes move between layers.
 
-That means any annotated listing (BK or CVS blame) shows the wrong author.
+Concerning GPM vs kernel support for mice, maybe we can hope 
+for a merging of the efforts and a reduction of code 
+duplication, if there is any?
 
-ChangeSet@1.1743.2.52, 2004-05-25 08:43:49-07:00, akpm@osdl.org +1 -0
-  [PATCH] minor sched.c cleanup
-  
-  Signed-off-by: Christian Meder <chris@onestepahead.de>
-  Signed-off-by: Ingo Molnar <mingo@elte.hu>
-  
-  The following obviously correct patch from Christian Meder simplifies the
-  DELTA() define.
+Overall, I think that the new system *could* be a good starting 
+point, but it still needs a *lot* of work.
 
-vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-  kernel/sched.c@1.302, 2004-05-25 02:58:45-07:00, akpm@osdl.org +1 -2
-    minor sched.c cleanup
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(Now, if we could have any reply from the maintainers?)
 
 -- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+Giuseppe "Oblomov" Bilotta
+
+Can't you see
+It all makes perfect sense
+Expressed in dollar and cents
+Pounds shillings and pence
+                  (Roger Waters)
+

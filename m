@@ -1,69 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319035AbSHFJpb>; Tue, 6 Aug 2002 05:45:31 -0400
+	id <S319037AbSHFJ6S>; Tue, 6 Aug 2002 05:58:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319036AbSHFJpb>; Tue, 6 Aug 2002 05:45:31 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:22790 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S319035AbSHFJpa>; Tue, 6 Aug 2002 05:45:30 -0400
-Message-ID: <3D4F9B71.3060409@namesys.com>
-Date: Tue, 06 Aug 2002 13:48:33 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
+	id <S319039AbSHFJ6R>; Tue, 6 Aug 2002 05:58:17 -0400
+Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:23311 "EHLO
+	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S319037AbSHFJ6Q>; Tue, 6 Aug 2002 05:58:16 -0400
+Date: Tue, 6 Aug 2002 12:01:52 +0200 (CEST)
+From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+To: Chris Mason <mason@suse.com>
+Cc: Oleg Drokin <green@namesys.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: reiserfs blocks long on getdents64() during concurrent write
+In-Reply-To: <1028594875.27694.350.camel@tiny>
+Message-ID: <Pine.LNX.4.44.0208061153450.2135-100000@pc40.e18.physik.tu-muenchen.de>
 MIME-Version: 1.0
-To: jw schultz <jw@pegasys.ws>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: BIG files & file systems
-References: <Pine.LNX.4.33L2.0208021507420.14068-100000@dragon.pdx.osdl.net> <1028552648.1251.26.camel@laptop.americas.sgi.com> <3D4E80BA.5040701@namesys.com> <20020806001643.GC9754@pegasys.ws>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jw schultz wrote:
+On 5 Aug 2002, Chris Mason wrote:
 
->On Mon, Aug 05, 2002 at 05:42:18PM +0400, Hans Reiser wrote:
->  
->
->>You might also mention that I think the limits imposed by Linux are the 
->>only meaningful ones, as we would change our limits as soon as Linux 
->>did, and it was Linux that selected our limits for us.  We would have 
->>changed already if Linux didn't make it pointless to change it on Intel. 
->>Reiser4 will have 64 bit blocknumbers that will be semi-pointless until 
->>64 bit CPUs are widely deployed, and I am simply guessing this will be 
->>not very far into reiser4's lifecycle.  Really, the couple of #defines 
->>that constitute these size limits, plus some surrounding code, are not 
->>such a big thing to change (except that it constitutes a disk format 
->>change).
->>    
->>
->
->Hans,
->
->My recollection is that reiser4 isn't released yet.  Why not
->set the reiser4 disk format with 64 bit blocknumbers from
->dot?  32 bit archs could write zeros and otherwise ignore
->the upper 32 bits and refuse to mount if filesystem size
->would cause overflow.  That way you avoid on-disk format
->change mid cycle.  That seems a lot less overhead than
->coping with different datatypes.
->
->Of course if you'd rather support another on-disk format
->to squeeze a bit more data onto small drives i can understand.
->
->  
->
-We are using 64 bit blocknumbers in reiser4, and letting linux limit 
-them.  Perhaps my writing style was rather lacking in clarity.....
+> On Mon, 2002-08-05 at 18:46, Roland Kuhn wrote:
+> > 
+> > But more important: the hiccups are more seldom and sometimes shorter than 
+> > before. With plain 2.4.19 I would hit it about twice per minute (I have 
+> > not measured it), now it happens only after two minutes when writing 1M 
+> > chunks at 20MB/s. The longest seen so far was also about 4 seconds, 
+> > though.
+> 
+> This is harder to guess at ;-)  But I'll try 2 things I know I've fixed.
+> 
+> #1 I've made the metadata writeback code much more efficient, especially
+> for smaller transactions.  A dd to a large file won't generate lots of
+> log traffic, writing 700M only changes about 160 blocks in 30 seconds. 
+> Anyway, 03-data-logging-24 might make a big difference.
+> 
+It is hard to get precise numbers, but I have the feeling that with atime 
+enabled the ls-hiccups have at least not decreased, and there has been a 
+rather long one of about 13 seconds, frequency is about one per minute, 
+usually taking 2-4 seconds.
 
-Linux is going to use some hacks in 2.5 that will let it go moderately 
-above the 2.4 limits.  64 bit blocknumbers seem the most flexible thing 
-in the face of what will be ever evolving hacks followed by the 
-introduction of 64 bit CPUs into the mainstream.
+With noatime this of course doesn't happen, but with the patch the file 
+size does not increase smoothly any more, it sometimes stays the same for 
+some ten seconds and then jumps a few hundred MBs. However, the throughput 
+is roughly the same as without the patch (compatible within the errors of 
+about 10%).
 
--- 
-Hans
+> #2 During an ls, the current code ends up reading the directory more or
+> less one block at a time.  Try 05-search_reada-4.diff, which will read
+> more tree nodes at once.
+> 
+Unfortunately I'm ordered to do something now, so I won't have the time to
+check the performance of this one during the next few hours. The
+combination of 01+02+04 seemed more stable (concerning sustained
+throughput), so I will test it on all 12 machines and tell you what
+happens.
 
+Thanks very much for your help! I appreciate that!
 
+Ciao,
+					Roland
+
++---------------------------+-------------------------+
+|    TU Muenchen            |                         |
+|    Physik-Department E18  |  Raum    3558           |
+|    James-Franck-Str.      |  Telefon 089/289-12592  |
+|    85747 Garching         |                         |
++---------------------------+-------------------------+
 

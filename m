@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130138AbRB1MAy>; Wed, 28 Feb 2001 07:00:54 -0500
+	id <S130142AbRB1MDF>; Wed, 28 Feb 2001 07:03:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130139AbRB1MAn>; Wed, 28 Feb 2001 07:00:43 -0500
-Received: from smtp-rt-5.wanadoo.fr ([193.252.19.159]:55213 "EHLO
-	caroubier.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S130138AbRB1MAc>; Wed, 28 Feb 2001 07:00:32 -0500
-Message-ID: <3A9CE7F6.2000202@wanadoo.fr>
-Date: Wed, 28 Feb 2001 12:58:46 +0100
-From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Organization: Home PC
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2 i686; en-US; 0.8) Gecko/20010215
-X-Accept-Language: en, fr-fr
+	id <S130139AbRB1MCz>; Wed, 28 Feb 2001 07:02:55 -0500
+Received: from pat.uio.no ([129.240.130.16]:32392 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S130142AbRB1MCv>;
+	Wed, 28 Feb 2001 07:02:51 -0500
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: David Fries <dfries@umr.edu>, linux-kernel@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: Stale NFS handles on 2.4.2
+In-Reply-To: <20010214002750.B11906@unthought.net>
+	<20010224141855.B12988@d-131-151-189-65.dynamic.umr.edu>
+	<15000.39826.947692.141119@notabene.cse.unsw.edu.au>
+	<20010224235342.D483@d-131-151-189-65.dynamic.umr.edu>
+	<15000.53110.664338.230709@notabene.cse.unsw.edu.au>
+	<20010225131013.E483@d-131-151-189-65.dynamic.umr.edu>
+	<15004.16978.439300.108625@notabene.cse.unsw.edu.au>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Type: text/plain; charset=US-ASCII
+Date: 28 Feb 2001 13:02:31 +0100
+In-Reply-To: Neil Brown's message of "Wed, 28 Feb 2001 11:12:02 +1100 (EST)"
+Message-ID: <shsd7c3817s.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-To: Glenn McGrath <bug1@optushome.com.au>
-CC: Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: devfs and /proc/ide/hda
-In-Reply-To: <3A9CCA76.3E6AB93A@optushome.com.au> <3A9CD2F3.E26A2884@idb.hist.no> <3A9CD304.26C3A568@optushome.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Glenn McGrath wrote:
+>>>>> " " == Neil Brown <neilb@cse.unsw.edu.au> writes:
 
-> Helge Hafting wrote:
-> 
->> Glenn McGrath wrote:
->> 
->>> Im running kernel 2.4.1, I have entries like /proc/ide/hda,
->>> /proc/ide/ide0/hda etc irrespective of wether im using devfs or
->>> traditional device names.
->>> 
->>> Is always using traditional device names for /proc/ide intentional, or
->>> is it something nobody has gotten around to fixing yet?
->> 
->> Using devfs changes the names in /dev.  I don't think it
->> is supposed to affect /proc in any way.  And there are programs out
->> that use the existing /proc - changing it won't be popular.
->> 
-> 
-> 
-> Well leaving it the way it is doesnt make much sense either really, it
-> refers to devices that dont exist.
+     > So... you can access things under /home/david, but you cannot
+     > access /home/david itself?  So, supposing that "fred" were some
+     > file that you happen to know is in /home/david, then
 
-IMHO ide0 ide1... are naming plugs on the motherboard. They are not
-competing with special file names. It is a drawback of devfs to change
-the device name when you happen to use a hd as a removable media.
-hdd was disc0 and becomes disc1 when you plug in an hda...
+     >     ls /home/david fails with ESTALE and does not cause
+     > 			       any traffic to the server and
 
-Pierre
--- 
-------------------------------------------------
-  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-------------------------------------------------
+This is normal. Once an inode gets flagged as being stale, then it
+remains stale. After all it would be a bug too if a filehandle were
+stale one moment, and then not the next.
 
+The question here is therefore really why did the server tell us that
+the filehandle was stale in the first place.
+
+Cheers,
+   Trond

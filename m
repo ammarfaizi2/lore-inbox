@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265556AbSKABSP>; Thu, 31 Oct 2002 20:18:15 -0500
+	id <S265546AbSKABLa>; Thu, 31 Oct 2002 20:11:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265557AbSKABSP>; Thu, 31 Oct 2002 20:18:15 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:20497 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265556AbSKABSN>; Thu, 31 Oct 2002 20:18:13 -0500
-Date: Thu, 31 Oct 2002 20:24:04 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Thomas Dodd <ted@cypress.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: ide-related kernel panic in 2.4.19 and 2.4.20-pre11
-In-Reply-To: <3DC1A804.1030204@cypress.com>
-Message-ID: <Pine.LNX.3.96.1021031202044.22444A-100000@gatekeeper.tmr.com>
+	id <S265547AbSKABLa>; Thu, 31 Oct 2002 20:11:30 -0500
+Received: from packet.digeo.com ([12.110.80.53]:13564 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265546AbSKABL2>;
+	Thu, 31 Oct 2002 20:11:28 -0500
+Message-ID: <3DC1D63A.CCAD78EF@digeo.com>
+Date: Thu, 31 Oct 2002 17:17:46 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.45 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Hans Reiser <reiser@namesys.com>
+CC: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, Reiserfs-List@namesys.com,
+       Oleg Drokin <green@namesys.com>, zam@namesys.com,
+       umka <umka@thebsh.namesys.com>
+Subject: Re: [BK][PATCH] Reiser4, will double Linux FS performance, pleaseapply
+References: <3DC19F61.5040007@namesys.com> <200210312334.18146.Dieter.Nuetzel@hamburg.de> <3DC1B2FA.8010809@namesys.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Nov 2002 01:17:46.0782 (UTC) FILETIME=[7C96EBE0:01C28144]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Oct 2002, Thomas Dodd wrote:
-
+Hans Reiser wrote:
 > 
-> 
-> Bill Davidsen wrote:
-> > On Sat, 19 Oct 2002, Andre Hedrick wrote:
-> > 
-> > 
-> >>So could you ask the question a little more blunt?
-> >>
-> >>"Gee, I am trying to break a US Law on content protection, would you be my
-> >>enabler?  Don't worry, it only effects the US, and we are in a public
-> >>forum.  Also, do you prefer gray or black in your future pin stripped
-> >>suit?"
-> > 
-> > 
-> > Unless the rules have changed VERY recently, making a copy of legally
-> > owned music for personal use, such as in the car, MP3 player, etc, is
-> > called "fair use" and is totally legal.
-> 
-> Actually the rules did change. read the DMCA. It's illegal to
-> break the security, regardless of the reason. So you have fair
-> use rights, but cannot take atvantage of them.
+> Green and Zam and Umka, on Monday please start work on seriously
+> analyzing how the block allocation differs between the new and the old
+> kernel, now that you can finally reproduce the benchmark on the old kernel.
 
-That would be making a "derivative work" which did not have the security,
-a true and faithful copy (ektype) has not broken the security.
- 
-> Same as the DVD and Ebook cases. Breaking the protection is
-> illegal. Eventually this will hit the courts, but it will take
-> several tries to win on fair use grounds.
+I just sent the Orlov allocator patch to Linus.  It will double or
+triple ext2 performance in that test, so please make sure you compare
+against the latest.  There's a copy at
+http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.45/shpte-stuff/broken-out/orlov-allocator.patch
 
-Let's hope so, it will be an interesting trial(s).
+We can expect similar gains for ext3, when that's done.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+(The 2x-3x is on an 8meg filesystem.  Larger filesystems should
+gain more)

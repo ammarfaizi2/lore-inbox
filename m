@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262201AbTJFOlZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 10:41:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbTJFOlZ
+	id S262104AbTJFOhV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 10:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTJFOhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 10:41:25 -0400
-Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:41717 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S262201AbTJFOlY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 10:41:24 -0400
-Subject: Re: [PATCH] s390 (2/7): common i/o layer.
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
-Message-ID: <OF0C1219E4.69DD3439-ONC1256DB7.004E702C-C1256DB7.00509377@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Mon, 6 Oct 2003 16:40:06 +0200
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 06/10/2003 16:40:39
+	Mon, 6 Oct 2003 10:37:21 -0400
+Received: from as1-2-5.han.s.bonet.se ([194.236.155.59]:42249 "EHLO
+	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
+	id S262104AbTJFOhU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 10:37:20 -0400
+Message-ID: <3F817E1F.9000201@2gen.com>
+Date: Mon, 06 Oct 2003 16:37:19 +0200
+From: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@2gen.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030925 Thunderbird/0.3
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Re: Broadcom BCM5901 NIC
+References: <20030927231904.GA22769@hardeman.nu> <3F761D02.3050708@pobox.com>
+In-Reply-To: <3F761D02.3050708@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik wrote:
 
-Hi Christoph,
+> David Härdeman wrote:
+>
+>> Broadcom has released a driver of their own (bcm5700) which works 
+>> with kernel 2.4.21. When I try that combination it works fine, 
+>> however, the bcm5700 driver wont work at all on recent 2.4 or 2.6 
+>> kernels.
+>>
+>> Does anyone know what is wrong with the tg3 driver? Has anyone tried 
+>> using it on a 5901 card with success?
+>
+> Trying unplugging/plugging the cable, or ifdown+ifup cycle, and let me 
+> know if that fixes things.
+>
+>     Jeff
+>
+Hi,
 
-> Eek.  How is the dummy release function supposed to help
-> anything?  you must free the object in ->release.  Also
-> the assignment is horrible as hell.
+an update from the time I posted the previous message:
 
-Just checked. You right about chp_release which should do
-a kfree on the struct channel_path object. But the two
-other release functions are really dummy functions because
-cu3088_root_dev and iucv_root are static structures.
-I'll ask Conny about the her chsc.c code.
+1) Broadcom has since released a 7.0.0 version of their driver, it works 
+just fine with the latest 2.6 kernels (tried it on 2.6.0-test6 and using 
+it right now on 2.6.0-test6-mm4).
 
-blue skies,
-   Martin
+2) The in-kernel tg3 driver still doesn't work with the Broadcom 5901 
+NIC (tried with 2.6.0-test6 and 2.6.0-test6-mm4). Same symptoms as 
+previously (card is found and appears as eth0, but no traffic is 
+sent/recieved by the card).
 
-P.S. whats wrong with the struct assignments ?
+3) I've asked around on a few lists (debian-user, debian-laptop-user and 
+linux-thinkpad) but been unable to find any G40 owner that has tried the 
+tg3 driver with their NIC. It seems that all of them are using the 
+bcm5700 driver which would explain the lack of other bug reports. Are 
+there any G40 owners on this list who would be willing to test if the 
+tg3 driver in the latest kernels work with their NIC's?
+
+Kind regards,
+David
+
 

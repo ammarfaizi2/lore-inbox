@@ -1,80 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbTJICxl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 22:53:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTJICxl
+	id S261615AbTJIDYP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 23:24:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbTJIDYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 22:53:41 -0400
-Received: from fw.osdl.org ([65.172.181.6]:8881 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261724AbTJICxk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 22:53:40 -0400
-Date: Wed, 8 Oct 2003 19:53:36 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: [RFC] disable_irq()/enable_irq() semantics and ide-probe.c
-In-Reply-To: <20031009024334.GA7665@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44.0310081947330.19510-100000@home.osdl.org>
+	Wed, 8 Oct 2003 23:24:15 -0400
+Received: from node-d-58cd.a2000.nl ([62.195.88.205]:4618 "HELO
+	netscape351.com") by vger.kernel.org with SMTP id S261615AbTJIDYN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 23:24:13 -0400
+From: Mrs Serena Jones <serenajones7$@netscape.net>
+To: linux-kernel@vger.kernel.org
+Reply-To: serenajones7@netscape.net
+Subject: DONATION FOR THE LORD.
+Date: Thu, 09 Oct 2003 05:24:13 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed; boundary="4ff0dfe9-150c-47ea-a9c0-37ffe05534eb"
+Message-Id: <S261615AbTJIDYN/20031009032413Z+10847@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 9 Oct 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
-> 
-> How about
->  
->         action = NULL;
->         if (!(status & (IRQ_DISABLED | IRQ_INPROGRESS))) {
->                 action = desc->action;
->                 status &= ~IRQ_PENDING; /* we commit to handling */
-> 		if (likely(action))
-> 			status |= IRQ_INPROGRESS; /* we are handling it */
->         }
->         desc->status = status;
-> 
-> in handle_irq()?
+This is a multi-part message in MIME format
+--4ff0dfe9-150c-47ea-a9c0-37ffe05534eb
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-I don't mind it per se, but I don't much see the point either. 
-handle_irq() is pretty timing-critical, so we should keep it as fast as 
-humanly possible. In contrast, all the other paths that care about 
-IRQ_INPROGRESS are _not_ generally timing-critical, which is why I'd 
-rather have them do the extra work.
-
-In particular, in this case the only other path that seems to care would 
-be "disable_irq()", which does indeed care (well "request_irq()" also 
-cares, but request_irq() already clears the bit).
-
-> 	See above - we shouldn't clear it on action == NULL, but we don't
-> need to set it, AFAICS.
-
-I agree that we don't need to set it. It's more of a streamlining 
-question.
-
-For 2.4.x it might also be a question of "which patch is smaller"  
-(conceptually and in practice). I think they end up being exactly the same
-in this case.
-
-> > So the fix is to make 2.4.x do what 2.6.x does, methinks.
-> 
-> ObOtherFun:  There's another bogosity in quoted ide-probe.c code, according
-> to dwmw2 - he says that there are PCI IDE cards that get IRQ 0, so the
-> test for hwif->irq is b0rken.  We probably should stop overloading
-> ->irq == 0 for "none given", but I'm not sure that we *have* a value
-> that would never be used as an IRQ number on all platforms...
-
-The BIOS defines irq 0 in the PCI config space to be "no irq" as far as I
-know, and on all PC platforms I've ever heard of it's not a usable irq for
-generic PCI devices (it's wired to the timer thing). 
-
-All PCI routing chipsets I know about also make "irq0" mean "disabled". 
-
-Which is not to say that a badly configured setup might not do it, but it 
-really sounds fundamentally broken. 
-
-		Linus
+From: Mrs Serena Jones
+PLEASE ENDEAVOUR TO USED IT FOR THE CHILDREN OF GOD.
+I am the above named person from Kuwait. I am married to Dr.Harry Jones who
+worked with Kuwait embassy in Ivory Coast for nine yearsbefore he died in
+the year 2000.We were married for eleven years without a child. He died
+after a brief illness that lasted for only four days. Before his death we
+were both born again Christians.Since his death I decided not to re-marry or
+get a child outside my  matrimonial home which the Bible is against.When my
+late husband was alive he deposited the sum of$8.6Million (Eight Millionsix
+hundred  thousand U.S. Dollars) with one finance/security company in
+Amsterderm Holland. Presently, this money is still with the Security
+Company. Recently, my Doctor told me that I would not last for the next
+three months due to cancer problem. Though what disturbs me most is my
+stroke sickness. Having known my condition I decided to donate this fund to
+church or better still a christian individual that will utilize this money
+the way I am going to instruct here in. I want a church that will
+use this fund to fund churches, orphanages and widows propagating the word
+of God and to ensure  that the house of God is maintained. The Bible made us
+to understand that Blessed is the hand that giveth.
+I took this decision because I don't have any child that will  inherit this
+money and my husband relatives are not Christians and I don't want my
+husband's hard earned money to be misused by unbelievers. I don'twant a
+situation where this money will be used in an ungodly manner.
+Hence the reason for taking this bold decision. I am not afraid of death
+hence I know where I am going. I know that I am going to be in the bosom of
+the Lord. Exodus 14 VS 14 says that  the lord will fight my case and I shall
+hold my peace. I don't need any telephone communication in this
+regard because of my health because of the presence of my husband's
+relatives around me always. I don't want them to know about this
+development.
+With God all things are possible.  As soon as I receiveyour reply I shall
+give you the contact of the Finance/Security Company in Amsterderm Holland.
+I will also issue you a letter of authority that will prove you as the
+original- beneficiary of this fund. I want you and the church to always pray
+for me because the lord is my shephard. My
+happiness is that I lived a life of a worthy Christian. Whoever that wants
+to serve the Lord must serve him in spirit and truth. Please always be
+prayerful all through your life. Any delay  in your reply will give me room
+in sourcing for a chuch or christian individual for this same purpose. Please =
+assure me that you will act accordingly as I stated herein.  Hoping to =
+hearing from you. N.B-PLEASE I WILL ADVICE YOU TO GIVE THE LAWYER IN CHARGE A =
+CALL IN HOLLAND IMMEDIATELY, HE DOES EVERYTHING ON MY BEHALF AND HE'S VERY =
+UNDERSTANDING AND I BELIEVE HE WILL LEAD YOU TO YOUR SUCCESS IN JESUS
+NAME:     Gerry Sly
+Tell:     0031645246626
+Email:   gerrysly@rediffmail.com
+Remain blessed in the name of the Lord.
+Yours in Christ,
+Mrs Serena Jones  
+--4ff0dfe9-150c-47ea-a9c0-37ffe05534eb--
 

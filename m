@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264638AbUEOPun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264582AbUEOPuZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264638AbUEOPun (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 11:50:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbUEOPun
+	id S264582AbUEOPuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 11:50:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264638AbUEOPuZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 11:50:43 -0400
-Received: from moutng.kundenserver.de ([212.227.126.177]:56049 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S264638AbUEOPuj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 11:50:39 -0400
-To: Andy Lutomirski <luto@myrealbox.com>
-Cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] capabilities, take 3 (Re: [PATCH] capabilites, take 2)
-References: <200405131308.40477.luto@myrealbox.com>
-	<20040513182010.L21045@build.pdx.osdl.net>
-	<200405131945.53723.luto@myrealbox.com>
-	<87d657z2lm.fsf@goat.bogus.local> <40A4D49C.3030300@myrealbox.com>
-From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-Date: Sat, 15 May 2004 17:50:31 +0200
-Message-ID: <87y8ntk7ug.fsf@goat.bogus.local>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Portable Code, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:fa0178852225c1084dbb63fc71559d78
+	Sat, 15 May 2004 11:50:25 -0400
+Received: from relay3.ptmail.sapo.pt ([212.55.154.23]:24213 "HELO sapo.pt")
+	by vger.kernel.org with SMTP id S264582AbUEOPuU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 11:50:20 -0400
+Subject: Re: PATCH: (as279) Don't delete interfaces until all are unbound
+From: Nuno Ferreira <nuno.ferreira@graycell.biz>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Greg KH <greg@kroah.com>, Duncan Sands <baldrick@free.fr>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sf.net
+In-Reply-To: <Pine.LNX.4.44L0.0405131352500.651-100000@ida.rowland.org>
+References: <Pine.LNX.4.44L0.0405131352500.651-100000@ida.rowland.org>
+Content-Type: text/plain
+Organization: Graycell
+Message-Id: <1084636220.2901.1.camel@taz.graycell.biz>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.5.7 
+Date: Sat, 15 May 2004 16:50:21 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Lutomirski <luto@myrealbox.com> writes:
+On Qui, 2004-05-13 at 13:56 -0400, Alan Stern wrote:
+> On Thu, 13 May 2004, Duncan Sands wrote:
+> 
+> > No, but the pointer for another (previous) interface may just have been
+> > set to NULL, causing an Oops when usb_ifnum_to_if loops over all
+> > interfaces.
+> 
+> Of course!  I trust you won't mind me changing your suggested fix
+> slightly.  This should do an equally good job of repairing things, and it
+> will prevent other possible invalid references as well.
 
-> BTW, in your capabilities implementation, why do you do:
+OK, I've now tested the patch ant it appears to work, I removed the USB
+modem several times and not a single Oops to report.
 
-There's no such thing like "my" capabilities implementation. I use the
-capabilities implementation of linux main line as it is. My patch
-provides the possibility to connect capabilities to files, nothing
-else.
+Great work, thanks
 
-I never tried to fix or modify, how capabilities work.
-
-> If the answer's because that's how Linux cap evolution works, then
-> I'd say that Linux cap evolution is broken.
-
-Well, it works for me. :-)
-
-Regards, Olaf.

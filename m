@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280806AbRKGPBP>; Wed, 7 Nov 2001 10:01:15 -0500
+	id <S280799AbRKGPF1>; Wed, 7 Nov 2001 10:05:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280808AbRKGPBF>; Wed, 7 Nov 2001 10:01:05 -0500
-Received: from mustard.heime.net ([194.234.65.222]:46783 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S280806AbRKGPA4>; Wed, 7 Nov 2001 10:00:56 -0500
-Date: Wed, 7 Nov 2001 16:00:55 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: ext3 vs resiserfs vs xfs
-Message-ID: <Pine.LNX.4.30.0111071558090.29292-100000@mustard.heime.net>
+	id <S280808AbRKGPFR>; Wed, 7 Nov 2001 10:05:17 -0500
+Received: from [216.151.155.121] ([216.151.155.121]:5638 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S280799AbRKGPFA>; Wed, 7 Nov 2001 10:05:00 -0500
+To: Jan Marek <linux@hazard.jcu.cz>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Cannot unlock spinlock... Was: Problem in yenta.c, 2nd edition
+In-Reply-To: <20011107111056.E11351@hazard.jcu.cz>
+	<E161Pyh-0003hb-00@the-village.bc.nu>
+	<20011107115509.F11351@hazard.jcu.cz>
+From: Doug McNaught <doug@wireboard.com>
+Date: 07 Nov 2001 10:04:35 -0500
+In-Reply-To: Jan Marek's message of "Wed, 7 Nov 2001 11:55:09 +0100"
+Message-ID: <m3lmhipqpo.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+Jan Marek <linux@hazard.jcu.cz> writes:
 
-What's coolest/best/worst of ext3, ReiserFS and XFS?
-I just set up a RedHat 7.2 box with ext3, and after a few tests/chrashes,
-I see no difference at all. After a chrash, it really wants to run fsck
-anyway. I've tried ReiserFS before, with no fsck after chrashes - is this
-because ReiserFS is better, or is it more like a hope-it's-ok-thinkig?
-Then - last - How about XFS?
+> I'm sorry, but this is the Compaq Armada notebook and in its BIOS
+> I can't disable even ACPI or this device :-((( Maybe it is
+> possible in special "BIOS setup program" which can be load from
+> Compaq rescue partition: however I remove this partition :-(
 
-roy
+Have you checked Compaq's website?  I know for their desktop and
+server systems you can download setup floppy images that give you all
+the functionality of the rescue partition (and IIRC let you recreate
+the partition if you want to).  Perhaps the same is true for your
+laptop.
 
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+-Doug
+-- 
+Let us cross over the river, and rest under the shade of the trees.
+   --T. J. Jackson, 1863

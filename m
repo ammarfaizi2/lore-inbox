@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273094AbRIIXfM>; Sun, 9 Sep 2001 19:35:12 -0400
+	id <S273098AbRIIXo4>; Sun, 9 Sep 2001 19:44:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273095AbRIIXfD>; Sun, 9 Sep 2001 19:35:03 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:36102 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S273094AbRIIXew>; Sun, 9 Sep 2001 19:34:52 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Dustin Marquess <jailbird@alcatraz.fdf.net>
-Date: Mon, 10 Sep 2001 09:09:57 +1000 (EST)
+	id <S273099AbRIIXoq>; Sun, 9 Sep 2001 19:44:46 -0400
+Received: from femail35.sdc1.sfba.home.com ([24.254.60.25]:45820 "EHLO
+	femail35.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S273098AbRIIXoe>; Sun, 9 Sep 2001 19:44:34 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: "J. Dow" <jdow@earthlink.net>, "Carsten Leonhardt" <leo@debian.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Athlon/K7-Opimisation problems
+Date: Sun, 9 Sep 2001 16:44:12 -0700
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <87g09w70o4.fsf@cymoril.oche.de> <01090915292502.00173@c779218-a> <066701c13981$b9e91830$1125a8c0@wednesday>
+In-Reply-To: <066701c13981$b9e91830$1125a8c0@wednesday>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15259.63173.46720.583041@notabene.cse.unsw.edu.au>
-Cc: <linux-kernel@vger.kernel.org>, linux-raid@vger.kernel.org
-Subject: Re: PATCH - Software RAID Autodetection for OSF partitions
-In-Reply-To: message from Dustin Marquess on Sunday September 9
-In-Reply-To: <Pine.LNX.4.33.0109090443440.369-100000@alcatraz.fdf.net>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Message-Id: <01090916441200.00423@c779218-a>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday September 9, jailbird@alcatraz.fdf.net wrote:
-> 
-> Here's a quick patch that I wrote-up for 2.4.10-pre5 (should work with
-> other 2.4.x kernels too), so that the OSF partition code should
-> auto-detect partitions with a fstype of 0xFD (software RAID).
-> 
-> It seems to work for me, except that the software RAID code in 2.4.10-pre5
-> (both with and without my patch) keep dying with superblock errors on line
-> 1574 of md.c.  If anybody knows how to fix this error, please let me know
-> :).
+On Sunday 09 September 2001 03:49 pm, J. Dow wrote:
+> From: "Nicholas Knight" <tegeran@home.com>
+>
+> > > What about the power supply. If it is at all marginal the power
+> > > consumption boost going to 1.4G is likely a killer.
+> >
+> > Well, he didn't mention the amperage outputs, but he said 431W
+> > Enermax, from what I hear Enermax PSU's are good.
+> > I still have trouble dealing with the idea that the optimizations
+> > cause power consumption like this, but then, I have trouble with my
+> > own idea that it causes sufficient heat increase in the chipset that
+> > soon after boot.
+> >
+> > Do most people that experience this problem also experience after a
+> > cold-boot where the system had been off for at least 10-15 minutes?
+> > And has ANYONE sucsesfully cured this problem by changing power
+> > supplies?
+>
+> Don't forget that there are two regulators involved. First there is the
+> primary power supply's regulator down to either 3.3 or 5 volts. Then
+> there is the motherboard regulator down to the 1.7 volt range. If THAT
+> one is not up to handling the required oompf during certain CPU loads
+> that is a sure way to glitch the machine.
 
-line 1574 of md.c is an MD_BUG which gets called if "analyse_sbs"
-returns non-zero.
-analyse_sbs returns non-zero only if the label "abort:" is jumped.
-Every "goto abort" is preceeded by an "MD_BUG" or a printk except one
-after check_disk_sb and one after alloc_array_sb.
-These both print messages in cases were they fail, except for
-alloc_array_sb which won't print a message if __get_free_pages
-fails.
-
-So, if the message about "1574 of md.c" is the first message you get,
-then __get_free_page must be failing.  It it isn't, please tell us the
-first error message that you get.
-
-NeilBrown
+Now THAT I'll buy... It would certainly explain why some KT133A 
+motherboards work and some don't, but the relation would be a little 
+complex, the chipset might be exposing general problems with regulators 
+used in motherboards.
+Verifying this would require both extensive analysis of the motherboards 
+and chipsets, and the regulators.
+You'd also need to verify the manufacturing place, batch and time/date 
+for at least 50 to 100 motherboards to begin verifying this.

@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261238AbSLQIgP>; Tue, 17 Dec 2002 03:36:15 -0500
+	id <S261322AbSLQIlx>; Tue, 17 Dec 2002 03:41:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261322AbSLQIgO>; Tue, 17 Dec 2002 03:36:14 -0500
-Received: from twin.jikos.cz ([217.11.236.59]:63980 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id <S261238AbSLQIgO>;
-	Tue, 17 Dec 2002 03:36:14 -0500
-Date: Tue, 17 Dec 2002 09:44:09 +0100 (CET)
-From: Jirka Kosina <jikos@jikos.cz>
-To: linux-kernel@vger.kernel.org
-cc: "Grover, Andrew" <andrew.grover@intel.com>
-Subject: SMIC and IPMI (was: [ACPI] Metolious hardware-sensors-using-ACPI
- specs)
-In-Reply-To: <EDC461A30AC4D511ADE10002A5072CAD04C7A5AB@orsmsx119.jf.intel.com>
-Message-ID: <Pine.LNX.4.50.0212170938180.1285-100000@twin.jikos.cz>
-References: <EDC461A30AC4D511ADE10002A5072CAD04C7A5AB@orsmsx119.jf.intel.com>
+	id <S261330AbSLQIlx>; Tue, 17 Dec 2002 03:41:53 -0500
+Received: from smtp.wp.pl ([212.77.101.161]:61223 "EHLO smtp.wp.pl")
+	by vger.kernel.org with ESMTP id <S261322AbSLQIlx>;
+	Tue, 17 Dec 2002 03:41:53 -0500
+Message-ID: <005601c2a5a9$912b8640$110011ac@home.sitech.pl>
+From: "plachninka" <plachninka@wp.pl>
+To: <linux-kernel@vger.kernel.org>
+Subject: mkinitrd: binary operator expacted
+Date: Tue, 17 Dec 2002 09:52:01 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+x-mimeole: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-AntiVirus: skaner antywirusowy poczty Wirtualnej Polski S. A.
+X-WP-ChangeAV: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Dec 2002, Grover, Andrew wrote:
+Hi
+Can anyone tell me what means following message:
 
-> The machines that care about manageability (servers) appear to be entirely
-> disjoint from the ones that have thermal zones (and, servers use IPMI),
+[root@tilda plachnina]# /sbin/mkinitrd initrd-2.4.18-18.7.xsmp.img
+2.4.18-18.7.xsmp
 
-Talking about IPMI - is there anyone working on SMIC interface to IPMI
-driver written by Corey Minyard? (http://home.attbi.com/~minyard). He
-isn't working on it personally as he told me, because he doesn't have such
-HW.
+/sbin/mkinitrd: [:
+/lib/modules/2.4.18-18.7.xsmp/./kernel/drivers/scsi/aic7xxx/aic7xxx.o:
+binary operator expected
 
-I've just downloaded specification from intel and can start working on it
-after I finish my other projects, but I am asking firstly, to avoid
-implementing it if someone is currently doing it.
 
---
-JiKos.
+I  fight with aic7xxx module since 1 month...
+
+regards
+
+Mariusz Bozewicz
+
 

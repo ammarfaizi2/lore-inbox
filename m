@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265181AbUAYTnb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 14:43:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265201AbUAYTnb
+	id S265217AbUAYTuT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 14:50:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265243AbUAYTuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 14:43:31 -0500
-Received: from web12304.mail.yahoo.com ([216.136.173.102]:48985 "HELO
-	web12304.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265181AbUAYTna (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 14:43:30 -0500
-Message-ID: <20040125194329.59773.qmail@web12304.mail.yahoo.com>
-Date: Sun, 25 Jan 2004 11:43:29 -0800 (PST)
-From: Mike Keehan <mike_keehan@yahoo.com>
-Subject: 2.6.2-rc1-bk3 patch fails
-To: linux-kernel@vger.kernel.org
+	Sun, 25 Jan 2004 14:50:18 -0500
+Received: from modemcable178.89-70-69.mc.videotron.ca ([69.70.89.178]:62850
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S265217AbUAYTuN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 14:50:13 -0500
+Date: Sun, 25 Jan 2004 10:24:29 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Mike <Mike@kordik.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1-mm5, kernel panic "Interrupt not syncing"
+In-Reply-To: <pan.2004.01.25.13.51.36.497433@kordik.net>
+Message-ID: <Pine.LNX.4.58.0401251020531.1741@montezuma.fsmlabs.com>
+References: <pan.2004.01.23.14.58.39.560168@kordik.net>
+ <pan.2004.01.25.13.51.36.497433@kordik.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Applying the above patch to 2.6.1 gets failure in:-
+On Sun, 25 Jan 2004, Mike wrote:
 
-. Makefile
-. arch/i386/kernel/cpu/mcheck/non-fatal.c
-. drivers/cdrom/cdrom.c
-. drivers/input/joydev.c
-. drivers/input/keyboard/atkbd.c
-. drivers/md/Kconfig
-. drivers/md/raid6.h  (doesn't exist)
+> On Fri, 23 Jan 2004 09:58:40 -0500, Mike wrote:
+>
+> > I have run 2.6.0-test.* kernels, 2.6.1-mm1 and 4 and they all boot fine.
+> > When I go to 2.6.1-mm5 I get a kernel panic and the boot freezes. The
+> > messages go by so quick I can't tell at what point it is doing this but
+> > the last line is interrupt not syncing. Any ideas? I have gone back to
+> > 2.6.1-mm4 so I can boot but I was interested in mm5 because it has ALSA
+> > 1.01 and I was hoping that would solve my lockup when I got to a web page
+> > with a lot of flash problem but not being able to boot is even worse. :-)
+> >
+> > Any ideas on the problem or advice on how to debug this would be most
+> > appreciated.
+> >
+> > Mike
+> No ideas? I can wait to try a newer kernel but I am concerned that the 20
+> or so kernels I used before booted without problems then all of a sudden
+> 2.6.1-mm5 does not. Should I just ignore the problem and try a newer
+> kernel? Is anyone else using 2.6.1-mm5 successfully?
 
-I control C'd out of the rest.  The BK snapshots on 
-kernel.org aren't meant to be applied cumulatively, 
-are they?
+Kernel config please? Could you perhaps manage to get a tad bit more
+information from the panic? Also send over a dmesg from a working boot.
 
-Mike
-
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free web site building tool. Try it!
-http://webhosting.yahoo.com/ps/sb/
+Ta

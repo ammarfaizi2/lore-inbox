@@ -1,80 +1,200 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275423AbTHIWMv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 18:12:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275424AbTHIWMv
+	id S275433AbTHIWT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 18:19:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275434AbTHIWT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 18:12:51 -0400
-Received: from bgp01116707bgs.westln01.mi.comcast.net ([68.42.104.61]:2052
-	"HELO blackmagik.dynup.net") by vger.kernel.org with SMTP
-	id S275423AbTHIWMr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 18:12:47 -0400
-Message-ID: <3F356881.9070206@blackmagik.dynup.net>
-Date: Sat, 09 Aug 2003 17:32:49 -0400
-From: Eric Blade <eblade@blackmagik.dynup.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030809
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sat, 9 Aug 2003 18:19:57 -0400
+Received: from net2.wur.nl ([137.224.248.102]:5772 "EHLO net2.wur.nl")
+	by vger.kernel.org with ESMTP id S275433AbTHIWTb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 18:19:31 -0400
+From: Jos van den Oever <jos@vandenoever.info>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test2/3 ESS1371 Audio
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: oops & panic on usb-storage umount with 2.6.0-test3
+Date: Sun, 10 Aug 2003 00:19:24 +0200
+User-Agent: KMail/1.5.3
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_sNXN/zHU7PgbbDT"
+Message-Id: <200308100019.24942.jos@vandenoever.info>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.6.0-test1, the ESS1371 module stopped giving me sound output when 
-compiled into the kernel, but worked as a module.
 
-In 2.6.0-test2, the module completely stopped giving me sound output as 
-well.
+--Boundary-00=_sNXN/zHU7PgbbDT
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-In 2.6.0-test3, the modules refuse to insmod.
+Hi,
 
-I get the following during depmod during 'make modules_install':
- 
- depmod: *** Unresolved symbols in 
-/lib/modules/2.6.0-test3/kernel/drivers/net/hamachi.ko
-depmod: *** Unresolved symbols in 
-/lib/modules/2.6.0-test3/kernel/drivers/net/yellowfin.ko
-depmod: *** Unresolved symbols in 
-/lib/modules/2.6.0-test3/kernel/sound/core/oss/snd-mixer-oss.ko
-depmod: *** Unresolved symbols in 
-/lib/modules/2.6.0-test3/kernel/sound/core/oss/snd-pcm-oss.ko
-depmod: *** Unresolved symbols in 
-/lib/modules/2.6.0-test3/kernel/sound/core/seq/oss/snd-seq-oss.ko
-depmod: *** Unresolved symbols in 
-/lib/modules/2.6.0-test3/kernel/sound/core/seq/snd-seq-device.ko
-depmod: *** Unresolved symbols in 
-/lib/modules/2.6.0-test3/kernel/sound/core/seq/snd-seq-midi-event.ko
-depmod: *** Unresolved symbols in 
-/lib/modules/2.6.0-test3/kernel/sound/core/seq/snd-seq-midi.ko
-depmod: *** Unresolved symbols in 
-/lib/modules/2.6.0-test3/kernel/sound/core/seq/snd-seq.ko
-depmod: *** Unresolved symbols in 
-/lib/modules/2.6.0-test3/kernel/sound/core/snd-pcm.ko
-depmod: *** Unresolved symbols in 
-/lib/modules/2.6.0-test3/kernel/sound/core/snd-rawmidi.ko
-depmod: *** Unresolved symbols in 
-/lib/modules/2.6.0-test3/kernel/sound/core/snd-rtctimer.ko
-depmod: *** Unresolved symbols in 
-/lib/modules/2.6.0-test3/kernel/sound/core/snd-timer.ko
-depmod: *** Unresolved symbols in 
-/lib/modules/2.6.0-test3/kernel/sound/core/snd.ko
-depmod: *** Unresolved symbols in 
-/lib/modules/2.6.0-test3/kernel/sound/pci/ac97/snd-ac97-codec.ko
-depmod: *** Unresolved symbols in 
-/lib/modules/2.6.0-test3/kernel/sound/pci/snd-ens1371.ko
+After the wonderful ride that was 2.6.0-test2, I decided to try test3.
+test2 was perfect except for touchpad and bad latency performance. Playing 
+midi files finally worked!
 
+test3 however is another matter. I can't access my sound device, even though 
+the modules seem to load fine and the card seems to be initialized. This mail 
+is not about that though.
 
-  .. I noticed there were lots of patches in the sound directory... is 
-there something I missed?
+After downloading files from my camera, I got an oops when I switched it off 
+and then unmounted it. The oops was followed by a kernel panic and is 
+completely reproducible. Here's the recipe:
+- boot
+- login as root
+- modprobe uhci-hcd (it's not loaded automagically although the module for my 
+pcmcia network card is)
+-> kernel finds USB ports
+- switch on connected camera
+-> kernel finds camera and assigns device
+- mount /dev/sda1
+-> files are visible
+- switch off camera
+-> kernel notes that usb device is switched off
+- umount /dev/sda1
+-> oops & panic
 
--- 
-----BEGIN GEEK CODE BLOCK----
-Version: 3.1
-GB/CS/MC/MU/O @d+ s:- a- C++++ UL++++  !P  L+++ !E W+++ !N !o K? w--- @O++ !M !V PS+ PE- Y PGP- @t 5? X R tv-- b- DI++ D++ G e* h* r  y+ 
-----END GEEK CODE BLOCK----
+I've attached the /var/log/messages from boot to panic and also the ksymoops 
+output. /proc/ksym was not present and I do not know how to make it appear, 
+so the ksymoops output is not perfect.
+
+Best regards, Jos van den Oever
+PS I'm not on the list, so for a relatively quick reply please CC me.
 
 
 
+--Boundary-00=_sNXN/zHU7PgbbDT
+Content-Type: application/x-bzip2;
+  name="messages.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="messages.bz2"
+
+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
+
+--Boundary-00=_sNXN/zHU7PgbbDT
+Content-Type: application/x-bzip2;
+  name="modules.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="modules.bz2"
+
+QlpoOTFBWSZTWSRCQ6wAASNfgEAQQAZ/4AAEAAC/699gMAE2iBjCYmgwRiGRhMGmRT0TJkkHqeoa
+aAAlNKjwiehT9KbRG00GmTRgSA06pqui4e8cAAIQ5z8/XJjtK1+Js6i3bWNCL1KiSGSRYWRtJzm6
+e6oxcAJhTwcAE9Q9zx14sonmeQFHrszMLFyO44ZJ0qLZw5di96xroyY8ZB3Se/TfEYN5yYOd8Pkl
+aCa1mK1CxTSLTMCxhedhPRmqabYqqUN71AhoAAx5DvJczaIceZ7b8vZZBj+wmAbAHkM/8184UpCz
+V3WXEhz2ANcBHY3Nj1b6gTtVOzVNzOpVZbgDnRcptG45M5Nu7NIlSLcEaGl4ROsXoxSwS/iWLXtL
+4la8sQB+GgA8Pou5IpwoSBIhIdYA
+
+--Boundary-00=_sNXN/zHU7PgbbDT
+Content-Type: application/x-bzip2;
+  name="ksymoopsoutput.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="ksymoopsoutput.bz2"
+
+QlpoOTFBWSZTWZigiV8ABSD/gGxRIABOb///K63PCr+/32BQBPvW7M25y3Z3Xdx3dtjoJIk1NGEy
+NNNNFPakeU9QPKB6h6gaNAxASiKn4TRqnqZPUyA0B+qGgYgAAAAkRJM0g00UbRDRmo9QAAAaekek
+aA5gTE0GEyZMmRhME00yMTAEMAkimgxGpoyIjyT1HqDJoNNABoAMTXVL6c6gUpMK5NuLZ82pkCjb
+RYZA97NsT8uauXD4wpOV/YYMU/tkEmm1EkR4UKkIXZY142m5HVAruL7w/nC52wNtPOaZnJyNcToR
+pCwYHSCGHCID8kDIXX5u7pq2N3dt1QUZszsmCkNJkmuJMntBBkhpUNFUVXLUoCPk4fssTNiRmWVl
+jnZbcUprDAWD5d0gXt8xlBHsO2F9kJldUwPcRDbdMGSXUOzZGuc0sDN3bqlSyWja4ddkN5bTj4dc
+d8EZ/BtjVdB78XMpdZp/1rxLmpXHhBrB0YV5HZnTrs6u+GZ3TNiRCDoVJxxtp4Q5FHB08Vr4KIV6
+5MG1b97NojGt765SrpfcqhtLNpGKtna2NzYgQpIjt6tU4xWuAKpuMCaUIZg7bbL6FrkY/IrrkX0A
+0LOyEFsI52VVHWdUQDXQdoQDRWPY9UklZpdTxcrAt9y50wYOOMvbTIENeZmhR5gQy3aAgJPNm0gj
+J771GNaQWQKzPdbl6NGjdjkKFFxIlnKuqXQCKZM9o/MhSZSTCXPNN2jFWnHEtM4gkqsGtIO2FUxf
+eCHCe5IjTFE0jUSK7wmRpbxZKwHGFZhMxL8S1BCTMlWTis+rREMC5iBjEWF5TXQRMFMRWakllUJa
+PFfIaQfMTPjoYSY6sWwgwC0DWIrCoRmDgjXXlExUwssshMkatIwXdP85eUhx5ynpd7APFxft1GCU
+OtjmNxBZgjYCJXAFqlJSFWlAuSBkdEH1V0ySzsgl84F2uq2m/VM89yXC8EYJoH1ukfjpYeX82npu
+OoOHVPmeQDidZQcmuurQXnhBhBJuOwH37GaQn3ca9iRxEeU2+5BkrF04B79TrxYjAJ7pkLBTRkY6
+OzF8MxdB+uLMtCaYKwGX0sO6co4ItSvI8fp5zpY23XM1HmzM2NjbbfOpY6DlBsEGqEDEb4yag0aI
+SNJ3jXldwqtZ2DaWpWPFBlzCDBTrPuQSEudC45UiCbgrnq9NC2CWlOwYHIXZcShAjDT9B9wUDxW8
+gd9E1Bg1TZmcdzK8GnOOHsCBYOFjcAgwCdBpe+UR8ReFqMY01jpS5zrpbyRc5VnUlibgRwsj3xBg
+G0EYqsni72hIOCRt3mOKScZVwnitmJ1vEGMoEzDSm3QpP6CLU/oaq5myzKtaB+P6hhKVYIikNySO
+CSCFJDOVRw61TACChQZkm4Ew0LWMOSsUbrvlhvtJ9pEP9q2QJ6FowEHAEVKEQc0dZhqOg9QhlpJV
+3QJHZGpLWCKZjszKgbSJFRvDELe1A1VQI5NzxHffQeFu+rYLqy1Y2G+hsletWctlAriG0KbW29Hc
+2ZjLrbbbsW+7SUhvis+Cl1AjYopsWagSC/KQYVrINxI5BoAhnZaugAerGju8AwEZf8XckU4UJCYo
+IlfA
+
+--Boundary-00=_sNXN/zHU7PgbbDT--
 

@@ -1,46 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbVCCEN1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVCCERm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261394AbVCCEN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 23:13:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVCCEJX
+	id S261343AbVCCERm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 23:17:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVCCEPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 23:09:23 -0500
-Received: from yue.linux-ipv6.org ([203.178.140.15]:34831 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261342AbVCCEEi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 23:04:38 -0500
-Date: Thu, 03 Mar 2005 13:05:58 +0900 (JST)
-Message-Id: <20050303.130558.128951349.yoshfuji@linux-ipv6.org>
-To: torvalds@osdl.org
-Cc: jgarzik@pobox.com, davem@davemloft.net, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
-Subject: Re: RFD: Kernel release numbering
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
-References: <20050302165830.0a74b85c.davem@davemloft.net>
-	<422674A4.9080209@pobox.com>
-	<Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Wed, 2 Mar 2005 23:15:12 -0500
+Received: from smtp04.mrf.mail.rcn.net ([207.172.4.63]:12663 "EHLO
+	smtp04.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id S261327AbVCCEMo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 23:12:44 -0500
+Message-Id: <3sp35g$6s20j@smtp04.mrf.mail.rcn.net>
+X-IronPort-AV: i="3.90,131,1107752400"; 
+   d="scan'208"; a="7211027:sNHT24103410"
+X-Mailer: QUALCOMM Windows Eudora Pro Version 4.0
+Date: Wed, 02 Mar 2005 23:09:54 -0500
+To: linux-kernel@vger.kernel.org
+From: Zdenek Radouch <zdenek@rcn.com>
+Subject: stack/routing kernel modification - consult needed
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org> (at Wed, 2 Mar 2005 19:37:44 -0800 (PST)), Linus Torvalds <torvalds@osdl.org> says:
 
-> In contrast, making it a real release, and making it clear that it's a 
-> release in its own right, might actually get people to use it. 
-> 
-> Might. Maybe.
+I committed to a fairly complex project to run on Linux while
+assuming that the Linux stack implementation would provide
+equivalent functionality to that of the BSD-style stacks I am
+familiar with.  At this point, quite far down the design path,
+I looked at what I thought would be trivial details and
+I am facing two major roadblocks.
 
-I believe people soon stop using 2.6.<odd> "release"s.
+Problem #1
+The physical driver layer which itself is quite complex and
+does additional routing, needs access to the destination
+(next hop) IP address in order to transmit the packet.
+Under BSD, the ip output method passes down the IP address,
+but under Linux that does not seem to be the case.
+I need some method of getting hold of the IP address.
+Note that there is no protocol address
+resolution on these interfaces, but there are multiple hosts
+to be addressed.  The physical layer does the necessary
+addressing and additional routing, but it needs the IP address
+of where the packet is being forwarded.
 
---yoshfuji
+Problem #2
+This device is a routing class device, i.e., it routes network
+traffic on some network segment.  As such, it must be able to
+handle both public (e.g., 18.x.x.x) and private (e.g., 192.168.x.x)
+IP addresses.
+The device itself has multiple, loosely-coupled cards that
+communicate via TCP/IP sockets.  To separate the "device
+internal" TCP traffic from the external "real" network traffic,
+the standard BSD solution is to subnet the 127/8 "lo" interface
+to 127.0/16 for "lo" and e.g., 127.1/16 for a driver accessing
+the other cards.  Unfortunately, the Linux stack does not
+seem to allow subnetting of the 127 net.
+
+Assuming that my observation are accurate (please feel free to
+indicate otherwise), it would appear to me that I have two options:
+
+1. Hack the Linux kernel/stack to add the required functionality
+    (pass IP on transmit, allow 127/16 subnets).
+    This would be the preferred solution given the late stage of
+    the project, but I am not familiar (obviously) with the Linux stack
+    code.  I am now also nervous about other possible surprises
+    (I got VLANs, multiple interfaces with same IP address,
+     multiple proxy ARPs on the same processor etc.)
+ 
+2.  Scrap the project and restart under BSD.  This is quite an
+     expensive option; the only advantage would be my certainty
+     that all of the concepts will work as architected because
+     they were based on such stack.
+
+I am looking for advice, and, if possible, help.
+Any pointers addressing any of the above will be quite useful to me.
+If you are familiar with the relevant kernel code, and would be willing
+to help me with the modifications, please let me know.
+If you could do it, but think it would take too much of your time,
+please let me know, too, I'd be glad to set up a paid consulting 
+arrangement if that would help.
+
+BTW, this is being developed on the 2.4.25 kernel.
+
+Please respond to me directly: zdenek at rcn.com
+
+Thanks,
+-Zdenek

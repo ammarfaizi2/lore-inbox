@@ -1,179 +1,1354 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273909AbTHFCqN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 22:46:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274723AbTHFCqM
+	id S274845AbTHFCyD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 22:54:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274833AbTHFCxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 22:46:12 -0400
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:17537 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S273909AbTHFCp6 (ORCPT
+	Tue, 5 Aug 2003 22:53:44 -0400
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:20609 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S274815AbTHFCss (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 22:45:58 -0400
-Date: Tue, 5 Aug 2003 22:14:15 +0000
+	Tue, 5 Aug 2003 22:48:48 -0400
+Date: Tue, 5 Aug 2003 22:17:03 +0000
 From: Adam Belay <ambx1@neo.rr.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] PnP Updates for 2.6.0-test2
-Message-ID: <20030805221415.GB13275@neo.rr.com>
+Subject: Re: [PATCH] PnP Updates for 2.6.0-test2
+Message-ID: <20030805221703.GF13275@neo.rr.com>
 Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
 	linux-kernel@vger.kernel.org
+References: <20030805221415.GB13275@neo.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20030805221415.GB13275@neo.rr.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 # --------------------------------------------
-# 03/08/05	ambx1@neo.rr.com	1.1107
-#   [PNP] Handle unset resources properly
+# 03/08/05	ambx1@neo.rr.com	1.1111
+# [PNPBIOS] Move low level code into a separate file
 # 
-#   This patch is similar to the disabled resource patch in that it
-#   avoids direct numeric comparisons with data in unset resource
-#   structures.
+# This patch moves the low level bios calls to a separate file, 
+# "bioscalls.c".  It is a cleanup that will improve organization of the
+# pnpbios driver code.
 # --------------------------------------------
 #
-diff -Nru a/drivers/pnp/manager.c b/drivers/pnp/manager.c
---- a/drivers/pnp/manager.c	Tue Aug  5 21:25:12 2003
-+++ b/drivers/pnp/manager.c	Tue Aug  5 21:25:12 2003
-@@ -45,7 +45,8 @@
- 	flags = &dev->res.port_resource[idx].flags;
+diff -Nru a/drivers/pnp/pnpbios/Makefile b/drivers/pnp/pnpbios/Makefile
+--- a/drivers/pnp/pnpbios/Makefile	Tue Aug  5 21:24:45 2003
++++ b/drivers/pnp/pnpbios/Makefile	Tue Aug  5 21:24:45 2003
+@@ -4,4 +4,4 @@
  
- 	/* set the initial values */
--	*flags = *flags | rule->flags | IORESOURCE_IO;
-+	*flags |= rule->flags | IORESOURCE_IO;
-+	*flags &=  ~IORESOURCE_UNSET;
+ pnpbios-proc-$(CONFIG_PROC_FS) = proc.o
  
- 	if (!rule->size) {
- 		*flags |= IORESOURCE_DISABLED;
-@@ -87,7 +88,8 @@
- 	flags = &dev->res.mem_resource[idx].flags;
+-obj-y := core.o rsparser.o $(pnpbios-proc-y)
++obj-y := core.o bioscalls.o rsparser.o $(pnpbios-proc-y)
+diff -Nru a/drivers/pnp/pnpbios/bioscalls.c b/drivers/pnp/pnpbios/bioscalls.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/drivers/pnp/pnpbios/bioscalls.c	Tue Aug  5 21:24:45 2003
+@@ -0,0 +1,627 @@
++/*
++ * bioscalls.c - the lowlevel layer of the PnPBIOS driver
++ *
++ */
++
++#include <linux/types.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/linkage.h>
++#include <linux/kernel.h>
++#include <linux/pnpbios.h>
++#include <linux/device.h>
++#include <linux/pnp.h>
++#include <asm/page.h>
++#include <asm/system.h>
++#include <linux/mm.h>
++#include <linux/smp.h>
++#include <asm/desc.h>
++#include <linux/slab.h>
++#include <linux/kmod.h>
++#include <linux/completion.h>
++#include <linux/spinlock.h>
++#include <asm/system.h>
++#include <asm/byteorder.h>
++
++
++/* PnP BIOS signature: "$PnP" */
++#define PNP_SIGNATURE   (('$' << 0) + ('P' << 8) + ('n' << 16) + ('P' << 24))
++
++#pragma pack(1)
++union pnp_bios_expansion_header {
++	struct {
++		u32 signature;    /* "$PnP" */
++		u8 version;	  /* in BCD */
++		u8 length;	  /* length in bytes, currently 21h */
++		u16 control;	  /* system capabilities */
++		u8 checksum;	  /* all bytes must add up to 0 */
++
++		u32 eventflag;    /* phys. address of the event flag */
++		u16 rmoffset;     /* real mode entry point */
++		u16 rmcseg;
++		u16 pm16offset;   /* 16 bit protected mode entry */
++		u32 pm16cseg;
++		u32 deviceID;	  /* EISA encoded system ID or 0 */
++		u16 rmdseg;	  /* real mode data segment */
++		u32 pm16dseg;	  /* 16 bit pm data segment base */
++	} fields;
++	char chars[0x21];	  /* To calculate the checksum */
++};
++#pragma pack()
++
++static union pnp_bios_expansion_header * pnp_bios_hdr = NULL;
++
++/*
++ * Call this only after init time
++ */
++static int pnp_bios_present(void)
++{
++	return (pnp_bios_hdr != NULL);
++}
++
++static struct {
++	u16	offset;
++	u16	segment;
++} pnp_bios_callpoint;
++
++
++/* The PnP BIOS entries in the GDT */
++#define PNP_GDT    (GDT_ENTRY_PNPBIOS_BASE * 8)
++
++#define PNP_CS32   (PNP_GDT+0x00)	/* segment for calling fn */
++#define PNP_CS16   (PNP_GDT+0x08)	/* code segment for BIOS */
++#define PNP_DS     (PNP_GDT+0x10)	/* data segment for BIOS */
++#define PNP_TS1    (PNP_GDT+0x18)	/* transfer data segment */
++#define PNP_TS2    (PNP_GDT+0x20)	/* another data segment */
++
++/*
++ * These are some opcodes for a "static asmlinkage"
++ * As this code is *not* executed inside the linux kernel segment, but in a
++ * alias at offset 0, we need a far return that can not be compiled by
++ * default (please, prove me wrong! this is *really* ugly!)
++ * This is the only way to get the bios to return into the kernel code,
++ * because the bios code runs in 16 bit protected mode and therefore can only
++ * return to the caller if the call is within the first 64kB, and the linux
++ * kernel begins at offset 3GB...
++ */
++
++asmlinkage void pnp_bios_callfunc(void);
++
++__asm__(
++	".text			\n"
++	__ALIGN_STR "\n"
++	"pnp_bios_callfunc:\n"
++	"	pushl %edx	\n"
++	"	pushl %ecx	\n"
++	"	pushl %ebx	\n"
++	"	pushl %eax	\n"
++	"	lcallw *pnp_bios_callpoint\n"
++	"	addl $16, %esp	\n"
++	"	lret		\n"
++	".previous		\n"
++);
++
++#define Q_SET_SEL(cpu, selname, address, size) \
++do { \
++set_base(cpu_gdt_table[cpu][(selname) >> 3], __va((u32)(address))); \
++set_limit(cpu_gdt_table[cpu][(selname) >> 3], size); \
++} while(0)
++
++#define Q2_SET_SEL(cpu, selname, address, size) \
++do { \
++set_base(cpu_gdt_table[cpu][(selname) >> 3], (u32)(address)); \
++set_limit(cpu_gdt_table[cpu][(selname) >> 3], size); \
++} while(0)
++
++static struct desc_struct bad_bios_desc = { 0, 0x00409200 };
++
++/*
++ * At some point we want to use this stack frame pointer to unwind
++ * after PnP BIOS oopses.
++ */
++
++u32 pnp_bios_fault_esp;
++u32 pnp_bios_fault_eip;
++u32 pnp_bios_is_utter_crap = 0;
++
++static spinlock_t pnp_bios_lock;
++
++
++/*
++ * Support Functions
++ */
++
++static inline u16 call_pnp_bios(u16 func, u16 arg1, u16 arg2, u16 arg3,
++				u16 arg4, u16 arg5, u16 arg6, u16 arg7,
++				void *ts1_base, u32 ts1_size,
++				void *ts2_base, u32 ts2_size)
++{
++	unsigned long flags;
++	u16 status;
++	struct desc_struct save_desc_40;
++	int cpu;
++
++	/*
++	 * PnP BIOSes are generally not terribly re-entrant.
++	 * Also, don't rely on them to save everything correctly.
++	 */
++	if(pnp_bios_is_utter_crap)
++		return PNP_FUNCTION_NOT_SUPPORTED;
++
++	cpu = get_cpu();
++	save_desc_40 = cpu_gdt_table[cpu][0x40 / 8];
++	cpu_gdt_table[cpu][0x40 / 8] = bad_bios_desc;
++
++	/* On some boxes IRQ's during PnP BIOS calls are deadly.  */
++	spin_lock_irqsave(&pnp_bios_lock, flags);
++
++	/* The lock prevents us bouncing CPU here */
++	if (ts1_size)
++		Q2_SET_SEL(smp_processor_id(), PNP_TS1, ts1_base, ts1_size);
++	if (ts2_size)
++		Q2_SET_SEL(smp_processor_id(), PNP_TS2, ts2_base, ts2_size);
++
++	__asm__ __volatile__(
++	        "pushl %%ebp\n\t"
++		"pushl %%edi\n\t"
++		"pushl %%esi\n\t"
++		"pushl %%ds\n\t"
++		"pushl %%es\n\t"
++		"pushl %%fs\n\t"
++		"pushl %%gs\n\t"
++		"pushfl\n\t"
++		"movl %%esp, pnp_bios_fault_esp\n\t"
++		"movl $1f, pnp_bios_fault_eip\n\t"
++		"lcall %5,%6\n\t"
++		"1:popfl\n\t"
++		"popl %%gs\n\t"
++		"popl %%fs\n\t"
++		"popl %%es\n\t"
++		"popl %%ds\n\t"
++	        "popl %%esi\n\t"
++		"popl %%edi\n\t"
++		"popl %%ebp\n\t"
++		: "=a" (status)
++		: "0" ((func) | (((u32)arg1) << 16)),
++		  "b" ((arg2) | (((u32)arg3) << 16)),
++		  "c" ((arg4) | (((u32)arg5) << 16)),
++		  "d" ((arg6) | (((u32)arg7) << 16)),
++		  "i" (PNP_CS32),
++		  "i" (0)
++		: "memory"
++	);
++	spin_unlock_irqrestore(&pnp_bios_lock, flags);
++
++	cpu_gdt_table[cpu][0x40 / 8] = save_desc_40;
++	put_cpu();
++
++	/* If we get here and this is set then the PnP BIOS faulted on us. */
++	if(pnp_bios_is_utter_crap)
++	{
++		printk(KERN_ERR "PnPBIOS: Warning! Your PnP BIOS caused a fatal error. Attempting to continue\n");
++		printk(KERN_ERR "PnPBIOS: You may need to reboot with the \"nobiospnp\" option to operate stably\n");
++		printk(KERN_ERR "PnPBIOS: Check with your vendor for an updated BIOS\n");
++	}
++
++	return status;
++}
++
++void pnpbios_print_status(const char * module, u16 status)
++{
++	switch(status) {
++	case PNP_SUCCESS:
++		printk(KERN_ERR "PnPBIOS: %s: function successful\n", module);
++		break;
++	case PNP_NOT_SET_STATICALLY:
++		printk(KERN_ERR "PnPBIOS: %s: unable to set static resources\n", module);
++		break;
++	case PNP_UNKNOWN_FUNCTION:
++		printk(KERN_ERR "PnPBIOS: %s: invalid function number passed\n", module);
++		break;
++	case PNP_FUNCTION_NOT_SUPPORTED:
++		printk(KERN_ERR "PnPBIOS: %s: function not supported on this system\n", module);
++		break;
++	case PNP_INVALID_HANDLE:
++		printk(KERN_ERR "PnPBIOS: %s: invalid handle\n", module);
++		break;
++	case PNP_BAD_PARAMETER:
++		printk(KERN_ERR "PnPBIOS: %s: invalid parameters were passed\n", module);
++		break;
++	case PNP_SET_FAILED:
++		printk(KERN_ERR "PnPBIOS: %s: unable to set resources\n", module);
++		break;
++	case PNP_EVENTS_NOT_PENDING:
++		printk(KERN_ERR "PnPBIOS: %s: no events are pending\n", module);
++		break;
++	case PNP_SYSTEM_NOT_DOCKED:
++		printk(KERN_ERR "PnPBIOS: %s: the system is not docked\n", module);
++		break;
++	case PNP_NO_ISA_PNP_CARDS:
++		printk(KERN_ERR "PnPBIOS: %s: no isapnp cards are installed on this system\n", module);
++		break;
++	case PNP_UNABLE_TO_DETERMINE_DOCK_CAPABILITIES:
++		printk(KERN_ERR "PnPBIOS: %s: cannot determine the capabilities of the docking station\n", module);
++		break;
++	case PNP_CONFIG_CHANGE_FAILED_NO_BATTERY:
++		printk(KERN_ERR "PnPBIOS: %s: unable to undock, the system does not have a battery\n", module);
++		break;
++	case PNP_CONFIG_CHANGE_FAILED_RESOURCE_CONFLICT:
++		printk(KERN_ERR "PnPBIOS: %s: could not dock due to resource conflicts\n", module);
++		break;
++	case PNP_BUFFER_TOO_SMALL:
++		printk(KERN_ERR "PnPBIOS: %s: the buffer passed is too small\n", module);
++		break;
++	case PNP_USE_ESCD_SUPPORT:
++		printk(KERN_ERR "PnPBIOS: %s: use ESCD instead\n", module);
++		break;
++	case PNP_MESSAGE_NOT_SUPPORTED:
++		printk(KERN_ERR "PnPBIOS: %s: the message is unsupported\n", module);
++		break;
++	case PNP_HARDWARE_ERROR:
++		printk(KERN_ERR "PnPBIOS: %s: a hardware failure has occured\n", module);
++		break;
++	default:
++		printk(KERN_ERR "PnPBIOS: %s: unexpected status 0x%x\n", module, status);
++		break;
++	}
++}
++
++
++/*
++ * PnP BIOS Low Level Calls
++ */
++
++#define PNP_GET_NUM_SYS_DEV_NODES		0x00
++#define PNP_GET_SYS_DEV_NODE			0x01
++#define PNP_SET_SYS_DEV_NODE			0x02
++#define PNP_GET_EVENT				0x03
++#define PNP_SEND_MESSAGE			0x04
++#define PNP_GET_DOCKING_STATION_INFORMATION	0x05
++#define PNP_SET_STATIC_ALLOCED_RES_INFO		0x09
++#define PNP_GET_STATIC_ALLOCED_RES_INFO		0x0a
++#define PNP_GET_APM_ID_TABLE			0x0b
++#define PNP_GET_PNP_ISA_CONFIG_STRUC		0x40
++#define PNP_GET_ESCD_INFO			0x41
++#define PNP_READ_ESCD				0x42
++#define PNP_WRITE_ESCD				0x43
++
++/*
++ * Call PnP BIOS with function 0x00, "get number of system device nodes"
++ */
++static int __pnp_bios_dev_node_info(struct pnp_dev_node_info *data)
++{
++	u16 status;
++	if (!pnp_bios_present())
++		return PNP_FUNCTION_NOT_SUPPORTED;
++	status = call_pnp_bios(PNP_GET_NUM_SYS_DEV_NODES, 0, PNP_TS1, 2, PNP_TS1, PNP_DS, 0, 0,
++			       data, sizeof(struct pnp_dev_node_info), 0, 0);
++	data->no_nodes &= 0xff;
++	return status;
++}
++
++int pnp_bios_dev_node_info(struct pnp_dev_node_info *data)
++{
++	int status = __pnp_bios_dev_node_info( data );
++	if ( status )
++		pnpbios_print_status( "dev_node_info", status );
++	return status;
++}
++
++/*
++ * Note that some PnP BIOSes (e.g., on Sony Vaio laptops) die a horrible
++ * death if they are asked to access the "current" configuration.
++ * Therefore, if it's a matter of indifference, it's better to call
++ * get_dev_node() and set_dev_node() with boot=1 rather than with boot=0.
++ */
++
++/* 
++ * Call PnP BIOS with function 0x01, "get system device node"
++ * Input: *nodenum = desired node,
++ *        boot = whether to get nonvolatile boot (!=0)
++ *               or volatile current (0) config
++ * Output: *nodenum=next node or 0xff if no more nodes
++ */
++static int __pnp_bios_get_dev_node(u8 *nodenum, char boot, struct pnp_bios_node *data)
++{
++	u16 status;
++	if (!pnp_bios_present())
++		return PNP_FUNCTION_NOT_SUPPORTED;
++	if ( !boot && pnpbios_dont_use_current_config )
++		return PNP_FUNCTION_NOT_SUPPORTED;
++	status = call_pnp_bios(PNP_GET_SYS_DEV_NODE, 0, PNP_TS1, 0, PNP_TS2, boot ? 2 : 1, PNP_DS, 0,
++			       nodenum, sizeof(char), data, 65536);
++	return status;
++}
++
++int pnp_bios_get_dev_node(u8 *nodenum, char boot, struct pnp_bios_node *data)
++{
++	int status;
++	status =  __pnp_bios_get_dev_node( nodenum, boot, data );
++	if ( status )
++		pnpbios_print_status( "get_dev_node", status );
++	return status;
++}
++
++
++/*
++ * Call PnP BIOS with function 0x02, "set system device node"
++ * Input: *nodenum = desired node, 
++ *        boot = whether to set nonvolatile boot (!=0)
++ *               or volatile current (0) config
++ */
++static int __pnp_bios_set_dev_node(u8 nodenum, char boot, struct pnp_bios_node *data)
++{
++	u16 status;
++	if (!pnp_bios_present())
++		return PNP_FUNCTION_NOT_SUPPORTED;
++	if ( !boot && pnpbios_dont_use_current_config )
++		return PNP_FUNCTION_NOT_SUPPORTED;
++	status = call_pnp_bios(PNP_SET_SYS_DEV_NODE, nodenum, 0, PNP_TS1, boot ? 2 : 1, PNP_DS, 0, 0,
++			       data, 65536, 0, 0);
++	return status;
++}
++
++int pnp_bios_set_dev_node(u8 nodenum, char boot, struct pnp_bios_node *data)
++{
++	int status;
++	status =  __pnp_bios_set_dev_node( nodenum, boot, data );
++	if ( status ) {
++		pnpbios_print_status( "set_dev_node", status );
++		return status;
++	}
++	if ( !boot ) { /* Update devlist */
++		status =  pnp_bios_get_dev_node( &nodenum, boot, data );
++		if ( status )
++			return status;
++	}
++	return status;
++}
++
++#if needed
++/*
++ * Call PnP BIOS with function 0x03, "get event"
++ */
++static int pnp_bios_get_event(u16 *event)
++{
++	u16 status;
++	if (!pnp_bios_present())
++		return PNP_FUNCTION_NOT_SUPPORTED;
++	status = call_pnp_bios(PNP_GET_EVENT, 0, PNP_TS1, PNP_DS, 0, 0 ,0 ,0,
++			       event, sizeof(u16), 0, 0);
++	return status;
++}
++#endif
++
++#if needed
++/*
++ * Call PnP BIOS with function 0x04, "send message"
++ */
++static int pnp_bios_send_message(u16 message)
++{
++	u16 status;
++	if (!pnp_bios_present())
++		return PNP_FUNCTION_NOT_SUPPORTED;
++	status = call_pnp_bios(PNP_SEND_MESSAGE, message, PNP_DS, 0, 0, 0, 0, 0, 0, 0, 0, 0);
++	return status;
++}
++#endif
++
++/*
++ * Call PnP BIOS with function 0x05, "get docking station information"
++ */
++int pnp_bios_dock_station_info(struct pnp_docking_station_info *data)
++{
++	u16 status;
++	if (!pnp_bios_present())
++		return PNP_FUNCTION_NOT_SUPPORTED;
++	status = call_pnp_bios(PNP_GET_DOCKING_STATION_INFORMATION, 0, PNP_TS1, PNP_DS, 0, 0, 0, 0,
++			       data, sizeof(struct pnp_docking_station_info), 0, 0);
++	return status;
++}
++
++#if needed
++/*
++ * Call PnP BIOS with function 0x09, "set statically allocated resource
++ * information"
++ */
++static int pnp_bios_set_stat_res(char *info)
++{
++	u16 status;
++	if (!pnp_bios_present())
++		return PNP_FUNCTION_NOT_SUPPORTED;
++	status = call_pnp_bios(PNP_SET_STATIC_ALLOCED_RES_INFO, 0, PNP_TS1, PNP_DS, 0, 0, 0, 0,
++			       info, *((u16 *) info), 0, 0);
++	return status;
++}
++#endif
++
++/*
++ * Call PnP BIOS with function 0x0a, "get statically allocated resource
++ * information"
++ */
++static int __pnp_bios_get_stat_res(char *info)
++{
++	u16 status;
++	if (!pnp_bios_present())
++		return PNP_FUNCTION_NOT_SUPPORTED;
++	status = call_pnp_bios(PNP_GET_STATIC_ALLOCED_RES_INFO, 0, PNP_TS1, PNP_DS, 0, 0, 0, 0,
++			       info, 65536, 0, 0);
++	return status;
++}
++
++int pnp_bios_get_stat_res(char *info)
++{
++	int status;
++	status = __pnp_bios_get_stat_res( info );
++	if ( status )
++		pnpbios_print_status( "get_stat_res", status );
++	return status;
++}
++
++#if needed
++/*
++ * Call PnP BIOS with function 0x0b, "get APM id table"
++ */
++static int pnp_bios_apm_id_table(char *table, u16 *size)
++{
++	u16 status;
++	if (!pnp_bios_present())
++		return PNP_FUNCTION_NOT_SUPPORTED;
++	status = call_pnp_bios(PNP_GET_APM_ID_TABLE, 0, PNP_TS2, 0, PNP_TS1, PNP_DS, 0, 0,
++			       table, *size, size, sizeof(u16));
++	return status;
++}
++#endif
++
++/*
++ * Call PnP BIOS with function 0x40, "get isa pnp configuration structure"
++ */
++static int __pnp_bios_isapnp_config(struct pnp_isa_config_struc *data)
++{
++	u16 status;
++	if (!pnp_bios_present())
++		return PNP_FUNCTION_NOT_SUPPORTED;
++	status = call_pnp_bios(PNP_GET_PNP_ISA_CONFIG_STRUC, 0, PNP_TS1, PNP_DS, 0, 0, 0, 0,
++			       data, sizeof(struct pnp_isa_config_struc), 0, 0);
++	return status;
++}
++
++int pnp_bios_isapnp_config(struct pnp_isa_config_struc *data)
++{
++	int status;
++	status = __pnp_bios_isapnp_config( data );
++	if ( status )
++		pnpbios_print_status( "isapnp_config", status );
++	return status;
++}
++
++/*
++ * Call PnP BIOS with function 0x41, "get ESCD info"
++ */
++static int __pnp_bios_escd_info(struct escd_info_struc *data)
++{
++	u16 status;
++	if (!pnp_bios_present())
++		return ESCD_FUNCTION_NOT_SUPPORTED;
++	status = call_pnp_bios(PNP_GET_ESCD_INFO, 0, PNP_TS1, 2, PNP_TS1, 4, PNP_TS1, PNP_DS,
++			       data, sizeof(struct escd_info_struc), 0, 0);
++	return status;
++}
++
++int pnp_bios_escd_info(struct escd_info_struc *data)
++{
++	int status;
++	status = __pnp_bios_escd_info( data );
++	if ( status )
++		pnpbios_print_status( "escd_info", status );
++	return status;
++}
++
++/*
++ * Call PnP BIOS function 0x42, "read ESCD"
++ * nvram_base is determined by calling escd_info
++ */
++static int __pnp_bios_read_escd(char *data, u32 nvram_base)
++{
++	u16 status;
++	if (!pnp_bios_present())
++		return ESCD_FUNCTION_NOT_SUPPORTED;
++	status = call_pnp_bios(PNP_READ_ESCD, 0, PNP_TS1, PNP_TS2, PNP_DS, 0, 0, 0,
++			       data, 65536, (void *)nvram_base, 65536);
++	return status;
++}
++
++int pnp_bios_read_escd(char *data, u32 nvram_base)
++{
++	int status;
++	status = __pnp_bios_read_escd( data, nvram_base );
++	if ( status )
++		pnpbios_print_status( "read_escd", status );
++	return status;
++}
++
++#if needed
++/*
++ * Call PnP BIOS function 0x43, "write ESCD"
++ */
++static int pnp_bios_write_escd(char *data, u32 nvram_base)
++{
++	u16 status;
++	if (!pnp_bios_present())
++		return ESCD_FUNCTION_NOT_SUPPORTED;
++	status = call_pnp_bios(PNP_WRITE_ESCD, 0, PNP_TS1, PNP_TS2, PNP_DS, 0, 0, 0,
++			       data, 65536, nvram_base, 65536);
++	return status;
++}
++#endif
++
++
++/*
++ * Probing and Initialization
++ */
++
++static void pnpbios_prepare_bios_calls(union pnp_bios_expansion_header *header)
++{
++	int i;
++	spin_lock_init(&pnp_bios_lock);
++	pnp_bios_callpoint.offset = header->fields.pm16offset;
++	pnp_bios_callpoint.segment = PNP_CS16;
++
++	set_base(bad_bios_desc, __va((unsigned long)0x40 << 4));
++	_set_limit((char *)&bad_bios_desc, 4095 - (0x40 << 4));
++	for(i=0; i < NR_CPUS; i++)
++	{
++		Q2_SET_SEL(i, PNP_CS32, &pnp_bios_callfunc, 64 * 1024);
++		Q_SET_SEL(i, PNP_CS16, header->fields.pm16cseg, 64 * 1024);
++		Q_SET_SEL(i, PNP_DS, header->fields.pm16dseg, 64 * 1024);
++	}
++}
++
++int pnpbios_probe_installation(void)
++{
++	union pnp_bios_expansion_header *check;
++	u8 sum;
++	int length, i;
++
++	printk(KERN_INFO "PnPBIOS: Scanning system for PnP BIOS support...\n");
++
++	/*
++ 	 * Search the defined area (0xf0000-0xffff0) for a valid PnP BIOS
++	 * structure and, if one is found, sets up the selectors and
++	 * entry points
++	 */
++	for (check = (union pnp_bios_expansion_header *) __va(0xf0000);
++	     check < (union pnp_bios_expansion_header *) __va(0xffff0);
++	     ((void *) (check)) += 16) {
++		if (check->fields.signature != PNP_SIGNATURE)
++			continue;
++		printk(KERN_INFO "PnPBIOS: Found PnP BIOS installation structure at 0x%p\n", check);
++		length = check->fields.length;
++		if (!length) {
++			printk(KERN_ERR "PnPBIOS: installation structure is invalid, skipping\n");
++			continue;
++		}
++		for (sum = 0, i = 0; i < length; i++)
++			sum += check->chars[i];
++		if (sum) {
++			printk(KERN_ERR "PnPBIOS: installation structure is corrupted, skipping\n");
++			continue;
++		}
++		if (check->fields.version < 0x10) {
++			printk(KERN_WARNING "PnPBIOS: PnP BIOS version %d.%d is not supported\n",
++			       check->fields.version >> 4,
++			       check->fields.version & 15);
++			continue;
++		}
++		printk(KERN_INFO "PnPBIOS: PnP BIOS version %d.%d, entry 0x%x:0x%x, dseg 0x%x\n",
++                       check->fields.version >> 4, check->fields.version & 15,
++		       check->fields.pm16cseg, check->fields.pm16offset,
++		       check->fields.pm16dseg);
++		pnp_bios_hdr = check;
++		pnpbios_prepare_bios_calls(check);
++		return 1;
++	}
++
++	printk(KERN_INFO "PnPBIOS: PnP BIOS support was not detected.\n");
++	return 0;
++}
+diff -Nru a/drivers/pnp/pnpbios/core.c b/drivers/pnp/pnpbios/core.c
+--- a/drivers/pnp/pnpbios/core.c	Tue Aug  5 21:24:45 2003
++++ b/drivers/pnp/pnpbios/core.c	Tue Aug  5 21:24:45 2003
+@@ -74,242 +74,8 @@
+  *
+  */
  
- 	/* set the initial values */
--	*flags = *flags | rule->flags | IORESOURCE_MEM;
-+	*flags |= rule->flags | IORESOURCE_MEM;
-+	*flags &=  ~IORESOURCE_UNSET;
+-/* PnP BIOS signature: "$PnP" */
+-#define PNP_SIGNATURE   (('$' << 0) + ('P' << 8) + ('n' << 16) + ('P' << 24))
+-
+-#pragma pack(1)
+-union pnp_bios_expansion_header {
+-	struct {
+-		u32 signature;    /* "$PnP" */
+-		u8 version;	  /* in BCD */
+-		u8 length;	  /* length in bytes, currently 21h */
+-		u16 control;	  /* system capabilities */
+-		u8 checksum;	  /* all bytes must add up to 0 */
+-
+-		u32 eventflag;    /* phys. address of the event flag */
+-		u16 rmoffset;     /* real mode entry point */
+-		u16 rmcseg;
+-		u16 pm16offset;   /* 16 bit protected mode entry */
+-		u32 pm16cseg;
+-		u32 deviceID;	  /* EISA encoded system ID or 0 */
+-		u16 rmdseg;	  /* real mode data segment */
+-		u32 pm16dseg;	  /* 16 bit pm data segment base */
+-	} fields;
+-	char chars[0x21];	  /* To calculate the checksum */
+-};
+-#pragma pack()
+-
+-static struct {
+-	u16	offset;
+-	u16	segment;
+-} pnp_bios_callpoint;
+-
+-static union pnp_bios_expansion_header * pnp_bios_hdr = NULL;
+ struct pnp_dev_node_info node_info;
  
- 	/* convert pnp flags to standard Linux flags */
- 	if (!(rule->flags & IORESOURCE_MEM_WRITEABLE))
-@@ -145,7 +147,8 @@
- 	flags = &dev->res.irq_resource[idx].flags;
- 
- 	/* set the initial values */
--	*flags = *flags | rule->flags | IORESOURCE_IRQ;
-+	*flags |= rule->flags | IORESOURCE_IRQ;
-+	*flags &=  ~IORESOURCE_UNSET;
- 
- 	if (!rule->map) {
- 		*flags |= IORESOURCE_DISABLED;
-@@ -190,7 +193,8 @@
- 	flags = &dev->res.dma_resource[idx].flags;
- 
- 	/* set the initial values */
--	*flags = *flags | rule->flags | IORESOURCE_DMA;
-+	*flags |= rule->flags | IORESOURCE_DMA;
-+	*flags &=  ~IORESOURCE_UNSET;
- 
- 	if (!rule->map) {
- 		*flags |= IORESOURCE_DISABLED;
-@@ -219,25 +223,25 @@
- 		table->irq_resource[idx].name = NULL;
- 		table->irq_resource[idx].start = -1;
- 		table->irq_resource[idx].end = -1;
--		table->irq_resource[idx].flags = IORESOURCE_AUTO;
-+		table->irq_resource[idx].flags = IORESOURCE_AUTO | IORESOURCE_UNSET;
- 	}
- 	for (idx = 0; idx < PNP_MAX_DMA; idx++) {
- 		table->dma_resource[idx].name = NULL;
- 		table->dma_resource[idx].start = -1;
- 		table->dma_resource[idx].end = -1;
--		table->dma_resource[idx].flags = IORESOURCE_AUTO;
-+		table->dma_resource[idx].flags = IORESOURCE_AUTO | IORESOURCE_UNSET;
- 	}
- 	for (idx = 0; idx < PNP_MAX_PORT; idx++) {
- 		table->port_resource[idx].name = NULL;
- 		table->port_resource[idx].start = 0;
- 		table->port_resource[idx].end = 0;
--		table->port_resource[idx].flags = IORESOURCE_AUTO;
-+		table->port_resource[idx].flags = IORESOURCE_AUTO | IORESOURCE_UNSET;
- 	}
- 	for (idx = 0; idx < PNP_MAX_MEM; idx++) {
- 		table->mem_resource[idx].name = NULL;
- 		table->mem_resource[idx].start = 0;
- 		table->mem_resource[idx].end = 0;
--		table->mem_resource[idx].flags = IORESOURCE_AUTO;
-+		table->mem_resource[idx].flags = IORESOURCE_AUTO | IORESOURCE_UNSET;
- 	}
+-/* The PnP BIOS entries in the GDT */
+-#define PNP_GDT    (GDT_ENTRY_PNPBIOS_BASE * 8)
+-
+-#define PNP_CS32   (PNP_GDT+0x00)	/* segment for calling fn */
+-#define PNP_CS16   (PNP_GDT+0x08)	/* code segment for BIOS */
+-#define PNP_DS     (PNP_GDT+0x10)	/* data segment for BIOS */
+-#define PNP_TS1    (PNP_GDT+0x18)	/* transfer data segment */
+-#define PNP_TS2    (PNP_GDT+0x20)	/* another data segment */
+-
+-/* 
+- * These are some opcodes for a "static asmlinkage"
+- * As this code is *not* executed inside the linux kernel segment, but in a
+- * alias at offset 0, we need a far return that can not be compiled by
+- * default (please, prove me wrong! this is *really* ugly!) 
+- * This is the only way to get the bios to return into the kernel code,
+- * because the bios code runs in 16 bit protected mode and therefore can only
+- * return to the caller if the call is within the first 64kB, and the linux
+- * kernel begins at offset 3GB...
+- */
+-
+-asmlinkage void pnp_bios_callfunc(void);
+-
+-__asm__(
+-	".text			\n"
+-	__ALIGN_STR "\n"
+-	"pnp_bios_callfunc:\n"
+-	"	pushl %edx	\n"
+-	"	pushl %ecx	\n"
+-	"	pushl %ebx	\n"
+-	"	pushl %eax	\n"
+-	"	lcallw *pnp_bios_callpoint\n"
+-	"	addl $16, %esp	\n"
+-	"	lret		\n"
+-	".previous		\n"
+-);
+-
+-#define Q_SET_SEL(cpu, selname, address, size) \
+-do { \
+-set_base(cpu_gdt_table[cpu][(selname) >> 3], __va((u32)(address))); \
+-set_limit(cpu_gdt_table[cpu][(selname) >> 3], size); \
+-} while(0)
+-
+-#define Q2_SET_SEL(cpu, selname, address, size) \
+-do { \
+-set_base(cpu_gdt_table[cpu][(selname) >> 3], (u32)(address)); \
+-set_limit(cpu_gdt_table[cpu][(selname) >> 3], size); \
+-} while(0)
+-
+-static struct desc_struct bad_bios_desc = { 0, 0x00409200 };
+-
+-/*
+- * At some point we want to use this stack frame pointer to unwind
+- * after PnP BIOS oopses.
+- */
+-
+-u32 pnp_bios_fault_esp;
+-u32 pnp_bios_fault_eip;
+-u32 pnp_bios_is_utter_crap = 0;
+-
+-static spinlock_t pnp_bios_lock;
+-
+-static inline u16 call_pnp_bios(u16 func, u16 arg1, u16 arg2, u16 arg3,
+-				u16 arg4, u16 arg5, u16 arg6, u16 arg7,
+-				void *ts1_base, u32 ts1_size,
+-				void *ts2_base, u32 ts2_size)
+-{
+-	unsigned long flags;
+-	u16 status;
+-	struct desc_struct save_desc_40;
+-	int cpu;
+-
+-	/*
+-	 * PnP BIOSes are generally not terribly re-entrant.
+-	 * Also, don't rely on them to save everything correctly.
+-	 */
+-	if(pnp_bios_is_utter_crap)
+-		return PNP_FUNCTION_NOT_SUPPORTED;
+-
+-	cpu = get_cpu();
+-	save_desc_40 = cpu_gdt_table[cpu][0x40 / 8];
+-	cpu_gdt_table[cpu][0x40 / 8] = bad_bios_desc;
+-
+-	/* On some boxes IRQ's during PnP BIOS calls are deadly.  */
+-	spin_lock_irqsave(&pnp_bios_lock, flags);
+-
+-	/* The lock prevents us bouncing CPU here */
+-	if (ts1_size)
+-		Q2_SET_SEL(smp_processor_id(), PNP_TS1, ts1_base, ts1_size);
+-	if (ts2_size)
+-		Q2_SET_SEL(smp_processor_id(), PNP_TS2, ts2_base, ts2_size);
+-
+-	__asm__ __volatile__(
+-	        "pushl %%ebp\n\t"
+-		"pushl %%edi\n\t"
+-		"pushl %%esi\n\t"
+-		"pushl %%ds\n\t"
+-		"pushl %%es\n\t"
+-		"pushl %%fs\n\t"
+-		"pushl %%gs\n\t"
+-		"pushfl\n\t"
+-		"movl %%esp, pnp_bios_fault_esp\n\t"
+-		"movl $1f, pnp_bios_fault_eip\n\t"
+-		"lcall %5,%6\n\t"
+-		"1:popfl\n\t"
+-		"popl %%gs\n\t"
+-		"popl %%fs\n\t"
+-		"popl %%es\n\t"
+-		"popl %%ds\n\t"
+-	        "popl %%esi\n\t"
+-		"popl %%edi\n\t"
+-		"popl %%ebp\n\t"
+-		: "=a" (status)
+-		: "0" ((func) | (((u32)arg1) << 16)),
+-		  "b" ((arg2) | (((u32)arg3) << 16)),
+-		  "c" ((arg4) | (((u32)arg5) << 16)),
+-		  "d" ((arg6) | (((u32)arg7) << 16)),
+-		  "i" (PNP_CS32),
+-		  "i" (0)
+-		: "memory"
+-	);
+-	spin_unlock_irqrestore(&pnp_bios_lock, flags);
+-
+-	cpu_gdt_table[cpu][0x40 / 8] = save_desc_40;
+-	put_cpu();
+-	
+-	/* If we get here and this is set then the PnP BIOS faulted on us. */
+-	if(pnp_bios_is_utter_crap)
+-	{
+-		printk(KERN_ERR "PnPBIOS: Warning! Your PnP BIOS caused a fatal error. Attempting to continue\n");
+-		printk(KERN_ERR "PnPBIOS: You may need to reboot with the \"nobiospnp\" option to operate stably\n");
+-		printk(KERN_ERR "PnPBIOS: Check with your vendor for an updated BIOS\n");
+-	}
+-
+-	return status;
+-}
+-
+-
+-/*
+- *
+- * UTILITY FUNCTIONS
+- *
+- */
+-
+-static void pnpbios_print_status(const char * module, u16 status)
+-{
+-	switch(status) {
+-	case PNP_SUCCESS:
+-		printk(KERN_ERR "PnPBIOS: %s: function successful\n", module);
+-		break;
+-	case PNP_NOT_SET_STATICALLY:
+-		printk(KERN_ERR "PnPBIOS: %s: unable to set static resources\n", module);
+-		break;
+-	case PNP_UNKNOWN_FUNCTION:
+-		printk(KERN_ERR "PnPBIOS: %s: invalid function number passed\n", module);
+-		break;
+-	case PNP_FUNCTION_NOT_SUPPORTED:
+-		printk(KERN_ERR "PnPBIOS: %s: function not supported on this system\n", module);
+-		break;
+-	case PNP_INVALID_HANDLE:
+-		printk(KERN_ERR "PnPBIOS: %s: invalid handle\n", module);
+-		break;
+-	case PNP_BAD_PARAMETER:
+-		printk(KERN_ERR "PnPBIOS: %s: invalid parameters were passed\n", module);
+-		break;
+-	case PNP_SET_FAILED:
+-		printk(KERN_ERR "PnPBIOS: %s: unable to set resources\n", module);
+-		break;
+-	case PNP_EVENTS_NOT_PENDING:
+-		printk(KERN_ERR "PnPBIOS: %s: no events are pending\n", module);
+-		break;
+-	case PNP_SYSTEM_NOT_DOCKED:
+-		printk(KERN_ERR "PnPBIOS: %s: the system is not docked\n", module);
+-		break;
+-	case PNP_NO_ISA_PNP_CARDS:
+-		printk(KERN_ERR "PnPBIOS: %s: no isapnp cards are installed on this system\n", module);
+-		break;
+-	case PNP_UNABLE_TO_DETERMINE_DOCK_CAPABILITIES:
+-		printk(KERN_ERR "PnPBIOS: %s: cannot determine the capabilities of the docking station\n", module);
+-		break;
+-	case PNP_CONFIG_CHANGE_FAILED_NO_BATTERY:
+-		printk(KERN_ERR "PnPBIOS: %s: unable to undock, the system does not have a battery\n", module);
+-		break;
+-	case PNP_CONFIG_CHANGE_FAILED_RESOURCE_CONFLICT:
+-		printk(KERN_ERR "PnPBIOS: %s: could not dock due to resource conflicts\n", module);
+-		break;
+-	case PNP_BUFFER_TOO_SMALL:
+-		printk(KERN_ERR "PnPBIOS: %s: the buffer passed is too small\n", module);
+-		break;
+-	case PNP_USE_ESCD_SUPPORT:
+-		printk(KERN_ERR "PnPBIOS: %s: use ESCD instead\n", module);
+-		break;
+-	case PNP_MESSAGE_NOT_SUPPORTED:
+-		printk(KERN_ERR "PnPBIOS: %s: the message is unsupported\n", module);
+-		break;
+-	case PNP_HARDWARE_ERROR:
+-		printk(KERN_ERR "PnPBIOS: %s: a hardware failure has occured\n", module);
+-		break;
+-	default:
+-		printk(KERN_ERR "PnPBIOS: %s: unexpected status 0x%x\n", module, status);
+-		break;
+-	}
+-}
+-
+ void *pnpbios_kmalloc(size_t size, int f)
+ {
+ 	void *p = kmalloc( size, f );
+@@ -321,308 +87,6 @@
  }
  
-@@ -254,28 +258,28 @@
- 			continue;
- 		res->irq_resource[idx].start = -1;
- 		res->irq_resource[idx].end = -1;
--		res->irq_resource[idx].flags = IORESOURCE_AUTO;
-+		res->irq_resource[idx].flags = IORESOURCE_AUTO | IORESOURCE_UNSET;
+ /*
+- * Call this only after init time
+- */
+-static int pnp_bios_present(void)
+-{
+-	return (pnp_bios_hdr != NULL);
+-}
+-
+-
+-/*
+- *
+- * PnP BIOS ACCESS FUNCTIONS
+- *
+- */
+-
+-#define PNP_GET_NUM_SYS_DEV_NODES       0x00
+-#define PNP_GET_SYS_DEV_NODE            0x01
+-#define PNP_SET_SYS_DEV_NODE            0x02
+-#define PNP_GET_EVENT                   0x03
+-#define PNP_SEND_MESSAGE                0x04
+-#define PNP_GET_DOCKING_STATION_INFORMATION 0x05
+-#define PNP_SET_STATIC_ALLOCED_RES_INFO 0x09
+-#define PNP_GET_STATIC_ALLOCED_RES_INFO 0x0a
+-#define PNP_GET_APM_ID_TABLE            0x0b
+-#define PNP_GET_PNP_ISA_CONFIG_STRUC    0x40
+-#define PNP_GET_ESCD_INFO               0x41
+-#define PNP_READ_ESCD                   0x42
+-#define PNP_WRITE_ESCD                  0x43
+-
+-/*
+- * Call PnP BIOS with function 0x00, "get number of system device nodes"
+- */
+-static int __pnp_bios_dev_node_info(struct pnp_dev_node_info *data)
+-{
+-	u16 status;
+-	if (!pnp_bios_present())
+-		return PNP_FUNCTION_NOT_SUPPORTED;
+-	status = call_pnp_bios(PNP_GET_NUM_SYS_DEV_NODES, 0, PNP_TS1, 2, PNP_TS1, PNP_DS, 0, 0,
+-			       data, sizeof(struct pnp_dev_node_info), 0, 0);
+-	data->no_nodes &= 0xff;
+-	return status;
+-}
+-
+-int pnp_bios_dev_node_info(struct pnp_dev_node_info *data)
+-{
+-	int status = __pnp_bios_dev_node_info( data );
+-	if ( status )
+-		pnpbios_print_status( "dev_node_info", status );
+-	return status;
+-}
+-
+-/*
+- * Note that some PnP BIOSes (e.g., on Sony Vaio laptops) die a horrible
+- * death if they are asked to access the "current" configuration.
+- * Therefore, if it's a matter of indifference, it's better to call
+- * get_dev_node() and set_dev_node() with boot=1 rather than with boot=0.
+- */
+-
+-/* 
+- * Call PnP BIOS with function 0x01, "get system device node"
+- * Input: *nodenum = desired node, 
+- *        boot = whether to get nonvolatile boot (!=0)
+- *               or volatile current (0) config
+- * Output: *nodenum=next node or 0xff if no more nodes
+- */
+-static int __pnp_bios_get_dev_node(u8 *nodenum, char boot, struct pnp_bios_node *data)
+-{
+-	u16 status;
+-	if (!pnp_bios_present())
+-		return PNP_FUNCTION_NOT_SUPPORTED;
+-	if ( !boot && pnpbios_dont_use_current_config )
+-		return PNP_FUNCTION_NOT_SUPPORTED;
+-	status = call_pnp_bios(PNP_GET_SYS_DEV_NODE, 0, PNP_TS1, 0, PNP_TS2, boot ? 2 : 1, PNP_DS, 0,
+-			       nodenum, sizeof(char), data, 65536);
+-	return status;
+-}
+-
+-int pnp_bios_get_dev_node(u8 *nodenum, char boot, struct pnp_bios_node *data)
+-{
+-	int status;
+-	status =  __pnp_bios_get_dev_node( nodenum, boot, data );
+-	if ( status )
+-		pnpbios_print_status( "get_dev_node", status );
+-	return status;
+-}
+-
+-
+-/*
+- * Call PnP BIOS with function 0x02, "set system device node"
+- * Input: *nodenum = desired node, 
+- *        boot = whether to set nonvolatile boot (!=0)
+- *               or volatile current (0) config
+- */
+-static int __pnp_bios_set_dev_node(u8 nodenum, char boot, struct pnp_bios_node *data)
+-{
+-	u16 status;
+-	if (!pnp_bios_present())
+-		return PNP_FUNCTION_NOT_SUPPORTED;
+-	if ( !boot && pnpbios_dont_use_current_config )
+-		return PNP_FUNCTION_NOT_SUPPORTED;
+-	status = call_pnp_bios(PNP_SET_SYS_DEV_NODE, nodenum, 0, PNP_TS1, boot ? 2 : 1, PNP_DS, 0, 0,
+-			       data, 65536, 0, 0);
+-	return status;
+-}
+-
+-int pnp_bios_set_dev_node(u8 nodenum, char boot, struct pnp_bios_node *data)
+-{
+-	int status;
+-	status =  __pnp_bios_set_dev_node( nodenum, boot, data );
+-	if ( status ) {
+-		pnpbios_print_status( "set_dev_node", status );
+-		return status;
+-	}
+-	if ( !boot ) { /* Update devlist */
+-		status =  pnp_bios_get_dev_node( &nodenum, boot, data );
+-		if ( status )
+-			return status;
+-	}
+-	return status;
+-}
+-
+-#if needed
+-/*
+- * Call PnP BIOS with function 0x03, "get event"
+- */
+-static int pnp_bios_get_event(u16 *event)
+-{
+-	u16 status;
+-	if (!pnp_bios_present())
+-		return PNP_FUNCTION_NOT_SUPPORTED;
+-	status = call_pnp_bios(PNP_GET_EVENT, 0, PNP_TS1, PNP_DS, 0, 0 ,0 ,0,
+-			       event, sizeof(u16), 0, 0);
+-	return status;
+-}
+-#endif
+-
+-#if needed
+-/* 
+- * Call PnP BIOS with function 0x04, "send message"
+- */
+-static int pnp_bios_send_message(u16 message)
+-{
+-	u16 status;
+-	if (!pnp_bios_present())
+-		return PNP_FUNCTION_NOT_SUPPORTED;
+-	status = call_pnp_bios(PNP_SEND_MESSAGE, message, PNP_DS, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+-	return status;
+-}
+-#endif
+-
+-#ifdef CONFIG_HOTPLUG
+-/*
+- * Call PnP BIOS with function 0x05, "get docking station information"
+- */
+-static int pnp_bios_dock_station_info(struct pnp_docking_station_info *data)
+-{
+-	u16 status;
+-	if (!pnp_bios_present())
+-		return PNP_FUNCTION_NOT_SUPPORTED;
+-	status = call_pnp_bios(PNP_GET_DOCKING_STATION_INFORMATION, 0, PNP_TS1, PNP_DS, 0, 0, 0, 0,
+-			       data, sizeof(struct pnp_docking_station_info), 0, 0);
+-	return status;
+-}
+-#endif
+-
+-#if needed
+-/*
+- * Call PnP BIOS with function 0x09, "set statically allocated resource
+- * information"
+- */
+-static int pnp_bios_set_stat_res(char *info)
+-{
+-	u16 status;
+-	if (!pnp_bios_present())
+-		return PNP_FUNCTION_NOT_SUPPORTED;
+-	status = call_pnp_bios(PNP_SET_STATIC_ALLOCED_RES_INFO, 0, PNP_TS1, PNP_DS, 0, 0, 0, 0,
+-			       info, *((u16 *) info), 0, 0);
+-	return status;
+-}
+-#endif
+-
+-/*
+- * Call PnP BIOS with function 0x0a, "get statically allocated resource
+- * information"
+- */
+-static int __pnp_bios_get_stat_res(char *info)
+-{
+-	u16 status;
+-	if (!pnp_bios_present())
+-		return PNP_FUNCTION_NOT_SUPPORTED;
+-	status = call_pnp_bios(PNP_GET_STATIC_ALLOCED_RES_INFO, 0, PNP_TS1, PNP_DS, 0, 0, 0, 0,
+-			       info, 65536, 0, 0);
+-	return status;
+-}
+-
+-int pnp_bios_get_stat_res(char *info)
+-{
+-	int status;
+-	status = __pnp_bios_get_stat_res( info );
+-	if ( status )
+-		pnpbios_print_status( "get_stat_res", status );
+-	return status;
+-}
+-
+-#if needed
+-/*
+- * Call PnP BIOS with function 0x0b, "get APM id table"
+- */
+-static int pnp_bios_apm_id_table(char *table, u16 *size)
+-{
+-	u16 status;
+-	if (!pnp_bios_present())
+-		return PNP_FUNCTION_NOT_SUPPORTED;
+-	status = call_pnp_bios(PNP_GET_APM_ID_TABLE, 0, PNP_TS2, 0, PNP_TS1, PNP_DS, 0, 0,
+-			       table, *size, size, sizeof(u16));
+-	return status;
+-}
+-#endif
+-
+-/*
+- * Call PnP BIOS with function 0x40, "get isa pnp configuration structure"
+- */
+-static int __pnp_bios_isapnp_config(struct pnp_isa_config_struc *data)
+-{
+-	u16 status;
+-	if (!pnp_bios_present())
+-		return PNP_FUNCTION_NOT_SUPPORTED;
+-	status = call_pnp_bios(PNP_GET_PNP_ISA_CONFIG_STRUC, 0, PNP_TS1, PNP_DS, 0, 0, 0, 0,
+-			       data, sizeof(struct pnp_isa_config_struc), 0, 0);
+-	return status;
+-}
+-
+-int pnp_bios_isapnp_config(struct pnp_isa_config_struc *data)
+-{
+-	int status;
+-	status = __pnp_bios_isapnp_config( data );
+-	if ( status )
+-		pnpbios_print_status( "isapnp_config", status );
+-	return status;
+-}
+-
+-/*
+- * Call PnP BIOS with function 0x41, "get ESCD info"
+- */
+-static int __pnp_bios_escd_info(struct escd_info_struc *data)
+-{
+-	u16 status;
+-	if (!pnp_bios_present())
+-		return ESCD_FUNCTION_NOT_SUPPORTED;
+-	status = call_pnp_bios(PNP_GET_ESCD_INFO, 0, PNP_TS1, 2, PNP_TS1, 4, PNP_TS1, PNP_DS,
+-			       data, sizeof(struct escd_info_struc), 0, 0);
+-	return status;
+-}
+-
+-int pnp_bios_escd_info(struct escd_info_struc *data)
+-{
+-	int status;
+-	status = __pnp_bios_escd_info( data );
+-	if ( status )
+-		pnpbios_print_status( "escd_info", status );
+-	return status;
+-}
+-
+-/*
+- * Call PnP BIOS function 0x42, "read ESCD"
+- * nvram_base is determined by calling escd_info
+- */
+-static int __pnp_bios_read_escd(char *data, u32 nvram_base)
+-{
+-	u16 status;
+-	if (!pnp_bios_present())
+-		return ESCD_FUNCTION_NOT_SUPPORTED;
+-	status = call_pnp_bios(PNP_READ_ESCD, 0, PNP_TS1, PNP_TS2, PNP_DS, 0, 0, 0,
+-			       data, 65536, (void *)nvram_base, 65536);
+-	return status;
+-}
+-
+-int pnp_bios_read_escd(char *data, u32 nvram_base)
+-{
+-	int status;
+-	status = __pnp_bios_read_escd( data, nvram_base );
+-	if ( status )
+-		pnpbios_print_status( "read_escd", status );
+-	return status;
+-}
+-
+-#if needed
+-/*
+- * Call PnP BIOS function 0x43, "write ESCD"
+- */
+-static int pnp_bios_write_escd(char *data, u32 nvram_base)
+-{
+-	u16 status;
+-	if (!pnp_bios_present())
+-		return ESCD_FUNCTION_NOT_SUPPORTED;
+-	status = call_pnp_bios(PNP_WRITE_ESCD, 0, PNP_TS1, PNP_TS2, PNP_DS, 0, 0, 0,
+-			       data, 65536, nvram_base, 65536);
+-	return status;
+-}
+-#endif
+-
+-
+-/*
+  *
+  * DOCKING FUNCTIONS
+  *
+@@ -874,15 +338,8 @@
+ 	unsigned int nodes_got = 0;
+ 	unsigned int devs = 0;
+ 	struct pnp_bios_node *node;
+-	struct pnp_dev_node_info node_info;
+ 	struct pnp_dev *dev;
+ 
+-	if (!pnp_bios_present())
+-		return;
+-
+-	if (pnp_bios_dev_node_info(&node_info) != 0)
+-		return;
+-
+ 	node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
+ 	if (!node)
+ 		return;
+@@ -957,68 +414,15 @@
+ 
+ int __init pnpbios_init(void)
+ {
+-	union pnp_bios_expansion_header *check;
+-	u8 sum;
+-	int i, length, r;
+-
+-	spin_lock_init(&pnp_bios_lock);
+-
++	int ret;
+ 	if(pnpbios_disabled || (dmi_broken & BROKEN_PNP_BIOS)) {
+ 		printk(KERN_INFO "PnPBIOS: Disabled\n");
+ 		return -ENODEV;
+-	} else
+-		printk(KERN_INFO "PnPBIOS: Scanning system for PnP BIOS support...\n");
+-
+-	/*
+- 	 * Search the defined area (0xf0000-0xffff0) for a valid PnP BIOS
+-	 * structure and, if one is found, sets up the selectors and
+-	 * entry points
+-	 */
+-	for (check = (union pnp_bios_expansion_header *) __va(0xf0000);
+-	     check < (union pnp_bios_expansion_header *) __va(0xffff0);
+-	     ((void *) (check)) += 16) {
+-		if (check->fields.signature != PNP_SIGNATURE)
+-			continue;
+-		length = check->fields.length;
+-		if (!length)
+-			continue;
+-		for (sum = 0, i = 0; i < length; i++)
+-			sum += check->chars[i];
+-		if (sum)
+-			continue;
+-		if (check->fields.version < 0x10) {
+-			printk(KERN_WARNING "PnPBIOS: PnP BIOS version %d.%d is not supported\n",
+-			       check->fields.version >> 4,
+-			       check->fields.version & 15);
+-			continue;
+-		}
+-		printk(KERN_INFO "PnPBIOS: Found PnP BIOS installation structure at 0x%p\n", check);
+-		printk(KERN_INFO "PnPBIOS: PnP BIOS version %d.%d, entry 0x%x:0x%x, dseg 0x%x\n",
+-                       check->fields.version >> 4, check->fields.version & 15,
+-		       check->fields.pm16cseg, check->fields.pm16offset,
+-		       check->fields.pm16dseg);
+-		pnp_bios_callpoint.offset = check->fields.pm16offset;
+-		pnp_bios_callpoint.segment = PNP_CS16;
+-		pnp_bios_hdr = check;
+-
+-		set_base(bad_bios_desc, __va((unsigned long)0x40 << 4));
+-		_set_limit((char *)&bad_bios_desc, 4095 - (0x40 << 4));
+-		for(i=0; i < NR_CPUS; i++)
+-		{
+-			Q2_SET_SEL(i, PNP_CS32, &pnp_bios_callfunc, 64 * 1024);
+-			Q_SET_SEL(i, PNP_CS16, check->fields.pm16cseg, 64 * 1024);
+-			Q_SET_SEL(i, PNP_DS, check->fields.pm16dseg, 64 * 1024);
+-		}
+-		break;
+-	}
+-	if (!pnp_bios_present()) {
+-		printk(KERN_INFO "PnPBIOS: A PnP BIOS was not detected.\n");
+-		return -ENODEV;
  	}
- 	for (idx = 0; idx < PNP_MAX_DMA; idx++) {
- 		if (!(res->dma_resource[idx].flags & IORESOURCE_AUTO))
- 			continue;
- 		res->dma_resource[idx].start = -1;
- 		res->dma_resource[idx].end = -1;
--		res->dma_resource[idx].flags = IORESOURCE_AUTO;
-+		res->dma_resource[idx].flags = IORESOURCE_AUTO | IORESOURCE_UNSET;
- 	}
- 	for (idx = 0; idx < PNP_MAX_PORT; idx++) {
- 		if (!(res->port_resource[idx].flags & IORESOURCE_AUTO))
- 			continue;
- 		res->port_resource[idx].start = 0;
- 		res->port_resource[idx].end = 0;
--		res->port_resource[idx].flags = IORESOURCE_AUTO;
-+		res->port_resource[idx].flags = IORESOURCE_AUTO | IORESOURCE_UNSET;
- 	}
- 	for (idx = 0; idx < PNP_MAX_MEM; idx++) {
- 		if (!(res->mem_resource[idx].flags & IORESOURCE_AUTO))
- 			continue;
- 		res->mem_resource[idx].start = 0;
- 		res->mem_resource[idx].end = 0;
--		res->mem_resource[idx].flags = IORESOURCE_AUTO;
-+		res->mem_resource[idx].flags = IORESOURCE_AUTO | IORESOURCE_UNSET;
- 	}
- }
  
-diff -Nru a/drivers/pnp/resource.c b/drivers/pnp/resource.c
---- a/drivers/pnp/resource.c	Tue Aug  5 21:25:12 2003
-+++ b/drivers/pnp/resource.c	Tue Aug  5 21:25:12 2003
-@@ -252,7 +252,7 @@
- 	end = &dev->res.port_resource[idx].end;
+-	/*
+-	 * we found a pnpbios, now let's load the rest of the driver
+-	 */
++	/* scan the system for pnpbios support */
++	if (!pnpbios_probe_installation())
++		return -ENODEV;
  
- 	/* if the resource doesn't exist, don't complain about it */
--	if (dev->res.port_resource[idx].start == 0)
-+	if (dev->res.port_resource[idx].flags & IORESOURCE_UNSET)
- 		return 1;
+ 	/* read the node info */
+ 	if (pnp_bios_dev_node_info(&node_info)) {
+@@ -1031,9 +435,9 @@
  
- 	/* check if the resource is already in use, skip if the
-@@ -308,7 +308,7 @@
- 	end = &dev->res.mem_resource[idx].end;
+ #ifdef CONFIG_PROC_FS
+ 	/* start the proc interface */
+-	r = pnpbios_proc_init();
+-	if (r)
+-		return r;
++	ret = pnpbios_proc_init();
++	if (ret)
++		return ret;
+ #endif
  
- 	/* if the resource doesn't exist, don't complain about it */
--	if (dev->res.mem_resource[idx].start == 0)
-+	if (dev->res.mem_resource[idx].flags & IORESOURCE_UNSET)
- 		return 1;
- 
- 	/* check if the resource is already in use, skip if the
-@@ -367,7 +367,7 @@
- 	unsigned long * irq = &dev->res.irq_resource[idx].start;
- 
- 	/* if the resource doesn't exist, don't complain about it */
--	if (dev->res.irq_resource[idx].start == -1)
-+	if (dev->res.irq_resource[idx].flags & IORESOURCE_UNSET)
- 		return 1;
- 
- 	/* check if the resource is valid */
-@@ -431,7 +431,7 @@
- 	unsigned long * dma = &dev->res.dma_resource[idx].start;
- 
- 	/* if the resource doesn't exist, don't complain about it */
--	if (dev->res.dma_resource[idx].start == -1)
-+	if (dev->res.dma_resource[idx].flags & IORESOURCE_UNSET)
- 		return 1;
- 
- 	/* check if the resource is valid */
+ 	/* scan for pnpbios devices */
+diff -Nru a/drivers/pnp/pnpbios/pnpbios.h b/drivers/pnp/pnpbios/pnpbios.h
+--- a/drivers/pnp/pnpbios/pnpbios.h	Tue Aug  5 21:24:45 2003
++++ b/drivers/pnp/pnpbios/pnpbios.h	Tue Aug  5 21:24:45 2003
+@@ -6,3 +6,6 @@
+ extern int pnpbios_read_resources_from_node(struct pnp_resource_table *res, struct pnp_bios_node * node);
+ extern int pnpbios_write_resources_to_node(struct pnp_resource_table *res, struct pnp_bios_node * node);
+ extern void pnpid32_to_pnpid(u32 id, char *str);
++
++extern void pnpbios_print_status(const char * module, u16 status);
++extern int pnpbios_probe_installation(void);
+diff -Nru a/include/linux/pnpbios.h b/include/linux/pnpbios.h
+--- a/include/linux/pnpbios.h	Tue Aug  5 21:24:45 2003
++++ b/include/linux/pnpbios.h	Tue Aug  5 21:24:45 2003
+@@ -146,6 +146,7 @@
+ extern int pnp_bios_isapnp_config (struct pnp_isa_config_struc *data);
+ extern int pnp_bios_escd_info (struct escd_info_struc *data);
+ extern int pnp_bios_read_escd (char *data, u32 nvram_base);
++extern int pnp_bios_dock_station_info(struct pnp_docking_station_info *data);
+ #if needed
+ extern int pnp_bios_get_event (u16 *message);
+ extern int pnp_bios_send_message (u16 message);

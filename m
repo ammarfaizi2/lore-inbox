@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262300AbUBXRAH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 12:00:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbUBXRAH
+	id S262304AbUBXRA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 12:00:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbUBXRA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 12:00:07 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:45192 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S262300AbUBXRAC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 12:00:02 -0500
-Date: Tue, 24 Feb 2004 17:59:43 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: sandr8@crocetta.org, Gautam Pagedar <gautam@cins.unipune.ernet.in>,
-       linux-kernel@vger.kernel.org
-Subject: Re: can i modify ls
-Message-ID: <20040224165943.GB24370@louise.pinerecords.com>
-References: <005601c3fd75$1c681510$8c01080a@crayii> <403B7402.2000008@universitari.crocetta.org> <20040224163530.GA24370@louise.pinerecords.com> <Pine.LNX.4.53.0402241139580.532@chaos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0402241139580.532@chaos>
-User-Agent: Mutt/1.4.2i
+	Tue, 24 Feb 2004 12:00:56 -0500
+Received: from fw.osdl.org ([65.172.181.6]:5308 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262304AbUBXRAx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 12:00:53 -0500
+From: john cherry <cherry@osdl.org>
+Date: Tue, 24 Feb 2004 09:00:51 -0800
+Message-Id: <200402241700.i1OH0pA08275@build-000.pdx.osdl.net>
+To: linux-kernel@vger.kernel.org
+Subject: IA64 (2.6.3 - 2004-02-23.17.30) - 30 New warnings (gcc 3.3.1)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb-24 2004, Tue, 11:44 -0500
-Richard B. Johnson <root@chaos.analogic.com> wrote:
-
-> On Tue, 24 Feb 2004, Tomas Szepe wrote:
-> 
-> > On Feb-24 2004, Tue, 15:55 +0000
-> > Alessandro Salvatori <a.salvatori@universitari.crocetta.org> wrote:
-> >
-> > > it's quite interesting...
-> >
-> > Actually, it's not.
-> >
-> > 1) The presence/absence of the read permission on a directory determines
-> > 	whether the user will be able to list the directory's contents.
-> >
-> > 2) The fs permission model is enforced by the kernel.  Trying to impose
-> > 	additional restrictions in userspace is fragile, futile and
-> > 	an incredibly stupid idea.
-> 
-> If you don't have any programming tools and no access to any (like
-> a banking or restrictive office environment), and there is no
-> way to get any external executable files to run, i.e., no floppy
-> or no shell that could possibly access one, then writing a minimal
-> 'ls' program that allows the clerk to see what's in her directory
-> might be useful.
-
-So what is it exactly that prevents the admin from running /bin/chmod
-in the setup you're describing?
-
--- 
-Tomas Szepe <szepe@pinerecords.com>
+drivers/isdn/i4l/isdn_v110.c:523: warning: `ret' might be used uninitialized in this function
+kernel/sys.c:255: warning: function declaration isn't a prototype
+kernel/sys.c:256: warning: function declaration isn't a prototype
+kernel/sys.c:257: warning: function declaration isn't a prototype
+kernel/sys.c:258: warning: function declaration isn't a prototype
+kernel/sys.c:259: warning: function declaration isn't a prototype
+kernel/sys.c:260: warning: function declaration isn't a prototype
+kernel/sys.c:261: warning: function declaration isn't a prototype
+kernel/sys.c:262: warning: function declaration isn't a prototype
+kernel/sys.c:265: warning: function declaration isn't a prototype
+kernel/sys.c:266: warning: function declaration isn't a prototype
+kernel/sys.c:267: warning: function declaration isn't a prototype
+{standard input}:24118: Warning: This is the location of the conflicting usage
+{standard input}:24120: Warning: Only the first path encountering the conflict is reported
+{standard input}:24120: Warning: Use of 'mov' may violate WAW dependency 'GR%, % in 1 - 127' (impliedf), specific resource number is 14
+{standard input}:24968: Warning: This is the location of the conflicting usage
+{standard input}:24970: Warning: Only the first path encountering the conflict is reported
+{standard input}:24970: Warning: Use of 'mov' may violate WAW dependency 'GR%, % in 1 - 127' (impliedf), specific resource number is 14
+{standard input}:25721: Warning: This is the location of the conflicting usage
+{standard input}:25723: Warning: Only the first path encountering the conflict is reported
+{standard input}:25723: Warning: Use of 'mov' may violate WAW dependency 'GR%, % in 1 - 127' (impliedf), specific resource number is 14
+{standard input}:26616: Warning: This is the location of the conflicting usage
+{standard input}:26618: Warning: Only the first path encountering the conflict is reported
+{standard input}:26618: Warning: Use of 'mov' may violate WAW dependency 'GR%, % in 1 - 127' (impliedf), specific resource number is 14
+{standard input}:30687: Warning: This is the location of the conflicting usage
+{standard input}:30689: Warning: Only the first path encountering the conflict is reported
+{standard input}:30689: Warning: Use of 'mov' may violate WAW dependency 'GR%, % in 1 - 127' (impliedf), specific resource number is 14
+{standard input}:32389: Warning: This is the location of the conflicting usage
+{standard input}:32391: Warning: Only the first path encountering the conflict is reported
+{standard input}:32391: Warning: Use of 'mov' may violate WAW dependency 'GR%, % in 1 - 127' (impliedf), specific resource number is 14

@@ -1,42 +1,190 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262233AbVAYXHp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262224AbVAYWzx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262233AbVAYXHp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 18:07:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262230AbVAYXEP
+	id S262224AbVAYWzx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 17:55:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262206AbVAYWzI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 18:04:15 -0500
-Received: from outmail1.freedom2surf.net ([194.106.33.237]:31428 "EHLO
-	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S262227AbVAYXCW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 18:02:22 -0500
-Message-ID: <41F6CFF2.7010907@f2s.com>
-Date: Tue, 25 Jan 2005 23:02:10 +0000
-From: Ian Molton <spyro@f2s.com>
-Organization: The Dragon Roost
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
+	Tue, 25 Jan 2005 17:55:08 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:16512 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262224AbVAYWx3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 17:53:29 -0500
+Date: Tue, 25 Jan 2005 14:52:56 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Roland McGrath <roland@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, george@mvista.com
+Subject: Re: [PATCH 4/7] posix-timers: CPU clock support for POSIX timers
+In-Reply-To: <Pine.LNX.4.58.0501241834190.19044@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0501251450080.26368@schroedinger.engr.sgi.com>
+References: <200501232325.j0NNPUg7006501@magilla.sf.frob.com>
+ <41F5AF72.8000502@mvista.com> <Pine.LNX.4.58.0501241834190.19044@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-To: Anton Blanchard <anton@samba.org>
-CC: akpm@osdl.org, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Use MM_VM_SIZE in exit_mmap
-References: <20050125142210.GI5920@krispykreme.ozlabs.ibm.com>
-In-Reply-To: <20050125142210.GI5920@krispykreme.ozlabs.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard wrote:
+On Mon, 24 Jan 2005, Christoph Lameter wrote:
 
- > As an aside, all architectures except one define FIRST_USER_PGD_NR as 0:
- >
- > include/asm-arm26/pgtable.h:#define FIRST_USER_PGD_NR       1
+> It would be great to have a kind of private field that other clocks (like
+> clock drivers) could use for their purposes. mmtimer f.e. does use some
+> of the fields for the tick based timers for its purposes.
 
-All processes on arm26 must map the same page 0 as its where the SWI 
-vector table goes. The vector table is located at address 0, and as such 
-becomes virtual address space once the MMU is switched on. This is 
-unavoidable, unlike later ARMs which can remap it elsewhere.
+On that note:
 
-The only way this could work is if you do the zeroing with all 
-interrupts off and restore page 0 afterwards, which seems rather silly 
-to me.
+Your patch breaks the mmtimer driver because it used k_itimer values for
+its own purposes. Here is a fix by defining an additional structure
+in k_itimer (same approach for mmtimer as the cpu timers):
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6.10/include/linux/posix-timers.h
+===================================================================
+--- linux-2.6.10.orig/include/linux/posix-timers.h	2005-01-25 14:35:11.000000000 -0800
++++ linux-2.6.10/include/linux/posix-timers.h	2005-01-25 14:35:16.000000000 -0800
+@@ -57,6 +57,12 @@ struct k_itimer {
+ 			unsigned long incr; /* interval in jiffies */
+ 		} real;
+ 		struct cpu_timer_list cpu;
++		struct {
++			unsigned int clock;
++			unsigned int node;
++			unsigned long incr;
++			unsigned long expires;
++		} mmtimer;
+ 	} it;
+ };
+
+Index: linux-2.6.10/drivers/char/mmtimer.c
+===================================================================
+--- linux-2.6.10.orig/drivers/char/mmtimer.c	2005-01-25 14:35:09.000000000 -0800
++++ linux-2.6.10/drivers/char/mmtimer.c	2005-01-25 14:34:41.000000000 -0800
+@@ -420,19 +420,19 @@ static int inline reschedule_periodic_ti
+ 	int n;
+ 	struct k_itimer *t = x->timer;
+
+-	t->it_timer.magic = x->i;
++	t->it.mmtimer.clock = x->i;
+ 	t->it_overrun--;
+
+ 	n = 0;
+ 	do {
+
+-		t->it_timer.expires += t->it_incr << n;
++		t->it.mmtimer.expires += t->it.mmtimer.incr << n;
+ 		t->it_overrun += 1 << n;
+ 		n++;
+ 		if (n > 20)
+ 			return 1;
+
+-	} while (mmtimer_setup(x->i, t->it_timer.expires));
++	} while (mmtimer_setup(x->i, t->it.mmtimer.expires));
+
+ 	return 0;
+ }
+@@ -468,7 +468,7 @@ mmtimer_interrupt(int irq, void *dev_id,
+ 		spin_lock(&base[i].lock);
+ 		if (base[i].cpu == smp_processor_id()) {
+ 			if (base[i].timer)
+-				expires = base[i].timer->it_timer.expires;
++				expires = base[i].timer->it.mmtimer.expires;
+ 			/* expires test won't work with shared irqs */
+ 			if ((mmtimer_int_pending(i) > 0) ||
+ 				(expires && (expires < rtc_time()))) {
+@@ -505,7 +505,7 @@ void mmtimer_tasklet(unsigned long data)
+
+ 		t->it_overrun++;
+ 	}
+-	if(t->it_incr) {
++	if(t->it.mmtimer.incr) {
+ 		/* Periodic timer */
+ 		if (reschedule_periodic_timer(x)) {
+ 			printk(KERN_WARNING "mmtimer: unable to reschedule\n");
+@@ -513,7 +513,7 @@ void mmtimer_tasklet(unsigned long data)
+ 		}
+ 	} else {
+ 		/* Ensure we don't false trigger in mmtimer_interrupt */
+-		t->it_timer.expires = 0;
++		t->it.mmtimer.expires = 0;
+ 	}
+ 	t->it_overrun_last = t->it_overrun;
+ out:
+@@ -524,7 +524,7 @@ out:
+ static int sgi_timer_create(struct k_itimer *timer)
+ {
+ 	/* Insure that a newly created timer is off */
+-	timer->it_timer.magic = TIMER_OFF;
++	timer->it.mmtimer.clock = TIMER_OFF;
+ 	return 0;
+ }
+
+@@ -535,8 +535,8 @@ static int sgi_timer_create(struct k_iti
+  */
+ static int sgi_timer_del(struct k_itimer *timr)
+ {
+-	int i = timr->it_timer.magic;
+-	cnodeid_t nodeid = timr->it_timer.data;
++	int i = timr->it.mmtimer.clock;
++	cnodeid_t nodeid = timr->it.mmtimer.node;
+ 	mmtimer_t *t = timers + nodeid * NUM_COMPARATORS +i;
+ 	unsigned long irqflags;
+
+@@ -544,8 +544,8 @@ static int sgi_timer_del(struct k_itimer
+ 		spin_lock_irqsave(&t->lock, irqflags);
+ 		mmtimer_disable_int(cnodeid_to_nasid(nodeid),i);
+ 		t->timer = NULL;
+-		timr->it_timer.magic = TIMER_OFF;
+-		timr->it_timer.expires = 0;
++		timr->it.mmtimer.clock = TIMER_OFF;
++		timr->it.mmtimer.expires = 0;
+ 		spin_unlock_irqrestore(&t->lock, irqflags);
+ 	}
+ 	return 0;
+@@ -558,7 +558,7 @@ static int sgi_timer_del(struct k_itimer
+ static void sgi_timer_get(struct k_itimer *timr, struct itimerspec *cur_setting)
+ {
+
+-	if (timr->it_timer.magic == TIMER_OFF) {
++	if (timr->it.mmtimer.clock == TIMER_OFF) {
+ 		cur_setting->it_interval.tv_nsec = 0;
+ 		cur_setting->it_interval.tv_sec = 0;
+ 		cur_setting->it_value.tv_nsec = 0;
+@@ -566,8 +566,8 @@ static void sgi_timer_get(struct k_itime
+ 		return;
+ 	}
+
+-	ns_to_timespec(cur_setting->it_interval, timr->it_incr * sgi_clock_period);
+-	ns_to_timespec(cur_setting->it_value, (timr->it_timer.expires - rtc_time())* sgi_clock_period);
++	ns_to_timespec(cur_setting->it_interval, timr->it.mmtimer.incr * sgi_clock_period);
++	ns_to_timespec(cur_setting->it_value, (timr->it.mmtimer.expires - rtc_time())* sgi_clock_period);
+ 	return;
+ }
+
+@@ -640,19 +640,19 @@ retry:
+ 	base[i].timer = timr;
+ 	base[i].cpu = smp_processor_id();
+
+-	timr->it_timer.magic = i;
+-	timr->it_timer.data = nodeid;
+-	timr->it_incr = period;
+-	timr->it_timer.expires = when;
++	timr->it.mmtimer.clock = i;
++	timr->it.mmtimer.node = nodeid;
++	timr->it.mmtimer.incr = period;
++	timr->it.mmtimer.expires = when;
+
+ 	if (period == 0) {
+ 		if (mmtimer_setup(i, when)) {
+ 			mmtimer_disable_int(-1, i);
+ 			posix_timer_event(timr, 0);
+-			timr->it_timer.expires = 0;
++			timr->it.mmtimer.expires = 0;
+ 		}
+ 	} else {
+-		timr->it_timer.expires -= period;
++		timr->it.mmtimer.expires -= period;
+ 		if (reschedule_periodic_timer(base+i))
+ 			err = -EINVAL;
+ 	}
+>

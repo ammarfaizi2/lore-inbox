@@ -1,103 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272682AbRHaM7I>; Fri, 31 Aug 2001 08:59:08 -0400
+	id <S272643AbRHaNXg>; Fri, 31 Aug 2001 09:23:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272683AbRHaM66>; Fri, 31 Aug 2001 08:58:58 -0400
-Received: from relay1.zonnet.nl ([62.58.50.37]:29354 "EHLO relay1.zonnet.nl")
-	by vger.kernel.org with ESMTP id <S272682AbRHaM6s>;
-	Fri, 31 Aug 2001 08:58:48 -0400
-Date: Fri, 31 Aug 2001 14:58:21 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: <roman@serv>
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-cc: Roman Zippel <zippel@linux-m68k.org>,
-        "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>,
-        <linux-kernel@vger.kernel.org>
+	id <S272683AbRHaNX1>; Fri, 31 Aug 2001 09:23:27 -0400
+Received: from nbd.it.uc3m.es ([163.117.139.192]:54800 "EHLO nbd.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S272643AbRHaNXO>;
+	Fri, 31 Aug 2001 09:23:14 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200108311322.PAA12269@nbd.it.uc3m.es>
 Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <200108311213.OAA01600@nbd.it.uc3m.es>
-Message-ID: <Pine.LNX.4.33.0108311433070.24580-100000@serv>
+X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
+In-Reply-To: <Pine.LNX.4.33.0108301753180.2569-100000@penguin.transmeta.com>
+ "from Linus Torvalds at Aug 30, 2001 05:55:51 pm"
+To: Linus Torvalds <torvalds@transmeta.com>
+Date: Fri, 31 Aug 2001 15:22:40 +0200 (CEST)
+CC: "Peter T. Breuer" <ptb@it.uc3m.es>,
+        "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>,
+        linux-kernel@vger.kernel.org
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL89 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"A month of sundays ago Linus Torvalds wrote:"
+> 
+> On Fri, 31 Aug 2001, Peter T. Breuer wrote:
+> >
+> > To give you all something definite to look at, here's some test code:
+> 
+> Hmm.. This might be a good idea, actually. Have you tried whether it finds
+> something in the existing tree (you could just take the existing macro and
+> ignore the first argument)?
 
-On Fri, 31 Aug 2001, Peter T. Breuer wrote:
+I only have source for 2.4.8 plus xfs 1.0 patches here. 
 
-> > What bug are you trying to fix here?
->
-> Wake up!
+I removed MIN/min/MAX/max definitions from about a dozen header files
+in include/linux, and added an #include <linux/minmax.h> to them. That
+file goes below. The test are fairly alarmist.
 
-I'm trying.
+On doing a make bzImage no errors showed. On make modules, 4 errors
+showed, one in tun.c and 3 in pagebuf_io.c (I presume that's from
+xfs).
 
-> Try reading the last 10 days kernel messages. The last 48 hours are
-> particularly rewarding.
+I probably covered about 25% of the kernel code in that trial.
 
-I have, but I only get the feeling, we're hunting here for imaginary bugs.
-Real bugs could be found with -Wsign-compare, but nobody wants to use it
-because our master doesn't want it...
-Please define the bugs first, you're trying to fix! If you don't like
--Wsign-compare, consider defining rules for the Stanford checker. This way
-you can check all compares and not just the few uses of min.
+The tun.c one was safe as it was .. the signed value was always
+positive at the point where the macro was applied. I'm not
+at all sure about the pagebuf_io.c ones because there was deep iovec
+and iobuf and skb magic about,  but that's not of interest
+to you. I made the comparisons signed and added an if (value out of
+signed range) BUG(); just above.
 
->   C silently transforms signed int to unsigned int in cross-signed
->   comparisons. This results in 1U < -2, and gives rise to all kinds
->   of error paths from min/max codes (in particular, but they're not
->   all) of the form
+The macros below seem to show up the line number perfectly in the
+compiletime error. I guess one can add a __FILE__ to them someway.
 
-Care to give an example? For the cases I tried gcc gave a warning.
+One thing that worries me is that these should have triggered on
+the signed/unsigned char comparisons that you were worried about in
+-Wsigned-compare, and no, they didn't. They did find other
+signed/unsigned mixes, but not char.
 
-> Linus wants possible mistakes flagged. He specifically does not want
-> -Wsign-compare because it apparently gives false positives.
-
-diff -u -r1.1.1.23 Makefile
---- Makefile	16 Aug 2001 20:50:22 -0000	1.1.1.23
-+++ Makefile	31 Aug 2001 11:15:21 -0000
-@@ -87,7 +87,11 @@
-
- CPPFLAGS := -D__KERNEL__ -I$(HPATH)
-
--CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes -Wno-trigraphs -O2 \
-+WFLAGS := -Wall -Wstrict-prototypes -Wno-trigraphs
-+ifdef CONFIG_EXTRA_WARNINGS
-+WFLAGS := $(WFLAGS) -Wsign-compare
-+endif
-+CFLAGS := $(CPPFLAGS) $(WFLAGS) -O2 \
- 	  -fomit-frame-pointer -fno-strict-aliasing -fno-common
- AFLAGS := -D__ASSEMBLY__ $(CPPFLAGS)
-
-diff -u -r1.1.1.15 config.in
---- arch/i386/config.in	21 Jul 2001 12:48:20 -0000	1.1.1.15
-+++ arch/i386/config.in	31 Aug 2001 11:12:56 -0000
-@@ -390,4 +390,5 @@
-
- #bool 'Debug kmalloc/kfree' CONFIG_DEBUG_MALLOC
- bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
-+bool 'Extra compile warnings' CONFIG_EXTRA_WARNINGS
- endmenu
-diff -u -r1.1.1.23 Configure.help
---- Documentation/Configure.help	16 Aug 2001 20:55:53 -0000	1.1.1.23
-+++ Documentation/Configure.help	31 Aug 2001 11:21:10 -0000
-@@ -15766,6 +15766,15 @@
-   keys are documented in Documentation/sysrq.txt. Don't say Y unless
-   you really know what this hack does.
-
-+Extra compile warnings
-+CONFIG_EXTRA_WARNINGS
-+  If you say Y here, the compilation will generate lots of extra
-+  warnings. Some of them warn about constructions that users generally
-+  do not consider questionable, but which occasionally you might wish
-+  to check for; others warn about constructions that are necessary or
-+  hard to avoid in some cases, and there is no simple way to modify the
-+  code to suppress the warning. Unless you look for bugs, say N.
-+
- ISDN subsystem
- CONFIG_ISDN
-   ISDN ("Integrated Services Digital Networks", called RNIS in France)
-
-bye, Roman
+Peter
 
 
 
+#ifndef MINMAX_H
+#define MINMAX_H 1
 
+
+#define __MINMAX_S(x) #x
+#define MINMAX_S(x) __MINMAX_S(x)
+#define MINMAX_BUG asm(".unsafe_min_or_max_at_line_" MINMAX_S(__LINE__))
+
+#define __MIN(x,y) ({\
+   typeof(x) _x = x; \
+   typeof(y) _y = y; \
+   _x < _y ? _x : _y ; \
+ })
+#define MIN(x,y) ({\
+   const typeof(x) _x = ~(typeof(x))0; \
+   const typeof(y) _y = ~(typeof(y))0; \
+   if (sizeof(_x) != sizeof(_y)) \
+     MINMAX_BUG; \
+   if ((_x > (typeof(x))0 && _y < (typeof(y))0) \
+   ||  (_x < (typeof(x))0 && _y > (typeof(y))0)) \
+     MINMAX_BUG; \
+   __MIN(x,y); \
+ })
+#define __MAX(x,y) ({\
+   typeof(x) _x = x; \
+   typeof(y) _y = y; \
+   _x > _y ? _x : _y ; \
+ })
+#define MAX(x,y) ({\
+   const typeof(x) _x = ~(typeof(x))0; \
+   const typeof(y) _y = ~(typeof(y))0; \
+   if (sizeof(_x) != sizeof(_y)) \
+     MINMAX_BUG; \
+   if ((_x > (typeof(x))0 && _y < (typeof(y))0) \
+   ||  (_x < (typeof(x))0 && _y > (typeof(y))0)) \
+     MINMAX_BUG; \
+   __MAX(x,y); \
+ })
+
+
+#ifndef min
+#define min(x,y) MIN(x,y)
+#endif
+#ifndef max
+#define max(x,y) MAX(x,y)
+#endif
+
+
+#endif

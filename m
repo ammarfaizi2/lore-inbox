@@ -1,99 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263777AbTGCO4f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 10:56:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbTGCO4e
+	id S264030AbTGCPCk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 11:02:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbTGCPCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 10:56:34 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:57797 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S263777AbTGCO4a convert rfc822-to-8bit
+	Thu, 3 Jul 2003 11:02:40 -0400
+Received: from mail-8.tiscali.it ([195.130.225.154]:64145 "EHLO
+	mail-8.tiscali.it") by vger.kernel.org with ESMTP id S264030AbTGCPCi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 10:56:30 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK] 2.5.74 with contest
-Date: Fri, 4 Jul 2003 01:11:03 +1000
-User-Agent: KMail/1.5.2
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+	Thu, 3 Jul 2003 11:02:38 -0400
+Date: Thu, 3 Jul 2003 17:17:03 +0200
+From: Kronos <kronos@kronoz.cjb.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.74: BUG at mm/slab.c:1537
+Message-ID: <20030703151703.GA4595@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307040111.13469.kernel@kolivas.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-contest (http://contest.kolivas.org) results for latest kernel with osdl 
-hardware (http://www.osdl.org)
+Andy Pfiffer <andyp@osdl.org> ha scritto:
+> kernel BUG at mm/slab.c:1537!
+> invalid operand: 0000 [#1]
+> CPU:    0
+> EIP:    0060:[<c01457ad>]    Not tainted
+> EFLAGS: 00010002
+> EIP is at kfree+0x35/0x268
+> eax: 0000002c   ebx: ded59b68   ecx: c150bc20   edx: c0412ce8
+> esi: 00000100   edi: 00040000   ebp: df12df30   esp: df12df00
+> ds: 007b   es: 007b   ss: 0068
+> Process netstat (pid: 1405, threadinfo=df12c000 task=df3c6080)
+> Stack: c0389060 00000100 ded59b68 df5e0e64 df0b4cb4 df12df6c df5e0e84
+> df12df30
+>       c0344ca1 ded59b68 00000001 00000206 df12df48 c017ae8c 00000100
+> defe1c54
+>       df5e0e64 df0b4cb4 df12df6c c015b9c7 df0b4cb4 df5e0e64 defe1c54
+> df5e0e64
+> Call Trace:
+> [<c0344ca1>] raw_seq_start+0x4d/0x58
+> [<c017ae8c>] seq_release_private+0x18/0x30
+> [<c015b9c7>] __fput+0x3b/0xfc
+> [<c015b987>] fput+0x17/0x1c
+> [<c015a402>] filp_close+0x10a/0x118
+> [<c015a4ba>] sys_close+0xaa/0x100
+> [<c010af6f>] syscall_call+0x7/0xb
+>
+> Code: 0f 0b 01 06 27 8d 38 c0 83 c4 08 8d 04 bf c1 e0 03 89 45 f8
 
-no_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70              1   79      94.9    0.0     0.0     1.00
-2.5.72              1   79      94.9    0.0     0.0     1.00
-2.5.74              1   79      93.7    0.0     0.0     1.00
-cacherun:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70              1   75      98.7    0.0     0.0     0.95
-2.5.72              1   76      98.7    0.0     0.0     0.96
-2.5.74              1   75      98.7    0.0     0.0     0.95
-process_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70              2   109     67.9    63.5    28.4    1.38
-2.5.72              2   107     70.1    65.0    28.7    1.35
-2.5.74              2   109     67.9    65.0    28.4    1.38
-ctar_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70              3   103     75.7    0.0     0.0     1.30
-2.5.72              3   103     75.7    0.0     0.0     1.30
-2.5.74              3   104     75.0    0.0     0.0     1.32
-xtar_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70              3   106     72.6    1.0     3.8     1.34
-2.5.72              3   104     74.0    1.0     3.8     1.32
-2.5.74              3   106     72.6    1.0     3.8     1.34
-io_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70              5   326     21.5    112.9   18.7    4.13
-2.5.72              4   356     21.9    128.9   19.3    4.51
-2.5.74              4   331     23.9    117.5   18.7    4.19
-io_other:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70              2   122     63.9    53.8    22.1    1.54
-2.5.72              2   120     65.0    51.2    23.0    1.52
-2.5.74              2   121     64.5    50.8    22.1    1.53
-read_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70              2   104     75.0    6.3     4.8     1.32
-2.5.72              2   104     75.0    6.3     4.8     1.32
-2.5.74              2   104     76.0    6.6     4.8     1.32
-list_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70              2   96      80.2    0.0     7.3     1.22
-2.5.72              2   97      79.4    0.0     7.2     1.23
-2.5.74              2   97      79.4    0.0     7.2     1.23
-mem_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70              2   97      80.4    53.5    2.1     1.23
-2.5.72              2   95      82.1    54.0    2.1     1.20
-2.5.74              2   97      80.4    59.5    2.0     1.23
-dbench_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70              5   321     22.1    4.0     44.5    4.06
-2.5.72              4   397     19.6    5.5     50.4    5.03
-2.5.74              4   334     23.1    5.0     52.7    4.23
+I can reproduce it with cat /proc/net/raw:
 
-...no change
+kernel BUG at mm/slab.c:1537!
+invalid operand: 0000 [#7]
+CPU:    0
+EIP:    0060:[<c015ae85>]    Not tainted
+EFLAGS: 00010082
+EIP is at kfree+0x315/0x330
+eax: 0000002c   ebx: 00040000   ecx: 00000000   edx: 00000001
+esi: de5e390c   edi: c8b355d0   ebp: e9edff1c   esp: e9edfef0
+ds: 007b   es: 007b   ss: 0068
+Process cat (pid: 4564, threadinfo=e9ede000 task=dbcae3c0)
+Stack: c0373c00 00000100 eeb94044 00000000 dff166c8 de5e392c e9edff1c 00000206
+       dff166c8 de5e390c c8b355d0 e9edff38 c01a9263 00000100 00000000 de5e390c
+       de5e390c effe67c4 e9edff5c c017a642 c8b355d0 de5e390c c8b355d0 eacf22e8
+Call Trace:
+ [<c01a9263>] seq_release_private+0x23/0x3f
+ [<c017a642>] __fput+0x112/0x120
+ [<c017862a>] filp_close+0x15a/0x220
+ [<c01787f2>] sys_close+0x102/0x220
+ [<c01795df>] sys_read+0x3f/0x60
+ [<c010b10f>] syscall_call+0x7/0xb
 
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+Code: 0f 0b 01 06 b6 30 37 c0 e9 0f fd ff ff 8d b4 26 00 00 00 00
 
-iD8DBQE/BEeHF6dfvkL3i1gRAj9yAJ9+F9m1cBqkog+vbvaMK6gvvSYfuQCfc/Xs
-DjqFbb+uNnbS04TgJXbjQGo=
-=aHu0
------END PGP SIGNATURE-----
+ksymoops says:
 
+>>EIP; c015ae85 <kfree+315/330>   <=====
+
+>>esi; de5e390c <_end+1e161064/3fb7b758>
+>>edi; c8b355d0 <_end+86b2d28/3fb7b758>
+>>ebp; e9edff1c <_end+29a5d674/3fb7b758>
+>>esp; e9edfef0 <_end+29a5d648/3fb7b758>
+
+Trace; c01a9263 <seq_release_private+23/3f>
+Trace; c017a642 <__fput+112/120>
+Trace; c017862a <filp_close+15a/220>
+Trace; c01787f2 <sys_close+102/220>
+Trace; c01795df <sys_read+3f/60>
+Trace; c010b10f <syscall_call+7/b>
+
+Code;  c015ae85 <kfree+315/330>
+00000000 <_EIP>:
+Code;  c015ae85 <kfree+315/330>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c015ae87 <kfree+317/330>
+   2:   01 06                     add    %eax,(%esi)
+Code;  c015ae89 <kfree+319/330>
+   4:   b6 30                     mov    $0x30,%dh
+Code;  c015ae8b <kfree+31b/330>
+   6:   37                        aaa
+Code;  c015ae8c <kfree+31c/330>
+   7:   c0 e9 0f                  shr    $0xf,%cl
+Code;  c015ae8f <kfree+31f/330>
+   a:   fd                        std
+Code;  c015ae90 <kfree+320/330>
+   b:   ff                        (bad)
+Code;  c015ae91 <kfree+321/330>
+   c:   ff 8d b4 26 00 00         decl   0x26b4(%ebp)
+
+
+HTH,
+Luca
+-- 
+Reply-To: kronos@kronoz.cjb.net
+Home: http://kronoz.cjb.net
+You and me baby ain't nothin' but mammals
+So let's do it like they do on the Discovery Channel

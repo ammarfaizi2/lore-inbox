@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbVASEoq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbVASE4C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261562AbVASEoq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 23:44:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbVASEop
+	id S261573AbVASE4C (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 23:56:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVASE4C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 23:44:45 -0500
-Received: from ds01.webmacher.de ([213.239.192.226]:55721 "EHLO
-	ds01.webmacher.de") by vger.kernel.org with ESMTP id S261562AbVASEon
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 23:44:43 -0500
-In-Reply-To: <41EDD584.8080307@zytor.com>
-References: <cshbd7$nff$1@terminus.zytor.com> <20050117220052.GB18293@mars.ravnborg.org> <41EC363D.1090106@zytor.com> <20050118190513.GA16120@mars.ravnborg.org> <csjoef$gkt$1@terminus.zytor.com> <20050119012612.GD3867@waste.org> <41EDD584.8080307@zytor.com>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <7B42B92D-69D4-11D9-88A5-000A95E3BCE4@dalecki.de>
-Content-Transfer-Encoding: 7bit
-Cc: Matt Mackall <mpm@selenic.com>, linux-kernel@vger.kernel.org
-From: Marcin Dalecki <martin@dalecki.de>
-Subject: Re: kbuild: Implicit dependence on the C compiler
-Date: Wed, 19 Jan 2005 05:42:10 +0100
-To: "H. Peter Anvin" <hpa@zytor.com>
-X-Mailer: Apple Mail (2.619)
+	Tue, 18 Jan 2005 23:56:02 -0500
+Received: from colin2.muc.de ([193.149.48.15]:40210 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261573AbVASEzy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 23:55:54 -0500
+Date: 19 Jan 2005 05:55:52 +0100
+Date: Wed, 19 Jan 2005 05:55:52 +0100
+From: Andi Kleen <ak@muc.de>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Use -Wno-pointer-sign for gcc 4.0
+Message-ID: <20050119045552.GA77900@muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2005-01-19, at 04:35, H. Peter Anvin wrote:
+Compiling an allyesconfig kernel straight with a gcc 4.0 snapshot
+gives nearly 10k new warnings like:
 
-> Matt Mackall wrote:
->>>
->>> I would argue that "name of gcc has changed" is possibly a condition
->>> that does more harm than good.  It is just as frequently used to have
->>> wrappers, like distcc, as it is to have different versions.
->> Disagree. I switch compilers all the time and kbuild does the right
->> thing for me.
->> I do occassionally feel your 'make install' pain and some sort of
->> 'make __install' might be called for.
->
-> As I said, I don't mind the default being there, it's certainly 
-> consistent with the default being safe.  However, not being able to 
-> override it is bad.
+warning: pointer targets in passing argument 5 of `cpuid' differ in signedness
 
-Just please consider
+Since the sheer number of these warnings was too much even for the 
+most determined kernel janitors (I actually asked ;-) and I don't
+think it's a very serious issue to have these mismatches I submitted
+an new option to gcc to disable it. It was incorporated in gcc mainline
+now. 
 
-CC ?= gcc
+This patch makes the kernel compilation use it. There are still
+quite a lot of new warnings with 4.0 (mostly about uninitialized variables),
+but the compile log looks much nicer nnow.
 
-instead of
+Signed-off-by: Andi Kleen <ak@suse.de>
 
-CC = gcc
-
-in Makefiles. I assume it does precisely what you want. So I think 
-anybody arguing against
-you is just arguing about a single ASCII character...
-
+--- linux-2.6.11-rc1-bk4/Makefile-o	2005-01-17 10:39:39.000000000 +0100
++++ linux-2.6.11-rc1-bk4/Makefile	2005-01-19 05:43:29.000000000 +0100
+@@ -533,6 +533,9 @@
+ # warn about C99 declaration after statement
+ CFLAGS += $(call cc-option,-Wdeclaration-after-statement,)
+ 
++# disable pointer signedness warnings in gcc 4.0
++CFLAGS += $(call cc-option,-Wno-pointer-sign,)
++
+ # Default kernel image to build when no specific target is given.
+ # KBUILD_IMAGE may be overruled on the commandline or
+ # set in the environment

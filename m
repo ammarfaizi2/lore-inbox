@@ -1,57 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261777AbUB0KFk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 05:05:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbUB0KFk
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 05:05:40 -0500
-Received: from gate.crashing.org ([63.228.1.57]:28346 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261777AbUB0KF1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S261781AbUB0KF1 (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 27 Feb 2004 05:05:27 -0500
-Subject: Re: Radeon Framebuffer Driver in 2.6.3?
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: arief# <arief_m_utama@telkomsel.co.id>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1077876373.843.3.camel@damai.telkomsel.co.id>
-References: <1077863238.2522.6.camel@damai.telkomsel.co.id>
-	 <1077865490.22215.217.camel@gaston>
-	 <1077876373.843.3.camel@damai.telkomsel.co.id>
-Content-Type: text/plain
-Message-Id: <1077875802.22215.267.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 27 Feb 2004 20:56:42 +1100
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbUB0KF0
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 27 Feb 2004 05:05:26 -0500
+Received: from shark.pro-futura.com ([161.58.178.219]:58560 "EHLO
+	shark.pro-futura.com") by vger.kernel.org with ESMTP
+	id S261777AbUB0KFP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 05:05:15 -0500
+From: "Tvrtko A. =?iso-8859-2?q?Ur=B9ulin?=" <tvrtko@croadria.com>
+Organization: Croadria Internet usluge
+To: linux-kernel@vger.kernel.org
+Subject: Known problems with megaraid under 2.4.25 highmem?
+Date: Fri, 27 Feb 2004 11:07:42 +0100
+User-Agent: KMail/1.6
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200402271107.42050.tvrtko@croadria.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-02-27 at 21:06, arief# wrote:
-> Dear all.
-> 
-> 
-> This patch from Benjamin solved my problem.
-> 
-> To Zilvinas <zilvinas@gemtek.lt>, I've tried your suggestion to change
-> my XF86Config-4 file to include UseFBDev line. But it doesnt work. It
-> made my Xserver wont even start. But I'm not sure, it could be X problem
-> (Debian Unstable got some updated X package that I haven't got a chance
-> to upgrade to).
 
-There is a problem with recent radeonfb's an X + UseFBDev. I think the
-problem is that XFree is claiming a mode whose virtual resolution is very
-large. I have to verify that (it works for me here). Radeonfb has
-limitations on what it allows on the virtual resolution in recent
-version to limit the ioremap'ing done in the kernel. Unfortunately,
-there is no simple way to "detach" one from the other at this point. 
+Hello,
 
-I should modify radeonfb to crop the virtual resolution instead of
-failing though...
+I have experienced an I/O lockup on my dual Xeon server with megaraid adapter 
+when kernel was compiled with highmem and highmem i/o. It happened during 
+compilation of mysql with no other load.
 
-Can you try hacking in drivers/video/aty/radeon_base.c, function
-check_mode() and see why it fails ? (I think it's that function
-that is failing).
+Then I recompiled the kernel wo/highmem and everything is stable.
 
-Ben.
+As, this server is now in production on different location I cannot do much 
+testing except giving detailed hw info.
+
+00:00.0 Host bridge: Intel Corporation: Unknown device 254c (rev 01)
+00:00.1 Class ff00: Intel Corporation: Unknown device 2541 (rev 01)
+00:03.0 PCI bridge: Intel Corporation: Unknown device 2545 (rev 01)
+00:03.1 Class ff00: Intel Corporation: Unknown device 2546 (rev 01)
+00:1d.0 USB Controller: Intel Corporation: Unknown device 2482 (rev 02)
+00:1d.1 USB Controller: Intel Corporation: Unknown device 2484 (rev 02)
+00:1d.2 USB Controller: Intel Corporation: Unknown device 2487 (rev 02)
+00:1e.0 PCI bridge: Intel Corporation 82801BAM PCI (rev 42)
+00:1f.0 ISA bridge: Intel Corporation: Unknown device 2480 (rev 02)
+00:1f.1 IDE interface: Intel Corporation: Unknown device 248b (rev 02)
+00:1f.3 SMBus: Intel Corporation: Unknown device 2483 (rev 02)
+01:0c.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
+02:1c.0 PIC: Intel Corporation: Unknown device 1461 (rev 04)
+02:1d.0 PCI bridge: Intel Corporation: Unknown device 1460 (rev 04)
+02:1e.0 PIC: Intel Corporation: Unknown device 1461 (rev 04)
+02:1f.0 PCI bridge: Intel Corporation: Unknown device 1460 (rev 04)
+03:04.0 SCSI storage controller: Adaptec: Unknown device 801f (rev 03)
+03:04.1 SCSI storage controller: Adaptec: Unknown device 801f (rev 03)
+04:02.0 RAID bus controller: Symbios Logic Inc. (formerly NCR): Unknown device 
+1960 (rev 01)
+04:05.0 Ethernet controller: Intel Corporation: Unknown device 1010 (rev 01)
+04:05.1 Ethernet controller: Intel Corporation: Unknown device 1010 (rev 01)
 
 

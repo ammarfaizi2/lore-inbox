@@ -1,38 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317232AbSH0Un2>; Tue, 27 Aug 2002 16:43:28 -0400
+	id <S317331AbSH0UrB>; Tue, 27 Aug 2002 16:47:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317251AbSH0Un2>; Tue, 27 Aug 2002 16:43:28 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:9186 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S317232AbSH0Un1>;
-	Tue, 27 Aug 2002 16:43:27 -0400
-Date: Tue, 27 Aug 2002 16:47:45 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.5.32
-In-Reply-To: <20020827224322.24561e60.us15@os.inf.tu-dresden.de>
-Message-ID: <Pine.GSO.4.21.0208271646090.6084-100000@weyl.math.psu.edu>
+	id <S317334AbSH0UrA>; Tue, 27 Aug 2002 16:47:00 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56589 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317331AbSH0Uq7>; Tue, 27 Aug 2002 16:46:59 -0400
+Date: Tue, 27 Aug 2002 13:57:13 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Luca Barbieri <ldb@ldb.ods.org>
+cc: Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@suse.de>,
+       Marc Dietrich <Marc.Dietrich@hrz.uni-giessen.de>,
+       Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] M386 flush_one_tlb invlpg
+In-Reply-To: <1030481129.6203.3.camel@ldb>
+Message-ID: <Pine.LNX.4.44.0208271356450.2071-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On 27 Aug 2002, Luca Barbieri wrote:
+>
+> You haven't read the P4 system architecture manual, section 3.11.
+> It explicitly says that invlpg ignores the G flag.
 
-On Tue, 27 Aug 2002, Udo A. Steinberg wrote:
+Ahh, good. Then my only issue is the mismatched test..
 
-> On Tue, 27 Aug 2002 12:47:16 -0700 (PDT)
-> Linus Torvalds <torvalds@transmeta.com> wrote:
-> 
-> > Linux 2.5.32 ...
-> 
-> Hello,
-> 
-> It looks like the kernel is trying to read partition tables on IDE cdrom drives
-> in SCSI emulation mode - and failing at doing so.
-
-IDE merge is b0rken wrt partitioning.  Patchset that is supposed to fix
-that stuff is on ftp.math.psu.edu/pub/viro/IDE/* - waiting for ACK from
-Alan.
+		Linus
 

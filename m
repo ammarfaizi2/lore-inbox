@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319215AbSHUVEv>; Wed, 21 Aug 2002 17:04:51 -0400
+	id <S319216AbSHUVOs>; Wed, 21 Aug 2002 17:14:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319217AbSHUVEv>; Wed, 21 Aug 2002 17:04:51 -0400
-Received: from stargazer.compendium-tech.com ([64.156.208.76]:44560 "EHLO
+	id <S319217AbSHUVOs>; Wed, 21 Aug 2002 17:14:48 -0400
+Received: from stargazer.compendium-tech.com ([64.156.208.76]:51472 "EHLO
 	stargazer.compendium.us") by vger.kernel.org with ESMTP
-	id <S319215AbSHUVEv>; Wed, 21 Aug 2002 17:04:51 -0400
-Date: Wed, 21 Aug 2002 14:06:28 -0700 (PDT)
+	id <S319216AbSHUVOr>; Wed, 21 Aug 2002 17:14:47 -0400
+Date: Wed, 21 Aug 2002 14:16:11 -0700 (PDT)
 From: Kelsey Hudson <khudson@compendium.us>
 X-X-Sender: khudson@betelgeuse.compendium-tech.com
-To: Nagy Tibor <nagyt@otpbank.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem determining number of CPUs
-In-Reply-To: <3D63A180.C663294E@otpbank.hu>
-Message-ID: <Pine.LNX.4.44.0208211402390.6621-100000@betelgeuse.compendium-tech.com>
+To: James Bourne <jbourne@mtroyal.ab.ca>
+cc: Hugh Dickins <hugh@veritas.com>,
+       "Reed, Timothy A" <timothy.a.reed@lmco.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Hyperthreading
+In-Reply-To: <Pine.LNX.4.44.0208211242440.10117-100000@skuld.mtroyal.ab.ca>
+Message-ID: <Pine.LNX.4.44.0208211414190.6621-100000@betelgeuse.compendium-tech.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Aug 2002, Nagy Tibor wrote:
+On Wed, 21 Aug 2002, James Bourne wrote:
 
-> Hi,
+> On Wed, 21 Aug 2002, Hugh Dickins wrote:
 > 
-> Linux kernel versions 2.4.18, 2.4.19, 2.4.20pre4 do not determine
-> correctly the number of CPUs on our system. We see 8 CPUs instead of 4,
-> however the system works.
->
-> Our machine: Dell PowerEdge 6600, 4 Xeon 1400 Mhz, 4GB RAM
+> > You do need CONFIG_SMP and a processor capable of HyperThreading,
+> > i.e. Pentium 4 XEON; but CONFIG_MPENTIUM4 is not necessary for HT,
+> > just appropriate to that processor in other ways.
+> 
+> I was under the impression that the only CPU capable of hyperthreading was
+> the P4 Xeon.  Is this not correct?  I don't know of any other CPUs that
+> have the ht feature.
 
-Perfectly normal on that machine; newer Xeon CPUs have a feature called 
-hyperthreading, which makes each physical CPU show up as two. If you have 
-many threads running, or a bunch of processes, you should see a 
-performance increase. but keep in mind that for each physical CPU you 
-still only have one CPU core, so you can't expect to run 8 tasks at full 
-speed. Hyperthreading uses idle cycles on one task to perform active 
-cycles on another task, in its most basic sense. I'm not going to delve 
-into great detail here as it's off-scope for this list, but if you read 
-the datasheets and product specification for the Intel Xeon processor 
-(available at Intel's developer site) you can learn more about this nifty 
-feature of these processors.
+This is currently correct, although I believe Intel has plans to release a 
+Hyperthreading-capable version of its desktop P4. 
 
-Hope this cleared up some questions you may have had.
--Kelsey
+> Also, looking at setup.c it's hard to determine if CONFIG_SMP is
+> actually required, but it doesn't look like it...
+
+Of course it's required. How are you to take advantage of a "second CPU" 
+if your scheduler only works on a uniprocessor machine?
+
+-- 
+ Kelsey Hudson                                       khudson@compendium.us
+ Software Engineer/UNIX Systems Administrator
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------
 

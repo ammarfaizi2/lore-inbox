@@ -1,47 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276500AbRI2N4L>; Sat, 29 Sep 2001 09:56:11 -0400
+	id <S276502AbRI2OQ2>; Sat, 29 Sep 2001 10:16:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276501AbRI2N4D>; Sat, 29 Sep 2001 09:56:03 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:32782 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S276500AbRI2Nzt>;
-	Sat, 29 Sep 2001 09:55:49 -0400
-Date: Sat, 29 Sep 2001 15:51:53 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-cc: David Lang <david.lang@digitalinsight.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2 GB file limitation
-In-Reply-To: <Pine.LNX.4.33.0109290816480.10053-100000@boston.corp.fedex.com>
-Message-ID: <Pine.LNX.4.33.0109291549180.30595-100000@Expansa.sns.it>
+	id <S276503AbRI2OQS>; Sat, 29 Sep 2001 10:16:18 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32271 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S276502AbRI2OP7>; Sat, 29 Sep 2001 10:15:59 -0400
+Subject: Re: Binary only module overview
+To: jmjones@jmjones.com
+Date: Sat, 29 Sep 2001 15:20:10 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), greg@kroah.com (Greg KH),
+        linux-kernel@vger.kernel.org, crispin@wirex.com,
+        linux-security-module@wirex.com
+In-Reply-To: <Pine.LNX.3.96.1010928213737.2854A-100000@dixie> from "jmjones@jmjones.com" at Sep 28, 2001 10:05:25 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15nKyQ-00023t-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> If you can't sleep at night because somebody else can use your code for
+> purposes OTHER than you envisioned... you shouldn't be writing Open
+> Software.  Isn't that the real purpose... to let the next guy stand on
+> your shoulders?
+
+Thats the BSD license. The GPL is where you get to stand on each others
+shoulders and goon style climb over any future walls together
 
 
-On Sat, 29 Sep 2001, Jeff Chua wrote:
-
->
-> On Fri, 28 Sep 2001, David Lang wrote:
->
-> > ?? slackware 8 has large file support (I've been useing it for a while
-> > now)
-> >
->
-> I think you can get >2GB support if you've Gcc 3.0. Even with the latest
-> kernel 2.4.x, you won't get >2GB with gcc 2.95.3.
->
->
-???
-I am using it and I am using gcc 2.95.3 for normal things,
-and to compiled my kernel and my libc, because gcc
-3.0.1 produces slower binaries on my Athlons (yes, with athlon
-optimizzations turned on), at less for my programs, and it is better to
-avoid it for glibc compilation because of back compatibility issues.
-
-
-bests
-Luigi
-
+Alan

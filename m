@@ -1,65 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266266AbTGGWFj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 18:05:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266270AbTGGWFj
+	id S264536AbTGGWKv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 18:10:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264544AbTGGWKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 18:05:39 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:55714 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S266266AbTGGWFb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 18:05:31 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 7 Jul 2003 15:12:27 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Eric Varsanyi <e0216@foo21.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: epoll vs stdin/stdout
-In-Reply-To: <20030707194736.GF9328@srv.foo21.com>
-Message-ID: <Pine.LNX.4.55.0307071511550.4704@bigblue.dev.mcafeelabs.com>
-References: <20030707154823.GA8696@srv.foo21.com>
- <Pine.LNX.4.55.0307071153270.4704@bigblue.dev.mcafeelabs.com>
- <20030707194736.GF9328@srv.foo21.com>
+	Mon, 7 Jul 2003 18:10:51 -0400
+Received: from www.wireboard.com ([216.151.155.101]:20372 "EHLO
+	varsoon.wireboard.com") by vger.kernel.org with ESMTP
+	id S264536AbTGGWKu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 18:10:50 -0400
+To: Andi Kleen <ak@suse.de>
+Cc: "Paul Albrecht" <palbrecht@qwest.net>, niv@us.ibm.com,
+       linux-kernel@vger.kernel.org, "netdev" <netdev@oss.sgi.com>
+Subject: Re: question about linux tcp request queue handling
+References: <3F08858E.8000907@us.ibm.com.suse.lists.linux.kernel>
+	<001a01c3441c$6fe111a0$6801a8c0@oemcomputer.suse.lists.linux.kernel>
+	<3F08B7E2.7040208@us.ibm.com.suse.lists.linux.kernel>
+	<000d01c3444f$e6439600$6801a8c0@oemcomputer.suse.lists.linux.kernel>
+	<3F090A4F.10004@us.ibm.com.suse.lists.linux.kernel>
+	<001401c344df$ccbc63c0$6801a8c0@oemcomputer.suse.lists.linux.kernel>
+	<p73fzliqa91.fsf@oldwotan.suse.de>
+From: Doug McNaught <doug@mcnaught.org>
+Date: 07 Jul 2003 18:25:17 -0400
+In-Reply-To: Andi Kleen's message of "07 Jul 2003 23:48:10 +0200"
+Message-ID: <m3brw6rn3m.fsf@varsoon.wireboard.com>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jul 2003, Eric Varsanyi wrote:
+Andi Kleen <ak@suse.de> writes:
 
-> On Mon, Jul 07, 2003 at 11:57:02AM -0700, Davide Libenzi wrote:
-> > Events caught by epoll comes from a file* since that is the abstraction
-> > the kernel handles. Events really happen on the file* and there's no way
-> > if you dup()ing 1000 times a single fd, to say that events are for fd = 122.
->
-> It is useful/mildly common at the app level to want to get read events
-> for fd0 and write avail events for fd1. An app that might want to deal
-> with reads from stdin in one process and writes to stdout in another
-> (something like "team" perhaps) would have trouble here too.
->
-> Epoll's API/impl is great as it is IMO, not suggesting need for change, I was
-> hoping there was a good standard trick someone worked up to get around
-> this specifc end case of stdin/stdout usually being dups but sometimes
-> not. Porting my event system over to use epoll was easy/straightforward
-> except for this one minor hitch.
->
-> I considered:
-> 	- using a second epoll object just for one of the fd's (to inspire
-> 	  delivery of the event to 2 wait queues in the kernel); a little
-> 	  ugly because of need to stack another epfd under the main one
-> 	  just for stdout write events
->
-> 	- select() on (0, 1, epfd) and just use epoll with a timeout of 0
-> 	  when select fires to gather bulk of events; morally similar to
-> 	  previous but using select (which I want to just get away from)
->
-> 	- make the app use stdin as its output (this is what I ended up doing);
-> 	  breaks redirection of stdout but that doesn't matter to this app
+> "Paul Albrecht" <palbrecht@qwest.net> writes:
+> 
+> > This statement is inconsistent with the description of this scenario in
+> > Steven's TCP/IP Illustrated.  Specifically, continuing the handshake in the
+> > TCP layer, i.e., sending a syn/ack and moving to the syn_recd state, is
+> > incorrect if the limit of the server's socket backlog would be exceeded.
+> > How do you account for this discrepancy between linux and other
+> > berkeley-derived implementations?
+> 
+> The 4.4BSD-Lite code described in Stevens is long outdated. All modern
+> BSDs (and probably most other Unixes too) do it in a similar way to what 
+> Nivedita described. The keywords are "syn flood attack" and "DoS". 
 
-Any of the above. Pls wait for an incoming patch ...
+And furthermore, IIRC, the current Linux networking code is not
+Berkeley-derived, though an earlier version was.
 
-
-
-- Davide
-
+-Doug

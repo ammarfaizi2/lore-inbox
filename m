@@ -1,1711 +1,539 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264537AbTL0TSi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 14:18:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbTL0TSi
+	id S264397AbTL0Tae (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 14:30:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbTL0Tae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 14:18:38 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:36538 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S264537AbTL0TRa (ORCPT
+	Sat, 27 Dec 2003 14:30:34 -0500
+Received: from pop.gmx.net ([213.165.64.20]:27854 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264397AbTL0TaT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 14:17:30 -0500
-To: marcelo.tosatti@cyclades.com
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.x CONFIG_BLK_DEV_IDE_MODES long dead
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Sat, 27 Dec 2003 20:12:10 +0100
-Message-ID: <m3pteaoz1x.fsf@defiant.pm.waw.pl>
+	Sat, 27 Dec 2003 14:30:19 -0500
+X-Authenticated: #11949556
+From: Michael Schierl <schierlm-usenet@gmx.de>
+To: linux-kernel@vger.kernel.org
+Cc: <mochel@osdl.org>
+Subject: Local APIC bug? (was: APM Suspend Problem)
+Date: Sat, 27 Dec 2003 20:30:27 +0100
+Reply-To: schierlm@gmx.de
+References: <16Jll-8mu-3@gated-at.bofh.it> <16Jlm-8mu-5@gated-at.bofh.it> <16Jlm-8mu-7@gated-at.bofh.it> <16Jlm-8mu-9@gated-at.bofh.it> <16Jll-8mu-1@gated-at.bofh.it>
+In-Reply-To: <16Jll-8mu-1@gated-at.bofh.it>
+X-Mailer: Forte Agent 1.93/32.576 English (American)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+Content-Type: multipart/mixed; boundary="--=_jenruvg5o12ck7g4t5jcmeaprtiie2ghel.MFSBCHJLHS"
+Message-Id: <S264397AbTL0TaT/20031227193019Z+16629@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
 
-Hi,
+----=_jenruvg5o12ck7g4t5jcmeaprtiie2ghel.MFSBCHJLHS
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 
-It looks CONFIG_BLK_DEV_IDE_MODES has been killed by patch-2.4.21.
-The attached patch removes the zombies from 2.4.24pre2 kernel.
+On Thu, 25 Dec 2003 20:30:08 +0100, in linux.kernel I wrote:
 
-2.6 kernel is already free of them.
--- 
-Krzysztof Halasa, B*FH
+>I upgraded to 2.6.0 as well, and now my "minimalist" config suspends,
+>but does not resume afterwards . (My usual config does not even
+>suspend - I'll try to track down which driver does the difference in
+>the next days).
 
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: attachment;
-  filename=CONFIG_BLK_DEV_IDE_MODES.patch
+The problem point is "local apic" - my usual kernel has it, but
+.config-minimal does not have it. When I enable local apic in the
+minimal kernel (see attached .config), it does not suspend any longer.
+When I disable local apic in my "normal" kernel, it suspends.
 
---- linux-2.4.orig/drivers/ide/Config.in	2003-11-28 19:26:20.000000000 +0100
-+++ linux-2.4/drivers/ide/Config.in	2003-12-27 19:50:14.000000000 +0100
-@@ -184,41 +187,6 @@
- ##  dep_mbool CONFIG_BLK_DEV_NTF_DISK $CONFIG_BLK_DEV_IDEDISK
- ##fi
- 
--if [ "$CONFIG_BLK_DEV_4DRIVES" = "y" -o \
--     "$CONFIG_BLK_DEV_ALI14XX" != "n" -o \
--     "$CONFIG_BLK_DEV_DTC2278" != "n" -o \
--     "$CONFIG_BLK_DEV_HT6560B" != "n" -o \
--     "$CONFIG_BLK_DEV_PDC4030" != "n" -o \
--     "$CONFIG_BLK_DEV_QD65XX" != "n" -o \
--     "$CONFIG_BLK_DEV_UMC8672" != "n" -o \
--     "$CONFIG_BLK_DEV_AEC62XX" = "y" -o \
--     "$CONFIG_BLK_DEV_ALI15X3" = "y" -o \
--     "$CONFIG_BLK_DEV_AMD74XX" = "y" -o \
--     "$CONFIG_BLK_DEV_CMD640" = "y" -o \
--     "$CONFIG_BLK_DEV_CMD64X" = "y" -o \
--     "$CONFIG_BLK_DEV_CS5530" = "y" -o \
--     "$CONFIG_BLK_DEV_CY82C693" = "y" -o \
--     "$CONFIG_BLK_DEV_HPT34X" = "y" -o \
--     "$CONFIG_BLK_DEV_HPT366" = "y" -o \
--     "$CONFIG_BLK_DEV_IDE_PMAC" = "y" -o \
--     "$CONFIG_BLK_DEV_IT8172" = "y" -o \
--     "$CONFIG_BLK_DEV_MPC8xx_IDE" = "y" -o \
--     "$CONFIG_BLK_DEV_NFORCE" = "y" -o \
--     "$CONFIG_BLK_DEV_OPTI621" = "y" -o \
--     "$CONFIG_BLK_DEV_SVWKS" = "y" -o \
--     "$CONFIG_BLK_DEV_PDC202XX" = "y" -o \
--     "$CONFIG_BLK_DEV_PIIX" = "y" -o \
--     "$CONFIG_BLK_DEV_SVWKS" = "y" -o \
--     "$CONFIG_BLK_DEV_SIIMAGE" = "y" -o \
--     "$CONFIG_BLK_DEV_SIS5513" = "y" -o \
--     "$CONFIG_BLK_DEV_SL82C105" = "y" -o \
--     "$CONFIG_BLK_DEV_SLC90E66" = "y" -o \
--     "$CONFIG_BLK_DEV_VIA82CXXX" = "y" ]; then
--   define_bool CONFIG_BLK_DEV_IDE_MODES y
--else
--   define_bool CONFIG_BLK_DEV_IDE_MODES n
--fi
--
- dep_tristate 'Support for IDE Raid controllers (EXPERIMENTAL)' CONFIG_BLK_DEV_ATARAID $CONFIG_BLK_DEV_IDE $CONFIG_EXPERIMENTAL
- dep_tristate '   Support Promise software RAID (Fasttrak(tm)) (EXPERIMENTAL)' CONFIG_BLK_DEV_ATARAID_PDC $CONFIG_BLK_DEV_IDE $CONFIG_EXPERIMENTAL $CONFIG_BLK_DEV_ATARAID
- dep_tristate '   Highpoint 370 software RAID (EXPERIMENTAL)' CONFIG_BLK_DEV_ATARAID_HPT $CONFIG_BLK_DEV_IDE $CONFIG_EXPERIMENTAL $CONFIG_BLK_DEV_ATARAID
---- linux-2.4.orig/arch/sh64/defconfig	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/sh64/defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -171,7 +171,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/sh64/config.in	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/sh64/config.in	2003-12-27 19:49:57.000000000 +0100
-@@ -175,7 +175,6 @@
- if [ "$CONFIG_IDE" != "n" ]; then
-   source drivers/ide/Config.in
- else
--   define_bool CONFIG_BLK_DEV_IDE_MODES n
-    define_bool CONFIG_BLK_DEV_HD n
- fi
- endmenu
---- linux-2.4.orig/arch/x86_64/defconfig	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/x86_64/defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -272,7 +272,6 @@
- CONFIG_IDEDMA_AUTO=y
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/x86_64/config.in	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/x86_64/config.in	2003-12-27 19:49:57.000000000 +0100
-@@ -139,7 +139,6 @@
- if [ "$CONFIG_IDE" != "n" ]; then
-   source drivers/ide/Config.in
- else
--  define_bool CONFIG_BLK_DEV_IDE_MODES n
-   define_bool CONFIG_BLK_DEV_HD n
- fi
- endmenu
---- linux-2.4.orig/arch/ppc64/defconfig	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/ppc64/defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -226,7 +226,6 @@
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/ppc64/config.in	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/ppc64/config.in	2003-12-27 19:49:57.000000000 +0100
-@@ -120,7 +120,6 @@
- if [ "$CONFIG_IDE" != "n" ]; then
-   source drivers/ide/Config.in
- else
--  define_bool CONFIG_BLK_DEV_IDE_MODES n
-   define_bool CONFIG_BLK_DEV_HD n
- fi
- endmenu
---- linux-2.4.orig/arch/ppc64/configs/pSeries_defconfig	2003-08-25 13:44:40.000000000 +0200
-+++ linux-2.4/arch/ppc64/configs/pSeries_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -228,7 +228,6 @@
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/ppc64/configs/iSeries_nodevfs_ideemul_defconfig	2003-08-25 13:44:40.000000000 +0200
-+++ linux-2.4/arch/ppc64/configs/iSeries_nodevfs_ideemul_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -167,7 +167,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/ppc64/configs/iSeries_devfs_defconfig	2003-08-25 13:44:40.000000000 +0200
-+++ linux-2.4/arch/ppc64/configs/iSeries_devfs_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -143,7 +143,6 @@
- # QoS and/or fair queueing
- #
- # CONFIG_NET_SCHED is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/i386/defconfig	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/i386/defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -288,7 +288,6 @@
- CONFIG_IDEDMA_AUTO=y
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/i386/config.in	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/i386/config.in	2003-12-27 19:49:57.000000000 +0100
-@@ -371,7 +371,6 @@
- if [ "$CONFIG_IDE" != "n" ]; then
-    source drivers/ide/Config.in
- else
--   define_bool CONFIG_BLK_DEV_IDE_MODES n
-    define_bool CONFIG_BLK_DEV_HD n
- fi
- endmenu
---- linux-2.4.orig/arch/alpha/config.in	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/alpha/config.in	2003-12-27 19:49:57.000000000 +0100
-@@ -341,7 +341,6 @@
-   int '  Maximum IDE interfaces' MAX_HWIFS 4
-   source drivers/ide/Config.in
- else
--  define_bool CONFIG_BLK_DEV_IDE_MODES n
-   define_bool CONFIG_BLK_DEV_HD n
- fi
- endmenu
---- linux-2.4.orig/arch/alpha/defconfig	2003-06-13 16:51:29.000000000 +0200
-+++ linux-2.4/arch/alpha/defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -270,7 +270,6 @@
- CONFIG_IDEDMA_AUTO=y
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/sparc/config.in	2003-12-25 21:41:55.000000000 +0100
-+++ linux-2.4/arch/sparc/config.in	2003-12-27 19:49:57.000000000 +0100
-@@ -127,14 +127,12 @@
-   if [ "$CONFIG_IDE" != "n" ]; then
-     source drivers/ide/Config.in
-   else
--    define_bool CONFIG_BLK_DEV_IDE_MODES n
-     define_bool CONFIG_BLK_DEV_HD n
-   fi
-   endmenu
- else
- 
-   define_bool CONFIG_IDE n
--  define_bool CONFIG_BLK_DEV_IDE_MODES n
-   define_bool CONFIG_BLK_DEV_HD n
- fi
- 
---- linux-2.4.orig/arch/sparc/defconfig	2003-12-25 21:41:55.000000000 +0100
-+++ linux-2.4/arch/sparc/defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -201,7 +201,6 @@
- #
- CONFIG_NET_PKTGEN=m
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/config-shared.in	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/config-shared.in	2003-12-27 19:49:57.000000000 +0100
-@@ -982,7 +982,6 @@
- if [ "$CONFIG_IDE" != "n" ]; then
-    source drivers/ide/Config.in
- else
--   define_bool CONFIG_BLK_DEV_IDE_MODES n
-    define_bool CONFIG_BLK_DEV_HD n
- fi
- endmenu
---- linux-2.4.orig/arch/mips/defconfig-xxs1500	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-xxs1500	2003-12-27 19:49:57.000000000 +0100
-@@ -435,7 +435,6 @@
- CONFIG_IDEDMA_AUTO=y
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-workpad	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-workpad	2003-12-27 19:49:57.000000000 +0100
-@@ -284,7 +284,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-ti1500	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-ti1500	2003-12-27 19:49:57.000000000 +0100
-@@ -398,7 +398,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-tb0229	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-tb0229	2003-12-27 19:49:57.000000000 +0100
-@@ -262,7 +262,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig-tb0226	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-tb0226	2003-12-27 19:49:57.000000000 +0100
-@@ -260,7 +260,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig-sead	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-sead	2003-12-27 19:49:57.000000000 +0100
-@@ -200,7 +200,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig-sb1250-swarm	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-sb1250-swarm	2003-12-27 19:49:57.000000000 +0100
-@@ -315,7 +315,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-rm200	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-rm200	2003-12-27 19:49:57.000000000 +0100
-@@ -259,7 +259,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig-pb1500	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-pb1500	2003-12-27 19:49:57.000000000 +0100
-@@ -437,7 +437,6 @@
- CONFIG_IDEDMA_AUTO=y
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-pb1100	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-pb1100	2003-12-27 19:49:57.000000000 +0100
-@@ -384,7 +384,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-pb1000	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-pb1000	2003-12-27 19:49:57.000000000 +0100
-@@ -383,7 +383,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-osprey	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-osprey	2003-12-27 19:49:57.000000000 +0100
-@@ -257,7 +257,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig-ocelot	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-ocelot	2003-12-27 19:49:57.000000000 +0100
-@@ -334,7 +334,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig-nino	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-nino	2003-12-27 19:49:57.000000000 +0100
-@@ -258,7 +258,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig-mtx-1	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-mtx-1	2003-12-27 19:49:57.000000000 +0100
-@@ -348,7 +348,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig-mpc30x	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-mpc30x	2003-12-27 19:49:57.000000000 +0100
-@@ -261,7 +261,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig-mirage	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-mirage	2003-12-27 19:49:57.000000000 +0100
-@@ -290,7 +290,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig-malta	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-malta	2003-12-27 19:49:57.000000000 +0100
-@@ -267,7 +267,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig-lasat	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-lasat	2003-12-27 19:49:57.000000000 +0100
-@@ -397,7 +397,6 @@
- CONFIG_IDEDMA_AUTO=y
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-jmr3927	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-jmr3927	2003-12-27 19:49:57.000000000 +0100
-@@ -257,7 +257,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig-ivr	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-ivr	2003-12-27 19:49:57.000000000 +0100
-@@ -325,7 +325,6 @@
- CONFIG_IDEDMA_AUTO=y
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-it8172	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-it8172	2003-12-27 19:49:57.000000000 +0100
-@@ -400,7 +400,6 @@
- CONFIG_IDEDMA_AUTO=y
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-ip22	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-ip22	2003-12-27 19:49:57.000000000 +0100
-@@ -267,7 +267,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig-hp-lj	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-hp-lj	2003-12-27 19:49:57.000000000 +0100
-@@ -400,7 +400,6 @@
- CONFIG_IDEDMA_AUTO=y
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-ev96100	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-ev96100	2003-12-27 19:49:57.000000000 +0100
-@@ -263,7 +263,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig-ev64120	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-ev64120	2003-12-27 19:49:57.000000000 +0100
-@@ -260,7 +260,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig-eagle	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-eagle	2003-12-27 19:49:57.000000000 +0100
-@@ -383,7 +383,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-e55	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-e55	2003-12-27 19:49:57.000000000 +0100
-@@ -284,7 +284,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-decstation	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-decstation	2003-12-27 19:49:57.000000000 +0100
-@@ -254,7 +254,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig-ddb5477	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-ddb5477	2003-12-27 19:49:57.000000000 +0100
-@@ -258,7 +258,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig-ddb5476	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-ddb5476	2003-12-27 19:49:57.000000000 +0100
-@@ -325,7 +325,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-db1500	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-db1500	2003-12-27 19:49:57.000000000 +0100
-@@ -366,7 +366,6 @@
- CONFIG_IDEDMA_AUTO=y
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-db1100	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-db1100	2003-12-27 19:49:57.000000000 +0100
-@@ -400,7 +400,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-db1000	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-db1000	2003-12-27 19:49:57.000000000 +0100
-@@ -401,7 +401,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-cobalt	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-cobalt	2003-12-27 19:49:57.000000000 +0100
-@@ -320,7 +320,6 @@
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-capcella	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-capcella	2003-12-27 19:49:57.000000000 +0100
-@@ -291,7 +291,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-bosporus	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-bosporus	2003-12-27 19:49:57.000000000 +0100
-@@ -399,7 +399,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig-atlas	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-atlas	2003-12-27 19:49:57.000000000 +0100
-@@ -265,7 +265,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -267,7 +267,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig-csb250	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-csb250	2003-12-27 19:49:57.000000000 +0100
-@@ -367,7 +367,6 @@
- CONFIG_IDEDMA_AUTO=y
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-hydrogen3	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-hydrogen3	2003-12-27 19:49:57.000000000 +0100
-@@ -400,7 +400,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips/defconfig-rbtx4927	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-rbtx4927	2003-12-27 19:49:57.000000000 +0100
-@@ -255,7 +255,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips/defconfig-yosemite	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips/defconfig-yosemite	2003-12-27 19:49:57.000000000 +0100
-@@ -256,7 +256,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/ppc/config.in	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/ppc/config.in	2003-12-27 19:49:57.000000000 +0100
-@@ -423,7 +423,6 @@
- if [ "$CONFIG_IDE" != "n" ]; then
-   source drivers/ide/Config.in
- else
--  define_bool CONFIG_BLK_DEV_IDE_MODES n
-   define_bool CONFIG_BLK_DEV_HD n
- fi
- endmenu
---- linux-2.4.orig/arch/ppc/defconfig	2003-06-13 16:51:31.000000000 +0200
-+++ linux-2.4/arch/ppc/defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -308,7 +308,6 @@
- CONFIG_IDEDMA_AUTO=y
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/ppc/configs/rpxlite_defconfig	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/ppc/configs/rpxlite_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -190,7 +190,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/ppc/configs/rpxcllf_defconfig	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/ppc/configs/rpxcllf_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -190,7 +190,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/ppc/configs/ocotea_defconfig	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/ppc/configs/ocotea_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -183,7 +183,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/ppc/configs/mbx_defconfig	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/ppc/configs/mbx_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -177,7 +177,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/ppc/configs/ebony_defconfig	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/ppc/configs/ebony_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -182,7 +182,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/ppc/configs/bseip_defconfig	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/ppc/configs/bseip_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -180,7 +180,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/ppc/configs/apus_defconfig	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/ppc/configs/apus_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -290,7 +290,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/ppc/configs/TQM860L_defconfig	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/ppc/configs/TQM860L_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -215,7 +215,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/ppc/configs/TQM850L_defconfig	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/ppc/configs/TQM850L_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -181,7 +181,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/ppc/configs/TQM823L_defconfig	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/ppc/configs/TQM823L_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -181,7 +181,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/ppc/configs/SPD823TS_defconfig	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/ppc/configs/SPD823TS_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -180,7 +180,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/ppc/configs/SM850_defconfig	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/ppc/configs/SM850_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -181,7 +181,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/ppc/configs/IVMS8_defconfig	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/ppc/configs/IVMS8_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -214,7 +214,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/ppc/configs/walnut_defconfig	2003-08-25 13:44:40.000000000 +0200
-+++ linux-2.4/arch/ppc/configs/walnut_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -172,7 +172,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/ppc/configs/pplus_defconfig	2003-08-25 13:44:40.000000000 +0200
-+++ linux-2.4/arch/ppc/configs/pplus_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -299,7 +299,6 @@
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/ppc/configs/spruce_defconfig	2003-06-13 16:51:31.000000000 +0200
-+++ linux-2.4/arch/ppc/configs/spruce_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -172,7 +172,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/ppc/configs/power3_defconfig	2003-06-13 16:51:31.000000000 +0200
-+++ linux-2.4/arch/ppc/configs/power3_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -180,7 +180,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/ppc/configs/pmac_defconfig	2003-06-13 16:51:31.000000000 +0200
-+++ linux-2.4/arch/ppc/configs/pmac_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -312,7 +312,6 @@
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
- CONFIG_BLK_DEV_PDC202XX=y
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/ppc/configs/pal4_defconfig	2003-06-13 16:51:31.000000000 +0200
-+++ linux-2.4/arch/ppc/configs/pal4_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -225,7 +225,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/ppc/configs/oak_defconfig	2003-06-13 16:51:31.000000000 +0200
-+++ linux-2.4/arch/ppc/configs/oak_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -164,7 +164,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/ppc/configs/ibmchrp_defconfig	2003-06-13 16:51:31.000000000 +0200
-+++ linux-2.4/arch/ppc/configs/ibmchrp_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -226,7 +226,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/ppc/configs/gemini_defconfig	2003-06-13 16:51:31.000000000 +0200
-+++ linux-2.4/arch/ppc/configs/gemini_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -182,7 +182,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/ppc/configs/est8260_defconfig	2003-06-13 16:51:31.000000000 +0200
-+++ linux-2.4/arch/ppc/configs/est8260_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -163,7 +163,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/ppc/configs/common_defconfig	2003-06-13 16:51:31.000000000 +0200
-+++ linux-2.4/arch/ppc/configs/common_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -308,7 +308,6 @@
- CONFIG_IDEDMA_AUTO=y
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/ppc/configs/briq_defconfig	2003-06-13 16:51:31.000000000 +0200
-+++ linux-2.4/arch/ppc/configs/briq_defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -300,7 +300,6 @@
- CONFIG_IDEDMA_AUTO=y
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/m68k/defconfig	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/m68k/defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -124,7 +124,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/m68k/config.in	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/m68k/config.in	2003-12-27 19:49:57.000000000 +0100
-@@ -185,7 +185,6 @@
- if [ "$CONFIG_IDE" != "n" ]; then
-   source drivers/ide/Config.in
- else
--  define_bool CONFIG_BLK_DEV_IDE_MODES n
-   define_bool CONFIG_BLK_DEV_HD n
- fi
- endmenu
---- linux-2.4.orig/arch/sparc64/defconfig	2003-12-25 21:41:55.000000000 +0100
-+++ linux-2.4/arch/sparc64/defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -450,7 +450,6 @@
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
- CONFIG_BLK_DEV_PDC202XX=y
--CONFIG_BLK_DEV_IDE_MODES=y
- CONFIG_BLK_DEV_ATARAID=m
- CONFIG_BLK_DEV_ATARAID_PDC=m
- CONFIG_BLK_DEV_ATARAID_HPT=m
---- linux-2.4.orig/arch/sparc64/config.in	2003-12-25 21:41:55.000000000 +0100
-+++ linux-2.4/arch/sparc64/config.in	2003-12-27 19:49:57.000000000 +0100
-@@ -132,7 +132,6 @@
- if [ "$CONFIG_IDE" != "n" ]; then
-   source drivers/ide/Config.in
- else
--  define_bool CONFIG_BLK_DEV_IDE_MODES n
-   define_bool CONFIG_BLK_DEV_HD n
- fi
- endmenu
---- linux-2.4.orig/arch/arm/config.in	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/arm/config.in	2003-12-27 19:49:57.000000000 +0100
-@@ -585,7 +585,6 @@
- if [ "$CONFIG_IDE" != "n" ]; then
-   source drivers/ide/Config.in
- else
--  define_bool CONFIG_BLK_DEV_IDE_MODES n
-   define_bool CONFIG_BLK_DEV_HD n
- fi
- endmenu
---- linux-2.4.orig/arch/arm/defconfig	2001-05-20 02:43:05.000000000 +0200
-+++ linux-2.4/arch/arm/defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -303,7 +303,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/arm/def-configs/riscstation	2003-08-25 13:44:39.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/riscstation	2003-12-27 19:49:57.000000000 +0100
-@@ -372,7 +372,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/arm/def-configs/omaha	2003-08-25 13:44:39.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/omaha	2003-12-27 19:49:57.000000000 +0100
-@@ -358,7 +358,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/arm/def-configs/nanoengine	2003-08-25 13:44:39.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/nanoengine	2003-12-27 19:49:57.000000000 +0100
-@@ -413,7 +413,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/arm/def-configs/lusl7200	2003-08-25 13:44:39.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/lusl7200	2003-12-27 19:49:57.000000000 +0100
-@@ -161,7 +161,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/arm/def-configs/graphicsmaster	2003-08-25 13:44:39.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/graphicsmaster	2003-12-27 19:49:57.000000000 +0100
-@@ -535,7 +535,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/arm/def-configs/graphicsclient	2003-08-25 13:44:39.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/graphicsclient	2003-12-27 19:49:57.000000000 +0100
-@@ -533,7 +533,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/arm/def-configs/frodo	2003-08-25 13:44:39.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/frodo	2003-12-27 19:49:57.000000000 +0100
-@@ -462,7 +462,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/arm/def-configs/epxa1db	2003-08-25 13:44:39.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/epxa1db	2003-12-27 19:49:57.000000000 +0100
-@@ -404,7 +404,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/arm/def-configs/epxa10db	2003-08-25 13:44:39.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/epxa10db	2003-12-27 19:49:57.000000000 +0100
-@@ -422,7 +422,6 @@
- # ATA/ATAPI/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/arm/def-configs/cep	2003-08-25 13:44:39.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/cep	2003-12-27 19:49:57.000000000 +0100
-@@ -303,7 +303,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/arm/def-configs/at91rm9200dk	2003-08-25 13:44:39.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/at91rm9200dk	2003-12-27 19:49:57.000000000 +0100
-@@ -426,7 +426,6 @@
- # ATA/ATAPI/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/arm/def-configs/adsbitsyplus	2003-08-25 13:44:39.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/adsbitsyplus	2003-12-27 19:49:57.000000000 +0100
-@@ -535,7 +535,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/arm/def-configs/adsbitsy	2003-08-25 13:44:39.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/adsbitsy	2003-12-27 19:49:57.000000000 +0100
-@@ -535,7 +535,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/arm/def-configs/adsagc	2003-08-25 13:44:39.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/adsagc	2003-12-27 19:49:57.000000000 +0100
-@@ -535,7 +535,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/arm/def-configs/accelent_sa	2003-08-25 13:44:39.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/accelent_sa	2003-12-27 19:49:57.000000000 +0100
-@@ -506,7 +506,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/arm/def-configs/footbridge	2003-06-13 16:51:29.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/footbridge	2003-12-27 19:49:57.000000000 +0100
-@@ -437,7 +437,6 @@
- CONFIG_IDEDMA_AUTO=y
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- 
- #
- # SCSI support
---- linux-2.4.orig/arch/arm/def-configs/badge4	2003-06-13 16:51:29.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/badge4	2003-12-27 19:49:57.000000000 +0100
-@@ -527,7 +527,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/arm/def-configs/system3	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/system3	2003-12-27 19:49:57.000000000 +0100
-@@ -496,7 +496,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/arm/def-configs/shark	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/shark	2003-12-27 19:49:57.000000000 +0100
-@@ -391,7 +391,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/arm/def-configs/shannon	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/shannon	2003-12-27 19:49:57.000000000 +0100
-@@ -387,7 +387,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- 
- #
---- linux-2.4.orig/arch/arm/def-configs/rpc	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/rpc	2003-12-27 19:49:57.000000000 +0100
-@@ -412,7 +412,6 @@
- CONFIG_IDEDMA_AUTO=y
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- 
- #
- # SCSI support
---- linux-2.4.orig/arch/arm/def-configs/pleb	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/pleb	2003-12-27 19:49:57.000000000 +0100
-@@ -331,7 +331,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/arm/def-configs/pfs168_satft	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/pfs168_satft	2003-12-27 19:49:57.000000000 +0100
-@@ -458,7 +458,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- 
- #
- # SCSI support
---- linux-2.4.orig/arch/arm/def-configs/pfs168_sastn	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/pfs168_sastn	2003-12-27 19:49:57.000000000 +0100
-@@ -459,7 +459,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- 
- #
- # SCSI support
---- linux-2.4.orig/arch/arm/def-configs/pfs168_mqvga	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/pfs168_mqvga	2003-12-27 19:49:57.000000000 +0100
-@@ -458,7 +458,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- 
- #
- # SCSI support
---- linux-2.4.orig/arch/arm/def-configs/pfs168_mqtft	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/pfs168_mqtft	2003-12-27 19:49:57.000000000 +0100
-@@ -458,7 +458,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- 
- #
- # SCSI support
---- linux-2.4.orig/arch/arm/def-configs/pangolin	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/pangolin	2003-12-27 19:49:57.000000000 +0100
-@@ -434,7 +434,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- 
- #
- # SCSI support
---- linux-2.4.orig/arch/arm/def-configs/neponset	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/neponset	2003-12-27 19:49:57.000000000 +0100
-@@ -455,7 +455,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/arm/def-configs/lart	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/lart	2003-12-27 19:49:57.000000000 +0100
-@@ -484,7 +484,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/arm/def-configs/jornada720	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/jornada720	2003-12-27 19:49:57.000000000 +0100
-@@ -482,7 +482,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/arm/def-configs/integrator	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/integrator	2003-12-27 19:49:57.000000000 +0100
-@@ -410,7 +410,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/arm/def-configs/h3600	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/h3600	2003-12-27 19:49:57.000000000 +0100
-@@ -482,7 +482,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/arm/def-configs/freebird_new	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/freebird_new	2003-12-27 19:49:57.000000000 +0100
-@@ -398,7 +398,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- 
- #
- # SCSI support
---- linux-2.4.orig/arch/arm/def-configs/freebird	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/freebird	2003-12-27 19:49:57.000000000 +0100
-@@ -384,7 +384,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- 
- #
- # SCSI support
---- linux-2.4.orig/arch/arm/def-configs/fortunet	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/fortunet	2003-12-27 19:49:57.000000000 +0100
-@@ -295,7 +295,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/arm/def-configs/flexanet	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/flexanet	2003-12-27 19:49:57.000000000 +0100
-@@ -479,7 +479,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/arm/def-configs/ebsa110	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/ebsa110	2003-12-27 19:49:57.000000000 +0100
-@@ -387,7 +387,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/arm/def-configs/clps7500	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/clps7500	2003-12-27 19:49:57.000000000 +0100
-@@ -298,7 +298,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/arm/def-configs/cerfpod	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/cerfpod	2003-12-27 19:49:57.000000000 +0100
-@@ -475,7 +475,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/arm/def-configs/cerfpda	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/cerfpda	2003-12-27 19:49:57.000000000 +0100
-@@ -504,7 +504,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/arm/def-configs/cerfcube	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/cerfcube	2003-12-27 19:49:57.000000000 +0100
-@@ -474,7 +474,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/arm/def-configs/assabet	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/assabet	2003-12-27 19:49:57.000000000 +0100
-@@ -493,7 +493,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/arm/def-configs/anakin	2002-08-03 02:39:42.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/anakin	2003-12-27 19:49:57.000000000 +0100
-@@ -259,7 +259,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/arm/def-configs/a5k	2000-11-28 02:07:59.000000000 +0100
-+++ linux-2.4/arch/arm/def-configs/a5k	2003-12-27 19:49:57.000000000 +0100
-@@ -287,7 +287,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- 
- #
- # SCSI support
---- linux-2.4.orig/arch/arm/def-configs/brutus	2001-08-12 20:13:59.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/brutus	2003-12-27 19:49:57.000000000 +0100
-@@ -123,7 +123,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/arm/def-configs/huw_webpanel	2001-08-12 20:13:59.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/huw_webpanel	2003-12-27 19:49:57.000000000 +0100
-@@ -227,7 +227,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/arm/def-configs/omnimeter	2001-08-12 20:13:59.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/omnimeter	2003-12-27 19:49:57.000000000 +0100
-@@ -314,7 +314,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- 
- #
- # SCSI support
---- linux-2.4.orig/arch/arm/def-configs/edb7211	2001-10-25 22:53:44.000000000 +0200
-+++ linux-2.4/arch/arm/def-configs/edb7211	2003-12-27 19:49:57.000000000 +0100
-@@ -225,7 +225,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/sh/config.in	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/sh/config.in	2003-12-27 19:49:57.000000000 +0100
-@@ -307,7 +307,6 @@
- if [ "$CONFIG_IDE" != "n" ]; then
-   source drivers/ide/Config.in
- else
--  define_bool CONFIG_BLK_DEV_IDE_MODES n
-   define_bool CONFIG_BLK_DEV_HD n
- fi
- endmenu
---- linux-2.4.orig/arch/sh/defconfig	2001-10-15 22:36:48.000000000 +0200
-+++ linux-2.4/arch/sh/defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -121,7 +121,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- 
- #
- # SCSI support
---- linux-2.4.orig/arch/ia64/defconfig	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/ia64/defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -291,7 +291,6 @@
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/ia64/config.in	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/ia64/config.in	2003-12-27 19:49:57.000000000 +0100
-@@ -147,7 +147,6 @@
-   if [ "$CONFIG_IDE" != "n" ]; then
-     source drivers/ide/Config.in
-   else
--    define_bool CONFIG_BLK_DEV_IDE_MODES n
-     define_bool CONFIG_BLK_DEV_HD n
-   fi
-   endmenu
---- linux-2.4.orig/arch/ia64/configs/zx1	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/ia64/configs/zx1	2003-12-27 19:49:57.000000000 +0100
-@@ -291,7 +291,6 @@
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/ia64/configs/numa	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/ia64/configs/numa	2003-12-27 19:49:57.000000000 +0100
-@@ -293,7 +293,6 @@
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/ia64/configs/generic	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/ia64/configs/generic	2003-12-27 19:49:57.000000000 +0100
-@@ -291,7 +291,6 @@
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/ia64/configs/dig	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/ia64/configs/dig	2003-12-27 19:49:57.000000000 +0100
-@@ -290,7 +290,6 @@
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--CONFIG_BLK_DEV_IDE_MODES=y
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/mips64/defconfig	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips64/defconfig	2003-12-27 19:49:57.000000000 +0100
-@@ -247,7 +247,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips64/defconfig-sead	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips64/defconfig-sead	2003-12-27 19:49:58.000000000 +0100
-@@ -198,7 +198,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips64/defconfig-sb1250-swarm	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips64/defconfig-sb1250-swarm	2003-12-27 19:49:58.000000000 +0100
-@@ -284,7 +284,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips64/defconfig-malta	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips64/defconfig-malta	2003-12-27 19:49:58.000000000 +0100
-@@ -265,7 +265,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips64/defconfig-ip27	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips64/defconfig-ip27	2003-12-27 19:49:58.000000000 +0100
-@@ -247,7 +247,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips64/defconfig-ip22	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips64/defconfig-ip22	2003-12-27 19:49:58.000000000 +0100
-@@ -267,7 +267,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips64/defconfig-decstation	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips64/defconfig-decstation	2003-12-27 19:49:58.000000000 +0100
-@@ -255,7 +255,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips64/defconfig-atlas	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips64/defconfig-atlas	2003-12-27 19:49:58.000000000 +0100
-@@ -262,7 +262,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips64/defconfig-jaguar	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips64/defconfig-jaguar	2003-12-27 19:49:58.000000000 +0100
-@@ -256,7 +256,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/mips64/defconfig-ocelotc	2003-12-25 21:41:54.000000000 +0100
-+++ linux-2.4/arch/mips64/defconfig-ocelotc	2003-12-27 19:49:58.000000000 +0100
-@@ -261,7 +261,6 @@
- # ATA/IDE/MFM/RLL support
- #
- # CONFIG_IDE is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_HD is not set
- 
- #
---- linux-2.4.orig/arch/parisc/config.in	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/parisc/config.in	2003-12-27 19:49:58.000000000 +0100
-@@ -116,7 +116,6 @@
-     if [ "$CONFIG_IDE" != "n" ]; then
-       source drivers/ide/Config.in
-     else
--      define_bool CONFIG_BLK_DEV_IDE_MODES n
-       define_bool CONFIG_BLK_DEV_HD n
-     fi
-     endmenu
---- linux-2.4.orig/arch/parisc/defconfig	2003-06-13 16:51:31.000000000 +0200
-+++ linux-2.4/arch/parisc/defconfig	2003-12-27 19:49:58.000000000 +0100
-@@ -245,7 +245,6 @@
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_IDEDMA_IVB is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- # CONFIG_BLK_DEV_ATARAID is not set
- # CONFIG_BLK_DEV_ATARAID_PDC is not set
- # CONFIG_BLK_DEV_ATARAID_HPT is not set
---- linux-2.4.orig/arch/cris/config.in	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4/arch/cris/config.in	2003-12-27 19:49:58.000000000 +0100
-@@ -184,7 +184,6 @@
- if [ "$CONFIG_IDE" != "n" ]; then
-   source drivers/ide/Config.in
- else
--  define_bool CONFIG_BLK_DEV_IDE_MODES n
-   define_bool CONFIG_BLK_DEV_HD n
- fi
- endmenu
---- linux-2.4.orig/arch/cris/defconfig	2003-08-25 13:44:39.000000000 +0200
-+++ linux-2.4/arch/cris/defconfig	2003-12-27 19:49:58.000000000 +0100
-@@ -282,7 +282,6 @@
- # CONFIG_IDE_CHIPSETS is not set
- # CONFIG_IDEDMA_AUTO is not set
- # CONFIG_DMA_NONPCI is not set
--# CONFIG_BLK_DEV_IDE_MODES is not set
- 
- #
- # SCSI support
+However, whatever i do, it does not resume properly when i wake the
+computer up after suspend (see my last article).
 
---=-=-=--
+So, local APIC (I have to admit that I don't know what that is, is
+there some global APIC as well...?) seems to have some bugs.
+Workaround for me: disable local APIC.
+
+However, I'd appreciate if someone had any idea why the kernel crashes
+when trying to resume. Deadlocks...?
+
+Michael
+--=20
+"New" PGP Key! User ID: Michael Schierl <schierlm@gmx.de>
+Key ID: 0x58B48CDD    Size: 2048    Created: 26.03.2002
+=46ingerprint:  68CE B807 E315 D14B  7461 5539 C90F 7CC8
+http://home.arcor.de/mschierlm/mschierlm.asc
+
+----=_jenruvg5o12ck7g4t5jcmeaprtiie2ghel.MFSBCHJLHS
+Content-Type: text/plain; charset=us-ascii; name=.config-minimal-apic
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment; filename=.config-minimal-apic
+
+#
+# Automatically generated make config: don't edit
+#
+CONFIG_X86=3Dy
+CONFIG_MMU=3Dy
+CONFIG_UID16=3Dy
+CONFIG_GENERIC_ISA_DMA=3Dy
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=3Dy
+# CONFIG_CLEAN_COMPILE is not set
+# CONFIG_STANDALONE is not set
+CONFIG_BROKEN=3Dy
+CONFIG_BROKEN_ON_SMP=3Dy
+
+#
+# General setup
+#
+# CONFIG_SWAP is not set
+# CONFIG_SYSVIPC is not set
+# CONFIG_BSD_PROCESS_ACCT is not set
+# CONFIG_SYSCTL is not set
+CONFIG_LOG_BUF_SHIFT=3D14
+# CONFIG_IKCONFIG is not set
+CONFIG_EMBEDDED=3Dy
+# CONFIG_KALLSYMS is not set
+# CONFIG_FUTEX is not set
+# CONFIG_EPOLL is not set
+CONFIG_IOSCHED_NOOP=3Dy
+# CONFIG_IOSCHED_AS is not set
+# CONFIG_IOSCHED_DEADLINE is not set
+
+#
+# Loadable module support
+#
+# CONFIG_MODULES is not set
+
+#
+# Processor type and features
+#
+CONFIG_X86_PC=3Dy
+# CONFIG_X86_VOYAGER is not set
+# CONFIG_X86_NUMAQ is not set
+# CONFIG_X86_SUMMIT is not set
+# CONFIG_X86_BIGSMP is not set
+# CONFIG_X86_VISWS is not set
+# CONFIG_X86_GENERICARCH is not set
+# CONFIG_X86_ES7000 is not set
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+# CONFIG_MPENTIUMII is not set
+CONFIG_MPENTIUMIII=3Dy
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MK8 is not set
+# CONFIG_MELAN is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MCYRIXIII is not set
+# CONFIG_MVIAC3_2 is not set
+# CONFIG_X86_GENERIC is not set
+CONFIG_X86_CMPXCHG=3Dy
+CONFIG_X86_XADD=3Dy
+CONFIG_X86_L1_CACHE_SHIFT=3D5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=3Dy
+CONFIG_X86_WP_WORKS_OK=3Dy
+CONFIG_X86_INVLPG=3Dy
+CONFIG_X86_BSWAP=3Dy
+CONFIG_X86_POPAD_OK=3Dy
+CONFIG_X86_GOOD_APIC=3Dy
+CONFIG_X86_INTEL_USERCOPY=3Dy
+CONFIG_X86_USE_PPRO_CHECKSUM=3Dy
+# CONFIG_HPET_TIMER is not set
+# CONFIG_HPET_EMULATE_RTC is not set
+# CONFIG_SMP is not set
+# CONFIG_PREEMPT is not set
+CONFIG_X86_UP_APIC=3Dy
+# CONFIG_X86_UP_IOAPIC is not set
+CONFIG_X86_LOCAL_APIC=3Dy
+CONFIG_X86_TSC=3Dy
+# CONFIG_X86_MCE is not set
+# CONFIG_TOSHIBA is not set
+# CONFIG_I8K is not set
+# CONFIG_MICROCODE is not set
+# CONFIG_X86_MSR is not set
+# CONFIG_X86_CPUID is not set
+# CONFIG_EDD is not set
+CONFIG_NOHIGHMEM=3Dy
+# CONFIG_HIGHMEM4G is not set
+# CONFIG_HIGHMEM64G is not set
+# CONFIG_MATH_EMULATION is not set
+# CONFIG_MTRR is not set
+
+#
+# Power management options (ACPI, APM)
+#
+CONFIG_PM=3Dy
+
+#
+# ACPI (Advanced Configuration and Power Interface) Support
+#
+# CONFIG_ACPI is not set
+
+#
+# APM (Advanced Power Management) BIOS Support
+#
+CONFIG_APM=3Dy
+CONFIG_APM_IGNORE_USER_SUSPEND=3Dy
+# CONFIG_APM_DO_ENABLE is not set
+# CONFIG_APM_CPU_IDLE is not set
+# CONFIG_APM_DISPLAY_BLANK is not set
+# CONFIG_APM_RTC_IS_GMT is not set
+# CONFIG_APM_ALLOW_INTS is not set
+# CONFIG_APM_REAL_MODE_POWER_OFF is not set
+
+#
+# CPU Frequency scaling
+#
+# CONFIG_CPU_FREQ is not set
+
+#
+# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
+#
+# CONFIG_PCI is not set
+# CONFIG_ISA is not set
+# CONFIG_MCA is not set
+# CONFIG_SCx200 is not set
+# CONFIG_HOTPLUG is not set
+
+#
+# Executable file formats
+#
+CONFIG_BINFMT_ELF=3Dy
+# CONFIG_BINFMT_AOUT is not set
+# CONFIG_BINFMT_MISC is not set
+
+#
+# Device Drivers
+#
+
+#
+# Generic Driver Options
+#
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Parallel port support
+#
+# CONFIG_PARPORT is not set
+
+#
+# Plug and Play support
+#
+# CONFIG_PNP is not set
+
+#
+# Block devices
+#
+# CONFIG_BLK_DEV_FD is not set
+# CONFIG_BLK_DEV_LOOP is not set
+# CONFIG_BLK_DEV_RAM is not set
+# CONFIG_BLK_DEV_INITRD is not set
+# CONFIG_LBD is not set
+
+#
+# ATA/ATAPI/MFM/RLL support
+#
+CONFIG_IDE=3Dy
+CONFIG_BLK_DEV_IDE=3Dy
+
+#
+# Please see Documentation/ide.txt for help/info on IDE drives
+#
+# CONFIG_BLK_DEV_HD_IDE is not set
+CONFIG_BLK_DEV_IDEDISK=3Dy
+# CONFIG_IDEDISK_MULTI_MODE is not set
+# CONFIG_IDEDISK_STROKE is not set
+# CONFIG_BLK_DEV_IDECD is not set
+# CONFIG_BLK_DEV_IDETAPE is not set
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+# CONFIG_IDE_TASK_IOCTL is not set
+# CONFIG_IDE_TASKFILE_IO is not set
+
+#
+# IDE chipset support/bugfixes
+#
+# CONFIG_BLK_DEV_CMD640 is not set
+# CONFIG_BLK_DEV_IDEDMA is not set
+# CONFIG_IDEDMA_AUTO is not set
+# CONFIG_DMA_NONPCI is not set
+# CONFIG_BLK_DEV_HD is not set
+
+#
+# SCSI device support
+#
+# CONFIG_SCSI is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+
+#
+# Fusion MPT device support
+#
+
+#
+# I2O device support
+#
+
+#
+# Networking support
+#
+# CONFIG_NET is not set
+
+#
+# Amateur Radio support
+#
+# CONFIG_HAMRADIO is not set
+
+#
+# ISDN subsystem
+#
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+
+#
+# Input device support
+#
+CONFIG_INPUT=3Dy
+
+#
+# Userland interfaces
+#
+# CONFIG_INPUT_MOUSEDEV is not set
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_TSDEV is not set
+# CONFIG_INPUT_EVDEV is not set
+# CONFIG_INPUT_EVBUG is not set
+
+#
+# Input I/O drivers
+#
+# CONFIG_GAMEPORT is not set
+CONFIG_SOUND_GAMEPORT=3Dy
+# CONFIG_SERIO is not set
+# CONFIG_SERIO_I8042 is not set
+
+#
+# Input Device Drivers
+#
+# CONFIG_INPUT_KEYBOARD is not set
+# CONFIG_INPUT_MOUSE is not set
+# CONFIG_INPUT_JOYSTICK is not set
+# CONFIG_INPUT_TOUCHSCREEN is not set
+# CONFIG_INPUT_MISC is not set
+
+#
+# Character devices
+#
+CONFIG_VT=3Dy
+CONFIG_VT_CONSOLE=3Dy
+CONFIG_HW_CONSOLE=3Dy
+# CONFIG_SERIAL_NONSTANDARD is not set
+
+#
+# Serial drivers
+#
+# CONFIG_SERIAL_8250 is not set
+
+#
+# Non-8250 serial port support
+#
+# CONFIG_UNIX98_PTYS is not set
+
+#
+# I2C support
+#
+# CONFIG_I2C is not set
+
+#
+# I2C Algorithms
+#
+
+#
+# I2C Hardware Bus support
+#
+
+#
+# I2C Hardware Sensors Chip support
+#
+# CONFIG_I2C_SENSOR is not set
+
+#
+# Mice
+#
+# CONFIG_BUSMOUSE is not set
+# CONFIG_QIC02_TAPE is not set
+
+#
+# IPMI
+#
+# CONFIG_IPMI_HANDLER is not set
+
+#
+# Watchdog Cards
+#
+# CONFIG_WATCHDOG is not set
+# CONFIG_NVRAM is not set
+# CONFIG_RTC is not set
+# CONFIG_GEN_RTC is not set
+# CONFIG_DTLK is not set
+# CONFIG_R3964 is not set
+# CONFIG_APPLICOM is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_FTAPE is not set
+# CONFIG_AGP is not set
+# CONFIG_DRM is not set
+# CONFIG_MWAVE is not set
+# CONFIG_RAW_DRIVER is not set
+# CONFIG_HANGCHECK_TIMER is not set
+
+#
+# Multimedia devices
+#
+# CONFIG_VIDEO_DEV is not set
+
+#
+# Digital Video Broadcasting Devices
+#
+
+#
+# Graphics support
+#
+# CONFIG_FB is not set
+# CONFIG_VIDEO_SELECT is not set
+
+#
+# Console display driver support
+#
+CONFIG_VGA_CONSOLE=3Dy
+# CONFIG_MDA_CONSOLE is not set
+CONFIG_DUMMY_CONSOLE=3Dy
+
+#
+# Sound
+#
+# CONFIG_SOUND is not set
+
+#
+# USB support
+#
+# CONFIG_USB_GADGET is not set
+
+#
+# File systems
+#
+CONFIG_EXT2_FS=3Dy
+# CONFIG_EXT2_FS_XATTR is not set
+# CONFIG_EXT3_FS is not set
+# CONFIG_JBD is not set
+# CONFIG_REISERFS_FS is not set
+# CONFIG_JFS_FS is not set
+# CONFIG_XFS_FS is not set
+# CONFIG_MINIX_FS is not set
+# CONFIG_ROMFS_FS is not set
+# CONFIG_QUOTA is not set
+# CONFIG_AUTOFS_FS is not set
+# CONFIG_AUTOFS4_FS is not set
+
+#
+# CD-ROM/DVD Filesystems
+#
+# CONFIG_ISO9660_FS is not set
+# CONFIG_UDF_FS is not set
+
+#
+# DOS/FAT/NT Filesystems
+#
+# CONFIG_FAT_FS is not set
+# CONFIG_NTFS_FS is not set
+
+#
+# Pseudo filesystems
+#
+CONFIG_PROC_FS=3Dy
+CONFIG_PROC_KCORE=3Dy
+# CONFIG_DEVFS_FS is not set
+# CONFIG_TMPFS is not set
+# CONFIG_HUGETLBFS is not set
+# CONFIG_HUGETLB_PAGE is not set
+CONFIG_RAMFS=3Dy
+
+#
+# Miscellaneous filesystems
+#
+# CONFIG_ADFS_FS is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_HFS_FS is not set
+# CONFIG_BEFS_FS is not set
+# CONFIG_BFS_FS is not set
+# CONFIG_EFS_FS is not set
+# CONFIG_CRAMFS is not set
+# CONFIG_VXFS_FS is not set
+# CONFIG_HPFS_FS is not set
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_SYSV_FS is not set
+# CONFIG_UFS_FS is not set
+
+#
+# Partition Types
+#
+# CONFIG_PARTITION_ADVANCED is not set
+CONFIG_MSDOS_PARTITION=3Dy
+
+#
+# Profiling support
+#
+# CONFIG_PROFILING is not set
+
+#
+# Kernel hacking
+#
+CONFIG_DEBUG_KERNEL=3Dy
+CONFIG_DEBUG_STACKOVERFLOW=3Dy
+CONFIG_DEBUG_SLAB=3Dy
+CONFIG_DEBUG_IOVIRT=3Dy
+CONFIG_MAGIC_SYSRQ=3Dy
+# CONFIG_DEBUG_SPINLOCK is not set
+CONFIG_DEBUG_PAGEALLOC=3Dy
+# CONFIG_DEBUG_INFO is not set
+CONFIG_DEBUG_SPINLOCK_SLEEP=3Dy
+CONFIG_FRAME_POINTER=3Dy
+CONFIG_X86_EXTRA_IRQS=3Dy
+CONFIG_X86_FIND_SMP_CONFIG=3Dy
+CONFIG_X86_MPPARSE=3Dy
+
+#
+# Security options
+#
+# CONFIG_SECURITY is not set
+
+#
+# Cryptographic options
+#
+# CONFIG_CRYPTO is not set
+
+#
+# Library routines
+#
+# CONFIG_CRC32 is not set
+CONFIG_X86_BIOS_REBOOT=3Dy
+
+----=_jenruvg5o12ck7g4t5jcmeaprtiie2ghel.MFSBCHJLHS--

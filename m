@@ -1,71 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269152AbTGJKLS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 06:11:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269156AbTGJKLS
+	id S269156AbTGJKPn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 06:15:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269158AbTGJKPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 06:11:18 -0400
-Received: from landfill.ihatent.com ([217.13.24.22]:30684 "EHLO
-	pileup.ihatent.com") by vger.kernel.org with ESMTP id S269152AbTGJKLR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 06:11:17 -0400
-To: A Guy Called Tyketto <tyketto@wizard.com>
+	Thu, 10 Jul 2003 06:15:42 -0400
+Received: from ns.suse.de ([213.95.15.193]:64273 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269156AbTGJKPg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 06:15:36 -0400
+To: Arjan van de Ven <arjanv@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: finger.kernel.org
-References: <200307031340.h63Der4k012982@green.mif.pg.gda.pl>
-	<87vfujsjpt.fsf@lapper.ihatent.com> <20030710085202.GA8927@wizard.com>
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 10 Jul 2003 12:25:56 +0200
-In-Reply-To: <20030710085202.GA8927@wizard.com>
-Message-ID: <87vfua65l7.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+Subject: Re: memset (was: Redundant memset in AIO read_events)
+References: <20030710100417.83333.qmail@web11801.mail.yahoo.com.suse.lists.linux.kernel>
+	<1057832361.5817.2.camel@laptop.fenrus.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 10 Jul 2003 12:29:10 +0200
+In-Reply-To: <1057832361.5817.2.camel@laptop.fenrus.com.suse.lists.linux.kernel>
+Message-ID: <p73smpepte1.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A Guy Called Tyketto <tyketto@wizard.com> writes:
+Arjan van de Ven <arjanv@redhat.com> writes:
 
-> On Thu, Jul 03, 2003 at 05:39:26PM +0200, Alexander Hoogerhuis wrote:
-> > just finger @kernel.org, and whoever is in charge of the .plan, can we
-> > have the mm-sources included?
-> > 
-> > mvh,
-> > A
-> > 
+> On Thu, 2003-07-10 at 12:04, Etienne Lorrain wrote:
+> >  Note that using memset() is better reserved to initialise variable-size
+> >  structures or buffers. Even if memset() is extremely optimised,
+> >  it is still not as fast as not doing anything.
 > 
->         Not sure about the mm sources, but @kernel.org bombs as well:
-> 
-> bradl@bellicha:~> date
-> Thu Jul 10 01:51:37 PDT 2003
-> bradl@bellicha:~> f @finger.kernel.org
-> [zeus-pub.kernel.org]
-> bradl@bellicha:~> f @finger.kernel.org
-> [zeus-pub.kernel.org]
-> bradl@bellicha:~> f @finger.kernel.org
-> [zeus-pub.kernel.org]
-> bradl@bellicha:~> f @finger.kernel.org
-> [zeus-pub.kernel.org]
-> bradl@bellicha:~> f @finger.kernel.org
-> [zeus-pub.kernel.org]
-> bradl@bellicha:~> f @kernel.org
-> [kernel.org]
-> bradl@bellicha:~> f @kernel.org
-> [kernel.org]
-> bradl@bellicha:~> f @kernel.org
-> [kernel.org]
-> bradl@bellicha:~> f @kernel.org
-> [kernel.org]
-> bradl@bellicha:~> f @kernel.org
-> [kernel.org]
-> bradl@bellicha:~>
-> 
+> this is not always true....
+> memset can be used as an optimized cache-warmup, which can avoid the
+> write-allocate behavior of normal writes, which means that if you memset
+> a structure first and then fill it, it can be halve the memory bandwidth
+> and thus half as fast. This assumes an optimized memset which we
+> *currently* don't have I think... but well, we can fix that ;)
 
-In deed. It used to answer. 
+You don't want to use such an memset unlike you're clearing areas
+which are significantly bigger than all your cache (>several MB)
+The problem is that the instruction that avoid write-allocate usually also force 
+the result out of cache. And for small data sets that is typically a loss
+if you want to use the data later, because the later use eats full cache misses.
+In the kernel such big buffers occur only very rarely, most operations are on
+4K and less. For those only in cache operation is interesting.
 
-mvh,
-A
--- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
+-Andi

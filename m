@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262857AbTDAU6Z>; Tue, 1 Apr 2003 15:58:25 -0500
+	id <S262868AbTDAVDY>; Tue, 1 Apr 2003 16:03:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262931AbTDAU6Z>; Tue, 1 Apr 2003 15:58:25 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:64935 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S262857AbTDAU6X>; Tue, 1 Apr 2003 15:58:23 -0500
-Date: Tue, 01 Apr 2003 12:59:46 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: linux-kernel <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 530] New: dma not enabled for IDE hard drives 
-Message-ID: <137350000.1049230786@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262872AbTDAVDY>; Tue, 1 Apr 2003 16:03:24 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:12758 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262868AbTDAVDW>;
+	Tue, 1 Apr 2003 16:03:22 -0500
+Date: Tue, 1 Apr 2003 13:15:04 +0000
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] PATCH: dpt_i2o memory leak comments
+Message-Id: <20030401131504.5d25020b.rddunlap@osdl.org>
+In-Reply-To: <200304012105.h31L5vG11354@hera.kernel.org>
+References: <200304012105.h31L5vG11354@hera.kernel.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=530
+| @@ -1318,7 +1318,9 @@
+|  	while(*status == 0){
+|  		if(time_after(jiffies,timeout)){
+|  			printk(KERN_WARNING"%s: IOP Reset Timeout\n",pHba->name);
+| -			kfree(status);
+| +			/* We loose 4 bytes of "status" here, but we cannot
+| +			   free these because controller may awake and corrupt
+| +			   those bytes at any time */
+s/loose/lose/
 
-           Summary: dma not enabled for IDE hard drives
-    Kernel Version: 2.5.66
-            Status: NEW
-          Severity: normal
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: freelsjd@ornl.gov
+| @@ -1336,6 +1338,9 @@
+|  			}
+|  			if(time_after(jiffies,timeout)){
+|  				printk(KERN_ERR "%s:Timeout waiting for IOP Reset.\n",pHba->name);
+| +			/* We loose 4 bytes of "status" here, but we cannot
+| +			   free these because controller may awake and corrupt
+| +			   those bytes at any time */
+s/loose/lose/
 
+or is this a Brit vs. Amer difference?  (not that I know of)
 
-Distribution: Debian/Sid
-
-Hardware Environment: dual 2.4Ghz Xeon, SE7500CW2 MB, all Intel
-                      Promise PDC20267 ATA-100 ide channels in
-                      non-RAID mode
-
-Software Environment: testing with hdparm 5.2-1 of Debian/Sid
-
-Problem Description:
-
-I have similar .config settings for both the 2.4.20 and the 2.5.66
-kernels with the identical machine.  Under 2.4.20, I do get dma enabled 
-and see good performance (Mb/s) from the hard disk I/O.  
-
-However, under the 2.5.66 kernel, dma is not enabled and the performance 
-of the hard drives is poor (~2-3 Mb/s under 2.4.20 versus ~30 Mb/s under 
-2.5.66).  The "hdparm -I /dev/hda" command confirms that dma is not
-enabled under 2.5.66, but is under 2.4.20.
-
-
-Steps to reproduce:
-
+--
+~Randy

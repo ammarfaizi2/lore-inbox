@@ -1,80 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263387AbTKKNxh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 08:53:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263496AbTKKNxh
+	id S263497AbTKKN46 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 08:56:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263500AbTKKN46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 08:53:37 -0500
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:48417 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S263387AbTKKNxf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 08:53:35 -0500
-Date: Tue, 11 Nov 2003 08:53:23 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       davide.rossetti@roma1.infn.it, filia@softhome.net,
-       jesse@cats-chateau.net, dwmw2@infradead.org, moje@vabo.cz,
-       kakadu_croc@yahoo.com
-Subject: Re: OT: why no file copy() libc/syscall ??
-Message-ID: <20031111085323.M8854@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <1068512710.722.161.camel@cube> <20031111133859.GA11115@bitwizard.nl>
+	Tue, 11 Nov 2003 08:56:58 -0500
+Received: from 30.Red-80-36-33.pooles.rima-tde.net ([80.36.33.30]:65516 "EHLO
+	linalco.com") by vger.kernel.org with ESMTP id S263497AbTKKN45
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 08:56:57 -0500
+Date: Tue, 11 Nov 2003 14:59:48 +0100
+From: Ragnar Hojland Espinosa <ragnar@linalco.com>
+To: Philippe <rouquier.p@wanadoo.fr>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: reiserfs 3.6 problem with test9
+Message-ID: <20031111135948.GA5229@linalco.com>
+References: <1068553197.1018.43.camel@Genesyme>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031111133859.GA11115@bitwizard.nl>; from R.E.Wolff@BitWizard.nl on Tue, Nov 11, 2003 at 02:38:59PM +0100
+In-Reply-To: <1068553197.1018.43.camel@Genesyme>
+X-Edited-With-Muttmode: muttmail.sl - 2001-09-27
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 11, 2003 at 02:38:59PM +0100, Rogier Wolff wrote:
-> On Mon, Nov 10, 2003 at 08:05:11PM -0500, Albert Cahalan wrote:
-> > So open the file, change context, and then:
-> > 
-> > long copy_fd_to_file(int fd, const char *name, ...)
-> > 
-> > (if you can no longer read from the OPEN fd,
-> > either we override that or we just don't care
-> > about such mostly-fictional cases)
+On Tue, Nov 11, 2003 at 01:19:57PM +0100, Philippe wrote:
+> Hello,
+> recently I noticed some annoying problems whenever I try to access some
+> files on my harddrive (reiserfs filesystem). I get "permission denied"
+> even if I am the owner or if I try as root. dmesg answers the following
+> for every file (so it's repeated):
 > 
+> is_tree_node: node level 30065 does not match to the expected one 1
+> vs-5150: search_by_key: invalid format found in block 2554621. Fsck?
+> vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to
+> find stat data of [1000086 2592 0x0 SD]
 > 
-> Actually, I think we should have a: 
-> 
-> 	long copy_fd_to_fd (int src, int dst, int len)
-> 
-> type of systemcall. 
+> I rebuilt my filesystem with reiserfsck (3.6.11) and it worked, I could
+> read and write again these files. but soon after the rebuilt some other
+> files (they were not concerned by this problem before) appeared to have
+> the same problem and their number kept growing until I rebuilt again the
+> filesystem ... but again new ones appeared after an hour or two ...
 
-We have one, sendfile(2).
-
-> It should do something like:
-> 
-> 	while ((nbytes = read (src, buf, BUFSIZE)) >= 0) {
-> 		if (write (dst, buf, nbytes) < 0) 
-> 			return totbytes; 
-> 		totbytes += nbytes;
-> 	}
-> 
-> but it allows kernel-space to optimize this whenever possible. Kernel
-> then becomes responsible for detecting and handling the optimizable
-> cases. 
-> 
-> The kernel then becomes something
-> 
-> 	if (islocalfile (src) && issocket (dst)) 
-> 		/* Call the old sendfile */ 
-> 		return sendfile (....);
-> 
-> 	if (isCIFS (src), isCIFS(dst))
-> 		/* Tell remote host to copy the file. */
-> 		return CIFS_copy_file (....); 
-> 
-> 	...
-
-Can you explain why this cannot be in sys_sendfile?
-It doesn't make much sense to provide any default in the kernel,
-that's something the userland can handle equally well.
-But e.g. the CIFS copy can be done as sendfile hook.
-
-	Jakub
+Last time I had a box with similar problems it was memory.  I'd put
+your system through a memtest.
+-- 
+Ragnar Hojland - Project Manager
+Linalco "Specialists in Linux and Free Software"
+http://www.linalco.com  Tel: +34-91-4561700

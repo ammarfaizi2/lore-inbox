@@ -1,57 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131375AbRCNOYF>; Wed, 14 Mar 2001 09:24:05 -0500
+	id <S131382AbRCNO2Z>; Wed, 14 Mar 2001 09:28:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131371AbRCNOX4>; Wed, 14 Mar 2001 09:23:56 -0500
-Received: from dns.growzone.com.au ([202.9.32.33]:64266 "EHLO
-	mail.growzone.com.au") by vger.kernel.org with ESMTP
-	id <S131364AbRCNOXo>; Wed, 14 Mar 2001 09:23:44 -0500
-Message-Id: <200103141422.f2EEMvI20712@gandalf.growzone.com.au>
-To: mshiju@in.ibm.com
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-X-Face: ]IrGs{LrofDtGfsrG!As5=G'2HRr2zt:H>djXb5@v|Dr!jOelxzAZ`!}("]}]
-	Q!)1w#X;)nLlb'XhSu,QL>;)L/l06wsI?rv-xy6%Y1e"BUiV%)mU;]f-5<#U6
-	UthZ0QrF7\_p#q}*Cn}jd|XT~7P7ik]Q!2u%aTtvc;)zfH\:3f<[a:)M
-Organization: GrowZone OnLine
-X-Mailer: nmh-1.0.4 exmh-2.2
-X-OS: Linux-2.4.0 RedHat 7.0
-Subject: Re: ISAPNP :driver not recognized when compiled in kernel 
-In-Reply-To: message-id <CA256A0F.004A726A.00@d73mta05.au.ibm.com> 
-	 of Wed, Mar 14 18:35:13 2001
-Date: Thu, 15 Mar 2001 00:22:56 +1000
-From: Tony Nugent <tony@growzone.com.au>
+	id <S131387AbRCNO2P>; Wed, 14 Mar 2001 09:28:15 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:1028 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S131382AbRCNO2C>; Wed, 14 Mar 2001 09:28:02 -0500
+Date: Wed, 14 Mar 2001 08:26:03 -0600
+From: Philipp Rumpf <prumpf@mandrakesoft.com>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Boris Dragovic <lynx@falcon.etf.bg.ac.yu>,
+        Oswald Buddenhagen <ob6@inf.tu-dresden.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: static scheduling - SCHED_IDLE?
+Message-ID: <20010314082603.A29144@mandrakesoft.mandrakesoft.com>
+In-Reply-To: <20010309204243.E13320@pcep-jamie.cern.ch> <Pine.LNX.4.33.0103100001200.2283-100000@duckman.distro.conectiva> <20010309210913.F13320@pcep-jamie.cern.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.4us
+In-Reply-To: <20010309210913.F13320@pcep-jamie.cern.ch>; from Jamie Lokier on Fri, Mar 09, 2001 at 09:09:13PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed Mar 14 2001 at 18:35, mshiju@in.ibm.com wrote:
+On Fri, Mar 09, 2001 at 09:09:13PM +0100, Jamie Lokier wrote:
+> Rik van Riel wrote:
+> > > Just raise the priority whenever the task's in kernel mode.  Problem
+> > > solved.
+> > 
+> > Remember that a task schedules itself out at the timer interrupt,
+> > in kernel/sched.c::schedule() ... which is kernel mode ;)
+> 
+> Even nicer.  On x86 change this:
+> 
+> reschedule:
+> 	call SYMBOL_NAME(schedule)    # test
+> 	jmp ret_from_sys_call
+> 
+> to this:
+> 
+> reschedule:
+> 	orl $PF_HONOUR_LOW_PRIORITY,flags(%ebx)	
+> 	call SYMBOL_NAME(schedule)    # test
+> 	andl $~PF_HONOUR_LOW_PRIORITY,flags(%ebx)
+> 	jmp ret_from_sys_call
+> 
+> (You get the idea; this isn't the best implementation).
 
-> module. I read somewhere that ISAPNP drivers with ISAPNP enabled in kernel
-> should only be build as modules so that we can keep the order of execution
-> . Is this true.? Have any one of you tried this .
+A few months ago, I implemented preemptible kernel threads (locally;  I
+tend to think the other patches are superior).  Part of the changes was
+to separate schedule into __schedule() (common part), schedule_user()
+(automatic schedule from entry.S) and schedule() (manual schedule in
+kernel space);  besides making what Jamie proposed easier, we can also
+save a few cycles in the (common) schedule_user case:
 
-I'd believe what you have read.
+ - we never release the kernel lock
+ - we can pass current to schedule_user
+ - we just handled softirqs
 
-The general philosphy is that most device drivers are almost always
-best built and made available as modules.
-
-Besides, there really are distinct advantages in being able to
-unload device drivers at runtime (eg, you can reconfigure the IRQ or
-dma etc for the driver by simply unloading and reloading it -
-without otherwise resorting to a system reboot which would be the
-case if the driver was compiled into the kernel itself).
-
-If you need to load any device drivers before actually booting the
-kernel itself (eg, an nfsroot kernel which needs an ethernet
-driver), then that problem is solved by creating (and making
-available with lilo or bootp or whatever) an initrd image that can
-preload the device drivers it needs before actually attempting to
-mount the root filesystem.  (Fairly easy to do this with something
-like redhat's mkinitrd utility).
-
-Cheers
-Tony
- -=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-
-  Tony Nugent <Tony@growzone.com.au>    Systems Administrator, RHCE
-  LinuxWorks - PO Box 5747 Gold Coast MC Queensland Australia  9726
-  Ph: (07) 5526 8020                           Mobile: 0408 066 336
- -=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-
+this is 2.5 material though ...

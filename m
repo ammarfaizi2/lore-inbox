@@ -1,71 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265127AbTFMEn4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 00:43:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265132AbTFMEn4
+	id S265135AbTFMFLF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 01:11:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265136AbTFMFLF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 00:43:56 -0400
-Received: from auth22.inet.co.th ([203.150.14.104]:23301 "EHLO
-	auth22.inet.co.th") by vger.kernel.org with ESMTP id S265127AbTFMEnz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 00:43:55 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.21-rc7 hang on boot after spurious 8259A interrupt: IRQ15.
-Date: Fri, 13 Jun 2003 11:36:36 +0800
-User-Agent: KMail/1.5.2
-X-OS: KDE 3 on GNU/Linux
+	Fri, 13 Jun 2003 01:11:05 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:20746 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S265135AbTFMFLD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 01:11:03 -0400
+Date: Thu, 12 Jun 2003 22:24:27 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: davidm@hpl.hp.com
+cc: roland@redhat.com, <linux-kernel@vger.kernel.org>
+Subject: Re: FIXMAP-related change to mm/memory.c
+In-Reply-To: <200306130124.h5D1O2DT025311@napali.hpl.hp.com>
+Message-ID: <Pine.LNX.4.44.0306122219580.2989-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200306130958.39707.mflt1@micrologica.com.hk>
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doing swsusp testing in endless loop. On a P4/2.4G (ACPI=off)
-on 192nd boot:
 
-spurious 8259A interrupt: IRQ15.
-Calibrating delay loop... 
+On Thu, 12 Jun 2003, David Mosberger wrote:
+>
+> Is it possible to constrain the FIXADDR range on x86/x86-64
+> (FIXADDR_START-FIXADDR_TOP) such that the entire range is read-only by
+> user-level?  If so, we could simplify the permission test like this:
 
- hang
+Well, you could replace the uses of FIXADDR_START/FIXADDR_TOP with 
+something like FIXADDR_USER_START/FIXADDR_USER_TOP, and then force those 
+to cover only the _one_ user-accessible page.
 
-Hit Reset and it rebooted OK
+Something like
 
-This is the first spurious 8259A interrupt: IRQ15 seen.
+	#define FIXADDR_USER_START (fix_to_virt(FIX_VSYSCALL))
+	#define FIXADDR_USER_END (FIXADDR_USER_START + PAGE_SIZE)
 
-I see spurious 8259A interrupt: IRQ7 quite frequently on
-varying hardware on both 2.4 and 2.5.
+should work. In that case you can drop the page table testing, since we 
+"know" it is safe.
 
-By design, the 8259A delivers a vector 7 when the IRQ
-line is deasserted before the IRQ is serviced. This
-applies to both edge and level trigger modes. A floating
-"wire" or crapy chipset can pickup noise, but the driver 
-should handle it.  
+But I'm too lazy to test, so please send a tested patch,
 
-No problems seen with mainboard/cpu/ram in three months. 
-I dont' think it is HW, but it could be.  
-
-Also, spurious 8259A interrupts are quite recent, could 
-something be wrong with recent 8259A driver?
-
-Regards
-Michael
-
-I am not subscribed, pls cc me
-
--- 
-Powered by linux-2.5.70-mm3, compiled with gcc-2.95-3
-
-My current linux related activities in rough order of priority:
-- Testing of 2.4/2.5 kernel interactivity
-- Testing of Swsusp for 2.4
-- Testing of Opera 7.11 emphasizing interactivity
-- Research of NFS i/o errors during transfer 2.4>2.5
-- Learning 2.5 series kernel debugging with kgdb - it's in the -mm tree
-- Studying 2.5 series serial and ide drivers, ACPI, S3
-* Input and feedback is always welcome *
-
+		Linus
 

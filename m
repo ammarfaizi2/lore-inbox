@@ -1,108 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311346AbSCLVUQ>; Tue, 12 Mar 2002 16:20:16 -0500
+	id <S311334AbSCLVY4>; Tue, 12 Mar 2002 16:24:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311352AbSCLVUB>; Tue, 12 Mar 2002 16:20:01 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:13576 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S311346AbSCLVTp>; Tue, 12 Mar 2002 16:19:45 -0500
-Date: Tue, 12 Mar 2002 22:19:40 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Sebastian Droege <sebastian.droege@gmx.de>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, martin@dalecki.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] PIIX driver rewrite
-Message-ID: <20020312221940.A15614@ucw.cz>
-In-Reply-To: <E16kYXz-0001z3-00@the-village.bc.nu> <Pine.LNX.4.33.0203111431340.15427-100000@penguin.transmeta.com> <20020311234553.A3490@ucw.cz> <3C8DDFC8.5080501@evision-ventures.com> <20020312210035.A15175@ucw.cz> <20020312213505.1d229d95.sebastian.droege@gmx.de> <20020312213428.A15278@ucw.cz> <20020312220701.348217d8.sebastian.droege@gmx.de>
-Mime-Version: 1.0
+	id <S311347AbSCLVYr>; Tue, 12 Mar 2002 16:24:47 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:54704 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S311334AbSCLVYZ>; Tue, 12 Mar 2002 16:24:25 -0500
+Date: Tue, 12 Mar 2002 13:22:50 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 23 second kernel compile / pagemap_lru_lock improvement
+Message-ID: <192090000.1015968170@flay>
+In-Reply-To: <128210000.1015892845@flay>
+In-Reply-To: <Pine.LNX.4.33.0203111526160.17864-100000@penguin.transmeta.com> <128210000.1015892845@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020312220701.348217d8.sebastian.droege@gmx.de>; from sebastian.droege@gmx.de on Tue, Mar 12, 2002 at 10:07:01PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>>>> Linus:
+>>>>
+>>>> Anyway, some obvious LRU lock improvements are clearly available: 
+>>>> activate_page_nolock() shouldn't even need to take the lru lock if the 
+>>>> page is already active. 
 
-Thanks a lot, the /proc stuff indeed seems to be wrong. I'll fix that
-tomorrow.
+Your suggestion seems to improve the pagemap_lru_lock contention a little:
+(make bzImage , 16 way NUMA-Q, 5 runs each)
 
-On Tue, Mar 12, 2002 at 10:07:01PM +0100, Sebastian Droege wrote:
-> On Tue, 12 Mar 2002 21:34:28 +0100
-> Vojtech Pavlik <vojtech@suse.cz> wrote:
-> 
-> > On Tue, Mar 12, 2002 at 09:35:05PM +0100, Sebastian Droege wrote:
-> > > On Tue, 12 Mar 2002 21:00:35 +0100
-> > > Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > > 
-> > > > On Tue, Mar 12, 2002 at 12:00:24PM +0100, Martin Dalecki wrote:
-> > > > > Hello Vojtech.
-> > > > > 
-> > > > > I have noticed that the ide-timings.h and ide_modules.h are running
-> > > > > much in aprallel in the purpose they serve. Are the any
-> > > > > chances you could dare to care about propagating the
-> > > > > fairly nice ide-timings.h stuff in favour of
-> > > > > ide_modules.h more.
-> > > > > 
-> > > > > BTW.> I think some stuff from ide-timings.h just belongs
-> > > > > as generic functions intro ide.c, and right now there is
-> > > > > nobody who you need to work from behind ;-).
-> > > > > 
-> > > > > So please feel free to do the changes you apparently desired
-> > > > > to do a long time ago...
-> > > > 
-> > > > Oh, by the way, here goes the PIIX rewrite ... unlike the AMD one, this
-> > > > is completely untested, and may not work at all - I only have the
-> > > > datasheets at hand, no PIIX hardware.
-> > > > 
-> > > > Differences from the previous PIIX driver:
-> > > > 
-> > > > * 82451NX MIOC isn't supported anymore. It's not an ATA controller, anyway ;)
-> > > > * 82371FB_0 PIIX ISA bridge isn't an ATA controller either.
-> > > > * 82801CA ICH3 support added. Only ICH3-M is supported by the original driver.
-> > > > * 82371MX MPIIX is not supported anymore. Too weird beast and doesn't do
-> > > >   DMA anyway, better handled by the generic PCI ATA routines.
-> > > > 
-> > > > * Cleaner, converted to ide-timing.[ch]
-> > > > 
-> > > > * May not work. ;)
-> > > But does work with an Intel Corp. 82371AB PIIX4 IDE (rev 01) IDE controller...
-> > 
-> > Thanks a lot for the testing!
-> > 
-> > > I'll do some more stress testing but it boots, works in DMA and the data transfer rates haven't decreased ;)
-> > > *playingwithhdparmanddbench* ;)
-> > 
-> > If you can (in addition to the benchmark numbers) also send me the
-> > output of 'cat /proc/ide/piix' and 'dmesg' and 'lspci -vvxxx'both my and
-> > the original version ... that'd help a lot too.
-> OK here they are ;)
-> The only thing which confuses me is the line
-> PCI clock:                          33333MHz
-> in /proc/ide/piix
-> It should be 33 MHz I think
-> I think the mistake is in line 199 of piix.c:
-> piix_print("PCI clock:                          %dMHz", piix_clock);
-> has to be
-> piix_print("PCI clock:                          %dMHz", piix_clock / 1000);
-> 
-> or
-> the whole piix_clock stuff after line 432 is wrong
-> 
-> BTW: in /proc/ide/piix are sometimes wrong values for transfer rate and cycle time... I think they can't get negative ;)
-> 
-> Benchmark results come tomorrow
-> 
-> Bye
+before:
 
+lockstat.1: 20.6% 59.2%  5.2us(  81us)  104us(  11ms)(15.2%)    994575 40.8% 59.2%    0%  pagemap_lru_lock
+lockstat.2: 19.0% 54.8%  4.8us(  84us)  102us(  10ms)(13.7%)   1007488 45.2% 54.8%    0%  pagemap_lru_lock
+lockstat.3: 19.5% 55.6%  4.9us(  78us)  105us(  11ms)(14.4%)   1000062 44.4% 55.6%    0%  pagemap_lru_lock
+lockstat.4: 17.8% 51.6%  5.2us( 105us)   90us(  12ms)(10.0%)   1008310 48.4% 51.6%    0%  pagemap_lru_lock
+lockstat.5: 20.2% 57.1%  5.4us(  86us)  111us(  16ms)(14.7%)   1014988 42.9% 57.1%    0%  pagemap_lru_lock
+ 
+after:
 
+lockstat.1: 18.0% 54.3%  4.7us( 155us)   92us(  14ms)(11.9%)    999140 45.7% 54.3%    0%  pagemap_lru_lock
+lockstat.2: 17.7% 52.8%  4.6us( 151us)   94us(  14ms)(12.0%)    997999 47.2% 52.8%    0%  pagemap_lru_lock
+lockstat.3: 18.3% 54.4%  5.2us(1581us)  111us(  10ms)(13.2%)   1005149 45.6% 54.4%    0%  pagemap_lru_lock
+lockstat.4: 20.2% 57.8%  5.3us( 210us)  108us(  12ms)(14.9%)    998813 42.2% 57.8%    0%  pagemap_lru_lock
+lockstat.5: 14.4% 44.2%  3.8us( 167us)   81us(  11ms)( 8.5%)   1004476 55.8% 44.2%    0%  pagemap_lru_lock
 
+It's a little difficult to see, as there's quite some variablity between runs.
 
+If we look at activate_page_nolock, it's easier to understand the context of
+the patch:
 
+------------------
 
+static inline void activate_page_nolock(struct page * page)
+{
+        if (PageLRU(page) && !PageActive(page)) {
+                del_page_from_inactive_list(page);
+                add_page_to_active_list(page);
+        }
+}
 
+void activate_page(struct page * page)
+{
+        spin_lock(&pagemap_lru_lock);
+        activate_page_nolock(page);
+        spin_unlock(&pagemap_lru_lock);
+}
 
+---------------------
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Patch is below - any comments?
+
+--- virgin-2.4.18/mm/swap.c	Tue Nov  6 22:44:20 2001
++++ linux-2.4.18-lrufix/mm/swap.c	Mon Mar 11 15:55:56 2002
+@@ -46,9 +46,15 @@
+ 
+ void activate_page(struct page * page)
+ {
+-	spin_lock(&pagemap_lru_lock);
+-	activate_page_nolock(page);
+-	spin_unlock(&pagemap_lru_lock);
++	if (PageLRU(page) && !PageActive(page)) {
++		/* 
++		 * no point in grabbing the lock if we don't have to do
++		 * anything with it, but check twice in case of a race 
++		 */
++		spin_lock(&pagemap_lru_lock);
++		activate_page_nolock(page);
++		spin_unlock(&pagemap_lru_lock);
++	}
+ }
+ 
+ /**
+

@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261719AbUCVFLv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 00:11:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbUCVFLv
+	id S261725AbUCVFa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 00:30:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbUCVFa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 00:11:51 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:65408 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261719AbUCVFLp
+	Mon, 22 Mar 2004 00:30:28 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5304 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261725AbUCVFa0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 00:11:45 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 21 Mar 2004 21:11:38 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cowlinks v2
-In-Reply-To: <m1ad298o6b.fsf@ebiederm.dsl.xmission.com>
-Message-ID: <Pine.LNX.4.44.0403212109020.826-100000@bigblue.dev.mdolabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 22 Mar 2004 00:30:26 -0500
+Date: Mon, 22 Mar 2004 05:30:25 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Matt Miller <mmiller@hick.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6: mmap complement, fdmap
+Message-ID: <20040322053025.GR31500@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.58.0403212157110.31106@jethro.hick.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0403212157110.31106@jethro.hick.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 Mar 2004, Eric W. Biederman wrote:
-
-> Davide Libenzi <davidel@xmailserver.org> writes:
+On Sun, Mar 21, 2004 at 10:43:07PM -0600, Matt Miller wrote:
+> 	``flags'' can be one of O_RDONLY, O_WRONLY, or O_RDWR.
 > 
-> > > Actually there is...  You don't do the copy until an actual write occurs.
-> > > Some files are opened read/write when there is simply the chance they might
-> > > be written to so delaying the copy is generally a win.
-> > 
-> > What about open+mmap?
+> I have verified functionality on ia32 and sparc as these are the only
+> architectures I currently have some type of access to.  To test, start the
+> kernel configuration process and go under File systems/Pseudo filesystems
+> and select this option:
 > 
-> The case is nothing really different from having a hole in your file.
+> 	[*] Virtual memory file descriptor mapping support
 > 
-> There are two pieces to implementing this.  First you create separate
-> page cache  entries for the cow file and it's original, so the
-> laziness of mmapped file writes will not bite you..  Second you make
-> aops -> writepage trigger the actual copy of the file, and have it
-> return -ENOSPC if you can't do the copy.
+> Please let me know about any and all suggestions/bugs/flames.  I tried to
+> be as thorough as possible but do suspect that I've missed some things.
+> I'm looking forward to hearing feedback.
 
-There has been a misunderstanding. I thought you were talking about a 
-userspace solution ala fl-cow. Of course if you are inside the kernel you 
-can catch both explicit writes and page syncs.
+*boggle*
 
-
-
-- Davide
-
-
+a) what the hell for?
+b) what happens if I pass such descriptor to another task?
+c) what happens if I mmap that sucker on the source range of addresses?
+d) same for loops made of more than one of those...
+e) see (a)

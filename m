@@ -1,79 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263685AbUDTTDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263721AbUDTTAB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263685AbUDTTDo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 15:03:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263862AbUDTTDo
+	id S263721AbUDTTAB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 15:00:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263555AbUDTTAA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 15:03:44 -0400
-Received: from zasran.com ([198.144.206.234]:61063 "EHLO zasran.com")
-	by vger.kernel.org with ESMTP id S263685AbUDTTDj (ORCPT
+	Tue, 20 Apr 2004 15:00:00 -0400
+Received: from twin.uoregon.edu ([128.223.214.27]:39558 "EHLO twin.uoregon.edu")
+	by vger.kernel.org with ESMTP id S263721AbUDTS7z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 15:03:39 -0400
-Message-ID: <4085740A.6030609@bigfoot.com>
-Date: Tue, 20 Apr 2004 12:03:38 -0700
-From: Erik Steffl <steffl@bigfoot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
+	Tue, 20 Apr 2004 14:59:55 -0400
+Date: Tue, 20 Apr 2004 11:59:51 -0700 (PDT)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Timothy Miller <miller@techsource.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: System hang with ATI's lousy driver
+In-Reply-To: <40857175.9080806@techsource.com>
+Message-ID: <Pine.LNX.4.44.0404201158580.10469-100000@twin.uoregon.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: logitech mouseMan wheel doesn't work with 2.6.5
-References: <200404201522.i3KFMk120352@tag.witbe.net>
-In-Reply-To: <200404201522.i3KFMk120352@tag.witbe.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Rolland wrote:
-> Hello,
+On Tue, 20 Apr 2004, Timothy Miller wrote:
+
+> So, since XFree86's lousy open-source Radeon driver won't do OpenGL 
+> right, I am forced to use ATI's lousy proprietary Radeon driver.  With 
+> that, I can do OpenGL right, but when I exit the X server, the system 
+> hangs completely.  I get lots of vertical lines on the screen, but I 
+> can't even ping the computer.
+
+you didn't specify which ati card?
+ 
+> Does anyone know of any conflict between using ATI's X11 driver and the 
+> Radeon console driver at the same time?
+> 
+> I'm using kernel gentoo-2.4.25.
 > 
 > 
->>   it looks that after update to 2.6.5 kernel (debian source 
->>package but 
->>I guess it would be the same with stock 2.6.5) the mouse 
->>wheel and side 
->>button on Logitech Cordless MouseMan Wheel mouse do not work.
-> 
-> I've got a new mouse with a wheel, and I've got the same problem,
-> though I can't tell if it was working before...
+> I'm getting really sick of not being able to get new graphics cards to 
+> just work properly under Linux.
 > 
 > 
->>Here's the most basic/simple situation/symptoms:
->>
->>   I stop X, read bytes from /dev/psaux (c program, using open and 
->>read). for each mouse action there are few bytes read, usually number 
+> Thanks.
 > 
-> Could you provide me with the program so that I can test too ?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-it's very simple, just gcc and run it from console, I guess you should 
-quit X before running it, ctrl-c to exit:
+-- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu    
+GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
 
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 
-int main(void)
-{
-   unsigned char buf[10];
-   unsigned char last;
-   unsigned long counter = 0;
-
-   int fd = open("/dev/psaux", O_RDONLY);
-   if(fd == -1) { perror("couldn't open file"); exit(1); }
-
-   while(read(fd, buf, 1) != -1) {
-     if( (last == 0) && (buf[0] != 0) ) {
-       printf("\n[%010d] ", counter);
-     }
-     printf("[%03d] ", buf[0]);
-     last = buf[0];
-     counter++;
-   }
-
-   return 0;
-}
-/* eof */
-
-	erik

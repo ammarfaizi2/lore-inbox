@@ -1,60 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284545AbRLIWX1>; Sun, 9 Dec 2001 17:23:27 -0500
+	id <S284548AbRLIW12>; Sun, 9 Dec 2001 17:27:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284548AbRLIWXS>; Sun, 9 Dec 2001 17:23:18 -0500
-Received: from [144.137.80.33] ([144.137.80.33]:23534 "EHLO e4.eyal.emu.id.au")
-	by vger.kernel.org with ESMTP id <S284545AbRLIWXI>;
-	Sun, 9 Dec 2001 17:23:08 -0500
-Message-ID: <3C13E25C.5E323277@eyal.emu.id.au>
-Date: Mon, 10 Dec 2001 09:14:52 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-pre6 i686)
+	id <S284553AbRLIW1S>; Sun, 9 Dec 2001 17:27:18 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:2316 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S284548AbRLIW1K>; Sun, 9 Dec 2001 17:27:10 -0500
+Message-ID: <3C13E52A.48C0843D@linux-m68k.org>
+Date: Sun, 09 Dec 2001 23:26:50 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.17-pre7 - fdomain_stub.c error
-In-Reply-To: <Pine.LNX.4.21.0112091722050.24350-100000@freak.distro.conectiva>
-Content-Type: multipart/mixed;
- boundary="------------8026A2A24BDB50E5447F0468"
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>, Rene Rebe <rene.rebe@gmx.net>,
+        linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
+Subject: Re: devfs unable to handle permission: 2.4.17-pre[4,5] 
+ /ALSA-0.9.0beta[9,10]
+In-Reply-To: <3C1378D6.A5BAB1FA@linux-m68k.org>
+		<Pine.LNX.4.21.0112091744430.24350-100000@freak.distro.conectiva> <200112092126.fB9LQZE12582@vindaloo.ras.ucalgary.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------8026A2A24BDB50E5447F0468
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hi,
 
-Marcelo Tosatti wrote:
-> 
-> Hi,
-> 
-> Here goes pre7.
+Richard Gooch wrote:
 
-linux/drivers/scsi/pcmcia/fdomain_stub.c does not compile. I think
-this is the fix.
+> There are some broken boot scripts (modelled after the long obsolete
+> rc.devfs script)
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>
---------------8026A2A24BDB50E5447F0468
-Content-Type: text/plain; charset=us-ascii;
- name="2.4.17-pre7-fdomain.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.4.17-pre7-fdomain.patch"
+Which is still included in the kernel tree and at least Mandrake is
+currently using it.
+There were no signs of deprecation, so people are legally using it.
 
---- linux/drivers/scsi/fdomain.h.orig	Mon Dec 10 09:09:28 2001
-+++ linux/drivers/scsi/fdomain.h	Mon Dec 10 09:10:14 2001
-@@ -34,6 +34,7 @@
- int        fdomain_16x0_biosparam( Disk *, kdev_t, int * );
- int        fdomain_16x0_proc_info( char *buffer, char **start, off_t offset,
- 				   int length, int hostno, int inout );
-+int        fdomain_16x0_release( struct Scsi_Host *shpnt );
- 
- #define FDOMAIN_16X0 { proc_info:      fdomain_16x0_proc_info,           \
- 		       detect:         fdomain_16x0_detect,              \
+> This is not actually a problem for leaf nodes, since the user-space
+> created device nodes will still work. It just results in a warning
+> message.
 
---------------8026A2A24BDB50E5447F0468--
+Wrong, these are not just warning messages, the driver API has changed.
 
+> So, in this case, the device nodes that the user wants to use will
+> still be there (created by the boot script) and will work fine.
+
+Except the dynamic update of device nodes won't happen anymore, so it
+affects also all leaf nodes in the directories (e.g. partition entries
+won't be created/removed anymore). Events won't be created for these
+nodes as well, so configurations depending on this are broken as well.
+
+> The second issue was due to a broken devfsd configuration file which
+> caused the wrong permissions to be set on a directory. This led to
+> Roman thinking that the new devfs core was breaking stuff. As I've
+> shown above, the breakage is a rare corner case involving an obsolete
+> script.
+
+"rare corner case"??? Richard, this isn't funny anymore. :-(
+BTW restoring backward compatibility is probably just a couple of lines
+code, but first you had to admit that it's broken.
+
+bye, Roman

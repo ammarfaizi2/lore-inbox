@@ -1,153 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVASIG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbVASJIc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbVASIG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 03:06:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbVASIFk
+	id S261638AbVASJIc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 04:08:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVASIEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 03:05:40 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54719 "EHLO
+	Wed, 19 Jan 2005 03:04:38 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54207 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261641AbVASHdo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S261640AbVASHdo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 19 Jan 2005 02:33:44 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <fastboot@lists.osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH 0/29] overview
+Subject: [PATCH 7/29] x86_64-apic-virtwire-on-shutdown
 Date: Wed, 19 Jan 2005 0:31:37 -0700
-Message-ID: <overview-11061198973484@ebiederm.dsl.xmission.com>
+Message-ID: <x86-64-apic-virtwire-on-shutdown-11061198973345@ebiederm.dsl.xmission.com>
 X-Mailer: patch-bomb.pl@ebiederm.dsl.xmission.com
+In-Reply-To: <x86-apic-virtwire-on-shutdown-11061198973730@ebiederm.dsl.xmission.com>
+References: <overview-11061198973484@ebiederm.dsl.xmission.com>
+	<x86-rename-apic-mode-exint-11061198973109@ebiederm.dsl.xmission.com>
+	<x86-local-apic-fix-11061198972413@ebiederm.dsl.xmission.com>
+	<x86-64-e820-64bit-11061198971581@ebiederm.dsl.xmission.com>
+	<x86-i8259-shutdown-11061198973856@ebiederm.dsl.xmission.com>
+	<x86-64-i8259-shutdown-11061198973969@ebiederm.dsl.xmission.com>
+	<x86-apic-virtwire-on-shutdown-11061198973730@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Andrew the following patchset is against 2.6.11-rc1-mm1 with
-all of the kexec patches removed.  The list of removed patches
-is included below.
+When coming out of apic mode attempt to set the appropriate
+apic back into virtual wire mode.  This improves on previous versions
+of this patch by by never setting bot the local apic and the ioapic
+into veritual wire mode.
 
-This patchsset is a major refresh of the kexec on panic
-functionality in the kernel.  The primary aim of which was to take
-the requirements capture of the kernel crashdump patches and
-start integrating the functionality cleanly into the kexec
-patches.  
-
-Major accomplishments:
-- Compat syscall support has been added.
-- The crashdump capture code has been separated from the kexec on panic code.
-- The kernel to jump to on panic is now loaded in place.
-- A long standing bug that allowed 2 sources pages to copy data
-  to a single destination page has been caught and fixed.
-- Support for loading an x86_64 kernel in a reserved of memory has been completed.
-
-The crashdump code is currently slightly broken.  I have attempted to
-minimize the breakage so things can quick be made to work again.
-
-With respect to a final design discussion there are two remaining 
-open issues.  The first is how little hardware shutdown we can get away
-with in the kernel that is panicing.  I believe we can reduce this
-to a simply NMI to the other cpus telling them to stop.  This has
-been address as a major concern in previous conversations.
-
-The second is an issue is the most significant with respect to the
-design of a kernel based crash dump capture implementation.  How does
-the crashdump capture process discover relevant information about the
-kernel that just crashed?  There are two options.
-
-1) As represented by the current crashdump patches the crashdump
-   kernel and the kernel in which it loads are kept in sync so that
-   it has uptodate versions all of crashed kernels data structures
-   because it is built from the same source.  So it only needs to
-   find the address of the data structures it would like to look at.
-
-2) The relevant information if it is available when sys_kexec_load
-   is called is exported to user space, or the machine_crash_shutdown
-   method marshalls what little information must be captured when the
-   machine dies in a well known standard format (most likely ELF
-   notes).  Allowing the crashdump capture process to simply pass
-   on the information or utilize it as appropriate.
-
-   If the second method can successfully represent all of the
-   interesting information then we can allow kernel version
-   skew, between the two kernels, and potentially implement
-   the entire crash dump capture process in user space.
-
-As best as I have been able to discover the interesting information
-includes.  The cpu state (registers) at the time of the crash/panic.
-The list of memory regions the kernel that has crashed was using.
-And potentially the list of pages dedicated to kernel data as opposed
-to user space, so the the people with insane amounts of memory (1TB+)
-don't require unmanagely large core files.
+This code looks at data from the mptable to see if an ioapic has
+an ExtInt input to make this decision.  A future improvement
+is to figure out which apic or ioapic was in virtual wire mode
+at boot time and to remember it.  That is potentially a more accurate
+method, of selecting which apic to place in virutal wire mode.
 
 
-Andrew earlier when asked about the possibility of merghing the kexec
-on panic code you said:
+Signed-off-by: Eric Biederman <ebiederm@xmission.com>
+---
 
-> I don't want us to be in a position of merging all that code and then
-> finding out that it cannot be made to work "sufficiently well",
-> forcing us to revert it and find a new crashdump solution.  You guys
-> know far better than I when we will reach that threshold.  If the
-> kexec/dump developers can say "yup, this is going to work (because X)"
-> then I'm happy.
+ arch/x86_64/kernel/apic.c    |   38 +++++++++++++++++++++++++++++++++++++-
+ arch/x86_64/kernel/io_apic.c |   36 ++++++++++++++++++++++++++++++++++--
+ include/asm-x86_64/apic.h    |    2 +-
+ 3 files changed, 72 insertions(+), 4 deletions(-)
 
-So here is my subjective view.
-- This code needs to sit in a development tree for a little while 
-  to shake out whatever bugs still linger from my massive refactoring.
-- Through the kexec patches the code and design appears to be sound.
-  Given that machine_kexec is little more than a jump there are few
-  possible implementations that will be able to use it.  The only
-  exception I can see are running special dump drivers from the kernel
-  that crashed, and I believe no one thinks the that will work well.
-- Once we finish sorting out the best way to get information out of
-  the kernel that crashed I think we will have a complete architecture
-  that is largely portable to any architecture.
-
-In the interests of full disclosure my main interesting is using the
-kernel as a bootloader for other kernels and that has been working 
-fairly for years now :)
-
-Eric
-
-
-
-# Patches to remove from 2.6.11-rc1-mm1 before applying this patchset:
-#
-assign_irq_vector-section-fix.patch
-kexec-i8259-shutdowni386.patch
-kexec-i8259-shutdown-x86_64.patch
-kexec-apic-virtwire-on-shutdowni386patch.patch
-kexec-apic-virtwire-on-shutdownx86_64.patch
-kexec-ioapic-virtwire-on-shutdowni386.patch
-kexec-apic-virt-wire-fix.patch
-kexec-ioapic-virtwire-on-shutdownx86_64.patch
-kexec-e820-64bit.patch
-kexec-kexec-generic.patch
-kexec-ide-spindown-fix.patch
-kexec-ifdef-cleanup.patch
-kexec-machine_shutdownx86_64.patch
-kexec-kexecx86_64.patch
-kexec-kexecx86_64-4level-fix.patch
-kexec-kexecx86_64-4level-fix-unfix.patch
-kexec-machine_shutdowni386.patch
-kexec-kexeci386.patch
-kexec-use_mm.patch
-kexec-loading-kernel-from-non-default-offset.patch
-kexec-loading-kernel-from-non-default-offset-fix.patch
-kexec-enabling-co-existence-of-normal-kexec-kernel-and-panic-kernel.patch
-kexec-ppc-support.patch
-#kexec-kexecppc.patch
-#
-crashdump-documentation.patch
-crashdump-memory-preserving-reboot-using-kexec.patch
-crashdump-memory-preserving-reboot-using-kexec-fix.patch
-kdump-config_discontigmem-fix.patch
-crashdump-routines-for-copying-dump-pages.patch
-crashdump-routines-for-copying-dump-pages-kmap-fiddle.patch
-crashdump-kmap-build-fix.patch
-crashdump-register-snapshotting-before-kexec-boot.patch
-crashdump-elf-format-dump-file-access.patch
-crashdump-linear-raw-format-dump-file-access.patch
-crashdump-minor-bug-fixes-to-kexec-crashdump-code.patch
-crashdump-cleanups-to-the-kexec-based-crashdump-code.patch
-#
-x86-rename-apic_mode_exint.patch
-x86-local-apic-fix.patch
-#
+diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86-apic-virtwire-on-shutdown/arch/x86_64/kernel/apic.c linux-2.6.11-rc1-mm1-nokexec-x86_64-apic-virtwire-on-shutdown/arch/x86_64/kernel/apic.c
+--- linux-2.6.11-rc1-mm1-nokexec-x86-apic-virtwire-on-shutdown/arch/x86_64/kernel/apic.c	Fri Jan 14 04:28:33 2005
++++ linux-2.6.11-rc1-mm1-nokexec-x86_64-apic-virtwire-on-shutdown/arch/x86_64/kernel/apic.c	Tue Jan 18 22:45:16 2005
+@@ -132,7 +132,7 @@
+ 	}
+ }
+ 
+-void disconnect_bsp_APIC(void)
++void disconnect_bsp_APIC(int virt_wire_setup)
+ {
+ 	if (pic_mode) {
+ 		/*
+@@ -144,6 +144,42 @@
+ 		apic_printk(APIC_QUIET, "disabling APIC mode, entering PIC mode.\n");
+ 		outb(0x70, 0x22);
+ 		outb(0x00, 0x23);
++	}
++	else {
++		/* Go back to Virtual Wire compatibility mode */
++		unsigned long value;
++
++		/* For the spurious interrupt use vector F, and enable it */
++		value = apic_read(APIC_SPIV);
++		value &= ~APIC_VECTOR_MASK;
++		value |= APIC_SPIV_APIC_ENABLED;
++		value |= 0xf;
++		apic_write_around(APIC_SPIV, value);
++
++		if (!virt_wire_setup) {
++			/* For LVT0 make it edge triggered, active high, external and enabled */
++			value = apic_read(APIC_LVT0);
++			value &= ~(APIC_MODE_MASK | APIC_SEND_PENDING |
++				APIC_INPUT_POLARITY | APIC_LVT_REMOTE_IRR |
++				APIC_LVT_LEVEL_TRIGGER | APIC_LVT_MASKED );
++			value |= APIC_LVT_REMOTE_IRR | APIC_SEND_PENDING;
++			value = SET_APIC_DELIVERY_MODE(value, APIC_MODE_EXTINT);
++			apic_write_around(APIC_LVT0, value);
++		}
++		else {
++			/* Disable LVT0 */
++			apic_write_around(APIC_LVT0, APIC_LVT_MASKED);
++		}
++
++		/* For LVT1 make it edge triggered, active high, nmi and enabled */
++		value = apic_read(APIC_LVT1);
++		value &= ~(
++			APIC_MODE_MASK | APIC_SEND_PENDING |
++			APIC_INPUT_POLARITY | APIC_LVT_REMOTE_IRR |
++			APIC_LVT_LEVEL_TRIGGER | APIC_LVT_MASKED);
++		value |= APIC_LVT_REMOTE_IRR | APIC_SEND_PENDING;
++		value = SET_APIC_DELIVERY_MODE(value, APIC_MODE_NMI);
++		apic_write_around(APIC_LVT1, value);
+ 	}
+ }
+ 
+diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86-apic-virtwire-on-shutdown/arch/x86_64/kernel/io_apic.c linux-2.6.11-rc1-mm1-nokexec-x86_64-apic-virtwire-on-shutdown/arch/x86_64/kernel/io_apic.c
+--- linux-2.6.11-rc1-mm1-nokexec-x86-apic-virtwire-on-shutdown/arch/x86_64/kernel/io_apic.c	Fri Jan 14 04:32:23 2005
++++ linux-2.6.11-rc1-mm1-nokexec-x86_64-apic-virtwire-on-shutdown/arch/x86_64/kernel/io_apic.c	Tue Jan 18 22:45:17 2005
+@@ -327,7 +327,7 @@
+ /*
+  * Find the pin to which IRQ[irq] (ISA) is connected
+  */
+-static int __init find_isa_irq_pin(int irq, int type)
++static int find_isa_irq_pin(int irq, int type)
+ {
+ 	int i;
+ 
+@@ -1125,12 +1125,44 @@
+  */
+ void disable_IO_APIC(void)
+ {
++	int pin;
+ 	/*
+ 	 * Clear the IO-APIC before rebooting:
+ 	 */
+ 	clear_IO_APIC();
+ 
+-	disconnect_bsp_APIC();
++	/*
++	 * If the i82559 is routed through an IOAPIC
++	 * Put that IOAPIC in virtual wire mode
++	 * so legacy interrups can be delivered.
++	 */
++	pin = find_isa_irq_pin(0, mp_ExtINT);
++	if (pin != -1) {
++		struct IO_APIC_route_entry entry;
++		unsigned long flags;
++
++		memset(&entry, 0, sizeof(entry));
++		entry.mask            = 0; /* Enabled */
++		entry.trigger         = 0; /* Edge */
++		entry.irr             = 0;
++		entry.polarity        = 0; /* High */
++		entry.delivery_status = 0;
++		entry.dest_mode       = 0; /* Physical */
++		entry.delivery_mode   = 7; /* ExtInt */
++		entry.vector          = 0;
++		entry.dest.physical.physical_dest = 0;
++
++
++		/*
++		 * Add it to the IO-APIC irq-routing table:
++		 */
++		spin_lock_irqsave(&ioapic_lock, flags);
++		io_apic_write(0, 0x11+2*pin, *(((int *)&entry)+1));
++		io_apic_write(0, 0x10+2*pin, *(((int *)&entry)+0));
++		spin_unlock_irqrestore(&ioapic_lock, flags);
++	}
++
++	disconnect_bsp_APIC(pin != -1);
+ }
+ 
+ /*
+diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86-apic-virtwire-on-shutdown/include/asm-x86_64/apic.h linux-2.6.11-rc1-mm1-nokexec-x86_64-apic-virtwire-on-shutdown/include/asm-x86_64/apic.h
+--- linux-2.6.11-rc1-mm1-nokexec-x86-apic-virtwire-on-shutdown/include/asm-x86_64/apic.h	Fri Jan  7 12:54:16 2005
++++ linux-2.6.11-rc1-mm1-nokexec-x86_64-apic-virtwire-on-shutdown/include/asm-x86_64/apic.h	Tue Jan 18 22:45:17 2005
+@@ -77,7 +77,7 @@
+ extern int get_maxlvt (void);
+ extern void clear_local_APIC (void);
+ extern void connect_bsp_APIC (void);
+-extern void disconnect_bsp_APIC (void);
++extern void disconnect_bsp_APIC (int virt_wire_setup);
+ extern void disable_local_APIC (void);
+ extern int verify_local_APIC (void);
+ extern void cache_APIC_registers (void);

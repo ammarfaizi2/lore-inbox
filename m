@@ -1,97 +1,421 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVBLTug@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVBLT46@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbVBLTug (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 14:50:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVBLTuf
+	id S261194AbVBLT46 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 14:56:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVBLT46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 14:50:35 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43705 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261195AbVBLTuX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 14:50:23 -0500
-Date: Sat, 12 Feb 2005 13:54:26 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Ray Bryant <raybry@sgi.com>, Ray Bryant <raybry@austin.rr.com>,
-       linux-mm <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview
-Message-ID: <20050212155426.GA26714@logos.cnet>
-References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com> <m1vf8yf2nu.fsf@muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1vf8yf2nu.fsf@muc.de>
-User-Agent: Mutt/1.5.5.1i
+	Sat, 12 Feb 2005 14:56:58 -0500
+Received: from user-0c6slog.cable.mindspring.com ([24.110.87.16]:25300 "EHLO
+	sleekfreak.ath.cx") by vger.kernel.org with ESMTP id S261194AbVBLT4j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Feb 2005 14:56:39 -0500
+Date: Sat, 12 Feb 2005 14:15:35 -0500 (EST)
+From: shogunx <shogunx@sleekfreak.ath.cx>
+To: Gil Lapidus <gjlap@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: once more w/feeling
+In-Reply-To: <20050212191721.24806.qmail@web11609.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.44.0502121414420.5019-100000@sleekfreak.ath.cx>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 12, 2005 at 12:17:25PM +0100, Andi Kleen wrote:
-> Ray Bryant <raybry@sgi.com> writes:
-> > set of pages associated with a particular process need to be moved.
-> > The kernel interface that we are proposing is the following:
-> >
-> > page_migrate(pid, va_start, va_end, count, old_nodes, new_nodes);
-> 
-> [Only commenting on the interface, haven't read your patches at all]
-> 
-> This is basically mbind() with MPOL_F_STRICT, except that it has a pid 
-> argument. I assume that's for the benefit of your batch scheduler.
+On Sat, 12 Feb 2005, Gil Lapidus wrote:
 
-As far as I understand mbind() is used to set policies to given memory 
-regions, not move memory regions?
+That would be lack of ide adapter support in your kernel.  common with
+k-6's.  try just the generic ide support.
 
-> But it's not clear to me how and why the batch scheduler should know about
-> virtual addresses of different processes anyways. Walking
-> /proc/pid/maps? That's all inherently racy when the process is doing
-> mmap in parallel. The only way I can think of to do this would be to
-> check for changes in maps after a full move and loop, but then you risk
-> livelock.
 
-True. 
+> Greetings,
+>
+> On a K6-2 500MHz box.
+>
+> kernel 2.4.28 boots _fine_.
+>
+> kernel 2.6.9 displays "Loading ...." then PC resets.
+>
+> Here's the .config filtered through grep ^C:
+>
+> CONFIG_X86=y
+> CONFIG_MMU=y
+> CONFIG_UID16=y
+> CONFIG_GENERIC_ISA_DMA=y
+> CONFIG_GENERIC_IOMAP=y
+> CONFIG_EXPERIMENTAL=y
+> CONFIG_CLEAN_COMPILE=y
+> CONFIG_BROKEN_ON_SMP=y
+> CONFIG_LOCALVERSION=""
+> CONFIG_SWAP=y
+> CONFIG_SYSVIPC=y
+> CONFIG_POSIX_MQUEUE=y
+> CONFIG_SYSCTL=y
+> CONFIG_AUDIT=y
+> CONFIG_AUDITSYSCALL=y
+> CONFIG_LOG_BUF_SHIFT=14
+> CONFIG_HOTPLUG=y
+> CONFIG_EMBEDDED=y
+> CONFIG_KALLSYMS=y
+> CONFIG_FUTEX=y
+> CONFIG_EPOLL=y
+> CONFIG_IOSCHED_NOOP=y
+> CONFIG_IOSCHED_AS=y
+> CONFIG_IOSCHED_DEADLINE=y
+> CONFIG_IOSCHED_CFQ=y
+> CONFIG_SHMEM=y
+> CONFIG_MODULES=y
+> CONFIG_MODULE_UNLOAD=y
+> CONFIG_MODULE_FORCE_UNLOAD=y
+> CONFIG_OBSOLETE_MODPARM=y
+> CONFIG_MODVERSIONS=y
+> CONFIG_KMOD=y
+> CONFIG_X86_PC=y
+> CONFIG_MK6=y
+> CONFIG_X86_GENERIC=y
+> CONFIG_X86_CMPXCHG=y
+> CONFIG_X86_XADD=y
+> CONFIG_X86_L1_CACHE_SHIFT=7
+> CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+> CONFIG_X86_WP_WORKS_OK=y
+> CONFIG_X86_INVLPG=y
+> CONFIG_X86_BSWAP=y
+> CONFIG_X86_POPAD_OK=y
+> CONFIG_X86_ALIGNMENT_16=y
+> CONFIG_X86_INTEL_USERCOPY=y
+> CONFIG_X86_USE_PPRO_CHECKSUM=y
+> CONFIG_HPET_TIMER=y
+> CONFIG_PREEMPT=y
+> CONFIG_X86_UP_APIC=y
+> CONFIG_X86_LOCAL_APIC=y
+> CONFIG_X86_TSC=y
+> CONFIG_X86_MCE=y
+> CONFIG_X86_MCE_NONFATAL=m
+> CONFIG_TOSHIBA=m
+> CONFIG_I8K=m
+> CONFIG_MICROCODE=m
+> CONFIG_X86_MSR=m
+> CONFIG_X86_CPUID=m
+> CONFIG_EDD=m
+> CONFIG_NOHIGHMEM=y
+> CONFIG_MTRR=y
+> CONFIG_HAVE_DEC_LOCK=y
+> CONFIG_PM=y
+> CONFIG_SOFTWARE_SUSPEND=y
+> CONFIG_PM_STD_PARTITION=""
+> CONFIG_ACPI=y
+> CONFIG_ACPI_BOOT=y
+> CONFIG_ACPI_INTERPRETER=y
+> CONFIG_ACPI_SLEEP=y
+> CONFIG_ACPI_SLEEP_PROC_FS=y
+> CONFIG_ACPI_AC=m
+> CONFIG_ACPI_BATTERY=m
+> CONFIG_ACPI_BUTTON=m
+> CONFIG_ACPI_FAN=m
+> CONFIG_ACPI_PROCESSOR=m
+> CONFIG_ACPI_THERMAL=m
+> CONFIG_ACPI_TOSHIBA=m
+> CONFIG_ACPI_BLACKLIST_YEAR=0
+> CONFIG_ACPI_BUS=y
+> CONFIG_ACPI_EC=y
+> CONFIG_ACPI_POWER=y
+> CONFIG_ACPI_PCI=y
+> CONFIG_ACPI_SYSTEM=y
+> CONFIG_X86_PM_TIMER=y
+> CONFIG_PCI=y
+> CONFIG_PCI_GOANY=y
+> CONFIG_PCI_BIOS=y
+> CONFIG_PCI_DIRECT=y
+> CONFIG_PCI_MMCONFIG=y
+> CONFIG_PCI_LEGACY_PROC=y
+> CONFIG_PCI_NAMES=y
+> CONFIG_ISA=y
+> CONFIG_PCMCIA=m
+> CONFIG_PCMCIA_DEBUG=y
+> CONFIG_YENTA=m
+> CONFIG_CARDBUS=y
+> CONFIG_PD6729=m
+> CONFIG_I82092=m
+> CONFIG_I82365=m
+> CONFIG_TCIC=m
+> CONFIG_PCMCIA_PROBE=y
+> CONFIG_BINFMT_ELF=y
+> CONFIG_BINFMT_AOUT=m
+> CONFIG_BINFMT_MISC=m
+> CONFIG_STANDALONE=y
+> CONFIG_PREVENT_FIRMWARE_BUILD=y
+> CONFIG_FW_LOADER=m
+> CONFIG_PARPORT=m
+> CONFIG_PARPORT_PC=m
+> CONFIG_PARPORT_PC_CML1=m
+> CONFIG_PARPORT_1284=y
+> CONFIG_PNP=y
+> CONFIG_ISAPNP=y
+> CONFIG_PNPBIOS=y
+> CONFIG_BLK_DEV_FD=y
+> CONFIG_BLK_DEV_LOOP=m
+> CONFIG_BLK_DEV_RAM=m
+> CONFIG_BLK_DEV_RAM_SIZE=4096
+> CONFIG_IDE=y
+> CONFIG_BLK_DEV_IDE=y
+> CONFIG_BLK_DEV_IDEDISK=y
+> CONFIG_IDEDISK_MULTI_MODE=y
+> CONFIG_BLK_DEV_IDECD=y
+> CONFIG_IDE_TASKFILE_IO=y
+> CONFIG_IDE_GENERIC=y
+> CONFIG_BLK_DEV_CMD640=y
+> CONFIG_BLK_DEV_CMD640_ENHANCED=y
+> CONFIG_BLK_DEV_IDEPCI=y
+> CONFIG_IDEPCI_SHARE_IRQ=y
+> CONFIG_BLK_DEV_GENERIC=y
+> CONFIG_BLK_DEV_OPTI621=m
+> CONFIG_BLK_DEV_RZ1000=y
+> CONFIG_BLK_DEV_IDEDMA_PCI=y
+> CONFIG_IDEDMA_PCI_AUTO=y
+> CONFIG_BLK_DEV_AEC62XX=y
+> CONFIG_BLK_DEV_ALI15X3=y
+> CONFIG_BLK_DEV_AMD74XX=y
+> CONFIG_BLK_DEV_ATIIXP=y
+> CONFIG_BLK_DEV_CMD64X=y
+> CONFIG_BLK_DEV_CY82C693=y
+> CONFIG_BLK_DEV_HPT34X=y
+> CONFIG_BLK_DEV_HPT366=y
+> CONFIG_BLK_DEV_PIIX=y
+> CONFIG_BLK_DEV_NS87415=y
+> CONFIG_BLK_DEV_SIS5513=y
+> CONFIG_BLK_DEV_SLC90E66=y
+> CONFIG_BLK_DEV_TRM290=y
+> CONFIG_BLK_DEV_VIA82CXXX=y
+> CONFIG_IDE_CHIPSETS=y
+> CONFIG_BLK_DEV_IDEDMA=y
+> CONFIG_IDEDMA_AUTO=y
+> CONFIG_SCSI=y
+> CONFIG_SCSI_DPT_I2O=m
+> CONFIG_SCSI_SATA=y
+> CONFIG_SCSI_ATA_PIIX=y
+> CONFIG_SCSI_SATA_SX4=m
+> CONFIG_SCSI_SATA_SIS=m
+> CONFIG_SCSI_IPR=m
+> CONFIG_SCSI_QLA2XXX=y
+> CONFIG_IEEE1394=y
+> CONFIG_IEEE1394_OHCI1394=y
+> CONFIG_IEEE1394_RAWIO=y
+> CONFIG_NET=y
+> CONFIG_PACKET=y
+> CONFIG_UNIX=y
+> CONFIG_INET=y
+> CONFIG_IP_MULTICAST=y
+> CONFIG_NETFILTER=y
+> CONFIG_IP_NF_CONNTRACK=y
+> CONFIG_IP_NF_QUEUE=y
+> CONFIG_IP_NF_IPTABLES=y
+> CONFIG_IP_NF_MATCH_LIMIT=y
+> CONFIG_IP_NF_MATCH_IPRANGE=y
+> CONFIG_IP_NF_MATCH_MAC=y
+> CONFIG_IP_NF_MATCH_PKTTYPE=y
+> CONFIG_IP_NF_MATCH_MARK=y
+> CONFIG_IP_NF_MATCH_MULTIPORT=y
+> CONFIG_IP_NF_MATCH_TOS=y
+> CONFIG_IP_NF_MATCH_RECENT=y
+> CONFIG_IP_NF_MATCH_ECN=y
+> CONFIG_IP_NF_MATCH_DSCP=y
+> CONFIG_IP_NF_MATCH_AH_ESP=y
+> CONFIG_IP_NF_MATCH_LENGTH=y
+> CONFIG_IP_NF_MATCH_TTL=y
+> CONFIG_IP_NF_MATCH_TCPMSS=y
+> CONFIG_IP_NF_MATCH_HELPER=y
+> CONFIG_IP_NF_MATCH_STATE=y
+> CONFIG_IP_NF_MATCH_CONNTRACK=y
+> CONFIG_IP_NF_MATCH_OWNER=y
+> CONFIG_IP_NF_FILTER=y
+> CONFIG_IP_NF_TARGET_REJECT=y
+> CONFIG_IP_NF_TARGET_LOG=y
+> CONFIG_IP_NF_TARGET_ULOG=y
+> CONFIG_IP_NF_TARGET_TCPMSS=y
+> CONFIG_IP_NF_NAT=y
+> CONFIG_IP_NF_NAT_NEEDED=y
+> CONFIG_IP_NF_TARGET_MASQUERADE=y
+> CONFIG_IP_NF_TARGET_REDIRECT=y
+> CONFIG_IP_NF_TARGET_NETMAP=y
+> CONFIG_IP_NF_TARGET_SAME=y
+> CONFIG_IP_NF_MANGLE=y
+> CONFIG_IP_NF_TARGET_TOS=y
+> CONFIG_IP_NF_TARGET_ECN=y
+> CONFIG_IP_NF_TARGET_DSCP=y
+> CONFIG_IP_NF_TARGET_MARK=y
+> CONFIG_IP_NF_TARGET_CLASSIFY=y
+> CONFIG_IP_NF_RAW=m
+> CONFIG_IP_NF_TARGET_NOTRACK=m
+> CONFIG_IP_NF_ARPTABLES=y
+> CONFIG_IP_NF_ARPFILTER=y
+> CONFIG_IP_NF_ARP_MANGLE=y
+> CONFIG_NETDEVICES=y
+> CONFIG_DUMMY=m
+> CONFIG_NET_ETHERNET=y
+> CONFIG_MII=y
+> CONFIG_NET_PCI=y
+> CONFIG_8139TOO=y
+> CONFIG_8139TOO_PIO=y
+> CONFIG_S2IO=m
+> CONFIG_PLIP=m
+> CONFIG_PPP=m
+> CONFIG_PPP_ASYNC=m
+> CONFIG_PPP_SYNC_TTY=m
+> CONFIG_PPP_DEFLATE=m
+> CONFIG_PPP_BSDCOMP=m
+> CONFIG_INPUT=y
+> CONFIG_INPUT_MOUSEDEV=m
+> CONFIG_INPUT_MOUSEDEV_PSAUX=y
+> CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+> CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+> CONFIG_INPUT_JOYDEV=m
+> CONFIG_INPUT_EVDEV=m
+> CONFIG_INPUT_EVBUG=m
+> CONFIG_GAMEPORT=m
+> CONFIG_SOUND_GAMEPORT=m
+> CONFIG_GAMEPORT_NS558=m
+> CONFIG_SERIO=y
+> CONFIG_SERIO_I8042=m
+> CONFIG_SERIO_SERPORT=m
+> CONFIG_INPUT_KEYBOARD=y
+> CONFIG_KEYBOARD_ATKBD=y
+> CONFIG_INPUT_MOUSE=y
+> CONFIG_MOUSE_PS2=y
+> CONFIG_MOUSE_SERIAL=m
+> CONFIG_INPUT_JOYSTICK=y
+> CONFIG_JOYSTICK_ANALOG=m
+> CONFIG_JOYSTICK_ADI=m
+> CONFIG_JOYSTICK_DB9=m
+> CONFIG_JOYSTICK_GAMECON=m
+> CONFIG_VT=y
+> CONFIG_VT_CONSOLE=y
+> CONFIG_HW_CONSOLE=y
+> CONFIG_SERIAL_8250=y
+> CONFIG_SERIAL_8250_NR_UARTS=4
+> CONFIG_SERIAL_CORE=y
+> CONFIG_UNIX98_PTYS=y
+> CONFIG_LEGACY_PTYS=y
+> CONFIG_LEGACY_PTY_COUNT=256
+> CONFIG_PRINTER=m
+> CONFIG_RTC=y
+> CONFIG_AGP=y
+> CONFIG_AGP_ALI=m
+> CONFIG_AGP_ATI=m
+> CONFIG_AGP_INTEL=m
+> CONFIG_AGP_INTEL_MCH=m
+> CONFIG_AGP_SIS=m
+> CONFIG_AGP_VIA=m
+> CONFIG_DRM=y
+> CONFIG_DRM_R128=m
+> CONFIG_DRM_RADEON=m
+> CONFIG_DRM_SIS=m
+> CONFIG_SYNCLINK_CS=m
+> CONFIG_HPET=y
+> CONFIG_HPET_RTC_IRQ=y
+> CONFIG_HPET_MMAP=y
+> CONFIG_VGA_CONSOLE=y
+> CONFIG_DUMMY_CONSOLE=y
+> CONFIG_SOUND=y
+> CONFIG_SND=m
+> CONFIG_SND_TIMER=m
+> CONFIG_SND_PCM=m
+> CONFIG_SND_HWDEP=m
+> CONFIG_SND_RAWMIDI=m
+> CONFIG_SND_SEQUENCER=m
+> CONFIG_SND_OSSEMUL=y
+> CONFIG_SND_MIXER_OSS=m
+> CONFIG_SND_PCM_OSS=m
+> CONFIG_SND_SEQUENCER_OSS=y
+> CONFIG_SND_RTCTIMER=m
+> CONFIG_SND_VERBOSE_PRINTK=y
+> CONFIG_SND_DEBUG=y
+> CONFIG_SND_MPU401_UART=m
+> CONFIG_SND_OPL3_LIB=m
+> CONFIG_SND_DUMMY=m
+> CONFIG_SND_VIRMIDI=m
+> CONFIG_SND_MTPAV=m
+> CONFIG_SND_SERIAL_U16550=m
+> CONFIG_SND_MPU401=m
+> CONFIG_SND_SB16=m
+> CONFIG_SND_AC97_CODEC=m
+> CONFIG_SND_ENS1370=m
+> CONFIG_SND_ENS1371=m
+> CONFIG_USB=y
+> CONFIG_USB_DEVICEFS=y
+> CONFIG_USB_EHCI_HCD=y
+> CONFIG_USB_UHCI_HCD=y
+> CONFIG_USB_PRINTER=y
+> CONFIG_USB_STORAGE=y
+> CONFIG_USB_HID=y
+> CONFIG_USB_HIDINPUT=y
+> CONFIG_USB_EGALAX=m
+> CONFIG_USB_CYTHERM=m
+> CONFIG_USB_PHIDGETSERVO=m
+> CONFIG_EXT2_FS=y
+> CONFIG_EXT2_FS_XATTR=y
+> CONFIG_EXT3_FS=y
+> CONFIG_EXT3_FS_XATTR=y
+> CONFIG_JBD=y
+> CONFIG_FS_MBCACHE=y
+> CONFIG_AUTOFS4_FS=y
+> CONFIG_ISO9660_FS=y
+> CONFIG_JOLIET=y
+> CONFIG_UDF_FS=y
+> CONFIG_UDF_NLS=y
+> CONFIG_FAT_FS=y
+> CONFIG_MSDOS_FS=y
+> CONFIG_VFAT_FS=y
+> CONFIG_FAT_DEFAULT_CODEPAGE=437
+> CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+> CONFIG_NTFS_FS=m
+> CONFIG_PROC_FS=y
+> CONFIG_PROC_KCORE=y
+> CONFIG_SYSFS=y
+> CONFIG_TMPFS=y
+> CONFIG_RAMFS=y
+> CONFIG_NFS_FS=y
+> CONFIG_NFSD=y
+> CONFIG_NFSD_TCP=y
+> CONFIG_LOCKD=y
+> CONFIG_EXPORTFS=y
+> CONFIG_SUNRPC=y
+> CONFIG_MSDOS_PARTITION=y
+> CONFIG_NLS=y
+> CONFIG_NLS_DEFAULT="iso8859-1"
+> CONFIG_NLS_CODEPAGE_437=y
+> CONFIG_NLS_ISO8859_1=y
+> CONFIG_DEBUG_KERNEL=y
+> CONFIG_DEBUG_SLAB=y
+> CONFIG_DEBUG_SPINLOCK=y
+> CONFIG_FRAME_POINTER=y
+> CONFIG_EARLY_PRINTK=y
+> CONFIG_DEBUG_STACKOVERFLOW=y
+> CONFIG_4KSTACKS=y
+> CONFIG_X86_FIND_SMP_CONFIG=y
+> CONFIG_X86_MPPARSE=y
+> CONFIG_CRC_CCITT=m
+> CONFIG_CRC32=y
+> CONFIG_LIBCRC32C=m
+> CONFIG_ZLIB_INFLATE=m
+> CONFIG_ZLIB_DEFLATE=m
+> CONFIG_X86_BIOS_REBOOT=y
+>
+> TIA,
+>
+> -Gil
+>
+>
+>
+> __________________________________
+> Do you Yahoo!?
+> Yahoo! Mail - Easier than ever with enhanced search. Learn more.
+> http://info.mail.yahoo.com/mail_250
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-There is no problem, however, if all threads beloging to the process are stopped, 
-as Ray mentions. 
+sleekfreak pirate broadcast
+http://sleekfreak.ath.cx:81/
 
-So, there wont be memory mapping changes happening at the same time. 
-
-Note that the memory migration code which sys_page_migrate() uses moves
-running processes to other memory zones, handling truncate, etc.
-
-> And you cannot also just specify va_start=0, va_end=~0UL because that
-> would make the node arrays grow infinitely. 
-> 
-> Also is there a good use case why the batch scheduler should only
-> move individual areas in a process around, not the full process?
-
-Quoting him:
-
-"In addition to its use by batch schedulers, we also envision that
-this facility could be used by a program to re-arrange the allocation
-of its own pages on various nodes of the NUMA system, most likely
-to optimize performance of the application during different phases
-of its computation."
-
-Seems doable. 
-
-Are there any good xamples of optimizations that could be made by 
-moving pages around except for NUMA?
-
-Does IRIX has anything similar? 
-
-> I think the only sane way for an external process to move another 
-> around is to do it for the whole process. For that you wouldn't need
-> most of the arguments, but just a simple move_process_vm call,
-> or perhaps just a file in /proc where the new node can be written to.
-
-It seems interesting for a process to move its own vma for optimizations
-reasons?
-
-> There may be an argument to do this for individual 
-> tmpfs/hugetlbfs/sysv shm segments too, but mbind() already supports
-> that (just map them from a different process and change the policy there)
-> 
-> For process use you could just do it in mbind() or perhaps
-> part of the process policy (move page around when touched by process).
-
-Hum, how is that supposed to work ? You want to modify the pagefault handler? 

@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266257AbTBLCzy>; Tue, 11 Feb 2003 21:55:54 -0500
+	id <S266347AbTBLC6U>; Tue, 11 Feb 2003 21:58:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266224AbTBLCzx>; Tue, 11 Feb 2003 21:55:53 -0500
-Received: from covert.black-ring.iadfw.net ([209.196.123.142]:11017 "EHLO
-	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
-	id <S266081AbTBLCzs>; Tue, 11 Feb 2003 21:55:48 -0500
-Date: Tue, 11 Feb 2003 20:46:18 -0600
-From: Art Haas <ahaas@airmail.net>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] Add small C99 named initializers to fs/bio.c
-Message-ID: <20030212024618.GB914@debian>
+	id <S265885AbTBLC4S>; Tue, 11 Feb 2003 21:56:18 -0500
+Received: from crack.them.org ([65.125.64.184]:28315 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S266116AbTBLCzw>;
+	Tue, 11 Feb 2003 21:55:52 -0500
+Date: Tue, 11 Feb 2003 22:05:27 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Roland McGrath <roland@redhat.com>, Ingo Molnar <mingo@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: another subtle signals issue
+Message-ID: <20030212030527.GA15854@nevyn.them.org>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Roland McGrath <roland@redhat.com>, Ingo Molnar <mingo@redhat.com>,
+	linux-kernel@vger.kernel.org
+References: <200302120206.h1C26sI19476@magilla.sf.frob.com> <Pine.LNX.4.44.0302111833120.2667-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <Pine.LNX.4.44.0302111833120.2667-100000@home.transmeta.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Tue, Feb 11, 2003 at 06:45:19PM -0800, Linus Torvalds wrote:
+> 
+> On Tue, 11 Feb 2003, Roland McGrath wrote:
+> > 
+> > I think sys_semop would be closer to right if it used ERESTARTSYS instead
+> > of EINTR.
+> 
+> You probably mean ERESTARTSYSNOHAND.
+> 
+> There are lots of system calls that simply are not restartable. So 
+> TIF_SIGPENDING in general should be set only if required, and not "because 
+> it's easier".
+> 
+> > The reason I am concerned about this is that I think any case that is
+> > broken by the lack of the optimization in the patch below must also be
+> > broken vis a vis the semantics of stop signals and SIGCONT (when SIG_DFL,
+> > SIG_IGN, or blocked).  POSIX says that when a process is stopped by
+> > e.g. SIGSTOP, and then continued by SIGCONT, any functions that were in
+> > progress at the time of stop are unaffected unless SIGCONT runs a handler.
+> > That is, nobody returns EINTR because of the stop/continue.
+> 
+> This is what ERESTARTNOHAND does, but quite often if you get interrupted
+> you have to return _partial_ results, which is quite inefficient and
+> sometimes breaks programs (ie you get things like a read() from a pipe
+> that returns a partial result because you resized the window, and a 
+> SIGWINCH happened - and that is _bad_).
+> 
+> The old code tried rather hard to make signals that were truly ignored 
+> (SIGSTOP/SIGCONT is not of that kind) be total non-events because of 
+> things like this. 
 
-This trivial patch adds C99 named initializers to the file. Doing so
-reduces a couple of compile warnings if '-W' is added.
+For things with a timeout, shouldn't they be converted to use
+ERESTART_RESTARTBLOCK?  The situation Roland is describing is just
+about the same as the original problem with nanosleep.
 
-Art Haas
-
-===== fs/bio.c 1.37 vs edited =====
---- 1.37/fs/bio.c	Fri Jan 10 23:06:28 2003
-+++ edited/fs/bio.c	Tue Feb 11 09:37:41 2003
-@@ -46,7 +46,7 @@
-  * unsigned short
-  */
- 
--#define BV(x) { x, "biovec-" #x }
-+#define BV(x) { .nr_vecs = x, .name = "biovec-" #x }
- static struct biovec_pool bvec_array[BIOVEC_NR_POOLS] = {
- 	BV(1), BV(4), BV(16), BV(64), BV(128), BV(BIO_MAX_PAGES),
- };
 -- 
-They that can give up essential liberty to obtain a little temporary safety
-deserve neither liberty nor safety.
- -- Benjamin Franklin, Historical Review of Pennsylvania, 1759
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

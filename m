@@ -1,79 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263270AbTFGQgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 12:36:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbTFGQgP
+	id S263271AbTFGQqY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 12:46:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTFGQqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 12:36:15 -0400
-Received: from crack.them.org ([146.82.138.56]:26079 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id S263270AbTFGQgH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 12:36:07 -0400
-Date: Sat, 7 Jun 2003 12:49:36 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org
-Subject: Re: __user annotations
-Message-ID: <20030607164936.GA18862@nevyn.them.org>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org
-References: <16097.12932.161268.783738@argo.ozlabs.ibm.com> <Pine.LNX.4.44.0306061738200.31112-100000@home.transmeta.com>
+	Sat, 7 Jun 2003 12:46:24 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:60882 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263271AbTFGQqW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 12:46:22 -0400
+Date: Sat, 7 Jun 2003 18:59:51 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       bcollins@debian.org, linux1394-devel@lists.sourceforge.net
+Cc: Jean Tourrilhes <jt@bougret.hpl.hp.com>, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: Re: [patch] fix vlsi_ir.c compile if !CONFIG_PROC_FS
+Message-ID: <20030607165951.GA13377@fs.tum.de>
+References: <20030607152434.GQ15311@fs.tum.de> <Pine.SOL.4.30.0306071815120.6449-100000@mion.elka.pw.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0306061738200.31112-100000@home.transmeta.com>
-User-Agent: Mutt/1.5.1i
+In-Reply-To: <Pine.SOL.4.30.0306071815120.6449-100000@mion.elka.pw.edu.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 06, 2003 at 05:43:58PM -0700, Linus Torvalds wrote:
+On Sat, Jun 07, 2003 at 06:22:39PM +0200, Bartlomiej Zolnierkiewicz wrote:
 > 
-> On Sat, 7 Jun 2003, Paul Mackerras wrote:
-> > Linus Torvalds writes:
-> > 
-> > > You can get check from
-> > > 
-> > > 	bk://kernel.bkbits.net/torvalds/sparse
-> > 
-> > Is that up to date?  I cloned that repository and said "make" and got
-> > heaps of compile errors.  First there were a heap of warnings like
-> > this:
+> Apply something like this:
 > 
-> You need to have a modern compiler. The "heaps of errors" is what you get 
-> if you use a stone-age compiler that doesn't support anonymous structure 
-> and union members or other C99 features.
+> --- linux-2.5.70-bk11/include/proc_fs.h	Fri Jun  6 18:43:49 2003
+> +++ linux/include/proc_fs.h	Sat Jun  7 18:11:22 2003
+> @@ -205,7 +205,7 @@
+>  static inline struct proc_dir_entry *create_proc_entry(const char *name,
+>  	mode_t mode, struct proc_dir_entry *parent) { return NULL; }
 > 
-> Gcc has supported them since some pre-3.x version (which is pretty late,
-> since they've been around in other compilers for much longer). They are a
-> great way to make readable data structures that have internal structure
-> _without_ having to have that structure show up unnecessarily in usage.
+> -static inline void remove_proc_entry(const char *name, struct proc_dir_entry *parent) {};
+> +#define remove_proc_entry(name, parent)	/* nothing */
+>  static inline struct proc_dir_entry *proc_symlink(const char *name,
+>  		struct proc_dir_entry *parent,char *dest) {return NULL;}
+>  static inline struct proc_dir_entry *proc_mknod(const char *name,mode_t mode,
+> 
+> And you wil not have to readd #ifdef/#endif pair.
+> 
+> I've seen Sam's mail but this is generic solution to quiet compiler
+> and will work for any remove_proc_entry() user.
 
-Actually, I believe they are an extension, which GCC honors.  Unnamed
-structures in standard C99 are actually declaring an unnamed type, not
-an unnamed member.  Try it:
+Yup, for this specific error Sam's solution is the best one, but your 
+patch e.g. solves the ieee1394_core.c compile error I reported, too.
 
-     struct {
-       int a;
-       union {
-         int b;
-         float c;
-       };
-       int d;
-     } foo;
+> Thanks,
+> --
+> Bartlomiej
 
-int bar()
-{
-  return foo.a + foo.d + foo.b;
-}
-
-
-With -std=c99, the reference to foo.b is an error; with -std=gnu99 or
--std=gnu89, it is accepted.
-
-
-I don't know why they were getting rejected for Paul, though.  Did you
-have GNU set to -ansi mode?
+cu
+Adrian
 
 -- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

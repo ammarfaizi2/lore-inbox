@@ -1,60 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129832AbRBGTwN>; Wed, 7 Feb 2001 14:52:13 -0500
+	id <S129084AbRBGTxN>; Wed, 7 Feb 2001 14:53:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129481AbRBGTwD>; Wed, 7 Feb 2001 14:52:03 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:4997 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129084AbRBGTvz>; Wed, 7 Feb 2001 14:51:55 -0500
-Date: Wed, 7 Feb 2001 14:50:57 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: davej@suse.de
-cc: Alan Cox <alan@redhat.com>, becker@scyld.com,
+	id <S129032AbRBGTxD>; Wed, 7 Feb 2001 14:53:03 -0500
+Received: from tungsten.btinternet.com ([194.73.73.81]:56038 "EHLO
+	tungsten.btinternet.com") by vger.kernel.org with ESMTP
+	id <S129481AbRBGTws>; Wed, 7 Feb 2001 14:52:48 -0500
+Date: Wed, 7 Feb 2001 19:52:34 +0000 (GMT)
+From: <davej@suse.de>
+X-X-Sender: <davej@athlon.local>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Alan Cox <alan@redhat.com>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Hamachi not doing pci_enable before reading resources
-In-Reply-To: <Pine.LNX.4.31.0102071914210.17543-100000@athlon.local>
-Message-ID: <Pine.LNX.3.95.1010207144124.1258B-100000@chaos.analogic.com>
+Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
+Message-ID: <Pine.LNX.4.31.0102071951060.17788-100000@athlon.local>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Feb 2001 davej@suse.de wrote:
 
-> 
-> Hi Alan,
-> 
->  Another driver not doing pci_enable_device() early enough.
-> 
-> Dave.
-> 
+> rejected -- ioaddr assigned a value before pci_enable_device is called
 
-A PCI device does not and should not be enabled to probe for resources!
-It is only devices that have BIOS that require the device to be enabled
-for memory I/O prior to downloading the BIOS into RAM. The BARs are
-read/writable (and are required to be), even when the Mem/I/O bits
-in the cmd/status register are clear.
+Better ?
 
-This is a required condition!  You certainly don't want to write all
-ones to a decode (to find the resource length) of a live, on-line chip!
-If the chip hickups (think network chips connected to networks, on a
-warm-boot), you will trash lots of stuff in memory.
+Dave.
 
-It looks as though you are "fixing" drivers that are not broken and,
-in fact, are trying to do the right thing. Maybe the PCI code in the
-kernel is preventing access to resources unless the device has been
-enabled??? If so, it's broken and should be fixed, instead of all
-the drivers.
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
 
-Cheers,
-Dick Johnson
+diff -urN --exclude-from=/home/davej/.exclude linux/drivers/net/starfire.c linux-dj/drivers/net/starfire.c
+--- linux/drivers/net/starfire.c	Wed Feb  7 12:42:42 2001
++++ linux-dj/drivers/net/starfire.c	Wed Feb  7 19:47:54 2001
+@@ -396,12 +396,6 @@
+ 		printk(KERN_INFO "%s" KERN_INFO "%s" KERN_INFO "%s",
+ 		       version1, version2, version3);
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+-	ioaddr = pci_resource_start (pdev, 0);
+-	if (!ioaddr || ((pci_resource_flags (pdev, 0) & IORESOURCE_MEM) == 0)) {
+-		printk (KERN_ERR "starfire %d: no PCI MEM resources, aborting\n", card_idx);
+-		return -ENODEV;
+-	}
+-
+ 	dev = init_etherdev(NULL, sizeof(*np));
+ 	if (!dev) {
+ 		printk (KERN_ERR "starfire %d: cannot alloc etherdev, aborting\n", card_idx);
+@@ -409,6 +403,14 @@
+ 	}
+ 	SET_MODULE_OWNER(dev);
 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
++	if (pci_enable_device (pdev))
++		goto err_out_free_netdev;
++
++	ioaddr = pci_resource_start (pdev, 0);
++	if (!ioaddr || ((pci_resource_flags (pdev, 0) & IORESOURCE_MEM) == 0)) {
++		printk (KERN_ERR "starfire %d: no PCI MEM resources, aborting\n", card_idx);
++		return -ENODEV;
++	}
+ 	irq = pdev->irq;
+
+ 	if (request_mem_region (ioaddr, io_size, dev->name) == NULL) {
+@@ -416,10 +418,7 @@
+ 			card_idx, io_size, ioaddr);
+ 		goto err_out_free_netdev;
+ 	}
+-
+-	if (pci_enable_device (pdev))
+-		goto err_out_free_res;
+-
++
+ 	ioaddr = (long) ioremap (ioaddr, io_size);
+ 	if (!ioaddr) {
+ 		printk (KERN_ERR "starfire %d: cannot remap 0x%x @ 0x%lx, aborting\n",
 
 
 -

@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265879AbSKBFbI>; Sat, 2 Nov 2002 00:31:08 -0500
+	id <S265881AbSKBF5g>; Sat, 2 Nov 2002 00:57:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265881AbSKBFbI>; Sat, 2 Nov 2002 00:31:08 -0500
-Received: from modemcable077.18-202-24.mtl.mc.videotron.ca ([24.202.18.77]:23314
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S265879AbSKBFbH>; Sat, 2 Nov 2002 00:31:07 -0500
-Date: Sat, 2 Nov 2002 00:36:48 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Steven King <sxking@qwest.net>, Linus Torvalds <torvalds@transmeta.com>,
-       Joel Becker <Joel.Becker@oracle.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <lkcd-general@lists.sourceforge.net>,
-       <lkcd-devel@lists.sourceforge.net>
-Subject: Re: What's left over.
-In-Reply-To: <Pine.LNX.3.96.1021102000343.29692C-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0211020033310.14075-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265882AbSKBF5g>; Sat, 2 Nov 2002 00:57:36 -0500
+Received: from dp.samba.org ([66.70.73.150]:2274 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265881AbSKBF5f>;
+	Sat, 2 Nov 2002 00:57:35 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Dax Kelson <dax@gurulabs.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, davej@suse.de
+Subject: Re: Filesystem Capabilities in 2.6? 
+In-reply-to: Your message of "01 Nov 2002 11:32:43 PDT."
+             <1036175565.2260.20.camel@mentor> 
+Date: Sat, 02 Nov 2002 09:59:42 +1100
+Message-Id: <20021102060405.731362C078@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Nov 2002, Bill Davidsen wrote:
-
->   The thing is that Solaris, AIX, and ISC are written by commercial
-> companies, they realize that customers need to be able to debug systems
-> which don't have a screen, a serial printer, etc. They do have disk. 
+In message <1036175565.2260.20.camel@mentor> you write:
 > 
->   I was hoping Alan would push Redhat to put this in their Linux so we
-> could resolve some of the ongoing problems which don't write an oops to a
-> log, but I guess none of the developers has to actually support production
-> servers and find out why they crash.
+> On Fri, 2002-11-01 at 01:49, Rusty Russell wrote:
+> > I'm down to 8 undecided features: 6 removed and one I missed earlier.
+> 
+> How about Olaf Dietsche's filesystem capabilities support? It has been
+> posted a couple times to LK, yesterday even.
 
-Perhaps i'm being grossly naive here, but none of these presumably x86 
-productions servers don't have a serial port? Not even PCI/ISA slots to 
-add one? Serial would catch most of your oopsen anyway, and if you were 
-borked enough that serial couldn't get the entire output, i somehow doubt 
-dumping to disk could manage. And no i don't see anything wrong nor 
-consider it studly to use oopses only for debugging...
+Hmmm... cutting it pretty fine 8)
 
-	Zwane
+I'm not sure how much it buys us in real life, but that's not my
+decision.
 
--- 
-function.linuxpower.ca
-
+Added,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,46 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262236AbUCZDR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 22:17:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263778AbUCZDR6
+	id S263027AbUCZDV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 22:21:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263663AbUCZDV2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 22:17:58 -0500
-Received: from sa-4.airstreamcomm.net ([64.33.192.164]:33286 "EHLO
-	sa-4.airstreamcomm.net") by vger.kernel.org with ESMTP
-	id S263662AbUCZDRx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 22:17:53 -0500
-To: 239952@bugs.debian.org, debian-devel@lists.debian.org,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: Binary-only firmware covered by the GPL?
-References: <81ptb0wh45.wl@omega.webmasters.gr.jp>
-	<MDEHLPKNGKAHNMBLJOLKAEFILEAA.davids@webmaster.com>
-	<20040326025909.GY9248@cheney.cx>
-From: John Hasler <john@dhh.gt.org>
-Date: Thu, 25 Mar 2004 21:23:33 -0600
-In-Reply-To: <20040326025909.GY9248@cheney.cx> (Chris Cheney's message of
- "Thu, 25 Mar 2004 20:59:09 -0600")
-Message-ID: <87smfw9tqi.fsf@toncho.dhh.gt.org>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 25 Mar 2004 22:21:28 -0500
+Received: from 66-194-152-191.gen.twtelecom.net ([66.194.152.191]:30340 "EHLO
+	pico.surpasshosting.com") by vger.kernel.org with ESMTP
+	id S263027AbUCZDVE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 22:21:04 -0500
+Date: Thu, 25 Mar 2004 21:20:10 -0600
+From: Chris Cheney <ccheney@cheney.cx>
+To: Tony Lindgren <tony@atomide.com>
+Cc: linux-kernel@vger.kernel.org, acpi-devel-request@lists.sourceforge.net,
+       patches@x86-64.org, ak@suse.de, len.brown@intel.com, pavel@ucw.cz
+Subject: Re: [PATCH] x86_64 VIA chipset IOAPIC fix
+Message-ID: <20040326032010.GB9248@cheney.cx>
+References: <20040325033434.GB8139@atomide.com> <20040326030458.GZ9248@cheney.cx> <20040326030809.GQ7967@atomide.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1kVeyRzorzGcO9ta"
+Content-Disposition: inline
+In-Reply-To: <20040326030809.GQ7967@atomide.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - pico.surpasshosting.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - cheney.cx
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris writes:
-> So is a reverse engineered driver where there is a binary blob the
-> preferred form of source?
 
-Where did the blob come from?  If the author wrote it in binary (unlikely),
-then it's ok.  If he wrote it in hex (I've done that) he should supply a
-hex file from which the blob can be generated.
+--1kVeyRzorzGcO9ta
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Of course reverse engineered drivers with binary blobs in them are
-> probably copyright infringements anyway...
+On Thu, Mar 25, 2004 at 07:11:45PM -0800, Tony Lindgren wrote:
+> * Chris Cheney <ccheney@cheney.cx> [040325 19:06]:
+> > On Wed, Mar 24, 2004 at 07:34:34PM -0800, Tony Lindgren wrote:
+> >=20
+> > Is this actually a "VIA" fix or a just workaround for the broken Arima
+> > bios? I noticed that the Arima bios seems to be pretty buggy in some
+> > other aspects as well.
+>=20
+> VIA fix, not a BIOS thing.
 
-If the author ripped the blob out of someone else's closed-source binary
-driver it certainly is.  It also is a GPL violation.
--- 
-John Hasler               You may treat this work as if it 
-john@dhh.gt.org           were in the public domain.
-Dancing Horse Hill        I waive all rights.
-Elmwood, Wisconsin
+I guess I am just surprised that no one else had noticed this bug back
+when K8T800 first came out (April 2003) and fixed it already. :)
+
+Thanks,
+Chris
+
+--1kVeyRzorzGcO9ta
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAY6Fq0QZas444SvIRApaCAJ4/BjL1y9zv5KahRMf47PbWkPzPBwCcDN/o
+uxII/XNhE4A5N1sc/aY2HQo=
+=UZVK
+-----END PGP SIGNATURE-----
+
+--1kVeyRzorzGcO9ta--

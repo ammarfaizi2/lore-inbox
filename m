@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262383AbSKDMSm>; Mon, 4 Nov 2002 07:18:42 -0500
+	id <S264663AbSKDM04>; Mon, 4 Nov 2002 07:26:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264658AbSKDMSm>; Mon, 4 Nov 2002 07:18:42 -0500
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:40579 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262383AbSKDMSl>; Mon, 4 Nov 2002 07:18:41 -0500
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.GSO.4.21.0211030048170.25010-100000@steklov.math.psu.edu>
-	<1036307763.31699.214.camel@thud>
-	<slrnascf7j.5nn.asalmela@pan.pressi.com>
-From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-To: Antti Salmela <asalmela@iki.fi>
+	id <S264664AbSKDM04>; Mon, 4 Nov 2002 07:26:56 -0500
+Received: from [64.215.178.122] ([64.215.178.122]:25796 "HELO umaro.net")
+	by vger.kernel.org with SMTP id <S264663AbSKDM0z>;
+	Mon, 4 Nov 2002 07:26:55 -0500
+Date: Mon, 4 Nov 2002 01:55:05 -0700
+From: Rando Christensen <rando@babblica.net>
+To: Hacksaw <hacksaw@hacksaw.org>
+Cc: kaih@khms.westfalen.de, linux-kernel@vger.kernel.org
 Subject: Re: Filesystem Capabilities in 2.6?
-Date: Mon, 04 Nov 2002 13:24:57 +0100
-Message-ID: <874raxh692.fsf@goat.bogus.local>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
- i386-debian-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <20021104015505.7f5af5b1.rando@babblica.net>
+In-Reply-To: <200211031050.gA3AoO2l008421@habitrail.home.fools-errant.com>
+References: <8$A6Ivu1w-B@khms.westfalen.de>
+	<200211031050.gA3AoO2l008421@habitrail.home.fools-errant.com>
+Organization: Babblica
+X-Mailer: Sylpheed version 0.8.5claws (GTK+ 1.2.10; )
+digiw00tX: v1.0
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Antti Salmela <asalmela@iki.fi> writes:
+Sun, 03 Nov 2002 05:50:24 -0500: Hacksaw (Hacksaw
+<hacksaw@hacksaw.org>):
 
-> Dax Kelson <dax@gurulabs.com> wrote:
->
->> Each app should run in its own security context by itself.  That is why
->> I have all the following users in my /etc/passwd:
->> 
->> apache nscd squid xfs ident rpc pcap nfsnobody radvd gdm named ntp
->
-> Well, wouldn't it be then logical to associate uids to capabilities, e.g. I
-> could have ping binary setuid to user ping which would have just the
-> necessary capabilities to operate?
+> I still find "mount --bind --capability=xx,yy /usr/bin/foo
+> /usr/bin/foo" to be a strange syntax. It implies that one is mounting
+> /usr/bin/foo over /usr/bin/foo, and adding the xx,yy capabilities.
 
-Welcome to accessfs :-)
+This could be an argument _for_ doing it this way. As a sysadmin myself,
+this makes a lot of sense to me, and being able to catch it by looking
+in a 'mount' command is certainly a sweet proposal-- That way you can
+constantly monitor anything that needs extra capabilities very simply.
 
-<http://groups.google.com/groups?selm=87k7km9fti.fsf%40goat.bogus.local>
-<http://groups.google.com/groups?selm=87elau9ft2.fsf%40goat.bogus.local>
-<http://groups.google.com/groups?selm=878z129fnz.fsf%40goat.bogus.local>
+And if mount supported an argument to ONLY show capability remounts,
+there's a quick 'showcap' for you.
 
-It's not exactly what you asked for, but I think it's the closest you
-can get at the moment.
-
-Regards, Olaf.
+-- 
+< There is a light that shines on the frontier >
+<   And maybe someday, We're gonna be there.   >
+<    Rando Christensen / rando@babblica.net    >

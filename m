@@ -1,87 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130698AbRCMG32>; Tue, 13 Mar 2001 01:29:28 -0500
+	id <S130940AbRCMGeB>; Tue, 13 Mar 2001 01:34:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130920AbRCMG3S>; Tue, 13 Mar 2001 01:29:18 -0500
-Received: from think.faceprint.com ([166.90.149.11]:9221 "EHLO
-	think.faceprint.com") by vger.kernel.org with ESMTP
-	id <S130698AbRCMG3D>; Tue, 13 Mar 2001 01:29:03 -0500
-Message-ID: <3AADBDFA.B65047EB@faceprint.com>
-Date: Tue, 13 Mar 2001 01:28:10 -0500
-From: Nathan Walp <faceprint@faceprint.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2ac20
-In-Reply-To: <E14cgXm-0003O5-00@the-village.bc.nu>
+	id <S130921AbRCMGdw>; Tue, 13 Mar 2001 01:33:52 -0500
+Received: from odin.sinectis.com.ar ([216.244.192.158]:16394 "EHLO
+	mail.sinectis.com.ar") by vger.kernel.org with ESMTP
+	id <S130920AbRCMGdm>; Tue, 13 Mar 2001 01:33:42 -0500
+Date: Tue, 13 Mar 2001 03:35:26 -0300
+From: John R Lenton <john@grulic.org.ar>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: ln -l says symlink has size 281474976710666
+Message-ID: <20010313033526.A633@grulic.org.ar>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
->         ftp://ftp.kernel.org/pub/linux/kernel/people/alan/3.4/
-> 
->                 Intermediate diffs are available from
-> 
->                         http://www.bzimage.org
-> 
-> (Note that the cmsfs port to 2.4 is a work in progress)
-> 
-> Its now 2767631 bytes .gz but a fair amount of stuff has gone to Linus so
-> if you redo the diff versus 2.4.3pre4 it looks a lot nicer 8)
-> 
-> 2.4.2-ac20
-> o       Add support for the GoHubs GO-COM232            (Greg Kroah-Hartman)
-> o       Remove cobalt remnants                          (Ralf Baechle)
-> o       First block of mm documentation                 (Rik van Riel)
-> o       Replace ancient Zoran driver with new one       (Serguei Miridonov,
->                                 Wolfgang Scherr, Rainer Johanni, Dave Perks)
-> o       Fix Alpha build                                 (Jeff Garzik)
-> o       Fix K7 mtrr breakage                            (Dave Jones)
-> o       Fix pcnet32 touching resources before enable    (Dave Jones)
-> o       Merge with Linus 2.4.3pre4
+as the subject says:
 
+  lrwxrwxrwx    1 root     root     281474976710666 Jan 27 20:50 imlib1 -> imlib-base
 
-Debian sid (unstable).  ac18 compiled fine.  ac20, i got this:
+it isn't the only one, for example
 
-gcc -I/usr/include -ldb aicasm_gram.c aicasm_scan.c aicasm.c
-aicasm_symbol.c -o aicasm
-aicasm/aicasm_gram.y:45: ../queue.h: No such file or directory
-aicasm/aicasm_gram.y:50: aicasm.h: No such file or directory
-aicasm/aicasm_gram.y:51: aicasm_symbol.h: No such file or directory
-aicasm/aicasm_gram.y:52: aicasm_insformat.h: No such file or directory
-aicasm/aicasm_scan.l:44: ../queue.h: No such file or directory
-aicasm/aicasm_scan.l:49: aicasm.h: No such file or directory
-aicasm/aicasm_scan.l:50: aicasm_symbol.h: No such file or directory
-aicasm/aicasm_scan.l:51: y.tab.h: No such file or directory
-make[5]: *** [aicasm] Error 1
-make[5]: Leaving directory
-`/usr/src/linux-2.4.2-ac20/drivers/scsi/aic7xxx/aicasm'
-make[4]: *** [aicasm/aicasm] Error 2
-make[4]: Leaving directory
-`/usr/src/linux-2.4.2-ac20/drivers/scsi/aic7xxx'
-make[3]: *** [first_rule] Error 2
-make[3]: Leaving directory
-`/usr/src/linux-2.4.2-ac20/drivers/scsi/aic7xxx'
-make[2]: *** [_subdir_aic7xxx] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.2-ac20/drivers/scsi'
-make[1]: *** [_subdir_scsi] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.2-ac20/drivers'
-make: *** [_dir_drivers] Error 2
-patience:/usr/src/linux# 
+  lrwxrwxrwx    1 root     root     281474976710669 Jan 27 14:43 fd -> /proc/self/fd
 
+i.e. 2**48 + what it should be.
 
+ver_linux says
 
-Also, sometime between ac7 and ac18 (spring break kept me from testing
-stuff inbetween), i assume during the new aic7xxx driver merge, the
-order of detection got changed, and now the ide-scsi virtual host is
-host0, and my 29160N is host1.  Is this on purpose?  It messed up a
-bunch of my stuff as far as /dev and such are concerned.  
+  Gnu C                  2.95.3
+  Gnu make               3.79.1
+  binutils               2.10.91.0.2
+  util-linux             2.10s
+  modutils               2.4.2
+  e2fsprogs              1.19
+  reiserfsprogs          3.x.0b
+  PPP                    2.4.0
+  Linux C Library        2.2.2
+  Dynamic linker (ldd)   2.2.2
+  Procps                 2.0.7
+  Net-tools              1.58
+  Kbd                    1.04
+  Sh-utils               2.0.11
+  Modules Loaded         ppp_deflate bsd_comp ppp_async ppp_generic slhc rtc
 
+the fs is plain ext2, and I'm running 2.4.2-ac16. My first guess
+was I was needing a newer foo, but all my foos seem to be OK
+(except for reiserfsprogs, but that's another issue).
 
-Thanks,
-Nathan
+-- 
+John Lenton (john@grulic.org.ar) -- Random fortune:
+L'acne giovanile si cura con la vecchiaia.

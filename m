@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135657AbRDXOqT>; Tue, 24 Apr 2001 10:46:19 -0400
+	id <S135654AbRDXOpj>; Tue, 24 Apr 2001 10:45:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135656AbRDXOqJ>; Tue, 24 Apr 2001 10:46:09 -0400
-Received: from [195.6.125.97] ([195.6.125.97]:45578 "EHLO looping.sycomore.fr")
-	by vger.kernel.org with ESMTP id <S135657AbRDXOqC>;
-	Tue, 24 Apr 2001 10:46:02 -0400
-Date: Tue, 24 Apr 2001 16:43:18 +0200
-From: =?ISO-8859-1?Q?s=E9bastien?= person <sebastien.person@sycomore.fr>
-To: liste noyau linux <linux-kernel@vger.kernel.org>
-Subject: where can I find the IP address ?
-Message-Id: <20010424164318.34eadd2d.sebastien.person@sycomore.fr>
-X-Mailer: Sylpheed version 0.4.64 (GTK+ 1.2.6; i586-pc-linux-gnu)
+	id <S135657AbRDXOpa>; Tue, 24 Apr 2001 10:45:30 -0400
+Received: from ma-northadams1-47.nad.adelphia.net ([24.51.236.47]:64008 "EHLO
+	sparrow.net") by vger.kernel.org with ESMTP id <S135654AbRDXOpU>;
+	Tue, 24 Apr 2001 10:45:20 -0400
+Date: Tue, 24 Apr 2001 10:45:18 -0400
+From: Eric Buddington <eric@sparrow.nad.adelphia.net>
+To: linux-kernel@vger.kernel.org
+Subject: capabilities carried over execve()
+Message-ID: <20010424104518.J18326@sparrow.nad.adelphia.net>
+Reply-To: ebuddington@wesleyan.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: ECS Labs
+X-Eric-Conspiracy: there is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm dealing with a driver wich need the IP address for specifics using.
+I am attempting to write an init replacement that is capability-smart.
+Though I'm pleased that prctl() lets me keep capabilities across a
+setreuid(), maintaining caps over execve() seems impossible to do right.
 
-I've read in the linux device driver (o'reilly) that I can use the field
-pa_addr in the struct device. but it doesn't exist on my computer.
+I currently see a few options:
+	- use the CLOEXEC-pipe hack that execcap uses (parent notices
+	  when pipe closes then rushes to set caps on child before
+	  child notices they're gone). This looks like a race to me.
+	- tweak linux/fs/exec.c (prepare_binprm) to pretend that all
+	  files have cap_inheritable and cap_effective fully set.
+	  This seems a more elegant solution, but requires a kernel
+	  patch.
+	- exec the child in a stopped state, mess with caps, then
+	  send it SIGCONT. AFAIK, there is no way to do
+	  execve_and_stop.
 
-so I don't understand why ? Is anybody could tell me where finding the
-IP address in the kernel ?
+Is there a better solution available, or one in the works?
+I think capabilites may be a key to achieving Pretty Good (tm) security
+- but then again, so is running bind as non-root, and nobody even
+bothers to do that...
 
-thanks a lot.
-
-nb : 	my kernel version is 2.2.14, as it is my first driver I am starting
-	on the current kernel I've got but I'll also need informations
-	for kernel 2.4.X
-
-sebastien person
+-Eric

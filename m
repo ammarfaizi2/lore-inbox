@@ -1,91 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264035AbTJFR7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 13:59:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264040AbTJFR7Q
+	id S263987AbTJFSLz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 14:11:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264013AbTJFSLz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 13:59:16 -0400
-Received: from mtagate7.uk.ibm.com ([195.212.29.140]:37270 "EHLO
-	mtagate7.uk.ibm.com") by vger.kernel.org with ESMTP id S264035AbTJFR7H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 13:59:07 -0400
-Date: Mon, 6 Oct 2003 23:31:19 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: Maneesh Soni <maneesh@in.ibm.com>,
+	Mon, 6 Oct 2003 14:11:55 -0400
+Received: from mail.kroah.org ([65.200.24.183]:1493 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263987AbTJFSLx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 14:11:53 -0400
+Date: Mon, 6 Oct 2003 11:11:34 -0700
+From: Greg KH <greg@kroah.com>
+To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Cc: Christian Borntraeger <CBORNTRA@de.ibm.com>,
        Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Patrick Mochel <mochel@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+       Patrick Mochel <mochel@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>
 Subject: Re: [RFC 0/6] Backing Store for sysfs
-Message-ID: <20031006180119.GC1788@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20031006085915.GE4220@in.ibm.com> <20031006160846.GA4125@us.ibm.com> <20031006173111.GA1788@in.ibm.com> <20031006173858.GA4403@kroah.com>
+Message-ID: <20031006181134.GA4657@kroah.com>
+References: <OF6873DDE8.877C0EE8-ONC1256DB7.005F0935-C1256DB7.0060DEDC@de.ibm.com> <20031006174128.GA4460@kroah.com> <3F81ADC8.3090403@backtobasicsmgmt.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031006173858.GA4403@kroah.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <3F81ADC8.3090403@backtobasicsmgmt.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 06, 2003 at 10:38:58AM -0700, Greg KH wrote:
-> On Mon, Oct 06, 2003 at 11:01:11PM +0530, Dipankar Sarma wrote:
-> > My guess is that those 24 dentries are just noise. What we should
-> > do is verify with a large number of devices if the numbers are all
-> > that different after a walk of the sysfs tree.
+On Mon, Oct 06, 2003 at 11:00:40AM -0700, Kevin P. Fleming wrote:
+> Greg KH wrote:
 > 
-> Ok, a better test would be with a _lot_ of devices.  Care to test with a
-> lot of scsi debug devices?
-
-Sure. At the same time, as Maneesh pointed out, this is just an
-RFC. The backing store design probably needs quite some work first.
-
-> > --------------------------------------------------------
-> > After mounting sysfs
-> > -------------------
-> > dentry_cache (active)           2350                    1321
-> > inode_cache (active)            1058                    31
-> > LowFree                         875096 KB               875836 KB
-> > --------------------------------------------------------
-> > 
-> > That saves ~800KB. If you just mount sysfs and use a few files, you
-> > aren't eating up dentries and inodes for every file in sysfs. How often 
-> > do you expect hotplug events to happen in a system ?
+> >
+> >That's good.  But what happens after you run a find over the sysfs tree?
+> >Which is essencially what udev will be doing :)
+> >
 > 
-> Every kobject that is created and is associated with a subsystem
-> generates a hotplug call.  So that's about every kobject that we care
-> about here :)
+> This sounds like an opportunity to improve the udev<->sysfs 
+> interaction. Does the hotplug event not give udev enough information 
+> to avoid this "find" search?
 
-That would not happen in a normal running system often, right ? So,
-I don't see the point looking at mem usage after hotplug events.
+The hotplug event points to the sysfs location of the kobject, that's
+all.  libsysfs then takes that kobject location and sucks up all of the
+attribute information for that kobject, which udev then uses to
+determine what it should do.
 
-> 
-> > Some time after a hotplug event, dentries/inodes will get aged out and
-> > then you should see savings. It should greatly benefit in a normal
-> > system.
-> 
-> Can you show this happening?
+Unless we want to pass all attribute information through hotplug, which
+we do not.
 
-It should be easy to demonstrate. That is how dentries/inodes
-work for on-disk filesystems. If Maneesh's patch didn't work that
-way, then the whole point is lost. I hope that is not the case.
+Do you have any suggestions?
 
-> 
-> > Now if the additional kobjects cause problems with userland hotplug, then 
-> > that needs to be resolved. However that seems to be a different problem 
-> > altogether. Could you please elaborate on that ?
-> 
-> No, I don't think the additional ones you have added will cause
-> problems, but can you verify this?  Just log all hotplug events
-> happening in your system (point /proc/sys/kernel/hotplug to a simple
-> logging program).
-> 
-> But again, I don't think the added overhead you have added to a kobject
-> is acceptable for not much gain for the normal case (systems without a
-> zillion devices.)
+thanks,
 
-IIRC, Maneesh test machine is a 2-way P4 xeon with six scsi disks and savings
-are of about 800KB. That is as normal a case as it gets, I think.
-It only gets better as you have more devices in your system.
-
-Thanks
-Dipankar
+greg k-h

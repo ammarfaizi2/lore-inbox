@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270617AbTHETjt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 15:39:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270645AbTHETjs
+	id S270624AbTHEUIP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 16:08:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270625AbTHEUIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 15:39:48 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:31492 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S270617AbTHETib (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 15:38:31 -0400
-Message-ID: <3F300760.8F703814@SteelEye.com>
-Date: Tue, 05 Aug 2003 15:37:04 -0400
-From: Paul Clements <Paul.Clements@SteelEye.com>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.13 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Lou Langholtz <ldl@aros.net>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] 2.6.0 NBD driver: remove send/recieve race for request
-References: <3F2FE078.6020305@aros.net>
+	Tue, 5 Aug 2003 16:08:15 -0400
+Received: from colin2.muc.de ([193.149.48.15]:42760 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S270624AbTHEUIO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 16:08:14 -0400
+Date: 5 Aug 2003 22:08:10 +0200
+Date: Tue, 5 Aug 2003 22:08:10 +0200
+From: Andi Kleen <ak@colin2.muc.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@muc.de>, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Export touch_nmi_watchdog
+Message-ID: <20030805200810.GA31598@colin2.muc.de>
+References: <20030805192908.GA19867@averell> <20030805123811.1fe61585.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030805123811.1fe61585.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lou Langholtz wrote:
+On Tue, Aug 05, 2003 at 12:38:11PM -0700, Andrew Morton wrote:
+> Andi Kleen <ak@muc.de> wrote:
+> >
+> > Sometimes drivers do long things with interrupt off and the NMI watchdog
+> >  triggers quickly. This mostly happens in error handling. It would be 
+> >  better to fix the drivers to sleep in this case, but it's not always
+> >  possible or too much work.
 > 
-> The following patch removes a race condition in the network block device
-> driver in 2.6.0*. Without this patch, the reply receiving thread could
-> end (and free up the memory for) the request structure before the
-> request sending thread is completely done accessing it and would then
-> access invalid memory.
+> yup.
+> 
+> Do we need an mdelay_while_touching_nmi_watchdog() variant?
 
-Indeed, there is a race condition here. It's a very small window, but it
-looks like it could possibly be trouble on SMP/preempt kernels.
+Maybe that would be too encoraging for broken code. 
 
-This patch looks OK, but it appears to still leave the race window open
-in the error case (it seems to fix the non-error case, though). We
-probably could actually use the ref_count field of struct request to
-better fix this problem. I'll take a look at doing this, and send a
-patch out in a while.
+Admittedly I did that by hand for the MPT fusion driver (which currently 
+triggers the watchdog when it gets into any error handling situation) 
+This especially hurts on x86-64 which runs the watchdog by default. 
+But it's strictly a bad hack, not a good interface.
 
-Thanks,
-Paul
+-Andi

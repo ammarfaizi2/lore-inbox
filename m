@@ -1,77 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261696AbSKCJLy>; Sun, 3 Nov 2002 04:11:54 -0500
+	id <S261701AbSKCJWo>; Sun, 3 Nov 2002 04:22:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261701AbSKCJLy>; Sun, 3 Nov 2002 04:11:54 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:221 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261696AbSKCJLx>;
-	Sun, 3 Nov 2002 04:11:53 -0500
-Date: Sun, 3 Nov 2002 04:18:23 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Dax Kelson <dax@gurulabs.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       Oliver Xymoron <oxymoron@waste.org>,
-       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, Rusty Russell <rusty@rustcorp.com.au>,
-       linux-kernel@vger.kernel.org, davej@suse.de
-Subject: Re: Filesystem Capabilities in 2.6?
-In-Reply-To: <1036307763.31699.214.camel@thud>
-Message-ID: <Pine.GSO.4.21.0211030337380.25010-100000@steklov.math.psu.edu>
+	id <S261714AbSKCJWn>; Sun, 3 Nov 2002 04:22:43 -0500
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:43076 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id <S261701AbSKCJWm>; Sun, 3 Nov 2002 04:22:42 -0500
+Date: Sun, 3 Nov 2002 01:34:03 -0800 (PST)
+From: "Matt D. Robinson" <yakker@aparity.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Bill Davidsen <davidsen@tmr.com>, Steven King <sxking@qwest.net>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Joel Becker <Joel.Becker@oracle.com>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <lkcd-general@lists.sourceforge.net>,
+       <lkcd-devel@lists.sourceforge.net>
+Subject: Re: [lkcd-devel] Re: [lkcd-general] Re: What's left over.
+In-Reply-To: <1036288145.18461.13.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0211030118420.30732-100000@nakedeye.aparity.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 3 Nov 2002, Alan Cox wrote:
+|>On Sun, 2002-11-03 at 01:24, Matt D. Robinson wrote:
+|>> P.S.  IBM shouldn't have signed a contact with Red Hat without
+|>>       requiring certain features in Red Hat's OS(es).  Pushing for
+|>>       LKCD, kprobes, LTT, etc., wouldn't be on this list for a whole
+|>>       variety of cases if that had been done in the first place.
+|>
+|>I would hope IBM have more intelligence than to attempt to destroy the
+|>product by trying to force all sorts of junk into it. The Linux world
+|>has a process for filterng crap, it isnt IBM applying force. That path
+|>leads to Star Office 5.2, Netscape 4 and other similar scales of horror
+|>code that become unmaintainably bad.
 
+I think you misunderstand me.  If IBM considers a feature to be useful,
+they should require distributions to put into a release from a contractual
+standpoint.  That doesn't mean Red Hat has to put it into all their
+distributions -- it just means they have to produce something that
+IBM wants.  If nobody else uses it, that's fine.  IBM gets what they
+want, and Red Hat gets what they want.  End of story.
 
-On 3 Nov 2002, Dax Kelson wrote:
+You're looking at this from an engineering perspective and open source
+philosophy rather than a business unit at a company like IBM might look
+at it.  That's not a bad thing to do, but the two concepts are very
+different from each other.  The Linux world may filter "crap", which
+is great, but some of that "crap" is important to companies like IBM,
+and if they were smart they'd use their leverage ($$$) to make sure the
+"crap" ends up in the products they care to use/support.  The rest of
+Linux can do whatever it wants, doing things the "Linux world" way.
 
-> Each app should run in its own security context by itself.  That is why
-> I have all the following users in my /etc/passwd:
-> 
-> apache nscd squid xfs ident rpc pcap nfsnobody radvd gdm named ntp
-> 
-> I didn't have to do this myself, my vendor shipped it that way. I don't
-> have any daemons running as 'nobody'.
-> 
-> I think it is well understood that having more than one app run as the
-> same uid (historically, nobody) is a Bad Thing(tm).
- 
-Yes, but there is more to that.  Namely, these daemons acquire their UIDs
-not via suid bit and they are very likely owned by some other UID (root,
-most likely).
+|>> P.S.  As an aside, too many engineers try and make product marketing
+|>>       decisions at Red Hat.  I personally think that's really bad for
+|>>       their business model as a whole (and I'm not referring to LKCD).
+|>
+|>You think things like EVMS are a product marketing decision. I'm very
+|>glad you don't run a Linux distro. It would turn into something like the
+|>old 3com rapops rather rapidly by your models (3com rapops btw ceased to
+|>exist and for good reasons)
 
-> On a 'everything install RHL8.0', there exists 47 SUID root binaries.
-> 
-> Don't we want to convert them to 'run with UID of caller and with some
-> capabilities'?
-> 
-> Isn't this the common case?
- 
-> 1. SUID root binaries --> run as caller with need capabilities
-> 2. root daemons --> run as defined non-root user with capabilities
-> 
-> Problem space 2 can be tackled right now assuming the daemon doesn't try
-> to fork+exec another binary and expect that binary to inherit the
-> capabilities that it has.
+Again, I wasn't mentioning any product in particular.  Making decisions
+like GPL-only as an engineering philosophy rather than as a product
+marketing decision are more problematic than looking at EVMS vs. anything
+else as a question of which is technically better.
 
-3. suid-root that needs full-caps (check and you'll see quite a few of these.
-just at random - sudo, chfn, mount).  These are equivalent to root - either
-by function (if su can't give me root, I'll be _really_ PO'd) or by trivial
-elevation of priveleges available if they are subverted (are capable of
-changing the file that contains, among other things, shell of UID 0, are
-capable of calling mount(2), which is enough for everything).
+But again, that's a complete aside and would probably open up a plethora
+of opinions from people who care about both sides of that argument, and
+would inevitably head down an rathole infinitely deep.
 
-4. can be modified in a way that wouldn't require suid or would _really_
-require it for a small helper (i.e. there is a small piece that is
-root-equivalent, but it can be separated).
-
-5. gratitious.
-
-Care to give a splitup into these categories?  And yes, (4) requires
-modification of programs - TANSTAAFL and all such...
-
-As for (2) - most of those are started by priveleged process, so they
-need to drop capabilities more than acquire them.  What exactly do
-you have in mind?
+--Matt
 

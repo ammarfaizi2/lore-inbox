@@ -1,44 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265910AbUGTOcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265900AbUGTOdw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265910AbUGTOcL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 10:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265887AbUGTOcK
+	id S265900AbUGTOdw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 10:33:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265928AbUGTOdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 10:32:10 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:59084 "EHLO
+	Tue, 20 Jul 2004 10:33:51 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:22989 "EHLO
 	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S265920AbUGTObh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 10:31:37 -0400
-Date: Tue, 20 Jul 2004 10:34:50 -0400 (EDT)
+	id S265900AbUGTOdm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 10:33:42 -0400
+Date: Tue, 20 Jul 2004 10:36:54 -0400 (EDT)
 From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: Jason Gauthier <jgauthier@lastar.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: RE: 2.6.7 SMP trouble?
-In-Reply-To: <2873B794CB1BE04F80E2968B438680E503ACF6B3@server6.ctg.com>
-Message-ID: <Pine.LNX.4.58.0407201032140.21932@montezuma.fsmlabs.com>
-References: <2873B794CB1BE04F80E2968B438680E503ACF6B3@server6.ctg.com>
+To: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.7 crash
+In-Reply-To: <2E314DE03538984BA5634F12115B3A4E62E8B9@email1.mitretek.org>
+Message-ID: <Pine.LNX.4.58.0407201018070.21932@montezuma.fsmlabs.com>
+References: <2E314DE03538984BA5634F12115B3A4E62E8B9@email1.mitretek.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jul 2004, Jason Gauthier wrote:
+On Mon, 19 Jul 2004, Piszcz, Justin Michael wrote:
 
-> > It would actually help if you found the exact version which
-> > stopped working, then we can get it looked at and fixed.
-> >
+> After running a session for a long period of time, I was going to
+> shutdown my machine, when I went to shutdown:
+> Kernel 2.6.7 crashed w/ VMWare 4.5.2.
 >
-> If it's in the middle of 2.5 development somewhere that could take me months
-> :)
-> Assuming 1 day to download compile and start the tests, it's about a day per
-> kernel.
+> I could not copy/paste text because it had crashed at the time, so here
+> is a screenshot:
+> http://installkernel.tripod.com/kernel.png (32KiB)
+> Any idea what happened here?
 
-Try the following kernels;
-
-2.6.0
-2.5.65
-2.5.60
-
-Basically just make large strides, due to the lack of other data this may
-be the only way.
-
+Try and reproduce the oops with a recent kernel (2.6.8-rc2) then log the
+entire error by using the vmware serial to file option, then boot the
+kernel with console=ttyS0,38400.

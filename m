@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289379AbSA2KWZ>; Tue, 29 Jan 2002 05:22:25 -0500
+	id <S289466AbSA2KXz>; Tue, 29 Jan 2002 05:23:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289466AbSA2KWP>; Tue, 29 Jan 2002 05:22:15 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:65294 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S289379AbSA2KWE>; Tue, 29 Jan 2002 05:22:04 -0500
-Message-Id: <200201290940.g0T9etE27352@Port.imtp.ilyichevsk.odessa.ua>
+	id <S289481AbSA2KXp>; Tue, 29 Jan 2002 05:23:45 -0500
+Received: from dsl-213-023-043-145.arcor-ip.net ([213.23.43.145]:28802 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289466AbSA2KX0>;
+	Tue, 29 Jan 2002 05:23:26 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
-Subject: Re: [PATCH] KERN_INFO for devfs
-Date: Tue, 29 Jan 2002 11:40:57 -0200
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Momchil Velikov <velco@fadata.bg>
+Subject: Re: Note describing poor dcache utilization under high memory pressure
+Date: Tue, 29 Jan 2002 11:27:36 +0100
 X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <000001c1a896$64e5ff40$21c9ca95@mow.siemens.ru>
-In-Reply-To: <000001c1a896$64e5ff40$21c9ca95@mow.siemens.ru>
+Cc: Oliver Xymoron <oxymoron@waste.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Josh MacDonald <jmacd@CS.Berkeley.EDU>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        <reiserfs-list@namesys.com>, <reiserfs-dev@namesys.com>
+In-Reply-To: <Pine.LNX.4.44.0201281918050.18405-100000@waste.org> <E16VU2h-00009Y-00@starship.berlin> <87g04pfr8y.fsf@fadata.bg>
+In-Reply-To: <87g04pfr8y.fsf@fadata.bg>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
+Message-Id: <E16VVUG-00009s-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 January 2002 05:27, Borsenkow Andrej wrote:
-> > I changed "none" to "devfs" in do_mount("none", "/dev", "devfs", 0,
->
-> ""):
-> > "none is busy" is misleading at umount time :-)
->
-> File systems that do not have real devices behind them have "none" as
-> device. Please do not change it - it was correct. Having it later in
-> /proc/mounts may confuse some user-level tools. If you want to fix it -
-> fix umount to report something more sensible if device == none.
+On January 29, 2002 10:20 am, Momchil Velikov wrote:
+> >>>>> "Daniel" == Daniel Phillips <phillips@bonn-fries.net> writes:
+> 
+> Daniel> On January 29, 2002 09:39 am, Momchil Velikov wrote:
+> >> >>>>> "Oliver" == Oliver Xymoron <oxymoron@waste.org> writes:
+> Oliver> you can't actually _share_ the page tables without marking the pages
+> Oliver> themselves readonly.
+> >> 
+> >> Of course, ptes are made COW, just like now. Which brings up the
+> >> question how much speedup we'll gain with a code that touches every
+> >> single pte anyway ?
+> 
+> Daniel> It's only touching the ptes on tables that are actually used, so if a parent
+> Daniel> with a massive amount of mapped memory forks a child that only instantiates
+> Daniel> a small portion of it (common situation) then the saving is pretty big.
+> 
+> Umm, all the ptes af the parent ought to be made COW, no ?
 
-Why do you think they _have to_ have "none"? Is it POSIXized or otherwise 
-standardized? Where can I RTFM?
---
-vda
+My explanation above is borked, please see my reply to wli.  In short, each 
+page table of the parent is already either shared - in which case the CoW 
+ptes are already marked RO - or it was instantiated by the parent, in which 
+case the work of marking its pte's RO is insignificant, and is certainly not 
+more than the cost incurred by the current method.
+
+-- 
+Daniel

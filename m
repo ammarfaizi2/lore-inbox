@@ -1,54 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262961AbTDVHGG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 03:06:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbTDVHGG
+	id S262563AbTDVHRJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 03:17:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbTDVHRJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 03:06:06 -0400
-Received: from [80.190.48.67] ([80.190.48.67]:44548 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S262961AbTDVHGG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 03:06:06 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Linux 2.4.21-rc1 - unresolved
-Date: Tue, 22 Apr 2003 09:15:56 +0200
-User-Agent: KMail/1.5.1
-Cc: lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva> <3EA48145.70A5589@eyal.emu.id.au>
-In-Reply-To: <3EA48145.70A5589@eyal.emu.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Apr 2003 03:17:09 -0400
+Received: from mail.actcom.co.il ([192.114.47.13]:47780 "EHLO
+	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S262563AbTDVHRH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 03:17:07 -0400
+Date: Tue, 22 Apr 2003 10:29:04 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fix irq event debug print-out, and add stack dump which can
+Message-ID: <20030422072904.GA7434@actcom.co.il>
+References: <200304220713.h3M7DdRZ018542@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
 Content-Disposition: inline
-Message-Id: <200304220915.56757.m.c.p@wolk-project.de>
+In-Reply-To: <200304220713.h3M7DdRZ018542@hera.kernel.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 22 April 2003 01:39, Eyal Lebedinsky wrote:
 
-Hi Eyal,
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.21-rc1/kernel/drivers/char/ipmi/ipmi_msghandler.o
-> depmod:         panic_notifier_list
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.21-rc1/kernel/drivers/char/ipmi/ipmi_watchdog.o
-> depmod:         panic_notifier_list
-> depmod:         panic_timeout
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.21-rc1/kernel/drivers/net/fc/iph5526.o
-> depmod:         fc_type_trans
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.21-rc1/kernel/drivers/net/wan/comx.o
-> depmod:         proc_get_inode
-well, I've posted a patch(fix) for all of these some weeks ago. If Marcelo's 
-focus is on something else ... bla.
+On Tue, Apr 22, 2003 at 06:05:40AM +0000, Linux Kernel Mailing List wrote:
 
-Search the archives. I won't post it again and again and again and again 
-^again^10.
+>  			printk(retval
+>  				? "irq event %d: bogus retval mask %x\n"
+>  				: "irq %d: nobody cared!\n",
+>  				irq,=20
+>  				retval);
 
-ciao, Marc
+Uhm, the first printk string takes two parameters, and the second one=20
+only one parameter... how about this cosmetic patch? Better some
+superflous information than printk params mismatch. Not tested,
+obvious.=20
+
+diff -u -r1.31 irq.c
+--- arch/i386/kernel/irq.c	21 Apr 2003 20:10:51 -0000	1.31
++++ arch/i386/kernel/irq.c	22 Apr 2003 06:31:10 -0000
+@@ -225,7 +225,7 @@
+ 			count--;
+ 			printk(retval
+ 				? "irq event %d: bogus retval mask %x\n"
+-				: "irq %d: nobody cared!\n",
++				: "irq %d: nobody cared! (retval %x)\n",
+ 				irq,=20
+ 				retval);
+ 		}
+
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org
+
+
+--Qxx1br4bt0+wmkIi
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+pO8/KRs727/VN8sRAkKXAKCEbrSMcBvxwHNMsGV61ParVuMh6ACfYPYB
+zeUnUofzK/NwerWNv0jW9rE=
+=5Fnc
+-----END PGP SIGNATURE-----
+
+--Qxx1br4bt0+wmkIi--

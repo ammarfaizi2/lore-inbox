@@ -1,84 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262726AbVBYPjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262724AbVBYPkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262726AbVBYPjB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 10:39:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbVBYPhw
+	id S262724AbVBYPkW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 10:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262732AbVBYPkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 10:37:52 -0500
-Received: from wasp.net.au ([203.190.192.17]:50144 "EHLO wasp.net.au")
-	by vger.kernel.org with ESMTP id S262723AbVBYPhd (ORCPT
+	Fri, 25 Feb 2005 10:40:22 -0500
+Received: from relay.axxeo.de ([213.239.199.237]:42916 "EHLO relay.axxeo.de")
+	by vger.kernel.org with ESMTP id S262729AbVBYPj7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 10:37:33 -0500
-Message-ID: <421F4629.5080309@wasp.net.au>
-Date: Fri, 25 Feb 2005 19:37:13 +0400
-From: Brad Campbell <brad@wasp.net.au>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050115)
-X-Accept-Language: en-us, en
+	Fri, 25 Feb 2005 10:39:59 -0500
+From: Ingo Oeser <ioe-lkml@axxeo.de>
+To: Chris Friesen <cfriesen@nortel.com>
+Subject: Re: Xterm Hangs - Possible scheduler defect?
+Date: Fri, 25 Feb 2005 16:39:50 +0100
+User-Agent: KMail/1.7.1
+Cc: "Chad N. Tindel" <chad@tindel.net>, Paulo Marques <pmarques@grupopie.com>,
+       Mike Galbraith <EFAULT@gmx.de>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+References: <20050224075756.GA18639@calma.pair.com> <200502250151.41793.ioe-lkml@axxeo.de> <421F4042.3020302@nortel.com>
+In-Reply-To: <421F4042.3020302@nortel.com>
 MIME-Version: 1.0
-To: Brad Campbell <brad@wasp.net.au>
-CC: lkml <linux-kernel@vger.kernel.org>,
-       RAID Linux <linux-raid@vger.kernel.org>
-Subject: Re: Raid-6 hang on write.
-References: <421DE9A9.4090902@wasp.net.au>
-In-Reply-To: <421DE9A9.4090902@wasp.net.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502251639.50238.ioe-lkml@axxeo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brad Campbell wrote:
-> G'day all,
-> 
-> I have a painful issue with a RAID-6 box. It only manifests itself on a 
-> fully complete and synced up array, and I can't reproduce it on an array 
-> smaller than the entire drives which means after every attempt at 
-> debugging I have to endure a 12 hour resync before I try again.
-> 
+Chris Friesen wrote:
+> Ingo Oeser wrote:
+> > Stupid applications can starve other applications for a while, but not
+> > forever, because the kernel is still running and deciding.
+>
+> Not so.
+>
+>
+>
+> task 1: sched_rr, priority 1, takes mutex
+> task 2: sched_rr, priority 2, cpu hog, infinite loop
+> task 3: sched_rr, priority 99, tries to get mutex
+>
+> And now tasks 1 and 3 are starved forever.  Arguably bad application
+> design, but it demonstrates a case where applications can starve other
+> applications.
 
-Having done a dodgy and managed to get a clean set of superblocks to play with, I have now managed 
-to narrow it down a lot more.
+You are right.
+ 
+In "If a SCHED_RR process has been running for a time period  equal  to  or 
+longer  than  the  time quantum,  it  will  be  put at the end of the list for
+its priority" I missed the "for its priority" part.
 
-It's going to lunch in get_active_stripe at
-                                 wait_event_lock_irq(conf->wait_for_stripe,
-                                                     !list_empty(&conf->inactive_list) &&
-                                                     (atomic_read(&conf->active_stripes) < 
-(NR_STRIPES *3/4)
-                                                      || !conf->inactive_blocked),
-                                                     conf->device_lock,
-                                                     unplug_slaves(conf->mddev);
-                                         );
+You would need to change the priority of task 1 until it releases the
+mutex. Ideally the owner gets the maximum priority of
+his and all the waiters on it, until it releases his mutex, where he regains
+its old priority after release of mutex. But this priority elevation happens
+only, if he is runnable. If not, he gets his old priority back, until he is 
+runnable.
 
-Feb 25 16:50:06 storage1 kernel: conf->active_stripes 256
-Feb 25 16:50:06 storage1 kernel: conf->inactive_blocked 1
-Feb 25 16:50:06 storage1 kernel: list_empty(conf->inactive_list) 1
-Feb 25 16:50:06 storage1 kernel: NR_STRIPES *3/4 192
+But then again you just need to grab a mutex shared with a high priority
+task and consume CPU.
 
-So it appears it's unable to get a free stripe, and it just sits with the device_lock held, which 
-prevents anything else from happening.
+Since this behavior is not defined in POSIX AFAIK, you just have
+to write your applications properly or use SCHED_OTHER for CPU hogging.
 
-On further investigation it occurs when raid6d is calls md_check_recovery and this never returns, 
-preventing raid6d from handling any stripes.
 
-Turning on debugging in raid6main.c and md.c make it much harder to hit. So I'm assuming something 
-timing related.
+Regards
 
-raid6d --> md_check_recovery --> generic_make_request --> make_request --> get_active_stripe
+Ingo Oeser
 
-We are now out of stripes. Deadlock here. I put some debugging counters in md_check_recovery and it 
-calls generic_make_request ~244 times and then deadlocks. (Depending on how many stripes were free 
-before of course)
-
-I have tried just increasing the number of stripes to 2048 but that just took longer to hit and when 
-it does the machine hard locks. (Whereas at least with 256 it just locks the md subsystem)
-
-I'm now at a loss.
-
-I guess the main issue is lots of drives on a slow IO bus, but there must be something I'm missing.
-Pointers or thumps with the clue bat would be appreciated.
-
-Regards,
-Brad
--- 
-"Human beings, who are almost unique in having the ability
-to learn from the experience of others, are also remarkable
-for their apparent disinclination to do so." -- Douglas Adams

@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262422AbSJNUno>; Mon, 14 Oct 2002 16:43:44 -0400
+	id <S262235AbSJNUk3>; Mon, 14 Oct 2002 16:40:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262424AbSJNUno>; Mon, 14 Oct 2002 16:43:44 -0400
-Received: from packet.digeo.com ([12.110.80.53]:46784 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262422AbSJNUnm>;
-	Mon, 14 Oct 2002 16:43:42 -0400
-Message-ID: <3DAB2DD9.B78639C5@digeo.com>
-Date: Mon, 14 Oct 2002 13:49:29 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Mansfield <lkml@dm.cobite.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] raw over raid5: BUG at drivers/block/ll_rw_blk.c:1967
-References: <Pine.LNX.4.44.0210141627360.2876-100000@admin>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Oct 2002 20:49:29.0492 (UTC) FILETIME=[30D5A540:01C273C3]
+	id <S262240AbSJNUk3>; Mon, 14 Oct 2002 16:40:29 -0400
+Received: from netline-be1.netline.ch ([195.141.226.32]:28164 "EHLO
+	netline-be1.netline.ch") by vger.kernel.org with ESMTP
+	id <S262235AbSJNUk1> convert rfc822-to-8bit; Mon, 14 Oct 2002 16:40:27 -0400
+Subject: Re: [Linux-fbdev-devel] fbdev changes.
+From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0210131318420.5997-100000@maxwell.earthlink.net>
+References: <Pine.LNX.4.33.0210131318420.5997-100000@maxwell.earthlink.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 14 Oct 2002 22:46:17 +0200
+Message-Id: <1034628378.1143.507.camel@tibook>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mansfield wrote:
+On Son, 2002-10-13 at 22:27, James Simmons wrote: 
 > 
-> Hi everyone,
-> 
-> I haven't been able to run raw over raid5 since 2.5.30 or so, but every
-> time I'm about to report it, a new kernel comes out and the problem
-> changes completely :-( Now I'm finally going to start getting out the info
-> it the hopes someone can fix it.  The oops was triggered by attempting to
-> read from /dev/raw/raw1 (bound to /dev/md0) using dd.  System info
-> follows oops:
-> 
-> ------------[ cut here ]------------
-> kernel BUG at drivers/block/ll_rw_blk.c:1967!
+>   The final changes to the fbdev layer are at hand. One of the last
+> changes I wanted to purpose was to create a console driectory in
+> drivers/video and move all console related stuff into that directory.
+> The next step was to move the dri stuff into that directory with the agp
+> code possible. The questions I have is should we move the agp code over to
+> that directory. Should the DRI code move over directly or should we move
+> DRI driver specific code into the same directory as the fbdev driver
+> directories? For example in aty directory we have all the ati framebuffer
+> and ATI dri code. What do you think?
 
-I don't think you told us the kernel version?
+Wouldn't that complicate merges between the kernel and DRI CVS? At any
+rate, I think discussion related to the DRI should take place on
+dri-devel.
 
-There have been recent fixes wrt sizing of the BIOs which the
-direct-io layer sends down.  So please make sure that you're
-testing Linus's current -bk, or 2.5.42 plus
 
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.42/2.5.42-mm2/broken-out/dio-bio-add-fix-1.patch
+-- 
+Earthling Michel Dänzer (MrCooper)/ Debian GNU/Linux (powerpc) developer
+XFree86 and DRI project member   /  CS student, Free Software enthusiast
 
-Either that, or raid5 is bust ;)

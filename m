@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265230AbUFMR57@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265236AbUFMSFe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265230AbUFMR57 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 13:57:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265236AbUFMR57
+	id S265236AbUFMSFe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 14:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbUFMSFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 13:57:59 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:42697 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265230AbUFMR54
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 13:57:56 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Herbert Xu <herbert@gondor.apana.org.au>,
-       hch@infradead.org (Christoph Hellwig)
-Subject: Re: [PATCH] IDE update for 2.6.7-rc3 [1/12]
-Date: Sun, 13 Jun 2004 20:01:44 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <E1BZQSC-0006vd-00@gondolin.me.apana.org.au>
-In-Reply-To: <E1BZQSC-0006vd-00@gondolin.me.apana.org.au>
+	Sun, 13 Jun 2004 14:05:34 -0400
+Received: from mail.dif.dk ([193.138.115.101]:61347 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S265236AbUFMSFc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jun 2004 14:05:32 -0400
+Date: Sun, 13 Jun 2004 20:04:38 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH - Trivial] Documentation - NFSv3 & v4 can't both be "the
+ newer version"
+Message-ID: <Pine.LNX.4.56.0406131928370.5930@jjulnx.backbone.dif.dk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200406132001.44262.bzolnier@elka.pw.edu.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 13 of June 2004 10:35, Herbert Xu wrote:
-> Christoph Hellwig <hch@infradead.org> wrote:
-> > On Fri, Jun 11, 2004 at 05:50:30PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> >> Probably some drivers are still missed because I changed only
-> >> these drivers that I knew that there are PCI cards using them.
-> >>
-> >> If you know about PCI cards using other drivers please speak up.
-> >
-> > IMHO the PCI ->probe methods should always be __devinit.  It's rather
-> > hard to make sure they're never every hotplugged in any way, especially
-> > with the dynamic id adding via sysfs thing.
->
-> Well the reason I made them all __devinit in my patch is because it
-> also tries to maintain the same PCI probing order as a builtin kernel
-> when IDE is built as a module.
->
-> To do that all the PCI driver modules are loaded before probing takes
-> place.  Therefore if any probing funciton is declared as __init then
-> this will not work.
 
-This makes ordering of IDE devices different in Debian-2.6
-and vanilla 2.4/2.6, doesn't sound like a good thing to do.
+In the kernel help for NFSv3 & NFSv4 client support both are listed as
+"the newer version ... of the NFS protocol". Obviously both can't be the
+newer version at the same time, so here's a patch to correct the text in
+such a way that only v4 is listed as the newer version.
+Patch is against 2.6.7-rc3 - please consider including it.
 
-Ideally ordering should be controlled by user-space. :-)
 
-BTW ide-generic.c is a very wrong place to add ide_scan_pcibus() call
+--- linux-2.6.7-rc3/fs/Kconfig-orig	2004-06-13 19:26:13.000000000 +0200
++++ linux-2.6.7-rc3/fs/Kconfig	2004-06-13 19:28:32.000000000 +0200
+@@ -1363,8 +1363,8 @@ config NFS_V3
+ 	bool "Provide NFSv3 client support"
+ 	depends on NFS_FS
+ 	help
+-	  Say Y here if you want your NFS client to be able to speak the newer
+-	  version 3 of the NFS protocol.
++	  Say Y here if you want your NFS client to be able to speak version
++	  3 of the NFS protocol.
 
-Cheers.
+ 	  If unsure, say Y.
 
-> Cheers,
+
+--
+Jesper Juhl <juhl-lkml@dif.dk>
 

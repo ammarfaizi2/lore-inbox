@@ -1,553 +1,623 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287578AbSAFW1K>; Sun, 6 Jan 2002 17:27:10 -0500
+	id <S288834AbSAFWbA>; Sun, 6 Jan 2002 17:31:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287573AbSAFW0x>; Sun, 6 Jan 2002 17:26:53 -0500
-Received: from cptf-adsl.demon.co.uk ([62.49.1.93]:1170 "HELO
-	boatman.intrepid.co.uk") by vger.kernel.org with SMTP
-	id <S282967AbSAFW0l>; Sun, 6 Jan 2002 17:26:41 -0500
-Date: Sun, 6 Jan 2002 22:26:00 +0000 (GMT)
-From: Chris Pitchford <cpitchford@intrepid.co.uk>
-X-X-Sender: <cpitchford@boatman.intrepnet>
-To: <linux-kernel@vger.kernel.org>
-Subject: Ethernet/SCSI/PCI problems when enabling SMP on 2.4.17: VP6, aix7xxx
- & 3c595
-Message-ID: <Pine.LNX.4.33.0201062057400.18876-100000@boatman.intrepnet>
+	id <S282967AbSAFWap>; Sun, 6 Jan 2002 17:30:45 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49668 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288834AbSAFWa2>;
+	Sun, 6 Jan 2002 17:30:28 -0500
+Message-ID: <3C38CFFA.18D230B9@mandrakesoft.com>
+Date: Sun, 06 Jan 2002 17:30:18 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Geert Uytterhoeven <geert@linux-m68k.org>,
+        linux-fbdev-devel@lists.sourceforge.net,
+        Linux-Kernel list <linux-kernel@vger.kernel.org>
+Subject: PATCH 2.5.2.9: fbdev kdev_t build fixes
+In-Reply-To: <Pine.LNX.4.05.10107021127040.23703-100000@callisto.of.borg>
+Content-Type: multipart/mixed;
+ boundary="------------C899353128B399CA0488BD7B"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------C899353128B399CA0488BD7B
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Hi all,
+This patch fixes the build for the rest of fbdev in 2.5.2-pre9...
+-- 
+Jeff Garzik      | Alternate titles for LOTR:
+Building 1024    | Fast Times at Uruk-Hai
+MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
+                 | Samwise Gamgee: International Hobbit of Mystery
+--------------C899353128B399CA0488BD7B
+Content-Type: text/plain; charset=us-ascii;
+ name="fbdev.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fbdev.patch"
 
-I am experiencing problems using a 3Com Network card and Adaptec SCSI
-card under 2.4.17 in SMP mode. Since the only other PCI card in my system
-is a very under used sound card I am wondering if this is a deeper
-problem with SMP under Linux on my system.
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/include/linux/fb.h linux_2_5/include/linux/fb.h
+--- /spare/tmp/linux-2.5.2-pre9/include/linux/fb.h	Mon Dec 11 21:16:53 2000
++++ linux_2_5/include/linux/fb.h	Sun Jan  6 22:20:52 2002
+@@ -246,7 +246,7 @@
+ #if 1 /* to go away in 2.5.0 */
+ extern int GET_FB_IDX(kdev_t rdev);
+ #else
+-#define GET_FB_IDX(node)	(MINOR(node))
++#define GET_FB_IDX(node)	(minor(node))
+ #endif
+ 
+ #include <linux/fs.h>
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/S3triofb.c linux_2_5/drivers/video/S3triofb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/S3triofb.c	Thu Sep 13 23:04:43 2001
++++ linux_2_5/drivers/video/S3triofb.c	Sun Jan  6 22:17:48 2002
+@@ -554,7 +554,7 @@
+ 
+     strcpy(fb_info.modename, "Trio64 ");
+     strncat(fb_info.modename, dp->full_name, sizeof(fb_info.modename));
+-    fb_info.node = -1;
++    fb_info.node = NODEV;
+     fb_info.fbops = &s3trio_ops;
+ #if 0
+     fb_info.fbvar_num = 1;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/acornfb.c linux_2_5/drivers/video/acornfb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/acornfb.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/acornfb.c	Sun Jan  6 22:12:47 2002
+@@ -1318,7 +1318,7 @@
+ 	strcpy(fb_info.modename, "Acorn");
+ 	strcpy(fb_info.fontname, "Acorn8x8");
+ 
+-	fb_info.node		   = -1;
++	fb_info.node		   = NODEV;
+ 	fb_info.fbops		   = &acornfb_ops;
+ 	fb_info.disp		   = &global_disp;
+ 	fb_info.changevar	   = NULL;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/amifb.c linux_2_5/drivers/video/amifb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/amifb.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/amifb.c	Sun Jan  6 22:13:01 2002
+@@ -1730,7 +1730,7 @@
+ 
+ 	strcpy(fb_info.modename, amifb_name);
+ 	fb_info.changevar = NULL;
+-	fb_info.node = -1;
++	fb_info.node = NODEV;
+ 	fb_info.fbops = &amifb_ops;
+ 	fb_info.disp = &disp;
+ 	fb_info.switch_con = &amifbcon_switch;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/atafb.c linux_2_5/drivers/video/atafb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/atafb.c	Thu Oct 25 07:02:26 2001
++++ linux_2_5/drivers/video/atafb.c	Sun Jan  6 22:13:13 2002
+@@ -2828,7 +2828,7 @@
+ 
+ 	strcpy(fb_info.modename, "Atari Builtin ");
+ 	fb_info.changevar = NULL;
+-	fb_info.node = -1;
++	fb_info.node = NODEV;
+ 	fb_info.fbops = &atafb_ops;
+ 	fb_info.disp = &disp;
+ 	fb_info.switch_con = &atafb_switch;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/aty/atyfb_base.c linux_2_5/drivers/video/aty/atyfb_base.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/aty/atyfb_base.c	Thu Jan  3 22:20:05 2002
++++ linux_2_5/drivers/video/aty/atyfb_base.c	Sun Jan  6 22:24:02 2002
+@@ -1986,7 +1986,7 @@
+     disp = &info->disp;
+ 
+     strcpy(info->fb_info.modename, atyfb_name);
+-    info->fb_info.node = -1;
++    info->fb_info.node = NODEV;
+     info->fb_info.fbops = &atyfb_ops;
+     info->fb_info.disp = disp;
+     strcpy(info->fb_info.fontname, fontname);
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/aty128fb.c linux_2_5/drivers/video/aty128fb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/aty128fb.c	Sun Nov 11 18:09:37 2001
++++ linux_2_5/drivers/video/aty128fb.c	Sun Jan  6 22:13:24 2002
+@@ -1704,7 +1704,7 @@
+ 
+     /* fill in info */
+     strcpy(info->fb_info.modename, aty128fb_name);
+-    info->fb_info.node  = -1;
++    info->fb_info.node  = NODEV;
+     info->fb_info.fbops = &aty128fb_ops;
+     info->fb_info.disp  = &info->disp;
+     strcpy(info->fb_info.fontname, fontname);
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/chipsfb.c linux_2_5/drivers/video/chipsfb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/chipsfb.c	Thu Sep 13 23:04:43 2001
++++ linux_2_5/drivers/video/chipsfb.c	Sun Jan  6 22:13:47 2002
+@@ -578,7 +578,7 @@
+ 	p->disp.scrollmode = SCROLL_YREDRAW;
+ 
+ 	strcpy(p->info.modename, p->fix.id);
+-	p->info.node = -1;
++	p->info.node = NODEV;
+ 	p->info.fbops = &chipsfb_ops;
+ 	p->info.disp = &p->disp;
+ 	p->info.fontname[0] = 0;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/clgenfb.c linux_2_5/drivers/video/clgenfb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/clgenfb.c	Mon Nov 19 23:19:42 2001
++++ linux_2_5/drivers/video/clgenfb.c	Sun Jan  6 22:13:53 2002
+@@ -2758,7 +2778,7 @@
+ 		 sizeof (fb_info->gen.info.modename));
+ 	fb_info->gen.info.modename [sizeof (fb_info->gen.info.modename) - 1] = 0;
+ 
+-	fb_info->gen.info.node = -1;
++	fb_info->gen.info.node = NODEV;
+ 	fb_info->gen.info.fbops = &clgenfb_ops;
+ 	fb_info->gen.info.disp = &disp;
+ 	fb_info->gen.info.changevar = NULL;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/controlfb.c linux_2_5/drivers/video/controlfb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/controlfb.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/controlfb.c	Sun Jan  6 22:14:14 2002
+@@ -1376,7 +1376,7 @@
+ static void __init control_init_info(struct fb_info *info, struct fb_info_control *p)
+ {
+ 	strcpy(info->modename, "control");
+-	info->node = -1;	/* ??? danj */
++	info->node = NODEV;
+ 	info->fbops = &controlfb_ops;
+ 	info->disp = &p->display;
+ 	strcpy(info->fontname, fontname);
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/cyberfb.c linux_2_5/drivers/video/cyberfb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/cyberfb.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/cyberfb.c	Sun Jan  6 22:14:28 2002
+@@ -1085,7 +1085,7 @@
+ 
+ 	    strcpy(fb_info.modename, cyberfb_name);
+ 	    fb_info.changevar = NULL;
+-	    fb_info.node = -1;
++	    fb_info.node = NODEV;
+ 	    fb_info.fbops = &cyberfb_ops;
+ 	    fb_info.disp = &disp;
+ 	    fb_info.switch_con = &Cyberfb_switch;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/dn_cfb4.c linux_2_5/drivers/video/dn_cfb4.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/dn_cfb4.c	Thu Jan  3 22:20:05 2002
++++ linux_2_5/drivers/video/dn_cfb4.c	Sun Jan  6 22:14:33 2002
+@@ -305,7 +305,7 @@
+ 	fb_info.switch_con=&dnfbcon_switch;
+ 	fb_info.updatevar=&dnfbcon_updatevar;
+ 	fb_info.blank=&dnfbcon_blank;	
+-	fb_info.node = -1;
++	fb_info.node = NODEV;
+ 	fb_info.fbops = &dn_fb_ops;
+ 	fb_info.flags = FBINFO_FLAG_DEFAULT;	
+ 
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/dn_cfb8.c linux_2_5/drivers/video/dn_cfb8.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/dn_cfb8.c	Thu Jan  3 22:20:05 2002
++++ linux_2_5/drivers/video/dn_cfb8.c	Sun Jan  6 22:14:37 2002
+@@ -292,7 +292,7 @@
+ 	fb_info.switch_con=&dnfbcon_switch;
+ 	fb_info.updatevar=&dnfbcon_updatevar;
+ 	fb_info.blank=&dnfbcon_blank;	
+-	fb_info.node = -1;
++	fb_info.node = NODEV;
+ 	fb_info.fbops = &dn_fb_ops;
+ 	
+ printk("dn_fb_init: register\n");
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/dnfb.c linux_2_5/drivers/video/dnfb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/dnfb.c	Thu Jan  3 22:20:05 2002
++++ linux_2_5/drivers/video/dnfb.c	Sun Jan  6 22:14:41 2002
+@@ -307,7 +307,7 @@
+ 	fb_info.switch_con=&dnfbcon_switch;
+ 	fb_info.updatevar=&dnfbcon_updatevar;
+ 	fb_info.blank=&dnfbcon_blank;	
+-	fb_info.node = -1;
++	fb_info.node = NODEV;
+ 	fb_info.fbops = &dn_fb_ops;
+ 	
+         dn_fb_get_var(&disp[0].var,0, &fb_info);
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/epson1355fb.c linux_2_5/drivers/video/epson1355fb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/epson1355fb.c	Thu Sep 13 23:04:43 2001
++++ linux_2_5/drivers/video/epson1355fb.c	Sun Jan  6 22:14:53 2002
+@@ -500,7 +500,7 @@
+ 	fb_info.gen.fbhw->detect();
+ 	strcpy(fb_info.gen.info.modename, "SED1355");
+ 	fb_info.gen.info.changevar = NULL;
+-	fb_info.gen.info.node = -1;
++	fb_info.gen.info.node = NODEV;
+ 	fb_info.gen.info.fbops = &e1355fb_ops;
+ 	fb_info.gen.info.disp = &disp;
+ 	fb_info.gen.parsize = sizeof(struct e1355_par);
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/fm2fb.c linux_2_5/drivers/video/fm2fb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/fm2fb.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/fm2fb.c	Sun Jan  6 22:15:59 2002
+@@ -401,7 +401,7 @@
+ 	disp.scrollmode = SCROLL_YREDRAW;
+ 
+ 	strcpy(fb_info.modename, fb_fix.id);
+-	fb_info.node = -1;
++	fb_info.node = NODEV;
+ 	fb_info.fbops = &fm2fb_ops;
+ 	fb_info.disp = &disp;
+ 	fb_info.fontname[0] = '\0';
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/hgafb.c linux_2_5/drivers/video/hgafb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/hgafb.c	Mon Nov 12 17:46:25 2001
++++ linux_2_5/drivers/video/hgafb.c	Sun Jan  6 22:16:16 2002
+@@ -742,7 +742,7 @@
+ 	disp.scrollmode = SCROLL_YREDRAW;
+ 	
+ 	strcpy (fb_info.modename, hga_fix.id);
+-	fb_info.node = -1;
++	fb_info.node = NODEV;
+ 	fb_info.flags = FBINFO_FLAG_DEFAULT;
+ /*	fb_info.open = ??? */
+ 	fb_info.var = hga_default_var;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/hitfb.c linux_2_5/drivers/video/hitfb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/hitfb.c	Thu Sep 13 23:04:43 2001
++++ linux_2_5/drivers/video/hitfb.c	Sun Jan  6 22:16:22 2002
+@@ -344,7 +344,7 @@
+ int __init hitfb_init(void)
+ {
+     strcpy(fb_info.gen.info.modename, "Hitachi HD64461");
+-    fb_info.gen.info.node = -1;
++    fb_info.gen.info.node = NODEV;
+     fb_info.gen.info.flags = FBINFO_FLAG_DEFAULT;
+     fb_info.gen.info.fbops = &hitfb_ops;
+     fb_info.gen.info.disp = &fb_info.disp;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/hpfb.c linux_2_5/drivers/video/hpfb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/hpfb.c	Thu Sep 13 23:04:43 2001
++++ linux_2_5/drivers/video/hpfb.c	Sun Jan  6 22:16:27 2002
+@@ -328,7 +328,7 @@
+ 	 */
+ 	strcpy(fb_info.modename, "Topcat");
+ 	fb_info.changevar = NULL;
+-	fb_info.node = -1;
++	fb_info.node = NODEV;
+ 	fb_info.fbops = &hpfb_ops;
+ 	fb_info.disp = &disp;
+ 	fb_info.switch_con = &hpfb_switch;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/igafb.c linux_2_5/drivers/video/igafb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/igafb.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/igafb.c	Sun Jan  6 22:16:35 2002
+@@ -568,7 +568,7 @@
+ 	}
+ 
+ 	strcpy(info->fb_info.modename, igafb_name);
+-	info->fb_info.node = -1;
++	info->fb_info.node = NODEV;
+ 	info->fb_info.fbops = &igafb_ops;
+ 	info->fb_info.disp = &info->disp;
+ 	strcpy(info->fb_info.fontname, fontname);
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/imsttfb.c linux_2_5/drivers/video/imsttfb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/imsttfb.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/imsttfb.c	Sun Jan  6 22:16:40 2002
+@@ -1866,7 +1866,7 @@
+ 
+ 	strcpy(p->info.modename, p->fix.id);
+ 	strcpy(p->info.fontname, fontname);
+-	p->info.node = -1;
++	p->info.node = NODEV;
+ 	p->info.fbops = &imsttfb_ops;
+ 	p->info.disp = &p->disp;
+ 	p->info.changevar = 0;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/macfb.c linux_2_5/drivers/video/macfb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/macfb.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/macfb.c	Sun Jan  6 22:16:44 2002
+@@ -1221,7 +1221,7 @@
+ 		}
+ 	
+ 	fb_info.changevar  = NULL;
+-	fb_info.node       = -1;
++	fb_info.node       = NODEV;
+ 	fb_info.fbops      = &macfb_ops;
+ 	fb_info.disp       = &disp;
+ 	fb_info.switch_con = &macfb_switch;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/matrox/matroxfb_base.c linux_2_5/drivers/video/matrox/matroxfb_base.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/matrox/matroxfb_base.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/matrox/matroxfb_base.c	Sun Jan  6 22:19:00 2002
+@@ -1789,7 +1789,7 @@
+ 
+ 	strcpy(ACCESS_FBINFO(fbcon.modename), "MATROX VGA");
+ 	ACCESS_FBINFO(fbcon.changevar) = NULL;
+-	ACCESS_FBINFO(fbcon.node) = -1;
++	ACCESS_FBINFO(fbcon.node) = NODEV;
+ 	ACCESS_FBINFO(fbcon.fbops) = &matroxfb_ops;
+ 	ACCESS_FBINFO(fbcon.disp) = d;
+ 	ACCESS_FBINFO(fbcon.switch_con) = &matroxfb_switch;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/maxinefb.c linux_2_5/drivers/video/maxinefb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/maxinefb.c	Thu Sep 13 23:04:43 2001
++++ linux_2_5/drivers/video/maxinefb.c	Sun Jan  6 22:16:52 2002
+@@ -358,7 +358,7 @@
+ 	strcpy(fb_info.modename, "Maxine onboard graphics 1024x768x8");
+ 	/* fb_info.modename: maximum of 39 characters + trailing nullbyte, KM */
+ 	fb_info.changevar = NULL;
+-	fb_info.node = -1;
++	fb_info.node = NODEV;
+ 	fb_info.fbops = &maxinefb_ops;
+ 	fb_info.disp = &disp;
+ 	fb_info.switch_con = &maxinefb_switch;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/offb.c linux_2_5/drivers/video/offb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/offb.c	Tue Oct  2 16:10:31 2001
++++ linux_2_5/drivers/video/offb.c	Sun Jan  6 22:17:08 2002
+@@ -566,7 +566,7 @@
+ 
+     strcpy(info->info.modename, "OFfb ");
+     strncat(info->info.modename, full_name, sizeof(info->info.modename));
+-    info->info.node = -1;
++    info->info.node = NODEV;
+     info->info.fbops = &offb_ops;
+     info->info.disp = disp;
+     info->info.fontname[0] = '\0';
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/platinumfb.c linux_2_5/drivers/video/platinumfb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/platinumfb.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/platinumfb.c	Sun Jan  6 22:17:13 2002
+@@ -591,7 +591,7 @@
+ 	disp = &info->disp;
+ 
+ 	strcpy(info->fb_info.modename, "platinum");
+-	info->fb_info.node = -1;
++	info->fb_info.node = NODEV;
+ 	info->fb_info.fbops = &platinumfb_ops;
+ 	info->fb_info.disp = disp;
+ 	strcpy(info->fb_info.fontname, fontname);
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/pmag-ba-fb.c linux_2_5/drivers/video/pmag-ba-fb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/pmag-ba-fb.c	Fri Sep 14 21:04:07 2001
++++ linux_2_5/drivers/video/pmag-ba-fb.c	Sun Jan  6 22:17:25 2002
+@@ -386,7 +386,7 @@
+ 	 */
+ 	strcpy(ip->info.modename, "PMAG-BA");
+ 	ip->info.changevar = NULL;
+-	ip->info.node = -1;
++	ip->info.node = NODEV;
+ 	ip->info.fbops = &pmagbafb_ops;
+ 	ip->info.disp = &disp;
+ 	ip->info.switch_con = &pmagbafb_switch;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/pmagb-b-fb.c linux_2_5/drivers/video/pmagb-b-fb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/pmagb-b-fb.c	Fri Sep 14 21:04:07 2001
++++ linux_2_5/drivers/video/pmagb-b-fb.c	Sun Jan  6 22:17:28 2002
+@@ -389,7 +389,7 @@
+ 	 */
+ 	strcpy(ip->info.modename, "PMAGB-BA");
+ 	ip->info.changevar = NULL;
+-	ip->info.node = -1;
++	ip->info.node = NODEV;
+ 	ip->info.fbops = &pmagbbfb_ops;
+ 	ip->info.disp = &disp;
+ 	ip->info.switch_con = &pmagbbfb_switch;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/pvr2fb.c linux_2_5/drivers/video/pvr2fb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/pvr2fb.c	Mon Oct 15 20:36:48 2001
++++ linux_2_5/drivers/video/pvr2fb.c	Sun Jan  6 22:17:37 2002
+@@ -1034,7 +1034,7 @@
+ 	
+ 	strcpy(fb_info.modename, pvr2fb_name);
+ 	fb_info.changevar = NULL;
+-	fb_info.node = -1;
++	fb_info.node = NODEV;
+ 	fb_info.fbops = &pvr2fb_ops;
+ 	fb_info.disp = &disp;
+ 	fb_info.switch_con = &pvr2fbcon_switch;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/q40fb.c linux_2_5/drivers/video/q40fb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/q40fb.c	Thu Jan  3 22:20:05 2002
++++ linux_2_5/drivers/video/q40fb.c	Sun Jan  6 22:17:40 2002
+@@ -331,7 +331,7 @@
+ 	fb_info.switch_con=&q40con_switch;
+ 	fb_info.updatevar=&q40con_updatevar;
+ 	fb_info.blank=&q40con_blank;	
+-	fb_info.node = -1;
++	fb_info.node = NODEV;
+ 	fb_info.fbops = &q40fb_ops;
+ 	fb_info.flags = FBINFO_FLAG_DEFAULT;  /* not as module for now */
+ 	
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/radeonfb.c linux_2_5/drivers/video/radeonfb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/radeonfb.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/radeonfb.c	Sun Jan  6 22:17:42 2002
+@@ -1305,7 +1305,7 @@
+ 	info = &rinfo->info;
+ 
+ 	strcpy (info->modename, rinfo->name);
+-        info->node = -1;
++        info->node = NODEV;
+         info->flags = FBINFO_FLAG_DEFAULT;
+         info->fbops = &radeon_fb_ops;
+         info->display_fg = NULL;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/retz3fb.c linux_2_5/drivers/video/retz3fb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/retz3fb.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/retz3fb.c	Sun Jan  6 22:17:45 2002
+@@ -1422,7 +1422,7 @@
+ 
+ 		strcpy(fb_info->modename, retz3fb_name);
+ 		fb_info->changevar = NULL;
+-		fb_info->node = -1;
++		fb_info->node = NODEV;
+ 		fb_info->fbops = &retz3fb_ops;
+ 		fb_info->disp = &zinfo->disp;
+ 		fb_info->switch_con = &z3fb_switch;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/riva/fbdev.c linux_2_5/drivers/video/riva/fbdev.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/riva/fbdev.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/riva/fbdev.c	Sun Jan  6 22:24:52 2002
+@@ -1811,7 +1811,7 @@
+ 	info = &rinfo->info;
+ 
+ 	strcpy(info->modename, rinfo->drvr_name);
+-	info->node = -1;
++	info->node = NODEV;
+ 	info->flags = FBINFO_FLAG_DEFAULT;
+ 	info->fbops = &riva_fb_ops;
+ 
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/sa1100fb.c linux_2_5/drivers/video/sa1100fb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/sa1100fb.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/sa1100fb.c	Sun Jan  6 22:17:51 2002
+@@ -2245,7 +2245,7 @@
+ 	fbi->fb.updatevar	= sa1100fb_updatevar;
+ 	fbi->fb.blank		= sa1100fb_blank;
+ 	fbi->fb.flags		= FBINFO_FLAG_DEFAULT;
+-	fbi->fb.node		= -1;
++	fbi->fb.node		= NODEV;
+ 	fbi->fb.monspecs	= monspecs;
+ 	fbi->fb.disp		= (struct display *)(fbi + 1);
+ 	fbi->fb.pseudo_palette	= (void *)(fbi->fb.disp + 1);
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/sbusfb.c linux_2_5/drivers/video/sbusfb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/sbusfb.c	Thu Sep 13 23:04:43 2001
++++ linux_2_5/drivers/video/sbusfb.c	Sun Jan  6 22:17:55 2002
+@@ -1019,7 +1019,7 @@
+ 	fix->type = FB_TYPE_PACKED_PIXELS;
+ 	fix->visual = FB_VISUAL_PSEUDOCOLOR;
+ 	
+-	fb->info.node = -1;
++	fb->info.node = NODEV;
+ 	fb->info.fbops = &sbusfb_ops;
+ 	fb->info.disp = disp;
+ 	strcpy(fb->info.fontname, fontname);
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/sgivwfb.c linux_2_5/drivers/video/sgivwfb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/sgivwfb.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/sgivwfb.c	Sun Jan  6 22:17:57 2002
+@@ -890,7 +890,7 @@
+ 
+   strcpy(fb_info.modename, sgivwfb_name);
+   fb_info.changevar = NULL;
+-  fb_info.node = -1;
++  fb_info.node = NODEV;
+   fb_info.fbops = &sgivwfb_ops;
+   fb_info.disp = &disp;
+   fb_info.switch_con = &sgivwfbcon_switch;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/sis/sis_main.c linux_2_5/drivers/video/sis/sis_main.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/sis/sis_main.c	Fri Nov  9 22:11:14 2001
++++ linux_2_5/drivers/video/sis/sis_main.c	Sun Jan  6 22:25:21 2002
+@@ -2766,7 +2766,7 @@
+ 	sisfb_crtc_to_var (&default_var);
+ 
+ 	fb_info.changevar = NULL;
+-	fb_info.node = -1;
++	fb_info.node = NODEV;
+ 	fb_info.fbops = &sisfb_ops;
+ 	fb_info.disp = &disp;
+ 	fb_info.switch_con = &sisfb_switch;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/skeletonfb.c linux_2_5/drivers/video/skeletonfb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/skeletonfb.c	Thu Sep 13 23:04:43 2001
++++ linux_2_5/drivers/video/skeletonfb.c	Sun Jan  6 22:18:00 2002
+@@ -306,7 +306,7 @@
+     fb_info.gen.fbhw->detect();
+     strcpy(fb_info.gen.info.modename, "XXX");
+     fb_info.gen.info.changevar = NULL;
+-    fb_info.gen.info.node = -1;
++    fb_info.gen.info.node = NODEV;
+     fb_info.gen.info.fbops = &xxxfb_ops;
+     fb_info.gen.info.disp = &disp;
+     fb_info.gen.info.switch_con = &xxxfb_switch;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/sstfb.c linux_2_5/drivers/video/sstfb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/sstfb.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/sstfb.c	Sun Jan  6 22:18:04 2002
+@@ -1797,7 +1797,7 @@
+ 		f_ddprintk("membase_phys: %#lx\n", fb_info.video.base);
+ 		f_ddprintk("fbbase_virt: %#lx\n", fb_info.video.vbase);
+ 
+-		fb_info.info.node       = -1 ;
++		fb_info.info.node       = NODEV;
+ 		fb_info.info.flags      = FBINFO_FLAG_DEFAULT;
+ 		fb_info.info.fbops      = &sstfb_ops;
+ 		fb_info.info.disp       = &disp;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/stifb.c linux_2_5/drivers/video/stifb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/stifb.c	Fri Feb  9 19:30:23 2001
++++ linux_2_5/drivers/video/stifb.c	Sun Jan  6 22:18:12 2002
+@@ -166,7 +166,7 @@
+ 	if ((fb_info.sti = sti_init_roms()) == NULL)
+ 		return -ENXIO;
+ 
+-	fb_info.gen.info.node = -1;
++	fb_info.gen.info.node = NODEV;
+ 	fb_info.gen.info.flags = FBINFO_FLAG_DEFAULT;
+ 	fb_info.gen.info.fbops = &stifb_ops;
+ 	fb_info.gen.info.disp = &disp;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/sun3fb.c linux_2_5/drivers/video/sun3fb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/sun3fb.c	Sun Sep 30 19:26:08 2001
++++ linux_2_5/drivers/video/sun3fb.c	Sun Jan  6 22:18:15 2002
+@@ -573,7 +573,7 @@
+ 	fix->type = FB_TYPE_PACKED_PIXELS;
+ 	fix->visual = FB_VISUAL_PSEUDOCOLOR;
+ 	
+-	fb->info.node = -1;
++	fb->info.node = NODEV;
+ 	fb->info.fbops = &sun3fb_ops;
+ 	fb->info.disp = disp;
+ 	strcpy(fb->info.fontname, fontname);
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/tdfxfb.c linux_2_5/drivers/video/tdfxfb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/tdfxfb.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/tdfxfb.c	Sun Jan  6 22:18:21 2002
+@@ -1975,7 +1975,7 @@
+ 	strcpy(fb_info.fb_info.modename, "3Dfx "); 
+ 	strcat(fb_info.fb_info.modename, name);
+ 	fb_info.fb_info.changevar  = NULL;
+-	fb_info.fb_info.node       = -1;
++	fb_info.fb_info.node       = NODEV;
+ 	fb_info.fb_info.fbops      = &tdfxfb_ops;
+ 	fb_info.fb_info.disp       = &fb_info.disp;
+ 	strcpy(fb_info.fb_info.fontname, fontname);
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/tgafb.c linux_2_5/drivers/video/tgafb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/tgafb.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/tgafb.c	Sun Jan  6 22:18:24 2002
+@@ -937,7 +937,7 @@
+ 
+     /* setup framebuffer */
+ 
+-    fb_info.gen.info.node = -1;
++    fb_info.gen.info.node = NODEV;
+     fb_info.gen.info.flags = FBINFO_FLAG_DEFAULT;
+     fb_info.gen.info.fbops = &tgafb_ops;
+     fb_info.gen.info.disp = &disp;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/tx3912fb.c linux_2_5/drivers/video/tx3912fb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/tx3912fb.c	Fri Sep  7 16:28:38 2001
++++ linux_2_5/drivers/video/tx3912fb.c	Sun Jan  6 22:18:26 2002
+@@ -397,7 +397,7 @@
+ 
+ 	strcpy(fb_info.modename, TX3912FB_NAME);
+ 	fb_info.changevar = NULL;
+-	fb_info.node = -1;
++	fb_info.node = NODEV;
+ 	fb_info.fbops = &tx3912fb_ops;
+ 	fb_info.disp = &global_disp;
+ 	fb_info.switch_con = &tx3912fbcon_switch;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/valkyriefb.c linux_2_5/drivers/video/valkyriefb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/valkyriefb.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/valkyriefb.c	Sun Jan  6 22:18:29 2002
+@@ -779,7 +779,7 @@
+ static void __init valkyrie_init_info(struct fb_info *info, struct fb_info_valkyrie *p)
+ {
+ 	strcpy(info->modename, p->fix.id);
+-	info->node = -1;	/* ??? danj */
++	info->node = NODEV;
+ 	info->fbops = &valkyriefb_ops;
+ 	info->disp = &p->disp;
+ 	strcpy(info->fontname, fontname);
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/vfb.c linux_2_5/drivers/video/vfb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/vfb.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/vfb.c	Sun Jan  6 22:18:34 2002
+@@ -404,7 +404,7 @@
+ 
+     strcpy(fb_info.modename, vfb_name);
+     fb_info.changevar = NULL;
+-    fb_info.node = -1;
++    fb_info.node = NODEV;
+     fb_info.fbops = &vfb_ops;
+     fb_info.disp = &disp;
+     fb_info.switch_con = &vfbcon_switch;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/vga16fb.c linux_2_5/drivers/video/vga16fb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/vga16fb.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/vga16fb.c	Sun Jan  6 22:18:36 2002
+@@ -926,7 +926,7 @@
+ 	/* name should not depend on EGA/VGA */
+ 	strcpy(vga16fb.fb_info.modename, "VGA16 VGA");
+ 	vga16fb.fb_info.changevar = NULL;
+-	vga16fb.fb_info.node = -1;
++	vga16fb.fb_info.node = NODEV;
+ 	vga16fb.fb_info.fbops = &vga16fb_ops;
+ 	vga16fb.fb_info.disp=&disp;
+ 	vga16fb.fb_info.switch_con=&vga16fb_switch;
+diff -Naur -X /g/g/lib/dontdiff /spare/tmp/linux-2.5.2-pre9/drivers/video/virgefb.c linux_2_5/drivers/video/virgefb.c
+--- /spare/tmp/linux-2.5.2-pre9/drivers/video/virgefb.c	Wed Nov 14 22:52:20 2001
++++ linux_2_5/drivers/video/virgefb.c	Sun Jan  6 22:18:42 2002
+@@ -1168,7 +1168,7 @@
+ 
+ 	    strcpy(fb_info.modename, virgefb_name);
+ 	    fb_info.changevar = NULL;
+-	    fb_info.node = -1;
++	    fb_info.node = NODEV;
+ 	    fb_info.fbops = &virgefb_ops;
+ 	    fb_info.disp = &disp;
+ 	    fb_info.switch_con = &Cyberfb_switch;
 
-I recently installed two Intel P3 Coppermine processors onto my Abit
-VP6 motherboard and recompiled my kernel as SMP. I am seeing
-problems that never once occured during the month I ran the system
-with one P3 processor in UP mode.
-
-During light network load I am seeing messages appear frequently in the
-kernel messages and the network card stop receiving/transmitting traffic
-out onto the network. This did not happen (and does not happen) when
-running Uni-processor:
-
-NETDEV WATCHDOG: eth0: transmit timed out
-eth0: transmit timed out, tx_status 00 status e000.
-  diagnostics: net 0c80 media 88c0 dma ffffffff.
-eth0: Updating statistics failed, disabling stats as an interrupt source.
-NETDEV WATCHDOG: eth0: transmit timed out
-eth0: transmit timed out, tx_status 00 status e000.
-  diagnostics: net 0c80 media 88c0 dma ffffffff.
-
-Also I am seeing problems with the SCSI system:
-
-scsi0: PCI error Interrupt at seqaddr = 0x8
-scsi0: Data Parity Error Detected during address or write data phase
-
-I have to devices on the SCSI bus: Yamaha 2100S scsi CDRW and a HP DDS3
-DAT tape drive. Again, I have had no problems with these devices prior to
-running with SMP.
-
-I've included a rundown of the hard I'm using and some stats:
-
-
-ABIT VP6 Dual intel Motherboard
-VIA VT82C686 Chipset
-2x 1Ghz PIII Coppermine
-512 Mb Ram
-3Com 3c595 100baseT NIC
-Adaptec 29160N SCSI card
-Creative SB512 sound card  ( Ensoniq 5880 AudioPCI )
-Matrox G200 AGP graphics card
-Slackware 8.0 with 2.4.17
-
-#lspci -vv
-00:00.0 Host bridge: VIA Technologies, Inc. VT82C691 [Apollo PRO] (rev c4)
-	Subsystem: ABIT Computer Corp.: Unknown device a204
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-	Latency: 8
-	Region 0: Memory at d0000000 (32-bit, prefetchable) [size=64M]
-	Capabilities: [a0] AGP version 2.0
-		Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
-		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
-	Capabilities: [c0] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3 AGP] (prog-if 00 [Normal decode])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-	Latency: 0
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-	Memory behind bridge: d4000000-d6ffffff
-	Prefetchable memory behind bridge: d7000000-d7ffffff
-	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
-	Capabilities: [80] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev 40)
-	Subsystem: ABIT Computer Corp.: Unknown device 0000
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-	Capabilities: [c0] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 06) (prog-if 8a [Master SecP PriP])
-	Subsystem: VIA Technologies, Inc. VT82C586 IDE [Apollo]
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32
-	Region 4: I/O ports at d000 [size=16]
-	Capabilities: [c0] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:07.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 16) (prog-if 00 [UHCI])
-	Subsystem: Unknown device 0925:1234
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32, cache line size 08
-	Interrupt: pin D routed to IRQ 19
-	Region 4: I/O ports at d400 [size=32]
-	Capabilities: [80] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:07.3 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 16) (prog-if 00 [UHCI])
-	Subsystem: Unknown device 0925:1234
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32, cache line size 08
-	Interrupt: pin D routed to IRQ 19
-	Region 4: I/O ports at d800 [size=32]
-	Capabilities: [80] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin ? routed to IRQ 9
-	Capabilities: [68] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:09.0 Multimedia audio controller: Ensoniq 5880 AudioPCI (rev 02)
-	Subsystem: Ensoniq Creative Sound Blaster AudioPCI128
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-	Latency: 32 (3000ns min, 32000ns max)
-	Interrupt: pin A routed to IRQ 16
-	Region 0: I/O ports at dc00 [size=64]
-	Capabilities: [dc] Power Management version 1
-		Flags: PMEClk- DSI+ D1- D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:0a.0 SCSI storage controller: Adaptec 7892A (rev 02)
-	Subsystem: Adaptec: Unknown device 62a0
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32 (10000ns min, 6250ns max), cache line size 08
-	Interrupt: pin A routed to IRQ 17
-	BIST result: 00
-	Region 0: I/O ports at e000 [disabled] [size=256]
-	Region 1: Memory at d9000000 (64-bit, non-prefetchable) [size=4K]
-	Expansion ROM at <unassigned> [disabled] [size=128K]
-	Capabilities: [dc] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:0c.0 Ethernet controller: 3Com Corporation 3c595 100BaseTX [Vortex]
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 248 (750ns min, 2000ns max)
-	Interrupt: pin A routed to IRQ 19
-	Region 0: I/O ports at e400 [size=32]
-	Expansion ROM at <unassigned> [disabled] [size=64K]
-
-01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G200 AGP (rev 01) (prog-if 00 [VGA])
-	Subsystem: Matrox Graphics, Inc. Millennium G200 AGP
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32 (4000ns min, 8000ns max), cache line size 08
-	Interrupt: pin A routed to IRQ 16
-	Region 0: Memory at d7000000 (32-bit, prefetchable) [size=16M]
-	Region 1: Memory at d4000000 (32-bit, non-prefetchable) [size=16K]
-	Region 2: Memory at d5000000 (32-bit, non-prefetchable) [size=8M]
-	Expansion ROM at <unassigned> [disabled] [size=64K]
-	Capabilities: [dc] Power Management version 1
-		Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-	Capabilities: [f0] AGP version 1.0
-		Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
-		Command: RQ=31 SBA+ AGP+ 64bit- FW- Rate=x2
-
-#cat /proc/interrupts
-           CPU0       CPU1
-  0:     189811     129350    IO-APIC-edge  timer
-  1:          2          0    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  8:          1          0    IO-APIC-edge  rtc
- 14:       2384       2334    IO-APIC-edge  ide0
- 15:       5523       4584    IO-APIC-edge  ide1
- 16:       9646       9627   IO-APIC-level  es1371
- 17:      28430      28517   IO-APIC-level  aic7xxx
- 19:      45890      45280   IO-APIC-level  eth0, usb-uhci, usb-uhci
-NMI:          0          0
-LOC:     319056     319075
-ERR:          0
-MIS:          0
-
-# dmesg
-Hz processor.
-Console: colour VGA+ 80x25
-Calibrating delay loop... 1992.29 BogoMIPS
-Memory: 512688k/524224k available (1673k kernel code, 11148k reserved, 570k data, 248k init, 0k highmem)
-Dentry-cache hash table entries: 65536 (order: 7, 524288 bytes)
-Inode-cache hash table entries: 32768 (order: 6, 262144 bytes)
-Mount-cache hash table entries: 8192 (order: 4, 65536 bytes)
-Buffer-cache hash table entries: 32768 (order: 5, 131072 bytes)
-Page-cache hash table entries: 131072 (order: 7, 524288 bytes)
-CPU: Before vendor init, caps: 0387fbff 00000000 00000000, vendor = 0
-CPU: L1 I cache: 16K, L1 D cache: 16K
-CPU: L2 cache: 256K
-CPU: After vendor init, caps: 0387fbff 00000000 00000000 00000000
-CPU serial number disabled.
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU:     After generic, caps: 0383fbff 00000000 00000000 00000000
-CPU:             Common caps: 0383fbff 00000000 00000000 00000000
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
-mtrr: detected mtrr type: Intel
-CPU: Before vendor init, caps: 0383fbff 00000000 00000000, vendor = 0
-CPU: L1 I cache: 16K, L1 D cache: 16K
-CPU: L2 cache: 256K
-CPU: After vendor init, caps: 0383fbff 00000000 00000000 00000000
-Intel machine check reporting enabled on CPU#0.
-CPU:     After generic, caps: 0383fbff 00000000 00000000 00000000
-CPU:             Common caps: 0383fbff 00000000 00000000 00000000
-CPU0: Intel Pentium III (Coppermine) stepping 0a
-per-CPU timeslice cutoff: 730.97 usecs.
-enabled ExtINT on CPU#0
-ESR value before enabling vector: 00000000
-ESR value after enabling vector: 00000000
-Booting processor 1/1 eip 2000
-Initializing CPU#1
-masked ExtINT on CPU#1
-ESR value before enabling vector: 00000000
-ESR value after enabling vector: 00000000
-Calibrating delay loop... 1992.29 BogoMIPS
-CPU: Before vendor init, caps: 0387fbff 00000000 00000000, vendor = 0
-CPU: L1 I cache: 16K, L1 D cache: 16K
-CPU: L2 cache: 256K
-CPU: After vendor init, caps: 0387fbff 00000000 00000000 00000000
-CPU serial number disabled.
-Intel machine check reporting enabled on CPU#1.
-CPU:     After generic, caps: 0383fbff 00000000 00000000 00000000
-CPU:             Common caps: 0383fbff 00000000 00000000 00000000
-CPU1: Intel Pentium III (Coppermine) stepping 0a
-Total of 2 processors activated (3984.58 BogoMIPS).
-ENABLING IO-APIC IRQs
-Setting 2 in the phys_id_present_map
-...changing IO-APIC physical APIC ID to 2 ... ok.
-init IO_APIC IRQs
- IO-APIC (apicid-pin) 2-0, 2-5, 2-10, 2-11, 2-18, 2-20, 2-21, 2-22, 2-23 not connected.
-..TIMER: vector=0x31 pin1=2 pin2=0
-number of MP IRQ sources: 20.
-number of IO-APIC #2 registers: 24.
-testing the IO APIC.......................
-
-IO APIC #2......
-.... register #00: 02000000
-.......    : physical APIC id: 02
-.... register #01: 00178011
-.......     : max redirection entries: 0017
-.......     : PRQ implemented: 1
-.......     : IO APIC version: 0011
-.... register #02: 00000000
-.......     : arbitration: 00
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:
- 00 000 00  1    0    0   0   0    0    0    00
- 01 003 03  0    0    0   0   0    1    1    39
- 02 003 03  0    0    0   0   0    1    1    31
- 03 003 03  0    0    0   0   0    1    1    41
- 04 003 03  0    0    0   0   0    1    1    49
- 05 000 00  1    0    0   0   0    0    0    00
- 06 003 03  0    0    0   0   0    1    1    51
- 07 003 03  0    0    0   0   0    1    1    59
- 08 003 03  0    0    0   0   0    1    1    61
- 09 003 03  0    0    0   0   0    1    1    69
- 0a 000 00  1    0    0   0   0    0    0    00
- 0b 000 00  1    0    0   0   0    0    0    00
- 0c 003 03  0    0    0   0   0    1    1    71
- 0d 003 03  0    0    0   0   0    1    1    79
- 0e 003 03  0    0    0   0   0    1    1    81
- 0f 003 03  0    0    0   0   0    1    1    89
- 10 003 03  1    1    0   1   0    1    1    91
- 11 003 03  1    1    0   1   0    1    1    99
- 12 000 00  1    0    0   0   0    0    0    00
- 13 003 03  1    1    0   1   0    1    1    A1
- 14 000 00  1    0    0   0   0    0    0    00
- 15 000 00  1    0    0   0   0    0    0    00
- 16 000 00  1    0    0   0   0    0    0    00
- 17 000 00  1    0    0   0   0    0    0    00
-IRQ to pin mappings:
-IRQ0 -> 0:2
-IRQ1 -> 0:1
-IRQ3 -> 0:3
-IRQ4 -> 0:4
-IRQ6 -> 0:6
-IRQ7 -> 0:7
-IRQ8 -> 0:8
-IRQ9 -> 0:9
-IRQ12 -> 0:12
-IRQ13 -> 0:13
-IRQ14 -> 0:14
-IRQ15 -> 0:15
-IRQ16 -> 0:16
-IRQ17 -> 0:17
-IRQ19 -> 0:19
-.................................... done.
-Using local APIC timer interrupts.
-calibrating APIC timer ...
-..... CPU clock speed is 998.3772 MHz.
-..... host bus clock speed is 133.1168 MHz.
-cpu: 0, clocks: 1331168, slice: 443722
-CPU0<T0:1331168,T1:887440,D:6,S:443722,C:1331168>
-cpu: 1, clocks: 1331168, slice: 443722
-CPU1<T0:1331168,T1:443712,D:12,S:443722,C:1331168>
-checking TSC synchronization across CPUs: passed.
-Waiting on wait_init_idle (map = 0x2)
-All processors have done init_idle
-mtrr: your CPUs had inconsistent variable MTRR settings
-mtrr: probably your BIOS does not setup all CPUs
-PCI: PCI BIOS revision 2.10 entry at 0xfb370, last bus=1
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-Unknown bridge resource 0: assuming transparent
-PCI: Using IRQ router VIA [1106/0686] at 00:07.0
-PCI->APIC IRQ transform: (B0,I7,P3) -> 19
-PCI->APIC IRQ transform: (B0,I7,P3) -> 19
-PCI->APIC IRQ transform: (B0,I9,P0) -> 16
-PCI->APIC IRQ transform: (B0,I10,P0) -> 17
-PCI->APIC IRQ transform: (B0,I12,P0) -> 19
-PCI->APIC IRQ transform: (B1,I0,P0) -> 16
-PCI: Enabling Via external APIC routing
-PCI: Via IRQ fixup for 00:07.2, from 10 to 3
-PCI: Via IRQ fixup for 00:07.3, from 10 to 3
-isapnp: Scanning for PnP cards...
-isapnp: No Plug & Play device found
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Initializing RT netlink socket
-apm: BIOS version 1.2 Flags 0x07 (Driver version 1.15)
-apm: disabled - APM is not SMP safe (power off active).
-Starting kswapd
-VFS: Diskquotas version dquot_6.4.0 initialized
-Journalled Block Device driver loaded
-devfs: v1.7 (20011216) Richard Gooch (rgooch@atnf.csiro.au)
-devfs: boot_options: 0x1
-parport0: PC-style at 0x378 [PCSPP,TRISTATE,EPP]
-parport0: faking semi-colon
-parport0: Multimedia device, Connectix Color QuickCam 2.0
-parport_pc: Via 686A parallel port: io=0x378
-matroxfb: Matrox Millennium G200 (AGP) detected
-matroxfb: MTRR's turned on
-matroxfb: 640x480x8bpp (virtual: 640x26208)
-matroxfb: framebuffer at 0xD7000000, mapped to 0xe0812000, size 16777216
-Console: switching to colour frame buffer device 80x30
-fb0: MATROX VGA frame buffer device
-pty: 256 Unix98 ptys configured
-Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ SERIAL_PCI ISAPNP enabled
-ttyS00 at 0x03f8 (irq = 4) is a 16550A
-ttyS01 at 0x02f8 (irq = 3) is a 16550A
-Real Time Clock Driver v1.10e
-block: 128 slots per queue, batch=32
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: IDE controller on PCI bus 00 dev 39
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
-    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:pio
-hda: ST320430A, ATA DISK drive
-hdb: WDC AC420400D, ATA DISK drive
-hdc: Maxtor 4G120J6, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 40079088 sectors (20520 MB) w/512KiB Cache, CHS=2494/255/63, UDMA(33)
-hdb: 39876480 sectors (20417 MB) w/1966KiB Cache, CHS=2482/255/63, UDMA(33)
-hdc: 240121728 sectors (122942 MB) w/2048KiB Cache, CHS=238216/16/63, UDMA(100)
-Partition check:
- /dev/ide/host0/bus0/target0/lun0: p1 p2
- /dev/ide/host0/bus0/target1/lun0: p1 p2
- /dev/ide/host0/bus1/target0/lun0: p1
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-loop: loaded (max 8 devices)
-3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-00:0c.0: 3Com PCI 3c595 Vortex 100baseTx at 0xe400. Vers LK1.1.16
-00:0c.0: Overriding PCI latency timer (CFLT) setting of 32, new value is 248.
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 439M
-agpgart: Detected Via Apollo Pro chipset
-agpgart: AGP aperture is 64M @ 0xd0000000
-SCSI subsystem driver Revision: 1.00
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.4
-        <Adaptec 29160N Ultra160 SCSI adapter>
-        aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
-
-  Vendor: HP        Model: C1537A            Rev: L706
-  Type:   Sequential-Access                  ANSI SCSI revision: 02
-(scsi0:A:4): 10.000MB/s transfers (10.000MHz, offset 32)
-  Vendor: YAMAHA    Model: CRW2100S          Rev: 1.0H
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-(scsi0:A:5): 20.000MB/s transfers (20.000MHz, offset 7)
-st: Version 20011103, bufsize 32768, wrt 30720, max init. bufs 4, s/g segs 16
-Attached scsi tape st0 at scsi0, channel 0, id 4, lun 0
-Attached scsi CD-ROM sr0 at scsi0, channel 0, id 5, lun 0
-sr0: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
-Uniform CD-ROM driver Revision: 3.12
-es1371: version v0.30 time 20:04:37 Jan  6 2002
-es1371: found chip, vendor id 0x1274 device id 0x5880 revision 0x02
-es1371: found es1371 rev 2 at io 0xdc00 irq 16
-es1371: features: joystick 0x0
-ac97_codec: AC97  codec, id: 0x5452:0x4123 (TriTech TR A5)
-usb.c: registered new driver usbdevfs
-usb.c: registered new driver hub
-Initializing USB Mass Storage driver...
-usb.c: registered new driver usb-storage
-USB Mass Storage support registered.
-md: linear personality registered as nr 1
-md: raid0 personality registered as nr 2
-md: raid1 personality registered as nr 3
-md: raid5 personality registered as nr 4
-raid5: measuring checksumming speed
-   8regs     :  1728.400 MB/sec
-   32regs    :  1225.200 MB/sec
-   pIII_sse  :  2058.400 MB/sec
-   pII_mmx   :  2242.000 MB/sec
-   p5_mmx    :  2360.000 MB/sec
-raid5: using function: pIII_sse (2058.400 MB/sec)
-md: multipath personality registered as nr 7
-md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
-md: Autodetecting RAID arrays.
- [events: 0000002d]
- [events: 00000026]
- [events: 0000002d]
- [events: 00000026]
- [events: 0000002a]
-md: autorun ...
-md: considering ide/host0/bus1/target0/lun0/part1 ...
-md:  adding ide/host0/bus1/target0/lun0/part1 ...
-md: created md10
-md: bind<ide/host0/bus1/target0/lun0/part1,1>
-md: running: <ide/host0/bus1/target0/lun0/part1>
-md: ide/host0/bus1/target0/lun0/part1's event counter: 0000002a
-md: RAID level 1 does not need chunksize! Continuing anyway.
-md10: max total readahead window set to 124k
-md10: 1 data-disks, max readahead per data-disk: 124k
-raid1: device ide/host0/bus1/target0/lun0/part1 operational as mirror 0
-raid1: md10, not all disks are operational -- trying to recover array
-raid1: raid set md10 active with 1 out of 2 mirrors
-md: recovery thread got woken up ...
-md10: no spare disk to reconstruct array! -- continuing in degraded mode
-md: recovery thread finished ...
-md: updating md10 RAID superblock on device
-md: ide/host0/bus1/target0/lun0/part1 [events: 0000002b]<6>(write) ide/host0/bus1/target0/lun0/part1's sb offset: 120060736
-md: considering ide/host0/bus0/target1/lun0/part2 ...
-md:  adding ide/host0/bus0/target1/lun0/part2 ...
-md:  adding ide/host0/bus0/target0/lun0/part2 ...
-md: created md2
-md: bind<ide/host0/bus0/target0/lun0/part2,1>
-md: bind<ide/host0/bus0/target1/lun0/part2,2>
-md: running: <ide/host0/bus0/target1/lun0/part2><ide/host0/bus0/target0/lun0/part2>
-md: ide/host0/bus0/target1/lun0/part2's event counter: 00000026
-md: ide/host0/bus0/target0/lun0/part2's event counter: 00000026
-md: RAID level 1 does not need chunksize! Continuing anyway.
-md2: max total readahead window set to 124k
-md2: 1 data-disks, max readahead per data-disk: 124k
-raid1: device ide/host0/bus0/target1/lun0/part2 operational as mirror 1
-raid1: device ide/host0/bus0/target0/lun0/part2 operational as mirror 0
-raid1: raid set md2 active with 2 out of 2 mirrors
-md: updating md2 RAID superblock on device
-md: ide/host0/bus0/target1/lun0/part2 [events: 00000027]<6>(write) ide/host0/bus0/target1/lun0/part2's sb offset: 530048
-md: ide/host0/bus0/target0/lun0/part2 [events: 00000027]<6>(write) ide/host0/bus0/target0/lun0/part2's sb offset: 530048
-md: considering ide/host0/bus0/target1/lun0/part1 ...
-md:  adding ide/host0/bus0/target1/lun0/part1 ...
-md:  adding ide/host0/bus0/target0/lun0/part1 ...
-md: created md1
-md: bind<ide/host0/bus0/target0/lun0/part1,1>
-md: bind<ide/host0/bus0/target1/lun0/part1,2>
-md: running: <ide/host0/bus0/target1/lun0/part1><ide/host0/bus0/target0/lun0/part1>
-md: ide/host0/bus0/target1/lun0/part1's event counter: 0000002d
-md: ide/host0/bus0/target0/lun0/part1's event counter: 0000002d
-md: RAID level 1 does not need chunksize! Continuing anyway.
-md1: max total readahead window set to 124k
-md1: 1 data-disks, max readahead per data-disk: 124k
-raid1: device ide/host0/bus0/target1/lun0/part1 operational as mirror 0
-raid1: device ide/host0/bus0/target0/lun0/part1 operational as mirror 1
-raid1: raid set md1 active with 2 out of 2 mirrors
-md: updating md1 RAID superblock on device
-md: ide/host0/bus0/target1/lun0/part1 [events: 0000002e]<6>(write) ide/host0/bus0/target1/lun0/part1's sb offset: 19406400
-md: ide/host0/bus0/target0/lun0/part1 [events: 0000002e]<6>(write) ide/host0/bus0/target0/lun0/part1's sb offset: 19502784
-md: ... autorun DONE.
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP, IGMP
-IP: routing cache hash table of 4096 buckets, 32Kbytes
-TCP: Hash tables configured (established 32768 bind 32768)
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: mounted filesystem with ordered data mode.
-VFS: Mounted root (ext3 filesystem) readonly.
-Mounted devfs on /dev
-Freeing unused kernel memory: 248k freed
-Adding Swap: 530040k swap-space (priority -1)
-EXT3 FS 2.4-0.9.16, 02 Dec 2001 on ide0(3,1), internal journal
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS 2.4-0.9.16, 02 Dec 2001 on md(9,10), internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-usb-uhci.c: $Revision: 1.268 $ time 20:05:57 Jan  6 2002
-usb-uhci.c: High bandwidth mode enabled
-usb-uhci.c: USB UHCI at I/O 0xd400, IRQ 19
-usb-uhci.c: Detected 2 ports
-usb.c: new USB bus registered, assigned bus number 1
-hub.c: USB hub found
-hub.c: 2 ports detected
-usb-uhci.c: USB UHCI at I/O 0xd800, IRQ 19
-usb-uhci.c: Detected 2 ports
-usb.c: new USB bus registered, assigned bus number 2
-hub.c: USB hub found
-hub.c: 2 ports detected
-usb-uhci.c: v1.268:USB Universal Host Controller Interface driver
-VFS: Disk change detected on device sr(11,0)
-NETDEV WATCHDOG: eth0: transmit timed out
-eth0: transmit timed out, tx_status 00 status e000.
-  diagnostics: net 0c80 media 88c0 dma ffffffff.
-eth0: Updating statistics failed, disabling stats as an interrupt source.
-NETDEV WATCHDOG: eth0: transmit timed out
-eth0: transmit timed out, tx_status 00 status e000.
-  diagnostics: net 0c80 media 88c0 dma ffffffff.
-scsi0: PCI error Interrupt at seqaddr = 0x8
-scsi0: Data Parity Error Detected during address or write data phase
-NETDEV WATCHDOG: eth0: transmit timed out
-eth0: transmit timed out, tx_status 00 status e000.
-  diagnostics: net 0c80 media 88c0 dma ffffffff.
-
+--------------C899353128B399CA0488BD7B--
 

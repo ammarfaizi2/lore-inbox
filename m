@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130753AbQKHEAu>; Tue, 7 Nov 2000 23:00:50 -0500
+	id <S129057AbQKHEjj>; Tue, 7 Nov 2000 23:39:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131227AbQKHEAk>; Tue, 7 Nov 2000 23:00:40 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:49498 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S130753AbQKHEA2>; Tue, 7 Nov 2000 23:00:28 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Mike A. Harris" <mharris@opensourceadvocate.org>
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: ide-probe.c:400: `rtc_lock' undeclared and /lib/modules/..../build 
-In-Reply-To: Your message of "Tue, 07 Nov 2000 21:48:59 CDT."
-             <Pine.LNX.4.21.0011072148270.10929-100000@asdf.capslock.lan> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 08 Nov 2000 14:59:42 +1100
-Message-ID: <6444.973655982@kao2.melbourne.sgi.com>
+	id <S129091AbQKHEjT>; Tue, 7 Nov 2000 23:39:19 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:26386 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129057AbQKHEjR>; Tue, 7 Nov 2000 23:39:17 -0500
+Date: Tue, 7 Nov 2000 20:39:04 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Gary E. Miller" <gem@rellim.com>
+cc: Mike Galbraith <mikeg@wen-online.de>, MOLNAR Ingo <mingo@chiara.elte.hu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] deadlock fix
+In-Reply-To: <Pine.LNX.4.30.0011071633250.16069-100000@catbert.rellim.com>
+Message-ID: <Pine.LNX.4.10.10011072038090.15254-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Nov 2000 21:48:59 -0500 (EST), 
-"Mike A. Harris" <mharris@opensourceadvocate.org> wrote:
->On Tue, 7 Nov 2000, Alan Cox wrote:
->>Actually they do. I agree that it wants sorting. Im just wondering what the
->>best approach is - maybe check modutils rev and only add the link if its high
->>enough ?
->
->What if build-machine != machine-kernel-was-built-for?
 
-Then you are SOL, but that is a generic cross compile problem.  Anybody
-doing cross compile has to do extra steps to copy the results to the
-other machine and they can take care of problems like the build symlink
-themselves.  The patch in 2.2.18-pre20 fixes the problem for local
-compiles, which are 95%+ (SWAG) of the compiles.
+
+On Tue, 7 Nov 2000, Gary E. Miller wrote:
+> 
+> I see this patch did not make it into test11-pre1.  Without it
+> raid1 and SMP do not work together.  Please consider for test11-pre2.
+
+You must have a different test11-pre1 than the one I have.
+
+It's already there in -pre1, as far as I can see.
+
+		Linus
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

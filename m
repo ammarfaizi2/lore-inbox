@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262768AbTJGU05 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 16:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbTJGU05
+	id S262769AbTJGUdr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 16:33:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbTJGUdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 16:26:57 -0400
-Received: from mail.kroah.org ([65.200.24.183]:54436 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262768AbTJGU04 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 16:26:56 -0400
-Date: Tue, 7 Oct 2003 13:24:12 -0700
-From: Greg KH <greg@kroah.com>
-To: "Jonathan A. George" <JAGeorge@greshamstorage.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6 udev capability question
-Message-ID: <20031007202412.GF2670@kroah.com>
-Reply-To: linux-kernel@vger.kernel.org
-References: <3F830C49.5070103@greshamstorage.com> <20031007190531.GM1956@kroah.com> <3F831AAB.9040000@greshamstorage.com>
+	Tue, 7 Oct 2003 16:33:47 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:18439 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id S262769AbTJGUdp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 16:33:45 -0400
+Date: Tue, 7 Oct 2003 22:33:16 +0200
+From: Jurriaan <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Cc: vojtech@suse.cz
+Subject: keyboard repeat speed went nuts since 2.6.0-test5, even in 2.6.0-test6-mm4
+Message-ID: <20031007203316.GA1719@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F831AAB.9040000@greshamstorage.com>
-User-Agent: Mutt/1.4.1i
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 07, 2003 at 02:57:31PM -0500, Jonathan A. George wrote:
-> >Will do.  Why did you not ask this there in the first place?  Sending
-> >email directly to developers isn't the nicest thing to do:
-> >	http://www.arm.linux.org.uk/news/?newsitem=11
-> >thanks,
-> >
-> >greg k-h
-> >
-> Thanks for your response.
+I like my keyboard fast (must be from playing a lot of angband).
 
-As you sent this to me privately, I take it you didn't read the above
-link?
+In 2.6.0-test5, after '/sbin/kbdrate -r 30 -d 250', I get some 2000
+characters in a minute (pressing n continuously, stopwatch in hand).
+In 2.6.0-test6 and 2.6.0-test6-mm4, after '/sbin/kbdrate -r 30 -d 250',
+I get some 820 characters in a minute.
 
-> Is there an official udev web page or forum?
+30 cps != 800/60 s, that's more like half that rate.
 
-No, nothing is ever "official" :)
+Booting with or without atkbd_softrepeat=1 on the kernel commandline
+makes no difference at all.
 
-The linux-hotplug-devel mailing list has been a good place to discuss
-udev stuff.
+It's not only the repeat-speed that has gone down, the delay before
+repeat kicks in is notably slower as well. This is perhaps even more
+frustrating, but harder to measure :-(
 
-> As to why not use mailing list in the first place:  A. Who wants to get 
-> flamed by Al in public. ;-)  B. Giving consideration to the developer 
-> who might want to discuss the issue before exposing it to a public 
-> forum.  I probably have sent about 50 emails to the LKML over the last 
-> eight years on topics from VMM to SCSI to SCM, but sometimes it seems 
-> better to directly address the relevant developer.  Not everyone 
-> subscribes to the list after all. ;-)
+This is on a plain Chicony KB-7903 PS/2 keyboard. It is connected via a
+Vista Rose KVM to a VIA KT400 chipset motherboard.
 
-But it saves developer time, which is in much shorter supply than "users
-who don't read the documentation time" it seems...
+Any patches to test are very welcome here.
 
-greg k-h
+Thanks,
+Jurriaan
+-- 
+She'd put a lot of work and practice into that glare, and it had always
+served her well in the past. It suggested she was one hundred percent
+crazy, barely under control, and violent with it.
+	Simon R Green - Guard against Dishonour
+Debian (Unstable) GNU/Linux 2.6.0-test5 4276 bogomips 0.33 0.14

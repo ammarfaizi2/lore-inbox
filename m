@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316582AbSFDIyf>; Tue, 4 Jun 2002 04:54:35 -0400
+	id <S317359AbSFDI6P>; Tue, 4 Jun 2002 04:58:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316584AbSFDIye>; Tue, 4 Jun 2002 04:54:34 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:56848 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316582AbSFDIyd>; Tue, 4 Jun 2002 04:54:33 -0400
-Date: Tue, 4 Jun 2002 09:54:27 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: PATCH/RFC: fix 2.5.20 ramdisk
-Message-ID: <20020604095427.B30552@flint.arm.linux.org.uk>
-In-Reply-To: <20020603180627.A23056@flint.arm.linux.org.uk> <20020604083525.GA2512@suse.de> <20020604094532.A30552@flint.arm.linux.org.uk> <3CFC7226.2010101@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S317414AbSFDI6O>; Tue, 4 Jun 2002 04:58:14 -0400
+Received: from pandora.cantech.net.au ([203.26.6.29]:24836 "EHLO
+	pandora.cantech.net.au") by vger.kernel.org with ESMTP
+	id <S317359AbSFDI6M>; Tue, 4 Jun 2002 04:58:12 -0400
+Date: Tue, 4 Jun 2002 16:58:05 +0800 (WST)
+From: "Anthony J. Breeds-Taurima" <tony@cantech.net.au>
+To: lkml <linux-kernel@vger.kernel.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        "Peter J. Braam" <braam@clusterfs.com>
+Subject: [PATCH] 2.4.19-pre10 s/Efoo/-Efoo/ fs/intermezzo/*.c
+Message-ID: <Pine.LNX.4.44.0206041655150.32156-100000@thor.cantech.net.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 04, 2002 at 09:54:14AM +0200, Martin Dalecki wrote:
-> > --- orig/drivers/block/rd.c	Wed May 29 21:40:26 2002
-> > +++ linux/drivers/block/rd.c	Tue Jun  4 09:44:21 2002
-> > @@ -144,6 +144,7 @@
-> >  {
-> >  	struct address_space * mapping;
-> >  	unsigned long index;
-> > +	unsigned int vec_offset;
-> 
-> Just a small nit. Shouldn't taht be size_t ?
+Hello All,
+	Small cleanup patch.  Peter this is as discussed with you.  I know
+it's already in your tree trying to knock one of the kernel janitors jobs on
+the head.
 
-I really don't see where you got that thought from.  A bio_vec is:
 
-struct bio_vec {
-        struct page     *bv_page;
-        unsigned int    bv_len;
-        unsigned int    bv_offset;
-};
+Yours Tony
 
-bv_offset is unsigned int.  Therefore, vec_offset should be likewise.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Jan 22-26 2003      Linux.Conf.AU       http://conf.linux.org.au/
+         The Australian Linux Technical Conference!
+--------------------------------------------------------------------------------
+diff -urN -X /home/tony/src/kernel/dontdiff linux-2.4.19-pre10.clean/fs/intermezzo/dir.c linux-2.4.19-pre10/fs/intermezzo/dir.c
+--- linux-2.4.19-pre10.clean/fs/intermezzo/dir.c	Tue Apr 30 13:21:23 2002
++++ linux-2.4.19-pre10/fs/intermezzo/dir.c	Tue Jun  4 16:38:24 2002
+@@ -129,7 +129,7 @@
+         PRESTO_ALLOC(buffer, char *, PAGE_SIZE);
+         if ( !buffer ) {
+                 printk("PRESTO: out of memory!\n");
+-                return ENOMEM;
++                return -ENOMEM;
+         }
+         path = presto_path(de, root, buffer, PAGE_SIZE);
+         pathlen = MYPATHLEN(buffer, path);
+diff -urN -X /home/tony/src/kernel/dontdiff linux-2.4.19-pre10.clean/fs/intermezzo/file.c linux-2.4.19-pre10/fs/intermezzo/file.c
+--- linux-2.4.19-pre10.clean/fs/intermezzo/file.c	Tue Apr 30 13:21:23 2002
++++ linux-2.4.19-pre10/fs/intermezzo/file.c	Tue Jun  4 16:38:24 2002
+@@ -63,7 +63,7 @@
+         PRESTO_ALLOC(buffer, char *, PAGE_SIZE);
+         if ( !buffer ) {
+                 printk("PRESTO: out of memory!\n");
+-                return ENOMEM;
++                return -ENOMEM;
+         }
+         path = presto_path(de, buffer, PAGE_SIZE);
+         pathlen = MYPATHLEN(buffer, path);
 

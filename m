@@ -1,78 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262972AbUEWPZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263059AbUEWP0x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262972AbUEWPZS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 11:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262996AbUEWPZS
+	id S263059AbUEWP0x (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 11:26:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbUEWP0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 11:25:18 -0400
-Received: from mailbox.leidenuniv.nl ([132.229.102.4]:22171 "EHLO
-	mailbox.leidenuniv.nl") by vger.kernel.org with ESMTP
-	id S262972AbUEWPZK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 11:25:10 -0400
-From: Willem de Bruijn <wdebruij@dds.nl>
-To: linux-kernel@vger.kernel.org
-Subject: question regarding strange kernel stats under high (network) load
-Date: Sun, 23 May 2004 17:33:08 +0200
-User-Agent: KMail/1.6.1
-MIME-Version: 1.0
+	Sun, 23 May 2004 11:26:52 -0400
+Received: from mail.kroah.org ([65.200.24.183]:15061 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263059AbUEWP0c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 11:26:32 -0400
+Date: Sun, 23 May 2004 08:25:40 -0700
+From: Greg KH <greg@kroah.com>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFD] Explicitly documenting patch submission
+Message-ID: <20040523152540.GA5518@kroah.com>
+References: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org> <1085299337.2781.5.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405231733.08367.wdebruij@dds.nl>
-X-MailScanner: Found to be clean
+In-Reply-To: <1085299337.2781.5.camel@laptop.fenrus.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, May 23, 2004 at 10:02:17AM +0200, Arjan van de Ven wrote:
+> On Sun, 2004-05-23 at 08:46, Linus Torvalds wrote:
+> > Hola!
+> > 
+> > This is a request for discussion..
+> 
+> Can we make this somewhat less cumbersome even by say, allowing
+> developers to file a gpg key and sign a certificate saying "all patches
+> that I sign with that key are hereby under this regime". I know you hate
+> it but the FSF copyright assignment stuff at least has such "do it once
+> for forever" mechanism making the pain optionally only once.
 
-  for a network monitoring project that I'm working on (see my sig if you're 
-interested) I have to compare system load under high throughput. Directly 
-comparing my implementation to tcpdump (LSF) seems fine, our user% and 
-kernel% are lower. However, when I added an idle system I noticed some 
-strange behaviour that remains on re-executing the tests: 
+I don't think that adding a single line to ever patch description is
+really "pain".  Especially compared to the FSF proceedure :)
 
-the kernel% is actually higher when nothing is running than when my code is 
-running! Overall processing is lower (idle% is higher on the idle system), 
-but that is thanks to the high %si (soft ints) that my code generates. 
+Also, gpg signed patches are a pain to handle on the maintainer's side
+of things, speaking from personal experience.  However our patch
+handling scripts could probably just be modified to fix this issue, but
+no one's stepped up to do it.  And we'd have to start messing with the
+whole "web of trust" thing, which would keep us from being able to
+accept a patch from someone in a remote location with no way of being
+able to add their key to that web, causing _more_ work to be done to get
+a patch into the tree than Linus's proposal entails.
 
-In order to better explain my problem here is the output of top (the new one, 
-with %si, %hi and %wa) for a 600Mbit throughput, the first line is for the 
-idle system, the second for FFPF (my system) and the third for Linux Socket 
-Filters:
+thanks,
 
-Mbit		iperf in	iperf out		capt	recv	kern drop	% drop		tcpdump %	iperf %	user %	
-kernel %	idle %																																																																																																																																																																																																																																																	
-600		608	608								33	6	30	40																																																																																																																																																																																																																																																	
-600		608	608		514084	517314	33	0.63		17	20	13	15	25																																																																																																																																																																																																																																																	
-600		609	608		421215	517597	96382	31.4		76	33	17	49.5	0																																																																																																																																																																																																																																																	
-
-the usage statistics are user%, kernel% and idle% (I haven't saved the si% 
-results). What's odd is that although idle is higher for the idle system, 
-kernel% is actually lower. I can understand that my code generates extra soft 
-interrupts, but not that it has an effect on the `other' kernel load. Perhaps 
-I don't understand the values good enough, in which case I would greatly 
-appreciate your help. However, it could also signal a bug in the statistics 
-reporting (although I don't hope that's the case, these results are great for 
-my paper :). FYI, I used the command
-
-top -b -n 5 -d 3 | grep "Cpu\|tcpdump\|iperf"
-
-to generate these results.
-
-thanks for your help,
-
-  Willem
--- 
-Willem de Bruijn
-wdebruij_at_dds.nl
-http://www.wdebruij.dds.nl/
-
-current project : 
-Fairly Fast Packet Filter (FFPF)
-http://ffpf.sourceforge.net/
-
--- 
-Dit bericht is gescand op virussen en andere gevaarlijke inhoud door ULCN MailScanner en het bericht lijkt schoon te zijn.
-This message has been scanned for viruses and dangerous content by ULCN MailScanner, and is believed to be clean.
-
+greg k-h

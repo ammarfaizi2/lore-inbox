@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263204AbSLTRgu>; Fri, 20 Dec 2002 12:36:50 -0500
+	id <S263215AbSLTRlc>; Fri, 20 Dec 2002 12:41:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263215AbSLTRgu>; Fri, 20 Dec 2002 12:36:50 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56580 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263204AbSLTRgt>; Fri, 20 Dec 2002 12:36:49 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: PTRACE_GET_THREAD_AREA
-Date: Fri, 20 Dec 2002 17:42:36 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <atvkqc$6kr$1@penguin.transmeta.com>
-References: <200212200832.gBK8Wfg29816@magilla.sf.frob.com>
-X-Trace: palladium.transmeta.com 1040406263 31818 127.0.0.1 (20 Dec 2002 17:44:23 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 20 Dec 2002 17:44:23 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S263228AbSLTRlc>; Fri, 20 Dec 2002 12:41:32 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:48348 "EHLO
+	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
+	id <S263215AbSLTRlb>; Fri, 20 Dec 2002 12:41:31 -0500
+From: "Folkert van Heusden" <folkert@vanheusden.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: DECpc XL 590 -> bios won't set up IRQ's and Linux neither
+Date: Fri, 20 Dec 2002 18:49:32 +0100
+Message-ID: <00a201c2a850$285a93f0$3640a8c0@boemboem>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200212200832.gBK8Wfg29816@magilla.sf.frob.com>,
-Roland McGrath  <roland@redhat.com> wrote:
->This patch vs 2.5.51 (should apply fine to 2.5.52) adds two new ptrace
->requests for i386, PTRACE_GET_THREAD_AREA and PTRACE_SET_THREAD_AREA.
->These let another process using ptrace do the equivalent of performing
->get_thread_area and set_thread_area system calls for another thread.
+Hi,
 
-Looks fine, except I'd ask you to split up the get/set logic as separate
-functions, instead of making that case-statement thing horribly big.
+I have a DECpc XL 590, it's an oldy P90.
+When it boots up with Linux, I get the following error:
+PCI: PCI BIOS revision 2.00 entry at 0xf0100, last bus=0
+PCI: Using configuration type 2
+PCI: Probing PCI hardware
+PCI: fixing NCR 53C810 class code for 00:01.0
+PCI: Error 81 when fetching IRQ routing table.  <------------
+None of the PCI-devices get an IRQ assigned:
+00:07.0 USB Controller: OPTi Inc. 82C861 (rev 10) (prog-if 10 [OHCI])
+        Subsystem: OPTi Inc. 82C861
+        Flags: medium devsel
+        Memory at 10000000 (32-bit, non-prefetchable) [size=4K]
 
-Big functions are bad.
+00:08.0 USB Controller: NEC Corporation USB (rev 41) (prog-if 10 [OHCI])
+        Subsystem: Unknown device 3083:0035
+        Flags: medium devsel
+        Memory at 10001000 (32-bit, non-prefetchable) [size=4K]
+        Capabilities: [40] Power Management version 2
+<etc.>
 
-So please make it look something like
+I tried booting with pci=biosirq, to no avail.
+Kernel is 2.4.20.
+Is this a non-fixable bug in the bios? Bug in the kernel? Anything?
 
-	case PTRACE_GET_THREAD_AREA:
-		ret = ptrace_get_area(addr, (struct user_desc *) data);
-		break;
-
-	case PTRACE_SET_THREAD_AREA:
-		ret = ptrace_set_area(addr, (struct user_desc *) data);
-		break;
-
-instead, ok?
-
-		Linus
+Thank you.
+Folkert

@@ -1,119 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVBWUpq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVBWUsI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbVBWUpq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 15:45:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbVBWUpq
+	id S261578AbVBWUsI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 15:48:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVBWUrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 15:45:46 -0500
-Received: from mx1.mail.ru ([194.67.23.121]:24615 "EHLO mx1.mail.ru")
-	by vger.kernel.org with ESMTP id S261566AbVBWUp0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 15:45:26 -0500
-From: Alexey Dobriyan <adobriyan@mail.ru>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [BK PATCHES] 2.6.x libata fixes (mostly)
-Date: Wed, 23 Feb 2005 23:45:23 +0200
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Mark Lord <mlord@pobox.com>
-References: <421CE018.5030007@pobox.com>
-In-Reply-To: <421CE018.5030007@pobox.com>
+	Wed, 23 Feb 2005 15:47:45 -0500
+Received: from alog0649.analogic.com ([208.224.223.186]:1408 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261567AbVBWUrU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 15:47:20 -0500
+Date: Wed, 23 Feb 2005 15:46:25 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Alan Kilian <kilian@bobodyne.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Help enabling PCI interrupts on Dell/SMP and Sun/SMP systems.
+In-Reply-To: <1109190273.9116.307.camel@desk>
+Message-ID: <Pine.LNX.4.61.0502231538230.5623@chaos.analogic.com>
+References: <1109190273.9116.307.camel@desk>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200502232345.23666.adobriyan@mail.ru>
-X-Spam: Not detected
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 February 2005 21:57, Jeff Garzik wrote:
+On Wed, 23 Feb 2005, Alan Kilian wrote:
 
-> This BK push includes additional hardware support, but that's only 
-> because it's (a) obviously low impact and (b) it was in the queue.
+ 	call	pci_enable_device(dev)
+ 	... before you use the IRQ in dev->irq.
 
-> --- a/drivers/scsi/ahci.c
-> +++ b/drivers/scsi/ahci.c
+ 	The reported IRQ is bogus until you make that
+ 	call. It's a reported BUG, probably won't
+ 	ever get fixed because it's considered a
+ 	feature.
 
-> +static u8 ahci_check_err(struct ata_port *ap)
-> +{
-> +	void *mmio = (void *) ap->ioaddr.cmd_addr;
+ 	Also, make sure that your .config for the Dell looks
+ 	something like:
 
-void __iomem *
+ 	CONFIG_X86_IO_APIC=y
+ 	CONFIG_X86_LOCAL_APIC=y
+ 	CONFIG_PCI=y
+ 	# CONFIG_PCI_GOBIOS is not set
+ 	# CONFIG_PCI_GODIRECT is not set
+ 	CONFIG_PCI_GOANY=y
+ 	CONFIG_PCI_BIOS=y
+ 	CONFIG_PCI_DIRECT=y
 
-> +	return (readl(mmio + PORT_TFDATA) >> 8) & 0xFF;
+>
+>
+>    Folks,
+>
+> 	This group was instrumental in helping me get my first-ever
+> 	linux/PCI-bus device driver working last year, and I'm back for
+> 	some more help if you are willing.
+>
+> 	I have a PCI card that generates an interrupt when it completes
+> 	a DMA transfer to the PCs RAM.
+>
+> 	This works just fine on a Dell 4400 running 2.6.10-1.766_FC3
+>
+> 	When I try to run the driver on a Dell 2300 FC2/2.6.5-1.358smp
+> 	or a Sun W2100Z running FC2/2.6.10-1.14_FC2smp I can see the
+> 	DMA-done bit set in the device, but my interrupt service routine
+> 	never gets called.
+>
+> 	On the Sun, I booted with "noapic" option, and it booted OK,
+> 	but then when my device generated an interrupt, there was a
+> 	kernel message about Disabling IRQ #5 and the system was hung
+> 	solidly.
+>
+> 	I think this has something to do with the different interrupt
+> 	hardware on the more advanced servers compared to my desktop
+> 	Dell 4400, and I somehow need to "enable" the IOAPIC system
+> 	so that my interrupt gets through to my service routine, but I
+> 	don't know how.
+>
+> 	I tried grepping through the kernel/drivers source, and I didn't
+> 	find anything that jumped out at me.
+>
+> 	The Rubini drivers book didn't help in this area either,
+> 	although it's a wonderful book in other areas.
+>
+> 	I can post source somewhere if it will help.
+>
+> 	I can also post the essential bits from /var/log/messages about
+> 	all the incredibly complicated IOAPIC configuration stuff.
+>
+> 	Thank you for your past help, and thank you in advance for any
+> 	tips you can provide.
+>
+> 				-Alan
+>
+> -- 
+> - Alan Kilian <kilian(at)bobodyne.com>
+>
 
-> --- a/drivers/scsi/libata-core.c
-> +++ b/drivers/scsi/libata-core.c
-
-> + *	ata_qc_free - free unused ata_queued_cmd
-> + *	@qc: Command to complete
-
-"Command to free"?
-
---- /dev/null
-+++ b/drivers/scsi/sata_qstor.c
-
-> +	u8 *prd = pp->pkt + QS_CPB_BYTES;
-
-> +	for (nelem = 0; nelem < qc->n_elem; nelem++,sg++) {
-> +		u64 addr;
-> +		u32 len;
-
-> +		addr = sg_dma_address(sg);
-> +		*(u64 *)prd = cpu_to_le64(addr);
-
-*(__le64 *) prd
-
-> +		prd += sizeof(u64);
-
-> +		len = sg_dma_len(sg);
-> +		*(u32 *)prd = cpu_to_le32(len);
-
-*(__le32 *) prd
-
-> +		prd += sizeof(u64);
-
-Should this be "prd += sizeof(u32)"? Looks suspicious.
-
-> +static void qs_qc_prep(struct ata_queued_cmd *qc)
-> +{
-
-> +	*(u32 *)(&buf[ 4]) = cpu_to_le32(qc->nsect * ATA_SECT_SIZE);
-> +	*(u32 *)(&buf[ 8]) = cpu_to_le32(qc->n_elem);
-
-> +	*(u64 *)(&buf[16]) = cpu_to_le64(addr);
-
-__le* again...
-
-> +static void qs_ata_setup_port(struct ata_ioports *port, unsigned long base)
-> +{
-> +	port->cmd_addr		=
-
-> +	port->error_addr	=
-
-> +	port->status_addr	=
-
-> +	port->altstatus_addr	=
-
-Oo-oops...
-
-> +static int qs_set_dma_masks(struct pci_dev *pdev, void __iomem *mmio_base)
-> +{
-
-> +	if (have_64bit_bus &&
-> +	    !pci_set_dma_mask(pdev, 0xffffffffffffffffULL)) {
-> +		rc = pci_set_consistent_dma_mask(pdev, 0xffffffffffffffffULL);
-> +		if (rc) {
-> +			rc = pci_set_consistent_dma_mask(pdev, 0xffffffffULL);
-
-We already have DMA_{32,64}BIT_MASK.
-
-> +	} else {
-> +		rc = pci_set_dma_mask(pdev, 0xffffffffULL);
-
-> +		rc = pci_set_consistent_dma_mask(pdev, 0xffffffffULL);
-
-	Alexey
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

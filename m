@@ -1,72 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317392AbSGYGti>; Thu, 25 Jul 2002 02:49:38 -0400
+	id <S317470AbSGYGv3>; Thu, 25 Jul 2002 02:51:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317470AbSGYGti>; Thu, 25 Jul 2002 02:49:38 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:13811 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S317392AbSGYGth>; Thu, 25 Jul 2002 02:49:37 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Thu, 25 Jul 2002 00:51:09 -0600
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Header files and the kernel ABI
-Message-ID: <20020725065109.GO574@clusterfs.com>
-Mail-Followup-To: "H. Peter Anvin" <hpa@zytor.com>,
-	linux-kernel@vger.kernel.org
-References: <aho5ql$9ja$1@cesium.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aho5ql$9ja$1@cesium.transmeta.com>
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S318347AbSGYGv3>; Thu, 25 Jul 2002 02:51:29 -0400
+Received: from [196.26.86.1] ([196.26.86.1]:35276 "HELO
+	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S317470AbSGYGv2>; Thu, 25 Jul 2002 02:51:28 -0400
+Date: Thu, 25 Jul 2002 09:11:36 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: James Cleverdon <jamesclv@us.ibm.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19-rc3-ac2 SMP
+In-Reply-To: <200207242034.01605.jamesclv@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0207250859590.17209-100000@linux-box.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 24, 2002  23:28 -0700, H. Peter Anvin wrote:
-> It seems to me that a reasonable solution for how to do this is not
-> for user space to use kernel headers, but for user space and the
-> kernel to share a set of common ABI description files[1].  These files
-> should be highly stylized, and only describe things visible to user
-> space.  Furthermore, if they introduce types, they should use the
-> already-established __kernel_ namespace, and of course __s* and __u*
-> could be used for specific types.
-> 
-> I would like to propose that these files be set up in the #include
-> namespace as <linux/abi/*>, with <linux/abi/arch/*> for any
-> architecture-specific support files (I do believe, however, that those
-> files should only be included by files in the linux/abi/ root.  This
-> probably would be a symlink to ../asm/abi in the kernel sources,
-> unless we change the kernel include layout.)  The linux/ namespace is
-> universally reserved for the kernel, and unlike <abi/*> I don't know
-> of any potential conflicts.  I was considered <kabi/*>, but it seems
-> cleaner to use existing namespace.
+On Wed, 24 Jul 2002, James Cleverdon wrote:
 
-I had thought on this briefly in the past, and my take would be for these
-ABI definition files to live directly in /usr/include/linux for user space
-(just as glibc puts its own sanitized copy of the kernel headers there)
-and the appropriate ABI headers are included as needed from the kernel.
+> Ah ha!  Note that while the CPU records in the {MPS,ACPI/MADT} table are in 
+> numerical order (as preserved in raw_phys_apicid), the boot CPU is # 02.  The 
+> flat code in smp_boot_cpus assumes that the boot CPU will be the first record 
+> in the list.  Oops.
 
-The kernel side would be something like <linux/scsi.h> includes
-<linux/abi/scsi.h> or whatever, but in the future this can be included
-directly as needed throughout the kernel.  The existing kernel
-<linux/*.h> headers would also have extra kernel-specific data in them.
+Ok i'll give it a whirl, in that case how about the following code to do 
+the BSP check in another area too?
 
-The same could be done with the user-space headers, but I think that
-is missing the point that the linux/abi/*.h headers should define _all_
-of the abi, so we may as well just use that directly.
+Index: linux-2.4.19-rc3-ac2/arch/i386/kernel/smpboot.c
+===================================================================
+RCS file: /home/zwane/source/cvs_rep/linux-2.4.19-rc3-ac2/arch/i386/kernel/smpboot.c,v
+retrieving revision 1.2
+diff -u -r1.2 smpboot.c
+--- linux-2.4.19-rc3-ac2/arch/i386/kernel/smpboot.c	2002/07/25 06:06:56	1.2
++++ linux-2.4.19-rc3-ac2/arch/i386/kernel/smpboot.c	2002/07/25 06:15:05
+@@ -46,6 +46,7 @@
+ #include <asm/mtrr.h>
+ #include <asm/pgalloc.h>
+ #include <asm/smpboot.h>
++#include <asm/msr.h>
+ 
+ /* Set if we find a B stepping CPU			*/
+ static int smp_b_stepping;
+@@ -229,6 +230,14 @@
+ 	return res;
+ }
+ 
++int smp_cpu_is_bsp (void)
++{
++	unsigned long l, h;
++	
++	rdmsr(MSR_IA32_APICBASE, l, h);
++	return (l & MSR_IA32_APICBASE_BSP);
++}
++
+ static void __init synchronize_tsc_bp (void)
+ {
+ 	int i;
+@@ -1067,7 +1076,7 @@
+ 	connect_bsp_APIC();
+ 	setup_local_APIC();
+ 
+-	if (GET_APIC_ID(apic_read(APIC_ID)) != boot_cpu_physical_apicid)
++	if (!smp_cpu_is_bsp())
+ 		BUG();
+ 
+ 	/*
 
-Essentially "all" this would mean is that we take the existing headers,
-remove everything which is inside #ifdef __KERNEL__ (and all of the
-other kernel-specific non-abi headers that are included) and we are
-done.  The kernel header now holds only things that were inside the
-#ifdef __KERNEL__ (or should have been), and #include <linux/abi/foo.h>.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+-- 
+function.linuxpower.ca
 

@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132862AbREHQV5>; Tue, 8 May 2001 12:21:57 -0400
+	id <S132850AbREHQV1>; Tue, 8 May 2001 12:21:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132886AbREHQVr>; Tue, 8 May 2001 12:21:47 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:33183 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S132862AbREHQVd>;
-	Tue, 8 May 2001 12:21:33 -0400
-Date: Tue, 8 May 2001 18:21:28 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200105081621.SAA14493@harpo.it.uu.se>
-To: adam@cfar.umd.edu, linux-kernel@vger.kernel.org
-Subject: Re: [ot] named sockets
+	id <S132862AbREHQVR>; Tue, 8 May 2001 12:21:17 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:34830 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S132850AbREHQVE>;
+	Tue, 8 May 2001 12:21:04 -0400
+Date: Tue, 8 May 2001 18:20:55 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
+        alexander.eichhorn@rz.tu-ilmenau.de, linux-kernel@vger.kernel.org
+Subject: Re: [Question] Explanation of zero-copy networking
+Message-ID: <20010508182055.A19608@pcep-jamie.cern.ch>
+In-Reply-To: <Pine.LNX.4.33.0105071106470.10009-100000@twinlark.arctic.org> <E14wt2p-00048d-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14wt2p-00048d-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, May 07, 2001 at 10:59:52PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 May 2001 21:47:33 -0400 (EDT), Adam <adam@cfar.umd.edu> wrote:
+Alan Cox wrote:
+> > so there's still single copy for write() of a mmap()ed page?
+> 
+> An mmap page will go direct to disk.
 
->So I'm wondering, is there a way, kind of like "relink" system call which
->coule take existing file descriptor (they are still so the fd is there,
->just unlinked) and link it back to file name?
+Looking at the 2.4.4 code, mmap() of file followed by write() to socket
+will copy the data once.
 
-POSIX' fattach(int fd, const char *path) library call does that,
-although it's often limited to STREAMS fd:s. It's usually
-implemented as mounting "namefs" at the path (SVR4) or setting
-a magic mount option (OSF1), with the fd passed in as mount-point
-specific data. Regular users are allowed to do this special mount().
+I could be mistaken (only glanced at the code quickly) but I base that
+on the only call to ->sendpage being through sendfile.
 
-Linux currently doesn't have this functionality, but it could
-probably be implemented as a pseudo-fs in 2.4, assuming the 2.4
-VFS properly supports stacking of file systems. (There's some
-gotchas concerning chown/chmod changes and restoring the original
-object after the fd is unmounted.)
+So yes, there's a single copy overhead for mmap()+write().
 
-Not that I think Linux really needs this creeping featurism ...
-
-/Mikael
+-- Jamie

@@ -1,65 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264030AbTGWO2X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 10:28:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268160AbTGWO2X
+	id S268160AbTGWO26 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 10:28:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270345AbTGWO25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 10:28:23 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:17106 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264030AbTGWO2V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 10:28:21 -0400
-Date: Wed, 23 Jul 2003 16:42:41 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+	Wed, 23 Jul 2003 10:28:57 -0400
+Received: from 5.Red-80-32-157.pooles.rima-tde.net ([80.32.157.5]:15620 "EHLO
+	smtp.newipnet.com") by vger.kernel.org with ESMTP id S268160AbTGWO2z convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 10:28:55 -0400
+Message-ID: <200307231636280719.1CC18139@192.168.128.16>
+In-Reply-To: <20030723070026.610ac63e.davem@redhat.com>
+References: <200307182357260552.063FA10C@192.168.128.16>
+ <200307231541180759.1C8EFFB1@192.168.128.16>
+ <20030723070026.610ac63e.davem@redhat.com>
+X-Mailer: Calypso Version 3.30.00.00 (4)
+Date: Wed, 23 Jul 2003 16:36:28 +0200
+From: "Carlos Velasco" <carlosev@newipnet.com>
 To: "David S. Miller" <davem@redhat.com>
-cc: Christoph Hellwig <hch@infradead.org>, solca@guug.org, zaitcev@redhat.com,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       sparclinux@vger.kernel.org, debian-sparc@lists.debian.org
-Subject: Re: sparc scsi esp depends on pci & hangs on boot
-In-Reply-To: <20030723002008.538dc163.davem@redhat.com>
-Message-ID: <Pine.GSO.4.21.0307231641180.27805-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: ARP with wrong ip?
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jul 2003, David S. Miller wrote:
-> On Wed, 23 Jul 2003 08:02:22 +0100
-> Christoph Hellwig <hch@infradead.org> wrote:
-> 
-> > On Tue, Jul 22, 2003 at 11:57:14PM -0700, David S. Miller wrote:
-> > > I don't see why this is a problem.  Either do this, or fix
-> > > asm-generic/dma-mapping.h which is not GENERIC because it
-> > > depends upon something SPECIFIC, specifically PCI.
-> > 
-> > The latter is what need to be done.  
-> 
-> I'll do the following for now.
-> 
-> # This is a BitKeeper generated patch for the following project:
-> # Project Name: Linux kernel tree
-> # This patch format is intended for GNU patch command version 2.5 or higher.
-> # This patch includes the following deltas:
-> #	           ChangeSet	1.1518  -> 1.1519 
-> #	include/asm-sparc64/dma-mapping.h	1.1     -> 1.2    
-> #	include/asm-sparc/dma-mapping.h	1.1     -> 1.2    
-> #
-> # The following is the BitKeeper ChangeSet Log
-> # --------------------------------------------
-> # 03/07/23	davem@nuts.ninka.net	1.1519
-> # [SPARC]: Do not include asm-generic/dma-mapping.h if !CONFIG_PCI.
+On 23/07/2003 at 7:00 David S. Miller wrote:
 
-Yep, that's what I did for m68k as well (inspired by s390 which never has PCI
-and thus an empty dma-mapping.h).
+>Maybe if you submitted the bug report and/or patch via
+>to the "networking" mailing list, instead of linux-kernel
+>and bugzilla where none of the "networking" developers
+>pay attention, your report would be more likely to be looked
+>at.
 
-Gr{oetje,eeting}s,
+David,
 
-						Geert
+I have sent the bug to linux-net:
+http://marc.theaimsgroup.com/?l=linux-net&m=105862200011155&w=2
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Where it has been ignored too.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Also, I have searched into ipv4/README:
+Maintainers and developers for networking code sections
+
+Code Section            Bug Report Contact
+-------------------+-------------------------------------------
+ipv4                    davem@caip.rutgers.edu,Eric.Schenk@dna.lth.se
+
+where:
+
+<Eric.Schenk@dna.lth.se>: host himmelsborg.cs.lth.se[130.235.16.11] said: 550
+    5.1.1 <Eric.Schenk@dna.lth.se>... User unknown (in reply to RCPT TO
+    command)
+
+
+Also, I have searched into arp.c (the file patched) and seen:
+
+* Fixes:
+ *              Alan Cox        :       Removed the Ethernet assumptions in
+ *                                      Florian's code
+
+So, I also e-mailed Alan... without reply so far.
+
+
+David, do you think I need to send the bug and patch to anyone else? Just tell me.
+
+Regards,
+Carlos Velasco
+
 

@@ -1,87 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129363AbRBYPYQ>; Sun, 25 Feb 2001 10:24:16 -0500
+	id <S129359AbRBYPQ0>; Sun, 25 Feb 2001 10:16:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129376AbRBYPX5>; Sun, 25 Feb 2001 10:23:57 -0500
-Received: from B112d.pppool.de ([213.7.17.45]:3076 "EHLO susi.maya.org")
-	by vger.kernel.org with ESMTP id <S129363AbRBYPXp>;
-	Sun, 25 Feb 2001 10:23:45 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Andreas Hartmann <andihartmann@freenet.de>
-Organization: Privat
-Subject: Problem with DMA or agpgart on VIA686a-boards consists with kernel 2.4.2?
-Date: Sun, 25 Feb 2001 16:21:20 +0100
-X-Mailer: KMail [version 1.2.1]
+	id <S129360AbRBYPQQ>; Sun, 25 Feb 2001 10:16:16 -0500
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:54916 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S129359AbRBYPQM>; Sun, 25 Feb 2001 10:16:12 -0500
+Message-ID: <3A9920B6.393E63B2@coplanar.net>
+Date: Sun, 25 Feb 2001 10:11:50 -0500
+From: Jeremy Jackson <jerj@coplanar.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01022515592800.00283@athlon>
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
+To: Andrew Morton <andrewm@uow.edu.au>
+CC: Jeff Garzik <jgarzik@mandrakesoft.com>, netdev@oss.sgi.com,
+        Linux Knernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: New net features for added performance
+In-Reply-To: <3A9842DC.B42ECD7A@mandrakesoft.com> <3A98F417.C38A67BE@uow.edu.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Used hardware:
-AMD Athlon 800
-VIA KX133-Chipsatz with AGP
+Andrew Morton wrote:
 
-Chipset: ATI 264LT Pro (3D Rage LT Pro) (Port Probed)
-Memory:  8192 Kbytes
-RAMDAC:  ATI Mach64 integrated 15/16/24/32-bit DAC w/clock
-                 (with 6-bit wide lookup tables (or in 6-bit mode))
-                 (programmable for 6/8-bit wide lookup tables)
-Attached graphics coprocessor:
-                Chipset: ATI Mach64
-                Memory:  8192 Kbytes
+(kernel profile of TCP tx/rx)So, naively, the most which can be saved here by
+optimising
 
+> the skb and memory usage is 5% of networking load. (1% of
+> system load @100 mbps)
+>
 
-used software-versions:
-- Kernel 2.3.x until 2.4.2
-- Kernel 2.4test
-- activated support for VIA82Cxxx and using DMA by default
-- X 3.3.6
-- agpgart-module
-- glx from sourceforge.net with DMA and agpgart
-- reiserfs
-- DMA-mode of the hd (WDC WD205AA) is turned on with hdparm and runs 
-   in UDMA4-mode.
+For a local tx/rx.  (open question) What happens with
+a router box with netfilter and queueing?  Perhaps
+this type of optimisation will help more in that case?
 
+think about a box with 4 1G NICs being able to
+route AND do QoS per conntrack connection
+(ala RSVP and such)
 
+Really what I'm looking for is something like SGI's
+STP (Scheduled Transfer Protocol).  mmap your
+tcp recieve buffer, and have a card smart enough
+to figure out header alignment, (i.e. know header
+size based on protocol number) transfer only that,
+let the kernel process it, then tell the card to DMA
+the data from the buffer right into process memory.
+(or other NIC)
 
+Make it possible to have the performance of a
+Juniper network processor + flexiblity of Linux.
 
-Hallo all,
-
-I already found in some 2.3-versions or in the 2.4test-versions the following 
-problem:
-The X-screen suddenly begins blinking and can't be stabilized without 
-rebooting the machine (which did not freeze!). A restart of X-Server doesn't 
-help. The problem persists.
-Unfortunately I couldn't find any error-log. A hint maybe the output of the 
-glx.log when started in "damaged" situation (negative benchmarks):
-
-   119:dma buffer transfer speed:
- 13698:DmaBenchmark 0xfde00 bytes, 0.010 sec: 97 mb/s
- 15092:DmaBenchmark 0xfde00 bytes, -0.019 sec: -51 mb/s
- 13647:DmaBenchmark 0xfde00 bytes, 0.010 sec: 103 mb/s
-
-In not damaged situation, you can find something like this:
-   119:dma buffer transfer speed:
- 20007:DmaBenchmark 0xfde00 bytes, 0.016 sec: 61 mb/s
- 10397:DmaBenchmark 0xfde00 bytes, 0.006 sec: 163 mb/s
- 10296:DmaBenchmark 0xfde00 bytes, 0.006 sec: 164 mb/s
-
-Some information to glx:
-glx provides 3D-functions under X 3.3.6 with my graphic-chip and uses 
-therefore DMA and agpgart. glx uses too a "little" file in the 
-/tmp-directory, which resides on a reiserfs-partition.
-
-There are no problems with kernel 2.2.x and the special IDE-patches from 
-Andre Hedrick.
-
-Now some interesting information perhaps:
-The patches from Alan Cox 2.4.1ac9 or ac17 (I didn't test the others) are 
-working fine. I couldn't find any problem with these patches.
-
-I would be very appreciated if the related patches of Alan Cox could find 
-there way in the official kernel!
-
-Kind regards,
-Andreas Hartmann

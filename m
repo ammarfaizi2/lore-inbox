@@ -1,79 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265229AbTLaWBM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 17:01:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265230AbTLaWBL
+	id S265263AbTLaWDn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 17:03:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265231AbTLaWDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 17:01:11 -0500
-Received: from rrcs-se-24-123-187-193.biz.rr.com ([24.123.187.193]:18075 "EHLO
-	max.bungled.net") by vger.kernel.org with ESMTP id S265229AbTLaWBI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 17:01:08 -0500
-Date: Wed, 31 Dec 2003 17:01:07 -0500
-From: Nathan Conrad <lk@bungled.net>
-To: Rob Love <rml@ximian.com>
-Cc: Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: udev and devfs - The final word
-Message-ID: <20031231220107.GC11032@bungled.net>
-References: <18Cz7-7Ep-7@gated-at.bofh.it> <E1AbWgJ-0000aT-00@neptune.local> <20031231192306.GG25389@kroah.com> <1072901961.11003.14.camel@fur>
+	Wed, 31 Dec 2003 17:03:42 -0500
+Received: from mail.contactel.cz ([212.65.193.9]:36748 "EHLO mail.contactel.cz")
+	by vger.kernel.org with ESMTP id S265263AbTLaWDf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 17:03:35 -0500
+Date: Wed, 31 Dec 2003 22:58:57 +0100
+To: vojtech@suse.cz
+Cc: linux-kernel@vger.kernel.org, linux-joystick@atrey.karlin.mff.cuni.cz
+Subject: [PATCH 2.6] ns558.c check_region -> request_region
+Message-ID: <20031231215857.GB745@penguin.localdomain>
+Mail-Followup-To: vojtech@suse.cz, linux-kernel@vger.kernel.org,
+	linux-joystick@atrey.karlin.mff.cuni.cz
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1072901961.11003.14.camel@fur>
 User-Agent: Mutt/1.5.4i
+From: sebek64@post.cz (Marcel Sebek)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One thing that I'm confused about with respect to device files is how
-kernel arguments are supposed to work. Now, we _seem_ to have a
-mish-mash of different ways to tell the kernel which device to open as
-a console, which device to use as a suspend device, etc.... Now, all
-of the device names are being migrated to userland. How is the kernel
-supposed to determine which device to use when it is told use
-/dev/hda3 or /dev/ide/host0/something/part3 as the suspend partition?
-The kernel no longer knows to which device this string this device is
-connected.
 
-(I have not looked into how these parameters are parsed; this is pure
-speculation)
+This patch modifies ns558.c to use request_region instead of
+check_region:
 
-One solution that I see if the device names are totally removed from
-the kernel is specifying these parameters as sysfs paths. Would this
-work? Or is there a better way?
 
--Nathan
+diff -urN linux-2.6/drivers/input/gameport/ns558.c linux-2.6-new/drivers/input/gameport/ns558.c
+--- linux-2.6/drivers/input/gameport/ns558.c	2003-08-23 13:57:35.000000000 +0200
++++ linux-2.6-new/drivers/input/gameport/ns558.c	2003-12-31 22:27:40.000000000 +0100
+@@ -77,7 +77,7 @@
+  * No one should be using this address.
+  */
+ 
+-	if (check_region(io, 1))
++	if (!request_region(io, 1, "ns558-isa"))
+ 		return;
+ 
+ /*
+@@ -89,7 +89,8 @@
+ 	outb(~c & ~3, io);
+ 	if (~(u = v = inb(io)) & 3) {
+ 		outb(c, io);
+-		return;
++		i = 0;
++		goto out;
+ 	}
+ /*
+  * After a trigger, there must be at least some bits changing.
+@@ -99,7 +100,8 @@
+ 
+ 	if (u == v) {
+ 		outb(c, io);
+-		return;
++		i = 0;
++		goto out;
+ 	}
+ 	wait_ms(3);
+ /*
+@@ -110,7 +112,8 @@
+ 	for (i = 0; i < 1000; i++)
+ 		if ((u ^ inb(io)) & 0xf) {
+ 			outb(c, io);
+-			return;
++			i = 0;
++			goto out;
+ 		}
+ /* 
+  * And now find the number of mirrors of the port.
+@@ -118,7 +121,7 @@
+ 
+ 	for (i = 1; i < 5; i++) {
+ 
+-		if (check_region(io & (-1 << i), (1 << i)))	/* Don't disturb anyone */
++		if (!request_region(io & (-1 << i), (1 << i), "ns558-isa"))	/* Don't disturb anyone */
+ 			break;
+ 
+ 		outb(0xff, io & (-1 << i));
+@@ -126,15 +129,19 @@
+ 			if (inb(io & (-1 << i)) != inb((io & (-1 << i)) + (1 << i) - 1)) b++;
+ 		wait_ms(3);
+ 
+-		if (b > 300)					/* We allow 30% difference */
++		if (b > 300) {					/* We allow 30% difference */
++			release_region(io & (-1 << i), (1 << i));
+ 			break;
++		}
++
++		release_region(io & (-1 << (i-1)), (1 << (i-1)));
+ 	}
+ 
+ 	i--;
+ 
+ 	if (!(port = kmalloc(sizeof(struct ns558), GFP_KERNEL))) {
+ 		printk(KERN_ERR "ns558: Memory allocation failed.\n");
+-		return;
++		goto out;
+ 	}
+        	memset(port, 0, sizeof(struct ns558));
+ 	
+@@ -148,8 +155,6 @@
+ 	sprintf(port->phys, "isa%04x/gameport0", io & (-1 << i));
+ 	sprintf(port->name, "NS558 ISA");
+ 
+-	request_region(io & (-1 << i), (1 << i), "ns558-isa");
+-
+ 	gameport_register_port(&port->gameport);
+ 
+ 	printk(KERN_INFO "gameport: NS558 ISA at %#x", port->gameport.io);
+@@ -157,6 +162,9 @@
+ 	printk(" speed %d kHz\n", port->gameport.speed);
+ 
+ 	list_add(&port->node, &ns558_list);
++	return;
++out:
++	release_region(io & (-1 << i), (1 << i));
+ }
+ 
+ #ifdef CONFIG_PNP
 
-On Wed, Dec 31, 2003 at 03:19:22PM -0500, Rob Love wrote:
-> On Wed, 2003-12-31 at 14:23, Greg KH wrote:
-> 
-> > What benefit would there be in "random" numbers? More compressed number
-> > space by giving out numbers sequentially?
-> 
-> That is one advantage.
-> 
-> > Or less having to work with the numbers because they become just
-> > cookies and never need to be inspected except in very small parts of
-> > the kernel?
-> 
-> Yup, especially this one.  It is not so much "let's make the device
-> numbers random" but "let's just not care what they are."
-> 
-> We can get to the point where we don't even need the explicit concept of
-> device numbers, but just "any old unique value" to use as a cookie.  The
-> kernel can pull that number from anywhere, and notify user-space via
-> udev ala hotplug.
-> 
-> 	Rob Love
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Nathan J. Conrad                     Campus phone #5930
-301 Scott hall, UNC Charlotte        http://bungled.net
-GPG: F4FC 7E25 9308 ECE1 735C  0798 CE86 DA45 9170 3112
+Marcel Sebek
+jabber: sebek@jabber.cz                     ICQ: 279852819
+linux user number: 307850                 GPG ID: 5F88735E
+GPG FP: 0F01 BAB8 3148 94DB B95D  1FCA 8B63 CA06 5F88 735E
+

@@ -1,76 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262811AbTDIGKm (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 02:10:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbTDIGKm (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 02:10:42 -0400
-Received: from [196.41.29.142] ([196.41.29.142]:24558 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S262811AbTDIGKh (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 02:10:37 -0400
-Subject: Re: [PATCH-2.5] Fix w83781d sensor to use Milli-Volt for in_* in
-	sysfs
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Greg KH <greg@kroah.com>
-Cc: KML <linux-kernel@vger.kernel.org>, sensors@Stimpy.netroedge.com
-In-Reply-To: <20030408220444.GA6674@kroah.com>
-References: <1049750163.4174.35.camel@nosferatu.lan>
-	 <20030407215443.GA4386@kroah.com> <1049775078.23992.2.camel@nosferatu.lan>
-	 <20030408220444.GA6674@kroah.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049869101.2754.31.camel@workshop.saharact.lan>
+	id S262785AbTDIGIC (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 02:08:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262811AbTDIGIC (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 02:08:02 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:45071 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S262785AbTDIGIB (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 02:08:01 -0400
+Date: Wed, 9 Apr 2003 02:19:38 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Variable PTE_FILE_MAX_BITS
+Message-ID: <20030409021938.A19512@devserv.devel.redhat.com>
+References: <20030409011653.A9103@devserv.devel.redhat.com> <20030408225514.478469e0.akpm@digeo.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 09 Apr 2003 08:18:21 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030408225514.478469e0.akpm@digeo.com>; from akpm@digeo.com on Tue, Apr 08, 2003 at 10:55:14PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-04-09 at 00:04, Greg KH wrote:
-
-> Oh, I'm getting the following warning when building the driver, want to
-> look into this?
+> > would you be so kind to take this and forward to Linus?
+> > I think this segment of the code is your brainchild.
 > 
-> drivers/i2c/chips/w83781d.c: In function `store_fan_div_reg':
-> drivers/i2c/chips/w83781d.c:715: warning: `old3' might be used uninitialized in this function
->   
+> y'know, as I was writing that code I thought "no architecture could be dumb
+> enough to make PTE_FILE_MAX_BITS variable".
 
-It is because old3 is only referenced if:
+Two different PTE formats.
 
- ((data->type != w83781d) && data->type != as99127f)
+> > +	/* This needs to be evaluated at runtime on some platforms */
+> > +	if (PTE_FILE_MAX_BITS < BITS_PER_LONG)
+> > +		if (pgoff + (size >> PAGE_SHIFT) >= (1UL << PTE_FILE_MAX_BITS))
+> > +			return err;
+> 
+> The reason I didn't do this in the first place is that if PTE_FILE_MAX_BITS
+> is 32 (as it is for ia32 PAE), the compiler generates a warning about the
+> (1<<32).  I guess it generates a bug, too.
+> 
+> Ho hum.  I shall make it "1ULL".
 
-as those two chips don't have extended divisor bits ...
+Wait, that would be a pessimization. Let me think about it. 
 
-It is however set in the first occurrence:
+I am thinking that perhaps I can arrange is so that the number
+bits on different sparcs would end the same.
 
----------------------------------------------------------------------
-       /* w83781d and as99127f don't have extended divisor bits */
-       if ((data->type != w83781d) && data->type != as99127f) {
-               old3 = w83781d_read_value(client, W83781D_REG_VBAT);
-       }
----------------------------------------------------------------------
-
-and thus is rather gcc being brain dead for not being able to figure
-old3 is only used within a if block like that.
-
-I was not sure about style policy in a case like this, so I left it as
-is, it should however be possible to 'fix' it with:
-
-
---- 1/drivers/i2c/chips/w83781d.c	2003-04-09 08:16:08.000000000 +0200
-+++ 2/drivers/i2c/chips/w83781d.c	2003-04-09 08:16:22.000000000 +0200
-@@ -712,7 +712,7 @@
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct w83781d_data *data = i2c_get_clientdata(client);
--	u32 val, old, old2, old3;
-+	u32 val, old, old2, old3 = 0;
- 
- 	val = simple_strtoul(buf, NULL, 10);
- 	old = w83781d_read_value(client, W83781D_REG_VID_FANDIV);
-
-
-Regards,
-
--- 
-Martin Schlemmer
-
-
+-- Pete

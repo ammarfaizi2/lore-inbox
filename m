@@ -1,56 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291653AbSBHRHU>; Fri, 8 Feb 2002 12:07:20 -0500
+	id <S291654AbSBHRMU>; Fri, 8 Feb 2002 12:12:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291654AbSBHRHK>; Fri, 8 Feb 2002 12:07:10 -0500
-Received: from bitmover.com ([192.132.92.2]:34284 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S291653AbSBHRG5>;
-	Fri, 8 Feb 2002 12:06:57 -0500
-Date: Fri, 8 Feb 2002 09:06:34 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Nigel Gamble <nigel@nrg.org>
-Cc: Andrew Morton <akpm@zip.com.au>, Robert Love <rml@tech9.net>,
-        Martin Wirth <Martin.Wirth@dlr.de>, linux-kernel@vger.kernel.org,
-        mingo@elte.hu
-Subject: Re: [RFC] New locking primitive for 2.5
-Message-ID: <20020208090634.L22379@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Nigel Gamble <nigel@nrg.org>, Andrew Morton <akpm@zip.com.au>,
-	Robert Love <rml@tech9.net>, Martin Wirth <Martin.Wirth@dlr.de>,
-	linux-kernel@vger.kernel.org, mingo@elte.hu
-In-Reply-To: <3C62D49A.4CBB6295@zip.com.au> <Pine.LNX.4.40.0202080003360.613-100000@cosmic.nrg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.40.0202080003360.613-100000@cosmic.nrg.org>; from nigel@nrg.org on Fri, Feb 08, 2002 at 12:20:37AM -0800
+	id <S291661AbSBHRMK>; Fri, 8 Feb 2002 12:12:10 -0500
+Received: from www.transvirtual.com ([206.14.214.140]:37646 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S291654AbSBHRMG>; Fri, 8 Feb 2002 12:12:06 -0500
+Date: Fri, 8 Feb 2002 09:11:58 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: "Axel H. Siebenwirth" <axel@hh59.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: psaux mouse support not working with gpm
+In-Reply-To: <20020207215434.GA12899@neon>
+Message-ID: <Pine.LNX.4.10.10202080911290.18628-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 08, 2002 at 12:20:37AM -0800, Nigel Gamble wrote:
-> On Thu, 7 Feb 2002, Andrew Morton wrote:
-> > I dunno.  The spin-a-bit-then-sleep lock has always struck me as
-> > i_dont_know_what_the_fuck_im_doing_lock().  Martin's approach puts
-> > the decision in the hands of the programmer, rather than saying
-> > "Oh gee I goofed" at runtime.
-> 
-> I completely agree, and I couldn't have put it better!  Kernel
-> programmers really should know exactly why, what, where and for how long
-> they are holding a lock.
 
-Should != do.
+> I have an optical ps2 mouse by Typhoon with a resolution of 400dpi. No
+> matter wether using protocol ps2 or imps2 the mouse cursor is moving very
+> disrupted (can't find the right word), not fluent at all, also causing key
+> strikes.
+> Is this a kernel problem? Can't figure out any other place to look at. gpm
+> seems ok.
 
-And any kernel programmer who says they do in a fine grained multithreaded
-kernel is full of it.  Look at IRIX, look at Solaris, and show me someone
-who says they know for a fact how long they hold each lock and I'll show
-you a liar.
+Which kernel? Have you tried the DJ tree using the new input api PS/2
+drivers?
 
-Furthermore, while adaptive spin-then-sleep locks may look stupid, I think
-you may be missing the point.  If you are running an SMP kernel on a UP,
-you want the lock to sleep immediately.  If you are running an SMP kernel
-on an SMP, then you want to spin if the lock is held by some other CPU
-but sleep if it is held by this CPU.  I suspect that that is what was
-really meant by spin-a-bit-then-sleep, it just got lost in translation.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

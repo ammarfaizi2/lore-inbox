@@ -1,66 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264646AbTAEKj0>; Sun, 5 Jan 2003 05:39:26 -0500
+	id <S264644AbTAEKkF>; Sun, 5 Jan 2003 05:40:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264644AbTAEKj0>; Sun, 5 Jan 2003 05:39:26 -0500
-Received: from daimi.au.dk ([130.225.16.1]:38349 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S264646AbTAEKjZ>;
-	Sun, 5 Jan 2003 05:39:25 -0500
-Message-ID: <3E180D5C.996D8129@daimi.au.dk>
-Date: Sun, 05 Jan 2003 11:47:56 +0100
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-17.7.xsmp i686)
-X-Accept-Language: en
+	id <S264647AbTAEKkF>; Sun, 5 Jan 2003 05:40:05 -0500
+Received: from ns.indranet.co.nz ([210.54.239.210]:47574 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id <S264644AbTAEKj6>; Sun, 5 Jan 2003 05:39:58 -0500
+Date: Sun, 05 Jan 2003 23:47:58 +1300
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Gauntlet Set NOW!
+Message-ID: <2043540000.1041763678@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.10.10301042123450.421-100000@master.linux-ide.org>
+References: <Pine.LNX.4.10.10301042123450.421-100000@master.linux-ide.org>
+X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
 MIME-Version: 1.0
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [RFC] VM86 patch
-Content-Type: multipart/mixed;
- boundary="------------145B55840E6590168DBF7CE4"
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------145B55840E6590168DBF7CE4
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Oh, that's nice!
 
-Is there some reason for not applying
-http://dosemu.sourceforge.net/stas/traps.diff
-to the 2.5 kernel? Or was it just forgotten?
+Presumably you could substitute DCCP or whatever for TCP.  I like it.
 
-I have attached a version that applies cleanly
-to 2.5.54.
+So how about this, the result of a corridor conversation at an IETF:
 
--- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:aaarep@daimi.au.dk
-for(_=52;_;(_%5)||(_/=5),(_%5)&&(_-=2))putchar(_);
---------------145B55840E6590168DBF7CE4
-Content-Type: text/plain; charset=us-ascii;
- name="vm86.2.5.54.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="vm86.2.5.54.patch"
+It is perfectly doable, using HIP and some (admittedly expensive) hardware 
+crypto gear to run iSCSI encrypted at Gigabit Ethernet rates and faster, 
+while being able to attach endpoints more or less at random in IP space and 
+move them around freely while connected.  Mobile hotplug IP storage :-)
 
-diff -Nur linux.old/arch/i386/kernel/traps.c linux.new/arch/i386/kernel/traps.c
---- linux.old/arch/i386/kernel/traps.c	Sun Jan  5 11:26:56 2003
-+++ linux.new/arch/i386/kernel/traps.c	Sun Jan  5 11:28:20 2003
-@@ -320,8 +320,12 @@
- static inline void do_trap(int trapnr, int signr, char *str, int vm86,
- 			   struct pt_regs * regs, long error_code, siginfo_t *info)
- {
--	if (vm86 && regs->eflags & VM_MASK)
--		goto vm86_trap;
-+	if (regs->eflags & VM_MASK) {
-+		if (vm86)
-+			goto vm86_trap;
-+		else
-+			goto trap_signal;
-+	}
- 
- 	if (!(regs->xcs & 3))
- 		goto kernel_trap;
 
---------------145B55840E6590168DBF7CE4--
+HIP is the Host Identity Payload, which can be seen as different things 
+depending on which features you like.  The idea starts from distinguishing 
+the IP address, which basically represents a location in the net, from the 
+Host Identity, which is a public key that identifies an endpoint.
+
+By some machinations, you end up being IP numbering and version agnostic, 
+while having an extremely lightweight opportunistic key exchange protocol.
+
+There are several implementations and all the specs linked to at 
+http://www.hip4inter.net/, not presently including my own, which is purely 
+userspace (everything I have so far needed is provided by standard kernels, 
+except ESP and that is now in too), BSD licensed and written in Python and 
+which will be released soon, for some value of soon.
+
+This is a less mature protocol than iSCSI at this point, but I think there 
+are some very interesting possibilities by combining the two.
+
+Andrew
+
+--On Saturday, January 04, 2003 21:31:39 -0800 Andre Hedrick 
+<andre@linux-ide.org> wrote:
+
+> On Sun, 5 Jan 2003, Andrew McGregor wrote:
+>
+>> By the way, I'm principally a developer of communications standards and
+>> hardware, not so much software.
+>
+> I forgot to mention the template model on each side of the iSCSI protocol
+> state machine we have developed is agnostic?
+>
+> Initiator --- Transport --- Target --- Spindle
+>
+> 		TCP			SCSI
+> 		Quads			ATA
+> 		SCI			SATA
+> 		Myrinet			MD
+> 		InfiniBand		LVM
+> 		TELCO			USB
+> 		CARRIER			1394
+> 					SAS
+> 					Fibre Channel
+>
+> 					FLOPPY, for emergencies.
+>
+> 	Create Your Own		Create Your Own
+>
+> Yeah, I am nutter than a fruitcake, but it works!
+>
+> This is for Larry McVoy, it is the closest thing you will ever see today
+> which looks like a disk with an RJ-45 port.
+>
+> Cheers,
+>
+> Andre Hedrick
+> LAD Storage Consulting Group
+>
+>
 

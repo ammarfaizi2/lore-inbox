@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268646AbUHYUXt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268669AbUHYU1z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268646AbUHYUXt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 16:23:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268637AbUHYUXh
+	id S268669AbUHYU1z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 16:27:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268596AbUHYUZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 16:23:37 -0400
-Received: from mail1.speakeasy.net ([216.254.0.201]:39300 "EHLO
-	mail1.speakeasy.net") by vger.kernel.org with ESMTP id S268589AbUHYUUX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 16:20:23 -0400
-Date: Wed, 25 Aug 2004 13:20:19 -0700
-Message-Id: <200408252020.i7PKKJSU017557@magilla.sf.frob.com>
+	Wed, 25 Aug 2004 16:25:16 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:4318 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268601AbUHYUWu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 16:22:50 -0400
+Date: Wed, 25 Aug 2004 16:22:32 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Con Kolivas <kernel@kolivas.org>
+cc: ck kernel mailing list <ck@vds.kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.8.1-ck4
+In-Reply-To: <412880BF.6050503@kolivas.org>
+Message-ID: <Pine.LNX.4.44.0408251621160.5145-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] notify_parent and ptrace cleanup
-In-Reply-To: Linus Torvalds's message of  Wednesday, 25 August 2004 12:54:11 -0700 <Pine.LNX.4.58.0408251252080.17766@ppc970.osdl.org>
-X-Fcc: ~/Mail/linus
-X-Windows: putting new limits on productivity.
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We should split TASK_STOPPED into two different cases: TASK_STOPPED and 
-> TASK_PTRACED.
+On Sun, 22 Aug 2004, Con Kolivas wrote:
 
-Ok.  I think this has exactly the same effect as my patches get by
-introducing checks and invariants relating to last_siginfo.  To me that was
-less ambitious than introducing a new value for the state field, because I
-am not entirely sure I grok how that is used everywhere.  If you think that
-adding a new TASK_TRACED state will not have lots of gotchas, I am happy to
-take a crack at it.
+> Added since 2.6.8.1-ck3:
+> +mapped_watermark.diff
 
+Sounds like a bad idea for file servers ;)
 
-Thanks,
-Roland
+Wouldn't it be better to lazily move these cached pages to
+a "cached" list like the BSDs have, and reclaim it immediately
+when the memory is needed for something else ?
 
+It should be easy enough to keep the cached data around and
+still have the cache pages easily reclaimable.
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267766AbUIUPgG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267749AbUIUPgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267766AbUIUPgG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 11:36:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267760AbUIUPgF
+	id S267749AbUIUPgW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 11:36:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267760AbUIUPgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 21 Sep 2004 11:36:22 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:46767 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267749AbUIUPgF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 21 Sep 2004 11:36:05 -0400
-Received: from web53505.mail.yahoo.com ([206.190.37.66]:36488 "HELO
-	web53505.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267749AbUIUPfu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 11:35:50 -0400
-Message-ID: <20040921153415.73737.qmail@web53505.mail.yahoo.com>
-Date: Tue, 21 Sep 2004 08:34:15 -0700 (PDT)
-From: roger blofeld <blofeldus@yahoo.com>
-Subject: [PATCH] serial: 2.6.9rc1 pick nearest baud rate divider
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+Date: Tue, 21 Sep 2004 17:37:50 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: [patch] fix diskstats_show() accounting with PREEMPT
+Message-ID: <20040921153750.GA21449@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch modifies uart_get_divisor to select the nearest baud rate
-divider rather than the lowest. It minimizes baud rate errors.
 
-For example, if uartclk is 33000000 and baud is 115200 the ratio is
-about 17.9
-The current code selects 17 (5% error) but should select 18 (0.5%
-error)
+there is another (minor) bug that the smp_processor_id() debugger
+unearthed: diskstats_show() could do a disk_round_stats() ->
+disk_stat_add() with preemption enabled - possibly resulting in losing
+statistics updates.
 
--roger
+Patch attached. (The overwhelming majority of disk_stat_add() callers
+have preemption disabled so fixing the remaining two was the best.)
 
-===== drivers/serial/serial_core.c 1.87 vs edited =====
---- 1.87/drivers/serial/serial_core.c   2004-06-29 09:43:58 -05:00
-+++ edited/drivers/serial/serial_core.c 2004-09-15 14:04:34 -05:00
-@@ -403,7 +403,7 @@
-        if (baud == 38400 && (port->flags & UPF_SPD_MASK) ==
-UPF_SPD_CUST)
-                quot = port->custom_divisor;
-        else
--               quot = port->uartclk / (16 * baud);
-+               quot = (port->uartclk + (8 * baud)) / (16 * baud);
+	Ingo
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+--- linux/drivers/block/genhd.c.orig	
++++ linux/drivers/block/genhd.c	
+@@ -365,7 +365,9 @@ static ssize_t disk_size_read(struct gen
  
-        return quot;
- }
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+ static ssize_t disk_stats_read(struct gendisk * disk, char *page)
+ {
++	preempt_disable();
+ 	disk_round_stats(disk);
++	preempt_enable();
+ 	return sprintf(page,
+ 		"%8u %8u %8llu %8u "
+ 		"%8u %8u %8llu %8u "
+@@ -494,7 +496,9 @@ static int diskstats_show(struct seq_fil
+ 				"\n\n");
+ 	*/
+  
++	preempt_disable();
+ 	disk_round_stats(gp);
++	preempt_enable();
+ 	seq_printf(s, "%4d %4d %s %u %u %llu %u %u %u %llu %u %u %u %u\n",
+ 		gp->major, n + gp->first_minor, disk_name(gp, n, buf),
+ 		disk_stat_read(gp, reads), disk_stat_read(gp, read_merges),

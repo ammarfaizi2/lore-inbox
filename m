@@ -1,55 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbVCKTef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVCKTZe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261498AbVCKTef (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 14:34:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVCKTaP
+	id S261308AbVCKTZe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 14:25:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVCKTWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 14:30:15 -0500
-Received: from news.suse.de ([195.135.220.2]:28309 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261320AbVCKT3M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 14:29:12 -0500
-Date: Fri, 11 Mar 2005 20:28:58 +0100
-From: Olaf Hering <olh@suse.de>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [PATCH] be more verbose in gen-devlist
-Message-ID: <20050311192858.GA11077@suse.de>
+	Fri, 11 Mar 2005 14:22:16 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:18841 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261563AbVCKTSe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 14:18:34 -0500
+Subject: Re: User mode drivers: part 2: PCI device handling (patch 1/2 for
+	2.6.11)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Peter Chubb <peterc@gelato.unsw.edu.au>
+Cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <16945.22566.593812.759201@wombat.chubb.wattle.id.au>
+References: <16945.4717.402555.893411@berry.gelato.unsw.EDU.AU>
+	 <20050311071825.GA28613@kroah.com>
+	 <16945.22566.593812.759201@wombat.chubb.wattle.id.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1110568598.15943.78.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 11 Mar 2005 19:16:41 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Gwe, 2005-03-11 at 08:34, Peter Chubb wrote:
+> Greg> If you make it a real, mountable filesystem, then you don't need
+> Greg> to have any of your new syscalls, right?  Why not just do that
+> Greg> instead?
 
-gen-devlist should print how many bytes will be cut off and pci.ids
-entry. Also print the removed '[more blah]' part.
+> The only call that would go is usr_pci_open() -- you'd still need 
+> usr_pci_map(), usr_pci_unmap() and usr_pci_get_consistent().
 
-Signed-off-by: Olaf Hering <olh@suse.de>
+mmap, munmap, mmap with M_SYNC 
 
---- ../linux-2.6.10/drivers/pci/gen-devlist.c	2004-12-24 22:34:45.000000000 +0100
-+++ ./drivers/pci/gen-devlist.c	2005-03-11 20:10:11.542098265 +0100
-@@ -72,9 +72,19 @@ main(void)
- 						/* Too long, try cutting off long description */
- 						bra = strchr(c, '[');
- 						if (bra && bra > c && bra[-1] == ' ')
-+#if 0
-+						{
-+							fprintf(stderr, "Line %d: cut off '%s' from line:\n", lino, bra);
-+							fprintf(stderr, " '%s'\n", c);
- 							bra[-1] = 0;
-+							fprintf(stderr, " '%s'\n", c);
-+						}
-+#else
-+							bra[-1] = 0;
-+#endif
- 						if (vendor_len + strlen(c) + 1 > MAX_NAME_SIZE) {
--							fprintf(stderr, "Line %d: Device name too long. Name truncated.\n", lino);
-+							fprintf(stderr, "Line %d: Device name %d chars too long. Name truncated.\n",
-+									lino, (vendor_len + strlen(c) + 1) - MAX_NAME_SIZE);
- 							fprintf(stderr, "%s\n", c);
- 							/*return 1;*/
- 						}

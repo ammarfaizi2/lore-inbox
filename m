@@ -1,66 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274443AbRITMLl>; Thu, 20 Sep 2001 08:11:41 -0400
+	id <S274440AbRITMNv>; Thu, 20 Sep 2001 08:13:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274444AbRITMLb>; Thu, 20 Sep 2001 08:11:31 -0400
-Received: from h-213.61.184.2.host.de.colt.net ([213.61.184.2]:13608 "EHLO
-	ms01020.ffm.avinci.de") by vger.kernel.org with ESMTP
-	id <S274443AbRITMLM>; Thu, 20 Sep 2001 08:11:12 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
-content-class: urn:content-classes:message
+	id <S274444AbRITMNl>; Thu, 20 Sep 2001 08:13:41 -0400
+Received: from motgate3.mot.com ([144.189.100.103]:48018 "EHLO
+	motgate3.mot.com") by vger.kernel.org with ESMTP id <S274442AbRITMNc>;
+	Thu, 20 Sep 2001 08:13:32 -0400
+Message-ID: <3BA9DE60.2511DB44@mihy.mot.com>
+Date: Thu, 20 Sep 2001 17:47:36 +0530
+From: csaradap <csaradap@mihy.mot.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C141CD.70CF53D2"
-Subject: Linux <-> msdos file system
-Date: Thu, 20 Sep 2001 14:11:55 +0200
-Message-ID: <93A6499FA0307B4C972A56EFBDAE45AD0DAB7F@ms01020.ffm.avinci.de>
-Thread-Topic: Linux <-> msdos file system
-Thread-Index: AcFBzW/0C1eYwdEmRQu+jTzCH5i3wA==
-From: "Maik Picker" <Maik.Picker@avinci.de>
-To: <linux-kernel@vger.kernel.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-india-help@lists.sourceforge.net" 
+	<linux-india-help@lists.sourceforge.net>
+Subject: NTFS--MOUNTING PROBLEM
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
-------_=_NextPart_001_01C141CD.70CF53D2
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+I have installed Red Hat 7.1 from PCQ, and my disk shares NT with LINUX.
+By default I think NTFS file support was not installed, so i recompiled
+the kernel with that support selected. But still it is giving that
+NTFS not suppoted and while mounting under HPFS i get error like too mny
+mounted file systems. plz help...
 
-Hi !
+thanx
 
-I got your address by Matija Nalis.
-It would be veeeeeeery nice to get a reply from you; cause I'm in deep
-trouble.
+ch.s.p.nanda
 
-What happend:
-
-* using kernel 2.2.10 with suse 6.2, no patches, no special module
-handling
-* usualy I mounted the affected msdos partition as 'vfat'
-* the partition was formatted by installing win95 in 1995
-* to use the linux file attributes I decided to mount it as 'umsdos'
-* booting/mounting was successfull
-* all first chars of filenames were lower case
-* to rename a directory I did: $> mv /WIN95/data /WIN95/Data
-* Data/data was gone !
-
-Trying a 'norton' tool or other stuff to recover data failed.
-
-You got ANY hint for me?
-
-
-Cheers,
-Maik
-
-------_=_NextPart_001_01C141CD.70CF53D2
-Content-Type: text/x-vcard;
-	name="Maik Picker (E-Mail).vcf"
-Content-Transfer-Encoding: base64
-Content-Description: Maik Picker (E-Mail).vcf
-Content-Disposition: attachment;
-	filename="Maik Picker (E-Mail).vcf"
-
-
-------_=_NextPart_001_01C141CD.70CF53D2--

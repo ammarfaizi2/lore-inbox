@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVA0Vxg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVA0VwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbVA0Vxg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 16:53:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVA0Vxf
+	id S261205AbVA0VwG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 16:52:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbVA0VwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 16:53:35 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:63249 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261211AbVA0Vx2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 16:53:28 -0500
-Subject: Re: Patch 4/6  randomize the stack pointer
-From: Arjan van de Ven <arjan@infradead.org>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <41F95F79.6080904@comcast.net>
-References: <20050127101117.GA9760@infradead.org>
-	 <20050127101322.GE9760@infradead.org>  <41F92721.1030903@comcast.net>
-	 <1106848051.5624.110.camel@laptopd505.fenrus.org>
-	 <41F92D2B.4090302@comcast.net>
-	 <Pine.LNX.4.58.0501271010130.2362@ppc970.osdl.org>
-	 <41F95F79.6080904@comcast.net>
-Content-Type: text/plain
-Date: Thu, 27 Jan 2005 22:53:21 +0100
-Message-Id: <1106862801.5624.145.camel@laptopd505.fenrus.org>
+	Thu, 27 Jan 2005 16:52:05 -0500
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:15796 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S261205AbVA0VwD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 16:52:03 -0500
+Date: Thu, 27 Jan 2005 13:50:49 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Pavel Machek <pavel@suse.cz>, Arjan van de Ven <arjan@infradead.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Dynamic tick, version 050127-1
+Message-ID: <20050127215048.GG15274@atomide.com>
+References: <20050127212902.GF15274@atomide.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050127212902.GF15274@atomide.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> I feel the need to point something out here.
+* Tony Lindgren <tony@atomide.com> [050127 13:34]:
+> Hi all,
 > 
-> [TEXT][BRK][MMAP---------------][STACK]
-> 
-> Here's a normal layout.
-> 
-> [TEXT][BRK][MMAP-------][STACK][MMAP--]
-> 
-> Is this one any worse?
+> Thanks for all the comments, here's an updated version of the dynamic
+> tick patch.
 
-yes.
+Oops, I guess I should test before posting :)
 
-oracle, db2 and similar like to mmap 2Gb or more *in one chunk*.
-moving the stack in the middle means the biggest chunk they can mmap
-shrinks. 
+Looks like CONFIG_X86_LOCAL_APIC=y is currenly needed on uniprocessor
+machines to compile. Also CONFIG_SMP=y makes the skipping to fail
+on a uniprocessor machine.
 
+Regards,
 
+Tony

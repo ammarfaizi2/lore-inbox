@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262685AbRFYIoy>; Mon, 25 Jun 2001 04:44:54 -0400
+	id <S262686AbRFYIuo>; Mon, 25 Jun 2001 04:50:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262702AbRFYIoo>; Mon, 25 Jun 2001 04:44:44 -0400
-Received: from mail.uni-magdeburg.de ([141.44.1.10]:20679 "EHLO
-	mail.uni-magdeburg.de") by vger.kernel.org with ESMTP
-	id <S262685AbRFYIog>; Mon, 25 Jun 2001 04:44:36 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Hendrik Muhs <Hendrik.Muhs@Student.Uni-Magdeburg.DE>
+	id <S262694AbRFYIuZ>; Mon, 25 Jun 2001 04:50:25 -0400
+Received: from gnu.in-berlin.de ([192.109.42.4]:20755 "EHLO gnu.in-berlin.de")
+	by vger.kernel.org with ESMTP id <S262686AbRFYIuS>;
+	Mon, 25 Jun 2001 04:50:18 -0400
+X-Envelope-From: news@bytesex.org
 To: linux-kernel@vger.kernel.org
-Subject: strange network problem
-Date: Mon, 25 Jun 2001 10:49:22 +0200
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01062510492200.01640@tux>
-Content-Transfer-Encoding: 7BIT
+Path: kraxel
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: Annoying kernel behaviour
+Date: 25 Jun 2001 07:41:56 GMT
+Organization: [x] network byte order
+Message-ID: <slrn9jdqq4.3af.kraxel@bytesex.org>
+In-Reply-To: <3B33EFC0.D9C930D5@bigfoot.com>    <9h0r6s$fe7$1@ns1.clouddancer.com>    <20010623090542.6019D7846F@mail.clouddancer.com>    <3B35C2FA.37F57964@bigfoot.com> <9h4ft5$1ku$1@ns1.clouddancer.com>    <20010624114655.3D187784C4@mail.clouddancer.com> <3B3643A8.F3FE1E92@bigfoot.com> <9h5gbc$3mb$1@ns1.clouddancer.com> <20010625032231.930C8784C4@mail.clouddancer.com>
+NNTP-Posting-Host: localhost
+X-Trace: bytesex.org 993454916 3408 127.0.0.1 (25 Jun 2001 07:41:56 GMT)
+User-Agent: slrn/0.9.7.0 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> >There are no conflicts, and PCI should be able to share anyways.
+>  
+>  That's the theory now for some time, has never worked.  Even hacking
+>  the SCSI driver, any attempted IRQ sharing kills my systems.  Even my
+>  quad ethernet is not successful at sharing IRQs with itself, in 2+ very
+>  different motherboards.
 
-i have a strange network problem with smbfs and my local network
+For bttv I know that irq sharing works in some cases and not on others.
+Last not-working report was bttv sharing with a nvidia.  Moving the
+grabber board to another PCI slot (nvidia having a exclusive irq then,
+bttv shared the irq with something else) fixed it.
 
-I am connected(100Mbit) with my local Samba Server (192.168.0.1), mounted two 
-shares. 
+  Gerd
 
-If I download something the network connections breaks radomly (the traffic 
-slows down to zero).
-!But I have no kernel messages and no messages in my Samba-Log-files.!
-If I do a ping(or something similar) to the server the network is up, the 
-download goes on.
-I could reproduce this bug with kernel 2.4.5 and 2.4.4 but not with 2..4.3 
-and 2.4.2. 
-
-My network card is a Realtek 8139 (driver: 8139too)
-
-With a ne2000-card (only 10Mbit) I could not reproduce this bug.
-
-So I don't know if this is a problem with the network-driver or with smbf and 
-100 Mbit network. 
-
-There must be something with the changes between 2.4.3 and 2.4.4
-
-For more information please contact me. This is my first bug report do not 
-blame me so hard. ;-)
-
-Please CC me, because I am not subscribed to this mailing list.
-
-Hendrik
+-- 
+Damn lot people confuse usability and eye-candy.

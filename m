@@ -1,99 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285828AbSA2XGn>; Tue, 29 Jan 2002 18:06:43 -0500
+	id <S286687AbSA2XFH>; Tue, 29 Jan 2002 18:05:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286413AbSA2XFO>; Tue, 29 Jan 2002 18:05:14 -0500
-Received: from [217.9.226.246] ([217.9.226.246]:22912 "HELO
-	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
-	id <S286411AbSA2XDs>; Tue, 29 Jan 2002 18:03:48 -0500
-To: torvalds@transmeta.com (Linus Torvalds)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Radix-tree pagecache for 2.5
-In-Reply-To: <20020129165444.A26626@caldera.de>
-	<a36t3f$oh8$1@penguin.transmeta.com>
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <a36t3f$oh8$1@penguin.transmeta.com>
-Date: 30 Jan 2002 01:02:11 +0200
-Message-ID: <877kq04v7w.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S286413AbSA2XDu>; Tue, 29 Jan 2002 18:03:50 -0500
+Received: from waste.org ([209.173.204.2]:10464 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S286207AbSA2XCy>;
+	Tue, 29 Jan 2002 18:02:54 -0500
+Date: Tue, 29 Jan 2002 17:02:36 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Josh MacDonald <jmacd@CS.Berkeley.EDU>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        <reiserfs-list@namesys.com>, <reiserfs-dev@namesys.com>
+Subject: Re: Note describing poor dcache utilization under high memory pressure
+In-Reply-To: <E16Vh7y-0000Ac-00@starship.berlin>
+Message-ID: <Pine.LNX.4.44.0201291649490.25443-100000@waste.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Linus" == Linus Torvalds <torvalds@transmeta.com> writes:
+On Tue, 29 Jan 2002, Daniel Phillips wrote:
 
-Linus> In article <20020129165444.A26626@caldera.de>,
-Linus> Christoph Hellwig  <hch@caldera.de> wrote:
->> I've ported my hacked up version of Momchil Velikov's radix tree
->> radix tree pagecache to 2.5.3-pre{5,6}.
->> 
->> The changes over the 2.4.17 version are:
->> 
->> o use mempool to avoid OOM situation involving radix nodes.
->> o remove add_to_page_cache_locked, it was unused in the 2.4.17 patch.
->> o unify add_to_page and add_to_page_unique
->> 
->> It gives nice scalability improvements on big machines and drops the
->> memory usage on small ones (if you consider my 64MB Athlon small :)).
+> > I think it goes something like this:
+> >
+> > fork:
+> >   detach page tables from parent
+> >   retain pointer to "backing page tables" in parent and child
+> >   update use count in page tables
+> >   "prefault" tables for current stack and instruction pages in both parent
+> >     and child
+> >
+> > page fault:
+> >   if faulted on page table:
+> >     look up backing page tables
+> >     if use count > 1: copy, dec use count
+> >     else: take ownership
+> >
+> > > Before you sink a lot of time into it though, you might add up the actual
+> > > overhead you're worried about above, and see if it moves the needle in a real
+> > > system.
+> >
+> > I'm pretty sure something like the above does signficantly less work in
+> > the fork/exec case, which is the important one.
+>
+> With fork/exec, for each page table there are two cases:
+>
+>   - The parent instantiated the page table.  In this case the extra work to
+>     set the ptes RO (only for CoW pages) is insignificant.
 
-Linus> Can you post the numbers on scalability (I can see the locking
-Linus> improvement, but if you have numbers I'd be even happier) and any
-Linus> benchmarks you have?
+Marking the page table entries rather than the page directory entries
+read-only is a lot of work on a large process. And it doesn't make a lot
+of sense for a large process that wants to fork/exec something tiny.  In
+fact, I'm slightly worried about the possible growth of the page
+directories on really big boxes. Detaching the entire mm is comparatively
+cheap and doesn't grow with process size.
 
-Well, these are dbench numbers from December, it's
-2.4.17. Unfortunately, it appears OSDL have trouble with 2.5 currently ...
+>   - The parent is still sharing the page table with its parent and so the
+>     ptes are still set RO.
 
-FWIW, box is 8-way PIII Xeon, 700MHz, 1MB cache, 8G RAM
+Fork/exec is far and away the most common case, and the fork/fork case is
+rare enough that it's not even worth thinking about.
 
-rat-7 is with 128-way radix tree branch factor, rat-4 is with 16-way.
-
-#Clients        2.4.17     2.4.17-rat-7   2.4.17-rat-4
----------------------------------------------------------
-1                81.81        82.70         79.49
-2               131.77       133.15        116.32
-3               179.74       188.04        184.80
-4               221.60       228.70        223.97
-5               249.86       252.89        258.77
-6               260.56       277.70        265.20
-7               285.82       287.47        281.27
-8               263.61       258.81        256.29
-9               271.06       268.29        261.04
-10              261.23       265.82        259.34
-11              256.82       260.38        258.35
-12              255.55       255.68        252.78
-13              252.70       254.02        249.42
-14              251.41       253.93        252.21
-15              255.27       257.13        262.21
-16              156.81       146.69        180.77
-17              113.00       103.32        101.14
-18               81.06        78.98         86.77
-19               76.24        40.09         39.89
-20               17.51        17.64         17.53
-
-The results are similar on 4-way OSDL boxen and on the 12- and 16-way
-PPC64 runs by Anton Blanchard:
-
-   # clients
-   [1 - ncpu]         - linear increase in the throughput, small improvement over the
-                        stock kernel, I guess we quickly hit other locks
-   [ncpu - 2 * ncpu]  - flat
-   [2 * ncpu, +infty) - drops down do zero
-
-Linus> The only real complaint I have is that I'd rather see "radix_root" than
-Linus> "rat_root". Maybe it is just me, but the latter makes me wonder about
-Linus> the sex-lives of small furry mammals. Which is not what I really want to
-Linus> be thinking about.
-
-Done. rat_* -> radix_tree_*
-
-Linus> It looks straigthforward enough, so if you feel it is stable (and
-Linus> cleaned up), I'd suggest just submitting it for real.
-
-I'll wait for a day for some more comments (e.g. Ingo) and will submit
-it.
-
-Regards,
--velco
-
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

@@ -1,85 +1,132 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264380AbRFHWrh>; Fri, 8 Jun 2001 18:47:37 -0400
+	id <S263752AbRFHWmG>; Fri, 8 Jun 2001 18:42:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264381AbRFHWr1>; Fri, 8 Jun 2001 18:47:27 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:13579 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S264380AbRFHWrS>; Fri, 8 Jun 2001 18:47:18 -0400
-Date: Fri, 8 Jun 2001 18:11:55 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Bulent Abali <abali@us.ibm.com>
-Cc: Mike Galbraith <mikeg@wen-online.de>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Derek Glidden <dglidden@illusionary.com>,
-        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: Please test: workaround to help swapoff behaviour
-In-Reply-To: <OF4314E00C.5B8A0E4C-ON85256A64.006F54E0@pok.ibm.com>
-Message-ID: <Pine.LNX.4.21.0106081811180.3343-100000@freak.distro.conectiva>
+	id <S264380AbRFHWl4>; Fri, 8 Jun 2001 18:41:56 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:43532 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S263752AbRFHWlr>; Fri, 8 Jun 2001 18:41:47 -0400
+Date: Fri, 8 Jun 2001 18:42:40 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@vesta.nine.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: DoS using tmpfs
+Message-ID: <Pine.LNX.4.33.0106081755220.1324-100000@vesta.nine.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
+It appears that a system with tmpfs mounted with the default (!!!)
+parameters can be used by ordinary users to make the system
+non-functional.
 
-On Thu, 7 Jun 2001, Bulent Abali wrote:
+Let me tell you the whole story. I don't know what is wrong here and what
+is not, but the end result is a security hole.
 
-> 
-> 
-> 
-> 
-> >This is for the people who has been experiencing the lockups while running
-> >swapoff.
-> >
-> >Please test. (against 2.4.6-pre1)
-> >
-> >
-> >--- linux.orig/mm/swapfile.c Wed Jun  6 18:16:45 2001
-> >+++ linux/mm/swapfile.c Thu Jun  7 16:06:11 2001
-> >@@ -345,6 +345,8 @@
-> >         /*
-> >          * Find a swap page in use and read it in.
-> >          */
-> >+        if (current->need_resched)
-> >+             schedule();
-> >         swap_device_lock(si);
-> >         for (i = 1; i < si->max ; i++) {
-> >              if (si->swap_map[i] > 0 && si->swap_map[i] != SWAP_MAP_BAD)
-> {
-> 
-> 
-> I tested your patch against 2.4.5.  It works.  No more lockups.  Without
-> the
-> patch it took 14 minutes 51 seconds to complete swapoff (this is to recover
-> 1.5GB of
-> swap space).  During this time the system was frozen.  No keyboard, no
-> screen, etc. Practically locked-up.
-> 
-> With the patch there are no more lockups. Swapoff kept running in the
-> background.
-> This is a winner.
-> 
-> But here is the caveat: swapoff keeps burning 100% of the cycles until it
-> completes.
-> This is not going to be a big deal during shutdowns.  Only when you enter
-> swapoff from
-> the command line it is going to be a problem.
-> 
-> I looked at try_to_unuse in swapfile.c.  I believe that the algorithm is
-> broken.
-> For each and every swap entry it is walking the entire process list
-> (for_each_task(p)).  It is also grabbing a whole bunch of locks
-> for each swap entry.  It might be worthwhile processing swap entries in
-> batches instead of one entry at a time.
-> 
-> In any case, I think having this patch is worthwhile as a quick and dirty
-> remedy.
+The kernel version is 2.4.5-ac9. It's compiled with gcc from RedHat 7.1.
+The processor is Pentium III 550 MHz. Alt-Sysrq is enabled - we'll need it
+later.
 
-Bulent, 
+# mount
+/dev/ide/host2/bus0/target0/lun0/part4 on / type reiserfs (rw)
+none on /proc type proc (rw)
+usbdevfs on /proc/bus/usb type usbdevfs (rw)
+devfs on /dev type devfs (rw)
+none on /tmp type tmpfs (rw,mode=1777)
+none on /dev/shm type shm (rw)
 
-Could you please check if 2.4.6-pre2+the schedule patch has better
-swapoff behaviour for you? 
+Note the "mode=1777" is not required - it's the default. I put is here
+just in case if the default changes.
 
-Thanks 
+# df
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/ide/host2/bus0/target0/lun0/part4
+                       5124540   3510036   1614504  69% /
+none                    277728         0    277728   0% /tmp
+none                    277728         0    277728   0% /dev/shm
+
+# free
+             total       used       free     shared    buffers     cached
+Mem:        255948      97520     158428          0      14880      68172
+-/+ buffers/cache:      14468     241480
+Swap:       104380          0     104380
+
+Note that my swap file is just 100M compared to 256M memory, but I never
+run anything bigger than Mozilla, so even 350M virtual memory is more than
+enough for me.
+
+Now I log in on tty2 as user.
+
+$ dd if=/dev/zero of=/tmp/foo
+
+If a few seconds I'm pressing Ctrl-C - it doesn't work. Alt-F1 works. I
+type df as root, press enter and it hangs. I'm hitting Ctrl-C in vain. Now
+I press Alt-F2 - it works. I'm trying the last resort - Alt-Sysrq-K. It
+works, the login appears.
+
+Now let's see what we have.
+
+# df
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/ide/host2/bus0/target0/lun0/part4
+                       5124540   3510044   1614496  69% /
+none                    177124    159968     17156  91% /tmp
+none                     17156         0     17156   0% /dev/shm
+
+There is still free space in /tmp, but ...
+
+# free
+             total       used       free     shared    buffers     cached
+Mem:        255948     253680       2268      55588      14880     171280
+-/+ buffers/cache:      67520     188428
+Swap:       104380     104380          0
+
+... the swap is exhausted, and so it the memory. Now let's remove /tmp/foo
+and see what happens.
+
+# df
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/ide/host2/bus0/target0/lun0/part4
+                       5124540   3510044   1614496  69% /
+none                     72340         0     72340   0% /tmp
+none                     72340         0     72340   0% /dev/shm
+
+The free space didn't rebound to it's initial value, and here's why:
+
+# free
+             total       used       free     shared    buffers     cached
+Mem:        255948     198492      57456          0      14880     171284
+-/+ buffers/cache:      12328     243620
+Swap:       104380     104380          0
+
+The memory is freed, but the swap is still full!
+
+Running "swapoff -a" followed by "swapon -a" brings the system to the sane
+state.
+
+Now let me stress some points where the kernel is _possibly_ at fault.
+
+1) tmpfs, as opposed to ramfs doesn't limit the usage by default. It's not
+a good default for a filesystem designed for temporary files.
+
+2) Not delivering SIGINT to processes is probably not the best behavior if
+the memory if low. However, one could argue that some processes would use
+even more resources if they get control with SIGINT.
+
+3) All swap in the system was exhausted and yet tmpfs didn't return ENOSPC
+to "dd".
+
+4) The swap wasn't freed. Yes, I know, it's not a new problem.
+
+I don't really know much about OS design and VM in particular, but I was
+bitten by this behavior, so I desided to report it. If you cannot find
+anything useful in this message, I'm sorry for your time. "IMHO" applies
+to all statements made in this message.
+
+-- 
+Regards,
+Pavel Roskin
 

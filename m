@@ -1,77 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284998AbRLQEqd>; Sun, 16 Dec 2001 23:46:33 -0500
+	id <S285015AbRLQFFZ>; Mon, 17 Dec 2001 00:05:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285000AbRLQEqY>; Sun, 16 Dec 2001 23:46:24 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:41227 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S284998AbRLQEqP>;
-	Sun, 16 Dec 2001 23:46:15 -0500
-Date: Mon, 17 Dec 2001 14:49:29 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Christoph Rohland <cr@sap.com>
-Cc: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Padraig Brady <padraig@antefacto.com>,
-        "Roy S.C. Ho" <scho1208@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: question about kernel 2.4 ramdisk
-Message-ID: <20011217144929.Q30975@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Christoph Rohland <cr@sap.com>,
-	Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Padraig Brady <padraig@antefacto.com>,
-	"Roy S.C. Ho" <scho1208@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3C0D2843.5060708@antefacto.com> <E16BLxI-0003Ic-00@the-village.bc.nu> <snaqhzhj.wl@nisaaru.dvs.cs.fujitsu.co.jp> <m3wv02oz2w.fsf@linux.local> <20011206173755.D16513@zax> <m3snamhwle.fsf@linux.local> <20011214063559.J18103@zax> <m3bsh07rd6.fsf@linux.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3bsh07rd6.fsf@linux.local>
-User-Agent: Mutt/1.3.23i
+	id <S285014AbRLQFFQ>; Mon, 17 Dec 2001 00:05:16 -0500
+Received: from zok.SGI.COM ([204.94.215.101]:13782 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S285007AbRLQFFE>;
+	Mon, 17 Dec 2001 00:05:04 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: kbuild-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Announce: Kernel Build for 2.5, Release 1.11 is available
+Date: Mon, 17 Dec 2001 16:04:55 +1100
+Message-ID: <4738.1008565495@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 16, 2001 at 04:34:01PM +0100, Christoph Rohland wrote:
-> Hi David,
-> 
-> On Fri, 14 Dec 2001, David Gibson wrote:
-> >> But the core of shmem is always compiled. And the rest is as simple
-> >> as ramfs...
-> > 
-> > The point of keeping ramfs simple isn't to reduce the kernel image
-> > size, it's to keep it useful as an example of how to make a trivial
-> > filesystem.
-> 
-> >From this point of view I prefer the oversimplified version in the
-> stock kernel. We should probably correct the comment about missing
-> features like limits and timestamps and tag it as experimental.  But
-> IMHO this version explains the underlying concept best.
-> 
-> 
-> If we want a useable ramfs implementation we should try to keep the
-> image size down and try to make it as similar to tmpfs as
-> possible. This would keep the administrators overhead low.
-> 
-> I append two cummulative patches against 2.4.17-rc1 (only slightly
-> tested):
-> 
-> 1) Add removepage to the addresspace_operations to simplify
->    shmem.c. This is taken from your ramfs limits patch.
-> 2) Add support for a ramfs2 filesystem type to shmem.c. The only
->    feature missing compared to ramfs + limits are loopback devices on
->    top of ramfs files. It does not add memory need compared to
->    ramfs. Have a look how small this is.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I don't think there's a lot of point playing with this in 2.4.x.  In
-2.5 it depends a bit on what changes to the VFS happen.  I recall that
-near the end of the 2.3 cycle Al Viro proposed a change to add
-essentially a removepage operation (he called it detachpage IIRC) - he
-was using it to eliminate a bunch of the "if (page->buffers)" tests.
-I don't know it that's still on the cards - it so it could certainly
-simplify both ramfs and shmfs.
+Content-Type: text/plain; charset=us-ascii
 
--- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.  -- H.L. Mencken
-http://www.ozlabs.org/people/dgibson
+Release 1.11 of kernel build for kernel 2.5 (kbuild 2.5) is available.
+http://sourceforge.net/projects/kbuild/, Package kbuild-2.5, download
+release 1.11.
+
+This is ready to go to Linus for inclusion in 2.5.[12].  There is one
+item on the todo list but it is not a show stopper, the code works as
+is.  The sooner this is in 2.5 and other architectures the better,
+otherwise I will just be chasing releases and getting no useful work
+done.
+
+kbuild 2.5 currently supports i386 (2.4.16, 2.5.1), ia64
+(2.4.16-011214), sparc32 (2.4.16), sparc64 (2.4.16).  Alpha is in
+progress.
+
+The sparc support is against Linus's 2.4.16 kernel, not against the
+vger tree, the latter is moving too fast.  I expect that some tweaking
+will be required for the vger sparc changes, in particular the removal
+of config options for netlink.  Release 1.11 does not contain any
+changes to the sparc patches, use the release 1.10 patches for sparc.
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=99725412902968&w=2
+contains information about the base release of kbuild 2.5.
+
+Changelog:
+
+  Add standard targets for vmlinux.srec and .bin, David Woodhouse.
+
+  New variables KERNELFULLNAME and KERNELBASENAME for config options
+  and install scripts.
+
+  New variable KERNEL_INCLUDELIST for host compiles within kbuild that
+  need to read the current kernel headers.
+
+  New optional target to flatten the shadow trees into a single source
+  tree.  make $(KBUILD_OBJTREE).tmp_src
+
+  Changes to setup() targets are detected during the build that changes
+  them, instead of being delayed until the next build.  Nothing uses
+  setup() yet.
+
+  make clean and mrproper no longer require a working .config, you no
+  longer have to make oldconfig before make clean or mrproper.  The
+  clean and mrproper lists are still automatically generated, no manual
+  definitions for us.
+
+  CML2 support now works, it requires CML2 1.9.9 or better.  For the
+  moment, CML2 is distributed separately so kbuild does not have to
+  change when ESR update CML2.  See http://www.tuxedo.org/~esr/kbuild/
+  and the instructions in Documentation/kbuild/kbuild-2.5.txt.  Only
+  i386 and ia64 have the arch specific CML2 files, other architectures
+  are easy to add.
+
+  Any change to a CML file ([Cc]onfig.in, Configure.help, rules*.cml,
+  symbols*.cml) requires the user to rerun make *config.  This helps to
+  ensure that the build is from a valid config.
+
+  extra_{c,a,ld}flags support a STRIP option to strip selected flags
+  from the global flags.  Useful when a small set of sources cannot be
+  compiled with certain options.
+
+  As always, Documentation/kbuild/kbuild-2.5.txt is your friend.
+
+TODO:
+
+  Rewrite core code to improve performance.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE8HXz1i4UHNye0ZOoRAu6sAJ9MUv7bUlQx2VhSyDAhGjblSaYS0ACbBL7I
+zE+nfa0msvPA1R3efLJS9EI=
+=buWJ
+-----END PGP SIGNATURE-----
 

@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262100AbTEUM1I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 08:27:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbTEUM1I
+	id S262105AbTEUM2O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 08:28:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbTEUM2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 08:27:08 -0400
-Received: from sklave3.rackland.de ([213.133.101.23]:33227 "EHLO
-	sklave3.rackland.de") by vger.kernel.org with ESMTP id S262100AbTEUM1H
-	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Wed, 21 May 2003 08:27:07 -0400
-From: Hadmut Danisch <hadmut@danisch.de>
-Date: Wed, 21 May 2003 14:38:43 +0200
-To: Dumitru Stama <dics@ecommerce.com>
+	Wed, 21 May 2003 08:28:14 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:3982 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S262073AbTEUM2N (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Wed, 21 May 2003 08:28:13 -0400
+Date: Wed, 21 May 2003 13:45:27 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Hadmut Danisch <hadmut@danisch.de>
 Cc: Linux-Kernel@vger.kernel.org
 Subject: Re: speechless 2.5.69 kernel?
-Message-ID: <20030521123843.GB7884@danisch.de>
-References: <20030521103713.GA5863@danisch.de> <125174092051.20030521140819@ecommerce.com>
+Message-ID: <20030521124522.GA5581@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Hadmut Danisch <hadmut@danisch.de>, Linux-Kernel@vger.kernel.org
+References: <20030521103713.GA5863@danisch.de> <20030521112115.GA3991@suse.de> <20030521123001.GA7884@danisch.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <125174092051.20030521140819@ecommerce.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030521123001.GA7884@danisch.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 21, 2003 at 02:08:19PM +0200, Dumitru Stama wrote:
+On Wed, May 21, 2003 at 02:30:01PM +0200, Hadmut Danisch wrote:
+ > On Wed, May 21, 2003 at 12:21:15PM +0100, Dave Jones wrote:
+ > > First make sure your .config contains
+ > > CONFIG_INPUT=y, CONFIG_VT=y and CONFIG_VT_CONSOLE=y
+ > > 
+ > > if they do already, then.. if you have CONFIG_VIDEO_SELECT=y
+ > > try turning that off.
+ > 
+ > Thanks for the hint, but it didn't help. :-(
 
-> I think you have wrong settings of the console.
-> Try the standard 80/25 text mode...
-> 
+tried booting with acpi=off ?
+Try disabling framebuffer if you have it compiled in.
 
-
-Thanks for the hint, that brought me to the problem:
-
-# CONFIG_VGA_CONSOLE is not set
-
-
-Setting this to y solved the problem.
-
-
-Thanks and regards
-Hadmut
-
-
+		Dave
 

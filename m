@@ -1,67 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135532AbRDZPgg>; Thu, 26 Apr 2001 11:36:36 -0400
+	id <S132801AbRDZPnr>; Thu, 26 Apr 2001 11:43:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135624AbRDZPg0>; Thu, 26 Apr 2001 11:36:26 -0400
-Received: from c4.h061013036.is.net.tw ([61.13.36.4]:29707 "EHLO
-	exchsmtp.via.com.tw") by vger.kernel.org with ESMTP
-	id <S135532AbRDZPgR>; Thu, 26 Apr 2001 11:36:17 -0400
-Message-ID: <611C3E2A972ED41196EF0050DA92E0760265D56B@EXCHANGE2>
-From: Yiping Chen <YipingChen@via.com.tw>
-To: "'Vivek Dasmohapatra'" <vivek@etla.org>,
-        Yiping Chen <YipingChen@via.com.tw>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: About rebuild 2.4.x kernel to support SMP.
-Date: Thu, 26 Apr 2001 23:36:23 +0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="big5"
+	id <S132767AbRDZPng>; Thu, 26 Apr 2001 11:43:36 -0400
+Received: from [195.6.125.97] ([195.6.125.97]:14095 "EHLO looping.sycomore.fr")
+	by vger.kernel.org with ESMTP id <S131472AbRDZPna>;
+	Thu, 26 Apr 2001 11:43:30 -0400
+Date: Thu, 26 Apr 2001 17:40:57 +0200
+From: =?ISO-8859-1?Q?s=E9bastien?= person <sebastien.person@sycomore.fr>
+To: Eric PENNAMEN <pennamen@caramail.com>
+Cc: liste noyau linux <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: Re: Fw: where can I find the IP address ?
+Message-Id: <20010426174057.230044fd.sebastien.person@sycomore.fr>
+In-Reply-To: <988309323021359@caramail.com>
+In-Reply-To: <988309323021359@caramail.com>
+X-Mailer: Sylpheed version 0.4.64 (GTK+ 1.2.6; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So, I have two question now, 
-1. how to determine whether your kernel support SMP?
-    Somebody taugh me that you can type  "uname -r", but it seems not
-correct.
-2. I remember in 2.2.x, when I rebuild the kernel which support SMP, the
-compile
-    argument will include -D__SMP__ , but this time, when I rebuild kernel
-2.4.2-2 , it didn't  appear.
-    Why? 
+Le Thu, 26 Apr 2001 17:22:03 GMT+1
+Eric PENNAMEN <pennamen@caramail.com> à écrit :
 
-Anyway, thanks for  Vivek's answer.
------Original Message-----
-From: Vivek Dasmohapatra [mailto:vivek@etla.org]
-Sent: Thursday, April 26, 2001 11:20 PM
-To: Yiping Chen
-Cc: 'linux-kernel@vger.kernel.org'
-Subject: Re: About rebuild 2.4.x kernel to support SMP.
+> Je ne suis pas un expert Linux et je ne pourrais peut etre pas 
+> t'aider mais je le probleme n'es-t pas tres clair :
+> Est il de recuperer l'adresse IP du poste (transfert de donne entre le script
+> et le driver au chargement) ?
+> ou bien que le driver doit ouvrir dans le kernel une socket a l'adresse IP donne dans le script 
+> et que tu ne sais pas comment faire ?
 
+en fait mon driver commande une sorte de carte réseau dont l'ip est attribué dans un script,
+le but est de recuperer l'ip attribuée. je crois que ca correspond plus a ta première proposition
 
-On Thu, 26 Apr 2001, Yiping Chen wrote:
+mais effectivement j'ai bien quelques idées mais elles n'ont abouti a rien (appel ioctl, 
+utiliser la structure device qui doit contenir l'adresse du protocol utilisé dev->pa_addr [
+malheureusement je me fais jeter à la compil car ce champs n'existerait pas ... a til disparu depuis
+les noyaux 2.2.14 ??])
 
-> My question is why the result of 'uname -r' is not "2.4.2-2smp" , but
-> "2.4.2-2"
+pourtant c'est ce que preconise le bouquin de rubini (edition 1)
 
-This is just the label as defined by the entries in the top-level
-Makefile, eg:
+voila si t'as une piste ...
 
-VERSION = 2
-PATCHLEVEL = 4
-SUBLEVEL = 3
-EXTRAVERSION = -ac5
+merci
 
-> Whether I forgot to do something?
-
-You can edit the extraversion value if you want to label your smp kernels
-differently, but you don't have to.
-
-You'll probably find you _have_ compiled an SMP kernel - see what
-/proc/cpuinfo says, for example.
-
--- 
-I am worthless. I struggle with the simple things. It seems so easy for 
-everyone else. One armed blind people climb mountains and teenagers get
-Ph.D's. I have trouble getting out of bed.
-                                          -TMCM
+> 
+> 
+> 
+> sébastien person a écrit :
+> 
+>  Début du message transféré :
+> 
+>  Date: Wed, 25 Apr 2001 16:45:48 +0200
+>  From: sébastien person <sebastien.person@sycomore.fr>
+>  To: Helge Hafting <helgehaf@idb.hist.no>
+>  Subject: Re: Fw: where can I find the IP address ?
+> 
+>  Le Wed, 25 Apr 2001 15:17:59 +0200
+>  Helge Hafting <helgehaf@idb.hist.no> à écrit :
+> 
+>  > sébastien person wrote:
+>  > >
+>  > > Début du message transféré :
+>  > >
+>  > > Date: Tue, 24 Apr 2001 16:43:18 +0200
+>  > > From: sébastien person <sebastien.person@sycomore.fr>
+>  > > To: liste noyau linux <linux-kernel@vger.kernel.org>
+>  > > Subject: where can I find the IP address ?
+>  > >
+>  > > I'm dealing with a driver wich need the IP address for specifics using.
+>  > >
+>  > The IP address of what?
+>  > Rememeber, a computer can have an arbitrary number of different
+>  > IP addresses assigned to various interfaces. It may even have
+>  > several IP addresses on the same network card.
+>  >
+>  > So, which of them do you want?
+>  >
+>  > Helge Hafting
+> 
+>  Yes that's right. In fact (excuse my bad english), my driver is 'iconfiged- up' with an
+>  IP in a script, and there is only one IP attach to the adapter. The adapter is a serial
+>  modem wich will work like an ethernet card, I'm working on the encapsulation of packets
+>  on the serial line and I need the IP that ifconfig attach to it.
+> 
+>  I've seen in the rubini linux device driver that it exists one field in the struture
+>  that contain the IP but it doesn't exist in my structure so I though that I can find it
+>  elsewhere. So the IP that I need for the driver of the device, is the one the device is
+>  attached to. I expect to explain myself clearly else don't hesitate to tell me more.
+> 
+>  thanks
+> 
+>  sebastien person
+> 
+>  -
+>  To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>  the body of a message to majordomo@vger.kernel.org
+>  More majordomo info at http://vger.kernel.org/majordomo-info.html
+>  Please read the FAQ at http://www.tux.org/lkml/
+> ______________________________________________________
+> Boîte aux lettres - Caramail - http://www.caramail.com
+> 
+> 

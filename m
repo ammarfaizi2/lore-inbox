@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261847AbTABMvQ>; Thu, 2 Jan 2003 07:51:16 -0500
+	id <S261530AbTABMsb>; Thu, 2 Jan 2003 07:48:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261742AbTABMvQ>; Thu, 2 Jan 2003 07:51:16 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:38150 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261847AbTABMvO>; Thu, 2 Jan 2003 07:51:14 -0500
-Date: Thu, 2 Jan 2003 07:57:36 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.53 : modules_install warnings 
-In-Reply-To: <20030101235118.CE55F2C05E@lists.samba.org>
-Message-ID: <Pine.LNX.3.96.1030102075543.18246D-100000@gatekeeper.tmr.com>
+	id <S261742AbTABMsa>; Thu, 2 Jan 2003 07:48:30 -0500
+Received: from packet.digeo.com ([12.110.80.53]:32964 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261530AbTABMs3>;
+	Thu, 2 Jan 2003 07:48:29 -0500
+Message-ID: <3E143714.6C939689@digeo.com>
+Date: Thu, 02 Jan 2003 04:56:52 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: 2.5.54-mm2
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 Jan 2003 12:56:52.0693 (UTC) FILETIME=[6BE98050:01C2B25E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Jan 2003, Rusty Russell wrote:
 
-> In message <Pine.LNX.3.96.1021231091929.10362B-100000@gatekeeper.tmr.com> you write:
-> > If they didn't work in 2.5.47, before the module change, then clearly they
-> > are broken on their own. If they worked until then, and especially if they
-> > work built-in still, I would certainly suspect that the problem is related
-> > to the module change.
-> 
-> That's the point: they use cli, sti and save_flags.  All three were
-> eliminated in SMP completely independently of the module changes.
-> 
-> Hope I'm being clearer?
+http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.54/2.5.54-mm2/
 
-Okay, so there are two issues, the SMP issue noted and and changes which
-might be needed to make them work as modules. Gotit, thanks.
+A couple of crash fixes here.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
 
+Since 2.5.54-mm1:
+
++no-stem-compression.patch
+
+ top(1) crashes for me.  Back out the stem compression code while
+ it's being sorted out.
+
+-quota-smp-locks.patch
+
+ Merged
+
+page_add_rmap-rework.patch
+
+ Was causing an oops in X startup.   Fixed.
+
+-teeny-mem-limits.patch
+-smaller-head-arrays.patch
++#teeny-mem-limits.patch
++#smaller-head-arrays.patch
+
+ Go back to the usual memory reserve levels.
+
++wli-11_pgd_ctor-update.patch
+
+ Use pgds-from-slab and pmds-from-slab on non-PAE machines too.

@@ -1,20 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319319AbSHVLAJ>; Thu, 22 Aug 2002 07:00:09 -0400
+	id <S319318AbSHVK6a>; Thu, 22 Aug 2002 06:58:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319320AbSHVLAJ>; Thu, 22 Aug 2002 07:00:09 -0400
-Received: from [217.167.51.129] ([217.167.51.129]:1255 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S319319AbSHVLAI>;
-	Thu, 22 Aug 2002 07:00:08 -0400
+	id <S319319AbSHVK6a>; Thu, 22 Aug 2002 06:58:30 -0400
+Received: from [217.167.51.129] ([217.167.51.129]:45798 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S319318AbSHVK63>;
+	Thu, 22 Aug 2002 06:58:29 -0400
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: Gabriel Paubert <paubert@iram.es>,
        Yoann Vandoorselaere <yoann@prelude-ids.org>
-Cc: <cpufreq@lists.arm.linux.org.uk>, <cpufreq@www.linux.org.uk>,
+Cc: <cpufreq@lists.arm.linux.org>, <cpufreq@www.linux.org.uk>,
        <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH]: fix 32bits integer overflow in loops_per_jiffy
  calculation
-Date: Thu, 22 Aug 2002 15:02:00 +0200
-Message-Id: <20020822130200.31767@192.168.4.1>
+Date: Thu, 22 Aug 2002 15:00:26 +0200
+Message-Id: <20020822130026.20840@192.168.4.1>
+In-Reply-To: <3D64BB45.4020907@iram.es>
+References: <3D64BB45.4020907@iram.es>
 X-Mailer: CTM PowerMail 3.1.2 carbon <http://www.ctmdev.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII

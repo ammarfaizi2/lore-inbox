@@ -1,54 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129696AbRBHLfB>; Thu, 8 Feb 2001 06:35:01 -0500
+	id <S130348AbRBHLhv>; Thu, 8 Feb 2001 06:37:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129919AbRBHLev>; Thu, 8 Feb 2001 06:34:51 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:24070 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S129696AbRBHLeg>;
-	Thu, 8 Feb 2001 06:34:36 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Date: Thu, 8 Feb 2001 12:32:01 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH] Re: UP APIC reenabling vs. cpu type detection o
-CC: linux-kernel@vger.kernel.org, mingo@redhat.com, hpa@transmeta.com,
-        marco@ds2.pg.gda.pl
-X-mailer: Pegasus Mail v3.40
-Message-ID: <14E3B9B878C2@vcnet.vc.cvut.cz>
+	id <S130473AbRBHLhl>; Thu, 8 Feb 2001 06:37:41 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:9476 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S130348AbRBHLha>;
+	Thu, 8 Feb 2001 06:37:30 -0500
+Message-ID: <20010208001513.B189@bug.ucw.cz>
+Date: Thu, 8 Feb 2001 00:15:13 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Linus Torvalds <torvalds@transmeta.com>, Jens Axboe <axboe@suse.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Ben LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Lord <lord@sgi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <20010206230929.K2975@suse.de> <Pine.LNX.4.10.10102061421490.1825-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <Pine.LNX.4.10.10102061421490.1825-100000@penguin.transmeta.com>; from Linus Torvalds on Tue, Feb 06, 2001 at 02:26:38PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  8 Feb 01 at 6:04, Mikael Pettersson wrote:
+Hi!
 
-> ordering and offsets in processor.h and head.S. The resulting
-> kernel works ok on my UP P6.
-> (Petr: can you check that it still works on your K7?)
+> > > Reading write(2): 
+> > > 
+> > >        EAGAIN Non-blocking  I/O has been selected using O_NONBLOCK and there was
+> > >               no room in the pipe or socket connected to fd to  write  the data
+> > >               immediately.
+> > > 
+> > > I see no reason why "aio function have to block waiting for requests". 
+> > 
+> > That was my reasoning too with READA etc, but Linus seems to want that we
+> > can block while submitting the I/O (as throttling, Linus?) just not
+> > until completion.
+> 
+> Note the "in the pipe or socket" part.
+>                  ^^^^    ^^^^^^
+> 
+> EAGAIN is _not_ a valid return value for block devices or for regular
+> files. And in fact it _cannot_ be, because select() is defined to always
+> return 1 on them - so if a write() were to return EAGAIN, user space would
+> have nothing to wait on. Busy waiting is evil.
 
-I'll try.
+So you consider inability to select() on regular files _feature_?
 
-I have another question for UP APIC NMI: As I reported some time ago,
-if performance counters overflow when LVTPC has 'disabled' bit set,
-NMI is lost forever. This causes problems with VMware - it has to
-disable NMI deliveries during CR3 (memory mapping) switching, and if 
-performance counter overflows at that time, you'll not receive another 
-NMI for couple of days on K7 (4.1 * 65536 seconds on fully loaded 1GHz 
-Athlon. And 410 * 65536 seconds on idle Athlon)...
+It can be a pretty serious problem with slow block devices
+(floppy). It also hurts when you are trying to do high-performance
+reads/writes. [I know it hurt in userspace sherlock search engine --
+kind of small altavista.]
 
-So it came to my mind - why (on K7 we easy can, as counter has 48 bits)
-we do not reload NMI watchdog in each timer interrupt with 5sec timeout,
-and if we receive even one NMI, we are locked up? It should increase
-performance, as we'll do same number of MSR writes anyway (100/s), but
-we will not receive any NMI during normal operation, so we save time
-spent in processing this. Or do I miss something?
+How do you write high-performance ftp server without threads if select
+on regular file always returns "ready"?
+ 
 
-It may be problem on P6, as it has only 32bit perfctrs, so we are limited
-to 4.1s watchdog timeout on 1GHz PIII :-(
-                                    Thanks,
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
+> Remember: in the end you HAVE to wait somewhere. You're always going to be
+> able to generate data faster than the disk can take it. SOMETHING
+
+Userspace wants to _know_ when to stop. It asks politely using
+"select()".
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

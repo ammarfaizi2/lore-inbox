@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129044AbQKHOkY>; Wed, 8 Nov 2000 09:40:24 -0500
+	id <S129136AbQKHOyU>; Wed, 8 Nov 2000 09:54:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129076AbQKHOkO>; Wed, 8 Nov 2000 09:40:14 -0500
-Received: from kleopatra.acc.umu.se ([130.239.18.150]:22673 "EHLO
-	kleopatra.acc.umu.se") by vger.kernel.org with ESMTP
-	id <S129044AbQKHOkD>; Wed, 8 Nov 2000 09:40:03 -0500
-Date: Wed, 8 Nov 2000 15:39:59 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: David Schwartz <davids@webmaster.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: national problems
-Message-ID: <20001108153959.A16675@khan.acc.umu.se>
-In-Reply-To: <4.3.2.7.2.20001108024812.00ac15b0@postoffice.brown.edu> <NCBBLIEPOCNJOAEKBEAKCEHPLMAA.davids@webmaster.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <NCBBLIEPOCNJOAEKBEAKCEHPLMAA.davids@webmaster.com>; from davids@webmaster.com on Wed, Nov 08, 2000 at 12:50:45AM -0800
+	id <S129130AbQKHOyJ>; Wed, 8 Nov 2000 09:54:09 -0500
+Received: from mailhub.icx.net ([206.96.250.12]:13832 "EHLO icx.net")
+	by vger.kernel.org with ESMTP id <S129094AbQKHOyE>;
+	Wed, 8 Nov 2000 09:54:04 -0500
+Message-ID: <3A092269.9020501@edge.net>
+Date: Wed, 08 Nov 2000 09:52:41 +0000
+From: Anthony Chatman <anthony@edge.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test10 i686; en-US; m18) Gecko/20000929 Netscape6/6.0b3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Nvidia GeForce2 kernel driver - kernel 2.4.0 test-10
+In-Reply-To: <3A08F5E9.61F424A0@ihug.co.nz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2000 at 12:50:45AM -0800, David Schwartz wrote:
+Speaking of Nvidia, I have a Nvidia GeForce2, and had problems loading 
+the NV kernel module with a patched test10 kernel (i was running test9 
+before).  I took a look at the test10 patch, and noticed the following 2 
+lines were taken out of  <linux_dir>/include/linux/wrapper.h:
+
+#define mem_map_inc_count(p) atomic_inc(&(p->count))
+#define mem_map_dec_count(p) atomic_dec(&(p->count))
+
+I added those two defines back into wrapper.h and then was able to load 
+the NVdriver successfully, with no problems. This doesn't appear to 
+break compiliation of the test10 kernel either. I thought I'd let 
+everyone know if anyone was having problems with the NV kernel driver. 
+Please note, I am not a C programmer, but more of a C hacker, and this 
+worked for me on my Slackware 7.1 machine. I have no idea what this may 
+have broken in the kernel or whatnot. I only know that this fixed the 
+problem on this particular box with the NV kernel driver, so proceed at 
+your own risk ;-)
+
+
+
+
+
+david wrote:
+
+> hi i am writing a video kernel driver for linux lexos and have got stuck
 > 
-> > Now that it seems that George Bush has won the presidency, I am wondering
-> > whether Linus and other members of the free software community intend to
-> > leave the U.S. and go to more friendly places.  Imagine what G.W. Bush is
-> > going to do to export controls, free software, copyright law, patent law,
-> > etc....  Be afraid.
+> this is how NVIDIA do their regs
 > 
-> Which is more probable? That the author of this is an idiot or
-> that 48% of the American voting public are idiots? Actually, I'm
-> not sure.
 
-Well... I don't think idiocy can be defined purely by who people
-voted for. From my political view, more than 90% of all Swedes would be
-idiots in that case :^)
-
-Oh, and for those who didn't know, Bush hasn't won (yet); the votes are
-getting recounted in Florida as less the difference was about 700 votes.
-
-
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

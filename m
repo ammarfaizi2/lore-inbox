@@ -1,134 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265653AbRFWGVt>; Sat, 23 Jun 2001 02:21:49 -0400
+	id <S265655AbRFWGfv>; Sat, 23 Jun 2001 02:35:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265655AbRFWGV3>; Sat, 23 Jun 2001 02:21:29 -0400
-Received: from front2.mail.megapathdsl.net ([66.80.60.30]:24593 "EHLO
-	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S265653AbRFWGVY>; Sat, 23 Jun 2001 02:21:24 -0400
-Subject: Re: [OT]Re: One more ZDNet article with BillG hammering Linux and
-	Open Source.
-From: Miles Lane <miles@megapathdsl.net>
-To: Gerhard Mack <gmack@innerfire.net>
-Cc: Ben Ford <ben@kalifornia.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10106222042460.9000-100000@innerfire.net>
-In-Reply-To: <Pine.LNX.4.10.10106222042460.9000-100000@innerfire.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.10.99 (Preview Release)
-Date: 22 Jun 2001 23:27:55 -0700
-Message-Id: <993277680.25169.1.camel@agate>
+	id <S265656AbRFWGfl>; Sat, 23 Jun 2001 02:35:41 -0400
+Received: from odin.sinectis.com.ar ([216.244.192.158]:33028 "EHLO
+	mail.sinectis.com.ar") by vger.kernel.org with ESMTP
+	id <S265655AbRFWGfa>; Sat, 23 Jun 2001 02:35:30 -0400
+Date: Sat, 23 Jun 2001 03:36:30 -0300
+From: John R Lenton <john@grulic.org.ar>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Steve Kieu <haiquy@yahoo.com>, kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ACPI or Advanced power ...
+Message-ID: <20010623033630.B830@grulic.org.ar>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Steve Kieu <haiquy@yahoo.com>,
+	kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <E15DL98-0002zE-00@the-village.bc.nu>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uZ3hkaAS1mZxFaxD"
+Content-Disposition: inline
+In-Reply-To: <E15DL98-0002zE-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Jun 2001 20:45:14 -0700, Gerhard Mack wrote:
-> On Fri, 22 Jun 2001, Ben Ford wrote:
-> 
-> > Miles Lane wrote:
-> > 
-> > >http://www.zdnet.com/zdnn/stories/news/0,4586,2777283,00.html
-> > >
-> > [ . . . ]
-> > 
-> > Hey, Bill, here's my address, can you ship me the full source to Word?
-> 
-> Funny but by giving it to you they could really screw you when it comes to
-> opensource work.  If you think the GPL is viral you havn't seen "shared
-> source".. at least the GPL only applies to derived works.
 
-Here's the kicker.  I went to Microsoft's site and tried to find
-a copy of their Shared Software License or some approximation
-thereof.  All I found was a bunch of Craig Mundie's blathering
-and some critiques of the GPL:
+--uZ3hkaAS1mZxFaxD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-   http://www.microsoft.com/business/licensing/sharedsource.asp
+On Fri, Jun 22, 2001 at 08:14:26AM +0100, Alan Cox wrote:
+> > I need an advice, my machine is i810 chipset and using
+> > ACPI bios, but not sure which one i should use in the
+> > kernel config. Now I use APM with kernel kapm-idle .
+>=20
+> If you have the option - use APM not ACPI. ACPI is larger, and right now
+> being experimental code - fairly buggy
 
-How can we evaluate if there is any point in asking BillG for
-the Word source code if they won't even show us the blighted
-license?  What I suspect is that there IS no "Shared Source
-License."  And, even if there were, Microsoft doesn't want
-anyone to see it because that would allow a direct comparison
-with the GPL, LGPL and so on.  Heaven forbid that apples should
-be compared to apples!
+I agree ACPI sucks, but I have a SMP box that I need to be able to
+powerdown remotely. Is there any reason APM can't do that? I mean, I
+understand APM was never meant for SMP, but... ?
 
-What they appear to have is a hodgepodge of different ways
-of "sharing" source code.  Here's an excerpt from:
+--=20
+John Lenton (john@grulic.org.ar) -- Random fortune:
+I must have a prodigious quantity of mind; it takes me as much as a
+week sometimes to make it up.
+		-- Mark Twain, "The Innocents Abroad"
 
-http://www.microsoft.com/BUSINESS/licensing/sscommitment.asp
---------------------------------------------------
-Some examples of Shared Source already being implemented at Microsoft:
+--uZ3hkaAS1mZxFaxD
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Research source licensing. For nearly a decade, Microsoft Research has
-licensed Microsoft Windows source code to more than 100 academic
-institutions in 23 countries. For more information, see Microsoft 
-Research University Programs.  
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Enterprise licensing program. Source code for Windows 2000 and
-subsequent releases of Windows is available for licensing at no charge
-to more than 1,000 enterprise customers in the United States. We also
-have a pilot program expanding the ESLP to 12 additional countries. 
+iD8DBQE7NDjugPqu395ykGsRAl/aAJ9+mQQe7BgY4t6KSfvtlksyMICeJACfYcQB
+qUtFSBN2K4O88aJvAWo4diY=
+=PI17
+-----END PGP SIGNATURE-----
 
-ISV source licensing. We are developing a program for licensing Windows
-source code to top tier ISVs (independent software vendors) for
-development and support purposes.  
-
-OEM source licensing. Windows source code has been licensed for years to
-leading OEMs to assist in the development and support of their consumer
-and server products.  
-
-Windows CE source code access. We are licensing Windows CE source code
-through Platform Builder 3.0 (generally available to all developers).
-Microsoft will be broadening and adding to the community support
-mechanisms through the Platform Builder Program. In the second half of
-this year we will offer academic site licenses for Windows CE source
-code. 
-
-Expanded level of Windows CE source access. Additionally, we have
-announced an expanded level of Windows CE source access to, (i) our
-leading silicon vendor partners via the Windows Embedded Strategic
-Silicon Alliance program, and (ii) our leading system integrator
-partners via the Innovation Alliance Program.  
-
-Sample code. Over the years Microsoft has made millions of lines of
-source code freely available to developers through resources such as
-SDKs, DDKs, and MSDN. Check out the MSDN Online Code Center. 
-
-.NET Framework submitted to ECMA standards body. We have announced that
-the specifications for the .NET Framework have been submitted to the
-ECMA standards body, enabling others to implement and evolve this
-technology in a platform-independent manner so that it is can be rapidly
-and widely adopted on an industry-side basis. For more information, see
-ECMA Standardization. 
-
-These Shared Source programs will be joined in the coming months by
-programs covering additional products and technologies. The realization
-of our .NET vision will rely heavily on the Shared Source philosophy. We
-also plan to introduce a Shared Source license crafted to the needs of
-our customers and partners in governments around the world. This
-government source license will be similar in nature to the license we
-offer our large enterprise customers today. Still in the works are new
-source sharing ideas for our ISV partners as well.
-----------------------------------
-
-My interpretation of this excerpt is that Microsoft figures out
-what rights it wants to allow each of these categories of 
-developers/users and then incredibly restricts the freedom of
-anyone who sees their code to change, port or use the code in
-any way at all.  My impression is that they are happy to have
-grad students look at the NT code, because they want really
-smart people to get used to using NT all the time and then
-graduate and go become Microsoft borgs.
-
-What I imagine happens is that if you ask for source code, they 
-decide whether they want to show it to you, then they make you 
-sign away your life (such as freedom to work on any code vaguely 
-like the code they're going to show you) and then they sue you 
-into bankruptcy or out-of-court settlement if you breathe in a 
-way they don't like.
-
-I'd be happy if Bill and his merry band proved me wrong,
-but I really doubt that'll happen.
-
-	Miles
-
+--uZ3hkaAS1mZxFaxD--

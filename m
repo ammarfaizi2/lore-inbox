@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275442AbTHJA4N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 20:56:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275443AbTHJA4M
+	id S275444AbTHJBHo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 21:07:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275446AbTHJBHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 20:56:12 -0400
-Received: from web14005.mail.yahoo.com ([216.136.175.121]:27655 "HELO
-	web14005.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S275442AbTHJA4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 20:56:12 -0400
-Message-ID: <20030810005611.3976.qmail@web14005.mail.yahoo.com>
-Date: Sat, 9 Aug 2003 17:56:11 -0700 (PDT)
-From: David Walser <luigiwalser@yahoo.com>
-Subject: 2.6.0-test3 input device problems
-To: linux-kernel@vger.kernel.org
-Cc: Andrey Borzenkov <arvidjaar@mail.ru>
-In-Reply-To: <200308100151.39396.arvidjaar@mail.ru>
+	Sat, 9 Aug 2003 21:07:44 -0400
+Received: from pop015pub.verizon.net ([206.46.170.172]:52956 "EHLO
+	pop015.verizon.net") by vger.kernel.org with ESMTP id S275444AbTHJBHn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 21:07:43 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+To: "Matthew Mullins" <mokomull@cox-internet.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test3 Makefile
+Date: Sat, 9 Aug 2003 21:07:42 -0400
+User-Agent: KMail/1.5.1
+References: <003501c35ed2$a6ff5400$71f14c42@coxinternet.com>
+In-Reply-To: <003501c35ed2$a6ff5400$71f14c42@coxinternet.com>
+Organization: None that appears to be detectable by casual observers
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308092107.42268.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at pop015.verizon.net from [151.205.63.55] at Sat, 9 Aug 2003 20:07:42 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A strange thing is in the configurator (menuconfig or
-xconfig) some of the input device options are missing
-and/or messed up.  I suppose it's probably related to
-the problem I had building it.  At the beginning of
-the build, it would go in my .config and change my
-CONFIG_SERIO_I8042 and CONFIG_KEYBOARD_ATKBD from m to
-y, and then of course there would be problems
-building, because atkbd.o which was now set to y, and
-therefore put in the built-in.o's and tmp_vmlinux1
-depended on symbols in serio.o, which was still set to
-m, and therefore wasn't available, and the build would
-die.
+On Saturday 09 August 2003 20:02, Matthew Mullins wrote:
+>The makefile bundled with 2.6.0-test3 won't install the modules
+> correctly. 'make modules' compiles the modules to *.o, but 'make
+> modules_install' expects to find them as *.ko.
+>
+>If I could find some documentation on the makefiles (or makefiles in
+>general), I'd be able to submit a patch.
+>
+>-MrM
 
-I had to fix my .config by hand, and then chattr +i it
-before the build to get it to build!
+I believe you may have something a bit odd there, its working here 
+with test3.
 
-PS - CC me if you want me to get any replies
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free, easy-to-use web site design software
-http://sitebuilder.yahoo.com

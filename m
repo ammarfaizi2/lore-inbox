@@ -1,146 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130870AbRAWQdJ>; Tue, 23 Jan 2001 11:33:09 -0500
+	id <S130877AbRAWQkk>; Tue, 23 Jan 2001 11:40:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131206AbRAWQdA>; Tue, 23 Jan 2001 11:33:00 -0500
-Received: from blackdog.wirespeed.com ([208.170.106.25]:14863 "EHLO
-	blackdog.wirespeed.com") by vger.kernel.org with ESMTP
-	id <S130870AbRAWQcp>; Tue, 23 Jan 2001 11:32:45 -0500
-Message-ID: <3A6DB234.1090507@redhat.com>
-Date: Tue, 23 Jan 2001 10:32:52 -0600
-From: Joe deBlaquiere <jadb@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
+	id <S131009AbRAWQka>; Tue, 23 Jan 2001 11:40:30 -0500
+Received: from purplecoder.com ([206.64.99.91]:19611 "EHLO
+	gateway.purplecoder.com") by vger.kernel.org with ESMTP
+	id <S130877AbRAWQkY>; Tue, 23 Jan 2001 11:40:24 -0500
+Message-ID: <3A6D6A9C.98237DE4@purplecoder.com>
+Date: Tue, 23 Jan 2001 06:27:24 -0500
+From: Mark I Manning IV <mark4@purplecoder.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Mike Harrold <mharrold@cas.org>
-CC: Jonathan Earle <jearle@nortelnetworks.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT?] Coding Style
-In-Reply-To: <200101231600.LAA24562@mah21awu.cas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: root@chaos.analogic.com, linux-kernel@vger.kernel.org
+Subject: Re: Total loss with 2.4.0 (release)
+In-Reply-To: <Pine.LNX.3.95.1010123101348.1264A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Too bad we can't just do a "Prince" and invent unpronouncable symbols to 
-use as function names... or perhaps just use something from the chinese 
-fonts ;o)...
+> >
+> > > I think that your linux's partition has not been overwritten, but only the MBR
+> > > of your disk, so you probably just need to reinstall lilo. Insert your
+> > > installation bootdisk into your pc, then skip all the setup stuff, but the
+> > > choose of the partition where you want to install and the source from where
+> > > you want to install, then select just the lilo configuration (bootconfiguration
+> > > I mean), complete that step and reboot your machine, lilo will'be there again.
 
-Mike Harrold wrote:
+Oopts I did this last week (fdisk /mbr doesnt do lilo any good :P)
 
->> This message is in MIME format. Since your mail reader does not understand
->> this format, some or all of this message may not be legible.
->> 
->> ------_=_NextPart_001_01C08552.FFC336D0
->> Content-Type: text/plain;
->> 	charset="ISO-8859-1"
->> 
->> I prefer descriptive variable and function names - like comments, they help
->> to make code so much easier to read.
->> 
->> One thing I wonder though... why do people prefer 'some_function_name()'
->> over 'SomeFunctionName()'?  I personally don't like the underscore character
->> - it's an odd character to type when you're trying to get the name typed in,
->> and the shifted character, I find, is easier to input.
->> 
-> 
-> 
-> For exactly the reverse of that reason. Typing capital letters is a heck
-> of a lot more difficult that addint an underscore.
-> 
-> Then there is reasability.
-> 
->   void ThisIsMyDumbassFunctionName
-> 
-> if MUCH more difficult to read than
-> 
->   void this_is_my_clear_and_easy_function_name
-> 
-> Regards,
-> 
-> /Mike
-> 
-> 
->> Cheers!
->> Jon
->> 
->> 
->>> -----Original Message-----
->>> From: Steve Underwood [mailto:steveu@coppice.org]
->> 
->> Some people still seem to be living in the age of K&R C, with 6 or 7
->> character variable names that demand some explanation. Maybe some day
->> they will awake to the expressive power of long (and well chosen) names.
->> 
->> ------_=_NextPart_001_01C08552.FFC336D0
->> Content-Type: text/html;
->> 	charset="ISO-8859-1"
->> Content-Transfer-Encoding: quoted-printable
->> 
->> <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
->> <HTML>
->> <HEAD>
->> <META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
->> charset=3DISO-8859-1">
->> <META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version =
->> 5.5.2652.35">
->> <TITLE>RE: [OT?] Coding Style</TITLE>
->> </HEAD>
->> <BODY>
->> 
->> <P><FONT SIZE=3D2>I prefer descriptive variable and function names - =
->> like comments, they help to make code so much easier to read.</FONT>
->> </P>
->> 
->> <P><FONT SIZE=3D2>One thing I wonder though... why do people prefer =
->> 'some_function_name()' over 'SomeFunctionName()'?&nbsp; I personally =
->> don't like the underscore character - it's an odd character to type =
->> when you're trying to get the name typed in, and the shifted character, =
->> I find, is easier to input.</FONT></P>
->> 
->> <P><FONT SIZE=3D2>Cheers!</FONT>
->> <BR><FONT SIZE=3D2>Jon</FONT>
->> </P>
->> 
->> <P><FONT SIZE=3D2>&gt; -----Original Message-----</FONT>
->> <BR><FONT SIZE=3D2>&gt; From: Steve Underwood [<A =
->> HREF=3D"mailto:steveu@coppice.org">mailto:steveu@coppice.org</A>]</FONT>=
->> 
->> </P>
->> 
->> <P><FONT SIZE=3D2>Some people still seem to be living in the age of =
->> K&amp;R C, with 6 or 7</FONT>
->> <BR><FONT SIZE=3D2>character variable names that demand some =
->> explanation. Maybe some day</FONT>
->> <BR><FONT SIZE=3D2>they will awake to the expressive power of long (and =
->> well chosen) names.</FONT>
->> </P>
->> 
->> </BODY>
->> </HTML>
->> ------_=_NextPart_001_01C08552.FFC336D0--
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> Please read the FAQ at http://www.tux.org/lkml/
->> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+Insert Debian boot cd, boot to install, press Alt f2  Create mountpoint,
+Mount /dev/hda1, CD to that directory chroot to it, cd into /root and
+./.profile (prolly not needed but can be useful sometimes)  run lilo. 
+All fixed (except by the time i rebooted my motherboard had commited
+suicide on me for being so stupid.  Im about to go collect the
+replacement right now :)
 
 
--- 
-Joe deBlaquiere
-Red Hat, Inc.
-307 Wynn Drive
-Huntsville AL, 35805
-voice : (256)-704-9200
-fax   : (256)-837-3839
+> > I hate to tell you this, but you couldn't be more wrong.  My MBR was
+> > fine.  Lilo was fine and ran fine.  The kernel even booted. The problem
+> > was my ext2 partition was scrambled but good (over 4 hours trying to fix
+> > it and answer all the questions that fsck threw out).  The ext2 drive
+> > lost a lot of data and suddenly had windows stuff all over it (yes, just
+> > like Mike, I had ttf fonts and other such things).
 
+
+Argh... Window$, ya gotta love it!
+
+ 
+> Nobody seems to have discovered the problem yet. It is likely some
+> race produced by those who have been working on finer-ganularity
+> locking.
+
+If i boot my laptop to windows I have to do a total shutdown befire
+booting back into windows or else gpm goes all crazy.  It occurs to me
+that maybe OTHER things are going crazy too but are just not doing it as
+loudly :)
+
+I think it would be a good polacy to NOT boot from windows immediatly
+into Linux without a shutdownn in between (a pain in the ass for sure :)
+
+> "Memory is like gasoline. You use it up when you are running. Of
+> course you get it all back when you reboot..."; Actual explanation
+> obtained from the Micro$oft help desk.
+
+:)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

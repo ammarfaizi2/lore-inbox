@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266376AbTGJQri (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 12:47:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266383AbTGJQri
+	id S266383AbTGJQw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 12:52:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266389AbTGJQw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 12:47:38 -0400
-Received: from storm.he.net ([64.71.150.66]:6304 "HELO storm.he.net")
-	by vger.kernel.org with SMTP id S266376AbTGJQrg (ORCPT
+	Thu, 10 Jul 2003 12:52:59 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:52137 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266383AbTGJQw6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 12:47:36 -0400
-Date: Thu, 10 Jul 2003 10:02:17 -0700
-From: Greg KH <greg@kroah.com>
-To: John Wong <kernel@implode.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB stops working with any of 2.4.22-pre's after 2.4.21
-Message-ID: <20030710170217.GA12098@kroah.com>
-References: <20030710065801.GA351@gambit.implode.net>
+	Thu, 10 Jul 2003 12:52:58 -0400
+Date: Thu, 10 Jul 2003 10:01:02 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: [PATCH] minor optimization for EXT3
+Message-Id: <20030710100102.32950703.akpm@osdl.org>
+In-Reply-To: <877k6qgldo.fsf@gw.home.net>
+References: <87smpeigio.fsf@gw.home.net>
+	<20030710042016.1b12113b.akpm@osdl.org>
+	<87isqaiegy.fsf@gw.home.net>
+	<20030710085155.40c78883.akpm@osdl.org>
+	<877k6qgldo.fsf@gw.home.net>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030710065801.GA351@gambit.implode.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 09, 2003 at 11:58:01PM -0700, John Wong wrote:
-> Jul  9 23:39:44 gambit kernel: eth0: Resetting the Tx ring pointer.
-> Jul  9 23:39:51 gambit kernel: usb-ohci.c: unlink URB timeout
-> Jul  9 23:39:54 gambit kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Alex Tomas <bzzz@tmi.comex.ru> wrote:
+>
+> OK. fixed version:
 
-Hm, looks like bad things are happening with your interrupts.
+Looks nice.  Now, Andreas did mention a while back that the locking rework
+added an additional complexity to this optimization.  Perhaps he can remind
+us of the details there?
 
-Do you need acpi to run this box?  What happens if you disable it?
-
-As it looks like networking is also in trouble, I don't think this is a
-USB specific problem for you.
-
-Good luck,
-
-greg k-h

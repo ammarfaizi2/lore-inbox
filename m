@@ -1,37 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270686AbTG0Guw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 02:50:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270687AbTG0Guw
+	id S270688AbTG0HHL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 03:07:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270687AbTG0HHL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 02:50:52 -0400
-Received: from fisek2.ada.net.tr ([195.112.153.19]:22546 "HELO
-	mail.fisek.com.tr") by vger.kernel.org with SMTP id S270686AbTG0Gut
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 02:50:49 -0400
-Date: Sun, 27 Jul 2003 10:02:46 +0300
-From: Doruk Fisek <dfisek@fisek.com.tr>
+	Sun, 27 Jul 2003 03:07:11 -0400
+Received: from web14207.mail.yahoo.com ([216.136.173.71]:8714 "HELO
+	web14207.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S270688AbTG0HHI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 03:07:08 -0400
+Message-ID: <20030727072221.12288.qmail@web14207.mail.yahoo.com>
+Date: Sun, 27 Jul 2003 00:22:21 -0700 (PDT)
+From: Manjunathan Padua Yellappan <manjunathan_py@yahoo.com>
+Subject: [kernel 2.6.0-test1: Fails to load anymodules 
 To: linux-kernel@vger.kernel.org
-Subject: hw tcp v4 csum failed
-Message-Id: <20030727100246.4bfb860c.dfisek@fisek.com.tr>
-Organization: Fisek Enstitusu
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Cc: manjunathan_py@yahoo.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ Hi Folks,
+   Thanks for all, for assisting me in solving the
+ kernel booting problem.
+ 
+  Now I am encountering another problem, after
+ successful compilation/installation/booting of kernel
+ 2.6.0-test1 , the modules are not loading at all ,
+ even after installing the latest version of
+ "module-init-tools-0.9.13-pre" .
+ 
+ Below given the error message that is display during
+ booting time, when kernel checks for the hardware !
+ 
+ "XT3 FS on hda9, internal journal
+ Adding 538136k swap on /dev/hda10.  Priority:-1
+ extents:1
+ kudzu: numerical sysctl 1 23 is obsolete.
+ warning: process `update' used the obsolete bdflush
+ system call
+ Fix your initscripts?
+ warning: process `update' used the obsolete bdflush
+ system call
+ Fix your initscripts?
+ kudzu: numerical sysctl 1 23 is obsolete.
+ module_upgrade: numerical sysctl 1 23 is obsolete.
+ module_upgrade: numerical sysctl 1 49 is obsolete.
+ module_upgrade: numerical sysctl 1 49 is obsolete.
+ kudzu: numerical sysctl 1 23 is obsolete.
+ updfstab: numerical sysctl 1 23 is obsolete.
+ updfstab: numerical sysctl 1 49 is obsolete.
+ updfstab: numerical sysctl 1 49 is obsolete.
+ kudzu: numerical sysctl 1 23 is obsolete."
+ 
+ Because of this, my sound card, D-link FM radio and
+ other periperal don't work.
+ 
+ Further when I execut the new lsmod command. Module
+ list is displayed empty.
+ 
+ I appreciate any asistance on this !
+ 
+ Thanks,
+ Manjunathan PY
+ 
 
- I am getting "hw tcp v4 csum failed" errors using a BCM5701 ethernet
-adapter with the tigon3 driver in a vanilla 2.4.20 kernel.
-
- There seems to be no apparent problem (probably because of low-load).
-
- What can be the cause of these errors?
-
-                               Doruk
-
---
-FISEK INSTITUTE -- http://www.fisek.org
+__________________________________
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free, easy-to-use web site design software
+http://sitebuilder.yahoo.com

@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVB1FkY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVB1FuN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261561AbVB1FkY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 00:40:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbVB1FkX
+	id S261567AbVB1FuN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 00:50:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbVB1FuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 00:40:23 -0500
-Received: from fire.osdl.org ([65.172.181.4]:14763 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261561AbVB1FkS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 00:40:18 -0500
-Date: Sun, 27 Feb 2005 21:39:46 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "" <pmarques@grupopie.com>
-Cc: mdharm-kernel@one-eyed-alien.net, linux-kernel@vger.kernel.org,
-       perex@suse.cz, luming.yu@intel.com
-Subject: Re: sizeof(ptr) or sizeof(*ptr)?
-Message-Id: <20050227213946.199e82af.akpm@osdl.org>
-In-Reply-To: <1109546013.4222541d5db16@webmail.grupopie.com>
-References: <1109535904.42222ca0b0b78@webmail.grupopie.com>
-	<20050227204524.GA29026@one-eyed-alien.net>
-	<1109546013.4222541d5db16@webmail.grupopie.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 28 Feb 2005 00:50:12 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:15322 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S261562AbVB1FuE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 00:50:04 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Brad Campbell <brad@wasp.net.au>
+Date: Mon, 28 Feb 2005 16:49:59 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16930.45319.682534.351648@cse.unsw.edu.au>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       RAID Linux <linux-raid@vger.kernel.org>
+Subject: Re: Raid-6 hang on write.
+In-Reply-To: message from Brad Campbell on Friday February 25
+References: <421DE9A9.4090902@wasp.net.au>
+	<421F4629.5080309@wasp.net.au>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"" <pmarques@grupopie.com> wrote:
->
-> Anyway, after improving the tool and checking for false positives, there is only
->  one more suspicious piece of code in drivers/acpi/video.c:561
+On Friday February 25, brad@wasp.net.au wrote:
 > 
->  	status = acpi_video_device_lcd_query_levels(device, &obj);
+> Turning on debugging in raid6main.c and md.c make it much harder to hit. So I'm assuming something 
+> timing related.
 > 
->  	if (obj && obj->type == ACPI_TYPE_PACKAGE && obj->package.count >= 2) {
->  		int count = 0;
->  		union acpi_object *o;
-> 
->  		br = kmalloc(sizeof &br, GFP_KERNEL);
+> raid6d --> md_check_recovery --> generic_make_request --> make_request --> get_active_stripe
 
-yup, bug.
+Yes, there is a real problem here.  I see if I can figure out the best
+way to remedy it...
+However I think you reported this problem against a non "-mm" kernel,
+and the path from md_check_recovery to generic_make_requests only
+exists in "-mm".
 
->  		if (!br) {
->  			printk(KERN_ERR "can't allocate memory\n");
->  		} else {
->  			memset(br, 0, sizeof &br);
->  			br->levels = kmalloc(obj->package.count * sizeof &br->levels, GFP_KERNEL);
+Could you please confirm if there is a problem with
+    2.6.11-rc4-bk4->bk10
 
-And another one, although it happens to work out OK.
+as reported, and whether it seems to be the same problem.
 
-I'll get these all fixed up, thanks.
+Thanks,
+NeilBrown

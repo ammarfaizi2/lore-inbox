@@ -1,60 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264165AbTH1S4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 14:56:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264171AbTH1S4Y
+	id S264197AbTH1TBi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 15:01:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264256AbTH1TBi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 14:56:24 -0400
-Received: from law11-f72.law11.hotmail.com ([64.4.17.72]:53776 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S264165AbTH1S4U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 14:56:20 -0400
-X-Originating-IP: [220.224.1.137]
-X-Originating-Email: [kartik_me@hotmail.com]
-From: "kartikey bhatt" <kartik_me@hotmail.com>
-To: jmorris@intercode.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Poor IPSec performance with 2.6 kernels
-Date: Fri, 29 Aug 2003 00:26:19 +0530
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Law11-F721BcI3Em6kw0000bb7a@hotmail.com>
-X-OriginalArrivalTime: 28 Aug 2003 18:56:19.0599 (UTC) FILETIME=[111AB1F0:01C36D96]
+	Thu, 28 Aug 2003 15:01:38 -0400
+Received: from village.ehouse.ru ([193.111.92.18]:43014 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S264197AbTH1TBV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 15:01:21 -0400
+From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+To: "Heikki Tuuri" <Heikki.Tuuri@innodb.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test2-mm3 and mysql
+Date: Thu, 28 Aug 2003 23:01:16 +0400
+User-Agent: KMail/1.5
+References: <046201c36d8e$34669eb0$322bde50@koticompaq>
+In-Reply-To: <046201c36d8e$34669eb0$322bde50@koticompaq>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308282301.16139.rathamahata@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can't we use per-arch assembly algorithms for ipv6 in kernel also?
+Hi Heikki,
 
-           -kartikey mahendra bhatt
+On Thursday 28 August 2003 21:59, Heikki Tuuri wrote:
+> Sergey,
+>
+> does it always crash when you start mysqld?
 
+Yes It was always crashing until I deleted all InnoDB files and restored
+InnoDB tables from backup.
 
->From: James Morris <jmorris@intercode.com.au>
->To: Tom Sightler <ttsig@tuxyturvy.com>
->CC: "Adam J. Richter" <adam@yggdrasil.com>,LKML 
-><linux-kernel@vger.kernel.org>
->Subject: Re: Poor IPSec performance with 2.6 kernels
->Date: Thu, 28 Aug 2003 23:40:04 +1000 (EST)
 >
->On 28 Aug 2003, Tom Sightler wrote:
+> It is page number 0 in the InnoDB tablespace. That is, the header page of
+> the whole tablespace!
 >
-> > I'm using 3des for the encryption algorithm.
+> The checksums in the page are ok. That shows the page was not corrupted in
+> the Linux file system.
 >
->What authentication algorithm (if any) ?
+> InnoDB is trying to do an index search, but that of course crashes, because
+> the header page is not any index page.
 >
+> The reason for the crash is probably that a page number in a pointer record
+> in the father node of the B-tree has been reset to zero. The corruption has
+> happened in the mysqld process memory, not in the file system of Linux.
+> Otherwise, InnoDB would have complained about page checksum errors.
 >
->- James
->--
->James Morris
-><jmorris@intercode.com.au>
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+> No one else has reported this error. I have now added a check to a future
+> version of InnoDB which will catch this particular error earlier and will
+> hex dump the father page.
 
-_________________________________________________________________
-MSN Hotmail now on your Mobile phone. 
-http://server1.msn.co.in/sp03/mobilesms/ Click here.
+Yes, now it seems for me that this particular crash in not related to linux
+kernel at all.
+The funny thing I've managed to get another InnoDB crash on the same box
+http://sysadminday.org.ru/linux-2.6.0-test4_InnoDB_crash-20030828
+which in turn was posted to linux-kernel over a two hours ago.
+This time the cheksums are different :(
+
+>
+> By the way, I noticed that a website http://www.linuxtestproject.org has
+> made an extensive regression test suite for Linux. They have also
+> successfully run big MySQL and DB2 stress tests on their computers, on
+> 2.5.xx kernels. If there is something wrong with 2.5.xx or 2.6.0, it
+> apparently does not concern all computers.
+>
+> "
+> The Linux Test Project test suite, ltp-20030807, has been released. The
+> latest version of the testsuite contains 2000+ tests for the Linux OS.
+> "
+>
+> The general picture about InnoDB corruption is that reports have almost
+> stopped after I advised people on the mailing list to upgrade to
+> Linux-2.4.20 kernels.
+
+In fact I'm also a happy InnoDB user. It runs fine on 6 of my production
+servers. Thanks for a nice work btw!
+
+It has worked fine also on our development server until I upgraded it to
+2.6.0-testX. I don't know. It might be just a broken hardware
+which is better stressed with 2.6 than with 2.4...
+
+>
+> With apologies,
+>
+> Heikki
+> Innobase Oy
 

@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271189AbUJVLKC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271199AbUJVLNT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271189AbUJVLKC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 07:10:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271183AbUJVLKB
+	id S271199AbUJVLNT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 07:13:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271183AbUJVLNT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 07:10:01 -0400
-Received: from holomorphy.com ([207.189.100.168]:5058 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S271189AbUJVLJY (ORCPT
+	Fri, 22 Oct 2004 07:13:19 -0400
+Received: from holomorphy.com ([207.189.100.168]:9666 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S271191AbUJVLNK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 07:09:24 -0400
-Date: Fri, 22 Oct 2004 04:09:16 -0700
+	Fri, 22 Oct 2004 07:13:10 -0400
+Date: Fri, 22 Oct 2004 04:12:59 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: root@chaos.analogic.com, John Cherry <cherry@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: IA32 (2.6.9 - 2004-10-20.21.30) - 11 New warnings (gcc 3.2.2)
-Message-ID: <20041022110916.GP17038@holomorphy.com>
-References: <200410211240.i9LCeDk8015277@cherrypit.pdx.osdl.net> <Pine.LNX.4.61.0410210942230.11962@chaos.analogic.com> <1098390149.3705.16.camel@krustophenia.net>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Christoph Lameter <clameter@sgi.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>, raybry@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Hugepages demand paging V1 [3/4]: Overcommit handling
+Message-ID: <20041022111259.GQ17038@holomorphy.com>
+References: <B05667366EE6204181EABE9C1B1C0EB501F2ADFB@scsmsx401.amr.corp.intel.com> <Pine.LNX.4.58.0410212151310.3524@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0410212157280.3524@schroedinger.engr.sgi.com> <20041022110116.GA17699@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1098390149.3705.16.camel@krustophenia.net>
+In-Reply-To: <20041022110116.GA17699@infradead.org>
 Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Oct 2004, John Cherry wrote:
->>> drivers/char/mem.c:213: warning: `remap_page_range' is deprecated
->>>   (declared at include/linux/mm.h:767)
+On Thu, Oct 21, 2004 at 09:58:26PM -0700, Christoph Lameter wrote:
+>> Changelog
+>> 	* overcommit handling
 
-On Thu, 2004-10-21 at 09:44, Richard B. Johnson wrote:
->> Hmmm. What does one use instead???  We still use mmap in drivers
->> or is that going to be removed too?
+On Fri, Oct 22, 2004 at 12:01:16PM +0100, Christoph Hellwig wrote:
+> overcommit for huge pages sounds like a realy bad idea.  Care to explain
+> why you want it?
 
-On Thu, Oct 21, 2004 at 04:22:30PM -0400, Lee Revell wrote:
-> remap_pfn_range I think.
-
-remap_pfn_range() has identical functionality. It's been given a
-distinct entrypoint name so people don't feed it raw physical addresses
-by accident. It is an improvement because its interface doesn't truncate
-physical addresses. I've got no idea what happened to the
-drivers/char/mem.c hunk of my patch. Just check the archives, and see
-that the patches I posted do actually sweep drivers/char/mem.c.
+It's the opposite of what its name implies; it implements strict
+non-overcommit, in the sense that it tries to prevent the sum of
+possible hugetlb allocations arising from handling hugetlb faults from
+exceeding the size of the hugetlb memory pool.
 
 
 -- wli

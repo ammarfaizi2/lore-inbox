@@ -1,65 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265098AbUHCHst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265134AbUHCHvs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265098AbUHCHst (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 03:48:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265134AbUHCHst
+	id S265134AbUHCHvs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 03:51:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbUHCHvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 03:48:49 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:39150 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S265098AbUHCHsp
+	Tue, 3 Aug 2004 03:51:47 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:27328 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S265134AbUHCHvq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 03:48:45 -0400
-Date: Tue, 3 Aug 2004 13:15:14 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Ravikiran G Thirumalai <kiran@in.ibm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] Add kref_read and kref_put_last primitives
-Message-ID: <20040803074514.GA4432@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20040726144856.GH1231@obelix.in.ibm.com> <20040726173151.A11637@infradead.org> <20040802200849.GG28374@kroah.com> <20040803054218.GA4443@in.ibm.com> <20040803065130.GA10696@kroah.com>
+	Tue, 3 Aug 2004 03:51:46 -0400
+Date: Tue, 3 Aug 2004 09:48:42 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Bart Alewijnse <scarfboy@gmail.com>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: gigabit trouble
+Message-ID: <20040803094842.B4911@electric-eye.fr.zoreil.com>
+References: <20040729210401.A32456@electric-eye.fr.zoreil.com> <b71082d80407291541f9d6f93@mail.gmail.com> <b71082d804073008157cf1d6c0@mail.gmail.com> <20040730205412.A15669@electric-eye.fr.zoreil.com> <b71082d804073014037bc5dd5a@mail.gmail.com> <20040730234120.A15536@electric-eye.fr.zoreil.com> <b71082d804073112512bbd82e2@mail.gmail.com> <20040731231836.A31121@electric-eye.fr.zoreil.com> <b71082d804080112031621e041@mail.gmail.com> <b71082d804080219476103bd47@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040803065130.GA10696@kroah.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <b71082d804080219476103bd47@mail.gmail.com>; from scarfboy@gmail.com on Tue, Aug 03, 2004 at 04:47:43AM +0200
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 02, 2004 at 11:51:30PM -0700, Greg KH wrote:
-> On Tue, Aug 03, 2004 at 11:12:18AM +0530, Dipankar Sarma wrote:
-> 
-> > So, kref_read() as it is would look weird. But if we consider merging
-> > the rest of the kref APIs (lock-free extensions) in future, then the
-> > entire set including kref_read() would make sense.
-> 
-> No, even with rcu versions, I don't see the need for this in the api.
+Bart Alewijnse <scarfboy@gmail.com> :
+[...]
+> The panic looks a lot like the last one; same kernel (napi still
+> enabled for the 8169). Image attached.
 
-I agree that RCU versions really doesn't need it. However, there
-is code in many places in the kernel where we actually read
-the actual reference count value and even compare it with
-constants. Those things are problematic because you can't
-use kref there without a kref_read_count() type API.
-In typical driver object maintenance, this is not an issue
-and rightly not exported.
+The irq rate are strangely high for a napi version of the r8169 driver.
 
-> Sure, for this specific implementation of a atomic_t, it is useful, as
-> the value is checked.  But that means that you might just want to use an
-> atomic_t, as it doesn't fit the model of a struct kref at all (something
-> where you don't touch the reference count directly at all.)
+Can you describe your test commands so that I reproduce these here ?
 
-Which prevents it from being used in many objects where we touch
-the reference count directly. If we use atomic_t there, then we
-need to abstract out inc/dec for RCU, which results in another
-refcounter which you don't like (for good reasons, btw) ;-) 
-
-> Becides, I don't think that people are convinced that this code needs to
-> be changed anyway :)
-
-Which code ? If you are talking about the lock-free fd lookup
-code, think POSIX threaded apps doing lots of I/O. tiobench
-results show how useful it is.
-
-Thanks
-Dipankar
+--
+Ueimor

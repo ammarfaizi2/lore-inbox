@@ -1,56 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130376AbRAJX5r>; Wed, 10 Jan 2001 18:57:47 -0500
+	id <S131121AbRAJX45>; Wed, 10 Jan 2001 18:56:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129969AbRAJX5a>; Wed, 10 Jan 2001 18:57:30 -0500
-Received: from kleopatra.acc.umu.se ([130.239.18.150]:28397 "EHLO
-	kleopatra.acc.umu.se") by vger.kernel.org with ESMTP
-	id <S131579AbRAJX5P>; Wed, 10 Jan 2001 18:57:15 -0500
-Date: Thu, 11 Jan 2001 00:56:57 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrea Arcangeli <andrea@suse.de>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Zlatko Calusic <zlatko@iskon.hr>, Rik van Riel <riel@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Subtle MM bug
-Message-ID: <20010111005657.B2243@khan.acc.umu.se>
-In-Reply-To: <Pine.LNX.4.10.10101101100001.4457-100000@penguin.transmeta.com> <E14GR38-0000nM-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <E14GR38-0000nM-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Jan 10, 2001 at 07:36:43PM +0000
+	id <S131463AbRAJX4r>; Wed, 10 Jan 2001 18:56:47 -0500
+Received: from selene.cps.intel.com ([192.198.165.10]:26128 "EHLO
+	selene.cps.intel.com") by vger.kernel.org with ESMTP
+	id <S130880AbRAJX4e>; Wed, 10 Jan 2001 18:56:34 -0500
+Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDEF6@orsmsx31.jf.intel.com>
+From: "Dunlap, Randy" <randy.dunlap@intel.com>
+To: "'H. Peter Anvin'" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: RE: The latest instance in the A20 farce
+Date: Wed, 10 Jan 2001 15:56:07 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 10, 2001 at 07:36:43PM +0000, Alan Cox wrote:
-> > I looked at it a year or two ago myself, and came to the conclusion that I
-> > don't want to blow up our page table size by a factor of three or more, so
-> > I'm not personally interested any more. Maybe somebody else comes up with
-> > a better way to do it, or with a really compelling reason to.
+hpa-
+
+I tested this patch on a Pentium dual-proc system (440GX)
+and on a Celeron system[1] (810) that lacks floppy, keyboard
+controller, maybe some other things.
+
+Linux 2.4.0 boots fine on each of these systems with this
+patch applied.  I couldn't tell which method of
+enabling A20 was actually successful.
+Have you had any other reports on the patch?
+
+
+[1] I'm not sure if this system qualifies as "legacy free"
+or "legacy reduced."  However, for future (how far?)
+reference, on legacy-free systems:
+[from PDF file at http://www.pcdesguide.org/pc2001/default.htm]
+
+a. The BIOS isn't required to have int. 0x15, AH=0x2401 [Appx. A],
+   but that is handled by your patch.
+b. The BIOS isn't required to have int. 0x15, AH=0x88 [Appx. A]
+   (Ye Olde Traditional memory-size function).
+   Hopefully the other memory-size methods will always have
+   priority.
+c. A20M# is always de-asserted at the processor [Ch. 3, item SYS-0047]
+
+I bring these up because they may have some impact on SYSLINUX,
+LILO, etc., and the data structures that they use (like the
+memory_size item) and because some of these systems don't
+have a "real mode," so loaders can't reliably assume that
+they do (unless it's transparent to the loaders)...
+and because you know something about SYSLINUX etc.
+
+~Randy
+_______________________________________________
+|randy.dunlap_at_intel.com        503-677-5408|
+|NOTE: Any views presented here are mine alone|
+|& may not represent the views of my employer.|
+-----------------------------------------------
+
+> From: H. Peter Anvin [mailto:hpa@zytor.com]
+> Sent: Wednesday, December 06, 2000 3:55 PM
 > 
-> There is only one reason I know for reverse page tables. That is ARM2/ARM3 
-> support - which is still not fully merged because of this issue
+> Okay, here is yet another A20 patch (against test12-pre6) this time
+> for people to try out.  This patch uses the following algorithm for
+> enabling A20:
 > 
-> The MMU on these systems is a CAM, and the mmu table is thus backwards to
-> convention. (It also means you can notionally map two physical addresses to
-> one virtual but thats undefined in the implementation ;))
+> 1. Try the BIOS call.  If it works, we're cool.
+> 2. Try the KBC (using Linus' lowered timeouts.)
+> 3. If the KBC doesn't work, or is very slow, flip port 92.
+> 
+> After 3 it sits into the same infinite loop waiting for A20 to become
+> enabled (necessary on for example some Toshiba notebooks which have an
+> extremely slow response to A20.)
+> 
+> The main differences between this patch and test12-pre6:
+> 
+> - Trying the BIOS first of all.  This should reduce the risk of the
+>   BIOS getting confused while doing a suspend.  This also gives even
+>   less of an excuse for any nonstandard arrangement -- if you didn't
+>   implement the standard KBC *and* you didn't provide the BIOS call,
+>   you have a seriously broken piece of hardware.
+> 
+> - If the KBC responds quickly enough (within about 10000 cycles), we
+>   don't ever touch the fast A20 gate.  This is a difference from
+>   previous code, where the fast A20 gate was toggled immediately after
+>   the KBC, even if the KBC responded instantly.
+> 
+> - I had to move the A20 code somewhat earlier in setup.S in order for
+>   the BIOS to still be available.
+> 
+> Please try it out and let me know as soon as possible...
+> 
+> 	-hpa
+> 
+> 
+> --- arch/i386/boot/setup.S.12p6	Wed Dec  6 12:49:07 2000
+> +++ arch/i386/boot/setup.S	Wed Dec  6 15:25:01 2000
+...
+> -- 
+> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
 
-Are there any other (not yet supported) platforms with similar (or other
-unrelated, but hard to support because of the current architecture of
-the kernel) problems?
-
-(No, I have no secret trumps up my sleeve, I'm just curious.)
-
-
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

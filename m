@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbTHSTbX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 15:31:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbTHSTbN
+	id S261268AbTHSTbG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 15:31:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbTHST3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 15:31:13 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:8576 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S261324AbTHST3x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 15:29:53 -0400
-Date: Tue, 19 Aug 2003 21:29:32 +0200 (MEST)
-Message-Id: <200308191929.h7JJTWsQ004506@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: perfctr-devel@lists.sourceforge.net
-Subject: perfctr-2.6.0-pre4 released
-Cc: linux-kernel@vger.kernel.org
+	Tue, 19 Aug 2003 15:29:42 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:56575 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S261300AbTHST2X
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 15:28:23 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Dumb question: Why are exceptions such as SIGSEGV not logged
+Date: Tue, 19 Aug 2003 12:28:19 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKIEMNFDAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+In-Reply-To: <bhs2sb$3fd$1@cesium.transmeta.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 2.6.0-pre4 of perfctr, the Linux/x86 performance
-monitoring counters driver, is now available at the usual
-place: http://www.csd.uu.se/~mikpe/linux/perfctr/
 
-There is one more driver change scheduled before 2.6.0-final:
-killing a process' perfctrs if sys_sched_setaffinity() or
-set_cpus_allowed() would migrate it to a forbidden CPU.
-A solution has been coded, but it cannot yet generate useful
-diagnostics due to unresolved synchronisation issues.
+> > 	There is no mechanism that is guaranteed to terminate a
+> > process other than
+> > sending yourself an exception that is not caught. So in cases
+> > where you must
+> > guarantee that your process terminates, it is perfectly
+> > reasonable to send
+> > yourself a SIGILL.
 
-Also, I've decided to remove support for all kernels older than
-2.4.15 from perfctr-2.6.0, based on their technical flaws and
-general obsolescence. (An informal poll in perfctr-devel a few
-weeks ago didn't lead to any complaints.)
+> exit(2)?
 
-Version 2.6.0-pre4, 2003-08-19
-- Kernel/user-space API switched to a new "sparse marshalling"
-  mechanism, which supports x86 application code on x86-64,
-  and API struct extensions w/o breaking binary compatibility.
-- Prepared the library for the future non-/proc/pid/perfctr API.
-- Fixed a bug in the per-process perfctr creation code. The
-  remote-control interface was racy in preemptible kernels.
-- Fixed a bug in the process exit code for preemptible kernels.
-- Changes to handle 2.6 kernels with the cpumask_t patch (-mm, -osdl):
-  * Driver converted to use cpumask_t API, with compatibility wrapper
-    for cpumask_t-free kernels.
-  * API change: removed the cpus and cpus_forbidden sets from the
-    perfctr_info struct, added new data type and commands for retrieving
-    these sets. (cpumask_t values cannot be exported as-is since their
-    sizes depend on kernel configuration, and the type definition uses
-    'long' which breaks 32/64-bit binary compatibility.)
-  * Updated library and example programs for the API change.
-- Fixed a dependency bug in the library Makefile.
-- Added support for VIA C3 Antaur/Nehemiah processors.
+	And what if a registered 'atexit' function needs to acquire a mutex that is
+held by a thread that's in an endless loop? What if a standard I/O stream
+has buffered data for a local disk that failed? I'm looking for a mechanism
+that is guaranteed to terminate a process immediately.
 
-/ Mikael Pettersson
+	DS
+
+

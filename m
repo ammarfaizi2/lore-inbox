@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316163AbSEZPap>; Sun, 26 May 2002 11:30:45 -0400
+	id <S316172AbSEZPkR>; Sun, 26 May 2002 11:40:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316175AbSEZPao>; Sun, 26 May 2002 11:30:44 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:53765 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S316163AbSEZPan>; Sun, 26 May 2002 11:30:43 -0400
-Date: Sun, 26 May 2002 17:30:27 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-To: yodaiken@fsmlabs.com
-cc: David Woodhouse <dwmw2@infradead.org>, Larry McVoy <lm@bitmover.com>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Linus Torvalds <torvalds@transmeta.com>, Wolfgang Denk <wd@denx.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-In-Reply-To: <20020526082142.C18843@hq.fsmlabs.com>
-Message-ID: <Pine.LNX.4.21.0205261722570.17583-100000@serv>
+	id <S316175AbSEZPkQ>; Sun, 26 May 2002 11:40:16 -0400
+Received: from mail7.svr.pol.co.uk ([195.92.193.21]:6681 "EHLO
+	mail7.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S316172AbSEZPkQ>; Sun, 26 May 2002 11:40:16 -0400
+Posted-Date: Sun, 26 May 2002 15:39:18 GMT
+Date: Sun, 26 May 2002 16:39:12 +0100 (BST)
+From: Riley Williams <rhw@InfraDead.Org>
+Reply-To: Riley Williams <rhw@InfraDead.Org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.17 /dev/ports
+In-Reply-To: <20020526172810.A19405@ucw.cz>
+Message-ID: <Pine.LNX.4.21.0205261635080.15697-100000@Consulate.UFP.CX>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Vojtech, Martin.
 
-On Sun, 26 May 2002 yodaiken@fsmlabs.com wrote:
+>> Would the following be what you had intended?
+>>
+>>	#include <linux/io.h>
+>>	#include <stdio.h>
+>>	#include <stdlib.h>
+>>
+>>	int main(int argc, char **argv) {
+>>	    int byte, port, result = 0;
+>> 
+>	    iopl(3);
+>>	    switch (argc) {
+>>		case 2:
+>>		    port = atoi(argv[1]);
+>>		    result = inb(port);
+>>		    break;
+>>
+>>		case 3:
+>>		    port = atoi(argv[1]);
+>>		    byte = atoi(argv[2]);
+>>		    outb(port, byte);
+>>		    break;
+>>
+>>		default:
+>>		    fprintf(stderr, "Usage: %s port [byte]\n",
+>>			    argv[0]);
+		    result = -1;
+>>		    break;
+>>	    }
+	    exit(result);
+>>	}
 
-> > Then why don't you specify in the license what "use of the Patented
-> > Process" means?
-> 
-> It means just what it says.
+Wonder how many bugs are left now those two have been squished...
 
-For that I would need a patent lawyer, what I can't afford.
-On the other hand other people did get an advice from a lawyer, these 
-people asking you again if the interpretation of that lawyer is correct
-and they get no answer from you, so that they still don't know if they get
-sued by you.
-
-bye, Roman
+Best wishes from Riley.
 

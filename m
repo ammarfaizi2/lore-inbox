@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263909AbTDHDWQ (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 23:22:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263910AbTDHDWQ (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 23:22:16 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:14596
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S263909AbTDHDWP (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 23:22:15 -0400
-Date: Mon, 7 Apr 2003 20:33:12 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Dave Jones <davej@codemonkey.org.uk>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Nick Urbanik <nicku@vtc.edu.hk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Debugging hard lockups (hardware?)
-In-Reply-To: <20030406203145.GA5783@suse.de>
-Message-ID: <Pine.LNX.4.10.10304072032350.6320-100000@master.linux-ide.org>
+	id S263911AbTDHD1c (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 23:27:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263912AbTDHD1b (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 23:27:31 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:8402 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S263911AbTDHD1b (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 23:27:31 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: David Ford <david+powerix@blue-labs.org>
+Date: Tue, 8 Apr 2003 13:38:53 +1000
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16018.17485.160253.39430@notabene.cse.unsw.edu.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Oleg Drokin <green@namesys.com>, Hans Reiser <reiser@namesys.com>
+Subject: Re: [OOPS] 100% repeatable OOPS, 2.5.61-66, NFS and reiserfs
+In-Reply-To: message from David Ford on Tuesday April 8
+References: <3E92F953.8080401@blue-labs.org>
+	<16018.1797.59286.752771@notabene.cse.unsw.edu.au>
+	<3E934363.3040507@blue-labs.org>
+X-Mailer: VM 7.13 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday April 8, david+powerix@blue-labs.org wrote:
+> The latest 2.5 kernel being .67?
 
-That controller is perfectly fine, give it a swing in 2.4 and it rocks.
-2.5 is the problem not the hardware.
+Yep, .67 is recent enough.
 
-On Sun, 6 Apr 2003, Dave Jones wrote:
-
-> On Sun, Apr 06, 2003 at 07:34:09PM +0100, Alan Cox wrote:
->  > > 02:0a.0 RAID bus controller: CMD Technology Inc PCI0680 (rev 01)
->  > > 02:0b.0 RAID bus controller: CMD Technology Inc PCI0680 (rev 01)
->  > ...
->  > Your choice of components looks fine, its all stuff I trust, even if the
->  > ethernet card is not good for performance it ought to be fine in
->  > general. If it is a faulty part most likely its a one off fault.
-> 
-> Note the IDE controller, and 2.5 bugzilla #123
-> That controller has been nothing but trouble for me.
-> 
-> 		Dave
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+NeilBrown

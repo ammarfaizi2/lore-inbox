@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288750AbSADUKW>; Fri, 4 Jan 2002 15:10:22 -0500
+	id <S288744AbSADUNc>; Fri, 4 Jan 2002 15:13:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284728AbSADUKD>; Fri, 4 Jan 2002 15:10:03 -0500
-Received: from ns.suse.de ([213.95.15.193]:30479 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S288735AbSADUJ7>;
-	Fri, 4 Jan 2002 15:09:59 -0500
-Date: Fri, 4 Jan 2002 21:09:54 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>,
-        "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lionel Bouton <Lionel.Bouton@free.fr>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-In-Reply-To: <20020104144146.A20097@thyrsus.com>
-Message-ID: <Pine.LNX.4.33.0201042101400.20620-100000@Appserv.suse.de>
+	id <S284728AbSADUNX>; Fri, 4 Jan 2002 15:13:23 -0500
+Received: from ns.eltra.metrocom.ru ([195.5.147.99]:18191 "EHLO
+	eltra.metrocom.ru") by vger.kernel.org with ESMTP
+	id <S288744AbSADUNK>; Fri, 4 Jan 2002 15:13:10 -0500
+Date: Fri, 4 Jan 2002 23:16:10 +0300
+From: slLG <sl@lgsoftlab.ru>
+X-Mailer: The Bat! (v1.53d) Business
+Reply-To: slLG <sl@lgsoftlab.ru>
+Organization: LG
+X-Priority: 3 (Normal)
+Message-ID: <1403251798.20020104231610@lgsoftlab.ru>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [ANNOUNCE]  ArVid 1031,105X ISA board module
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jan 2002, Eric S. Raymond wrote:
 
-> X86 and ((not PCI) or (not DMI) or DMI_ISA or BLACKLISTED => ISA_CARDS
+  There are popular tape device ArVid which based on ordinary (PAL/SECAM)
+  VHS & ISA board with PLM which often used in Russia and xUSSR. ArVid
+  board are controled by VHS behind integrated multisystem IRC node.
+  I've coded raw driver for this device. It uses tasklet.
 
-You'd also need (not MCA) (not VLBUS) (not Other arcane non-ISA buses)
+  http://aic.eltrast.ru/files/avtfs.zip
 
-> A key point is that as ISA phases out (near future now), the blacklist
-> will stop growing.  Ballpark guess is it will top out below 150 entries.
-
-I showed you 4 examples of bad DMI tables found within 5 minutes of
-testing here. I'm one person. There's a lot of hardware out there,
-with a lot of broken BIOSes. (Yes, you have different bugs per BIOS,
-with sometimes a dozen or so revisions just for 1 board).
+  I needs MAJOR number.
+                                           Slava Levtchenko
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+ slLG                          mailto:sl@lgsoftlab.ru
 

@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbUESJSV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262756AbUESJZc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262045AbUESJSV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 05:18:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbUESJSV
+	id S262756AbUESJZc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 05:25:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262488AbUESJZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 05:18:21 -0400
-Received: from lagoon1.di-ve.com ([194.158.37.138]:6050 "HELO di-ve.com")
-	by vger.kernel.org with SMTP id S262045AbUESJSQ (ORCPT
+	Wed, 19 May 2004 05:25:28 -0400
+Received: from lagoon1.di-ve.com ([194.158.37.138]:42921 "HELO di-ve.com")
+	by vger.kernel.org with SMTP id S262459AbUESJZP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 05:18:16 -0400
-Message-ID: <8412.80.179.249.163.1084957715.squirrel@webmail.di-ve.com>
-Date: Wed, 19 May 2004 11:08:35 +0200 (CEST)
+	Wed, 19 May 2004 05:25:15 -0400
+Message-ID: <19566.80.179.249.163.1084958608.squirrel@webmail.di-ve.com>
+Date: Wed, 19 May 2004 11:23:28 +0200 (CEST)
 Subject: Greetings From Sanni
 From: sammijnr@di-ve.com
 To: sammijnr@di-ve.com

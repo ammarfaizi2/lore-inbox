@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265762AbUADRQA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 12:16:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265763AbUADRQA
+	id S265766AbUADRTU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 12:19:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265785AbUADRTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 12:16:00 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:8401 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S265762AbUADRP7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 12:15:59 -0500
-Date: Sun, 4 Jan 2004 09:15:45 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paolo Ornati <ornati@lycos.it>, gandalf@wlug.westbo.se,
-       linuxram@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Buffer and Page cache coherent? was: Strange IDE performance change in 2.6.1-rc1 (again)
-Message-ID: <20040104171545.GR1882@matchmail.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Paolo Ornati <ornati@lycos.it>, gandalf@wlug.westbo.se,
-	linuxram@us.ibm.com, linux-kernel@vger.kernel.org
-References: <200401021658.41384.ornati@lycos.it> <20040102213228.GH1882@matchmail.com> <1073082842.824.5.camel@tux.rsn.bth.se> <200401031213.01353.ornati@lycos.it> <20040103144003.07cc10d9.akpm@osdl.org>
+	Sun, 4 Jan 2004 12:19:20 -0500
+Received: from vsmtp2.tin.it ([212.216.176.222]:34810 "EHLO vsmtp2alice.tin.it")
+	by vger.kernel.org with ESMTP id S265766AbUADRTS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 12:19:18 -0500
+Subject: Re: 2.4.23 oops
+From: Cristiano De Michele <demichel@na.infn.it>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: linux kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040104143555.GF3728@alpha.home.local>
+References: <1073223226.1695.10.camel@cripat.acasa-tr.it>
+	 <20040104143555.GF3728@alpha.home.local>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Department of Physics
+Message-Id: <1073236750.2327.2.camel@cripat.acasa-tr.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040103144003.07cc10d9.akpm@osdl.org>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 04 Jan 2004 18:19:11 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 03, 2004 at 02:40:03PM -0800, Andrew Morton wrote:
-> No effort was made to optimise buffered blockdev reads because it is not
-> very important and my main interest was in data coherency and filesystem
-> metadata consistency.
+ok you were right it was the RAM, disabling the bank interleave and
+increasing the CAS latency in the BIOS settings it seems
+that now my system is pretty stable (using memtest86)
 
-Does that mean that blockdev reads will populate the pagecache in 2.6?
+thx for your help
+bye bye Cristiano
+
+On Sun, 2004-01-04 at 15:35, Willy Tarreau wrote:
+> Hi !
+> 
+> On Sun, Jan 04, 2004 at 02:33:46PM +0100, Cristiano De Michele wrote:
+> 
+> > Jan  3 04:39:42 cripat kernel: EFLAGS: 00010016
+> > Jan  3 04:39:42 cripat kernel: eax: 616d7157   ebx: 6d6e6f72   ecx:
+> > c8a5c000   edx: 73694400
+> 
+> This is weird, eax, ebx and edx contain portions of text :
+>   eax="Wqma"
+>   ebx="ronm"
+>   edx="siD\0"
+> 
+> Perhaps it's pure coincidence, but it may also be a part of a URL or
+> temporary file name. Could you run memtest86 on you system to check
+> that you don't have RAM defects ?
+> 
+> Willy
+-- 
+  Cristiano De Michele,
+  Department of Physics,
+  University "Federico II" of Naples

@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261532AbTCGLSr>; Fri, 7 Mar 2003 06:18:47 -0500
+	id <S261531AbTCGLSY>; Fri, 7 Mar 2003 06:18:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261533AbTCGLSr>; Fri, 7 Mar 2003 06:18:47 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:15529
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261532AbTCGLS1>; Fri, 7 Mar 2003 06:18:27 -0500
-Subject: Re: [PATCH] update PCI quirks
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0303071150040.13981-100000@vervain.sonytel.be>
-References: <Pine.GSO.4.21.0303071150040.13981-100000@vervain.sonytel.be>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047040481.20794.3.camel@irongate.swansea.linux.org.uk>
+	id <S261532AbTCGLSY>; Fri, 7 Mar 2003 06:18:24 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:2061 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S261531AbTCGLSW>; Fri, 7 Mar 2003 06:18:22 -0500
+Date: Fri, 7 Mar 2003 12:28:55 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Tupshin Harper <tupshin@tupshin.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed *notrademarkhere* clone
+Message-ID: <20030307112855.GE18420@atrey.karlin.mff.cuni.cz>
+References: <200303020011.QAA13450@adam.yggdrasil.com> <3E615C38.7030609@pobox.com> <20030302014039.GC1364@dualathlon.random> <3E616224.6040003@pobox.com> <b3rtr2_rmg_1@cesium.transmeta.com> <3E623B9A.8050405@pobox.com> <20030306164146.GF2781@zaurus.ucw.cz> <3E688188.5060204@tupshin.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 07 Mar 2003 12:34:41 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E688188.5060204@tupshin.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-03-07 at 10:50, Geert Uytterhoeven wrote:
+Hi!
 
-> > + * we do now ? We don't want is pci_enable_device to come along
->                   ^^^^^^^^^^^^^^^^
-> 		  What we don't want is?
+> >it*, then add my stuff. Ouch. svn is out
+> >because of licensing, cvs is not powerfull
+> >
+> Could you or somebody else explain this repeated claim that the 
+> Subversion licensing is problematic?
+> 
+> I don't have anything to do with the project, but a quick perusal of the 
+> license doesn't reveal any problems. It's basically an Apache/BSD 
+> license (pasted below for your reading pleasure).
 
-Or just "We don't want". I guess I changed my mind half way through 8)
-Thanks
+You snipped what you should not snip: I'd need to merge CSSC (GPL-ed)
+and svn (BSD with advertising). I may not do that. svn license is
+okay, but merging it with CSSC is not possible.
 
+								Pavel
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

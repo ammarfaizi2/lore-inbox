@@ -1,41 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315446AbSE2TuL>; Wed, 29 May 2002 15:50:11 -0400
+	id <S315443AbSE2TwF>; Wed, 29 May 2002 15:52:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315447AbSE2TuK>; Wed, 29 May 2002 15:50:10 -0400
-Received: from letos.cs.uh.edu ([129.7.240.2]:58577 "EHLO letos.cs.uh.edu")
-	by vger.kernel.org with ESMTP id <S315446AbSE2TuJ>;
-	Wed, 29 May 2002 15:50:09 -0400
-Date: Wed, 29 May 2002 14:50:03 -0500 (CDT)
-From: Karthik Thirumalai <karthik@cs.uh.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: VM problem in 2.4.x kernels ??
-Message-ID: <Pine.GSO.4.33.0205291441030.28563-100000@themis.cs.uh.edu>
+	id <S315445AbSE2TwE>; Wed, 29 May 2002 15:52:04 -0400
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:15569 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S315443AbSE2TwC>; Wed, 29 May 2002 15:52:02 -0400
+Message-ID: <3CF53160.B97CE3E2@delusion.de>
+Date: Wed, 29 May 2002 21:52:00 +0200
+From: "Udo A. Steinberg" <reality@delusion.de>
+Organization: Disorganized
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.19 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: IDE breakage with cdrom in 2.5.18+
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-I have a program which basically reads udp data (large amounts) from a
-socket and writes it to a file. Whenever the network input rate increases
-it cause the system to hang or my program is killed due to lack of memory.
+Hello,
 
-I have 256MB RAM + 2 GB swap. Just before my system hangs( or my program
-is killed), I have about 1 or 2 MB of physical memory and 1600 MB of swap
-free. I don't understand why my program should be killed due to lack of
-memory when I have so much of free mem.
+Some code introduced in 2.5.18 seems to have broken something in the
+cdrom code. 2.5.19 still has the problem, whereas 2.5.17 seemed ok.
 
-I tried this with 2.4.10, 2.4.18 and 2.4.19-pre8-ac5.
-I use a 100MB socket queue. (rmem_max)
+/dev/hde shows packet command errors upon bootup. Any ideas?
 
-Could anybody tell me why this happens and a possible fix for this.
+Regards,
+-Udo.
 
-Please cc your postings to karthik@cs.uh.edu as I don't subscribe to this
-list.
-
-Thanks in advance.
-
-Karthik.
-
+ATA/ATAPI device driver v7.0.0
+ATA: PCI bus speed 33.3MHz
+ATA: Promise Technology, Inc. 20265, PCI slot 00:11.0
+PCI: Found IRQ 10 for device 00:11.0
+ATA: chipset rev.: 2
+ATA: non-legacy mode: IRQ probe delayed
+Promise Technology, Inc. 20265: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+    ide0: BM-DMA at 0x8000-0x8007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0x8008-0x800f, BIOS settings: hdc:pio, hdd:pio
+ATA: VIA Technologies, Inc. Bus Master IDE, PCI slot 00:04.1
+ATA: chipset rev.: 16
+ATA: non-legacy mode: IRQ probe delayed
+VP_IDE: VIA vt82c686a (rev 22) ATA UDMA66 controller on PCI 00:04.1
+    ide2: BM-DMA at 0xd800-0xd807, BIOS settings: hde:DMA, hdf:pio
+    ide3: BM-DMA at 0xd808-0xd80f, BIOS settings: hdg:pio, hdh:pio
+hda: IBM-DTLA-307030, ATA DISK drive
+hdb: IBM-DTLA-307030, ATA DISK drive
+hde: PLEXTOR CD-R PX-W1210A, ATAPI CD/DVD-ROM drive
+ide0 at 0x9400-0x9407,0x9002 on irq 10
+ide2 at 0x1f0-0x1f7,0x3f6 on irq 14
+ hda: 60036480 sectors w/1916KiB Cache, CHS=59560/16/63, UDMA(100)
+ hda: hda1
+ hdb: 60036480 sectors w/1916KiB Cache, CHS=59560/16/63, UDMA(100)
+ hdb: hdb1 hdb2 hdb3 < hdb5 hdb6 hdb7 hdb8 hdb9 hdb10 >
+hde: ATAPI 32X CD-ROM CD-R/RW drive, 2048kB Cache, DMA
+Uniform CD-ROM driver Revision: 3.12
+hde: packet command error: status=0x51 { DriveReady SeekComplete Error } 
+hde: packet command error: error=0x54
+ATAPI device hde:
+  Error: Illegal request -- (Sense key=0x05)
+  Invalid field in command packet -- (asc=0x24, ascq=0x00)
+  The failed "Request Sense" packet command was: 
+  "03 00 00 00 12 00 00 00 00 00 00 00 "

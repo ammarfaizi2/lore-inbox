@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129166AbQKTVEo>; Mon, 20 Nov 2000 16:04:44 -0500
+	id <S129097AbQKTVIO>; Mon, 20 Nov 2000 16:08:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129189AbQKTVEe>; Mon, 20 Nov 2000 16:04:34 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:51464 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S129166AbQKTVEU>; Mon, 20 Nov 2000 16:04:20 -0500
-Message-Id: <200011202032.eAKKWQi06469@pincoya.inf.utfsm.cl>
-To: John Jasen <jjasen1@umbc.edu>
-cc: "Charles Turner, Ph.D." <cturner@quark.analogic.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Defective Red Hat Distribution poorly represents Linux 
-In-Reply-To: Message from John Jasen <jjasen1@umbc.edu> 
-   of "Mon, 20 Nov 2000 13:22:28 CDT." <Pine.SGI.4.21L.01.0011201318480.2040834-100000@irix2.gl.umbc.edu> 
-Date: Mon, 20 Nov 2000 17:32:26 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S129319AbQKTVIE>; Mon, 20 Nov 2000 16:08:04 -0500
+Received: from tartu.cyber.ee ([193.40.16.128]:43784 "EHLO tartu.cyber.ee")
+	by vger.kernel.org with ESMTP id <S129097AbQKTVHz>;
+	Mon, 20 Nov 2000 16:07:55 -0500
+From: Meelis Roos <mroos@linux.ee>
+To: arne@schirmacher.de, linux-kernel@vger.kernel.org
+Subject: Re: strange interaction between IDE and ieee1394 driver
+In-Reply-To: <01C0532B.427002B0.arne@schirmacher.de>
+User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.4.0-test10 (i586))
+Message-Id: <E13xxfs-0000HO-00@roos.tartu-labor>
+Date: Mon, 20 Nov 2000 22:36:24 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Jasen <jjasen1@umbc.edu> said:
+AS> When I user the ieee1394 subsystem to transmit data from a camcorder to an 
+AS> IDE disk and the IDE driver is not using DMA, then there will be some data 
+AS> lost in the ieee1394 driver. If I turn on DMA in the IDE driver (hdparm -d1 
+AS> /dev/hda), I do not have any data loss in the ieee1394 driver. Also, on a 
 
-[...]
+IDE is blocking interrupts for too long in non-DMA mode? Try hdparm -u 1
+in non-dma mode - this may help if interrupt latency is the issue.
 
-> On this note, I recall a time that I 'appropriated' a workstation for
-> linux.
-> 
-> It was pulled out of the student labs, where it had worked for 3 months
-> running NT 4.0, but the RH install kept on crashing out.
-
-So what? My former machine ran fine with Win95/WinNT. Linux wouldn't even
-end booting the kernel. Reason: P/100 was running at 120Mhz. Fixed that, no
-trouble for years. Not the only case of WinXX running (apparently?) fine
-on broken/misconfigured hardware I've seen, mind you.
 -- 
-Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Meelis Roos (mroos@linux.ee)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

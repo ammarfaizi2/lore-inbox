@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313293AbSERQV5>; Sat, 18 May 2002 12:21:57 -0400
+	id <S313300AbSERQky>; Sat, 18 May 2002 12:40:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313307AbSERQV4>; Sat, 18 May 2002 12:21:56 -0400
-Received: from stout.engsoc.carleton.ca ([134.117.69.22]:32132 "EHLO
-	stout.engsoc.carleton.ca") by vger.kernel.org with ESMTP
-	id <S313293AbSERQVz>; Sat, 18 May 2002 12:21:55 -0400
-Date: Sat, 18 May 2002 12:21:37 -0400 (EDT)
-From: Paul Faure <paul@engsoc.org>
-X-X-Sender: <paul@lager.engsoc.carleton.ca>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@zip.com.au>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Process priority in 2.4.18 (RedHat 7.3)
-In-Reply-To: <E178lM7-0006uZ-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0205181220150.16528-100000@lager.engsoc.carleton.ca>
-X-Home-Page: http://www.engsoc.org/
-X-URL: http://www.engsoc.org/
-Organisation: Engsoc Project (www.engsoc.org)
+	id <S313307AbSERQkx>; Sat, 18 May 2002 12:40:53 -0400
+Received: from elixir.e.kth.se ([130.237.48.5]:62216 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id <S313300AbSERQkw>;
+	Sat, 18 May 2002 12:40:52 -0400
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: ide cd/dvd with 2.4.19-pre8
+In-Reply-To: <Pine.LNX.4.10.10205180238160.774-100000@master.linux-ide.org>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 18 May 2002 18:39:16 +0200
+Message-ID: <yw1xg00pqukr.fsf@gladiusit.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My brother dropped of a network card (smc-ultra) and it works fine with 
-the 2.4.18-4 redhat kernel. If you are still interested in testing the 
-ne.o card with the latest official kernel, I can do so.
+Andre Hedrick <andre@linux-ide.org> writes:
 
-Thanks for all your help.
+> The driver pulled your system back into safe data io ranges.
+> Either your cable routing is poor, your power supply is marginal, possible
+> but not likely (hardware combination does not like the odd or even cable
+> grounding setup), regardless it did the correct thing.
+> 
+> The problem is a feature to prevent the driver from dropping out of DMA
+> to PIO when it is better to down grade the transfer rate.
+> 
+> The next issue is whether your ATAPI is in DMA, and it should not be.
+> The driver core does not use split dma engines yet.
 
-On Fri, 17 May 2002, Alan Cox wrote:
-
-> > hmm, tiny != burst. of course sometime ksoftirqd will kick in when it
-> > notices a burst. But it is irrelevant to this thread about SCHED_FIFO +
-> > ksoftirqd.
-> 
-> Agreed
-> 
-> > If there's SCHED_FIFO app in loop, ksoftirqd never runs and we only rely
-> > on the support from irq that we had in 2.4.0 and previous too.
-> 
-> Yes
-> 
+I just tried connecting it to a cmd646 controller. It runs at full speed
+but no dma because of cmd bugs. Is there a problem with the new pdc202xx
+driver in 2.4.19 or is it somehow my fault?
 
 -- 
-Paul N. Faure					613.266.3286
-EngSoc Administrator            		paul-at-engsoc-dot-org
-Chief Technical Officer, CertainKey Inc.	paul-at-certainkey-dot-com
-Carleton University Systems Eng. 4th Year	paul-at-faure-dot-ca
-
+Måns Rullgård
+mru@users.sf.net

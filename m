@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbUKBWcT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262416AbUKBWgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbUKBWcT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 17:32:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbUKBWcR
+	id S262416AbUKBWgK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 17:36:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbUKBWgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 17:32:17 -0500
-Received: from natnoddy.rzone.de ([81.169.145.166]:52405 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S262223AbUKBW2q
+	Tue, 2 Nov 2004 17:36:09 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:21198 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262425AbUKBWfK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 17:28:46 -0500
-Date: Tue, 2 Nov 2004 23:28:19 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.de>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: [PATCH] [CPU-HOTPLUG] convert cpucontrol to be a rwsem
-Message-ID: <20041102222819.GA16414@dominikbrodowski.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.de>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org,
-	rusty@rustcorp.com.au
-References: <20041101084337.GA7824@dominikbrodowski.de> <Pine.LNX.4.61.0411010656380.19123@musoma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0411010656380.19123@musoma.fsmlabs.com>
-User-Agent: Mutt/1.5.6i
+	Tue, 2 Nov 2004 17:35:10 -0500
+Message-ID: <41880B60.9070004@us.ibm.com>
+Date: Tue, 02 Nov 2004 14:34:08 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: andrea@novell.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       ak@suse.de
+Subject: Re: fix iounmap and a pageattr memleak (x86 and x86-64)
+References: <4187FA6D.3070604@us.ibm.com>	<20041102220720.GV3571@dualathlon.random>	<4188086F.8010005@us.ibm.com> <20041102142944.0be6f750.akpm@osdl.org>
+In-Reply-To: <20041102142944.0be6f750.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 01, 2004 at 07:00:07AM -0700, Zwane Mwaikambo wrote:
-> On Mon, 1 Nov 2004, Dominik Brodowski wrote:
+Andrew Morton wrote:
+> Dave Hansen <haveblue@us.ibm.com> wrote:
 > 
-> > [CPU-HOTPLUG] Use a rw-semaphore for serializing and locking
-> > 
-> > Currently, lock_cpu_hotplug serializes multiple calls to cpufreq->target()
-> > on multiple CPUs even though that's unneccessary. Even further, it
-> > serializes these calls with totally unrelated other parts of the kernel...
-> > some ppc64 event reporting, some cache management, and so on. In my opinion
-> > locking should be done subsystem (and normally data-)specific, and disabling
-> > CPU hotplug should just do that.
-> > 
-> > This patch converts the semaphore cpucontrol to be a rwsem which allows us 
-> > to use it for _both_ variants: locking (write) and (multiple) other parts 
-> > disabling CPU hotplug (read).
-> > 
-> > Only problem I see with this approach is that lock_cpu_hotplug_interruptible()
-> > needs to disappear as there is no down_write_interruptible() for rw-semaphores.
-> > 
-> > Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.de>
+>>Andrea Arcangeli wrote:
+>>
+>>>Still I recommend investigating _why_ debug_pagealloc is violating the
+>>>API. It might not be necessary to wait for the pageattr universal
+>>>feature to make DEBUG_PAGEALLOC work safe.
+>>
+>>OK, good to know.  But, for now, can we pull this out of -mm?  Or, at 
+>>least that BUG_ON()?  DEBUG_PAGEALLOC is an awfully powerful debugging 
+>>tool to just be removed like this.
 > 
-> Agreed it makes a lot more sense, i think there could be some places where 
-> we use preempt_disable to protect against cpu offline which could 
-> converted, but that can come later.
+> If we make it a WARN_ON, will that cause a complete storm of output?
 
-Except that we don't want to (and can't[*]) disable preemption in the
-cpufreq case. Therefore, we __need__ to disable CPU hotplug specifically,
-and not meddle with other issues like preemption, scheduling, CPUs which are
-in the allowed_map, and so on. So back to the original patch: Rusty, do you
-agree with it?
-
-Thanks,
-	Dominik
-
-[*] calls to cpufreq->target() may sleep.
+Yeah, just tried it.  I hit a couple hundred of them before I got to init.

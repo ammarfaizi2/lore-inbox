@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262769AbUCOVTq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 16:19:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262795AbUCOVTp
+	id S262799AbUCOVY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 16:24:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbUCOVY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 16:19:45 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:5100 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262769AbUCOVS0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 16:18:26 -0500
-Date: Mon, 15 Mar 2004 22:18:18 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Thomas Schlichter <thomas.schlichter@web.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm2
-Message-ID: <20040315211818.GF660@suse.de>
-References: <20040314172809.31bd72f7.akpm@osdl.org> <200403152157.02051.thomas.schlichter@web.de> <20040315131852.3fd9cd93.akpm@osdl.org>
+	Mon, 15 Mar 2004 16:24:57 -0500
+Received: from 162.100.172.209.cust.nextweb.net ([209.172.100.162]:65419 "EHLO
+	jlundell.local") by vger.kernel.org with ESMTP id S262799AbUCOVYx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 16:24:53 -0500
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040315131852.3fd9cd93.akpm@osdl.org>
+Message-Id: <p0610033abc7bceda4ffd@[192.168.0.3]>
+In-Reply-To: <20040314032501.GT20174@waste.org>
+References: <40511868.4060109@usa.net>
+ <m17jxqf2xf.fsf@ebiederm.dsl.xmission.com> <4051EB42.8060903@pobox.com>
+ <m13c8ef11b.fsf@ebiederm.dsl.xmission.com>
+ <p0610032fbc77de2c9c28@[192.168.0.3]> <20040314032501.GT20174@waste.org>
+Date: Mon, 15 Mar 2004 13:24:41 -0800
+To: linux-kernel@vger.kernel.org
+From: Jonathan Lundell <jlundell@lundell-bros.com>
+Subject: Re: [PATCH] ethtool.h should use userspace-accessible types
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 15 2004, Andrew Morton wrote:
-> Thomas Schlichter <thomas.schlichter@web.de> wrote:
-> >
-> > ith 2.6.4-mm2 I get following badness on boot:
-> > 
-> > Badness in as_insert_request at drivers/block/as-iosched.c:1513
-> > Call Trace:
-> >  [<c022e326>] as_insert_request+0x166/0x190
-> >  [<c0225af8>] __elv_add_request+0x28/0x60
-> >  [<c0228b9b>] __make_request+0x47b/0x540
-> >  [<c0228d75>] generic_make_request+0x115/0x1d0
-> >  [<c011efd0>] autoremove_wake_function+0x0/0x40
-> >  [<c0228e80>] submit_bio+0x50/0xf0
-> >  [<c0162f58>] __bio_add_page+0x88/0x110
-> 
-> Someone got his bitmasks and bitshifts mixed up again ;)
+At 9:25 PM -0600 3/13/04, Matt Mackall wrote:
+>On Fri, Mar 12, 2004 at 01:48:54PM -0800, Jonathan Lundell wrote:
+>>  At 10:06 AM -0700 3/12/04, Eric W. Biederman wrote:
+>>  >My intent was to say:  Why change the types when there is no #ifdef
+>>  >__KERNEL__ in the header.  With no #ifdef __KERNEL__ it exports
+>>  >definitions that are private to the kernel making it not safe for
+>>  >userspace to use.  With kernel private definitions in there it will
+>>  >generate name space pollution if included by user space.
+>>
+>>  Presumably because it *is* included by userspace, because it defines
+>>  the interface between the kernel and userspace; of course userspace
+>>  will (does) include it.
+>
+>Well that's a bug. You don't include kernel headers in userspace.
+>Doing so has been deprecated for 8 years and 3 major releases.
 
-Fudge, thanks Andrew.
+Then it's a bug for the ethtool maintainer. ethtool.c #includes 
+ethtool-copy.h, a renamed copy of the kernel header file.
 
+I'm familiar with the deprecation and continue to be bewildered by 
+it. To take this particular example, ethtool.h defines an interface 
+between a kernel facility and a userspace client. What's the 
+non-deprecated method of sharing the interface definition?
 -- 
-Jens Axboe
-
+/Jonathan Lundell.

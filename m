@@ -1,53 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263229AbUEWSRQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263231AbUEWSS5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263229AbUEWSRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 14:17:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263231AbUEWSRQ
+	id S263231AbUEWSS5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 14:18:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263295AbUEWSS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 14:17:16 -0400
-Received: from cantor.suse.de ([195.135.220.2]:20962 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263229AbUEWSRO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 14:17:14 -0400
-Date: Sun, 23 May 2004 20:17:13 +0200
-From: Olaf Hering <olh@suse.de>
-To: Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] handle 512 byte aligned gzip headers
-Message-ID: <20040523181713.GA17359@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+	Sun, 23 May 2004 14:18:57 -0400
+Received: from mail.broadpark.no ([217.13.4.2]:48525 "EHLO mail.broadpark.no")
+	by vger.kernel.org with ESMTP id S263231AbUEWSSx convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 14:18:53 -0400
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@osdl.org
+Subject: [PATCH] Fix userspace inclusion of linux/fs.h (resend)
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Date: Sun, 23 May 2004 20:22:18 +0200
+Message-ID: <yw1x1xlb6m1x.fsf@kth.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The patch below fixes compilation of userspace using linux/fs.h.  The
+patch is against Linux 2.6.6.  Please apply of fix some other way.
 
-This one is from Al, maybe he sent it already. Some compressed initramfs
-cpio archive cant be uncompressed with current kernels.
-
- <viro>  olh: what happens does happen when the end of final header is well-aligned
- <viro>  olh: cpio does pad the sucker otherwise and that's enough to mask the bug in do_skip()
- <viro>  olh: if the end of header is on a multiple of 512, as it is in your case, it _is_ the last thing gunzip shoves into window
- <viro>  olh: and there's nothing past it
- <viro>  olh: fix is trivial - in do_skip() replace <= with <
-
-diff -purNX /tmp/kernel_exclude.txt linux-2.6.7-rc1.orig/init/initramfs.c linux-2.6.7-rc1/init/initramfs.c
---- linux-2.6.7-rc1.orig/init/initramfs.c	2004-05-10 02:31:59.000000000 +0000
-+++ linux-2.6.7-rc1/init/initramfs.c	2004-05-23 17:44:45.000000000 +0000
-@@ -207,7 +207,7 @@ static int __init do_header(void)
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/05/16 22:34:26+02:00 mru@ford.guide 
+#   fix userspace use of linux/fs.h
+# 
+# include/linux/fs.h
+#   2004/05/16 22:28:34+02:00 mru@ford.guide +3 -3
+#   move some #includes inside #ifdef __KERNEL__ to allow userspace inclusion
+# 
+diff -Nru a/include/linux/fs.h b/include/linux/fs.h
+--- a/include/linux/fs.h	2004-05-23 20:11:46 +02:00
++++ b/include/linux/fs.h	2004-05-23 20:11:46 +02:00
+@@ -13,14 +13,11 @@
+ #include <linux/types.h>
+ #include <linux/kdev_t.h>
+ #include <linux/ioctl.h>
+-#include <linux/list.h>
+ #include <linux/dcache.h>
+ #include <linux/stat.h>
+ #include <linux/cache.h>
+-#include <linux/radix-tree.h>
+ #include <linux/kobject.h>
+ #include <asm/atomic.h>
+-#include <linux/audit.h>
  
- static int __init do_skip(void)
- {
--	if (this_header + count <= next_header) {
-+	if (this_header + count < next_header) {
- 		eat(count);
- 		return 1;
- 	} else {
--- 
-USB is for mice, FireWire is for men!
+ struct iovec;
+ struct nameidata;
+@@ -213,6 +210,9 @@
+ 
+ #ifdef __KERNEL__
+ 
++#include <linux/list.h>
++#include <linux/radix-tree.h>
++#include <linux/audit.h>
+ #include <asm/semaphore.h>
+ #include <asm/byteorder.h>
+ 
 
-sUse lINUX ag, nÃœRNBERG
+-- 
+Måns Rullgård
+mru@kth.se

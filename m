@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311121AbSDMXc7>; Sat, 13 Apr 2002 19:32:59 -0400
+	id <S311025AbSDMXbQ>; Sat, 13 Apr 2002 19:31:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311147AbSDMXc6>; Sat, 13 Apr 2002 19:32:58 -0400
-Received: from server0011.freedom2surf.net ([194.106.56.14]:20580 "EHLO
-	server0011.freedom2surf.net") by vger.kernel.org with ESMTP
-	id <S311121AbSDMXc5>; Sat, 13 Apr 2002 19:32:57 -0400
-Date: Sun, 14 Apr 2002 00:40:22 +0100
-From: Ian Molton <spyro@armlinux.org>
-To: linux-kernel@vger.kernel.org
-Subject: usb-uhci *BUG*
-Message-Id: <20020414004022.6450f038.spyro@armlinux.org>
-Reply-To: spyro@armlinux.org
-Organization: The dragon roost
-X-Mailer: Sylpheed version 0.7.4cvs5 (GTK+ 1.2.10; )
+	id <S311121AbSDMXbQ>; Sat, 13 Apr 2002 19:31:16 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:4088
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S311025AbSDMXbP>; Sat, 13 Apr 2002 19:31:15 -0400
+Date: Sat, 13 Apr 2002 16:33:25 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Diego Calleja <DiegoCG@teleline.es>
+Cc: linux-kernel@vger.kernel.org, Lionel.Bouton@inet6.fr, alan@redhat.com
+Subject: Re: bug: Kernel timer added twice al c0198391 (2.4.19-pre5-ac3)
+Message-ID: <20020413233325.GT23513@matchmail.com>
+Mail-Followup-To: Diego Calleja <DiegoCG@teleline.es>,
+	linux-kernel@vger.kernel.org, Lionel.Bouton@inet6.fr,
+	alan@redhat.com
+In-Reply-To: <20020413145455.638a8c40.DiegoCG@teleline.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Sat, Apr 13, 2002 at 02:54:54PM +0200, Diego Calleja wrote:
+> Kernel used: 2.4.19-pre5-ac3
+> I have SiS 5513 IDE chipset
+[snip]
+> CONFIG_IDE_TASKFILE_IO=y
 
-I'm not familiar with the USB code, but I've been hitting a BUG() with my
-new OHCI card (sorry, it was cheap :(   )
+set this to "n".
 
-the BUG() is at line 464 in usb-ohci.h, which seems to be a linked-list
-traversal failing to find an entry.
+Andre has mentioned a few times that he needs to send a new patch to Alan.
+Until he does this, just disable this config option(recommended by Mr. Hedrick).
 
-the backtrace /does/ seem to be the same every time. I dont have ksymoops
-(on ARM I decode oopses with grep and system.map :). This appears not to
-work so well for X86, but here goes...
-
-c583708b  - n/a
-c01098fc  - follows handle_IRQ_event
-c0109a62  - preceeds request_irq
-c0106c10  - default_idle
-c0106c10  - default_idle
-c0106c33  - follows default_idle
-c0106c97  - follows cpu_idle
-c0105000  - _stext
-c0105027  - follows rest_init
+Mike

@@ -1,129 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbUL1MVf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbUL1NR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbUL1MVf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 07:21:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbUL1MVf
+	id S261187AbUL1NR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 08:17:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUL1NR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 07:21:35 -0500
-Received: from imap.gmx.net ([213.165.64.20]:29569 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261203AbUL1MV1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 07:21:27 -0500
-X-Authenticated: #23921511
-Message-ID: <41D14FAF.1070507@gmx.de>
-Date: Tue, 28 Dec 2004 13:21:03 +0100
-From: "prem.de.ms" <prem.de.ms@gmx.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: de-DE, de, en-us, en
+	Tue, 28 Dec 2004 08:17:29 -0500
+Received: from rainstorm.omikk.bme.hu ([152.66.114.242]:62981 "EHLO
+	rainstorm.org") by vger.kernel.org with ESMTP id S261175AbUL1NRM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 08:17:12 -0500
+Date: Tue, 28 Dec 2004 14:17:00 +0100 (CET)
+From: PALFFY Daniel <dpalffy-lists@rainstorm.org>
+To: linux-kernel@vger.kernel.org
+cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org
+Subject: sata_sil data corruption
+Message-ID: <Pine.LNX.4.58.0412281319001.5054@rainstorm.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, kraxel@bytesex.org
-Subject: problems with cx88 driver
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: 0.0 (/)
+X-Spam-Report: SpamAssassin, running on "rainstorm.org", analysis results
+	(contact the administrator of that system for details):
+	Content analysis details:   0.0 points
+	pts rule name              description
+	--- ---------------------- ------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-First of all, thanks Adrian, your cx88 patch works well.
-But I have some other problems with the cx88 driver:
-My card is sometimes shown as an unknown device and it is also 
-recognized as a "Hauppauge WinTV 34xxx models"  by dmesg and tvtime (the 
-card is a Hauppauge WinTV-PCI).
-The screen stays b/w until I set hue to 0 and saturation to 100 in tvtime.
+Hi,
 
-Here is the output of lspci -vv:
-00:0e.0 Multimedia video controller: Conexant: Unknown device 8800 (rev 05)
-       Subsystem: Hauppauge computer works Inc.: Unknown device 3401
-       Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-       Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-       Latency: 32 (5000ns min, 13750ns max), cache line size 08
-       Interrupt: pin A routed to IRQ 10
-       Region 0: Memory at ec000000 (32-bit, non-prefetchable) [size=16M]
-       Capabilities: [44] Vital Product Data
-       Capabilities: [4c] Power Management version 2
-               Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-               Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+I'm trying to set up a machine with a si3112a controller (lspci: 1095:3112
+(rev 01) Subsystem: 1095:6112, cheap PCI card) and a ST3200822AS Rev:
+3.01 disk and I see continuous silent data corruption while reading the
+disk. Writing seems to be ok. I have 2.6.10-ac1 built with conservative
+options (UP, no PREEMPT, 8k stack, no regparm). After seeing problems I
+tried to blacklist my drive to do MOD15, but it didn't help.
 
-00:0e.1 Multimedia controller: Conexant: Unknown device 8811 (rev 05)
-       Subsystem: Hauppauge computer works Inc.: Unknown device 3401
-       Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-       Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-       Latency: 32 (1000ns min, 63750ns max), cache line size 08
-       Interrupt: pin A routed to IRQ 10
-       Region 0: Memory at eb000000 (32-bit, non-prefetchable) [size=16M]
-       Capabilities: [4c] Power Management version 2
-               Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-               Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+Finally I did
 
-dmesg:
-[...]
-Linux video capture interface: v1.00
-cx2388x v4l2 driver version 0.0.4 loaded
-ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 10
-PCI: setting IRQ 10 as level-triggered
-ACPI: PCI interrupt 0000:00:0e.0[A] -> GSI 10 (level, low) -> IRQ 10
-cx88[0]: subsystem: 0070:3401, board: Hauppauge WinTV 34xxx models 
-[card=1,autodetected]
-cx88[0]: hauppauge eeprom: model=34514, tuner=LG TPI8PSB01D (28), radio=yes
-cx88[0]/0: found at 0000:00:0e.0, rev: 5, irq: 10, latency: 32, mmio: 
-0xec000000
-cx88[0]/0: registered device video0 [v4l2]
-cx88[0]/0: registered device vbi0
-cx88[0]/0: registered device radio0
-cx88[0]/0: set_audio_standard_BTSC (status: known-good)
-cx2388x blackbird driver version 0.0.4 loaded
-cx88[0]/0: cx88: tvaudio thread started
-cx88[0]/0: AUD_STATUS: 0x22 [mono/no pilot] ctl=BTSC_AUTO_STEREO
-tuner: chip found at addr 0xc2 i2c-bus cx88[0]
-tuner: type set to 28 (LG PAL_BG+FM (TPI8PSB01D)) by cx88[0]
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: IDE controller at PCI slot 0000:00:11.1
-[...]
-cx88[0]/0: AUD_STATUS: 0x5172 [mono/no pilot] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x5176 [mono/pilot c1] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x5172 [mono/no pilot] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x51b6 [mono/pilot c1] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x5172 [mono/no pilot] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x513a [mono/pilot c2] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x5132 [mono/no pilot] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x517a [mono/pilot c2] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x5176 [mono/pilot c1] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x51ba [mono/pilot c2] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x51b2 [mono/no pilot] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x5176 [mono/pilot c1] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x5172 [mono/no pilot] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x51f6 [mono/pilot c1] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x51f2 [mono/no pilot] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x51b2 [mono/no pilot] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x5172 [mono/no pilot] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x51b2 [mono/no pilot] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x517a [mono/pilot c2] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x5172 [mono/no pilot] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x51b2 [mono/no pilot] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x5176 [mono/pilot c1] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x513a [mono/pilot c2] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x50f6 [mono/pilot c1] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x5132 [mono/no pilot] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x5136 [mono/pilot c1] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x5176 [mono/pilot c1] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x5172 [mono/no pilot] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x51b2 [mono/no pilot] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x51f2 [mono/no pilot] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x51ba [mono/pilot c2] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x51b6 [mono/pilot c1] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x51f6 [mono/pilot c1] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x51b6 [mono/pilot c1] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x51f2 [mono/no pilot] ctl=A2_FORCE_MONO1
-cx88[0]/0: AUD_STATUS: 0x51b2 [mono/no pilot] ctl=A2_FORCE_MONO1
-[...and many lines similar to those before]
+    unsigned long long i = 0;
+    while (write(1, &i, sizeof(i)) != -1) i++;
 
-Any suggestions?
+to the only primary partition while running sata_sil. Reading it back with
+
+    unsigned long long i=0, j;
+    while (read(0, &j, sizeof(i)) == sizeof(i)) {
+        if (j != i) fprintf(stderr, "diff at %llx: read: %llx\n", i, j);
+        i++;
+    }
+
+gives similar results, but always different:
+diff at 5efff: read: 5ef24
+diff at 7ffff: read: 7ff08
+diff at 8ffff: read: 8ff51
+diff at 97fff: read: 97f00
+diff at affff: read: aff00
+diff at bffff: read: bffac
+diff at dffff: read: dff00
+diff at efffe: read: eff00
+diff at effff: read: eff00
+diff at fffbf: read: fffff
+and so on.
+
+Reading back the same data with the ide siimage driver worked for at least
+500MB without corrupted data, but dma doesn't work with that driver, this
+is logged on about the first read attempt:
+
+hde: dma_intr: bad DMA status (dma_stat=76)
+hde: dma_intr: status=0x50 { DriveReady SeekComplete }
+
+ide: failed opcode was: unknown
+hde: DMA disabled
+ide2: reset phy, status=0x00000113, siimage_reset
+ide2: reset: success
+
+The machine is an old Compaq Prosignia 200, with a p2 300 and
+0000:00:00.0 Host bridge: Intel Corp. 440FX - 82441FX PMC [Natoma] (rev 02)
+chipset. Relevant parts from dmesg:
+
+sata_sil:
+
+libata version 1.10 loaded.
+sata_sil version 0.8
+ata1: SATA max UDMA/100 cmd 0xC886A080 ctl 0xC886A08A bmdma 0xC886A000 irq 10
+ata2: SATA max UDMA/100 cmd 0xC886A0C0 ctl 0xC886A0CA bmdma 0xC886A008 irq 10
+ata1: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4003 85:3469 86:3c01 87:4003 88:207f
+ata1: dev 0 ATA, max UDMA/133, 390721968 sectors: lba48
+ata1(0): applying Seagate errata fix
+ata1: dev 0 configured for UDMA/100
+scsi1 : sata_sil
+ata2: no device found (phy stat 00000000)
+scsi2 : sata_sil
+  Vendor: ATA       Model: ST3200822AS       Rev: 3.01
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+SCSI device sdb: 390721968 512-byte hdwr sectors (200050 MB)
+SCSI device sdb: drive cache: write back
+
+siimage:
+
+SiI3112 Serial ATA: IDE controller at PCI slot 0000:00:0a.0
+SiI3112 Serial ATA: chipset revision 1
+SiI3112 Serial ATA: 100% native mode on irq 10
+    ide2: MMIO-DMA , BIOS settings: hde:DMA, hdf:DMA
+    ide3: MMIO-DMA , BIOS settings: hdg:pio, hdh:pio
+Probing IDE interface ide2...
+hde: ST3200822AS, ATA DISK drive
+hde: applying pessimistic Seagate errata fix
+ide2 at 0xc886a080-0xc886a087,0xc886a08a on irq 10
+hde: max request size: 7KiB
+hde: 390721968 sectors (200049 MB) w/8192KiB Cache, CHS=24321/255/63
+hde: cache flushes supported
+ hde:<3>hde: dma_intr: bad DMA status (dma_stat=76)
+hde: dma_intr: status=0x50 { DriveReady SeekComplete }
+
+ide: failed opcode was: unknown
+ hde1
+Probing IDE interface ide3...
+hdg: no response (status = 0xfe)
+hde: dma_intr: bad DMA status (dma_stat=76)
+hde: dma_intr: status=0x50 { DriveReady SeekComplete }
+
+ide: failed opcode was: unknown
+
+
+Any ideas how to fix this? Please tell me if you need more information.
+
+Thanks in advance
+
+--
+Daniel
+			...and Linux for all.
+

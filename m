@@ -1,38 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262563AbTDYB6q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 21:58:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbTDYB6q
+	id S262722AbTDYCwO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 22:52:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbTDYCwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 21:58:46 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:48748 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S262563AbTDYB6q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 21:58:46 -0400
-Date: Thu, 24 Apr 2003 19:10:50 -0700
-Message-Id: <200304250210.h3P2AoU12348@magilla.sf.frob.com>
+	Thu, 24 Apr 2003 22:52:14 -0400
+Received: from dial-ctb04195.webone.com.au ([210.9.244.195]:11525 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S262722AbTDYCwN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 22:52:13 -0400
+Message-ID: <3EA8A5A7.3080003@cyberone.com.au>
+Date: Fri, 25 Apr 2003 13:04:07 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jens Axboe <axboe@suse.de>
+CC: Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Badness in as-iosched:1210
+References: <Pine.LNX.4.50.0304222259300.2085-100000@montezuma.mastecende.com> <3EA7A0CC.50005@cyberone.com.au> <20030424084717.GF8775@suse.de> <3EA81A3B.80800@cyberone.com.au> <20030424173228.GT8775@suse.de>
+In-Reply-To: <20030424173228.GT8775@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [PATCH] i386 vsyscall DSO implementation
-In-Reply-To: Jeff Garzik's message of  Thursday, 24 April 2003 21:49:33 -0400 <3EA8942D.4050201@pobox.com>
-X-Windows: even not doing anything would have been better than nothing.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We already embed a cpio archive into __initdata space.  What about 
-> putting the images in there, and either copying the data out of 
-> initramfs, or, directly referencing the pages that store each image?
+Jens Axboe wrote:
 
-It doesn't matter to me, but I don't see the benefit to doing that.  It's
-rather unlike what initramfs is used for now and would need a bunch of
-extra code to accomplish something very simple.  
+>On Fri, Apr 25 2003, Nick Piggin wrote:
+>
+>>Jens Axboe wrote:
+>>
+>>
+>>>On Thu, Apr 24 2003, Nick Piggin wrote:
+>>>
+>>>
+>>>>Zwane Mwaikambo wrote:
+>>>>
+>>>>
+>>>>
+>>>>>I'm not sure wether you want this, it was during error handling from the 
+>>>>>HBA driver (source was disk error).
+>>>>>
+>>>>>scsi1: ERROR on channel 0, id 3, lun 0, CDB: Read (10) 00 00 7f de 60 00 
+>>>>>00 80 00 Info fld=0x7fdeb2, Current sdd: sense key Medium Error
+>>>>>Additional sense: Unrecovered read error
+>>>>>end_request: I/O error, dev sdd, sector 8380032
+>>>>>Badness in as_add_request at drivers/block/as-iosched.c:1210
+>>>>>
+>>>>>
+>>>>>
+>>>>Thanks I'll have a look.
+>>>>
+>>>>
+>>>The debug check looks broken, request could have come from somewhere
+>>>else than the block pool.
+>>>
+>>>
+>>Thats right. I thought these requests would all be
+>>!blk_fs_request()s though. It should be only the debug
+>>checks which are wrong.
+>>
+>
+>Exactly, the rest looks ok, the debug trigger is wrong :). The
+>add_request() strategy is the entry point for all types of requests, not
+>just blk_fs_request()
+>
+No but it is as_insert_request which is that entry point. It
+should only calls as_add_request for a blk_fs_request.
 
-The DSO images are not stored page-aligned and padded in the kernel image,
-so the pages can't be used directly.  Storing them that way would use more
-space in the kernel image on disk, and then you'd want to free initdata
-page containing the unused one.

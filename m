@@ -1,59 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130367AbRAHRO5>; Mon, 8 Jan 2001 12:14:57 -0500
+	id <S131009AbRAHRQ5>; Mon, 8 Jan 2001 12:16:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131979AbRAHROr>; Mon, 8 Jan 2001 12:14:47 -0500
-Received: from z211-19-80-61.dialup.wakwak.ne.jp ([211.19.80.61]:15612 "EHLO
-	220fx.luky.org") by vger.kernel.org with ESMTP id <S130367AbRAHROg>;
-	Mon, 8 Jan 2001 12:14:36 -0500
-To: linux-kernel@vger.kernel.org
-Subject: typo in linux-2.2.18/Documentation/usb/usb-serial.txt
-X-Mailer: Mew version 1.94.2 on XEmacs 21.1 (Canyonlands)
+	id <S131698AbRAHRQr>; Mon, 8 Jan 2001 12:16:47 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:1043 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S131127AbRAHRQc>;
+	Mon, 8 Jan 2001 12:16:32 -0500
+Date: Mon, 8 Jan 2001 18:16:25 +0100
+From: Andi Kleen <ak@suse.de>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
+Subject: [PATCH,serious] Fix raid5 crashes in 2.4.0
+Message-ID: <20010108181625.A11766@gruyere.muc.suse.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20010109022407R.shibata@luky.org>
-Date: Tue, 09 Jan 2001 02:24:07 +0900
-From: Hisaaki Shibata <shibata@luky.org>
-X-Dispatcher: imput version 20000414(IM141)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-I tried to use USB-SERIAL converter shown in 
-http://www.century.co.jp/products/usb_serial1a.html
-that uses Prolific chip.
+Hallo Linus,
 
-Prolific USB2SERIAL is not supported yet,
-so I tried to "generic".
-Then I found typo in the document.
+The following patch fixes an oops in 2.4.0 RAID5 initialisation when the kernel
+was configured without CONFIG_X86_FXSR but is booted on a CPU supporting SSE. 
+The problem is that without the FXSR config the OSFXSR flag is not set during
+bootup, which causes any operation referencing XMM registers to fault. The 
+raid code only checks for XMM support though, but not if FXSR support is enabled.
+The sse2 code would oops while it's do its speed benchmarks, which happens at boot
+when RAID5 is compiled in.
+This patch just makes the SSE2 code conditional on CONFIG_X86_FXSR||
+CONFIG_X86_RUNTIME_FXSR
 
-Here is a tiny patch.
+I think it would impact CD users when their kernel doesn't boot because of this. 
+It happened on several machines at SuSE.
+Please consider it for 2.4.1.
 
-     BTW. I can not use prolific U2S yet.
-     Any comments?
+-Andi
 
-
---- usb-serial.txt~     Tue Jan  9 02:12:55 2001
-+++ usb-serial.txt      Tue Jan  9 02:13:30 2001
-@@ -196,7 +196,7 @@
-   
-   To enable the generic driver to recognize your device, build the driver
-   as a module and load it by the following invocation:
--       insmod usb-serial vendor=0x#### product=0x####
-+       insmod usbserial vendor=0x#### product=0x####
-   where the #### is replaced with the hex representation of your device's
-   vendor id and product id.
-
-Best Regards,
-Hisaaki Shibata
-
--- 
- WWWWW  shibata@luky.org
- |O-O|  Hisaaki Shibata JAPAN
-0(mmm)0 P-mail: 070-5419-3233    IRC: #luky
-   ~    http://his.luky.org/ last update:2000.3.12
+--- linux-work/include/asm/xor.h-o	Sat Dec 23 08:13:50 2000
++++ linux-work/include/asm/xor.h	Mon Jan  8 16:33:26 2001
+@@ -13,6 +13,8 @@
+  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
++#include <linux/config.h>
++
+ /*
+  * High-speed RAID5 checksumming functions utilizing MMX instructions.
+  * Copyright (C) 1998 Ingo Molnar.
+@@ -525,6 +527,8 @@
+ #undef FPU_SAVE
+ #undef FPU_RESTORE
+ 
++#if defined(CONFIG_X86_FXSR) || defined(CONFIG_X86_RUNTIME_FXSR)
++
+ /*
+  * Cache avoiding checksumming functions utilizing KNI instructions
+  * Copyright (C) 1999 Zach Brown (with obvious credit due Ingo)
+@@ -835,6 +839,26 @@
+         do_5: xor_sse_5,
+ };
+ 
++#define XOR_SSE2 \
++	        if (cpu_has_xmm)			\
++			xor_speed(&xor_block_pIII_sse);	
++
++
++/* We force the use of the SSE xor block because it can write around L2.
++   We may also be able to load into the L1 only depending on how the cpu
++   deals with a load to a line that is being prefetched.  */
++#define XOR_SELECT_TEMPLATE(FASTEST) \
++	(cpu_has_xmm ? &xor_block_pIII_sse : FASTEST)
++
++#else
++
++/* Don't try any SSE2 when FXSR is not enabled, because OSFXSR will not be set
++   -AK */ 
++#define XOR_SSE2 
++#define XOR_SELECT_TEMPLATE(FASTEST) (FASTEST)
++
++#endif
++
+ /* Also try the generic routines.  */
+ #include <asm-generic/xor.h>
+ 
+@@ -843,16 +867,9 @@
+ 	do {						\
+ 		xor_speed(&xor_block_8regs);		\
+ 		xor_speed(&xor_block_32regs);		\
+-	        if (cpu_has_xmm)			\
+-			xor_speed(&xor_block_pIII_sse);	\
++		XOR_SSE2	\
+ 	        if (md_cpu_has_mmx()) {			\
+ 	                xor_speed(&xor_block_pII_mmx);	\
+ 	                xor_speed(&xor_block_p5_mmx);	\
+ 	        }					\
+ 	} while (0)
+-
+-/* We force the use of the SSE xor block because it can write around L2.
+-   We may also be able to load into the L1 only depending on how the cpu
+-   deals with a load to a line that is being prefetched.  */
+-#define XOR_SELECT_TEMPLATE(FASTEST) \
+-	(cpu_has_xmm ? &xor_block_pIII_sse : FASTEST)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

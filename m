@@ -1,52 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132844AbRDPCrI>; Sun, 15 Apr 2001 22:47:08 -0400
+	id <S132847AbRDPDa0>; Sun, 15 Apr 2001 23:30:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132845AbRDPCq5>; Sun, 15 Apr 2001 22:46:57 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:21253 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S132844AbRDPCqr>;
-	Sun, 15 Apr 2001 22:46:47 -0400
-Date: Mon, 16 Apr 2001 04:46:30 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Ben Greear <greearb@candelatech.com>
-Cc: george anzinger <george@mvista.com>,
-        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
-        linux-kernel@vger.kernel.org,
-        high-res-timers-discourse@lists.sourceforge.net
-Subject: Re: No 100 HZ timer!
-Message-ID: <20010416044630.A18776@pcep-jamie.cern.ch>
-In-Reply-To: <200104131205.f3DC5KV11393@sleipnir.valparaiso.cl> <3AD77540.42BF138E@mvista.com> <20010414011035.D2290@pcep-jamie.cern.ch> <3ADA60C6.1593A2BF@candelatech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3ADA60C6.1593A2BF@candelatech.com>; from greearb@candelatech.com on Sun, Apr 15, 2001 at 08:02:30PM -0700
+	id <S132848AbRDPDaR>; Sun, 15 Apr 2001 23:30:17 -0400
+Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:12015
+	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
+	id <S132847AbRDPD37>; Sun, 15 Apr 2001 23:29:59 -0400
+From: Jesse Pollard <jesse@cats-chateau.net>
+Reply-To: jesse@cats-chateau.net
+To: Jonathan Lundell <jlundell@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: fsck, raid reconstruction & bad bad 2.4.3
+Date: Sun, 15 Apr 2001 21:51:52 -0500
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <E14oxbX-0000oM-00@sites.inka.de> <01041521302600.15046@tabby> <p05100b09b7000a8c3bc9@[207.213.214.34]>
+In-Reply-To: <p05100b09b7000a8c3bc9@[207.213.214.34]>
+MIME-Version: 1.0
+Message-Id: <01041522295701.15046@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Greear wrote:
-> > Note that jumping around the array thrashes no more cache than
-> > traversing a tree (it touches the same number of elements).  I prefer
-> > heap-ordered trees though because fixed size is always a bad idea.
-> 
-> With a tree, you will be allocating and de-allocating for every
-> insert/delete right?
+On Sun, 15 Apr 2001, Jonathan Lundell wrote:
+>At 9:23 PM -0500 2001-04-15, Jesse Pollard wrote:
+>> >b) wait with fsck until rebuild is fixed
+>>
+>>Depends on your definition of "fixed". The most I can see to fix is
+>>reduce the amount of continued update in favor of updating those blocks
+>>being read (by fsck or anything else). This really ought to be a runtime
+>>configuration option. If it is set to 0, then no automatic repair would
+>>be done.
+>
+>The original post was referring to RAID 1; there's no repair necessary at
+>the RAID level to give fsck the correct data. Seems to me the basic problem
+>here is that the RAID re-sync is supposed to be throttling back to allow other
+>activity to run, but that in the case of fsck the other activity is still
+>slower by a large factor (compared to no RAID re-sync).
 
-No, there is no memory allocation.
+If I've got the numbering right;
+	0 - concatenated stripes => no sync required
+	1 - mirrored => resync required
+		a: which drive has the correct info?
+		b: having determined that, read the correct block,
+		   it must now be written to the mirror.
+	all others => resync required (rebuild possible bad block)
 
-> On cache-coherency issues, wouldn't it be more likely to have a cache
-> hit when you are accessing one contigious (ie the array) piece of
-> memory?  A 4-k page will hold a lot of indexes!!
+>Is this a pathological case because of the way fsck does business, or does
+>the RAID re-sync affect any disk-bound process that severely?
 
-No, because when traversing an array-heap, you don't access contiguous
-entries.  You might get one or two more cache hits near the root of the
-heap.
+My experience has been with hardware raid, and even then there has been
+a 1-5% decrease in I/O during resync (not accurately measured - fsck took
+longer, and then only when the channel is maxed out -- otherwise the 1-5% is
+not visible; filesystem was 3 IRIX efs, spread across two raid luns).
 
-> To get around the fixed size thing..could have
-> the array grow itself when needed (and probably never shrink again).
+fsck is particularly bad, since nearly every read instigates a write to
+the mirror drive. Fsck can then modify the block and write it back, causing
+two more writes; for a total of 3 writes for a read (worst case).
 
-You could to that, but then you'd have to deal with memory allocation
-failures and memory deadlocks, making add_timer rather complicated.
-It's not acceptable for add_timer to fail or require kmalloc().
+It does mean that when fsck finishes, MOST of the re-sync will be finished.
+All of the metadata will be synced, and only file data blocks will remain.
 
--- Jamie
+-- 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: jesse@cats-chateau.net
+
+Any opinions expressed are solely my own.

@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311032AbSCHTdk>; Fri, 8 Mar 2002 14:33:40 -0500
+	id <S311059AbSCHThk>; Fri, 8 Mar 2002 14:37:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311058AbSCHTda>; Fri, 8 Mar 2002 14:33:30 -0500
-Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:30622 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S311032AbSCHTdR>; Fri, 8 Mar 2002 14:33:17 -0500
-Date: Fri, 8 Mar 2002 19:32:57 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: furwocks: Fast Userspace Read/Write Locks
-Message-ID: <20020308193257.B18247@kushida.apsleyroad.org>
-In-Reply-To: <E16iwkE-000216-00@wagner.rustcorp.com.au> <20020307153228.3A6773FE06@smtp.linux.ibm.com> <20020307104241.D24040@devserv.devel.redhat.com> <20020307191043.9C5F33FE15@smtp.linux.ibm.com> <a68htg$bc1$1@cesium.transmeta.com> <20020308172706.1e4d3f5e.rusty@rustcorp.com.au>
-Mime-Version: 1.0
+	id <S311066AbSCHThb>; Fri, 8 Mar 2002 14:37:31 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:65279 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S311059AbSCHThZ>; Fri, 8 Mar 2002 14:37:25 -0500
+Date: Fri, 08 Mar 2002 11:36:31 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Andrea Arcangeli <andrea@suse.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] stop null ptr deference in __alloc_pages
+Message-ID: <7730000.1015616191@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020308172706.1e4d3f5e.rusty@rustcorp.com.au>; from rusty@rustcorp.com.au on Fri, Mar 08, 2002 at 05:27:06PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> One or more userspace processes share address space, so they can both do
-> simple atomic operations on the same memory (hence the new PROT_SEM flag to
-> mmap/mprotect for architectures which need to know).  They agree that "this
-> address contains an integer which we use as a mutex" (aka. struct futex).
+Summary: Avoid null ptr defererence in __alloc_pages
+This exists in 2.4. and 2.5
 
-FWIW, there is a precedent from FreeBSD for a MAP_HASSEMAPHORE flag
-meaning "this region may contain semaphores".
+Configuration: a NUMA (ia32) system which only has highmem 
+on one or more nodes.
 
-I don't know if that implies anything about the support of futex system
-calls, but it may be the appropriate flag to indicate "atomic operations
-are seen as such between processes on these pages".
+Action to create: Try to allocate ZONE_NORMAL memory 
+from a node which only has highmem. What we should do
+is fall back to another node, looking for ZONE_NORMAL
+memory.
 
--- Jamie
+In looking at the specified zonelist, we panic because that zonelist
+is NULL. The simple patch below avoids the null deference, and 
+returns failure. alloc_pages will continue looking through the nodes
+until it finds one with some ZONE_NORMAL memory. We actually
+panic at the moment a few lines later when we do,
+classzone->need_balance = 1; thus dereferencing the pointer.
+
+--- linux-2.4.18-memalloc/mm/page_alloc.c.old	Fri Mar  8 18:21:41 2002
++++ linux-2.4.18-memalloc/mm/page_alloc.c	Fri Mar  8 18:23:27 2002
+@@ -317,6 +317,8 @@
+ 
+ 	zone = zonelist->zones;
+ 	classzone = *zone;
++	if (classzone == NULL)
++		return NULL;
+ 	min = 1UL << order;
+ 	for (;;) {
+ 		zone_t *z = *(zone++);
+

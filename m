@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269288AbUICIt0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269430AbUICIxs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269288AbUICIt0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 04:49:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269248AbUICIrm
+	id S269430AbUICIxs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 04:53:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269363AbUICIwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 04:47:42 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:28636 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S269368AbUICI3O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 04:29:14 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: The argument for fs assistance in handling archives
-Date: Fri, 3 Sep 2004 10:30:58 +0200
-User-Agent: KMail/1.6.2
-Cc: David Masover <ninja@slaphack.com>, Spam <spam@tnonline.net>,
-       Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
-       Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-References: <20040826150202.GE5733@mail.shareable.org> <4137BE36.5020504@slaphack.com> <20040903091352.A2288@infradead.org>
-In-Reply-To: <20040903091352.A2288@infradead.org>
+	Fri, 3 Sep 2004 04:52:32 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:45063 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S269317AbUICIuH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 04:50:07 -0400
+Message-ID: <41383142.4080201@hist.no>
+Date: Fri, 03 Sep 2004 10:54:26 +0200
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409031030.58319.oliver@neukum.org>
+To: =?UTF-8?B?R3J6ZWdvcnogSmHFm2tpZXdpY3o=?= <gryzman@gmail.com>
+CC: Greg KH <greg@kroah.com>, Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+References: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com> <200408290004.i7T04DEO003646@localhost.localdomain> <20040901224513.GM31934@mail.shareable.org> <20040903082256.GA17629@kroah.com> <2f4958ff04090301326e7302c1@mail.gmail.com>
+In-Reply-To: <2f4958ff04090301326e7302c1@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 3. September 2004 10:13 schrieb Christoph Hellwig:
-> On Thu, Sep 02, 2004 at 07:43:34PM -0500, David Masover wrote:
+Grzegorz Jaśkiewicz wrote:
 
-> > | There's no need to do that in kernel, unless you want to be able
-> > | to force it unto users.
-> > 
-> > And on apps.  Should I teach OpenOffice.org to do version control?
-> > Seems a lot easier to just do it in the kernel, and teach everything to
-> > do version control in one fell swoop.
-> 
-> Just add a post-save trigger that can check it into any SCM you want.
+>
+>devfs was very natural, and simple solution. But to have it right, it
+>would have to be the only /dev filesystem.
+>But no, we like choices, so we have chaos. 
+>Udev is just another thing adding to that chaos.
+>
+>Someone was numbering things that are good in BSD design, in that
+>thread. One of those things was going for devfs. No cheap solutions.
+>One fs for /dev. And it works great.
+>
+>Sorry for bit of trolling.
+>  
+>
+Devfs was a ver good idea.  The implementation of it
+was a problem, and after some time nobody maintained it.
+No surprise it had to go.  Now udev+tmpfs can do the same
+job, and more.
 
-That depends on whom you refer to. If you want to impose the RCS
-on the users as an administrative measure and force compliance, then
-you'll need to do it in kernel.
-I see some nasty issues with disk quotas there.
-
-	Regards
-		Oliver
+Helge Hafting

@@ -1,41 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263448AbUDTSQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263688AbUDTS0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263448AbUDTSQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 14:16:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263724AbUDTSQQ
+	id S263688AbUDTS0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 14:26:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263734AbUDTS0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 14:16:16 -0400
-Received: from fw.osdl.org ([65.172.181.6]:660 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263448AbUDTSQP (ORCPT
+	Tue, 20 Apr 2004 14:26:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:60570 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263688AbUDTS0X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 14:16:15 -0400
-Date: Tue, 20 Apr 2004 18:15:59 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jamie Lokier <jamie@shareable.org>
-cc: chris@scary.beasts.org, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add 64-bit get_user and __get_user for i386
-In-Reply-To: <20040420174147.GA20924@mail.shareable.org>
-Message-ID: <Pine.LNX.4.58.0404201808150.2653@ppc970.osdl.org>
-References: <20040420020922.GA18348@mail.shareable.org>
- <Pine.LNX.4.58.0404191945490.29941@ppc970.osdl.org> <20040420174147.GA20924@mail.shareable.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Apr 2004 14:26:23 -0400
+Date: Tue, 20 Apr 2004 11:25:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: andrea@suse.de, agruen@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: slab-alignment-rework.patch in -mc
+Message-Id: <20040420112556.400ea49e.akpm@osdl.org>
+In-Reply-To: <40855C97.1090006@colorfullife.com>
+References: <1082383751.6746.33.camel@f235.suse.de>
+	<20040419162533.GR29954@dualathlon.random>
+	<4084017C.5080706@colorfullife.com>
+	<20040420002423.469cca01.akpm@osdl.org>
+	<20040420144937.GG29954@dualathlon.random>
+	<40855C97.1090006@colorfullife.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 20 Apr 2004, Jamie Lokier wrote:
+Manfred Spraul <manfred@colorfullife.com> wrote:
 >
-> Patch re-rolled.  The only change is the removal of that cast,
-> and a clarifying comment in getuser.S.
+> Andrea Arcangeli wrote:
+> 
+> >On Tue, Apr 20, 2004 at 12:24:23AM -0700, Andrew Morton wrote:
+> >  
+> >
+> >>So I do think that we should either make "align=0" translate to "pack them
+> >>densely" or do the big sweep across all kmem_cache_create() callsites.
+> >>    
+> >>
+> >
+> >agreed.
+> >  
+> >
+> What about this proposal:
+> SLAB_HWCACHE_ALIGN clear: align to max(sizeof(void*), align).
+> SLAB_HWCACHE_ALIGN set: align to max(cpu_align(), align).
+> 
+> cpu_align is the cpu cache line size - either runtime or compile time.
+> 
+> Or are there users that want an alignment smaller than sizeof(void*)?
 
-Well, it's not applying against current kernels (which have already 
-un-inlined some of these things), and that comment still isn't clear to 
-me. There's a comment about casting things, but the thing is, the macro 
-contains no casts anywhere...
+I doubt if this is likely to cause problems, and in cases where we expect
+to have really large numbers of objects we could explicitly select an
+alignment of 4 anyway.
 
-Other than that, I'm convinced.
-
-		Linus
+But why would you choose to make the "SLAB_HWCACHE_ALIGN clear" case use
+sizeof(void*) rather than sizeof(int)?

@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318231AbSIKARB>; Tue, 10 Sep 2002 20:17:01 -0400
+	id <S318229AbSIKAQ0>; Tue, 10 Sep 2002 20:16:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318230AbSIKARB>; Tue, 10 Sep 2002 20:17:01 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:50185 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S318231AbSIKARA>; Tue, 10 Sep 2002 20:17:00 -0400
-Date: Wed, 11 Sep 2002 02:20:25 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       kbuild-devel <kbuild-devel@lists.sourceforge.net>
-Subject: Re: linux kernel conf 0.5
-In-Reply-To: <3D7E83F4.6050302@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.44.0209110204180.8911-100000@serv>
+	id <S318230AbSIKAQ0>; Tue, 10 Sep 2002 20:16:26 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:3054 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S318229AbSIKAQ0>; Tue, 10 Sep 2002 20:16:26 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Date: Wed, 11 Sep 2002 10:21:04 +1000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15742.35952.363082.526569@notabene.cse.unsw.edu.au>
+Cc: Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Multi-path IO in 2.5/2.6 ?
+In-Reply-To: message from James Bottomley on Monday September 9
+References: <200209091458.g89Evv806056@localhost.localdomain>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Monday September 9, James.Bottomley@steeleye.com wrote:
+> 
+> Well, neither of the people most involved in the development (that's Neil 
+> Brown for md in general and Ingo Molnar for the multi-path enhancements) made 
+> any comments---see if you can elicit some feedback from either of them.
 
-On Tue, 10 Sep 2002, Jeff Garzik wrote:
+I'm fairly un-interested in multipath.  I try not to break it while
+tidying up the generic md code, but apart from that I leave it alone.
 
-> How about posting a kernel patch (or link to one) that you feel is
-> suitable for 2.5.x integration?  That makes it a bit easier to review in
-> context, and may help to resolve any final integration issues.
+For failover, I suspect that md is an appropriate place for multipath,
+though it would be nice to get more detail error information from the
+lower levels.
 
-That depends on what you want to see. The package itself is installed
-under scripts/lkc ("make install" just makes a symlink) and is pretty much
-the same you find in the archive (minus the converter). A problem here is
-that the current kbuild can't deal with C++ files and builds too much
-even if you just want a single target, so it's currently not using the
-kbuild infrastructure.
-The other big part are the converted config files, they are currently
-generated as Config.new, so they can be easily removed again. A "final"
-patch would be hardly readable. Installing (and uninstalling) the package
-into a kernel tree is quite simple, so I prefer to do it this way to save
-bandwidth.
+For load balancing you really need something lower down, just below
+the elevator would seem right: at the request_fn level rather than
+make_request_fn.
 
-> For the record I like what I've seen so far...
+But all that has pretty much been said.
 
-Thanks. :)
-
-bye, Roman
-
+NeilBrown

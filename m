@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264531AbTDPSb3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 14:31:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264533AbTDPSb3
+	id S264518AbTDPSmU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 14:42:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264533AbTDPSmU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 14:31:29 -0400
-Received: from mcomail02.maxtor.com ([134.6.76.16]:14860 "EHLO
-	mcomail02.maxtor.com") by vger.kernel.org with ESMTP
-	id S264531AbTDPSb2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 14:31:28 -0400
-Message-ID: <785F348679A4D5119A0C009027DE33C102E0D134@mcoexc04.mlm.maxtor.com>
-From: "Mudama, Eric" <eric_mudama@maxtor.com>
-To: "'Anders Larsson'" <anders@dio.jll.se>, linux-kernel@vger.kernel.org
-Subject: RE: bio too big device
-Date: Wed, 16 Apr 2003 12:43:06 -0600
+	Wed, 16 Apr 2003 14:42:20 -0400
+Received: from freeside.toyota.com ([63.87.74.7]:38862 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP id S264518AbTDPSmT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 14:42:19 -0400
+Message-ID: <3E9DA6CC.3030700@tmsusa.com>
+Date: Wed, 16 Apr 2003 11:54:04 -0700
+From: jjs <jjs@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: RedHat 9 and 2.5.x support
+References: <20030416165408.GD30098@wind.cocodriloo.com> <1050511742.15637.24.camel@localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Robert Love wrote:
 
-
-> -----Original Message-----
-> From: Anders Larsson [mailto:anders@dio.jll.se]
-> Sent: Wednesday, April 16, 2003 12:32 PM
+>On Wed, 2003-04-16 at 12:54, Antonio Vargas wrote:
 >
-> hdg: WDC WD1200JB-00DUA0, ATA DISK drive  
-> hdg: host protected area => 1
-> hdg: 234441648 sectors (120034 MB) w/8192KiB Cache, 
-> CHS=14593/255/63,       
-> UDMA(100)
-> 
-> hdh: WDC WD1200JB-75CRA0, ATA DISK drive
-> hdh: host protected area => 1
-> hdh: setmax LBA 234441648, native  234375000
-> hdh: 234375000 sectors (120000 MB) w/8192KiB Cache, 
-> CHS=232514/16/63,       
-> UDMA(100)
+>  
+>
+>>I've just installed RedHat 9 on my desktop machine and I'd like
+>>if it will support running under 2.5.65+ instead of his usual
+>>2.4.19+.
+>>    
+>>
+>
+>Other than modutils(*) there are no issues with RH9 and 2.5.  I am
+>running RH9 with 2.5 on my daily workstation.
+>
+>Even NPTL, sysenter, and all the other goodies work flawlessly.  It is
+>quite nice.
+>
 
+Bestaetigt!
 
-On hdh, it appears you're setting the max lba > the native size.  Maybe this
-is the problem.
+RH9 + 2.5.67-mm is quite nice here - apache,
+squid, postfix, iptables, openvpn, bind - and a
+very snappy X11 desktop -
 
-For RAID on two drives, I would imagine your RAID size would need to be the
-size of the smaller device, not the larger device.  (Note that they aren't
-identical).
+The only extra requirement is rusty's module
+init-tools.
 
-Not sure if the two different CHS translation modes on each drive is
-important or not (probably not), that legacy bios stuff is something that
-has always confused me...
+Joe
 
---eric

@@ -1,37 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266911AbRG1QSX>; Sat, 28 Jul 2001 12:18:23 -0400
+	id <S266907AbRG1QUN>; Sat, 28 Jul 2001 12:20:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266919AbRG1QSN>; Sat, 28 Jul 2001 12:18:13 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:4593 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S266907AbRG1QSC>;
-	Sat, 28 Jul 2001 12:18:02 -0400
-Date: Sat, 28 Jul 2001 12:18:02 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Chris Mason <mason@suse.com>
-cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [RFC] using writepage to start io
-In-Reply-To: <76740000.996336108@tiny>
-Message-ID: <Pine.GSO.4.21.0107281210460.11772-100000@weyl.math.psu.edu>
+	id <S266906AbRG1QUD>; Sat, 28 Jul 2001 12:20:03 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25107 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S266907AbRG1QTr>; Sat, 28 Jul 2001 12:19:47 -0400
+Subject: Re: TYan K7 Thunder: AMD-760 MP support
+To: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sat, 28 Jul 2001 17:21:02 +0100 (BST)
+Cc: pgallen@randomlogic.com (Paul G. Allen),
+        linux-kernel@vger.kernel.org (Linux kernel developer's mailing list)
+In-Reply-To: <m1y9p9cc5g.fsf@frodo.biederman.org> from "Eric W. Biederman" at Jul 28, 2001 09:21:31 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15QWpq-0007qG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+> Grr.  I lied.  There is code on linux-ide.org that contains a native ide
+> driver.  I thought I saw it in 2.4.7 but I was seeing things.
 
-
-On Sat, 28 Jul 2001, Chris Mason wrote:
-
-> 
-> Hello everyone,
-> 
-> This is an rfc only, as the code has only been _lightly_ tested.  I'll
-> do more tests/benchmarks next week.
-> 
-> This patch changes fs/buffer.c to use writepage to start i/o,
-> instead of writing buffers directly.  It also changes refile_buffer
-> to mark the page dirty when marking buffers dirty.
-
-->writepage() unlocks the page upon completion. How do you deal with that?
-
+2.4.7ac should be up to date on it

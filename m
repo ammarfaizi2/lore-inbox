@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283597AbRK3KwE>; Fri, 30 Nov 2001 05:52:04 -0500
+	id <S283603AbRK3LBE>; Fri, 30 Nov 2001 06:01:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283599AbRK3Kvy>; Fri, 30 Nov 2001 05:51:54 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8207 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S283597AbRK3Kvi>; Fri, 30 Nov 2001 05:51:38 -0500
-Subject: Re: 32 bit UIDs on 2.4.14
-To: jose@iteso.mx
-Date: Fri, 30 Nov 2001 10:59:49 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0111292002540.29568-100000@iteso.mx> from "jose@iteso.mx" at Nov 29, 2001 08:06:30 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S283601AbRK3LAy>; Fri, 30 Nov 2001 06:00:54 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:53633 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S283610AbRK3LAj>; Fri, 30 Nov 2001 06:00:39 -0500
+Date: Fri, 30 Nov 2001 13:05:33 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: XT-PIC vs IO-APIC and PCI devices
+Message-ID: <Pine.LNX.4.33.0111301241410.4564-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E169lOX-00035g-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   What is the trick to get more than 2^16 uids working on all services?=
-> ?
+Hi,
+	I'm trying to get a PCI device (network) to work on one of my
+boxes, and thus far i've only managed to get it to work with "noapic".
+Without that kernel option the card stops processing interrupts (as can be
+observed in /proc/interrupts) after about ~100 on each CPU. Are there any
+things i should look out for when trying to track down the problem?
+I've tried swapping the card around in different slots just in case it
+was an IRQ routing problem (as suggested by various folks) to no avail.
+The box is an IBM Netfinity 3500M20 SMP rig.
 
-2.4.x kernel
-Glibc 2.2
-Up to date pam modules
-ext2/ext3 file system
+Any suggestions would be greatly appreciated,
 
-patches needed for quotas
+Regards,
+	Zwane Mwaikambo
+
 

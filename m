@@ -1,82 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264260AbTLFAhz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 19:37:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbTLFAhz
+	id S264881AbTLFAvE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 19:51:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264887AbTLFAvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 19:37:55 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:9934 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S264260AbTLFAhx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 19:37:53 -0500
-Subject: Re: Catching NForce2 lockup with NMI watchdog - found?
-From: Craig Bradney <cbradney@zip.com.au>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3FD12114.7080505@gmx.de>
-References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F87E@mail-sc-6.nvidia.com>
-	 <3FD1199E.2030402@gmx.de> <1070669706.3987.4.camel@athlonxp.bradney.info>
-	 <3FD12114.7080505@gmx.de>
-Content-Type: text/plain
-Message-Id: <1070671068.3972.6.camel@athlonxp.bradney.info>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 06 Dec 2003 01:37:48 +0100
+	Fri, 5 Dec 2003 19:51:04 -0500
+Received: from gizmo07bw.bigpond.com ([144.140.70.17]:13720 "HELO
+	gizmo07bw.bigpond.com") by vger.kernel.org with SMTP
+	id S264881AbTLFAvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 19:51:01 -0500
+Message-ID: <3FD127F2.48A190E5@eyal.emu.id.au>
+Date: Sat, 06 Dec 2003 11:50:58 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.23 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23aa1 - scsi/pcmcia qlogic still does not build (m)
+References: <20031205022225.GA1565@dualathlon.random> <3FD07392.A47A0A6D@eyal.emu.id.au> <20031205230922.GF2121@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-12-06 at 01:21, Prakash K. Cheemplavam wrote:
-> Craig Bradney wrote:
-> > On Sat, 2003-12-06 at 00:49, Prakash K. Cheemplavam wrote:
-> > 
-> >>Hi,
-> >>
-> >>*maybe* I found the bugger, at least I got APIC more stable (need to 
-> >>test whether oit is really stable, compiling kernel right now...):
-> >>
-> >>It is a problem with CPU disconnect function. I tried various parameters 
-> >>in bios and turned cpu disconnect off, and tada, I could do several 
-> >>subsequent hdparms and machine is running! As CPU disconnect is a ACPI 
-> >>state, if I am not mistkaen, I think there is something broken in ACPI 
-> >>right now or in APIC and cpu disconnect triggers the bug.
-> >>
-> >>Maybe now my windows environment is stable, as well. It was much more 
-> >>stable with cpu disconnect and apic, nevertheless seldomly locked up.
-> >>
-> >>
-> >>So gals and guys, try disabling cpu disconnect in bios and see whether 
-> >>aopic now runs stable.
-> > 
-> > 
-> >>I have an Abit NF7-S Rev2.0 with Bios 2.0.
-> > 
-> > 
-> >>Prakash
-> > 
-> > 
-> > I rebooted and checked in my BIOS, I dont seem to have "CPU Disconnect"?
-> > Is there another name. I also downloaded the motherboard manual for your
-> > NF7-S and cant find it there either?
+Andrea Arcangeli wrote:
 > 
-> th efull name should be "CPU Disconnect Function". it is an the page 
-> with "enhanced pci performance", "enable system bios caching" ".. video 
-> bios caching" and all the spread spectrums. I have forgotten the name of 
-> that page in the main menu. Should the 3 or 4 in the first column.
+> On Fri, Dec 05, 2003 at 11:01:22PM +1100, Eyal Lebedinsky wrote:
+> > Andrea Arcangeli wrote:
+> > >
+> > > This should be the last 2.4-aa kernel ;)
+> >
+> > I guess nobody volunteered to fix it since -pre6aa2...
+> >
+> > It builds just fine in vanilla 2.4.23.
 > 
-> Perhaps your BIOS is too old. I remember it only came with 1.8 (or 
-> alike) and later. But usually this setting should be disabled at default.
-> 
-> My machine still hasn't locked, btw. :-)
+> is the error still the same as in your email with ID
+> 20031002152648.GB1240@velociraptor.random right?
 
+Yes, problem with module_init. Same with fdomain etc..
 
-Sounds great.. maybe you have come across something. Yes, the CPU
-Disconnect function arrived in your BIOS in revision of 2003/03/27
-"6.Adds"CPU Disconnect Function" to adjust C1 disconnects. The Chipset
-does not support C2 disconnect; thus, disable C2 function."
+I disabled the subsystem in order to complete the build.
 
-For me though.. Im on an ASUS A7N8X Deluxe v2 BIOS 1007. From what I can
-see the CPU Disconnect isnt even in the Uber BIOS 1007 for this ASUS
-that has been discussed.
+Here is an example of the failure (for another module in this
+subsystem):
 
-Craig
+ld -m elf_i386 -r -o aha152x_cs.o aha152x_stub.o aha152x.o
+aha152x.o: In function `init_module':
+aha152x.o(.text+0x50f0): multiple definition of `init_module'
+aha152x_stub.o(.text+0x740): first defined here
+ld: Warning: size of symbol `init_module' changed from 77 to 58 in
+aha152x.o
+aha152x.o: In function `cleanup_module':
+aha152x.o(.text+0x5130): multiple definition of `cleanup_module'
+aha152x_stub.o(.text+0x790): first defined here
+ld: Warning: size of symbol `cleanup_module' changed from 40 to 16 in
+aha152x.o
+make[3]: *** [aha152x_cs.o] Error 1
+make[3]: Leaving directory
+`/data2/usr/local/src/linux-2.4-aa/drivers/scsi/pcmcia'
 
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

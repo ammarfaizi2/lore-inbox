@@ -1,141 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270942AbRH1V2i>; Tue, 28 Aug 2001 17:28:38 -0400
+	id <S271082AbRH1VpL>; Tue, 28 Aug 2001 17:45:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271032AbRH1V23>; Tue, 28 Aug 2001 17:28:29 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:60378 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S270942AbRH1V2N>;
-	Tue, 28 Aug 2001 17:28:13 -0400
-Date: Tue, 28 Aug 2001 14:28:29 -0700
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Multicast
-Message-ID: <20010828142829.F8147@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <87009604743AD411B1F600508BA0F95994CA6A@XOVER.dedham.mindspeed.com>
+	id <S271142AbRH1VpC>; Tue, 28 Aug 2001 17:45:02 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:59233 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S271082AbRH1Vo5>;
+	Tue, 28 Aug 2001 17:44:57 -0400
+Message-ID: <20010828234521.A20830@win.tue.nl>
+Date: Tue, 28 Aug 2001 23:45:21 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: nick@guardiandigital.com, linux-kernel@vger.kernel.org
+Subject: units - was: Re: Determining maximum partition size...
+In-Reply-To: <3B82BCCB.377BCC4@guardiandigital.com> <3B82BCCB.377BCC4@guardiandigital.com> <20010828142315.A20775@win.tue.nl> <5.1.0.14.2.20010828134152.04eeaa10@pop.cus.cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <87009604743AD411B1F600508BA0F95994CA6A@XOVER.dedham.mindspeed.com>; from mark.clayton@netplane.com on Tue, Aug 28, 2001 at 04:12:23PM -0400
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+X-Mailer: Mutt 0.93i
+In-Reply-To: <5.1.0.14.2.20010828134152.04eeaa10@pop.cus.cam.ac.uk>; from Anton Altaparmakov on Tue, Aug 28, 2001 at 01:53:29PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 28, 2001 at 04:12:23PM -0400, Clayton, Mark wrote:
+On Tue, Aug 28, 2001 at 01:53:29PM +0100, Anton Altaparmakov wrote:
+
+> > > I thought maybe Linux set 1MB=1000k but that doesn't seem to case.
+
+> >Well, 1 M = 1000 k by definition of the SI system of units.
+> >This has nothing to do with Linux.
 > 
-> I think this is what I recall doing: 	
-> 
-> socket(AF_INET, SOCK_DGRAM, 0);
-> 
-> setsockopt(SO_REUSEADDR)
-> 
-> if ((remote_addr & 0xF0000000) == 0xE0000000) then saddr.sin_addr.s_addr 
-> is INADDR_ANY otherwise use local_addr.  Port is local_port
-> bind(saddr);
-> 
-> ipMreq.imr_multiaddr.s_addr = htonl(multicast_addr);
-> ipMreq.imr_address.s_addr   = htonl(local_addr);
-> ipMreq.imr_ifindex          = if_index (from /sbin/ipmaddr)
-> setsockopt(IP_ADD_MEMBERSHIP, ipMreq
-> 
-> /* mcast sends */
-> ifAddr.s_addr = htonl(local_addr) 
-> setsockopt(IP_MULTICAST_IF, ifAddr);
-> 
-> setsockopt(SIOCGIFNAME, if_index);
-> 
-> setsockopt(SO_BINDTODEVICE)
-> 
-> Also, I think that for SOCK_RAW there needs to be a second
-> socket just for reading.  But I don't recall the details.
-> 
-> If this helps, feel free to post the details to the list
-> in a summary.  Please remove references to me though.
-> 
-> Thanks,
-> Mark
+> While it is true that M = 10^6 and k = 10^3, surely that doesn't apply to 
+> byte quantities?!? At least I have always interpreted 1 Megabyte = 1024 
+> kilobytes = 1024*1024 bytes
 
 
-	I did my little investigation and looked int he kernel for
-answers.
+Ah, an old discussion - I imagine it must have occurred here a few times.
+Anyway: k is the prefix for 1000, M is the prefix for 1000000. Always.
 
-	I was already looking at SO_BINDTODEVICE. This is very
-powerful, unfortunately, it's reserved for ROOT. Maybe running my
-program as root is not the brightest idea.
-	Also, one might wonder why IP_MULTICAST_IF doesn't set
-sk->bound_dev_if itself, which would be logical (it only checks that
-the interface is the same as sk->bound_dev_if but seem to forget to
-set it in .../net/ipv4/sockglue.c).
+But there is a natural sloppiness, where people round numbers when either
+the precise size is unimportant, or is clear from the context.
+If xyzzies come in boxes of 27 and I say that I bought a hundred xyzzies
+then that probably means that in fact I bought 108.
 
-	Anyway, doing this definitely fix the problem :
-------------------------------------------
-socket(AF_INET, SOCK_DGRAM, 0);
-setsockopt(SO_BINDTODEVICE, ONE_INTERFACE);
-bind(sock, INADDR_ANY, MY_PORT);
-setsockopt(IP_ADD_MEMBERSHIP, INADDR_ALLHOSTS_GROUP, ONE_INTERFACE);
-setsockopt(IP_MULTICAST_IF, ONE_INTERFACE);
-------------------------------------------
-	Works as advertised : you can have one and only one socket per
-interface.
+Thus, our old PDP8 with 4k of memory had 4096 12-bit words, that is,
+6 KiB in modern terminology.
 
-	Now, let's have a bit of fun... If you do :
-------------------------------------------
-socket(AF_INET, SOCK_DGRAM, 0);
-bind(sock, INADDR_ANY, MY_PORT);
-setsockopt(SO_BINDTODEVICE, ONE_INTERFACE);
-setsockopt(IP_ADD_MEMBERSHIP, INADDR_ALLHOSTS_GROUP, ONE_INTERFACE);
-setsockopt(IP_MULTICAST_IF, ONE_INTERFACE);
-------------------------------------------
-	In that case, the kernel let you open more than one socket per
-interface (two, there...). I don't know if its intended, but it works
-fine ;-)
+You see two very different situations here: "precise size is unimportant"
+and "precise size is clear from the context". When someone says that she
+bought a 10 GB disk I will assume that the precise size is somewhere
+between 9.5 and 10.5 GB. This is the "rounded" case.
+When someone says that she bought a 32 MB SIMM I will assume that this was
+32 MiB, that is, 2^25 bytes, since, unlike disks, memory modules tend to
+come in power-of-two units. This is the "clear from the context" case.
 
-	And you can also do this :
-------------------------------------------
-socket(AF_INET, SOCK_DGRAM, 0);
-bind(sock, INADDR_ANY, MY_PORT);
-setsockopt(IP_ADD_MEMBERSHIP, INADDR_ALLHOSTS_GROUP, ONE_INTERFACE);
-setsockopt(IP_MULTICAST_IF, ONE_INTERFACE);
-setsockopt(SO_BINDTODEVICE, ANOTHER_INTERFACE);
-------------------------------------------
-	This will send packet on ANOTHER_INTERFACE, but the source
-address of those packet will be the one of ONE_INTERFACE.
-
-	And if you look in .../net/core/sock.c, you will realise that
-these two calls are handled very differently :
-------------------------------------------
-setsockopt(SO_BINDTODEVICE, "", 0);
-setsockopt(SO_BINDTODEVICE, "", IFNAMSIZ);
-------------------------------------------
-	Which mean the man page need to be fixed ;-)
-
-	Anyway, I don't really want to rely on SO_BINDTODEVICE,
-because it needs ROOT capability.
-
-
-	Now, you suggestions to use SO_REUSEADDR is spot on. It works
-as any user. I get a little bit more than I bargained for (I want only
-one socket per interface), but that's ok...
-	In other words, this works :
-------------------------------------------
-socket(AF_INET, SOCK_DGRAM, 0);
-setsockopt(SO_REUSEADDR, 1);
-bind(sock, INADDR_ANY, MY_PORT);
-setsockopt(IP_ADD_MEMBERSHIP, INADDR_ALLHOSTS_GROUP, ONE_INTERFACE);
-setsockopt(IP_MULTICAST_IF, ONE_INTERFACE);
-------------------------------------------
-	With one little caveat : such socket seems to receive
-multicast comming from all interfaces. In other words, it seem that
-IP_MULTICAST_IF only act on the outgoing path.
-	In other words, IP_MULTICAST_IF doesn't do much... At least,
-much less that what you would believe it to do...
-
-	Also, using both SO_BINDTODEVICE and SO_REUSEADDR may be
-overkill...
-
-	That's it...
-
-	Jean
+Andries

@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290157AbSBLLn4>; Tue, 12 Feb 2002 06:43:56 -0500
+	id <S290969AbSBLLqh>; Tue, 12 Feb 2002 06:46:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290969AbSBLLnq>; Tue, 12 Feb 2002 06:43:46 -0500
-Received: from tux.rsn.bth.se ([194.47.143.135]:48579 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S290157AbSBLLni>;
-	Tue, 12 Feb 2002 06:43:38 -0500
-Date: Tue, 12 Feb 2002 12:43:26 +0100 (CET)
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Question about i820 chipset.
-Message-ID: <Pine.LNX.4.21.0202121242350.19967-100000@tux.rsn.bth.se>
-X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290974AbSBLLq1>; Tue, 12 Feb 2002 06:46:27 -0500
+Received: from mail.turbolinux.co.jp ([210.171.55.67]:21772 "EHLO
+	mail.turbolinux.co.jp") by vger.kernel.org with ESMTP
+	id <S290969AbSBLLqK>; Tue, 12 Feb 2002 06:46:10 -0500
+Date: Tue, 12 Feb 2002 20:44:52 +0900
+From: Go Taniguchi <go@turbolinux.co.jp>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 8139too Allied Telesyn's 8139 compatible CadBus
+Message-Id: <20020212204452.541db02d.go@turbolinux.co.jp>
+Organization: Turbolinux
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+Hi,
 
-I have some small questions...
+This is Allied Telesyn's 8139 compatible CadBus ethernet patch.
+Japanese vendor, Melco and IO-data use this chip.
+Status is completed.
 
-Have you ever tried a motherboard with i820 chipset and two NIC's?
-I have a Asus P3C-D here (dual pIII 800 with 256MB rimm) and a D-Link
-DFE570-TX NIC (quad DECchip 21143 behind a DECchip 21152 pci bridge).
+Please apply it.
 
-The problem I'm seeing is extremely crappy pci performance.
-With one of the NIC's active I see no real problems but when two NIC's are
-active at the same time all hell breaks loose :(
-
-if I generate traffic out via 2 NIC's at the same time I'd expect to get
-about 2 x 100Mbit/s but in reality I get 2 x 25Mbit/s with this
-motherboard. and with 3 NIC's active I get about 3 x 15-20Mbit/s.
-
-I tried replacing the motherboard with an old SMP board based on the 440bx
-chipset (cpus underclocked to 600MHz) and then I can easily get 3 x
-100Mbit/s with 25-30% cpu used in the machine.
-
-So my question is, have you ever seen such pci issues? I've tried all
-BIOS settings I could find and a lot of diffrent kernels. I've also tried
-the vanilla tulip-driver and the NAPI'fied one (which I have been helping
-to test) and both show the exact same performanceproblems.
-
-I tried routing a lot of packets and it started dropping a lot of packets
-when the cpu was only 75% used according to both vmstat and cyclesoak
-(with an UP kernel). A profile shows that default_idle gets about 25% of
-the time. I assume the kernel is waiting for the pci bus.
-
-And the last question, if you have the hardware, would you mind testing
-something similar on the Asus A7M266-D? We've been thinking of getting a
-few of these boards to replace the crappy i820 ones.
-
-I saw that you included a patch for MPS 1.4 in -pre9-ac1, was this the
-same patch you were talking about earlier and does it work?
-
-/Martin
-
-Never argue with an idiot. They drag you down to their level, then beat you with experience.
-
-
+--- linux/drivers/net/8139too.c.orig	Sun Feb 10 15:31:47 2002
++++ linux/drivers/net/8139too.c	Sun Feb 10 15:34:23 2002
+@@ -216,6 +216,7 @@
+ 	DFE538TX,
+ 	DFE690TXD,
+ 	FE2000VX,
++	ALLIED8139,
+ 	RTL8129,
+ } board_t;
+ 
+@@ -234,6 +235,7 @@
+ 	{ "D-Link DFE-538TX (RealTek RTL8139)", RTL8139_CAPS },
+ 	{ "D-Link DFE-690TXD (RealTek RTL8139)", RTL8139_CAPS },
+ 	{ "AboCom FE2000VX (RealTek RTL8139)", RTL8139_CAPS },
++	{ "Allied Telesyn 8139 CardBus", RTL8139_CAPS },
+ 	{ "RealTek RTL8129", RTL8129_CAPS },
+ };
+ 
+@@ -248,6 +250,7 @@
+ 	{0x1186, 0x1300, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DFE538TX },
+ 	{0x1186, 0x1340, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DFE690TXD },
+ 	{0x13d1, 0xab06, PCI_ANY_ID, PCI_ANY_ID, 0, 0, FE2000VX },
++	{0x1259, 0xa117, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ALLIED8139 },
+ 
+ #ifdef CONFIG_8139TOO_8129
+ 	{0x10ec, 0x8129, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RTL8129 },

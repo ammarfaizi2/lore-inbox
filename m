@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136707AbRASWTK>; Fri, 19 Jan 2001 17:19:10 -0500
+	id <S131397AbRASW1p>; Fri, 19 Jan 2001 17:27:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136467AbRASWTA>; Fri, 19 Jan 2001 17:19:00 -0500
-Received: from gateway.sequent.com ([192.148.1.10]:49313 "EHLO
-	gateway.sequent.com") by vger.kernel.org with ESMTP
-	id <S136707AbRASWSt>; Fri, 19 Jan 2001 17:18:49 -0500
-Date: Fri, 19 Jan 2001 14:18:44 -0800
-From: Mike Kravetz <mkravetz@sequent.com>
-To: Davide Libenzi <davidel@xmail.virusscreen.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, lse-tech@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: multi-queue scheduler update
-Message-ID: <20010119141844.I26968@w-mikek.des.sequent.com>
-In-Reply-To: <20010118155311.B8637@w-mikek.des.sequent.com> <20010119124921.G26968@w-mikek.des.sequent.com> <20010119135135.H26968@w-mikek.des.sequent.com> <01011914030601.01005@ewok.dev.mycio.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <01011914030601.01005@ewok.dev.mycio.com>; from davidel@xmail.virusscreen.com on Fri, Jan 19, 2001 at 02:03:06PM -0800
+	id <S132115AbRASW1f>; Fri, 19 Jan 2001 17:27:35 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:18943 "EHLO
+	fungus.svenskatest.se") by vger.kernel.org with ESMTP
+	id <S131397AbRASW1V>; Fri, 19 Jan 2001 17:27:21 -0500
+Date: Fri, 19 Jan 2001 23:27:08 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+To: <linux-kernel@vger.kernel.org>
+cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, Rainer Mager <rmager@vgkk.com>,
+        "Scott A. Sibert" <kernel@hollins.edu>
+Subject: [patch] smbfs cache rewrite for 2.4.1-pre
+Message-ID: <Pine.LNX.4.30.0101192034500.30403-100000@cola.teststation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 19, 2001 at 02:03:06PM -0800, Davide Libenzi wrote:
-<stuff deleted>
-> > void            oneatwork(int thr)
-> > {
-> >     int             i;
-> >     while (!start)              /* don't disturb pthread_create() */
-> >         usleep(10000);
-> >
-> >     actthreads++;
-> >     while (!stop)
-> >     {
-> >         if (count)
-> >             totalwork[thr]++;
-> >
-> >         syscall(158); /* sys_sched_yield() */
-> >     }
-> >     actthreads--;
-> >     pthread_exit(0);
-> > }
-> >
-> > Note that actthreads is a global variable which is being updated
-> > by multiple threads without any form of synchronization.  Because
-> > of this actthreads sometimes never goes to zero after all worker
-> > threads have finished. 
-> 
-> If all threads complete successfully actthreads has to be zero.
 
-Not as currently coded.  If two threads try to decrement actthreads
-at the same time, there is no guarantee that it will be decremented
-twice.  That is why you need to put some type of synchronization in
-place.
+There have been a few reports on oopses in smbfs on 2.4 boxes with highmem
+support enabled. This patch tries to fix that.
 
--- 
-Mike Kravetz                                 mkravetz@sequent.com
-IBM Linux Technology Center
+The patch replaces the smbfs dir cache code with something based on the
+ncpfs code. Petr should recognize almost all of it. And the ntfs code has
+contributed with new time decoding functions.
+
+
+It compiles, it mounts and it hasn't crashed yet. No guarantees beyond
+that. Tested on 2.4.1-pre3 and pre8, and pre8+HIGHMEM_DEBUG_MERE_MORTALS-1
+(allows highmem use on non-highmem box). I have repeated crashes (hangs)
+on the old cache code but not the new, so maybe it is better.
+
+The patch is 34k. Those who want to test it or comment on it may download
+it from here.
+http://www.hojdpunkten.ac.se/054/samba/smbfs-2.4.1-pre3-cache.patch
+
+There are a few things that are incomplete. The dates don't consider
+timezones (I think), it should only work with win9x/NT/2k servers. And I
+suspect the caching part doesn't use any of the things it caches (but I
+know that some parts are disabled).
+
+/Urban
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,43 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263711AbTLOQce (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 11:32:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263751AbTLOQcd
+	id S263772AbTLOQtq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 11:49:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbTLOQtq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 11:32:33 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:6584 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S263711AbTLOQcc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 11:32:32 -0500
-Date: Mon, 15 Dec 2003 08:32:30 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Sergey Vlasov <vsu@altlinux.ru>
-Cc: linux-kernel@vger.kernel.org, bitkeeper-users@bitmover.com
-Subject: Re: RFC - tarball/patch server in BitKeeper
-Message-ID: <20031215163230.GB3947@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Sergey Vlasov <vsu@altlinux.ru>, linux-kernel@vger.kernel.org,
-	bitkeeper-users@bitmover.com
-References: <20031214172156.GA16554@work.bitmover.com> <2259130000.1071469863@[10.10.2.4]> <20031215151126.3fe6e97a.vsu@altlinux.ru> <20031215132720.GX7308@phunnypharm.org> <20031215192402.528ce066.vsu@altlinux.ru>
+	Mon, 15 Dec 2003 11:49:46 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:15597 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263772AbTLOQto (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 11:49:44 -0500
+Date: Mon, 15 Dec 2003 17:49:33 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Bob <recbo@nishanet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test11 ps2 mouse giving corrupt data?
+Message-ID: <20031215164933.GA8676@ucw.cz>
+References: <200312121236.38692.andrew@walrond.org> <20031212141521.GA27405@ucw.cz> <3FDA8F5F.1030506@nishanet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031215192402.528ce066.vsu@altlinux.ru>
-User-Agent: Mutt/1.4i
+In-Reply-To: <3FDA8F5F.1030506@nishanet.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 15, 2003 at 07:24:02PM +0300, Sergey Vlasov wrote:
-> On Mon, 15 Dec 2003 08:27:20 -0500 Ben Collins wrote:
-> Keeping that history is good. But the main 2.4 branch also has its own
-> history - and it shows that there were no XFS code in that branch up
-> to and including 2.4.23.
+On Fri, Dec 12, 2003 at 11:02:39PM -0500, Bob wrote:
+> Vojtech Pavlik wrote:
 > 
-> There does not seem to be a way to get this information - at least
-> through bkbits.net.
+> >On Fri, Dec 12, 2003 at 12:36:38PM +0000, Andrew Walrond wrote:
+> > 
+> >
+> >>I have just switched from l2.4 to 2.6 on my thinkpad, and the mouse does 
+> >>something wierd when I boot into x (kde)
+> >>
+> >>startx, then wait for everything to load, then move mouse. Mouse goes 
+> >>crazy, menus pop up everywhere as though I were pressing buttons, and 
+> >>after about 3 seconds, it all settles down and works perfectly.
+> >>   
+> >>
+> >
+> >Most likely X does something nasty to the keyboard controller while it
+> >is starting up. The psmouse kernel driver has an autosync feature which
+> >can get it out of trouble if you don't move the mouse for two seconds.
+> > 
+> >
+> When did the autosync feature arrive?
+> It doesn't work for me(k2.6.11 with
+> MSI K7N2 Delta nforce2 mboard
+> and k2.6.11 with Shuttle Xpc SK41G
+> FX41 mboard with VIA fsb) if ps2
+> kvm switch(Belkin) is switched away.
 
-There isn't, someone would need to come up with a good graph drawing alg that
-works in a web browser.  We tried java and it sucked.
+2.5.something.
+
+Now when your Belkin switch resets the mouse, the autosync will not
+work, as it only compensates for lost bytes, not a complete protocol
+change. Use 'psmouse_noext" on the kernel command line to disable wheel
+handling and it'll work OK.
+
+(Automatic mouse reinitialization is on the planned feature list.)
+
+> When sync is lost on my pc's I have to
+> reboot. Symptoms are the same, on X or
+> text term--any mouse movement triggers
+> selects and buttons down but the correct
+> events do not occur.
+> 
+> With a kvm switch k-2.6.? loses psmouse
+> sync on the off pc. Rebooting is the only
+> solution. I got tired of this and moved the
+> mouse(logitech trackman fx) to one pc,
+> so the other only has to boot with the
+> mouse attached either to kvm or ps2
+> port on pc. That's fine until moving the
+> mouse back and forth for rebooting
+> causes the pc with X running to lose
+> sync. Then it can't regain sync.
+> 
+> -Bob
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Vojtech Pavlik
+SuSE Labs, SuSE CR

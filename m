@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266676AbTGFO0p (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 10:26:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266677AbTGFO0p
+	id S261292AbTGFOtT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 10:49:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTGFOtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 10:26:45 -0400
-Received: from imap.gmx.net ([213.165.64.20]:28064 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266676AbTGFO0o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 10:26:44 -0400
-Date: Sun, 6 Jul 2003 16:41:14 +0200
-From: diemumiee@gmx.de
-To: linux-kernel@vger.kernel.org
-Subject: ATI IGP Support
-Message-ID: <20030706144114.GA23881@durix.hallo.net>
+	Sun, 6 Jul 2003 10:49:19 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:42467 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S261292AbTGFOtS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 10:49:18 -0400
+Date: Sun, 6 Jul 2003 09:41:56 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.22-pre3
+Message-ID: <20030706134156.GG502@phunnypharm.org>
+References: <Pine.LNX.4.55L.0307052151180.21992@freak.distro.conectiva>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pWyiEgJYm5f9v55/"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55L.0307052151180.21992@freak.distro.conectiva>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jul 05, 2003 at 10:02:09PM -0300, Marcelo Tosatti wrote:
+> 
+> Hi,
+> 
+> Here goes -pre3. It contains a lot of updates and fixes all over.
 
---pWyiEgJYm5f9v55/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Any chance you could be consistent in tagging the -pre's? Neither pre2,
+nor pre3 is tagged in BK, and thus, not tagged in CVS/SVN either.
 
-Hi,=20
-Is there currently any work done at the ATI IGP 320 chipsets?
-Any kernel patches that I could test?
+It just makes it easier when tracking down regressions to have known
+points of reference common across BK/CVS/SVN/tar+diff.
 
-Regards
-Andreas Pokorny
-
---pWyiEgJYm5f9v55/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/CDUKURwbI8A03OsRAiSEAKCzF0IOuuyZTjJIY0q70OXOpVze4ACfR/Cq
-4Sx1Bn+2jwpfuzEQSnNziVs=
-=nb+7
------END PGP SIGNATURE-----
-
---pWyiEgJYm5f9v55/--
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

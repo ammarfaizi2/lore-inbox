@@ -1,72 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263675AbRFCRiv>; Sun, 3 Jun 2001 13:38:51 -0400
+	id <S263127AbRFCOnH>; Sun, 3 Jun 2001 10:43:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263685AbRFCRTp>; Sun, 3 Jun 2001 13:19:45 -0400
-Received: from wet.kiss.uni-lj.si ([193.2.98.10]:27917 "EHLO
-	wet.kiss.uni-lj.si") by vger.kernel.org with ESMTP
-	id <S263673AbRFCQk5>; Sun, 3 Jun 2001 12:40:57 -0400
-Message-ID: <3B1A67E3.9060907@kiss.uni-lj.si>
-Date: Sun, 03 Jun 2001 18:37:55 +0200
-From: Sasa Ostrouska <maja.ostrouska@kiss.uni-lj.si>
-Reply-To: maja.ostrouska@kiss.uni-lj.si
-Organization: Redos d.o.o.
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5 i686; en-US; rv:0.9) Gecko/20010505
-X-Accept-Language: en
+	id <S262930AbRFCMkK>; Sun, 3 Jun 2001 08:40:10 -0400
+Received: from mail.iwr.uni-heidelberg.de ([129.206.104.30]:45535 "EHLO
+	mail.iwr.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id <S262901AbRFCMJG>; Sun, 3 Jun 2001 08:09:06 -0400
+Date: Sun, 3 Jun 2001 14:09:01 +0200 (CEST)
+From: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
+To: jamal <hadi@cyberus.ca>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Pete Zaitcev <zaitcev@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <netdev@oss.sgi.com>
+Subject: Re: [PATCH] support for Cobalt Networks (x86 only) systems (forrealthis
+In-Reply-To: <Pine.GSO.4.30.0106011357000.11540-100000@shell.cyberus.ca>
+Message-ID: <Pine.LNX.4.33.0106031401050.31050-100000@kenzo.iwr.uni-heidelberg.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Linux-2.4.5 BUG
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi to all of you !
+On Sat, 2 Jun 2001, jamal wrote:
 
-I have this problem with the linux-2.4.5. When I want to shutdown the
-system I get this error message:
+> Still, the tx watchdogs are a good source of fault detection in the case
+> of non-availabilty of MII detection and even with the presence of MII.
 
-//////
+Agreed. But my question was a bit different: is there any legit situation
+where Tx timeouts can happen in a row _without_ having a link loss ? In
+this situation, we'd have false positives...
 
-journal_begin called without kernel lock held
-kernel BUG at journal.c:423!
-invalid operand: 0000
-CPU:    1
-EIP:    0010:[<c0175420>]
-EFLAGS: 00010286
+> "Dynamic" in the above sense means trying to totaly avoid making it a
+> synchronous poll. The poll rate is a function of how many packets go out
+> that device per average measurement time. Basically, the period that the
+> user space app dumps "hello" netlink packets to the kernel is a variable.
 
-eax: 0000001d ebx: c12b3f2c ecx: 00000001 edx: 00000001
-esi: c7f41600 edi: c12b3f2c ebp: 0000000a esp: c12b3ec4
-ds: 0018  es: 0018  ss: 0018
+Sounds nice, but could this be implemented light enough ?
 
-Process umount (pid: 2861, stackpage = c12b3000)
+-- 
+Bogdan Costescu
 
-Stack: c025416c c0254304 000001a7 c017791e c0255321 c12b3f2c c7f41600 
-c02996a0
-        c7f41644 3b1a4df9 c12b3f98 00000000 3b1a4df9 00000010 c025532f 
-c0177b4e
-        c12b3f2c c7f41600 0000000a 00000000 c0169d7c c12b3f2c c7f41600 
-0000000a
-
-Call Trace: [<c017791e>] [<c0177b4e>] [<c0169d7c>] [<c013722c>] [<c013725f>]
-             [<c01365a0>] [<c013c2e8>] [<c0137721>] [<c0137754>] 
-[<c0106c6b>]
-
-Code: 0f 0b 83 c4 0c c3 89 f6 31 c0 c3 90 31 c0 c3 90 56 53 31 db
-
-Unmounting any remaining filesystems...
-
-//////
-
-Then the machine stops and I have to switch it off ,
-I use the
-linux-2.4.5 kernel
-with reiserfs compiled in
-and glibc-2.2.2
-
-If you can help me solve this would be very apreciated.
-
-Thank you in advance.
-
-Sasa Ostrouska
+IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
+Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
+Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
+E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
 

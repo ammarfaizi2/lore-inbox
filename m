@@ -1,72 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311057AbSCHT0T>; Fri, 8 Mar 2002 14:26:19 -0500
+	id <S311054AbSCHT03>; Fri, 8 Mar 2002 14:26:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311044AbSCHT0K>; Fri, 8 Mar 2002 14:26:10 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:52720
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S311051AbSCHTZz>; Fri, 8 Mar 2002 14:25:55 -0500
-Date: Fri, 8 Mar 2002 11:26:43 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] preempt-kernel on 2.4.19-pre2-ac2 bugfix
-Message-ID: <20020308192643.GA29073@matchmail.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020308022751.GF28141@matchmail.com> <E16jKJX-00069s-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16jKJX-00069s-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.27i
+	id <S311044AbSCHT0T>; Fri, 8 Mar 2002 14:26:19 -0500
+Received: from stargazer.compendium-tech.com ([64.156.208.76]:25787 "EHLO
+	stargazer.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S311056AbSCHT0N>; Fri, 8 Mar 2002 14:26:13 -0500
+Date: Fri, 8 Mar 2002 11:25:33 -0800 (PST)
+From: Kelsey Hudson <khudson@compendium-tech.com>
+To: Arjan van de Ven <arjan@fenrus.demon.nl>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Submitting PROMISE IDE Controllers Driver Patch
+In-Reply-To: <20020308085028.A14375@fenrus.demon.nl>
+Message-ID: <Pine.LNX.4.44.0203081124580.20142-100000@sol.compendium-tech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 08, 2002 at 01:21:39PM +0000, Alan Cox wrote:
-> > Won't this show up in rss or some other ps mem listing -or- is this
-> > something that hasn't been exported to user space before on linux?
+On Fri, 8 Mar 2002, Arjan van de Ven wrote:
+
+> On Fri, Mar 08, 2002 at 09:35:35AM +0100, Martin Dalecki wrote:
+> > Please look closer at my posting. I just think, that since there
+> > are apparently no tru hardware raid devices out there it would
+> > be sufficient to expand the detection code to not ignore
+> > RAID class devices at all. This would just prevent
+> > us from having two different entries in the
+> > device detection list. Not much more involved I think.
 > 
-> It might show up in /proc/<pid>/* - the maps list will show address
-> spaces. Otherwise address space leaks have always been invisible and its
-> only when you leak to 3Gb of unused address space the app will notice if
-> its never touching it
-> 
+> There's one tiny glitch: there are exactly 2 "real" raid devices out there
+> (that I know of at least). But anyway, a "don't look at" list will be
+> MUCH shorter than a "look also at" list.
 
-I couldn't find any processes that looked to use a lot of address space, so
-I switched to single user mode (kills most everything...) and ran pstree and
-/proc/memstat:
+I know of two Promise cards that do hardware raid, and I know there are 
+several cards available from 3Ware that also do hardware ata raid
 
-init-+-bdflush
-     |-init---bash---pstree
-     |-keventd
-     |-kjournald
-     |-ksoftirqd_CPU0
-     |-kswapd
-     |-kupdated
-     |-lockd
-     |-mdrecoveryd
-     `-rpciod
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  129662976 110067712 19595264        0 11984896 78237696
-Swap: 500056064    40960 500015104
-MemTotal:       126624 kB
-MemFree:         19136 kB
-MemShared:           0 kB
-Buffers:         11704 kB
-Cached:          76364 kB
-SwapCached:         40 kB
-Active:          62440 kB
-Inact_dirty:      9568 kB
-Inact_clean:     16780 kB
-Inact_target:    17756 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       126624 kB
-LowFree:         19136 kB
-SwapTotal:      488336 kB
-SwapFree:       488296 kB
-Committed AS:   355580 kB
+ Kelsey Hudson                                           khudson@ctica.com 
+ Associate Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------     
+==== 0100101101001001010000110100101100100000010010010101010000100001 =====
 
-I'll test without preempt and see if it shows up again.  It took a day
-before though, so...
+

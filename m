@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264954AbUIOAeF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUIOAfa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264954AbUIOAeF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 20:34:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265805AbUIOAeE
+	id S265805AbUIOAfa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 20:35:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265977AbUIOAfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 20:34:04 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:26329 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S264954AbUIOAeC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 20:34:02 -0400
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-Cc: "David S. Miller" <davem@davemloft.net>, Anton Blanchard <anton@samba.org>,
-       moilanen@austin.ibm.com, plars@linuxtestproject.org,
-       Brian.Somers@Sun.COM, linux-kernel@vger.kernel.org
-Subject: Re: TG3 doesn't work in kernel 2.4.27 (David S. Miller)
-X-Message-Flag: Warning: May contain useful information
-References: <412DC055.4070401@sun.com>
-	<20040830161126.585a6b62.davem@davemloft.net>
-	<1094238777.9913.278.camel@plars.austin.ibm.com>
-	<4138C3DD.1060005@sun.com> <52acw7rtrw.fsf@topspin.com>
-	<20040903133059.483e98a0.davem@davemloft.net>
-	<52ekljq6l2.fsf@topspin.com> <20040907133332.4ceb3b5a@localhost>
-	<52isapkg9z.fsf@topspin.com> <20040908073412.3b7c9388@localhost>
-	<20040908130728.GA2282@krispykreme>
-	<20040913154828.35d60ac1.davem@davemloft.net>
-	<41476E92.6020609@sun.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Tue, 14 Sep 2004 17:34:00 -0700
-In-Reply-To: <41476E92.6020609@sun.com> (Mike Waychison's message of "Tue,
- 14 Sep 2004 18:20:02 -0400")
-Message-ID: <52isag1ibr.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 15 Sep 2004 00:34:00.0543 (UTC) FILETIME=[B1C7A6F0:01C49ABB]
+	Tue, 14 Sep 2004 20:35:30 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:17060 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S265805AbUIOAfO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 20:35:14 -0400
+Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040914145457.GA13113@elte.hu>
+References: <20040914104449.GA30790@elte.hu>
+	 <20040914105048.GA31238@elte.hu> <20040914105904.GB31370@elte.hu>
+	 <20040914110237.GC31370@elte.hu> <20040914110611.GA32077@elte.hu>
+	 <20040914112847.GA2804@elte.hu> <20040914114228.GD2804@elte.hu>
+	 <4146EA3E.4010804@yahoo.com.au> <20040914132225.GA9310@elte.hu>
+	 <4146F33C.9030504@yahoo.com.au>  <20040914145457.GA13113@elte.hu>
+Content-Type: text/plain
+Message-Id: <1095208515.2406.43.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 14 Sep 2004 20:35:15 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Works on my JS20 as well.  Thanks!
+On Tue, 2004-09-14 at 10:54, Ingo Molnar wrote:
+> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+> > Another thing, I don't mean this to sound like a rhetorical question,
+> > but if we have a preemptible kernel, why is it a good idea to sprinkle
+>       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> > cond_rescheds everywhere? Isn't this now the worst of both worlds? Why
+> > would someone who really cares about latency not enable preempt?
+> 
+> two things:
+> 
+> 1) none of the big distros enables CONFIG_PREEMPT in their kernels - not
+> even SuSE. This is pretty telling.
+> 
 
- - Roland
+I am not sure this means preemption is a bad idea, it just means there's
+no point in enabling CONFIG_PREEMPT with the current kernel because it's
+not enough of an improvement to make a difference for low latency
+applications.
+
+Lee
+

@@ -1,40 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130071AbRB1Gsu>; Wed, 28 Feb 2001 01:48:50 -0500
+	id <S130073AbRB1HEX>; Wed, 28 Feb 2001 02:04:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130072AbRB1Gsl>; Wed, 28 Feb 2001 01:48:41 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:39186 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S130071AbRB1Gs3>; Wed, 28 Feb 2001 01:48:29 -0500
-Date: Wed, 28 Feb 2001 02:02:16 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Reserved memory for highmem bouncing  
-In-Reply-To: <E14XuMy-0004ZW-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0102272021120.7124-100000@freak.distro.conectiva>
+	id <S130079AbRB1HED>; Wed, 28 Feb 2001 02:04:03 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:56842 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S130072AbRB1HD4>;
+	Wed, 28 Feb 2001 02:03:56 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200102280703.f1S73ft487578@saturn.cs.uml.edu>
+Subject: Re: [PATCH][CFT] per-process namespaces for Linux
+To: viro@math.psu.edu (Alexander Viro)
+Date: Wed, 28 Feb 2001 02:03:41 -0500 (EST)
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0102261137540.79-100000@weyl.math.psu.edu> from "Alexander Viro" at Feb 26, 2001 11:43:47 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alexander Viro writes:
 
-Hi Ingo,
+> 	* CLONE_NEWNS is made root-only (CAP_SYS_ADMIN, actually)
 
-I have a question about the highmem page IO deadlock fix which is in
-2.4.2-ac. (the emergency memory thing)
+Would an unprivileged version that killed setuid be OK to have?
 
-The old create_bounce code used to set PF_MEMALLOC on the task flags and
-call wakeup_bdflush(1) in case GFP_BUFFER page allocation failed. That was
-broken because flush_dirty_buffers() could try to flush a buffer pointing
-to highmem page, which would end up in create_bounce again, but with
-PF_MEMALLOC.
-
-Have you tried to make flush_dirty_buffers() only flush buffers pointing
-to lowmem pages in case the caller wants it to do so?
-
-This way you can call flush_dirty_buffers() with the guarantee you're
-going to free useful (lowmem) memory. This also throttles high mem writes
-giving priority to low mem ones.
-
-
+Evil idea of the day: non-directory (even non-existant) mount points and
+non-directory mounts. So then "mount --bind /etc/foo /dev/bar" works.

@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262687AbUCHQeh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 11:34:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262690AbUCHQeh
+	id S262691AbUCHQgX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 11:36:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262693AbUCHQgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 11:34:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:40151 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262687AbUCHQee (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 11:34:34 -0500
-Date: Mon, 8 Mar 2004 08:34:33 -0800
-From: cliff white <cliffw@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: Recent Reaim results
-Message-Id: <20040308083433.67485899.cliffw@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.9; i686-pc-linux-gnu)
+	Mon, 8 Mar 2004 11:36:22 -0500
+Received: from pirx.hexapodia.org ([65.103.12.242]:60935 "EHLO
+	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S262691AbUCHQgN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 11:36:13 -0500
+Date: Mon, 8 Mar 2004 10:36:11 -0600
+From: Andy Isaacson <adi@hexapodia.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Some highmem pages still in use after shrink_all_memory()?
+Message-ID: <20040308163611.GA8219@hexapodia.org>
+References: <20040307144921.GA189@elf.ucw.cz> <20040307164052.0c8a212b.akpm@osdl.org> <20040308063639.GA20793@hexapodia.org> <1078738772.4678.5.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1078738772.4678.5.camel@laptop.fenrus.com>
+User-Agent: Mutt/1.4.1i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 08, 2004 at 10:39:32AM +0100, Arjan van de Ven wrote:
+> > Note that there are some applications for which it is a *bug* if an
+> > mlocked page gets written out to magnetic media.  (gpg, for example.)
+> 
+> mlock() does not guarantee things not hitting magnetic media, just as
+> mlock() doesn't guarantee that the physical address of a page doesn't
+> change. mlock guarantees that you won't get hard pagefaults and that you
+> have guaranteed memory for the task at hand (eg for realtime apps and
+> oom-critical stuff)
 
-Test results from the OSDL reaim test. 
-The -mm kernels now appear to be scaling a bit nice.
-I dunno why, but the 8-ways like -mm2 :)
+Well, that's fine -- you can certainly define mlock to have whatever
+semantics you want.  But the semantics that gpg depends on are
+reasonable, and if mlock is changed to have other semantics, there
+should be some way for apps to get the behavior that used to be
+implemented by mlock (and *documented* in the mlock man page).
 
-The is the 'database' load, a mixture of IO and CPU activity.
+It's a pity that mlock doesn't take a flags argument.
 
-2-CPU - (all AS scheduler)
-
-Kernel 			Max JPM		Percent change
-linux-2.6.3		1266.95		0.0
-2.6.4-rc1		1284.43		1.38
-2.6.4-rc1-mm2		1316.93		3.90
-
-4-CPU  ( all AS )
-linux-2.6.3		5313.36		0.0
-2.6.4-rc1		5218.87		-1.78
-2.6.4-rc1-mm2		5391.00 	1.46
-
-8-CPU (both) 
-linux-2.6.3		8663,87		0.0 (deadline)
-linux-2.6.3		8776.32		1.35 (AS)
-2.6.4-rc1		8664.95		0.0 (deadline)
-2.6.4-rc1		8795.75		1.57 (AS)
-2.6.4-rc1-mm2		9405.53		8.62  (deadline)
-2.6.4-rc1-mm2		9159.24		5.77  (AS) 
-
---------
-cliffw
-OSDL
-http://	developer.osdl.org/cliffw/reaim  ( More results )
-	
-
-
--- 
-The church is near, but the road is icy.
-The bar is far, but i will walk carefully. - Russian proverb
+-andy

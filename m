@@ -1,89 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266339AbUAVTeU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 14:34:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266346AbUAVTeU
+	id S265102AbUAVVPP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 16:15:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265114AbUAVVPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 14:34:20 -0500
-Received: from smtp1.clear.net.nz ([203.97.33.27]:39092 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S266339AbUAVTdw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 14:33:52 -0500
-Date: Fri, 23 Jan 2004 08:36:40 +1300
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Subject: Re: PATCH: Shutdown IDE before powering off.
-In-reply-to: <m3y8rzlrj5.fsf@lugabout.jhcloos.org>
-To: "James H. Cloos Jr." <cloos@jhcloos.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Reply-to: ncunningham@users.sourceforge.net
-Message-id: <1074800199.12771.110.camel@laptop-linux>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: multipart/signed; boundary="=-gLk2vwqPfFk3S3V+4vGA";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <1074735774.31963.82.camel@laptop-linux>
- <20040121234956.557d8a40.akpm@osdl.org>
- <200401220813.i0M8DX4Q000511@81-2-122-30.bradfords.org.uk>
- <m3y8rzlrj5.fsf@lugabout.jhcloos.org>
+	Thu, 22 Jan 2004 16:15:14 -0500
+Received: from ppp-82-135-4-160.mnet-online.de ([82.135.4.160]:5505 "EHLO
+	frodo.midearth.frodoid.org") by vger.kernel.org with ESMTP
+	id S265102AbUAVVPF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 16:15:05 -0500
+Date: Thu, 22 Jan 2004 22:15:03 +0100
+From: Julien Oster <frodoid@frodoid.org>
+To: =?iso-8859-1?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <1@pervalidus.net>
+Cc: Julien Oster <frodoid@frodoid.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: parhelia doesn't work anymore with 2.6.1
+Message-ID: <20040122211503.GA2147@frodo.midearth.frodoid.org>
+References: <Pine.CYG.4.58.0401221751520.3684@pervalidus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.CYG.4.58.0401221751520.3684@pervalidus>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 22, 2004 at 05:56:48PM -0200, Frédéric L. W. Meunier wrote:
 
---=-gLk2vwqPfFk3S3V+4vGA
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hello Frédéric,
 
-Well, as far as Suspend can see, all the data has been written. By the
-time we reach this point, the end_buffer_io_async routine has been
-called for every write submitted, and the last write submitted by
-anything else was at least a few seconds ago (all other processes are
-frozen and drivers suspended), so all data _should_ be on disk already
-and sync should do nothing. Actually, we wouldn't want to call sync
-anyway for reasons I won't go into here (unnecessary complication). I'm
-sure you'd agree that we would want to delay for an arbitrary length of
-time either (no guarantees that that would cut the mustard). We need to
-flush caches properly.
+> > What about (also) asking for support at
+> > http://forum.matrox.com/mga/viewforum.php?f=2 ?
+
+> Nevermind. Sorry. I noticed you've been one of the most helpul
+> users - http://forum.matrox.com/mga/viewtopic.php?t=8053
+
+No problem. Thank you :-)
+
+> Yes, too bad Matrox doesn't care much anymore about Linux. I'll
+> think twice before buying a Parhelia to replace my G400 since
+> it isn't that cheap and the support just suck.
+
+Yes, better think twice. I was using a Matrox G550 before purchasing the
+Parhelia. The support was always great, no problems with my G550
+whatsoever. So I thought it might be equally as good with the Parhelia,
+and the graphics device looked really impressing.
+
+Well, it is impressing, but almost of no use with Linux for me :-(
+It works well with 2.4, I'm using it right now with two DVI monitors.
+But all the nifty features (I'd really like to have hardware glyph
+antialiasing, that's one feature why I bought the card) aren't working
+there, either. Not even OpenGL works correctly, and the OpenGL driver is
+officially unsupported.
+
+Now, with 2.6, using the card is currently impossible for me. The other
+guy on the forum, Prez, who wrote the initial patches for 2.6 says it
+works for him. No luck with my NForce2 chipset, though.
+
+I tried making my own patches and first cleaned some things out, but it
+didn't help. And with a binary driver you have no chance to get any help
+here, not even with the open source parts.
+
+I now at least hope that it won't take too long for Matrox to give out a
+driver which works with 2.6 and I think I can give up the hope that
+glyph antialiasing will work anytime under Linux.
+
+Better not purchase this card until Matrox has sorted some major things
+out. I hope they will.
 
 Regards,
-
-Nigel
-
-On Fri, 2004-01-23 at 08:19, James H. Cloos Jr. wrote:
-> John> I think it is an attempt to force some broken drives to flush
-> John> their cache, but I wonder whether it will simply move the
-> John> problem from one set of broken drives to another :-).
->=20
-> It will.  I've had to work with a few drives or drive combos over
-> the years that would not spin up reliably.  It was vital to keep
-> them spinning once they were (all) up.  Adding this would make
-> reboot unnecessarily unuseable in such cases.  Perhaps just
-> flush, pause, flush would work as well?
->=20
-> Or even the logical equivilent to sync;sync;sync;reboot?
->=20
-> -JimC
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
-n
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
---=20
-My work on Software Suspend is graciously brought to you by
-LinuxFund.org.
-
---=-gLk2vwqPfFk3S3V+4vGA
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAECZHVfpQGcyBBWkRAtGTAJ9vP47JpdlryLRHmurPo1O03G97HgCeOjjr
-XfmQfOFfJ9rvpRjbPs1wXE0=
-=qTxh
------END PGP SIGNATURE-----
-
---=-gLk2vwqPfFk3S3V+4vGA--
+Julien
 

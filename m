@@ -1,86 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262865AbSJ1KQT>; Mon, 28 Oct 2002 05:16:19 -0500
+	id <S262912AbSJ1KWP>; Mon, 28 Oct 2002 05:22:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262882AbSJ1KQT>; Mon, 28 Oct 2002 05:16:19 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:54410 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262865AbSJ1KQR>;
-	Mon, 28 Oct 2002 05:16:17 -0500
-Date: Mon, 28 Oct 2002 16:05:55 +0530
-From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
-To: Skip Ford <skip.ford@verizon.net>
-Cc: Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
-       boissiere@adiglobal.com
-Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge candidate list.
-Message-ID: <20021028160555.A7580@in.ibm.com>
-Reply-To: vamsi@in.ibm.com
-References: <200210272017.56147.landley@trommello.org> <20021028135504.A7384@in.ibm.com> <200210280955.g9S9tqi3002027@pool-141-150-241-241.delv.east.verizon.net>
+	id <S262937AbSJ1KWP>; Mon, 28 Oct 2002 05:22:15 -0500
+Received: from [81.29.64.88] ([81.29.64.88]:12197 "EHLO bjl1.asuk.net")
+	by vger.kernel.org with ESMTP id <S262912AbSJ1KWO>;
+	Mon, 28 Oct 2002 05:22:14 -0500
+Date: Mon, 28 Oct 2002 10:28:09 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Paul Eggert <eggert@twinsun.com>
+Cc: andrew@pimlott.net, linux-kernel@vger.kernel.org
+Subject: Re: nanosecond file timestamp resolution in filesystems, GNU make, etc.
+Message-ID: <20021028102809.GA16062@bjl1.asuk.net>
+References: <20021027153651.GB26297@pimlott.net> <200210280947.g9S9l9H01162@sic.twinsun.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200210280955.g9S9tqi3002027@pool-141-150-241-241.delv.east.verizon.net>; from skip.ford@verizon.net on Mon, Oct 28, 2002 at 04:55:45AM -0500
+In-Reply-To: <200210280947.g9S9l9H01162@sic.twinsun.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Skip,
+Paul Eggert wrote:
+> My personal experience is that it's hard to read and write code that
+> futzes with timestamps of various resolutions, and there is a real
+> advantage to sticking with a simple rule that always takes the floor
+> when going to a lower-precision timestamp, even if that rule has
+> suboptimal results in some cases.
 
-On Mon, Oct 28, 2002 at 04:55:45AM -0500, Skip Ford wrote:
-> 
-> The first paragraph seems to say that only the base patch is being
-> submitted and the watchpoint and user-space extensions can be
-> retrieved from the site.
-> 
-That is not the intention, I will reword that first paragraph on the
-website to clarify this.
+I have to disagree.  The whole point of accurate timestamps is that a
+program can reliably ask "are my assumptions about the contents of
+this file still valid?", "do I have to read the file to revalidate my
+assumptions?"
 
-> But then it goes on to say that you are proposing those for inclusion
-> also.  I'm confused and I've been using your patches.  Also, that first
-> paragraph mentions "add-on" patches while all along I thought your
-> intention was to have enough of dprobes in the kernel so that patching
-> wasn't necessary.
-> 
-Yes, our intention is to have enough of infrastructure in the kernel
-to do something like dprobes as an external module without
-patching the kernel. 
+When you don't have accurate timestamps, or resolutions are mixed,
+then it's not possible to answer this question.  The only correct
+behaviour for a program, such as a cacheing dynamic web server, a
+cacheing JIT compiler or something like Make, is to round the
+timestamp _up_.
 
-dprobes provides kernel / user space probes and kernel space 
-watchpoints along with an RPN interpreter and communication with
-the user space in the form a char device. Now, here is what
-various bits of kprobes patches do:
+Which is fine so long as you can write this in the application code:
 
-1. kprobes - base patch
-   Enables implementing a part of dprobes (kernel space probes)
-   without further patching the kernel.
+    if (ts_nanoseconds == 0)
+        ts_nanoseconds = 1e9-1;
 
-2. debug register management patch
-3. kwatch points patch
-   Enables implementing another part of dprobes (kernel space 
-   watchpoints) without further patching the kernel.
+That's a rare enough occurrence when timestamps have nanosecond
+accuracy that the the glitch is not a problem.
 
-4. user space probes patch
-   Enables implementing another part of dprobes (user space 
-   probes) without further patching the kernel.
+Unfortunately that application code breaks when the filesystem may
+have timestamps with resolution better than 1 second, but worse than 1
+nanosecond.  Then the application just can't do the right thing,
+unless it knows what rounding was applied by the kernel/filesystem, so
+it can change that rounding in a safe direction.
 
-Another point to note is that kprobes should be seen as an independent
-facility, a sort of infrastructure on top of which more comprehensive
-tools such as dprobes could be built. kprobes infrastructure could
-potentially be used in other tools such as kdb/kgdb too.
+So for applications which actually _depend_ on accurate timestamps for
+reliability, I see only two valid things for the kernel to do:
 
-We would like all four patches to be in the kernel. However, the base
-patch has been on the list for a few months, has been looked at and
-commented upon by other kernel developers including Rusty and Linus. 
-So, we strongly hope for its inclusion. Once kprobes is in, other
-patches (notably the user space probes patch) could be considered
-a straight forward enhancement to kprobes and may be included
-even after the freeze. OTOH if Linus agrees to include all four
-patches, that will be great :-)
+     1. Round timestamps _up_.
 
-Thanks for your comments, hope this clarifies the issues.
+     2. Or, round timestamps down _and_ store the rounding resolution in
+        struct stat, in addition to the timestamp.
 
--- 
-Vamsi Krishna S.
-Linux Technology Center,
-IBM Software Lab, Bangalore.
-Ph: +91 80 5044959
-Internet: vamsi@in.ibm.com
+I'm in favour of 1.
+
+(With Paul's suggestion of just rounding down without telling me when
+that happened, AFAICT my _reliable_ cacheing applications must simply
+ignore the nanoseconds field, which is a bit unfortunate isn't it?)
+
+-- Jamie

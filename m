@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129325AbQLUM4G>; Thu, 21 Dec 2000 07:56:06 -0500
+	id <S129563AbQLUM4p>; Thu, 21 Dec 2000 07:56:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129563AbQLUMzz>; Thu, 21 Dec 2000 07:55:55 -0500
-Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:17171 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S129325AbQLUMzs>; Thu, 21 Dec 2000 07:55:48 -0500
-From: sswapnee@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: linux-kernel@vger.kernel.org
-Message-ID: <CA2569BC.00442F0D.00@d73mta05.au.ibm.com>
-Date: Thu, 21 Dec 2000 17:47:10 +0530
-Subject: Mount system call hangs up the system
+	id <S131115AbQLUM4g>; Thu, 21 Dec 2000 07:56:36 -0500
+Received: from elektra.higherplane.net ([203.37.52.137]:43922 "EHLO
+	elektra.higherplane.net") by vger.kernel.org with ESMTP
+	id <S129563AbQLUM4b>; Thu, 21 Dec 2000 07:56:31 -0500
+Date: Thu, 21 Dec 2000 23:31:19 +1100
+From: john slee <indigoid@higherplane.net>
+To: albertogli@telpin.com.ar
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Weird vmstat reports in 2.2.18
+Message-ID: <20001221233119.C22707@higherplane.net>
+In-Reply-To: <977324137.3a40c869a394e@webmail.telpin.com.ar>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <977324137.3a40c869a394e@webmail.telpin.com.ar>; from albertogli@telpin.com.ar on Wed, Dec 20, 2000 at 11:55:37AM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Everybody
+On Wed, Dec 20, 2000 at 11:55:37AM -0300, albertogli@telpin.com.ar wrote:
+> I'm getting some strange reports with vmstat on a dual iPPro running 2.2.18,
+> it doesnt happen very frequently, but i see it a lot when compiling something
+> (kernel and mysql specially, not when compiling small stuff), though it doesnt
+> look like a high-load issue. When the machine is idle (ie. most of the time at
+> the moment) it doesnt show up.
 
-I am trying to mount a filesystem on Linux 2.4.0-test10 kernel using the
-mount() function.
-When I call this function the system just hangs up.  I have to restart
-linux by switching off and on.
-Can somebody tell me why mount call just hangs?  Is there anyway to take a
-dump when
-the call is being executed.
+i can consistently produce this on dual p3 600/2.2.17pre20.  in my case
+it's the `ab' benchmark tool supplied with apache that helps reproduce
+it.  incidentally i only noticed this in the last day or two, good to
+know i'm not the only one. :-)
 
-I tried looking for description about mount but couldnt find anything
-helpful.  I will really appreciate
-if someone can share his/her experience regarding the same.
+our setup is apache/php/postgresql.  fairly intensive pages.  i start
+seeing vmstat oddities after about 15 concurrent requests.
 
-Thanks and Regards
-Swapneel
+> I wasnt able to trigger it in a predictable way, it just pops up...
+> BUT if i open two vmstats in different consoles.. the number doesnt show up in
+> both, just in one of them... so i'm not sure at all if this is a kernel bug, or
+> just another (vmstat?) feature =)
 
-P.S  Please include my email id in the Cc list as I have not subscribed to
-this list.
+the vmstat processes probably aren't reading /proc/* at exactly the same
+time, so the numbers they see will likely be different... 
 
-Swapneel D. Shah
-IBM Global Services India Ltd,
-email:sswapnee@in.ibm.com
-
-
+j.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

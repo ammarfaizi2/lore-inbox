@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263177AbTDYOCH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 10:02:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263180AbTDYOCH
+	id S263202AbTDYOLU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 10:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263204AbTDYOLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 10:02:07 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:35293 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S263177AbTDYOCG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 10:02:06 -0400
-Date: Fri, 25 Apr 2003 16:14:20 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.68-je2
-Message-ID: <20030425141420.GA16545@wohnheim.fh-wedel.de>
+	Fri, 25 Apr 2003 10:11:20 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:55434 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263202AbTDYOLT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 10:11:19 -0400
+Date: Fri, 25 Apr 2003 16:23:12 +0200
+From: Jens Axboe <axboe@kernel.org>
+To: David Gibson <hermes@gibson.dropbear.id.au>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Jean Tourrilhes <jt@hpl.hp.com>, David Hinds <dhinds@sonic.net>
+Subject: Re: Update to orinoco driver (2.4)
+Message-ID: <20030425142312.GP1012@suse.de>
+References: <20030423054636.GG25455@zax> <20030423060520.GI25455@zax> <1051272644.15776.2.camel@gaston> <20030425125359.GB10133@zax>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030425125359.GB10133@zax>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-More stack reduction patches.
+On Fri, Apr 25 2003, David Gibson wrote:
+> On Fri, Apr 25, 2003 at 02:10:45PM +0200, Benjamin Herrenschmidt wrote:
+> > On Wed, 2003-04-23 at 08:05, David Gibson wrote:
+> > > On Wed, Apr 23, 2003 at 03:46:36PM +1000, David Gibson wrote:
+> > > > Hi Marcelo,
+> > > > 
+> > > > The patch below updates the orinoco driver in 2.4 to 0.13d, the patch
+> > > > is against 2.4.21-rc1.  You may want to postpone this update till
+> > > > after 2.4.21, but I'd consider it, since it fixes a fair slew of bugs.
+> > > 
+> > > Duh, sorry.  And now with the actual patch:
+> > 
+> > Shouldn't it also patch Config.in & Makefile to add the orinoco_tmd.c ?
+> 
+> Crap, indeed it ought.  It's been so long since I added a file, I
+> forgot that bit.  I'll fix that up on Monday.
+> 
+> > I'm adding this new driver to my pmac bk tree btw.
+> 
+> Ok.
 
-Included patches:
-VERSION		- The obvious
-checkstack	- Static stack checker
-stack_overflow	- Show stack overflow at 3k instead of 7k
-msdos		- Compile fs/partition/msdos.o for fewer targets
-8023		- Put the 802.3 code behind CONFIG_IPX
-wan-stack	- stack reduction patch
-cpqarray-stack	- ""
-gdth		- ""
-amd-stack	- ""
-mxb-stack	- ""
-sidewinder-stack - ""
-uinput-stack	- ""
-intermezzo-stack - ""
-
-
-Both the full and the individual patches can be found here:
-http://wh.fh-wedel.de/~joern/software/kernel/je/25/
-
-Same applies to the 2.4 series:
-http://wh.fh-wedel.de/~joern/software/kernel/je/24/
-
-
-Jörn
+It works perfectly for me, fwiw.
 
 -- 
-A surrounded army must be given a way out.
--- Sun Tzu
+Jens Axboe
+

@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129823AbRAFTbE>; Sat, 6 Jan 2001 14:31:04 -0500
+	id <S132810AbRAFTcO>; Sat, 6 Jan 2001 14:32:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132739AbRAFTaz>; Sat, 6 Jan 2001 14:30:55 -0500
-Received: from [156.46.206.66] ([156.46.206.66]:60683 "EHLO eagle.netwrx1.com")
-	by vger.kernel.org with ESMTP id <S131047AbRAFTao>;
-	Sat, 6 Jan 2001 14:30:44 -0500
-From: "George R. Kasica" <georgek@netwrx1.com>
-To: linux-kernel@vger.kernel.org
-Subject: Cannot compile 2.2.18
-Date: Sat, 06 Jan 2001 13:30:42 -0600
-Organization: Netwrx Consulting Inc.
-Reply-To: georgek@netwrx1.com
-Message-ID: <pdse5t875jp4agj2e03s2p5mv31eg6cheo@4ax.com>
-X-Mailer: Forte Agent 1.8/32.548
+	id <S132862AbRAFTcE>; Sat, 6 Jan 2001 14:32:04 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:50955 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132810AbRAFTb5>; Sat, 6 Jan 2001 14:31:57 -0500
+Subject: Re: Linux-2.4.x patch submission policy
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Sat, 6 Jan 2001 19:33:22 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <937neu$p95$1@penguin.transmeta.com> from "Linus Torvalds" at Jan 06, 2001 10:17:02 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14Ez5g-0001QJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello:
+> rather spend the time _really_ beating on the patches that _would_ be a
+> big issue.  Things like security (_especially_ remote attacks), outright
+> crashes, or just totally unusable systems because it can't see the
+> harddisk. 
 
-Since 2.4.0 is being a pig here I thought I'd go back and recompile
-2.2.18 and place the whole tree someplace safe (ie burn a
-CD)....well...now I can't compile 2.2.18 (did a tar xvf so I have a
-fresh source tree) either....here's what I get with a 
+In which case the priority should be fixing all the broken LFS support.
 
-make mrproper
-make dep
-make config
-make bzImage
+> Yes, I know this is boring, and all I'm asking is for people to not make
+> it any harder for me than they have to.  Think twice before sending me a
+> patch, and when you _do_ send me a patch, try to think like a release
+> manager and explain to me why the patch really makes sense to apply now. 
 
->cc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-fr
->ame-pointer -fno-strict-aliasing -pipe -fno-strength-reduce -m486 -malign-loops=
->2 -malign-jumps=2 -malign-functions=2 -DCPU=686   -c -o kmod.o kmod.c
->rm -f kernel.o
->ld -m elf_i386  -r -o kernel.o signal.o ksyms.o sched.o dma.o fork.o exec_domain
->.o panic.o printk.o sys.o module.o exit.o itimer.o info.o time.o softirq.o resou
->rce.o sysctl.o acct.o capability.o kmod.o
->ld: cannot open input file elf_i386
->make[2]: *** [kernel.o] Error 2
->make[2]: Leaving directory `/usr/src/linux/kernel'
->make[1]: *** [first_rule] Error 2
->make[1]: Leaving directory `/usr/src/linux/kernel'
->make: *** [_dir_kernel] Error 2
+Think of -ac as a way to get patches you need that everyone else might not
+need yet, and a way to filter stuff. Im happy to take sane stuff Linus doesn't
+(within reason) and propogate it on as (or more to the point if) it proves sane
 
-
-Any help is urgently needed.
-
-George
-
-===[George R. Kasica]===        +1 262 513 8503
-President                       +1 206 374 6482 FAX 
-Netwrx Consulting Inc.          Waukesha, WI USA 
-http://www.netwrx1.com
-georgek@netwrx1.com
-ICQ #12862186
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

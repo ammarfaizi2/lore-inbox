@@ -1,43 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262824AbVCDMUD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262901AbVCDM2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262824AbVCDMUD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 07:20:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262852AbVCDMTG
+	id S262901AbVCDM2j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 07:28:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262866AbVCDM04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 07:19:06 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4259 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262256AbVCDLtm (ORCPT
+	Fri, 4 Mar 2005 07:26:56 -0500
+Received: from mailfe07.swip.net ([212.247.154.193]:39369 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S262901AbVCDMXT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 06:49:42 -0500
-Date: Fri, 4 Mar 2005 12:49:29 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
+	Fri, 4 Mar 2005 07:23:19 -0500
+X-T2-Posting-ID: icQHdNe7aEavrnKIz+aKnQ==
+Subject: Re: Strange crashes of kernel v2.6.11
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Steffen Michalke <StMichalke@web.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Scheduling while atomic errors on swsusp resume
-Message-ID: <20050304114929.GR1345@elf.ucw.cz>
-References: <1109811404.5918.80.camel@tyrosine> <20050304112649.GQ1345@elf.ucw.cz> <1109935857.5918.99.camel@tyrosine>
+In-Reply-To: <1109936036.6712.8.camel@pinky.local>
+References: <1109787428.6828.14.camel@pinky.local>
+	 <1109799292.15072.9.camel@boxen>  <1109936036.6712.8.camel@pinky.local>
+Content-Type: text/plain
+Date: Fri, 04 Mar 2005 13:23:13 +0100
+Message-Id: <1109938993.2285.13.camel@boxen>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1109935857.5918.99.camel@tyrosine>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Well, those are warnings, so it still works, right? Aha, "exited with
-> > preempt count 1" seems very wrong. Yes, please try this with
-> > vanilla. I'm running 2.6.11 with 
+> > > I recently upgraded from linux kernel v2.6.10 to v2.6.11.
+> > > Some programs like evolution 2.0 and leafnode2 crash the whole system
+> > > immediatedly now.
+> > 
+> > You mean when you run evolution the box hangs up completely? (you can't
+> > kill X, switch to another console etc.)
 > 
-> Yeah, the resume script crashes, which is a bit of a problem. I'll get
-> the user to try with a vanilla kernel, but I'm not having these problems
-> with an identical kernel - it seems to be something specific to his
-> setup.
+> Thank you for your hints.
+> 
+> When I looked into that problem recently, I remarked that the system
+> does not actually crash but is locked totally:
+> 
+> I use the device-mapper modules for encrypting files (loopback devices
+> with aes-i586-encryption). They can be set up in the usual manner, but
+> filesystem operations now lock the accessing processes, which cannot be
+> killed afterwards.
+> If the kernel has been compiled with preemption the system slows down
+> considerably after those operations; enabling prempting The Big Kernel
+> Lock locks the whole system at filesystem access (that looked like a
+> system crash). That's why I could not find any messages in the logs.
+>
+> If I use a non-preemptive v2.6.11-kernel (vanilla, by the way) the
+> system keeps on running the normal way, but every process which tries to
+> work with files in device-mapped directories is unkillable locked.
+> 
+> It seems to be a problem with the dm-*- or loop-modules.
 
-Make him try it with minimal list of modules, then.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Ok, let's try without preempt. Under the kernel config make sure you
+select the following:
+kernel hacking => kernel debugging => magic sysrq key
+
+Also increase the kernel log buffer at, set it to 17 just to be safe
+general setup => kernel log buffer size
+
+Do what you do so that the processes become unkillable, then press 
+AltGr+SysRq+t  2-3 times and send the dmesg over here.
+(sysrq normally being on the same key as 'print screen', at least on my
+keyboards).
+
+This should tell us what is going on.
+
+Thanks!
+

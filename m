@@ -1,44 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268674AbUIHFZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268294AbUIHFlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268674AbUIHFZi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 01:25:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268828AbUIHFZi
+	id S268294AbUIHFlH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 01:41:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268824AbUIHFlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 01:25:38 -0400
-Received: from agp.Stanford.EDU ([171.67.73.10]:29056 "EHLO agp.stanford.edu")
-	by vger.kernel.org with ESMTP id S268674AbUIHFZ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 01:25:27 -0400
-From: Dawson Engler <engler@csl.stanford.edu>
-Message-Id: <200409080510.i885ANcX025884@csl.stanford.edu>
-Subject: Re: [CHECKER] possible reiserfs deadlock in 2.6.8.1
-To: viro@parcelfarce.linux.theplanet.co.uk
-Date: Tue, 7 Sep 2004 22:10:23 -0700 (PDT)
-Cc: engler@coverity.dreamhost.com (Dawson Engler),
-       linux-kernel@vger.kernel.org, developers@coverity.com
-Reply-To: engler@csl.stanford.edu
-In-Reply-To: <20040908033628.GV23987@parcelfarce.linux.theplanet.co.uk> from "viro@parcelfarce.linux.theplanet.co.uk" at Sep 08, 2004 04:36:28 AM
-X-Mailer: ELM [version 2.5 PL0pre8]
-MIME-Version: 1.0
+	Wed, 8 Sep 2004 01:41:07 -0400
+Received: from washoe.rutgers.edu ([165.230.95.67]:45033 "EHLO
+	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S268294AbUIHFlC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 01:41:02 -0400
+Date: Wed, 8 Sep 2004 01:41:01 -0400
+From: Yaroslav Halchenko <yoh@psychology.rutgers.edu>
+To: linux-kernel@vger.kernel.org
+Subject: proc stalls
+Message-ID: <20040908054101.GR2966@washoe.rutgers.edu>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Scan-Signature: 6c9d9c85a593a9550db5337c65f4967d
+Content-Disposition: inline
+X-Image-Url: http://www.onerussian.com/img/yoh.png
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, Sep 07, 2004 at 08:16:53PM -0700, Dawson Engler wrote:
-> > Hi All,
-> > 
-> > below is a possible deadlock in the linux-2.6.8.1 reiserfs code found by
-> > a static deadlock checker I'm writing.  Let me know if it looks valid
-> > and/or whether the output is too cryptic.    Note, one of the locks is
-> > through a struct pointer, so the deadlock depends on both acquisitions
-> > being to the same struct.
-> 
-> Not valid, for the same reason as the above.  BKL and down() do not form
-> a mutual deadlock.
+Dear All,
 
-You know, I actually know this, and the tool "does" take care of this.
-I think a bit mask got screwed up somewhere.  Along with my brain...
+Please give me some hints on where to look and what possibly to do to
+bring system back to usable without rebooting, or at least to catch what
+can be a problem.
 
-Sorry about the noise.
+I've discroverd that mozilla-firefox didn't want to start - just hanged
+during start... well - I've found that 'fuser -m /dev/dsp' causes it to
+stall... well - I've fount that any fuser process stalls... well... I've
+found using strace that they stall around next point:
+getdents64(4, /* 0 entries */, 1024)    = 0
+close(4)                                = 0
+chdir("/proc/26336")                    = 0
+stat64("root", {st_mode=S_IFDIR|0755, st_size=720, ...}) = 0
+lstat64("root", {st_mode=S_IFLNK|0777, st_size=0, ...}) = 0
+stat64("cwd", 
+
+well.. I've tried to cd to /proc/26336 and my bash got frozen as well...
+
+
+now my sytem load is around 20 probably due to all the unkillable fuser
+processes I've ran so far... They look like:
+yoh      29083  0.0  0.0  1532  560 ?        D    00:48   0:00 fuser -m
+/dev/dsp
+
+no abnormal logs are reported in syslog... 
+
+
+What can I do to find the cause or to resolve the situation somehow
+without reboot? Which else hints can I provide? I'm reporting main
+system params and linux kernel config on
+
+http://www.onerussian.com/Linux/bugs/bug.proc/
+
+(Many other tools like df stall as well)
+
+Thank you in advance
+
+-- 
+                                                  Yaroslav Halchenko
+                  Research Assistant, Psychology Department, Rutgers
+          Office  (973) 353-5440 x263
+   Ph.D. Student  CS Dept. NJIT
+             Key  http://www.onerussian.com/gpg-yoh.asc
+ GPG fingerprint  3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
+

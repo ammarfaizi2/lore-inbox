@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268908AbTGJDpS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 23:45:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268909AbTGJDpR
+	id S268883AbTGJEBv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 00:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268903AbTGJEBv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 23:45:17 -0400
-Received: from storm.he.net ([64.71.150.66]:38582 "HELO storm.he.net")
-	by vger.kernel.org with SMTP id S268908AbTGJDpO (ORCPT
+	Thu, 10 Jul 2003 00:01:51 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:7595 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268883AbTGJEBu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 23:45:14 -0400
-Date: Wed, 9 Jul 2003 20:56:11 -0700
-From: Greg KH <greg@kroah.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] timer clean up for i2c-keywest.c
-Message-ID: <20030710035611.GD1561@kroah.com>
-References: <16137.6948.764603.59450@cargo.ozlabs.ibm.com> <1057659989.11708.113.camel@gaston> <1057744088.506.8.camel@gaston>
+	Thu, 10 Jul 2003 00:01:50 -0400
+Date: Wed, 9 Jul 2003 21:16:45 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       torvalds@osdl.org
+Subject: Re: RFC:  what's in a stable series?
+Message-Id: <20030709211645.40353fc2.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.55L.0307100040271.6629@freak.distro.conectiva>
+References: <3F0CBC08.1060201@pobox.com>
+	<Pine.LNX.4.55L.0307100040271.6629@freak.distro.conectiva>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1057744088.506.8.camel@gaston>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 09, 2003 at 11:48:08AM +0200, Benjamin Herrenschmidt wrote:
-> On Tue, 2003-07-08 at 12:26, Benjamin Herrenschmidt wrote:
-> > On Mon, 2003-07-07 at 09:03, Paul Mackerras wrote:
-> > > This patch changes i2c-keywest.c to use mod_timer instead of a
-> > > two-line sequence to compute .expires and call add_timer in 3 places.
-> > > Without this patch I get a BUG from time to time in add_timer.
-> > 
-> > Ok, here it is. It also remove the never used "polled" mode. The
-> > driver is now in sync with the more up-to-date 2.4 version ;)
-> > 
-> > Sorry for not sending that earlier, I forgot about it and didn't
-> > notice it was out of sync.
-> 
-> And just in case you didn't merge it yet... Here's a version changing
-> the timer->expire ; add_timer() pairs into calls to mod_timer, makes
-> the code slighly cleaner.
+Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+>
+> Its a case-by-case problem.
 
-Thanks, I've applied this one.
+It is.  Generally I think we should prefer to do the right thing rather
+than adhering to the old API out of some principle.
 
-greg k-h
+Evaluate the impact on out-of-tree kernel patches (especially vendor
+kernels) and if it is unacceptable then reject the change or augment the API
+rather than changing it.
+
+>  I reverted the direct IO patches because hch complained on me that they
+>  change the direct IO API, and we really dont want that kind of
+>  change, IMHO.
+
+OK, we're on to a specific case.  Albeit a very small one.
+
+I think Trond's direct IO change was right.  The impact on out-of-tree code
+is infinitesimal.  Stick a #define O_DIRECT_NEEDS_A_FILP in the header and
+let the XFS guys write a four-line patch.  There's no point in mucking up
+the kernel API to save such a small amount of work.
+
+Or merge XFS.
+
+

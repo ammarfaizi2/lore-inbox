@@ -1,91 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316792AbSHGBcs>; Tue, 6 Aug 2002 21:32:48 -0400
+	id <S316615AbSHGBeh>; Tue, 6 Aug 2002 21:34:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316824AbSHGBcs>; Tue, 6 Aug 2002 21:32:48 -0400
-Received: from spy.suspicious.org ([64.6.188.66]:34439 "EHLO
-	spy.suspicious.org") by vger.kernel.org with ESMTP
-	id <S316792AbSHGBcq>; Tue, 6 Aug 2002 21:32:46 -0400
-Date: Tue, 6 Aug 2002 21:55:57 -0500
-From: phil <phil@research.suspicious.org>
-To: linux-kernel@vger.kernel.org
-Subject: tridentfb.c, kernel 2.5.30, compile error
-Message-Id: <20020806215557.1a4739a2.phil@research.suspicious.org>
-Organization: research.suspicious.org
-X-Mailer: Sylpheed version 0.8.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S316621AbSHGBeh>; Tue, 6 Aug 2002 21:34:37 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:17285 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S316615AbSHGBeg>; Tue, 6 Aug 2002 21:34:36 -0400
+Date: Tue, 6 Aug 2002 21:42:18 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Tim Hockin <thockin@hockin.org>
+cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org,
+       abraham@2d3d.co.za
+Subject: Re: ethtool documentation
+In-Reply-To: <200208062115.g76LFga14394@www.hockin.org>
+Message-ID: <Pine.LNX.3.95.1020806213513.26349A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc -Wp,-MD,./.tridentfb.o.d -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2
--fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 -nostdinc -iwithprefix
-include    -DKBUILD_BASENAME=tridentfb   -c -o tridentfb.o tridentfb.c
-tridentfb.c:64: field `gen' has incomplete type
-tridentfb.c: In function `trident_set_disp':
-tridentfb.c:1054: dereferencing pointer to incomplete type
-tridentfb.c: At top level:
-tridentfb.c:1086: variable `trident_hwswitch' has initializer but incomplete type
-tridentfb.c:1087: warning: excess elements in struct initializer
-tridentfb.c:1087: warning: (near initialization for `trident_hwswitch')
-tridentfb.c:1088: warning: excess elements in struct initializer
-tridentfb.c:1088: warning: (near initialization for `trident_hwswitch')
-tridentfb.c:1089: warning: excess elements in struct initializer
-tridentfb.c:1089: warning: (near initialization for `trident_hwswitch')
-tridentfb.c:1090: warning: excess elements in struct initializer
-tridentfb.c:1090: warning: (near initialization for `trident_hwswitch')
-tridentfb.c:1091: warning: excess elements in struct initializer
-tridentfb.c:1091: warning: (near initialization for `trident_hwswitch')
-tridentfb.c:1092: warning: excess elements in struct initializer
-tridentfb.c:1092: warning: (near initialization for `trident_hwswitch')
-tridentfb.c:1093: warning: excess elements in struct initializer
-tridentfb.c:1093: warning: (near initialization for `trident_hwswitch')
-tridentfb.c:1094: warning: excess elements in struct initializer
-tridentfb.c:1094: warning: (near initialization for `trident_hwswitch')
-tridentfb.c:1095: warning: excess elements in struct initializer
-tridentfb.c:1095: warning: (near initialization for `trident_hwswitch')
-tridentfb.c:1097: warning: excess elements in struct initializer
-tridentfb.c:1097: warning: (near initialization for `trident_hwswitch')
-tridentfb.c: In function `tridentfb_init':
-tridentfb.c:1204: `fbgen_switch' undeclared (first use in this function)
-tridentfb.c:1204: (Each undeclared identifier is reported only once
-tridentfb.c:1204: for each function it appears in.)
-tridentfb.c:1205: `fbgen_update_var' undeclared (first use in this function)
-tridentfb.c:1228: warning: implicit declaration of function `fbgen_get_var'
-tridentfb.c:1230: warning: implicit declaration of function `fbgen_set_disp'
-tridentfb.c: At top level:
-tridentfb.c:1289: `fbgen_get_fix' undeclared here (not in a function)
-tridentfb.c:1289: initializer element is not constant
-tridentfb.c:1289: (near initialization for `tridentfb_ops.fb_get_fix')
-tridentfb.c:1290: `fbgen_get_var' undeclared here (not in a function)
-tridentfb.c:1290: initializer element is not constant
-tridentfb.c:1290: (near initialization for `tridentfb_ops.fb_get_var')
-tridentfb.c:1291: `fbgen_set_var' undeclared here (not in a function)
-tridentfb.c:1291: initializer element is not constant
-tridentfb.c:1291: (near initialization for `tridentfb_ops.fb_set_var')
-tridentfb.c:1292: `fbgen_get_cmap' undeclared here (not in a function)
-tridentfb.c:1292: initializer element is not constant
-tridentfb.c:1292: (near initialization for `tridentfb_ops.fb_get_cmap')
-tridentfb.c:1293: `fbgen_set_cmap' undeclared here (not in a function)
-tridentfb.c:1293: initializer element is not constant
-tridentfb.c:1293: (near initialization for `tridentfb_ops.fb_set_cmap')
-tridentfb.c:1295: `fbgen_pan_display' undeclared here (not in a function)
-tridentfb.c:1295: initializer element is not constant
-tridentfb.c:1295: (near initialization for `tridentfb_ops.fb_pan_display')
-tridentfb.c:1296: initializer element is not constant
-tridentfb.c:1296: (near initialization for `tridentfb_ops')
-tridentfb.c:1296: initializer element is not constant
-tridentfb.c:1296: (near initialization for `tridentfb_ops')
-tridentfb.c:1296: initializer element is not constant
-tridentfb.c:1296: (near initialization for `tridentfb_ops')
-tridentfb.c:1296: initializer element is not constant
-tridentfb.c:1296: (near initialization for `tridentfb_ops')
-tridentfb.c:1296: initializer element is not constant
-tridentfb.c:1296: (near initialization for `tridentfb_ops')
-tridentfb.c:1296: initializer element is not constant
-tridentfb.c:1296: (near initialization for `tridentfb_ops')
+On Tue, 6 Aug 2002, Tim Hockin wrote:
 
+> > If you ever sell a controller that contains an address that was
+> > not allocated to the 'producer', somebody is going to get very
+> > angry. This means, to me, that if you ever write a new MAC address
+> > to that card/board, you had better throw it away when you are done.
+> 
+> As a developer of integrated systems, it is imperative the we be able to
+> re-program EEPROMs and MAC addresses.  Cobalt systems all have Cobalt as
+> the MFR section of the MAC address.  Sun Systems all have Sun.  (insert pokes
+> about whether Cobalt is Sun here...)
+> 
+> > It's easier to make sure that the MAC address doesn't get changed.
+> > You still "screw the comittee" locally, but you don't modify the
+> > hardware.
+> 
+> Other things get stored in the EEPROM - for example, Wake-on-Lan options.
+> Just to name one.
+> 
+If you really are what you say you are, then you know that you
+cannot use a MAC address that has not been assigned to your
+company.
 
+And, as a developer or "integrated systems", I do program MAC
+addresses into AMD PCnet32 SEEPROMS and I do have a batch of
+MAC addresses assigned to Analogic and I do known what I am
+talking about.
 
+The Linux pcnet32 driver does not have this capability so I
+had to add that capability for our purposes. I would not
+advise putting such a driver in the standard kernel.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

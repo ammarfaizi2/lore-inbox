@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286347AbRLJST2>; Mon, 10 Dec 2001 13:19:28 -0500
+	id <S286352AbRLJSWu>; Mon, 10 Dec 2001 13:22:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286341AbRLJSTY>; Mon, 10 Dec 2001 13:19:24 -0500
-Received: from chunnel.redhat.com ([199.183.24.220]:14576 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S286345AbRLJSSd>; Mon, 10 Dec 2001 13:18:33 -0500
-Date: Mon, 10 Dec 2001 18:18:09 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Cc: Andrew Morton <akpm@zip.com.au>, sct@redhat.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: ext3 writeback mode slower than ordered mode?
-Message-ID: <20011210181809.J1919@redhat.com>
-In-Reply-To: <871yi5wh93.fsf@atlas.iskon.hr> <3C12C57C.FF93FAC0@zip.com.au> <877krwch39.fsf@atlas.iskon.hr>
+	id <S286345AbRLJST1>; Mon, 10 Dec 2001 13:19:27 -0500
+Received: from zero.tech9.net ([209.61.188.187]:53254 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S286346AbRLJSTH>;
+	Mon, 10 Dec 2001 13:19:07 -0500
+Subject: Re: Patches in 2.4.17-pre2 that aren't in 2.5.1-pre8
+From: Robert Love <rml@tech9.net>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Nicolas Aspert <Nicolas.Aspert@epfl.ch>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0112101348470.25093-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0112101348470.25093-100000@freak.distro.conectiva>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.06.08.57 (Preview Release)
+Date: 10 Dec 2001 13:18:51 -0500
+Message-Id: <1008008332.1235.42.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <877krwch39.fsf@atlas.iskon.hr>; from zlatko.calusic@iskon.hr on Sun, Dec 09, 2001 at 08:46:02PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2001-12-10 at 10:53, Marcelo Tosatti wrote:
 
-On Sun, Dec 09, 2001 at 08:46:02PM +0100, Zlatko Calusic wrote:
-
-> To sumarize:
+> Who is the maintainer of the driver ?
 > 
-> ext2            0.01s user 1.86s system 98% cpu 1.893 total
-> ext3/ordered    0.07s user 3.50s system 99% cpu 3.594 total
-> ext3/writeback  0.00s user 6.05s system 98% cpu 6.129 total
+> Try to think from my side: I may have no hardware or time to test all
+> patches which come to me.
 > 
-> What is strange is that not always I've been able to get different
-> results for writeback case (comparing to ordered), but when I get it,
-> it is repeatable.
+> Please, people, send this kind of driver changes to the people who know
+> all hardware specific details.
+> 
+> If there is no maintainer for i810, I'll be glad to apply it on 2.4.18pre
+> and wait for reports. Not going to be on 2.4.17, though.
 
-So it could be something as basic as disk layout or allocation
-pattern.  Hmm.
+The maintainer is MIA.  I have been doing recent work on the driver.  I
+can confirm Nicolas patch is correct.
 
-Could you profile the kernel and see where writeback is spending all
-the time, in that case?
+	Robert Love
 
-Thanks,
- Stephen

@@ -1,66 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261637AbTIHJV3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 05:21:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbTIHJV3
+	id S262120AbTIHJdV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 05:33:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbTIHJdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 05:21:29 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:13863 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261637AbTIHJV1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 05:21:27 -0400
-To: "Brown, Len" <len.brown@intel.com>
-Cc: "Larry McVoy" <lm@bitmover.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       "William Lee Irwin III" <wli@holomorphy.com>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Giuliano Pochini" <pochini@shiny.it>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: Scaling noise
-References: <BF1FE1855350A0479097B3A0D2A80EE009FD35@hdsmsx402.hd.intel.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 08 Sep 2003 03:21:10 -0600
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FD35@hdsmsx402.hd.intel.com>
-Message-ID: <m1k78jmy9l.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Mon, 8 Sep 2003 05:33:21 -0400
+Received: from users.linvision.com ([62.58.92.114]:440 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id S262120AbTIHJdS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 05:33:18 -0400
+Date: Mon, 8 Sep 2003 11:33:04 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Oleg Drokin <green@namesys.com>
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Hans Reiser <reiser@namesys.com>,
+       linux-kernel@vger.kernel.org, Nikita Danilov <god@namesys.com>
+Subject: Re: First impressions of reiserfs4
+Message-ID: <20030908113304.A28123@bitwizard.nl>
+References: <slrnbl12sv.i4g.erik@bender.home.hensema.net> <3F50D986.6080707@namesys.com> <20030831191419.A23940@bitwizard.nl> <20030908081206.GA17718@namesys.com> <20030908105639.B26722@bitwizard.nl> <20030908090826.GB10487@namesys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030908090826.GB10487@namesys.com>
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Brown, Len" <len.brown@intel.com> writes:
-
-> > 5) NUMA machines are slow.  There is not a single NUMA machine in the
-> >    top 10 of the top500 supercomputers list.  Likely this has more to
-> >    do with system sizes supported by the manufacture than inherent
-> >    process inferiority, but it makes a difference.
+On Mon, Sep 08, 2003 at 01:08:26PM +0400, Oleg Drokin wrote:
+> Hello!
 > 
-> Hardware that is good at running linpack (all you gotta run to get onto
-> http://www.top500.org/ )isn't necessarily hardware that is any good at,
-> say, http://www.tpc.org/
+> On Mon, Sep 08, 2003 at 10:56:41AM +0200, Rogier Wolff wrote:
+> > > > There  is no installation program that will fail with: "Sorry, 
+> > > > you only have 100 million inodes free, this program will need
+> > > > 132 million after installation", and it allows me a quick way 
+> > > > of counting the number of actual files on the disk.... 
+> > > You cannot. statfs(2) only exports "Total number of inodes on disk" and
+> > > "number of free inodes on disk" values for fs. df substracts one from another one
+> > > to get "number of inodes in use".
+> > So, you report "oids_in_use + 100M" as total and "100M" as free inodes 
+> > on disk. Voila!
 
-Quite true.  And there have been some very reasonable criticisms of linpack,
-as it is cache friendly.   So I will not argue that clusters are the
-proper solution for everything.
+> Yes, we thought about that too. Need to be careful to not overflow
+> "long int".  
 
-The barrier to submitting a TPC result is much higher so it captures
-a smaller chunk of the market.  For the people who are their customers
-this seems reasonable.  Though I find the absence of google
-from the TPC-H fascinating.
+> And idea of filesystem with variable amount of inodes over time
+> sounds confusing to me, too.  ]
 
-But none of those machines have nearly the same number of cpus
-as the machines in the top500.   And the point of Larry ideas are
-an infrastructure that scales.  It is easy to scale things to 64
-processors, 2.6 will do that today (though not necessarily
-well).  Going an order a magnitude bigger is a very significant
-undertaking.
+SO? That's actually the case. So it's confusing. So you're confusing
+people even more by telling nothing. Great. 
 
-I won't argue that a NUMA design is bad.  In fact I think it is quite a
-nice hardware idea.  And optimizing for it if you got it is cool.
+#define LARGE_NUMBER 100000
 
-But I think if people are going to build software that scales
-built of multiple kernels, it will probably be the cluster guys.
-Because that is what they must do, and they already have the big
-hardware.  And if the code works in a non-coherent mode it should only
-get better when you tell it the machine is cache coherent.
+out->total_inodes = fs->oids_in_use + LARGE_NUMBER; 
+if (out->total_inodes < fs->oids_in_use) 
+   out -> total_inods = MAXINT;
+out -> free_inodes = LARGE_NUMBER; 
 
-Eric
+Three lines of code fixes that. 
+
+> Well, if current interface does not allow to see all the stuff you want to,
+> time to change (introduce new one) interface, anyway.
+
+Fine, introduce a new interface. But report as much as you can on the
+old interface. Remember you can read/write/seek files using the 32bit
+interface even though the new (seek-, and stat-) interface uses 64
+bits.
+
+		Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****

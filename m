@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264855AbUFGP1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264795AbUFGPf7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264855AbUFGP1F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 11:27:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264833AbUFGP0j
+	id S264795AbUFGPf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 11:35:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264771AbUFGPf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 11:26:39 -0400
-Received: from adsl-68-90-128-165.dsl.lgvwtx.swbell.net ([68.90.128.165]:56075
-	"HELO xcel.com.au") by vger.kernel.org with SMTP id S264855AbUFGPZw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 11:25:52 -0400
-Message-ID: <74d101c44ca3$76f2d14e$de38123b@xcel.com.au>
-From: "Lucien Church" <lucien_church_ek@webbizz.nl>
+	Mon, 7 Jun 2004 11:35:58 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:26589 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S264795AbUFGPfz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 11:35:55 -0400
+Date: Tue, 8 Jun 2004 03:39:52 +1200 (NZST)
+From: Keith Duthie <psycho@albatross.co.nz>
 To: linux-kernel@vger.kernel.org
-Subject: Powerful weightloss now available for you.
-Date: Mon, 07 Jun 2004 23:26:18 +0800
+Cc: alsa-user@lists.sourceforge.net
+Subject: [PATCH] Fix apm suspend with cs4231 based sound cards
+Message-ID: <Pine.LNX.4.53.0406080319560.27816@loki.albatross.co.nz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, I have a special_offer for you...
-WANT TO LOSE WEIGHT?
-The most powerful weightloss is now available
-without prescription. All natural Adipren720
-100% Money Back Guarantée!
-- Lose up to 19% Total Body Weight.
-- Up to 300% more Weight Loss while dieting.
-- Loss of 20-35% abdominal Fat.
-- Reduction of 40-70% overall Fat under skin.
-- Increase metabolic rate by 76.9% without Exercise.
-- Boost your Confidence level and Self Esteem.
-- Burns calorized fat.
-- Suppresses appetite for sugar.
-Get the facts about all-natural Adipren720 <http://2adipren.com/>
+The following patch (effectively a reversion of a change between alsa
+0.9.4 and 0.9.5) fixes a problem whereby an APM suspend causes the
+program which is using the PCM device to enter the uninterruptible sleep
+state on resume and thus causes the sound device to be unusable.
 
+--- linux-2.6.5/sound/isa/cs423x/cs4231_lib.c~	Tue Jun  8 03:24:49 2004
++++ linux-2.6.5/sound/isa/cs423x/cs4231_lib.c	Tue Jun  8 03:24:52 2004
+@@ -1402,7 +1402,7 @@
+ 	switch (rqst) {
+ 	case PM_SUSPEND:
+ 		if (chip->suspend) {
+-			snd_pcm_suspend_all(chip->pcm);
++			//	snd_pcm_suspend_all(chip->pcm);
+ 			(*chip->suspend)(chip);
+ 		}
+ 		break;
 
+I've cc'ed alsa-user instead of alsa-devel as I'm only subscribed to
+alsa-user, and my attempt to report this in February (according to an
+automated reply I received) "Is being held until the list moderator can
+review it for approval."
 
----- system information ----
-header methods environments requirements What from numbers MIME 
-examples that Unlike Scenario an market cite uses 
-culturally programming each Patent writing user problems exchanged 
-places Simplified Procedure Relationship allow negotiation issues Unlike
-
-indicate Description fall States) must results formatting written 
-
+-- 
+Just because it isn't nice doesn't make it any less a miracle.
+     http://users.albatross.co.nz/~psycho/     O-   -><-

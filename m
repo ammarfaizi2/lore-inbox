@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137205AbREKS1Q>; Fri, 11 May 2001 14:27:16 -0400
+	id <S137203AbREKSjS>; Fri, 11 May 2001 14:39:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137203AbREKS1H>; Fri, 11 May 2001 14:27:07 -0400
-Received: from goat.cs.wisc.edu ([128.105.166.42]:35078 "EHLO goat.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id <S137204AbREKS0w>;
-	Fri, 11 May 2001 14:26:52 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Backport of 2.4 ptrace flag to 2.2
-From: Victor Zandy <zandy@cs.wisc.edu>
-Date: 11 May 2001 13:26:50 -0500
-Message-ID: <cpxeltvoi6t.fsf@goat.cs.wisc.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S137204AbREKSi7>; Fri, 11 May 2001 14:38:59 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:8715 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S137203AbREKSiu>; Fri, 11 May 2001 14:38:50 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+cc: Hacksaw <hacksaw@hacksaw.org>, linux-kernel@vger.kernel.org
+Message-ID: <86256A49.00664FCE.00@smtpnotes.altec.com>
+Date: Fri, 11 May 2001 13:37:53 -0500
+Subject: Re: Not a typewriter
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Alan Cox <alan@lxorguk.ukuu.org.uk> writes: 
-> > The preferable one for performance is certainly to backport the
-> > 2.4 changes 
 
-This patch against stock 2.2.19 is a backport of the task structure
-ptrace flag of Linux 2.4.
+On 05/11/2001 at 12:03:43 PM Joel Jaeggli <joelja@darkwing.uoregon.edu> wrote:
 
-It is available at
-http://www.cs.wisc.edu/~zandy/ptrace
+>it's not clear to me that that textsearch is a more  accurate description
+>than Get Regular ExPression
 
-As we reported a couple weeks ago, under Linux 2.2 ptrace can globally
-corrupt the FPU on SMPs.  Linus identified the problem as a race
-between ptrace and the FPU trap handler over the process flags.  The
-ptrace flag introduced in 2.4 eliminates the race.
+It's not more accurate.  But Hacksaw's original point was that a new user would
+not know what "not a typewriter" meant.  My point was that a newbie wouldn't be
+likely to guess that "grep" means "search for text" either; in both cases he'd
+have to look it up if he'd never seen it before.
 
-This port is faithful to the 2.4 design.  Essentially it:
+BTW, grep does not stand for "Get Regular ExPression."  It comes from an
+often-used command in the ed (and ex and vi) editor: g/re/p.  The "g" means
+"global," the "re" is a regular expression, and the "p" means "print."  So to
+search for all lines containing the word "foo" in a file you were editing, you
+would type g/foo/p.  This was such a useful function that it was packaged in a
+standalone program that could be used to search multiple files.
 
- - Adds a new variable `ptrace' to the task structure;
- - Adds new constants for this variable (PT_PTRACED etc.) and removes
-   the corresponding old ones (PF_PTRACED etc.);
- - Replaces every ptrace-context reference to `flags' with a reference
-   to `ptrace', and updates the constants used accordingly;
- - Updates ptrace offset constants, loads, and comparisons in assembly
-   files.
+Wayne
 
-The patch is complete for all platforms except ARM.  On ARM, I didn't
-understand the meaning of the offset constants used in the assembly,
-so I didn't try to fix them.  The patch does include the necessary
-changes to C files on ARM.
 
-We have applied (cleanly), compiled (cleanly) and tested the patch on
-an x86 SMP, one of the same ones on which we saw FPU corruption.  We
-have verified that FPU corruption cannot be produced, and that gdb and
-strace still function.  We have not tested any other platform.
-
-Please direct any questions or problems with the patch to
-Victor Zandy <zandy@cs.wisc.edu>.

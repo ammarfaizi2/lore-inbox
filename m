@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266422AbUFQIcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266414AbUFQIgz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266422AbUFQIcS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 04:32:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266423AbUFQIcS
+	id S266414AbUFQIgz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 04:36:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266416AbUFQIgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 04:32:18 -0400
-Received: from adsl-65-42-83-32.dsl.chcgil.ameritech.net ([65.42.83.32]:5128
-	"HELO edv-vogt.de") by vger.kernel.org with SMTP id S266422AbUFQIbp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 04:31:45 -0400
-Message-ID: <c2bd01c45445$0db5f1d8$9335ff09@edv-vogt.de>
-From: "Christian Fontenot" <cfontenotyo@bmg.se>
-To: linux-kernel@vger.kernel.org
-Subject: Powerful weightloss now available where you are.
-Date: Thu, 17 Jun 2004 03:30:18 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Thu, 17 Jun 2004 04:36:55 -0400
+Received: from tor.morecom.no ([64.28.24.90]:53386 "EHLO tor.morecom.no")
+	by vger.kernel.org with ESMTP id S266414AbUFQIgy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 04:36:54 -0400
+Subject: Re: mode data=journal in ext3. Is it safe to use?
+From: Petter Larsen <pla@morecom.no>
+To: Eugene Crosser <crosser@rol.ru>
+Cc: ext3 <ext3-users@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1087323602.16701.42.camel@ariel.sovam.com>
+References: <40FB8221D224C44393B0549DDB7A5CE83E31B1@tor.lokal.lan>
+	 <1087322976.1874.36.camel@pla.lokal.lan>
+	 <1087323602.16701.42.camel@ariel.sovam.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1087461413.2765.42.camel@pla.lokal.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 17 Jun 2004 10:36:53 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, I have a special offer for you...
-WANT TO LOSE WEIGHT?
-The most powerful weightloss is now available
-without prescription. All natural Adipren720
-100% Money Back Guarantée!
-- Lose up to 19% Total Body Weight.
-- Loss of 20-35% abdominal Fat.
-- Up to 300% more Weight Loss while dieting.
-- Increase metabolic rate by 76.9% without Exercise.
-- Reduction of 40-70% overall Fat under skin.
-- Suppresses appetite for sugar.
-- Burns calorized fat.
-- Boost your Confidence level and Self Esteem.
-Get the facts about all-natural Adipren720 <http://diet40.com/>
+> > 
+> > Data integrity is much more important for us than speed.
+> 
+> I ran ext3 with data=journal on 2.6.6smp for about a week on a heavily
+> loaded system (I mean it).  I did not ever experience filesystem
+> corruption (related to the fs code).  I did, however, hit complete
+> system lockup once.  It *may* have been unrelated to the fs code.
+> 
+> (If you use quota, it *will* lock.  The author is working on a fix.
+> Above, I am referring to a lockup with quota off).
+> 
+> Eugene
+
+Good to here. But there may have been a lookup once because you are not
+sure that the crash was unrelated to ext3 fs code?
+
+Are you going to test it more?
+
+We are not going to use quota, we are using ext3 on a compact flash disk
+in an embedded device.
 
 
-
----- system information ----
-Content-Language has properties format calendars various years operationally
-
-programming [Definition: adapted number presents suggesting An requests
-
-called though these function Publication nearly situations string 
-results public at could W3C server following is 
-making variety doesn't MIME around Distinguishing writes case 
-
+-- 
+Petter Larsen
+cand. scient.
+moreCom as
+913 17 222

@@ -1,68 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261974AbTJSQFK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 12:05:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbTJSQFK
+	id S261648AbTJSPzw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 11:55:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbTJSPzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 12:05:10 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:7552 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S261974AbTJSQFE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 12:05:04 -0400
-Message-ID: <3F92B62C.8020602@softhome.net>
-Date: Sun, 19 Oct 2003 18:05:00 +0200
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en-us, en
+	Sun, 19 Oct 2003 11:55:52 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:35766 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S261735AbTJSPz0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 11:55:26 -0400
+To: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+Cc: "Mudama, Eric" <eric_mudama@Maxtor.com>,
+       "'Hans Reiser '" <reiser@namesys.com>,
+       "'Wes Janzen '" <superchkn@sbcglobal.net>,
+       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
+       "'John Bradford '" <john@grabjohn.com>, <linux-kernel@vger.kernel.org>,
+       <nikita@namesys.com>, "'Pavel Machek '" <pavel@ucw.cz>,
+       "'Justin Cormack '" <justin@street-vision.com>,
+       "'Russell King '" <rmk+lkml@arm.linux.org.uk>,
+       "'Vitaly Fertman '" <vitaly@namesys.com>
+Subject: Re: Blockbusting news, results are in
+References: <785F348679A4D5119A0C009027DE33C105CDB300@mcoexc04.mlm.maxtor.com>
+	<021501c39618$615619c0$24ee4ca5@DIAMONDLX60>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 19 Oct 2003 17:55:09 +0200
+In-Reply-To: <021501c39618$615619c0$24ee4ca5@DIAMONDLX60>
+Message-ID: <m34qy5ql2a.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-To: "Martin J. Bligh" <fletch@aracnet.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] add a config option for -Os compilation
-References: <I2Ue.7PG.3@gated-at.bofh.it> <I2Ue.7PG.5@gated-at.bofh.it> <I2Ue.7PG.7@gated-at.bofh.it> <I2Ue.7PG.9@gated-at.bofh.it> <I2Ue.7PG.11@gated-at.bofh.it> <I2Ue.7PG.13@gated-at.bofh.it> <I2Ue.7PG.1@gated-at.bofh.it> <ImzK.4TR.25@gated-at.bofh.it> <ImzK.4TR.23@gated-at.bofh.it> <InYQ.6OJ.21@gated-at.bofh.it>
-In-Reply-To: <InYQ.6OJ.21@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
-> 
-> But if someone with a small cache would actually *measure* the damned 
-> thing, I'd be more impressed ... I've never seen that, but perhaps
-> I just missed it. 
-> 
-> Point is the same either way though ... we shouldn't unconditionally
-> optimise for *anyone's* system. If it's faster on all systems that anyone
-> can be bothered to measure, great. If it's faster on some, and slower on
-> others, a config option seems more appropriate, defaulting to the majority
-> of users.
-> 
+"Norman Diamond" <ndiamond@wta.att.ne.jp> writes:
 
-   The thing is, that in fact kernel optimization is not that important.
+> 3.  If there were a way to enable reallocation in case of permanent errors,
+> I think my friends would have said.  But they sure didn't say there were any
+> user-settable options, they only said some approximations of how it was
+> designed.
 
-   The goal of kernel is to provide framework for applications to the 
-job well. I wasn't doing any kernels measurements - since kernel docs 
-are saying that -O2 is the standard. And it is really hard to measure 
-kernel only perfomance. (And it is rather pointless - I'm not going to 
-sell linux kernel ;-)))
+Other drives remap on write by default.
 
-   But indeed I was testing my application on embedded system with 16K 
-L1 cache. Results were pretty predictable: gcc 2.95.3 + -Os was giving 
-some (around 2-3%) performance improvements, while 2.95.3 + -O[23] and 
-3.2.3 with any optimization were giving aprox. the same times. (App is 
-bloated with third-party libraries, C++ and threads. Save God I have 
-killed all exceptions - they were really really really slow on target 
-system.)
+>  It does reallocations after temporary read errors but not after
+> permanent read errors (where permanent means 255 failures in auto-retry).
 
-   But on other side - since embedded systems are not that overclocked 
-as high-end toys - cache miss is not that painful. As of docs, NatSemi 
-Geode@266MHz cache miss costs exactly 266/66 == 4 cycles.
+Good so far.
 
+> They think it does reallocations after temporary write errors, they weren't
+> sure if it does reallocations after permanent write errors, now we know that
+> it doesn't do reallocations after permanent write errors, and this is how it
+> is designed, with no hint of options to toggle.
+
+There isn't (shoudn't be) such a thing as "temporary" or "permanent"
+write error. A write error should cause a sector to be remapped (the
+question about how many times the drive should try to write a single
+sector is irrelevant here). The drive should not return write error
+unless all spare sectors are already in use (which means the drive
+is approaching death and should be replaced immediately).
+
+All drives I currently use do just that (though I don't currently use
+Toshiba drives).
+
+I would rather ask Toshiba if it's a bug in their firmware and if they
+have fixed it. Or buy another brand.
+
+> Why does RAM carry 6 year warranties?  (Maybe some don't but this is
+> common.)
+
+It doesn't have moving parts.
+
+> > BTW, you're welcome to buy "premium" drives with 3-year or 5-year
+> > warranties.  (3 on most vendor's high end ATA products, and 5 years on
+> > most SCSI products)
+
+We have that here (ATA, and I think all SCSI drives have 5 years).
+Not sure about exact price increase, though.
 -- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
---
-   "... and for $64000 question, could you get yourself vaguely
-      familiar with the notion of on-topic posting?"
-				-- Al Viro @ LKML
-
+Krzysztof Halasa, B*FH

@@ -1,29 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262418AbTAYWE6>; Sat, 25 Jan 2003 17:04:58 -0500
+	id <S262420AbTAYWVE>; Sat, 25 Jan 2003 17:21:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262420AbTAYWE6>; Sat, 25 Jan 2003 17:04:58 -0500
-Received: from h00c0263128af.ne.client2.attbi.com ([24.60.89.166]:34564 "EHLO
-	sapphire.no-ip.com") by vger.kernel.org with ESMTP
-	id <S262418AbTAYWE6>; Sat, 25 Jan 2003 17:04:58 -0500
-From: Rick Warner <rick@sapphire.no-ip.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: support for dual independent keyboards in devel kernel?
-Date: Sat, 25 Jan 2003 17:14:07 -0500
-User-Agent: KMail/1.5
+	id <S262425AbTAYWVE>; Sat, 25 Jan 2003 17:21:04 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:53390 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262420AbTAYWVE>;
+	Sat, 25 Jan 2003 17:21:04 -0500
+Date: Sat, 25 Jan 2003 14:24:18 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Hugh Dickins <hugh@veritas.com>
+cc: <rpjday@mindspring.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: test suite?
+In-Reply-To: <Pine.LNX.4.44.0301252011420.1784-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33L2.0301251418100.14344-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200301251714.07510.rick@sapphire.no-ip.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been doing some research on running 2 independent displays off of 1 
-machine (ie 2 keyboards, 2 mice, 2 vid cards, 2 monitors).. there are some 
-hacks out there now that "sort of" work.... but nothing stable and official.. 
-it's all hacks....   I have read that support for this is planned for 
-2.5/2.6, and would like to know what progress has been done.  I am willing to 
-help where I can.  I am a good C/C++ programmer, but have not done any kernel 
-work so far.
+On Sat, 25 Jan 2003, Hugh Dickins wrote:
+
+| On Fri, 24 Jan 2003, Randy.Dunlap wrote:
+| > Anyone, where is this kernel size limit coming from?
+| >   System is 8384 kB
+| >   System is too big. Try using modules.
+|
+| See pg0 and pg1 in arch/i386/kernel/head.S.  There's no technical
+| reason (but well-justified resistance to bloat) why pg2... cannot
+| be added, but you might find a few little adjustments needed to
+| match elsewhere (if you want your testbuild kernel to boot).
+
+Thanks, Hugh.
+
+Just after I sent that email, I said to myself:
+um, maybe something about GDT, related to (max) 1-1 memory mapping.
+
+No, I don't need to boot that kernel.
+It was enough of a problem just to build it.
+
+-- 
+~Randy
+

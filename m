@@ -1,81 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262302AbVCBOcZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262326AbVCBObV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262302AbVCBOcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 09:32:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbVCBObv
+	id S262326AbVCBObV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 09:31:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262320AbVCBO30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 09:31:51 -0500
-Received: from spoetnik.kulnet.kuleuven.ac.be ([134.58.240.46]:49073 "EHLO
-	spoetnik.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id S262322AbVCBOaJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 09:30:09 -0500
-Message-ID: <4225CDEF.4070501@mech.kuleuven.ac.be>
-Date: Wed, 02 Mar 2005 15:30:07 +0100
-From: Panagiotis Issaris <panagiotis.issaris@mech.kuleuven.ac.be>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
+	Wed, 2 Mar 2005 09:29:26 -0500
+Received: from web54603.mail.yahoo.com ([68.142.225.187]:9325 "HELO
+	web54603.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262323AbVCBO2k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 09:28:40 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=Qj8KdN9z7AFhGWNDVEnpV96Gs0Bm0Hk7b21TkySfn/gELj41V6EwMYWAdE5mC+VVuU0R6IZGgo1XuakLct77CUJ8kkys0P/cs3ap8szOddhWmIsRlNkODU8PreGDFZ/8ZNW6/jPkbbXiJyUm8vhYGzvHmROLHF1Ic/YuwlFgE4w=  ;
+Message-ID: <20050302142836.8560.qmail@web54603.mail.yahoo.com>
+Date: Wed, 2 Mar 2005 06:28:36 -0800 (PST)
+From: Prakash Bhurke <prakash_bhurke@yahoo.com>
+Subject: Re: memory mapping of vmalloc
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0503011713470.31799@goblin.wat.veritas.com>
 MIME-Version: 1.0
-To: dtor_core@ameritech.net
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] raw1394 missing failure handling
-References: <42259F3A.8000206@mech.kuleuven.ac.be>	 <1109763232.12379.6.camel@imp.csi.cam.ac.uk>	 <4225B167.3030903@mech.kuleuven.ac.be> <d120d500050302062451cc2af3@mail.gmail.com>
-In-Reply-To: <d120d500050302062451cc2af3@mail.gmail.com>
-Content-Type: multipart/mixed;
- boundary="------------070707030402080702090508"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070707030402080702090508
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi  Hugh,
 
-Hi,
+   rvmallaoc is working.
+   Very Very Thanks.
 
-Dmitry Torokhov wrote:
+Regards,
+Prakash
 
->On Wed, 02 Mar 2005 13:28:23 +0100, Panagiotis Issaris
-><panagiotis.issaris@mech.kuleuven.ac.be> wrote:
->  
->
->>Oops. Thanks for replying! Any more problems with the updated
->>patch?
->>    
->>
->Formatting... Opening curly brace should go on the same line with "if".
->  
->
-Thanks. Here's my third try :-)
+--- Hugh Dickins <hugh@veritas.com> wrote:
 
-With friendly regards,
-Takis
+> On Tue, 1 Mar 2005, Prakash Bhurke wrote:
+> >   I am trying to map a vmalloc kernel buffer to
+> user
+> > space using remap_page_range(). In my module, this
+> > function returns success if we call mmap() from
+> user
+> > space, but i can not access content of vmalloc
+> buffer
+> > from user space. Pointer returned by mmap()
+> syscall
+> > seems pointing to other memory page which contains
+> > zeros. I am using linux 2.6.10 kernel on Pentium 4
+> > system.
+> 
+> Look for "rvmalloc" in various drivers in the kernel
+> source tree:
+> you must SetPageReserved before remap_pfn_range (or
+> remap_page_range)
+> agrees to map the page, and ClearPageReserved before
+> freeing after.
+> 
+> Hugh
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
--- 
-  K.U.Leuven, Mechanical Eng.,  Mechatronics & Robotics Research Group
-  http://people.mech.kuleuven.ac.be/~pissaris/
 
 
---------------070707030402080702090508
-Content-Type: text/x-patch;
- name="pi-20050302T152730-linux_2_6_11-1394_copy_to_user_failure_handling_3.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pi-20050302T152730-linux_2_6_11-1394_copy_to_user_failure_handling_3.diff"
-
-diff -pruN linux-2.6.11/drivers/ieee1394/raw1394.c linux-2.6.11-pi/drivers/ieee1394/raw1394.c
---- linux-2.6.11/drivers/ieee1394/raw1394.c	2005-03-02 11:44:26.000000000 +0100
-+++ linux-2.6.11-pi/drivers/ieee1394/raw1394.c	2005-03-02 15:27:15.000000000 +0100
-@@ -443,7 +443,10 @@ static ssize_t raw1394_read(struct file 
-                         req->req.error = RAW1394_ERROR_MEMFAULT;
-                 }
-         }
--        __copy_to_user(buffer, &req->req, sizeof(req->req));
-+        if (__copy_to_user(buffer, &req->req, sizeof(req->req))) {
-+                free_pending_request(req);
-+                return -EFAULT;
-+        }
- 
-         free_pending_request(req);
-         return sizeof(struct raw1394_request);
-
---------------070707030402080702090508--
+	
+		
+__________________________________ 
+Celebrate Yahoo!'s 10th Birthday! 
+Yahoo! Netrospective: 100 Moments of the Web 
+http://birthday.yahoo.com/netrospective/

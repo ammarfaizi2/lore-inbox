@@ -1,32 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130753AbRCIXVZ>; Fri, 9 Mar 2001 18:21:25 -0500
+	id <S130741AbRCIX1p>; Fri, 9 Mar 2001 18:27:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130754AbRCIXVP>; Fri, 9 Mar 2001 18:21:15 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:58633 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S130753AbRCIXVH>;
-	Fri, 9 Mar 2001 18:21:07 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Oleg Drokin <green@dredd.crimea.edu>
-cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        usb@in.tum.de, jerdfelt@valinux.com
-Subject: Re: khubd oops in 2.4.2-ac16 
-In-Reply-To: Your message of "Fri, 09 Mar 2001 21:51:57 +0300."
-             <20010309215157.A1868@dredd.crimea.edu> 
+	id <S130766AbRCIX1Z>; Fri, 9 Mar 2001 18:27:25 -0500
+Received: from ulima.unil.ch ([130.223.144.143]:39437 "EHLO ulima.unil.ch")
+	by vger.kernel.org with ESMTP id <S130741AbRCIX1X>;
+	Fri, 9 Mar 2001 18:27:23 -0500
+Date: Sat, 10 Mar 2001 00:26:40 +0100
+From: FAVRE Gregoire <greg@ulima.unil.ch>
+To: linux-kernel@vger.kernel.org
+Subject: linux-2.4.2-ac1[67] aicam compil error
+Message-ID: <20010310002640.A13924@ulima.unil.ch>
+Mail-Followup-To: FAVRE Gregoire <greg@ulima.unil.ch>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 10 Mar 2001 10:20:18 +1100
-Message-ID: <2449.984180018@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Mar 2001 21:51:57 +0300, 
-Oleg Drokin <green@dredd.crimea.edu> wrote:
->ksymoops 2.3.5 on i686 2.4.2-ac16.  Options used
->Warning (compare_maps): mismatch on symbol __module_author  , usbnet says c89338c0, /lib/modules/2.4.2-ac16/kernel/drivers/usb/usbnet.o says c893472c.  Ignoring /lib/modules/2.4.2-ac16/kernel/drivers/usb/usbnet.o entry
+Hello,
 
-You are using a very old modutils, somewhere before 2.3.19.  You need
-at least modutils 2.4.2 for this kernel, modutils 2.4.3 would be
-better.
+Sorry if that has already been posted, I read the m-l via newsgroups.
+When I try to compile, I got:
+make[4]: Entering directory
+`/usr/src/linux-2.4.2-ac17/drivers/scsi/aic7xxx'
+make -C aicasm
+make[5]: Entering directory
+`/usr/src/linux-2.4.2-ac17/drivers/scsi/aic7xxx/aicasm'
+kgcc -I/usr/include -ldb aicasm_gram.c aicasm_scan.c aicasm.c
+aicasm_symbol.c -o aicasm
+aicasm/aicasm_gram.y:45: ../queue.h: No such file or directory
+aicasm/aicasm_gram.y:50: aicasm.h: No such file or directory
+aicasm/aicasm_gram.y:51: aicasm_symbol.h: No such file or directory
+aicasm/aicasm_gram.y:52: aicasm_insformat.h: No such file or directory
+aicasm/aicasm_scan.l:44: ../queue.h: No such file or directory
+aicasm/aicasm_scan.l:49: aicasm.h: No such file or directory
+aicasm/aicasm_scan.l:50: aicasm_symbol.h: No such file or directory
+aicasm/aicasm_scan.l:51: y.tab.h: No such file or directory
+make[5]: *** [aicasm] Error 1
+make[5]: Leaving directory
+`/usr/src/linux-2.4.2-ac17/drivers/scsi/aic7xxx/aicasm'
+make[4]: *** [aicasm/aicasm] Error 2
+make[4]: Leaving directory
+`/usr/src/linux-2.4.2-ac17/drivers/scsi/aic7xxx'
+make[3]: *** [first_rule] Error 2
+make[3]: Leaving directory
+`/usr/src/linux-2.4.2-ac17/drivers/scsi/aic7xxx'
+make[2]: *** [_subdir_aic7xxx] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.2-ac17/drivers/scsi'
+make[1]: *** [_subdir_scsi] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.2-ac17/drivers'
+make: *** [_dir_drivers] Error 2
+Exit 2
 
+And voila...
+
+	Greg
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

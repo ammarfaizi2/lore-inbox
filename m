@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267476AbRGLLUe>; Thu, 12 Jul 2001 07:20:34 -0400
+	id <S267474AbRGLLUo>; Thu, 12 Jul 2001 07:20:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267475AbRGLLUY>; Thu, 12 Jul 2001 07:20:24 -0400
-Received: from shiva.jussieu.fr ([134.157.0.129]:8708 "EHLO shiva.jussieu.fr")
-	by vger.kernel.org with ESMTP id <S267474AbRGLLUP>;
-	Thu, 12 Jul 2001 07:20:15 -0400
-Message-ID: <3B4D886C.8822B0A6@qosmos.net>
-Date: Thu, 12 Jul 2001 13:22:20 +0200
-From: Jerome Tollet <Jerome.Tollet@qosmos.net>
-Organization: Qosmos
-X-Mailer: Mozilla 4.77 [fr] (X11; U; Linux 2.4.3-12smp i686)
-X-Accept-Language: fr-FR, en
+	id <S267475AbRGLLUe>; Thu, 12 Jul 2001 07:20:34 -0400
+Received: from www.wen-online.de ([212.223.88.39]:17683 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S267474AbRGLLUZ>;
+	Thu, 12 Jul 2001 07:20:25 -0400
+Date: Thu, 12 Jul 2001 13:19:28 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Steffen Persvold <sp@scali.no>
+cc: Ho Chak Hung <hunghochak@netscape.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: __alloc_pages 4 order allocation failed
+In-Reply-To: <3B4D527B.786F7461@scali.no>
+Message-ID: <Pine.LNX.4.33.0107121233050.332-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: bridge and multicast
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I tried to install a linux bridge on my network on which some multicast
-traffic is present. It seems that the bridge stops the multicast
-traffic. 
-I looked at the bridge source code and i saw that there is no
-special code to handle ethernet multicast mac adresses. The only code i
-found is that
-the bridge duplicates the packet for the local interface if the brgXX
-interface has the flag
-IFF_MULTI set.
-I think that the problem is that the bridge has already seen a special
-mac adress on its interface ethY
-so it doesn't duplicate the packet on its other interfaces (ethZ).
+On Thu, 12 Jul 2001, Steffen Persvold wrote:
 
-What can i do ? Does someone experienced the same problem ?
-Thanks for help
+> Mike Galbraith wrote:
+> >
+> > On Wed, 11 Jul 2001, Ho Chak Hung wrote:
+> >
+> > > Hi,
+> > > but there isn't any call in the module to allocate 4 order pages. There are only calls to allocate 0 order pages. alloc_pages(GFP_KERNEL, 0)is the only call to allocate page in the whole module.
+> >
+> > Then it's not your module :)
+> >
+> > Some driver may be asking for order 4, but settling for less when
+> > that fails.
+> >
+> Why did this get worse on the 2.4 kernel ?. On 2.2 I always seemed to get my high order
+> allocations  and GFP_ATOMIC seldom failed when there was available memory.
 
-Please CC me personaly because i didn't subsribed to the lkml.
+If 2.2 manages to service high order allocations better than 2.4, I'd
+say it must be due to dumb luck more than anything else.  If you keep
+most of your ram allocated (both 2.2 and 2.4 do), and don't do active
+defragmentation (neither does), it's a roll of the dice whether you
+have a contiguous chunk of ram to dole out or not.
 
-Jerome
--- 
-------------------------
-Jerome Tollet
-jerome.tollet@qosmos.net
-www.qosmos.net
-------------------------
+wrt GFP_ATOMIC failing when memory is available, that doesn't happen
+unless they are high order allocations.  If you mean caches when you
+say 'available', cache pages are not necessarily reclaimable at all,
+much less instantly as would be required to service atomic allocations.
+
+	-Mike
+

@@ -1,71 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261473AbREUNis>; Mon, 21 May 2001 09:38:48 -0400
+	id <S261434AbREUNdT>; Mon, 21 May 2001 09:33:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261462AbREUNi2>; Mon, 21 May 2001 09:38:28 -0400
-Received: from pat.uio.no ([129.240.130.16]:42468 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S261459AbREUNiT>;
-	Mon, 21 May 2001 09:38:19 -0400
-MIME-Version: 1.0
-Message-ID: <15113.6718.559887.978482@charged.uio.no>
-Date: Mon, 21 May 2001 15:38:06 +0200
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Matt Chapman <matthewc@cse.unsw.edu.au>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        NFS maillist <nfs@lists.sourceforge.net>
-Subject: Another bug? linux/fs/nfs/write.c
-In-Reply-To: <20010521142400.A7229@cse.unsw.edu.au>
-In-Reply-To: <20010521142400.A7229@cse.unsw.edu.au>
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
- =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
- Valley) (i386-redhat-linux)
-Content-Type: text/plain; charset=US-ASCII
+	id <S261435AbREUNc5>; Mon, 21 May 2001 09:32:57 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:35082 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S261434AbREUNcr>; Mon, 21 May 2001 09:32:47 -0400
+Date: Mon, 21 May 2001 15:32:46 +0200
+From: Jan Hudec <bulb@ucw.cz>
+To: linux-kernel@vger.kernel.org
+Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Subject: Re: question: permission checking for network filesystem
+Message-ID: <20010521153246.A9454@artax.karlin.mff.cuni.cz>
+In-Reply-To: <20010520172948.A27935@artax.karlin.mff.cuni.cz> <Pine.LNX.3.96.1010521001448.31037A-100000@artax.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.3.96.1010521001448.31037A-100000@artax.karlin.mff.cuni.cz>; from mikulas@artax.karlin.mff.cuni.cz on Mon, May 21, 2001 at 12:49:18AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Linus,
-  The following mail from Matt describes a problem in the NFS
-read/write code that can cause a vicious hang. Obvious patch to fix it
-is attached...
+> > I'm trying to impelemnt a lightweight network filesystem and ran into
+> > trouble implementing lookup, permissions and open.
+> > 
+> > The protocol requires me to specify open mode in it's open command. The
+> > open mode has 4 bits: read, write, append and execute. But I can't tell
+> 
+> There are two ways how you can implement security in network file system:
+> 
+> 1. you expect that users have not root access on the client machine and
+> you check permissions on client (like in NFS). In this case the 'x' and
+> 'r' bits are checked on the client and you don't have to care about them
+> in protocol. 
+> 
+> 2. you expect that users have root access on client machine and you check
+> permissions on the server. In this case users can read executed files
+> anyway.
 
-Cheers,
-   Trond
+Neither. If user has acces to the protocol, he certainly can do some things
+more. But you definitely can't check permissions on client. The trouble is,
+that this limits access policy on server to what the clients understand.
+Checking on server on the other hand allows server to implement any access
+policy (even using 3rd party software) without having clients to know the
+details (sou they can be kept stupid and simple = fast and managable)
 
->>>>> " " == Matt Chapman <matthewc@cse.unsw.edu.au> writes:
+> If you are checking permissions on server, read/execute have no security
+> meaning. Client can send 'execute' request and then store data somwhere to
+> file. Opening for 'execute' won't enhance your security.
 
-     > Trond, Here's another bug which seems to be causing crashes.
+Agree, but it will improve behavior. Or speed, rather. Otherwise open would
+take 3(!) roundtrips (instead of two - now lookup can't be get rid of) -
+lookup, permission and open. The protocol can do all three in one request.
+The problem is I can't tell the 3 calls from VFS belong together.
 
-     > nfs_update_request keeps calling nfs_wait_on_request until the
-     > request can be locked.  Presumably it's relying on
-     > nfs_wait_on_request to schedule, and hence run rpciod to
-     > retransmit any lost requests.  However, if the fs is mounted
-     > with the intr option and a signal has arrived, then
-     > nfs_wait_on_request (ultimately, wait_event_interruptible)
-     > returns immediately with -ERESTARTSYS, and the loop spins.
+> > Could anyone see a solution other than adding a flags to open mode (say
+> > O_EXEC and O_EXEC_LIB), that would be added to the dentry_open in open_exec
+> > and sys_uselib? I don't like the idea of pathing vfs for this.
+> 
+> Send always 'open for read' and ignore 'open for execute'.
 
-     > Presumably nfs_update_request needs to check the return value
-     > of nfs_wait_on_request and return right up the chain on
-     > -ERESTARTSYS.  However, since I don't know this code very well,
-     > I'd prefer it if you had a look at it and gave some advice.
+Won't work for many reasons. Correct error code is one (could be removed by
+pre-checking permission), exclusivity of write versus execute is the other
+(can't be workaround). Checking permissions with lookup might be possible,
+but won't solve the exec/write exclusion and put more trust on the client,
+than is desireable.
 
-diff -u --recursive --new-file linux-2.4.5-fixes/fs/nfs/write.c linux-2.4.5-write/fs/nfs/write.c
---- linux-2.4.5-fixes/fs/nfs/write.c	Mon May 21 11:34:51 2001
-+++ linux-2.4.5-write/fs/nfs/write.c	Mon May 21 13:18:47 2001
-@@ -863,9 +863,12 @@
- 		req = _nfs_find_request(inode, page);
- 		if (req) {
- 			if (!nfs_lock_request(req)) {
-+				int error;
- 				spin_unlock(&nfs_wreq_lock);
--				nfs_wait_on_request(req);
-+				error = nfs_wait_on_request(req);
- 				nfs_release_request(req);
-+				if (error < 0)
-+					return ERR_PTR(error);
- 				continue;
- 			}
- 			spin_unlock(&nfs_wreq_lock);
+> And also remember that having file without read permission and with
+> execute permission makes sence only for suid programs. User can read the
+> file via /proc/<pid>/mem or attach debugger to the process...
+
+It does not make sence (x without r). But it surely makes sence to have a
+program with read but without exec permission (though it can be made to
+run).
+
+--------------------------------------------------------------------------------
+                  				- Jan Hudec `Bulb' <bulb@ucw.cz>

@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130743AbRAKUIb>; Thu, 11 Jan 2001 15:08:31 -0500
+	id <S129631AbRAKUVI>; Thu, 11 Jan 2001 15:21:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131211AbRAKUIV>; Thu, 11 Jan 2001 15:08:21 -0500
-Received: from db0bm.automation.fh-aachen.de ([193.175.144.197]:26889 "EHLO
-	db0bm.ampr.org") by vger.kernel.org with ESMTP id <S130743AbRAKUIE>;
-	Thu, 11 Jan 2001 15:08:04 -0500
-Date: Thu, 11 Jan 2001 21:08:02 +0100
-From: f5ibh <f5ibh@db0bm.ampr.org>
-Message-Id: <200101112008.VAA26010@db0bm.ampr.org>
-To: twaugh@redhat.com
-Subject: Re: Oops while loading ppa in 2.2.19-pre7
-Cc: linux-kernel@vger.kernel.org
+	id <S129806AbRAKUU7>; Thu, 11 Jan 2001 15:20:59 -0500
+Received: from front2.grolier.fr ([194.158.96.52]:24228 "EHLO
+	front2.grolier.fr") by vger.kernel.org with ESMTP
+	id <S129631AbRAKUUo> convert rfc822-to-8bit; Thu, 11 Jan 2001 15:20:44 -0500
+Date: Thu, 11 Jan 2001 20:20:03 +0100 (CET)
+From: Gérard Roudier <groudier@club-internet.fr>
+To: Boszormenyi Zoltan <zboszor@externet.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: sym-2.1.0-20001230 vs. sg (cdrecord)
+In-Reply-To: <Pine.LNX.4.02.10101111504570.9158-100000@prins.externet.hu>
+Message-ID: <Pine.LNX.4.10.10101112009300.1697-100000@linux.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Tim,
 
->> I got this non-fatal oops while loading the ppa module for my IOMEGA parallel
->> port ZIP drive.
+On Thu, 11 Jan 2001, Boszormenyi Zoltan wrote:
 
->It doesn't look like it's related to the ZIP drive though:
+> Hi!
+> 
+> I just wanted to let you know that I successfully ruined
+> a CD with 2.4.0 + sym-2.1.0-20001230. The system is a RH 7.0
+> with glibc-2.2-9, cdrecord-1.9.
 
->> Warning: kfree_skb passed an skb still on a list (from c8074fc1).
->> Oops: 0002
->> CPU:    0
->> EIP:    0010:[skb_recv_datagram+359/416]
->>               ^^^^^^^^^^^^^^^^^
+Thanks for the report.
+But with so tiny information, it gives about no usefulness to me.
 
->		Seems to be a networking problem..
+> When will it be really usable?
 
-You are probably right as I can see in tne oops :
-Process tnt (pid: 388, process nr: 29, stackpage=c6fe1000)
+A single ruined CD is probably too weak a symptom for stating any serious
+sickness in the driver. FYI, I cannot even personnaly try to ruin a single
+CDR, for the reason I don't have CDR.
 
-tnt is a program for hamradio (packet transmission over radio). And this is
-related to the network.
+If you can retrieve information related to the failure, you may send me
+them (syslog messages, cdrecord output messages, etc...). Thanks in
+advance. You may also give a try with stable kernel and related stuff and 
+let me know the result.
 
-----
+Regards,
+  Gérard.
 
-Regards
-
-		Jean-Luc
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

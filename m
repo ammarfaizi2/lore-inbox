@@ -1,84 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261640AbSJVCqs>; Mon, 21 Oct 2002 22:46:48 -0400
+	id <S261972AbSJVCrw>; Mon, 21 Oct 2002 22:47:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261934AbSJVCqs>; Mon, 21 Oct 2002 22:46:48 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22534 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261640AbSJVCqq>;
-	Mon, 21 Oct 2002 22:46:46 -0400
-Message-ID: <3DB4BD8F.1010707@pobox.com>
-Date: Mon, 21 Oct 2002 22:53:03 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: landley@trommello.org
-CC: Guillaume Boissiere <boissiere@adiglobal.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Son of crunch time: the list v1.2.
-References: <20021021135137.2801edd2.rusty@rustcorp.com.au> <200210211536.25109.landley@trommello.org> <3DB4B1B9.4070303@pobox.com> <200210211642.10435.landley@trommello.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262019AbSJVCrw>; Mon, 21 Oct 2002 22:47:52 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:38925 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S261972AbSJVCru>; Mon, 21 Oct 2002 22:47:50 -0400
+Date: Tue, 22 Oct 2002 03:53:46 +0100
+From: John Levon <levon@movementarian.org>
+To: Corey Minyard <cminyard@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NMI request/release
+Message-ID: <20021022025346.GC41678@compsoc.man.ac.uk>
+References: <3DB4AABF.9020400@mvista.com> <20021022021005.GA39792@compsoc.man.ac.uk> <3DB4B8A7.5060807@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DB4B8A7.5060807@mvista.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan *183pAw-000NbV-00*MRdvCVGQjL6* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
-> On Monday 21 October 2002 21:02, Jeff Garzik wrote:
->>>8) Zerocopy NFS (Hirokazu Takahashi)
->>>http://www.uwsg.iu.edu/hypermail/linux/kernel/0204.1/0429.html
->>
->>this is already merged, isn't it??
-> 
-> 
-> Another item straight from Guillaume's list...
+On Mon, Oct 21, 2002 at 09:32:07PM -0500, Corey Minyard wrote:
 
-You can remove this item...
+> This is an NMI, does it really matter?
 
+Yes. Both for oprofile and the NMI watchdog (which was firing awfully
+often last time I checked). The handler needs to be as streamlined as
+possible.
 
->>>10) EVMS (Enterprise Volume Management System) (EVMS team)
->>>http://sourceforge.net/projects/evms
->>
->>Sounds like 2.7.x material, viro pointed out several problems ...
-> 
-> 
-> This one's a problem.  LVM1 is dead, so either LVM2 or EVMS are needed to 
-> avoid a major functional regression vs 2.4...
+> dev_name could be removed, although it would be nice for reporting 
+> later.
 
-A political regression only...  if EVMS is not good enough for inclusion 
-in mainline, vendors can merge it and/or LVM2 to avoid problems.  _We_ 
-have higher standards for quality :)  If no LVM is ready for 2.6.x, we 
-have no LVM.  It's that simple...  If no one has stepped up to clean up 
-LVM1, and LVM2 and EVMS are not ready for inclusion, there's not much we 
-can do about it.  That's _not_ a reason to merge crap...
+Reporting what ? from where ?
 
+> >Couldn't you modify the notifier code to do the xchg()s (though that's
+> >not available on all CPU types ...)
+> >
+> I don't understand.  The xchg()s are for atomicity between the 
+> request/release code and the NMI handler.  How could the notifier code 
+> do it?
 
->>>14) USAGI IPv6.
->>>
->>>Yoshifuji Hideyaki points out that ipv6 is very important overseas
->>>(where some entire countries make do with a single class B ipv4
->>>
->>>address range).  He says:
->>>
->>>>Well, our IPsec is ready, runs and is tested...
->>>>ftp://ftp.linux-ipv6.org/pub/usagi/patch/ipsec/
->>>
->>The USAGI guys have been slowly splitting up their patches and
->>submitting them... AFAIK DaveM is just waiting on more split-up IPv6
->>patches from them...
-> 
-> 
-> Okay, ARE the Usagi IPV6 patches and Dave's work dovetailing into one project?  
-> I'll happily collate them if so, I'd just like to hear it from one of the 
-> principal authors...
+You are using the xchg()s in an attempt to thread onto/off the list
+safely no ?
 
+> >>+#define HAVE_NMI_HANDLER	1
 
-I'm sure he can elaborate, but AFAIK DaveM and Alexey are only doing 
-IPSEC... where USAGI and IPSEC intersect, there will be clashes.  So if 
-USAGI is waiting on IPSEC to submit more patches, things are waiting on 
-DaveM.  But if there are IPSEC-independent patches, USAGI should go 
-ahead and send them :)
+> This is so the user code can know if it's available or not.
 
-	Jeff
+If we had that for every API or API change, the kernel would be mostly
+HAVE_*. It's either available or it's not. If you're maintaining an
+external module, then autoconf or similar is the proper way to check for
+its existence.
 
+> >Is it not possible to use linux/rcupdate.h for this stuff ?
+>
+> I'm not sure.  It looks possible, but remember, this is an NMI, normal 
+> rules may not apply.  Particularly, you cannot block or spin waiting for 
+> something else, the NMI code has to run.  An NMI can happen at ANY time. 
 
+Believe me, I know :)
 
+> If the rcu code can handle this, I could use it, but I have not looked 
+> to see if it can.
+
+If it's possible (and I have no idea, not having looked at RCU at all)
+it seems the right way.
+
+regards
+john
+
+-- 
+"Lots of companies would love to be in our hole."
+	- Scott McNealy

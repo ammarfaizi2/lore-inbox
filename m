@@ -1,42 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267239AbUF0AFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266528AbUF0AmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267239AbUF0AFs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 20:05:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267240AbUF0AFs
+	id S266528AbUF0AmO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 20:42:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266307AbUF0AmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 20:05:48 -0400
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:30379 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S267239AbUF0AFr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 20:05:47 -0400
-Date: Sat, 26 Jun 2004 17:05:41 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       PARISC list <parisc-linux@lists.parisc-linux.org>
-Subject: Re: [parisc-linux] Re: [PATCH] Fix the cpumask rewrite
-Message-ID: <20040627000541.GA13325@taniwha.stupidest.org>
-References: <1088266111.1943.15.camel@mulgrave> <Pine.LNX.4.58.0406260924570.14449@ppc970.osdl.org> <20040626221802.GA12296@taniwha.stupidest.org> <Pine.LNX.4.58.0406261536590.16079@ppc970.osdl.org> <1088290477.3790.2.camel@localhost.localdomain>
+	Sat, 26 Jun 2004 20:42:14 -0400
+Received: from mxfep02.bredband.com ([195.54.107.73]:58060 "EHLO
+	mxfep02.bredband.com") by vger.kernel.org with ESMTP
+	id S266528AbUF0AmE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 20:42:04 -0400
+Subject: [help] Netdev watchdog code?
+From: Ian Kumlien <pomac@vapor.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-tloQjPdvfSwyLVJUYEGG"
+Message-Id: <1088296922.23713.45.camel@big>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1088290477.3790.2.camel@localhost.localdomain>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 27 Jun 2004 02:42:02 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 26, 2004 at 11:54:38PM +0100, Alan Cox wrote:
 
-> For most uses jiffies should die. If drivers could not access jiffies
-> except by a (possibly trivial) helper then it would be a huge step
-> closer to being able to run embedded linux without a continually running
-> timer.
+--=-tloQjPdvfSwyLVJUYEGG
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I'm all for that, except last I counted there are about 5000 users of
-jiffies.  What do you suggest as a replacement API?
+Hi,=20
 
+Do i understand this right?
 
+Netdev watchdog can only be called when netif_stop_queue(...) has been
+called. From what i gather in b44.c it's only called when the send queue
+is full, yet it can trigger on a common dhcp request.
+(where netif_queue_stopped(...) should return false, and thus the
+watchdog shouldn't run at all)
 
-  --cw
+As it is now, i can't understand how i can get watchdog timeouts since
+the queue would have to be filled. On a 100mbit fdup link it shouldn't
+delay that long not even if you use UDP packets (like nfs, I've even
+seen it trigger with ftp now).
+
+Anyways, Doing bio-timing based on the text output, it should work.
+And, the current vanila kernel.org kernel doesn't work for me, as i have
+stated numerous times and received no feedback.
+
+PS, CC, not in list.
+DS.
+--=20
+Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
+
+--=-tloQjPdvfSwyLVJUYEGG
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA3hfZ7F3Euyc51N8RAvqsAJ9eLIzHA/756UySS+ca9mrOPCdYUQCfQm79
+wibUK75mTHiNAx5NNW3KzOw=
+=9DKZ
+-----END PGP SIGNATURE-----
+
+--=-tloQjPdvfSwyLVJUYEGG--
+

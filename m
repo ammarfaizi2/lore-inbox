@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266840AbTBGXbg>; Fri, 7 Feb 2003 18:31:36 -0500
+	id <S266851AbTBGXgS>; Fri, 7 Feb 2003 18:36:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266852AbTBGXbg>; Fri, 7 Feb 2003 18:31:36 -0500
-Received: from packet.digeo.com ([12.110.80.53]:60564 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266840AbTBGXbf>;
-	Fri, 7 Feb 2003 18:31:35 -0500
-Date: Fri, 7 Feb 2003 15:40:45 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Thomas Molina <tmolina@cox.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: possible partition corruption
-Message-Id: <20030207154045.5080b1b0.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.44.0302071338130.926-200000@localhost.localdomain>
-References: <Pine.LNX.4.44.0302061848360.851-200000@localhost.localdomain>
-	<Pine.LNX.4.44.0302071338130.926-200000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Feb 2003 23:41:09.0491 (UTC) FILETIME=[6407C430:01C2CF02]
+	id <S266852AbTBGXgS>; Fri, 7 Feb 2003 18:36:18 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:38667 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S266851AbTBGXgR>; Fri, 7 Feb 2003 18:36:17 -0500
+Date: Sat, 8 Feb 2003 00:45:46 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Andries.Brouwer@cwi.nl
+cc: linux-kernel@vger.kernel.org, <torvalds@transmeta.com>
+Subject: Re: [PATCH] kill i_cdev and struct char_device
+In-Reply-To: <UTC200302072317.h17NHbZ08117.aeb@smtp.cwi.nl>
+Message-ID: <Pine.LNX.4.44.0302080041590.32518-100000@serv>
+References: <UTC200302072317.h17NHbZ08117.aeb@smtp.cwi.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Molina <tmolina@cox.net> wrote:
->
-> Further on this problem.  I did a system restore to a disk on /dev/hdb, 
-> fixed up fstab and other files so I could boot from /dev/hdb1.  I got 
-> results similar to the original.  However, this time I did get log 
-> messages.  
+Hi,
 
-OK, I tried your .config and the same happened here - no console output and
-huge amounts of disk I/O as the system was booting.  No filesystem problems
-on reboot, however.
+On Sat, 8 Feb 2003 Andries.Brouwer@cwi.nl wrote:
 
-I couldn't immediately see the reason for this.  You have your whole input
-layer configured as a module, perhaps that has upset things.
+> [the whole purpose of struct block_device is to provide the link
+> between a device number and a struct block_device_operations.
+> struct char_device has no such function, indeed, no function at all]
 
-I suggest that you work on the config settings and find out what it is that
-is causing the tty layer to not come up.
+Why do you think, the same shouldn't be done for char_device?
+You are removing the wrong infrastructure, check how block_dev.c changed 
+between 2.4 and 2.5 and the same still needs to be done for char_dev.c.
+
+bye, Roman
 

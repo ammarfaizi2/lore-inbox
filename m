@@ -1,284 +1,218 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319817AbSIMWn0>; Fri, 13 Sep 2002 18:43:26 -0400
+	id <S319819AbSIMWsT>; Fri, 13 Sep 2002 18:48:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319818AbSIMWn0>; Fri, 13 Sep 2002 18:43:26 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:26384
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S319817AbSIMWnV>; Fri, 13 Sep 2002 18:43:21 -0400
-Date: Fri, 13 Sep 2002 15:46:06 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Pavel Machek <pavel@ucw.cz>
-cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Fix 2.5.34+swsusp data corruption on IDE
-In-Reply-To: <20020913211529.GA25502@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.10.10209131537190.6925-100000@master.linux-ide.org>
+	id <S319822AbSIMWsT>; Fri, 13 Sep 2002 18:48:19 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:1217 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S319819AbSIMWsQ>;
+	Fri, 13 Sep 2002 18:48:16 -0400
+Message-ID: <3D826C25.5050609@us.ibm.com>
+Date: Fri, 13 Sep 2002 15:52:21 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@digeo.com>
+CC: colpatch@us.ibm.com, "Martin J. Bligh" <mbligh@aracnet.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] per-zone^Wnode kswapd process
+References: <20020913045938.GG2179@holomorphy.com> <617478427.1031868636@[10.10.2.3]> <3D8232DE.9090000@us.ibm.com> <3D823702.8E29AB4F@digeo.com> <3D8251D6.3060704@us.ibm.com> <3D82566B.EB2939D5@digeo.com>
+Content-Type: multipart/mixed;
+ boundary="------------030700030600040800090406"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------030700030600040800090406
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi Pavel,
+Here's a per-node kswapd.  It's actually per-pg_data_t, but I guess that they're 
+equivalent.  Matt is going to follow up his topology API with something to bind 
+these to their respective nodes.
 
-I spoke with Jens, and he wants us to hold off until we can settle the
-current issues.  I have one concern about the model, and maybe you can
-explain away the concern.
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 
-Why are we not blocking read/write requests in the mainloop regardless?
-If the request gets to the subdriver, ide-disk, has it not gotten to far
-down the pipes?
+--------------030700030600040800090406
+Content-Type: text/plain;
+ name="per-node-kswapd-2.5.34-mm2-0.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="per-node-kswapd-2.5.34-mm2-0.patch"
 
-If get to "static ide_startstop_t do_rw_disk()" and that is called from
-the mainloop, is it not preferred to block there?  Would it not also
-prevent other suspended media from suffering the same corruption?
+diff -ur linux-2.5.34-mm2-clean/include/linux/mmzone.h linux-2.5.34-mm2-per-node-kswapd/include/linux/mmzone.h
+--- linux-2.5.34-mm2-clean/include/linux/mmzone.h	Fri Sep 13 14:32:02 2002
++++ linux-2.5.34-mm2-per-node-kswapd/include/linux/mmzone.h	Fri Sep 13 15:07:02 2002
+@@ -168,6 +168,7 @@
+ 	unsigned long node_size;
+ 	int node_id;
+ 	struct pglist_data *pgdat_next;
++	wait_queue_head_t       kswapd_wait;
+ } pg_data_t;
+ 
+ extern int numnodes;
+diff -ur linux-2.5.34-mm2-clean/include/linux/swap.h linux-2.5.34-mm2-per-node-kswapd/include/linux/swap.h
+--- linux-2.5.34-mm2-clean/include/linux/swap.h	Fri Sep 13 14:32:02 2002
++++ linux-2.5.34-mm2-per-node-kswapd/include/linux/swap.h	Fri Sep 13 15:05:32 2002
+@@ -162,7 +162,6 @@
+ extern void swap_setup(void);
+ 
+ /* linux/mm/vmscan.c */
+-extern wait_queue_head_t kswapd_wait;
+ extern int try_to_free_pages(struct zone *, unsigned int, unsigned int);
+ 
+ /* linux/mm/page_io.c */
+diff -ur linux-2.5.34-mm2-clean/mm/page_alloc.c linux-2.5.34-mm2-per-node-kswapd/mm/page_alloc.c
+--- linux-2.5.34-mm2-clean/mm/page_alloc.c	Fri Sep 13 14:32:15 2002
++++ linux-2.5.34-mm2-per-node-kswapd/mm/page_alloc.c	Fri Sep 13 15:09:42 2002
+@@ -345,8 +345,12 @@
+ 	classzone->need_balance = 1;
+ 	mb();
+ 	/* we're somewhat low on memory, failed to find what we needed */
+-	if (waitqueue_active(&kswapd_wait))
+-		wake_up_interruptible(&kswapd_wait);
++	for (i = 0; zones[i] != NULL; i++) {
++		struct zone *z = zones[i];
++		if (z->free_pages <= z->pages_low &&
++		    waitqueue_active(&z->zone_pgdat->kswapd_wait))
++			wake_up_interruptible(&z->zone_pgdat->kswapd_wait);
++	}
+ 
+ 	/* Go through the zonelist again, taking __GFP_HIGH into account */
+ 	min = 1UL << order;
+@@ -833,6 +837,8 @@
+ 	unsigned long zone_start_pfn = pgdat->node_start_pfn;
+ 
+ 	pgdat->nr_zones = 0;
++	init_waitqueue_head(&pgdat->kswapd_wait);
++	
+ 	local_offset = 0;                /* offset within lmem_map */
+ 	for (j = 0; j < MAX_NR_ZONES; j++) {
+ 		struct zone *zone = pgdat->node_zones + j;
+diff -ur linux-2.5.34-mm2-clean/mm/vmscan.c linux-2.5.34-mm2-per-node-kswapd/mm/vmscan.c
+--- linux-2.5.34-mm2-clean/mm/vmscan.c	Fri Sep 13 14:32:15 2002
++++ linux-2.5.34-mm2-per-node-kswapd/mm/vmscan.c	Fri Sep 13 15:06:18 2002
+@@ -713,8 +713,6 @@
+ 	return 0;
+ }
+ 
+-DECLARE_WAIT_QUEUE_HEAD(kswapd_wait);
+-
+ static int check_classzone_need_balance(struct zone *classzone)
+ {
+ 	struct zone *first_classzone;
+@@ -753,20 +751,6 @@
+ 	return need_more_balance;
+ }
+ 
+-static void kswapd_balance(void)
+-{
+-	int need_more_balance;
+-	pg_data_t * pgdat;
+-
+-	do {
+-		need_more_balance = 0;
+-		pgdat = pgdat_list;
+-		do
+-			need_more_balance |= kswapd_balance_pgdat(pgdat);
+-		while ((pgdat = pgdat->pgdat_next));
+-	} while (need_more_balance);
+-}
+-
+ static int kswapd_can_sleep_pgdat(pg_data_t * pgdat)
+ {
+ 	struct zone *zone;
+@@ -774,28 +758,13 @@
+ 
+ 	for (i = pgdat->nr_zones-1; i >= 0; i--) {
+ 		zone = pgdat->node_zones + i;
+-		if (!zone->need_balance)
+-			continue;
+-		return 0;
++		if (zone->need_balance)
++			return 0;
+ 	}
+ 
+ 	return 1;
+ }
+ 
+-static int kswapd_can_sleep(void)
+-{
+-	pg_data_t * pgdat;
+-
+-	pgdat = pgdat_list;
+-	do {
+-		if (kswapd_can_sleep_pgdat(pgdat))
+-			continue;
+-		return 0;
+-	} while ((pgdat = pgdat->pgdat_next));
+-
+-	return 1;
+-}
+-
+ /*
+  * The background pageout daemon, started as a kernel thread
+  * from the init process. 
+@@ -809,13 +778,14 @@
+  * If there are applications that are active memory-allocators
+  * (most normal use), this basically shouldn't matter.
+  */
+-int kswapd(void *unused)
++int kswapd(void *p)
+ {
++	pg_data_t *pgdat = (pg_data_t*)p;
+ 	struct task_struct *tsk = current;
+ 	DECLARE_WAITQUEUE(wait, tsk);
+ 
+ 	daemonize();
+-	strcpy(tsk->comm, "kswapd");
++	sprintf(tsk->comm, "kswapd%d", pgdat->node_id);
+ 	sigfillset(&tsk->blocked);
+ 	
+ 	/*
+@@ -839,30 +809,34 @@
+ 		if (current->flags & PF_FREEZE)
+ 			refrigerator(PF_IOTHREAD);
+ 		__set_current_state(TASK_INTERRUPTIBLE);
+-		add_wait_queue(&kswapd_wait, &wait);
++		add_wait_queue(&pgdat->kswapd_wait, &wait);
+ 
+ 		mb();
+-		if (kswapd_can_sleep())
++		if (kswapd_can_sleep_pgdat(pgdat))
+ 			schedule();
+ 
+ 		__set_current_state(TASK_RUNNING);
+-		remove_wait_queue(&kswapd_wait, &wait);
++		remove_wait_queue(&pgdat->kswapd_wait, &wait);
+ 
+ 		/*
+ 		 * If we actually get into a low-memory situation,
+ 		 * the processes needing more memory will wake us
+ 		 * up on a more timely basis.
+ 		 */
+-		kswapd_balance();
++		kswapd_balance_pgdat(pgdat);
+ 		blk_run_queues();
+ 	}
+ }
+ 
+ static int __init kswapd_init(void)
+ {
++	pg_data_t *pgdat;
+ 	printk("Starting kswapd\n");
+ 	swap_setup();
+-	kernel_thread(kswapd, NULL, CLONE_FS | CLONE_FILES | CLONE_SIGNAL);
++	for_each_pgdat(pgdat)
++		kernel_thread(kswapd, 
++			      pgdat, 
++			      CLONE_FS | CLONE_FILES | CLONE_SIGNAL);
+ 	return 0;
+ }
+ 
 
-Specifically ls120's and zips.
-
-I understand you are address disk but suspend is more than disk in the
-power management picture.  Can you walk me through your process of sole
-concern with platter media?  Remember microdrvies are platters too, as are
-flash drives, and memory drives.
-
-I look forward to the details and the comfort they are to provide.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-
-On Fri, 13 Sep 2002, Pavel Machek wrote:
-
-> Hi!
-> 
-> 2.5.34 will eat disks if there's any disk activity during
-> suspend-to-disk. This patch fixes that. Please apply,
-> 
-> 							Pavel
-> 
-> --- clean/drivers/ide/ide-disk.c	2002-09-13 22:20:51.000000000 +0200
-> +++ linux-swsusp/drivers/ide/ide-disk.c	2002-09-13 22:37:24.000000000 +0200
-> @@ -365,6 +365,7 @@
->   */
->  static ide_startstop_t do_rw_disk (ide_drive_t *drive, struct request *rq, unsigned long block)
->  {
-> +	BUG_ON(drive->blocked);
->  	if (!(rq->flags & REQ_CMD)) {
->  		blk_dump_rq_flags(rq, "do_rw_disk - bad command");
->  		idedisk_end_request(drive, 0);
-> @@ -1514,10 +1515,63 @@
->   	ide_add_setting(drive,	"max_failures",		SETTING_RW,					-1,			-1,			TYPE_INT,	0,	65535,				1,	1,	&drive->max_failures,		NULL);
->  }
->  
-> +static int idedisk_suspend(struct device *dev, u32 state, u32 level)
-> +{
-> +	ide_drive_t *drive = dev->driver_data;
-> +
-> +	/* I hope that every freeze operations from the upper levels have
-> +	 * already been done...
-> +	 */
-> +
-> +	BUG_ON(in_interrupt());
-> +
-> +	if (level != SUSPEND_SAVE_STATE)
-> +		return 0;
-> +
-> +	/* wait until all commands are finished */
-> +	/* FIXME: waiting for spinlocks should be done instead. */
-> +	while (HWGROUP(drive)->handler)
-> +		yield();
-> +
-> +	/* set the drive to standby */
-> +	printk(KERN_INFO "suspending: %s ", drive->name);
-> +	if (drive->driver) {
-> +		if (drive->driver->standby)
-> +			drive->driver->standby(drive);
-> +	}
-> +	drive->blocked = 1;
-> +
-> +	return 0;
-> +}
-> +
-> +static int idedisk_resume(struct device *dev, u32 level)
-> +{
-> +	ide_drive_t *drive = dev->driver_data;
-> +
-> +	if (level != RESUME_RESTORE_STATE)
-> +		return 0;
-> +	if (!drive->blocked)
-> +		panic("ide: Resume but not suspended?\n");
-> +
-> +	drive->blocked = 0;
-> +	return 0;
-> +}
-> +
-> +
-> +/* This is just a hook for the overall driver tree.
-> + */
-> +
-> +static struct device_driver idedisk_devdrv = {
-> +	.lock = RW_LOCK_UNLOCKED,
-> +	.suspend = idedisk_suspend,
-> +	.resume = idedisk_resume,
-> +};
-> +
->  static void idedisk_setup (ide_drive_t *drive)
->  {
->  	struct hd_driveid *id = drive->id;
->  	unsigned long capacity;
-> +	int myid = -1;
->  	
->  	idedisk_add_settings(drive);
->  
-> @@ -1536,6 +1590,15 @@
->  			drive->doorlocking = 1;
->  		}
->  	}
-> +	{
-> +		ide_hwif_t *hwif = HWIF(drive);
-> +		sprintf(drive->device.bus_id, "%d", myid);
-> +		sprintf(drive->device.name, "ide-disk");
-> +		drive->device.driver = &idedisk_devdrv;
-> +		drive->device.parent = &hwif->device;
-> +		drive->device.driver_data = drive;
-> +		device_register(&drive->device);
-> +	}
->  
->  #if 1
->  	(void) probe_lba_addressing(drive, 1);
-> @@ -1619,6 +1682,8 @@
->  static int idedisk_cleanup (ide_drive_t *drive)
->  {
->  	struct gendisk *g = drive->disk;
-> +
-> +	put_device(&drive->device);
->  	if ((drive->id->cfs_enable_2 & 0x3000) && drive->wcache)
->  		if (do_idedisk_flushcache(drive))
->  			printk (KERN_INFO "%s: Write Cache FAILED Flushing!\n",
-> --- clean/drivers/ide/ide-pnp.c	2002-08-28 22:38:45.000000000 +0200
-> +++ linux-swsusp/drivers/ide/ide-pnp.c	2002-09-06 00:28:57.000000000 +0200
-> @@ -57,6 +57,7 @@
->  static int __init pnpide_generic_init(struct pci_dev *dev, int enable)
->  {
->  	hw_regs_t hw;
-> +	ide_hwif_t *hwif;
->  	int index;
->  
->  	if (!enable)
-> @@ -69,9 +70,10 @@
->  			generic_ide_offsets, (ide_ioreg_t) DEV_IO(dev, 1),
->  			0, NULL, DEV_IRQ(dev, 0));
->  
-> -	index = ide_register_hw(&hw, NULL);
-> +	index = ide_register_hw(&hw, &hwif);
->  
->  	if (index != -1) {
-> +		hwif->pci_dev = dev;
->  	    	printk("ide%d: %s IDE interface\n", index, DEV_NAME(dev));
->  		return 0;
->  	}
-> --- clean/drivers/ide/ide-probe.c	2002-09-13 22:20:51.000000000 +0200
-> +++ linux-swsusp/drivers/ide/ide-probe.c	2002-09-13 22:24:08.000000000 +0200
-> @@ -46,6 +46,7 @@
->  #include <linux/delay.h>
->  #include <linux/ide.h>
->  #include <linux/spinlock.h>
-> +#include <linux/pci.h>
->  
->  #include <asm/byteorder.h>
->  #include <asm/irq.h>
-> @@ -477,6 +478,14 @@
->  
->  static void hwif_register (ide_hwif_t *hwif)
->  {
-> +	sprintf(hwif->device.bus_id, "%04x", hwif->io_ports[IDE_DATA_OFFSET]);
-> +	sprintf(hwif->device.name, "ide");
-> +	hwif->device.driver_data = hwif;
-> +	if (hwif->pci_dev)
-> +		hwif->device.parent = &hwif->pci_dev->dev;
-> +	else
-> +		hwif->device.parent = NULL; /* Would like to do = &device_legacy */
-> +	device_register(&hwif->device);
->  	if (((unsigned long)hwif->io_ports[IDE_DATA_OFFSET] | 7) ==
->  	    ((unsigned long)hwif->io_ports[IDE_STATUS_OFFSET])) {
->  		ide_request_region(hwif->io_ports[IDE_DATA_OFFSET], 8, hwif->name);
-> --- clean/drivers/ide/ide.c	2002-09-13 22:20:51.000000000 +0200
-> +++ linux-swsusp/drivers/ide/ide.c	2002-09-13 22:24:09.000000000 +0200
-> @@ -141,9 +141,7 @@
->  #include <linux/genhd.h>
->  #include <linux/blkpg.h>
->  #include <linux/slab.h>
-> -#ifndef MODULE
->  #include <linux/init.h>
-> -#endif /* MODULE */
->  #include <linux/pci.h>
->  #include <linux/delay.h>
->  #include <linux/ide.h>
-> @@ -152,6 +150,8 @@
->  #include <linux/reboot.h>
->  #include <linux/cdrom.h>
->  #include <linux/seq_file.h>
-> +#include <linux/device.h>
-> +#include <linux/kmod.h>
->  
->  #include <asm/byteorder.h>
->  #include <asm/irq.h>
-> @@ -161,9 +161,6 @@
->  
->  #include "ide_modes.h"
->  
-> -#ifdef CONFIG_KMOD
-> -#include <linux/kmod.h>
-> -#endif /* CONFIG_KMOD */
->  
->  /* default maximum number of failures */
->  #define IDE_DEFAULT_MAX_FAILURES 	1
-> @@ -1951,6 +1948,7 @@
->  	hwif = &ide_hwifs[index];
->  	if (!hwif->present)
->  		goto abort;
-> +	put_device(&hwif->device);
->  	for (unit = 0; unit < MAX_DRIVES; ++unit) {
->  		drive = &hwif->drives[unit];
->  		if (!drive->present)
-> --- clean/include/linux/ide.h	2002-09-13 22:21:19.000000000 +0200
-> +++ linux-swsusp/include/linux/ide.h	2002-09-13 22:34:19.000000000 +0200
-> @@ -15,6 +15,7 @@
->  #include <linux/proc_fs.h>
->  #include <linux/devfs_fs_kernel.h>
->  #include <linux/bio.h>
-> +#include <linux/device.h>
->  #include <asm/byteorder.h>
->  #include <asm/system.h>
->  #include <asm/hdreg.h>
-> @@ -476,6 +477,7 @@
->  	unsigned autotune	: 2;	/* 1=autotune, 2=noautotune, 0=default */
->  	unsigned remap_0_to_1	: 2;	/* 0=remap if ezdrive, 1=remap, 2=noremap */
->  	unsigned ata_flash	: 1;	/* 1=present, 0=default */
-> +	unsigned blocked        : 1;	/* 1=powermanagment told us not to do anything, so sleep nicely */
->  	unsigned addressing;		/*	: 3;
->  					 *  0=28-bit
->  					 *  1=48-bit
-> @@ -528,6 +530,7 @@
->  	unsigned int	max_failures;	/* maximum allowed failure count */
->  	struct list_head list;
->  	struct gendisk *disk;
-> +	struct device	device;		/* for driverfs */
->  } ide_drive_t;
->  
->  /*
-> @@ -762,6 +765,7 @@
->  	byte		straight8;	/* Alan's straight 8 check */
->  	void		*hwif_data;	/* extra hwif data */
->  	byte		bus_state;	/* power state of the IDE bus */
-> +	struct device	device;
->  } ide_hwif_t;
->  
->  /*
-> 
-> -- 
-> Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-> What goes next? Inserting advertisment *into* email?
-> 
+--------------030700030600040800090406--
 

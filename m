@@ -1,98 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262833AbVBESwG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263185AbVBESuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262833AbVBESwG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 13:52:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273002AbVBESwG
+	id S263185AbVBESuG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 13:50:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263633AbVBESuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 13:52:06 -0500
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:63619 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S272350AbVBESvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 13:51:22 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: matthieu castet <castet.matthieu@free.fr>
-Subject: Re: [PATCH] PNP support for i8042 driver
-Date: Sat, 5 Feb 2005 13:51:18 -0500
-User-Agent: KMail/1.7.2
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
-       Adam Belay <ambx1@neo.rr.com>, bjorn.helgaas@hp.com,
-       Vojtech Pavlik <vojtech@ucw.cz>
-References: <41960AE9.8090409@free.fr> <20050204182816.GA3573@ucw.cz> <4204CEB5.7000609@free.fr>
-In-Reply-To: <4204CEB5.7000609@free.fr>
+	Sat, 5 Feb 2005 13:50:06 -0500
+Received: from terminus.zytor.com ([209.128.68.124]:12701 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S273525AbVBESsJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 13:48:09 -0500
+Message-ID: <42051460.9060208@zytor.com>
+Date: Sat, 05 Feb 2005 10:45:52 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Adrian Bunk <bunk@stusta.de>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] add compiler-gcc4.h
+References: <20050130130308.GK3185@stusta.de> <m1pszn3t2w.fsf@muc.de> <41FCFED4.1070301@tiscali.de> <ctrtbe$570$1@terminus.zytor.com> <20050205135026.GC3129@stusta.de>
+In-Reply-To: <20050205135026.GC3129@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502051351.19311.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 05 February 2005 08:48, matthieu castet wrote:
-> Hi,
+Adrian Bunk wrote:
 > 
-> Vojtech Pavlik wrote:
-> > On Fri, Feb 04, 2005 at 06:37:29PM +0100, matthieu castet wrote:
-> > 
-> >>Hi,
-> >>
-> >>Vojtech Pavlik wrote:
-> >>
-> >>>On Sat, Nov 13, 2004 at 02:23:53PM +0100, matthieu castet wrote:
-> >>>
-> >>>
-> >>>>Hi,
-> >>>>this patch add PNP support for the i8042 driver in 2.6.10-rc1-mm5. Acpi 
-> >>>>is try before the pnp driver so if you don't disable ACPI or apply 
-> >>>>others pnpacpi patches, it won't change anything.
-> >>>>
-> >>>>Please review it and apply if possible
-> >>>
-> >>>
-> >>>Ok, my thoughts on this:
-> >>>
-> >>>	It's OK to keep the device allocated to this driver via the PnP
-> >>>       subsystem, and not bother with releasing the code via
-> >>>	__initcall.
-> >>>
-> >>>	I agree that if there is a way to enumerate the device, (like
-> >>>	PnP, ACPI or OpenFirmware), we should use that instead of
-> >>>	probing and using a platform device for the controller.
-> >>>
-> >>>	I think that we should drop the ACPI support from i8042, in
-> >>>	favor of pnpacpi, because PnP is more generic and if the
-> >>>	keyboard device was listed in PnPBIOS instead of ACPI, it'll
-> >>>	still work.
-> >>>
-> >>
-> >>Any news about this ?
-> > 
-> >  
-> > Sort of fell off my radar, can you resend?
-> > 
-> attached 2 versions : the one that kill acpi detection and the one with
-> acpi but a complex init.
+> As I already said in this thread:
+>   The currently used file for gcc 4 is compiler-gcc+.h, not
+>   compiler-gcc3.h .
 > 
+> And the current setup is to have one file for every major number of gcc.
+> I have no strong opinion whether this approach or the approach of one 
+> file for all gcc versions is better - but with the current approach, 
+> everything else than a separate file for gcc 4 wasn't logical.
 
-Hi Matthieu,
+Yes it is.  It's perfectly logical: gcc+ contains the "going forward" 
+version, and until it supports some feature that isn't in all versions 
+of gcc4, it's the right thing to do.
 
-I think that we should kill ACPI now that ACPIPNP is available.
+> I can offer the following choices:
+> - please apply this compiler-gcc4.h patch
+> - let me send a patch merging all compiler-gcc*.h files into one
+>   compiler-gcc.h file
+> - let me send a patch merging all compiler-gcc*.h files back into 
+>   compiler.h
 
-I have a concern though - having PNP driver activated means that we
-now have i8042 in 2 or 3 places in driver model hierarchy, once as a
-platform device and the as kbd and aux PNP devices. I wonder how the
-power management will be coordinated - we normally need to reset
-controller so BIOS will not be upset and then I need parent for the
-KBD and AUX serio ports. Plus I guess PNP system enables and disables
-resources so serio suspend/resume calls should be in right order.
+No.  Leave it the way it currently is until there is a *reason* to fork 
+a gcc4 module.
 
-With ACPI we don't have this problem at the moment since ACPI drivers
-are not integrated into driver model yet.
+This isn't a cleanup you're proposing, it's a mess-up.
 
-> PS : I resend it, because, it seem it have failed for Vojtech Pavlik.
-
-Vojtech asked to use his vojtech@ucw.cz address over the weekend as his
-suse.sz has problems.
-
--- 
-Dmitry
+	-hpa

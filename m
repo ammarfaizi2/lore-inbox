@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262000AbUKPPRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262011AbUKPPTd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262000AbUKPPRE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 10:17:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbUKPPRE
+	id S262011AbUKPPTd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 10:19:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbUKPPTK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 10:17:04 -0500
-Received: from rproxy.gmail.com ([64.233.170.192]:62049 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262000AbUKPPRB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 10:17:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=qJCxpqo3QptFX7sRbYgDNwIQ1UoLRt3IfMeYUTGkQY0FqAItxtjs2S2hmaTl0/CnG2NdhmDrrmyAvcqo+U7yuL6mqDrg7Fgr14lwmjxZutaHUG2TDzoKIq2A/i+VA9NPA8MHpdDvRnvvfDoZTG9s1I/MabUwjxYWU8mEEaVFR1g=
-Message-ID: <5b64f7f0411160717298bb576@mail.gmail.com>
-Date: Tue, 16 Nov 2004 10:17:01 -0500
-From: Rahul Karnik <deathdruid@gmail.com>
-Reply-To: Rahul Karnik <deathdruid@gmail.com>
-To: mile.davidovic@micronasnit.com
-Subject: Re: ITERaid and atkbd
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200411161427.iAGERt46031185@krt.neobee.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <200411161427.iAGERt46031185@krt.neobee.net>
+	Tue, 16 Nov 2004 10:19:10 -0500
+Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:37898 "EHLO
+	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id S262011AbUKPPTE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 10:19:04 -0500
+Message-Id: <200411161518.iAGFIL604810@blake.inputplus.co.uk>
+To: Pekka Enberg <penberg@gmail.com>
+cc: Simon Braunschmidt <braunschmidt@corscience.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace 
+In-Reply-To: Message from Pekka Enberg <penberg@gmail.com> 
+   of "Tue, 16 Nov 2004 13:20:38 +0200." <84144f0204111603202f79f249@mail.gmail.com> 
+Date: Tue, 16 Nov 2004 15:18:20 +0000
+From: Ralph Corderoy <ralph@inputplus.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Nov 2004 15:23:30 +0100, Mile Davidovic
-<mile.davidovic@micronasnit.com> wrote:
-> Hi folks
+
+Hi,
+
+Pekka Enberg wrote:
+> No, that is obfuscation and has nothing to do with this. The cast I
+> mentioned is _redudant_ because the common case is:
 > 
-> I have trouble with IT8212F raid controller (on Gigabyte boards also known
-> as GigaRaid) on FedoraCore 3.
+>     struct foo * f = (struct foo *) priv; /* priv is void pointer */
 
-Try the ac kernels. 
+These casts are also a problem when priv changes type;  the compiler is
+being told to not complain.
 
-Arjan has some RPMs for FC3.
+Cheers,
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110060681900689&w=2
 
--Rahul
+Ralph.
+

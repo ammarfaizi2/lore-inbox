@@ -1,73 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266167AbUFYOXu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266744AbUFYO0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266167AbUFYOXu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 10:23:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266745AbUFYOXu
+	id S266744AbUFYO0S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 10:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266743AbUFYOY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 10:23:50 -0400
-Received: from mail.dynextechnologies.com ([65.120.73.98]:2559 "EHLO
-	mail.dynextechnologies.com") by vger.kernel.org with ESMTP
-	id S266275AbUFYOXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 10:23:41 -0400
-Message-ID: <40DC3558.802@dynextechnologies.com>
-Date: Fri, 25 Jun 2004 10:23:20 -0400
-From: "Fao, Sean" <Sean.Fao@dynextechnologies.com>
-User-Agent: Mozilla Thunderbird 0.7 (Windows/20040616)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Amit Gud <gud@eth.net>
-CC: Pavel Machek <pavel@ucw.cz>, alan <alan@clueserver.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Elastic Quota File System (EQFS)
-References: <004e01c45abd$35f8c0b0$b18309ca@home>
-In-Reply-To: <004e01c45abd$35f8c0b0$b18309ca@home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Jun 2004 14:23:40.0396 (UTC) FILETIME=[0302EAC0:01C45AC0]
+	Fri, 25 Jun 2004 10:24:57 -0400
+Received: from [66.199.228.3] ([66.199.228.3]:15376 "EHLO xdr.com")
+	by vger.kernel.org with ESMTP id S266744AbUFYOYK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 10:24:10 -0400
+Date: Fri, 25 Jun 2004 07:24:09 -0700
+From: David Ashley <dash@xdr.com>
+Message-Id: <200406251424.i5PEO9UX000396@xdr.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Cache memory never gets released
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amit Gud wrote:
+Marcelo Tosatti wrote:
+>Cached memory can be easily reclaimed, take a look at /proc/meminfo "Inactive"
+>list.
 
->Hi all,
->
->  
->
->>>>On one school server, theres 10MB quota. (Okay, its admins are
->>>>BOFHs^H^H^H^H^HSISAL). Everyone tries to run mozilla there (because
->>>>its installed as default!), and immediately fills his/her quota with
->>>>cache files, leading to failed login next time (gnome just will not
->>>>start if it can't write to ~).
->>>>
->>>>Imagine mozilla automatically marking cache files "elastic".
->>>>
->>>>That would solve the problem -- mozilla caches would go away when disk
->>>>space was demanded, still mozilla's on-disk caching would be effective
->>>>when there is enough disk space.
->>>>        
->>>>
->
->Also this is applicable to mailboxes - automize the marking of old mails of
->the mailing list as elastic, whenever the threshold is reached, you might
->either want to put those mails as compressed archive or simply delete it.
->This has two advantages:
-> - No email bounces for the reason of 'mailbox full' and
-> - Optimized utlization of the mailbox
->
->Yes, this can be done using scripts too, but what if you are to use other
->users' space that they are not using? Of course script cannot do that! You
->need to have some FS support or a libquota hack.
->  
->
-What you're suggesting is not something that could be controlled by the 
-file system because there are far too many methods for storing email.  
-Consider, for instance, if all email messages are stored in a single 
-database file.  Unless you include parsing code for all email storage 
-methods, there's no possible way for your design to work.  As you should 
-be able to see, this "feature" should be implemented in the email server 
-code; *not* the file system.
+Here is /proc/meminfo from a box that has all but exhausted its free memory:
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  122064896 84348928 37715968        0   634880 74829824
+Swap:        0        0        0
+MemTotal:       119204 kB
+MemFree:         36832 kB
+MemShared:           0 kB
+Buffers:           620 kB
+Cached:          73076 kB
+SwapCached:          0 kB
+Active:          70380 kB
+Inactive:         7324 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       119204 kB
+LowFree:         36832 kB
+SwapTotal:           0 kB
+SwapFree:            0 kB
 
-Personally, I would rather not use this feature, at all; but, I'm also 
-entitled to leaving the elastic bit turned off on all my messages.
+>Add more swap.
 
-Sean
+Might as well suggest walking on water. The hardware is set in stone, this is
+a software issue :^).
+
+Something is preventing the cached memory to get reused, it's like it's gone
+for good.
+
+Is there any count of how often a cached block is accessed? If there is such
+a count, and the count has an effect on whether to allow the release of the
+cached block, that could explain this behaviour. Because it could turn out
+that the cached blocks are accessed thousands of times.
+
+Thanks--
+Dave

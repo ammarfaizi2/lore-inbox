@@ -1,83 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265351AbUATLFj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 06:05:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265359AbUATLFj
+	id S265338AbUATLA2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 06:00:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265351AbUATLA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 06:05:39 -0500
-Received: from [195.219.3.158] ([195.219.3.158]:23566 "EHLO oxtel.com")
-	by vger.kernel.org with ESMTP id S265351AbUATLFh (ORCPT
+	Tue, 20 Jan 2004 06:00:28 -0500
+Received: from jaguar.mkp.net ([192.139.46.146]:52173 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S265338AbUATLA0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 06:05:37 -0500
-Message-ID: <400D0B80.2000402@oxtel.com>
-Date: Tue, 20 Jan 2004 11:05:36 +0000
-From: Joe Rutledge <joe.rutledge@oxtel.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
-X-Accept-Language: en-us, en
+	Tue, 20 Jan 2004 06:00:26 -0500
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Jack Steiner <steiner@sgi.com>, linux-kernel@vger.kernel.org,
+       Jesse Barnes <jbarnes@sgi.com>
+Subject: Re: [patch] increse MAX_NR_MEMBLKS to same as MAX_NUMNODES on NUMA
+References: <E1AiZ5h-00043I-00@jaguar.mkp.net>
+	<4990000.1074542883@[10.10.2.4]> <20040119224535.GA12728@sgi.com>
+	<20040120022452.GA27294@sgi.com> <20040120031222.GA15435@sgi.com>
+	<11450000.1074579922@[10.10.2.4]>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 20 Jan 2004 05:59:36 -0500
+In-Reply-To: <11450000.1074579922@[10.10.2.4]>
+Message-ID: <yq0d69erilj.fsf@wildopensource.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.6.1 - SiI 3112 & Asus MBoard & WD Raptor cause complete hang with DMA and heavy load
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Server: VPOP3 Enterprise V2.0.0h - Registered
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everyone,
+>>>>> "Martin" == Martin J Bligh <mbligh@aracnet.com> writes:
 
-Initially using a Seagate SATA drive I was experiencing random lockups, 
-no kernel
-panic just a complete hang. Having read about issues with DMA and some 
-Seagates
-I replaced the drive with a Western Digital Raptor. However I still see 
-the same
-lockups. I've tried a variety of options to hdparm (based around -X70 
--d1) none
-of them making any difference to stability. I then swapped to the libata 
-driver
-expecting this to be more solid. It does appear to last a little longer 
-than the
-IDE driver but the same problems manifest themselves. I then found that 
-there
-were potentially some problems with the Asus board and shared interrupt 
-lines to
-the SiI3112 so I upgraded the BIOS to the most recent version (1007). 
-This has
-made no difference whatsoever. I also read that APIC and ACPI support could
-exascerbate this problem so I removed them from the kernel and disabled 
-them in
-the BIOS. This has given better stability but still not to the point of 
-a usable
-system. This is a desktop system and it will become locked if any heavy 
-disk
-access is done. At the moment I'm running in PIO mode as this is the 
-only stable
-way of handling the disk. I'm not doing any RAID and have no need to. 
-Merely a boot
-of my 2.6.1/2.6.0/2.4.24 system to runlevel 1 and then running bonnie++ 
--u nobody
-will guarantee a hang before all the write checks have been completed.
+>> On Mon, Jan 19, 2004 at 06:24:52PM -0800, Jesse Barnes wrote:
+>>> I think Martin is referring to the memblk_*line() functions and
+>>> the fact that memblks are exported via sysfs to userspace.  That
+>>> API hasn't proven very useful so far since it's really waiting for
+>>> memory hot add/remove.  Of course, we'll still need structures to
+>>> support that for the low level arch specific discontig code, so
+>>> any patch that killed memblks in sysfs and elsewhere would have to
+>>> take that into account...  (In particular, node_memblk[] is filled
+>>> out by the ACPI SRAT parsing code and use for discontig init and
+>>> physical->node id conversion.)
+>>> 
+>>> Jesse
+>>  OK, that makes sense.
 
-Asus A7N8X Deluxe (nforce2) BIOS V1007, AMD Athlon XP (Barton) 2800+, 
-1GB DDR
-RAM (2 x 512 as Dual Channel), WD Raptor 36G SATA HD, Asus GeForce FX 5600
-(256MB), Lite-On 52x CDRW, DVD-ROM. Fresh Gentoo build optimised for 
-Athlon-XP
-(GCC 3.2.3 -march athlon-xp).
+Martin> Could one of you test this patch for me? Probably just a build
+Martin> would do fine.
 
-2.6.1 kernel patched for forcedeth and nvidia graphics card. APIC & ACPI 
-support
-removed from kernel and turned off in BIOS. Both the IDE and libata 
-drivers have
-been built into the kernel at separate times. It makes no difference 
-what other
-applications are running.
+Martin,
 
-I'm not on the list so a copy of anything posted would be much appreciated.
+Tried it, no go! It conflicts with arch/ia64/mm/numa.c and
+arch/ia64/mm,/discontig.c as Jack had suggested.
 
-Thanks in advance to everyone working on the kernel - excellent stuff, 
-it's been
-my working environment for years and a happy one at that!
-
-Joe
-
+Cheers,
+Jes

@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273537AbRIQI2T>; Mon, 17 Sep 2001 04:28:19 -0400
+	id <S273534AbRIQIe2>; Mon, 17 Sep 2001 04:34:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273536AbRIQI2J>; Mon, 17 Sep 2001 04:28:09 -0400
-Received: from pat.uio.no ([129.240.130.16]:56204 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S273534AbRIQI1x>;
-	Mon, 17 Sep 2001 04:27:53 -0400
-MIME-Version: 1.0
-Message-ID: <15269.45902.377383.360402@charged.uio.no>
-Date: Mon, 17 Sep 2001 10:24:46 +0200
-To: Chmouel Boudjnah <chmouel@mandrakesoft.com>
-Cc: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
-        Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.9-ac11
-In-Reply-To: <m366ail5pp.fsf@giants.mandrakesoft.com>
-In-Reply-To: <200109170049.f8H0nkEa008317@sleipnir.valparaiso.cl>
-	<m366ail5pp.fsf@giants.mandrakesoft.com>
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
- =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
- Valley) (i386-redhat-linux)
-Content-Type: text/plain; charset=US-ASCII
+	id <S273535AbRIQIeI>; Mon, 17 Sep 2001 04:34:08 -0400
+Received: from AMontpellier-201-1-1-55.abo.wanadoo.fr ([193.252.31.55]:18948
+	"EHLO awak") by vger.kernel.org with ESMTP id <S273534AbRIQIeC>;
+	Mon, 17 Sep 2001 04:34:02 -0400
+Subject: Re: Forced umount (was lazy umount)
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010917095744.C22640@niksula.cs.hut.fi>
+In-Reply-To: <Pine.GSO.4.21.0109141427070.11172-100000@weyl.math.psu.edu>
+	<3BA4D554.4030203@foogod.com>  <20010917095744.C22640@niksula.cs.hut.fi>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13.99+cvs.2001.09.14.21.31 (Preview Release)
+Date: 17 Sep 2001 10:29:23 +0200
+Message-Id: <1000715364.4446.12.camel@nomade>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Chmouel Boudjnah <chmouel@mandrakesoft.com> writes:
+Alexander Viro wrote:
 
-     > http://marc.theaimsgroup.com/?l=linux-kernel&m=100019824200351&w=2
+> I want an operation that will:
+> 
+> 1. Interrupt/Abort any processes disk-waiting on the filesystem
 
-BTW: This is *not* the patch that went into Linus' tree. The above
-version has a bug in the replacement for locks_delete_lock() that was
-fixed in the final patch (which was posted on L-K later that same
-day).
+Why ? Can't you just return -EBADHANDLE, -E(NX)IO or something similar ?
+Aborting should be reserved to mmap()ing processes.
 
- AFAICS, ac11 contains the same patch that is in Linus' tree. It is
- correct.
+       Xav
 
-Cheers,
-   Trond

@@ -1,71 +1,232 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263136AbTJAQmP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 12:42:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263116AbTJAQkj
+	id S262407AbTJARKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 13:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbTJARKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 12:40:39 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:34063 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S263110AbTJAQjc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 12:39:32 -0400
-Date: Wed, 1 Oct 2003 18:39:30 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Sam Ravnborg <sam@ravnborg.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2] check headers for complete includes, etc.
-Message-ID: <20031001163930.GA11493@mars.ravnborg.org>
-Mail-Followup-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-	Sam Ravnborg <sam@ravnborg.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0309281213240.4929-100000@callisto> <Pine.LNX.4.44.0309281035370.6307-100000@home.osdl.org> <20030928184642.GA1681@mars.ravnborg.org> <20030928191622.GA16921@wohnheim.fh-wedel.de> <20030928193150.GA3074@mars.ravnborg.org> <20030928194431.GB16921@wohnheim.fh-wedel.de> <20030929133624.GA14611@wohnheim.fh-wedel.de> <20030929145057.GA1002@mars.ravnborg.org> <20031001094825.GB31698@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20031001094825.GB31698@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.4.1i
+	Wed, 1 Oct 2003 13:10:25 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61091 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262407AbTJARKJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 13:10:09 -0400
+Message-ID: <3F7B0A5F.8090400@pobox.com>
+Date: Wed, 01 Oct 2003 13:09:51 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: long <tlnguyen@snoqualmie.dp.intel.com>
+CC: jun.nakajima@intel.com, linux-kernel@vger.kernel.org,
+       linux-pci@vger.kernel.org, tom.l.nguyen@intel.com
+Subject: Re: Updated MSI Patches
+References: <200310011537.h91Fb2am002628@snoqualmie.dp.intel.com>
+In-Reply-To: <200310011537.h91Fb2am002628@snoqualmie.dp.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 01, 2003 at 11:48:25AM +0200, Jörn Engel wrote:
-> 
-> If there are no big complaints, I consider this version to be final.
-Some small comments..
+long wrote:
+> Here is an updated version of the MSI patch based on kernel linux-2.6.0-test5.
+> Thanks for all the input received from the community, below patches include
+> the following changes from the previous patches, which are based on kernel
+> linux-2.6.0-test2:
 
-> --- /dev/null	1970-01-01 01:00:00.000000000 +0100
-> +++ linux-2.6.0-test5/scripts/checkheader.pl	2003-09-30 21:41:14.000000000 +0200
-> @@ -0,0 +1,54 @@
-> +#!/usr/bin/perl -w
-> +use strict;
+Lookin' real good to me.
+
+
+> +Q2. Will it work on all the Pentium processors (P3, P4, Xeon,
+> +AMD processors)? In P3 IPI's are transmitted on the APIC local
+> +bus and in P4 and Xeon they are transmitted on the system
+> +bus. Are there any implications with this?
 > +
-> +my $verbose = 1;	# TODO make this optional
-Could you make this controlable with option -verbose, see below.
+> +A2. MSI support enables a PCI device sending an inbound
+> +memory write (0xfeexxxxx as target address) on its PCI bus
+> +directly to the FSB. Since the message address has a
+> +redirection hint bit cleared, it should work.
+> +
+> +Q3. The target address 0xfeexxxxx will be translated by the
+> +Host Bridge into an interrupt message. Are there any
+> +limitations on the chipsets such as Intel 8xx, Intel e7xxx,
+> +or VIA?
+> +
+> +A3. If these chipsets support an inbound memory write with
+> +target address set as 0xfeexxxxx, as conformed to PCI 
+> +specification 2.3 or latest, then it should work.
 
-> +my @headers = sort(map({prune($_);}
-> +	`(cd include/ && find linux -name "*.h" ; find asm/ -name "*.h")`));
-1) you uses include but asm/ - use final '/' for consistency.
-2) Using asm/ you require the symlink to be present. Which obvious
-it a most when  doing this check, so we better secure that.
+I would prefer a section in the documentation that spells out, in plain 
+English, exactly what hardware support is needed for MSI to work.  i.e.
 
-> +my $basename = "lib/header";
-I much rather have it be: include/headercheck
-then people realise where eventual temporary files comes from.
+"APIC required and must be enabled"
+"Northbridge must support MSI transactions"
+etc.
 
-So we need something like the following here: (untested)
+Using that information, users and developers may know _exactly_ whether 
+they can use MSI or not.  From "Q2/A2" and "Q3/A3" above, it is not 
+clear to me.
+
+
+> +static struct hw_interrupt_type msix_irq_type = {
+> +	"PCI MSI-X",
+> +	startup_msi_irq_w_maskbit,
+> +	shutdown_msi_irq_w_maskbit,
+> +	enable_msi_irq_w_maskbit,
+> +	disable_msi_irq_w_maskbit,
+> +	act_msi_irq_w_maskbit,		
+> +	end_msi_irq_w_maskbit,	
+> +	set_msi_irq_affinity
+> +};
+> +
+> +/*
+> + * Interrupt Type for MSI PCI/PCI-X/PCI-Express Devices,
+> + * which implement the MSI Capability Structure with 
+> + * Mask-and-Pending Bits. 
+> + */
+> +static struct hw_interrupt_type msi_irq_w_maskbit_type = {
+> +	"PCI MSI",
+> +	startup_msi_irq_w_maskbit,
+> +	shutdown_msi_irq_w_maskbit,
+> +	enable_msi_irq_w_maskbit,
+> +	disable_msi_irq_w_maskbit,
+> +	act_msi_irq_w_maskbit,		
+> +	end_msi_irq_w_maskbit,	
+> +	set_msi_irq_affinity
+> +};
+> +
+> +/*
+> + * Interrupt Type for MSI PCI/PCI-X/PCI-Express Devices,
+> + * which implement the MSI Capability Structure without 
+> + * Mask-and-Pending Bits. 
+> + */
+> +static struct hw_interrupt_type msi_irq_wo_maskbit_type = {
+> +	"PCI MSI",
+> +	startup_msi_irq_wo_maskbit,
+> +	shutdown_msi_irq_wo_maskbit,
+> +	enable_msi_irq_wo_maskbit,
+> +	disable_msi_irq_wo_maskbit,
+> +	act_msi_irq_wo_maskbit,		
+> +	end_msi_irq_wo_maskbit,	
+> +	set_msi_irq_affinity
+> +};
+
+Suggest converting these structure initializers to C99 style:
+
+	.member_name		= value,
+
+
+
+> +/**
+> + * msix_capability_init: configure device's MSI-X capability structure
+> + * argument: dev of struct pci_dev type
+> + * 
+> + * description: called to configure the device's MSI-X capability structure 
+> + * with a single MSI. To request for additional MSI vectors, the device drivers
+> + * are required to utilize the following supported APIs:
+> + * 1) msi_alloc_vectors(...) for requesting one or more MSI
+> + * 2) msi_free_vectors(...) for releasing one or more MSI back to PCI subsystem
+> + *
+
+When added header comments, please use the official kernel style, so 
+that it may be picked up automatically by the kernel documentation 
+processing system (Documentation/DocBook/*).  Specifically,
+
+	/**
+
+begins a header (you did this),
+
+	*	my_function - description
+
+begins a function header (you need to use " - "),
+
+	*	@arg1: description...
+	*	@arg2: description...
+
+describes the arguments.
+
+The rest is fine.  Note that lines ending with a colon ("blah blah:\n") 
+are bolded, and considered paragraph leaders.
+
+
+> diff -urN linux-260t5-vectorbase-testbox/drivers/pci/probe.c linux-260t5-msi-testbox/drivers/pci/probe.c
+> --- linux-260t5-vectorbase-testbox/drivers/pci/probe.c	2003-09-08 15:50:17.000000000 -0400
+> +++ linux-260t5-msi-testbox/drivers/pci/probe.c	2003-09-22 12:08:56.000000000 -0400
+> @@ -552,6 +552,7 @@
+>  		struct pci_dev *dev;
 >  
-> +headercheck: prepare-all
-> +	$(PERL) scripts/checkheader.pl $(if $(KBUILD_VERBOSE),-verbose)
+>  		dev = pci_scan_device(bus, devfn);
+> +		pci_scan_msi_device(dev);
+>  		if (func == 0) {
+>  			if (!dev)
+>  				break;
+> @@ -564,6 +565,9 @@
+>  		/* Fix up broken headers */
+>  		pci_fixup_device(PCI_FIXUP_HEADER, dev);
+>  
+> +		/* Fix up broken MSI hardware */
+> +		pci_fixup_device(PCI_FIXUP_MSI, dev);
 > +
->  versioncheck:
->  	find * $(RCS_FIND_IGNORE) \
->  		-name '*.[hcS]' -type f -print | sort \
+>  		/*
+>  		 * Add the device to our list of discovered devices
+>  		 * and the bus list for fixup functions, etc.
 
-With respect to passing on to Linus.
-I would like to have a bunch of files converted first so we can see the
-effect of requiring this check.
-Also I am still a bit uncertain if this is the right approach,
-but until now this is the only patch...
+Why does MSI need a separate list of fixups?
 
-	Sam
+AFAICS adding broken MSI devices to either the PCI_FIXUP_HEADER or 
+PCI_FIXUP_FINAL lists is entirely appropriate.
+
+
+> +struct msg_data {	
+> +	__u32	vector	:  8,		
+> +	delivery_mode	:  3,	/*	000b: FIXED
+> +			 		001b: lowest priority
+> +			 	 	111b: ExtINT */	
+> +	reserved_1	:  3,
+> +	level		:  1,	/* 0: deassert, 1: assert */	
+> +	trigger		:  1,	/* 0: edge, 1: level */	
+> +	reserved_2	: 16;
+> +} __attribute__ ((packed));
+> +
+> +struct msg_address {
+> +	union {
+> +		struct { __u32
+> +			reserved_1		:  2,		
+> +			dest_mode		:  1,	/* 0: physical, 
+> +							   1: logical */	
+> +			redirection_hint        :  1,  	/* 0: dedicated CPU 
+> +							   1: lowest priority */
+> +			reserved_2		:  8,   	
+> + 			dest_id			:  8,	/* Destination ID */	
+> +			header			: 12;	/* FEEH */
+> +      	}u;
+> +       	__u32  value;
+> +	}lo_address;
+> +	__u32 	hi_address;
+> +} __attribute__ ((packed));
+> +
+> +struct msi_desc {
+> +	struct {
+> +		__u32	type	: 5, /* {0: unused, 5h:MSI, 11h:MSI-X} 	  */
+> +			maskbit	: 1, /* mask-pending bit supported ?      */
+> +			reserved: 2, /* reserved			  */
+> +			entry_nr: 8, /* specific enabled entry 		  */
+> +			default_vector: 8, /* default pre-assigned vector */ 
+> +			current_cpu: 8; /* current destination cpu	  */
+> +	}msi_attrib;
+> +
+> +	struct {
+> +		__u32	head	: 16, 
+> +			tail	: 16; 
+> +	}link;
+> +
+> +	unsigned long mask_base;
+> +	struct pci_dev *dev;
+> +};
+
+These bitfields should be defined in big-endian and little-endian forms, 
+shouldn't they?  grep for __LITTLE_ENDIAN_BITFIELD and 
+__BIG_ENDIAN_BITFIELD in include/*/*.h.
+
+	Jeff
+
+
+

@@ -1,67 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311570AbSCXFRM>; Sun, 24 Mar 2002 00:17:12 -0500
+	id <S311572AbSCXF3r>; Sun, 24 Mar 2002 00:29:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311565AbSCXFRD>; Sun, 24 Mar 2002 00:17:03 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:32772
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S311564AbSCXFQ5>; Sun, 24 Mar 2002 00:16:57 -0500
-Date: Sat, 23 Mar 2002 21:16:35 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Douglas Gilbert <dougg@torque.net>
-cc: Pete Zaitcev <zaitcev@redhat.com>, linux-scsi@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: Patch to split kmalloc in sd.c in 2.4.18+
-In-Reply-To: <3C9D5219.1403288B@torque.net>
-Message-ID: <Pine.LNX.4.10.10203232101420.2377-100000@master.linux-ide.org>
+	id <S311574AbSCXF3h>; Sun, 24 Mar 2002 00:29:37 -0500
+Received: from [206.58.238.200] ([206.58.238.200]:64386 "EHLO
+	portland.puremagic.com") by vger.kernel.org with ESMTP
+	id <S311572AbSCXF31>; Sun, 24 Mar 2002 00:29:27 -0500
+Date: Sat, 23 Mar 2002 21:29:19 -0800 (PST)
+From: Brad Roberts <braddr@puremagic.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: partition detection failure between 2.4.19-pre2 and pre3
+Message-ID: <Pine.LNX.4.33.0203232054210.27124-100000@portland.puremagic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Mar 2002, Douglas Gilbert wrote:
+(not on the list, I read it via a list archive due to traffic, so please
+cc me on all replies)
 
-> Your patch worked ok for me. I have a couple of real
-> disks and 120 simulated ones with scsi_debug. My last disk
-> was /dev/sddq and I was able to fdisk, mke2fs, mount
-> and copy files to it ok.
-> 
-> 
-> I had a look at ide-disk.c (lk 2.4.19-pre4) and it
-> looks remarkably clean compared to sd.c . It seems
-> to warrant further study.
-> 
-> Doug Gilbert
+Starting with 2.4.19-pre3 (and continuing for -pre4 and every post-pre2 ac
+kernel I've tried) bootup hangs during partition detection:
 
-WOW, that is the first compliment I have ever heard about my work from
-another storage expert.  Doug if I could have a minute to make a
-suggestion about the ./drivers/scsi/, would you concider making sg.c into
-the core transport layer for the subsystem?  This would be similar to what
-I am doing in ./drivers/ide with ide-taskfile.c.  Where as mine intial
-migration will cover all "ATA" commands, but there are ZERO real state
-machine engines for ATAPI.  I have considered and still looking at the
-scope of pkt-taskfile.c as a generic transport layer for all atapi but
-mating all the various standards into one is ugly.  I would prefer to
-provide an ASPI layer between ATA/SCSI and work with you to create real
-personality extentions.
+2.4.19-pre2 output:
 
-sd.c direct		sane			ide-disk.c
-sr.c optical/rom	more sg'ish		ide-cd.c/ide-floppy.c
-st.c stream		noise makes from hell.	ide-tape.c
+<snip>
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PDC20265: IDE controller on PCI bus 00 dev 30
+PCI: Found IRQ 5 for device 00:06.0
+PCI: Sharing IRQ 5 with 00:10.0
+PCI: Sharing IRQ 5 with 00:11.2
+PCI: Sharing IRQ 5 with 00:11.3
+PCI: Sharing IRQ 5 with 00:11.4
+PDC20265: chipset revision 2
+PDC20265: not 100% native mode: will probe irqs later
+PDC20265: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+    ide2: BM-DMA at 0xb400-0xb407, BIOS settings: hde:DMA, hdf:pio
+    ide3: BM-DMA at 0xb408-0xb40f, BIOS settings: hdg:DMA, hdh:pio
+VP_IDE: IDE controller on PCI bus 00 dev 89
+PCI: Found IRQ 11 for device 00:11.1
+PCI: Sharing IRQ 11 with 01:00.0
+VP_IDE: chipset revision 6
+VP_IDE: not 100% native mode: will probe irqs later
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: VIA vt8233 (rev 00) IDE UDMA100 controller on pci00:11.1
+    ide0: BM-DMA at 0xa000-0xa007, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xa008-0xa00f, BIOS settings: hdc:DMA, hdd:pio
+hda: Maxtor 98196H8, ATA DISK drive
+hdc: 52X CD-ROM, ATAPI CD/DVD-ROM drive
+hde: Maxtor 4D060H3, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+ide2 at 0xd800-0xd807,0xd402 on irq 5
+hda: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=9964/255/63, UDMA(100)
+hde: 120069936 sectors (61476 MB) w/2048KiB Cache, CHS=119117/16/63, UDMA(100)
+hdc: ATAPI 52X CD-ROM drive, 128kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.12
+Partition check:
+ hda: hda1 hda2 < hda5 > hda3 hda4
+ hde: hde1
+<snip>
 
-My goal is to force the personalities in ata/atapi to deal with their own
-errors and destroy the mainloop error thread/jungle.  Also export to the
-personality cores their own request and completion mappings.
 
-I think similar things could be done in SCSI vi SG, then close up some of
-the goofiness we both have (me more so) on HBA or OBHA (onboard).
+The pre-3 output stops right after:
 
-Comments?
+Partition check:
+ hda: hda1 hda2 < hda5 > hda3 hda4
+ hde:
 
-Cheers,
 
-Andre Hedrick
-LAD Storage Consulting Group
+Ie, it never detects any partitions on hde.  The motherboard is an
+A7V266-E asus motherboard.
 
-PS: I already popped the balloon head so no need to get out the voodoo dolls.
+Suggestions?  I started looking through the changes between pre2 and pre3,
+but the ide subsystem got overhauled reasonably thoroughly in pre3.
+
+Thanks,
+Brad
 

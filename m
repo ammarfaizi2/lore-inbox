@@ -1,84 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277782AbRJ1IZZ>; Sun, 28 Oct 2001 03:25:25 -0500
+	id <S277842AbRJ1Ipg>; Sun, 28 Oct 2001 03:45:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277804AbRJ1IZQ>; Sun, 28 Oct 2001 03:25:16 -0500
-Received: from pasuuna.fmi.fi ([193.166.211.17]:53266 "EHLO pasuuna.fmi.fi")
-	by vger.kernel.org with ESMTP id <S277782AbRJ1IY4>;
-	Sun, 28 Oct 2001 03:24:56 -0500
-From: Kari Hurtta <hurtta@leija.mh.fmi.fi>
-Message-Id: <200110280825.f9S8PROO004923@leija.fmi.fi>
-Subject: Re: Virtual(?) kernel root
-In-Reply-To: <20011026215939.A13222@polynum.org>
-To: Thierry Laronde <tlaronde@polynum.com>
-Date: Sun, 28 Oct 2001 10:25:27 +0200 (EET)
-CC: linux-kernel@vger.kernel.org
-Reply-To: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL95a (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-X-Filter: pasuuna: 2 received headers rewritten with id 20011028/09015/01
-X-Filter: pasuuna: ID 4118, 1 parts scanned for known viruses
-X-Filter: leija.fmi.fi: ID 23594, 1 parts scanned for known viruses
+	id <S277833AbRJ1Ip0>; Sun, 28 Oct 2001 03:45:26 -0500
+Received: from mta05ps.bigpond.com ([144.135.25.137]:59876 "EHLO
+	mta05ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S277829AbRJ1IpQ>; Sun, 28 Oct 2001 03:45:16 -0500
+Date: Sun, 28 Oct 2001 19:45:45 +1100
+Message-Id: <200110280845.f9S8jjJ25269@mobilix.atnf.CSIRO.AU>
+From: Richard Gooch <rgooch@atnf.csiro.au>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Ryan Cumming <bodnar42@phalynx.dhs.org>,
+        Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: more devfs fun (Piled Higher and Deeper)
+In-Reply-To: <Pine.LNX.4.33L.0110272259060.32445-100000@imladris.surriel.com>
+In-Reply-To: <E15xaiJ-0001Na-00@localhost>
+	<Pine.LNX.4.33L.0110272259060.32445-100000@imladris.surriel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<...>
-> The key point is in fact that there is the idea of a virtual kernel
-> root, with some pseudo fs already set:
+Rik van Riel writes:
+> On Sat, 27 Oct 2001, Ryan Cumming wrote:
 > 
-> /
-> |
-> --/dev
-> |
-> --/kbin
-> |
-> --/proc
+> > It might be more productive to provide patches or at least generate
+> > constructive ideas as how to fix these problems, as you are obviously
+> > quite capable of doing so.
 > 
-> The "kernel" can be used via an interface that could be, for example, a
-> simple interface for debugging purpose, or a simple interface to change
-> the boot parameters.
-> 
-> Supplementary resources can be mounted on the kernel root (what is
-> called "root fs") with the difference that the kernel root virtual fs
-> stays always _on top_ : non kernel root fs don't mask the only root (the
-> kernel one), they just add resources to the root directory.
-> 
-> The advantages? 
-> 
-> There is no more root problem for kernel threads, since
-> kernel threads run with the reference of the inchanged kernel root, the
-> common "root fs" being simply mounted or unmounted. No more "sliding
-> carpet" problem.
-> 
-> One can test or question the kernel via a simple interface for debugging
-> purposes. Not mounting supplementary resources doesn't create a panic,
-> but leave a bare bones kernel, giving for example the choice to the user
-> to give boot parameters.
-> 
-> The /dev (this is already the case with devfs) doesn't prevent from
-> mounting the "root" ro (for example when syslog tries to access a device
-> file created at run time).
-> 
-> Has an equivalent scheme being already discussed?
+> 1) yes, Al Viro is very capable of sending in devfs fixes
+>    and he has done so in the past  (IIRC around 2 months ago)
 
-On linux/fs/namespace.c there is following comment: (from linux 2.4.12)
+A truely horrible, busy-wait patch that was quickly superceeded by a
+much cleaner patch that I wrote shortly thereafter. And was applied by
+Linus in due course.
 
-/*
- * Absolutely minimal fake fs - only empty root directory and nothing else.
- * In 2.5 we'll use ramfs or tmpfs, but for now it's all we need - just
- * something to go with root vfsmount.
- */
-<...>
-static DECLARE_FSTYPE(root_fs_type, "rootfs", rootfs_read_super, FS_NOMOUNT);
- 
+> 2) Richard Gooch then told Al he'd just started working on
+>    a patch to fix the problem and he'd rather fix things
+>    himself ... as far as I can see this hasn't happened yet
 
-But I do not think that that comment refers to equivalent scheme
-than what you are proposing.
+Complete fucking bullshit. Over the last several months, I've been
+sending a steady stream of bugfix patches to Linus and the list, and
+if you'd been paying attention, you'd notice that in time they've been
+applied.
 
--- 
-          /"\                           |  Kari 
-          \ /     ASCII Ribbon Campaign |    Hurtta
-           X      Against HTML Mail     |
-          / \                           |
+Furthermore, I've nearly finished the big rewrite of devfs which adds
+proper locking and refcounting. That work was progressing nicely (but
+it's a big job), although it's temporarily stalled because of some
+important travel. Work on that will resume in the next couple of
+weeks. There's no point sending in an incomplete version of the code.
+
+It's beyond me why you state that there has been no progress by me
+when my announcements of new devfs patches have been posted to the
+list and even Linus' ChangeLog messages have shown stuff going in. If
+you don't actually know what's going on, why do you bother posting on
+this subject in the first place? How would you like it if I started
+flaming about how long the VM code was taking to get working? Our VM
+has sucked for *years*.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267265AbSLKS66>; Wed, 11 Dec 2002 13:58:58 -0500
+	id <S267270AbSLKTBA>; Wed, 11 Dec 2002 14:01:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267270AbSLKS66>; Wed, 11 Dec 2002 13:58:58 -0500
-Received: from pc2-cwma1-4-cust129.swan.cable.ntl.com ([213.105.254.129]:36291
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267265AbSLKS65>; Wed, 11 Dec 2002 13:58:57 -0500
-Subject: Re: [2.4]ALi M5451 sound hangs on init; workaround
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Fedor Karpelevitch <fedor@apache.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Vicente Aguilar <bisente@bisente.com>,
-       alsa-devel@lists.sourceforge.net,
-       Debian-Laptops <debian-laptop@lists.debian.org>
-In-Reply-To: <200212111036.21771.fedor@apache.org>
-References: <200212110715.20617.fedor@apache.org>
-	<1039625298.18087.61.camel@irongate.swansea.linux.org.uk>
-	<200212110852.42778.fedor@apache.org>  <200212111036.21771.fedor@apache.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 11 Dec 2002 19:39:48 +0000
-Message-Id: <1039635588.18587.8.camel@irongate.swansea.linux.org.uk>
+	id <S267271AbSLKTBA>; Wed, 11 Dec 2002 14:01:00 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:48618 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267270AbSLKTA6>; Wed, 11 Dec 2002 14:00:58 -0500
+Message-Id: <4.3.2.7.2.20021211200359.00b5adb0@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Wed, 11 Dec 2002 20:09:12 +0100
+To: linux-kernel@vger.kernel.org
+From: margitsw@t-online.de (Margit Schubert-While)
+Subject: RE: [Dri-devel] Re: 2.4.20 AGP for I845 wrong ?
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-12-11 at 18:36, Fedor Karpelevitch wrote:
-> almost as I posted before, just passing pointers to the read method.
-> It works, but the question as to what is this supposed to affect 
-> remains...
+ >Keith Whitwell wrote:
+ >diff -u -r1.9 drm_agpsupport.h
+ >--- drm_agpsupport.h	22 Aug 2002 19:35:31 -0000	1.9
+ >+++ drm_agpsupport.h	11 Dec 2002 13:29:18 -0000
+ >@@ -260,60 +260,6 @@
+ > 			return NULL;
+ > 		}
+ > 		head->memory = NULL;
+ >-		switch (head->agp_info.chipset) {
+ >-		case INTEL_GENERIC:	head->chipset = "Intel";         break;
 
-If I am reading the docs right then its just a thinko in the code and it
-is meant to be toggling that bit not whacking the entire register.
+Think you missed something at line 258.
 
+Margit 
 

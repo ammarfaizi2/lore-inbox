@@ -1,85 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129675AbQLQQLR>; Sun, 17 Dec 2000 11:11:17 -0500
+	id <S130069AbQLQQx3>; Sun, 17 Dec 2000 11:53:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129905AbQLQQLH>; Sun, 17 Dec 2000 11:11:07 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:28167 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129675AbQLQQKz>;
-	Sun, 17 Dec 2000 11:10:55 -0500
-Date: Sun, 17 Dec 2000 16:38:02 +0100
-From: Kurt Garloff <garloff@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.19pre2
-Message-ID: <20001217163802.O2589@garloff.suse.de>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E147MkJ-00036t-00@the-village.bc.nu> <20001217125656.A309@elektroni.ee.tut.fi>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="K8zN2sh9fO5jmbe4"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001217125656.A309@elektroni.ee.tut.fi>; from kaukasoi@elektroni.ee.tut.fi on Sun, Dec 17, 2000 at 12:56:56PM +0200
-X-Operating-System: Linux 2.2.16 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TUE/NL, SuSE/FRG
+	id <S130076AbQLQQxU>; Sun, 17 Dec 2000 11:53:20 -0500
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:55208 "EHLO
+	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S130069AbQLQQxR>; Sun, 17 Dec 2000 11:53:17 -0500
+From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
+Message-Id: <200012171622.RAA20222@sunrise.pg.gda.pl>
+Subject: Re: [patch] 2.4.0-test13-pre2: mark CONFIG_PARPORT_PC_FIFO experimental
+To: twaugh@redhat.com (Tim Waugh)
+Date: Sun, 17 Dec 2000 17:22:23 +0100 (MET)
+Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <20001217122404.C19671@redhat.com> from "Tim Waugh" at Dec 17, 2000 12:24:04 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Tim Waugh wrote:"
+> Hi Linus,
+> 
+> Here is a patch that marks CONFIG_PARPORT_PC_FIFO experimental.
 
---K8zN2sh9fO5jmbe4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-On Sun, Dec 17, 2000 at 12:56:56PM +0200, Petri Kaukasoina wrote:
-> I guess the new memory detect does not work correctly with my old work
-> horse. It is a 100 MHz pentium with 56 Megs RAM. AMIBIOS dated 10/10/94 w=
-ith
-> a version number of 51-000-0001169_00111111-101094-SIS550X-H.
->=20
-> 2.2.18 reports:
-> Memory: 55536k/57344k available (624k kernel code, 412k reserved, 732k da=
-ta, 40k init)
->=20
-> 2.2.19pre2 reports:
-> Memory: 53000k/54784k available (628k kernel code, 408k reserved, 708k da=
-ta, 40k init)
->=20
-> 57344k is 56 Megs which is correct.
-> 54784k is only 53.5 Megs.
-
-It's this patch that changes things for you:
-o       E820 memory detect backport from 2.4            (Michael Chen)
-
-The E820 memory detection parses a list from the BIOS, which specifies
-the amount of memory, holes, reserved regions, ...
-Apparently, your BIOS does not do it completely correctly; otherwise you
-should have had crashes before ...
-
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE GmbH, Nuernberg, FRG                               SCSI, Security
-
---K8zN2sh9fO5jmbe4
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6PN3ZxmLh6hyYd04RAtueAJ9CBs1j3Ox/DdyCNaQzAKjhYEPLzACgvfsH
-Y2FSpRxjhCVLDQOHF1yQEjA=
-=YZRe
------END PGP SIGNATURE-----
-
---K8zN2sh9fO5jmbe4--
+Why it does not depend on CONFIG_EXPERIMENTAL if it really is experimental ?
+ 
+> --- linux-2.4.0-test13-pre1/drivers/parport/Config.in.fifoexp	Thu Jun 29 10:20:36 2000
+> +++ linux-2.4.0-test13-pre1/drivers/parport/Config.in	Thu Dec 14 11:38:53 2000
+> @@ -12,7 +12,7 @@
+>  if [ "$CONFIG_PARPORT" != "n" ]; then
+>     dep_tristate '  PC-style hardware' CONFIG_PARPORT_PC $CONFIG_PARPORT
+>     if [ "$CONFIG_PARPORT_PC" != "n" ]; then
+> -      bool '    Use FIFO/DMA if available' CONFIG_PARPORT_PC_FIFO
+> +      bool '    Use FIFO/DMA if available (EXPERIMENTAL)' CONFIG_PARPORT_PC_FIFO
+>        if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+>           bool '    SuperIO chipset support (EXPERIMENTAL)' CONFIG_PARPORT_PC_SUPERIO
+>        fi
+--
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

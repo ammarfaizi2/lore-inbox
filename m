@@ -1,68 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVAGViV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbVAGVnX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbVAGViV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 16:38:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVAGVhQ
+	id S261621AbVAGVnX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 16:43:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbVAGVl1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 16:37:16 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:63703 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261634AbVAGVeG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 16:34:06 -0500
-Date: Fri, 7 Jan 2005 13:34:00 -0800
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: kj <kernel-janitors@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Cc: bcollins@debian.org, linux1394-devel@lists.sourceforge.net
-Subject: [UPDATE PATCH] ieee1394/sbp2: use ssleep() instead of schedule_timeout()
-Message-ID: <20050107213400.GD2924@us.ibm.com>
-References: <20041225004846.GA19373@nd47.coderock.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041225004846.GA19373@nd47.coderock.org>
-X-Operating-System: Linux 2.6.10 (i686)
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 7 Jan 2005 16:41:27 -0500
+Received: from alog0359.analogic.com ([208.224.222.135]:12416 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261625AbVAGVjp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 16:39:45 -0500
+Date: Fri, 7 Jan 2005 16:38:36 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org
+Subject: Re: [PATCH 167] Kill unused variables in the net code
+In-Reply-To: <200501072111.j07LB4EN011223@anakin.of.borg>
+Message-ID: <Pine.LNX.4.61.0501071636160.21727@chaos.analogic.com>
+References: <200501072111.j07LB4EN011223@anakin.of.borg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 25, 2004 at 01:48:46AM +0100, Domen Puncer wrote:
-> Hi.
-> 
-> Santa brought another present :-)
-> 
-> I'll start mailing new patches these days, and after external trees get
-> merged, I'll be bugging you with the old ones.
-> 
-> 
-> Patchset is at http://coderock.org/kj/2.6.10-kj/
+On Fri, 7 Jan 2005, Geert Uytterhoeven wrote:
 
-<snip>
+> 2.4.28-rc2 introduced a warning in the net code on non-SMP:
+>
+>    net/core/neighbour.c:1809: warning: unused variable `tbl'
+>
+> The following patch fixes this.
+>
+> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+>
+> --- linux-2.4.29-rc1/include/linux/spinlock.h	2004-04-27 17:22:10.000000000 +0200
+> +++ linux-m68k-2.4.29-rc1/include/linux/spinlock.h	2005-01-07 21:51:28.000000000 +0100
+> @@ -147,7 +147,7 @@
+>
+> #define rwlock_init(lock)	do { } while(0)
+> #define read_lock(lock)	(void)(lock) /* Not "unused variable". */
+> -#define read_unlock(lock)	do { } while(0)
+> +#define read_unlock(lock)	(void)(lock) /* Not "unused variable". */
+> #define write_lock(lock)	(void)(lock) /* Not "unused variable". */
+> #define write_unlock(lock)	do { } while(0)
+>
+>
+> Gr{oetje,eeting}s,
+>
+> 						Geert
 
-> all patches:
-> ------------
 
-<snip>
+But don't all you need to do is:
 
-> msleep-drivers_ieee1394_sbp2.patch
+#define read_unlock(x)
 
-Please consider updating to the following patch:
 
-Description: Use ssleep() instead of schedule_timeout() to guarantee the task
-delays as expected. The existing code should not really need to run in
-TASK_INTERRUPTIBLE, as there is no check for signals (or even an early return
-value whatsoever). ssleep() takes care of these issues.
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 
---- 2.6.10-v/drivers/ieee1394/sbp2.c	2004-12-24 13:34:00.000000000 -0800
-+++ 2.6.10/drivers/ieee1394/sbp2.c	2005-01-05 14:23:05.000000000 -0800
-@@ -902,8 +902,7 @@ alloc_fail:
- 	 * connected to the sbp2 device being removed. That host would
- 	 * have a certain amount of time to relogin before the sbp2 device
- 	 * allows someone else to login instead. One second makes sense. */
--	set_current_state(TASK_INTERRUPTIBLE);
--	schedule_timeout(HZ);
-+	ssleep(1);
- 
- 	/*
- 	 * Login to the sbp-2 device
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

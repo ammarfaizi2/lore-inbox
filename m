@@ -1,48 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313898AbSFTOSq>; Thu, 20 Jun 2002 10:18:46 -0400
+	id <S314514AbSFTOVj>; Thu, 20 Jun 2002 10:21:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314451AbSFTOSp>; Thu, 20 Jun 2002 10:18:45 -0400
-Received: from noc.mainstreet.net ([207.5.0.45]:50705 "EHLO noc.mainstreet.net")
-	by vger.kernel.org with ESMTP id <S313898AbSFTOSo>;
-	Thu, 20 Jun 2002 10:18:44 -0400
-From: devnull@adc.idt.com
-Date: Thu, 20 Jun 2002 10:18:25 -0400 (EDT)
-X-X-Sender: <ram@bom.adc.idt.com>
-Reply-To: <devnull@adc.idt.com>
-To: Brian Gerst <bgerst@didntduck.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: >3G Memory support
-In-Reply-To: <3D114C27.4000801@quark.didntduck.org>
-Message-ID: <Pine.GSO.4.31.0206201010340.13158-100000@bom.adc.idt.com>
+	id <S314551AbSFTOVi>; Thu, 20 Jun 2002 10:21:38 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:10206 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S314514AbSFTOVh>; Thu, 20 Jun 2002 10:21:37 -0400
+Date: Thu, 20 Jun 2002 09:21:36 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5 patch] tqueue.h fixes for ISDN
+In-Reply-To: <Pine.NEB.4.44.0206200911520.10290-100000@mimas.fachschaften.tu-muenchen.de>
+Message-ID: <Pine.LNX.4.44.0206200920440.30897-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >
-> > When i compiled my kernel, i set CONFIG_HIGHMEM4G.
-> >
-> > Does this mean that all my programs should be able to address 4G ?
->
-> No.  It means the kernel can access all 4GB of memory.  For memory above
-> the 950MB that it can directly map, it needs to use dynamic mappings
-> (kmap).  User space is always 3GB virtual space per process, regardless
-> of the highmem setting.
+On Thu, 20 Jun 2002, Adrian Bunk wrote:
 
-Is there a way to make a process in the user space to able to access 4GB
-at all. What limits user space to 3GB.
+> the following two tqueue.h fixes are needed to fix compile errors in the
+> ISDN subsystem (the error messages follow below):
 
-If not in current 2.4.x / 2.5.x, is this something planned in the future
-releases ?
+Yup, you're right. I fixed those already and submitted them to Linus.
+Thanks anyway, though.
 
-Thanks for your time.
-
-Regards,
-
-/dev/null
-
-devnull@adc.idt.com
-
+--Kai
 
 

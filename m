@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264863AbSK0WWg>; Wed, 27 Nov 2002 17:22:36 -0500
+	id <S264853AbSK0WU7>; Wed, 27 Nov 2002 17:20:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264878AbSK0WWg>; Wed, 27 Nov 2002 17:22:36 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:63192 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S264863AbSK0WWf>;
-	Wed, 27 Nov 2002 17:22:35 -0500
-Date: Wed, 27 Nov 2002 23:29:27 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Larry McVoy <lm@bitmover.com>
-cc: "Richard B. Tilley  (Brad)" <rtilley@vt.edu>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Verifying Kernel source
-In-Reply-To: <20021127092818.Q24374@work.bitmover.com>
-Message-ID: <Pine.GSO.4.21.0211272326350.5044-100000@vervain.sonytel.be>
+	id <S264863AbSK0WU7>; Wed, 27 Nov 2002 17:20:59 -0500
+Received: from marcie.netcarrier.net ([216.178.72.21]:58640 "HELO
+	marcie.netcarrier.net") by vger.kernel.org with SMTP
+	id <S264853AbSK0WU7>; Wed, 27 Nov 2002 17:20:59 -0500
+Message-ID: <3DE54702.44D98750@compuserve.com>
+Date: Wed, 27 Nov 2002 17:28:18 -0500
+From: Kevin Brosius <cobra@compuserve.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.16-4GB i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: hugetlbpage.c build failure?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Nov 2002, Larry McVoy wrote:
-> > What is the proper way to verify the kernel source before compiling?
-> > There have been too many trojans of late in open source and free
-> > software and I, for one, am getting paranoid.
-> 
-> If it's in BK you can be pretty sure that it is what was checked in,
-> BK checksums every diff in every file.  It's not at all impossible
-> to fool the checksum but it is very unlikely that you can cause 
-> semantic differences in the form of a trojan horse and still fool 
-> the checksums.
+I see the following build failure in bk current:
 
-It depends on the checksum algorithm. If it's not `strong' (e.g. simple crc32),
-I can easily add some specially tailored unused data to the code of which the
-sole purpose is to make the checksum still match.
+  gcc -Wp,-MD,arch/i386/mm/.hugetlbpage.o.d -D__KERNEL__ -Iinclude -Wall
+-Wstric
+t-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-fomit-frame-po
+inter -pipe -g -mpreferred-stack-boundary=2 -march=athlon
+-Iarch/i386/mach-gener
+ic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=hugetlbpage
+-DKBUILD_MODN
+AME=hugetlbpage   -c -o arch/i386/mm/hugetlbpage.o
+arch/i386/mm/hugetlbpage.c
 
-Gr{oetje,eeting}s,
 
-						Geert
+arch/i386/mm/hugetlbpage.c:610: parse error before '*' token
+arch/i386/mm/hugetlbpage.c: In function `hugetlb_sysctl_handler':
+arch/i386/mm/hugetlbpage.c:611: number of arguments doesn't match
+prototype
+include/linux/hugetlb.h:14: prototype declaration
+arch/i386/mm/hugetlbpage.c:612: warning: implicit declaration of
+function `proc_
+dointvec'
+arch/i386/mm/hugetlbpage.c:612: `table' undeclared (first use in this
+function)
+arch/i386/mm/hugetlbpage.c:612: (Each undeclared identifier is reported
+only onc
+e
+arch/i386/mm/hugetlbpage.c:612: for each function it appears in.)
+arch/i386/mm/hugetlbpage.c:612: `write' undeclared (first use in this
+function)
+arch/i386/mm/hugetlbpage.c:612: `file' undeclared (first use in this
+function)
+arch/i386/mm/hugetlbpage.c:612: `buffer' undeclared (first use in this
+function)
+arch/i386/mm/hugetlbpage.c:612: `length' undeclared (first use in this
+function)
+make[1]: *** [arch/i386/mm/hugetlbpage.o] Error 1
+make: *** [arch/i386/mm] Error 2
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+-- 
+Kevin

@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVCEWs6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVCEWs5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbVCEWs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 17:48:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVCEWs0
+	id S261308AbVCEWs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 17:48:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVCEWsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 17:48:26 -0500
-Received: from coderock.org ([193.77.147.115]:50853 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261312AbVCEWnO (ORCPT
+	Sat, 5 Mar 2005 17:48:22 -0500
+Received: from coderock.org ([193.77.147.115]:49573 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261310AbVCEWnL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 17:43:14 -0500
-Subject: [patch 06/15] block/xd: replace schedule_timeout() with msleep()
+	Sat, 5 Mar 2005 17:43:11 -0500
+Subject: [patch 05/15] floppy: relocate devfs comment
 To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org, nacc@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, domen@coderock.org, james4765@gmail.com
 From: domen@coderock.org
-Date: Sat, 05 Mar 2005 23:42:59 +0100
-Message-Id: <20050305224259.E16941F203@trashy.coderock.org>
+Date: Sat, 05 Mar 2005 23:42:55 +0100
+Message-Id: <20050305224256.415D91EE1E@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+relocate devfs comment
 
-
-Use msleep() instead of schedule_timeout() to guarantee the task
-delays as expected. The current code wishes to sleep for 1 jiffy, but I am not
-sure if this is actually intended, as with the change to HZ=1000, the time
-equivalent of 1 jiffy changed from 10ms to 1ms. I have assumed the former in
-this case; however the patch can be easily changed to assume the latter.
-
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Signed-off-by: James Nelson <james4765@gmail.com>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
 
 
- kj-domen/drivers/block/xd.c |    7 +++----
- 1 files changed, 3 insertions(+), 4 deletions(-)
+ kj-domen/drivers/block/floppy.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-diff -puN drivers/block/xd.c~msleep-drivers_block_xd2 drivers/block/xd.c
---- kj/drivers/block/xd.c~msleep-drivers_block_xd2	2005-03-05 16:10:47.000000000 +0100
-+++ kj-domen/drivers/block/xd.c	2005-03-05 16:10:47.000000000 +0100
-@@ -47,6 +47,7 @@
- #include <linux/wait.h>
- #include <linux/blkdev.h>
- #include <linux/blkpg.h>
-+#include <linux/delay.h>
+diff -puN drivers/block/floppy.c~comment-drivers_block_floppy.c drivers/block/floppy.c
+--- kj/drivers/block/floppy.c~comment-drivers_block_floppy.c	2005-03-05 16:10:00.000000000 +0100
++++ kj-domen/drivers/block/floppy.c	2005-03-05 16:10:00.000000000 +0100
+@@ -98,6 +98,10 @@
+  */
  
- #include <asm/system.h>
- #include <asm/io.h>
-@@ -529,10 +530,8 @@ static inline u_char xd_waitport (u_shor
- 	int success;
+ /*
++ * 1998/1/21 -- Richard Gooch <rgooch@atnf.csiro.au> -- devfs support
++ */
++
++/*
+  * 1998/05/07 -- Russell King -- More portability cleanups; moved definition of
+  * interrupt and dma channel to asm/floppy.h. Cleaned up some formatting &
+  * use of '0' for NULL.
+@@ -158,10 +162,6 @@ static int print_unex = 1;
+ #define FDPATCHES
+ #include <linux/fdreg.h>
  
- 	xdc_busy = 1;
--	while ((success = ((inb(port) & mask) != flags)) && time_before(jiffies, expiry)) {
--		set_current_state(TASK_UNINTERRUPTIBLE);
--		schedule_timeout(1);
--	}
-+	while ((success = ((inb(port) & mask) != flags)) && time_before(jiffies, expiry))
-+		msleep(10);
- 	xdc_busy = 0;
- 	return (success);
- }
+-/*
+- * 1998/1/21 -- Richard Gooch <rgooch@atnf.csiro.au> -- devfs support
+- */
+-
+ #include <linux/fd.h>
+ #include <linux/hdreg.h>
+ 
 _

@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261784AbTCQPuz>; Mon, 17 Mar 2003 10:50:55 -0500
+	id <S261800AbTCQQBC>; Mon, 17 Mar 2003 11:01:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261786AbTCQPuz>; Mon, 17 Mar 2003 10:50:55 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:39080 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id <S261784AbTCQPuy>; Mon, 17 Mar 2003 10:50:54 -0500
-Date: Mon, 17 Mar 2003 11:01:31 -0500 (EST)
-From: Rik van Riel <riel@surriel.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Paul Albrecht <palbrecht@uswest.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 vm, program load, page faulting, ...
-In-Reply-To: <20030317151004.GR20188@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0303171100300.2571-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261801AbTCQQBC>; Mon, 17 Mar 2003 11:01:02 -0500
+Received: from 237.oncolt.com ([213.86.99.237]:5342 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S261800AbTCQQBB>; Mon, 17 Mar 2003 11:01:01 -0500
+Subject: Re: BK->CVS is live
+From: David Woodhouse <dwmw2@infradead.org>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030317155845.GH17073@lug-owl.de>
+References: <200303171552.h2HFqK907234@work.bitmover.com>
+	 <20030317155845.GH17073@lug-owl.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1047917511.28282.154.camel@passion.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4.dwmw2) 
+Date: 17 Mar 2003 16:11:52 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Mar 2003, William Lee Irwin III wrote:
-> On Sat, 15 Mar 2003, Paul Albrecht wrote:
-> >> ... Why does the kernel page fault on text pages, present in the page
-> >> cache, when a program starts? Couldn't the pte's for text present in the
-> >> page cache be resolved when they're mapped to memory?
-> 
-> SVR4 did and saw an improvement wrt. page fault rate, according to
-> Vahalia.
+On Mon, 2003-03-17 at 15:58, Jan-Benedict Glaw wrote:
+> Allowing rsync on the repository could help people on slow links (modem)
+> esp. as CVS isn't exactly known to be fast and evvective. I'd love to
+> have it rsyncable (as we have it for mips-linux:-)
 
-An improvement in the _page fault rate_, well DUH.
+And/or cvsup?
 
-> I'd like to see whether this is useful for Linux.
-
-The question is, does it result in an improvement in the
-run speed of processes...
-
-cheers,
-
-Rik
+-- 
+dwmw2
 

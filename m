@@ -1,31 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293335AbSB1PVx>; Thu, 28 Feb 2002 10:21:53 -0500
+	id <S293184AbSB1PYw>; Thu, 28 Feb 2002 10:24:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293140AbSB1PTU>; Thu, 28 Feb 2002 10:19:20 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:4127 "EHLO
+	id <S293445AbSB1PYo>; Thu, 28 Feb 2002 10:24:44 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:48162 "EHLO
 	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S293409AbSB1PSI>; Thu, 28 Feb 2002 10:18:08 -0500
-Date: Thu, 28 Feb 2002 10:18:00 -0500
+	id <S293423AbSB1PWl>; Thu, 28 Feb 2002 10:22:41 -0500
+Date: Thu, 28 Feb 2002 10:22:24 -0500
 From: Benjamin LaHaise <bcrl@redhat.com>
-To: David Howells <dhowells@redhat.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.org
-Subject: Re: thread groups bug?
-Message-ID: <20020228101800.F8011@redhat.com>
-In-Reply-To: <2628.1014907956@warthog.cambridge.redhat.com>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: Barubary <barubary@cox.net>, linux-kernel@vger.kernel.org,
+        Rick Stevens <rstevens@vitalstream.com>
+Subject: Re: Big file support
+Message-ID: <20020228102224.G8011@redhat.com>
+In-Reply-To: <3C7D3587.8080609@vitalstream.com> <006301c1bfc9$a5c6de90$a7eb0544@CX535256D> <20020227223426.N23151@mea-ext.zmailer.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <2628.1014907956@warthog.cambridge.redhat.com>; from dhowells@redhat.com on Thu, Feb 28, 2002 at 02:52:36PM +0000
+In-Reply-To: <20020227223426.N23151@mea-ext.zmailer.org>; from matti.aarnio@zmailer.org on Wed, Feb 27, 2002 at 10:34:26PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 28, 2002 at 02:52:36PM +0000, David Howells wrote:
+On Wed, Feb 27, 2002 at 10:34:26PM +0200, Matti Aarnio wrote:
+> There are several filesystems which are 64-bit/large-file supporting,
+> but also some which are inherently incapable to exceed 2G or 4G.
 > 
-> If the master thread of a thread group (PID==TGID) performs an execve() then
-> it is possible to end up with two or more thread groups with the same TGID.
+> It looks like the LOOP driver lands in between -- it should be LFS
+> capable, but it isn't.
 
-How about: (3) make execve allocate a new thread group id?
+Loop is LFS capable.  I know that we shipped LFS enabled loop utilities 
+for 7.2, probably 7.1 as well.  They were missed in the first batch of 
+LFS conversions, and several distributions are lagging behind in this 
+area.
 
 		-ben

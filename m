@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264212AbVBDQUC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVBDQVE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264212AbVBDQUC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 11:20:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264164AbVBDQUC
+	id S261852AbVBDQVE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 11:21:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264156AbVBDQVD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 11:20:02 -0500
-Received: from ns.suse.de ([195.135.220.2]:49876 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261825AbVBDQTt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 11:19:49 -0500
-Subject: Re: ext3 extended attributes refcounting wrong?
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Andreas Dilger <adilger@clusterfs.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <16899.33676.414314.343747@alkaid.it.uu.se>
-References: <16898.43219.133783.439910@alkaid.it.uu.se>
-	 <1107473817.2058.172.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <16899.12681.98586.426731@alkaid.it.uu.se>
-	 <1107513634.2245.46.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <16899.29744.75308.6946@alkaid.it.uu.se>
-	 <1107525405.2245.387.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <16899.33676.414314.343747@alkaid.it.uu.se>
-Content-Type: text/plain
-Organization: SUSE Labs
-Message-Id: <1107533948.17315.199.camel@winden.suse.de>
+	Fri, 4 Feb 2005 11:21:03 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:41870 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261852AbVBDQUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 11:20:49 -0500
+Date: Fri, 4 Feb 2005 16:20:44 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: maxer <maxer@xmission.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SysKonnect sk98lin Gigabit lan missing in action from 2.6.10 on
+Message-ID: <20050204162044.GA21965@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	maxer <maxer@xmission.com>, linux-kernel@vger.kernel.org
+References: <42038994.20401@xmission.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 04 Feb 2005 17:19:09 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42038994.20401@xmission.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-04 at 15:15, Mikael Pettersson wrote:
+On Fri, Feb 04, 2005 at 07:41:24AM -0700, maxer wrote:
+> What is the status of sk98lin? Do we have to wait until Syskonnect gets 
+> their act together
+> and write a new driver for 2.6.10?
+> 
+> Their latest is Oct 2004 and not at all compatible with 2.6.10 and beyond.
 
-> Plain www.kernel.org kernels always.
-
-Good, it's no bug then. Stephen already explained what's going on: when
-a file has xattrs and you delete the file while running a kernel without
-xattr support, the xattr block's refcount is not decremented. You end up
-with a reference count that is one too high. This won't result in
-filesystem corruption, but e2fsck will fix up the refcounts for you.
-Those are the mesages you were getting.
-
-Regards,
--- 
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX GMBH
+Use the driver intree or better Stephen's rewrite.
 

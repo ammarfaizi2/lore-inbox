@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262872AbTESVBK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 17:01:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbTESVBK
+	id S262931AbTESVD2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 17:03:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbTESVD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 17:01:10 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61192 "EHLO
+	Mon, 19 May 2003 17:03:27 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24585 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262872AbTESVBJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 17:01:09 -0400
+	id S262931AbTESVD0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 17:03:26 -0400
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: Recent changes to sysctl.h breaks glibc
-Date: 19 May 2003 14:14:00 -0700
+Date: 19 May 2003 14:16:04 -0700
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <babheo$s9r$1@cesium.transmeta.com>
-References: <1053289316.10127.41.camel@nosferatu.lan> <20030519063813.A30004@infradead.org> <1053341023.9152.64.camel@workshop.saharact.lan> <20030519105152.GD8978@holomorphy.com>
+Message-ID: <babhik$sbd$1@cesium.transmeta.com>
+References: <20030519165623.GA983@mars.ravnborg.org> <Pine.LNX.4.44.0305191039320.16596-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -24,24 +24,24 @@ Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20030519105152.GD8978@holomorphy.com>
-By author:    William Lee Irwin III <wli@holomorphy.com>
+Followup to:  <Pine.LNX.4.44.0305191039320.16596-100000@home.transmeta.com>
+By author:    Linus Torvalds <torvalds@transmeta.com>
 In newsgroup: linux.dev.kernel
 > 
-> IIRC you're supposed to use some sort of sanitized copy, not the things
-> directly. IMHO the current state of affairs sucks as there is no
-> standard set of ABI headers, but grabbing them right out of the kernel
-> is definitely not the way to go.
+> A number of headers have historical baggage, mainly to support the 
+> old libc5 habits, and because removing the ifdef's is something that 
+> nobody has felt was worth the pain.
+> 
+> I think the only header file that should be considered truly exported is 
+> something like "asm/posix_types.h". For the others, we'll add __KERNEL__ 
+> protection on demand if the glibc guys can give good arguments that it 
+> helps them do the "copy-and-cleanup" phase.
 > 
 
-This "cure" sucks worse than the disease.  Now you're putting it onto
-everyone who maintains userspace to do the same repetitive task of
-"sanitizing" this.  Especially for things this trivial, this is a
-ridiculous concept.
-
-For 2.7, getting real exportable ABI headers is so bloody necessary
-it's not even funny.  However, for 2.5, breaking things randomly is
-not the way to go.
+Copy and cleanup isn't realistic either, though, because it doesn't
+track ABI changes.  ABI headers is the only realistic solution.  We
+can't realistically get real ABI headers for 2.5, so please don't just
+break things randomly until then.
 
 	-hpa
 -- 

@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263149AbRF1TE0>; Thu, 28 Jun 2001 15:04:26 -0400
+	id <S263894AbRF1TH4>; Thu, 28 Jun 2001 15:07:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263894AbRF1TEH>; Thu, 28 Jun 2001 15:04:07 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:39809 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S263814AbRF1TEA>;
-	Thu, 28 Jun 2001 15:04:00 -0400
-Date: Thu, 28 Jun 2001 15:03:55 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
-        Gerhard Wichert <Gerhard.Wichert@fujitsu-siemens.com>
-Subject: Re: [PATCH] Bug in 2.4.5 in proc_pid_make_inode ()
-In-Reply-To: <Pine.LNX.4.30.0106281619150.17260-100000@biker.pdb.fsc.net>
-Message-ID: <Pine.GSO.4.21.0106281501550.23792-100000@weyl.math.psu.edu>
+	id <S263933AbRF1THg>; Thu, 28 Jun 2001 15:07:36 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:63503 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263894AbRF1THb>; Thu, 28 Jun 2001 15:07:31 -0400
+Subject: Re: BIG PROBLEM
+To: difda@hotmail.com (james bond)
+Date: Thu, 28 Jun 2001 20:07:19 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <LAW2-F118HsRsWg8ubZ000077c1@hotmail.com> from "james bond" at Jun 28, 2001 06:49:46 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Fh8J-0007Sz-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> i've  compiled the kernel 2.4.4 , once i finish and boot the first time on 
+> 2.4.4 everything goses ok ,
+> only too problemes
+> 1st-  klogd takes 100%  CPU time
 
+Old old versions of klogd had bugs where they would do that. If there is
+a continuous problem it may also do so - does 'dmesg' show anything ?
 
-On Thu, 28 Jun 2001, Martin Wilck wrote:
+> 2nd- cat /proc/cpuinf --guives me too CPU'S  without putin any info about 
+> the CPU 1
 
-> Hi,
-> 
-> I have recently experienced a number of kernel OOPSes
-> in "top" under heavy load. Kernel is 2.4.5 (IA64, but
-> this has nothing to do the IA64 patch).
-> 
-> The OOPS happens in the call tree
-> 
-> open () system call
-> [...]
-> real_lookup ()
-> proc_base_lookup ()
-> proc_pid_make_inode ()
-> iput ()
-> proc_delete_inode () -> OOPS in __MOD_DEC_USE_COUNT
-
-Known, had been already fixed in 2.4.6-pre3.
+Im not sure I follow the description - can you explain more.
 

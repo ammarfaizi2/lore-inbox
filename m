@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262010AbULPT0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262005AbULPTba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262010AbULPT0u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 14:26:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbULPT0t
+	id S262005AbULPTba (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 14:31:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbULPTba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 14:26:49 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49602 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262010AbULPTWu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 14:22:50 -0500
-Date: Thu, 16 Dec 2004 14:30:44 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Steve French <smfrench@austin.rr.com>, cliff white <cliffw@osdl.org>,
+	Thu, 16 Dec 2004 14:31:30 -0500
+Received: from web51502.mail.yahoo.com ([206.190.38.194]:52400 "HELO
+	web51502.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262005AbULPTbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 14:31:24 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=damrVjoLVnfZMZ4FNUxIMcb7kzkJaZdlfwvi35l7EQeGtFqk8fbDgNysDCJFO1PCy3Ay4CRgSREaVw5UsZnKBfvJJsVyTCKgXwhmh7lKB4INgzN27EsTOKh9PU54oyXAfjBJKxTGx5bAfMrPbWdiICRmFOiQ2Wph0amJLidu3yk=  ;
+Message-ID: <20041216193123.72464.qmail@web51502.mail.yahoo.com>
+Date: Thu, 16 Dec 2004 11:31:23 -0800 (PST)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Re: Issue on netconsole vs. Linux kernel oops
+To: linux-os@analogic.com
+Cc: mpm@selenic.com, pmarques@grupopie.com, mingo@redhat.com,
        linux-kernel@vger.kernel.org
-Subject: Re: cifs large write performance improvements to Samba
-Message-ID: <20041216163044.GG9986@logos.cnet>
-References: <41BDC9CD.60504@austin.rr.com> <20041213092057.5bf773fb.cliffw@osdl.org> <41BDE0B4.6020003@austin.rr.com> <41BDE2CF.9060402@austin.rr.com> <20041216121151.GH8246@logos.cnet> <41C1DABF.2050004@namesys.com>
-Mime-Version: 1.0
+In-Reply-To: <Pine.LNX.4.61.0412161403370.11407@chaos.analogic.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41C1DABF.2050004@namesys.com>
-User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 16, 2004 at 10:58:07AM -0800, Hans Reiser wrote:
-> Marcelo Tosatti wrote:
-> 
-> >
-> >>I have not seen anyone 
-> >>doing that on Linux in an automated fashion (e.g running iozone 
-> >>automated every time a new 2.6.x.rc on a half a dozen of the fs - simply 
-> >>to verify that things had not gotten drastically worse on a particular 
-> >>fs due to a bug or sideffect of a global VFS change).
-> >>   
-> >>
-> >
-> >Yes, we definately need that.
-> >
-> > 
-> >
-> Andrew Morton is saying that iozone does things real apps don't do, that 
-> is, it dirties mmap'd pages enough to swamp the machine.
-> 
-> Do you guys agree or disagree with that?
-> 
-> Reiser4 needs iozone optimization work which we haven't bothered with yet.
+On Thu, 16 Dec 2004 at 14:06, Dick Johnson wrote:
+>
+> Depends upon the vendor of your installation, but 
+> some require loghost to be defined in /etc/hosts as 
+> the same as localhost and /etc/nsswitch.conf 
+> configured to actually look at that.
 
-I'm not really familiar with iozone's behaviour, sorry. 
+Now, I'm using Fedora Core 2. Would you please tell us
+Is there any limitation of it? 
 
-Steve, Andrew?
+Thank you.
 
-PS: Yep, another important part (to me at least) of all this automated performance 
-testing effort is a detailed understanding of the tests being performed.
+
+
+=====
+Best Regards,
+Park Lee
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - Find what you need with new enhanced search.
+http://info.mail.yahoo.com/mail_250

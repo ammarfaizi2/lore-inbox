@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317779AbSGVTs0>; Mon, 22 Jul 2002 15:48:26 -0400
+	id <S317761AbSGVTtP>; Mon, 22 Jul 2002 15:49:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317778AbSGVTsZ>; Mon, 22 Jul 2002 15:48:25 -0400
-Received: from cs180154.pp.htv.fi ([213.243.180.154]:25489 "EHLO
-	devil.pp.htv.fi") by vger.kernel.org with ESMTP id <S317770AbSGVTsY>;
-	Mon, 22 Jul 2002 15:48:24 -0400
-Subject: Re: 2.2 to 2.4... serious TCP send slowdowns
-From: Mika Liljeberg <Mika.Liljeberg@welho.com>
-To: Hayden Myers <hayden@spinbox.com>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10207221352430.27914-100000@compaq.skyline.net>
-References: <Pine.LNX.4.10.10207221352430.27914-100000@compaq.skyline.net>
+	id <S317766AbSGVTtP>; Mon, 22 Jul 2002 15:49:15 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:49648 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317761AbSGVTtO>; Mon, 22 Jul 2002 15:49:14 -0400
+Subject: Re: Problems with AMD 768 IDE support
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ernst Lehmann <lehmann@acheron.franken.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1027364446.26894.2.camel@hadley>
+References: <1027364446.26894.2.camel@hadley>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 22 Jul 2002 22:51:27 +0300
-Message-Id: <1027367487.10556.3.camel@cs180154>
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 22 Jul 2002 22:05:07 +0100
+Message-Id: <1027371907.31782.72.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-07-22 at 21:47, Hayden Myers wrote: 
+On Mon, 2002-07-22 at 20:00, Ernst Lehmann wrote:
+> Does anybody know where to find a patch for the IDE-Support to the plain
+> 2.4.18 kernel,
 
-> Tcpdump output is where I'm seeing the difference in the clients receive
-> window.  Below is tcpdump from the server 
-> 
-> [root@install spinbox]# /usr/sbin/tcpdump src port 80
+Pending for 2.4.20
 
-Your dump is showing only one direction of the connection. The receive
-window visible in this dump is used for the reverse direction. Use
-"tcpdump port 80" instead to get some useful output. 
-
-Linux 2.4 starts with a small receive window and rapidly increases it
-when the data starts to flow. This is a type of receiver oriented
-congestion control. You don't see the window increase here, because
-there is very little data sent from client to server. 
-
-Also, next time try not to wrap the dump output. Beastly hard to make
-sense of. 
-
-	MikaL 
+For -ac we are chasing some bugs in the Summit support. 
+2.4.19-rc1-3 should you fine. The summit fix stuff is waiting until
+either I or more likely the IBM guys looking at it figure out what
+broke. Its important enough I've left it in broken for some boards until
+found.
 

@@ -1,81 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261360AbSJUNBr>; Mon, 21 Oct 2002 09:01:47 -0400
+	id <S261365AbSJUNDj>; Mon, 21 Oct 2002 09:03:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261363AbSJUNBr>; Mon, 21 Oct 2002 09:01:47 -0400
-Received: from hazard.jcu.cz ([160.217.1.6]:37776 "EHLO hazard.jcu.cz")
-	by vger.kernel.org with ESMTP id <S261360AbSJUNBq>;
-	Mon, 21 Oct 2002 09:01:46 -0400
-Date: Mon, 21 Oct 2002 15:07:35 +0200
-From: Jan Marek <linux@hazard.jcu.cz>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Compilation error in the afs/dir.c
-Message-ID: <20021021130735.GA24719@hazard.jcu.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261367AbSJUNDj>; Mon, 21 Oct 2002 09:03:39 -0400
+Received: from mta04ps.bigpond.com ([144.135.25.136]:18113 "EHLO
+	mta04ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S261365AbSJUNDi>; Mon, 21 Oct 2002 09:03:38 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: jbradford@dial.pipex.com, linux-kernel@vger.kernel.org
+Subject: Re: xconfig broken in 2.5.44?
+Date: Mon, 21 Oct 2002 23:01:04 +1000
+User-Agent: KMail/1.4.5
+References: <200210211255.g9LCt9aq004245@darkstar.example.net>
+In-Reply-To: <200210211255.g9LCt9aq004245@darkstar.example.net>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Message-Id: <200210212301.04719.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo lkml,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I have problem with compilation of fs/afs/dir.c:
+On Mon, 21 Oct 2002 22:55, jbradford@dial.pipex.com wrote:
+> Maybe I'm missing something obvious, but:
+Here is what I did:
 
-  gcc -Wp,-MD,fs/afs/.dir.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include
--DMODULE -include include/linux/modversions.h   -DKBUILD_BASENAME=dir
--c -o fs/afs/dir.o fs/afs/dir.c
-fs/afs/dir.c:75: warning: unnamed struct/union that defines no instances
-fs/afs/dir.c: In function `afs_dir_iterate_block':
-fs/afs/dir.c:261: union has no member named `name'
-fs/afs/dir.c:293: union has no member named `name'
-fs/afs/dir.c:296: union has no member named `vnode'
-fs/afs/dir.c:296: union has no member named `vnode'
-fs/afs/dir.c:296: union has no member named `vnode'
-fs/afs/dir.c:297: union has no member named `unique'
+diff -Naur -X dontdiff linux-2.5.44-clean/drivers/pnp/Config.in linux-2.5.44/drivers/pnp/Config.in
+- --- linux-2.5.44-clean/drivers/pnp/Config.in    2002-10-19 14:01:07.000000000 +1000
++++ linux-2.5.44/drivers/pnp/Config.in  2002-10-21 22:59:50.000000000 +1000
+@@ -4,7 +4,7 @@
+ mainmenu_option next_comment
+ comment 'Plug and Play configuration'
 
-Problem is here:
+- -dep_bool 'Plug and Play support' CONFIG_PNP
++bool 'Plug and Play support' CONFIG_PNP
 
-typedef union afs_dirent {
-        struct {
-                u8      valid;
-                u8      unused[1];
-                u16     hash_next;
-                u32     vnode;
-                u32     unique;
-                u8      name[16];
-                u8      overflow[4];    /* if any char of the name (inc
-NUL) reaches here, consume
-                                         * the next dirent too */
-        };
-        u8      extended_name[32];
-} afs_dirent_t;
+    dep_bool '  Plug and Play device name database' CONFIG_PNP_NAMES $CONFIG_PNP
+    dep_bool '  PnP Debug Messages' CONFIG_PNP_DEBUG $CONFIG_PNP
 
-but I don't know, if I can change this typedef to:
+- -- 
+http://linux.conf.au. 22-25Jan2003. Perth, Aust. I'm registered. Are you?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-typedef struct afs_dirent {
-                u8      valid;
-                u8      unused[1];
-                u16     hash_next;
-                u32     vnode;
-                u32     unique;
-                u8      name[16];
-                u8      overflow[4];    /* if any char of the name (inc
-NUL) reaches here, consume
-                                         * the next dirent too */
-} afs_dirent_t;
+iD8DBQE9s/qQW6pHgIdAuOMRAkDrAKCfYYDhcCBNZFRAip1mvxnWkpoUHACgtUuq
+HNzML3G7tpgj3sW807a1WEw=
+=Ptzi
+-----END PGP SIGNATURE-----
 
-(extended_name is not used in whole dir.c...)
-
-But is here any better way?
-
-Sincerely
-Jan Marek
--- 
-Ing. Jan Marek
-University of South Bohemia
-Academic Computer Centre
-Phone: +420-38-7772080

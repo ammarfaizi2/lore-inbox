@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315860AbSFCNIh>; Mon, 3 Jun 2002 09:08:37 -0400
+	id <S315893AbSFCNJd>; Mon, 3 Jun 2002 09:09:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315893AbSFCNIg>; Mon, 3 Jun 2002 09:08:36 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:37893 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315860AbSFCNIf>; Mon, 3 Jun 2002 09:08:35 -0400
-Message-ID: <3CFB5C9C.3080303@evision-ventures.com>
-Date: Mon, 03 Jun 2002 14:10:04 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: FUD or FACTS ?? but a new FLAME!
-In-Reply-To: <Pine.SOL.4.30.0206031451580.17745-100000@mion.elka.pw.edu.pl>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S315943AbSFCNJc>; Mon, 3 Jun 2002 09:09:32 -0400
+Received: from hall.mail.mindspring.net ([207.69.200.60]:58137 "EHLO
+	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S315893AbSFCNJa>; Mon, 3 Jun 2002 09:09:30 -0400
+Message-Id: <5.1.0.14.2.20020603090921.009e82e0@pop.mindspring.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 03 Jun 2002 09:11:05 -0400
+To: Helge Hafting <helgehaf@aitel.hist.no>,
+        "Ronny T. Lampert (EED)" <Ronny.Lampert@eed.ericsson.se>,
+        linux-kernel@vger.kernel.org
+From: Joe Korty <l-k@mindspring.com>
+Subject: Re: 3c59x driver: card not responding after a while
+In-Reply-To: <3CFB21C5.27BBFB66@aitel.hist.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
+At 09:59 AM 6/3/02 +0200, Helge Hafting wrote:
+>"Ronny T. Lampert (EED)" wrote:
+>
+> > I'm having (reproducable) problems with the 3c59x driver; after a while
+> > (depends on card/traffic), the card doesn't send nor receive anymore.
+> >
+>I see this too.  I always thought it was the less-than-perfect ABIT BP6
+>loosing an irq or something.  (odd that it _always_ is the NIC that goes
+>though...)  I also have a k6 with the same NIC, and another
+>UP machine at work.  They never fail this way.
+>Could it be a SMP problem?
 
->>Things would be easier if "you know who" could just say that according to
->>public specs the ICH4 does not support ATA/133 instead of all that technical
->>talk......
->>
-> 
-> 
-> So, we should change it...
-> 
-> ...and simple idea how to deal with overclocking IDE chipsets
-> -> try best we can but put some nice fat warning to user that
-> he will probably get screwed due to running chipset out of
-> specification...
 
-Done - expect it in the next patch.
+
+Try increasing max_interrupt_work from 32 to 128 (located in 
+drivers/net/3c59x.c).
+Joe
 
